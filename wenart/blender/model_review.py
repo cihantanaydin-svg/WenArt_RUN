@@ -142,6 +142,13 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   sloped ceiling whose built box (``box3d``) stands over the ceiling over its box (major) or over the roof's top
   (critical, it shows from outside); a door too low to be used under the slope at its wall that no slide along it
   helps (major, the architect: a dormer). Kind ``geometry``; the build owns the crossings.
+- M32 soft seats as soft, well-made products (30 Oct 2026, lessons UL131 "I did not like these sofa models" and UL140
+  "I like this sofa but it needs more details, also the gaps need a rework", real04 run 20261029-201533-full;
+  ``soft_seats_review``, ``wenart.blender.soft_seats.review``): every library sofa, corner sofa, armchair, chaise and
+  ottoman as built wears a fabric (no flat export colour left: ``flat_fabric``, major), keeps its parts joined (no
+  facing gap over 1 cm: ``parts_apart``, major, kind ``detached``), keeps the file's smooth shading (``faceted``,
+  major) and is no poor model (``poor_model``, minor: the best that fitted, a library gap). Kind ``taste``; the build
+  owns the dressing, the joining and the shading, the fit a poor model.
 - M24 every chimney as a builder makes it (29 Oct 2026, lesson UL109, user on real06 run 20261028-154514-full: "There
   are no chimneys there could be some chimney in the projects"; ``chimney.measure``), on the scene's chimney records
   (their bottom as built), else the plan's: a chimney off the roof (it does not reach the roof) or floating over its
@@ -214,6 +221,7 @@ CHECKS = CHECKS + ("M26",)       # 29 Oct 2026 (UL114, UL123, UL124): the bathro
 CHECKS = CHECKS + ("M28",)      # 29 Oct 2026: M28 a different solution for each room, the photos' details (UL119)
 CHECKS = CHECKS + ("M30",)      # 29 Oct 2026: M30 every bed in its family's bedding (UL121, bedding_parts.review)
 CHECKS = CHECKS + ("M31",)      # 30 Oct 2026: M31 nothing inside crosses the roof or the ceiling (UL128, UL132)
+CHECKS = CHECKS + ("M32",)      # 30 Oct 2026: M32 soft seats as soft, well-made products (UL131, UL140)
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1508,6 +1516,17 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
         note("M31", got, n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
         checks["M31"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M32 (30 Oct 2026, lessons UL131, UL140: "I did not like these sofa models", "I like this sofa but it needs more
+    # details, also the gaps need a rework"): every library soft seat as built wears a fabric, keeps its parts joined
+    # and the file's smooth shading, and is no poor model (pure: soft_seats.review on the scene's objects)
+    if scene_manifest:
+        try:
+            got, n = soft_seats_review(scene_manifest)
+            note("M32", got, n)
+        except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+            checks["M32"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    else:
+        checks["M32"] = {"status": "unavailable", "note": "no scene manifest"}
     # M19 / M22 (29 Oct 2026, the user on real06: "This washing machine would not open", "this sink not making sense
     # there", "There is a gap between wall and water faucet not looking good"): fronts that open, basins under a solid
     # wall, backs on their walls, on the building as built (pure)
@@ -1549,6 +1568,26 @@ def roof_crossings(built: dict, manifest: Optional[dict], roof_model: Optional[d
     for p in UR.door_problems(built):
         v = _v("M31", p["severity"], p["target"], p["message"], None, kind="no_sense", problem="door_too_low")
         v["owner"], v["fix"] = "architect", "a dormer or a raised roof over the door, or the door moved (review)"
+        out.append(v)
+    return out, n
+
+
+M32_KINDS = {"flat_fabric": "taste", "faceted": "taste", "poor_model": "taste", "parts_apart": "detached"}
+
+
+def soft_seats_review(manifest: Optional[dict]) -> tuple[list[dict], int]:
+    """M32 (module docstring; ``soft_seats.review``): every library soft seat of the scene wears a fabric (no flat
+    export colour left), keeps its parts joined, keeps the file's smooth shading and is no poor model. The build owns
+    the dressing, the joining and the shading; a poor model is the fit's (swap_model, else a library gap)."""
+    from wenart.blender import soft_seats as SS
+
+    got, n = SS.review(manifest, check="M32")
+    out = []
+    for g in got:
+        v = _v("M32", g["severity"], g["target"], g["message"], g.get("room_id"), kind=M32_KINDS.get(g["problem"]),
+               problem=g["problem"], lesson=g["lesson"], **g["metrics"])
+        v["owner"] = "fit" if g["problem"] == "poor_model" else "build"
+        v["fix"] = g["fix"]
         out.append(v)
     return out, n
 

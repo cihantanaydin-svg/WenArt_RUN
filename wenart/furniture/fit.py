@@ -341,7 +341,9 @@ RANKING_RULE = ("style -> bed rule -> generated last -> real size (known units f
                 f"uniform scale to the drawn width in {round(SIZE_BUCKET * 100)} % steps, plus the diversity penalty: "
                 f"{PROJECT_REUSE_STEP} step per earlier use in another room of the project, {ROOM_REUSE_STEPS} steps "
                 f"from the {ROOM_REUSE_MAX + 1}. use in a room except for a matched set of "
-                f"{', '.join(SET_TYPES)}) -> real product -> design shown (tags, fabric colour) -> no other audit "
+                f"{', '.join(SET_TYPES)}; an upholstered model adds its quality grade's steps: 2 per point of a fair "
+                f"one, 8 for a poor one, soft_seats.grade) -> real product -> design shown (tags, fabric colour) -> "
+                f"no other audit "
                 f"vision doubt (type, objects, real product) -> audit vision quality (missing = "
                 f"{VISION_QUALITY_DEFAULT:g}) -> texture maps -> judge quality (missing = "
                 f"{DEFAULT_QUALITY:g}) -> faces (< {FACES_LOW} last) -> aspect error -> source "
@@ -491,11 +493,18 @@ def faces_rank(entry: dict) -> int:
 
 def texture_maps_of(entry: dict) -> Optional[dict]:
     """What the catalogue knows about a model's texture maps (Milestone 13: recorded per model, track T7 adds the PBR
-    maps as ``texture_maps``): the entry's ``texture_maps`` record, else ``{"base_colour": bool}`` from the Milestone 8
-    ``textured`` flag and the judged slots (``material_slots[].textured``); None when nothing is recorded."""
+    maps as ``texture_maps``): the entry's ``texture_maps`` record, else the audit's ``pbr_maps`` record (30 Oct 2026,
+    UL131: the audit writes the maps under that name; 3,196 entries carry it and none ``texture_maps``, so every model
+    ranked as "base colour only" and a sofa with normal and roughness maps never won its tie against a 256 px one),
+    else ``{"base_colour": bool}`` from the Milestone 8 ``textured`` flag and the judged slots
+    (``material_slots[].textured``); None when nothing is recorded."""
     maps = entry.get("texture_maps")
     if isinstance(maps, dict):
         return dict(maps)
+    pbr = entry.get("pbr_maps")
+    if isinstance(pbr, dict) and any(k in pbr for k in ("base_colour", "normal", "metallic_roughness")):
+        return {k: v for k, v in pbr.items() if k in ("base_colour", "normal", "metallic_roughness", "occlusion",
+                                                       "emissive", "roughness")}
     slots = [s for s in entry.get("material_slots") or [] if isinstance(s, dict)]
     textured = entry.get("textured")
     if not isinstance(textured, bool) and not slots:
@@ -544,6 +553,17 @@ def diversity_steps(asset_id: str, used: Optional[dict]) -> int:
 # the build's architect reads too); each grade adds OUTDOOR_STEPS size steps to the rank.
 from wenart.blender.outdoor import OPEN_AIR_ROOMS, OUTDOOR_STEPS, outdoor_grade  # noqa: E402
 from wenart.blender import outdoor as OD  # noqa: E402
+# 30 Oct 2026 (lessons UL131, UL140; user on real04 run 20261029-201533-full: "I did not like these sofa models"): an
+# upholstered model ranks by its quality grade (wenart/blender/soft_seats.py: a 256 px texture, flat colours, a
+# double-sided export, a coarse mesh, a judged poor look): a fair model takes ``STEPS_PER_POINT`` size steps per point,
+# a poor one ``POOR_STEPS`` (after every model within the caps); a ranking, never a gate
+from wenart.blender import soft_seats as SS  # noqa: E402
+
+
+def soft_steps(entry: dict) -> int:
+    """The rank penalty (size steps) of an upholstered model's quality grade (``soft_seats.grade``); 0 for the other
+    types."""
+    return int(SS.grade(entry)["steps"]) if entry.get("type") in SS.SOFT_SEAT_TYPES else 0
 
 # 28 Oct 2026 (user on real04 run 20261028-005318-full: "makes no sense to have that table with the carpet outside,
 # that's outside area"; the roof terrace's table was the "Ravenna Home Traditional Dining Table", grade 1, because the
@@ -733,7 +753,8 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
     (``other_doubt_of``; integration after P5), the audit's vision quality, the texture
     maps, the judges' quality, the face count, aspect error, source order and the id. The first three keys keep their
     Milestone 8 places (tests read ``rank_key(...)[2]`` as the size step). 26 Oct 2026 (fix E): a ``misfit`` ranks
-    after every other model (the first key: 2 + generated), a style mix adds ``mix_steps`` size steps."""
+    after every other model (the first key: 2 + generated), a style mix adds ``mix_steps`` size steps. 30 Oct 2026
+    (UL131): an upholstered model adds the size steps of its quality grade (``soft_steps``)."""
     scales, _ = scale_for(entry, width, depth)
     known = units_known(entry)
     bucket = int(size_error(scales) / SIZE_BUCKET + 1e-9) if known else 0
@@ -744,6 +765,7 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
         from wenart.furniture.taste import TASTE_STEP
         bucket += TASTE_STEP * int(taste.get(entry["id"], 0))
     bucket += int(mix_steps)
+    bucket += soft_steps(entry)                  # 30 Oct 2026 (UL131): an upholstered model's quality grade
     real = 0 if entry.get("real_product") is True else 1
     pref = int((prefs or {}).get(entry["id"], 0) or 0)
     vq = vision_quality_of(entry)
@@ -792,6 +814,9 @@ def ranking_reasons(tried: list[dict], chosen: dict) -> dict:
         why.insert(1, "does not show the design (every model that shows it failed the caps)")
     if chosen.get("vision_quality") is not None:
         why.insert(2, f"audit vision quality {chosen['vision_quality']:g}")
+    if chosen.get("upholstery"):                 # 30 Oct 2026 (UL131): an upholstered model's quality grade
+        steps = chosen.get("upholstery_steps")
+        why.insert(1, f"upholstery {chosen['upholstery']}" + (f" ({steps} size step(s) added)" if steps else ""))
     if chosen.get("faces") is not None:
         why.append(f"faces {chosen['faces']}")
     if chosen["source"] == GENERATED:
@@ -1220,6 +1245,11 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
                       "faces": faces_of(entry), "height_m": height, "height_ok": height_ok})
         if ceiling is not None:
             tried[-1]["under_ceiling"] = roof_ok
+        if ftype in SS.SOFT_SEAT_TYPES:              # 30 Oct 2026 (UL131): the model's quality grade
+            soft = SS.grade(entry)
+            tried[-1]["upholstery"] = soft["grade"]
+            if soft["steps"]:
+                tried[-1]["upholstery_steps"] = soft["steps"]
         if accepted:
             asset = {
                 "library": entry["source"], "asset_id": entry["id"], "licence": entry["licence"],
@@ -1250,6 +1280,8 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
             for key in AUDIT_ASSET_FIELDS:                      # Milestone 12: the audit and its dressing flags
                 if key in entry:
                     asset[key] = entry[key]
+            if ftype in SS.SOFT_SEAT_TYPES:                     # 30 Oct 2026 (UL131): the build and M32 read it
+                asset["upholstery"] = {k: v for k, v in SS.grade(entry).items() if k != "steps"}
             if piece["type"] in C.BED_TYPES and not C.has_mattress(entry) and is_bed_frame(entry):
                 asset.update(bed_frame_record(entry, width, depth, scales[2]))
                 asset["bbox_m"][2] = max(asset["bbox_m"][2], asset["bedding"]["top_m"])

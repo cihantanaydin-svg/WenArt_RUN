@@ -407,6 +407,11 @@ SCENE_OBJECT = {
         "accent_material": {"type": ["string", "null"]},
         "design": {"type": "object"},
         "recolour": {"type": "object"},
+        # 30 Oct 2026 (UL131, UL140): a library piece's own shading (smooth faces, custom normals), a soft seat's
+        # dressed upholstery slots and its loose parts joined (soft_seats; model review M32)
+        "shading": {"type": "object"},
+        "fabric_dressing": {"type": "object"},
+        "parts": {"type": "object"},
         "mount_bottom_m": {"type": "number", "minimum": 0},
         "light": {"type": "object", "required": ["name", "energy_w"]},
         # Milestone 10 (track F): the door and window records of the M10 opening geometry (shell.build_door_m10 /

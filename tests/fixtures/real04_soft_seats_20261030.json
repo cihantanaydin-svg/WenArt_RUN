@@ -1,0 +1,1452 @@
+{
+ "what": "the soft seats (sofa, corner sofa, armchair, chaise, ottoman) of real04 run 20261029-201533-full's scene manifest (results/renders/real04/scene_manifest.json), their assets cut to the fields the soft-seat rule reads (lessons UL131, UL140)",
+ "objects": [
+  {
+   "name": "furn_f_L-1_049",
+   "wenart_id": "f_L-1_049",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L-1_salon",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "\"AKOHOJEIEGCAAAAAFMBAAAAAAAAABHBGFBGF\""
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     -0.0253,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     0.0253,
+     -0.0
+    ],
+    "bbox_raw_m": [
+     0.928,
+     0.8434,
+     0.7735
+    ],
+    "bbox_m": [
+     0.9924,
+     0.902,
+     0.8272
+    ],
+    "fit_scale": [
+     1.0694,
+     1.0694,
+     1.0694
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": 0.0592
+    }
+   },
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B075X4N3GM",
+    "method": "library",
+    "fit_scale": [
+     1.0694,
+     1.0694,
+     1.0694
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.9924,
+     0.9019,
+     0.8272
+    ],
+    "title": "Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey",
+    "texture_maps": {
+     "base_colour": true,
+     "slots_textured": 1,
+     "slots": 1
+    },
+    "faces": 23778,
+    "audit": {
+     "status": "keep"
+    },
+    "quality": [
+     5,
+     5
+    ],
+    "licence_flag": "none"
+   }
+  },
+  {
+   "name": "furn_f_L-1_050",
+   "wenart_id": "f_L-1_050",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L-1_salon_2",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "B0719WQGYJ_MAT_MR"
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_raw_m": [
+     1.0414,
+     0.889,
+     0.8636
+    ],
+    "bbox_m": [
+     0.9924,
+     0.8471,
+     0.8229
+    ],
+    "fit_scale": [
+     0.9529,
+     0.9529,
+     0.9529
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": 0.0043
+    }
+   },
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0719WQGYJ",
+    "method": "library",
+    "fit_scale": [
+     0.9529,
+     0.9529,
+     0.9529
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.9924,
+     0.8472,
+     0.8229
+    ],
+    "title": "Amazon Brand – Rivet Emerly Modern Living Room Chair, 41\"W, Pewter",
+    "texture_maps": {
+     "base_colour": true,
+     "slots_textured": 1,
+     "slots": 1
+    },
+    "faces": 16439,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "1 part(s) stick out of the main body (+z, up to 0.22 m): an open drawer or a separate prop?"
+     ]
+    },
+    "quality": [
+     4,
+     5
+    ],
+    "licence_flag": "none"
+   }
+  },
+  {
+   "name": "furn_f_L-1_053",
+   "wenart_id": "f_L-1_053",
+   "kind": "furniture",
+   "type": "sofa_corner",
+   "room_id": "r_L-1_salon",
+   "method": "library",
+   "textured": false,
+   "materials": [
+    "02 - Default1",
+    "default_face_material",
+    "02 - Default1.001",
+    "01 - Default1"
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     0.0001,
+     0.0
+    ],
+    "bbox_raw_m": [
+     4.6816,
+     1.8584,
+     0.7689
+    ],
+    "bbox_m": [
+     4.3764,
+     1.7372,
+     0.7188
+    ],
+    "fit_scale": [
+     0.9348,
+     0.9348,
+     0.9348
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "back",
+     "shift_m": 0.1142,
+     "depth_abs_m": -0.2285
+    }
+   },
+   "asset": {
+    "library": "3dwh",
+    "asset_id": "3dwh_bc790e2f62189290d277caa7",
+    "method": "library",
+    "fit_scale": [
+     0.9348,
+     0.9348,
+     0.9348
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     4.3761,
+     1.7371,
+     0.7186
+    ],
+    "title": "Sofa en L",
+    "texture_maps": {
+     "base_colour": false
+    },
+    "faces": 45140,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "98% non-manifold edges",
+      "untextured (material colours only)",
+      "no base_colour map: flat material colours only (4 material(s), 0 image(s))",
+      "material tags from the vision answer: metal, fabric"
+     ]
+    },
+    "quality": null,
+    "fabric_colour": "light grey",
+    "design_not_shown_why": "cannot take the colour light grey: no recolourable fabric slot and no judged slot colour",
+    "licence_flag": "non_commercial"
+   }
+  },
+  {
+   "name": "furn_f_L-1_054",
+   "wenart_id": "f_L-1_054",
+   "kind": "furniture",
+   "type": "sofa_corner",
+   "room_id": "r_L-1_salon_2",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "Carpet_Plush_Charcoal",
+    "Color_008",
+    "UYT",
+    "SOFA PIL",
+    "Carpet_Plush_Charcoal.001",
+    "Material_5"
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0001,
+     0.0002
+    ],
+    "bbox_raw_m": [
+     4.02,
+     1.7045,
+     0.8895
+    ],
+    "bbox_m": [
+     4.3762,
+     1.8555,
+     0.9683
+    ],
+    "fit_scale": [
+     1.0886,
+     1.0886,
+     1.0886
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "back",
+     "shift_m": 0.0551,
+     "depth_abs_m": -0.1102
+    }
+   },
+   "asset": {
+    "library": "3dwh",
+    "asset_id": "3dwh_f87f9be475e69c941a20866f",
+    "method": "library",
+    "fit_scale": [
+     1.0886,
+     1.0886,
+     1.0886
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     4.3761,
+     1.8553,
+     0.9681
+    ],
+    "title": "sectional sofa L",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 78852,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "23% non-manifold edges",
+      "largest texture 256 px (< 512)",
+      "material tags from the vision answer: fabric"
+     ]
+    },
+    "quality": null,
+    "fabric_colour": "light grey",
+    "design_not_shown_why": "cannot take the colour light grey: no recolourable fabric slot and no judged slot colour",
+    "licence_flag": "non_commercial"
+   }
+  },
+  {
+   "name": "furn_f_L-1_069",
+   "wenart_id": "f_L-1_069",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L-1_salon_2",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "\"AEMPLKBICBCAAAAAFMBAAAAAAAAACDJNLMFH\""
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0001,
+     -0.027,
+     0.0
+    ],
+    "origin_offset_applied": [
+     0.0002,
+     0.027,
+     -0.0
+    ],
+    "bbox_raw_m": [
+     0.6511,
+     0.8007,
+     0.7772
+    ],
+    "bbox_m": [
+     0.65,
+     0.7993,
+     0.7758
+    ],
+    "fit_scale": [
+     0.9983,
+     0.9983,
+     0.9983
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": -0.0007
+    }
+   },
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B071J7Q9WN",
+    "method": "library",
+    "fit_scale": [
+     0.9983,
+     0.9983,
+     0.9983
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.65,
+     0.7993,
+     0.7759
+    ],
+    "title": "Amazon Brand – Rivet Summit Mid-Century Modern Top-Grain Leather Steel Armed Accent Chair 27\"W, Cognac",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 26216,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "4 part(s) stick out of the main body (+z, -z, up to 0.16 m): an open drawer or a separate prop?",
+      "licence fields missing: licence_declared_by, licence_flag, commercial_safe (M13 gate: written by python -m wenart.furniture licence-fields)",
+      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+     ]
+    },
+    "quality": null,
+    "licence_flag": "none"
+   }
+  },
+  {
+   "name": "furn_f_L-1_070",
+   "wenart_id": "f_L-1_070",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L-1_salon",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "Fabric_VELVET_2020",
+    "WALNUT_WOOD2"
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.002,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.002,
+     -0.0
+    ],
+    "bbox_raw_m": [
+     0.6314,
+     0.7869,
+     0.8114
+    ],
+    "bbox_m": [
+     0.6501,
+     0.8101,
+     0.8353
+    ],
+    "fit_scale": [
+     1.0295,
+     1.0295,
+     1.0295
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": 0.0101
+    }
+   },
+   "asset": {
+    "library": "hssd",
+    "asset_id": "hssd_0e8f7683353124120fc3d0c2c23f128eaa992b11",
+    "method": "library",
+    "fit_scale": [
+     1.0295,
+     1.0295,
+     1.0295
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.65,
+     0.8101,
+     0.8353
+    ],
+    "title": "Avery Swoop Accent Chair",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 29516,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "4 part(s) stick out of the main body (-z, up to 0.20 m): an open drawer or a separate prop?",
+      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+      "pass 1 says it is not a armchair (a chair); pass 2 names a armchair: the type is confirmed"
+     ]
+    },
+    "quality": null,
+    "licence_flag": "non_commercial"
+   }
+  },
+  {
+   "name": "furn_f_L-1_071",
+   "wenart_id": "f_L-1_071",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L-1_salon",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "Fabric_VELVET_2020",
+    "WALNUT_WOOD2"
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.002,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.002,
+     -0.0
+    ],
+    "bbox_raw_m": [
+     0.6314,
+     0.7869,
+     0.8114
+    ],
+    "bbox_m": [
+     0.6501,
+     0.8101,
+     0.8353
+    ],
+    "fit_scale": [
+     1.0295,
+     1.0295,
+     1.0295
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": 0.0101
+    }
+   },
+   "asset": {
+    "library": "hssd",
+    "asset_id": "hssd_0e8f7683353124120fc3d0c2c23f128eaa992b11",
+    "method": "library",
+    "fit_scale": [
+     1.0295,
+     1.0295,
+     1.0295
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.65,
+     0.8101,
+     0.8353
+    ],
+    "title": "Avery Swoop Accent Chair",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 29516,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "4 part(s) stick out of the main body (-z, up to 0.20 m): an open drawer or a separate prop?",
+      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+      "pass 1 says it is not a armchair (a chair); pass 2 names a armchair: the type is confirmed"
+     ]
+    },
+    "quality": null,
+    "licence_flag": "non_commercial"
+   }
+  },
+  {
+   "name": "furn_f_L-1_072",
+   "wenart_id": "f_L-1_072",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L-1_salon_2",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "\"AEMPLKBICBCAAAAAFMBAAAAAAAAACDJNLMFH\""
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0001,
+     -0.027,
+     0.0
+    ],
+    "origin_offset_applied": [
+     0.0002,
+     0.027,
+     -0.0
+    ],
+    "bbox_raw_m": [
+     0.6511,
+     0.8007,
+     0.7772
+    ],
+    "bbox_m": [
+     0.65,
+     0.7993,
+     0.7758
+    ],
+    "fit_scale": [
+     0.9983,
+     0.9983,
+     0.9983
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": -0.0007
+    }
+   },
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B071J7Q9WN",
+    "method": "library",
+    "fit_scale": [
+     0.9983,
+     0.9983,
+     0.9983
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.65,
+     0.7993,
+     0.7759
+    ],
+    "title": "Amazon Brand – Rivet Summit Mid-Century Modern Top-Grain Leather Steel Armed Accent Chair 27\"W, Cognac",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 26216,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "4 part(s) stick out of the main body (+z, -z, up to 0.16 m): an open drawer or a separate prop?",
+      "licence fields missing: licence_declared_by, licence_flag, commercial_safe (M13 gate: written by python -m wenart.furniture licence-fields)",
+      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+     ]
+    },
+    "quality": null,
+    "licence_flag": "none"
+   }
+  },
+  {
+   "name": "furn_f_L1_017",
+   "wenart_id": "f_L1_017",
+   "kind": "furniture",
+   "type": "sofa",
+   "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "Carpet_Aqua",
+    "Color_000.001",
+    "Color_000.002",
+    "Carpet_Aqua.001",
+    "default_face_material.008",
+    "Color_A23"
+   ],
+   "fit": {
+    "front_axis": "+Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_raw_m": [
+     2.1641,
+     0.9195,
+     0.7962
+    ],
+    "bbox_m": [
+     2.1005,
+     0.8924,
+     0.7728
+    ],
+    "fit_scale": [
+     0.9706,
+     0.9706,
+     0.9706
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "back",
+     "shift_m": 0.0038,
+     "depth_abs_m": -0.0076
+    }
+   },
+   "asset": {
+    "library": "3dwh",
+    "asset_id": "3dwh_291de1594f740b645143a321",
+    "method": "library",
+    "fit_scale": [
+     0.9706,
+     0.9706,
+     0.9706
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     2.1005,
+     0.8925,
+     0.7728
+    ],
+    "title": "Crate and Barrel sofa",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 18110,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "26% non-manifold edges",
+      "2 part(s) stick out of the main body (+z, up to 0.06 m): an open drawer or a separate prop?",
+      "largest texture 256 px (< 512)",
+      "material tags from the vision answer: wood, fabric"
+     ]
+    },
+    "quality": null,
+    "fabric_colour": "light grey",
+    "design_not_shown_why": "cannot take the colour light grey: no recolourable fabric slot and no judged slot colour",
+    "licence_flag": "non_commercial"
+   }
+  },
+  {
+   "name": "furn_f_L1_018",
+   "wenart_id": "f_L1_018",
+   "kind": "furniture",
+   "type": "sofa",
+   "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "\"B075X4F5CS_TRB_MDL_MR\""
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0011,
+     0.0378,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0011,
+     -0.0378,
+     -0.0
+    ],
+    "bbox_raw_m": [
+     2.0018,
+     0.8431,
+     0.9068
+    ],
+    "bbox_m": [
+     2.1005,
+     0.8846,
+     0.9515
+    ],
+    "fit_scale": [
+     1.0493,
+     1.0493,
+     1.0493
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "back",
+     "shift_m": 0.0077,
+     "depth_abs_m": -0.0154
+    }
+   },
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B075X4F5CS",
+    "method": "library",
+    "fit_scale": [
+     1.0493,
+     1.0493,
+     1.0493
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     2.1005,
+     0.8847,
+     0.9515
+    ],
+    "title": "Amazon Brand – Rivet Lawson Modern Angled Sofa, 78\"W, Smoke",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 104893,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "licence fields missing: licence_declared_by, licence_flag, commercial_safe (M13 gate: written by python -m wenart.furniture licence-fields)",
+      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+     ]
+    },
+    "quality": null,
+    "fabric_colour": "light grey",
+    "design_not_shown_why": "no judged material tags (the design asks for fabric)",
+    "licence_flag": "none"
+   }
+  },
+  {
+   "name": "furn_f_L1_019",
+   "wenart_id": "f_L1_019",
+   "kind": "furniture",
+   "type": "sofa",
+   "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "\"B075X4F5CS_TRB_MDL_MR\""
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0011,
+     0.0378,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0011,
+     -0.0378,
+     -0.0
+    ],
+    "bbox_raw_m": [
+     2.0018,
+     0.8431,
+     0.9068
+    ],
+    "bbox_m": [
+     2.1005,
+     0.8846,
+     0.9515
+    ],
+    "fit_scale": [
+     1.0493,
+     1.0493,
+     1.0493
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "back",
+     "shift_m": 0.0077,
+     "depth_abs_m": -0.0154
+    }
+   },
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B075X4F5CS",
+    "method": "library",
+    "fit_scale": [
+     1.0493,
+     1.0493,
+     1.0493
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     2.1005,
+     0.8847,
+     0.9515
+    ],
+    "title": "Amazon Brand – Rivet Lawson Modern Angled Sofa, 78\"W, Smoke",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 104893,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "licence fields missing: licence_declared_by, licence_flag, commercial_safe (M13 gate: written by python -m wenart.furniture licence-fields)",
+      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+     ]
+    },
+    "quality": null,
+    "fabric_colour": "light grey",
+    "design_not_shown_why": "no judged material tags (the design asks for fabric)",
+    "licence_flag": "none"
+   }
+  },
+  {
+   "name": "furn_f_L1_020",
+   "wenart_id": "f_L1_020",
+   "kind": "furniture",
+   "type": "sofa",
+   "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "Carpet_Aqua",
+    "Color_000.001",
+    "Color_000.002",
+    "Carpet_Aqua.001",
+    "default_face_material.008",
+    "Color_A23"
+   ],
+   "fit": {
+    "front_axis": "+Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_raw_m": [
+     2.1641,
+     0.9195,
+     0.7962
+    ],
+    "bbox_m": [
+     2.1005,
+     0.8924,
+     0.7728
+    ],
+    "fit_scale": [
+     0.9706,
+     0.9706,
+     0.9706
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "back",
+     "shift_m": 0.0038,
+     "depth_abs_m": -0.0076
+    }
+   },
+   "asset": {
+    "library": "3dwh",
+    "asset_id": "3dwh_291de1594f740b645143a321",
+    "method": "library",
+    "fit_scale": [
+     0.9706,
+     0.9706,
+     0.9706
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     2.1005,
+     0.8925,
+     0.7728
+    ],
+    "title": "Crate and Barrel sofa",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 18110,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "26% non-manifold edges",
+      "2 part(s) stick out of the main body (+z, up to 0.06 m): an open drawer or a separate prop?",
+      "largest texture 256 px (< 512)",
+      "material tags from the vision answer: wood, fabric"
+     ]
+    },
+    "quality": null,
+    "fabric_colour": "light grey",
+    "design_not_shown_why": "cannot take the colour light grey: no recolourable fabric slot and no judged slot colour",
+    "licence_flag": "non_commercial"
+   }
+  },
+  {
+   "name": "furn_f_L1_029",
+   "wenart_id": "f_L1_029",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "\"B07J2YB486_TRB_MDL_MR\""
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0284,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0284,
+     -0.0
+    ],
+    "bbox_raw_m": [
+     0.6783,
+     0.769,
+     0.8588
+    ],
+    "bbox_m": [
+     0.681,
+     0.7721,
+     0.8622
+    ],
+    "fit_scale": [
+     1.004,
+     1.004,
+     1.004
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": -0.0031
+    }
+   },
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07J2YB486",
+    "method": "library",
+    "fit_scale": [
+     1.004,
+     1.004,
+     1.004
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.681,
+     0.7721,
+     0.8622
+    ],
+    "title": "Amazon Brand – Rivet Willard Contemporary Accent Lounge Chair, 26\"W, Navy",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 28624,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "2 part(s) stick out of the main body (+z, -z, up to 0.26 m): an open drawer or a separate prop?",
+      "licence fields missing: licence_declared_by, licence_flag, commercial_safe (M13 gate: written by python -m wenart.furniture licence-fields)",
+      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+     ]
+    },
+    "quality": null,
+    "licence_flag": "none"
+   }
+  },
+  {
+   "name": "furn_f_L1_030",
+   "wenart_id": "f_L1_030",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "Color_B20",
+    "0.40.30.3",
+    "Material_2.001",
+    "elisir"
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_raw_m": [
+     0.7021,
+     0.7965,
+     0.6696
+    ],
+    "bbox_m": [
+     0.6809,
+     0.7726,
+     0.6495
+    ],
+    "fit_scale": [
+     0.9699,
+     0.9699,
+     0.9699
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": -0.0026
+    }
+   },
+   "asset": {
+    "library": "3dwh",
+    "asset_id": "3dwh_0d5b4e2d788e6cdf1a4ed706",
+    "method": "library",
+    "fit_scale": [
+     0.9699,
+     0.9699,
+     0.9699
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.681,
+     0.7726,
+     0.6494
+    ],
+    "title": "Flexform Antonio Citterio Crono Armchair",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 10066,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "3 part(s) stick out of the main body (+y, +z, -x, -z, up to 0.24 m): an open drawer or a separate prop?",
+      "largest texture 422 px (< 512)",
+      "material tags from the vision answer: wood, fabric"
+     ]
+    },
+    "quality": null,
+    "licence_flag": "non_commercial"
+   }
+  },
+  {
+   "name": "furn_f_L1_031",
+   "wenart_id": "f_L1_031",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "Color_B20",
+    "0.40.30.3",
+    "Material_2.001",
+    "elisir"
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_raw_m": [
+     0.7021,
+     0.7965,
+     0.6696
+    ],
+    "bbox_m": [
+     0.6809,
+     0.7726,
+     0.6495
+    ],
+    "fit_scale": [
+     0.9699,
+     0.9699,
+     0.9699
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": -0.0026
+    }
+   },
+   "asset": {
+    "library": "3dwh",
+    "asset_id": "3dwh_0d5b4e2d788e6cdf1a4ed706",
+    "method": "library",
+    "fit_scale": [
+     0.9699,
+     0.9699,
+     0.9699
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.681,
+     0.7726,
+     0.6494
+    ],
+    "title": "Flexform Antonio Citterio Crono Armchair",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 10066,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "3 part(s) stick out of the main body (+y, +z, -x, -z, up to 0.24 m): an open drawer or a separate prop?",
+      "largest texture 422 px (< 512)",
+      "material tags from the vision answer: wood, fabric"
+     ]
+    },
+    "quality": null,
+    "licence_flag": "non_commercial"
+   }
+  },
+  {
+   "name": "furn_f_L1_032",
+   "wenart_id": "f_L1_032",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "\"B07J2YB486_TRB_MDL_MR\""
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0284,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0284,
+     -0.0
+    ],
+    "bbox_raw_m": [
+     0.6783,
+     0.769,
+     0.8588
+    ],
+    "bbox_m": [
+     0.681,
+     0.7721,
+     0.8622
+    ],
+    "fit_scale": [
+     1.004,
+     1.004,
+     1.004
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": -0.0031
+    }
+   },
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07J2YB486",
+    "method": "library",
+    "fit_scale": [
+     1.004,
+     1.004,
+     1.004
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.681,
+     0.7721,
+     0.8622
+    ],
+    "title": "Amazon Brand – Rivet Willard Contemporary Accent Lounge Chair, 26\"W, Navy",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 28624,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "2 part(s) stick out of the main body (+z, -z, up to 0.26 m): an open drawer or a separate prop?",
+      "licence fields missing: licence_declared_by, licence_flag, commercial_safe (M13 gate: written by python -m wenart.furniture licence-fields)",
+      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+     ]
+    },
+    "quality": null,
+    "licence_flag": "none"
+   }
+  },
+  {
+   "name": "furn_f_L1_056",
+   "wenart_id": "f_L1_056",
+   "kind": "furniture",
+   "type": "armchair",
+   "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "Fabric",
+    "mig_19___Default"
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_raw_m": [
+     0.7734,
+     0.774,
+     0.8239
+    ],
+    "bbox_m": [
+     0.8,
+     0.8006,
+     0.8523
+    ],
+    "fit_scale": [
+     1.0344,
+     1.0344,
+     1.0344
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "back",
+     "shift_m": -0.0003,
+     "depth_abs_m": 0.0006
+    }
+   },
+   "asset": {
+    "library": "hssd",
+    "asset_id": "hssd_ca5c6dba3e3d11e1d460ab441a36d68fb04857f8",
+    "method": "library",
+    "fit_scale": [
+     1.0344,
+     1.0344,
+     1.0344
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.8,
+     0.8006,
+     0.8522
+    ],
+    "title": "Armchair",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 73064,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "5 part(s) stick out of the main body (+z, -z, up to 0.19 m): an open drawer or a separate prop?",
+      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+     ]
+    },
+    "quality": null,
+    "licence_flag": "non_commercial"
+   }
+  },
+  {
+   "name": "furn_f_L1_057",
+   "wenart_id": "f_L1_057",
+   "kind": "furniture",
+   "type": "ottoman",
+   "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+   "method": "library",
+   "textured": true,
+   "materials": [
+    "Fabric_gray.001",
+    "mig_1",
+    "Pearl"
+   ],
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_raw_m": [
+     0.5019,
+     0.5019,
+     0.5
+    ],
+    "bbox_m": [
+     0.5,
+     0.5,
+     0.4981
+    ],
+    "fit_scale": [
+     0.9962,
+     0.9962,
+     0.9962
+    ],
+    "unit_scale": 1.0,
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": -0.0
+    }
+   },
+   "asset": {
+    "library": "hssd",
+    "asset_id": "hssd_3cc6a9d98da2e8813a1d4cf18a10c0dca380bb72",
+    "method": "library",
+    "fit_scale": [
+     0.9962,
+     0.9962,
+     0.9962
+    ],
+    "scaling": "uniform",
+    "bbox_m": [
+     0.5,
+     0.5,
+     0.4981
+    ],
+    "title": "Mono Suzani Storage Stool with Lid",
+    "texture_maps": {
+     "base_colour": true
+    },
+    "faces": 11668,
+    "audit": {
+     "status": "keep",
+     "notes": [
+      "6 part(s) stick out of the main body (-z, up to 0.08 m): an open drawer or a separate prop?",
+      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+     ]
+    },
+    "quality": null,
+    "licence_flag": "non_commercial"
+   }
+  }
+ ]
+}

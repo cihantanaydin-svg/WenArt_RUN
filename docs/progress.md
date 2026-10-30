@@ -2519,3 +2519,39 @@ On real04's plan the new rules leave no G8-G12 finding; on the run's own manifes
 rails, the four pools without ladder and seats and the half light well. For more car variety a library pod can survey
 the Objaverse LVIS categories `car_(automobile)`, `convertible_(automobile)`, `jeep`, `minivan` and `cab_(taxi)`
 (names checked in the LVIS v1 list); nothing was downloaded here. Not rendered yet: the next real04 pod run shows them.
+
+## Soft, well-made sofas: a quality grade, fabric on flat upholstery, joined parts, smooth shading (30 Oct 2026, lessons UL131, UL140)
+
+The user's review of real04 run 20261029-201533-full: "I did not like these sofa models" (UL131: boxy grey sofas with
+flat faceted back cushions and white piping lines) and "I like this sofa but it needs more details, also the gaps need
+a rework" (UL140: the L corner sofa 3dwh_bc790e2f in flat white, its parts apart). Causes, measured on the run's
+fitted building, its scene manifest and the library audit:
+
+| what the user saw | cause | rule now (every project) |
+|---|---|---|
+| the two "Crate and Barrel" sofas of the play room, boxy and blurred (now in user_rejected.json) | their one texture is 256 px (audit note), yet they ranked first in their size step: the fit's texture-map key read a `texture_maps` record no entry has; the audit writes `pbr_maps` (3,196 entries), so every model ranked "base colour only" and an ABO sofa with normal and roughness maps never won a tie | `fit.texture_maps_of` reads `pbr_maps`; an upholstered model (sofa, corner sofa, armchair, chaise, ottoman) ranks by its quality grade from its own record (`wenart/blender/soft_seats.py` `grade`: a texture of 256 px or less is poor by itself, under 512 px, flat colours, a double-sided export, a coarse mesh without a normal map, low poly, a judged poor look; fair: 2 size steps a point, poor: 8, after every model within the caps). A ranking, never a gate |
+| faceted cushions on every library sofa | the build rebuilt every library mesh from positions and faces only: the file's normals were dropped (Blender check: a cushion with 528 smooth faces had 0 after the rebuild) | the build keeps the file's own shading for every library model (`import_gltf_geometry(normals=True)`, `fit_normals`, `apply_normals`: smooth flags and custom normals) |
+| the corner sofa in flat white | no texture at all (4 materials, export names "01 - Default1", "02 - Default1", "default_face_material"); the design asked light grey, but no slot was recolourable (`design_not_shown`) | the flat upholstery slots of a library soft seat (named for a fabric, or the largest unnamed flat slots when no texture covers the upholstery; never a metal, leather, glass or wood slot) wear the style's fabric (the linen weave's normal and roughness maps, the sheen) in the design's fabric colour, else in the named colour nearest their own (`furniture._dress_fabric`, `soft_seats.fabric_slots`, `colours.nearest`; the name rules moved to `wenart/assets/material_names.py`) |
+| gaps between the corner sofa's parts | not the fit: one uniform scale (0.9348 on every axis) about one pivot, the importer reads every part in world space, the 3dwh fix-up keeps every node transform. The model itself is 9 loose parts (audit measure: one mesh object, the largest part 39 % of the surface, 8 parts outside the main body's box): modules, cushions, a tray and a frame modelled apart | the build joins a soft seat's loose parts (`soft_seats.join_parts` in `fit_vertices`): bodies that face each other across 2 mm-6 cm move together from the largest part, never lifting a leg off the floor or into another body, and the fit keeps the drawn width (the one scale grows by the closed width) |
+
+Checks: the model review's M32 and Argus U36 (`soft_seats.review`): a library soft seat in flat export colours (major),
+its parts more than 1 cm apart (major, kind `detached`), the file's smooth shading lost (major), a poor model (minor:
+the best that fitted, a library gap). A user-rejected model stays M21 / U19 (results/library/user_rejected.json). On the run's own
+manifest M32 finds the corner sofa's flat white (major) and the three 256 px models (minor): both Crate and Barrel
+sofas and the second salon's "sectional sofa L".
+
+real04 with the new rank (a CPU refit of the run's building_agent.json against the run as rendered): the play room's
+two sofas take the ABO "Movian Ackan" sofa (good, judges 4.5) instead of the Crate and Barrel (poor 3; the rejection
+list alone already refuses it), its armchairs an ABO Stone & Beam chair (good) instead of the 3dwh Flexform Crono (422
+px, fair; without the grade it moved to the other play room); every armchair of the run is now a good model (the PBR
+key reorders the ABO and HSSD chairs); the liked corner sofa stays (fair 2: the only model of its size and chaise
+side) and is now dressed light grey, joined and smooth; the second salon's corner sofa stays the 256 px model (poor:
+no other model of its size and left chaise fits; a library gap M32 names). Library spread of the usable soft seats:
+ABO 234 good; HSSD 92 good, 9 fair, 2 poor; 3D Warehouse 119 good, 148 fair, 26 poor.
+
+Local Blender 5.2 check (a synthetic modular sofa GLB: three modules 2-3 cm apart, a back cushion floating 1.5 cm,
+metal legs, a tray, export material names): as a soft seat, 1,200 of 1,260 faces smooth with the file's normals, the
+upholstery slot (97 %) dressed `fabric_linen` light grey, legs and tray kept, 3 bodies joined (3 cm before, no gap
+measured on the built mesh after), width 3.00 m kept; the same model built as a table keeps gaps of 1.41, 1.87 and
+2.81 cm. The real GLB is on the pod volume (not here): its gaps were not measured; the next real04 pod run shows it.
+Tests: `tests/test_soft_seats_20261030.py`.

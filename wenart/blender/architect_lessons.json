@@ -1539,12 +1539,12 @@
    "id": "UL131",
    "date": "2026-10-30",
    "area": "library",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I did not like these sofa models (30 Oct 2026, real04 run 20261029-201533-full: boxy grey sofas with flat faceted back cushions and white piping lines in the living rooms)",
-   "lesson": "I did not like these sofa models (30 Oct 2026, real04 run 20261029-201533-full: boxy grey sofas with flat faceted back cushions and white piping lines in the living rooms)",
+   "lesson": "Every sofa, corner sofa, armchair, chaise and ottoman is a soft, well-made library model: the fit ranks an upholstered model by its quality grade from its own catalogue record (wenart/blender/soft_seats.py grade: a texture of 256 px or less is poor by itself, under 512 px, flat colours, a double-sided export, a coarse mesh without a normal map, a low-poly mesh, a judged poor look; good 0 points, fair 1-2: 2 size steps a point, poor 3+: after every model within the caps), never a gate; the texture-map key reads the audit's pbr_maps; the build keeps the file's own smooth normals (no faceted cushions); a model the user rejected is never used (results/library/user_rejected.json). Checks: M32, U36 (a poor model, faceted), M21, U19 (a rejected model).",
    "question": "Are the sofas, armchairs and other upholstered pieces soft, well-made models (rounded cushions, real seams, a sharp fabric texture), never boxy, faceted or low-detail ones, and is every model the user rejected left out?"
   },
   {
@@ -1647,12 +1647,12 @@
    "id": "UL140",
    "date": "2026-10-30",
    "area": "library",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
-   "lesson": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
+   "lesson": "A library soft seat never shows its flat export colours: its flat upholstery slots (named for a fabric, or the largest unnamed flat slots when no texture covers the upholstery) wear the style's fabric (the weave's normal and roughness maps, the sheen) in the design's fabric colour, else in the named colour nearest their own (furniture._dress_fabric, soft_seats.fabric_slots); its loose parts are joined: bodies that face each other across 2 mm-6 cm move together, never lifting a leg off the floor or into another body, and the fit keeps the drawn width (soft_seats.join_parts in fit_vertices). The fit was never the cause: one uniform scale about one pivot. Checks: M32, U36.",
    "question": "Does every upholstered library model wear a real fabric (weave texture, sheen, seams), with its parts joined (no gaps opened by the fit), never flat untextured colour?"
   },
   {

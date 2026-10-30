@@ -491,7 +491,8 @@ def test_round2_split_label_and_uniform_scale_placement():
     assert F.split_label({"footprint": {"size": [2.0, 1.0]}}, {"builder": "table_long"}) is None   # no split
     piece = {"id": "f1", "footprint": {"size": [2.4, 1.8]}, "asset": {"adjusted_by_ai": None}}
     assert F.apply_split_label(piece) is False and "adjusted_by_ai" not in piece
-    assert params(furniture.fit_vertices) == ["verts", "asset", "footprint", "floor_z", "target_size", "align"]
-    assert default_of(furniture.fit_vertices, "align") == "centre"
+    # 30 Oct 2026 (UL140): an optional last argument ``join`` (a soft seat's loose parts joined, the width kept)
+    assert params(furniture.fit_vertices) == ["verts", "asset", "footprint", "floor_z", "target_size", "align", "join"]
+    assert default_of(furniture.fit_vertices, "align") == "centre" and default_of(furniture.fit_vertices, "join") is None
     assert params(furniture.depth_alignment) == ["piece", "asset"]
     assert params(furniture.fit_mismatch_warnings) == ["piece_id", "asset", "footprint_size", "bbox_m"]

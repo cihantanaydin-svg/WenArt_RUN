@@ -276,37 +276,9 @@ APPLY_UNFIT_RATIO = 0.5            # an unfitting box takes another unit only wh
 # Materials: roughness / metallic by material name, then by type
 # --------------------------------------------------------------------------
 
-# (rule, words, roughness, metallic): the first rule with a word in the folded material name wins.
-MATERIAL_RULES: tuple[tuple[str, tuple[str, ...], float, float], ...] = (
-    ("mirror", ("mirror", "ayna", "spiegel", "miroir", "espejo", "specchio"), 0.03, 1.0),
-    ("glass", ("glass", "glazing", "translucent", "transparent", "crystal", "cam", "glas", "verre", "vidrio", "vetro",
-               "plexi", "perspex"), 0.05, 0.0),
-    ("chrome", ("chrome", "chromed", "krom", "inox", "stainless", "nickel", "silver", "polished steel",
-                "polished metal", "polished aluminium", "polished aluminum"), 0.12, 1.0),
-    ("metal", ("metal", "metallic", "steel", "iron", "aluminium", "aluminum", "alu", "brass", "bronze", "copper",
-               "gold", "golden", "zinc", "titanium", "celik", "demir", "metall"), 0.35, 1.0),
-    ("ceramic", ("ceramic", "porcelain", "enamel", "china", "sanitary", "seramik", "porselen", "keramik"), 0.12, 0.0),
-    ("stone_polished", ("marble", "granite", "quartz", "terrazzo", "onyx", "mermer", "granit"), 0.25, 0.0),
-    ("gloss", ("gloss", "glossy", "lacquer", "lacquered", "varnish", "varnished", "parlak"), 0.2, 0.0),
-    ("plastic", ("plastic", "acrylic", "vinyl", "pvc", "resin", "polypropylene", "abs", "plastik", "akrilik"), 0.4,
-     0.0),
-    ("leather", ("leather", "leatherette", "deri", "leder", "cuir", "cuero", "pelle"), 0.45, 0.0),
-    ("rattan", ("rattan", "wicker", "cane", "hasir", "jute", "seagrass"), 0.75, 0.0),
-    ("wood", ("wood", "wooden", "oak", "walnut", "ash", "pine", "teak", "birch", "maple", "beech", "cherry",
-              "mahogany", "veneer", "mdf", "plywood", "parquet", "bamboo", "ahsap", "mese", "ceviz", "holz", "bois",
-              "madera", "legno", "laminate", "chipboard"), 0.55, 0.0),
-    ("fabric", ("fabric", "textile", "cloth", "linen", "cotton", "velvet", "wool", "felt", "upholstery", "boucle",
-                "chenille", "tweed", "canvas", "carpet", "rug", "kumas", "stoff", "tissu", "tela", "tessuto", "suede",
-                "microfiber", "microfibre", "polyester", "cushion", "pillow", "blanket", "curtain", "drape"), 0.9, 0.0),
-    ("paper", ("paper", "cardboard", "kagit", "book", "page"), 0.85, 0.0),
-    ("rubber", ("rubber", "silicone"), 0.85, 0.0),
-    ("stone", ("stone", "concrete", "cement", "brick", "plaster", "stucco", "beton", "travertine", "slate"), 0.8, 0.0),
-    ("bark", ("bark", "trunk", "branch", "kabuk"), 0.9, 0.0),
-    ("foliage", ("leaf", "leaves", "foliage", "grass", "plant", "needle", "yaprak", "flower", "petal", "moss"), 0.6,
-     0.0),
-    ("matte", ("matte", "matt", "mat"), 0.8, 0.0),
-    ("paint", ("paint", "painted", "boya"), 0.5, 0.0),
-)
+# (rule, words, roughness, metallic): the first rule with a word in the folded material name wins (30 Oct 2026: the
+# table lives in wenart/assets/material_names.py, which the build reads too, UL140)
+from wenart.assets.material_names import MATERIAL_RULES, name_rule  # noqa: E402
 # The roughness of a material whose name says nothing (SketchUp's "Color_A01", "Material3"), by the model's type
 # (metallic 0: a painted or coloured surface).
 TYPE_ROUGHNESS: dict[str, float] = {
@@ -734,14 +706,11 @@ def choose(cands: list[str], extents) -> dict:
 # --------------------------------------------------------------------------
 
 def material_rule(name: str, ftype: str) -> tuple[str, float, float]:
-    """``(rule, roughness, metallic)`` of a material: the first ``MATERIAL_RULES`` word in its folded name, else the
-    type's roughness (``TYPE_ROUGHNESS``) with metallic 0."""
-    from wenart.assets.audit import keywords as K
-    toks, folded = K.tokens(name or ""), K.fold(name or "")
-    for rule, words, rough, metal in MATERIAL_RULES:
-        for w in words:
-            if K._matches(toks, folded, w):
-                return rule, rough, metal
+    """``(rule, roughness, metallic)`` of a material: the first ``MATERIAL_RULES`` word in its folded name
+    (``material_names.name_rule``), else the type's roughness (``TYPE_ROUGHNESS``) with metallic 0."""
+    named = name_rule(name)
+    if named is not None:
+        return named
     return f"type:{ftype}" if ftype in TYPE_ROUGHNESS else "default", TYPE_ROUGHNESS.get(ftype, DEFAULT_ROUGHNESS), 0.0
 
 

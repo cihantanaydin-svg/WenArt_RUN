@@ -213,7 +213,9 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/detail_parts.py",           # 29 Oct 2026: parametric's reference-detail parts (UL119)
              "wenart/blender/bedding_parts.py",          # 29 Oct 2026: detail_parts -> the nightstand set (UL121)
              # 30 Oct 2026 (UL129, UL141-UL144): the grading review's site sense and the pools' ladder and seats
-             "wenart/blender/site_sense.py", "wenart/blender/pool_extras.py")
+             "wenart/blender/site_sense.py", "wenart/blender/pool_extras.py",
+             # 30 Oct 2026 (UL131, UL140): the soft seats' grade (fit), fabric slots and parts (furniture), the names
+             "wenart/blender/soft_seats.py", "wenart/assets/material_names.py")
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height

@@ -319,6 +319,20 @@ def linear_rgb(colour, modifiers=()) -> tuple[float, float, float]:
     return tuple(round(float(c), 5) for c in rgb)  # type: ignore[return-value]
 
 
+def nearest(rgb_linear) -> str:
+    """The name of ``COLOURS`` nearest a linear sRGB colour (CIELAB Delta E 1976; 30 Oct 2026, UL140: the build dresses
+    a library sofa's flat upholstery in its own colour when the design names none, and the material library takes
+    colour names). Ties: table order."""
+    lab = linear_to_lab(tuple(min(1.0, max(0.0, float(c))) for c in tuple(rgb_linear)[:3]))
+    best, best_d = NAMES[0], math.inf
+    for name in NAMES:
+        other = linear_to_lab(linear_rgb(name))
+        d = math.sqrt(sum((a - b) ** 2 for a, b in zip(lab, other)))
+        if d < best_d - 1e-12:
+            best, best_d = name, d
+    return best
+
+
 def colour_words() -> list[str]:
     """Every word a brief may use for a colour: names and aliases, longest first (scan order)."""
     return sorted(set(NAMES) | set(ALIASES), key=lambda w: (-len(w), w))

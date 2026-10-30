@@ -88,6 +88,11 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   fewer pillows than the family's set (shams, sleeping pillows, accent cushions, a lumbar), a free side whose duvet
   hangs short of the floor, an old dressing without the set, a made-up model measured poorer than ours left as it was,
   no throw, a throw without its woven pattern or its fringe. Kind ``taste``.
+- U36 (UL131, UL140, 30 Oct 2026: "I did not like these sofa models", "I like this sofa but it needs more details,
+  also the gaps need a rework") a library soft seat as built (``wenart.blender.soft_seats.review``, the model review's
+  M32): in flat export colours (no fabric weave), with its parts apart, faceted (the file's smooth shading lost) or a
+  poor model (a 256 px texture, flat, double-sided and coarse: the best that fitted). Kind ``taste`` (parts apart:
+  ``detached``). A model the user rejected is U19's.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -943,6 +948,16 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
         checked["U34"] = len(got)
     except Exception as exc:  # noqa: BLE001
         checked["U34"] = f"failed: {type(exc).__name__}: {exc}"[:200]
+    # 30 Oct 2026 (UL131, UL140): the library soft seats as built (the scene's objects)
+    if not manifest:
+        checked["U36"] = "no scene manifest: not run"
+    else:
+        try:
+            got = soft_seats(building, manifest)
+            findings += got
+            checked["U36"] = len(got)
+        except Exception as exc:  # noqa: BLE001
+            checked["U36"] = f"failed: {type(exc).__name__}: {exc}"[:200]
     return {"findings": findings, "checked": checked}
 
 
@@ -987,6 +1002,27 @@ def kitchen_details(building: dict, manifest: Optional[dict] = None) -> list[dic
 
 
 CHECK_LESSONS["U31"] = ("UL115", "UL118")     # 29 Oct 2026: the kitchen details (kitchen_details.review)
+
+
+def soft_seats(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:
+    """U36 (30 Oct 2026, lessons UL131 "I did not like these sofa models" and UL140 "I like this sofa but it needs
+    more details, also the gaps need a rework"): ``soft_seats.review`` on the scene (the same rule as the model
+    review's M32): a library soft seat in flat export colours, with its parts apart, faceted or a poor model; the fix
+    names the build's step or the swap."""
+    from wenart.blender import soft_seats as SS
+
+    got, _n = SS.review(manifest, check="U36")
+    out = []
+    for g in got:
+        f = _f("U36", g["severity"], g["target"], g["message"], g["lesson"], g["fix"], problem=g["problem"],
+               room=g.get("room_id"), **g["metrics"])
+        if g["problem"] == "parts_apart":
+            f["kind"] = "detached"
+        out.append(f)
+    return out
+
+
+CHECK_LESSONS["U36"] = ("UL131", "UL140")     # 30 Oct 2026: soft seats as soft, well-made products (soft_seats)
 
 
 def run(inp) -> dict:

@@ -447,7 +447,8 @@ def apply_rotation(R: Sequence[Sequence[float]], v: Sequence[float]) -> tuple[fl
 
 
 def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict, floor_z: float,
-                 target_size: Sequence[float] | None = None, align: str = "centre") -> tuple[list, dict]:
+                 target_size: Sequence[float] | None = None, align: str = "centre",
+                 join: tuple | None = None) -> tuple[list, dict]:
     """Asset-frame vertices -> world vertices on the footprint.
 
     Steps: rotate into the piece frame, re-centre (XY box centre to the
@@ -464,12 +465,22 @@ def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict,
     Build round 2 (K2): ``align="back"`` keeps the fitted box's back edge (piece frame +Y) on the footprint's back
     edge (+ depth / 2), so a uniformly scaled model that is deeper or shallower than the drawn depth differs at its
     front, never behind (a sofa stays on its wall); ``"centre"`` (the default, and every decor fit) centres the box
-    on the footprint as before. The record's ``depth_align`` says which and by how much the box was shifted."""
+    on the footprint as before. The record's ``depth_align`` says which and by how much the box was shifted.
+
+    30 Oct 2026 (lesson UL140, user: "also the gaps need a rework"): ``join`` = ``(vertex parts, part areas)`` of
+    ``soft_seats.vertex_parts`` joins the model's loose parts in the piece frame before the fit (``soft_seats
+    .join_parts``: the bodies that face each other across a small gap move together); a uniform fit then keeps the
+    drawn width (its one scale grows by the width the gaps took) and the record's ``parts`` holds the gaps before and
+    after. The fit itself was never the cause: one uniform scale about one pivot for every part."""
     u = float(asset.get("unit_scale") or 1.0)
     if u != 1.0:
         verts = [(v[0] * u, v[1] * u, v[2] * u) for v in verts]
     R = frame_rotation(asset.get("front_axis"), asset.get("up_axis"))
     local = [apply_rotation(R, v) for v in verts]
+    joined = None
+    if join is not None:
+        from wenart.blender import soft_seats as SS
+        local, joined = SS.join_parts(local, join[0], join[1])
     x0, y0, z0, x1, y1, z1 = _bounds(local)
     raw_bbox = [x1 - x0, y1 - y0, z1 - z0]
     offset = (-(x0 + x1) / 2.0, -(y0 + y1) / 2.0, -z0)
@@ -484,6 +495,11 @@ def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict,
         scale = [sx, sy, sz]
     else:
         scale = [float(v) for v in (list(asset.get("fit_scale") or [1.0, 1.0, 1.0]) + [1.0, 1.0, 1.0])[:3]]
+        if (joined and joined.get("joined") and asset.get("scaling") == "uniform" and raw_bbox[0] > 1e-9
+                and joined.get("width_before_m")):
+            keep = float(joined["width_before_m"]) / raw_bbox[0]       # the drawn width, kept by the one scale
+            scale = [s * keep for s in scale]
+            joined["width_kept_scale"] = round(keep, 5)
     local = [(x * scale[0], y * scale[1], z * scale[2]) for x, y, z in local]
     fx0, fy0, fz0, fx1, fy1, fz1 = _bounds(local)
     fitted = [fx1 - fx0, fy1 - fy0, fz1 - fz0]
@@ -506,7 +522,36 @@ def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict,
         "bbox_raw_m": [round(v, 4) for v in raw_bbox], "bbox_m": [round(v, 4) for v in fitted],
         "fit_scale": [round(v, 4) for v in scale], "unit_scale": u, "depth_align": depth_align,
     }
+    if joined is not None:
+        info["parts"] = joined
     return world, info
+
+
+def fit_normals(face_normals: Sequence, asset: dict, footprint: dict, scale: Sequence[float] = (1.0, 1.0, 1.0)
+                ) -> list:
+    """The file's corner normals (``import_gltf_geometry``'s ``face_normals``: None for a flat face) turned as
+    ``fit_vertices`` turns the vertices (pure; 30 Oct 2026, UL131): the frame rotation, the inverse of a non-uniform
+    scale (a uniform one changes no normal), the footprint's rotation; renormalised."""
+    R = frame_rotation(asset.get("front_axis"), asset.get("up_axis"))
+    rad = math.radians(float(footprint["rotation_deg"]))
+    c, s = math.cos(rad), math.sin(rad)
+    inv = [1.0 / float(v) if abs(float(v)) > 1e-12 else 1.0 for v in (list(scale) + [1.0, 1.0, 1.0])[:3]]
+    uniform = abs(inv[0] - inv[1]) < 1e-9 and abs(inv[1] - inv[2]) < 1e-9
+    out = []
+    for face in face_normals:
+        if face is None:
+            out.append(None)
+            continue
+        row = []
+        for n in face:
+            x, y, z = apply_rotation(R, n)
+            if not uniform:
+                x, y, z = x * inv[0], y * inv[1], z * inv[2]
+                ln = math.sqrt(x * x + y * y + z * z) or 1.0
+                x, y, z = x / ln, y / ln, z / ln
+            row.append((c * x - s * y, s * x + c * y, z))
+        out.append(row)
+    return out
 
 
 def depth_alignment(piece: dict, asset: dict | None = None) -> str:
@@ -957,12 +1002,19 @@ def separate_twins(verts, faces, offset: float = TWIN_OFFSET_M) -> tuple[list, l
     return verts, faces, len(twins)
 
 
-def import_gltf_geometry(path: Path, collection) -> dict:
+def import_gltf_geometry(path: Path, collection, normals: bool = False, parts: bool = False) -> dict:
     """Import a glTF/GLB and return its merged geometry in the file's
     (Z-up) frame: ``{"verts", "faces", "materials", "face_materials", "uvs",
     "uv_name", "objects", "backface_twins"}``. The imported objects are deleted again; the
     materials (and packed images) stay in ``bpy.data`` for the new object. The faces of a double-sided export
     are moved apart from their turned copies (``separate_twins``; ``backface_twins`` counts them).
+
+    30 Oct 2026 (lessons UL131, UL140): with ``normals`` the file's own shading comes along: ``face_normals`` (per
+    face: None for a flat face, else its corners' normals in world space, the importer's split normals turned by the
+    parts' normal matrices) and ``file_smooth`` (how many faces the file shades smooth); the rebuilt mesh used to be
+    flat everywhere (a smooth cushion of 528 faces: 0 smooth after the rebuild), so rounded cushions showed their
+    facets. With ``parts`` the loose parts of the model (``face_parts``: ``soft_seats.face_parts``, measured before the
+    twins are separated, which splits every double-sided face off its neighbours).
 
     29 Oct 2026 (real06 run 100801: two pendant lights of about 30,000 parts each took 475 s and 443 s of a build's
     1,160 s furniture phase; profile pod 20261029-150820-profile_build): the same geometry, read without a cost per
@@ -981,6 +1033,7 @@ def import_gltf_geometry(path: Path, collection) -> dict:
     bpy.context.view_layer.update()
     depsgraph = bpy.context.evaluated_depsgraph_get()
     verts, faces, materials, face_materials, uvs = [], [], [], [], []
+    face_normals: list = []
     mat_index: dict = {}
     uv_name = None
     for ob in new:
@@ -1024,28 +1077,77 @@ def import_gltf_geometry(path: Path, collection) -> dict:
                 uv = np.empty(nloop * 2, dtype=np.float32)
                 layer.data.foreach_get("uv", uv)
                 uv_list = list(map(tuple, uv.reshape(-1, 2).tolist()))
-            for a, t, m in zip(starts.tolist(), totals.tolist(), mats.tolist()):
+            smooth = corner = None
+            if normals:
+                smooth = _smooth_flags(me, npoly, np)
+                corner = _corner_normals(me, nloop, mw, np) if smooth is not None and any(smooth) else None
+            for i, (a, t, m) in enumerate(zip(starts.tolist(), totals.tolist(), mats.tolist())):
                 faces.append(loop_verts[a:a + t])
                 face_materials.append(slot_map[m] if m < len(slot_map) else None)
                 uvs.append(uv_list[a:a + t] if uv_list is not None else None)
+                if normals:
+                    face_normals.append(corner[a:a + t] if corner is not None and smooth[i] else None)
         finally:
             ev.to_mesh_clear()
     names = [o.name for o in new]
     data = {o.data for o in new if o.data is not None}
     bpy.data.batch_remove(new)
     bpy.data.batch_remove([d for d in data if d.users == 0])
+    face_part = None
+    if parts:
+        from wenart.blender import soft_seats as SS
+        face_part = SS.face_parts(verts, faces)            # before the twins are split off their neighbours
     verts, faces, twins = separate_twins(verts, faces)
-    return {"verts": verts, "faces": faces, "materials": materials, "face_materials": face_materials,
-            "uvs": uvs, "uv_name": uv_name or "UVMap", "objects": names, "backface_twins": twins}
+    geo = {"verts": verts, "faces": faces, "materials": materials, "face_materials": face_materials,
+           "uvs": uvs, "uv_name": uv_name or "UVMap", "objects": names, "backface_twins": twins}
+    if normals:
+        geo["face_normals"] = face_normals
+        geo["file_smooth"] = sum(1 for n in face_normals if n is not None)
+    if face_part is not None:
+        geo["face_parts"] = face_part
+    return geo
 
 
-def _cached_geometry(path: Path, collection, geo_cache: dict) -> dict:
+def _smooth_flags(me, npoly: int, np):
+    """The faces' smooth flags of an imported mesh (None when Blender cannot say)."""
+    flags = np.zeros(npoly, dtype=bool)
+    try:
+        me.polygons.foreach_get("use_smooth", flags)
+    except (AttributeError, TypeError, RuntimeError):
+        return None
+    return flags.tolist()
+
+
+def _corner_normals(me, nloop: int, mw, np):
+    """The imported mesh's corner (split) normals in world space (``n @ inverse(M)``: the normal matrix of the part's
+    ``matrix_world``), None when Blender has no corner normals (before 4.1)."""
+    corner = getattr(me, "corner_normals", None)
+    if corner is None or len(corner) != nloop:
+        return None
+    nr = np.empty(nloop * 3, dtype=np.float64)
+    corner.foreach_get("vector", nr)
+    try:
+        inv = np.linalg.inv(np.asarray(mw, dtype=np.float64)[:3, :3])
+    except np.linalg.LinAlgError:
+        return None
+    nr = nr.reshape(-1, 3) @ inv
+    ln = np.linalg.norm(nr, axis=1, keepdims=True)
+    ln[ln < 1e-12] = 1.0
+    return list(map(tuple, (nr / ln).tolist()))
+
+
+def _cached_geometry(path: Path, collection, geo_cache: dict, normals: bool = False, parts: bool = False) -> dict:
     """``import_gltf_geometry`` once per file and build: pieces that share an
     asset share its materials and packed images instead of importing it
-    again (the importer makes ``name.001`` material copies otherwise)."""
+    again (the importer makes ``name.001`` material copies otherwise). 30 Oct 2026: ``normals`` and ``parts`` (the
+    library furniture's own shading, a soft seat's loose parts) are asked by the caller; a file read without them is
+    read again with them."""
     key = str(path.resolve())
-    if key not in geo_cache:
-        geo_cache[key] = import_gltf_geometry(path, collection)
+    cached = geo_cache.get(key)
+    if cached is None or (normals and "face_normals" not in cached) or (parts and "face_parts" not in cached):
+        geo_cache[key] = import_gltf_geometry(path, collection, normals=normals or bool(cached and "face_normals" in
+                                                                                         cached),
+                                              parts=parts or bool(cached and "face_parts" in cached))
     return geo_cache[key]
 
 
@@ -1078,10 +1180,11 @@ def _unverified_copies(materials_list: list, cache: dict) -> list:
 
 
 def _mesh_object(name: str, verts, faces, materials_list, face_materials, collection, wenart_id, kind, status,
-                 uvs=None, uv_name: str | None = None, fallback_material=None):
+                 uvs=None, uv_name: str | None = None, fallback_material=None, normals=None):
     """Mesh object from world geometry with per-face materials; empty slots
     get ``fallback_material``; asset UVs (when given) become the active
-    layer and ``box_m`` stays as a second layer."""
+    layer and ``box_m`` stays as a second layer. 30 Oct 2026 (UL131): ``normals`` (per face: None = flat, else its
+    corners' normals, ``fit_normals``) shade the faces as the file did (smooth faces with the file's own normals)."""
     from wenart.blender import common
 
     slots = [m if m is not None else fallback_material for m in materials_list]
@@ -1107,7 +1210,45 @@ def _mesh_object(name: str, verts, faces, materials_list, face_materials, collec
         # this the asset's atlas was sampled with box UVs in metres (scrambled
         # wood on every library piece in furnish run 3).
         layer.active_render = True
+    if normals is not None and any(n is not None for n in normals):
+        apply_normals(ob.data, faces, normals)
     return ob
+
+
+def corner_normal_list(faces, normals) -> tuple[list[bool], list[tuple]]:
+    """``(smooth flag per face, one normal per corner in face order)`` for ``Mesh.normals_split_custom_set`` (pure):
+    a flat face (or one past the end of ``normals``: bedding added to a frame) gets zero vectors, which Blender reads
+    as "its own normal"."""
+    flags, loops = [], []
+    for i, f in enumerate(faces):
+        n = normals[i] if i < len(normals) else None
+        if n is not None and len(n) == len(f):
+            flags.append(True)
+            loops.extend(tuple(float(c) for c in v) for v in n)
+        else:
+            flags.append(False)
+            loops.extend((0.0, 0.0, 0.0) for _ in f)
+    return flags, loops
+
+
+def apply_normals(mesh, faces, normals) -> dict:
+    """The file's shading on a rebuilt mesh: the smooth flags, then the custom corner normals (Blender 4.1+: no auto
+    smooth needed). Returns ``{"smooth", "custom_normals"}``."""
+    flags, loops = corner_normal_list(faces, normals)
+    try:
+        mesh.polygons.foreach_set("use_smooth", flags)
+    except (AttributeError, TypeError, RuntimeError):
+        for poly, flag in zip(mesh.polygons, flags):
+            poly.use_smooth = flag
+    custom = False
+    if hasattr(mesh, "normals_split_custom_set") and len(loops) == len(mesh.loops):
+        try:
+            mesh.normals_split_custom_set(loops)
+            custom = True
+        except (RuntimeError, TypeError, ValueError):
+            custom = False
+    mesh.update()
+    return {"smooth": sum(flags), "custom_normals": custom}
 
 
 class _Materials:
@@ -2041,7 +2182,7 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
     if file is not None:
         try:
             ob = _library_object(piece, file, name, status, floor_z, collection, library, entry, warnings,
-                                 unverified_cache, geo_cache, mats=mats, assumed=assumed)
+                                 unverified_cache, geo_cache, mats=mats, assumed=assumed, overrides=overrides)
         except Exception as exc:  # noqa: BLE001 - a broken file falls back, loudly
             reason = f"import of {file} failed: {type(exc).__name__}: {exc}"
             warnings.append(f"{piece['id']}: {reason}; parametric mesh used")
@@ -2256,13 +2397,85 @@ def _recoloured_copy(mat, rgb, colour: str):
     return copy
 
 
+def _material_look(mat) -> dict:
+    """``{"name", "textured", "rgb", "metallic", "alpha"}`` of an imported material: the Principled BSDF's base colour
+    (linear), metallic and alpha, else the viewport colour."""
+    out = {"name": getattr(mat, "name", None), "textured": _material_is_textured(mat), "rgb": None, "metallic": 0.0,
+           "alpha": 1.0}
+    if mat is None:
+        return out
+    tree = getattr(mat, "node_tree", None)
+    bsdf = next((n for n in tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled"), None) if tree else None
+    try:
+        if bsdf is not None:
+            out["rgb"] = tuple(float(c) for c in bsdf.inputs["Base Color"].default_value[:3])
+            out["metallic"] = float(bsdf.inputs["Metallic"].default_value)
+            out["alpha"] = float(bsdf.inputs["Alpha"].default_value)
+        else:
+            out["rgb"] = tuple(float(c) for c in mat.diffuse_color[:3])
+            out["metallic"] = float(getattr(mat, "metallic", 0.0) or 0.0)
+    except (KeyError, AttributeError, TypeError):
+        pass
+    return out
+
+
+def _dress_fabric(piece: dict, geo: dict, mats_list: list, mats, overrides: dict | None = None
+                  ) -> tuple[list, dict | None]:
+    """30 Oct 2026 (lesson UL140, user: "I like this sofa but it needs more details"; real04's corner sofa rendered in
+    the flat white of its export): the flat upholstery slots of a library soft seat (``soft_seats.fabric_slots``, the
+    names read by ``wenart.assets.material_names``) wear the style's fabric (``_Materials``: the linen weave's normal
+    and roughness maps, the fabric sheen layer) in the design's fabric colour, else in the named colour nearest the
+    slot's own. Returns the materials and the record (None when the model has no flat upholstery slot)."""
+    from wenart.assets.material_names import name_rule
+    from wenart.blender import soft_seats as SS
+    from wenart.style import colours as CL
+
+    if "material_shares" not in geo:              # once per file
+        geo["material_shares"] = SS.material_shares(geo["verts"], geo["faces"], geo["face_materials"],
+                                                    len(geo["materials"]))
+    shares = geo["material_shares"]
+    slots = []
+    for i, mat in enumerate(mats_list):
+        look = _material_look(mat)
+        named = name_rule(_base_name(look["name"] or ""))
+        slots.append(dict(look, index=i, share=shares[i], rule=named[0] if named else "unnamed"))
+    picks = SS.fabric_slots(slots)
+    if not picks:
+        return mats_list, None
+    design = piece.get("design") if isinstance(piece.get("design"), dict) else {}
+    wanted = design.get("fabric_colour") or (piece.get("asset") or {}).get("fabric_colour")
+    out, rows = list(mats_list), []
+    for p in picks:
+        own = slots[p["index"]]["rgb"]
+        colour = wanted or (CL.nearest(own) if own else None)
+        mat = mats.get(P.COLOUR_PREFIX + "fabric", False, colour=colour, overrides=overrides)
+        out[p["index"]] = mat
+        rows.append({"slot": p["name"], "share": p["share"], "why": p["why"], "colour": colour,
+                     "material": getattr(mat, "name", None),
+                     "was_rgb": [round(c, 4) for c in own] if own else None})
+    return out, {"slots": rows, "colour_source": "design" if wanted else "the slot's own colour (nearest name)",
+                 "rule": "soft_seats.fabric_slots (UL140)"}
+
+
 def _library_object(piece, file: Path, name, status, floor_z, collection, library, entry, warnings,
-                    unverified_cache, geo_cache, mats=None, assumed=None):
+                    unverified_cache, geo_cache, mats=None, assumed=None, overrides=None):
+    from wenart.blender import soft_seats as SS
+
     asset = piece["asset"]
-    geo = _cached_geometry(file, collection, geo_cache)
+    soft = piece.get("type") in SS.SOFT_SEAT_TYPES
+    # 30 Oct 2026 (UL131, UL140): the file's own shading for every library model; a soft seat's loose parts
+    geo = _cached_geometry(file, collection, geo_cache, normals=True, parts=soft)
     if not geo["faces"]:
         raise ValueError("file has no mesh faces")
-    verts, info = fit_vertices(geo["verts"], asset, piece["footprint"], floor_z, align=depth_alignment(piece, asset))
+    join = None
+    if soft and geo.get("face_parts") is not None:
+        if "vertex_parts" not in geo:             # once per file (a pair of armchairs shares it)
+            geo["vertex_parts"] = SS.vertex_parts(len(geo["verts"]), geo["faces"], geo["face_parts"], geo["verts"])
+        join = geo["vertex_parts"]
+    verts, info = fit_vertices(geo["verts"], asset, piece["footprint"], floor_z, align=depth_alignment(piece, asset),
+                               join=join)
+    normals = (fit_normals(geo["face_normals"], asset, piece["footprint"], info["fit_scale"])
+               if geo.get("face_normals") is not None else None)
     mats_list = geo["materials"]
     if asset.get("recolour"):
         mats_list, record = recolour_materials(mats_list, asset["recolour"], unverified_cache, library)
@@ -2270,6 +2483,10 @@ def _library_object(piece, file: Path, name, status, floor_z, collection, librar
         for missing in record.get("missing") or []:
             warnings.append(f"{piece['id']}: recolour slot {missing} not found in {asset.get('asset_id')}; left as "
                             "it is")
+    if soft and mats is not None:
+        mats_list, dressing = _dress_fabric(piece, geo, mats_list, mats, overrides)
+        if dressing is not None:
+            entry["fabric_dressing"] = dressing
     if status == "unverified":
         mats_list = _unverified_copies(mats_list, unverified_cache)
     fallback = library.proxy("proxy_unverified" if status == "unverified" else "proxy")
@@ -2290,7 +2507,15 @@ def _library_object(piece, file: Path, name, status, floor_z, collection, librar
         uvs = list(uvs) + [None] * len(b_faces)
         bedding_faces = len(b_faces)
     ob = _mesh_object(name, verts, faces, mats_list, face_materials, collection, piece["id"],
-                      "furniture", status, uvs=uvs, uv_name=geo["uv_name"], fallback_material=fallback)
+                      "furniture", status, uvs=uvs, uv_name=geo["uv_name"], fallback_material=fallback,
+                      normals=normals)
+    if normals is not None:
+        entry["shading"] = {"faces": len(geo["faces"]), "file_smooth": int(geo.get("file_smooth") or 0),
+                            "smooth": sum(1 for p in ob.data.polygons[:len(geo["faces"])] if p.use_smooth),
+                            "custom_normals": bool(getattr(ob.data, "has_custom_normals", False)),
+                            "rule": "the file's own normals (UL131)"}
+    if info.get("parts") is not None:
+        entry["parts"] = info["parts"]
     if bedding is not None:
         polys = ob.data.polygons
         for poly in list(polys)[len(polys) - bedding_faces:]:
