@@ -305,11 +305,12 @@ def stacks(building: dict, room: dict, lines: list[dict]) -> list[dict]:
     on_top: dict = {}
     for d in building.get("decor") or []:
         hid = d.get("host_id")
-        support = (d.get("host_frame") or {}).get("support") if isinstance(d.get("host_frame"), dict) else "top"
+        support = (d.get("host_frame") or {}).get("support") if isinstance(d.get("host_frame"), dict) else None
         if not hid or support not in (None, "top"):
             continue
         h = _decor_h(d)
-        if h is not None and (d.get("type") in STACK_DECOR or h >= STACK_MIN_H_M - 1e-9):
+        # an item without its host frame yet counts only when it stands on the top by its type (a TV)
+        if h is not None and (d.get("type") in STACK_DECOR or (support == "top" and h >= STACK_MIN_H_M - 1e-9)):
             on_top.setdefault(hid, []).append((h, d))
     out = []
     for f in building.get("furniture") or []:
@@ -527,17 +528,23 @@ def _free_centre(st: dict, line_i: int, w: float, z0: float, z1: float, want: fl
     inside one of its wall stretches (``CORNER_M`` in from its ends) and clear of ``_blocked``; None without one."""
     line = st["lines"][line_i]
     blocked = _blocked(st, line_i, z0, z1, item)
+    mid = (min(a for a, _b in line["union"]) + max(b for _a, b in line["union"])) / 2.0
     best = None
     for a, b in line["union"]:
         c_lo, c_hi = max(a + CORNER_M + w / 2.0, lo), min(b - CORNER_M - w / 2.0, hi)
         if c_lo > c_hi + 1e-9:
             continue
-        n = int(math.floor((c_hi - c_lo) / STEP_M + 1e-9))
-        cands = sorted({round(min(max(want, c_lo), c_hi), 4)} | {round(c_lo + k * STEP_M, 4) for k in range(n + 1)}
-                       | {round(c_hi, 4)}, key=lambda c: (abs(c - want), c))
-        for c in cands:
+        # steps out from ``want`` both ways and the stretch's ends; ties go to the wall's middle (a mirrored twin
+        # room resolves to the mirrored place: nothing here depends on the face's direction)
+        start = min(max(want, c_lo), c_hi)
+        n = int(math.ceil((c_hi - c_lo) / STEP_M)) + 1
+        cands = {round(start, 4), round(c_lo, 4), round(c_hi, 4)}
+        cands |= {round(start + sg * k * STEP_M, 4) for k in range(1, n + 1) for sg in (-1, 1)
+                  if c_lo - 1e-9 <= start + sg * k * STEP_M <= c_hi + 1e-9}
+        for c in sorted(cands, key=lambda c: (round(abs(c - want), 4), round(abs(c - mid), 4), c)):
             if all(not _overlap(c - w / 2.0, c + w / 2.0, b0, b1) for b0, b1 in blocked):
-                if best is None or abs(c - want) < abs(best - want):
+                if best is None or (round(abs(c - want), 4), round(abs(c - mid), 4)) < \
+                        (round(abs(best - want), 4), round(abs(best - mid), 4)):
                     best = c
                 break
     return best
@@ -644,13 +651,20 @@ def resolve(building: dict, stage: str = "decor") -> dict:
             placed = False
             if dtype in FREE_TYPES and not tied:
                 z0 = ext["z0"] if dtype in FLOOR_ITEMS else FREE_CENTRE_M - ext["h"] / 2.0
-                order = sorted((i for i in range(len(st["lines"])) if i != ext["line"]),
-                               key=lambda i: (-sum(b - a for a, b in st["lines"][i]["union"]), i))
-                for i in order:
-                    if z0 + ext["h"] > _ceiling_over(st, i, 0.0, ext["w"]) - CEILING_GAP_M:
-                        continue
+                here = _xy(st["lines"][ext["line"]], ext["s"])
+
+                def wall_mid(i):
                     union = st["lines"][i]["union"]
-                    mid = sum((a + b) / 2.0 for a, b in union) / len(union)
+                    return (min(a for a, _b in union) + max(b for _a, b in union)) / 2.0
+                # the longest free wall first, then the one nearest to where the item was (no face direction: a
+                # mirrored twin room picks the mirrored wall)
+                order = sorted((i for i in range(len(st["lines"])) if i != ext["line"]),
+                               key=lambda i: (-round(sum(b - a for a, b in st["lines"][i]["union"]), 3),
+                                              round(G.distance(_xy(st["lines"][i], wall_mid(i)), here), 3), i))
+                for i in order:
+                    mid = wall_mid(i)
+                    if z0 + ext["h"] > _ceiling_over(st, i, mid, ext["w"]) - CEILING_GAP_M:
+                        continue
                     s = _free_centre(st, i, ext["w"], z0, z0 + ext["h"], mid, -math.inf, math.inf, item)
                     if s is None:
                         continue

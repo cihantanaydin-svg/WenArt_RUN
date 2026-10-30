@@ -1435,12 +1435,13 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
     # front of it: raised, moved along its wall or to another free wall, else left out (wenart.blender.wall_items)
     from wenart.blender import wall_items as WI
 
-    cleared = WI.resolve(out, stage="decor")
+    D.attach_host_frames(out)                     # what stands on a piece's top is known by its frame
+    cleared = WI.resolve(out, stage="decor")      # (a twin's mirrored copy resolves to the mirrored place)
     present = {d.get("id") for d in out["decor"]}
     for rec in records:
         rec.items = [i for i in rec.items if i.get("id") in present or not i.get("id")]
     for row in cleared["raised"] + cleared["moved"] + cleared["dropped"]:
-        if row.get("room_id") in room_ids:
+        if row.get("room_id") in room_ids and row.get("room_id") not in (targets or {}):   # a twin: its partner's note
             how = "left out" if row in cleared["dropped"] else ("raised" if row in cleared["raised"] else "moved")
             record_of(row["room_id"]).notes.append(f"{row['room_id']}: {row['type']} {row['id']} {how} (UL134/UL139: "
                                                    f"{row['kind']} {row['other']})")
