@@ -76,3 +76,15 @@ def test_a_variant_level_is_its_own_version_of_the_house():
     base = sum(RS.slatted(s) for s in schemes.values() if s["level_id"] == "L0")
     variant = sum(RS.slatted(s) for s in schemes.values() if s["level_id"] == "L0b")
     assert base <= RS.SLAT_ROOMS_MAX and base + variant <= 2 * RS.SLAT_ROOMS_MAX
+
+
+def test_one_stone_per_house():
+    """UL204 ("Texture on the wall was also weird"): Argus put a light sandstone brick on the plinth and the plot walls
+    under a ledgestone base."""
+    modern = {"family": "modern"}
+    bad = X.validate_material_override(modern, {"plinth": "stone_wall_ashlar", "plot_wall": "stone_wall_ashlar"})
+    assert not bad["ok"] and len(bad["failed"]) == 2 and "one stone per house" in bad["failed"][0]
+    assert X.validate_material_override(modern, {"plinth": "stone_wall_ledgestone"})["ok"]
+    assert X.validate_material_override(modern, {"plot_wall": "plaster_white"})["ok"]          # not a stone: free
+    named = {"family": "modern", "exterior": {"plinth": {"material": "stone_wall_ashlar", "source": "brief"}}}
+    assert X.validate_material_override(named, {"plinth": "stone_wall_ashlar"})["ok"]

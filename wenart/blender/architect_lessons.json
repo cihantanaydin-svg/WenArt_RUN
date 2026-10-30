@@ -2420,12 +2420,12 @@
    "id": "UL204",
    "date": "2026-10-30",
    "area": "materials",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Texture on the wall was also weird check it (30 Oct 2026, real04 run 20261030-112241-full, the entrance seen from above: the walls by the entrance door)",
-   "lesson": "Texture on the wall was also weird check it (30 Oct 2026, real04 run 20261030-112241-full, the entrance seen from above: the walls by the entrance door)",
+   "lesson": "A house's stones are one: the plinth and the plot walls take the facade scheme's base stone unless the brief or the documents name theirs; an edit that puts another stone there is refused (exterior_checks.base_stone_problems; real04 run 20261030-112241-full: Argus set the plinth and the plot walls to a light sandstone brick under a ledgestone base, so the entrance showed two stones side by side). The textures themselves are at their real size (Poly Haven dimensions checked: ledgestone 1.50 m, sandstone brick 1.69 m, plank siding 1.57 m).",
    "question": "Do the facade claddings read as real boards and stones at their true size (no stretched or smeared texture)?"
   },
   {

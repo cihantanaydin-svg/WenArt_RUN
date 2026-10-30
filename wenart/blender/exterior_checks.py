@@ -1246,7 +1246,35 @@ def validate_material_override(style: dict, override: dict) -> dict:
     if not failed:
         for slot, look_id in override.items():
             failed += wall_slot_problems(style, SLOT_ALIASES.get(slot, slot), look_id)
+            failed += base_stone_problems(style, SLOT_ALIASES.get(slot, slot), look_id)
     return {"ok": not failed, "failed": failed}
+
+
+# 30 Oct 2026 (lesson UL204, user on real04 run 20261030-112241-full: "Texture on the wall was also weird check it": Argus
+# set the plinth and the plot walls to stone_wall_ashlar, a light sandstone brick, under a facade whose base is the
+# darker ledgestone, so the entrance showed two stones side by side): a house's stones are one: the plinth and the plot
+# walls take the facade scheme's base stone (facade.FACADE_SCHEMES ``base``) unless the brief names theirs
+BASE_STONE_SLOTS: tuple[str, ...] = ("plinth", "plot_wall")
+
+
+def base_stone_problems(style: Optional[dict], slot: str, look_id: str) -> list[str]:
+    """Why a stone look may not go on the plinth or the plot walls (pure): another stone than the house's base stone
+    (the brief's own ``exterior.plinth`` / ``plot_wall`` or the family scheme's ``base``); [] for any other look kind
+    or slot."""
+    from wenart.blender import facade as FC
+    from wenart.style.profile import _entry
+
+    if slot not in BASE_STONE_SLOTS or (_entry(look_id) or {}).get("kind") != "stone":
+        return []
+    ext = (style or {}).get("exterior") if isinstance((style or {}).get("exterior"), dict) else {}
+    named = ext.get(slot) if isinstance(ext.get(slot), dict) else None
+    if named and named.get("source") not in (None, "fallback") and not named.get("assumed"):
+        return []                                       # the brief or the documents name it
+    base = FC.scheme_of(style).get("base")
+    if not base or base == look_id:
+        return []
+    return [f"{slot}: {look_id} is another stone than the house's base {base}: one stone per house (the plinth, "
+            f"the plot walls and the facade's base match; UL204)"]
 
 
 # 30 Oct 2026 (lesson UL177; real04 run 20261030-112241-full: Argus, on "the wall behind the bed is a flat paint; the
