@@ -2830,3 +2830,24 @@ showers).
 
 Before the feedback: a local replay of real06's stages on the current code stopped in the layout (the UL200 swap check
 compared with the drawn type `unknown`); fixed, the replay passes every stage.
+
+## real04 run 20261030-181158-full (30 Oct 2026, $9.64, 232 min; the user's UL174-UL206 fixes)
+
+| measure | run 112241 (before) | run 181158 |
+|---|---:|---:|
+| judge mean (1-5) | 2.44 | 2.44 |
+| views at 1 | 3 | 0 |
+| living rooms with their set | 1/5 | 3/5 |
+| drawn anchors built | 36/36 | 36/36 |
+| stage minutes | 166 | 194 |
+| Argus | 3.6, 12 critical | 3.2, 21 critical (10 false: the variant level's room names) |
+
+Promoted to `results/baseline/latest/`; renders sent as a zip. Found and fixed (general):
+- the results pack (UL206) worked, but the debug images filled the 400 MB cap before the finals: deliverable images
+  (final views, the alternatives' views, top-down plans) now come first; a 3D file only with 4 GB of disk to spare
+  (a $0.07 fetch pod brought the finals);
+- the deferred 3D export (UL173) waited behind Argus AI's last pass and the deadline cut it (project incomplete, GPU
+  tests without a project, exit 1): the exports now run before argus_final;
+- two UL200 walk-in showers under the L1 slope (0.81 m) poked through the roof: a swapped shower under 2.1 m is the
+  drawing's bathtub again (`build.shower_headroom`).
+Open: Argus A1 flags the alternative level's room names on the base model.
