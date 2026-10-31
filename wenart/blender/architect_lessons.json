@@ -2624,7 +2624,7 @@
    "id": "UL221",
    "date": "2026-10-31",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2660,7 +2660,7 @@
    "id": "UL224",
    "date": "2026-10-31",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2672,7 +2672,7 @@
    "id": "UL225",
    "date": "2026-10-31",
    "area": "roof",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2721,7 +2721,7 @@
    "id": "UL229",
    "date": "2026-10-31",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],

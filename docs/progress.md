@@ -2900,8 +2900,18 @@ copied text merges with `user_ranks.parse_text` (two opinions averaged later).
 | UL219, UL222, UL226 | "There can not be a fridge inside the kitchen counter! make this a rule" | `wenart/blender/fridge_rule.py`: a fridge is never on or in a counter run; the run stops and goes on around a tall fridge column; a fridge moved to the column takes its model along |
 | UL220 | "I did not like this pink carpet never use it again" | in `results/library/user_rejected.json` |
 | UL223 | "Not every room needs this built in wardrobe ... wall to wall or from wall to middle" | at most 2 rooms with a built-in run; it touches a wall (wall to wall, or a wall to at most 0.5 m into the room); veneer or matte lacquer, shadow gaps, recessed plinth, grip channel, tinted glass, soft LED |
-| UL225 | "the door the toilet not making sense at all" | root cause: an L1 bath door under the slope cut to 1.00 m; a dormer over a drawn door under the slope (helper) |
-| UL227 | "a person can walk around the house using the designated pathways" | outdoor walk check: every outdoor area reached by paths, steps or ramps, no jumps (helper) |
-| UL221, UL224, UL229 | better bedding, sofa throws, a leather bag | helper |
+| UL225 | "the door the toilet not making sense at all" | root cause: the L1 bath doors under the slope were cut to 1.00 m; a drawn door under 1.60 m head room that no 0.5 m slide fixes now gets a shed dormer (`wenart/blender/dormers.py`): the door keeps 2.10 m, the roof is cut, walls rise, ceilings and checks read it (review M31); real04: 2 dormers on the north facade |
+| UL227 | "a person can walk around the house using the designated pathways" | walk graph of every outdoor surface (`site_walk.py`, rule G15): areas, entrance and flights reached from the street, gates and doors, steps of at most 0.20 m; architect A6 fixes what it finds (meet, extend, connect, flight, link). real04: 4 raw steps at path ends (the marked one 15 cm under a flight's foot landing), 0 after the fix, 7 of 7 areas reached; a single riser under 0.10 m has no cheek walls |
+| UL221, UL224, UL229 | better bedding, sofa throws, a leather bag | beds find the wall behind their head (shams and pillows lean on it), 2 shams + 2 pillows + 1 accent cushion, layered sheet and duvet colours, soft creases; our beds and library frames get the full set; a folded throw over the sofa arm (`seat_throw.py`); the holdall in leather with stitching, brass hardware, keepers, buckles |
 | UL228 | small bathroom items | library first, better builds (helper) |
 | UL230 | "something wrong in the marked area" (L-1 plan) | the level view cut the walls but not the ground: angled level views now cut the ground and outdoor parts at the wall-cut height; walls under the next floor stop 3 mm under it |
+
+### Fixes of the real06 run 224530 GPU failures (31 Oct 2026)
+
+| failure | root cause | fix |
+|---|---|---|
+| bed f_L1_004 planned in a view but not in the index pass | the camera model found a headboard only by the part name "back"; the UL163 slat and channel headboards were a 0.92 m block over the bed | every headboard part is the back (`camsearch.PROFILE_BACK_ROLES`); the test reads the recorded library shift |
+| child's room walls olive | the scheme paints the walls dark sage on purpose | the test leaves out a room whose scheme paint alone is over the bound (dark sage reads a lively green: worth a look) |
+| two bedrooms with neither a panel nor a reason | the AI architect retyped L1 rooms to storage under C1 (rooms read unreachable); a room with no accent wall left no record | every panel room records a plan or a reason; an AI answer can no longer retype a room away from its drawn anchor (`architect_actions.drawn_anchor_against`) |
+
+Open: real06's C1 reads most rooms as unreachable from the entrance (real04 does not): helper on it.
