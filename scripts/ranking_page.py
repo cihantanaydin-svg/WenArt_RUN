@@ -145,7 +145,8 @@ dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% au
       <label><input type="checkbox" id="unranked"> Unranked only</label>
       <span class="legend">__LEGEND__</span>
       <span class="keys">Keys: select a card, press 0–9, T for 10; the next card follows.</span>
-      <button type="button" id="copy">Copy scores as text</button>
+      __NAMEBOX__
+      <button type="button" id="copy">__COPY__</button>
     </div>
   </div>
 </header>
@@ -160,6 +161,7 @@ dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% au
 const MODELS = __MODELS__;
 const TYPES = __TYPES__;
 const NAMES = __NAMES__;
+const SHEETS = __SHEETS__;       // null: the sheets are files beside the page; else {sheet: data URI} (one file)
 const STORE = __STORE__;         // "models": one document per model (scores/<id>); "rater": one per person
 let raterRef = null, saveTimer = null;
 const scores = {};             // id -> rank
@@ -196,7 +198,7 @@ function cardFor(m) {
   const card = document.createElement("article");
   card.className = "card"; card.tabIndex = 0; card.dataset.id = m.id;
   const shot = document.createElement("div"); shot.className = "shot";
-  shot.style.backgroundImage = "url(sheets/" + m.sheet + ".jpg)";
+  shot.style.backgroundImage = 'url("' + (SHEETS ? SHEETS[m.sheet] : "sheets/" + m.sheet + ".jpg") + '")';
   shot.style.backgroundPosition = m.x + "% " + m.y + "%";
   shot.onclick = () => { const big = $("big"); big.style.backgroundImage = shot.style.backgroundImage;
     big.style.backgroundPosition = shot.style.backgroundPosition; $("zoom").showModal(); };
@@ -250,7 +252,8 @@ function setScore(m, r, card) {
   saveLocal();
   paint(card, m); renderTabs();
   if (!clear) advance(card);
-  if (!db) { status("Saved in this browser only: copy the scores as text and paste them in the chat.", true); return; }
+  if (!db) { status(STORE === "rater" ? Object.keys(scores).length + " scores kept in this browser. When you are done, press \u201cCopy my scores\u201d and send them back."
+                                      : "Saved in this browser only: copy the scores as text and paste them in the chat.", STORE !== "rater"); return; }
   if (STORE === "rater") { saveRater(); return; }
   const ref = db.collection("scores").doc(m.id);
   queue = queue.then(() => clear ? ref.delete()
@@ -299,17 +302,24 @@ $("copy").onclick = async () => {
       (bySheet[m.sheet] = bySheet[m.sheet] || []).push(m.letter + scores[m.id]);
     for (const [s, v] of Object.entries(bySheet)) lines.push(s + ": " + v.join(" "));
   }
-  const text = lines.join("\n") || "(no scores yet)";
+  const who = $("rater") ? ($("rater").value || "").trim() : "";
+  if (STORE === "rater" && !who) { status("Write your name first, so your scores can be told apart.", true); $("rater").focus(); return; }
+  const text = (who ? "Name: " + who + "\n" : "") + (lines.join("\n") || "(no scores yet)");
   const box = $("copybox"); box.value = text; box.hidden = false;
   try { await navigator.clipboard.writeText(text); status("Scores copied"); } catch (e) { box.select(); }
 };
 $("zoom").onclick = () => $("zoom").close();
 
 loadLocal();
+if ($("rater")) {
+  try { $("rater").value = localStorage.getItem(LS + "-name") || ""; } catch (e) {}
+  $("rater").oninput = () => { try { localStorage.setItem(LS + "-name", $("rater").value); } catch (e) {} };
+}
 renderAll();
 (async () => {
   db = window.claude && window.claude.use ? await window.claude.use("db") : null;
-  if (!db) { status("Scores are kept in this browser; copy them as text to send them.", true); return; }
+  if (!db) { status(STORE === "rater" ? "Your scores stay in this browser. When you are done, press \u201cCopy my scores\u201d and send them back."
+                                      : "Scores are kept in this browser; copy them as text to send them.", !SHEETS); return; }
   let timer = setTimeout(() => status("Saved scores can't be reached yet; new scores are kept.", true), 10000);
   if (STORE === "rater") {
     const user = window.claude && window.claude.use ? await window.claude.use("user") : null;
@@ -349,8 +359,9 @@ OWNER_LEGEND = ('<span><i style="background:var(--out)"></i>0–2 never used</sp
 RATER_LEGEND = ('<span><i style="background:var(--out)"></i>0 = would never pick it</span>'
                 '<span><i style="background:var(--good)"></i>10 = love it</span>')
 RATER_INTRO = ('<p class="intro">Score each piece from 0 to 10, purely on how it looks to you. There are no wrong '
-               'answers, and your scores are kept apart from anyone else\'s. They save as you go, so you can stop and '
-               'come back. Click a picture to see it bigger.</p>')
+               'answers. Your scores save as you go, so you can stop and come back on the same device. Click a picture '
+               'to see it bigger. When you are done, write your name and press \u201cCopy my scores\u201d, then send the '
+               'copied text back to the person who asked you.</p>')
 # 31 Oct 2026 (user: "For the old one give another link i will send to some one else to get opinion 2 opinions will
 # avarage later"): the rater page: one document per person (ratings/<viewer id> = {"scores": {model id: rank}}), the
 # owner reads every person's document, a person only their own.
@@ -358,9 +369,24 @@ RATER_RULES = [{"path": "ratings", "read": "admin", "write": "owner"},
                {"path": "ratings/{self}", "read": "view", "write": "interact"}]
 
 
-def page(rows: list[dict], types: list[str], rater: bool = False) -> str:
+NAMEBOX = ('<label for="rater">Your name <input id="rater" type="text" autocomplete="name" maxlength="40" '
+           'style="font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);'
+           'color:var(--ink);width:12em"></label>')
+
+
+def sheet_uris(folder: Path, sheets: list[str]) -> dict:
+    """``{sheet: data URI}`` of the sheet JPEGs (the one-file page)."""
+    import base64
+    return {s: "data:image/jpeg;base64," + base64.b64encode((folder / f"{s}.jpg").read_bytes()).decode("ascii")
+            for s in sheets}
+
+
+def page(rows: list[dict], types: list[str], rater: bool = False, sheets: dict | None = None) -> str:
     title = "Furniture Look Survey" if rater else "Furniture Ranking"
-    return (PAGE.replace("__MODELS__", json.dumps(rows, separators=(",", ":")))
+    return (PAGE.replace("__SHEETS__", json.dumps(sheets) if sheets else "null")
+            .replace("__NAMEBOX__", NAMEBOX if rater else "")
+            .replace("__COPY__", "Copy my scores" if rater else "Copy scores as text")
+            .replace("__MODELS__", json.dumps(rows, separators=(",", ":")))
             .replace("__TYPES__", json.dumps(types)).replace("__NAMES__", json.dumps(TYPE_NAMES))
             .replace("__STORE__", json.dumps("rater" if rater else "models")).replace("__TITLE__", title)
             .replace("__LEGEND__", RATER_LEGEND if rater else OWNER_LEGEND)
@@ -373,6 +399,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--rater", action="store_true", help="a page for another person's opinion (one document each)")
     ap.add_argument("--types", default="", help="only these types (comma list)")
+    ap.add_argument("--inline", action="store_true", help="one file: the sheets inside the page (to send by mail)")
     a = ap.parse_args(argv)
     rk = Path(a.ranking)
     index = json.loads((rk / "ranking_index.json").read_text(encoding="utf-8"))
@@ -384,7 +411,8 @@ def main(argv: list[str] | None = None) -> int:
     types = [t for t in index["types"] if any(m["type"] == t for m in rows)]
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(page(rows, types, a.rater), encoding="utf-8")
+    inline = sheet_uris(rk / "sheets", sorted({m["sheet"] for m in rows})) if a.inline else None
+    out.write_text(page(rows, types, a.rater, inline), encoding="utf-8")
     sheets = sorted({m["sheet"] for m in rows})
     print(json.dumps({"page": str(out), "models": len(rows), "types": types, "sheets": sheets}))
     return 0

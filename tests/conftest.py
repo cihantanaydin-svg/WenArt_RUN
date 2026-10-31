@@ -15,6 +15,24 @@ from wenart import geometry as G
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECTS = ROOT / "projects"
+
+
+@pytest.fixture(autouse=True)
+def _without_user_ranks(request, tmp_path_factory, monkeypatch):
+    """31 Oct 2026 (lesson UL217): the user's ranks (results/library/user_ranks.json) change every time the user
+    scores models; a test of any other fit rule runs without them, so its expected picks stay stable. A test marked
+    ``user_ranks`` reads the committed file; a test about the ranks sets a file of its own."""
+    if request.node.get_closest_marker("user_ranks"):
+        yield
+        return
+    from wenart.furniture import user_ranks as UR
+    path = tmp_path_factory.getbasetemp() / "no_user_ranks.json"
+    if not path.exists():
+        path.write_text('{"ranks": {}}\n', encoding="utf-8")
+    monkeypatch.setattr(UR, "USER_RANKS_PATH", path)
+    UR.reset()
+    yield
+    UR.reset()
 SYNTHETIC = ["synthetic-01", "synthetic-02", "synthetic-03", "synthetic-04", "synthetic-05"]
 
 

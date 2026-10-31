@@ -208,3 +208,27 @@ def test_each_studio_model_gets_a_fresh_material_library():
     52 of 520 models (48 beds with their bedding) failed on 'StructRNA of type Material has been removed'."""
     src = (ROOT / "wenart" / "assets" / "audit" / "blender_studio.py").read_text()
     assert "one(job, doc, scene, cam, new_library(), keep)" in src and "orphans_purge" in src
+
+
+@pytest.mark.user_ranks
+def test_the_committed_ranks_are_valid():
+    """The committed ranks (the user's scores from the ranking page) load, every rank is 0-10 and every ranked model
+    is in the catalogue; a model ranked 0-2 is out of the fit."""
+    UR.reset()
+    rows = UR.ranks()
+    data = json.loads(UR.USER_RANKS_PATH.read_text(encoding="utf-8"))
+    assert len(rows) == len(data.get("ranks") or {})
+    ids = {e["id"] for e in S.catalogue_entries()}
+    assert set(rows) <= ids
+    low = next((e for e in S.catalogue_entries() if e["id"] in rows and rows[e["id"]]["rank"] <= UR.OUT_AT_OR_BELOW),
+               None)
+    if low is not None:
+        assert not C.usable(low, "relaxed")
+
+
+def test_the_survey_text_is_read_back_against_the_sheets_the_rater_saw():
+    index = {"sheets": [{"sheet": "sofa-01", "letters": {"A": "m1", "B": "m2", "T": "m20"}}]}
+    name, got = UR.parse_text("Name: Ayse K\nsofa-01: A7 B0 T10 C5 Z9\nchair-09: A3\n", index)
+    assert name == "Ayse K" and got == {"m1": 7, "m2": 0, "m20": 10}
+    page = (ROOT / "scripts" / "ranking_page.py").read_text()
+    assert "Copy my scores" in page and "ratings/{self}" in page and "--inline" in page

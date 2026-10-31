@@ -123,6 +123,29 @@ def merge(current: Optional[dict], scores: dict, index: dict, date: str, where: 
     return doc
 
 
+def parse_text(text: str, index: dict) -> tuple[str, dict[str, int]]:
+    """``(name, {model id: rank})`` of the text the survey page copies ("Name: ..." then one line per sheet:
+    ``bed_double-01: A7 B3 T10``), the letters read against ``index`` (the sheets the rater saw:
+    ``results/library/ranking/second_opinion_index.json``). Unknown sheets, letters and ranks outside 0-10 are skipped."""
+    import re
+    name, out = "", {}
+    letters = {s["sheet"]: s["letters"] for s in index.get("sheets") or []}
+    for line in str(text or "").splitlines():
+        line = line.strip()
+        if line.lower().startswith("name:"):
+            name = line[5:].strip()
+            continue
+        head, sep, rest = line.partition(":")
+        if not sep or head.strip() not in letters:
+            continue
+        for letter, value in re.findall(r"\b([A-Z])(\d{1,2})\b", rest):
+            iid = letters[head.strip()].get(letter)
+            rank = valid_rank(int(value))
+            if iid and rank is not None:
+                out[iid] = rank
+    return name, out
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     """``python -m wenart.furniture.user_ranks merge --scores scores.json [--index ...] [--date ...]``: the scoring
     page's scores (``{model id: rank}`` or the page's rows ``[{"id", "rank"}]``) into ``user_ranks.json``."""

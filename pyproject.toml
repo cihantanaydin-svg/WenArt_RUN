@@ -9,4 +9,5 @@ testpaths = ["tests"]
 markers = [
   "gpu: needs a GPU; runs on RunPod via scripts/gpu_run.py (pytest -m gpu)",
   "slow: long CPU end-to-end runs (minutes; e.g. the full-run smoke e2e); part of pytest -m 'not gpu'",
+  "user_ranks: reads the committed results/library/user_ranks.json (every other test runs without the user's ranks)",
 ]
