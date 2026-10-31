@@ -1267,7 +1267,7 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                                      + (f", at most {ceiling - CEILING_MARGIN_M:.2f} m high under the sloped "
                                         f"ceiling)" if ceiling is not None else ")"))
         return asset
-    made = bath_made_fit(piece, style_family, mode, style)
+    made = bath_made_fit(piece, style_family, mode, style, catalog)
     if made is not None:                   # 29 Oct 2026 (UL114, UL123, UL124): the family's bathroom, made by design
         return made
     candidates = catalog.candidates(ftype)
@@ -2333,18 +2333,53 @@ def built_in_fit(piece: dict, run: dict, mode: str, style_family: Optional[str] 
     return _finish(asset, mode, [_step("library", "not tried", why), _step(MODULE_METHOD, step, None)])
 
 
-def bath_made_fit(piece: dict, style_family: Optional[str], mode: str, style: Optional[dict] = None
-                  ) -> Optional[dict]:
+def bath_made_fit(piece: dict, style_family: Optional[str], mode: str, style: Optional[dict] = None,
+                  catalog=None) -> Optional[dict]:
     """29 Oct 2026 (lessons UL114, UL123, UL124; ``wenart.furniture.bath_details``): the asset of a bathroom piece the
     layout stage made to measure for its style family (``bath_look.made_to_measure``: a wall-hung WC, a floating
     vanity, an open lit niche column, a walk-in shower): built from code by design on its drawn footprint (a vanity
     or a shower by the bath set module, a WC or a column by the parametric builder), never a library model; it records
-    a ``library_gap`` (no audited model of that design) so the report lists it. None for any other piece."""
+    a ``library_gap`` (no audited model of that design) so the report lists it. None for any other piece. 31 Oct 2026
+    (user on real04 run 20261030-181158-full: "check the library of similar things exist to use"): a column's or a
+    vanity's small items take the library first (``small_items``, ``wenart.furniture.small_items``: the record on the
+    asset, and on a vanity's module plan for its builder)."""
     from wenart.blender import bath_parts as BT
 
     made = BT.made_to_measure(piece)
     if made is None:
         return None
+    asset = _bath_made_asset(piece, made, style_family, mode, style)
+    record = small_items_for(piece, made, asset, catalog, style_family, mode)
+    if record is not None:
+        asset["small_items"] = record
+        if isinstance(asset.get("module_plan"), dict):
+            asset["module_plan"]["small_items"] = record
+    return asset
+
+
+def small_items_for(piece: dict, made: str, asset: dict, catalog, style_family: Optional[str],
+                    mode: str) -> Optional[dict]:
+    """31 Oct 2026: the ``small_items`` record (``wenart.furniture.small_items.plan``) of a made-to-measure column (its
+    built height) or vanity (its module plan's size and top); None for the other pieces or a host without items."""
+    from wenart.furniture import small_items as SI
+
+    w, d = (float(v) for v in piece["footprint"]["size"][:2])
+    if made == "column":
+        from wenart.blender import parametric as P
+        slots = SI.host_slots("column", w, d, P.proxy_height(piece["type"], piece.get("height"))[0])
+    elif made == "vanity" and isinstance(asset.get("module_plan"), dict):
+        plan = asset["module_plan"]
+        pw, pd = (float(v) for v in (plan.get("footprint_m") or [w, d])[:2])
+        slots = SI.host_slots("vanity", pw, pd, float(plan.get("top_m") or 0.85), plan.get("bath_look") or {})
+    else:
+        return None
+    return SI.plan(slots, catalog, style_family, mode)
+
+
+def _bath_made_asset(piece: dict, made: str, style_family: Optional[str], mode: str,
+                     style: Optional[dict] = None) -> dict:
+    from wenart.blender import bath_parts as BT
+
     look = BT.bath_look(piece)
     what = {"wc": "wall-hung WC with its flush plate", "vanity": f"{look.get('vanity')} floating vanity",
             "column": "open lit niche column", "shower": "walk-in shower"}[made]
@@ -3163,6 +3198,8 @@ LIBRARY_FIRST: dict[str, tuple[str, tuple[tuple[float, float], tuple[float, floa
 }
 LIBRARY_FIRST_MIN_QUALITY = 4
 LIBRARY_FIRST_BOX_SLACK = 1.25
+# 31 Oct 2026: the decor items that carry small items of their own (wenart.furniture.small_items: the library first)
+SMALL_ITEM_HOSTS: tuple[str, ...] = ("towel_shelf", "install_wall")
 
 
 def _library_first_scale(entry: dict, item: dict, dtype: str) -> Optional[float]:
@@ -3251,6 +3288,17 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     dtype = item.get("type", "")
     if dtype in LIBRARY_FIRST and not (item.get("tv") or {}).get("mount") == "wall":
         return library_first_item(item, catalog, style_family, mode)          # UL215: the library first
+    if dtype in SMALL_ITEM_HOSTS:
+        # 31 Oct 2026 (user on real04 run 20261030-181158-full: "check the library of similar things exist to use"):
+        # a towel shelf's or an installation wall's small items take the library first (``small_items``)
+        from wenart.blender import parametric as P
+        from wenart.furniture import small_items as SI
+
+        w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
+        item.pop("small_items", None)
+        record = SI.plan(SI.host_slots(dtype, w, d, h, item=item), catalog, style_family, mode)
+        if record is not None:
+            item["small_items"] = record
     if dtype not in DECOR_LIBRARY_TYPES or not item.get("size") or len(item["size"]) < 2:
         return None
     if item.get("fixture") == "downlight":            # 29 Oct 2026 (UL106): our recessed downlight (parametric)
@@ -3949,6 +3997,7 @@ def assert_only_assets_changed(before: dict, after: dict) -> None:
         for item in doc.get("decor") or []:
             item.pop("asset", None)
             item.pop("library_gap", None)              # 30 Oct 2026 (UL215): the library-first decor note
+            item.pop("small_items", None)              # 31 Oct 2026: a host item's library-first small items
         project = doc.get("project")
         if isinstance(project, dict):
             for key in PROJECT_FIT_KEYS:
@@ -3986,6 +4035,35 @@ def _fmt_scale(scales) -> str:
 
 # Fix round after P6b (module docstring): a complete HTML entity (the rule of ``wenart.run.copy.HTML_ENTITY``).
 HTML_ENTITY = re.compile(r"&(?:#[0-9]+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);")
+
+
+def small_item_records(building: dict) -> list[dict]:
+    """31 Oct 2026: the ``small_items`` records of a building (``wenart.furniture.small_items.records``)."""
+    from wenart.furniture import small_items as SI
+
+    return SI.records(building)
+
+
+def small_items_report(building: dict) -> list[str]:
+    """31 Oct 2026: the report's lines on the hosts' small items: the library models used in them and the kinds built
+    procedurally with the reason (``library_gap``), each once with its hosts."""
+    from wenart.furniture import small_items as SI
+
+    used: dict = {}
+    gaps: dict = {}
+    for rec in small_item_records(building):
+        for a in SI.assets_of(rec):
+            used.setdefault((a.get("small_item"), a.get("asset_id")), []).append(rec["host"])
+        for g in SI.gaps_of(rec):
+            gaps.setdefault((g["type"], g.get("why")), []).append(rec["host"])
+    if not used and not gaps:
+        return []
+    lines = ["", "## Small items (31 Oct 2026: the library first, else our detailed models)", ""]
+    lines += [f"- {kind}: library model {aid} ({len(h)} host(s): {', '.join(h[:6])}{' ...' if len(h) > 6 else ''})"
+              for (kind, aid), h in sorted(used.items(), key=lambda kv: str(kv[0]))]
+    lines += [f"- {kind}: library gap, our model ({why}; {len(h)} host(s))"
+              for (kind, why), h in sorted(gaps.items(), key=lambda kv: str(kv[0]))]
+    return lines
 
 
 def credit_text(asset: dict) -> str:
@@ -4071,12 +4149,17 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         flag = a.get("licence_flag")
         return "logo" if (flag in (None, C.NO_FLAG) and C.logo_flagged(a)) else str(flag)
 
+    from wenart.furniture import small_items as SI
+
     flagged_assets = sorted({(p["asset"]["asset_id"], flag_word(p["asset"]))
                              for p in pieces if p.get("asset") and p["asset"].get("method") == "library"
                              and p["asset"].get("commercial_safe") is False}
                             | {(d["asset"]["asset_id"], flag_word(d["asset"]))
                                for d in building.get("decor") or [] if d.get("asset")
-                               and d["asset"].get("commercial_safe") is False})
+                               and d["asset"].get("commercial_safe") is False}
+                            # 31 Oct 2026: the library models inside a host (its small items)
+                            | {(a["asset_id"], flag_word(a)) for rec in small_item_records(building)
+                               for a in SI.assets_of(rec) if a.get("commercial_safe") is False})
     lines += ["", f"commercial-safe: {'yes' if not flagged_assets else 'no (flagged assets: ' + ', '.join(f'{a} [{f}]' for a, f in flagged_assets) + ')'}"]
     decor_gaps: dict = {}                             # UL215: the decor built procedurally although a type has models
     for d in building.get("decor") or []:
@@ -4087,6 +4170,7 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         lines += ["", "## Decor library gaps (UL215: the library first; built procedurally because)", ""]
         lines += [f"- {t}: {why} ({len(ids)} item(s): {', '.join(ids[:6])}{' ...' if len(ids) > 6 else ''})"
                   for (t, why), ids in sorted(decor_gaps.items(), key=lambda kv: str(kv[0]))]
+    lines += small_items_report(building)
     lines += ["", "| piece | room | type | source | status | footprint w x d (m) | method | asset | licence | "
               "scale x / y / z | aspect err | height (m) |",
               "|---|---|---|---|---|---|---|---|---|---|---|---|"] + rows

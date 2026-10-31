@@ -151,6 +151,23 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     "cardboard":     {"kind": "hard",    "flat": [0.52, 0.38, 0.24], "roughness": 0.9},
     # 30 Oct 2026 (UL213: mug_parts): the coffee in a mug, a very dark brown glossy liquid
     "coffee_liquid": {"kind": "hard",    "flat": [0.030, 0.015, 0.007], "roughness": 0.06},
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "This little items needs a lot better models ... better
+    # texture"): the small items' slugs (bath_objects.SMALL_ITEM_KEYS; their looks: materials.SMALL_ITEM_LOOKS, built
+    # by MaterialLibrary.small_item: solid glass with refraction, the liquids, cotton wool, soap, stoneware); "flat" is
+    # the colour the glass and the liquids show seen through (designer values, assumed)
+    "glass_bottle_clear":   {"kind": "hard",    "flat": [0.93, 0.95, 0.94], "roughness": 0.0},
+    "glass_bottle_frosted": {"kind": "hard",    "flat": [0.86, 0.88, 0.88], "roughness": 0.35},
+    "glass_bottle_amber":   {"kind": "hard",    "flat": [0.55, 0.24, 0.04], "roughness": 0.0},
+    "glass_bottle_smoke":   {"kind": "hard",    "flat": [0.30, 0.29, 0.28], "roughness": 0.02},
+    "liquid_scent":         {"kind": "hard",    "flat": [0.92, 0.74, 0.38], "roughness": 0.0},
+    "liquid_soap":          {"kind": "hard",    "flat": [0.80, 0.50, 0.16], "roughness": 0.02},
+    "liquid_diffuser":      {"kind": "hard",    "flat": [0.85, 0.62, 0.30], "roughness": 0.0},
+    "cotton_wool":          {"kind": "fabric",  "flat": [0.86, 0.86, 0.84], "roughness": 0.95},
+    "soap_bar":             {"kind": "hard",    "flat": [0.82, 0.78, 0.70], "roughness": 0.45},
+    "stoneware_speckled":   {"kind": "ceramic", "flat": [0.66, 0.60, 0.52], "roughness": 0.3},
+    "rattan_reed":          {"kind": "organic", "flat": [0.58, 0.45, 0.29], "roughness": 0.7},
+    "rattan_cane":          {"kind": "organic", "flat": [0.42, 0.29, 0.15], "roughness": 0.55},
+    "plant_leaf":           {"kind": "organic", "flat": [0.07, 0.20, 0.05], "roughness": 0.45},
     "wood_veneer_oak":   {"kind": "wood", "flat": [0.62, 0.47, 0.30], "roughness": 0.45, "source": "polyhaven",
                            "asset": "oak_veneer_01", "size_m": [1.83, 1.83], "albedo_mode": "texture"},
     "wood_veneer_walnut": {"kind": "wood", "flat": [0.25, 0.14, 0.08], "roughness": 0.4, "source": "polyhaven",

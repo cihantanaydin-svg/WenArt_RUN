@@ -1016,13 +1016,17 @@ def assets_by_index(scene: Optional[dict]) -> dict:
     for obj in (scene or {}).get("objects") or []:
         if not isinstance(obj, dict) or not obj.get("pass_index"):
             continue
+        wid = str(obj.get("wenart_id") or obj.get("name") or "?")
+        # 31 Oct 2026: the library models inside it (its small items: ``furniture.place_slot_models``) share its index
+        for item in obj.get("library_items") or []:
+            if isinstance(item, dict) and isinstance(item.get("asset"), dict):
+                out.setdefault(int(obj["pass_index"]), []).append((wid, item["asset"]))
         asset = obj.get("asset")
         # T8 review (15 Oct 2026): an asset without a ``method`` (a manifest older than the fit's field) is a library
         # model too; only our own geometry (parametric, module, none) carries no third-party licence.
         if not isinstance(asset, dict) or asset.get("method") in OWN_GEOMETRY_METHODS:
             continue
-        out.setdefault(int(obj["pass_index"]), []).append((str(obj.get("wenart_id") or obj.get("name") or "?"),
-                                                           asset))
+        out.setdefault(int(obj["pass_index"]), []).append((wid, asset))
     return out
 
 

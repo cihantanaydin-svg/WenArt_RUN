@@ -2803,13 +2803,15 @@ def _bath_parts(plan: dict) -> list[Part]:
     design = plan.get("design") or {}
     parts: list[Part] = []
     w, d = plan["footprint_m"]
-    if plan.get("variant") in ("walk_in", "stone_slab", "fluted", "curved"):
+    # 31 Oct 2026: the bench vanity too (UL205: its plan fell through to two plain module boxes)
+    if plan.get("variant") in ("walk_in", "stone_slab", "fluted", "curved", "bench"):
         # 29 Oct 2026 (UL114, UL123, UL124): the made-to-measure bath set (``plan_bath_made``)
         from wenart.blender import bath_parts as BT
         if plan["variant"] == "walk_in":
             made = BT.walk_in_shower_parts(w, d, float(plan["modules"][1]["size_m"][2]), plan.get("bath_look"))
         else:
-            made = BT.vanity_parts(w, d, float(plan["top_m"]), plan.get("bath_look") or {})
+            # 31 Oct 2026: the library models the fit picked for the small items (``small_items``: a slot each)
+            made = BT.vanity_parts(w, d, float(plan["top_m"]), plan.get("bath_look") or {}, plan.get("small_items"))
         # 30 Oct 2026: its back on the wall's face (bath_parts.seat_on_walls writes the gap on the plan's look too)
         return BT.seat_parts(made, plan.get("bath_look"))
     if plan["type"] == "shower":

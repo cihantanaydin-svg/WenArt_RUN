@@ -697,9 +697,17 @@ def project_credits(out_dir: Path) -> list[dict]:
     building = read_building(out_dir)
     if building is None:
         return []
+    from wenart.furniture import small_items as SI
+
     found: dict = {}
-    for item in list(building.get("furniture") or []) + list(building.get("decor") or []):
-        asset = item.get("asset") if isinstance(item, dict) else None
+    pairs = [(item, item.get("asset") if isinstance(item, dict) else None)
+             for item in list(building.get("furniture") or []) + list(building.get("decor") or [])]
+    # 31 Oct 2026: the library models inside a host (its small items: a column's basket, a shelf's jar), credited
+    # with their host
+    hosts = {str(p.get("id")): p for p, _a in pairs if isinstance(p, dict)}
+    for rec in SI.records(building):
+        pairs += [(hosts.get(rec["host"]) or {"id": rec["host"]}, a) for a in SI.assets_of(rec)]
+    for item, asset in pairs:
         if not _library_asset(asset):
             continue
         key = str(asset.get("asset_id") or asset.get("uid") or "")

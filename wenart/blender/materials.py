@@ -595,6 +595,22 @@ class MaterialLibrary:
                                                       "wardrobe front (UL182)"}
         return self._cache["reeded_glass"]
 
+    def small_item(self, key: str):
+        """31 Oct 2026 (user on real04 run 20261030-181158-full: "This little items needs a lot better models ...
+        better texture"): the look of a small item's key (``SMALL_ITEM_LOOKS``: solid glass with refraction, a liquid,
+        cotton wool, a waxy soap, a speckled stoneware glaze, rattan fibre), one material per key, recorded under its
+        vocabulary slug."""
+        look = SMALL_ITEM_LOOKS[key]
+        name = f"small_{look['slug']}"
+        if name not in self._cache:
+            self._cache[name] = small_item_material(name, look)
+            self.records[name] = {"slug": look["slug"], "textured": False, "asset": None, "source": None,
+                                  "licence": None, "size_m": None, "flat_colour": list(flat_colour(look["slug"])),
+                                  "tint": None, "unverified": False, "albedo_mode": None, "detail": None,
+                                  "gain_clamped": None, "procedural": f"small_item:{look['kind']}",
+                                  "reason": look.get("reason") or SMALL_ITEM_REASONS[look["kind"]]}
+        return self._cache[name]
+
     def sheer(self, colour=None):
         """29 Oct 2026 (UL106): the sheer layer of a layered curtain (``sheer_material``), white unless a colour
         phrase is given; one material per colour."""
@@ -1226,6 +1242,185 @@ def thin_glass_material(name: str, roughness: float = 0.0, ior: float = 1.45, ti
     links.new(shadow.outputs["BSDF"], mix.inputs[2])
     links.new(mix.outputs["Shader"], out.inputs["Surface"])
     mat.surface_render_method = "BLENDED"
+    return mat
+
+
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "This little items needs a lot better models, check the library
+# of similar things exist to use if not create them with better texture and more detailed way"): the looks of the small
+# items' keys (wenart.blender.bath_objects.SMALL_ITEM_KEYS). Designer values (assumed):
+# - glass: solid glass with refraction (IOR 1.5; the thin pane of the shower panels showed a bottle as its liquid alone,
+#   a box of colour); ``rgb`` is what a ray sees through the whole bottle (in and out of both walls: ``crossings``
+#   surfaces, each takes the ``1 / crossings`` power of it); shadow rays pass it tinted (no black shadow on the shelf);
+# - liquid: the same, IOR 1.36-1.40, two surfaces;
+# - cotton: a soft white with sheen, a little light scattering under its surface and a fibre relief (a tangled noise
+#   bump in object space, metres), its gaps a little darker;
+# - soap: a waxy cream with scattering under its surface and a thin coat;
+# - stoneware: a sand glaze with dark specks (a noise thresholded to a few per cent), a glossy coat over it;
+# - fibre: rattan cane and reeds, their colour varying along and across (a noise), a fine relief.
+SMALL_ITEM_LOOKS: dict[str, dict] = {
+    "bottle_glass": {"slug": "glass_bottle_clear", "kind": "glass", "rgb": (0.93, 0.95, 0.94), "roughness": 0.0,
+                     "ior": 1.5, "crossings": 4},
+    "frosted_glass": {"slug": "glass_bottle_frosted", "kind": "glass", "rgb": (0.86, 0.88, 0.88), "roughness": 0.35,
+                      "ior": 1.5, "crossings": 4},
+    "amber_glass": {"slug": "glass_bottle_amber", "kind": "glass", "rgb": (0.55, 0.24, 0.04), "roughness": 0.0,
+                    "ior": 1.5, "crossings": 4},
+    "smoke_glass": {"slug": "glass_bottle_smoke", "kind": "glass", "rgb": (0.30, 0.29, 0.28), "roughness": 0.02,
+                    "ior": 1.5, "crossings": 4},
+    "scent": {"slug": "liquid_scent", "kind": "liquid", "rgb": (0.92, 0.74, 0.38), "roughness": 0.0, "ior": 1.36,
+              "crossings": 2},
+    "soap_gel": {"slug": "liquid_soap", "kind": "liquid", "rgb": (0.80, 0.50, 0.16), "roughness": 0.02, "ior": 1.40,
+                 "crossings": 2},
+    "diffuser_oil": {"slug": "liquid_diffuser", "kind": "liquid", "rgb": (0.85, 0.62, 0.30), "roughness": 0.0,
+                     "ior": 1.45, "crossings": 2},
+    "cotton_wool": {"slug": "cotton_wool", "kind": "cotton", "rgb": (0.86, 0.86, 0.84), "roughness": 0.95,
+                    "sheen": 1.0, "subsurface": 0.5, "sss_scale_m": 0.003, "bump_scale": 320.0, "bump": 1.0,
+                    "bump_distance_m": 0.004, "distortion": 0.8, "crevice": 0.18},
+    "soap": {"slug": "soap_bar", "kind": "soap", "rgb": (0.82, 0.78, 0.70), "roughness": 0.45, "subsurface": 0.4,
+             "sss_scale_m": 0.004, "coat": 0.2},
+    "stoneware": {"slug": "stoneware_speckled", "kind": "stoneware", "rgb": (0.66, 0.60, 0.52),
+                  "speck_rgb": (0.10, 0.085, 0.075), "speck_share": 0.035, "speck_scale": 420.0, "roughness": 0.3,
+                  "coat": 0.7, "coat_roughness": 0.05},
+    "reed": {"slug": "rattan_reed", "kind": "fibre", "rgb": (0.58, 0.45, 0.29), "roughness": 0.7, "vary": 0.25,
+             "bump_scale": 350.0, "bump": 0.25},
+    "cane": {"slug": "rattan_cane", "kind": "fibre", "rgb": (0.42, 0.29, 0.15), "roughness": 0.55, "vary": 0.3,
+             "bump_scale": 300.0, "bump": 0.3},
+    # a small plant's glossy leaves: two greens over each blade (a broad noise), a faint relief
+    "foliage": {"slug": "plant_leaf", "kind": "fibre", "rgb": (0.07, 0.20, 0.05), "roughness": 0.45, "vary": 0.35,
+                "bump_scale": 90.0, "bump": 0.08,
+                "reason": "glossy leaves: two greens varying over each blade (noise), a faint relief"},
+}
+SMALL_ITEM_REASONS: dict[str, str] = {
+    "glass": "solid glass with refraction (Principled transmission, IOR 1.5), its tint shared over the bottle's "
+             "surfaces; shadow rays pass it tinted",
+    "liquid": "a clear liquid with refraction (Principled transmission), tinted; shadow rays pass it tinted",
+    "cotton": "cotton wool: soft white with sheen, scattering under its surface, a fine fibre relief (noise bump)",
+    "soap": "a waxy soap: scattering under its surface, a thin coat",
+    "stoneware": "a speckled stoneware glaze: dark specks (thresholded noise) in a sand glaze under a glossy coat",
+    "fibre": "rattan fibre: its colour varying along the cane (noise), a fine relief",
+}
+
+
+def _principled_input(node, *names):
+    """The first of ``names`` among a Principled BSDF's inputs (the names moved between Blender versions), else None."""
+    for n in names:
+        if n in node.inputs:
+            return node.inputs[n]
+    return None
+
+
+def _feed(node, value, *names) -> None:
+    sock = _principled_input(node, *names)
+    if sock is not None:
+        sock.default_value = value
+
+
+def _noise(nodes, links, scale: float, detail: float = 6.0, roughness: float = 0.6):
+    """A Noise Texture on the object-space coordinates (metres: every host mesh is built in world coordinates)."""
+    coords = nodes.new("ShaderNodeTexCoord")
+    noise = nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = scale
+    noise.inputs["Detail"].default_value = detail
+    noise.inputs["Roughness"].default_value = roughness
+    links.new(coords.outputs["Object"], noise.inputs["Vector"])
+    return noise
+
+
+def _bump_from(nodes, links, height_socket, strength: float, distance: float, bsdf) -> None:
+    bump = nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = strength
+    bump.inputs["Distance"].default_value = distance
+    links.new(height_socket, bump.inputs["Height"])
+    links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+
+
+def small_item_material(name: str, look: dict):
+    """The material of one ``SMALL_ITEM_LOOKS`` entry (see the table's comment)."""
+    import bpy
+
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    tree = mat.node_tree
+    nodes, links = tree.nodes, tree.links
+    bsdf = nodes.get("Principled BSDF")
+    out = nodes.get("Material Output")
+    rgb = tuple(float(c) for c in look["rgb"])
+    kind = look["kind"]
+    bsdf.inputs["Roughness"].default_value = float(look.get("roughness", 0.5))
+    if kind in ("glass", "liquid"):
+        k = max(1, int(look.get("crossings", 2)))
+        tint = tuple(max(0.0, min(1.0, c)) ** (1.0 / k) for c in rgb)
+        bsdf.inputs["Base Color"].default_value = (*tint, 1.0)
+        _feed(bsdf, float(look.get("ior", 1.5)), "IOR")
+        _feed(bsdf, 1.0, "Transmission Weight", "Transmission")
+        path = nodes.new("ShaderNodeLightPath")
+        shadow = nodes.new("ShaderNodeBsdfTransparent")
+        shadow.inputs["Color"].default_value = (*tint, 1.0)
+        mix = nodes.new("ShaderNodeMixShader")
+        links.new(path.outputs["Is Shadow Ray"], mix.inputs["Fac"])
+        links.new(bsdf.outputs["BSDF"], mix.inputs[1])
+        links.new(shadow.outputs["BSDF"], mix.inputs[2])
+        links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    elif kind in ("cotton", "soap"):
+        bsdf.inputs["Base Color"].default_value = (*rgb, 1.0)
+        _feed(bsdf, float(look.get("subsurface", 0.0)), "Subsurface Weight", "Subsurface")
+        _feed(bsdf, float(look.get("sss_scale_m", 0.002)), "Subsurface Scale")
+        _feed(bsdf, (1.0, 0.85, 0.7), "Subsurface Radius")
+        if look.get("sheen"):
+            _feed(bsdf, float(look["sheen"]), "Sheen Weight", "Sheen")
+            _feed(bsdf, 0.5, "Sheen Roughness")
+        if look.get("coat"):
+            _feed(bsdf, float(look["coat"]), "Coat Weight")
+            _feed(bsdf, 0.25, "Coat Roughness")
+        if look.get("bump"):
+            noise = _noise(nodes, links, float(look["bump_scale"]), detail=15.0, roughness=0.9)
+            if "Distortion" in noise.inputs:                # tangled fibres rather than a smooth grain
+                noise.inputs["Distortion"].default_value = float(look.get("distortion", 0.0))
+            _bump_from(nodes, links, noise.outputs["Fac"], float(look["bump"]),
+                       float(look.get("bump_distance_m", 0.0015)), bsdf)
+            if look.get("crevice"):                         # the fibres' gaps a little darker
+                ramp = nodes.new("ShaderNodeValToRGB")
+                el = ramp.color_ramp.elements
+                el[0].position, el[0].color = 0.35, (*(c * (1.0 - float(look["crevice"])) for c in rgb), 1.0)
+                el[1].position, el[1].color = 0.65, (*rgb, 1.0)
+                links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+                links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+    elif kind == "stoneware":
+        # the specks: the surface's points near a Voronoi cell's feature point (cells ``1 / speck_scale`` m wide; a
+        # distance under ``speck_r`` of a cell is a speck: about pi * speck_r^2 of the surface, round dots of a few
+        # sizes where the surface cuts them)
+        coords = nodes.new("ShaderNodeTexCoord")
+        cells = nodes.new("ShaderNodeTexVoronoi")
+        cells.inputs["Scale"].default_value = float(look["speck_scale"])
+        links.new(coords.outputs["Object"], cells.inputs["Vector"])
+        ramp = nodes.new("ShaderNodeValToRGB")
+        ramp.color_ramp.interpolation = "CONSTANT"
+        el = ramp.color_ramp.elements
+        el[0].position, el[0].color = 0.0, (*look["speck_rgb"], 1.0)
+        el[1].position, el[1].color = math.sqrt(float(look["speck_share"]) / math.pi), (*rgb, 1.0)
+        links.new(cells.outputs["Distance"], ramp.inputs["Fac"])
+        noise = _noise(nodes, links, 900.0, detail=4.0, roughness=0.5)
+        broad = _noise(nodes, links, 25.0, detail=3.0, roughness=0.5)       # the glaze pooling a little
+        mul = nodes.new("ShaderNodeMix")
+        mul.data_type = "RGBA"
+        mul.blend_type = "MULTIPLY"
+        mul.inputs["Factor"].default_value = 0.12
+        links.new(ramp.outputs["Color"], mul.inputs["A"])
+        links.new(broad.outputs["Color"], mul.inputs["B"])
+        links.new(mul.outputs["Result"], bsdf.inputs["Base Color"])
+        _feed(bsdf, float(look.get("coat", 0.7)), "Coat Weight")
+        _feed(bsdf, float(look.get("coat_roughness", 0.05)), "Coat Roughness")
+        _bump_from(nodes, links, noise.outputs["Fac"], 0.04, 0.0005, bsdf)
+    else:                                          # fibre: rattan cane and reeds
+        noise = _noise(nodes, links, float(look["bump_scale"]), detail=5.0, roughness=0.6)
+        vary = float(look.get("vary", 0.25))
+        ramp = nodes.new("ShaderNodeValToRGB")
+        el = ramp.color_ramp.elements
+        el[0].position, el[0].color = 0.3, (*(c * (1.0 - vary) for c in rgb), 1.0)
+        el[1].position, el[1].color = 0.7, (*(min(1.0, c * (1.0 + vary)) for c in rgb), 1.0)
+        links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+        links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+        _bump_from(nodes, links, noise.outputs["Fac"], float(look.get("bump", 0.25)), 0.0008, bsdf)
+    mat["wenart_small_item"] = kind
     return mat
 
 
