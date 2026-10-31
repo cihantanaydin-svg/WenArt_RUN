@@ -2927,3 +2927,13 @@ blinds were always our textile builds. Now a library model comes first when it r
 vision quality 4+), is a real product of the style and stretches to the window within 0.6-1.6 (`fit.textile_library_item`);
 our build only when none does, with the reason (`library_gap`). Throws drape over their own sofa arm or bed and stay
 ours. Today 80 usable library curtains and 12 blinds, none ranked yet: scoring them on the ranking sheets lets them in.
+
+### Ranking batch 3 ready: every remaining library model (31 Oct 2026, lesson UL232)
+
+User: "include all remaining library models for ranking after the real04 run". 1,117 models not on a sheet yet (1,073
+decor, 44 extras) on 69 new sheets named by type: cushions 128, rugs 131, curtains 80, blinds 12, throws 16, lamps and
+lights 268, wall art, mirrors and clocks 141, plants 79, tabletop pieces 218, TVs, laptops, monitors and a microwave 44.
+Each is built by the scene builder as a decor item on its stage (plinth, floor, rug from above, backdrop wall, curtain
+at its height, light from a ceiling panel). The page groups the tabs (Textiles, Lights, Wall decor, Plants, Tabletop,
+Electronics). The normal decor pick now prefers the best-ranked fitting model too (unranked = 5); `user_ranks merge`
+reads every ranking index. Pod: `RANK_BATCH=remaining` (about 25 min on an RTX 5090), after the real04 run.
