@@ -2696,8 +2696,9 @@
    "id": "UL227",
    "date": "2026-10-31",
    "area": "site",
-   "status": "open",
+   "status": "built",
    "checks": [
+    "A6",
     "build"
    ],
    "request": "There are still some path problems outside of the house, we need to develop a log that is checking the a person can walk around the house using the designated pathways and able to reach the area, the pathways must be logical; the person going to jump to reach the pool? (31 Oct 2026, real04 run 20261030-181158-full, the side steps to the pool terrace)",
