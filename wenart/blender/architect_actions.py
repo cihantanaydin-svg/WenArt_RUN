@@ -783,10 +783,32 @@ def gaps_behind_furniture(building: dict) -> list[str]:
     return out
 
 
+def drawn_anchor_against(plan: Plan, room: dict, room_type: str) -> Optional[dict]:
+    """The drawn piece (``from_documents``, built) that names the room's own type (``architect.ANCHORS``: a bed in a
+    bedroom, a sofa in a living room, a toilet in a bathroom, a counter in a kitchen) and that ``room_type`` has no
+    place for (pure; 31 Oct 2026), else None. Why: real06 run 20261030-224530-full: the AI's answers to C1 ("cannot
+    be reached ... is it a shaft?") retyped three bedrooms and two bathrooms of L1, each with its drawn bed or toilet,
+    to storage rooms while their reason said "reachable and not a shaft"; the build lost their accent walls and
+    feature panels. The drawn pieces are source data: they say what the room is."""
+    from wenart.blender import architect as AR      # lazy: architect imports this module
+
+    own = AR.ANCHORS.get(str(room.get("room_type") or ""))
+    if not own or set(own) & set(AR.ANCHORS.get(room_type) or ()):
+        return None
+    return next((f for f in plan.b.get("furniture") or [] if f.get("room_id") == room.get("id")
+                 and f.get("type") in own and f.get("source") in (None, "from_documents")
+                 and f.get("build", True) is not False), None)
+
+
 def act_retype(plan: Plan, key: str, ans: dict, room_id: str, room_type: str):
     r = plan.room.get(room_id)
     if r is None or room_type not in ROOM_TYPES:
         return False, f"cannot retype {room_id} to {room_type!r}"
+    piece = drawn_anchor_against(plan, r, room_type) if ans.get("by", "user") != "user" else None
+    if piece is not None and r.get("room_type") != room_type:
+        # 31 Oct 2026: an answer that is not the user's never retypes a room away from its drawn anchor piece
+        return False, (f"{room_id} holds the drawn {piece.get('type')} {piece.get('id')}: its drawn pieces say it is a "
+                       f"{r.get('room_type')}, not a {room_type}")
     if r.get("room_type") != room_type:
         r.setdefault("drawn_type", r.get("room_type"))
         r["room_type"] = room_type

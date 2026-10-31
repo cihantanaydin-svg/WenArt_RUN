@@ -349,7 +349,11 @@ def plan_feature_walls(building: dict, level: dict, style: Optional[dict],
     for wid, per_room in sorted((F.accent_walls(building, level, style or {}) or {}).items()):
         for rid, look in sorted((per_room or {}).items()):
             room, wall = rooms.get(rid), by_id.get(wid)
-            if room is None or wall is None:
+            if room is None:
+                continue
+            if wall is None:                                   # 31 Oct 2026: every skip records its reason
+                skipped.append({"room_id": rid, "wall_id": wid, "reason": f"the accent wall {wid} is not a wall of "
+                                                                          f"{level['id']}"})
                 continue
             spec, why = family_spec(style, room.get("room_type"))
             spec, why = scheme_spec(room, spec, why, style)
@@ -425,7 +429,55 @@ def plan_feature_walls(building: dict, level: dict, style: Optional[dict],
                           "blocked": [b[2] for b in blocked if b[1] > s0 - 0.5 and b[0] < s1 + 0.5],
                           "reason": f"{spec['kind']} panel {s1 - s0:.2f} m wide on {look.get('reason') or wid}: "
                                     f"{why}"})
+    # 31 Oct 2026: a room whose scheme names a panel always ends with a plan or the reason it has none
+    done = {p["room_id"] for p in plans} | {s["room_id"] for s in skipped}
+    for rid, room in sorted(rooms.items()):
+        if rid not in done and scheme_names_panel(room):
+            skipped.append({"room_id": rid, "wall_id": None, "reason": no_accent_wall_reason(room, style)})
     return plans, skipped
+
+
+def scheme_names_panel(room: Optional[dict]) -> bool:
+    """The room's scheme (``room["scheme"]``) names a panel feature (``room_schemes.PANEL_FEATURES``; pure)."""
+    sc = (room or {}).get("scheme") if isinstance((room or {}).get("scheme"), dict) else None
+    if not sc:
+        return False
+    try:
+        from wenart.furniture.room_schemes import PANEL_FEATURES
+    except ImportError:
+        PANEL_FEATURES = ("fluted", "slats", "headboard_panel", "wainscot")
+    return sc.get("feature") in PANEL_FEATURES
+
+
+def no_accent_wall_reason(room: dict, style: Optional[dict]) -> str:
+    """Why a room whose scheme names a panel got no accent wall from ``looks.accent_walls``, so no panel (pure; 31 Oct
+    2026). Why: real06 run 20261030-224530-full: the bedrooms r_L1_ebeveyn_y_odasi (fluted) and r_L1_oda_2
+    (headboard panel) were storage rooms in the building as built (an architect answer had retyped them), so
+    ``accent_walls`` gave them no wall and the plan loop, which only visits the accent walls, recorded neither a panel
+    nor a reason. In ``accent_walls``' order: the style turns accent walls off, the room's type takes none (its type
+    change named when the room records one), the room has no outline, no wall to put it on."""
+    try:
+        from wenart.blender import looks as F
+    except ImportError:
+        return "no accent wall (the wall looks are not available)"
+    style = style or {}
+    accent = style.get("wall_accent") if isinstance(style.get("wall_accent"), dict) else None
+    accent = accent or F.family_accent(style)
+    feature = str(((room.get("scheme") or {}).get("feature")) or "panel").replace("_", " ")
+    tail = f": no {feature}"
+    if not accent or not (accent.get("material") or accent.get("colour")):
+        return f"the style has no accent wall (the brief turns accent walls off){tail}"
+    types = tuple(accent.get("room_types") or F.ACCENT_ROOM_TYPES)
+    rtype = room.get("room_type")
+    if rtype not in types:
+        why = f"a {rtype or 'untyped'} room gets no accent wall (only {', '.join(types)} rooms do)"
+        adj = room.get("adjusted_by_ai") if isinstance(room.get("adjusted_by_ai"), dict) else {}
+        if room.get("drawn_type") and room["drawn_type"] != rtype:
+            why += f"; drawn as a {room['drawn_type']}, retyped" + (f" ({adj['reason']})" if adj.get("reason") else "")
+        return why + tail
+    if len(room.get("polygon") or []) < 3:
+        return f"the room has no outline{tail}"
+    return f"no wall stands behind the room's anchor piece and every wall along the room has a window{tail}"
 
 
 def _plan_span(room: dict, wall: dict, level: dict, face: dict, spec: dict, why: str, look: dict, blocked: list,
@@ -714,6 +766,9 @@ def build_feature_walls(building: dict, level: dict, collection, library, style:
     for plan in plans:
         boxes = panel_boxes(plan)
         if not boxes:
+            if plan["room_id"] in rooms:                       # 31 Oct 2026: every skip records its reason
+                rooms[plan["room_id"]]["dining_wall_skipped" if plan.get("dining") else "feature_wall_skipped"] = (
+                    f"the {plan['kind']} panel {plan.get('width_m')} m wide has no part to build")
             continue
         mats = _materials(library, plan)
         keys = list(dict.fromkeys(b[3] for b in boxes))
