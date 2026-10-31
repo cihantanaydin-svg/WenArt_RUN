@@ -146,7 +146,11 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   every furniture, decor and door part (the model, the leaf, the lining, the head, the architrave) of a level under a
   sloped ceiling whose built box (``box3d``) stands over the ceiling over its box (major) or over the roof's top
   (critical, it shows from outside); a door too low to be used under the slope at its wall that no slide along it
-  helps (major, the architect: a dormer). Kind ``geometry``; the build owns the crossings.
+  helps (major, the architect: a dormer). Kind ``geometry``; the build owns the crossings. 31 Oct 2026 (user on real04
+  run 20261030-181158-full: "the door the toilet not making sense at all"): the build raises a dormer over such a door
+  (``dormers.py``), so a door too low is one no dormer fitted over (its record says why); a dormer the scene lacks or
+  one that still leaves its door too low (``under_roof.dormer_problems``: ``dormer_not_built``, ``dormer_too_low``)
+  is major, kind ``geometry``, the build's.
 - M33 soft seats as soft, well-made products (30 Oct 2026, lessons UL131 "I did not like these sofa models" and UL140
   "I like this sofa but it needs more details, also the gaps need a rework", real04 run 20261029-201533-full;
   ``soft_seats_review``, ``wenart.blender.soft_seats.review``): every library sofa, corner sofa, armchair, chaise and
@@ -1644,7 +1648,14 @@ def roof_crossings(built: dict, manifest: Optional[dict], roof_model: Optional[d
     n += len(doors)
     for p in UR.door_problems(built):
         v = _v("M31", p["severity"], p["target"], p["message"], None, kind="no_sense", problem="door_too_low")
-        v["owner"], v["fix"] = "architect", "a dormer or a raised roof over the door, or the door moved (review)"
+        # 31 Oct 2026: the build raises a dormer over such a door where one fits (dormers.py); this one got none
+        v["owner"], v["fix"] = "architect", ("a dormer the build could not fit (the reason is in the door's record): "
+                                             "a raised roof over the door, or the door moved (review)")
+        out.append(v)
+    for p in UR.dormer_problems(built, manifest):         # 31 Oct 2026: a dormer the scene lacks, or too low
+        v = _v("M31", p["severity"], p["target"], p["message"], None, kind="geometry", problem=p["problem"])
+        v["owner"], v["fix"] = "build", "the dormer over the opening (dormers.py: planned in build.prepare, built " \
+                                        "after the roof)"
         out.append(v)
     return out, n
 

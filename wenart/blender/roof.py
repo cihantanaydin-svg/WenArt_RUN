@@ -1393,6 +1393,11 @@ def roof_model(roof: Optional[dict], building: dict) -> Optional[dict]:
         model["parapet"] = DEFAULTS["flat_cut_parapet"] if ph is None else max(0.0, ph)
         assumed.append({"field": "flat_cut", "value": model["parapet"],
                         "reason": roof.get("note") or "upper floors not drawn: a flat roof slab with a parapet"})
+    # 31 Oct 2026: the dormers the build raised (dormers.raise_dormers keeps them on the building's roof record, so a
+    # check that rebuilds the roof from building_built.json sees them; a new plan starts from the bare roof again)
+    if isinstance(roof.get("dormers"), list) and model["convex"]:
+        model["dormers"] = [d for d in roof["dormers"] if isinstance(d, dict) and len(d.get("hole") or []) >= 3
+                            and d.get("top") and d.get("under")]
     model["knee_wall_check"] = knee_wall_check(model, roof, building)
     if model["knee_wall_check"] and abs(model["knee_wall_check"]["difference"]) > 0.05:
         warnings.append(f"knee wall {model['knee_wall_check']['drawn']:.2f} m drawn, "
@@ -1721,10 +1726,13 @@ SLOT_COVERING, SLOT_SOFFIT, SLOT_FASCIA = 0, 1, 2
 
 def roof_solid(model: dict) -> tuple[list, list, list[int]]:
     """``(verts, faces, slots)`` of the roof: the covering on top (slot 0), the soffit under it (slot 1)
-    and the edges (slot 2: eaves fascia and the sides of the roof terraces cut into it)."""
+    and the edges (slot 2: eaves fascia and the sides of the roof terraces cut into it). 31 Oct 2026: the roof is
+    cut cleanly where a dormer sits (``model["dormers"]``' ``hole``, ``dormers.py``; a dormer on its facade cuts the
+    overhang in front of it down to the eaves, whose cut edges get the fascia)."""
     top = list(model["equations"])
     bottom = underside(model)
     holes = [o["polygon"] for o in model.get("openings") or []]
+    holes += [d["hole"] for d in model.get("dormers") or [] if len(d.get("hole") or []) >= 3]
     outer = geom2d.ccw(model["outline"])
     if model.get("parts"):
         return _parts_solid(model, outer, holes, top, bottom)
@@ -1917,14 +1925,28 @@ def wall_cut(model: dict, walls: Optional[Sequence[dict]] = None) -> Optional[di
     """What the walls under the roof are cut with (``shell.build_walls``): ``{"planes": the roof underside,
     "top": the ridge}``; None for a roof that is not convex (its walls keep their level height). A stepped hip roof
     (``parts``, 27 Oct 2026) also gives ``wall_planes``: per wall of ``walls`` the underside of the part over it
-    (``cut_planes_for``)."""
+    (``cut_planes_for``). 31 Oct 2026: under a dormer (``model["dormers"]``, ``dormers.py``) a wall of ``walls`` is
+    cut by the dormer's underside along its stretch inside the dormer (``wall_spans``: the wall rises to the dormer's
+    ceiling there; a facade wall under a dormer on its facade is the dormer's front face), so its doors and windows
+    keep their height (``clip_openings_to_roof``, ``opening_head_limit`` read the same spans); ``dormers`` (their inner
+    region and underside) lets ``cut_planes_for`` find a dormer over a point of a wall not in ``walls``."""
     if not model or not model.get("equations"):
         return None
     if model.get("parts"):
         return _parts_wall_cut(model, walls or [])
     if not model.get("convex"):
         return None
-    return {"planes": underside(model), "top": max(float(p[2]) for pl in model["planes"] for p in pl["points"])}
+    cut = {"planes": underside(model), "top": max(float(p[2]) for pl in model["planes"] for p in pl["points"])}
+    if model.get("dormers"):
+        cut["dormers"] = [{"id": d.get("id"), "inner": d["inner"], "under": tuple(d["under"])}
+                          for d in model["dormers"] if len(d.get("inner") or []) >= 3 and d.get("under")]
+        if walls:
+            from wenart.blender import dormers as DM
+
+            spans = DM.wall_spans(walls, model["dormers"], cut["planes"])
+            if spans:
+                cut["wall_spans"] = spans
+    return cut
 
 
 WALL_SAMPLE_M = 0.05             # a wall under a stepped roof is followed this fine for the part over it ...
@@ -2010,12 +2032,25 @@ def cut_planes_for(cut: Optional[dict], wall_id, wall: Optional[dict] = None, at
             for s in spans:
                 if s["t0"] - 1e-9 <= t <= s["t1"] + 1e-9:
                     return s["planes"]
+    elif cut.get("dormers") and at is not None:
+        # 31 Oct 2026: a wall ``wall_cut`` was not given: the dormer over the point (on the wall's centre line, as
+        # ``wall_spans`` measures it) cuts it there (dormers.py)
+        px, py = float(at[0]), float(at[1])
+        if wall is not None:
+            (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
+            den = (x1 - x0) ** 2 + (y1 - y0) ** 2
+            if den > 1e-18:
+                t = ((px - x0) * (x1 - x0) + (py - y0) * (y1 - y0)) / den
+                px, py = x0 + (x1 - x0) * t, y0 + (y1 - y0) * t
+        for d in cut["dormers"]:
+            if G.point_in_polygon((px, py), d["inner"]):
+                return [tuple(d["under"])]
     return (cut.get("wall_planes") or {}).get(wall_id) or cut["planes"]
 
 
-def top_z(model: dict, x: float, y: float) -> float:
-    """The roof's top surface at ``(x, y)`` (pure): a stepped hip roof's highest part over the point (``parts_z``),
-    else the lowest plane (a convex roof)."""
+def base_top_z(model: dict, x: float, y: float) -> float:
+    """The main roof's top surface at ``(x, y)``, without its dormers (pure): a stepped hip roof's highest part over
+    the point (``parts_z``), else the lowest plane (a convex roof)."""
     if model.get("parts"):
         z = parts_z(model["parts"], x, y)
         if z is not None:
@@ -2023,15 +2058,38 @@ def top_z(model: dict, x: float, y: float) -> float:
     return surface_z(model["equations"], x, y)
 
 
+def _dormer_z(model: dict, x: float, y: float, key: str, poly_key: str) -> Optional[float]:
+    """The highest dormer surface ``key`` (``top`` / ``under``) whose ``poly_key`` region holds ``(x, y)``; None."""
+    best = None
+    for d in model.get("dormers") or ():
+        poly = d.get(poly_key) or []
+        if len(poly) >= 3 and d.get(key) and G.point_in_polygon((x, y), poly):
+            z = plane_z(d[key], x, y)
+            best = z if best is None else max(best, z)
+    return best
+
+
+def top_z(model: dict, x: float, y: float) -> float:
+    """The roof's top surface at ``(x, y)`` (pure): a stepped hip roof's highest part over the point (``parts_z``),
+    else the lowest plane (a convex roof). 31 Oct 2026: a dormer's roof where it stands over the main roof
+    (``model["dormers"]``' ``roof_poly``, ``dormers.py``)."""
+    z = base_top_z(model, x, y)
+    dz = _dormer_z(model, x, y, "top", "roof_poly")
+    return z if dz is None else max(z, dz)
+
+
 def underside_z(model: dict, x: float, y: float) -> float:
-    """The roof's underside at ``(x, y)`` (pure; ``top_z`` the roof thickness lower, square to the slope)."""
+    """The roof's underside at ``(x, y)`` (pure; ``top_z`` the roof thickness lower, square to the slope). 31 Oct
+    2026: under a dormer (its ``footprint``) the dormer roof's underside."""
+    dz = _dormer_z(model, x, y, "under", "footprint")
     if model.get("parts"):
         drop = max(float(model["thickness"]) * math.sqrt(1.0 + e[0] * e[0] + e[1] * e[1])
                    for e in model["equations"])
         z = parts_z(model["parts"], x, y, drop)
         if z is not None:
-            return z
-    return surface_z(underside(model), x, y)
+            return z if dz is None else max(z, dz)
+    z = surface_z(underside(model), x, y)
+    return z if dz is None else max(z, dz)
 
 
 def _flat_ceiling_clash(model: dict, building: dict, level: Optional[dict]) -> Optional[tuple[float, float]]:
@@ -2134,6 +2192,8 @@ def build_roof(model: dict, collection, materials: Sequence, manifest_objects: l
         "planes": model["planes"], "thickness": model["thickness"],
         "openings": [{"id": o["id"], "kind": o["kind"], "room_id": o["room_id"]} for o in model["openings"]],
         "z_range": [round(min(zs), 4), round(max(zs), 4)], "faces": len(faces),
+        # 31 Oct 2026: the dormers cut into it (dormers.build_dormers makes them, one object each)
+        "dormers": [d["id"] for d in model.get("dormers") or []],
     })
     for a in model["assumed"]:
         assumed.append({"object": "roof", "field": a["field"], "value": a["value"], "reason": a["reason"]})

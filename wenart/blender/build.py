@@ -1222,7 +1222,7 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
            "warnings": list(vb["_variant"]["warnings"]), "assumed": [], "slabs": None, "roof": None,
            "open_rooms": set(), "outlines": {}, "ground_outline": [], "site": None, "faces": {},
            "brief": brief_args(building_all, brief), "terraces": [], "clips": [], "site_options": None,
-           "overrides_applied": None, "stair_access": None, "chimneys": None}
+           "overrides_applied": None, "stair_access": None, "chimneys": None, "dormers": None}
     # 27 Oct 2026 (real06's first floor: the stair arrived on a strip by the outer wall that its floor opening cut off
     # from the hall; user: "Needs a pathway here, how will the people go up to 2nd floor otherwise?"): before anything
     # is planned, every stair of a whole building must lead into its floors; an assumed stair that does not takes the
@@ -1314,6 +1314,16 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
         out["slabs"] = shell.slab_plan(vb, vb["levels"], float(slab_t), bool(slab_assumed))
         out["warnings"] += [w for w in out["slabs"]["warnings"] if w not in out["warnings"]]
         out["assumed"] += [a for a in out["slabs"]["assumed"] if a not in out["assumed"]]
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full, the attic bathroom: "There is something seriously wrong
+    # here, investigate what happened and fix it, the door the toilet not making sense at all"): a drawn door (or
+    # window) the inferred roof leaves too low, that no slide of at most 0.5 m along its wall fixes, gets a shed dormer
+    # over it instead of a 1 m hatch (wenart/blender/dormers.py): the roof model, the level's raised ceiling and the
+    # opening carry it before the clip, the door sizes and rules, the walls, the ceilings and the checks read them
+    from wenart.blender import dormers as DM
+    out["dormers"] = DM.raise_dormers(vb, over, roof) if over is not None else {"dormers": [], "refused": [],
+                                                                                 "assumed": [], "warnings": []}
+    out["assumed"] += out["dormers"]["assumed"]
+    out["warnings"] += out["dormers"]["warnings"]
     out["clips"] = R.clip_openings_to_roof(vb, over, roof) if over is not None else []
     if out["clips"]:
         variant_meta = vb.get("_variant")
@@ -1718,6 +1728,8 @@ def main(argv: list[str]) -> int:
             floor_whole = {"floor_voids": under["voids"] if under else [],
                            "ceiling_voids": above["voids"] if above else None,
                            "ceiling_planes": level.get("ceiling_planes"), "open_rooms": prep["open_rooms"],
+                           # 31 Oct 2026: the dormers' ceilings in the rooms under the roof (dormers.py)
+                           "ceiling_dormers": level.get("ceiling_dormers"),
                            # 30 Oct 2026 (UL159): the family's terrace floor, never the garden paving
                            "terrace_floor": GR.raised_floor(looks, (style or {}).get("family"))}
         shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings, stairs=stairs,
@@ -1833,6 +1845,14 @@ def main(argv: list[str]) -> int:
             if fascia_note is not None:
                 assumed.append(fascia_note)
             R.build_roof(roof, roof_col, mats, manifest_objects, assumed)
+            # 31 Oct 2026 (user on real04 run 20261030-181158-full: "the door the toilet not making sense at all"): the
+            # dormers over the drawn doors and windows the roof left too low (wenart/blender/dormers.py; the roof above
+            # is cut where they sit), one object each, kind roof, detail dormer
+            from wenart.blender import dormers as DM
+            whole_info["dormers"] = DM.build_dormers(roof, roof_col, looks,
+                                                     lambda look: shell.look_material(library, look), mats,
+                                                     manifest_objects, assumed,
+                                                     refused=(prep.get("dormers") or {}).get("refused") or [])
             over = next(lv for lv in levels if lv["id"] == roof["over_level_id"])
             parapets = R.parapet_cuts(roof, building, over)
             for o in roof["openings"]:
@@ -1988,6 +2008,9 @@ def main(argv: list[str]) -> int:
         def ceiling_at(level, x, y):
             planes = level.get("ceiling_planes")
             flat = float(level["elevation"]) + float(level["ceiling_height"])
+            if planes and level.get("ceiling_dormers"):        # 31 Oct 2026: under a dormer its ceiling (dormers.py)
+                from wenart.blender import geom2d as G2
+                return min(flat, G2.level_ceiling_z(level, x, y))
             return min([flat] + [a * x + b * y + c for a, b, c in planes or []])
 
         light_info = lighting.build_lighting(building, levels, style, hdri, light_col, manifest_objects, assumed,
@@ -2795,7 +2818,8 @@ def pieces_above_ceiling(building: dict, level: dict) -> list[str]:
         # a wall-hung piece (mount_bottom_m, §1.6b row 15) hangs that high above the floor
         top = float(level["elevation"]) + float(piece.get("mount_bottom_m") or 0.0) + float(piece_bbox(piece)[2])
         corners = G.rotated_rectangle(fp["center"], fp["size"], float(fp.get("rotation_deg") or 0.0))
-        low = min(geom2d.surface_z(planes, x, y) for x, y in corners)
+        # 31 Oct 2026: under a dormer its ceiling (the level's ``ceiling_dormers``, dormers.py)
+        low = min(geom2d.raised_surface_z(planes, x, y, level.get("ceiling_dormers")) for x, y in corners)
         if top > low + 1e-3:
             out.append(f"{piece['id']}: {piece.get('type')} with its top {top - float(level['elevation']):.2f} m "
                        f"above the floor stands where the sloped ceiling is {low - float(level['elevation']):.2f} m "

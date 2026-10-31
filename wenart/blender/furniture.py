@@ -3113,7 +3113,8 @@ def ceiling_above(level: dict, center, size, rotation_deg: float = 0.0) -> tuple
     floor_z = float(level.get("elevation") or 0.0)
     points = list(G.rotated_rectangle((float(center[0]), float(center[1])), (float(size[0]), float(size[1])),
                                       float(rotation_deg))) + [(float(center[0]), float(center[1]))]
-    z = min(geom2d.surface_z(planes, x, y) for x, y in points) - floor_z
+    # 31 Oct 2026: under a dormer its ceiling (the level's ``ceiling_dormers``, dormers.py), not the old slope
+    z = min(geom2d.raised_surface_z(planes, x, y, level.get("ceiling_dormers")) for x, y in points) - floor_z
     return round(z, 4), "the sloped ceiling under the roof (its lowest point over the item)"
 
 

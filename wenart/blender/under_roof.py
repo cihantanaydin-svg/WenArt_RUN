@@ -16,6 +16,9 @@ What (pure, no ``bpy``):
   element: a door's worst part names it.
 - ``door_problems(building)``: a door the build could not fit under the slope at its wall nor slide along it
   (``door_states.apply_under_roof``: ``under_roof.fits`` False): ``major``, it needs a dormer or a raised roof.
+- ``dormer_problems(building, manifest)`` (31 Oct 2026, ``dormers.py``: the build raises a dormer over such a door
+  where one fits): a dormer the scene lacks (``dormer_not_built``) or one that leaves its door too low
+  (``dormer_too_low``): ``major``. The crossings read the level's ceiling raised by its dormers (``ceiling_dormers``).
 
 The model review's M31 and the build's log read both; the exterior check X2 sees the door parts too since their
 manifest entries carry ``box3d`` (``build.add_box3d``). The rules that keep things under the roof: the doors
@@ -90,7 +93,9 @@ def crossings(objects: Sequence[dict], building: dict, roof_model: Optional[dict
             pts = [p for p in pts if R.covers(model, float(p[0]), float(p[1]))]
             if not pts:
                 continue                                   # out of the roof's outline: under the sky
-        ceiling = min(geom2d.surface_z(level["ceiling_planes"], float(x), float(y)) for x, y in pts)
+        # 31 Oct 2026: under a dormer its ceiling (the level's ``ceiling_dormers``, dormers.py)
+        ceiling = min(geom2d.raised_surface_z(level["ceiling_planes"], float(x), float(y),
+                                              level.get("ceiling_dormers")) for x, y in pts)
         if top <= ceiling + CEILING_TOL_M:
             continue
         roof_top = min(R.top_z(model, float(x), float(y)) for x, y in pts) if model is not None else None
@@ -115,6 +120,41 @@ def crossings(objects: Sequence[dict], building: dict, roof_model: Optional[dict
         elif rec["over_m"] > worst[target]["over_m"]:
             worst[target] = rec
     return [worst[t] for t in order]
+
+
+def dormer_problems(building: dict, manifest: Optional[dict] = None) -> list[dict]:
+    """31 Oct 2026 (dormers.py): every opening a dormer serves (its ``dormer`` record) whose dormer the scene does not
+    hold (``dormer_not_built``: a scene manifest with the roof built and no object of detail ``dormer`` of that id) or
+    whose door still reaches over the ceiling at its frame (``dormer_too_low``: ``door_states.head_room`` with the
+    level's ``ceiling_dormers``). ``[{"target", "severity", "problem", "level_id", "message"}]``, major (pure)."""
+    from wenart.blender import door_states as DS
+
+    objs = (manifest or {}).get("objects") or []
+    built = {o.get("wenart_id") for o in objs if o.get("detail") == "dormer"} \
+        if any(o.get("wenart_id") == "roof" for o in objs) else None
+    levels = {lv.get("id"): lv for lv in (building or {}).get("levels") or []}
+    walls = {w.get("id"): w for w in (building or {}).get("walls") or []}
+    out = []
+    for o in (building or {}).get("openings") or []:
+        rec = o.get("dormer") if isinstance(o.get("dormer"), dict) else None
+        if rec is None:
+            continue
+        if built is not None and rec.get("id") not in built:
+            out.append({"target": o.get("id"), "severity": "major", "problem": "dormer_not_built",
+                        "level_id": o.get("level_id"),
+                        "message": f"{o.get('type')} {o.get('id')} keeps its height for the dormer {rec.get('id')}, "
+                                   f"which the scene does not hold: it crosses the roof"})
+            continue
+        lv, wall = levels.get(o.get("level_id")), walls.get(o.get("wall_id"))
+        if o.get("type") != "door" or lv is None or wall is None:
+            continue
+        room = DS.head_room(o, wall, lv)
+        if room is not None and DS.door_height_of(o) > room + DS.HEIGHT_TOL_M:
+            out.append({"target": o.get("id"), "severity": "major", "problem": "dormer_too_low",
+                        "level_id": o.get("level_id"),
+                        "message": f"door {o.get('id')} is {DS.door_height_of(o):.2f} m high under its dormer "
+                                   f"{rec.get('id')}, whose ceiling leaves it {room:.2f} m at its frame"})
+    return out
 
 
 def door_problems(building: dict) -> list[dict]:

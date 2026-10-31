@@ -2510,7 +2510,11 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
                 _rv, _rf, c = ceiling_faces(room["polygon"], [loops], ceil_z)
                 if c:
                     holes.extend(loops)
-            cv, cf = geom2d.sloped_faces(room["polygon"], holes, planes, facing_up=False)
+            # 31 Oct 2026 (user on real04 run 20261030-181158-full: "the door the toilet not making sense at all"): a
+            # dormer's ceiling over a drawn door stands in the room's sloped ceiling (dormers.room_ceiling; the step
+            # up to it is the dormer cheek's inner face)
+            from wenart.blender import dormers as DM
+            cv, cf = DM.room_ceiling(room["polygon"], holes, planes, whole.get("ceiling_dormers"))
             cut = [0] if holes else []
         else:
             cv, cf, cut = ceiling_faces(room["polygon"], room_voids, ceil_z)
@@ -2528,6 +2532,10 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
         }
         if planes:
             entry["sloped"] = "under the roof: the roof underside and the level's flat ceiling, the lower one"
+            raised = [r["id"] for r in whole.get("ceiling_dormers") or []
+                      if G.polygon_area(geom2d.clip_convex(room["polygon"], r["polygon"]) or [(0, 0)] * 3) > 1e-4]
+            if raised:
+                entry["dormers"] = raised
         if cut and slab_voids is None and not planes:
             ids = [planned[i]["piece"]["id"] for i in cut]
             entry["stair_void"] = ids
@@ -2941,7 +2949,8 @@ def top_level_stair(building: dict, level: dict, piece: dict, walls: list[dict])
     mine = _footprint_polygon(piece)
     if planes:
         corners = mine or [tuple(piece["footprint"]["center"])]
-        under, what = min(geom2d.surface_z(planes, x, y) for x, y in corners) - floor_z, "the roof underside"
+        # 31 Oct 2026: a dormer over it raises the ceiling (level ``ceiling_dormers``, dormers.py)
+        under, what = min(geom2d.level_ceiling_z(level, x, y) for x, y in corners) - floor_z, "the roof underside"
     else:
         under, what = float(level["ceiling_height"]), "the ceiling"
     top = under - STAIR_UPPER_FLOOR_GAP

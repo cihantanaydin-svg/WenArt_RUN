@@ -380,7 +380,8 @@ def ceiling_over(building: dict, piece: dict) -> Optional[float]:
         corners = G.rotated_rectangle(fp["center"], list(fp.get("size") or [0.0, 0.0]),
                                       float(fp.get("rotation_deg") or 0.0))
         z0 = float(level.get("elevation") or 0.0)
-        out = min([out] + [geom2d.surface_z(planes, float(x), float(y)) - z0 for x, y in corners])
+        out = min([out] + [geom2d.raised_surface_z(planes, float(x), float(y), level.get("ceiling_dormers")) - z0
+                           for x, y in corners])          # 31 Oct 2026: under a dormer its ceiling (dormers.py)
     return out
 
 

@@ -586,6 +586,8 @@ def eaves_edges(roof_model: Optional[dict]) -> list[dict]:
     outline = geom2d.ccw(roof_model.get("outline") or [])
     eaves = float(roof_model["eaves_z"])
     holes = [o["polygon"] for o in roof_model.get("openings") or [] if len(o.get("polygon") or []) >= 3]
+    # 31 Oct 2026: a dormer on its facade cuts the eaves in front of it (dormers.py): no gutter across its front
+    holes += [d["hole"] for d in roof_model.get("dormers") or [] if d.get("flush") and len(d.get("hole") or []) >= 3]
     out = []
     n = len(outline)
     for i in range(n):
