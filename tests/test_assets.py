@@ -254,7 +254,8 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
                    # (exterior.build_finish_slugs: site.OUTDOOR_FLOOR_LOOKS, OUTDOOR_SOFFIT_LOOK)
                    "synthetic_wood", "floor_tiles_02", "oak_wood_planks",
                    # 28 Oct 2026: the outdoor floors by use (grading.floor_set): the default family's gravel path
-                   "gravel_floor_02"} | {a for _, a, _ in fetch.design_texture_rows()}   # 29 Oct 2026: every finish
+                   "gravel_floor_02"} | {a for _, a, _ in fetch.design_texture_rows()} \
+        | {a for _, a, _ in V.furniture_textures()}   # 29 Oct 2026: every finish; 31 Oct 2026: the fabric/leather scans
     assert ("hdri", "kloppenheim_06", "1k") in calls
     assert ("texture", "Marble012", "1k") in calls and ("texture", "Marble012", "2k") in calls   # at --size
     out = capsys.readouterr().out
@@ -614,7 +615,8 @@ def test_the_fetch_plan_adds_the_shell_sets_a_style_does_not_name():
     plan = fetch.texture_plan(profile)
     ids = [a for _, a, _ in plan]
     assert len(ids) == len(set(ids))
-    assert ("ambientcg", "Marble012", "shell:worktop") in plan and ("ambientcg", "Metal032", "shell:metal") in plan
+    # 31 Oct 2026 (UL218): Metal032 is also the furniture's metal_black scan, so the furniture row names it first
+    assert ("ambientcg", "Marble012", "shell:worktop") in plan and ("ambientcg", "Metal032", "metal_black") in plan
     style_rows = SP.assets_in_profile(profile)["textures"]
     assert plan[:len(style_rows)] == [tuple(r) for r in style_rows]
     assert ids.index("Marble012") > max(ids.index(a) for _, a, _ in V.furniture_textures())

@@ -2648,7 +2648,7 @@
    "id": "UL223",
    "date": "2026-10-31",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
