@@ -1,0 +1,1406 @@
+{
+ "schema_version": 1,
+ "kind": "ranking_index",
+ "version": "ul217.1",
+ "lesson": "UL217",
+ "per_sheet": 20,
+ "types": [
+  "ours"
+ ],
+ "sheets": [
+  {
+   "sheet": "ours-01",
+   "type": "ours",
+   "number": 1,
+   "of": 4,
+   "letters": {
+    "A": "ours:sofa_corner:real04",
+    "B": "ours:sofa_corner:real06",
+    "C": "ours:table_coffee:real04",
+    "D": "ours:table_coffee:real06",
+    "E": "ours:side_table:real04",
+    "F": "ours:side_table:real06",
+    "G": "ours:tv_unit:real04",
+    "H": "ours:tv_unit:real06",
+    "I": "ours:floor_lamp:real04",
+    "J": "ours:floor_lamp:real06",
+    "K": "ours:ottoman:real04",
+    "L": "ours:ottoman:real06",
+    "M": "ours:bookshelf:real04",
+    "N": "ours:bookshelf:real06",
+    "O": "ours:console_table:real04",
+    "P": "ours:console_table:real06",
+    "Q": "ours:sideboard:real04",
+    "R": "ours:sideboard:real06",
+    "S": "ours:display_cabinet:real04",
+    "T": "ours:display_cabinet:real06"
+   }
+  },
+  {
+   "sheet": "ours-02",
+   "type": "ours",
+   "number": 2,
+   "of": 4,
+   "letters": {
+    "A": "ours:chaise:real04",
+    "B": "ours:chaise:real06",
+    "C": "ours:table_dining:real04",
+    "D": "ours:table_dining:real06",
+    "E": "ours:chair:real04",
+    "F": "ours:chair:real06",
+    "G": "ours:bar_stool:real04",
+    "H": "ours:bar_stool:real06",
+    "I": "ours:bench:real04",
+    "J": "ours:bench:real06",
+    "K": "ours:nightstand:real04",
+    "L": "ours:nightstand:real06",
+    "M": "ours:wardrobe:real04",
+    "N": "ours:wardrobe:real06",
+    "O": "ours:dresser:real04",
+    "P": "ours:dresser:real06",
+    "Q": "ours:bed_single:real04",
+    "R": "ours:bed_single:real06",
+    "S": "ours:bunk_bed:real04",
+    "T": "ours:bunk_bed:real06"
+   }
+  },
+  {
+   "sheet": "ours-03",
+   "type": "ours",
+   "number": 3,
+   "of": 4,
+   "letters": {
+    "A": "ours:crib:real04",
+    "B": "ours:crib:real06",
+    "C": "ours:desk:real04",
+    "D": "ours:desk:real06",
+    "E": "ours:office_chair:real04",
+    "F": "ours:office_chair:real06",
+    "G": "ours:shoe_cabinet:real04",
+    "H": "ours:shoe_cabinet:real06",
+    "I": "ours:tall_cabinet:real04",
+    "J": "ours:tall_cabinet:real06",
+    "K": "ours:potted_plant:real04",
+    "L": "ours:potted_plant:real06",
+    "M": "ours:washbasin:real04",
+    "N": "ours:washbasin:real06",
+    "O": "ours:toilet:real04",
+    "P": "ours:toilet:real06",
+    "Q": "ours:bathtub:real04",
+    "R": "ours:bathtub:real06",
+    "S": "ours:shower:real04",
+    "T": "ours:shower:real06"
+   }
+  },
+  {
+   "sheet": "ours-04",
+   "type": "ours",
+   "number": 4,
+   "of": 4,
+   "letters": {
+    "A": "ours:washing_machine:real04",
+    "B": "ours:washing_machine:real06",
+    "C": "ours:stove:real04",
+    "D": "ours:stove:real06",
+    "E": "ours:sink_kitchen:real04",
+    "F": "ours:sink_kitchen:real06",
+    "G": "ours:fridge:real04",
+    "H": "ours:fridge:real06",
+    "I": "ours:bed_double:real04",
+    "J": "ours:bed_double:real06",
+    "K": "ours:sofa:real04",
+    "L": "ours:sofa:real06",
+    "M": "ours:armchair:real04",
+    "N": "ours:armchair:real06",
+    "O": "ours:kitchen_counter:real04",
+    "P": "ours:kitchen_counter:real06",
+    "Q": "ours:kitchen_island:real04",
+    "R": "ours:kitchen_island:real06",
+    "S": "ours:wall_cabinet:real04",
+    "T": "ours:wall_cabinet:real06"
+   }
+  }
+ ],
+ "models": {
+  "ours:sofa_corner:real04": {
+   "type": "sofa_corner",
+   "sheet": "ours-01",
+   "letter": "A",
+   "source": "procedural",
+   "title": "our sofa corner (parametric, real04 style)",
+   "size_m": [
+    2.6,
+    1.6,
+    0.86
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:sofa_corner:real06": {
+   "type": "sofa_corner",
+   "sheet": "ours-01",
+   "letter": "B",
+   "source": "procedural",
+   "title": "our sofa corner (parametric, real06 style)",
+   "size_m": [
+    2.6,
+    1.6,
+    0.86
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:table_coffee:real04": {
+   "type": "table_coffee",
+   "sheet": "ours-01",
+   "letter": "C",
+   "source": "procedural",
+   "title": "our table coffee (parametric, real04 style)",
+   "size_m": [
+    1.1,
+    0.6,
+    0.42
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:table_coffee:real06": {
+   "type": "table_coffee",
+   "sheet": "ours-01",
+   "letter": "D",
+   "source": "procedural",
+   "title": "our table coffee (parametric, real06 style)",
+   "size_m": [
+    1.1,
+    0.6,
+    0.42
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:side_table:real04": {
+   "type": "side_table",
+   "sheet": "ours-01",
+   "letter": "E",
+   "source": "procedural",
+   "title": "our side table (parametric, real04 style)",
+   "size_m": [
+    0.45,
+    0.45,
+    0.55
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:side_table:real06": {
+   "type": "side_table",
+   "sheet": "ours-01",
+   "letter": "F",
+   "source": "procedural",
+   "title": "our side table (parametric, real06 style)",
+   "size_m": [
+    0.45,
+    0.45,
+    0.55
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:tv_unit:real04": {
+   "type": "tv_unit",
+   "sheet": "ours-01",
+   "letter": "G",
+   "source": "procedural",
+   "title": "our tv unit (parametric, real04 style)",
+   "size_m": [
+    1.5,
+    0.42,
+    0.55
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:tv_unit:real06": {
+   "type": "tv_unit",
+   "sheet": "ours-01",
+   "letter": "H",
+   "source": "procedural",
+   "title": "our tv unit (parametric, real06 style)",
+   "size_m": [
+    1.5,
+    0.42,
+    0.55
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:floor_lamp:real04": {
+   "type": "floor_lamp",
+   "sheet": "ours-01",
+   "letter": "I",
+   "source": "procedural",
+   "title": "our floor lamp (parametric, real04 style)",
+   "size_m": [
+    0.4,
+    0.4,
+    1.6
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:floor_lamp:real06": {
+   "type": "floor_lamp",
+   "sheet": "ours-01",
+   "letter": "J",
+   "source": "procedural",
+   "title": "our floor lamp (parametric, real06 style)",
+   "size_m": [
+    0.4,
+    0.4,
+    1.6
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:ottoman:real04": {
+   "type": "ottoman",
+   "sheet": "ours-01",
+   "letter": "K",
+   "source": "procedural",
+   "title": "our ottoman (parametric, real04 style)",
+   "size_m": [
+    0.6,
+    0.6,
+    0.45
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:ottoman:real06": {
+   "type": "ottoman",
+   "sheet": "ours-01",
+   "letter": "L",
+   "source": "procedural",
+   "title": "our ottoman (parametric, real06 style)",
+   "size_m": [
+    0.6,
+    0.6,
+    0.45
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:bookshelf:real04": {
+   "type": "bookshelf",
+   "sheet": "ours-01",
+   "letter": "M",
+   "source": "procedural",
+   "title": "our bookshelf (parametric, real04 style)",
+   "size_m": [
+    0.9,
+    0.35,
+    1.85
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:bookshelf:real06": {
+   "type": "bookshelf",
+   "sheet": "ours-01",
+   "letter": "N",
+   "source": "procedural",
+   "title": "our bookshelf (parametric, real06 style)",
+   "size_m": [
+    0.9,
+    0.35,
+    1.85
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:console_table:real04": {
+   "type": "console_table",
+   "sheet": "ours-01",
+   "letter": "O",
+   "source": "procedural",
+   "title": "our console table (parametric, real04 style)",
+   "size_m": [
+    1.2,
+    0.35,
+    0.76
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:console_table:real06": {
+   "type": "console_table",
+   "sheet": "ours-01",
+   "letter": "P",
+   "source": "procedural",
+   "title": "our console table (parametric, real06 style)",
+   "size_m": [
+    1.2,
+    0.35,
+    0.76
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:sideboard:real04": {
+   "type": "sideboard",
+   "sheet": "ours-01",
+   "letter": "Q",
+   "source": "procedural",
+   "title": "our sideboard (parametric, real04 style)",
+   "size_m": [
+    1.6,
+    0.45,
+    0.82
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:sideboard:real06": {
+   "type": "sideboard",
+   "sheet": "ours-01",
+   "letter": "R",
+   "source": "procedural",
+   "title": "our sideboard (parametric, real06 style)",
+   "size_m": [
+    1.6,
+    0.45,
+    0.82
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:display_cabinet:real04": {
+   "type": "display_cabinet",
+   "sheet": "ours-01",
+   "letter": "S",
+   "source": "procedural",
+   "title": "our display cabinet (parametric, real04 style)",
+   "size_m": [
+    0.8,
+    0.4,
+    1.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:display_cabinet:real06": {
+   "type": "display_cabinet",
+   "sheet": "ours-01",
+   "letter": "T",
+   "source": "procedural",
+   "title": "our display cabinet (parametric, real06 style)",
+   "size_m": [
+    0.8,
+    0.4,
+    1.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:chaise:real04": {
+   "type": "chaise",
+   "sheet": "ours-02",
+   "letter": "A",
+   "source": "procedural",
+   "title": "our chaise (parametric, real04 style)",
+   "size_m": [
+    0.75,
+    1.7,
+    0.82
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:chaise:real06": {
+   "type": "chaise",
+   "sheet": "ours-02",
+   "letter": "B",
+   "source": "procedural",
+   "title": "our chaise (parametric, real06 style)",
+   "size_m": [
+    0.75,
+    1.7,
+    0.82
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:table_dining:real04": {
+   "type": "table_dining",
+   "sheet": "ours-02",
+   "letter": "C",
+   "source": "procedural",
+   "title": "our table dining (module, real04 style)",
+   "size_m": [
+    1.6,
+    0.9,
+    0.75
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "module"
+  },
+  "ours:table_dining:real06": {
+   "type": "table_dining",
+   "sheet": "ours-02",
+   "letter": "D",
+   "source": "procedural",
+   "title": "our table dining (module, real06 style)",
+   "size_m": [
+    1.6,
+    0.9,
+    0.75
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "module"
+  },
+  "ours:chair:real04": {
+   "type": "chair",
+   "sheet": "ours-02",
+   "letter": "E",
+   "source": "procedural",
+   "title": "our chair (parametric, real04 style)",
+   "size_m": [
+    0.48,
+    0.55,
+    0.88
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:chair:real06": {
+   "type": "chair",
+   "sheet": "ours-02",
+   "letter": "F",
+   "source": "procedural",
+   "title": "our chair (parametric, real06 style)",
+   "size_m": [
+    0.48,
+    0.55,
+    0.88
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:bar_stool:real04": {
+   "type": "bar_stool",
+   "sheet": "ours-02",
+   "letter": "G",
+   "source": "procedural",
+   "title": "our bar stool (parametric, real04 style)",
+   "size_m": [
+    0.45,
+    0.5,
+    1.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:bar_stool:real06": {
+   "type": "bar_stool",
+   "sheet": "ours-02",
+   "letter": "H",
+   "source": "procedural",
+   "title": "our bar stool (parametric, real06 style)",
+   "size_m": [
+    0.45,
+    0.5,
+    1.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:bench:real04": {
+   "type": "bench",
+   "sheet": "ours-02",
+   "letter": "I",
+   "source": "procedural",
+   "title": "our bench (parametric, real04 style)",
+   "size_m": [
+    1.2,
+    0.4,
+    0.46
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:bench:real06": {
+   "type": "bench",
+   "sheet": "ours-02",
+   "letter": "J",
+   "source": "procedural",
+   "title": "our bench (parametric, real06 style)",
+   "size_m": [
+    1.2,
+    0.4,
+    0.46
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:nightstand:real04": {
+   "type": "nightstand",
+   "sheet": "ours-02",
+   "letter": "K",
+   "source": "procedural",
+   "title": "our nightstand (parametric, real04 style)",
+   "size_m": [
+    0.45,
+    0.4,
+    0.55
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:nightstand:real06": {
+   "type": "nightstand",
+   "sheet": "ours-02",
+   "letter": "L",
+   "source": "procedural",
+   "title": "our nightstand (parametric, real06 style)",
+   "size_m": [
+    0.45,
+    0.4,
+    0.55
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:wardrobe:real04": {
+   "type": "wardrobe",
+   "sheet": "ours-02",
+   "letter": "M",
+   "source": "procedural",
+   "title": "our wardrobe (module, real04 style)",
+   "size_m": [
+    1.2,
+    0.6,
+    2.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "module"
+  },
+  "ours:wardrobe:real06": {
+   "type": "wardrobe",
+   "sheet": "ours-02",
+   "letter": "N",
+   "source": "procedural",
+   "title": "our wardrobe (module, real06 style)",
+   "size_m": [
+    1.2,
+    0.6,
+    2.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "module"
+  },
+  "ours:dresser:real04": {
+   "type": "dresser",
+   "sheet": "ours-02",
+   "letter": "O",
+   "source": "procedural",
+   "title": "our dresser (parametric, real04 style)",
+   "size_m": [
+    1.0,
+    0.45,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:dresser:real06": {
+   "type": "dresser",
+   "sheet": "ours-02",
+   "letter": "P",
+   "source": "procedural",
+   "title": "our dresser (parametric, real06 style)",
+   "size_m": [
+    1.0,
+    0.45,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:bed_single:real04": {
+   "type": "bed_single",
+   "sheet": "ours-02",
+   "letter": "Q",
+   "source": "procedural",
+   "title": "our bed single (parametric, real04 style)",
+   "size_m": [
+    0.9,
+    2.0,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:bed_single:real06": {
+   "type": "bed_single",
+   "sheet": "ours-02",
+   "letter": "R",
+   "source": "procedural",
+   "title": "our bed single (parametric, real06 style)",
+   "size_m": [
+    0.9,
+    2.0,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:bunk_bed:real04": {
+   "type": "bunk_bed",
+   "sheet": "ours-02",
+   "letter": "S",
+   "source": "procedural",
+   "title": "our bunk bed (parametric, real04 style)",
+   "size_m": [
+    1.0,
+    2.05,
+    1.65
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:bunk_bed:real06": {
+   "type": "bunk_bed",
+   "sheet": "ours-02",
+   "letter": "T",
+   "source": "procedural",
+   "title": "our bunk bed (parametric, real06 style)",
+   "size_m": [
+    1.0,
+    2.05,
+    1.65
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:crib:real04": {
+   "type": "crib",
+   "sheet": "ours-03",
+   "letter": "A",
+   "source": "procedural",
+   "title": "our crib (parametric, real04 style)",
+   "size_m": [
+    1.26,
+    0.66,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:crib:real06": {
+   "type": "crib",
+   "sheet": "ours-03",
+   "letter": "B",
+   "source": "procedural",
+   "title": "our crib (parametric, real06 style)",
+   "size_m": [
+    1.26,
+    0.66,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:desk:real04": {
+   "type": "desk",
+   "sheet": "ours-03",
+   "letter": "C",
+   "source": "procedural",
+   "title": "our desk (parametric, real04 style)",
+   "size_m": [
+    1.2,
+    0.6,
+    0.76
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:desk:real06": {
+   "type": "desk",
+   "sheet": "ours-03",
+   "letter": "D",
+   "source": "procedural",
+   "title": "our desk (parametric, real06 style)",
+   "size_m": [
+    1.2,
+    0.6,
+    0.76
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:office_chair:real04": {
+   "type": "office_chair",
+   "sheet": "ours-03",
+   "letter": "E",
+   "source": "procedural",
+   "title": "our office chair (parametric, real04 style)",
+   "size_m": [
+    0.65,
+    0.65,
+    1.1
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:office_chair:real06": {
+   "type": "office_chair",
+   "sheet": "ours-03",
+   "letter": "F",
+   "source": "procedural",
+   "title": "our office chair (parametric, real06 style)",
+   "size_m": [
+    0.65,
+    0.65,
+    1.1
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:shoe_cabinet:real04": {
+   "type": "shoe_cabinet",
+   "sheet": "ours-03",
+   "letter": "G",
+   "source": "procedural",
+   "title": "our shoe cabinet (parametric, real04 style)",
+   "size_m": [
+    0.8,
+    0.3,
+    1.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:shoe_cabinet:real06": {
+   "type": "shoe_cabinet",
+   "sheet": "ours-03",
+   "letter": "H",
+   "source": "procedural",
+   "title": "our shoe cabinet (parametric, real06 style)",
+   "size_m": [
+    0.8,
+    0.3,
+    1.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:tall_cabinet:real04": {
+   "type": "tall_cabinet",
+   "sheet": "ours-03",
+   "letter": "I",
+   "source": "procedural",
+   "title": "our tall cabinet (parametric, real04 style)",
+   "size_m": [
+    0.6,
+    0.6,
+    2.1
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:tall_cabinet:real06": {
+   "type": "tall_cabinet",
+   "sheet": "ours-03",
+   "letter": "J",
+   "source": "procedural",
+   "title": "our tall cabinet (parametric, real06 style)",
+   "size_m": [
+    0.6,
+    0.6,
+    2.1
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:potted_plant:real04": {
+   "type": "potted_plant",
+   "sheet": "ours-03",
+   "letter": "K",
+   "source": "procedural",
+   "title": "our potted plant (parametric, real04 style)",
+   "size_m": [
+    0.45,
+    0.45,
+    1.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:potted_plant:real06": {
+   "type": "potted_plant",
+   "sheet": "ours-03",
+   "letter": "L",
+   "source": "procedural",
+   "title": "our potted plant (parametric, real06 style)",
+   "size_m": [
+    0.45,
+    0.45,
+    1.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:washbasin:real04": {
+   "type": "washbasin",
+   "sheet": "ours-03",
+   "letter": "M",
+   "source": "procedural",
+   "title": "our washbasin (module, real04 style)",
+   "size_m": [
+    0.6,
+    0.45,
+    0.85
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "module"
+  },
+  "ours:washbasin:real06": {
+   "type": "washbasin",
+   "sheet": "ours-03",
+   "letter": "N",
+   "source": "procedural",
+   "title": "our washbasin (module, real06 style)",
+   "size_m": [
+    0.6,
+    0.45,
+    0.85
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "module"
+  },
+  "ours:toilet:real04": {
+   "type": "toilet",
+   "sheet": "ours-03",
+   "letter": "O",
+   "source": "procedural",
+   "title": "our toilet (parametric, real04 style)",
+   "size_m": [
+    0.38,
+    0.65,
+    0.78
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:toilet:real06": {
+   "type": "toilet",
+   "sheet": "ours-03",
+   "letter": "P",
+   "source": "procedural",
+   "title": "our toilet (parametric, real06 style)",
+   "size_m": [
+    0.38,
+    0.65,
+    0.78
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:bathtub:real04": {
+   "type": "bathtub",
+   "sheet": "ours-03",
+   "letter": "Q",
+   "source": "procedural",
+   "title": "our bathtub (parametric, real04 style)",
+   "size_m": [
+    1.7,
+    0.75,
+    0.58
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:bathtub:real06": {
+   "type": "bathtub",
+   "sheet": "ours-03",
+   "letter": "R",
+   "source": "procedural",
+   "title": "our bathtub (parametric, real06 style)",
+   "size_m": [
+    1.7,
+    0.75,
+    0.58
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:shower:real04": {
+   "type": "shower",
+   "sheet": "ours-03",
+   "letter": "S",
+   "source": "procedural",
+   "title": "our shower (module, real04 style)",
+   "size_m": [
+    0.9,
+    0.9,
+    2.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "module"
+  },
+  "ours:shower:real06": {
+   "type": "shower",
+   "sheet": "ours-03",
+   "letter": "T",
+   "source": "procedural",
+   "title": "our shower (module, real06 style)",
+   "size_m": [
+    0.9,
+    0.9,
+    2.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "module"
+  },
+  "ours:washing_machine:real04": {
+   "type": "washing_machine",
+   "sheet": "ours-04",
+   "letter": "A",
+   "source": "procedural",
+   "title": "our washing machine (parametric, real04 style)",
+   "size_m": [
+    0.6,
+    0.6,
+    0.85
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:washing_machine:real06": {
+   "type": "washing_machine",
+   "sheet": "ours-04",
+   "letter": "B",
+   "source": "procedural",
+   "title": "our washing machine (parametric, real06 style)",
+   "size_m": [
+    0.6,
+    0.6,
+    0.85
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:stove:real04": {
+   "type": "stove",
+   "sheet": "ours-04",
+   "letter": "C",
+   "source": "procedural",
+   "title": "our stove (parametric, real04 style)",
+   "size_m": [
+    0.6,
+    0.6,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:stove:real06": {
+   "type": "stove",
+   "sheet": "ours-04",
+   "letter": "D",
+   "source": "procedural",
+   "title": "our stove (parametric, real06 style)",
+   "size_m": [
+    0.6,
+    0.6,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:sink_kitchen:real04": {
+   "type": "sink_kitchen",
+   "sheet": "ours-04",
+   "letter": "E",
+   "source": "procedural",
+   "title": "our sink kitchen (parametric, real04 style)",
+   "size_m": [
+    0.8,
+    0.6,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:sink_kitchen:real06": {
+   "type": "sink_kitchen",
+   "sheet": "ours-04",
+   "letter": "F",
+   "source": "procedural",
+   "title": "our sink kitchen (parametric, real06 style)",
+   "size_m": [
+    0.8,
+    0.6,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:fridge:real04": {
+   "type": "fridge",
+   "sheet": "ours-04",
+   "letter": "G",
+   "source": "procedural",
+   "title": "our fridge (parametric, real04 style)",
+   "size_m": [
+    0.6,
+    0.65,
+    1.85
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:fridge:real06": {
+   "type": "fridge",
+   "sheet": "ours-04",
+   "letter": "H",
+   "source": "procedural",
+   "title": "our fridge (parametric, real06 style)",
+   "size_m": [
+    0.6,
+    0.65,
+    1.85
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:bed_double:real04": {
+   "type": "bed_double",
+   "sheet": "ours-04",
+   "letter": "I",
+   "source": "procedural",
+   "title": "our bed double (parametric, real04 style)",
+   "size_m": [
+    1.6,
+    2.0,
+    1.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:bed_double:real06": {
+   "type": "bed_double",
+   "sheet": "ours-04",
+   "letter": "J",
+   "source": "procedural",
+   "title": "our bed double (parametric, real06 style)",
+   "size_m": [
+    1.6,
+    2.0,
+    1.0
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:sofa:real04": {
+   "type": "sofa",
+   "sheet": "ours-04",
+   "letter": "K",
+   "source": "procedural",
+   "title": "our sofa (parametric, real04 style)",
+   "size_m": [
+    2.0,
+    0.9,
+    0.85
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:sofa:real06": {
+   "type": "sofa",
+   "sheet": "ours-04",
+   "letter": "L",
+   "source": "procedural",
+   "title": "our sofa (parametric, real06 style)",
+   "size_m": [
+    2.0,
+    0.9,
+    0.85
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:armchair:real04": {
+   "type": "armchair",
+   "sheet": "ours-04",
+   "letter": "M",
+   "source": "procedural",
+   "title": "our armchair (parametric, real04 style)",
+   "size_m": [
+    0.85,
+    0.85,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "parametric"
+  },
+  "ours:armchair:real06": {
+   "type": "armchair",
+   "sheet": "ours-04",
+   "letter": "N",
+   "source": "procedural",
+   "title": "our armchair (parametric, real06 style)",
+   "size_m": [
+    0.85,
+    0.85,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "parametric"
+  },
+  "ours:kitchen_counter:real04": {
+   "type": "kitchen_counter",
+   "sheet": "ours-04",
+   "letter": "O",
+   "source": "procedural",
+   "title": "our kitchen counter (module, real04 style)",
+   "size_m": [
+    2.4,
+    0.6,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "module"
+  },
+  "ours:kitchen_counter:real06": {
+   "type": "kitchen_counter",
+   "sheet": "ours-04",
+   "letter": "P",
+   "source": "procedural",
+   "title": "our kitchen counter (module, real06 style)",
+   "size_m": [
+    2.4,
+    0.6,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "module"
+  },
+  "ours:kitchen_island:real04": {
+   "type": "kitchen_island",
+   "sheet": "ours-04",
+   "letter": "Q",
+   "source": "procedural",
+   "title": "our kitchen island (module, real04 style)",
+   "size_m": [
+    1.6,
+    0.9,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "module"
+  },
+  "ours:kitchen_island:real06": {
+   "type": "kitchen_island",
+   "sheet": "ours-04",
+   "letter": "R",
+   "source": "procedural",
+   "title": "our kitchen island (module, real06 style)",
+   "size_m": [
+    1.6,
+    0.9,
+    0.9
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "module"
+  },
+  "ours:wall_cabinet:real04": {
+   "type": "wall_cabinet",
+   "sheet": "ours-04",
+   "letter": "S",
+   "source": "procedural",
+   "title": "our wall cabinet (module, real04 style)",
+   "size_m": [
+    0.6,
+    0.35,
+    0.7
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real04",
+   "method": "module"
+  },
+  "ours:wall_cabinet:real06": {
+   "type": "wall_cabinet",
+   "sheet": "ours-04",
+   "letter": "T",
+   "source": "procedural",
+   "title": "our wall cabinet (module, real06 style)",
+   "size_m": [
+    0.6,
+    0.35,
+    0.7
+   ],
+   "group": "ours",
+   "procedural": true,
+   "style": "real06",
+   "method": "module"
+  }
+ }
+}

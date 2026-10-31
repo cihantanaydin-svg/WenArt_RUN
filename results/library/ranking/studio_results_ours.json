@@ -1,0 +1,1529 @@
+{
+ "version": "ul217.1",
+ "models": 80,
+ "ok": 80,
+ "failed": 0,
+ "rows": {
+  "ours:sofa_corner:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.35,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -1.3,
+    -0.8,
+    0.0
+   ],
+   "box_max": [
+    1.3,
+    0.8,
+    0.86
+   ],
+   "rendered": true
+  },
+  "ours:sofa_corner:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 1.73,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -1.3,
+    -0.8,
+    0.0
+   ],
+   "box_max": [
+    1.3,
+    0.8,
+    0.86
+   ],
+   "rendered": true
+  },
+  "ours:table_coffee:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 100.58,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.55,
+    -0.3,
+    0.0
+   ],
+   "box_max": [
+    0.55,
+    0.3,
+    0.42
+   ],
+   "rendered": true
+  },
+  "ours:table_coffee:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 98.25,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.55,
+    -0.3,
+    0.0
+   ],
+   "box_max": [
+    0.55,
+    0.3,
+    0.42
+   ],
+   "rendered": true
+  },
+  "ours:side_table:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 101.23,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.225,
+    -0.225,
+    0.0
+   ],
+   "box_max": [
+    0.225,
+    0.225,
+    0.55
+   ],
+   "rendered": true
+  },
+  "ours:side_table:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 99.19,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.225,
+    -0.225,
+    0.0
+   ],
+   "box_max": [
+    0.225,
+    0.225,
+    0.55
+   ],
+   "rendered": true
+  },
+  "ours:tv_unit:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.31,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.75,
+    -0.218,
+    0.0
+   ],
+   "box_max": [
+    0.75,
+    0.21,
+    0.55
+   ],
+   "rendered": true
+  },
+  "ours:tv_unit:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.35,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.75,
+    -0.218,
+    0.0
+   ],
+   "box_max": [
+    0.75,
+    0.21,
+    0.55
+   ],
+   "rendered": true
+  },
+  "ours:floor_lamp:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.11,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.197,
+    -0.197,
+    0.0
+   ],
+   "box_max": [
+    0.197,
+    0.197,
+    1.6
+   ],
+   "rendered": true
+  },
+  "ours:floor_lamp:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.41,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.197,
+    -0.197,
+    0.0
+   ],
+   "box_max": [
+    0.197,
+    0.197,
+    1.6
+   ],
+   "rendered": true
+  },
+  "ours:ottoman:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 1.64,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.3,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.3,
+    0.45
+   ],
+   "rendered": true
+  },
+  "ours:ottoman:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.56,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.3,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.3,
+    0.45
+   ],
+   "rendered": true
+  },
+  "ours:bookshelf:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.2,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.45,
+    -0.175,
+    0.0
+   ],
+   "box_max": [
+    0.45,
+    0.175,
+    1.85
+   ],
+   "rendered": true
+  },
+  "ours:bookshelf:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.23,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.45,
+    -0.175,
+    0.0
+   ],
+   "box_max": [
+    0.45,
+    0.175,
+    1.85
+   ],
+   "rendered": true
+  },
+  "ours:console_table:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.63,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.6,
+    -0.175,
+    0.0
+   ],
+   "box_max": [
+    0.6,
+    0.175,
+    0.76
+   ],
+   "rendered": true
+  },
+  "ours:console_table:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.89,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.6,
+    -0.175,
+    0.0
+   ],
+   "box_max": [
+    0.6,
+    0.175,
+    0.76
+   ],
+   "rendered": true
+  },
+  "ours:sideboard:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.39,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.8,
+    -0.233,
+    0.0
+   ],
+   "box_max": [
+    0.8,
+    0.225,
+    0.82
+   ],
+   "rendered": true
+  },
+  "ours:sideboard:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.38,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.8,
+    -0.233,
+    0.0
+   ],
+   "box_max": [
+    0.8,
+    0.225,
+    0.82
+   ],
+   "rendered": true
+  },
+  "ours:display_cabinet:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.96,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.4,
+    -0.208,
+    0.0
+   ],
+   "box_max": [
+    0.4,
+    0.2,
+    1.9
+   ],
+   "rendered": true
+  },
+  "ours:display_cabinet:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.37,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.4,
+    -0.208,
+    0.0
+   ],
+   "box_max": [
+    0.4,
+    0.2,
+    1.9
+   ],
+   "rendered": true
+  },
+  "ours:chaise:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.45,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.375,
+    -0.85,
+    0.0
+   ],
+   "box_max": [
+    0.375,
+    0.85,
+    0.82
+   ],
+   "rendered": true
+  },
+  "ours:chaise:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.4,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.375,
+    -0.85,
+    0.0
+   ],
+   "box_max": [
+    0.375,
+    0.85,
+    0.82
+   ],
+   "rendered": true
+  },
+  "ours:table_dining:real04": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 3.44,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.8,
+    -0.45,
+    0.0
+   ],
+   "box_max": [
+    0.8,
+    0.45,
+    0.75
+   ],
+   "rendered": true
+  },
+  "ours:table_dining:real06": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.39,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.8,
+    -0.45,
+    0.0
+   ],
+   "box_max": [
+    0.8,
+    0.45,
+    0.75
+   ],
+   "rendered": true
+  },
+  "ours:chair:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 4.03,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.24,
+    -0.275,
+    0.0
+   ],
+   "box_max": [
+    0.24,
+    0.275,
+    0.88
+   ],
+   "rendered": true
+  },
+  "ours:chair:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 4.26,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.24,
+    -0.275,
+    0.0
+   ],
+   "box_max": [
+    0.24,
+    0.275,
+    0.88
+   ],
+   "rendered": true
+  },
+  "ours:bar_stool:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 4.12,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.225,
+    -0.25,
+    0.0
+   ],
+   "box_max": [
+    0.225,
+    0.25,
+    1.0
+   ],
+   "rendered": true
+  },
+  "ours:bar_stool:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.84,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.225,
+    -0.25,
+    0.0
+   ],
+   "box_max": [
+    0.225,
+    0.25,
+    1.0
+   ],
+   "rendered": true
+  },
+  "ours:bench:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 1.37,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.6,
+    -0.2,
+    0.0
+   ],
+   "box_max": [
+    0.6,
+    0.2,
+    0.46
+   ],
+   "rendered": true
+  },
+  "ours:bench:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.94,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.6,
+    -0.2,
+    0.0
+   ],
+   "box_max": [
+    0.6,
+    0.2,
+    0.46
+   ],
+   "rendered": true
+  },
+  "ours:nightstand:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.2,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.225,
+    -0.208,
+    0.0
+   ],
+   "box_max": [
+    0.225,
+    0.2,
+    0.55
+   ],
+   "rendered": true
+  },
+  "ours:nightstand:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.93,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.225,
+    -0.208,
+    0.0
+   ],
+   "box_max": [
+    0.225,
+    0.2,
+    0.55
+   ],
+   "rendered": true
+  },
+  "ours:wardrobe:real04": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 3.12,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.6,
+    -0.308,
+    0.0
+   ],
+   "box_max": [
+    0.6,
+    0.3,
+    2.0
+   ],
+   "rendered": true
+  },
+  "ours:wardrobe:real06": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.83,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.6,
+    -0.308,
+    0.0
+   ],
+   "box_max": [
+    0.6,
+    0.3,
+    2.0
+   ],
+   "rendered": true
+  },
+  "ours:dresser:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.4,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.5,
+    -0.233,
+    0.0
+   ],
+   "box_max": [
+    0.5,
+    0.225,
+    0.9
+   ],
+   "rendered": true
+  },
+  "ours:dresser:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.22,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.5,
+    -0.233,
+    0.0
+   ],
+   "box_max": [
+    0.5,
+    0.225,
+    0.9
+   ],
+   "rendered": true
+  },
+  "ours:bed_single:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.94,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.45,
+    -1.0,
+    0.0
+   ],
+   "box_max": [
+    0.45,
+    1.0,
+    1.3
+   ],
+   "rendered": true
+  },
+  "ours:bed_single:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.28,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.45,
+    -1.0,
+    0.0
+   ],
+   "box_max": [
+    0.45,
+    1.0,
+    1.3
+   ],
+   "rendered": true
+  },
+  "ours:bunk_bed:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.47,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.5,
+    -1.025,
+    0.0
+   ],
+   "box_max": [
+    0.5,
+    1.025,
+    1.65
+   ],
+   "rendered": true
+  },
+  "ours:bunk_bed:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.39,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.5,
+    -1.025,
+    0.0
+   ],
+   "box_max": [
+    0.5,
+    1.025,
+    1.65
+   ],
+   "rendered": true
+  },
+  "ours:crib:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.03,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.63,
+    -0.33,
+    0.0
+   ],
+   "box_max": [
+    0.63,
+    0.33,
+    0.9
+   ],
+   "rendered": true
+  },
+  "ours:crib:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.85,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.63,
+    -0.33,
+    0.0
+   ],
+   "box_max": [
+    0.63,
+    0.33,
+    0.9
+   ],
+   "rendered": true
+  },
+  "ours:desk:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.97,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.6,
+    -0.3,
+    0.0
+   ],
+   "box_max": [
+    0.6,
+    0.3,
+    0.76
+   ],
+   "rendered": true
+  },
+  "ours:desk:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.47,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.6,
+    -0.3,
+    0.0
+   ],
+   "box_max": [
+    0.6,
+    0.3,
+    0.76
+   ],
+   "rendered": true
+  },
+  "ours:office_chair:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.87,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.325,
+    -0.325,
+    0.0
+   ],
+   "box_max": [
+    0.325,
+    0.325,
+    1.1
+   ],
+   "rendered": true
+  },
+  "ours:office_chair:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.26,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.325,
+    -0.325,
+    0.0
+   ],
+   "box_max": [
+    0.325,
+    0.325,
+    1.1
+   ],
+   "rendered": true
+  },
+  "ours:shoe_cabinet:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.92,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.4,
+    -0.158,
+    0.0
+   ],
+   "box_max": [
+    0.4,
+    0.15,
+    1.0
+   ],
+   "rendered": true
+  },
+  "ours:shoe_cabinet:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.92,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.4,
+    -0.158,
+    0.0
+   ],
+   "box_max": [
+    0.4,
+    0.15,
+    1.0
+   ],
+   "rendered": true
+  },
+  "ours:tall_cabinet:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 4.03,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.308,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.3,
+    2.1
+   ],
+   "rendered": true
+  },
+  "ours:tall_cabinet:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.98,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.308,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.3,
+    2.1
+   ],
+   "rendered": true
+  },
+  "ours:potted_plant:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.37,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.225,
+    -0.225,
+    0.0
+   ],
+   "box_max": [
+    0.225,
+    0.225,
+    1.0
+   ],
+   "rendered": true
+  },
+  "ours:potted_plant:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.74,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.225,
+    -0.225,
+    0.0
+   ],
+   "box_max": [
+    0.225,
+    0.225,
+    1.0
+   ],
+   "rendered": true
+  },
+  "ours:washbasin:real04": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.98,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.233,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.225,
+    1.95
+   ],
+   "rendered": true
+  },
+  "ours:washbasin:real06": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.86,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.233,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.225,
+    1.95
+   ],
+   "rendered": true
+  },
+  "ours:toilet:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.04,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.19,
+    -0.325,
+    0.0
+   ],
+   "box_max": [
+    0.19,
+    0.325,
+    1.18
+   ],
+   "rendered": true
+  },
+  "ours:toilet:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.26,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.19,
+    -0.325,
+    0.0
+   ],
+   "box_max": [
+    0.19,
+    0.325,
+    1.18
+   ],
+   "rendered": true
+  },
+  "ours:bathtub:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.42,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.85,
+    -0.375,
+    0.0
+   ],
+   "box_max": [
+    0.85,
+    0.375,
+    0.68
+   ],
+   "rendered": true
+  },
+  "ours:bathtub:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.36,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.85,
+    -0.375,
+    0.0
+   ],
+   "box_max": [
+    0.85,
+    0.375,
+    0.68
+   ],
+   "rendered": true
+  },
+  "ours:shower:real04": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.19,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.45,
+    -0.45,
+    0.0
+   ],
+   "box_max": [
+    0.45,
+    0.45,
+    2.0
+   ],
+   "rendered": true
+  },
+  "ours:shower:real06": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.88,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.45,
+    -0.45,
+    0.0
+   ],
+   "box_max": [
+    0.45,
+    0.45,
+    2.0
+   ],
+   "rendered": true
+  },
+  "ours:washing_machine:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.39,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.3,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.3,
+    0.85
+   ],
+   "rendered": true
+  },
+  "ours:washing_machine:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.73,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.3,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.3,
+    0.85
+   ],
+   "rendered": true
+  },
+  "ours:stove:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.87,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.308,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.3,
+    0.908
+   ],
+   "rendered": true
+  },
+  "ours:stove:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.14,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.308,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.3,
+    0.908
+   ],
+   "rendered": true
+  },
+  "ours:sink_kitchen:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 1.81,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.4,
+    -0.3,
+    0.0
+   ],
+   "box_max": [
+    0.4,
+    0.3,
+    1.15
+   ],
+   "rendered": true
+  },
+  "ours:sink_kitchen:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.02,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.4,
+    -0.3,
+    0.0
+   ],
+   "box_max": [
+    0.4,
+    0.3,
+    1.15
+   ],
+   "rendered": true
+  },
+  "ours:fridge:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.9,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.325,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.325,
+    1.85
+   ],
+   "rendered": true
+  },
+  "ours:fridge:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.19,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.3,
+    -0.325,
+    0.0
+   ],
+   "box_max": [
+    0.3,
+    0.325,
+    1.85
+   ],
+   "rendered": true
+  },
+  "ours:bed_double:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.49,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.8,
+    -1.0,
+    0.0
+   ],
+   "box_max": [
+    0.8,
+    1.0,
+    1.4
+   ],
+   "rendered": true
+  },
+  "ours:bed_double:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.31,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.8,
+    -1.0,
+    0.0
+   ],
+   "box_max": [
+    0.8,
+    1.0,
+    1.4
+   ],
+   "rendered": true
+  },
+  "ours:sofa:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.93,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -1.0,
+    -0.45,
+    0.0
+   ],
+   "box_max": [
+    1.0,
+    0.45,
+    0.85
+   ],
+   "rendered": true
+  },
+  "ours:sofa:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.06,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -1.0,
+    -0.45,
+    0.0
+   ],
+   "box_max": [
+    1.0,
+    0.45,
+    0.85
+   ],
+   "rendered": true
+  },
+  "ours:armchair:real04": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 2.49,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.425,
+    -0.425,
+    0.0
+   ],
+   "box_max": [
+    0.425,
+    0.425,
+    0.9
+   ],
+   "rendered": true
+  },
+  "ours:armchair:real06": {
+   "ok": true,
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "fallback_reason": "fitting chose the parametric mesh",
+   "seconds": 3.11,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.425,
+    -0.425,
+    0.0
+   ],
+   "box_max": [
+    0.425,
+    0.425,
+    0.9
+   ],
+   "rendered": true
+  },
+  "ours:kitchen_counter:real04": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.87,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -1.2,
+    -0.305,
+    0.0
+   ],
+   "box_max": [
+    1.2,
+    0.3,
+    0.9
+   ],
+   "rendered": true
+  },
+  "ours:kitchen_counter:real06": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.93,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -1.2,
+    -0.305,
+    0.0
+   ],
+   "box_max": [
+    1.2,
+    0.3,
+    0.9
+   ],
+   "rendered": true
+  },
+  "ours:kitchen_island:real04": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.55,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.8,
+    -0.455,
+    0.0
+   ],
+   "box_max": [
+    0.8,
+    0.45,
+    0.9
+   ],
+   "rendered": true
+  },
+  "ours:kitchen_island:real06": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.36,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.8,
+    -0.455,
+    0.0
+   ],
+   "box_max": [
+    0.8,
+    0.45,
+    0.9
+   ],
+   "rendered": true
+  },
+  "ours:wall_cabinet:real04": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 1.77,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.299,
+    -0.175,
+    1.45
+   ],
+   "box_max": [
+    0.299,
+    0.175,
+    2.15
+   ],
+   "rendered": true
+  },
+  "ours:wall_cabinet:real06": {
+   "ok": true,
+   "method": "module",
+   "fallback_reason": null,
+   "seconds": 2.67,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.299,
+    -0.175,
+    1.45
+   ],
+   "box_max": [
+    0.299,
+    0.175,
+    2.15
+   ],
+   "rendered": true
+  }
+ },
+ "missing_files": []
+}

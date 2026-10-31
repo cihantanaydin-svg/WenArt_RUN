@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from wenart.assets.audit import studio as S  # noqa: E402
 
 COLS, ROWS, TILE, HEAD = 5, 4, int(S.SETTINGS["sheet_tile_px"]), 56
-TYPE_NAMES = {"bed_double": "Beds", "sofa": "Sofas", "armchair": "Armchairs", "sofa_corner": "Corner sofas",
+TYPE_NAMES = {"ours": "Our builds", "bed_double": "Beds", "sofa": "Sofas", "armchair": "Armchairs", "sofa_corner": "Corner sofas",
               "table_coffee": "Coffee tables", "side_table": "Side tables", "tv_unit": "TV units",
               "floor_lamp": "Floor lamps", "ottoman": "Ottomans", "bookshelf": "Bookshelves",
               "console_table": "Console tables", "sideboard": "Sideboards", "display_cabinet": "Display cabinets",
@@ -47,7 +47,8 @@ def models(index: dict, results: dict | None) -> list[dict]:
                 continue
             m = index["models"][iid]
             row, col = divmod(i, COLS)
-            out.append({"id": iid, "type": sheet["type"], "sheet": sheet["sheet"], "letter": letter,
+            out.append({"id": iid, "type": m.get("type") or sheet["type"],
+                        "tab": m.get("group") or m.get("type") or sheet["type"], "sheet": sheet["sheet"], "letter": letter,
                         "title": m.get("title") or "", "size": m.get("size_m"), "source": m.get("source"),
                         "x": round(100.0 * col / (COLS - 1), 4),
                         "y": round(100.0 * (HEAD + row * TILE) / (HEAD + ROWS * TILE - TILE), 4)})
@@ -176,7 +177,7 @@ function status(text, bad) { const s = $("status"); s.textContent = text; s.clas
 function renderTabs() {
   const tabs = $("tabs"); tabs.textContent = "";
   for (const t of TYPES) {
-    const all = MODELS.filter(m => m.type === t), done = all.filter(m => scores[m.id] !== undefined).length;
+    const all = MODELS.filter(m => m.tab === t), done = all.filter(m => scores[m.id] !== undefined).length;
     const b = document.createElement("button");
     b.className = "tab"; b.type = "button"; b.setAttribute("role", "tab");
     b.setAttribute("aria-selected", String(t === current));
@@ -185,13 +186,13 @@ function renderTabs() {
     b.onclick = () => { current = t; focusIdx = -1; renderAll(); };
     tabs.append(b);
   }
-  const all = MODELS.filter(m => m.type === current), done = all.filter(m => scores[m.id] !== undefined).length;
+  const all = MODELS.filter(m => m.tab === current), done = all.filter(m => scores[m.id] !== undefined).length;
   $("bar").style.width = (all.length ? 100 * done / all.length : 0) + "%";
 }
 
 function visible() {
   const only = $("unranked").checked;
-  return MODELS.filter(m => m.type === current && (!only || scores[m.id] === undefined));
+  return MODELS.filter(m => m.tab === current && (!only || scores[m.id] === undefined));
 }
 
 function cardFor(m) {
@@ -298,7 +299,7 @@ $("copy").onclick = async () => {
   const lines = [];
   for (const t of TYPES) {
     const bySheet = {};
-    for (const m of MODELS.filter(x => x.type === t && scores[x.id] !== undefined))
+    for (const m of MODELS.filter(x => x.tab === t && scores[x.id] !== undefined))
       (bySheet[m.sheet] = bySheet[m.sheet] || []).push(m.letter + scores[m.id]);
     for (const [s, v] of Object.entries(bySheet)) lines.push(s + ": " + v.join(" "));
   }
@@ -402,13 +403,19 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--inline", action="store_true", help="one file: the sheets inside the page (to send by mail)")
     a = ap.parse_args(argv)
     rk = Path(a.ranking)
-    index = json.loads((rk / "ranking_index.json").read_text(encoding="utf-8"))
-    res_path = rk / "studio_results.json"
-    results = json.loads(res_path.read_text(encoding="utf-8")) if res_path.is_file() else None
-    rows = models(index, results)
+    # 31 Oct 2026: the library's index and our builds' (ranking_index_<tag>.json, first: the tab to score now)
+    pairs = []
+    for f in sorted(rk.glob("ranking_index_*.json")) + [rk / "ranking_index.json"]:
+        suffix = f.stem[len("ranking_index"):]
+        res_path = rk / f"studio_results{suffix}.json"
+        pairs.append((json.loads(f.read_text(encoding="utf-8")),
+                      json.loads(res_path.read_text(encoding="utf-8")) if res_path.is_file() else None))
+    index = {"types": [t for i, _r in pairs for t in (["ours"] if any(m.get("group") for m in i["models"].values())
+                                                       else i["types"])]}
+    rows = [m for i, r in pairs for m in models(i, r)]
     if a.types:
-        rows = [m for m in rows if m["type"] in a.types.split(",")]
-    types = [t for t in index["types"] if any(m["type"] == t for m in rows)]
+        rows = [m for m in rows if m["tab"] in a.types.split(",")]
+    types = [t for t in dict.fromkeys(index["types"]) if any(m["tab"] == t for m in rows)]
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     inline = sheet_uris(rk / "sheets", sorted({m["sheet"] for m in rows})) if a.inline else None
