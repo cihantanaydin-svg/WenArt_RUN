@@ -1,0 +1,7000 @@
+{
+ "schema_version": 1,
+ "kind": "ranking_index",
+ "version": "ul217.1",
+ "lesson": "UL217",
+ "per_sheet": 20,
+ "types": [
+  "bed_double",
+  "sofa",
+  "armchair"
+ ],
+ "sheets": [
+  {
+   "sheet": "bed_double-01",
+   "type": "bed_double",
+   "number": 1,
+   "of": 6,
+   "letters": {
+    "A": "3dwh_0ed14b28dbebe78d69bac429",
+    "B": "3dwh_118ff62672cee88c43642f77",
+    "C": "3dwh_144b91907e52ec0ab4291ece",
+    "D": "3dwh_1fc23fcdc4d90410cc81f963",
+    "E": "3dwh_230b029911f0e5ec57f52065",
+    "F": "3dwh_267c8e473339fbd3b862ba5e",
+    "G": "3dwh_295a54907de1daa0f2354005",
+    "H": "3dwh_2d1e4864369ed8d288c08842",
+    "I": "3dwh_3dc26a64e8f7867e6091fb68",
+    "J": "3dwh_436e9d653c2bac7247454e06",
+    "K": "3dwh_43a9d9e68d2fbd7467149c27",
+    "L": "3dwh_447f4beca70deb921dd0bfcf",
+    "M": "3dwh_45669380918dfef1f400ad2b",
+    "N": "3dwh_4b3d7dc0d756a0c03ea063d3",
+    "O": "3dwh_4b9f743e3d5dbcebb2ead080",
+    "P": "3dwh_5105c6e2dc9db4e6eb7a3350",
+    "Q": "3dwh_563e610dedcc5c98b8eb7802",
+    "R": "3dwh_58a4951237dc794b726bf68f",
+    "S": "3dwh_5c646dced24227fa0c077ed6",
+    "T": "3dwh_62a5139feb7c8e429edc7293"
+   }
+  },
+  {
+   "sheet": "bed_double-02",
+   "type": "bed_double",
+   "number": 2,
+   "of": 6,
+   "letters": {
+    "A": "3dwh_67169f2025a7a91f3620f3fe",
+    "B": "3dwh_6a16b556fd45214c882adf19",
+    "C": "3dwh_6b69a6b7be7b83959f327b3e",
+    "D": "3dwh_6d56fc92c464e52b446cb1ad",
+    "E": "3dwh_70bef12aea24559a505e7a16",
+    "F": "3dwh_72e6fff95bcd77d44f92fa77",
+    "G": "3dwh_73836b83e2bfb367cacfc7ee",
+    "H": "3dwh_781ff496d1fd8dcc610c6296",
+    "I": "3dwh_7ca53d7f2631ae80e57db78f",
+    "J": "3dwh_7e30f382f7275e234a2f74ff",
+    "K": "3dwh_83cdafef16f8e620a1b2e028",
+    "L": "3dwh_8f53a60bcd1fc97de119bff6",
+    "M": "3dwh_93fd81455618d7dfd46ae26f",
+    "N": "3dwh_97084d55de54c3d6aca33d6a",
+    "O": "3dwh_9b3d9c52e77d118712b3599d",
+    "P": "3dwh_a9e17793be088c30d8ca5569",
+    "Q": "3dwh_aba32d0bc72f5e13ca7d04c1",
+    "R": "3dwh_ac57310611306e7ea5328023",
+    "S": "3dwh_ae6cbee616c65d68120935ad",
+    "T": "3dwh_b1db5a2ba5d7c5b54ea05946"
+   }
+  },
+  {
+   "sheet": "bed_double-03",
+   "type": "bed_double",
+   "number": 3,
+   "of": 6,
+   "letters": {
+    "A": "3dwh_b5fea9c70717a76f4e320f94",
+    "B": "3dwh_be9ec1c8f7191bc93f9232e1",
+    "C": "3dwh_c9fdde6344754954d9f8c741",
+    "D": "3dwh_ca56827e612d7c66fae59459",
+    "E": "3dwh_cbf314f4b2b18d247051f2c5",
+    "F": "3dwh_d049478457e41fbd2c0e79eb",
+    "G": "3dwh_d659728f8e656e02d1516f4b",
+    "H": "3dwh_e65c59d0e2566aa6af900af8",
+    "I": "3dwh_eb59cf4bc628cf23255c5dec",
+    "J": "3dwh_ed32af47bf66683c69b77cc5",
+    "K": "3dwh_f5c7f12837d5da10f176ece9",
+    "L": "3dwh_f79b64e5c9d3bf800e7b9875",
+    "M": "3dwh_f8cd3c17fe4b3f54f3c953bc",
+    "N": "3dwh_fa71991d817f94c066e814d6",
+    "O": "3dwh_ff9b2965ef382aba8d577399",
+    "P": "3dwh_fff59125f43bfbf6af726605",
+    "Q": "GothicBed_01",
+    "R": "abo_B0154VUESC",
+    "S": "abo_B01M0ZVGCQ",
+    "T": "abo_B071FJR4FW"
+   }
+  },
+  {
+   "sheet": "bed_double-04",
+   "type": "bed_double",
+   "number": 4,
+   "of": 6,
+   "letters": {
+    "A": "abo_B071W2SCTJ",
+    "B": "abo_B072PWGSZL",
+    "C": "abo_B075QMHYV8",
+    "D": "abo_B075Z1NM6N",
+    "E": "abo_B075Z8767S",
+    "F": "abo_B07B4W5TZF",
+    "G": "abo_B07B4W7X1Y",
+    "H": "abo_B07B4YNHSN",
+    "I": "abo_B07B4Z9Q3S",
+    "J": "abo_B07B51H792",
+    "K": "abo_B07BBWMPJM",
+    "L": "abo_B07GFDZW5W",
+    "M": "abo_B07GFFR415",
+    "N": "abo_B07K7K25ZL",
+    "O": "abo_B07L1DDXLR",
+    "P": "abo_B07LC5Y95W",
+    "Q": "abo_B07LC84ZYV",
+    "R": "abo_B086TGFT35",
+    "S": "abo_B08FTN8KHY",
+    "T": "hssd_00662bccdee49ca148d0c96929286db6d6d3c267"
+   }
+  },
+  {
+   "sheet": "bed_double-05",
+   "type": "bed_double",
+   "number": 5,
+   "of": 6,
+   "letters": {
+    "A": "hssd_02e22ed56270338bef5f8436e82023c36cd29104",
+    "B": "hssd_033ec086c23a6d39fb37df87e6748c413bf80e29",
+    "C": "hssd_051239c63082d6b0cda8ef2db8be17d840be44bc",
+    "D": "hssd_0c22fc3147a2787e85cedfbf231aa45cdc08e25e",
+    "E": "hssd_16100ba2844b8f89c2ba6e30677d13ffe45d82a7",
+    "F": "hssd_24260cc2eff93ee6c74f6db6beb1c5137b9d8bcd",
+    "G": "hssd_3ab4e08fc50d66f06fe6d3c72b9c76210d4efba7",
+    "H": "hssd_3fce46b44d59007f02e60c8adf5fc333b0c58528",
+    "I": "hssd_461a6a73027b08506fe73030fe3e16be969cffd4",
+    "J": "hssd_55178b6f7cfabac7480cc6e677b8223227604907",
+    "K": "hssd_589bcc23d287e1669b4acaf573d0affdc4e058d5",
+    "L": "hssd_6ccebb27fe6084d08e7b6d601582e1c6930e9379",
+    "M": "hssd_70c7ba63276ac6400527817e31fdd0141c4dae4b",
+    "N": "hssd_85b1c9726d9d9034d006dbacd0f5736f0f533b6d",
+    "O": "hssd_96410190447f784b14d9ddead790176560ab7f7f",
+    "P": "hssd_9698b67f0b863ee3d6d761478c2aac4f2e06310f",
+    "Q": "hssd_bf0d188b37ed02e5567e8651df3425c57fbff7bd",
+    "R": "hssd_ce1bdc2cbf26176400c71b11437c4c8ffe8a800d",
+    "S": "hssd_e6ccfb8aa1fa974d429195f8edc169aa7ea21306",
+    "T": "hssd_e91f9db75c0e3679b4bdd1d012ceb0819bb287f5"
+   }
+  },
+  {
+   "sheet": "bed_double-06",
+   "type": "bed_double",
+   "number": 6,
+   "of": 6,
+   "letters": {
+    "A": "hssd_fd773312233cde1d417cc17d479c24b55005a1e9",
+    "B": "hssd_xxxxaf473d33x3e91x4b4ex9182x033de637aafb",
+    "C": "hssd_xxxxbeae246cx5cbcx482dx81faxd6e6f844d62d",
+    "D": "objaverse_08f7f65edfea417b8ed9ca748381e507",
+    "E": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55"
+   }
+  },
+  {
+   "sheet": "sofa-01",
+   "type": "sofa",
+   "number": 1,
+   "of": 10,
+   "letters": {
+    "A": "3dwh_01c4dc510c90f1d90d478c2c",
+    "B": "3dwh_023ac37b6602f45d849aaa00",
+    "C": "3dwh_042af24d40e115fe99e678dd",
+    "D": "3dwh_07847bf4e5fc79d9f44c9cb8",
+    "E": "3dwh_08666b63aaf426f00d1e4323",
+    "F": "3dwh_0f39fb15af84738a6be55e25",
+    "G": "3dwh_1172843db1fb2000f7b5a16e",
+    "H": "3dwh_175509753f3c3d6cc702da17",
+    "I": "3dwh_18d9a3a43ae213c8bd5a5f91",
+    "J": "3dwh_1a62655111c197e7d46d5736",
+    "K": "3dwh_1ec7ebc8b062785e585335c0",
+    "L": "3dwh_212c8b8c0530d244c8966de9",
+    "M": "3dwh_26e57ebd83ee4340959f12e4",
+    "N": "3dwh_2a02c74a7955dabe98e6125d",
+    "O": "3dwh_2fee1aeaf89b3ad30aab491d",
+    "P": "3dwh_300e482e4de5622e88ba4330",
+    "Q": "3dwh_324dd45f9bd5cd371c733341",
+    "R": "3dwh_33f48387cd780d5ed309bf70",
+    "S": "3dwh_36193191d2b79b97372f3eef",
+    "T": "3dwh_37358e3200e15045fdade8cb"
+   }
+  },
+  {
+   "sheet": "sofa-02",
+   "type": "sofa",
+   "number": 2,
+   "of": 10,
+   "letters": {
+    "A": "3dwh_3debd68470a1c9d58c2206d3",
+    "B": "3dwh_3e2d3da31df1f957916c374e",
+    "C": "3dwh_3e87c5fc8fbd30457644512c",
+    "D": "3dwh_48549ca5d002b39a70b36cd9",
+    "E": "3dwh_4ab28243619dcfa328ee8eeb",
+    "F": "3dwh_54bd773185e98f7e5f97b6fb",
+    "G": "3dwh_56f0d67f517a27b45cd92292",
+    "H": "3dwh_577f86fc6233725f5dc87490",
+    "I": "3dwh_591024cae33f062bb97cdec5",
+    "J": "3dwh_5be87e5d92ca110e8bec3f66",
+    "K": "3dwh_5c8e37b7bfe9509edcbf5f06",
+    "L": "3dwh_6201dfb75b8ee9fabfd4bf8f",
+    "M": "3dwh_683325dd863b827646e2106b",
+    "N": "3dwh_6d10a2e0ecaab7aed41b10fe",
+    "O": "3dwh_6db7e8831d6e3d5c52f3b1b7",
+    "P": "3dwh_70b2668463769c7975264f09",
+    "Q": "3dwh_70be2f89d8a6f0d4f5fe5888",
+    "R": "3dwh_73a3f2fd339beec5aabd5ed6",
+    "S": "3dwh_7480e98ffb90c8d38b9d5a25",
+    "T": "3dwh_7a0281f136dea2e7beea1720"
+   }
+  },
+  {
+   "sheet": "sofa-03",
+   "type": "sofa",
+   "number": 3,
+   "of": 10,
+   "letters": {
+    "A": "3dwh_7a1dbcbe541b7a0e2a863ca2",
+    "B": "3dwh_7c054427859deb685fa5ccb5",
+    "C": "3dwh_7e29c58774102ff7764fc935",
+    "D": "3dwh_80d95b5d811c3b56fdc0e543",
+    "E": "3dwh_88ace91efea68ca860ea7477",
+    "F": "3dwh_8b41bf06e3e16f2e91e38d37",
+    "G": "3dwh_8b448d4c97c75d1599d226eb",
+    "H": "3dwh_9145e841dfca3fb07979616f",
+    "I": "3dwh_97e9e4169617fb5c039c9bc6",
+    "J": "3dwh_9d4985a319c9f913c534b120",
+    "K": "3dwh_9dee0d288622134d7205ac3b",
+    "L": "3dwh_9f83498171022344dfbdd829",
+    "M": "3dwh_9f97205894a666719b425ab1",
+    "N": "3dwh_a577ed0071066ded9b5d5012",
+    "O": "3dwh_a91be17c55e77f3b3319587a",
+    "P": "3dwh_af821bc36811c70b656fd96b",
+    "Q": "3dwh_b7ece8782fc8708582603392",
+    "R": "3dwh_b8cf313db4b473cbbfa89fc6",
+    "S": "3dwh_c1389b2324376b35a19514b2",
+    "T": "3dwh_c501c30ccb65731ce8da7681"
+   }
+  },
+  {
+   "sheet": "sofa-04",
+   "type": "sofa",
+   "number": 4,
+   "of": 10,
+   "letters": {
+    "A": "3dwh_c6571781ada93303058fc1f9",
+    "B": "3dwh_c7c13fbdb544f7a58cddb88d",
+    "C": "3dwh_c91095c7534c6d4b068232c5",
+    "D": "3dwh_cda8cc4a7192a245c351383d",
+    "E": "3dwh_ce671d104926cb7160671709",
+    "F": "3dwh_cfd0f36cce1a87df6ab4d694",
+    "G": "3dwh_d31267709e46fc77495b3323",
+    "H": "3dwh_d3c597f5031f8e7dbbe3732f",
+    "I": "3dwh_d7fce7457e1c8d6615008edd",
+    "J": "3dwh_e089665f9bbfe79e2ac3e1a8",
+    "K": "3dwh_e105ecdfd78d66e0731e54bc",
+    "L": "3dwh_e4a04c16198b652085b55dac",
+    "M": "3dwh_ed7835489fe4d8706bd80abd",
+    "N": "3dwh_f06bbd974a18ea91d426bef2",
+    "O": "3dwh_f53187ff0d7ac83e67468e91",
+    "P": "3dwh_f8d2fb3704f4da4385adf279",
+    "Q": "3dwh_f929585fc59011d1c3a6742b",
+    "R": "3dwh_fb3ee37d98020ca5ce56e139",
+    "S": "3dwh_ffc26cd6fbd8f8ca9ebcad0f",
+    "T": "Sofa_01"
+   }
+  },
+  {
+   "sheet": "sofa-05",
+   "type": "sofa",
+   "number": 5,
+   "of": 10,
+   "letters": {
+    "A": "abo_B0714QGC72",
+    "B": "abo_B0719WQH8N",
+    "C": "abo_B071FMSSWB",
+    "D": "abo_B071J7Q3J4",
+    "E": "abo_B071W5VJ98",
+    "F": "abo_B072555T67",
+    "G": "abo_B07263589M",
+    "H": "abo_B072FVHRZ5",
+    "I": "abo_B072M1W86Y",
+    "J": "abo_B072Q1BNCD",
+    "K": "abo_B075X2WN11",
+    "L": "abo_B075X2WNRP",
+    "M": "abo_B075X2X4GY",
+    "N": "abo_B075X2X4MB",
+    "O": "abo_B075X33T32",
+    "P": "abo_B075X43FD2",
+    "Q": "abo_B075X43FDW",
+    "R": "abo_B075X4F5CS",
+    "S": "abo_B075X4F5LM",
+    "T": "abo_B075X4HZPX"
+   }
+  },
+  {
+   "sheet": "sofa-06",
+   "type": "sofa",
+   "number": 6,
+   "of": 10,
+   "letters": {
+    "A": "abo_B075X4JB3K",
+    "B": "abo_B075X4PTRL",
+    "C": "abo_B075X4QFK2",
+    "D": "abo_B075X4QMX3",
+    "E": "abo_B075X4VM87",
+    "F": "abo_B075X4VM8W",
+    "G": "abo_B075X4VW4D",
+    "H": "abo_B075X5VCQ5",
+    "I": "abo_B07B4D84F8",
+    "J": "abo_B07B4D8F4R",
+    "K": "abo_B07B4DB8K9",
+    "L": "abo_B07B4FW7H5",
+    "M": "abo_B07B4FZK8X",
+    "N": "abo_B07B4G5QD4",
+    "O": "abo_B07B4L5DJV",
+    "P": "abo_B07B4MF2MF",
+    "Q": "abo_B07B4MF2NL",
+    "R": "abo_B07B4MHRGP",
+    "S": "abo_B07BW8P2F7",
+    "T": "abo_B07BWJCBY2"
+   }
+  },
+  {
+   "sheet": "sofa-07",
+   "type": "sofa",
+   "number": 7,
+   "of": 10,
+   "letters": {
+    "A": "abo_B07BWKH16R",
+    "B": "abo_B07BWL4C2Y",
+    "C": "abo_B07DBDRN8S",
+    "D": "abo_B07DBHBB4N",
+    "E": "abo_B07HZ58Q5R",
+    "F": "abo_B07HZ5D2DC",
+    "G": "abo_B07HZ5ZTZC",
+    "H": "abo_B07HZ65PW3",
+    "I": "abo_B07HZ65QC6",
+    "J": "abo_B07HZ7829Y",
+    "K": "abo_B07K8YVLGH",
+    "L": "abo_B07K9PMZJL",
+    "M": "abo_B07P5LM42Y",
+    "N": "abo_B07P5LMCLD",
+    "O": "abo_B07P5LN16X",
+    "P": "abo_B07P7NVLV8",
+    "Q": "abo_B07P9Y6WHB",
+    "R": "abo_B07PBZ74HD",
+    "S": "abo_B07PC1FXK4",
+    "T": "abo_B07QCMBNF1"
+   }
+  },
+  {
+   "sheet": "sofa-08",
+   "type": "sofa",
+   "number": 8,
+   "of": 10,
+   "letters": {
+    "A": "abo_B07R3TWDTM",
+    "B": "abo_B07R3TWDTT",
+    "C": "abo_B07RD76JZY",
+    "D": "abo_B07RJFGDHP",
+    "E": "abo_B0831XJQLB",
+    "F": "chinese_sofa",
+    "G": "gen_sofa_japandi_1_246e1bd6",
+    "H": "gen_sofa_japandi_2_98a7a89b",
+    "I": "hssd_04f865ebc872cf2c58acbf99c0e883a3b150ec7f",
+    "J": "hssd_05206ad5b8ad9956a076ab73038089b964ddb2fd",
+    "K": "hssd_11ba83c933f89bd7234a8f7fcc5b1c7f573dcded",
+    "L": "hssd_19ab91116ae6cded08529445a0ff2f6e5fd025b1",
+    "M": "hssd_1a7c59ac57b8213f7cf31256d7ad6b579aa2a441",
+    "N": "hssd_283eae1c113de1b9b3afbd91132de63f7142d1b3",
+    "O": "hssd_28bea1ab56c4379f842d0171fdd81762f55942c1",
+    "P": "hssd_2a9cb0b671a281159864a83d00e0a89439b15ef6",
+    "Q": "hssd_348f60a7ecd1addff9d2928919761f3552c37a57",
+    "R": "hssd_3d6c4de46acc90dcec117539c751f688da413923",
+    "S": "hssd_4364e0d4faa0006a6e447b9293fdfbe3c415cfa7",
+    "T": "hssd_5274751529e50c02430fb9b3ee3019ea9c091520"
+   }
+  },
+  {
+   "sheet": "sofa-09",
+   "type": "sofa",
+   "number": 9,
+   "of": 10,
+   "letters": {
+    "A": "hssd_5386924523286fa156d9397a93cd3f2a7140325d",
+    "B": "hssd_5d77eeaa7a16e02ef64e3ce74893768cc8389aed",
+    "C": "hssd_5e0c57c89718bf9f8859b6181978d150aed749ca",
+    "D": "hssd_7165e9d457a1fb2a4fa6d827d5ef9f5a90a6408e",
+    "E": "hssd_7313865d099b7009290ed67c2031c985ff6b14bb",
+    "F": "hssd_76a762c6d7151b59999a954e9a8570c22d2256c8",
+    "G": "hssd_7be455a4bcdc8362d06f09c25df1a80ec527e1d7",
+    "H": "hssd_80f24de7458927b66c25239e127b37da925c033c",
+    "I": "hssd_88cb3a5e8bf8e4e1b93fbb797d6b3ecd6fbb0682",
+    "J": "hssd_9a0e617b83c901d346ce9fb020b49bf91442273c",
+    "K": "hssd_9e6c6b60a5cf944dec9a25affb6c129e8f9eb226",
+    "L": "hssd_aa85073bb8fbfc43763bd0a117f6f6a03dca7bb9",
+    "M": "hssd_b6c900cdbac774338ec3fb43bb18a736a1baa7b4",
+    "N": "hssd_ba333ed289c61c26505c64ecb49a00f130892956",
+    "O": "hssd_d266da3005a4309968c9ea9405b9eca788571408",
+    "P": "hssd_d31ee1dad266ed4ef07fc074e8ddd28663a91767",
+    "Q": "hssd_d3aaaa4c5f6f4c0f8ac9acffa625b527bf1ddc89",
+    "R": "hssd_ed4ed55a08fac410b09e2d1f351d84893eaa7136",
+    "S": "hssd_ee030efb15ade53752e31312e42acabcf837fcb2",
+    "T": "objaverse_104ac40ef3ad4dac8079a11548c470e7"
+   }
+  },
+  {
+   "sheet": "sofa-10",
+   "type": "sofa",
+   "number": 10,
+   "of": 10,
+   "letters": {
+    "A": "sofa_02",
+    "B": "sofa_03"
+   }
+  },
+  {
+   "sheet": "armchair-01",
+   "type": "armchair",
+   "number": 1,
+   "of": 12,
+   "letters": {
+    "A": "3dwh_01af14bf35d352e01dcf1dc1",
+    "B": "3dwh_02333d43712eea44eb85e242",
+    "C": "3dwh_038a2f938697cf94f0635b35",
+    "D": "3dwh_054976b922680e282c9ef191",
+    "E": "3dwh_09321f5dd94e37b60c417cab",
+    "F": "3dwh_094ed377a5caee03aedecdc5",
+    "G": "3dwh_0bb1093da500563c53063e23",
+    "H": "3dwh_0bc36925ad22769dd76f1ff3",
+    "I": "3dwh_0c02f16bd95d0abf28d3680b",
+    "J": "3dwh_0cdfddde960398a6f592bb11",
+    "K": "3dwh_0d5b4e2d788e6cdf1a4ed706",
+    "L": "3dwh_0e48205f7e11736d26bbbc09",
+    "M": "3dwh_1be24f871349cfe24617c7ad",
+    "N": "3dwh_1c9778c58f3f641eff7cf127",
+    "O": "3dwh_1eff7374ad06e825cc981b85",
+    "P": "3dwh_22d9b57077e3bb6781c8a424",
+    "Q": "3dwh_243ba44c70bc7997a37c1c9e",
+    "R": "3dwh_28e3e2c1eeb124a0a50d3f2b",
+    "S": "3dwh_2d83684ba783de5b93a727d0",
+    "T": "3dwh_2f8567d3bdb667bf36d4e8b1"
+   }
+  },
+  {
+   "sheet": "armchair-02",
+   "type": "armchair",
+   "number": 2,
+   "of": 12,
+   "letters": {
+    "A": "3dwh_2ff58297bddb7a574a5d58c7",
+    "B": "3dwh_324a4061c7079774c20c56e9",
+    "C": "3dwh_346652452baa82044b1254e7",
+    "D": "3dwh_37f4ace3b73e1aa6a2708168",
+    "E": "3dwh_3907901073da0af56812f910",
+    "F": "3dwh_3c02498bb5773a9091032361",
+    "G": "3dwh_41e47efe228d1e5951fdddb0",
+    "H": "3dwh_470a978e9d9dca52b768788e",
+    "I": "3dwh_483795531de8b7c47c90eee3",
+    "J": "3dwh_4851a8856ac53ca399f31683",
+    "K": "3dwh_4be29a81ee68af67169dc9d6",
+    "L": "3dwh_4d053f976db6e628c7ca5635",
+    "M": "3dwh_4dab71e751c8dbb0542704ae",
+    "N": "3dwh_4f0d4556be6e7c966417500e",
+    "O": "3dwh_4f3ab8522559513bb45e9c34",
+    "P": "3dwh_4fab6cd044db06fbeb5bed2f",
+    "Q": "3dwh_5095dd5f25738efb90f99752",
+    "R": "3dwh_518acb93cd659ed75bd1ccac",
+    "S": "3dwh_533f300b9dcce6af12c4af2a",
+    "T": "3dwh_55c67b63033cf5276b2f33c8"
+   }
+  },
+  {
+   "sheet": "armchair-03",
+   "type": "armchair",
+   "number": 3,
+   "of": 12,
+   "letters": {
+    "A": "3dwh_59315d26c8287e73f9805991",
+    "B": "3dwh_59fded1b487d3b41741c9324",
+    "C": "3dwh_6048a15631c2a23a0f81849e",
+    "D": "3dwh_60a361e8b016e7485ab5d482",
+    "E": "3dwh_61738b81cf37f0fe78386bc5",
+    "F": "3dwh_61f6b7501ed533bd1e3a55d9",
+    "G": "3dwh_620b113da433496223debf7e",
+    "H": "3dwh_649714b4f42a770803235bea",
+    "I": "3dwh_69e0e4f94b6b077f277e88c8",
+    "J": "3dwh_6d5fb40f8f9e2079f3fe99d5",
+    "K": "3dwh_6e162fa5cfc07cf961c116e6",
+    "L": "3dwh_720f8cb45e113811740b143e",
+    "M": "3dwh_7886094efc709a0f3baa0fd3",
+    "N": "3dwh_78fccaeb4a9c4a2715379b8a",
+    "O": "3dwh_7aedfa3e6a227a4616b6eb75",
+    "P": "3dwh_7c41f538b2d0873e672fe42f",
+    "Q": "3dwh_818fb6558730cec44d42431b",
+    "R": "3dwh_81f29a24a68a253b3ee5d03b",
+    "S": "3dwh_826f2d90cfd567a923e3dc8c",
+    "T": "3dwh_84476549d287e81f5f9f7da8"
+   }
+  },
+  {
+   "sheet": "armchair-04",
+   "type": "armchair",
+   "number": 4,
+   "of": 12,
+   "letters": {
+    "A": "3dwh_87cc8ef192018304d2758d47",
+    "B": "3dwh_88357109a1e0587925d95a0e",
+    "C": "3dwh_89b423a3a3890b2b6f806687",
+    "D": "3dwh_8f4da53657aaa75fd3b96918",
+    "E": "3dwh_90b03ebfced5e7b8ae9d6110",
+    "F": "3dwh_92f142bbe687b2d28c324823",
+    "G": "3dwh_9a4566c2bce65e1a7517bb21",
+    "H": "3dwh_9ac2c6ae7433b11bd8baef82",
+    "I": "3dwh_9c3a1772a72c4b00c78bd2ea",
+    "J": "3dwh_9c72303b66870564ae9a360b",
+    "K": "3dwh_a47d14787ca29b546af5b4cb",
+    "L": "3dwh_a4a23730e4f99f069784415b",
+    "M": "3dwh_a65d05d381cc61420f51601d",
+    "N": "3dwh_ab9b479931418ac9f235c699",
+    "O": "3dwh_b2f434de9d430c3757dd7715",
+    "P": "3dwh_b46677a8e16e4366adb6761c",
+    "Q": "3dwh_b4e3533d6b8f9b43765e5ad2",
+    "R": "3dwh_b7c2cfe7c74e6e5dc8b49c57",
+    "S": "3dwh_b9bf53f468d77c2b95134f61",
+    "T": "3dwh_bb62a2c84c7d81d8b483e4ba"
+   }
+  },
+  {
+   "sheet": "armchair-05",
+   "type": "armchair",
+   "number": 5,
+   "of": 12,
+   "letters": {
+    "A": "3dwh_beb6dd1b126e8f03c178d9a3",
+    "B": "3dwh_c284696a47a6691b38b1f900",
+    "C": "3dwh_c32b2e0dd28c2e7923a386da",
+    "D": "3dwh_c41eadfdc01e4ec60d4e0bea",
+    "E": "3dwh_c76a1e5b7de8ec75fb4fe5ad",
+    "F": "3dwh_ce7538e50fdb1430f657c15a",
+    "G": "3dwh_cfcb4b27925e5a6c6adc3b76",
+    "H": "3dwh_d0a094559214281362b54640",
+    "I": "3dwh_d162e2407a125f10035d39f1",
+    "J": "3dwh_d1ed36390489612fbb2a5baa",
+    "K": "3dwh_d28ae45140bc7abc4730d078",
+    "L": "3dwh_d3b9a8e390920233a7de20cc",
+    "M": "3dwh_d5c5e96e3dbf0e31057676b9",
+    "N": "3dwh_d5d48d7d4ef03342ff672247",
+    "O": "3dwh_d6ba301cfe6d4df8d1ef978a",
+    "P": "3dwh_d7735ce0b388ec803a3b1371",
+    "Q": "3dwh_d8b7ad0bc6ac576c9d40bd0d",
+    "R": "3dwh_d96cfed368c47d61b6360867",
+    "S": "3dwh_daf6b22ce502bbcffb420577",
+    "T": "3dwh_e49c628394f88c1dc1e9b30b"
+   }
+  },
+  {
+   "sheet": "armchair-06",
+   "type": "armchair",
+   "number": 6,
+   "of": 12,
+   "letters": {
+    "A": "3dwh_e6cc86d7edcf02b5482e6ba0",
+    "B": "3dwh_e71f32a6aabc7d23a37f433c",
+    "C": "3dwh_e8847f195a9c49f6f50af917",
+    "D": "3dwh_ec4ed6b83e91c208b2103ed3",
+    "E": "3dwh_eeb7328272e916002c30b6b1",
+    "F": "3dwh_f24f21c85af91312d325e065",
+    "G": "3dwh_f262a8b1fa88cdc739bf45a8",
+    "H": "3dwh_f29b0f7ea468d1a9172fc1d2",
+    "I": "3dwh_f43a38c2158a4ef669a499c9",
+    "J": "3dwh_f5d76f27d50d16495be0cc57",
+    "K": "3dwh_f6bd91f124d68b40f2957392",
+    "L": "3dwh_f9240f52211fa23cebc9375e",
+    "M": "3dwh_f9b540972598812dd68bdb44",
+    "N": "ArmChair_01",
+    "O": "abo_B07124WCZY",
+    "P": "abo_B07124WN69",
+    "Q": "abo_B0717B4Y3X",
+    "R": "abo_B0719WQGYJ",
+    "S": "abo_B071FMSYCH",
+    "T": "abo_B071J7Q9WN"
+   }
+  },
+  {
+   "sheet": "armchair-07",
+   "type": "armchair",
+   "number": 7,
+   "of": 12,
+   "letters": {
+    "A": "abo_B071J7Q9X4",
+    "B": "abo_B071PDYXRQ",
+    "C": "abo_B072JG3WK1",
+    "D": "abo_B072PZ4LQ2",
+    "E": "abo_B072PZVYC2",
+    "F": "abo_B073G7BVCT",
+    "G": "abo_B073G947W3",
+    "H": "abo_B073GCWSX8",
+    "I": "abo_B0746KJVP2",
+    "J": "abo_B075NR8HWJ",
+    "K": "abo_B075NRDS91",
+    "L": "abo_B075X2WN36",
+    "M": "abo_B075X2X4XS",
+    "N": "abo_B075X33SR9",
+    "O": "abo_B075X33SSW",
+    "P": "abo_B075X3SHT1",
+    "Q": "abo_B075X3SHY9",
+    "R": "abo_B075X467QG",
+    "S": "abo_B075X4N3GM",
+    "T": "abo_B075X4N3J5"
+   }
+  },
+  {
+   "sheet": "armchair-08",
+   "type": "armchair",
+   "number": 8,
+   "of": 12,
+   "letters": {
+    "A": "abo_B075X4N4Z5",
+    "B": "abo_B075X4PT3G",
+    "C": "abo_B075X4T5RG",
+    "D": "abo_B075X4YDN6",
+    "E": "abo_B075X52BM1",
+    "F": "abo_B075X65R4N",
+    "G": "abo_B07B4CZNPH",
+    "H": "abo_B07B4D6MRY",
+    "I": "abo_B07B4D8945",
+    "J": "abo_B07B4G5R5H",
+    "K": "abo_B07B4MSP7T",
+    "L": "abo_B07B4NW75W",
+    "M": "abo_B07B79WTSL",
+    "N": "abo_B07B7BDFPR",
+    "O": "abo_B07B84H7G8",
+    "P": "abo_B07DBDN78J",
+    "Q": "abo_B07DBDN79B",
+    "R": "abo_B07DBDQJRF",
+    "S": "abo_B07DBFFG4Q",
+    "T": "abo_B07DBGPV4C"
+   }
+  },
+  {
+   "sheet": "armchair-09",
+   "type": "armchair",
+   "number": 9,
+   "of": 12,
+   "letters": {
+    "A": "abo_B07DBH52YB",
+    "B": "abo_B07DBHC337",
+    "C": "abo_B07DBJQC1K",
+    "D": "abo_B07DBLN3V2",
+    "E": "abo_B07H2MHYDQ",
+    "F": "abo_B07HYYCT75",
+    "G": "abo_B07HZ9K9PG",
+    "H": "abo_B07J2R9TVF",
+    "I": "abo_B07J2R9Y4W",
+    "J": "abo_B07J2YB486",
+    "K": "abo_B07J59DFXX",
+    "L": "abo_B07JY2W3KS",
+    "M": "abo_B07N2Y6C96",
+    "N": "abo_B07N2ZJYH6",
+    "O": "abo_B07P5LMFMT",
+    "P": "abo_B07P6JTSYP",
+    "Q": "abo_B07PBZL51J",
+    "R": "abo_B07QBMQCP1",
+    "S": "abo_B07QBMQHFS",
+    "T": "abo_B07QJXK4CD"
+   }
+  },
+  {
+   "sheet": "armchair-10",
+   "type": "armchair",
+   "number": 10,
+   "of": 12,
+   "letters": {
+    "A": "abo_B082VLYCRC",
+    "B": "abo_B082VM7676",
+    "C": "abo_B0853N8T7M",
+    "D": "abo_B0853NR959",
+    "E": "abo_B085FGSHQH",
+    "F": "abo_B085FGSHR3",
+    "G": "abo_B085FH8JFG",
+    "H": "abo_B085FHBF2S",
+    "I": "abo_B085FHCKY4",
+    "J": "hssd_014f3ebc50361692497fe6439b2c112ed3e4ab25",
+    "K": "hssd_05e5559cf467254327299a68a65b4bb188a4c1ab",
+    "L": "hssd_0e8dfdbc4db21b620cbc40daebda5f225f48fa1f",
+    "M": "hssd_0e8f7683353124120fc3d0c2c23f128eaa992b11",
+    "N": "hssd_1a3cdd72708cd77010453af1bddc78982ca792c0",
+    "O": "hssd_2482ffc4bafeec252b187ec2470adbfbb7efacc0",
+    "P": "hssd_299ccc1cd644f44a2663878536fe88f24212f0ba",
+    "Q": "hssd_3d646131d74a5197c4ed035b0ae3b877b6f8e941",
+    "R": "hssd_45092a7ed4e6bb85fc08e722388bad2694401222",
+    "S": "hssd_46f86f1258a3eb8345acbd6aacfb6b96781f6a2a",
+    "T": "hssd_4e6924410277e866564f1f0f253248643798f841"
+   }
+  },
+  {
+   "sheet": "armchair-11",
+   "type": "armchair",
+   "number": 11,
+   "of": 12,
+   "letters": {
+    "A": "hssd_650eafedcc551cb48130abb49b7343157db87f87",
+    "B": "hssd_74e1831f3d2100296a4663e63defbe344b15f421",
+    "C": "hssd_7731b27a33dba3816bd7bc321cf47bc12facc109",
+    "D": "hssd_843c70ec93a45b19af1fa6981ea23a6f1a66cad6",
+    "E": "hssd_8c297387b65b2ab225740383572f1dba79859791",
+    "F": "hssd_94927768e27e3edbde222e2fd59f2664ffcfa866",
+    "G": "hssd_965e9ac9fb8c99b1bc86ded43de902f856a3cd7c",
+    "H": "hssd_981b9ab0b33dc8a06105ddb18018a0deb5fb3023",
+    "I": "hssd_9a95f67666e918a7398535ae4082ce1a574a6cf5",
+    "J": "hssd_aa554f7be876c98a2c021a1d17ebf7819aeaf002",
+    "K": "hssd_ab165e78654b42d5568945a3405e69c86010fd17",
+    "L": "hssd_c54816423cdd8e3e699b411d028aba1e5aef3f2c",
+    "M": "hssd_c8bbb9cc378c3034f8a31bd0e19e51bb8290bda6",
+    "N": "hssd_ca5c6dba3e3d11e1d460ab441a36d68fb04857f8",
+    "O": "hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610",
+    "P": "hssd_ccb6d8d8284a84493a815182e5ce3e3dddd3ad70",
+    "Q": "hssd_cebe167583e0b96752d0ebfe2ff704e65aa6629a",
+    "R": "hssd_d83424d0d492ca9cb708a73ad04b59f8eec8487f",
+    "S": "hssd_e80c209372079afca611d98cd98597e79afa2c65",
+    "T": "hssd_ee3f42b9c1d188d103625187a0335f7818d0cdf8"
+   }
+  },
+  {
+   "sheet": "armchair-12",
+   "type": "armchair",
+   "number": 12,
+   "of": 12,
+   "letters": {
+    "A": "hssd_f08e9f0057a74950b3b2637c4a462ca7e258b28a",
+    "B": "hssd_f1a8ee1d325c42f3b1867c37051d8d9c5b7ae023",
+    "C": "hssd_fab3e8e5223d512a551ed0826310e31a81cc9fee",
+    "D": "hssd_fbbfeb5d105e75f1c970e39cde8ea7eb8bcaec7d",
+    "E": "hssd_xxxxcf52c887xd6ccx47d0xbf5fx448bc77e113d",
+    "F": "mid_century_lounge_chair",
+    "G": "modern_arm_chair_01",
+    "H": "objaverse_124297e7e4574c48b9c1b814b6ddf516",
+    "I": "objaverse_5b9e8ba19b1b454f82898ac4809f02b2",
+    "J": "objaverse_69f1c0489a144f3c98e66dcfe72b3969",
+    "K": "objaverse_a07501cd7f6c40fc9cf4cf438e41bac1",
+    "L": "objaverse_b23ec9725c48494788d1d88104acbb4a",
+    "M": "objaverse_da6d646358d1451fa751f1a9141290a3"
+   }
+  }
+ ],
+ "models": {
+  "3dwh_0ed14b28dbebe78d69bac429": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "Chelsea King Bed in Castle Gray Eco Leather by Modloft",
+   "size_m": [
+    2.19,
+    2.28,
+    0.83
+   ]
+  },
+  "3dwh_118ff62672cee88c43642f77": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "Ikea Malm double bed",
+   "size_m": [
+    1.9,
+    2.07,
+    0.92
+   ]
+  },
+  "3dwh_144b91907e52ec0ab4291ece": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "CI - Julia Queen Bed - White Tufted Leather",
+   "size_m": [
+    1.68,
+    2.29,
+    1.55
+   ]
+  },
+  "3dwh_1fc23fcdc4d90410cc81f963": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "Queen Upholstered Bed - Monroe",
+   "size_m": [
+    1.66,
+    2.18,
+    1.51
+   ]
+  },
+  "3dwh_230b029911f0e5ec57f52065": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "Queen Upholstered Bed - Yancy",
+   "size_m": [
+    1.83,
+    2.14,
+    1.3
+   ]
+  },
+  "3dwh_267c8e473339fbd3b862ba5e": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "Korver Bed",
+   "size_m": [
+    1.63,
+    2.22,
+    1.19
+   ]
+  },
+  "3dwh_295a54907de1daa0f2354005": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "IKEA TESTTUN BED",
+   "size_m": [
+    1.89,
+    2.1,
+    0.96
+   ]
+  },
+  "3dwh_2d1e4864369ed8d288c08842": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "KOPARDAL IKEA bed frame",
+   "size_m": [
+    1.89,
+    2.1,
+    1.16
+   ]
+  },
+  "3dwh_3dc26a64e8f7867e6091fb68": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "Neru Queen Bed Frame",
+   "size_m": [
+    2.0,
+    2.22,
+    0.72
+   ]
+  },
+  "3dwh_436e9d653c2bac7247454e06": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "Rivington Queen Bed in Gray Oak Bed by Modloft",
+   "size_m": [
+    1.85,
+    2.18,
+    1.02
+   ]
+  },
+  "3dwh_43a9d9e68d2fbd7467149c27": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Queen Size Bed with Studded frame and Headboard",
+   "size_m": [
+    1.67,
+    2.12,
+    1.05
+   ]
+  },
+  "3dwh_447f4beca70deb921dd0bfcf": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "Army Bed",
+   "size_m": [
+    1.93,
+    2.35,
+    0.57
+   ]
+  },
+  "3dwh_45669380918dfef1f400ad2b": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "Natuzzi Fenice Bed L017 C02 [u19306bf]",
+   "size_m": [
+    1.98,
+    2.31,
+    0.95
+   ]
+  },
+  "3dwh_4b3d7dc0d756a0c03ea063d3": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "Buttoned Bed headboard on frame [ucb93945]",
+   "size_m": [
+    2.12,
+    2.29,
+    1.07
+   ]
+  },
+  "3dwh_4b9f743e3d5dbcebb2ead080": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "Ikea Bed Brimnes",
+   "size_m": [
+    2.08,
+    2.45,
+    1.11
+   ]
+  },
+  "3dwh_5105c6e2dc9db4e6eb7a3350": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "Kelly-Bed",
+   "size_m": [
+    1.45,
+    2.12,
+    0.65
+   ]
+  },
+  "3dwh_563e610dedcc5c98b8eb7802": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "Amsterdam Queen Bed in Gray Oak by Modloft",
+   "size_m": [
+    1.7,
+    2.22,
+    1.04
+   ]
+  },
+  "3dwh_58a4951237dc794b726bf68f": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "Neru Single XL Bed Frame",
+   "size_m": [
+    1.47,
+    2.22,
+    0.76
+   ]
+  },
+  "3dwh_5c646dced24227fa0c077ed6": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "Sullivan Platform Bed [ub40ef68]",
+   "size_m": [
+    2.04,
+    2.22,
+    1.07
+   ]
+  },
+  "3dwh_62a5139feb7c8e429edc7293": {
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "T",
+   "source": "3dwh",
+   "title": "Crate Barrel Dawson Clove Sleigh Bed [u64ffb8d]",
+   "size_m": [
+    1.89,
+    2.36,
+    0.89
+   ]
+  },
+  "3dwh_67169f2025a7a91f3620f3fe": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "Professional bed",
+   "size_m": [
+    2.16,
+    2.11,
+    0.92
+   ]
+  },
+  "3dwh_6a16b556fd45214c882adf19": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "10 BED 3",
+   "size_m": [
+    1.76,
+    2.22,
+    1.01
+   ]
+  },
+  "3dwh_6b69a6b7be7b83959f327b3e": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "Prince King Bed in Castle Gray Eco Leather by Modloft",
+   "size_m": [
+    2.45,
+    2.26,
+    1.55
+   ]
+  },
+  "3dwh_6d56fc92c464e52b446cb1ad": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "2024 Guest Bed 1 [uafa3a99]",
+   "size_m": [
+    2.24,
+    2.25,
+    1.08
+   ]
+  },
+  "3dwh_70bef12aea24559a505e7a16": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "Ligne Roset Ruche Bed [uf0508e2]",
+   "size_m": [
+    2.19,
+    2.48,
+    1.32
+   ]
+  },
+  "3dwh_72e6fff95bcd77d44f92fa77": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "Full Bed",
+   "size_m": [
+    1.5,
+    2.37,
+    1.29
+   ]
+  },
+  "3dwh_73836b83e2bfb367cacfc7ee": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "Wood Platform Bed - Pottery Barn",
+   "size_m": [
+    2.12,
+    2.58,
+    1.02
+   ]
+  },
+  "3dwh_781ff496d1fd8dcc610c6296": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "Jane King Bed in Moonbeam Fabric by Modloft",
+   "size_m": [
+    2.29,
+    2.41,
+    0.9
+   ]
+  },
+  "3dwh_7ca53d7f2631ae80e57db78f": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "IKEA - MALM BED 209X166CM",
+   "size_m": [
+    1.85,
+    2.09,
+    1.0
+   ]
+  },
+  "3dwh_7e30f382f7275e234a2f74ff": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "Andres Queen Bed Frame",
+   "size_m": [
+    1.96,
+    2.23,
+    1.02
+   ]
+  },
+  "3dwh_83cdafef16f8e620a1b2e028": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Wrought Iron Bed",
+   "size_m": [
+    2.15,
+    2.07,
+    1.55
+   ]
+  },
+  "3dwh_8f53a60bcd1fc97de119bff6": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "LAZZONI YRT133 ISTANBUL KING SIZE BED",
+   "size_m": [
+    2.21,
+    2.25,
+    1.0
+   ]
+  },
+  "3dwh_93fd81455618d7dfd46ae26f": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "Bed [u654ed62]",
+   "size_m": [
+    1.67,
+    1.57,
+    0.62
+   ]
+  },
+  "3dwh_97084d55de54c3d6aca33d6a": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "Amsterdam King Bed in Gray Oak by Modloft",
+   "size_m": [
+    2.15,
+    2.21,
+    1.04
+   ]
+  },
+  "3dwh_9b3d9c52e77d118712b3599d": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "Broome Cal King Bed in Latte Walnut by Modloft",
+   "size_m": [
+    2.07,
+    2.31,
+    1.04
+   ]
+  },
+  "3dwh_a9e17793be088c30d8ca5569": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "Unmade Bed",
+   "size_m": [
+    1.67,
+    2.02,
+    1.39
+   ]
+  },
+  "3dwh_aba32d0bc72f5e13ca7d04c1": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "Broome King Bed in Latte Walnut by Modloft",
+   "size_m": [
+    2.17,
+    2.21,
+    1.04
+   ]
+  },
+  "3dwh_ac57310611306e7ea5328023": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "Bed Muji with pink Habitat linen",
+   "size_m": [
+    1.43,
+    2.02,
+    0.87
+   ]
+  },
+  "3dwh_ae6cbee616c65d68120935ad": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "Kenna Single XL Bed",
+   "size_m": [
+    1.78,
+    2.15,
+    0.77
+   ]
+  },
+  "3dwh_b1db5a2ba5d7c5b54ea05946": {
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "T",
+   "source": "3dwh",
+   "title": "Benson Arched Upholstered Platform Bed [ub9f4af8]",
+   "size_m": [
+    1.65,
+    2.39,
+    1.32
+   ]
+  },
+  "3dwh_b5fea9c70717a76f4e320f94": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "Sleigh Bed Frame - Queen",
+   "size_m": [
+    1.63,
+    2.31,
+    1.37
+   ]
+  },
+  "3dwh_be9ec1c8f7191bc93f9232e1": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "Grand King Bed in Espresso by Modloft",
+   "size_m": [
+    2.21,
+    2.29,
+    1.1
+   ]
+  },
+  "3dwh_c9fdde6344754954d9f8c741": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "Queen Bed",
+   "size_m": [
+    2.21,
+    2.16,
+    1.18
+   ]
+  },
+  "3dwh_ca56827e612d7c66fae59459": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "ALIVAR LAGOON bed",
+   "size_m": [
+    2.21,
+    2.4,
+    0.84
+   ]
+  },
+  "3dwh_cbf314f4b2b18d247051f2c5": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "Lawrenceville Panel Bed",
+   "size_m": [
+    1.94,
+    2.16,
+    1.31
+   ]
+  },
+  "3dwh_d049478457e41fbd2c0e79eb": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "Malm Bed IKEA",
+   "size_m": [
+    2.11,
+    2.17,
+    1.0
+   ]
+  },
+  "3dwh_d659728f8e656e02d1516f4b": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "Ikea MANDAL bed headboard 160x220",
+   "size_m": [
+    2.4,
+    2.11,
+    0.94
+   ]
+  },
+  "3dwh_e65c59d0e2566aa6af900af8": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "Raine Bed",
+   "size_m": [
+    1.66,
+    2.21,
+    1.16
+   ]
+  },
+  "3dwh_eb59cf4bc628cf23255c5dec": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "EQ3 Cello upholstered bed",
+   "size_m": [
+    1.71,
+    2.41,
+    0.87
+   ]
+  },
+  "3dwh_ed32af47bf66683c69b77cc5": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "Dot Bo Palomino Platform Bed [u4ae423c]",
+   "size_m": [
+    1.89,
+    2.21,
+    1.22
+   ]
+  },
+  "3dwh_f5c7f12837d5da10f176ece9": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Purple Bed",
+   "size_m": [
+    1.6,
+    2.02,
+    1.32
+   ]
+  },
+  "3dwh_f79b64e5c9d3bf800e7b9875": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "Cattelan Italy Adam Bed",
+   "size_m": [
+    2.15,
+    2.2,
+    0.97
+   ]
+  },
+  "3dwh_f8cd3c17fe4b3f54f3c953bc": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "Haru Queen Bed in Andorra Wool and Walnut by Modloft",
+   "size_m": [
+    1.66,
+    2.13,
+    0.92
+   ]
+  },
+  "3dwh_fa71991d817f94c066e814d6": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "Bed",
+   "size_m": [
+    2.01,
+    1.97,
+    1.43
+   ]
+  },
+  "3dwh_ff9b2965ef382aba8d577399": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "Rivington King Bed in Gray Oak by Modloft",
+   "size_m": [
+    2.3,
+    2.18,
+    1.02
+   ]
+  },
+  "3dwh_fff59125f43bfbf6af726605": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "Restoration Hardware Bed [ufc9268f]",
+   "size_m": [
+    2.06,
+    1.98,
+    1.28
+   ]
+  },
+  "GothicBed_01": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "Q",
+   "source": "polyhaven",
+   "title": "Gothic Bed 01",
+   "size_m": [
+    1.49,
+    2.04,
+    1.53
+   ]
+  },
+  "abo_B0154VUESC": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "R",
+   "source": "abo",
+   "title": "Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak...",
+   "size_m": [
+    1.72,
+    2.06,
+    0.8
+   ]
+  },
+  "abo_B01M0ZVGCQ": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "S",
+   "source": "abo",
+   "title": "Movian Belaya",
+   "size_m": [
+    1.45,
+    1.95,
+    0.63
+   ]
+  },
+  "abo_B071FJR4FW": {
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "T",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak",
+   "size_m": [
+    1.63,
+    2.11,
+    1.42
+   ]
+  },
+  "abo_B071W2SCTJ": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "A",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Glenwood Industrial Metal Accent Bed, King, 86\"L, Oak",
+   "size_m": [
+    1.76,
+    2.22,
+    1.49
+   ]
+  },
+  "abo_B072PWGSZL": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "B",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Ventura Mid-Century Louvered Queen Bed, 86\"L, Cherry",
+   "size_m": [
+    1.6,
+    2.18,
+    1.27
+   ]
+  },
+  "abo_B075QMHYV8": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "C",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Ainsley Geometric Steel Bed Frame - Queen Size - Grey",
+   "size_m": [
+    1.6,
+    2.06,
+    1.22
+   ]
+  },
+  "abo_B075Z1NM6N": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "D",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Stark Modern Wood Starburst Stitch Queen Bed with Headboard, 82.3\"W,...",
+   "size_m": [
+    1.57,
+    2.12,
+    1.17
+   ]
+  },
+  "abo_B075Z8767S": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "E",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Bateman Casual Rustic Wood Platform Bed Frame with Tall Headb...",
+   "size_m": [
+    1.7,
+    2.28,
+    1.42
+   ]
+  },
+  "abo_B07B4W5TZF": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "F",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Contemporary Curved Wood King Bed, 79\"W, Toffee Oak",
+   "size_m": [
+    1.5,
+    2.11,
+    1.13
+   ]
+  },
+  "abo_B07B4W7X1Y": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "G",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Duwamish Classic Metal Queen Bed with Headboard, 64.5\"W, Dark...",
+   "size_m": [
+    1.62,
+    2.13,
+    1.45
+   ]
+  },
+  "abo_B07B4YNHSN": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "H",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Tisbury Nailhead Trim Queen Bed, 66\"W, Fresh Pewter",
+   "size_m": [
+    1.7,
+    2.33,
+    1.42
+   ]
+  },
+  "abo_B07B4Z9Q3S": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "I",
+   "source": "abo",
+   "title": "Stone & Beam Prudence Tufted King Bed, 84\"W, Spinnsol Cocoa",
+   "size_m": [
+    1.7,
+    2.39,
+    1.43
+   ]
+  },
+  "abo_B07B51H792": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "J",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Imogene Oiled Bronze Queen Bed, 63.5\"W, Dark Bronze",
+   "size_m": [
+    1.57,
+    2.12,
+    1.17
+   ]
+  },
+  "abo_B07BBWMPJM": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "K",
+   "source": "abo",
+   "title": "Amazon Brand - Movian Corona Double Bed, 4 ft 6, High Foot End Bed Frame, Solid Pine Wood",
+   "size_m": [
+    1.49,
+    2.07,
+    1.1
+   ]
+  },
+  "abo_B07GFDZW5W": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "L",
+   "source": "abo",
+   "title": "Movian Havel",
+   "size_m": [
+    1.62,
+    1.96,
+    0.8
+   ]
+  },
+  "abo_B07GFFR415": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "M",
+   "source": "abo",
+   "title": "Amazon Brand - Movian Constance Lift-Up Double Bed Frame with Storage, 190 x 140 x 31.5...",
+   "size_m": [
+    1.4,
+    1.9,
+    0.56
+   ]
+  },
+  "abo_B07K7K25ZL": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "N",
+   "source": "abo",
+   "title": "abo_B07K7K25ZL",
+   "size_m": [
+    1.66,
+    2.09,
+    0.94
+   ]
+  },
+  "abo_B07L1DDXLR": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "O",
+   "source": "abo",
+   "title": "Amazon Brand - Solimo Aquilla Engineered Wood Queen Bed (Wenge Finish)",
+   "size_m": [
+    1.58,
+    2.07,
+    0.82
+   ]
+  },
+  "abo_B07LC5Y95W": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "P",
+   "source": "abo",
+   "title": "Amazon Brand - Solimo Vega Engineered Wood Hydraulic Half Lift-on Queen Bed (Espresso F...",
+   "size_m": [
+    1.63,
+    2.1,
+    0.81
+   ]
+  },
+  "abo_B07LC84ZYV": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "Q",
+   "source": "abo",
+   "title": "Amazon Brand - Solimo Optima Manual Box Storage Queen Bed (Sienna Cherry)",
+   "size_m": [
+    1.68,
+    2.05,
+    0.85
+   ]
+  },
+  "abo_B086TGFT35": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "R",
+   "source": "abo",
+   "title": "AmazonBasics Solid Platform Bed - Rustic Finish - No Box Spring Needed - Strong Wood Sl...",
+   "size_m": [
+    1.54,
+    2.02,
+    0.43
+   ]
+  },
+  "abo_B08FTN8KHY": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "S",
+   "source": "abo",
+   "title": "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)",
+   "size_m": [
+    1.88,
+    2.04,
+    0.94
+   ]
+  },
+  "hssd_00662bccdee49ca148d0c96929286db6d6d3c267": {
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "T",
+   "source": "hssd",
+   "title": "Andaman Queen Bed",
+   "size_m": [
+    1.76,
+    2.3,
+    1.2
+   ]
+  },
+  "hssd_02e22ed56270338bef5f8436e82023c36cd29104": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "A",
+   "source": "hssd",
+   "title": "Platform Bed, queen",
+   "size_m": [
+    1.85,
+    2.15,
+    0.84
+   ]
+  },
+  "hssd_033ec086c23a6d39fb37df87e6748c413bf80e29": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "B",
+   "source": "hssd",
+   "title": "HSSD object 033ec086",
+   "size_m": [
+    1.78,
+    2.15,
+    1.15
+   ]
+  },
+  "hssd_051239c63082d6b0cda8ef2db8be17d840be44bc": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "C",
+   "source": "hssd",
+   "title": "LEWISTON QUEEN BED",
+   "size_m": [
+    1.81,
+    2.18,
+    1.19
+   ]
+  },
+  "hssd_0c22fc3147a2787e85cedfbf231aa45cdc08e25e": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "D",
+   "source": "hssd",
+   "title": "Komfi Adjustable Bed",
+   "size_m": [
+    1.5,
+    2.0,
+    0.9
+   ]
+  },
+  "hssd_16100ba2844b8f89c2ba6e30677d13ffe45d82a7": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "E",
+   "source": "hssd",
+   "title": "Min Bed w/ Plexi Headboard-Full - White.Clear",
+   "size_m": [
+    1.49,
+    1.99,
+    0.8
+   ]
+  },
+  "hssd_24260cc2eff93ee6c74f6db6beb1c5137b9d8bcd": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "F",
+   "source": "hssd",
+   "title": "Saville Bed",
+   "size_m": [
+    1.45,
+    1.91,
+    0.8
+   ]
+  },
+  "hssd_3ab4e08fc50d66f06fe6d3c72b9c76210d4efba7": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "G",
+   "source": "hssd",
+   "title": "Wesley Allen # Blake Iron Bed",
+   "size_m": [
+    1.62,
+    2.05,
+    1.47
+   ]
+  },
+  "hssd_3fce46b44d59007f02e60c8adf5fc333b0c58528": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "H",
+   "source": "hssd",
+   "title": "Full Saddle Back Upholstered Bed, Grey",
+   "size_m": [
+    1.61,
+    2.05,
+    1.38
+   ]
+  },
+  "hssd_461a6a73027b08506fe73030fe3e16be969cffd4": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "I",
+   "source": "hssd",
+   "title": "Tufted Bed Full",
+   "size_m": [
+    1.34,
+    2.03,
+    1.32
+   ]
+  },
+  "hssd_55178b6f7cfabac7480cc6e677b8223227604907": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "J",
+   "source": "hssd",
+   "title": "Emmett Full Metal Platform Bed",
+   "size_m": [
+    1.63,
+    2.0,
+    1.35
+   ]
+  },
+  "hssd_589bcc23d287e1669b4acaf573d0affdc4e058d5": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "K",
+   "source": "hssd",
+   "title": "Airsprung Boston Bed Black King - 4 Drawers",
+   "size_m": [
+    1.59,
+    2.0,
+    1.1
+   ]
+  },
+  "hssd_6ccebb27fe6084d08e7b6d601582e1c6930e9379": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "L",
+   "source": "hssd",
+   "title": "Allegro Bedstead 135x190cm",
+   "size_m": [
+    1.36,
+    1.9,
+    0.9
+   ]
+  },
+  "hssd_70c7ba63276ac6400527817e31fdd0141c4dae4b": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "M",
+   "source": "hssd",
+   "title": "St Lucia Full Iron Bed",
+   "size_m": [
+    1.62,
+    2.0,
+    1.6
+   ]
+  },
+  "hssd_85b1c9726d9d9034d006dbacd0f5736f0f533b6d": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "N",
+   "source": "hssd",
+   "title": "Picardy Silver Metal 4\" 6\" Bed",
+   "size_m": [
+    1.41,
+    1.91,
+    0.8
+   ]
+  },
+  "hssd_96410190447f784b14d9ddead790176560ab7f7f": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "O",
+   "source": "hssd",
+   "title": "Optec Single Bed - 120x200 cms",
+   "size_m": [
+    1.38,
+    2.1,
+    0.94
+   ]
+  },
+  "hssd_9698b67f0b863ee3d6d761478c2aac4f2e06310f": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "P",
+   "source": "hssd",
+   "title": "Initial Bed in Wenge - double",
+   "size_m": [
+    1.38,
+    2.04,
+    0.79
+   ]
+  },
+  "hssd_bf0d188b37ed02e5567e8651df3425c57fbff7bd": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "Q",
+   "source": "hssd",
+   "title": "Dylan II Queen Platform Bed",
+   "size_m": [
+    1.78,
+    2.26,
+    1.02
+   ]
+  },
+  "hssd_ce1bdc2cbf26176400c71b11437c4c8ffe8a800d": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "R",
+   "source": "hssd",
+   "title": "Taylor Full Slat Panel Bed, White",
+   "size_m": [
+    1.45,
+    2.03,
+    1.07
+   ]
+  },
+  "hssd_e6ccfb8aa1fa974d429195f8edc169aa7ea21306": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "S",
+   "source": "hssd",
+   "title": "Corium LED Polsterbett",
+   "size_m": [
+    1.46,
+    2.0,
+    0.78
+   ]
+  },
+  "hssd_e91f9db75c0e3679b4bdd1d012ceb0819bb287f5": {
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "T",
+   "source": "hssd",
+   "title": "Envy Bed",
+   "size_m": [
+    1.86,
+    2.29,
+    1.17
+   ]
+  },
+  "hssd_fd773312233cde1d417cc17d479c24b55005a1e9": {
+   "type": "bed_double",
+   "sheet": "bed_double-06",
+   "letter": "A",
+   "source": "hssd",
+   "title": "King",
+   "size_m": [
+    1.81,
+    2.17,
+    1.44
+   ]
+  },
+  "hssd_xxxxaf473d33x3e91x4b4ex9182x033de637aafb": {
+   "type": "bed_double",
+   "sheet": "bed_double-06",
+   "letter": "B",
+   "source": "hssd",
+   "title": "Wyatt Full Bed",
+   "size_m": [
+    1.55,
+    2.16,
+    0.93
+   ]
+  },
+  "hssd_xxxxbeae246cx5cbcx482dx81faxd6e6f844d62d": {
+   "type": "bed_double",
+   "sheet": "bed_double-06",
+   "letter": "C",
+   "source": "hssd",
+   "title": "Rattan Kids Full Bed",
+   "size_m": [
+    1.4,
+    2.01,
+    0.99
+   ]
+  },
+  "objaverse_08f7f65edfea417b8ed9ca748381e507": {
+   "type": "bed_double",
+   "sheet": "bed_double-06",
+   "letter": "D",
+   "source": "objaverse",
+   "title": "Bed",
+   "size_m": [
+    2.06,
+    1.8,
+    0.76
+   ]
+  },
+  "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55": {
+   "type": "bed_double",
+   "sheet": "bed_double-06",
+   "letter": "E",
+   "source": "objaverse",
+   "title": "Old Bed",
+   "size_m": [
+    1.47,
+    2.55,
+    1.4
+   ]
+  },
+  "3dwh_01c4dc510c90f1d90d478c2c": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "modern realistic 2 seater sofa",
+   "size_m": [
+    2.44,
+    1.04,
+    0.99
+   ]
+  },
+  "3dwh_023ac37b6602f45d849aaa00": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "Sofa Polles - Unue",
+   "size_m": [
+    2.69,
+    0.94,
+    0.92
+   ]
+  },
+  "3dwh_042af24d40e115fe99e678dd": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "MUJI sofa",
+   "size_m": [
+    0.71,
+    1.33,
+    0.52
+   ]
+  },
+  "3dwh_07847bf4e5fc79d9f44c9cb8": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "Restoration Hardware - BELGIAN CLASSIC SLOPE ARM PREMIUM SLEEPER SOFA",
+   "size_m": [
+    2.44,
+    1.02,
+    0.97
+   ]
+  },
+  "3dwh_08666b63aaf426f00d1e4323": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "realstic mid century sofa day bed",
+   "size_m": [
+    0.92,
+    2.44,
+    0.96
+   ]
+  },
+  "3dwh_0f39fb15af84738a6be55e25": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "Flexform Antonio Citterio Lifesteel Sofa 240",
+   "size_m": [
+    2.4,
+    1.05,
+    0.76
+   ]
+  },
+  "3dwh_1172843db1fb2000f7b5a16e": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "sofa k04",
+   "size_m": [
+    2.15,
+    0.85,
+    0.52
+   ]
+  },
+  "3dwh_175509753f3c3d6cc702da17": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "Natuzzi Brio Sofa 2761 193 [ue9790eb]",
+   "size_m": [
+    1.83,
+    1.07,
+    0.76
+   ]
+  },
+  "3dwh_18d9a3a43ae213c8bd5a5f91": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "pottery barn charleston sofa [ud913627]",
+   "size_m": [
+    2.8,
+    0.99,
+    1.06
+   ]
+  },
+  "3dwh_1a62655111c197e7d46d5736": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "BeanBag Couch",
+   "size_m": [
+    3.37,
+    1.05,
+    0.92
+   ]
+  },
+  "3dwh_1ec7ebc8b062785e585335c0": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Flexform Antonio Citterio Cestone 09 Sofa 310",
+   "size_m": [
+    3.1,
+    1.14,
+    0.67
+   ]
+  },
+  "3dwh_212c8b8c0530d244c8966de9": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "Natuzzi Notturno Sofa 2784 005 [uf6252d0]",
+   "size_m": [
+    1.85,
+    1.02,
+    0.74
+   ]
+  },
+  "3dwh_26e57ebd83ee4340959f12e4": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "Isaac Sofa",
+   "size_m": [
+    0.81,
+    2.14,
+    0.81
+   ]
+  },
+  "3dwh_2a02c74a7955dabe98e6125d": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "SOFAVRAY (Sofas)",
+   "size_m": [
+    3.08,
+    1.17,
+    0.86
+   ]
+  },
+  "3dwh_2fee1aeaf89b3ad30aab491d": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "BB Italia Antonio Citterio Michel Sofa 9M206",
+   "size_m": [
+    2.09,
+    0.92,
+    0.71
+   ]
+  },
+  "3dwh_300e482e4de5622e88ba4330": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "Podium Browser Vitra Alcove sofa love seat [u23945a7]",
+   "size_m": [
+    1.26,
+    0.88,
+    0.99
+   ]
+  },
+  "3dwh_324dd45f9bd5cd371c733341": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "IKEA Kramfors Three-seat sofa",
+   "size_m": [
+    2.24,
+    1.01,
+    0.74
+   ]
+  },
+  "3dwh_33f48387cd780d5ed309bf70": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "Flexform Antonio Citterio Lifesteel Sofa 275",
+   "size_m": [
+    2.75,
+    1.05,
+    0.76
+   ]
+  },
+  "3dwh_36193191d2b79b97372f3eef": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "Ikea SATER sofa",
+   "size_m": [
+    1.97,
+    0.82,
+    0.75
+   ]
+  },
+  "3dwh_37358e3200e15045fdade8cb": {
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "T",
+   "source": "3dwh",
+   "title": "Muuto Sofa REST 3 seater",
+   "size_m": [
+    2.62,
+    0.98,
+    0.71
+   ]
+  },
+  "3dwh_3debd68470a1c9d58c2206d3": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "Summerton Teak Loveseat with Cushions",
+   "size_m": [
+    1.32,
+    0.9,
+    0.92
+   ]
+  },
+  "3dwh_3e2d3da31df1f957916c374e": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "Sofa Cascara 15ALmed - 15ARmed low back 274x102 3C GHD",
+   "size_m": [
+    2.74,
+    0.94,
+    0.76
+   ]
+  },
+  "3dwh_3e87c5fc8fbd30457644512c": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "Exclusif Sofa 120",
+   "size_m": [
+    2.39,
+    0.79,
+    0.58
+   ]
+  },
+  "3dwh_48549ca5d002b39a70b36cd9": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "Ercol Loveseat",
+   "size_m": [
+    1.18,
+    0.81,
+    0.54
+   ]
+  },
+  "3dwh_4ab28243619dcfa328ee8eeb": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "BB Italia Antonio Citterio Charles Sofa",
+   "size_m": [
+    1.48,
+    0.63,
+    0.52
+   ]
+  },
+  "3dwh_54bd773185e98f7e5f97b6fb": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "IKEA Kramfors Two-seat sofa",
+   "size_m": [
+    1.8,
+    0.99,
+    0.74
+   ]
+  },
+  "3dwh_56f0d67f517a27b45cd92292": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "HAY Bjorn sofa [u8e286cb]",
+   "size_m": [
+    1.97,
+    0.84,
+    0.69
+   ]
+  },
+  "3dwh_577f86fc6233725f5dc87490": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "Bubble gris - canape 3 places - Roche Bobois",
+   "size_m": [
+    2.16,
+    1.02,
+    0.67
+   ]
+  },
+  "3dwh_591024cae33f062bb97cdec5": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "Modern sofa [u4e26ad0]",
+   "size_m": [
+    2.38,
+    0.63,
+    0.88
+   ]
+  },
+  "3dwh_5be87e5d92ca110e8bec3f66": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "Gardner Leather Sofa",
+   "size_m": [
+    2.13,
+    1.09,
+    0.96
+   ]
+  },
+  "3dwh_5c8e37b7bfe9509edcbf5f06": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Broadway Sofa [u8a3c520]",
+   "size_m": [
+    2.05,
+    0.88,
+    0.88
+   ]
+  },
+  "3dwh_6201dfb75b8ee9fabfd4bf8f": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "Natuzzi Arioso Sofa 2898 264 [ud8574ec]",
+   "size_m": [
+    2.08,
+    1.04,
+    0.76
+   ]
+  },
+  "3dwh_683325dd863b827646e2106b": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "Natuzzi Brio Sofa 2761 283 [udf4a128]",
+   "size_m": [
+    1.7,
+    1.07,
+    0.72
+   ]
+  },
+  "3dwh_6d10a2e0ecaab7aed41b10fe": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "Cruved sofa TheaReady",
+   "size_m": [
+    1.95,
+    0.96,
+    0.86
+   ]
+  },
+  "3dwh_6db7e8831d6e3d5c52f3b1b7": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "Jake Leather Sofa - Pottery Barn",
+   "size_m": [
+    1.81,
+    0.89,
+    0.82
+   ]
+  },
+  "3dwh_70b2668463769c7975264f09": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "Natuzzi Cambre Sofa 2638 047 [uc087534]",
+   "size_m": [
+    1.1,
+    1.85,
+    0.89
+   ]
+  },
+  "3dwh_70be2f89d8a6f0d4f5fe5888": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "Natuzzi Ciak Sofa 2559 239",
+   "size_m": [
+    2.17,
+    1.02,
+    0.77
+   ]
+  },
+  "3dwh_73a3f2fd339beec5aabd5ed6": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "HEMNES daybed frame A white [ud6311f5]",
+   "size_m": [
+    2.11,
+    0.91,
+    0.86
+   ]
+  },
+  "3dwh_7480e98ffb90c8d38b9d5a25": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "NatuzziBrio Sofa 2761 445 [ue63d1cd]",
+   "size_m": [
+    2.18,
+    1.07,
+    0.76
+   ]
+  },
+  "3dwh_7a0281f136dea2e7beea1720": {
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "T",
+   "source": "3dwh",
+   "title": "Fincham Loveseat Classic settees",
+   "size_m": [
+    2.9,
+    0.68,
+    0.89
+   ]
+  },
+  "3dwh_7a1dbcbe541b7a0e2a863ca2": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "Flexform Antonio Citterio Lario Sofa 280",
+   "size_m": [
+    2.8,
+    1.1,
+    0.65
+   ]
+  },
+  "3dwh_7c054427859deb685fa5ccb5": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "SolLuna - Borealis sofa cushions",
+   "size_m": [
+    2.0,
+    0.86,
+    0.83
+   ]
+  },
+  "3dwh_7e29c58774102ff7764fc935": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "Sofia Large - Domark sofa [u40478ad]",
+   "size_m": [
+    1.2,
+    1.01,
+    0.49
+   ]
+  },
+  "3dwh_80d95b5d811c3b56fdc0e543": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "Sofa Keiko 3 lugares",
+   "size_m": [
+    2.23,
+    0.89,
+    0.8
+   ]
+  },
+  "3dwh_88ace91efea68ca860ea7477": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "Natuzzi GIO Sofa 2912 064 [ue63cc5a]",
+   "size_m": [
+    2.61,
+    1.09,
+    0.8
+   ]
+  },
+  "3dwh_8b41bf06e3e16f2e91e38d37": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "Hughes Loveseat",
+   "size_m": [
+    2.01,
+    0.93,
+    0.83
+   ]
+  },
+  "3dwh_8b448d4c97c75d1599d226eb": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "SOFA IKEA 4",
+   "size_m": [
+    1.76,
+    0.67,
+    0.68
+   ]
+  },
+  "3dwh_9145e841dfca3fb07979616f": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "Natuzzi Diesis Sofa 2828 446 [ufce83ff]",
+   "size_m": [
+    2.12,
+    1.05,
+    0.77
+   ]
+  },
+  "3dwh_97e9e4169617fb5c039c9bc6": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "sofa AA",
+   "size_m": [
+    2.64,
+    1.02,
+    0.84
+   ]
+  },
+  "3dwh_9d4985a319c9f913c534b120": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "Blu Dot Paramount Sofa",
+   "size_m": [
+    2.44,
+    0.81,
+    0.82
+   ]
+  },
+  "3dwh_9dee0d288622134d7205ac3b": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "DEDON MU Daybed [u51f7165]",
+   "size_m": [
+    1.55,
+    0.9,
+    0.76
+   ]
+  },
+  "3dwh_9f83498171022344dfbdd829": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "IKEA STOCKSUND Loveseat",
+   "size_m": [
+    1.51,
+    0.92,
+    0.87
+   ]
+  },
+  "3dwh_9f97205894a666719b425ab1": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "arm chair sofa lobby furniture home furniture sofa highres",
+   "size_m": [
+    2.77,
+    1.04,
+    0.87
+   ]
+  },
+  "3dwh_a577ed0071066ded9b5d5012": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "Flexform Antonio Citterio Evergreen Sofa 307",
+   "size_m": [
+    3.07,
+    1.0,
+    0.98
+   ]
+  },
+  "3dwh_a91be17c55e77f3b3319587a": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "SODERHAMN - IKEA Canape 2 places",
+   "size_m": [
+    2.22,
+    1.0,
+    0.78
+   ]
+  },
+  "3dwh_af821bc36811c70b656fd96b": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "Natuzzi Tempo Sofa 2834 009 [ubd05891]",
+   "size_m": [
+    2.35,
+    1.08,
+    0.77
+   ]
+  },
+  "3dwh_b7ece8782fc8708582603392": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "IKEA- sofa tylosand",
+   "size_m": [
+    2.4,
+    0.94,
+    0.98
+   ]
+  },
+  "3dwh_b8cf313db4b473cbbfa89fc6": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "79618 Sofa My Desire Khaki 3-Seater [u2d3e140]",
+   "size_m": [
+    2.45,
+    1.0,
+    0.68
+   ]
+  },
+  "3dwh_c1389b2324376b35a19514b2": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "Kartell -Sofa Foliage",
+   "size_m": [
+    1.56,
+    0.81,
+    0.83
+   ]
+  },
+  "3dwh_c501c30ccb65731ce8da7681": {
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "T",
+   "source": "3dwh",
+   "title": "Eames Sofa from SmartFurniture.com",
+   "size_m": [
+    1.99,
+    0.79,
+    0.85
+   ]
+  },
+  "3dwh_c6571781ada93303058fc1f9": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "Walton Lane Sofa",
+   "size_m": [
+    2.27,
+    0.91,
+    0.73
+   ]
+  },
+  "3dwh_c7c13fbdb544f7a58cddb88d": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "Natuzzi Notturno Sofa 2784 008 [ud81fbb1]",
+   "size_m": [
+    2.01,
+    1.04,
+    0.76
+   ]
+  },
+  "3dwh_c91095c7534c6d4b068232c5": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "Hove Club Sofa",
+   "size_m": [
+    1.7,
+    0.96,
+    0.54
+   ]
+  },
+  "3dwh_cda8cc4a7192a245c351383d": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "Flexform Antonio Citterio Big Bob Sofa",
+   "size_m": [
+    2.42,
+    1.15,
+    0.7
+   ]
+  },
+  "3dwh_ce671d104926cb7160671709": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "2 SEATER SOFA [u402061a]",
+   "size_m": [
+    1.36,
+    0.85,
+    0.9
+   ]
+  },
+  "3dwh_cfd0f36cce1a87df6ab4d694": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "Sofa Modern 3 Cushion Ivory",
+   "size_m": [
+    1.95,
+    0.88,
+    0.91
+   ]
+  },
+  "3dwh_d31267709e46fc77495b3323": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "Flexform Antonio Citterio Guscio Sofa",
+   "size_m": [
+    2.2,
+    1.06,
+    0.78
+   ]
+  },
+  "3dwh_d3c597f5031f8e7dbbe3732f": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "Natuzzi Notturno Sofa 2784 115 [ufcd0d0b]",
+   "size_m": [
+    1.63,
+    1.02,
+    0.74
+   ]
+  },
+  "3dwh_d7fce7457e1c8d6615008edd": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "Couch",
+   "size_m": [
+    2.24,
+    1.01,
+    0.84
+   ]
+  },
+  "3dwh_e089665f9bbfe79e2ac3e1a8": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "Kyoto Sofa sleeper - BoConcept [u778047f]",
+   "size_m": [
+    2.12,
+    1.08,
+    1.04
+   ]
+  },
+  "3dwh_e105ecdfd78d66e0731e54bc": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "sofa",
+   "size_m": [
+    2.61,
+    1.22,
+    1.02
+   ]
+  },
+  "3dwh_e4a04c16198b652085b55dac": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "SOFA 1",
+   "size_m": [
+    3.26,
+    1.25,
+    0.69
+   ]
+  },
+  "3dwh_ed7835489fe4d8706bd80abd": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "Couch 2",
+   "size_m": [
+    2.24,
+    0.98,
+    0.93
+   ]
+  },
+  "3dwh_f06bbd974a18ea91d426bef2": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "Flexform Victor Divano",
+   "size_m": [
+    2.2,
+    1.01,
+    0.84
+   ]
+  },
+  "3dwh_f53187ff0d7ac83e67468e91": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "Vintage Sofa",
+   "size_m": [
+    2.06,
+    0.96,
+    0.98
+   ]
+  },
+  "3dwh_f8d2fb3704f4da4385adf279": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "BoConcept Sofa Madyson [ub6313bc]",
+   "size_m": [
+    2.2,
+    1.08,
+    0.82
+   ]
+  },
+  "3dwh_f929585fc59011d1c3a6742b": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "Borek Samos loveseat [u0317fb3]",
+   "size_m": [
+    1.12,
+    0.96,
+    0.84
+   ]
+  },
+  "3dwh_fb3ee37d98020ca5ce56e139": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "2 SEATER SOFA NYSSE PEARL LOVESEATS",
+   "size_m": [
+    1.35,
+    0.89,
+    0.88
+   ]
+  },
+  "3dwh_ffc26cd6fbd8f8ca9ebcad0f": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "IKEA Kramfors Two-seat sofa",
+   "size_m": [
+    1.56,
+    1.0,
+    0.74
+   ]
+  },
+  "Sofa_01": {
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "T",
+   "source": "polyhaven",
+   "title": "Sofa 01",
+   "size_m": [
+    1.57,
+    0.66,
+    0.8
+   ]
+  },
+  "abo_B0714QGC72": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "A",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Leather Sofa Couch, 92.9\"W, Cognac",
+   "size_m": [
+    2.37,
+    0.99,
+    0.76
+   ]
+  },
+  "abo_B0719WQH8N": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "B",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Sloane Mid-Century Modern Sofa with Tufted Back, 64.2\"W, Pebble",
+   "size_m": [
+    1.65,
+    0.95,
+    0.92
+   ]
+  },
+  "abo_B071FMSSWB": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "C",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Hoffman Down-Filled Performance Fabric Loveseat Sofa, 79\"W, Ecru",
+   "size_m": [
+    1.75,
+    1.09,
+    0.87
+   ]
+  },
+  "abo_B071J7Q3J4": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "D",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Sofa Couch, 92.9\"W, Hemp",
+   "size_m": [
+    2.69,
+    1.08,
+    0.85
+   ]
+  },
+  "abo_B071W5VJ98": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "E",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Hawthorne Mid-Century Tufted Modern Loveseat Settee Sofa, 57\"W, Caviar",
+   "size_m": [
+    1.36,
+    0.87,
+    1.03
+   ]
+  },
+  "abo_B072555T67": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "F",
+   "source": "abo",
+   "title": "Marchio Amazon - Movian Ackan - Divano a 3 posti, 209 x 87 x 80 cm, grigio chiaro",
+   "size_m": [
+    2.1,
+    0.85,
+    0.79
+   ]
+  },
+  "abo_B07263589M": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "G",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Loveseat Sofa Couch, 78.7\"W, Navy",
+   "size_m": [
+    1.99,
+    1.08,
+    0.83
+   ]
+  },
+  "abo_B072FVHRZ5": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "H",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Cove Mid-Century Modern Tufted Sofa with Tapered Legs, 72\"W, Light Grey",
+   "size_m": [
+    1.41,
+    0.84,
+    0.91
+   ]
+  },
+  "abo_B072M1W86Y": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "I",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Lauren Down-Filled Oversized Sofa Couch with Hardwood Frame, ...",
+   "size_m": [
+    2.35,
+    0.96,
+    0.98
+   ]
+  },
+  "abo_B072Q1BNCD": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "J",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Sofa Couch, 92.9\"W, Navy",
+   "size_m": [
+    2.34,
+    1.05,
+    0.84
+   ]
+  },
+  "abo_B075X2WN11": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "K",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Aiden Tufted Mid-Century Leather Bench Seat Sofa, Without Side Pillo...",
+   "size_m": [
+    2.2,
+    0.89,
+    0.78
+   ]
+  },
+  "abo_B075X2WNRP": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "L",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Aiden Tufted Mid-Century Leather Bench Seat Sofa, Without Side Pillo...",
+   "size_m": [
+    1.92,
+    0.92,
+    0.83
+   ]
+  },
+  "abo_B075X2X4GY": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "M",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Uptown Mid-Century Velvet Tufted Customizable Daybed Sofa, 78\"W, Dov...",
+   "size_m": [
+    1.98,
+    0.69,
+    0.64
+   ]
+  },
+  "abo_B075X2X4MB": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "N",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Loveseat, 58\"W, Charcoal",
+   "size_m": [
+    1.51,
+    0.87,
+    0.91
+   ]
+  },
+  "abo_B075X33T32": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "O",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Eva Mid-Century Modern Tufted Velvet Down-Filled Loveseat Sofa Couch...",
+   "size_m": [
+    1.58,
+    0.91,
+    0.81
+   ]
+  },
+  "abo_B075X43FD2": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "P",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Sofa, 78\"W, Dove",
+   "size_m": [
+    2.0,
+    0.88,
+    0.85
+   ]
+  },
+  "abo_B075X43FDW": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "Q",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Mid-Century Modern Angled Leather Loveseat Sofa Couch, 78\"W, ...",
+   "size_m": [
+    1.98,
+    0.88,
+    0.85
+   ]
+  },
+  "abo_B075X4F5CS": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "R",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Sofa, 78\"W, Smoke",
+   "size_m": [
+    2.0,
+    0.84,
+    0.91
+   ]
+  },
+  "abo_B075X4F5LM": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "S",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Leila Tufted Velvet Living Room Sofa Couch, 88\"W, Blue",
+   "size_m": [
+    2.24,
+    0.91,
+    0.79
+   ]
+  },
+  "abo_B075X4HZPX": {
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "T",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Leila Tufted Sofa, 88\" W, Latte",
+   "size_m": [
+    2.24,
+    0.91,
+    0.79
+   ]
+  },
+  "abo_B075X4JB3K": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "A",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Eva Tufted Mid-Century Velvet Down-Filled Loveseat, 60.5\"W, Hunter G...",
+   "size_m": [
+    1.54,
+    0.9,
+    0.77
+   ]
+  },
+  "abo_B075X4PTRL": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "B",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Eva Mid-Century Modern Tufted Velvet Down-Filled Sectional Sofa Couc...",
+   "size_m": [
+    2.21,
+    0.89,
+    0.77
+   ]
+  },
+  "abo_B075X4QFK2": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "C",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam St. Cloud Modern Armless Straight Back Settee, 49\"W, Brown",
+   "size_m": [
+    1.24,
+    0.87,
+    1.02
+   ]
+  },
+  "abo_B075X4QMX3": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "D",
+   "source": "abo",
+   "title": "Stone & Beam Westport Modern Nailhead Upholstered Sofa, 87\"W, Linen",
+   "size_m": [
+    2.2,
+    0.9,
+    0.91
+   ]
+  },
+  "abo_B075X4VM87": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "E",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Leather Sofa, 78\"W, Saddle Brown",
+   "size_m": [
+    2.05,
+    0.8,
+    0.95
+   ]
+  },
+  "abo_B075X4VM8W": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "F",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Leather Sofa, 78\"W, Charcoal",
+   "size_m": [
+    2.05,
+    0.8,
+    0.95
+   ]
+  },
+  "abo_B075X4VW4D": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "G",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Mid-Century Modern Angled Leather Loveseat Sofa Couch, 78\"W, ...",
+   "size_m": [
+    1.99,
+    0.79,
+    0.87
+   ]
+  },
+  "abo_B075X5VCQ5": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "H",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Westport Modern Nailhead Upholstered Loveseat Sofa Couch, 61....",
+   "size_m": [
+    1.6,
+    0.9,
+    0.87
+   ]
+  },
+  "abo_B07B4D84F8": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "I",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Low Back Mid-Centory Modern Couch Sofa, 87\"W, Hunter Green",
+   "size_m": [
+    2.22,
+    0.86,
+    0.87
+   ]
+  },
+  "abo_B07B4D8F4R": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "J",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Kaden Mid-Century Modern Adjustable Headrest Loveseat Sofa, 61.8\"W, ...",
+   "size_m": [
+    1.54,
+    0.9,
+    0.95
+   ]
+  },
+  "abo_B07B4DB8K9": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "K",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Cyprus Mid-Century Modern Loveseat, 72\"W, Light Grey",
+   "size_m": [
+    1.88,
+    0.91,
+    0.75
+   ]
+  },
+  "abo_B07B4FW7H5": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "L",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Andover Studio Sofa Couch, 78\"W, Driftwood Leather",
+   "size_m": [
+    1.97,
+    0.92,
+    0.86
+   ]
+  },
+  "abo_B07B4FZK8X": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "M",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Loveseat, 65\"W, Hunter Green",
+   "size_m": [
+    1.68,
+    0.88,
+    0.82
+   ]
+  },
+  "abo_B07B4G5QD4": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "N",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Sofa, 87\"W, Blue",
+   "size_m": [
+    2.22,
+    0.86,
+    0.87
+   ]
+  },
+  "abo_B07B4L5DJV": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "O",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Modern Loveseat, Leather, 65\"W, Saddle",
+   "size_m": [
+    1.8,
+    0.9,
+    0.88
+   ]
+  },
+  "abo_B07B4MF2MF": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "P",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Sofa, 87\"W, Charcoal Grey",
+   "size_m": [
+    2.25,
+    0.88,
+    0.88
+   ]
+  },
+  "abo_B07B4MF2NL": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "Q",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Low Back Mid-Century Modern Loveseat, 65\"W, Blue Ink",
+   "size_m": [
+    1.68,
+    0.88,
+    0.82
+   ]
+  },
+  "abo_B07B4MHRGP": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "R",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Right Chaise Sofa Sectional, 115\"W, Beige",
+   "size_m": [
+    2.44,
+    1.13,
+    0.68
+   ]
+  },
+  "abo_B07BW8P2F7": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "S",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Loveseat, 65\"W, Beige",
+   "size_m": [
+    1.65,
+    0.84,
+    0.81
+   ]
+  },
+  "abo_B07BWJCBY2": {
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "T",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Leather Loveseat Sofa Couch, 78....",
+   "size_m": [
+    2.05,
+    0.94,
+    0.78
+   ]
+  },
+  "abo_B07BWKH16R": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "A",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Leather Sofa Couch, 92.9\"W, Black",
+   "size_m": [
+    2.39,
+    0.94,
+    0.78
+   ]
+  },
+  "abo_B07BWL4C2Y": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "B",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Left Sofa Chaise Sectional, 115\"W, Eclipse ...",
+   "size_m": [
+    2.44,
+    1.13,
+    0.67
+   ]
+  },
+  "abo_B07DBDRN8S": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "C",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Rai Tufted Arched Armless Loveseat Bench Settee, 52\"W, Light ...",
+   "size_m": [
+    1.33,
+    0.81,
+    1.18
+   ]
+  },
+  "abo_B07DBHBB4N": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "D",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Sarah Tufted Wingback Nailhead Trim Loveseat Bench Settee, 32...",
+   "size_m": [
+    1.28,
+    0.85,
+    1.12
+   ]
+  },
+  "abo_B07HZ58Q5R": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "E",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Fischer Queen-Sized Sleeper Sofa, 79\"W, Charcoal Fabric",
+   "size_m": [
+    2.02,
+    1.0,
+    0.96
+   ]
+  },
+  "abo_B07HZ5D2DC": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "F",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Fischer Queen-Sized Sleeper Sofa, 79\"W, Blue Fabric",
+   "size_m": [
+    2.02,
+    1.0,
+    0.96
+   ]
+  },
+  "abo_B07HZ5ZTZC": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "G",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Fischer Full-Sized Sleeper Sofa, 72\"W, Blue Fabric",
+   "size_m": [
+    1.85,
+    1.0,
+    0.96
+   ]
+  },
+  "abo_B07HZ65PW3": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "H",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Goodwin Modern Loveseat, 61.8\"W, Light-Gray Fabric",
+   "size_m": [
+    1.58,
+    0.9,
+    0.94
+   ]
+  },
+  "abo_B07HZ65QC6": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "I",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Fischer Full-Sized Sleeper Sofa, 72\"W, Dove Fabric",
+   "size_m": [
+    1.85,
+    1.0,
+    0.96
+   ]
+  },
+  "abo_B07HZ7829Y": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "J",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Goodwin Modern Loveseat Sofa, 61.8\"W, Charcoal Grey",
+   "size_m": [
+    1.58,
+    0.9,
+    0.96
+   ]
+  },
+  "abo_B07K8YVLGH": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "K",
+   "source": "abo",
+   "title": "Amazon Brand - Movian Edslan 3-Seater Upholstered Sofa, 219 x 90 x 74 cm, Stain-Resista...",
+   "size_m": [
+    2.19,
+    0.9,
+    0.74
+   ]
+  },
+  "abo_B07K9PMZJL": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "L",
+   "source": "abo",
+   "title": "Amazon Brand - Movian Dyvran 3-Seater Upholstered Sofa, 197 x 83 x 83 cm, Stain-Resista...",
+   "size_m": [
+    1.97,
+    0.83,
+    0.83
+   ]
+  },
+  "abo_B07P5LM42Y": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "M",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Aiden Mid-Century Sofa with Tapered Wood Legs, 87\"W, Light Grey",
+   "size_m": [
+    2.21,
+    0.91,
+    0.76
+   ]
+  },
+  "abo_B07P5LMCLD": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "N",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Sloane Mid-Century Modern Loveseat with Tufted Back, 64.2\"W, Emerald...",
+   "size_m": [
+    1.63,
+    0.91,
+    0.84
+   ]
+  },
+  "abo_B07P5LN16X": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "O",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Sloane Modern Leather Loveseat with Tufted Back, 64.2\"W, Caramel",
+   "size_m": [
+    1.65,
+    0.95,
+    0.92
+   ]
+  },
+  "abo_B07P7NVLV8": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "P",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Revolve Modern Leather Sofa Couch, 80\"W, Caramel",
+   "size_m": [
+    2.23,
+    0.9,
+    0.93
+   ]
+  },
+  "abo_B07P9Y6WHB": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "Q",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Aiden Mid-Century Leather Sofa with Tapered Wood Legs, 87\"W, Dark Brown",
+   "size_m": [
+    2.21,
+    0.91,
+    0.76
+   ]
+  },
+  "abo_B07PBZ74HD": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "R",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Revolve Modern Leather Loveseat Sofa, 56\"W, Caramel",
+   "size_m": [
+    1.58,
+    0.91,
+    0.95
+   ]
+  },
+  "abo_B07PC1FXK4": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "S",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Cove Modern Tufted Loveseat with Tapered Legs, Mid-Century, 56\"W, Denim",
+   "size_m": [
+    1.41,
+    0.84,
+    0.91
+   ]
+  },
+  "abo_B07QCMBNF1": {
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "T",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Isabelle Mid-Century Modern Loveseat with Tapered Wood Legs, 55\"W, Aqua",
+   "size_m": [
+    1.4,
+    0.89,
+    0.89
+   ]
+  },
+  "abo_B07R3TWDTM": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "A",
+   "source": "abo",
+   "title": "Amazon Brand - Movian Keitele - 2 Seater Sofa, 130 x 82 x 84, Light Grey",
+   "size_m": [
+    1.3,
+    0.82,
+    0.84
+   ]
+  },
+  "abo_B07R3TWDTT": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "B",
+   "source": "abo",
+   "title": "abo_B07R3TWDTT",
+   "size_m": [
+    1.3,
+    0.82,
+    0.84
+   ]
+  },
+  "abo_B07RD76JZY": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "C",
+   "source": "abo",
+   "title": "Amazon Brand - Solimo Cessna 2 Seater Leatherette Sofa (Grey)",
+   "size_m": [
+    1.39,
+    0.89,
+    0.84
+   ]
+  },
+  "abo_B07RJFGDHP": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "D",
+   "source": "abo",
+   "title": "Amazon Brand - Solimo Dual-Toned Leatherette 2 Seater Sofa (Red & Black)",
+   "size_m": [
+    1.41,
+    0.84,
+    0.73
+   ]
+  },
+  "abo_B0831XJQLB": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "E",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Rosemont Vintage Tufted Sofa Couch with Nailheads, 88\"W, Grey",
+   "size_m": [
+    2.24,
+    0.91,
+    0.9
+   ]
+  },
+  "chinese_sofa": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "F",
+   "source": "polyhaven",
+   "title": "Chinese Sofa",
+   "size_m": [
+    2.29,
+    0.97,
+    0.86
+   ]
+  },
+  "gen_sofa_japandi_1_246e1bd6": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "G",
+   "source": "generated",
+   "title": "Generated japandi sofa (1)",
+   "size_m": [
+    2.14,
+    0.88,
+    0.84
+   ]
+  },
+  "gen_sofa_japandi_2_98a7a89b": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "H",
+   "source": "generated",
+   "title": "Generated japandi sofa (2)",
+   "size_m": [
+    2.11,
+    0.9,
+    0.92
+   ]
+  },
+  "hssd_04f865ebc872cf2c58acbf99c0e883a3b150ec7f": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "I",
+   "source": "hssd",
+   "title": "Raleigh Sofa Three Seater, Kalahari Leather Black, Walnut Frame",
+   "size_m": [
+    2.16,
+    0.89,
+    0.86
+   ]
+  },
+  "hssd_05206ad5b8ad9956a076ab73038089b964ddb2fd": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "J",
+   "source": "hssd",
+   "title": "Scott 3 seater sofa",
+   "size_m": [
+    2.28,
+    0.93,
+    0.8
+   ]
+  },
+  "hssd_11ba83c933f89bd7234a8f7fcc5b1c7f573dcded": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "K",
+   "source": "hssd",
+   "title": "Valencia",
+   "size_m": [
+    1.43,
+    0.88,
+    0.87
+   ]
+  },
+  "hssd_19ab91116ae6cded08529445a0ff2f6e5fd025b1": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "L",
+   "source": "hssd",
+   "title": "Chomsky Fabric Sofa, Indigo Fabric with Walnut Leg",
+   "size_m": [
+    2.29,
+    0.94,
+    1.06
+   ]
+  },
+  "hssd_1a7c59ac57b8213f7cf31256d7ad6b579aa2a441": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "M",
+   "source": "hssd",
+   "title": "Gregory Loveseat",
+   "size_m": [
+    1.5,
+    0.99,
+    0.84
+   ]
+  },
+  "hssd_283eae1c113de1b9b3afbd91132de63f7142d1b3": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "N",
+   "source": "hssd",
+   "title": "Aquarius Sofa, Light Grey",
+   "size_m": [
+    2.21,
+    0.95,
+    0.83
+   ]
+  },
+  "hssd_28bea1ab56c4379f842d0171fdd81762f55942c1": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "O",
+   "source": "hssd",
+   "title": "Vianna 2-seater Sofa",
+   "size_m": [
+    1.64,
+    1.0,
+    0.9
+   ]
+  },
+  "hssd_2a9cb0b671a281159864a83d00e0a89439b15ef6": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "P",
+   "source": "hssd",
+   "title": "HSSD object 2a9cb0b6",
+   "size_m": [
+    1.76,
+    0.91,
+    0.84
+   ]
+  },
+  "hssd_348f60a7ecd1addff9d2928919761f3552c37a57": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "Q",
+   "source": "hssd",
+   "title": "Raleigh Sofa Three Seater, Olive Leather, Walnut Frame",
+   "size_m": [
+    2.16,
+    0.89,
+    0.86
+   ]
+  },
+  "hssd_3d6c4de46acc90dcec117539c751f688da413923": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "R",
+   "source": "hssd",
+   "title": "Caden Settee",
+   "size_m": [
+    1.35,
+    0.94,
+    0.99
+   ]
+  },
+  "hssd_4364e0d4faa0006a6e447b9293fdfbe3c415cfa7": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "S",
+   "source": "hssd",
+   "title": "Little Mother 3 Seater Sofa, Divina Melange 3 - 0227 / Walnut legs",
+   "size_m": [
+    2.13,
+    0.86,
+    0.78
+   ]
+  },
+  "hssd_5274751529e50c02430fb9b3ee3019ea9c091520": {
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "T",
+   "source": "hssd",
+   "title": "Kendrick Stone Settee",
+   "size_m": [
+    1.52,
+    0.87,
+    0.82
+   ]
+  },
+  "hssd_5386924523286fa156d9397a93cd3f2a7140325d": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "A",
+   "source": "hssd",
+   "title": "Raleigh Two-Seater Sofa, Walnut Frame, Black Kalahari Leather",
+   "size_m": [
+    1.52,
+    0.89,
+    0.86
+   ]
+  },
+  "hssd_5d77eeaa7a16e02ef64e3ce74893768cc8389aed": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "B",
+   "source": "hssd",
+   "title": "Couch",
+   "size_m": [
+    1.76,
+    0.97,
+    0.75
+   ]
+  },
+  "hssd_5e0c57c89718bf9f8859b6181978d150aed749ca": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "C",
+   "source": "hssd",
+   "title": "2 seater - Antique Tan",
+   "size_m": [
+    1.7,
+    0.95,
+    0.76
+   ]
+  },
+  "hssd_7165e9d457a1fb2a4fa6d827d5ef9f5a90a6408e": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "D",
+   "source": "hssd",
+   "title": "Emerson II LAF Loveseat",
+   "size_m": [
+    1.55,
+    0.97,
+    0.97
+   ]
+  },
+  "hssd_7313865d099b7009290ed67c2031c985ff6b14bb": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "E",
+   "source": "hssd",
+   "title": "Love Sofa",
+   "size_m": [
+    1.27,
+    0.77,
+    0.77
+   ]
+  },
+  "hssd_76a762c6d7151b59999a954e9a8570c22d2256c8": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "F",
+   "source": "hssd",
+   "title": "Arbour 3 Seater Sofa, Mode Clavicle / Oak",
+   "size_m": [
+    2.2,
+    0.87,
+    0.76
+   ]
+  },
+  "hssd_7be455a4bcdc8362d06f09c25df1a80ec527e1d7": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "G",
+   "source": "hssd",
+   "title": "Library Sofa",
+   "size_m": [
+    1.63,
+    0.83,
+    0.84
+   ]
+  },
+  "hssd_80f24de7458927b66c25239e127b37da925c033c": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "H",
+   "source": "hssd",
+   "title": "Kiara II RAF Loveseat",
+   "size_m": [
+    1.48,
+    1.0,
+    0.98
+   ]
+  },
+  "hssd_88cb3a5e8bf8e4e1b93fbb797d6b3ecd6fbb0682": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "I",
+   "source": "hssd",
+   "title": "Zachery II Fabric Power Space Saver Reclining Loveseat",
+   "size_m": [
+    1.4,
+    0.89,
+    1.0
+   ]
+  },
+  "hssd_9a0e617b83c901d346ce9fb020b49bf91442273c": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "J",
+   "source": "hssd",
+   "title": "Tufted Curved Settee, Navy",
+   "size_m": [
+    1.33,
+    0.82,
+    1.15
+   ]
+  },
+  "hssd_9e6c6b60a5cf944dec9a25affb6c129e8f9eb226": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "K",
+   "source": "hssd",
+   "title": "Boutique Leather sofa",
+   "size_m": [
+    2.2,
+    0.89,
+    0.62
+   ]
+  },
+  "hssd_aa85073bb8fbfc43763bd0a117f6f6a03dca7bb9": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "L",
+   "source": "hssd",
+   "title": "Brunel 4 Seater Sofa, Murcia Grey",
+   "size_m": [
+    2.32,
+    0.89,
+    0.8
+   ]
+  },
+  "hssd_b6c900cdbac774338ec3fb43bb18a736a1baa7b4": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "M",
+   "source": "hssd",
+   "title": "Lina sofa, Kalahari Leather - Gesso",
+   "size_m": [
+    1.68,
+    0.96,
+    0.76
+   ]
+  },
+  "hssd_ba333ed289c61c26505c64ecb49a00f130892956": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "N",
+   "source": "hssd",
+   "title": "Libre Two Seater - Fabric",
+   "size_m": [
+    1.14,
+    0.85,
+    0.84
+   ]
+  },
+  "hssd_d266da3005a4309968c9ea9405b9eca788571408": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "O",
+   "source": "hssd",
+   "title": "REMINGTON SOFA",
+   "size_m": [
+    2.1,
+    0.94,
+    0.8
+   ]
+  },
+  "hssd_d31ee1dad266ed4ef07fc074e8ddd28663a91767": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "P",
+   "source": "hssd",
+   "title": "Lasky 2 Seater White",
+   "size_m": [
+    1.55,
+    0.86,
+    0.75
+   ]
+  },
+  "hssd_d3aaaa4c5f6f4c0f8ac9acffa625b527bf1ddc89": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "Q",
+   "source": "hssd",
+   "title": "Ivy 2 Str Grey",
+   "size_m": [
+    1.5,
+    0.82,
+    0.84
+   ]
+  },
+  "hssd_ed4ed55a08fac410b09e2d1f351d84893eaa7136": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "R",
+   "source": "hssd",
+   "title": "Magnolia Home Sinclair Luxe Sofa By Joanna Gaines, Midnight",
+   "size_m": [
+    2.24,
+    0.94,
+    0.94
+   ]
+  },
+  "hssd_ee030efb15ade53752e31312e42acabcf837fcb2": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "S",
+   "source": "hssd",
+   "title": "Vico sofa, 2 seater",
+   "size_m": [
+    1.75,
+    0.96,
+    0.81
+   ]
+  },
+  "objaverse_104ac40ef3ad4dac8079a11548c470e7": {
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "T",
+   "source": "objaverse",
+   "title": "Sofa",
+   "size_m": [
+    3.04,
+    1.07,
+    1.12
+   ]
+  },
+  "sofa_02": {
+   "type": "sofa",
+   "sheet": "sofa-10",
+   "letter": "A",
+   "source": "polyhaven",
+   "title": "Sofa 02",
+   "size_m": [
+    1.81,
+    0.82,
+    0.71
+   ]
+  },
+  "sofa_03": {
+   "type": "sofa",
+   "sheet": "sofa-10",
+   "letter": "B",
+   "source": "polyhaven",
+   "title": "Sofa 03",
+   "size_m": [
+    2.73,
+    0.93,
+    1.12
+   ]
+  },
+  "3dwh_01af14bf35d352e01dcf1dc1": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "DEDON MU Lounge Chair [u09983d6]",
+   "size_m": [
+    1.15,
+    0.92,
+    0.76
+   ]
+  },
+  "3dwh_02333d43712eea44eb85e242": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "MINT Comfy Armchair",
+   "size_m": [
+    0.65,
+    0.88,
+    0.68
+   ]
+  },
+  "3dwh_038a2f938697cf94f0635b35": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "fritz hansen egg chair",
+   "size_m": [
+    0.88,
+    0.79,
+    1.08
+   ]
+  },
+  "3dwh_054976b922680e282c9ef191": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "Herman Miller Aeron Chair Dynamic",
+   "size_m": [
+    0.77,
+    0.81,
+    1.12
+   ]
+  },
+  "3dwh_09321f5dd94e37b60c417cab": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "chairs office",
+   "size_m": [
+    0.71,
+    0.77,
+    1.17
+   ]
+  },
+  "3dwh_094ed377a5caee03aedecdc5": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "Eames plywood lounge chair",
+   "size_m": [
+    0.54,
+    0.69,
+    0.71
+   ]
+  },
+  "3dwh_0bb1093da500563c53063e23": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "Eames Molded Plastic Chair wRocker Base from Smart Furniture",
+   "size_m": [
+    0.62,
+    0.79,
+    0.8
+   ]
+  },
+  "3dwh_0bc36925ad22769dd76f1ff3": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "chair office sit armchair easy chair",
+   "size_m": [
+    0.54,
+    0.59,
+    0.79
+   ]
+  },
+  "3dwh_0c02f16bd95d0abf28d3680b": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "ARMCHAIR [u900039c]",
+   "size_m": [
+    0.6,
+    0.63,
+    0.85
+   ]
+  },
+  "3dwh_0cdfddde960398a6f592bb11": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "IKEA Strandmon [u4e10b7f]",
+   "size_m": [
+    0.62,
+    1.13,
+    0.77
+   ]
+  },
+  "3dwh_0d5b4e2d788e6cdf1a4ed706": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Flexform Antonio Citterio Crono Armchair",
+   "size_m": [
+    0.7,
+    0.8,
+    0.67
+   ]
+  },
+  "3dwh_0e48205f7e11736d26bbbc09": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "Eames Lounge Chair",
+   "size_m": [
+    1.13,
+    0.98,
+    0.66
+   ]
+  },
+  "3dwh_1be24f871349cfe24617c7ad": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "Moroso Fjord Armchair",
+   "size_m": [
+    0.98,
+    0.8,
+    1.17
+   ]
+  },
+  "3dwh_1c9778c58f3f641eff7cf127": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "Ethnicraft wooden lounge chair",
+   "size_m": [
+    0.62,
+    0.69,
+    0.71
+   ]
+  },
+  "3dwh_1eff7374ad06e825cc981b85": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "MILLS CHAIR MINOTTI",
+   "size_m": [
+    0.67,
+    1.13,
+    0.63
+   ]
+  },
+  "3dwh_22d9b57077e3bb6781c8a424": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "MARK Product Mylo Chair [uecaecfc]",
+   "size_m": [
+    0.81,
+    0.71,
+    0.96
+   ]
+  },
+  "3dwh_243ba44c70bc7997a37c1c9e": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "Egg chair",
+   "size_m": [
+    0.82,
+    0.75,
+    1.02
+   ]
+  },
+  "3dwh_28e3e2c1eeb124a0a50d3f2b": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "POLTRONA CAVALETTI SPOT - POLTRONA DE ESPERA 36060 [ue85d5a9]",
+   "size_m": [
+    0.61,
+    0.61,
+    0.85
+   ]
+  },
+  "3dwh_2d83684ba783de5b93a727d0": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "Natuzzi Aura Armchair 2913 003 [u7c792e2]",
+   "size_m": [
+    0.86,
+    0.8,
+    0.86
+   ]
+  },
+  "3dwh_2f8567d3bdb667bf36d4e8b1": {
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "T",
+   "source": "3dwh",
+   "title": "normann copenhagen era lounge chair",
+   "size_m": [
+    0.74,
+    0.77,
+    0.78
+   ]
+  },
+  "3dwh_2ff58297bddb7a574a5d58c7": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "HAY - About A Chair AAC20 AAC21 [u6fc1aee]",
+   "size_m": [
+    0.65,
+    1.13,
+    0.62
+   ]
+  },
+  "3dwh_324a4061c7079774c20c56e9": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "Fritz Hansen Metropolitan Chair [u2b8b4c6]",
+   "size_m": [
+    0.97,
+    0.84,
+    0.93
+   ]
+  },
+  "3dwh_346652452baa82044b1254e7": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "armchairs",
+   "size_m": [
+    0.55,
+    0.58,
+    1.08
+   ]
+  },
+  "3dwh_37f4ace3b73e1aa6a2708168": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "Gabby Reagan Chair [u9e73a78]",
+   "size_m": [
+    0.71,
+    0.94,
+    1.18
+   ]
+  },
+  "3dwh_3907901073da0af56812f910": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "Gubi Sejour Lounge Chair Vray ready",
+   "size_m": [
+    0.8,
+    0.86,
+    0.79
+   ]
+  },
+  "3dwh_3c02498bb5773a9091032361": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "WEST ELM METAL FRAME CHAIR",
+   "size_m": [
+    0.84,
+    0.75,
+    0.84
+   ]
+  },
+  "3dwh_41e47efe228d1e5951fdddb0": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "15 Swoon Lounge Chair",
+   "size_m": [
+    0.86,
+    0.88,
+    0.85
+   ]
+  },
+  "3dwh_470a978e9d9dca52b768788e": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "Armchair Softs",
+   "size_m": [
+    0.67,
+    0.64,
+    0.74
+   ]
+  },
+  "3dwh_483795531de8b7c47c90eee3": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "armchair Split",
+   "size_m": [
+    0.62,
+    0.69,
+    0.73
+   ]
+  },
+  "3dwh_4851a8856ac53ca399f31683": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "Ikea Ekenaset",
+   "size_m": [
+    0.78,
+    0.65,
+    0.76
+   ]
+  },
+  "3dwh_4be29a81ee68af67169dc9d6": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Flexform Antonio Citterio Feel Good Armchair",
+   "size_m": [
+    0.66,
+    0.69,
+    0.66
+   ]
+  },
+  "3dwh_4d053f976db6e628c7ca5635": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "CH07 SHELL CHAIR [u53f0c84]",
+   "size_m": [
+    0.91,
+    0.83,
+    0.74
+   ]
+  },
+  "3dwh_4dab71e751c8dbb0542704ae": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "lounge chair arm chair fotolj [u7fbcc82]",
+   "size_m": [
+    0.7,
+    0.77,
+    0.85
+   ]
+  },
+  "3dwh_4f0d4556be6e7c966417500e": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "POLTRONA FLEXFORM",
+   "size_m": [
+    0.76,
+    0.76,
+    0.73
+   ]
+  },
+  "3dwh_4f3ab8522559513bb45e9c34": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "Minotti - Prince Armchair [u738daa6]",
+   "size_m": [
+    0.63,
+    1.13,
+    0.64
+   ]
+  },
+  "3dwh_4fab6cd044db06fbeb5bed2f": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "IKEA Poang Chair",
+   "size_m": [
+    0.73,
+    0.86,
+    1.02
+   ]
+  },
+  "3dwh_5095dd5f25738efb90f99752": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "arm chair sofa lobby furniture home furniture sofa highres office chai",
+   "size_m": [
+    0.95,
+    1.0,
+    1.1
+   ]
+  },
+  "3dwh_518acb93cd659ed75bd1ccac": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "BB Italia - METROPOLITAN100 Armchair",
+   "size_m": [
+    0.95,
+    0.83,
+    0.91
+   ]
+  },
+  "3dwh_533f300b9dcce6af12c4af2a": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "Ro Armchair - Fritz Hansen",
+   "size_m": [
+    0.8,
+    0.97,
+    1.13
+   ]
+  },
+  "3dwh_55c67b63033cf5276b2f33c8": {
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "T",
+   "source": "3dwh",
+   "title": "Three Minute Custom Aeron Chair from Smart Furniture",
+   "size_m": [
+    0.79,
+    0.78,
+    1.12
+   ]
+  },
+  "3dwh_59315d26c8287e73f9805991": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "Moroso Fjord Armchair",
+   "size_m": [
+    0.61,
+    0.58,
+    0.75
+   ]
+  },
+  "3dwh_59fded1b487d3b41741c9324": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "Minotti Aston Armchair",
+   "size_m": [
+    0.79,
+    0.85,
+    0.8
+   ]
+  },
+  "3dwh_6048a15631c2a23a0f81849e": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "Kartell Foliage Chair",
+   "size_m": [
+    1.13,
+    0.59,
+    0.6
+   ]
+  },
+  "3dwh_60a361e8b016e7485ab5d482": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "Thonet bentwood armchair [u35f186a]",
+   "size_m": [
+    0.55,
+    0.57,
+    0.77
+   ]
+  },
+  "3dwh_61738b81cf37f0fe78386bc5": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "Pottery Barn - Peacock Chair",
+   "size_m": [
+    0.83,
+    0.63,
+    1.34
+   ]
+  },
+  "3dwh_61f6b7501ed533bd1e3a55d9": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "BB armchair-erica colorful",
+   "size_m": [
+    0.95,
+    0.98,
+    0.78
+   ]
+  },
+  "3dwh_620b113da433496223debf7e": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "BoConcept Imola Armchair [ufc85f26]",
+   "size_m": [
+    0.96,
+    0.97,
+    1.14
+   ]
+  },
+  "3dwh_649714b4f42a770803235bea": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "79065 Arm Chair Country Side [uc912011]",
+   "size_m": [
+    0.82,
+    0.86,
+    0.89
+   ]
+  },
+  "3dwh_69e0e4f94b6b077f277e88c8": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "quan armchair [ub30e3ec]",
+   "size_m": [
+    0.94,
+    0.83,
+    0.96
+   ]
+  },
+  "3dwh_6d5fb40f8f9e2079f3fe99d5": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "Nest Low Easy Chair",
+   "size_m": [
+    0.66,
+    0.6,
+    0.81
+   ]
+  },
+  "3dwh_6e162fa5cfc07cf961c116e6": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Lounge Chair [uafed77a]",
+   "size_m": [
+    1.13,
+    1.13,
+    0.66
+   ]
+  },
+  "3dwh_720f8cb45e113811740b143e": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "Allermuir Conic chair",
+   "size_m": [
+    0.78,
+    0.68,
+    0.66
+   ]
+  },
+  "3dwh_7886094efc709a0f3baa0fd3": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "CHAIR",
+   "size_m": [
+    0.79,
+    0.77,
+    0.98
+   ]
+  },
+  "3dwh_78fccaeb4a9c4a2715379b8a": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "Allermuir Open Chair",
+   "size_m": [
+    0.78,
+    0.8,
+    0.79
+   ]
+  },
+  "3dwh_7aedfa3e6a227a4616b6eb75": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "20 Tildenville Club Chair",
+   "size_m": [
+    0.85,
+    0.81,
+    0.67
+   ]
+  },
+  "3dwh_7c41f538b2d0873e672fe42f": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "Kettal - Cala Dining Armchair Teak modified by Pooh",
+   "size_m": [
+    0.66,
+    0.64,
+    0.84
+   ]
+  },
+  "3dwh_818fb6558730cec44d42431b": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "JekPol Chair 1 [ubbeb3e2]",
+   "size_m": [
+    0.79,
+    0.76,
+    0.81
+   ]
+  },
+  "3dwh_81f29a24a68a253b3ee5d03b": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "Highback chair",
+   "size_m": [
+    0.86,
+    0.88,
+    1.11
+   ]
+  },
+  "3dwh_826f2d90cfd567a923e3dc8c": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "Armchair Woods 0",
+   "size_m": [
+    0.69,
+    0.75,
+    0.76
+   ]
+  },
+  "3dwh_84476549d287e81f5f9f7da8": {
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "T",
+   "source": "3dwh",
+   "title": "Eames Plywood Lounge Chair Metal Legs from SmartFurniture.com",
+   "size_m": [
+    0.57,
+    0.71,
+    0.68
+   ]
+  },
+  "3dwh_87cc8ef192018304d2758d47": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "Fritz Hansen - Swan Chair [u6c53bc7]",
+   "size_m": [
+    0.78,
+    0.61,
+    0.8
+   ]
+  },
+  "3dwh_88357109a1e0587925d95a0e": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "Eames Lounge Chair [ue10e0c0]",
+   "size_m": [
+    1.06,
+    1.13,
+    0.73
+   ]
+  },
+  "3dwh_89b423a3a3890b2b6f806687": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "Eames Aluminum Lounge Chair",
+   "size_m": [
+    0.65,
+    0.72,
+    0.96
+   ]
+  },
+  "3dwh_8f4da53657aaa75fd3b96918": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "Rowe Piccadilly Chair",
+   "size_m": [
+    0.9,
+    0.95,
+    1.45
+   ]
+  },
+  "3dwh_90b03ebfced5e7b8ae9d6110": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "Reply chair [uc7eeb69]",
+   "size_m": [
+    0.76,
+    0.73,
+    1.01
+   ]
+  },
+  "3dwh_92f142bbe687b2d28c324823": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "IKEA ORFJALL SPORREN chair",
+   "size_m": [
+    0.66,
+    1.13,
+    0.64
+   ]
+  },
+  "3dwh_9a4566c2bce65e1a7517bb21": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "KETTAL 895 Collections - Roll - Club chair",
+   "size_m": [
+    0.64,
+    0.64,
+    0.78
+   ]
+  },
+  "3dwh_9ac2c6ae7433b11bd8baef82": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "Adirondack Chair",
+   "size_m": [
+    0.77,
+    0.95,
+    0.95
+   ]
+  },
+  "3dwh_9c3a1772a72c4b00c78bd2ea": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "BB Italia Metropolitan Armchair",
+   "size_m": [
+    0.97,
+    0.84,
+    0.93
+   ]
+  },
+  "3dwh_9c72303b66870564ae9a360b": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "Orangebox Ara chair [u188f2c5]",
+   "size_m": [
+    0.76,
+    0.72,
+    1.0
+   ]
+  },
+  "3dwh_a47d14787ca29b546af5b4cb": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Lounge chair",
+   "size_m": [
+    0.93,
+    0.93,
+    0.85
+   ]
+  },
+  "3dwh_a4a23730e4f99f069784415b": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "PEEPS-01 Arm Chair",
+   "size_m": [
+    0.87,
+    0.76,
+    0.74
+   ]
+  },
+  "3dwh_a65d05d381cc61420f51601d": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "Pacha Lounge Chair",
+   "size_m": [
+    0.81,
+    0.79,
+    0.63
+   ]
+  },
+  "3dwh_ab9b479931418ac9f235c699": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "sillon Slow Chair Ottoman",
+   "size_m": [
+    0.94,
+    0.92,
+    0.89
+   ]
+  },
+  "3dwh_b2f434de9d430c3757dd7715": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "Roche Bobois - Bubble Fauteuil",
+   "size_m": [
+    1.16,
+    1.19,
+    0.77
+   ]
+  },
+  "3dwh_b46677a8e16e4366adb6761c": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "Arm Chair KP instyle model-017",
+   "size_m": [
+    0.77,
+    0.81,
+    0.79
+   ]
+  },
+  "3dwh_b4e3533d6b8f9b43765e5ad2": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "lounge chair chips",
+   "size_m": [
+    0.97,
+    0.8,
+    1.25
+   ]
+  },
+  "3dwh_b7c2cfe7c74e6e5dc8b49c57": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "Kettal Basket Chair [uc24f7d4]",
+   "size_m": [
+    0.85,
+    0.81,
+    0.76
+   ]
+  },
+  "3dwh_b9bf53f468d77c2b95134f61": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "Kinney Lounge Chair wCushion",
+   "size_m": [
+    0.77,
+    0.84,
+    0.69
+   ]
+  },
+  "3dwh_bb62a2c84c7d81d8b483e4ba": {
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "T",
+   "source": "3dwh",
+   "title": "LW Lounge Chair",
+   "size_m": [
+    0.76,
+    0.69,
+    1.22
+   ]
+  },
+  "3dwh_beb6dd1b126e8f03c178d9a3": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "Armchair",
+   "size_m": [
+    0.7,
+    0.85,
+    1.16
+   ]
+  },
+  "3dwh_c284696a47a6691b38b1f900": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "ACCENT CHAIR [ue2436e1]",
+   "size_m": [
+    0.6,
+    0.72,
+    0.7
+   ]
+  },
+  "3dwh_c32b2e0dd28c2e7923a386da": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "Lounge Chair",
+   "size_m": [
+    0.87,
+    0.81,
+    0.82
+   ]
+  },
+  "3dwh_c41eadfdc01e4ec60d4e0bea": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "ORLY-01 Reclined Lounge Chair",
+   "size_m": [
+    0.69,
+    0.78,
+    0.77
+   ]
+  },
+  "3dwh_c76a1e5b7de8ec75fb4fe5ad": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "armchairs",
+   "size_m": [
+    0.62,
+    0.63,
+    0.85
+   ]
+  },
+  "3dwh_ce7538e50fdb1430f657c15a": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "Imola-chair-by-boconceptVRAY",
+   "size_m": [
+    0.95,
+    1.0,
+    1.1
+   ]
+  },
+  "3dwh_cfcb4b27925e5a6c6adc3b76": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "Egg chair [uf7b66dc]",
+   "size_m": [
+    0.94,
+    0.87,
+    1.16
+   ]
+  },
+  "3dwh_d0a094559214281362b54640": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "Barcelona Chair [u218567f]",
+   "size_m": [
+    0.75,
+    0.77,
+    0.81
+   ]
+  },
+  "3dwh_d162e2407a125f10035d39f1": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "Materia Frame Easy Chair Seating",
+   "size_m": [
+    1.13,
+    0.92,
+    1.16
+   ]
+  },
+  "3dwh_d1ed36390489612fbb2a5baa": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "CH24 WISHBONE Chair [u811263a]",
+   "size_m": [
+    0.91,
+    0.76,
+    0.55
+   ]
+  },
+  "3dwh_d28ae45140bc7abc4730d078": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Crate and Barrel - Dylon chair [u554c5c2]",
+   "size_m": [
+    0.72,
+    0.8,
+    0.98
+   ]
+  },
+  "3dwh_d3b9a8e390920233a7de20cc": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "BB Italia Naoto Fukusawa Grande Papilio Armchair",
+   "size_m": [
+    0.83,
+    0.87,
+    1.02
+   ]
+  },
+  "3dwh_d5c5e96e3dbf0e31057676b9": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "Hanging chair",
+   "size_m": [
+    0.63,
+    0.78,
+    0.98
+   ]
+  },
+  "3dwh_d5d48d7d4ef03342ff672247": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "N",
+   "source": "3dwh",
+   "title": "LOUNGE CHAIR",
+   "size_m": [
+    0.65,
+    0.63,
+    0.71
+   ]
+  },
+  "3dwh_d6ba301cfe6d4df8d1ef978a": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "O",
+   "source": "3dwh",
+   "title": "Ikea SKRUVSTA Chair",
+   "size_m": [
+    0.8,
+    0.73,
+    0.91
+   ]
+  },
+  "3dwh_d7735ce0b388ec803a3b1371": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "P",
+   "source": "3dwh",
+   "title": "Armchair Single Bos",
+   "size_m": [
+    0.63,
+    0.61,
+    0.81
+   ]
+  },
+  "3dwh_d8b7ad0bc6ac576c9d40bd0d": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "Q",
+   "source": "3dwh",
+   "title": "DEDON Tribeca Lounge Chair [ue134095]",
+   "size_m": [
+    0.7,
+    0.77,
+    0.79
+   ]
+  },
+  "3dwh_d96cfed368c47d61b6360867": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "R",
+   "source": "3dwh",
+   "title": "BB Italia Patricia Urquiola Husk Armchair",
+   "size_m": [
+    0.83,
+    0.73,
+    0.89
+   ]
+  },
+  "3dwh_daf6b22ce502bbcffb420577": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "S",
+   "source": "3dwh",
+   "title": "Chair",
+   "size_m": [
+    1.13,
+    1.02,
+    0.7
+   ]
+  },
+  "3dwh_e49c628394f88c1dc1e9b30b": {
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "T",
+   "source": "3dwh",
+   "title": "Cappellini lotus swivel armchair by jasper morrison for cap",
+   "size_m": [
+    1.13,
+    1.01,
+    0.85
+   ]
+  },
+  "3dwh_e6cc86d7edcf02b5482e6ba0": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "A",
+   "source": "3dwh",
+   "title": "Armchair-321",
+   "size_m": [
+    0.58,
+    0.67,
+    0.63
+   ]
+  },
+  "3dwh_e71f32a6aabc7d23a37f433c": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "B",
+   "source": "3dwh",
+   "title": "HAY - Lounge chair AAL 82",
+   "size_m": [
+    0.76,
+    0.73,
+    0.81
+   ]
+  },
+  "3dwh_e8847f195a9c49f6f50af917": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "C",
+   "source": "3dwh",
+   "title": "Barcelona Chair",
+   "size_m": [
+    0.75,
+    0.76,
+    0.8
+   ]
+  },
+  "3dwh_ec4ed6b83e91c208b2103ed3": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "D",
+   "source": "3dwh",
+   "title": "Sagal Harmony Chair",
+   "size_m": [
+    0.77,
+    0.72,
+    1.27
+   ]
+  },
+  "3dwh_eeb7328272e916002c30b6b1": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "E",
+   "source": "3dwh",
+   "title": "CARMEL POLIFORM ARMCHAIR POLTRONA",
+   "size_m": [
+    1.0,
+    0.96,
+    0.74
+   ]
+  },
+  "3dwh_f24f21c85af91312d325e065": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "F",
+   "source": "3dwh",
+   "title": "HAY - Uchiwa lounge chair",
+   "size_m": [
+    0.72,
+    1.13,
+    0.59
+   ]
+  },
+  "3dwh_f262a8b1fa88cdc739bf45a8": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "G",
+   "source": "3dwh",
+   "title": "IKEA POANG IVORY LEATHER",
+   "size_m": [
+    0.73,
+    0.86,
+    1.02
+   ]
+  },
+  "3dwh_f29b0f7ea468d1a9172fc1d2": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "H",
+   "source": "3dwh",
+   "title": "PACE-LUW Lounge Chair",
+   "size_m": [
+    0.57,
+    0.66,
+    0.7
+   ]
+  },
+  "3dwh_f43a38c2158a4ef669a499c9": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "I",
+   "source": "3dwh",
+   "title": "Minotti Leslie armchair1",
+   "size_m": [
+    0.78,
+    0.88,
+    0.75
+   ]
+  },
+  "3dwh_f5d76f27d50d16495be0cc57": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "J",
+   "source": "3dwh",
+   "title": "armchairs",
+   "size_m": [
+    0.67,
+    0.64,
+    0.89
+   ]
+  },
+  "3dwh_f6bd91f124d68b40f2957392": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "K",
+   "source": "3dwh",
+   "title": "Bertoia Diamond Chair",
+   "size_m": [
+    0.86,
+    0.76,
+    0.76
+   ]
+  },
+  "3dwh_f9240f52211fa23cebc9375e": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "L",
+   "source": "3dwh",
+   "title": "Netta Lounge Chair in Dark Gray Cord and Weathered Eucalyptus by Modlo",
+   "size_m": [
+    0.84,
+    0.74,
+    0.71
+   ]
+  },
+  "3dwh_f9b540972598812dd68bdb44": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "M",
+   "source": "3dwh",
+   "title": "Chair Fauteuil Bubble Roche Bobois",
+   "size_m": [
+    1.11,
+    1.16,
+    0.75
+   ]
+  },
+  "ArmChair_01": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "N",
+   "source": "polyhaven",
+   "title": "Arm Chair 01",
+   "size_m": [
+    0.85,
+    0.77,
+    1.07
+   ]
+  },
+  "abo_B07124WCZY": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "O",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Ashbury Modern Exposed Wood Accent Chair, 29\"W, Hemp",
+   "size_m": [
+    0.8,
+    0.74,
+    0.88
+   ]
+  },
+  "abo_B07124WN69": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "P",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Huxley Mid-Century Modern Accent Chair, 28.3\"W, Marine Blue",
+   "size_m": [
+    0.72,
+    0.89,
+    0.86
+   ]
+  },
+  "abo_B0717B4Y3X": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "Q",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Hawthorne Mid-Century Tufted Modern Accent Chair, 35\"W, Caviar",
+   "size_m": [
+    0.88,
+    0.9,
+    1.06
+   ]
+  },
+  "abo_B0719WQGYJ": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "R",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Emerly Modern Living Room Chair, 41\"W, Pewter",
+   "size_m": [
+    1.04,
+    0.89,
+    0.86
+   ]
+  },
+  "abo_B071FMSYCH": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "S",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Farr Lotus Accent Chair, Felt Grey",
+   "size_m": [
+    0.86,
+    1.01,
+    0.86
+   ]
+  },
+  "abo_B071J7Q9WN": {
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "T",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Summit Mid-Century Modern Top-Grain Leather Steel Armed Accent Chair...",
+   "size_m": [
+    0.65,
+    0.8,
+    0.78
+   ]
+  },
+  "abo_B071J7Q9X4": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "A",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Huxley Mid-Century Accent Chair, Light Grey",
+   "size_m": [
+    0.7,
+    0.86,
+    0.85
+   ]
+  },
+  "abo_B071PDYXRQ": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "B",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Apex Modern Oversized Living Room Accent Chair, 42\"W, Ash Grey",
+   "size_m": [
+    1.06,
+    0.97,
+    0.65
+   ]
+  },
+  "abo_B072JG3WK1": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "C",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Ashbury Modern Exposed Wood Accent Chair, 29\"W, Navy",
+   "size_m": [
+    0.8,
+    0.74,
+    0.88
+   ]
+  },
+  "abo_B072PZ4LQ2": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "D",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Emerly Modern Living Room Chair, 41\"W, Ecru",
+   "size_m": [
+    1.04,
+    0.89,
+    0.86
+   ]
+  },
+  "abo_B072PZVYC2": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "E",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Huxley Leather Mid-Century Accent Chair, Black Leather",
+   "size_m": [
+    0.72,
+    0.89,
+    0.86
+   ]
+  },
+  "abo_B073G7BVCT": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "F",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Highland Modern Wingback Living Room Accent Chair, 31.9\"W, Oa...",
+   "size_m": [
+    0.76,
+    0.95,
+    1.08
+   ]
+  },
+  "abo_B073G947W3": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "G",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Modern Sweeping Arm Accent Chair, 28\"W, Merlot",
+   "size_m": [
+    0.68,
+    0.77,
+    0.81
+   ]
+  },
+  "abo_B073GCWSX8": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "H",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Huxley Mid-Century Accent Chair, Burnt Orange",
+   "size_m": [
+    0.72,
+    0.86,
+    0.89
+   ]
+  },
+  "abo_B0746KJVP2": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "I",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Charlotte Mid-Century Modern Upholstered Gold Accent Chair, 29\"W, Na...",
+   "size_m": [
+    0.81,
+    0.81,
+    0.97
+   ]
+  },
+  "abo_B075NR8HWJ": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "J",
+   "source": "abo",
+   "title": "Amazon Brand Movian Dofsan Chair 100 x 93 x 86 cm Grey",
+   "size_m": [
+    1.0,
+    0.93,
+    0.86
+   ]
+  },
+  "abo_B075NRDS91": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "K",
+   "source": "abo",
+   "title": "abo_B075NRDS91",
+   "size_m": [
+    0.77,
+    0.78,
+    0.8
+   ]
+  },
+  "abo_B075X2WN36": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "L",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Curved Tufted Velvet Accent Chair, Marina Mid-Century, 28.7\"W, Hunte...",
+   "size_m": [
+    0.85,
+    0.78,
+    0.89
+   ]
+  },
+  "abo_B075X2X4XS": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "M",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Charles Classic Oversized Leather Accent Arm Chair, 39\"W, Sod",
+   "size_m": [
+    1.0,
+    1.0,
+    0.98
+   ]
+  },
+  "abo_B075X33SR9": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "N",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Charles Classic Oversized Leather Chair, 39\"W, Charcoal",
+   "size_m": [
+    1.02,
+    1.03,
+    0.96
+   ]
+  },
+  "abo_B075X33SSW": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "O",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Elmore Pillow-Top Armless Accent Chair, 24\"W, Beige",
+   "size_m": [
+    0.63,
+    0.78,
+    0.89
+   ]
+  },
+  "abo_B075X3SHT1": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "P",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Jamie Upholstered Mid-Century Modern Low Arm Accent Chair, 31\"W, Bur...",
+   "size_m": [
+    0.8,
+    0.78,
+    0.91
+   ]
+  },
+  "abo_B075X3SHY9": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "Q",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Mid-Century Modern Angled Leather Arm Chair, 33\"W, Driftwood",
+   "size_m": [
+    0.87,
+    0.82,
+    0.94
+   ]
+  },
+  "abo_B075X467QG": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "R",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Hillsboro Modern Wingback Living Room Accent Chair With Nailh...",
+   "size_m": [
+    0.74,
+    0.94,
+    1.03
+   ]
+  },
+  "abo_B075X4N3GM": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "S",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey",
+   "size_m": [
+    0.93,
+    0.84,
+    0.77
+   ]
+  },
+  "abo_B075X4N3J5": {
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "T",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Villain Mid-Century Modern Leather Metal Leg Accent Lounge Chair, 37...",
+   "size_m": [
+    0.84,
+    0.83,
+    0.92
+   ]
+  },
+  "abo_B075X4N4Z5": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "A",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Chair, 33\"W, Blackwood",
+   "size_m": [
+    0.86,
+    0.87,
+    0.93
+   ]
+  },
+  "abo_B075X4PT3G": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "B",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Leather Chair, 33\"W, Charcoal",
+   "size_m": [
+    0.87,
+    0.83,
+    0.94
+   ]
+  },
+  "abo_B075X4T5RG": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "C",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Chair, 33\"W, Blue Eclipse",
+   "size_m": [
+    0.86,
+    0.87,
+    0.93
+   ]
+  },
+  "abo_B075X4YDN6": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "D",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Zane Mid-Century Modern Swivel Top-Grain Leather Accent Chair, 28.75...",
+   "size_m": [
+    0.73,
+    0.87,
+    0.87
+   ]
+  },
+  "abo_B075X52BM1": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "E",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Larkin Living Room Accent Swivel Chair, 30\"W, Smoke",
+   "size_m": [
+    0.76,
+    0.88,
+    0.94
+   ]
+  },
+  "abo_B075X65R4N": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "F",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Elmore Pillow-Top Armless Chair, 24\"W, Smoky Teal",
+   "size_m": [
+    0.62,
+    0.8,
+    0.9
+   ]
+  },
+  "abo_B07B4CZNPH": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "G",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Aubree Farmhouse Accent Chair, 32\"W, Striped Grey Linen",
+   "size_m": [
+    0.81,
+    0.91,
+    0.94
+   ]
+  },
+  "abo_B07B4D6MRY": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "H",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Jacobsen Traditional Accent Chair, 31\"W, Grey",
+   "size_m": [
+    0.86,
+    0.92,
+    0.94
+   ]
+  },
+  "abo_B07B4D8945": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "I",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Accent Chair, 34\"W, Beige",
+   "size_m": [
+    0.96,
+    0.88,
+    0.81
+   ]
+  },
+  "abo_B07B4G5R5H": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "J",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Canfield Modern Reclining Tufted Arm Chair, 30.3\"W, Light Grey",
+   "size_m": [
+    0.65,
+    0.78,
+    0.89
+   ]
+  },
+  "abo_B07B4MSP7T": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "K",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Aubree Farmhouse Accent Arm Chair, 32\"W, Striped Red Linen",
+   "size_m": [
+    0.93,
+    1.06,
+    1.12
+   ]
+  },
+  "abo_B07B4NW75W": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "L",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Accent Chair, 34\"W, Blue Ink",
+   "size_m": [
+    0.96,
+    0.88,
+    0.81
+   ]
+  },
+  "abo_B07B79WTSL": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "M",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Fir Mid-Century Modern Velvet Dining Kitchen Chair, 23.6\"W, Green",
+   "size_m": [
+    0.68,
+    0.79,
+    1.08
+   ]
+  },
+  "abo_B07B7BDFPR": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "N",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Fir Mid-Century Modern Velvet Dining Accent Chair, 23.6\"W, Blue",
+   "size_m": [
+    0.68,
+    0.79,
+    1.08
+   ]
+  },
+  "abo_B07B84H7G8": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "O",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Traditional Nailhead Button Tufted Leather Recliner Chair, 33...",
+   "size_m": [
+    0.71,
+    0.82,
+    0.86
+   ]
+  },
+  "abo_B07DBDN78J": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "P",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Christian Faux Leather Casual Accent Chair, 31.89\"W, Black",
+   "size_m": [
+    0.82,
+    0.82,
+    0.92
+   ]
+  },
+  "abo_B07DBDN79B": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "Q",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Jase Slope Tufted Accent Chair, 29.9\"W, Light Grey",
+   "size_m": [
+    0.66,
+    0.77,
+    0.89
+   ]
+  },
+  "abo_B07DBDQJRF": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "R",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Hughes Curved Back Tufted Patterned Accent Chair, 25\"W, Arrow",
+   "size_m": [
+    0.69,
+    0.61,
+    0.86
+   ]
+  },
+  "abo_B07DBFFG4Q": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "S",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Belgrove Modern Wood Spindle Frame Velvet Accent Chair, 26.37...",
+   "size_m": [
+    0.69,
+    0.8,
+    0.86
+   ]
+  },
+  "abo_B07DBGPV4C": {
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "T",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Goodwin Faux Leather Tufted Wingback Club Accent Chair, 33\"W,...",
+   "size_m": [
+    0.83,
+    0.82,
+    1.13
+   ]
+  },
+  "abo_B07DBH52YB": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "A",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Eddison Modern Slope Accent Chair, 32\"W, Light Grey",
+   "size_m": [
+    0.69,
+    0.81,
+    0.89
+   ]
+  },
+  "abo_B07DBHC337": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "B",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Classic Rolled Arm Nailedhead Faux Leather Accent Chair, 35\"W...",
+   "size_m": [
+    0.85,
+    0.89,
+    0.93
+   ]
+  },
+  "abo_B07DBJQC1K": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "C",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Christian Upholstered mid-Century Modern Accent Chair, 31.89\"...",
+   "size_m": [
+    0.82,
+    0.82,
+    0.91
+   ]
+  },
+  "abo_B07DBLN3V2": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "D",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Jase Slope Tufted Accent Chair, 29.9\"W, Dark Grey",
+   "size_m": [
+    0.66,
+    0.77,
+    0.89
+   ]
+  },
+  "abo_B07H2MHYDQ": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "E",
+   "source": "abo",
+   "title": "JC Home Sabadell Wall-Hugger Power-Lift Recliner with Faux-Leather Upholstery, Burnt Br...",
+   "size_m": [
+    0.94,
+    0.88,
+    1.04
+   ]
+  },
+  "abo_B07HYYCT75": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "F",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Carrigan Casual Living-Room Chair, 45\"W, Navy",
+   "size_m": [
+    1.12,
+    1.0,
+    1.14
+   ]
+  },
+  "abo_B07HZ9K9PG": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "G",
+   "source": "abo",
+   "title": "Amazon Brand Stone & Beam Calhoun Living Room Accent Chair, 42\"W, Ecru",
+   "size_m": [
+    1.18,
+    1.01,
+    1.02
+   ]
+  },
+  "abo_B07J2R9TVF": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "H",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Brooke Contemporary Mid-Century Modern Tufted Living Room Accent Cha...",
+   "size_m": [
+    0.92,
+    0.91,
+    0.8
+   ]
+  },
+  "abo_B07J2R9Y4W": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "I",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Brooke Contemporary Mid-Century Modern Tufted Leather Living Room Ch...",
+   "size_m": [
+    0.92,
+    0.91,
+    0.8
+   ]
+  },
+  "abo_B07J2YB486": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "J",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Willard Contemporary Accent Lounge Chair, 26\"W, Navy",
+   "size_m": [
+    0.68,
+    0.77,
+    0.86
+   ]
+  },
+  "abo_B07J59DFXX": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "K",
+   "source": "abo",
+   "title": "abo_B07J59DFXX",
+   "size_m": [
+    0.9,
+    0.9,
+    0.8
+   ]
+  },
+  "abo_B07JY2W3KS": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "L",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Living Room Recliner Chair, Leather, Brown",
+   "size_m": [
+    0.87,
+    1.01,
+    1.08
+   ]
+  },
+  "abo_B07N2Y6C96": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "M",
+   "source": "abo",
+   "title": "AmazonBasics Modern Faux Leather Pull-Tab Recliner Chair - Black",
+   "size_m": [
+    0.78,
+    0.83,
+    1.08
+   ]
+  },
+  "abo_B07N2ZJYH6": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "N",
+   "source": "abo",
+   "title": "AmazonBasics Modern Faux Leather Pull-Tab Recliner Chair - Cream",
+   "size_m": [
+    0.78,
+    0.83,
+    1.08
+   ]
+  },
+  "abo_B07P5LMFMT": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "O",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Revolve Modern Leather Armchair with Tapered Legs, 33\"W, Caramel",
+   "size_m": [
+    0.89,
+    0.91,
+    0.96
+   ]
+  },
+  "abo_B07P6JTSYP": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "P",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Aiden Mid-Century Leather Chair with Tapered Wood Legs, 35\"W, Black",
+   "size_m": [
+    0.89,
+    0.91,
+    0.76
+   ]
+  },
+  "abo_B07PBZL51J": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "Q",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Aiden Mid-Century Chair with Tapered Wood Legs, 35\"W, Light Grey",
+   "size_m": [
+    0.89,
+    0.91,
+    0.76
+   ]
+  },
+  "abo_B07QBMQCP1": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "R",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Isabelle Mid-Century Modern Living Room Chair with Tapered Wood Legs...",
+   "size_m": [
+    0.89,
+    0.89,
+    0.89
+   ]
+  },
+  "abo_B07QBMQHFS": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "S",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Blanchard Living Room Chair with Swivel Base, 40\"H, Cadet",
+   "size_m": [
+    0.71,
+    0.89,
+    1.02
+   ]
+  },
+  "abo_B07QJXK4CD": {
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "T",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Blanchard Living Room Chair with Swivel Base, 40\"H, Leather, Cognac",
+   "size_m": [
+    0.71,
+    0.79,
+    1.03
+   ]
+  },
+  "abo_B082VLYCRC": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "A",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Brooke Contemporary Mid-Century Modern Tufted Velvet Living Room Cha...",
+   "size_m": [
+    0.88,
+    0.89,
+    0.79
+   ]
+  },
+  "abo_B082VM7676": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "B",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Jamie Leather Mid-Century Modern Low Arm Accent Chair, 31\"W, Black",
+   "size_m": [
+    0.79,
+    0.82,
+    0.89
+   ]
+  },
+  "abo_B0853N8T7M": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "C",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Rione Modern Leather Swivel Chair with Rounded Back, 30.3\"W, Marseil...",
+   "size_m": [
+    0.79,
+    0.81,
+    0.77
+   ]
+  },
+  "abo_B0853NR959": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "D",
+   "source": "abo",
+   "title": "Amazon Brand Rivet Rione Modern Upholstered Swivel Chair with Rounded Back, 30.3\"W, Stucco",
+   "size_m": [
+    0.79,
+    0.81,
+    0.77
+   ]
+  },
+  "abo_B085FGSHQH": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "E",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Albert Power-Lift Assist Recliner Chair, 34.3\"W, Cream",
+   "size_m": [
+    0.87,
+    0.98,
+    1.03
+   ]
+  },
+  "abo_B085FGSHR3": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "F",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Swivel Glider Recliner Chair, 35\"W, Black",
+   "size_m": [
+    0.89,
+    0.88,
+    0.96
+   ]
+  },
+  "abo_B085FH8JFG": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "G",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Albert Power-Lift Assist Recliner Chair, 34.3\"W, Dark Brown",
+   "size_m": [
+    0.87,
+    0.98,
+    1.03
+   ]
+  },
+  "abo_B085FHBF2S": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "H",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Recliner Chair, 37\"W, Brown",
+   "size_m": [
+    0.9,
+    0.93,
+    1.01
+   ]
+  },
+  "abo_B085FHCKY4": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "I",
+   "source": "abo",
+   "title": "Amazon Brand Ravenna Home Recliner Chair, 37\"W, Dark Grey",
+   "size_m": [
+    0.9,
+    0.94,
+    1.01
+   ]
+  },
+  "hssd_014f3ebc50361692497fe6439b2c112ed3e4ab25": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "J",
+   "source": "hssd",
+   "title": "GRADO MART Armchair, Light Grey",
+   "size_m": [
+    0.78,
+    0.82,
+    0.73
+   ]
+  },
+  "hssd_05e5559cf467254327299a68a65b4bb188a4c1ab": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "K",
+   "source": "hssd",
+   "title": "Abby Swivel Accent Chair",
+   "size_m": [
+    0.79,
+    0.82,
+    0.72
+   ]
+  },
+  "hssd_0e8dfdbc4db21b620cbc40daebda5f225f48fa1f": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "L",
+   "source": "hssd",
+   "title": "Laurent Accent Chair by Nate Berkus and Jeremiah Brent",
+   "size_m": [
+    0.83,
+    0.83,
+    0.94
+   ]
+  },
+  "hssd_0e8f7683353124120fc3d0c2c23f128eaa992b11": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "M",
+   "source": "hssd",
+   "title": "Avery Swoop Accent Chair",
+   "size_m": [
+    0.63,
+    0.79,
+    0.81
+   ]
+  },
+  "hssd_1a3cdd72708cd77010453af1bddc78982ca792c0": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "N",
+   "source": "hssd",
+   "title": "Cabot accent chair, Blue",
+   "size_m": [
+    0.79,
+    0.83,
+    1.05
+   ]
+  },
+  "hssd_2482ffc4bafeec252b187ec2470adbfbb7efacc0": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "O",
+   "source": "hssd",
+   "title": "NIELSEN LEATHER CHAIR, Black Oak & Berkshire Walnut",
+   "size_m": [
+    0.79,
+    0.8,
+    0.77
+   ]
+  },
+  "hssd_299ccc1cd644f44a2663878536fe88f24212f0ba": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "P",
+   "source": "hssd",
+   "title": "Rattan armchair",
+   "size_m": [
+    0.68,
+    0.82,
+    1.05
+   ]
+  },
+  "hssd_3d646131d74a5197c4ed035b0ae3b877b6f8e941": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "Q",
+   "source": "hssd",
+   "title": "Retreat Twirl Swivel Accent Chair",
+   "size_m": [
+    0.93,
+    0.93,
+    0.91
+   ]
+  },
+  "hssd_45092a7ed4e6bb85fc08e722388bad2694401222": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "R",
+   "source": "hssd",
+   "title": "Vanguard # Brinley Tufted Arm Chair",
+   "size_m": [
+    0.59,
+    0.74,
+    1.02
+   ]
+  },
+  "hssd_46f86f1258a3eb8345acbd6aacfb6b96781f6a2a": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "S",
+   "source": "hssd",
+   "title": "Vitra The Worker Armchair",
+   "size_m": [
+    0.79,
+    0.78,
+    0.8
+   ]
+  },
+  "hssd_4e6924410277e866564f1f0f253248643798f841": {
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "T",
+   "source": "hssd",
+   "title": "Angie Chair, Light Grey",
+   "size_m": [
+    0.88,
+    0.89,
+    0.84
+   ]
+  },
+  "hssd_650eafedcc551cb48130abb49b7343157db87f87": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "A",
+   "source": "hssd",
+   "title": "Dalia armchair",
+   "size_m": [
+    0.84,
+    0.8,
+    0.74
+   ]
+  },
+  "hssd_74e1831f3d2100296a4663e63defbe344b15f421": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "B",
+   "source": "hssd",
+   "title": "Whitwell Push Back Recliner, Light Grey",
+   "size_m": [
+    0.88,
+    0.92,
+    1.03
+   ]
+  },
+  "hssd_7731b27a33dba3816bd7bc321cf47bc12facc109": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "C",
+   "source": "hssd",
+   "title": "VILLSTAD Easy chair",
+   "size_m": [
+    0.77,
+    0.77,
+    0.76
+   ]
+  },
+  "hssd_843c70ec93a45b19af1fa6981ea23a6f1a66cad6": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "D",
+   "source": "hssd",
+   "title": "Marina Accent Chair, Light Grey",
+   "size_m": [
+    0.78,
+    0.8,
+    0.82
+   ]
+  },
+  "hssd_8c297387b65b2ab225740383572f1dba79859791": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "E",
+   "source": "hssd",
+   "title": "Chair",
+   "size_m": [
+    0.67,
+    0.88,
+    0.94
+   ]
+  },
+  "hssd_94927768e27e3edbde222e2fd59f2664ffcfa866": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "F",
+   "source": "hssd",
+   "title": "POANG",
+   "size_m": [
+    0.68,
+    0.83,
+    1.0
+   ]
+  },
+  "hssd_965e9ac9fb8c99b1bc86ded43de902f856a3cd7c": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "G",
+   "source": "hssd",
+   "title": "Chair - Old English Tan",
+   "size_m": [
+    0.89,
+    0.91,
+    0.91
+   ]
+  },
+  "hssd_981b9ab0b33dc8a06105ddb18018a0deb5fb3023": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "H",
+   "source": "hssd",
+   "title": "Saison Leather Arm Chair, White",
+   "size_m": [
+    0.89,
+    0.89,
+    0.81
+   ]
+  },
+  "hssd_9a95f67666e918a7398535ae4082ce1a574a6cf5": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "I",
+   "source": "hssd",
+   "title": "Boutique Leather",
+   "size_m": [
+    0.92,
+    0.9,
+    0.82
+   ]
+  },
+  "hssd_aa554f7be876c98a2c021a1d17ebf7819aeaf002": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "J",
+   "source": "hssd",
+   "title": "Aventura dining chair",
+   "size_m": [
+    0.61,
+    0.76,
+    0.99
+   ]
+  },
+  "hssd_ab165e78654b42d5568945a3405e69c86010fd17": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "K",
+   "source": "hssd",
+   "title": "Kerouac Leather Chair",
+   "size_m": [
+    0.79,
+    0.81,
+    0.91
+   ]
+  },
+  "hssd_c54816423cdd8e3e699b411d028aba1e5aef3f2c": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "L",
+   "source": "hssd",
+   "title": "Engles Leather 35'' Chair, Saddlebag Lead",
+   "size_m": [
+    0.9,
+    0.9,
+    0.86
+   ]
+  },
+  "hssd_c8bbb9cc378c3034f8a31bd0e19e51bb8290bda6": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "M",
+   "source": "hssd",
+   "title": "Andrew Leather Recliner",
+   "size_m": [
+    0.91,
+    0.89,
+    1.01
+   ]
+  },
+  "hssd_ca5c6dba3e3d11e1d460ab441a36d68fb04857f8": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "N",
+   "source": "hssd",
+   "title": "Armchair",
+   "size_m": [
+    0.77,
+    0.77,
+    0.82
+   ]
+  },
+  "hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "O",
+   "source": "hssd",
+   "title": "Toro Lounge Chair",
+   "size_m": [
+    0.65,
+    0.8,
+    0.82
+   ]
+  },
+  "hssd_ccb6d8d8284a84493a815182e5ce3e3dddd3ad70": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "P",
+   "source": "hssd",
+   "title": "Chair - Antique Blue",
+   "size_m": [
+    0.87,
+    0.89,
+    1.04
+   ]
+  },
+  "hssd_cebe167583e0b96752d0ebfe2ff704e65aa6629a": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "Q",
+   "source": "hssd",
+   "title": "Armchair INDUSTRIELL",
+   "size_m": [
+    0.7,
+    0.8,
+    0.69
+   ]
+  },
+  "hssd_d83424d0d492ca9cb708a73ad04b59f8eec8487f": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "R",
+   "source": "hssd",
+   "title": "Marina Accent Chair, Charcoal",
+   "size_m": [
+    0.8,
+    0.78,
+    0.82
+   ]
+  },
+  "hssd_e80c209372079afca611d98cd98597e79afa2c65": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "S",
+   "source": "hssd",
+   "title": "Hickory Chair # Cantrell Chair",
+   "size_m": [
+    0.71,
+    0.82,
+    0.97
+   ]
+  },
+  "hssd_ee3f42b9c1d188d103625187a0335f7818d0cdf8": {
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "T",
+   "source": "hssd",
+   "title": "Century Furniture # Essex Club Chair",
+   "size_m": [
+    0.9,
+    0.93,
+    0.91
+   ]
+  },
+  "hssd_f08e9f0057a74950b3b2637c4a462ca7e258b28a": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "A",
+   "source": "hssd",
+   "title": "Raleigh Armchair - Olive Leather",
+   "size_m": [
+    0.87,
+    0.89,
+    0.86
+   ]
+  },
+  "hssd_f1a8ee1d325c42f3b1867c37051d8d9c5b7ae023": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "B",
+   "source": "hssd",
+   "title": "Marisol Accent Chair, Indigo",
+   "size_m": [
+    0.69,
+    0.87,
+    1.05
+   ]
+  },
+  "hssd_fab3e8e5223d512a551ed0826310e31a81cc9fee": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "C",
+   "source": "hssd",
+   "title": "POANG Armchair",
+   "size_m": [
+    0.68,
+    0.82,
+    1.0
+   ]
+  },
+  "hssd_fbbfeb5d105e75f1c970e39cde8ea7eb8bcaec7d": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "D",
+   "source": "hssd",
+   "title": "Harper Armless Chair",
+   "size_m": [
+    0.89,
+    0.89,
+    0.84
+   ]
+  },
+  "hssd_xxxxcf52c887xd6ccx47d0xbf5fx448bc77e113d": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "E",
+   "source": "hssd",
+   "title": "Ericson Lounge Chair",
+   "size_m": [
+    0.71,
+    0.84,
+    0.85
+   ]
+  },
+  "mid_century_lounge_chair": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "F",
+   "source": "polyhaven",
+   "title": "Mid Century Lounge Chair",
+   "size_m": [
+    1.01,
+    1.19,
+    1.17
+   ]
+  },
+  "modern_arm_chair_01": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "G",
+   "source": "polyhaven",
+   "title": "Modern Arm Chair 01",
+   "size_m": [
+    0.82,
+    0.99,
+    1.02
+   ]
+  },
+  "objaverse_124297e7e4574c48b9c1b814b6ddf516": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "H",
+   "source": "objaverse",
+   "title": "animated_sphere",
+   "size_m": [
+    0.75,
+    0.84,
+    0.91
+   ]
+  },
+  "objaverse_5b9e8ba19b1b454f82898ac4809f02b2": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "I",
+   "source": "objaverse",
+   "title": "Lpuvw",
+   "size_m": [
+    0.53,
+    0.61,
+    0.61
+   ]
+  },
+  "objaverse_69f1c0489a144f3c98e66dcfe72b3969": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "J",
+   "source": "objaverse",
+   "title": "Oldfashioned armchair",
+   "size_m": [
+    0.53,
+    0.61,
+    0.61
+   ]
+  },
+  "objaverse_a07501cd7f6c40fc9cf4cf438e41bac1": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "K",
+   "source": "objaverse",
+   "title": "Chair_2 out of 12",
+   "size_m": [
+    0.83,
+    0.86,
+    1.23
+   ]
+  },
+  "objaverse_b23ec9725c48494788d1d88104acbb4a": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "L",
+   "source": "objaverse",
+   "title": "High back Arm chair (Free Download)",
+   "size_m": [
+    0.81,
+    0.89,
+    0.92
+   ]
+  },
+  "objaverse_da6d646358d1451fa751f1a9141290a3": {
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "M",
+   "source": "objaverse",
+   "title": "LPUVW",
+   "size_m": [
+    0.53,
+    0.61,
+    0.61
+   ]
+  }
+ }
+}

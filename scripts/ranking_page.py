@@ -54,7 +54,7 @@ def models(index: dict, results: dict | None) -> list[dict]:
     return out
 
 
-PAGE = r"""<title>Furniture Ranking</title>
+PAGE = r"""<title>__TITLE__</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
@@ -124,6 +124,7 @@ main .wrap { padding-block: 18px 48px; }
 .b-out { background: var(--out) !important; } .b-mid { background: var(--mid) !important; }
 .b-good { background: var(--good) !important; }
 .empty { padding: 40px 0; color: var(--muted); }
+.intro { margin: 0 0 16px; max-width: 70ch; line-height: 1.5; color: var(--ink); }
 dialog { border: none; padding: 0; background: transparent; max-width: min(92vw, 820px); }
 dialog::backdrop { background: rgba(0,0,0,.7); }
 dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% auto; background-repeat: no-repeat;
@@ -135,24 +136,21 @@ dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% au
 <header>
   <div class="wrap">
     <div class="top">
-      <h1>Furniture Ranking</h1>
+      <h1>__TITLE__</h1>
       <span class="status" id="status">Loading saved scores…</span>
     </div>
     <div class="tabs" id="tabs" role="tablist"></div>
     <div class="bar"><span id="bar"></span></div>
     <div class="tools">
       <label><input type="checkbox" id="unranked"> Unranked only</label>
-      <span class="legend">
-        <span><i style="background:var(--out)"></i>0–2 never used</span>
-        <span><i style="background:var(--mid)"></i>3–5 kept, below unranked at 5</span>
-        <span><i style="background:var(--good)"></i>6–10 preferred</span>
-      </span>
+      <span class="legend">__LEGEND__</span>
       <span class="keys">Keys: select a card, press 0–9, T for 10; the next card follows.</span>
       <button type="button" id="copy">Copy scores as text</button>
     </div>
   </div>
 </header>
 <main><div class="wrap">
+  __INTRO__
   <div class="grid" id="grid"></div>
   <p class="empty" id="empty" hidden>Every model of this type has a score. Untick "Unranked only" to see them all.</p>
   <textarea class="copybox" id="copybox" hidden readonly></textarea>
@@ -162,6 +160,8 @@ dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% au
 const MODELS = __MODELS__;
 const TYPES = __TYPES__;
 const NAMES = __NAMES__;
+const STORE = __STORE__;         // "models": one document per model (scores/<id>); "rater": one per person
+let raterRef = null, saveTimer = null;
 const scores = {};             // id -> rank
 let db = null, current = TYPES[0], focusIdx = -1;
 const $ = (id) => document.getElementById(id);
@@ -251,11 +251,23 @@ function setScore(m, r, card) {
   paint(card, m); renderTabs();
   if (!clear) advance(card);
   if (!db) { status("Saved in this browser only: copy the scores as text and paste them in the chat.", true); return; }
+  if (STORE === "rater") { saveRater(); return; }
   const ref = db.collection("scores").doc(m.id);
   queue = queue.then(() => clear ? ref.delete()
     : ref.set({ rank: r, type: m.type, sheet: m.sheet, letter: m.letter, at: Date.now() }))
     .then(() => status(Object.keys(scores).length + " scores saved"))
     .catch((e) => status("Not saved (" + (e && e.code || "error") + "): the score stays in this browser; copy as text.", true));
+}
+
+function saveRater() {                         // the whole map, one write per pause
+  if (!raterRef) { status("Saved in this browser only: copy the scores as text and send them.", true); return; }
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const body = { scores: Object.assign({}, scores), count: Object.keys(scores).length, at: Date.now() };
+    queue = queue.then(() => raterRef.set(body))
+      .then(() => status(body.count + " scores saved"))
+      .catch((e) => status("Not saved (" + (e && e.code || "error") + "): the scores stay in this browser; copy them as text.", true));
+  }, 600);
 }
 
 function advance(card) {
@@ -299,6 +311,26 @@ renderAll();
   db = window.claude && window.claude.use ? await window.claude.use("db") : null;
   if (!db) { status("Scores are kept in this browser; copy them as text to send them.", true); return; }
   let timer = setTimeout(() => status("Saved scores can't be reached yet; new scores are kept.", true), 10000);
+  if (STORE === "rater") {
+    const user = window.claude && window.claude.use ? await window.claude.use("user") : null;
+    const uid = user ? await user.id() : null;
+    if (!uid) { clearTimeout(timer); status("Sign in to save your scores; until then they stay in this browser.", true); return; }
+    raterRef = db.collection("ratings").doc(uid);
+    let first = true;
+    raterRef.onSnapshot((snap) => {
+      if (first) {                               // your saved scores, once; later snapshots echo your own writes
+        const v = snap.exists ? snap.data() : null;
+        if (v && v.scores) for (const [k, r] of Object.entries(v.scores)) if (Number.isInteger(r)) scores[k] = r;
+        if (!snap.metadata || !snap.metadata.fromCache) { first = false; clearTimeout(timer);
+          status(Object.keys(scores).length + " scores saved"); }
+        saveLocal();
+        for (const card of $("grid").children) { const m = MODELS.find(x => x.id === card.dataset.id); if (m) paint(card, m); }
+        renderTabs();
+        if (!first && v && Object.keys(scores).length > Object.keys(v.scores || {}).length) saveRater();
+      }
+    }, (e) => { clearTimeout(timer); status("Saving unavailable (" + (e && e.code) + "); your scores stay in this browser.", true); });
+    return;
+  }
   db.collection("scores").onSnapshot((snap) => {
     for (const d of snap.docs) { const v = d.data(); if (v && Number.isInteger(v.rank)) scores[d.id] = v.rank; }
     if (!snap.metadata || !snap.metadata.fromCache) { clearTimeout(timer); status(snap.size + " scores saved"); }
@@ -311,25 +343,48 @@ renderAll();
 """
 
 
-def page(rows: list[dict], types: list[str]) -> str:
+OWNER_LEGEND = ('<span><i style="background:var(--out)"></i>0–2 never used</span>'
+                '<span><i style="background:var(--mid)"></i>3–5 kept, below unranked at 5</span>'
+                '<span><i style="background:var(--good)"></i>6–10 preferred</span>')
+RATER_LEGEND = ('<span><i style="background:var(--out)"></i>0 = would never pick it</span>'
+                '<span><i style="background:var(--good)"></i>10 = love it</span>')
+RATER_INTRO = ('<p class="intro">Score each piece from 0 to 10, purely on how it looks to you. There are no wrong '
+               'answers, and your scores are kept apart from anyone else\'s. They save as you go, so you can stop and '
+               'come back. Click a picture to see it bigger.</p>')
+# 31 Oct 2026 (user: "For the old one give another link i will send to some one else to get opinion 2 opinions will
+# avarage later"): the rater page: one document per person (ratings/<viewer id> = {"scores": {model id: rank}}), the
+# owner reads every person's document, a person only their own.
+RATER_RULES = [{"path": "ratings", "read": "admin", "write": "owner"},
+               {"path": "ratings/{self}", "read": "view", "write": "interact"}]
+
+
+def page(rows: list[dict], types: list[str], rater: bool = False) -> str:
+    title = "Furniture Look Survey" if rater else "Furniture Ranking"
     return (PAGE.replace("__MODELS__", json.dumps(rows, separators=(",", ":")))
-            .replace("__TYPES__", json.dumps(types)).replace("__NAMES__", json.dumps(TYPE_NAMES)))
+            .replace("__TYPES__", json.dumps(types)).replace("__NAMES__", json.dumps(TYPE_NAMES))
+            .replace("__STORE__", json.dumps("rater" if rater else "models")).replace("__TITLE__", title)
+            .replace("__LEGEND__", RATER_LEGEND if rater else OWNER_LEGEND)
+            .replace("__INTRO__", RATER_INTRO if rater else ""))
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--ranking", default="results/library/ranking")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--rater", action="store_true", help="a page for another person's opinion (one document each)")
+    ap.add_argument("--types", default="", help="only these types (comma list)")
     a = ap.parse_args(argv)
     rk = Path(a.ranking)
     index = json.loads((rk / "ranking_index.json").read_text(encoding="utf-8"))
     res_path = rk / "studio_results.json"
     results = json.loads(res_path.read_text(encoding="utf-8")) if res_path.is_file() else None
     rows = models(index, results)
+    if a.types:
+        rows = [m for m in rows if m["type"] in a.types.split(",")]
     types = [t for t in index["types"] if any(m["type"] == t for m in rows)]
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(page(rows, types), encoding="utf-8")
+    out.write_text(page(rows, types, a.rater), encoding="utf-8")
     sheets = sorted({m["sheet"] for m in rows})
     print(json.dumps({"page": str(out), "models": len(rows), "types": types, "sheets": sheets}))
     return 0
