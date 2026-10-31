@@ -566,7 +566,11 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
                     fail("S2", member["id"], member.get("room_id"),
                          f"{member['type']} {member['id']} is buried in the {run['type']} {run['id']}: "
                          f"{share:.0%} of its box is inside the run, {depth:.2f} m deep (allowed under {limit:.0%}; "
-                         "a drawn sink inside a run is built into it, a drawn stove stands in a gap of it)",
+                         "a drawn sink inside a run is built into it, a drawn stove stands in a gap of it"
+                         # 31 Oct 2026 (wenart.blender.fridge_rule): the fit's guard should have caught it
+                         + ("; a fridge never stands in a run: the tall-unit column holds it or the run ends at it "
+                            "and continues past it, fridge rule of 31 Oct 2026)" if member["type"] == "fridge"
+                            else ")"),
                          {"inside_share": round(share, 3), "depth_m": round(depth, 4),
                           "depth_from": "inside_share x the smaller drawn side", "other": run["id"],
                           "kitchen_run": True})

@@ -684,7 +684,9 @@ def kitchen_design(built: dict, manifest: Optional[dict] = None) -> tuple[list[d
         (``modules.wall_unit_blocks``, unless the build left it free: the manifest's ``module.blocked_m``) - critical;
         one bottom and top line in a room - major; no gap between two cabinets of one wall line that no hood, window
         or door explains - major; a cabinet built as a box of a width no real wall unit has (not a wall run of real
-        units) - major; wall units whose joints miss the base units' joints - minor."""
+        units) - major; wall units whose joints miss the base units' joints - minor;
+    (d) 31 Oct 2026 (``fridge_rule.findings``): no fridge or tall piece with a model of its own where a run is built
+        (``fridge_in_run``) and no fridge whose built box stands over its floor (``fridge_off_floor``) - critical."""
     from wenart.blender import modules as MOD
     pieces = [f for f in built.get("furniture") or [] if isinstance(f, dict) and f.get("build") is not False
               and isinstance(f.get("footprint"), dict) and f["footprint"].get("size")]
@@ -752,6 +754,21 @@ def kitchen_design(built: dict, manifest: Optional[dict] = None) -> tuple[list[d
                               f"{'under' if top < worktop else 'over'} the worktop line ({worktop:.2f} m): an "
                               "appliance in a run is built into it, its top on the worktop line", f.get("room_id"),
                               rule="worktop_line", run=run["id"], top_m=round(top, 3), worktop_m=round(worktop, 3)))
+    # (d) 31 Oct 2026 (wenart.blender.fridge_rule; user on real04 run 20261030-181158-full: "There can not be a fridge
+    # inside the kitchen counter!"): no fridge or tall piece with its own model where a run is built, no fridge over
+    # its floor (the built model's box, the manifest's box3d); (b) passed a tall fridge inside a run as "beside it"
+    from wenart.blender import fridge_rule as FR
+    boxes = {}
+    for pid, ob in entries.items():
+        box = ob.get("box3d") if isinstance(ob.get("box3d"), dict) else None
+        if box and box.get("center") and box.get("size") and len(box["center"]) > 2 and len(box["size"]) > 2:
+            z, h = float(box["center"][2]), float(box["size"][2])
+            boxes[pid] = (z - h / 2.0, z + h / 2.0)
+    n += sum(1 for f in pieces if f.get("type") in FR.RUN_SPLIT_TYPES)
+    for item in FR.findings(dict(built, furniture=pieces), boxes, floors):
+        out.append(_v("M13", "critical", item["piece"], item["message"], item.get("room_id"),
+                      rule="fridge_in_run" if item["rule"] == "in_run" else "fridge_off_floor",
+                      **{k: item[k] for k in ("run", "x0_m", "x1_m", "depth_m", "share", "lift_m") if k in item}))
     # (c) the wall cabinets
     cabinets = [f for f in pieces if f.get("type") == "wall_cabinet"]
     by_room: dict = {}

@@ -1240,10 +1240,24 @@ def worktop_blocks(counter: dict, pieces: list[dict]) -> list[tuple[float, float
             out.append((ext[0] - WORKTOP_HOB_CLEAR_M, ext[1] + WORKTOP_HOB_CLEAR_M, "hob"))
         elif p.get("type") == "sink_kitchen":
             out.append((ext[0] - WORKTOP_SINK_CLEAR_M, ext[1] + WORKTOP_SINK_CLEAR_M, "sink"))
+        elif _stands_in_run(p, counter):
+            out.append((ext[0], ext[1], "tall"))     # 31 Oct 2026 (fridge_rule): no worktop there, the fridge stands
         elif p.get("type") not in ("kitchen_counter", "kitchen_island") and not schemas_off_floor(p) \
                 and float(p.get("height") or 0.0) > top + 0.05:
             out.append((ext[0], ext[1], "tall"))
     return out
+
+
+def _stands_in_run(piece: dict, counter: dict) -> bool:
+    """31 Oct 2026 (``wenart.blender.fridge_rule``; user on real04 run 20261030-181158-full: "There can not be a fridge
+    inside the kitchen counter!"): a fridge or tall piece in a counter that the counter does not hold under its
+    worktop (no ``built_into`` it, no fitted ``built_in``) stands in a gap of the run: its span has no worktop, whatever
+    height the piece carries (a drawn fridge often has none)."""
+    from wenart.blender.fridge_rule import RUN_SPLIT_TYPES
+
+    asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+    return piece.get("type") in RUN_SPLIT_TYPES and not asset.get("built_in") \
+        and piece.get("built_into") != counter.get("id")
 
 
 def schemas_off_floor(piece: dict) -> bool:

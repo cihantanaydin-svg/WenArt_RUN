@@ -665,12 +665,14 @@ def _place_fixed(w: float, x: Optional[float], unit_w: float) -> Optional[tuple[
     return (x0, x0 + unit_w)
 
 
-def _gap_problem(w: float, x0: float, x1: float, taken: Sequence[tuple[float, float, str]]) -> Optional[str]:
+def _gap_problem(w: float, x0: float, x1: float, taken: Sequence[tuple[float, float, str]],
+                 min_w: float = KITCHEN_GAP_MIN_M) -> Optional[str]:
     """Why a gap ``[x0, x1]`` (already clipped to a run of width ``w``) cannot be made, or None: narrower than
-    ``KITCHEN_GAP_MIN_M``, overlapping a span of ``taken`` (another gap or a fixed unit), or leaving no stretch of
-    the run (fix round after P3, part 2: a stove drawn over its whole run gave a plan with no module at all, and the
-    build linked an empty object)."""
-    if x1 - x0 < KITCHEN_GAP_MIN_M - 1e-9:
+    ``min_w`` (``KITCHEN_GAP_MIN_M``), overlapping a span of ``taken`` (another gap or a fixed unit), or leaving no
+    stretch of the run (fix round after P3, part 2: a stove drawn over its whole run gave a plan with no module at all,
+    and the build linked an empty object). 31 Oct 2026 (``fridge_rule``): a fridge's gap at a run end may be narrower
+    (its entry's ``min_m``: the run stops short of a fridge that reaches into its end)."""
+    if x1 - x0 < min_w - 1e-9:
         return f"{max(x1 - x0, 0.0):.2f} m of it lies inside the run"
     if any(x0 < f1 - 1e-9 and x1 > f0 + 1e-9 for f0, f1, _k in taken):
         return "it overlaps another gap or the sink unit"
@@ -706,14 +708,27 @@ def _range_gaps(w: float, hints: dict) -> tuple[list[tuple[float, float, str]], 
         x0, x1 = max(x0, -w / 2.0), min(x1, w / 2.0)
         rid = str(r.get("id") or "?")
         gtype = r.get("type") or "stove"
-        problem = _gap_problem(w, x0, x1, spans)
+        try:
+            min_w = float(r["min_m"]) if r.get("min_m") is not None else KITCHEN_GAP_MIN_M
+        except (TypeError, ValueError):
+            min_w = KITCHEN_GAP_MIN_M
+        problem = _gap_problem(w, x0, x1, spans, min_w)
         if problem:
-            notes.append(f"no gap for the drawn {gtype} {rid}: {problem}")
+            notes.append(f"no gap for the {'' if r.get('fridge_rule') else 'drawn '}{gtype} {rid}: {problem}")
             continue
         spans.append((x0, x1, KITCHEN_GAP_KIND))
-        gaps.append(_gap_record(rid, gtype, x0, x1, r.get("reason")))
-        notes.append(f"a {x1 - x0:.2f} m gap for the drawn {gtype} {rid}: no base unit, plinth or worktop over it (the "
-                     "drawn piece stands there, as drawn, with its own model)")
+        rec = _gap_record(rid, gtype, x0, x1, r.get("reason"))
+        if r.get("fridge_rule"):
+            # 31 Oct 2026 (``fridge_rule``, user: "The kitchen can be built around the fridge, (kitchen counter ends and
+            # continues ...) but not over the kitchen counter"): the run ends at the fridge and continues past it
+            rec.update(fridge_rule=True, adjusted_by_ai=True)
+            notes.append(f"the run ends at the {gtype} {rid} and continues past it: a {x1 - x0:.2f} m gap with no base "
+                         "unit, plinth or worktop, where it stands on the floor with its own model (fridge rule of 31 "
+                         "Oct 2026; the drawn footprint is kept)")
+        else:
+            notes.append(f"a {x1 - x0:.2f} m gap for the drawn {gtype} {rid}: no base unit, plinth or worktop over it "
+                         "(the drawn piece stands there, as drawn, with its own model)")
+        gaps.append(rec)
     return spans, gaps, notes
 
 
@@ -1119,6 +1134,12 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
         stretches_w = [(wa, wb)] if hood is None or hood.get("hood") != "chimney" else [
             (a, b) for a, b in ((wa, min(wb, hood["pos_m"][0] - hood["size_m"][0] / 2.0)),
                                 (max(wa, hood["pos_m"][0] + hood["size_m"][0] / 2.0), wb)) if b - a > 1e-6]
+        # 31 Oct 2026 (fridge_rule): nor over a fridge standing in a gap of the run (the wall units stop at it)
+        for g in gaps:
+            if g.get("fridge_rule"):
+                g0, g1 = float(g["x_m"]) - float(g["w_m"]) / 2.0, float(g["x_m"]) + float(g["w_m"]) / 2.0
+                stretches_w = [(a, b) for sa, sb in stretches_w for a, b in ((sa, min(sb, g0)), (max(sa, g1), sb))
+                               if b - a > 1e-6]
         for sa, sb in stretches_w:
             wall = compose_run(sb - sa, KITCHEN_WALL_WIDTHS_M, KITCHEN_FILLER_MAX_M)
             if wall is None:
@@ -1238,6 +1259,21 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
                                                           " standing as the fridge-freezer column" if record.get("column")
                                                           else " with an appliance door")
                      + (" and an oven under it" if record.get("oven") else ""))
+    # 31 Oct 2026 (wenart.blender.fridge_rule, rule 3; user on real04 run 20261030-181158-full: "There can not be a
+    # fridge inside the kitchen counter!"): the added fridges the tall-unit column replaces (UL187: the fit's
+    # ``column_fridges``) are held by its fridge unit; before, nothing held the moved fridge and the fit built it as a
+    # freestanding model inside its old run, its top through the worktop. No fridge unit in the column: none is held
+    # here (the fit's guard gives the fridge back to its run, or a gap)
+    moved = [str(pid) for pid in hints.get("column_fridges") or []]
+    if moved:
+        from wenart.blender import fridge_rule as FR
+        recs = FR.column_fridge_records(columns, moved, hints.get("column_fridges_from"))
+        if recs:
+            plan.setdefault("built_ins", []).extend(recs)
+            notes.append(f"the added fridge(s) {', '.join(moved)} stand in the tall-unit column's fridge unit (one fridge "
+                         "per kitchen, UL187; never a model of their own in a run)")
+        else:
+            notes.append(f"the fridge(s) {', '.join(moved)} are not held: the tall-unit column has no fridge unit here")
     # 28 Oct 2026: a counter outline drawn inside the run (an outline drawn twice, a hob or sink block's outline) is
     # part of the run: no second run inside it (``fit.nested_counters``)
     for oid in hints.get("outlines") or []:

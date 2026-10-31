@@ -278,6 +278,17 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   another fits (``lamp_misfit``); ``asset.pairing`` records the limits and what held. Why: the open-kitchen variant's
   sofa side had a Nelson swivel 4-star end table under a big two-tone drum lamp, the bedrooms a 0.92 m lamp shrunk to
   63 %, and the play-and-rest room two HEMNES daybed frames as its sofas; the catalogue keeps every model.
+- Fridge rule, 31 Oct 2026 (user on real04 run 20261030-181158-full: "There can not be a fridge inside the kitchen
+  counter! make this a rule. The kitchen can be built around the fridge, (kitchen counter ends and continues ...) but
+  not over the kitchen counter"; ``wenart.blender.fridge_rule``, tests/test_fridge_rule_20261031.py). What: the
+  tall-unit column's run holds the fridges UL187 moves into it (``kitchen_details_hints``: ``column_fridges``; the
+  plan's ``built_ins``; ``sinks`` maps them to the column's run); a drawn or full-size fridge, or a tall cabinet, that
+  reaches into a run no run holds gets a gap of that run (``loose_in_runs``, ``_add_run_gap``: the run ends at it and
+  continues past it); after the per-piece fit the guard runs the check (``fridge_rule.findings``) on the fitted plans
+  and fixes what is left before the build (a moved fridge whose column has no fridge unit goes back to its run, any
+  other a gap), every finding and fix in ``project["fridge_rule"]`` and the report. Why: the moved under-counter
+  fridge of real04's four kitchens was fitted on its own as a 1.64-1.86 m library fridge and built inside its old run,
+  its top 0.74 m through the worktop, beside the column's French-door fridge.
 """
 from __future__ import annotations
 
@@ -1820,15 +1831,82 @@ def kitchen_built_ins(building: dict) -> dict:
                 out["sinks"][pid] = run["id"]
         if hints:
             out["hints"][run["id"]] = hints
+    # 31 Oct 2026 (wenart.blender.fridge_rule; user on real04 run 20261030-181158-full: "There can not be a fridge
+    # inside the kitchen counter!"): a fridge or tall piece in a run that no run holds. A drawn or full-size one (or a
+    # tall cabinet) stands on the floor in a gap of the run (the run ends at it and continues past it), before the
+    # column is planned (its spans are taken); an added under-counter-size fridge is the column's to take (one fridge
+    # per kitchen, below), else it gets its gap too
+    loose = loose_in_runs(runs, pieces, set(out["sinks"]))
+    out["fridge_rule"] = []
+    later: dict = {}
+    for pid, (run, ov, piece) in sorted(loose.items()):
+        if piece.get("type") == "fridge" and piece.get("source") != "from_documents" and not _fridge_full(piece):
+            later[pid] = (run, ov, piece)
+            continue
+        _add_run_gap(out, run, piece, ov)
     # 29 Oct 2026 (wenart.blender.kitchen_details, K1 and G3): the tall-unit column of each kitchen, the stools' side
     # of each island, the windows behind each counter run (the utensil rail stays off them): ``details`` (merged into
     # a run's hints by ``run_hints``; the plan reads them only with a style)
     out["details"] = {}
     try:
-        kitchen_details_hints(building, runs, pieces, out["hints"], out["details"])
+        kitchen_details_hints(building, runs, pieces, out["hints"], out["details"],
+                              loose_fridges={pid: rpo[0]["id"] for pid, rpo in later.items()})
     except Exception as exc:  # noqa: BLE001 - a detail that cannot be planned never stops the fit
         out["details_error"] = f"kitchen details not planned: {type(exc).__name__}: {exc}"
+    # 31 Oct 2026 (fridge_rule, rule 3): the added fridges the tall-unit column took are held by that column's run
+    # (``column_fridges``: its plan records them under ``built_ins``; the fit builds them in, the scene not again);
+    # ``moved`` keeps where each came from (the fit's guard gives one back when the plan builds no fridge unit)
+    out["moved"] = {}
+    rooms = {str(p.get("id")): p.get("room_id") for p in pieces}
+    for col_id, det in sorted(out["details"].items()):
+        for pid in det.get("column_fridges") or []:
+            src = (det.get("column_fridges_from") or {}).get(pid)
+            out["moved"][pid] = {"from": src, "to": col_id, "restore": bool(src) and pid not in later}
+            out["sinks"][pid] = col_id
+            out["fridge_rule"].append({"rule": "one_per_kitchen", "piece": str(pid), "type": "fridge",
+                                       "room_id": rooms.get(str(pid)), "run": src, "stage": "pre-pass",
+                                       "fix": f"held by the fridge unit of the tall-unit column of {col_id} (the "
+                                              "kitchen's one fridge, UL187): no model of its own in a counter run"})
+    for pid, (run, ov, piece) in sorted(later.items()):
+        if pid not in out["moved"]:
+            _add_run_gap(out, run, piece, ov)      # no column took it: it stands in a gap of its run
     return out
+
+
+def loose_in_runs(runs: list, pieces: list, claimed: set) -> dict:
+    """31 Oct 2026 (``wenart.blender.fridge_rule``): ``{piece id: (run, overlap, piece)}`` of the fridges and tall
+    pieces (``fridge_rule.RUN_SPLIT_TYPES``) with ``build`` not false that no run holds (not in ``claimed``) and that
+    reach into a counter run of their level and room (``fridge_rule.run_overlap``; the run they reach deepest into)."""
+    from wenart.blender import fridge_rule as FR
+
+    out: dict = {}
+    for p in pieces:
+        if p.get("type") not in FR.RUN_SPLIT_TYPES or p.get("build", True) is False or p.get("id") in claimed \
+                or not _usable_footprint(p):
+            continue
+        best = None
+        for run in runs:
+            if run.get("level_id") != p.get("level_id") or run.get("room_id") != p.get("room_id"):
+                continue
+            ov = FR.run_overlap(run, p)
+            if ov is not None and (best is None or ov["share"] > best[1]["share"]):
+                best = (run, ov)
+        if best is not None:
+            out[str(p["id"])] = (best[0], best[1], p)
+    return out
+
+
+def _add_run_gap(out: dict, run: dict, piece: dict, ov: dict) -> None:
+    """31 Oct 2026 (``fridge_rule``, rule 2): the run leaves a gap at ``piece`` (``out["hints"][run]["ranges"]``,
+    ``modules._range_gaps``) and the pre-pass logs the finding and the fix (``out["fridge_rule"]``)."""
+    from wenart.blender import fridge_rule as FR
+
+    entry = FR.gap_entry(run, piece, ov, FR.gap_reason(piece, run))
+    out["hints"].setdefault(run["id"], {}).setdefault("ranges", []).append(entry)
+    out["fridge_rule"].append({"rule": "in_run", "piece": str(piece["id"]), "type": piece.get("type"),
+                               "room_id": piece.get("room_id"), "run": str(run["id"]), **ov,
+                               "fix": f"gap {entry['x0_m']:+.2f}..{entry['x1_m']:+.2f} m in {run['id']}: "
+                                      + entry["reason"], "stage": "pre-pass"})
 
 
 def run_hints(kitchen: dict, piece_id) -> Optional[dict]:
@@ -1932,7 +2010,8 @@ def _taken_spans(c, rot: float, hints: dict) -> list[tuple[float, float, str]]:
     return out
 
 
-def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run: dict, details: dict) -> None:
+def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run: dict, details: dict,
+                          loose_fridges: Optional[dict] = None) -> None:
     """29 Oct 2026 (wenart.blender.kitchen_details; in place on ``details``, ``{run id: hints}``, reading the runs'
     ``hints_by_run`` of the pre-pass): per kitchen (the runs of one room) the tall-unit column (K1): the counter run end
     that is no corner, has no window, door or pass-through by it (``openings_behind``), no drawn wall cabinet over it
@@ -1945,7 +2024,11 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
     no fridge in the kitchen: an under-counter fridge (``fridge_x_m``, ``fridge_why``) in the longest run. Per island
     ``seat_side`` (``back`` / ``front``: the bar stools' side, G3); per counter run ``windows_m`` (the windows and
     pass-throughs behind it, the run's frame: the utensil rail stays off them) and ``end_kinds`` (30 Oct 2026, UL155:
-    what meets each end, ``run_end_meets``; the dishwasher beside the sink never opens into a corner)."""
+    what meets each end, ``run_end_meets``; the dishwasher beside the sink never opens into a corner). 31 Oct 2026
+    (``wenart.blender.fridge_rule``, rule 3; real04 run 20261030-181158-full: the moved fridge was built again inside
+    its old run): the column's run records the fridges it takes (``column_fridges``, with ``column_fridges_from``:
+    the run each came from), so its plan holds them; ``loose_fridges`` (``{piece id: run id}``: added under-counter-size
+    fridges no run holds that reach into a run, ``kitchen_built_ins``) are the column's to take too."""
     from wenart.blender import kitchen_details as KD
 
     def mine(run_id: str) -> dict:
@@ -1966,6 +2049,13 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
         movable = {str(given(r["id"]).get("fridge_piece")) for r in room_runs if given(r["id"]).get("fridge_piece")}
         movable = {pid for pid in movable if any(p.get("id") == pid and p.get("source") != "from_documents"
                                                  for p in room_pieces)}
+        # 31 Oct 2026 (fridge_rule): and an added under-counter-size fridge that reaches into a run no run holds
+        came_from = {str(given(r["id"]).get("fridge_piece")): r["id"] for r in room_runs
+                     if str(given(r["id"]).get("fridge_piece")) in movable}
+        for pid, rid in sorted((loose_fridges or {}).items()):
+            if any(r["id"] == rid for r in room_runs):
+                movable.add(pid)
+                came_from.setdefault(pid, rid)
         has_fridge = any(p.get("type") == "fridge" and p.get("id") not in movable
                          and (p.get("source") == "from_documents" or _fridge_full(p)) for p in room_pieces)
         for run in room_runs:                               # the windows behind a counter run, the stools' side
@@ -2057,6 +2147,12 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
                         mine(r["id"]).update(fridge_pos_m=None, fridge_x_m=None, fridge_column=False,
                                              fridge_moved=(f"the fridge {rh['fridge_piece']} stands in the tall-unit "
                                                            f"column of {run['id']} (UL187): its unit is a cupboard"))
+                if movable:
+                    # 31 Oct 2026 (fridge_rule, rule 3): the column's run holds the moved fridges (its plan's
+                    # ``built_ins``): never built again with a model of their own at their old place
+                    mine(run["id"]).update(column_fridges=sorted(movable),
+                                           column_fridges_from={pid: came_from[pid] for pid in sorted(movable)
+                                                                if pid in came_from})
             if "oven_tower" in names:
                 for r in room_runs:
                     rh = given(r["id"])
@@ -2235,6 +2331,18 @@ def wall_run_hints(cabinet: dict, run: Optional[dict], building: Optional[dict] 
         lo, hi = min(ends), max(ends)
         if m.get("kind") == "tall_unit" and lo < half - 1e-6 and hi > -half + 1e-6:
             columns.append([round(max(lo, -half), 4), round(min(hi, half), 4)])
+    # 31 Oct 2026 (wenart.blender.fridge_rule): a fridge standing in a gap of the run is a tall piece too: the wall run
+    # stops at it (a hard end), never over the fridge's top
+    for g in plan.get("gaps") or []:
+        if not g.get("fridge_rule"):
+            continue
+        ends = []
+        for x in (float(g["x_m"]) - float(g["w_m"]) / 2.0, float(g["x_m"]) + float(g["w_m"]) / 2.0):
+            wx, wy = rc[0] + math.cos(rr) * x, rc[1] + math.sin(rr) * x
+            ends.append(round((wx - cc[0]) * ux + (wy - cc[1]) * uy, 4))
+        lo, hi = min(ends), max(ends)
+        if lo < half - 1e-6 and hi > -half + 1e-6:
+            columns.append([round(max(lo, -half), 4), round(min(hi, half), 4)])
     out["joints_m"] = sorted(j for j in joints if -half - 0.01 <= j <= half + 0.01)
     if columns:
         out["column_m"] = sorted(columns)
@@ -2300,8 +2408,13 @@ def built_in_fit(piece: dict, run: dict, mode: str, style_family: Optional[str] 
         # 28 Oct 2026: a drawn stove in the run is its hob unit (at its drawn span), with the hood over it
         what = ("hob unit with the hob plate on the worktop" + (" and an oven under it" if record.get("oven") else "")
                 + (f", a {record['hood'].replace('_', '-')} hood over it" if record.get("hood") else "")
-                if kind == "hob" else "fridge-freezer column at the run's end" if record.get("column")
+                if kind == "hob" else "fridge unit of the tall-unit column" if record.get("moved")
+                else "fridge-freezer column at the run's end" if record.get("column")
                 else "under-counter fridge unit with an appliance door")
+        if record.get("moved"):
+            # 31 Oct 2026 (wenart.blender.fridge_rule, rule 3): one fridge per kitchen; the column holds the added one
+            what += (f" (the kitchen's one fridge, UL187: the added fridge moved there from "
+                     f"{record.get('moved_from') or 'its run'}; never a model of its own in a counter run)")
         how = ("the drawn stove stands in the counter run: a hob set into the worktop, never a freestanding cooker "
                "(kitchen design rule of 28 Oct 2026), at its drawn span" if built_in_module(piece) is None else
                "the completion built it into the counter: solver.built_in_kitchen")
@@ -3817,6 +3930,62 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     for piece in deferred:
         run = by_id.get(kitchen["sinks"][piece["id"]])
         fit_one(piece, run if holds_built_in(run, piece["id"]) else None)
+
+    def refit_run(run: dict) -> None:
+        """A run planned again (its hints changed) and the pieces it holds, or held, fitted again with it."""
+        fit_one(run)
+        for pid, rid in sorted(kitchen["sinks"].items()):
+            p = by_id.get(pid)
+            if rid != run["id"] or p is None:
+                continue
+            if holds_built_in(run, pid) or (p.get("asset") or {}).get("built_in") == rid:
+                fit_one(p, run if holds_built_in(run, pid) else None)
+
+    # 31 Oct 2026 (wenart.blender.fridge_rule; user on real04 run 20261030-181158-full: "There can not be a fridge
+    # inside the kitchen counter!"): the check on the fitted plans before the build, and the planner's fix. A fridge
+    # the tall-unit column was to take but whose plan built no fridge unit goes back to its run (its under-counter
+    # unit); any other fridge or tall piece standing with its own model where a run is built gets a gap of that run
+    # (the run ends at it and continues past it). Every finding and fix is logged (``project["fridge_rule"]``).
+    from wenart.blender import fridge_rule as FR
+    fridge_log: dict = {"rule": FR.RULE, "findings": list(kitchen.get("fridge_rule") or []), "open": []}
+    for _round in range(FR.GUARD_ROUNDS):
+        found = FR.findings(fitted)
+        if _round == 0:
+            fridge_log["findings"] += [dict(item, stage="guard", fix=(
+                "stands on the floor: the build ignores mount_bottom_m on a floor appliance (proxies.mount_bottom)"))
+                for item in found if item["rule"] == "off_floor"]
+        found = [item for item in found if item["rule"] == "in_run"]
+        if not found or _round == FR.GUARD_ROUNDS - 1:
+            fridge_log["open"] = found
+            break
+        for item in found:
+            piece, run = by_id.get(item["piece"]), by_id.get(item.get("run"))
+            if piece is None or run is None:
+                continue
+            moved = (kitchen.get("moved") or {}).pop(item["piece"], None)
+            back = by_id.get((moved or {}).get("from")) if (moved or {}).get("restore") else None
+            if back is not None:
+                col = (kitchen.get("details") or {}).get(moved.get("to")) or {}
+                col["column_fridges"] = [x for x in col.get("column_fridges") or [] if x != item["piece"]]
+                for key in ("fridge_pos_m", "fridge_x_m", "fridge_column", "fridge_moved"):
+                    (kitchen.get("details") or {}).get(back["id"], {}).pop(key, None)
+                kitchen["sinks"][item["piece"]] = back["id"]
+                if by_id.get(moved.get("to")) is not None:
+                    refit_run(by_id[moved["to"]])
+                refit_run(back)
+                fix = (f"the tall-unit column of {moved.get('to')} has no fridge unit to hold it: it goes back into its "
+                       f"run {back['id']} (its built-in unit)")
+            else:
+                ov = FR.run_overlap(run, piece) or {k: item[k] for k in ("x0_m", "x1_m", "depth_m", "share")}
+                entry = FR.gap_entry(run, piece, ov, FR.gap_reason(piece, run))
+                kitchen["hints"].setdefault(run["id"], {}).setdefault("ranges", []).append(entry)
+                refit_run(run)
+                fix = f"gap {entry['x0_m']:+.2f}..{entry['x1_m']:+.2f} m in {run['id']}: {entry['reason']}"
+            fridge_log["findings"].append(dict(item, stage="guard", fix=fix))
+    if fridge_log["findings"] or fridge_log["open"]:
+        project["fridge_rule"] = fridge_log
+    else:
+        project.pop("fridge_rule", None)
     for piece in walls_after:
         fit_one(piece, extra_hints=wall_run_hints(piece, wall_cabinet_run(fitted, piece), fitted))
     for item in fitted.get("decor") or []:
@@ -3890,7 +4059,8 @@ def median_size(pieces: list[dict]) -> list[float]:
     return [round(statistics.median(ws), 4), round(statistics.median(ds), 4)]
 
 
-PROJECT_FIT_KEYS = ("licence_mode", "licence_mode_source", "size_snap", "taste")
+PROJECT_FIT_KEYS = ("licence_mode", "licence_mode_source", "size_snap", "taste",
+                    "fridge_rule")        # 31 Oct 2026: the fridge rule's findings and fixes (fridge_rule)
 SNAP_PIECE_KEYS = ("size_snap", "adjusted_by_ai", "footprint", "height") + tuple(k for k, _ in DRAWN_KEYS)
 
 
@@ -4117,9 +4287,19 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
                               else "")
                   + (f"; {_bowl_across_text(across)}" if abs(across) > 0.005 else "")
                   for pid, ftype, rid, shift, across in built_ins]
-        lines += [f"- {rid}: a {float(g.get('w_m') or 0.0):.2f} m gap for the drawn {g.get('type') or 'stove'} "
+        lines += [f"- {rid}: a {float(g.get('w_m') or 0.0):.2f} m gap for the "
+                  f"{'' if g.get('fridge_rule') else 'drawn '}{g.get('type') or 'stove'} "
                   f"{g.get('id')} (no base unit, plinth or worktop there"
                   + (f"; {g['reason']}" if g.get("reason") else "") + ")" for rid, g in run_gaps]
+    # 31 Oct 2026 (wenart.blender.fridge_rule): what the fridge rule found and how the fit fixed it before the build
+    rule_log = project.get("fridge_rule") if isinstance(project, dict) else None
+    if isinstance(rule_log, dict) and (rule_log.get("findings") or rule_log.get("open")):
+        lines += ["", "## Fridge rule (31 Oct 2026: a fridge never stands on or inside a kitchen counter run)", "",
+                  f"Rule: {rule_log.get('rule')}.", ""]
+        lines += [f"- {f.get('piece')} ({f.get('type')}, {f.get('rule')}, {f.get('stage')}"
+                  + (f", run {f['run']}" if f.get("run") else "") + f"): {f.get('fix')}"
+                  for f in rule_log.get("findings") or []]
+        lines += [f"- OPEN (needs review): {f.get('message')}" for f in rule_log.get("open") or []]
     lines += ["", "## Parametric fallbacks", "", "(Milestone 13: the module builders of the ladder's step 2 are "
               "listed here too; the method column says which)"]
     if fallbacks:
