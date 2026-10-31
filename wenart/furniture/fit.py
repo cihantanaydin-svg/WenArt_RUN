@@ -2986,10 +2986,19 @@ def bed_frame_record(entry: dict, width: float, depth: float, z_scale: float) ->
 DECOR_LIBRARY_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art",
                                         "vase", "bowl", "plant_small", "table_lamp", "mirror",   # Milestone 9
                                         # Milestone 10 (docs/milestone10.md §4.6); Milestone 12 (§4.7, §6.4, B7):
-                                        # throws, curtains and blinds are our procedural textiles, never a model
+                                        # throws, curtains and blinds are our procedural textiles (UL231: curtains
+                                        # and blinds take a better library model first, textile_library_item)
                                         "books", "candle", "basket", "tray", "clock",
                                         "sculpture", "plant_large", "pendant_light", "ceiling_light")
 PROCEDURAL_DECOR_TYPES: tuple[str, ...] = ("throw", "curtain", "blind")   # wenart.blender.textiles
+# 31 Oct 2026 (lesson UL231, user: "Change the rule on the curtain etc to be use, if is needed and better library models
+# can be used"): curtains and blinds take a better library model first (the user's rank 6+, else the audit's vision
+# quality 4+, a real product of the style that stretches to its window within ``TEXTILE_STRETCH``); our textile build
+# only when none does (``library_gap`` says why). A throw drapes over its own sofa arm or bed (``seat_throw``,
+# ``rest.plan_throw``), which a fixed mesh cannot: always our build.
+TEXTILE_LIBRARY_FIRST: tuple[str, ...] = ("curtain", "blind")
+TEXTILE_STRETCH = (0.6, 1.6)      # each of the width and the drop scales within this to the window's own box
+TEXTILE_STRETCH_RATIO = 1.5       # ... and the two scales differ at most this much (no squashed pleats)
 # Milestone 12 (§4.7, B7): a cushion model keeps its real proportions: scaled uniformly to the cushion's width and
 # height (their scales may differ by at most this), its thickness then in CUSHION_THICKNESS_M.
 CUSHION_PROPORTION_CAP = 1.10
@@ -3390,6 +3399,81 @@ def library_first_item(item: dict, catalog, style_family: Optional[str], mode: s
     return _finish(asset, mode, [_step("library", f"used {entry['id']} (library first, UL215)", None)])
 
 
+def textile_library_item(item: dict, catalog, style_family: Optional[str], mode: str) -> Optional[dict]:
+    """The library asset for a curtain or a blind (``TEXTILE_LIBRARY_FIRST``; lesson UL231), or None (our textile
+    build; the item's ``library_gap`` says why). A model passes when it rates better than our build (the user's rank
+    ``user_ranks.GOOD_FROM`` or more, else the audit's vision quality ``LIBRARY_FIRST_MIN_QUALITY`` or more), is a real
+    product of the style family and its width and drop reach the item's (the window's) within ``TEXTILE_STRETCH``, the
+    two scales within ``TEXTILE_STRETCH_RATIO`` of each other; its depth follows their mean (the pleats keep their
+    depth). The best: the user's rank, the vision quality, the least stretch, the id. The asset's ``bbox_m`` is the
+    item's width and drop (``target: within``), so the build hangs it exactly where our curtain would hang."""
+    from wenart.furniture import user_ranks as UR
+
+    dtype = item.get("type", "")
+    size = [float(v) for v in (item.get("size") or [])[:3]]
+    if len(size) < 3 or min(size[0], size[2]) <= 0:
+        item["library_gap"] = {"type": dtype, "why": "no window box (width and drop) to fit a model to"}
+        return None
+    pool = decor_entries(catalog, dtype, mode)
+    if not pool:
+        item["library_gap"] = {"type": dtype, "why": f"no usable {dtype} model in the library ({mode} mode)"}
+        return None
+
+    def good(e) -> bool:
+        user = UR.better_than_procedural(e)
+        return user if user is not None else (vision_quality_of(e) or 0) >= LIBRARY_FIRST_MIN_QUALITY
+
+    better = [e for e in pool if good(e) and e.get("real_product") is not False
+              and decor_styles_match(e, style_family)]
+    lo, hi = TEXTILE_STRETCH
+    fits = []
+    for e in better:
+        bw, bd, bh = (float(v) for v in e["bbox_m"][:3])
+        if min(bw, bd, bh) <= 0:
+            continue
+        sx, sz = size[0] / bw, size[2] / bh
+        if not (lo <= sx <= hi and lo <= sz <= hi) or max(sx, sz) / min(sx, sz) > TEXTILE_STRETCH_RATIO:
+            continue
+        fits.append((e, sx, (sx + sz) / 2.0, sz))
+    if not fits:
+        item["library_gap"] = {
+            "type": dtype, "candidates": len(pool),
+            "why": (f"none of {len(pool)} usable {dtype} model(s) rates better than our build (user rank "
+                    f"{UR.GOOD_FROM}+ or vision quality {LIBRARY_FIRST_MIN_QUALITY}+ in the style)" if not better else
+                    f"none of the {len(better)} better {dtype} model(s) stretches to the window's "
+                    f"{size[0]:.2f} x {size[2]:.2f} m within {lo}-{hi}")}
+        return None
+
+    def rank(f):
+        e, sx, sy, sz = f
+        user = UR.rank_of(e)
+        return (-(user if user is not None else UR.UNRANKED), -(vision_quality_of(e) or 0),
+                round(abs(math.log(sx)) + abs(math.log(sz)), 4), str(e["id"]))
+
+    ordered = sorted(fits, key=rank)
+    entry, sx, sy, sz = ordered[0]
+    bd = float(entry["bbox_m"][1])
+    asset = {
+        "library": entry.get("source") or "3dwh", "asset_id": entry["id"], "licence": entry.get("licence"),
+        "license": entry.get("licence"), "method": "library", "decor_type": dtype,
+        "fit_scale": [round(sx, 4), round(sy, 4), round(sz, 4)],
+        "bbox_m": [round(size[0], 4), round(bd * sy, 4), round(size[2], 4)], "target": "within", "turned_deg": 0.0,
+        "front_axis": entry.get("front_axis", "-Y"), "up_axis": entry.get("up_axis", "+Z"),
+        "origin_offset": list(entry.get("origin_offset") or [0.0, 0.0, 0.0]),
+        "front_axis_confidence": entry.get("front_axis_confidence"), "styles": list(entry.get("styles") or []),
+        "style_family": style_family, "quality": vision_quality_of(entry),
+        "pick": {"rule": "textile_library_first (UL231)", "ids": [f[0]["id"] for f in ordered],
+                 "of_type": len(pool), "better": len(better)},
+    }
+    if entry.get("glb"):
+        asset.update({k: entry[k] for k in GLB_ASSET_FIELDS if k in entry})
+        asset["unit_scale"] = float(entry.get("unit_scale") or 1.0)
+    else:
+        asset["gltf"] = entry["gltf"]
+    asset["licence_flag"] = C.licence_flag_of(entry)
+    return _finish(asset, mode, [_step("library", f"used {entry['id']} (better than our {dtype}, UL231)", None)])
+
+
 def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
                    mode: str = "commercial", host: Optional[dict] = None) -> Optional[dict]:
     """``asset`` for a decor item (docs/milestone8.md §4): one of the catalogue's decor models of its type
@@ -3401,6 +3485,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     dtype = item.get("type", "")
     if dtype in LIBRARY_FIRST and not (item.get("tv") or {}).get("mount") == "wall":
         return library_first_item(item, catalog, style_family, mode)          # UL215: the library first
+    if dtype in TEXTILE_LIBRARY_FIRST:
+        return textile_library_item(item, catalog, style_family, mode)        # UL231: a better curtain model first
     if dtype in SMALL_ITEM_HOSTS:
         # 31 Oct 2026 (user on real04 run 20261030-181158-full: "check the library of similar things exist to use"):
         # a towel shelf's or an installation wall's small items take the library first (``small_items``)

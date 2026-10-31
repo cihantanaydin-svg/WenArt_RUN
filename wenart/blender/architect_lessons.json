@@ -2740,6 +2740,18 @@
    "request": "There seems to be something wrong in the marked area find what is wrong and fix it (31 Oct 2026, real04 run 20261030-181158-full, the L-1 level view: the garden behind the house, 2.3 m above the basement floor, hid the back rooms as if grass covered them): the angled level views cut the ground and the outdoor surfaces at the walls' cut height",
    "lesson": "There seems to be something wrong in the marked area find what is wrong and fix it (31 Oct 2026, real04 run 20261030-181158-full, the L-1 level view: the garden behind the house, 2.3 m above the basement floor, hid the back rooms as if grass covered them): the angled level views cut the ground and the outdoor surfaces at the walls' cut height",
    "question": "Does the ground or an outdoor surface above a level view's cut hide any room of the level?"
+  },
+  {
+   "id": "UL231",
+   "date": "2026-10-31",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Change the rule on the curtain etc to be use, if is needed and better library models can be used (31 Oct 2026: curtains and blinds were always our procedural textiles, never a library model; now a better library model comes first: the user's rank 6+, else vision quality 4+, a real product of the style that stretches to its window within 0.6-1.6; our build only when none does, library_gap says why; throws drape over their host and stay ours)",
+   "lesson": "Change the rule on the curtain etc to be use, if is needed and better library models can be used (31 Oct 2026: curtains and blinds were always our procedural textiles, never a library model; now a better library model comes first: the user's rank 6+, else vision quality 4+, a real product of the style that stretches to its window within 0.6-1.6; our build only when none does, library_gap says why; throws drape over their host and stay ours)",
+   "question": "Does every curtain and blind use a library model where one rates better than our build (user rank 6+ or vision 4+, the style, stretches to the window), and our textile build only where none does, with the reason?"
   }
  ]
 }
