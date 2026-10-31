@@ -165,9 +165,73 @@ def world_box(objects):
     return lo, hi
 
 
+def prop_box(spec, name):
+    """A studio prop of ``studio.decor_stage`` (a plinth, a backdrop wall, a ceiling panel): a plain matte box, never
+    part of the framed model; a prop with ``shadow`` false casts none (a ceiling panel over a light)."""
+    (x0, y0, z0), (x1, y1, z1) = spec["min"], spec["max"]
+    verts = [(x, y, z) for z in (z0, z1) for y in (y0, y1) for x in (x0, x1)]
+    faces = [(0, 2, 3, 1), (4, 5, 7, 6), (0, 1, 5, 4), (2, 6, 7, 3), (0, 4, 6, 2), (1, 3, 7, 5)]
+    me = bpy.data.meshes.new(name)
+    me.from_pydata(verts, [], faces)
+    me.update()
+    ob = bpy.data.objects.new(name, me)
+    ob.data.materials.append(matte(f"{name}_mat", tuple(spec.get("rgb") or (0.8, 0.8, 0.8))))
+    if not spec.get("shadow", True):
+        try:
+            ob.visible_shadow = False
+        except AttributeError:
+            pass
+    bpy.context.scene.collection.objects.link(ob)
+    return ob
+
+
+def one_decor(job, doc, scene, cam, library):
+    """A decor or extras model on its stage (``job["stage"]``, ``studio.decor_stage``): the props, then the item built
+    by the scene builder itself (``furniture.create_furniture`` on a building with that one decor item and no piece:
+    ``_create_decor`` / ``_create_wall_art``, the fit's asset at the model's own size, the file's own materials; a
+    pendant's cord and canopy up to the stage's ceiling), the stage's camera on the built box (model and cord)."""
+    from wenart.blender import furniture as F
+
+    stage = job["stage"]
+    col = bpy.data.collections.new("studio_piece")
+    scene.collection.children.link(col)
+    props = [prop_box(p, f"studio_{p['kind']}_{i}") for i, p in enumerate(stage.get("props") or [])]
+    level = {"id": "L0", "elevation": 0.0, "elevation_m": 0.0, "height": 6.0, "height_m": 6.0, "name": "studio",
+             "ceiling_height": float(stage["ceiling_m"])}
+    item = stage["item"]
+    building = {"project": {"id": "studio"}, "levels": [level], "rooms": [], "walls": [], "openings": [],
+                "furniture": [], "decor": [item]}
+    assumed, warnings, manifest = [], [], []
+    style = job.get("style") or doc.get("style") or {}
+    summary = F.create_furniture(building, level, col, library, style, doc.get("assets"), {},
+                                 manifest, assumed, warnings)
+    entry = next((m for m in manifest if m.get("decor_id") == item["id"] or m.get("wenart_id") == item["id"]), {})
+    method = entry.get("method") or "?"
+    rec = {"method": method, "fallback_reason": entry.get("fallback_reason"), "warnings": warnings[:20],
+           "stage": stage["kind"], "skipped": summary.get("decor_skipped") or [],
+           "hang": entry.get("hang"), "mount": entry.get("mount")}
+    if method != "library":                     # the user ranks the model, never our fallback
+        rec["error"] = f"not built as asked: {method}" + (
+            f" ({rec['skipped'][0].get('reason')})" if rec["skipped"] else "")
+        return rec, col, props
+    lo, hi = world_box(list(col.all_objects))
+    rec["box_min"], rec["box_max"] = [round(v, 4) for v in lo], [round(v, 4) for v in hi]
+    lights = place_lights(lo, hi)
+    spec = S.camera(lo, hi, dict(doc["settings"], **(stage.get("camera") or {})))
+    look(cam, spec)
+    rec["camera"] = spec
+    scene.render.filepath = job["image"]
+    Path(job["image"]).parent.mkdir(parents=True, exist_ok=True)
+    bpy.ops.render.render(write_still=True)
+    rec["ok"] = Path(job["image"]).is_file()
+    return rec, col, props + lights
+
+
 def one(job, doc, scene, cam, library, keep):
     from wenart.blender import furniture as F
 
+    if job.get("stage"):                        # 31 Oct 2026: the remaining batch's decor and extras models
+        return one_decor(job, doc, scene, cam, library)
     col = bpy.data.collections.new("studio_piece")
     scene.collection.children.link(col)
     level = {"id": "L0", "elevation": 0.0, "elevation_m": 0.0, "height": 6.0, "height_m": 6.0, "name": "studio"}

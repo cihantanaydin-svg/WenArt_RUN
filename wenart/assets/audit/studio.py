@@ -16,7 +16,13 @@ What:
 - ``fit_distance(...)``, ``camera(...)``: the front 3/4 view that frames the built model's box (the same camera for
   every model: azimuth, elevation, lens; only the distance follows the size);
 - ``compose_sheets(...)``: the lettered sheets (``sheets/<type>-NN.jpg``) and one tile per model
-  (``tiles/<type>/<id>.jpg``) for the scoring page.
+  (``tiles/<type>/<id>.jpg``) for the scoring page;
+- ``--batch remaining`` (31 Oct 2026, user: "include all remaining library models for ranking after the real04 run"):
+  ``remaining_entries`` = every library model the pipeline may use that no committed sheet shows (the decor models,
+  the extras the fit takes first, the small items' models, any furniture type outside ``ALL_TYPES``), each built by
+  the scene builder as a decor item with the fit's own asset at its own size on the stage of its kind
+  (``decor_stage``: a plinth, the floor, a backdrop wall, a ceiling panel); its own index
+  (``ranking_index_remaining.json``) and sheets named by type, the committed ids, sheets and letters untouched.
 
 Why: the user ranks the models on their look alone: one studio, one light, one camera angle, a neutral floor and
 backdrop; the score goes to ``results/library/user_ranks.json`` and the fit prefers the higher rank
@@ -106,6 +112,7 @@ def studio_piece(entry: dict) -> dict:
 PROC_TAG = "ours"
 PROC_EXCLUDE = ("bed", "stair", "unknown")        # an alias, a piece of the building, no type
 PROC_STYLE_DIR = Path(__file__).resolve().parents[3] / "results" / "baseline" / "latest" / "run"
+RANKING_DIR = Path(__file__).resolve().parents[3] / "results" / "library" / "ranking"   # the committed sheets
 # the code that shapes our builds and their materials: a change re-renders them (the "after" sheets)
 PROC_CODE = ("wenart/blender/parametric.py", "wenart/blender/modules.py", "wenart/blender/materials.py",
              "wenart/blender/furniture.py", "wenart/blender/textiles.py", "wenart/style/vocabulary.py")
@@ -188,12 +195,293 @@ def procedural_piece(e: dict) -> dict:
     return dict(piece, asset=asset)
 
 
+# --------------------------------------------------------------------------
+# The remaining library models (31 Oct 2026, user: "include all remaining library models for ranking after the real04
+# run"): the decor models, the extras the fit takes first, the small items' models and any furniture type not on the
+# sheets yet, each on a stage of its kind
+# --------------------------------------------------------------------------
+
+REMAINING = "remaining"            # the batch: ranking_index_remaining.json, studio_results_remaining.json
+DECOR_STUDIO_VERSION = "ul217.decor1"
+STUDIO_ITEM_ID = "studio_item"
+SMALL_PREFIX = "small_"            # a small item's kind as a sheet type (small_potted_plant: never a furniture name)
+SMALL_BUILD_TYPE = "vase"          # ... built as a tabletop decor item within its own box
+# the page's groups of tabs, in this order (a type in none: Furniture; a procedural group: Our builds)
+TAB_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("Textiles", ("cushion", "throw", "rug", "curtain", "blind")),
+    ("Lights", ("table_lamp", "pendant_light", "ceiling_light")),
+    ("Wall decor", ("wall_art", "mirror", "clock")),
+    ("Plants", ("plant", "plant_large", "plant_small")),
+    ("Tabletop", ("vase", "bowl", "books", "candle", "basket", "tray", "sculpture")),
+    ("Electronics", ("tv", "monitor", "laptop", "microwave")),
+)
+GROUP_OURS, GROUP_FURNITURE, GROUP_SMALL = "Our builds", "Furniture", "Small items"
+# --types names a type or one of these (the pod job's RANK_TYPES with RANK_BATCH=remaining)
+TYPE_ALIASES: dict[str, tuple[str, ...]] = {
+    "decor": tuple(t for name, ts in TAB_GROUPS if name != "Electronics" for t in ts),
+    "textiles": TAB_GROUPS[0][1], "lights": TAB_GROUPS[1][1], "wall": TAB_GROUPS[2][1], "plants": TAB_GROUPS[3][1],
+    "tabletop": TAB_GROUPS[4][1], "electronics": TAB_GROUPS[5][1], "extras": TAB_GROUPS[5][1]}
+# the stage of each kind (heights in metres over the studio floor)
+STAGE = {"plinth_h_m": 0.45, "plinth_margin": 1.25, "plinth_min_m": 0.30, "wall_eye_m": 1.50, "wall_full_m": 1.40,
+         "full_bottom_m": 0.02, "textile_top_m": 2.30, "textile_bottom_min_m": 0.01, "light_bottom_m": 1.20,
+         "cord_m": 0.35, "backdrop_gap_m": 0.03, "backdrop_depth_m": 0.05, "ceiling_min_m": 3.0, "headroom_m": 0.6,
+         "rug_lift_m": 0.001, "panel_min_m": 0.6, "panel_margin": 1.4, "panel_t_m": 0.02}
+# the camera of each stage (azimuth / elevation over the furniture studio's; the distance still follows the box)
+STAGE_CAMERAS: dict[str, dict] = {"plinth": {}, "floor": {}, "rug": {"elevation_deg": 55.0},
+                                  "wall": {"azimuth_deg": 18.0, "elevation_deg": 4.0},
+                                  "window": {"azimuth_deg": 25.0, "elevation_deg": 6.0},
+                                  "pendant": {"azimuth_deg": 30.0, "elevation_deg": -4.0},
+                                  "flush": {"azimuth_deg": 30.0, "elevation_deg": -10.0}}
+PROP_RGB = {"plinth": [0.62, 0.60, 0.57], "backdrop": [0.80, 0.78, 0.75], "panel": [0.86, 0.85, 0.83]}
+
+
+def tab_group(rank_type: str, procedural: bool = False) -> str:
+    """The page's group of a sheet type: ``Our builds`` (our procedural builds), a decor or extras group
+    (``TAB_GROUPS``), ``Small items`` (``small_<kind>``), else ``Furniture``."""
+    if procedural:
+        return GROUP_OURS
+    if str(rank_type).startswith(SMALL_PREFIX):
+        return GROUP_SMALL
+    for name, types in TAB_GROUPS:
+        if rank_type in types:
+            return name
+    return GROUP_FURNITURE
+
+
+def committed_ids(folder: Optional[Path] = None, skip: tuple = (REMAINING,)) -> set:
+    """The model ids on the committed sheets (``ranking_index.json`` and every ``ranking_index_<tag>.json`` but the
+    ``skip`` batches): a model there is never put on a new sheet (its id, sheet and letter stay)."""
+    folder = Path(folder) if folder is not None else RANKING_DIR
+    ids: set = set()
+    for f in sorted(folder.glob("ranking_index*.json")):
+        tag = f.stem[len("ranking_index_"):] if f.stem.startswith("ranking_index_") else ""
+        if tag in skip:
+            continue
+        try:
+            ids.update((json.loads(f.read_text(encoding="utf-8")).get("models") or {}).keys())
+        except ValueError:
+            continue
+    return ids
+
+
+def committed_sheets(folder: Optional[Path] = None, skip: tuple = (REMAINING,)) -> set:
+    """The sheet names of the committed indexes (but the ``skip`` batches): a new sheet never takes one."""
+    folder = Path(folder) if folder is not None else RANKING_DIR
+    names: set = set()
+    for f in sorted(folder.glob("ranking_index*.json")):
+        tag = f.stem[len("ranking_index_"):] if f.stem.startswith("ranking_index_") else ""
+        if tag in skip:
+            continue
+        try:
+            names.update(s.get("sheet") for s in json.loads(f.read_text(encoding="utf-8")).get("sheets") or [])
+        except ValueError:
+            continue
+    return {n for n in names if n}
+
+
+def _studio_entry(entry: dict, rank_type: str, studio: str, build_type: str) -> dict:
+    """A catalogue entry as a studio row: ``type`` = the sheet type (the decor type, the extras type, ``small_<kind>``),
+    ``catalog_type`` its catalogue type, ``studio`` (decor | extra | small) and ``build_type`` (the decor type the
+    scene builder builds it as)."""
+    return dict(entry, type=rank_type, catalog_type=entry.get("type"), studio=studio, build_type=build_type)
+
+
+def remaining_types() -> list[str]:
+    """Every sheet type of the remaining batch in page order (the decor and extras groups; small items and furniture
+    types follow as found)."""
+    return [t for _name, ts in TAB_GROUPS for t in ts]
+
+
+def remaining_entries(mode: str = "relaxed", catalog=None, done: Optional[set] = None,
+                      types: Optional[list[str]] = None) -> list[dict]:
+    """The library models the pipeline may use that no committed sheet shows (``committed_ids``), as studio rows:
+
+    - the decor models of every decor type the fit takes a library model for (``fit.DECOR_LIBRARY_TYPES``), the
+      curtains and blinds (``fit.TEXTILE_LIBRARY_FIRST``) and the throws: ``fit.decor_entries`` (usable in ``mode``;
+      a model the user ranked 0-2 is out there already);
+    - the extras the fit takes first (``fit.LIBRARY_FIRST``: laptops, monitors, microwaves, TVs; usable, with a GLB);
+    - the small items' models (``small_items.candidates`` of every kind) that no decor type lists (``small_<kind>``);
+    - the furniture models (``rank_entries``) of any type not in ``ALL_TYPES``.
+
+    Each id once (the first type of the page order), in page order, then by id. ``types``: sheet types or the names of
+    ``TYPE_ALIASES`` (None: all)."""
+    from wenart.furniture import catalog as C
+    from wenart.furniture import fit as F
+    from wenart.furniture import small_items as SI
+    catalog = catalog if catalog is not None else C.load()
+    done = committed_ids() if done is None else set(done)
+    want = None
+    if types:
+        want = {x for t in types for x in TYPE_ALIASES.get(t, (t,))}
+    rows: list[dict] = []
+    seen: set = set(done)
+
+    def add(e: dict, rank_type: str, studio: str, build_type: str) -> None:
+        if str(e["id"]) in seen or (want is not None and rank_type not in want):
+            return
+        seen.add(str(e["id"]))
+        rows.append(_studio_entry(e, rank_type, studio, build_type))
+
+    for t in remaining_types():
+        if t in F.LIBRARY_FIRST:
+            etype = F.LIBRARY_FIRST[t][0]
+            pool = [e for e in getattr(catalog, "extras", None) or [] if e.get("type") == etype and e.get("id")
+                    and e.get("glb") and e.get("bbox_m") and C.usable(e, mode)]
+            for e in sorted(pool, key=lambda x: str(x["id"])):
+                add(e, t, "extra", t)
+        else:
+            for e in F.decor_entries(catalog, t, mode):
+                add(e, t, "decor", t)
+    for kind in sorted(SI.ITEMS):
+        for e in SI.candidates(kind, catalog, mode):
+            add(e, SMALL_PREFIX + kind, "small", SMALL_BUILD_TYPE)
+    known = set(ALL_TYPES) | set(PROC_EXCLUDE)
+    models = [e for e in getattr(catalog, "entries", None) or [] if isinstance(e, dict) and e.get("id")
+              and not e.get("parametric") and (e.get("glb") or e.get("gltf"))]
+    others = sorted({str(e.get("type")) for e in models
+                     if e.get("type") not in known and not str(e.get("type")).startswith("decor_")})
+    for e in rank_entries(others, mode, [e for e in models if e.get("type") in others]) if others else []:
+        if str(e["id"]) not in seen and (want is None or e["type"] in want):
+            seen.add(str(e["id"]))
+            rows.append(e)
+    return rows
+
+
+def _box(entry: dict) -> list[float]:
+    return [float(v) for v in entry["bbox_m"][:3]]
+
+
+def studio_asset(e: dict) -> dict:
+    """The fit's own asset record of a decor or extras model at its own size: ``fit.decor_model_asset`` (a rug flat at
+    its thickness cap and a wall piece hung at its width by ``fit._decor_fit``, every other piece ``within`` its own
+    box; a wall piece narrower than the build's least width is scaled up to it, as a house's item would be), or
+    ``fit.library_first_asset`` at the fit's scale for an extras model."""
+    from wenart.blender import furniture as BF
+    from wenart.furniture import fit as F
+    dtype = e["build_type"]
+    if e.get("studio") == "extra":
+        return F.library_first_asset(e, dtype, F.library_first_scale(e, dtype))
+    w, d, h = _box(e)
+    f = None
+    if dtype == "rug":
+        f = F._decor_fit(e, {"size": [w, d]}, dtype)
+    elif dtype in F.WALL_DECOR_TYPES:
+        width = max(w, BF.WALL_ART_MIN_WIDTH_M + 0.001)        # the build refuses a narrower wall piece
+        f = F._decor_fit(e, {"size": [width, d]}, dtype)
+    if f is None:
+        f = F.own_size_fit(e)
+    return F.decor_model_asset(e, dtype, f)
+
+
+def stage_kind(e: dict, asset: Optional[dict] = None) -> str:
+    """The stage of a studio row (pure): ``wall`` (wall art, mirror, clock), ``window`` (curtain, blind), ``pendant``
+    or ``flush`` (the ceiling lights), ``rug``, ``floor`` (a floor-class piece tall enough to stand there:
+    ``rest.floor_class_problem`` of its height and title is None), else ``plinth`` (tabletop pieces, small items,
+    cushions, throws, baskets, the extras)."""
+    from wenart.blender import rest as RS
+    from wenart.furniture import fit as F
+    dtype = e["build_type"]
+    if dtype in F.WALL_DECOR_TYPES:
+        return "wall"
+    if dtype in F.TEXTILE_LIBRARY_FIRST:
+        return "window"
+    if dtype == "pendant_light":
+        return "pendant"
+    if dtype == "ceiling_light":
+        return "flush"
+    if dtype == "rug":
+        return "rug"
+    if dtype in RS.FLOOR_MIN_H_M:
+        h = float((asset or {}).get("bbox_m", _box(e))[2])
+        if RS.floor_class_problem(dtype, h, e.get("title") or e.get("name")) is None:
+            return "floor"
+    return "plinth"
+
+
+def _prop(kind: str, lo: list, hi: list, shadow: bool = True) -> dict:
+    return {"kind": kind, "min": [round(v, 4) for v in lo], "max": [round(v, 4) for v in hi], "shadow": shadow,
+            "rgb": PROP_RGB[kind]}
+
+
+def decor_stage(e: dict) -> dict:
+    """The studio job of a decor or extras model (pure): ``{"kind", "item", "props", "ceiling_m", "camera"}``. The item
+    is a decor item as the decor stage writes it (``id`` ``studio_item``, no host, the fit's asset at its own size,
+    ``studio_asset``) that the scene builder builds as in a house (``furniture.create_furniture``: ``_create_decor``,
+    ``_create_wall_art``):
+
+    - ``plinth``: on a plain plinth (``STAGE["plinth_h_m"]`` high, a little wider than the piece): the item's
+      ``center[2]`` is the plinth's top, so it stands there (never "on the floor": UL151);
+    - ``floor``: on the studio floor; ``rug``: flat on the floor (lifted ``rug_lift_m``), seen from higher up;
+    - ``wall``: on a plain backdrop wall (``wall_point`` on its face), its centre at eye height ``wall_eye_m`` (a
+      mirror taller than ``wall_full_m``: just above the floor, a full-length mirror);
+    - ``window``: hung in front of the backdrop wall at its real height, its top at ``textile_top_m`` (a longer one
+      to the floor);
+    - ``pendant`` / ``flush``: hung from a small ceiling panel at the level's ceiling (``ceiling_m``) with its bottom
+      at ``light_bottom_m``: a pendant gets ``cord_m`` of cord and its canopy, a ceiling light sits flush.
+
+    The camera keeps the furniture studio's lens and margin; its angle is the stage's (``STAGE_CAMERAS``)."""
+    st = STAGE
+    asset = studio_asset(e)
+    w, d, h = (float(v) for v in asset["bbox_m"][:3])
+    kind = stage_kind(e, asset)
+    item = {"id": STUDIO_ITEM_ID, "type": e["build_type"], "level_id": "L0", "room_id": "studio",
+            "status": "verified", "method": "rule", "rotation_deg": 0.0, "size": [round(w, 4), round(d, 4),
+                                                                                round(h, 4)], "asset": asset}
+    props: list[dict] = []
+    top = h
+    if kind == "plinth":
+        side = max(st["plinth_min_m"], st["plinth_margin"] * max(w, d))
+        ph = st["plinth_h_m"]
+        item["center"] = [0.0, 0.0, ph]
+        props.append(_prop("plinth", [-side / 2, -side / 2, 0.0], [side / 2, side / 2, ph]))
+        top = ph + h
+    elif kind == "floor":
+        item["center"] = [0.0, 0.0]
+    elif kind == "rug":
+        item["center"] = [0.0, 0.0, st["rug_lift_m"]]
+    elif kind in ("wall", "window"):
+        if kind == "wall":                                   # a full-length mirror stands just above the floor
+            full = e["build_type"] == "mirror" and h > st["wall_full_m"]
+            bottom = st["full_bottom_m"] if full else max(st["full_bottom_m"], st["wall_eye_m"] - h / 2)
+            item.update({"center": [0.0, 0.0], "wall_point": [0.0, 0.0], "bottom_m": round(bottom, 4), "gap_m": 0.0})
+        else:
+            bottom = max(st["textile_bottom_min_m"], st["textile_top_m"] - h)
+            item["center"] = [0.0, round(-(d / 2.0 + st["backdrop_gap_m"]), 4), round(bottom, 4)]
+        top = bottom + h
+    else:                                                     # pendant, flush
+        bottom = st["light_bottom_m"]
+        item["center"] = [0.0, 0.0, bottom]
+        top = bottom + h + (st["cord_m"] if kind == "pendant" else 0.0)
+    ceiling = round(top if kind in ("pendant", "flush") else max(st["ceiling_min_m"], top + st["headroom_m"]), 4)
+    if kind in ("wall", "window"):
+        half = max(2.0, 1.5 * w)
+        props.append(_prop("backdrop", [-half, 0.0, 0.0], [half, st["backdrop_depth_m"], ceiling]))
+    if kind in ("pendant", "flush"):
+        half = max(st["panel_min_m"], st["panel_margin"] * max(w, d)) / 2.0
+        props.append(_prop("panel", [-half, -half, ceiling], [half, half, ceiling + st["panel_t_m"]], shadow=False))
+    return {"kind": kind, "item": item, "props": props, "ceiling_m": ceiling, "camera": dict(STAGE_CAMERAS[kind])}
+
+
+def is_decor_row(entry: dict) -> bool:
+    return entry.get("studio") in ("decor", "extra", "small")
+
+
+def check_sheet_names(sheets: list[dict], taken: set) -> None:
+    """A new batch's sheet never takes a committed sheet's name (ids, sheets and letters of the committed batches stay
+    as they are)."""
+    clash = sorted({s["sheet"] for s in sheets} & set(taken))
+    if clash:
+        raise ValueError(f"the new sheets would take committed sheet names: {clash[:8]}")
+
+
 def job_sha(entry: dict, settings: dict) -> str:
     keys = ("glb", "gltf", "sha256_glb", "bbox_m", "unit_scale", "origin_offset", "front_axis", "up_axis",
             "bed_frame", "deck_height_m", "has_mattress", "has_bedding", "has_cushions", "material_slots")
     body = {"v": STUDIO_VERSION, "entry": {k: entry.get(k) for k in keys}, "settings": settings}
     if entry.get("procedural"):                   # our build: its code and its style decide the picture
         body["procedural"] = {"code": entry.get("code_sha"), "style": entry.get("style_name"), "id": entry["id"]}
+    if is_decor_row(entry):                       # a decor or extras model: its stage decides the picture
+        body["decor"] = {"v": DECOR_STUDIO_VERSION, "type": entry["type"], "stage": decor_stage(entry)}
     return hashlib.sha256(json.dumps(body, sort_keys=True, default=str).encode("utf-8")).hexdigest()
 
 
@@ -231,6 +519,8 @@ def index_doc(entries: list[dict], sheets: list[dict]) -> dict:
             if e.get("procedural"):
                 models[iid].update({"group": e.get("group"), "procedural": True, "style": e.get("style_name"),
                                     "method": e.get("method")})
+            if is_decor_row(e):                   # the remaining batch: its catalogue type and kind
+                models[iid].update({"catalog_type": e.get("catalog_type"), "studio": e.get("studio")})
     return {"schema_version": 1, "kind": "ranking_index", "version": STUDIO_VERSION, "lesson": "UL217",
             "per_sheet": PER_SHEET, "types": list(dict.fromkeys(s["type"] for s in sheets)), "sheets": sheets,
             "models": models}
@@ -264,6 +554,8 @@ def plan(entries: list[dict], assets: Path, work: Path, settings: Optional[dict]
                "image": str(image_path(work, e["id"]))}
         if e.get("procedural"):
             job.update({"procedural": True, "piece": procedural_piece(e), "style": e["style"]})
+        elif is_decor_row(e):                     # a decor or extras model on its stage (decor_stage)
+            job["stage"] = decor_stage(e)
         else:
             job["piece"] = studio_piece(e)
         jobs.append(job)
@@ -401,12 +693,30 @@ def results_doc(index: dict, work: Path) -> dict:
 # CLI
 # --------------------------------------------------------------------------
 
+def batch_entries(batch: str = "", types: Optional[list[str]] = None, mode: str = "relaxed",
+                  procedural: bool = False, proc_tag: str = PROC_TAG) -> list[dict]:
+    """The models of one studio run: our builds (``procedural``), the ``remaining`` batch (``remaining_entries``,
+    ``types`` narrowing it), else the furniture of ``types`` (default ``RANK_TYPES``)."""
+    if procedural:
+        return procedural_entries(tag=proc_tag)
+    if batch == REMAINING:
+        return remaining_entries(mode, types=list(types) if types else None)
+    if batch:
+        raise ValueError(f"unknown batch {batch!r} (known: {REMAINING})")
+    return rank_entries(list(types) if types else RANK_TYPES, mode)
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     from wenart.assets.audit import EXIT_OK
     from wenart.assets.audit import render as R
     ap = argparse.ArgumentParser(prog="python -m wenart.assets.audit.studio", description=__doc__.split("\n\n")[0])
     ap.add_argument("action", choices=("plan", "render", "sheets"))
-    ap.add_argument("--types", default=",".join(RANK_TYPES))
+    ap.add_argument("--types", default="",
+                    help="comma list of types (default: bed_double,sofa,armchair; with --batch every type of the batch;"
+                         f" there also the groups {', '.join(sorted(TYPE_ALIASES))})")
+    ap.add_argument("--batch", default="", choices=("", REMAINING),
+                    help="remaining: every library model the pipeline may use that no committed sheet shows (decor, "
+                         "the extras the fit takes first, small items, other furniture types)")
     ap.add_argument("--mode", default="relaxed")
     ap.add_argument("--assets", default="/workspace/assets")
     ap.add_argument("--work", default="/workspace/library-ranking/work")
@@ -421,13 +731,17 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--proc-tag", default=PROC_TAG, help="the group, id prefix and file suffix of our builds")
     a = ap.parse_args(argv)
     types = [t for t in a.types.split(",") if t]
-    entries = procedural_entries(tag=a.proc_tag) if a.procedural else rank_entries(types, a.mode)
-    suffix = f"_{a.proc_tag}" if a.procedural else ""
+    entries = batch_entries(a.batch, types, a.mode, procedural=a.procedural, proc_tag=a.proc_tag)
+    suffix = f"_{a.proc_tag}" if a.procedural else (f"_{a.batch}" if a.batch else "")
+    if a.batch:
+        types = types or ["all"]
     if a.limit:
         kept: dict = {}
         entries = [e for e in entries if kept.setdefault(e.get("group") or e["type"], []).append(e)
                    or len(kept[e.get("group") or e["type"]]) <= a.limit]
     sheets = sheet_plan(entries)
+    if a.batch:                                   # a new batch never takes a committed sheet's name
+        check_sheet_names(sheets, committed_sheets(skip=(a.batch,)))
     index = index_doc(entries, sheets)
     out, work = Path(a.out), Path(a.work)
     out.mkdir(parents=True, exist_ok=True)
@@ -438,7 +752,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     print(f"ranking studio: {len(entries)} model(s) of {types}: {len(doc['jobs'])} to render, {len(doc['skipped'])} "
           f"current, {len(doc['missing'])} file(s) missing; {len(sheets)} sheet(s)")
     if a.action == "plan":
-        (out / "studio_plan.json").write_text(json.dumps({k: v for k, v in doc.items() if k != "jobs"} | {
+        (out / f"studio_plan{suffix}.json").write_text(json.dumps({k: v for k, v in doc.items() if k != "jobs"} | {
             "jobs": [j["id"] for j in doc["jobs"]]}, indent=1) + "\n", encoding="utf-8")
         return EXIT_OK
     code = EXIT_OK

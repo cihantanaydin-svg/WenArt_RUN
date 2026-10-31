@@ -23,6 +23,15 @@
 # Env (all optional): RANK_TYPES (comma list), RANK_WORKERS (default 4), RANK_ROOT, RANK_SAMPLES, WENART_ASSETS;
 # RANK_PROCEDURAL=1 renders our own builds instead (every parametric and module builder in the projects' styles,
 # 31 Oct 2026), RANK_PROC_TAG (default ours) names them: ranking_index_<tag>.json, studio_results_<tag>.json.
+# RANK_BATCH=remaining (31 Oct 2026, user: "include all remaining library models for ranking after the real04 run"):
+# every library model the pipeline may use that no committed sheet shows (the decor models, the extras the fit takes
+# first, the small items' models, any other furniture type), each on the stage of its kind (studio.decor_stage: a
+# plinth, the floor, a backdrop wall, a ceiling panel); RANK_TYPES then narrows it (types or the groups decor,
+# textiles, lights, wall, plants, tabletop, electronics); ranking_index_remaining.json, studio_results_remaining.json,
+# new sheets named by type (the committed sheets keep their names, ids and letters).
+#
+#   scripts/gpu_run.py run --job scripts/jobs/library_ranking.sh --env RANK_BATCH=remaining --max-minutes 45 \
+#     --purpose "UL217 batch 3: ranking studio of the remaining library models (decor, extras)"
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"
@@ -40,7 +49,9 @@ ASSETS="${WENART_ASSETS:-$WS/assets}"
 RANK_ROOT="${RANK_ROOT:-$WS/library-ranking}"
 WORK="$RANK_ROOT/work"
 OUT="$RESULTS/library/ranking"
-RANK_TYPES="${RANK_TYPES:-bed_double,sofa,armchair}"
+RANK_BATCH="${RANK_BATCH:-}"
+RANK_TYPES="${RANK_TYPES:-}"
+if [ -z "$RANK_TYPES" ] && [ -z "$RANK_BATCH" ]; then RANK_TYPES="bed_double,sofa,armchair"; fi
 RANK_WORKERS="${RANK_WORKERS:-4}"
 RANK_PROCEDURAL="${RANK_PROCEDURAL:-0}"
 RANK_PROC_TAG="${RANK_PROC_TAG:-ours}"
@@ -92,12 +103,17 @@ run_step() {
 
 cd "$REPO"
 mkdir -p "$RESULTS" "$JOB_DIR" "$WORK" "$OUT" "$ASSETS"
-log "job $JOB: types [$RANK_TYPES], workers $RANK_WORKERS, root $RANK_ROOT, assets $ASSETS," \
+log "job $JOB: batch [${RANK_BATCH:-none}], types [${RANK_TYPES:-all of the batch}], workers $RANK_WORKERS," \
+    "root $RANK_ROOT, assets $ASSETS," \
     "deadline ${WENART_DEADLINE:-none}"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader 2>/dev/null || log "nvidia-smi failed"
 
-ARGS=(--types "$RANK_TYPES" --assets "$ASSETS" --work "$WORK" --out "$OUT" --workers "$RANK_WORKERS"
-      --blender "$WENART_BLENDER")
+ARGS=(--assets "$ASSETS" --work "$WORK" --out "$OUT" --workers "$RANK_WORKERS" --blender "$WENART_BLENDER")
+if [ -n "$RANK_TYPES" ]; then ARGS+=(--types "$RANK_TYPES"); fi
+if [ -n "$RANK_BATCH" ] && [ "$RANK_PROCEDURAL" != "1" ]; then
+  ARGS+=(--batch "$RANK_BATCH")
+  RESULTS_FILE="$OUT/studio_results_${RANK_BATCH}.json"
+fi
 if [ -n "${WENART_DEADLINE:-}" ]; then ARGS+=(--deadline "$WENART_DEADLINE"); fi
 if [ -n "${RANK_SAMPLES:-}" ]; then ARGS+=(--samples "$RANK_SAMPLES"); fi
 if [ "$RANK_PROCEDURAL" = "1" ]; then
@@ -105,10 +121,11 @@ if [ "$RANK_PROCEDURAL" = "1" ]; then
   RESULTS_FILE="$OUT/studio_results_${RANK_PROC_TAG}.json"
 fi
 
-# the Poly Haven models of the ranked types (the library GLBs are on the volume)
+# the Poly Haven models of the ranked types or batch (the library GLBs are on the volume)
 read -r -a PH_IDS <<< "$("$PY" -c 'import sys
 from wenart.assets.audit import studio as S
-print(" ".join(e["id"] for e in S.rank_entries(sys.argv[1].split(",")) if e.get("gltf")))' "$RANK_TYPES")"
+types = [t for t in sys.argv[1].split(",") if t]
+print(" ".join(e["id"] for e in S.batch_entries(sys.argv[2], types) if e.get("gltf")))' "$RANK_TYPES" "$RANK_BATCH")"
 if [ "${#PH_IDS[@]}" -gt 0 ] && [ "$RANK_PROCEDURAL" != "1" ]; then
   run_step models "$PY" -m wenart.assets models fetch --assets "$ASSETS" --size 1k --ids "${PH_IDS[@]}"
 fi

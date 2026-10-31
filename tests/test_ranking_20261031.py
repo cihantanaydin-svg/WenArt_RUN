@@ -218,13 +218,14 @@ def test_the_committed_ranks_are_valid():
     rows = UR.ranks()
     data = json.loads(UR.USER_RANKS_PATH.read_text(encoding="utf-8"))
     assert len(rows) == len(data.get("ranks") or {})
-    ids = {e["id"] for e in S.catalogue_entries()}
+    catalogue = C.load()                            # 31 Oct 2026: the remaining batch's decor and extras models too
+    models = S.catalogue_entries() + list(catalogue.decor) + list(catalogue.extras)
+    ids = {e["id"] for e in models}
     ours = {k for k in rows if k.startswith(S.PROC_TAG + ":")}           # the user's scores of our own builds
     assert set(rows) - ours <= ids
     ours_index = ROOT / "results" / "library" / "ranking" / f"ranking_index_{S.PROC_TAG}.json"
     assert ours <= set(json.loads(ours_index.read_text(encoding="utf-8"))["models"])
-    low = next((e for e in S.catalogue_entries() if e["id"] in rows and rows[e["id"]]["rank"] <= UR.OUT_AT_OR_BELOW),
-               None)
+    low = next((e for e in models if e["id"] in rows and rows[e["id"]]["rank"] <= UR.OUT_AT_OR_BELOW), None)
     if low is not None:
         assert not C.usable(low, "relaxed")
 

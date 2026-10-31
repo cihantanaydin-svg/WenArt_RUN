@@ -3380,6 +3380,19 @@ def library_first_item(item: dict, catalog, style_family: Optional[str], mode: s
                 round(abs(bw - size[0]) + abs(bd - size[1]), 4), str(e["id"]))
 
     entry, s = sorted(fits, key=rank)[0]
+    asset = library_first_asset(entry, dtype, s, style_family,
+                                {"rule": "library_first (UL215)", "ids": [e["id"] for e, _s in sorted(fits, key=rank)],
+                                 "of_type": len(pool), "usable": len(usable), "better": len(better)})
+    item.pop("library_gap", None)
+    return _finish(asset, mode, [_step("library", f"used {entry['id']} (library first, UL215)", None)])
+
+
+def library_first_asset(entry: dict, dtype: str, s: float, style_family: Optional[str] = None,
+                        pick: Optional[dict] = None) -> dict:
+    """The ``asset`` record of a ``LIBRARY_FIRST`` model (an extras GLB: a laptop, a monitor, a microwave, a TV) at the
+    uniform scale ``s`` (pure; ``target: within``, its scaled box). ``library_first_item`` adds its pick; 31 Oct 2026
+    (UL217): the ranking studio builds each model from this same record at the scale the fit gives it
+    (``library_first_scale``)."""
     bw, bd, bh = (float(v) for v in entry["bbox_m"][:3])
     asset = {
         "library": entry.get("source") or "3dwh", "asset_id": entry["id"], "licence": entry.get("licence"),
@@ -3389,14 +3402,21 @@ def library_first_item(item: dict, catalog, style_family: Optional[str], mode: s
         "origin_offset": list(entry.get("origin_offset") or [0.0, 0.0, 0.0]),
         "front_axis_confidence": entry.get("front_axis_confidence"), "styles": list(entry.get("styles") or []),
         "style_family": style_family, "quality": vision_quality_of(entry),
-        "pick": {"rule": "library_first (UL215)", "ids": [e["id"] for e, _s in sorted(fits, key=rank)],
-                 "of_type": len(pool), "usable": len(usable), "better": len(better)},
     }
+    if pick is not None:
+        asset["pick"] = pick
     asset.update({k: entry[k] for k in GLB_ASSET_FIELDS if k in entry})
     asset["unit_scale"] = float(entry.get("unit_scale") or 1.0)
     asset["licence_flag"] = C.licence_flag_of(entry)
-    item.pop("library_gap", None)
-    return _finish(asset, mode, [_step("library", f"used {entry['id']} (library first, UL215)", None)])
+    return asset
+
+
+def library_first_scale(entry: dict, dtype: str) -> float:
+    """The uniform scale the fit gives a ``LIBRARY_FIRST`` model on an item of its own size (pure; the ranking studio):
+    ``_library_first_scale`` (into its type's real range), 1.0 when no uniform scale puts it there."""
+    item = {"size": [float(v) for v in entry["bbox_m"][:2]]}
+    s = _library_first_scale(entry, item, dtype)
+    return 1.0 if s is None else s
 
 
 def textile_library_item(item: dict, catalog, style_family: Optional[str], mode: str) -> Optional[dict]:
@@ -3542,6 +3562,10 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     # deterministic by the host id inside the chosen group).
     all_fits = fits
     fits, role_why = fixture_pool(fits, item)          # 29 Oct 2026 (UL106): the light's role in the room
+    # 31 Oct 2026 (UL217, user: "include all remaining library models for ranking"): of the fitting models of the role,
+    # the ones the user ranks highest (unranked = 5, as rank_key for furniture); the colour and the pick then choose
+    # among them (a 0-2 model never reaches here: catalog.usable)
+    fits, rank_note = user_rank_tier(fits)
     colour = str(item.get("colour") or "").strip().casefold()
     coloured = [(e, f) for e, f in fits if colour and colour in str(e.get("name") or e.get("title") or "").casefold()]
     pool = coloured or fits
@@ -3549,31 +3573,82 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     i = pick_index(key, len(pool))
     entry, f = pool[i]
     width, depth = (float(v) for v in item["size"][:2])
-    asset = {
-        "library": entry.get("source") or "polyhaven", "asset_id": entry["id"], "licence": entry.get("licence"),
-        "license": entry.get("licence"), "method": "library", "decor_type": dtype, "fit_scale": f["fit_scale"],
-        "bbox_m": f["bbox_m"], "aspect_error": round(C.aspect_error(entry, width, depth), 4),
-        "front_axis": f["front_axis"], "up_axis": entry.get("up_axis", "+Z"),
-        "origin_offset": list(entry.get("origin_offset") or [0.0, 0.0, 0.0]),
-        "front_axis_confidence": entry.get("front_axis_confidence"), "target": f["target"],
-        "turned_deg": f["turned_deg"], "styles": list(entry.get("styles") or []), "style_family": style_family,
-        "quality": entry.get("quality"),
-        "pick": {"key": key, "index": i, "of": len(pool), "ids": [e["id"] for e, _f in pool],
-                 "colour": colour or None, "colour_matches": len(coloured),
-                 "not_fitting": [e["id"] for e in styled if e["id"] not in {x["id"] for x, _f in all_fits}],
-                 "other_style": len(decor_entries(catalog, dtype, mode)) - len(styled)},
-    }
+    pick = {"key": key, "index": i, "of": len(pool), "ids": [e["id"] for e, _f in pool],
+            "colour": colour or None, "colour_matches": len(coloured),
+            "not_fitting": [e["id"] for e in styled if e["id"] not in {x["id"] for x, _f in all_fits}],
+            "other_style": len(decor_entries(catalog, dtype, mode)) - len(styled)}
     if role_why:
-        asset["pick"]["fixture"] = role_why
-    if pairing:
-        asset["pairing"] = pairing                    # UL156: the host's limits and which of them held
+        pick["fixture"] = role_why
+    if rank_note:
+        pick["user_rank"] = rank_note                 # 31 Oct 2026 (UL217): the user's best-ranked models first
+    asset = decor_model_asset(entry, dtype, f, aspect_error=round(C.aspect_error(entry, width, depth), 4),
+                              style_family=style_family, pick=pick,
+                              extra={"pairing": pairing} if pairing else None)   # UL156: the host's limits
+    return _finish(asset, mode, [_step("library", f"used {entry['id']}", None)])
+
+
+def decor_model_asset(entry: dict, dtype: str, f: dict, *, aspect_error: Optional[float] = None,
+                      style_family: Optional[str] = None, pick: Optional[dict] = None,
+                      extra: Optional[dict] = None) -> dict:
+    """The ``asset`` record of a decor model with its fit ``f`` (``_decor_fit``'s ``fit_scale``, ``bbox_m``,
+    ``front_axis``, ``target``, ``turned_deg``; pure): the model's identity, frame, file and licence flag the scene
+    builder reads (``furniture._create_decor``, ``_create_wall_art``). ``fit_decor_item`` adds its pick; 31 Oct 2026
+    (UL217, "include all remaining library models for ranking"): the ranking studio builds each decor model from this
+    same record at its own size, so the model the user ranks is the model the renders show."""
+    asset = {"library": entry.get("source") or "polyhaven", "asset_id": entry["id"], "licence": entry.get("licence"),
+             "license": entry.get("licence"), "method": "library", "decor_type": dtype, "fit_scale": f["fit_scale"],
+             "bbox_m": f["bbox_m"]}
+    if aspect_error is not None:
+        asset["aspect_error"] = aspect_error
+    asset.update({"front_axis": f["front_axis"], "up_axis": entry.get("up_axis", "+Z"),
+                  "origin_offset": list(entry.get("origin_offset") or [0.0, 0.0, 0.0]),
+                  "front_axis_confidence": entry.get("front_axis_confidence"), "target": f["target"],
+                  "turned_deg": f["turned_deg"], "styles": list(entry.get("styles") or []),
+                  "style_family": style_family, "quality": entry.get("quality")})
+    if pick is not None:
+        asset["pick"] = pick
+    asset.update(extra or {})
     if asset["library"] != "polyhaven" and entry.get("glb"):
         asset.update({k: entry[k] for k in GLB_ASSET_FIELDS if k in entry})
         asset["unit_scale"] = float(entry.get("unit_scale") or 1.0)
     else:
         asset["gltf"] = entry["gltf"]
     asset["licence_flag"] = C.licence_flag_of(entry)
-    return _finish(asset, mode, [_step("library", f"used {entry['id']}", None)])
+    return asset
+
+
+def own_size_fit(entry: dict, target: str = "within") -> dict:
+    """A decor model at its own size (scale 1, its catalogue box, its own front; pure): the fit record of
+    ``decor_model_asset`` when the item's box is the model's own (the ranking studio)."""
+    box = [round(float(v), 4) for v in entry["bbox_m"][:3]]
+    return {"fit_scale": [1.0, 1.0, 1.0], "bbox_m": box, "front_axis": entry.get("front_axis", "-Y"),
+            "turned_deg": 0.0, "target": target, "non_uniform": 1.0}
+
+
+def user_rank_tier(pairs: list) -> tuple[list, Optional[dict]]:
+    """``(pool, note)``: the ``(entry, fit)`` pairs the user ranks highest (pure; 31 Oct 2026, UL217: "include all
+    remaining library models for ranking"): the user's rank of each model (``user_ranks.rank_of``; unranked =
+    ``user_ranks.UNRANKED``, 5, as in ``rank_key``), the pairs of the best rank kept in their order; ``note`` None when
+    every pair has the same rank (nothing changes), else ``{"rule", "rank", "kept", "dropped": {rank: count}}`` (the
+    building JSON stays small). The normal decor pick (``fit_decor_item``) takes its deterministic pick among the kept
+    ones."""
+    from wenart.furniture import user_ranks as UR
+
+    def rank(e) -> int:
+        r = UR.rank_of(e)
+        return UR.UNRANKED if r is None else r
+
+    if not pairs:
+        return pairs, None
+    best = max(rank(e) for e, _f in pairs)
+    kept = [(e, f) for e, f in pairs if rank(e) == best]
+    if len(kept) == len(pairs):
+        return pairs, None
+    dropped: dict[str, int] = {}
+    for e, _f in pairs:
+        if rank(e) != best:
+            dropped[str(rank(e))] = dropped.get(str(rank(e)), 0) + 1
+    return kept, {"rule": UR.RULE, "rank": best, "kept": len(kept), "dropped": dict(sorted(dropped.items()))}
 
 
 def fabric_colour_of(piece: dict, style: Optional[dict]) -> tuple[Optional[str], Optional[str]]:
