@@ -219,7 +219,10 @@ def test_the_committed_ranks_are_valid():
     data = json.loads(UR.USER_RANKS_PATH.read_text(encoding="utf-8"))
     assert len(rows) == len(data.get("ranks") or {})
     ids = {e["id"] for e in S.catalogue_entries()}
-    assert set(rows) <= ids
+    ours = {k for k in rows if k.startswith(S.PROC_TAG + ":")}           # the user's scores of our own builds
+    assert set(rows) - ours <= ids
+    ours_index = ROOT / "results" / "library" / "ranking" / f"ranking_index_{S.PROC_TAG}.json"
+    assert ours <= set(json.loads(ours_index.read_text(encoding="utf-8"))["models"])
     low = next((e for e in S.catalogue_entries() if e["id"] in rows and rows[e["id"]]["rank"] <= UR.OUT_AT_OR_BELOW),
                None)
     if low is not None:
