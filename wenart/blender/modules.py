@@ -147,13 +147,31 @@ WARDROBE_DEPTH_RANGE_M = (0.35, 0.80)
 # 29 Oct 2026 (lesson UL120, user: "look at this dressing room solution see through"; wardrobe_fronts): a see-through
 # wardrobe run: sliding panels of horizontal black slats or smoked glass in black frames on two tracks in front of an
 # open carcass with real contents (a hanging rail with garments, a hat shelf, folded stacks on shelves, drawers, an LED
-# strip under the top). Typical sizes (assumed: no drawing gives them).
-SEE_THROUGH = {"door_zone_m": 0.06, "panel_t": 0.022, "track_gap_m": 0.006, "stile_m": 0.035, "slat_h_m": 0.03,
-               "slat_pitch_m": 0.055, "slat_d_m": 0.018, "panel_max_m": 1.0, "panel_overlap_m": 0.04,
+# strip under the top). Typical sizes (assumed: no drawing gives them). 31 Oct 2026: wood slats and tinted or reeded
+# glass in slim metal frames, the built-in's look (``wardrobe_fronts.built_in_look``; the black of before is gone).
+SEE_THROUGH = {"door_zone_m": 0.06, "panel_t": 0.022, "track_gap_m": 0.006, "stile_m": 0.022, "slat_h_m": 0.030,
+               "slat_pitch_m": 0.052, "slat_d_m": 0.020, "panel_max_m": 1.0, "panel_overlap_m": 0.04,
                "carcass_t_m": 0.018, "rail_r_m": 0.0125, "rail_drop_m": 0.07, "hat_shelf_drop_m": 0.30,
                "shelf_pitch_m": 0.34, "drawer_h_m": 0.22, "led_m": (0.012, 0.006), "hanging_min_m": 0.74,
-               # 30 Oct 2026 (UL182): reeded glass, vertical reeds on the pane's face
-               "reed_w_m": 0.010, "reed_d_m": 0.004, "reed_pitch_m": 0.022}
+               # 30 Oct 2026 (UL182): reeded glass, vertical reeds on the pane's face (31 Oct 2026: rounded flutes,
+               # one beside the next, as rolled reeded glass)
+               "reed_w_m": 0.018, "reed_d_m": 0.003, "reed_pitch_m": 0.018,
+               # 31 Oct 2026 (user on real04 run 20261030-181158-full: "you can make this a lot better with the better
+               # material and details"; wardrobe_fronts.built_in_look): slim aluminium sliding-door profiles (22 mm
+               # stiles with a 5 x 5 mm glazing rebate and a bead, 30 / 40 mm top and bottom rails), an integrated
+               # grip channel (40 mm stile, 20 mm wide x 12 mm deep x 1.2 m) on the front panels' leading edge, end
+               # panels to the floor (19 mm at least), a fascia flush with the doors up to the ceiling over the top
+               # track, 4 mm shadow gaps, a plinth recessed 60 mm (designer values, assumed: no drawing gives them)
+               "rail_top_m": 0.030, "rail_bottom_m": 0.040, "rebate_m": (0.005, 0.005), "bead_d_m": 0.003,
+               "grip_m": (0.040, 0.020, 0.012, 1.20), "grip_z_m": 1.05, "end_t_m": 0.019, "fascia_m": (0.08, 0.019),
+               "shadow_m": 0.004, "plinth_recess_m": 0.06, "pane_t_m": 0.006}
+P.BEVEL_BY_ROLE.setdefault("panel_frame", 0.001)       # 31 Oct 2026: the slim profiles' crisp edges
+P.BEVEL_BY_ROLE.setdefault("bead", 0.0)
+P.BEVEL_BY_ROLE.setdefault("grip", 0.0)
+P.BEVEL_BY_ROLE.setdefault("reed", 0.0)
+P.BEVEL_BY_ROLE.setdefault("end_panel", 0.0015)
+P.BEVEL_BY_ROLE.setdefault("fascia", 0.0015)
+P.BEVEL_BY_ROLE.setdefault("track", 0.0)
 # (kind, length, thickness, shoulder half width, hem half width, weight): simple cloth shapes on hangers
 GARMENTS: tuple[tuple, ...] = (("shirt", 0.78, 0.030, 0.215, 0.200, 5), ("jacket", 0.82, 0.055, 0.225, 0.215, 2),
                                ("coat", 1.02, 0.065, 0.230, 0.240, 1), ("dress", 0.98, 0.035, 0.170, 0.250, 1),
@@ -531,6 +549,12 @@ def plan_wardrobe_run(piece: dict, style: Optional[dict] = None) -> Optional[dic
                      if n else "an open run: hanging rails, shelves with folded stacks, shoe racks, an LED strip")
         if front == "slats_glass":
             out["see_through"]["glass"] = (piece.get("see_through") or {}).get("glass") or "smoked_glass"
+        # 31 Oct 2026 (user on real04 run 20261030-181158-full: "you can make this a lot better with the better
+        # material and details"): the built-in's look (wardrobe_fronts.built_in_look: the shell, the metal, the glass)
+        look = (piece.get("see_through") or {}).get("look")
+        if isinstance(look, dict):
+            out["see_through"]["look"] = dict(look)
+            notes.append(f"the built-in's look: {look.get('why') or look.get('family')}")
         # 30 Oct 2026 (UL182, user: "it can go all the way to the ceiling"): a top box from the frames to the ceiling
         # (``wardrobe_fronts.to_ceiling``), the doors full height in front of it; the frames keep their height
         box = ceiling - height if ceiling is not None else 0.0
@@ -2185,19 +2209,35 @@ def bay_lights(plan: dict) -> list[dict]:
     return out
 
 
+def end_panel_t(plan: dict) -> float:
+    """The thickness of a see-through run's end panels (pure; 31 Oct 2026): its fillers' width (the scribe to the
+    wall), at least ``SEE_THROUGH["end_t_m"]``."""
+    filler = max([float(m["size_m"][0]) for m in plan["modules"] if m["kind"] == "filler"] or [0.0])
+    return max(filler, SEE_THROUGH["end_t_m"])
+
+
 def see_through_parts(plan: dict) -> list[Part]:
-    """The parts of a see-through wardrobe run (pure; 29 Oct 2026, UL120; ``SEE_THROUGH``): the plinth and the top
-    of the run, an open carcass per frame (back, sides, bottom, inner top) with its contents (a frame of
-    ``hanging_min_m`` or wider: a hat shelf with folded pieces, a rail with garments and two drawers under them where
-    they fit; a narrower one: shelves with folded stacks over two drawers), an LED strip under each inner top
-    (``lit:bedding``), and the sliding panels on two tracks across the run (horizontal slats or smoked glass in black
-    frames, ``dark``), a top track and a pull on each panel; everything inside the drawn footprint."""
+    """The parts of a see-through wardrobe run (pure; 29 Oct 2026, UL120; ``SEE_THROUGH``): the run's top, an open
+    carcass per frame (back, sides, bottom, inner top) with its contents (a frame of ``hanging_min_m`` or wider: a hat
+    shelf with folded pieces, a rail with garments and two drawers under them where they fit; a narrower one: shelves
+    with folded stacks over two drawers), an LED strip under each inner top (``led``), and the sliding panels on two
+    tracks across the run; everything inside the drawn footprint.
+
+    31 Oct 2026 (user on real04 run 20261030-181158-full: "you can make this a lot better with the better material and
+    details"): a built-in's details: end panels from the floor to the run's top in the shell finish (``front``; the
+    look's veneer or lacquer, ``wardrobe_fronts.look_overrides``), a plinth recessed ``plinth_recess_m`` in shadow
+    (``dark``), a fascia flush with the doors up to the run's top over the top track, 4 mm shadow gaps between the doors
+    and the end panels and under the fascia, slim metal profiles (``handle``: the look's metal) with a glazing rebate
+    and a bead, an integrated grip channel on the front panels' leading edge, wood slats in the shell finish with real
+    gaps, tinted glass (the look's ``glass`` key) or reeded glass with rounded flutes."""
     st = plan["see_through"]
     k = SEE_THROUGH
+    look = st.get("look") if isinstance(st.get("look"), dict) else {}
     w, d = (float(v) for v in plan["footprint_m"])
     height = carcass_height(plan)                        # 30 Oct 2026 (UL182): the frames under a top box
     top_z = height - WARDROBE_TOP_M
-    door_top = float(plan["height_m"]) - WARDROBE_TOP_M  # ... and the doors to the ceiling
+    run_top = float(plan["height_m"])                    # ... and the run's top (the doors and the fascia under it)
+    has_box = any(m["kind"] == "top_box" for m in plan["modules"])
     ct = k["carcass_t_m"]
     open_run = st.get("kind") == "open"                          # UL125: an open run, no doors, shoe racks
     zone = 0.005 if open_run else k["door_zone_m"]
@@ -2207,19 +2247,24 @@ def see_through_parts(plan: dict) -> list[Part]:
     zb = WARDROBE_PLINTH_M
     seed = int(st.get("seed") or 0)
     palette = st.get("palette") or None              # 30 Oct 2026 (UL135): the room's wardrobe palette
+    e = end_panel_t(plan)
+    fh, fd = k["fascia_m"]
+    sg = k["shadow_m"]
     parts: list[Part] = []
+    # 31 Oct 2026: the end panels to the floor and the recessed plinth between them
+    for sx in (-1.0, 1.0):
+        parts.append(P._box(sx * (w / 2.0 - e / 2.0), 0.0, 0.0, e, d, run_top, "front", "end_panel"))
+    rec = k["plinth_recess_m"]
+    parts.append(P._box(0.0, rec / 2.0, 0.0, w - 2 * e - 0.002, d - rec, zb, "dark", "plinth"))
+    behind = 0.0 if open_run else fd + 0.001           # the top boards stand behind the fascia
     for m in plan["modules"]:
-        mw, md, mh = m["size_m"]
-        x, y = m["pos_m"]
         z0 = float(m.get("z_m") or 0.0)
-        if m["kind"] == "plinth":
-            parts.append(P._box(x, y, 0.0, mw, md, mh, "dark", "plinth"))
-        elif m["kind"] == "top":
-            parts.append(P._box(x, y, z0, mw, md, mh, "wood", "top"))
-        elif m["kind"] == "filler":
-            parts.append(P._box(x, 0.0, z0, mw, d, top_z - z0, "dark", "front"))
+        if m["kind"] == "top":
+            # under a top box the top is the box's floor (the veneer inside), else the run's top (the shell)
+            parts.append(P._box(0.0, behind / 2.0, z0, w - 2 * e - 0.002, d - behind, float(m["size_m"][2]),
+                                "wood" if has_box else "front", "top"))
         elif m["kind"] == "top_box":
-            parts += top_box_parts(m, plan, y_front, zone, seed, palette)
+            parts += top_box_parts(m, plan, y_front, zone, seed, palette, ends=e, behind=behind)
     frames = [m for m in plan["modules"] if m["kind"] == "frame"]
     boards_of = bay_boards(plan)
     for i, m in enumerate(frames):
@@ -2228,10 +2273,12 @@ def see_through_parts(plan: dict) -> list[Part]:
         x0, x1 = x - fw / 2.0, x + fw / 2.0
         ix0, ix1, iw = x0 + ct, x1 - ct, fw - 2 * ct
         inner_top = top_z - ct
-        parts += [P._box(x, d / 2.0 - ct / 2.0, zb, fw - 0.002, ct, top_z - zb, "wood", "body"),          # back
-                  P._box(x0 + ct / 2.0 + 0.001, yc, zb, ct, cd, top_z - zb, "wood", "body"),             # sides
-                  P._box(x1 - ct / 2.0 - 0.001, yc, zb, ct, cd, top_z - zb, "wood", "body"),
-                  P._box(x, yc, zb, iw, cd, ct, "wood", "body"),                                        # bottom
+        parts.append(P._box(x, d / 2.0 - ct / 2.0, zb, fw - 0.002, ct, top_z - zb, "wood", "body"))           # back
+        for sx, side_x in ((-1, x0 + ct / 2.0 + 0.001), (1, x1 - ct / 2.0 - 0.001)):                           # sides
+            if abs(side_x) + ct / 2.0 <= w / 2.0 - e + 1e-6 or abs(side_x) - ct / 2.0 >= w / 2.0 - e + 1e-6:
+                parts.append(P._box(side_x, yc, zb, ct, cd, top_z - zb, "wood", "body"))
+            # (an outer side inside an end panel is the end panel: no coplanar faces)
+        parts += [P._box(x, yc, zb, iw, cd, ct, "wood", "body"),                                        # bottom
                   P._box(x, yc, inner_top, iw, cd, ct, "wood", "body")]                                 # inner top
         lh, ld = k["led_m"]
         # 30 Oct 2026 (UL135): a strip under the front of the top and of the boards that shade the contents
@@ -2265,7 +2312,6 @@ def see_through_parts(plan: dict) -> list[Part]:
                 for j, rz in enumerate((floor + 0.02, floor + 0.22)):
                     parts.append(P._box(x, yc, rz, iw, cd - 0.04, 0.015, "wood", "shoe_rack"))
                     parts += shoe_parts(ix0 + 0.01, ix1 - 0.01, yc, rz + 0.015, seed + 401 * i + j)
-                z = floor + 0.44
             shelves = _shelf_heights(floor, inner_top, open_run, drawers)
             for j, sz in enumerate(shelves):
                 parts.append(P._box(x, yc, sz, iw, cd - 0.02, ct, "wood", "shelf"))
@@ -2287,29 +2333,107 @@ def see_through_parts(plan: dict) -> list[Part]:
         _in_bay(parts[first:], i)                                   # 30 Oct 2026 (UL135): the bay's contents
     if open_run:
         return parts
-    # the sliding panels on two tracks across the run (closed: their overlaps cover the joints)
+    # 31 Oct 2026: the fascia flush with the doors up to the run's top, the top track behind it
+    span = w - 2 * e - 0.001
+    parts.append(P._box(0.0, -d / 2.0 + fd / 2.0, run_top - fh, span, fd, fh, "front", "fascia"))
+    parts.append(P._box(0.0, -d / 2.0 + fd + (zone - fd) / 2.0, run_top - fh + 0.006, span - 0.002,
+                        zone - fd - 0.004, fh - 0.012, "handle", "track"))
+    # the sliding panels on two tracks between the end panels (closed: their overlaps cover the joints)
     n = int(st.get("panels") or 2)
     ov = k["panel_overlap_m"]
-    pw = (w + (n - 1) * ov) / n
-    pt, sm = k["panel_t"], k["stile_m"]
-    pz0, pz1 = zb + 0.004, door_top - 0.022
-    ph = pz1 - pz0
+    xl, xr = -w / 2.0 + e + sg, w / 2.0 - e - sg
+    pw = (xr - xl + (n - 1) * ov) / n
+    pt = k["panel_t"]
+    pz0, pz1 = zb + sg, run_top - fh - sg
     for i in range(n):
-        cx = -w / 2.0 + pw / 2.0 + i * (pw - ov)
+        cx = xl + pw / 2.0 + i * (pw - ov)
         py = -d / 2.0 + 0.002 + pt / 2.0 + (0.0 if i % 2 == 0 else pt + k["track_gap_m"])
-        parts += [P._box(cx - pw / 2.0 + sm / 2.0, py, pz0, sm, pt, ph, "dark", "panel_frame"),
-                  P._box(cx + pw / 2.0 - sm / 2.0, py, pz0, sm, pt, ph, "dark", "panel_frame"),
-                  P._box(cx, py, pz0, pw - 2 * sm, pt, sm, "dark", "panel_frame"),
-                  P._box(cx, py, pz1 - sm, pw - 2 * sm, pt, sm, "dark", "panel_frame")]
-        if top_z < door_top - 0.05:                                 # UL182: a rail across at the top box's floor
-            parts.append(P._box(cx, py, top_z - sm / 2.0, pw - 2 * sm, pt, sm, "dark", "panel_frame"))
-        parts += panel_infill(panel_kind(st, i), cx, py, pw - 2 * sm, pz0 + sm, pz1 - sm)
-        hx = cx + (pw / 2.0 - sm - 0.02) * (1.0 if i % 2 == 0 else -1.0)
-        if i % 2 == 0:                                              # a pull on the front track's panels
-            parts.append(P._box(hx, py - pt / 2.0 - 0.004, pz0 + 0.9, 0.012, 0.006, 0.45, "handle", "handle"))
-    parts.append(P._box(0.0, -d / 2.0 + k["door_zone_m"] / 2.0, door_top - 0.022, w, k["door_zone_m"] - 0.004, 0.02,
-                        "dark", "track"))
+        # the front track's panels carry the grip on their leading edge (towards a back panel they slide over)
+        lead = None
+        if i % 2 == 0:
+            lead = 1.0 if i + 1 < n else -1.0
+        parts += sliding_panel(panel_kind(st, i), cx, py, pw, pz0, pz1, look, grip_side=lead,
+                               mid_z=top_z if has_box and top_z < pz1 - 0.05 else None)
     return parts
+
+
+def _member(x0: float, x1: float, z0: float, z1: float, py: float, inner: str) -> list[Part]:
+    """One member of a sliding panel's frame (pure; 31 Oct 2026): the box ``x0..x1`` by ``z0..z1``, ``panel_t`` deep
+    at ``py``, its inner edge(s) (``inner``: any of ``l``, ``r``, ``b``, ``t``) stepped: the inner ``rebate_m`` strip
+    is ``2 x rebate`` thinner, centred (the glazing channel of an aluminium profile, its step on the face)."""
+    k = SEE_THROUGH
+    pt = k["panel_t"]
+    rw, rd = k["rebate_m"]
+    ox0, ox1, oz0, oz1 = x0, x1, z0, z1
+    strips = []
+    if "l" in inner:
+        ox0 = x0 + rw
+        strips.append((x0, x0 + rw, z0, z1))
+    if "r" in inner:
+        ox1 = x1 - rw
+        strips.append((x1 - rw, x1, z0, z1))
+    if "b" in inner:
+        oz0 = z0 + rw
+        strips.append((x0, x1, z0, z0 + rw))
+    if "t" in inner:
+        oz1 = z1 - rw
+        strips.append((x0, x1, z1 - rw, z1))
+    out = []
+    if ox1 - ox0 > 1e-6 and oz1 - oz0 > 1e-6:
+        out.append(P._box((ox0 + ox1) / 2.0, py, oz0, ox1 - ox0, pt, oz1 - oz0, "handle", "panel_frame"))
+    for a, b, c, e in strips:
+        out.append(P._box((a + b) / 2.0, py, c, b - a, pt - 2 * rd, e - c, "handle", "panel_frame"))
+    return out
+
+
+def sliding_panel(kind: str, cx: float, py: float, pw: float, z0: float, z1: float, look: Optional[dict] = None,
+                  grip_side: Optional[float] = None, mid_z: Optional[float] = None) -> list[Part]:
+    """One sliding panel (pure; 31 Oct 2026, ``SEE_THROUGH``): a slim metal frame (``handle``, role ``panel_frame``:
+    ``stile_m`` stiles, ``rail_top_m`` / ``rail_bottom_m`` rails, their inner edges stepped, ``_member``), a rail across
+    at ``mid_z`` (a top box's floor), the grip channel on its ``grip_side`` stile (-1 left, +1 right: a ``grip_m`` wide
+    stile, a channel recessed ``grip_m`` deep over its length, its bottom in shadow, ``dark``) and its infill in every
+    opening (``panel_infill``)."""
+    k = SEE_THROUGH
+    pt, sm = k["panel_t"], k["stile_m"]
+    rw, _rd = k["rebate_m"]
+    gw, cw, cdp, cl = k["grip_m"]
+    out: list[Part] = []
+    x0, x1 = cx - pw / 2.0, cx + pw / 2.0
+    wl = gw if grip_side is not None and grip_side < 0 else sm
+    wr = gw if grip_side is not None and grip_side > 0 else sm
+    il, ir = x0 + wl, x1 - wr                            # the opening between the stiles
+    for side, a, b in ((-1, x0, il), (1, ir, x1)):
+        if b - a <= sm + 1e-9:
+            out += _member(a, b, z0, z1, py, "r" if side < 0 else "l")
+            continue
+        # the grip stile: the stepped strip at its inner edge, an inner lip, the channel, an outer lip
+        lip = (b - a - cw - rw) / 2.0
+        if side < 0:
+            outer, chan, inner_lip, strip = (a, a + lip), (a + lip, a + lip + cw), (a + lip + cw, b - rw), (b - rw, b)
+        else:
+            strip, inner_lip, chan, outer = (a, a + rw), (a + rw, a + rw + lip), (a + rw + lip, b - lip), (b - lip, b)
+        out += _member(strip[0], strip[1], z0, z1, py, "r" if side < 0 else "l")
+        for u0, u1 in (outer, inner_lip):
+            out.append(P._box((u0 + u1) / 2.0, py, z0, u1 - u0, pt, z1 - z0, "handle", "panel_frame"))
+        gz0 = max(z0 + 0.15, min(k["grip_z_m"] - cl / 2.0, z1 - 0.15 - cl))
+        gz1 = min(z1 - 0.15, gz0 + cl)
+        mid = (chan[0] + chan[1]) / 2.0
+        out += [P._box(mid, py, z0, cw, pt, gz0 - z0, "handle", "panel_frame"),
+                P._box(mid, py, gz1, cw, pt, z1 - gz1, "handle", "panel_frame"),
+                P._box(mid, py + cdp / 2.0, gz0, cw, pt - cdp, gz1 - gz0, "handle", "panel_frame"),
+                P._box(mid, py - pt / 2.0 + cdp - 0.0005, gz0 + 0.002, cw - 0.002, 0.001, gz1 - gz0 - 0.004, "dark",
+                       "grip")]
+    iw = ir - il
+    icx = (il + ir) / 2.0
+    rb, rt = k["rail_bottom_m"], k["rail_top_m"]
+    out += _member(il, ir, z0, z0 + rb, py, "t") + _member(il, ir, z1 - rt, z1, py, "b")
+    openings = [(z0 + rb, z1 - rt)]
+    if mid_z is not None and z0 + rb + 0.05 < mid_z - sm / 2.0 and mid_z + sm / 2.0 < z1 - rt - 0.05:
+        out += _member(il, ir, mid_z - sm / 2.0, mid_z + sm / 2.0, py, "bt")
+        openings = [(z0 + rb, mid_z - sm / 2.0), (mid_z + sm / 2.0, z1 - rt)]
+    for oz0, oz1 in openings:
+        out += panel_infill(kind, icx, py, iw, oz0, oz1, look)
+    return out
 
 
 def panel_kind(st: dict, i: int) -> str:
@@ -2322,32 +2446,79 @@ def panel_kind(st: dict, i: int) -> str:
     return kind if kind in ("slats", "smoked_glass", "reeded_glass") else "smoked_glass"
 
 
-def panel_infill(kind: str, cx: float, py: float, iw: float, z0: float, z1: float) -> list[Part]:
-    """The infill of a sliding panel between its stiles and rails (pure): horizontal black slats (``slats``), a smoked
-    pane (``smoked_glass``) or a reeded pane (``reeded_glass``, UL182: the satin pane with vertical reeds on its face,
-    ``SEE_THROUGH["reed_pitch_m"]`` apart)."""
+def pane_key(kind: str, look: Optional[dict] = None) -> str:
+    """The material key of a pane (pure; 31 Oct 2026): a reeded pane ``reeded_glass``; a tinted one the look's glass
+    (``bronze_glass`` warm, ``smoked_glass`` grey; ``smoked_glass`` without a look)."""
+    if kind == "reeded_glass":
+        return "reeded_glass"
+    glass = (look or {}).get("glass")
+    return glass if glass in ("bronze_glass", "smoked_glass") else "smoked_glass"
+
+
+def flute_part(x: float, y_face: float, z0: float, z1: float, width: float, depth: float, key: str,
+               steps: int = 4) -> Part:
+    """One rounded flute of reeded glass (pure; 31 Oct 2026): a vertical prism whose plan profile is a half ellipse
+    ``width`` wide and ``depth`` proud of the pane's face ``y_face`` (towards -Y), ``steps`` facets round."""
+    prof = []
+    for j in range(steps + 1):
+        a = math.pi * j / steps
+        prof.append((x - width / 2.0 * math.cos(a), y_face - depth * math.sin(a)))
+    n = len(prof)
+    verts = [(px, py, z0) for px, py in prof] + [(px, py, z1) for px, py in prof]
+    faces = [[j, j + 1, n + j + 1, n + j] for j in range(n - 1)]
+    faces.append([n - 1, 0, n, 2 * n - 1])                     # the back, on the pane
+    faces.append(list(range(n - 1, -1, -1)))                   # bottom cap
+    faces.append(list(range(n, 2 * n)))                        # top cap
+    return {"verts": verts, "faces": faces, "key": key, "role": "reed"}
+
+
+def panel_infill(kind: str, cx: float, py: float, iw: float, z0: float, z1: float,
+                 look: Optional[dict] = None) -> list[Part]:
+    """The infill of a sliding panel's opening ``iw`` wide from ``z0`` to ``z1`` (between its frame's stepped strips;
+    pure): horizontal wood slats in the shell finish (``slats``, ``front``: 31 Oct 2026, real gaps of ``slat_pitch_m`` -
+    ``slat_h_m``, nearly the frame's depth, their ends in the stiles), a tinted pane (``smoked_glass``: ``pane_key``)
+    or a reeded pane (``reeded_glass``, UL182; 31 Oct 2026: rounded flutes one beside the next, ``reed_pitch_m``), a
+    pane reaching into the frame's channel and held by a bead round its face (``bead``, the frame's metal)."""
     k = SEE_THROUGH
+    rw, rd = k["rebate_m"]
+    pt = k["panel_t"]
     out: list[Part] = []
     if kind == "slats":
-        z = z0 + 0.012
-        while z + k["slat_h_m"] <= z1 - 0.008:
-            out.append(P._box(cx, py, z, iw, k["slat_d_m"], k["slat_h_m"], "dark", "slat"))
-            z += k["slat_pitch_m"]
-        return out
-    out.append(P._box(cx, py, z0 - 0.004, iw + 0.008, 0.006, z1 - z0 + 0.008, kind, "glass"))
-    if kind == "reeded_glass":
-        n = max(1, int((iw - 0.004) / k["reed_pitch_m"]))
-        x0 = cx - (n - 1) * k["reed_pitch_m"] / 2.0
+        g = k["slat_pitch_m"] - k["slat_h_m"]          # the gap between slats, at least (spread evenly)
+        n = max(1, int((z1 - z0 - g) // k["slat_pitch_m"]))
+        gap = (z1 - z0 - n * k["slat_h_m"]) / (n + 1)
         for j in range(n):
-            out.append(P._box(x0 + j * k["reed_pitch_m"], py - 0.003 - k["reed_d_m"] / 2.0, z0, k["reed_w_m"],
-                              k["reed_d_m"], z1 - z0, kind, "reed"))
+            z = z0 + gap + j * (k["slat_h_m"] + gap)
+            out.append(P._box(cx, py, z, iw + 2 * rw - 0.002, k["slat_d_m"], k["slat_h_m"], "front", "slat"))
+        return out
+    key = pane_key(kind, look)
+    tp = k["pane_t_m"]
+    out.append(P._box(cx, py, z0 - rw + 0.001, iw + 2 * rw - 0.002, tp, z1 - z0 + 2 * rw - 0.002, key, "glass"))
+    face = py - tp / 2.0
+    bd = k["bead_d_m"]
+    yb = py - pt / 2.0 + rd + bd / 2.0                   # flush with the strips' face, on the pane's face
+    out += [P._box(cx - iw / 2.0 + rw / 2.0, yb, z0, rw, bd, z1 - z0, "handle", "bead"),
+            P._box(cx + iw / 2.0 - rw / 2.0, yb, z0, rw, bd, z1 - z0, "handle", "bead"),
+            P._box(cx, yb, z0, iw - 2 * rw, bd, rw, "handle", "bead"),
+            P._box(cx, yb, z1 - rw, iw - 2 * rw, bd, rw, "handle", "bead")]
+    if kind == "reeded_glass":
+        pitch = k["reed_pitch_m"]
+        span = iw - 2 * rw - 0.002
+        n = max(1, int(span / pitch))
+        x0 = cx - (n - 1) * pitch / 2.0
+        for j in range(n):                      # a hair of air before the pane and between flutes: no shared faces
+            out.append(flute_part(x0 + j * pitch, face - 0.0002, z0 + rw, z1 - rw, min(k["reed_w_m"], pitch) - 0.0002,
+                                  k["reed_d_m"], key))
     return out
 
 
-def top_box_parts(m: dict, plan: dict, y_front: float, zone: float, seed: int, palette=None) -> list[Part]:
-    """The top box of a see-through run up to the ceiling (pure; 30 Oct 2026, UL182): its back, sides, divider over
-    every frame joint and its top board (``wood``), an LED strip under the top board's front, and on its floor (the
-    run's top) lidded boxes and rattan baskets in every bay (``wardrobe_contents.boxes``) showing through the doors."""
+def top_box_parts(m: dict, plan: dict, y_front: float, zone: float, seed: int, palette=None, ends: float = 0.0,
+                  behind: float = 0.0) -> list[Part]:
+    """The top box of a see-through run up to the ceiling (pure; 30 Oct 2026, UL182): its back, a divider over every
+    frame joint and its top board (``wood``), an LED strip under the top board's front, and on its floor (the run's
+    top) lidded boxes and rattan baskets in every bay (``wardrobe_contents.boxes``) showing through the doors. 31 Oct
+    2026: its outer sides are the run's end panels (``ends`` thick, no coplanar faces), its top board stands
+    ``behind`` the fascia."""
     from wenart.blender import wardrobe_contents as WC
 
     k = SEE_THROUGH
@@ -2358,24 +2529,29 @@ def top_box_parts(m: dict, plan: dict, y_front: float, zone: float, seed: int, p
     z1 = z0 + mh
     cd = d - zone
     yc = y_front + cd / 2.0
-    parts = [P._box(0.0, d / 2.0 - ct / 2.0, z0, mw - 0.002, ct, mh - WARDROBE_TOP_M, "wood", "body"),     # back
-             P._box(0.0, 0.0, z1 - WARDROBE_TOP_M, mw, d, WARDROBE_TOP_M, "wood", "top")]               # top board
+    inner = mw - 2 * ends - 0.002 if ends > 0 else mw - 0.002
+    parts = [P._box(0.0, d / 2.0 - ct / 2.0, z0, inner, ct, mh - WARDROBE_TOP_M, "wood", "body"),          # back
+             P._box(0.0, behind / 2.0, z1 - WARDROBE_TOP_M, inner, d - behind, WARDROBE_TOP_M, "wood", "top")]
     if mh - WARDROBE_TOP_M <= 0.05:
         return parts
-    joints = [-w / 2.0 + ct / 2.0, w / 2.0 - ct / 2.0]
+    lo, hi = (-w / 2.0 + ends, w / 2.0 - ends) if ends > 0 else (-w / 2.0 + ct / 2.0, w / 2.0 - ct / 2.0)
+    joints = [lo, hi]
     for f in (f for f in plan["modules"] if f["kind"] == "frame"):
         joints.append(float(f["pos_m"][0]) + float(f["size_m"][0]) / 2.0)
-    joints = sorted({round(min(max(x, -w / 2.0 + ct / 2.0), w / 2.0 - ct / 2.0), 4) for x in joints})
-    for x in joints:                                             # sides and dividers
+    joints = sorted({round(min(max(x, lo), hi), 4) for x in joints})
+    for x in joints:                                             # sides (no end panels) and dividers
+        if ends > 0 and (abs(x - lo) < 1e-6 or abs(x - hi) < 1e-6):
+            continue
         parts.append(P._box(x, yc, z0, ct, cd, mh - WARDROBE_TOP_M, "wood", "body"))
     lh, ld = k["led_m"]
-    parts.append(P._box(0.0, y_front + 0.03, z1 - WARDROBE_TOP_M - ld, mw - 0.04, lh, ld, "led", "led"))
+    parts.append(P._box(0.0, y_front + 0.03, z1 - WARDROBE_TOP_M - ld, inner - 0.04, lh, ld, "led", "led"))
     room = mh - WARDROBE_TOP_M - ld - 0.02
     for i, (a, b) in enumerate(zip(joints, joints[1:])):
-        if b - a - ct < 0.20 or room < 0.10:
+        a_in = a if ends > 0 and abs(a - lo) < 1e-6 else a + ct / 2.0
+        b_in = b if ends > 0 and abs(b - hi) < 1e-6 else b - ct / 2.0
+        if b_in - a_in < 0.20 or room < 0.10:
             continue
-        parts += WC.boxes(a + ct / 2.0 + 0.01, b - ct / 2.0 - 0.01, yc, z0, room, seed + 709 * i,
-                          depth=min(0.36, cd - 0.08))
+        parts += WC.boxes(a_in + 0.01, b_in - 0.01, yc, z0, room, seed + 709 * i, depth=min(0.36, cd - 0.08))
     return parts
 
 

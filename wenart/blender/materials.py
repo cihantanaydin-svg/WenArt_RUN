@@ -569,30 +569,41 @@ class MaterialLibrary:
                                            "reason": "satin glass: an inside door's narrow lites (UL191)"}
         return self._cache["satin_glass"]
 
+    def _tinted_glass(self, name: str, tone: str, why: str):
+        """31 Oct 2026: a wardrobe's tinted pane (``TINTED_GLASS``): the thin pane, its transparency in the tone."""
+        if name not in self._cache:
+            rgb = TINTED_GLASS[tone]
+            self._cache[name] = thin_glass_material(name, roughness=TINTED_GLASS["roughness"], tint=rgb)
+            self.records[name] = {"slug": "glass", "textured": False, "asset": None, "source": None, "licence": None,
+                                  "size_m": None, "flat_colour": list(rgb), "tint": list(rgb), "unverified": False,
+                                  "albedo_mode": None, "detail": None, "gain_clamped": None, "reason": why}
+        return self._cache[name]
+
     def smoked_glass(self):
         """29 Oct 2026 (UL120): the smoked glass of a see-through wardrobe front: the thin pane with its transparency
-        tinted ``SMOKED_GLASS_RGB`` (the garments show through, darkened)."""
-        if "smoked_glass" not in self._cache:
-            self._cache["smoked_glass"] = thin_glass_material("smoked_glass", roughness=0.05, tint=SMOKED_GLASS_RGB)
-            self.records["smoked_glass"] = {"slug": "glass", "textured": False, "asset": None, "source": None,
-                                            "licence": None, "size_m": None, "flat_colour": list(SMOKED_GLASS_RGB),
-                                            "tint": list(SMOKED_GLASS_RGB), "unverified": False, "albedo_mode": None,
-                                            "detail": None, "gain_clamped": None,
-                                            "reason": "smoked glass (thin pane, transparency tinted): a see-through "
-                                                      "wardrobe front (UL120)"}
-        return self._cache["smoked_glass"]
+        tinted (the garments show through, darkened). 31 Oct 2026: grey glass letting half the light through
+        (``TINTED_GLASS``; ``SMOKED_GLASS_RGB``'s third read as a black mirror on real04)."""
+        return self._tinted_glass("smoked_glass", "grey", "grey tinted glass (thin pane, half the light through, "
+                                  "softly glossy): a see-through wardrobe front (UL120; 31 Oct 2026)")
+
+    def bronze_glass(self):
+        """31 Oct 2026 (user on real04 run 20261030-181158-full: "a lot better with the better material"): a warm
+        family's bronze-tinted wardrobe pane (``TINTED_GLASS``)."""
+        return self._tinted_glass("bronze_glass", "bronze", "bronze tinted glass (thin pane, half the light through, "
+                                  "softly glossy): a built-in see-through wardrobe front (31 Oct 2026)")
 
     def reeded_glass(self):
-        """30 Oct 2026 (UL182): the reeded glass of a see-through wardrobe front: the satin pane (``SATIN_GLASS``: the
-        garments a soft shape behind it), its reeds the parts' own geometry (``modules.panel_infill``)."""
+        """30 Oct 2026 (UL182): the reeded glass of a see-through wardrobe front: a satin pane (the garments a soft
+        shape behind it), its reeds the parts' own geometry (``modules.panel_infill``). 31 Oct 2026: clear rolled glass
+        (``REEDED_GLASS``: lighter and clearer than the door lites' satin), its flutes rounded."""
         if "reeded_glass" not in self._cache:
-            self._cache["reeded_glass"] = satin_glass_material("reeded_glass")
+            self._cache["reeded_glass"] = satin_glass_material("reeded_glass", REEDED_GLASS)
             self.records["reeded_glass"] = {"slug": "glass", "textured": False, "asset": None, "source": None,
-                                            "licence": None, "size_m": None, "flat_colour": list(SATIN_GLASS_RGB),
+                                            "licence": None, "size_m": None, "flat_colour": list(REEDED_GLASS["rgb"]),
                                             "tint": None, "unverified": False, "albedo_mode": None, "detail": None,
                                             "gain_clamped": None,
-                                            "reason": "reeded glass (a satin pane with vertical reeds): a see-through "
-                                                      "wardrobe front (UL182)"}
+                                            "reason": "reeded glass (clear rolled glass with rounded vertical flutes): "
+                                                      "a see-through wardrobe front (UL182; 31 Oct 2026)"}
         return self._cache["reeded_glass"]
 
     def sheer(self, colour=None):
@@ -1151,26 +1162,36 @@ def window_glass_material(name: str, ior: float = WINDOW_GLASS_IOR):
 
 
 SMOKED_GLASS_RGB = (0.30, 0.29, 0.28)    # 29 Oct 2026 (UL120): a smoked pane lets about a third of the light through
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "you can make this a lot better with the better material and
+# details"; the smoked pane read as a black mirror: a third of the light through, its Fresnel gloss in front): a
+# wardrobe's tinted glass lets about half the light through (grey or bronze float glass of 4-6 mm: 45-60 %, designer
+# value, assumed), its gloss slightly rough, so the lit contents read through it and the room's reflection is soft
+TINTED_GLASS = {"grey": (0.50, 0.50, 0.49), "bronze": (0.60, 0.48, 0.36), "roughness": 0.06}
+# ... and a reeded pane is clear rolled glass: smooth, its flutes (the parts' geometry) break what stands behind it into
+# strips (a rough satin through four glass faces averaged the lit contents to a grey slab in the local smoke render)
+REEDED_GLASS = {"rgb": (0.92, 0.94, 0.93), "roughness": 0.06, "transmission": 1.0, "ior": 1.5}
 # 30 Oct 2026 (UL191): satin glass (acid-etched float glass: a cool milky white, about half the light through, diffused)
 SATIN_GLASS_RGB = (0.80, 0.84, 0.84)
 SATIN_GLASS = {"roughness": 0.45, "transmission": 0.55, "ior": 1.45}
 
 
-def satin_glass_material(name: str):
+def satin_glass_material(name: str, spec: dict | None = None):
     """30 Oct 2026 (UL191): a satin glass pane: a Principled BSDF in ``SATIN_GLASS_RGB``, its transmission rough
     (``SATIN_GLASS``) and half of it, so what stands behind the pane is a soft light, never a sharp view (an inside
-    door's narrow lites). The data passes see the pane (it is opaque to them: the door, not the wall behind)."""
+    door's narrow lites). The data passes see the pane (it is opaque to them: the door, not the wall behind). 31 Oct
+    2026: ``spec`` (``{"rgb", "roughness", "transmission", "ior"}``, e.g. ``REEDED_GLASS``) over those values."""
     import bpy
 
+    spec = {**SATIN_GLASS, "rgb": SATIN_GLASS_RGB, **(spec or {})}
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     node = next(n for n in mat.node_tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled")
-    node.inputs["Base Color"].default_value = (*SATIN_GLASS_RGB, 1.0)
-    node.inputs["Roughness"].default_value = SATIN_GLASS["roughness"]
-    node.inputs["IOR"].default_value = SATIN_GLASS["ior"]
+    node.inputs["Base Color"].default_value = (*spec["rgb"], 1.0)
+    node.inputs["Roughness"].default_value = spec["roughness"]
+    node.inputs["IOR"].default_value = spec["ior"]
     for key in ("Transmission Weight", "Transmission"):
         if key in node.inputs:
-            node.inputs[key].default_value = SATIN_GLASS["transmission"]
+            node.inputs[key].default_value = spec["transmission"]
             break
     return mat
 

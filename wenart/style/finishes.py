@@ -269,6 +269,10 @@ FURNITURE_MATERIALS: dict[str, dict] = {
                     "source": ACG, "asset": "Metal032", "albedo_mode": "flat", "detail": 0.15},
     "metal_brass": {"kind": "metal", "flat": _lin("brass"), "roughness": 0.25, "metallic": 1.0, "flat_source": "colour:brass",
                     "source": ACG, "asset": "Metal032", "albedo_mode": "flat", "detail": 0.15},
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "you can make this a lot better with the better material
+    # and details"): a built-in wardrobe's matte lacquer (wardrobe_fronts.BUILT_IN_LOOKS: the minimal families' shell),
+    # a plain satin-matte paint finish that takes the look's colour (no plank photo: no board seams on a lacquer)
+    "lacquer_matte": _proc(None, "painted", _lin("off white"), 0.55, colourable=True, flat_source="colour:off white"),
     # 29 Oct 2026 (lesson UL121, docs/reference_details_20261029.md R35: "fabric materials with weave normals and sheen
     # (linen, cotton, velvet, knit, boucle)"): the bedding's procedural fabrics (node group wenart_weave: the weave's
     # relief as a bump, the look's sheen as a material layer, materials.weave_layers) and the woven patterns of a

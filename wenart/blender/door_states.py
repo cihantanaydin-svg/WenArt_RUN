@@ -1416,6 +1416,10 @@ def dressing_problems(building: dict, style=None) -> list[dict]:
         ans = room.get("wardrobe_fronts") if isinstance(room.get("wardrobe_fronts"), dict) else {}
         if ans.get("kind") == "closed" and ans.get("by") not in (None, "architect"):
             continue                                     # the user's or the AI's answer: closed fronts on purpose
+        # 31 Oct 2026 (user on real04 run 20261030-181158-full: "it needs to be wall to wall or from wall to middle"):
+        # a walk-in none of whose runs can stand against a wall keeps its free-standing wardrobes (no fix exists)
+        if not any(WF.built_in_fit(building, f, room)["ok"] for f in robes):
+            continue
         kind = WF.WALK_IN_FRONTS.get(WF.family_of(style), WF.WALK_IN_DEFAULT) if style else "slats"
         out.append({"target": room["id"], "kind": "dressing_closed_fronts", "severity": "major",
                     "fix_choice": f"wardrobe_fronts:{kind}",

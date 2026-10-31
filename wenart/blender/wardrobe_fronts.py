@@ -35,6 +35,25 @@ see-through doors, or an open run, in front of real contents), keeping the fitte
 - ``walk_in_extras(building, room)``: a bench (else a pouf) on a free wall where the walkway allows (``WALKWAY_M`` free
   in front of it, clear of the wardrobes' ``ACCESS_M`` and the doors' approaches and leaves), and a full-height mirror
   on a free wall stretch (``MIRROR_M``), each recorded with its reason or why it does not fit.
+- 31 Oct 2026 (user on real04 run 20261030-181158-full, an L0 bedroom with a desk: "Not every room needs this built in
+  wardrobe, we can use it sometime but it needs to be wall to wall or from wall to middle, also you can make this a lot
+  better with the better material and details"). The see-through run is a built-in (a feature front, a top box to the
+  ceiling): (1) a house gets at most ``BUILT_IN_ROOMS_MAX`` rooms of them (``plan``): the walk-in dressing rooms first,
+  then the master bedroom (with its twin), then the bedrooms whose room scheme asks for one, the best fit first (a run
+  from wall to wall, then the larger room, then the wider run); a twin pair is taken whole or not at all; every other
+  wardrobe keeps the fit's free-standing library model (or its closed module run), each skip recorded with its reason.
+  The run of real04 (pod at fa7d24d) predates UL207; UL207 alone still gave 6 of its 8 bedrooms a run (two scheme
+  bundles of four ask for one, and twins copy them) and a scheme recorded before UL207 still named its old front:
+  ``bedroom_front`` reads the bundle's current front (``SCHEME_FRONTS``) first. (2) A built-in stands against a wall at
+  one end at least (``run_ends``: within ``END_TOUCH_M`` of a solid wall face along the run, never a door): a gap of at
+  most ``EXTEND_MAX_M`` to a side wall is closed (``built_in_fit``: the strip, the floor in front of it and the doors'
+  approaches free, no opening behind it; ``drawn_footprint`` kept, ``adjusted_by_ai``), so a run ends at the wall, or
+  goes from wall to wall; with ``furnished_rooms: keep`` or ``furnished_rooms_keep_size`` the size stays and a run
+  that does not reach a wall stays free-standing. (3) The look (``built_in_look``, ``BUILT_IN_LOOKS``): the shell (the
+  end panels to the floor, the fascia to the ceiling, the slats) in the style's wood veneer or the family's matte
+  lacquer, the style's veneer inside, slim metal frames with glazing beads in the family's metal, long grip channels,
+  shadow gaps, a recessed plinth, tinted glass that reads as glass, rounded flutes on reeded glass
+  (``modules.see_through_parts``, ``look_overrides``).
 """
 from __future__ import annotations
 
@@ -52,11 +71,15 @@ WALK_IN_FRONTS: dict[str, str] = dict(FRONTS, industrial="open", classic="open",
 WALK_IN_DEFAULT = "open"
 FRONT_KINDS: tuple[str, ...] = ("slats", "smoked_glass", "open", "slats_glass", "reeded_glass")
 CHOICES: tuple[str, ...] = FRONT_KINDS + ("closed",)
-FRONT_WHAT = {"slats": "horizontal black slat sliding doors", "smoked_glass": "smoked glass sliding doors in black "
-              "frames", "open": "an open run (hanging rails, shelves and shoe racks)", "closed": "closed fronts",
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "you can make this a lot better with the better material and
+# details"): the fronts are wood slats and tinted or reeded glass in slim metal frames (``built_in_look``), no longer
+# black boxes
+FRONT_WHAT = {"slats": "sliding doors of horizontal wood slats in slim metal frames", "smoked_glass": "tinted glass "
+              "sliding doors in slim metal frames", "open": "an open run (hanging rails, shelves and shoe racks)",
+              "closed": "closed fronts",
               # 30 Oct 2026 (UL182): glass sections among the slats, and reeded glass
-              "slats_glass": "black-framed sliding doors, slatted ones and glass ones in turn",
-              "reeded_glass": "reeded glass sliding doors in black frames"}
+              "slats_glass": "slim-framed sliding doors, wood-slatted ones and glass ones in turn",
+              "reeded_glass": "reeded glass sliding doors in slim metal frames"}
 # 30 Oct 2026 (lesson UL182, user on real04 run 20261030-112241-full: "These kind of wardrobes can be used in other
 # rooms also, it can go all the way to the ceiling it can have glass sections I did gave an inspiration before"): in
 # the families that use a see-through front, a bedroom's widest wardrobe run may get one, each bedroom its own
@@ -97,6 +120,35 @@ MIRROR_M = (0.60, 1.80, 0.15)     # a full-height mirror: width, height, bottom 
 MIRROR_FRAME_M = 0.025
 MIRROR_DEPTH_M = 0.03
 OPENING_MARGIN_M = 0.10
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "Not every room needs this built in wardrobe, we can use it
+# sometime but it needs to be wall to wall or from wall to middle"; module docstring (1), (2))
+BUILT_IN_ROOMS_MAX = 2            # rooms of a house with a built-in see-through run (walk-ins, the master and its twin)
+END_TOUCH_M = 0.05                # = looks.BUILT_IN_REACH_M: a run end this near a wall face stands against it
+EXTEND_MAX_M = 0.50               # CLAUDE.md: a drawn piece moves at most 0.5 m: a gap this small to a side wall closes
+EXTEND_CLEAR_M = 0.003            # the extended end stops this short of the wall face (a scribe; no coplanar faces)
+END_SAMPLES: tuple[float, ...] = (-0.8, 0.0, 0.8)      # where across its depth a run end looks for its wall
+RAY_BACK_M = 0.02                 # ... from this far inside the run
+PASSAGE_TYPES: tuple[str, ...] = ("door", "opening")   # an end at one of these stands at a doorway, not at a wall
+BEHIND_OPENING_M = 0.35           # an opening this near the back line of an extension stands behind it
+# 31 Oct 2026 (user: "you can make this a lot better with the better material and details"; module docstring (3)): the
+# built-in's look by family (designer sets, assumed): ``shell`` veneer (the style's furniture wood, else ``wood``) or
+# lacquer (``lacquer_matte`` in ``colour``) for the end panels, the fascia to the ceiling and the slats; ``wood`` the
+# veneer inside; ``metal`` the slim frames, the track and the grip channels (anodised dark bronze, champagne = brushed
+# steel, brass, black); ``glass`` the tinted pane's material key (``bronze_glass`` warm, ``smoked_glass`` grey)
+BUILT_IN_LOOKS: dict[str, dict] = {
+    "modern": {"shell": "veneer", "wood": "wood_veneer_oak", "metal": "dark_bronze", "glass": "bronze_glass"},
+    "contemporary": {"shell": "veneer", "wood": "wood_veneer_walnut", "metal": "metal_brass", "glass": "bronze_glass"},
+    "scandinavian": {"shell": "veneer", "wood": "wood_veneer_oak_light", "metal": "steel_brushed",
+                     "glass": "smoked_glass"},
+    "japandi": {"shell": "veneer", "wood": "wood_veneer_oak_light", "metal": "dark_bronze", "glass": "bronze_glass"},
+    "minimal": {"shell": "lacquer", "colour": "off white", "wood": "wood_veneer_oak_light", "metal": "steel_brushed",
+                "glass": "smoked_glass"},
+    "modern minimal": {"shell": "lacquer", "colour": "greige", "wood": "wood_veneer_oak", "metal": "dark_bronze",
+                       "glass": "bronze_glass"},
+    "industrial": {"shell": "veneer", "wood": "wood_veneer_black_oak", "metal": "metal_black", "glass": "smoked_glass"},
+}
+BUILT_IN_LOOK_DEFAULT = "modern"
+LACQUER_SLUG = "lacquer_matte"    # finishes.FURNITURE_MATERIALS: a matte lacquer that takes the look's colour
 # muted garment colours (wenart/style/colours.py names), cycled by the wardrobe's own seed
 GARMENT_COLOURS: tuple[str, ...] = ("white", "light grey", "navy", "charcoal", "beige", "sky blue", "sage", "camel",
                                     "taupe", "off white", "dusty blue", "olive", "black", "greige")
@@ -136,6 +188,53 @@ def garment_palette(style, scheme: Optional[dict] = None) -> list[str]:
             out.append(colour)
             break
     return [c for c in out if c in C.COLOURS] or [c for c in GARMENT_COLOURS if c in C.COLOURS]
+
+
+def built_in_look(style) -> dict:
+    """The look of a built-in see-through run (pure; 31 Oct 2026, user: "you can make this a lot better with the better
+    material and details"; ``BUILT_IN_LOOKS``): ``{"family", "shell": veneer | lacquer, "shell_slug", "colour", "wood",
+    "metal", "glass", "why"}``. The veneer is the style's furniture wood when it names a veneer (the pieces of the room
+    fit together), else the family's; the lacquer is ``LACQUER_SLUG`` in the family's colour."""
+    fam = family_of(style)
+    row = BUILT_IN_LOOKS.get(fam) or BUILT_IN_LOOKS[BUILT_IN_LOOK_DEFAULT]
+    furniture = (style or {}).get("furniture") if isinstance(style, dict) else None
+    given = (furniture or {}).get("wood") if isinstance(furniture, dict) else None
+    wood = given if isinstance(given, str) and given.startswith("wood_veneer_") else row["wood"]
+    lacquer = row["shell"] == "lacquer"
+    out = {"family": fam or BUILT_IN_LOOK_DEFAULT, "shell": row["shell"],
+           "shell_slug": LACQUER_SLUG if lacquer else wood, "colour": row.get("colour") if lacquer else None,
+           "wood": wood, "metal": row["metal"], "glass": row["glass"]}
+    tone = wood.replace("wood_veneer_", "").replace("_", " ")
+    shell = f"a matte {out['colour']} lacquer" if lacquer else f"{tone} veneer"
+    out["why"] = (f"{shell} shell (end panels to the floor, a fascia to the ceiling, the slats), "
+                  f"{out['metal'].replace('_', ' ')} slim frames with long grip channels, "
+                  f"{out['glass'].replace('_', ' ')}, a recessed plinth and shadow gaps (31 Oct 2026)")
+    return out
+
+
+def look_overrides(piece: dict) -> dict:
+    """``{material key: {"slug", "asset", "colour"}}`` of a built-in see-through run's look (pure; 31 Oct 2026): its
+    shell on ``front`` (the end panels, the fascia, the slats), its veneer on ``wood`` (inside), its metal on ``handle``
+    (the frames, the beads, the track, the grip channels); {} for another piece. The build lays them over the design's
+    (``furniture.design_overrides``)."""
+    st = piece.get("see_through") if isinstance(piece.get("see_through"), dict) else {}
+    look = st.get("look") if isinstance(st.get("look"), dict) else None
+    if not look or st.get("kind") not in FRONT_KINDS:
+        return {}
+    try:
+        from wenart.style import vocabulary as V
+        table = {**V.MATERIALS, **V.FURNITURE_MATERIALS}
+    except Exception:  # noqa: BLE001 - without the style tables the style's keys stay
+        return {}
+
+    def entry(slug, colour=None):
+        if slug not in table:
+            return None
+        return {"slug": slug, "asset": table[slug].get("asset"), "colour": colour}
+
+    out = {"front": entry(look.get("shell_slug"), look.get("colour")), "wood": entry(look.get("wood")),
+           "handle": entry(look.get("metal"))}
+    return {k: v for k, v in out.items() if v is not None}
 
 
 def family_of(style) -> str:
@@ -261,65 +360,421 @@ def master_bedroom(rooms) -> Optional[dict]:
     return big[0] if big else None
 
 
-def plan(building: dict, style) -> dict:
-    """``{piece id: {"kind", "room_id", "reason", "walk_in"}}`` of the wardrobes that get a see-through or open front
-    (module docstring)."""
+def plan(building: dict, style, notes: Optional[list] = None) -> dict:
+    """``{piece id: {"kind", "room_id", "reason", "walk_in", "fit"}}`` of the wardrobes that get a see-through or open
+    front (module docstring): ``fit`` is ``built_in_fit``'s record (the ends, the extension and its footprint).
+    ``notes`` (a list) receives ``{"id", "room_id", "reason"}`` of every wardrobe run left free-standing and why (31 Oct
+    2026: the cap of ``BUILT_IN_ROOMS_MAX`` rooms, no wall at either end)."""
     fam = family_of(style)
     if not fam:
         return {}
+    notes = notes if notes is not None else []
     rooms = {r.get("id"): r for r in building.get("rooms") or []}
     robes = [f for f in building.get("furniture") or [] if str(f.get("type")) in WARDROBE_TYPES
              and f.get("build", True) is not False and f.get("room_id") in rooms]
     out: dict = {}
+    keep_all, keep_why = sizes_kept(building)
+    fit_of: dict = {}
+
+    def fit(f) -> dict:
+        if f["id"] not in fit_of:
+            room = rooms[f["room_id"]]
+            kept = keep_all or room_sizes_kept(building, room)
+            fit_of[f["id"]] = built_in_fit(building, f, room, keep=kept, keep_why=keep_why if keep_all else
+                                           "furnished_rooms_keep: the room keeps its drawn sizes")
+        return fit_of[f["id"]]
 
     def fits(f) -> Optional[str]:
         from wenart.blender import modules as MOD
 
-        w, d = _size(f)
+        rec = fit(f)
+        if not rec["ok"]:
+            return rec["why"]
+        piece = dict(f, footprint=rec["footprint"]) if rec.get("footprint") else f
+        w, d = _size(piece)
         if w < MIN_WIDTH_M - 1e-9:
             return f"{w:.2f} m wide: under the {MIN_WIDTH_M:.2f} m of two sliding panels"
         if d < MIN_DEPTH_M - 1e-9:
             return f"{d:.2f} m deep: no hanger fits across"
-        if MOD.module_plan(dict(f, see_through={"kind": "slats"})) is None:
+        if MOD.module_plan(dict(piece, see_through={"kind": "slats"})) is None:
             return "no wardrobe run of real frames fits its drawn size"
         return None
 
+    def skip(f, reason: str) -> None:
+        notes.append({"id": f["id"], "room_id": f.get("room_id"), "reason": reason})
+
+    def forced(room) -> bool:            # an answer of the user or the AI architect (not the code's safe default)
+        ans = room.get("wardrobe_fronts") if isinstance(room.get("wardrobe_fronts"), dict) else {}
+        return ans.get("kind") in FRONT_KINDS and ans.get("by") not in (None, "architect")
+
+    taken: list = []                      # the rooms with a built-in run, in the order they got it
     walk = {rid: walk_in(building, r) for rid, r in rooms.items() if any(f["room_id"] == rid for f in robes)}
-    for f in robes:
-        room = rooms[f["room_id"]]
-        why = walk.get(room["id"])
-        if why is None or fits(f) is not None:
-            continue
+    for rid in sorted((r for r in walk if walk[r]), key=lambda r: (not forced(rooms[r]), str(r))):
+        room = rooms[rid]
         kind, src = walk_in_front(building, room, style)
         if kind == "closed":
             continue
-        out[f["id"]] = {"kind": kind, "room_id": room["id"], "walk_in": True,
-                        "reason": f"a walk-in ({why}), see-through on every side: {FRONT_WHAT[kind]} with real "
-                                  f"contents and a light inside ({src}; UL120, UL125)"}
-    # 30 Oct 2026 (UL182): every bedroom's widest run, each bedroom its own front (``bedroom_front``); the master
-    # first (the family's own front, UL120), a twin room after its partner (its partner's front)
+        runs = []
+        for f in (f for f in robes if f["room_id"] == rid):
+            why = fits(f)
+            if why is not None:
+                skip(f, f"the walk-in's run stays as it is: {why}")
+            else:
+                runs.append(f)
+        if not runs:
+            continue
+        if len(taken) >= BUILT_IN_ROOMS_MAX and not forced(room):
+            for f in runs:
+                skip(f, f"the house has its {BUILT_IN_ROOMS_MAX} rooms of built-in runs already "
+                        f"({', '.join(taken)}): a free-standing wardrobe")
+            continue
+        taken.append(rid)
+        for f in runs:
+            out[f["id"]] = {"kind": kind, "room_id": rid, "walk_in": True, "fit": fit(f),
+                            "reason": f"a walk-in ({walk[rid]}), see-through on every side: {FRONT_WHAT[kind]} with "
+                                      f"real contents and a light inside ({src}; UL120, UL125)"}
+    # 30 Oct 2026 (UL182): a bedroom's widest run, each bedroom its own front (``bedroom_front``); the master first (the
+    # family's own front, UL120), a twin room with its partner (its partner's front). 31 Oct 2026: only while the house
+    # has fewer than ``BUILT_IN_ROOMS_MAX`` rooms with one; the master's unit first, then the best fit (wall to wall,
+    # the larger room, the wider run); a twin pair whole or not at all
     master = master_bedroom(rooms.values())
     elevation = {lv.get("id"): float(lv.get("elevation") or 0.0) for lv in building.get("levels") or []}
-    beds = sorted((r for r in rooms.values() if str(r.get("room_type") or "") == "bedroom" and not walk.get(r["id"])),
-                  key=lambda r: (r is not master, bool((r.get("scheme") or {}).get("copied_from")),
-                                 elevation.get(r.get("level_id"), 0.0), str(r.get("id"))))
+    beds = {rid: r for rid, r in rooms.items() if str(r.get("room_type") or "") == "bedroom" and not walk.get(rid)}
+    units: dict = {}
+    for rid, r in beds.items():
+        partner = (r.get("scheme") or {}).get("copied_from")
+        root = partner if partner in beds and partner != rid else rid
+        units.setdefault(root, []).append(rid)
+    best: dict = {}
+    for rid in beds:
+        cands = [f for f in robes if f["room_id"] == rid]
+        ok = sorted((f for f in cands if fits(f) is None), key=lambda f: (-_size(f)[0], str(f.get("id"))))
+        if ok:
+            best[rid] = ok[0]
+        elif cands:
+            widest = sorted(cands, key=lambda f: (-_size(f)[0], str(f.get("id"))))[0]
+            best[rid] = None
+            fam_front = bedroom_front(beds[rid], style, (), beds[rid] is master)[0]
+            if fam_front is not None:
+                skip(widest, f"no built-in run here: {fits(widest)}; the fit's free-standing wardrobe stays")
+
+    def has_master(root: str) -> bool:
+        return any(beds[m] is master for m in units[root])
+
+    def rank(root: str):
+        room = beds[root]
+        f = best.get(root)
+        rec = fit(f) if f is not None else {}
+        length = run_length(dict(f, footprint=rec.get("footprint") or f["footprint"])) if f is not None else 0.0
+        return (not has_master(root), not forced(room), not rec.get("wall_to_wall"), -_area(room), -length,
+                elevation.get(room.get("level_id"), 0.0), str(root))
+
     kinds: dict = {}
-    for room in beds:
-        cands = sorted((f for f in robes if f["room_id"] == room["id"] and fits(f) is None),
-                       key=lambda f: (-_size(f)[0], str(f.get("id"))))
-        if not cands or cands[0]["id"] in out:
-            continue
-        partner = (room.get("scheme") or {}).get("copied_from")
-        kind, why = bedroom_front(room, style, list(kinds.values()), room is master,
-                                  (partner, kinds[partner]) if partner in kinds else None)
+    for root in sorted(units, key=rank):
+        members = [root] + sorted(r for r in units[root] if r != root)
+        kind, why = bedroom_front(beds[root], style, list(kinds.values()), has_master(root))
         if kind is None:
             continue
-        kinds[room["id"]] = kind
-        what = "the master bedroom's wardrobe run" if room is master else "the bedroom's wardrobe run"
-        out[cands[0]["id"]] = {"kind": kind, "room_id": room["id"], "walk_in": False,
-                               "reason": f"{what} ({fam} style): {FRONT_WHAT[kind]} with its garments and an LED strip "
-                                         f"showing through, {why} (UL120, UL182)"}
+        fronts = {root: (kind, why)}
+        for rid in members[1:]:                      # a twin takes its partner's front (its own answer wins)
+            fronts[rid] = bedroom_front(beds[rid], style, list(kinds.values()), beds[rid] is master, (root, kind))
+        with_run = [rid for rid in members if best.get(rid) is not None and fronts[rid][0] is not None]
+        if not with_run:
+            continue
+        if len(taken) + len(with_run) > BUILT_IN_ROOMS_MAX and not forced(beds[root]):
+            for rid in with_run:
+                skip(best[rid], f"the house has {len(taken)} of its {BUILT_IN_ROOMS_MAX} rooms of built-in runs "
+                                f"({', '.join(taken) or 'none'}) and this room's unit needs {len(with_run)}: a "
+                                "free-standing wardrobe (a built-in is an option for some rooms, not every bedroom's)")
+            continue
+        for rid in with_run:
+            room = beds[rid]
+            k, w = fronts[rid]
+            kinds[rid] = k
+            taken.append(rid)
+            what = "the master bedroom's wardrobe run" if room is master else "the bedroom's wardrobe run"
+            f = best[rid]
+            out[f["id"]] = {"kind": k, "room_id": rid, "walk_in": False, "fit": fit(f),
+                            "reason": f"{what} ({fam} style): {FRONT_WHAT[k]} with its garments and an LED strip "
+                                      f"showing through, {w} (UL120, UL182; a built-in in {len(taken)} of at most "
+                                      f"{BUILT_IN_ROOMS_MAX} rooms, {fit(f)['why']})"}
     return out
+
+
+# ------------------------------------------------------------------------------------ the built-in's wall rule
+
+def run_frame(piece: dict) -> Optional[dict]:
+    """``{"c", "d", "t", "half_len", "half_depth", "len_axis"}`` of a wardrobe run (pure; 31 Oct 2026): its footprint
+    centre, the unit direction its front faces, the unit direction along the run (``d`` turned left), half its length
+    along the front and half its depth, and the index of the footprint's size along the run; None without a front or
+    a footprint."""
+    d = front_dir(piece)
+    fp = piece.get("footprint") or {}
+    if d is None or not fp.get("center") or len(fp.get("size") or []) < 2:
+        return None
+    w, dep = _size(piece)
+    rot = math.radians(float(fp.get("rotation_deg") or 0.0))
+    along = abs(math.cos(rot) * d[0] + math.sin(rot) * d[1])     # the footprint's width axis along the front direction
+    half_depth, half_len, axis = (w / 2.0, dep / 2.0, 1) if along > 0.7 else (dep / 2.0, w / 2.0, 0)
+    c = fp["center"]
+    return {"c": (float(c[0]), float(c[1])), "d": d, "t": (-d[1], d[0]), "half_len": half_len,
+            "half_depth": half_depth, "len_axis": axis}
+
+
+def run_length(piece: dict) -> float:
+    """The length of a wardrobe run along its front (pure; 0 without a front)."""
+    fr = run_frame(piece)
+    return 2.0 * fr["half_len"] if fr is not None else 0.0
+
+
+def _wall_poly(wall: dict) -> Optional[list]:
+    try:
+        s, e = (float(wall["start"][0]), float(wall["start"][1])), (float(wall["end"][0]), float(wall["end"][1]))
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None
+    length = G.distance(s, e)
+    if length < 1e-6:
+        return None
+    t = float(wall.get("thickness") or 0.1) / 2.0
+    nx, ny = -(e[1] - s[1]) / length * t, (e[0] - s[0]) / length * t
+    return [(s[0] + nx, s[1] + ny), (e[0] + nx, e[1] + ny), (e[0] - nx, e[1] - ny), (s[0] - nx, s[1] - ny)]
+
+
+def _ray_into(p, u, poly) -> float:
+    """How far a ray from ``p`` along ``u`` runs before it enters ``poly`` (0 inside it, inf when it misses)."""
+    from wenart.blender import door_states as DS
+
+    if G.point_in_polygon(p, poly):
+        return 0.0
+    return DS._ray_exit(p, u, poly)
+
+
+def _passage_at(building: dict, level_id, point, wall_id=None) -> Optional[str]:
+    """The id of a door or an opening (``PASSAGE_TYPES``) at ``point`` on a wall face (its width plus 2 cm along its
+    wall, within the wall's half thickness plus 10 cm across), else None."""
+    walls = {w.get("id"): w for w in building.get("walls") or []}
+    for o in building.get("openings") or []:
+        if o.get("level_id") != level_id or o.get("type") not in PASSAGE_TYPES or not o.get("center"):
+            continue
+        w = walls.get(o.get("wall_id"))
+        half = float(o.get("width") or 0.0) / 2.0 + 0.02
+        c = (float(o["center"][0]), float(o["center"][1]))
+        if w is not None and G.distance(w["start"], w["end"]) > 1e-6:
+            s, e = w["start"], w["end"]
+            length = G.distance(s, e)
+            ux, uy = (e[0] - s[0]) / length, (e[1] - s[1]) / length
+            along = (point[0] - c[0]) * ux + (point[1] - c[1]) * uy
+            across = abs(-(point[0] - c[0]) * uy + (point[1] - c[1]) * ux)
+            if abs(along) <= half and across <= float(w.get("thickness") or 0.2) / 2.0 + 0.10:
+                return str(o.get("id"))
+        elif G.distance(point, c) <= math.hypot(half, 0.2):
+            return str(o.get("id"))
+    return None
+
+
+def _strip_poly(fr: dict, s: int, start: float, length: float, depth0: float, depth1: float) -> list:
+    """The rectangle along the run's side ``s`` from ``start`` to ``start + length`` past the centre, from ``depth0``
+    to ``depth1`` along the front direction (0 = the run's centre line)."""
+    (cx, cy), d, t = fr["c"], fr["d"], fr["t"]
+    u = (t[0] * s, t[1] * s)
+    out = []
+    for a, b in ((start, depth0), (start + length, depth0), (start + length, depth1), (start, depth1)):
+        out.append((cx + u[0] * a + d[0] * b, cy + u[1] * a + d[1] * b))
+    return out
+
+
+def _door_blocks(building: dict, level_id) -> list[tuple[str, str, list]]:
+    """The doors' approaches (their opening plus 5 cm, ``0.75`` m deep on both sides) and recorded open leaves and
+    sweeps of a level: floor a wardrobe never takes (as ``walk_in_extras``)."""
+    from wenart.blender import door_states as DS
+
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("id") is not None}
+    out = []
+    for o in building.get("openings") or []:
+        w = walls.get(o.get("wall_id"))
+        if o.get("level_id") != level_id or w is None or o.get("type") not in PASSAGE_TYPES or not o.get("center"):
+            continue
+        fr = DS.leaf_frame(o, w)
+        for s in (1.0, -1.0):
+            out.append((f"{o['id']}:approach", "door", DS._strip(fr["c"][0], fr["c"][1], fr["u"], fr["n"],
+                                                                 fr["w"] / 2.0 + 0.05, 0.75, s, fr["T"] / 2.0)))
+        for key in ("leaf_polys", "sweeps"):
+            for poly in (o.get("leaf_state") or {}).get(key) or []:
+                out.append((f"{o['id']}:leaf", "door", [tuple(p) for p in poly]))
+    return out
+
+
+def run_ends(building: dict, piece: dict, room: Optional[dict] = None) -> list[dict]:
+    """The two ends of a wardrobe run (pure; 31 Oct 2026, module docstring (2)): ``[{"side": -1 | 1, "gap_m", "touch",
+    "wall", "passage"}]``: how far each end stands from the nearest wall face along the run (the room's outline or a
+    wall of its level, looked for from ``END_SAMPLES`` across the run's depth), the wall it meets (a wall id or
+    ``outline``), whether it stands against it (``END_TOUCH_M``, never at a doorway: ``passage``)."""
+    fr = run_frame(piece)
+    if fr is None:
+        return []
+    lid = piece.get("level_id")
+    poly = [tuple(p[:2]) for p in (room or {}).get("polygon") or []]
+    walls = [(w.get("id"), _wall_poly(w)) for w in building.get("walls") or [] if w.get("level_id") == lid]
+    walls = [(wid, p) for wid, p in walls if p is not None]
+    (cx, cy), d, t = fr["c"], fr["d"], fr["t"]
+    out = []
+    for s in (-1, 1):
+        u = (t[0] * s, t[1] * s)
+        best, hit_wall, hit_at = math.inf, None, None
+        for k in END_SAMPLES:
+            # each ray starts RAY_BACK_M inside the run (an end on the outline itself is inside and outside at once)
+            p = (cx + u[0] * (fr["half_len"] - RAY_BACK_M) + d[0] * k * fr["half_depth"],
+                 cy + u[1] * (fr["half_len"] - RAY_BACK_M) + d[1] * k * fr["half_depth"])
+            cands = [(wid, _ray_into(p, u, wp)) for wid, wp in walls]
+            if len(poly) >= 3:
+                from wenart.blender import door_states as DS
+                cands.append(("outline", DS._ray_exit(p, u, poly) if G.point_in_polygon(p, poly) else 0.0))
+            for wid, g in cands:
+                g = max(0.0, g - RAY_BACK_M)
+                if g < best - 1e-9:
+                    best, hit_wall, hit_at = g, wid, (p[0] + u[0] * (g + RAY_BACK_M), p[1] + u[1] * (g + RAY_BACK_M))
+        passage = _passage_at(building, lid, hit_at, hit_wall) if hit_at is not None and best < math.inf else None
+        out.append({"side": s, "gap_m": round(best, 4) if best < math.inf else None, "wall": hit_wall,
+                    "passage": passage, "touch": best <= END_TOUCH_M + 1e-9 and passage is None})
+    return out
+
+
+def sizes_kept(building: dict) -> tuple[bool, str]:
+    """``(True, why)`` when the brief keeps the drawn sizes (``furnished_rooms: keep`` or
+    ``furnished_rooms_keep_size``; CLAUDE.md: then only the look, the orientation and clear errors change), else
+    ``(False, "")``."""
+    try:
+        from wenart import views as V
+        mode, _a = V.brief_setting(building, "furnished_rooms")
+        keep_size, _b = V.brief_setting(building, "furnished_rooms_keep_size")
+    except Exception:  # noqa: BLE001 - without the brief tables the default (complete) applies
+        return False, ""
+    if str(mode or "") == "keep":
+        return True, "furnished_rooms: keep: the drawn sizes stay"
+    if keep_size is True:
+        return True, "furnished_rooms_keep_size: the drawn sizes stay"
+    return False, ""
+
+
+def room_sizes_kept(building: dict, room: dict) -> bool:
+    """A room the brief's ``furnished_rooms_keep`` names (by id or label): its drawn sizes stay."""
+    try:
+        from wenart import views as V
+        names, _a = V.brief_setting(building, "furnished_rooms_keep")
+    except Exception:  # noqa: BLE001
+        return False
+    if not isinstance(names, (list, tuple)):
+        return False
+    names = {str(n).strip().lower() for n in names if n is not None}
+    return bool(names) and (str(room.get("id") or "").lower() in names
+                            or str(room.get("label") or "").strip().lower() in names)
+
+
+def built_in_fit(building: dict, piece: dict, room: Optional[dict] = None, keep: bool = False,
+                 keep_why: str = "") -> dict:
+    """Whether a wardrobe run can be a built-in (pure; 31 Oct 2026, module docstring (2)): ``{"ok", "why", "ends",
+    "extend": {side: metres}, "footprint": the extended footprint | None, "wall_to_wall"}``. An end within
+    ``END_TOUCH_M`` of a solid wall stands against it; an end at most ``EXTEND_MAX_M`` from one is extended to it
+    (``EXTEND_CLEAR_M`` short) when the strip lies in the room, no piece, wall-hung item or door approach is in it, no
+    piece stands in the ``ACCESS_M`` of floor before it and no opening is on the wall behind it (``keep``: never). ``ok``
+    when an end stands against a wall afterwards."""
+    from wenart.blender import door_states as DS
+
+    fr = run_frame(piece)
+    ends = run_ends(building, piece, room)
+    if fr is None or not ends:
+        return {"ok": False, "why": "no front or footprint to place a built-in by", "ends": ends, "extend": {},
+                "footprint": None, "wall_to_wall": False}
+    lid = piece.get("level_id")
+    poly = [tuple(p[:2]) for p in (room or {}).get("polygon") or []]
+    others = [(pid, t, pp) for pid, t, pp in DS.piece_polys(building, lid) if pid != str(piece.get("id"))
+              and t not in ("rug",)]
+    doors = _door_blocks(building, lid)
+    extend: dict = {}
+    for e in ends:
+        e["extend_m"] = None
+        gap = e["gap_m"]
+        if e["touch"] or gap is None or gap > EXTEND_MAX_M + 1e-9:
+            continue
+        if e["passage"] is not None:
+            e["blocked"] = f"it ends at the doorway {e['passage']}"
+            continue
+        if keep:
+            e["blocked"] = keep_why or "the drawn sizes stay"
+            continue
+        length = gap - EXTEND_CLEAR_M
+        hd = fr["half_depth"]
+        strip = _strip_poly(fr, e["side"], fr["half_len"], length, -hd, hd)
+        inner = _strip_poly(fr, e["side"], fr["half_len"] + 0.01, max(0.0, length - 0.02), -hd + 0.01, hd - 0.01)
+        if len(poly) >= 3 and not all(G.point_in_polygon(p, poly) for p in inner):
+            e["blocked"] = "the strip to the wall leaves the room"
+            continue
+        hit = [pid for pid, _t, pp in others + doors if DS.overlap(strip, pp) > DS.HIT_M2]
+        if hit:
+            e["blocked"] = f"{', '.join(sorted(set(hit))[:3])} in the strip to the wall"
+            continue
+        access = _strip_poly(fr, e["side"], fr["half_len"], length, hd, hd + ACCESS_M)
+        hit = [pid for pid, _t, pp in others if DS.overlap(access, pp) > DS.HIT_M2]
+        if hit:
+            e["blocked"] = f"its doors would open onto {', '.join(sorted(set(hit))[:3])}"
+            continue
+        behind = _opening_behind(building, lid, fr, e["side"], length)
+        if behind is not None:
+            e["blocked"] = f"{behind} on the wall behind the strip"
+            continue
+        e["extend_m"] = round(length, 4)
+        extend[e["side"]] = round(length, 4)
+    touch = [e for e in ends if e["touch"] or e.get("extend_m")]
+    wall_to_wall = len(touch) == 2
+    footprint = extended_footprint(piece, extend) if extend else None
+    if not touch:
+        gaps = ", ".join(f"{e['gap_m']:.2f} m" if e["gap_m"] is not None else "no wall" for e in ends)
+        blocked = "; ".join(e["blocked"] for e in ends if e.get("blocked"))
+        return {"ok": False, "ends": ends, "extend": {}, "footprint": None, "wall_to_wall": False,
+                "why": f"neither end stands against a wall (gaps {gaps}" + (f"; {blocked}" if blocked else "") +
+                       "): a built-in goes from wall to wall or from a wall, never floats mid-wall"}
+    if wall_to_wall:
+        why = "from wall to wall"
+    else:
+        why = "from the wall at one end to the middle of the wall"
+    if extend:
+        why += " (" + ", ".join(f"{m:.2f} m to the wall" for m in extend.values()) + " closed)"
+    return {"ok": True, "ends": ends, "extend": extend, "footprint": footprint, "wall_to_wall": wall_to_wall,
+            "why": why}
+
+
+def _opening_behind(building: dict, level_id, fr: dict, s: int, length: float) -> Optional[str]:
+    """The id of an opening (any type) on the back line of the run's extension strip on side ``s``, else None."""
+    (cx, cy), d, t = fr["c"], fr["d"], fr["t"]
+    u = (t[0] * s, t[1] * s)
+    back = (cx - d[0] * fr["half_depth"], cy - d[1] * fr["half_depth"])
+    for o in building.get("openings") or []:
+        if o.get("level_id") != level_id or not o.get("center"):
+            continue
+        ox, oy = float(o["center"][0]) - back[0], float(o["center"][1]) - back[1]
+        along, across = ox * u[0] + oy * u[1], ox * d[0] + oy * d[1]
+        half = float(o.get("width") or 0.0) / 2.0
+        if abs(across) <= BEHIND_OPENING_M and along + half > fr["half_len"] + 1e-6 \
+                and along - half < fr["half_len"] + length - 1e-6:
+            return str(o.get("id"))
+    return None
+
+
+def extended_footprint(piece: dict, extend: dict) -> dict:
+    """The footprint of a run whose ends move out along the run by ``extend`` (``{-1 | 1: metres}``; pure): the
+    centre shifts by half the difference, the size along the run grows by the sum."""
+    fr = run_frame(piece)
+    fp = dict(piece.get("footprint") or {})
+    if fr is None or not extend:
+        return fp
+    lo, hi = float(extend.get(-1) or 0.0), float(extend.get(1) or 0.0)
+    shift = (hi - lo) / 2.0
+    c = fr["c"]
+    size = [float(v) for v in fp["size"]]
+    size[fr["len_axis"]] = round(size[fr["len_axis"]] + lo + hi, 4)
+    fp["center"] = [round(c[0] + fr["t"][0] * shift, 4), round(c[1] + fr["t"][1] * shift, 4)]
+    fp["size"] = size
+    return fp
 
 
 def _stable(text: str) -> int:
@@ -348,7 +803,10 @@ def bedroom_front(room: dict, style, taken=(), master: bool = False,
     if master:
         return options[0], f"the {fam} family's own front"
     scheme = room.get("scheme") if isinstance(room.get("scheme"), dict) else {}
-    pref = scheme.get("wardrobe_front") or SCHEME_FRONTS.get(str(scheme.get("bundle") or ""))
+    # 31 Oct 2026 (real04 run 20261030-181158-full): the bundle's current front first; a scheme recorded before UL207
+    # still named the old one ("slats", "smoked_glass" of the bundles that keep closed fronts now)
+    bundle = str(scheme.get("bundle") or "")
+    pref = SCHEME_FRONTS[bundle] if bundle in SCHEME_FRONTS else scheme.get("wardrobe_front")
     # UL207 (user: "This is not mandatory it is optional"): besides the master, a bedroom gets a see-through front
     # only when its room scheme names one; a scheme of closed fronts, or none, keeps them closed
     if pref not in FRONT_KINDS:
@@ -444,13 +902,39 @@ def to_ceiling(building: dict, piece: dict) -> tuple[Optional[float], str, list[
 def apply(building: dict, style) -> tuple[dict, list[dict]]:
     """Write ``plan`` into the pieces (in place): ``(plan, assumed entries)``. The piece is built by the wardrobe
     module builder (``asset.method: module``); the fitted library model it replaces stays in ``see_through.replaced``."""
-    chosen = plan(building, style)
+    notes: list = []
+    chosen = plan(building, style, notes)
     assumed = []
     rooms = {r.get("id"): r for r in building.get("rooms") or []}
+    # 31 Oct 2026 (user: "Not every room needs this built in wardrobe"): every run left free-standing, and why
+    for n in notes:
+        assumed.append({"object": f"furn_{n['id']}", "field": "built_in", "value": "free-standing",
+                        "reason": n["reason"], "parent": n["id"], "kind": "built_in_wardrobe"})
     for f in building.get("furniture") or []:
         rec = chosen.get(f.get("id"))
         if rec is None:
             continue
+        # 31 Oct 2026 (user: "it needs to be wall to wall or from wall to middle"): a small gap to a side wall closes
+        fit = rec.pop("fit", None) or {}
+        if fit.get("footprint"):
+            old_fp = dict(f["footprint"])
+            f.setdefault("drawn_footprint", old_fp)
+            f["footprint"] = dict(fit["footprint"])
+            why = (f"the built-in run reaches its wall: {fit['why']} (a built-in goes from wall to wall or from a "
+                   f"wall, never floats mid-wall; drawn_footprint kept)")
+            label = {"by": "code", "rule": "built-in wardrobe wall to wall (31 Oct 2026)", "reason": why,
+                     "evidence": {"ends": [{k: e.get(k) for k in ("side", "gap_m", "wall", "extend_m")}
+                                           for e in fit.get("ends") or []],
+                                  "from": old_fp, "to": dict(fit["footprint"])}}
+            if isinstance(f.get("adjusted_by_ai"), dict):
+                label["previous"] = [dict(f["adjusted_by_ai"])]
+            f["adjusted_by_ai"] = label
+            assumed.append({"object": f"furn_{f['id']}", "field": "footprint", "value": f["footprint"],
+                            "reason": why, "parent": f["id"], "kind": "built_in_wardrobe"})
+        rec["ends"] = fit.get("why")
+        rec["wall_to_wall"] = bool(fit.get("wall_to_wall"))
+        rec["extend"] = {str(k): v for k, v in (fit.get("extend") or {}).items()} or None
+        rec["look"] = built_in_look(style)
         old = f.get("asset") if isinstance(f.get("asset"), dict) else {}
         replaced = {k: old.get(k) for k in ("asset_id", "library", "method", "licence") if old.get(k) is not None}
         # 30 Oct 2026 (UL182): up to the ceiling (a top box behind the full-height doors), the glass of the glass

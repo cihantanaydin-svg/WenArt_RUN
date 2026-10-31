@@ -447,7 +447,10 @@ def test_a_walk_in_is_see_through_on_both_sides():
     assert set(chosen) == {"f_a", "f_b"} and all(v["kind"] == "slats" and v["walk_in"] for v in chosen.values())
     robe = b["furniture"][1]
     assert robe["asset"]["method"] == "module" and robe["see_through"]["replaced"]["asset_id"] == "abo_x"
-    assert {a["kind"] for a in assumed} == {"see_through_front"}
+    # 31 Oct 2026 (user: "it needs to be wall to wall"): the runs' 9 cm gaps to the end walls close (logged)
+    assert {a["kind"] for a in assumed} == {"see_through_front", "built_in_wardrobe"}
+    assert all(f["adjusted_by_ai"]["rule"].startswith("built-in wardrobe") and f["drawn_footprint"]["size"][0] == 2.27
+               and f["footprint"]["size"][0] > 2.4 for f in b["furniture"])
     # facing runs make a walk-in whatever the label; the family picks the front; the architect's answer wins
     anon = _dressing(label="Oda", rtype="other")
     assert "face each other" in WF.walk_in(anon, anon["rooms"][0])
@@ -471,10 +474,11 @@ def test_the_master_bedrooms_run_and_not_every_wardrobe():
                    "polygon": [[0, 0], [5, 0], [5, 4], [0, 4]]},
                   {"id": "r_k", "level_id": "L0", "room_type": "bedroom", "label": "Kids",
                    "polygon": [[5, 0], [9, 0], [9, 4], [5, 4]]}]
+    # 31 Oct 2026 (user: "it needs to be wall to wall or from wall to middle"): both runs start at a wall
     b["furniture"] = [{"id": "f_m", "type": "wardrobe", "level_id": "L0", "room_id": "r_m", "front_deg": 90.0,
-                       "footprint": {"center": [2.5, 0.3], "size": [2.0, 0.6], "rotation_deg": 0.0}},
+                       "footprint": {"center": [1.0, 0.3], "size": [2.0, 0.6], "rotation_deg": 0.0}},
                       {"id": "f_k", "type": "wardrobe", "level_id": "L0", "room_id": "r_k", "front_deg": 90.0,
-                       "footprint": {"center": [7, 0.3], "size": [1.5, 0.6], "rotation_deg": 0.0}}]
+                       "footprint": {"center": [5.75, 0.3], "size": [1.5, 0.6], "rotation_deg": 0.0}}]
     # 30 Oct 2026 (UL182, UL207 "This is not mandatory it is optional"): the master the family's (slats), another
     # bedroom only when its room scheme asks for a see-through front, then a front of its own
     got = WF.plan(b, SCANDI)
