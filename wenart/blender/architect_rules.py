@@ -1164,6 +1164,8 @@ def grading_rules(prep: dict) -> list[dict]:
         rule = (f.get("metrics") or {}).get("rule")
         if rule == "G13" and f.get("severity") == "minor":
             continue            # 30 Oct 2026 (UL198): a way into a parking that cars do not use, another one works
+        if rule == "G15":
+            continue            # 31 Oct 2026: the outdoor walk is A6's own question (architect_walk: fixed or open there)
         q = g3 if rule == "G7" else g2
         _open(q, str(f.get("target")), f"{rule}: {f['message']}",
               "Should the site keep this, or should it be graded as the rule asks?", [AA.option("keep")])

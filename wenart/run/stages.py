@@ -238,6 +238,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/bath_objects.py",
              # 30 Oct 2026 (UL129, UL141-UL144): the grading review's site sense and the pools' ladder and seats
              "wenart/blender/site_sense.py", "wenart/blender/pool_extras.py",
+             # 31 Oct 2026: the outdoor walk (G15) and the architect's A6 fixes
+             "wenart/blender/site_walk.py", "wenart/blender/architect_walk.py",
              # 30 Oct 2026 (UL131, UL140): the soft seats' grade (fit), fabric slots and parts (furniture), the names
              "wenart/blender/soft_seats.py", "wenart/assets/material_names.py",
              # 30 Oct 2026: the wall plates (UL112), the windows' facade order (UL210, UL211), the appliances and the

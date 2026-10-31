@@ -7508,6 +7508,10 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                                                if k not in ("footprint", "landing")}}
                                       for pf in pfs if pf.get("flight_down")]}
     summary["vegetation_counts"] = vegetation_counts(summary)       # Milestone 13 (T8 metric 11): per source
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "a log that is checking the a person can walk around the
+    # house using the designated pathways"): the outdoor walk's log with the architect's fixes (A6, site_walk.walk_log)
+    if isinstance(plan.get("walk"), dict):
+        summary["walk"] = plan["walk"]
     return summary
 
 
