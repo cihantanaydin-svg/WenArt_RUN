@@ -135,6 +135,25 @@ h1 { font-size: 1.35rem; margin: 0; font-weight: 700; letter-spacing: -0.01em; t
 .tools button { font: 600 0.82rem var(--font-ui); border: 1px solid var(--line); background: var(--bg); color: var(--ink);
   padding: 5px 10px; border-radius: 6px; cursor: pointer; }
 .legend { display: inline-flex; gap: 12px; flex-wrap: wrap; }
+.filter { display: inline-flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; padding: 4px 10px;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.filter .fname { font-weight: 700; color: var(--ink); }
+.dual { position: relative; width: 150px; height: 22px; }
+.dual .track, .dual .fill { position: absolute; top: 9px; height: 4px; border-radius: 2px; }
+.dual .track { left: 0; right: 0; background: var(--line); }
+.dual .fill { background: var(--accent); }
+.dual input { position: absolute; left: 0; top: 0; width: 100%; height: 22px; margin: 0; background: none;
+  pointer-events: none; -webkit-appearance: none; appearance: none; }
+.dual input::-webkit-slider-runnable-track { background: none; height: 22px; }
+.dual input::-moz-range-track { background: none; }
+.dual input::-webkit-slider-thumb { -webkit-appearance: none; pointer-events: auto; width: 16px; height: 16px;
+  margin-top: 3px; border-radius: 50%; background: var(--ink); border: 2px solid var(--panel); cursor: pointer; }
+.dual input::-moz-range-thumb { pointer-events: auto; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--ink); border: 2px solid var(--panel); cursor: pointer; }
+.dual input:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--accent); outline-offset: 1px; }
+.filter output { font: 700 0.85rem var(--font-code); color: var(--ink); min-width: 3.2em;
+  font-variant-numeric: tabular-nums; }
+.fcount { font: 500 0.8rem var(--font-code); font-variant-numeric: tabular-nums; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
 main .wrap { padding-block: 18px 48px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
@@ -180,7 +199,18 @@ dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% au
     <div class="tabs" id="tabs" role="tablist" aria-label="Types"></div>
     <div class="bar"><span id="bar"></span></div>
     <div class="tools">
-      <label><input type="checkbox" id="unranked"> Unranked only</label>
+      <span class="filter" role="group" aria-label="Filter by score">
+        <span class="fname">Filter</span>
+        <label><input type="checkbox" id="f-ranked" checked> Scored</label>
+        <span class="dual"><span class="track"></span><span class="fill" id="f-fill"></span>
+          <input type="range" id="f-lo" min="0" max="10" step="1" value="0" aria-label="Lowest score shown">
+          <input type="range" id="f-hi" min="0" max="10" step="1" value="10" aria-label="Highest score shown"></span>
+        <output id="f-out" for="f-lo f-hi">0–10</output>
+        <label><input type="checkbox" id="f-unranked" checked> Not ranked yet</label>
+        <label><input type="checkbox" id="f-all"> All types</label>
+        <button type="button" id="f-reset">Reset</button>
+        <span class="fcount" id="f-count"></span>
+      </span>
       <span class="legend">__LEGEND__</span>
       <span class="keys">Keys: select a card, press 0–9, T for 10; the next card follows.</span>
       __NAMEBOX__
@@ -191,7 +221,7 @@ dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% au
 <main><div class="wrap">
   __INTRO__
   <div class="grid" id="grid"></div>
-  <p class="empty" id="empty" hidden>Every model of this type has a score. Untick "Unranked only" to see them all.</p>
+  <p class="empty" id="empty" hidden>No model here matches the filter. Press Reset to see them all.</p>
   <textarea class="copybox" id="copybox" hidden readonly></textarea>
 </div></main>
 <dialog id="zoom"><div class="big" id="big"></div></dialog>
@@ -224,7 +254,7 @@ function renderGroups() {
     b.setAttribute("aria-selected", String(g === active));
     b.append(g);
     const c = document.createElement("span"); c.className = "count"; c.textContent = done + "/" + all.length; b.append(c);
-    b.onclick = () => { current = ts[0]; focusIdx = -1; renderAll(); };
+    b.onclick = () => { current = ts[0]; focusIdx = -1; $("f-all").checked = false; paintFilter(); renderAll(); };
     row.append(b);
   }
 }
@@ -241,16 +271,50 @@ function renderTabs() {
     b.setAttribute("aria-selected", String(t === current));
     b.append(NAMES[t] || t);
     const c = document.createElement("span"); c.className = "count"; c.textContent = done + "/" + all.length; b.append(c);
-    b.onclick = () => { current = t; focusIdx = -1; renderAll(); };
+    b.onclick = () => { current = t; focusIdx = -1; $("f-all").checked = false; paintFilter(); renderAll(); };
     tabs.append(b);
   }
   const all = MODELS.filter(m => m.tab === current), done = all.filter(m => scores[m.id] !== undefined).length;
   $("bar").style.width = (all.length ? 100 * done / all.length : 0) + "%";
 }
 
+// 31 Oct 2026 (user: "on the review page also put a filter general for the ranks slide 0 to 10 and for the ones which
+// is not ranked yet"): one filter for every tab: the scored models within the slider's range, the models not ranked
+// yet, this type or all types; kept in this browser
+const FK = LS + "-filter";
+function filterState() {
+  const lo = Number($("f-lo").value), hi = Number($("f-hi").value);
+  return { ranked: $("f-ranked").checked, lo: Math.min(lo, hi), hi: Math.max(lo, hi),
+           unranked: $("f-unranked").checked, all: $("f-all").checked };
+}
+function matches(m, f) {
+  f = f || filterState();
+  const r = scores[m.id];
+  if (r === undefined) return f.unranked;
+  return f.ranked && r >= f.lo && r <= f.hi;
+}
+function filterDefault(f) { return f.ranked && f.lo === 0 && f.hi === 10 && f.unranked && !f.all; }
+function paintFilter() {
+  const f = filterState();
+  $("f-out").textContent = f.lo === f.hi ? String(f.lo) : f.lo + "–" + f.hi;
+  $("f-fill").style.left = (f.lo * 10) + "%"; $("f-fill").style.width = ((f.hi - f.lo) * 10) + "%";
+  $("f-fill").style.opacity = f.ranked ? 1 : 0.3;
+  for (const id of ["f-lo", "f-hi"]) $(id).disabled = !f.ranked;
+  $("f-reset").hidden = filterDefault(f);
+  try { localStorage.setItem(FK, JSON.stringify(f)); } catch (e) {}
+}
+function loadFilter() {
+  try {
+    const f = JSON.parse(localStorage.getItem(FK) || "null");
+    if (!f) return;
+    $("f-ranked").checked = f.ranked !== false; $("f-unranked").checked = f.unranked !== false;
+    $("f-all").checked = !!f.all;
+    $("f-lo").value = Number.isInteger(f.lo) ? f.lo : 0; $("f-hi").value = Number.isInteger(f.hi) ? f.hi : 10;
+  } catch (e) {}
+}
 function visible() {
-  const only = $("unranked").checked;
-  return MODELS.filter(m => m.tab === current && (!only || scores[m.id] === undefined));
+  const f = filterState();
+  return MODELS.filter(m => (f.all || m.tab === current) && matches(m, f));
 }
 
 function cardFor(m) {
@@ -302,6 +366,12 @@ function renderAll() {
   const rows = visible();
   for (const m of rows) grid.append(cardFor(m));
   $("empty").hidden = rows.length > 0;
+  countShown();
+}
+function countShown() {
+  const f = filterState(), n = $("grid").children.length;
+  const of = MODELS.filter(m => f.all || m.tab === current).length;
+  $("f-count").textContent = n + " of " + of + " shown" + (f.all ? " (all types)" : "");
 }
 
 let queue = Promise.resolve();
@@ -310,7 +380,7 @@ function setScore(m, r, card) {
   if (clear) delete scores[m.id]; else scores[m.id] = r;
   saveLocal();
   paint(card, m); renderTabs();
-  if (!clear) advance(card);
+  if (!clear || !matches(m)) advance(card, m);
   if (!db) { status(STORE === "rater" ? Object.keys(scores).length + " scores kept in this browser. When you are done, press \u201cCopy my scores\u201d and send them back."
                                       : "Saved in this browser only: copy the scores as text and paste them in the chat.", STORE !== "rater"); return; }
   if (STORE === "rater") { saveRater(); return; }
@@ -332,12 +402,13 @@ function saveRater() {                         // the whole map, one write per p
   }, 600);
 }
 
-function advance(card) {
-  if ($("unranked").checked) {                 // the card leaves the list: focus the one that takes its place
+function advance(card, m) {
+  if (m && !matches(m)) {                      // the card leaves the filter: focus the one that takes its place
     const grid = $("grid"), i = [...grid.children].indexOf(card);
     card.remove();
     const next = grid.children[i] || grid.children[i - 1];
     if (next) next.focus(); else $("empty").hidden = false;
+    countShown();
     return;
   }
   const next = card.nextElementSibling; if (next) next.focus();
@@ -352,7 +423,12 @@ document.addEventListener("keydown", (ev) => {
   ev.preventDefault();
   const m = MODELS.find(x => x.id === card.dataset.id); if (m) setScore(m, r, card);
 });
-$("unranked").onchange = () => renderAll();
+let filterTimer = null;
+function onFilter() { paintFilter(); clearTimeout(filterTimer); filterTimer = setTimeout(() => { focusIdx = -1; renderAll(); }, 120); }
+for (const id of ["f-lo", "f-hi"]) $(id).oninput = onFilter;
+for (const id of ["f-ranked", "f-unranked", "f-all"]) $(id).onchange = onFilter;
+$("f-reset").onclick = () => { $("f-ranked").checked = true; $("f-unranked").checked = true; $("f-all").checked = false;
+  $("f-lo").value = 0; $("f-hi").value = 10; onFilter(); };
 $("copy").onclick = async () => {
   const lines = [];
   for (const t of TYPES) {
@@ -370,6 +446,7 @@ $("copy").onclick = async () => {
 $("zoom").onclick = () => $("zoom").close();
 
 loadLocal();
+loadFilter(); paintFilter();
 if ($("rater")) {
   try { $("rater").value = localStorage.getItem(LS + "-name") || ""; } catch (e) {}
   $("rater").oninput = () => { try { localStorage.setItem(LS + "-name", $("rater").value); } catch (e) {} };

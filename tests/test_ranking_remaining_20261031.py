@@ -382,3 +382,23 @@ def test_the_textile_library_pick_reads_the_users_rank(ranks_file):
     ranks_file({"unrated": 5, "five": 4})
     got = dict(item)
     assert F.fit_decor_item(got, cat, "modern", mode="relaxed") is None and "rates better" in got["library_gap"]["why"]
+
+
+def test_the_page_has_one_score_filter_for_every_tab():
+    """User (31 Oct 2026): "on the review page also put a filter general for the ranks slide 0 to 10 and for the ones
+    which is not ranked yet": a two-handle 0-10 slider over the scored models, a not-ranked-yet switch, an all-types
+    switch and a reset, applied by one ``matches`` rule to the grid."""
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location("ranking_page", Path(__file__).resolve().parents[1] / "scripts"
+                                                  / "ranking_page.py")
+    RP = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(RP)
+    rows = [{"id": "a", "tab": "sofa", "type": "sofa", "sheet": "sofa-01", "letter": "A", "x": 0, "y": 0}]
+    html = RP.page(rows, ["sofa"])
+    for needle in ('id="f-lo" min="0" max="10"', 'id="f-hi" min="0" max="10"', 'id="f-unranked" checked',
+                   'id="f-ranked" checked', 'id="f-all"', 'id="f-reset"', "function matches(m, f)",
+                   '(f.all || m.tab === current) && matches(m, f)'):
+        assert needle in html, needle
+    assert 'id="unranked"' not in html            # the old "Unranked only" box is part of the filter now
