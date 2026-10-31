@@ -161,8 +161,10 @@ def test_scene_manifest_validates_with_rugs_wall_art_and_a_bed_frame(built):
     schemas.validate_scene_manifest(m)
     s = m["furniture"]
     assert s["by_method"]["library"] == 4 and not [f for f in s["fallbacks"] if f["type"] == "bed_double"]
-    (skipped,) = s["decor_skipped"]
-    assert skipped["id"] == "dec_L0_099" and "no library wall art model" in skipped["reason"]
+    skipped = {d["id"]: d for d in s["decor_skipped"]}
+    assert "no library wall art model" in skipped.pop("dec_L0_099")["reason"]
+    # 31 Oct 2026: the frame takes the family's made set; its cushions are the set's (test_cushions_on_a_bed_frame_...)
+    assert skipped and all("built in the dressing" in d["reason"] for d in skipped.values())
     assert "decor_dec_L0_099" not in built["objects"] and "dec_L0_099" not in m["pass_index"]
     assert not [w for w in m["warnings"] if "deck" in w or "capped at 0.6" in w]
 
@@ -184,9 +186,15 @@ def test_bed_frame_gets_the_bedding_in_its_inner_box_on_the_deck(built):
     rec = entry["bedding"]
     assert rec["deck_z_m"] == pytest.approx(deck, abs=1e-4) and rec["z_scale"] == pytest.approx(sz, abs=1e-4)
     assert rec["mattress_top_m"] == pytest.approx(deck + 0.20, abs=1e-4)
-    assert rec["material_keys"] == {"bedding": "fabric_white", "duvet": "fabric_linen"}
-    # The bedding vertices are the parametric parts in the piece frame, placed like the piece.
-    parts = P.frame_bedding(fp["size"][0], fp["size"][1], deck)
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"): the frame keeps the mattress
+    # on its deck and takes the family's made set over it (the dressing: shams against its headboard, standing pillows)
+    assert rec["material_keys"] == {"bedding": "fabric_white"} and rec["pillows"] == 0 and rec["dressed"]
+    dress = entry["dressing"]["record"]
+    assert dress["set"]["euro_shams"] == 2 and dress["set"]["pillows"] == 2 and dress["pillows_upright"] is True
+    assert min(dress["pillow_local_y"]) > 0.5                                    # at the head (local +Y, the south)
+    assert bed["id"] in m["furniture"]["dressed_beds"]
+    # The mattress vertices are the parametric mattress in the piece frame, placed like the piece.
+    parts = [p for p in P.frame_bedding(fp["size"][0], fp["size"][1], deck) if p["role"] == "mattress"]
     want, _faces, _keys = P.world_mesh(parts, fp["center"], fp["rotation_deg"], 0.0)
     got = ob["verts"][-len(want):]
     assert max(abs(a - b) for p, q in zip(got, want) for a, b in zip(p, q)) < 1e-4
@@ -202,15 +210,9 @@ def test_bed_frame_gets_the_bedding_in_its_inner_box_on_the_deck(built):
     frame_local = [to_local(p, fp) for p in ob["verts"][:offset]]
     deck_corners = [v for v in frame_local if abs(v[2] - deck) < 1e-4]
     assert len(deck_corners) >= 4 and max(abs(v[0]) for v in deck_corners) < 0.8
-    # pillows at the head (local +Y, the headboard side; here the south wall), the duvet from the foot
-    pillow_ys = [sum(to_local(p, fp)[1] for p in got[i:i + len(q["verts"])]) / len(q["verts"])
-                 for i, q in _part_offsets(parts) if q["role"] == "pillow"]
-    assert len(pillow_ys) == 2 and min(pillow_ys) > 0.5
-    head_world = [p for p in got if p[2] > deck + 0.15]
-    assert sum(p[1] for p in head_world) / len(head_world) < fp["center"][1] + 0.5            # south half
-    # bedding faces carry the style materials and are smooth; the frame keeps its own material
+    # the mattress faces carry the style material and are smooth; the frame keeps its own material
     bedding_faces = [f for f in ob["faces"] if min(f["verts"]) >= offset]
-    assert {f["material"] for f in bedding_faces} == {"fabric_white", "fabric_linen"}
+    assert {f["material"] for f in bedding_faces} == {"fabric_white"}
     assert all(f["smooth"] for f in bedding_faces)
     frame_mats = {f["material"] for f in ob["faces"] if max(f["verts"]) < offset}
     assert frame_mats and all(name.endswith("_mat") for name in frame_mats)          # the model's own materials
@@ -237,9 +239,14 @@ def test_cushions_on_a_bed_frame_rest_on_its_bedding(built):
     2026); on the mattress in front of them its upper part stood 0.3 m before the headboard and it was not built."""
     bed = next(f for f in built["building"]["furniture"] if f["type"] == "bed_double")
     m, objects = built["manifest"], built["objects"]
-    rec = next(o for o in m["objects"] if o.get("element_id") == bed["id"] and o["kind"] == "furniture")["bedding"]
+    entry = next(o for o in m["objects"] if o.get("element_id") == bed["id"] and o["kind"] == "furniture")
+    rec = entry["bedding"]
     cushions = [o for o in m["objects"] if o["kind"] == "decor" and o.get("host_id") == bed["id"]]
-    assert len(cushions) == 2 and not [r for r in m["furniture"]["decor_not_rested"] if r["host_id"] == bed["id"]]
+    assert not [r for r in m["furniture"]["decor_not_rested"] if r["host_id"] == bed["id"]]
+    # 31 Oct 2026: the frame takes the family's made set, its decor cushions are the set's cushions (in their colours)
+    skipped = [d for d in m["furniture"]["decor_skipped"] if "built in the dressing" in d["reason"]]
+    dress = entry["dressing"]["record"]
+    assert not cushions and len(skipped) == 2 and dress["set"]["accent"] + dress["set"]["lumbar"] >= 1
     for c in cushions:
         assert c["pass_index"] == m["pass_index"][bed["id"]] and c["wenart_id"] == bed["id"]
         low = bounds(objects[c["name"]]["verts"])[2][0]

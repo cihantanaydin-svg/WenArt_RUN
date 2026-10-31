@@ -752,7 +752,7 @@ def gap_sheet(head: dict, x_span: Sequence[float], key: str) -> Part:
 
 
 def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Optional[dict] = None,
-                mode: str = "full", colours: Optional[Sequence[str]] = None) -> Optional[dict]:
+                mode: str = "full", colours: Optional[Sequence[str]] = None, head_caster=None) -> Optional[dict]:
     """29 Oct 2026 (lesson UL121, R35: "a full, soft bed"): the bedding of the family's set (``bedding_parts.
     FAMILY_BEDDING``, ``counts`` by the bed's width) on a bed model, every piece one part of the bed's one dressing
     mesh: (1) the euro shams against the headboard (``euro_shams``; none without a headboard, said in ``explained``),
@@ -767,7 +767,13 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
     (``rest.bed_head``) is closed by a sheet over it (``gap_sheet``), the head recorded (``record["head"]``).
     ``colours``: the decor stage's cushion colours (the AI's), used for the accent cushions and the lumbar before the
     family's. ``mode`` pillows: the set without our duvet (the model's own duvet kept). ``{"parts", "pillows": [pose],
-    "duvet", "record"}`` or None when no pillow finds a place."""
+    "duvet", "record"}`` or None when no pillow finds a place.
+
+    31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"): ``head_caster`` (the wall
+    behind the bed's head, ``bedding_parts.head_wall``, and the room's feature panel on it) holds the shams and the
+    pillows where the model has no headboard (the rays saw only a low platform: two pillows lay flat, no shams); the
+    turned-down band and the sheet over a gap at the head are the family's top sheet (``spec["sheet"]``: its look and
+    colour, the duvet's where the spec names none)."""
     from wenart.blender import bedding_parts as BP
 
     w, d = float(host_fp["size"][0]), float(host_fp["size"][1])
@@ -775,11 +781,12 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
     want = BP.counts(spec, w)
     explained: dict[str, str] = {}
     colours = [c for c in (colours or []) if c]
+    lean = rest.MultiCaster([caster, head_caster]) if head_caster is not None else caster   # the shams' and pillows'
     # 1. euro shams: standing on what lies at the head against the headboard (30 Oct 2026, UL137: a headboard behind
     # a gap or on posts, a model's own flat pillows), else leaning as before
     sham = None
     if want["euro_shams"]:
-        sham = euro_shams(caster, host_fp, want["euro_shams"], size=BP.SHAM_SIZE,
+        sham = euro_shams(lean, host_fp, want["euro_shams"], size=BP.SHAM_SIZE,
                           key=BP.textile_key(spec["shams"]["look"]), mesh_fn=BP.plump_cushion,
                           colour=spec["shams"].get("colour"), stand=True)
     # 2. sleeping pillows: standing against the shams, else lying against the headboard
@@ -787,10 +794,12 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
     pw = min(BP.PILLOW_SIZE[0], (w - 0.1) / n - 0.04)
     pt, ph = BP.PILLOW_SIZE[1], BP.PILLOW_SIZE[2]
     pkey, pcol = BP.textile_key(spec["pillows"]["look"]), spec["pillows"].get("colour")
+    sh = spec.get("sheet") if isinstance(spec.get("sheet"), dict) else (spec.get("duvet") or spec["pillows"])
+    skey, scol = BP.textile_key(sh.get("look") or "cotton"), sh.get("colour")
     got = None
     if sham is not None:
         sv, sf = _merged(sham["parts"])
-        got = _pillows(rest.MultiCaster([caster, rest.mesh_caster(sv, sf)]), host_fp, n, pw, pt, ph,
+        got = _pillows(rest.MultiCaster([lean, rest.mesh_caster(sv, sf)]), host_fp, n, pw, pt, ph,
                        lean_deg=BP.PILLOW_UPRIGHT_LEAN_DEG, key=pkey, mesh_fn=BP.plump_cushion, colour=pcol,
                        stand=True)
         if got is None or any(str(p.get("how") or "").startswith("no backrest hit") for p in got[1]):
@@ -804,7 +813,7 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
         want = BP.counts(spec, w, shams=False)
     upright = got is not None
     if got is None:
-        got = _pillows(caster, host_fp, n, pw, pt, ph, key=pkey, mesh_fn=BP.plump_cushion, colour=pcol)
+        got = _pillows(lean, host_fp, n, pw, pt, ph, key=pkey, mesh_fn=BP.plump_cushion, colour=pcol)
     if got is None:
         return None
     parts, poses = got
@@ -858,8 +867,9 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
         band = BP.turn_down_band(dict(duvet_got, grid=duvet_got["grid_local"], normals=duvet_got["normals_local"]),
                                  TURN_DOWN_M)
         if band is not None:
+            # 31 Oct 2026: the turned-down band is the top sheet (its own look and colour), not the duvet folded
             bw = BP.to_world_arr(hc, rot, band.reshape(-1, 3)).reshape(band.shape)
-            parts.append(dict(BP.sheet_solid(bw, BP.band_thickness(band), dkey, "turndown"), colour=dcol))
+            parts.append(dict(BP.sheet_solid(bw, BP.band_thickness(band), skey, "turndown"), colour=scol))
         on = np.asarray(duvet_got["on_top"], dtype=bool)
         support = duvet_got["grid_local"][on]
         if band is not None:
@@ -880,9 +890,9 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
                              "smoothness": look, "measure": duvet_got["measure"], "rule": BP.RULE_LOOK},
                       sides=sides, drops=BP.side_drops(grid, loc, w, d, float(duvet_got["top_z"]), floor_z))
     if head and head["gap_m"] >= rest.BED_GAP_MIN_M:
-        sheet = gap_sheet(head, sheet_x or (-w / 2.0 + 0.03, w / 2.0 - 0.03), pkey)
+        sheet = gap_sheet(head, sheet_x or (-w / 2.0 + 0.03, w / 2.0 - 0.03), skey)
         world = BP.to_world_arr(hc, rot, np.asarray(sheet["verts"]))
-        parts.append(dict(sheet, verts=[tuple(q) for q in world.tolist()], colour=pcol))
+        parts.append(dict(sheet, verts=[tuple(q) for q in world.tolist()], colour=scol))
         record["head"]["closed_by"] = "a sheet over the gap, the shams and pillows standing at the headboard"
     if mode != "full":
         record.update(duvet_rect_local=[-w / 2.0, -d / 2.0, w / 2.0, round(y_head, 3)], top_z=round(top_est, 4),
@@ -926,7 +936,8 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
                        "lumbar": 1 if lumbar else 0},
                   explained=explained, accent=placed_acc, lumbar=lumbar,
                   looks={"shams": spec["shams"]["look"], "pillows": spec["pillows"]["look"],
-                         "duvet": spec["duvet"]["look"] if mode == "full" else None})
+                         "duvet": spec["duvet"]["look"] if mode == "full" else None},
+                  sheet={"look": sh.get("look") or "cotton", "colour": scol}, head_wall=head_caster is not None)
     record["head_problems"] = bedding_head_problems(record)
     return {"parts": parts, "pillows": poses, "duvet": duvet_got, "record": record}
 

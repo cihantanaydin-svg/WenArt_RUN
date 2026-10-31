@@ -125,6 +125,15 @@ FAMILY_TONES: dict[str, dict[str, str]] = {   # objects, art, bag, frame, vase, 
     "classic": dict(zip(TONE_KEYS, ("cream", "navy", "beige", "wood", "stone", "navy"))),
     "rustic": dict(zip(TONE_KEYS, ("terracotta", "olive", "rust", "wood", "glazed", "rust"))),
 }
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "This bag requires a lot more detail and a lot better texture
+# for example black leather like suite"): the bag is a leather holdall (wenart.blender.holdall); its tone is its
+# leather's: black in the modern and minimal families, warm browns in the others (designer values)
+BAG_LEATHER_TONES: dict[str, str] = {"modern": "black", "modern minimal": "black", "minimal": "black",
+                                     "contemporary": "caramel", "scandinavian": "camel", "japandi": "chocolate",
+                                     "industrial": "chocolate", "mediterranean": "camel", "classic": "chocolate",
+                                     "rustic": "caramel"}
+for _fam, _tone in BAG_LEATHER_TONES.items():
+    FAMILY_TONES[_fam]["bag"] = _tone
 DEFAULT_TONES = FAMILY_TONES["modern"]
 
 

@@ -119,7 +119,25 @@ LOOK_LAYERS: dict[str, dict] = {
     # 30 Oct 2026 (UL138): the towels' terry (no bedding look): a deep loop pile, a faint sheen on the loops' tips
     "terry": {"sheen": (0.3, 0.7), "bump": (0.9, 0.0025, 0.0028), "roughness": 0.97},
 }
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"; UL121 "... wrinkles ..."): the
+# soft crease lines of each look's cloth (a bump strength over its weave, ``materials.add_crease``; designer values):
+# washed linen creases most, cotton percale a little, the pile and loop fabrics hardly (their own relief shows)
+CREASE_BY_LOOK: dict[str, float] = {"linen": 0.45, "cotton": 0.3, "velvet": 0.08, "knit": 0.1, "boucle": 0.0,
+                                    "wool": 0.15}
 PATTERN_WEAVE = "wool"           # a patterned blanket is a woven wool (its twill bump)
+
+
+def crease_of(key: str) -> Optional[float]:
+    """The crease strength of a bedding part key (pure; ``textile_<look or pattern>`` / ``runner_<look>``, with or
+    without the colour prefix; a pattern creases as its weave, ``PATTERN_WEAVE``), None for any other key (a sofa's
+    upholstery never creases) or a look that does not crease."""
+    k = key[len(COLOUR_PREFIX):] if key.startswith(COLOUR_PREFIX) else key
+    for prefix in (TEXTILE_PREFIX, RUNNER_PREFIX):
+        if k.startswith(prefix):
+            name = k[len(prefix):]
+            look = PATTERN_WEAVE if name in PATTERN_SLUGS else name
+            return CREASE_BY_LOOK.get(look) or None
+    return None
 PATTERN_REPEAT_M: dict[str, float] = {"houndstooth": 0.028, "stripe": 0.06, "herringbone": 0.04}
 
 
@@ -156,10 +174,16 @@ TWO_PILLOW_MIN_W = 1.30                 # = parametric.TWO_PILLOW_MIN_W
 LUMBAR_MIN_BED_W = 0.85
 PILLOW_UPRIGHT_LEAN_DEG = 14.0          # sleeping pillows stand against the shams, leaned back this much
 
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"; UL121 "a deep soft duvet ...
+# fabric weave and sheen"): a made bed is layered and coordinated, not all white: the duvet in a soft tone of the family
+# (a washed linen where the family has one: its scan's weave), a crisp turned-down top sheet in its own colour
+# (``sheet``: the band over the duvet's head end, the sheet over a gap at the head), white sleeping pillows, the shams
+# and the cushions in the family's accents (the room's cushion colours first: ``scheme_colours``)
 FAMILY_BEDDING: dict[str, dict] = {
     "scandinavian": {
-        "duvet": {"look": "linen", "colour": "off white", "thickness_m": 0.06, "wrinkle_m": 0.012, "hem_m": 0.08},
-        "shams": {"look": "linen", "colour": "sand"},
+        "duvet": {"look": "linen", "colour": "sand", "thickness_m": 0.06, "wrinkle_m": 0.013, "hem_m": 0.08},
+        "sheet": {"look": "cotton", "colour": "white"},
+        "shams": {"look": "linen", "colour": "greige"},
         "pillows": {"look": "cotton", "colour": "white"},
         "accent": [{"look": "boucle", "colour": "cream"}],
         "lumbar": {"look": "knit", "colour": "sage"},
@@ -167,7 +191,8 @@ FAMILY_BEDDING: dict[str, dict] = {
         "why": "light linen layers in soft neutrals, a boucle and a knit cushion, a striped wool blanket under a "
                "fringed knit throw (Scandinavian: natural textures, little pattern)"},
     "japandi": {
-        "duvet": {"look": "linen", "colour": "off white", "thickness_m": 0.055, "wrinkle_m": 0.014, "hem_m": 0.10},
+        "duvet": {"look": "linen", "colour": "beige", "thickness_m": 0.055, "wrinkle_m": 0.014, "hem_m": 0.10},
+        "sheet": {"look": "linen", "colour": "off white"},
         "shams": {"look": "linen", "colour": "greige"},
         "pillows": {"look": "linen", "colour": "off white"},
         "accent": [{"look": "boucle", "colour": "beige"}],
@@ -176,25 +201,29 @@ FAMILY_BEDDING: dict[str, dict] = {
         "why": "washed linen with few pieces (no lumbar), one boucle cushion, a quiet herringbone wool and a fringed "
                "linen throw (Japandi: calm, natural, restrained)"},
     "modern": {
-        "duvet": {"look": "cotton", "colour": "white", "thickness_m": 0.065, "wrinkle_m": 0.009, "hem_m": 0.06},
+        "duvet": {"look": "linen", "colour": "greige", "thickness_m": 0.065, "wrinkle_m": 0.012, "hem_m": 0.06},
+        "sheet": {"look": "cotton", "colour": "white"},
         "shams": {"look": "velvet", "colour": "charcoal"},
         "pillows": {"look": "cotton", "colour": "white"},
         "accent": [{"look": "boucle", "colour": "ivory"}, {"look": "knit", "colour": "light grey"}],
         "lumbar": {"look": "velvet", "colour": "charcoal"},
         "throw": {"pattern": "houndstooth", "runner_look": "knit", "fringe": True},
-        "why": "crisp cotton, a velvet sham pair, a boucle and a knit cushion, a velvet lumbar, a houndstooth blanket "
-               "under a fringed knit throw (the reference photo's set)"},
+        "why": "a washed greige linen duvet under a crisp white sheet, a velvet sham pair, a boucle and a knit "
+               "cushion, a velvet lumbar, a houndstooth blanket under a fringed knit throw (the reference photos' "
+               "set)"},
     "contemporary": {
-        "duvet": {"look": "cotton", "colour": "off white", "thickness_m": 0.065, "wrinkle_m": 0.01, "hem_m": 0.06},
-        "shams": {"look": "linen", "colour": "greige"},
+        "duvet": {"look": "linen", "colour": "greige", "thickness_m": 0.065, "wrinkle_m": 0.012, "hem_m": 0.06},
+        "sheet": {"look": "cotton", "colour": "white"},
+        "shams": {"look": "linen", "colour": "taupe"},
         "pillows": {"look": "cotton", "colour": "white"},
         "accent": [{"look": "boucle", "colour": "cream"}, {"look": "velvet", "colour": "dusty blue"}],
-        "lumbar": {"look": "knit", "colour": "greige"},
+        "lumbar": {"look": "knit", "colour": "dusty blue"},
         "throw": {"pattern": "houndstooth", "runner_look": "knit", "fringe": True},
-        "why": "soft cotton and linen, a boucle and a velvet cushion, a knit lumbar, a houndstooth blanket under a "
-               "fringed knit throw"},
+        "why": "a greige linen duvet under a white cotton sheet, taupe linen shams, a boucle and a velvet cushion, a "
+               "dusty blue knit lumbar, a houndstooth blanket under a fringed knit throw"},
     "modern minimal": {
-        "duvet": {"look": "cotton", "colour": "white", "thickness_m": 0.055, "wrinkle_m": 0.006, "hem_m": 0.05},
+        "duvet": {"look": "cotton", "colour": "off white", "thickness_m": 0.06, "wrinkle_m": 0.008, "hem_m": 0.05},
+        "sheet": {"look": "cotton", "colour": "light grey"},
         "shams": {"look": "cotton", "colour": "light grey"},
         "pillows": {"look": "cotton", "colour": "white"},
         "accent": [{"look": "boucle", "colour": "light grey"}],
@@ -203,7 +232,8 @@ FAMILY_BEDDING: dict[str, dict] = {
         "why": "fewer pieces and no fringe: the shams, the sleeping pillows, one boucle cushion, a fine-striped "
                "blanket under a plain wool throw (minimal: calm surfaces)"},
     "minimal": {
-        "duvet": {"look": "cotton", "colour": "white", "thickness_m": 0.055, "wrinkle_m": 0.006, "hem_m": 0.05},
+        "duvet": {"look": "cotton", "colour": "off white", "thickness_m": 0.06, "wrinkle_m": 0.008, "hem_m": 0.05},
+        "sheet": {"look": "cotton", "colour": "light grey"},
         "shams": {"look": "cotton", "colour": "light grey"},
         "pillows": {"look": "cotton", "colour": "white"},
         "accent": [{"look": "boucle", "colour": "light grey"}],
@@ -212,7 +242,8 @@ FAMILY_BEDDING: dict[str, dict] = {
         "why": "fewer pieces and no fringe: the shams, the sleeping pillows, one boucle cushion, a fine-striped "
                "blanket under a plain wool throw (minimal: calm surfaces)"},
     "industrial": {
-        "duvet": {"look": "linen", "colour": "light grey", "thickness_m": 0.06, "wrinkle_m": 0.014, "hem_m": 0.08},
+        "duvet": {"look": "linen", "colour": "grey", "thickness_m": 0.06, "wrinkle_m": 0.014, "hem_m": 0.08},
+        "sheet": {"look": "cotton", "colour": "white"},
         "shams": {"look": "linen", "colour": "charcoal"},
         "pillows": {"look": "cotton", "colour": "white"},
         "accent": [{"look": "knit", "colour": "grey"}],
@@ -221,7 +252,8 @@ FAMILY_BEDDING: dict[str, dict] = {
         "why": "washed grey linen, charcoal shams, a chunky knit cushion, a rust wool lumbar, a herringbone blanket "
                "under a fringed wool throw (industrial: robust textures)"},
     "mediterranean": {
-        "duvet": {"look": "linen", "colour": "white", "thickness_m": 0.055, "wrinkle_m": 0.014, "hem_m": 0.08},
+        "duvet": {"look": "linen", "colour": "off white", "thickness_m": 0.055, "wrinkle_m": 0.014, "hem_m": 0.08},
+        "sheet": {"look": "linen", "colour": "sand"},
         "shams": {"look": "linen", "colour": "sand"},
         "pillows": {"look": "linen", "colour": "white"},
         "accent": [{"look": "knit", "colour": "cream"}, {"look": "linen", "colour": "terracotta"}],
@@ -230,7 +262,8 @@ FAMILY_BEDDING: dict[str, dict] = {
         "why": "white linen, sand shams, a knit and a terracotta linen cushion, a blue lumbar, a striped blanket under "
                "a fringed linen throw (Mediterranean: sun-washed linen)"},
     "classic": {
-        "duvet": {"look": "cotton", "colour": "ivory", "thickness_m": 0.07, "wrinkle_m": 0.008, "hem_m": 0.05},
+        "duvet": {"look": "cotton", "colour": "ivory", "thickness_m": 0.07, "wrinkle_m": 0.009, "hem_m": 0.05},
+        "sheet": {"look": "cotton", "colour": "white"},
         "shams": {"look": "velvet", "colour": "navy"},
         "pillows": {"look": "cotton", "colour": "white"},
         "accent": [{"look": "velvet", "colour": "cream"}, {"look": "velvet", "colour": "navy"}],
@@ -240,6 +273,7 @@ FAMILY_BEDDING: dict[str, dict] = {
                "fringed wool throw (classic: rich, layered)"},
     "rustic": {
         "duvet": {"look": "linen", "colour": "cream", "thickness_m": 0.07, "wrinkle_m": 0.014, "hem_m": 0.08},
+        "sheet": {"look": "cotton", "colour": "white"},
         "shams": {"look": "linen", "colour": "rust"},
         "pillows": {"look": "cotton", "colour": "cream"},
         "accent": [{"look": "knit", "colour": "cream"}],
@@ -289,8 +323,41 @@ def counts(spec: dict, width: float, shams: bool = True) -> dict[str, int]:
         return {"euro_shams": 0, "pillows": 1, "accent": min(1, accent),
                 "lumbar": 1 if lumbar and not accent and w >= LUMBAR_MIN_BED_W - 1e-9 else 0}
     if shams and w >= SHAM_MIN_BED_W - 1e-9:
-        return {"euro_shams": 2, "pillows": 2, "accent": 0, "lumbar": 1 if lumbar else 0}
+        # 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"; the set of 2 shams, 2
+        # sleeping pillows and 1-3 decorative cushions): a family without a lumbar shows its first accent cushion low
+        # in front of the pillows instead (five pieces, two rows: UL163 kept)
+        return {"euro_shams": 2, "pillows": 2, "accent": 0 if lumbar else min(1, accent),
+                "lumbar": 1 if lumbar else 0}
     return {"euro_shams": 0, "pillows": 2, "accent": min(2, accent), "lumbar": 0 if accent else (1 if lumbar else 0)}
+
+
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"): the bed's cushions in the room's
+# scheme: the brief's cushion colours, then its throw colours (``style.json`` ``decor``), then the profile's
+# ``colours.cushions`` (each known colour name once); the decor stage's cushion colours of the bed come first
+SCHEME_KEYS: tuple[tuple[str, str], ...] = (("decor", "cushion_colours"), ("decor", "throw_colours"),
+                                            ("colours", "cushions"))
+
+
+def scheme_colours(style: Optional[dict], against: Optional[str] = None) -> list[str]:
+    """The accent colours of the room's scheme a bed's cushions take (pure; ``SCHEME_KEYS``, known colour names of
+    ``wenart.style.colours`` only, each once, in order); with ``against`` (the sleeping pillows' colour) the one that
+    stands out most from it first (CIELAB distance, ``seat_throw.colour_distance``): the one decorative cushion in
+    front of white pillows is the mustard, not the cream."""
+    from wenart.style import colours as COL
+
+    out: list[str] = []
+    for section, key in SCHEME_KEYS:
+        block = (style or {}).get(section) if isinstance((style or {}).get(section), dict) else {}
+        values = block.get(key)
+        for v in (values if isinstance(values, list) else [values] if isinstance(values, str) else []):
+            name = str(v or "").strip().lower()
+            if name and name not in out and COL.known(name):
+                out.append(name)
+    if against and COL.known(str(against)) and len(out) > 1:
+        from wenart.blender import seat_throw as ST
+
+        out.sort(key=lambda c: -(ST.colour_distance(c, str(against)) or 0.0))
+    return out
 
 
 def pieces_max(width: float) -> int:
@@ -434,6 +501,117 @@ def bed_sides(bed: dict, building: dict, span: Optional[tuple[float, float]] = N
         c = out[side]["clear_m"]
         out[side]["free"] = c is None or c >= SIDE_FREE_M - 1e-9
     return out
+
+
+# --------------------------------------------------------------------------
+# The wall behind the bed's head: its headboard where the model has none
+# --------------------------------------------------------------------------
+#
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here", "also bedding on the bed could
+# have been a lot better"; lesson UL121): every bed we dressed showed two pillows lying flat and no shams or cushions
+# ("no headboard the rays find: no shams"), though its head stood against the wall or the room's wood feature panel:
+# the rays saw only the bed's own model (a low platform). A bed stands with its head against a wall, and the wall holds
+# the shams and the pillows as a headboard does (designer rule, assumed); the build adds the wall's face (and the
+# room's feature panel on it) to what the shams and the pillows lean on.
+HEAD_WALL_RULE = "bedding.head_wall"
+HEAD_WALL_REACH_M = 0.12         # a wall face this close behind the bed's head edge is its headboard ...
+HEAD_WALL_SHARE = 0.6            # ... over at least this share of the bed's width
+HEAD_WALL_ABOVE_M = 1.0          # the face the rays see: up to this over the mattress top ...
+HEAD_WALL_T_M = 0.05             # ... as a slab this deep behind the face
+HEAD_WALL_FACE_TOL_M = 0.03      # wall pieces whose faces lie within this of the nearest one are one face
+
+
+def head_wall(bed: dict, building: dict, floor_z: float = 0.0, top_z: Optional[float] = None) -> Optional[dict]:
+    """The wall behind a bed's head (pure; its front frame, ``bed_frame``): the building's walls on its level whose
+    face lies within ``HEAD_WALL_REACH_M`` behind the head edge across at least ``HEAD_WALL_SHARE`` of its width (wall
+    pieces with faces within ``HEAD_WALL_FACE_TOL_M`` of the nearest are one face). The face as the rays see it: slabs
+    ``HEAD_WALL_T_M`` deep from the floor (``floor_z``) up to ``HEAD_WALL_ABOVE_M`` over ``top_z`` (the mattress top,
+    else 0.5 m), lower under a window's sill on that wall and none in front of a door. ``{"face_y" (bed-local), "gap_m"
+    (behind the head edge), "by" (wall ids), "x": [x0, x1] (bed-local, the face's span over the bed), "share",
+    "verts", "faces" (world), "rule"}``, None when no wall stands there."""
+    centre, rot, (w, d) = bed_frame(bed)
+    lid = bed.get("level_id")
+    cands = []
+    for wall in building.get("walls") or []:
+        if wall.get("level_id") not in (None, lid) or not wall.get("start") or not wall.get("end"):
+            continue
+        if G.distance(wall["start"], wall["end"]) < 1e-6:
+            continue
+        poly = _local(centre, rot, G.centerline_to_rectangle(wall["start"], wall["end"],
+                                                             float(wall.get("thickness") or 0.1)))
+        part = _clip(_clip(poly, 0, -w / 2.0, False), 0, w / 2.0, True)        # over the bed's width
+        part = _clip(part, 1, d / 2.0 - 0.05, False) if part else []           # behind its head (a little overlap)
+        if not part:
+            continue
+        face = min(p[1] for p in part)
+        x0, x1 = min(p[0] for p in part), max(p[0] for p in part)
+        if face - d / 2.0 <= HEAD_WALL_REACH_M + 1e-9 and x1 - x0 > 0.02:
+            cands.append((face, x0, x1, str(wall.get("id"))))
+    if not cands:
+        return None
+    face = min(c[0] for c in cands)
+    near = sorted([c for c in cands if c[0] <= face + HEAD_WALL_FACE_TOL_M], key=lambda c: c[1])
+    spans: list[list[float]] = []
+    for _f, x0, x1, _id in near:                     # the union of the pieces' spans
+        if spans and x0 <= spans[-1][1] + 1e-6:
+            spans[-1][1] = max(spans[-1][1], x1)
+        else:
+            spans.append([x0, x1])
+    cover = sum(b - a for a, b in spans)
+    if cover < HEAD_WALL_SHARE * w - 1e-9:
+        return None
+    ids = [c[3] for c in near]
+    top = float(floor_z) + (float(top_z) - float(floor_z) if top_z is not None else 0.5) + HEAD_WALL_ABOVE_M
+    # the openings of those walls over the bed: under a window the face ends at its sill, a door has none
+    cuts = []
+    for op in building.get("openings") or []:
+        if op.get("wall_id") not in ids or not op.get("center") or not op.get("width"):
+            continue
+        cx = _local(centre, rot, [op["center"][:2]])[0][0]
+        half = float(op["width"]) / 2.0
+        if op.get("type") == "window":
+            sill = op.get("sill_height")
+            z = float(floor_z) + (float(sill) if sill is not None else 0.9)
+        else:
+            z = float(floor_z)
+        cuts.append((cx - half, cx + half, z))
+    boxes = []
+    for a, b in spans:
+        xs = sorted({a, b} | {min(b, max(a, v)) for c in cuts for v in c[:2]})
+        for u0, u1 in zip(xs, xs[1:]):
+            if u1 - u0 < 0.01:
+                continue
+            mid = (u0 + u1) / 2.0
+            z1 = min([top] + [c[2] for c in cuts if c[0] <= mid <= c[1]])
+            if z1 - float(floor_z) > 0.05:
+                boxes.append((u0, u1, z1))
+    if not boxes:
+        return None
+    verts, faces = [], []
+    for u0, u1, z1 in boxes:
+        k = len(verts)
+        y0, y1 = face, face + HEAD_WALL_T_M
+        loc = np.array([[u0, y0, floor_z], [u1, y0, floor_z], [u1, y1, floor_z], [u0, y1, floor_z],
+                        [u0, y0, z1], [u1, y0, z1], [u1, y1, z1], [u0, y1, z1]], dtype=np.float64)
+        verts += [tuple(p) for p in to_world_arr(centre, rot, loc).tolist()]
+        faces += [[k + i for i in f] for f in ((0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6),
+                                               (3, 0, 4, 7))]
+    return {"face_y": round(face, 4), "gap_m": round(max(0.0, face - d / 2.0), 4), "by": ids,
+            "x": [round(spans[0][0], 4), round(spans[-1][1], 4)], "share": round(cover / w, 3),
+            "top_z": round(top, 4), "verts": verts, "faces": faces, "rule": HEAD_WALL_RULE}
+
+
+def near_head(bed: dict, lo: Sequence[float], hi: Sequence[float], head: dict) -> bool:
+    """Whether a built object with the world bounds ``lo`` / ``hi`` stands at a bed's head wall (pure): over the bed's
+    width, between the head edge less 5 cm and the wall face (``head_wall``) plus 5 cm, up to its top: the room's
+    feature panel on that wall, which the shams lean on before the wall behind it."""
+    centre, rot, (w, d) = bed_frame(bed)
+    pts = _local(centre, rot, [(lo[0], lo[1]), (hi[0], lo[1]), (hi[0], hi[1]), (lo[0], hi[1])])
+    x0, x1 = min(p[0] for p in pts), max(p[0] for p in pts)
+    y0, y1 = min(p[1] for p in pts), max(p[1] for p in pts)
+    over_x = min(x1, w / 2.0) - max(x0, -w / 2.0)
+    return bool(over_x > 0.2 * w and y1 >= d / 2.0 - 0.05 and y0 <= float(head["face_y"]) + 0.05
+                and float(lo[2]) < float(head["top_z"]) and float(hi[2]) > float(head["top_z"]) - 1.4)
 
 
 # --------------------------------------------------------------------------

@@ -4538,6 +4538,11 @@ BEVEL_BY_ROLE.update({"led": 0.0, "groove": 0.0, "plume": 0.0, "stem": 0.0, "bra
                       "object": 0.004, "knob": 0.002})
 MATERIAL_KEYS = MATERIAL_KEYS + ("leather",)                       # 30 Oct 2026 (UL160): a holdall's tan leather
 BEVEL_BY_ROLE.update({"tab": 0.001, "clip": 0.002, "wrap": 0.0, "piping": 0.0})
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "This bag requires a lot more detail and a lot better texture for
+# example black leather like suite"): the holdall's black leather, brass hardware and stitching (wenart.blender.holdall)
+MATERIAL_KEYS = MATERIAL_KEYS + ("leather_dark", "brass", "thread")
+for _role, _r in (("stitch", 0.0), ("keeper", 0.0), ("buckle", 0.0), ("pull", 0.0005), ("pad", 0.002)):
+    BEVEL_BY_ROLE.setdefault(_role, _r)
 # 30 Oct 2026 (photo P16, lesson UL153): the living-dining room's own detail types, a panel wall of handle-less fronts
 # with a lit niche and two round wall discs (= salon_parts.DECOR_TYPES, built by wenart.blender.salon_parts)
 DETAIL_DECOR_TYPES = DETAIL_DECOR_TYPES + ("panel_wall", "wall_discs")

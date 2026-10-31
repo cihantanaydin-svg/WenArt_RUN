@@ -1312,6 +1312,8 @@ def plan_throw(item: dict, host: dict, caster, floor_z: float) -> dict:
     fp = host["footprint"]
     host_fp = {"center": [float(fp["center"][0]), float(fp["center"][1])], "size": [float(v) for v in fp["size"][:2]],
                "rotation_deg": float(fp["rotation_deg"])}
+    if isinstance(item.get("seat_throw"), dict):
+        return plan_seat_throw(item, host, caster, floor_z, host_fp)    # 31 Oct 2026: over an arm, across a seat end
     layers = host.get("bedding_layers") if isinstance(host.get("bedding_layers"), dict) else {}
     got = T.throw_parts(caster, host_fp, item, floor_z, sides=layers.get("sides"))     # 30 Oct 2026 (UL146): P14
     if got is None:
@@ -1345,6 +1347,45 @@ def plan_throw(item: dict, host: dict, caster, floor_z: float) -> dict:
             **({"runner": got["runner"]} if got.get("runner") else {}),
             # 29 Oct 2026 (UL121): the woven pair's record (pattern, fringe strands)
             **({"weave": got["weave"]} if got.get("weave") else {})}
+
+
+def plan_seat_throw(item: dict, host: dict, caster, floor_z: float, host_fp: dict) -> dict:
+    """31 Oct 2026 (user on real04 run 20261030-181158-full: "bedding on this sofa could have been a lot better not just
+    pillows maybe include some comfortals"): a seat's throw (``item["seat_throw"]``: its look, colour and drape) folded
+    over an arm or across a seat end (``seat_throw.candidates``, in order); each drape is checked as a throw is (S5 over
+    its top, ``measure_cloth``) and the first that rests is built. ``plan_throw``'s result, its ``weave`` the drape
+    built and the ones tried before it; ``not_rested`` with the last drape's numbers when none rests."""
+    from wenart.blender import seat_throw as ST
+
+    soft = host.get("type") in SOFT_HOST_TYPES
+    tried: list[dict] = []
+    last_m, last_why = None, ["no seat or arm found on the built host"]
+    for got in ST.candidates(caster, host_fp, item, floor_z):
+        part = got["parts"][0]
+        x0, y0, x1, y1 = got["rect"]
+        cx, cy = to_world(host_fp["center"], host_fp["rotation_deg"], (x0 + x1) / 2.0, (y0 + y1) / 2.0)
+        foot = {"center": [cx, cy], "size": [max(0.02, (x1 - x0) * 0.8), max(0.02, (y1 - y0) * 0.8)],
+                "rotation_deg": host_fp["rotation_deg"]}
+        m = dict(measure_rest(part["verts"], part["faces"], caster, foot, soft), cloth=True)
+        m.update(measure_cloth(part["verts"], part["faces"], caster, foot))
+        ok, why = rest_ok(m)
+        tried.append({"how": got["how"], "rested": ok, "why": "; ".join(why) or None})
+        if not ok:
+            last_m, last_why = m, why
+            continue
+        verts, faces = [], []
+        for p in got["parts"]:
+            off = len(verts)
+            verts.extend(p["verts"])
+            faces.extend([[i + off for i in f] for f in p["faces"]])
+        weave = dict(got["weave"], tried=tried, measure=got.get("measure"))
+        return {"verts": verts, "faces": faces, "parts": got["parts"], "rest": m, "footprint": foot,
+                "attempt": len(tried), "weave": weave,
+                "pose": {"how": f"{got['how']} (a folded throw draped on the host)", "share": got["drape"]["share"]}}
+    shows = any(w.startswith("penetration") or w.startswith("the host pokes") for w in last_why)
+    return {"not_rested": {"id": item.get("id"), "type": "throw", "host_id": host.get("id"), "support": "drape",
+                           "reason": "; ".join(last_why) + ("; the host shows through the cloth" if shows else ""),
+                           "measured": last_m, "attempts": max(1, len(tried)), "tried": tried}}
 
 
 def under_slope(world_verts, max_top_z: Optional[float]) -> Optional[str]:

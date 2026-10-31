@@ -194,6 +194,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              # furniture -> modules / rest / textiles and the catalogue); tests/test_run_stages.py computes it.
              "wenart/blender/copies.py", "wenart/blender/furniture.py", "wenart/blender/modules.py",
              "wenart/blender/rest.py", "wenart/blender/textiles.py", "wenart/furniture/__init__.py",
+             "wenart/blender/seat_throw.py",             # 31 Oct 2026: rest -> a sofa's folded throw
+             "wenart/blender/bedding_parts.py",          # ... -> the bed's head wall, the scheme's cushion colours
              "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml",
              "wenart/furniture/model_title.py",          # 28 Oct 2026: catalog.usable reads the model rules
              "wenart/furniture/user_ranks.py",           # 31 Oct 2026 (UL217): ... and the user's ranks
