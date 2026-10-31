@@ -263,7 +263,8 @@ def procedural_for(slug: str, has_texture: bool, use_textures: bool) -> str | No
     if has_texture or not use_textures:
         return None
     entry = ENTRIES.get(slug) or {}
-    if entry.get("source") == "procedural":
+    if entry.get("source") == "procedural" or entry.get("procedural") in PROCEDURAL_GROUPS:
+        # 31 Oct 2026: a fabric with a scan (finishes._scan) keeps its procedural weave when the scan is missing
         return entry.get("procedural") if entry.get("procedural") in PROCEDURAL_GROUPS else None
     if str(slug).startswith(PROCEDURAL_TILE_PREFIX):
         return "glazed_tiles"
@@ -1761,6 +1762,17 @@ MATERIAL_KIND_LAYERS: dict[str, dict] = {
     "fabric": {"sheen": {"weight": 0.5, "roughness": 0.5}},
     "wood": {"coat": {"weight": 0.25, "roughness": 0.3, "ior": 1.45}, "bevel": {"radius_m": 0.0015}},
 }
+# 31 Oct 2026 (the user: "better more detailed models, better textures"): the furniture and decor slugs
+# (``vocabulary.FURNITURE_MATERIALS``; the building's walls, floors and roofs keep the table above) add, by kind, a
+# faint roughness variation on wood, a lacquer's clear coat, a metal's and a hard surface's roughness variation and a
+# rounded edge (the shell slots keep their own layers: ceramic, front, metal handles, worktop)
+FURNITURE_KIND_LAYERS: dict[str, dict] = {
+    "wood": {"imperfection": {"amount": 0.10, "scale_m": 0.40}},
+    "painted": {"coat": {"weight": 0.30, "roughness": 0.15, "ior": 1.5}, "bevel": {"radius_m": 0.001},
+                "imperfection": {"amount": 0.08, "scale_m": 0.30}},
+    "metal": {"bevel": {"radius_m": 0.001}, "imperfection": {"amount": 0.20, "scale_m": 0.10}},
+    "hard": {"bevel": {"radius_m": 0.001}, "imperfection": {"amount": 0.12, "scale_m": 0.25}},
+}
 BEVEL_SAMPLES = 4           # the manual: "The default value of 4 works well for most cases"
 AO_SAMPLES = 4
 IMPERFECTION_GROUP = "wenart_imperfection"
@@ -1845,8 +1857,19 @@ def material_kind_layers(slug: str) -> dict | None:
     if own is not None:
         return own
     kind = (ENTRIES.get(slug) or {}).get("kind")
-    layers = MATERIAL_KIND_LAYERS.get(str(kind))
-    return {k: dict(v) for k, v in layers.items()} if layers else None
+    layers = {k: dict(v) for k, v in (MATERIAL_KIND_LAYERS.get(str(kind)) or {}).items()}
+    if _furniture_slug(slug):
+        layers.update({k: dict(v) for k, v in (FURNITURE_KIND_LAYERS.get(str(kind)) or {}).items()})
+    return layers or None
+
+
+def _furniture_slug(slug: str) -> bool:
+    """A furniture or decor slug (``vocabulary.FURNITURE_MATERIALS``), not one of the building's."""
+    try:
+        from wenart.style import vocabulary as V
+        return slug in V.FURNITURE_MATERIALS and slug not in V.MATERIALS
+    except Exception:  # noqa: BLE001 - no vocabulary: the building's table only
+        return False
 
 
 def shell_material(slot: str, style: dict | None, assets):

@@ -728,6 +728,9 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
     from wenart.blender import bedding_parts as BP
 
     keys.update({k: (slug, asset_of(slug) or _vocab_asset(slug), None) for k, slug in BP.material_keys().items()})
+    # 31 Oct 2026 (the user: "better textures"): every part key takes its slug's furniture texture set when the key
+    # names none (the towels' terry, the holdall's leather, the plain fabrics' scans, the handle metals' brushing)
+    keys = {k: (slug, asset if asset is not None else asset_of(slug), tint) for k, (slug, asset, tint) in keys.items()}
     return keys, assumed
 
 
@@ -2385,6 +2388,7 @@ def _module_object(piece, plan, name, status, floor_z, collection, mats, entry, 
                                    collection=collection, floor_z=floor_z, name=name, status=status,
                                    slugs=lambda k: mats.slug(k, overrides))
     ob = MOD.build_module(plan, piece, provider)
+    piece_uvs(ob, piece["footprint"])                 # 31 Oct 2026: the grain along each part, its own offset
     x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
     slots = [provider.get(k) for k in used]
     record = MOD.module_record(plan)
@@ -2704,6 +2708,42 @@ def _library_object(piece, file: Path, name, status, floor_z, collection, librar
     return ob
 
 
+def piece_uvs(ob, footprint: dict) -> int:
+    """31 Oct 2026 (the user: "better textures"): rewrite the ``box_m`` UVs of one of our own pieces in the piece's
+    frame (``geom2d.oriented_box_uv``: a turned piece keeps its grain, the veneer's grain runs along each face's long
+    side, every part plane its own offset into the texture, so four drawer fronts do not repeat one patch). Library
+    models keep their own UVs. Returns the faces rewritten (0 when the object has no ``box_m`` layer)."""
+    from wenart.blender import geom2d as GE
+    mesh = getattr(ob, "data", None)
+    layer = mesh.uv_layers.get("box_m") if mesh is not None else None
+    if layer is None:
+        return 0
+    cx, cy = (float(v) for v in footprint["center"][:2])
+    rot = math.radians(float(footprint.get("rotation_deg") or 0.0))
+    c, s_ = math.cos(-rot), math.sin(-rot)
+    mw = ob.matrix_world
+
+    def local(v):
+        w = mw @ v
+        dx, dy = w.x - cx, w.y - cy
+        return (dx * c - dy * s_, dx * s_ + dy * c, w.z)
+
+    verts = mesh.vertices
+    n = 0
+    for poly in mesh.polygons:
+        pts = [local(verts[i].co) for i in poly.vertices]
+        nw = mw.to_3x3() @ poly.normal
+        normal = (nw.x * c - nw.y * s_, nw.x * s_ + nw.y * c, nw.z)
+        lo = [min(p[k] for p in pts) for k in range(3)]
+        hi = [max(p[k] for p in pts) for k in range(3)]
+        extent = [hi[k] - lo[k] for k in range(3)]
+        offset = GE.part_uv_offset(normal, lo, hi)
+        for li, p in zip(poly.loop_indices, pts):
+            layer.data[li].uv = GE.oriented_box_uv(p, normal, extent, offset)
+        n += 1
+    return n
+
+
 def _parametric_object(piece, name, status, floor_z, height, collection, mats, entry, overrides=None):
     fp = piece["footprint"]
     w, d = float(fp["size"][0]), float(fp["size"][1])
@@ -2718,6 +2758,7 @@ def _parametric_object(piece, name, status, floor_z, height, collection, mats, e
     indices = [used_keys.index(k) for k in keys]
     ob = _mesh_object(name, verts, faces, slots, indices, collection, piece["id"], "furniture", status,
                       lettering_uvs=P.lettering_uvs(parts))
+    piece_uvs(ob, fp)                                 # 31 Oct 2026: the grain along each part, its own offset
     x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
     entry.update({"bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
                   "materials": [m.name for m in slots], "material": slots[0].name,

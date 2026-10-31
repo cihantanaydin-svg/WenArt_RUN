@@ -254,3 +254,33 @@ def test_our_builds_are_on_their_own_sheets_with_the_projects_styles():
     assert "stair" not in S.procedural_types() and "toilet" in S.procedural_types()
     job = (ROOT / "scripts" / "jobs" / "library_ranking.sh").read_text()
     assert "--procedural --proc-tag" in job and "studio_results_${RANK_PROC_TAG}.json" in job
+
+
+def test_our_pieces_get_oriented_uvs_and_furniture_materials_get_scans_and_layers():
+    """31 Oct 2026 (the user: "yes start with 1 and 2", item 2: better textures): the plain fabrics, the leather and
+    the handle metals wear a CC0 scan on their own colour (the procedural weave when the scan is missing); every part key
+    takes its slug's furniture set; our pieces' UVs follow the piece frame with the grain along each part."""
+    from wenart.blender import geom2d as GE
+    from wenart.blender import materials as M
+    from wenart.style import vocabulary as V
+    for slug, asset in (("fabric_velvet", "velour_velvet"), ("fabric_boucle", "wool_boucle"), ("fabric_wool", "caban"),
+                        ("fabric_knit", "knitted_fleece"), ("fabric_cotton", "cotton_jersey"),
+                        ("fabric_terry", "terry_cloth"), ("leather_tan", "brown_leather")):
+        e = V.FURNITURE_MATERIALS[slug]
+        assert e["asset"] == asset and e["source"] == "polyhaven" and V.albedo_mode(slug)[0] == "flat"
+    assert M.procedural_for("fabric_velvet", False, True) == "wenart_weave"     # no scan: the weave
+    assert M.procedural_for("fabric_velvet", True, True) is None               # the scan
+    assert M.material_kind_layers("fabric_velvet")["sheen"]["weight"] == 1.0   # the look's sheen stays
+    assert M.material_kind_layers("lacquer_dark")["coat"]["weight"] > 0
+    assert M.material_kind_layers("concrete_polished") is None                 # the building keeps its own table
+    assert V.FURNITURE_MATERIALS["fabric_stripe"]["source"] == "procedural"    # patterns stay procedural
+    src = (ROOT / "wenart" / "blender" / "furniture.py").read_text()
+    assert "asset if asset is not None else asset_of(slug)" in src and src.count("piece_uvs(ob, fp)") + src.count('piece_uvs(ob, piece["footprint"])') == 2
+    # a table top 2.0 x 0.9 m: the grain (v) runs along its 2 m; a drawer front 0.45 x 0.15: along its width
+    assert GE.oriented_box_uv((0.3, 0.1, 0.75), (0, 0, 1), (2.0, 0.9, 0.0)) == (0.1, 0.3)
+    assert GE.oriented_box_uv((0.3, -0.4, 0.2), (0, -1, 0), (0.45, 0.0, 0.15)) == (0.2, 0.3)
+    assert GE.oriented_box_uv((0.3, -0.4, 0.6), (0, -1, 0), (0.45, 0.0, 0.7)) == (0.3, 0.6)   # a door: grain up
+    a = GE.part_uv_offset((0, -1, 0), (0.0, -0.4, 0.0), (0.45, -0.4, 0.7))
+    b = GE.part_uv_offset((0, -1, 0), (0.5, -0.4, 0.0), (0.95, -0.4, 0.7))
+    assert a == GE.part_uv_offset((0, -1, 0), (0.0, -0.4, 0.0), (0.45, -0.4, 0.7)) and a != b
+    assert all(0 <= v < 1 for v in a + b)

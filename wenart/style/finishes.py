@@ -244,7 +244,16 @@ def _veneer(asset: str, flat, roughness: float, size) -> dict:
             "size_m": [float(v) for v in size], "albedo_mode": "texture", "flat_source": "measured"}
 
 
+def _scan(entry: dict, asset: str, size_m, detail: float) -> dict:
+    """A procedural fabric entry with a Poly Haven scan of the same cloth (31 Oct 2026, the user's "better textures"):
+    the scan's luminance, normal and roughness maps on the look's own colour (flat albedo mode, ``detail``), the look's
+    sheen kept (``materials.weave_layers`` reads ``procedural``), the procedural weave when the scan is not in the
+    assets (``materials.procedural_for``). Sizes as ``wenart.assets.polyhaven.size_m`` reads them from the API."""
+    return dict(entry, source=PH, asset=asset, size_m=[float(v) for v in size_m], detail=float(detail))
+
+
 FURNITURE_MATERIALS: dict[str, dict] = {
+    # Furniture veneersFURNITURE_MATERIALS: dict[str, dict] = {
     # Furniture veneers (docs/milestone10.md §1.6b row 14: ``design.wood`` is one of these ``wood_veneer_*`` slugs);
     # the two of Milestone 6 (oak, walnut) stay in vocabulary.py.
     "wood_veneer_oak_light": _veneer("oak_veneer_02", [0.715, 0.485, 0.3], 0.45, [1.0, 1.0]),
@@ -254,26 +263,32 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     "wood_veneer_black_oak": _veneer("black_oak_veneer", [0.147, 0.121, 0.096], 0.45, [1.0, 1.0]),
     "wood_veneer_cherry":    _veneer("cherry_veneer", [0.747, 0.433, 0.23], 0.4, [1.0, 1.0]),
     # Handles (steel_brushed is the brushed-steel handle of Milestone 6).
-    "metal_black": {"kind": "metal", "flat": _lin("black"), "roughness": 0.35, "metallic": 0.8, "flat_source": "colour:black"},
-    "metal_brass": {"kind": "metal", "flat": _lin("brass"), "roughness": 0.25, "metallic": 1.0, "flat_source": "colour:brass"},
+    # 31 Oct 2026: ambientCG's Metal032 (the brushed metal of painted_metal_white) gives them a brushed relief on their
+    # own colour (flat albedo mode, a faint detail)
+    "metal_black": {"kind": "metal", "flat": _lin("black"), "roughness": 0.35, "metallic": 0.8, "flat_source": "colour:black",
+                    "source": ACG, "asset": "Metal032", "albedo_mode": "flat", "detail": 0.15},
+    "metal_brass": {"kind": "metal", "flat": _lin("brass"), "roughness": 0.25, "metallic": 1.0, "flat_source": "colour:brass",
+                    "source": ACG, "asset": "Metal032", "albedo_mode": "flat", "detail": 0.15},
     # 29 Oct 2026 (lesson UL121, docs/reference_details_20261029.md R35: "fabric materials with weave normals and sheen
     # (linen, cotton, velvet, knit, boucle)"): the bedding's procedural fabrics (node group wenart_weave: the weave's
     # relief as a bump, the look's sheen as a material layer, materials.weave_layers) and the woven patterns of a
     # throw's blanket (ink = the throw's accent colour); linen stays the Poly Haven rough_linen scan (fabric_linen)
-    "fabric_cotton": _proc("wenart_weave", "fabric", _lin("white"), 0.75, params={"weave": "cotton", "pattern": "plain"},
-                           flat_source="colour:white"),
-    "fabric_velvet": _proc("wenart_weave", "fabric", _lin("charcoal"), 0.6, params={"weave": "velvet", "pattern": "plain"},
-                           flat_source="colour:charcoal"),
-    "fabric_knit": _proc("wenart_weave", "fabric", _lin("cream"), 0.9, params={"weave": "knit", "pattern": "plain"},
-                         flat_source="colour:cream"),
-    "fabric_boucle": _proc("wenart_weave", "fabric", _lin("ivory"), 0.95, params={"weave": "boucle", "pattern": "plain"},
-                           flat_source="colour:ivory"),
-    "fabric_wool": _proc("wenart_weave", "fabric", _lin("greige"), 0.9, params={"weave": "wool", "pattern": "plain"},
-                         flat_source="colour:greige"),
+    # 31 Oct 2026 (the user: "better more detailed models, better textures"): the plain looks wear a scan of the same
+    # cloth (``_scan``; the woven patterns below stay procedural: their ink is the throw's accent colour)
+    "fabric_cotton": _scan(_proc("wenart_weave", "fabric", _lin("white"), 0.75, params={"weave": "cotton", "pattern": "plain"},
+                                 flat_source="colour:white"), "cotton_jersey", (0.2636, 0.2638), 0.4),
+    "fabric_velvet": _scan(_proc("wenart_weave", "fabric", _lin("charcoal"), 0.6, params={"weave": "velvet", "pattern": "plain"},
+                                 flat_source="colour:charcoal"), "velour_velvet", (0.2842, 0.2735), 0.35),
+    "fabric_knit": _scan(_proc("wenart_weave", "fabric", _lin("cream"), 0.9, params={"weave": "knit", "pattern": "plain"},
+                               flat_source="colour:cream"), "knitted_fleece", (0.2664, 0.2704), 0.45),
+    "fabric_boucle": _scan(_proc("wenart_weave", "fabric", _lin("ivory"), 0.95, params={"weave": "boucle", "pattern": "plain"},
+                                 flat_source="colour:ivory"), "wool_boucle", (0.3148, 0.3901), 0.5),
+    "fabric_wool": _scan(_proc("wenart_weave", "fabric", _lin("greige"), 0.9, params={"weave": "wool", "pattern": "plain"},
+                               flat_source="colour:greige"), "caban", (0.274, 0.2733), 0.45),
     # 30 Oct 2026 (lesson UL138: "these orange things are towels, they need more detail"): the towels' terry cloth, its
     # loop pile as a deep bump (wenart_weave look "terry", bedding_parts.LOOK_LAYERS), rough; the room's towel colour
-    "fabric_terry": _proc("wenart_weave", "fabric", _lin("white"), 0.97, params={"weave": "terry", "pattern": "plain"},
-                          flat_source="colour:white"),
+    "fabric_terry": _scan(_proc("wenart_weave", "fabric", _lin("white"), 0.97, params={"weave": "terry", "pattern": "plain"},
+                                flat_source="colour:white"), "terry_cloth", (0.3671, 0.3632), 0.5),
     "fabric_houndstooth": _proc("wenart_weave", "fabric", _lin("off white"), 0.9,
                                 params={"weave": "wool", "pattern": "houndstooth", "repeat_m": 0.028},
                                 flat_source="colour:off white"),

@@ -267,6 +267,8 @@ def test_every_milestone_10_slug_has_a_look():
         if entry.get("source") == "procedural":
             assert proc == entry.get("procedural"), slug              # a group, or None: a plain Principled
             assert proc is None or proc in materials.PROCEDURAL_GROUPS
+        elif entry.get("procedural") in materials.PROCEDURAL_GROUPS:
+            assert proc == entry["procedural"], slug                   # 31 Oct 2026: a scanned fabric, scan missing
         elif slug.startswith("tiles_"):
             assert proc == "glazed_tiles", slug                        # Milestone 6: an image set that is missing
         else:

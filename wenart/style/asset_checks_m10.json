@@ -3,7 +3,7 @@
     "ambientcg": "https://ambientcg.com/api/v2/full_json?id=<ids>&include=dimensionsData,downloadData,tagData,displayData",
     "polyhaven": "https://api.polyhaven.com/assets?type=textures, /info/<id>, /files/<id>"
   },
-  "checked": "2026-10-08",
+  "checked": "2026-10-31",
   "hdris": {
     "aarfontein_dusk": {
       "asset": "aarfontein_dusk",
@@ -502,7 +502,9 @@
       "size_m": null,
       "size_note": "the API gives 0 x 0: the fetcher assumes 1 x 1 m and flags the entry size_assumed",
       "slugs": [
-        "painted_metal_white"
+        "painted_metal_white",
+        "metal_black",
+        "metal_brass"
       ],
       "source": "ambientcg"
     },
@@ -1129,6 +1131,147 @@
       ],
       "source": "polyhaven"
     },
+    "polyhaven:brown_leather": {
+      "api_type": 1,
+      "asset": "brown_leather",
+      "categories": [
+        "fabric",
+        "leather"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.082,
+        0.027,
+        0.005
+      ],
+      "name": "Brown Leather",
+      "size_m": [
+        0.4,
+        0.4
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "leather_tan"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:caban": {
+      "api_type": 1,
+      "asset": "caban",
+      "categories": [
+        "fabric",
+        "wool",
+        "fleece"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8313,
+        8292
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.616,
+        0.132,
+        0.001
+      ],
+      "name": "Caban",
+      "size_m": [
+        0.274,
+        0.2733
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "fabric_wool"
+      ],
+      "source": "polyhaven"
+    },
     "polyhaven:castle_wall_slates": {
       "api_type": 1,
       "asset": "castle_wall_slates",
@@ -1486,6 +1629,77 @@
       "size_note": "dimensions of /info (millimetres) / 1000",
       "slugs": [
         "concrete_exposed"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:cotton_jersey": {
+      "api_type": 1,
+      "asset": "cotton_jersey",
+      "categories": [
+        "fabric",
+        "cotton",
+        "stretchy"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8018,
+        8024
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.54,
+        0.406,
+        0.337
+      ],
+      "name": "Cotton Jersey",
+      "size_m": [
+        0.2636,
+        0.2638
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "fabric_cotton"
       ],
       "source": "polyhaven"
     },
@@ -2299,6 +2513,78 @@
       "size_note": "dimensions of /info (millimetres) / 1000",
       "slugs": [
         "sisal"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:knitted_fleece": {
+      "api_type": 1,
+      "asset": "knitted_fleece",
+      "categories": [
+        "fabric",
+        "knitted",
+        "fleece",
+        "wool"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8103,
+        8226
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.091,
+        0.072,
+        0.05
+      ],
+      "name": "Knitted Fleece",
+      "size_m": [
+        0.2664,
+        0.2704
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "fabric_knit"
       ],
       "source": "polyhaven"
     },
@@ -3837,6 +4123,152 @@
       ],
       "source": "polyhaven"
     },
+    "polyhaven:terry_cloth": {
+      "api_type": 1,
+      "asset": "terry_cloth",
+      "categories": [
+        "fabric",
+        "knitted"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "11k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "11k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "11k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "11k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "11k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "11k"
+        ]
+      },
+      "max_resolution": [
+        11049,
+        10933
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.002,
+        0.066,
+        0.306
+      ],
+      "name": "Terry Cloth",
+      "size_m": [
+        0.3671,
+        0.3632
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "fabric_terry"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:velour_velvet": {
+      "api_type": 1,
+      "asset": "velour_velvet",
+      "categories": [
+        "fabric",
+        "velvet"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8319,
+        8005
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.421,
+        0.026,
+        0.063
+      ],
+      "name": "Velour Velvet",
+      "size_m": [
+        0.2842,
+        0.2735
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "fabric_velvet"
+      ],
+      "source": "polyhaven"
+    },
     "polyhaven:walnut_veneer": {
       "api_type": 1,
       "asset": "walnut_veneer",
@@ -4340,6 +4772,83 @@
       "size_note": "dimensions of /info (millimetres) / 1000",
       "slugs": [
         "wood_panel"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:wool_boucle": {
+      "api_type": 1,
+      "asset": "wool_boucle",
+      "categories": [
+        "fabric",
+        "wool",
+        "knitted"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "9k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "9k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "9k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "9k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "9k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "9k"
+        ]
+      },
+      "max_resolution": [
+        9575,
+        11866
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.206,
+        0.173,
+        0.138
+      ],
+      "name": "Wool Boucle",
+      "size_m": [
+        0.3148,
+        0.3901
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "fabric_boucle"
       ],
       "source": "polyhaven"
     }

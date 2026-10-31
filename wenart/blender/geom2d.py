@@ -421,6 +421,39 @@ def box_uv(point: Vec3, normal: Vec3) -> tuple[float, float]:
     return (x, z)
 
 
+LONG_SIDE_RATIO = 1.5       # a vertical face this much longer than tall runs its grain along its length
+
+
+def oriented_box_uv(point: Vec3, normal: Vec3, extent: Vec3, offset: tuple[float, float] = (0.0, 0.0)
+                    ) -> tuple[float, float]:
+    """31 Oct 2026 (the user: "better textures"): the box UV in metres of a point on one of our own pieces, in the
+    piece's frame: like ``box_uv``, but ``v`` (the image height: a veneer's grain) runs along the face's longer side on
+    a horizontal face (a table top's grain follows its length) and along a vertical face's length when it is
+    ``LONG_SIDE_RATIO`` longer than tall (a plinth, a drawer front, a rail; else up, like a door), plus ``offset``."""
+    ax, ay, az = abs(normal[0]), abs(normal[1]), abs(normal[2])
+    x, y, z = point
+    ex, ey, ez = (abs(float(e)) for e in extent)
+    if az >= ax and az >= ay:
+        u, v = (y, x) if ex >= ey else (x, y)
+    elif ax >= ay:
+        u, v = (z, y) if ey > LONG_SIDE_RATIO * ez else (y, z)
+    else:
+        u, v = (z, x) if ex > LONG_SIDE_RATIO * ez else (x, z)
+    return (u + offset[0], v + offset[1])
+
+
+def part_uv_offset(normal: Vec3, lo: Vec3, hi: Vec3, span_m: float = 1.0) -> tuple[float, float]:
+    """A stable offset in ``[0, span_m)`` metres for one face of a part (pure): a hash of the face's dominant axis and
+    its box rounded to the millimetre, so the same part gets the same patch on every build and its neighbours others."""
+    import hashlib
+    axis = max(range(3), key=lambda k: abs(normal[k]))
+    key = f"{axis}:{round(float(lo[axis]) if normal[axis] < 0 else float(hi[axis]), 3)}:" + ":".join(
+        f"{round(float(lo[k]), 3)},{round(float(hi[k]), 3)}" for k in range(3) if k != axis)
+    h = hashlib.sha256(key.encode("ascii")).digest()
+    return (round(int.from_bytes(h[:4], "big") / 2 ** 32 * span_m, 4),
+            round(int.from_bytes(h[4:8], "big") / 2 ** 32 * span_m, 4))
+
+
 # --------------------------------------------------------------------------
 # 2D helpers for placement (rooms, proxies, free area)
 # --------------------------------------------------------------------------

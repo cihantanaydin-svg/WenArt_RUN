@@ -278,6 +278,14 @@ M10_VENEERS = [("polyhaven", "oak_veneer_02", "wood_veneer_oak_light"), ("polyha
                ("polyhaven", "white_maple_veneer", "wood_veneer_maple"), ("polyhaven", "teak_veneer", "wood_veneer_teak"),
                ("polyhaven", "black_oak_veneer", "wood_veneer_black_oak"),
                ("polyhaven", "cherry_veneer", "wood_veneer_cherry")]
+# 31 Oct 2026 (the user: "better textures"): the leather and plain fabric scans, the handle metals' brushed relief
+SCANS_20261031 = [("ambientcg", "Metal032", "metal_black"), ("polyhaven", "cotton_jersey", "fabric_cotton"),
+                  ("polyhaven", "velour_velvet", "fabric_velvet"), ("polyhaven", "knitted_fleece", "fabric_knit"),
+                  ("polyhaven", "wool_boucle", "fabric_boucle"), ("polyhaven", "caban", "fabric_wool"),
+                  ("polyhaven", "terry_cloth", "fabric_terry")]
+SCAN_SIZES_MM = {"cotton_jersey": [263.6027, 263.8], "velour_velvet": [284.2282, 273.5], "knitted_fleece": [266.3567, 270.4],
+                 "wool_boucle": [314.7824, 390.1], "caban": [273.9921, 273.3], "terry_cloth": [367.0536, 363.2],
+                 "brown_leather": [400.0, 400.0]}
 
 
 def test_veneer_and_fabric_materials_in_the_vocabulary():
@@ -299,8 +307,9 @@ def test_veneer_and_fabric_materials_in_the_vocabulary():
     assert V.METALLIC == {"steel_brushed": 1.0, "mirror": 1.0, "metal_black": 0.8, "metal_brass": 1.0,
                           "aluminium_anthracite": 0.6, "steel_black": 0.8, "dark_bronze": 0.8, "standing_seam": 0.8}
     assert V.furniture_textures() == [("polyhaven", "rough_linen", "fabric_linen"),
+                                      ("polyhaven", "brown_leather", "leather_tan"),
                                       ("polyhaven", "oak_veneer_01", "wood_veneer_oak"),
-                                      ("polyhaven", "walnut_veneer", "wood_veneer_walnut")] + M10_VENEERS
+                                      ("polyhaven", "walnut_veneer", "wood_veneer_walnut")] + M10_VENEERS + SCANS_20261031
     for slug in V.FURNITURE_MATERIALS:
         assert slug in V.FLAT_COLOURS and slug in V.ROUGHNESS
     from wenart.blender import materials as M
@@ -336,12 +345,13 @@ def test_verify_lists_the_furniture_textures_with_their_sizes(monkeypatch):
                "walnut_veneer": {"dimensions": [1799.9999523, 1799.9999523]},
                "rough_linen": {"dimensions": [270.708, 271.3]}}
     listing.update({tid: {"dimensions": [1000.0, 1000.0]} for _, tid, _ in M10_VENEERS})     # Milestone 10
+    listing.update({tid: {"dimensions": mm} for tid, mm in SCAN_SIZES_MM.items()})        # 31 Oct 2026 scans
     monkeypatch.setattr(polyhaven, "list_assets", lambda kind="textures": listing if kind == "textures" else {})
-    monkeypatch.setattr(ambientcg, "infos", lambda ids: {})
+    monkeypatch.setattr(ambientcg, "infos", lambda ids: {i: {"assetId": i} for i in ids})
     rows = [r for r in fetch.verify_vocabulary() if r["kind"] == "furniture_texture"]
     assert {r["id"] for r in rows} == ({"oak_veneer_01", "walnut_veneer", "rough_linen"}
-                                       | {t for _, t, _ in M10_VENEERS})
-    assert all(r["exists"] and r["size_ok"] for r in rows), rows
+                                       | {t for _, t, _ in M10_VENEERS + SCANS_20261031} | {"brown_leather"})
+    assert all(r["exists"] and r["size_ok"] for r in rows if r["source"] == "polyhaven"), rows
     listing["rough_linen"]["dimensions"] = [500.0, 500.0]
     rows = [r for r in fetch.verify_vocabulary() if r["id"] == "rough_linen"]
     assert rows and not any(r["size_ok"] for r in rows)

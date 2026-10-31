@@ -132,7 +132,10 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     # Milestone 9: the glass of the parametric wall mirror (decor; docs/milestone9.md §5).
     "mirror":        {"kind": "metal",   "flat": [0.90, 0.90, 0.90], "roughness": 0.03, "metallic": 1.0},
     # 30 Oct 2026 (UL160): the tan leather of a holdall's handles, tabs, piping and base (wenart.blender.holdall)
-    "leather_tan":   {"kind": "hard",    "flat": [0.40, 0.22, 0.11], "roughness": 0.5},
+    "leather_tan":   {"kind": "hard",    "flat": [0.40, 0.22, 0.11], "roughness": 0.5,
+                      # 31 Oct 2026: Poly Haven's brown_leather scan (grain relief and roughness) on the tan colour
+                      "source": "polyhaven", "asset": "brown_leather", "size_m": [0.4, 0.4], "albedo_mode": "flat",
+                      "detail": 0.4},
     # 29 Oct 2026 (UL99): a TV's switched-off screen: near-black glass, glossy enough for a faint reflection.
     "screen_black":  {"kind": "hard",    "flat": [0.012, 0.012, 0.014], "roughness": 0.08},
     # 29 Oct 2026 (UL114): an LED strip's diffuser (its emission is materials.led_material; this is its record's slug)

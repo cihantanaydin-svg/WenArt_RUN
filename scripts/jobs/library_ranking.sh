@@ -112,6 +112,14 @@ print(" ".join(e["id"] for e in S.rank_entries(sys.argv[1].split(",")) if e.get(
 if [ "${#PH_IDS[@]}" -gt 0 ] && [ "$RANK_PROCEDURAL" != "1" ]; then
   run_step models "$PY" -m wenart.assets models fetch --assets "$ASSETS" --size 1k --ids "${PH_IDS[@]}"
 fi
+if [ "$RANK_PROCEDURAL" = "1" ]; then
+  # our builds wear the projects' textures: the latest projects' style sets and every furniture texture set of the
+  # vocabulary (wenart.assets.fetch.fetch_for_style; idempotent, 2k, CC0)
+  for st in "$REPO"/results/baseline/latest/run/*/style.json; do
+    [ -f "$st" ] && run_step "textures-$(basename "$(dirname "$st")")" "$PY" -m wenart.assets fetch --style "$st" \
+      --assets "$ASSETS" --size 2k
+  done
+fi
 run_step plan "$PY" -m wenart.assets.audit.studio plan "${ARGS[@]}"
 smoke_rc=0
 "$PY" -m wenart.assets.audit.studio render "${ARGS[@]}" --limit 1 || smoke_rc=$?
