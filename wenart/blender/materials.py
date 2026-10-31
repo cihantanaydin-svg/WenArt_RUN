@@ -377,10 +377,11 @@ class MaterialLibrary:
 
     # -- public API ----------------------------------------------------------
     def get(self, slug: str, asset_id: str | None = None, tint=None, unverified: bool = False, colour=None,
-            params: dict | None = None):
+            params: dict | None = None, crease: float | None = None):
         """The material of ``slug`` (with its texture set ``asset_id`` when usable), ``tint`` multiplied in, the red
         stripes when ``unverified``; Milestone 10: ``colour`` (a ``colours.py`` phrase) as its base colour where the
-        slug takes one (``colourable``, or no texture in use), ``params`` over a procedural look's own."""
+        slug takes one (``colourable``, or no texture in use), ``params`` over a procedural look's own. 31 Oct 2026:
+        ``crease`` (a bump strength) adds the bedding cloth's soft crease lines (``add_crease``), its own material."""
         import json as _json
 
         unverified = bool(unverified) and markers_on()      # M11 D3: no stripes unless asked for
@@ -413,7 +414,7 @@ class MaterialLibrary:
             if veneer and self.texture_set(veneer)[0] is not None:
                 asset_id = veneer
         key = (slug, asset_id, tuple(tint) if tint else None, unverified, colour or None, pkey, slot,
-               bool(kind_layers))
+               bool(kind_layers), crease_suffix(crease))
         if key in self._cache:
             return self._cache[key]
         tset, reason = self.texture_set(asset_id)
@@ -444,9 +445,11 @@ class MaterialLibrary:
         # beside plaster_white with its asset (the walls): see material_name. The record's shell_slot says which.)
         name = material_name(slug, tset["id"] if tset else None, _tag(colour) if rgb is not None else None,
                              _short_hash(pkey) if pkey and (procedural in PROCEDURAL_GROUPS or parquet) else None,
-                             unverified, slot)
+                             unverified, slot) + crease_suffix(crease)
         mat = pbr_material(name, slug, tset, tint, unverified=unverified, procedural=procedural, base_rgb=rgb,
                            params=all_params, **({"parquet": parquet} if parquet else {}))
+        if crease:                                 # 31 Oct 2026: the bedding cloth's soft creases over its weave
+            add_crease(mat, float(crease))
         layers = None
         if spec:
             layers = apply_shell_layers(mat, spec, textured=tset is not None, procedural=procedural)
@@ -471,6 +474,8 @@ class MaterialLibrary:
             "gain_clamped": None if clamped is None else bool(clamped),
             "metallic": metallic(slug), "procedural": procedural,
         }
+        if crease:
+            self.records[mat.name]["crease"] = float(crease)
         if spec or kind_layers:
             # pre-flight of pod P3: the slot's set is recorded only when this material uses it; a missing set keeps
             # the slot's layers and says why (the real04 worktop said marble_01 with no texture in the scene)
@@ -2503,6 +2508,66 @@ def weave_group(look: str, pattern: str):
     strength, distance, _pitch = (BP.LOOK_LAYERS.get(look) or BP.LOOK_LAYERS["cotton"])["bump"] or (0.2, 0.001, 0.002)
     g.links.new(_bump(g, _weave_height(g, x, y, i["Thread"], look), strength, distance), gout.inputs["Normal"])
     return group
+
+
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"; UL121 "a deep soft duvet with
+# rounded edges, wrinkles ..."): the bedding's cloth (a duvet, its sheet, the pillows, a throw) creases softly: a bump of
+# long, thin crease lines over the material's own weave (the scan's normal map or the procedural weave), never on the
+# sofa's upholstery (its ``fabric`` key); the strength by look (``bedding_parts.LOOK_LAYERS["crease"]``)
+CREASE_SCALE_M = (0.09, 0.22, 0.09)   # the crease lines' pitch across and along (object space: x, y, z)
+CREASE_DISTANCE_M = 0.006
+
+
+def crease_suffix(crease: float | None) -> str:
+    """The material name's suffix of a creased cloth (pure): ``__crease<percent>``, '' without one."""
+    return f"__crease{int(round(float(crease) * 100))}" if crease else ""
+
+
+def add_crease(mat, strength: float, scale_m=CREASE_SCALE_M, distance: float = CREASE_DISTANCE_M) -> bool:
+    """Soft crease lines as a bump over a Principled material's normal (bpy; in place): a distorted noise in object
+    coordinates stretched along y, its 0.5 crossing as a thin ridge ((1 - |2n - 1|)^4), the bump's normal input the
+    material's own (the weave stays under the creases). False when the material has no Principled BSDF."""
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    bsdf = nodes.get("Principled BSDF")
+    if bsdf is None:
+        return False
+    sock = bsdf.inputs["Normal"]
+    src = sock.links[0].from_socket if sock.is_linked else None
+    coord = nodes.new("ShaderNodeTexCoord")
+    mapping = nodes.new("ShaderNodeMapping")
+    mapping.inputs["Scale"].default_value = tuple(1.0 / float(v) for v in scale_m)
+    links.new(coord.outputs["Object"], mapping.inputs["Vector"])
+    noise = nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 1.0
+    noise.inputs["Detail"].default_value = 2.0
+    if "Distortion" in noise.inputs:
+        noise.inputs["Distortion"].default_value = 0.8
+    links.new(mapping.outputs["Vector"], noise.inputs["Vector"])
+    out = noise.outputs["Fac"]
+    for op, value in (("SUBTRACT", 0.5), ("ABSOLUTE", None), ("MULTIPLY", 2.0)):
+        m = nodes.new("ShaderNodeMath")
+        m.operation = op
+        links.new(out, m.inputs[0])
+        if value is not None:
+            m.inputs[1].default_value = value
+        out = m.outputs[0]
+    inv = nodes.new("ShaderNodeMath")
+    inv.operation = "SUBTRACT"
+    inv.inputs[0].default_value = 1.0
+    links.new(out, inv.inputs[1])
+    ridge = nodes.new("ShaderNodeMath")
+    ridge.operation = "POWER"
+    links.new(inv.outputs[0], ridge.inputs[0])
+    ridge.inputs[1].default_value = 4.0
+    bump = nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = float(strength)
+    bump.inputs["Distance"].default_value = float(distance)
+    links.new(ridge.outputs[0], bump.inputs["Height"])
+    if src is not None:
+        links.new(src, bump.inputs["Normal"])
+    links.new(bump.outputs["Normal"], sock)
+    mat["wenart_crease"] = float(strength)
+    return True
 
 
 def weave_layers(slug: str) -> dict | None:

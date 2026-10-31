@@ -49,8 +49,11 @@ def test_a_made_bed_shows_at_most_five_pieces_in_two_rows(fam):
     spec = BP.family_spec(fam)[0]
     double = BP.counts(spec, 1.6)
     assert sum(double.values()) <= BP.PIECES_MAX["double"] == 5
-    assert double["euro_shams"] == 2 and double["pillows"] == 2 and double["accent"] == 0     # shams OR a pair
+    assert double["euro_shams"] == 2 and double["pillows"] == 2 and double["accent"] <= 1     # shams OR a pair
     assert double["lumbar"] == (1 if spec.get("lumbar") else 0)
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"): one decorative cushion in
+    # front of the pillows always (the lumbar, else the family's first accent cushion)
+    assert double["accent"] + double["lumbar"] == 1
     bare = BP.counts(spec, 1.6, shams=False)                         # no headboard: the pair stands in for the shams
     assert bare["euro_shams"] == 0 and bare["accent"] <= 2 and sum(bare.values()) <= 5
     assert not (bare["accent"] and bare["lumbar"])                   # never a third row

@@ -254,6 +254,61 @@ def layer_bedding(building: dict, style: Optional[dict], new_id: Optional[Callab
 
 
 # --------------------------------------------------------------------------
+# a seat's throw (31 Oct 2026)
+# --------------------------------------------------------------------------
+
+def brief_throw_colours(style: Optional[dict]) -> list[str]:
+    """The brief's throw colours, then its cushion colours (``style.json`` ``decor``), each once (pure)."""
+    decor = (style or {}).get("decor") if isinstance((style or {}).get("decor"), dict) else {}
+    out: list[str] = []
+    for key in ("throw_colours", "cushion_colours"):
+        for c in decor.get(key) or []:
+            if c and str(c) not in out:
+                out.append(str(c))
+    return out
+
+
+def seat_throw_look(item: dict, host: dict, style: Optional[dict]) -> dict:
+    """The look of a throw on a seat (pure; ``seat_throw.throw_look``): the family's fabric and fringe, a colour that
+    stands out from the seat's fabric (the item's, the brief's throw and cushion colours, else the family's contrast),
+    the drape over the arm at the end the item was put on."""
+    from wenart.blender import seat_throw as ST
+
+    side = ST.preferred_side(item, host["footprint"])
+    return ST.throw_look(family_of(style), ST.sofa_colour(host, style),
+                         [item.get("colour")] + brief_throw_colours(style), side=side)
+
+
+def dress_seat_throws(building: dict, style: Optional[dict]) -> list[str]:
+    """31 Oct 2026 (user on real04 run 20261030-181158-full, the long white corner sofa with four scatter cushions and a
+    small cream sheet on its seat: "bedding on this sofa could have been a lot better not just pillows maybe include
+    some comfortals"): every throw on a sofa, a corner sofa, a chaise or an armchair (one per seating group:
+    ``decor_ai.living_dressing`` moves a room's throw to its main sofa) gets its ``seat_throw``: a folded throw in the
+    family's fabric (a chunky knit, a boucle, a wool, a linen; fringed or not) in a colour that stands out from the
+    seat, folded over the arm at its end (else across the seat's end; the build measures the arm,
+    ``wenart.blender.seat_throw``). In place; returns notes."""
+    from wenart.blender import seat_throw as ST
+
+    pieces = {p["id"]: p for p in building.get("furniture") or [] if p.get("id") and p.get("footprint")}
+    notes = []
+    for item in building.get("decor") or []:
+        host = pieces.get(item.get("host_id"))
+        if item.get("type") != "throw" or host is None or host.get("type") not in ST.SEAT_TYPES \
+                or isinstance(item.get("seat_throw"), dict):
+            continue
+        look = seat_throw_look(item, host, style)
+        if item.get("colour") and item["colour"] != look["colour"]:
+            item["colour_before_contrast"] = item["colour"]
+        item["colour"] = look["colour"]
+        item["seat_throw"] = look
+        item["reason"] = f"{item.get('reason') or 'throw'}; {look['why']}"
+        _note(item, f"a folded {look['look']} throw in {look['colour']} over the arm ({ST.RULE})")
+        notes.append(f"{item.get('room_id')}: throw {item.get('id')} on {host['id']}: a folded {look['look']} throw in "
+                     f"{look['colour']} over the {look.get('side') or 'right'} arm")
+    return notes
+
+
+# --------------------------------------------------------------------------
 # lights
 # --------------------------------------------------------------------------
 
@@ -402,6 +457,7 @@ def dress(building: dict, style: Optional[dict], recipe_of: Optional[Callable] =
     decisions = finish_decisions(building, style, recipe_of)
     notes += dress_curtains(building, style)
     notes += layer_bedding(building, style, new_id)
+    notes += dress_seat_throws(building, style)          # 31 Oct 2026: a folded throw over a sofa's arm
     notes += accent_lights(building, style, new_id)
     building["dressing"] = {"rule": RULE, "lesson": LESSON, "family": family_of(style) or None, "rooms": decisions,
                             "notes": notes}

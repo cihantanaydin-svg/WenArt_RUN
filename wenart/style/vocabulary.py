@@ -136,6 +136,14 @@ FURNITURE_MATERIALS: dict[str, dict] = {
                       # 31 Oct 2026: Poly Haven's brown_leather scan (grain relief and roughness) on the tan colour
                       "source": "polyhaven", "asset": "brown_leather", "size_m": [0.4, 0.4], "albedo_mode": "flat",
                       "detail": 0.4},
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "This bag requires a lot more detail and a lot better
+    # texture for example black leather like suite"): a black leather (the holdall's body and trim where the item names
+    # no colour): the same brown_leather scan's grain relief and roughness on a near-black, a little glossier
+    "leather_black": {"kind": "hard",    "flat": [0.018, 0.016, 0.015], "roughness": 0.42,
+                      "source": "polyhaven", "asset": "brown_leather", "size_m": [0.4, 0.4], "albedo_mode": "flat",
+                      "detail": 0.35},
+    # ... and the waxed thread of its stitching (a warm tan that shows on a dark leather)
+    "thread_waxed":  {"kind": "fabric",  "flat": [0.46, 0.30, 0.15], "roughness": 0.55},
     # 29 Oct 2026 (UL99): a TV's switched-off screen: near-black glass, glossy enough for a faint reflection.
     "screen_black":  {"kind": "hard",    "flat": [0.012, 0.012, 0.014], "roughness": 0.08},
     # 29 Oct 2026 (UL114): an LED strip's diffuser (its emission is materials.led_material; this is its record's slug)

@@ -70,7 +70,13 @@ def plan_beds(building: dict, style: Optional[dict], new_id: Optional[Callable[[
                                    f"{want['lumbar']} lumbar ({BP.COUNT_WHY}); the duvet hangs almost to the floor "
                                    f"on the free side(s) "
                                    f"{', '.join(s for s in BP.SIDES if sides[s]['free']) or '(none)'}"),
-                      count_rule=BP.COUNT_RULE, pieces_max=BP.pieces_max(w))
+                      count_rule=BP.COUNT_RULE, pieces_max=BP.pieces_max(w),
+                      # 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"): the
+                      # room's scheme on the bed's cushions (the brief's cushion colours) and the wall behind its
+                      # head that holds the shams where the model has no headboard (the build measures it again)
+                      cushion_colours=BP.scheme_colours(style, against=spec["pillows"].get("colour")),
+                      head_wall={k: v for k, v in (BP.head_wall(bed, building) or {}).items()
+                                 if k not in ("verts", "faces")} or None)
         bed["bedding_layers"] = layers
         # 30 Oct 2026 (UL163): the headboard form of the family for a bed we build (a library bed keeps its model's)
         design = bed.get("design") if isinstance(bed.get("design"), dict) else {}

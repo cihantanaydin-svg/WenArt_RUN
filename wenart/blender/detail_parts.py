@@ -308,7 +308,9 @@ def art_leaning_parts(w: float, d: float, h: float, item: Optional[dict] = None)
 def bag_parts(w: float, d: float, h: float, item: Optional[dict] = None) -> list[Part]:
     """R29: a weekend holdall lying on the floor (30 Oct 2026, UL160: ``holdall.holdall_parts``: a soft barrel body
     with a leather base, piped end panels, a top zip with its pull and garage tabs, rolled leather handles on riveted
-    tabs held by a wrap, a front pocket, a shoulder strap clipped to D-rings and lying on the floor, base studs)."""
+    tabs held by a wrap, a front pocket, a shoulder strap clipped to D-rings and lying on the floor, base studs; 31 Oct
+    2026: a leather bag in the item's colour, black where it names none, with stitching, keepers, buckles, a shoulder
+    pad, brass hardware and domed feet)."""
     from wenart.blender import holdall as HD
 
     return contain(HD.holdall_parts(w, d, h, item), w, d, h)

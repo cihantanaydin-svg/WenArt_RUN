@@ -25,16 +25,20 @@ def _roles(parts):
 
 def test_the_bag_has_the_parts_of_a_real_holdall():
     roles = _roles(_bag())
-    assert len(roles["body"]) == 1 and len(roles["base"]) == 1                    # canvas over a leather base
+    assert len(roles["body"]) == 1 and len(roles["base"]) == 1                    # the body over its base band
     assert len(roles["handle"]) == 2 and len(roles["wrap"]) == 1                  # two rolled handles, one wrap
-    assert len(roles["piping"]) == 2                                               # both end panels piped
+    # 31 Oct 2026: both end panels and both edges of the base band piped (tests/test_bedding_sofa_bag_20261031.py)
+    assert len(roles["piping"]) == 4
     assert len(roles["strap"]) == 1 and len(roles["clip"]) == 2 and len(roles["ring"]) == 2
     assert len(roles["pocket"]) == 1 and len(roles["zip"]) >= 4                    # main zip and the pocket's
-    assert len(roles["foot"]) == 4                                                 # base studs
+    assert len(roles["foot"]) == 4                                                 # base feet
     assert len(roles["tab"]) >= 4 + 2 + 2                                          # handle tabs, garages, D-ring tabs
     assert len(roles["button"]) >= 8                                               # rivets, sliders
     keys = {p["key"] for p in _bag()}
-    assert keys == {HD.CANVAS, HD.LEATHER, HD.METAL, HD.TAPE}
+    # 31 Oct 2026 (user: "black leather like suite"): a leather bag in its colour, brass hardware, stitching
+    assert keys == {HD.LEATHER_COLOURED, HD.BRASS, HD.TAPE, HD.THREAD}
+    canvas = {p["key"] for p in _bag(item={"colour": "charcoal", "bag_material": "canvas"})}
+    assert canvas == {HD.CANVAS, HD.LEATHER, HD.METAL, HD.TAPE, HD.THREAD}           # the canvas bag of before
 
 
 def test_closed_outward_and_inside_its_box():

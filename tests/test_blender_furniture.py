@@ -621,8 +621,10 @@ def test_manifest_validates_and_summarises_the_furniture(scene):
     m = scene["manifest"]
     schemas.validate_scene_manifest(m)
     s = m["furniture"]
-    # Milestone 12: the unknown piece is refused (no proxy box)
-    assert s["pieces"] == len(scene["building"]["furniture"]) - 1 and s["proxies"] == 0 and s["decor"] == 5
+    # Milestone 12: the unknown piece is refused (no proxy box). 31 Oct 2026: the parametric bed takes the family's made
+    # set (the dressing); the cushion on it is the set's (built in the dressing, in its colour), not a decor item
+    assert s["pieces"] == len(scene["building"]["furniture"]) - 1 and s["proxies"] == 0 and s["decor"] == 4
+    assert [d for d in s["decor_skipped"] if d["id"] == "dec_T04" and "built in the dressing" in d["reason"]]
     assert s["by_method"] == {"library": 2, "parametric": len(P.PARAMETRIC_TYPES) - len(P.SHELL_TYPES) + 2}
     reasons = {f["id"]: f["reason"] for f in s["fallbacks"]}
     assert set(reasons) == {f["id"] for f in scene["building"]["furniture"]
@@ -676,9 +678,12 @@ def test_parametric_pieces_sit_on_their_footprints(scene):
     assert "thin_glass" in shower["materials"] and shower["material_keys"]["glass"] == "glass"  # thin pane: the index pass sees through
     bed = entries[next(f["id"] for f in scene["building"]["furniture"] if f["type"] == "bed_double")]
     # Milestone 13 (bed v2): the upholstered headboard adds the fabric slot and the recessed plinth the dark slot
-    # to the wood, bedding and duvet (the fixture style's slugs: furniture.style_material_keys)
-    assert bed["material_keys"] == {"wood": "wood_veneer_oak", "bedding": "fabric_white", "duvet": "fabric_linen",
-                                    "fabric": "fabric_linen", "dark": "lacquer_dark"}
+    # to the wood and the mattress (the fixture style's slugs: furniture.style_material_keys). 31 Oct 2026: its own
+    # thin duvet and pillows leave the model; the family's made set dresses it (shams against its headboard)
+    assert bed["material_keys"] == {"wood": "wood_veneer_oak", "bedding": "fabric_white", "fabric": "fabric_linen",
+                                    "dark": "lacquer_dark"}
+    dress = bed["dressing"]["record"]
+    assert dress["set"]["euro_shams"] == 2 and dress["set"]["pillows"] == 2 and dress["pillows_upright"] is True
     assert bed["bbox_m"][2] == pytest.approx(1.0) and bed["size"][2] == 0.55
     # Milestone 6: one Bevel modifier per parametric piece, recorded; the bedding is a design detail.
     assert bed["bevel"]["width_m"] == P.BEVEL_WIDTH_M and bed["bevel"]["segments"] == P.BEVEL_SEGMENTS
@@ -729,7 +734,7 @@ def test_rotated_unverified_library_piece_keeps_stripes_on_copied_materials(scen
     assert e["status"] == ob["status"] == "unverified"
     assert set(ob["materials"]) == {"cube_a_mat__unverified", "cube_b_mat__unverified"}
     assert all(scene["materials"][n]["stripes"] for n in ob["materials"])
-    assert not scene["materials"]["cube_a_mat"]["stripes"]   # the verified piece's materials are untouched
+    assert not scene["materials"]["cube_b_mat"]["stripes"]   # the verified piece's materials are untouched
     assert e["bbox_m"] == pytest.approx([0.8, 0.5, 0.9], abs=1e-3)
 
 
@@ -749,7 +754,8 @@ def test_decor_sits_on_its_hosts_and_shares_their_pass_index(scene):
     m, objects = scene["manifest"], scene["objects"]
     building = scene["building"]
     decor = [o for o in m["objects"] if o["kind"] == "decor"]
-    assert len(decor) == 5 and all(o["source"] == "added_by_ai" and o["status"] == "assumed" for o in decor)
+    # 31 Oct 2026: the bed's cushion is built in its dressing (the family's made set)
+    assert len(decor) == 4 and all(o["source"] == "added_by_ai" and o["status"] == "assumed" for o in decor)
     # The hostless plant stands on the floor with its own id and pass index.
     (floor_plant,) = [o for o in decor if o["host_id"] is None]
     assert floor_plant["wenart_id"] == floor_plant["element_id"] == "dec_L0_001" and floor_plant["type"] == "plant"
@@ -794,20 +800,15 @@ def test_decor_sits_on_its_hosts_and_shares_their_pass_index(scene):
     (books,) = by_host[desk["id"]]
     assert books["type"] == "book_set" and objects[books["name"]]["bounds"][2][0] == pytest.approx(0.75, abs=2e-3)
     assert books["method"].startswith("parametric") and books["rest"]["gap_m"] <= 0.010
-    (lib_cushion,) = by_host[bed["id"]]
-    assert lib_cushion["method"] == "library" and lib_cushion["asset"]["asset_id"] == "test_cube"
-    (x0, x1), (y0, y1), (z0, z1) = objects[lib_cushion["name"]]["bounds"]
-    # On the parametric bed's own bedding, its bottom never on the pillow top (Milestone 11 put it there:
-    # ``bedding_top``). 29 Oct 2026 (``rest.place_leaning(stand=True)``): over the gap between its two lying pillows it
-    # stands on them against the headboard, its upper part on it (S5 ``back_gap_m``, 28 Oct 2026); it was not built
-    # ("no headboard found": the pillows' flanks squeezed it, their front lay out of the head zone).
-    top = P.bedding_top(*bed["footprint"]["size"], 0.55)
-    assert x1 - x0 == pytest.approx(0.4, abs=1e-3) and z0 < top - 0.05 and lib_cushion["support"] == "headboard"
-    assert lib_cushion["rest"]["gap_m"] <= 0.010 and lib_cushion["rest"]["support_share"] >= 0.8
-    assert lib_cushion["rest"]["back_gap_m"] <= RS.REST_TOLERANCES["decor_back_gap_m"]
-    assert lib_cushion["fit"]["fit_scale"] == pytest.approx([0.5, 0.5, 0.5])
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"): the parametric bed takes the
+    # family's made set (its own thin duvet and pillows leave the model); the cushion on it is the set's, built in the
+    # dressing in this cushion's colour, never a second set in front of it (UL121, UL163)
+    assert bed["id"] not in by_host and bed["id"] in m["furniture"]["dressed_beds"]
+    dress = entries[bed["id"]]["dressing"]["record"]
+    assert dress["set"]["lumbar"] + dress["set"]["accent"] >= 1 and dress["unrested"] == []
+    assert [d for d in m["furniture"]["decor_skipped"] if d["id"] == "dec_T04"]
     assert [w for w in m["warnings"] if "decor host 'f_nope'" in w]
-    assert hosts and m["furniture"]["decor"] == 5
+    assert hosts and m["furniture"]["decor"] == 4
 
 
 @needs_blender
