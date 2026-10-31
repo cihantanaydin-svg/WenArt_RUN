@@ -2583,6 +2583,18 @@
    "request": "Furniture ranking (31 Oct 2026): render the library models in one neutral studio on lettered sheets (A-T, 20 a sheet) and on a page with 0-10 score buttons; the user ranks them purely on the look, starting with beds, sofas and armchairs. Ranks 0-2: never used; the fit prefers the higher rank among the models that fit; an unranked model counts as 5; rank 6 or more beats our procedural build.",
    "lesson": "Furniture ranking (31 Oct 2026): render the library models in one neutral studio on lettered sheets (A-T, 20 a sheet) and on a page with 0-10 score buttons; the user ranks them purely on the look, starting with beds, sofas and armchairs. Ranks 0-2: never used; the fit prefers the higher rank among the models that fit; an unranked model counts as 5; rank 6 or more beats our procedural build.",
    "question": "Did the fit use a model the user ranked 0-2, or pass over a higher-ranked model that fits for a lower-ranked one (results/library/user_ranks.json, asset.ranking)?"
+  },
+  {
+   "id": "UL218",
+   "date": "2026-10-31",
+   "area": "materials",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Better procedural models and textures (31 Oct 2026): our own builds (every parametric and module builder, in each project's style) are rendered in the ranking studio and scored by the user beside the library; every furniture material wears a real CC0 scan where one exists (plain fabrics, leather, handle metals; the procedural weave only as fallback), finishing layers (lacquer coat, roughness variation, rounded edges) and texture grain along each part with a per-part offset; every change to a builder is checked on before/after studio sheets.",
+   "lesson": "Better procedural models and textures (31 Oct 2026): our own builds (every parametric and module builder, in each project's style) are rendered in the ranking studio and scored by the user beside the library; every furniture material wears a real CC0 scan where one exists (plain fabrics, leather, handle metals; the procedural weave only as fallback), finishing layers (lacquer coat, roughness variation, rounded edges) and texture grain along each part with a per-part offset; every change to a builder is checked on before/after studio sheets.",
+   "question": "Does any piece built by our code show a flat, untextured fabric, leather or metal, or a wood grain running across a part's length, where a CC0 scan exists (wenart/style/finishes.py, the ranking studio's 'Our builds' sheets)?"
   }
  ]
 }
