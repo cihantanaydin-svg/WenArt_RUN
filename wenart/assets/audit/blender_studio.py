@@ -175,7 +175,8 @@ def one(job, doc, scene, cam, library, keep):
     building = {"project": {"id": "studio"}, "levels": [level], "rooms": [], "walls": [], "openings": [],
                 "furniture": [piece], "decor": []}
     assumed, warnings, manifest = [], [], []
-    summary = F.create_furniture(building, level, col, library, doc.get("style") or {}, doc.get("assets"), {},
+    style = job.get("style") or doc.get("style") or {}
+    summary = F.create_furniture(building, level, col, library, style, doc.get("assets"), {},
                                  manifest, assumed, warnings)
     entry = next((m for m in manifest if m.get("wenart_id") == piece["id"] or m.get("id") == piece["id"]), {})
     method = entry.get("method") or "?"
@@ -183,8 +184,9 @@ def one(job, doc, scene, cam, library, keep):
            "dressing": {k: bool(entry.get(k)) for k in ("bedding", "fabric_dressing", "recolour") if k in entry},
            "not_built": summary.get("not_built") or []}
     objects = list(col.all_objects)
-    if method != "library":
-        rec["error"] = f"not built from the model: {method}"
+    ours = bool(job.get("procedural"))          # our build: parametric or module is the point
+    if (method != "library" and not ours) or (ours and not str(method).startswith(("parametric", "module"))):
+        rec["error"] = f"not built as asked: {method}"
         return rec, col, []
     lo, hi = world_box(objects)
     rec["box_min"], rec["box_max"] = [round(v, 4) for v in lo], [round(v, 4) for v in hi]
@@ -234,11 +236,11 @@ def main(jobs_path):
     warnings = []
     textures, _hdris, refused = load_assets(doc.get("assets"), False, warnings)
 
-    def new_library():
+    def new_library(style=None):
         """A fresh material library per model: the purge after each model removes the materials the last one made
         (pod run 20261031-070545: 48 beds failed on a removed bedding material of a reused library)."""
         return MaterialLibrary(textures, doc.get("assets"), use_textures=True, refused=refused,
-                               style=doc.get("style") or {})
+                               style=style or doc.get("style") or {})
     keep = {o.name for o in bpy.data.objects}
     left = []
     for job in doc.get("jobs") or []:
@@ -250,7 +252,7 @@ def main(jobs_path):
                "attempts": int(job.get("attempt", 1))}
         col, extra = None, []
         try:
-            out, col, extra = one(job, doc, scene, cam, new_library(), keep)
+            out, col, extra = one(job, doc, scene, cam, new_library(job.get("style")), keep)
             rec.update(out)
         except Exception as exc:  # noqa: BLE001 - one broken model must not stop the others
             rec["ok"] = False

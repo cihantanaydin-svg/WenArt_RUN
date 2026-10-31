@@ -99,10 +99,101 @@ def studio_piece(entry: dict) -> dict:
             "evidence": {"method": "inferred", "file": "ranking studio", "confidence": 1.0}, "asset": asset}
 
 
+# --------------------------------------------------------------------------
+# Our builds (31 Oct 2026, the user: "yes start with 1 and 2": score our procedural builds next to the library)
+# --------------------------------------------------------------------------
+
+PROC_TAG = "ours"
+PROC_EXCLUDE = ("bed", "stair", "unknown")        # an alias, a piece of the building, no type
+PROC_STYLE_DIR = Path(__file__).resolve().parents[3] / "results" / "baseline" / "latest" / "run"
+# the code that shapes our builds and their materials: a change re-renders them (the "after" sheets)
+PROC_CODE = ("wenart/blender/parametric.py", "wenart/blender/modules.py", "wenart/blender/materials.py",
+             "wenart/blender/furniture.py", "wenart/blender/textiles.py", "wenart/style/vocabulary.py")
+PROC_CODE_GLOBS = ("wenart/blender/*parts*.py",)
+
+
+def proc_code_sha() -> str:
+    root = Path(__file__).resolve().parents[3]
+    files = sorted({*(root / f for f in PROC_CODE), *(q for g in PROC_CODE_GLOBS for q in root.glob(g))})
+    h = hashlib.sha256()
+    for f in files:
+        if f.is_file():
+            h.update(f.relative_to(root).as_posix().encode())
+            h.update(f.read_bytes())
+    return h.hexdigest()
+
+
+def procedural_styles(folder: Optional[Path] = None) -> list[tuple[str, dict]]:
+    """``[(project, style)]`` of the latest runs (``results/baseline/latest/run/<p>/style.json``): our builds look as
+    they do in each project; the neutral studio style when none is there."""
+    folder = Path(folder) if folder is not None else PROC_STYLE_DIR
+    out = []
+    for f in sorted(folder.glob("*/style.json")):
+        try:
+            st = json.loads(f.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        out.append((f.parent.name, st[0] if isinstance(st, list) and st else st))
+    return out or [("studio", STYLE)]
+
+
+def procedural_types() -> list[str]:
+    from wenart.blender import parametric as P
+    order = list(ALL_TYPES)
+    types = [t for t in P._BUILDERS if t not in PROC_EXCLUDE]
+    return sorted(types, key=lambda t: (order.index(t) if t in order else len(order), t))
+
+
+def procedural_entries(types: Optional[list[str]] = None, styles: Optional[list[tuple[str, dict]]] = None,
+                       tag: str = PROC_TAG) -> list[dict]:
+    """One entry per builder and project style: ``{"id": "<tag>:<type>:<project>", "type", "group": tag,
+    "procedural": True, "style_name", "style", "bbox_m": the type's typical product size, "method": module when a
+    module builder plans the piece, else parametric, "title", "code_sha"}``."""
+    from wenart.blender import modules as MOD
+    from wenart.furniture import sizes as SZ
+    styles = styles if styles is not None else procedural_styles()
+    code = proc_code_sha()
+    out = []
+    for t in types or procedural_types():
+        rng = SZ.real_range(t) or {}
+        box = [float(v) for v in (rng.get("product") or (1.0, 0.6, 0.8))]
+        for name, style in styles:
+            e = {"id": f"{tag}:{t}:{name}", "type": t, "group": tag, "procedural": True, "style_name": name,
+                 "style": style, "bbox_m": box, "source": "procedural", "code_sha": code}
+            piece = _proc_piece_base(e)
+            e["method"] = "module" if MOD.module_plan(piece, style) is not None else "parametric"
+            out.append(dict(e, title=f"our {t.replace('_', ' ')} ({e['method']}, {name} style)"))
+    return out
+
+
+def _proc_piece_base(e: dict) -> dict:
+    w, d, h = (float(v) for v in e["bbox_m"])
+    return {"id": "studio_piece", "type": e["type"], "level_id": "L0", "room_id": "studio",
+            "footprint": {"center": [0.0, 0.0], "size": [round(w, 4), round(d, 4)], "rotation_deg": 0.0},
+            "height": round(h, 4), "front_deg": 270.0, "status": "verified", "source": "from_documents",
+            "evidence": {"method": "inferred", "file": "ranking studio", "confidence": 1.0}}
+
+
+def procedural_piece(e: dict) -> dict:
+    """The piece of one of our builds: the fit's module record (the build plans its modules) or its parametric
+    record (``fit.parametric_fit``)."""
+    from wenart.furniture import fit as F
+    piece = _proc_piece_base(e)
+    if e.get("method") == "module":
+        asset = {"library": "module", "asset_id": f"module:{e['type']}", "licence": "n/a", "license": "n/a",
+                 "method": "module", "fit_scale": [1.0, 1.0, 1.0], "bbox_m": list(e["bbox_m"]),
+                 "front_axis": "-Y", "up_axis": "+Z", "origin_offset": [0.0, 0.0, 0.0]}
+    else:
+        asset = F.parametric_fit(piece, "ranking studio: our own build")
+    return dict(piece, asset=asset)
+
+
 def job_sha(entry: dict, settings: dict) -> str:
     keys = ("glb", "gltf", "sha256_glb", "bbox_m", "unit_scale", "origin_offset", "front_axis", "up_axis",
             "bed_frame", "deck_height_m", "has_mattress", "has_bedding", "has_cushions", "material_slots")
     body = {"v": STUDIO_VERSION, "entry": {k: entry.get(k) for k in keys}, "settings": settings}
+    if entry.get("procedural"):                   # our build: its code and its style decide the picture
+        body["procedural"] = {"code": entry.get("code_sha"), "style": entry.get("style_name"), "id": entry["id"]}
     return hashlib.sha256(json.dumps(body, sort_keys=True, default=str).encode("utf-8")).hexdigest()
 
 
@@ -116,7 +207,7 @@ def sheet_plan(entries: list[dict], per_sheet: int = PER_SHEET) -> list[dict]:
     sheets: list[dict] = []
     by_type: dict[str, list[dict]] = {}
     for e in entries:
-        by_type.setdefault(e["type"], []).append(e)
+        by_type.setdefault(e.get("group") or e["type"], []).append(e)
     for ftype, rows in by_type.items():
         count = math.ceil(len(rows) / per_sheet)
         for n in range(count):
@@ -137,6 +228,9 @@ def index_doc(entries: list[dict], sheets: list[dict]) -> dict:
             models[iid] = {"type": e["type"], "sheet": s["sheet"], "letter": letter, "source": e.get("source"),
                            "title": ascii_text(e.get("title") or e.get("name") or "", 90),
                            "size_m": [round(float(v), 2) for v in e["bbox_m"]]}
+            if e.get("procedural"):
+                models[iid].update({"group": e.get("group"), "procedural": True, "style": e.get("style_name"),
+                                    "method": e.get("method")})
     return {"schema_version": 1, "kind": "ranking_index", "version": STUDIO_VERSION, "lesson": "UL217",
             "per_sheet": PER_SHEET, "types": list(dict.fromkeys(s["type"] for s in sheets)), "sheets": sheets,
             "models": models}
@@ -151,8 +245,10 @@ def plan(entries: list[dict], assets: Path, work: Path, settings: Optional[dict]
     jobs, skipped, missing = [], [], []
     for e in entries:
         rel = e.get("glb") or e.get("gltf")
-        path = Path(assets) / rel
-        if not path.is_file():
+        path = Path(assets) / rel if rel else None
+        if e.get("procedural"):
+            path = None
+        elif path is None or not path.is_file():
             missing.append({"id": e["id"], "file": str(rel)})
             continue
         sha = job_sha(e, settings)
@@ -163,9 +259,14 @@ def plan(entries: list[dict], assets: Path, work: Path, settings: Optional[dict]
             skipped.append(e["id"])
             continue
         attempt = int(rec.get("attempts", 1)) + 1 if rec and rec.get("job_sha") == sha and not rec.get("ok") else 1
-        jobs.append({"id": e["id"], "type": e["type"], "file": str(path), "job_sha": sha, "attempt": attempt,
-                     "piece": studio_piece(e), "measure": str(R.measure_path(work, e["id"])),
-                     "image": str(image_path(work, e["id"]))})
+        job = {"id": e["id"], "type": e["type"], "file": str(path) if path else None, "job_sha": sha,
+               "attempt": attempt, "measure": str(R.measure_path(work, e["id"])),
+               "image": str(image_path(work, e["id"]))}
+        if e.get("procedural"):
+            job.update({"procedural": True, "piece": procedural_piece(e), "style": e["style"]})
+        else:
+            job["piece"] = studio_piece(e)
+        jobs.append(job)
     return {"version": STUDIO_VERSION, "settings": settings, "style": STYLE, "deadline": deadline,
             "work": str(work), "assets": str(assets), "jobs": jobs, "skipped": skipped, "missing": missing}
 
@@ -315,17 +416,23 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--deadline", default=None)
     ap.add_argument("--limit", type=int, default=0, help="at most this many models per type (a smoke run)")
     ap.add_argument("--samples", type=int, default=None)
+    ap.add_argument("--procedural", action="store_true",
+                    help="our builds only (every parametric and module builder in the projects' styles)")
+    ap.add_argument("--proc-tag", default=PROC_TAG, help="the group, id prefix and file suffix of our builds")
     a = ap.parse_args(argv)
     types = [t for t in a.types.split(",") if t]
-    entries = rank_entries(types, a.mode)
+    entries = procedural_entries(tag=a.proc_tag) if a.procedural else rank_entries(types, a.mode)
+    suffix = f"_{a.proc_tag}" if a.procedural else ""
     if a.limit:
         kept: dict = {}
-        entries = [e for e in entries if kept.setdefault(e["type"], []).append(e) or len(kept[e["type"]]) <= a.limit]
+        entries = [e for e in entries if kept.setdefault(e.get("group") or e["type"], []).append(e)
+                   or len(kept[e.get("group") or e["type"]]) <= a.limit]
     sheets = sheet_plan(entries)
     index = index_doc(entries, sheets)
     out, work = Path(a.out), Path(a.work)
     out.mkdir(parents=True, exist_ok=True)
-    (out / "ranking_index.json").write_text(json.dumps(index, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    (out / f"ranking_index{suffix}.json").write_text(json.dumps(index, indent=1, ensure_ascii=False) + "\n",
+                                                     encoding="utf-8")
     settings = {"samples": a.samples} if a.samples else None
     doc = plan(entries, Path(a.assets), work, settings, R.deadline_of(a.deadline))
     print(f"ranking studio: {len(entries)} model(s) of {types}: {len(doc['jobs'])} to render, {len(doc['skipped'])} "
@@ -342,7 +449,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     compose_sheets(index, work, out, settings)
     res = results_doc(index, work)
     res["missing_files"] = doc["missing"]
-    (out / "studio_results.json").write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
+    (out / f"studio_results{suffix}.json").write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
     print(f"ranking studio: {res['ok']} of {res['models']} model(s) rendered, {res['failed']} failed")
     return code
 

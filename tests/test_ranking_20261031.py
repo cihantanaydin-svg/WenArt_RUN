@@ -207,7 +207,7 @@ def test_each_studio_model_gets_a_fresh_material_library():
     """Pod run 20261031-070545: the purge after each model removed the materials of a library kept for the whole run;
     52 of 520 models (48 beds with their bedding) failed on 'StructRNA of type Material has been removed'."""
     src = (ROOT / "wenart" / "assets" / "audit" / "blender_studio.py").read_text()
-    assert "one(job, doc, scene, cam, new_library(), keep)" in src and "orphans_purge" in src
+    assert "one(job, doc, scene, cam, new_library(job.get(\"style\")), keep)" in src and "orphans_purge" in src
 
 
 @pytest.mark.user_ranks
@@ -232,3 +232,25 @@ def test_the_survey_text_is_read_back_against_the_sheets_the_rater_saw():
     assert name == "Ayse K" and got == {"m1": 7, "m2": 0, "m20": 10}
     page = (ROOT / "scripts" / "ranking_page.py").read_text()
     assert "Copy my scores" in page and "ratings/{self}" in page and "--inline" in page
+
+
+def test_our_builds_are_on_their_own_sheets_with_the_projects_styles():
+    """31 Oct 2026 (the user: "yes start with 1 and 2"): every parametric and module builder, in each latest project's
+    style, as "ours:<type>:<project>" on the "ours" sheets; a change of the builders' code changes the job."""
+    styles = [("p1", {"family": "modern"}), ("p2", {"family": "scandinavian"})]
+    es = S.procedural_entries(types=["toilet", "kitchen_counter"], styles=styles)
+    assert [e["id"] for e in es] == ["ours:toilet:p1", "ours:toilet:p2", "ours:kitchen_counter:p1",
+                                     "ours:kitchen_counter:p2"]
+    assert {e["method"] for e in es if e["type"] == "kitchen_counter"} == {"module"}
+    assert {e["method"] for e in es if e["type"] == "toilet"} == {"parametric"}
+    sheets = S.sheet_plan(es)
+    assert [s["sheet"] for s in sheets] == ["ours-01"] and len(sheets[0]["letters"]) == 4
+    idx = S.index_doc(es, sheets)
+    assert idx["models"]["ours:toilet:p1"]["procedural"] and idx["models"]["ours:toilet:p1"]["type"] == "toilet"
+    piece = S.procedural_piece(es[0])
+    assert piece["asset"]["method"] == "parametric" and S.procedural_piece(es[2])["asset"]["method"] == "module"
+    a = S.job_sha(es[0], S.SETTINGS)
+    assert a != S.job_sha(dict(es[0], code_sha="other"), S.SETTINGS)
+    assert "stair" not in S.procedural_types() and "toilet" in S.procedural_types()
+    job = (ROOT / "scripts" / "jobs" / "library_ranking.sh").read_text()
+    assert "--procedural --proc-tag" in job and "studio_results_${RANK_PROC_TAG}.json" in job

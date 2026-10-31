@@ -20,7 +20,9 @@
 #      ranking_index.json, studio_results.json).
 # The studio's PNGs stay on the volume (RANK_ROOT, default /workspace/library-ranking).
 #
-# Env (all optional): RANK_TYPES (comma list), RANK_WORKERS (default 4), RANK_ROOT, RANK_SAMPLES, WENART_ASSETS.
+# Env (all optional): RANK_TYPES (comma list), RANK_WORKERS (default 4), RANK_ROOT, RANK_SAMPLES, WENART_ASSETS;
+# RANK_PROCEDURAL=1 renders our own builds instead (every parametric and module builder in the projects' styles,
+# 31 Oct 2026), RANK_PROC_TAG (default ours) names them: ranking_index_<tag>.json, studio_results_<tag>.json.
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"
@@ -40,6 +42,9 @@ WORK="$RANK_ROOT/work"
 OUT="$RESULTS/library/ranking"
 RANK_TYPES="${RANK_TYPES:-bed_double,sofa,armchair}"
 RANK_WORKERS="${RANK_WORKERS:-4}"
+RANK_PROCEDURAL="${RANK_PROCEDURAL:-0}"
+RANK_PROC_TAG="${RANK_PROC_TAG:-ours}"
+RESULTS_FILE="$OUT/studio_results.json"
 export WENART_BLENDER="${WENART_BLENDER:-$WS/tools/blender/blender}"
 export WENART_JOB_DIR="$JOB_DIR" WENART_RESULTS="$RESULTS" WENART_LOGS="$LOGS" WENART_ASSETS="$ASSETS"
 FAILED=()
@@ -95,12 +100,16 @@ ARGS=(--types "$RANK_TYPES" --assets "$ASSETS" --work "$WORK" --out "$OUT" --wor
       --blender "$WENART_BLENDER")
 if [ -n "${WENART_DEADLINE:-}" ]; then ARGS+=(--deadline "$WENART_DEADLINE"); fi
 if [ -n "${RANK_SAMPLES:-}" ]; then ARGS+=(--samples "$RANK_SAMPLES"); fi
+if [ "$RANK_PROCEDURAL" = "1" ]; then
+  ARGS+=(--procedural --proc-tag "$RANK_PROC_TAG")
+  RESULTS_FILE="$OUT/studio_results_${RANK_PROC_TAG}.json"
+fi
 
 # the Poly Haven models of the ranked types (the library GLBs are on the volume)
 read -r -a PH_IDS <<< "$("$PY" -c 'import sys
 from wenart.assets.audit import studio as S
 print(" ".join(e["id"] for e in S.rank_entries(sys.argv[1].split(",")) if e.get("gltf")))' "$RANK_TYPES")"
-if [ "${#PH_IDS[@]}" -gt 0 ]; then
+if [ "${#PH_IDS[@]}" -gt 0 ] && [ "$RANK_PROCEDURAL" != "1" ]; then
   run_step models "$PY" -m wenart.assets models fetch --assets "$ASSETS" --size 1k --ids "${PH_IDS[@]}"
 fi
 run_step plan "$PY" -m wenart.assets.audit.studio plan "${ARGS[@]}"
@@ -112,7 +121,7 @@ if [ "$smoke_rc" -ne 0 ]; then
   exit 1
 fi
 run_step render "$PY" -m wenart.assets.audit.studio render "${ARGS[@]}"
-"$PY" - "$OUT/studio_results.json" <<'EOF' || FAILED+=("results")
+"$PY" - "$RESULTS_FILE" <<'EOF' || FAILED+=("results")
 import json, sys
 r = json.load(open(sys.argv[1]))
 print(f"ranking studio: {r['ok']} of {r['models']} model(s) rendered, {r['failed']} failed")
