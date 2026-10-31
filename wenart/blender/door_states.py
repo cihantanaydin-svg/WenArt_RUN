@@ -63,6 +63,15 @@ architrave (they are all built from the opening's height) and it fits under the 
 - ``census_problems`` (M29, Argus U33; the frame's ``census``, ``parametric.frame_census``): a frame part over its
   opening's head by more than the architrave's ``HEAD_RISE_M`` (``frame_taller``), a lining or an architrave face with
   jambs and no head (``jamb_without_head``) or one jamb only (``one_jamb``).
+
+31 Oct 2026 (user on real04 run 20261030-181158-full, the attic bathroom: "There is something seriously wrong here,
+investigate what happened and fix it, the door the toilet not making sense at all"): the last branch above lowered the
+bathroom doors d_L1_004 / 005 to 1.00 m hatches. A drawn door is source evidence that a full-height door fits there, so
+the build now raises a dormer over a door that neither lowering (to ``MIN_CLEAR_M`` or more) nor a slide
+(``slide_spot``) fixes, before these rules run (``dormers.raise_dormers`` in ``build.prepare``); ``head_room`` and the
+open leaf (``leaf_head``, ``leaf_under_ceiling``) read the dormer's raised ceiling (the level's ``ceiling_dormers``,
+``geom2d.raised_surface_z``), so the door keeps its height. The lowering with a finding stays only for a door no dormer
+could be fitted over (``dormer_refused`` names why).
 """
 from __future__ import annotations
 
@@ -555,12 +564,24 @@ def head_room(o: dict, wall: dict, level: dict, t: Optional[float] = None) -> Op
     ``FRAME_ALONG_M`` past each jamb, on both wall faces) less ``ROOF_HEAD_GAP_M`` (the architrave's head stands
     ``HEAD_RISE_M`` over the opening) and its sill; None on a level without a sloped ceiling. ``t``: the door's centre
     along its wall (default: where it stands). One height serves the opening, the leaf, the jamb lining, the head and
-    the architrave: they are all built from the opening's height."""
+    the architrave: they are all built from the opening's height. 31 Oct 2026: a dormer over the door raises the
+    ceiling there (the level's ``ceiling_dormers``, ``dormers.py``)."""
     planes = level.get("ceiling_planes") if isinstance(level, dict) else None
     if not planes or not o.get("center"):
         return None
     from wenart.blender import geom2d
 
+    pts = frame_corners(o, wall, t)
+    raises = level.get("ceiling_dormers") or ()
+    low = min(geom2d.raised_surface_z(planes, x, y, raises) for x, y in pts)
+    sill = float(o.get("sill_height") or 0.0)
+    return round(low - float(level.get("elevation") or 0.0) - sill - ROOF_HEAD_GAP_M, 4)
+
+
+def frame_corners(o: dict, wall: dict, t: Optional[float] = None) -> list[tuple[float, float]]:
+    """The plan corners of a door's frame (the opening and its architrave, ``FRAME_ALONG_M`` past each jamb, on both
+    wall faces) with its centre ``t`` along its wall (default: where it stands); pure. ``head_room`` measures the
+    ceiling over them."""
     a, u, _length = _axis(wall)
     n = G.unit_normal_left(wall["start"], wall["end"])
     if t is None:
@@ -568,11 +589,8 @@ def head_room(o: dict, wall: dict, level: dict, t: Optional[float] = None) -> Op
     cx, cy = a[0] + u[0] * t, a[1] + u[1] * t
     half = float(o.get("width") or 0.0) / 2.0 + FRAME_ALONG_M
     depth = float(wall.get("thickness") or 0.2) / 2.0
-    pts = [(cx + u[0] * s * half + n[0] * k * depth, cy + u[1] * s * half + n[1] * k * depth)
-           for s in (-1.0, 1.0) for k in (-1.0, 1.0)]
-    low = min(geom2d.surface_z(planes, x, y) for x, y in pts)
-    sill = float(o.get("sill_height") or 0.0)
-    return round(low - float(level.get("elevation") or 0.0) - sill - ROOF_HEAD_GAP_M, 4)
+    return [(cx + u[0] * s * half + n[0] * k * depth, cy + u[1] * s * half + n[1] * k * depth)
+            for s in (-1.0, 1.0) for k in (-1.0, 1.0)]
 
 
 def door_height_of(o: dict) -> float:
@@ -627,21 +645,7 @@ def plan_under_roof(building: dict) -> list[dict]:
                        reason=f"its {h:.2f} m would reach over the sloped ceiling at its wall: lowered to its head "
                               f"room {room:.2f} m (UL128)")
         else:
-            rooms = _rooms(building, level["id"])
-            ids = [r.get("id") if r else None for r in sides(o, wall, rooms)]
-            a, u, _l = _axis(wall)
-            spot = None
-            half = max(0.0, float(o.get("width") or 0.0) / 2.0 - FRAME_W_M)
-            for t in _slide_spots(o, wall, openings):
-                there = dict(o, center=[a[0] + u[0] * t, a[1] + u[1] * t])
-                r2 = head_room(there, wall, level)
-                if r2 is None or r2 < MIN_CLEAR_M - 1e-9:
-                    continue
-                # the same two rooms at its centre and at both jambs (no slide past a wall meeting this one)
-                probes = [dict(o, center=[a[0] + u[0] * x, a[1] + u[1] * x]) for x in (t - half, t, t + half)]
-                if all([r.get("id") if r else None for r in sides(p, wall, rooms)] == ids for p in probes):
-                    spot = (t, r2, there["center"])
-                    break
+            spot = slide_spot(building, o, wall, level, openings)
             if spot is not None:
                 _cx, _cy, t0 = centre_on_wall(o, wall)
                 new_h = min(h, spot[1])
@@ -651,13 +655,41 @@ def plan_under_roof(building: dict) -> list[dict]:
                                   f"{spot[0] - t0:+.2f} m along its wall to where the sloped ceiling leaves "
                                   f"{spot[1]:.2f} m, {new_h:.2f} m high (UL128)")
             else:
+                # 31 Oct 2026 (user on real04 run 20261030-181158-full: "the door the toilet not making sense at
+                # all"): the build raises a dormer over such a door before this step (``dormers.raise_dormers`` in
+                # ``build.prepare``: the drawn door is evidence that a full-height door fits); a door reaches this
+                # branch only when no dormer could be fitted over it, and its record says why (``dormer_refused``)
+                refused = o.get("dormer_refused") if isinstance(o.get("dormer_refused"), dict) else {}
                 rec.update(height=round(max(room, 0.05), 4), fits=False,
                            reason=f"its head room under the sloped ceiling is only {room:.2f} m (under "
                                   f"{MIN_CLEAR_M:.2f} m) and no spot within {ROOF_SLIDE_MAX_M:.1f} m along its wall "
                                   f"leaves more: lowered to {max(room, 0.05):.2f} m so nothing crosses the roof; it "
-                                  f"needs a dormer or a raised roof (review)")
+                                  f"needs a dormer or a raised roof (review)"
+                                  + (f"; no dormer could be raised over it: {refused['reason']}"
+                                     if refused.get("reason") else ""))
         out.append(rec)
     return out
+
+
+def slide_spot(building: dict, o: dict, wall: dict, level: dict, openings: Sequence[dict]
+               ) -> Optional[tuple[float, float, list]]:
+    """``(t, head room, centre)``: the nearest spot along its wall (``_slide_spots``: at most ``ROOF_SLIDE_MAX_M``)
+    where a door under the roof gets ``MIN_CLEAR_M`` of head room with the same two rooms at its centre and at both
+    jambs (no slide past a wall meeting this one); None when there is none (pure; UL128). ``plan_under_roof`` slides a
+    door there; ``dormers.needs`` raises a dormer only over a door with no such spot."""
+    rooms = _rooms(building, level["id"])
+    ids = [r.get("id") if r else None for r in sides(o, wall, rooms)]
+    a, u, _l = _axis(wall)
+    half = max(0.0, float(o.get("width") or 0.0) / 2.0 - FRAME_W_M)
+    for t in _slide_spots(o, wall, openings):
+        there = dict(o, center=[a[0] + u[0] * t, a[1] + u[1] * t])
+        r2 = head_room(there, wall, level)
+        if r2 is None or r2 < MIN_CLEAR_M - 1e-9:
+            continue
+        probes = [dict(o, center=[a[0] + u[0] * x, a[1] + u[1] * x]) for x in (t - half, t, t + half)]
+        if all([r.get("id") if r else None for r in sides(p, wall, rooms)] == ids for p in probes):
+            return t, r2, there["center"]
+    return None
 
 
 def apply_under_roof(building: dict) -> tuple[list[dict], list[dict], list[str]]:
@@ -699,12 +731,13 @@ def apply_under_roof(building: dict) -> tuple[list[dict], list[dict], list[str]]
 def leaf_head(o: dict, level: Optional[dict]) -> Optional[dict]:
     """``{"planes", "top"}`` for a door on a level under a sloped ceiling (its leaf's top in world z: the floor + the
     sill + the opening's height), None elsewhere (pure; UL128: an open leaf reaches into the room, where the slope
-    may be lower than over its wall)."""
+    may be lower than over its wall). 31 Oct 2026: ``raises``, the level's ``ceiling_dormers`` (a dormer over the door
+    raises the ceiling the open leaf stays under)."""
     planes = (level or {}).get("ceiling_planes")
     if not planes:
         return None
     top = float(level.get("elevation") or 0.0) + float(o.get("sill_height") or 0.0) + door_height_of(o)
-    return {"planes": planes, "top": top}
+    return {"planes": planes, "top": top, "raises": list(level.get("ceiling_dormers") or [])}
 
 
 def leaf_under_ceiling(poly, head: Optional[dict]) -> Optional[float]:
@@ -714,7 +747,7 @@ def leaf_under_ceiling(poly, head: Optional[dict]) -> Optional[float]:
         return None
     from wenart.blender import geom2d
 
-    low = min(geom2d.surface_z(head["planes"], float(p[0]), float(p[1])) for p in poly)
+    low = min(geom2d.raised_surface_z(head["planes"], float(p[0]), float(p[1]), head.get("raises")) for p in poly)
     over = float(head["top"]) + LEAF_HEAD_GAP_M - low
     return round(over, 4) if over > 1e-6 else None
 

@@ -483,8 +483,10 @@ def context(model: dict, building: dict) -> dict:
         z0 = float(lv["elevation"]) + float(o.get("sill_height") or 0.0)
         wins.append({"id": o.get("id"), "a": (cx - ux * hw, cy - uy * hw), "b": (cx + ux * hw, cy + uy * hw),
                      "z0": z0, "z1": z0 + float(o.get("height") or (2.1 if o.get("type") == "door" else 1.2))})
+    # 31 Oct 2026: a stack keeps clear of the dormers as of the roof openings (dormers.py)
     return {"outline": geom2d.ccw(model.get("outline") or []), "ridge": ridge, "windows": wins,
-            "holes": [o["polygon"] for o in model.get("openings") or [] if len(o.get("polygon") or []) >= 3]}
+            "holes": [o["polygon"] for o in model.get("openings") or [] if len(o.get("polygon") or []) >= 3]
+            + [d["roof_poly"] for d in model.get("dormers") or [] if len(d.get("roof_poly") or []) >= 3]}
 
 
 def _seg_rect_distance(a, b, center, size, rot: float) -> float:

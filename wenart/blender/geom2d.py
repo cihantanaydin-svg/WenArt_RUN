@@ -949,6 +949,47 @@ def surface_z(planes: Sequence[Sequence[float]], x: float, y: float) -> float:
     return min(plane_z(p, x, y) for p in planes)
 
 
+def raised_surface_z(planes: Sequence[Sequence[float]], x: float, y: float, raises=()) -> float:
+    """``surface_z`` of ``planes`` at ``(x, y)``, raised inside every ``raises`` region (``[{"polygon", "planes"}]``:
+    the lowest of its own planes there, where that is higher). 31 Oct 2026 (user on real04 run 20261030-181158-full:
+    "the door the toilet not making sense at all"): a dormer raises the sloped ceiling over a drawn door
+    (``dormers.py``; a level's ``ceiling_dormers``), so the door, its leaf, the furniture caps and the checks under the
+    roof read the dormer's ceiling there instead of the old slope. Pure."""
+    z = surface_z(planes, x, y)
+    for r in raises or ():
+        poly = r.get("polygon") if isinstance(r, dict) else None
+        own = r.get("planes") if isinstance(r, dict) else None
+        if poly and own and len(poly) >= 3 and G.point_in_polygon((x, y), poly):
+            z = max(z, surface_z(own, x, y))
+    return z
+
+
+def level_ceiling_z(level: dict, x: float, y: float) -> float:
+    """The ceiling over ``(x, y)`` of a level under the roof (world z): its ``ceiling_planes`` raised by its
+    ``ceiling_dormers`` (``raised_surface_z``); the level's flat ceiling on a level without sloped planes (pure)."""
+    planes = level.get("ceiling_planes")
+    if not planes:
+        return float(level.get("elevation") or 0.0) + float(level.get("ceiling_height") or 2.7)
+    return raised_surface_z(planes, x, y, level.get("ceiling_dormers"))
+
+
+def clip_convex(polygon: Sequence[Sequence[float]], convex: Sequence[Sequence[float]]) -> list[tuple[float, float]]:
+    """``polygon`` clipped to the convex polygon ``convex`` (Sutherland-Hodgman, one half-plane per edge of
+    ``convex``; pure). A convex ``polygon`` gives the exact intersection; a concave one its outline with the clipped
+    stretches joined along ``convex``'s edges (the right vertices and area). [] when nothing is left."""
+    out = [(float(p[0]), float(p[1])) for p in polygon]
+    win = ccw(convex)
+    n = len(win)
+    for i in range(n):
+        if len(out) < 3:
+            return []
+        (px, py), (qx, qy) = win[i], win[(i + 1) % n]
+        # keep the left of p -> q: (qy - py) x - (qx - px) y + c <= 0
+        a, b = qy - py, -(qx - px)
+        out = clip_half_plane(out, a, b, -(a * px + b * py))
+    return out if len(out) >= 3 else []
+
+
 def tilt_onto_plane(verts: Sequence[Sequence[float]], pivot: Sequence[float], a: float, b: float) -> list:
     """28 Oct 2026 (user: "More lights from the ceiling needed"; a ceiling light under a sloped ceiling is mounted on
     the slope): ``verts`` turned about ``pivot`` so their up axis (+Z) becomes the normal of the plane ``z = a x + b y
