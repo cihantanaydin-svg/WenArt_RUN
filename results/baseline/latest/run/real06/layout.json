@@ -5,10 +5,10 @@
  "stage": "layout",
  "rc": 0,
  "status": "ok",
- "seconds": 22.83,
- "fingerprint": "9889fb832eb8461f17f77d0e51d2180459369a55ef510c1263d8a900a0c98dba",
+ "seconds": 22.39,
+ "fingerprint": "dfeda0a4ed71dd46ba96fb1bb5a57fde39a7c5b21b7941f1e01bf8edc995f370",
  "inputs": {
-  "outputs/real06/building_fitted.json": "88b1793355fab809e73e0b919e0fcf0a60edc2a45c2cdc28137e333b31a7cd37",
+  "outputs/real06/building_fitted.json": "02d66698200aad3a7e30be8005331533d7fa75cb54a57504d0bf5528b145a843",
   "outputs/real06/style.json": "58a1c5d8a8c2c12a199ec18e8584d6edfa900e51f3d1a14504974055d18f791d",
   "projects/real06/brief.yaml": null
  },
@@ -18,16 +18,16 @@
   "completion.json",
   "completion_report.md"
  ],
- "started_utc": "2026-10-29T10:16:13Z",
- "git_commit": "14eec3dc7882538ba60d32b2846c2a4b9aa254b2",
+ "started_utc": "2026-10-30T22:55:29Z",
+ "git_commit": "5dfeae270e3ffeb09dd44b37ee92cfffd3dba2c9",
  "log": "logs/layout.log",
  "note": null,
- "run_id": "20261029-100801-full-20261029T101243Z",
+ "run_id": "20261030-224530-full-20261030T225014Z",
  "steps": [
   {
    "name": "layout",
    "rc": 0,
-   "seconds": 22.83
+   "seconds": 22.39
   }
  ],
  "written": {}

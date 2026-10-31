@@ -2851,3 +2851,19 @@ Promoted to `results/baseline/latest/`; renders sent as a zip. Found and fixed (
 - two UL200 walk-in showers under the L1 slope (0.81 m) poked through the roof: a swapped shower under 2.1 m is the
   drawing's bathtub again (`build.shower_headroom`).
 Open: Argus A1 flags the alternative level's room names on the base model.
+
+## real06 run 20261030-224530-full (31 Oct 2026, $6.26, 151 min; the user's real06 review UL207-UL216 and every fix since 29 Oct)
+
+| measure | run 100801 (before) | run 224530 |
+|---|---:|---:|
+| judge mean (1-5) | 2.13 | 2.34 |
+| views at 1 | 3 | 1 |
+| big loop | - | 29.82 -> 30.51 -> 30.80 (2 cycles) |
+| kitchen with its set | 1/1 | 0/1 |
+| stage minutes | 119 | 113 |
+| Argus | - | 5.5, 12 critical |
+
+The results pack came down whole (10 parts, no fetch pod); the 3D export ran before argus_final (the project is ok).
+Promoted to `results/baseline/latest/`; renders sent as a zip. GPU tests: 50 passed, 3 failed (an index-pass piece in
+the child's room, the child's room walls read olive, two bedrooms whose scheme names a panel have neither it nor a
+reason): next fix round.
