@@ -82,12 +82,20 @@ def test_a_default_that_opens_a_major_point_is_refused_and_the_next_one_is_tried
 
 
 def test_a_doorway_a_drawn_counter_fills_becomes_a_serving_window():
+    # 31 Oct 2026: the kitchen k and the living room l are joined by the hall h too (a doorway that is their only way
+    # is never made a hatch: test_c1_reachability_20261031.py)
     b = {"levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.8}],
          "rooms": [{"id": "k", "level_id": "L0", "room_type": "kitchen", "polygon": [[0, 0], [3, 0], [3, 3], [0, 3]]},
-                   {"id": "l", "level_id": "L0", "room_type": "living", "polygon": [[3, 0], [8, 0], [8, 3], [3, 3]]}],
-         "walls": [{"id": "w", "level_id": "L0", "start": [3, 0], "end": [3, 3], "thickness": 0.1}],
+                   {"id": "l", "level_id": "L0", "room_type": "living", "polygon": [[3, 0], [8, 0], [8, 3], [3, 3]]},
+                   {"id": "h", "level_id": "L0", "room_type": "hall", "polygon": [[0, 3], [8, 3], [8, 5], [0, 5]]}],
+         "walls": [{"id": "w", "level_id": "L0", "start": [3, 0], "end": [3, 3], "thickness": 0.1},
+                   {"id": "wh", "level_id": "L0", "start": [0, 3], "end": [8, 3], "thickness": 0.1}],
          "openings": [{"id": "d", "type": "door", "level_id": "L0", "wall_id": "w", "center": [3, 1.5],
-                       "width": 1.2, "height": 2.1}],
+                       "width": 1.2, "height": 2.1},
+                      {"id": "dk", "type": "door", "level_id": "L0", "wall_id": "wh", "center": [1.5, 3],
+                       "width": 0.9, "height": 2.1},
+                      {"id": "dl", "type": "door", "level_id": "L0", "wall_id": "wh", "center": [6, 3],
+                       "width": 0.9, "height": 2.1}],
          "furniture": [{"id": "c", "type": "kitchen_counter", "room_id": "k", "source": "from_documents",
                         "footprint": {"center": [2.7, 1.5], "size": [0.6, 2.4], "rotation_deg": 0.0}},
                        {"id": "s", "type": "sofa", "room_id": "l", "source": "added_by_ai",

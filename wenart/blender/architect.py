@@ -1028,16 +1028,19 @@ def _is_stair(room: dict) -> bool:
     return any(w in text for w in STAIR_WORDS)
 
 
-def room_graph(building: dict, sides: Sequence[dict]) -> dict:
-    """``{room id: {neighbour id: [opening ids]}}`` through doors, openings and separators, and through the stairs:
-    a stair room links to the rooms of the levels above and below that it overlaps (pure)."""
-    rooms, _ = _rooms_at(building)
-    graph: dict = {r["id"]: {} for r in rooms}
-    for s in sides:
-        if s["type"] == "window" or not s["a"] or not s["b"] or s["a"] == s["b"]:
-            continue
-        graph[s["a"]].setdefault(s["b"], []).append(s["opening"]["id"])
-        graph[s["b"]].setdefault(s["a"], []).append(s["opening"]["id"])
+STAIR_PIECES = ("stair", "stairs", "staircase")
+
+
+def is_stair_piece(f: dict) -> bool:
+    """A stair drawn as a piece that is built (31 Oct 2026: a stair an answer left out links no floors)."""
+    return str(f.get("type") or "").lower() in STAIR_PIECES and f.get("build") is not False
+
+
+def stair_links(building: dict, rooms: Optional[Sequence[dict]] = None) -> list[tuple[str, str, str]]:
+    """``[(stair id, room a, room b)]``: a stair room links to the rooms of the levels above and below that it
+    overlaps; a stair drawn as a piece links the room it starts in with the room its arrival lies in (pure)."""
+    rooms = _rooms_at(building)[0] if rooms is None else rooms
+    out = []
     order = sorted(building.get("levels") or [], key=lambda lv: float(lv["elevation"]))
     nxt = {a["id"]: b["id"] for a, b in zip(order, order[1:])}
     for st in (r for r in rooms if _is_stair(r)):
@@ -1047,14 +1050,13 @@ def room_graph(building: dict, sides: Sequence[dict]) -> dict:
             for r in rooms:
                 if r.get("level_id") == lid and (G.point_in_polygon(c, r["polygon"])
                                                  or any(G.point_in_polygon(p, poly) for p in r["polygon"])):
-                    graph[st["id"]].setdefault(r["id"], []).append("stairs")
-                    graph[r["id"]].setdefault(st["id"], []).append("stairs")
+                    out.append((st["id"], st["id"], r["id"]))
     # 26 Oct 2026 (real06: "no room of L1 can be reached"): a stair drawn as a piece in a room (not a stair room)
     # links that room with the room of the next level over its footprint
     by_id = {r["id"]: r for r in rooms}
     from wenart.blender import stair_access as SA
     for f in building.get("furniture") or []:
-        if str(f.get("type") or "").lower() not in ("stair", "stairs", "staircase") or f.get("room_id") not in by_id:
+        if not is_stair_piece(f) or f.get("room_id") not in by_id:
             continue
         # 27 Oct 2026: the room the stair starts in and the room its arrival floor lies in on the next level (not the
         # rooms at its centre: real06's stair arrived on a strip its opening cut off from the hall)
@@ -1065,8 +1067,7 @@ def room_graph(building: dict, sides: Sequence[dict]) -> dict:
         if ends is not None:
             a, b = ends["start"], ends["arrival"]
             if a in by_id and b in by_id and a != b:
-                graph[a].setdefault(b, []).append("stairs")
-                graph[b].setdefault(a, []).append("stairs")
+                out.append((str(f.get("id")), a, b))
             continue
         fp = f.get("footprint") or {}
         c = fp.get("center")
@@ -1076,9 +1077,126 @@ def room_graph(building: dict, sides: Sequence[dict]) -> dict:
         up = nxt.get(here.get("level_id"))
         for r in rooms:
             if r.get("level_id") == up and G.point_in_polygon((float(c[0]), float(c[1])), r["polygon"]):
-                graph[here["id"]].setdefault(r["id"], []).append("stairs")
-                graph[r["id"]].setdefault(here["id"], []).append("stairs")
+                out.append((str(f.get("id")), here["id"], r["id"]))
+    return out
+
+
+def room_graph(building: dict, sides: Sequence[dict]) -> dict:
+    """``{room id: {neighbour id: [opening ids]}}`` through doors, openings and separators, and through the stairs
+    (``"stairs"``, ``stair_links``) (pure)."""
+    rooms, _ = _rooms_at(building)
+    graph: dict = {r["id"]: {} for r in rooms}
+    for s in sides:
+        if s["type"] == "window" or not s["a"] or not s["b"] or s["a"] == s["b"]:
+            continue
+        graph[s["a"]].setdefault(s["b"], []).append(s["opening"]["id"])
+        graph[s["b"]].setdefault(s["a"], []).append(s["opening"]["id"])
+    for _sid, a, b in stair_links(building, rooms):
+        graph[a].setdefault(b, []).append("stairs")
+        graph[b].setdefault(a, []).append("stairs")
     return graph
+
+
+def walk_links(building: dict, sides: Optional[Sequence[dict]] = None) -> dict:
+    """``{link: (link id, room a, room b)}`` of every way between two rooms (pure): the doors, passages and separators
+    (by opening id) and the stairs (by stair room or stair piece id); ``link`` is the id with the two rooms."""
+    sides = opening_sides(building) if sides is None else sides
+    out = {}
+    for s in sides:
+        if s["type"] == "window" or not s["a"] or not s["b"] or s["a"] == s["b"]:
+            continue
+        a, b = sorted((s["a"], s["b"]))
+        out[f"{s['opening']['id']}|{a}|{b}"] = (s["opening"]["id"], a, b)
+    for sid, ra, rb in stair_links(building):
+        a, b = sorted((ra, rb))
+        out[f"{sid}|{a}|{b}"] = (sid, a, b)
+    return out
+
+
+def _graph_of(building: dict, links: dict) -> dict:
+    """The room graph of ``walk_links`` (its link ids on the edges; pure)."""
+    graph: dict = {r["id"]: {} for r in _rooms_at(building)[0]}
+    for lid, a, b in links.values():
+        graph[a].setdefault(b, []).append(lid)
+        graph[b].setdefault(a, []).append(lid)
+    return graph
+
+
+def circulation(building: dict, sides: Optional[Sequence[dict]] = None, graph: Optional[dict] = None) -> dict:
+    """C1's walk from the entrance (pure): ``{"rooms", "starts", "reached", "free", "unreached", "levels_cut",
+    "reading_problem"}``; ``free``: the rooms reached without walking through a bedroom; ``levels_cut``: the levels
+    whose rooms (``C1_LEVEL_ROOMS`` or more, open-air rooms aside) are all unreached; ``reading_problem``: more than
+    ``C1_READING_SHARE`` of the rooms are unreached, or a whole level is (31 Oct 2026, real06 run 20261030-224530-full:
+    one answer closed the only passage from the living room, and 11 of 12 rooms read as unreachable, then retyped as
+    store rooms one by one: a house or a floor of shafts does not exist, so that many unreached rooms are a graph
+    error: a door, a passage or a stair not read, not linked, or closed by an answer)."""
+    sides = opening_sides(building) if sides is None else sides
+    by_id = {r["id"]: r for r in _rooms_at(building)[0]}
+    rooms = sorted(by_id)
+    graph = room_graph(building, sides) if graph is None else graph
+    starts = entrance_rooms(building, sides)
+    reached = _reach(graph, starts) & set(rooms) if starts else set()
+    free = _reach(graph, starts, blocked=lambda rid: _rtype(by_id.get(rid)) == "bedroom") & set(rooms) \
+        if starts else set()
+    unreached = [r for r in rooms if r not in reached]
+    per_level: dict = {}
+    for rid, r in by_id.items():
+        if _rtype(r) not in OPEN_AIR_TYPES:
+            per_level.setdefault(r.get("level_id"), []).append(rid)
+    levels_cut = sorted(str(lid) for lid, ids in per_level.items()
+                        if starts and len(ids) >= C1_LEVEL_ROOMS and not set(ids) & reached)
+    return {"rooms": rooms, "starts": starts, "reached": reached, "free": free, "unreached": unreached,
+            "levels_cut": levels_cut,
+            "reading_problem": bool(starts) and (len(unreached) > C1_READING_SHARE * len(rooms) or bool(levels_cut))}
+
+
+C1_READING_SHARE = 0.5          # more unreached rooms than this share of the house: C1 reads the graph as wrong
+C1_LEVEL_ROOMS = 2              # a level of this many rooms or more that nothing reaches: the same
+READING_ELEMENT = "room_graph"  # C1's one point for that reading problem (``C1:room_graph``)
+C1_SHAFT_TYPE = "storage"       # C1's answer for a room nothing reaches: a shaft or a store room
+
+
+def _door_window(sides: Sequence[dict], graph: dict, room_id: str, reached: set) -> Optional[str]:
+    """The widest window between ``room_id`` (or a room joined to it) and a room the entrance reaches: the door of a
+    room no door reaches, read as a window (pure; None without one)."""
+    island = _reach(graph, [room_id])
+    wins = [(-float(s["opening"].get("width") or 0.0), s["opening"]["id"]) for s in sides
+            if s["type"] == "window" and s["a"] and s["b"]
+            and ((s["a"] in island and s["b"] in reached) or (s["b"] in island and s["a"] in reached))]
+    return min(wins)[1] if wins else None
+
+
+def cut_links(before: dict, after: dict) -> list[dict]:
+    """The ways between two rooms that ``after`` lost against ``before`` and whose two rooms no longer reach each other
+    any other way (pure): ``[{"link", "rooms", "lost"}]``, ``lost`` the rooms the entrance of ``before`` no longer
+    reaches. 31 Oct 2026 (real06 run 20261030-224530-full: an answer made the only passage between the living room
+    and the kitchen a serving hatch, and the kitchen, the stair and the whole upper floor were cut off): every answer
+    is checked with it (``architect_actions.apply_answers``). A stair still built but read again (``flip_stair``,
+    ``stair_run``) is not a lost way: the stairs' own walk check judges its arrival (``stair_access``)."""
+    sb, sa = opening_sides(before), opening_sides(after)
+    lb, la = walk_links(before, sb), walk_links(after, sa)
+    doors = {s["opening"]["id"] for s in sb}
+    stairs = {r["id"] for r in _rooms_at(after)[0] if _is_stair(r)} | \
+        {str(f.get("id")) for f in after.get("furniture") or [] if is_stair_piece(f)}
+    gone = [v for k, v in sorted(lb.items()) if k not in la and (v[0] in doors or v[0] not in stairs)]
+    if not gone:
+        return []
+    graph_a = _graph_of(after, la)
+    cut = [{"link": lid, "rooms": [a, b]} for lid, a, b in gone if b not in _reach(graph_a, [a])]
+    if cut:
+        was, now = circulation(before, sb, _graph_of(before, lb)), circulation(after, sa, graph_a)
+        lost = sorted(was["reached"] - now["reached"])
+        for c in cut:
+            c["lost"] = lost
+    return cut
+
+
+def cut_text(cuts: Sequence[dict]) -> str:
+    """The reason an answer that cut a way off is undone (``cut_links``)."""
+    ways = "; ".join(f"{c['link']} was the only way between {c['rooms'][0]} and {c['rooms'][1]}" for c in cuts)
+    lost = (cuts[0].get("lost") or []) if cuts else []
+    return ways + (f" ({len(lost)} room(s) would no longer be reached from the entrance: {', '.join(lost)})"
+                   if lost else "")
 
 
 def entrance_rooms(building: dict, sides: Sequence[dict]) -> list[str]:
@@ -1109,12 +1227,19 @@ def _reach(graph: dict, starts: Sequence[str], blocked=lambda rid: False) -> set
 
 def review_circulation(building: dict, sides: Sequence[dict]) -> dict:
     """C1: every room reachable from the entrance; none only through a bedroom (an en-suite bathroom, dressing room
-    or balcony of that bedroom excepted)."""
+    or balcony of that bedroom excepted).
+
+    31 Oct 2026 (real06 run 20261030-224530-full: 11 of 12 rooms read as unreachable, each answered "a store room"):
+    more than half of the rooms unreached, or every room of a level, is a reading problem of the room graph
+    (``circulation``), never a house of shafts: one point (``C1:room_graph``) logs the rooms, the entrance and the
+    reason, with no retype to choose; the rooms are not asked about one by one. A room no door reaches is offered the window between it (or the rooms
+    joined to it) and a reached room as its door: a door read as a window."""
     q = _q("C1")
     rooms, _ = _rooms_at(building)
     by_id = {r["id"]: r for r in rooms}
     graph = room_graph(building, sides)
-    starts = entrance_rooms(building, sides)
+    walk = circulation(building, sides, graph)
+    starts = walk["starts"]
     if not starts:
         q["answers"].append({"element": "entrance", "found": "no room lies inside an entrance or outside door",
                              "change": None, "open": True, "ask": "Which door is the way into the house?",
@@ -1122,13 +1247,35 @@ def review_circulation(building: dict, sides: Sequence[dict]) -> dict:
         q["status"] = "open"
         return q
     everywhere = _reach(graph, starts)
-    for rid in sorted(set(by_id) - everywhere):
-        q["answers"].append({"element": rid, "found": f"{rid} ({_rtype(by_id[rid])}, {by_id[rid]['level_id']}) cannot "
-                             f"be reached from the entrance through any door, opening or stair", "change": None,
-                             "open": True, "ask": f"Is a door to {rid} missing in the drawing, or is it a shaft?",
-                             "options": [AA.option("retype_room", "it is a shaft or store room", room_type="storage"),
-                                         AA.option("keep")]})
+    if walk["reading_problem"]:
+        un = walk["unreached"]
+        q["answers"].append({"element": READING_ELEMENT, "reading_problem": True, "rooms": un, "starts": starts,
+                             "levels": walk["levels_cut"],
+                             "found": f"{len(un)} of {len(walk['rooms'])} rooms cannot be reached from the entrance "
+                                      f"({', '.join(starts)}): {', '.join(un)}; "
+                                      + ("more than half of a house" if len(un) > C1_READING_SHARE * len(walk["rooms"])
+                                         else f"every room of {', '.join(walk['levels_cut'])}")
+                                      + " is never shafts: the room graph is wrong (a door, a passage or a stair not "
+                                        "read, not linked, or closed by an answer): a reading problem, no room is "
+                                        "retyped for it",
+                             "change": None, "open": True,
+                             "ask": "Which door, passage or stair joins these rooms to the entrance? (the reading "
+                                    "lost it; no room changes for it)",
+                             "options": [AA.option("keep", "a reading problem: logged, no room changes")]})
         q["status"] = "open"
+    else:
+        for rid in walk["unreached"]:
+            win = _door_window(sides, graph, rid, everywhere)
+            q["answers"].append({"element": rid, "found": f"{rid} ({_rtype(by_id[rid])}, {by_id[rid]['level_id']}) "
+                                 f"cannot be reached from the entrance through any door, opening or stair"
+                                 + (f" (the window {win} joins it to a room that is reached)" if win else ""),
+                                 "change": None, "open": True,
+                                 "ask": f"Is a door to {rid} missing in the drawing, or is it a shaft?",
+                                 "options": ([AA.option("window_to_door", f"{win} is its door (a door read as a "
+                                                                          f"window)", window_id=win)] if win else [])
+                                 + [AA.option("retype_room", "it is a shaft or store room", room_type=C1_SHAFT_TYPE),
+                                    AA.option("keep")]})
+            q["status"] = "open"
     free = _reach(graph, starts, blocked=lambda rid: _rtype(by_id.get(rid)) == "bedroom")
     for rid in sorted(everywhere - free):
         if _rtype(by_id[rid]) in ("bathroom", "wc", "balcony", "terrace", "dressing", "closet", "storage"):

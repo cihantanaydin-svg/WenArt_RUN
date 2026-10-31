@@ -2202,11 +2202,126 @@ def resolve(plan: Plan, element: str, where: Optional[dict]) -> Optional[str]:
     return best[1] if best else None
 
 
+# --------------------------------------------------------------------------
+# The ways between the rooms: no answer cuts one (31 Oct 2026, real06 run 20261030-224530-full: the AI made the only
+# passage between the living room and the kitchen a serving hatch; the kitchen, its stair and the whole upper floor
+# were cut off from the entrance, and C1 then asked about 11 of 12 rooms)
+# --------------------------------------------------------------------------
+
+def _stair_piece(f: dict) -> bool:
+    return str(f.get("type") or "").lower() in ("stair", "stairs", "staircase")
+
+
+def walk_signature(building: dict) -> tuple:
+    """What a person walks through between rooms (pure): every door and passage (its type, wall, place and width) and
+    every stair piece; an answer that changes none of them cannot cut a way."""
+    doors = sorted((str(o.get("id")), json.dumps([o.get("type"), o.get("level_id"), o.get("wall_id"), o.get("center"),
+                                                  o.get("width"), o.get("line"), bool(o.get("virtual"))], default=str))
+                   for o in building.get("openings") or [] if o.get("type") in ("door", "opening"))
+    stairs = sorted((str(f.get("id")), json.dumps([f.get("type"), f.get("build"), f.get("room_id"), f.get("level_id"),
+                                                   f.get("footprint"), f.get("stair")], sort_keys=True, default=str))
+                    for f in building.get("furniture") or [] if _stair_piece(f))
+    return tuple(doors), tuple(stairs)
+
+
+def walk_snapshot(building: dict) -> dict:
+    """What an answer may change of the ways between rooms, kept to put back: the openings list and a copy of each
+    door and passage (a window is never a way), the furniture list and a copy of each stair, the site's entrances and
+    the lengths of the lists of closed and merged openings."""
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    openings = building.get("openings") if isinstance(building.get("openings"), list) else None
+    furniture = building.get("furniture") if isinstance(building.get("furniture"), list) else None
+    ways = [o for o in openings or [] if o.get("type") in ("door", "opening")] + \
+        [f for f in furniture or [] if _stair_piece(f)]
+    return {"signature": walk_signature(building),
+            "openings": list(openings) if openings is not None else None,
+            "furniture": list(furniture) if furniture is not None else None,
+            "copies": {id(x): copy.deepcopy(x) for x in ways},
+            "entrances": list(site["entrances"]) if isinstance(site.get("entrances"), list) else None,
+            "lists": {k: len(building[k]) if isinstance(building.get(k), list) else None
+                      for k in ("openings_closed", "openings_merged")},
+            "removed": len(site["entrances_removed"]) if isinstance(site.get("entrances_removed"), list) else None}
+
+
+def walk_before(building: dict, snap: dict) -> dict:
+    """The building as ``snap`` saw it (a view on the snapshot's copies; pure)."""
+    view = dict(building)
+    for k in ("openings", "furniture"):
+        if snap[k] is not None:
+            view[k] = [snap["copies"].get(id(x), x) for x in snap[k]]
+    if isinstance(building.get("site"), dict) and snap["entrances"] is not None:
+        view["site"] = dict(building["site"], entrances=snap["entrances"])
+    return view
+
+
+def walk_restore(building: dict, snap: dict, plan: Optional[Plan] = None) -> None:
+    """Put the ways between rooms back as ``snap`` saw them (in place; the same opening and stair objects, their
+    contents as they were): an answer that cut one is undone whole."""
+    for k in ("openings", "furniture"):
+        if snap[k] is None:
+            continue
+        for x in snap[k]:
+            was = snap["copies"].get(id(x))
+            if was is not None:
+                x.clear()
+                x.update(was)
+        building[k] = list(snap[k])
+    for k, n in snap["lists"].items():
+        if n is None:
+            building.pop(k, None)
+        elif isinstance(building.get(k), list):
+            building[k] = building[k][:n]
+    site = building.get("site")
+    if isinstance(site, dict):
+        if snap["entrances"] is not None:
+            site["entrances"] = list(snap["entrances"])
+        if snap["removed"] is None:
+            site.pop("entrances_removed", None)
+        elif isinstance(site.get("entrances_removed"), list):
+            site["entrances_removed"] = site["entrances_removed"][:snap["removed"]]
+    if plan is not None:
+        plan.openings = {o["id"]: o for o in building.get("openings") or []}
+
+
+def walk_cut(building: dict, snap: dict) -> Optional[str]:
+    """Why the change since ``snap`` is undone: it took away the only way between two rooms (``architect.cut_links``);
+    None when every room still reaches the rooms it reached (or nothing a person walks through changed)."""
+    if walk_signature(building) == snap["signature"]:
+        return None
+    from wenart.blender import architect as AR      # lazy: architect imports this module
+    cuts = AR.cut_links(walk_before(building, snap), building)
+    return AR.cut_text(cuts) if cuts else None
+
+
+def c1_refusal(building: dict, room_id: str, room_type: str) -> Optional[str]:
+    """Why C1's retype of ``room_id`` to ``room_type`` is not carried out (31 Oct 2026): the room is reached from the
+    entrance in this reading without walking through a bedroom (the point is gone), it is reached through a bedroom
+    and the answer is the shaft answer (``architect.C1_SHAFT_TYPE``: given to a room nothing reached), or it is one of
+    more than half of the rooms that nothing reaches (a reading problem of the room graph: ``architect.circulation``;
+    no room is retyped for it). None: it still holds."""
+    from wenart.blender import architect as AR      # lazy: architect imports this module
+    walk = AR.circulation(building)
+    if not walk["starts"]:
+        return None
+    if room_id in walk["free"] or (room_id in walk["reached"] and room_type == AR.C1_SHAFT_TYPE):
+        return (f"{room_id} is reached from the entrance ({', '.join(walk['starts'])}) in this reading of the plan: "
+                f"not a shaft, its type stays")
+    if room_id in walk["unreached"] and walk["reading_problem"]:
+        return (f"{len(walk['unreached'])} of {len(walk['rooms'])} rooms cannot be reached from the entrance: a "
+                f"reading problem of the room graph (a door, a passage or a stair lost), no room is retyped for it")
+    return None
+
+
 def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
     """Carry ``answers`` (``answers_of``) out on ``building`` (pure; in place), in the order of their keys; windows
     are sized under ``head_limit(opening)`` (the roof over them: ``roof.opening_head_limit``; None: the ceiling).
     Returns ``[{"key", "option", "ok", "change", "by", "element"}]``; an answer whose element is gone or whose
-    action fails has ``ok`` False and the reason."""
+    action fails has ``ok`` False and the reason.
+
+    31 Oct 2026 (real06 run 20261030-224530-full): an answer that is not the user's never takes away the only way
+    between two rooms (a door or passage made a window or a hatch, closed or merged away, a stair left out): code
+    checks the room graph after it (``walk_cut``) and undoes it whole, with the reason; C1's retype is carried out
+    only while its point holds (``c1_refusal``)."""
     out = []
     plan = Plan(building, head_limit)
     for key in sorted(answers, key=lambda k: (k.partition(":")[0] not in FIRST_RULES, k)):
@@ -2224,6 +2339,7 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
             rec.update(ok=True, change=None)
         else:
             placed = _window_places(plan)
+            guard = walk_snapshot(building) if rec["by"] != "user" else None
             try:
                 if opt == "move_window_to_outer_wall":
                     ok, text = act_move_window(plan, key, ans, params.get("window_id") or target,
@@ -2231,8 +2347,10 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                 elif opt == "enlarge_windows":
                     ok, text = act_enlarge(plan, key, ans, params.get("room_id") or target)
                 elif opt == "retype_room":
-                    ok, text = act_retype(plan, key, ans, params.get("room_id") or target,
-                                          str(params.get("room_type") or ""))
+                    why = c1_refusal(building, params.get("room_id") or target, str(params.get("room_type") or "")) \
+                        if rule == "C1" and guard is not None else None
+                    ok, text = (False, why) if why else act_retype(plan, key, ans, params.get("room_id") or target,
+                                                                   str(params.get("room_type") or ""))
                 elif opt == "widen_door":
                     ok, text = act_widen_door(plan, key, ans, params.get("door_id") or target, params.get("room_id"))
                 elif opt == "raise_sill":
@@ -2315,6 +2433,14 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                     ok, text = False, f"unknown option {opt!r}"
             except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
                 ok, text = False, f"{opt} failed: {type(exc).__name__}: {exc}"
+            if ok and guard is not None:
+                try:
+                    cut = walk_cut(building, guard)
+                except Exception as exc:  # noqa: BLE001 - shapely's errors too: the change stays, the note says why
+                    cut, text = None, f"{text} (the walk check could not run: {type(exc).__name__}: {exc})"
+                if cut:
+                    walk_restore(building, guard, plan)
+                    ok, text = False, f"{text}: undone, {cut}"
             # 30 Oct 2026 (lesson UL211): a window the answer moved, widened or added keeps its pier to the facade's
             # corner like a drawn one (window_order.piers; build.prepare checks every window again)
             changed = tuple(i for i, at in _window_places(plan).items() if placed.get(i) != at) if ok else ()
