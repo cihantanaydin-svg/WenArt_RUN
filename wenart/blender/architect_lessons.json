@@ -2764,6 +2764,18 @@
    "request": "include all remaining library models for ranking after the real04 run (31 Oct 2026: every library model the pipeline may use goes on the ranking sheets, decor, extras and small items too, so the user's rank decides; 0-2 never used, higher rank first, 6+ beats our build)",
    "lesson": "include all remaining library models for ranking after the real04 run (31 Oct 2026: every library model the pipeline may use goes on the ranking sheets, decor, extras and small items too, so the user's rank decides; 0-2 never used, higher rank first, 6+ beats our build)",
    "question": "Is every library model the run used on the ranking sheets with the user's rank, and did the fit prefer the higher-ranked model?"
+  },
+  {
+   "id": "UL233",
+   "date": "2026-10-31",
+   "area": "library",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "on the review page also put a filter general for the ranks slide 0 to 10 and for the ones which is not ranked yet (31 Oct 2026: the ranking page has one filter for every tab: a two-handle 0-10 slider over the scored models, a not-ranked-yet switch, an all-types switch and a reset, kept in the browser)",
+   "lesson": "on the review page also put a filter general for the ranks slide 0 to 10 and for the ones which is not ranked yet (31 Oct 2026: the ranking page has one filter for every tab: a two-handle 0-10 slider over the scored models, a not-ranked-yet switch, an all-types switch and a reset, kept in the browser)",
+   "question": "Can the user filter the ranking page by score range and by not ranked yet, on one tab or across all types?"
   }
  ]
 }
