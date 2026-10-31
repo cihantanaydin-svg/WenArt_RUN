@@ -2600,7 +2600,7 @@
    "id": "UL219",
    "date": "2026-10-31",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2612,7 +2612,7 @@
    "id": "UL220",
    "date": "2026-10-31",
    "area": "library",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2636,7 +2636,7 @@
    "id": "UL222",
    "date": "2026-10-31",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2684,7 +2684,7 @@
    "id": "UL226",
    "date": "2026-10-31",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
