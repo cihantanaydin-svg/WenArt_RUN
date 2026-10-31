@@ -1128,8 +1128,29 @@ def shower_headroom(building: dict) -> list[dict]:
                                                                                    if k != "previous"}]}
         f["type"] = "bathtub"
         f.pop("shower_kind", None)
+        # 1 Nov 2026 (real04 run 20261031-194116-full, GPU test M31: two such bathtubs kept the shower's own model,
+        # module:shower:bath_set, 2.10 m tall, through a 0.81 m slope): a piece the build retypes never keeps a model of
+        # its old type; the bathtub is built as a bathtub (the shower's model kept in the record)
+        asset = f.get("asset") if isinstance(f.get("asset"), dict) else None
+        if asset is not None and not _asset_fits_type(asset, "bathtub"):
+            f["adjusted_by_ai"]["previous_asset"] = asset.get("asset_id")
+            f.pop("asset", None)
+            reason += f"; its shower model {asset.get('asset_id')} left out (the bathtub is built as a bathtub)"
+            f["adjusted_by_ai"]["reason"] = reason
         out.append({"id": f["id"], "reason": reason})
     return out
+
+
+def _asset_fits_type(asset: dict, ftype: str) -> bool:
+    """A fitted asset that belongs to ``ftype`` (pure): its module or parametric id names the type
+    (``module:<type>:...``, ``parametric:<type>...``) or its recorded ``type``/``decor_type`` is the type; a library
+    model without such a record counts as the type's only when nothing says otherwise."""
+    aid = str(asset.get("asset_id") or "")
+    for prefix in ("module:", "parametric:"):
+        if aid.startswith(prefix):
+            return aid[len(prefix):].split(":", 1)[0] == ftype
+    named = asset.get("type") or asset.get("furniture_type")
+    return named in (None, ftype)
 
 
 def prepare(building_all: dict, variant: str = "base", brief: dict | None = None,

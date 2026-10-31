@@ -103,3 +103,23 @@ def test_a_swapped_shower_under_a_low_sloped_ceiling_is_the_bathtub_again():
     assert by["t1"]["adjusted_by_ai"]["rule"] == "build.shower_headroom" and by["t1"]["adjusted_by_ai"]["previous"]
     assert by["tb"]["type"] == "shower"                                   # 2.7 m: it stands
     assert BU.shower_headroom(b) == []                                     # idempotent
+
+
+def test_the_bathtub_again_never_keeps_the_showers_model():
+    """real04 run 20261031-194116-full (GPU test M31): the two L1 bathtubs of the swap back kept the shower's model
+    module:shower:bath_set (2.10 m tall) through the 0.81 m slope; the bathtub again is built as a bathtub, the shower's
+    model id kept in the record. A bathtub's own model stays."""
+    from wenart.blender import build as BU
+    b = _house()
+    I.bath_or_shower(b)
+    by = {f["id"]: f for f in b["furniture"]}
+    by["t1"]["asset"] = {"asset_id": "module:shower:bath_set", "method": "module", "bbox_m": [1.8, 0.8, 2.1]}
+    b["levels"] = [{"id": "L1", "elevation": 3.2, "ceiling_height": 2.6, "ceiling_planes": [[0.0, 0.0, 4.0]]},
+                   {"id": "L-1", "elevation": -3.0, "ceiling_height": 2.7}]
+    out = BU.shower_headroom(b)
+    assert [r["id"] for r in out] == ["t1"] and "left out" in out[0]["reason"]
+    assert by["t1"]["type"] == "bathtub" and "asset" not in by["t1"]
+    assert by["t1"]["adjusted_by_ai"]["previous_asset"] == "module:shower:bath_set"
+    assert BU._asset_fits_type({"asset_id": "module:bathtub:alcove"}, "bathtub")
+    assert BU._asset_fits_type({"asset_id": "3dwh_abc"}, "bathtub")
+    assert not BU._asset_fits_type({"asset_id": "parametric:shower"}, "bathtub")

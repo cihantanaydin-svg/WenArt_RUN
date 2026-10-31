@@ -2937,3 +2937,26 @@ Each is built by the scene builder as a decor item on its stage (plinth, floor, 
 at its height, light from a ceiling panel). The page groups the tabs (Textiles, Lights, Wall decor, Plants, Tabletop,
 Electronics). The normal decor pick now prefers the best-ranked fitting model too (unranked = 5); `user_ranks merge`
 reads every ranking index. Pod: `RANK_BATCH=remaining` (about 25 min on an RTX 5090), after the real04 run.
+
+## real04 run 20261031-194116-full (31 Oct 2026; 238 min, $9.88; promoted as the latest run)
+
+The run of the user's review of run 181158 (UL219-UL233) with the merged helpers.
+
+| measure | run 181158 (before) | run 194116 |
+|---|---:|---:|
+| judge mean (1-5) | 2.44 | 2.29 |
+| views at 1 / at 4-5 | 0 / 1 | 5 / 2 |
+| json cross-check misses | 3 | 0 |
+| stage minutes | 194 | 184 |
+| Argus | 3.2, 21 critical | 3.5, 23 critical |
+| GPU tests | - | 52 passed, 1 failed |
+
+Better: kitchens 2 -> 3 (fridge in its own tall column, none on a counter), salon 2 -> 3, a bedroom 3 -> 4, the
+terrace 2 -> 4; the attic bath doors keep 2.10 m under their dormers; the built-in wardrobe runs wall to wall.
+Worse: four views at 1 are camera framings (an L0 bath corner, the L0 hall wall, the L-1 hall corner, an L0 bedroom with
+its bed behind the camera); one is the "Wood and Epoxy Coffee Table" library model (3dwh_4bb1b0bfa01eefe9079d94b0,
+sheet table_coffee-01 P), a picture board on a stand titled as a table.
+Fixed after the run (general): the GPU test's two L1 bathtubs kept the walk-in shower's model (module:shower:bath_set,
+2.10 m) when the build made them bathtubs again under the 0.81 m slope; a piece the build retypes now drops a model of
+its old type (`build._asset_fits_type`).
+Open: the camera framings of halls and small rooms; Argus A1 flags the variant level's room names on the base model.
