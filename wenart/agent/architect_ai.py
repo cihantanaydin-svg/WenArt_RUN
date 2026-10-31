@@ -142,7 +142,9 @@ def open_questions(record: dict, answered: set) -> list[dict]:
     for q in record.get("questions") or []:
         for a in q["answers"]:
             key = f"{q['id']}:{a['element']}"
-            if not a.get("open") or key in answered or not a.get("options"):
+            # 31 Oct 2026: a reading problem (C1: more than half of the rooms unreached, ``architect.circulation``) is
+            # logged for the reading and the user, never closed by a pick
+            if not a.get("open") or key in answered or not a.get("options") or a.get("reading_problem"):
                 continue
             out.append({"key": key, "rule": q["id"], "topic": q["topic"], "severity": q.get("severity", "minor"),
                         "found": a["found"], "ask": a.get("ask"), "why": q.get("why"), "element": a["element"],
