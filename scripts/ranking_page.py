@@ -97,7 +97,7 @@ main .wrap { padding-block: 18px 48px; }
 .card.ranked { border-color: var(--muted); }
 .shot { aspect-ratio: 1; max-width: 100%; background-color: #c9c6c1; background-repeat: no-repeat;
   background-size: 500% auto; position: relative; cursor: zoom-in; }
-.chip { position: absolute; left: 8px; top: 8px; font: 700 0.8rem var(--font-code); background: var(--chip);
+.chip { position: absolute; left: 8px; bottom: 8px; font: 700 0.8rem var(--font-code); background: var(--chip);
   color: var(--chip-ink); padding: 3px 7px; border-radius: 5px; letter-spacing: 0.02em; }
 .score-badge { position: absolute; right: 8px; top: 8px; font: 700 1rem var(--font-code); padding: 3px 9px;
   border-radius: 5px; color: #fff; }
@@ -120,6 +120,7 @@ dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% au
   border-radius: 8px; }
 .copybox { width: 100%; min-height: 120px; font: 0.8rem var(--font-code); margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) { .bar > span { transition: none; } }
+@media (max-width: 640px) { header { position: static; } .keys { display: none; } .grid { gap: 10px; } }
 </style>
 <header>
   <div class="wrap">
@@ -136,7 +137,7 @@ dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% au
         <span><i style="background:var(--mid)"></i>3–5 kept, below unranked at 5</span>
         <span><i style="background:var(--good)"></i>6–10 preferred</span>
       </span>
-      <span>Keys: select a card, press 0–9, T for 10; the next card follows.</span>
+      <span class="keys">Keys: select a card, press 0–9, T for 10; the next card follows.</span>
       <button type="button" id="copy">Copy scores as text</button>
     </div>
   </div>
