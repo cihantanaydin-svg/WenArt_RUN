@@ -204,6 +204,12 @@ MATERIAL_WORDS: dict[str, str] = {
     "fruit_red": "red apple skin", "fruit_orange": "orange peel", "fruit_yellow": "yellow lemon peel",
     "fruit_green": "green pear skin", "oil_amber": "golden olive oil", "cardboard": "brown cardboard",   # UL186
     "coffee_liquid": "black coffee",                # 30 Oct 2026 (UL213): the coffee in a mug
+    # 31 Oct 2026: the bathroom's small items (bath_objects.SMALL_ITEM_KEYS)
+    "glass_bottle_clear": "clear glass bottle", "glass_bottle_frosted": "frosted glass",
+    "glass_bottle_amber": "amber glass bottle", "glass_bottle_smoke": "smoked glass",
+    "liquid_scent": "golden perfume", "liquid_soap": "amber hand soap", "liquid_diffuser": "fragrance oil",
+    "cotton_wool": "fluffy cotton wool", "soap_bar": "bar of soap", "stoneware_speckled": "speckled stoneware glaze",
+    "rattan_reed": "rattan reeds", "rattan_cane": "woven rattan cane", "plant_leaf": "glossy green leaves",
     "rattan": "woven rattan",
     # furniture woods and handles
     "wood_veneer_oak_light": "light natural oak veneer",

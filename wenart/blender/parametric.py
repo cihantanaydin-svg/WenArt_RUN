@@ -2558,7 +2558,8 @@ def _tall_cabinet(w: float, d: float, h: float, piece: dict | None = None) -> li
     look = (piece or {}).get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else {}
     if look.get("column") == "open_lit":
         from wenart.blender import bath_parts as BT
-        return BT.open_column_parts(w, d, h)
+        # 31 Oct 2026: the library models the fit picked for its small items (``small_items``, a slot each)
+        return BT.open_column_parts(w, d, h, ((piece or {}).get("asset") or {}).get("small_items"))
     design = piece_design(piece)
     plinth = min(0.1, h * 0.05)
     body, face = _carcass(w, d, plinth, h - plinth, "painted")
@@ -4587,6 +4588,34 @@ DECOR_TYPES = DECOR_TYPES + MUG_DECOR_TYPES
 SURFACE_DECOR_TYPES = SURFACE_DECOR_TYPES + MUG_DECOR_TYPES
 DECOR_DEFAULT_HEIGHT.update({"mug": 0.096, "mug_on_books": 0.17, "mug_pair": 0.104})
 BEVEL_BY_ROLE.update({"mug": 0.0, "mug_handle": 0.0, "coffee": 0.0})      # turned and tubed: already round
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "This little items needs a lot better models ... better texture
+# and more detailed way"): the small items' own material keys (= bath_objects.SMALL_ITEM_KEYS): solid glass with
+# refraction in four looks, the liquids in it, fluffy cotton wool, a waxy soap, a speckled stoneware glaze, rattan
+# reeds and cane (furniture.style_material_keys gives their slugs, materials.MaterialLibrary.small_item their looks)
+SMALL_ITEM_KEYS: tuple[str, ...] = ("bottle_glass", "frosted_glass", "amber_glass", "smoke_glass", "scent", "soap_gel",
+                                    "diffuser_oil", "cotton_wool", "soap", "stoneware", "reed", "cane", "foliage")
+MATERIAL_KEYS = MATERIAL_KEYS + tuple(k for k in SMALL_ITEM_KEYS if k not in MATERIAL_KEYS)
+BEVEL_BY_ROLE.update({"seal": 0.0005, "rib": 0.001, "stake": 0.0, "rim": 0.0, "tube": 0.0, "contents": 0.0,
+                      "liquid": 0.0, "dressing": 0.0})
+# ... and a small item a library model stands in for leaves a library slot in its host's parts (bath_objects.placed):
+# its 8 vertices the reserved box, no faces; ``world_mesh`` leaves it out and the build places the model there
+SLOT_ROLE = "library_slot"
+
+
+def library_slots(parts: Sequence[Part]) -> list[dict]:
+    """The library slots among a host's parts (pure; 31 Oct 2026): ``[{"kind", "asset_id", "center": [x, y], "z",
+    "box": [w, d, h]}]`` in the host's frame (the box of each slot's vertices: every move of the parts moved it)."""
+    out = []
+    for part in parts:
+        if part.get("role") != SLOT_ROLE or not part.get("verts"):
+            continue
+        xs, ys, zs = zip(*part["verts"])
+        slot = part.get("slot") or {}
+        out.append({"kind": slot.get("kind"), "asset_id": slot.get("asset_id"),
+                    "center": [round((min(xs) + max(xs)) / 2.0, 5), round((min(ys) + max(ys)) / 2.0, 5)],
+                    "z": round(min(zs), 5),
+                    "box": [round(max(xs) - min(xs), 5), round(max(ys) - min(ys), 5), round(max(zs) - min(zs), 5)]})
+    return out
 
 
 SUSPENSION_CORD_R_M = 0.004       # the cord of a hung light (as the parametric pendant's)
@@ -4809,6 +4838,8 @@ def world_mesh(parts: Sequence[Part], center: Sequence[float], rotation_deg: flo
     rad = math.radians(rotation_deg)
     c, s = math.cos(rad), math.sin(rad)
     for part in parts:
+        if part.get("role") == SLOT_ROLE:        # 31 Oct 2026: a library slot is no mesh (``library_slots``)
+            continue
         offset = len(verts)
         for x, y, z in part["verts"]:
             x, y, z = x * scale[0], y * scale[1], z * scale[2]

@@ -76,7 +76,8 @@ def test_the_vanity_objects_are_real_products():
     assert not [p for p in stems if p["role"] == "plume" and P.parts_bbox([p])[3] - P.parts_bbox([p])[0] > 0.08]
     amber = BO.pump_bottle(0.0, 0.0, 0.0, 0.033, 0.17, "terracotta", "dark")
     assert {"bottle", "contents", "label", "print", "pump", "nozzle"} <= {p["role"] for p in amber}
-    assert next(p for p in amber if p["role"] == "bottle")["key"] == "glass"
+    # 31 Oct 2026: the amber bottle is solid amber glass with refraction (bath_objects.GLASS), the soap gel inside it
+    assert next(p for p in amber if p["role"] == "bottle")["key"] == BO.GLASS["amber"]
     black = BO.pump_bottle(0.0, 0.0, 0.0, 0.033, 0.17, "dark", "handle")
     label = next(p for p in black if p["role"] == "label")
     assert max(v[1] for v in label["verts"]) < 0.0                            # on the front, not a band round it

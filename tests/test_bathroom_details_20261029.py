@@ -161,8 +161,10 @@ def test_every_piece_is_a_closed_product_inside_its_drawn_footprint(name, parts,
     assert _inside(parts, w, d), name
     assert min(z for p in parts for _x, _y, z in p["verts"]) >= -1e-9
     # small: one mesh, built in one go (30 Oct 2026, UL166: the styling's real products, bath_objects, take ~1.5k;
-    # UL184: glass bottles with the soap in them, printed labels, a curved basin with its waste, a turned vase ~1.2k more)
-    assert sum(len(p["verts"]) for p in parts) < 7500
+    # UL184: glass bottles with the soap in them, printed labels, a curved basin with its waste, a turned vase ~1.2k more;
+    # 31 Oct 2026, user on real04 run 20261030-181158-full: "This little items needs a lot better models ... more
+    # detailed way": glass walls and contents, knurled collars, fluffy cotton, a woven basket: a column ~19k)
+    assert sum(len(p["verts"]) for p in parts) < 30000
 
 
 def test_the_wall_hung_wc_hangs_on_the_wall_with_its_flush_plate():

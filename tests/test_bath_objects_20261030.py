@@ -52,13 +52,21 @@ PRODUCTS = {
 }
 
 
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "This little items needs a lot better models ... more detailed
+# way"): the products carry their real details now (glass with its wall and contents, knurled collars, fluffy cotton,
+# a woven basket of stakes and weavers), so each has its own vertex budget instead of one low cap (1500)
+BUDGET = {"pump": 2000, "jar_cotton": 5000, "jar_pads": 2500, "jar_pebbles": 3000, "jar_salt": 2000,
+          "diffuser": 2000, "plant": 2500, "perfume": 1500, "candle": 1000, "soap": 1200, "basket": 8000,
+          "cotton": 600, "flush": 1500}
+
+
 @pytest.mark.parametrize("name", sorted(PRODUCTS))
 def test_every_product_is_closed_wound_outwards_with_known_keys(name):
     parts = PRODUCTS[name]()
     assert parts and all(_volume(p) > 0 for p in parts), name
     assert all(0 <= i < len(p["verts"]) for p in parts for f in p["faces"] for i in f)
     assert {_plain(p["key"]) for p in parts} <= set(P.MATERIAL_KEYS), name
-    assert sum(len(p["verts"]) for p in parts) < 1500, name                    # small: low face counts
+    assert sum(len(p["verts"]) for p in parts) < BUDGET[name], name
 
 
 def test_a_pump_bottle_has_its_collar_pump_nozzle_and_label():
@@ -116,7 +124,9 @@ def test_the_column_cubbies_hold_real_products():
     # the perfume is a flacon with its scent inside, never a glass box with a black square on it
     perfume = [p for p in parts if p["role"] == "perfume"]
     liquid = [p for p in parts if p["role"] == "liquid"]
-    assert perfume and len(liquid) == len(perfume) and all(p["key"] == "terracotta" for p in liquid)
+    # 31 Oct 2026: the scent is a clear golden liquid (``scent``) in solid glass, no longer the flat amber terracotta
+    assert perfume and len(liquid) == len(perfume) and all(p["key"] == BO.SCENT_KEY for p in liquid)
+    assert all(p["key"] in BO.GLASS.values() for p in perfume)
 
 
 def test_the_vanity_and_the_towel_shelf_take_the_real_products():

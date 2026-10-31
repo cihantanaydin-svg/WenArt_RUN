@@ -55,6 +55,12 @@ mesh, made from vertex and face lists, never a bpy operator and no ray per item:
   (``wenart.blender.bath_objects``: turned bottles with their collar, pump, nozzle and label, apothecary jars with lid
   and fill, diffusers with fanned reeds, leaf blades, flacons with their scent, a dual-flush plate with a small and a
   large button), never a box, a ball on a stick or a coloured egg.
+- 31 Oct 2026 (user on real04 run 20261030-181158-full: "This little items needs a lot better models, check the library
+  of similar things exist to use if not create them with better texture and more detailed way"): every small item of
+  a host (the cubbies, the vanity's top and shelves, the towel shelf, the installation wall's niches) is placed through
+  ``bath_objects.placed``: a kind the fit gave a library model (``picks``, ``wenart.furniture.small_items``) leaves its
+  reserved box as a library slot that the build fills with the model; every other kind is our detailed model (glass
+  with its wall and contents, knurled collars, fluffy cotton, a woven basket, a speckled stoneware glaze).
 - B16 ``walk_in_shower_parts``: a low stone tray with a linear drain at the back wall, clear glass (a fixed panel, and
   a sliding one on a top rail with round rollers and a pull handle from ``SLIDING_MIN_W_M``), a square rain head on a
   wall arm, a hand shower on a slide rail with its hose, a thermostatic mixer and a towel bar inside.
@@ -581,9 +587,10 @@ def _tall_mixer(x: float, y: float, top_m: float, reach: float) -> list[Part]:
 
 
 def _shelf_styling(w: float, d: float, z0: float, z1: float, x0: Optional[float] = None,
-                   x1: Optional[float] = None) -> tuple[list[Part], list[str]]:
+                   x1: Optional[float] = None, picks=None) -> tuple[list[Part], list[str]]:
     """Rolled towels and lidded jars on an open shelf from ``z0`` (its floor) to ``z1`` between ``x0`` and ``x1``
-    (default: the vanity's inner width); ``(parts, items)``."""
+    (default: the vanity's inner width); ``(parts, items)``; ``picks``: the library models of the small items
+    (``bath_objects.placed``: a library slot in their place)."""
     parts, items = [], []
     x0 = -w / 2.0 + VANITY_BOARD_M if x0 is None else x0
     x1 = w / 2.0 - VANITY_BOARD_M if x1 is None else x1
@@ -606,12 +613,13 @@ def _shelf_styling(w: float, d: float, z0: float, z1: float, x0: Optional[float]
         if cx - 0.03 < x + 2 * r * rolls - r or jh < 0.04:
             break
         # UL166: an apothecary jar with its lid and knob, cotton balls or cotton pads in it
-        parts += BO.apothecary_jar(cx, -0.02, z0, 0.03, jh, "wood", "cotton" if k == 0 else "pads", seed=k)
+        parts += BO.placed("apothecary_jar", BO.apothecary_jar(cx, -0.02, z0, 0.03, jh, "wood",
+                                                              "cotton" if k == 0 else "pads", seed=k), picks)
         items.append("lidded jar")
     return parts, items
 
 
-def top_clusters(w: float, d: float, lay: dict) -> tuple[list[Part], list[str]]:
+def top_clusters(w: float, d: float, lay: dict, picks=None) -> tuple[list[Part], list[str]]:
     """B19 (and B6): the top's decor in two clusters, a tall one (dried stems in a vase, a reed diffuser) and a low one
     (a soap dispenser and a small jar or bottle), each on a free strip beside the basin(s) that holds it; never one
     item alone (a strip that holds one item only stays bare). ``(parts, items)``."""
@@ -643,14 +651,16 @@ def top_clusters(w: float, d: float, lay: dict) -> tuple[list[Part], list[str]]:
             parts += _stems(cx, vy, z, vr, 0.16, STEMS_H_M)
             dy = y0 + DIFFUSER_R_M + 0.005
             # UL166: an amber pump bottle (collar, pump, nozzle, label)
-            parts += BO.pump_bottle(cx, dy, z, DIFFUSER_R_M * 0.85, 0.15, "terracotta", "dark")
+            parts += BO.placed("pump_bottle", BO.pump_bottle(cx, dy, z, DIFFUSER_R_M * 0.85, 0.15, "terracotta",
+                                                             "dark"), picks)
             items += ["dried stems in a vase", "amber bottle"]
         elif sw >= 2 * DIFFUSER_R_M + 0.006 and depth >= 4 * DIFFUSER_R_M + 0.01:
             vy = y1 - DIFFUSER_R_M - 0.005
             # UL166: a diffuser bottle with its collar and fanned reeds, a black pump bottle in front
-            parts += BO.reed_diffuser(cx, vy, z, DIFFUSER_R_M, 0.10, 0.20, "terracotta", "handle", seed=2)
-            parts += BO.pump_bottle(cx, y0 + DIFFUSER_R_M * 0.8 + 0.005, z, DIFFUSER_R_M * 0.8, 0.16, "dark",
-                                    "handle")
+            parts += BO.placed("reed_diffuser", BO.reed_diffuser(cx, vy, z, DIFFUSER_R_M, 0.10, 0.20, "terracotta",
+                                                                 "handle", seed=2), picks)
+            parts += BO.placed("pump_bottle", BO.pump_bottle(cx, y0 + DIFFUSER_R_M * 0.8 + 0.005, z,
+                                                             DIFFUSER_R_M * 0.8, 0.16, "dark", "handle"), picks)
             items += ["reed diffuser", "black pump bottle"]
     # the low cluster: a soap dispenser and a small jar
     low = right
@@ -668,13 +678,15 @@ def top_clusters(w: float, d: float, lay: dict) -> tuple[list[Part], list[str]]:
                 parts.append(SM.tray(cx, (y0 + y1) / 2.0, z, ta, tb, "stone_light"))
                 zt = SM.tray_floor(z)
                 items.append("stone tray")
-            parts += BO.pump_bottle(cx, y1 - SOAP_R_M - 0.010, zt, SOAP_R_M, 0.17, "dark", "handle")
-            parts += BO.apothecary_jar(cx, y0 + 0.036, zt, 0.028, 0.06, "wood", "pads", seed=6)
+            parts += BO.placed("pump_bottle", BO.pump_bottle(cx, y1 - SOAP_R_M - 0.010, zt, SOAP_R_M, 0.17, "dark",
+                                                             "handle"), picks)
+            parts += BO.placed("apothecary_jar", BO.apothecary_jar(cx, y0 + 0.036, zt, 0.028, 0.06, "wood", "pads",
+                                                                   seed=6), picks)
             items += ["soap dispenser", "jar of cotton pads"]
     return parts, items
 
 
-def stone_slab_vanity_parts(w: float, d: float, top_m: float, top_key: str = "stone_light") -> list[Part]:
+def stone_slab_vanity_parts(w: float, d: float, top_m: float, top_key: str = "stone_light", picks=None) -> list[Part]:
     """B3: the floating vanity with its thick stone top and integrated basin (module docstring), in its box ``w x d``
     (front -Y, the wall +Y), its top at ``top_m``."""
     lay = vanity_layout(w, d, top_m, "stone_slab", "integrated")
@@ -693,8 +705,8 @@ def stone_slab_vanity_parts(w: float, d: float, top_m: float, top_key: str = "st
     parts += _slab_top(w, d, lay, top_key)
     for x, by, _bw, _bd in lay["bowls"]:
         parts += _wall_mixer(x, d, by, top_m)
-    shelf, _a = _shelf_styling(w, d, z_s0, z_s1)
-    top, _b = top_clusters(w, d, lay)
+    shelf, _a = _shelf_styling(w, d, z_s0, z_s1, picks=picks)
+    top, _b = top_clusters(w, d, lay, picks)
     return parts + shelf + top
 
 
@@ -712,7 +724,7 @@ def _fluted_front(x0: float, x1: float, y_face: float, z0: float, z1: float, key
 
 
 def fluted_vanity_parts(w: float, d: float, top_m: float, top_key: str = "terrazzo", rounded: bool = True,
-                        basin: str = "vessel") -> list[Part]:
+                        basin: str = "vessel", picks=None) -> list[Part]:
     """B12 / B13 / B15 / B19: the floating vanity with rounded ends (``rounded``), dark fluted fronts in the middle,
     open lit end cubbies from ``END_CUBBIES_MIN_W_M``, a floor glow, a slim top in the panel's material with rounded
     front corners, a vessel basin with a tall mixer (``basin`` ``vessel``; else the integrated bowl and a wall mixer)
@@ -742,13 +754,14 @@ def fluted_vanity_parts(w: float, d: float, top_m: float, top_key: str = "terraz
             for zl in (zm - t / 2.0, z1):
                 parts.append(P._box((xa + xb) / 2.0, -d / 2.0 + 0.05, zl - LED_STRIP_M[1], max(0.04, xb - xa - 0.06),
                                     LED_STRIP_M[0], LED_STRIP_M[1], "led", "led"))
-            lo, _a = _shelf_styling(w, d, z0 + t, zm - t / 2.0 - LED_STRIP_M[1], xa + 0.02, xb - 0.02)
+            lo, _a = _shelf_styling(w, d, z0 + t, zm - t / 2.0 - LED_STRIP_M[1], xa + 0.02, xb - 0.02, picks)
             # UL166: an amber pump bottle and a lidded jar of bath salt on the upper shelf
-            hi = BO.pump_bottle((xa + xb) / 2.0 - 0.035, -0.02, zm + t / 2.0, 0.03, min(0.15, z1 - zm - 0.03),
-                                "terracotta", "dark")
+            hi = BO.placed("pump_bottle", BO.pump_bottle((xa + xb) / 2.0 - 0.035, -0.02, zm + t / 2.0, 0.03,
+                                                         min(0.15, z1 - zm - 0.03), "terracotta", "dark"), picks)
             jh = min(0.09, z1 - zm - 0.03) - BO.JAR_LID_M
             if jh >= 0.04:
-                hi += BO.apothecary_jar((xa + xb) / 2.0 + 0.045, -0.01, zm + t / 2.0, 0.032, jh, "wood", "salt")
+                hi += BO.placed("apothecary_jar", BO.apothecary_jar((xa + xb) / 2.0 + 0.045, -0.01, zm + t / 2.0, 0.032,
+                                                                    jh, "wood", "salt"), picks)
             parts += lo + hi
     # the floor glow: an LED strip under the bottom board at its front
     parts.append(P._box(0.0, -d / 2.0 + 0.04, z0 - LED_STRIP_M[1], w - 2 * r - 0.04 if r else w - 0.04,
@@ -765,7 +778,7 @@ def fluted_vanity_parts(w: float, d: float, top_m: float, top_key: str = "terraz
                 parts += _tall_mixer(x, my, tz, max(0.08, my - by))
         else:
             parts += _wall_mixer(x, d, by, top_m)
-    top, _b = top_clusters(w, d, lay)
+    top, _b = top_clusters(w, d, lay, picks)
     return parts + top
 
 
@@ -796,7 +809,7 @@ def curved_outline(w: float, y_back: float, y_apex: float, side_share: float = C
 
 
 def curved_vanity_parts(w: float, d: float, top_m: float, top_key: str = "worktop",
-                        basin: str = "vessel_wall", apron_key: str = "terrazzo") -> list[Part]:
+                        basin: str = "vessel_wall", apron_key: str = "terrazzo", picks=None) -> list[Part]:
     """B21 / B23 / B19 (P13): the floating vanity with a curved front in white lacquer under a dark stone top (its ends
     rounded with the curve), set into its terrazzo apron (``apron_key``: the splashback on the wall up to
     ``APRON_OVER_TOP_M`` over the top and a plinth on the floor under the vanity, one material), lit from under it, a
@@ -824,28 +837,31 @@ def curved_vanity_parts(w: float, d: float, top_m: float, top_key: str = "workto
         else:
             my = min(y_back - 0.03, by + bd / 2.0 + 0.035)
             parts += _tall_mixer(x, my, top_m, max(0.08, my - by))
-    top, _b = top_clusters(w, d - 2 * APRON_T_M, lay)
+    top, _b = top_clusters(w, d - 2 * APRON_T_M, lay, picks)
     return parts + top
 
 
-def vanity_parts(w: float, d: float, top_m: float, look: Optional[dict] = None) -> list[Part]:
+def vanity_parts(w: float, d: float, top_m: float, look: Optional[dict] = None, picks=None) -> list[Part]:
     """The floating vanity a piece's ``bath_look`` names (``vanity``: stone_slab | fluted | curved | bench); UL205: on
     an installation wall (``wall_offset_m``) the vanity is that much less deep, its back (and a wall mixer) on the
-    installation wall's face."""
+    installation wall's face. 31 Oct 2026: ``picks`` (a ``small_items`` record or its picks, ``bath_objects.picks_of``)
+    leave a library slot for each small item a library model stands in for."""
     look = look or {}
+    picks = BO.picks_of(picks)
     off = max(0.0, min(float(look.get("wall_offset_m") or 0.0), INSTALL_WALL_D_M + 0.01))
     if off > 1e-6:
-        parts = vanity_parts(w, d - off, top_m, dict(look, wall_offset_m=0.0))
+        parts = vanity_parts(w, d - off, top_m, dict(look, wall_offset_m=0.0), picks)
         return [dict(q, verts=[(x, y - off / 2.0, z) for x, y, z in q["verts"]]) for q in parts]
     key = str(look.get("top_key") or "stone_light")
     if look.get("vanity") == "fluted":
-        return fluted_vanity_parts(w, d, top_m, key, bool(look.get("rounded")), str(look.get("basin") or "vessel"))
+        return fluted_vanity_parts(w, d, top_m, key, bool(look.get("rounded")), str(look.get("basin") or "vessel"),
+                                   picks)
     if look.get("vanity") == "curved":
         return curved_vanity_parts(w, d, top_m, key, str(look.get("basin") or "vessel_wall"),
-                                   str(look.get("apron_key") or "terrazzo"))
+                                   str(look.get("apron_key") or "terrazzo"), picks)
     if look.get("vanity") == "bench":
-        return bench_vanity_parts(w, d, top_m)
-    return stone_slab_vanity_parts(w, d, top_m, key)
+        return bench_vanity_parts(w, d, top_m, picks)
+    return stone_slab_vanity_parts(w, d, top_m, key, picks)
 
 
 def vanity_items(w: float, d: float, top_m: float, look: Optional[dict] = None) -> list[str]:
@@ -895,7 +911,7 @@ BENCH_SHELF_T_M = 0.03
 BENCH_VESSEL = (0.20, 0.13)       # the vessel's rim radius and height (a 40 cm matt black bowl)
 
 
-def bench_vanity_parts(w: float, d: float, top_m: float) -> list[Part]:
+def bench_vanity_parts(w: float, d: float, top_m: float, picks=None) -> list[Part]:
     """UL205: an oak trestle bench in the basin's drawn ``w x d`` (front -Y, the wall +Y), its top at ``top_m``: a
     thick top, two trestles (posts, a foot and a rail each), a lower shelf with a woven basket of towels, a matt black
     vessel basin on the top and a black mixer on the wall over it."""
@@ -913,7 +929,8 @@ def bench_vanity_parts(w: float, d: float, top_m: float) -> list[Part]:
     bw, bd = min(0.38, shelf_w - 0.06), min(0.28, d - 0.16)
     bh = min(0.18, top_m - t - 0.06 - BENCH_SHELF_Z_M - BENCH_SHELF_T_M - 0.04)
     if bw > 0.15 and bh > 0.08:
-        parts += BO.woven_basket(0.0, -0.01, BENCH_SHELF_Z_M + BENCH_SHELF_T_M, bw, bd, bh, "towel")
+        parts += BO.placed("woven_basket", BO.woven_basket(0.0, -0.01, BENCH_SHELF_Z_M + BENCH_SHELF_T_M, bw, bd, bh,
+                                                           "towel"), picks)
     r, vh = min(BENCH_VESSEL[0], w / 2.0 - 0.06, d / 2.0 - 0.04), BENCH_VESSEL[1]
     by = -0.02
     parts += _vessel(0.0, by, top_m, r, vh, "dark")
@@ -960,7 +977,7 @@ def install_niches(w: float, wc_x: Optional[float] = None, keep=()) -> list[tupl
 
 
 def install_wall_parts(w: float, d: float, h: float, wc_x: Optional[float] = None, body_key: str = "dark",
-                       cap_key: str = "stone_light", keep=()) -> list[Part]:
+                       cap_key: str = "stone_light", keep=(), picks=None) -> list[Part]:
     """UL205: the installation wall (its back on the wall, +Y; ``w`` wide, ``d`` deep, ``h`` high): the body in the
     room's dark plaster finish, a stone cap, and along its top the niches (``install_niches``: a recess
     ``INSTALL_NICHE["depth"]`` deep under the cap, an LED strip under the cap, each styled with toiletries); a box too
@@ -982,7 +999,7 @@ def install_wall_parts(w: float, d: float, h: float, wc_x: Optional[float] = Non
     for k, (a, b) in enumerate(niches):
         cx = (a + b) / 2.0
         parts.append(P._box(cx, -d / 2.0 + ndp - 0.012, z_top - 0.012, b - a - 0.02, 0.012, 0.006, "led", "led"))
-        items = _cubby_items(INSTALL_STYLES[k % len(INSTALL_STYLES)], b - a, ndp, 0.0, nh - 0.02)
+        items = _cubby_items(INSTALL_STYLES[k % len(INSTALL_STYLES)], b - a, ndp, 0.0, nh - 0.02, picks)
         parts += [dict(q, verts=[(x + cx, y - d / 2.0 + ndp / 2.0, z + z_n) for x, y, z in q["verts"]]) for q in items]
     return parts
 
@@ -1005,8 +1022,9 @@ def column_cubbies(h: float) -> int:
     return max(COLUMN_CUBBIES[0], min(COLUMN_CUBBIES[1], n))
 
 
-def _cubby_items(style: str, iw: float, idp: float, z0: float, ch: float) -> list[Part]:
-    """The items of one cubby (inner width ``iw``, depth ``idp``, floor ``z0``, height ``ch``), centred on x = 0."""
+def _cubby_items(style: str, iw: float, idp: float, z0: float, ch: float, picks=None) -> list[Part]:
+    """The items of one cubby (inner width ``iw``, depth ``idp``, floor ``z0``, height ``ch``), centred on x = 0;
+    ``picks``: the library models of the small items (``bath_objects.placed``: a library slot in their place)."""
     h = ch - 0.03
     parts: list[Part] = []
     if style == "towels":
@@ -1017,42 +1035,50 @@ def _cubby_items(style: str, iw: float, idp: float, z0: float, ch: float) -> lis
                                      seed=int(k + 1)))
     elif style == "pump_bottles":                   # UL166: real pump bottles (collar, pump, nozzle, label)
         r = min(0.03, iw / 7.5)
-        for k, key in zip((-1.0, 0.0, 1.0), ("terracotta", "dark", "ceramic")):
-            parts += BO.pump_bottle(k * (2 * r + 0.01), -0.01 + abs(k) * 0.02, z0, r, min(0.19, h * 0.95), key,
-                                    "dark")
+        # 31 Oct 2026: amber glass, a matt black bottle and frosted glass, each with its soap and label
+        for k, key, head in zip((-1.0, 0.0, 1.0), ("terracotta", "dark", "frosted"), ("dark", "dark", "handle")):
+            parts += BO.placed("pump_bottle", BO.pump_bottle(k * (2 * r + 0.01), -0.01 + abs(k) * 0.02, z0, r,
+                                                             min(0.19, h * 0.95), key, head), picks)
     elif style == "plant":                          # UL166: a ceramic pot with a leafy plant, not an egg
         r = min(0.06, iw / 3.2, idp / 3.0)
         pot = min(0.09, h * 0.4)
-        parts += BO.potted_plant(0.0, 0.0, z0, r * 0.85, pot, h, seed=1, max_r=min(iw, idp) / 2.0 - 0.01)
+        parts += BO.placed("potted_plant", BO.potted_plant(0.0, 0.0, z0, r * 0.85, pot, h, seed=1,
+                                                           max_r=min(iw, idp) / 2.0 - 0.01), picks)
     elif style == "cotton":                         # UL166: a lidded jar of cotton balls and a reed diffuser
         jr = min(0.045, iw / 6.0, idp / 2.5)
         jh = min(0.13, h - BO.JAR_LID_M - 0.01)
         two = iw >= 2 * jr + 2 * DIFFUSER_R_M + 0.06
         jx = -(jr + 0.02) if two else 0.0
         if jh >= 0.05:
-            parts += BO.apothecary_jar(jx, 0.0, z0, jr, jh, "wood", "cotton", seed=3)
+            parts += BO.placed("apothecary_jar", BO.apothecary_jar(jx, 0.0, z0, jr, jh, "wood", "cotton", seed=3),
+                               picks)
         if two:
             dr = min(DIFFUSER_R_M, iw / 8.0)
             dh = min(0.10, h * 0.45)
-            parts += BO.reed_diffuser(DIFFUSER_R_M + 0.02, 0.0, z0, dr, dh, max(0.05, min(0.24, h - dh * 0.75 - 0.02)),
-                                      "terracotta", "dark", seed=4)
+            parts += BO.placed("reed_diffuser", BO.reed_diffuser(DIFFUSER_R_M + 0.02, 0.0, z0, dr, dh,
+                                                                 max(0.05, min(0.24, h - dh * 0.75 - 0.02)),
+                                                                 "terracotta", "handle", seed=4), picks)
     elif style == "basket":                         # UL166: a woven basket of rolled towels
         bw, bd = min(0.30, iw - 0.03), min(0.24, idp - 0.04)
-        parts += BO.woven_basket(0.0, 0.0, z0, bw, bd, min(0.14, h * 0.55), "towel")
+        parts += BO.placed("woven_basket", BO.woven_basket(0.0, 0.0, z0, bw, bd, min(0.14, h * 0.55), "towel"), picks)
     elif style == "pebbles":                        # UL166: a lidded jar of pebbles and a candle in a glass
         r = min(0.045, iw / 4.5)
         jh = min(0.11, h - BO.JAR_LID_M - 0.01)
         if jh >= 0.05:
-            parts += BO.apothecary_jar(-r * 0.6, 0.0, z0, r, jh, "steel", "pebbles", seed=5)
+            parts += BO.placed("apothecary_jar", BO.apothecary_jar(-r * 0.6, 0.0, z0, r, jh, "steel", "pebbles",
+                                                                   seed=5), picks)
         if iw >= 2 * r + 0.10:
-            parts += BO.candle_glass(r + 0.035, 0.0, z0, 0.035, min(0.085, h * 0.5))
+            parts += BO.placed("candle_glass", BO.candle_glass(r + 0.035, 0.0, z0, 0.035, min(0.085, h * 0.5)), picks)
     elif style == "perfume":                        # UL166: flacons with their scent, collar and cap; a soap dish
-        for px, bw, bh in ((-0.045, 0.05, 0.11), (0.03, 0.04, 0.085)):
+        # 31 Oct 2026: two flacons of thick glass, a square one with a black block cap and an oval one with a turned
+        # wooden cap, each with its scent, collar and actuator
+        for k, (px, bw, bh) in enumerate(((-0.045, 0.05, 0.11), (0.03, 0.04, 0.085))):
             if abs(px) + bw / 2.0 > iw / 2.0 - 0.01:
                 continue
-            parts += BO.perfume_bottle(px, 0.0, z0, bw, bw * 0.62, min(bh, h * 0.75), "handle", "dark")
+            parts += BO.placed("perfume_bottle", BO.perfume_bottle(px, 0.0, z0, bw, bw * 0.62, min(bh, h * 0.75),
+                                                                   "handle", ("dark", "wood")[k], style=k), picks)
         if iw >= 0.26:
-            parts += BO.soap_dish(iw / 2.0 - 0.06, -0.01, z0, 0.045)
+            parts += BO.placed("soap_dish", BO.soap_dish(iw / 2.0 - 0.06, -0.01, z0, 0.045), picks)
     elif style == "folded_towels":
         tw, td = min(0.30, iw - 0.03), min(0.25, idp - 0.04)
         # UL138: folded towels with their soft front folds and layers, a little uneven, two shades
@@ -1060,8 +1086,11 @@ def _cubby_items(style: str, iw: float, idp: float, z0: float, ch: float) -> lis
     return parts
 
 
-def open_column_parts(w: float, d: float, h: float) -> list[Part]:
-    """The open lit niche column of the module docstring (B5) in its box ``w x d x h`` (front -Y, the wall +Y)."""
+def open_column_parts(w: float, d: float, h: float, picks=None) -> list[Part]:
+    """The open lit niche column of the module docstring (B5) in its box ``w x d x h`` (front -Y, the wall +Y);
+    31 Oct 2026: ``picks`` (a ``small_items`` record or its picks) leave a library slot for each small item a library
+    model stands in for."""
+    picks = BO.picks_of(picks)
     t = COLUMN_BOARD_M
     pl = COLUMN_PLINTH_M
     n = column_cubbies(h)
@@ -1082,7 +1111,7 @@ def open_column_parts(w: float, d: float, h: float) -> list[Part]:
         parts.append(P._box(0.0, -d / 2.0 + 0.025, z1 - LED_STRIP_M[1], iw - 0.02, LED_STRIP_M[0], LED_STRIP_M[1],
                             "led", "led"))
         style = CUBBY_STYLES[k % len(CUBBY_STYLES)]
-        for part in _cubby_items(style, iw, idp, z0, ch - LED_STRIP_M[1]):
+        for part in _cubby_items(style, iw, idp, z0, ch - LED_STRIP_M[1], picks):
             parts.append(dict(part, verts=[(x, y - 0.006, z) for x, y, z in part["verts"]]))
     return parts
 
@@ -1292,9 +1321,10 @@ def towel_rail_parts(w: float, d: float, h: float) -> list[Part]:
     return parts + TP.draped_towel(0.0, y, zb, r_bar, tw, drop, "colour_towel", seed=3)     # UL138
 
 
-def towel_shelf_parts(w: float, d: float, h: float) -> list[Part]:
+def towel_shelf_parts(w: float, d: float, h: float, picks=None) -> list[Part]:
     """B18: a wall shelf (its board at the top of the box) on two brackets, a rail under it with a towel on it, rolled
-    towels and a jar on the board."""
+    towels and a jar on the board; ``picks``: the library models of the small items (the jar's library slot)."""
+    picks = BO.picks_of(picks)
     back = d / 2.0
     bt = 0.025
     items_h = min(0.11, h * 0.35)                  # the towels and the jar on the board, inside the box
@@ -1319,8 +1349,8 @@ def towel_shelf_parts(w: float, d: float, h: float) -> list[Part]:
                                  "colour_towel" if k == 0 else TP.alt_key("colour_towel"), seed=5 + k))
     jh = max(0.02, min(0.09, h - top - BO.JAR_LID_M))
     # UL166: an apothecary jar of cotton balls with its lid and knob (inside the box)
-    parts += BO.apothecary_jar(w / 2.0 - 0.07, 0.0, top, 0.035, jh, "wood", "cotton" if jh >= 0.045 else "salt",
-                               seed=7)
+    parts += BO.placed("apothecary_jar", BO.apothecary_jar(w / 2.0 - 0.07, 0.0, top, 0.035, jh, "wood",
+                                                          "cotton" if jh >= 0.045 else "salt", seed=7), picks)
     return parts
 
 
@@ -1425,7 +1455,7 @@ def decor_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict] =
     if dtype == "towel_rail":
         return towel_rail_parts(w, d, h)
     if dtype == "towel_shelf":
-        return towel_shelf_parts(w, d, h)
+        return towel_shelf_parts(w, d, h, item.get("small_items"))
     if dtype == "towel_bar":
         return towel_bar_parts(w, d, h)
     if dtype == "feature_panel":
@@ -1436,7 +1466,8 @@ def decor_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict] =
     if dtype == "install_wall":
         wc_x = item.get("wc_x")
         return install_wall_parts(w, d, h, None if wc_x is None else float(wc_x), str(item.get("body_key") or "dark"),
-                                  str(item.get("cap_key") or "stone_light"), item.get("keep_x") or ())
+                                  str(item.get("cap_key") or "stone_light"), item.get("keep_x") or (),
+                                  BO.picks_of(item.get("small_items")))
     if dtype == "mirror" and item.get("fixture") == "backlit_mirror":
         return backlit_mirror_parts(w, d, h, bool(item.get("rounded")))
     if dtype == "mirror" and item.get("fixture") == "round_mirror":

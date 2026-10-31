@@ -650,6 +650,8 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
     def asset_of(slug: str):
         return (furniture_materials.get(slug) or {}).get("asset")
 
+    from wenart.blender import bath_objects as BO
+
     assumed: list[dict] = []
     floor = style.get("floor") or {}
     floor_slug = floor.get("material")
@@ -687,7 +689,10 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         # top, plant pots, lamp bulbs (frosted when off), rattan.
         "front": (trim, None, None), "handle": ("steel_brushed", None, None), "marble": ("marble", None, None),
         "pot": ("terracotta", None, None), "bulb": ("ceramic_white", None, None),
-        "rattan": ("rattan", None, None),
+        # 31 Oct 2026 (user on real04 run 20261030-181158-full: the basket "reads like a ribbed plastic bowl"): rattan
+        # takes its vocabulary photo (ambientCG Wicker005); the key's slug lives in MATERIALS, which the furniture
+        # lookup below never read, so every rattan part was a flat brown
+        "rattan": ("rattan", _vocab_asset("rattan"), None),
         # 30 Oct 2026 (UL160): a holdall's tan leather handles, tabs, piping and base band (holdall.LEATHER)
         "leather": ("leather_tan", None, None),
         # 31 Oct 2026 (user on real04 run 20261030-181158-full: "This bag requires a lot more detail and a lot better
@@ -728,6 +733,10 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "fruit_yellow": ("fruit_yellow", None, None), "fruit_green": ("fruit_green", None, None),
         "oil": ("oil_amber", None, None), "cardboard": ("cardboard", None, None),
         "coffee": ("coffee_liquid", None, None),           # 30 Oct 2026 (UL213): the coffee in a mug (mug_parts)
+        # 31 Oct 2026 (user on real04 run 20261030-181158-full: "This little items needs a lot better models ... better
+        # texture"): the small items' keys (bath_objects.SMALL_ITEM_KEYS); ``_Materials.get`` builds their looks
+        # (materials.MaterialLibrary.small_item), these slugs name them in the records
+        **{k: (slug, None, None) for k, slug in BO.SLUGS.items()},
     }
     # 29 Oct 2026 (UL121, R35): the bedding's fabric looks and woven patterns (``textile_<look>``; a throw pair's second
     # blanket ``runner_<look>``): linen keeps its Poly Haven scan, the others are the procedural weaves
@@ -1367,6 +1376,8 @@ class _Materials:
         if key == "led":                          # 29 Oct 2026 (UL114): an LED strip at a fixture shade's radiance
             from wenart.blender import materials as M
             return M.led_material()
+        if key in P.SMALL_ITEM_KEYS and hasattr(self.library, "small_item"):
+            return self.library.small_item(key)   # 31 Oct 2026: a small item's glass, liquid, cotton, soap, glaze, cane
         if key == "pampas":                       # ... and dried pampas plumes: the linen weave in cream
             colour = colour or "cream"
         over = (overrides or {}).get(key)
@@ -2327,6 +2338,13 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
             f"built-in look: {k} {v['slug']}" + (f" {v['colour']}" if v.get("colour") else "")
             for k, v in sorted(look.items())]
     piece = dict(piece, design=design)
+    small, small_notes = resolved_small_items((piece.get("asset") or {}).get("small_items"), assets_dir)
+    if small is not None:                    # 31 Oct 2026: the small items' library models whose files are here
+        asset = dict(piece["asset"], small_items=small)
+        if isinstance(asset.get("module_plan"), dict):
+            asset["module_plan"] = dict(asset["module_plan"], small_items=small)
+        piece = dict(piece, asset=asset)
+        warnings.extend(f"{piece['id']}: {n}" for n in small_notes)
     fp = piece["footprint"]
     w, d = float(fp["size"][0]), float(fp["size"][1])
     rot = float(fp["rotation_deg"])
@@ -2423,6 +2441,10 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
             assumed.append({"object": name, "field": "height_lift", "value": lift,
                             "reason": "footprint overlaps another piece of the same height; "
                                       "lifted so the top faces do not coincide"})
+    slots = entry.pop("_slots", None)
+    if slots and small is not None:              # 31 Oct 2026: the small items' library models in their slots
+        entry["library_items"] = place_slot_models(slots, small, fp, floor_z, name, piece["id"], "furniture", status,
+                                                   index, collection, assets_dir, geo_cache, library, warnings)
     look = piece.get("bath_look") if isinstance(piece.get("bath_look"), dict) else {}
     if piece["type"] == "washbasin" and look.get("made_to_measure") and look.get("top_m") and "top_m" not in entry:
         entry["top_m"] = float(look["top_m"]) + base   # 29 Oct 2026 (UL114): the mirror hangs over the vanity's top
@@ -2454,6 +2476,108 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
     ob["wenart_method"] = entry["method"] if entry["method"] in ("library", MOD.MODULE_METHOD) else "parametric"
     ob.pass_index = index
     return entry
+
+
+# --------------------------------------------------------------------------
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "This little items needs a lot better models, check the library
+# of similar things exist to use"): a host's small items that the fit gave a library model (``small_items``,
+# wenart.furniture.small_items) are built from that model in their reserved box (the host's library slot)
+# --------------------------------------------------------------------------
+
+def resolved_small_items(record, assets_dir: str | None) -> tuple[dict | None, list[str]]:
+    """``(record, notes)``: a host's ``small_items`` record with only the picks whose model file is there (pure
+    apart from the file check; ``resolve_asset``): a pick without its file moves to the gaps (``why`` says so) and
+    the host's builder makes our model in its place, so a slot is never left empty. None for no record."""
+    if not isinstance(record, dict):
+        return None, []
+    picks, gaps, notes = {}, dict(record.get("gaps") or {}), []
+    for kind, asset in sorted((record.get("picks") or {}).items()):
+        file, reason = resolve_asset(asset, assets_dir)
+        if file is None:
+            gaps[kind] = {"type": kind, "why": f"the picked model {asset.get('asset_id')} cannot be built ({reason}): "
+                                              "our model", "rule": record.get("rule")}
+            notes.append(f"small item {kind}: {asset.get('asset_id')} {reason}; our model built in its place")
+        else:
+            picks[kind] = asset
+    return dict(record, picks=picks, gaps=gaps), notes
+
+
+def slot_scale(asset: dict, box) -> tuple[float, float]:
+    """``(scale, turned_deg)``: the uniform scale that puts a picked model inside a slot's ``box`` (w, d, h), turned a
+    quarter when that fills the box better (pure; the build's own fit of the slot it meets)."""
+    bw, bd, bh = (max(float(v), 1e-6) for v in (asset.get("bbox_m") or [1.0, 1.0, 1.0])[:3])
+    sw, sd, sh = (float(v) for v in box[:3])
+    best = (0.0, 0.0, -1.0)
+    for turned, (mw, md) in ((0.0, (bw, bd)), (90.0, (bd, bw))):
+        s = min(sw / mw, sd / md, sh / bh)
+        fill = min(mw * s / sw, md * s / sd)
+        if fill > best[2] + 1e-9:
+            best = (s, turned, fill)
+    return round(best[0], 5), best[1]
+
+
+def slot_world(slot: dict, footprint: dict, floor_z: float) -> tuple[list[float], float]:
+    """``([x, y], z)``: a slot's centre in the world and its bottom (pure; the host's frame as ``parametric.world_mesh``
+    places its parts)."""
+    rad = math.radians(float(footprint.get("rotation_deg") or 0.0))
+    c, s = math.cos(rad), math.sin(rad)
+    x, y = (float(v) for v in slot["center"][:2])
+    cx, cy = (float(v) for v in footprint["center"][:2])
+    return [round(cx + c * x - s * y, 5), round(cy + s * x + c * y, 5)], round(float(floor_z) + float(slot["z"]), 5)
+
+
+def place_slot_models(slots: list, record, footprint: dict, floor_z: float, name: str, owner_id: str, kind: str,
+                      status: str, index: int, collection, assets_dir: str | None, geo_cache: dict, library,
+                      warnings: list) -> list[dict]:
+    """The library models of a host's small items (``bpy``): one object per library slot of the host (``slots``:
+    ``parametric.library_slots`` of its parts, in its frame), the picked model (``record``'s picks) fitted uniformly
+    into the slot's box (``slot_scale``), turned with the host, on the slot's bottom, in the host's pass index (the
+    index pass and the licence flags of a view see it with its host). Returns the entries for the host's
+    ``library_items``."""
+    from wenart.blender import bath_objects as BO
+
+    picks = BO.picks_of(record)
+    out = []
+    for k, slot in enumerate(slots):
+        asset = picks.get(slot["kind"])
+        if not asset:
+            continue
+        file, reason = resolve_asset(asset, assets_dir)
+        if file is None:
+            warnings.append(f"{owner_id}: small item {slot['kind']} {asset.get('asset_id')}: {reason}; slot left empty")
+            continue
+        try:
+            geo = _cached_geometry(file, collection, geo_cache, normals=True)
+            if not geo["faces"]:
+                raise ValueError("file has no mesh faces")
+            s, turned = slot_scale(asset, slot["box"])
+            centre, z = slot_world(slot, footprint, floor_z)
+            fp = {"center": centre, "size": [slot["box"][0], slot["box"][1]],
+                  "rotation_deg": float(footprint.get("rotation_deg") or 0.0) + turned}
+            fitted = dict(asset, fit_scale=[s, s, s])
+            verts, info = fit_vertices(geo["verts"], fitted, fp, z)
+            normals = (fit_normals(geo["face_normals"], fitted, fp, info["fit_scale"])
+                       if geo.get("face_normals") is not None else None)
+            ob = _mesh_object(f"{name}_item{k}", verts, geo["faces"], geo["materials"], geo["face_materials"],
+                              collection, owner_id, kind, status, uvs=geo["uvs"], uv_name=geo["uv_name"],
+                              fallback_material=library.proxy("proxy"), normals=normals)
+        except Exception as exc:  # noqa: BLE001 - a broken file: the slot stays empty, loudly
+            warnings.append(f"{owner_id}: small item {slot['kind']} {asset.get('asset_id')}: import failed "
+                            f"({type(exc).__name__}: {exc}); slot left empty")
+            continue
+        ob.pass_index = index
+        ob["wenart_type"] = slot["kind"]
+        ob["wenart_host"] = owner_id
+        ob["wenart_asset"] = asset.get("asset_id") or ""
+        ob["wenart_source"] = "added_by_ai"
+        out.append({"name": ob.name, "kind": slot["kind"], "asset_id": asset.get("asset_id"),
+                    "asset": {k2: asset.get(k2) for k2 in ("library", "asset_id", "licence", "licence_flag",
+                                                           "commercial_safe", "method", "attribution", "title",
+                                                           "author", "source_url", "logo_flag") if k2 in asset},
+                    "center": centre + [z], "box_m": list(slot["box"]), "fit_scale": info["fit_scale"],
+                    "turned_deg": turned, "bbox_m": info["bbox_m"], "file": str(file),
+                    "rule": "small_items_library_first (31 Oct 2026)"})
+    return out
 
 
 def module_plan_of(piece: dict, style: dict | None = None) -> tuple[dict | None, str]:
@@ -2488,6 +2612,8 @@ def _module_object(piece, plan, name, status, floor_z, collection, mats, entry, 
                                    slugs=lambda k: mats.slug(k, overrides))
     ob = MOD.build_module(plan, piece, provider)
     piece_uvs(ob, piece["footprint"])                 # 31 Oct 2026: the grain along each part, its own offset
+    if P.library_slots(parts):                        # 31 Oct 2026: its small items' library slots (_create_piece)
+        entry["_slots"] = P.library_slots(parts)
     x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
     slots = [provider.get(k) for k in used]
     record = MOD.module_record(plan)
@@ -2885,6 +3011,8 @@ def _parametric_object(piece, name, status, floor_z, height, collection, mats, e
     ob = _mesh_object(name, verts, faces, slots, indices, collection, piece["id"], "furniture", status,
                       lettering_uvs=P.lettering_uvs(parts))
     piece_uvs(ob, fp)                                 # 31 Oct 2026: the grain along each part, its own offset
+    if P.library_slots(parts):                        # 31 Oct 2026: its small items' library slots (_create_piece)
+        entry["_slots"] = P.library_slots(parts)
     x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
     entry.update({"bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
                   "materials": [m.name for m in slots], "material": slots[0].name,
@@ -3330,6 +3458,10 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     if dtype not in P.DECOR_TYPES:
         warnings.append(f"decor {where}: unknown decor type {dtype!r}; skipped")
         return None
+    small, small_notes = resolved_small_items(item.get("small_items"), assets_dir)
+    if small is not None:                    # 31 Oct 2026: a towel shelf's or a wall's small items' library models
+        item = dict(item, small_items=small)
+        warnings.extend(f"decor {where}: {n}" for n in small_notes)
     center = item.get("center") or host["footprint"]["center"]
     rot = float(item.get("rotation_deg", host["footprint"]["rotation_deg"] if host is not None else 0.0))
     w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
@@ -3467,6 +3599,12 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                       "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
                       "materials": [m.name for m in slots], "material": slots[0].name,
                       "textured": any(mats.library.textured(m) for m in slots), "bevel": add_bevel(ob, parts)})
+        lib_slots = P.library_slots(parts)
+        if lib_slots and small is not None:      # 31 Oct 2026: its small items' library models in their slots
+            entry["small_items"] = small
+            entry["library_items"] = place_slot_models(lib_slots, small, footprint, floor_z + z_above, name, owner_id,
+                                                       "decor", status, index, collection, assets_dir, geo_cache,
+                                                       library, warnings)
         if dtype == "plant_large":
             entry["species"] = item.get("species")
             entry["pot"] = dict(overrides["pot"])
