@@ -45,11 +45,19 @@ PROXY_HEIGHTS: dict[str, float] = {
 # Milestone 10: wall-hung types stand ``furniture.mount_bottom_m`` above the floor (the §4.4 rule: 1.45 m).
 MOUNTED_TYPES: tuple[str, ...] = ("wall_cabinet",)
 DEFAULT_MOUNT_BOTTOM_M = 1.45
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "There can not be a fridge inside the kitchen counter!";
+# wenart.blender.fridge_rule): the appliances that always stand on the floor, never hung and never on a worktop (a
+# fridge-freezer is a ``fridge``: the schema has no freezer type)
+FLOOR_APPLIANCE_TYPES: tuple[str, ...] = ("fridge",)
 
 
 def mount_bottom(piece: dict) -> tuple[float, bool]:
     """``(height of the piece's bottom above the floor, assumed)``: ``mount_bottom_m`` of a wall-hung piece, the
-    rule's 1.45 m (assumed) for a wall cabinet without one, 0 for a piece that stands on the floor."""
+    rule's 1.45 m (assumed) for a wall cabinet without one, 0 for a piece that stands on the floor. 31 Oct 2026
+    (``fridge_rule``): a floor appliance (``FLOOR_APPLIANCE_TYPES``) stands on the floor whatever ``mount_bottom_m``
+    it carries (the fit's check logs such a value as ``off_floor``)."""
+    if piece.get("type") in FLOOR_APPLIANCE_TYPES:
+        return 0.0, False
     value = piece.get("mount_bottom_m")
     if isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0:
         return float(value), False

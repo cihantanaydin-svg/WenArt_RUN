@@ -574,6 +574,37 @@ def _oven_front(x: float, fw: float, y_back: float, z0: float, h: float, strip: 
                             "steel", "handle"))
 
 
+# 31 Oct 2026 (user on real04 run 20261030-181158-full, the French-door fridge in the tall-unit column: "Fridge here was
+# making sense, if you are able to make it super nice model you can keep it"): the finish of a real built-in fridge
+FRIDGE_FINISH = {"display_w_m": 0.075, "display_h_m": 0.11, "display_z_m": 1.38, "led_m": 0.006}
+
+
+def _fridge_finish(x: float, w: float, fw: float, face: float, y_back: float, z0: float, z1: float, d: float,
+                   plinth_recess: float, parts: list, display_x: Optional[float] = None, vent: bool = True) -> None:
+    """31 Oct 2026 (``FRIDGE_FINISH``): what makes a column fridge read as a real appliance, not a steel box: a dark
+    door seal behind its fronts (the 3 mm shadow gaps between the doors and the drawer read dark, as an appliance's
+    gaskets do, never the cabinet's paint), the condenser's vent grille in the plinth under it
+    (``modules._plinth_vent``), and with ``display_x`` a slim black control display with three small indicator lights
+    on the door at eye level (a steel French-door or fridge-freezer door). An integrated one (``vent`` false) shows no
+    steel at all: only the seal behind its fronts that match the run (UL187)."""
+    from wenart.blender import modules as MOD
+
+    seal = max(face - y_back - 0.0004, 0.0006)
+    parts.append(P._box(x, (y_back + face) / 2.0, z0, w - 0.002, seal, max(z1 - z0, 0.01), "dark", "gasket"))
+    vent_h = MOD.KITCHEN_PLINTH_VENT_M[1]
+    if vent and z0 > vent_h + 0.02:
+        parts += MOD._plinth_vent(x, min(MOD.KITCHEN_PLINTH_VENT_M[0], fw - 0.1), plinth_recess - d / 2.0, z0)
+    if display_x is None:
+        return
+    f = FRIDGE_FINISH
+    dz = min(f["display_z_m"], z1 - f["display_h_m"] - 0.15)
+    yf = y_back - P.FRONT_THICKNESS
+    parts.append(P._box(display_x, yf - 0.0015, dz, f["display_w_m"], 0.003, f["display_h_m"], "dark", "display"))
+    for k in range(3):
+        parts.append(P._box(display_x - 0.02 + k * 0.02, yf - 0.0032, dz + f["display_h_m"] * 0.62, f["led_m"], 0.001,
+                            f["led_m"], "steel", "display"))
+
+
 def tall_parts(m: dict, design: dict, d_run: float, plinth_recess: float) -> list[Part]:
     """K1: one tall unit of the column (``tall_module``): its recessed plinth, the carcass up to its top and its
     fronts: ``oven_tower`` (two drawers, the 59.5 cm oven at ``COLUMN["oven_bottom_m"]``, the 45.5 cm compact oven
@@ -608,6 +639,8 @@ def tall_parts(m: dict, design: dict, d_run: float, plinth_recess: float) -> lis
         cupboard(cz + COLUMN["compact_h_m"], top)
     elif kind == "fridge_french":
         ft = COLUMN["freezer_top_m"]
+        _fridge_finish(x, w, fw, face, y_back, z0, min(COLUMN["fridge_top_m"], top - gap), m["size_m"][1],
+                       plinth_recess, parts, display_x=x - fw / 4.0)
         parts.append(P._box(x, y_back - P.FRONT_THICKNESS / 2.0, z0 + gap, fw, P.FRONT_THICKNESS, ft - z0 - 2 * gap,
                             "steel", "front"))
         parts.append(P._box(x, y_back - P.FRONT_THICKNESS - 0.03, ft - 0.09, fw * 0.6, 0.014, 0.016, "steel",
@@ -626,6 +659,7 @@ def tall_parts(m: dict, design: dict, d_run: float, plinth_recess: float) -> lis
         # near the opening edge, a cupboard door over them
         ft = z0 + COLUMN["freezer_top_m"] - 0.10
         door_top = min(COLUMN["fridge_top_m"], top - gap)
+        _fridge_finish(x, w, fw, face, y_back, z0, door_top, m["size_m"][1], plinth_recess, parts, vent=False)
         style = P.front_style_of(design)
         hy = face - P.FRONT_GAP - P.FRONT_THICKNESS - P.PROUD / 2.0
         for d0, d1 in ((z0 + gap, ft - gap / 2.0), (ft + gap / 2.0, door_top)):
@@ -637,6 +671,7 @@ def tall_parts(m: dict, design: dict, d_run: float, plinth_recess: float) -> lis
     else:                                                  # fridge_column: the freezer under the fridge door
         ft = z0 + COLUMN["freezer_top_m"] - 0.10
         door_top = min(COLUMN["fridge_top_m"], top - gap)
+        _fridge_finish(x, w, fw, face, y_back, z0, door_top, m["size_m"][1], plinth_recess, parts, display_x=x)
         hx = x + fw / 2.0 - 0.06
         _steel_door(x, fw, y_back, z0 + gap, ft - gap / 2.0, hx, parts)
         _steel_door(x, fw, y_back, ft + gap / 2.0, door_top, hx, parts)
