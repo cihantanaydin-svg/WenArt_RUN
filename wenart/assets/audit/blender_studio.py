@@ -233,8 +233,12 @@ def main(jobs_path):
     from wenart.blender.materials import MaterialLibrary
     warnings = []
     textures, _hdris, refused = load_assets(doc.get("assets"), False, warnings)
-    library = MaterialLibrary(textures, doc.get("assets"), use_textures=True, refused=refused,
-                              style=doc.get("style") or {})
+
+    def new_library():
+        """A fresh material library per model: the purge after each model removes the materials the last one made
+        (pod run 20261031-070545: 48 beds failed on a removed bedding material of a reused library)."""
+        return MaterialLibrary(textures, doc.get("assets"), use_textures=True, refused=refused,
+                               style=doc.get("style") or {})
     keep = {o.name for o in bpy.data.objects}
     left = []
     for job in doc.get("jobs") or []:
@@ -246,7 +250,7 @@ def main(jobs_path):
                "attempts": int(job.get("attempt", 1))}
         col, extra = None, []
         try:
-            out, col, extra = one(job, doc, scene, cam, library, keep)
+            out, col, extra = one(job, doc, scene, cam, new_library(), keep)
             rec.update(out)
         except Exception as exc:  # noqa: BLE001 - one broken model must not stop the others
             rec["ok"] = False

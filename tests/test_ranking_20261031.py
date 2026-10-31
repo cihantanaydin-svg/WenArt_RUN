@@ -201,3 +201,10 @@ def test_the_job_script_and_the_stage_code_lists():
     assert "results/library/user_ranks.json" in ST.LEVELS_CODE
     build = (ROOT / "wenart" / "blender" / "build.py").read_text()
     assert '"wenart/furniture/user_ranks.py"' in build
+
+
+def test_each_studio_model_gets_a_fresh_material_library():
+    """Pod run 20261031-070545: the purge after each model removed the materials of a library kept for the whole run;
+    52 of 520 models (48 beds with their bedding) failed on 'StructRNA of type Material has been removed'."""
+    src = (ROOT / "wenart" / "assets" / "audit" / "blender_studio.py").read_text()
+    assert "one(job, doc, scene, cam, new_library(), keep)" in src and "orphans_purge" in src
