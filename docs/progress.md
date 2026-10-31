@@ -2914,4 +2914,16 @@ copied text merges with `user_ranks.parse_text` (two opinions averaged later).
 | child's room walls olive | the scheme paints the walls dark sage on purpose | the test leaves out a room whose scheme paint alone is over the bound (dark sage reads a lively green: worth a look) |
 | two bedrooms with neither a panel nor a reason | the AI architect retyped L1 rooms to storage under C1 (rooms read unreachable); a room with no accent wall left no record | every panel room records a plan or a reason; an AI answer can no longer retype a room away from its drawn anchor (`architect_actions.drawn_anchor_against`) |
 
-Open: real06's C1 reads most rooms as unreachable from the entrance (real04 does not): helper on it.
+real06's C1 read 11 of 12 rooms as unreachable: one AI architect answer turned the 2.90 m passage between the salon
+(the only entrance room) and the kitchen (with the stair and the other doors) into a serving hatch. Now an answer that
+is not the user's and takes away the only way between two rooms is undone (`architect_actions.walk_cut`), and a C1 that
+finds more than half of the rooms or a whole floor unreached is one reading problem, never retypes room by room. real06:
+12 of 12 reached; real04: 30 of 30, no answer refused.
+
+### Curtains and blinds: a better library model first (31 Oct 2026, lesson UL231)
+
+User: "Change the rule on the curtain etc to be use, if is needed and better library models can be used". Curtains and
+blinds were always our textile builds. Now a library model comes first when it rates better (the user's rank 6+, else
+vision quality 4+), is a real product of the style and stretches to the window within 0.6-1.6 (`fit.textile_library_item`);
+our build only when none does, with the reason (`library_gap`). Throws drape over their own sofa arm or bed and stay
+ours. Today 80 usable library curtains and 12 blinds, none ranked yet: scoring them on the ranking sheets lets them in.
