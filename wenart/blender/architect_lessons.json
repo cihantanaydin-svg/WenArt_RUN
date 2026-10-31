@@ -2752,6 +2752,18 @@
    "request": "Change the rule on the curtain etc to be use, if is needed and better library models can be used (31 Oct 2026: curtains and blinds were always our procedural textiles, never a library model; now a better library model comes first: the user's rank 6+, else vision quality 4+, a real product of the style that stretches to its window within 0.6-1.6; our build only when none does, library_gap says why; throws drape over their host and stay ours)",
    "lesson": "Change the rule on the curtain etc to be use, if is needed and better library models can be used (31 Oct 2026: curtains and blinds were always our procedural textiles, never a library model; now a better library model comes first: the user's rank 6+, else vision quality 4+, a real product of the style that stretches to its window within 0.6-1.6; our build only when none does, library_gap says why; throws drape over their host and stay ours)",
    "question": "Does every curtain and blind use a library model where one rates better than our build (user rank 6+ or vision 4+, the style, stretches to the window), and our textile build only where none does, with the reason?"
+  },
+  {
+   "id": "UL232",
+   "date": "2026-10-31",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "include all remaining library models for ranking after the real04 run (31 Oct 2026: every library model the pipeline may use goes on the ranking sheets, decor, extras and small items too, so the user's rank decides; 0-2 never used, higher rank first, 6+ beats our build)",
+   "lesson": "include all remaining library models for ranking after the real04 run (31 Oct 2026: every library model the pipeline may use goes on the ranking sheets, decor, extras and small items too, so the user's rank decides; 0-2 never used, higher rank first, 6+ beats our build)",
+   "question": "Is every library model the run used on the ranking sheets with the user's rank, and did the fit prefer the higher-ranked model?"
   }
  ]
 }
