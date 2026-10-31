@@ -22,6 +22,16 @@
    "user": "I did not like this sofa models",
    "where": "real04 run 20261029-201533-full, r_L1_oyun_aktivite_ve_dinlenme_odasi (f_L1_017, f_L1_020), the play and rest room's two facing sofas",
    "reason": "the user rejected it on the render: a boxy grey sofa with flat, faceted back cushions and white piping lines"
+  },
+  {
+   "id": "3dwh_f858f555e33dd365be821c2b",
+   "type": "decor_rug",
+   "title": "TAPPETO 2 - CARPET 2 3D",
+   "date": "2026-10-31",
+   "lesson": "UL220",
+   "user": "I did not like this pink carped never use it again",
+   "where": "real04 run 20261030-181158-full, r_L-1_salon (dec_L-1_001) and r_L-1_salon_2 (dec_L-1_100); also in the L0 corridors",
+   "reason": "the user rejected it on the render: a hot-pink shag rug (its own texture; the asked beige or grey never showed)"
   }
  ]
 }

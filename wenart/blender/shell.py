@@ -877,7 +877,10 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     for wall in walls:
         height, wall_assumed = wall_height(wall, level, has_above)
         if slab_above is not None:
-            height, wall_assumed = float(slab_above["z_top"]) - floor_z, {}
+            # 31 Oct 2026 (user on real04 run 181158, the attic play room: "Something wrong within cyan outline": the
+            # tops of the walls below showed through the attic floor and its rug as a grey band and white lines): a
+            # wall stops WALL_UNDER_FLOOR_GAP under the floor above, inside the slab, never in the floor's plane
+            height, wall_assumed = float(slab_above["z_top"]) - floor_z - WALL_UNDER_FLOOR_GAP, {}
         start, end = trims[wall["id"]]["start"], trims[wall["id"]]["end"]
         length = G.distance(start, end)
         if length < 1e-6:
@@ -3539,6 +3542,7 @@ def door_ray_checks(building: dict, level: dict, scene) -> list[dict]:
 # --------------------------------------------------------------------------
 
 SLAB_FACE_GAP = 0.001         # slab faces stay this far inside the floors, ceilings and wall faces around them
+WALL_UNDER_FLOOR_GAP = 0.003  # a wall up to the next floor stops this far under it (31 Oct 2026: its top showed through)
 SLAB_EDGE_INSET = 0.01        # ... and the slab edge this far inside the outer wall faces (no coplanar facade)
 CORNER_JOIN_TOL = 0.01        # two wall ends within this meet in a corner
 STAIR_ARRIVAL_TOL = 0.05      # a stair's top must lie within this of an opening of the slab above
