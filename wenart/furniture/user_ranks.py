@@ -146,6 +146,23 @@ def parse_text(text: str, index: dict) -> tuple[str, dict[str, int]]:
     return name, out
 
 
+RANKING_DIR = USER_RANKS_PATH.parent / "ranking"
+
+
+def load_indexes(paths: Optional[list] = None) -> dict:
+    """One index of several ranking indexes (``{"models", "sheets"}``; 31 Oct 2026, the remaining batch has its own
+    ``ranking_index_remaining.json``): ``paths``, default every ``ranking_index*.json`` of ``RANKING_DIR``; a model id
+    in two indexes keeps the first one's row."""
+    files = [Path(p) for p in paths] if paths else sorted(RANKING_DIR.glob("ranking_index*.json"))
+    out: dict = {"models": {}, "sheets": []}
+    for f in files:
+        doc = json.loads(Path(f).read_text(encoding="utf-8"))
+        for iid, m in (doc.get("models") or {}).items():
+            out["models"].setdefault(iid, m)
+        out["sheets"] += list(doc.get("sheets") or [])
+    return out
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     """``python -m wenart.furniture.user_ranks merge --scores scores.json [--index ...] [--date ...]``: the scoring
     page's scores (``{model id: rank}`` or the page's rows ``[{"id", "rank"}]``) into ``user_ranks.json``."""
@@ -154,7 +171,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m wenart.furniture.user_ranks")
     ap.add_argument("action", choices=("merge", "show"))
     ap.add_argument("--scores")
-    ap.add_argument("--index", default=str(USER_RANKS_PATH.parent / "ranking" / "ranking_index.json"))
+    ap.add_argument("--index", action="append", default=None,
+                    help="a ranking index (repeatable; default every ranking_index*.json of results/library/ranking: "
+                         "the furniture, our builds and the remaining batch)")
     ap.add_argument("--out", default=str(USER_RANKS_PATH))
     ap.add_argument("--date", default=datetime.date.today().isoformat())
     a = ap.parse_args(argv)
@@ -163,7 +182,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     if a.action == "merge":
         raw = json.loads(Path(a.scores).read_text(encoding="utf-8"))
         scores = raw if isinstance(raw, dict) else {str(r.get("id")): r.get("rank") for r in raw if isinstance(r, dict)}
-        index = json.loads(Path(a.index).read_text(encoding="utf-8"))
+        index = load_indexes([Path(p) for p in a.index] if a.index else None)
         doc = merge(current, scores, index, a.date)
         out.write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
         current = doc

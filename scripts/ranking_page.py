@@ -3,11 +3,14 @@
 sofas armchairs").
 
 What: ``python3 scripts/ranking_page.py --ranking results/library/ranking --out <dir>/index.html`` writes one HTML page:
-a tab per type, a card per model (its tile cut from the lettered sheet ``sheets/<sheet>.jpg``, the sheet and letter,
-the title and size) with score buttons 0-10. The page keeps the scores in its database (collection ``scores``, one
-document per model id: ``{"rank", "type", "sheet", "letter", "at"}``); Claude reads them back and merges them with
-``python -m wenart.furniture.user_ranks merge``. Without the database the page keeps them in the browser and offers
-them as text to copy.
+a tab per type with a readable name (``type_name``), the tabs in groups (31 Oct 2026, the remaining batch: a row of
+groups, ``studio.tab_group``: Our builds, Textiles, Lights, Wall decor, Plants, Tabletop, Electronics, Small items,
+Furniture; then the tabs of the chosen group), a card per model (its tile cut from the lettered sheet
+``sheets/<sheet>.jpg``, the sheet and letter, the title and size) with score buttons 0-10. The page keeps the scores in
+its database (collection ``scores``, one document per model id: ``{"rank", "type", "sheet", "letter", "at"}``); Claude
+reads them back and merges them with ``python -m wenart.furniture.user_ranks merge`` (every committed index by default,
+the remaining batch's ``ranking_index_remaining.json`` too). Without the database the page keeps them in the browser
+and offers them as text to copy. ``--batch remaining`` shows one batch only.
 
 How: the sheets stay files beside the page (published with it); a tile is a CSS crop of its sheet (5 x 4 tiles of
 ``TILE`` px under a ``HEAD`` px band, ``studio.compose_sheets``). Models that did not render are left out.
@@ -34,7 +37,35 @@ TYPE_NAMES = {"ours": "Our builds", "bed_double": "Beds", "sofa": "Sofas", "armc
               "office_chair": "Office chairs", "shoe_cabinet": "Shoe cabinets", "tall_cabinet": "Tall cabinets",
               "potted_plant": "Plants", "washbasin": "Washbasins", "toilet": "Toilets", "bathtub": "Bathtubs",
               "shower": "Showers", "washing_machine": "Washing machines", "stove": "Stoves",
-              "sink_kitchen": "Kitchen sinks", "fridge": "Fridges"}
+              "sink_kitchen": "Kitchen sinks", "fridge": "Fridges",
+              # 31 Oct 2026 (user: "include all remaining library models for ranking after the real04 run"): the decor,
+              # the extras the fit takes first and the small items (studio.TAB_GROUPS)
+              "cushion": "Cushions", "throw": "Throws", "rug": "Rugs", "curtain": "Curtains", "blind": "Blinds",
+              "table_lamp": "Table lamps", "pendant_light": "Pendant lights", "ceiling_light": "Ceiling lights",
+              "wall_art": "Wall art", "mirror": "Mirrors", "clock": "Wall clocks", "plant": "Floor plants",
+              "plant_large": "Large plants", "plant_small": "Small plants", "vase": "Vases", "bowl": "Bowls",
+              "books": "Books", "candle": "Candles", "basket": "Baskets", "tray": "Trays", "sculpture": "Sculptures",
+              "tv": "TVs", "monitor": "Monitors", "laptop": "Laptops", "microwave": "Microwaves",
+              "small_pump_bottle": "Soap pumps", "small_perfume_bottle": "Perfume bottles",
+              "small_apothecary_jar": "Apothecary jars", "small_reed_diffuser": "Reed diffusers",
+              "small_potted_plant": "Small potted plants", "small_candle_glass": "Candle glasses",
+              "small_soap_dish": "Soap dishes", "small_woven_basket": "Woven baskets"}
+
+
+def type_name(t: str) -> str:
+    """The tab's readable name: ``TYPE_NAMES``, else the type in words ("small_x_y" -> "X y")."""
+    if t in TYPE_NAMES:
+        return TYPE_NAMES[t]
+    words = str(t)[len(S.SMALL_PREFIX):] if str(t).startswith(S.SMALL_PREFIX) else str(t)
+    return words.replace("_", " ").capitalize()
+
+
+def tab_groups(types: list[str], procedural: set) -> list[list]:
+    """``[[group name, [types]]]`` in the order the groups first appear in ``types`` (``studio.tab_group``)."""
+    groups: dict[str, list[str]] = {}
+    for t in types:
+        groups.setdefault(S.tab_group(t, t in procedural), []).append(t)
+    return [[name, ts] for name, ts in groups.items()]
 
 
 def models(index: dict, results: dict | None) -> list[dict]:
@@ -88,6 +119,11 @@ h1 { font-size: 1.35rem; margin: 0; font-weight: 700; letter-spacing: -0.01em; t
 .status { font-size: 0.85rem; color: var(--muted); }
 .status.bad { color: var(--out); }
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.groups { display: flex; flex-wrap: wrap; gap: 6px 14px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.group { font: 700 0.9rem var(--font-ui); border: none; background: transparent; color: var(--muted); padding: 4px 2px;
+  cursor: pointer; display: inline-flex; gap: 6px; align-items: baseline; border-bottom: 2px solid transparent; }
+.group[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.group .count { font: 500 0.78rem var(--font-code); font-variant-numeric: tabular-nums; }
 .tab { font: 600 0.95rem var(--font-ui); border: 1px solid var(--line); background: transparent; color: var(--ink);
   padding: 7px 12px; border-radius: 999px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
 .tab[aria-selected="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
@@ -140,7 +176,8 @@ dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% au
       <h1>__TITLE__</h1>
       <span class="status" id="status">Loading saved scores…</span>
     </div>
-    <div class="tabs" id="tabs" role="tablist"></div>
+    <div class="groups" id="groups" role="tablist" aria-label="Groups"></div>
+    <div class="tabs" id="tabs" role="tablist" aria-label="Types"></div>
     <div class="bar"><span id="bar"></span></div>
     <div class="tools">
       <label><input type="checkbox" id="unranked"> Unranked only</label>
@@ -162,6 +199,7 @@ dialog .big { width: min(92vw, 820px); aspect-ratio: 1; background-size: 500% au
 const MODELS = __MODELS__;
 const TYPES = __TYPES__;
 const NAMES = __NAMES__;
+const GROUPS = __GROUPS__;       // [[group, [types]]]: the group row, then the types of the chosen group
 const SHEETS = __SHEETS__;       // null: the sheets are files beside the page; else {sheet: data URI} (one file)
 const STORE = __STORE__;         // "models": one document per model (scores/<id>); "rater": one per person
 let raterRef = null, saveTimer = null;
@@ -174,9 +212,29 @@ function loadLocal() { try { Object.assign(scores, JSON.parse(localStorage.getIt
 function saveLocal() { try { localStorage.setItem(LS, JSON.stringify(scores)); } catch (e) {} }
 function status(text, bad) { const s = $("status"); s.textContent = text; s.classList.toggle("bad", !!bad); }
 
+const groupOf = (t) => { for (const [g, ts] of GROUPS) if (ts.includes(t)) return g; return null; };
+function renderGroups() {
+  const row = $("groups"); row.textContent = "";
+  row.hidden = GROUPS.length < 2;
+  const active = groupOf(current);
+  for (const [g, ts] of GROUPS) {
+    const all = MODELS.filter(m => ts.includes(m.tab)), done = all.filter(m => scores[m.id] !== undefined).length;
+    const b = document.createElement("button");
+    b.className = "group"; b.type = "button"; b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", String(g === active));
+    b.append(g);
+    const c = document.createElement("span"); c.className = "count"; c.textContent = done + "/" + all.length; b.append(c);
+    b.onclick = () => { current = ts[0]; focusIdx = -1; renderAll(); };
+    row.append(b);
+  }
+}
+
 function renderTabs() {
+  renderGroups();
   const tabs = $("tabs"); tabs.textContent = "";
+  const active = groupOf(current);
   for (const t of TYPES) {
+    if (GROUPS.length > 1 && groupOf(t) !== active) continue;
     const all = MODELS.filter(m => m.tab === t), done = all.filter(m => scores[m.id] !== undefined).length;
     const b = document.createElement("button");
     b.className = "tab"; b.type = "button"; b.setAttribute("role", "tab");
@@ -382,13 +440,16 @@ def sheet_uris(folder: Path, sheets: list[str]) -> dict:
             for s in sheets}
 
 
-def page(rows: list[dict], types: list[str], rater: bool = False, sheets: dict | None = None) -> str:
+def page(rows: list[dict], types: list[str], rater: bool = False, sheets: dict | None = None,
+         groups: list | None = None) -> str:
     title = "Furniture Look Survey" if rater else "Furniture Ranking"
+    names = dict(TYPE_NAMES, **{t: type_name(t) for t in types})
     return (PAGE.replace("__SHEETS__", json.dumps(sheets) if sheets else "null")
+            .replace("__GROUPS__", json.dumps(groups if groups is not None else [["All", list(types)]]))
             .replace("__NAMEBOX__", NAMEBOX if rater else "")
             .replace("__COPY__", "Copy my scores" if rater else "Copy scores as text")
             .replace("__MODELS__", json.dumps(rows, separators=(",", ":")))
-            .replace("__TYPES__", json.dumps(types)).replace("__NAMES__", json.dumps(TYPE_NAMES))
+            .replace("__TYPES__", json.dumps(types)).replace("__NAMES__", json.dumps(names))
             .replace("__STORE__", json.dumps("rater" if rater else "models")).replace("__TITLE__", title)
             .replace("__LEGEND__", RATER_LEGEND if rater else OWNER_LEGEND)
             .replace("__INTRO__", RATER_INTRO if rater else ""))
@@ -400,18 +461,27 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--rater", action="store_true", help="a page for another person's opinion (one document each)")
     ap.add_argument("--types", default="", help="only these types (comma list)")
+    ap.add_argument("--batch", default=None,
+                    help="only these indexes (comma list of ranking_index_<batch>.json suffixes; 'main' = "
+                         "ranking_index.json), e.g. --batch remaining")
     ap.add_argument("--inline", action="store_true", help="one file: the sheets inside the page (to send by mail)")
     a = ap.parse_args(argv)
     rk = Path(a.ranking)
     # 31 Oct 2026: the library's index and our builds' (ranking_index_<tag>.json, first: the tab to score now)
     pairs = []
-    for f in sorted(rk.glob("ranking_index_*.json")) + [rk / "ranking_index.json"]:
+    files = sorted(rk.glob("ranking_index_*.json")) + [rk / "ranking_index.json"]
+    for f in files:
         suffix = f.stem[len("ranking_index"):]
         res_path = rk / f"studio_results{suffix}.json"
         pairs.append((json.loads(f.read_text(encoding="utf-8")),
                       json.loads(res_path.read_text(encoding="utf-8")) if res_path.is_file() else None))
-    index = {"types": [t for i, _r in pairs for t in (["ours"] if any(m.get("group") for m in i["models"].values())
-                                                       else i["types"])]}
+    if a.batch is not None:
+        want = {"" if b == "main" else f"_{b}" for b in a.batch.split(",")}
+        pairs = [(i, r) for (i, r), f in zip(pairs, files) if f.stem[len("ranking_index"):] in want]
+    procedural = {m["group"] for i, _r in pairs for m in i["models"].values() if m.get("group")}
+    index = {"types": [t for i, _r in pairs
+                       for t in (sorted({m["group"] for m in i["models"].values() if m.get("group")})
+                                 if any(m.get("group") for m in i["models"].values()) else i["types"])]}
     rows = [m for i, r in pairs for m in models(i, r)]
     if a.types:
         rows = [m for m in rows if m["tab"] in a.types.split(",")]
@@ -419,9 +489,11 @@ def main(argv: list[str] | None = None) -> int:
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     inline = sheet_uris(rk / "sheets", sorted({m["sheet"] for m in rows})) if a.inline else None
-    out.write_text(page(rows, types, a.rater, inline), encoding="utf-8")
+    groups = tab_groups(types, procedural)
+    out.write_text(page(rows, types, a.rater, inline, groups), encoding="utf-8")
     sheets = sorted({m["sheet"] for m in rows})
-    print(json.dumps({"page": str(out), "models": len(rows), "types": types, "sheets": sheets}))
+    print(json.dumps({"page": str(out), "models": len(rows), "types": types, "sheets": sheets,
+                      "groups": [[g, len(ts)] for g, ts in groups]}))
     return 0
 
 
