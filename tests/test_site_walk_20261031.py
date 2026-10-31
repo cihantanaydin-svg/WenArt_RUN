@@ -249,3 +249,15 @@ def test_real04_walk_is_connected_after_the_architect():
         assert p["pins"]["start"] == pytest.approx(foot["foot_z"])
     found, _n = GR.review(site)
     assert not [f for f in found if f["metrics"]["rule"] == "G15" and f["severity"] == "major"]
+
+
+def test_one_riser_under_the_outdoor_minimum_has_no_cheek_walls():
+    """Lesson UL227 (real04's sp_001: one riser of 6.8 cm whose cheek walls stood like blocks in the lawn): a flight of
+    one riser under ``riser_min_outdoor`` (L5) holds no ground back, so it has no cheek walls and its foot landing is
+    open on every side; a real flight keeps its cheeks."""
+    pf = {"id": "t", "polygon": _rect(0, 0, 4, 4), "z": 0.06, "steps_edge": 0}
+    low = GR.down_flight(pf, lambda x, y: 0.0)
+    assert low is not None and low["count"] == 1 and low["riser"] < 0.10
+    assert low["low_step"] and low["cheeks"] == [] and "no cheek walls" in low["reason"]
+    high = GR.down_flight(dict(pf, z=0.45), lambda x, y: 0.0)
+    assert high is not None and not high["low_step"] and high["cheeks"]

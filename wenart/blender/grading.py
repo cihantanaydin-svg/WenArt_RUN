@@ -581,7 +581,11 @@ def down_flight(pf: dict, gz: Callable, rules: Optional[dict] = None) -> Optiona
     # 30 Oct 2026 (lesson UL141): the side of the foot landing a path leaves from (architect.flight_exits) has no
     # cheek: the landing opens onto the path
     open_side = pf.get("foot_open")
-    for t0, t1, zt in spans:
+    # 31 Oct 2026 (lesson UL227, the user's "jump to reach the pool" on real04: sp_001's flight was one riser of 6.8 cm
+    # whose two cheek walls stood like blocks in the lawn): one riser under the outdoor minimum (``riser_min_outdoor``,
+    # L5) holds no ground back: no cheek walls, the foot landing is a low step open on every side
+    low_step = spec["n"] == 1 and spec["riser"] < float(rules.get("riser_min_outdoor", 0.10)) - 1e-6
+    for t0, t1, zt in ([] if low_step else spans):
         foot = abs(t0 - end) < 1e-9 and abs(t1 - end - foot_m) < 1e-9
         for s0, s1 in ((half_w, half_w + cheek), (-half_w - cheek, -half_w)):
             if foot and open_side == ("left" if s0 > 0 else "right"):
@@ -603,14 +607,17 @@ def down_flight(pf: dict, gz: Callable, rules: Optional[dict] = None) -> Optiona
               + f" down {z - foot_z:.2f} m from edge {i}"
               + (" onto its band" if floor is not None else " to the ground at its foot (the count settled on the "
                                                              "ground the last riser lands on)")
-              + "; each tread a solid block on the one below, cheek walls holding the ground beside it, a landing "
-                "at its foot, a hole in the lawn (inferred)")
+              + ("; one low step under the outdoor minimum riser, no cheek walls, a landing at its foot open on "
+                 "every side (inferred)" if low_step else
+                 "; each tread a solid block on the one below, cheek walls holding the ground beside it, a landing "
+                 "at its foot, a hole in the lawn (inferred)"))
     return {"edge": i, "mid": (round(mid[0], 4), round(mid[1], 4)), "out": out, "half_w": half_w,
             "count": spec["n"], "riser": round(spec["riser"], 4), "tread": spec["tread"], "flights": spec["flights"],
             "rise": round(z - foot_z, 3), "top": z, "foot_z": round(foot_z, 4), "blocks": blocks, "cheeks": cheeks,
             "rails": parts["rails"] if spec["handrails"] else [], "posts": parts["posts"] if spec["handrails"] else [],
             "end": round(end, 4), "foot": foot_poly, "footprint": footprint, "landing": landing, "span": span,
             "on_band": floor is not None, "handrails": bool(spec["handrails"]), "foot_open": open_side,
+            "low_step": low_step,
             "reason": reason + (f"; its foot landing opens on its {open_side} side onto the path (no cheek there)"
                                 if open_side else "")}
 
