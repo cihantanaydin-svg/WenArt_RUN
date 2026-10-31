@@ -1,0 +1,6 @@
+{
+ "schema_version": 1,
+ "kind": "user_ranks",
+ "what": "the user's ranks (0-10, purely on the look) of the library models on the ranking studio's sheets (lesson UL217): 0-2 never used; the fit prefers the higher rank; unranked = 5",
+ "ranks": {}
+}

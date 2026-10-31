@@ -107,6 +107,7 @@ LEVELS_CODE = ("wenart/levels/**", "wenart/blender/**", "wenart/canonical.py", "
                "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json",
                "wenart/furniture/model_title.py",     # 28 Oct 2026: catalog.usable reads the model rules
                "results/library/user_rejected.json",  # 29 Oct 2026: ... and the models the user rejected
+               "wenart/furniture/user_ranks.py", "results/library/user_ranks.json",   # 31 Oct 2026: ... ranked (UL217)
                "wenart/furniture/decor.py",           # 30 Oct 2026: the build modules reach the decor's type lists
                "wenart/furniture/mugs.py")            # ... and the decor its mugs (UL213)
 # Milestone 12 (track G): the groups (groups.yaml), the group checks, the room program and the solver; plausibility
@@ -130,6 +131,7 @@ GROUPS_CODE = ("wenart/furniture/groups.py", "wenart/furniture/groups.yaml", "we
 FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
             "wenart/furniture/model_title.py",       # 28 Oct 2026: catalog.usable reads the model rules
             "results/library/user_rejected.json",    # 29 Oct 2026: ... and the models the user rejected (UL94)
+            "wenart/furniture/user_ranks.py", "results/library/user_ranks.json",   # 31 Oct 2026: ... ranked (UL217)
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
             "wenart/blender/detail_parts.py",        # 29 Oct 2026: the reference details' parts (parametric)
             "wenart/blender/salon_parts.py",         # 30 Oct 2026 (UL153): detail_parts -> the P16 forms and parts
@@ -194,6 +196,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/rest.py", "wenart/blender/textiles.py", "wenart/furniture/__init__.py",
              "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml",
              "wenart/furniture/model_title.py",          # 28 Oct 2026: catalog.usable reads the model rules
+             "wenart/furniture/user_ranks.py",           # 31 Oct 2026 (UL217): ... and the user's ranks
              # T5 review (15 Oct 2026): site.py and sheets/exterior.py import T6's new vegetation module.
              "wenart/blender/vegetation.py",
              # Round 2 (15 Oct 2026): site.site_kind reads the scene-manifest schema's kinds (WHOLE_BUILDING_KINDS).

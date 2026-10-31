@@ -929,7 +929,9 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
     after every other model (the first key: 2 + generated), a style mix adds ``mix_steps`` size steps. 30 Oct 2026
     (UL131): an upholstered model adds the size steps of its quality grade (``soft_steps``). 30 Oct 2026 (UL215): a
     model with a maker's logo or print (``logo_flag``; relaxed mode only) ranks after a clean one of the same step, just
-    after the vision doubt (a logo is no removal, the clean model is preferred)."""
+    after the vision doubt (a logo is no removal, the clean model is preferred). 31 Oct 2026 (UL217): the user's rank
+    of the model (``user_ranks.rank_steps``: 2 size steps per point away from the unranked 5) joins the size steps and
+    replaces the upholstery grade of a ranked model."""
     scales, _ = scale_for(entry, width, depth)
     known = units_known(entry)
     bucket = int(size_error(scales) / SIZE_BUCKET + 1e-9) if known else 0
@@ -940,7 +942,10 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
         from wenart.furniture.taste import TASTE_STEP
         bucket += TASTE_STEP * int(taste.get(entry["id"], 0))
     bucket += int(mix_steps)
-    bucket += soft_steps(entry)                  # 30 Oct 2026 (UL131): an upholstered model's quality grade
+    from wenart.furniture import user_ranks as UR
+    if UR.rank_of(entry) is None:
+        bucket += soft_steps(entry)              # 30 Oct 2026 (UL131): an upholstered model's quality grade
+    bucket += UR.rank_steps(entry)               # 31 Oct 2026 (UL217): the user's rank (its eye replaces our grade)
     real = 0 if entry.get("real_product") is True else 1
     pref = int((prefs or {}).get(entry["id"], 0) or 0)
     vq = vision_quality_of(entry)
@@ -992,6 +997,8 @@ def ranking_reasons(tried: list[dict], chosen: dict) -> dict:
     if chosen.get("upholstery"):                 # 30 Oct 2026 (UL131): an upholstered model's quality grade
         steps = chosen.get("upholstery_steps")
         why.insert(1, f"upholstery {chosen['upholstery']}" + (f" ({steps} size step(s) added)" if steps else ""))
+    if chosen.get("user_rank") is not None:      # 31 Oct 2026 (UL217)
+        why.insert(0, f"the user's rank {chosen['user_rank']}/10")
     if chosen.get("faces") is not None:
         why.append(f"faces {chosen['faces']}")
     if chosen["source"] == GENERATED:
@@ -1458,47 +1465,19 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
                       "faces": faces_of(entry), "height_m": height, "height_ok": height_ok})
         if ceiling is not None:
             tried[-1]["under_ceiling"] = roof_ok
+        from wenart.furniture import user_ranks as UR
+        if UR.rank_of(entry) is not None:            # 31 Oct 2026 (UL217): the user's rank of the model
+            tried[-1]["user_rank"] = UR.rank_of(entry)
         if ftype in SS.SOFT_SEAT_TYPES:              # 30 Oct 2026 (UL131): the model's quality grade
             soft = SS.grade(entry)
             tried[-1]["upholstery"] = soft["grade"]
             if soft["steps"]:
                 tried[-1]["upholstery_steps"] = soft["steps"]
         if accepted:
-            asset = {
-                "library": entry["source"], "asset_id": entry["id"], "licence": entry["licence"],
-                "license": entry["licence"], "method": "library", "fit_scale": scales, "scaling": "uniform",
-                "bbox_m": [round(width, 4), fdepth, round(entry["bbox_m"][2] * scales[2], 4)],
-                "depth_abs_m": round(fdepth - depth, 4),
-                "aspect_error": err, "front_axis": entry["front_axis"],
-                "up_axis": entry["up_axis"], "origin_offset": list(entry["origin_offset"]),
-                "rotation_fix_deg": C.reorient_rotation_deg(entry),
-                "front_axis_confidence": entry["front_axis_confidence"], "candidates": tried, "cap": cap,
-                "uniform_range": list(uniform_range),
-                "styles": list(entry.get("styles") or []), "style_family": style_family, "excluded": excluded,
-                "quality": entry.get("quality"), "units_known": known, "ranking": ranking_reasons(tried, tried[-1]),
-            }
-            if entry["source"] != "polyhaven" and entry.get("glb"):
-                asset.update({k: entry[k] for k in GLB_ASSET_FIELDS if k in entry})
-                # Catalogue boxes are metres = raw GLB box x unit_scale (the prep pod's unit guess); the
-                # scene builder scales the imported mesh by it before fit_scale (blender/furniture.fit_vertices).
-                asset["unit_scale"] = float(entry.get("unit_scale") or 1.0)
-            else:
-                asset["gltf"] = entry["gltf"]
-            asset["licence_flag"] = C.licence_flag_of(entry)          # Milestone 13: the flag of the entry
-            maps = texture_maps_of(entry)
-            if maps is not None:
-                asset["texture_maps"] = maps
-            if faces_of(entry) is not None:
-                asset["faces"] = faces_of(entry)
-            for key in AUDIT_ASSET_FIELDS:                      # Milestone 12: the audit and its dressing flags
-                if key in entry:
-                    asset[key] = entry[key]
-            if ftype in SS.SOFT_SEAT_TYPES:                     # 30 Oct 2026 (UL131): the build and M33 read it
-                asset["upholstery"] = {k: v for k, v in SS.grade(entry).items() if k != "steps"}
-                asset["has_scatter_cushions"] = C.has_scatter_cushions(entry)   # 30 Oct 2026 (UL180): rest.own_cushions
-            if piece["type"] in C.BED_TYPES and not C.has_mattress(entry) and is_bed_frame(entry):
-                asset.update(bed_frame_record(entry, width, depth, scales[2]))
-                asset["bbox_m"][2] = max(asset["bbox_m"][2], asset["bedding"]["top_m"])
+            asset = model_asset(entry, piece["type"], width, depth, scales)
+            asset.update({"depth_abs_m": round(fdepth - depth, 4), "aspect_error": err, "candidates": tried,
+                          "cap": cap, "uniform_range": list(uniform_range), "style_family": style_family,
+                          "excluded": excluded, "units_known": known, "ranking": ranking_reasons(tried, tried[-1])})
             look = looks.get(entry["id"]) or {}
             for key in ("recolour", "colour_match"):
                 if look.get(key):
@@ -1528,6 +1507,49 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
     if within_table:
         reason += "; the relaxed caps hold only inside the documented ranges"
     return parametric_fit(piece, reason, tried, excluded=excluded, style_family=style_family)
+
+
+def model_asset(entry: dict, ftype: str, width: float, depth: float, scales: list[float]) -> dict:
+    """The ``asset`` record of a library model on a ``width x depth`` footprint at ``scales`` (pure): the model's
+    identity, frame, file, licence, audit and dressing fields the scene builder reads (``furniture._library_object``:
+    the GLB fields and ``unit_scale``, a bed frame's bedding, a soft seat's upholstery grade). The fit adds its own
+    records (candidates, caps, ranking, look); 31 Oct 2026 (UL217, the user's ranking of the models): the ranking
+    studio (``wenart.assets.audit.studio``) builds each model from this same record, so the model the user ranks is
+    the model the renders show."""
+    fdepth = fitted_depth(entry, width)
+    asset = {
+        "library": entry["source"], "asset_id": entry["id"], "licence": entry["licence"],
+        "license": entry["licence"], "method": "library", "fit_scale": list(scales), "scaling": "uniform",
+        "bbox_m": [round(width, 4), fdepth, round(entry["bbox_m"][2] * scales[2], 4)],
+        "front_axis": entry["front_axis"],
+        "up_axis": entry["up_axis"], "origin_offset": list(entry["origin_offset"]),
+        "rotation_fix_deg": C.reorient_rotation_deg(entry),
+        "front_axis_confidence": entry.get("front_axis_confidence"),
+        "styles": list(entry.get("styles") or []), "quality": entry.get("quality"),
+    }
+    if entry["source"] != "polyhaven" and entry.get("glb"):
+        asset.update({k: entry[k] for k in GLB_ASSET_FIELDS if k in entry})
+        # Catalogue boxes are metres = raw GLB box x unit_scale (the prep pod's unit guess); the
+        # scene builder scales the imported mesh by it before fit_scale (blender/furniture.fit_vertices).
+        asset["unit_scale"] = float(entry.get("unit_scale") or 1.0)
+    else:
+        asset["gltf"] = entry["gltf"]
+    asset["licence_flag"] = C.licence_flag_of(entry)          # Milestone 13: the flag of the entry
+    maps = texture_maps_of(entry)
+    if maps is not None:
+        asset["texture_maps"] = maps
+    if faces_of(entry) is not None:
+        asset["faces"] = faces_of(entry)
+    for key in AUDIT_ASSET_FIELDS:                      # Milestone 12: the audit and its dressing flags
+        if key in entry:
+            asset[key] = entry[key]
+    if ftype in SS.SOFT_SEAT_TYPES:                     # 30 Oct 2026 (UL131): the build and M33 read it
+        asset["upholstery"] = {k: v for k, v in SS.grade(entry).items() if k != "steps"}
+        asset["has_scatter_cushions"] = C.has_scatter_cushions(entry)   # 30 Oct 2026 (UL180): rest.own_cushions
+    if ftype in C.BED_TYPES and not C.has_mattress(entry) and is_bed_frame(entry):
+        asset.update(bed_frame_record(entry, width, depth, scales[2]))
+        asset["bbox_m"][2] = max(asset["bbox_m"][2], asset["bedding"]["top_m"])
+    return asset
 
 
 def _step(step: str, result: str, reason: Optional[str] = None) -> dict:
@@ -3174,8 +3196,14 @@ def library_first_item(item: dict, catalog, style_family: Optional[str], mode: s
         item["library_gap"] = {"type": dtype, "why": f"no audited {etype} model in the library"}
         return None
     usable = [e for e in pool if e.get("glb") and e.get("bbox_m") and C.usable(e, mode)]
-    better = [e for e in usable if (vision_quality_of(e) or 0) >= LIBRARY_FIRST_MIN_QUALITY
-              and e.get("real_product") is not False and decor_styles_match(e, style_family)]
+    from wenart.furniture import user_ranks as UR
+
+    def good(e) -> bool:                      # 31 Oct 2026 (UL217): the user's rank, else the audit's vision quality
+        user = UR.better_than_procedural(e)
+        return user if user is not None else (vision_quality_of(e) or 0) >= LIBRARY_FIRST_MIN_QUALITY
+
+    better = [e for e in usable if good(e) and e.get("real_product") is not False
+              and decor_styles_match(e, style_family)]
     fits = [(e, s) for e in better for s in [_library_first_scale(e, item, dtype)] if s is not None]
     if not fits:
         why = (f"none of {len(usable)} usable {etype} model(s) in {mode} mode rates {LIBRARY_FIRST_MIN_QUALITY} or "
@@ -3188,7 +3216,8 @@ def library_first_item(item: dict, catalog, style_family: Optional[str], mode: s
     def rank(pair):
         e, s = pair
         bw, bd = float(e["bbox_m"][0]) * s, float(e["bbox_m"][1]) * s
-        return (-(vision_quality_of(e) or 0), bool(C.logo_flagged(e)),
+        user = UR.rank_of(e)
+        return (-(user if user is not None else UR.UNRANKED), -(vision_quality_of(e) or 0), bool(C.logo_flagged(e)),
                 round(abs(bw - size[0]) + abs(bd - size[1]), 4), str(e["id"]))
 
     entry, s = sorted(fits, key=rank)[0]

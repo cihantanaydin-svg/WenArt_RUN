@@ -900,12 +900,16 @@ def usable(entry: dict, mode: str = "commercial") -> bool:
     (``commercial_safe``, the rule of 10 Oct 2026); ``relaxed`` (user OK of 12 Oct 2026) takes every flag but
     ``no_derivatives`` and ``unknown`` (``NEVER_USABLE_FLAGS``). Works on a catalogue entry and on a fitted ``asset``
     dict alike. 28 Oct 2026: a catalogue entry its own names or audit refuse (``title_refusal``) is not used. 29 Oct
-    2026: a model the user rejected (``user_rejection``, ``results/library/user_rejected.json``) is never used."""
+    2026: a model the user rejected (``user_rejection``, ``results/library/user_rejected.json``) is never used. 31 Oct
+    2026 (UL217): nor a model the user ranked 0-2 on the ranking sheets (``user_ranks.out_reason``)."""
     mode = check_mode(mode)
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
     if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
         return False
     if user_rejection(entry) is not None:          # 29 Oct 2026 (UL94): a model the user rejected, never again
+        return False
+    from wenart.furniture import user_ranks as UR
+    if UR.out_reason(entry):                       # 31 Oct 2026 (UL217): a model the user ranked 0-2, never used
         return False
     if title_refusal(entry):
         return False
@@ -979,6 +983,10 @@ def unusable_reason(entry: dict, mode: str = "commercial") -> Optional[str]:
         return (f"the user rejected this model on {rejected.get('date') or '?'} ({rejected.get('lesson') or 'lesson'}: "
                 f"\"{rejected.get('user') or 'rejected'}\", {rejected.get('where') or 'a render'}): never used again "
                 f"on any project (results/library/user_rejected.json)")
+    from wenart.furniture import user_ranks as UR
+    ranked_out = UR.out_reason(entry)
+    if ranked_out:
+        return ranked_out
     why = title_refusal(entry)
     if why:
         return f"its names or its audit refuse it ({why}; wenart.furniture.model_title)"

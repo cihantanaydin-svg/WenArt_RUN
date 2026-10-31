@@ -244,6 +244,8 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry
                     # 28 Oct 2026: catalog.usable reads the model rules (model_title -> the audit's title words, whose
                     # package init imports the asset fetchers: standard library only, fine inside Blender)
                     "wenart/furniture/model_title.py", "wenart/assets/__init__.py", "wenart/assets/ambientcg.py",
+                    # 31 Oct 2026 (UL217): catalog.usable reads the user's ranks
+                    "wenart/furniture/user_ranks.py",
                     "wenart/assets/fetch.py", "wenart/assets/polyhaven.py", "wenart/assets/web.py",
                     "wenart/assets/audit/__init__.py", "wenart/assets/audit/keywords.py",
                     # 28 Oct 2026: the site grading's garden flights and ramps follow the levels' step rules

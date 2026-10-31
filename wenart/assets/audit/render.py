@@ -238,9 +238,10 @@ def deal(jobs: list, workers: int) -> list[list]:
     return [jobs[i::workers] for i in range(workers) if jobs[i::workers]]
 
 
-def blender_command(blender: str, jobs_path: Path) -> list[str]:
-    return [str(blender), "-b", "--factory-startup", "--python-exit-code", "1", "--python", str(BLENDER_SCRIPT), "--",
-            str(jobs_path)]
+def blender_command(blender: str, jobs_path: Path, script: Optional[Path] = None) -> list[str]:
+    """``script``: the Blender side (default the audit's; 31 Oct 2026, UL217: the ranking studio's)."""
+    return [str(blender), "-b", "--factory-startup", "--python-exit-code", "1", "--python",
+            str(script or BLENDER_SCRIPT), "--", str(jobs_path)]
 
 
 def _undone(work: Path, jobs: list) -> list:
@@ -254,7 +255,7 @@ def _undone(work: Path, jobs: list) -> list:
 
 
 def run_render(doc: dict, blender: str, work: Path, workers: int = 1, log: Callable = print,
-               popen: Callable = subprocess.Popen, rounds: int = 3) -> int:
+               popen: Callable = subprocess.Popen, rounds: int = 3, script: Optional[Path] = None) -> int:
     """Run the jobs of ``doc`` in ``workers`` Blender processes; exit 0 all done, 3 deadline, 1 Blender failed.
 
     A worker that dies (a GLB that crashes Blender) leaves the rest of its chunk undone: the first undone job of a
@@ -276,7 +277,7 @@ def run_render(doc: dict, blender: str, work: Path, workers: int = 1, log: Calla
             jp.write_text(json.dumps(dict(doc, jobs=chunk, worker=tag), indent=1), encoding="utf-8")
             lp = work / "jobs" / f"blender_{tag}.log"
             fh = open(lp, "w", encoding="utf-8")
-            procs.append((popen(blender_command(blender, jp), stdout=fh, stderr=subprocess.STDOUT), fh, chunk))
+            procs.append((popen(blender_command(blender, jp, script), stdout=fh, stderr=subprocess.STDOUT), fh, chunk))
             log(f"audit render: round {rnd + 1}, worker {tag}: {len(chunk)} job(s), log {lp}")
         codes = []
         for proc, fh, chunk in procs:
