@@ -109,7 +109,8 @@ LEVELS_CODE = ("wenart/levels/**", "wenart/blender/**", "wenart/canonical.py", "
                "results/library/user_rejected.json",  # 29 Oct 2026: ... and the models the user rejected
                "wenart/furniture/user_ranks.py", "results/library/user_ranks.json",   # 31 Oct 2026: ... ranked (UL217)
                "wenart/furniture/decor.py",           # 30 Oct 2026: the build modules reach the decor's type lists
-               "wenart/furniture/mugs.py")            # ... and the decor its mugs (UL213)
+               "wenart/furniture/mugs.py",            # ... and the decor its mugs (UL213)
+               "wenart/furniture/room_schemes.py")    # 31 Oct 2026: feature_walls reads its PANEL_FEATURES
 # Milestone 12 (track G): the groups (groups.yaml), the group checks, the room program and the solver; plausibility
 # runs the group checks, so every stage that scores a room reaches them.
 # Integration of the fix round after P4b (17 Oct 2026): program.duplicate_anchor reads edit_ops.family_host_of (a
@@ -188,6 +189,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/looks.py",                  # track F: shell's looks
              # 29 Oct 2026: shell's feature panels and parquet (UL106), the door models (UL89)
              "wenart/blender/feature_walls.py", "wenart/blender/parquet.py", "wenart/blender/opening_models.py",
+             "wenart/furniture/room_schemes.py",         # 31 Oct 2026: feature_walls reads its PANEL_FEATURES
+             "wenart/blender/dormers.py",                # 31 Oct 2026 (UL225): shell, roof and doors read the dormers
              "wenart/blender/overrides.py",              # real03: lighting reads the agent's set_lighting
              "wenart/levels/**",                         # M12: the site reads the terrain (track L)
              # Milestone 13 (T5, 15 Oct 2026): the gate's closure reaches the building copies (site -> copies ->
