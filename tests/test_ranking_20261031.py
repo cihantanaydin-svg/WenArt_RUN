@@ -287,3 +287,11 @@ def test_our_pieces_get_oriented_uvs_and_furniture_materials_get_scans_and_layer
     b = GE.part_uv_offset((0, -1, 0), (0.5, -0.4, 0.0), (0.95, -0.4, 0.7))
     assert a == GE.part_uv_offset((0, -1, 0), (0.0, -0.4, 0.0), (0.45, -0.4, 0.7)) and a != b
     assert all(0 <= v < 1 for v in a + b)
+
+
+def test_angled_level_views_cut_the_ground_and_site_at_the_wall_cut():
+    """31 Oct 2026 (user on real04 run 181158's L-1 view: the garden 2.3 m above the basement floor hid the back rooms):
+    the angled level views cut the terrain and the outdoor surfaces with the walls' section."""
+    src = (ROOT / "wenart" / "blender" / "topdown.py").read_text()
+    assert "SITE_CUT_KINDS" in src and '"terrain"' in src.split("SITE_CUT_KINDS =")[1][:200]
+    assert "section_cut(wall_cut, CUT_KINDS | SITE_CUT_KINDS)" in src

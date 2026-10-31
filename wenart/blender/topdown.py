@@ -30,6 +30,13 @@ CUT_KINDS = {"wall", "door", "window", "railing", "facade_detail", "splashback",
              "wall_plate"}         # 29 Oct 2026 (UL112): the switches and sockets are cut with their walls
 HIDE_KINDS = {"ceiling", "roof", "site_decor", "site_decor_part", "vegetation_card", "atmosphere", "building_copy",
               "site_hedge", "site_grass", "light"}
+# 31 Oct 2026 (user on real04 run 20261030-181158-full, the L-1 view: "There seems to be something wrong in the marked
+# area find what is wrong and fix it": the garden behind the house lies 2.3 m above the basement floor and, seen at an
+# angle, its lawn and paths hid the back rooms as if grass covered them): the angled views cut the ground and every
+# outdoor surface at the walls' cut height too (a section through the earth), so nothing outside above the cut hides a
+# room of the level
+SITE_CUT_KINDS = {"terrain", "site_area", "site_platform", "site_steps", "site_wall", "site_pool", "site_boundary",
+                  "site_handrail", "site_bank", "site_lawn"}
 
 
 def bbox(o):
@@ -38,7 +45,7 @@ def bbox(o):
     return [min(p[i] for p in pts) for i in range(3)], [max(p[i] for p in pts) for i in range(3)]
 
 
-def section_cut(z: float) -> int:
+def section_cut(z: float, kinds=None) -> int:
     """Cut every rendered wall, door, window and railing (``CUT_KINDS``) that crosses height ``z`` with a Boolean
     difference of a box over ``z`` (the angled views: an architect's cutaway; full-height walls hid the rooms behind
     them); the furniture is never cut. The fast solver gives up on some meshes (real04's L1 outer wall stayed whole):
@@ -57,7 +64,7 @@ def section_cut(z: float) -> int:
     cut = []
     for o in bpy.data.objects:
         if o.type != "MESH" or o.hide_render or o is cutter or o.name.startswith("topdown_") \
-                or str(o.get("wenart_kind")) not in CUT_KINDS:
+                or str(o.get("wenart_kind")) not in (CUT_KINDS if kinds is None else kinds):
             continue
         lo, hi = bbox(o)
         if lo[2] < z < hi[2]:
@@ -149,12 +156,13 @@ def render_level(level_id: str, elevation: float, out: str, res: int, samples: i
         kind = str(o.get("wenart_kind"))
         hide = kind in HIDE_KINDS
         if not hide and o.type == "MESH":
-            hide = bbox(o)[0][2] >= (wall_cut if kind in CUT_KINDS else cut) - 0.01
+            hide = bbox(o)[0][2] >= (wall_cut if kind in CUT_KINDS | (SITE_CUT_KINDS if tilt > 0 else set())
+                                     else cut) - 0.01
         o.hide_render = hide
         for m in [m for m in o.modifiers if m.name == "topdown_section"] if o.type == "MESH" else []:
             o.modifiers.remove(m)
     if tilt > 0:
-        section_cut(wall_cut)
+        section_cut(wall_cut, CUT_KINDS | SITE_CUT_KINDS)
     col = bpy.data.collections.get(f"level_{level_id}")
     walls = [o for o in (col.all_objects if col else []) if o.type == "MESH" and str(o.get("wenart_kind")) == "wall"]
     if not walls:

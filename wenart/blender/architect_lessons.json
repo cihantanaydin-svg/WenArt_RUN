@@ -2727,6 +2727,18 @@
    "request": "This bag requires a lot more detail and a lot better texture for example black leather like suite (31 Oct 2026, real04 run 20261030-181158-full, the holdall at a bed's foot)",
    "lesson": "This bag requires a lot more detail and a lot better texture for example black leather like suite (31 Oct 2026, real04 run 20261030-181158-full, the holdall at a bed's foot)",
    "question": "Does a holdall look like a box with straps (no leather texture, piping, zip, hardware)?"
+  },
+  {
+   "id": "UL230",
+   "date": "2026-10-31",
+   "area": "views",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "There seems to be something wrong in the marked area find what is wrong and fix it (31 Oct 2026, real04 run 20261030-181158-full, the L-1 level view: the garden behind the house, 2.3 m above the basement floor, hid the back rooms as if grass covered them): the angled level views cut the ground and the outdoor surfaces at the walls' cut height",
+   "lesson": "There seems to be something wrong in the marked area find what is wrong and fix it (31 Oct 2026, real04 run 20261030-181158-full, the L-1 level view: the garden behind the house, 2.3 m above the basement floor, hid the back rooms as if grass covered them): the angled level views cut the ground and the outdoor surfaces at the walls' cut height",
+   "question": "Does the ground or an outdoor surface above a level view's cut hide any room of the level?"
   }
  ]
 }
