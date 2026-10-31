@@ -2867,3 +2867,16 @@ The results pack came down whole (10 parts, no fetch pod); the 3D export ran bef
 Promoted to `results/baseline/latest/`; renders sent as a zip. GPU tests: 50 passed, 3 failed (an index-pass piece in
 the child's room, the child's room walls read olive, two bedrooms whose scheme names a panel have neither it nor a
 reason): next fix round.
+
+## Furniture ranking (31 Oct 2026, lesson UL217; user: "page with score buttons, start with beds sofas armchairs")
+
+The user ranks the library models 0-10 on their look; the fit then prefers the best-looking model that fits.
+
+| part | what |
+|---|---|
+| studio (`wenart/assets/audit/studio.py`, `blender_studio.py`) | every usable model of a type built by the scene builder itself (the fit's own asset record `fit.model_asset`: bedding, fabric, shading as in a render), one neutral studio, one front 3/4 camera fitted to the box |
+| pod job `scripts/jobs/library_ranking.sh` | 531 models (116 beds, 182 sofas, 233 armchairs); lettered sheets (A-T, 20 a sheet) and tiles in `results/library/ranking/` |
+| page `scripts/ranking_page.py` | a tab per type, 0-10 buttons per model, keys 0-9 and T; scores in the page's database |
+| ranks `results/library/user_ranks.json` (`wenart/furniture/user_ranks.py`) | 0-2: never used (`catalog.usable`); higher rank first (2 size steps per point from the unranked 5, `fit.rank_key`; replaces our upholstery grade); 6+ beats our procedural build (library-first decor) |
+
+Merge the page's scores: `python -m wenart.furniture.user_ranks merge --scores <scores.json>`.
