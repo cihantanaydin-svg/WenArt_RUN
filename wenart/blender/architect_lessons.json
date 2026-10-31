@@ -2595,6 +2595,138 @@
    "request": "Better procedural models and textures (31 Oct 2026): our own builds (every parametric and module builder, in each project's style) are rendered in the ranking studio and scored by the user beside the library; every furniture material wears a real CC0 scan where one exists (plain fabrics, leather, handle metals; the procedural weave only as fallback), finishing layers (lacquer coat, roughness variation, rounded edges) and texture grain along each part with a per-part offset; every change to a builder is checked on before/after studio sheets.",
    "lesson": "Better procedural models and textures (31 Oct 2026): our own builds (every parametric and module builder, in each project's style) are rendered in the ranking studio and scored by the user beside the library; every furniture material wears a real CC0 scan where one exists (plain fabrics, leather, handle metals; the procedural weave only as fallback), finishing layers (lacquer coat, roughness variation, rounded edges) and texture grain along each part with a per-part offset; every change to a builder is checked on before/after studio sheets.",
    "question": "Does any piece built by our code show a flat, untextured fabric, leather or metal, or a wood grain running across a part's length, where a CC0 scan exists (wenart/style/finishes.py, the ranking studio's 'Our builds' sheets)?"
+  },
+  {
+   "id": "UL219",
+   "date": "2026-10-31",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Laptop used here still low quality check if there any better model in the library to use instead of this model (31 Oct 2026, real04 run 20261030-181158-full, a bedroom desk): the library's audited laptops (rated 4, or the user's rank 6+) come before our procedural one",
+   "lesson": "Laptop used here still low quality check if there any better model in the library to use instead of this model (31 Oct 2026, real04 run 20261030-181158-full, a bedroom desk): the library's audited laptops (rated 4, or the user's rank 6+) come before our procedural one",
+   "question": "Does a desk show our procedural laptop while an audited library laptop rated 4 (or ranked 6+ by the user) fits?"
+  },
+  {
+   "id": "UL220",
+   "date": "2026-10-31",
+   "area": "library",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not like this pink carped never use it again (31 Oct 2026, real04 run 20261030-181158-full, the L-1 living room): the TAPPETO 2 shag rug 3dwh_f858f555e33dd365be821c2b is on the user's rejected list",
+   "lesson": "I did not like this pink carped never use it again (31 Oct 2026, real04 run 20261030-181158-full, the L-1 living room): the TAPPETO 2 shag rug 3dwh_f858f555e33dd365be821c2b is on the user's rejected list",
+   "question": "Is any model of results/library/user_rejected.json used?"
+  },
+  {
+   "id": "UL221",
+   "date": "2026-10-31",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Also bedding on the bed could have been a lot better; better bedding needed here (31 Oct 2026, real04 run 20261030-181158-full, two bedrooms): a layered soft made bed (textured duvet with soft edges and folds, turned-down sheet, a coordinated pillow set with shams and cushions of several sizes and fabrics, a throw at the foot), not a flat white duvet with two pillows",
+   "lesson": "Also bedding on the bed could have been a lot better; better bedding needed here (31 Oct 2026, real04 run 20261030-181158-full, two bedrooms): a layered soft made bed (textured duvet with soft edges and folds, turned-down sheet, a coordinated pillow set with shams and cushions of several sizes and fabrics, a throw at the foot), not a flat white duvet with two pillows",
+   "question": "Does any bed show a flat plain duvet with only two pillows?"
+  },
+  {
+   "id": "UL222",
+   "date": "2026-10-31",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Something wrong within cyan outline (31 Oct 2026, real04 run 20261030-181158-full, the attic play room): the tops of the walls below showed through the attic floor and its rug; a wall up to the next floor stops just under it",
+   "lesson": "Something wrong within cyan outline (31 Oct 2026, real04 run 20261030-181158-full, the attic play room): the tops of the walls below showed through the attic floor and its rug; a wall up to the next floor stops just under it",
+   "question": "Does any wall top of a lower level show through an upper floor?"
+  },
+  {
+   "id": "UL223",
+   "date": "2026-10-31",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Not every room needs this built in wardrobe, we can use it sometime but it needs to be wall to wall or from wall to middle, also you can make this a lot better with the better material and details (31 Oct 2026, real04 run 20261030-181158-full)",
+   "lesson": "Not every room needs this built in wardrobe, we can use it sometime but it needs to be wall to wall or from wall to middle, also you can make this a lot better with the better material and details (31 Oct 2026, real04 run 20261030-181158-full)",
+   "question": "Is a built-in wardrobe run floating mid-wall (neither end at a side wall), or used in every bedroom, or plain black with mirror glass?"
+  },
+  {
+   "id": "UL224",
+   "date": "2026-10-31",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Bedding on this sofa could have been a lot better not just pillows maybe include some comfortals (31 Oct 2026, real04 run 20261030-181158-full, the L-1 corner sofa): a sofa group gets a throw over an arm, the back or a seat end besides its scatter cushions",
+   "lesson": "Bedding on this sofa could have been a lot better not just pillows maybe include some comfortals (31 Oct 2026, real04 run 20261030-181158-full, the L-1 corner sofa): a sofa group gets a throw over an arm, the back or a seat end besides its scatter cushions",
+   "question": "Does a sofa group have only scatter cushions and no throw?"
+  },
+  {
+   "id": "UL225",
+   "date": "2026-10-31",
+   "area": "roof",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "There is something seriously wrong here, investigate what happened and fix it, the door the toilet not making sense at all (31 Oct 2026, real04 run 20261030-181158-full, the attic bathrooms): a drawn door under the sloped roof gets a dormer over it, never a door lowered to 1 m",
+   "lesson": "There is something seriously wrong here, investigate what happened and fix it, the door the toilet not making sense at all (31 Oct 2026, real04 run 20261030-181158-full, the attic bathrooms): a drawn door under the sloped roof gets a dormer over it, never a door lowered to 1 m",
+   "question": "Is any drawn door lowered under the sloped roof instead of getting a dormer?"
+  },
+  {
+   "id": "UL226",
+   "date": "2026-10-31",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "There can not be a fridge inside the kitchen counter! make this a rule. The kitchen can be built around the fridge (kitchen counter ends and continues, if there is a place on top some sections can be included) but not over the kitchen counter; again fridge inside the kitchen counter (31 Oct 2026, real04 run 20261030-181158-full, two kitchens)",
+   "lesson": "There can not be a fridge inside the kitchen counter! make this a rule. The kitchen can be built around the fridge (kitchen counter ends and continues, if there is a place on top some sections can be included) but not over the kitchen counter; again fridge inside the kitchen counter (31 Oct 2026, real04 run 20261030-181158-full, two kitchens)",
+   "question": "Does any fridge stand on or inside a counter run, or a worktop run under or over a fridge?"
+  },
+  {
+   "id": "UL227",
+   "date": "2026-10-31",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "There are still some path problems outside of the house, we need to develop a log that is checking the a person can walk around the house using the designated pathways and able to reach the area, the pathways must be logical; the person going to jump to reach the pool? (31 Oct 2026, real04 run 20261030-181158-full, the side steps to the pool terrace)",
+   "lesson": "There are still some path problems outside of the house, we need to develop a log that is checking the a person can walk around the house using the designated pathways and able to reach the area, the pathways must be logical; the person going to jump to reach the pool? (31 Oct 2026, real04 run 20261030-181158-full, the side steps to the pool terrace)",
+   "question": "Can a visitor reach every outdoor area from the street and the outside doors along paths, steps and ramps, with no flight ending at a drop?"
+  },
+  {
+   "id": "UL228",
+   "date": "2026-10-31",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This little items needs a lot better models, check the library of similar things exist to use if not create them with better texture and more detailed way (31 Oct 2026, real04 run 20261030-181158-full, a bathroom shelf: bottles, jars, diffuser, cotton jar, basket, rolled towels)",
+   "lesson": "This little items needs a lot better models, check the library of similar things exist to use if not create them with better texture and more detailed way (31 Oct 2026, real04 run 20261030-181158-full, a bathroom shelf: bottles, jars, diffuser, cotton jar, basket, rolled towels)",
+   "question": "Does a bathroom show crude small items (cube bottles, plain sphere cotton balls, plastic-looking basket) where a library model or a detailed build exists?"
+  },
+  {
+   "id": "UL229",
+   "date": "2026-10-31",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This bag requires a lot more detail and a lot better texture for example black leather like suite (31 Oct 2026, real04 run 20261030-181158-full, the holdall at a bed's foot)",
+   "lesson": "This bag requires a lot more detail and a lot better texture for example black leather like suite (31 Oct 2026, real04 run 20261030-181158-full, the holdall at a bed's foot)",
+   "question": "Does a holdall look like a box with straps (no leather texture, piping, zip, hardware)?"
   }
  ]
 }
