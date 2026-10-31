@@ -200,6 +200,7 @@ MATERIAL_WORDS: dict[str, str] = {
     "leather_tan": "tan leather",                   # 30 Oct 2026 (UL160): the holdall's leather
     "leather_black": "black leather",               # 31 Oct 2026: the holdall's black leather ...
     "thread_waxed": "tan stitching",                # ... and its stitching
+    "lacquer_matte": "matte lacquered panels",      # 31 Oct 2026 (UL223): the built-in wardrobe's matte lacquer
     "book_pages": "cream book pages",               # 30 Oct 2026 (UL154): a book's page block
     "fruit_red": "red apple skin", "fruit_orange": "orange peel", "fruit_yellow": "yellow lemon peel",
     "fruit_green": "green pear skin", "oil_amber": "golden olive oil", "cardboard": "brown cardboard",   # UL186

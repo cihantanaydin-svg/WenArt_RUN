@@ -588,7 +588,7 @@ def _designated(graph: dict) -> bool:
 def _f(severity: str, target, message: str, problem: str, **metrics) -> dict:
     from wenart.blender import grading as GR
     return GR._f(severity, target, message, RULE, "no_sense", problem=problem,
-                 user_review="real04 run 20261030-181158-full", **metrics)
+                 user_review="run 20261030-181158-full (lesson UL227)", **metrics)
 
 
 def analyse(site: dict) -> dict:

@@ -129,9 +129,15 @@ def test_the_stale_manifest_box_no_longer_blocks_a_remove_or_a_move_to_full_heig
 
 
 @pytest.mark.skipif(not REAL02.is_file(), reason="results/furniture/real02 not committed")
-def test_a_door_clipped_under_the_roof_is_reported_not_sent_to_set_exterior():
+def test_a_door_clipped_under_the_roof_is_reported_not_sent_to_set_exterior(monkeypatch):
     """Fails on 03881bc: X2 d_L1_004 / d_L1_005 ("still lower than a usable door (needs a dormer: review)") had the
-    cause ``roof`` and the building session sent 5 set_exterior edits (one a 70 degree gable) that could not fix it."""
+    cause ``roof`` and the building session sent 5 set_exterior edits (one a 70 degree gable) that could not fix it.
+    31 Oct 2026 (lesson UL225): the build now raises a dormer over each of them, so they are no longer clipped; where
+    no dormer fits (``dormers.plan`` refuses), the clip is reported as before and never sent to set_exterior."""
+    from wenart.blender import dormers as DM
+
+    assert not [f for f in x2_findings(real02_with_bookshelf()) if f["target"] in ("d_L1_004", "d_L1_005")]
+    monkeypatch.setattr(DM, "plan", lambda building, level, model: {"dormers": [], "refused": []})
     clips = [f for f in x2_findings(real02_with_bookshelf()) if f["target"] in ("d_L1_004", "d_L1_005")]
     assert len(clips) == 2 and all(f["evidence"]["metrics"]["kind"] == X.OPENING_CLIP_KIND == CS.OPENING_CLIP_KIND
                                    for f in clips)

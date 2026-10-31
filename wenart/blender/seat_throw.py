@@ -35,7 +35,7 @@ from wenart.blender import bedding_parts as BP
 from wenart.blender import rest
 
 RULE = "seat_throw"
-TAG = ("31 Oct 2026, user on real04 run 20261030-181158-full: \"bedding on this sofa could have been a lot better not "
+TAG = ("31 Oct 2026, user on the review of run 20261030-181158-full: \"bedding on this sofa could have been a lot better not "
        "just pillows maybe include some comfortals\"")
 SEAT_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise")
 DRAPES: tuple[str, ...] = ("arm", "seat_end")
