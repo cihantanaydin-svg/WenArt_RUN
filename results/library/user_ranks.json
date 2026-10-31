@@ -2,5 +2,4668 @@
  "schema_version": 1,
  "kind": "user_ranks",
  "what": "the user's ranks (0-10, purely on the look) of the library models on the ranking studio's sheets (lesson UL217): 0-2 never used; the fit prefers the higher rank; unranked = 5",
- "ranks": {}
+ "ranks": {
+  "3dwh_01af14bf35d352e01dcf1dc1": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "A",
+   "title": "DEDON MU Lounge Chair [u09983d6]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_01c4dc510c90f1d90d478c2c": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "A",
+   "title": "modern realistic 2 seater sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_02333d43712eea44eb85e242": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "B",
+   "title": "MINT Comfy Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_023ac37b6602f45d849aaa00": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "B",
+   "title": "Sofa Polles - Unue",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_038a2f938697cf94f0635b35": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "C",
+   "title": "fritz hansen egg chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_042af24d40e115fe99e678dd": {
+   "rank": 1,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "C",
+   "title": "MUJI sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_054976b922680e282c9ef191": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "D",
+   "title": "Herman Miller Aeron Chair Dynamic",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_07847bf4e5fc79d9f44c9cb8": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "D",
+   "title": "Restoration Hardware - BELGIAN CLASSIC SLOPE ARM PREMIUM SLEEPER SOFA",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_08666b63aaf426f00d1e4323": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "E",
+   "title": "realstic mid century sofa day bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_09321f5dd94e37b60c417cab": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "E",
+   "title": "chairs office",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_094ed377a5caee03aedecdc5": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "F",
+   "title": "Eames plywood lounge chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_0bb1093da500563c53063e23": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "G",
+   "title": "Eames Molded Plastic Chair wRocker Base from Smart Furniture",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_0bc36925ad22769dd76f1ff3": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "H",
+   "title": "chair office sit armchair easy chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_0c02f16bd95d0abf28d3680b": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "I",
+   "title": "ARMCHAIR [u900039c]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_0cdfddde960398a6f592bb11": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "J",
+   "title": "IKEA Strandmon [u4e10b7f]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_0d5b4e2d788e6cdf1a4ed706": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "K",
+   "title": "Flexform Antonio Citterio Crono Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_0e48205f7e11736d26bbbc09": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "L",
+   "title": "Eames Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_0ed14b28dbebe78d69bac429": {
+   "rank": 8,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "A",
+   "title": "Chelsea King Bed in Castle Gray Eco Leather by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_0f39fb15af84738a6be55e25": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "F",
+   "title": "Flexform Antonio Citterio Lifesteel Sofa 240",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_1172843db1fb2000f7b5a16e": {
+   "rank": 8,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "G",
+   "title": "sofa k04",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_118ff62672cee88c43642f77": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "B",
+   "title": "Ikea Malm double bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_144b91907e52ec0ab4291ece": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "C",
+   "title": "CI - Julia Queen Bed - White Tufted Leather",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_175509753f3c3d6cc702da17": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "H",
+   "title": "Natuzzi Brio Sofa 2761 193 [ue9790eb]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_18d9a3a43ae213c8bd5a5f91": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "I",
+   "title": "pottery barn charleston sofa [ud913627]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_1a62655111c197e7d46d5736": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "J",
+   "title": "BeanBag Couch",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_1be24f871349cfe24617c7ad": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "M",
+   "title": "Moroso Fjord Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_1c9778c58f3f641eff7cf127": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "N",
+   "title": "Ethnicraft wooden lounge chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_1ec7ebc8b062785e585335c0": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "K",
+   "title": "Flexform Antonio Citterio Cestone 09 Sofa 310",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_1eff7374ad06e825cc981b85": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "O",
+   "title": "MILLS CHAIR MINOTTI",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_1fc23fcdc4d90410cc81f963": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "D",
+   "title": "Queen Upholstered Bed - Monroe",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_212c8b8c0530d244c8966de9": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "L",
+   "title": "Natuzzi Notturno Sofa 2784 005 [uf6252d0]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_22d9b57077e3bb6781c8a424": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "P",
+   "title": "MARK Product Mylo Chair [uecaecfc]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_230b029911f0e5ec57f52065": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "E",
+   "title": "Queen Upholstered Bed - Yancy",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_243ba44c70bc7997a37c1c9e": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "Q",
+   "title": "Egg chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_267c8e473339fbd3b862ba5e": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "F",
+   "title": "Korver Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_26e57ebd83ee4340959f12e4": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "M",
+   "title": "Isaac Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_28e3e2c1eeb124a0a50d3f2b": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "R",
+   "title": "POLTRONA CAVALETTI SPOT - POLTRONA DE ESPERA 36060 [ue85d5a9]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_295a54907de1daa0f2354005": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "G",
+   "title": "IKEA TESTTUN BED",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_2a02c74a7955dabe98e6125d": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "N",
+   "title": "SOFAVRAY (Sofas)",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_2d1e4864369ed8d288c08842": {
+   "rank": 6,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "H",
+   "title": "KOPARDAL IKEA bed frame",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_2d83684ba783de5b93a727d0": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "S",
+   "title": "Natuzzi Aura Armchair 2913 003 [u7c792e2]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_2f8567d3bdb667bf36d4e8b1": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-01",
+   "letter": "T",
+   "title": "normann copenhagen era lounge chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_2fee1aeaf89b3ad30aab491d": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "O",
+   "title": "BB Italia Antonio Citterio Michel Sofa 9M206",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_2ff58297bddb7a574a5d58c7": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "A",
+   "title": "HAY - About A Chair AAC20 AAC21 [u6fc1aee]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_300e482e4de5622e88ba4330": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "P",
+   "title": "Podium Browser Vitra Alcove sofa love seat [u23945a7]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_324a4061c7079774c20c56e9": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "B",
+   "title": "Fritz Hansen Metropolitan Chair [u2b8b4c6]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_324dd45f9bd5cd371c733341": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "Q",
+   "title": "IKEA Kramfors Three-seat sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_33f48387cd780d5ed309bf70": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "R",
+   "title": "Flexform Antonio Citterio Lifesteel Sofa 275",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_346652452baa82044b1254e7": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "C",
+   "title": "armchairs",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_36193191d2b79b97372f3eef": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "S",
+   "title": "Ikea SATER sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_37358e3200e15045fdade8cb": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-01",
+   "letter": "T",
+   "title": "Muuto Sofa REST 3 seater",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_37f4ace3b73e1aa6a2708168": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "D",
+   "title": "Gabby Reagan Chair [u9e73a78]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_3907901073da0af56812f910": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "E",
+   "title": "Gubi Sejour Lounge Chair Vray ready",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_3c02498bb5773a9091032361": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "F",
+   "title": "WEST ELM METAL FRAME CHAIR",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_3dc26a64e8f7867e6091fb68": {
+   "rank": 7,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "I",
+   "title": "Neru Queen Bed Frame",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_3debd68470a1c9d58c2206d3": {
+   "rank": 7,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "A",
+   "title": "Summerton Teak Loveseat with Cushions",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_3e2d3da31df1f957916c374e": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "B",
+   "title": "Sofa Cascara 15ALmed - 15ARmed low back 274x102 3C GHD",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_3e87c5fc8fbd30457644512c": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "C",
+   "title": "Exclusif Sofa 120",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_41e47efe228d1e5951fdddb0": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "G",
+   "title": "15 Swoon Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_436e9d653c2bac7247454e06": {
+   "rank": 7,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "J",
+   "title": "Rivington Queen Bed in Gray Oak Bed by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_43a9d9e68d2fbd7467149c27": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "K",
+   "title": "Queen Size Bed with Studded frame and Headboard",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_447f4beca70deb921dd0bfcf": {
+   "rank": 0,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "L",
+   "title": "Army Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_45669380918dfef1f400ad2b": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "M",
+   "title": "Natuzzi Fenice Bed L017 C02 [u19306bf]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_470a978e9d9dca52b768788e": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "H",
+   "title": "Armchair Softs",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_483795531de8b7c47c90eee3": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "I",
+   "title": "armchair Split",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_4851a8856ac53ca399f31683": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "J",
+   "title": "Ikea Ekenaset",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_48549ca5d002b39a70b36cd9": {
+   "rank": 1,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "D",
+   "title": "Ercol Loveseat",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_4ab28243619dcfa328ee8eeb": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "E",
+   "title": "BB Italia Antonio Citterio Charles Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_4b3d7dc0d756a0c03ea063d3": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "N",
+   "title": "Buttoned Bed headboard on frame [ucb93945]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_4b9f743e3d5dbcebb2ead080": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "O",
+   "title": "Ikea Bed Brimnes",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_4be29a81ee68af67169dc9d6": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "K",
+   "title": "Flexform Antonio Citterio Feel Good Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_4d053f976db6e628c7ca5635": {
+   "rank": 7,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "L",
+   "title": "CH07 SHELL CHAIR [u53f0c84]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_4dab71e751c8dbb0542704ae": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "M",
+   "title": "lounge chair arm chair fotolj [u7fbcc82]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_4f0d4556be6e7c966417500e": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "N",
+   "title": "POLTRONA FLEXFORM",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_4f3ab8522559513bb45e9c34": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "O",
+   "title": "Minotti - Prince Armchair [u738daa6]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_4fab6cd044db06fbeb5bed2f": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "P",
+   "title": "IKEA Poang Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_5095dd5f25738efb90f99752": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "Q",
+   "title": "arm chair sofa lobby furniture home furniture sofa highres office chai",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_5105c6e2dc9db4e6eb7a3350": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "P",
+   "title": "Kelly-Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_518acb93cd659ed75bd1ccac": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "R",
+   "title": "BB Italia - METROPOLITAN100 Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_533f300b9dcce6af12c4af2a": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "S",
+   "title": "Ro Armchair - Fritz Hansen",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_54bd773185e98f7e5f97b6fb": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "F",
+   "title": "IKEA Kramfors Two-seat sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_55c67b63033cf5276b2f33c8": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-02",
+   "letter": "T",
+   "title": "Three Minute Custom Aeron Chair from Smart Furniture",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_563e610dedcc5c98b8eb7802": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "Q",
+   "title": "Amsterdam Queen Bed in Gray Oak by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_56f0d67f517a27b45cd92292": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "G",
+   "title": "HAY Bjorn sofa [u8e286cb]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_577f86fc6233725f5dc87490": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "H",
+   "title": "Bubble gris - canape 3 places - Roche Bobois",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_58a4951237dc794b726bf68f": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "R",
+   "title": "Neru Single XL Bed Frame",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_591024cae33f062bb97cdec5": {
+   "rank": 1,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "I",
+   "title": "Modern sofa [u4e26ad0]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_59315d26c8287e73f9805991": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "A",
+   "title": "Moroso Fjord Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_59fded1b487d3b41741c9324": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "B",
+   "title": "Minotti Aston Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_5be87e5d92ca110e8bec3f66": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "J",
+   "title": "Gardner Leather Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_5c646dced24227fa0c077ed6": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "S",
+   "title": "Sullivan Platform Bed [ub40ef68]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_5c8e37b7bfe9509edcbf5f06": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "K",
+   "title": "Broadway Sofa [u8a3c520]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_6048a15631c2a23a0f81849e": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "C",
+   "title": "Kartell Foliage Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_60a361e8b016e7485ab5d482": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "D",
+   "title": "Thonet bentwood armchair [u35f186a]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_61738b81cf37f0fe78386bc5": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "E",
+   "title": "Pottery Barn - Peacock Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_61f6b7501ed533bd1e3a55d9": {
+   "rank": 8,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "F",
+   "title": "BB armchair-erica colorful",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_6201dfb75b8ee9fabfd4bf8f": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "L",
+   "title": "Natuzzi Arioso Sofa 2898 264 [ud8574ec]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_620b113da433496223debf7e": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "G",
+   "title": "BoConcept Imola Armchair [ufc85f26]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_62a5139feb7c8e429edc7293": {
+   "rank": 7,
+   "type": "bed_double",
+   "sheet": "bed_double-01",
+   "letter": "T",
+   "title": "Crate Barrel Dawson Clove Sleigh Bed [u64ffb8d]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_649714b4f42a770803235bea": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "H",
+   "title": "79065 Arm Chair Country Side [uc912011]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_67169f2025a7a91f3620f3fe": {
+   "rank": 7,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "A",
+   "title": "Professional bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_683325dd863b827646e2106b": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "M",
+   "title": "Natuzzi Brio Sofa 2761 283 [udf4a128]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_69e0e4f94b6b077f277e88c8": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "I",
+   "title": "quan armchair [ub30e3ec]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_6a16b556fd45214c882adf19": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "B",
+   "title": "10 BED 3",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_6b69a6b7be7b83959f327b3e": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "C",
+   "title": "Prince King Bed in Castle Gray Eco Leather by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_6d10a2e0ecaab7aed41b10fe": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "N",
+   "title": "Cruved sofa TheaReady",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_6d56fc92c464e52b446cb1ad": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "D",
+   "title": "2024 Guest Bed 1 [uafa3a99]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_6d5fb40f8f9e2079f3fe99d5": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "J",
+   "title": "Nest Low Easy Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_6db7e8831d6e3d5c52f3b1b7": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "O",
+   "title": "Jake Leather Sofa - Pottery Barn",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_6e162fa5cfc07cf961c116e6": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "K",
+   "title": "Lounge Chair [uafed77a]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_70b2668463769c7975264f09": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "P",
+   "title": "Natuzzi Cambre Sofa 2638 047 [uc087534]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_70be2f89d8a6f0d4f5fe5888": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "Q",
+   "title": "Natuzzi Ciak Sofa 2559 239",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_70bef12aea24559a505e7a16": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "E",
+   "title": "Ligne Roset Ruche Bed [uf0508e2]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_720f8cb45e113811740b143e": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "L",
+   "title": "Allermuir Conic chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_72e6fff95bcd77d44f92fa77": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "F",
+   "title": "Full Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_73836b83e2bfb367cacfc7ee": {
+   "rank": 8,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "G",
+   "title": "Wood Platform Bed - Pottery Barn",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_73a3f2fd339beec5aabd5ed6": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "R",
+   "title": "HEMNES daybed frame A white [ud6311f5]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_7480e98ffb90c8d38b9d5a25": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "S",
+   "title": "NatuzziBrio Sofa 2761 445 [ue63d1cd]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_781ff496d1fd8dcc610c6296": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "H",
+   "title": "Jane King Bed in Moonbeam Fabric by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_7886094efc709a0f3baa0fd3": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "M",
+   "title": "CHAIR",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_78fccaeb4a9c4a2715379b8a": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "N",
+   "title": "Allermuir Open Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_7a0281f136dea2e7beea1720": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-02",
+   "letter": "T",
+   "title": "Fincham Loveseat Classic settees",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_7a1dbcbe541b7a0e2a863ca2": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "A",
+   "title": "Flexform Antonio Citterio Lario Sofa 280",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_7aedfa3e6a227a4616b6eb75": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "O",
+   "title": "20 Tildenville Club Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_7c054427859deb685fa5ccb5": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "B",
+   "title": "SolLuna - Borealis sofa cushions",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_7c41f538b2d0873e672fe42f": {
+   "rank": 7,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "P",
+   "title": "Kettal - Cala Dining Armchair Teak modified by Pooh",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_7ca53d7f2631ae80e57db78f": {
+   "rank": 4,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "I",
+   "title": "IKEA - MALM BED 209X166CM",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_7e29c58774102ff7764fc935": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "C",
+   "title": "Sofia Large - Domark sofa [u40478ad]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_7e30f382f7275e234a2f74ff": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "J",
+   "title": "Andres Queen Bed Frame",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_80d95b5d811c3b56fdc0e543": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "D",
+   "title": "Sofa Keiko 3 lugares",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_818fb6558730cec44d42431b": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "Q",
+   "title": "JekPol Chair 1 [ubbeb3e2]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_81f29a24a68a253b3ee5d03b": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "R",
+   "title": "Highback chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_826f2d90cfd567a923e3dc8c": {
+   "rank": 7,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "S",
+   "title": "Armchair Woods 0",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_83cdafef16f8e620a1b2e028": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "K",
+   "title": "Wrought Iron Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_84476549d287e81f5f9f7da8": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-03",
+   "letter": "T",
+   "title": "Eames Plywood Lounge Chair Metal Legs from SmartFurniture.com",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_87cc8ef192018304d2758d47": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "A",
+   "title": "Fritz Hansen - Swan Chair [u6c53bc7]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_88357109a1e0587925d95a0e": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "B",
+   "title": "Eames Lounge Chair [ue10e0c0]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_88ace91efea68ca860ea7477": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "E",
+   "title": "Natuzzi GIO Sofa 2912 064 [ue63cc5a]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_89b423a3a3890b2b6f806687": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "C",
+   "title": "Eames Aluminum Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_8b41bf06e3e16f2e91e38d37": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "F",
+   "title": "Hughes Loveseat",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_8b448d4c97c75d1599d226eb": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "G",
+   "title": "SOFA IKEA 4",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_8f4da53657aaa75fd3b96918": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "D",
+   "title": "Rowe Piccadilly Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_8f53a60bcd1fc97de119bff6": {
+   "rank": 4,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "L",
+   "title": "LAZZONI YRT133 ISTANBUL KING SIZE BED",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_90b03ebfced5e7b8ae9d6110": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "E",
+   "title": "Reply chair [uc7eeb69]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_9145e841dfca3fb07979616f": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "H",
+   "title": "Natuzzi Diesis Sofa 2828 446 [ufce83ff]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_93fd81455618d7dfd46ae26f": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "M",
+   "title": "Bed [u654ed62]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_97084d55de54c3d6aca33d6a": {
+   "rank": 6,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "N",
+   "title": "Amsterdam King Bed in Gray Oak by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_97e9e4169617fb5c039c9bc6": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "I",
+   "title": "sofa AA",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_9a4566c2bce65e1a7517bb21": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "G",
+   "title": "KETTAL 895 Collections - Roll - Club chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_9ac2c6ae7433b11bd8baef82": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "H",
+   "title": "Adirondack Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_9b3d9c52e77d118712b3599d": {
+   "rank": 7,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "O",
+   "title": "Broome Cal King Bed in Latte Walnut by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_9c3a1772a72c4b00c78bd2ea": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "I",
+   "title": "BB Italia Metropolitan Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_9c72303b66870564ae9a360b": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "J",
+   "title": "Orangebox Ara chair [u188f2c5]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_9d4985a319c9f913c534b120": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "J",
+   "title": "Blu Dot Paramount Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_9dee0d288622134d7205ac3b": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "K",
+   "title": "DEDON MU Daybed [u51f7165]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_9f83498171022344dfbdd829": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "L",
+   "title": "IKEA STOCKSUND Loveseat",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_9f97205894a666719b425ab1": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "M",
+   "title": "arm chair sofa lobby furniture home furniture sofa highres",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_a47d14787ca29b546af5b4cb": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "K",
+   "title": "Lounge chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_a577ed0071066ded9b5d5012": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "N",
+   "title": "Flexform Antonio Citterio Evergreen Sofa 307",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_a65d05d381cc61420f51601d": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "M",
+   "title": "Pacha Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_a91be17c55e77f3b3319587a": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "O",
+   "title": "SODERHAMN - IKEA Canape 2 places",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_a9e17793be088c30d8ca5569": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "P",
+   "title": "Unmade Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ab9b479931418ac9f235c699": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "N",
+   "title": "sillon Slow Chair Ottoman",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_aba32d0bc72f5e13ca7d04c1": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "Q",
+   "title": "Broome King Bed in Latte Walnut by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ac57310611306e7ea5328023": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "R",
+   "title": "Bed Muji with pink Habitat linen",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ae6cbee616c65d68120935ad": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "S",
+   "title": "Kenna Single XL Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_af821bc36811c70b656fd96b": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "P",
+   "title": "Natuzzi Tempo Sofa 2834 009 [ubd05891]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_b1db5a2ba5d7c5b54ea05946": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-02",
+   "letter": "T",
+   "title": "Benson Arched Upholstered Platform Bed [ub9f4af8]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_b2f434de9d430c3757dd7715": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "O",
+   "title": "Roche Bobois - Bubble Fauteuil",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_b46677a8e16e4366adb6761c": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "P",
+   "title": "Arm Chair KP instyle model-017",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_b4e3533d6b8f9b43765e5ad2": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "Q",
+   "title": "lounge chair chips",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_b5fea9c70717a76f4e320f94": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "A",
+   "title": "Sleigh Bed Frame - Queen",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_b7c2cfe7c74e6e5dc8b49c57": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "R",
+   "title": "Kettal Basket Chair [uc24f7d4]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_b7ece8782fc8708582603392": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "Q",
+   "title": "IKEA- sofa tylosand",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_b8cf313db4b473cbbfa89fc6": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "R",
+   "title": "79618 Sofa My Desire Khaki 3-Seater [u2d3e140]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_b9bf53f468d77c2b95134f61": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "S",
+   "title": "Kinney Lounge Chair wCushion",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_bb62a2c84c7d81d8b483e4ba": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-04",
+   "letter": "T",
+   "title": "LW Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_be9ec1c8f7191bc93f9232e1": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "B",
+   "title": "Grand King Bed in Espresso by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_beb6dd1b126e8f03c178d9a3": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "A",
+   "title": "Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_c1389b2324376b35a19514b2": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "S",
+   "title": "Kartell -Sofa Foliage",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_c284696a47a6691b38b1f900": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "B",
+   "title": "ACCENT CHAIR [ue2436e1]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_c32b2e0dd28c2e7923a386da": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "C",
+   "title": "Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_c41eadfdc01e4ec60d4e0bea": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "D",
+   "title": "ORLY-01 Reclined Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_c501c30ccb65731ce8da7681": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-03",
+   "letter": "T",
+   "title": "Eames Sofa from SmartFurniture.com",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_c6571781ada93303058fc1f9": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "A",
+   "title": "Walton Lane Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_c76a1e5b7de8ec75fb4fe5ad": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "E",
+   "title": "armchairs",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_c7c13fbdb544f7a58cddb88d": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "B",
+   "title": "Natuzzi Notturno Sofa 2784 008 [ud81fbb1]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_c91095c7534c6d4b068232c5": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "C",
+   "title": "Hove Club Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_c9fdde6344754954d9f8c741": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "C",
+   "title": "Queen Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ca56827e612d7c66fae59459": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "D",
+   "title": "ALIVAR LAGOON bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_cbf314f4b2b18d247051f2c5": {
+   "rank": 6,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "E",
+   "title": "Lawrenceville Panel Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_cda8cc4a7192a245c351383d": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "D",
+   "title": "Flexform Antonio Citterio Big Bob Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ce671d104926cb7160671709": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "E",
+   "title": "2 SEATER SOFA [u402061a]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ce7538e50fdb1430f657c15a": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "F",
+   "title": "Imola-chair-by-boconceptVRAY",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_cfcb4b27925e5a6c6adc3b76": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "G",
+   "title": "Egg chair [uf7b66dc]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_cfd0f36cce1a87df6ab4d694": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "F",
+   "title": "Sofa Modern 3 Cushion Ivory",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d049478457e41fbd2c0e79eb": {
+   "rank": 7,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "F",
+   "title": "Malm Bed IKEA",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d0a094559214281362b54640": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "H",
+   "title": "Barcelona Chair [u218567f]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d162e2407a125f10035d39f1": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "I",
+   "title": "Materia Frame Easy Chair Seating",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d1ed36390489612fbb2a5baa": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "J",
+   "title": "CH24 WISHBONE Chair [u811263a]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d28ae45140bc7abc4730d078": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "K",
+   "title": "Crate and Barrel - Dylon chair [u554c5c2]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d31267709e46fc77495b3323": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "G",
+   "title": "Flexform Antonio Citterio Guscio Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d3b9a8e390920233a7de20cc": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "L",
+   "title": "BB Italia Naoto Fukusawa Grande Papilio Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d3c597f5031f8e7dbbe3732f": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "H",
+   "title": "Natuzzi Notturno Sofa 2784 115 [ufcd0d0b]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d5c5e96e3dbf0e31057676b9": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "M",
+   "title": "Hanging chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d5d48d7d4ef03342ff672247": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "N",
+   "title": "LOUNGE CHAIR",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d659728f8e656e02d1516f4b": {
+   "rank": 9,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "G",
+   "title": "Ikea MANDAL bed headboard 160x220",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d6ba301cfe6d4df8d1ef978a": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "O",
+   "title": "Ikea SKRUVSTA Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d7735ce0b388ec803a3b1371": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "P",
+   "title": "Armchair Single Bos",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d7fce7457e1c8d6615008edd": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "I",
+   "title": "Couch",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d8b7ad0bc6ac576c9d40bd0d": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "Q",
+   "title": "DEDON Tribeca Lounge Chair [ue134095]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_d96cfed368c47d61b6360867": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "R",
+   "title": "BB Italia Patricia Urquiola Husk Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_daf6b22ce502bbcffb420577": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "S",
+   "title": "Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_e089665f9bbfe79e2ac3e1a8": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "J",
+   "title": "Kyoto Sofa sleeper - BoConcept [u778047f]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_e105ecdfd78d66e0731e54bc": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "K",
+   "title": "sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_e49c628394f88c1dc1e9b30b": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-05",
+   "letter": "T",
+   "title": "Cappellini lotus swivel armchair by jasper morrison for cap",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_e4a04c16198b652085b55dac": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "L",
+   "title": "SOFA 1",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_e65c59d0e2566aa6af900af8": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "H",
+   "title": "Raine Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_e6cc86d7edcf02b5482e6ba0": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "A",
+   "title": "Armchair-321",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_e71f32a6aabc7d23a37f433c": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "B",
+   "title": "HAY - Lounge chair AAL 82",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_e8847f195a9c49f6f50af917": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "C",
+   "title": "Barcelona Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_eb59cf4bc628cf23255c5dec": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "I",
+   "title": "EQ3 Cello upholstered bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ec4ed6b83e91c208b2103ed3": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "D",
+   "title": "Sagal Harmony Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ed32af47bf66683c69b77cc5": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "J",
+   "title": "Dot Bo Palomino Platform Bed [u4ae423c]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ed7835489fe4d8706bd80abd": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "M",
+   "title": "Couch 2",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_eeb7328272e916002c30b6b1": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "E",
+   "title": "CARMEL POLIFORM ARMCHAIR POLTRONA",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f06bbd974a18ea91d426bef2": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "N",
+   "title": "Flexform Victor Divano",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f24f21c85af91312d325e065": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "F",
+   "title": "HAY - Uchiwa lounge chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f262a8b1fa88cdc739bf45a8": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "G",
+   "title": "IKEA POANG IVORY LEATHER",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f29b0f7ea468d1a9172fc1d2": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "H",
+   "title": "PACE-LUW Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f43a38c2158a4ef669a499c9": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "I",
+   "title": "Minotti Leslie armchair1",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f53187ff0d7ac83e67468e91": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "O",
+   "title": "Vintage Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f5c7f12837d5da10f176ece9": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "K",
+   "title": "Purple Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f5d76f27d50d16495be0cc57": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "J",
+   "title": "armchairs",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f6bd91f124d68b40f2957392": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "K",
+   "title": "Bertoia Diamond Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f79b64e5c9d3bf800e7b9875": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "L",
+   "title": "Cattelan Italy Adam Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f8cd3c17fe4b3f54f3c953bc": {
+   "rank": 6,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "M",
+   "title": "Haru Queen Bed in Andorra Wool and Walnut by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f8d2fb3704f4da4385adf279": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "P",
+   "title": "BoConcept Sofa Madyson [ub6313bc]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f9240f52211fa23cebc9375e": {
+   "rank": 7,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "L",
+   "title": "Netta Lounge Chair in Dark Gray Cord and Weathered Eucalyptus by Modlo",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f929585fc59011d1c3a6742b": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "Q",
+   "title": "Borek Samos loveseat [u0317fb3]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_f9b540972598812dd68bdb44": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "M",
+   "title": "Chair Fauteuil Bubble Roche Bobois",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_fa71991d817f94c066e814d6": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "N",
+   "title": "Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_fb3ee37d98020ca5ce56e139": {
+   "rank": 7,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "R",
+   "title": "2 SEATER SOFA NYSSE PEARL LOVESEATS",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ff9b2965ef382aba8d577399": {
+   "rank": 8,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "O",
+   "title": "Rivington King Bed in Gray Oak by Modloft",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_ffc26cd6fbd8f8ca9ebcad0f": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "S",
+   "title": "IKEA Kramfors Two-seat sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "3dwh_fff59125f43bfbf6af726605": {
+   "rank": 4,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "P",
+   "title": "Restoration Hardware Bed [ufc9268f]",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "ArmChair_01": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "N",
+   "title": "Arm Chair 01",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "GothicBed_01": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "Q",
+   "title": "Gothic Bed 01",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "Sofa_01": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-04",
+   "letter": "T",
+   "title": "Sofa 01",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B0154VUESC": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "R",
+   "title": "Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B01M0ZVGCQ": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "S",
+   "title": "Movian Belaya",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07124WCZY": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "O",
+   "title": "Amazon Brand Stone & Beam Ashbury Modern Exposed Wood Accent Chair, 29\"W, Hemp",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07124WN69": {
+   "rank": 7,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "P",
+   "title": "Amazon Brand Rivet Huxley Mid-Century Modern Accent Chair, 28.3\"W, Marine Blue",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B0714QGC72": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "A",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Leather Sofa Couch, 92.9\"W, Cognac",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B0717B4Y3X": {
+   "rank": 7,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "Q",
+   "title": "Amazon Brand Rivet Hawthorne Mid-Century Tufted Modern Accent Chair, 35\"W, Caviar",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B0719WQGYJ": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "R",
+   "title": "Amazon Brand Rivet Emerly Modern Living Room Chair, 41\"W, Pewter",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B0719WQH8N": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "B",
+   "title": "Amazon Brand Rivet Sloane Mid-Century Modern Sofa with Tufted Back, 64.2\"W, Pebble",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B071FJR4FW": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-03",
+   "letter": "T",
+   "title": "Amazon Brand Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B071FMSSWB": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "C",
+   "title": "Amazon Brand Stone & Beam Hoffman Down-Filled Performance Fabric Loveseat Sofa, 79\"W, Ecru",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B071FMSYCH": {
+   "rank": 7,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "S",
+   "title": "Amazon Brand Rivet Farr Lotus Accent Chair, Felt Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B071J7Q3J4": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "D",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Sofa Couch, 92.9\"W, Hemp",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B071J7Q9WN": {
+   "rank": 7,
+   "type": "armchair",
+   "sheet": "armchair-06",
+   "letter": "T",
+   "title": "Amazon Brand Rivet Summit Mid-Century Modern Top-Grain Leather Steel Armed Accent Chair...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B071J7Q9X4": {
+   "rank": 7,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "A",
+   "title": "Amazon Brand Rivet Huxley Mid-Century Accent Chair, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B071PDYXRQ": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "B",
+   "title": "Amazon Brand Rivet Apex Modern Oversized Living Room Accent Chair, 42\"W, Ash Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B071W2SCTJ": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "A",
+   "title": "Amazon Brand Stone & Beam Glenwood Industrial Metal Accent Bed, King, 86\"L, Oak",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B071W5VJ98": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "E",
+   "title": "Amazon Brand Rivet Hawthorne Mid-Century Tufted Modern Loveseat Settee Sofa, 57\"W, Caviar",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B072555T67": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "F",
+   "title": "Marchio Amazon - Movian Ackan - Divano a 3 posti, 209 x 87 x 80 cm, grigio chiaro",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07263589M": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "G",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Loveseat Sofa Couch, 78.7\"W, Navy",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B072FVHRZ5": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "H",
+   "title": "Amazon Brand Rivet Cove Mid-Century Modern Tufted Sofa with Tapered Legs, 72\"W, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B072JG3WK1": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "C",
+   "title": "Amazon Brand Stone & Beam Ashbury Modern Exposed Wood Accent Chair, 29\"W, Navy",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B072M1W86Y": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "I",
+   "title": "Amazon Brand Stone & Beam Lauren Down-Filled Oversized Sofa Couch with Hardwood Frame, ...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B072PWGSZL": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "B",
+   "title": "Amazon Brand Rivet Ventura Mid-Century Louvered Queen Bed, 86\"L, Cherry",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B072PZ4LQ2": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "D",
+   "title": "Amazon Brand Rivet Emerly Modern Living Room Chair, 41\"W, Ecru",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B072PZVYC2": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "E",
+   "title": "Amazon Brand Rivet Huxley Leather Mid-Century Accent Chair, Black Leather",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B072Q1BNCD": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "J",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Sofa Couch, 92.9\"W, Navy",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B073G7BVCT": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "F",
+   "title": "Amazon Brand Stone & Beam Highland Modern Wingback Living Room Accent Chair, 31.9\"W, Oa...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B073G947W3": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "G",
+   "title": "Amazon Brand Stone & Beam Modern Sweeping Arm Accent Chair, 28\"W, Merlot",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B073GCWSX8": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "H",
+   "title": "Amazon Brand Rivet Huxley Mid-Century Accent Chair, Burnt Orange",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B0746KJVP2": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "I",
+   "title": "Amazon Brand Rivet Charlotte Mid-Century Modern Upholstered Gold Accent Chair, 29\"W, Na...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075NR8HWJ": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "J",
+   "title": "Amazon Brand Movian Dofsan Chair 100 x 93 x 86 cm Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075NRDS91": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "K",
+   "title": "abo_B075NRDS91",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075QMHYV8": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "C",
+   "title": "Amazon Brand Stone & Beam Ainsley Geometric Steel Bed Frame - Queen Size - Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X2WN11": {
+   "rank": 7,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "K",
+   "title": "Amazon Brand Rivet Aiden Tufted Mid-Century Leather Bench Seat Sofa, Without Side Pillo...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X2WN36": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "L",
+   "title": "Amazon Brand Rivet Curved Tufted Velvet Accent Chair, Marina Mid-Century, 28.7\"W, Hunte...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X2WNRP": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "L",
+   "title": "Amazon Brand Rivet Aiden Tufted Mid-Century Leather Bench Seat Sofa, Without Side Pillo...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X2X4GY": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "M",
+   "title": "Amazon Brand Rivet Uptown Mid-Century Velvet Tufted Customizable Daybed Sofa, 78\"W, Dov...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X2X4MB": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "N",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Loveseat, 58\"W, Charcoal",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X2X4XS": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "M",
+   "title": "Amazon Brand Stone & Beam Charles Classic Oversized Leather Accent Arm Chair, 39\"W, Sod",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X33SR9": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "N",
+   "title": "Amazon Brand Stone & Beam Charles Classic Oversized Leather Chair, 39\"W, Charcoal",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X33SSW": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "O",
+   "title": "Amazon Brand Stone & Beam Elmore Pillow-Top Armless Accent Chair, 24\"W, Beige",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X33T32": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "O",
+   "title": "Amazon Brand Rivet Eva Mid-Century Modern Tufted Velvet Down-Filled Loveseat Sofa Couch...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X3SHT1": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "P",
+   "title": "Amazon Brand Rivet Jamie Upholstered Mid-Century Modern Low Arm Accent Chair, 31\"W, Bur...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X3SHY9": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "Q",
+   "title": "Amazon Brand Rivet Lawson Mid-Century Modern Angled Leather Arm Chair, 33\"W, Driftwood",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X43FD2": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "P",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Sofa, 78\"W, Dove",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X43FDW": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "Q",
+   "title": "Amazon Brand Rivet Lawson Mid-Century Modern Angled Leather Loveseat Sofa Couch, 78\"W, ...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X467QG": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "R",
+   "title": "Amazon Brand Stone & Beam Hillsboro Modern Wingback Living Room Accent Chair With Nailh...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4F5CS": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "R",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Sofa, 78\"W, Smoke",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4F5LM": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "S",
+   "title": "Amazon Brand Stone & Beam Leila Tufted Velvet Living Room Sofa Couch, 88\"W, Blue",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4HZPX": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-05",
+   "letter": "T",
+   "title": "Amazon Brand Stone & Beam Leila Tufted Sofa, 88\" W, Latte",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4JB3K": {
+   "rank": 7,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "A",
+   "title": "Amazon Brand Rivet Eva Tufted Mid-Century Velvet Down-Filled Loveseat, 60.5\"W, Hunter G...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4N3GM": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "S",
+   "title": "Amazon Brand Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4N3J5": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-07",
+   "letter": "T",
+   "title": "Amazon Brand Rivet Villain Mid-Century Modern Leather Metal Leg Accent Lounge Chair, 37...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4N4Z5": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "A",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Chair, 33\"W, Blackwood",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4PT3G": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "B",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Leather Chair, 33\"W, Charcoal",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4PTRL": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "B",
+   "title": "Amazon Brand Rivet Eva Mid-Century Modern Tufted Velvet Down-Filled Sectional Sofa Couc...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4QFK2": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "C",
+   "title": "Amazon Brand Stone & Beam St. Cloud Modern Armless Straight Back Settee, 49\"W, Brown",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4QMX3": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "D",
+   "title": "Stone & Beam Westport Modern Nailhead Upholstered Sofa, 87\"W, Linen",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4T5RG": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "C",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Chair, 33\"W, Blue Eclipse",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4VM87": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "E",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Leather Sofa, 78\"W, Saddle Brown",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4VM8W": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "F",
+   "title": "Amazon Brand Rivet Lawson Modern Angled Leather Sofa, 78\"W, Charcoal",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4VW4D": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "G",
+   "title": "Amazon Brand Rivet Lawson Mid-Century Modern Angled Leather Loveseat Sofa Couch, 78\"W, ...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X4YDN6": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "D",
+   "title": "Amazon Brand Rivet Zane Mid-Century Modern Swivel Top-Grain Leather Accent Chair, 28.75...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X52BM1": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "E",
+   "title": "Amazon Brand Stone & Beam Larkin Living Room Accent Swivel Chair, 30\"W, Smoke",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X5VCQ5": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "H",
+   "title": "Amazon Brand Stone & Beam Westport Modern Nailhead Upholstered Loveseat Sofa Couch, 61....",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075X65R4N": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "F",
+   "title": "Amazon Brand Stone & Beam Elmore Pillow-Top Armless Chair, 24\"W, Smoky Teal",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075Z1NM6N": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "D",
+   "title": "Amazon Brand Rivet Stark Modern Wood Starburst Stitch Queen Bed with Headboard, 82.3\"W,...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B075Z8767S": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "E",
+   "title": "Amazon Brand Stone & Beam Bateman Casual Rustic Wood Platform Bed Frame with Tall Headb...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4CZNPH": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "G",
+   "title": "Amazon Brand Stone & Beam Aubree Farmhouse Accent Chair, 32\"W, Striped Grey Linen",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4D6MRY": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "H",
+   "title": "Amazon Brand Stone & Beam Jacobsen Traditional Accent Chair, 31\"W, Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4D84F8": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "I",
+   "title": "Amazon Brand Rivet Edgewest Low Back Mid-Centory Modern Couch Sofa, 87\"W, Hunter Green",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4D8945": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "I",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Accent Chair, 34\"W, Beige",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4D8F4R": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "J",
+   "title": "Amazon Brand Rivet Kaden Mid-Century Modern Adjustable Headrest Loveseat Sofa, 61.8\"W, ...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4DB8K9": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "K",
+   "title": "Amazon Brand Rivet Cyprus Mid-Century Modern Loveseat, 72\"W, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4FW7H5": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "L",
+   "title": "Amazon Brand Stone & Beam Andover Studio Sofa Couch, 78\"W, Driftwood Leather",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4FZK8X": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "M",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Loveseat, 65\"W, Hunter Green",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4G5QD4": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "N",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Sofa, 87\"W, Blue",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4G5R5H": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "J",
+   "title": "Amazon Brand Stone & Beam Canfield Modern Reclining Tufted Arm Chair, 30.3\"W, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4L5DJV": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "O",
+   "title": "Amazon Brand Rivet Edgewest Modern Loveseat, Leather, 65\"W, Saddle",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4MF2MF": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "P",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Sofa, 87\"W, Charcoal Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4MF2NL": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "Q",
+   "title": "Amazon Brand Rivet Edgewest Low Back Mid-Century Modern Loveseat, 65\"W, Blue Ink",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4MHRGP": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "R",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Right Chaise Sofa Sectional, 115\"W, Beige",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4MSP7T": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "K",
+   "title": "Amazon Brand Stone & Beam Aubree Farmhouse Accent Arm Chair, 32\"W, Striped Red Linen",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4NW75W": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "L",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Accent Chair, 34\"W, Blue Ink",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4W5TZF": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "F",
+   "title": "Amazon Brand Stone & Beam Contemporary Curved Wood King Bed, 79\"W, Toffee Oak",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4W7X1Y": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "G",
+   "title": "Amazon Brand Stone & Beam Duwamish Classic Metal Queen Bed with Headboard, 64.5\"W, Dark...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4YNHSN": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "H",
+   "title": "Amazon Brand Stone & Beam Tisbury Nailhead Trim Queen Bed, 66\"W, Fresh Pewter",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B4Z9Q3S": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "I",
+   "title": "Stone & Beam Prudence Tufted King Bed, 84\"W, Spinnsol Cocoa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B51H792": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "J",
+   "title": "Amazon Brand Rivet Imogene Oiled Bronze Queen Bed, 63.5\"W, Dark Bronze",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B79WTSL": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "M",
+   "title": "Amazon Brand Rivet Fir Mid-Century Modern Velvet Dining Kitchen Chair, 23.6\"W, Green",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B7BDFPR": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "N",
+   "title": "Amazon Brand Rivet Fir Mid-Century Modern Velvet Dining Accent Chair, 23.6\"W, Blue",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07B84H7G8": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "O",
+   "title": "Amazon Brand Stone & Beam Traditional Nailhead Button Tufted Leather Recliner Chair, 33...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07BBWMPJM": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "K",
+   "title": "Amazon Brand - Movian Corona Double Bed, 4 ft 6, High Foot End Bed Frame, Solid Pine Wood",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07BW8P2F7": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "S",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Loveseat, 65\"W, Beige",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07BWJCBY2": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-06",
+   "letter": "T",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Leather Loveseat Sofa Couch, 78....",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07BWKH16R": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "A",
+   "title": "Amazon Brand Stone & Beam Bradbury Chesterfield Tufted Leather Sofa Couch, 92.9\"W, Black",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07BWL4C2Y": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "B",
+   "title": "Amazon Brand Rivet Edgewest Low Back Modern Left Sofa Chaise Sectional, 115\"W, Eclipse ...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBDN78J": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "P",
+   "title": "Amazon Brand Ravenna Home Christian Faux Leather Casual Accent Chair, 31.89\"W, Black",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBDN79B": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "Q",
+   "title": "Amazon Brand Ravenna Home Jase Slope Tufted Accent Chair, 29.9\"W, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBDQJRF": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "R",
+   "title": "Amazon Brand Ravenna Home Hughes Curved Back Tufted Patterned Accent Chair, 25\"W, Arrow",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBDRN8S": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "C",
+   "title": "Amazon Brand Ravenna Home Rai Tufted Arched Armless Loveseat Bench Settee, 52\"W, Light ...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBFFG4Q": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "S",
+   "title": "Amazon Brand Ravenna Home Belgrove Modern Wood Spindle Frame Velvet Accent Chair, 26.37...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBGPV4C": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-08",
+   "letter": "T",
+   "title": "Amazon Brand Ravenna Home Goodwin Faux Leather Tufted Wingback Club Accent Chair, 33\"W,...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBH52YB": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "A",
+   "title": "Amazon Brand Ravenna Home Eddison Modern Slope Accent Chair, 32\"W, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBHBB4N": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "D",
+   "title": "Amazon Brand Ravenna Home Sarah Tufted Wingback Nailhead Trim Loveseat Bench Settee, 32...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBHC337": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "B",
+   "title": "Amazon Brand Ravenna Home Classic Rolled Arm Nailedhead Faux Leather Accent Chair, 35\"W...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBJQC1K": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "C",
+   "title": "Amazon Brand Ravenna Home Christian Upholstered mid-Century Modern Accent Chair, 31.89\"...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07DBLN3V2": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "D",
+   "title": "Amazon Brand Ravenna Home Jase Slope Tufted Accent Chair, 29.9\"W, Dark Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07GFDZW5W": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "L",
+   "title": "Movian Havel",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07GFFR415": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "M",
+   "title": "Amazon Brand - Movian Constance Lift-Up Double Bed Frame with Storage, 190 x 140 x 31.5...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07H2MHYDQ": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "E",
+   "title": "JC Home Sabadell Wall-Hugger Power-Lift Recliner with Faux-Leather Upholstery, Burnt Br...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07HYYCT75": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "F",
+   "title": "Amazon Brand Stone & Beam Carrigan Casual Living-Room Chair, 45\"W, Navy",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07HZ58Q5R": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "E",
+   "title": "Amazon Brand Stone & Beam Fischer Queen-Sized Sleeper Sofa, 79\"W, Charcoal Fabric",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07HZ5D2DC": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "F",
+   "title": "Amazon Brand Stone & Beam Fischer Queen-Sized Sleeper Sofa, 79\"W, Blue Fabric",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07HZ5ZTZC": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "G",
+   "title": "Amazon Brand Stone & Beam Fischer Full-Sized Sleeper Sofa, 72\"W, Blue Fabric",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07HZ65PW3": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "H",
+   "title": "Amazon Brand Rivet Goodwin Modern Loveseat, 61.8\"W, Light-Gray Fabric",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07HZ65QC6": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "I",
+   "title": "Amazon Brand Stone & Beam Fischer Full-Sized Sleeper Sofa, 72\"W, Dove Fabric",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07HZ7829Y": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "J",
+   "title": "Amazon Brand Rivet Goodwin Modern Loveseat Sofa, 61.8\"W, Charcoal Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07HZ9K9PG": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "G",
+   "title": "Amazon Brand Stone & Beam Calhoun Living Room Accent Chair, 42\"W, Ecru",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07J2R9TVF": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "H",
+   "title": "Amazon Brand Rivet Brooke Contemporary Mid-Century Modern Tufted Living Room Accent Cha...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07J2R9Y4W": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "I",
+   "title": "Amazon Brand Rivet Brooke Contemporary Mid-Century Modern Tufted Leather Living Room Ch...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07J2YB486": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "J",
+   "title": "Amazon Brand Rivet Willard Contemporary Accent Lounge Chair, 26\"W, Navy",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07J59DFXX": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "K",
+   "title": "abo_B07J59DFXX",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07JY2W3KS": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "L",
+   "title": "Amazon Brand Ravenna Home Living Room Recliner Chair, Leather, Brown",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07K7K25ZL": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "N",
+   "title": "abo_B07K7K25ZL",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07K8YVLGH": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "K",
+   "title": "Amazon Brand - Movian Edslan 3-Seater Upholstered Sofa, 219 x 90 x 74 cm, Stain-Resista...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07K9PMZJL": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "L",
+   "title": "Amazon Brand - Movian Dyvran 3-Seater Upholstered Sofa, 197 x 83 x 83 cm, Stain-Resista...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07L1DDXLR": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "O",
+   "title": "Amazon Brand - Solimo Aquilla Engineered Wood Queen Bed (Wenge Finish)",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07LC5Y95W": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "P",
+   "title": "Amazon Brand - Solimo Vega Engineered Wood Hydraulic Half Lift-on Queen Bed (Espresso F...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07LC84ZYV": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "Q",
+   "title": "Amazon Brand - Solimo Optima Manual Box Storage Queen Bed (Sienna Cherry)",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07N2Y6C96": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "M",
+   "title": "AmazonBasics Modern Faux Leather Pull-Tab Recliner Chair - Black",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07N2ZJYH6": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "N",
+   "title": "AmazonBasics Modern Faux Leather Pull-Tab Recliner Chair - Cream",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07P5LM42Y": {
+   "rank": 7,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "M",
+   "title": "Amazon Brand Rivet Aiden Mid-Century Sofa with Tapered Wood Legs, 87\"W, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07P5LMCLD": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "N",
+   "title": "Amazon Brand Rivet Sloane Mid-Century Modern Loveseat with Tufted Back, 64.2\"W, Emerald...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07P5LMFMT": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "O",
+   "title": "Amazon Brand Rivet Revolve Modern Leather Armchair with Tapered Legs, 33\"W, Caramel",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07P5LN16X": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "O",
+   "title": "Amazon Brand Rivet Sloane Modern Leather Loveseat with Tufted Back, 64.2\"W, Caramel",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07P6JTSYP": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "P",
+   "title": "Amazon Brand Rivet Aiden Mid-Century Leather Chair with Tapered Wood Legs, 35\"W, Black",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07P7NVLV8": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "P",
+   "title": "Amazon Brand Rivet Revolve Modern Leather Sofa Couch, 80\"W, Caramel",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07P9Y6WHB": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "Q",
+   "title": "Amazon Brand Rivet Aiden Mid-Century Leather Sofa with Tapered Wood Legs, 87\"W, Dark Brown",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07PBZ74HD": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "R",
+   "title": "Amazon Brand Rivet Revolve Modern Leather Loveseat Sofa, 56\"W, Caramel",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07PBZL51J": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "Q",
+   "title": "Amazon Brand Rivet Aiden Mid-Century Chair with Tapered Wood Legs, 35\"W, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07PC1FXK4": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "S",
+   "title": "Amazon Brand Rivet Cove Modern Tufted Loveseat with Tapered Legs, Mid-Century, 56\"W, Denim",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07QBMQCP1": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "R",
+   "title": "Amazon Brand Rivet Isabelle Mid-Century Modern Living Room Chair with Tapered Wood Legs...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07QBMQHFS": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "S",
+   "title": "Amazon Brand Rivet Blanchard Living Room Chair with Swivel Base, 40\"H, Cadet",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07QCMBNF1": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-07",
+   "letter": "T",
+   "title": "Amazon Brand Rivet Isabelle Mid-Century Modern Loveseat with Tapered Wood Legs, 55\"W, Aqua",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07QJXK4CD": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-09",
+   "letter": "T",
+   "title": "Amazon Brand Rivet Blanchard Living Room Chair with Swivel Base, 40\"H, Leather, Cognac",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07R3TWDTM": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "A",
+   "title": "Amazon Brand - Movian Keitele - 2 Seater Sofa, 130 x 82 x 84, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07R3TWDTT": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "B",
+   "title": "abo_B07R3TWDTT",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07RD76JZY": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "C",
+   "title": "Amazon Brand - Solimo Cessna 2 Seater Leatherette Sofa (Grey)",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B07RJFGDHP": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "D",
+   "title": "Amazon Brand - Solimo Dual-Toned Leatherette 2 Seater Sofa (Red & Black)",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B082VLYCRC": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "A",
+   "title": "Amazon Brand Rivet Brooke Contemporary Mid-Century Modern Tufted Velvet Living Room Cha...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B082VM7676": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "B",
+   "title": "Amazon Brand Rivet Jamie Leather Mid-Century Modern Low Arm Accent Chair, 31\"W, Black",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B0831XJQLB": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "E",
+   "title": "Amazon Brand Stone & Beam Rosemont Vintage Tufted Sofa Couch with Nailheads, 88\"W, Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B0853N8T7M": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "C",
+   "title": "Amazon Brand Rivet Rione Modern Leather Swivel Chair with Rounded Back, 30.3\"W, Marseil...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B0853NR959": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "D",
+   "title": "Amazon Brand Rivet Rione Modern Upholstered Swivel Chair with Rounded Back, 30.3\"W, Stucco",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B085FGSHQH": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "E",
+   "title": "Amazon Brand Ravenna Home Albert Power-Lift Assist Recliner Chair, 34.3\"W, Cream",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B085FGSHR3": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "F",
+   "title": "Amazon Brand Ravenna Home Swivel Glider Recliner Chair, 35\"W, Black",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B085FH8JFG": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "G",
+   "title": "Amazon Brand Ravenna Home Albert Power-Lift Assist Recliner Chair, 34.3\"W, Dark Brown",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B085FHBF2S": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "H",
+   "title": "Amazon Brand Ravenna Home Recliner Chair, 37\"W, Brown",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B085FHCKY4": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "I",
+   "title": "Amazon Brand Ravenna Home Recliner Chair, 37\"W, Dark Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B086TGFT35": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "R",
+   "title": "AmazonBasics Solid Platform Bed - Rustic Finish - No Box Spring Needed - Strong Wood Sl...",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "abo_B08FTN8KHY": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "S",
+   "title": "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "chinese_sofa": {
+   "rank": 1,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "F",
+   "title": "Chinese Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "gen_sofa_japandi_1_246e1bd6": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "G",
+   "title": "Generated japandi sofa (1)",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "gen_sofa_japandi_2_98a7a89b": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "H",
+   "title": "Generated japandi sofa (2)",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_00662bccdee49ca148d0c96929286db6d6d3c267": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-04",
+   "letter": "T",
+   "title": "Andaman Queen Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_014f3ebc50361692497fe6439b2c112ed3e4ab25": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "J",
+   "title": "GRADO MART Armchair, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_02e22ed56270338bef5f8436e82023c36cd29104": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "A",
+   "title": "Platform Bed, queen",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_033ec086c23a6d39fb37df87e6748c413bf80e29": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "B",
+   "title": "HSSD object 033ec086",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_04f865ebc872cf2c58acbf99c0e883a3b150ec7f": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "I",
+   "title": "Raleigh Sofa Three Seater, Kalahari Leather Black, Walnut Frame",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_051239c63082d6b0cda8ef2db8be17d840be44bc": {
+   "rank": 6,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "C",
+   "title": "LEWISTON QUEEN BED",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_05206ad5b8ad9956a076ab73038089b964ddb2fd": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "J",
+   "title": "Scott 3 seater sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_05e5559cf467254327299a68a65b4bb188a4c1ab": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "K",
+   "title": "Abby Swivel Accent Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_0c22fc3147a2787e85cedfbf231aa45cdc08e25e": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "D",
+   "title": "Komfi Adjustable Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_0e8dfdbc4db21b620cbc40daebda5f225f48fa1f": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "L",
+   "title": "Laurent Accent Chair by Nate Berkus and Jeremiah Brent",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_0e8f7683353124120fc3d0c2c23f128eaa992b11": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "M",
+   "title": "Avery Swoop Accent Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_11ba83c933f89bd7234a8f7fcc5b1c7f573dcded": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "K",
+   "title": "Valencia",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_16100ba2844b8f89c2ba6e30677d13ffe45d82a7": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "E",
+   "title": "Min Bed w/ Plexi Headboard-Full - White.Clear",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_19ab91116ae6cded08529445a0ff2f6e5fd025b1": {
+   "rank": 7,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "L",
+   "title": "Chomsky Fabric Sofa, Indigo Fabric with Walnut Leg",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_1a3cdd72708cd77010453af1bddc78982ca792c0": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "N",
+   "title": "Cabot accent chair, Blue",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_1a7c59ac57b8213f7cf31256d7ad6b579aa2a441": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "M",
+   "title": "Gregory Loveseat",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_24260cc2eff93ee6c74f6db6beb1c5137b9d8bcd": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "F",
+   "title": "Saville Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_2482ffc4bafeec252b187ec2470adbfbb7efacc0": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "O",
+   "title": "NIELSEN LEATHER CHAIR, Black Oak & Berkshire Walnut",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_283eae1c113de1b9b3afbd91132de63f7142d1b3": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "N",
+   "title": "Aquarius Sofa, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_28bea1ab56c4379f842d0171fdd81762f55942c1": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "O",
+   "title": "Vianna 2-seater Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_299ccc1cd644f44a2663878536fe88f24212f0ba": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "P",
+   "title": "Rattan armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_2a9cb0b671a281159864a83d00e0a89439b15ef6": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "P",
+   "title": "HSSD object 2a9cb0b6",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_348f60a7ecd1addff9d2928919761f3552c37a57": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "Q",
+   "title": "Raleigh Sofa Three Seater, Olive Leather, Walnut Frame",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_3ab4e08fc50d66f06fe6d3c72b9c76210d4efba7": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "G",
+   "title": "Wesley Allen # Blake Iron Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_3d646131d74a5197c4ed035b0ae3b877b6f8e941": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "Q",
+   "title": "Retreat Twirl Swivel Accent Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_3d6c4de46acc90dcec117539c751f688da413923": {
+   "rank": 2,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "R",
+   "title": "Caden Settee",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_3fce46b44d59007f02e60c8adf5fc333b0c58528": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "H",
+   "title": "Full Saddle Back Upholstered Bed, Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_4364e0d4faa0006a6e447b9293fdfbe3c415cfa7": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "S",
+   "title": "Little Mother 3 Seater Sofa, Divina Melange 3 - 0227 / Walnut legs",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_45092a7ed4e6bb85fc08e722388bad2694401222": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "R",
+   "title": "Vanguard # Brinley Tufted Arm Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_461a6a73027b08506fe73030fe3e16be969cffd4": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "I",
+   "title": "Tufted Bed Full",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_46f86f1258a3eb8345acbd6aacfb6b96781f6a2a": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "S",
+   "title": "Vitra The Worker Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_4e6924410277e866564f1f0f253248643798f841": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-10",
+   "letter": "T",
+   "title": "Angie Chair, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_5274751529e50c02430fb9b3ee3019ea9c091520": {
+   "rank": 7,
+   "type": "sofa",
+   "sheet": "sofa-08",
+   "letter": "T",
+   "title": "Kendrick Stone Settee",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_5386924523286fa156d9397a93cd3f2a7140325d": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "A",
+   "title": "Raleigh Two-Seater Sofa, Walnut Frame, Black Kalahari Leather",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_55178b6f7cfabac7480cc6e677b8223227604907": {
+   "rank": 1,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "J",
+   "title": "Emmett Full Metal Platform Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_589bcc23d287e1669b4acaf573d0affdc4e058d5": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "K",
+   "title": "Airsprung Boston Bed Black King - 4 Drawers",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_5d77eeaa7a16e02ef64e3ce74893768cc8389aed": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "B",
+   "title": "Couch",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_5e0c57c89718bf9f8859b6181978d150aed749ca": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "C",
+   "title": "2 seater - Antique Tan",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_650eafedcc551cb48130abb49b7343157db87f87": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "A",
+   "title": "Dalia armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_6ccebb27fe6084d08e7b6d601582e1c6930e9379": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "L",
+   "title": "Allegro Bedstead 135x190cm",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_70c7ba63276ac6400527817e31fdd0141c4dae4b": {
+   "rank": 4,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "M",
+   "title": "St Lucia Full Iron Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_7165e9d457a1fb2a4fa6d827d5ef9f5a90a6408e": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "D",
+   "title": "Emerson II LAF Loveseat",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_7313865d099b7009290ed67c2031c985ff6b14bb": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "E",
+   "title": "Love Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_74e1831f3d2100296a4663e63defbe344b15f421": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "B",
+   "title": "Whitwell Push Back Recliner, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_76a762c6d7151b59999a954e9a8570c22d2256c8": {
+   "rank": 7,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "F",
+   "title": "Arbour 3 Seater Sofa, Mode Clavicle / Oak",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_7731b27a33dba3816bd7bc321cf47bc12facc109": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "C",
+   "title": "VILLSTAD Easy chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_7be455a4bcdc8362d06f09c25df1a80ec527e1d7": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "G",
+   "title": "Library Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_80f24de7458927b66c25239e127b37da925c033c": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "H",
+   "title": "Kiara II RAF Loveseat",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_843c70ec93a45b19af1fa6981ea23a6f1a66cad6": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "D",
+   "title": "Marina Accent Chair, Light Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_85b1c9726d9d9034d006dbacd0f5736f0f533b6d": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "N",
+   "title": "Picardy Silver Metal 4\" 6\" Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_88cb3a5e8bf8e4e1b93fbb797d6b3ecd6fbb0682": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "I",
+   "title": "Zachery II Fabric Power Space Saver Reclining Loveseat",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_8c297387b65b2ab225740383572f1dba79859791": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "E",
+   "title": "Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_94927768e27e3edbde222e2fd59f2664ffcfa866": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "F",
+   "title": "POANG",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_96410190447f784b14d9ddead790176560ab7f7f": {
+   "rank": 6,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "O",
+   "title": "Optec Single Bed - 120x200 cms",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_965e9ac9fb8c99b1bc86ded43de902f856a3cd7c": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "G",
+   "title": "Chair - Old English Tan",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_9698b67f0b863ee3d6d761478c2aac4f2e06310f": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "P",
+   "title": "Initial Bed in Wenge - double",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_981b9ab0b33dc8a06105ddb18018a0deb5fb3023": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "H",
+   "title": "Saison Leather Arm Chair, White",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_9a0e617b83c901d346ce9fb020b49bf91442273c": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "J",
+   "title": "Tufted Curved Settee, Navy",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_9a95f67666e918a7398535ae4082ce1a574a6cf5": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "I",
+   "title": "Boutique Leather",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_9e6c6b60a5cf944dec9a25affb6c129e8f9eb226": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "K",
+   "title": "Boutique Leather sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_aa554f7be876c98a2c021a1d17ebf7819aeaf002": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "J",
+   "title": "Aventura dining chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_aa85073bb8fbfc43763bd0a117f6f6a03dca7bb9": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "L",
+   "title": "Brunel 4 Seater Sofa, Murcia Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_ab165e78654b42d5568945a3405e69c86010fd17": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "K",
+   "title": "Kerouac Leather Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_b6c900cdbac774338ec3fb43bb18a736a1baa7b4": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "M",
+   "title": "Lina sofa, Kalahari Leather - Gesso",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_ba333ed289c61c26505c64ecb49a00f130892956": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "N",
+   "title": "Libre Two Seater - Fabric",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_bf0d188b37ed02e5567e8651df3425c57fbff7bd": {
+   "rank": 6,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "Q",
+   "title": "Dylan II Queen Platform Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_c54816423cdd8e3e699b411d028aba1e5aef3f2c": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "L",
+   "title": "Engles Leather 35'' Chair, Saddlebag Lead",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_c8bbb9cc378c3034f8a31bd0e19e51bb8290bda6": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "M",
+   "title": "Andrew Leather Recliner",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_ca5c6dba3e3d11e1d460ab441a36d68fb04857f8": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "N",
+   "title": "Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "O",
+   "title": "Toro Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_ccb6d8d8284a84493a815182e5ce3e3dddd3ad70": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "P",
+   "title": "Chair - Antique Blue",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_ce1bdc2cbf26176400c71b11437c4c8ffe8a800d": {
+   "rank": 5,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "R",
+   "title": "Taylor Full Slat Panel Bed, White",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_cebe167583e0b96752d0ebfe2ff704e65aa6629a": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "Q",
+   "title": "Armchair INDUSTRIELL",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_d266da3005a4309968c9ea9405b9eca788571408": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "O",
+   "title": "REMINGTON SOFA",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_d31ee1dad266ed4ef07fc074e8ddd28663a91767": {
+   "rank": 3,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "P",
+   "title": "Lasky 2 Seater White",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_d3aaaa4c5f6f4c0f8ac9acffa625b527bf1ddc89": {
+   "rank": 5,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "Q",
+   "title": "Ivy 2 Str Grey",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_d83424d0d492ca9cb708a73ad04b59f8eec8487f": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "R",
+   "title": "Marina Accent Chair, Charcoal",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_e6ccfb8aa1fa974d429195f8edc169aa7ea21306": {
+   "rank": 6,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "S",
+   "title": "Corium LED Polsterbett",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_e80c209372079afca611d98cd98597e79afa2c65": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "S",
+   "title": "Hickory Chair # Cantrell Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_e91f9db75c0e3679b4bdd1d012ceb0819bb287f5": {
+   "rank": 7,
+   "type": "bed_double",
+   "sheet": "bed_double-05",
+   "letter": "T",
+   "title": "Envy Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_ed4ed55a08fac410b09e2d1f351d84893eaa7136": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "R",
+   "title": "Magnolia Home Sinclair Luxe Sofa By Joanna Gaines, Midnight",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_ee030efb15ade53752e31312e42acabcf837fcb2": {
+   "rank": 6,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "S",
+   "title": "Vico sofa, 2 seater",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_ee3f42b9c1d188d103625187a0335f7818d0cdf8": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-11",
+   "letter": "T",
+   "title": "Century Furniture # Essex Club Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_f08e9f0057a74950b3b2637c4a462ca7e258b28a": {
+   "rank": 4,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "A",
+   "title": "Raleigh Armchair - Olive Leather",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_f1a8ee1d325c42f3b1867c37051d8d9c5b7ae023": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "B",
+   "title": "Marisol Accent Chair, Indigo",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_fab3e8e5223d512a551ed0826310e31a81cc9fee": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "C",
+   "title": "POANG Armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_fbbfeb5d105e75f1c970e39cde8ea7eb8bcaec7d": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "D",
+   "title": "Harper Armless Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_fd773312233cde1d417cc17d479c24b55005a1e9": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-06",
+   "letter": "A",
+   "title": "King",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_xxxxaf473d33x3e91x4b4ex9182x033de637aafb": {
+   "rank": 2,
+   "type": "bed_double",
+   "sheet": "bed_double-06",
+   "letter": "B",
+   "title": "Wyatt Full Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_xxxxbeae246cx5cbcx482dx81faxd6e6f844d62d": {
+   "rank": 6,
+   "type": "bed_double",
+   "sheet": "bed_double-06",
+   "letter": "C",
+   "title": "Rattan Kids Full Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "hssd_xxxxcf52c887xd6ccx47d0xbf5fx448bc77e113d": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "E",
+   "title": "Ericson Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "mid_century_lounge_chair": {
+   "rank": 5,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "F",
+   "title": "Mid Century Lounge Chair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "modern_arm_chair_01": {
+   "rank": 6,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "G",
+   "title": "Modern Arm Chair 01",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "objaverse_08f7f65edfea417b8ed9ca748381e507": {
+   "rank": 7,
+   "type": "bed_double",
+   "sheet": "bed_double-06",
+   "letter": "D",
+   "title": "Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "objaverse_104ac40ef3ad4dac8079a11548c470e7": {
+   "rank": 7,
+   "type": "sofa",
+   "sheet": "sofa-09",
+   "letter": "T",
+   "title": "Sofa",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "objaverse_124297e7e4574c48b9c1b814b6ddf516": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "H",
+   "title": "animated_sphere",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "objaverse_5b9e8ba19b1b454f82898ac4809f02b2": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "I",
+   "title": "Lpuvw",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55": {
+   "rank": 3,
+   "type": "bed_double",
+   "sheet": "bed_double-06",
+   "letter": "E",
+   "title": "Old Bed",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "objaverse_69f1c0489a144f3c98e66dcfe72b3969": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "J",
+   "title": "Oldfashioned armchair",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "objaverse_a07501cd7f6c40fc9cf4cf438e41bac1": {
+   "rank": 3,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "K",
+   "title": "Chair_2 out of 12",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "objaverse_b23ec9725c48494788d1d88104acbb4a": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "L",
+   "title": "High back Arm chair (Free Download)",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "objaverse_da6d646358d1451fa751f1a9141290a3": {
+   "rank": 2,
+   "type": "armchair",
+   "sheet": "armchair-12",
+   "letter": "M",
+   "title": "LPUVW",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "sofa_02": {
+   "rank": 7,
+   "type": "sofa",
+   "sheet": "sofa-10",
+   "letter": "A",
+   "title": "Sofa 02",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  },
+  "sofa_03": {
+   "rank": 4,
+   "type": "sofa",
+   "sheet": "sofa-10",
+   "letter": "B",
+   "title": "Sofa 03",
+   "date": "2026-10-31",
+   "where": "the scoring page"
+  }
+ }
 }
