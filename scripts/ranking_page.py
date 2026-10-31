@@ -24,7 +24,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from wenart.assets.audit import studio as S  # noqa: E402
 
 COLS, ROWS, TILE, HEAD = 5, 4, int(S.SETTINGS["sheet_tile_px"]), 56
-TYPE_NAMES = {"bed_double": "Beds", "sofa": "Sofas", "armchair": "Armchairs"}
+TYPE_NAMES = {"bed_double": "Beds", "sofa": "Sofas", "armchair": "Armchairs", "sofa_corner": "Corner sofas",
+              "table_coffee": "Coffee tables", "side_table": "Side tables", "tv_unit": "TV units",
+              "floor_lamp": "Floor lamps", "ottoman": "Ottomans", "bookshelf": "Bookshelves",
+              "console_table": "Console tables", "sideboard": "Sideboards", "display_cabinet": "Display cabinets",
+              "chaise": "Chaises", "table_dining": "Dining tables", "chair": "Chairs", "bar_stool": "Bar stools",
+              "bench": "Benches", "nightstand": "Nightstands", "wardrobe": "Wardrobes", "dresser": "Dressers",
+              "bed_single": "Single beds", "bunk_bed": "Bunk beds", "crib": "Cribs", "desk": "Desks",
+              "office_chair": "Office chairs", "shoe_cabinet": "Shoe cabinets", "tall_cabinet": "Tall cabinets",
+              "potted_plant": "Plants", "washbasin": "Washbasins", "toilet": "Toilets", "bathtub": "Bathtubs",
+              "shower": "Showers", "washing_machine": "Washing machines", "stove": "Stoves",
+              "sink_kitchen": "Kitchen sinks", "fridge": "Fridges"}
 
 
 def models(index: dict, results: dict | None) -> list[dict]:

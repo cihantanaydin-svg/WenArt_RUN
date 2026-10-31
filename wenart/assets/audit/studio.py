@@ -43,6 +43,13 @@ from wenart.assets.audit import HERE
 STUDIO_SCRIPT = HERE / "blender_studio.py"
 STUDIO_VERSION = "ul217.1"
 RANK_TYPES = ("bed_double", "sofa", "armchair")      # the user's first three types
+# 31 Oct 2026 (user: "Give some other items for me to rank"): every other furniture type, by room (living, dining,
+# bedroom, work, hall, plants, bathroom, kitchen), the first three last (already ranked)
+ALL_TYPES = ("sofa_corner", "table_coffee", "side_table", "tv_unit", "floor_lamp", "ottoman", "bookshelf",
+             "console_table", "sideboard", "display_cabinet", "chaise", "table_dining", "chair", "bar_stool", "bench",
+             "nightstand", "wardrobe", "dresser", "bed_single", "bunk_bed", "crib", "desk", "office_chair",
+             "shoe_cabinet", "tall_cabinet", "potted_plant", "washbasin", "toilet", "bathtub", "shower",
+             "washing_machine", "stove", "sink_kitchen", "fridge") + RANK_TYPES
 PER_SHEET = 20
 LETTERS = string.ascii_uppercase[:PER_SHEET]          # A .. T
 SETTINGS = {"resolution": 640, "samples": 96, "lens_mm": 50.0, "sensor_mm": 36.0, "azimuth_deg": 35.0,
