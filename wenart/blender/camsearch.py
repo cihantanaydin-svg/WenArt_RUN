@@ -403,6 +403,13 @@ POSE_EYE_RANGE_M = (1.2, 1.6)        # an interior lens above its room's floor (
 # roles kept as one box per part (the sofa arms); the parts of role ``PROFILE_BACK_ROLE`` (headboard, chair and
 # sofa back, cistern) make the back slab on the rear edge. Every other type stays one box (``piece_bbox``).
 PROFILE_BACK_ROLE = "back"
+# 31 Oct 2026 (real06 run 20261030-224530-full, cam_r_L1_cocuk_odasi_2: the library bed f_L1_004 listed in the frame,
+# none of it in the index pass): the headboard forms of lesson UL163 (``parametric.headboard_parts``) build the slab
+# as a ``panel`` with ``slat`` or ``channel`` parts in front of it, and the ``button`` form adds ``piping`` and
+# ``button`` parts; only the ``panel`` and ``button`` forms keep their ``back`` posts. Without a ``back`` part the
+# profile fell back to one box of the full fitted height (0.92 m) over the whole bed, whose top the model saw at the
+# foot end where the mesh is a 0.55 m mattress below the frame. Every headboard part belongs to the back slab.
+PROFILE_BACK_ROLES: tuple[str, ...] = (PROFILE_BACK_ROLE, "panel", "slat", "channel", "piping", "button")
 PROFILES: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     # Milestone 13 (T2 bed v2): the frame (role body) is a low box over the whole footprint and the mattress a
     # box of its own inside the frame's ledge, so a close-up of the foot corner sees the ledge the mesh shows.
@@ -942,7 +949,7 @@ def piece_profile(piece: dict) -> list[tuple[float, float, float, float, float]]
         # Milestone 12 (frame and mattress together); the parametric bed v2 keeps its frame ledge and mattress box.
         low += [p for p in sides if p["role"] == "mattress"]
         sides = [p for p in sides if p["role"] != "mattress"]
-    back = [p for p in parts if p["role"] == PROFILE_BACK_ROLE]
+    back = [p for p in parts if p["role"] in PROFILE_BACK_ROLES]       # 31 Oct 2026: every headboard form (UL163)
     if not low or not back:
         return whole
     boxes = [box(low)] + [box([p]) for p in sides]

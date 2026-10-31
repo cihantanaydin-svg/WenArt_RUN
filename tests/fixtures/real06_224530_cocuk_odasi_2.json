@@ -1,0 +1,1498 @@
+{
+ "_note": "real06 run 20261030-224530-full, cam_r_L1_cocuk_odasi_2 (an Argus pose): the building as built (scene/building_built.json) cut to r_L1_cocuk_odasi (level L1, the room, the L1 walls within 0.5 m of it and their openings, its furniture; assets reduced to their fit fields), the camera plan, the room furniture objects of the scene manifest (box3d without outline, the fit depth alignment) and the index values of the render. camsearch.model_shares of the cut equals that of the whole building.",
+ "building": {
+  "project": {
+   "id": "real06"
+  },
+  "status": "ok",
+  "levels": [
+   {
+    "id": "L1",
+    "elevation": 3.0,
+    "ceiling_height": 2.85,
+    "order": 1,
+    "kind": "floor"
+   }
+  ],
+  "walls": [
+   {
+    "id": "w_L1_004",
+    "level_id": "L1",
+    "start": [
+     0.4757,
+     3.425
+    ],
+    "end": [
+     4.3009,
+     3.425
+    ],
+    "thickness": 0.25,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_006",
+    "level_id": "L1",
+    "start": [
+     0.0002,
+     5.475
+    ],
+    "end": [
+     0.2007,
+     5.475
+    ],
+    "thickness": 0.25,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_008",
+    "level_id": "L1",
+    "start": [
+     4.6002,
+     6.6747
+    ],
+    "end": [
+     8.4002,
+     6.6747
+    ],
+    "thickness": 0.15,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_009",
+    "level_id": "L1",
+    "start": [
+     0.0002,
+     7.275
+    ],
+    "end": [
+     0.2007,
+     7.275
+    ],
+    "thickness": 0.25,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_010",
+    "level_id": "L1",
+    "start": [
+     0.4507,
+     9.191
+    ],
+    "end": [
+     0.9502,
+     9.191
+    ],
+    "thickness": 0.32,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_011",
+    "level_id": "L1",
+    "start": [
+     3.8502,
+     9.2
+    ],
+    "end": [
+     4.6002,
+     9.2
+    ],
+    "thickness": 0.3,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_012",
+    "level_id": "L1",
+    "start": [
+     0.2002,
+     9.2747
+    ],
+    "end": [
+     8.4002,
+     9.2747
+    ],
+    "thickness": 0.15,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_022",
+    "level_id": "L1",
+    "start": [
+     0.3257,
+     3.3
+    ],
+    "end": [
+     0.3257,
+     13.55
+    ],
+    "thickness": 0.25,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_023",
+    "level_id": "L1",
+    "start": [
+     0.3552,
+     3.55
+    ],
+    "end": [
+     0.3552,
+     4.05
+    ],
+    "thickness": 0.31,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_024",
+    "level_id": "L1",
+    "start": [
+     3.427,
+     9.35
+    ],
+    "end": [
+     3.427,
+     11.3
+    ],
+    "thickness": 0.155,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_027",
+    "level_id": "L1",
+    "start": [
+     4.4502,
+     2.8
+    ],
+    "end": [
+     4.4502,
+     3.55
+    ],
+    "thickness": 0.3,
+    "height": 2.85
+   },
+   {
+    "id": "w_L1_029",
+    "level_id": "L1",
+    "start": [
+     4.5252,
+     3.55
+    ],
+    "end": [
+     4.5252,
+     9.026
+    ],
+    "thickness": 0.15,
+    "height": 2.85
+   }
+  ],
+  "openings": [
+   {
+    "id": "d_L1_002",
+    "type": "door",
+    "level_id": "L1",
+    "wall_id": "w_L1_008",
+    "center": [
+     5.1252,
+     6.6747
+    ],
+    "width": 0.85,
+    "height": 2.1,
+    "sill_height": null,
+    "leaf_state": {
+     "state": "open",
+     "operation": "swing",
+     "role": "storage",
+     "side": -1,
+     "into": "r_L1_ebeveyn_y_odasi",
+     "rooms": [
+      "r_L1_oda",
+      "r_L1_ebeveyn_y_odasi"
+     ],
+     "angle_deg": 90.0,
+     "slide_m": null,
+     "hinge": "start",
+     "hinge_side": "left",
+     "hinge_assumed": true,
+     "leaf_polys": [
+      [
+       [
+        4.7552,
+        6.6547
+       ],
+       [
+        4.7552,
+        5.9147
+       ],
+       [
+        4.7952,
+        5.9147
+       ],
+       [
+        4.7952,
+        6.6547
+       ]
+      ]
+     ],
+     "by": "rule",
+     "assumed": true,
+     "sweeps": [
+      [
+       [
+        4.7552,
+        6.6547
+       ],
+       [
+        5.4952,
+        6.6547
+       ],
+       [
+        5.46999,
+        6.46317
+       ],
+       [
+        5.39606,
+        6.2847
+       ],
+       [
+        5.27846,
+        6.13144
+       ],
+       [
+        5.1252,
+        6.01384
+       ],
+       [
+        4.94673,
+        5.93991
+       ],
+       [
+        4.7552,
+        5.9147
+       ]
+      ]
+     ],
+     "reason": "every interior door stands open by default (UL127; a storage room's door); hinged at the jamb by the wall beside it (left seen from r_L1_ebeveyn_y_odasi)"
+    },
+    "swing_side": "r_L1_ebeveyn_y_odasi",
+    "operation": "swing"
+   },
+   {
+    "id": "o_L1_002",
+    "type": "opening",
+    "level_id": "L1",
+    "wall_id": "w_L1_012",
+    "center": [
+     4.8502,
+     9.2747
+    ],
+    "width": 2.0,
+    "height": 2.1,
+    "sill_height": null,
+    "swing_side": null
+   },
+   {
+    "id": "d_L1_003",
+    "type": "door",
+    "level_id": "L1",
+    "wall_id": "w_L1_012",
+    "center": [
+     7.1752,
+     9.2747
+    ],
+    "width": 0.75,
+    "height": 2.1,
+    "sill_height": null,
+    "leaf_state": {
+     "state": "open",
+     "operation": "swing",
+     "role": "dressing",
+     "side": 1,
+     "into": "r_L1_dus",
+     "rooms": [
+      "r_L1_dus",
+      "r_L1_soyunma_odasi"
+     ],
+     "angle_deg": 90.0,
+     "slide_m": null,
+     "hinge": "start",
+     "hinge_side": "right",
+     "hinge_assumed": true,
+     "leaf_polys": [
+      [
+       [
+        6.8552,
+        9.2947
+       ],
+       [
+        6.8552,
+        9.9347
+       ],
+       [
+        6.8952,
+        9.9347
+       ],
+       [
+        6.8952,
+        9.2947
+       ]
+      ]
+     ],
+     "by": "rule",
+     "assumed": true,
+     "sweeps": [
+      [
+       [
+        6.8552,
+        9.2947
+       ],
+       [
+        7.4952,
+        9.2947
+       ],
+       [
+        7.47339,
+        9.46034
+       ],
+       [
+        7.40946,
+        9.6147
+       ],
+       [
+        7.30775,
+        9.74725
+       ],
+       [
+        7.1752,
+        9.84896
+       ],
+       [
+        7.02084,
+        9.91289
+       ],
+       [
+        6.8552,
+        9.9347
+       ]
+      ]
+     ],
+     "reason": "every interior door stands open by default (UL127; into the dressing room); hinged at the jamb by the wall beside it (right seen from r_L1_dus)"
+    },
+    "swing_side": "r_L1_dus",
+    "operation": "swing"
+   },
+   {
+    "id": "d_L1_005",
+    "type": "window",
+    "level_id": "L1",
+    "wall_id": "w_L1_022",
+    "center": [
+     0.3257,
+     6.375
+    ],
+    "width": 1.55,
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   {
+    "id": "o_L1_005",
+    "type": "window",
+    "level_id": "L1",
+    "wall_id": "w_L1_022",
+    "center": [
+     0.3257,
+     11.325
+    ],
+    "width": 1.45,
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   {
+    "id": "d_L1_006",
+    "type": "door",
+    "level_id": "L1",
+    "wall_id": "w_L1_024",
+    "center": [
+     3.427,
+     9.875
+    ],
+    "width": 0.85,
+    "height": 2.1,
+    "sill_height": null,
+    "leaf_state": {
+     "state": "open",
+     "operation": "swing",
+     "role": "storage",
+     "side": 1,
+     "into": "r_L1_oda_2",
+     "rooms": [
+      "r_L1_oda_2",
+      "r_L1_hol"
+     ],
+     "angle_deg": 90.0,
+     "slide_m": null,
+     "hinge": "start",
+     "hinge_side": "right",
+     "hinge_assumed": true,
+     "leaf_polys": [
+      [
+       [
+        3.407,
+        9.505
+       ],
+       [
+        2.667,
+        9.505
+       ],
+       [
+        2.667,
+        9.545
+       ],
+       [
+        3.407,
+        9.545
+       ]
+      ]
+     ],
+     "by": "rule",
+     "assumed": true,
+     "sweeps": [
+      [
+       [
+        3.407,
+        9.505
+       ],
+       [
+        3.407,
+        10.245
+       ],
+       [
+        3.21547,
+        10.21979
+       ],
+       [
+        3.037,
+        10.14586
+       ],
+       [
+        2.88374,
+        10.02826
+       ],
+       [
+        2.76614,
+        9.875
+       ],
+       [
+        2.69221,
+        9.69653
+       ],
+       [
+        2.667,
+        9.505
+       ]
+      ]
+     ],
+     "reason": "every interior door stands open by default (UL127; a storage room's door); hinged at the jamb by the wall beside it (right seen from r_L1_oda_2)"
+    },
+    "swing_side": "r_L1_oda_2",
+    "operation": "swing"
+   },
+   {
+    "id": "d_L1_008",
+    "type": "door",
+    "level_id": "L1",
+    "wall_id": "w_L1_029",
+    "center": [
+     4.5252,
+     8.575
+    ],
+    "width": 0.85,
+    "height": 2.1,
+    "sill_height": null,
+    "leaf_state": {
+     "state": "open",
+     "operation": "swing",
+     "role": "storage",
+     "side": 1,
+     "into": "r_L1_cocuk_odasi",
+     "rooms": [
+      "r_L1_cocuk_odasi",
+      "r_L1_oda"
+     ],
+     "angle_deg": 90.0,
+     "slide_m": null,
+     "hinge": "end",
+     "hinge_side": "left",
+     "hinge_assumed": true,
+     "leaf_polys": [
+      [
+       [
+        4.5052,
+        8.945
+       ],
+       [
+        3.7652,
+        8.945
+       ],
+       [
+        3.7652,
+        8.905
+       ],
+       [
+        4.5052,
+        8.905
+       ]
+      ]
+     ],
+     "by": "rule",
+     "assumed": true,
+     "sweeps": [
+      [
+       [
+        4.5052,
+        8.945
+       ],
+       [
+        4.5052,
+        8.205
+       ],
+       [
+        4.31367,
+        8.23021
+       ],
+       [
+        4.1352,
+        8.30414
+       ],
+       [
+        3.98194,
+        8.42174
+       ],
+       [
+        3.86434,
+        8.575
+       ],
+       [
+        3.79041,
+        8.75347
+       ],
+       [
+        3.7652,
+        8.945
+       ]
+      ]
+     ],
+     "reason": "every interior door stands open by default (UL127; a storage room's door); hinged at the jamb by the wall beside it (left seen from r_L1_cocuk_odasi)"
+    },
+    "swing_side": "r_L1_cocuk_odasi",
+    "operation": "swing"
+   },
+   {
+    "id": "d_L1_011",
+    "type": "door",
+    "level_id": "L1",
+    "wall_id": "w_L1_004",
+    "center": [
+     3.188,
+     3.425
+    ],
+    "width": 1.976,
+    "height": 2.1,
+    "sill_height": null,
+    "leaf_state": {
+     "state": "closed",
+     "operation": "swing",
+     "role": "outside",
+     "side": 1,
+     "into": "r_L1_cocuk_odasi",
+     "rooms": [
+      "r_L1_cocuk_odasi",
+      null
+     ],
+     "angle_deg": 0.0,
+     "slide_m": null,
+     "hinge": null,
+     "hinge_side": null,
+     "hinge_assumed": null,
+     "leaf_polys": [],
+     "by": "rule",
+     "assumed": true,
+     "reason": "an outside or terrace door stays closed (an open one reads as a mistake)"
+    },
+    "swing_side": null,
+    "operation": "swing"
+   },
+   {
+    "id": "win_L1_002",
+    "type": "window",
+    "level_id": "L1",
+    "wall_id": "w_L1_004",
+    "center": [
+     1.5433,
+     3.425
+    ],
+    "width": 1.2652,
+    "height": 1.2,
+    "sill_height": 0.9,
+    "swing_side": null
+   },
+   {
+    "id": "win_L1_003",
+    "type": "door",
+    "level_id": "L1",
+    "wall_id": "w_L1_008",
+    "center": [
+     8.0131,
+     6.6747
+    ],
+    "width": 0.75,
+    "height": 2.1,
+    "sill_height": null,
+    "leaf_state": {
+     "state": "open",
+     "operation": "swing",
+     "role": "dressing",
+     "side": -1,
+     "into": "r_L1_ebeveyn_y_odasi",
+     "rooms": [
+      "r_L1_soyunma_odasi",
+      "r_L1_ebeveyn_y_odasi"
+     ],
+     "angle_deg": 90.0,
+     "slide_m": null,
+     "hinge": "start",
+     "hinge_side": "left",
+     "hinge_assumed": true,
+     "leaf_polys": [
+      [
+       [
+        7.6931,
+        6.6547
+       ],
+       [
+        7.6931,
+        6.0147
+       ],
+       [
+        7.7331,
+        6.0147
+       ],
+       [
+        7.7331,
+        6.6547
+       ]
+      ]
+     ],
+     "by": "rule",
+     "assumed": true,
+     "sweeps": [
+      [
+       [
+        7.6931,
+        6.6547
+       ],
+       [
+        8.3331,
+        6.6547
+       ],
+       [
+        8.31129,
+        6.48906
+       ],
+       [
+        8.24736,
+        6.3347
+       ],
+       [
+        8.14565,
+        6.20215
+       ],
+       [
+        8.0131,
+        6.10044
+       ],
+       [
+        7.85874,
+        6.03651
+       ],
+       [
+        7.6931,
+        6.0147
+       ]
+      ]
+     ],
+     "reason": "every interior door stands open by default (UL127; into the dressing room); hinged at the jamb by the wall beside it (left seen from r_L1_ebeveyn_y_odasi); the side it opens to is assumed (no swing side drawn)"
+    },
+    "swing_side": null,
+    "operation": "swing"
+   },
+   {
+    "id": "win_L1_010",
+    "type": "window",
+    "level_id": "L1",
+    "wall_id": "w_L1_027",
+    "center": [
+     4.4502,
+     3.175
+    ],
+    "width": 0.75,
+    "height": 1.2,
+    "sill_height": 0.9,
+    "swing_side": null
+   }
+  ],
+  "rooms": [
+   {
+    "id": "r_L1_cocuk_odasi",
+    "level_id": "L1",
+    "label": "\u00c7ocuk Odas\u0131",
+    "room_type": "storage",
+    "polygon": [
+     [
+      0.4507,
+      4.05
+     ],
+     [
+      0.5102,
+      4.05
+     ],
+     [
+      0.5102,
+      3.55
+     ],
+     [
+      4.4502,
+      3.55
+     ],
+     [
+      4.4502,
+      9.05
+     ],
+     [
+      3.8502,
+      9.05
+     ],
+     [
+      3.8502,
+      9.1997
+     ],
+     [
+      0.9502,
+      9.1997
+     ],
+     [
+      0.9502,
+      9.031
+     ],
+     [
+      0.4507,
+      9.031
+     ]
+    ],
+    "floor_offset_m": 0.0
+   }
+  ],
+  "furniture": [
+   {
+    "id": "f_L1_002",
+    "level_id": "L1",
+    "room_id": "r_L1_cocuk_odasi",
+    "type": "unknown",
+    "source": "from_documents",
+    "footprint": {
+     "center": [
+      4.1311,
+      5.8252
+     ],
+     "size": [
+      4.64,
+      0.6761
+     ],
+     "rotation_deg": 90.0
+    },
+    "front_deg": null,
+    "height": null,
+    "build": false,
+    "asset": {
+     "method": "parametric",
+     "bbox_m": [
+      4.64,
+      0.6761,
+      0.8
+     ],
+     "fit_scale": [
+      1.0,
+      1.0,
+      1.0
+     ],
+     "front_axis": "-Y",
+     "up_axis": "+Z"
+    }
+   },
+   {
+    "id": "f_L1_004",
+    "level_id": "L1",
+    "room_id": "r_L1_cocuk_odasi",
+    "type": "bed_double",
+    "source": "from_documents",
+    "footprint": {
+     "center": [
+      1.4259,
+      8.1248
+     ],
+     "size": [
+      1.9408,
+      1.9
+     ],
+     "rotation_deg": 90.0
+    },
+    "front_deg": 0.0,
+    "height": null,
+    "build": true,
+    "design": {
+     "headboard": "slat",
+     "headboard_why": "the scandinavian headboard: vertical wood slats on a wood backing (UL163)"
+    },
+    "asset": {
+     "method": "library",
+     "bbox_m": [
+      1.9408,
+      1.9978,
+      0.9205
+     ],
+     "scaling": "uniform",
+     "fit_scale": [
+      0.9205,
+      0.9205,
+      0.9205
+     ],
+     "front_axis": "-Y",
+     "up_axis": "+Z"
+    }
+   },
+   {
+    "id": "f_L1_005",
+    "level_id": "L1",
+    "room_id": "r_L1_cocuk_odasi",
+    "type": "dresser",
+    "source": "from_documents",
+    "footprint": {
+     "center": [
+      0.75,
+      6.42
+     ],
+     "size": [
+      1.2,
+      0.5575
+     ],
+     "rotation_deg": 90.0
+    },
+    "front_deg": 0.0,
+    "height": 0.8,
+    "build": true,
+    "asset": {
+     "method": "library",
+     "bbox_m": [
+      1.2,
+      0.4858,
+      0.7605
+     ],
+     "scaling": "uniform",
+     "fit_scale": [
+      1.0435,
+      1.0435,
+      1.0435
+     ],
+     "front_axis": "-Y",
+     "up_axis": "+Z"
+    }
+   },
+   {
+    "id": "f_L1_006",
+    "level_id": "L1",
+    "room_id": "r_L1_cocuk_odasi",
+    "type": "unknown",
+    "source": "from_documents",
+    "footprint": {
+     "center": [
+      0.6763,
+      7.9246
+     ],
+     "size": [
+      0.4,
+      0.4
+     ],
+     "rotation_deg": 0.0
+    },
+    "front_deg": null,
+    "height": null,
+    "build": false,
+    "asset": {
+     "method": "parametric",
+     "bbox_m": [
+      0.4,
+      0.4,
+      0.8
+     ],
+     "fit_scale": [
+      1.0,
+      1.0,
+      1.0
+     ],
+     "front_axis": "-Y",
+     "up_axis": "+Z"
+    }
+   },
+   {
+    "id": "f_L1_007",
+    "level_id": "L1",
+    "room_id": "r_L1_cocuk_odasi",
+    "type": "bed_double",
+    "source": "from_documents",
+    "footprint": {
+     "center": [
+      1.4411,
+      4.5502
+     ],
+     "size": [
+      1.9,
+      2.09
+     ],
+     "rotation_deg": 180.0
+    },
+    "front_deg": 90.0,
+    "height": null,
+    "build": true,
+    "design": {
+     "headboard": "slat",
+     "headboard_why": "the scandinavian headboard: vertical wood slats on a wood backing (UL163)"
+    },
+    "asset": {
+     "method": "library",
+     "bbox_m": [
+      1.9,
+      2.2062,
+      0.8655
+     ],
+     "scaling": "uniform",
+     "fit_scale": [
+      1.0244,
+      1.0244,
+      1.0244
+     ],
+     "front_axis": "-Y",
+     "up_axis": "+Z"
+    }
+   },
+   {
+    "id": "f_L1_008",
+    "level_id": "L1",
+    "room_id": "r_L1_cocuk_odasi",
+    "type": "nightstand",
+    "source": "from_documents",
+    "footprint": {
+     "center": [
+      0.7016,
+      4.6943
+     ],
+     "size": [
+      0.4,
+      0.42
+     ],
+     "rotation_deg": 90.0
+    },
+    "front_deg": 0.0,
+    "height": null,
+    "build": false,
+    "asset": {
+     "method": "library",
+     "bbox_m": [
+      0.4,
+      0.3975,
+      0.5223
+     ],
+     "scaling": "uniform",
+     "fit_scale": [
+      0.9492,
+      0.9492,
+      0.9492
+     ],
+     "front_axis": "+Y",
+     "up_axis": "+Z"
+    }
+   },
+   {
+    "id": "f_L1_040",
+    "level_id": "L1",
+    "room_id": "r_L1_cocuk_odasi",
+    "type": "wardrobe",
+    "source": "added_by_ai",
+    "footprint": {
+     "center": [
+      4.1792,
+      4.829
+     ],
+     "size": [
+      1.2,
+      0.5
+     ],
+     "rotation_deg": 270.0
+    },
+    "front_deg": 180.0,
+    "height": 2.1,
+    "layout": {
+     "against_wall": true,
+     "solver_role": "anchor",
+     "option": "wardrobe_shallow_120",
+     "candidate": 1,
+     "score": 25.3547
+    },
+    "asset": {
+     "method": "library",
+     "bbox_m": [
+      1.2,
+      0.4743,
+      1.7769
+     ],
+     "scaling": "uniform",
+     "fit_scale": [
+      0.9304,
+      0.9304,
+      0.9304
+     ],
+     "front_axis": "-Y",
+     "up_axis": "+Z"
+    }
+   },
+   {
+    "id": "f_L1_041",
+    "level_id": "L1",
+    "room_id": "r_L1_cocuk_odasi",
+    "type": "desk",
+    "source": "added_by_ai",
+    "footprint": {
+     "center": [
+      4.1792,
+      6.971
+     ],
+     "size": [
+      1.0,
+      0.5
+     ],
+     "rotation_deg": 270.0
+    },
+    "front_deg": 180.0,
+    "height": 0.75,
+    "layout": {
+     "against_wall": true,
+     "solver_role": "anchor",
+     "option": "desk_100",
+     "candidate": 1,
+     "score": 25.3547
+    },
+    "asset": {
+     "method": "library",
+     "bbox_m": [
+      1.0,
+      0.5324,
+      0.7919
+     ],
+     "scaling": "uniform",
+     "fit_scale": [
+      0.8807,
+      0.8807,
+      0.8807
+     ],
+     "front_axis": "-Y",
+     "up_axis": "+Z"
+    }
+   },
+   {
+    "id": "f_L1_042",
+    "level_id": "L1",
+    "room_id": "r_L1_cocuk_odasi",
+    "type": "office_chair",
+    "source": "added_by_ai",
+    "footprint": {
+     "center": [
+      3.5792,
+      6.971
+     ],
+     "size": [
+      0.6,
+      0.6
+     ],
+     "rotation_deg": 90.0
+    },
+    "front_deg": 0.0,
+    "height": 1.0,
+    "layout": {
+     "against_wall": false,
+     "solver_role": "chair",
+     "option": "desk_100",
+     "candidate": 1,
+     "score": 25.3547
+    },
+    "asset": {
+     "method": "library",
+     "bbox_m": [
+      0.6,
+      0.6122,
+      0.7456
+     ],
+     "scaling": "uniform",
+     "fit_scale": [
+      0.9997,
+      0.9997,
+      0.9997
+     ],
+     "front_axis": "-Y",
+     "up_axis": "+Z"
+    }
+   },
+   {
+    "id": "f_L1_043",
+    "level_id": "L1",
+    "room_id": "r_L1_cocuk_odasi",
+    "type": "bookshelf",
+    "source": "added_by_ai",
+    "footprint": {
+     "center": [
+      4.2802,
+      6.17
+     ],
+     "size": [
+      0.6,
+      0.3
+     ],
+     "rotation_deg": 270.0
+    },
+    "front_deg": 180.0,
+    "height": 0.9,
+    "asset": {
+     "method": "library",
+     "bbox_m": [
+      0.6,
+      0.2891,
+      1.3844
+     ],
+     "scaling": "uniform",
+     "fit_scale": [
+      0.8962,
+      0.8962,
+      0.8962
+     ],
+     "front_axis": "-Y",
+     "up_axis": "+Z"
+    }
+   }
+  ]
+ },
+ "camera": {
+  "name": "cam_r_L1_cocuk_odasi_2",
+  "kind": "interior",
+  "room_id": "r_L1_cocuk_odasi",
+  "level_id": "L1",
+  "index": 2,
+  "position": [
+   2.9507,
+   8.55,
+   4.25
+  ],
+  "target": [
+   2.9507,
+   7.55,
+   4.25
+  ],
+  "lens_mm": 18.0,
+  "sensor_mm": 36.0,
+  "resolution": [
+   1920,
+   1080
+  ],
+  "shift_x": 0.0,
+  "shift_y": 0.0,
+  "policy": "agent",
+  "pitch_deg": 0.0,
+  "warning": null,
+  "visible_openings": [
+   "d_L1_011",
+   "win_L1_002",
+   "d_L1_005"
+  ],
+  "visible_furniture": [
+   "f_L1_004",
+   "f_L1_005",
+   "f_L1_007",
+   "f_L1_040",
+   "f_L1_041",
+   "f_L1_042",
+   "f_L1_043"
+  ],
+  "variant": "base"
+ },
+ "objects": [
+  {
+   "name": "furn_f_L1_004",
+   "wenart_id": "f_L1_004",
+   "kind": "furniture",
+   "type": "bed_double",
+   "pass_index": 114,
+   "method": "library",
+   "box3d": {
+    "center": [
+     1.4748,
+     8.1248,
+     3.4603
+    ],
+    "size": [
+     1.9407,
+     1.9977,
+     0.9205
+    ],
+    "rotation_deg": 90.0
+   },
+   "fit": {
+    "depth_align": {
+     "mode": "back",
+     "shift_m": -0.0489,
+     "depth_abs_m": 0.0977
+    }
+   },
+   "materials": [
+    "MALM oak",
+    "FABRIC_1_FRONT_1",
+    "_54fere1",
+    "Default_Fabric_FRONT_1",
+    "ere1"
+   ]
+  },
+  {
+   "name": "furn_f_L1_005",
+   "wenart_id": "f_L1_005",
+   "kind": "furniture",
+   "type": "dresser",
+   "pass_index": 115,
+   "method": "library",
+   "box3d": {
+    "center": [
+     0.7142,
+     6.42,
+     3.3803
+    ],
+    "size": [
+     1.2,
+     0.4858,
+     0.7605
+    ],
+    "rotation_deg": 90.0
+   },
+   "fit": {
+    "depth_align": {
+     "mode": "back",
+     "shift_m": 0.0358,
+     "depth_abs_m": -0.0717
+    }
+   },
+   "materials": [
+    "White",
+    "mig_00wood.003",
+    "Gold"
+   ]
+  },
+  {
+   "name": "furn_f_L1_007",
+   "wenart_id": "f_L1_007",
+   "kind": "furniture",
+   "type": "bed_double",
+   "pass_index": 116,
+   "method": "library",
+   "box3d": {
+    "center": [
+     1.4411,
+     4.6083,
+     3.4328
+    ],
+    "size": [
+     1.8999,
+     2.2061,
+     0.8655
+    ],
+    "rotation_deg": 180.0
+   },
+   "fit": {
+    "depth_align": {
+     "mode": "back",
+     "shift_m": -0.0581,
+     "depth_abs_m": 0.1161
+    }
+   },
+   "materials": [
+    "Shader4",
+    "Shader3",
+    "Shader5",
+    "Shader6",
+    "Shader7"
+   ]
+  },
+  {
+   "name": "furn_f_L1_040",
+   "wenart_id": "f_L1_040",
+   "kind": "furniture",
+   "type": "wardrobe",
+   "pass_index": 139,
+   "method": "library",
+   "box3d": {
+    "center": [
+     4.1921,
+     4.829,
+     3.8884
+    ],
+    "size": [
+     1.2,
+     0.4743,
+     1.7769
+    ],
+    "rotation_deg": 270.0
+   },
+   "fit": {
+    "depth_align": {
+     "mode": "back",
+     "shift_m": 0.0129,
+     "depth_abs_m": -0.0257
+    }
+   },
+   "materials": [
+    "B07GFS1R5B_MAT_MR"
+   ]
+  },
+  {
+   "name": "furn_f_L1_041",
+   "wenart_id": "f_L1_041",
+   "kind": "furniture",
+   "type": "desk",
+   "pass_index": 140,
+   "method": "library",
+   "box3d": {
+    "center": [
+     4.163,
+     6.971,
+     3.3959
+    ],
+    "size": [
+     0.9999,
+     0.5324,
+     0.7919
+    ],
+    "rotation_deg": 270.0
+   },
+   "fit": {
+    "depth_align": {
+     "mode": "back",
+     "shift_m": -0.0162,
+     "depth_abs_m": 0.0324
+    }
+   },
+   "materials": [
+    "B01FK3FWNG_MAT_MR"
+   ]
+  },
+  {
+   "name": "furn_f_L1_042",
+   "wenart_id": "f_L1_042",
+   "kind": "furniture",
+   "type": "office_chair",
+   "pass_index": 141,
+   "method": "library",
+   "box3d": {
+    "center": [
+     3.5792,
+     6.971,
+     3.3728
+    ],
+    "size": [
+     0.6,
+     0.6122,
+     0.7456
+    ],
+    "rotation_deg": 90.0
+   },
+   "fit": {
+    "depth_align": {
+     "mode": "centre",
+     "shift_m": 0.0,
+     "depth_abs_m": 0.0122
+    }
+   },
+   "materials": [
+    "Chrome",
+    "Remix_123",
+    "unicolor_grey",
+    "unicolor_black.002"
+   ]
+  },
+  {
+   "name": "furn_f_L1_043",
+   "wenart_id": "f_L1_043",
+   "kind": "furniture",
+   "type": "bookshelf",
+   "pass_index": 142,
+   "method": "library",
+   "box3d": {
+    "center": [
+     4.2856,
+     6.17,
+     3.6922
+    ],
+    "size": [
+     0.6,
+     0.2891,
+     1.3844
+    ],
+    "rotation_deg": 270.0
+   },
+   "fit": {
+    "depth_align": {
+     "mode": "back",
+     "shift_m": 0.0054,
+     "depth_abs_m": -0.0109
+    }
+   },
+   "materials": [
+    "\"AMNJOLAIBFBAAAAAFMBAAAAAAAAACDMDALOD\""
+   ]
+  }
+ ],
+ "pass_index": {
+  "d_L1_002": 91,
+  "d_L1_003": 93,
+  "d_L1_005": 97,
+  "o_L1_005": 98,
+  "d_L1_006": 99,
+  "d_L1_008": 101,
+  "d_L1_011": 106,
+  "win_L1_002": 107,
+  "win_L1_003": 108,
+  "win_L1_010": 112,
+  "f_L1_004": 114,
+  "f_L1_005": 115,
+  "f_L1_007": 116,
+  "f_L1_040": 139,
+  "f_L1_041": 140,
+  "f_L1_042": 141,
+  "f_L1_043": 142
+ },
+ "index_values": [
+  97,
+  106,
+  107,
+  112,
+  115,
+  116,
+  139,
+  140,
+  141,
+  142,
+  149,
+  151,
+  168
+ ]
+}

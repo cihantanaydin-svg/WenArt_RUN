@@ -707,7 +707,31 @@ def test_closed_door_views_end_on_the_door(project):
         assert depth.get("coverage", 0.0) >= CLOSED_DOOR_MIN_COVERAGE, (cam, depth)
 
 
-def _library_box_edge_only(building: dict, plan: dict, piece_id: str, box3d: dict, share: float | None = None) -> bool:
+def _built_centre(piece: dict, fit: dict | None) -> list[float]:
+    """The plan point the build puts a library mesh's box centre on (31 Oct 2026): the footprint centre moved by the
+    fit's depth alignment (the scene manifest object's ``fit.depth_align.shift_m`` along the piece's back axis, local
+    +Y turned by the footprint rotation; ``furniture.fit_vertices``, build round 2 K2). Why: real06 run
+    20261030-224530-full, cam_r_L1_cocuk_odasi_2: the bed f_L1_004, a uniform fit 9.8 cm deeper than its footprint,
+    keeps its head on the wall (``align="back"``) and its box3d centre lies 4.9 cm from the footprint centre by design;
+    the guard below read that as a misplaced mesh."""
+    fp = piece["footprint"]
+    shift = float((((fit or {}).get("depth_align") or {}).get("shift_m")) or 0.0)
+    r = math.radians(float(fp.get("rotation_deg") or 0.0))
+    return [float(fp["center"][0]) - math.sin(r) * shift, float(fp["center"][1]) + math.cos(r) * shift]
+
+
+def _box3d_on_its_fit(piece: dict, asset: dict, box: dict, fit: dict | None) -> bool:
+    """The built mesh's ``box3d`` stands where the build puts the fitted box (``_built_centre``) and has the fitted
+    width and depth, each within ``BOX3D_TOLERANCE_M``: a moved or mis-sized mesh stays a failure."""
+    if math.dist([float(v) for v in box["center"][:2]], _built_centre(piece, fit)) > BOX3D_TOLERANCE_M:
+        return False
+    width, depth = (float(v) for v in asset["bbox_m"][:2])
+    return abs(float(box["size"][0]) - width) <= BOX3D_TOLERANCE_M and \
+        abs(float(box["size"][1]) - depth) <= BOX3D_TOLERANCE_M
+
+
+def _library_box_edge_only(building: dict, plan: dict, piece_id: str, box3d: dict, share: float | None = None,
+                           fits: dict | None = None) -> bool:
     """True when the model sees a library piece only at the outer edge of its fitted box (Milestone 10, pod F1):
     with ``asset.bbox_m`` shrunk by ``LIBRARY_BOX_SLACK_M`` per side (height kept) its model share falls under
     ``MODEL_HIDDEN_SHARE``, and the scene manifest's ``box3d`` of the piece (the built mesh, measured in the piece
@@ -716,7 +740,10 @@ def _library_box_edge_only(building: dict, plan: dict, piece_id: str, box3d: dic
     wider than the doors), not from where it was placed. Fix round after P6a (22 Oct 2026): when the whole box's model
     ``share`` is at most ``LIBRARY_SLIVER_MAX`` (a sliver of it in the frame) the slack per side is
     ``LIBRARY_BOX_SLACK_SHARE`` of the side (at least ``LIBRARY_BOX_SLACK_M``): a chair back narrower than its base and
-    an oval top leave the box's corners empty. Fixed equipment (``furniture.schemas.FIXED_TYPES``) keeps the 2 cm."""
+    an oval top leave the box's corners empty. Fixed equipment (``furniture.schemas.FIXED_TYPES``) keeps the 2 cm.
+    31 Oct 2026: the centre is the one the build gives the fitted box (``_box3d_on_its_fit``: the footprint centre
+    moved by the fit's depth alignment, ``fits`` = the scene objects' ``fit`` records), and the smaller box stands
+    there."""
     from wenart.furniture.schemas import FIXED_TYPES
     from wenart.blender import camsearch
 
@@ -726,29 +753,29 @@ def _library_box_edge_only(building: dict, plan: dict, piece_id: str, box3d: dic
     box = box3d.get(piece_id)
     if asset.get("method") != "library" or not asset.get("bbox_m") or not box:
         return False
+    fit = (fits or {}).get(piece_id)
+    if not _box3d_on_its_fit(piece, asset, box, fit):
+        return False
     width, depth = (float(v) for v in asset["bbox_m"][:2])
-    if math.dist([float(v) for v in box["center"][:2]], [float(v) for v in piece["footprint"]["center"][:2]]) \
-            > BOX3D_TOLERANCE_M:
-        return False
-    if abs(float(box["size"][0]) - width) > BOX3D_TOLERANCE_M or abs(float(box["size"][1]) - depth) > BOX3D_TOLERANCE_M:
-        return False
     slack_w = slack_d = LIBRARY_BOX_SLACK_M
     if share is not None and share <= LIBRARY_SLIVER_MAX and piece.get("type") not in FIXED_TYPES:
         # fix round after P6a: a sliver of the box of a piece whose shape may leave its corners empty
         slack_w = max(LIBRARY_BOX_SLACK_M, LIBRARY_BOX_SLACK_SHARE * width)
         slack_d = max(LIBRARY_BOX_SLACK_M, LIBRARY_BOX_SLACK_SHARE * depth)
     shrunk = [max(width - 2.0 * slack_w, 0.0), max(depth - 2.0 * slack_d, 0.0)]
-    smaller = dict(piece, asset=dict(asset, bbox_m=shrunk + list(asset["bbox_m"][2:])))
+    smaller = dict(piece, asset=dict(asset, bbox_m=shrunk + list(asset["bbox_m"][2:])),
+                   footprint=dict(piece["footprint"], center=_built_centre(piece, fit)))
     model = dict(building, furniture=[smaller if f is piece else f for f in pieces])
     return camsearch.model_shares(model, plan).get(piece_id, 0.0) < MODEL_HIDDEN_SHARE
 
 
-def _library_outline_hidden(building: dict, plan: dict, piece_id: str, box3d: dict) -> bool:
+def _library_outline_hidden(building: dict, plan: dict, piece_id: str, box3d: dict, fits: dict | None = None) -> bool:
     """True when the model does not see a library piece modelled as its built mesh (30 Oct 2026): the scene manifest's
     ``box3d`` has the footprint centre and the fitted width and depth (± ``BOX3D_TOLERANCE_M``: the mesh stands where
     the model puts it, as ``_library_box_edge_only`` asks) and the piece as the prism of the mesh's convex plan outline
     (``box3d.outline``, ``camsearch.piece_with_outline``) has a model share under ``MODEL_HIDDEN_SHARE``: a freestanding
-    tub's rounded end leaves its box's corner empty, whatever its type."""
+    tub's rounded end leaves its box's corner empty, whatever its type. 31 Oct 2026: the centre the build gives the
+    fitted box (``_box3d_on_its_fit``, the fit's depth alignment)."""
     from wenart.blender import camsearch
 
     pieces = building.get("furniture") or []
@@ -757,11 +784,7 @@ def _library_outline_hidden(building: dict, plan: dict, piece_id: str, box3d: di
     box = box3d.get(piece_id)
     if asset.get("method") != "library" or not asset.get("bbox_m") or not box:
         return False
-    if math.dist([float(v) for v in box["center"][:2]], [float(v) for v in piece["footprint"]["center"][:2]]) \
-            > BOX3D_TOLERANCE_M:
-        return False
-    width, depth = (float(v) for v in asset["bbox_m"][:2])
-    if abs(float(box["size"][0]) - width) > BOX3D_TOLERANCE_M or abs(float(box["size"][1]) - depth) > BOX3D_TOLERANCE_M:
+    if not _box3d_on_its_fit(piece, asset, box, (fits or {}).get(piece_id)):
         return False
     shaped = camsearch.piece_with_outline(piece, box)
     if shaped is None:
@@ -775,6 +798,8 @@ def test_index_pass_contains_every_visible_proxy(project):
     table = scene["pass_index"]
     plans = {c["name"]: c for c in scene["cameras"]}
     box3d = {o["wenart_id"]: o.get("box3d") for o in scene.get("objects") or [] if o.get("kind") == "furniture"}
+    # 31 Oct 2026: the fit records (their depth alignment) of the built meshes, for the box3d guard
+    fits = {o["wenart_id"]: o.get("fit") for o in scene.get("objects") or [] if o.get("kind") == "furniture"}
     missing, hidden, edge, see_through, outline = [], [], [], [], []
     building = None
     for r in render["renders"]:
@@ -811,14 +836,14 @@ def test_index_pass_contains_every_visible_proxy(project):
             shares = camsearch.model_shares(building, plan)
             # Milestone 10: a library mesh is smaller than its fitted box; seen only at the box's edge it may be
             # outside the frame (the box3d guard keeps a misplaced or mis-scaled mesh a failure).
-            edge_only = [f for f in absent if _library_box_edge_only(building, plan, f, box3d, shares.get(f))]
+            edge_only = [f for f in absent if _library_box_edge_only(building, plan, f, box3d, shares.get(f), fits)]
             edge.extend((r["camera"], f, round(shares[f], 4)) for f in edge_only)
             absent = [f for f in absent if f not in edge_only]
             # 30 Oct 2026 (real04 run 20261029-201533-full, cam_r_L-1_banyo_1 / cam_r_L0_banyo_1: freestanding library
             # tubs whose fitted box's corner lies in the frame's edge, their rounded ends off it; fixed equipment keeps
             # the 2 cm box slack above): the model with the piece as its built mesh's convex outline (box3d.outline)
             # sees none of it either
-            shaped = [f for f in absent if _library_outline_hidden(building, plan, f, box3d)]
+            shaped = [f for f in absent if _library_outline_hidden(building, plan, f, box3d, fits)]
             outline.extend((r["camera"], f) for f in shaped)
             absent = [f for f in absent if f not in shaped]
             # 26 Oct 2026 (pod 5fr7dp2g1co4sx, real06 cam_r_L0_banyo_3: a quadrant shower enclosure of glass doors, its
@@ -1484,6 +1509,37 @@ def _lower_wall_green(view, table) -> float | None:
     return round(float(mean[1] / max((mean[0] + mean[2]) / 2.0, 1e-6)), 3)
 
 
+def _paint_green(room: dict | None, style: dict | None) -> float | None:
+    """The display G/((R+B)/2) of the colour a room's scheme paints every wall in (31 Oct 2026; ``looks.scheme_walls``:
+    a deep colour or a limewash; the sRGB of the colour phrase, ``wenart.style.colours``), None for a room on the
+    house's paint, a style without the schemes or a colour phrase the vocabulary does not know."""
+    from wenart.blender import looks
+    from wenart.style import colours
+
+    own = looks.scheme_walls(room, style)
+    parsed = colours.parse(own["colour"]) if own and own.get("colour") else None
+    if parsed is None:
+        return None
+    r, g, b = (colours.linear_to_srgb(v) for v in colours.linear_rgb(*parsed))
+    return round(g / max((r + b) / 2.0, 1e-6), 3)
+
+
+def _scheme_green_views(cams, entries: dict, rooms: dict, style: dict | None) -> dict:
+    """``{camera: paint ratio}`` of the views ``cams`` whose room its scheme paints all round in a colour that reads
+    over ``DAYLIGHT_WALL_GREEN_MAX`` by itself (``_paint_green``; 31 Oct 2026). Why: real06 run 20261030-224530-full,
+    cam_r_L1_cocuk_odasi_1/2/3 read 1.42-1.50 against 1.06: the room's scheme deep:dark sage paints every wall dark
+    sage (1.502 by itself), and the house's white point leaves a paint's colour as it is (the warm greige walls of the
+    other daylight views read 1.00). The pin is for a daylight cast on a neutral paint; a room painted green on purpose
+    is treated like a room with an accent wall (printed, not pinned), from the scene's building and style profile.
+    A room painted all round in a neutral colour (a warm greige limewash) stays pinned."""
+    out = {}
+    for cam in cams:
+        green = _paint_green(rooms.get(entries[cam].get("room_id")), style)
+        if green is not None and green > DAYLIGHT_WALL_GREEN_MAX:
+            out[cam] = green
+    return out
+
+
 def test_daylight_walls_are_not_olive(project):
     """Fix round after P5 (22 Oct 2026). What: the painted walls of every view lit mostly by daylight (rig share under
     ``RIG_CHECK_SHARE``, the orange check's floor; under the interior world, within the cap, not blocked; the rig's
@@ -1493,7 +1549,9 @@ def test_daylight_walls_are_not_olive(project):
     pixels, not the white point rule (``test_views_keep_the_project_white_point_or_mix_it_with_the_rig`` checks the
     rule against the record). Fix round after P6a (22 Oct 2026): the lower half of the walls keeps at least
     ``DAYLIGHT_LOWER_WALL_GREEN_MIN`` (``_lower_wall_green``), so a tint that shifts the whole view cannot pass the
-    olive pin by turning the lower walls pink; the values are kept (``CHECK_VALUES_FILE``)."""
+    olive pin by turning the lower walls pink; the values are kept (``CHECK_VALUES_FILE``). 31 Oct 2026: the views of a
+    room its scheme paints all round in a colour that is green by itself are left out like those of a room with an
+    accent wall (``_scheme_green_views``)."""
     from wenart import views
     from wenart.blender import render as R
 
@@ -1518,6 +1576,12 @@ def test_daylight_walls_are_not_olive(project):
     daylight = [c for c in daylight if c not in skipped]
     if skipped:
         print(f"{name}: views of rooms with an accent wall, not pinned: {skipped}")
+    # 31 Oct 2026: a room its scheme paints all round in a colour that reads green by itself (``_scheme_green_views``)
+    coloured = _scheme_green_views(daylight, entries, _scene_rooms(name, scene), style)
+    daylight = [c for c in daylight if c not in coloured]
+    if coloured:
+        print(f"{name}: views of rooms painted all round in a green colour by their scheme, not pinned (view: the "
+              f"paint's own display G/((R+B)/2)): {coloured}")
     if not daylight:
         pytest.skip(f"{name}: no painted daylight view")
     table = views.index_table(scene)
