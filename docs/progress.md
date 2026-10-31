@@ -2880,3 +2880,28 @@ The user ranks the library models 0-10 on their look; the fit then prefers the b
 | ranks `results/library/user_ranks.json` (`wenart/furniture/user_ranks.py`) | 0-2: never used (`catalog.usable`); higher rank first (2 size steps per point from the unranked 5, `fit.rank_key`; replaces our upholstery grade); 6+ beats our procedural build (library-first decor) |
 
 Merge the page's scores: `python -m wenart.furniture.user_ranks merge --scores <scores.json>`.
+
+Second batch (31 Oct 2026): 2,453 models of 34 types on the sheets; 834 scores merged so far. A survey page for a
+second rater (`--rater`, one-file `--inline` version for outside Claude) writes `second_opinion_index.json`; its
+copied text merges with `user_ranks.parse_text` (two opinions averaged later).
+
+## Our own builds on the sheets, better textures (31 Oct 2026, lesson UL218; user: "start with 1 and 2")
+
+| part | what |
+|---|---|
+| our builds in the studio (`--procedural --proc-tag ours`) | 80 parametric and module builds in the projects' styles on the same sheets ("Our builds" tab); the builders' code hash makes a before/after |
+| scores | our builds scored 1-3 (beds, chaise, sink, stove, washbasin): geometry is the next step, textures alone barely show |
+| textures | CC0 scans for plain fabrics, leather and handle metals (procedural weave as fallback), sheen/clearcoat/wear layers on furniture slugs only, piece-frame box UVs (grain along the long side, offset per part) |
+
+## The user's review of real04 run 20261030-181158-full (31 Oct 2026, lessons UL219-UL230)
+
+| lesson | request | fix |
+|---|---|---|
+| UL219, UL222, UL226 | "There can not be a fridge inside the kitchen counter! make this a rule" | `wenart/blender/fridge_rule.py`: a fridge is never on or in a counter run; the run stops and goes on around a tall fridge column; a fridge moved to the column takes its model along |
+| UL220 | "I did not like this pink carpet never use it again" | in `results/library/user_rejected.json` |
+| UL223 | "Not every room needs this built in wardrobe ... wall to wall or from wall to middle" | at most 2 rooms with a built-in run; it touches a wall (wall to wall, or a wall to at most 0.5 m into the room); veneer or matte lacquer, shadow gaps, recessed plinth, grip channel, tinted glass, soft LED |
+| UL225 | "the door the toilet not making sense at all" | root cause: an L1 bath door under the slope cut to 1.00 m; a dormer over a drawn door under the slope (helper) |
+| UL227 | "a person can walk around the house using the designated pathways" | outdoor walk check: every outdoor area reached by paths, steps or ramps, no jumps (helper) |
+| UL221, UL224, UL229 | better bedding, sofa throws, a leather bag | helper |
+| UL228 | small bathroom items | library first, better builds (helper) |
+| UL230 | "something wrong in the marked area" (L-1 plan) | the level view cut the walls but not the ground: angled level views now cut the ground and outdoor parts at the wall-cut height; walls under the next floor stop 3 mm under it |
