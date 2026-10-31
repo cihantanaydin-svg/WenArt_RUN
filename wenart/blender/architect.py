@@ -51,6 +51,14 @@ QUESTIONS = (
      "question": "This terrace lies at the floor level of the rooms beside it, right outside their windows, and no "
                  "door opens onto it: can people still reach it from outside? (The drawn windows stay windows; only "
                  "when no outside way exists does the architect ask you about a door.)"},
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "we need to develop a log that is checking the a person can
+    # walk around the house using the designated pathways and able to reach the area, the pathways must be logical) ...
+    # the person going to jump to reach the pool?"): the outdoor walk (wenart/blender/site_walk.py, architect_walk.py)
+    {"id": "A6", "topic": "outdoor walk", "severity": "major",
+     "question": "Can a person walk around the house along the designated paths, from the street and every outside "
+                 "door to every terrace, pool deck, parking and entrance, without a jump: every flight landing on a "
+                 "walkable surface at both ends, every path arriving somewhere?",
+     "why": "a path that stops at a drop, a flight onto the lawn or a terrace nobody can walk to makes no sense"},
 )
 
 
@@ -212,8 +220,15 @@ def steps_landing(pf: dict, terrain: Optional[dict] = None) -> Optional[tuple[fl
     if i is None or len(poly) < 3:
         return None
     if pf.get("steps_dir") == "up":                      # a flight up out of a sunken deck lands on the slope above
-        land = (pf.get("flight") or {}).get("landing")
-        return (float(land[0]), float(land[1])) if land else None
+        fl = pf.get("flight") or {}
+        land = fl.get("landing")
+        if not land:
+            return None
+        # 31 Oct 2026 (A6, site_walk): FOOT_CLEAR_M further out, so the start's half width never lies on the flight's
+        # footprint edge (an edge point counts as inside: the route search found no free start; flight_exits reaches
+        # the path back to the top step)
+        o = fl.get("out") or (0.0, 0.0)
+        return float(land[0]) + o[0] * FOOT_CLEAR_M, float(land[1]) + o[1] * FOOT_CLEAR_M
     if terrain is not None:
         from wenart.blender import grading as GR
         from wenart.blender import site as S
@@ -604,7 +619,10 @@ def flight_exits(pf: dict, terrain: Optional[dict]) -> list[dict]:
     if first is None:
         return []
     out = [{"start": first, "side": None, "back": half}]
-    if terrain is None or pf.get("steps_dir") == "up":
+    if pf.get("steps_dir") == "up":
+        out[0]["back"] = half + FOOT_CLEAR_M             # 31 Oct 2026: back to the top step (steps_landing)
+        return out
+    if terrain is None:
         return out
     from wenart.blender import grading as GR
     from wenart.blender import site as S
@@ -1563,6 +1581,10 @@ def review(building: dict, prep: dict) -> dict:
         questions.append(review_access(prep, outer))
         questions.append(review_light_wells(prep))
         questions.append(review_deck_doors(building, prep, outer, windows))
+        # 31 Oct 2026 (A6): the outdoor walk from the street and every outside door to every outdoor area, checked and
+        # fixed after A2 / B2 added their steps and paths (wenart/blender/architect_walk.py)
+        from wenart.blender import architect_walk as AW
+        questions.append(AW.review_walk(building, prep))
         # 28 Oct 2026: the grading and the outdoor floors (G2, G3), after A2 / B2 added their steps and paths
         questions += RULES.grading_rules(prep)
     return summary(close_answered(questions, answers, applied), applied)
@@ -1706,9 +1728,9 @@ def status_of(a: dict) -> str:
     return "ok"
 
 
-ORDER = ("B1", "B2", "A2", "A5", "E1", "O2", "C1", "C2", "T1", "T2", "L1", "W2", "L2", "W3", "W5", "W6", "P1", "R1", "R2",
-         "R3", "R4", "R5", "O1", "D1", "D2", "D4", "D5", "D6", "D3", "X1", "F5", "F1", "F2", "F3", "F4", "H1", "H2", "U1",
-         "S4", "S2", "S3", "K4", "K1", "K2", "K3", "S1", "A3", "A4", "A1", "G1", "G2", "G3")
+ORDER = ("B1", "B2", "A2", "A6", "A5", "E1", "O2", "C1", "C2", "T1", "T2", "L1", "W2", "L2", "W3", "W5", "W6", "P1",
+         "R1", "R2", "R3", "R4", "R5", "O1", "D1", "D2", "D4", "D5", "D6", "D3", "X1", "F5", "F1", "F2", "F3", "F4", "H1",
+         "H2", "U1", "S4", "S2", "S3", "K4", "K1", "K2", "K3", "S1", "A3", "A4", "A1", "G1", "G2", "G3")
 
 
 def summary(questions: list[dict], applied: Optional[Sequence[dict]] = None) -> dict:

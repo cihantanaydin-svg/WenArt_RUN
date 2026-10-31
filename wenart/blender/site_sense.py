@@ -23,6 +23,10 @@ What (pure, no shapely: it runs where the grading review runs):
   landing (no wedge of two strips at different levels, no step of one across the other's walk), a path joins a path
   or leaves a door's landing square to it, nothing (a tree, a plant, a handrail post) stands in a walk, a walk on the
   ground is level across.
+- G15 ``site_walk.review`` (31 Oct 2026, user on real04 run 20261030-181158-full: "a log that is checking the a person
+  can walk around the house using the designated pathways and able to reach the area ... the person going to jump to
+  reach the pool?"): the walk graph of the site from the streets and every outside door; every outdoor area reached,
+  every flight landing on a walkable surface at both ends, every path arriving somewhere, no step or drop at a joint.
 
 ``review(site, manifest)`` returns ``(findings, checked)`` in the model review's format (``grading._f``).
 """
@@ -400,14 +404,18 @@ def walkways(site: dict) -> list[dict]:
 
 
 def review(site: Optional[dict], manifest: Optional[dict] = None) -> tuple[list[dict], int]:
-    """G8-G14 on a site plan (pure; module docstring)."""
+    """G8-G15 on a site plan (pure; module docstring). 31 Oct 2026: G15, the outdoor walk (``site_walk.review``: every
+    outdoor area reached along the designated paths, flights landing on a walkable surface at both ends, paths that
+    arrive somewhere, no step or drop at a joint)."""
     from wenart.blender import pool_extras as PX
+    from wenart.blender import site_walk as SW
 
     if not site or not site.get("terrain"):
         return [], 0
     findings = fragments(site) + flights_meet(site) + rails(site, manifest) + aprons(site, manifest) + access(site) \
         + walkways(site)
     more, n = PX.review(site, manifest)
+    walk, n_walk = SW.review(site)
     checked = len(site.get("platforms") or []) + len([a for a in site.get("areas") or [] if a.get("kind") == "path"]) \
-        + len(site.get("glazing_runs") or []) + n
-    return findings + more, checked
+        + len(site.get("glazing_runs") or []) + n + n_walk
+    return findings + more + walk, checked

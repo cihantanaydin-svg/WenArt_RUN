@@ -128,6 +128,10 @@ RULES = {
     "G12": "the paved strip at the foot of a glazed facade runs its whole glazing run",
     "G13": "a car drives into every parking from a street and out again (UL198)",
     "G14": "walkways walkable: paths meet edge to edge on a level landing and square, nothing stands in a walk (UL202)",
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "the person going to jump to reach the pool?"; site_walk)
+    "G15": "the outdoor walk: from the street and every outside door a person reaches every outdoor area along the "
+           "designated paths; every flight lands on a walkable surface at both ends, every path arrives somewhere, "
+           "no step or drop at a joint",
 }
 CONCRETE_SLUGS = ("concrete_exposed", "concrete", "concrete_polished")
 
@@ -1166,6 +1170,8 @@ def accessible_paths(plan: dict) -> set:
         ids = [str(x) for x in p.get("opening_ids") or []]
         if doors & set(ids):
             out.add(f"path_{'_'.join(ids)}")
+    # 31 Oct 2026 (A6, architect_walk.fix_link): the architect's path to an entrance with a ramp is accessible too
+    out |= {str(a.get("id")) for a in plan.get("areas") or [] if a.get("kind") == "path" and a.get("accessible")}
     return out
 
 
@@ -1229,6 +1235,53 @@ def level_on(rec: dict, p, gz: Optional[Callable] = None) -> Optional[float]:
     return gz(*p) if gz is not None else None
 
 
+PIN_MAX_M = 3.0                   # 31 Oct 2026: a path end meets a surface at most this far over or under its ground
+
+
+def walk_surfaces(plan: dict, gz: Callable, terrain: Optional[dict] = None) -> list[dict]:
+    """The surfaces a path's end may arrive at besides the entrance landings and the other paths (pure; 31 Oct 2026,
+    user on real04 run 20261030-181158-full: "Looked at the marked area it is not making sense the person going to
+    jump to reach the pool?": the path from the house came down beside sp_001 and started 15 cm under the foot landing
+    of the pool terrace's flight, a raw step and the landing's block between them): the foot landing of every flight
+    down from a platform (``down_flight``), the top step of every flight up out of one (``site.up_flight``) and the
+    platforms themselves (a flat one at its level, a draped parking at the ground: ``z`` None), never a planted tier or
+    a raised deck, and the streets and pavements (at the ground). ``[{"id", "polygon", "holes", "z"}]``, the flights'
+    landings first (they lie outside the platform)."""
+    from wenart.blender import site as S
+
+    flights, slabs = [], []
+    streets = [{"id": "street", "polygon": [tuple(map(float, q[:2])) for q in a["polygon"]], "holes": [], "z": None}
+               for a in plan.get("areas") or [] if a.get("kind") in ("road", "pavement")
+               and len(a.get("polygon") or []) >= 3]
+    for pf in plan.get("platforms") or []:
+        poly = pf.get("polygon") or []
+        if pf.get("parent") or pf.get("elevated") or len(poly) < 3 or not isinstance(pf.get("z"), (int, float)):
+            continue
+        slabs.append({"id": f"platform:{pf['id']}", "polygon": [tuple(map(float, q[:2])) for q in poly],
+                      "holes": [h for h in pf.get("holes") or [] if len(h) >= 3],
+                      "z": None if pf.get("sloped") else float(pf["z"])})
+        if pf.get("steps_edge") is None or pf.get("sloped") or pf.get("steps_edge") in (pf.get("shared_edges") or []):
+            continue
+        if pf.get("steps_dir") != "up":
+            fl = down_flight(pf, gz)
+            if fl is not None:
+                flights.append({"id": f"foot:{pf['id']}", "polygon": fl["foot"], "holes": [],
+                                "z": float(fl["foot_z"])})
+            continue
+        up = pf.get("flight") if isinstance(pf.get("flight"), dict) else S.up_flight(pf, terrain, gz=gz)
+        if up:
+            tread = S.PLATFORM["step_tread"]
+            d = float(up["length"])
+            d0, d1 = (-tread, 0.0) if up.get("inward") else (d - tread, d)
+            flights.append({"id": f"top:{pf['id']}", "polygon": _rect(up["mid"], up["out"], d0, d1, float(up["half_w"])),
+                            "holes": [], "z": float(pf["z"]) + float(up["rise"])})
+    return flights + slabs + streets
+
+
+def _on_surface(p, s: dict) -> bool:
+    return G.point_in_polygon(p, s["polygon"]) and not any(G.point_in_polygon(p, h) for h in s.get("holes") or [])
+
+
 def graded_paths(plan: dict) -> list[dict]:
     """``path_plan`` of every path area of a site plan without a platform, in the order of ``plan["areas"]``
     (``index``); a slice whose middle lies in the building, a copy, a pool, a light well, a flat platform or an earlier
@@ -1237,7 +1290,13 @@ def graded_paths(plan: dict) -> list[dict]:
     30 Oct 2026 (lesson UL202, user on real04: "make sure the walkways are walkable"): a path whose end lies on an
     entrance landing (``entrance_landings``) or on an earlier path meets it at that level: its end is pinned there
     (``path_plan`` ``pins``; ``joins`` on the record) and the earlier path records the joint (``branches``: the span
-    along it, the side the path comes in from) so its handrail leaves an opening there (``stair_rail``)."""
+    along it, the side the path comes in from) so its handrail leaves an opening there (``stair_rail``).
+
+    31 Oct 2026 (user on real04 run 20261030-181158-full: "the person going to jump to reach the pool?"; the outdoor
+    walk check, ``site_walk``): a path whose end lies on a flight's foot landing, a flight's top step or a platform
+    (``walk_surfaces``) meets it at that level too (``joins`` kind ``surface``), and so does a route's corner landing
+    that starts on one; an end the architect pinned to a surface beside it (the area's ``meet``: ``{"start" | "end":
+    {"to", "z", "reason"}}``, A6) meets that surface."""
     from wenart.blender import site as S
 
     terrain = plan_terrain(plan)
@@ -1249,6 +1308,7 @@ def graded_paths(plan: dict) -> list[dict]:
              + [p["polygon"] for p in plan.get("pools") or []] + [w["polygon"] for w in plan.get("wells") or []]
              + [pf["polygon"] for pf in plan.get("platforms") or [] if not pf.get("sloped")] if len(h or []) >= 3]
     landings = entrance_landings(plan)
+    surfaces = walk_surfaces(plan, gz, terrain)
     out = []
     earlier: list = []
     planned: list = []
@@ -1257,6 +1317,7 @@ def graded_paths(plan: dict) -> list[dict]:
             continue
         fr = strip_frame(a["polygon"])
         pins, joins = {}, []
+        corner_z = None
         if fr is not None:
             for key, t_end, t_in in (("start", 0.0, min(0.3, fr["length"] / 2.0)),
                                      ("end", fr["length"], max(fr["length"] - 0.3, fr["length"] / 2.0))):
@@ -1265,10 +1326,27 @@ def graded_paths(plan: dict) -> list[dict]:
                 land = next((ld for ld in landings if G.point_in_polygon(p, ld["polygon"])), None)
                 if land is not None:
                     pins[key] = land["z"]
+                    corner_z = land["z"] if corner_z is None else corner_z
                     joins.append({"end": key, "to": land["id"], "kind": "landing", "z": round(land["z"], 4)})
                     continue
                 hit = next(((poly, q) for poly, q in reversed(planned) if G.point_in_polygon(p, poly)), None)
                 if hit is None:
+                    # 31 Oct 2026 (site_walk): a flight's foot landing or top step, a platform: met at its level
+                    surf = next((s for s in surfaces if _on_surface(p, s)), None)
+                    meet = (a.get("meet") or {}).get(key) if isinstance(a.get("meet"), dict) else None
+                    z = None
+                    if surf is not None:
+                        z = float(surf["z"]) if surf["z"] is not None else gz(*p)
+                        if abs(z - gz(*_at(fr, t_in))) > PIN_MAX_M:
+                            surf, z = None, None
+                    if surf is None and isinstance(meet, dict) and isinstance(meet.get("z"), (int, float)):
+                        surf, z = {"id": str(meet.get("to"))}, float(meet["z"])       # A6: the surface beside it
+                    if surf is not None:
+                        pins[key] = z
+                        if corner_z is None and str(surf["id"]).startswith(("foot:", "top:")):
+                            corner_z = z         # a corner the route starts on at a flight (a street beside it: no)
+                        joins.append({"end": key, "to": surf["id"], "kind": "surface", "z": round(z, 4),
+                                      **({"side": True} if meet is not None and surf.get("polygon") is None else {})})
                     continue
                 poly, q = hit
                 z = level_on(q, p, gz)
@@ -1283,8 +1361,9 @@ def graded_paths(plan: dict) -> list[dict]:
                     q.setdefault("branches", []).append({"path": a.get("id"), "t0": round(t0, 4), "t1": round(t1, 4),
                                                          "side": 1.0 if s > 0 else -1.0})
         if a.get("landing") and fr is not None:
-            # a route's corner (architect.path_areas): one level landing at its middle's ground, the legs meet it there
-            pins = {"level": gz(*_at(fr, fr["length"] / 2.0))}
+            # a route's corner (architect.path_areas): one level landing at its middle's ground, the legs meet it there;
+            # 31 Oct 2026 (site_walk): at the level of the flight's top or foot or the platform it starts on
+            pins = {"level": corner_z if corner_z is not None else gz(*_at(fr, fr["length"] / 2.0))}
         rec = path_plan(a, gz, accessible=str(a.get("id")) in acc, pins=pins)
         rec["index"] = k
         rec["joins"] = joins
