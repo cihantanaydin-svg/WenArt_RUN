@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import copy
 
+import pytest
+
 from wenart.blender import modules as MOD
 from wenart.blender import parametric as P
 from wenart.blender import wardrobe_fronts as WF
@@ -40,8 +42,9 @@ def _house(bundle="slats"):
     slats and glass)."""
     rooms = [_bed("r_m", 0, "Master bedroom", "deep"), _bed("r_a", 4, bundle=bundle),
              _bed("r_b", 8, bundle="limewash"), _bed("r_c", 12, bundle=bundle, copied="r_a")]
-    robes = [_robe("f_m", "r_m", 2.0, 2.5), _robe("f_a", "r_a", 6.0), _robe("f_b", "r_b", 10.0),
-             _robe("f_c", "r_c", 14.0)]
+    # 31 Oct 2026 (user: "it needs to be wall to wall or from wall to middle"): every run starts at its room's west wall
+    robes = [_robe("f_m", "r_m", 1.25, 2.5), _robe("f_a", "r_a", 4.75), _robe("f_b", "r_b", 8.75),
+             _robe("f_c", "r_c", 12.75)]
     return {"levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.8}], "rooms": rooms, "walls": [],
             "openings": [], "furniture": robes, "decor": []}
 
@@ -79,9 +82,10 @@ def test_a_see_through_front_is_a_bedroom_option_and_period_homes_keep_closed_on
 
 
 def test_the_run_goes_up_to_the_ceiling_with_a_top_box_and_full_height_doors():
-    b = _house("panel")
+    b = _house()                                  # 31 Oct 2026: the master and r_b (the house's 2 built-in rooms)
     chosen, assumed = WF.apply(b, MODERN)
-    for f in b["furniture"]:
+    assert set(chosen) == {"f_m", "f_b"}
+    for f in (f for f in b["furniture"] if f["id"] in chosen):
         st = f["see_through"]
         assert st["ceiling_m"] == 2.8 - WF.CEILING_GAP_M
         plan = MOD.module_plan(f)
@@ -94,28 +98,32 @@ def test_the_run_goes_up_to_the_ceiling_with_a_top_box_and_full_height_doors():
         assert plan["height_m"] - 0.01 <= top <= plan["height_m"] + 1e-6              # up to the ceiling, not over
         # the bay lights stay under the frames' top (the carcass), the doors reach the top box
         assert all(li["center"][2] < plan["carcass_m"] for li in MOD.bay_lights(plan))
-        assert max(v[2] for p in parts if p["role"] == "panel_frame" for v in p["verts"]) > plan["carcass_m"] + 0.3
+        # (31 Oct 2026: up to the fascia over the top track, a 4 mm shadow gap under it; the fascia up to the top)
+        fh = MOD.SEE_THROUGH["fascia_m"][0] + MOD.SEE_THROUGH["shadow_m"]
+        assert max(v[2] for p in parts if p["role"] == "panel_frame" for v in p["verts"]) == \
+            pytest.approx(plan["height_m"] - fh) and plan["height_m"] - fh > plan["carcass_m"] + 0.2
+        assert max(v[2] for p in parts if p["role"] == "fascia" for v in p["verts"]) == pytest.approx(plan["height_m"])
         keys = {p["key"] for p in parts if not p["key"].startswith(("cloth:", "lit:"))}
         assert keys <= set(P.MATERIAL_KEYS)
-    assert {a["kind"] for a in assumed} == {"see_through_front"}
+    assert {a["kind"] for a in assumed if a["field"] == "see_through"} == {"see_through_front"}
     # a drawn height is kept (the top box closes the rest); a window beside the run keeps its height
-    b2 = _house("panel")
-    b2["furniture"][1]["height"] = 2.1
-    b2["openings"] = [{"id": "w1", "type": "window", "level_id": "L0", "center": [10.0, 0.0], "width": 1.2}]
+    b2 = _house()
+    b2["furniture"][0]["height"] = 2.1
+    b2["openings"] = [{"id": "w1", "type": "window", "level_id": "L0", "center": [9.6, 0.0], "width": 1.2}]
     WF.apply(b2, MODERN)
-    a2 = MOD.module_plan(b2["furniture"][1])
+    a2 = MOD.module_plan(b2["furniture"][0])
     assert a2["carcass_m"] == 2.1 and a2["height_m"] == 2.8 - WF.CEILING_GAP_M
     assert b2["furniture"][2]["see_through"]["ceiling_m"] is None
     assert MOD.module_plan(b2["furniture"][2]).get("carcass_m") is None
 
 
 def test_a_ceiling_light_over_the_run_slides_off_it():
-    b = _house("panel")
-    b["decor"] = [{"id": "trk", "type": "ceiling_light", "fixture": "track", "level_id": "L0", "room_id": "r_a",
-                   "center": [6.0, 0.5, 2.68], "size": [1.0, 0.05, 0.12], "rotation_deg": 0.0}]
+    b = _house()
+    b["decor"] = [{"id": "trk", "type": "ceiling_light", "fixture": "track", "level_id": "L0", "room_id": "r_b",
+                   "center": [8.75, 0.5, 2.68], "size": [1.0, 0.05, 0.12], "rotation_deg": 0.0}]
     _chosen, assumed = WF.apply(b, MODERN)
     li = b["decor"][0]
-    assert b["furniture"][1]["see_through"]["ceiling_m"] is not None
+    assert b["furniture"][2]["see_through"]["ceiling_m"] is not None
     assert li["center"][1] >= 0.6 + WF.LIGHT_CLEAR_M - 1e-6 and li["center"][2] == 2.68        # off the run's front
     assert any(a["object"] == "trk" and a["field"] == "center" for a in assumed)
 

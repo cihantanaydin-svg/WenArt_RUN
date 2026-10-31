@@ -43,8 +43,11 @@ from typing import Optional, Sequence
 LESSON = "UL135"
 CLOTH_PREFIX = "cloth:"        # = modules.CLOTH_PREFIX: ``cloth:<look>:<colour>`` (or the old ``cloth:<colour>``)
 LOOKS: tuple[str, ...] = ("cotton", "wool", "knit", "linen")          # = bedding_parts.LOOK_SLUGS keys used here
-LED_LM_PER_M = 1000.0          # a high-output wardrobe LED profile (800-1400 lm per metre) under the top and the hat
-SHELF_LM_PER_M = 500.0         # ... shelf; a shelf's own strip (400-600 lm per metre)
+# 31 Oct 2026 (user on real04 run 20261030-181158-full: "you can make this a lot better with the better material and
+# details"): a warm, subtle light inside: the low end of the profiles' ranges (the lighter glass shows the contents with
+# less light; the 1000 / 500 lm of UL135 lit the run like a shop window)
+LED_LM_PER_M = 800.0           # a high-output wardrobe LED profile (800-1400 lm per metre) under the top and the hat
+SHELF_LM_PER_M = 400.0         # ... shelf; a shelf's own strip (400-600 lm per metre)
 LED_K = 3000.0                 # warm white wardrobe LED
 # kind: (length m, thickness m, shoulder half width m, hem half width m, sleeve length m (0: none), look, weight,
 # collar: band | lapel | rib | None)

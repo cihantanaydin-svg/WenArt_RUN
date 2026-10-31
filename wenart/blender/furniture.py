@@ -681,6 +681,7 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         # 29 Oct 2026 (UL120): a see-through wardrobe's smoked glass (``_Materials.get`` -> library.smoked_glass)
         "smoked_glass": ("glass", None, None),
         "reeded_glass": ("glass", None, None),                # 30 Oct 2026 (UL182): -> library.reeded_glass
+        "bronze_glass": ("glass", None, None),                # 31 Oct 2026: a built-in's pane -> library.bronze_glass
         "mirror": ("mirror", None, None),                     # Milestone 9: the parametric mirror's glass
         # Milestone 10: cabinet fronts (the trim's paint unless a design says otherwise), handles, a marble table
         # top, plant pots, lamp bulbs (frosted when off), rattan.
@@ -1344,6 +1345,8 @@ class _Materials:
             return self.library.smoked_glass()
         if key == "reeded_glass":                 # 30 Oct 2026 (UL182): a see-through wardrobe's reeded glass
             return self.library.reeded_glass()
+        if key == "bronze_glass":                 # 31 Oct 2026: a built-in's bronze-tinted glass (warm families)
+            return self.library.bronze_glass()
         if key == "bulb" and lit:
             from wenart.blender import materials as M
             return M.light_material("lamp_light")
@@ -2227,6 +2230,15 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
     design, design_notes = _looks().design_for(piece, style or {}, building)
     design, design_notes = _looks().outdoor_design(piece, design, design_notes)   # 28 Oct 2026: open-air rooms
     overrides, override_notes = design_overrides(design, piece["type"])
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "you can make this a lot better with the better material
+    # and details"): a built-in see-through run's look (its shell, veneer and metal) over the design's keys
+    from wenart.blender import wardrobe_fronts as WF
+    look = WF.look_overrides(piece)
+    if look:
+        overrides = {**overrides, **look}
+        override_notes = list(override_notes) + [
+            f"built-in look: {k} {v['slug']}" + (f" {v['colour']}" if v.get("colour") else "")
+            for k, v in sorted(look.items())]
     piece = dict(piece, design=design)
     fp = piece["footprint"]
     w, d = float(fp["size"][0]), float(fp["size"][1])

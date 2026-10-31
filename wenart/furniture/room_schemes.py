@@ -200,9 +200,12 @@ WHY: dict[str, str] = {
     "statement_globe": "a branching glass-globe statement fixture (R4)",
     "statement_linear": "a linear (blade or multi-arm) statement fixture (R15, R30, K9)",
     "statement_cluster": "a cluster of pendants as the statement fixture (R3)",
-    "wardrobe_slats": "the wardrobe run behind black slat sliding doors",
-    "wardrobe_slats_glass": "the wardrobe run behind black-framed sliding doors, slatted and glass ones in turn",
-    "wardrobe_smoked_glass": "the wardrobe run behind smoked glass sliding doors",
+    # 31 Oct 2026 (user on real04 run 20261030-181158-full: "Not every room needs this built in wardrobe ... you can
+    # make this a lot better with the better material and details"): wood slats and tinted or reeded glass in slim metal
+    # frames (wardrobe_fronts.built_in_look), a built-in in a few rooms of a house only (wardrobe_fronts.plan)
+    "wardrobe_slats": "the wardrobe run behind sliding doors of wood slats in slim metal frames",
+    "wardrobe_slats_glass": "the wardrobe run behind slim-framed sliding doors, wood-slatted and glass ones in turn",
+    "wardrobe_smoked_glass": "the wardrobe run behind tinted glass sliding doors",
     "wardrobe_reeded_glass": "the wardrobe run behind reeded glass sliding doors",
     "wardrobe_closed": "the wardrobe run keeps its closed fronts (a see-through front is an option, UL207)",
 }
@@ -408,7 +411,8 @@ def resolve(kind: str, bundle: str, colour: str, family: str, no_panel: bool = F
     if spec.get("wardrobe"):
         out["wardrobe_front"] = spec["wardrobe"]
         why["wardrobe_front"] = WHY["wardrobe_" + spec["wardrobe"]] + (
-            "" if spec["wardrobe"] == "closed" else " where the family has a see-through front (UL182)")
+            "" if spec["wardrobe"] == "closed" else " where the family has a see-through front and the house keeps a "
+                                                   "built-in in this room (UL182; 31 Oct 2026: a few rooms only)")
     out["extras"] = list(spec.get("extras") or ())
     out["why"] = why
     return out
