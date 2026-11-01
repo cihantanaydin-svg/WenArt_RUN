@@ -435,11 +435,14 @@ def test_a_removed_pieces_manifest_box_is_no_new_critical_for_the_next_edit():
 
 
 @pytest.mark.skipif(not REAL02.is_file(), reason="results/furniture/real02 not committed")
-def test_a_roof_override_still_meets_every_manifest_box():
+def test_a_roof_override_still_meets_every_manifest_box(monkeypatch):
     """The verifier's case: a decor box 0.15 m under the current roof at (3.0, 6.0); a valid flat or mansard 30
     degree override brings it through the roof. That new critical stays and rejects the roof edit (the key-not-before
-    rule applies only while the roof is kept)."""
+    rule applies only while the roof is kept). 1 Nov 2026: the slopes the build raises over a door that cannot stand
+    under them (UL234) are left out here: this case is about the override check alone."""
+    from wenart.blender import build as BU
     from wenart.blender import roof as R
+    monkeypatch.setattr(BU, "raise_slopes_for_doors", lambda building, level, roof: [])
     b = undrawn_roof(_real02())         # 24 Oct 2026: an override of a drawn roof value is refused
     roof = X._prep(b)["roof"]
     z = R.surface_z(roof["equations"], 3.0, 6.0)

@@ -138,6 +138,9 @@ def test_a_door_clipped_under_the_roof_is_reported_not_sent_to_set_exterior(monk
 
     assert not [f for f in x2_findings(real02_with_bookshelf()) if f["target"] in ("d_L1_004", "d_L1_005")]
     monkeypatch.setattr(DM, "plan", lambda building, level, model: {"dormers": [], "refused": []})
+    # 1 Nov 2026 (UL234): the build raises the slopes over such doors instead; with neither, the clip is reported
+    from wenart.blender import build as BU
+    monkeypatch.setattr(BU, "raise_slopes_for_doors", lambda building, level, roof: [])
     clips = [f for f in x2_findings(real02_with_bookshelf()) if f["target"] in ("d_L1_004", "d_L1_005")]
     assert len(clips) == 2 and all(f["evidence"]["metrics"]["kind"] == X.OPENING_CLIP_KIND == CS.OPENING_CLIP_KIND
                                    for f in clips)

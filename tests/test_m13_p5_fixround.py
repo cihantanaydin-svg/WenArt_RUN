@@ -63,7 +63,14 @@ def _real04_drawn_roof(**brief) -> dict:
     ((b.get("agent_overrides") or {}).get("exterior") or {}).pop("roof", None)
     b["decor"] = [d for d in b.get("decor") or []
                   if not (d.get("type") == "ceiling_light" and d.get("level_id") == "L1")] + copy.deepcopy(P5_LOW_LIGHTS)
-    return B.prepare(b, "base", brief or None)
+    # 1 Nov 2026 (UL234): the drawn roof exactly as drawn: the slopes the build raises over a door that cannot stand
+    # under them are left out here (these cases check the rig and the cameras under the drawn slopes)
+    keep = B.raise_slopes_for_doors
+    B.raise_slopes_for_doors = lambda building, level, roof: []
+    try:
+        return B.prepare(b, "base", brief or None)
+    finally:
+        B.raise_slopes_for_doors = keep
 
 
 @pytest.fixture(scope="module")

@@ -368,11 +368,13 @@ def strip_pose(b: dict, pitch_deg: float = 10.0) -> dict:
 
 
 @needs_real04
-def test_an_exterior_camera_edit_has_its_x6_measured_on_the_next_scene(tmp_path):
+def test_an_exterior_camera_edit_has_its_x6_measured_on_the_next_scene(tmp_path, monkeypatch):
     """Fails on BASE (accepted, "X6:exterior gone"): X6 is in ``loop.NOT_REMEASURED``, so P6a's add_camera
     ext_front_entrance (seq 6668) counted "no frontal view of the entrance (+y) facade" as removed. Now the dry
     re-check measures X6 on the scene the next build makes with the camera at its new pose: the view frames 2.34
     widths of the facade, "no frontal view" stays and the add is refused."""
+    from wenart.blender import build as BU     # 1 Nov 2026 (UL234): this case measures X6 under the drawn roof
+    monkeypatch.setattr(BU, "raise_slopes_for_doors", lambda building, level, roof: [])
     ctx = real04_ctx(tmp_path)
     b = ctx.building
     x6 = [CC.finding(v) for v in X.check_exterior(b, ctx.scene, None)["violations"] if v["check"] == "X6"]
