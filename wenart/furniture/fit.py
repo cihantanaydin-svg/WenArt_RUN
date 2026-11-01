@@ -2455,7 +2455,7 @@ def bath_made_fit(piece: dict, style_family: Optional[str], mode: str, style: Op
     a ``library_gap`` (no audited model of that design) so the report lists it. None for any other piece. 31 Oct 2026
     (user on real04 run 20261030-181158-full: "check the library of similar things exist to use"): a column's or a
     vanity's small items take the library first (``small_items``, ``wenart.furniture.small_items``: the record on the
-    asset, and on a vanity's module plan for its builder)."""
+    asset, and on a vanity's module plan for its builder); 1 Nov 2026 (UL243): a walk-in shower's niche too."""
     from wenart.blender import bath_parts as BT
 
     made = BT.made_to_measure(piece)
@@ -2473,17 +2473,22 @@ def bath_made_fit(piece: dict, style_family: Optional[str], mode: str, style: Op
 def small_items_for(piece: dict, made: str, asset: dict, catalog, style_family: Optional[str],
                     mode: str) -> Optional[dict]:
     """31 Oct 2026: the ``small_items`` record (``wenart.furniture.small_items.plan``) of a made-to-measure column (its
-    built height) or vanity (its module plan's size and top); None for the other pieces or a host without items."""
+    built height) or vanity (its module plan's size and top); 1 Nov 2026 (UL243): of a walk-in shower too (its
+    niche's bottles and soap dish, the module plan's size and glass height); None for the other pieces or a host
+    without items."""
     from wenart.furniture import small_items as SI
 
     w, d = (float(v) for v in piece["footprint"]["size"][:2])
+    plan = asset.get("module_plan") if isinstance(asset.get("module_plan"), dict) else None
     if made == "column":
         from wenart.blender import parametric as P
         slots = SI.host_slots("column", w, d, P.proxy_height(piece["type"], piece.get("height"))[0])
-    elif made == "vanity" and isinstance(asset.get("module_plan"), dict):
-        plan = asset["module_plan"]
+    elif made == "vanity" and plan is not None:
         pw, pd = (float(v) for v in (plan.get("footprint_m") or [w, d])[:2])
         slots = SI.host_slots("vanity", pw, pd, float(plan.get("top_m") or 0.85), plan.get("bath_look") or {})
+    elif made == "shower" and plan is not None and len(plan.get("modules") or []) > 1:
+        pw, pd = (float(v) for v in (plan.get("footprint_m") or [w, d])[:2])
+        slots = SI.host_slots("shower", pw, pd, float(plan["modules"][1]["size_m"][2]), plan.get("bath_look") or {})
     else:
         return None
     return SI.plan(slots, catalog, style_family, mode)

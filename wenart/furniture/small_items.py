@@ -233,7 +233,8 @@ def plan(slots: Iterable[dict], catalog, style_family: Optional[str], mode: str)
 def host_slots(kind: str, w: float, d: float, h: float, look: Optional[dict] = None,
                item: Optional[dict] = None) -> list[dict]:
     """The reserved boxes of a host's small items in its frame: ``kind`` ``column`` (the open niche column), ``vanity``
-    (``look``: its bath look, ``h`` its top), ``towel_shelf`` or ``install_wall`` (``item``: the decor item)."""
+    (``look``: its bath look, ``h`` its top), ``shower`` (``look``: its bath look, ``h`` its glass height: the niche's
+    toiletries, 1 Nov 2026, UL243), ``towel_shelf`` or ``install_wall`` (``item``: the decor item)."""
     from wenart.blender import bath_parts as BT
     from wenart.blender import parametric as P
 
@@ -242,6 +243,8 @@ def host_slots(kind: str, w: float, d: float, h: float, look: Optional[dict] = N
         parts = BT.open_column_parts(w, d, h, BO.ALL)
     elif kind == "vanity":
         parts = BT.vanity_parts(w, d, h, look or {}, BO.ALL)
+    elif kind == "shower":
+        parts = BT.walk_in_shower_parts(w, d, h, look or {}, BO.ALL)
     elif kind in ("towel_shelf", "install_wall"):
         parts = BT.decor_parts(kind, w, d, h, item)
     else:

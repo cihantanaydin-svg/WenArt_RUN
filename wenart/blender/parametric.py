@@ -1295,7 +1295,7 @@ def _toilet(w: float, d: float, h: float, piece: dict | None = None) -> list[Par
     look = (piece or {}).get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else {}
     if look.get("wc") == "wall_hung":
         from wenart.blender import bath_parts as BT
-        return BT.wall_hung_wc_parts(w, d, h, float(look.get("wall_offset_m") or 0.0))
+        return BT.wall_hung_wc_parts(w, d, h, float(look.get("wall_offset_m") or 0.0), look)   # UL245: its finish
     tank_d = min(0.18, d * 0.3)
     bowl_d = d - tank_d
     return [
@@ -4623,6 +4623,15 @@ def tone_key(base: str, n: int) -> str:
 def tone_of(key: str) -> tuple[str, int]:
     """``(base key, tone)`` of a part key (pure; UL246): a tone key's base and tone, else ``(key, 0)``."""
     return TONE_KEYS.get(key, (key, 0))
+# 1 Nov 2026 (UL245): a WC flush plate of white or black glass (bath_parts.flush_keys; furniture.style_material_keys:
+# the glazed white and the near-black glossy glass of the vocabulary); UL243: the shower's parts (shower_parts) keep
+# their turned and swept forms, the small boxes a fine edge
+MATERIAL_KEYS = MATERIAL_KEYS + ("glass_white", "glass_black")
+for _role, _r in (("nozzles", 0.0), ("hose", 0.0), ("stabiliser", 0.0), ("hanger", 0.001), ("guide", 0.002),
+                  ("rail_bracket", 0.002), ("glass_clamp", 0.002), ("profile", 0.001), ("niche", 0.001),
+                  ("trim", 0.0005), ("stop", 0.0005), ("diverter", 0.001), ("outlet", 0.0), ("joint", 0.0),
+                  ("slider", 0.001), ("drain", 0.0005), ("mixer", 0.001), ("knurl", 0.0)):
+    BEVEL_BY_ROLE.setdefault(_role, _r)
 # ... and a small item a library model stands in for leaves a library slot in its host's parts (bath_objects.placed):
 # its 8 vertices the reserved box, no faces; ``world_mesh`` leaves it out and the build places the model there
 SLOT_ROLE = "library_slot"

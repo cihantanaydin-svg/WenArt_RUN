@@ -40,7 +40,9 @@ def test_an_open_end_gets_its_glass_panel_and_the_sliding_door_a_bar_pull():
         assert all(-w / 2.0 - 1e-6 <= x <= w / 2.0 + 1e-6 and -d / 2.0 - 1e-6 <= y <= d / 2.0 + 1e-6
                    for p in parts for x, y, _z in p["verts"])
         assert all(T.volume(p) > -1e-9 for p in parts)
-        assert sum(len(p["verts"]) for p in parts) < 2500
+        # 1 Nov 2026 (UL243, "Give more details to shower models"): the fittings are real products now (knurled
+        # knobs, a nozzle pattern, a ribbed hand shower, a metal-wound hose, a niche with its toiletries): ~13k
+        assert sum(len(p["verts"]) for p in parts) < 20000
 
 
 def test_the_plan_records_the_open_sides_and_level_access():

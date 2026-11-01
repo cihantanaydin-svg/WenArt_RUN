@@ -1907,6 +1907,7 @@ def plan_bath_made(piece: dict) -> Optional[dict]:
     working top) or the walk-in shower; None for any other piece. No mirror module: the decor stage's basin mirror (the
     family's LED, backlit, round or framed one) hangs over it."""
     from wenart.blender import bath_parts as BT
+    from wenart.blender import shower_parts as SH
 
     made = BT.made_to_measure(piece)
     if made not in ("vanity", "shower"):
@@ -1918,7 +1919,7 @@ def plan_bath_made(piece: dict) -> Optional[dict]:
         sliding = w >= BT.SLIDING_MIN_W_M - 1e-9
         return {"builder": "bath_set", "type": "shower", "variant": "walk_in", "bath_look": dict(look),
                 "modules": [_module("tray", (w, d, BT.SHOWER_TRAY_T_M if look.get("level_access") is False
-                                             else BT.DRAIN_T_M), (0.0, 0.0), "stone_light",
+                                             else BT.DRAIN_T_M), (0.0, 0.0), SH.stone_key(look),
                                     product=(f"low stone tray {w * 100:.0f}x{d * 100:.0f} cm with a linear drain"
                                              if look.get("level_access") is False else
                                              f"level-access floor {w * 100:.0f}x{d * 100:.0f} cm, the room's tiles "
@@ -1928,13 +1929,8 @@ def plan_bath_made(piece: dict) -> Optional[dict]:
                                     else "fixed walk-in glass screen")],
                 "footprint_m": fp, "height_m": round(max(h, BT.RAIN_HEAD_Z_M), 4), "drawn_m": fp,
                 "fit": _fit_record((w, d), (w, d)),
-                "products": ["walk-in shower: " + ("sliding glass on a black top rail" if sliding else "fixed glass")
-                             + "".join(f", a fixed glass panel on its {k} end" for k in ("left", "right")
-                                       if (look.get("shower_sides") or {}).get(k) == "glass")
-                             + (", level access (the room's tiles running in)" if look.get("level_access") is not False
-                                else ", low stone tray")
-                             + ", square rain head on a wall arm, hand shower on a slide rail, thermostatic mixer, "
-                               "linear drain, towel bar"],
+                # 1 Nov 2026 (UL243): every fitting named as the builder makes it (shower_parts.products)
+                "products": [SH.products(w, d, min(h, 2.0), look)],
                 "notes": [f"walk-in shower on the drawn {w:.2f} x {d:.2f} m footprint (UL123 B16)"],
                 "design": P.piece_design(piece)}
     top = float(look.get("top_m") or (h if h >= 0.7 else BT.VANITY_TOP_DEFAULT_M))
@@ -3296,7 +3292,9 @@ def _bath_parts(plan: dict) -> list[Part]:
         # 29 Oct 2026 (UL114, UL123, UL124): the made-to-measure bath set (``plan_bath_made``)
         from wenart.blender import bath_parts as BT
         if plan["variant"] == "walk_in":
-            made = BT.walk_in_shower_parts(w, d, float(plan["modules"][1]["size_m"][2]), plan.get("bath_look"))
+            # 1 Nov 2026 (UL243): the niche's toiletries take the fit's library picks too (``small_items``)
+            made = BT.walk_in_shower_parts(w, d, float(plan["modules"][1]["size_m"][2]), plan.get("bath_look"),
+                                           plan.get("small_items"))
         else:
             # 31 Oct 2026: the library models the fit picked for the small items (``small_items``: a slot each)
             made = BT.vanity_parts(w, d, float(plan["top_m"]), plan.get("bath_look") or {}, plan.get("small_items"))

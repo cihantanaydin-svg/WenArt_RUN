@@ -141,8 +141,10 @@ def test_the_vanity_and_the_towel_shelf_take_the_real_products():
 
 
 def test_the_flush_plate_is_a_real_dual_flush_actuator():
-    """UL168: a slim rounded plate with a chamfer, a small and a large button with a fine shadow gap and a line each,
-    in the room's finish; never a frame with two white panes."""
+    """UL168: a rounded plate, a small and a large button with a fine shadow gap, in the room's finish; never a frame
+    with two white panes. 1 Nov 2026 (UL245, "make this better": a flat black slab with two printed lines): a bezel
+    with depth round the opening, the two push buttons set back in it with a gap round each, no printed lines
+    (tests/test_shower_flush_20261101.py has the rest)."""
     y_wall, zb = 0.3, BT.FLUSH_PLATE_Z_M
     parts = BO.flush_plate(0.0, y_wall, zb, "handle", "handle")
     plate = parts[0]
@@ -152,15 +154,15 @@ def test_the_flush_plate_is_a_real_dual_flush_actuator():
     ys = [y for _x, y, _z in plate["verts"]]
     assert max(xs) - min(xs) == pytest.approx(0.246) and max(zs) - min(zs) == pytest.approx(0.164)
     assert max(ys) == pytest.approx(y_wall) and y_wall - min(ys) == pytest.approx(BO.FLUSH["proud_m"])
-    assert len(plate["verts"]) > 8                                                # rounded corners, a chamfer
+    assert len(plate["verts"]) > 8                                                # rounded corners, a rounded edge
     buttons = [p for p in parts if p["role"] == "button"]
     widths = sorted(max(x for x, _y, _z in p["verts"]) - min(x for x, _y, _z in p["verts"]) for p in buttons)
     assert len(buttons) == 2 and widths[0] < 0.75 * widths[1]                     # a small and a large button
     assert all(p["key"] == "handle" for p in buttons)                             # in the finish, no white panes
-    assert sum(p["role"] == "gap" for p in parts) == 2 and sum(p["role"] == "symbol" for p in parts) == 3
+    assert sum(p["role"] == "gap" for p in parts) == 1 and not any(p["role"] == "symbol" for p in parts)
     front = y_wall - BO.FLUSH["proud_m"]
-    for b in buttons:                                                             # proud of the plate, inside it
-        assert min(y for _x, y, _z in b["verts"]) < front - 0.001
+    for b in buttons:                                                             # set back in the bezel, inside it
+        assert min(y for _x, y, _z in b["verts"]) == pytest.approx(front + BO.FLUSH["recess_m"])
         assert min(z for _x, _y, z in b["verts"]) > zb and max(z for _x, _y, z in b["verts"]) < zb + 0.164
     wc = BT.wall_hung_wc_parts(0.445, 0.705, 0.8)
     assert [p["role"] for p in wc].count("button") == 2 and BT.FLUSH_PLATE_M[:2] == BO.FLUSH["size_m"]

@@ -147,6 +147,7 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wena
             "wenart/blender/print_labels.py",     # 30 Oct 2026 (UL199): printed titles and labels
             "assets/print/print_atlas.png",       # ... and their atlas
             "wenart/blender/bath_objects.py",
+            "wenart/blender/shower_parts.py",     # 1 Nov 2026 (UL243): bath_parts -> the shower's fittings
             "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/textfold.py", "wenart/units.py",
             "wenart/geometry.py", "wenart/schema/**",
             # Milestone 10 (track F): the looks of the design fallback and the refit's locked check.
@@ -247,6 +248,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/print_labels.py",    # 30 Oct 2026 (UL199): printed titles and labels
              "assets/print/print_atlas.png",      # ... and their atlas
              "wenart/blender/bath_objects.py",
+             "wenart/blender/shower_parts.py",    # 1 Nov 2026 (UL243): bath_parts -> the shower's fittings
              # 30 Oct 2026 (UL129, UL141-UL144): the grading review's site sense and the pools' ladder and seats
              "wenart/blender/site_sense.py", "wenart/blender/pool_extras.py",
              # 31 Oct 2026: the outdoor walk (G15) and the architect's A6 fixes
