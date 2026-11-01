@@ -116,6 +116,7 @@ MATERIAL_WORDS: dict[str, str] = {
     "ceramic_white": "white ceramic",
     "steel_brushed": "brushed steel",
     "stone_worktop": "dark stone",
+    "rock_boulder": "natural boulder",               # 1 Nov 2026 (UL248, UL249): the landscape's boulders
     "lacquer_dark": "dark lacquered",
     "screen_black": "glossy black screen",            # 29 Oct 2026: a TV's, a laptop's or a monitor's screen
     "led_strip": "warm LED light strip",              # 29 Oct 2026 (UL114): the bathroom details' LED strips
