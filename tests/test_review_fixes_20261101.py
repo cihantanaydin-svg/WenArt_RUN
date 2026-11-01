@@ -61,3 +61,15 @@ def test_a_door_under_a_low_slope_raises_that_slope_parallel_not_the_other_side(
     assert out and out[0]["plane"] == 0 and out[0]["head_room"] >= 2.0 - 1e-6
     assert list(roof["equations"][1]) == before                       # the other plane stays
     assert roof["equations"][0][1] == -0.5 and roof["slopes_raised"][0]["delta"] > 0   # same pitch, raised
+
+
+def test_an_agent_facade_override_keeps_the_facade_scheme():
+    """UL235 (real04 run 20261031-194116-full): the agent set the facade to the render it already had and the scheme
+    (the basement's stone base, the entrance accent, the upper storey's cladding) went with it; an override of a slot's
+    material keeps the slot's scheme."""
+    from wenart.blender import overrides as O
+
+    looks = {"facade": {"material": "render", "scheme": {"base": "stone_wall_ledgestone", "accent": "wood_cladding"}}}
+    out, applied = O.apply_looks(looks, {"facade": "render"})
+    assert out["facade"]["scheme"] == looks["facade"]["scheme"] and out["facade"]["source"] == "agent"
+    assert applied and applied[0]["slot"] == "facade"

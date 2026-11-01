@@ -255,6 +255,9 @@ def apply_style(style: dict, materials: dict) -> tuple[dict, list[dict]]:
     return out, applied
 
 
+KEPT_LOOK_KEYS: tuple[str, ...] = ("scheme",)   # a look's sub-records an agent override of its material keeps
+
+
 def apply_looks(looks: Optional[dict], materials: dict) -> tuple[Optional[dict], list[dict]]:
     """``(looks, applied)``: the resolved outside looks (``exterior.resolve_looks``) with the outside slots of
     ``materials`` replaced (source ``agent``, not assumed); ``ground`` sets the garden look (the ground's)."""
@@ -267,10 +270,18 @@ def apply_looks(looks: Optional[dict], materials: dict) -> tuple[Optional[dict],
         target = "garden" if slot == "ground" else slot
         if slot not in LOOK_SLOTS:
             continue
-        was = (looks.get(target) or {}).get("material")
+        before = looks.get(target) or {}
+        was = before.get("material")
         entry = look_entry(look_id)
         out[target] = {"material": look_id, "colour": None, "rgb": None, "asset": entry["asset"], "source": "agent",
                        "assumed": False, "reason": "agent override (docs/milestone11.md §17.3)", "evidence": []}
+        # 1 Nov 2026 (UL235, real04 run 20261031-194116-full: the agent set the facade to the render it already had and
+        # the facade's scheme went with it: the basement's stone base, the entrance accent and the upper storey's
+        # cladding were never built): an override of a slot's main material keeps the slot's own sub-records (the
+        # facade's ``scheme``: its base, accent and upper claddings stay as the 30 Oct rule says)
+        for key in KEPT_LOOK_KEYS:
+            if key in before and key not in out[target]:
+                out[target][key] = before[key]
         applied.append({"slot": target, "look_id": look_id, "was": was, "target": "looks"})
     return out, applied
 

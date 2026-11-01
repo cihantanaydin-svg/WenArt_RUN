@@ -2781,7 +2781,7 @@
    "id": "UL234",
    "date": "2026-11-01",
    "area": "roof",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2793,7 +2793,7 @@
    "id": "UL235",
    "date": "2026-11-01",
    "area": "facade",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
