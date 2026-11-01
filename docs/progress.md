@@ -3017,3 +3017,23 @@ User ranks synced (1 Nov 2026, lesson UL250): the ranking page held 1,970 scores
 ones are merged into `results/library/user_ranks.json` (315 at 0-2: never used; 248 at 6+). Run 093151 had used 14 models
 the user has since ranked 0-2 (19 pieces: candles, books, two coffee tables, benches, a tray, a vase); the next run leaves
 them out. Before every pod run the page's scores are now read and merged first.
+
+## Handoff for a new session (1 Nov 2026)
+
+Start here in a new session. State checked at 1 Nov 2026, 16:15 UTC.
+
+| item | state |
+|---|---|
+| branch | `opus_branch_11` fast-forwarded to `opus_branch_12` (678e7591, 115 commits); work goes on `opus_branch_11` |
+| pods | none running; Network Volume `h9er811d55` (500 GB, EU-RO-1) |
+| money | project $394.58 of $500 ($105.42 left); today $10.12 of $30 |
+| latest runs (`results/baseline/latest/`) | real04 `20261101-093151-full`; real06 `20261030-224530-full` |
+| projects | real01-real04, real06 (real05 was never used) |
+
+Open on real04 after run 093151 (the review above lists what is fixed):
+- three bedrooms with the same bed model and its own grey throw;
+- the front entrance still plain, its camera behind a parked car;
+- camera framings of halls and small rooms; Argus A1 reads the variant level's room names on the base model.
+
+Before every pod run: merge the ranking page's scores first (UL250), run `pytest -m "not gpu"`, check the day cap.
+Next: the user's review of real04 run 093151 and a new house plan, worked on side by side.
