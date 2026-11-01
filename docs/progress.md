@@ -3017,3 +3017,26 @@ User ranks synced (1 Nov 2026, lesson UL250): the ranking page held 1,970 scores
 ones are merged into `results/library/user_ranks.json` (315 at 0-2: never used; 248 at 6+). Run 093151 had used 14 models
 the user has since ranked 0-2 (19 pieces: candles, books, two coffee tables, benches, a tray, a vase); the next run leaves
 them out. Before every pod run the page's scores are now read and merged first.
+
+## Handoff for a new session (1 Nov 2026)
+
+- Branch: everything is on `opus_branch_10` (last commit: the polish word fix). Start the new branch from it, or merge
+  it into the default branch first.
+- Ranking page (the user's 0-10 scores): https://claude.ai/artifact/Xh9ecxsRr1jn3aZFPF5S8i, collection `scores` (one
+  document per model id). Before every pod run read it (ArtifactData `list`, `out_dir`, page with `next_cursor`) and
+  merge: `python -m wenart.furniture.user_ranks merge --scores <{id: rank} json> --index results/library/ranking/ranking_index.json
+  --index results/library/ranking/ranking_index_ours.json --index results/library/ranking/ranking_index_remaining.json
+  --index results/library/ranking/second_opinion_index.json` (UL250). Last merge: 1,970 scores.
+- `runs/` is not in git: a new container has no run results. The latest real04 run's results are on the volume at
+  `/workspace/jobs/20261101-093151-full/results/`; fetch them with `scripts/jobs/fetch_results.sh`
+  (`FETCH_JOB=20261101-093151-full FETCH_SKIP_3D=1`) when a before/after needs them (`results/baseline/latest` holds
+  its previews).
+- 3D files on the volume: `/workspace/repo/outputs/real04/export/real04.blend|.glb` (still run 194116's: run 093151's
+  export timed out); run 093151's final scene: `/workspace/repo/outputs/real04/scene/scene.blend` (the next real04 run
+  overwrites `outputs/real04/`).
+- Open questions to the user: export run 093151's scene on a short pod; let a library model ranked above our own build
+  of a type win over it (the `ours:*` ranks, 1-3, are not used yet).
+- Open in real04: bedrooms share one bed model and its grey throw; the front entrance plain, its camera behind a parked
+  car; the play room's slope light looks small. Next real04 run: the first test of the cushion-set, copy, big-loop time
+  and new-rank fixes.
+- Spend: $10.12 of $30 on 1 Nov 2026; project $394.58 of $500. No pod running.
