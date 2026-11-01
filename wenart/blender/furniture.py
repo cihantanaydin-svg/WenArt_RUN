@@ -684,6 +684,10 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "smoked_glass": ("glass", None, None),
         "reeded_glass": ("glass", None, None),                # 30 Oct 2026 (UL182): -> library.reeded_glass
         "bronze_glass": ("glass", None, None),                # 31 Oct 2026: a built-in's pane -> library.bronze_glass
+        # 1 Nov 2026 (UL246): a built-in wardrobe's inside (a linen-textured melamine; the look's own finish through
+        # wardrobe_fronts.look_overrides) and the backing behind its slats (``_Materials.get`` -> library.backing_glass
+        # or an open library.sheer in the look's colour; the linen names it in the records)
+        "interior": ("melamine_linen", None, None), "backing": ("fabric_linen", None, None),
         "mirror": ("mirror", None, None),                     # Milestone 9: the parametric mirror's glass
         # Milestone 10: cabinet fronts (the trim's paint unless a design says otherwise), handles, a marble table
         # top, plant pots, lamp bulbs (frosted when off), rattan.
@@ -746,6 +750,8 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
     # 31 Oct 2026 (the user: "better textures"): every part key takes its slug's furniture texture set when the key
     # names none (the towels' terry, the holdall's leather, the plain fabrics' scans, the handle metals' brushing)
     keys = {k: (slug, asset if asset is not None else asset_of(slug), tint) for k, (slug, asset, tint) in keys.items()}
+    # 1 Nov 2026 (UL246): a tone key is its base key's material with its tone (``_Materials.get`` -> tone_copy)
+    keys.update({k: keys[base] for k, (base, _n) in P.TONE_KEYS.items() if base in keys})
     return keys, assumed
 
 
@@ -1340,7 +1346,23 @@ class _Materials:
         10: a ``colour_<key>`` part takes ``colour`` (a ``colours.py`` name) as its base colour; ``overrides``
         (``design_overrides``, ``pot_override``) replace a key's slug, asset and colour for one piece; ``lit``
         makes the ``bulb`` key a light (``materials.light_material``). 29 Oct 2026 (UL121): ``params`` over a
-        procedural look's own (a woven pattern's ink and angle, ``part_params``)."""
+        procedural look's own (a woven pattern's ink and angle, ``part_params``). 1 Nov 2026 (UL246): a tone key
+        (``parametric.TONE_KEYS``) is its base key's material in its tone (``tone_copy``); the ``backing`` key (behind
+        a built-in wardrobe's slats) is the library's lightly tinted pane when its override names glass (its ``tone``),
+        else the library's sheer voile in the colour its override names (a scrim)."""
+        base, tone = P.tone_of(key)
+        if tone:
+            mat = self.get(base, unverified, accent=accent, colour=colour, overrides=overrides, lit=lit, params=params)
+            return tone_copy(mat, tone, getattr(self.library, "records", None))
+        if key == "backing":
+            over = (overrides or {}).get("backing") or {}
+            if over.get("slug") == "glass" and hasattr(self.library, "backing_glass"):
+                return self.library.backing_glass(over.get("tone") or "grey")    # a lightly tinted pane
+            from wenart.blender import materials as M
+            try:                                                                  # an open scrim
+                return self.library.sheer(colour or over.get("colour"), density=M.SCRIM)
+            except TypeError:                                                     # a library without densities
+                return self.library.sheer(colour or over.get("colour"))
         if key.startswith(P.ACCENT_PREFIX):
             key = key[len(P.ACCENT_PREFIX):]
             colour = None
@@ -1416,6 +1438,7 @@ class _Materials:
             key = cloth_material_key(key, self.keys)
         if key.startswith(LIT_KEY):
             key = key[len(LIT_KEY):]
+        key = P.tone_of(key)[0]                   # 1 Nov 2026 (UL246): a tone key names its base key's slug
         over = (overrides or {}).get(key)
         return over["slug"] if over else self.keys[key][0]
 
@@ -2680,16 +2703,22 @@ def bay_light_objects(lights: list[dict], piece: dict, floor_z: float, collectio
         except AttributeError:                       # an older Blender: the colour of the temperature
             from wenart.blender import lighting as L
             data.color = L._blackbody_rgb(float(light["temperature_k"]))
+        # 1 Nov 2026 (UL246): the opal diffuser's beam (``spread_deg``), tilted back to the contents (``tilt_deg``
+        # about the run's axis: the light's -Z leans towards the piece's +Y, the back), a soft falloff down the bay
+        if light.get("spread_deg") and hasattr(data, "spread"):
+            data.spread = math.radians(float(light["spread_deg"]))
         ob = bpy.data.objects.new(data.name, data)
         ob.location = bay_light_world(light, fp, floor_z)
-        ob.rotation_euler = (0.0, 0.0, math.radians(float(fp.get("rotation_deg") or 0.0)))   # -Z down, along the run
+        ob.rotation_euler = (math.radians(float(light.get("tilt_deg") or 0.0)), 0.0,
+                             math.radians(float(fp.get("rotation_deg") or 0.0)))   # -Z down, along the run
         ob.visible_camera = False
         collection.objects.link(ob)
         common.set_props(ob, wenart_id=ob.name, kind="light", status="assumed")
         ob["wenart_room"] = piece.get("room_id") or ""
         ob["wenart_rig"] = "wardrobe"
         out.append({"name": ob.name, "bay": light["bay"], "center": list(ob.location), "energy_w": light["energy_w"],
-                    "lumens": light["lumens"], "temperature_k": light["temperature_k"], "size_m": light["size_m"]})
+                    "lumens": light["lumens"], "temperature_k": light["temperature_k"], "size_m": light["size_m"],
+                    "spread_deg": light.get("spread_deg"), "tilt_deg": light.get("tilt_deg")})
     return out
 
 
@@ -3070,6 +3099,50 @@ def glow_copy(mat, strength: float = LIT_SHADE_STRENGTH):
         bsdf.inputs["Emission Color"].default_value = (1.0, 0.8, 0.6, 1.0)
         bsdf.inputs["Emission Strength"].default_value = float(strength)
     copy["wenart_light"] = float(strength)
+    return copy
+
+
+def tone_copy(mat, tone: int, records: dict | None = None):
+    """1 Nov 2026 (UL246): a copy of a material in one of ``parametric.TONE_SHIFTS``' tones (bpy): a Hue / Saturation /
+    Value node between its Principled BSDF's base colour and what feeds it (the texture, the flat colour), so slats
+    cut from different veneer leaves differ a little in tone; one copy per material and tone (cached by name), its
+    material record the base's with the tone (``records``: the library's)."""
+    import bpy
+
+    tone = int(tone) % P.TONE_STEPS
+    if tone == 0 or mat is None:
+        return mat
+    name = f"{mat.name}__tone{tone}"
+    found = bpy.data.materials.get(name)
+    if found is not None:
+        return found
+    hue, sat, val = P.TONE_SHIFTS[tone]
+    copy = mat.copy()
+    copy.name = name
+    tree = getattr(copy, "node_tree", None)
+    bsdf = next((n for n in tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled"), None) if tree else None
+    if bsdf is not None:
+        sock = bsdf.inputs["Base Color"]
+        hsv = tree.nodes.new("ShaderNodeHueSaturation")
+        hsv.name = hsv.label = "wenart_tone"
+        hsv.inputs["Hue"].default_value = 0.5 + hue
+        hsv.inputs["Saturation"].default_value = sat
+        hsv.inputs["Value"].default_value = val
+        hsv.inputs["Fac"].default_value = 1.0
+        if sock.is_linked:
+            link = sock.links[0]
+            source = link.from_socket
+            tree.links.remove(link)
+            tree.links.new(source, hsv.inputs["Color"])
+        else:
+            hsv.inputs["Color"].default_value = tuple(sock.default_value)
+        tree.links.new(hsv.outputs["Color"], sock)
+    copy["wenart_tone"] = tone
+    if records is not None:
+        records[name] = dict(records.get(mat.name) or {}, tone=list(P.TONE_SHIFTS[tone]),
+                             reason=f"{(records.get(mat.name) or {}).get('reason') or mat.name}; tone {tone} of "
+                                    f"{P.TONE_STEPS} (hue {hue:+.3f}, saturation x{sat:.2f}, value x{val:.2f}: veneer "
+                                    "leaves differ; UL246)")
     return copy
 
 

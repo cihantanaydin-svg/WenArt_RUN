@@ -278,10 +278,16 @@ def test_the_built_in_has_end_panels_a_fascia_shadow_gaps_and_a_recessed_plinth(
     assert len(ends) == 2 and all(p["key"] == "front" and box(p)[2] == 0.0 and box(p)[5] == pytest.approx(top)
                                   for p in ends)                                 # the shell, floor to ceiling
     e = MOD.end_panel_t(plan)
+    # 1 Nov 2026 (UL246): the doors stand back between the end panels by their pulls' stand-off (the modern family's
+    # bar pulls stay inside the footprint), the plinth recessed behind them, the fascia flush with them up to the top
+    proud = MOD.door_zone(plan) - k["door_zone_m"]
+    assert proud == pytest.approx(MOD.handle_proud(MOD.joinery_of(plan))) and proud > 0
     plinth = next(p for p in parts if p["role"] == "plinth")
-    assert plinth["key"] == "dark" and box(plinth)[1] == pytest.approx(-d / 2 + k["plinth_recess_m"])
-    fascia = next(p for p in parts if p["role"] == "fascia")
-    assert fascia["key"] == "front" and box(fascia)[5] == pytest.approx(top) and box(fascia)[1] == pytest.approx(-d / 2)
+    assert plinth["key"] == "dark" and box(plinth)[1] >= -d / 2 + k["plinth_recess_m"] - 1e-9
+    assert box(plinth)[1] >= -d / 2 + proud + 2 * k["panel_t"] + k["track_gap_m"]          # behind the doors
+    fascias = [p for p in parts if p["role"] == "fascia"]
+    assert all(p["key"] == "front" for p in fascias) and max(box(p)[5] for p in fascias) == pytest.approx(top)
+    assert min(box(p)[1] for p in fascias) == pytest.approx(-d / 2 + proud)
     frames = [p for p in parts if p["role"] == "panel_frame"]
     assert frames and all(p["key"] == "handle" for p in frames)                  # the look's metal, not black lacquer
     lo = min(box(p)[0] for p in frames)
@@ -293,22 +299,29 @@ def test_the_built_in_has_end_panels_a_fascia_shadow_gaps_and_a_recessed_plinth(
     depths = {round(box(p)[4] - box(p)[1], 4) for p in frames}
     assert {k["panel_t"], round(k["panel_t"] - 2 * k["rebate_m"][1], 4)} <= depths
     assert k["stile_m"] <= 0.025
-    grips = [p for p in parts if p["role"] == "grip"]
-    assert grips and all(p["key"] == "dark" for p in grips)                     # the recessed channel's shadow
-    assert all(box(p)[5] - box(p)[2] >= 1.0 for p in grips)                     # a long grip
+    # 1 Nov 2026 (UL246): the modern family's front leaves (two of the three) a long bar pull each; the middle rear leaf
+    # none (both its edges behind the front leaves); a family of grip channels a long grip, its channel in shadow
+    assert len([p for p in parts if p["role"] == "pull"]) == 2 and not [p for p in parts if p["role"] == "grip"]
+    channels = [p for p in MOD.module_parts(MOD.module_plan(_piece("slats_glass", "modern minimal",
+                                                                    glass="smoked_glass"))) if p["role"] == "grip"]
+    assert channels and all(p["key"] == "dark" for p in channels)               # the recessed channel's shadow
+    assert max(box(p)[5] - box(p)[2] for p in channels) >= 1.0                  # a long grip
     beads = [p for p in parts if p["role"] == "bead"]
     assert beads and all(p["key"] == "handle" for p in beads)
     panes = [p for p in parts if p["role"] == "glass"]
     assert panes and all(p["key"] == "bronze_glass" for p in panes)              # the modern family's warm glass
-    assert not [p for p in parts if p["key"] == "dark" and p["role"] not in ("plinth", "grip")]
+    assert not [p for p in parts if p["key"] == "dark" and p["role"] not in ("plinth", "grip", "brush_seal", "scribe")]
 
 
 def test_wood_slats_with_real_gaps_and_reeded_glass_with_rounded_flutes():
     parts = MOD.module_parts(MOD.module_plan(_piece("slats")))
     slats = [p for p in parts if p["role"] == "slat"]
-    assert slats and all(p["key"] == "front" for p in slats)                     # the shell's veneer, not black
+    assert slats and all(P.tone_of(p["key"])[0] == "front" for p in slats)      # the shell's veneer (its tones)
     k = MOD.SEE_THROUGH
-    assert k["slat_d_m"] >= 0.018 and k["slat_pitch_m"] - k["slat_h_m"] >= 0.02
+    # 1 Nov 2026 (UL246): slats and gaps of real products (20-40 mm slats, 10-20 mm gaps), by family
+    for row in WF.JOINERY.values():
+        _d, sw, sg, sdp = row["slat"]
+        assert 0.020 <= sw <= 0.040 and 0.010 <= sg <= 0.020 and 0.016 <= sdp <= 0.020
     by_panel: dict = {}
     for p in slats:
         bb = P.parts_bbox([p])
@@ -316,7 +329,7 @@ def test_wood_slats_with_real_gaps_and_reeded_glass_with_rounded_flutes():
     for boxes in by_panel.values():
         boxes.sort(key=lambda b: b[2])
         gaps = [b[2] - a[5] for a, b in zip(boxes, boxes[1:])]
-        assert min(gaps) >= 0.02 - 1e-6                                         # the contents show between them
+        assert min(gaps) >= WF.JOINERY["modern"]["slat"][2] - 1e-6               # the contents show between them
     reeded = MOD.module_parts(MOD.module_plan(_piece("reeded_glass", "scandinavian")))
     reeds = [p for p in reeded if p["role"] == "reed"]
     assert reeds and all(p["key"] == "reeded_glass" and len(p["verts"]) >= 10 for p in reeds)    # rounded facets
@@ -337,6 +350,7 @@ def test_the_glass_reads_as_glass_and_the_light_inside_is_subtle():
     assert M.TINTED_GLASS["bronze"][0] > M.TINTED_GLASS["bronze"][2]                # warm
     assert M.REEDED_GLASS["transmission"] > M.SATIN_GLASS["transmission"]
     assert M.REEDED_GLASS["roughness"] < M.SATIN_GLASS["roughness"]                 # clearer than a door's satin lite
-    assert WC.LED_LM_PER_M <= 800.0 and WC.SHELF_LM_PER_M <= 400.0 and WC.LED_K == 3000.0
+    # 1 Nov 2026 (UL246): warm-neutral, no longer orange (3000 K over oak and bronze glass)
+    assert WC.LED_LM_PER_M <= 800.0 and WC.SHELF_LM_PER_M <= 400.0 and 3000.0 < WC.LED_K <= 4000.0
     plan = MOD.module_plan(_piece("slats"))
     assert any("the built-in's look" in n for n in plan["notes"]) and plan["see_through"]["look"]["family"] == "modern"

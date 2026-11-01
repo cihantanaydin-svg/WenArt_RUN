@@ -54,6 +54,23 @@ see-through doors, or an open run, in front of real contents), keeping the fitte
   lacquer, the style's veneer inside, slim metal frames with glazing beads in the family's metal, long grip channels,
   shadow gaps, a recessed plinth, tinted glass that reads as glass, rounded flutes on reeded glass
   (``modules.see_through_parts``, ``look_overrides``).
+- 1 Nov 2026 (lesson UL246, user on real04 run 20261031-194116-full, the master bedroom's slatted run: "More details
+  more realism needed": four doors of even flat square slats in one flat wood colour, a flat orange interior, no
+  hardware, the top band the same slats). The run reads as high-end joinery (``JOINERY`` by family, ``joinery``; the
+  look records it): (1) the slats are real products (``slat``: 20-40 mm wide, 10-20 mm gaps, 16-20 mm deep, horizontal
+  or vertical by family), each a rounded profile (eased front edges, a slight back chamfer; ``modules.slat_profile``),
+  its veneer grain along it, each slat its own patch of the veneer and one of ``parametric.TONE_STEPS`` tones (veneer
+  leaves differ), a backing behind the gaps (``backing``: a lightly tinted pane in the tone of the look's glass, or an
+  open scrim of sheer fabric, light linen or a dark mesh) so the contents read softly; the top band over a top box is
+  a solid veneer panel; (2) the
+  sliding doors show their hardware: a brush seal in the 4 mm shadow line where two leaves overlap, a bottom track on
+  the plinth line, the top track in the shadow gap under the fascia, a scribe line to the ceiling, the family's pulls
+  (``handle``: an integrated grip channel, a long bar pull in the look's metal, a leather tab, a short recessed pull)
+  on every leaf edge a hand reaches; (3) the inside is its own finish (``interior``: a linen-textured melamine, or
+  light oak inside a dark or lacquered shell), shelves with a veneer edge band, an oval rail on end brackets, the LED
+  in an aluminium profile with an opal diffuser whose warm-neutral light falls off softly (a 120 degree beam tilted to
+  the contents: ``wardrobe_contents.bay_light``), the bronze glass a muted brown-grey (no amber glow). Every rule of
+  UL223 stays (the rooms, the walls, the sizes).
 """
 from __future__ import annotations
 
@@ -74,7 +91,7 @@ CHOICES: tuple[str, ...] = FRONT_KINDS + ("closed",)
 # 31 Oct 2026 (user on real04 run 20261030-181158-full: "you can make this a lot better with the better material and
 # details"): the fronts are wood slats and tinted or reeded glass in slim metal frames (``built_in_look``), no longer
 # black boxes
-FRONT_WHAT = {"slats": "sliding doors of horizontal wood slats in slim metal frames", "smoked_glass": "tinted glass "
+FRONT_WHAT = {"slats": "sliding doors of wood slats in slim metal frames", "smoked_glass": "tinted glass "
               "sliding doors in slim metal frames", "open": "an open run (hanging rails, shelves and shoe racks)",
               "closed": "closed fronts",
               # 30 Oct 2026 (UL182): glass sections among the slats, and reeded glass
@@ -149,6 +166,38 @@ BUILT_IN_LOOKS: dict[str, dict] = {
 }
 BUILT_IN_LOOK_DEFAULT = "modern"
 LACQUER_SLUG = "lacquer_matte"    # finishes.FURNITURE_MATERIALS: a matte lacquer that takes the look's colour
+# 1 Nov 2026 (lesson UL246, user: "More details more realism needed"; module docstring): the joinery of a built-in by
+# family (designer sets, assumed; slat sizes within the ranges of slatted wardrobe doors on the market: slats 20-40 mm
+# wide, 10-20 mm gaps, 16-20 mm deep): ``slat`` = (direction ``h`` | ``v``, width, gap, depth) in metres; ``backing``
+# behind the slats: ``glass`` (a lightly tinted pane in the tone of the look's glass) or ``scrim`` (an open sheer
+# fabric in ``backing_colour``: a light linen, or a dark mesh); ``handle``: ``grip`` (an integrated grip channel),
+# ``bar`` (a long bar pull in the look's metal), ``leather`` (a leather tab), ``recessed`` (a short recessed pull);
+# ``interior``: the finish inside (a linen-textured melamine in ``interior_colour``, or light oak inside a dark veneer
+# or a lacquer)
+SLAT_RANGE_M = {"w": (0.020, 0.040), "gap": (0.010, 0.020), "d": (0.016, 0.020)}
+HANDLES: tuple[str, ...] = ("grip", "bar", "leather", "recessed")
+BACKINGS: tuple[str, ...] = ("glass", "scrim")
+INTERIOR_SLUG = "melamine_linen"  # finishes.FURNITURE_MATERIALS: a linen-textured melamine that takes a colour
+JOINERY: dict[str, dict] = {
+    "modern": {"slat": ("h", 0.030, 0.014, 0.018), "backing": "glass", "handle": "bar",
+               "interior": INTERIOR_SLUG, "interior_colour": "greige"},
+    "contemporary": {"slat": ("h", 0.040, 0.016, 0.020), "backing": "glass", "handle": "bar",
+                     "interior": "wood_veneer_oak_light"},
+    "scandinavian": {"slat": ("v", 0.034, 0.014, 0.018), "backing": "scrim", "backing_colour": "off white",
+                     "handle": "leather", "interior": INTERIOR_SLUG, "interior_colour": "off white"},
+    "japandi": {"slat": ("v", 0.022, 0.012, 0.018), "backing": "scrim", "backing_colour": "ivory",
+                "handle": "leather", "interior": INTERIOR_SLUG, "interior_colour": "sand"},
+    "minimal": {"slat": ("v", 0.020, 0.010, 0.016), "backing": "glass", "handle": "recessed",
+                "interior": "wood_veneer_oak_light"},
+    "modern minimal": {"slat": ("h", 0.025, 0.012, 0.016), "backing": "glass", "handle": "grip",
+                       "interior": "wood_veneer_oak"},
+    "industrial": {"slat": ("h", 0.030, 0.016, 0.018), "backing": "scrim", "backing_colour": "charcoal",
+                   "handle": "bar", "interior": INTERIOR_SLUG, "interior_colour": "light grey"},
+}
+BACKING_SLUG = "fabric_sheer"     # = furniture.SHEER_SLUG: the scrim is the library's sheer voile in its colour
+SLAT_DIR_WORD = {"h": "horizontal", "v": "vertical"}
+HANDLE_WORD = {"grip": "an integrated grip channel", "bar": "long bar pulls", "leather": "leather tab pulls",
+               "recessed": "recessed pulls"}
 # muted garment colours (wenart/style/colours.py names), cycled by the wardrobe's own seed
 GARMENT_COLOURS: tuple[str, ...] = ("white", "light grey", "navy", "charcoal", "beige", "sky blue", "sage", "camel",
                                     "taupe", "off white", "dusty blue", "olive", "black", "greige")
@@ -204,19 +253,64 @@ def built_in_look(style) -> dict:
     out = {"family": fam or BUILT_IN_LOOK_DEFAULT, "shell": row["shell"],
            "shell_slug": LACQUER_SLUG if lacquer else wood, "colour": row.get("colour") if lacquer else None,
            "wood": wood, "metal": row["metal"], "glass": row["glass"]}
+    out.update(joinery(out))                 # 1 Nov 2026 (UL246): the slats, the backing, the pulls, the inside
     tone = wood.replace("wood_veneer_", "").replace("_", " ")
     shell = f"a matte {out['colour']} lacquer" if lacquer else f"{tone} veneer"
-    out["why"] = (f"{shell} shell (end panels to the floor, a fascia to the ceiling, the slats), "
-                  f"{out['metal'].replace('_', ' ')} slim frames with long grip channels, "
-                  f"{out['glass'].replace('_', ' ')}, a recessed plinth and shadow gaps (31 Oct 2026)")
+    sd, sw, sg, _sdp = out["slat"]
+    article = "an" if str(out["backing_colour"] or "")[:1] in "aeiou" else "a"
+    backing = (out["glass"].replace("_", " ") if out["backing"] == "glass" else
+               f"{article} {out['backing_colour']} fabric scrim")
+    inside = (f"{out['interior_colour']} linen-textured melamine" if out["interior"] == INTERIOR_SLUG else
+              out["interior"].replace("wood_veneer_", "").replace("_", " ") + " veneer")
+    out["why"] = (f"{shell} shell (end panels to the floor, a fascia to the ceiling with a scribe line, the slats), "
+                  f"{SLAT_DIR_WORD[sd]} rounded slats {sw * 1000:.0f} mm wide with {sg * 1000:.0f} mm gaps and "
+                  f"{backing} behind them, {out['metal'].replace('_', ' ')} slim frames with "
+                  f"{HANDLE_WORD[out['handle']]}, brush seals in the shadow lines, a bottom track, "
+                  f"{out['glass'].replace('_', ' ')}, {inside} inside, "
+                  "a recessed plinth and shadow gaps (31 Oct 2026; UL246)")
+    return out
+
+
+def joinery(look: Optional[dict]) -> dict:
+    """The joinery of a built-in's look (pure; 1 Nov 2026, UL246; ``JOINERY``): ``{"slat": (dir, width, gap, depth),
+    "backing", "backing_colour", "handle", "interior", "interior_colour"}``: the look's own values (a look recorded on
+    a piece) over its family's row (``BUILT_IN_LOOK_DEFAULT``'s for another family), each checked (a slat inside
+    ``SLAT_RANGE_M``, a known backing, pull and colour); the inside never takes the shell's own slug (then the light
+    linen melamine)."""
+    from wenart.style import colours as C
+
+    look = look if isinstance(look, dict) else {}
+    row = JOINERY.get(family_of(look.get("family") or "")) or JOINERY[BUILT_IN_LOOK_DEFAULT]
+    out = {k: look.get(k) if look.get(k) is not None else row.get(k)
+           for k in ("slat", "backing", "backing_colour", "handle", "interior", "interior_colour")}
+    try:
+        sd, sw, sg, sdp = out["slat"]
+        sd = sd if sd in SLAT_DIR_WORD else "h"
+        sw, sg, sdp = (min(max(float(v), lo), hi) for v, (lo, hi) in
+                       ((sw, SLAT_RANGE_M["w"]), (sg, SLAT_RANGE_M["gap"]), (sdp, SLAT_RANGE_M["d"])))
+        out["slat"] = (sd, round(sw, 4), round(sg, 4), round(sdp, 4))
+    except (TypeError, ValueError):
+        out["slat"] = tuple(JOINERY[BUILT_IN_LOOK_DEFAULT]["slat"])
+    out["backing"] = out["backing"] if out["backing"] in BACKINGS else "glass"
+    out["backing_colour"] = out["backing_colour"] if out["backing_colour"] in C.COLOURS else (
+        "off white" if out["backing"] == "scrim" else None)
+    out["handle"] = out["handle"] if out["handle"] in HANDLES else "grip"
+    if not isinstance(out["interior"], str) or out["interior"] == look.get("shell_slug"):
+        out["interior"], out["interior_colour"] = INTERIOR_SLUG, "off white"
+    if out["interior"] == INTERIOR_SLUG:
+        out["interior_colour"] = out["interior_colour"] if out["interior_colour"] in C.COLOURS else "off white"
+    else:
+        out["interior_colour"] = None
     return out
 
 
 def look_overrides(piece: dict) -> dict:
     """``{material key: {"slug", "asset", "colour"}}`` of a built-in see-through run's look (pure; 31 Oct 2026): its
     shell on ``front`` (the end panels, the fascia, the slats), its veneer on ``wood`` (inside), its metal on ``handle``
-    (the frames, the beads, the track, the grip channels); {} for another piece. The build lays them over the design's
-    (``furniture.design_overrides``)."""
+    (the frames, the beads, the track, the grip channels, the pulls); 1 Nov 2026 (UL246): the inside's finish on
+    ``interior`` (the carcass, the shelves, the top box), the backing behind the slats on ``backing`` (a scrim's
+    colour, or ``glass`` with the ``tone`` of the look's glass: a lightly tinted pane); {} for another piece. The
+    build lays them over the design's (``furniture.design_overrides``)."""
     st = piece.get("see_through") if isinstance(piece.get("see_through"), dict) else {}
     look = st.get("look") if isinstance(st.get("look"), dict) else None
     if not look or st.get("kind") not in FRONT_KINDS:
@@ -234,6 +328,15 @@ def look_overrides(piece: dict) -> dict:
 
     out = {"front": entry(look.get("shell_slug"), look.get("colour")), "wood": entry(look.get("wood")),
            "handle": entry(look.get("metal"))}
+    # 1 Nov 2026 (UL246): the inside's own finish, and the scrim's colour behind the slats (the build makes the
+    # ``backing`` key the library's sheer voile in it: ``furniture._Materials.get``)
+    j = joinery(look)
+    out["interior"] = entry(j["interior"], j["interior_colour"])
+    if j["backing"] == "scrim":
+        out["backing"] = {"slug": BACKING_SLUG, "asset": None, "colour": j["backing_colour"]}
+    else:                                 # a lightly tinted pane in the tone of the look's glass
+        out["backing"] = {"slug": "glass", "asset": None, "colour": None,
+                          "tone": "bronze" if look.get("glass") == "bronze_glass" else "grey"}
     return {k: v for k, v in out.items() if v is not None}
 
 

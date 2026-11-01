@@ -189,7 +189,9 @@ def test_every_bay_has_its_light_bright_enough_to_read_through_the_slats():
         m = frames[light["bay"]]
         lm = WC.SHELF_LM_PER_M if light["board"] == "shelf" else WC.LED_LM_PER_M
         assert light["lumens"] == pytest.approx(lm * light["size_m"][0])
-        assert light["energy_w"] > 2.0 and light["temperature_k"] == WC.LED_K and light["direction"] == [0, 0, -1]
+        assert light["energy_w"] > 2.0 and light["temperature_k"] == WC.LED_K
+        # down (1 Nov 2026, UL246: tilted WC.LED_TILT_DEG back to the contents, a WC.LED_SPREAD_DEG beam)
+        assert light["direction"][0] == 0 and light["direction"][2] < -0.9 and light["direction"][1] > 0
         assert abs(light["center"][0] - m["pos_m"][0]) < 1e-6 and light["center"][1] < -0.1          # the front
         z = next(bz for bz, where in boards[light["bay"]] if where == light["board"])
         assert light["center"][2] == pytest.approx(z - 0.02)                                         # under its board

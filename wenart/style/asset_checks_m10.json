@@ -3609,7 +3609,8 @@
       "size_note": "dimensions of /info (millimetres) / 1000",
       "slugs": [
         "fabric_linen",
-        "fabric_white"
+        "fabric_white",
+        "melamine_linen"
       ],
       "source": "polyhaven"
     },

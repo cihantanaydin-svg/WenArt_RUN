@@ -273,6 +273,11 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     # and details"): a built-in wardrobe's matte lacquer (wardrobe_fronts.BUILT_IN_LOOKS: the minimal families' shell),
     # a plain satin-matte paint finish that takes the look's colour (no plank photo: no board seams on a lacquer)
     "lacquer_matte": _proc(None, "painted", _lin("off white"), 0.55, colourable=True, flat_source="colour:off white"),
+    # 1 Nov 2026 (lesson UL246, user on real04 run 20261031-194116-full: "More details more realism needed"): the inside
+    # of a built-in wardrobe, a linen-textured melamine board (the carcass, the shelves) in the look's colour: the
+    # linen scan's relief faintly on a flat colour (flat albedo mode), satin, so the inside reads apart from the fronts
+    "melamine_linen": _tex(PH, "rough_linen", "hard", _lin("off white"), 0.55, [0.2707, 0.2713], mode="flat",
+                           detail=0.10, flat_source="colour:off white"),
     # 29 Oct 2026 (lesson UL121, docs/reference_details_20261029.md R35: "fabric materials with weave normals and sheen
     # (linen, cotton, velvet, knit, boucle)"): the bedding's procedural fabrics (node group wenart_weave: the weave's
     # relief as a bump, the look's sheen as a material layer, materials.weave_layers) and the woven patterns of a
