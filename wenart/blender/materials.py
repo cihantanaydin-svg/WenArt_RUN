@@ -597,6 +597,15 @@ class MaterialLibrary:
         return self._tinted_glass("bronze_glass", "bronze", "bronze tinted glass (thin pane, half the light through, "
                                   "softly glossy): a built-in see-through wardrobe front (31 Oct 2026)")
 
+    def backing_glass(self, tone: str = "grey"):
+        """1 Nov 2026 (UL246): the pane behind a built-in's slats (``TINTED_GLASS`` ``clear_grey`` / ``clear_bronze``):
+        a lightly tinted glass, about four fifths of the light through, so the lit contents read softly between the
+        slats (a door's half-light pane behind slats hid them)."""
+        tone = "bronze" if tone == "bronze" else "grey"
+        return self._tinted_glass(f"backing_glass_{tone}", f"clear_{tone}",
+                                  f"lightly {tone} tinted glass behind a built-in wardrobe's slats (thin pane, about "
+                                  "four fifths of the light through; UL246)")
+
     def reeded_glass(self):
         """30 Oct 2026 (UL182): the reeded glass of a see-through wardrobe front: a satin pane (the garments a soft
         shape behind it), its reeds the parts' own geometry (``modules.panel_infill``). 31 Oct 2026: clear rolled glass
@@ -627,22 +636,27 @@ class MaterialLibrary:
                                   "reason": look.get("reason") or SMALL_ITEM_REASONS[look["kind"]]}
         return self._cache[name]
 
-    def sheer(self, colour=None):
+    def sheer(self, colour=None, density: dict | None = None):
         """29 Oct 2026 (UL106): the sheer layer of a layered curtain (``sheer_material``), white unless a colour
-        phrase is given; one material per colour."""
+        phrase is given; one material per colour. 1 Nov 2026 (UL246): ``density`` (``{"camera_density",
+        "light_density"}``, e.g. ``SCRIM``) over ``SHEER``'s: a more open weave (a wardrobe's scrim behind its
+        slats)."""
         rgb = colour_linear(colour) or SHEER["rgb"]
-        key = ("sheer", tuple(round(float(c), 4) for c in rgb))
+        spec = dict(SHEER, **(density or {}))
+        key = ("sheer", tuple(round(float(c), 4) for c in rgb), spec["camera_density"], spec["light_density"])
         if key not in self._cache:
-            name = "fabric_sheer" + (f"__{_tag(colour)}" if colour and colour_linear(colour) else "")
-            self._cache[key] = sheer_material(name, rgb)
+            name = "fabric_sheer" + (f"__{_tag(colour)}" if colour and colour_linear(colour) else "") + (
+                f"__open{round(spec['camera_density'] * 100):d}" if density else "")
+            self._cache[key] = sheer_material(name, rgb, density)
             self.records[name] = {"slug": "fabric_sheer", "textured": False, "asset": None, "source": None,
                                   "licence": None, "size_m": None, "flat_colour": [round(float(c), 4) for c in rgb],
                                   "tint": None, "unverified": False, "albedo_mode": None, "detail": None,
-                                  "gain_clamped": None, "sheer": dict(SHEER, rgb=list(rgb)),
+                                  "gain_clamped": None, "sheer": dict(spec, rgb=list(rgb)),
                                   "reason": ("sheer voile: Transparent BSDF mixed with Translucent and Diffuse "
-                                             f"({SHEER['camera_density']:.0%} of a camera ray and "
-                                             f"{SHEER['light_density']:.0%} of every other ray scattered, the rest "
-                                             "passes: the view and the daylight come through softened; UL106)")}
+                                             f"({spec['camera_density']:.0%} of a camera ray and "
+                                             f"{spec['light_density']:.0%} of every other ray scattered, the rest "
+                                             "passes: the view and the daylight come through softened; UL106"
+                                             + ("; an open scrim, UL246" if density else "") + ")")}
         return self._cache[key]
 
     def proxy(self, look: str = "proxy"):
@@ -1187,7 +1201,10 @@ SMOKED_GLASS_RGB = (0.30, 0.29, 0.28)    # 29 Oct 2026 (UL120): a smoked pane le
 # details"; the smoked pane read as a black mirror: a third of the light through, its Fresnel gloss in front): a
 # wardrobe's tinted glass lets about half the light through (grey or bronze float glass of 4-6 mm: 45-60 %, designer
 # value, assumed), its gloss slightly rough, so the lit contents read through it and the room's reflection is soft
-TINTED_GLASS = {"grey": (0.50, 0.50, 0.49), "bronze": (0.60, 0.48, 0.36), "roughness": 0.06}
+# 1 Nov 2026 (UL246, "a flat orange glow"): the bronze a muted warm brown-grey, as bronze float glass is (it was a
+# saturated amber), and the light tints of a pane behind a built-in's slats (about 80 % through)
+TINTED_GLASS = {"grey": (0.50, 0.50, 0.49), "bronze": (0.58, 0.50, 0.42), "roughness": 0.06,
+                "clear_grey": (0.80, 0.80, 0.79), "clear_bronze": (0.84, 0.79, 0.72)}
 # ... and a reeded pane is clear rolled glass: smooth, its flutes (the parts' geometry) break what stands behind it into
 # strips (a rough satin through four glass faces averaged the lit contents to a grey slab in the local smoke render)
 REEDED_GLASS = {"rgb": (0.92, 0.94, 0.93), "roughness": 0.06, "transmission": 1.0, "ior": 1.5}
@@ -1455,6 +1472,9 @@ def small_item_material(name: str, look: dict):
 # the depth and index passes still see the window behind it) and lets most daylight pass (a quarter of the light is
 # scattered softly into the room, the rest goes straight through, so the room's daylight and the sun patches stay).
 SHEER: dict = {"rgb": (0.86, 0.85, 0.82), "camera_density": 0.45, "light_density": 0.25, "translucent_share": 0.6}
+# 1 Nov 2026 (UL246): a wardrobe's scrim behind its slats, a more open weave than a curtain's voile (a first local
+# render at the voile's density hid the contents): a third of a camera ray scattered, a sixth of the others
+SCRIM: dict = {"camera_density": 0.32, "light_density": 0.16}
 
 
 def sheer_density(is_camera: bool) -> float:
@@ -1462,12 +1482,14 @@ def sheer_density(is_camera: bool) -> float:
     return float(SHEER["camera_density"] if is_camera else SHEER["light_density"])
 
 
-def sheer_material(name: str, rgb=None):
+def sheer_material(name: str, rgb=None, density: dict | None = None):
     """The sheer layer of a layered curtain (bpy; ``SHEER``): a Mix Shader of a Transparent BSDF and the voile
     (Translucent BSDF and Diffuse BSDF, ``translucent_share`` translucent) by ``density = Is Camera Ray x
-    camera_density + (1 - Is Camera Ray) x light_density`` (Light Path; Math MULTIPLY_ADD)."""
+    camera_density + (1 - Is Camera Ray) x light_density`` (Light Path; Math MULTIPLY_ADD). 1 Nov 2026 (UL246):
+    ``density`` over ``SHEER``'s two densities (``SCRIM``)."""
     import bpy
 
+    spec = dict(SHEER, **(density or {}))
     colour = tuple(float(c) for c in (rgb or SHEER["rgb"]))[:3]
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
@@ -1481,8 +1503,8 @@ def sheer_material(name: str, rgb=None):
     density = nodes.new("ShaderNodeMath")
     density.operation = "MULTIPLY_ADD"                 # is_camera x (camera - light) + light
     links.new(path.outputs["Is Camera Ray"], density.inputs[0])
-    density.inputs[1].default_value = SHEER["camera_density"] - SHEER["light_density"]
-    density.inputs[2].default_value = SHEER["light_density"]
+    density.inputs[1].default_value = spec["camera_density"] - spec["light_density"]
+    density.inputs[2].default_value = spec["light_density"]
     translucent = nodes.new("ShaderNodeBsdfTranslucent")
     translucent.inputs["Color"].default_value = (*colour, 1.0)
     diffuse = nodes.new("ShaderNodeBsdfDiffuse")
@@ -1498,7 +1520,7 @@ def sheer_material(name: str, rgb=None):
     links.new(voile.outputs["Shader"], mix.inputs[2])
     links.new(mix.outputs["Shader"], out.inputs["Surface"])
     mat.surface_render_method = "BLENDED"
-    mat["wenart_sheer"] = f"camera {SHEER['camera_density']}, light {SHEER['light_density']}"
+    mat["wenart_sheer"] = f"camera {spec['camera_density']}, light {spec['light_density']}"
     return mat
 
 

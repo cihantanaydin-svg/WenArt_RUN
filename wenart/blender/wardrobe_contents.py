@@ -30,6 +30,10 @@ What (pure; part lists of vertex / face lists, one mesh with the wardrobe, no mo
   the room: hidden while the daylight white point is metered). A first local render of real04 with the top strip
   alone lit the hat shelf and left the garments under it dim.
 - ``faces_per_bay``: the faces of each bay's contents (a cost record; every content part carries its ``bay``).
+- 1 Nov 2026 (lesson UL246, user on real04 run 20261031-194116-full: "More details more realism needed", a flat orange
+  glow inside): the strip is an aluminium profile with an opal diffuser (``modules.see_through_parts``), its light a
+  ``LED_SPREAD_DEG`` beam tilted ``LED_TILT_DEG`` to the contents (a soft falloff down the garments) at a warm-neutral
+  ``LED_K``; the inside is its own finish (``wardrobe_fronts.joinery``: a linen-textured melamine or light oak).
 
 Why: the user likes the slats and asked for real clothes behind them: a garment reads by its shoulders, sleeves and
 collar and its fabric, a stack by its folds, and only with a light inside.
@@ -48,7 +52,15 @@ LOOKS: tuple[str, ...] = ("cotton", "wool", "knit", "linen")          # = beddin
 # less light; the 1000 / 500 lm of UL135 lit the run like a shop window)
 LED_LM_PER_M = 800.0           # a high-output wardrobe LED profile (800-1400 lm per metre) under the top and the hat
 SHELF_LM_PER_M = 400.0         # ... shelf; a shelf's own strip (400-600 lm per metre)
-LED_K = 3000.0                 # warm white wardrobe LED
+# warm-neutral wardrobe LED (1 Nov 2026, UL246: 3000 K over oak and bronze glass read orange; wardrobe profiles are sold
+# at 3000-4000 K, the higher end to judge the clothes' colours)
+LED_K = 3500.0
+# 1 Nov 2026 (lesson UL246, user on real04 run 20261031-194116-full: "More details more realism needed": a flat orange
+# glow inside): the strip sits in an aluminium profile with an opal diffuser (``modules.see_through_parts``); its beam
+# is about 120 degrees wide (opal-diffuser profiles: 110-120 degrees) and tilted towards the contents (an angled
+# profile under the board's front), so the light falls off softly down the garments instead of lighting the bay flat
+LED_SPREAD_DEG = 120.0
+LED_TILT_DEG = 15.0
 # kind: (length m, thickness m, shoulder half width m, hem half width m, sleeve length m (0: none), look, weight,
 # collar: band | lapel | rib | None)
 GARMENT_TYPES: dict[str, tuple] = {
@@ -384,16 +396,23 @@ def boxes(x0: float, x1: float, y: float, z: float, room: float, seed: int, dept
 
 def bay_light(x: float, y: float, z: float, inner_w: float, lm_per_m: float = LED_LM_PER_M) -> dict:
     """The light of an LED strip of a bay (module docstring): an area light under a board at the bay's front, pointing
-    down, ``lm_per_m`` over its length, ``LED_K``; in the wardrobe's own frame."""
+    down, ``lm_per_m`` over its length, ``LED_K``; in the wardrobe's own frame. 1 Nov 2026 (UL246): its beam
+    ``LED_SPREAD_DEG`` wide, tilted ``LED_TILT_DEG`` back towards the contents (``direction``; ``tilt_deg`` about the
+    run's axis), a soft falloff down the bay."""
     from wenart.blender import lighting as L
 
     length = max(0.2, inner_w - 0.04)
     lumens = float(lm_per_m) * length
     watts = L.watts_for_lumens(lumens) * L.RIG_GAIN
-    return {"center": [round(x, 4), round(y, 4), round(z, 4)], "size_m": [round(length, 4), 0.03],
+    t = math.radians(LED_TILT_DEG)
+    return {"center": [round(x, 4), round(y, 4), round(z, 4)], "size_m": [round(length, 4), 0.02],
             "lumens": round(lumens, 1), "watts_radiometric": L.watts_for_lumens(lumens), "energy_w": round(watts, 4),
-            "gain": L.RIG_GAIN, "temperature_k": LED_K, "direction": [0.0, 0.0, -1.0],
-            "source": f"a wardrobe LED profile, {float(lm_per_m):.0f} lm per metre (UL135)"}
+            "gain": L.RIG_GAIN, "temperature_k": LED_K,
+            "direction": [0.0, round(math.sin(t), 4), round(-math.cos(t), 4)],
+            "spread_deg": LED_SPREAD_DEG, "tilt_deg": LED_TILT_DEG,
+            "source": f"a wardrobe LED profile with an opal diffuser, {float(lm_per_m):.0f} lm per metre, a "
+                      f"{LED_SPREAD_DEG:.0f} degree beam tilted {LED_TILT_DEG:.0f} degrees to the contents "
+                      "(UL135, UL246)"}
 
 
 def faces_per_bay(parts: Sequence[dict]) -> dict[int, int]:

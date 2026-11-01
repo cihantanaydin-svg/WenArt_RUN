@@ -4597,6 +4597,32 @@ SMALL_ITEM_KEYS: tuple[str, ...] = ("bottle_glass", "frosted_glass", "amber_glas
 MATERIAL_KEYS = MATERIAL_KEYS + tuple(k for k in SMALL_ITEM_KEYS if k not in MATERIAL_KEYS)
 BEVEL_BY_ROLE.update({"seal": 0.0005, "rib": 0.001, "stake": 0.0, "rim": 0.0, "tube": 0.0, "contents": 0.0,
                       "liquid": 0.0, "dressing": 0.0})
+# 1 Nov 2026 (lesson UL246, user on real04 run 20261031-194116-full, a built-in wardrobe's slats: "More details more
+# realism needed"): (1) a built-in's inside finish (``interior``: wardrobe_fronts.joinery) and the backing behind its
+# slats (``backing``: the library's lightly tinted pane, or its sheer voile in the look's colour as a scrim;
+# ``fabric_linen`` names it in the records);
+# (2) tone variants of a key: ``<base>_tone<n>`` is the base key's material with its base colour shifted by
+# ``TONE_SHIFTS[n]`` (hue shift, saturation factor, value factor; ``furniture.tone_copy``): slats cut from different
+# veneer leaves differ in tone (designer value, assumed: up to 16 % in value, 8 % in saturation, 1.2 % in hue; a
+# first local render at +-12 % read as one flat colour)
+TONE_STEPS = 5
+TONE_SHIFTS: tuple[tuple[float, float, float], ...] = ((0.0, 1.0, 1.0), (-0.008, 0.94, 0.90), (0.006, 1.06, 1.09),
+                                                       (-0.012, 1.08, 0.84), (0.010, 0.92, 1.14))
+TONE_BASES: tuple[str, ...] = ("front",)
+TONE_KEYS: dict[str, tuple[str, int]] = {f"{b}_tone{n}": (b, n) for b in TONE_BASES for n in range(1, TONE_STEPS)}
+MATERIAL_KEYS = MATERIAL_KEYS + ("interior", "backing") + tuple(TONE_KEYS)
+
+
+def tone_key(base: str, n: int) -> str:
+    """The part key of the ``n``-th tone of ``base`` (pure; UL246): ``base`` itself for tone 0 (or a key without
+    tones), else ``<base>_tone<n>`` (``n`` modulo ``TONE_STEPS``)."""
+    n = int(n) % TONE_STEPS
+    return base if n == 0 or base not in TONE_BASES else f"{base}_tone{n}"
+
+
+def tone_of(key: str) -> tuple[str, int]:
+    """``(base key, tone)`` of a part key (pure; UL246): a tone key's base and tone, else ``(key, 0)``."""
+    return TONE_KEYS.get(key, (key, 0))
 # ... and a small item a library model stands in for leaves a library slot in its host's parts (bath_objects.placed):
 # its 8 vertices the reserved box, no faces; ``world_mesh`` leaves it out and the build places the model there
 SLOT_ROLE = "library_slot"
@@ -4799,9 +4825,12 @@ def part_bevel_radius(part: Part) -> float:
     """Bevel radius (metres) of one part: 0 for smooth (superellipsoid) parts
     and glass, ``BEVEL_SOFT_KEYS`` for fabric and bedding, else
     ``BEVEL_BY_ROLE`` / ``BEVEL_BY_KEY`` / ``BEVEL_DEFAULT_M``; never more
-    than a third of the part's smallest side (nor ``BEVEL_WIDTH_M``)."""
+    than a third of the part's smallest side (nor ``BEVEL_WIDTH_M``). 1 Nov 2026 (UL246): a part's own ``bevel_m``
+    wins (a profile rounded in its geometry, a wardrobe slat's, takes 0: no second bevel on its facets)."""
     if part.get("smooth") or part["key"] in ("glass", "bulb"):
         return 0.0
+    if isinstance(part.get("bevel_m"), (int, float)) and not isinstance(part.get("bevel_m"), bool):
+        return max(0.0, min(float(part["bevel_m"]), BEVEL_WIDTH_M))
     key, role = part["key"], part["role"]
     if key in BEVEL_SOFT_KEYS:
         r = BEVEL_SOFT_KEYS[key]
