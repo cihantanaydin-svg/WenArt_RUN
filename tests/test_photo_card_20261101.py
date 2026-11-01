@@ -360,7 +360,10 @@ def test_the_committed_store_is_what_the_cpu_rule_gives_and_cards_are_never_used
     if MEASURES:
         from wenart.assets.audit import items as IT
         cpu = P.cpu_cards(IT.load_items(), P.load_measures(P.default_measure_files()))
-        assert {k for k, v in cards.items() if v["source"] == "cpu"} == set(cpu) - set(doc.get("cleared") or {})
+        # every card the CPU rule gives is in the store (labelled "mesh" once the mesh scan confirmed it), and every
+        # card labelled "cpu" is one the rule gives
+        assert set(cpu) - set(doc.get("cleared") or {}) <= set(cards)
+        assert {k for k, v in cards.items() if v["source"] == "cpu"} <= set(cpu)
     assert all(r["card"] and r["reason"] and r["sha256_glb"] for r in cards.values())
     assert not any(P.flat_by_nature(r["type"]) for r in cards.values())
     cat = C.load()
