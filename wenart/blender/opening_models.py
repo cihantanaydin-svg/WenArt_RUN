@@ -734,6 +734,9 @@ def _usable(entry: dict, mode: str) -> bool:
     status = str(((entry.get("audit") or {}).get("status")) or "").lower()
     if status not in ("keep", "fix"):
         return False
+    from wenart.furniture import photo_cards as PC
+    if PC.card(entry) is not None:        # 1 Nov 2026 (UL237): a photo of a door or window on a board, never used
+        return False
     q = vision_quality(entry)
     if q is not None and q < MIN_VISION_QUALITY:
         return False

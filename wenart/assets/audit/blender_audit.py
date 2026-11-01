@@ -7,7 +7,9 @@ imported with ``unit_scale``, ``-origin_offset`` and the catalogue turn applied 
 its mesh measured with ``meshstats.analyse`` (loaded by path: this file imports no ``wenart`` package) plus its
 model-frame box, its texture images (count, largest size, missing files, a hash of the image data), then the four
 views of ``render.camera_specs``. One ``measure/<id>.json`` per job (written also when the job fails); texture jobs
-render a 1 m plane with the set's maps from above.
+render a 1 m plane with the set's maps from above. 1 Nov 2026 (UL237): the measurement also holds the photo-card
+numbers (``photo_card``: ``photocard.analyse`` on the piece-frame mesh with each triangle's base colour image and UVs,
+loaded by path like ``meshstats``; ``checks.photo_card_check`` reads them).
 
 Why thin: everything that can be tested on the CPU lives in ``render.py`` and ``meshstats.py``; this file only talks
 to bpy. Exit 3 when the deadline left jobs undone, else 0 (a failed model is recorded, never fatal).
@@ -28,6 +30,10 @@ HERE = Path(__file__).resolve().parent
 _spec = importlib.util.spec_from_file_location("audit_meshstats", HERE / "meshstats.py")
 meshstats = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(meshstats)
+# 1 Nov 2026 (UL237): the photo-card check, numpy only like meshstats (loaded by path)
+_spec_pc = importlib.util.spec_from_file_location("audit_photocard", HERE / "photocard.py")
+photocard = importlib.util.module_from_spec(_spec_pc)
+_spec_pc.loader.exec_module(photocard)
 
 COLOURS = {"floor": (0.55, 0.55, 0.55), "grid": (0.12, 0.12, 0.12), "person": (0.25, 0.35, 0.55),
            "bar": (0.85, 0.45, 0.10)}
@@ -215,6 +221,58 @@ def mesh_arrays(meshes):
     return np.concatenate(verts), np.concatenate(tris), colour_attrs
 
 
+def _base_image(mat) -> bool:
+    """A material whose Principled BSDF takes its Base Color from an image (through any nodes, 6 deep)."""
+    tree = getattr(mat, "node_tree", None) if mat is not None else None
+    if tree is None:
+        return False
+    bsdf = next((n for n in tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
+
+    def has_image(socket, depth=0):
+        if socket is None or not socket.is_linked or depth > 6:
+            return False
+        for link in socket.links:
+            node = link.from_node
+            if node.type == "TEX_IMAGE":
+                return node.image is not None
+            if any(has_image(inp, depth + 1) for inp in node.inputs):
+                return True
+        return False
+
+    return bool(bsdf is not None and has_image(bsdf.inputs.get("Base Color")))
+
+
+def texture_arrays(meshes):
+    """1 Nov 2026 (UL237, ``photocard.analyse``): per loop triangle of ``mesh_arrays`` (same objects, same order)
+    whether its material has a base colour image, and its UVs of the active UV map ((M, 3, 2); NaN without one)."""
+    dg = bpy.context.evaluated_depsgraph_get()
+    flags, uvs = [], []
+    for ob in meshes:
+        slots = [_base_image(slot.material) for slot in ob.material_slots]
+        ev = ob.evaluated_get(dg)
+        me = ev.to_mesh()
+        try:
+            me.calc_loop_triangles()
+            n_t = len(me.loop_triangles)
+            mi = np.empty(n_t, dtype=np.int32)
+            me.loop_triangles.foreach_get("material_index", mi)
+            flags.append(np.array([slots[i] if 0 <= i < len(slots) else False for i in mi.tolist()], dtype=bool))
+            tri_uv = np.full((n_t, 3, 2), np.nan)
+            layer = me.uv_layers.active
+            if layer is not None and n_t:
+                loops = np.empty(n_t * 3, dtype=np.int32)
+                me.loop_triangles.foreach_get("loops", loops)
+                uv = np.empty(len(me.loops) * 2, dtype=np.float32)
+                layer.data.foreach_get("uv", uv)
+                tri_uv = uv.reshape(-1, 2)[loops].reshape(-1, 3, 2).astype(np.float64)
+            uvs.append(tri_uv)
+        finally:
+            ev.to_mesh_clear()
+    if not flags:
+        return np.zeros(0, dtype=bool), np.zeros((0, 3, 2))
+    return np.concatenate(flags), np.concatenate(uvs)
+
+
 def look(cam, spec):
     cam.location = spec["location"]
     direction = Vector(spec["target"]) - Vector(spec["location"])
@@ -272,6 +330,12 @@ def one(job, scene, cam, keep):
         stats["pbr"] = pbr_info(meshes)
     except Exception as exc:  # noqa: BLE001 - a material oddity must not fail the measurement
         stats["pbr"] = {"error": f"{type(exc).__name__}: {exc}"}
+    try:                       # 1 Nov 2026 (UL237): a photo card (a flat board carrying a product image)?
+        tex, tri_uv = texture_arrays(meshes)
+        stats["photo_card"] = photocard.analyse(verts, tris, tex if len(tex) == len(tris) else None,
+                                                tri_uv if len(tri_uv) == len(tris) else None)
+    except Exception as exc:  # noqa: BLE001 - the photo-card numbers must not fail the measurement
+        stats["photo_card"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
     stats["colour_attributes"] = colour_attrs
     stats["mesh_objects"] = len(meshes)
     build_reference(job["layout"])

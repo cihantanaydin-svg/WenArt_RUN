@@ -11,6 +11,7 @@ from wenart.assets.audit import items as I
 from wenart.assets.audit import load_config
 from wenart.assets.audit import write as W
 from wenart.furniture import catalog as C
+from wenart.furniture import photo_cards as PC
 
 CFG = load_config()
 KNOWN = {"sofa", "wardrobe", "tall_cabinet", "bed_double", "bunk_bed", "cushion", "throw"}
@@ -206,9 +207,10 @@ def test_u3_the_18_nc_sa_models_are_removed_in_the_committed_catalogue():
     assert by == NC_SA
     for e in entries(doc):
         # Milestone 13: usable in relaxed mode = the audit status; commercial mode also needs a commercial-safe flag
-        # 29 Oct 2026 (UL94): a model the user rejected is never usable, whatever its audit
+        # 29 Oct 2026 (UL94): a model the user rejected is never usable, whatever its audit; 1 Nov 2026 (UL237):
+        # nor a photo card (wenart.furniture.photo_cards)
         assert C.usable(e, "relaxed") == ((e.get("audit") or {}).get("status") in ("keep", "fix")
-                                          and C.user_rejection(e) is None), e["id"]
+                                          and C.user_rejection(e) is None and PC.card(e) is None), e["id"]
         assert C.usable(e, "commercial") == (C.usable(e, "relaxed") and C.commercial_safe(e)), e["id"]
     assert W.U3_NOTE in doc["notes"]
 

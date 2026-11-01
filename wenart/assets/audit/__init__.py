@@ -20,6 +20,10 @@ Steps (each resumable, results under ``<out>/audit/``, default ``results/library
 - ``gaps`` (``gaps.py``): per room type and style family the group members needed vs the kept models.
 - ``write`` (``write.py``): the catalogue's ``audit`` fields and the flags ``real_product``, ``has_bedding``,
   ``has_cushions``, ``has_pillows``, ``contact`` (contract §13.3; ``catalog.usable`` reads ``audit.status``).
+- ``photocard`` (``photocard.py``, 1 Nov 2026, lesson UL237): a model that is only a photo card (a flat board carrying a
+  product image) is never used: the mesh check in the render and in the pod scan (``scripts/jobs/
+  library_photo_card.sh``), the CPU rule on the committed measurements, the store ``results/library/photo_cards.json``
+  that ``catalog.usable`` reads (``python -m wenart.assets.audit.photocard cpu | scan | merge``).
 
 Milestone 13 (docs/milestone13.md §5.1 phase 2, §13.1 track T7): ``demands.py`` (the drawn demands of the committed
 projects, the product size grid, the coverage per licence mode and the demand gaps), the audit gates of

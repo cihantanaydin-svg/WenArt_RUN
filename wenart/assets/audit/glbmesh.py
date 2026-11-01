@@ -187,6 +187,74 @@ def mesh_arrays(doc: dict, buffers: list) -> tuple[np.ndarray, np.ndarray]:
     return np.concatenate(verts), np.concatenate(tris) if tris else np.zeros((0, 3), dtype=np.int64)
 
 
+def _uv_transform(uv: np.ndarray, ext: Optional[dict]) -> np.ndarray:
+    """``KHR_texture_transform`` (offset, rotation in radians, scale; the extension's own order: T * R * S) applied to
+    texture coordinates; ``uv`` unchanged without the extension."""
+    if not isinstance(ext, dict):
+        return uv
+    ox, oy = (float(v) for v in (ext.get("offset") or (0.0, 0.0))[:2])
+    sx, sy = (float(v) for v in (ext.get("scale") or (1.0, 1.0))[:2])
+    r = float(ext.get("rotation") or 0.0)
+    c, s = np.cos(r), np.sin(r)
+    u, v = uv[:, 0] * sx, uv[:, 1] * sy
+    return np.stack([c * u + s * v + ox, -s * u + c * v + oy], axis=1)
+
+
+def textured_arrays(doc: dict, buffers: list) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """1 Nov 2026 (UL237, the photo-card check ``wenart.assets.audit.photocard``): ``mesh_arrays`` plus, per triangle,
+    whether its material has a base colour image (``baseColorTexture``) and the triangle's texture coordinates of that
+    image (``(M, 3, 2)``, ``KHR_texture_transform`` applied, NaN without an image or a ``TEXCOORD_n``). Same nodes,
+    primitives and frame as ``mesh_arrays``."""
+    from wenart.assets.models import _node_matrices
+    meshes = doc.get("meshes") or []
+    materials = doc.get("materials") or []
+    verts, tris, flags, uvs, offset = [], [], [], [], 0
+    for index, world in _node_matrices(doc):
+        node = doc["nodes"][index]
+        if "mesh" not in node:
+            continue
+        m = np.array(world, dtype=np.float64).reshape(4, 4).T
+        for prim in meshes[node["mesh"]].get("primitives") or []:
+            if any(k in (prim.get("extensions") or {}) for k in COMPRESSION):
+                raise MeshError("Draco-compressed primitive (no decoder here)")
+            attrs = prim.get("attributes") or {}
+            if "POSITION" not in attrs:
+                continue
+            pos = accessor(doc, buffers, attrs["POSITION"])[:, :3]
+            pos = pos @ m[:3, :3].T + m[:3, 3]
+            pos = np.stack([pos[:, 0], -pos[:, 2], pos[:, 1]], axis=1)
+            mode = int(prim.get("mode", 4))
+            if "indices" in prim:
+                idx = accessor(doc, buffers, prim["indices"], as_float=False).reshape(-1).astype(np.int64)
+            else:
+                idx = np.arange(len(pos), dtype=np.int64)
+            t = _triangles(mode, idx)
+            if len(t) and (t.min() < 0 or t.max() >= len(pos)):
+                raise MeshError("an index points past its vertices")
+            mat = materials[prim["material"]] if isinstance(prim.get("material"), int) and \
+                0 <= prim["material"] < len(materials) else {}
+            pbr = mat.get("pbrMetallicRoughness") if isinstance(mat, dict) and \
+                isinstance(mat.get("pbrMetallicRoughness"), dict) else {}
+            tex = pbr.get("baseColorTexture") if _is_texture(pbr.get("baseColorTexture")) else None
+            tri_uv = np.full((len(t), 3, 2), np.nan)
+            if tex is not None:
+                ext = (tex.get("extensions") or {}).get("KHR_texture_transform")
+                coord = int((ext or {}).get("texCoord", tex.get("texCoord", 0)) or 0)
+                key = f"TEXCOORD_{coord}"
+                if key in attrs and len(t):
+                    uv = _uv_transform(accessor(doc, buffers, attrs[key])[:, :2], ext)
+                    if len(uv) == len(pos):
+                        tri_uv = uv[t]
+            verts.append(pos)
+            tris.append(t + offset)
+            flags.append(np.full(len(t), tex is not None, dtype=bool))
+            uvs.append(tri_uv)
+            offset += len(pos)
+    if not verts:
+        raise MeshError("no mesh positions found")
+    return np.concatenate(verts), np.concatenate(tris), np.concatenate(flags), np.concatenate(uvs)
+
+
 def _uses_texture(value) -> bool:
     if isinstance(value, dict):
         return any((k.endswith("Texture") and isinstance(v, dict) and "index" in v) or _uses_texture(v)

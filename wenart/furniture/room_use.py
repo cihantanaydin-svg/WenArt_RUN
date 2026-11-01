@@ -6,8 +6,9 @@ for on 29 Oct 2026, measured on the building as built (pure; shapely):
 - a TV in every living room and in the master bedroom, on a TV unit facing the seat (``media_wall.review``; UL99);
 - the furniture density of living and dining rooms, a bookshelf in living rooms and studies, books on every
   bookshelf, storage in every bathroom (``room_fill.review``; UL98, UL103, UL107, UL102);
-- no library model the user rejected (``rejected_models``: ``catalog.user_rejection``; UL94), and no drawn floor
-  lamp built at its oversized plan symbol (``symbol_sizes``: ``sizes.SYMBOL_MAX_M``; UL94);
+- no library model the user rejected (``rejected_models``: ``catalog.user_rejection``; UL94) and no photo card
+  (``photo_cards.card``; UL237), and no drawn floor lamp built at its oversized plan symbol (``symbol_sizes``:
+  ``sizes.SYMBOL_MAX_M``; UL94);
 - a living room's main sofa with its cushions and a throw, its seating group on a rug (``decor_ai.dressing_review``;
   UL180).
 
@@ -22,8 +23,10 @@ REVIEW_CHECK = "M21"
 
 
 def rejected_models(building: dict) -> list[dict]:
-    """A built piece or decor item whose library model the user rejected (major)."""
+    """A built piece or decor item whose library model the user rejected (major), or (1 Nov 2026, UL237) a model that
+    is only a photo card (``photo_cards.card``: a flat board carrying a product image; major)."""
     from wenart.furniture import catalog as C
+    from wenart.furniture import photo_cards as PC
 
     out = []
     for kind in ("furniture", "decor"):
@@ -32,6 +35,15 @@ def rejected_models(building: dict) -> list[dict]:
             if not asset or f.get("build") is False:
                 continue
             rec = C.user_rejection(asset)
+            card = PC.card(asset) if rec is None else None
+            if card is not None:
+                out.append({"check": REVIEW_CHECK, "severity": "major", "target": f.get("id"),
+                            "room_id": f.get("room_id"),
+                            "message": (f"{f.get('id')} ({f.get('type')}) is built with {asset.get('asset_id')}, "
+                                        f"{PC.reason(asset)}"),
+                            "metrics": {"model_review": True, "rule": "photo_card", "lesson": "UL237",
+                                        "asset_id": asset.get("asset_id")}})
+                continue
             if rec is None:
                 continue
             out.append({"check": REVIEW_CHECK, "severity": "major", "target": f.get("id"), "room_id": f.get("room_id"),
