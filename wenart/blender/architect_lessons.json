@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-10-31",
+ "updated": "2026-11-01",
  "lessons": [
   {
    "id": "UL01",
@@ -2776,6 +2776,42 @@
    "request": "on the review page also put a filter general for the ranks slide 0 to 10 and for the ones which is not ranked yet (31 Oct 2026: the ranking page has one filter for every tab: a two-handle 0-10 slider over the scored models, a not-ranked-yet switch, an all-types switch and a reset, kept in the browser)",
    "lesson": "on the review page also put a filter general for the ranks slide 0 to 10 and for the ones which is not ranked yet (31 Oct 2026: the ranking page has one filter for every tab: a two-handle 0-10 slider over the scored models, a not-ranked-yet switch, an all-types switch and a reset, kept in the browser)",
    "question": "Can the user filter the ranking page by score range and by not ranked yet, on one tab or across all types?"
+  },
+  {
+   "id": "UL234",
+   "date": "2026-11-01",
+   "area": "roof",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "The L1 bathtubs that poked through the roof: already fixed. this change the geometry of the roof, the roof must stays the same as before, fix it (1 Nov 2026, real04 run 20261031-194116-full: two flat dormer boxes on the roof, raised over the attic bath doors by UL225; the roof is never changed to fit a door: no dormers; a drawn door the roof leaves too low moves to the spot with the most head room on a wall between the same two rooms, checked by code, the drawn place kept)",
+   "lesson": "The L1 bathtubs that poked through the roof: already fixed. this change the geometry of the roof, the roof must stays the same as before, fix it (1 Nov 2026, real04 run 20261031-194116-full: two flat dormer boxes on the roof, raised over the attic bath doors by UL225; the roof is never changed to fit a door: no dormers; a drawn door the roof leaves too low moves to the spot with the most head room on a wall between the same two rooms, checked by code, the drawn place kept)",
+   "question": "Is the roof exactly as planned from the drawings (no dormer or other box added to fit a door), and does every drawn door under the slope stand where it has the most head room on a wall between its two rooms?"
+  },
+  {
+   "id": "UL235",
+   "date": "2026-11-01",
+   "area": "facade",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "this was nice wall it can be used all around the same floor (1 Nov 2026, real04 run 20261031-194116-full: the stacked stone cladding on one L-1 facade wall; a cladding the facade scheme puts on a floor's wall goes on every outside wall of that floor)",
+   "lesson": "this was nice wall it can be used all around the same floor (1 Nov 2026, real04 run 20261031-194116-full: the stacked stone cladding on one L-1 facade wall; a cladding the facade scheme puts on a floor's wall goes on every outside wall of that floor)",
+   "question": "Does a cladding (stone, brick) that the facade puts on one wall of a floor go on every outside wall of that floor?"
+  },
+  {
+   "id": "UL236",
+   "date": "2026-11-01",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "bedding seem to be using the same set of pillows sheets etc, use better models better textures, more details and more variants, consider the size of the bedding and previous beddings that already exist in the models (1 Nov 2026, real04 run 20261031-194116-full: every bed got the same white shams, mustard cushion, grey band and checked throw; a library bed's own grey pillows stood behind our added set)",
+   "lesson": "bedding seem to be using the same set of pillows sheets etc, use better models better textures, more details and more variants, consider the size of the bedding and previous beddings that already exist in the models (1 Nov 2026, real04 run 20261031-194116-full: every bed got the same white shams, mustard cushion, grey band and checked throw; a library bed's own grey pillows stood behind our added set)",
+   "question": "Does each bed get its own bedding set (different pillows, sheets, duvet and throw per bed, fitted to the bed's size), never a second set over the bedding the bed model already has?"
   }
  ]
 }
