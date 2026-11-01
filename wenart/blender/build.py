@@ -1775,8 +1775,8 @@ def main(argv: list[str]) -> int:
             prep["faces"].setdefault(wid, []).extend(faces)
         for rec in records:
             assumed.append({"object": rec["level_id"], "field": "facade_scheme", "value": rec["material"],
-                            "reason": rec["reason"], "kind": "storey_cladding", "walls": rec["walls"],
-                            "seen_on": rec["seen_on"]})
+                            "reason": rec["reason"], "kind": "storey_cladding", "parent": rec["level_id"],
+                            "walls": rec["walls"], "seen_on": rec["seen_on"]})
     lib_openings = library_openings(building, levels, prep, brief, warnings, assets_dir=args.assets, style=style,
                                     assumed=assumed) if whole else {}
     geo_cache: dict = {}

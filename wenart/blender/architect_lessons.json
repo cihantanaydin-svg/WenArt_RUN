@@ -2949,7 +2949,7 @@
    "id": "UL248",
    "date": "2026-11-01",
    "area": "site",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2961,7 +2961,7 @@
    "id": "UL249",
    "date": "2026-11-01",
    "area": "site",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
