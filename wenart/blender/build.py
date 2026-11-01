@@ -1630,6 +1630,25 @@ def main(argv: list[str]) -> int:
         for face in scheme:
             assumed.append({"object": face.get("wall_id") or face.get("level_id"), "field": "facade_scheme",
                             "value": face["material"], "reason": face["reason"]})
+    if whole and looks:
+        # 1 Nov 2026 (lesson UL235, "this was nice wall it can be used all around the same floor"): a cladding the
+        # facade puts on some outside walls of a floor (an inferred face, or the plinth rising from the ground to the
+        # floor above on a sloped site) goes on every outside wall of that floor
+        from wenart.blender import facade as FA
+
+        site_plan = prep["site"] or {}
+        stretches = FA.plinth_storeys(building, levels, prep["outlines"], prep["ground_outline"],
+                                      site_plan.get("terrain"), site_plan.get("wells") or [])
+        storey, records = FA.storey_claddings(building, levels, prep["outlines"], prep["faces"], stretches,
+                                              FA.plinth_look(style, looks), looks.get("facade"))
+        mapped, storey_warnings = facade_faces(dict(building, facade={"faces": storey}), prep["outlines"])
+        warnings.extend(storey_warnings)
+        for wid, faces in mapped.items():
+            prep["faces"].setdefault(wid, []).extend(faces)
+        for rec in records:
+            assumed.append({"object": rec["level_id"], "field": "facade_scheme", "value": rec["material"],
+                            "reason": rec["reason"], "kind": "storey_cladding", "walls": rec["walls"],
+                            "seen_on": rec["seen_on"]})
     lib_openings = library_openings(building, levels, prep, brief, warnings, assets_dir=args.assets, style=style,
                                     assumed=assumed) if whole else {}
     geo_cache: dict = {}
