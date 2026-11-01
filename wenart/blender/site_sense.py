@@ -27,6 +27,9 @@ What (pure, no shapely: it runs where the grading review runs):
   can walk around the house using the designated pathways and able to reach the area ... the person going to jump to
   reach the pool?"): the walk graph of the site from the streets and every outside door; every outdoor area reached,
   every flight landing on a walkable surface at both ends, every path arriving somewhere, no step or drop at a joint.
+- G16 ``landscape.review`` (1 Nov 2026, lessons UL248, UL249: "too plain front of the house", "Outside areas needs a
+  touch up"): the terrain is never paved, every bank of the terrain is planted (terraced when steeper than 1:2), nothing
+  of the planting (plants, planters, lights, boulders) stands in a walkway, a paved area meets the lawn with a border.
 
 ``review(site, manifest)`` returns ``(findings, checked)`` in the model review's format (``grading._f``).
 """
@@ -416,6 +419,9 @@ def review(site: Optional[dict], manifest: Optional[dict] = None) -> tuple[list[
         + walkways(site)
     more, n = PX.review(site, manifest)
     walk, n_walk = SW.review(site)
+    # 1 Nov 2026 (lessons UL248, UL249): G16, the landscape (wenart.blender.landscape.review)
+    from wenart.blender import landscape as LS
+    land, n_land = LS.review(site, manifest)
     checked = len(site.get("platforms") or []) + len([a for a in site.get("areas") or [] if a.get("kind") == "path"]) \
-        + len(site.get("glazing_runs") or []) + n + n_walk
-    return findings + more + walk, checked
+        + len(site.get("glazing_runs") or []) + n + n_walk + n_land
+    return findings + more + walk + land, checked

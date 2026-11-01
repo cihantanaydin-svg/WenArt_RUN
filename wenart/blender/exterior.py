@@ -207,6 +207,9 @@ def build_finish_slugs(style: Optional[dict] = None) -> list[tuple[str, str]]:
     from wenart.blender import grading as GR
     fs = GR.floor_set(None, (style or {}).get("family"))
     rows += [(fs[use]["material"], f"floor_{use}") for use in ("terrace", "steps", "path", "drive")]
+    # 1 Nov 2026 (lessons UL248, UL249): the landscape's beds, lawn edges, borders, planters, lights and boulders
+    from wenart.blender import landscape as LS
+    rows += [(slug, f"landscape_{part}") for part, slug in LS.LOOKS.items()]
     rules = FA.family_rules(style)
     rows += [(rules.get("plinth"), "plinth"), (rules.get("surround"), "window_surround")]
     sch = FA.scheme_of(style)

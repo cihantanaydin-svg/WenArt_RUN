@@ -435,7 +435,8 @@ DESCRIPTIONS = {
                      "only frontal or entrance view, nor the only view of a room (set_camera moves it).",
     "set_material": "Set the look of a material slot (walls, floor, wet walls, kitchen walls, facade, roof, ground, "
                     "frames ...). The facade slot is every main outer wall of the house (not the stone base or the "
-                    "entrance's accent): it keeps the style family's render unless the brief names the facade.",
+                    "entrance's accent): it keeps the style family's render unless the brief names the facade. The "
+                    "ground slot is the whole terrain: lawn or gravel only (a paving look goes on the paving slot).",
     "set_exterior": "Change the roof (type, pitch, overhang), ground, site items or the sun (the building session "
                     "only; values the building already has are a no-op).",
     "set_lighting": "Make a room's ceiling lights stronger or weaker (factor 0.5-3; a dark or windowless room, a long "

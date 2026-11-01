@@ -1146,20 +1146,24 @@ def tree_parts(item: dict, terrain: dict, climate: str = "temperate") -> dict:
     cx, cy = float(item["center"][0]), float(item["center"][1])
     size = [float(v) for v in (item.get("size") or [1.0, 1.0])[:2]]
     dia = max(0.3, max(size))
-    gz = ground_z(terrain, cx, cy)
+    # 1 Nov 2026 (UL248, UL249): a plant standing on something (a planting step, a planter's soil: ``z``) and a planted
+    # plant of a set height (``height_m``: the landscape's ground cover, grasses and accent shrubs, wenart.blender.landscape)
+    gz = float(item["z"]) if isinstance(item.get("z"), (int, float)) else ground_z(terrain, cx, cy)
+    inferred = item.get("species_inferred", not item.get("species"))
     if item.get("kind") == "plant":
-        h = DEFAULTS["plant_height"]
+        h = float(item["height_m"]) if isinstance(item.get("height_m"), (int, float)) else DEFAULTS["plant_height"]
         crown = _sphere((cx, cy, gz + h / 2.0), size[0] / 2.0, size[1] / 2.0, h / 2.0)
         return {"trunk": None, "crown": crown, "height": h, "diameter": dia, "ground_z": gz, "size_class": "shrub",
-                "species": item.get("species") or species_for("shrub", climate), "species_inferred": not item.get("species"),
+                "species": item.get("species") or species_for("shrub", climate), "species_inferred": inferred,
                 "crown_z": [round(gz, 3), round(gz + h, 3)],
-                "reason": f"bush of the drawn size, {h} m tall (height assumed)"}
+                "reason": (f"bush of the drawn size, {h} m tall (height assumed)" if item.get("source") != "landscape"
+                           else f"{item.get('role') or 'plant'} of the planting, {h} m tall: {item.get('reason')}")}
     h, cls = tree_height(dia / 2.0)
     species = item.get("species") or species_for(cls, climate)
     if cls == "shrub":
         crown = _sphere((cx, cy, gz + h / 2.0), size[0] / 2.0, size[1] / 2.0, h / 2.0)
         return {"trunk": None, "crown": crown, "height": round(h, 3), "diameter": dia, "ground_z": gz,
-                "size_class": cls, "species": species, "species_inferred": not item.get("species"),
+                "size_class": cls, "species": species, "species_inferred": inferred,
                 "crown_z": [round(gz, 3), round(gz + h, 3)],
                 "reason": f"shrub: crown {dia:.2f} m as drawn (under a 1.5 m crown radius), {h:.2f} m tall "
                           f"(height by the crown class, assumed); species {species} (inferred)"}
@@ -1167,7 +1171,7 @@ def tree_parts(item: dict, terrain: dict, climate: str = "temperate") -> dict:
     trunk = _cylinder((cx, cy), DEFAULTS["trunk_radius"], gz - 0.05, gz + h - crown_h * 0.6)
     crown = _sphere((cx, cy, gz + h - crown_h / 2.0), size[0] / 2.0, size[1] / 2.0, crown_h / 2.0)
     return {"trunk": trunk, "crown": crown, "height": round(h, 3), "diameter": dia, "ground_z": gz,
-            "size_class": cls, "species": species, "species_inferred": not item.get("species"),
+            "size_class": cls, "species": species, "species_inferred": inferred,
             "crown_z": [round(gz + h - crown_h, 3), round(gz + h, 3)],
             "reason": f"{cls} tree: crown {dia:.1f} m as drawn, {h:.1f} m tall (height by the crown class, assumed); "
                       f"species {species} ({'drawn' if item.get('species') else 'inferred'})"}
@@ -2894,8 +2898,9 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
 # The A/B switches of scripts/jobs/site_ab.sh (docs/milestone13.md §13.3): WENART_SITE_VARIANT = all (the default
 # build: everything on) | base (every lever off: the Milestone 12 site layout, but the trees keep the Milestone 13
 # crown-class heights and are leaf-card trees, never the Milestone 12 ellipsoid: CLAUDE.md "never a primitive") |
-# one lever on.
-SITE_LEVERS = ("hedge", "instances", "sapling", "platforms", "pools", "sky")
+# one lever on. 1 Nov 2026 (UL248, UL249): ``landscape``, the planted banks, beds, edges, planters and lights
+# (wenart.blender.landscape; the terrain is never paved whatever the levers).
+SITE_LEVERS = ("hedge", "instances", "sapling", "platforms", "pools", "sky", "landscape")
 SITE_VARIANT_ENV = "WENART_SITE_VARIANT"
 
 
@@ -6869,6 +6874,11 @@ def relief_keep(plan: dict, hedges: Optional[Sequence[dict]] = None) -> list[dic
     for h in hedge_records(plan) if hedges is None else hedges:
         for poly in _hedge_footprints(h):
             out.append({"kind": "hedge", "id": h.get("id"), "polygon": poly})
+    # 1 Nov 2026 (UL248, UL249): the landscape's beds and planting steps (wenart.blender.landscape) meet the lawn at the
+    # ground's level
+    from wenart.blender import landscape as LS
+    for k, poly in enumerate(LS.ground_holes(plan)):
+        out.append({"kind": "bed", "id": f"bed_{k}", "polygon": poly})
     return out
 
 
@@ -6902,7 +6912,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     terrain = GR.plan_terrain(plan)
     levers = plan.get("levers") or site_levers()
     pfs = [pf for pf in plan.get("platforms") or []]
-    holes = ground_holes(plan)
+    from wenart.blender import landscape as LS
+    # 1 Nov 2026 (UL248, UL249): the landscape's beds and planting steps are cut from the lawn (each is built in place)
+    holes = ground_holes(plan) + LS.ground_holes(plan)
     # the hedges (drawn rows and the inferred boundary) before the ground: the lawn relief keeps their footprints
     hedge_recs = hedge_records(plan, levers)
     summary = {"built": True, "mode": plan["mode"], "objects": [],
@@ -6922,10 +6934,20 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                  "textured": False, "pass_index": None, **extra})
         summary["objects"].append(name)
 
-    ground_look = looks["garden"] if plan["ground_is_grass"] or plan["mode"] == "full" else looks["ground"]
+    use_garden = bool(plan["ground_is_grass"] or plan["mode"] == "full")
+    ground_look = looks["garden"] if use_garden else looks["ground"]
+    if use_garden:
+        # 1 Nov 2026 (lesson UL248, real04 run 20261031-194116-full: the agent's ground slot paving_stone paved the
+        # whole terrain, its front bank a ramp of slabs): the terrain is never paved (landscape.terrain_look)
+        ground_look, terrain_note = LS.terrain_look(ground_look)
+        if terrain_note:
+            summary["warnings"].append(terrain_note)
+        summary["terrain_finish"] = {"material": ground_look.get("material"), "source": ground_look.get("source"),
+                                     "replaced": ground_look.get("replaced"), "reason": terrain_note
+                                     or "the garden look (a soft finish: the terrain is never paved)"}
     ground_mat = make_material(ground_look)
     lawn = None
-    if ground_look is looks["garden"]:
+    if use_garden:
         # round 3 (P1: the lawn rendered as a flat saturated green): tiling at 1-2 m, an albedo variation, a bump;
         # 27 Oct 2026: with ``site: full``, field-scale patches beyond the lawn by the house (``VG.LAWN_FIELDS``)
         bx0, by0, bx1, by1 = G.bbox([tuple(p[:2]) for p in plan["outline"]]) if plan.get("outline") else (0, 0, 0, 0)
@@ -7297,6 +7319,15 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         # 30 Oct 2026 (lesson UL143): a ladder into every pool and seating on a deck with room for it
         summary["pool_extras"] = build_pool_extras(plan, collection, make_material, manifest_objects, assumed)
         summary["objects"] += [x["name"] for x in summary["pool_extras"] if x.get("name")]
+    # 1 Nov 2026 (lessons UL248, UL249): the landscape: planted banks and planting steps, beds along the house and the
+    # paths, border bands, lawn edges, planters, garden lights and boulders (wenart.blender.landscape; its plants are
+    # trees of the plan, built below)
+    if plan.get("landscape"):
+        summary["landscape"] = build_landscape(plan, collection, make_material, manifest_objects, assumed, terrain,
+                                               floors, wall_look)
+        summary["objects"] += summary["landscape"].pop("objects", [])
+        if summary.get("terrain_finish"):
+            summary["landscape"]["terrain_finish"] = summary["terrain_finish"]
     # Milestone 13 (T6): hedges (drawn rows and the inferred boundary: hedge_records above) and the trees through the
     # vegetation module
     inferred = plan.get("inferred")
@@ -7715,6 +7746,139 @@ def build_pool_extras(plan: dict, collection, make_material, manifest_objects: l
                         **({"asset": entry.get("id")} if built is not None else {})})
         for note in rec.get("notes") or []:
             out.append({"name": None, "pool": pid, "part": "note", "reason": note})
+    return out
+
+
+def build_landscape(plan: dict, collection, make_material, manifest_objects: list, assumed: list, terrain: dict,
+                    floors: dict, wall_look: dict) -> dict:
+    """The landscape's parts (bpy; ``plan["landscape"]`` of ``landscape.plan``, lessons UL248, UL249): every bed's gravel
+    surface draped in its place (the lawn mesh leaves it out), a terraced bank's planting steps (bed solids, low walls in
+    the house's base stone with the steps' coping), the steel lawn edges, the paved areas' border bands, the planters
+    (a tapered fibre-cement box with its soil), the garden lights (anthracite bollards with a light band) and the
+    boulders. Every object is ``inferred``, ``source: added_by_ai``, with its reason. Returns the summary (``objects``:
+    the names made, popped by ``build_site``)."""
+    from wenart.blender import common
+    from wenart.blender import landscape as LS
+
+    ls = plan.get("landscape") or {}
+    out: dict = {"objects": [], "lessons": LS.LESSONS, "counts": dict(ls.get("counts") or {}),
+                 "banks": [{k: b.get(k) for k in ("id", "finish", "area_m2", "rise_m", "slope_max", "tiers", "step_m",
+                                                  "walls", "plants", "reason")} for b in ls.get("banks") or []],
+                 "beds": [{"id": b["id"], "kind": b["kind"], "area_m2": b.get("area_m2"), "plants": b.get("plants"),
+                           "reason": b.get("reason")} for b in ls.get("beds") or []],
+                 "species": ls.get("species"), "notes": list(ls.get("notes") or [])}
+    gz = (lambda x, y: ground_z(terrain, x, y))
+    mats: dict = {}
+
+    def mat(key: str, look: dict):
+        if key not in mats:
+            mats[key] = make_material(look)
+        return mats[key]
+
+    def look(slug: str, why: str) -> dict:
+        return {"material": slug, "colour": None, "source": "build", "assumed": True, "reason": f"{why} ({LS.LESSONS})"}
+
+    def record(name: str, kind: str, material, part: str, reason: str, extra: Optional[dict] = None) -> None:
+        manifest_objects.append({"name": name, "wenart_id": name, "kind": kind, "status": "assumed", "level_id": None,
+                                 "element_id": name, "evidence": [], "material": getattr(material, "name", None),
+                                 "textured": False, "pass_index": None, "site_part": part, "inferred": True,
+                                 "source": "added_by_ai", "reason": reason,
+                                 "assumed": {"detail": part, "reason": reason}, **(extra or {})})
+        assumed.append({"object": name, "field": part, "value": part, "reason": reason, "parent": "landscape",
+                        "kind": "site_landscape"})
+        out["objects"].append(name)
+
+    bed_mat = mat("bed", look(LS.LOOKS["bed"], "planting beds: a gravel mulch"))
+    stone = mat("wall", wall_look)
+    coping = mat("coping", floors["steps"])
+    for bd in ls.get("beds") or []:
+        name = f"landscape_{bd['id']}"
+        if bd["kind"] == "terraced":
+            parts = LS.terraced_meshes(bd)
+            meshes, slots = [], []
+            for v, f, sl in parts["beds"]:
+                meshes.append((v, f))
+                slots += sl
+            if meshes:
+                v, f = geom2d.merge(meshes)
+                common.new_mesh_object(f"{name}_steps", v, f, collection=collection, wenart_id=f"{name}_steps",
+                                       kind="site_area", status="assumed", materials=[stone, bed_mat],
+                                       face_material_indices=slots)
+                record(f"{name}_steps", "site_area", bed_mat, "planting_steps", bd.get("reason") or "", {
+                    "slug": LS.LOOKS["bed"], "tiers": len(bd.get("tiers") or [])})
+            for key, part, m in (("walls", "planting_walls", stone), ("coping", "planting_coping", coping)):
+                if parts[key]:
+                    v, f = geom2d.merge(parts[key])
+                    common.new_mesh_object(f"{name}_{key}", v, f, collection=collection, wenart_id=f"{name}_{key}",
+                                           kind="site_wall", status="assumed", materials=[m])
+                    record(f"{name}_{key}", "site_wall", m, part, f"{bd.get('reason')}: low edging walls in the "
+                           f"house's base stone, a coping on each", {"slug": getattr(m, "name", None),
+                                                                      "pieces": len(parts[key])})
+            continue
+        meshes = []
+        for r in bd.get("rects") or []:
+            v, f = draped_faces(r, [], terrain, lift=0.0, step=grid_step(plan["extent"]))
+            if f:
+                meshes.append((v, f))
+        if meshes:
+            v, f = geom2d.merge(meshes)
+            common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="site_area",
+                                   status="assumed", materials=[bed_mat])
+            record(name, "site_area", bed_mat, f"bed_{bd['kind']}", bd.get("reason") or "",
+                   {"area_kind": "planting_bed", "slug": LS.LOOKS["bed"]})
+    cfg = LS.LANDSCAPE
+    edge_mat = mat("edge", look(LS.LOOKS["edge"], "lawn edges: slim steel strips"))
+    edges = [pc for e in ls.get("edges") or [] for pc in e.get("pieces") or []]
+    if edges:
+        v, f = geom2d.merge(LS.strip_pieces(edges, gz, cfg["edge_t"], cfg["edge_up"], cfg["edge_down"]))
+        common.new_mesh_object("landscape_lawn_edges", v, f, collection=collection, wenart_id="landscape_lawn_edges",
+                               kind="site_area", status="assumed", materials=[edge_mat])
+        record("landscape_lawn_edges", "site_area", edge_mat, "lawn_edge", f"a clean steel edge where a bed meets the "
+               f"lawn ({len(edges)} pieces; {LS.LESSONS}; inferred)", {"area_kind": "edging", "pieces": len(edges)})
+    for b in ls.get("borders") or []:
+        name = f"landscape_border_{b['area']}"
+        m = mat(f"border:{b['slug']}", look(b["slug"], f"border band of {b['area']}"))
+        z = (float(b["z"]) + PAVING_LIFT) if isinstance(b.get("z"), (int, float)) else None
+        meshes = LS.strip_pieces(b["pieces"], (lambda x, y: gz(x, y) + PAVING_LIFT), cfg["border_w"], cfg["border_up"],
+                                 cfg["border_down"], inward=True, z=z)
+        if meshes:
+            v, f = geom2d.merge(meshes)
+            common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="site_area",
+                                   status="assumed", materials=[m])
+            record(name, "site_area", m, "border_band", b["reason"], {"area_kind": "border", "slug": b["slug"],
+                                                                      "parent_area": b["area"]})
+    pot_mat = mat("pot", look(LS.LOOKS["pot"], "planters: fibre-cement"))
+    for pot in ls.get("planters") or []:
+        m = LS.pot_meshes(pot)
+        v, f = geom2d.merge([m["pot"], m["soil"]])
+        slots = [0] * len(m["pot"][1]) + [1] * len(m["soil"][1])
+        name = f"landscape_{pot['id']}"
+        common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="site_decor", status="assumed",
+                               materials=[pot_mat, bed_mat], face_material_indices=slots)
+        record(name, "site_decor", pot_mat, "planter", pot["reason"] + "; library gap: a parametric planter (no "
+               "audited planter model made for outside)", {"method": "parametric", "plant": pot.get("plant")})
+    lights = ls.get("lights") or []
+    if lights:
+        body = mat("bollard", look(LS.LOOKS["bollard"], "garden lights: anthracite metal"))
+        lens = mat("lens", look(LS.LOOKS["lens"], "garden lights: a white diffuser band"))
+        for lt in lights:
+            m = LS.bollard_meshes(lt)
+            v, f = geom2d.merge(m["body"] + m["lens"])
+            slots = [0] * sum(len(x[1]) for x in m["body"]) + [1] * sum(len(x[1]) for x in m["lens"])
+            name = f"landscape_{lt['id']}"
+            common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="site_decor",
+                                   status="assumed", materials=[body, lens], face_material_indices=slots)
+            record(name, "site_decor", body, "garden_light", lt["reason"] + "; library gap: a parametric bollard",
+                   {"method": "parametric", "along": lt.get("along")})
+    if ls.get("boulders"):
+        rock = mat("boulder", look(LS.LOOKS["boulder"], "boulders: a weathered rock"))
+        for b in ls["boulders"]:
+            v, f = LS.boulder_mesh(b)
+            name = f"landscape_{b['id']}"
+            common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="site_decor",
+                                   status="assumed", materials=[rock])
+            record(name, "site_decor", rock, "boulder", b["reason"], {"method": "generated"})
+    out["materials"] = {k: getattr(m, "name", None) for k, m in mats.items()}
     return out
 
 

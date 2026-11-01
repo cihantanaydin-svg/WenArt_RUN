@@ -1561,6 +1561,23 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
             if any(k in o for k in ("corrected_by_ai", "adjusted_by_ai", "added_by_ai")) and isinstance(
                 o.get("corrected_by_ai") or o.get("adjusted_by_ai") or o.get("added_by_ai"), dict)
             and (o.get("corrected_by_ai") or o.get("adjusted_by_ai") or o.get("added_by_ai")).get("by") == "architect"]
+    if isinstance(out.get("site"), dict) and out["site"].get("mode") == "full":
+        # 1 Nov 2026 (lessons UL248, UL249, user on real04: "too plain front of the house", "Outside areas needs a touch
+        # up"): the landscape on the site as the architect left it (its paths in): planted banks and planting steps,
+        # beds, edges, planters, lights, a lawn tree (wenart/blender/landscape.py)
+        from wenart.blender import copies as CP
+        from wenart.blender import landscape as LS
+        # the other houses on the plot (their facades and entrances get the same planting)
+        out["site"]["copies"] = [{k: c.get(k) for k in ("id", "footprint", "rotation_deg", "translate")}
+                                 for c in CP.copies_of(vb) if len(c.get("footprint") or []) >= 3]
+        try:
+            LS.plan(out["site"])
+        except (KeyError, TypeError, ValueError, ZeroDivisionError, IndexError, AttributeError) as exc:
+            why = f"the landscape plan failed: {type(exc).__name__}: {exc}"
+            out["site"]["trees"] = [t for t in out["site"].get("trees") or [] if t.get("source") != LS.SOURCE]
+            out["site"]["landscape"] = {"error": why, "notes": [why], "banks": [], "beds": [], "planters": [],
+                                        "lights": [], "boulders": [], "borders": [], "edges": [], "plants": []}
+            out["warnings"].append(why)
     return out
 
 
