@@ -463,7 +463,11 @@ def test_a_made_up_bed_is_dressed_when_its_bedding_is_flat_or_poorer_than_ours()
     assert mode is None and "lie flat" in why and "UL195" in why
     assert BP.dress_mode(asset, flat, width=0.9)[0] is None                           # a single bed takes no shams
     no_pillows = BP.bedding_relief(_top_grid(0.0, 0.012), BED_C, 0.0, (1.6, 2.0))
-    assert BP.dress_mode(asset, no_pillows)[0] == "pillows"                            # our pillow set, its duvet kept
+    # 1 Nov 2026 (UL236, never two sets): the audit sees its own pillows, the head zone's measure does not: kept as it
+    # is; a model the audit does not say has pillows gets our pillow set over its duvet
+    mode, why = BP.dress_mode(asset, no_pillows)
+    assert mode is None and "never two sets" in why
+    assert BP.dress_mode({"has_bedding": True}, no_pillows)[0] == "pillows"          # our pillow set, its duvet kept
     assert BP.dress_mode({"has_bedding": True, "has_pillows": False}, {})[0] == "pillows"
     assert BP.dress_mode(asset, {})[0] is None
     # the pillows-only set leaves the duvet out
@@ -549,13 +553,21 @@ def test_the_decor_stage_plans_each_beds_set_its_sides_and_its_throws_weave():
     BG.dress_beds(b, {"family": "scandinavian"}, _counter())
     bed = b["furniture"][0]
     bl = bed["bedding_layers"]
-    assert bl["family"] == "scandinavian" and bl["set"]["duvet"]["look"] == "linen" and bl["bedding_rule"] == BP.RULE
-    assert bl["expected"] == BP.counts(bl["set"], 1.6) and set(bl["sides"]) == set(BP.SIDES) and bl["bedding_why"]
-    assert throw["weave"]["pattern"] == "stripe" and throw["weave"]["fringe"]
-    # the made-up model gets a throw too, built only when the build dresses it
+    # 1 Nov 2026 (UL236): each bed its own variant of the family's palette (its looks, its arrangement)
+    from wenart.blender import soft_sets as SS
+
+    tex = SS.textiles_of("scandinavian")
+    assert bl["family"] == "scandinavian" and bl["bedding_rule"] == BP.RULE
+    assert bl["set"]["duvet"]["look"] in tex["duvet"] + ("cotton",)                  # cotton: a quilted coverlet
+    assert bl["expected"] == SS.expected(bl["set"], 1.6) and set(bl["sides"]) == set(BP.SIDES) and bl["bedding_why"]
+    assert throw["weave"]["style"] in SS.THROW_STYLES_BY_RANK[3] + SS.THROW_STYLES_BY_RANK[2]
+    assert throw["weave"]["pattern"] in tex["patterns"] and throw["weave"]["variant"] == bl["variant"]["id"]
+    # the made-up model gets a throw too, built only when the build dresses it (its own bed's variant)
     (t2,) = [d for d in b["decor"] if d.get("host_id") == "f_L0_009" and d["type"] == "throw"]
-    assert t2["when_dressed"] is True and t2["layers"] == 2 and t2["weave"]["pattern"] == "stripe"
-    assert b["bedding"]["beds"]["f_L0_001"]["expected"]["accent"] == 0                 # UL163: shams, no accent row
+    assert t2["when_dressed"] is True and t2["layers"] == 2
+    assert t2["weave"]["variant"] == b["furniture"][1]["bedding_layers"]["variant"]["id"] != bl["variant"]["id"]
+    got = b["bedding"]["beds"]["f_L0_001"]["expected"]
+    assert sum(got.values()) <= BP.pieces_max(1.6)                                     # UL163 / UL195: five at most
     from wenart.blender import furniture as F
 
     spec, why = F.bed_bedding_spec(bed, {"family": "modern"})
@@ -693,9 +705,10 @@ def test_real06_beds_get_their_scandinavian_set_and_sides():
                           for s, v in bl["sides"].items()))
     assert sides["f_L1_010"] == {"left": True, "right": True, "foot": True}
     assert sides["f_L1_013"]["left"] is False                                         # against its room's wall
-    assert beds["f_L1_013"]["bedding_layers"]["expected"] == {"euro_shams": 0, "pillows": 1, "accent": 1, "lumbar": 0}
+    # 1 Nov 2026 (UL236): a single bed takes the plainest set: one pillow, never two squeezed in
+    assert beds["f_L1_013"]["bedding_layers"]["expected"] == {"euro_shams": 0, "pillows": 1, "accent": 0, "lumbar": 0}
     throws = [d for d in bb["decor"] if d.get("type") == "throw" and d.get("host_id") in beds]
-    assert throws and all(d["weave"]["pattern"] == "stripe" for d in throws)
+    assert throws and all(d["weave"]["pattern"] in ("stripe", None) for d in throws)
     manifest = json.loads(REAL06_MANIFEST.read_text(encoding="utf-8"))
     got, n = BP.review(b, manifest)
     assert n == 4
@@ -728,4 +741,7 @@ def test_a_storage_bed_with_a_bare_mattress_gets_the_full_set():
     made = BP.bedding_relief(np.concatenate([_top_grid(0.35, 0.012), headboard]), BED_C, 0.0, (1.6, 2.0))
     assert BP.dress_mode(asset, made)[0] is None
     bare = BP.bedding_relief(np.concatenate([_top_grid(0.0, 0.012), headboard]), BED_C, 0.0, (1.6, 2.0))
-    assert bare["pillow_vertices"] < BP.PILLOW_VERTS_MIN and BP.dress_mode(asset, bare)[0] == "pillows"
+    assert bare["pillow_vertices"] < BP.PILLOW_VERTS_MIN
+    # 1 Nov 2026 (UL236): the audit's pillows the measure misses keep the model's own bedding (never two sets)
+    assert BP.dress_mode(asset, bare)[0] is None
+    assert BP.dress_mode({"has_bedding": True}, bare)[0] == "pillows"

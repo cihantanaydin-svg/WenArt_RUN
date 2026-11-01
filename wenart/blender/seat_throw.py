@@ -23,6 +23,13 @@ Why: the decor throw of a seat was a flat 5 cm sheet of 50 x 45 cm on the seat i
 it did not show. A real throw is a 130 x 170 cm blanket, folded and draped over the arm or across a seat end, in a
 fabric with texture and a colour that stands out from the sofa (designer rule, assumed: one per seating group, chosen
 with the style; ``decor_ai.living_dressing`` moves the room's throw to the main sofa).
+
+1 Nov 2026 (lesson UL238; user on real04 run 20261031-194116-full, the white corner sofa: "better model better
+texture, more logical placement"): the yellow throw stood as a rigid board at the chaise end: ``measure_arm`` took the
+back's return there (a 27 cm block whose front was 1 m behind the chaise's front) for an arm and the throw hung
+straight down both its faces. An arm now starts within ``ARM_FRONT_MAX_M`` of the seat's front beside it; the throw is
+thicker with softer, deeper folds (``THROW_T_M``, ``WRINKLE_M``), and where no arm and no seat end takes it, it lies
+folded flat on the seat (``folded_throw``: ``soft_sets.folded_throw_parts``).
 """
 from __future__ import annotations
 
@@ -38,7 +45,7 @@ RULE = "seat_throw"
 TAG = ("31 Oct 2026, user on the review of run 20261030-181158-full: \"bedding on this sofa could have been a lot better not "
        "just pillows maybe include some comfortals\"")
 SEAT_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise")
-DRAPES: tuple[str, ...] = ("arm", "seat_end")
+DRAPES: tuple[str, ...] = ("arm", "seat_end", "folded")      # 1 Nov 2026 (UL238): folded flat on the seat, last
 
 # the family's throw (designer values): its look (a ``bedding_parts.LOOKS`` weave with a CC0 scan), a fringe, and the
 # contrast colour on a light and on a dark sofa where neither the item nor the brief names one that stands out
@@ -71,9 +78,13 @@ LIGHT_SOFA_L = 55.0              # a sofa lighter than this (L*) takes the famil
 # the folded throw and its drapes (designer values: a 130 x 170 cm throw folded in three lengthwise)
 THROW_W_M = 0.50                 # the folded throw's width (along the arm or across the seat's end)
 THROW_MIN_W_M = 0.30
-THROW_T_M = 0.02                 # three layers of a chunky knit
-ROUND_M = 0.035                  # its soft roll over an edge
-WRINKLE_M = 0.006                # its few soft folds on the top
+THROW_T_M = 0.025                # three layers of a chunky knit (1 Nov 2026, UL238: 2 cm read as a board)
+ROUND_M = 0.045                  # its soft roll over an edge
+WRINKLE_M = 0.012                # its soft folds on the top and down the sides (1 Nov 2026, UL238: 6 mm read flat)
+ARM_FRONT_MAX_M = 0.30           # 1 Nov 2026 (UL238): an arm's front is at most this behind the seat's front
+FOLDED_SIZE_M = (0.46, 0.34)     # a throw folded flat on a seat (1 Nov 2026, UL238): its top, folded in eight ...
+FOLDED_LAYERS = 4                # ... in this many layers ...
+FOLDED_LAYER_M = 0.011           # ... each this thick
 ARM_DROP_M = 0.34                # over an arm: it hangs this far down the outer face ...
 SEAT_CLEAR_M = 0.006             # ... and down the inner face to this over the seat
 SEAT_DROP_M = 0.30               # across a seat end: it hangs this far down the front
@@ -241,6 +252,11 @@ def measure_arm(caster, host_fp: dict, side: str, seat_z: float) -> Optional[dic
     zy = _down_grid(caster, host_fp, np.full(len(yy), x_mid), yy)
     front = [float(y) for y, zz in zip(yy, zy) if not np.isnan(zz) and zz >= top - 0.04]
     if not front:
+        return None
+    if depth is not None and front[0] > float(depth[0]) + ARM_FRONT_MAX_M:
+        # 1 Nov 2026 (lesson UL238: the throw stood as a rigid board over a corner sofa's chaise end): an arm runs from
+        # near the seat's front to its back; a block whose front is far behind the seat's front is the back's return
+        # or a half arm, never an arm to drape a throw over
         return None
     return {"side": side, "x_in": round(x_in, 4), "x_out": round(x_out, 4), "x_mid": round(x_mid, 4),
             "width": round(width, 4), "top_z": round(top, 4), "y_front": round(front[0], 4),
@@ -425,6 +441,49 @@ def seat_end_throw(caster, host_fp: dict, side: str, seat_z: float, arm: Optiona
                         "rays": m["rays"]}}
 
 
+def folded_throw(caster, host_fp: dict, side: str, seat_z: float, arm: Optional[dict], look: dict) -> Optional[dict]:
+    """1 Nov 2026 (lesson UL238: "never a stiff panel"): the throw folded flat on the seat at one end (pure;
+    ``soft_sets.folded_throw_parts``: ``FOLDED_LAYERS`` layers with soft rounded folds, ``FOLDED_SIZE_M``), inside the
+    arm (or the end), in the middle of the seat's depth there, on the seat's top under it (rays down: the median of a
+    grid, a soft seat). ``arm_throw``'s record, or None (no seat there, or the seat is not level under it)."""
+    from wenart.blender import soft_sets as SS
+
+    w = float(host_fp["size"][0])
+    hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
+    s = 1.0 if side == "right" else -1.0
+    fw, fd = FOLDED_SIZE_M
+    x_edge = float(arm["x_in"]) - s * 0.03 if arm else s * (w / 2.0 - 0.05)
+    spot = None
+    for shift in (0.0, 0.1, 0.2, 0.3):              # inwards until the seat under it is level (past an unmeasured arm)
+        xc = x_edge - s * (fw / 2.0 + shift)
+        depth = seat_depth(caster, host_fp, xc, seat_z)
+        if depth is None or depth[1] - depth[0] < fd + 0.08:
+            continue
+        yc = depth[0] + min((depth[1] - depth[0]) / 2.0, fd / 2.0 + 0.12)
+        grid_x, grid_y = np.meshgrid(xc + np.array([-0.4, 0.0, 0.4]) * fw, yc + np.array([-0.35, 0.0, 0.35]) * fd,
+                                     indexing="ij")
+        z = _down_grid(caster, host_fp, grid_x, grid_y)
+        found = z[~np.isnan(z)]
+        if len(found) >= 7 and float(np.ptp(found)) <= 0.05 and abs(float(np.median(found)) - float(seat_z)) <= 0.06:
+            spot = (xc, yc, depth, float(np.median(found)))
+            break
+    if spot is None:
+        return None
+    xc, yc, depth, z_seat = spot
+    z0 = z_seat - 0.004
+    key = BP.textile_key(look.get("look") or "knit")
+    part = SS.folded_throw_parts(fw, fd, FOLDED_LAYERS, FOLDED_LAYER_M, key)[0]
+    v = np.asarray(part["verts"], dtype=np.float64)
+    world = BP.to_world_arr(rest.to_world(hc, rot, xc, yc), rot, np.c_[v[:, 0], v[:, 1], v[:, 2] + z0])
+    placed = dict(part, verts=[tuple(p) for p in world.tolist()])
+    rect = (xc - fw / 2.0, yc - fd / 2.0, xc + fw / 2.0, yc + fd / 2.0)
+    drape = {"share": 1.0, "top_z": z0, "on_top": np.ones((2, 2), dtype=bool)}
+    return {"parts": [placed], "drape": drape, "rect": rect, "how": f"folded flat on the seat at its {side} end",
+            "drape_kind": "folded", "side": side,
+            "measure": {"seat_z": round(float(seat_z), 4), "seat_y": [round(depth[0], 3), round(depth[1], 3)],
+                        "z_m": round(z0, 4), "layers": FOLDED_LAYERS, "size_m": [fw, fd]}}
+
+
 def preferred_side(item: dict, host_fp: dict) -> str:
     """The end a seat's throw goes to first (pure): the item's ``seat_throw.side``, else the side of its centre in the
     host frame (the decor stage's spot), else the right."""
@@ -457,7 +516,8 @@ def candidates(caster, host_fp: dict, item: dict, floor_z: float) -> Iterator[di
         tried.append(kind)
         for side in order:
             got = arm_throw(caster, host_fp, arms[side], look, floor_z) if kind == "arm" and arms[side] else \
-                seat_end_throw(caster, host_fp, side, seat, arms[side], look, floor_z) if kind == "seat_end" else None
+                seat_end_throw(caster, host_fp, side, seat, arms[side], look, floor_z) if kind == "seat_end" else \
+                folded_throw(caster, host_fp, side, seat, arms[side], look) if kind == "folded" else None
             if got is None:
                 continue
             got["weave"] = {"look": look.get("look") or "knit", "fringe": bool(look.get("fringe")),

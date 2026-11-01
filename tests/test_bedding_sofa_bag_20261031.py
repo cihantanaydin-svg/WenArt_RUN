@@ -203,7 +203,12 @@ def test_the_decor_stage_records_the_scheme_and_the_head_wall():
     bl = b["furniture"][0]["bedding_layers"]
     assert bl["cushion_colours"] == ["mustard", "cream"]
     assert bl["head_wall"]["by"] == ["w_n"] and "verts" not in bl["head_wall"]
-    assert bl["set"]["sheet"] == {"look": "cotton", "colour": "white"}
+    # 1 Nov 2026 (UL236): the bed's own variant: its top sheet one of the family's looks, in a light sheet colour
+    from wenart.blender import soft_sets as SS
+
+    assert bl["set"]["sheet"]["look"] in SS.textiles_of("modern")["sheet"]
+    assert bl["set"]["sheet"]["colour"] in SS.palette_of("modern")["sheet"]
+    assert bl["variant"]["rule"] == SS.RULE_BED
 
 
 # ------------------------------------------------------------------------------------------------- the sofa throw

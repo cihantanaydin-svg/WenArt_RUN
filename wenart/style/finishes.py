@@ -293,6 +293,16 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     # loop pile as a deep bump (wenart_weave look "terry", bedding_parts.LOOK_LAYERS), rough; the room's towel colour
     "fabric_terry": _scan(_proc("wenart_weave", "fabric", _lin("white"), 0.97, params={"weave": "terry", "pattern": "plain"},
                                 flat_source="colour:white"), "terry_cloth", (0.3671, 0.3632), 0.5),
+    # 1 Nov 2026 (lesson UL236: "use better models better textures, more details and more variants"): the bedding's
+    # cotton sateen (a long-float satin weave with a soft sheen), its waffle weave (square cells) and the chunky knit of
+    # a throw (the knit's stockinette at a hand-knitted 1.8 cm pitch); procedural weaves on the look's own colour
+    "fabric_sateen": _proc("wenart_weave", "fabric", _lin("ivory"), 0.55,
+                           params={"weave": "sateen", "pattern": "plain"}, flat_source="colour:ivory"),
+    "fabric_waffle": _proc("wenart_weave", "fabric", _lin("off white"), 0.85,
+                           params={"weave": "waffle", "pattern": "plain"}, flat_source="colour:off white"),
+    "fabric_chunky_knit": _proc("wenart_weave", "fabric", _lin("cream"), 0.92,
+                                params={"weave": "knit", "pattern": "plain", "thread_m": 0.018},
+                                flat_source="colour:cream"),
     "fabric_houndstooth": _proc("wenart_weave", "fabric", _lin("off white"), 0.9,
                                 params={"weave": "wool", "pattern": "houndstooth", "repeat_m": 0.028},
                                 flat_source="colour:off white"),

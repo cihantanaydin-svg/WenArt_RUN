@@ -226,6 +226,109 @@ def free_spot(host: dict, size: tuple[float, float], taken: list[tuple]) -> Opti
     return best
 
 
+# 1 Nov 2026 (lesson UL238: a flat grey tray lay on the middle seat of the living room's corner sofa: the coffee table
+# was drawn 0.3 m under the sofa's seat and its group's tray took the table's end there; the rest check sees the host
+# only): an item on a low top never stands where a seat or a bed covers the top (designer rule)
+LOW_TOP_TYPES: tuple[str, ...] = ("table_coffee", "side_table", "nightstand", "ottoman")
+# a corner sofa's box holds the open notch of its L (a coffee table stands there): the build checks the item on its
+# real mesh (``rest.clash_with``); the straight pieces cover their built box
+COVER_TYPES: tuple[str, ...] = ("sofa", "armchair", "chaise", "bench", "bed_single", "bed_double", "daybed")
+COVER_MIN_AREA_M2 = 1e-4
+CLEAR_RULE = "tabletop.clear_of_seats"
+
+
+def built_box(piece: dict) -> list[tuple[float, float]]:
+    """The plan rectangle a piece's model fills (pure): a library model fitted uniformly is its ``bbox_m`` (width and
+    depth), against the footprint's back edge for a wall-backed piece (``furniture.depth_alignment``: the build's fit),
+    else its footprint."""
+    from wenart.blender import furniture as F
+
+    fp = piece["footprint"]
+    w, d = (float(v) for v in fp["size"][:2])
+    asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+    bbox = asset.get("bbox_m") if isinstance(asset.get("bbox_m"), (list, tuple)) else None
+    cx, cy = (float(v) for v in fp["center"][:2])
+    if bbox and len(bbox) >= 2 and asset.get("scaling") == "uniform":
+        bw, bd = min(w, float(bbox[0])), float(bbox[1])
+        if F.depth_alignment(piece, asset) == "back":
+            p = G.rotate_point((cx, cy + (d - bd) / 2.0), float(fp["rotation_deg"]), (cx, cy))
+            cx, cy = p[0], p[1]
+        w, d = bw, bd
+    return G.rotated_rectangle((cx, cy), (w, d), float(fp["rotation_deg"]))
+
+
+def clear_of_seats(building: dict) -> dict:
+    """Items on a low top (``LOW_TOP_TYPES``) that a seat or a bed (``COVER_TYPES``) on the same level covers (their
+    plan boxes overlap by ``COVER_MIN_AREA_M2``) move to the top's free spot nearest to where they were, out of every
+    cover and ``ITEM_GAP_M`` clear of the top's other items (``free_spot``'s grid); with no such spot they leave the
+    decor (in place; pure, shapely). ``{"moved": [...], "dropped": [...]}`` with the reasons (``CLEAR_RULE``)."""
+    from shapely.geometry import Polygon
+
+    pieces = {p.get("id"): p for p in building.get("furniture") or [] if p.get("id") and p.get("footprint")}
+    covers: dict[str, list] = {}
+    for p in pieces.values():
+        if p.get("type") in COVER_TYPES and p.get("build", True) is not False:
+            covers.setdefault(p.get("level_id"), []).append((p["id"], Polygon(built_box(p))))
+    out = {"moved": [], "dropped": []}
+    decor = building.get("decor") or []
+    gone = set()
+
+    def poly(host: dict, lx: float, ly: float, w: float, d: float):
+        c = _world(host, lx, ly)
+        return Polygon(G.rotated_rectangle(c, (w, d), float(host["footprint"]["rotation_deg"])))
+
+    for it in decor:
+        host = pieces.get(it.get("host_id"))
+        if host is None or host.get("type") not in LOW_TOP_TYPES or not it.get("center") or not it.get("size") \
+                or it.get("type") in ("cushion", "throw", "rug"):
+            continue
+        near = [(cid, cp) for cid, cp in covers.get(host.get("level_id"), []) if cid != host.get("id")]
+        if not near:
+            continue
+        lx, ly, w, d = local_box(host, it)
+        here = poly(host, lx, ly, w, d)
+        hit = [cid for cid, cp in near if here.intersection(cp).area > COVER_MIN_AREA_M2]
+        if not hit:
+            continue
+        others = [local_box(host, o) for o in decor if o is not it and o.get("host_id") == host.get("id")
+                  and o.get("center") and o.get("size") and o.get("id") not in gone]
+        hw, hd = (float(v) for v in host["footprint"]["size"][:2])
+        ex, ey = (hw - 2 * TOP_MARGIN_M - w) / 2.0, (hd - 2 * TOP_MARGIN_M - d) / 2.0
+        spots = []
+        if ex >= 0 and ey >= 0:
+            nx, ny = int(ex / GRID_STEP_M), int(ey / GRID_STEP_M)
+            xs = sorted({i * GRID_STEP_M for i in range(-nx, nx + 1)} | {-ex, ex})
+            ys = sorted({j * GRID_STEP_M for j in range(-ny, ny + 1)} | {-ey, ey})
+            spots = sorted(((x, y) for x in xs for y in ys), key=lambda s: (math.hypot(s[0] - lx, s[1] - ly), s))
+        best = None
+        for x, y in spots:
+            box = (x, y, w, d)
+            if not inside_top(host, box) or not all(boxes_clear(box, t) for t in others):
+                continue
+            p = poly(host, x, y, w, d)
+            if any(p.intersection(cp).area > COVER_MIN_AREA_M2 for _cid, cp in near):
+                continue
+            best = (x, y)
+            break
+        why = (f"its spot on {host['id']} lies under {', '.join(hit)} (the seat covers that part of the top; "
+               f"{CLEAR_RULE}, UL238)")
+        if best is None:
+            it["removed_reason"] = f"{why}; no free spot out of it"
+            gone.add(it.get("id"))
+            out["dropped"].append({"id": it.get("id"), "type": it.get("type"), "host_id": host["id"],
+                                   "room_id": it.get("room_id"), "reason": it["removed_reason"]})
+            continue
+        before = list(it["center"])
+        it["center"] = _world(host, best[0], best[1])
+        it["moved_for"] = {"rule": CLEAR_RULE, "from": before, "reason": why}
+        it.pop("host_frame", None)
+        out["moved"].append({"id": it.get("id"), "type": it.get("type"), "host_id": host["id"],
+                             "room_id": it.get("room_id"), "reason": why})
+    if gone:
+        building["decor"] = [d for d in decor if d.get("id") not in gone]
+    return out
+
+
 def _sized(dtype: str, sizes: dict, max_h: Optional[float], max_wd: Optional[tuple] = None) -> Optional[list]:
     """The default box of a surface type (``sizes``: ``decor_ai.SURFACE_SIZES``), scaled down (never up) to the
     height and plan room there is; None under its smallest box."""
