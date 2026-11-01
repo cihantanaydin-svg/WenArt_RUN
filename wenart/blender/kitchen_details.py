@@ -94,9 +94,11 @@ CHECK = ("UL115", "UL118")
 # The worktop styling sets (decor types, wenart.furniture.decor.KITCHEN_DECOR_TYPES), in the order they are placed.
 STYLING_TYPES: tuple[str, ...] = ("cookware", "storage_jars", "cutting_boards", "oil_bottles", "plate_stack",
                                   "dried_grass_vase", "coffee_station")
-_FULL = STYLING_TYPES
-_CALM = ("storage_jars", "cutting_boards", "plate_stack", "dried_grass_vase", "coffee_station")
-_SPARSE = ("storage_jars", "dried_grass_vase", "plate_stack")
+# 1 Nov 2026 (lesson UL244, user on real04 run 20261031-194116-full, the stack of plates and bowls by the sink: "I did not
+# like what is marked"): plates and bowls stay in the cabinets; no family's worktop set holds a plate stack
+_FULL = tuple(t for t in STYLING_TYPES if t != "plate_stack")
+_CALM = ("storage_jars", "cutting_boards", "dried_grass_vase", "coffee_station")
+_SPARSE = ("storage_jars", "dried_grass_vase")
 
 FAMILY_KITCHEN: dict[str, dict] = {
     "modern": {"upper_fronts": "fluted", "upper_handleless": True, "waterfall": True, "island_hood": "cylinder",

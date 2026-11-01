@@ -371,7 +371,8 @@ def test_a_modern_kitchen_is_styled_with_sets_that_pass_the_code_checks():
     items = _dress(b, "modern")
     sets = [i for i in items if i["type"] in D.STYLING_TYPES]
     types = [i["type"] for i in sets]
-    assert len(sets) >= 3 and len(set(types)) == len(types)
+    # 1 Nov 2026 (UL244): no plate stack on a worktop any more, so this small kitchen holds two sets
+    assert len(sets) >= 2 and len(set(types)) == len(types) and "plate_stack" not in types
     cook = next(i for i in sets if i["type"] == "cookware")
     assert cook["host_id"] == "kA" and cook["center"][0] == pytest.approx(2.0) and cook["size"][0] <= 0.58 + 1e-9
     room = b["rooms"][0]

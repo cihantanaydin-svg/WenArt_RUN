@@ -3419,6 +3419,62 @@ def library_first_scale(entry: dict, dtype: str) -> float:
     return 1.0 if s is None else s
 
 
+def tvs_for_bare_units(building: dict) -> list[dict]:
+    """In place: the TV of every TV unit with a wall behind it that holds none yet (lesson UL240, user on real04 run
+    20261031-194116-full: "There could have been a TV on top of this": the agent's relayout added a TV unit after the
+    decor stage, so the decor stage's TV step never saw it). Runs only once the building has its decor (the refit);
+    the first fit leaves the TVs to the decor stage (``tabletop`` -> ``media_wall.tv_items``, the same rule). An item in
+    the TV's way on the unit's top leaves (``clears``, recorded in ``decor_dropped``). Returns ``[{"id", "host_id",
+    "room_id", "reason"}]``."""
+    decor = building.get("decor")
+    if not decor:
+        return []
+    from wenart.furniture import media_wall as MW
+
+    hosts = {f["id"] for f in building.get("furniture") or [] if f.get("type") in MW.HOST_TYPES}
+    held = {d.get("host_id") for d in decor if d.get("type") == "tv"}
+    if not hosts - held:
+        return []
+    counters: dict[str, int] = {}
+    for d in decor:
+        parts = str(d.get("id") or "").rsplit("_", 1)
+        if len(parts) == 2 and parts[0].startswith("dec_") and parts[1].isdigit():
+            lv = parts[0][4:]
+            counters[lv] = max(counters.get(lv, 0), int(parts[1]))
+
+    def new_id(level_id: str) -> str:
+        counters[level_id] = counters.get(level_id, 0) + 1
+        return f"dec_{level_id}_{counters[level_id]:03d}"
+
+    out = []
+    for room in building.get("rooms") or []:
+        pieces = [f for f in building.get("furniture") or [] if f.get("room_id") == room.get("id")]
+        if not any(f["id"] in hosts - held for f in pieces):
+            continue
+        items = [d for d in decor if d.get("room_id") == room.get("id")]
+        try:
+            tvs = MW.tv_items(room, pieces, building, items, new_id)
+        except (KeyError, TypeError, ValueError):
+            continue
+        for tv in tvs:
+            if tv.get("host_id") in held:
+                continue
+            gone = set(tv.get("clears") or ())
+            if gone:
+                for it in [d for d in decor if d.get("id") in gone]:
+                    decor.remove(it)
+                    building.setdefault("decor_dropped", []).append(
+                        {"id": it.get("id"), "type": it.get("type"), "host_id": tv.get("host_id"), "anchor_ids": [],
+                         "room_id": room.get("id"), "reason": f"made room for the TV of {tv.get('host_id')} (UL240)"})
+            if not tv.get("id"):
+                tv["id"] = new_id(room.get("level_id") or "L0")
+            tv["reason"] = str(tv.get("reason") or "") + " (UL240: the unit came after the decor stage; the refit adds its TV)"
+            decor.append(tv)
+            held.add(tv.get("host_id"))
+            out.append({"id": tv["id"], "host_id": tv.get("host_id"), "room_id": room.get("id"), "reason": tv["reason"]})
+    return out
+
+
 def textile_library_item(item: dict, catalog, style_family: Optional[str], mode: str) -> Optional[dict]:
     """The library asset for a curtain or a blind (``TEXTILE_LIBRARY_FIRST``; lesson UL231), or None (our textile
     build; the item's ``library_gap`` says why). A model passes when it rates better than our build (the user's rank
@@ -4197,6 +4253,9 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         project.pop("fridge_rule", None)
     for piece in walls_after:
         fit_one(piece, extra_hints=wall_run_hints(piece, wall_cabinet_run(fitted, piece), fitted))
+    late_tvs = tvs_for_bare_units(fitted)               # UL240: a TV unit added after the decor stage holds its TV
+    if late_tvs:
+        project["late_tvs"] = late_tvs
     for item in fitted.get("decor") or []:
         item["asset"] = fit_decor_item(item, catalog, style_family=style_family, mode=mode,
                                        host=by_id.get(item.get("host_id")))     # UL156: a lamp with its host

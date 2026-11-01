@@ -2848,6 +2848,78 @@
    "request": "Don't use this plant; If not possible to make this plant more realistic with better textures don't use this plant (1 Nov 2026, real04 run 20261031-194116-full: a plastic grass in a grey box planter and a grey-white euphorbia; both in user_rejected.json)",
    "lesson": "Don't use this plant; If not possible to make this plant more realistic with better textures don't use this plant (1 Nov 2026, real04 run 20261031-194116-full: a plastic grass in a grey box planter and a grey-white euphorbia; both in user_rejected.json)",
    "question": "Is any plant in the renders plastic-looking or flat-textured (the user rejects such plants)?"
+  },
+  {
+   "id": "UL240",
+   "date": "2026-11-01",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "There could have been a TV on top of this (1 Nov 2026, real04 run 20261031-194116-full: the agent's relayout added a TV unit in the attic play room after the decor stage, so no TV was planned for it; the review named it but nothing fixed it: every TV unit with a wall behind it holds its TV at the final fit, wherever the unit came from)",
+   "lesson": "There could have been a TV on top of this (1 Nov 2026, real04 run 20261031-194116-full: the agent's relayout added a TV unit in the attic play room after the decor stage, so no TV was planned for it; the review named it but nothing fixed it: every TV unit with a wall behind it holds its TV at the final fit, wherever the unit came from)",
+   "question": "Does every TV unit standing against a wall carry a TV (on its top or on the wall over it)?"
+  },
+  {
+   "id": "UL241",
+   "date": "2026-11-01",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Same comment as before related to bedding on this sofa, better model better texture, more logical replacement (1 Nov 2026, real04 run 20261031-194116-full, the L-1 salon corner sofa: a rigid yellow throw, a flat grey board on the seat, cushions scattered)",
+   "lesson": "Same comment as before related to bedding on this sofa, better model better texture, more logical replacement (1 Nov 2026, real04 run 20261031-194116-full, the L-1 salon corner sofa: a rigid yellow throw, a flat grey board on the seat, cushions scattered)",
+   "question": "Are the sofa's cushions and throw arranged logically for its shape (pairs at the ends, a group in an L's corner), soft and realistic, nothing flat or stiff lying on the seat?"
+  },
+  {
+   "id": "UL242",
+   "date": "2026-11-01",
+   "area": "library",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Directions of this bed could be wrong, if you are not able to fix it you can remove from the library , same bedding rules as said before also applies (1 Nov 2026, real04 run 20261031-194116-full, r_L0_e_yatak_odasi: the Pottery Barn platform bed stood with its headboard along its long side; the audit had only guessed its front side ('side unknown'); every model with such an unconfirmed guess is no longer used)",
+   "lesson": "Directions of this bed could be wrong, if you are not able to fix it you can remove from the library , same bedding rules as said before also applies (1 Nov 2026, real04 run 20261031-194116-full, r_L0_e_yatak_odasi: the Pottery Barn platform bed stood with its headboard along its long side; the audit had only guessed its front side ('side unknown'); every model with such an unconfirmed guess is no longer used)",
+   "question": "Does every bed, sofa and bath stand with its front where it should be (a headboard against the wall, never along the long side)?"
+  },
+  {
+   "id": "UL243",
+   "date": "2026-11-01",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Give more details to shower models (1 Nov 2026, real04 run 20261031-194116-full: a plain slide rail with a hand shower, a flat hose and a bare glass panel with a black bar)",
+   "lesson": "Give more details to shower models (1 Nov 2026, real04 run 20261031-194116-full: a plain slide rail with a hand shower, a flat hose and a bare glass panel with a black bar)",
+   "question": "Do the showers look like real products (mixer, rain head and hand shower, a real hose, profiles and hinges on the glass, a drain, a niche or shelf)?"
+  },
+  {
+   "id": "UL244",
+   "date": "2026-11-01",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not like what is marked also could you tell me if this is in the furniture ranking page? (1 Nov 2026, real04 run 20261031-194116-full: our own plate_stack build, a stack of plates and bowls on the worktop by the sink; not a library model, so not on the ranking page; no worktop styling set holds a plate stack any more)",
+   "lesson": "I did not like what is marked also could you tell me if this is in the furniture ranking page? (1 Nov 2026, real04 run 20261031-194116-full: our own plate_stack build, a stack of plates and bowls on the worktop by the sink; not a library model, so not on the ranking page; no worktop styling set holds a plate stack any more)",
+   "question": "Is anything on the kitchen worktops that a stylist would put away (stacked plates, piles of dishes)?"
+  },
+  {
+   "id": "UL245",
+   "date": "2026-11-01",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "make this better (1 Nov 2026, real04 run 20261031-194116-full: the WC flush plate, a flat black slab with two printed lines)",
+   "lesson": "make this better (1 Nov 2026, real04 run 20261031-194116-full: the WC flush plate, a flat black slab with two printed lines)",
+   "question": "Do the WC flush plates look like real products (a bezel, real push buttons with depth and a metal or glass finish)?"
   }
  ]
 }

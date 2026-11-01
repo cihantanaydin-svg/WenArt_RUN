@@ -913,10 +913,27 @@ def usable(entry: dict, mode: str = "commercial") -> bool:
         return False
     if title_refusal(entry):
         return False
+    if front_guessed(entry):                       # 1 Nov 2026 (UL242): a front side only guessed, never confirmed
+        return False
     flag = licence_flag_of(entry)
     if mode == "commercial":
         return flag == NO_FLAG and not logo_flagged(entry)          # UL215: a logo or print is relaxed-only
     return flag in LICENCE_FLAGS and flag not in NEVER_USABLE_FLAGS
+
+
+# 1 Nov 2026 (lesson UL242, user on real04 run 20261031-194116-full: "Directions of this bed could be wrong, if you are
+# not able to fix it you can remove from the library"): the audit turned some models 90 deg because their front lay on the
+# wrong side for their type but could not tell which side ("side unknown: the vision check confirms") and the check never
+# ran; such a guess is right half of the time. A model with that note is not used unless its front-axis confidence is high.
+FRONT_GUESS_NOTE = "side unknown"
+
+
+def front_guessed(entry: dict) -> bool:
+    """A catalogue entry whose front side the audit only guessed (``FRONT_GUESS_NOTE`` in its notes) without a high
+    front-axis confidence (pure)."""
+    audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
+    notes = " ".join(str(n) for n in audit.get("notes") or [])
+    return FRONT_GUESS_NOTE in notes and str(entry.get("front_axis_confidence") or "").lower() != "high"
 
 
 # 29 Oct 2026 (user on real06 run 20261028-154514-full, the master bedroom's floor lamp: "I did not like this light",
@@ -990,6 +1007,10 @@ def unusable_reason(entry: dict, mode: str = "commercial") -> Optional[str]:
     why = title_refusal(entry)
     if why:
         return f"its names or its audit refuse it ({why}; wenart.furniture.model_title)"
+    if front_guessed(entry):
+        return ("its front side was only guessed by the audit (\"side unknown\", front-axis confidence "
+                f"{entry.get('front_axis_confidence') or 'none'}) and never confirmed: a wrong side turns it 90 deg in the "
+                "room (a bed's headboard on its long side); not used (UL242)")
     if mode == "commercial" and logo_flagged(entry) and licence_flag_of(entry) == NO_FLAG:
         return (f"a maker's logo or print on the model ({entry.get('logo_reason') or 'logo_flag'}): not used in "
                 "commercial mode (trademarks are not licensed; relaxed mode only, UL215)")
