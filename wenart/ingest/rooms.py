@@ -222,6 +222,9 @@ def _face_size(face: Polygon) -> tuple[float, float]:
     return face.area, (max(a, b) / short if short > 0 else float("inf"))
 
 
+
+CAVITY_WIDTH_M = 0.24     # real10: an unlabelled face no 24 cm strip fits into is no room (a wall cavity)
+
 def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], label_points: list[tuple[float, float]],
                  label_fallback_points: Optional[list[tuple[float, float]]] = None,
                  file_rel: str = "", ids: Optional[B.IdCounter] = None, union=None, separators=(),
@@ -281,8 +284,13 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
     lines = _separator_lines(separators)
     if lines:
         faces = [snap_to_separators(face, lines) for face in faces]
-    faces.sort(key=lambda poly: (poly[0][1], poly[0][0]))
     fallbacks = label_fallback_points or [None] * len(labels)
+    # real10 (1 Nov 2026): a face no ``CAVITY_WIDTH_M`` strip fits into and that holds no label is a cavity between two
+    # walls (the 3-4 cm slits between a masonry wall and the plaster wall drawn beside it), never a room.
+    pts = [ShapelyPoint(q) for q in list(label_points) + [f for f in fallbacks if f is not None] if q is not None]
+    faces = [f for f in faces if not (Polygon(f).buffer(-CAVITY_WIDTH_M / 2.0, join_style=2).is_empty
+                                      and not any(Polygon(f).contains(q) for q in pts))]
+    faces.sort(key=lambda poly: (poly[0][1], poly[0][0]))
     outline = Polygon(exterior)
 
     def face_index_of(point) -> Optional[int]:
@@ -344,6 +352,15 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
                 best = max(indices, key=printed)
                 if printed(best) > 0:
                     indices = [best] + [k for k in indices if k != best]
+                else:
+                    # real10 (1 Nov 2026): no printed areas: an entrance hall open to the living room (ANTRE and SALON
+                    # in one face) is the living room
+                    from wenart.ingest.generic.labels import room_type_for as _rtf
+                    kinds = {k: _rtf(labels[k].block.name)[0] if getattr(labels[k], "block", None) else None
+                             for k in indices}
+                    living = [k for k in indices if kinds[k] == "living"]
+                    if living and all(kinds[k] in ("living", "hall") for k in indices):
+                        indices = [living[0]] + [k for k in indices if k != living[0]]
             first = labels[indices[0]]
             block = first.block
             label, _, _ = B.normalise_room_label(block.name, turkish=first.turkish)

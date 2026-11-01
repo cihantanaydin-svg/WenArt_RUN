@@ -97,11 +97,16 @@ def _piece_same(a: dict, b: dict) -> bool:
 def _equal(a: dict, b: dict, openings: list[dict], furniture: list[dict], transform) -> bool:
     pa, pb = _poly(a), _poly(b)
     moved = Polygon([transform(p) for p in pa.exterior.coords])
-    if not moved.is_valid or moved.hausdorff_distance(pb) > TOL:
+    # real10: a room named by its mirror (``mirror_labels``) lies within the mirror-label tolerance of its twin.
+    mirrored = any((r.get("label_inferred") or {}).get("method") == "mirror" for r in (a, b))
+    if not moved.is_valid or moved.hausdorff_distance(pb) > (MIRROR_LABEL_TOL if mirrored else TOL):
         return False
     if not _match(_room_openings(a, openings), _room_openings(b, openings), lambda o: o["center"], _opening_same,
                   transform):
         return False
+    if mirrored:
+        # The drafter drew the furniture in the named half only (real10's left flats): the pieces are not compared.
+        return True
     return _match(_room_pieces(a, furniture), _room_pieces(b, furniture), lambda f: f["footprint"]["center"],
                   _piece_same, transform)
 
@@ -165,6 +170,70 @@ def twin_transforms(rooms: list[dict], openings: list[dict], furniture: list[dic
             out[second["id"]] = {"twin_of": first["id"], "transform": mirror_affine(axis),
                                  "residual_m": round(float(residual), 4) + 0.0}
     return out
+
+
+MIRROR_LABEL_TOL = 0.10      # real10: an unlabelled face within 10 cm (Hausdorff) of a labelled room's mirror
+
+
+def mirror_labels(rooms: list[dict]) -> list[str]:
+    """real10 (1 Nov 2026): a plan that labels only one of two mirrored halves (the two flats of an apartment floor,
+    a semi-detached pair: the drafter wrote the names in one). Per level, the mirror axis is the one most pairs of a
+    labelled room and an unlabelled face of the same area (2 %) on one line agree on (within ``TOL``); an unlabelled
+    face whose polygon lies within ``MIRROR_LABEL_TOL`` of a labelled room's mirror takes its label and room type,
+    ``inferred`` (``label_raw`` stays null: no text names it). Returns one line per labelled face."""
+    notes: list[str] = []
+    by_level: dict[str, list[dict]] = {}
+    for r in rooms:
+        if len(r.get("polygon") or []) >= 3:
+            by_level.setdefault(r["level_id"], []).append(r)
+    for level_id, level_rooms in by_level.items():
+        named = [r for r in level_rooms if r.get("label_raw")]
+        blank = [r for r in level_rooms if not r.get("label_raw")]
+        if not named or not blank:
+            continue
+        votes: list[tuple[str, float]] = []
+        for a in named:
+            pa = _poly(a)
+            for b in blank:
+                pb = _poly(b)
+                if abs(pa.area - pb.area) > 0.02 * max(pa.area, 1e-9):
+                    continue
+                ca, cb = pa.centroid, pb.centroid
+                if abs(ca.y - cb.y) <= TOL and abs(ca.x - cb.x) > TOL:
+                    votes.append(("x", (ca.x + cb.x) / 2.0))
+                if abs(ca.x - cb.x) <= TOL and abs(ca.y - cb.y) > TOL:
+                    votes.append(("y", (ca.y + cb.y) / 2.0))
+        if not votes:
+            continue
+        groups: list[list[tuple[str, float]]] = []
+        for v in sorted(votes):
+            if groups and groups[-1][0][0] == v[0] and v[1] - groups[-1][-1][1] <= TOL:
+                groups[-1].append(v)
+            else:
+                groups.append([v])
+        best = max(groups, key=len)
+        if len(best) < 2:
+            continue
+        axis = (best[0][0], sorted(v[1] for v in best)[len(best) // 2])
+        taken: set = set()
+        for a in named:
+            mirrored = _mirror_poly(_poly(a), axis)
+            cands = [(mirrored.hausdorff_distance(_poly(b)), b["id"], b) for b in blank if b["id"] not in taken]
+            cands = [c for c in cands if c[0] <= MIRROR_LABEL_TOL]
+            if not cands:
+                continue
+            dist, _, b = min(cands, key=lambda c: (c[0], c[1]))
+            taken.add(b["id"])
+            b["label"], b["room_type"] = a["label"], a["room_type"]
+            if a.get("room_subtype") is not None:
+                b["room_subtype"] = a["room_subtype"]
+            b["inferred"] = True
+            b["label_inferred"] = {"method": "mirror", "of": a["id"], "axis": [axis[0], round(axis[1], 4)],
+                                   "hausdorff_m": round(float(dist), 4)}
+            notes.append(f"{level_id}: unlabelled room {b['id']} takes the label '{a['label']}' of {a['id']}, its "
+                         f"mirror about {axis[0]} = {axis[1]:.3f} (within {dist:.3f} m): the plan names one of the "
+                         f"two mirrored halves only (inferred)")
+    return notes
 
 
 def same_as(alt_rooms: list[dict], base_rooms: list[dict], openings: list[dict],

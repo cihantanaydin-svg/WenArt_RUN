@@ -295,11 +295,19 @@ def _shift_site(site: dict, sh: _Shift) -> None:
 # Faces
 # --------------------------------------------------------------------------
 
+CAVITY_WIDTH_M = 0.24      # real10: an unlabelled face no 24 cm strip fits into is a cavity between two walls
+
+
 def face_table(face_polys: list, blocks: list, walls: list, openings: list, stairs: list) -> list[dict]:
     """One row per face (page metres): ``{"polygon", "names" (indoor blocks), "exterior" (only exterior blocks),
-    "room_type", "label", "reason"}``; unlabelled faces are typed by ``topology.unlabelled_face_type``."""
+    "room_type", "label", "reason"}``; unlabelled faces are typed by ``topology.unlabelled_face_type``. real10
+    (1 Nov 2026): an unlabelled face narrower than ``CAVITY_WIDTH_M`` everywhere (it vanishes when shrunk by half of
+    it: the 3-4 cm slits between a masonry wall and the plaster wall drawn beside it, 0.01-0.1 m2) is no room."""
     rows = []
     for poly in face_polys:
+        if poly.buffer(-CAVITY_WIDTH_M / 2.0, join_style=2).is_empty and \
+                not any(poly.contains(Point(b.anchor)) for b in blocks):
+            continue
         names = [b for b in blocks if not b.exterior and poly.contains(Point(b.anchor))]
         outside = [b for b in blocks if b.exterior and poly.contains(Point(b.anchor))]
         area, aspect = _face_aspect(poly)

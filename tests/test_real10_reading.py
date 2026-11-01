@@ -280,6 +280,187 @@ def test_a_plan_with_too_few_labels_takes_the_documents_wall_layers():
 
 
 # --------------------------------------------------------------------------
+# Doors and windows of the exploded drawing
+# --------------------------------------------------------------------------
+
+def _gaps(walls, strokes):
+    from wenart.ingest.generic import openings as O
+
+    return O.gaps_and_openings(walls, strokes, "test.pdf", 1)
+
+
+def _leaf(x0, y0, x1, y1):
+    import _real01_page as R
+
+    return R.stroke(R.rect(x0, y0, x1, y1), closed=True)
+
+
+def test_a_door_drawn_open_without_a_swing_arc():
+    """real10's doors: a leaf standing at the jamb, opened 90 degrees, no arc. One leaf as long as the gap is a door;
+    two leaves of half the gap at both ends (the building entrance) are a double door."""
+    import _real01_page as R
+
+    walls = [R.wall((0, 0), (2, 0)), R.wall((2.9, 0), (5, 0))]
+    _, openings, _, _ = _gaps(walls, [_leaf(2.0, 0.1, 2.04, 0.95)])
+    assert [o.kind for o in openings] == ["door"] and openings[0].width == pytest.approx(0.9)
+    walls = [R.wall((0, 0), (2, 0)), R.wall((3.85, 0), (6, 0))]
+    _, openings, log, _ = _gaps(walls, [_leaf(2.0, 0.1, 2.04, 0.95), _leaf(3.81, 0.1, 3.85, 0.95)])
+    assert [o.kind for o in openings] == ["door"]
+    assert [e for e in log if e["kind"] == "run"][0]["class"] == "door"
+
+
+def test_a_framed_door_hinged_behind_its_frame():
+    """real10's balcony door: a 0.70 m leaf in a 0.85 m gap, its hinge 9.5 cm in from the jamb (the frame)."""
+    import _real01_page as R
+
+    walls = [R.wall((0, 0), (2, 0)), R.wall((2.85, 0), (5, 0))]
+    arc = R.arc((2.095, 0.05), 0.70, 0, 90)
+    _, openings, _, _ = _gaps(walls, [arc])
+    assert [o.kind for o in openings] == ["door"]
+
+
+def test_a_double_door_hinged_behind_jamb_blocks():
+    """real10's building entrance: a 2.40 m gap, two 0.93 m leaves hinged 0.27 m in from each jamb."""
+    import _real01_page as R
+
+    walls = [R.wall((0, 0), (2, 0)), R.wall((4.4, 0), (6, 0))]
+    arcs = [R.arc((2.27, 0.05), 0.93, 0, 90), R.arc((4.13, 0.05), 0.93, 90, 180)]
+    _, openings, log, _ = _gaps(walls, arcs)
+    assert [o.kind for o in openings] == ["door"] and openings[0].width == pytest.approx(2.4)
+
+
+def test_a_corner_window_gets_a_corner_post():
+    """The typical floor's living rooms: glass from the side wall's end round the corner to the front wall's end, no
+    wall piece at the corner. A corner post goes where the two walls' lines meet; each leg is a window."""
+    import _real01_page as R
+
+    walls = [R.wall((0, 2.1), (0, 5)), R.wall((1.4, 0), (5, 0))]
+    glass = [R.stroke([(-0.03, -0.1), (-0.03, 2.1)]), R.stroke([(0.03, -0.1), (0.03, 2.1)]),
+             R.stroke([(-0.1, -0.03), (1.4, -0.03)]), R.stroke([(-0.1, 0.03), (1.4, 0.03)])]
+    out, openings, _, _ = _gaps(walls, glass)
+    posts = [w for w in out if w.entity.startswith("corner:")]
+    assert len(posts) == 1 and posts[0].evidence["method"] == "derived"
+    assert sorted(o.kind for o in openings) == ["window", "window"]
+
+
+def test_a_door_right_at_an_l_corner():
+    """The master bedroom's balcony door: the wall below it ends inside the balcony wall it meets (no free end);
+    the gap from that wall's far face to the pier above holds a door."""
+    import _real01_page as R
+
+    walls = [R.wall((0, 0), (3.1, 0)), R.wall((3, -3), (3, 0)), R.wall((3, 0.95), (3, 1.6))]
+    arc = R.arc((3.05, 0.12), 0.80, 90, 180)
+    _, openings, _, _ = _gaps(walls, [arc])
+    assert [o.kind for o in openings] == ["door"]
+    assert openings[0].center[0] == pytest.approx(3.0, abs=0.05)
+
+
+def test_a_column_only_one_wall_ends_on_is_a_pier_kept_whole():
+    """The building entrance: a 35 x 80 cm column with one short wall ending on it and no wall through it stands
+    free: it is kept whole (a column inside a wall is cut to the wall's band)."""
+    from shapely.geometry import box
+
+    col = box(1.0, 0.0, 1.35, 0.8)
+    wall = _hpair(0.7, 0.0, 0.97, 0.1)                       # stops 3 cm short (the plaster coat)
+    elems = W._network([wall], [(col, "kolon:1")])
+    cols = [e for e in elems if e.kind == "column"]
+    assert len(cols) == 1 and cols[0].polygon.area == pytest.approx(col.area)
+
+
+def test_slits_up_to_the_plaster_gap_close_in_the_faces():
+    """A 4 cm slit between two walls (masonry stopping at the plaster coat) closes when the faces are made."""
+    import _real01_page as R
+    from wenart.ingest.generic import topology as TP
+
+    walls = [R.wall((0, 0), (4, 0)), R.wall((4, 0), (4, 3)), R.wall((4, 3), (0, 3)), R.wall((0, 3), (0, 0.12))]
+    assert len(TP.faces(walls)) == 1
+
+
+def test_labels_with_spaced_letters_and_drawing_titles():
+    from wenart.ingest.generic import labels as L
+
+    assert L.collapse_spaced("s a l o n") == "salon" and L.collapse_spaced("e. yatak od.") == "e. yatak od."
+    assert L.is_drawing_title("TERAS KAT PLANI ÖLÇEK : 1/50") and not L.is_drawing_title("teras")
+    from wenart import building as B
+    assert B.room_type_for("günlük oda") == "living" and B.room_type_for("SIĞINAK") == "storage"
+
+
+# --------------------------------------------------------------------------
+# Mirrored flats, the roof terrace
+# --------------------------------------------------------------------------
+
+def _room(rid, poly, label=None, rtype="hall", level="L0"):
+    return {"id": rid, "level_id": level, "polygon": poly, "label": label or "Oda", "label_raw": label,
+            "room_type": rtype}
+
+
+def test_the_unlabelled_mirrored_flat_takes_the_labels_of_the_labelled_one():
+    """real10 names the rooms of the left flat only; the right flat mirrors it about the building's axis."""
+    from wenart.ingest import twins as TW
+
+    rooms = [_room("a", [[0, 0], [4, 0], [4, 3], [0, 3]], "mutfak", "kitchen"),
+             _room("b", [[0, 3], [3, 3], [3, 6], [0, 6]], "salon", "living"),
+             _room("c", [[16, 0], [20, 0], [20, 3], [16, 3]]),
+             _room("d", [[17, 3], [20, 3], [20, 6], [17, 6]]),
+             _room("e", [[8, 0], [12, 0], [12, 6], [8, 6]], "merdiven", "stair")]
+    notes = TW.mirror_labels(rooms)
+    by = {r["id"]: r for r in rooms}
+    assert (by["c"]["label"], by["c"]["room_type"]) == ("mutfak", "kitchen")
+    assert (by["d"]["label"], by["d"]["room_type"]) == ("salon", "living")
+    assert by["c"]["label_raw"] is None and by["c"]["inferred"] is True
+    assert by["c"]["label_inferred"]["method"] == "mirror" and by["c"]["label_inferred"]["axis"] == ["x", 10.0]
+    assert len(notes) == 2
+
+
+def _t(text, y, h=0.2):
+    return SimpleNamespace(text=text, height=h, point=(0.0, y), box=(0.0, y - h / 2, 1.0, y + h / 2))
+
+
+def test_roof_terrace_heights_from_the_section_marks():
+    """real10's section A-A: storey labels beside their marks, window heads (+3.30, +21.30) between them, the roof
+    terrace at +23.50 (one storey above 6. NORMAL KAT), its parapet +24.40, a door head +25.70, the stair house's
+    roof +26.50 and its parapet +26.90."""
+    texts = [_t("2. BODRUM KAT", -3.5), _t("- 3.50", -3.5), _t("ZEMİN KAT", 2.5), _t("+ 2.50", 2.5), _t("+ 3.30", 3.3),
+             _t("1. NORMAL KAT", 5.5), _t("+ 5.50", 5.5), _t("6. NORMAL KAT", 20.5), _t("+ 20.50", 20.5),
+             _t("+ 21.30", 21.3), _t("+ 23.50", 23.5), _t("+ 24.40", 24.4), _t("+ 25.70", 25.7), _t("+ 26.50", 26.5),
+             _t("+ 26.90", 26.9)]
+    rt = LV.roof_terrace_heights([SimpleNamespace(texts=texts)])
+    assert rt["floor_mark"] == 23.5 and rt["parapet_height"] == pytest.approx(0.9)
+    assert rt["house_height"] == pytest.approx(3.0)
+
+
+def test_a_roof_terrace_floor_has_parapets_and_a_flat_roof_over_its_stair_house():
+    from wenart.sheets import to_building as TB
+
+    b = {"levels": [{"id": "L7", "order": 7, "elevation": 21.0, "ceiling_height": 2.7, "roof_terrace": True}],
+         "rooms": [{"id": "st", "level_id": "L7", "polygon": [[8, 6], [12, 6], [12, 10], [8, 10]]}],
+         "walls": [{"id": "h1", "level_id": "L7", "start": [8, 10], "end": [12, 10], "thickness": 0.2, "height": 2.7},
+                   {"id": "p1", "level_id": "L7", "start": [0, 0], "end": [20, 0], "thickness": 0.2, "height": 2.7}]}
+    sheets = {"heights": {"roof_terrace": {"floor_mark": 23.5, "parapet_height": 0.9, "house_height": 3.0}}}
+    terrace = TB.roof_terrace(b, sheets, lambda t: None)
+    walls = {w["id"]: w for w in b["walls"]}
+    assert walls["p1"]["height"] == 0.9 and walls["p1"]["parapet"] is True
+    assert walls["h1"]["height"] == 3.0 and not walls["h1"].get("parapet")
+    roof = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], terrace=terrace)
+    assert roof["type"] == "flat" and roof["over_level_id"] == "L7" and roof["eaves_height"]["value"] == 24.0
+    xs = [p[0] for p in roof["outline"]]
+    assert 7.7 <= min(xs) <= 8.0 and 12.0 <= max(xs) <= 12.3              # the stair house, not the terrace
+
+
+def test_a_typical_floor_copy_is_rendered_once():
+    """The rooms of the levels a typical floor plan stands for are the same as that plan's first level's: the base
+    variant renders the first level's room only."""
+    from wenart import views as VW
+
+    b = {"levels": [{"id": "L0", "order": 0}, {"id": "L1", "order": 1, "typical_of": "L0"}],
+         "rooms": [{"id": "r0", "level_id": "L0"}, {"id": "r1", "level_id": "L1", "same_as": "r0"}],
+         "variants": [{"id": "base", "label": "Base", "base": True, "levels": ["L0", "L1"]}]}
+    v = VW.views_for(b, twin_rooms="one", exterior_views=True)
+    assert v["rooms"] == ["r0"]
+    assert {"room_id": "r1", "reason": "same as r0 (typical floor)"} in v["skipped"]
+
+
+# --------------------------------------------------------------------------
 # The real DWG
 # --------------------------------------------------------------------------
 

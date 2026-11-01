@@ -57,6 +57,8 @@ def level_fields(level: dict, record, sheets: dict, warn) -> None:
     level["variant_slug"] = record.variant_slug or ("base" if not record.base_level_id else None)
     level["base_level_id"] = record.base_level_id
     level["region_id"] = record.region_id
+    if any(lv.get("id") == base_id and lv.get("roof_terrace") for lv in sheets.get("levels") or []):
+        level["roof_terrace"] = True              # real10: the roof terrace floor (its stair house over a flat roof)
     h = _heights_by_level(sheets).get(base_id)
     if not h:
         level["elevation_source"] = "assumed_default"
@@ -440,7 +442,7 @@ def roof_outline_record(plan: dict, walls: list[dict], level_id: str, site: Opti
 
 
 def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optional[list[dict]] = None,
-               shift: Shift = (0.0, 0.0), site: Optional[dict] = None) -> Optional[dict]:
+               shift: Shift = (0.0, 0.0), site: Optional[dict] = None, terrace: Optional[dict] = None) -> Optional[dict]:
     """The roof over the top level, or None when neither a section nor a plan draws it (the build then makes a flat
     roof over the top level, assumed). 27 Oct 2026: a roof plan's eaves loop becomes the outline when it fits the top
     level's walls (``roof_outline_record``; ``site``: the drawn outdoor spaces a roof may reach over); the record is
@@ -448,10 +450,29 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
     heights = sheets.get("heights") or {}
     hroof = heights.get("roof") or {}
     ex = (sheets.get("exterior") or {}).get("roof")
-    if not ex and not hroof.get("eaves_z"):
-        return None
     base = [lv for lv in levels if not lv.get("base_level_id")]
     top = max(base, key=lambda lv: lv.get("order") or 0) if base else None
+    if top is not None and top.get("roof_terrace") and terrace is not None:
+        # real10 (1 Nov 2026): a roof terrace floor on top: a flat roof over its stair house only (the terrace is
+        # open, its edge a parapet); the section's roof lines are the parapet and the stair house, no pitched roof.
+        z = round(float(top["elevation"]) + float(terrace["house_height"]), 3)
+        src = terrace["sources"]["house_height"]
+        ev = [dict(e) for e in (top.get("evidence") or [])[:1]]
+        val = {"value": z, "method": "vector" if src == "level_mark" and ev else "assumed",
+               "confidence": 0.9 if src == "level_mark" and ev else 0.0, "evidence": ev if src == "level_mark" else [],
+               "note": "the stair house's roof on the roof terrace floor"
+                       + (" (the section's level marks)" if src == "level_mark" else " (the level's ceiling height)")}
+        return {"type": "flat", "type_source": "roof_plan", "over_level_id": top["id"], "eaves_height": val,
+                "ridge_height": dict(val), "pitches_deg": [], "overhang": None, "thickness": None,
+                "knee_wall": None, "profile": None, "outline": terrace["outline"], "outline_source": "roof_terrace",
+                "break_line": None, "ridge_lines": [], "planes": [], "openings": [], "covering": None,
+                "covering_colour": None, "covering_source": None,
+                "assumed": [] if src == "level_mark" else ["stair house height (the level's ceiling height)"],
+                "evidence": [e for lv in [top] for e in (lv.get("evidence") or [])[:1]],
+                "roof_terrace": {"parapet_height": terrace["parapet_height"], "sources": terrace["sources"]},
+                "status": "verified" if src == "level_mark" else "assumed"}
+    if not ex and not hroof.get("eaves_z"):
+        return None
     assumed = list((ex or {}).get("assumed") or [])
     profile = None
     axis = heights.get("cut_axis")
@@ -508,6 +529,60 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
         roof["evidence"] = [e for k in ("eaves_z", "ridge_z") for e in (hroof.get(k) or {}).get("evidence") or []][:2]
     roof["status"] = "verified" if ex and roof["type_source"] != "assumed" else "assumed"
     return roof
+
+
+ROOF_TERRACE_PARAPET_M = 1.10      # real10: a roof terrace's parapet when no mark gives it (assumed)
+HOUSE_REACH_M = 0.40               # a wall within this of the top level's rooms belongs to the stair house
+
+
+def roof_terrace(b: dict, sheets: dict, warn) -> Optional[dict]:
+    """real10 (1 Nov 2026): the top level is a roof terrace floor (``roof_terrace``): its rooms (the stair house:
+    stair, lift, machine room) keep full walls under a flat roof at the stair house's height; every other wall of
+    the level stands on the terrace's edge: a parapet (``height`` = the section's parapet mark, else
+    ``ROOF_TERRACE_PARAPET_M`` assumed; ``parapet: true``). Returns ``{"level_id", "outline", "house_height",
+    "parapet_height", "sources"}`` for the roof, or None."""
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
+
+    top = next((lv for lv in b.get("levels") or [] if lv.get("roof_terrace") and not lv.get("base_level_id")), None)
+    if top is None:
+        return None
+    rt = (sheets.get("heights") or {}).get("roof_terrace") or {}
+    rooms = [Polygon(r["polygon"]) for r in b.get("rooms") or [] if r["level_id"] == top["id"]
+             and len(r.get("polygon") or []) >= 3]
+    house = unary_union([r.buffer(HOUSE_REACH_M, join_style=2) for r in rooms]) if rooms else None
+    parapet = rt.get("parapet_height")
+    house_h = rt.get("house_height")
+    n_par = 0
+    for w in b.get("walls") or []:
+        if w["level_id"] != top["id"]:
+            continue
+        if house is not None and LineString([w["start"], w["end"]]).within(house):
+            if house_h is not None:
+                w["height"] = round(float(house_h), 3)
+            continue
+        w["height"] = round(float(parapet if parapet is not None else ROOF_TERRACE_PARAPET_M), 3)
+        w["parapet"] = True
+        n_par += 1
+    if house_h is not None:
+        top["ceiling_height"] = round(float(house_h), 3)
+        top["ceiling_height_source"] = "section"
+    outline = None
+    if house is not None and not house.is_empty:
+        main = max(getattr(house, "geoms", [house]), key=lambda g: g.area)
+        shrunk = main.buffer(-HOUSE_REACH_M + 0.15, join_style=2)        # to the house walls' outer faces
+        main = shrunk if not shrunk.is_empty else main
+        outline = [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(main.exterior.coords)[:-1]]
+    sources = {"parapet_height": "level_mark" if parapet is not None else "assumed",
+               "house_height": "level_mark" if house_h is not None else "assumed"}
+    warn(f"roof terrace {top['id']}: {n_par} wall(s) on the terrace's edge are parapets "
+         f"{parapet if parapet is not None else ROOF_TERRACE_PARAPET_M:.2f} m high "
+         f"({'section mark' if parapet is not None else 'assumed'}); the stair house "
+         f"({len(rooms)} room(s)) keeps full walls under a flat roof"
+         + (f" {house_h:.2f} m above the terrace (section mark)" if house_h is not None else ""))
+    return {"level_id": top["id"], "outline": outline,
+            "house_height": float(house_h) if house_h is not None else float(top["ceiling_height"]),
+            "parapet_height": float(parapet if parapet is not None else ROOF_TERRACE_PARAPET_M), "sources": sources}
 
 
 def _value_of(entry) -> Optional[float]:

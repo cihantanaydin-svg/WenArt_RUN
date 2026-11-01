@@ -3073,8 +3073,31 @@ Wall reading of an exploded drawing (second round, `wenart/ingest/generic/walls.
 | the kitchen and living-room wing touches the bedroom wing only through the hall openings | a wall part within 1.5 m of the labelled building holding a room label inside its outline is a wing of it (`split_plot`) |
 | the 2nd basement (3 labels) and the roof terrace (2 labels) | a plan with too few labels to decide takes the wall layers the document's other plans chose |
 
-Result: the 1st basement and the typical floor read as two nearly complete flats each, the roof terrace reads, the
-2nd basement in 3 parts. Still open (needs_review): 2-3 rooms per plan leak (a corner window of the living rooms with
-no wall piece, glazing round the corner; a 1 m stretch at the master bedroom's wardrobes; the kitchen opening), the
-heights (L-2 at -6.00 instead of -6.35; the flat roof terrace read as a pitched roof) and the downstream use of typical
-floors (furnish and render one floor, copy the rest).
+### real10 points 1-4 (1 Nov 2026, user: "go ahead with the 4 points in that order")
+
+The reading is **ok**: 9 levels (L-1 garden flats, L0-L6 typical, L7 roof terrace), 412 rooms; the 2nd basement (the
+shelter, L-2: concrete shear walls drawn as L-shaped outlines on the column layer) is left out (listed), no interior
+renders needed there. Rules added, each general (`tests/test_real10_reading.py`, 39 tests):
+
+| point | what the drawing does | rule |
+|---|---|---|
+| 1 rooms | a short pier 5 cm from the wall of another layer | the chosen wall layers make one network (the plaster run-on works across them); a face-pair component within 5 cm of a kept wall stays (2 cm for other wall sources) |
+| 1 | the building entrance's columns, one short wall ending on each | a column only one wall piece ends on, none running through it, is a pier kept whole; short pieces attach columns too |
+| 1 | doors drawn open without an arc; a balcony door hinged 9.5 cm behind its frame; the entrance's two leaves hinged 0.27 m in from the jambs | open-leaf doors (one leaf the gap long, or two half leaves); a framed hinge may stand as far in as the leaf is narrower; a framed double door by its hinge-to-hinge width |
+| 1 | the living rooms' corner windows (glass round the corner, no wall piece) | two free wall ends whose lines meet 0.25-3 m on with window glass along both legs get a corner post (derived) |
+| 1 | a balcony door right at an L corner (the wall ends inside the wall it meets) | the gap is cast from that wall's far face, kept only for a door with a drawn swing |
+| 1 | 4 cm plaster slits at wall ends; 3-4 cm cavities between masonry and plaster walls | a face-pair wall end stopping <= 5 cm short of a perpendicular face (>= 10 cm of it) moves onto it; an unlabelled face no 24 cm strip fits into is no room |
+| 1 | `s a l o n`, `günlük oda`, `SIĞINAK`; the title `TERAS KAT PLANI ÖLÇEK 1/50` read as a terrace | spaced letters collapse; GÜNLÜK (living) and SIĞINAK (storage) are room words; drawing titles and scale notes are no room labels |
+| 1 | real06 draws its walls on SIVA and DUVAR too, and joining DUVAR lost its front wall | a second wall layer joins only when the joined walls part the labels into more rooms or form fewer parts (real10: 1 -> 6 rooms; real06: no change, no join) |
+| 1 | ANTRE and SALON in one open face, no printed areas | the living room's name names the face |
+| 1 | only the left flat of each floor is labelled | `twins.mirror_labels`: the unlabelled mirrored faces take the labels (inferred); mirror-labelled rooms pair as twins without comparing drawn furniture |
+| 2 | the roof terrace: +23.50, parapet +24.40, stair house +26.50 (window heads +3.30 ... between the storeys) | storey labels paired with their marks give the storey step; the terrace floor one step over the top storey; parapet and stair-house heights from the marks; the terrace level's edge walls are parapets (0.90 m), a flat roof over the stair house only (z 24.0) |
+| 2 | dimension texts in cm on a metre drawing (2,149 false conflicts) | the dimension text unit from the median text / measured ratio (10, 100, 1000); a typical plan's dimensions checked once |
+| 3 | 7 identical floors, 2 mirrored flats each | rooms of L1-L6 are `same_as` L0's (furnished, decorated, rendered once; the cameras skip them); the right flats are twins of the left (furniture mirrored, rendered once) |
+| 4 | no site drawn | the main entrance's paved forecourt runs to the inferred plot's edge and the street machinery lays a street, pavements, kerbs and lamps there (inferred, UL252), with the inferred plot, paths, hedge and trees |
+
+A buried wall end that finds no door leaves no log entry (it is no free end: the separators pair free ends only;
+real01's and the synthetic separator tests caught it). Checked here: the real03 side effect of the corner rule (a 2.6 m "window" between two lift shafts) bisected and
+removed (real03 reads as before: 8 bathrooms, 25 doors, 22 windows; one separator more between its living room and
+entrance hall). Not checked here: the Blender build (no Blender in this session), so the parapets, the stair-house
+roof and the street are first seen on the pod.

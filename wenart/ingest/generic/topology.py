@@ -40,7 +40,8 @@ from wenart.ingest.model import OpeningItem, WallItem
 CLOSE_M = 0.002
 # Gaps narrower than 2 x this between wall rectangles are closed when the faces are made (real03, 10 Oct 2026: walls
 # cut from the wall raster at 10 mm pixels left 1 cm slits at corners, so a bedroom and its hall became one face; a
-# real opening is never narrower than 5 cm).
+# real opening is never narrower than 5 cm). (real10's 4 cm plaster slits close where they are: a face-pair wall end
+# stopping up to 5 cm short of a perpendicular wall face is moved onto it, ``walls._close_face_joints``.)
 SLIT_CLOSE_M = 0.015
 HULL_SHARE = 0.99
 WING_NEAR_M = 1.5               # real10: a wall part within 1.5 m of the labelled building holding a room label inside

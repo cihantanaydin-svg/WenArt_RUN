@@ -69,6 +69,7 @@
         "thickness": {"type": "number"},
         "kind": {"enum": ["plot", "other"], "description": "plot = a wall component whose convex hull holds the building (compound wall); other = any other wall without room labels"},
         "height": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Milestone 10: wall height (elevation drawing, else assumed)"},
+        "parapet": {"type": "boolean", "description": "real10 (1 Nov 2026): a wall on a roof terrace's edge, as high as the parapet (height)"},
         "build": {"type": "boolean"},
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
       }}},
@@ -245,6 +246,7 @@
         "variant": {"type": ["string", "null"], "description": "Milestone 10: base, or the alternative's name as titled (Açık mutfak); alternative levels get the id <base id>b, <base id>c ..."},
         "variant_slug": {"type": ["string", "null"], "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "ASCII slug of variant, hyphens (wenart.building.variant_slug: acik-mutfak); base levels: base"},
         "base_level_id": {"type": ["string", "null"], "description": "Alternative levels: the base level they replace"},
+        "roof_terrace": {"type": "boolean", "description": "real10 (1 Nov 2026): the roof terrace floor of an apartment block (TERAS KATI): its stair house under a flat roof, its edge walls parapets"},
         "typical_of": {"type": ["string", "null"], "description": "real10 (1 Nov 2026): a level a typical floor plan (NORMAL KAT, TİP KAT) stands for: the id of the level that plan was read for first; the same region is read for every such level"},
         "region_id": {"type": ["string", "null"], "description": "Milestone 10: the sheets.json region the level was read from"},
         "elevation_source": {"enum": ["section", "elevation_drawing", "level_mark", "assumed_default"], "description": "Milestone 10: where the elevation comes from"},
@@ -429,6 +431,7 @@
         "adjusted_by_ai": {"type": ["object", "null"], "description": "Milestone 11: a change by the agent (CLAUDE.md evidence and inference rules); Milestone 12 also rule, crop, fix_fixture, not_furniture (tracks R, G): reason, round, log_seq, model, the changed fields with their old values", "properties": {"reason": {"type": "string"}, "round": {"type": "integer"}, "log_seq": {"type": "integer"}, "model": {"type": "string"}, "changed": {"type": "object"}}, "required": ["reason"]},
         "inferred": {"type": "boolean", "description": "Milestone 11: inferred by code or the agent, not read from the documents; listed in the report"},
         "corrected_by_ai": {"type": ["object", "null"], "description": "Milestone 11: a clear geometry error fixed by the agent (correct_geometry): reason, evidence, before", "properties": {"reason": {"type": "string"}, "evidence": {"type": "object"}, "before": {"type": "object"}}, "required": ["reason"]},
+        "label_inferred": {"type": "object", "description": "real10 (1 Nov 2026): the label came from another room (method mirror: the room's mirror about the level's axis carries the label; of, axis, hausdorff_m), no text names it"},
         "twin_of": {"type": ["string", "null"], "description": "Milestone 10: the room this one mirrors in a semi-detached pair (same label, mirrored polygon, openings and drawn furniture within 2 cm); set on the second twin only (the one later in reading order)"},
         "twin_transform": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 6, "maxItems": 6, "description": "Affine [a, b, c, d, e, f] mapping the first twin onto this room (a mirror), fitted by the pipeline from polygons, openings and drawn furniture"},
         "twin_residual_m": {"type": ["number", "null"]},

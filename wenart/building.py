@@ -55,6 +55,7 @@ _TURKISH_ROOM_KEYWORDS = [
     ("salon", "living"),
     ("yasama", "living"),        # real03 (10 Oct 2026): YAŞAMA (living space)
     ("oturma", "living"),
+    ("gunluk", "living"),        # real10 (1 Nov 2026): GÜNLÜK ODA (the family room beside the salon)
     ("yatak", "bedroom"),
     ("cocuk", "bedroom"),
     ("ebeveyn", "bedroom"),
@@ -77,6 +78,7 @@ _TURKISH_ROOM_KEYWORDS = [
     ("teras", "balcony"),
     ("kiler", "storage"),
     ("depo", "storage"),
+    ("siginak", "storage"),      # real10: SIĞINAK (the basement shelter)
     ("calisma", "other"),
 ]
 # English room names (docs/milestone7.md §2.7.2). An English keyword is a whole word (an

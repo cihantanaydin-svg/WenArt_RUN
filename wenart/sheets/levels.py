@@ -189,6 +189,53 @@ def storey_words(regions: list) -> dict[int, str]:
     return dict(sorted(out.items()))
 
 
+def roof_terrace_heights(regions: list) -> Optional[dict]:
+    """real10 (1 Nov 2026): the roof terrace floor's heights from a section's level marks. Each storey label of the
+    section (``6. NORMAL KAT``) is paired with the level mark beside it (the nearest in height, within three text
+    heights); the terrace floor is one storey step (their median) above the top labelled storey, at the mark there
+    (within 0.3 m; real10: +23.50 above +20.50); the parapet top is the mark nearest 1 m above it (0.5-1.5 m: +24.40,
+    0.90 m), the stair house's roof the mark nearest a storey above it (2.4-4.0 m: +26.50, 3.00 m). Window heads and
+    other marks between storeys are not storeys. ``{"floor_mark", "parapet_height", "house_height", "storey_marks",
+    "marks"}`` or None when no section pairs two storeys with marks."""
+    import statistics as _st
+
+    from wenart.sheets import units_check as UC
+
+    storey: dict[int, float] = {}
+    values: set[float] = set()
+    for r in regions:
+        texts = getattr(r, "texts", None) or []
+        marks = [(t, round(v, 2)) for t, v in UC.mark_texts(texts)]
+        values.update(v for _, v in marks)
+        for t in texts:
+            lw = level_of(t.text)
+            if lw is None or lw.order is None or lw.typical or not marks:
+                continue
+            reach = 3.0 * max(getattr(t, "height", 0.0) or 0.0, 1e-9)
+            near = min(marks, key=lambda m: abs(m[0].point[1] - t.point[1]))
+            if abs(near[0].point[1] - t.point[1]) <= reach:
+                storey.setdefault(lw.order, near[1])
+    if len(storey) < 2:
+        return None
+    orders = sorted(storey)
+    steps = [(storey[b] - storey[a]) / (b - a) for a, b in zip(orders, orders[1:]) if storey[b] > storey[a]]
+    if not steps:
+        return None
+    step = _st.median(steps)
+    guess = storey[orders[-1]] + step
+    marks_sorted = sorted(values)
+    floor = min(marks_sorted, key=lambda v: abs(v - guess))
+    if abs(floor - guess) > 0.3:
+        floor = round(guess, 2)
+
+    def nearest(target: float, lo: float, hi: float) -> Optional[float]:
+        cands = [v - floor for v in marks_sorted if lo <= v - floor <= hi]
+        return round(min(cands, key=lambda d: abs(d - target)), 3) if cands else None
+
+    return {"floor_mark": floor, "parapet_height": nearest(1.0, 0.5, 1.5), "house_height": nearest(step, 2.4, 4.0),
+            "storey_marks": {str(k): v for k, v in sorted(storey.items())}, "marks": marks_sorted}
+
+
 def typical_orders(own: set, storeys: dict[int, str]) -> tuple[list[int], list[int], str]:
     """``(orders, inferred, how)``: the levels a typical floor plan stands for. With storeys named on the sections:
     every one at or above the ground floor without a plan of its own, in one run from the lowest (the ground floor

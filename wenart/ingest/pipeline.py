@@ -566,6 +566,8 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
                                                         f"{master.where} are asked")
 
     for work in works:
+        if getattr(work.record, "typical_of", None):
+            continue                     # real10: the typical floor plan's dimensions are checked once (its first level)
         _check_dimensions(build, work, walls, evidence_only=work is not master and work.record.kind in RASTER_KINDS)
     _check_areas(build, rooms, master, furniture)
 
@@ -1082,16 +1084,40 @@ def _link_dimension_walls(dim: DimensionItem, walls: list[dict]) -> list[str]:
     return [wall_id for offset, wall_id in hits if offset - nearest <= WALL_TOL]
 
 
+TEXT_FACTOR_TOL = 0.05          # real10: the median dimension text within 5 % of 10 / 100 / 1000 x the measured length
+
+
+def dimension_text_factor(dimensions: list) -> float:
+    """real10 (1 Nov 2026): the unit factor of a page's dimension texts: a plan drawn in metres (at 1:50) writes its
+    dimensions in centimetres (``20`` beside a 0.20 m wall). The median of printed / measured within
+    ``TEXT_FACTOR_TOL`` of 10, 100 or 1000 gives that factor; else 1 (the texts are in the drawing's own unit)."""
+    import statistics as _st
+
+    ratios = [d.printed_value / d.measured for d in dimensions if d.printed_value and d.measured and d.measured > 0]
+    if len(ratios) < 3:
+        return 1.0
+    med = _st.median(ratios)
+    for f in (100.0, 1000.0, 10.0):
+        if abs(med / f - 1.0) <= TEXT_FACTOR_TOL:
+            return f
+    return 1.0
+
+
 def _check_dimensions(build: ProjectBuild, work: PageWork, walls: list[dict], evidence_only: bool = False) -> None:
     """Dimension text vs measured length. On an evidence-only raster page (§0) the dimensions measure that page's
     own raster geometry (the master's geometry is kept), so a difference is reported as a warning, not a conflict."""
     ex = work.extraction
     source = SOURCE_NAME.get(source_key(work.record), "document")
+    factor = dimension_text_factor(ex.dimensions)
+    if factor != 1.0:
+        build.warn(f"{work.where}: the dimension texts are written in "
+                   f"{ {10.0: 'decimetres', 100.0: 'centimetres', 1000.0: 'millimetres'}[factor]} (the median text is "
+                   f"{factor:g} x the measured length); they are compared as such")
     for dim in ex.dimensions:
         dim.wall_ids = _link_dimension_walls(dim, walls)
         if dim.printed_value is None or dim.measured <= 0:
             continue
-        diff = abs(dim.printed_value - dim.measured)
+        diff = abs(dim.printed_value / factor - dim.measured)
         if diff <= PRINT_EPS or diff / dim.measured <= DIMENSION_TOL:
             continue
         pct = diff / dim.measured * 100.0
@@ -2191,10 +2217,14 @@ def _write_questions(build: ProjectBuild, out_dir: Path, asked: Optional[set] = 
     items, pending, unanswered = [], [], []
     # Milestone 13 (K3): a question whose piece code typed before the AI is withdrawn (not written, not pending).
     withdrawn = set(getattr(build, "code_typed", None) or {})
+    seen: set = set()
     for ex in [w.extraction for w in build.furniture_works] + build.question_only:
         mine = [q for q in ex.report.get("questions") or [] if q.get("key") not in withdrawn]
-        items.extend(mine)
-        pending.extend(k for k in ex.report.get("pending") or [] if k not in withdrawn)
+        # real10 (1 Nov 2026): the levels a typical floor plan stands for read that plan's extraction again: their
+        # questions are the same (same keys), asked once; the answer applies to every such level.
+        items.extend(q for q in mine if q.get("key") not in seen)
+        seen.update(q.get("key") for q in mine)
+        pending.extend(k for k in ex.report.get("pending") or [] if k not in withdrawn and k not in pending)
         ex.report["unanswered"] = _without_answers(mine, answers)
         unanswered.extend(ex.report["unanswered"])
     build.unanswered = unanswered
@@ -2389,6 +2419,9 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         room["twin_transform"] = None
         room["twin_residual_m"] = None
         room["same_as"] = None
+    # real10 (1 Nov 2026): one of two mirrored halves labelled only: the other's faces take the mirrored labels.
+    for line in TW.mirror_labels(b["rooms"]):
+        build.warn(f"mirror label: {line}")
     for second, info in TW.twin_transforms(b["rooms"], b["openings"], b["furniture"]).items():
         room = next(r for r in b["rooms"] if r["id"] == second)
         room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],
@@ -2397,10 +2430,13 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     for line in TW.apply_twin_copies(b["furniture"], TW.twin_copies(b["rooms"], b["furniture"])):
         build.warn(f"twin copy: {line}")
     for lv in b["levels"]:
-        if not lv.get("base_level_id"):
+        # real10 (1 Nov 2026): a level the typical floor plan stands for: its rooms equal that plan's first level's
+        # (same_as: furnished, decorated and rendered once, copied to every such level).
+        partner = lv.get("base_level_id") or lv.get("typical_of")
+        if not partner:
             continue
         alt = [r for r in b["rooms"] if r["level_id"] == lv["id"]]
-        base = [r for r in b["rooms"] if r["level_id"] == lv["base_level_id"]]
+        base = [r for r in b["rooms"] if r["level_id"] == partner]
         for a_id, b_id in TW.same_as(alt, base, b["openings"], b["furniture"]).items():
             next(r for r in b["rooms"] if r["id"] == a_id)["same_as"] = b_id
     b["variants"] = TB.variants_block(sheets, b["levels"], b["rooms"], b["walls"], b["openings"])
@@ -2413,7 +2449,9 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     slab_default = float(BR.value(BR.load_brief(project_dir), "slab_thickness", 0.20))
     b["slabs"] = TB.slabs_block(sheets, b["levels"], build.unions, b["furniture"], slab_default, build.warn,
                                 b["variants"])
-    b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], build.frame_shift, b.get("site"))
+    terrace = TB.roof_terrace(b, sheets, build.warn)      # real10: parapets and the stair house of a roof terrace
+    b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], build.frame_shift, b.get("site"),
+                              terrace=terrace)
     b["facade"] = TB.facade_block(sheets, b["walls"], build.warn, b["levels"], b["openings"], build.unions)
     site = b.get("site") or {"boundary_walls": [], "areas": [], "decor": [], "openings": []}
     ground = next((lv["id"] for lv in b["levels"] if lv.get("order") == 0 and not lv.get("base_level_id")), None)

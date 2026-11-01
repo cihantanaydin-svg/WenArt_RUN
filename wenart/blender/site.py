@@ -3803,8 +3803,42 @@ def extend_drives(pfs: Sequence[dict], links: Sequence[dict]) -> list[str]:
     return made
 
 
+def inferred_forecourt(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
+                       outlines: Optional[dict], plot: Sequence) -> Optional[dict]:
+    """real10 (1 Nov 2026, lesson UL252: no site drawn: an inferred street, pavement, entrance and planting): the
+    paved forecourt of the main entrance (the widest entrance door on the main facade, ``main_facade``) from the
+    facade to the inferred plot's edge, ``FORECOURT["width"]`` (the door + 1 m a side, within the bounds), where the
+    street comes (``with_outside_roads``: its open end meets a street outside the plot). ``{"id", "polygon",
+    "opening_id", "reason"}`` or None."""
+    if len(outline) < 3 or len(plot or []) < 3:
+        return None
+    ents = entrances(building, levels, terrain, outline, outlines)
+    main = main_facade(building, levels, terrain, outline, outlines)
+    pick = [e for e in ents if e["axis"] == main["axis"]] or ents
+    if not pick:
+        return None
+    e = max(pick, key=lambda e: (e["width"], e["opening_id"]))
+    (cx, cy), (ox, oy) = e["centre"], e["outward"]
+    start = (cx + ox * e["half_t"], cy + oy * e["half_t"])
+    reach = ray_exit(start, (ox, oy), geom2d.ccw(plot))
+    if reach is None or reach < 1.0:
+        return None
+    w = min(max(e["width"] + 2.0, FORECOURT["width"][0]), FORECOURT["width"][1])
+    ux, uy = -oy, ox
+    end = (start[0] + ox * reach, start[1] + oy * reach)
+    poly = [(start[0] - ux * w / 2, start[1] - uy * w / 2), (start[0] + ux * w / 2, start[1] + uy * w / 2),
+            (end[0] + ux * w / 2, end[1] + uy * w / 2), (end[0] - ux * w / 2, end[1] - uy * w / 2)]
+    return {"id": "forecourt_inferred", "polygon": geom2d.ccw([[round(x, 4), round(y, 4)] for x, y in poly]),
+            "opening_id": e["opening_id"],
+            "reason": f"no site plan: a {w:.1f} m paved forecourt from the main entrance {e['opening_id']} to the "
+                      f"plot's edge, where the street comes (lesson UL252, inferred)"}
+
+
+FORECOURT = {"width": (3.0, 8.0)}
+
+
 def with_outside_roads(site: dict, plot: Sequence, extent: Sequence, outline: Sequence = (),
-                       copy_holes: Sequence = ()) -> tuple[dict, dict]:
+                       copy_holes: Sequence = (), extra: Sequence[dict] = ()) -> tuple[dict, dict]:
     """``(site, roads)`` (pure; lesson UL162): the site's drawn paving, parking and pools as surfaces, their road dead
     ends (``outside_roads``), and a copy of ``site`` whose parking areas have grown by their links to the plot's
     edge (``extend_drives``); ``site`` itself is unchanged."""
@@ -3813,6 +3847,7 @@ def with_outside_roads(site: dict, plot: Sequence, extent: Sequence, outline: Se
         for a in _built(site.get(key)):
             if len(a.get("polygon") or []) >= 3:
                 surf.append({"id": str(a.get("id")), "kind": PLATFORM_KINDS[key], "polygon": geom2d.ccw(a["polygon"])})
+    surf.extend(dict(x) for x in extra)              # real10: the inferred forecourt, a way in from the street
     roads = outside_roads(surf, plot, extent, outline, copy_holes)
     if not roads["links"]:
         return site, roads
@@ -6441,6 +6476,21 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     # 30 Oct 2026 (lesson UL162): a drive that ends at the lawn runs on to the plot's edge (its own area grows, so the
     # platforms, kerbs and paths all see it) and joins a street outside the plot
     roads = {"areas": [], "links": [], "dead_ends": []}
+    forecourt = None
+    if mode == "full" and len(plot or []) < 3 and options is not None and len(outline) >= 3:
+        # real10 (1 Nov 2026, lesson UL252): no site drawn: the main entrance's forecourt runs to the inferred plot's
+        # edge and a street with its pavement passes there (inferred)
+        from wenart.blender import copies as CP
+        forecourt = inferred_forecourt(building, levels, terrain, outline, outlines, inferred_plot(outline))
+        if forecourt is not None:
+            site = dict(site, paving=list(site.get("paving") or []) + [
+                {"id": forecourt["id"], "polygon": forecourt["polygon"], "inferred": True,
+                 "material": "paving", "note": forecourt["reason"]}])
+            site, roads = with_outside_roads(site, inferred_plot(outline), extent, outline,
+                                             [geom2d.ccw(fp) for fp in CP.footprints(building)],
+                                             extra=[{"id": forecourt["id"], "kind": "drive",
+                                                     "polygon": forecourt["polygon"]}])
+            site = dict(site, street_areas=[a["polygon"] for a in roads["areas"] if a.get("kind") == "road"])
     if mode == "full" and len(plot or []) >= 3 and options is not None:
         from wenart.blender import copies as CP
         site, roads = with_outside_roads(site, plot, extent, outline, [geom2d.ccw(fp) for fp in CP.footprints(building)])
@@ -6452,6 +6502,12 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                                   front_court=court if options is not None else "no")
     warnings = list(terrain["warnings"]) + warnings + set_back_levels(levels, outline, outlines or {}, terrain)
     assumed = list(terrain["assumed"])
+    if forecourt is not None:
+        assumed.append({"field": "forecourt", "value": forecourt["polygon"], "reason": forecourt["reason"]})
+        if roads.get("areas"):
+            assumed.append({"field": "street", "value": len(roads["areas"]),
+                            "reason": "no site plan: a street and its pavement pass the forecourt's end (lesson UL252, "
+                                      "inferred)"})
     for w in wells:
         if w["source"] in ("assumed", "inferred"):
             assumed.append({"field": f"light_well:{w['opening_id']}", "value": [round(w["floor_z"], 3),

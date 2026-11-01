@@ -1230,6 +1230,11 @@ def views_for(building: dict, variant: str = BASE_VARIANT, brief=None, twin_room
         if twin_rooms == "one" and first and first in built:
             skipped.append({"room_id": r["id"], "reason": f"twin of {first}"})
             continue
+        same = r.get("same_as")
+        if base and same and same in built:
+            # real10 (1 Nov 2026): a room of a level the typical floor plan stands for equals that plan's room
+            skipped.append({"room_id": r["id"], "reason": f"same as {same} (typical floor)"})
+            continue
         out_rooms.append(r["id"])
     if not exterior_views:
         exterior, why = False, "render.exterior_views is off"

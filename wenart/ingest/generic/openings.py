@@ -527,11 +527,36 @@ def _jamb_distance(g: Gap, p, end: float) -> float:
     return LineString([q0, q1]).distance(Point(p))
 
 
-def _near_gap_end(g: Gap, p) -> Optional[float]:
+def _framed_double(g: Gap, arcs: list) -> Optional[list]:
+    """real10 (1 Nov 2026): a double door hinged a frame or a jamb block in from both gap ends (the building
+    entrance: two 0.93 m leaves hinged 0.27 m in from the jambs of a 2.40 m gap): two arcs hinged within ``HINGE_M`` +
+    ``DOOR_FRAME_M`` of each end, with radii half the distance between their hinges (+- ``RADIUS_TOL``) and a door's
+    sweep. ``[(item, arc, end)] x 2`` or None."""
+    reach = HINGE_M + DOOR_FRAME_M
+    near = []
+    for it, arc in arcs:
+        if not SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]:
+            continue
+        end = _near_gap_end(g, arc["center"], reach)
+        if end is not None:
+            near.append((it, arc, end))
+    for ia, aa, ea in near:
+        if ea != g.a:
+            continue
+        for ib, ab, eb in near:
+            if eb != g.b:
+                continue
+            half = abs(g.along(ab["center"]) - g.along(aa["center"])) / 2.0
+            if half > 0 and all(abs(x["radius"] - half) <= RADIUS_TOL * half for x in (aa, ab)):
+                return [(ia, aa, ea), (ib, ab, eb)]
+    return None
+
+
+def _near_gap_end(g: Gap, p, reach: float = HINGE_M) -> Optional[float]:
     for end in (g.a, g.b):
-        if _jamb_distance(g, p, end) <= HINGE_M:
+        if _jamb_distance(g, p, end) <= reach:
             return end
-        if abs(g.across(p)) <= g.t / 2.0 and abs(g.along(p) - end) <= HINGE_M:
+        if abs(g.across(p)) <= g.t / 2.0 and abs(g.along(p) - end) <= reach:
             return end
     return None
 
@@ -612,6 +637,10 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
     singles, halves = [], []
     for it, arc in arcs:
         end = _near_gap_end(g, arc["center"])
+        if end is None and width - DOOR_FRAME_M <= arc["radius"] < width:
+            # real10 (1 Nov 2026): the frame between the jamb and the hinge (a 0.70 m leaf in a 0.85 m gap, hinged
+            # 9.5 cm in): the hinge may lie as far in as the leaf is narrower than the gap.
+            end = _near_gap_end(g, arc["center"], HINGE_M + (width - arc["radius"]))
         if end is None or not SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]:
             continue
         if abs(arc["radius"] - width) <= RADIUS_TOL * width or width - DOOR_FRAME_M <= arc["radius"] <= width:
@@ -625,6 +654,8 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
     elif len({h[2] for h in halves}) == 2:
         door = [min((h for h in halves if h[2] == e), key=lambda x: abs(x[1]["radius"] - width / 2.0))
                 for e in (g.a, g.b)]
+    else:
+        door = _framed_double(g, arcs)
     if door:
         used: set = set()
         leaves, parts = [], []
@@ -652,6 +683,15 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.cls = "door"
         g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": leaves, "leaf": True, "swing": 0.0,
                    "radius": None, "double": False, "sliding": True, "by_name": op}
+        return
+    # real10 (1 Nov 2026): a door drawn open at 90 degrees without a swing arc (the building entrance's two leaves,
+    # the flats' doors): one leaf standing at a gap end as long as the gap, or two at both ends each half of it.
+    opened = _open_leaves(g, zone)
+    if opened is not None:
+        leaves, hinges, swing, double = opened
+        g.cls = "door"
+        g.found = {"arcs": [], "arc": [], "hinges": hinges, "leaves": leaves, "leaf": True, "swing": swing,
+                   "radius": g.width / 2.0 if double else g.width, "double": double, "open_leaf": True}
         return
     # Window: >= 2 strokes parallel to the wall in the band, each spanning >= 80 % of the gap; fix round after P6b:
     # of them >= WINDOW_LINES_MIN offsets of the window's own lines (``_confined`` to the gap), >= GLASS_MIN_LINES of
@@ -853,6 +893,85 @@ def _line_leaves(g: Gap, zone: list) -> list[tuple[list, list]]:
     return out
 
 
+def _open_leaves(g: Gap, zone: list) -> Optional[tuple[list, list, float, bool]]:
+    """real10 (1 Nov 2026): doors drawn open at 90 degrees with no swing arc. A leaf is a thin shape (a closed outline,
+    or >= 2 lines with the same ends, <= ``LEAF_WIDTH_M`` apart) standing across the wall at a gap end (within
+    ``LEAF_START_M`` plus its width of the jamb), starting at the wall (its near end within the band +
+    ``LEAF_START_M``) and running into a room ``LEAF_LENGTH`` x r long (+ ``LEAF_START_M``): r = the gap (one leaf)
+    or half of it (one leaf at each end, on the same side). ``(leaf strokes, hinges, swing side, double)`` or None."""
+    rows = []
+    for items, pts in _perp_leaves(g, zone):
+        alongs = [g.along(q) for q in pts]
+        acrosses = [g.across(q) for q in pts]
+        width = max(alongs) - min(alongs)
+        if width > LEAF_WIDTH_M:
+            continue
+        near, far = (min(acrosses), max(acrosses)) if abs(min(acrosses)) < abs(max(acrosses)) else \
+            (max(acrosses), min(acrosses))
+        if abs(near) > g.t / 2.0 + LEAF_START_M or near * far < 0 and abs(near) > g.t / 2.0:
+            continue
+        x = (max(alongs) + min(alongs)) / 2.0
+        # real10: the hinge may stand a door frame or a jamb block in from the gap end (the building entrance's
+        # leaves 0.25 m in); the leaf is then measured against the opening that is left
+        end = next((e for e in (g.a, g.b) if abs(x - e) <= LEAF_START_M + LEAF_WIDTH_M + DOOR_FRAME_M), None)
+        if end is None:
+            continue
+        rows.append((end, abs(far - near), 1.0 if far > 0 else -1.0, items, x))
+
+    def fits(length: float, r: float, frames: bool) -> bool:
+        # As for a swing arc, the frames may take up to ``DOOR_FRAME_M`` of a single leaf's gap (real10's "85/230"
+        # balcony door: a 0.77 m leaf in a 0.95 m gap).
+        lo = min(LEAF_LENGTH[0] * r, r - DOOR_FRAME_M) if frames else LEAF_LENGTH[0] * r
+        return lo <= length <= LEAF_LENGTH[1] * r + LEAF_START_M
+
+    def inset(row) -> float:
+        return max(0.0, abs(row[4] - row[0]) - LEAF_START_M - LEAF_WIDTH_M)
+
+    single = [r for r in rows if fits(r[1], g.width - inset(r), True)]
+    if single:
+        end, _, side, items, _ = min(single, key=lambda r: abs(r[1] - (g.width - inset(r))))
+        return items, [g.point(end)], side, False
+    halves = {}
+    for r in rows:
+        halves.setdefault((r[0], r[2]), []).append(r)
+    for side in (1.0, -1.0):
+        for ra in halves.get((g.a, side), []):
+            for rb in halves.get((g.b, side), []):
+                half = abs(rb[4] - ra[4]) / 2.0          # the opening between the two hinges, a leaf each
+                if fits(ra[1], half, False) and fits(rb[1], half, False):
+                    return ra[3] + rb[3], [g.point(g.a), g.point(g.b)], side, True
+    return None
+
+
+def _perp_leaves(g: Gap, zone: list) -> list[tuple[list, list]]:
+    """Thin shapes standing across the gap's wall: closed outlines, and groups of >= 2 straight lines across the wall
+    with the same ends (within ``LEAF_END_M``), <= ``LEAF_WIDTH_M`` apart. ``[(strokes, points)]``."""
+    out = [([it], it.pts) for it in zone if len(it.pts) >= 4 and it.st.arc is None
+           and (it.st.closed or math.dist(it.pts[0], it.pts[-1]) <= 0.001)]
+    lines = []
+    for it in zone:
+        if len(it.pts) != 2 or it.st.arc is not None:
+            continue
+        p0, p1 = it.pts
+        run, cross = abs(g.across(p1) - g.across(p0)), abs(g.along(p1) - g.along(p0))
+        if run <= 0 or cross > 1e-3 * run:
+            continue
+        lo, hi = sorted((g.across(p0), g.across(p1)))
+        lines.append((lo, hi, (g.along(p0) + g.along(p1)) / 2.0, it))
+    lines.sort(key=lambda r: (round(r[0] / LEAF_END_M), round(r[1] / LEAF_END_M), r[2]))
+    used: set = set()
+    for i, (lo, hi, off, it) in enumerate(lines):
+        if id(it) in used:
+            continue
+        group = [r for r in lines[i:] if id(r[3]) not in used and abs(r[0] - lo) <= LEAF_END_M
+                 and abs(r[1] - hi) <= LEAF_END_M and 0.0 <= r[2] - off <= LEAF_WIDTH_M]
+        if len(group) < 2:
+            continue
+        used.update(id(r[3]) for r in group)
+        out.append(([r[3] for r in group], [q for r in group for q in r[3].pts]))
+    return out
+
+
 def _named_door(g: Gap, zone: list) -> Optional[tuple[list, str]]:
     """(strokes, operation) of the door block instance in this gap whose name holds a door word (``DOOR_WORDS``, no
     window word) and a no-swing operation (``NO_SWING_OPERATIONS``: KAPI_SURME_90, SLIDING_DOOR, katlanır kapı): its
@@ -1042,15 +1161,31 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
             owned.update(trial)
             gaps.extend(found)
 
+    # real10 (1 Nov 2026): a corner window (glass running round the corner with no wall piece there) gets a corner
+    # post where the two walls' lines meet; the end gaps below then read its two windows.
+    posts = _corner_posts(ends, index, owned, ctx, len(walls))
+    for post in posts:
+        ends.append(post)
+        post.run = len(runs)
+        runs.append([post])
+        merge_after[post.run] = set()
+
     # (b): end gaps from free ends.
     end_log: list[dict] = []
     for p in ends:
         for which in ("start", "end"):
+            corner = None
             if not _is_free(p, which, ends):
-                continue
-            hit = _cast(p, which, ends)
+                # real10 (1 Nov 2026): a door right at an L corner (the master bedroom's balcony door): the wall ends
+                # inside the perpendicular wall it meets; the gap is cast from that wall's far face and kept only for
+                # a drawn door or window (below).
+                corner = _buried_end(p, which, ends)
+                if corner is None:
+                    continue
+            hit = _cast(p, which, ends) if corner is None else _cast_from(p, which, ends, corner)
             if hit is None:
-                end_log.append({"piece": p, "which": which, "gap": None})
+                if corner is None:                  # a buried end is no free end: no separator candidate
+                    end_log.append({"piece": p, "which": which, "gap": None})
                 continue
             q, a, b = hit
             # The same gap as a classified run gap: the run gap holds it (an open run gap does not).
@@ -1058,16 +1193,35 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                         and abs(g.c - p.c) <= RUN_OFFSET_M + 0.01
                         and min(g.b, b) - max(g.a, a) >= 0.5 * min(g.width, b - a)), None)
             if dup is not None:
-                end_log.append({"piece": p, "which": which, "gap": dup, "same_as_run_gap": True})
+                if corner is None:
+                    end_log.append({"piece": p, "which": which, "gap": dup, "same_as_run_gap": True})
                 continue
             # Fix round after P6b: never across a lined gap (the thinner wall along its face holds that stretch).
             if any(g.found.get("lining") and g.axis == p.axis and abs(g.c - p.c) <= RUN_OFFSET_M + 0.01
                    and min(g.b, b) - max(g.a, a) > GAP_IGNORE_M for g in gaps):
-                end_log.append({"piece": p, "which": which, "gap": None})
+                if corner is None:
+                    end_log.append({"piece": p, "which": which, "gap": None})
                 continue
             g = Gap("end", p.axis, p.c, p.t, a, b, [p, q], free=(p, which), hit=q)
             if g.width < GAP_MIN_M:
                 g.cls = "closed"
+            elif corner is not None:
+                classify_gap(g, index, owned)
+                # Only a door with a drawn swing (arc or open leaf): no window or sliding-leaf guess beside a corner
+                # (real03: the lines between its two lift shafts read as a 2.6 m 'window' this way).
+                if not (g.cls == "door" and (g.found.get("arcs") or g.found.get("open_leaf"))):
+                    continue                        # a buried end is no free end: nothing logged
+                _own(g, index, owned)
+            elif any(q is post for post in posts):
+                # A corner window's glass runs on to the frame's outer corner, past the post's near face.
+                far = Gap("end", p.axis, p.c, p.t, a, b + q.t if which == "end" else b, [p, q], free=(p, which),
+                          hit=q)
+                if which == "start":
+                    far.a = a - q.t
+                classify_gap(far, index, owned)
+                g.cls, g.found = far.cls, far.found
+                if g.cls in ("door", "window") or g.found.get("faces"):
+                    _own(g, index, owned)
             else:
                 classify_gap(g, index, owned)
                 if g.cls in ("door", "window") or g.found.get("faces"):
@@ -1417,6 +1571,83 @@ def _replace_wall(w: WallItem, **changes) -> WallItem:
     if getattr(w, "corrected_by_ai", None):
         new.corrected_by_ai = w.corrected_by_ai
     return new
+
+
+def _corner_posts(ends: list[Piece], index: "StrokeIndex", owned: set, ctx: "_Ctx", k0: int) -> list[Piece]:
+    """real10 (1 Nov 2026): the typical floor's living rooms have corner windows: the glass runs from the end of
+    the side wall round the corner to the end of the front wall, and no wall piece stands at the corner, so neither
+    free end hits anything and the room is open to the outside. Two free ends of walls at right angles whose centre
+    lines meet at a point ``GAP_MIN_M``-``GAP_MAX_M`` beyond each end (nothing hit before it), with a window along
+    each leg (``classify_gap``: its own lines, glass), get a corner post there: a square as thick as the thicker
+    wall, evidence ``derived``. Returns the posts (pieces of new walls)."""
+    frees = [(p, w) for p in ends for w in ("start", "end") if _is_free(p, w, ends)]
+    posts: list[Piece] = []
+    taken: set = set()
+    for p, wp in frees:
+        if p.axis != "v":
+            continue
+        for q, wq in frees:
+            if q.axis != "h" or (id(p), wp) in taken or (id(q), wq) in taken:
+                continue
+            side = max(p.t, q.t)
+            cx, cy = p.c, q.c
+            ep = p.b if wp == "end" else p.a
+            eq = q.b if wq == "end" else q.a
+            dp = (cy - ep) if wp == "end" else (ep - cy)
+            dq = (cx - eq) if wq == "end" else (eq - cx)
+            if not (GAP_MIN_M <= dp - side / 2.0 <= GAP_MAX_M and GAP_MIN_M <= dq - side / 2.0 <= GAP_MAX_M):
+                continue
+            hp, hq = _cast(p, wp, ends), _cast(q, wq, ends)
+            if (hp is not None and hp[2] - hp[1] < dp - side / 2.0 - 0.01) or \
+                    (hq is not None and hq[2] - hq[1] < dq - side / 2.0 - 0.01):
+                continue
+            # The glass runs round the corner to the frame's outer corner: each leg is read up to the far side of the
+            # post (its own lines end there, not at the post's near face).
+            far_p = cy + side / 2.0 if wp == "end" else cy - side / 2.0
+            far_q = cx + side / 2.0 if wq == "end" else cx - side / 2.0
+            legs = [Gap("end", "v", p.c, p.t, min(ep, far_p), max(ep, far_p), [p]),
+                    Gap("end", "h", q.c, q.t, min(eq, far_q), max(eq, far_q), [q])]
+            for g in legs:
+                classify_gap(g, index, owned)
+            if not all(g.cls == "window" for g in legs):
+                continue
+            taken.update({(id(p), wp), (id(q), wq)})
+            corners = [(cx - side / 2.0, cy - side / 2.0), (cx + side / 2.0, cy - side / 2.0),
+                       (cx + side / 2.0, cy + side / 2.0), (cx - side / 2.0, cy + side / 2.0)]
+            corners_page = [_rot(c, ctx.theta) for c in corners]
+            box = ctx.box(corners_page)
+            entity = f"corner:{p.wall.entity.split(',')[0]}+{q.wall.entity.split(',')[0]}"
+            ev = ctx.evidence("derived", 0.7, entity, box_units=box)
+            ev["note"] = (f"corner window post: the windows of the walls {p.wall.entity.split(',')[0]} and "
+                          f"{q.wall.entity.split(',')[0]} meet at a corner where no wall piece is drawn "
+                          f"({legs[0].width - side:.2f} m and {legs[1].width - side:.2f} m of glass)")
+            wall = WallItem(start=_r(_rot((cx - side / 2.0, cy), ctx.theta)),
+                            end=_r(_rot((cx + side / 2.0, cy), ctx.theta)), thickness=round(side, 4), box=box,
+                            entity=entity, evidence=ev)
+            posts.append(Piece(k0 + len(posts), "h", cy, side, cx - side / 2.0, cx + side / 2.0, wall))
+    return posts
+
+
+def _buried_end(p: Piece, which: str, pieces: list[Piece]) -> Optional[float]:
+    """The far face (along ``p``'s axis) of the one perpendicular wall ``p``'s end lies in: the end is inside that wall's
+    band and no wall of ``p``'s own direction touches it; else None."""
+    pos = p.b if which == "end" else p.a
+    face = LineString(p.end_face(which))
+    touching = [q for q in pieces if q is not p and sbox(*q.rect()).distance(face) <= FREE_END_M]
+    if len(touching) != 1 or touching[0].axis == p.axis:
+        return None
+    q = touching[0]
+    lo, hi = q.c - q.t / 2.0, q.c + q.t / 2.0
+    if not (lo - FREE_END_M <= pos <= hi + FREE_END_M) or \
+            min(p.c + p.t / 2.0, q.b + FREE_END_M) - max(p.c - p.t / 2.0, q.a - FREE_END_M) <= 0.0:
+        return None
+    return hi if which == "end" else lo
+
+
+def _cast_from(p: Piece, which: str, pieces: list[Piece], start: float) -> Optional[tuple[Piece, float, float]]:
+    """``_cast`` from ``start`` (a perpendicular wall's far face) instead of ``p``'s end."""
+    trial = dataclasses.replace(p, b=start) if which == "end" else dataclasses.replace(p, a=start)
+    return _cast(trial, which, [q for q in pieces if q is not p] + [trial])
 
 
 def _is_free(p: Piece, which: str, pieces: list[Piece]) -> bool:

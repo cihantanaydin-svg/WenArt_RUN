@@ -137,7 +137,27 @@ def _strip_suffixes(text: str) -> tuple[str, Optional[str], Optional[str]]:
     return head, size_text, area_text
 
 
+_SPACED_RE = re.compile(r"^(?:[^\W\d_] ){2,}[^\W\d_]$")
+_SCALE_WORDS_RE = re.compile(r"\b(OLCEK|SCALE|MASSTAB|ECHELLE)\b")
+
+
+def collapse_spaced(text: str) -> str:
+    """real10 (1 Nov 2026): a name written with spaced letters (``s a l o n``) is that word (``salon``)."""
+    t = " ".join(text.split())
+    return t.replace(" ", "") if _SPACED_RE.match(t) else text
+
+
+def is_drawing_title(text: str) -> bool:
+    """A drawing title or scale note (``TERAS KAT PLANI``, ``A - A KESİTİ``, ``ÖLÇEK : 1/50``): never a room label
+    (real10's roof terrace title read as a terrace)."""
+    from wenart.sheets import titles as T
+
+    folded = B.fold_ascii(text).upper()
+    return T.class_of(text) is not None or bool(_SCALE_WORDS_RE.search(folded))
+
+
 def _is_name_text(text: str, indoor_only: bool) -> bool:
+    text = collapse_spaced(text)
     head, _, _ = _strip_suffixes(text)
     if not head or len(head.split()) > MAX_NAME_WORDS:
         return False
@@ -202,8 +222,10 @@ def _line_height(run: TextRun) -> float:
 def _classify(run: TextRun, default_system: str) -> _Line:
     """Kind of one run: ``area``, ``size``, ``name`` (keyword), ``other`` (words that may continue a
     name), or ``skip`` (a single length, a bare number, a long note: never part of a block)."""
-    text = run.text.strip()
+    text = collapse_spaced(run.text.strip())
     box = _frame_box(run)
+    if is_drawing_title(text):
+        return _Line(run, "skip", "", frame_box=box)       # real10: "TERAS KAT PLANI ÖLÇEK : 1/50" is no room
     if units.parse_area(text) is not None:
         return _Line(run, "area", "", area_text=text, frame_box=box)
     if units.parse_size_pair(text, default_system) is not None:

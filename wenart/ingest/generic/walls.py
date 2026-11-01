@@ -79,6 +79,8 @@ MASK_PX_M = 0.01
 MIN_COMPONENT_M2 = 0.02
 MIN_ELONGATION = 3.0
 TOUCH_M = 0.02                 # a dropped-looking component this close to a kept wall is kept
+TOUCH_FACE_M = 0.05            # real10: 5 cm for a face-pair component (a pier stopping at the plaster coat of the
+                               # column beside it)
 
 # Decomposition and faces (§2.4.3-5)
 MIN_WALL_M = 0.05              # thinner "walls" are drawn details (outline walls use the same lower bound)
@@ -895,11 +897,18 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
     # Plaster coats (real10): a piece stopping a few cm short of a column or of another wall piece runs on to it.
     material = [poly for poly, _ in columns] + [p.polygon() for p in pairs if p.primary]
     tree0 = STRtree(material) if material else None
-    pairs = [_to_material(p, material, tree0) if p.primary else p for p in pairs]
+
+    def piece(p: _Pair) -> bool:                  # a primary pair or a short piece at least as long as it is thick
+        return p.primary or p.hi - p.lo >= p.width - 1e-9
+
+    pairs = [_to_material(p, material, tree0) if piece(p) else p for p in pairs]
     prim_pairs = [p for p in pairs if p.primary]
     elems = [_Element("face_pair", p.polygon(), p.ids()) for p in prim_pairs]
+    # A column a short piece ends on is a candidate too (real10: the entrance columns beside the kitchen's corner
+    # block); like any it joins only through the pieces of the network that end on it (below).
     cols = [(poly, sid) for poly, sid in columns
-            if any(_ends_on(p, poly) or _runs_through(p, poly) for p in prim_pairs)]
+            if any(_ends_on(p, poly) or _runs_through(p, poly) for p in prim_pairs)
+            or any(_ends_on(p, poly) for p in pairs if not p.primary and piece(p))]
     # A short piece shorter than it is thick is a wall end's cap line paired with the face of the wall it meets
     # (real02: the cap of a stub beside a door and the corridor wall's face), not a wall piece; a piece of a stepped
     # run is primary (``stepped_runs``).
@@ -937,8 +946,15 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
     ending = accepted + [jp for _, jp in joins]
     for poly, sid in cols:
         reach = math.dist(poly.bounds[:2], poly.bounds[2:])
-        bands = [p.polygon(p.lo - reach, p.hi + reach) for p in ending if _ends_on(p, poly)]
-        bands += [p.polygon() for p in accepted if _runs_through(p, poly)]
+        enders = [p for p in ending if _ends_on(p, poly)]
+        through = [p for p in accepted if _runs_through(p, poly)]
+        if len(enders) == 1 and not through:
+            # real10 (1 Nov 2026): a column only one wall piece ends on, with no wall running through it, stands
+            # free at a wall end: a pier or a jamb (the building entrance's two columns), kept whole.
+            elems.append(_Element("column", poly, [sid]))
+            continue
+        bands = [p.polygon(p.lo - reach, p.hi + reach) for p in enders]
+        bands += [p.polygon() for p in through]
         part = poly.intersection(unary_union(bands)) if bands else Polygon()
         left = poly.area - part.area
         for g in (getattr(part, "geoms", [part]) if not part.is_empty else []):
@@ -1229,7 +1245,8 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         grid = through >= GRID_CROSS_MIN and through >= GRID_CROSS_SHARE * max(meet, 1)
         rows.append({"layer": layer, "closed_in": sum(hits), "pair_share": round(paired / max(long_lines, 1), 3),
                      "pairs": sum(1 for p in pairs if p.primary), "widths_m": widths[:8],
-                     "crossings": [through, meet], "grid": grid, "rooms": rooms, "_elems": elems})
+                     "crossings": [through, meet], "grid": grid, "rooms": rooms, "_elems": elems,
+                     "_pairs": pairs})
     # An axis grid closes in the rooms too (real10's double-line axes, 0.10 m apart, closed in 8 of 9 labels and beat
     # the walls): it never wins, whatever it closes in.
     # real10 (1 Nov 2026): the typical floor's layer 0 closed in all 10 labels only because its balcony and railing
@@ -1263,15 +1280,27 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     # real10 (1 Nov 2026): a wall drawn by two layers together (masonry DUVAR inside plaster SIVA; some walls on one
     # of them only) left the kitchens and the entrance cut off when only the best layer was read. Another layer that
     # closes in enough labelled rooms on its own and whose wall pieces mostly lie along the chosen layer's walls
-    # (``ALONG_SHARE``: the same walls; balcony railings and furniture lie elsewhere) joins.
+    # (``ALONG_SHARE``: the same walls; balcony railings and furniture lie elsewhere) joins when the joined walls do
+    # better (``helps``).
+    def helps(r: dict) -> bool:
+        # The joined walls must do better than the chosen layer alone: part the labels into more rooms or form fewer
+        # separate parts (real10: 1 -> 6 rooms; real06's DUVAR adds nothing to its SIVA walls and stays out).
+        joined = _network(win["_pairs"] + r["_pairs"], columns)
+        geoms = [e.polygon for e in joined] + _gap_bridges(win["_pairs"] + r["_pairs"])
+        return separate_rooms(anchors, geoms) > win["rooms"] or _parts_count(joined) < _parts_count(win["_elems"])
+
     also = [r for r in rows[1:] if not r["grid"] and r["closed_in"] >= need
-            and along_share(r["_elems"], win["_elems"]) >= ALONG_SHARE] if decided else picked[1:]
+            and along_share(r["_elems"], win["_elems"]) >= ALONG_SHARE and helps(r)] if decided else picked[1:]
     if not decided:
         note = (f"walls drawn as face lines: layer(s) {', '.join(repr(r['layer']) for r in picked)} as the document's "
                 f"other plans chose (this plan's {len(labels)} label(s) close in too few rooms to decide: best "
                 f"'{rows[0]['layer']}' {rows[0]['closed_in']})")
-    elems = list(win["_elems"]) + [e for r in also for e in r["_elems"]]
     layers = [win["layer"]] + [r["layer"] for r in also]
+    elems = list(win["_elems"])
+    if also:
+        # One network of all the layers drawing the walls: a piece of one layer stopping at the plaster of another
+        # (real10: a 20 x 95 cm masonry pier 5 cm short of a plaster-drawn wall) runs on to it (``_to_material``).
+        elems = _network([pr for r in [win] + also for pr in r["_pairs"]], columns)
     if also and decided:
         note += (f"; {', '.join(repr(r['layer']) for r in also)} also draw(s) these walls (closes in "
                  f"{', '.join(str(r['closed_in']) for r in also)} of {len(labels)} on its own, its pieces along "
@@ -1286,7 +1315,9 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
                   reason="face pairs close in the labelled rooms" if decided else "the document's other plans",
                   also=[r["layer"] for r in also])
     face = []
-    layer_of_elem = {id(e): r["layer"] for r in [win] + also for e in r["_elems"]}
+    stroke_layer = {st.id: _layer_key(st) for st in page.strokes}
+    layer_of_elem = {id(e): next((stroke_layer[i] for i in e.ids if stroke_layer.get(i) in layers), win["layer"])
+                     for e in elems}
     for k, e in enumerate(elems):
         entity = "+".join(e.ids) if e.kind == "face_pair" else (e.ids[0] if e.kind == "column" else
                                                               f"join:{'+'.join(e.ids)}")
@@ -1481,7 +1512,8 @@ def walls_from_mask(mask: MaskLayer, outline_strokes_m: list[Stroke], file_rel: 
         claimed |= _rect_region(r, rot_grid)
     for r in rects:
         _refine_faces(r, rot_m, claimed, rot_grid)
-    rects, dropped_regions = _filter_components(rects, rot_m, rot_index, rot_grid, _primary_prims(prims))
+    rects, dropped_regions = _filter_components(rects, rot_m, rot_index, rot_grid, _primary_prims(prims),
+                                                {k for k, p in enumerate(prims, start=1) if p.kind in FACE_KINDS})
     for note, region in dropped_regions:
         info["notes"].append(note)
         inside = set(np.unique(rot_index[region]).tolist()) - {0}
@@ -1509,11 +1541,15 @@ def walls_from_mask(mask: MaskLayer, outline_strokes_m: list[Stroke], file_rel: 
     # Walls inferred from room outlines (``outlines``) snap to their region's own edges like face-pair walls.
     face_ids = {k for k, p in enumerate(prims, start=1) if p.kind in FACE_KINDS or p.kind == "inferred"}
     if face_ids:
-        moved = _close_face_joints([r for r in rects if r.prims & face_ids], JOINT_PX * rot_grid.px)
+        # real10 (1 Nov 2026): the plaster coat too: a face-pair wall end stopping up to ``COLUMN_GAP_M`` short of a
+        # perpendicular wall face (masonry drawn to the plaster line) is moved onto it.
+        moved = _close_face_joints([r for r in rects if r.prims & face_ids],
+                                   max(JOINT_PX * rot_grid.px, COLUMN_GAP_M))
         if moved:
             kind = "inferred" if all(prims[k - 1].kind == "inferred" for k in face_ids) else "face-pair"
             info["notes"].append(f"{moved} {kind} wall ends moved onto the perpendicular wall face they stopped "
-                                 f"short of by <= {JOINT_PX:g} mask pixels")
+                                 f"short of by <= {max(JOINT_PX * rot_grid.px, COLUMN_GAP_M):.3f} m (mask pixels or the "
+                                 f"plaster coat)")
     if not segments and rects:
         info["notes"].append("no outline strokes: wall faces from the eroded mask")
 
@@ -1792,7 +1828,8 @@ def _primary_prims(prims: list[WallPrim]) -> set[int]:
 PRIMARY_SHARE = 0.25
 
 
-def _filter_components(rects: list[_Rect], m: np.ndarray, index: np.ndarray, grid: _Grid, primary: set):
+def _filter_components(rects: list[_Rect], m: np.ndarray, index: np.ndarray, grid: _Grid, primary: set,
+                       face: frozenset = frozenset()):
     """Keep a mask component when it has an elongated rectangle (length >= 3 x thickness, thickness >= MIN_WALL_M)
     drawn by a primary primitive, or when it touches a kept component (§2.4.2); thinner rectangles of kept
     components are dropped too. Returns (kept rects, [(note, region mask)])."""
@@ -1812,13 +1849,17 @@ def _filter_components(rects: list[_Rect], m: np.ndarray, index: np.ndarray, gri
             kept_comps.add(comp)
         else:
             weak.append(comp)
-    # A weak component touching a kept one (within TOUCH_M) stays.
+    # A weak component touching a kept one (within TOUCH_M; a face-pair component within TOUCH_FACE_M) stays.
     if weak and kept_comps:
         kept_mask = np.isin(lab, list(kept_comps)).astype(np.uint8)
-        k = max(1, int(math.ceil(TOUCH_M / grid.px)))
-        grown = cv2.dilate(kept_mask, np.ones((2 * k + 1, 2 * k + 1), np.uint8)) > 0
+        grown_at = {}
         for comp in list(weak):
-            if (grown & (lab == comp)).any():
+            faces = bool(face) and all(r.prims and r.prims <= face for r in by_comp[comp])
+            reach = TOUCH_FACE_M if faces else TOUCH_M
+            if reach not in grown_at:
+                k = max(1, int(math.ceil(reach / grid.px)))
+                grown_at[reach] = cv2.dilate(kept_mask, np.ones((2 * k + 1, 2 * k + 1), np.uint8)) > 0
+            if (grown_at[reach] & (lab == comp)).any():
                 kept_comps.add(comp)
                 weak.remove(comp)
     out = []
@@ -1951,6 +1992,7 @@ def _covered(spans: list[tuple[float, float]]) -> float:
 
 
 JOINT_PX = 1.5
+JOINT_OVERLAP_M = 0.10         # real10: a wall end facing >= 10 cm of a perpendicular wall's face meets it
 
 
 def _close_face_joints(rects: list[_Rect], tol: float) -> int:
@@ -1970,7 +2012,9 @@ def _close_face_joints(rects: list[_Rect], tol: float) -> int:
                 else:
                     overlap = min(r.y1, q.y1) - max(r.y0, q.y0)
                     gap = (q.x0 - r.x1) if hi_end else (r.x0 - q.x1)
-                if overlap >= 0.5 * r.thickness and 1e-9 < gap <= tol and (best is None or gap < best):
+                # real10: a pier meeting a thick wall over 19 cm of its 47 cm: >= 10 cm of face is a joint too
+                if overlap >= min(0.5 * r.thickness, JOINT_OVERLAP_M) and 1e-9 < gap <= tol and \
+                        (best is None or gap < best):
                     best = gap
             if best is None:
                 continue

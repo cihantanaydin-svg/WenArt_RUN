@@ -154,6 +154,7 @@ def group(plans: list, brief_variants, conflict: Callable, warnings: list) -> tu
             alts.append((r, named[id(r)] or (f"Alternative {len(alts) + 2}", "unclear")))
         level_id = base.level["id"]
         entry = {"id": level_id, "order": order, "label": base.level["label"], "kind": base.level["kind"],
+                 **({"roof_terrace": True} if base.level.get("roof_terrace") else {}),
                  "base_region": base.id, "secondary_regions": [r.id for r in copies], "alternatives": [],
                  "furniture_regions": [r.id for r in furniture], "evidence": list(base.level.get("evidence") or [])}
         for r in [base] + copies + furniture:

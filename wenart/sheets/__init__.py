@@ -300,6 +300,15 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     cut = RG.cut_line(read_plans, sections[0]) if sections and reference is not None and outlines else None
     heights_json, hw = HT.heights(section_geom, base_levels, ref_extent, values,
                                   sections[0].file if sections else None, conflict, cut)
+    # real10 (1 Nov 2026): a roof terrace floor on top: its parapet and stair house heights from the section's marks.
+    if any(lv.get("roof_terrace") for lv in levels_json) and sections:
+        rt = LV.roof_terrace_heights(sections)
+        if rt is not None:
+            heights_json["roof_terrace"] = rt
+            warnings.append(f"roof terrace: floor mark {rt['floor_mark']:+.2f}, parapet "
+                            + (f"{rt['parapet_height']:.2f} m" if rt["parapet_height"] is not None else "not marked")
+                            + ", stair house " + (f"{rt['house_height']:.2f} m" if rt["house_height"] is not None
+                                                  else "not marked") + " (section level marks)")
     if multi:
         warnings.extend(hw)
     top_plan = None
