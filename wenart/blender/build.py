@@ -248,6 +248,7 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry
                     "wenart/furniture/user_ranks.py",
                     # 31 Oct 2026: feature_walls reads the schemes' panel features; the build the small items' picks
                     "wenart/furniture/room_schemes.py", "wenart/furniture/small_items.py",
+                    "wenart/furniture/photo_cards.py", "results/library/photo_cards.json",   # UL237: the photo cards
                     "wenart/assets/fetch.py", "wenart/assets/polyhaven.py", "wenart/assets/web.py",
                     "wenart/assets/audit/__init__.py", "wenart/assets/audit/keywords.py",
                     # 28 Oct 2026: the site grading's garden flights and ramps follow the levels' step rules

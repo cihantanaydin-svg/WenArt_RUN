@@ -737,6 +737,10 @@ def _usable(entry: dict, mode: str) -> bool:
     from wenart.furniture import photo_cards as PC
     if PC.card(entry) is not None:        # 1 Nov 2026 (UL237): a photo of a door or window on a board, never used
         return False
+    from wenart.furniture import catalog as C
+    from wenart.furniture import user_ranks as UR
+    if C.user_rejection(entry) is not None or UR.out_reason(entry):   # 1 Nov 2026: the user's rejections and 0-2 ranks
+        return False
     q = vision_quality(entry)
     if q is not None and q < MIN_VISION_QUALITY:
         return False
