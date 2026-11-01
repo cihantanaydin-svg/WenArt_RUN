@@ -2944,6 +2944,30 @@
    "request": "Light here is sloped needs fixing , also needs better light model (1 Nov 2026, real04 run 20261031-194116-full: a ceiling light under the attic slope was turned onto the slope; lights under a sloped ceiling now hang level from a stem and a sloped canopy, the generated japandi ceiling light is rejected)",
    "lesson": "Light here is sloped needs fixing , also needs better light model (1 Nov 2026, real04 run 20261031-194116-full: a ceiling light under the attic slope was turned onto the slope; lights under a sloped ceiling now hang level from a stem and a sloped canopy, the generated japandi ceiling light is rejected)",
    "question": "Does every light under a sloped ceiling hang level (a stem and a canopy on the slope), never tilted with the slope?"
+  },
+  {
+   "id": "UL248",
+   "date": "2026-11-01",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This section also too plain front of the house (1 Nov 2026, real04 run 20261031-194116-full: a bare paved slope between the house and the street hedge; a graded bank in view is landscaped, not a plain paved ramp)",
+   "lesson": "This section also too plain front of the house (1 Nov 2026, real04 run 20261031-194116-full: a bare paved slope between the house and the street hedge; a graded bank in view is landscaped, not a plain paved ramp)",
+   "question": "Is every graded bank in view landscaped (planting beds, groundcover, shrubs, terraced planters with stone edges), never a bare paved slope?"
+  },
+  {
+   "id": "UL249",
+   "date": "2026-11-01",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Outside areas needs a touch up (1 Nov 2026, real04 run 20261031-194116-full: the outside areas read bare: big plain paving on slopes, few plants, no edges, planters or outdoor lights)",
+   "lesson": "Outside areas needs a touch up (1 Nov 2026, real04 run 20261031-194116-full: the outside areas read bare: big plain paving on slopes, few plants, no edges, planters or outdoor lights)",
+   "question": "Do the outside areas look designed (planting at edges and corners, varied paving with borders, planters, outdoor lights, furniture where the area is for sitting)?"
   }
  ]
 }
