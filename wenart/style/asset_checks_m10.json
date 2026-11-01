@@ -3469,6 +3469,84 @@
       ],
       "source": "polyhaven"
     },
+    "polyhaven:rock_boulder_dry": {
+      "api_type": 1,
+      "asset": "rock_boulder_dry",
+      "categories": [
+        "rock",
+        "outdoor",
+        "natural",
+        "terrain"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ]
+      },
+      "max_resolution": [
+        16384,
+        16384
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.396,
+        0.335,
+        0.268
+      ],
+      "name": "Rock Boulder Dry",
+      "size_m": [
+        1.8,
+        1.8
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "rock_boulder"
+      ],
+      "source": "polyhaven"
+    },
     "polyhaven:roof_slates_03": {
       "api_type": 1,
       "asset": "roof_slates_03",

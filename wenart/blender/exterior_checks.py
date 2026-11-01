@@ -1156,6 +1156,9 @@ def validate_exterior_override(building: dict, override: dict) -> dict:
                 failed.append("the roof planes would not be convex")
     if override.get("ground") is not None:
         failed += _look_problems("ground", override["ground"])
+        if not failed:
+            from wenart.blender import landscape as LS              # 1 Nov 2026 (UL248): the terrain stays soft
+            failed += LS.ground_look_problems("ground", str(override["ground"]))
     failed += sun_override_problems(building, override.get("sun") or {})
     failed += front_court_problems(override.get("site") or {})
     return {"ok": not failed, "failed": failed}
@@ -1241,6 +1244,12 @@ def validate_material_override(style: dict, override: dict) -> dict:
         return {"ok": False, "failed": failed}
     for slot, look_id in override.items():
         failed += _look_problems(SLOT_ALIASES.get(slot, slot), look_id)
+    if not failed:
+        # 1 Nov 2026 (lesson UL248, real04 run 20261031-194116-full: Argus set the ground slot to paving_stone and the
+        # whole terrain, its front bank and the fields, turned to slabs): the terrain takes a soft finish only
+        from wenart.blender import landscape as LS
+        for slot, look_id in override.items():
+            failed += LS.ground_look_problems(SLOT_ALIASES.get(slot, slot), look_id)
     if not failed and "facade" in override:
         failed += facade_scheme_problems(style, override["facade"])
     if not failed:

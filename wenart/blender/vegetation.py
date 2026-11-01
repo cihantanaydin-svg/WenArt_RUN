@@ -176,6 +176,18 @@ SPECIES = {
     "privet_shrub": {"source": {"polyhaven": "searsia_burchellii", "sapling": None}, "crown": "shrub", "shape": None,
                      "colour": (0.14, 0.28, 0.10), "overshoot": 1.0, "leaf": "broadleaf", "levels": 1,
                      "width_factor": 1.0, "note": "shrub: a leaf-card ball, the Poly Haven bush near the cameras"},
+    # 1 Nov 2026 (lessons UL248, UL249): the planting of the banks and beds (wenart.blender.landscape); ``library``
+    # False: their own scan, never a generic library bush (a grass clump is no bush, the beds keep their variety)
+    "ornamental_grass": {"source": {"polyhaven": "grass_medium_02", "sapling": None}, "crown": "shrub", "shape": None,
+                         "colour": (0.32, 0.38, 0.17), "overshoot": 1.0, "leaf": "broadleaf", "levels": 1,
+                         "width_factor": 1.0, "card_scale": 0.5, "library": False,
+                         "note": "an ornamental grass clump (a Stipa or Pennisetum look): the Poly Haven grass clump "
+                                 "near the cameras, leaf cards elsewhere (inferred look)"},
+    "succulent_shrub": {"source": {"polyhaven": "othonna_cerarioides", "sapling": None}, "crown": "shrub",
+                        "shape": None, "colour": (0.26, 0.36, 0.20), "overshoot": 1.0, "leaf": "broadleaf", "levels": 1,
+                        "width_factor": 1.0, "card_scale": 0.5, "library": False,
+                        "note": "a low succulent shrub of a dry gravel garden (ground cover): the Poly Haven Othonna "
+                                "scan near the cameras, leaf cards elsewhere (inferred look)"},
     # hedges (leaf-card volumes; the Poly Haven library has no hedge model)
     "boxwood": {"source": {"polyhaven": None, "sapling": None}, "crown": "hedge", "shape": None,
                 "colour": (0.14, 0.30, 0.10), "overshoot": 1.0, "leaf": "broadleaf", "levels": 0, "width_factor": 1.0,
@@ -1436,6 +1448,8 @@ def library_plant(species: str, levers: Optional[dict] = None) -> Optional[dict]
     (or ``WENART_SITE_LIBRARY=off``) turns it off."""
     if (levers or {}).get("library") is False or \
             str(os.environ.get("WENART_SITE_LIBRARY") or "").strip().lower() in ("off", "0", "no", "false"):
+        return None
+    if species_record(species).get("library") is False:     # 1 Nov 2026: a species built from its own scan only
         return None
     from wenart.blender import site_models as SM
     if "extras" not in _LIBRARY:

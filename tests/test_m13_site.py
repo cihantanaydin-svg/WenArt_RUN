@@ -324,8 +324,11 @@ def test_site_plan_of_real04_carries_hedges_platforms_species_and_the_levers(mon
     assert [h["id"] for h in sp["hedges"]] == ["hedge_001", "hedge_002", "hedge_003", "hedge_004"]
     # 28 Oct 2026 (user on real04: bare concrete boxes stacked like stairs): the 19 drawn trees and the inferred shrubs
     # of the planted terrace tiers (grading.tier_plants), every one on a band or a bank of its platform
-    drawn = [t for t in sp["trees"] if t.get("source") != "planting_bed"]
+    # 1 Nov 2026 (UL248, UL249): the landscape's plants (wenart.blender.landscape) come on top, every one inferred
+    drawn = [t for t in sp["trees"] if t.get("source") not in ("planting_bed", "landscape")]
     planted = [t for t in sp["trees"] if t.get("source") == "planting_bed"]
+    landscape = [t for t in sp["trees"] if t.get("source") == "landscape"]
+    assert landscape and all(t["inferred"] and t.get("reason") for t in landscape)
     assert len(drawn) == 19 and sp["climate"]["climate"] == "mediterranean"
     assert planted and all(t["kind"] == "plant" and t["inferred"] and "planted" in t["reason"] for t in planted)
     assert all(t["parent"] in {p["id"] for p in sp["platforms"]} for t in planted)
@@ -1359,7 +1362,9 @@ def test_p3_trees_shrubs_and_hedges_stand_on_the_terrace_they_are_drawn_on(monke
                    and G.point_in_polygon(tuple(t["center"]), p["polygon"])), None)
         if pf is not None:
             on_band += 1
-            assert S.tree_parts(t, real)["ground_z"] == pytest.approx(pf["z"]), t["id"]
+            # 1 Nov 2026 (UL249): a plant in a planter on the terrace stands on the planter's soil (its own ``z``)
+            want = float(t["z"]) if isinstance(t.get("z"), (int, float)) else pf["z"]
+            assert S.tree_parts(t, real)["ground_z"] == pytest.approx(want), t["id"]
     assert on_band >= 1          # 25 Oct 2026: fewer bands since the terraces take their floor level
     # the camera model's obstacles stand where build_site builds them: every segment of hedge_003 (its fitted polyline)
     # tops out at sp_001's level + its height (the raw terrain gave -2.72 / -2.37 m tops there)
@@ -1730,8 +1735,9 @@ def test_p3_real04_tree_symbols_are_shrubs_by_their_drawn_crown(monkeypatch):
     symbols = [d for d in b["site"]["decor"] if d.get("kind") == "tree"]
     assert len(symbols) == 100 and {tuple(t["size"]) for t in symbols} == {(0.718, 0.718)}
     prep = _real04_prep(monkeypatch)
-    # 28 Oct 2026: the inferred shrubs of the planted terrace tiers (grading.tier_plants) are no drawn symbols
-    singles = [t for t in prep["site"]["trees"] if t.get("source") != "planting_bed"]
+    # 28 Oct 2026: the inferred shrubs of the planted terrace tiers (grading.tier_plants) are no drawn symbols; nor are
+    # the landscape's plants (1 Nov 2026, UL248, UL249)
+    singles = [t for t in prep["site"]["trees"] if t.get("source") not in ("planting_bed", "landscape")]
     hedges = prep["site"]["hedges"]
     assert len(hedges) == 4 and len(singles) + sum(len(h["symbol_ids"]) for h in hedges) == 100
     assert S.tree_height(0.718 / 2.0) == (pytest.approx(0.862), "shrub")

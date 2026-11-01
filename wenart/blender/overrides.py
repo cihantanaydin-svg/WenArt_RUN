@@ -270,6 +270,15 @@ def apply_looks(looks: Optional[dict], materials: dict) -> tuple[Optional[dict],
         target = "garden" if slot == "ground" else slot
         if slot not in LOOK_SLOTS:
             continue
+        if target == "garden":
+            # 1 Nov 2026 (lesson UL248): an override stored before the rule (real04's ground paving_stone) never paves
+            # the terrain: the garden keeps its soft look, the refusal is listed
+            from wenart.blender import landscape as LS
+            why = LS.ground_look_problems(target, look_id)
+            if why:
+                applied.append({"slot": target, "look_id": look_id, "was": (looks.get(target) or {}).get("material"),
+                                "target": "looks", "refused": why[0]})
+                continue
         before = looks.get(target) or {}
         was = before.get("material")
         entry = look_entry(look_id)

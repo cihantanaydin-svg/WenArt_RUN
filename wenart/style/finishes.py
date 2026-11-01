@@ -234,6 +234,9 @@ MATERIALS: dict[str, dict] = {
     "asphalt": _proc(None, "ground", [0.055, 0.055, 0.06], 0.92, colourable=False),
     "grass": _tex(ACG, "Grass004", "ground", _lin("olive", "dark"), 0.95, [1.4, 1.4], flat_source="estimated:dark olive"),
     "decking": _tex(PH, "synthetic_wood", "wood", [0.17, 0.078, 0.04], 0.65, [2.0, 2.0]),
+    # 1 Nov 2026 (lessons UL248, UL249): the landscape's boulders (Poly Haven "Rock Boulder Dry", CC0; checked on the API
+    # with its mean colour measured, asset_checks_m10.json)
+    "rock_boulder": _tex(PH, "rock_boulder_dry", "stone", [0.396, 0.335, 0.268], 0.85, [1.8, 1.8]),
     # ---- decor pots ---------------------------------------------------------------------------------------------------
     "rattan": _tex(ACG, "Wicker005", "organic", _lin("coffee"), 0.8, [0.2, 0.2], flat_source="estimated:coffee"),
 }

@@ -6,8 +6,8 @@
 #
 # What: for every site variant of WENART_SITE_VARIANT (wenart/blender/site.py site_levers: base = every lever off (the
 # Milestone 12 site layout; its trees are still leaf-card shrubs at the crown-class height, never a primitive),
-# hedge, instances, sapling, platforms, pools, sky = one lever on, all = everything on) the 3 fixed exterior views of
-# real04 (ext_1 corner, ext_5 aerial, ext_7 site view: searched, no camera records are committed) and of real02 (ext_1,
+# hedge, instances, sapling, platforms, pools, sky, landscape = one lever on, all = everything on) the 3 fixed exterior
+# views of real04 (ext_1 corner, ext_5 aerial, ext_7 site view: searched, no camera records are committed) and of real02 (ext_1,
 # ext_5, ext_6 replayed from the committed Milestone 11 scene manifest with WENART_CAMERAS_FROM) are built from the
 # committed baseline building (results/furniture/<p>/building_final.json through wenart.run.ab m13-prepare) and
 # rendered at AB_SAMPLES (128) into outputs/<p>/ab_m13/site/<variant>/; the render manifest (seconds, EV, VRAM per
@@ -26,7 +26,7 @@
 # AB_VARIANT_EST_S (default 240 s per project and variant); the pod_entry.sh watchdog stops the pod at MAX_RUNTIME_S
 # whatever happens here. Idempotent: outputs and renders live on the volume.
 #
-# Env: AB_PROJECTS (default "real04 real02"), AB_VARIANTS (default all eight), AB_SAMPLES (128), AB_RES (1920x1080),
+# Env: AB_PROJECTS (default "real04 real02"), AB_VARIANTS (default all nine), AB_SAMPLES (128), AB_RES (1920x1080),
 #      AB_VARIANT_EST_S (240), AB_GPU_TESTS (1 = run tests/gpu/test_m13_site.py at the end), AB_BASELINE_DIR (default
 #      results/renders/{name}: the committed baseline files of real02; real04 has none), WENART_LICENCE_MODE (unset =
 #      the project brief), WENART_ASSETS (/workspace/assets), SITE_AB_VIEWS_<project> (the camera names, comma
@@ -53,7 +53,7 @@ RES="${AB_RES:-1920x1080}"
 EST_S="${AB_VARIANT_EST_S:-240}"
 BASELINE_DIR="${AB_BASELINE_DIR:-$REPO/results/renders/{name}}"
 read -r -a PROJECTS <<< "${AB_PROJECTS:-real04 real02}"
-read -r -a VARIANTS <<< "${AB_VARIANTS:-base hedge instances sapling platforms pools sky all}"
+read -r -a VARIANTS <<< "${AB_VARIANTS:-base hedge instances sapling platforms pools sky landscape all}"
 AB_OUT=$RESULTS/ab_m13/site
 FAILED=()
 SKIPPED=()

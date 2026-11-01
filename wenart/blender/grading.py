@@ -132,6 +132,10 @@ RULES = {
     "G15": "the outdoor walk: from the street and every outside door a person reaches every outdoor area along the "
            "designated paths; every flight lands on a walkable surface at both ends, every path arrives somewhere, "
            "no step or drop at a joint",
+    # 1 Nov 2026 (lessons UL248, UL249, user on real04: "too plain front of the house", "Outside areas needs a touch up";
+    # wenart.blender.landscape)
+    "G16": "the landscape: the terrain is never paved, every bank is planted (terraced when steeper than 1:2), nothing "
+           "of the planting stands in a walkway, a paved area meets the lawn with a border band",
 }
 CONCRETE_SLUGS = ("concrete_exposed", "concrete", "concrete_polished")
 
