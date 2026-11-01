@@ -82,6 +82,16 @@
    "user": "Don't use this table",
    "where": "real04 run 20261031-194116-full, r_L1_oyun_aktivite_ve_dinlenme_odasi (f_L1_023)",
    "reason": "the user rejected it on the render: a black chalkboard top with chess and scribble prints on turned legs"
+  },
+  {
+   "id": "objaverse_c408586d8c1547448c4ff47abb4fb981",
+   "type": "decor_candle",
+   "title": "Candle",
+   "date": "2026-11-01",
+   "lesson": "UL239",
+   "user": "don't use this decor",
+   "where": "real04 run 20261031-194116-full, r_L-1_salon (dec_L-1_044) and r_L0_yatak_odasi (dec_L0_007)",
+   "reason": "the user rejected it on the render: a crude single candle on a small brass dish"
   }
  ]
 }
