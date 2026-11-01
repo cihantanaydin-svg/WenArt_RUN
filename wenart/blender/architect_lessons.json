@@ -2817,7 +2817,7 @@
    "id": "UL237",
    "date": "2026-11-01",
    "area": "library",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2853,7 +2853,7 @@
    "id": "UL240",
    "date": "2026-11-01",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2925,7 +2925,7 @@
    "id": "UL246",
    "date": "2026-11-01",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],

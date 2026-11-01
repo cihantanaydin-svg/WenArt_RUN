@@ -4328,7 +4328,8 @@ def median_size(pieces: list[dict]) -> list[float]:
 
 
 PROJECT_FIT_KEYS = ("licence_mode", "licence_mode_source", "size_snap", "taste",
-                    "fridge_rule")        # 31 Oct 2026: the fridge rule's findings and fixes (fridge_rule)
+                    "fridge_rule",        # 31 Oct 2026: the fridge rule's findings and fixes (fridge_rule)
+                    "late_tvs")           # 1 Nov 2026 (UL240): the TVs the refit added to late TV units
 SNAP_PIECE_KEYS = ("size_snap", "adjusted_by_ai", "footprint", "height") + tuple(k for k, _ in DRAWN_KEYS)
 
 
@@ -4376,6 +4377,16 @@ def assert_only_assets_changed(before: dict, after: dict) -> None:
             for key in SNAP_PIECE_KEYS:
                 piece_a.pop(key, None)
                 piece_b.pop(key, None)
+    # 1 Nov 2026 (UL240): the refit adds the TV of a TV unit that came after the decor stage (``tvs_for_bare_units``):
+    # those TVs (their reason names the rule) and the items they cleared off the unit's top are the fit's own changes
+    late = {r.get("id") for r in ((b.get("project") or {}).get("late_tvs") or [])}
+    if late:
+        b["decor"] = [d for d in b.get("decor") or [] if d.get("id") not in late]
+        cleared = {d.get("id") for d in b.get("decor_dropped") or [] if "UL240" in str(d.get("reason") or "")}
+        a["decor"] = [d for d in a.get("decor") or [] if d.get("id") not in cleared]
+        b["decor_dropped"] = [d for d in b.get("decor_dropped") or [] if "UL240" not in str(d.get("reason") or "")]
+        if not b["decor_dropped"] and "decor_dropped" not in a:
+            b.pop("decor_dropped")
     for doc in (a, b):
         for piece in doc.get("furniture", []):
             piece.pop("asset", None)

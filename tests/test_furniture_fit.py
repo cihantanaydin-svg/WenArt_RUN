@@ -451,7 +451,9 @@ def test_plants_get_a_library_model_and_cushions_stay_parametric(catalog):
     ]
     fitted = F.fit_building(building, catalog)
     F.assert_only_assets_changed(building, fitted)
-    plant, cushion = fitted["decor"]
+    # 1 Nov 2026 (UL240): the synthetic house's TV unit holds no TV, so the refit adds one (a decor of its own)
+    plant, cushion = [d for d in fitted["decor"] if d["type"] in ("plant", "cushion")]
+    assert [d["type"] for d in fitted["decor"] if d["type"] not in ("plant", "cushion")] in ([], ["tv"])
     assert plant["asset"]["method"] == "library" and plant["asset"]["asset_id"].startswith("potted_plant")
     assert plant["asset"]["licence"] == "CC0" and plant["asset"]["gltf"].endswith(".gltf")
     assert plant["asset"]["bbox_m"][:2] == [0.4, 0.4] and plant["asset"]["target"] == "size"
