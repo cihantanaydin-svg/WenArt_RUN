@@ -1513,6 +1513,17 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
 
     BG.dress_beds(out, style, new_id)
     twin_notes += mirror_to_twins(out, before_rd, targets, new_id)      # the details and the beds' sets
+    # 1 Nov 2026 (lesson UL238: "consider the sizes and the final look ... realistic looking pillows"): every seat's
+    # cushions arranged for its shape, sized to it, its own set (wenart.furniture.seat_cushions; after the twins'
+    # copies: each twin seat its own); its record: out["seat_cushions"]
+    from wenart.furniture import seat_cushions as SC
+
+    try:
+        _out, seat_notes = SC.dress_seats(out, style, new_id, quiet=set(targets))
+        twin_notes += seat_notes
+    except Exception as exc:  # noqa: BLE001 - one helper's failure never ends the decor stage
+        why = f"seat cushions failed: {type(exc).__name__}: {exc}"[:240]
+        out["warnings"] = list(out.get("warnings") or []) + [why]
     present = {d.get("id") for d in out["decor"]}
     for rec in records:                            # a TV hung on the wall leaves its unit's top items
         rec.items = [i for i in rec.items if i.get("id") in present or not i.get("id")]
@@ -1561,6 +1572,18 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             record_of(row["room_id"]).notes.append(f"{row['room_id']}: {row['type']} {row['id']} {how} (UL134/UL139: "
                                                    f"{row['kind']} {row['other']})")
     out["wall_items"] = {k: v for k, v in cleared.items() if k != "furniture"}
+    # 1 Nov 2026 (lesson UL238): an item on a coffee table, a side table or a nightstand never stands where a seat or a
+    # bed covers that top (moved on the top, else left out; wenart.furniture.tabletop.clear_of_seats)
+    tops = TT.clear_of_seats(out)
+    present = {d.get("id") for d in out["decor"]}
+    for rec in records:
+        rec.items = [i for i in rec.items if i.get("id") in present or not i.get("id")]
+    for row in tops["moved"] + tops["dropped"]:
+        if row.get("room_id") in room_ids:
+            how = "left out" if row in tops["dropped"] else "moved"
+            record_of(row["room_id"]).notes.append(f"{row['room_id']}: {row['type']} {row['id']} {how} "
+                                                   f"({row['reason']})")
+    out["tops_cleared"] = tops
     D.attach_host_frames(out)                     # Milestone 12 (§4.7): every item in its host's frame
     return out, records
 

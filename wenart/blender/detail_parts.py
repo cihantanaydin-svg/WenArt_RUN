@@ -590,6 +590,9 @@ def variant_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict]
         return track_parts(w, d, h)
     if dtype == "tv" and ((it.get("tv") or {}).get("mount") == "wall"):
         return wall_tv_parts(w, d, h)
+    if dtype == "cushion" and isinstance(it.get("cushion_set"), dict):
+        from wenart.blender import soft_sets as SS          # 1 Nov 2026 (UL238): a seat's cushion with its finish
+        return SS.seat_cushion_parts(w, d, h, it["cushion_set"])
     if dtype == "vase" and it.get("set") == "bedside":
         from wenart.blender import bedding_parts as BP      # 29 Oct 2026 (UL121, R36): the nightstand's decor set
         return BP.bedside_set_parts(w, d, h, it)

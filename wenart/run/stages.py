@@ -239,6 +239,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/fridge_rule.py",            # 31 Oct 2026: modules / fit -> the fridge rule
              "wenart/blender/detail_parts.py",           # 29 Oct 2026: parametric's reference-detail parts (UL119)
              "wenart/blender/bedding_parts.py",          # 29 Oct 2026: detail_parts -> the nightstand set (UL121)
+             "wenart/blender/soft_sets.py",              # 1 Nov 2026: textiles / detail_parts -> the sets (UL236, UL238)
              "wenart/blender/wardrobe_contents.py",      # 30 Oct 2026: modules -> the wardrobe's contents (UL135)
              "wenart/blender/salon_parts.py",            # 30 Oct 2026: detail_parts -> the P16 salon parts (UL153)
              # 30 Oct 2026: the books (UL154), the holdall (UL160), the desk's stationery (UL164), the bathroom's
@@ -279,7 +280,9 @@ DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/mugs.py", "wenart/f
               # 29 Oct 2026 (UL121): the beds' family sets, the drum nightstands' decor set
               "wenart/furniture/bedding.py",
               # 30 Oct 2026 (UL153, photo P16): the living-dining room's details by family
-              "wenart/furniture/salon_details.py") \
+              "wenart/furniture/salon_details.py",
+              # 1 Nov 2026 (UL238): the seats' cushion sets
+              "wenart/furniture/seat_cushions.py") \
     + LEVELS_CODE + GROUPS_CODE                  # M11: infer/plausibility; M12: levels (ingest), groups (G); 28 Oct
 #                                                  2026: the set tables and styled tops, the ceiling lights
 DECOR_ANSWERS = "decor_ai_answers.json"

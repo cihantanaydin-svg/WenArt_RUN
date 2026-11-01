@@ -102,6 +102,18 @@ the item is not built with the reason. The Argus critical S5 of run 20261029-201
 (4.9 cm in the bed f_L0_007) was the 28 Oct run's (an inspector record never rewritten; ``wenart.agent.inspector``):
 the cause of that run, S5 measured on the lean caster without the duvet, was fixed on 28 Oct (item (4) above), and
 ``plan_decor``'s S5 and the scene check's S5 measure on the same caster (the bed and its dressing).
+
+1 Nov 2026 (lesson UL238; user on real04 run 20261031-194116-full: "This pillow going over the sofa ... consider the
+sizes and the final look"): on a low lounge sofa (its back 11 cm over the seat) the back rays found no back (a back
+rises ``BACK_MIN_RISE_M`` over the seat), the cushion went to the footprint's back edge and the seat measured again
+there was the back's top: the 44 cm cushion stood on the back, its top far over it. Now (1) a back too low for the
+rays is found along the seat's profile (``seat_profile``: rays down from the front, the rise of ``LOW_BACK_RISE_M``)
+and the cushion leans on it; (2) a seat measured again under the item is never higher than the first probe by more
+than ``SEAT_MAX_RISE_M`` (the back's top or an arm: a cushion never stands on the back); (3) every seat pose records
+how far its top stands over the back's top (``back_top_at``) and ``plan_decor`` keeps it within ``SEAT_OVER_M`` (or
+``SEAT_OVER_SHARE`` of the cushion's height): steeper leans, then the cushion sized down (``SEAT_SCALES``, never
+under ``SEAT_MIN_H_M``). ``clash_with``: an item on a top never stands inside another built piece (a tray under a
+sofa's seat). ``pose_vertices(ref=)``: a cushion's trim (piping, buttons) moves with its body.
 """
 from __future__ import annotations
 
@@ -519,13 +531,16 @@ def grid_points(center, size, rotation_deg: float, n: int = GRID, spread: float 
     return [to_world(center, rotation_deg, a * w, b * d) for b in offs for a in offs]
 
 
-def pose_vertices(verts: Sequence[Sequence[float]], pose: dict) -> list[tuple[float, float, float]]:
+def pose_vertices(verts: Sequence[Sequence[float]], pose: dict,
+                  ref: Optional[Sequence[Sequence[float]]] = None) -> list[tuple[float, float, float]]:
     """Item-local vertices (bottom at z = 0, front -Y) placed by ``pose``: lean about local X (top towards +Y),
-    lifted so the lowest point stays on z = 0, turned by ``rotation_deg`` and moved to ``center`` / ``z``."""
+    lifted so the lowest point stays on z = 0, turned by ``rotation_deg`` and moved to ``center`` / ``z``. 1 Nov 2026
+    (UL236): ``ref`` (the body's vertices) gives the lift, so a cushion's trim (piping, buttons) moves with its body."""
     a = math.radians(float(pose.get("lean_deg") or 0.0))
     ca, sa = math.cos(a), math.sin(a)
     leaned = [(x, y * ca + z * sa, -y * sa + z * ca) for x, y, z in verts]
-    lift = -min((p[2] for p in leaned), default=0.0)
+    src = leaned if ref is None else [(x, y * ca + z * sa, -y * sa + z * ca) for x, y, z in ref]
+    lift = -min((p[2] for p in src), default=0.0)
     cx, cy = float(pose["center"][0]), float(pose["center"][1])
     z0 = float(pose["z"])
     r = math.radians(float(pose.get("rotation_deg") or 0.0))
@@ -685,6 +700,53 @@ def bed_head(caster, host_fp: dict, lx: float, w: float, seat: float, face_y: fl
             "rule": "bedding.ul137"}
 
 
+LOW_BACK_RISE_M = 0.06            # 1 Nov 2026 (UL238): a seat's back rises at least this over it (a low lounge back)
+PROFILE_STEP_M = 0.02
+SEAT_MAX_RISE_M = 0.05            # a seat measured again under the item stays within this over the first probe ...
+SEAT_RUN_TOL_M = 0.07             # ... and the seat's run is within this of it
+
+
+def seat_profile(caster, host_fp: dict, lx: float, seat_z: float) -> Optional[dict]:
+    """1 Nov 2026 (lesson UL238: a cushion stood on the back of a low sofa, its top far over it): the seat and its back
+    along the depth at host-local ``lx`` (pure; rays down every ``PROFILE_STEP_M`` from the front): the seat's run (hits
+    within ``SEAT_RUN_TOL_M`` of ``seat_z``), then the back where the top rises ``LOW_BACK_RISE_M`` over the seat on two
+    samples in a row. ``{"face_y" (host-local, the back's front), "back_top_z" (its highest point behind), "rise",
+    "seat_front_y"}`` or None (no seat or no back along the line)."""
+    hc, hd, rot = host_fp["center"], float(host_fp["size"][1]), float(host_fp["rotation_deg"])
+    top = host_top(caster) + TOP_ABOVE_M
+    ys = np.arange(-hd / 2.0 - 0.02, hd / 2.0 + 1e-9, PROFILE_STEP_M)
+    zs = _down_hits(caster, [to_world(hc, rot, float(lx), float(y)) for y in ys], top)
+    front = None
+    for k, (y, z) in enumerate(zip(ys, zs)):
+        if z is None:
+            if front is not None:
+                break
+            continue
+        if front is None:
+            if abs(z - float(seat_z)) <= SEAT_RUN_TOL_M:
+                front = float(y)
+            continue
+        nxt = zs[k + 1] if k + 1 < len(zs) else None
+        if z >= float(seat_z) + LOW_BACK_RISE_M and nxt is not None and nxt >= float(seat_z) + LOW_BACK_RISE_M:
+            behind = [v for v in zs[k:] if v is not None]
+            back_top = max(behind)
+            return {"face_y": round(float(y) - PROFILE_STEP_M / 2.0, 4), "back_top_z": round(float(back_top), 4),
+                    "rise": round(float(back_top) - float(seat_z), 4), "seat_front_y": round(front, 4)}
+    return None
+
+
+def back_top_at(caster, host_fp: dict, lx: float, y_from: float) -> Optional[float]:
+    """The highest point of a seat's back behind host-local ``(lx, y_from)`` (pure; rays down every
+    ``PROFILE_STEP_M`` to the footprint's back edge), None without a hit."""
+    hc, hd, rot = host_fp["center"], float(host_fp["size"][1]), float(host_fp["rotation_deg"])
+    top = host_top(caster) + TOP_ABOVE_M
+    ys = np.arange(float(y_from), hd / 2.0 + 1e-9, PROFILE_STEP_M)
+    if not len(ys):
+        return None
+    zs = [z for z in _down_hits(caster, [to_world(hc, rot, float(lx), float(y)) for y in ys], top) if z is not None]
+    return max(zs) if zs else None
+
+
 def back_face_offset(t: float, s: float, lean_deg: float) -> tuple[float, float]:
     """``(y, z)`` of the back face of a box of thickness ``t`` leaning ``lean_deg`` (top towards +Y) at the height
     parameter ``s`` along the face, in the item frame (origin at the un-leaned bottom centre, lifted onto z = 0)."""
@@ -778,16 +840,32 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
                 backs = []                    # P4b / 27 Oct 2026: a "headboard" that leaves the item out of the head zone
             if stand and not backs:
                 return None                   # 29 Oct 2026: nothing to stand against (the lean follows)
+            low = None
+            if not backs and not bed:
+                # 1 Nov 2026 (lesson UL238): a back too low for the back rays (it rises less than BACK_MIN_RISE_M
+                # over the seat) is found along the seat's profile; the cushion leans on it, its base on the seat
+                low = seat_profile(caster, host_fp, lx, seat_probe)
+                if low is not None:
+                    s_top = min(h, max(0.03, float(low["rise"]) / max(math.cos(math.radians(lean_deg)), 0.2)))
+                    cy_local = float(low["face_y"]) - back_face_offset(t, s_top, lean_deg)[0]
+                    backs = [(float(low["face_y"]), s_top)]
+                    what = (f"a low back found along the seat (it rises {float(low['rise']):.2f} m over the seat): "
+                            "leaning on it, its base on the seat")
             if not backs:
                 # 30 Oct 2026 (UL136): on a bed its top end reaches the head edge (a pillow lying 14 degrees off flat
                 # with its middle there poked 0.2 m past the bed's head: into the wall, the gap or the headboard)
                 cy_local = hd / 2.0 - back_face_offset(t, h if bed else h * 0.5, lean_deg)[0]
                 what = "no backrest hit: against the footprint's back edge (the wall)"
-            # the seat under the item's spot (soft: median of the grid over its middle: never an arm's top)
+            # the seat under the item's spot (soft: median of the grid over its middle: never an arm's top); 1 Nov 2026
+            # (UL238): on a seat never higher than the first probe by more than SEAT_MAX_RISE_M (that is the back's
+            # top or an arm: a cushion never stands on the back)
             foot = (min(w * 0.5, 0.2), max(t, 0.05))
             sup = support_height(caster, to_world(hc, rot, lx, cy_local - t * 0.25), foot, rot_item, True, top)
-            if sup["z"] is not None:
+            if sup["z"] is not None and (bed or float(sup["z"]) <= seat_probe + SEAT_MAX_RISE_M + 1e-9):
                 seat = sup["z"]
+            elif sup["z"] is not None:
+                seat = seat_probe
+                what += f"; its base kept on the seat ({float(sup['z']) - seat_probe:.2f} m under the top found there)"
             how = [what]
             backs_found = backs
         # 2. arms: rays to both sides at two heights of the item (the nearest hit counts)
@@ -847,6 +925,14 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
            "size": [w, t, h], "how": "; ".join(how), "support": "back", "seat_z": float(seat)}
     if bed:
         out["top_support_share"] = held
+    else:
+        # 1 Nov 2026 (UL238): how far the cushion's top stands over the back's top behind it (plan_decor keeps it
+        # within soft_sets.allowance: a little over the back, never far above it)
+        back_top = back_top_at(caster, host_fp, lx, cy_local)
+        if back_top is not None:
+            a = math.radians(float(lean_deg))
+            item_top = float(seat) - SOFT_SINK_M + h * math.cos(a) + t * math.sin(a)
+            out.update(back_top_z=round(float(back_top), 4), top_over_back_m=round(item_top - float(back_top), 4))
     if head is not None:
         out["head"] = head
     return out
@@ -1160,6 +1246,10 @@ def stand_modes(support: str) -> tuple[bool, ...]:
     return (True, False) if support == "headboard" else (False,)
 
 
+SEAT_SCALES: tuple[float, ...] = (1.0, 0.88, 0.76, 0.64, 0.52)   # 1 Nov 2026 (UL238): a seat's cushion sized down ...
+SEAT_MIN_H_M = 0.22               # ... never under this height
+SEAT_OVER_M = 0.12                # = soft_sets.BACK_OVER_M: its top at most this over the back's top ...
+SEAT_OVER_SHARE = 0.35            # ... or this share of its height (= soft_sets.BACK_OVER_SHARE)
 SOFT_DECOR: tuple[str, ...] = ("cushion", "throw")      # the median of the ray grid, not the highest hit
 SOFT_HOST_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bed_single",
                                     "bed_double", "bunk_bed", "crib")
@@ -1259,41 +1349,65 @@ def plan_decor(item: dict, host: dict, caster, local_verts, local_faces, support
 
     first_why = None
     seen = set()
-    for attempt in range(attempts):
-        for b, back in enumerate(backs):
-            for stand in stand_modes(support):
-                for lean in leans:
-                    pose = place_item(support, caster, host_fp, center, (w, d, h), rot, soft_item, lean, shelf,
-                                      attempt, back_caster=back, stand=stand, max_top_z=max_top_z)
-                    if pose is None:
-                        if not stand:
-                            last = {"reason": f"no {support} found on the built host (attempt {attempt + 1})",
-                                    "measured": None}
-                        break
-                    key = (b, round(float(pose["center"][0]), 4), round(float(pose["center"][1]), 4),
-                           round(float(pose["z"]), 4), float(pose["lean_deg"]), round(float(pose["size"][0]), 4))
-                    if key in seen:
-                        continue                  # 29 Oct 2026: the stand found the lean's pose (measured already)
-                    seen.add(key)
-                    if sink:
-                        pose = dict(pose, z=float(pose["z"]) - sink, sink_m=sink)        # into the soft seat
-                    verts = local_verts
-                    if pose["size"][0] < w - 1e-9:                       # narrowed between the arms
-                        k = pose["size"][0] / w
-                        verts = [(x * k, y, z) for x, y, z in local_verts]
-                    if leaning:
-                        pose = settled(pose, verts, back)
-                    world, foot, m = measured(pose, verts)
-                    ok, why = rest_ok(m)
-                    over = under_slope(world, max_top_z)
-                    if over is not None:                  # 30 Oct 2026 (UL128): never through the sloped ceiling
-                        ok, why = False, why + [over]
-                    if ok:
-                        return {"verts": world, "faces": [list(f) for f in local_faces], "pose": pose, "rest": m,
-                                "footprint": foot, "attempt": attempt + 1}
-                    if first_why is None:
-                        first_why = (f"at {lean:g} degrees: " if leaning else "") + "; ".join(why)
-                    last = {"reason": "; ".join(why), "measured": m}
+    # 1 Nov 2026 (lesson UL238: a cushion's top far over a low sofa's back): a cushion on a seat's back keeps its top
+    # within ``soft_sets.allowance`` over the back's top (the leans of ``leans``, then smaller: ``SEAT_SCALES``)
+    seat_back = leaning and not bed and soft_item
+    base_verts, h0 = local_verts, h
+    for scale in (SEAT_SCALES if seat_back else (1.0,)):
+        if scale < 1.0:
+            if h0 * scale < SEAT_MIN_H_M - 1e-9:
+                break
+            local_verts = [(x * scale, y * scale, z * scale) for x, y, z in base_verts]
+            w, d, h = local_bounds(local_verts)
+            seen = set()
+        for attempt in range(attempts):
+            for b, back in enumerate(backs):
+                for stand in stand_modes(support):
+                    for lean in leans:
+                        pose = place_item(support, caster, host_fp, center, (w, d, h), rot, soft_item, lean, shelf,
+                                          attempt, back_caster=back, stand=stand, max_top_z=max_top_z)
+                        if pose is None:
+                            if not stand:
+                                last = {"reason": f"no {support} found on the built host (attempt {attempt + 1})",
+                                        "measured": None}
+                            break
+                        key = (b, round(float(pose["center"][0]), 4), round(float(pose["center"][1]), 4),
+                               round(float(pose["z"]), 4), float(pose["lean_deg"]), round(float(pose["size"][0]), 4))
+                        if key in seen:
+                            continue              # 29 Oct 2026: the stand found the lean's pose (measured already)
+                        seen.add(key)
+                        if seat_back and pose.get("top_over_back_m") is not None:
+                            allow = max(SEAT_OVER_M, SEAT_OVER_SHARE * h)
+                            if float(pose["top_over_back_m"]) > allow + 1e-9:
+                                hi = (f"its top stands {float(pose['top_over_back_m']):.2f} m over the back's top (at "
+                                      f"most {allow:.2f} m, UL238)")
+                                if first_why is None:
+                                    first_why = f"at {lean:g} degrees: {hi}"
+                                last = {"reason": hi, "measured": None}
+                                continue
+                        if sink:
+                            pose = dict(pose, z=float(pose["z"]) - sink, sink_m=sink)        # into the soft seat
+                        verts = local_verts
+                        if pose["size"][0] < w - 1e-9:                       # narrowed between the arms
+                            k = pose["size"][0] / w
+                            verts = [(x * k, y, z) for x, y, z in local_verts]
+                        if leaning:
+                            pose = settled(pose, verts, back)
+                        world, foot, m = measured(pose, verts)
+                        ok, why = rest_ok(m)
+                        over = under_slope(world, max_top_z)
+                        if over is not None:              # 30 Oct 2026 (UL128): never through the sloped ceiling
+                            ok, why = False, why + [over]
+                        if ok:
+                            if scale < 1.0:
+                                pose = dict(pose, scaled=round(scale, 3),
+                                            how=f"{pose.get('how')}; sized down to {h:.2f} m so its top stays near "
+                                                f"the back's top (UL238)")
+                            return {"verts": world, "faces": [list(f) for f in local_faces], "pose": pose, "rest": m,
+                                    "footprint": foot, "attempt": attempt + 1}
+                        if first_why is None:
+                            first_why = (f"at {lean:g} degrees: " if leaning else "") + "; ".join(why)
+                        last = {"reason": "; ".join(why), "measured": m}
     reason = last["reason"]
     if leaning and first_why is not None:
         reason = f"{first_why} (leans {', '.join(f'{a:g}' for a in leans)} degrees tried; last: {last['reason']})"
@@ -1386,6 +1500,35 @@ def plan_seat_throw(item: dict, host: dict, caster, floor_z: float, host_fp: dic
     return {"not_rested": {"id": item.get("id"), "type": "throw", "host_id": host.get("id"), "support": "drape",
                            "reason": "; ".join(last_why) + ("; the host shows through the cloth" if shows else ""),
                            "measured": last_m, "attempts": max(1, len(tried)), "tried": tried}}
+
+
+CLASH_TOL_M = 0.01                # 1 Nov 2026 (UL238): an item this deep in another built piece stands inside it ...
+CLASH_SHARE = 0.25                # ... when that piece's box holds at least this share of the item's plan
+
+
+def clash_with(world_verts, neighbours: Sequence[tuple]) -> Optional[tuple[str, float]]:
+    """``(piece id, depth)`` of the first other built piece a placed item stands inside (pure; 1 Nov 2026, lesson
+    UL238: a coffee table's tray lay on the corner sofa's seat: its rest was measured on its host alone):
+    ``neighbours`` = ``[(id, caster, (lo, hi) world bounds)]``; a piece whose bounds the item's box overlaps is tested
+    (``penetration``: the item's sample points inside it, ``CLASH_TOL_M``). None when it stands clear."""
+    arr = np.asarray(world_verts, dtype=np.float64).reshape(-1, 3)
+    if not len(arr):
+        return None
+    lo, hi = arr.min(axis=0), arr.max(axis=0)
+    area = max(1e-9, float((hi[0] - lo[0]) * (hi[1] - lo[1])))
+    for pid, caster, (blo, bhi) in neighbours:
+        blo, bhi = np.asarray(blo, dtype=np.float64), np.asarray(bhi, dtype=np.float64)
+        if caster is None or np.any(hi < blo - 1e-6) or np.any(lo > bhi + 1e-6):
+            continue
+        # a piece whose box holds a good share of the item's plan (a lamp at a nightstand's edge beside the bed's box
+        # is no clash; an open, double-sided mesh's parity is not trusted for a corner)
+        over = max(0.0, min(hi[0], bhi[0]) - max(lo[0], blo[0])) * max(0.0, min(hi[1], bhi[1]) - max(lo[1], blo[1]))
+        if over / area < CLASH_SHARE:
+            continue
+        depth = penetration(caster, arr.tolist())
+        if depth > CLASH_TOL_M:
+            return str(pid), round(float(depth), 4)
+    return None
 
 
 def under_slope(world_verts, max_top_z: Optional[float]) -> Optional[str]:

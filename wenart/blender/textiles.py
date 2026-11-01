@@ -48,6 +48,16 @@ the bed's head half (``rest.place_leaning(bed=True)``: a footboard or a duvet ro
 real03 laid oda_01's pillow at the foot and 7 of 10 beds got no bedding). The dressing record adds each pillow's
 local y (``pillow_local_y``, + = the head half) and ``head_problems`` (``bedding_head_problems``: a pillow or the
 duvet's head edge in the foot half), so the scene manifest shows a misplaced bedding.
+
+1 Nov 2026 (lesson UL236; user on real04 run 20261031-194116-full: "use better models better textures, more details and
+more variants, consider the size of the bedding"): ``bedding_set`` builds a bed's own variant (``soft_sets``): its
+arrangement (``soft_sets.expected``: up to three shams on a king, one on a single, up to three accents, four stacked
+pillows), its sizes by mattress class, each piece's finish (``soft_sets.cushion_parts``: a flange, piping, buttons,
+tassels; the trim placed with its body, ``placed_parts``), a quilted coverlet's stitching (``soft_sets.quilt_grid``),
+the duvet folded back over its head end or the top sheet's band; ``mode`` duvet: our duvet under the model's own
+pillows (no pillows of ours). A bed's throw takes its style (``styled_throw_parts``, ``STYLE_THROWS``: folded across
+the foot, a bed runner, a corner drape, a quilt folded at the foot; the P14 pair stays ``p14``): every one a cloth with
+its thickness and soft roll, never a flat printed sheet.
 """
 from __future__ import annotations
 
@@ -457,6 +467,94 @@ def p14_throw_parts(caster, host_fp: dict, item: dict, floor_z: float, sides: Op
     return out
 
 
+# 1 Nov 2026 (lesson UL236): a bed's throw styles (designer values): a blanket folded in three across the foot (a soft
+# roll over the edges, hanging down the free sides), a narrow bed runner (a woven pattern where the set has one), a
+# throw draped over one foot corner (down the foot and one side), a quilted coverlet folded at the foot (thick, its
+# diamond stitching); each a draped cover with its thickness (``drape_cover``), never a flat printed sheet
+STYLE_THROWS: dict[str, dict] = {
+    "foot_fold": {"depth_m": 0.62, "t_m": 0.022, "drop_m": 0.30, "round_m": 0.055, "wrinkle_m": 0.010},
+    "runner": {"depth_m": 0.48, "t_m": 0.012, "drop_m": 0.36, "round_m": 0.035, "wrinkle_m": 0.006},
+    "corner_drape": {"depth_m": 0.85, "t_m": 0.014, "drop_m": 0.42, "round_m": 0.040, "wrinkle_m": 0.014,
+                     "reach_m": 0.95},
+    "quilt_fold": {"depth_m": 0.55, "t_m": 0.035, "drop_m": 0.22, "round_m": 0.070, "wrinkle_m": 0.006,
+                   "quilt": "diamond", "pitch_m": 0.12, "quilt_depth_m": 0.005},
+}
+
+
+def styled_throw_parts(caster, host_fp: dict, item: dict, floor_z: float, sides: Optional[dict] = None
+                       ) -> Optional[dict]:
+    """A bed's throw in its style (``STYLE_THROWS``; 1 Nov 2026, lesson UL236): a cover draped from the bed's foot edge
+    ``depth_m`` along it (``drape_cover``: a smooth top, a soft roll of ``round_m`` over the edges, straight down to
+    ``drop_m`` under the top on the free sides and the foot), ``corner_drape`` held to one free side (``limits``: it
+    covers ``reach_m`` of the width from that side), ``quilt_fold`` stitched (``soft_sets.quilt_grid``); the cloth in
+    the throw's look (a woven pattern's key for a runner or a corner drape with a pattern: the item's colour, the accent
+    colour as its ink), its fringe down the hems of the free sides. ``throw_parts``'s record plus ``weave``; None when
+    no top is found or no side is free for a corner drape."""
+    from wenart.blender import bedding_parts as BP
+    from wenart.blender import soft_sets as SS
+
+    weave = item["weave"]
+    style = weave["style"]
+    p = STYLE_THROWS[style]
+    bw, bd = float(host_fp["size"][0]), float(host_fp["size"][1])
+    hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
+    sd = {s: dict((sides or {}).get(s) or {"free": True}) for s in BP.SIDES}
+    ends = list(weave.get("fringe_ends") or [])
+    limits = None
+    side = None
+    if style == "corner_drape":
+        side = next((s for s in ("right", "left") if sd[s].get("free", True)), None)
+        if side is None:
+            return None
+        other = "left" if side == "right" else "right"
+        sd[other]["free"] = False
+        reach = min(float(p["reach_m"]), bw - 0.2)
+        limits = {other: (bw / 2.0 - reach) if side == "right" else -(bw / 2.0 - reach)}
+        ends = [s for s in ends if s == side]
+    y1 = -bd / 2.0 + float(p["depth_m"])
+    cover = drape_cover(caster, host_fp, (-bd / 2.0 - 0.3, y1), floor_z, float(p["t_m"]), None, sd,
+                        float(p["wrinkle_m"]), limits=limits, drop=float(p["drop_m"]), round_m=float(p["round_m"]))
+    if cover is None:
+        return None
+    if p.get("quilt"):
+        gl = SS.quilt_grid(cover["grid_local"], cover["local"], cover["on_top"], cover["edges"], p["quilt"],
+                           p["pitch_m"], depth=float(p.get("quilt_depth_m") or SS.QUILT_DEPTH_M))
+        cover["grid_local"] = gl
+        cover["grid"] = BP.to_world_arr(hc, rot, gl.reshape(-1, 3)).reshape(gl.shape)
+    pattern = weave.get("pattern") if weave.get("pattern") in BP.PATTERN_SLUGS else None
+    look = weave.get("look") if weave.get("look") in BP.LOOK_SLUGS else (
+        "cotton" if style == "quilt_fold" else "knit")
+    if style == "quilt_fold" and look in ("chunky_knit", "knit", "wool"):
+        look = "cotton"                                # a quilted coverlet is a woven cotton
+    key = BP.textile_key(pattern) if (pattern and style in ("runner", "corner_drape")) else BP.textile_key(look)
+    parts = [BP.sheet_solid(cover["grid"], cover["thickness"], key, "throw", cover["normals"])]
+    strands = []
+    if weave.get("fringe") and style != "quilt_fold":
+        g = np.asarray(cover["grid_local"], dtype=np.float64)
+        step = BP.FRINGE_M / FRINGE_COLS
+        for s in ("left", "right"):
+            if s not in ends or not cover["split"][s]:
+                continue
+            base = g[0] if s == "left" else g[-1]
+            cols = np.stack([base + np.array([0.0, 0.0, -step * k]) for k in range(FRINGE_COLS + 1)], axis=0)
+            world = BP.to_world_arr(hc, rot, cols.reshape(-1, 3)).reshape(cols.shape)
+            part = BP.fringe_strands(world, key)
+            if part is not None:
+                strands.append(part)
+    e = cover["edges"]
+    rect = (float(e[0]), float(e[2]), float(e[1]), float(e[3]))
+    out = {"parts": parts + strands, "drape": cover, "rect": rect}
+    out["weave"] = {"style": style, "pattern": pattern if key != BP.textile_key(look) else None, "look": look,
+                    "fringe": bool(strands), "fringe_ends": ends if strands else [],
+                    "fringe_strands": int(sum(int(q.get("strands") or 0) for q in strands)),
+                    "thickness_m": p["t_m"], "drop_m": p["drop_m"], "side": side,
+                    "quilt": p.get("quilt"), "rule": weave.get("rule") or SS.RULE_BED,
+                    "variant": weave.get("variant"),
+                    "blanket_look": BP.cover_smoothness(cover["grid_local"], cover["local"], cover["on_top"],
+                                                        cover["edges"]) if not p.get("quilt") else None}
+    return out
+
+
 def woven_throw_parts(caster, host_fp: dict, item: dict, floor_z: float, kw: dict,
                       sides: Optional[dict] = None) -> Optional[dict]:
     """29 Oct 2026 (UL121, R35: "a fringed throw folded over the foot and a houndstooth blanket under it"): a throw
@@ -475,7 +573,13 @@ def woven_throw_parts(caster, host_fp: dict, item: dict, floor_z: float, kw: dic
     look = weave.get("runner_look") if weave.get("runner_look") in BP.LOOK_SLUGS else "knit"
     fringe = bool(weave.get("fringe"))
     ends = tuple(weave.get("fringe_ends") or ("left", "right"))
-    layered = int(item.get("layers") or 1) >= 2
+    # 1 Nov 2026 (lesson UL236: "the throw folded or draped in different ways ... never a flat printed sheet"): the
+    # bed's own throw style (``soft_sets.throw_weave``)
+    if weave.get("style") in STYLE_THROWS:
+        styled = styled_throw_parts(caster, host_fp, item, floor_z, sides)
+        if styled is not None:
+            return styled
+    layered = int(item.get("layers") or 1) >= 2 or weave.get("style") == "p14"
     if layered:
         p14 = p14_throw_parts(caster, host_fp, item, floor_z, sides)
         if p14 is not None:
@@ -621,32 +725,45 @@ def _lean_pose(caster, host_fp: dict, planned, size, lean_deg: float, stand: boo
 
 
 def euro_shams(caster, host_fp: dict, count: int = 2, size: Optional[Sequence[float]] = None, key: str = "bedding",
-               mesh_fn=None, colour: Optional[str] = None, stand: bool = False) -> Optional[dict]:
+               mesh_fn=None, colour: Optional[str] = None, stand: bool = False, trim_colour: Optional[str] = None,
+               single_ok: bool = False) -> Optional[dict]:
     """``{"parts", "poses"}`` of up to two euro shams against the bed's headboard (pure numpy; ``rest.place_leaning``
     leaned ``SHAM_LEAN_DEG``), None when the bed is narrower than ``SHAM_MIN_BED_W`` or no headboard is hit (a sham
     never stands against nothing). 29 Oct 2026 (UL121): the family set's ``size``, part ``key``, mesh maker
     (``bedding_parts.plump_cushion``) and ``colour``. 30 Oct 2026 (UL137): ``stand`` (``_lean_pose``)."""
     w, d = float(host_fp["size"][0]), float(host_fp["size"][1])
-    if w < SHAM_MIN_BED_W - 1e-9 or int(count) < 1:
+    if int(count) < 1 or (w < SHAM_MIN_BED_W - 1e-9 and not single_ok):
         return None
     hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
-    n = min(2, int(count))
+    n = min(3, int(count))                    # 1 Nov 2026 (UL236): three shams on a king bed, one on a single
     size = tuple(size) if size else SHAM_SIZE
     sw = min(size[0], (w - 0.1) / n - 0.04)
     st, sh = size[1], size[2]
     make = mesh_fn or cushion_mesh
     parts, poses = [], []
     for k in range(n):
-        lx = 0.0 if n == 1 else (-1 if k == 0 else 1) * (sw / 2.0 + 0.02)
+        lx = (k - (n - 1) / 2.0) * (sw + 0.04)
         planned = rest.to_world(hc, rot, lx, d / 2.0 - st)
         pose = _lean_pose(caster, host_fp, planned, (sw, st, sh), SHAM_LEAN_DEG, stand)
         if pose is None or str(pose.get("how") or "").startswith("no backrest hit"):
             return None
-        mesh = make(pose["size"][0], st, sh, key=key, role=SHAM_ROLE)
-        placed = dict(mesh, verts=rest.pose_vertices(mesh["verts"], pose))
-        parts.append(dict(placed, colour=colour) if colour else placed)
+        parts += placed_parts(make(pose["size"][0], st, sh, key=key, role=SHAM_ROLE), pose, colour, trim_colour)
         poses.append(pose)
     return {"parts": parts, "poses": poses}
+
+
+def placed_parts(made, pose: dict, colour: Optional[str] = None, trim_colour: Optional[str] = None) -> list:
+    """A piece's parts placed by its pose (pure; 1 Nov 2026, UL236): ``made`` = one part or a list (the body first,
+    its trim after: ``soft_sets.cushion_parts``); the trim follows the body's lift (``rest.pose_vertices`` with
+    ``ref``) and takes ``trim_colour`` (else the body's ``colour``)."""
+    made = made if isinstance(made, list) else [made]
+    body = made[0]
+    out = []
+    for k, part in enumerate(made):
+        placed = dict(part, verts=rest.pose_vertices(part["verts"], pose, ref=None if k == 0 else body["verts"]))
+        c = colour if k == 0 else (trim_colour or colour)
+        out.append(dict(placed, colour=c) if c else placed)
+    return out
 
 
 def sham_mesh(parts: list) -> tuple[list, list]:
@@ -656,7 +773,7 @@ def sham_mesh(parts: list) -> tuple[list, list]:
 
 def _pillows(caster, host_fp: dict, n: int, pw: float, pt: float, ph: float, lean_deg: Optional[float] = None,
              key: str = "bedding", mesh_fn=None, colour: Optional[str] = None,
-             stand: bool = False) -> Optional[tuple[list, list]]:
+             stand: bool = False, trim_colour: Optional[str] = None) -> Optional[tuple[list, list]]:
     hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
     d = float(host_fp["size"][1])
     lean = 90.0 - PILLOW_TILT_DEG if lean_deg is None else float(lean_deg)
@@ -668,9 +785,7 @@ def _pillows(caster, host_fp: dict, n: int, pw: float, pt: float, ph: float, lea
         pose = _lean_pose(caster, host_fp, planned, (pw, pt, ph), lean, stand)
         if pose is None:
             return None
-        mesh = make(pose["size"][0], pt, ph, key=key, role="pillow")
-        placed = dict(mesh, verts=rest.pose_vertices(mesh["verts"], pose))
-        parts.append(dict(placed, colour=colour) if colour else placed)
+        parts += placed_parts(make(pose["size"][0], pt, ph, key=key, role="pillow"), pose, colour, trim_colour)
         poses.append(pose)
     return parts, poses
 
@@ -752,7 +867,8 @@ def gap_sheet(head: dict, x_span: Sequence[float], key: str) -> Part:
 
 
 def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Optional[dict] = None,
-                mode: str = "full", colours: Optional[Sequence[str]] = None, head_caster=None) -> Optional[dict]:
+                mode: str = "full", colours: Optional[Sequence[str]] = None, head_caster=None,
+                pillow_front_y: Optional[float] = None) -> Optional[dict]:
     """29 Oct 2026 (lesson UL121, R35: "a full, soft bed"): the bedding of the family's set (``bedding_parts.
     FAMILY_BEDDING``, ``counts`` by the bed's width) on a bed model, every piece one part of the bed's one dressing
     mesh: (1) the euro shams against the headboard (``euro_shams``; none without a headboard, said in ``explained``),
@@ -775,57 +891,97 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
     turned-down band and the sheet over a gap at the head are the family's top sheet (``spec["sheet"]``: its look and
     colour, the duvet's where the spec names none)."""
     from wenart.blender import bedding_parts as BP
+    from wenart.blender import soft_sets as SS
 
     w, d = float(host_fp["size"][0]), float(host_fp["size"][1])
     hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
-    want = BP.counts(spec, w)
+    # 1 Nov 2026 (lesson UL236): the bed's own variant (its arrangement, its sizes by mattress class, its finishes);
+    # ``mode`` duvet: the model's own pillows stay, our duvet only (never two sets)
+    want = SS.expected(spec, w)
+    sizes = spec.get("sizes") if isinstance(spec.get("sizes"), dict) else {}
     explained: dict[str, str] = {}
     colours = [c for c in (colours or []) if c]
     lean = rest.MultiCaster([caster, head_caster]) if head_caster is not None else caster   # the shams' and pillows'
-    # 1. euro shams: standing on what lies at the head against the headboard (30 Oct 2026, UL137: a headboard behind
-    # a gap or on posts, a model's own flat pillows), else leaning as before
-    sham = None
-    if want["euro_shams"]:
-        sham = euro_shams(lean, host_fp, want["euro_shams"], size=BP.SHAM_SIZE,
-                          key=BP.textile_key(spec["shams"]["look"]), mesh_fn=BP.plump_cushion,
-                          colour=spec["shams"].get("colour"), stand=True)
-    # 2. sleeping pillows: standing against the shams, else lying against the headboard
-    n = want["pillows"]
-    pw = min(BP.PILLOW_SIZE[0], (w - 0.1) / n - 0.04)
-    pt, ph = BP.PILLOW_SIZE[1], BP.PILLOW_SIZE[2]
-    pkey, pcol = BP.textile_key(spec["pillows"]["look"]), spec["pillows"].get("colour")
     sh = spec.get("sheet") if isinstance(spec.get("sheet"), dict) else (spec.get("duvet") or spec["pillows"])
     skey, scol = BP.textile_key(sh.get("look") or "cotton"), sh.get("colour")
-    got = None
-    if sham is not None:
-        sv, sf = _merged(sham["parts"])
-        got = _pillows(rest.MultiCaster([lean, rest.mesh_caster(sv, sf)]), host_fp, n, pw, pt, ph,
-                       lean_deg=BP.PILLOW_UPRIGHT_LEAN_DEG, key=pkey, mesh_fn=BP.plump_cushion, colour=pcol,
-                       stand=True)
-        if got is None or any(str(p.get("how") or "").startswith("no backrest hit") for p in got[1]):
-            got, sham = None, None
-            explained["euro_shams"] = "the sleeping pillows found no place against the shams: no shams"
-    if want["euro_shams"] and sham is None:
-        explained.setdefault("euro_shams", "no headboard the rays find: no shams (a sham never stands against "
-                                           "nothing)")
-        # 30 Oct 2026 (UL163): without the shams the family's decorative pair stands in front of the pillows instead
-        # (two rows, five pieces at most: bedding_parts.counts)
-        want = BP.counts(spec, w, shams=False)
-    upright = got is not None
-    if got is None:
-        got = _pillows(lean, host_fp, n, pw, pt, ph, key=pkey, mesh_fn=BP.plump_cushion, colour=pcol)
-    if got is None:
-        return None
-    parts, poses = got
-    if sham is not None:
-        parts = sham["parts"] + parts
-    seats = sorted(float(p.get("seat_z") or p["z"]) for p in poses)
-    top_est = seats[len(seats) // 2]
-    pillow_loc = BP.to_local_arr(hc, rot, BP.face_points([p for p in parts if p.get("role") == "pillow"]))
-    y_head = min(-d / 2.0 + DUVET_SHARE * d, float(pillow_loc[:, 1].min()) - head_room(poses))
+    accent_cols = [a.get("colour") for a in spec.get("accent") or [] if a.get("colour")]
+
+    def maker(role_spec: dict, sag: Optional[float] = None):
+        finish = role_spec.get("finish")
+        if not finish:
+            return BP.plump_cushion if sag is None else (
+                lambda w_, t_, h_, key="bedding", role="pillow": BP.plump_cushion(w_, t_, h_, key=key, role=role,
+                                                                                  sag=sag))
+        look = role_spec.get("look") or "cotton"
+        trim = role_spec.get("trim_look") or ("velvet" if look in ("linen", "cotton", "sateen") else "linen")
+
+        def make(w_, t_, h_, key="bedding", role="pillow"):
+            return SS.cushion_parts(w_, t_, h_, look, finish, trim, role=role,
+                                    sag=BP.SAG_SHARE if sag is None else sag)
+        return make
+
+    if mode == "duvet":
+        want = {k: 0 for k in SS.COUNT_KEYS}
+        explained.update({k: f"the model's own pillows stay: no pillows of ours over them (never two sets, "
+                             f"{SS.LESSON_BED})" for k in SS.COUNT_KEYS})
+    sham = None
+    parts, poses = [], []
+    n = want["pillows"]
+    p_size = sizes.get("pillow") or [min(BP.PILLOW_SIZE[0], (w - 0.1) / max(1, n) - 0.04), BP.PILLOW_SIZE[1],
+                                     BP.PILLOW_SIZE[2]]
+    pw = min(float(p_size[0]), (w - 0.1) / max(1, n) - 0.04) if n > 1 else min(float(p_size[0]), w - 0.2)
+    pt, ph = float(p_size[1]), float(p_size[2])
+    pkey, pcol = BP.textile_key(spec["pillows"]["look"]), spec["pillows"].get("colour")
+    upright = False
+    if mode != "duvet":
+        # 1. euro shams: standing on what lies at the head against the headboard (30 Oct 2026, UL137: a headboard
+        # behind a gap or on posts, a model's own flat pillows), else leaning as before
+        if want["euro_shams"]:
+            s_size = sizes.get("sham") or BP.SHAM_SIZE
+            sham = euro_shams(lean, host_fp, want["euro_shams"], size=s_size,
+                              key=BP.textile_key(spec["shams"]["look"]), mesh_fn=maker(spec["shams"]),
+                              colour=spec["shams"].get("colour"), stand=True,
+                              trim_colour=accent_cols[0] if accent_cols else None,
+                              single_ok=want["euro_shams"] == 1)
+        # 2. sleeping pillows: standing against the shams, else lying against the headboard
+        got = None
+        if sham is not None:
+            sv, sf = _merged(sham["parts"])
+            got = _pillows(rest.MultiCaster([lean, rest.mesh_caster(sv, sf)]), host_fp, n, pw, pt, ph,
+                           lean_deg=BP.PILLOW_UPRIGHT_LEAN_DEG, key=pkey, mesh_fn=maker(spec["pillows"]),
+                           colour=pcol, stand=True)
+            if got is None or any(str(p.get("how") or "").startswith("no backrest hit") for p in got[1]):
+                got, sham = None, None
+                explained["euro_shams"] = "the sleeping pillows found no place against the shams: no shams"
+        if want["euro_shams"] and sham is None:
+            explained.setdefault("euro_shams", "no headboard the rays find: no shams (a sham never stands against "
+                                               "nothing)")
+            # 30 Oct 2026 (UL163): without the shams the family's decorative pair stands in front of the pillows
+            # instead (two rows, five pieces at most: bedding_parts.counts, soft_sets.expected)
+            want = SS.expected(spec, w, shams=False)
+        upright = got is not None
+        if got is None:
+            got = _pillows(lean, host_fp, n, pw, pt, ph, key=pkey, mesh_fn=maker(spec["pillows"]), colour=pcol)
+        if got is None:
+            return None
+        parts, poses = got
+        if sham is not None:
+            parts = sham["parts"] + parts
+    if poses:
+        seats = sorted(float(p.get("seat_z") or p["z"]) for p in poses)
+        top_est = seats[len(seats) // 2]
+        pillow_loc = BP.to_local_arr(hc, rot, BP.face_points([p for p in parts if p.get("role") == "pillow"]))
+        y_head = min(-d / 2.0 + DUVET_SHARE * d, float(pillow_loc[:, 1].min()) - head_room(poses))
+    else:
+        # the model's own pillows: the duvet ends before their front (``bedding_parts.bedding_relief``)
+        top_est = float(rest.host_top(caster))
+        y_head = -d / 2.0 + DUVET_SHARE * d
+        if pillow_front_y is not None:
+            y_head = min(y_head, float(pillow_front_y) - 0.03)
     record = {"rule": BP.RULE, "lesson": BP.LESSON, "family": spec.get("family"), "mode": mode,
-              "pillows": n, "pillow_size_m": [round(pw, 3), pt, ph], "pillows_upright": upright,
-              "euro_shams": len(sham["parts"]) if sham else 0, "duvet_share": DUVET_SHARE,
+              "pillows": n if mode != "duvet" else 0, "pillow_size_m": [round(pw, 3), pt, ph],
+              "pillows_upright": upright,
+              "euro_shams": len(sham["poses"]) if sham else 0, "duvet_share": DUVET_SHARE,
               "pillow_local_y": [round(rest.to_local(hc, rot, p["center"][0], p["center"][1])[1], 3) for p in poses],
               "expected": want, "look_rule": BP.RULE_LOOK, "count_rule": BP.COUNT_RULE, "count_why": BP.COUNT_WHY,
               "pieces_max": BP.pieces_max(w),
@@ -849,7 +1005,7 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
     support = np.zeros((0, 3))
     duvet_got = None
     # 3. the duvet (30 Oct 2026, UL136, UL146): a smooth cover, a level hem, the turned-down sheet band
-    if mode == "full":
+    if mode in ("full", "duvet"):
         ds = spec["duvet"]
         thick, hem = float(ds["thickness_m"]), float(ds.get("hem_m") or 0.08)
         sides = sides or {s: {"free": True} for s in BP.SIDES}
@@ -859,24 +1015,36 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
                                 sides, wrinkle)
         if duvet_got is None:
             return None
+        loc = duvet_got["local"]
+        on = np.asarray(duvet_got["on_top"], dtype=bool)
+        e = duvet_got["edges"]
+        # the look is measured on the cover before its stitching (a quilted coverlet's grooves are no lumps)
+        look = BP.cover_smoothness(duvet_got["grid_local"], loc, on, e)
+        quilt = ds.get("quilt")
+        if quilt:
+            # 1 Nov 2026 (UL236: "stitching/quilting where the textile has it"): a quilted coverlet's stitch lines
+            gl = SS.quilt_grid(duvet_got["grid_local"], loc, on, e, quilt, ds.get("quilt_pitch_m"))
+            duvet_got["grid_local"] = gl
+            duvet_got["grid"] = BP.to_world_arr(hc, rot, gl.reshape(-1, 3)).reshape(gl.shape)
         grid = duvet_got["grid"]
         dkey, dcol = BP.textile_key(ds["look"]), ds.get("colour")
         parts.append(dict(BP.sheet_solid(grid, duvet_got["thickness"], dkey, "duvet", duvet_got["normals"]),
                           colour=dcol))
-        loc = duvet_got["local"]
+        fold_back = "duvet" if ds.get("fold_back") == "duvet" else "sheet"
+        band_t = max(BP.SHEET_T_M, 0.45 * thick) if fold_back == "duvet" else BP.SHEET_T_M
+        band_m = SS.FOLD_BACK_M if fold_back == "duvet" else TURN_DOWN_M
         band = BP.turn_down_band(dict(duvet_got, grid=duvet_got["grid_local"], normals=duvet_got["normals_local"]),
-                                 TURN_DOWN_M)
+                                 band_m, sheet_t=band_t)
         if band is not None:
-            # 31 Oct 2026: the turned-down band is the top sheet (its own look and colour), not the duvet folded
+            # 31 Oct 2026: the turned-down band is the top sheet (its own look and colour); 1 Nov 2026 (UL236): or the
+            # duvet itself folded back over its head end (its look and colour, half its loft)
             bw = BP.to_world_arr(hc, rot, band.reshape(-1, 3)).reshape(band.shape)
-            parts.append(dict(BP.sheet_solid(bw, BP.band_thickness(band), skey, "turndown"), colour=scol))
-        on = np.asarray(duvet_got["on_top"], dtype=bool)
+            bkey, bcol = (dkey, dcol) if fold_back == "duvet" else (skey, scol)
+            parts.append(dict(BP.sheet_solid(bw, BP.band_thickness(band, band_t), bkey, "turndown"), colour=bcol))
         support = duvet_got["grid_local"][on]
         if band is not None:
             support = np.concatenate([support, band.reshape(-1, 3)], axis=0)
-        e = duvet_got["edges"]
         sheet_x = (e[0], e[1])
-        look = BP.cover_smoothness(duvet_got["grid_local"], loc, on, e)
         X, Y = loc[:, 0, 0], loc[0, :, 1]
         rect = (float(X[0]), float(Y[0]), float(X[-1]), float(Y[-1]))
         fold = float(np.max(duvet_got["thickness"][:, -1])) + 2.0 * (BP.BAND_GAP_M + BP.SHEET_T_M)
@@ -885,8 +1053,10 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
                       duvet={"look": ds["look"], "colour": dcol, "thickness_m": thick, "rounded_m": round(rtop, 3),
                              "wrinkle_m": ds.get("wrinkle_m"), "hem_m": hem,
                              "grid": [duvet_got["nu"], duvet_got["nv"]],
-                             "band": ({"width_m": TURN_DOWN_M, "sheet_m": BP.SHEET_T_M, "fold_m": round(fold, 3)}
-                                      if band is not None else None),
+                             "band": ({"width_m": band_m, "sheet_m": band_t, "fold_m": round(fold, 3),
+                                       "fold_back": fold_back} if band is not None else None),
+                             "quilt": ({"kind": quilt, "pitch_m": ds.get("quilt_pitch_m"),
+                                        "depth_m": SS.QUILT_DEPTH_M} if quilt else None),
                              "smoothness": look, "measure": duvet_got["measure"], "rule": BP.RULE_LOOK},
                       sides=sides, drops=BP.side_drops(grid, loc, w, d, float(duvet_got["top_z"]), floor_z))
     if head and head["gap_m"] >= rest.BED_GAP_MIN_M:
@@ -894,50 +1064,69 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
         world = BP.to_world_arr(hc, rot, np.asarray(sheet["verts"]))
         parts.append(dict(sheet, verts=[tuple(q) for q in world.tolist()], colour=scol))
         record["head"]["closed_by"] = "a sheet over the gap, the shams and pillows standing at the headboard"
-    if mode != "full":
+    if mode not in ("full", "duvet"):
         record.update(duvet_rect_local=[-w / 2.0, -d / 2.0, w / 2.0, round(y_head, 3)], top_z=round(top_est, 4),
                       duvet=None, sides=sides)
-    # 4. accent cushions and the lumbar, stacked in front of the pillows (no ray)
+    # 4. accent cushions and the lumbar, stacked in front of the pillows (no ray); 1 Nov 2026 (UL236): up to three
+    # accents (two side by side, the third in front of them in the middle), each with its finish, sized by the bed
     behind = BP.to_local_arr(hc, rot, BP.face_points([p for p in parts if p.get("role") in ("pillow", SHAM_ROLE)]))
     accents = list(spec.get("accent") or [])[:want["accent"]]
     na = len(accents)
-    cw = min(BP.ACCENT_SIZE[0], (w - 0.1) / max(1, na) - 0.03)
+    a_size = sizes.get("accent") or [BP.ACCENT_SIZE[0], BP.ACCENT_SIZE[1], BP.ACCENT_SIZE[2]]
+    row = min(na, 2)
+    cw = min(float(a_size[0]), (w - 0.1) / max(1, row) - 0.03)
     placed_acc, front = [], []
     for k, acc in enumerate(accents):
-        cx = 0.0 if na == 1 else (-1 if k == 0 else 1) * (cw / 2.0 + 0.015)
-        res = BP.stack_cushion(behind, support, top_est, cx, (cw, BP.ACCENT_SIZE[1], BP.ACCENT_SIZE[2]),
-                               BP.textile_key(acc["look"]), ACCENT_ROLE)
+        third = k == 2
+        cx = 0.0 if (na == 1 or third) else (-1 if k == 0 else 1) * (cw / 2.0 + 0.015)
+        size_k = (cw * (0.85 if third else 1.0), float(a_size[1]), float(a_size[2]) * (0.85 if third else 1.0))
+        stack_k = np.concatenate([behind, BP.face_points(front)], axis=0) if (third and front) else behind
+        res = BP.stack_cushion(stack_k, support, top_est, cx, size_k, BP.textile_key(acc["look"]), ACCENT_ROLE,
+                               mesh_fn=maker(acc, sag=0.0) if acc.get("finish") else None)
         if res is None:
             explained.setdefault("accent", "nothing behind the cushion's upper part to lean on (the pillows lie low)")
             continue
         colour = colours[len(placed_acc)] if len(placed_acc) < len(colours) else acc.get("colour")
-        world = BP.to_world_arr(hc, rot, np.asarray(res["part"]["verts"]))
-        parts.append(dict(res["part"], verts=[tuple(p) for p in world.tolist()], colour=colour))
-        placed_acc.append({"look": acc["look"], "colour": colour, "lean_deg": res["lean_deg"],
+        trim_col = next((c for c in accent_cols if c != colour), colour)
+        for j, prt in enumerate([res["part"]] + list(res.get("trim") or [])):
+            world = BP.to_world_arr(hc, rot, np.asarray(prt["verts"]))
+            parts.append(dict(prt, verts=[tuple(p) for p in world.tolist()], colour=colour if j == 0 else trim_col))
+        placed_acc.append({"look": acc["look"], "colour": colour, "finish": acc.get("finish"),
+                           "size_m": [round(v, 3) for v in size_k], "lean_deg": res["lean_deg"],
                            "contact_m": res["contact_m"], "upper_gap_m": res["upper_gap_m"]})
         front.append(res["part"])                     # bed-local: what the lumbar leans on
     lumbar = None
     if want["lumbar"]:
         lum = spec["lumbar"]
         stack = np.concatenate([behind, BP.face_points(front)], axis=0) if front else behind
-        lw = min(BP.LUMBAR_SIZE[0], w - 0.2)
-        res = BP.stack_cushion(stack, support, top_est, 0.0, (lw, BP.LUMBAR_SIZE[1], BP.LUMBAR_SIZE[2]),
-                               BP.textile_key(lum["look"]), LUMBAR_ROLE)
+        l_size = sizes.get("lumbar") or [min(BP.LUMBAR_SIZE[0], w - 0.2), BP.LUMBAR_SIZE[1], BP.LUMBAR_SIZE[2]]
+        lw = min(float(l_size[0]), w - 0.2)
+        res = BP.stack_cushion(stack, support, top_est, 0.0, (lw, float(l_size[1]), float(l_size[2])),
+                               BP.textile_key(lum["look"]), LUMBAR_ROLE,
+                               mesh_fn=maker(lum, sag=0.0) if lum.get("finish") else None)
         if res is None:
             explained["lumbar"] = "nothing behind the lumbar's upper part to lean on"
         else:
             k = len(placed_acc)
             colour = colours[k] if k < len(colours) else lum.get("colour")
-            world = BP.to_world_arr(hc, rot, np.asarray(res["part"]["verts"]))
-            parts.append(dict(res["part"], verts=[tuple(p) for p in world.tolist()], colour=colour))
-            lumbar = {"look": lum["look"], "colour": colour, "lean_deg": res["lean_deg"],
+            trim_col = next((c for c in accent_cols if c != colour), colour)
+            for j, prt in enumerate([res["part"]] + list(res.get("trim") or [])):
+                world = BP.to_world_arr(hc, rot, np.asarray(prt["verts"]))
+                parts.append(dict(prt, verts=[tuple(p) for p in world.tolist()],
+                                  colour=colour if j == 0 else trim_col))
+            lumbar = {"look": lum["look"], "colour": colour, "finish": lum.get("finish"),
+                      "size_m": [round(lw, 3), float(l_size[1]), float(l_size[2])], "lean_deg": res["lean_deg"],
                       "contact_m": res["contact_m"], "upper_gap_m": res["upper_gap_m"]}
-    record.update(set={"euro_shams": record["euro_shams"], "pillows": n, "accent": len(placed_acc),
-                       "lumbar": 1 if lumbar else 0},
+    record.update(set={"euro_shams": record["euro_shams"], "pillows": n if mode != "duvet" else 0,
+                       "accent": len(placed_acc), "lumbar": 1 if lumbar else 0},
                   explained=explained, accent=placed_acc, lumbar=lumbar,
                   looks={"shams": spec["shams"]["look"], "pillows": spec["pillows"]["look"],
-                         "duvet": spec["duvet"]["look"] if mode == "full" else None},
+                         "duvet": spec["duvet"]["look"] if mode in ("full", "duvet") else None},
                   sheet={"look": sh.get("look") or "cotton", "colour": scol}, head_wall=head_caster is not None)
+    if spec.get("variant"):
+        record.update(variant=dict(spec["variant"]), arrangement=spec.get("arrangement"),
+                      sizes=sizes or None, stacked=bool(spec.get("stacked")),
+                      finishes={"shams": spec["shams"].get("finish"), "pillows": spec["pillows"].get("finish")})
     record["head_problems"] = bedding_head_problems(record)
     return {"parts": parts, "pillows": poses, "duvet": duvet_got, "record": record}
 

@@ -2348,7 +2348,8 @@ def procedural_group_name(procedural: str, params: dict) -> str:
 
 
 WEAVE_LOOKS = ("linen", "cotton", "velvet", "knit", "boucle", "wool",     # = bedding_parts.LOOKS
-               "terry")                                                    # 30 Oct 2026 (UL138): the towels
+               "terry",                                                    # 30 Oct 2026 (UL138): the towels
+               "sateen", "waffle")                                         # 1 Nov 2026 (UL236): the bedding's variants
 WEAVE_PATTERNS = ("plain", "houndstooth", "stripe", "herringbone")
 
 
@@ -2705,6 +2706,16 @@ def _weave_height(g: "_Graph", x, y, thread, look: str):
         g.links.new(g.combine(x, y), noise.inputs["Vector"])
         g.feed(noise.inputs["Scale"], g.math("DIVIDE", 0.25, thread))
         return g.math("MULTIPLY_ADD", noise.outputs["Fac"], 0.3, g.math("MULTIPLY", rib, 0.7))
+    if look == "waffle":                 # 1 Nov 2026 (UL236): square cells sunk between raised ridges
+        u = g.math("ABSOLUTE", g.math("SINE", g.math("MULTIPLY", g.math("DIVIDE", x, thread), math.pi)))
+        v = g.math("ABSOLUTE", g.math("SINE", g.math("MULTIPLY", g.math("DIVIDE", y, thread), math.pi)))
+        return g.math("SUBTRACT", 1.0, g.math("MULTIPLY", u, v))
+    if look == "sateen":                 # 1 Nov 2026 (UL236): long floats along x, broken every five threads
+        floats = g.math("MULTIPLY_ADD", g.math("SINE", g.math("MULTIPLY", g.math("DIVIDE", y, thread), two_pi)),
+                        0.5, 0.5)
+        brk = g.math("FRACT", g.math("DIVIDE", g.math("ADD", x, g.math("MULTIPLY", y, 2.0)),
+                                     g.math("MULTIPLY", thread, 5.0)))
+        return g.math("MULTIPLY", floats, g.math("MULTIPLY_ADD", brk, 0.3, 0.7))
     sx = g.math("SINE", g.math("MULTIPLY", g.math("DIVIDE", x, thread), two_pi))
     sy = g.math("SINE", g.math("MULTIPLY", g.math("DIVIDE", y, thread), two_pi))
     threads = g.math("MULTIPLY_ADD", g.math("MULTIPLY", sx, sy), 0.5, 0.5)

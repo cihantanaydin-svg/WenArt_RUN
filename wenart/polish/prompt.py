@@ -111,6 +111,8 @@ MATERIAL_WORDS: dict[str, str] = {
     "fabric_cotton": "cotton percale", "fabric_velvet": "velvet", "fabric_knit": "chunky knit",
     "fabric_boucle": "boucle", "fabric_wool": "wool", "fabric_houndstooth": "houndstooth wool",
     "fabric_stripe": "striped wool", "fabric_herringbone": "herringbone wool", "fabric_terry": "terry cloth",
+    # 1 Nov 2026 (UL236): the bedding's variants
+    "fabric_sateen": "cotton sateen", "fabric_waffle": "waffle weave cotton", "fabric_chunky_knit": "chunky hand knit",
     "ceramic_white": "white ceramic",
     "steel_brushed": "brushed steel",
     "stone_worktop": "dark stone",

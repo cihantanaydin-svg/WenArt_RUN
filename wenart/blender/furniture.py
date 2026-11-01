@@ -200,6 +200,21 @@ not like this bed", "Light is flying in the air needs to be connected to ceiling
 - A bed's throw is the woven pair (``textiles.woven_throw_parts``; the decor stage's ``weave``, else the family's): the
   pattern's ink and angle reach its material (``part_params``), the second blanket takes the accent colour
   (``part_colour``: ``colour_runner_<look>`` keys); ``entry["weave"]`` records the pattern and the fringe as built.
+
+1 Nov 2026 (lessons UL236, UL238; user on real04 run 20261031-194116-full: "consider the size of the bedding and
+previous beddings that already exist in the models"; "realistic looking pillows"):
+
+- Never two sets on a bed. A library bed whose headboard or own pillows stand at its foot (``_turn_test``:
+  ``bedding_parts.turned_reason``) is built again turned by 180 degrees (``_rebuild_turned``, ``turned_asset``: its
+  ``front_axis`` reversed, ``adjusted_by_ai`` by code, once). Its own bedding then decides (``bedding_parts
+  .dress_mode``): ``duvet`` (a flat cover under its own pillows: our duvet only, ending before its pillows), kept as it
+  is when the audit sees its pillows but the head zone's measure does not (the run's bed with its own four pillows got
+  our full pillow set in front of them). Every dressed bed's set is whole: no decor cushion over it.
+- A bed's set is its own variant (``bed_bedding_spec``: the decor stage's ``bedding_layers.set``, its colourway, not
+  the scheme's list); a throw on a bed takes its own bed's throw (``bed_throw_item``: a twin's copy made after the beds
+  were planned too).
+- A top's item never stands inside another built piece (``_neighbour_casters``, ``rest.clash_with``); a seat's cushion
+  with a ``cushion_set`` is our filled cushion with its finish (``soft_sets.seat_cushion_parts``).
 """
 from __future__ import annotations
 
@@ -1586,9 +1601,77 @@ def _bedding_test(piece: dict, entry: dict, ob) -> str | None:
     centre, rot, size = BP.bed_frame(piece)
     relief = BP.bedding_relief(pts, centre, rot, size) if len(pts) else {}
     mode, why = BP.dress_mode(piece.get("asset"), relief, width=size[0])     # 30 Oct 2026 (UL137): flat pillows
-    entry["bedding_test"] = dict(relief, own_bedding=True, mode=mode, poorer=mode is not None, reason=why,
-                                 rule=BP.RULE)
+    entry["bedding_test"] = dict(relief, own_bedding=True, mode=mode, poorer=mode in ("full", "pillows", "duvet"),
+                                 reason=why, rule=BP.RULE)
     return mode
+
+
+def library_bed(piece: dict, entry: dict) -> bool:
+    """A bed built from a library model (pure): its headboard and its own bedding can be measured on its mesh."""
+    return piece.get("type") in ("bed_single", "bed_double") and entry.get("method") == "library" \
+        and isinstance(piece.get("asset"), dict)
+
+
+def _turn_test(piece: dict, entry: dict, ob) -> str | None:
+    """1 Nov 2026 (lesson UL236): why a library bed's model stands turned the wrong way (``bedding_parts
+    .turned_reason`` on its evaluated mesh: the headboard or its own pillows at its foot), None when it stands right or
+    was turned once already (recorded on the entry: ``turn_test``)."""
+    from wenart.blender import bedding_parts as BP
+
+    if (piece.get("asset") or {}).get("turned_by_build"):
+        return None
+    pts = _evaluated_world_points(ob)
+    if not len(pts):
+        return None
+    centre, rot, size = BP.bed_frame(piece)
+    relief = BP.bedding_relief(pts, centre, rot, size)
+    why = BP.turned_reason(relief)
+    entry["turn_test"] = {k: relief.get(k) for k in ("head_end_top_m", "foot_end_top_m", "pillow_vertices",
+                                                     "foot_pillow_vertices", "pillow_bump_m", "foot_pillow_bump_m")}
+    entry["turn_test"].update(turned=bool(why), reason=why, rule=BP.TURN_RULE)
+    return why
+
+
+def turned_asset(asset: dict, why: str) -> dict:
+    """A library model's asset record turned by 180 degrees about up (pure; its ``front_axis`` reversed), with the
+    reason (``turned_by_build``): the fit then puts its headboard on the footprint's head edge."""
+    from wenart.blender import bedding_parts as BP
+
+    before = asset.get("front_axis") or "-Y"
+    after = BP.opposite_axis(before)
+    return dict(asset, front_axis=after, turned_by_build={
+        "from": before, "to": after, "reason": why, "source": "adjusted_by_ai", "method": "code",
+        "rule": BP.TURN_RULE})
+
+
+def _rebuild_turned(piece, entry, ob, why, level, building, height, height_assumed, lift, collection, library, mats,
+                    assets_dir, pass_indices, assumed, warnings, unverified_cache, geo_cache, style):
+    """The library bed built again with its model turned by 180 degrees (``turned_asset``; the piece's asset record is
+    changed in place, ``adjusted_by_ai`` by code, so its decor and the reports see the turn): ``(entry, object)``, or
+    None when the new build fails (the first one is kept)."""
+    import bpy
+
+    old_asset = piece["asset"]
+    piece["asset"] = turned_asset(old_asset, why)
+    name = ob.name
+    try:
+        bpy.data.objects.remove(ob, do_unlink=True)
+        new_entry = _create_piece(piece, level, piece_floor_z(building, level, piece), height, height_assumed, lift,
+                                  collection, library, mats, assets_dir, pass_indices, assumed, warnings,
+                                  unverified_cache, geo_cache, style=style, building=building)
+    except Exception as exc:  # noqa: BLE001 - the first build stays
+        piece["asset"] = old_asset
+        warnings.append(f"{piece['id']}: turning its model failed ({type(exc).__name__}: {exc}); kept as built")
+        return None
+    new_ob = bpy.data.objects.get(new_entry["name"]) or bpy.data.objects.get(name)
+    new_entry["turn_test"] = dict(entry.get("turn_test") or {}, applied=True)
+    text = f"its model turned by 180 degrees (front {piece['asset']['turned_by_build']['from']} -> " \
+           f"{piece['asset']['turned_by_build']['to']}): {why} (UL236)"
+    new_entry.setdefault("assumed", {})["turned"] = text
+    assumed.append({"object": new_entry["name"], "field": "front_axis", "value": piece["asset"]["front_axis"],
+                    "parent": piece["id"], "kind": "adjusted_by_ai", "reason": text})
+    warnings.append(f"{piece['id']}: {text}")
+    return new_entry, new_ob
 
 
 def hosted_support(item: dict, host: dict | None) -> str | None:
@@ -1710,11 +1793,27 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
         if entry["fallback_reason"]:
             summary["fallbacks"].append({"id": piece["id"], "type": piece["type"], "reason": entry["fallback_reason"]})
         ob = bpy.data.objects.get(entry["name"])
+        if ob is not None and library_bed(piece, entry):
+            # 1 Nov 2026 (lesson UL236): a library bed whose headboard or own pillows stand at its foot is turned the
+            # wrong way: built again turned by 180 degrees (once), then measured as any bed
+            turned = _turn_test(piece, entry, ob)
+            if turned:
+                built = _rebuild_turned(piece, entry, ob, turned, level, building, height, height_assumed, lift,
+                                        collection, library, mats, assets_dir, pass_indices, assumed, warnings,
+                                        unverified_cache, geo_cache, style)
+                if built is not None:
+                    entry, ob = built
+                    manifest_objects[manifest_objects.index(entries[piece["id"]])] = entry
+                    entries[piece["id"]] = entry
         summary["objects"][piece["id"]] = ob
         mode = "full" if ob is not None and needs_dressing(piece, entry) else None
         if ob is not None and mode is None and own_bedding_candidate(piece, entry):
             # 29 Oct 2026 (UL121): a library bed with its own bedding is dressed when its bedding measures poorer
             mode = _bedding_test(piece, entry, ob)
+            if mode == "turn":                    # measured turned again after the turn: kept as it is
+                warnings.append(f"{piece['id']}: its model still measures turned after the turn; its own bedding "
+                                "kept, nothing of ours over it")
+                mode = None
         if mode is not None:
             t_bed = time.perf_counter()
             dress = _dress_bed(piece, entry, ob, piece_floor_z(building, level, piece), collection, mats, assumed,
@@ -1755,7 +1854,11 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                                                  "room_id": item.get("room_id"),
                                                  "reason": f"its host {host['id']} is not built"})
                 continue
-        if item.get("type") == "cushion" and host is not None and host["id"] in (summary.get("bedding_sets") or ()):
+        if item.get("type") == "cushion" and host is not None and (
+                host["id"] in (summary.get("bedding_sets") or ())
+                or (host["id"] in summary["dressed_beds"] and host.get("type") in ("bed_single", "bed_double"))):
+            # 1 Nov 2026 (UL236): every dressed bed's set is whole (its own variant, at most five pieces): no decor
+            # cushion over it
             # 29 Oct 2026 (UL121): the bed's dressing carries its family's accent cushions and lumbar (their colours
             # are this item's): a decor cushion would stand in front of them as a second set
             summary["decor_skipped"].append({"id": item.get("id"), "type": "cushion", "room_id": item.get("room_id"),
@@ -2063,12 +2166,18 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, c
                    if d.get("type") == "cushion" and d.get("host_id") == piece["id"]]
         # 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"): the room's scheme colours
         # (the brief's cushion colours) on the bed's cushions where the decor stage put none on it
-        colours = [c for c in colours if c] or list(layers.get("cushion_colours") or []) \
-            or BP.scheme_colours(style, against=(spec.get("pillows") or {}).get("colour"))
+        # 1 Nov 2026 (UL236): a bed's own variant carries its colourway (the scheme's colours in its own order): the
+        # scheme's list would give every bed the same accents
+        if spec.get("variant"):
+            colours = []
+        else:
+            colours = [c for c in colours if c] or list(layers.get("cushion_colours") or []) \
+                or BP.scheme_colours(style, against=(spec.get("pillows") or {}).get("colour"))
         bed_caster = R.BVHCaster(verts, faces)
         head_caster, head_rec = _head_caster(piece, building, floor_z, bed_caster)
         plan = T.bedding_set(bed_caster, host_fp, floor_z, spec, sides, mode=mode, colours=colours,
-                             head_caster=head_caster)
+                             head_caster=head_caster,
+                             pillow_front_y=(entry.get("bedding_test") or {}).get("pillow_front_y"))
         if plan is not None:
             plan["record"]["spec_why"] = spec_why
             if head_rec is not None:
@@ -2176,6 +2285,56 @@ def local_decor_mesh(item: dict, dtype: str, support: str | None = None) -> dict
     return {"verts": verts, "faces": faces, "keys": keys, "parts": parts}
 
 
+def _neighbour_casters(world_verts, host: dict, summary: dict, casters: dict) -> list:
+    """``[(piece id, caster, (lo, hi))]`` of the built pieces (``summary["objects"]``, not the host, not a dressing)
+    whose world bounds the placed item's box overlaps (bpy; ``rest.clash_with``); their casters cached as
+    ``<id>#clash``."""
+    import numpy as np
+    from mathutils import Vector
+
+    from wenart.blender import rest as R
+
+    arr = np.asarray(world_verts, dtype=np.float64).reshape(-1, 3)
+    if not len(arr):
+        return []
+    lo, hi = arr.min(axis=0), arr.max(axis=0)
+    out = []
+    for pid, ob in (summary.get("objects") or {}).items():
+        if ob is None or "#" in str(pid) or pid == host.get("id") or getattr(ob, "type", None) != "MESH":
+            continue
+        corners = [ob.matrix_world @ Vector(tuple(c)) for c in ob.bound_box]
+        blo = [min(float(c[k]) for c in corners) for k in range(3)]
+        bhi = [max(float(c[k]) for c in corners) for k in range(3)]
+        if any(hi[k] < blo[k] or lo[k] > bhi[k] for k in range(3)):
+            continue
+        key = f"{pid}#clash"
+        if key not in casters:
+            verts, faces = _evaluated_world_mesh(ob)
+            casters[key] = R.BVHCaster(verts, faces) if faces else None
+        out.append((pid, casters[key], (blo, bhi)))
+    return out
+
+
+def bed_throw_item(item: dict, host: dict) -> dict:
+    """1 Nov 2026 (lesson UL236): a throw on a bed whose decor stage planned its own variant (``bedding_layers.set``
+    with a ``variant``) takes that variant's throw (``soft_sets.throw_weave``: its style, look, pattern, fringe and
+    colours) when its weave names another variant or none (a twin's copy made after the beds were planned keeps its
+    partner's); the item itself otherwise (pure; a copy when changed)."""
+    from wenart.blender import soft_sets as SS
+
+    if item.get("type") != "throw" or host.get("type") not in ("bed_single", "bed_double"):
+        return item
+    layers = host.get("bedding_layers") if isinstance(host.get("bedding_layers"), dict) else {}
+    spec = layers.get("set") if isinstance(layers.get("set"), dict) else None
+    if not spec or not spec.get("variant") or not isinstance(spec.get("throw"), dict):
+        return item
+    weave = item.get("weave") if isinstance(item.get("weave"), dict) else {}
+    if weave.get("variant") == spec["variant"].get("id") and weave.get("style"):
+        return item
+    new = SS.throw_weave(spec, layers.get("sides"))
+    return dict(item, weave=new, colour=new["colour"], accent_colour=new["accent_colour"])
+
+
 def seat_throw_item(item: dict, host: dict, family: str | None, style: dict | None) -> dict:
     """31 Oct 2026 (user on real04 run 20261030-181158-full: "bedding on this sofa could have been a lot better not just
     pillows maybe include some comfortals"): a throw on a sofa, a corner sofa, a chaise or an armchair from a decor
@@ -2246,6 +2405,7 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
     if parametric and dtype != "throw":
         local = local_decor_mesh(item, dtype, support)
     if dtype == "throw":
+        item = bed_throw_item(item, host)          # 1 Nov 2026 (UL236): the bed's own throw (a twin's copy too)
         if not isinstance(item.get("weave"), dict) and host.get("type") in ("bed_single", "bed_double") \
                 and getattr(mats, "family", None) is not None:
             from wenart.blender import bedding_parts as BP     # 29 Oct 2026 (UL121): a decor output from before the
@@ -2265,6 +2425,15 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
                             lean_deg=float(frame.get("lean_deg") or 0.0), shelf=frame.get("shelf"), back_caster=back,
                             max_top_z=max_top)
         keys = local.get("keys")
+        if "not_rested" not in plan and support == "top":
+            # 1 Nov 2026 (lesson UL238: a coffee table's tray lay on the corner sofa's seat): never inside another
+            # built piece that covers part of the host's top (its real mesh)
+            clash = R.clash_with(plan["verts"], _neighbour_casters(plan["verts"], host, summary, casters))
+            if clash is not None:
+                plan = {"not_rested": {"id": item.get("id"), "type": dtype, "host_id": host.get("id"),
+                                       "support": support, "measured": None, "attempts": 1,
+                                       "reason": f"it would stand inside {clash[0]} ({clash[1]:.2f} m deep): that "
+                                                 f"piece covers this part of {host.get('id')}'s top (UL238)"}}
     if "not_rested" in plan:
         record = dict(plan["not_rested"], room_id=item.get("room_id"))
         summary["decor_not_rested"].append(record)

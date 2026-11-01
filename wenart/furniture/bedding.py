@@ -16,6 +16,14 @@ build reads them too); this pass writes what the build makes:
 
 Every change is ``added_by_ai`` / ``method: rule`` with its reason; ``building["bedding"]`` records the beds' sets, the
 sets placed and the notes. ``review`` (model review M30, Argus U34) is ``bedding_parts.review``.
+
+1 Nov 2026 (lesson UL236; user on real04 run 20261031-194116-full: "bedding seem to be using the same set of pillows
+sheets etc, use better models better textures, more details and more variants, consider the size of the bedding"):
+``plan_beds`` gives every bed its own variant of the family's palette (``soft_sets.house_bed_variants``: the
+arrangement, the textiles, a quilted coverlet or a duvet, the fold-back, the colourway, the throw's style; no two beds
+of the house alike, the master's the richest, a child's or a single bed's the plainest), sized to its mattress
+(``soft_sets.bed_sizes``); each throw on a bed takes its own bed's throw (``soft_sets.throw_weave``; a twin's copied
+throw is its host's, never its partner's).
 """
 from __future__ import annotations
 
@@ -55,20 +63,32 @@ def plan_beds(building: dict, style: Optional[dict], new_id: Optional[Callable[[
     """Each bed's family set, its free sides and its throws' weave (module docstring; in place). Returns notes."""
     from wenart.furniture import decor as D
 
+    from wenart.blender import soft_sets as SS
+
     fam = family_of(style)
-    spec, why = BP.family_spec(fam)
+    family_spec, _family_why = BP.family_spec(fam)
     decor = building.setdefault("decor", [])
     notes, beds = [], {}
-    for bed in _beds(building):
+    all_beds = _beds(building)
+    # 1 Nov 2026 (lesson UL236: "bedding seem to be using the same set of pillows sheets etc ... more variants"): every
+    # bed its own set from the family's palette (soft_sets.house_bed_variants: deterministic by its id, no two beds of
+    # the house alike, the master's the richest), sized to its mattress
+    scheme = BP.scheme_colours(style, against=family_spec["pillows"].get("colour"))
+    variants = SS.house_bed_variants(all_beds, building, fam, scheme)
+    for bed in all_beds:
         _c, _r, (w, d) = BP.bed_frame(bed)
         sides = BP.bed_sides(bed, building)
         layers = dict(bed.get("bedding_layers") or {}) if isinstance(bed.get("bedding_layers"), dict) else {}
-        want = BP.counts(spec, w)
+        spec = variants[bed["id"]]
+        why = spec["why"]
+        want = SS.expected(spec, w)
         layers.update(family=spec["family"], set=spec, set_why=why, expected=want, sides=sides, bedding_rule=RULE,
-                      bedding_why=(f"the {spec['family']} bedding set (UL121, R35): {want['euro_shams']} euro "
-                                   f"sham(s), {want['pillows']} pillow(s), {want['accent']} accent cushion(s), "
-                                   f"{want['lumbar']} lumbar ({BP.COUNT_WHY}); the duvet hangs almost to the floor "
-                                   f"on the free side(s) "
+                      variant_rule=SS.RULE_BED, variant=dict(spec["variant"]),
+                      bedding_why=(f"the bed's own {spec['family']} set (UL236; UL121, R35): {want['euro_shams']} "
+                                   f"euro sham(s), {want['pillows']} pillow(s), {want['accent']} accent cushion(s), "
+                                   f"{want['lumbar']} lumbar ({BP.COUNT_WHY}), sized to its "
+                                   f"{spec['sizes']['class'].replace('_', ' ')} mattress; the duvet hangs almost to "
+                                   f"the floor on the free side(s) "
                                    f"{', '.join(s for s in BP.SIDES if sides[s]['free']) or '(none)'}"),
                       count_rule=BP.COUNT_RULE, pieces_max=BP.pieces_max(w),
                       # 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"): the
@@ -84,12 +104,18 @@ def plan_beds(building: dict, style: Optional[dict], new_id: Optional[Callable[[
             form, form_why = BP.headboard_form(fam)
             bed["design"] = dict(design, headboard=form, headboard_why=form_why)
         beds[bed["id"]] = {"expected": want, "sides": {s: dict(v) for s, v in sides.items()},
-                           "headboard": (bed.get("design") or {}).get("headboard")}
+                           "headboard": (bed.get("design") or {}).get("headboard"),
+                           "variant": spec["variant"]["id"], "arrangement": spec["arrangement"],
+                           "rank": spec["variant"]["rank"], "rank_why": spec["variant"].get("rank_why"),
+                           "mattress": spec["sizes"]["class"], "throw_style": spec["throw"]["style"]}
         blocked = [f"{s} by {v['by']} ({v['clear_m']:.2f} m)" for s, v in sides.items() if not v["free"]]
-        notes.append(f"{bed.get('room_id')}: {bed['id']} the {spec['family']} bedding set"
+        notes.append(f"{bed.get('room_id')}: {bed['id']} its own {spec['family']} set "
+                     f"({spec['arrangement'].replace('_', ' ')}, {spec['variant'].get('rank_why')})"
                      + (f"; no overhang on {', '.join(blocked)}" if blocked else ""))
-        throws = [t for t in decor if t.get("type") == "throw" and (t.get("host_id") == bed["id"]
-                                                                   or str(t.get("slot") or "") == f"{bed['id']}.throw")]
+        # a twin's copied throw keeps its partner's slot: its host decides whose it is
+        throws = [t for t in decor if t.get("type") == "throw"
+                  and (t.get("host_id") == bed["id"]
+                       or (not t.get("host_id") and str(t.get("slot") or "") == f"{bed['id']}.throw"))]
         if not throws and new_id is not None and not D.takes_throw(bed):
             from wenart.furniture import dressing as DR
             from wenart.furniture.decor_ai import throw_item
@@ -107,13 +133,16 @@ def plan_beds(building: dict, style: Optional[dict], new_id: Optional[Callable[[
                 throws = [t]
                 notes.append(f"{bed.get('room_id')}: throw {t['id']} on {bed['id']} (built when dressed)")
         for t in throws:
-            if not isinstance(t.get("weave"), dict):
-                t["weave"] = BP.throw_weave(fam)
-                # its fringe hangs over the bed's free sides only (never into a wall or a piece beside the bed)
-                t["weave"]["fringe_ends"] = [s for s in ("left", "right") if sides[s]["free"]]
-                t["reason"] = f"{t.get('reason') or 'throw'}; {t['weave']['why']}"
+            # 1 Nov 2026 (UL236): the bed's own throw (its style, look, colours; a twin's copy takes its own bed's);
+            # its fringe hangs over the bed's free sides only (never into a wall or a piece beside the bed)
+            weave = SS.throw_weave(spec, sides)
+            if t.get("colour") and t.get("colour") != weave["colour"]:
+                t["ai_colour"] = t["colour"]
+            t.update(weave=weave, colour=weave["colour"], accent_colour=weave["accent_colour"])
+            base = str(t.get("reason") or "throw").split("; the bed's own throw")[0]
+            t["reason"] = f"{base}; {weave['why']}"
     record = building.setdefault("bedding", {})
-    record.update(rule=RULE, lesson=LESSON, family=spec["family"], beds=beds)
+    record.update(rule=RULE, lesson=LESSON, family=family_spec["family"], beds=beds, variant_rule=SS.RULE_BED)
     return notes
 
 

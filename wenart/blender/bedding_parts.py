@@ -65,12 +65,18 @@ TAG = ("29 Oct 2026, user: \"look how realistic the bed is looking full and nice
 # Fabric looks (materials: the ``wenart_weave`` group, ``materials.weave_group``; the vocabulary's fabric slugs)
 # --------------------------------------------------------------------------
 
-LOOKS: tuple[str, ...] = ("linen", "cotton", "velvet", "knit", "boucle", "wool")
+LOOKS: tuple[str, ...] = ("linen", "cotton", "velvet", "knit", "boucle", "wool",
+                          # 1 Nov 2026 (UL236: "more variants ... better textures"): a cotton sateen (a long-float
+                          # satin weave with a soft sheen), a waffle weave (a grid of cells), a chunky knit (the knit's
+                          # stockinette at a hand-knitted scale)
+                          "sateen", "waffle", "chunky_knit")
 PATTERNS: tuple[str, ...] = ("houndstooth", "stripe", "herringbone")
 # the slug of each look: linen keeps the Poly Haven rough_linen scan (its photographed weave and normal map); the others
 # are procedural weaves (``finishes.FURNITURE_MATERIALS``)
 LOOK_SLUGS: dict[str, str] = {"linen": "fabric_linen", "cotton": "fabric_cotton", "velvet": "fabric_velvet",
-                              "knit": "fabric_knit", "boucle": "fabric_boucle", "wool": "fabric_wool"}
+                              "knit": "fabric_knit", "boucle": "fabric_boucle", "wool": "fabric_wool",
+                              "sateen": "fabric_sateen", "waffle": "fabric_waffle",
+                              "chunky_knit": "fabric_chunky_knit"}
 PATTERN_SLUGS: dict[str, str] = {"houndstooth": "fabric_houndstooth", "stripe": "fabric_stripe",
                                  "herringbone": "fabric_herringbone"}
 TEXTILE_PREFIX = "textile_"      # a part key ``textile_<look or pattern>`` (furniture.style_material_keys)
@@ -118,12 +124,17 @@ LOOK_LAYERS: dict[str, dict] = {
     "wool": {"sheen": (0.55, 0.5), "bump": (0.35, 0.0015, 0.004), "roughness": 0.9},
     # 30 Oct 2026 (UL138): the towels' terry (no bedding look): a deep loop pile, a faint sheen on the loops' tips
     "terry": {"sheen": (0.3, 0.7), "bump": (0.9, 0.0025, 0.0028), "roughness": 0.97},
+    # 1 Nov 2026 (UL236): a cotton sateen's soft sheen on long floats (fine, low relief), a waffle's deep square cells,
+    # a chunky knit's big stockinette (finishes.FURNITURE_MATERIALS: the knit's pattern at its own thread pitch)
+    "sateen": {"sheen": (0.7, 0.35), "bump": (0.08, 0.0003, 0.0009), "roughness": 0.55},
+    "waffle": {"sheen": (0.3, 0.6), "bump": (0.7, 0.0025, 0.009), "roughness": 0.85},
+    "chunky_knit": {"sheen": (0.45, 0.5), "bump": (0.8, 0.006, 0.018), "roughness": 0.92},
 }
 # 31 Oct 2026 (user on real04 run 20261030-181158-full: "Better bedding needed here"; UL121 "... wrinkles ..."): the
 # soft crease lines of each look's cloth (a bump strength over its weave, ``materials.add_crease``; designer values):
 # washed linen creases most, cotton percale a little, the pile and loop fabrics hardly (their own relief shows)
 CREASE_BY_LOOK: dict[str, float] = {"linen": 0.45, "cotton": 0.3, "velvet": 0.08, "knit": 0.1, "boucle": 0.0,
-                                    "wool": 0.15}
+                                    "wool": 0.15, "sateen": 0.2, "waffle": 0.12, "chunky_knit": 0.0}
 PATTERN_WEAVE = "wool"           # a patterned blanket is a woven wool (its twill bump)
 
 
@@ -1153,8 +1164,19 @@ def _profile(points: np.ndarray, z0: float, top: float, dz: float, use_max: bool
     return out
 
 
+def _leaned_with(verts, lean_deg: float, ref) -> np.ndarray:
+    """``verts`` leaned as ``lean_verts`` leans ``ref`` (the same turn, lifted by ``ref``'s lowest point): a cushion's
+    trim (piping, buttons, tassels) moves with its body."""
+    v = np.asarray(verts, dtype=np.float64).reshape(-1, 3)
+    r = np.asarray(ref, dtype=np.float64).reshape(-1, 3)
+    a = math.radians(float(lean_deg))
+    ca, sa = math.cos(a), math.sin(a)
+    low = float((-r[:, 1] * sa + r[:, 2] * ca).min())
+    return np.stack([v[:, 0], v[:, 1] * ca + v[:, 2] * sa, -v[:, 1] * sa + v[:, 2] * ca - low], axis=1)
+
+
 def stack_cushion(behind: np.ndarray, support: np.ndarray, floor_top: float, cx: float, size, key: str,
-                  role: str, leans: Sequence[float] = STACK_LEANS) -> Optional[dict]:
+                  role: str, leans: Sequence[float] = STACK_LEANS, mesh_fn=None) -> Optional[dict]:
     """An accent cushion or a lumbar standing on the bedding and leaning on what stands behind it (pure, bed-local
     frame: x across, -y the foot, z up): ``behind`` = the points of the pillows (and cushions) behind it ``(N, 3)``,
     ``support`` = the points of the duvet and its band under it ``(M, 3)`` (``floor_top`` = the mattress top where
@@ -1162,9 +1184,13 @@ def stack_cushion(behind: np.ndarray, support: np.ndarray, floor_top: float, cx:
     the front profile of what is behind it in its width (``STACK_PRESS_M`` in), its base on the highest support under
     its foot (``STACK_SINK_M`` in), twice; taken when its upper part rests on something (``STACK_UPPER_SHARE``,
     ``STACK_BACK_GAP_M``). ``{"part" (bed-local verts), "y", "z", "lean_deg", "contact_m", "upper_gap_m"}`` or None
-    (nothing to lean on)."""
+    (nothing to lean on). 1 Nov 2026 (UL236): ``mesh_fn(w, t, h, key, role)`` makes the cushion with its finish (a
+    list of parts: the body first, its trim after, ``soft_sets.cushion_parts``); the record's ``trim`` holds the trim
+    placed with the body."""
     w, t, h = (float(v) for v in size)
-    mesh = plump_cushion(w, t, h, key=key, role=role, sag=0.0)
+    made = mesh_fn(w, t, h, key, role) if mesh_fn is not None else plump_cushion(w, t, h, key=key, role=role, sag=0.0)
+    made = made if isinstance(made, list) else [made]
+    mesh, trim = made[0], made[1:]
     base = np.asarray(mesh["verts"], dtype=np.float64)
     behind = np.asarray(behind, dtype=np.float64).reshape(-1, 3)
     support = np.asarray(support, dtype=np.float64).reshape(-1, 3)
@@ -1206,8 +1232,14 @@ def stack_cushion(behind: np.ndarray, support: np.ndarray, floor_top: float, cx:
             continue
         verts = np.c_[L[:, 0], L[:, 1] + y, L[:, 2] + z0]
         part = dict(mesh, verts=[tuple(p) for p in verts.tolist()])
+        placed_trim = []
+        for tp in trim:
+            tv = _leaned_with(tp["verts"], lean, base)
+            placed_trim.append(dict(tp, verts=[tuple(p) for p in np.c_[tv[:, 0] + cx, tv[:, 1] + y,
+                                                                         tv[:, 2] + z0].tolist()]))
         return {"part": part, "y": round(y, 4), "z": round(z0, 4), "lean_deg": float(lean),
-                "contact_m": round(float(np.min(gaps[both])), 4), "upper_gap_m": round(upper_gap, 4)}
+                "contact_m": round(float(np.min(gaps[both])), 4), "upper_gap_m": round(upper_gap, 4),
+                "trim": placed_trim}
     return None
 
 
@@ -1341,6 +1373,9 @@ TOP_SHARE_MIN = 0.5              # under this share of the middle's cells on the
 PILLOW_BAND_M = (0.02, 0.40)     # pillows rise this far over the cover; a headboard's top lies above the band
 PILLOW_VERTS_MIN = 40            # vertices in that band at the head a modelled pillow set has at least
 HEADBOARD_SKIP_M = 0.12          # the head edge's strip a headboard stands in (never a pillow)
+WIDE_TALL_M = 0.10               # 1 Nov 2026 (UL236): a cell reaching this over the pillow band is a headboard's
+END_ZONE_M = 0.25                # each end's highest point within this of the end (the headboard, the footboard)
+TURNED_RISE_M = 0.15             # a foot end this much higher than the head end carries the headboard: turned
 
 
 def surface_samples(verts, tris, step: float = RELIEF_CELL_M):
@@ -1384,6 +1419,9 @@ def bedding_relief(world_verts, centre, rot: float, size) -> dict:
     rec = {"pillow_bump_m": None, "relief_m": None, "density": 0.0, "top_m": None, "vertices": int(len(p))}
     if not len(loc):
         return rec
+    # 1 Nov 2026 (UL236): each end's highest point (a headboard at the foot: the model is turned; ``turned_reason``)
+    for end, m in (("head", loc[:, 1] >= d / 2.0 - END_ZONE_M), ("foot", loc[:, 1] <= -d / 2.0 + END_ZONE_M)):
+        rec[f"{end}_end_top_m"] = round(float(loc[m, 2].max()), 4) if m.any() else None
     if not len(p):        # not one vertex over the bed's inner top: a cover of a few big faces, flat, no pillows
         rec.update(pillow_bump_m=0.0, relief_m=0.0, top_share=0.0,
                    note="no vertex over the inner top: a flat cover of a few faces")
@@ -1418,10 +1456,56 @@ def bedding_relief(world_verts, centre, rot: float, size) -> dict:
                relief_m=round(float(np.percentile(on_top, 90) - np.percentile(on_top, 10)), 4),
                density=round(float(in_mid.sum()) / area, 1),
                pillow_bump_m=round(bump, 4), pillow_vertices=int(at_head.sum()))
+    # 1 Nov 2026 (lesson UL236: "consider ... previous beddings that already exist in the models"): the same pillow band
+    # at the foot (a model turned the wrong way has its pillows there), the front of the pillows at the head (our duvet
+    # ends before them), the head strip's pillow-height vertices out of a tall headboard's cells (``wide``: standing
+    # pillows against a thick headboard), and each end's highest point (a headboard at the foot: the model is turned)
+    at_foot = (p[:, 1] <= -d / 2.0 + 0.55) & (p[:, 1] >= -d / 2.0 + 0.05 + HEADBOARD_SKIP_M) \
+        & (p[:, 2] >= top + lo) & (p[:, 2] <= top + hi)
+    rec.update(foot_pillow_vertices=int(at_foot.sum()),
+               foot_pillow_bump_m=round(float(p[at_foot, 2].max()) - top if at_foot.any() else 0.0, 4),
+               pillow_front_y=round(float(p[at_head, 1].min()), 4) if at_head.any() else None)
+    strip = (p[:, 1] >= d / 2.0 - 0.55) & (p[:, 2] >= top + lo) & (p[:, 2] <= top + hi)
+    if strip.any():
+        cx = np.floor((p[:, 0] + w / 2.0) / RELIEF_CELL_M).astype(np.int64)
+        cy = np.floor((p[:, 1] + d / 2.0) / RELIEF_CELL_M).astype(np.int64)
+        cell = cx * 1000 + cy
+        tall = set(np.unique(cell[(p[:, 1] >= d / 2.0 - 0.55) & (p[:, 2] > top + hi + WIDE_TALL_M)]).tolist())
+        wide = strip & ~np.isin(cell, list(tall)) if tall else strip
+        rec["pillow_vertices_wide"] = int(wide.sum())
+    else:
+        rec["pillow_vertices_wide"] = 0
     return rec
 
 
 STAND_BUMP_M = 0.22             # 30 Oct 2026 (UL137): pillows lower than this over the cover lie flat (no sham stands)
+SETS_LESSON = "UL236"
+TURN_RULE = "bedding.ul236.turned"
+
+
+def turned_reason(relief: Optional[dict]) -> Optional[str]:
+    """Why a library bed's model stands turned the wrong way (pure; 1 Nov 2026, lesson UL236: real04 run
+    20261031-194116-full, a platform bed with its tall headboard and its own pillows at the foot end, our set at the
+    wall): its foot end rises ``TURNED_RISE_M`` over its head end (the headboard is at the foot), or its own pillows lie
+    at the foot (``PILLOW_VERTS_MIN`` vertices and ``BUMP_MIN_M`` in the foot's pillow band) and none at the head. None
+    when it stands right (or nothing was measured)."""
+    r = relief or {}
+    head, foot = r.get("head_end_top_m"), r.get("foot_end_top_m")
+    if head is not None and foot is not None and float(foot) - float(head) >= TURNED_RISE_M - 1e-9:
+        return (f"its foot end rises {float(foot) - float(head):.2f} m over its head end (top {float(foot):.2f} m "
+                f"against {float(head):.2f} m): the headboard stands at the foot, the model is turned the wrong way")
+    fv, fb = int(r.get("foot_pillow_vertices") or 0), float(r.get("foot_pillow_bump_m") or 0.0)
+    hv, hb = int(r.get("pillow_vertices") or 0), float(r.get("pillow_bump_m") or 0.0)
+    if fv >= PILLOW_VERTS_MIN and fb >= BUMP_MIN_M and (hv < PILLOW_VERTS_MIN or hb < BUMP_MIN_M):
+        return (f"its own pillows lie at its foot ({fv} vertices, bump {fb:.2f} m) and none at its head: the model is "
+                "turned the wrong way")
+    return None
+
+
+def opposite_axis(axis: Optional[str]) -> str:
+    """The axis opposite ``axis`` (``+Y`` -> ``-Y``; pure): a model's front turned by 180 degrees."""
+    a = str(axis or "-Y").upper()
+    return ("+" if a.startswith("-") else "-") + a.lstrip("+-")
 
 
 def dress_mode(asset: Optional[dict], relief: Optional[dict], width: Optional[float] = None
@@ -1435,7 +1519,15 @@ def dress_mode(asset: Optional[dict], relief: Optional[dict], width: Optional[fl
     30 Oct 2026 (UL137, user on real04's f_L0_007: "head section of this bed needs a rework": two flat pillows lying low
     in front of the headboard, no euro shams, no standing pillows): a bed whose own pillows lie flat (their bump under
     ``STAND_BUMP_M``) was dressed with our shams and pillows on top; UL195 (at most five pieces on a bed) keeps such a
-    model's own set (None): our set goes only on a bed without pillows."""
+    model's own set (None): our set goes only on a bed without pillows.
+
+    1 Nov 2026 (lesson UL236: "consider the size of the bedding and previous beddings that already exist in the
+    models"; never two sets on a bed): ``turn`` (``turned_reason``: the headboard or the model's own pillows at its
+    foot: the build turns the model and measures it again); ``duvet``: a flat cover under the model's own pillows takes
+    our duvet only (its pillows stay); a modelled duvet whose pillows the audit sees (``has_pillows``) but the head
+    zone's measure does not keeps its own bedding (None: the measure missed them; our pillows would stand in front of
+    them). A flat cover without measured pillows still takes the full set (a storage bed's bare mattress, 30 Oct
+    2026)."""
     a = asset or {}
     r = relief or {}
     bump, rel, dens = r.get("pillow_bump_m"), r.get("relief_m"), float(r.get("density") or 0.0)
@@ -1443,15 +1535,34 @@ def dress_mode(asset: Optional[dict], relief: Optional[dict], width: Optional[fl
         if a.get("has_bedding") is True and a.get("has_pillows") is False:
             return "pillows", "the audit says the model's bedding has no pillows (no mesh to measure)"
         return None, "the model's bedding could not be measured: kept as made up"
+    why_turned = turned_reason(r)
+    if why_turned:
+        return "turn", why_turned
     share = r.get("top_share")
     flat = rel < RELIEF_MIN_M or dens < FLAT_DENSITY or (share is not None and float(share) < TOP_SHARE_MIN)
     few = r.get("pillow_vertices") is not None and int(r["pillow_vertices"]) < PILLOW_VERTS_MIN
-    no_pillows = bump < BUMP_MIN_M or few or a.get("has_pillows") is False
+    pillows_found = not (bump < BUMP_MIN_M or few)
+    no_pillows = not pillows_found or a.get("has_pillows") is False
+    flat_why = (f"its cover is flat (relief {rel * 1000:.0f} mm, {dens:.0f} vertices/m2 on top: under "
+                f"{RELIEF_MIN_M * 1000:.0f} mm or {FLAT_DENSITY:.0f}"
+                + (f"; {float(share):.0%} of the middle on the top: under {TOP_SHARE_MIN:.0%}"
+                   if share is not None else "") + "): poorer than our duvet")
     if flat:
-        return "full", (f"its cover is flat (relief {rel * 1000:.0f} mm, {dens:.0f} vertices/m2 on top: under "
-                        f"{RELIEF_MIN_M * 1000:.0f} mm or {FLAT_DENSITY:.0f}"
-                        + (f"; {float(share):.0%} of the middle on the top: under {TOP_SHARE_MIN:.0%}"
-                           if share is not None else "") + "): poorer than our duvet")
+        if pillows_found and a.get("has_pillows") is not False:
+            # 1 Nov 2026 (lesson UL236: "consider ... previous beddings that already exist in the models"): a flat
+            # cover under the model's own pillows takes our duvet only; its pillows stay, never a second set over them
+            return "duvet", (f"{flat_why}; its own pillows stand at the head (bump {bump:.2f} m, "
+                             f"{int(r.get('pillow_vertices') or 0)} vertices): our duvet under them, no pillows of "
+                             f"ours (never two sets, {SETS_LESSON})")
+        return "full", flat_why
+    if no_pillows and a.get("has_pillows") is True:
+        # 1 Nov 2026 (UL236; real04 run 20261031-194116-full, a library bed with its own four pillows: the head
+        # zone's measure found none, the audit had seen them, and our full pillow set went on in front of them): the
+        # audit and the measure disagree; the model keeps its own bedding, nothing of ours over it
+        return None, (f"its duvet has folds (relief {rel * 1000:.0f} mm); the audit sees its own pillows, the head "
+                      f"zone's measure does not (bump {bump:.2f} m, {int(r.get('pillow_vertices') or 0)} vertices; "
+                      f"{int(r.get('pillow_vertices_wide') or 0)} at pillow height in the head strip): its own bedding "
+                      f"kept, no set of ours over it (never two sets, {SETS_LESSON})")
     if no_pillows:
         return "pillows", (f"its duvet has folds (relief {rel * 1000:.0f} mm) but no pillows (bump {bump:.2f} m < "
                            f"{BUMP_MIN_M} m at the head): our pillow set on it, its duvet kept")
@@ -1486,6 +1597,34 @@ def _family(built: dict, manifest: Optional[dict]) -> str:
                 fam = bl["family"]
                 break
     return str(fam or "").lower()
+
+
+PATTERNED_STYLES: tuple[str, ...] = ("p14", "runner", "corner_drape")
+
+
+def throw_spec(bed: dict, spec: dict) -> dict:
+    """What a bed's throw should show (pure): its own variant's throw (1 Nov 2026, UL236: a woven pattern only in a
+    patterned style, a fringe only where the variant has one), else its family's (``spec["throw"]``)."""
+    layers = bed.get("bedding_layers") if isinstance(bed.get("bedding_layers"), dict) else {}
+    planned = layers.get("set") if isinstance(layers.get("set"), dict) else None
+    t = (planned or {}).get("throw") if (planned or {}).get("arrangement") else None
+    if not isinstance(t, dict):
+        return spec.get("throw") or {}
+    style = t.get("style")
+    return {"pattern": t.get("pattern") if style in PATTERNED_STYLES else None,
+            "fringe": bool(t.get("fringe")) and style != "quilt_fold", "style": style}
+
+
+def bed_want(bed: dict, spec: dict, width: float, shams: bool = True) -> dict[str, int]:
+    """What a bed's set holds (pure): its own planned variant (``bedding_layers.set`` with an ``arrangement``,
+    ``soft_sets.expected``; 1 Nov 2026, UL236), else its family's (``counts``)."""
+    layers = bed.get("bedding_layers") if isinstance(bed.get("bedding_layers"), dict) else {}
+    planned = layers.get("set") if isinstance(layers.get("set"), dict) else None
+    if planned and planned.get("arrangement"):
+        from wenart.blender import soft_sets as SS
+
+        return SS.expected(planned, width, shams=shams)
+    return counts(spec, width, shams=shams)
 
 
 def look_problems(look: Optional[dict], what: str) -> list[tuple[str, str]]:
@@ -1535,7 +1674,7 @@ def review(built: dict, manifest: Optional[dict] = None, check: str = "U34") -> 
             continue
         n += 1
         _c, _r, (w, _d) = bed_frame(bed)
-        want = counts(spec, w)
+        want = bed_want(bed, spec, w)
         problems: list[tuple[str, str]] = []
         if manifest is not None:
             entry = entries.get(bed["id"]) or {}
@@ -1545,7 +1684,8 @@ def review(built: dict, manifest: Optional[dict] = None, check: str = "U34") -> 
                 got = rec["set"]
                 explained = rec.get("explained") or {}
                 # UL163: the shams the build placed decide the set (the decorative pair stands in for them)
-                want = counts(spec, w, shams=bool(int(got.get("euro_shams") or 0)) or "euro_shams" not in explained)
+                want = bed_want(bed, spec, w,
+                                shams=bool(int(got.get("euro_shams") or 0)) or "euro_shams" not in explained)
                 short = [f"{want[k] - int(got.get(k) or 0)} {k.replace('_', ' ')}" for k in want
                          if int(got.get(k) or 0) < want[k] and k not in explained]
                 if short:
@@ -1585,11 +1725,11 @@ def review(built: dict, manifest: Optional[dict] = None, check: str = "U34") -> 
             for t in throws:
                 weave = t.get("weave") or {}
                 problems += look_problems(weave.get("blanket_look"), "blanket")
-                if spec["throw"].get("pattern") and not weave.get("pattern"):
+                if throw_spec(bed, spec).get("pattern") and not weave.get("pattern"):
                     problems.append(("throw_pattern", f"its throw has no woven pattern (the {fam} set: "
-                                                      f"{spec['throw']['pattern']})"))
+                                                      f"{throw_spec(bed, spec)['pattern']})"))
                 ends = weave.get("fringe_ends")
-                if spec["throw"].get("fringe") and not weave.get("fringe_strands") and (ends is None or ends):
+                if throw_spec(bed, spec).get("fringe") and not weave.get("fringe_strands") and (ends is None or ends):
                     problems.append(("throw_fringe", "its throw has no fringe"))
         else:
             layers = bed.get("bedding_layers") if isinstance(bed.get("bedding_layers"), dict) else {}
@@ -1597,7 +1737,7 @@ def review(built: dict, manifest: Optional[dict] = None, check: str = "U34") -> 
                 problems.append(("too_few_pillows", f"no {fam} bedding set planned (bedding_layers.set)"))
             throws = [d for d in built.get("decor") or [] if d.get("type") == "throw" and d.get("host_id") == bed["id"]]
             for t in throws:
-                if spec["throw"].get("pattern") and not (t.get("weave") or {}).get("pattern"):
+                if throw_spec(bed, spec).get("pattern") and not (t.get("weave") or {}).get("pattern"):
                     problems.append(("throw_pattern", "its throw has no woven pattern planned"))
         for problem, text in problems:
             lesson = PROBLEM_LESSONS.get(problem, LESSON)
