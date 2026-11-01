@@ -2960,3 +2960,8 @@ Fixed after the run (general): the GPU test's two L1 bathtubs kept the walk-in s
 2.10 m) when the build made them bathtubs again under the 0.81 m slope; a piece the build retypes now drops a model of
 its old type (`build._asset_fits_type`).
 Open: the camera framings of halls and small rooms; Argus A1 flags the variant level's room names on the base model.
+
+Ranking batch 3 run (1 Nov 2026, pod u3xjgkervx1dna, RTX 5090, 21 min, $0.41): 1,117 of 1,117 models rendered, 69 new
+sheets; the ranking page now holds 3,650 models on 214 sheets (groups Our builds, Textiles, Lights, Wall decor, Plants,
+Tabletop, Electronics, Furniture). The sheets show library models that are photo panels or product shots (e.g. several
+pendant lights): a score of 0-2 keeps them out of every run.
