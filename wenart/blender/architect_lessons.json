@@ -2968,6 +2968,18 @@
    "request": "Outside areas needs a touch up (1 Nov 2026, real04 run 20261031-194116-full: the outside areas read bare: big plain paving on slopes, few plants, no edges, planters or outdoor lights)",
    "lesson": "Outside areas needs a touch up (1 Nov 2026, real04 run 20261031-194116-full: the outside areas read bare: big plain paving on slopes, few plants, no edges, planters or outdoor lights)",
    "question": "Do the outside areas look designed (planting at edges and corners, varied paving with borders, planters, outdoor lights, furniture where the area is for sitting)?"
+  },
+  {
+   "id": "UL250",
+   "date": "2026-11-01",
+   "area": "library",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Did you take the latest furniture ranking info into the project? (1 Nov 2026: the ranking page held 1,970 scores, the project 834 from 31 Oct; real04 run 20261101-093151-full used 14 models the user had since ranked 0-2. Before every pod run the page's scores are read and merged into results/library/user_ranks.json and committed)",
+   "lesson": "Did you take the latest furniture ranking info into the project? (1 Nov 2026: the ranking page held 1,970 scores, the project 834 from 31 Oct; real04 run 20261101-093151-full used 14 models the user had since ranked 0-2. Before every pod run the page's scores are read and merged into results/library/user_ranks.json and committed)",
+   "question": "Were the ranking page's latest scores merged into user_ranks.json before this run, so no model the user ranked 0-2 is used and the higher rank wins?"
   }
  ]
 }

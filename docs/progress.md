@@ -3012,3 +3012,8 @@ Found in the review and fixed (general):
 | sofa cushions too big, two off the sofa | the decor stage's seat sets (`dress_seats`, UL238) took library cushions again at every refit | a cushion with a `cushion_set` keeps no library model (`fit.fit_decor_item`): our filled cushion, sized and arranged for its seat |
 
 Note: the build seconds in the job log are cumulative (one build about 600 s, as before).
+
+User ranks synced (1 Nov 2026, lesson UL250): the ranking page held 1,970 scores, the project 834 (31 Oct). The 1,136 new
+ones are merged into `results/library/user_ranks.json` (315 at 0-2: never used; 248 at 6+). Run 093151 had used 14 models
+the user has since ranked 0-2 (19 pieces: candles, books, two coffee tables, benches, a tray, a vase); the next run leaves
+them out. Before every pod run the page's scores are now read and merged first.

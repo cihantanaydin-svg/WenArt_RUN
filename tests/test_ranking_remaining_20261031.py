@@ -69,7 +69,8 @@ def _one(rows, rtype, **want):
 # The models of the batch
 # --------------------------------------------------------------------------
 
-def test_the_remaining_batch_is_every_usable_model_not_on_the_sheets(cat, rows):
+@pytest.mark.user_ranks       # 1 Nov 2026: the module's rows are built with the committed ranks (before the autouse
+def test_the_remaining_batch_is_every_usable_model_not_on_the_sheets(cat, rows):   # no-ranks fixture), so is ``want``
     done = S.committed_ids()
     assert len(done) >= 2453 and rows
     ids = [e["id"] for e in rows]
@@ -86,7 +87,8 @@ def test_the_remaining_batch_is_every_usable_model_not_on_the_sheets(cat, rows):
             want = sorted(e["id"] for e in cat.extras if e.get("type") == F.LIBRARY_FIRST[t][0] and e.get("glb")
                           and e.get("bbox_m") and C.usable(e, "relaxed"))
         else:
-            want = [e["id"] for e in F.decor_entries(cat, t, "relaxed")]
+            # 1 Nov 2026: the user's ranks order decor_entries (a higher rank first); the rows go by id
+            want = sorted(e["id"] for e in F.decor_entries(cat, t, "relaxed"))
         want = [i for i in want if i not in seen]
         seen.update(want)
         assert [e["id"] for e in rows if e["type"] == t] == want, t
