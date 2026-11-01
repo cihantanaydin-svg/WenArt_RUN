@@ -413,6 +413,8 @@ def _level_dict(level_id: str, record: PageRecord, works: list[PageWork]) -> dic
     }
     if record.label_source is not None:
         level["label_source"] = record.label_source
+    if getattr(record, "typical_of", None):
+        level["typical_of"] = record.typical_of       # real10: read from the typical floor plan of that level
     return level
 
 
@@ -2699,6 +2701,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     by_level: dict[str, list[PageWork]] = {}
     failed: dict[str, list[str]] = {}           # Milestone 10: level id -> why its region could not be read
     not_selected: list[PageRecord] = []         # Milestone 10: alternatives the brief's variants leave out
+    typical_reads: dict[str, LevelExtraction] = {}  # real10: the typical floor plan's extraction, per region
     selected_alts = {lid for v in (build.sheets or {}).get("variants") or [] if not v["base"] for lid in v["levels"]}
     # M10: the reference region is read first: its outer wall faces fix the building origin for every region.
     order = sorted(records, key=lambda r: 0 if r.region_id is not None and r.region_id == build.reference_region else 1)
@@ -2755,9 +2758,15 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         if record.extractor == "raster":
             extraction = _extract_raster(record, out_dir, answers, no_ai, secondary)
             extraction.level_assumed = record.label_source == "assumed"
+        elif record.extractor == "generic" and record.typical_of and record.region_id in typical_reads:
+            # real10 (1 Nov 2026): a level a typical floor plan stands for reads that plan's extraction again (a copy)
+            extraction = copy.deepcopy(typical_reads[record.region_id])
+            extraction.level_assumed = record.label_source == "assumed"
         elif record.extractor == "generic":
             extraction = _extract_generic(record, out_dir, answers, no_ai, build, lead=record.key in leads)
             extraction.level_assumed = record.label_source == "assumed"
+            if any(r.typical_of and r.region_id == record.region_id for r in records):
+                typical_reads[record.region_id] = copy.deepcopy(extraction)
         elif record.format in ("dxf", "dwg"):
             extraction = extract_dxf(record.source_path, record.level_id, record.file)
         else:

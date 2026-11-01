@@ -184,6 +184,20 @@ def group(plans: list, brief_variants, conflict: Callable, warnings: list) -> tu
                 r.conflicts.append(cid)
         levels.append(entry)
 
+    # real10 (1 Nov 2026): a typical floor plan is the base of every level it stands for; the other levels are its
+    # copies (``typical_of``), read from the same region.
+    region_of = {r.id: r for r in plans}
+    for entry in list(levels):
+        typ = (region_of[entry["base_region"]].level or {}).get("typical")
+        if not typ:
+            continue
+        entry["typical"] = {"label": typ["label"], "levels": list(typ["ids"]), "inferred": list(typ["inferred"]),
+                            "how": typ["how"]}
+        for order, lid, label in list(zip(typ["orders"], typ["ids"], typ["labels"]))[1:]:
+            levels.append({"id": lid, "order": order, "label": label, "kind": entry["kind"],
+                           "base_region": entry["base_region"], "secondary_regions": [], "alternatives": [],
+                           "furniture_regions": [], "evidence": list(entry["evidence"]), "typical_of": entry["id"]})
+    levels.sort(key=lambda lv: lv["order"])
     variants = [{"id": "base", "label": "Base", "base": True, "levels": [lv["id"] for lv in levels],
                  "regions": [lv["base_region"] for lv in levels]}]
     selected = _selected(brief_variants, alternatives, warnings)

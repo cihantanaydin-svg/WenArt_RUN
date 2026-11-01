@@ -111,6 +111,9 @@ BRIDGE_M = 3.0                 # ... and a ray through a door or window gap (<= 
 NEVER_PLOTTED_LAYERS = ("DEFPOINTS",)
 FACE_KINDS = ("face_pair", "face_join", "column")
 DIMENSION_LAYER_SHARE = 0.2    # a layer this share of whose straight strokes draw dimensions is a dimension layer
+GRID_CROSS_MIN = 6             # real10 (1 Nov 2026): a layer whose wall pieces cross straight through each other at
+GRID_CROSS_SHARE = 0.5         # >= 6 places and in >= 50 % of the places they meet is an axis grid, never the walls
+GRID_END_M = 0.5               # ... (a crossing lies >= 0.5 m plus the other piece's width from both pieces' ends)
 
 
 @dataclass
@@ -872,6 +875,44 @@ def _join(p: _Pair, line: _Line, side: int, elems: list[_Element], tree) -> Opti
             _Pair(p.layer, p.u, p.n, a, b, p.lines))
 
 
+def grid_crossings(pairs: list[_Pair]) -> tuple[int, int]:
+    """``(through, meet)`` of a layer's primary wall pieces: the places where two pieces of different directions meet
+    (their centre lines within half the other's width), and those where both run on past the meeting point by
+    ``GRID_END_M`` plus the other's width (a + crossing: axis lines; walls meet at T and L joints, a drawn wall's faces
+    stop at the wall they meet)."""
+    prim = [p for p in pairs if p.primary]
+    if len(prim) < 2:
+        return 0, 0
+    from shapely.geometry import LineString
+
+    lines = []
+    for p in prim:
+        mid = (p.lines[0].off + p.lines[1].off) / 2.0
+        lines.append(LineString([p.point(p.lo, mid), p.point(p.hi, mid)]))
+    tree = STRtree(lines)
+    through = meet = 0
+    for i, (p, li) in enumerate(zip(prim, lines)):
+        for j in tree.query(li.buffer(p.width / 2.0 + PAIR_TOUCH_M)):
+            j = int(j)
+            if j <= i:
+                continue
+            q = prim[j]
+            if abs(p.u[0] * q.u[0] + p.u[1] * q.u[1]) > math.cos(math.radians(30.0)):
+                continue                                  # (nearly) parallel: no meeting of two directions
+            if li.distance(lines[j]) > (p.width + q.width) / 2.0 + PAIR_TOUCH_M:
+                continue
+            meet += 1
+            x = li.intersection(lines[j])
+            if x.is_empty or x.geom_type != "Point":
+                continue
+            s_p = x.x * p.u[0] + x.y * p.u[1]
+            s_q = x.x * q.u[0] + x.y * q.u[1]
+            if min(s_p - p.lo, p.hi - s_p) >= GRID_END_M + q.width and \
+                    min(s_q - q.lo, q.hi - s_q) >= GRID_END_M + p.width:
+                through += 1
+    return through, meet
+
+
 def _gap_bridges(pairs: list[_Pair]) -> list[Polygon]:
     """For the label test only: the gaps (<= ``BRIDGE_M``) between wall pieces of one band (the same direction and
     faces within 1 cm), where doors and windows are drawn (synthetic-07's basement: seven window gaps let the rays
@@ -987,11 +1028,20 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         elems = _network(pairs, columns)
         hits = closed_in(anchors, [e.polygon for e in elems] + _gap_bridges(pairs))
         widths = sorted({round(p.width, 3) for p in pairs if p.primary})
+        through, meet = grid_crossings(pairs)
+        grid = through >= GRID_CROSS_MIN and through >= GRID_CROSS_SHARE * max(meet, 1)
         rows.append({"layer": layer, "closed_in": sum(hits), "pair_share": round(paired / max(long_lines, 1), 3),
                      "pairs": sum(1 for p in pairs if p.primary), "widths_m": widths[:8],
-                     "_elems": elems})
-    rows.sort(key=lambda r: (-r["closed_in"], -r["pair_share"], -r["pairs"], r["layer"]))
+                     "crossings": [through, meet], "grid": grid, "_elems": elems})
+    # An axis grid closes in the rooms too (real10's double-line axes, 0.10 m apart, closed in 8 of 9 labels and beat
+    # the walls): it never wins, whatever it closes in.
+    rows.sort(key=lambda r: (r["grid"], -r["closed_in"], -r["pair_share"], -r["pairs"], r["layer"]))
     choice["layers"] = [{k: v for k, v in r.items() if k != "_elems"} for r in rows]
+    if rows and rows[0]["grid"]:
+        choice["reason"] = (f"only axis grids close in the labels: "
+                            f"{', '.join(repr(r['layer']) for r in rows if r['grid'])} (their pieces cross straight "
+                            f"through each other)")
+        return prims, choice
     if not rows or rows[0]["closed_in"] < need:
         best = rows[0] if rows else None
         choice["reason"] = (f"no layer's face pairs close in >= {LAYER_EXPLAINS:.0%} of the {len(labels)} labels"
@@ -1003,6 +1053,10 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
             f"{len(labels)} labelled rooms, {win['pair_share']:.0%} of its long strokes pair, widths "
             f"{', '.join(f'{w:.2f}' for w in win['widths_m'])} m); runner-up "
             + (f"'{runner['layer']}' ({runner['closed_in']} of {len(labels)})" if runner else "none"))
+    grids = [r["layer"] for r in rows if r["grid"]]
+    if grids:
+        note += (f"; axis grid layer(s) {', '.join(repr(g) for g in grids)} never chosen (their pieces cross straight "
+                 f"through each other)")
     cols = [e for e in win["_elems"] if e.kind == "column"]
     if cols:
         left = sum(e.left_out for e in cols)

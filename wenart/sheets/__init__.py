@@ -257,7 +257,9 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
 
     # Levels, variants, registration.
     plans = [r for r in regions if r.use == "read" and r.cls in CL.PLAN_CLASSES]
-    LV.assign_levels(plans, needs_review, warnings)
+    # real10 (1 Nov 2026): the storeys the sections name tell how many floors a typical floor plan stands for.
+    storeys = LV.storey_words([r for r in regions if r.cls == "section" and r.use == "heights"])
+    LV.assign_levels(plans, needs_review, warnings, storeys)
     levels_json, variants_json = VR.group(plans, values.get("variants", "all"), conflict, warnings)
     read_plans = [r for r in plans if r.use == "read" and r.level is not None]
     multi = multi_region(regions)

@@ -25,6 +25,11 @@ from wenart import building as B
 
 # Level words (§3.1 item 3): (order or "top", kind, label, pattern, language).
 LEVEL_WORDS: list[tuple[object, str, str, str, str]] = [
+    # real10 (1 Nov 2026): the roof terrace floor of an apartment block (its stair house over a flat roof) is the top
+    ("top", "roof_terrace", "Teras Katı", r"\bTERAS KATI?\b|\bCATI TERASI\b", "tr"),
+    ("top", "roof_terrace", "Roof Terrace", r"\bROOF TERRACE\b", "en"),
+    ("top", "roof_terrace", "Dachterrasse", r"\bDACHTERRASSE\b", "de"),
+    ("top", "roof_terrace", "Toit-terrasse", r"\bTOIT-TERRASSE\b|\bTOIT TERRASSE\b", "fr"),
     ("top", "attic", "Çatı Katı", r"\bCATI KATI?\b", "tr"),
     ("top", "attic", "Attic", r"\bATTIC\b|\bLOFT\b", "en"),
     ("top", "attic", "Dachgeschoss", r"\bDACHGESCHOSS\b", "de"),
@@ -39,6 +44,23 @@ LEVEL_WORDS: list[tuple[object, str, str, str, str]] = [
     (0, "floor", "Rez-de-chaussée", r"\bREZ-DE-CHAUSSEE\b|\bREZ DE CHAUSSEE\b", "fr"),
 ]
 _LEVEL_RE = [(o, k, lab, re.compile(p), lang) for o, k, lab, p, lang in LEVEL_WORDS]
+# real10 (1 Nov 2026): basements counted downwards (``2. BODRUM KAT`` = -2) and a typical floor plan (``NORMAL KAT``,
+# ``TİP KAT``: one plan for every upper floor the sections list); a numbered normal floor (``3. NORMAL KAT``) is that
+# floor.
+_NTH_BASEMENT_RE = [
+    (re.compile(r"\b(\d{1,2})\s*\.\s*BODRUM\b"), "tr", "{n}. Bodrum Kat"),
+    (re.compile(r"\b(\d{1,2})\s*(?:ST|ND|RD|TH)\s+BASEMENT\b"), "en", "Basement {n}"),
+    (re.compile(r"\bBASEMENT\s+(\d{1,2})\b"), "en", "Basement {n}"),
+    (re.compile(r"\b(\d{1,2})\s*\.\s*(?:UG|UNTERGESCHOSS)\b"), "de", "{n}. Untergeschoss"),
+    (re.compile(r"\b(\d{1,2})\s*(?:ER|E|EME)\s+SOUS-SOL\b"), "fr", "{n}e sous-sol"),
+]
+_NTH_NORMAL_RE = re.compile(r"\b(\d{1,2})\s*\.\s*(?:NORMAL|TIP)\s+KAT\b")
+_TYPICAL_RE = [
+    (re.compile(r"\bNORMAL KAT\b|\bTIP KAT\b"), "tr", "Normal Kat"),
+    (re.compile(r"\bTYPICAL FLOOR\b|\bTYPICAL PLAN\b"), "en", "Typical Floor"),
+    (re.compile(r"\bREGELGESCHOSS\b|\bNORMALGESCHOSS\b"), "de", "Regelgeschoss"),
+    (re.compile(r"\bETAGE COURANT\b"), "fr", "Étage courant"),
+]
 _NTH_RE = [
     (re.compile(r"\b(\d{1,2})\s*\.\s*KAT\b"), "tr", "{n}. Kat"),
     (re.compile(r"\b(\d{1,2})\s*(?:ST|ND|RD|TH)\s+FLOOR\b"), "en", "{n}th Floor"),
@@ -56,12 +78,34 @@ class LevelWord:
     label: str
     word: str
     language: str
+    typical: bool = False         # a typical floor plan: it stands for every upper floor without a plan of its own
 
 
 def level_of(text: str) -> Optional[LevelWord]:
     """The level a title names: basement -1, ground 0, ``n. KAT`` / ``n-th FLOOR`` / ``n. OG`` n, attic = the top."""
     folded = _fold(text)
     for order, kind, label, pattern, lang in _LEVEL_RE:
+        if kind != "roof_terrace":                                     # the roof terrace floor first (the top)
+            continue
+        m = pattern.search(folded)
+        if m:
+            return LevelWord(order=None, kind=kind, label=label, word=m.group(0), language=lang)
+    for pattern, lang, label in _NTH_BASEMENT_RE:
+        m = pattern.search(folded)
+        if m and int(m.group(1)) > 0:
+            n = int(m.group(1))
+            return LevelWord(order=-n, kind="basement", label=label.format(n=n), word=m.group(0), language=lang)
+    m = _NTH_NORMAL_RE.search(folded)
+    if m and int(m.group(1)) > 0:
+        n = int(m.group(1))
+        return LevelWord(order=n, kind="floor", label=f"{n}. Normal Kat", word=m.group(0), language="tr")
+    for pattern, lang, label in _TYPICAL_RE:
+        m = pattern.search(folded)
+        if m:
+            return LevelWord(order=1, kind="floor", label=label, word=m.group(0), language=lang, typical=True)
+    for order, kind, label, pattern, lang in _LEVEL_RE:
+        if kind == "roof_terrace":
+            continue
         m = pattern.search(folded)
         if m:
             return LevelWord(order=None if order == "top" else int(order), kind=kind, label=label, word=m.group(0),
@@ -132,22 +176,81 @@ def _by_floor_marks(untitled: list, warnings: list) -> bool:
     return True
 
 
-def assign_levels(plans: list, needs_review: list, warnings: list) -> None:
+def storey_words(regions: list) -> dict[int, str]:
+    """The storeys the sections name (real10: ``2. BODRUM KAT`` ... ``ZEMİN KAT``, ``1. NORMAL KAT`` ... ``6. NORMAL
+    KAT`` beside the slab bands): order -> label, from the level words of the regions' texts (a typical-floor word
+    or the top floor names no storey of its own)."""
+    out: dict[int, str] = {}
+    for r in regions:
+        for t in getattr(r, "texts", None) or []:
+            lw = level_of(t.text)
+            if lw is not None and lw.order is not None and not lw.typical:
+                out.setdefault(lw.order, lw.label)
+    return dict(sorted(out.items()))
+
+
+def typical_orders(own: set, storeys: dict[int, str]) -> tuple[list[int], list[int], str]:
+    """``(orders, inferred, how)``: the levels a typical floor plan stands for. With storeys named on the sections:
+    every one at or above the ground floor without a plan of its own, in one run from the lowest (the ground floor
+    among them only when it has no plan: inferred); without them one level, the ground floor when it has no plan,
+    else the first floor (how = ``assumed``)."""
+    if storeys:
+        free = [o for o in storeys if o >= 0 and o not in own]
+        run = []
+        for o in free:
+            if run and o != run[-1] + 1:
+                break
+            run.append(o)
+        if run:
+            inferred = [o for o in run if o == 0]
+            return run, inferred, "section"
+    first = 0 if 0 not in own else 1
+    return [first], [first] if first == 0 else [], "assumed"
+
+
+def assign_levels(plans: list, needs_review: list, warnings: list,
+                  storeys: Optional[dict[int, str]] = None) -> None:
     words = {}
     for r in plans:
         lw = level_of(r.title["text"]) if r.title else None
         words[id(r)] = lw
-    orders = [lw.order for lw in words.values() if lw is not None and lw.order is not None]
+    storeys = storeys or {}
+    own = {lw.order for lw in words.values() if lw is not None and lw.order is not None and not lw.typical}
+    typical = {}
+    for r in plans:
+        lw = words[id(r)]
+        if lw is not None and lw.typical:
+            typical[id(r)] = typical_orders(own, storeys)
+            own |= set(typical[id(r)][0])
+    orders = sorted(own)
     top = max(max(orders) + 1, 1) if orders else 0
     untitled = [r for r in plans if words[id(r)] is None]
     for r in plans:
         lw = words[id(r)]
         if lw is None:
             continue
-        order = top if lw.order is None else lw.order
         ev = [dict(r.evidence[0])] if r.evidence else []
+        if lw.typical:
+            run, inferred, how = typical[id(r)]
+            labels = [storeys.get(o) or ("Zemin Kat" if o == 0 else f"{o}. {lw.label}") for o in run]
+            r.level = {"order": run[0], "label": labels[0], "id": B.level_id(run[0]), "kind": "floor",
+                       "method": "title", "evidence": ev,
+                       "typical": {"label": lw.label, "orders": run, "ids": [B.level_id(o) for o in run],
+                                   "labels": labels, "inferred": [B.level_id(o) for o in inferred], "how": how}}
+            text = (f"{r.file} {r.id}: typical floor plan '{r.title['text'].strip()}' stands for "
+                    f"{len(run)} level(s) {', '.join(f'{B.level_id(o)} {lab}' for o, lab in zip(run, labels))}"
+                    + (" (the storeys the sections name)" if how == "section" else
+                       " (no section names the storeys: one level assumed)"))
+            if inferred:
+                text += (f"; {', '.join(B.level_id(o) for o in inferred)} has no plan of its own: the typical plan "
+                         f"is used (inferred)")
+            warnings.append(text)
+            continue
+        order = top if lw.order is None else lw.order
         r.level = {"order": order, "label": lw.label, "id": B.level_id(order), "kind": _kind(lw.kind, order),
                    "method": "title", "evidence": ev}
+        if lw.kind == "roof_terrace":
+            r.level["roof_terrace"] = True
     if not untitled:
         return
     titled = sorted({r.level["order"] for r in plans if r.level})

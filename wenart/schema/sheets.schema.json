@@ -135,6 +135,8 @@
           "id": {"type": "string"},
           "kind": {"enum": ["basement", "floor", "attic"]},
           "method": {"enum": ["title", "section_order", "assumed"]},
+          "typical": {"type": "object", "description": "real10: a typical floor plan: label, orders, ids, labels, inferred, how"},
+          "roof_terrace": {"type": "boolean", "description": "real10: the roof terrace floor of an apartment block (TERAS KATI), the top level"},
           "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
         }},
         "variant_group": {"type": ["string", "null"]},
@@ -201,6 +203,8 @@
           "base_unclear": {"type": "boolean"}
         }}},
         "furniture_regions": {"type": "array", "items": {"type": "string"}, "description": "furniture_plan regions of this level"},
+        "typical": {"type": "object", "description": "real10 (1 Nov 2026): the level's plan is a typical floor plan: label, the level ids it stands for (levels), those inferred (a ground floor without a plan of its own) and how (section: the storeys the sections name; assumed)"},
+        "typical_of": {"type": "string", "description": "real10: a level the typical floor plan of base_region stands for (that plan's first level)"},
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
       }
     },

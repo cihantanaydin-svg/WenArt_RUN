@@ -3037,3 +3037,28 @@ Open on real04 after run 093151 (the review above lists what is fixed):
 
 Before every pod run: merge the ranking page's scores first (UL250), run `pytest -m "not gpu"`, check the day cap.
 Next: the user's review of real04 run 093151 and a new house plan, worked on side by side.
+
+## real10 (1 Nov 2026): the user's DWG, first reading
+
+`projects/real10/real10.dwg` (AutoCAD 2004, 3.8 MB, exploded: 195k LINEs, no blocks, metres at 1:50 like real06) is an
+**apartment block** (A BLOK), not a house: 2 basements (-3.85, -0.50), a ground floor (+2.50, no plan of its own),
+6 normal floors (+5.50 ... +20.50, 3.00 m storeys) drawn as one typical plan (`NORMAL KAT PLANI`), a roof terrace with
+the stair house (+23.50, parapet +24.40, top +26.90); two mirrored flats per floor (master bedroom with shower, child
+room, family room, living room, kitchen with dining, bath, WC, hall, balconies or terraces) around a stair and lift
+core; 2 sections, 4 elevations. LibreDWG built in the session (`scripts/cloud-setup.sh` recipe, 3 min).
+
+General reading rules added (`tests/test_real10_reading.py`):
+
+| What the drawing does | Rule |
+|---|---|
+| ten drawings in one row 0.7-3 m apart, no frames (the 1.5 % gap of the long strip, 3.4 m, joined them all) | title cuts: a group holding >= 2 drawing titles (class word at title size) is cut at the emptiest clear band between neighbouring titles (`split._split_by_titles`); each title joins its own part |
+| `2.BODRUM KAT PLANI` and `1.BODRUM KAT PLANI` (both read as -1) | numbered basements count down (`levels.level_of`: -2, -1) |
+| `NORMAL KAT PLANI` (no level) | a typical floor plan stands for every storey the sections name without a plan of its own (`levels.typical_orders`): real10 L0-L6, L0 (ground floor) inferred; the region is read once and copied per level (`classify.typical_copies`, `typical_of` in the building levels) |
+| `TERAS KAT PLANI` (no level) | the roof terrace floor is the top level (L7, `roof_terrace`) |
+| the axis grid (`aks`, double lines 0.10 m apart) won the wall layer choice (closed 8 of 9 rooms) | an axis grid's pieces cross straight through each other; such a layer never wins (`walls.grid_crossings`); real10's basement now reads `DUVAR` |
+
+Not done yet (real10 stays `needs_review`, no level built): the plans' walls fall into 10-15 parts. The columns and
+shear walls (`kolon`, 25 x 25 cm up to 25 x 258 cm) are four separate LINEs each; a first column-loop rule finds them
+but the wall pieces do not join them yet (kept aside, not committed). Then: the 2nd basement and the terrace (no wall
+layer chosen), the heights (the section mapping puts L-2 at -6.00 instead of -6.35, and reads the flat roof terrace as
+a pitched roof), and the downstream use of typical floors (furnish and render one floor, copy the rest).

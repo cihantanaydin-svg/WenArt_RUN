@@ -146,10 +146,14 @@ class PageRecord:
     level_kind: Optional[str] = None           # basement | floor | attic
     region_transform: Optional[list] = None    # the registered transform_to_building of the region
     units_override: Optional[float] = None     # metres per unit of the unit check (DXF/DWG)
+    typical_of: Optional[str] = None           # real10: a level a typical floor plan stands for (its base level id)
 
     @property
     def key(self) -> tuple:
-        """(file, page, region) of the record: one record per region of a page in multi-region projects."""
+        """(file, page, region) of the record: one record per region of a page in multi-region projects; a level
+        a typical floor plan stands for adds its level id (the same region read for each of its levels)."""
+        if self.typical_of:
+            return (self.file, self.page, self.region_id, self.level_id)
         return (self.file, self.page, self.region_id)
 
     def is_extractable(self) -> bool:
@@ -738,6 +742,25 @@ def region_records(records: list[PageRecord], sheets: Optional[dict]) -> list[Pa
         for r in sorted(regions, key=lambda r: int(r["id"][1:]) if r["id"][1:].isdigit() else 0):
             if r["use"] in ("read", "heights", "exterior"):
                 out.append(_region_record(rec, r, units.get(rec.file) or {}, base_of))
+                out.extend(typical_copies(out[-1], r))
+    return out
+
+
+def typical_copies(base: PageRecord, region: dict) -> list[PageRecord]:
+    """real10 (1 Nov 2026): one record per further level a typical floor plan stands for (``level.typical``): the
+    same region read for each, ``typical_of`` its first level."""
+    typ = (region.get("level") or {}).get("typical") or {}
+    if region.get("use") != "read" or not typ:
+        return []
+    import dataclasses
+
+    out = []
+    for order, lid, label in list(zip(typ["orders"], typ["ids"], typ["labels"]))[1:]:
+        new = dataclasses.replace(base, evidence=[dict(e) for e in base.evidence])
+        new.level_id, new.level_label, new.level_order = lid, label, order
+        new.label_source = "title" if typ.get("how") == "section" else "assumed"
+        new.typical_of = base.level_id
+        out.append(new)
     return out
 
 

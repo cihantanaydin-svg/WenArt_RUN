@@ -245,6 +245,7 @@
         "variant": {"type": ["string", "null"], "description": "Milestone 10: base, or the alternative's name as titled (Açık mutfak); alternative levels get the id <base id>b, <base id>c ..."},
         "variant_slug": {"type": ["string", "null"], "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "ASCII slug of variant, hyphens (wenart.building.variant_slug: acik-mutfak); base levels: base"},
         "base_level_id": {"type": ["string", "null"], "description": "Alternative levels: the base level they replace"},
+        "typical_of": {"type": ["string", "null"], "description": "real10 (1 Nov 2026): a level a typical floor plan (NORMAL KAT, TİP KAT) stands for: the id of the level that plan was read for first; the same region is read for every such level"},
         "region_id": {"type": ["string", "null"], "description": "Milestone 10: the sheets.json region the level was read from"},
         "elevation_source": {"enum": ["section", "elevation_drawing", "level_mark", "assumed_default"], "description": "Milestone 10: where the elevation comes from"},
         "floor_to_floor": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
