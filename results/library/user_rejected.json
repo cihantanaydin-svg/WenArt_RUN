@@ -32,6 +32,26 @@
    "user": "I did not like this pink carped never use it again",
    "where": "real04 run 20261030-181158-full, r_L-1_salon (dec_L-1_001) and r_L-1_salon_2 (dec_L-1_100); also in the L0 corridors",
    "reason": "the user rejected it on the render: a hot-pink shag rug (its own texture; the asked beige or grey never showed)"
+  },
+  {
+   "id": "abo_B01M0ZVGCQ",
+   "type": "bed_double",
+   "title": "Movian Belaya",
+   "date": "2026-11-01",
+   "lesson": "UL236",
+   "user": "This model is too plain",
+   "where": "real04 run 20261031-194116-full, r_L0_yatak_odasi_3 (f_L0_021)",
+   "reason": "the user rejected it on the render: a plain white storage bed with drawers, no headboard detail"
+  },
+  {
+   "id": "3dwh_4bb1b0bfa01eefe9079d94b0",
+   "type": "table_coffee",
+   "title": "Wood and Epoxy Coffee Table",
+   "date": "2026-11-01",
+   "lesson": "UL237",
+   "user": "This is only a photo if that's the case don't use this model ever again",
+   "where": "real04 run 20261031-194116-full, r_L1_oyun_aktivite_ve_dinlenme_odasi (f_L1_036)",
+   "reason": "the user rejected it on the render: a product photo of a river table printed on a board, not a table"
   }
  ]
 }

@@ -2812,6 +2812,18 @@
    "request": "bedding seem to be using the same set of pillows sheets etc, use better models better textures, more details and more variants, consider the size of the bedding and previous beddings that already exist in the models (1 Nov 2026, real04 run 20261031-194116-full: every bed got the same white shams, mustard cushion, grey band and checked throw; a library bed's own grey pillows stood behind our added set)",
    "lesson": "bedding seem to be using the same set of pillows sheets etc, use better models better textures, more details and more variants, consider the size of the bedding and previous beddings that already exist in the models (1 Nov 2026, real04 run 20261031-194116-full: every bed got the same white shams, mustard cushion, grey band and checked throw; a library bed's own grey pillows stood behind our added set)",
    "question": "Does each bed get its own bedding set (different pillows, sheets, duvet and throw per bed, fitted to the bed's size), never a second set over the bedding the bed model already has?"
+  },
+  {
+   "id": "UL237",
+   "date": "2026-11-01",
+   "area": "library",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This is only a photo if that's the case don't use this model ever again (1 Nov 2026, real04 run 20261031-194116-full: the 'Wood and Epoxy Coffee Table' is a product photo printed on a board; a library model that is only a photo or a picture card is never used, by a code check of its geometry and texture, not only when the user finds one)",
+   "lesson": "This is only a photo if that's the case don't use this model ever again (1 Nov 2026, real04 run 20261031-194116-full: the 'Wood and Epoxy Coffee Table' is a product photo printed on a board; a library model that is only a photo or a picture card is never used, by a code check of its geometry and texture, not only when the user finds one)",
+   "question": "Is any library model in the renders only a photo or a picture card (a flat board with a product image) instead of a real 3D object?"
   }
  ]
 }
