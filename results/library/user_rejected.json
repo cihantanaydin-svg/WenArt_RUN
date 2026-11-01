@@ -52,6 +52,26 @@
    "user": "This is only a photo if that's the case don't use this model ever again",
    "where": "real04 run 20261031-194116-full, r_L1_oyun_aktivite_ve_dinlenme_odasi (f_L1_036)",
    "reason": "the user rejected it on the render: a product photo of a river table printed on a board, not a table"
+  },
+  {
+   "id": "3dwh_cc9a735781c180a72cf558ce",
+   "type": "decor_plant",
+   "title": "Potted Plant [u914c470]",
+   "date": "2026-11-01",
+   "lesson": "UL239",
+   "user": "Don't use this plant",
+   "where": "real04 run 20261031-194116-full, r_L1_oyun_aktivite_ve_dinlenme_odasi (dec_L1_014)",
+   "reason": "the user rejected it on the render: plastic-looking grass blades in a grey box planter"
+  },
+  {
+   "id": "3dwh_3ca51944db9df428d5f09afc",
+   "type": "potted_plant",
+   "title": "Succulent euphorbia in vase",
+   "date": "2026-11-01",
+   "lesson": "UL239",
+   "user": "If not possible to make this plant more realistic with better textures don't use this plant",
+   "where": "real04 run 20261031-194116-full, r_L1_oyun_aktivite_ve_dinlenme_odasi (f_L1_068)",
+   "reason": "the user rejected it on the render unless it can look real: a library mesh's own grey-white texture cannot be made realistic by the pipeline (no per-model retexturing), so it is not used"
   }
  ]
 }

@@ -2824,6 +2824,30 @@
    "request": "This is only a photo if that's the case don't use this model ever again (1 Nov 2026, real04 run 20261031-194116-full: the 'Wood and Epoxy Coffee Table' is a product photo printed on a board; a library model that is only a photo or a picture card is never used, by a code check of its geometry and texture, not only when the user finds one)",
    "lesson": "This is only a photo if that's the case don't use this model ever again (1 Nov 2026, real04 run 20261031-194116-full: the 'Wood and Epoxy Coffee Table' is a product photo printed on a board; a library model that is only a photo or a picture card is never used, by a code check of its geometry and texture, not only when the user finds one)",
    "question": "Is any library model in the renders only a photo or a picture card (a flat board with a product image) instead of a real 3D object?"
+  },
+  {
+   "id": "UL238",
+   "date": "2026-11-01",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This pillow going over the sofa, when you are bedding the sofas or beds consider the sizes and the final look, try to use better more detailed models with better textures, and realistic looking pillows, this pillow marked not looking realistic (1 Nov 2026, real04 run 20261031-194116-full: a floral cushion stood up over the sofa's back, larger in view than the others)",
+   "lesson": "This pillow going over the sofa, when you are bedding the sofas or beds consider the sizes and the final look, try to use better more detailed models with better textures, and realistic looking pillows, this pillow marked not looking realistic (1 Nov 2026, real04 run 20261031-194116-full: a floral cushion stood up over the sofa's back, larger in view than the others)",
+   "question": "Do the sofa and bed cushions sit on the seat or against the back in proportion to the piece (never standing over its back), with realistic models and textures?"
+  },
+  {
+   "id": "UL239",
+   "date": "2026-11-01",
+   "area": "library",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Don't use this plant; If not possible to make this plant more realistic with better textures don't use this plant (1 Nov 2026, real04 run 20261031-194116-full: a plastic grass in a grey box planter and a grey-white euphorbia; both in user_rejected.json)",
+   "lesson": "Don't use this plant; If not possible to make this plant more realistic with better textures don't use this plant (1 Nov 2026, real04 run 20261031-194116-full: a plastic grass in a grey box planter and a grey-white euphorbia; both in user_rejected.json)",
+   "question": "Is any plant in the renders plastic-looking or flat-textured (the user rejects such plants)?"
   }
  ]
 }
