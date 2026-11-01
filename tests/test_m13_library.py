@@ -1048,8 +1048,12 @@ def test_the_committed_catalogue_flags_the_p5_look_findings_for_relaxed_mode_onl
             assert not C.usable(cat.entry(aid), "relaxed")
         else:
             assert a["status"] in ("keep", "fix") and a["reasons"] == [], aid
-            assert C.usable(cat.entry(aid), "relaxed"), aid
-            assert "logo" in C.unusable_reason(cat.entry(aid), "commercial"), aid
+            # 1 Nov 2026: unless the user rejected it on a render since (user_rejected.json; UL239: "Don't use this table")
+            if C.user_rejection(cat.entry(aid)) is None:
+                assert C.usable(cat.entry(aid), "relaxed"), aid
+                assert "logo" in C.unusable_reason(cat.entry(aid), "commercial"), aid
+            else:
+                assert not C.usable(cat.entry(aid), "relaxed"), aid
         (f,) = e["render_findings"]
         assert f["finding"] == kind and f["sha256_glb"] == e["sha256_glb"]
         if f.get("seen_in"):
