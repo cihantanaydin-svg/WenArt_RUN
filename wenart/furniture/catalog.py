@@ -901,7 +901,9 @@ def usable(entry: dict, mode: str = "commercial") -> bool:
     ``no_derivatives`` and ``unknown`` (``NEVER_USABLE_FLAGS``). Works on a catalogue entry and on a fitted ``asset``
     dict alike. 28 Oct 2026: a catalogue entry its own names or audit refuse (``title_refusal``) is not used. 29 Oct
     2026: a model the user rejected (``user_rejection``, ``results/library/user_rejected.json``) is never used. 31 Oct
-    2026 (UL217): nor a model the user ranked 0-2 on the ranking sheets (``user_ranks.out_reason``)."""
+    2026 (UL217): nor a model the user ranked 0-2 on the ranking sheets (``user_ranks.out_reason``). 1 Nov 2026
+    (UL237): nor a photo card, a flat board carrying a product image (``photo_cards.card``,
+    ``results/library/photo_cards.json``, found by ``wenart.assets.audit.photocard``)."""
     mode = check_mode(mode)
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
     if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
@@ -910,6 +912,9 @@ def usable(entry: dict, mode: str = "commercial") -> bool:
         return False
     from wenart.furniture import user_ranks as UR
     if UR.out_reason(entry):                       # 31 Oct 2026 (UL217): a model the user ranked 0-2, never used
+        return False
+    from wenart.furniture import photo_cards as PC
+    if PC.card(entry) is not None:                 # 1 Nov 2026 (UL237): a photo card, not a 3D object, never used
         return False
     if title_refusal(entry):
         return False
@@ -1004,6 +1009,10 @@ def unusable_reason(entry: dict, mode: str = "commercial") -> Optional[str]:
     ranked_out = UR.out_reason(entry)
     if ranked_out:
         return ranked_out
+    from wenart.furniture import photo_cards as PC
+    card_why = PC.reason(entry)
+    if card_why:
+        return card_why
     why = title_refusal(entry)
     if why:
         return f"its names or its audit refuse it ({why}; wenart.furniture.model_title)"

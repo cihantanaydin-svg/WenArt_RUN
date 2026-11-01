@@ -779,6 +779,7 @@ def rooms_for_use(building: dict) -> list[dict]:
 
     fixes = {"media_wall": "rerun_stage layout (media_wall: a TV unit and its TV facing the main seat)",
              "user_rejected": "swap_model (the fit never takes a user-rejected model: catalog.user_rejection)",
+             "photo_card": "swap_model (the fit never takes a photo card: catalog.usable, photo_cards.card; UL237)",
              "symbol_size": "rerun_stage refit (fit.apply_size_snap: the plan symbol at its real product size)"}
     out = []
     for f in RU.review(building)[0]:

@@ -108,6 +108,7 @@ LEVELS_CODE = ("wenart/levels/**", "wenart/blender/**", "wenart/canonical.py", "
                "wenart/furniture/model_title.py",     # 28 Oct 2026: catalog.usable reads the model rules
                "results/library/user_rejected.json",  # 29 Oct 2026: ... and the models the user rejected
                "wenart/furniture/user_ranks.py", "results/library/user_ranks.json",   # 31 Oct 2026: ... ranked (UL217)
+               "wenart/furniture/photo_cards.py", "results/library/photo_cards.json",  # 1 Nov 2026 (UL237)
                "wenart/furniture/decor.py",           # 30 Oct 2026: the build modules reach the decor's type lists
                "wenart/furniture/mugs.py",            # ... and the decor its mugs (UL213)
                "wenart/furniture/room_schemes.py",    # 31 Oct 2026: feature_walls reads its PANEL_FEATURES
@@ -134,6 +135,7 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wena
             "wenart/furniture/model_title.py",       # 28 Oct 2026: catalog.usable reads the model rules
             "results/library/user_rejected.json",    # 29 Oct 2026: ... and the models the user rejected (UL94)
             "wenart/furniture/user_ranks.py", "results/library/user_ranks.json",   # 31 Oct 2026: ... ranked (UL217)
+            "wenart/furniture/photo_cards.py", "results/library/photo_cards.json",  # 1 Nov 2026 (UL237)
             "wenart/furniture/small_items.py",       # 31 Oct 2026 (UL228): library first for the small items
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
             "wenart/blender/detail_parts.py",        # 29 Oct 2026: the reference details' parts (parametric)
@@ -204,6 +206,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml",
              "wenart/furniture/model_title.py",          # 28 Oct 2026: catalog.usable reads the model rules
              "wenart/furniture/user_ranks.py",           # 31 Oct 2026 (UL217): ... and the user's ranks
+             "wenart/furniture/photo_cards.py",          # 1 Nov 2026 (UL237): ... and the photo cards
              "wenart/furniture/small_items.py",          # 31 Oct 2026 (UL228): ... and the small items' picks
              # T5 review (15 Oct 2026): site.py and sheets/exterior.py import T6's new vegetation module.
              "wenart/blender/vegetation.py",

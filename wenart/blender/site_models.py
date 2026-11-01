@@ -11,7 +11,7 @@ the site built Sapling trees and leaf-card shrubs and no cars.
 
 How:
 - every model: audit ``keep`` / ``fix``, usable in the licence mode, not rated under ``MIN_VISION_QUALITY`` by the
-  audit's vision check (``vision_quality``);
+  audit's vision check (``vision_quality``), no photo card (1 Nov 2026, UL237: ``wenart.furniture.photo_cards``);
 - a plant is a single plant: no collection, set, pot, indoor or group words (``PLANT_NOT``), round in plan (the
   smaller plan side at least ``ROUND_PLAN`` of the larger), standing (height at least ``UPRIGHT`` x the plan size for
   a tree or a palm, ``BUSH_UPRIGHT`` for a bush), textured, ``MIN_POLY`` .. ``MAX_POLY`` faces; its crown proportion
@@ -92,6 +92,9 @@ def vision_quality(e: dict) -> Optional[int]:
 
 def usable(e: dict, mode: str) -> bool:
     if _status(e) not in ("keep", "fix") or not e.get("glb"):
+        return False
+    from wenart.furniture import photo_cards as PC
+    if PC.card(e) is not None:            # 1 Nov 2026 (UL237): a photo card (a tree photo on a board) is never used
         return False
     q = vision_quality(e)
     if q is not None and q < MIN_VISION_QUALITY:

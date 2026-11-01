@@ -85,6 +85,16 @@ of five bathrooms; both audited ``keep``):
 - Why: ``title_check`` read "table" as naming a coffee table and "sink" as naming a washbasin, ``title_size`` read only
   "a x b x c cm" and warned, and the vision doubts ("more than one object") keep a model (decision 1a).
 - How: the same pure rules as ``catalog.usable`` and the run checks; code evidence, so they remove.
+
+1 Nov 2026 (user on real04 run 20261031-194116-full, a coffee table that was a product photo on a standing board:
+"This is only a photo if that's the case don't use this model ever again", lesson UL237):
+
+- What: ``photo_card_check``: a model whose visible surface is mostly one or two flat, thin panels carrying an image
+  (``wenart.assets.audit.photocard``) is removed; flat-by-nature types (wall art, mirrors, rugs ...) are skipped.
+- Why: the mesh numbers (main part, parts outside it) and the vision check never asked whether the object is a
+  picture of one; the ranking sheets of 31 Oct 2026 show more such models.
+- How: code evidence (the render's mesh check, the committed store ``results/library/photo_cards.json``, the CPU rule
+  on the render's mesh numbers), so it removes; the same store makes ``catalog.usable`` refuse the model.
 """
 from __future__ import annotations
 
@@ -409,6 +419,38 @@ def render_print_check(item: dict, cfg: Optional[dict] = None) -> dict:
 
 _SIZE_RE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(?:cm)?\s*[xX×]\s*(\d+(?:[.,]\d+)?)(?:\s*(?:cm)?\s*[xX×]\s*"
                       r"(\d+(?:[.,]\d+)?))?\s*(cm|mm|m\b)", re.I)
+
+
+def photo_card_check(item: dict, cfg: Optional[dict] = None, measure: Optional[dict] = None) -> dict:
+    """1 Nov 2026 (UL237; user on real04 run 20261031-194116-full: "This is only a photo if that's the case don't use
+    this model ever again"): a model that is only a photo card (a flat board or a few flat quads carrying a product
+    image) is removed (``wenart.assets.audit.photocard``). Evidence, best first: the render's mesh check
+    (``measure["photo_card"]``, ``blender_audit.py``), the committed store's record of the same file
+    (``results/library/photo_cards.json``: the pod scan or the CPU rule), the CPU rule on the render's mesh numbers
+    (``meshstats``). Wall art, mirrors, rugs, curtains, blinds, clocks and screens are flat by nature (skip)."""
+    from wenart.assets.audit import photocard as PCD
+    from wenart.furniture import photo_cards as PC
+    ftype = item.get("catalog_type") or item.get("type")
+    if PCD.flat_by_nature(item.get("type")) or PCD.flat_by_nature(ftype):
+        return rec(PCD.CHECK, "skip", "flat by nature (wall art, mirror, rug, curtain, blind, clock, screen)")
+    stats = (measure or {}).get("photo_card") if measure and measure.get("ok") else None
+    if isinstance(stats, dict) and stats.get("ok"):
+        card, why = PCD.verdict(stats, item.get("kind"), item.get("type"))
+        metrics = {"share_one": stats.get("share_one"), "share_two": stats.get("share_two"), "source": "mesh"}
+        if card:
+            return rec(PCD.CHECK, "remove", f"{PCD.REASON}: {why} (the render's mesh check)", metrics=metrics)
+        return rec(PCD.CHECK, "ok", why, metrics=metrics)
+    stored = PC.card(item)
+    if stored is not None:
+        return rec(PCD.CHECK, "remove", PC.reason(item), metrics={"rule": stored.get("rule"),
+                                                                 "source": stored.get("source")})
+    found = PCD.cpu_rule(measure, item.get("kind"), item.get("type")) if measure else None
+    if found:
+        return rec(PCD.CHECK, "remove", f"{found['reason']} (the render's mesh numbers)",
+                   metrics=dict(found["metrics"], rule=found["rule"], source="cpu"))
+    if not measure:
+        return rec(PCD.CHECK, "skip", "not measured (no render yet) and no photo-card record")
+    return rec(PCD.CHECK, "ok", "no flat image sheet holds the model")
 
 
 def title_size(title: Optional[str]) -> Optional[list[float]]:
@@ -887,6 +929,8 @@ def item_checks(item: dict, cfg: dict, known_types, measure: Optional[dict] = No
     out.append(sanitary_finish_check(item))
     # fix round after P5: a brand logo or a text print a run's render showed (entry render_findings)
     out.append(render_print_check(item, cfg))
+    # 1 Nov 2026 (UL237): a photo card, not a 3D object
+    out.append(photo_card_check(item, cfg, measure))
     return out
 
 

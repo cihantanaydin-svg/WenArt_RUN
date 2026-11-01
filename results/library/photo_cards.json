@@ -1,0 +1,1686 @@
+{
+ "schema_version": 1,
+ "kind": "photo_cards",
+ "lesson": "UL237",
+ "version": "ul237.1",
+ "user": "This is only a photo if that's the case don't use this model ever again",
+ "what": "library models that are only a photo or picture card (a flat board or a few flat quads carrying an image, often with a photo background, sometimes on a small stand, or a photo panel behind the object), found by code: never used on any project, in any licence mode (catalog.usable, catalog.unusable_reason; wenart.assets.audit.photocard). 'cards' are used by nothing; 'cleared' are CPU flags the mesh check found no photo panel on. Wall art, posters, mirrors, rugs, curtains, blinds, clocks and screens are flat by nature and never cards.",
+ "cards": {
+  "3dwh_001b87ff61156b219a259700": {
+   "id": "3dwh_001b87ff61156b219a259700",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "title": "Coffee table",
+   "sha256_glb": "6265867d662b4d4be3b7fdca048818f86d504b584bdecfc5cca3f4fe6c56b132",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.74 x 0.94 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.744,
+     1.02,
+     0.938
+    ],
+    "area_m2": 3.0918,
+    "main_part_share": 0.529,
+    "main_part_m2": 1.6353,
+    "parts": 3,
+    "images": 4,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 0.9999
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_0f8c33f38f668f3ea921e6aa": {
+   "id": "3dwh_0f8c33f38f668f3ea921e6aa",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Chandelier",
+   "sha256_glb": "3c1b53c4edfd616dcb540aaa42d6befb642177412dd752d194cae483ca237097",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.85 x 0.57 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.845,
+     0.074,
+     0.566
+    ],
+    "area_m2": 0.5984,
+    "main_part_share": 0.8,
+    "main_part_m2": 0.4785,
+    "parts": 3166,
+    "images": 2,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_101472c64d86bd6e34a0a83c": {
+   "id": "3dwh_101472c64d86bd6e34a0a83c",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Cell Pendant Small [uf6f3f1d]",
+   "sha256_glb": "aad89e6948a1b38d949368130627bd34650800ac627837501309956418f523ae",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.34 x 0.75 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.339,
+     0.431,
+     0.753
+    ],
+    "area_m2": 1.1372,
+    "main_part_share": 0.887,
+    "main_part_m2": 1.0084,
+    "parts": 141,
+    "images": 7,
+    "outside_sides": [
+     "+y"
+    ],
+    "scale": 0.7872,
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_112c554aac73e4bcfc0f3669": {
+   "id": "3dwh_112c554aac73e4bcfc0f3669",
+   "type": "potted_plant",
+   "kind": "furniture",
+   "title": "Cactus mini vase",
+   "sha256_glb": "e7352c5ffff6871dafed9dd1a8afcdedef703b29c7c79067b44980bcdaa3ccca",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.45 x 0.60 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.45,
+     0.608,
+     0.6
+    ],
+    "area_m2": 0.4902,
+    "main_part_share": 0.551,
+    "main_part_m2": 0.27,
+    "parts": 4,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_1ab93cf4e0afe5a78e99b777": {
+   "id": "3dwh_1ab93cf4e0afe5a78e99b777",
+   "type": "tree",
+   "kind": "vegetation",
+   "title": "Trendy Wall Plant Decor Decorative Pannel Deco Plants Decorative Geome",
+   "sha256_glb": "d137dd440ad5725d96ce8a5f28147210ca1d5a4ba5a51232aa0411b81bb1db08",
+   "source": "cpu",
+   "rule": "thin_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 3.61 x 0.28 x 2.74 m box whose main part (89% of the area) is one two-sided sheet of its 3.61 x 2.74 m face (area 212% of it), with an image texture",
+   "metrics": {
+    "size_m": [
+     3.61,
+     0.276,
+     2.743
+    ],
+    "area_m2": 23.4942,
+    "main_part_share": 0.894,
+    "main_part_m2": 20.9968,
+    "parts": 12481,
+    "images": 13,
+    "outside_sides": [],
+    "ratio": 2.1203,
+    "thin_m": 0.276
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_1df5c642553eb0399f10fd77": {
+   "id": "3dwh_1df5c642553eb0399f10fd77",
+   "type": "tree",
+   "kind": "vegetation",
+   "title": "Kentia Palm",
+   "sha256_glb": "ade82865c1aa61c231ecb2464114a80fb83139e30691eb287c260ea4b6e8e006",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.10 x 1.47 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     2.103,
+     0.739,
+     1.472
+    ],
+    "area_m2": 4.4437,
+    "main_part_share": 0.697,
+    "main_part_m2": 3.0973,
+    "parts": 399,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0001
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_268ea3bbdd5ef19b8dfc8ce5": {
+   "id": "3dwh_268ea3bbdd5ef19b8dfc8ce5",
+   "type": "palm",
+   "kind": "vegetation",
+   "title": "Palm trees",
+   "sha256_glb": "74e67c76c3461960e63dfee908349cbefa6ff2971f2053abd5be1514b6832db4",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 6.41 x 6.75 m sheet spanning the whole box face (area 100.9% of it), nothing else sticks out, with an image texture",
+   "metrics": {
+    "size_m": [
+     6.415,
+     0.746,
+     6.749
+    ],
+    "area_m2": 44.9805,
+    "main_part_share": 0.971,
+    "main_part_m2": 43.6671,
+    "parts": 4115,
+    "images": 2,
+    "outside_sides": [],
+    "face": "x-z",
+    "ratio": 1.0086
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_2814c9ef01575db27cde873a": {
+   "id": "3dwh_2814c9ef01575db27cde873a",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Pendant Light",
+   "sha256_glb": "29426cacdf78ff2f9b4d66af6cbcfa0101d711063361c5d536d99d3c51236e9f",
+   "source": "cpu",
+   "rule": "thin_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.26 x 0.08 x 0.61 m box whose main part (82% of the area) is one one-sided sheet of its 1.26 x 0.61 m face (area 48% of it), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.259,
+     0.078,
+     0.609
+    ],
+    "area_m2": 0.4512,
+    "main_part_share": 0.822,
+    "main_part_m2": 0.3708,
+    "parts": 9,
+    "images": 4,
+    "outside_sides": [
+     "+x",
+     "-y"
+    ],
+    "scale": 1.3486,
+    "ratio": 0.4837,
+    "thin_m": 0.078
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_2be4af6e3250b6b3117e727f": {
+   "id": "3dwh_2be4af6e3250b6b3117e727f",
+   "type": "fridge",
+   "kind": "furniture",
+   "title": "True 24 Under Counter Refrigerator",
+   "sha256_glb": "b7fac1338ae1e9e35d1452d2f2b352d1dd86cbdc6fa9b5b90a38a0682f3bad0e",
+   "source": "cpu",
+   "rule": "thin_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 7.13 x 0.20 x 3.87 m box whose main part (97% of the area) is one one-sided sheet of its 7.13 x 3.87 m face (area 97% of it), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.199,
+     7.128,
+     3.87
+    ],
+    "area_m2": 27.4304,
+    "main_part_share": 0.971,
+    "main_part_m2": 26.6294,
+    "parts": 38,
+    "images": 2,
+    "outside_sides": [
+     "-x",
+     "-y"
+    ],
+    "ratio": 0.9654,
+    "thin_m": 0.199
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_340b2b97319bc9b9148414aa": {
+   "id": "3dwh_340b2b97319bc9b9148414aa",
+   "type": "bar_stool",
+   "kind": "furniture",
+   "title": "BAR STOOL",
+   "sha256_glb": "84929ad922971acf8abfa44a88b7797c5b334a11bc2d677bcb14c6c284aae312",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.63 x 0.35 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.631,
+     0.274,
+     0.355
+    ],
+    "area_m2": 0.3359,
+    "main_part_share": 0.667,
+    "main_part_m2": 0.2239,
+    "parts": 14,
+    "images": 2,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0002
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_37f1fcc815717f10df47646f": {
+   "id": "3dwh_37f1fcc815717f10df47646f",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "WALL STEP pendant sconce by Volker Haug",
+   "sha256_glb": "2f5d89c9d222103db0ffe5b0a6fe995b26ae9f3f2c608da5a9c4c006ef4cc0f0",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.75 x 0.92 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.751,
+     0.08,
+     0.922
+    ],
+    "area_m2": 1.6747,
+    "main_part_share": 0.964,
+    "main_part_m2": 1.6142,
+    "parts": 10,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_3c90ca357a0ae55d30b7e533": {
+   "id": "3dwh_3c90ca357a0ae55d30b7e533",
+   "type": "gate",
+   "kind": "object",
+   "title": "Moveis Cadeira Victoria Ghost Chair - Kartell",
+   "sha256_glb": "c64604b9626053f7c28f8c43f4e4cb56cbf872a2cca8207c10af3bd2e8cbcd9c",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.24 x 1.00 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     2.236,
+     0.575,
+     1.0
+    ],
+    "area_m2": 3.1401,
+    "main_part_share": 0.712,
+    "main_part_m2": 2.2361,
+    "parts": 7,
+    "images": 2,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_3defb149b2d9ea6790df7981": {
+   "id": "3dwh_3defb149b2d9ea6790df7981",
+   "type": "bar_stool",
+   "kind": "furniture",
+   "title": "Jasper Bar Stool",
+   "sha256_glb": "6a4315ec3e633bffbe5b0c626f42287854759312f15c647e63c7ee54dd852c84",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.70 x 0.96 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.701,
+     0.41,
+     0.957
+    ],
+    "area_m2": 1.6883,
+    "main_part_share": 0.964,
+    "main_part_m2": 1.6274,
+    "parts": 10,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_406aeaafb19b4d15953b5b90": {
+   "id": "3dwh_406aeaafb19b4d15953b5b90",
+   "type": "crib",
+   "kind": "furniture",
+   "title": "Cradle Brass mid century pulley pendant light",
+   "sha256_glb": "cf6467b6f99b5a659262594262ef184b12d7373e512ce04057b435f4ad7a520b",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.54 x 0.86 m sheet spanning the whole box face (area 99.8% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.539,
+     0.445,
+     0.86
+    ],
+    "area_m2": 1.379,
+    "main_part_share": 0.958,
+    "main_part_m2": 1.3204,
+    "parts": 27,
+    "images": 2,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 0.9981
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_42d5cf80c9aaeaf49425c046": {
+   "id": "3dwh_42d5cf80c9aaeaf49425c046",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Tech Lighting Capsian Grande Pendants [u666f0fa]",
+   "sha256_glb": "5f1528076c6c245291224b3cc8c29d349512f73ef5cf02b0952030ad56bc6323",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.75 x 0.52 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.754,
+     0.152,
+     0.518
+    ],
+    "area_m2": 0.4769,
+    "main_part_share": 0.819,
+    "main_part_m2": 0.3904,
+    "parts": 23,
+    "images": 3,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_490899a96bd7c65182cea4e5": {
+   "id": "3dwh_490899a96bd7c65182cea4e5",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Cell Naked Pendant Small [u60335ae]",
+   "sha256_glb": "2a0c41e08dd1dc5bd404f45c963fbb7c4db9708baa22dad2e7646ea3dc8c35f3",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.34 x 0.75 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.339,
+     0.428,
+     0.753
+    ],
+    "area_m2": 1.0542,
+    "main_part_share": 0.957,
+    "main_part_m2": 1.0085,
+    "parts": 36,
+    "images": 6,
+    "outside_sides": [
+     "+y"
+    ],
+    "scale": 0.7872,
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_4b6fb3d7464134b0da337cd8": {
+   "id": "3dwh_4b6fb3d7464134b0da337cd8",
+   "type": "decor_vase",
+   "kind": "decor",
+   "title": "VASE WITH FIKUS",
+   "sha256_glb": "bf783436d452f9146b114d21fbac842228d2537cc384a6bd874c523482d593cd",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.11 x 0.09 m sheet spanning the whole box face (area 99.6% of it), nothing else sticks out, with an image texture",
+   "metrics": {
+    "size_m": [
+     0.11,
+     0.051,
+     0.09
+    ],
+    "area_m2": 0.012,
+    "main_part_share": 0.826,
+    "main_part_m2": 0.0099,
+    "parts": 648,
+    "images": 7,
+    "outside_sides": [],
+    "face": "x-z",
+    "ratio": 0.9962
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_4bb1b0bfa01eefe9079d94b0": {
+   "id": "3dwh_4bb1b0bfa01eefe9079d94b0",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "title": "Wood and Epoxy Coffee Table",
+   "sha256_glb": "f48a9e0d68b707c12045ee0217825613be40eaa866fbeb6b203d0f0d95fd1e46",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.10 x 0.62 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.099,
+     0.401,
+     0.618
+    ],
+    "area_m2": 1.4524,
+    "main_part_share": 0.467,
+    "main_part_m2": 0.6788,
+    "parts": 8,
+    "images": 3,
+    "outside_sides": [
+     "+y"
+    ],
+    "scale": 0.6351,
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_5024ab3a0c25b32de54fd63f": {
+   "id": "3dwh_5024ab3a0c25b32de54fd63f",
+   "type": "untyped_object",
+   "kind": "object",
+   "title": "Herman Miller Airia Home Office by Smartfurniture.com",
+   "sha256_glb": "a25d1b023f7d16ea052f6030276dbab9e168c883eeea0f4e30eb4017c7524c7f",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 3.19 x 2.39 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     3.192,
+     3.115,
+     2.394
+    ],
+    "area_m2": 27.4428,
+    "main_part_share": 0.279,
+    "main_part_m2": 7.6428,
+    "parts": 126,
+    "images": 8,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_51073dd84de1342eaa2b549d": {
+   "id": "3dwh_51073dd84de1342eaa2b549d",
+   "type": "tree",
+   "kind": "vegetation",
+   "title": "plant",
+   "sha256_glb": "fc2d8e8c44eecea94da1436cddf0c52240a4cfdb2be848a83b51f9f5dd29e039",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 6.66 x 5.91 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     6.66,
+     0.741,
+     5.91
+    ],
+    "area_m2": 41.9594,
+    "main_part_share": 0.938,
+    "main_part_m2": 39.3663,
+    "parts": 3389,
+    "images": 4,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_5553283219dd15edda3bdaca": {
+   "id": "3dwh_5553283219dd15edda3bdaca",
+   "type": "washbasin",
+   "kind": "furniture",
+   "title": "Black Nano Kitchen Sink 304 Stainless Steel Waterfall Sink",
+   "sha256_glb": "446174423004e3f3452890080749f869ade246d5bb6542f02cbb159d523f424a",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.43 x 0.43 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.43,
+     0.328,
+     0.43
+    ],
+    "area_m2": 0.3703,
+    "main_part_share": 0.5,
+    "main_part_m2": 0.1853,
+    "parts": 118,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_576826adf1a74ca575598ce6": {
+   "id": "3dwh_576826adf1a74ca575598ce6",
+   "type": "bench",
+   "kind": "furniture",
+   "title": "B DYNAMIC - FONG POUF",
+   "sha256_glb": "ea51fe3f1a9770d7912c84e1ae795086b10d1eb85fd20d6522541b7b69652201",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.09 x 1.09 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.085,
+     0.587,
+     1.085
+    ],
+    "area_m2": 1.5344,
+    "main_part_share": 0.767,
+    "main_part_m2": 1.1773,
+    "parts": 2,
+    "images": 3,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 0.9999
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_5db58fb8c427fbfc24de9de0": {
+   "id": "3dwh_5db58fb8c427fbfc24de9de0",
+   "type": "stove",
+   "kind": "furniture",
+   "title": "Oven IKEA MATTRADITION",
+   "sha256_glb": "c5e2b0a3002c118aa951ccf968485685a44f5662f12c30ecfc4daae0affc0722",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.49 x 1.25 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     2.49,
+     0.987,
+     1.245
+    ],
+    "area_m2": 6.5814,
+    "main_part_share": 0.471,
+    "main_part_m2": 3.0998,
+    "parts": 63,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_5e4538a55ea1da475ba42c59": {
+   "id": "3dwh_5e4538a55ea1da475ba42c59",
+   "type": "console_table",
+   "kind": "furniture",
+   "title": "CONSOLE TABLE",
+   "sha256_glb": "0666f75ed1c1a0976f109f7f77f224abe09440919962d95f345038211f40dd48",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.81 x 0.81 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.814,
+     0.274,
+     0.814
+    ],
+    "area_m2": 0.9352,
+    "main_part_share": 0.708,
+    "main_part_m2": 0.6617,
+    "parts": 7,
+    "images": 4,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 0.9999
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_60790fdc08e25298ea09afd6": {
+   "id": "3dwh_60790fdc08e25298ea09afd6",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Azuneca Bidone wall sconce [uf5770ae] (Lamps)",
+   "sha256_glb": "675ff515a3d2f24f9cf99d027ea68ce1f9afaae496ca6925a02db927c1235af3",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.07 x 0.61 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.067,
+     0.072,
+     0.61
+    ],
+    "area_m2": 0.7075,
+    "main_part_share": 0.919,
+    "main_part_m2": 0.6503,
+    "parts": 9,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_60a0de747b7a2c6e27a7c67d": {
+   "id": "3dwh_60a0de747b7a2c6e27a7c67d",
+   "type": "bar_stool",
+   "kind": "furniture",
+   "title": "Bar Stool",
+   "sha256_glb": "ce16292d2c04d835bc49c70d9b782b2a38c6409faeb17b0bd13fff8c94d24152",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.62 x 0.60 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.618,
+     0.444,
+     0.602
+    ],
+    "area_m2": 0.7796,
+    "main_part_share": 0.477,
+    "main_part_m2": 0.3717,
+    "parts": 23,
+    "images": 3,
+    "outside_sides": [
+     "+y"
+    ],
+    "scale": 0.477,
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_61b662965b5bdf4ff653a190": {
+   "id": "3dwh_61b662965b5bdf4ff653a190",
+   "type": "decor_vase",
+   "kind": "decor",
+   "title": "Decoração Vaso Coleção T - Ligne Roset",
+   "sha256_glb": "7e8b6ab56140252f508f515067891b91780d13ecbabf2e0faef7018674ec95cd",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.46 x 0.21 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.464,
+     0.056,
+     0.207
+    ],
+    "area_m2": 0.1231,
+    "main_part_share": 0.78,
+    "main_part_m2": 0.0961,
+    "parts": 4,
+    "images": 5,
+    "outside_sides": [
+     "+y"
+    ],
+    "scale": 0.6802,
+    "face": "x-z",
+    "ratio": 1.0001
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_6858a641c65ad000a3158bc2": {
+   "id": "3dwh_6858a641c65ad000a3158bc2",
+   "type": "tree",
+   "kind": "vegetation",
+   "title": "Palm",
+   "sha256_glb": "65188c39801180fba20cc859cd87c6afb6e43122698588b4290504f2f1ceaec9",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.78 x 1.94 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     2.778,
+     1.313,
+     1.945
+    ],
+    "area_m2": 8.4917,
+    "main_part_share": 0.636,
+    "main_part_m2": 5.4041,
+    "parts": 926,
+    "images": 5,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0001
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_6a0d6e19249cd43f5a6e22db": {
+   "id": "3dwh_6a0d6e19249cd43f5a6e22db",
+   "type": "decor_vase",
+   "kind": "decor",
+   "title": "Flowers in Tall Vase",
+   "sha256_glb": "efcd9733ba8f939cb60f7c33dd532057f0671c90fc57e652b332471fbf1b269a",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.43 x 0.32 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.428,
+     0.15,
+     0.321
+    ],
+    "area_m2": 0.2283,
+    "main_part_share": 0.603,
+    "main_part_m2": 0.1377,
+    "parts": 4,
+    "images": 2,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 0.9999
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_6a79c95467305e1645426b11": {
+   "id": "3dwh_6a79c95467305e1645426b11",
+   "type": "potted_plant",
+   "kind": "furniture",
+   "title": "Flower pot",
+   "sha256_glb": "a6da2d77561715733f77266f9287f62c4c3f329978fa15cda3251ab69a49de9b",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.35 x 0.53 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.353,
+     0.333,
+     0.53
+    ],
+    "area_m2": 0.3259,
+    "main_part_share": 0.575,
+    "main_part_m2": 0.1873,
+    "parts": 4,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0001
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_7649a3252eceb29060e7c80c": {
+   "id": "3dwh_7649a3252eceb29060e7c80c",
+   "type": "decor_plant_large",
+   "kind": "decor",
+   "title": "Pot Plant",
+   "sha256_glb": "a149cf7444a026a162b959e7345d1d7f1619b50efc4bed794aa33d79777bf3bc",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.44 x 1.08 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-x), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.391,
+     1.437,
+     1.078
+    ],
+    "area_m2": 1.97,
+    "main_part_share": 0.786,
+    "main_part_m2": 1.549,
+    "parts": 30,
+    "images": 6,
+    "outside_sides": [
+     "-x"
+    ],
+    "face": "y-z",
+    "ratio": 0.9999
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_76f847b9a0070eb37a39c4b4": {
+   "id": "3dwh_76f847b9a0070eb37a39c4b4",
+   "type": "sideboard",
+   "kind": "furniture",
+   "title": "Cyril Sideboard 2400mm",
+   "sha256_glb": "852261d5753eb1c79b8f869aefa5136a8033f0ce098557a1705086a6941cb824",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.70 x 0.96 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.701,
+     0.435,
+     0.957
+    ],
+    "area_m2": 3.1112,
+    "main_part_share": 0.523,
+    "main_part_m2": 1.6275,
+    "parts": 31,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_7c686c237e6580263e65145c": {
+   "id": "3dwh_7c686c237e6580263e65145c",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Chandelier",
+   "sha256_glb": "46e2953c4759525db762f9e4e5630da3d99ba40b9a98f5dc71ebe4ecaecda108",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.29 x 0.89 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+x), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.221,
+     1.285,
+     0.886
+    ],
+    "area_m2": 1.4133,
+    "main_part_share": 0.806,
+    "main_part_m2": 1.1394,
+    "parts": 10,
+    "images": 2,
+    "outside_sides": [
+     "+x"
+    ],
+    "face": "y-z",
+    "ratio": 1.0001
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_95e201c2fd238a6e8c18d312": {
+   "id": "3dwh_95e201c2fd238a6e8c18d312",
+   "type": "armchair",
+   "kind": "furniture",
+   "title": "Moveis Cadeira Louis Ghost Chair - Kartell",
+   "sha256_glb": "f84c1c7ef2cb07ab0eef86b8239bcc0f8b083b9681a6795963635ae1e2fca294",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.24 x 1.00 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     2.236,
+     0.66,
+     1.0
+    ],
+    "area_m2": 3.4978,
+    "main_part_share": 0.639,
+    "main_part_m2": 2.2361,
+    "parts": 11,
+    "images": 2,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_9965d05780ffc58767873163": {
+   "id": "3dwh_9965d05780ffc58767873163",
+   "type": "untyped_object",
+   "kind": "object",
+   "title": "PLANTSBRANCHESTREEMURALPAINTINGWALL HANGING",
+   "sha256_glb": "99038160a2d0626727f285067af73151ee0f6b30d4b9374ee5343ce47006f7ef",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.01 x 1.07 m sheet spanning the whole box face (area 100.0% of it), nothing else sticks out, with an image texture",
+   "metrics": {
+    "size_m": [
+     2.007,
+     0.016,
+     1.07
+    ],
+    "area_m2": 2.188,
+    "main_part_share": 0.981,
+    "main_part_m2": 2.1471,
+    "parts": 4,
+    "images": 1,
+    "outside_sides": [],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_a446b470eba6eb928ed15eac": {
+   "id": "3dwh_a446b470eba6eb928ed15eac",
+   "type": "tree",
+   "kind": "vegetation",
+   "title": "Indoor Plant 9 Ficus",
+   "sha256_glb": "f3e3dfadb07acbdd99d08d7a583a0fb2e4aefad3a2ba7caca32312066526eb1b",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 3.09 x 1.74 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     3.086,
+     0.865,
+     1.735
+    ],
+    "area_m2": 8.1573,
+    "main_part_share": 0.656,
+    "main_part_m2": 5.3545,
+    "parts": 469,
+    "images": 8,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 0.9999
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_add6a04534b77f29e95451d8": {
+   "id": "3dwh_add6a04534b77f29e95451d8",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Work Lamp [ub83b666]",
+   "sha256_glb": "720ea7859108a1de479c235234f9ac9422fb7fb2679d2d968150dd398449dcba",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.34 x 0.75 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.339,
+     0.416,
+     0.753
+    ],
+    "area_m2": 1.1385,
+    "main_part_share": 0.886,
+    "main_part_m2": 1.0085,
+    "parts": 109,
+    "images": 14,
+    "outside_sides": [
+     "+y"
+    ],
+    "scale": 0.7872,
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_afe637d2f0e4c96904eafd21": {
+   "id": "3dwh_afe637d2f0e4c96904eafd21",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "pendant light",
+   "sha256_glb": "efbac2a5cdddbc4674742465421518ad013f0b7dbee271bfdce351890147480d",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.28 x 1.03 m sheet spanning the whole box face (area 100.0% of it), nothing else sticks out, with an image texture",
+   "metrics": {
+    "size_m": [
+     1.276,
+     0.522,
+     1.033
+    ],
+    "area_m2": 1.3229,
+    "main_part_share": 0.997,
+    "main_part_m2": 1.3184,
+    "parts": 46,
+    "images": 5,
+    "outside_sides": [],
+    "face": "x-z",
+    "ratio": 0.9999
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_b2b47f61f4adf6a69851b20f": {
+   "id": "3dwh_b2b47f61f4adf6a69851b20f",
+   "type": "sofa",
+   "kind": "furniture",
+   "title": "Sofá Yak",
+   "sha256_glb": "34268495b1220807c84cd2e2836690587ae1e76397f024857a67345f8eb500f8",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.21 x 0.62 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.207,
+     2.06,
+     0.616
+    ],
+    "area_m2": 7.5126,
+    "main_part_share": 0.099,
+    "main_part_m2": 0.743,
+    "parts": 88,
+    "images": 1,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 0.9998
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_b2db0e44a82ec862f8d1539b": {
+   "id": "3dwh_b2db0e44a82ec862f8d1539b",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Gold pendant light",
+   "sha256_glb": "e4e9f56a8c0600ab662cca401fd75b45f56c73d76cb784d591c9ce99c8d2516d",
+   "source": "cpu",
+   "rule": "thin_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.29 x 0.12 x 0.90 m box whose main part (82% of the area) is one one-sided sheet of its 1.29 x 0.90 m face (area 61% of it), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.293,
+     0.12,
+     0.905
+    ],
+    "area_m2": 0.8687,
+    "main_part_share": 0.821,
+    "main_part_m2": 0.7129,
+    "parts": 11,
+    "images": 3,
+    "outside_sides": [
+     "+y",
+     "+z",
+     "-x",
+     "-y",
+     "-z"
+    ],
+    "ratio": 0.6092,
+    "thin_m": 0.12
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_b60a64d6048cb56463af6c4c": {
+   "id": "3dwh_b60a64d6048cb56463af6c4c",
+   "type": "door",
+   "kind": "opening",
+   "title": "Door [uf91676a]",
+   "sha256_glb": "01e98afd1d179193c0fd3c05c497036b3a917aff8c7dc669ff188d82448cfc8e",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 6.25 x 3.35 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     6.246,
+     0.175,
+     3.353
+    ],
+    "area_m2": 33.207,
+    "main_part_share": 0.631,
+    "main_part_m2": 20.9437,
+    "parts": 20,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_b736d8d58da2f173f1153016": {
+   "id": "3dwh_b736d8d58da2f173f1153016",
+   "type": "armchair",
+   "kind": "furniture",
+   "title": "Up-lift armchair",
+   "sha256_glb": "1b8cdb16d4c6022dac58366d8db49e61687333dc37f48fdc0b27417bcf1947ad",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.16 x 0.86 m sheet spanning the whole box face (area 99.4% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.161,
+     1.549,
+     0.859
+    ],
+    "area_m2": 3.7986,
+    "main_part_share": 0.261,
+    "main_part_m2": 0.9911,
+    "parts": 13,
+    "images": 3,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 0.9941
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_bd2a89cae3790af359b9c0ef": {
+   "id": "3dwh_bd2a89cae3790af359b9c0ef",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Roll Hill Rudi Loop 02 Pendant [uc4ad810]",
+   "sha256_glb": "419b6372fcd4ba13d35f2f86338ed1f814f1a35b820028eefeba795ab59b4b29",
+   "source": "cpu",
+   "rule": "thin_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.22 x 0.08 x 1.20 m box whose main part (98% of the area) is one one-sided sheet of its 1.22 x 1.20 m face (area 76% of it), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.219,
+     0.082,
+     1.2
+    ],
+    "area_m2": 1.1362,
+    "main_part_share": 0.981,
+    "main_part_m2": 1.1148,
+    "parts": 5,
+    "images": 2,
+    "outside_sides": [
+     "-y"
+    ],
+    "ratio": 0.7618,
+    "thin_m": 0.082
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_c4b5af98f65ddc7822ae255e": {
+   "id": "3dwh_c4b5af98f65ddc7822ae255e",
+   "type": "bathtub",
+   "kind": "furniture",
+   "title": "Bathtub",
+   "sha256_glb": "d6b74351ae07308e8986fb041845361c6252c4a448059e6922f8673669067c28",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 5.35 x 3.01 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     5.346,
+     1.42,
+     3.007
+    ],
+    "area_m2": 17.005,
+    "main_part_share": 0.945,
+    "main_part_m2": 16.0765,
+    "parts": 7,
+    "images": 3,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_cc75bfeed1329ef044b98be5": {
+   "id": "3dwh_cc75bfeed1329ef044b98be5",
+   "type": "ottoman",
+   "kind": "furniture",
+   "title": "Moveis Banqueta Charles Ghost Stool - Kartell",
+   "sha256_glb": "1664c7911360a888da3334a1075af5a7655e1d045a6c4d268e064d69e03a7bc7",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.24 x 1.00 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     2.236,
+     0.526,
+     1.0
+    ],
+    "area_m2": 3.2689,
+    "main_part_share": 0.684,
+    "main_part_m2": 2.2359,
+    "parts": 2,
+    "images": 2,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 0.9999
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_d12919d98412f22d3d32c964": {
+   "id": "3dwh_d12919d98412f22d3d32c964",
+   "type": "fence",
+   "kind": "object",
+   "title": "Rear fence Cam",
+   "sha256_glb": "7c5ca221f579c250bc44c526e911dcddfbd6fbe85819a704cee4316733a3c95d",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.42 x 1.28 m sheet spanning the whole box face (area 98.9% of it), nothing else sticks out, with an image texture",
+   "metrics": {
+    "size_m": [
+     1.424,
+     0.139,
+     1.278
+    ],
+    "area_m2": 1.8997,
+    "main_part_share": 0.947,
+    "main_part_m2": 1.7994,
+    "parts": 7,
+    "images": 7,
+    "outside_sides": [],
+    "face": "x-z",
+    "ratio": 0.9886
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_da90d84da083704fed2dc48a": {
+   "id": "3dwh_da90d84da083704fed2dc48a",
+   "type": "faucet",
+   "kind": "object",
+   "title": "Golden Faucet with Gold and Marble Handles",
+   "sha256_glb": "1a1058725525df51210d08b41b4d0b2c6fb6337338aba24bc45aaa4711f458f4",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.51 x 0.28 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.506,
+     0.314,
+     0.285
+    ],
+    "area_m2": 0.2038,
+    "main_part_share": 0.707,
+    "main_part_m2": 0.1441,
+    "parts": 6,
+    "images": 3,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_dafd4224fe6c0d787dd723ae": {
+   "id": "3dwh_dafd4224fe6c0d787dd723ae",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "PENDANT LIGHT 562",
+   "sha256_glb": "1fd3bc50b918e3c97c658ae894e1062d9961c2a40dee4fb2462f08b07e1b9dc8",
+   "source": "cpu",
+   "rule": "thin_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 2.00 x 0.06 x 3.44 m box whose main part (91% of the area) is one one-sided sheet of its 2.00 x 3.44 m face (area 58% of it), with an image texture",
+   "metrics": {
+    "size_m": [
+     2.0,
+     0.064,
+     3.44
+    ],
+    "area_m2": 4.4002,
+    "main_part_share": 0.909,
+    "main_part_m2": 3.9998,
+    "parts": 14,
+    "images": 2,
+    "outside_sides": [
+     "+z"
+    ],
+    "ratio": 0.5814,
+    "thin_m": 0.064
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_e2ad6bf707c545f5b5f38291": {
+   "id": "3dwh_e2ad6bf707c545f5b5f38291",
+   "type": "untyped_object",
+   "kind": "object",
+   "title": "WALL RACKDECORPLANTSBRICKMODERNCUPMODERNWALL HANGINGBICYCLE",
+   "sha256_glb": "59522b9d1b10518bb4f926dca8062781e9fee694afd5ae344cfdbe095e376a59",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.13 x 1.83 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     2.134,
+     0.379,
+     1.829
+    ],
+    "area_m2": 5.1336,
+    "main_part_share": 0.76,
+    "main_part_m2": 3.902,
+    "parts": 178,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_e555db30dd10d653332e0c77": {
+   "id": "3dwh_e555db30dd10d653332e0c77",
+   "type": "potted_plant",
+   "kind": "furniture",
+   "title": "Flower pot 02",
+   "sha256_glb": "827ac3def5bc106c23cabce60830f3593a0353fb794bab5e4cd469ef73443636",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.14 x 1.14 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.138,
+     0.697,
+     1.138
+    ],
+    "area_m2": 2.0519,
+    "main_part_share": 0.631,
+    "main_part_m2": 1.2945,
+    "parts": 9,
+    "images": 4,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_ebcb997c8bf6693560ab0651": {
+   "id": "3dwh_ebcb997c8bf6693560ab0651",
+   "type": "bed_double",
+   "kind": "furniture",
+   "title": "PAPILIO BED 3D LP200 BB ITALIA [u43ab874]",
+   "sha256_glb": "41ba440acf09bfec6a0c37376b4ba345ebc4f91d538a538578f92895718d17eb",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.67 x 1.85 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     2.671,
+     0.712,
+     1.847
+    ],
+    "area_m2": 7.056,
+    "main_part_share": 0.699,
+    "main_part_m2": 4.9321,
+    "parts": 12,
+    "images": 6,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_ed81713910f418b948287fad": {
+   "id": "3dwh_ed81713910f418b948287fad",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Equinox Pendant Lights",
+   "sha256_glb": "01aa401d8c11f3bbfbdf0c67ffcf9f041dba7ad2834641a089a9d39dd7839132",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.86 x 0.86 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "metrics": {
+    "size_m": [
+     0.855,
+     0.608,
+     0.855
+    ],
+    "area_m2": 1.231,
+    "main_part_share": 0.595,
+    "main_part_m2": 0.7318,
+    "parts": 13,
+    "images": 2,
+    "outside_sides": [
+     "+y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0002
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_f61b976128aa7d2cec58d5f3": {
+   "id": "3dwh_f61b976128aa7d2cec58d5f3",
+   "type": "person",
+   "kind": "object",
+   "title": "OttoMan",
+   "sha256_glb": "a81f84afa55a25753e0e6da9a960b74be9d25623fd02a0db333839604bd14d1e",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.17 x 1.63 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     2.172,
+     0.518,
+     1.629
+    ],
+    "area_m2": 3.9968,
+    "main_part_share": 0.885,
+    "main_part_m2": 3.538,
+    "parts": 13,
+    "images": 6,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_fcc787dcd91dc3d68e5fe620": {
+   "id": "3dwh_fcc787dcd91dc3d68e5fe620",
+   "type": "decor_plant_large",
+   "kind": "decor",
+   "title": "Plant flower",
+   "sha256_glb": "ee114d00a6a9cef484e5d796dc4783ea6e07105dc5f34f13719f20ebdd57190f",
+   "source": "cpu",
+   "rule": "full_face",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.35 x 1.26 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "metrics": {
+    "size_m": [
+     1.351,
+     0.492,
+     1.262
+    ],
+    "area_m2": 2.1962,
+    "main_part_share": 0.776,
+    "main_part_m2": 1.7049,
+    "parts": 477,
+    "images": 1,
+    "outside_sides": [
+     "-y"
+    ],
+    "face": "x-z",
+    "ratio": 1.0
+   },
+   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  }
+ },
+ "cleared": {}
+}
