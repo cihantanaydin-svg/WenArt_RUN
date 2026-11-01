@@ -72,6 +72,16 @@
    "user": "If not possible to make this plant more realistic with better textures don't use this plant",
    "where": "real04 run 20261031-194116-full, r_L1_oyun_aktivite_ve_dinlenme_odasi (f_L1_068)",
    "reason": "the user rejected it on the render unless it can look real: a library mesh's own grey-white texture cannot be made realistic by the pipeline (no per-model retexturing), so it is not used"
+  },
+  {
+   "id": "hssd_cc238b28d54e7452ba790f3332d4ba0f6da18b82",
+   "type": "table_coffee",
+   "title": "Chalk Board Coffee Table",
+   "date": "2026-11-01",
+   "lesson": "UL239",
+   "user": "Don't use this table",
+   "where": "real04 run 20261031-194116-full, r_L1_oyun_aktivite_ve_dinlenme_odasi (f_L1_023)",
+   "reason": "the user rejected it on the render: a black chalkboard top with chess and scribble prints on turned legs"
   }
  ]
 }
