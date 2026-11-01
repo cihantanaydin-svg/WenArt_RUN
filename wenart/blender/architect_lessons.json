@@ -2805,7 +2805,7 @@
    "id": "UL236",
    "date": "2026-11-01",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2829,7 +2829,7 @@
    "id": "UL238",
    "date": "2026-11-01",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -2865,7 +2865,7 @@
    "id": "UL241",
    "date": "2026-11-01",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
