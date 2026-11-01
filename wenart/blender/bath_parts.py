@@ -19,6 +19,13 @@ modern; an alias takes its family's row, an unknown family ``DEFAULT_FAMILY``'s,
 | rustic | close-coupled (as fitted) | as drawn | as drawn | none | framed | closed | black | rust | sand / taupe | round / no |
 | mediterranean | close-coupled (as fitted) | as drawn | as drawn | none | framed | closed | brass | dusty blue | off white / terracotta | round / no |
 
+1 Nov 2026 (lessons UL243, UL245): two more columns, the WC flush plate's finish (``flush``: ``metal`` in the fixture
+finish for modern, contemporary, industrial and the classic families; white glass with metal buttons for modern
+minimal, minimal and Scandinavian; black glass for Japandi and organic modern) and the shower's rain head
+(``rain_head``: square for modern, contemporary, the minimal families, Scandinavian and industrial; round for Japandi,
+organic modern and the classic families); the fittings of the shower and the plate take the fixture finish as a
+material key (``FIXTURE_KEYS``: matte black with a satin sheen, brushed brass, brushed steel).
+
 Every family: a WC gets its paper holder and brush (B2), a bathroom its towel rail (B7), a towel shelf beside it
 (B18) and towel bars at the door and at the shower (B25), a drawn shower a walk-in glass enclosure with its rain head,
 hand shower, mixer and linear drain (B16), the vanity top two decor clusters (B19: a tall one of dried stems, a low
@@ -33,7 +40,10 @@ mesh, made from vertex and face lists, never a bpy operator and no ray per item:
 - B1 ``wall_hung_wc_parts``: a wall-hung pan (``WC_BOWL_M`` 0.36 x 0.54 m, rim at ``WC_RIM_M`` 0.40 m: a tapered body
   under a rounded rim), seat and closed lid, hinges, the wall bracket, and the flush plate of a concealed cistern on the
   wall over it (``FLUSH_PLATE_M`` 246 x 164 mm, the Geberit Sigma size, its bottom at ``FLUSH_PLATE_Z_M``) with two
-  buttons, all inside the drawn footprint, the pan's back on the wall (on the fluted wall's face, B24).
+  buttons, all inside the drawn footprint, the pan's back on the wall (on the fluted wall's face, B24). 1 Nov 2026
+  (UL245, "make this better": a flat black slab with two printed lines): the plate is a bezel with depth round two
+  push buttons set back in it with a gap round each, no printed lines, metal or glass by family (``flush_keys``,
+  ``bath_objects.flush_plate``).
 - B3 ``stone_slab_vanity_parts``: a floating vanity on the drawn basin's footprint: a drawer box with a drawer front
   and a slim bar handle, an open shelf styled with rolled towels and lidded jars, a thick stone top
   (``VANITY_TOP_T_M`` 0.15 m) with the integrated basin carved into it, a wall-mounted mixer, an LED strip under it
@@ -63,7 +73,11 @@ mesh, made from vertex and face lists, never a bpy operator and no ray per item:
   with its wall and contents, knurled collars, fluffy cotton, a woven basket, a speckled stoneware glaze).
 - B16 ``walk_in_shower_parts``: a low stone tray with a linear drain at the back wall, clear glass (a fixed panel, and
   a sliding one on a top rail with round rollers and a pull handle from ``SLIDING_MIN_W_M``), a square rain head on a
-  wall arm, a hand shower on a slide rail with its hose, a thermostatic mixer and a towel bar inside.
+  wall arm, a hand shower on a slide rail with its hose, a thermostatic mixer and a towel bar inside. 1 Nov 2026
+  (UL243, "Give more details to shower models"): every fitting a real product (``wenart.blender.shower_parts``): the
+  mixer's plate, knurled knobs and diverter, a 25-30 cm square or round rain head with its nozzles, a ribbed hand
+  shower on a slider, a metal-wound hose hanging as one curve, the glass's profiles, rollers, clamps, stabiliser and
+  seals, a slotted linear drain, the tray's stone and fall, a stone-lined niche with a shelf and two bottles.
 - Mirrors: B4 ``led_mirror_parts`` (a frameless mirror with an inset light band), B14 ``backlit_mirror_parts`` (a large
   mirror, rounded corners for the soft families, an emissive panel behind it: a halo on the wall; UL205: a long, thin
   one over an installation wall), B22 ``round_mirror_parts`` (a round mirror in a thick oak frame).
@@ -110,17 +124,21 @@ _SOFT = {"wc": "wall_hung", "vanity": "fluted", "rounded": True, "basin": "vesse
          "finish": "black", "wall_tile": "greige", "floor_tile": "grey", "downlight": "square_dark", "cove": True,
          "fluted_key": "dark", "towel_colour": "rust",
          # 30 Oct 2026 (UL205): the installation wall behind a wall-hung WC (its body, its cap) and a WC room's basin
-         "install_wall": ("dark", "stone_light"), "vanity_wc": None}
+         "install_wall": ("dark", "stone_light"), "vanity_wc": None,
+         # 1 Nov 2026 (UL245, UL243): the flush plate's finish (``FLUSH_FINISHES``) and the rain head's shape
+         "flush": "metal", "rain_head": "square"}
 _SLAB = dict(_SOFT, vanity="stone_slab", rounded=False, basin="integrated", feature=None, panel=None,
              top_key="stone_light", mirror="backlit", wall_tile="light grey", towel_colour="sage",
-             install_wall=("painted", "stone_light"))
+             install_wall=("painted", "stone_light"), flush="glass_white")
 _ORGANIC = dict(_SOFT, vanity="curved", rounded=True, basin="vessel_wall", feature="wc_fluted", panel=None,
                 top_key="worktop", apron="terrazzo", mirror="round_oak", wall_tile="sand", floor_tile="taupe",
-                towel_colour="olive", install_wall=("stone_light", "wood"), vanity_wc="bench")
+                towel_colour="olive", install_wall=("stone_light", "wood"), vanity_wc="bench", flush="glass_black",
+                rain_head="round")
 _CLASSIC = {"wc": "close_coupled", "vanity": "as_drawn", "rounded": False, "basin": "as_drawn", "feature": None,
             "panel": None, "top_key": "stone_light", "mirror": "framed", "mirror_round": False, "column": "closed",
             "finish": "brass", "wall_tile": "ivory", "floor_tile": "beige", "downlight": "round", "cove": False,
-            "fluted_key": "dark", "towel_colour": "navy", "install_wall": None, "vanity_wc": None}
+            "fluted_key": "dark", "towel_colour": "navy", "install_wall": None, "vanity_wc": None, "flush": "metal",
+            "rain_head": "round"}
 FAMILY_BATH: dict[str, dict] = {
     "modern": dict(_SOFT),
     "contemporary": dict(_SOFT, mirror_round=True, towel_colour="terracotta"),
@@ -198,6 +216,41 @@ def made_to_measure(piece: dict) -> Optional[str]:
 def finish_handle(piece: dict) -> Optional[str]:
     """The design handle of a piece's bathroom finish (``FINISH_HANDLE``), None without a bathroom look."""
     return FINISH_HANDLE.get(str(bath_look(piece).get("finish") or ""))
+
+
+# 1 Nov 2026 (UL243, UL245): the fittings of the shower and the WC's flush plate in the family's fixture finish as a
+# material key: matte black with a satin sheen (the black lacquer: the handles' metallic black has a black base colour
+# and gives no highlight, the plate read as a flat slab), brushed brass, brushed steel; ``handle`` (the piece's design
+# handle) when the look names no finish
+FIXTURE_KEYS: dict[str, str] = {"black": "dark", "brass": "brass", "chrome": "steel"}
+# the flush plate: the fixture metal, or a white or a black glass plate with buttons in the fixture metal
+FLUSH_FINISHES: tuple[str, ...] = ("metal", "glass_white", "glass_black")
+
+
+def fixture_key(look: Optional[dict]) -> str:
+    """The material key of a made-to-measure piece's fittings in its look's finish (``FIXTURE_KEYS``), else
+    ``handle``."""
+    finish = (look or {}).get("finish") if isinstance(look, dict) else None
+    return FIXTURE_KEYS.get(str(finish or ""), "handle")
+
+
+def flush_finish(look: Optional[dict]) -> str:
+    """The flush plate's finish of a WC's look: its ``flush`` (``FLUSH_FINISHES``), else its family's
+    (``FAMILY_BATH["flush"]``), else ``metal``."""
+    look = look if isinstance(look, dict) else {}
+    if look.get("flush") in FLUSH_FINISHES:
+        return str(look["flush"])
+    if look.get("family"):
+        return str(spec_of(look["family"])[0].get("flush") or "metal")
+    return "metal"
+
+
+def flush_keys(look: Optional[dict]) -> tuple[str, str]:
+    """``(bezel key, button key)`` of a WC's flush plate (``flush_finish``): both in the fixture metal, or the glass
+    (``glass_white``, ``glass_black``: parametric keys of a white and a black glass) with metal buttons."""
+    fk = fixture_key(look)
+    finish = flush_finish(look)
+    return (finish if finish != "metal" else fk), fk
 
 
 # --------------------------------------------------------------------------
@@ -341,19 +394,6 @@ def wet_tile_look(style: Optional[dict], surface: str) -> Optional[dict]:
 # Small mesh helpers (one part per call, vertex and face lists)
 # --------------------------------------------------------------------------
 
-def _stick(x0: float, y0: float, z0: float, dx: float, dy: float, length: float, r: float, key: str,
-           role: str = "stick") -> Part:
-    """A thin square prism of ``length`` from ``(x0, y0, z0)`` leaning by ``(dx, dy)`` per metre of height (a reed, a
-    dried stem)."""
-    n = math.sqrt(1.0 + dx * dx + dy * dy)
-    top = (x0 + dx * length / n, y0 + dy * length / n, z0 + length / n)
-    verts = []
-    for cx, cy, cz in ((x0, y0, z0), top):
-        verts += [(cx - r, cy - r, cz), (cx + r, cy - r, cz), (cx + r, cy + r, cz), (cx - r, cy + r, cz)]
-    faces = [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]]
-    return {"verts": verts, "faces": faces, "key": key, "role": role}
-
-
 def _prism(outline, z0: float, z1: float, key: str, role: str) -> Part:
     """A vertical prism over a counter-clockwise outline ``[(x, y)]`` from ``z0`` to ``z1`` (outward faces)."""
     n = len(outline)
@@ -444,12 +484,14 @@ FLUSH_PLATE_M = (*BO.FLUSH["size_m"], BO.FLUSH["proud_m"])   # Geberit Sigma: 24
 FLUSH_PLATE_Z_M = 0.98            # its bottom (its centre about 1.06 m: B1 "about 1.0 m")
 
 
-def wall_hung_wc_parts(w: float, d: float, h: float, wall_offset: float = 0.0) -> list[Part]:
+def wall_hung_wc_parts(w: float, d: float, h: float, wall_offset: float = 0.0, look: Optional[dict] = None
+                       ) -> list[Part]:
     """A wall-hung WC in its drawn footprint ``w x d`` (piece frame: front -Y, the wall at +Y): the pan's back on the
     wall, seat and lid, hinges, the bracket and the flush plate over it (module docstring, B1); ``wall_offset``: the
     face of a feature wall in front of the wall (B24: the pan and the plate on the fluted wall; UL205: on the
     installation wall's face, ``INSTALL_WALL_D_M``). ``h`` (the type height) is not used: a wall-hung WC's heights are
-    the product's."""
+    the product's. 1 Nov 2026 (UL245): ``look`` (the piece's bathroom look) gives the plate's and the hinges' finish
+    (``flush_keys``)."""
     back = d / 2.0 - max(0.0, min(float(wall_offset or 0.0), INSTALL_WALL_D_M + 0.01))     # UL205: a pre-wall too
     bw = min(WC_BOWL_M[0], w - 0.02)
     bd = min(WC_BOWL_M[1], back + d / 2.0 - 0.01)
@@ -465,12 +507,13 @@ def wall_hung_wc_parts(w: float, d: float, h: float, wall_offset: float = 0.0) -
         P._superellipsoid(0.0, cy - 0.015, WC_RIM_M + 0.02, bw - 0.004, bd - 0.07, 0.028, 0.3, 0.6, "ceramic",
                           "lid", n_eta=6, n_om=24),
     ]
+    plate_key, button_key = flush_keys(look)
     for sx in (-1.0, 1.0):
-        parts.append(P._cylinder_x(sx * 0.07 - 0.015, back - 0.065, WC_RIM_M + 0.02, 0.012, 0.012, 0.03, "handle",
+        parts.append(P._cylinder_x(sx * 0.07 - 0.015, back - 0.065, WC_RIM_M + 0.02, 0.012, 0.012, 0.03, button_key,
                                    "hinge", n=10))
-    # 30 Oct 2026 (lesson UL168): a real dual-flush plate (bath_objects.flush_plate): rounded and chamfered, a small
-    # and a large button with a fine shadow gap and a line each, all in the room's fixture finish
-    parts += BO.flush_plate(0.0, back, FLUSH_PLATE_Z_M, "handle", "handle")
+    # 30 Oct 2026 (lesson UL168): a real dual-flush plate (bath_objects.flush_plate); 1 Nov 2026 (UL245): a bezel with
+    # depth, two recessed push buttons with a gap round each, no printed lines, metal or glass by family
+    parts += BO.flush_plate(0.0, back, FLUSH_PLATE_Z_M, plate_key, button_key)
     return parts
 
 
@@ -1131,106 +1174,30 @@ SHOWER_TRAY_T_M = 0.025           # a low stone tray (almost flush): the look wi
 # glass on every open side (``shower_sides``: an end of the shower that stands free of the room's walls gets a fixed
 # side panel, the top rail turning the corner over it), the sliding door with a bar pull on two stand-offs
 DRAIN_T_M = 0.003                 # the drain grating, flush with the floor
-DRAIN_W_M = 0.06
-SIDE_CLAMP_M = (0.03, 0.02, 0.05) # the wall clamps of a side panel
 GLASS_T_M = 0.008
 SLIDING_MIN_W_M = 1.0             # a shower at least this wide gets a sliding panel on a top rail; a narrower one a
                                   # fixed walk-in screen (B16: "fixed or sliding by its width")
-RAIN_HEAD_M = (0.25, 0.25, 0.008)    # a square rain head 25 cm
-RAIN_HEAD_Z_M = 2.10
+# 1 Nov 2026 (UL243): the sizes of the fittings, the drain, the niche and the glass hardware: shower_parts
+RAIN_HEAD_Z_M = 2.10              # the top of the rain head's wall rosette (the shower's highest part)
 SLIDE_RAIL_Z_M = (1.00, 1.90)
 MIXER_Z_M = 1.05
 TOWEL_BAR_Z_M = 1.25
 
 
-def walk_in_shower_parts(w: float, d: float, h: float, look: Optional[dict] = None) -> list[Part]:
+def walk_in_shower_parts(w: float, d: float, h: float, look: Optional[dict] = None, picks=None) -> list[Part]:
     """B16: the walk-in shower in its drawn footprint ``w x d`` (front -Y, the back wall +Y): the floor (UL201: level
     access by default, the room's tiles running in, a flush linear drain; ``look["level_access"]`` False: the low stone
     tray), the glass front (a fixed panel, a sliding one on a top rail with rollers and a bar pull when wide), a fixed
     glass panel on each open end (``look["shower_sides"]``: ``left`` / ``right`` ``glass``, the rail turning the
     corner over it), the rain head on its arm, the hand shower on its rail with the hose, the thermostatic mixer and a
-    towel bar."""
-    look = look if isinstance(look, dict) else {}
-    h = max(1.9, float(h or 2.0))
-    back = d / 2.0
-    sliding = w >= SLIDING_MIN_W_M - 1e-9
-    gy = -d / 2.0 + GLASS_T_M / 2.0 + (0.06 if sliding else 0.01)   # the sliding panel and its rollers inside too
-    level = look.get("level_access", True) is not False
-    base = 0.0 if level else SHOWER_TRAY_T_M
-    gh = min(h, 2.0) - base
-    if level:
-        parts = [P._box(0.0, back - 0.06, 0.0, w - 0.10, DRAIN_W_M, DRAIN_T_M, "handle", "drain")]
-    else:
-        parts = [P._box(0.0, 0.0, 0.0, w, d, SHOWER_TRAY_T_M, "stone_light", "tray"),
-                 P._box(0.0, back - 0.06, SHOWER_TRAY_T_M, w - 0.10, 0.05, 0.002, "steel", "drain")]
-    sides = look.get("shower_sides") if isinstance(look.get("shower_sides"), dict) else {}
-    open_ends = [sg for sg, key in ((-1.0, "left"), (1.0, "right")) if sides.get(key) == "glass"]
-    rail_z = base + gh - 0.04
-    if sliding:
-        half = w / 2.0
-        parts.append(P._box(-w / 4.0, gy, base, half, GLASS_T_M, gh - 0.04, "glass", "glass"))
-        parts.append(P._box(w / 4.0 - 0.03, gy - 0.022, base + 0.01, half, GLASS_T_M, gh - 0.06, "glass", "glass"))
-        parts.append(P._box(0.0, gy - 0.011, rail_z, w, 0.03, 0.03, "handle", "rail"))
-        for rx in (w / 4.0 - 0.03 - half / 2.0 + 0.08, w / 4.0 - 0.03 + half / 2.0 - 0.08):
-            parts.append(P._cylinder_y(rx, gy - 0.034, rail_z - 0.012, 0.03, 0.03, 0.008, "handle", "roller", n=16))
-        # the bar pull on two stand-offs (UL201), on the sliding panel's leading edge
-        px = w / 4.0 - 0.03 - half / 2.0 + 0.07
-        parts += [P._box(px, gy - 0.05, 0.85, 0.02, 0.012, 0.40, "handle", "handle"),
-                  P._box(px, gy - 0.038, 0.89, 0.012, 0.024, 0.012, "handle", "handle"),
-                  P._box(px, gy - 0.038, 1.21, 0.012, 0.024, 0.012, "handle", "handle")]
-    else:
-        sw = max(0.3, w * 0.7)
-        parts.append(P._box(-w / 2.0 + sw / 2.0, gy, base, sw, GLASS_T_M, gh, "glass", "glass"))
-        parts.append(P._box(-w / 2.0 + sw / 2.0, gy, base + gh - 0.02, sw, 0.02, 0.02, "handle", "rail"))
-        parts.append(P._box(-w / 2.0 + sw - 0.01, gy, base, 0.02, 0.03, gh, "handle", "profile"))
-    for sg in open_ends:
-        # a fixed side panel from the front glass to the back wall, its wall clamps, the rail over it (UL201)
-        sx = sg * (w / 2.0 - 0.016)                       # the glass in the middle of its 3 cm rail and clamps
-        y0, y1 = gy + 0.01, back - 0.005
-        parts.append(P._box(sx, (y0 + y1) / 2.0, base, GLASS_T_M, y1 - y0, gh - 0.04, "glass", "glass"))
-        parts.append(P._box(sx, (y0 + y1) / 2.0, rail_z, 0.03, y1 - y0, 0.03, "handle", "rail"))
-        cw, cd, ch = SIDE_CLAMP_M
-        for cz in (0.30, gh - 0.30):
-            parts.append(P._box(sx, back - cd / 2.0 - 0.002, base + cz, cw, cd, ch, "handle", "clamp"))
-    # the rain head on its wall arm
-    arm = max(0.15, min(0.40, d * 0.45))
-    rw, rd, rt = RAIN_HEAD_M
-    hz = min(RAIN_HEAD_Z_M, h + 0.15)
-    parts += [P._box(0.0, back - 0.004, hz - 0.03, 0.06, 0.008, 0.06, "handle", "rosette"),
-              P._cylinder_y(0.0, back - arm, hz, 0.011, 0.011, arm, "handle", "arm", n=10),
-              P._box(0.0, back - arm, hz - rt - 0.01, min(rw, w - 0.1), min(rd, d - 0.2), rt, "handle", "head")]
-    # the hand shower on its slide rail, its hose looping to the mixer
-    sx = w / 2.0 - 0.18
-    z0, z1 = SLIDE_RAIL_Z_M
-    parts += [P._cylinder_z(sx, back - 0.03, z0, 0.009, 0.009, z1 - z0, "handle", "rail", n=10),
-              P._box(sx, back - 0.015, z0, 0.03, 0.03, 0.02, "handle", "bracket"),
-              P._box(sx, back - 0.015, z1 - 0.02, 0.03, 0.03, 0.02, "handle", "bracket"),
-              P._cylinder_z(sx, back - 0.06, 1.55, 0.014, 0.014, 0.16, "handle", "hand_shower", n=12),
-              P._cylinder_z(sx, back - 0.06, 1.71, 0.035, 0.035, 0.02, "handle", "hand_shower", n=16)]
-    hose = [(sx, back - 0.06, 1.55), (sx - 0.04, back - 0.07, 1.30), (sx - 0.10, back - 0.08, 1.05),
-            (sx - 0.18, back - 0.06, 0.95), (0.08, back - 0.05, MIXER_Z_M)]
-    for (xa, ya, za), (xb, yb, zb) in zip(hose, hose[1:]):
-        length = math.dist((xa, ya, za), (xb, yb, zb))
-        if zb >= za:
-            parts.append(_stick(xa, ya, za, (xb - xa) / max(1e-6, zb - za), (yb - ya) / max(1e-6, zb - za),
-                                length, 0.006, "dark", "hose") if zb - za > 0.05 else
-                         P._box((xa + xb) / 2.0, (ya + yb) / 2.0, min(za, zb) - 0.006, abs(xb - xa) + 0.012, 0.012,
-                                0.012, "dark", "hose"))
-        else:
-            parts.append(_stick(xb, yb, zb, (xa - xb) / max(1e-6, za - zb), (ya - yb) / max(1e-6, za - zb), length,
-                                0.006, "dark", "hose"))
-    # the thermostatic mixer, the towel bar inside
-    parts += [P._box(0.0, back - 0.03, MIXER_Z_M - 0.035, 0.30, 0.06, 0.07, "handle", "mixer"),
-              P._cylinder_y(-0.11, back - 0.09, MIXER_Z_M, 0.025, 0.025, 0.03, "handle", "knob", n=16),
-              P._cylinder_y(0.11, back - 0.09, MIXER_Z_M, 0.025, 0.025, 0.03, "handle", "knob", n=16)]
-    if w >= 0.75:
-        bx = -w / 2.0 + 0.30
-        parts += [P._cylinder_x(bx - 0.18, back - 0.05, TOWEL_BAR_Z_M, 0.009, 0.009, 0.36, "handle", "towel_bar",
-                                n=10),
-                  P._cylinder_y(bx - 0.17, back - 0.05, TOWEL_BAR_Z_M, 0.007, 0.007, 0.05, "handle", "bracket", n=8),
-                  P._cylinder_y(bx + 0.17, back - 0.05, TOWEL_BAR_Z_M, 0.007, 0.007, 0.05, "handle", "bracket", n=8)]
-        parts += TP.draped_towel(bx, back - 0.05, TOWEL_BAR_Z_M, 0.009, 0.30, 0.40, "towel")    # UL138
-    return parts
+    towel bar. 1 Nov 2026 (lesson UL243, user: "Give more details to shower models"): every one of them a real product
+    (``wenart.blender.shower_parts``: the mixer's plate and knurled knobs with a diverter, a 25-30 cm rain head with its
+    nozzles, a ribbed hand shower on a slider, a metal-wound hose hanging as one curve, the glass's profiles, rollers,
+    clamps, stabiliser and seals, a slotted linear drain, a stone tray with its fall, a stone-lined niche with its
+    shelf and toiletries); ``picks``: the fit's small-items record (the niche's bottles and soap dish)."""
+    from wenart.blender import shower_parts as SH
+
+    return SH.walk_in_shower_parts(w, d, h, look, picks)
 
 
 # --------------------------------------------------------------------------

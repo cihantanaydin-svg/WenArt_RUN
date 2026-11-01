@@ -716,6 +716,9 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         # material: materials.led_material), a light stone and a terrazzo top or panel, the towels (white unless the
         # piece's design names the room's towel colour: design_overrides)
         "led": (LED_SLUG, None, None),
+        # 1 Nov 2026 (UL245): a WC flush plate of white glass (the glazed white) or black glass (the near-black glossy
+        # glass of a switched-off screen), its buttons in the fixture metal (bath_parts.flush_keys)
+        "glass_white": ("ceramic_white", None, None), "glass_black": ("screen_black", None, None),
         "stone_light": ("marble", _vocab_asset("marble"), None),
         "terrazzo": ("terrazzo", _vocab_asset("terrazzo"), None),
         # 30 Oct 2026 (UL138): the towels' terry cloth, a stack's second shade and a hanging towel's woven band

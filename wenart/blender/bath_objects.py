@@ -916,12 +916,15 @@ def cotton_stem(base, direction, length: float, seed: int = 0) -> list[Part]:
 
 # 30 Oct 2026 (lesson UL168, user on the same bathroom: "These switches requires a rework": the flush plate read as a
 # black picture frame with two flat white panes): a real dual-flush actuator plate (the Geberit Sigma size, 246 x 164
-# mm, 8 mm proud): a slim plate with rounded corners and a chamfered front edge, a small (half-flush) and a large
-# (full-flush) button side by side with a fine shadow gap round each, the buttons a little proud and pillowed, a fine
-# line on each (one on the small, two on the large), all in the room's fixture finish
-FLUSH = {"size_m": (0.246, 0.164), "proud_m": 0.008, "corner_r_m": 0.008, "chamfer_m": 0.0015, "border_m": 0.018,
-         "button_gap_m": 0.004, "small_share": 0.38, "button_proud_m": 0.0015, "button_r_m": 0.004,
-         "shadow_m": 0.0009, "line_m": (0.0012, 0.0005)}
+# mm), a small (half-flush) and a large (full-flush) button side by side, all in the room's fixture finish.
+# 1 Nov 2026 (lesson UL245, user on real04 run 20261031-194116-full: "make this better": the plate read as a flat black
+# slab with two printed lines): a bezel with depth (10 mm proud, rounded corners, its front edge rounded over, the
+# opening's lip chamfered), the two push buttons set 1.2 mm back in its opening with a 2 mm gap round each down to a
+# dark well, their faces softly dished, no printed lines; metal (matte black with a satin sheen, brushed brass, brushed
+# steel) or glass with metal buttons by family (``bath_parts.flush_keys``)
+FLUSH = {"size_m": (0.246, 0.164), "proud_m": 0.010, "corner_r_m": 0.012, "edge_r_m": 0.0035, "border_m": 0.014,
+         "inner_r_m": 0.006, "lip_m": 0.0008, "recess_m": 0.0012, "well_m": 0.0045, "gap_m": 0.002,
+         "mid_gap_m": 0.003, "small_share": 0.38, "button_edge_m": 0.0012, "dish_m": 0.0005}
 
 
 def rounded_rect(a: float, b: float, rc: float, n: int = 4) -> list[tuple[float, float]]:
@@ -954,35 +957,68 @@ def wall_slab(cx: float, y_back: float, zc: float, a: float, b: float, rc: float
     return {"verts": verts, "faces": faces, "key": key, "role": role}
 
 
+def rr_loft(cx: float, y_wall: float, zc: float, rings: Sequence[tuple[float, float, float, float]], key: str,
+            role: str, loop: bool = False, n: int = 4) -> Part:
+    """A solid on a wall (its back at ``y_wall``, standing out towards -Y) lofted through rounded-rectangle rings
+    ``(half width, half height, corner radius, depth from the wall)``; ``loop``: the last ring joined to the first (a
+    bezel round an opening, no caps), else closed at both ends; wound outwards."""
+    verts = []
+    for a, b, r, depth in rings:
+        verts += [(cx + u, y_wall - depth, zc + v) for u, v in rounded_rect(a, b, r, n)]
+    m = 4 * (n + 1)
+    k_rings = len(rings)
+    faces = []
+    for k in range(k_rings if loop else k_rings - 1):
+        p, q = k * m, ((k + 1) % k_rings) * m
+        faces += [[p + i, p + (i + 1) % m, q + (i + 1) % m, q + i] for i in range(m)]
+    if not loop:
+        faces += [list(range(m - 1, -1, -1)), [(k_rings - 1) * m + i for i in range(m)]]
+    return _outward({"verts": verts, "faces": faces, "key": key, "role": role})
+
+
 def flush_plate(cx: float, y_wall: float, z_bottom: float, finish_key: str = "handle",
-                button_key: Optional[str] = None, line_key: str = "steel", shadow_key: str = "dark") -> list[Part]:
-    """The dual-flush plate on the wall at ``y_wall`` (its bottom at ``z_bottom``): the plate (first part, role
-    ``plate``), the shadow gaps, the two buttons (role ``button``: small left, large right) and their lines."""
+                button_key: Optional[str] = None, shadow_key: str = "glass_black") -> list[Part]:
+    """The dual-flush plate on the wall at ``y_wall`` (its bottom at ``z_bottom``; UL245): the bezel (first part, role
+    ``plate``, in ``finish_key``: a frame ``FLUSH["proud_m"]`` proud, its front edge rounded over, round the opening),
+    the dark well in its opening (role ``gap``, ``shadow_key``: the near-black glass, darker than a matte black
+    finish) and the two push buttons (role ``button``, in ``button_key``: small
+    left for the half flush, large right for the full flush), set ``FLUSH["recess_m"]`` back from the bezel's front with
+    a ``FLUSH["gap_m"]`` gap round each, their faces softly dished; no printed symbols."""
     (pw, ph), t = FLUSH["size_m"], FLUSH["proud_m"]
     a, b = pw / 2.0, ph / 2.0
     zc = z_bottom + b
-    c = FLUSH["chamfer_m"]
-    parts = [wall_slab(cx, y_wall, zc, a, b, FLUSH["corner_r_m"], [(0.0, 0.0), (0.0, t - c), (c, t)], finish_key,
-                       "plate")]
+    R, er, B, ri, lip = FLUSH["corner_r_m"], FLUSH["edge_r_m"], FLUSH["border_m"], FLUSH["inner_r_m"], FLUSH["lip_m"]
+    well = FLUSH["well_m"]
+    rings = [(a, b, R, 0.0), (a, b, R, t - er)]
+    for k in (1, 2, 3):                                          # the front edge rounded over
+        th = 0.5 * math.pi * k / 3.0
+        inset = er * (1.0 - math.cos(th))
+        rings.append((a - inset, b - inset, R - inset, t - er + er * math.sin(th)))
+    rings += [(a - B + lip, b - B + lip, ri + lip, t), (a - B, b - B, ri, t - lip), (a - B, b - B, ri, t - well),
+              (a - B, b - B, ri, 0.0)]
+    parts = [rr_loft(cx, y_wall, zc, rings, finish_key, "plate", loop=True)]
+    ia, ib = a - B, b - B                                        # the opening's half sizes
+    parts.append(rr_loft(cx, y_wall, zc, [(ia - 0.0002, ib - 0.0002, ri, 0.0), (ia - 0.0002, ib - 0.0002, ri,
+                                                                                t - well)], shadow_key, "gap"))
     bk = button_key or finish_key
-    inner_w, inner_h = pw - 2 * FLUSH["border_m"], ph - 2 * FLUSH["border_m"]
-    g = FLUSH["button_gap_m"]
-    ws = (inner_w - g) * FLUSH["small_share"]
-    wl = inner_w - g - ws
-    x_s = cx - inner_w / 2.0 + ws / 2.0
-    x_l = cx + inner_w / 2.0 - wl / 2.0
-    front = y_wall - t
-    bp, rb, sh = FLUSH["button_proud_m"], FLUSH["button_r_m"], FLUSH["shadow_m"]
-    lh, lp = FLUSH["line_m"]
-    for k, (x, w) in enumerate(((x_s, ws), (x_l, wl))):
-        ba, bb = w / 2.0, inner_h / 2.0
-        parts.append(wall_slab(x, front + 0.001, zc, ba + sh, bb + sh, rb + sh, [(0.0, 0.0), (0.0, 0.0013)],
-                               shadow_key, "gap"))
-        parts.append(wall_slab(x, front + 0.001, zc, ba, bb, rb, [(0.0, 0.0), (0.0, 0.001 + bp * 0.7),
-                                                                   (0.0012, 0.001 + bp)], bk, "button"))
-        for j in range(k + 1):                                   # one line on the small button, two on the large
-            lw = w * (0.30 if k == 0 else 0.22)
-            lx = x if k == 0 else x + (j - 0.5) * lw * 1.5
-            parts.append(wall_slab(lx, front - bp + 0.0004, zc, lw / 2.0, lh / 2.0, lh / 2.0 - 1e-5,
-                                   [(0.0, 0.0), (0.0, lp + 0.0004)], line_key, "symbol", n=2))
+    g, mg = FLUSH["gap_m"], FLUSH["mid_gap_m"]
+    width = 2.0 * ia - 2.0 * g - mg
+    ws = width * FLUSH["small_share"]
+    wl = width - ws
+    x_s = cx - ia + g + ws / 2.0
+    x_l = cx + ia - g - wl / 2.0
+    bb = ib - g
+    rb = max(0.002, ri - g)
+    face = t - FLUSH["recess_m"]
+    be, dish = FLUSH["button_edge_m"], FLUSH["dish_m"]
+    for x, w in ((x_s, ws), (x_l, wl)):
+        ba = w / 2.0
+        brings = [(ba, bb, rb, t - well), (ba, bb, rb, face - be)]
+        for k in (1, 2):                                         # its edge rounded over
+            th = 0.5 * math.pi * k / 2.0
+            inset = be * (1.0 - math.cos(th))
+            brings.append((ba - inset, bb - inset, rb - inset, face - be + be * math.sin(th)))
+        brings += [(ba - be - 0.004, bb - be - 0.004, max(0.001, rb - be - 0.004), face - dish * 0.6),
+                   (ba * 0.45, bb * 0.45, max(0.001, rb * 0.45), face - dish)]       # the dished face
+        parts.append(rr_loft(x, y_wall, zc, brings, bk, "button"))
     return parts

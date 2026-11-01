@@ -504,8 +504,10 @@ def plan_room(building: dict, room: dict, spec: dict, why: str) -> dict:
         note = None
         if ftype == "toilet":
             if spec["wc"] == "wall_hung":
-                look.update(wc="wall_hung", made_to_measure=True)
-                note = "a wall-hung WC with the flush plate of its concealed cistern on the wall (B1)"
+                # 1 Nov 2026 (UL245): the plate's finish by family (metal, or white or black glass with metal buttons)
+                look.update(wc="wall_hung", made_to_measure=True, flush=BT.flush_finish(spec))
+                note = ("a wall-hung WC with the flush plate of its concealed cistern on the wall (B1; a bezel and two "
+                        f"recessed push buttons, {look['flush'].replace('_', ' ')} finish, UL245)")
             else:
                 look.update(wc="close_coupled")
                 note = f"the {spec['family']} family keeps a close-coupled WC (as fitted)"
@@ -524,12 +526,14 @@ def plan_room(building: dict, room: dict, spec: dict, why: str) -> dict:
                 note = f"the {spec['family']} family keeps a closed storage column"
         elif ftype == "shower":
             sides = shower_entry(p, room)
-            look.update(shower="walk_in", made_to_measure=True, level_access=True, shower_sides=sides)
+            look.update(shower="walk_in", made_to_measure=True, level_access=True, shower_sides=sides,
+                        rain_head=spec.get("rain_head") or "square")
             ends = [k for k in ("left", "right") if sides.get(k) == "glass"]
             note = ("a level-access walk-in glass enclosure (the room's tiles running in, a flush linear drain), "
                     + ("a fixed glass panel on its open " + " and ".join(ends) + " end" + ("s" if len(ends) > 1 else "")
                        + ", " if ends else "")
-                    + "a rain head, a hand shower on a slide bar, a bar mixer (B16, UL201)")
+                    + f"a {look['rain_head']} rain head, a hand shower on a slide bar, a thermostatic mixer, a niche "
+                      "(B16, UL201, UL243)")
         elif ftype not in ("bathtub", "washing_machine"):
             continue
         look["reason"] = f"{note or ftype}; {why} (UL114)"
