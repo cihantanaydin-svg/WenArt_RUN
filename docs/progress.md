@@ -2965,3 +2965,22 @@ Ranking batch 3 run (1 Nov 2026, pod u3xjgkervx1dna, RTX 5090, 21 min, $0.41): 1
 sheets; the ranking page now holds 3,650 models on 214 sheets (groups Our builds, Textiles, Lights, Wall decor, Plants,
 Tabletop, Electronics, Furniture). The sheets show library models that are photo panels or product shots (e.g. several
 pendant lights): a score of 0-2 keeps them out of every run.
+
+## The user's review of real04 run 20261031-194116-full (1 Nov 2026, lessons UL234-UL249; all built)
+
+| lesson | request | fix |
+|---|---|---|
+| UL234 | the roof must stay as before (the dormers changed it) | no dormers by default; the user chose "North slopes, 2.0 m doors": a door the slopes leave too low takes its best slide spot and the slopes over it rise parallel (real04: north knee wall +0.70 m, north upper slope +0.40 m, both attic bath doors 2.03 m); gutters per eaves height |
+| UL235 | the stone wall all around the floor | the agent's facade override had dropped the facade scheme (it is kept now); a cladding on one wall of a floor goes on every outside wall of that floor |
+| UL236, UL238, UL241 | bedding the same everywhere; sofa cushions over the back; the salon corner sofa | a set per bed (deterministic, richer in the master, sized to the mattress), never a second set over a model's own bedding; cushions on the seat leaning on the back, arranged by the sofa's shape; the throw over the real arm |
+| UL237 | a photo, not a table | photo-card check (code and a 6 min mesh scan): 94 photo-card models never used |
+| UL239 | plants, tables, candle, bed | the user's rejections (user_rejected.json) |
+| UL240 | a TV on the TV unit | the refit gives every TV unit against a wall its TV |
+| UL242 | a bed turned 90 degrees | models whose front side the audit only guessed are not used |
+| UL243, UL245 | showers and flush plates | real fittings: thermostatic mixer, rain head, slide rail and hose curve, glass hardware, drain, niche; a bezel with recessed buttons |
+| UL244 | the plate stack | no plate stack on worktops |
+| UL246 | the slatted wardrobe | real joinery: profiled slats with tones, backing, shadow gaps, tracks, handles, interior finish, LED |
+| UL247 | the sloped ceiling light | lights under a slope hang level from a stem and canopy |
+| UL248, UL249 | the plain front bank, the outside areas | the terrain is never paved; banks planted or terraced; borders, beds, planters, path lights |
+
+Before the pod: photo-card scan pod ($0.11); full CPU suite (every failure fixed); local preflight (decor, refit, Blender build) ok.

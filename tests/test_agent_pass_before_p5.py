@@ -535,13 +535,15 @@ def eye_z(b: dict, x: float, y: float, eye: float = 1.6) -> float:
 
 
 @pytest.mark.skipif(not REAL04.is_file(), reason="results/furniture/real04 not committed")
-def test_real04_an_eye_level_pose_looking_down_is_no_aerial_view(tmp_path):
+def test_real04_an_eye_level_pose_looking_down_is_no_aerial_view(tmp_path, monkeypatch):
     """Fails on the round-2 tree (review of round 2, major): the aerial guard checked only the 5-degree pitch, so
     real04's ext_5 set at P3's round-6 spot 1.60 m over the ground and aimed 6 degrees down was accepted (the
     validator passes an eye height of 1.60 m), the build kept it ``aerial`` with ``aerial_allowed`` and the critic
     dropped a vision claim "at eye level looking down" on it. The guard now uses the validator's and X6's own line
     too: a camera below ``ridge_z + 1.0`` (7.01 m on real04) is an eye-level view; the refusal states both rules, and
     the critic drops a height claim only for a pose above that line."""
+    from wenart.blender import build as BU     # 1 Nov 2026 (UL234): the drawn roof's ridge (no door slope raised)
+    monkeypatch.setattr(BU, "raise_slopes_for_doors", lambda building, level, roof: [])
     from wenart.blender import build as B
     from wenart.blender import exterior_checks as X
 
