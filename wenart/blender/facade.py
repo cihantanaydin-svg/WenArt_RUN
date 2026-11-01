@@ -34,6 +34,20 @@ base cladding too. A face may carry a ``span`` (two plan points on its wall): on
 rhythm"): a house of two or more storeys above the ground takes the family's ``upper`` cladding on its top storey
 (timber over a rendered ground floor for the Scandinavian, Japandi, modern and rustic families, fibre-cement panels
 for the industrial one); the families whose look is one render (minimal, classic, Mediterranean) keep it.
+
+1 Nov 2026 (lesson UL235, user on a sloped-site house, the stacked stone on one wall of its lowest floor: "this was nice
+wall it can be used all around the same floor"): one cladding all round a floor (``storey_claddings``). A cladding
+(any finish that is not a render: stone, brick, wood, fibre-cement panels; ``is_cladding``) that the facade puts on an
+outside wall of a floor goes on every outside wall of that floor, around the corners. It comes from an inferred facade
+face on the whole of some of the floor's outside walls, or from the plinth: on a sloped site the raised base runs from
+the ground up to the floor above, so where the ground lies low it clads a lower floor's wall from the ground to the next
+floor (``plinth_storeys``: at least ``STOREY["min_height_m"]`` of stone on at least ``STOREY["min_length_m"]`` of the
+wall) while the floor's other walls stayed render. The other outside walls of that floor take the same look as an
+inferred face (``storey_cladding``, with the reason and the wall it was seen on). What stays: the openings (the glazing
+stays glazing), a wall the documents or the brief give a face of its own, a wall that already carries a whole-wall
+cladding, the accent band at the entrance (a span the scheme sets on purpose), a facade the documents, the brief or the
+style name (the plinth then stays a base), a main facade that is a cladding already, and every other floor: each floor
+follows its own faces.
 """
 from __future__ import annotations
 
@@ -76,6 +90,12 @@ ACCENT = {"margin_m": 1.0, "min_width_m": 2.4}      # the accent band: the door 
 DIMENSIONS = {"plinth_height": 0.45, "plinth_below": 0.05, "proud": 0.025, "band_height": 0.20, "band_proud": 0.03,
               "coping_height": 0.06, "coping_proud": 0.04, "surround_width": 0.12, "surround_proud": 0.03,
               "min_span": 0.15}
+# 1 Nov 2026 (UL235): the plinth clads a floor's wall when it reaches that floor's top (the floor above, within
+# top_tol_m) and shows at least min_height_m over the ground on at least min_length_m of the wall; a plinth stretch
+# belongs to a floor's wall when its edge lies within edge_tol_m of that floor's outline
+STOREY = {"min_height_m": 1.0, "min_length_m": 1.0, "top_tol_m": 0.1, "edge_tol_m": 0.3}
+RENDER_KINDS = ("plaster",)        # vocabulary kinds of a render finish; any other kind outside is a cladding
+NAMED_SOURCES = ("documents", "brief", "style")     # a facade look named by them keeps the plinth a base
 
 
 # Milestone 13 (T6): the facade kit sizes (metres) and looks (vocabulary slugs; a colour name or None).
@@ -286,6 +306,24 @@ def opening_items(building: dict, level: dict, outline, levels_above: bool) -> l
     return out
 
 
+def plinth_look(style: Optional[dict], looks: Optional[dict]) -> dict:
+    """The plinth's look (pure): the resolved ``plinth`` look (the agent's slot), else the style family's plinth
+    (``ARTICULATION``)."""
+    rules = family_rules(style)
+    return (looks or {}).get("plinth") or {"material": rules["plinth"], "colour": rules["plinth_colour"],
+                                           "source": "build", "assumed": True,
+                                           "reason": f"plinth band: {rules['plinth']} (style family "
+                                                     f"{rules['family'] or 'default'}; not drawn)"}
+
+
+def plinth_cuts(building: dict, order: Sequence[dict], outlines: dict, ground_outline, wells: Sequence[dict] = ()
+                ) -> list[dict]:
+    """What cuts the plinth (pure): the doors and windows of every level and the light wells / front courts."""
+    cuts = [dict(it, bottom=it["bottom"], top=it["top"]) for lv in order
+            for it in opening_items(building, lv, outlines.get(lv["id"]) or ground_outline, True)]
+    return cuts + [{"polygon": w["polygon"]} for w in wells or []]
+
+
 def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, ground_outline, terrain: Optional[dict],
                       roof_model: Optional[dict], style: Optional[dict], looks: Optional[dict],
                       wells: Sequence[dict] = ()) -> dict:
@@ -306,10 +344,7 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
     looks = looks or {}
     facade = looks.get("facade") or {"material": "render", "colour": "white"}
     out_looks = {
-        "plinth": looks.get("plinth") or {"material": rules["plinth"], "colour": rules["plinth_colour"],
-                                          "source": "build", "assumed": True,
-                                          "reason": f"plinth band: {rules['plinth']} (style family "
-                                                    f"{rules['family'] or 'default'}; not drawn)"},
+        "plinth": plinth_look(style, looks),
         "band": looks.get("cornice") or {"material": facade.get("material") or "render", "colour": band_colour(facade),
                                          "source": "build", "assumed": True,
                                          "reason": "slab band / coping: the facade material, set off in colour "
@@ -324,9 +359,7 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
     order = sorted(levels, key=lambda lv: float(lv["elevation"]))
     gz = (lambda x, y: S.ground_z(terrain, x, y)) if terrain else (lambda x, y: 0.0)
     if len(ground_outline or []) >= 3:
-        cuts = [dict(it, bottom=it["bottom"], top=it["top"]) for lv in order
-                for it in opening_items(building, lv, outlines.get(lv["id"]) or ground_outline, True)]
-        cuts += [{"polygon": w["polygon"]} for w in wells or []]
+        cuts = plinth_cuts(building, order, outlines, ground_outline, wells)
         plinth = plinth_rule(building)
         boxes += _plinth(ground_outline, cuts, gz, plinth)     # one ground height per edge: its lower end
         if plinth is None:
@@ -1104,24 +1137,176 @@ def plinth_top(rule: dict, ground: float, flush: float = 0.05) -> float:
     return max(top, ground + float(rule["min"]))
 
 
+def plinth_edges(ground_outline, gz, rule: Optional[dict] = None) -> list[dict]:
+    """Per edge of the ground outline (counter-clockwise, at least ``min_span`` long) the plinth's height (pure):
+    ``{"p", "q", "length", "ground_z", "z0", "z1"}``; the ground of an edge is its lower end. Without ``rule`` the
+    Milestone 11 band of ``plinth_height``, with it the raised base up to ``plinth_top``."""
+    out = []
+    pts = geom2d.ccw(ground_outline)
+    n = len(pts)
+    for i in range(n):
+        p, q = pts[i], pts[(i + 1) % n]
+        length = G.distance(p, q)
+        if length < DIMENSIONS["min_span"]:
+            continue
+        z = min(gz(*p), gz(*q))
+        z1 = z + DIMENSIONS["plinth_height"] if rule is None else plinth_top(rule, z)
+        out.append({"p": p, "q": q, "length": length, "ground_z": z, "z0": z - DIMENSIONS["plinth_below"], "z1": z1})
+    return out
+
+
+def is_cladding(slug: Optional[str]) -> bool:
+    """Whether a look slug is a cladding on an outside wall (pure): a vocabulary look whose kind is not a render's
+    (``RENDER_KINDS``): stone, brick, wood, fibre-cement panels ...; False for a render, a paint and an unknown slug."""
+    from wenart.style.profile import _entry
+
+    kind = (_entry(slug) or {}).get("kind") if slug else None
+    return bool(kind) and kind not in RENDER_KINDS
+
+
+def storey_top(level: dict, levels: Sequence[dict]) -> Optional[float]:
+    """The top of a floor's walls (pure): the floor of the next level above it (more than 0.5 m higher), None for the
+    top level."""
+    e = float(level["elevation"])
+    above = [float(x["elevation"]) for x in levels if float(x["elevation"]) > e + 0.5]
+    return min(above) if above else None
+
+
+def plinth_storeys(building: dict, levels: Sequence[dict], outlines: dict, ground_outline, terrain: Optional[dict],
+                   wells: Sequence[dict] = ()) -> dict[str, list[dict]]:
+    """1 Nov 2026 (UL235): the floors whose outside wall the plinth clads (pure): ``{level id: [{"p", "q", "height_m",
+    "length_m"}]}``. A plinth edge (``plinth_edges`` with the pipeline's ``site.plinth`` rule; none without it: the
+    Milestone 11 band is a band) clads a floor when its top is that floor's top (``storey_top``, within
+    ``STOREY["top_tol_m"]``), it shows at least ``STOREY["min_height_m"]`` over the ground on that floor (from the
+    ground, or the floor when the ground lies lower, up to the top) on at least ``STOREY["min_length_m"]`` of uncut
+    stretches (``plinth_cuts``), and its edge lies on that floor's outline (``STOREY["edge_tol_m"]``)."""
+    from wenart.blender import site as S
+
+    rule = plinth_rule(building)
+    if rule is None or len(ground_outline or []) < 3:
+        return {}
+    every = sorted(building.get("levels") or levels, key=lambda lv: float(lv["elevation"]))
+    order = sorted(levels, key=lambda lv: float(lv["elevation"]))
+    gz = (lambda x, y: S.ground_z(terrain, x, y)) if terrain else (lambda x, y: 0.0)
+    cuts = plinth_cuts(building, order, outlines, ground_outline, wells)
+    out: dict[str, list[dict]] = {}
+    for e in plinth_edges(ground_outline, gz, rule):
+        shown = sum(b - a for a, b in _spans(e["length"], _edge_cuts(e["p"], e["q"], cuts, e["z0"], e["z1"]),
+                                              DIMENSIONS["min_span"]))
+        if shown < STOREY["min_length_m"]:
+            continue
+        mid = ((e["p"][0] + e["q"][0]) / 2.0, (e["p"][1] + e["q"][1]) / 2.0)
+        for lv in order:
+            top = storey_top(lv, every)
+            outline = outlines.get(lv["id"]) or []
+            if top is None or abs(e["z1"] - top) > STOREY["top_tol_m"] or len(outline) < 3:
+                continue
+            height = e["z1"] - max(e["ground_z"], float(lv["elevation"]))
+            if height < STOREY["min_height_m"] or geom2d.distance_to_polygon_edges(mid, outline) > STOREY["edge_tol_m"]:
+                continue
+            out.setdefault(lv["id"], []).append({"p": [round(float(e["p"][0]), 3), round(float(e["p"][1]), 3)],
+                                                 "q": [round(float(e["q"][0]), 3), round(float(e["q"][1]), 3)],
+                                                 "height_m": round(height, 3), "length_m": round(shown, 3)})
+    return out
+
+
+def outer_walls(building: dict, level: dict, outline) -> list[dict]:
+    """The outside walls of a floor (pure): its walls with an outward side against the floor's outline
+    (``shell.outward_side`` at the wall's middle, as ``build.facade_faces`` finds them)."""
+    from wenart.blender import shell
+
+    if len(outline or []) < 3:
+        return []
+    return [w for w in building.get("walls") or [] if w.get("level_id") == level["id"]
+            and shell.outward_side(w, outline, G.segment_midpoint(w["start"], w["end"])) is not None]
+
+
+def _inferred(face: dict) -> bool:
+    return bool(face.get("inferred")) or face.get("source") == "inferred"
+
+
+def _whole_wall_cladding(face: dict) -> bool:
+    """An inferred face that clads the whole wall: no span, no height band, no side of its own, a cladding look."""
+    return _inferred(face) and not face.get("span") and not face.get("z_range") and not face.get("direction") \
+        and is_cladding(face.get("material"))
+
+
+def _nearest_wall(walls: Sequence[dict], point) -> Optional[str]:
+    best = min(walls, key=lambda w: G.point_segment_distance(point, w["start"][:2], w["end"][:2]), default=None)
+    return best["id"] if best else None
+
+
+def storey_claddings(building: dict, levels: Sequence[dict], outlines: dict, faces_by_wall: Optional[dict],
+                     plinth: Optional[dict] = None, plinth_look_: Optional[dict] = None,
+                     facade_look: Optional[dict] = None) -> tuple[list[dict], list[dict]]:
+    """1 Nov 2026 (lesson UL235, "this was nice wall it can be used all around the same floor"): the faces that carry a
+    floor's cladding to every outside wall of that floor (pure). ``(faces, records)``.
+
+    Per floor (``levels``) and its outside walls (``outer_walls``): the claddings it shows on part of them are the
+    inferred whole-wall cladding faces of ``faces_by_wall`` (``{wall id: [face]}``, the drawn faces and the scheme's,
+    as ``build.facade_faces`` maps them), then the plinth's look (``plinth_look_``) where the plinth clads the floor
+    (``plinth``: ``plinth_storeys``), unless the documents, the brief or the style name the facade (``facade_look``'s
+    source in ``NAMED_SOURCES``: the plinth stays a base). Every outside wall of the floor without a face the documents
+    or the brief give it and without a whole-wall cladding takes the first of them: a face ``{"material", "colour",
+    "side": "all", "wall_id", "level_id", "source": "inferred", "inferred": True, "storey_cladding": True, "reason"}``.
+    Nothing when the main facade (``facade_look``) is a cladding itself. ``records``: one per floor that got faces,
+    ``{"level_id", "material", "colour", "from": facade | plinth, "seen_on", "walls", "reason"}``."""
+    facade_look = facade_look or {}
+    if is_cladding(facade_look.get("material")):
+        return [], []                                    # the main walls carry a cladding all round already
+    named = facade_look.get("source") in NAMED_SOURCES
+    faces_by_wall = faces_by_wall or {}
+    faces: list[dict] = []
+    records: list[dict] = []
+    for lv in sorted(levels, key=lambda x: float(x["elevation"])):
+        outer = outer_walls(building, lv, outlines.get(lv["id"]) or [])
+        if not outer:
+            continue
+        own = {w["id"]: faces_by_wall.get(w["id"]) or [] for w in outer}
+        taken = {wid for wid, fs in own.items() if any(not _inferred(f) or _whole_wall_cladding(f) for f in fs)}
+        cands: list[dict] = []
+        seen: dict = {}
+        for w in outer:
+            for f in own[w["id"]]:
+                if _whole_wall_cladding(f):
+                    seen.setdefault((f["material"], f.get("colour")), []).append(w["id"])
+        for (material, colour), ids in seen.items():
+            cands.append({"material": material, "colour": colour, "from": "facade", "seen_on": sorted(set(ids)),
+                          "why": f"the facade puts it on {', '.join(sorted(set(ids)))}"})
+        stretches = (plinth or {}).get(lv["id"]) or []
+        if stretches and not named and is_cladding((plinth_look_ or {}).get("material")):
+            tall = max(stretches, key=lambda s: (s["height_m"], s["length_m"]))
+            mid = ((tall["p"][0] + tall["q"][0]) / 2.0, (tall["p"][1] + tall["q"][1]) / 2.0)
+            wall = _nearest_wall(outer, mid)
+            cands.append({"material": plinth_look_["material"], "colour": plinth_look_.get("colour"), "from": "plinth",
+                          "seen_on": [wall] if wall else [], "stretches": stretches,
+                          "why": f"the plinth's raised base clads {wall or 'a wall'} from the ground up to the floor "
+                                 f"above ({tall['height_m']:.2f} m over {tall['length_m']:.1f} m)"})
+        for cand in cands:
+            todo = [w["id"] for w in outer if w["id"] not in taken]
+            if not todo:
+                break
+            reason = (f"storey cladding (UL235): {cand['material']} on every outside wall of {lv['id']} "
+                      f"({', '.join(todo)}): {cand['why']} (one cladding all round a floor; not drawn)")
+            for wid in todo:
+                faces.append({"material": cand["material"], "colour": cand["colour"], "side": "all", "wall_id": wid,
+                              "level_id": lv["id"], "source": "inferred", "inferred": True, "storey_cladding": True,
+                              "reason": reason})
+            taken.update(todo)
+            records.append({"level_id": lv["id"], "material": cand["material"], "colour": cand["colour"],
+                            "from": cand["from"], "seen_on": cand["seen_on"], "walls": todo, "reason": reason,
+                            **({"stretches": cand["stretches"]} if cand.get("stretches") else {})})
+    return faces, records
+
+
 def _plinth(ground_outline, cuts, gz, rule: Optional[dict] = None) -> list[dict]:
     """The plinth boxes along the ground outline. Without ``rule`` (Milestone 11): a band ``plinth_height`` above
     the ground, ``proud`` in front of the face. With it (Milestone 12): a raised base from the ground up to
     ``rule["top_z"]`` (the floor; at least ``rule["min"]`` above the ground), ``proud`` in front of the face and
     reaching ``PLINTH_BASE_DEPTH`` in under the wall, so no gap shows between the ground and a floor above it."""
     out = []
-    pts = geom2d.ccw(ground_outline)
-    n = len(pts)
-    for i in range(n):
-        p, q = pts[i], pts[(i + 1) % n]
-        z = min(gz(*p), gz(*q))
-        if rule is None:
-            z0, z1 = z - DIMENSIONS["plinth_below"], z + DIMENSIONS["plinth_height"]
-        else:
-            z0, z1 = z - DIMENSIONS["plinth_below"], plinth_top(rule, z)
-        length = G.distance(p, q)
-        if length < DIMENSIONS["min_span"]:
-            continue
+    for e in plinth_edges(ground_outline, gz, rule):
+        p, q, length, z0, z1 = e["p"], e["q"], e["length"], e["z0"], e["z1"]
         ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
         nx, ny = uy, -ux
         proud = DIMENSIONS["proud"]
