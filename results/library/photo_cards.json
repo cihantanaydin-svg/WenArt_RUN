@@ -12,28 +12,155 @@
    "kind": "furniture",
    "title": "Coffee table",
    "sha256_glb": "6265867d662b4d4be3b7fdca048818f86d504b584bdecfc5cca3f4fe6c56b132",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.74 x 0.94 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.74 x 0.94 m panel, 0.0 cm thick, 100% image, holds 69% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.744,
-     1.02,
-     0.938
-    ],
+    "share_one": 0.692,
+    "share_two": 0.692,
     "area_m2": 3.0918,
-    "main_part_share": 0.529,
-    "main_part_m2": 1.6353,
-    "parts": 3,
-    "images": 4,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     1.7443,
+     1.0202,
+     0.9376
     ],
-    "face": "x-z",
-    "ratio": 0.9999
+    "panels": [
+     {
+      "size_m": [
+       1.744,
+       0.938
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.6354,
+      "share": 0.692,
+      "front_share": 0.94,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.012,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.836,
+       0.836
+      ],
+      "thickness_m": 0.0391,
+      "visible_m2": 0.5553,
+      "share": 0.383,
+      "front_share": 0.943,
+      "fill": 0.794,
+      "textured_share": 0.509,
+      "once_mapped": false,
+      "uv_span": [
+       2.104,
+       2.611
+      ],
+      "vertical": false,
+      "backing_share": 0.042,
+      "extent_share": 0.392
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_06ef07d926010b0c43774bc9": {
+   "id": "3dwh_06ef07d926010b0c43774bc9",
+   "type": "tree",
+   "kind": "vegetation",
+   "title": "Cycas Revoluta Sago Palm",
+   "sha256_glb": "0b05ad34f0af0c4bde7593342a18184ea0ac26ef55facb840054155a2454d5da",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 7.19 x 5.39 m panel, 0.0 cm thick, 100% image, holds 67% of the visible surface",
+   "metrics": {
+    "share_one": 0.667,
+    "share_two": 0.667,
+    "area_m2": 77.3743,
+    "box_m": [
+     11.1288,
+     4.6867,
+     5.6504
+    ],
+    "panels": [
+     {
+      "size_m": [
+       7.187,
+       5.389
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 38.7298,
+      "share": 0.667,
+      "front_share": 0.792,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.704
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_0715bc861fe2e99da4383995": {
+   "id": "3dwh_0715bc861fe2e99da4383995",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "IKEA suspended lamp KRUSNING 85",
+   "sha256_glb": "7f77757fb18123af1c1690f63dfb05b74b76fd6ef830f94d5c575889094b52e3",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.04 x 0.78 m panel, 0.0 cm thick, 100% image, holds 76% of the visible surface",
+   "metrics": {
+    "share_one": 0.76,
+    "share_two": 0.76,
+    "area_m2": 1.3364,
+    "box_m": [
+     1.0449,
+     0.4841,
+     0.8018
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.045,
+       0.784
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.8188,
+      "share": 0.76,
+      "front_share": 0.909,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.002,
+      "extent_share": 0.977
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -43,28 +170,43 @@
    "kind": "decor",
    "title": "Chandelier",
    "sha256_glb": "3c1b53c4edfd616dcb540aaa42d6befb642177412dd752d194cae483ca237097",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.85 x 0.57 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.84 x 0.57 m panel, 0.0 cm thick, 100% image, holds 89% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.845,
-     0.074,
-     0.566
-    ],
+    "share_one": 0.889,
+    "share_two": 0.889,
     "area_m2": 0.5984,
-    "main_part_share": 0.8,
-    "main_part_m2": 0.4785,
-    "parts": 3166,
-    "images": 2,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     0.8452,
+     0.0737,
+     0.5662
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       0.845,
+       0.566
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.4786,
+      "share": 0.889,
+      "front_share": 0.965,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       15.043,
+       10.1
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -74,29 +216,43 @@
    "kind": "decor",
    "title": "Cell Pendant Small [uf6f3f1d]",
    "sha256_glb": "aad89e6948a1b38d949368130627bd34650800ac627837501309956418f523ae",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.34 x 0.75 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.34 x 0.75 m panel, 0.0 cm thick, 100% image, holds 94% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.339,
-     0.431,
-     0.753
-    ],
+    "share_one": 0.94,
+    "share_two": 0.94,
     "area_m2": 1.1372,
-    "main_part_share": 0.887,
-    "main_part_m2": 1.0084,
-    "parts": 141,
-    "images": 7,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     1.3389,
+     0.431,
+     0.7532
     ],
-    "scale": 0.7872,
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       1.339,
+       0.753
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.0084,
+      "share": 0.94,
+      "front_share": 0.969,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.014,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -106,28 +262,195 @@
    "kind": "furniture",
    "title": "Cactus mini vase",
    "sha256_glb": "e7352c5ffff6871dafed9dd1a8afcdedef703b29c7c79067b44980bcdaa3ccca",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.45 x 0.60 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.45 x 0.60 m panel, 0.0 cm thick, 100% image, holds 71% of the visible surface",
    "metrics": {
-    "size_m": [
+    "share_one": 0.71,
+    "share_two": 0.71,
+    "area_m2": 0.4902,
+    "box_m": [
      0.45,
-     0.608,
+     0.6083,
      0.6
     ],
-    "area_m2": 0.4902,
-    "main_part_share": 0.551,
-    "main_part_m2": 0.27,
-    "parts": 4,
-    "images": 4,
-    "outside_sides": [
-     "-y"
+    "panels": [
+     {
+      "size_m": [
+       0.45,
+       0.6
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.27,
+      "share": 0.71,
+      "front_share": 0.831,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.281,
+       0.323
+      ],
+      "thickness_m": 0.0297,
+      "visible_m2": 0.0302,
+      "share": 0.118,
+      "front_share": 0.162,
+      "fill": 0.332,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.998,
+      "extent_share": 0.237
+     }
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_11e23922dc09597744c8281f": {
+   "id": "3dwh_11e23922dc09597744c8281f",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "title": "Brass coffee table with green marble",
+   "sha256_glb": "f42865f995ca64cd3cc3989b7ed46184d005259fb0d38c1d6dda4850d39a04e4",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.81 x 0.46 m panel, 0.0 cm thick, 100% image, one image stretched once over it, holds 94% of the front view and 59% of the surface",
+   "metrics": {
+    "share_one": 0.59,
+    "share_two": 0.59,
+    "area_m2": 0.8919,
+    "box_m": [
+     1.4421,
+     0.4034,
+     0.459
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.815,
+       0.458
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.3736,
+      "share": 0.59,
+      "front_share": 0.943,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.564
+     },
+     {
+      "size_m": [
+       0.287,
+       0.564
+      ],
+      "thickness_m": 0.0177,
+      "visible_m2": 0.2324,
+      "share": 0.464,
+      "front_share": 0.852,
+      "fill": 1.434,
+      "textured_share": 0.433,
+      "once_mapped": false,
+      "uv_span": [
+       0.384,
+       0.382
+      ],
+      "vertical": false,
+      "backing_share": 0.344,
+      "extent_share": 0.279
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_164ca946fd7df418b121fcdd": {
+   "id": "3dwh_164ca946fd7df418b121fcdd",
+   "type": "table_dining",
+   "kind": "furniture",
+   "title": "Dining Table Set",
+   "sha256_glb": "ac9521139866958db8150af9f600d783bf32170f217e8870786012bcf7238404",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.28 x 1.28 m panel, 0.0 cm thick, 100% image, holds 64% of the visible surface",
+   "metrics": {
+    "share_one": 0.638,
+    "share_two": 0.638,
+    "area_m2": 3.4827,
+    "box_m": [
+     1.8318,
+     1.6687,
+     1.2771
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.277,
+       1.277
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.631,
+      "share": 0.638,
+      "front_share": 0.839,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.697
+     },
+     {
+      "size_m": [
+       0.644,
+       1.036
+      ],
+      "thickness_m": 0.04,
+      "visible_m2": 0.3214,
+      "share": 0.187,
+      "front_share": 0.639,
+      "fill": 0.482,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       2.859,
+       2.423
+      ],
+      "vertical": false,
+      "backing_share": 0.883,
+      "extent_share": 0.218
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -158,6 +481,110 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 23.4905,
+     "box_m": [
+      3.61,
+      0.2761,
+      2.7432
+     ],
+     "panels": [
+      {
+       "size_m": [
+        3.61,
+        2.743
+       ],
+       "thickness_m": 0.0207,
+       "visible_m2": 10.0435,
+       "share": 0.602,
+       "front_share": 0.641,
+       "fill": 1.014,
+       "textured_share": 0.998,
+       "once_mapped": false,
+       "uv_span": [
+        8.975,
+        4.5
+       ],
+       "vertical": true,
+       "backing_share": 1.087,
+       "extent_share": 1.0
+      },
+      {
+       "size_m": [
+        3.61,
+        2.743
+       ],
+       "thickness_m": 0.0,
+       "visible_m2": 9.9029,
+       "share": 0.593,
+       "front_share": 0.633,
+       "fill": 1.0,
+       "textured_share": 1.0,
+       "once_mapped": false,
+       "uv_span": [
+        5.922,
+        4.5
+       ],
+       "vertical": true,
+       "backing_share": 1.127,
+       "extent_share": 1.0
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
+  },
+  "3dwh_1d949e38a5a0faf53c2362c1": {
+   "id": "3dwh_1d949e38a5a0faf53c2362c1",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Pendant lighting",
+   "sha256_glb": "40809aaea3b8c3d307fe588c67d2a99af4b318d331dab23c9567335115602652",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.60 x 0.50 m panel, 0.0 cm thick, 100% image, holds 75% of the visible surface",
+   "metrics": {
+    "share_one": 0.752,
+    "share_two": 0.752,
+    "area_m2": 0.5043,
+    "box_m": [
+     1.1262,
+     0.5981,
+     0.644
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.604,
+       0.503
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.3039,
+      "share": 0.752,
+      "front_share": 0.861,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.419
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
    "date": "2026-11-01"
   },
   "3dwh_1df5c642553eb0399f10fd77": {
@@ -166,28 +593,284 @@
    "kind": "vegetation",
    "title": "Kentia Palm",
    "sha256_glb": "ade82865c1aa61c231ecb2464114a80fb83139e30691eb287c260ea4b6e8e006",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.10 x 1.47 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 2.10 x 1.47 m panel, 0.0 cm thick, 100% image, holds 82% of the visible surface",
    "metrics": {
-    "size_m": [
-     2.103,
-     0.739,
-     1.472
-    ],
+    "share_one": 0.821,
+    "share_two": 0.821,
     "area_m2": 4.4437,
-    "main_part_share": 0.697,
-    "main_part_m2": 3.0973,
-    "parts": 399,
-    "images": 4,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     2.1034,
+     0.7392,
+     1.4724
     ],
-    "face": "x-z",
-    "ratio": 1.0001
+    "panels": [
+     {
+      "size_m": [
+       2.103,
+       1.472
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 3.0971,
+      "share": 0.821,
+      "front_share": 0.906,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.526,
+       0.671
+      ],
+      "thickness_m": 0.0391,
+      "visible_m2": 0.1149,
+      "share": 0.052,
+      "front_share": 0.061,
+      "fill": 0.326,
+      "textured_share": 0.974,
+      "once_mapped": false,
+      "uv_span": [
+       1.705,
+       2.013
+      ],
+      "vertical": true,
+      "backing_share": 2.031,
+      "extent_share": 0.114
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_21229a4e1db90fefa6b3188a": {
+   "id": "3dwh_21229a4e1db90fefa6b3188a",
+   "type": "decor_plant_small",
+   "kind": "decor",
+   "title": "Flower pot 12",
+   "sha256_glb": "146874bdbd4795efd13decb629d7c4812466a7254b1a7ee06555b35032293b61",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.06 x 0.10 m panel, 0.0 cm thick, 100% image, holds 85% of the visible surface",
+   "metrics": {
+    "share_one": 0.849,
+    "share_two": 0.849,
+    "area_m2": 0.0081,
+    "box_m": [
+     0.097,
+     0.083,
+     0.099
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.06,
+       0.099
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.006,
+      "share": 0.849,
+      "front_share": 0.89,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.621
+     },
+     {
+      "size_m": [
+       0.05,
+       0.088
+      ],
+      "thickness_m": 0.0166,
+      "visible_m2": 0.0009,
+      "share": 0.233,
+      "front_share": 0.266,
+      "fill": 0.215,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.011,
+       1.001
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.354
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_22744a53d1c2677a0f5c0011": {
+   "id": "3dwh_22744a53d1c2677a0f5c0011",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "title": "Coffee Table - Santiago",
+   "sha256_glb": "a01f57c1eae2722eaf9ee962c476aca2acf80fa2c39de7e393643e7999b68441",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.51 x 0.25 m panel, 0.2 cm thick, 100% image, holds 98% of the visible surface",
+   "metrics": {
+    "share_one": 0.982,
+    "share_two": 0.982,
+    "area_m2": 0.2655,
+    "box_m": [
+     0.508,
+     0.1445,
+     0.254
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.508,
+       0.254
+      ],
+      "thickness_m": 0.0017,
+      "visible_m2": 0.129,
+      "share": 0.982,
+      "front_share": 0.999,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       2.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_2391c2116650ba6784258f6b": {
+   "id": "3dwh_2391c2116650ba6784258f6b",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "modern chandelier",
+   "sha256_glb": "45ea0dc1ef2f4626779a825d19d72fe34395c28de0cb008b456a14ccd6808386",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.16 x 2.27 m panel, 0.0 cm thick, 100% image, holds 98% of the visible surface",
+   "metrics": {
+    "share_one": 0.975,
+    "share_two": 0.975,
+    "area_m2": 2.7574,
+    "box_m": [
+     0.5791,
+     1.0465,
+     2.266
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.158,
+       2.266
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 2.6245,
+      "share": 0.975,
+      "front_share": 0.988,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.007,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_2549a764be1513d7a22f48b4": {
+   "id": "3dwh_2549a764be1513d7a22f48b4",
+   "type": "bar_stool",
+   "kind": "furniture",
+   "title": "Bar Counter Bar Stool",
+   "sha256_glb": "7aa41eade9033d9c09847e9de5d3e53b0ac61715c9ad5427d02890b4add8dc6f",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.27 x 0.71 m panel, 0.0 cm thick, 100% image, holds 72% of the visible surface",
+   "metrics": {
+    "share_one": 0.718,
+    "share_two": 0.718,
+    "area_m2": 1.6131,
+    "box_m": [
+     1.9298,
+     0.9683,
+     0.7456
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.268,
+       0.713
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.904,
+      "share": 0.718,
+      "front_share": 0.908,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.628
+     },
+     {
+      "size_m": [
+       0.863,
+       1.192
+      ],
+      "thickness_m": 0.0366,
+      "visible_m2": 0.1278,
+      "share": 0.155,
+      "front_share": 0.608,
+      "fill": 0.124,
+      "textured_share": 0.0,
+      "once_mapped": false,
+      "uv_span": null,
+      "vertical": false,
+      "backing_share": 1.013,
+      "extent_share": 0.551
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -218,7 +901,65 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 44.9805,
+     "box_m": [
+      6.4145,
+      0.7456,
+      6.7492
+     ],
+     "panels": [
+      {
+       "size_m": [
+        6.415,
+        5.4
+       ],
+       "thickness_m": 0.0388,
+       "visible_m2": 8.8794,
+       "share": 0.33,
+       "front_share": 0.336,
+       "fill": 0.256,
+       "textured_share": 1.0,
+       "once_mapped": false,
+       "uv_span": [
+        0.969,
+        0.77
+       ],
+       "vertical": true,
+       "backing_share": 1.788,
+       "extent_share": 0.8
+      },
+      {
+       "size_m": [
+        5.132,
+        4.725
+       ],
+       "thickness_m": 0.035,
+       "visible_m2": 3.8982,
+       "share": 0.16,
+       "front_share": 0.163,
+       "fill": 0.161,
+       "textured_share": 1.0,
+       "once_mapped": false,
+       "uv_span": [
+        0.767,
+        0.676
+       ],
+       "vertical": true,
+       "backing_share": 1.846,
+       "extent_share": 0.56
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_2814c9ef01575db27cde873a": {
    "id": "3dwh_2814c9ef01575db27cde873a",
@@ -251,7 +992,45 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 0.451,
+     "box_m": [
+      1.2588,
+      0.0777,
+      0.6088
+     ],
+     "panels": [
+      {
+       "size_m": [
+        1.259,
+        0.609
+       ],
+       "thickness_m": 0.0164,
+       "visible_m2": 0.3763,
+       "share": 0.942,
+       "front_share": 0.962,
+       "fill": 0.491,
+       "textured_share": 0.986,
+       "once_mapped": false,
+       "uv_span": [
+        8.21,
+        1.521
+       ],
+       "vertical": true,
+       "backing_share": 0.041,
+       "extent_share": 1.0
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_2be4af6e3250b6b3117e727f": {
    "id": "3dwh_2be4af6e3250b6b3117e727f",
@@ -283,7 +1062,45 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 27.4304,
+     "box_m": [
+      7.128,
+      0.1994,
+      3.8699
+     ],
+     "panels": [
+      {
+       "size_m": [
+        7.128,
+        3.87
+       ],
+       "thickness_m": 0.0294,
+       "visible_m2": 26.6478,
+       "share": 0.986,
+       "front_share": 0.994,
+       "fill": 0.966,
+       "textured_share": 0.999,
+       "once_mapped": true,
+       "uv_span": [
+        1.0,
+        1.0
+       ],
+       "vertical": true,
+       "backing_share": 0.011,
+       "extent_share": 1.0
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_340b2b97319bc9b9148414aa": {
    "id": "3dwh_340b2b97319bc9b9148414aa",
@@ -291,28 +1108,63 @@
    "kind": "furniture",
    "title": "BAR STOOL",
    "sha256_glb": "84929ad922971acf8abfa44a88b7797c5b334a11bc2d677bcb14c6c284aae312",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.63 x 0.35 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.63 x 0.35 m panel, 0.0 cm thick, 100% image, holds 80% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.631,
-     0.274,
-     0.355
-    ],
+    "share_one": 0.8,
+    "share_two": 0.8,
     "area_m2": 0.3359,
-    "main_part_share": 0.667,
-    "main_part_m2": 0.2239,
-    "parts": 14,
-    "images": 2,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     0.6309,
+     0.2741,
+     0.3549
     ],
-    "face": "x-z",
-    "ratio": 1.0002
+    "panels": [
+     {
+      "size_m": [
+       0.631,
+       0.355
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.2239,
+      "share": 0.8,
+      "front_share": 0.945,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.049,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.135,
+       0.135
+      ],
+      "thickness_m": 0.0264,
+      "visible_m2": 0.0211,
+      "share": 0.126,
+      "front_share": 0.506,
+      "fill": 1.165,
+      "textured_share": 0.696,
+      "once_mapped": false,
+      "uv_span": [
+       15.837,
+       10.877
+      ],
+      "vertical": false,
+      "backing_share": 1.89,
+      "extent_share": 0.105
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -322,28 +1174,43 @@
    "kind": "decor",
    "title": "WALL STEP pendant sconce by Volker Haug",
    "sha256_glb": "2f5d89c9d222103db0ffe5b0a6fe995b26ae9f3f2c608da5a9c4c006ef4cc0f0",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.75 x 0.92 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.75 x 0.92 m panel, 0.1 cm thick, 100% image, holds 98% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.751,
-     0.08,
-     0.922
-    ],
+    "share_one": 0.982,
+    "share_two": 0.982,
     "area_m2": 1.6747,
-    "main_part_share": 0.964,
-    "main_part_m2": 1.6142,
-    "parts": 10,
-    "images": 4,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     1.7506,
+     0.08,
+     0.9221
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       1.751,
+       0.922
+      ],
+      "thickness_m": 0.0015,
+      "visible_m2": 1.6153,
+      "share": 0.982,
+      "front_share": 0.99,
+      "fill": 1.001,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       1.0,
+       3.976
+      ],
+      "vertical": true,
+      "backing_share": 0.008,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -353,28 +1220,43 @@
    "kind": "object",
    "title": "Moveis Cadeira Victoria Ghost Chair - Kartell",
    "sha256_glb": "c64604b9626053f7c28f8c43f4e4cb56cbf872a2cca8207c10af3bd2e8cbcd9c",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.24 x 1.00 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 2.24 x 1.00 m panel, 0.0 cm thick, 100% image, holds 83% of the visible surface",
    "metrics": {
-    "size_m": [
-     2.236,
-     0.575,
+    "share_one": 0.832,
+    "share_two": 0.832,
+    "area_m2": 3.1401,
+    "box_m": [
+     2.2361,
+     0.5753,
      1.0
     ],
-    "area_m2": 3.1401,
-    "main_part_share": 0.712,
-    "main_part_m2": 2.2361,
-    "parts": 7,
-    "images": 2,
-    "outside_sides": [
-     "+y"
+    "panels": [
+     {
+      "size_m": [
+       2.236,
+       1.0
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 2.2361,
+      "share": 0.832,
+      "front_share": 0.921,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.035,
+      "extent_share": 1.0
+     }
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -384,28 +1266,43 @@
    "kind": "furniture",
    "title": "Jasper Bar Stool",
    "sha256_glb": "6a4315ec3e633bffbe5b0c626f42287854759312f15c647e63c7ee54dd852c84",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.70 x 0.96 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.70 x 0.96 m panel, 0.0 cm thick, 100% image, holds 98% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.701,
-     0.41,
-     0.957
-    ],
+    "share_one": 0.982,
+    "share_two": 0.982,
     "area_m2": 1.6883,
-    "main_part_share": 0.964,
-    "main_part_m2": 1.6274,
-    "parts": 10,
-    "images": 4,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     1.7009,
+     0.41,
+     0.9568
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       1.701,
+       0.957
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.6273,
+      "share": 0.982,
+      "front_share": 0.992,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -415,28 +1312,43 @@
    "kind": "furniture",
    "title": "Cradle Brass mid century pulley pendant light",
    "sha256_glb": "cf6467b6f99b5a659262594262ef184b12d7373e512ce04057b435f4ad7a520b",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.54 x 0.86 m sheet spanning the whole box face (area 99.8% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.54 x 0.86 m panel, 0.0 cm thick, 100% image, holds 98% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.539,
-     0.445,
-     0.86
-    ],
+    "share_one": 0.978,
+    "share_two": 0.978,
     "area_m2": 1.379,
-    "main_part_share": 0.958,
-    "main_part_m2": 1.3204,
-    "parts": 27,
-    "images": 2,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     1.5392,
+     0.445,
+     0.8595
     ],
-    "face": "x-z",
-    "ratio": 0.9981
+    "panels": [
+     {
+      "size_m": [
+       1.539,
+       0.86
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.3204,
+      "share": 0.978,
+      "front_share": 0.99,
+      "fill": 0.998,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.01,
+       1.003
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -446,28 +1358,135 @@
    "kind": "decor",
    "title": "Tech Lighting Capsian Grande Pendants [u666f0fa]",
    "sha256_glb": "5f1528076c6c245291224b3cc8c29d349512f73ef5cf02b0952030ad56bc6323",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.75 x 0.52 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.75 x 0.52 m panel, 0.0 cm thick, 100% image, holds 90% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.754,
-     0.152,
-     0.518
-    ],
+    "share_one": 0.9,
+    "share_two": 0.9,
     "area_m2": 0.4769,
-    "main_part_share": 0.819,
-    "main_part_m2": 0.3904,
-    "parts": 23,
-    "images": 3,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     0.7536,
+     0.1525,
+     0.5181
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       0.754,
+       0.518
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.3904,
+      "share": 0.9,
+      "front_share": 0.943,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.04,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_43fab5ab9906ca09463afe4a": {
+   "id": "3dwh_43fab5ab9906ca09463afe4a",
+   "type": "untyped_object",
+   "kind": "object",
+   "title": "Eames Elephant",
+   "sha256_glb": "2bad59cb3efb3cea70082b593b87d5b7e2a4da449093bd81e0329db20cf39e57",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 3.15 x 1.51 m panel, 0.0 cm thick, 100% image, holds 89% of the visible surface",
+   "metrics": {
+    "share_one": 0.893,
+    "share_two": 0.893,
+    "area_m2": 5.9033,
+    "box_m": [
+     4.2451,
+     1.6622,
+     1.5185
+    ],
+    "panels": [
+     {
+      "size_m": [
+       3.155,
+       1.508
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 4.7583,
+      "share": 0.893,
+      "front_share": 0.946,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       1.168,
+       0.745
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.752
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_4889d6cc846f384d01d17d7e": {
+   "id": "3dwh_4889d6cc846f384d01d17d7e",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Chandelier L1157 ORB A series",
+   "sha256_glb": "de53a6bb51270e174c462f0aa02474476883847ff7a0cebb2427216134b4420d",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.02 x 1.02 m panel, 0.0 cm thick, 100% image, holds 88% of the visible surface",
+   "metrics": {
+    "share_one": 0.879,
+    "share_two": 0.879,
+    "area_m2": 1.3281,
+    "box_m": [
+     1.0557,
+     0.8099,
+     1.0492
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.02,
+       1.02
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.0406,
+      "share": 0.879,
+      "front_share": 0.933,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.939
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -477,29 +1496,43 @@
    "kind": "decor",
    "title": "Cell Naked Pendant Small [u60335ae]",
    "sha256_glb": "2a0c41e08dd1dc5bd404f45c963fbb7c4db9708baa22dad2e7646ea3dc8c35f3",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.34 x 0.75 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.34 x 0.75 m panel, 0.0 cm thick, 100% image, holds 98% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.339,
-     0.428,
-     0.753
+    "share_one": 0.978,
+    "share_two": 0.978,
+    "area_m2": 1.0541,
+    "box_m": [
+     1.3389,
+     0.4281,
+     0.7532
     ],
-    "area_m2": 1.0542,
-    "main_part_share": 0.957,
-    "main_part_m2": 1.0085,
-    "parts": 36,
-    "images": 6,
-    "outside_sides": [
-     "+y"
+    "panels": [
+     {
+      "size_m": [
+       1.339,
+       0.753
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.0084,
+      "share": 0.978,
+      "front_share": 0.988,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.004,
+      "extent_share": 1.0
+     }
     ],
-    "scale": 0.7872,
-    "face": "x-z",
-    "ratio": 1.0
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -530,7 +1563,65 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 0.012,
+     "box_m": [
+      0.11,
+      0.0508,
+      0.0904
+     ],
+     "panels": [
+      {
+       "size_m": [
+        0.11,
+        0.09
+       ],
+       "thickness_m": 0.0203,
+       "visible_m2": 0.01,
+       "share": 0.964,
+       "front_share": 0.982,
+       "fill": 1.004,
+       "textured_share": 0.998,
+       "once_mapped": false,
+       "uv_span": [
+        28.076,
+        9.184
+       ],
+       "vertical": true,
+       "backing_share": 0.001,
+       "extent_share": 1.0
+      },
+      {
+       "size_m": [
+        0.031,
+        0.025
+       ],
+       "thickness_m": 0.024,
+       "visible_m2": 0.0,
+       "share": 0.0,
+       "front_share": 0.047,
+       "fill": 0.063,
+       "textured_share": 0.936,
+       "once_mapped": false,
+       "uv_span": [
+        6.341,
+        11.367
+       ],
+       "vertical": true,
+       "backing_share": 0.0,
+       "extent_share": 0.153
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_4bb1b0bfa01eefe9079d94b0": {
    "id": "3dwh_4bb1b0bfa01eefe9079d94b0",
@@ -538,29 +1629,63 @@
    "kind": "furniture",
    "title": "Wood and Epoxy Coffee Table",
    "sha256_glb": "f48a9e0d68b707c12045ee0217825613be40eaa866fbeb6b203d0f0d95fd1e46",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.10 x 0.62 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.10 x 0.62 m panel, 0.0 cm thick, 100% image, holds 64% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.099,
-     0.401,
-     0.618
-    ],
+    "share_one": 0.637,
+    "share_two": 0.637,
     "area_m2": 1.4524,
-    "main_part_share": 0.467,
-    "main_part_m2": 0.6788,
-    "parts": 8,
-    "images": 3,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     1.0986,
+     0.4014,
+     0.6179
     ],
-    "scale": 0.6351,
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       1.099,
+       0.618
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.6788,
+      "share": 0.637,
+      "front_share": 0.917,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.119,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.381,
+       0.699
+      ],
+      "thickness_m": 0.0254,
+      "visible_m2": 0.2971,
+      "share": 0.445,
+      "front_share": 0.962,
+      "fill": 1.116,
+      "textured_share": 0.71,
+      "once_mapped": false,
+      "uv_span": [
+       6.158,
+       3.125
+      ],
+      "vertical": false,
+      "backing_share": 0.048,
+      "extent_share": 0.604
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -593,7 +1718,65 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "the image panels hold 44% of the visible surface (< 60%)",
+    "metrics": {
+     "share_one": 0.436,
+     "share_two": 0.436,
+     "area_m2": 27.4428,
+     "box_m": [
+      3.1923,
+      3.115,
+      2.3942
+     ],
+     "panels": [
+      {
+       "size_m": [
+        3.192,
+        2.394
+       ],
+       "thickness_m": 0.0,
+       "visible_m2": 7.6432,
+       "share": 0.436,
+       "front_share": 0.709,
+       "fill": 1.0,
+       "textured_share": 1.0,
+       "once_mapped": true,
+       "uv_span": [
+        1.0,
+        1.0
+       ],
+       "vertical": true,
+       "backing_share": 0.0,
+       "extent_share": 1.0
+      },
+      {
+       "size_m": [
+        1.679,
+        1.475
+       ],
+       "thickness_m": 0.0391,
+       "visible_m2": 1.8368,
+       "share": 0.13,
+       "front_share": 0.289,
+       "fill": 0.742,
+       "textured_share": 0.333,
+       "once_mapped": false,
+       "uv_span": [
+        0.883,
+        1.499
+       ],
+       "vertical": false,
+       "backing_share": 2.228,
+       "extent_share": 0.249
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_51073dd84de1342eaa2b549d": {
    "id": "3dwh_51073dd84de1342eaa2b549d",
@@ -601,28 +1784,106 @@
    "kind": "vegetation",
    "title": "plant",
    "sha256_glb": "fc2d8e8c44eecea94da1436cddf0c52240a4cfdb2be848a83b51f9f5dd29e039",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 6.66 x 5.91 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 6.66 x 5.91 m panel, 1.0 cm thick, 100% image, holds 97% of the visible surface",
    "metrics": {
-    "size_m": [
-     6.66,
-     0.741,
-     5.91
+    "share_one": 0.968,
+    "share_two": 0.968,
+    "area_m2": 41.9593,
+    "box_m": [
+     6.6604,
+     0.7411,
+     5.9103
     ],
-    "area_m2": 41.9594,
-    "main_part_share": 0.938,
-    "main_part_m2": 39.3663,
-    "parts": 3389,
-    "images": 4,
-    "outside_sides": [
-     "+y"
+    "panels": [
+     {
+      "size_m": [
+       6.66,
+       5.91
+      ],
+      "thickness_m": 0.0101,
+      "visible_m2": 39.3645,
+      "share": 0.968,
+      "front_share": 0.996,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       14.568,
+       12.927
+      ],
+      "vertical": true,
+      "backing_share": 0.002,
+      "extent_share": 1.0
+     }
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_517279a0b7d4f29cb639e8a4": {
+   "id": "3dwh_517279a0b7d4f29cb639e8a4",
+   "type": "potted_plant",
+   "kind": "furniture",
+   "title": "Papyrus plant",
+   "sha256_glb": "3d853651d55bca9dcdcaeb5acb4bdf4c5a498f8a4d5616d4d141169b28a36ff6",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.58 x 0.60 m panel, 0.0 cm thick, 100% image, holds 72% of the visible surface",
+   "metrics": {
+    "share_one": 0.722,
+    "share_two": 0.722,
+    "area_m2": 0.6146,
+    "box_m": [
+     0.5764,
+     0.3516,
+     0.6184
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.576,
+       0.603
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.3474,
+      "share": 0.722,
+      "front_share": 0.838,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.191,
+      "extent_share": 0.974
+     },
+     {
+      "size_m": [
+       0.154,
+       0.618
+      ],
+      "thickness_m": 0.04,
+      "visible_m2": 0.0163,
+      "share": 0.055,
+      "front_share": 0.254,
+      "fill": 0.171,
+      "textured_share": 0.0,
+      "once_mapped": false,
+      "uv_span": null,
+      "vertical": true,
+      "backing_share": 3.093,
+      "extent_share": 0.434
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -632,28 +1893,63 @@
    "kind": "furniture",
    "title": "Black Nano Kitchen Sink 304 Stainless Steel Waterfall Sink",
    "sha256_glb": "446174423004e3f3452890080749f869ade246d5bb6542f02cbb159d523f424a",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.43 x 0.43 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.43 x 0.43 m panel, 0.0 cm thick, 100% image, holds 67% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.43,
-     0.328,
-     0.43
-    ],
+    "share_one": 0.667,
+    "share_two": 0.667,
     "area_m2": 0.3703,
-    "main_part_share": 0.5,
-    "main_part_m2": 0.1853,
-    "parts": 118,
-    "images": 4,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     0.4305,
+     0.3277,
+     0.4305
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       0.431,
+       0.431
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.1853,
+      "share": 0.667,
+      "front_share": 0.868,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.18,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.11,
+       0.23
+      ],
+      "thickness_m": 0.0222,
+      "visible_m2": 0.0302,
+      "share": 0.173,
+      "front_share": 0.617,
+      "fill": 1.199,
+      "textured_share": 0.007,
+      "once_mapped": false,
+      "uv_span": [
+       0.368,
+       0.036
+      ],
+      "vertical": false,
+      "backing_share": 0.191,
+      "extent_share": 0.179
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -663,28 +1959,126 @@
    "kind": "furniture",
    "title": "B DYNAMIC - FONG POUF",
    "sha256_glb": "ea51fe3f1a9770d7912c84e1ae795086b10d1eb85fd20d6522541b7b69652201",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.09 x 1.09 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.08 x 1.08 m panel, 0.0 cm thick, 100% image, holds 87% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.085,
-     0.587,
-     1.085
-    ],
+    "share_one": 0.868,
+    "share_two": 0.868,
     "area_m2": 1.5344,
-    "main_part_share": 0.767,
-    "main_part_m2": 1.1773,
-    "parts": 2,
-    "images": 3,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     1.0851,
+     0.5874,
+     1.0851
     ],
-    "face": "x-z",
-    "ratio": 0.9999
+    "panels": [
+     {
+      "size_m": [
+       1.085,
+       1.085
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.1774,
+      "share": 0.868,
+      "front_share": 0.969,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.191,
+       0.191
+      ],
+      "thickness_m": 0.0368,
+      "visible_m2": 0.0884,
+      "share": 0.118,
+      "front_share": 0.717,
+      "fill": 2.412,
+      "textured_share": 0.174,
+      "once_mapped": false,
+      "uv_span": [
+       6.603,
+       4.447
+      ],
+      "vertical": false,
+      "backing_share": 0.626,
+      "extent_share": 0.057
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_57763cdc9a302aef16154a38": {
+   "id": "3dwh_57763cdc9a302aef16154a38",
+   "type": "decor_table_lamp",
+   "kind": "decor",
+   "title": "triangular lamp",
+   "sha256_glb": "5906a948d5b5017e5135d49c384d584ce3946681a19c4716d3d60f78d2efa606",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.57 x 0.35 m panel, 2.0 cm thick, 96% image, holds 79% of the visible surface",
+   "metrics": {
+    "share_one": 0.794,
+    "share_two": 0.794,
+    "area_m2": 0.1898,
+    "box_m": [
+     0.566,
+     0.2145,
+     0.3459
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.566,
+       0.346
+      ],
+      "thickness_m": 0.02,
+      "visible_m2": 0.1215,
+      "share": 0.794,
+      "front_share": 0.868,
+      "fill": 0.62,
+      "textured_share": 0.96,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.101,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.146,
+       0.243
+      ],
+      "thickness_m": 0.0305,
+      "visible_m2": 0.0042,
+      "share": 0.045,
+      "front_share": 0.086,
+      "fill": 0.12,
+      "textured_share": 0.0,
+      "once_mapped": false,
+      "uv_span": null,
+      "vertical": true,
+      "backing_share": 0.034,
+      "extent_share": 0.358
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -694,28 +2088,63 @@
    "kind": "furniture",
    "title": "Oven IKEA MATTRADITION",
    "sha256_glb": "c5e2b0a3002c118aa951ccf968485685a44f5662f12c30ecfc4daae0affc0722",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.49 x 1.25 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 2.49 x 1.25 m panel, 0.0 cm thick, 100% image, holds 64% of the visible surface",
    "metrics": {
-    "size_m": [
-     2.49,
+    "share_one": 0.64,
+    "share_two": 0.64,
+    "area_m2": 6.5814,
+    "box_m": [
+     2.4899,
      0.987,
      1.245
     ],
-    "area_m2": 6.5814,
-    "main_part_share": 0.471,
-    "main_part_m2": 3.0998,
-    "parts": 63,
-    "images": 4,
-    "outside_sides": [
-     "-y"
+    "panels": [
+     {
+      "size_m": [
+       2.49,
+       1.245
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 3.0999,
+      "share": 0.64,
+      "front_share": 0.815,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.595,
+       0.583
+      ],
+      "thickness_m": 0.0379,
+      "visible_m2": 0.5225,
+      "share": 0.156,
+      "front_share": 0.223,
+      "fill": 1.506,
+      "textured_share": 0.275,
+      "once_mapped": false,
+      "uv_span": [
+       20.242,
+       7.839
+      ],
+      "vertical": true,
+      "backing_share": 0.035,
+      "extent_share": 0.112
+     }
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -725,28 +2154,63 @@
    "kind": "furniture",
    "title": "CONSOLE TABLE",
    "sha256_glb": "0666f75ed1c1a0976f109f7f77f224abe09440919962d95f345038211f40dd48",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.81 x 0.81 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.81 x 0.81 m panel, 1.7 cm thick, 100% image, holds 84% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.814,
-     0.274,
-     0.814
-    ],
+    "share_one": 0.836,
+    "share_two": 0.836,
     "area_m2": 0.9352,
-    "main_part_share": 0.708,
-    "main_part_m2": 0.6617,
-    "parts": 7,
-    "images": 4,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     0.8135,
+     0.2743,
+     0.8135
     ],
-    "face": "x-z",
-    "ratio": 0.9999
+    "panels": [
+     {
+      "size_m": [
+       0.813,
+       0.813
+      ],
+      "thickness_m": 0.0168,
+      "visible_m2": 0.6669,
+      "share": 0.836,
+      "front_share": 0.925,
+      "fill": 1.008,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       44.327,
+       13.926
+      ],
+      "vertical": true,
+      "backing_share": 0.159,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.427,
+       0.116
+      ],
+      "thickness_m": 0.0159,
+      "visible_m2": 0.052,
+      "share": 0.105,
+      "front_share": 0.125,
+      "fill": 1.052,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       8.719,
+       7.87
+      ],
+      "vertical": true,
+      "backing_share": 7.547,
+      "extent_share": 0.075
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -756,28 +2220,43 @@
    "kind": "decor",
    "title": "Azuneca Bidone wall sconce [uf5770ae] (Lamps)",
    "sha256_glb": "675ff515a3d2f24f9cf99d027ea68ce1f9afaae496ca6925a02db927c1235af3",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.07 x 0.61 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.07 x 0.61 m panel, 1.8 cm thick, 100% image, holds 97% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.067,
-     0.072,
-     0.61
-    ],
+    "share_one": 0.97,
+    "share_two": 0.97,
     "area_m2": 0.7075,
-    "main_part_share": 0.919,
-    "main_part_m2": 0.6503,
-    "parts": 9,
-    "images": 4,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     1.0668,
+     0.0719,
+     0.6096
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       1.067,
+       0.61
+      ],
+      "thickness_m": 0.018,
+      "visible_m2": 0.654,
+      "share": 0.97,
+      "front_share": 0.985,
+      "fill": 1.006,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       11.152,
+       17.588
+      ],
+      "vertical": true,
+      "backing_share": 0.014,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -787,29 +2266,129 @@
    "kind": "furniture",
    "title": "Bar Stool",
    "sha256_glb": "ce16292d2c04d835bc49c70d9b782b2a38c6409faeb17b0bd13fff8c94d24152",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.62 x 0.60 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.62 x 0.60 m panel, 0.0 cm thick, 100% image, holds 65% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.618,
-     0.444,
-     0.602
-    ],
+    "share_one": 0.646,
+    "share_two": 0.646,
     "area_m2": 0.7796,
-    "main_part_share": 0.477,
-    "main_part_m2": 0.3717,
-    "parts": 23,
-    "images": 3,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     0.618,
+     0.4442,
+     0.6015
     ],
-    "scale": 0.477,
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       0.618,
+       0.602
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.3717,
+      "share": 0.646,
+      "front_share": 0.837,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.045,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.249,
+       0.238
+      ],
+      "thickness_m": 0.026,
+      "visible_m2": 0.0901,
+      "share": 0.23,
+      "front_share": 0.65,
+      "fill": 1.518,
+      "textured_share": 0.984,
+      "once_mapped": false,
+      "uv_span": [
+       8.922,
+       13.901
+      ],
+      "vertical": false,
+      "backing_share": 0.544,
+      "extent_share": 0.216
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_611e8897188e61e6dc7a666c": {
+   "id": "3dwh_611e8897188e61e6dc7a666c",
+   "type": "nightstand",
+   "kind": "furniture",
+   "title": "bedside table",
+   "sha256_glb": "5032ebfd9de80928c8769fd0cd36ea190282e2fc63cd1b7995e2c73e1036d81f",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.84 x 0.64 m panel, 0.0 cm thick, 50% image, holds 84% of the visible surface",
+   "metrics": {
+    "share_one": 0.839,
+    "share_two": 0.839,
+    "area_m2": 1.2788,
+    "box_m": [
+     0.8443,
+     0.4285,
+     0.6418
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.844,
+       0.636
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.5367,
+      "share": 0.839,
+      "front_share": 0.934,
+      "fill": 1.0,
+      "textured_share": 0.5,
+      "once_mapped": true,
+      "uv_span": [
+       0.996,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.991
+     },
+     {
+      "size_m": [
+       0.152,
+       0.128
+      ],
+      "thickness_m": 0.0183,
+      "visible_m2": 0.0209,
+      "share": 0.033,
+      "front_share": 0.036,
+      "fill": 1.073,
+      "textured_share": 0.057,
+      "once_mapped": false,
+      "uv_span": [
+       7.308,
+       0.033
+      ],
+      "vertical": true,
+      "backing_share": 1.782,
+      "extent_share": 0.036
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -819,29 +2398,43 @@
    "kind": "decor",
    "title": "Decoração Vaso Coleção T - Ligne Roset",
    "sha256_glb": "7e8b6ab56140252f508f515067891b91780d13ecbabf2e0faef7018674ec95cd",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.46 x 0.21 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.46 x 0.21 m panel, 0.0 cm thick, 100% image, holds 88% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.464,
-     0.056,
-     0.207
-    ],
+    "share_one": 0.877,
+    "share_two": 0.877,
     "area_m2": 0.1231,
-    "main_part_share": 0.78,
-    "main_part_m2": 0.0961,
-    "parts": 4,
-    "images": 5,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     0.4635,
+     0.0564,
+     0.2073
     ],
-    "scale": 0.6802,
-    "face": "x-z",
-    "ratio": 1.0001
+    "panels": [
+     {
+      "size_m": [
+       0.463,
+       0.207
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.0961,
+      "share": 0.877,
+      "front_share": 0.934,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.1,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -851,28 +2444,43 @@
    "kind": "vegetation",
    "title": "Palm",
    "sha256_glb": "65188c39801180fba20cc859cd87c6afb6e43122698588b4290504f2f1ceaec9",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.78 x 1.94 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 2.78 x 1.95 m panel, 0.0 cm thick, 100% image, holds 78% of the visible surface",
    "metrics": {
-    "size_m": [
-     2.778,
-     1.313,
-     1.945
-    ],
+    "share_one": 0.778,
+    "share_two": 0.778,
     "area_m2": 8.4917,
-    "main_part_share": 0.636,
-    "main_part_m2": 5.4041,
-    "parts": 926,
-    "images": 5,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     2.7784,
+     1.3128,
+     1.9449
     ],
-    "face": "x-z",
-    "ratio": 1.0001
+    "panels": [
+     {
+      "size_m": [
+       2.778,
+       1.945
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 5.4038,
+      "share": 0.778,
+      "front_share": 0.882,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -882,28 +2490,43 @@
    "kind": "decor",
    "title": "Flowers in Tall Vase",
    "sha256_glb": "efcd9733ba8f939cb60f7c33dd532057f0671c90fc57e652b332471fbf1b269a",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.43 x 0.32 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.43 x 0.32 m panel, 0.0 cm thick, 100% image, holds 75% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.428,
-     0.15,
-     0.321
-    ],
+    "share_one": 0.752,
+    "share_two": 0.752,
     "area_m2": 0.2283,
-    "main_part_share": 0.603,
-    "main_part_m2": 0.1377,
-    "parts": 4,
-    "images": 2,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     0.4285,
+     0.1497,
+     0.3214
     ],
-    "face": "x-z",
-    "ratio": 0.9999
+    "panels": [
+     {
+      "size_m": [
+       0.429,
+       0.321
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.1377,
+      "share": 0.752,
+      "front_share": 0.86,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.093,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -913,28 +2536,175 @@
    "kind": "furniture",
    "title": "Flower pot",
    "sha256_glb": "a6da2d77561715733f77266f9287f62c4c3f329978fa15cda3251ab69a49de9b",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.35 x 0.53 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.35 x 0.53 m panel, 0.0 cm thick, 100% image, holds 73% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.353,
-     0.333,
+    "share_one": 0.73,
+    "share_two": 0.73,
+    "area_m2": 0.3259,
+    "box_m": [
+     0.3533,
+     0.3326,
      0.53
     ],
-    "area_m2": 0.3259,
-    "main_part_share": 0.575,
-    "main_part_m2": 0.1873,
-    "parts": 4,
-    "images": 4,
-    "outside_sides": [
-     "-y"
+    "panels": [
+     {
+      "size_m": [
+       0.353,
+       0.53
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.1873,
+      "share": 0.73,
+      "front_share": 0.853,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.056,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.172,
+       0.172
+      ],
+      "thickness_m": 0.0378,
+      "visible_m2": 0.0232,
+      "share": 0.141,
+      "front_share": 0.668,
+      "fill": 0.784,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       1.145,
+       1.695
+      ],
+      "vertical": false,
+      "backing_share": 0.424,
+      "extent_share": 0.252
+     }
     ],
-    "face": "x-z",
-    "ratio": 1.0001
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_6a9a401712aa082a09806956": {
+   "id": "3dwh_6a9a401712aa082a09806956",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "chandelier",
+   "sha256_glb": "831b8a8c55bd752b3b65516d91e9e3418e440a05e044a4f91d535af8700cd274",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.53 x 0.53 m panel, 2.0 cm thick, 100% image, holds 84% of the visible surface",
+   "metrics": {
+    "share_one": 0.842,
+    "share_two": 0.842,
+    "area_m2": 0.3828,
+    "box_m": [
+     0.6165,
+     0.3499,
+     0.6582
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.527,
+       0.527
+      ],
+      "thickness_m": 0.0199,
+      "visible_m2": 0.2781,
+      "share": 0.842,
+      "front_share": 0.916,
+      "fill": 1.0,
+      "textured_share": 0.999,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.036,
+      "extent_share": 0.685
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_6b77413b61d5baac40ec0efa": {
+   "id": "3dwh_6b77413b61d5baac40ec0efa",
+   "type": "dresser",
+   "kind": "furniture",
+   "title": "DRESSER",
+   "sha256_glb": "2e8f4f86baa6f11d0ec91ea82c64e9cfc1df86e593f83a45692788f6368c54b9",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.80 x 2.13 m panel, 1.8 cm thick, 100% image, holds 69% of the visible surface",
+   "metrics": {
+    "share_one": 0.687,
+    "share_two": 0.687,
+    "area_m2": 4.0559,
+    "box_m": [
+     0.8,
+     0.43,
+     2.1336
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.8,
+       2.134
+      ],
+      "thickness_m": 0.018,
+      "visible_m2": 1.4167,
+      "share": 0.687,
+      "front_share": 0.889,
+      "fill": 0.83,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       2.929,
+       0.7
+      ],
+      "vertical": true,
+      "backing_share": 0.017,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.43,
+       0.8
+      ],
+      "thickness_m": 0.0264,
+      "visible_m2": 0.3608,
+      "share": 0.165,
+      "front_share": 0.653,
+      "fill": 1.049,
+      "textured_share": 0.95,
+      "once_mapped": false,
+      "uv_span": [
+       983.571,
+       1447.505
+      ],
+      "vertical": false,
+      "backing_share": 0.977,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -944,28 +2714,43 @@
    "kind": "decor",
    "title": "Pot Plant",
    "sha256_glb": "a149cf7444a026a162b959e7345d1d7f1619b50efc4bed794aa33d79777bf3bc",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.44 x 1.08 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-x), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.44 x 1.08 m panel, 0.0 cm thick, 100% image, holds 88% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.391,
-     1.437,
-     1.078
-    ],
+    "share_one": 0.88,
+    "share_two": 0.88,
     "area_m2": 1.97,
-    "main_part_share": 0.786,
-    "main_part_m2": 1.549,
-    "parts": 30,
-    "images": 6,
-    "outside_sides": [
-     "-x"
+    "box_m": [
+     0.3912,
+     1.4372,
+     1.0779
     ],
-    "face": "y-z",
-    "ratio": 0.9999
+    "panels": [
+     {
+      "size_m": [
+       1.437,
+       1.078
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.5491,
+      "share": 0.88,
+      "front_share": 0.943,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.02,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -975,28 +2760,172 @@
    "kind": "furniture",
    "title": "Cyril Sideboard 2400mm",
    "sha256_glb": "852261d5753eb1c79b8f869aefa5136a8033f0ce098557a1705086a6941cb824",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.70 x 0.96 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.70 x 0.96 m panel, 0.0 cm thick, 100% image, holds 69% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.701,
-     0.435,
-     0.957
-    ],
+    "share_one": 0.687,
+    "share_two": 0.687,
     "area_m2": 3.1112,
-    "main_part_share": 0.523,
-    "main_part_m2": 1.6275,
-    "parts": 31,
-    "images": 4,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     1.7009,
+     0.4349,
+     0.9568
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       1.701,
+       0.957
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.6273,
+      "share": 0.687,
+      "front_share": 0.833,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.732,
+       0.147
+      ],
+      "thickness_m": 0.0143,
+      "visible_m2": 0.22,
+      "share": 0.144,
+      "front_share": 0.192,
+      "fill": 2.046,
+      "textured_share": 0.998,
+      "once_mapped": false,
+      "uv_span": [
+       16.138,
+       29.697
+      ],
+      "vertical": true,
+      "backing_share": 0.916,
+      "extent_share": 0.066
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_79e3fc9f28b95bc7e1ff30ff": {
+   "id": "3dwh_79e3fc9f28b95bc7e1ff30ff",
+   "type": "stove",
+   "kind": "furniture",
+   "title": "Teka AirFry Oven",
+   "sha256_glb": "ee2c1cf37ab7a9d93a807d032b8a12777b8d2e965bd9b06b9c72d3e2291d82b3",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.59 x 0.59 m panel, 2.0 cm thick, 51% image, holds 61% of the visible surface",
+   "metrics": {
+    "share_one": 0.606,
+    "share_two": 0.606,
+    "area_m2": 3.6582,
+    "box_m": [
+     0.595,
+     0.6075,
+     0.5895
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.595,
+       0.59
+      ],
+      "thickness_m": 0.0198,
+      "visible_m2": 1.2811,
+      "share": 0.606,
+      "front_share": 0.869,
+      "fill": 3.652,
+      "textured_share": 0.512,
+      "once_mapped": false,
+      "uv_span": [
+       23.337,
+       23.149
+      ],
+      "vertical": true,
+      "backing_share": 0.07,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.541,
+       0.54
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.2909,
+      "share": 0.147,
+      "front_share": 0.225,
+      "fill": 0.996,
+      "textured_share": 0.0,
+      "once_mapped": false,
+      "uv_span": null,
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.833
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_7a8042c9e8d546a2e4fc92e2": {
+   "id": "3dwh_7a8042c9e8d546a2e4fc92e2",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Roll Hill Mini Endless Light Fixture [ubd6ba16] (Lamps)",
+   "sha256_glb": "3808d45b86af8baabaeee2efc7ba27bd92788f60f2c0f912af186af9a33c46a6",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.34 x 0.78 m panel, 0.0 cm thick, 100% image, holds 91% of the visible surface",
+   "metrics": {
+    "share_one": 0.906,
+    "share_two": 0.906,
+    "area_m2": 1.2625,
+    "box_m": [
+     1.339,
+     0.1785,
+     0.9607
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.339,
+       0.781
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.0459,
+      "share": 0.906,
+      "front_share": 0.948,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.044,
+      "extent_share": 0.813
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1029,6 +2958,388 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "the largest image panel spans 22% of the model's face",
+    "metrics": {
+     "share_one": 0.293,
+     "share_two": 0.293,
+     "area_m2": 1.4133,
+     "box_m": [
+      1.2207,
+      1.2852,
+      0.8865
+     ],
+     "panels": [
+      {
+       "size_m": [
+        1.285,
+        0.887
+       ],
+       "thickness_m": 0.0,
+       "visible_m2": 1.1394,
+       "share": 0.893,
+       "front_share": 0.995,
+       "fill": 1.0,
+       "textured_share": 0.0,
+       "once_mapped": false,
+       "uv_span": null,
+       "vertical": true,
+       "backing_share": 0.0,
+       "extent_share": 1.0
+      },
+      {
+       "size_m": [
+        0.54,
+        0.449
+       ],
+       "thickness_m": 0.0,
+       "visible_m2": 0.2428,
+       "share": 0.293,
+       "front_share": 0.977,
+       "fill": 1.0,
+       "textured_share": 1.0,
+       "once_mapped": true,
+       "uv_span": [
+        1.0,
+        1.0
+       ],
+       "vertical": true,
+       "backing_share": 0.0,
+       "extent_share": 0.224
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
+  },
+  "3dwh_80eb00f9e696e244f4d129a9": {
+   "id": "3dwh_80eb00f9e696e244f4d129a9",
+   "type": "armchair",
+   "kind": "furniture",
+   "title": "Blu Dot Side Chair by Smart Furniture",
+   "sha256_glb": "fa1cf423f629457d5ffd66d8a3d1c5c1bcf2b5433167e4e86a2fdb2bdf718619",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.00 x 0.75 m panel, 0.0 cm thick, 100% image, holds 65% of the visible surface",
+   "metrics": {
+    "share_one": 0.649,
+    "share_two": 0.649,
+    "area_m2": 1.5735,
+    "box_m": [
+     2.6343,
+     1.0859,
+     0.814
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.004,
+       0.753
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.7556,
+      "share": 0.649,
+      "front_share": 0.799,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.352
+     },
+     {
+      "size_m": [
+       0.363,
+       0.417
+      ],
+      "thickness_m": 0.0399,
+      "visible_m2": 0.1757,
+      "share": 0.224,
+      "front_share": 0.662,
+      "fill": 1.161,
+      "textured_share": 0.285,
+      "once_mapped": false,
+      "uv_span": [
+       2.422,
+       1.757
+      ],
+      "vertical": false,
+      "backing_share": 0.509,
+      "extent_share": 0.053
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_85724599850538b0558b51e4": {
+   "id": "3dwh_85724599850538b0558b51e4",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Ochre Celestial Pebble Pendant [ua5c6d86]",
+   "sha256_glb": "4507a5b7a66be95ea6311e3666eafea71f9b8fce824d95bc97ca8a05e6188534",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.91 x 0.76 m panel, 0.0 cm thick, 100% image, holds 92% of the visible surface",
+   "metrics": {
+    "share_one": 0.924,
+    "share_two": 0.924,
+    "area_m2": 0.8121,
+    "box_m": [
+     0.9144,
+     0.1688,
+     0.8387
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.914,
+       0.762
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.6968,
+      "share": 0.924,
+      "front_share": 0.964,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.034,
+      "extent_share": 0.909
+     },
+     {
+      "size_m": [
+       0.14,
+       0.14
+      ],
+      "thickness_m": 0.04,
+      "visible_m2": 0.0154,
+      "share": 0.038,
+      "front_share": 0.575,
+      "fill": 0.783,
+      "textured_share": 0.996,
+      "once_mapped": false,
+      "uv_span": [
+       0.987,
+       0.767
+      ],
+      "vertical": false,
+      "backing_share": 0.25,
+      "extent_share": 0.127
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_89d3cf7251feda1340f98c45": {
+   "id": "3dwh_89d3cf7251feda1340f98c45",
+   "type": "table_dining",
+   "kind": "furniture",
+   "title": "Tavolo design sedie Vitra",
+   "sha256_glb": "55c789a406b2678125a90e18a6dc9fe0a398f6f24ee8979117fa9219a5533b5d",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.05 x 0.59 m panel, 0.0 cm thick, 100% image, one image stretched once over it, holds 82% of the front view and 60% of the surface",
+   "metrics": {
+    "share_one": 0.599,
+    "share_two": 0.599,
+    "area_m2": 1.4539,
+    "box_m": [
+     1.6299,
+     0.755,
+     0.5914
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.051,
+       0.591
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.6219,
+      "share": 0.599,
+      "front_share": 0.821,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.645
+     },
+     {
+      "size_m": [
+       0.409,
+       0.549
+      ],
+      "thickness_m": 0.0399,
+      "visible_m2": 0.1677,
+      "share": 0.24,
+      "front_share": 0.605,
+      "fill": 0.748,
+      "textured_share": 0.0,
+      "once_mapped": false,
+      "uv_span": null,
+      "vertical": false,
+      "backing_share": 0.807,
+      "extent_share": 0.182
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_8b2bc3b355f3a15f2e3be658": {
+   "id": "3dwh_8b2bc3b355f3a15f2e3be658",
+   "type": "decor_table_lamp",
+   "kind": "decor",
+   "title": "Concrete chrome pipe lamp",
+   "sha256_glb": "d3a748cafcf27cd18477942ce1e20b8fa307a999fa7d6199ba09d9f7f0e6767c",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.45 x 0.59 m panel, 0.0 cm thick, 100% image, holds 79% of the visible surface",
+   "metrics": {
+    "share_one": 0.786,
+    "share_two": 0.786,
+    "area_m2": 0.4088,
+    "box_m": [
+     0.5663,
+     0.2518,
+     0.5926
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.447,
+       0.593
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.2648,
+      "share": 0.786,
+      "front_share": 0.877,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.092,
+      "extent_share": 0.789
+     },
+     {
+      "size_m": [
+       0.12,
+       0.12
+      ],
+      "thickness_m": 0.0268,
+      "visible_m2": 0.0103,
+      "share": 0.05,
+      "front_share": 0.377,
+      "fill": 0.716,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       0.283,
+       1.103
+      ],
+      "vertical": false,
+      "backing_share": 1.503,
+      "extent_share": 0.101
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_8b95ea746b7bf62fb0c7473c": {
+   "id": "3dwh_8b95ea746b7bf62fb0c7473c",
+   "type": "nightstand",
+   "kind": "furniture",
+   "title": "Bedside Table Brass legs",
+   "sha256_glb": "be93d574bc405566ad8fd9606a3aa749d7c839918c6a17f0123241cfa2775086",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.98 x 0.55 m panel, 0.0 cm thick, 100% image, holds 79% of the visible surface",
+   "metrics": {
+    "share_one": 0.786,
+    "share_two": 0.786,
+    "area_m2": 0.8406,
+    "box_m": [
+     1.1916,
+     0.1816,
+     0.553
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.984,
+       0.553
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.544,
+      "share": 0.786,
+      "front_share": 0.936,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.825
+     },
+     {
+      "size_m": [
+       0.155,
+       0.183
+      ],
+      "thickness_m": 0.0165,
+      "visible_m2": 0.0305,
+      "share": 0.073,
+      "front_share": 0.357,
+      "fill": 1.071,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       0.982,
+       1.934
+      ],
+      "vertical": false,
+      "backing_share": 3.45,
+      "extent_share": 0.131
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
    "date": "2026-11-01"
   },
   "3dwh_95e201c2fd238a6e8c18d312": {
@@ -1037,28 +3348,172 @@
    "kind": "furniture",
    "title": "Moveis Cadeira Louis Ghost Chair - Kartell",
    "sha256_glb": "f84c1c7ef2cb07ab0eef86b8239bcc0f8b083b9681a6795963635ae1e2fca294",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.24 x 1.00 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 2.24 x 1.00 m panel, 0.0 cm thick, 100% image, holds 78% of the visible surface",
    "metrics": {
-    "size_m": [
-     2.236,
-     0.66,
+    "share_one": 0.78,
+    "share_two": 0.78,
+    "area_m2": 3.4978,
+    "box_m": [
+     2.2361,
+     0.6603,
      1.0
     ],
-    "area_m2": 3.4978,
-    "main_part_share": 0.639,
-    "main_part_m2": 2.2361,
-    "parts": 11,
-    "images": 2,
-    "outside_sides": [
-     "+y"
+    "panels": [
+     {
+      "size_m": [
+       2.236,
+       1.0
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 2.2361,
+      "share": 0.78,
+      "front_share": 0.891,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.062,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.408,
+       0.499
+      ],
+      "thickness_m": 0.0398,
+      "visible_m2": 0.129,
+      "share": 0.074,
+      "front_share": 0.425,
+      "fill": 0.633,
+      "textured_share": 0.0,
+      "once_mapped": false,
+      "uv_span": null,
+      "vertical": false,
+      "backing_share": 0.255,
+      "extent_share": 0.137
+     }
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_982a4666030845aeae4c0c06": {
+   "id": "3dwh_982a4666030845aeae4c0c06",
+   "type": "bench",
+   "kind": "furniture",
+   "title": "Bench - Kanope",
+   "sha256_glb": "0b69e92b067b90da4c026aa164467afb4482d6e7d22aa3052364aec9d2e020bb",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.82 x 0.41 m panel, 0.3 cm thick, 100% image, holds 99% of the visible surface",
+   "metrics": {
+    "share_one": 0.991,
+    "share_two": 0.991,
+    "area_m2": 0.682,
+    "box_m": [
+     0.8179,
+     0.2913,
+     0.409
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.818,
+       0.409
+      ],
+      "thickness_m": 0.0027,
+      "visible_m2": 0.3345,
+      "share": 0.991,
+      "front_share": 0.999,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       2.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.002,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_985eaf6e7a4e3fe4eb500d97": {
+   "id": "3dwh_985eaf6e7a4e3fe4eb500d97",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Baccarat-Lady Crinoline chandelier Classic [uaac4b76]",
+   "sha256_glb": "c684297b1344ba4e3a957490ae0eb74bb882ec1854c1c5098d82eff0238fd443",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.00 x 0.56 m panel, 0.0 cm thick, 100% image, one image stretched once over it, holds 84% of the front view and 55% of the surface",
+   "metrics": {
+    "share_one": 0.553,
+    "share_two": 0.553,
+    "area_m2": 1.4775,
+    "box_m": [
+     1.092,
+     0.354,
+     0.9568
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.002,
+       0.563
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.5644,
+      "share": 0.553,
+      "front_share": 0.839,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.54
+     },
+     {
+      "size_m": [
+       0.274,
+       0.274
+      ],
+      "thickness_m": 0.0385,
+      "visible_m2": 0.0688,
+      "share": 0.093,
+      "front_share": 0.227,
+      "fill": 0.914,
+      "textured_share": 0.5,
+      "once_mapped": false,
+      "uv_span": [
+       52.33,
+       88.461
+      ],
+      "vertical": false,
+      "backing_share": 6.018,
+      "extent_share": 0.195
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1089,6 +3544,176 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 2.188,
+     "box_m": [
+      2.0066,
+      0.0159,
+      1.07
+     ],
+     "panels": [
+      {
+       "size_m": [
+        2.007,
+        1.07
+       ],
+       "thickness_m": 0.0159,
+       "visible_m2": 2.1538,
+       "share": 1.0,
+       "front_share": 1.0,
+       "fill": 1.003,
+       "textured_share": 0.006,
+       "once_mapped": false,
+       "uv_span": [
+        4.221,
+        1.056
+       ],
+       "vertical": true,
+       "backing_share": 0.0,
+       "extent_share": 1.0
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
+  },
+  "3dwh_9cb2ac865492b16bf5614a13": {
+   "id": "3dwh_9cb2ac865492b16bf5614a13",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "title": "poliform coffee-tables",
+   "sha256_glb": "5d3231b8bc943a70725844239a707deaf25ef804b0d0311270ed541d79c4490b",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.01 x 0.23 m panel, 1.3 cm thick, 100% image, holds 66% of the visible surface",
+   "metrics": {
+    "share_one": 0.659,
+    "share_two": 0.659,
+    "area_m2": 0.4887,
+    "box_m": [
+     1.1518,
+     0.7883,
+     0.2256
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.006,
+       0.226
+      ],
+      "thickness_m": 0.0131,
+      "visible_m2": 0.1498,
+      "share": 0.659,
+      "front_share": 0.878,
+      "fill": 0.66,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       3.443,
+       1.076
+      ],
+      "vertical": true,
+      "backing_share": 0.035,
+      "extent_share": 0.873
+     },
+     {
+      "size_m": [
+       0.153,
+       1.062
+      ],
+      "thickness_m": 0.039,
+      "visible_m2": 0.0137,
+      "share": 0.059,
+      "front_share": 0.268,
+      "fill": 0.085,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       3.589,
+       3.147
+      ],
+      "vertical": false,
+      "backing_share": 2.965,
+      "extent_share": 0.179
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_a1eb2a5eefc2d9e820d6a76a": {
+   "id": "3dwh_a1eb2a5eefc2d9e820d6a76a",
+   "type": "wardrobe",
+   "kind": "furniture",
+   "title": "Bathroom Vanity Cabinet",
+   "sha256_glb": "4f2d421969b94c320addc2956ba6007b676f78eab5ee921a2ea416f5d23eb4e8",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.95 x 1.35 m panel, 0.0 cm thick, 100% image, one image stretched once over it, holds 85% of the front view and 47% of the surface",
+   "metrics": {
+    "share_one": 0.466,
+    "share_two": 0.466,
+    "area_m2": 4.2341,
+    "box_m": [
+     1.16,
+     1.3223,
+     1.7149
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.95,
+       1.355
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.2879,
+      "share": 0.466,
+      "front_share": 0.848,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.647
+     },
+     {
+      "size_m": [
+       1.219,
+       0.223
+      ],
+      "thickness_m": 0.0383,
+      "visible_m2": 0.4913,
+      "share": 0.227,
+      "front_share": 0.68,
+      "fill": 1.811,
+      "textured_share": 0.943,
+      "once_mapped": false,
+      "uv_span": [
+       47.244,
+       60.308
+      ],
+      "vertical": false,
+      "backing_share": 0.758,
+      "extent_share": 0.177
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
    "date": "2026-11-01"
   },
   "3dwh_a446b470eba6eb928ed15eac": {
@@ -1097,28 +3722,290 @@
    "kind": "vegetation",
    "title": "Indoor Plant 9 Ficus",
    "sha256_glb": "f3e3dfadb07acbdd99d08d7a583a0fb2e4aefad3a2ba7caca32312066526eb1b",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 3.09 x 1.74 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 3.09 x 1.74 m panel, 0.0 cm thick, 100% image, holds 79% of the visible surface",
    "metrics": {
-    "size_m": [
-     3.086,
-     0.865,
-     1.735
+    "share_one": 0.793,
+    "share_two": 0.793,
+    "area_m2": 8.1519,
+    "box_m": [
+     3.0856,
+     0.8276,
+     1.7354
     ],
-    "area_m2": 8.1573,
-    "main_part_share": 0.656,
-    "main_part_m2": 5.3545,
-    "parts": 469,
-    "images": 8,
-    "outside_sides": [
-     "+y"
+    "panels": [
+     {
+      "size_m": [
+       3.086,
+       1.735
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 5.3547,
+      "share": 0.793,
+      "front_share": 0.896,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.019,
+      "extent_share": 1.0
+     }
     ],
-    "face": "x-z",
-    "ratio": 0.9999
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_a4c1999267ffaeaf58079c95": {
+   "id": "3dwh_a4c1999267ffaeaf58079c95",
+   "type": "untyped_object",
+   "kind": "object",
+   "title": "GEOMETRY-Cornelio-Cappellini Wall Light",
+   "sha256_glb": "c69f7ef92365c1437c9d0f81609e0fb04060d1f47a261929fbb502208df513ee",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 6.61 x 3.66 m panel, 0.0 cm thick, 100% image, holds 65% of the visible surface",
+   "metrics": {
+    "share_one": 0.649,
+    "share_two": 0.649,
+    "area_m2": 50.3578,
+    "box_m": [
+     5.2321,
+     9.1826,
+     3.664
+    ],
+    "panels": [
+     {
+      "size_m": [
+       6.611,
+       3.663
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 24.2161,
+      "share": 0.649,
+      "front_share": 0.671,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       21.69,
+       14.11
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.72
+     },
+     {
+      "size_m": [
+       5.198,
+       3.663
+      ],
+      "thickness_m": 0.003,
+      "visible_m2": 19.0403,
+      "share": 0.549,
+      "front_share": 0.568,
+      "fill": 1.0,
+      "textured_share": 0.0,
+      "once_mapped": false,
+      "uv_span": null,
+      "vertical": true,
+      "backing_share": 0.198,
+      "extent_share": 0.566
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_a70e4132ca297724b1034236": {
+   "id": "3dwh_a70e4132ca297724b1034236",
+   "type": "untyped_object",
+   "kind": "object",
+   "title": "Tom Dixon Beat Wall Light Black",
+   "sha256_glb": "7ac37483f77b044713b12352530b70173990cbc602d745dc286358e0676e96c0",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.56 x 0.78 m panel, 0.0 cm thick, 99% image, holds 92% of the visible surface",
+   "metrics": {
+    "share_one": 0.918,
+    "share_two": 0.918,
+    "area_m2": 1.1288,
+    "box_m": [
+     1.5684,
+     0.2268,
+     0.7772
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.557,
+       0.777
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.9493,
+      "share": 0.918,
+      "front_share": 0.952,
+      "fill": 0.785,
+      "textured_share": 0.99,
+      "once_mapped": false,
+      "uv_span": [
+       1.487,
+       1.148
+      ],
+      "vertical": true,
+      "backing_share": 0.048,
+      "extent_share": 0.992
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_a7c5631ddc69858d41581b8f": {
+   "id": "3dwh_a7c5631ddc69858d41581b8f",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Minimalist Pendant Light",
+   "sha256_glb": "8a75e5f653f1ad2b4bef2258032d1502b595816b32ef425f65530d75ff04f94b",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.60 x 0.77 m panel, 0.0 cm thick, 100% image, holds 97% of the visible surface",
+   "metrics": {
+    "share_one": 0.968,
+    "share_two": 0.968,
+    "area_m2": 0.4946,
+    "box_m": [
+     0.8235,
+     0.6032,
+     0.7677
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.605,
+       0.768
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.4641,
+      "share": 0.968,
+      "front_share": 0.981,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.734
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_a9d28630641767154cebf661": {
+   "id": "3dwh_a9d28630641767154cebf661",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "chandelier",
+   "sha256_glb": "69ad78fb0798f50d949e0cbc8b972ae73aa79afd088e8bf6913aa5374084cb5d",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.33 x 1.25 m panel, 0.0 cm thick, 100% image, holds 97% of the visible surface",
+   "metrics": {
+    "share_one": 0.973,
+    "share_two": 0.973,
+    "area_m2": 1.7601,
+    "box_m": [
+     1.3282,
+     0.7988,
+     1.7587
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.328,
+       1.255
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.6667,
+      "share": 0.973,
+      "front_share": 0.986,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.714
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_ac3b31f83fde064fac64d451": {
+   "id": "3dwh_ac3b31f83fde064fac64d451",
+   "type": "tree",
+   "kind": "vegetation",
+   "title": "Licuala Ramasyi Daintree Fan Palm",
+   "sha256_glb": "f5e96e1b722299f3d37e08baa40fb610375351e65dcae9f9a7f06690ec77a5ca",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 8.01 x 6.01 m panel, 0.0 cm thick, 100% image, holds 79% of the visible surface",
+   "metrics": {
+    "share_one": 0.793,
+    "share_two": 0.793,
+    "area_m2": 123.1401,
+    "box_m": [
+     10.5325,
+     5.5591,
+     6.212
+    ],
+    "panels": [
+     {
+      "size_m": [
+       8.006,
+       6.008
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 80.9013,
+      "share": 0.793,
+      "front_share": 0.877,
+      "fill": 1.682,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.733
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1128,29 +4015,43 @@
    "kind": "decor",
    "title": "Work Lamp [ub83b666]",
    "sha256_glb": "720ea7859108a1de479c235234f9ac9422fb7fb2679d2d968150dd398449dcba",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.34 x 0.75 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.34 x 0.75 m panel, 0.0 cm thick, 100% image, holds 94% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.339,
-     0.416,
-     0.753
-    ],
+    "share_one": 0.939,
+    "share_two": 0.939,
     "area_m2": 1.1385,
-    "main_part_share": 0.886,
-    "main_part_m2": 1.0085,
-    "parts": 109,
-    "images": 14,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     1.3389,
+     0.4155,
+     0.7532
     ],
-    "scale": 0.7872,
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       1.339,
+       0.753
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.0084,
+      "share": 0.939,
+      "front_share": 0.976,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.005,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1181,7 +4082,42 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 1.3229,
+     "box_m": [
+      1.2763,
+      0.5224,
+      1.0331
+     ],
+     "panels": [
+      {
+       "size_m": [
+        1.276,
+        1.033
+       ],
+       "thickness_m": 0.0,
+       "visible_m2": 1.3185,
+       "share": 0.998,
+       "front_share": 0.999,
+       "fill": 1.0,
+       "textured_share": 0.0,
+       "once_mapped": false,
+       "uv_span": null,
+       "vertical": true,
+       "backing_share": 0.0,
+       "extent_share": 1.0
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_b2b47f61f4adf6a69851b20f": {
    "id": "3dwh_b2b47f61f4adf6a69851b20f",
@@ -1212,7 +4148,62 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "the image panels hold 18% of the visible surface (< 60%)",
+    "metrics": {
+     "share_one": 0.18,
+     "share_two": 0.18,
+     "area_m2": 7.5315,
+     "box_m": [
+      1.207,
+      2.0597,
+      0.6157
+     ],
+     "panels": [
+      {
+       "size_m": [
+        1.881,
+        0.911
+       ],
+       "thickness_m": 0.0305,
+       "visible_m2": 0.9931,
+       "share": 0.244,
+       "front_share": 0.515,
+       "fill": 0.58,
+       "textured_share": 0.0,
+       "once_mapped": false,
+       "uv_span": null,
+       "vertical": false,
+       "backing_share": 0.676,
+       "extent_share": 0.689
+      },
+      {
+       "size_m": [
+        1.207,
+        0.616
+       ],
+       "thickness_m": 0.0,
+       "visible_m2": 0.7432,
+       "share": 0.18,
+       "front_share": 0.292,
+       "fill": 1.0,
+       "textured_share": 1.0,
+       "once_mapped": false,
+       "uv_span": [
+        0.99,
+        0.76
+       ],
+       "vertical": true,
+       "backing_share": 0.121,
+       "extent_share": 1.0
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_b2db0e44a82ec862f8d1539b": {
    "id": "3dwh_b2db0e44a82ec862f8d1539b",
@@ -1247,7 +4238,65 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 0.8687,
+     "box_m": [
+      1.2934,
+      0.12,
+      0.9048
+     ],
+     "panels": [
+      {
+       "size_m": [
+        1.293,
+        0.905
+       ],
+       "thickness_m": 0.0392,
+       "visible_m2": 0.7151,
+       "share": 0.927,
+       "front_share": 0.971,
+       "fill": 0.611,
+       "textured_share": 1.0,
+       "once_mapped": false,
+       "uv_span": [
+        33.574,
+        1.519
+       ],
+       "vertical": true,
+       "backing_share": 0.028,
+       "extent_share": 1.0
+      },
+      {
+       "size_m": [
+        0.12,
+        0.117
+       ],
+       "thickness_m": 0.0006,
+       "visible_m2": 0.011,
+       "share": 0.025,
+       "front_share": 0.317,
+       "fill": 0.784,
+       "textured_share": 0.5,
+       "once_mapped": false,
+       "uv_span": [
+        0.487,
+        0.493
+       ],
+       "vertical": false,
+       "backing_share": 2.001,
+       "extent_share": 0.091
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_b60a64d6048cb56463af6c4c": {
    "id": "3dwh_b60a64d6048cb56463af6c4c",
@@ -1278,7 +4327,65 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 33.207,
+     "box_m": [
+      6.246,
+      0.1754,
+      3.353
+     ],
+     "panels": [
+      {
+       "size_m": [
+        6.246,
+        3.353
+       ],
+       "thickness_m": 0.0,
+       "visible_m2": 21.5778,
+       "share": 0.788,
+       "front_share": 0.799,
+       "fill": 1.03,
+       "textured_share": 0.029,
+       "once_mapped": false,
+       "uv_span": [
+        0.798,
+        0.748
+       ],
+       "vertical": true,
+       "backing_share": 0.487,
+       "extent_share": 1.0
+      },
+      {
+       "size_m": [
+        3.283,
+        2.393
+       ],
+       "thickness_m": 0.03,
+       "visible_m2": 4.9515,
+       "share": 0.279,
+       "front_share": 0.283,
+       "fill": 0.63,
+       "textured_share": 0.538,
+       "once_mapped": false,
+       "uv_span": [
+        1.262,
+        2.222
+       ],
+       "vertical": true,
+       "backing_share": 4.9,
+       "extent_share": 0.375
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_b736d8d58da2f173f1153016": {
    "id": "3dwh_b736d8d58da2f173f1153016",
@@ -1309,6 +4416,130 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "the image panels hold 41% of the visible surface (< 60%)",
+    "metrics": {
+     "share_one": 0.414,
+     "share_two": 0.414,
+     "area_m2": 3.7986,
+     "box_m": [
+      1.161,
+      1.5492,
+      0.8587
+     ],
+     "panels": [
+      {
+       "size_m": [
+        1.161,
+        0.853
+       ],
+       "thickness_m": 0.0,
+       "visible_m2": 0.9909,
+       "share": 0.414,
+       "front_share": 0.689,
+       "fill": 1.0,
+       "textured_share": 1.0,
+       "once_mapped": false,
+       "uv_span": [
+        0.43,
+        0.556
+       ],
+       "vertical": true,
+       "backing_share": 0.031,
+       "extent_share": 0.994
+      },
+      {
+       "size_m": [
+        1.293,
+        0.266
+       ],
+       "thickness_m": 0.04,
+       "visible_m2": 0.2083,
+       "share": 0.121,
+       "front_share": 0.267,
+       "fill": 0.606,
+       "textured_share": 0.5,
+       "once_mapped": false,
+       "uv_span": [
+        5.989,
+        10.837
+       ],
+       "vertical": false,
+       "backing_share": 3.558,
+       "extent_share": 0.191
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
+  },
+  "3dwh_ba09d198f79b23a2985c65c7": {
+   "id": "3dwh_ba09d198f79b23a2985c65c7",
+   "type": "bathroom_set",
+   "kind": "object",
+   "title": "Master Bathroom Connemara project",
+   "sha256_glb": "e40b7fa58e39f1af4b5e65c2a6fc8acb26b6174892f2fb34cad9fdae729ba9af",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 5.28 x 3.62 m panel, 0.0 cm thick, 100% image, one image stretched once over it, holds 83% of the front view and 58% of the surface",
+   "metrics": {
+    "share_one": 0.579,
+    "share_two": 0.579,
+    "area_m2": 46.9602,
+    "box_m": [
+     11.1244,
+     2.9998,
+     3.6216
+    ],
+    "panels": [
+     {
+      "size_m": [
+       5.284,
+       3.622
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 19.1372,
+      "share": 0.579,
+      "front_share": 0.831,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.475
+     },
+     {
+      "size_m": [
+       2.713,
+       3.006
+      ],
+      "thickness_m": 0.0082,
+      "visible_m2": 8.1578,
+      "share": 0.298,
+      "front_share": 0.749,
+      "fill": 1.0,
+      "textured_share": 0.4,
+      "once_mapped": false,
+      "uv_span": [
+       3.0,
+       16.832
+      ],
+      "vertical": false,
+      "backing_share": 0.065,
+      "extent_share": 0.244
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
    "date": "2026-11-01"
   },
   "3dwh_bd2a89cae3790af359b9c0ef": {
@@ -1317,28 +4548,106 @@
    "kind": "decor",
    "title": "Roll Hill Rudi Loop 02 Pendant [uc4ad810]",
    "sha256_glb": "419b6372fcd4ba13d35f2f86338ed1f814f1a35b820028eefeba795ab59b4b29",
-   "source": "cpu",
-   "rule": "thin_panel",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): a 1.22 x 0.08 x 1.20 m box whose main part (98% of the area) is one one-sided sheet of its 1.22 x 1.20 m face (area 76% of it), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.22 x 0.91 m panel, 0.0 cm thick, 100% image, holds 99% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.219,
-     0.082,
-     1.2
-    ],
+    "share_one": 0.99,
+    "share_two": 0.99,
     "area_m2": 1.1362,
-    "main_part_share": 0.981,
-    "main_part_m2": 1.1148,
-    "parts": 5,
-    "images": 2,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     1.2192,
+     0.0823,
+     1.2003
     ],
-    "ratio": 0.7618,
-    "thin_m": 0.082
+    "panels": [
+     {
+      "size_m": [
+       1.219,
+       0.914
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.1148,
+      "share": 0.99,
+      "front_share": 0.994,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.006,
+      "extent_share": 0.762
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_c40a2fac663a4c615676d8e5": {
+   "id": "3dwh_c40a2fac663a4c615676d8e5",
+   "type": "sink_kitchen",
+   "kind": "furniture",
+   "title": "IKEA sink HAVSEN ХАВСЕН",
+   "sha256_glb": "a822ae6c1800d1302109352bb3e20067ec1a836228f6dd790ff985f7efc956ff",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.99 x 0.57 m panel, 0.0 cm thick, 100% image, holds 87% of the visible surface",
+   "metrics": {
+    "share_one": 0.874,
+    "share_two": 0.874,
+    "area_m2": 0.7264,
+    "box_m": [
+     1.2631,
+     0.4743,
+     0.5768
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.995,
+       0.567
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.564,
+      "share": 0.874,
+      "front_share": 0.925,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.056,
+      "extent_share": 0.774
+     },
+     {
+      "size_m": [
+       0.177,
+       0.538
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.0529,
+      "share": 0.136,
+      "front_share": 0.149,
+      "fill": 0.557,
+      "textured_share": 0.0,
+      "once_mapped": false,
+      "uv_span": null,
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.133
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1348,28 +4657,109 @@
    "kind": "furniture",
    "title": "Bathtub",
    "sha256_glb": "d6b74351ae07308e8986fb041845361c6252c4a448059e6922f8673669067c28",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 5.35 x 3.01 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 5.35 x 3.01 m panel, 0.0 cm thick, 100% image, holds 97% of the visible surface",
    "metrics": {
-    "size_m": [
-     5.346,
-     1.42,
-     3.007
-    ],
+    "share_one": 0.972,
+    "share_two": 0.972,
     "area_m2": 17.005,
-    "main_part_share": 0.945,
-    "main_part_m2": 16.0765,
-    "parts": 7,
-    "images": 3,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     5.346,
+     1.4201,
+     3.0071
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       5.346,
+       3.007
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 16.0763,
+      "share": 0.972,
+      "front_share": 0.983,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_cb2a075ed5acfb129a62554c": {
+   "id": "3dwh_cb2a075ed5acfb129a62554c",
+   "type": "armchair",
+   "kind": "furniture",
+   "title": "Gallotti Radice 0414 STUDIO GR 2014 Armchair",
+   "sha256_glb": "fc720b42cc03689d01cf803759f570da19aa9cd30ae4ce48e8e69971cef9cf46",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.23 x 0.59 m panel, 0.0 cm thick, 50% image, holds 70% of the visible surface",
+   "metrics": {
+    "share_one": 0.704,
+    "share_two": 0.704,
+    "area_m2": 2.0687,
+    "box_m": [
+     0.6413,
+     1.2329,
+     0.5903
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.233,
+       0.59
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.7278,
+      "share": 0.704,
+      "front_share": 0.938,
+      "fill": 1.0,
+      "textured_share": 0.5,
+      "once_mapped": false,
+      "uv_span": [
+       0.905,
+       0.83
+      ],
+      "vertical": true,
+      "backing_share": 0.016,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.64,
+       0.605
+      ],
+      "thickness_m": 0.0015,
+      "visible_m2": 0.3874,
+      "share": 0.316,
+      "front_share": 0.921,
+      "fill": 1.001,
+      "textured_share": 0.001,
+      "once_mapped": false,
+      "uv_span": [
+       4.488,
+       2.381
+      ],
+      "vertical": false,
+      "backing_share": 0.149,
+      "extent_share": 0.49
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1379,28 +4769,189 @@
    "kind": "furniture",
    "title": "Moveis Banqueta Charles Ghost Stool - Kartell",
    "sha256_glb": "1664c7911360a888da3334a1075af5a7655e1d045a6c4d268e064d69e03a7bc7",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.24 x 1.00 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 2.24 x 1.00 m panel, 0.0 cm thick, 100% image, holds 81% of the visible surface",
    "metrics": {
-    "size_m": [
-     2.236,
-     0.526,
+    "share_one": 0.812,
+    "share_two": 0.812,
+    "area_m2": 3.2689,
+    "box_m": [
+     2.2361,
+     0.5257,
      1.0
     ],
-    "area_m2": 3.2689,
-    "main_part_share": 0.684,
-    "main_part_m2": 2.2359,
-    "parts": 2,
-    "images": 2,
-    "outside_sides": [
-     "+y"
+    "panels": [
+     {
+      "size_m": [
+       2.236,
+       1.0
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 2.2361,
+      "share": 0.812,
+      "front_share": 0.903,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.082,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.291,
+       0.291
+      ],
+      "thickness_m": 0.022,
+      "visible_m2": 0.0654,
+      "share": 0.04,
+      "front_share": 0.69,
+      "fill": 0.772,
+      "textured_share": 0.0,
+      "once_mapped": false,
+      "uv_span": null,
+      "vertical": false,
+      "backing_share": 0.043,
+      "extent_share": 0.072
+     }
     ],
-    "face": "x-z",
-    "ratio": 0.9999
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_cd72df416ae487c4a270cd7d": {
+   "id": "3dwh_cd72df416ae487c4a270cd7d",
+   "type": "potted_plant",
+   "kind": "furniture",
+   "title": "Flower pot 03",
+   "sha256_glb": "78d229820ef4446bd761886021555640617ae7f401e4f8ae25436551a07004bf",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.50 x 0.78 m panel, 0.0 cm thick, 100% image, holds 68% of the visible surface",
+   "metrics": {
+    "share_one": 0.676,
+    "share_two": 0.676,
+    "area_m2": 0.7611,
+    "box_m": [
+     0.5267,
+     0.4957,
+     0.7778
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.5,
+       0.778
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.3886,
+      "share": 0.676,
+      "front_share": 0.807,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.039,
+      "extent_share": 0.949
+     },
+     {
+      "size_m": [
+       0.334,
+       0.57
+      ],
+      "thickness_m": 0.0395,
+      "visible_m2": 0.1029,
+      "share": 0.241,
+      "front_share": 0.324,
+      "fill": 0.54,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       0.956,
+       0.985
+      ],
+      "vertical": true,
+      "backing_share": 0.312,
+      "extent_share": 0.355
+     }
+    ],
+    "error": null
+   },
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_cf9f0ddd831e8864412bcddb": {
+   "id": "3dwh_cf9f0ddd831e8864412bcddb",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "Origami lamp",
+   "sha256_glb": "d4187927941433aede6da8fa2009823ae356c8068c314df89244d2e0d0af02e9",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.73 x 0.41 m panel, 0.0 cm thick, 100% image, holds 74% of the visible surface",
+   "metrics": {
+    "share_one": 0.743,
+    "share_two": 0.743,
+    "area_m2": 0.5103,
+    "box_m": [
+     0.8186,
+     0.3997,
+     0.5944
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.732,
+       0.412
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.3015,
+      "share": 0.743,
+      "front_share": 0.856,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.004,
+      "extent_share": 0.62
+     },
+     {
+      "size_m": [
+       0.122,
+       0.647
+      ],
+      "thickness_m": 0.0122,
+      "visible_m2": 0.0186,
+      "share": 0.074,
+      "front_share": 0.38,
+      "fill": 0.236,
+      "textured_share": 0.0,
+      "once_mapped": false,
+      "uv_span": null,
+      "vertical": false,
+      "backing_share": 0.054,
+      "extent_share": 0.241
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1431,7 +4982,65 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 1.8997,
+     "box_m": [
+      1.4243,
+      0.1391,
+      1.2779
+     ],
+     "panels": [
+      {
+       "size_m": [
+        1.423,
+        1.279
+       ],
+       "thickness_m": 0.04,
+       "visible_m2": 1.762,
+       "share": 0.967,
+       "front_share": 0.986,
+       "fill": 0.968,
+       "textured_share": 1.0,
+       "once_mapped": false,
+       "uv_span": [
+        124.255,
+        46.012
+       ],
+       "vertical": true,
+       "backing_share": 0.014,
+       "extent_share": 1.0
+      },
+      {
+       "size_m": [
+        0.083,
+        0.454
+       ],
+       "thickness_m": 0.0205,
+       "visible_m2": 0.0348,
+       "share": 0.037,
+       "front_share": 0.375,
+       "fill": 0.922,
+       "textured_share": 1.0,
+       "once_mapped": false,
+       "uv_span": [
+        68.056,
+        46.881
+       ],
+       "vertical": true,
+       "backing_share": 0.037,
+       "extent_share": 0.178
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_da90d84da083704fed2dc48a": {
    "id": "3dwh_da90d84da083704fed2dc48a",
@@ -1439,28 +5048,63 @@
    "kind": "object",
    "title": "Golden Faucet with Gold and Marble Handles",
    "sha256_glb": "1a1058725525df51210d08b41b4d0b2c6fb6337338aba24bc45aaa4711f458f4",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.51 x 0.28 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.51 x 0.28 m panel, 0.0 cm thick, 100% image, holds 83% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.506,
-     0.314,
-     0.285
-    ],
+    "share_one": 0.828,
+    "share_two": 0.828,
     "area_m2": 0.2038,
-    "main_part_share": 0.707,
-    "main_part_m2": 0.1441,
-    "parts": 6,
-    "images": 3,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     0.5061,
+     0.3144,
+     0.2847
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       0.506,
+       0.285
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.1441,
+      "share": 0.828,
+      "front_share": 0.925,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.07,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.2,
+       0.06
+      ],
+      "thickness_m": 0.0225,
+      "visible_m2": 0.0114,
+      "share": 0.117,
+      "front_share": 0.801,
+      "fill": 0.951,
+      "textured_share": 0.539,
+      "once_mapped": false,
+      "uv_span": [
+       1.594,
+       2.368
+      ],
+      "vertical": false,
+      "backing_share": 0.004,
+      "extent_share": 0.075
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1493,7 +5137,45 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 4.4002,
+     "box_m": [
+      2.0,
+      0.0636,
+      3.4398
+     ],
+     "panels": [
+      {
+       "size_m": [
+        2.0,
+        3.44
+       ],
+       "thickness_m": 0.0397,
+       "visible_m2": 4.0216,
+       "share": 0.986,
+       "front_share": 0.989,
+       "fill": 0.585,
+       "textured_share": 0.989,
+       "once_mapped": true,
+       "uv_span": [
+        1.0,
+        1.0
+       ],
+       "vertical": true,
+       "backing_share": 0.013,
+       "extent_share": 1.0
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_e2ad6bf707c545f5b5f38291": {
    "id": "3dwh_e2ad6bf707c545f5b5f38291",
@@ -1524,7 +5206,62 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 5.1336,
+     "box_m": [
+      2.1336,
+      0.3789,
+      1.8288
+     ],
+     "panels": [
+      {
+       "size_m": [
+        2.134,
+        1.829
+       ],
+       "thickness_m": 0.0285,
+       "visible_m2": 3.9453,
+       "share": 0.885,
+       "front_share": 0.969,
+       "fill": 1.011,
+       "textured_share": 0.984,
+       "once_mapped": false,
+       "uv_span": [
+        3.5,
+        3.0
+       ],
+       "vertical": true,
+       "backing_share": 0.037,
+       "extent_share": 1.0
+      },
+      {
+       "size_m": [
+        0.152,
+        1.241
+       ],
+       "thickness_m": 0.0234,
+       "visible_m2": 0.1813,
+       "share": 0.071,
+       "front_share": 0.47,
+       "fill": 0.959,
+       "textured_share": 0.0,
+       "once_mapped": false,
+       "uv_span": null,
+       "vertical": false,
+       "backing_share": 0.302,
+       "extent_share": 0.234
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_e555db30dd10d653332e0c77": {
    "id": "3dwh_e555db30dd10d653332e0c77",
@@ -1532,28 +5269,109 @@
    "kind": "furniture",
    "title": "Flower pot 02",
    "sha256_glb": "827ac3def5bc106c23cabce60830f3593a0353fb794bab5e4cd469ef73443636",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.14 x 1.14 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.14 x 1.14 m panel, 0.0 cm thick, 100% image, holds 77% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.138,
-     0.697,
-     1.138
-    ],
+    "share_one": 0.774,
+    "share_two": 0.774,
     "area_m2": 2.0519,
-    "main_part_share": 0.631,
-    "main_part_m2": 1.2945,
-    "parts": 9,
-    "images": 4,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     1.1378,
+     0.6968,
+     1.1378
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       1.138,
+       1.138
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.2945,
+      "share": 0.774,
+      "front_share": 0.872,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.448,
+       0.51
+      ],
+      "thickness_m": 0.0377,
+      "visible_m2": 0.1305,
+      "share": 0.12,
+      "front_share": 0.164,
+      "fill": 0.572,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       0.943,
+       0.902
+      ],
+      "vertical": true,
+      "backing_share": 0.021,
+      "extent_share": 0.156
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_e9132c6a192797e1c208bfec": {
+   "id": "3dwh_e9132c6a192797e1c208bfec",
+   "type": "decor_pendant_light",
+   "kind": "decor",
+   "title": "TOM DIXON MELT PENDANT",
+   "sha256_glb": "9b24fab70525e5d9b56fc2e080e24f004ea35a22b9d9dd01cc4db0f1035bb405",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 0.47 x 0.39 m panel, 0.0 cm thick, 100% image, holds 74% of the visible surface",
+   "metrics": {
+    "share_one": 0.741,
+    "share_two": 0.741,
+    "area_m2": 0.3055,
+    "box_m": [
+     0.467,
+     0.3233,
+     0.5014
+    ],
+    "panels": [
+     {
+      "size_m": [
+       0.467,
+       0.385
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.1797,
+      "share": 0.741,
+      "front_share": 0.852,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.032,
+      "extent_share": 0.768
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1586,7 +5404,65 @@
    },
    "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
-   "date": "2026-11-01"
+   "date": "2026-11-01",
+   "mesh_check": {
+    "card": false,
+    "reason": "no standing, thin, filled panel with an image",
+    "metrics": {
+     "share_one": 0.0,
+     "share_two": 0.0,
+     "area_m2": 7.056,
+     "box_m": [
+      2.6707,
+      0.7124,
+      1.8468
+     ],
+     "panels": [
+      {
+       "size_m": [
+        2.671,
+        1.847
+       ],
+       "thickness_m": 0.04,
+       "visible_m2": 4.9964,
+       "share": 0.836,
+       "front_share": 0.942,
+       "fill": 1.013,
+       "textured_share": 1.0,
+       "once_mapped": false,
+       "uv_span": [
+        19.519,
+        19.405
+       ],
+       "vertical": true,
+       "backing_share": 0.008,
+       "extent_share": 1.0
+      },
+      {
+       "size_m": [
+        0.65,
+        0.702
+       ],
+       "thickness_m": 0.04,
+       "visible_m2": 0.4419,
+       "share": 0.121,
+       "front_share": 0.576,
+       "fill": 0.968,
+       "textured_share": 1.0,
+       "once_mapped": false,
+       "uv_span": [
+        28.464,
+        7.742
+       ],
+       "vertical": false,
+       "backing_share": 0.984,
+       "extent_share": 0.24
+      }
+     ],
+     "error": null
+    },
+    "version": "ul237.1"
+   }
   },
   "3dwh_ed81713910f418b948287fad": {
    "id": "3dwh_ed81713910f418b948287fad",
@@ -1594,28 +5470,89 @@
    "kind": "decor",
    "title": "Equinox Pendant Lights",
    "sha256_glb": "01aa401d8c11f3bbfbdf0c67ffcf9f041dba7ad2834641a089a9d39dd7839132",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 0.86 x 0.86 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (+y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 0.85 x 0.85 m panel, 0.0 cm thick, 100% image, holds 75% of the visible surface",
    "metrics": {
-    "size_m": [
-     0.855,
-     0.608,
-     0.855
-    ],
+    "share_one": 0.746,
+    "share_two": 0.746,
     "area_m2": 1.231,
-    "main_part_share": 0.595,
-    "main_part_m2": 0.7318,
-    "parts": 13,
-    "images": 2,
-    "outside_sides": [
-     "+y"
+    "box_m": [
+     0.8554,
+     0.6084,
+     0.8554
     ],
-    "face": "x-z",
-    "ratio": 1.0002
+    "panels": [
+     {
+      "size_m": [
+       0.855,
+       0.855
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 0.7318,
+      "share": 0.746,
+      "front_share": 0.836,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.005,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_f01b878f262b61a2a9278c3b": {
+   "id": "3dwh_f01b878f262b61a2a9278c3b",
+   "type": "pergola",
+   "kind": "object",
+   "title": "Double Spiral Lattice Canopy with Round Bench [ub685193]",
+   "sha256_glb": "a21583572b315793b9dc594f98c1f143a1dd57764a88f765b37d2fea89768bc7",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 13.22 x 5.51 m panel, 1.9 cm thick, 100% image, holds 91% of the visible surface",
+   "metrics": {
+    "share_one": 0.908,
+    "share_two": 0.908,
+    "area_m2": 241.831,
+    "box_m": [
+     13.2178,
+     1.3213,
+     5.5105
+    ],
+    "panels": [
+     {
+      "size_m": [
+       13.218,
+       5.51
+      ],
+      "thickness_m": 0.0194,
+      "visible_m2": 141.7314,
+      "share": 0.908,
+      "front_share": 0.939,
+      "fill": 1.946,
+      "textured_share": 0.998,
+      "once_mapped": false,
+      "uv_span": [
+       99.505,
+       39.543
+      ],
+      "vertical": true,
+      "backing_share": 0.02,
+      "extent_share": 1.0
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1625,28 +5562,129 @@
    "kind": "object",
    "title": "OttoMan",
    "sha256_glb": "a81f84afa55a25753e0e6da9a960b74be9d25623fd02a0db333839604bd14d1e",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 2.17 x 1.63 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 2.17 x 1.63 m panel, 0.0 cm thick, 100% image, holds 94% of the visible surface",
    "metrics": {
-    "size_m": [
-     2.172,
-     0.518,
-     1.629
-    ],
+    "share_one": 0.939,
+    "share_two": 0.939,
     "area_m2": 3.9968,
-    "main_part_share": 0.885,
-    "main_part_m2": 3.538,
-    "parts": 13,
-    "images": 6,
-    "outside_sides": [
-     "-y"
+    "box_m": [
+     2.1719,
+     0.5182,
+     1.6289
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "panels": [
+     {
+      "size_m": [
+       2.172,
+       1.629
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 3.5378,
+      "share": 0.939,
+      "front_share": 0.979,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.005,
+      "extent_share": 1.0
+     },
+     {
+      "size_m": [
+       0.403,
+       0.464
+      ],
+      "thickness_m": 0.0384,
+      "visible_m2": 0.064,
+      "share": 0.032,
+      "front_share": 0.481,
+      "fill": 0.343,
+      "textured_share": 1.0,
+      "once_mapped": false,
+      "uv_span": [
+       6.416,
+       6.056
+      ],
+      "vertical": false,
+      "backing_share": 1.579,
+      "extent_share": 0.166
+     }
+    ],
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
+   "version": "ul237.1",
+   "date": "2026-11-01"
+  },
+  "3dwh_f83950065525ae5c626e4c95": {
+   "id": "3dwh_f83950065525ae5c626e4c95",
+   "type": "decor_plant_large",
+   "kind": "decor",
+   "title": "Flower pot 02",
+   "sha256_glb": "77e9e1a26e7ff02d4d6517c9abcbf78714ce347e7967310c0782c8ace1ebb5e2",
+   "source": "mesh",
+   "rule": "mesh_panel",
+   "card": true,
+   "reason": "a photo card, not a 3D object (UL237): a 1.03 x 1.22 m panel, 0.0 cm thick, 100% image, holds 75% of the visible surface",
+   "metrics": {
+    "share_one": 0.748,
+    "share_two": 0.748,
+    "area_m2": 2.0986,
+    "box_m": [
+     1.3181,
+     0.678,
+     1.2214
+    ],
+    "panels": [
+     {
+      "size_m": [
+       1.027,
+       1.221
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.254,
+      "share": 0.748,
+      "front_share": 0.845,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.0,
+      "extent_share": 0.779
+     },
+     {
+      "size_m": [
+       0.57,
+       0.755
+      ],
+      "thickness_m": 0.0234,
+      "visible_m2": 0.1993,
+      "share": 0.174,
+      "front_share": 0.214,
+      "fill": 0.464,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       0.991,
+       0.984
+      ],
+      "vertical": true,
+      "backing_share": 0.488,
+      "extent_share": 0.244
+     }
+    ],
+    "error": null
+   },
    "version": "ul237.1",
    "date": "2026-11-01"
   },
@@ -1656,28 +5694,43 @@
    "kind": "decor",
    "title": "Plant flower",
    "sha256_glb": "ee114d00a6a9cef484e5d796dc4783ea6e07105dc5f34f13719f20ebdd57190f",
-   "source": "cpu",
-   "rule": "full_face",
+   "source": "mesh",
+   "rule": "mesh_panel",
    "card": true,
-   "reason": "a photo card, not a 3D object (UL237): its main part is one flat 1.35 x 1.26 m sheet spanning the whole box face (area 100.0% of it), every other part only in front of or behind it (-y), with an image texture",
+   "reason": "a photo card, not a 3D object (UL237): a 1.35 x 1.26 m panel, 0.0 cm thick, 100% image, holds 87% of the visible surface",
    "metrics": {
-    "size_m": [
-     1.351,
+    "share_one": 0.874,
+    "share_two": 0.874,
+    "area_m2": 2.1961,
+    "box_m": [
+     1.3509,
      0.492,
-     1.262
+     1.2621
     ],
-    "area_m2": 2.1962,
-    "main_part_share": 0.776,
-    "main_part_m2": 1.7049,
-    "parts": 477,
-    "images": 1,
-    "outside_sides": [
-     "-y"
+    "panels": [
+     {
+      "size_m": [
+       1.351,
+       1.262
+      ],
+      "thickness_m": 0.0,
+      "visible_m2": 1.7049,
+      "share": 0.874,
+      "front_share": 0.936,
+      "fill": 1.0,
+      "textured_share": 1.0,
+      "once_mapped": true,
+      "uv_span": [
+       1.0,
+       1.0
+      ],
+      "vertical": true,
+      "backing_share": 0.003,
+      "extent_share": 1.0
+     }
     ],
-    "face": "x-z",
-    "ratio": 1.0
+    "error": null
    },
-   "measured_on": "results/library/audit/3dwh/measure.json",
    "version": "ul237.1",
    "date": "2026-11-01"
   }
