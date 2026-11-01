@@ -692,6 +692,143 @@ def slide_spot(building: dict, o: dict, wall: dict, level: dict, openings: Seque
     return None
 
 
+# 1 Nov 2026 (lesson UL234, user on real04 run 20261031-194116-full: "the roof must stays the same as before, fix it": the
+# dormers of UL225 changed the roof to fit two attic bathroom doors): the roof is never changed to fit a door. A drawn door
+# the sloped ceiling leaves under ``MIN_CLEAR_M`` that no slide of ``ROOF_SLIDE_MAX_M`` fixes moves to the spot with the
+# most head room on any wall between the same two rooms (its own wall further along, or another wall they share), when
+# that spot gives at least ``MIN_CLEAR_M``; it keeps its drawn wall and centre in the record (``corrected_by_ai``).
+RELOCATE_STEP_M = 0.05            # the spots tried along each shared wall
+RELOCATE_GAP_M = 0.10             # a moved door keeps this from the other openings of its new wall
+RELOCATE_END_M = 0.10             # ... and from the wall's ends (a jamb needs its wall)
+RELOCATE_FIXED_TYPES = ("toilet", "washbasin", "bathtub", "shower", "bidet", "kitchen_counter", "kitchen_island",
+                        "sink_kitchen", "stove", "fridge", "stair")
+
+
+def _swing_clear(building: dict, level_id, centre, u, n, width: float) -> bool:
+    """A door's leaf of ``width`` swings free of the fixed equipment on at least one side of its wall (pure)."""
+    fixed = [f for f in building.get("furniture") or [] if f.get("level_id") == level_id
+             and (f.get("type") in RELOCATE_FIXED_TYPES or f.get("drawn_type") in RELOCATE_FIXED_TYPES)
+             and isinstance(f.get("footprint"), dict)]
+    if not fixed:
+        return True
+    polys = [_rect(f["footprint"]) for f in fixed]
+    half = width / 2.0
+    for s in (1.0, -1.0):
+        sq = [(centre[0] + u[0] * a + n[0] * s * b, centre[1] + u[1] * a + n[1] * s * b)
+              for a, b in ((-half, 0.0), (half, 0.0), (half, width), (-half, width))]
+        if not any(_overlap(sq, poly) for poly in polys):
+            return True
+    return False
+
+
+def _rect(fp: dict) -> list[tuple[float, float]]:
+    cx, cy = (float(v) for v in fp["center"][:2])
+    w, d = (float(v) for v in fp["size"][:2])
+    r = math.radians(float(fp.get("rotation_deg") or 0.0))
+    c, s_ = math.cos(r), math.sin(r)
+    return [(cx + x * c - y * s_, cy + x * s_ + y * c) for x, y in ((-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2),
+                                                                   (-w / 2, d / 2))]
+
+
+def _overlap(a, b) -> bool:
+    try:
+        from shapely.geometry import Polygon
+        return Polygon(a).intersection(Polygon(b)).area > 1e-4
+    except ImportError:                                        # no shapely (Blender's Python): any corner inside
+        return any(G.point_in_polygon(p, b) for p in a) or any(G.point_in_polygon(p, a) for p in b)
+
+
+def relocate_spot(building: dict, o: dict, wall: dict, level: dict, openings: Sequence[dict]) -> Optional[dict]:
+    """``{"wall_id", "t", "center", "head_room", "moved_m"}``: the spot with the most head room on a wall between the same
+    two rooms as the door (both sides rooms, the same at its centre and both jambs; ``RELOCATE_END_M`` from the wall's
+    ends, ``RELOCATE_GAP_M`` from the other openings, the leaf free of the fixed equipment on one side), when that
+    leaves at least ``MIN_CLEAR_M``; the nearest to the drawn centre among equals. None for an outside door or when
+    no spot does (pure; UL234)."""
+    lid = level["id"]
+    rooms = _rooms(building, lid)
+    here = sides(o, wall, rooms)
+    if any(r is None for r in here):
+        return None
+    pair = {r.get("id") for r in here}
+    width = float(o.get("width") or 0.8)
+    half = width / 2.0 + FRAME_ALONG_M
+    jamb = max(0.0, width / 2.0 - FRAME_W_M)
+    ocx, ocy, _t = centre_on_wall(o, wall)
+    best = None
+    for w in building.get("walls") or []:
+        if w.get("level_id") != lid or not w.get("start") or not w.get("end"):
+            continue
+        a, u, length = _axis(w)
+        if length < 2 * (half + RELOCATE_END_M):
+            continue
+        n = G.unit_normal_left(w["start"], w["end"])
+        others = []
+        for x in openings:
+            if x is o or x.get("wall_id") != w.get("id") or not x.get("center"):
+                continue
+            _x, _y, tx = centre_on_wall(x, w)
+            others.append((tx, float(x.get("width") or 0.8) / 2.0))
+        k = 0
+        t = half + RELOCATE_END_M
+        while t <= length - half - RELOCATE_END_M + 1e-9:
+            if not any(abs(t - tx) < half + hx + RELOCATE_GAP_M for tx, hx in others):
+                c = (a[0] + u[0] * t, a[1] + u[1] * t)
+                probes = [dict(o, center=[a[0] + u[0] * x, a[1] + u[1] * x]) for x in (t - jamb, t, t + jamb)]
+                if all({r.get("id") if r else None for r in sides(pr, w, rooms)} == pair for pr in probes):
+                    room = head_room(dict(o, center=list(c)), w, level)
+                    if room is not None and room >= MIN_CLEAR_M - 1e-9 \
+                            and _swing_clear(building, lid, c, u, n, width):
+                        dist = math.hypot(c[0] - ocx, c[1] - ocy)
+                        key = (-round(room, 3), round(dist, 3))
+                        if best is None or key < best[0]:
+                            best = (key, {"wall_id": w["id"], "t": round(t, 4), "center": [round(c[0], 4), round(c[1], 4)],
+                                          "head_room": round(room, 4), "moved_m": round(dist, 4)})
+            k += 1
+            t = half + RELOCATE_END_M + k * RELOCATE_STEP_M
+    return None if best is None else best[1]
+
+
+def relocate_doors_under_roof(building: dict, level: Optional[dict]) -> list[dict]:
+    """In place (``build.prepare``, before the roof clip; UL234): every door of ``level`` the sloped ceiling leaves under
+    ``MIN_CLEAR_M`` at its wall, that no slide of ``ROOF_SLIDE_MAX_M`` fixes, moves to ``relocate_spot``: its new wall
+    and centre, ``drawn_wall_id`` / ``drawn_center`` kept, ``corrected_by_ai`` with the reason. Returns
+    ``[{"id", "from_wall", "to_wall", "moved_m", "head_room", "reason"}]``; a door with no such spot is left to the
+    clip and ``plan_under_roof`` (lowered, a finding)."""
+    if not level or not level.get("ceiling_planes"):
+        return []
+    walls = _walls(building)
+    openings = list(building.get("openings") or [])
+    out = []
+    for o in openings:
+        if o.get("type") != "door" or o.get("level_id") != level.get("id") or not o.get("center") or o.get("virtual"):
+            continue
+        wall = walls.get(o.get("wall_id"))
+        if wall is None:
+            continue
+        room = head_room(o, wall, level)
+        if room is None or room >= MIN_CLEAR_M - 1e-9 or slide_spot(building, o, wall, level, openings) is not None:
+            continue
+        spot = relocate_spot(building, o, wall, level, openings)
+        if spot is None:
+            continue
+        reason = (f"{o['id']}: the sloped ceiling leaves only {room:.2f} m over it at its drawn place (under "
+                  f"{MIN_CLEAR_M:.2f} m) and no slide of {ROOF_SLIDE_MAX_M:.1f} m helps; the roof stays as planned "
+                  f"(UL234), so the door moves {spot['moved_m']:.2f} m to wall {spot['wall_id']} between the same two "
+                  f"rooms, where it has {spot['head_room']:.2f} m (corrected by the architect, drawn place kept)")
+        o.setdefault("drawn_wall_id", o.get("wall_id"))
+        o.setdefault("drawn_center", list(o["center"]))
+        o["wall_id"] = spot["wall_id"]
+        o["center"] = list(spot["center"]) + list(o["center"][2:])
+        o["corrected_by_ai"] = {"by": "architect", "rule": "UL234 door under the roof", "reason": reason,
+                                "drawn_wall_id": o["drawn_wall_id"], "drawn_center": o["drawn_center"]}
+        ev = o.setdefault("evidence", [])
+        if isinstance(ev, list):
+            ev.append({"file": "door_states", "method": "inferred", "confidence": 0.7, "rule": "UL234", "text": reason})
+        out.append({"id": o["id"], "from_wall": o["drawn_wall_id"], "to_wall": spot["wall_id"],
+                    "moved_m": spot["moved_m"], "head_room": spot["head_room"], "reason": reason})
+    return out
+
+
 def apply_under_roof(building: dict) -> tuple[list[dict], list[dict], list[str]]:
     """Carry out ``plan_under_roof`` on ``building`` (in place): ``(changes, assumed entries, warnings)``. Every
     change keeps ``drawn_height`` (and ``drawn_center`` for a slid door), is recorded in ``under_roof`` and as

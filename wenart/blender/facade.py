@@ -601,14 +601,20 @@ def eaves_edges(roof_model: Optional[dict]) -> list[dict]:
         for t in (0.15, 0.5, 0.85):
             x, y = p[0] + ux * t * length + nx * 0.05, p[1] + uy * t * length + ny * 0.05
             zs.append(R.top_z(roof_model, x, y))
-        if not all(abs(z - eaves) <= KIT["eaves_tol"] for z in zs):
+        # 1 Nov 2026 (UL234): a slope raised for a door lifts its eaves; that edge is an eaves at its own height (level
+        # along the edge, no higher than the lowest eaves plus the largest raise); a gable end still rises along it
+        raise_max = max([float(r.get("delta") or 0.0) for r in roof_model.get("slopes_raised") or []] + [0.0])
+        z_edge = sum(zs) / len(zs)
+        if max(zs) - min(zs) > 2 * KIT["eaves_tol"] or not (eaves - KIT["eaves_tol"] <= z_edge
+                                                             <= eaves + raise_max + KIT["eaves_tol"]):
             continue
         # 24 Oct 2026 (real04): a roof terrace cut into the roof has no eaves: the gutter ran on along its parapet
         # past the end of the roof. The edge keeps only its runs outside the roof openings.
         for t0, t1 in _runs_outside(p, (ux, uy), (nx, ny), length, holes):
             a = (p[0] + ux * t0, p[1] + uy * t0)
             b = (p[0] + ux * t1, p[1] + uy * t1)
-            out.append({"p": a, "q": b, "z": eaves, "length": t1 - t0})
+            out.append({"p": a, "q": b, "z": eaves if abs(z_edge - eaves) <= KIT["eaves_tol"] else round(z_edge, 4),
+                        "length": t1 - t0})
     return out
 
 

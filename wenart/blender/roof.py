@@ -1406,6 +1406,47 @@ def roof_model(roof: Optional[dict], building: dict) -> Optional[dict]:
     return model
 
 
+# 1 Nov 2026 (lesson UL234, the user's choice for real04's attic bathroom doors: "Raise knee wall slightly"): the roof
+# keeps its pitches; only the slopes over a drawn door that cannot stand under them rise, each parallel to itself, by just
+# what the door needs (``build.raise_slopes_for_doors``; the user then chose "North slopes, 2.0 m doors": the knee wall
+# and the upper slope on that side may both rise). The facade's gutters follow each eaves at its own height.
+SLOPE_RAISE_STEP_M = 0.05         # a raise is rounded up to this
+
+
+def raise_slope(model: dict, index: int, delta: float, reason: str) -> dict:
+    """In place: plane ``index`` of the roof model rises by ``delta`` (its ``c``; its pitch stays), recorded in
+    ``model["slopes_raised"]`` (``{"plane", "delta", "reason"}``, the larger raise of a plane kept); returns the
+    record. ``eaves_z`` stays the lowest eaves (the facade finds each eaves at its own height)."""
+    delta = math.ceil(max(0.0, float(delta)) / SLOPE_RAISE_STEP_M - 1e-9) * SLOPE_RAISE_STEP_M
+    recs = model.setdefault("slopes_raised", [])
+    old = next((r for r in recs if r["plane"] == index), None)
+    done = float(old["delta"]) if old else 0.0
+    if delta > done + 1e-9:
+        a, b, c = model["equations"][index]
+        model["equations"][index] = (a, b, c + (delta - done))
+        if old:
+            old.update(delta=round(delta, 3), reason=reason)
+        else:
+            recs.append({"plane": index, "delta": round(delta, 3), "reason": reason})
+        outline = geom2d.ccw(model.get("outline") or [])
+        if outline:                                   # the highest point of the roof may have risen with the plane
+            xs, ys = [q[0] for q in outline], [q[1] for q in outline]
+            grid = [(min(xs) + (max(xs) - min(xs)) * i / 40.0, min(ys) + (max(ys) - min(ys)) * j / 40.0)
+                    for i in range(41) for j in range(41)]
+            top = max(surface_z(model["equations"], x, y) for x, y in grid if G.point_in_polygon((x, y), outline))
+            model["ridge_z"] = round(max(float(model.get("ridge_z") or 0.0), top), 4)
+    return next(r for r in recs if r["plane"] == index)
+
+
+def plane_over(model: dict, x: float, y: float) -> Optional[int]:
+    """The index of the roof plane whose underside is the ceiling over ``(x, y)`` (the lowest there; pure)."""
+    if not model or not model.get("equations"):
+        return None
+    under = underside(model)
+    zs = [(a * x + b * y + c, i) for i, (a, b, c) in enumerate(under)]
+    return min(zs)[1] if zs else None
+
+
 def knee_wall_check(model: dict, roof: dict, building: dict) -> Optional[dict]:
     """The knee wall cross-check (§1.6b row 13): the roof's top surface at the outer face of the outer walls
     of the level under it, minus its floor, the lowest along those faces (sampled at the wall midpoints),
@@ -1936,7 +1977,8 @@ def wall_cut(model: dict, walls: Optional[Sequence[dict]] = None) -> Optional[di
         return _parts_wall_cut(model, walls or [])
     if not model.get("convex"):
         return None
-    cut = {"planes": underside(model), "top": max(float(p[2]) for pl in model["planes"] for p in pl["points"])}
+    cut = {"planes": underside(model), "top": max([float(p[2]) for pl in model["planes"] for p in pl["points"]]
+                                                  + [float(model.get("ridge_z") or 0.0)])}   # UL234: a raised slope
     if model.get("dormers"):
         cut["dormers"] = [{"id": d.get("id"), "inner": d["inner"], "under": tuple(d["under"])}
                           for d in model["dormers"] if len(d.get("inner") or []) >= 3 and d.get("under")]

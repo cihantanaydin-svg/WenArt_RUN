@@ -118,8 +118,10 @@ def test_a_light_on_a_slope_sits_with_its_top_on_the_plane():
     top_c = geom2d.plane_z((a, b, c), x, y)
     assert top_c - low > 0.03                            # the old seat: the top centre 0.04 m under the plane
     moved, z_above, hang = FB.slope_seat(item, verts, 0.0, low - h, top_c)
-    tilted = FB.slope_verts(item, moved)
-    tops = sorted(tilted, key=lambda v: -v[2])[:4]
-    assert all(abs(v[2] - geom2d.plane_z((a, b, c), v[0], v[1])) < 2e-3 for v in tops)   # the top in the plane
+    level = FB.slope_verts(item, moved)               # 1 Nov 2026 (UL247): level, its top under the slope's low edge
+    tops = sorted(level, key=lambda v: -v[2])[:4]
+    assert all(v[2] <= geom2d.plane_z((a, b, c), v[0], v[1]) + 1e-6 for v in tops)
+    assert max(geom2d.plane_z((a, b, c), v[0], v[1]) - v[2] for v in tops) < 0.2   # touching at the low edge
+    assert FB.slope_canopy(item, level) is not None
     assert hang["gap_left_m"] == 0.0 and hang["cord_m"] == 0.0 and "sloped ceiling" in hang["how"]
     assert math.isclose(z_above, top_c - h, abs_tol=1e-4)

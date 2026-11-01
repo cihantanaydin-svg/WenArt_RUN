@@ -37,3 +37,27 @@ def test_a_tv_unit_added_after_the_decor_stage_gets_its_tv():
     assert tv["type"] == "tv" and tv["host_id"] == "f_L1_069" and "UL240" in tv["reason"]
     assert F.tvs_for_bare_units(b) == []                                  # once
     assert F.tvs_for_bare_units({"furniture": b["furniture"], "rooms": b["rooms"], "decor": []}) == []
+
+
+def test_a_door_under_a_low_slope_raises_that_slope_parallel_not_the_other_side():
+    """UL234: a shed-like attic (one slope down to the north, a flat ceiling elsewhere): a door 1.0 m under the slope
+    with no better spot makes the slope rise parallel to itself until the door has 2.0 m; a plane over no such door
+    stays; the raise is recorded on the roof model."""
+    from wenart.blender import build as B
+    from wenart.blender import roof as RF
+
+    roof = {"equations": [(0.0, -0.5, 9.0), (0.0, 0.5, 2.0)], "thickness": 0.2, "outline": [(0, 0), (10, 0), (10, 10),
+                                                                                          (0, 10)], "convex": True}
+    level = {"id": "L1", "elevation": 3.0, "ceiling_height": 2.6}
+    level["ceiling_planes"] = [list(p) for p in RF.ceiling_planes(roof, level)]
+    walls = [{"id": "w", "level_id": "L1", "start": [2.0, 8.0], "end": [2.0, 9.8], "thickness": 0.1}]
+    rooms = [{"id": "a", "level_id": "L1", "polygon": [[0, 0], [2, 0], [2, 10], [0, 10]]},
+             {"id": "b", "level_id": "L1", "polygon": [[2, 0], [10, 0], [10, 10], [2, 10]]}]
+    door = {"id": "d", "type": "door", "level_id": "L1", "wall_id": "w", "center": [2.0, 9.4], "width": 0.8,
+            "height": 2.1}
+    b = {"walls": walls, "rooms": rooms, "openings": [door], "furniture": []}
+    before = list(roof["equations"][1])
+    out = B.raise_slopes_for_doors(b, level, roof)
+    assert out and out[0]["plane"] == 0 and out[0]["head_room"] >= 2.0 - 1e-6
+    assert list(roof["equations"][1]) == before                       # the other plane stays
+    assert roof["equations"][0][1] == -0.5 and roof["slopes_raised"][0]["delta"] > 0   # same pitch, raised

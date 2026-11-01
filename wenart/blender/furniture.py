@@ -207,7 +207,7 @@ import json
 import math
 import time
 from pathlib import Path
-from typing import Sequence
+from typing import Optional, Sequence
 
 from wenart import geometry as G
 from wenart.blender import kitchen_details as KD
@@ -3254,19 +3254,66 @@ def slope_seat(item: dict, verts, floor_z: float, z_above: float, top_m: float) 
 
 
 def slope_verts(item: dict, verts) -> list:
-    """28 Oct 2026 (user: "More lights from the ceiling needed"): a ceiling light the decor stage mounted on a sloped
-    ceiling (``slope_mount``, ``wenart.furniture.ceiling_lights``) is turned onto the ceiling plane about its top
-    centre (``geom2d.tilt_onto_plane``), so it sits on the slope instead of hanging level under its low side; every
-    other item unchanged (pure)."""
+    """A ceiling light the decor stage mounted on a sloped ceiling (``slope_mount``, ``wenart.furniture.ceiling_lights``)
+    hangs level (1 Nov 2026, lesson UL247, user on real04 run 20261031-194116-full: "Light here is sloped needs fixing":
+    it was turned onto the slope, 28 Oct 2026): it moves down until no point of its top is over the ceiling plane
+    (its top meets the slope at the low edge, ``SLOPE_LEVEL_GAP_M`` under it); ``slope_canopy`` adds the stem and the
+    sloped canopy that carry it, as real fittings for sloped ceilings do. Every other item unchanged (pure)."""
     sm = item.get("slope_mount") if isinstance(item.get("slope_mount"), dict) else None
     if not sm or item.get("type") != "ceiling_light" or not verts:
         return verts
+    a, b = (float(v) for v in (list(sm.get("plane") or [0.0, 0.0]) + [0.0, 0.0])[:2])
+    c = float((list(sm.get("plane") or [0.0, 0.0, 0.0]) + [0.0, 0.0, 0.0])[2])
+    top = max(float(v[2]) for v in verts)
+    rim = [(float(v[0]), float(v[1])) for v in verts if float(v[2]) >= top - SLOPE_TOP_BAND_M]
+    if not rim or (abs(a) < 1e-9 and abs(b) < 1e-9 and c == 0.0):
+        return verts
+    low = min(a * x + b * y + c for x, y in rim) - SLOPE_LEVEL_GAP_M
+    shift = min(0.0, low - top)
+    return [(float(x), float(y), float(z) + shift) for x, y, z in verts] if shift < -1e-9 else list(verts)
+
+
+SLOPE_TOP_BAND_M = 0.02            # the top of a light: its points this close to its highest
+SLOPE_LEVEL_GAP_M = 0.003          # a level light's top stays this far under the slope's low edge
+CANOPY_R_M, CANOPY_T_M, STEM_R_M = 0.06, 0.012, 0.008
+
+
+def _slope_canopy_object(item: dict, verts, name: str, collection, owner_id, status, material, entry: dict) -> None:
+    """The stem and sloped canopy of a level light under a sloped ceiling (``slope_canopy``) as their own mesh in the
+    light's first material; ``entry["canopy"]`` records it (UL247). Nothing for any other item."""
+    got = slope_canopy(item, verts)
+    if not got:
+        return
+    cv, cf = got
+    _mesh_object(f"{name}_canopy", cv, cf, [material], [0] * len(cf), collection, owner_id, "decor", status)
+    entry["canopy"] = {"faces": len(cf), "rule": "UL247: a level light hangs from a stem and a sloped canopy"}
+
+
+def slope_canopy(item: dict, verts) -> Optional[tuple[list, list]]:
+    """``(verts, faces)`` of the stem and the sloped canopy of a level light under a sloped ceiling (pure; UL247): a
+    thin rod from the light's top centre up to the ceiling plane and a round canopy plate lying on the plane there;
+    None for a light that is not slope-mounted or whose top already touches the plane at its centre."""
+    sm = item.get("slope_mount") if isinstance(item.get("slope_mount"), dict) else None
+    if not sm or item.get("type") != "ceiling_light" or not verts:
+        return None
     from wenart.blender import geom2d
 
-    plane = list(sm.get("plane") or [0.0, 0.0])
-    xs, ys = [float(v[0]) for v in verts], [float(v[1]) for v in verts]
-    pivot = ((min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0, max(float(v[2]) for v in verts))
-    return geom2d.tilt_onto_plane(verts, pivot, float(plane[0]), float(plane[1]))
+    a, b, c = (float(v) for v in (list(sm.get("plane") or []) + [0.0, 0.0, 0.0])[:3])
+    top = max(float(v[2]) for v in verts)
+    xs = [float(v[0]) for v in verts if float(v[2]) >= top - SLOPE_TOP_BAND_M]
+    ys = [float(v[1]) for v in verts if float(v[2]) >= top - SLOPE_TOP_BAND_M]
+    cx, cy = (min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0
+    zc = a * cx + b * cy + c
+    if zc - top < 0.005:
+        return None
+
+    def ring(r, n):
+        return [(cx + r * math.cos(2 * math.pi * k / n), cy + r * math.sin(2 * math.pi * k / n)) for k in range(n)]
+
+    parts = [geom2d.prism(ring(STEM_R_M, 10), top - 0.005, zc)]
+    pv, pf = geom2d.prism(ring(CANOPY_R_M, 20), zc - CANOPY_T_M, zc)
+    parts.append((geom2d.tilt_onto_plane(pv, (cx, cy, zc), a, b), pf))
+    return geom2d.merge(parts)
 
 
 # 30 Oct 2026 (lesson UL170, user: "keep the black one and make it give light"): a pendant is the light of its zone
@@ -3557,11 +3604,13 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
             if on_slope:                                   # 30 Oct 2026 (M14): the model's top on the plane
                 verts, z_above, hang = slope_seat(item, verts, floor_z, z_above, ceiling)
                 z_how = f"{z_how}; {hang['how']}"
-            verts = slope_verts(item, verts)               # 28 Oct 2026: a ceiling light on a sloped ceiling
+            verts = slope_verts(item, verts)               # 1 Nov 2026 (UL247): level under a sloped ceiling
             fallback = library.proxy("proxy")
             ob = _mesh_object(name, verts, geo["faces"], geo["materials"], geo["face_materials"], collection,
                               owner_id, "decor", status, uvs=geo["uvs"], uv_name=geo["uv_name"],
                               fallback_material=fallback)
+            _slope_canopy_object(item, verts, name, collection, owner_id, status,
+                                 next((m for m in ob.data.materials if m is not None), fallback), entry)
             entry.update({"method": "library", "fit_scale": info["fit_scale"], "bbox_m": info["bbox_m"], "fit": info,
                           "file": str(file), "materials": [m.name for m in ob.data.materials if m is not None],
                           "material": ob.data.materials[0].name if ob.data.materials else None,
@@ -3584,7 +3633,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         if lit:
             parts = [dict(part, key=f"{LIT_KEY}{part['key']}") if part["role"] == "shade" else part for part in parts]
         verts, faces, keys = P.world_mesh(parts, footprint["center"], rot, floor_z + z_above)
-        verts = slope_verts(item, verts)                   # 28 Oct 2026: a ceiling light on a sloped ceiling
+        verts = slope_verts(item, verts)                   # 1 Nov 2026 (UL247): level under a sloped ceiling
         used_keys = sorted(set(keys), key=keys.index)
         accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))       # Milestone 9: the AI decor's colour
         overrides = {"pot": pot_override(item)} if dtype == "plant_large" else None
@@ -3594,6 +3643,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                                 lit=lit or bulb_glows(dtype, k)) for k in used_keys]
         ob = _mesh_object(name, verts, faces, slots, [used_keys.index(k) for k in keys], collection, owner_id,
                           "decor", status, lettering_uvs=P.lettering_uvs(parts))
+        _slope_canopy_object(item, verts, name, collection, owner_id, status, slots[0] if slots else None, entry)
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
         entry.update({"method": f"parametric (fallback: {reason})", "fallback_reason": reason,
                       "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],

@@ -2932,6 +2932,18 @@
    "request": "More details more realism needed (1 Nov 2026, real04 run 20261031-194116-full, the master bedroom's slatted built-in wardrobe: flat even slats, a flat lit interior with blurred clothes, no visible hardware, no material variation)",
    "lesson": "More details more realism needed (1 Nov 2026, real04 run 20261031-194116-full, the master bedroom's slatted built-in wardrobe: flat even slats, a flat lit interior with blurred clothes, no visible hardware, no material variation)",
    "question": "Does the built-in wardrobe read as a real joinery product (slats with rounded edges and grain, frame and shadow gaps, hinges or tracks, handles, a realistic interior with clothes, shelves and soft LED)?"
+  },
+  {
+   "id": "UL247",
+   "date": "2026-11-01",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Light here is sloped needs fixing , also needs better light model (1 Nov 2026, real04 run 20261031-194116-full: a ceiling light under the attic slope was turned onto the slope; lights under a sloped ceiling now hang level from a stem and a sloped canopy, the generated japandi ceiling light is rejected)",
+   "lesson": "Light here is sloped needs fixing , also needs better light model (1 Nov 2026, real04 run 20261031-194116-full: a ceiling light under the attic slope was turned onto the slope; lights under a sloped ceiling now hang level from a stem and a sloped canopy, the generated japandi ceiling light is rejected)",
+   "question": "Does every light under a sloped ceiling hang level (a stem and a canopy on the slope), never tilted with the slope?"
   }
  ]
 }

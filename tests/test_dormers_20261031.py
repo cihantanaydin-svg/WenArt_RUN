@@ -325,25 +325,23 @@ REAL04 = Path("/home/user/WenArt_RUN/results/baseline/latest/furniture/real04/bu
 
 
 def test_real04_bathroom_doors_get_dormers_not_hatches():
-    """real04 (the run 20261030-181158-full's building): d_L1_004 / d_L1_005 had 1.00 m of head room under the
-    mansard's steep north slope; each gets a dormer on the north facade and keeps its 2.10 m; the play room doors
-    d_L1_001 / 002 (1.80 m of head room) keep the old rule (lowered by the clip, no dormer)."""
+    """real04: d_L1_004 / d_L1_005 had 1.00 m of head room under the mansard's steep north slope. 1 Nov 2026 (lesson
+    UL234, the user: "the roof must stays the same as before"; then the user's choice "North slopes, 2.0 m doors"): no
+    dormer by default; the doors take the best spot of their slide range and the north slopes rise parallel to
+    themselves (their pitches stay) until both doors have 2.0 m; the south side and the play room doors are unchanged."""
     if not REAL04.is_file():
         pytest.skip(f"{REAL04} not on this machine")
     from wenart.blender import build as B
+    from wenart.blender import facade as FA
 
     prep = B.prepare(json.loads(REAL04.read_text(encoding="utf-8")), "base", None, style_family="modern")
-    ds = {d["id"]: d for d in prep["dormers"]["dormers"]}
-    assert set(ds) == {"dormer_d_L1_004", "dormer_d_L1_005"} and prep["dormers"]["refused"] == []
-    for d in ds.values():
-        assert d["flush"] and d["ceiling_m"] >= 2.10 + 0.05 and 1.5 < d["width_m"] < 2.2
-    assert not any(c["opening_id"] in ("d_L1_004", "d_L1_005") for c in prep["clips"])
+    assert prep["dormers"]["dormers"] == [] and "UL234" in prep["dormers"]["off"]
+    raised = [r for r in prep["slopes_raised"] if r["plane"] is not None]
+    assert raised and all(0.0 < r["delta"] <= 1.0 for r in raised)
     vb = prep["building"]
-    doors = B.doors_as_designed(vb, {"family": "modern"}, [])
     by = {o["id"]: o for o in vb["openings"]}
     for oid in ("d_L1_004", "d_L1_005"):
-        assert by[oid]["height"] == pytest.approx(2.1) and "under_roof" not in by[oid]
-        assert by[oid]["leaf_state"]["state"] == "open"
-    assert not any("d_L1_004" in w or "d_L1_005" in w for w in doors["warnings"])
-    assert by["d_L1_001"]["height"] < 1.85 and "dormer" not in by["d_L1_001"]
-    assert UR.door_problems(vb) == []
+        assert by[oid]["height"] >= 2.0 and by[oid].get("drawn_center")
+    assert by["d_L1_001"]["height"] < 1.85                      # the play room doors keep the clip's height
+    zs = sorted(round(e["z"], 2) for e in FA.eaves_edges(prep["roof"]))
+    assert zs[0] == pytest.approx(3.75, abs=0.01) and zs[-1] > 3.75 + 0.3   # the raised north eaves keeps its gutter

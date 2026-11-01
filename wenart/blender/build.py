@@ -1153,6 +1153,93 @@ def _asset_fits_type(asset: dict, ftype: str) -> bool:
     return named in (None, ftype)
 
 
+DOOR_UNDER_ROOF_TARGET_M = 2.00   # 1 Nov 2026 (UL234): the head room a raised slope gives a drawn door
+
+
+def raise_slopes_for_doors(building: dict, level: Optional[dict], roof: Optional[dict]) -> list[dict]:
+    """In place (``prepare``, after the doors that can move have moved and before the clip; lesson UL234, the user's
+    choices "Raise knee wall slightly", then "North slopes, 2.0 m doors"): every drawn door of the level under the roof
+    that the slopes leave under ``door_states.MIN_CLEAR_M``, with no slide or move that fixes it (found before any
+    raise), takes the spot of its slide range with the most head room (``ROOF_SLIDE_MAX_M``) and the roof planes over
+    it rise, each parallel to itself (``roof.raise_slope``: its pitch stays; the plane over the door's lowest frame
+    corner first, which is the knee wall's slope, then the one above), until the door has ``DOOR_UNDER_ROOF_TARGET_M``
+    (or its own height if lower); the level's ceiling planes follow. Returns ``[{"door", "plane", "delta",
+    "head_room", "reason"}]``."""
+    if not level or not roof or not roof.get("equations") or not level.get("ceiling_planes"):
+        return []
+    from wenart.blender import door_states as DS
+    from wenart.blender import roof as RF
+
+    walls = {w["id"]: w for w in building.get("walls") or []}
+    openings = list(building.get("openings") or [])
+    rooms = DS._rooms(building, level["id"])
+    todo = []
+    for o in openings:                               # the doors that need it, found before any raise
+        if o.get("type") != "door" or o.get("level_id") != level.get("id") or not o.get("center") or o.get("virtual"):
+            continue
+        wall = walls.get(o.get("wall_id"))
+        if wall is None:
+            continue
+        room = DS.head_room(o, wall, level)
+        if room is None or room >= DS.MIN_CLEAR_M - 1e-9 or DS.slide_spot(building, o, wall, level, openings):
+            continue
+        todo.append((o, wall, room))
+    out = []
+    for o, wall, room in todo:
+        a, u, _l = DS._axis(wall)
+        ids = [r.get("id") if r else None for r in DS.sides(o, wall, rooms)]
+        jamb = max(0.0, float(o.get("width") or 0.0) / 2.0 - DS.FRAME_W_M)
+        _cx, _cy, t0 = DS.centre_on_wall(o, wall)
+        target = min(DOOR_UNDER_ROOF_TARGET_M, DS.door_height_of(o))
+
+        def room_at(x):
+            return DS.head_room(dict(o, center=[a[0] + u[0] * x, a[1] + u[1] * x]), wall, level) or 0.0
+
+        spots = [t0] + [x for x in DS._slide_spots(o, wall, openings)
+                        if all([r.get("id") if r else None for r in DS.sides(
+                            dict(o, center=[a[0] + u[0] * y, a[1] + u[1] * y]), wall, rooms)] == ids
+                            for y in (x - jamb, x, x + jamb))]
+        t = max(spots, key=lambda x: (round(room_at(x), 3), -abs(x - t0)))
+        centre = [a[0] + u[0] * t, a[1] + u[1] * t]
+        raised = []
+        for _round in range(4):                       # a raise may hand the limit to the next plane over the door
+            there = dict(o, center=centre)
+            have = DS.head_room(there, wall, level)
+            if have is None or have >= target - 1e-6:
+                break
+            corners = DS.frame_corners(there, wall)
+            low = min(corners, key=lambda q: RF.surface_z(RF.underside(roof), q[0], q[1]))
+            idx = RF.plane_over(roof, low[0], low[1])
+            if idx is None:
+                break
+            reason = (f"the roof slope over door {o['id']} rises {target - have:.2f} m, parallel to itself (its pitch "
+                      f"stays; the knee wall on that side rises with it), so the drawn door gets {target:.2f} m of head "
+                      f"room (it had {room:.2f} m); the other side of the roof stays (UL234, the user's choice: the "
+                      "slopes on that side rise, 2.0 m doors)")
+            done = next((float(r["delta"]) for r in roof.get("slopes_raised") or [] if r["plane"] == idx), 0.0)
+            raised.append(RF.raise_slope(roof, idx, done + target - have, reason))   # the plane's total raise
+            level["ceiling_planes"] = [list(p) for p in RF.ceiling_planes(roof, level)]
+        slid = abs(t - t0) > 1e-6
+        reached = (DS.head_room(dict(o, center=centre), wall, level) or 0.0) >= target - 1e-6
+        if not raised and not (slid and reached):
+            continue
+        if slid:
+            o.setdefault("drawn_center", list(o["center"]))
+            o["center"] = [round(centre[0], 4), round(centre[1], 4)] + list(o["center"][2:])
+        got = DS.head_room(dict(o), wall, level)
+        if not raised:                                # the slopes another door raised already serve it
+            out.append({"door": o["id"], "plane": None, "delta": 0.0, "head_room": got,
+                        "reason": f"door {o['id']} slid {t - t0:+.2f} m along its wall to where the raised slope gives "
+                                  f"it {got:.2f} m (it had {room:.2f} m; UL234)"})
+            continue
+        for rec in raised:
+            out.append({"door": o["id"], "plane": rec["plane"], "delta": rec["delta"], "head_room": got,
+                        "reason": rec["reason"] + (f"; the door slid {t - t0:+.2f} m along its wall first (the most "
+                                                   f"head room within {DS.ROOF_SLIDE_MAX_M:.1f} m)"
+                                                   if abs(t - t0) > 1e-6 else "")})
+    return out
+
+
 def prepare(building_all: dict, variant: str = "base", brief: dict | None = None,
             style_family: Optional[str] = None) -> dict:
     """``prepare_once`` with the architect's defaults carried out (26 Oct 2026, user: "I need ai models to see
@@ -1342,9 +1429,32 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
     # window) the inferred roof leaves too low, that no slide of at most 0.5 m along its wall fixes, gets a shed dormer
     # over it instead of a 1 m hatch (wenart/blender/dormers.py): the roof model, the level's raised ceiling and the
     # opening carry it before the clip, the door sizes and rules, the walls, the ceilings and the checks read them
+    # 1 Nov 2026 (lesson UL234, user on real04 run 20261031-194116-full: "the roof must stays the same as before, fix
+    # it"): the roof is never changed to fit a door; such a door moves to the spot with the most head room on a wall
+    # between the same two rooms (``door_states.relocate_doors_under_roof``, before the clip). The dormers stay
+    # available only when a brief asks for them (``roof_dormers: true``)
+    from wenart.blender import door_states as DS
     from wenart.blender import dormers as DM
-    out["dormers"] = DM.raise_dormers(vb, over, roof) if over is not None else {"dormers": [], "refused": [],
-                                                                                 "assumed": [], "warnings": []}
+    out["doors_moved_under_roof"] = DS.relocate_doors_under_roof(vb, over) if over is not None else []
+    for rec in out["doors_moved_under_roof"]:
+        out["assumed"].append({"object": rec["id"], "field": "wall_id", "value": rec["to_wall"], "reason": rec["reason"],
+                               "kind": "door_moved_under_roof", "parent": rec["id"], "by": "architect"})
+    out["slopes_raised"] = raise_slopes_for_doors(vb, over, roof) if over is not None else []
+    for rec in out["slopes_raised"]:
+        if rec["plane"] is None:                      # a door slid under a slope another door raised
+            out["assumed"].append({"object": rec["door"], "field": "center", "value": None, "reason": rec["reason"],
+                                   "kind": "door_slid_under_roof", "parent": rec["door"], "by": "architect"})
+            continue
+        out["assumed"].append({"object": "roof", "field": f"slope:{rec['plane']}", "value": rec["delta"],
+                               "reason": rec["reason"], "kind": "roof_slope_raised", "parent": rec["door"],
+                               "by": "architect"})
+        out["warnings"].append(f"roof: {rec['reason']}")
+    want_dormers = bool((out.get("brief") or {}).get("roof_dormers", {}).get("value")
+                        if isinstance((out.get("brief") or {}).get("roof_dormers"), dict)
+                        else (out.get("brief") or {}).get("roof_dormers"))
+    out["dormers"] = (DM.raise_dormers(vb, over, roof) if over is not None and want_dormers
+                      else {"dormers": [], "refused": [], "assumed": [], "warnings": [],
+                            "off": "the roof stays as planned (UL234): no dormers unless the brief asks (roof_dormers)"})
     out["assumed"] += out["dormers"]["assumed"]
     out["warnings"] += out["dormers"]["warnings"]
     out["clips"] = R.clip_openings_to_roof(vb, over, roof) if over is not None else []

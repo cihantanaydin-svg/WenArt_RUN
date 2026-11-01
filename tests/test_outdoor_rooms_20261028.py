@@ -382,10 +382,13 @@ def test_a_ceiling_light_under_a_slope_is_mounted_on_it():
     top = 2.4
     verts = [(x, y, z) for x in (1.8, 2.2) for y in (0.8, 1.2) for z in (top - 0.12, top)]
     item = {"type": "ceiling_light", "slope_mount": sm}
-    turned = BF.slope_verts(item, verts)
-    for (x, y, z), v in zip(verts, turned):
-        if z == top:
-            assert v[2] == pytest.approx(slope * v[0] + 2.0, abs=1e-6)
+    # 1 Nov 2026 (UL247, user: "Light here is sloped needs fixing"): the light hangs level, its top under the slope's
+    # low edge, from a stem and a sloped canopy (no longer turned onto the plane)
+    level = BF.slope_verts(item, verts)
+    assert len({round(v[2] - w[2], 9) for v, w in zip(level, verts)}) == 1          # moved, not turned
+    top_new = max(v[2] for v in level)
+    assert all(v[2] <= slope * v[0] + 2.0 + 1e-9 for v in level if v[2] >= top_new - 1e-9)
+    assert BF.slope_canopy(item, level) is not None
     axis = geom2d.tilt_onto_plane([(0, 0, 0), (0, 0, 1)], (0, 0, 0), slope, 0.0)[1]
     n = (-slope, 0.0, 1.0)
     ln = math.sqrt(sum(c * c for c in n))

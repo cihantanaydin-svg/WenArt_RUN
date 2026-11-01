@@ -92,6 +92,16 @@
    "user": "don't use this decor",
    "where": "real04 run 20261031-194116-full, r_L-1_salon (dec_L-1_044) and r_L0_yatak_odasi (dec_L0_007)",
    "reason": "the user rejected it on the render: a crude single candle on a small brass dish"
+  },
+  {
+   "id": "gen_ceiling_light_japandi_1_200ebd4d",
+   "type": "decor_ceiling_light",
+   "title": "Generated japandi ceiling light (1)",
+   "date": "2026-11-01",
+   "lesson": "UL247",
+   "user": "Light here is sloped needs fixing , also needs better light model",
+   "where": "real04 run 20261031-194116-full, the attic rooms under the slope",
+   "reason": "the user asked for a better light model: a generated low-detail wooden ring fixture"
   }
  ]
 }
