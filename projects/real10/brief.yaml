@@ -1,0 +1,12 @@
+# real10: the user's DWG of 1 Nov 2026 (real10.dwg): an apartment block (A BLOK), 2 basements, a ground floor and
+# 6 normal floors (one typical plan), a roof terrace; two mirrored flats per floor.
+# User decisions of 1 Nov 2026 (lessons UL251-UL253):
+# - interiors: one flat of each distinct plan is furnished and rendered (the typical floor's flat and the 1st
+#   basement's garden flat); the mirrored flat and the other typical floors are copies;
+# - outside: the full block; the documents draw no site, so a street, pavement, entrance and planting are inferred
+#   and marked inferred;
+# - style: modern (the user: "modern style is fine"; the words below are our choice, inferred).
+style: Modern, warm white walls, light oak plank floor, light grey fabric sofa, walnut and black metal accents,
+  large windows with anthracite aluminium frames, minimal decor with a few large plants, warm daylight
+library:
+  licence_mode: relaxed

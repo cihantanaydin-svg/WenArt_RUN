@@ -352,8 +352,9 @@ def test_the_wall_layer_is_chosen_by_evidence_not_by_its_name():
     prims, choice = W.face_pair_walls(page, 1.0, [])
     assert choice["used"] and choice["layer"] == "MOBILYA"
     rows = {r["layer"]: r for r in choice["layers"]}
-    assert rows["MOBILYA"]["closed_in"] == 2 and rows["DUVAR"]["closed_in"] == 0 and rows["TILE"]["closed_in"] == 0
-    assert rows["TILE"]["pairs"] >= 4 and 0.3 in rows["TILE"]["widths_m"]
+    assert rows["MOBILYA"]["closed_in"] == 2 and rows["DUVAR"]["closed_in"] == 0
+    # real10 (1 Nov 2026): the tile lines, five at an even 0.30 m pitch, are a tread or tile run: no wall pieces at all
+    assert "TILE" not in rows
     assert {p.layer for p in prims} == {"MOBILYA"}
 
 

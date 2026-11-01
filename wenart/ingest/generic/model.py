@@ -81,6 +81,7 @@ class GenericPage:
     dimensions: list[DimensionPrim] = field(default_factory=list)
     wall_mask: Optional[MaskLayer] = None     # raster pages give the mask directly
     wall_hint_layers: tuple[str, ...] = ()    # DXF layers that look like walls (WALL, A-WALL, DUVAR, ...)
+    document_wall_layers: tuple[str, ...] = ()  # real10: the face-pair wall layers the document's other plans chose
     to_original: Optional[list[list[float]]] = None   # 3x3 page units -> original image pixels (photos)
     dpi: Optional[float] = None               # raster pages: pixels per inch of the (rectified) image, if known
     warnings: list[str] = field(default_factory=list)

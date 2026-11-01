@@ -246,6 +246,7 @@ class ProjectBuild:
         # Source ledger (26 Oct 2026): page key -> the stroke summary of each generic page (``source_items.
         # page_summary``: layers, block inserts, hatches, closed outlines), taken before the page model is dropped.
         self.source_pages: dict = {}
+        self.document_wall_layers: dict[str, list[str]] = {}   # real10: file -> the face-pair wall layers chosen
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -1907,6 +1908,9 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
         page.strokes = [st for st in page.strokes if not (st.layer and RG.CUT_LAYER_RE.search(T.fold(st.layer)))]
     if build is not None:
         build.source_pages[record.key] = _page_summary(page)
+        # real10 (1 Nov 2026): a plan with too few room labels to choose its wall layers takes the document's (the
+        # layers its other plans chose by evidence, generic.walls.face_pair_walls).
+        page.document_wall_layers = tuple(build.document_wall_layers.get(record.file, ()))
     origin, why = _region_origin(record)
     is_reference = build is not None and record.region_id is not None and record.region_id == build.reference_region
     if origin is not None and build is not None and not is_reference:
@@ -1936,6 +1940,12 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
                                f"(origin at its walls)")
         if record.units_override and ex.scale and ex.scale.get("method") == "dxf_insunits" and record.scale:
             ex.scale = dict(ex.scale, evidence=dict(record.scale["evidence"]))
+    if build is not None:
+        chosen = sorted({w.evidence.get("layer") for w in ex.walls if isinstance(w.evidence, dict)
+                         and w.evidence.get("rule") == "face_pairs" and w.evidence.get("layer")
+                         and "chosen by evidence" in str(w.evidence.get("note") or "")})
+        if chosen and record.file not in build.document_wall_layers:
+            build.document_wall_layers[record.file] = chosen
     if crop_rel is not None and isinstance(ex.report, dict):
         ex.report["crop_dir"] = crop_rel
         for item in ex.furniture:

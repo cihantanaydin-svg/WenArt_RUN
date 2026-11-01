@@ -103,6 +103,17 @@ CLOSED_ENDS_M = 0.001          # a polyline whose ends meet this close counts as
 COLUMN_SIDE_M = (0.15, 0.80)
 COLUMN_RECT_SHARE = 0.95       # a column outline fills >= 95 % of its minimum rectangle
 COLUMN_BAND_SHARE = 0.8        # ... and a wall piece ends on it across >= 80 % of its thickness
+COLUMN_LOOP_LONG_M = 3.0       # real10: four LINEs closing an empty rectangle 0.15-0.80 m thick and up to 3 m long
+COLUMN_LOOP_SNAP_M = 0.002     # ... (an exploded drawing's column or shear wall; corners meet within 2 mm)
+COLUMN_LOOP_INNER_M = 0.15     # ... with no stroke of this length lying wholly inside it
+COLUMN_LAYER_SHARE = 0.5       # ... on a layer at least half of whose short strokes are the edges of such boxes
+TREAD_MIN = 4                  # real10: >= 4 parallel lines at an even pitch of 0.18-0.40 m (each step within 15 % of
+TREAD_PITCH_M = (0.18, 0.40)   # the first, overlapping >= 50 %) are stair treads or slats, never wall faces
+TREAD_EVEN = 0.15
+TREAD_OVERLAP = 0.5
+ALONG_SHARE = 0.5              # real10: a second wall layer's pieces lie >= 50 % within 5 cm of the chosen layer's
+ALONG_M = 0.05                 # walls (the same walls drawn twice: masonry inside plaster)
+COLUMN_GAP_M = 0.05            # real10: a wall's masonry faces stop up to 5 cm short of the column or wall they meet
 LAYER_EXPLAINS = 0.70          # the wall layer must close around >= 70 % of the labelled rooms
 RAY_COUNT = 32                 # a label is closed in when >= 75 % of 32 rays from it hit wall within 30 m
 RAY_HIT_SHARE = 0.75
@@ -699,6 +710,35 @@ def _pairs_of(lines: list[_Line], layer: str, u: tuple, n: tuple) -> list[_Pair]
     return out
 
 
+def _drop_tread_runs(pairs: list[_Pair]) -> list[_Pair]:
+    """real10 (1 Nov 2026): stair treads drawn on the plaster layer paired into walls, a band of 'walls' over the
+    stair. Four or more parallel lines at an even pitch (``TREAD_PITCH_M``, each step within ``TREAD_EVEN`` of the
+    run's median) side by side over the same stretch are treads, slats or a hatch: none of their pairs is a wall
+    piece. A wall drawn with plaster and masonry lines on one layer has uneven steps (2 cm, 20 cm, 2 cm)."""
+    if len(pairs) < TREAD_MIN - 1:
+        return pairs
+    nxt: dict[int, list[_Pair]] = {}
+    for p in pairs:
+        if TREAD_PITCH_M[0] <= p.width <= TREAD_PITCH_M[1]:
+            nxt.setdefault(id(p.lines[0]), []).append(p)
+    drop: set[int] = set()
+    for p in pairs:
+        if id(p) in drop or not (TREAD_PITCH_M[0] <= p.width <= TREAD_PITCH_M[1]):
+            continue
+        run = [p]
+        while True:
+            last = run[-1]
+            cand = [q for q in nxt.get(id(last.lines[1]), [])
+                    if abs(q.width - p.width) <= TREAD_EVEN * p.width and min(q.hi, last.hi) - max(q.lo, last.lo)
+                    >= TREAD_OVERLAP * min(q.hi - q.lo, last.hi - last.lo)]
+            if not cand:
+                break
+            run.append(cand[0])
+        if len(run) + 1 >= TREAD_MIN:
+            drop.update(id(q) for q in run)
+    return [p for p in pairs if id(p) not in drop]
+
+
 def stepped_runs(pairs: list[_Pair]) -> None:
     """A wall pier whose other face steps (real06: a 0.85 m pier between two windows, drawn as a 0.35 m piece of the
     25 cm wall between two 0.25 m pieces 45 cm thick, the pilasters at the jambs) is one wall piece: pairs that share
@@ -746,7 +786,73 @@ def _column_candidates(page: GenericPage, s: float) -> list[tuple[Polygon, str]]
         if poly.area < COLUMN_RECT_SHARE * rect.area:
             continue
         out.append((poly, st.id))
+    return out + _line_loop_columns(page, s)
+
+
+def _line_loop_columns(page: GenericPage, s: float) -> list[tuple[Polygon, str]]:
+    """real10 (1 Nov 2026): an exploded drawing draws its columns and shear walls (25 x 25 cm up to 25 x 258 cm on
+    ``kolon``) as four separate LINEs, their ends running a little past each other at the corners. The straight
+    strokes of one layer (each up to ``COLUMN_LOOP_LONG_M``), noded, that close a rectangle 0.15-0.80 m thick and up
+    to ``COLUMN_LOOP_LONG_M`` long with no piece of a drawing inside it (a stroke of >= ``COLUMN_LOOP_INNER_M`` lying
+    wholly inside: a wardrobe's hangers, a bed's pillows; axis lines and dimension ticks crossing a column do not
+    count), on a layer at least ``COLUMN_LAYER_SHARE`` of whose short strokes are the edges of such boxes, are column
+    candidates; like any column one joins the walls only where a wall piece ends on it."""
+    from shapely.geometry import LineString
+    from shapely.ops import polygonize
+
+    by_layer: dict[str, list] = {}
+    for st in page.strokes:
+        if st.kind != "line" or st.arc is not None or st.fill is not None or len(st.pts) != 2:
+            continue
+        if st.layer and st.layer.upper() in NEVER_PLOTTED_LAYERS:
+            continue
+        a, b = _scale_pts(st.pts, s)
+        if 0.0 < math.dist(a, b) <= COLUMN_LOOP_LONG_M + 0.01:
+            by_layer.setdefault(_layer_key(st), []).append((LineString([a, b]), st.id))
+    out = []
+    inner_tree = None
+    inner_lines: list = []
+    for layer, items in by_layer.items():
+        if len(items) < 4:
+            continue
+        lines = [ln for ln, _ in items]
+        line_tree = STRtree(lines)
+        found = []
+        for poly in polygonize(unary_union(lines)):
+            poly = poly.simplify(COLUMN_LOOP_SNAP_M)
+            if not poly.is_valid or poly.area <= 0:
+                continue
+            rect = poly.minimum_rotated_rectangle
+            sides = sorted(_rect_sides(rect))
+            if not (COLUMN_SIDE_M[0] - 1e-9 <= sides[0] <= COLUMN_SIDE_M[1] + 1e-9
+                    and sides[1] <= COLUMN_LOOP_LONG_M + 1e-9) or poly.area < COLUMN_RECT_SHARE * rect.area:
+                continue
+            if inner_tree is None:
+                for st in page.strokes:
+                    if len(st.pts) < 2 or st.arc is not None:
+                        continue
+                    pts = _scale_pts(st.pts, s)
+                    if sum(math.dist(a, b) for a, b in zip(pts, pts[1:])) >= COLUMN_LOOP_INNER_M:
+                        inner_lines.append(LineString(pts))
+                inner_tree = STRtree(inner_lines) if inner_lines else None
+            inside = poly.buffer(-COLUMN_LOOP_SNAP_M)
+            if inside.is_empty or (inner_tree is not None and any(
+                    inside.contains(inner_lines[int(i)]) for i in inner_tree.query(inside))):
+                continue
+            ring = poly.exterior.buffer(COLUMN_LOOP_SNAP_M)
+            edge = [int(i) for i in line_tree.query(ring) if ring.contains(lines[int(i)].interpolate(0.5, normalized=True))]
+            found.append((poly, edge))
+        # A column layer draws mostly columns (real10's kolon); on a wall, furniture or fixture layer a stray empty
+        # box (a shelf, a wall end) is no column.
+        on_loops = {i for _, edge in found for i in edge}
+        if len(on_loops) >= COLUMN_LAYER_SHARE * len(items):
+            out.extend((poly, min(items[i][1] for i in edge) if edge else f"loop:{layer}") for poly, edge in found)
     return out
+
+
+def _mid(pts: list[tuple[float, float]]) -> tuple[float, float]:
+    a, b = pts[0], pts[1]
+    return ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
 
 
 def _ends_on(pair: _Pair, column: Polygon) -> bool:
@@ -786,6 +892,10 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
     columns in 20 cm outer walls) is no wall piece of its own, or ``openings`` would chain the column stubs along a
     wall into a second, thicker wall across the windows. A column ``_Element`` keeps that left-out area in
     ``left_out``."""
+    # Plaster coats (real10): a piece stopping a few cm short of a column or of another wall piece runs on to it.
+    material = [poly for poly, _ in columns] + [p.polygon() for p in pairs if p.primary]
+    tree0 = STRtree(material) if material else None
+    pairs = [_to_material(p, material, tree0) if p.primary else p for p in pairs]
     prim_pairs = [p for p in pairs if p.primary]
     elems = [_Element("face_pair", p.polygon(), p.ids()) for p in prim_pairs]
     cols = [(poly, sid) for poly, sid in columns
@@ -838,6 +948,49 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
     return elems
 
 
+def _to_material(p: _Pair, material: list[Polygon], tree) -> _Pair:
+    """real10 (1 Nov 2026): the masonry faces of a wall stop 2-3 cm short of the column or the wall they meet (the
+    plaster coat fills the gap), so the piece is cut off from the wall network. A piece whose end lies within
+    ``COLUMN_GAP_M`` of wall material (a column, another piece) that it meets across >= 80 % of its thickness runs on to
+    that material's near side (a piece parallel to it, in line with it, is not met this way)."""
+    import dataclasses
+
+    if tree is None:
+        return p
+    own = p.polygon()
+    lo, hi = p.lo, p.hi
+    for a, b, low in ((p.lo - COLUMN_GAP_M, p.lo, True), (p.hi, p.hi + COLUMN_GAP_M, False)):
+        probe = p.polygon(a, b)
+        best = None
+        for i in tree.query(probe):
+            poly = material[int(i)]
+            if poly.equals(own):
+                continue
+            cut = probe.intersection(poly)
+            if cut.is_empty or cut.area <= 0:
+                continue
+            cut = max(getattr(cut, "geoms", [cut]), key=lambda g: g.area)
+            if cut.geom_type != "Polygon":
+                continue
+            ring = list(cut.exterior.coords)
+            o = [q[0] * p.n[0] + q[1] * p.n[1] for q in ring]
+            if max(o) - min(o) < COLUMN_BAND_SHARE * p.width:
+                continue
+            sv = [q[0] * p.u[0] + q[1] * p.u[1] for q in ring]
+            near = max(sv) if low else min(sv)
+            if best is None or (near > best if low else near < best):
+                best = near
+        if best is None:
+            continue
+        if low and best < p.lo - 1e-9:
+            lo = best - PAIR_TOUCH_M / 2.0
+        elif not low and best > p.hi + 1e-9:
+            hi = best + PAIR_TOUCH_M / 2.0
+    if lo == p.lo and hi == p.hi:
+        return p
+    return dataclasses.replace(p, lo=lo, hi=hi)
+
+
 def _join(p: _Pair, line: _Line, side: int, elems: list[_Element], tree) -> Optional[tuple[_Element, _Pair]]:
     """The band of ``p`` where ``line`` runs on past the pair end on ``side`` (-1: below lo, +1: above hi): up to the
     first wall material inside the band within ``PAIR_EXTEND_M``, or, when no material is in the band, the whole
@@ -873,6 +1026,45 @@ def _join(p: _Pair, line: _Line, side: int, elems: list[_Element], tree) -> Opti
         return None
     return (_Element("face_join", p.polygon(a, b), list(line.ids)),
             _Pair(p.layer, p.u, p.n, a, b, p.lines))
+
+
+def along_share(elems: list[_Element], base: list[_Element]) -> float:
+    """The share of a layer's wall-piece area within ``ALONG_M`` of another layer's walls."""
+    pieces = [e.polygon for e in elems if e.kind == "face_pair"]
+    if not pieces or not base:
+        return 0.0
+    mine = unary_union(pieces)
+    near = unary_union([e.polygon for e in base]).buffer(ALONG_M, join_style=2)
+    return float(mine.intersection(near).area / max(mine.area, 1e-12))
+
+
+def separate_rooms(anchors: list[tuple[float, float]], geoms: list) -> int:
+    """How many separate faces of a layer's walls (and their door and window bridges) hold a room label: the walls of a
+    plan part its labels into rooms; an outline around the building (balconies, railings) holds them all in one."""
+    polys = [g.buffer(PAIR_TOUCH_M / 2.0, join_style=2) for g in geoms if g is not None and not g.is_empty]
+    if not polys or not anchors:
+        return 0
+    u = unary_union(polys)
+    holes = [Polygon(r) for part in getattr(u, "geoms", [u]) if part.geom_type == "Polygon" for r in part.interiors]
+    if not holes:
+        return 0
+    tree = STRtree(holes)
+    held = set()
+    for a in anchors:
+        pt = Point(a)
+        for i in tree.query(pt):
+            if holes[int(i)].contains(pt):
+                held.add(int(i))
+                break
+    return len(held)
+
+
+def _parts_count(elems: list[_Element]) -> int:
+    """The separate parts of a wall network (its pieces touching within ``PAIR_TOUCH_M``)."""
+    if not elems:
+        return 0
+    u = unary_union([e.polygon.buffer(PAIR_TOUCH_M / 2.0, join_style=2) for e in elems])
+    return len(getattr(u, "geoms", [u]))
 
 
 def grid_crossings(pairs: list[_Pair]) -> tuple[int, int]:
@@ -993,14 +1185,17 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     s = float(units_to_m)
     labels = _labels_m(page, s)
     choice: dict = {"used": False, "labels": len(labels), "layers": []}
-    if not labels:
+    # real10 (1 Nov 2026): the 2nd basement (3 labels) and the roof terrace (2 labels) of a document whose other plans
+    # chose their wall layers by evidence: a plan with too little evidence of its own takes those layers.
+    document = tuple(getattr(page, "document_wall_layers", ()) or ())
+    if not labels and not document:
         choice["reason"] = "no room labels: no evidence to choose a wall layer"
         return prims, choice
     anchors = [b.anchor for b in labels]
     need = LAYER_EXPLAINS * len(labels)
-    existing = sum(closed_in(anchors, _prim_geoms(prims))) if prims else 0
+    existing = sum(closed_in(anchors, _prim_geoms(prims))) if prims and labels else 0
     choice["existing_closed_in"] = existing
-    if existing >= need:
+    if labels and existing >= need:
         choice["reason"] = f"the other wall primitives close in {existing} of {len(labels)} labels"
         return prims, choice
     columns = _column_candidates(page, s)
@@ -1015,7 +1210,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         long_lines = paired = 0
         for u, n, group in _direction_groups(pieces):
             lines = _merge_lines(group, u, n)
-            found = _pairs_of(lines, layer, u, n)
+            found = _drop_tread_runs(_pairs_of(lines, layer, u, n))
             stepped_runs(found)
             pairs.extend(found)
             in_pairs = {id(ln) for p in found if p.primary for ln in p.lines}
@@ -1026,29 +1221,37 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         if not any(p.primary for p in pairs):
             continue
         elems = _network(pairs, columns)
-        hits = closed_in(anchors, [e.polygon for e in elems] + _gap_bridges(pairs))
+        geoms = [e.polygon for e in elems] + _gap_bridges(pairs)
+        hits = closed_in(anchors, geoms)
+        rooms = separate_rooms(anchors, geoms)
         widths = sorted({round(p.width, 3) for p in pairs if p.primary})
         through, meet = grid_crossings(pairs)
         grid = through >= GRID_CROSS_MIN and through >= GRID_CROSS_SHARE * max(meet, 1)
         rows.append({"layer": layer, "closed_in": sum(hits), "pair_share": round(paired / max(long_lines, 1), 3),
                      "pairs": sum(1 for p in pairs if p.primary), "widths_m": widths[:8],
-                     "crossings": [through, meet], "grid": grid, "_elems": elems})
+                     "crossings": [through, meet], "grid": grid, "rooms": rooms, "_elems": elems})
     # An axis grid closes in the rooms too (real10's double-line axes, 0.10 m apart, closed in 8 of 9 labels and beat
     # the walls): it never wins, whatever it closes in.
-    rows.sort(key=lambda r: (r["grid"], -r["closed_in"], -r["pair_share"], -r["pairs"], r["layer"]))
+    # real10 (1 Nov 2026): the typical floor's layer 0 closed in all 10 labels only because its balcony and railing
+    # outlines ring the building; the walls (DUVAR, 8 of 10) part the labels into their rooms. Among the layers that
+    # close in enough labels, the one parting them into the most separate rooms wins.
+    rows.sort(key=lambda r: (r["grid"], r["closed_in"] < need, -r["rooms"], -r["closed_in"], -r["pair_share"],
+                             -r["pairs"], r["layer"]))
     choice["layers"] = [{k: v for k, v in r.items() if k != "_elems"} for r in rows]
-    if rows and rows[0]["grid"]:
-        choice["reason"] = (f"only axis grids close in the labels: "
-                            f"{', '.join(repr(r['layer']) for r in rows if r['grid'])} (their pieces cross straight "
-                            f"through each other)")
-        return prims, choice
-    if not rows or rows[0]["closed_in"] < need:
+    decided = bool(rows) and labels and not rows[0]["grid"] and rows[0]["closed_in"] >= need
+    picked = [r for r in rows if r["layer"] in document and not r["grid"]] if document and not decided else []
+    if not decided and not picked:
+        if rows and rows[0]["grid"]:
+            choice["reason"] = (f"only axis grids close in the labels: "
+                                f"{', '.join(repr(r['layer']) for r in rows if r['grid'])} (their pieces cross "
+                                f"straight through each other)")
+            return prims, choice
         best = rows[0] if rows else None
         choice["reason"] = (f"no layer's face pairs close in >= {LAYER_EXPLAINS:.0%} of the {len(labels)} labels"
                             + (f" (best: '{best['layer']}' {best['closed_in']})" if best else ""))
         return prims, choice
-    win = rows[0]
-    runner = rows[1] if len(rows) > 1 else None
+    win = rows[0] if decided else picked[0]
+    runner = (rows[1] if len(rows) > 1 else None) if decided else None
     note = (f"walls drawn as face lines: layer '{win['layer']}' chosen by evidence (closes in {win['closed_in']} of "
             f"{len(labels)} labelled rooms, {win['pair_share']:.0%} of its long strokes pair, widths "
             f"{', '.join(f'{w:.2f}' for w in win['widths_m'])} m); runner-up "
@@ -1057,28 +1260,47 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     if grids:
         note += (f"; axis grid layer(s) {', '.join(repr(g) for g in grids)} never chosen (their pieces cross straight "
                  f"through each other)")
-    cols = [e for e in win["_elems"] if e.kind == "column"]
+    # real10 (1 Nov 2026): a wall drawn by two layers together (masonry DUVAR inside plaster SIVA; some walls on one
+    # of them only) left the kitchens and the entrance cut off when only the best layer was read. Another layer that
+    # closes in enough labelled rooms on its own and whose wall pieces mostly lie along the chosen layer's walls
+    # (``ALONG_SHARE``: the same walls; balcony railings and furniture lie elsewhere) joins.
+    also = [r for r in rows[1:] if not r["grid"] and r["closed_in"] >= need
+            and along_share(r["_elems"], win["_elems"]) >= ALONG_SHARE] if decided else picked[1:]
+    if not decided:
+        note = (f"walls drawn as face lines: layer(s) {', '.join(repr(r['layer']) for r in picked)} as the document's "
+                f"other plans chose (this plan's {len(labels)} label(s) close in too few rooms to decide: best "
+                f"'{rows[0]['layer']}' {rows[0]['closed_in']})")
+    elems = list(win["_elems"]) + [e for r in also for e in r["_elems"]]
+    layers = [win["layer"]] + [r["layer"] for r in also]
+    if also and decided:
+        note += (f"; {', '.join(repr(r['layer']) for r in also)} also draw(s) these walls (closes in "
+                 f"{', '.join(str(r['closed_in']) for r in also)} of {len(labels)} on its own, its pieces along "
+                 f"'{win['layer']}''s walls; the walls of both form {_parts_count(elems)} part(s), "
+                 f"{_parts_count(win['_elems'])} with '{win['layer']}' alone)")
+    cols = [e for e in elems if e.kind == "column"]
     if cols:
         left = sum(e.left_out for e in cols)
         note += (f"; {len({e.ids[0] for e in cols})} columns join the walls ({left:.2f} m² of them standing out of "
                  f"the wall bands not modelled)")
     choice.update(used=True, layer=win["layer"], runner_up=runner["layer"] if runner else None, note=note,
-                  reason="face pairs close in the labelled rooms")
+                  reason="face pairs close in the labelled rooms" if decided else "the document's other plans",
+                  also=[r["layer"] for r in also])
     face = []
-    for k, e in enumerate(win["_elems"]):
+    layer_of_elem = {id(e): r["layer"] for r in [win] + also for e in r["_elems"]}
+    for k, e in enumerate(elems):
         entity = "+".join(e.ids) if e.kind == "face_pair" else (e.ids[0] if e.kind == "column" else
                                                               f"join:{'+'.join(e.ids)}")
         ring = list(e.polygon.exterior.coords)
         # Every edge of the network is a snap target (a T-junction's end face lies on a column edge, not a line).
         edges = [(ring[i], ring[i + 1]) for i in range(len(ring) - 1)]
         face.append(WallPrim(kind=e.kind, entity=entity, stroke_ids=list(e.ids), method="vector",
-                             confidence=PAIR_CONFIDENCE, polygons=[ring[:-1]], layer=win["layer"], faces=edges,
-                             note=note))
+                             confidence=PAIR_CONFIDENCE, polygons=[ring[:-1]], layer=layer_of_elem[id(e)],
+                             faces=edges, note=note))
     # The other primitives closed in too few rooms: only those drawn on the chosen layer (or a wall-layer hatch) stay;
     # the rest (furniture outlines, the column squares the outline rule took) go back to the ordinary strokes.
     layer_of = {st.id: _layer_key(st) for st in page.strokes}
     kept = [p for p in prims if p.kind in ("dxf_hatch", "ring") or
-            (p.stroke_ids and all(layer_of.get(i) == win["layer"] for i in p.stroke_ids))]
+            (p.stroke_ids and all(layer_of.get(i) in layers for i in p.stroke_ids))]
     if len(kept) < len(prims):
         choice["released"] = len(prims) - len(kept)
         for p in face:

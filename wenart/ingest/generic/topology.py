@@ -43,6 +43,8 @@ CLOSE_M = 0.002
 # real opening is never narrower than 5 cm).
 SLIT_CLOSE_M = 0.015
 HULL_SHARE = 0.99
+WING_NEAR_M = 1.5               # real10: a wall part within 1.5 m of the labelled building holding a room label inside
+                                # its outline (a kitchen open to the hall) is a wing of the building
 SEPARATOR_MAX_M = 2.4
 END_TO_END_ALIGN_M = 0.20
 SEPARATOR_CONFIDENCE = 0.8
@@ -192,6 +194,29 @@ def split_plot(walls: list[WallItem], openings: list[OpeningItem], label_blocks:
     comp_labels = {i: [b for b in indoor if any(_label_in(Polygon(r), b) for r in comps[i].interiors)]
                    for i in range(len(comps))}
     building = {i for i, labels in comp_labels.items() if labels}
+    # real10 (1 Nov 2026): the typical floor's kitchen and living-room wing touches the bedroom wing only through the
+    # wide hall openings, and its kitchen opens to the hall: no label lies in a closed face of the wing, which went
+    # to the site. A part next to the labelled building (``WING_NEAR_M``) holding a room label inside its outline
+    # is building too.
+    if building:
+        core = unary_union([Polygon(comps[i].exterior) for i in building])
+        grown = True
+        while grown:
+            grown = False
+            for i, comp in enumerate(comps):
+                if i in building or comp.distance(core) > WING_NEAR_M:
+                    continue
+                hull = Polygon(comp.exterior).convex_hull
+                held = [b for b in indoor if hull.contains(Point(b.anchor))
+                        and not any(_label_in(Polygon(r), b) for k in building for r in comps[k].interiors)]
+                if held:
+                    building.add(i)
+                    core = unary_union([core, Polygon(comp.exterior)])
+                    grown = True
+                    warnings.append(f"wall part at ({comp.centroid.x:.2f}, {comp.centroid.y:.2f}) m "
+                                    f"({comp.bounds[2] - comp.bounds[0]:.2f} x {comp.bounds[3] - comp.bounds[1]:.2f} m) "
+                                    f"holds the room label(s) {', '.join(repr(getattr(b, 'name', '')) for b in held)} "
+                                    f"inside its outline next to the building: a wing of the building")
     labelled_building = bool(building)
     if not building:
         warnings.append("no wall component encloses an indoor room label: every wall is kept as a building wall")

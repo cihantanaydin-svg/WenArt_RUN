@@ -3057,8 +3057,24 @@ General reading rules added (`tests/test_real10_reading.py`):
 | `TERAS KAT PLANI` (no level) | the roof terrace floor is the top level (L7, `roof_terrace`) |
 | the axis grid (`aks`, double lines 0.10 m apart) won the wall layer choice (closed 8 of 9 rooms) | an axis grid's pieces cross straight through each other; such a layer never wins (`walls.grid_crossings`); real10's basement now reads `DUVAR` |
 
-Not done yet (real10 stays `needs_review`, no level built): the plans' walls fall into 10-15 parts. The columns and
-shear walls (`kolon`, 25 x 25 cm up to 25 x 258 cm) are four separate LINEs each; a first column-loop rule finds them
-but the wall pieces do not join them yet (kept aside, not committed). Then: the 2nd basement and the terrace (no wall
-layer chosen), the heights (the section mapping puts L-2 at -6.00 instead of -6.35, and reads the flat roof terrace as
-a pitched roof), and the downstream use of typical floors (furnish and render one floor, copy the rest).
+User decisions of 1 Nov 2026 (lessons UL251-UL253, `projects/real10/brief.yaml`): interiors of one flat of each
+distinct plan (typical floor, garden flat), the mirrored flat and the other typical floors as copies; the full block
+outside with an inferred street, pavement, entrance and planting; modern style (inferred words).
+
+Wall reading of an exploded drawing (second round, `wenart/ingest/generic/walls.py`, `topology.py`):
+
+| What the drawing does | Rule |
+|---|---|
+| columns and shear walls as four loose LINEs (`kolon`, 25 x 25 up to 25 x 258 cm), ends running past the corners | noded empty rectangles 0.15-0.80 m thick, up to 3 m long, on a layer made mostly of such boxes, are column candidates (`_line_loop_columns`) |
+| masonry faces stop 2-3 cm short of the column or wall they meet (the plaster coat) | a piece within 5 cm of wall material it meets runs on to it (`_to_material`) |
+| walls drawn by masonry (`DUVAR`) inside plaster (`SIVA`), some walls on one layer only | a second layer that closes in enough rooms and whose pieces lie along the chosen layer's walls joins (`along_share`) |
+| layer 0's balcony and railing outlines ring the building (all 10 labels "closed in") | among the layers that close in enough labels, the one parting them into the most separate rooms wins (`separate_rooms`) |
+| stair treads on the plaster layer paired into walls | >= 4 parallel lines at an even 0.18-0.40 m pitch are treads or slats, never wall pieces (`_drop_tread_runs`) |
+| the kitchen and living-room wing touches the bedroom wing only through the hall openings | a wall part within 1.5 m of the labelled building holding a room label inside its outline is a wing of it (`split_plot`) |
+| the 2nd basement (3 labels) and the roof terrace (2 labels) | a plan with too few labels to decide takes the wall layers the document's other plans chose |
+
+Result: the 1st basement and the typical floor read as two nearly complete flats each, the roof terrace reads, the
+2nd basement in 3 parts. Still open (needs_review): 2-3 rooms per plan leak (a corner window of the living rooms with
+no wall piece, glazing round the corner; a 1 m stretch at the master bedroom's wardrobes; the kitchen opening), the
+heights (L-2 at -6.00 instead of -6.35; the flat roof terrace read as a pitched roof) and the downstream use of typical
+floors (furnish and render one floor, copy the rest).

@@ -2980,6 +2980,36 @@
    "request": "Did you take the latest furniture ranking info into the project? (1 Nov 2026: the ranking page held 1,970 scores, the project 834 from 31 Oct; real04 run 20261101-093151-full used 14 models the user had since ranked 0-2. Before every pod run the page's scores are read and merged into results/library/user_ranks.json and committed)",
    "lesson": "Did you take the latest furniture ranking info into the project? (1 Nov 2026: the ranking page held 1,970 scores, the project 834 from 31 Oct; real04 run 20261101-093151-full used 14 models the user had since ranked 0-2. Before every pod run the page's scores are read and merged into results/library/user_ranks.json and committed)",
    "question": "Were the ranking page's latest scores merged into user_ranks.json before this run, so no model the user ranked 0-2 is used and the higher rank wins?"
+  },
+  {
+   "id": "UL251",
+   "date": "2026-11-01",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Apartment blocks: furnish and render the interiors of one flat of each distinct plan (the typical floor's flat and a different basement or garden flat); the mirrored flat of a floor and the other typical floors are copies, never rendered again (user, real10, 1 Nov 2026: '1 and 2 as you suggest')",
+   "lesson": "Apartment blocks: furnish and render the interiors of one flat of each distinct plan (the typical floor's flat and a different basement or garden flat); the mirrored flat of a floor and the other typical floors are copies, never rendered again (user, real10, 1 Nov 2026: '1 and 2 as you suggest')",
+   "question": null
+  },
+  {
+   "id": "UL252",
+   "date": "2026-11-01",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "When the documents draw no site, the exterior shows the full building with an inferred street, pavement, entrance and planting, each marked inferred in the report (user, real10, 1 Nov 2026)",
+   "lesson": "When the documents draw no site, the exterior shows the full building with an inferred street, pavement, entrance and planting, each marked inferred in the report (user, real10, 1 Nov 2026)",
+   "question": null
+  },
+  {
+   "id": "UL253",
+   "date": "2026-11-01",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "A project without a style prompt or photos gets a modern style, listed as inferred (user, real10, 1 Nov 2026: 'modern style is fine')",
+   "lesson": "A project without a style prompt or photos gets a modern style, listed as inferred (user, real10, 1 Nov 2026: 'modern style is fine')",
+   "question": null
   }
  ]
 }

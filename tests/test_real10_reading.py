@@ -181,6 +181,105 @@ def test_axis_grid_pieces_cross_straight_through():
 
 
 # --------------------------------------------------------------------------
+# Walls drawn by masonry, plaster and concrete layers (exploded drawing)
+# --------------------------------------------------------------------------
+
+def test_a_piece_stopping_at_the_plaster_runs_on_to_the_wall_it_meets():
+    """The masonry faces of a partition stop 3 cm short of the wall they meet (the plaster coat): the partition runs
+    on to it and the walls are one network."""
+    outer = _hpair(0.1, 0.0, 6.0, 0.2)
+    part = _vpair(3.05, 0.23, 3.0, 0.1)
+    assert W._parts_count(W._network([outer, part], [])) == 1
+    far = _vpair(3.05, 0.30, 3.0, 0.1)                                   # 10 cm short: a gap, not plaster
+    assert W._parts_count(W._network([outer, far], [])) == 2
+
+
+def _st(layer, a, b, prefix):
+    import _real01_page as R
+
+    st = R.stroke([a, b], prefix=prefix)
+    st.layer = layer
+    return st
+
+
+def _box(layer, x0, y0, x1, y1, prefix, over=0.01):
+    """A rectangle drawn as four separate LINEs whose ends run ``over`` past the corners."""
+    return [_st(layer, (x0 - over, y0), (x1 + over, y0), prefix), _st(layer, (x1, y0 - over), (x1, y1 + over), prefix),
+            _st(layer, (x1 + over, y1), (x0 - over, y1), prefix), _st(layer, (x0, y1 + over), (x0, y0 - over), prefix)]
+
+
+def test_columns_drawn_as_four_lines_are_column_candidates():
+    """real10's kolon layer: columns and shear walls as four loose LINEs (25 x 80 cm, 25 x 210 cm). An empty box on a
+    furniture layer full of other lines, and a box with a line inside (a wardrobe's rail), are no columns."""
+    import _real01_page as R
+
+    strokes = _box("kolon", 0, 0, 0.25, 0.8, "k1") + _box("kolon", 5, 0, 5.25, 2.1, "k2")
+    strokes += _box("MOB", 2, 2, 2.4, 3.9, "m1") + [_st("MOB", (3, y / 10), (4, y / 10), "m2") for y in range(20)]
+    strokes += _box("kolon", 8, 0, 8.6, 2.0, "k3") + [_st("kolon", (8.3, 0.2), (8.3, 1.8), "k3")]
+    cols = W._line_loop_columns(R.synthetic_page(strokes), 1.0)
+    sizes = sorted(tuple(round(v, 2) for v in sorted(W._rect_sides(p.minimum_rotated_rectangle))) for p, _ in cols)
+    assert sizes == [(0.25, 0.8), (0.25, 2.1)]
+
+
+def test_stair_treads_are_no_wall_pieces():
+    """Treads drawn on the plaster layer: six parallel lines 0.27 m apart pair into 'walls'; such an even run is no
+    wall. A wall drawn with plaster and masonry lines on one layer (2, 20, 2 cm) keeps its pieces."""
+    treads = [W._Line(0.27 * k, 0.0, 1.2, [f"t{k}"]) for k in range(6)]
+    assert W._drop_tread_runs(W._pairs_of(treads, "SIVA", (1.0, 0.0), (0.0, 1.0))) == []
+    wall = [W._Line(o, 0.0, 4.0, [f"w{k}"]) for k, o in enumerate((0.0, 0.02, 0.22, 0.24))]
+    assert W._drop_tread_runs(W._pairs_of(wall, "SIVA", (1.0, 0.0), (0.0, 1.0)))
+
+
+def test_the_walls_part_the_labels_into_rooms():
+    """The typical floor's layer 0 rings the building with its balcony outlines (all labels in one face); the walls
+    part the labels into their rooms."""
+    from shapely.geometry import Polygon as P
+
+    ring = [P([(0, 0), (10, 0), (10, 0.1), (0, 0.1)]), P([(0, 5), (10, 5), (10, 5.1), (0, 5.1)]),
+            P([(0, 0), (0.1, 0), (0.1, 5.1), (0, 5.1)]), P([(9.9, 0), (10, 0), (10, 5.1), (9.9, 5.1)])]
+    labels = [(2.0, 2.5), (8.0, 2.5)]
+    assert W.separate_rooms(labels, ring) == 1
+    assert W.separate_rooms(labels, ring + [P([(5, 0), (5.1, 0), (5.1, 5.1), (5, 5.1)])]) == 2
+
+
+def test_a_second_layer_drawing_the_same_walls_lies_along_them():
+    from shapely.geometry import Polygon as P
+
+    siva = [W._Element("face_pair", P([(0, -0.02), (6, -0.02), (6, 0.22), (0, 0.22)]), ["s"])]
+    duvar = [W._Element("face_pair", P([(0, 0), (6, 0), (6, 0.2), (0, 0.2)]), ["d"])]
+    railing = [W._Element("face_pair", P([(0, 1.5), (6, 1.5), (6, 1.55), (0, 1.55)]), ["r"])]
+    assert W.along_share(duvar, siva) > 0.99 and W.along_share(railing, siva) == 0.0
+
+
+def test_a_wing_holding_a_label_next_to_the_building_is_building():
+    """The typical floor: the bedroom wing closes its rooms; the kitchen wing, 1 m away across the hall openings,
+    holds the kitchen label inside its outline but in no closed face (the kitchen opens to the hall)."""
+    import _real01_page as R
+    from wenart.ingest.generic import topology as TP
+
+    walls = [R.wall((0, 5), (6, 5)), R.wall((6, 5), (6, 9)), R.wall((6, 9), (0, 9)), R.wall((0, 9), (0, 5)),
+             R.wall((0, 4), (0, 0)), R.wall((0, 0), (6, 0)), R.wall((6, 0), (6, 4))]
+    labels = [SimpleNamespace(anchor=(3.0, 7.0), exterior=False, name="yatak"),
+              SimpleNamespace(anchor=(3.0, 2.0), exterior=False, name="mutfak")]
+    bwalls, site, warnings = TP.split_plot(walls, [], labels)
+    assert len(bwalls) == 7 and not site["boundary_walls"]
+    assert any("a wing of the building" in w for w in warnings)
+
+
+def test_a_plan_with_too_few_labels_takes_the_documents_wall_layers():
+    """real10's 2nd basement (3 labels) and roof terrace (2 labels): too little evidence of their own; they take the
+    wall layers the document's other plans chose by evidence."""
+    from test_generic_walls import _face_plan
+
+    page, _, _ = _face_plan(texts=False)
+    assert not W.face_pair_walls(page, 1.0, [])[1]["used"]
+    page.document_wall_layers = ("W1",)
+    prims, choice = W.face_pair_walls(page, 1.0, [])
+    assert choice["used"] and choice["layer"] == "W1" and choice["reason"] == "the document's other plans"
+    assert prims and {p.layer for p in prims} == {"W1"}
+
+
+# --------------------------------------------------------------------------
 # The real DWG
 # --------------------------------------------------------------------------
 
