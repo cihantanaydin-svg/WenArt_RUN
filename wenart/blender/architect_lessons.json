@@ -2920,6 +2920,18 @@
    "request": "make this better (1 Nov 2026, real04 run 20261031-194116-full: the WC flush plate, a flat black slab with two printed lines)",
    "lesson": "make this better (1 Nov 2026, real04 run 20261031-194116-full: the WC flush plate, a flat black slab with two printed lines)",
    "question": "Do the WC flush plates look like real products (a bezel, real push buttons with depth and a metal or glass finish)?"
+  },
+  {
+   "id": "UL246",
+   "date": "2026-11-01",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "More details more realism needed (1 Nov 2026, real04 run 20261031-194116-full, the master bedroom's slatted built-in wardrobe: flat even slats, a flat lit interior with blurred clothes, no visible hardware, no material variation)",
+   "lesson": "More details more realism needed (1 Nov 2026, real04 run 20261031-194116-full, the master bedroom's slatted built-in wardrobe: flat even slats, a flat lit interior with blurred clothes, no visible hardware, no material variation)",
+   "question": "Does the built-in wardrobe read as a real joinery product (slats with rounded edges and grain, frame and shadow gaps, hinges or tracks, handles, a realistic interior with clothes, shelves and soft LED)?"
   }
  ]
 }
