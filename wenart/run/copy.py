@@ -192,6 +192,7 @@ import json
 import os
 import re
 import shutil
+import sys
 import time
 from collections import deque
 from contextlib import contextmanager
@@ -207,6 +208,15 @@ MAX_TEXT_BYTES = 7999 * KIB        # find -size -8000k (rounded up to KiB, less 
 MAX_JPEG_BYTES = 300 * KIB         # find -size -301k
 MAX_PNG_BYTES = 3 * 1024 * KIB     # debug overlays and rectified pages (M7 §9.1)
 MAX_CROPS = 200                    # recognition crops per project (M7 §9.1)
+# 1 Nov 2026 (real04 run 20261101-093151-full: building_final.json and scene_manifest.json grew past MAX_TEXT_BYTES,
+# the copy left them out, and the copy of the job's first minutes, made from the volume's outputs of the run before,
+# stayed in the results: the metrics and Argus read the run before's building): the project's key records go up to
+# MAX_KEY_TEXT_BYTES, and a results file whose source is left out (over its limit) moves to ``earlier_run/``
+MAX_KEY_TEXT_BYTES = 19000 * KIB    # under the runner's COLLECT_MAX_FILE (20 MB): the file still reaches the session
+KEY_TEXT_FILES = ("building.json", "building_fitted.json", "building_furnished.json", "building_decor.json",
+                  "building_agent.json", "building_final.json", "building_built.json", "scene_manifest.json",
+                  "render_manifest.json", "final_manifest.json", "log.json", "big_loop.json", "argus.json")
+STALE_COPY_DIR = "earlier_run"     # = wenart.report.final.STALE_DIR
 ATTRIBUTION = "ATTRIBUTION.md"
 LIBRARY_CATALOG = "catalog_library.json"      # the prep pod's library catalogue (docs/milestone8.md §2)
 OBJAVERSE_CATALOG = "catalog_objaverse.json"  # its M7 name (read when the library file is missing)
@@ -389,12 +399,44 @@ def _match(name: str, patterns: Iterable[str]) -> bool:
     return any(fnmatch.fnmatchcase(name, p) for p in patterns)
 
 
+def text_limit(name: str) -> int:
+    """The size limit of a text file of the results: MAX_KEY_TEXT_BYTES for the project's key records
+    (``KEY_TEXT_FILES``), else MAX_TEXT_BYTES."""
+    return MAX_KEY_TEXT_BYTES if name in KEY_TEXT_FILES else MAX_TEXT_BYTES
+
+
+def over_limit(path: Path) -> bool:
+    """A text file (.json / .md) that ``wanted`` leaves out for its size only."""
+    name = path.name
+    if not name.endswith((".json", ".md")):
+        return False
+    try:
+        return path.stat().st_size > text_limit(name)
+    except OSError:
+        return False
+
+
+def move_stale_copy(target: Path) -> Optional[Path]:
+    """1 Nov 2026: a results copy whose source is now left out (over its size limit) is an earlier run's file: it moves
+    to ``earlier_run/`` beside it (never deleted); the new place, or None when there was nothing to move."""
+    if not target.is_file() or target.is_symlink():
+        return None
+    dest = target.parent / STALE_COPY_DIR / target.name
+    n = 1
+    while dest.exists():
+        dest = target.parent / STALE_COPY_DIR / f"{target.stem}.{n}{target.suffix}"
+        n += 1
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    target.replace(dest)
+    return dest
+
+
 def wanted(rule: Rule, path: Path) -> Optional[str]:
     """How ``path`` is copied under ``rule``: ``copy``, ``tail`` (log), ``record`` (private stage record)
     or None (not copied)."""
     name = path.name
     size = path.stat().st_size
-    text = name.endswith((".json", ".md")) and size <= MAX_TEXT_BYTES
+    text = name.endswith((".json", ".md")) and size <= text_limit(name)
     small_jpg = name.endswith(".jpg") and size <= MAX_JPEG_BYTES
     kind = rule.kind
     if kind == "general":
@@ -406,11 +448,11 @@ def wanted(rule: Rule, path: Path) -> Optional[str]:
     if kind == "style":
         return "copy" if _match(name, ("style*.json",)) and size <= MAX_TEXT_BYTES else None
     if kind == "json":
-        return "copy" if name.endswith(".json") and size <= MAX_TEXT_BYTES else None
+        return "copy" if name.endswith(".json") and size <= text_limit(name) else None
     if kind == "debug":
-        return "copy" if (name.endswith(".json") and size <= MAX_TEXT_BYTES) or small_jpg else None
+        return "copy" if (name.endswith(".json") and size <= text_limit(name)) or small_jpg else None
     if kind == "scene":
-        if name.endswith(".json") and size <= MAX_TEXT_BYTES:
+        if name.endswith(".json") and size <= text_limit(name):
             return "copy"
         return "tail" if name.endswith(".log") else None
     if kind in ("png", "crops"):
@@ -427,7 +469,7 @@ def wanted(rule: Rule, path: Path) -> Optional[str]:
             return "copy"
         return "copy" if small_jpg else None
     if kind == "private_final":
-        if name in ("final_report.md", "final_manifest.json") and size <= MAX_TEXT_BYTES:
+        if name in ("final_report.md", "final_manifest.json") and size <= text_limit(name):
             return "copy"
         return "copy" if small_jpg and _match(name, ("*_final_preview.jpg", "contact_*.jpg")) else None
     if kind == "private_run":
@@ -568,6 +610,9 @@ def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[floa
                     if taken > MAX_CROPS:
                         continue
                 if how is None:
+                    if over_limit(path) and move_stale_copy(dst_dir / path.name) is not None and not ref.private:
+                        print(f"copy: {prefix + '/' if prefix else ''}{path.name} left out (over the size limit): "
+                              f"the earlier copy moved to {STALE_COPY_DIR}/", file=sys.stderr)
                     continue
                 if final_rule and _match(path.name, F.STALE_VIEW_PATTERNS):
                     if path.name not in views or not _view_due(path, dst_dir / path.name, since):

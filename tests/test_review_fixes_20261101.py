@@ -73,3 +73,23 @@ def test_an_agent_facade_override_keeps_the_facade_scheme():
     out, applied = O.apply_looks(looks, {"facade": "render"})
     assert out["facade"]["scheme"] == looks["facade"]["scheme"] and out["facade"]["source"] == "agent"
     assert applied and applied[0]["slot"] == "facade"
+
+
+RUN_1101 = Path("/home/user/WenArt_RUN/runs/20261101-093151-full/results/furniture/real04/building_decor.json")
+
+
+def test_a_seat_cushion_set_is_never_refitted_to_a_library_cushion():
+    """real04 run 20261101-093151-full (the play room's sofas): the decor stage's seat sets (``dress_seats``, UL238)
+    took library cushions again at every refit; the build stood 42 cm library cushions where the set's own were planned
+    and two fell off the sofa's end. A cushion with a ``cushion_set`` keeps no library model; a plain one still may."""
+    cat = C.load(objaverse=False)
+    planned = {"id": "dec_x", "type": "cushion", "size": [0.42, 0.15, 0.42],
+               "cushion_set": {"look": "knit", "finish": "piping", "kind": "square", "group": "left"}}
+    assert F.fit_decor_item(planned, cat, style_family="modern", mode="relaxed") is None
+    plain = {k: v for k, v in planned.items() if k != "cushion_set"}
+    got = F.fit_decor_item(plain, cat, style_family="modern", mode="relaxed")
+    assert got is None or got.get("method") == "library"
+    if RUN_1101.is_file():
+        b = json.loads(RUN_1101.read_text(encoding="utf-8"))
+        sets = [d for d in b.get("decor") or [] if d.get("type") == "cushion" and d.get("cushion_set")]
+        assert sets and all(F.fit_decor_item(d, cat, style_family="modern", mode="relaxed") is None for d in sets)

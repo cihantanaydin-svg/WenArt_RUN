@@ -2613,6 +2613,18 @@ class Orchestrator:
         for vr in [r for r in self.runs if r.base is not None and r.active and r.base.active]:
             if self.status_of(vr, "build") != "ok":
                 continue
+            # 1 Nov 2026 (real04 run 20261101-093151-full: built again with no time left for its render, render
+            # incomplete, exit 1): a variant builds again only when its build and its render still fit; else its phase-5
+            # scene and renders stay together
+            deadline = getattr(self, "deadline", None)
+            need = 0.0 if deadline is None else (
+                (self.step_seconds(vr, "build") or S.EST_BUILD_S / self.gpu_speed())
+                + (0.0 if vr.no_views else (self.step_seconds(vr, "render", max)
+                                            or S.est_render(vr.views or 0) / self.gpu_speed())))
+            if deadline is not None and self.now() + need > float(deadline):
+                self.out(f"{vr.label or vr.name}: not built again after the big loop: its build and render "
+                         f"({need / 60:.0f} min) would pass the deadline; its phase-5 scene and renders stay")
+                continue
             path = vr.out / "scene" / "scene_manifest.json"
             before = (read_json(path) or {}).get("build_fingerprint")
             self.stage_build(vr)
@@ -2648,15 +2660,94 @@ class Orchestrator:
     BIG_LOOP_MEASURE_S = 600.0      # the judge scores every final view (about 30 views, two at a time)
     BIG_LOOP_CYCLE_LOOK_S = 600.0   # a cycle's Argus look and the judge on the changed views
 
+    # 1 Nov 2026 (real04 run 20261101-093151-full: the big loop's cycle took 41 min where its start test counted about
+    # 14, the round's full re-build, its own planner calls and the cycle's looks left out; the variant's build after the
+    # loop then left no time for its render and the 3D exports, exit 1): a cycle starts only when its measured need AND
+    # the work that must follow the loop (every variant's build, render and stages again, the 3D exports of the final
+    # scenes) fit before the deadline; the regular rounds leave that work its time too
+    EXPORT_DEFAULT_S = 240.0         # a 3D export without a measurement (real04: 209 s on the RTX PRO 6000; CPU-bound)
+    VARIANT_STAGES_S = 300.0         # a variant's stages after its render (expected, check, combine) without a measure
+
+    def step_seconds(self, pr, stage: str, pick=None) -> Optional[float]:
+        """Seconds of the successful steps of ``stage`` (``pick``: ``max`` for the full one, default the last): this
+        run's, else those of the record the run found on the volume; None without a measurement."""
+        steps = [st for st in pr.parts.get(stage, []) if st.get("rc") == 0 and st.get("seconds")]
+        if not steps:
+            try:
+                prev = self.previous(pr, stage)
+            except Exception:  # noqa: BLE001 - no record: no measurement
+                prev = None
+            steps = [st for st in (getattr(prev, "steps", None) or []) if isinstance(st, dict)
+                     and st.get("rc") == 0 and st.get("seconds")]
+        if not steps:
+            return None
+        values = [float(st["seconds"]) for st in steps]
+        return float(pick(values)) if pick is not None else values[-1]
+
+    def export_estimate(self, pr) -> float:
+        """Seconds of a 3D export of ``pr``'s scene: measured (this run, else the run before), else EXPORT_DEFAULT_S."""
+        measured = self.step_seconds(pr, "export", max)
+        return measured if measured is not None else self.EXPORT_DEFAULT_S
+
+    def after_loop_s(self, pr) -> float:
+        """Seconds of the work that follows the big loop for ``pr`` (``variants_again``, ``exports_at_end``): every
+        active variant builds, renders all its views and runs its stages again (a cycle changes the base's building),
+        and every scene is exported once."""
+        speed = self.gpu_speed()
+        total = self.export_estimate(pr)
+        for vr in [r for r in self.runs if r.base is pr and r.active]:
+            build = self.step_seconds(vr, "build")
+            render = self.step_seconds(vr, "render", max)
+            total += build if build is not None else S.EST_BUILD_S / speed
+            if not vr.no_views:
+                total += (render if render is not None else S.est_render(vr.views or 0) / speed) \
+                    + self.VARIANT_STAGES_S
+            total += self.export_estimate(vr)
+        return total
+
+    def big_loop_cycle_s(self, pr) -> float:
+        """Seconds one big-loop cycle needs: Argus's cycle look, the final round (the mean measured regular round:
+        planner calls, apply, refit, the full build; else the measured apply, refit and build), the re-render and the
+        stages of the changed views (``FINAL_ROUND_SHARE`` of the final stages) and the judge on the changed views."""
+        from wenart.agent.loop import FINAL_ROUND_SHARE
+        look = 0.0
+        if os.environ.get("WENART_ARGUS_AI", "1") != "0":
+            from wenart.audit import argus_ai as AX
+            look = float(AX.CYCLE_BUDGET_S)
+        rounds = [float(r["seconds"]) for r in (getattr(pr.agent_loop, "rounds", None) or [])
+                  if isinstance(r, dict) and r.get("seconds")]
+        if rounds:
+            round_s = sum(rounds) / len(rounds)
+        else:
+            round_s = sum(v for v in (self.step_seconds(pr, "agent_apply"), self.step_seconds(pr, "refit"),
+                                      self.step_seconds(pr, "build")) if v is not None) or S.EST_BUILD_S
+        try:
+            final = float(self.final_estimate(pr))
+        except Exception:  # noqa: BLE001 - no estimate: the round and the looks
+            final = 0.0
+        return look + round_s + FINAL_ROUND_SHARE * (final + self.BIG_LOOP_MEASURE_S)
+
+    def big_loop_cycle_fits(self, pr) -> tuple:
+        """``(fits, cycle seconds, after-loop seconds)``: ``now + cycle + after <= deadline``; no deadline: fits."""
+        cycle, after = self.big_loop_cycle_s(pr), self.after_loop_s(pr)
+        if self.deadline is None:
+            return True, cycle, after
+        return self.now() + cycle + after <= float(self.deadline), cycle, after
+
     def big_loop_reserve(self, pr) -> float:
-        """The seconds the agent's regular rounds leave for the big loop (``AgentLoop.reserve_s``)."""
+        """The seconds the agent's regular rounds leave for the big loop (``AgentLoop.reserve_s``) and, since 1 Nov 2026,
+        for the work after it (``after_loop_s``: the variants again and the 3D exports)."""
         from wenart.agent.loop import FINAL_ROUND_SHARE
         try:
             final = float(self.final_estimate(pr))
         except Exception:  # noqa: BLE001 - no estimate: the looks alone
             final = 0.0
+        try:
+            after = float(self.after_loop_s(pr))
+        except Exception:  # noqa: BLE001 - no estimate of the work after the loop
+            after = 0.0
         return self.BIG_LOOP_MEASURE_S + self.BIG_LOOP_RESERVE_CYCLES * (FINAL_ROUND_SHARE * final
-                                                                        + self.BIG_LOOP_CYCLE_LOOK_S)
+                                                                        + self.BIG_LOOP_CYCLE_LOOK_S) + after
 
     def final_critical_rounds(self, url: str) -> None:
         """§8 "final", since 26 Oct 2026 the big loop (user: "results are not getting better enough, need a big loop
@@ -2687,6 +2778,13 @@ class Orchestrator:
                 JD.write(pr.out, best["rows"], rec)
                 self.out(f"{pr.name} big loop: score {best['score']['score']} (judge mean {best['score']['rubric']})")
             for cycle in range(1, self.BIG_LOOP_CYCLES + 1):
+                fits, need, after = self.big_loop_cycle_fits(pr)
+                if not fits:
+                    # 1 Nov 2026 (real04 run 20261101-093151-full): no cycle that leaves the variants and the 3D
+                    # exports without their time
+                    rec["stop"] = (f"cycle {cycle}: time: the cycle ({need / 60:.0f} min) and the work after the loop "
+                                   f"({after / 60:.0f} min: the variants again, the 3D exports) would pass the deadline")
+                    break
                 # 26 Oct 2026 (user: "make Argus fix everything itself, give it more power"): Argus looks again at
                 # the house as it is now and decides its own edits for this cycle's round (the documents line ran
                 # after the first build; the agent loop runs Argus's tool calls first in the round)
@@ -2886,7 +2984,11 @@ class Orchestrator:
                 wanted.append(pr)
                 self.out(f"{pr.label or pr.name}: 3D export at the end of the run (once, of the final scene)")
             return
-        if not self.can_start(S.EST_EXPORT_S):
+        # 1 Nov 2026 (real04 run 20261101-093151-full: started with 91 s left on the 120 s estimate, took 209 s the run
+        # before, timed out): the measured export seconds decide (a CPU-bound step: not scaled by the GPU speed)
+        deadline = getattr(self, "deadline", None)
+        if not self.can_start(S.EST_EXPORT_S) or (deadline is not None
+                                                  and self.now() + self.export_estimate(pr) > float(deadline)):
             self.not_started(pr, "export")
             return
         rc = self.run_step(pr, "export", "export", S.export(self.tools, pr.ref, variant=pr.variant))

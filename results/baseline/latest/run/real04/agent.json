@@ -5,7 +5,7 @@
  "stage": "agent",
  "rc": 0,
  "status": "ok",
- "seconds": 5262.11,
+ "seconds": 6069.53,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
@@ -15,36 +15,36 @@
   "orchestrator/memory.json",
   "orchestrator/metrics.json"
  ],
- "started_utc": "2026-10-31T21:40:19Z",
- "git_commit": "e811fe30752c7a7f5ef156c6099e5246269bf863",
+ "started_utc": "2026-11-01T11:44:30Z",
+ "git_commit": "c840fc5f3d2f97d5fc15ef904f88145453dc5903",
  "log": "logs/agent.log",
- "note": "5 round(s), 118 finding(s) removed by 94 accepted edit(s) (measured; 257 predicted by the dry re-checks), 21 new, net 97, 346 rejected; stop: max rounds reached; final round for critical findings done",
- "run_id": "20261031-194116-full-20261031T194610Z",
+ "note": "4 round(s), 28 finding(s) removed by 76 accepted edit(s) (measured; 194 predicted by the dry re-checks), 19 new, net 9, 285 rejected; stop: max rounds reached; final round for critical findings done",
+ "run_id": "20261101-093151-full-20261101T093628Z",
  "steps": [
   {
    "name": "architect",
    "rc": 0,
-   "seconds": 36.59
+   "seconds": 45.72
   },
   {
    "name": "topdown",
    "rc": 0,
-   "seconds": 55.67
+   "seconds": 51.04
   },
   {
    "name": "architect_look",
    "rc": 0,
-   "seconds": 53.84
+   "seconds": 31.82
   },
   {
    "name": "argus",
    "rc": 0,
-   "seconds": 994.75
+   "seconds": 980.0
   },
   {
    "name": "rounds",
    "rc": 0,
-   "seconds": 4121.26
+   "seconds": 4960.95
   }
  ],
  "written": {}

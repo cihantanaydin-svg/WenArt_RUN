@@ -2984,3 +2984,31 @@ pendant lights): a score of 0-2 keeps them out of every run.
 | UL248, UL249 | the plain front bank, the outside areas | the terrain is never paved; banks planted or terraced; borders, beds, planters, path lights |
 
 Before the pod: photo-card scan pod ($0.11); full CPU suite (every failure fixed); local preflight (decor, refit, Blender build) ok.
+
+## real04 run 20261101-093151-full (1 Nov 2026, pod ywu7o1zvkcgq1p, RTX PRO 6000, 231 min, $9.60)
+
+The user's review of run 194116 (UL234-UL249) on the pod. Exit 1: the open-kitchen variant's render after the big loop
+and the 3D export got no time (the base's 36 renders, report and sheets are complete; no GPU tests ran).
+
+| item | run 194116 (before) | run 093151 (after) |
+|---|---|---|
+| judge mean (1-5) | 2.29 | 2.42 |
+| views at 1 / at 4-5 | 5 / 2 | 0 / 2 |
+| stage minutes | 184 | 207 |
+| Argus | 3.5, 23 critical | 3.4, 29 critical |
+| big loop | - | 1 cycle, 30.64 -> 30.23 (same), stopped |
+
+Seen in the renders: the roof as drawn (no dormers); the stone cladding all around L-1; no second bedding set over a
+bed model's own; detailed shower fittings; no plate stack; the slatted wardrobe with real joinery; a TV on the salon's
+TV unit. Not yet right: the play room's sofa cushions (library cushions, two off the sofa's end); three bedrooms with the
+same bed model and its own grey throw; the front entrance still plain, its camera behind a parked car.
+
+Found in the review and fixed (general):
+
+| problem | cause | fix |
+|---|---|---|
+| the metrics and Argus read the run before's building | `building_final.json` and `scene_manifest.json` grew past the copy's 8 MB text limit; the copy of the job's first minutes (from the volume's outputs of the run before) stayed in the results | the project's key records copy up to 19 MB (`copy.KEY_TEXT_FILES`, under the runner's 20 MB cap); a results copy whose source is left out moves to `earlier_run/`; this run's three stale files moved aside (metrics 1-5, 8, 10, 11: no data) |
+| the variant render and the 3D export cut by the deadline (exit 1) | the big loop's cycle start test counted about 14 min (no full re-build, no planner calls, no looks); the cycle took 41 min, the variant's build after it 10 min | a cycle starts only when its measured need (Argus look, the mean measured round, the changed views, the judge) and the work after the loop (every variant's build, render and stages again, every 3D export) fit (`big_loop_cycle_fits`); the regular rounds leave that work its time; a variant builds again only when its render fits too; an export starts only when its measured seconds fit |
+| sofa cushions too big, two off the sofa | the decor stage's seat sets (`dress_seats`, UL238) took library cushions again at every refit | a cushion with a `cushion_set` keeps no library model (`fit.fit_decor_item`): our filled cushion, sized and arranged for its seat |
+
+Note: the build seconds in the job log are cumulative (one build about 600 s, as before).

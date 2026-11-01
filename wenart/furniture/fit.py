@@ -3564,6 +3564,13 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     only models usable in licence ``mode``; the asset carries the licence fields (``_finish``)."""
     mode = C.check_mode(mode)
     dtype = item.get("type", "")
+    if dtype == "cushion" and isinstance(item.get("cushion_set"), dict):
+        # 1 Nov 2026 (real04 run 20261101-093151-full, the play room's sofas: the decor stage's seat sets, sized and
+        # arranged for each sofa (``seat_cushions.dress_seats``, UL238), took library cushions again at every refit, so
+        # the build stood 42 cm library cushions where the set's smaller ones were planned and two fell off the sofa's
+        # end): a seat's own set is our filled cushion with its finish (``detail_parts.variant_parts``), never a library
+        # model over it
+        return None
     if dtype in LIBRARY_FIRST and not (item.get("tv") or {}).get("mount") == "wall":
         return library_first_item(item, catalog, style_family, mode)          # UL215: the library first
     if dtype in TEXTILE_LIBRARY_FIRST:
