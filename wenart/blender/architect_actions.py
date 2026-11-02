@@ -1639,9 +1639,9 @@ def approach_strips(plan: Plan, o: dict, room: Optional[dict]) -> list:
 
 def still_blocks(plan: Plan, moved: dict, door_ids: list) -> Optional[str]:
     """Why the piece ``moved`` (a copy at its new place) still blocks one of ``door_ids`` by the code critic's measure
-    (``plausibility.door_measures``: on the approach strip over its area threshold, F7, or in the leaf's swing on both
+    (``doorway.door_measures``: on the approach strip over its area threshold, F7, or in the leaf's swing on both
     hinge sides, R3), None when it blocks none (2 Nov 2026, rule B: the architect's move and the critic agree)."""
-    from wenart.furniture import plausibility as PL
+    from wenart.furniture import doorway as PL
 
     room = plan.room.get(moved.get("room_id"))
     if room is None or not door_ids:

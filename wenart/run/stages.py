@@ -151,7 +151,7 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wena
             "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/textfold.py", "wenart/units.py",
             "wenart/geometry.py", "wenart/schema/**",
             # Milestone 10 (track F): the looks of the design fallback and the refit's locked check.
-            "wenart/blender/looks.py", "wenart/furniture/locked.py", "wenart/furniture/placer.py",
+            "wenart/blender/looks.py", "wenart/furniture/locked.py", "wenart/furniture/placer.py", "wenart/furniture/doorway.py",
             "wenart/furniture/schemas.py", "wenart/synthetic/**",
             # Milestone 12 (track S, D23): fit and refit read the real sizes from one table.
             "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml",
@@ -170,7 +170,7 @@ PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", 
                  "wenart/furniture/schemas.py", "wenart/brief.py", "wenart/defaults.yaml", CHECK_YAML,
                  # Milestone 11 (track B): the pipeline infers untyped pieces (infer.py) with the placer and the
                  # plausibility rules.
-                 "wenart/furniture/infer.py", "wenart/furniture/placer.py", "wenart/furniture/plausibility.py") \
+                 "wenart/furniture/infer.py", "wenart/furniture/placer.py", "wenart/furniture/doorway.py", "wenart/furniture/plausibility.py") \
     + LEVELS_CODE + GROUPS_CODE
 # Milestone 10 (docs/milestone10.md §3.1): the sheet analysis reads the documents and the brief (failed_levels).
 SHEETS_CODE = PIPELINE_CODE
@@ -185,6 +185,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              # 29 Oct 2026 (UL116-UL127): the doors' states and the see-through wardrobes (camsearch, looks, openings);
              # the dressing words of groups.yaml are read as data
              "wenart/blender/door_states.py", "wenart/blender/wardrobe_fronts.py", "wenart/furniture/groups.yaml",
+             "wenart/furniture/placer.py", "wenart/furniture/doorway.py",   # 2 Nov 2026: the one doorway measure (F2)
              "wenart/hfcache.py", "wenart/brief.py", "wenart/geometry.py", "wenart/style/**",
              "wenart/blender/cameras.py", "wenart/blender/camsearch.py", "wenart/blender/common.py",
              "wenart/blender/geom2d.py", "wenart/blender/lighting.py", "wenart/blender/materials.py",
@@ -266,7 +267,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
 # parametric.piece_bbox, its question the layout's style text).
-DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/mugs.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/decor_ai.py", "wenart/furniture/placer.py",
+DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/mugs.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/decor_ai.py", "wenart/furniture/placer.py", "wenart/furniture/doorway.py",
               "wenart/furniture/schemas.py", "wenart/furniture/layout.py", "wenart/furniture/prompts.py",
               "wenart/furniture/complete.py", "wenart/furniture/locked.py", "wenart/brief.py",
               "wenart/synthetic/**", "wenart/building.py", "wenart/textfold.py", "wenart/units.py", "wenart/geometry.py",
@@ -322,7 +323,7 @@ STAGE_LIST = (
     Stage(7, "assets", "cpu", "always", "warning", ("wenart/assets/**",)),
     Stage(8, "fit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_fitted.json",)),
     Stage(9, "layout", "vlm", "fingerprint", "failed",
-          ("wenart/furniture/layout.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/placer.py", "wenart/furniture/prompts.py",
+          ("wenart/furniture/layout.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/placer.py", "wenart/furniture/doorway.py", "wenart/furniture/prompts.py",
            "wenart/furniture/schemas.py", "wenart/furniture/complete.py", "wenart/furniture/locked.py",
            "wenart/recognition/**", "wenart/style/**", "wenart/building.py", "wenart/textfold.py", "wenart/brief.py", "wenart/defaults.yaml",
            "wenart/units.py", "wenart/geometry.py", "wenart/synthetic/blocks.py", "wenart/schema/**",

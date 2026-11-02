@@ -240,7 +240,8 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry
                     # 30 Oct 2026 (UL209, UL214): columns joined through a slab, slender round steel posts
                     "wenart/levels/columns.py",
                     # 27 Oct 2026: the stairs' walk check (stair_access.walk_graph) reads the fixed equipment types
-                    "wenart/furniture/schemas.py", "wenart/synthetic/__init__.py", "wenart/synthetic/blocks.py",
+                    "wenart/furniture/schemas.py", "wenart/furniture/placer.py", "wenart/furniture/doorway.py",   # 2 Nov 2026: F2's doorway measure
+                    "wenart/synthetic/__init__.py", "wenart/synthetic/blocks.py",
                     # 28 Oct 2026: catalog.usable reads the model rules (model_title -> the audit's title words, whose
                     # package init imports the asset fetchers: standard library only, fine inside Blender)
                     "wenart/furniture/model_title.py", "wenart/assets/__init__.py", "wenart/assets/ambientcg.py",

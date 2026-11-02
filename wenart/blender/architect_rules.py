@@ -15,7 +15,7 @@ make safely makes it (none here: these are drawing questions); the others ask, w
 
 2 Nov 2026 (rule B; real04 run 20261101-093151: F2 let a 0.05 m move pass at 25 % of its 0.8 m box while the code
 critic's F7 still found the piece on the door's approach strip, and the audit's Y2 raised a critical): F2 measures a
-doorway as the critic's F7 and R3 do (``plausibility.door_measures``: the placer's approach strip with the critic's
+doorway as the critic's F7 and R3 do (``doorway.door_measures``: the placer's approach strip with the critic's
 area threshold, and the leaf's swing on both hinge sides), so the two always agree; its ``move_piece`` moves the piece
 clear of that strip and is refused when the critic would still find it there (``architect_actions.still_blocks``). F2's
 own box stays only for a doorway the critic does not see from a room.
@@ -912,7 +912,7 @@ def _near_door(centre, half_t: float, width: float, rects: list) -> bool:
 
 
 def doorway_text(door_id: str, rid: Optional[str], m: dict) -> str:
-    """F2's finding from the code critic's measure of a doorway (``plausibility.door_measures``; 2 Nov 2026, rule B):
+    """F2's finding from the code critic's measure of a doorway (``doorway.door_measures``; 2 Nov 2026, rule B):
     the pieces on its approach strip with their areas (F7) and a leaf that hits a piece on both hinge sides (R3)."""
     parts = []
     if m.get("approach"):
@@ -1031,10 +1031,10 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
 
     def critic_doors(rid) -> dict:
         """2 Nov 2026 (rule B): ``{door id: measure}`` of room ``rid`` as the code critic's F7 / R3 measure its doors
-        (``plausibility.door_measures``: the placer's approach strip, the leaf's swing, ``AREA_MIN_M2``); {} when the
+        (``doorway.door_measures``: the placer's approach strip, the leaf's swing, ``AREA_MIN_M2``); {} when the
         room cannot be measured (F2's own box measures it then)."""
         if rid not in door_cache:
-            from wenart.furniture import plausibility as PL
+            from wenart.furniture import doorway as PL
             room = plan.room.get(rid)
             try:
                 door_cache[rid] = {m["door"]: m for m in PL.door_measures(plan.b, room)} if room else {}

@@ -105,6 +105,7 @@ from wenart import geometry as G
 from wenart.furniture import fixture_use as FU
 from wenart.furniture import group_checks as GC
 from wenart.furniture import groups as GR
+from wenart.furniture import doorway as DW
 from wenart.furniture import placer, schemas
 
 SEVERITIES = ("critical", "major", "minor")
@@ -144,7 +145,7 @@ F6_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "crib")
 GROUP_CHECKS: tuple[str, ...] = tuple(f"G{i}" for i in range(1, 14))
 CHECKS.update({g: {"severity": "major", "what": GC.WHAT[g], "measured": True} for g in GROUP_CHECKS})
 
-AREA_MIN_M2 = 0.01               # intersections below this are touching (drawn pieces meet at their edges)
+AREA_MIN_M2 = DW.AREA_MIN_M2     # intersections below this are touching (drawn pieces meet at their edges)
 OVERLAP_MIN_M2 = 0.05            # F9: two pieces overlap
 OUTSIDE_MIN_M2 = 0.05            # F9: a piece reaches through the room outline
 BACK_SHARE = 0.6                 # F3: share of the back edge that must lie on the wall
@@ -565,45 +566,10 @@ def _door_pieces(r: _Room) -> tuple[list[str], list, list, set]:
     return ids, pieces, polys, hosted
 
 
-def _door_measure(door: placer.DoorZone, ids: list[str], pieces: list, polys: list, hosted: set) -> dict:
-    """One doorway as F7 and R3 measure it (2 Nov 2026, rule B: the architect's F2 and its ``move_piece`` use this very
-    measure, so the two never disagree; real04 run 20261101-093151: F2's 25 % of a 0.8 m box let a 0.05 m move pass
-    while F7 still found the piece on the strip, and the audit's Y2 raised a critical).
-
-    ``approach``: ``{piece id: area m2}`` of the pieces on the door's ``placer.DOOR_APPROACH_M`` approach strip over
-    ``AREA_MIN_M2`` (F7, critical); ``swing``: the pieces in the leaf's half disc (R3); ``per_hinge``: the pieces in each
-    hinge's quarter disc (only when the swing is hit); ``free_hinge``: a hinge side the leaf can use, None when none is
-    free (R3 critical); ``blockers``: the pieces F7 or a critical R3 name, the largest approach area first; ``blocked``:
-    any. A stair (entered through its opening) and a hosted module are never judged."""
-    judged = [(pid, poly) for pid, p, poly in zip(ids, pieces, polys) if p.type != "stair" and pid not in hosted]
-    approach = {}
-    for pid, poly in judged:
-        area = poly.intersection(door.zone).area
-        if area > AREA_MIN_M2:
-            approach[pid] = area
-    swing, per_hinge = [], []
-    if door.swing is not None and not door.swing.is_empty:
-        swing = [pid for pid, poly in judged if poly.intersection(door.swing).area > AREA_MIN_M2]
-        if swing:
-            # M11 (pod G1, synthetic-01): no drawing gives the hinge side, and the half disc covers both
-            per_hinge = [[pid for pid, poly in judged if poly.intersection(q).area > AREA_MIN_M2]
-                         for q in door.hinge_swings()]
-    free = [i for i, h in enumerate(per_hinge) if not h]
-    free_hinge = free[0] if per_hinge and free else None
-    swing_blocked = bool(swing) and free_hinge is None
-    blockers = sorted(approach, key=lambda k: (-approach[k], str(k)))
-    blockers += [pid for pid in swing if swing_blocked and pid not in approach]
-    return {"door": door.id, "approach": approach, "approach_m": placer.DOOR_APPROACH_M, "area_min_m2": AREA_MIN_M2,
-            "swing": swing, "per_hinge": per_hinge, "free_hinge": free_hinge, "swing_blocked": swing_blocked,
-            "blockers": blockers, "blocked": bool(blockers)}
-
-
-def door_measures(building: dict, room: dict) -> list[dict]:
-    """``_door_measure`` of every door and doorless opening of ``room`` (``placer.room_context``'s doors, the ones F7 and
-    R3 judge), in their order (2 Nov 2026, rule B: the architect's F2 reads the critic's measure here)."""
-    r = _Room(building, room, walkways=False)          # the door zones only: the walkways are G11's
-    ids, pieces, polys, hosted = _door_pieces(r)
-    return [_door_measure(door, ids, pieces, polys, hosted) for door in r.ctx.doors]
+# 2 Nov 2026 (rule B): the one doorway measure lives in ``doorway`` (the architect's F2 and ``move_piece`` read it in
+# the Blender build, which must not import this module's lazy readers); the critic's F7 / R3 below use it too.
+_door_measure = DW.door_measure
+door_measures = DW.door_measures
 
 
 def _f6_f7_r3(r: _Room) -> list[dict]:
