@@ -1948,6 +1948,11 @@ def exterior_world_nodes(scene, lighting: dict, sun_disc: bool = True, sun_eleva
 # --------------------------------------------------------------------------
 
 SHELL_SLOT_NAMES = ("ceiling", "worktop", "front", "ceramic", "metal", "tile", "plaster")
+# 2 Nov 2026 (house-score item 2): the grain layer (``apply_shell_layers``): a noise bump of ``scale_m`` features and
+# ``strength`` (Blender's Bump node, 0-1) over ``distance_m``; designer values, subtle at a room's viewing distance
+GRAIN = {"plaster": {"scale_m": 0.012, "strength": 0.12, "distance_m": 0.0008, "detail": 8.0},
+         "ceiling": {"scale_m": 0.015, "strength": 0.08, "distance_m": 0.0006, "detail": 6.0},
+         "paint": {"scale_m": 0.006, "strength": 0.05, "distance_m": 0.0003, "detail": 4.0}}
 # The layers (Blender 5.2 Principled BSDF inputs and shader nodes, names in the module docstring). Every value is a
 # designer value (assumed) within the manual's ranges: coat weight 0-1 ("typically zero or one for physically-based
 # materials, but may be textured"), coat IOR 1-2, sheen weight 0-1; bevel radius in metres (2-5 mm on plaster and
@@ -1956,9 +1961,9 @@ SHELL_SLOT_NAMES = ("ceiling", "worktop", "front", "ceramic", "metal", "tile", "
 SHELL_SLOTS: dict[str, dict] = {
     "ceiling": {"slugs": ("plaster_white",), "asset": "white_plaster_02", "mode": "flat",
                 "layers": {"ao": {"distance_m": 0.30, "mix": 0.10}, "bevel": {"radius_m": 0.004},
-                           "imperfection": {"amount": 0.10, "scale_m": 0.80}},
+                           "imperfection": {"amount": 0.10, "scale_m": 0.80}, "grain": GRAIN["ceiling"]},
                 "reason": "ceiling plaster on the Poly Haven white_plaster_02 set (flat albedo mode: the colour stays "
-                          "the ceiling's, the photo adds its detail), corner AO and a 4 mm edge bevel"},
+                          "the ceiling's, the photo adds its detail), corner AO, a 4 mm edge bevel and a fine grain"},
     # Fix round after P3 (16-17 Oct 2026): the worktop was Poly Haven marble_01 ("smooth, even cream-beige tiles",
     # tag "tiles"): P3's kitchen worktops showed a square joint every 0.75 m and read as tiles. ambientCG Marble012
     # (CC0; tags kitchen, polished, veined; a procedural, seamless set, vocabulary slug marble_slab, checked in
@@ -1975,9 +1980,9 @@ SHELL_SLOTS: dict[str, dict] = {
     # caller passes it, as furniture.py does for painted cabinet fronts); a set the style names itself still applies.
     "front": {"slugs": ("painted_wood_white",), "asset": None, "mode": "flat", "paint": True,
               "layers": {"coat": {"weight": 0.3, "roughness": 0.25, "ior": 1.45}, "bevel": {"radius_m": 0.0015},
-                         "imperfection": {"amount": 0.12, "scale_m": 0.25}},
+                         "imperfection": {"amount": 0.12, "scale_m": 0.25}, "grain": GRAIN["paint"]},
               "reason": "painted fronts and trim: a seamless paint finish in the style's colour (no plank photo), a "
-                        "satin lacquer coat, a 1.5 mm edge bevel and roughness variation"},
+                        "satin lacquer coat, a 1.5 mm edge bevel, roughness variation and a fine brush grain"},
     "ceramic": {"slugs": ("ceramic_white",), "asset": None, "mode": "flat", "roughness": 0.12,
                 "layers": {"coat": {"weight": 1.0, "roughness": 0.03, "ior": 1.5}, "bevel": {"radius_m": 0.003},
                            "imperfection": {"amount": 0.06, "scale_m": 0.20}},
@@ -1994,9 +1999,9 @@ SHELL_SLOTS: dict[str, dict] = {
                        "(displacement_method BOTH), a glaze coat, corner AO"},
     "plaster": {"slugs": (), "kind": "plaster", "asset": None, "mode": None,
                 "layers": {"ao": {"distance_m": 0.25, "mix": 0.08}, "bevel": {"radius_m": 0.004},
-                           "imperfection": {"amount": 0.10, "scale_m": 1.00}},
-                "reason": "wall plaster and paint keep their own set; corner AO, a 4 mm edge bevel and roughness "
-                          "variation"},
+                           "imperfection": {"amount": 0.10, "scale_m": 1.00}, "grain": GRAIN["plaster"]},
+                "reason": "wall plaster and paint keep their own set; corner AO, a 4 mm edge bevel, roughness "
+                          "variation and a fine plaster grain"},
 }
 # Layers by material kind for every other slug (vocabulary ``kind``): fabrics get the Principled sheen ("Sheen
 # simulates very small fibers on the surface. For cloth this adds a soft velvet like reflection near edges"), woods a
@@ -2012,7 +2017,7 @@ MATERIAL_KIND_LAYERS: dict[str, dict] = {
 FURNITURE_KIND_LAYERS: dict[str, dict] = {
     "wood": {"imperfection": {"amount": 0.10, "scale_m": 0.40}},
     "painted": {"coat": {"weight": 0.30, "roughness": 0.15, "ior": 1.5}, "bevel": {"radius_m": 0.001},
-                "imperfection": {"amount": 0.08, "scale_m": 0.30}},
+                "imperfection": {"amount": 0.08, "scale_m": 0.30}, "grain": GRAIN["paint"]},
     "metal": {"bevel": {"radius_m": 0.001}, "imperfection": {"amount": 0.20, "scale_m": 0.10}},
     "hard": {"bevel": {"radius_m": 0.001}, "imperfection": {"amount": 0.12, "scale_m": 0.25}},
 }
@@ -2177,6 +2182,26 @@ def apply_shell_layers(mat, spec: dict, textured: bool = False, procedural: str 
         ok = _set_input(bsdf, "Sheen Weight", float(sheen["weight"]))
         ok = _set_input(bsdf, "Sheen Roughness", float(sheen["roughness"])) and ok
         applied["sheen"] = dict(sheen, applied=ok)
+    grain = layers.get("grain")
+    if grain:
+        # 2 Nov 2026 (house-score item 2; the judge: "a flat, beige 'grey box'"): a fine procedural bump on object
+        # coordinates in metres (a long wall does not stretch it), so paint, plaster and painted wood never read as a
+        # flat colour, even without a texture set
+        coords = nodes.new("ShaderNodeTexCoord")
+        noise = nodes.new("ShaderNodeTexNoise")
+        noise.name = "wenart_grain"
+        noise.inputs["Scale"].default_value = 1.0 / max(1e-4, float(grain["scale_m"]))
+        noise.inputs["Detail"].default_value = float(grain.get("detail", 6.0))
+        bump = nodes.new("ShaderNodeBump")
+        bump.inputs["Strength"].default_value = float(grain["strength"])
+        bump.inputs["Distance"].default_value = float(grain.get("distance_m", 0.0005))
+        links.new(coords.outputs["Object"], noise.inputs["Vector"])
+        links.new(noise.outputs["Fac"], bump.inputs["Height"])
+        normal_in = bsdf.inputs["Normal"]
+        if normal_in.links:
+            links.new(normal_in.links[0].from_socket, bump.inputs["Normal"])
+        links.new(bump.outputs["Normal"], normal_in)
+        applied["grain"] = dict(grain)
     bevel = layers.get("bevel")
     if bevel:
         node = nodes.new("ShaderNodeBevel")

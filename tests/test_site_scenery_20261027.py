@@ -320,3 +320,16 @@ def test_the_ground_beyond_the_lawn_gets_field_patches_in_the_climates_tint():
     other = _Mat()
     other.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
     assert VG.lawn_material(other, fields_centre=(0, 0), climate="arctic")["fields"]["climate"] == "temperate"
+
+
+def test_a_plant_file_of_several_trees_keeps_one_tree():
+    """2 Nov 2026 (house-score item 5): fir_sapling_medium measured 14.8 x 5.3 x 8.9 m (saplings in a row) and every
+    context fir was squeezed into a spike; the meshes are grouped into trees and the tallest is kept."""
+    from wenart.blender import vegetation as V
+
+    def box(x0, y0, x1, y1, z1):
+        return [(x, y, z) for x in (x0, x1) for y in (y0, y1) for z in (0.0, z1)]
+    groups = V.tree_groups([("trunk", box(-0.2, -0.2, 0.2, 0.2, 3.0)), ("leaves", box(-2, -2, 2, 2, 6.0)),
+                            ("t2", box(5, -1, 7, 1, 4.0)), ("t3", box(10, -1, 12, 1, 8.9))])
+    assert sorted(map(sorted, groups)) == [["leaves", "trunk"], ["t2"], ["t3"]]
+    assert V.tree_groups([("a", box(0, 0, 1, 1, 2.0))]) == [["a"]]

@@ -88,7 +88,7 @@ def test_milestone_10_slugs_reach_the_blender_tables():
         assert slug in materials.FLAT_COLOURS and slug in materials.ROUGHNESS, slug
         assert materials.flat_colour(slug) == pytest.approx((V.MATERIALS.get(slug) or V.FURNITURE_MATERIALS[slug])["flat"]), slug
     assert materials.metallic("dark_bronze") == 0.8 and materials.metallic("metal_brass") == 1.0 and materials.metallic("paint") == 0.0
-    assert materials.albedo_mode("paint") == ("flat", 0.2) and materials.albedo_mode("wood_oak_natural") == ("texture", None)
+    assert materials.albedo_mode("paint") == ("flat", 0.35) and materials.albedo_mode("wood_oak_natural") == ("texture", None)
     assert materials.albedo_mode("tiles_subway") == ("flat", 0.0)            # a procedural look: the flat colour, no photo detail
     texture, why = materials.MaterialLibrary({}, None).texture_set(V.MATERIALS["tiles_subway"]["asset"])
     assert texture is None and "no asset" in why

@@ -436,7 +436,9 @@ def test_shell_slot_table_resolves_to_existing_cc0_assets():
     for slot in M.SHELL_SLOT_NAMES:
         s = M.shell_slot_spec(slot, {})
         for name, layer in s["layers"].items():
-            assert name in ("coat", "sheen", "bevel", "ao", "imperfection", "displacement"), (slot, name)
+            assert name in ("coat", "sheen", "bevel", "ao", "imperfection", "displacement", "grain"), (slot, name)
+            if name == "grain":                     # 2 Nov 2026 (house-score item 2): a subtle procedural bump
+                assert 0 < layer["strength"] <= 0.3 and 0 < layer["scale_m"] <= 0.05
             if name == "coat":
                 assert 0 < layer["weight"] <= 1.0 and 1.0 <= layer["ior"] <= 2.0 and 0 <= layer["roughness"] <= 1
             if name == "bevel":

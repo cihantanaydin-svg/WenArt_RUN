@@ -2033,7 +2033,7 @@ def test_p5_stair_structure_of_white_plaster_walls_gets_no_texture_set_back(monk
     rec = lib.records[structure.name]
     assert (rec["textured"], rec["asset"], rec["maps"], structure.tset) == (False, None, [], None)
     assert structure.name not in (wall.name, ceiling.name)
-    assert rec["shell_slot"] == "plaster" and rec["shell_layers"] == ["ao", "bevel", "imperfection"]
+    assert rec["shell_slot"] == "plaster" and rec["shell_layers"] == ["ao", "bevel", "grain", "imperfection"]
     colour = M._tinted(M.flat_colour(structure.slug), structure.tint)
     assert colour == pytest.approx(M.flat_colour("plaster_white"), abs=1e-4)    # the walls' colour, no photo
     # a colour phrase that colours the walls is the paint's colour

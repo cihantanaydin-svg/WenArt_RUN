@@ -133,7 +133,8 @@ _FLOOR_TONES = {"light": ("oak", 0.65), "mid": ("coffee", 0.65), "dark": ("walnu
 
 MATERIALS: dict[str, dict] = {
     # ---- wall finishes (paint in any colour: the profile's walls.colour) ------------------------------------------
-    "paint": _tex(PH, "plastered_wall", "plaster", _lin("off white"), 0.9, [2.0, 2.0], mode="flat", detail=0.2,
+    # 2 Nov 2026 (house-score item 2: painted walls read as flat colour): the photo's detail 0.2 -> 0.35
+    "paint": _tex(PH, "plastered_wall", "plaster", _lin("off white"), 0.9, [2.0, 2.0], mode="flat", detail=0.35,
                   flat_source="colour:off white"),
     "lime_plaster": _tex(PH, "grey_plaster_03", "plaster", _lin("off white"), 0.95, [1.0, 1.0], mode="flat", detail=0.55,
                          flat_source="colour:off white"),

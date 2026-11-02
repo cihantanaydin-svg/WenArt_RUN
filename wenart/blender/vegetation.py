@@ -83,7 +83,9 @@ SAPLING_LEAF_M = 0.22
 SAPLING_LEAF_SCALE_V = 0.25          # random size variation of the leaf quads (the add-on's leafScaleV, 0..1)
 SAPLING_LEAVES_DEFAULT = 25          # the add-on's own default of 'leaves' per branch (a preset without one)
 GRASS_CARD_M = (0.30, 0.28)
-HERO_MAX_PER_SPECIES = 12            # collection instances share one mesh; this caps the render memory per species
+# collection instances share one mesh. 2 Nov 2026 (item 5; real10: 155 shrubs near the cameras became leaf-card balls
+# after the 12th instance, "lollipops" in the views): the cap only stops a runaway count (the context rings have none)
+HERO_MAX_PER_SPECIES = 400
 ASSET_CANDIDATES = ("/workspace/assets", "assets")
 SAPLING_DIR_ENV = "WENART_SAPLING_DIR"
 SAPLING_MODULES = ("bl_ext.user_default.sapling_tree_gen", "bl_ext.blender_org.sapling_tree_gen",
@@ -1236,13 +1238,26 @@ def _import_hero(hero: dict) -> Optional[dict]:
     if col.name not in library_collection().children:
         library_collection().children.link(col)
     from mathutils import Vector
-    pts = []
     for o in new:
         _unlink_everywhere(o)
         col.objects.link(o)
-        if o.type == "MESH":
-            for v in o.bound_box:
-                pts.append(o.matrix_world @ Vector(v))
+    # 2 Nov 2026 (item 5: fir_sapling_medium measured 14.8 x 5.3 x 8.9 m: a file of several saplings in a row, every
+    # context fir squeezed into a spike): the meshes are grouped into trees (their boxes' centres within half a box of
+    # each other: a trunk and its leaves are one tree), the tallest tree is kept, the others leave the instance
+    meshes = [o for o in new if o.type == "MESH"]
+    boxes = {o.name: [o.matrix_world @ Vector(v) for v in o.bound_box] for o in meshes}
+    keep = set(o.name for o in meshes)
+    groups = tree_groups([(o.name, [(p.x, p.y, p.z) for p in boxes[o.name]]) for o in meshes])
+    if len(groups) > 1:
+        def tall(group):
+            zs = [q.z for n in group for q in boxes[n]]
+            return max(zs) - min(zs)
+        keep = set(max(groups, key=tall))
+        for o in meshes:
+            if o.name not in keep:
+                col.objects.unlink(o)
+        print(f"{hero['id']}: {len(groups)} trees in the file, the tallest kept ({len(keep)} mesh object(s))")
+    pts = [p for o in meshes if o.name in keep for p in boxes[o.name]]
     zs = [p.z for p in pts]
     height = (max(zs) - min(zs)) if zs else hero["height_m"]
     base_z = min(zs) if zs else hero.get("base_z", 0.0)
@@ -1405,6 +1420,35 @@ def _tree_hero(name: str, species: str, height_m: float, seed: int, collection, 
     return ob, {"method": "polyhaven", "asset": hero["id"], "licence": hero["licence"], "licence_url": hero["licence_url"],
                 "model_height_m": lib["height_m"], "scale": round(s, 4), "polycount": hero.get("polycount"),
                 "material": None, "name": hero.get("name")}
+
+
+def tree_groups(boxes: list) -> list[list[str]]:
+    """The meshes of an imported plant file grouped into trees (pure; 2 Nov 2026): ``boxes`` = ``[(name, corner
+    points (x, y, z))]``; two meshes are one tree when their box centres lie within half the larger box's horizontal
+    size of each other (a trunk and its leaves, a crown split in parts), joined transitively."""
+    info = []
+    for name, pts in boxes:
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        if not xs:
+            continue
+        info.append((name, ((min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0),
+                     max(max(xs) - min(xs), max(ys) - min(ys), 0.05)))
+    parent = {n: n for n, _c, _w in info}
+
+    def root(n):
+        while parent[n] != n:
+            parent[n] = parent[parent[n]]
+            n = parent[n]
+        return n
+
+    for i, (a, ca, wa) in enumerate(info):
+        for b, cb, wb in info[i + 1:]:
+            if math.hypot(ca[0] - cb[0], ca[1] - cb[1]) <= 0.5 * max(wa, wb):
+                parent[root(a)] = root(b)
+    out: dict = {}
+    for n, _c, _w in info:
+        out.setdefault(root(n), []).append(n)
+    return sorted(out.values(), key=lambda g: g[0])
 
 
 def scan_library(hero: dict) -> Optional[dict]:
