@@ -188,7 +188,9 @@ def test_status_vocabulary():
     assert set(ST.SKIP_REASONS) == {"private only", "no style photos", "polish off", "no empty or completable room",
                                     "smoke profile", "gate not validated", "not in this phase", "no questions",
                                     "no decor questions",                      # Milestone 9: decor_ask
-                                    "no view in this variant"}                 # Milestone 10: an alternative
+                                    "no view in this variant",                 # Milestone 10: an alternative
+                                    "structure profile",                       # 2 Nov 2026: the structure run
+                                    "structure profile: no exterior view in the scene"}
     assert ST.worst(["ok", "incomplete", "warning"]) == "incomplete"
     assert ST.worst(["ok", "failed", "incomplete"]) == "failed" and ST.worst([]) is None
 

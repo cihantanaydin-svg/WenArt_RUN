@@ -209,3 +209,42 @@ def test_a_stage_run_more_than_once_names_its_last_runs_own_time():
     assert lines[-1] == "p build ok 2015.1s in all (run 2: 934.9s)"
     o.say(SimpleNamespace(name="p", ref=pr.ref, parts={"fit": [{"seconds": 17.1}]}), "fit", "ok", 17.1, None)
     assert lines[-1] == "p fit ok 17.1s"
+
+
+# ------------------------------------------------------------------ the structure profile (a short pod run)
+def test_the_structure_profile_renders_the_exterior_views_only(tmp_path):
+    """2 Nov 2026 (user: "only run the top down views and outside views ... a very short pod run"): no agent, no
+    test, the exterior cameras only, no export, no control set, no check."""
+    from types import SimpleNamespace
+    from wenart.run import __main__ as RM
+    from wenart.run import scheduler as SC
+    from wenart.run import state as ST
+    man = {"cameras": [{"name": "cam_r_a_1", "kind": "interior"}, {"name": "ext_1", "kind": "exterior"},
+                       {"name": "ext_2", "kind": "exterior"}]}
+    assert SC.exterior_cameras(man) == ["ext_1", "ext_2"] and SC.exterior_cameras(None) == []
+    assert SC.RunOptions(profile="structure").structure and not SC.RunOptions().structure
+    assert "structure profile" in ST.SKIP_REASONS
+    o = SC.Orchestrator.__new__(SC.Orchestrator)
+    o.opts = SC.RunOptions(profile="structure")
+    lines = []
+    o.out = lines.append
+    o.vlm_phase(8, "qwen")
+    assert lines == ["phase 8: structure profile: no check"]
+    calls = []
+    pr = SimpleNamespace(active=True, base=None, out=tmp_path, name="p")
+    (tmp_path / "scene").mkdir()
+    (tmp_path / "scene" / "scene_manifest.json").write_text(json.dumps(man))
+    o.runs = [pr]
+    o.add_variant_runs = lambda: None
+    o.stage_build = lambda p: calls.append("build")
+    o.status_of = lambda p, s: "ok"
+    o.scene_views = lambda p: 3
+    o.stage_render = lambda p, cameras=None: calls.append(("render", cameras))
+    o.stage_export = lambda p: calls.append("export")
+    o.stage_controls = lambda p: calls.append("controls")
+    o.skip = lambda p, stage, reason: calls.append(("skip", stage, reason))
+    o.controls_run = lambda: None
+    o.phase5()
+    assert calls == ["build", ("render", ["ext_1", "ext_2"]), ("skip", "export", "structure profile"),
+                     ("skip", "controls", "structure profile")]
+    assert "structure" in open(RM.__file__).read()

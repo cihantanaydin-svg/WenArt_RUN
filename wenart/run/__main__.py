@@ -114,7 +114,9 @@ def parse_args(argv) -> argparse.Namespace:
                           "the one A/B project with ab/control_views.json)")
     pod.add_argument("--ab-phase", default="all", choices=["all", "render", "judge"])
     pod.add_argument("--results", required=True, help="$RESULTS (the runner collects it)")
-    pod.add_argument("--profile", default="full", choices=["full", "smoke"])
+    pod.add_argument("--profile", default="full", choices=["full", "smoke", "structure"],
+                     help="full | smoke | structure (2 Nov 2026: the building's structure only: the reading, the build "
+                          "with its top-down plans and the exterior views; no agent, no interior view, no check)")
     pod.add_argument("--force", default="", help="stages whose fingerprint is ignored, comma separated")
     pod.add_argument("--vlm-url", default=None, help="an external VLM server (smoke profile: the fake)")
     pod.add_argument("--outputs", default=None, help="public outputs root (default $WENART_OUTPUTS or outputs/)")
@@ -201,9 +203,10 @@ def cmd_pod(args) -> int:
         py=sys.executable,
         polish_py=os.environ.get("WENART_POLISH_PY") or "/opt/wenart/venv-polish/bin/python",
         logs_dir=_env_path("WENART_LOGS", "/workspace/logs"), job_id=os.environ.get("JOB_ID") or "run",
-        tests=not args.no_tests,
-        # Milestone 11: orchestrated by default; the smoke profile's fake server cannot plan (M10 chain).
-        orchestrator=not args.no_orchestrator and args.profile != "smoke",
+        tests=not args.no_tests and args.profile != "structure",
+        # Milestone 11: orchestrated by default; the smoke profile's fake server cannot plan (M10 chain); the structure
+        # profile (2 Nov 2026) runs the chain without the agent either.
+        orchestrator=not args.no_orchestrator and args.profile not in ("smoke", "structure"),
         agent_key=args.agent_model or os.environ.get("WENART_AGENT_MODEL") or "agent",
         agent_rounds=max(1, int(args.agent_rounds)),
         cameras_from=args.cameras_from or None, cameras_extra=bool(args.cameras_extra),

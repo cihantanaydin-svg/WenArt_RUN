@@ -60,6 +60,10 @@
 #   RESTORE_OUTPUTS=1   25 Oct 2026: move the pipeline outputs a failed pod set aside ($WS/.repo-broken-*/outputs/<p>)
 #                       back into $WENART_OUTPUTS before the run (a move, never a delete; see the step below)
 #   WENART_ARCHITECT_AI=0  25 Oct 2026: skip the AI architect's answers to the open questions (agent phase)
+#   RUN_PROFILE         full (default) | structure (2 Nov 2026, user: "only run the top down views and outside views
+#                       ... a very short pod run"): the reading, fit, layout and decor stages, the build with its
+#                       top-down plan of every floor (the architect's safe defaults), the exterior views only; no agent,
+#                       no interior view, no export, no check, no GPU test
 #
 # Results: the background loop (every 300 s, under flock) and the EXIT trap run `python -m wenart.run copy`
 # (small files only, into the committed layout $RESULTS/<area>/<p>/; private projects: an allow-list into
@@ -128,7 +132,7 @@ case "${WENART_DEADLINE:-}" in
 esac
 
 # The orchestrator's and the copy's arguments (lists are passed through: spaces or commas).
-POD_ARGS=(--results "$RESULTS" --profile full)
+POD_ARGS=(--results "$RESULTS" --profile "${RUN_PROFILE:-full}")
 COPY_ARGS=(--results "$RESULTS")
 if [ -n "${RUN_PROJECTS:-}" ]; then POD_ARGS+=(--projects "$RUN_PROJECTS"); COPY_ARGS+=(--projects "$RUN_PROJECTS"); fi
 if [ -n "${PRIVATE_PROJECTS:-}" ]; then
@@ -147,6 +151,8 @@ if [ "${RUN_POLISH:-off}" = "off" ]; then export WENART_POLISH=off; fi
 # Milestone 11: orchestrated by default (the CLI's default); the agent model is downloaded with the VLMs.
 AGENT_SETUP="${AGENT_MODEL:-agent}"
 if [ "${NO_ORCHESTRATOR:-0}" = "1" ]; then POD_ARGS+=(--no-orchestrator); AGENT_SETUP=""; fi
+# 2 Nov 2026: the structure profile runs no agent either (no agent model to download)
+if [ "${RUN_PROFILE:-full}" = "structure" ]; then AGENT_SETUP=""; fi
 if [ -n "${AGENT_MODEL:-}" ]; then POD_ARGS+=(--agent-model "$AGENT_MODEL"); fi
 # 11 Oct 2026 (user: pods get more time): more orchestrator rounds when the pod has the time; Milestone 13 (K4,
 # the user's rule of 12 Oct 2026): the default is 3 (python -m wenart.run pod --agent-rounds)

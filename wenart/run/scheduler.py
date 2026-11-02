@@ -427,6 +427,14 @@ def tree_digest(folder) -> Optional[dict]:
 # Options and per-project state
 # --------------------------------------------------------------------------
 
+def exterior_cameras(scene_manifest) -> list:
+    """The names of a scene's exterior cameras (``kind`` exterior), in the manifest's order (pure; 2 Nov 2026, the
+    structure profile)."""
+    cams = scene_manifest.get("cameras") if isinstance(scene_manifest, dict) else None
+    return [str(c["name"]) for c in cams or [] if isinstance(c, dict) and c.get("name")
+            and c.get("kind") == "exterior"]
+
+
 @dataclass
 class RunOptions:
     projects: list = field(default_factory=list)          # public projects (full run)
@@ -436,7 +444,7 @@ class RunOptions:
     ab_controls: Optional[str] = None                     # the control project (its M6 ab/ control renders)
     ab_phase: str = "all"                                 # all | render | judge
     results: Optional[Path] = None                        # $RESULTS
-    profile: str = "full"                                 # full | smoke
+    profile: str = "full"                                 # full | smoke | structure (2 Nov 2026)
     force: frozenset = frozenset()
     vlm_url: Optional[str] = None
     repo_root: Path = REPO_ROOT
@@ -474,6 +482,15 @@ class RunOptions:
     @property
     def smoke(self) -> bool:
         return self.profile == "smoke"
+
+    @property
+    def structure(self) -> bool:
+        """2 Nov 2026 (user: "there are big problems in the structure of the building, would it be possible that I
+        will give feedback for the corrections and we only run the top down views and outside views? With a very
+        short pod run?"): the structure profile: the reading, fit, layout and decor stages as usual, the build (its
+        top-down plan of every floor, the architect's safe defaults), the exterior views only; no agent, no interior
+        view, no export, no control set, no check, no GPU test."""
+        return self.profile == "structure"
 
 
 @dataclass
@@ -672,7 +689,7 @@ class Orchestrator:
         # growing from 18 to 64 min; each build took 13-18 min, the line printed the stage's running total): a stage
         # run more than once also names its last step's own time
         steps = [s for s in (getattr(pr, "parts", None) or {}).get(stage) or [] if isinstance(s, dict)]
-        if len(steps) > 1 and steps[-1].get("seconds") is not None:
+        if len(steps) > 1 and steps[-1].get("seconds") is not None and not pr.ref.private:   # a private line: 4 words
             line += f" in all (run {len(steps)}: {float(steps[-1]['seconds']):.1f}s)"
         if note and not pr.ref.private:
             line += f": {note}"
@@ -2990,6 +3007,17 @@ class Orchestrator:
                 self.stage_export(pr)
                 pr.no_views = True
                 continue
+            if pr.active and self.opts.structure:
+                # 2 Nov 2026: the structure profile renders the exterior views only (the top-down plans come with
+                # the build); no export, no control set
+                cams = exterior_cameras(read_json(pr.out / "scene" / "scene_manifest.json"))
+                if cams:
+                    self.stage_render(pr, cameras=cams)
+                else:
+                    self.skip(pr, "render", "structure profile: no exterior view in the scene")
+                self.skip(pr, "export", "structure profile")
+                self.skip(pr, "controls", "structure profile")
+                continue
             if pr.active:
                 self.stage_render(pr)
             if pr.active:
@@ -3503,6 +3531,9 @@ class Orchestrator:
         return isinstance(data, dict) and bool(data.get("incomplete"))
 
     def vlm_phase(self, n: int, key: str) -> None:
+        if self.opts.structure:                  # 2 Nov 2026: the structure profile checks no view
+            self.out(f"phase {n}: structure profile: no check")
+            return
         if key not in self.opts.check_models:
             self.out(f"phase {n}: model {key} not in CHECK_MODELS: no server")
             return
