@@ -3068,6 +3068,16 @@
    "request": "Project GPU total raised to $1000 and AI polish kept off for now, the user decides on it later (user, 2 Nov 2026: 'keep AI polish off for now (we will decide later), raise the total to 1000')",
    "lesson": "Project GPU total raised to $1000 and AI polish kept off for now, the user decides on it later (user, 2 Nov 2026: 'keep AI polish off for now (we will decide later), raise the total to 1000')",
    "question": null
+  },
+  {
+   "id": "UL259",
+   "date": "2026-11-02",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "When the building's structure is wrong, review it before any full run: per floor the source drawing, the model's plan in the same orientation, the model's walls over the drawing and the top-down render, plus the drawn elevations next to the exterior views; then a short structure pod run (RUN_PROFILE=structure: top-down plans and exterior views only) (user, 2 Nov 2026: 'would it be possible that I will give feedback for the corrections and we only run the top down views and outside views? With a very short pod run?', 'Give those together also model and what came from the pod')",
+   "lesson": "When the building's structure is wrong, review it before any full run: per floor the source drawing, the model's plan in the same orientation, the model's walls over the drawing and the top-down render, plus the drawn elevations next to the exterior views; then a short structure pod run (RUN_PROFILE=structure: top-down plans and exterior views only) (user, 2 Nov 2026: 'would it be possible that I will give feedback for the corrections and we only run the top down views and outside views? With a very short pod run?', 'Give those together also model and what came from the pod')",
+   "question": null
   }
  ]
 }
