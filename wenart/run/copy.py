@@ -798,6 +798,17 @@ def texture_credits(out_dir: Path) -> list[dict]:
             "pieces": [("world", "hdri")], "source": "polyhaven", "asset_id": f"hdri:{stem}", "kind": "hdri",
             "licence": "CC0", "licence_flag": "none", "commercial_safe": True,
             "licence_url": _texture_licence_url("polyhaven"), "changes": "used as the sky light of the interiors"})
+    # 2 Nov 2026: the pure sky the exterior views show over the physical sky (materials.exterior_sky_clouds)
+    ext = (scene.get("lighting") or {}).get("world_exterior") if isinstance(scene.get("lighting"), dict) else None
+    clouds = ext.get("clouds") if isinstance(ext, dict) else None
+    if isinstance(clouds, dict) and clouds.get("used") and clouds.get("file"):
+        stem = Path(str(clouds["file"])).stem
+        found.setdefault(f"hdri:{stem}", {
+            "credit": f"HDRI {stem} (CC0: fetched by wenart.assets.fetch, which accepts CC0 only, from Poly Haven)",
+            "pieces": [("world_exterior", "hdri")], "source": "polyhaven", "asset_id": f"hdri:{stem}", "kind": "hdri",
+            "licence": "CC0", "licence_flag": "none", "commercial_safe": True,
+            "licence_url": _texture_licence_url("polyhaven"),
+            "changes": "the clouds of the exterior views' sky (camera rays only), turned to the sun and scaled"})
     return [found[k] for k in found]
 
 

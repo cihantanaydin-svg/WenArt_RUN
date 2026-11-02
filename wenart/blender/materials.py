@@ -1949,6 +1949,308 @@ def exterior_world_nodes(scene, lighting: dict, sun_disc: bool = True, sun_eleva
 
 
 # --------------------------------------------------------------------------
+# 2 Nov 2026: clouds in the exterior sky (camera rays only; every other ray keeps the physical sky)
+# --------------------------------------------------------------------------
+# What: the exterior views (and the open-air rooms under the exterior world) showed a cloudless physical sky. Now the
+# camera sees a Poly Haven "pure sky" HDRI (sky only, no ground; the HDRIs were kept out of the exterior views because
+# their own ground showed) over the physical sky.
+# How: in the camera branch of the exterior world (the Light Path 'Is Camera Ray' mix of round 3) the camera
+# Background's colour becomes
+#     sky_disc + f x (gain x min(hdri, clip) - sky_no_disc)
+# f = EXTERIOR_CLOUDS["mix"] x a smoothstep over ``fade_deg`` above the horizon: under it the physical sky stays, so
+# the horizon band, the haze and the backdrop meet as before. The physical sky's own sun disc stays in the image.
+# Every other ray (diffuse, glossy, shadow, the light samples, the world's importance map) sees the physical sky as
+# before, so the sun calibration (SKY_SUN_TABLE), the facade exposure and the white point do not change.
+# The HDRI is turned so its own sun (its brightest pixel) stands at the lamp's azimuth (``puresky_rotation_deg``:
+# checked on bpy 5.2.2, 2 Nov 2026, against the sky disc at azimuth 210 and 45: the same pixel column), its sun is
+# clipped at ``sun_clip_x_median`` x its median (no second sun) and it is scaled so its mean luminance in ``band_deg``
+# (the sky an eye-level exterior view sees) equals the physical sky's there (``SKY_BAND_TABLE``): the camera sees the
+# sky as bright as before, so the sky pull of render.py keeps its calibration; only the texture changes.
+EXTERIOR_SKY_PHYSICAL = "physical"                 # the record's ``exterior_sky`` without a cloud layer
+EXTERIOR_SKY_PROP = "wenart_world_exterior_sky"    # the scene property render.py records per view
+SKY_CAMERA_TEXTURE = "wenart_sky_camera_texture"   # node names of exterior_world_nodes the cloud layer looks up
+SKY_LIGHTING_TEXTURE = "wenart_sky_lighting_texture"
+CLOUD_NODE_PREFIX = "wenart_clouds_"
+EXTERIOR_CLOUDS = {"on": True, "mix": 1.0, "fade_deg": (0.5, 6.0), "band_deg": (2.0, 30.0),
+                   "sun_clip_x_median": 16.0, "rays": "camera"}
+# The pure skies (Poly Haven, CC0; checked on the Poly Haven API on 2 Nov 2026: api.polyhaven.com/assets?type=hdris
+# &categories=pure%20skies, then /info/<id> and /files/<id>: category "pure skies", the tags below, a 2k .hdr file).
+# Only "pure sky" HDRIs (no ground) are allowed here.
+PURESKY_HDRIS: dict[str, dict] = {
+    "kloofendal_38d_partly_cloudy_puresky": {"sky": "partly cloudy", "time": "midday", "sun_deg": 38},
+    "kloofendal_48d_partly_cloudy_puresky": {"sky": "partly cloudy", "time": "midday", "sun_deg": 48},
+    "qwantani_sunset_puresky": {"sky": "partly cloudy", "time": "sunrise-sunset", "sun_deg": None},
+    "overcast_soil_puresky": {"sky": "overcast", "time": "morning-afternoon", "sun_deg": None},
+    "kloofendal_overcast_puresky": {"sky": "overcast", "time": "morning-afternoon", "sun_deg": None},
+}
+PURESKY_SOURCE = ("Poly Haven API, 2 Nov 2026 (category 'pure skies'; /info and /files per id; CC0): "
+                  "sun_deg = the elevation in the asset name, checked on the 1k file's brightest pixel for 38d (37.8)")
+# Mood -> pure sky: a clear or partly cloudy day mood gets a partly cloudy sky whose sun stands near the mood's sun
+# (warm daylight 35 -> 38d, cool daylight 55 and bright noon 65 -> 48d), golden evening a partly cloudy sunset, the
+# overcast moods an overcast sky (their own interior HDRIs, already pure skies). A sunless mood (night, blue hour,
+# interior evening, any sun at or under the horizon) keeps the physical sky.
+EXTERIOR_CLOUD_SKIES: dict[str, str] = {
+    "warm daylight": "kloofendal_38d_partly_cloudy_puresky",
+    "cool daylight": "kloofendal_48d_partly_cloudy_puresky",
+    "bright noon": "kloofendal_48d_partly_cloudy_puresky",
+    "golden evening": "qwantani_sunset_puresky",
+    "overcast": "overcast_soil_puresky",
+    "cloudy soft": "kloofendal_overcast_puresky",
+}
+EXTERIOR_CLOUD_DEFAULT = "kloofendal_38d_partly_cloudy_puresky"   # a daytime mood the table does not name
+EXTERIOR_CLOUD_SUNLESS = ("night", "blue hour", "interior evening")
+# The physical sky's mean luminance (Background Strength 1, no disc) between 2 and 30 degrees above the horizon, all
+# azimuths, solid-angle weighted, per sun elevation: (elevation_deg, mean). Measured on bpy 5.2.2 (2 Nov 2026, CPU
+# Cycles, an equirectangular camera at 512 x 256, the EXTERIOR_SKY air; the same renders give the dome irradiance of
+# SKY_SUN_TABLE to 0.1 %, e.g. 12.378 against 12.38 at 35 degrees). Re-measure it with SKY_SUN_TABLE when the air
+# changes.
+SKY_BAND_TABLE: tuple[tuple[float, float], ...] = (
+    (5.0, 3.8346), (10.0, 5.9925), (12.0, 6.5305), (15.0, 7.0846), (20.0, 7.5772), (25.0, 7.7658), (30.0, 7.7904),
+    (35.0, 7.7527), (40.0, 7.7256), (45.0, 7.7267), (55.0, 7.7709), (65.0, 7.8177), (75.0, 7.8475), (85.0, 7.8608),
+)
+SKY_BAND_SOURCE = ("bpy 5.2.2 CPU Cycles, 2 Nov 2026: the MULTIPLE_SCATTERING sky (EXTERIOR_SKY air, no disc, "
+                   "Strength 1) on an equirectangular camera, mean luminance 2-30 degrees above the horizon")
+LUMA_WEIGHTS = (0.2126, 0.7152, 0.0722)
+
+
+def exterior_cloud_sky(lighting: dict) -> dict:
+    """The pure sky the exterior camera sees for a style's ``lighting`` (pure; the comment above):
+    ``{"hdri": id | None, "mood", "sky", "reason"}``. None for a sunless mood (``EXTERIOR_CLOUD_SUNLESS`` or a sun at or
+    under the horizon), a lighting without a mood (a test or pre-Milestone-10 style) and when ``EXTERIOR_CLOUDS["on"]``
+    is off: the physical sky as before."""
+    mood = str((lighting or {}).get("mood") or "").strip().lower()
+    elevation = (lighting or {}).get("sun_elevation_deg")
+    if not EXTERIOR_CLOUDS["on"]:
+        return {"hdri": None, "mood": mood, "sky": None, "reason": "the cloud layer is off (EXTERIOR_CLOUDS)"}
+    if not mood:
+        return {"hdri": None, "mood": mood, "sky": None, "reason": "the style names no lighting mood: physical sky"}
+    if mood in EXTERIOR_CLOUD_SUNLESS or (elevation is not None and float(elevation) <= 0.0):
+        return {"hdri": None, "mood": mood, "sky": None,
+                "reason": f"mood {mood or '?'}: the sun is under the horizon, no daytime cloud sky (physical sky)"}
+    hdri = EXTERIOR_CLOUD_SKIES.get(mood)
+    why = f"the {mood} mood's pure sky" if hdri else f"mood {mood or '?'} has no pure sky of its own: the default"
+    hdri = hdri or EXTERIOR_CLOUD_DEFAULT
+    info = PURESKY_HDRIS[hdri]
+    return {"hdri": hdri, "mood": mood, "sky": info["sky"],
+            "reason": f"{why}, {hdri} ({info['sky']}, {info['time']}; Poly Haven pure sky, CC0)"}
+
+
+def sky_band_luminance(elevation_deg: float) -> float:
+    """The physical sky's mean luminance in ``EXTERIOR_CLOUDS["band_deg"]`` at Strength 1 (pure): ``SKY_BAND_TABLE``
+    read linearly between its rows and held at its first and last rows outside them."""
+    e = float(elevation_deg)
+    rows = SKY_BAND_TABLE
+    if e <= rows[0][0]:
+        return rows[0][1]
+    for (e0, b0), (e1, b1) in zip(rows, rows[1:]):
+        if e <= e1:
+            return b0 + (e - e0) / (e1 - e0) * (b1 - b0)
+    return rows[-1][1]
+
+
+def puresky_stats(pixels, band_deg=None, clip_x_median: float | None = None) -> dict:
+    """What the cloud layer needs from an equirectangular HDRI (pure numpy): ``pixels`` H x W x 3 (or 4) linear floats
+    in the order of bpy ``Image.pixels`` (row 0 is straight down, column u = (i + 0.5) / W). Returns
+    ``{"width", "height", "sun_px" [i, j], "sun_u", "sun_elevation_deg", "sun_phi_deg" (the sun's direction in the
+    image frame, counter-clockwise from +X: (0.5 - u) x 360), "median" (solid-angle weighted, upper half), "clip"
+    (``clip_x_median`` x median), "band_deg", "band_mean" (mean luminance of the clipped image in ``band_deg``,
+    solid-angle weighted), "sun_share" (the share of the upper half's horizontal irradiance above the clip)}``."""
+    import numpy as np
+
+    b0, b1 = band_deg or EXTERIOR_CLOUDS["band_deg"]
+    k = float(EXTERIOR_CLOUDS["sun_clip_x_median"] if clip_x_median is None else clip_x_median)
+    a = np.asarray(pixels, dtype=np.float32)[..., :3]
+    h, w = a.shape[:2]
+    luma = np.asarray(LUMA_WEIGHTS, dtype=np.float32)
+    lum = a @ luma
+    elev = ((np.arange(h) + 0.5) / h - 0.5) * math.pi
+    up = elev > 0.0
+    if not up.any():
+        raise ValueError("puresky_stats: the image has no upper half")
+    j, i = np.unravel_index(int(np.argmax(np.where(up[:, None], lum, -np.inf))), lum.shape)
+    u = (i + 0.5) / w
+    solid = np.cos(elev)                               # an equirectangular pixel's solid angle goes with cos(elevation)
+    vals = lum[up].ravel()
+    wts = np.repeat(solid[up], w)
+    order = np.argsort(vals, kind="stable")
+    cum = np.cumsum(wts[order], dtype=np.float64)
+    median = float(vals[order][min(len(vals) - 1, int(np.searchsorted(cum, cum[-1] * 0.5)))])
+    clip = k * median
+    clum = np.minimum(a, np.float32(clip)) @ luma
+    band = (elev >= math.radians(b0)) & (elev <= math.radians(b1))
+    if not band.any():
+        raise ValueError(f"puresky_stats: no rows between {b0} and {b1} degrees")
+    band_mean = float((clum[band].astype(np.float64) * solid[band][:, None]).sum() / (solid[band].sum() * w))
+    horiz = (np.sin(elev) * np.cos(elev))[up][:, None]
+    e_all = float((lum[up].astype(np.float64) * horiz).sum())
+    e_clip = float((clum[up].astype(np.float64) * horiz).sum())
+    return {"width": int(w), "height": int(h), "sun_px": [int(i), int(j)], "sun_u": round(float(u), 6),
+            "sun_elevation_deg": round(math.degrees(float(elev[j])), 3),
+            "sun_phi_deg": round((0.5 - float(u)) * 360.0, 3), "median": round(median, 6), "clip": round(clip, 6),
+            "band_deg": [float(b0), float(b1)], "band_mean": round(band_mean, 6),
+            "sun_share": round(1.0 - e_clip / e_all, 4) if e_all > 0.0 else 0.0}
+
+
+def puresky_rotation_deg(sun_phi_deg: float, sun_azimuth_deg: float) -> float:
+    """The Mapping node's Z rotation (degrees, in (-180, 180]) that turns an HDRI whose sun lies at ``sun_phi_deg``
+    (``puresky_stats``) to the compass azimuth ``sun_azimuth_deg`` of the lamp (clockwise from +Y, the frame of
+    ``sky_sun_rotation_rad``), pure. The Mapping (type POINT) turns the look-up vector by +rotation, so the world
+    direction of the image's sun is phi - rotation, and the compass azimuth A is the direction 90 - A."""
+    r = (float(sun_phi_deg) - 90.0 + float(sun_azimuth_deg)) % 360.0
+    return round(r - 360.0 if r > 180.0 else r, 6)
+
+
+def exterior_cloud_plan(rec: dict, stats: dict, cfg: dict | None = None) -> dict:
+    """The cloud layer of an exterior world record (``exterior_world``) and an HDRI's ``puresky_stats`` (pure):
+    ``{"rotation_deg", "gain" (strength-1 units: the camera Background's Strength stays the sky's), "clip", "mix",
+    "fade_deg", "band_deg", "band_physical", "band_hdri", "hdri_sun": {"elevation_deg", "azimuth_deg"},
+    "sun_elevation_offset_deg"}``. A band mean that is not positive raises ValueError (the caller keeps the physical
+    sky)."""
+    c = dict(EXTERIOR_CLOUDS, **(cfg or {}))
+    band_hdri = float(stats["band_mean"])
+    if not math.isfinite(band_hdri) or band_hdri <= 0.0:
+        raise ValueError(f"the HDRI's band mean is {band_hdri}: nothing to scale")
+    elevation = float(rec["sun_elevation_deg"])
+    azimuth = float(rec["sun_azimuth_deg"])
+    target = sky_band_luminance(max(1.0, elevation))
+    return {"rotation_deg": puresky_rotation_deg(stats["sun_phi_deg"], azimuth),
+            "gain": round(target / band_hdri, 6), "clip": float(stats["clip"]), "mix": float(c["mix"]),
+            "fade_deg": [float(v) for v in c["fade_deg"]], "band_deg": [float(v) for v in stats["band_deg"]],
+            "band_physical": round(target, 6), "band_hdri": round(band_hdri, 6),
+            "hdri_sun": {"elevation_deg": float(stats["sun_elevation_deg"]), "azimuth_deg": round(azimuth, 6)},
+            "sun_elevation_offset_deg": round(float(stats["sun_elevation_deg"]) - elevation, 3)}
+
+
+def _cloud_nodes(tree, rec: dict, image, plan: dict) -> None:
+    """Wire the cloud layer into the exterior world's node ``tree`` (bpy; the comment above ``EXTERIOR_SKY_PHYSICAL``).
+    Every new node is made and linked first; the camera Background's colour (and, for a world with one Background for
+    every ray, the camera split) is relinked last, so a failure on the way leaves the world as it was.
+
+    Node names checked on bpy 5.2.2 (2 Nov 2026): ShaderNodeTexCoord 'Generated' (the ray direction in a world);
+    ShaderNodeMapping 'Vector', 'Rotation'; ShaderNodeTexEnvironment 'Vector', 'Color'; ShaderNodeVectorMath
+    MINIMUM / SCALE ('Scale') / SUBTRACT / MULTIPLY_ADD (inputs 0, 1, 2: vector x multiplier + addend);
+    ShaderNodeSeparateXYZ 'Z'; ShaderNodeMapRange 'Value', 'From Min', 'From Max', 'To Min', 'To Max', 'Result',
+    interpolation SMOOTHSTEP; ShaderNodeMath MULTIPLY."""
+    nodes, links = tree.nodes, tree.links
+    bg_cam = nodes.get("wenart_sky_camera")
+    sky_cam = nodes.get(SKY_CAMERA_TEXTURE)
+    if bg_cam is None or sky_cam is None:
+        raise ValueError("the exterior world has no camera sky (wenart_sky_camera / its sky texture)")
+    sky_flat = nodes.get(SKY_LIGHTING_TEXTURE)
+    if sky_flat is None:
+        sky_flat = sky_cam if not rec.get("sun_disc") else _sky_texture_node(nodes, rec, disc=False)
+
+    def new(kind, name):
+        node = nodes.new(kind)
+        node.name = CLOUD_NODE_PREFIX + name
+        return node
+
+    coord = new("ShaderNodeTexCoord", "coord")
+    mapping = new("ShaderNodeMapping", "mapping")
+    mapping.inputs["Rotation"].default_value = (0.0, 0.0, math.radians(plan["rotation_deg"]))
+    links.new(coord.outputs["Generated"], mapping.inputs["Vector"])
+    env = new("ShaderNodeTexEnvironment", "hdri")
+    env.image = image
+    links.new(mapping.outputs["Vector"], env.inputs["Vector"])
+    clip = new("ShaderNodeVectorMath", "clip")
+    clip.operation = "MINIMUM"
+    links.new(env.outputs["Color"], clip.inputs[0])
+    clip.inputs[1].default_value = (plan["clip"], plan["clip"], plan["clip"])
+    scale = new("ShaderNodeVectorMath", "gain")
+    scale.operation = "SCALE"
+    links.new(clip.outputs["Vector"], scale.inputs[0])
+    scale.inputs["Scale"].default_value = plan["gain"]
+    diff = new("ShaderNodeVectorMath", "minus_sky")
+    diff.operation = "SUBTRACT"
+    links.new(scale.outputs["Vector"], diff.inputs[0])
+    links.new(sky_flat.outputs["Color"], diff.inputs[1])
+    sep = new("ShaderNodeSeparateXYZ", "up")
+    links.new(coord.outputs["Generated"], sep.inputs["Vector"])
+    fade = new("ShaderNodeMapRange", "fade")
+    fade.interpolation_type = "SMOOTHSTEP"
+    fade.clamp = True
+    links.new(sep.outputs["Z"], fade.inputs["Value"])
+    fade.inputs["From Min"].default_value = math.sin(math.radians(plan["fade_deg"][0]))
+    fade.inputs["From Max"].default_value = math.sin(math.radians(plan["fade_deg"][1]))
+    fade.inputs["To Min"].default_value = 0.0
+    fade.inputs["To Max"].default_value = 1.0
+    share = new("ShaderNodeMath", "share")
+    share.operation = "MULTIPLY"
+    links.new(fade.outputs["Result"], share.inputs[0])
+    share.inputs[1].default_value = plan["mix"]
+    colour = new("ShaderNodeVectorMath", "colour")
+    colour.operation = "MULTIPLY_ADD"
+    links.new(diff.outputs["Vector"], colour.inputs[0])
+    links.new(share.outputs["Value"], colour.inputs[1])
+    links.new(sky_cam.outputs["Color"], colour.inputs[2])
+    mix = nodes.get("wenart_sun_disc_mix")
+    if mix is None:
+        # One Background for every ray (no camera-only disc): the lighting keeps that sky, only the camera gets clouds
+        out = next(n for n in nodes if n.bl_idname == "ShaderNodeOutputWorld")
+        bg_lit = new("ShaderNodeBackground", "lighting")
+        links.new(sky_cam.outputs["Color"], bg_lit.inputs["Color"])
+        bg_lit.inputs["Strength"].default_value = bg_cam.inputs["Strength"].default_value
+        path = new("ShaderNodeLightPath", "path")
+        mix = new("ShaderNodeMixShader", "camera_mix")
+        links.new(path.outputs["Is Camera Ray"], mix.inputs[0])
+        links.new(bg_lit.outputs["Background"], mix.inputs[1])
+        links.new(bg_cam.outputs["Background"], mix.inputs[2])
+        links.new(colour.outputs["Vector"], bg_cam.inputs["Color"])
+        links.new(mix.outputs["Shader"], out.inputs["Surface"])
+        return
+    links.new(colour.outputs["Vector"], bg_cam.inputs["Color"])
+
+
+def exterior_sky_clouds(scene, rec: dict, hdri_path: str | None, choice: dict | None = None) -> dict:
+    """Put the cloud layer (the comment above ``EXTERIOR_SKY_PHYSICAL``) into the exterior world that
+    ``exterior_world_nodes`` made (bpy). ``rec``: its record; ``hdri_path``: the pure sky's file on the volume (None:
+    not there); ``choice``: ``exterior_cloud_sky(lighting)``. Returns a copy of ``rec`` with ``clouds`` (``hdri``,
+    ``file``, ``used``, ``rays``, ``factor``, ``reason`` and, when used, ``plan`` and ``stats``) and ``exterior_sky``
+    (the HDRI id, or ``EXTERIOR_SKY_PHYSICAL``), and sets the scene property ``EXTERIOR_SKY_PROP``. Never raises: no
+    choice, no file or a failure keeps the physical sky (``used`` False, the reason recorded; build.py warns)."""
+    choice = dict(choice or {})
+    hdri = choice.get("hdri")
+    clouds = {"hdri": hdri, "file": hdri_path, "used": False, "rays": EXTERIOR_CLOUDS["rays"],
+              "factor": "ShaderNodeLightPath 'Is Camera Ray' (the camera Background of the exterior world)",
+              "reason": choice.get("reason") or "no pure sky chosen"}
+    out = dict(rec, clouds=clouds, exterior_sky=EXTERIOR_SKY_PHYSICAL)
+    if not hdri:
+        return out
+    if not hdri_path or not os.path.exists(hdri_path):
+        clouds["reason"] = f"pure sky {hdri} not available: the physical sky without clouds"
+        return out
+    try:
+        import bpy
+        import numpy as np
+
+        world = bpy.data.worlds.get(rec.get("name") or EXTERIOR_WORLD)
+        if world is None or world.node_tree is None:
+            raise ValueError(f"no world {rec.get('name') or EXTERIOR_WORLD}")
+        image = bpy.data.images.load(os.path.abspath(hdri_path), check_existing=True)
+        w, h = (int(v) for v in image.size)
+        if w <= 0 or h <= 0:
+            raise ValueError(f"{hdri_path}: empty image")
+        px = np.empty(w * h * int(image.channels), dtype=np.float32)
+        image.pixels.foreach_get(px)
+        stats = puresky_stats(px.reshape(h, w, int(image.channels)))
+        del px
+        plan = exterior_cloud_plan(rec, stats)
+        _cloud_nodes(world.node_tree, rec, image, plan)
+    except Exception as exc:  # noqa: BLE001 - the physical sky stays; the reason is recorded and build.py warns
+        clouds["reason"] = f"cloud layer not built ({type(exc).__name__}: {exc}): the physical sky without clouds"
+        return out
+    clouds.update(used=True, plan=plan, stats=stats, mood=choice.get("mood"), sky=choice.get("sky"),
+                  reason=f"{choice.get('reason') or hdri}: on camera rays over the physical sky, turned "
+                         f"{plan['rotation_deg']:.1f} degrees to the sun's azimuth, its sun clipped at "
+                         f"{plan['clip']:.3g}, scaled x{plan['gain']:.4g} to the physical sky's mean "
+                         f"{plan['band_deg'][0]:g}-{plan['band_deg'][1]:g} degrees above the horizon; every other ray "
+                         f"keeps the physical sky (lighting unchanged)")
+    out["exterior_sky"] = hdri
+    scene[EXTERIOR_SKY_PROP] = hdri
+    return out
+
+
+# --------------------------------------------------------------------------
 # Milestone 13: the shell material table per slot and the material layers (docs/milestone13.md §13.2)
 # --------------------------------------------------------------------------
 

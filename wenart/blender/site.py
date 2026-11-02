@@ -3781,6 +3781,263 @@ def _fence_ring(ring: Sequence, roads=None) -> list[dict]:
     return segs
 
 
+# 2 Nov 2026 (user request: houses on the neighbouring plots; the fenced plots around the project stood empty and no
+# neighbouring building stood anywhere): a simple house massing per neighbour plot (``neighbour_houses``): a box of a
+# typical house footprint, 1 or 2 storeys, a gabled or flat roof, set back ``front_m`` from the plot's front (the fence
+# edge with the gate, towards the road), in neutral plaster and roof tiles with dark window and door panes. Context,
+# not design: every house is inferred and labelled (site record, ``assumed``, manifest ``site_part``
+# ``neighbour_house``), hidden from shadow, diffuse and volume rays like the horizon context (``CONTEXT_HIDDEN_RAYS``:
+# it never darkens or tints our building; the camera, the panes and the reflections see it), an obstacle of the
+# exterior cameras (``exterior.build_model``, label ``neighbour``: no camera stands in or behind one) and never on our
+# plot (``keep_out``) or on a tree (``avoid``). Built with ``site: full`` and the ``sky`` lever (the context lever:
+# backdrop, haze, horizon trees); ``NEIGHBOUR_HOUSES["on"]`` or ``WENART_NEIGHBOUR_HOUSES=off`` switch them off.
+# Deterministic: the n-th plot takes the n-th entry of ``pattern``, ``colours`` and ``roofs``. Sizes are designer values
+# of a typical detached house (8-12 m wide, 7-10 m deep, 2.9 m a storey, a 35 degree roof).
+NEIGHBOUR_HOUSES = {
+    "on": True, "front_m": 5.0, "side_m": 3.0, "rear_m": 4.0, "width_m": (8.0, 12.0), "depth_m": (7.0, 10.0),
+    "width_share": 0.5, "depth_share": 0.4, "shrink": (1.0, 0.85, 0.0), "storey_m": 2.9, "plinth_m": 0.3,
+    "sink_m": 0.3, "pitch_deg": 35.0, "eave_m": 0.4, "roof_t_m": 0.2, "parapet_m": 0.4, "parapet_w_m": 0.25,
+    "clear_m": 2.0, "tree_clear_m": 0.5,
+    "pattern": (("gable", 2), ("gable", 1), ("flat", 2), ("gable", 2), ("gable", 1), ("flat", 1), ("gable", 2),
+                ("flat", 2)),
+    "colours": ("off white", "light grey", "greige"), "roofs": ("clay_tiles", "concrete_tiles"),
+    "facade": "render", "flat_roof": "concrete_exposed", "window": "aluminium_anthracite",
+    "window_m": (1.2, 1.4), "window_pitch_m": 3.2, "sill_m": 0.9, "door_m": (1.0, 2.1), "pane_out_m": 0.03,
+}
+NEIGHBOUR_HOUSES_ENV = "WENART_NEIGHBOUR_HOUSES"
+NEIGHBOUR_HOUSE_PART = "neighbour_house"
+NEIGHBOUR_HOUSES_NAME = "neighbour_houses"
+
+
+def neighbour_houses_on(on: Optional[bool] = None) -> bool:
+    """Whether the neighbouring houses are built: ``on`` when given, else ``NEIGHBOUR_HOUSES["on"]`` unless
+    ``WENART_NEIGHBOUR_HOUSES`` says off (the ``context_scans_on`` pattern)."""
+    import os
+
+    if on is not None:
+        return bool(on)
+    env = str(os.environ.get(NEIGHBOUR_HOUSES_ENV) or "").strip().lower()
+    return bool(NEIGHBOUR_HOUSES["on"]) and env not in ("off", "0", "no", "false")
+
+
+def _front_edge(nb: dict, keep_out: Sequence) -> int:
+    """The index of a neighbour plot's front edge (pure): the edge that holds its gate (``_fence_ring``: towards the
+    road); without a gate the edge farthest from ``keep_out`` (our plot), i.e. the plot faces away from it."""
+    from shapely.geometry import Point, Polygon
+    from shapely.ops import unary_union
+
+    ring = nb["polygon"]
+    n = len(ring)
+    mids = [G.segment_midpoint(ring[i], ring[(i + 1) % n]) for i in range(n)]
+    gate = next((s for s in nb.get("fence") or [] if s.get("kind") == "gate"), None)
+    if gate is not None:
+        g = G.segment_midpoint(gate["start"], gate["end"])
+        return min(range(n), key=lambda i: G.point_segment_distance(g, ring[i], ring[(i + 1) % n]))
+    polys = [Polygon(p) for p in keep_out if len(p or []) >= 3]
+    if not polys:
+        return max(range(n), key=lambda i: G.distance(ring[i], ring[(i + 1) % n]))
+    ours = unary_union(polys)
+    return max(range(n), key=lambda i: ours.distance(Point(mids[i])))
+
+
+def neighbour_houses(neighbours: Sequence[dict], terrain: dict, keep_out: Sequence = (), avoid: Sequence = (),
+                     cfg: Optional[dict] = None) -> dict:
+    """The house massing on each neighbour plot (pure; the comment above ``NEIGHBOUR_HOUSES``): ``{"houses": [{"id",
+    "plot", "footprint" (4 corners, counter-clockwise), "front" [a, b], "facing" (unit, out of the front), "width_m",
+    "depth_m", "storeys", "roof" (gable | flat), "pitch_deg", "setback_m", "base_z", "ground_z", "eave_z", "top_z",
+    "axes" {"u", "n", "origin"}, "facade", "roof_look", "window", "inferred", "source", "context", "hidden_rays",
+    "reason"}], "skipped": [{"plot", "reason"}], "reason"}``. ``keep_out``: polygons no house comes within ``clear_m`` of
+    (our plot, the building, the copies); ``avoid``: polygons a house never covers (the trees' crowns)."""
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+
+    c = dict(NEIGHBOUR_HOUSES, **(cfg or {}))
+    ours = [Polygon(p) for p in keep_out if len(p or []) >= 3]
+    ours_u = unary_union(ours).buffer(float(c["clear_m"]), join_style=2) if ours else None
+    blocks = [Polygon(p) for p in avoid if len(p or []) >= 3]
+    blocks_u = unary_union(blocks).buffer(float(c["tree_clear_m"])) if blocks else None
+    houses, skipped = [], []
+    tan_p = math.tan(math.radians(float(c["pitch_deg"])))
+    for k, nb in enumerate(neighbours):
+        ring = [tuple(map(float, p[:2])) for p in nb.get("polygon") or []]
+        if len(ring) < 3:
+            skipped.append({"plot": nb.get("id"), "reason": "no plot outline"})
+            continue
+        ring = geom2d.ccw(ring)
+        plot = Polygon(ring)
+        nb = dict(nb, polygon=ring)
+        i = _front_edge(nb, keep_out)
+        a, b = ring[i], ring[(i + 1) % len(ring)]
+        ln = G.distance(a, b)
+        if ln < 1e-6:
+            skipped.append({"plot": nb.get("id"), "reason": "a degenerate front edge"})
+            continue
+        u = ((b[0] - a[0]) / ln, (b[1] - a[1]) / ln)
+        n = (-u[1], u[0])                                   # into the plot (the ring is counter-clockwise)
+        st = [((p[0] - a[0]) * u[0] + (p[1] - a[1]) * u[1], (p[0] - a[0]) * n[0] + (p[1] - a[1]) * n[1]) for p in ring]
+        depth = max(t for _s, t in st)
+        cen = plot.centroid
+        s_mid = ((cen.x - a[0]) * u[0] + (cen.y - a[1]) * u[1])
+        w0 = min(max(float(c["width_share"]) * ln, c["width_m"][0]), c["width_m"][1])
+        d0 = min(max(float(c["depth_share"]) * depth, c["depth_m"][0]), c["depth_m"][1])
+        t0 = float(c["front_m"])
+
+        def world(s, t):
+            return (a[0] + u[0] * s + n[0] * t, a[1] + u[1] * s + n[1] * t)
+
+        found = None
+        why = "the plot is too small for a house with its garden"
+        for f in c["shrink"]:
+            w = max(c["width_m"][0], w0 * f) if f > 0 else c["width_m"][0]
+            d = max(c["depth_m"][0], d0 * f) if f > 0 else c["depth_m"][0]
+            for sc in (s_mid, ln / 2.0):
+                rect = [world(sc - w / 2, t0), world(sc + w / 2, t0), world(sc + w / 2, t0 + d), world(sc - w / 2, t0 + d)]
+                lot = Polygon([world(sc - w / 2 - c["side_m"], t0), world(sc + w / 2 + c["side_m"], t0),
+                               world(sc + w / 2 + c["side_m"], t0 + d + c["rear_m"]),
+                               world(sc - w / 2 - c["side_m"], t0 + d + c["rear_m"])])
+                if not plot.buffer(1e-6).contains(lot):
+                    continue
+                foot = Polygon(rect)
+                if ours_u is not None and ours_u.intersects(foot):
+                    why = "it would come within the clearance of our plot"
+                    continue
+                if blocks_u is not None and blocks_u.intersects(foot):
+                    why = "a tree stands where the house would go"
+                    continue
+                found = (rect, w, d, sc)
+                break
+            if found:
+                break
+        if found is None:
+            skipped.append({"plot": nb.get("id"), "reason": why})
+            continue
+        rect, w, d, sc = found
+        roof, storeys = c["pattern"][k % len(c["pattern"])]
+        zs = [ground_z(terrain, x, y) for x, y in rect]
+        ground_top = max(zs)
+        base = min(zs) - float(c["sink_m"])
+        eave = ground_top + float(c["plinth_m"]) + int(storeys) * float(c["storey_m"])
+        roof_tv = float(c["roof_t_m"]) / math.cos(math.radians(float(c["pitch_deg"])))
+        top = eave + d / 2.0 * tan_p + roof_tv if roof == "gable" else eave + float(c["parapet_m"])
+        colour = c["colours"][k % len(c["colours"])]
+        roof_slug = c["roofs"][k % len(c["roofs"])] if roof == "gable" else c["flat_roof"]
+        foot = geom2d.ccw(rect)
+        houses.append({
+            "id": f"{nb.get('id')}_house", "plot": nb.get("id"), "footprint": [[round(x, 4), round(y, 4)] for x, y in foot],
+            "front": [list(a), list(b)], "facing": [round(-n[0], 6), round(-n[1], 6)],
+            "width_m": round(w, 3), "depth_m": round(d, 3), "storeys": int(storeys), "roof": roof,
+            "pitch_deg": float(c["pitch_deg"]) if roof == "gable" else None, "setback_m": t0,
+            "base_z": round(base, 4), "ground_z": round(ground_top, 4), "eave_z": round(eave, 4), "top_z": round(top, 4),
+            "axes": {"u": [round(u[0], 9), round(u[1], 9)], "n": [round(n[0], 9), round(n[1], 9)],
+                     "origin": [round(v, 6) for v in world(sc, t0)]},
+            "facade": {"material": c["facade"], "colour": colour},
+            "roof_look": {"material": roof_slug, "colour": None}, "window": {"material": c["window"], "colour": None},
+            "inferred": True, "source": "inferred", "context": True, "hidden_rays": list(CONTEXT_HIDDEN_RAYS),
+            "reason": (f"a neighbouring house on {nb.get('id')}: a {int(storeys)}-storey massing with a {roof} roof, "
+                       f"{w:.1f} x {d:.1f} m, set back {t0:g} m from its front (the fence edge with the gate, towards "
+                       f"the road), {c['facade']} in {colour} and {roof_slug} (no neighbours drawn; site context, "
+                       f"hidden from shadow and diffuse light; inferred)")})
+    reason = (f"{len(houses)} neighbouring house(s) on the {len(neighbours)} fenced neighbour plot(s), "
+              f"{len(skipped)} plot(s) left empty (no neighbours drawn; site context; inferred)")
+    return {"houses": houses, "skipped": skipped, "reason": reason}
+
+
+def neighbour_house_parts(house: dict, cfg: Optional[dict] = None) -> tuple[list, list, list[str]]:
+    """``(verts, faces, slots)`` of one neighbouring house (pure; ``neighbour_houses``): the walls (a box, with the two
+    gable triangles for a ``gable`` roof), the roof (two slabs over the eaves with ``eave_m`` overhang, or a flat roof
+    face and a parapet), and thin dark panes ``pane_out_m`` proud of every wall: ``window_m`` windows every
+    ``window_pitch_m`` per storey, a ``door_m`` door in the middle of the front's ground floor. ``slots`` per face:
+    ``facade``, ``roof``, ``flat_roof`` or ``window``."""
+    c = dict(NEIGHBOUR_HOUSES, **(cfg or {}))
+    u, n = house["axes"]["u"], house["axes"]["n"]
+    o = house["axes"]["origin"]                       # the middle of the front wall at ground level, plan only
+    w, d = float(house["width_m"]), float(house["depth_m"])
+    base, eave, ground = float(house["base_z"]), float(house["eave_z"]), float(house["ground_z"])
+    parts: list = []
+
+    def world(s, t):
+        return (o[0] + u[0] * s + n[0] * t, o[1] + u[1] * s + n[1] * t)
+
+    def add(vf, slot):
+        parts.append((vf[0], vf[1], slot))
+
+    rect = [world(-w / 2, 0.0), world(w / 2, 0.0), world(w / 2, d), world(-w / 2, d)]
+    if house["roof"] == "gable":
+        tan_p = math.tan(math.radians(float(house.get("pitch_deg") or c["pitch_deg"])))
+        tv = float(c["roof_t_m"]) / math.cos(math.radians(float(house.get("pitch_deg") or c["pitch_deg"])))
+        ridge = eave + d / 2.0 * tan_p
+        # the walls with their gables: the pentagon in the (t, z) plane, pushed along the front (``along`` = n)
+        add(geom2d.extrude_profile([(0.0, base), (d, base), (d, eave), (d / 2.0, ridge), (0.0, eave)], o, n, w),
+            "facade")
+        e = float(c["eave_m"])
+        for prof in ([(-e, eave - e * tan_p), (d / 2.0, ridge), (d / 2.0, ridge + tv), (-e, eave - e * tan_p + tv)],
+                     [(d / 2.0, ridge), (d + e, eave - e * tan_p), (d + e, eave - e * tan_p + tv), (d / 2.0, ridge + tv)]):
+            add(geom2d.extrude_profile(prof, o, n, w + 2.0 * e), "roof")
+    else:
+        add(geom2d.prism(rect, base, eave), "facade")
+        pw, ph = float(c["parapet_w_m"]), float(c["parapet_m"])
+        add(geom2d.prism([world(-w / 2 + pw, pw), world(w / 2 - pw, pw), world(w / 2 - pw, d - pw),
+                          world(-w / 2 + pw, d - pw)], eave, eave + 0.02), "flat_roof")
+        for strip in ([(-w / 2, 0.0), (w / 2, 0.0), (w / 2, pw), (-w / 2, pw)],
+                      [(-w / 2, d - pw), (w / 2, d - pw), (w / 2, d), (-w / 2, d)],
+                      [(-w / 2, pw), (-w / 2 + pw, pw), (-w / 2 + pw, d - pw), (-w / 2, d - pw)],
+                      [(w / 2 - pw, pw), (w / 2, pw), (w / 2, d - pw), (w / 2 - pw, d - pw)]):
+            add(geom2d.prism([world(s, t) for s, t in strip], eave, eave + ph), "facade")
+    # the panes: per wall (its start and end in (s, t), its outward normal in (s, t)), per storey
+    ww, wh = (float(v) for v in c["window_m"])
+    dw, dh = (float(v) for v in c["door_m"])
+    out = float(c["pane_out_m"])
+    walls = (((-w / 2, 0.0), (w / 2, 0.0), (0.0, -1.0), True), ((w / 2, d), (-w / 2, d), (0.0, 1.0), False),
+             ((w / 2, 0.0), (w / 2, d), (1.0, 0.0), False), ((-w / 2, d), (-w / 2, 0.0), (-1.0, 0.0), False))
+    for (s0, t0), (s1, t1), (ms, mt), front in walls:
+        length = math.hypot(s1 - s0, t1 - t0)
+        es, et = (s1 - s0) / length, (t1 - t0) / length
+        count = max(1, int((length - 1.0) // float(c["window_pitch_m"])))
+        for storey in range(int(house["storeys"])):
+            floor = ground + float(c["plinth_m"]) + storey * float(c["storey_m"])
+            door_at = count // 2 if front and storey == 0 else None
+            for j in range(count):
+                cs = s0 + es * length * (j + 0.5) / count
+                ct = t0 + et * length * (j + 0.5) / count
+                half, z0, z1 = (dw / 2.0, floor, floor + dh) if j == door_at else \
+                    (ww / 2.0, floor + float(c["sill_m"]), floor + float(c["sill_m"]) + wh)
+                if z1 > eave - 0.15:
+                    continue
+                pane = [(cs - es * half, ct - et * half), (cs + es * half, ct + et * half),
+                        (cs + es * half + ms * out, ct + et * half + mt * out),
+                        (cs - es * half + ms * out, ct - et * half + mt * out)]
+                add(geom2d.prism([world(s, t) for s, t in pane], z0, z1), "window")
+    verts, faces, slots = [], [], []
+    for v, f, slot in parts:
+        k = len(verts)
+        verts.extend(v)
+        faces.extend([[k + i for i in face] for face in f])
+        slots.extend([slot] * len(f))
+    return verts, faces, slots
+
+
+def clear_context_for_houses(ctx: Optional[dict], houses: Sequence[dict], margin: float = 1.0) -> Optional[dict]:
+    """The horizon context without the trees whose crown (``width`` / 2 + ``margin``) touches a neighbouring house
+    (pure; 2 Nov 2026): a copy of ``ctx`` with ``trees``, ``count`` and ``species`` updated and
+    ``cleared_for_houses`` (the number left out); ``ctx`` itself when nothing is in the way."""
+    from shapely.geometry import Point, Polygon
+    from shapely.ops import unary_union
+
+    if not ctx or not ctx.get("trees") or not houses:
+        return ctx
+    foot = unary_union([Polygon(h["footprint"]) for h in houses])
+    keep = [t for t in ctx["trees"]
+            if not foot.intersects(Point(t["center"][0], t["center"][1]).buffer(float(t["width"]) / 2.0 + margin))]
+    gone = len(ctx["trees"]) - len(keep)
+    if not gone:
+        return ctx
+    species: dict = {}
+    for t in keep:
+        species[t["species"]] = species.get(t["species"], 0) + 1
+    return dict(ctx, trees=keep, count=len(keep), species=species, cleared_for_houses=gone,
+                reason=f"{ctx.get('reason')}; {gone} context tree(s) left out where the neighbouring houses stand")
+
+
 def extend_drives(pfs: Sequence[dict], links: Sequence[dict]) -> list[str]:
     """Grow each road platform by its links to the plot's edge (in place; lesson UL162): the drive runs on in its own
     paving (one polygon, one slab). Returns the ids of the links made."""
@@ -6447,6 +6704,75 @@ def build_context(ctx: dict, collection, entry, scans: Optional[bool] = None) ->
     return rec
 
 
+def neighbour_house_looks(houses: Sequence[dict]) -> list[tuple[str, dict]]:
+    """``[(key, look)]``: the distinct looks of the neighbouring houses' parts in first-use order (pure): per house its
+    ``facade``, its ``roof_look`` (the roof slabs, or the flat roof's face) and its ``window``; the key is
+    ``material|colour``. ``build_neighbour_houses`` makes one material per key."""
+    out: list = []
+    seen: set = set()
+    for h in houses:
+        for look in (h["facade"], h["roof_look"], h["window"]):
+            key = f"{look['material']}|{look.get('colour') or ''}"
+            if key not in seen:
+                seen.add(key)
+                out.append((key, {"material": look["material"], "colour": look.get("colour")}))
+    return out
+
+
+def build_neighbour_houses(houses: Sequence[dict], collection, make_material, entry) -> dict:
+    """The neighbouring houses of ``neighbour_houses`` (bpy; 2 Nov 2026, the comment above ``NEIGHBOUR_HOUSES``): one
+    mesh object ``neighbour_houses`` (kind ``site_decor``, ``site_part`` ``neighbour_house``) of every house's
+    ``neighbour_house_parts``, one material per look (``neighbour_house_looks`` through ``make_material``), hidden from
+    ``CONTEXT_HIDDEN_RAYS`` (no shadow on our building, no light from it). Returns the site record ``{"built",
+    "houses", "faces", "hidden_rays", "looks", "inferred", "context", "records" (per house: id, plot, footprint, size,
+    storeys, roof, setback, top, inferred, source, reason)}``; a failure builds nothing and is recorded as
+    ``error``."""
+    from wenart.blender import common
+
+    looks = neighbour_house_looks(houses)
+    rec = {"built": False, "houses": [h["id"] for h in houses], "looks": [k for k, _ in looks],
+           "inferred": True, "context": True,
+           "records": [{k: h[k] for k in ("id", "plot", "footprint", "width_m", "depth_m", "storeys", "roof",
+                                          "setback_m", "top_z", "inferred", "source", "reason")} for h in houses]}
+    ob = None
+    try:
+        index = {k: i for i, (k, _look) in enumerate(looks)}
+        mats = [make_material(dict(look, source="build", assumed=True,
+                                   reason="a neighbouring house (site context; inferred)")) for _k, look in looks]
+        verts, faces, slots = [], [], []
+        for h in houses:
+            v, f, s = neighbour_house_parts(h)
+            keys = {"facade": h["facade"], "roof": h["roof_look"], "flat_roof": h["roof_look"], "window": h["window"]}
+            k0 = len(verts)
+            verts.extend(v)
+            faces.extend([[k0 + i for i in face] for face in f])
+            slots.extend(index[f"{keys[x]['material']}|{keys[x].get('colour') or ''}"] for x in s)
+        ob = common.new_mesh_object(NEIGHBOUR_HOUSES_NAME, verts, faces, collection=collection,
+                                    wenart_id=NEIGHBOUR_HOUSES_NAME, kind="site_decor", status="assumed",
+                                    materials=mats, face_material_indices=slots)
+        hidden = []
+        for attr in CONTEXT_HIDDEN_RAYS:
+            if hasattr(ob, attr):
+                setattr(ob, attr, False)
+                hidden.append(attr)
+        ob["wenart_site_part"] = NEIGHBOUR_HOUSE_PART
+        rec.update(built=True, faces=len(faces), hidden_rays=hidden)
+        entry(ob.name, NEIGHBOUR_HOUSES_NAME, "site_decor", mats[0] if mats else None, "assumed",
+              {"site_part": NEIGHBOUR_HOUSE_PART, "inferred": True, "context": True, "houses": rec["houses"],
+               "faces": len(faces), "hidden_rays": hidden, "looks": rec["looks"],
+               "assumed": {"reason": f"{len(houses)} neighbouring house massing(s) on the fenced neighbour plots: "
+                                     + "; ".join(h["reason"] for h in houses)}})
+    except Exception as exc:  # noqa: BLE001 - the site builds without them; the reason is in the manifest
+        rec.update(built=False, error=f"{type(exc).__name__}: {exc}")
+        if ob is not None:                            # no object without its manifest entry
+            try:
+                import bpy
+                bpy.data.objects.remove(ob, do_unlink=True)
+            except Exception:  # noqa: BLE001 - nothing more to undo
+                pass
+    return rec
+
+
 def label_holder(site: dict, area: dict) -> Optional[str]:
     """The drawn surface that holds a labelled site area (pure; lesson UL129): a paving, parking, grass or pool of the
     site that names it (``area_id``) or whose outline holds its label's anchor; None."""
@@ -6686,11 +7012,27 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
         assumed.append({"field": "climate", "value": climate["climate"], "reason": f"{climate['source']} "
                         f"(inferred; the species of trees and hedges follow it): {', '.join(climate['evidence'])}"})
     near_extent = ground_extent(outline, plot, MARGIN_M)
+    # 2 Nov 2026 (user request): a neighbouring house on each fenced neighbour plot (neighbour_houses; site context,
+    # inferred), never on our plot or on a tree, with the context lever
+    houses = {"houses": [], "skipped": [], "reason": None}
+    nbs = roads.get("neighbours") or []
+    if mode == "full" and levers.get("sky") and nbs and neighbour_houses_on():
+        own = plot if len(plot or []) >= 3 else (inferred_plot(outline) if len(outline) >= 3 else [])
+        keep_out = ([geom2d.ccw(own)] if len(own) >= 3 else []) + [geom2d.ccw(outline)] + list(copy_holes)
+        crowns = [disc_polygon(t["center"], max(0.3, max(float(v) for v in (t.get("size") or [1.0, 1.0])[:2])) / 2.0)
+                  for t in trees if t.get("center")]
+        houses = neighbour_houses(nbs, terrain, keep_out=keep_out, avoid=crowns)
+        for h in houses["houses"]:
+            assumed.append({"field": f"neighbour_house:{h['id']}", "value": h["footprint"], "reason": h["reason"]})
+        for s in houses["skipped"]:
+            assumed.append({"field": f"neighbour_house:{s['plot']}", "value": None,
+                            "reason": f"no neighbouring house on {s['plot']}: {s['reason']} (site context; inferred)"})
     context = None
     if mode == "full" and levers.get("sky"):
         # 26 Oct 2026 (real06's "flat grey void" through the windows): the distant context at the horizon
         context = horizon_context(list(outline) + [p for fp in copy_holes for p in fp], near_extent, terrain,
                                   climate["climate"], building_height(levels, default_z))
+        context = clear_context_for_houses(context, houses["houses"])     # 2 Nov 2026: no tree through a house
         assumed.append({"field": "context", "value": context["count"], "reason": context["reason"]})
     return {"mode": mode, "terrain": terrain, "outline": geom2d.ccw(outline), "plot": plot, "plot_source": plot_src,
             "extent": extent, "wells": wells, "plot_walls": plot_walls, "areas": areas, "trees": trees,
@@ -6700,6 +7042,8 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
             "aprons": aprons, "glazing_runs": glazing_runs,
             # 30 Oct 2026 (lesson UL172): the fenced neighbouring plots (outside_roads)
             "neighbours": roads.get("neighbours") or [],
+            # 2 Nov 2026: the neighbouring houses on them (neighbour_houses; site context, inferred)
+            "neighbour_houses": houses,
             # 30 Oct 2026 (lesson UL196): the street section's kerbs, edgings, centre-line dashes and lamps
             "streets": roads.get("streets") or {}}
 
@@ -7073,6 +7417,12 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                            "reason": nbs[0]["reason"] + "; a board fence with a cap and a framed gate (lesson UL196)"}})
         summary["neighbours"] = [{"id": nb["id"], "fence_pieces": len(nb["fence"]),
                                   "gates": sum(1 for s in nb["fence"] if s.get("kind") == "gate")} for nb in nbs]
+    # 2 Nov 2026: the neighbouring houses on those plots (neighbour_houses; site context, inferred)
+    houses = ((plan.get("neighbour_houses") or {}).get("houses") or []) if plan["mode"] == "full" else []
+    if houses:
+        summary["neighbour_houses"] = build_neighbour_houses(houses, collection, make_material, entry)
+        if summary["neighbour_houses"].get("error"):
+            summary["warnings"].append(f"neighbouring houses not built: {summary['neighbour_houses']['error']}")
     outer_rect = list(plan["extent"])
     if not is_flat(terrain):                     # 11 Oct 2026 (real04): a sloped ground reaches the horizon too
         sv, sf = skirt_faces(plan["extent"], terrain)

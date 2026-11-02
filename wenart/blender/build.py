@@ -503,6 +503,14 @@ def referenced_asset_ids(building: dict, style: dict) -> list[str]:
     hdri = (style.get("lighting") or {}).get("hdri")
     if hdri:
         ids.add(str(hdri))
+    # 2 Nov 2026: the pure sky of the exterior views' cloud layer (a build cached before it reached the volume is redone)
+    try:
+        from wenart.blender import materials as M
+        cloud = M.exterior_cloud_sky(style.get("lighting") or {}).get("hdri")
+        if cloud:
+            ids.add(str(cloud))
+    except (ImportError, AttributeError, KeyError, TypeError, ValueError):
+        pass
     items = list(building.get("furniture") or []) + list(building.get("decor") or [])
     for piece in building.get("furniture") or []:
         items.extend(piece.get("decor") or [])
@@ -886,6 +894,17 @@ def hdri_file(hdris: dict, assets_dir: str | None, style: dict) -> str | None:
     if not path.is_absolute() and assets_dir:
         path = Path(assets_dir) / path
     return str(path) if path.exists() else None
+
+
+def exterior_sky_file(hdris: dict, assets_dir: str | None, style: dict) -> tuple[dict, str | None]:
+    """``(choice, path)`` of the pure sky the exterior views show over the physical sky (2 Nov 2026; pure):
+    ``materials.exterior_cloud_sky`` of the style's lighting and its file on the volume (``hdri_file``), None when
+    no pure sky is chosen or the file is not in the assets manifest (the physical sky stays; ``main`` warns)."""
+    from wenart.blender import materials as M
+
+    choice = M.exterior_cloud_sky(style.get("lighting") or {})
+    path = hdri_file(hdris, assets_dir, {"lighting": {"hdri": choice["hdri"]}}) if choice.get("hdri") else None
+    return choice, path
 
 
 def is_whole_building(building: dict) -> bool:
@@ -2393,6 +2412,15 @@ def main(argv: list[str]) -> int:
             assumed.append({"object": "sun", "field": "north_deg", "value": north, "reason": north_source})
     else:
         light_info = lighting.build_lighting(building, levels, style, hdri, light_col, manifest_objects, assumed)
+    if light_info.get("world_exterior"):
+        # 2 Nov 2026: clouds in the exterior sky, a pure-sky HDRI on camera rays only; the lighting keeps the
+        # physical sky (materials.exterior_sky_clouds). A missing file keeps the cloudless sky, with a warning.
+        from wenart.blender import materials as M
+        sky_choice, sky_file = exterior_sky_file(hdris, args.assets, style)
+        light_info["world_exterior"] = M.exterior_sky_clouds(scene, light_info["world_exterior"], sky_file, sky_choice)
+        clouds = light_info["world_exterior"]["clouds"]
+        if sky_choice.get("hdri") and not clouds["used"] and not args.no_textures:
+            warnings.append(f"exterior sky: {clouds['reason']}")
     bpy.context.view_layer.update()
     add_box3d(manifest_objects, warnings)
     # fix round after P5 (22 Oct 2026): a searched interior camera whose lens touches a built box (decor, the rig's

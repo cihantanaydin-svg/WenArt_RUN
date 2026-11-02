@@ -156,7 +156,8 @@ LONG_LOW_STEPS_M = tuple(s for s in MOVE_STEPS_M if s >= 0.0)   # a blocked clos
 LONG_LOW_NOTE = " (long, low building, {length:.1f} m long and {height:.1f} m high: framed closer)"
 KIND = "exterior"
 LABELS = {"nothing": 0, "building": 1, "plot_wall": 2, "tree": 3, "ground": 4, "copy": 5,    # copy: 11 Oct 2026
-          "hedge": 6}                                                                           # hedge: Milestone 13
+          "hedge": 6,                                                                           # hedge: Milestone 13
+          "neighbour": 7}              # 2 Nov 2026: the neighbouring houses (site.neighbour_houses)
 
 
 # --------------------------------------------------------------------------
@@ -216,6 +217,10 @@ def build_finish_slugs(style: Optional[dict] = None) -> list[tuple[str, str]]:
     rows += [(sch["main"][0], "scheme_main"), (sch.get("base"), "scheme_base"), (sch.get("accent"), "scheme_accent")]
     rows += [(slug, f"kit_{kind}") for kind, (slug, _colour, _why) in FA.KIT_LOOKS.items()]
     rows += [(slug, f"build_{name}") for name, (slug, _colour, _why) in BUILD_LOOKS.items()]
+    # 2 Nov 2026: the neighbouring houses' plaster, roofs and panes (site.NEIGHBOUR_HOUSES)
+    nh = S.NEIGHBOUR_HOUSES
+    rows += [(nh["facade"], "neighbour_facade")] + [(slug, "neighbour_roof") for slug in nh["roofs"]]
+    rows += [(nh["flat_roof"], "neighbour_flat_roof"), (nh["window"], "neighbour_window")]
     out, seen = [], set()
     for slug, part in rows:
         if slug and slug not in seen:
@@ -376,6 +381,7 @@ class ExteriorModel:
         self.labels: list[int] = []
         self.prisms: list[tuple] = []          # (outline, z0, top planes or None, z1) of the building
         self.copy_prisms: list[tuple] = []     # (outline, z0, z1) of the other buildings on the plot (11 Oct 2026)
+        self.neighbour_prisms: list[tuple] = []  # (footprint, z0, z1) of the neighbouring houses (2 Nov 2026)
         self.roof: Optional[dict] = None        # the roof model
         self.walls: list[tuple] = []            # plot walls: (start, end, half thickness, z top)
         self.trees: list[tuple] = []            # (centre, rx, ry, z0 crown, z1 crown, trunk radius, ground z)
@@ -454,6 +460,10 @@ class ExteriorModel:
             if z0 - CLEARANCE <= z <= z1 + CLEARANCE and (G.point_in_polygon((x, y), outline)
                                                           or geom2d.distance_to_polygon_edges((x, y), outline) < CLEARANCE):
                 return "copy"
+        for outline, z0, z1 in self.neighbour_prisms:          # 2 Nov 2026: no camera inside a neighbouring house
+            if z0 - CLEARANCE <= z <= z1 + CLEARANCE and (G.point_in_polygon((x, y), outline)
+                                                          or geom2d.distance_to_polygon_edges((x, y), outline) < CLEARANCE):
+                return "neighbour"
         if self.roof is not None and self.roof.get("equations") and G.point_in_polygon((x, y), self.roof["outline"]):
             top = R.top_z(self.roof, x, y)
             if top - self.roof["thickness"] - CLEARANCE <= z <= top + CLEARANCE:
@@ -565,6 +575,12 @@ def build_model(building: dict, levels: Sequence[dict], roof_model: Optional[dic
             pts = [(float(x), float(y)) for x, y in h["polyline"]]
             for a, b in zip(pts, pts[1:]):
                 m.hedges.append((a, b, float(h["width_m"]) / 2.0, info["z_range"][1]))
+        # 2 Nov 2026: the neighbouring houses (site.neighbour_houses) block the view like another building and no
+        # camera stands in one (their panes are no obstacle of their own)
+        for h in (site_plan.get("neighbour_houses") or {}).get("houses") or []:
+            v, f, slots = S.neighbour_house_parts(h)
+            m.add_mesh(v, [face for face, slot in zip(f, slots) if slot != "window"], "neighbour")
+            m.neighbour_prisms.append(([tuple(p) for p in h["footprint"]], float(h["base_z"]), float(h["top_z"])))
         for item in site_plan["trees"]:
             parts = S.tree_parts(item, stand)
             for mesh in (parts["trunk"], parts["crown"]):
@@ -861,7 +877,7 @@ def view_check(model: ExteriorModel, position, target, lens: float, shift_y: flo
     a, b = camsearch.ray_grid(RAY_GRID, lens_mm=lens, sensor_mm=SENSOR_MM, resolution=RESOLUTION, shift_y=shift_y)
     dirs = camsearch.camera_directions(position, target, a, b)
     labels, _t, tops = model.cast(position, dirs, want_tops=True)
-    clear, _ = model.cast(position, dirs, skip=("plot_wall", "tree", "copy", "hedge"))
+    clear, _ = model.cast(position, dirs, skip=("plot_wall", "tree", "copy", "hedge", "neighbour"))
     building = labels == LABELS["building"]
     reach = clear == LABELS["building"]
     cam_z = float(position[2])

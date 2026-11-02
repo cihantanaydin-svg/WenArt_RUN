@@ -607,7 +607,10 @@ OPEN_AIR_CLIP_RULE = ("open-air room under the exterior world: the exterior view
                       "the far ground and the backdrop close the horizon")
 # The scene properties of the worlds (build.py / materials.exterior_world_nodes) that select_world reads.
 WORLD_PROPS = ("wenart_world_exterior", "wenart_world_interior", "wenart_world_exterior_sun_disc",
-               "wenart_world_exterior_disc_camera_only")
+               "wenart_world_exterior_disc_camera_only",
+               # 2 Nov 2026: the sky the exterior camera sees (materials.EXTERIOR_SKY_PROP: a pure-sky HDRI id with
+               # clouds, or "physical"), recorded per view as ``exterior_sky`` (exterior_sky_for)
+               "wenart_world_exterior_sky")
 WINDOW_CLIP_LEVEL = 0.98          # a window pixel is clipped when every display channel reaches this
 LUMA = (0.2126, 0.7152, 0.0722)
 PLUG_EXTRA_M = 0.002              # a plug is the wall thickness + 2 x 2 mm (no coplanar faces)
@@ -2423,6 +2426,17 @@ def under_exterior_sky(scene_props: dict, camera_kind: str | None, room_type: st
     return bool(name) and world_for(scene_props, camera_kind, room_type) == str(name)
 
 
+def exterior_sky_for(scene_props: dict, camera_kind: str | None, room_type: str | None = None) -> str | None:
+    """The sky a camera sees under the exterior world (pure; 2 Nov 2026): the scene's ``wenart_world_exterior_sky``
+    (the pure-sky HDRI id of the cloud layer, ``materials.exterior_sky_clouds``, or ``physical``; ``physical`` for a
+    scene built before it), None for a camera under the interior world. The sky pull below works on the rendered
+    sky, clouds included (a cloudy sky has a lower median saturation, so it may take a deeper pull or none; the
+    median floor ``SKY_PULL_MEDIAN_MIN`` keeps it from going dark)."""
+    if not under_exterior_sky(scene_props, camera_kind, room_type):
+        return None
+    return str(scene_props.get("wenart_world_exterior_sky") or "physical")
+
+
 def sun_hidden_for(scene_props: dict, camera_kind: str | None, room_type: str | None = None) -> bool:
     """Whether the sun lamp is hidden for a camera (pure; Milestone 13): under the exterior world whose sky carries
     the sun disc for every ray (``wenart_world_exterior_sun_disc``, the P1 world) the disc is the one direct sun.
@@ -3757,6 +3771,7 @@ class RenderRun:
             "alt_preview": f["alt_preview"].name if alt_bytes is not None else None,
             "alt_preview_bytes": alt_bytes,
             "world": world,
+            "exterior_sky": exterior_sky_for(props, cam.get("wenart_camera_kind"), room_type),   # 2 Nov 2026
         }
         self.rendered += 1
         self.write_manifest()   # after every camera: a killed run keeps what it rendered

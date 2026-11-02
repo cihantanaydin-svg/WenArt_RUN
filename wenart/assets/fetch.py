@@ -488,6 +488,28 @@ def texture_plan(style: dict, shell_rows: Optional[list] = None,
     return rows
 
 
+SKY_LABEL = "sky:exterior"     # the label of the exterior views' pure sky (2 Nov 2026)
+
+
+def hdri_plan(style: dict) -> list[tuple[str, str, str]]:
+    """The HDRIs ``fetch_for_style`` fetches, one row ``(source, hdri_id, label)`` per id (pure): the style's own
+    (``assets_in_profile``, label ``style``), then (2 Nov 2026) the pure sky of the exterior views' cloud layer
+    (``materials.exterior_cloud_sky`` of the style's lighting, label ``SKY_LABEL``; none for a sunless mood). An id
+    already in the list keeps its first label."""
+    from wenart.blender import materials as M
+    from wenart.style.profile import assets_in_profile
+
+    rows, seen = [], set()
+    for source, hdri_id in assets_in_profile(style)["hdris"]:
+        if hdri_id and hdri_id not in seen:
+            seen.add(hdri_id)
+            rows.append((source, str(hdri_id), "style"))
+    cloud = M.exterior_cloud_sky((style or {}).get("lighting") or {}).get("hdri")
+    if cloud and cloud not in seen:
+        rows.append((polyhaven.SOURCE, str(cloud), SKY_LABEL))
+    return rows
+
+
 def fetch_for_style(style: dict, out_dir: Path, size: str = "2k", hdri_size: Optional[str] = None,
                     log=print) -> dict:
     """Fetch every texture set and the HDRI a style profile uses, plus the
@@ -497,6 +519,8 @@ def fetch_for_style(style: dict, out_dir: Path, size: str = "2k", hdri_size: Opt
     (``shell_texture_rows``) and (fix round after P3) the sets of the site
     finishes the build puts on by itself (``site_texture_rows``: retaining
     walls, kerbs, plinth), all at ``size``; ``texture_plan`` is the list.
+    2 Nov 2026: the HDRIs are ``hdri_plan``: the style's and the pure sky of
+    the exterior views' cloud layer (``materials.exterior_cloud_sky``).
 
     Failures (blocked host, unknown id, licence) do not stop the run: they are
     returned under ``"failed"`` so the scene builder can fall back to flat
@@ -531,14 +555,20 @@ def fetch_for_style(style: dict, out_dir: Path, size: str = "2k", hdri_size: Opt
         except (web.NetworkError, web.HTTPStatusError, AssetNotFound, LicenceError, KeyError, RuntimeError) as exc:
             result["failed"][asset_id] = f"{type(exc).__name__}: {exc}"
             log(f"texture {asset_id:<28} {source:<10} {slug:<20} FAILED: {exc}")
-    for source, hdri_id in wanted["hdris"]:
+    try:                      # 2 Nov 2026: the style's HDRI and the exterior views' pure sky (hdri_plan)
+        hdris, hdri_error = hdri_plan(style), None
+    except Exception as exc:  # noqa: BLE001 - the style's own HDRI still comes; the failure is recorded
+        hdris, hdri_error = [(source, hdri_id, "style") for source, hdri_id in wanted["hdris"]], \
+            f"{type(exc).__name__}: {exc}"
+        result["failed"]["exterior_sky"] = f"the exterior sky could not be chosen: {hdri_error}"
+    for source, hdri_id, label in hdris:
         try:
             entry = fetch_hdri(hdri_id, out_dir, size=hdri_size or size, source=source)
             result["hdris"][hdri_id] = entry
-            log(f"hdri    {hdri_id:<28} {source:<10} {'':<20} {entry['file']}  ok")
+            log(f"hdri    {hdri_id:<28} {source:<10} {label:<20} {entry['file']}  ok")
         except (web.NetworkError, web.HTTPStatusError, AssetNotFound, LicenceError, KeyError, RuntimeError) as exc:
             result["failed"][hdri_id] = f"{type(exc).__name__}: {exc}"
-            log(f"hdri    {hdri_id:<28} {source:<10} {'':<20} FAILED: {exc}")
+            log(f"hdri    {hdri_id:<28} {source:<10} {label:<20} FAILED: {exc}")
     for source, asset_id, label in shell_rows:
         result["shell"].append({"slot": label[len(SHELL_LABEL):], "asset": asset_id, "source": source,
                                 "ready": asset_id in result["textures"]})

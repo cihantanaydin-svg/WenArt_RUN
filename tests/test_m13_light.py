@@ -279,8 +279,9 @@ def test_project_white_balance_helpers(tmp_path):
     assert not R.sun_hidden_for(dict(props, wenart_world_exterior_sun_disc=False), "exterior")
     assert not R.sun_hidden_for(dict(props, wenart_world_exterior_disc_camera_only=True), "exterior")
     assert not R.sun_hidden_for({}, "exterior")
+    # 2 Nov 2026 (pin changed on purpose): the sky the exterior camera sees (the cloud layer's HDRI id or "physical")
     assert set(R.WORLD_PROPS) == {"wenart_world_exterior", "wenart_world_interior", "wenart_world_exterior_sun_disc",
-                                  "wenart_world_exterior_disc_camera_only"}
+                                  "wenart_world_exterior_disc_camera_only", "wenart_world_exterior_sky"}
 
 
 # --------------------------------------------------------------------------
