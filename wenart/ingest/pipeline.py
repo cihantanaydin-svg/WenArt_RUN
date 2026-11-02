@@ -2830,6 +2830,14 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         elif record.extractor == "generic":
             extraction = _extract_generic(record, out_dir, answers, no_ai, build, lead=record.key in leads)
             extraction.level_assumed = record.label_source == "assumed"
+            # 2 Nov 2026 (real10's 2nd basement, user: "2n basement is fully underground and fully walled around"): a
+            # level with soil outside its walls on 3 or more sides is closed all round, with no opening to the soil
+            from wenart.ingest.generic import underground as UG
+            if extraction.walls and extraction.transform_to_building is not None:
+                ug = UG.close_underground(extraction, lambda p, ex=extraction: _to_building(ex, p))
+                if ug:
+                    extraction.warnings.append(f"{record.file}" + (f" {record.region_id}" if record.region_id else "")
+                                               + f" ({record.level_id}): {ug}")
             if any(r.typical_of and r.region_id == record.region_id for r in records):
                 typical_reads[record.region_id] = copy.deepcopy(extraction)
         elif record.format in ("dxf", "dwg"):

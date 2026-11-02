@@ -142,3 +142,29 @@ def test_the_cores_stair_places_the_top_floor_whose_machine_room_differs():
     assert fit["common"] == 4 and fit["shift"] == pytest.approx([-30.598, -1.257], abs=1e-6)
     assert RG.stair_fit(eyes_ref, RG.stair_eyes(SimpleNamespace(ents=[arcs(42, 12, (0.165, 0.19))]), 1.0,
                                                 (42.0, 12.0)), 0.0) is None          # only 2 radii in common
+
+
+def test_a_level_with_soil_all_round_is_closed_and_has_no_opening_to_the_soil():
+    """2 Nov 2026 (real10's 2nd basement, user: "2n basement is fully underground and fully walled around", "first
+    from the stairs and than from the door"): soil labels outside on 3+ sides: the outer gap closed (inferred), the
+    openings on the outer ring removed; an inner door stays."""
+    from wenart.ingest.generic import underground as UG
+    from wenart.ingest.model import OpeningItem, TextItem, WallItem
+    ev = {"method": "vector"}
+    W = lambda a, b, t=0.3: WallItem(start=a, end=b, thickness=t, box=[0, 0, 1, 1], entity="w", evidence=ev)
+    walls = [W((0, 0), (10, 0)), W((10, 0), (10, 4)), W((10, 6.2), (10, 8)), W((10, 8), (0, 8)), W((0, 8), (0, 0)),
+             W((5, 0), (5, 8), 0.15)]
+    O = lambda kind, c, w=0.9: OpeningItem(kind=kind, width=w, center=c, rotation_deg=0.0, box=[0, 0, 1, 1],
+                                           entity="o", evidence=ev)
+    opens = [O("window", (2.5, 8.0)), O("door", (5.0, 3.0))]
+    T = lambda s, x, y: TextItem(text=s, start=(x, y), box=[x, y, x + 1, y + 0.2], rotation_deg=0.0, entity="t",
+                                 height=0.2)
+    texts = [T("SIKIŞTIRILMIŞ TOPRAK", -2, 4), T("SIKIŞTIRILMIŞ TOPRAK", 5, -1.5), T("SIKIŞTIRILMIŞ TOPRAK", 5, 9.5)]
+    ex = SimpleNamespace(walls=list(walls), openings=list(opens), texts=texts, labels=[])
+    note = UG.close_underground(ex, lambda p: p)
+    assert note and "1 gap(s)" in note and "2.20 m" in note and "1 opening(s)" in note
+    new = [w for w in ex.walls if w.inferred]
+    assert len(new) == 1 and new[0].evidence["method"] == "inferred" and {new[0].start, new[0].end} == {(10, 4), (10, 6.2)}
+    assert [o.kind for o in ex.openings] == ["door"]                    # the window to the soil is gone, the door stays
+    ex2 = SimpleNamespace(walls=list(walls), openings=list(opens), texts=texts[:2], labels=[])
+    assert UG.close_underground(ex2, lambda p: p) is None               # soil on 2 sides only: not underground
