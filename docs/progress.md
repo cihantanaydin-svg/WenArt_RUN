@@ -3243,7 +3243,10 @@ The regression set (12 projects) passes on the final code (19 min). The new proj
 | real09 | 0 | 6 (walls do not close: glazed corner facades) | fix before a pod run | 6 / 17 |
 | real13 | 0 | 8 (all levels found; walls do not close) | fix before a pod run | 8 / 86 |
 | real15 | 2 (L0, L1) | 0 | fix before a pod run | 1 / 2 |
-| real11, real14, real12, real08 | being read | | | |
+| real11 | 0 | 10 (all 11 plans split and found; walls do not close) | fix before a pod run | 10 / 94 |
+| real12 | 0 | 4 (plus 4 plans titled only by elevation, unplaced) | fix before a pod run | 4 / 8 |
+| real14 | 0 | 18 (every storey of two blocks found; walls do not close) | fix before a pod run | 18 / 133 |
+| real08 | 1 (the whole sheet read as one plan) | 0 | ready (misleading: one region) | 0 / 1 |
 
 Open (next): the facades of real09 and real13 are glazed corners and runs with no wall near one end (chained glazed runs);
 real08's sheet is read as one region; real12's plans titled only by elevation stay unplaced (its titled plans give no

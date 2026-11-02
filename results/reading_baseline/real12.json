@@ -1,0 +1,21 @@
+{
+ "project": "real12",
+ "status": "needs_review",
+ "levels": [],
+ "levels_left_out": [
+  "1. Kat",
+  "2. Bodrum Kat",
+  "2. Kat",
+  "Zemin Kat"
+ ],
+ "per_level": {},
+ "check": {
+  "verdict": "fix before a pod run",
+  "counts": {
+   "critical": 4,
+   "major": 8,
+   "minor": 0
+  },
+  "stacking": {}
+ }
+}
