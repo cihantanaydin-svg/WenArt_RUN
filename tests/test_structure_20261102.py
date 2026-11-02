@@ -123,8 +123,9 @@ def test_a_thinly_labelled_plan_adds_its_own_best_wall_layer_to_the_documents():
     page.texts.append(TextRun(id="t3", text="DEPO", box=(8.6, 6.0, 9.4, 6.2), height=0.2))   # a label nothing closes
     page.document_wall_layers = ("MOB",)                      # the document's layer: here only a bed's outline
     prims, choice = W.face_pair_walls(page, 1.0, [])
-    # ... and the corner column's layer A-BA (BA: betonarme, reinforced concrete) joins by its name
-    assert choice["used"] and choice["layer"] == "W1" and choice["also"] == ["MOB", "A-BA"]
+    # the corner column's layer A-BA (BA: betonarme) does not join: a column layer joins only to add walls (its
+    # columns already join the walls as columns)
+    assert choice["used"] and choice["layer"] == "W1" and choice["also"] == ["MOB"]
     assert choice["reason"] == "the document's other plans"
 
 

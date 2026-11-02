@@ -1936,7 +1936,8 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
     # 2 Nov 2026 (real10, user: "the red lines should have been dotted lines, those are for coordinates, you can
     # understand this from the numbers at the end"): the axis lines of the grid are never walls, rooms or site decor
     from wenart.ingest.generic import axes as AX
-    axis_ids = AX.axis_line_ids(page.strokes, page.texts)
+    axis_ids = AX.axis_line_ids(page.strokes, getattr(page, "texts", []) or []) \
+        if getattr(page, "strokes", None) else set()
     if axis_ids:
         page.strokes = [st for st in page.strokes if st.id not in axis_ids]
         page.warnings.append(f"{len(axis_ids)} axis line(s) of the structural grid left out of the walls, the rooms "

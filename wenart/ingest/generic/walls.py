@@ -1264,7 +1264,8 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     # with too few labels to decide takes the document's layers and its own best layer when that layer is no grid,
     # closes in at least as many labels as the document's best and pairs well (``OWN_PAIR_SHARE``)
     if picked and rows and rows[0] not in picked and not rows[0]["grid"] \
-            and rows[0]["closed_in"] >= max(r["closed_in"] for r in picked) and rows[0]["pair_share"] >= OWN_PAIR_SHARE:
+            and rows[0]["closed_in"] >= max(1, max(r["closed_in"] for r in picked)) \
+            and rows[0]["pair_share"] >= OWN_PAIR_SHARE:
         picked = [rows[0]] + picked
     if not decided and not picked:
         if rows and rows[0]["grid"]:
@@ -1308,12 +1309,31 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     # sense"): a layer whose name means wall, plaster or column / concrete structure (``layer_names``) draws the
     # building's walls: it joins when its strokes pair into wall pieces and it is no axis grid
     from wenart.ingest.generic import layer_names as LN
+    # The name makes the layer a candidate without the label evidence of its own; it joins when the joined walls do
+    # better (``helps``: fewer separate parts or the labels parted into more rooms). real06's masonry DUVAR inside
+    # its plaster SIVA faces adds nothing and stays out (two offset bands would cut the rooms); real02's column layer
+    # A-BA adds nothing (its columns already join as columns); real10's concrete walls on 'kolon' close the ring.
     chosen = {win["layer"]} | {r["layer"] for r in also}
-    named = [r for r in rows if r["layer"] not in chosen and not r["grid"] and LN.draws_walls(r["layer"])]
+    base_pairs = [pr for r in [win] + list(also) for pr in r["_pairs"]]
+    base_elems = _network(base_pairs, columns) if also else win["_elems"]
+    base_rooms = separate_rooms(anchors, [e.polygon for e in base_elems] + _gap_bridges(base_pairs)) if anchors else 0
+    named = []
+    for r in rows:
+        if r["layer"] in chosen or r["grid"] or not LN.draws_walls(r["layer"]):
+            continue
+        joined = _network(base_pairs + r["_pairs"], columns)
+        connects = _parts_count(joined) < _parts_count(base_elems)
+        rooms = separate_rooms(anchors, [e.polygon for e in joined] + _gap_bridges(base_pairs + r["_pairs"])) \
+            if anchors else 0
+        if connects or rooms > base_rooms:
+            named.append(r)
+            base_pairs = base_pairs + r["_pairs"]
+            base_elems = joined
+            base_rooms = max(base_rooms, rooms)
     if named:
         also = list(also) + named
         note += "; " + ", ".join(f"'{r['layer']}' ({LN.layer_role(r['layer'])})" for r in named) + \
-            " join(s) by the name (a wall, plaster or column layer draws walls)"
+            " join(s) by the name (a wall, plaster or column layer whose walls join the others or part more rooms)"
     layers = [win["layer"]] + [r["layer"] for r in also]
     elems = list(win["_elems"])
     if also:
