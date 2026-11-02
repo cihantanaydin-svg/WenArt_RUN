@@ -72,7 +72,9 @@ ceiling light and was pushed +3..+8 EV):
   (else beside the bed head), a strip under the kitchen wall cabinets along the counter run (26 Oct 2026: one per
   wall cabinet, as long as the cabinet, at its bottom; none where no wall cabinet hangs, where a bare bar read as "a
   thin floating shelf" in real06's kitchen), a mirror light over
-  the washbasin; a fixture whose anchor piece is missing is dropped with the reason. With the rig a windowless
+  the washbasin, a light in each floor and table lamp of a living room (2 Nov 2026, house score item 4b: kind
+  ``lamp``, at most ``RIG_LAMP_MAX``, ``rig_lamp_hosts``); a fixture whose anchor piece is missing is dropped with the
+  reason. With the rig a windowless
   or dim room keeps no invisible area light (the fixtures carry its light, recorded ``assumed``); a room type
   without a rig keeps the Milestone 6 light. Every fixture is ``assumed`` (the documents say nothing about lamps).
 - Round 3 (§14.3): ``RIG_GAIN`` is 2.0; the visible shade of a fixture emits at the fixed radiance
@@ -916,8 +918,24 @@ RIG_STAND_TOL_M = 0.01                # a table lamp's base within this of its n
 # bathroom, wc, kitchen, bedroom and dining rigs keep their lumens (P3: the baths and kitchens metered within the
 # cap).
 RIG_CIRCULATION_LUMENS_PER_M2 = 450.0
+# 2 Nov 2026 (house score item 4b, "layered lighting"): a living room's lamps are lit. Why: the living rig had only an
+# optional dining pendant and an optional kitchen strip, and a floor or table lamp gives its own light (LAMP_LIGHTS in
+# furniture.py) only in the evening mood, so in daylight a living room's lamps were dark props. What: every floor lamp
+# and table lamp already in a living room (a furniture piece or a built decor lamp, ``_host_lamps``) hosts a rig light
+# (kind ``lamp``), as a bedside light goes into a lamp beside the bed: no rig mesh, the light in or under the lamp's
+# shade (``_host_light_z``), at the room's warm ``rig_temperature_for`` colour, in every mood. Lumens of a real LED bulb
+# (the FTC labelling rule above): a table lamp 800 lm (60 W-equivalent), a floor lamp 1100 lm (75 W-equivalent: it
+# lights a larger part of the room), times RIG_GAIN like every rig light. At most RIG_LAMP_MAX lamps per room (floor
+# lamps first, then by id); each lamp over the cap is listed under ``dropped`` with the reason. LAMP_LIGHTS and the
+# mood's ``light_on`` stay as they were: this light is the rig's, recorded like every rig light.
+RIG_LAMP_KIND = "lamp"
+RIG_LAMP_RULE = "lighting.living_lamps"
+RIG_LAMP_REASON = "2 Nov 2026, house score item 4b: a living room's lamps are lit"
+RIG_LAMP_LUMENS: dict[str, float] = {"table_lamp": 800.0, "floor_lamp": 1100.0}
+RIG_LAMP_MAX = 4                      # a living room lights at most this many of its lamps (more would flatten it)
+RIG_LAMP_SIZE_M = [0.40, 0.40, 0.30]  # a lamp shade, recorded only (the light sits in the host lamp, no rig mesh)
 ROOM_RIGS: dict[str, list[dict]] = {
-    # kind: pendant | ceiling | bedside | strip | mirror; anchor: the piece type the fixture needs (None = the room);
+    # kind: pendant | ceiling | bedside | strip | mirror | lamp; anchor: the piece type the fixture needs (None = room);
     # size_m: [w, d, h] of the visible fixture; lumens per fixture (a strip: per metre, length from the counter).
     "dining": [{"kind": "pendant", "anchor": "table_dining", "lumens": 2400.0, "count": 1, "size_m": [0.40, 0.40, 0.14],
                 "source": "pendant with 3 x 800 lm LED bulbs"},
@@ -931,6 +949,13 @@ ROOM_RIGS: dict[str, list[dict]] = {
                # strip under its wall cabinets too (optional: no counter or no wall cabinet, no strip, no record)
                {"kind": "strip", "anchor": "kitchen_counter", "lumens_per_m": 500.0, "count": 1,
                 "size_m": [1.0, 0.02, 0.015], "source": "LED strip under the wall cabinets, 400-600 lm per metre",
+                "optional": True},
+               # 2 Nov 2026 (house score item 4b, the comment above RIG_LAMP_LUMENS): the room's floor and table lamps
+               # host a light each (optional: no lamp, no light, no record); ``lumens`` is the table lamp's
+               {"kind": RIG_LAMP_KIND, "anchor": "floor_lamp / table_lamp", "lumens": RIG_LAMP_LUMENS["table_lamp"],
+                "lumens_by_type": dict(RIG_LAMP_LUMENS), "count": RIG_LAMP_MAX, "size_m": list(RIG_LAMP_SIZE_M),
+                "source": "the room's own floor and table lamps, an LED bulb each: 800 lm (table lamp, "
+                          "60 W-equivalent) or 1100 lm (floor lamp, 75 W-equivalent)",
                 "optional": True}],
     "kitchen": [{"kind": "strip", "anchor": "kitchen_counter", "lumens_per_m": 500.0, "count": 1,
                  "size_m": [1.0, 0.02, 0.015], "source": "LED strip under the wall cabinets, 400-600 lm per metre"},
@@ -963,7 +988,7 @@ for _t in ("storage", "other", "prayer"):
     ROOM_RIGS[_t] = [dict(ROOM_RIGS["hall"][0],
                           source="ceiling fixture with 1100 lm (75 W-equivalent) LED bulbs, bulbs for 450 lm per m2 of "
                                  "floor (every room people walk into has a ceiling light point)")]
-RIG_KINDS = ("pendant", "ceiling", "bedside", "strip", "mirror")
+RIG_KINDS = ("pendant", "ceiling", "bedside", "strip", "mirror", RIG_LAMP_KIND)   # lamp: 2 Nov 2026, item 4b
 
 
 def watts_for_lumens(lumens: float) -> float:
@@ -1316,6 +1341,25 @@ def _host_lamps(pieces: list[dict], decor: list[dict], floor_z: float, piece_met
                         "top": bottom + h, "height": h, "source": "decor", "host_id": d.get("host_id"),
                         "library": library, "light_z": z, "light_where": where})
     return out
+
+
+def rig_lamp_hosts(lamps: list[dict], taken=(), cap: int = RIG_LAMP_MAX) -> tuple[list[dict], list[dict]]:
+    """``(lit, left)``: which lamps of a living room host a rig light (pure; 2 Nov 2026, house score item 4b, the
+    comment above ``RIG_LAMP_LUMENS``). ``lamps`` are ``_host_lamps`` records; only floor and table lamps
+    (``RIG_HOST_LAMP_TYPES``; a decor pendant that serves as a bedside lamp is not one) that carry no rig light yet
+    (``taken``: host ids) count, each once, floor lamps first, then by id; the first ``cap`` are lit, the rest left."""
+    taken = {t for t in taken if t}
+    seen: set = set()
+    free = []
+    for lp in lamps:
+        lid = lp.get("id")
+        if lp.get("type") not in RIG_HOST_LAMP_TYPES or lid in taken or lid in seen:
+            continue
+        seen.add(lid)
+        free.append(lp)
+    free.sort(key=lambda lp: (0 if lp["type"] == "floor_lamp" else 1, str(lp.get("id"))))
+    n = max(0, int(cap))
+    return free[:n], free[n:]
 
 
 def _decor_light_host(decor: list[dict], x: float, y: float, reach: float) -> dict | None:
@@ -1911,6 +1955,31 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
                 add(dict(spec, size_m=[sw, sd, sh]), (px, py, pz), (px + nx * lf, py + ny * lf, pz), "POINT",
                     spec["watts_applied"], [sw, sd, sh], anchor=bed["id"], radius=0.04, mount="wall", rotation=rot,
                     reason=f"bedside wall sconce on the head wall beside the bed {bed['id']} ({cause})")
+        elif kind == RIG_LAMP_KIND:
+            # 2 Nov 2026 (house score item 4b, the comment above RIG_LAMP_LUMENS): each floor or table lamp of the room
+            # hosts a rig light, in or under its shade as a bedside light does; no lamp, no light (optional, no record)
+            taken = {f.get("host_id") for f in out["fixtures"]}
+            cap = int(spec.get("count") or RIG_LAMP_MAX)
+            lit, left = rig_lamp_hosts(_host_lamps(pieces, decor, floor_z, piece_methods), taken, cap)
+            for lamp in lit:
+                lumens = float((spec.get("lumens_by_type") or {}).get(lamp["type"], spec["lumens"]))
+                watts_r = watts_for_lumens(lumens)
+                fspec = dict(spec, lumens=lumens, watts_radiometric=watts_r,
+                             watts_applied=round(watts_r * RIG_GAIN, 4))
+                px, py = lamp["xy"]
+                lz = lamp["light_z"]
+                on = f" on {lamp['host_id']}" if lamp.get("host_id") else ""
+                where = "in the shade" if lamp["light_where"] == "in_shade" else "under the shade"
+                add(fspec, (px, py, lz), (px, py, lz), "POINT", fspec["watts_applied"], spec["size_m"],
+                    anchor=lamp["id"], radius=0.05, mount="host", mesh=False, host=lamp["id"],
+                    light_where=lamp["light_where"], rule=RIG_LAMP_RULE,
+                    escape_low_z=round(lamp["top"] - (1.0 - RIG_ESCAPE_LOW_SHARE) * lamp["height"], 4),
+                    reason=f"{RIG_LAMP_REASON}: light {where} of the {lamp['type'].replace('_', ' ')} "
+                           f"{lamp['id']}{on}, {lumens:g} lm")
+            for lamp in left:
+                out["dropped"].append({"kind": kind, "rule": RIG_LAMP_RULE, "host_id": lamp["id"], "reason": (
+                    f"{RIG_LAMP_REASON}, at most {cap} per room: the {lamp['type'].replace('_', ' ')} {lamp['id']} "
+                    f"of {room['id']} stays unlit")})
         elif kind == "strip":
             counters = by_type.get("kitchen_counter") or []
             if not counters:
