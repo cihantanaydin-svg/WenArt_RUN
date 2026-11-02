@@ -3818,6 +3818,12 @@ def inferred_forecourt(building: dict, levels: Sequence[dict], terrain: dict, ou
     if not pick:
         return None
     e = max(pick, key=lambda e: (e["width"], e["opening_id"]))
+    # 2 Nov 2026 (real06's veranda door landed on the forecourt instead of its drawn veranda): a door that opens onto a
+    # drawn outdoor space (a veranda, a terrace) has its landing; no forecourt is inferred in front of it
+    rec = next((r for r in (building.get("site") or {}).get("entrances") or []
+                if isinstance(r, dict) and r.get("door_id") == e["opening_id"]), None)
+    if rec is not None and rec.get("onto"):
+        return None
     (cx, cy), (ox, oy) = e["centre"], e["outward"]
     start = (cx + ox * e["half_t"], cy + oy * e["half_t"])
     reach = ray_exit(start, (ox, oy), geom2d.ccw(plot))
