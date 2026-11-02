@@ -43,6 +43,7 @@ from wenart.agent import loop as LP
 from wenart.agent import model as MM
 from wenart.agent import overrides as OV
 from wenart.agent import tools as TL
+from wenart.run import scheduler as SC
 from wenart.blender import exterior_checks as X
 from wenart.furniture import decor as D
 from wenart.furniture import edit_ops as E
@@ -511,10 +512,13 @@ def test_the_role_guards_read_x6s_frontal_view_with_its_frame(tmp_path):
 # 8. the scheduler: the agent stage's note after the final round
 # --------------------------------------------------------------------------
 
-def test_the_final_round_rewrites_the_agent_stage_note(tmp_path, models):
+def test_the_final_round_rewrites_the_agent_stage_note(tmp_path, models, monkeypatch):
     """Fails on BASE: the agent stage record kept the note written when the rounds ended ("stop: max rounds
     reached" / "no open finding") after the final round for critical findings had run; P6a's stage table said net 32
-    while metrics.json said 34. The final round's numbers are written whatever it accepted."""
+    while metrics.json said 34. The final round's numbers are written whatever it accepted. (2 Nov 2026: the big
+    loop's cycles, which run the final round, are off by default; on here, WENART_BIG_LOOP_CYCLES on a pod.)"""
+    monkeypatch.setattr(SC.Orchestrator, "BIG_LOOP_CYCLES", 4)
+    monkeypatch.setattr(SC.Orchestrator, "BIG_LOOP_RESERVE_CYCLES", 1)
     r = TRA.orchestrated(tmp_path, [TRA.CHANGE, TRA.FINISH], [[TRA.F1], []])
     assert r.run(**r.kwargs) == 0
     rec = r.record("p1", "agent")

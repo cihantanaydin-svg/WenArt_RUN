@@ -3138,3 +3138,15 @@ render started. Causes and fixes (each general):
 
 Also: the Argus test failure since the lessons passed 168 (its scripted model had too few replies for the lesson
 walk), the lessons UL251-UL254 classified, no inferred forecourt in front of a door with a drawn landing.
+
+### Pod optimizations (2 Nov 2026, user: "implement the optimizations 1-3, then start the real10 run")
+
+From the measured gain and time of each step (real04 and real06 runs; the user's question "which steps are increasing
+the quality of the product most"): the fixes between runs gave the jumps (judge 2.25 -> 2.44, Argus criticals 28 ->
+12), the in-run loops took about half of a run for 7-8 findings and less than 1 house-score point a cycle.
+
+| optimization | rule |
+|---|---|
+| 1 agent rounds by measured gain | a regular round that removes fewer than `loop.MIN_ROUND_REMOVED` (3) findings is the last one, its edits kept (the scheduler passes it; `WENART_AGENT_MIN_REMOVED` overrides); the big loop keeps its first measure (the judge's score of every final view) and runs no cycle by default (`WENART_BIG_LOOP_CYCLES` turns them on) |
+| 2 the pod's CPU cores | the AI architect's and Argus's answer checks that fail together are judged unit by unit at once in parallel processes (`architect_ai.check_workers`: the pod's 24 CPU threads, at most 8 processes); on real10: same verdicts, 53 s against 179 s with 4 processes |
+| 3 the default search once | a building's default search is kept beside it (`build.SEED_FILE`, by content, brief and variant) and every later build, AI check and Argus check starts from it (a seed computed in the cloud session only helps when the pod builds the same building, so the pod computes it once) |

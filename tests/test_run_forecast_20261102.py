@@ -103,3 +103,36 @@ def test_history_takes_the_newest_record_and_the_longest_step(tmp_path):
                                                   "steps": [{"rc": 0, "seconds": s} for s in steps]}))
     got = FC.history("p", roots=[tmp_path / "a", tmp_path / "b"])
     assert got["build"]["seconds"] == 900.0
+
+
+def test_the_seed_file_keeps_a_buildings_default_search(tmp_path):
+    """2 Nov 2026 (optimization 3): the default search of a building is kept beside it by content; the answers and the
+    seed itself do not change the key; another building or brief does."""
+    from wenart.blender import build as BD
+    b = {"levels": [{"id": "L0"}], "walls": [{"id": "w1"}]}
+    key = BD.seed_key(b, None)
+    assert key == BD.seed_key(dict(b, agent_overrides={"architect": {"x": 1}}, architect_defaults={"a": 1}), None)
+    assert key != BD.seed_key(dict(b, walls=[]), None) and key != BD.seed_key(b, {"style": "x"})
+    path = tmp_path / BD.SEED_FILE
+    assert BD.load_seed(path, key) is None
+    BD.save_seed(path, key, {"E1:d_1": {"choice": "door_to_window"}}, {"O2:o_1": {"choice": "gap_to_door"}})
+    got = BD.load_seed(path, key)
+    assert got["defaults"] == {"E1:d_1": {"choice": "door_to_window"}} and got["refused"]["O2:o_1"]
+    for k in range(BD.SEED_KEEP + 2):
+        BD.save_seed(path, f"k{k}", {}, {})
+    assert BD.load_seed(path, key) is None and BD.load_seed(path, f"k{BD.SEED_KEEP + 1}") is not None
+
+
+def test_check_workers_follow_the_pods_cpu_budget(monkeypatch):
+    from wenart.agent import architect_ai as A
+    monkeypatch.delenv("WENART_CHECK_WORKERS", raising=False)
+    monkeypatch.delenv("WENART_CPU_THREADS", raising=False)
+    assert A.check_workers() == 1                          # this session and the tests: the halving
+    monkeypatch.setenv("WENART_CPU_THREADS", "24")
+    assert A.check_workers() == A.CHECK_WORKERS_MAX
+    monkeypatch.setenv("WENART_CHECK_WORKERS", "3")
+    assert A.check_workers() == 3
+
+
+def test_big_loop_cycles_are_off_by_default():
+    assert SC.Orchestrator.BIG_LOOP_CYCLES == 0 and SC.Orchestrator.BIG_LOOP_RESERVE_CYCLES == 0

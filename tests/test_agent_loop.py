@@ -103,6 +103,18 @@ def test_stops_at_max_rounds(tmp_path):
     assert LG.validate_log(log_of(out)) == []
 
 
+def test_a_round_that_removes_few_findings_is_the_last(tmp_path):
+    """2 Nov 2026 (user OK: "implement the optimizations 1-3"): a regular round removing fewer than ``min_removed``
+    findings ends the loop; its accepted edit still reaches the scene (its re-run ran)."""
+    chat = [rotate("f1", 90.0), FINISH, rotate("f1", 180.0), FINISH, rotate("f1", 0.0), FINISH]
+    loop, out, _ = make(tmp_path, chat, [[F3]], max_rounds=3, min_removed=3)
+    summary = loop.run()
+    assert summary["stop"] == {"round": 1, "reason": "low_gain"} and len(summary["rounds"]) == 1
+    assert [c[2] for c in loop.rerun.calls] == [1]
+    assert "fewer than 3" in log_of(out)["events"][-1]["reason"]
+    assert LP.MIN_ROUND_REMOVED == 3
+
+
 def test_stops_when_no_edit_is_accepted(tmp_path):
     loop, out, _ = make(tmp_path, [rotate("f1", 355.0), {"content": "I cannot fix it"}], [[F3]])
     summary = loop.run()

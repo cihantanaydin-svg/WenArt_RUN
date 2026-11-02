@@ -1306,6 +1306,55 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
     return out
 
 
+SEED_FILE = "architect_seed.json"   # beside the building: its default searches, by content (2 Nov 2026)
+SEED_KEEP = 6
+SEED_DROP_KEYS = ("agent_overrides", "architect_defaults", "architect_refused_defaults")
+
+
+def seed_key(building_all: dict, brief: Optional[dict] = None, variant: str = "base") -> str:
+    """The key of a building's default search (pure; 2 Nov 2026, user OK: "implement the optimizations 1-3"): its
+    content without the answers and the seed itself (``SEED_DROP_KEYS``), the brief and the variant."""
+    h = hashlib.sha256(json.dumps({k: v for k, v in building_all.items() if k not in SEED_DROP_KEYS},
+                                  sort_keys=True, default=str).encode("utf-8"))
+    h.update(json.dumps(brief, sort_keys=True, default=str).encode("utf-8"))
+    h.update(str(variant).encode("utf-8"))
+    return h.hexdigest()
+
+
+def load_seed(path, key: str) -> Optional[dict]:
+    """``{"defaults", "refused"}`` of the default search stored under ``key`` in ``path`` (``SEED_FILE``), or None."""
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return None
+    rec = (data.get("seeds") or {}).get(key) if isinstance(data, dict) else None
+    return rec if isinstance(rec, dict) and isinstance(rec.get("defaults"), dict) else None
+
+
+def save_seed(path, key: str, defaults: dict, refused: dict) -> None:
+    """Stores a default search under ``key`` in ``path`` (the last ``SEED_KEEP`` kept; written atomically; never
+    raises)."""
+    try:
+        path = Path(path)
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            data = {}
+        seeds = dict((data.get("seeds") or {}) if isinstance(data, dict) else {})
+        seeds.pop(key, None)
+        seeds[key] = {"defaults": defaults or {}, "refused": refused or {},
+                      "saved_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+        while len(seeds) > SEED_KEEP:
+            seeds.pop(next(iter(seeds)))
+        tmp = path.with_name(path.name + ".tmp")
+        tmp.write_text(json.dumps({"note": "the architect's default searches of this building (wenart/blender/build.py "
+                                           "seed_key); a later plan of the same building starts from them",
+                                   "seeds": seeds}, indent=1) + "\n", encoding="utf-8")
+        os.replace(tmp, path)
+    except Exception:  # noqa: BLE001 - a seed is only a shortcut
+        pass
+
+
 TYPICAL_UNIT_TOL_M = 0.01      # a copy's element and its typical floor's element at the same place (1 cm)
 
 
@@ -1755,11 +1804,22 @@ def main(argv: list[str]) -> int:
                       + (" and for every room as extra cameras (--cameras-extra)" if cameras_extra else ""))
     print(f"LIGHT_VARIANT build={levers['variant'] or 'none'} sun_wm2={levers['sun_wm2']} ev_cap={levers['ev_cap']} "
           f"rig={levers['rig']} shell={levers['shell']}")
+    # 2 Nov 2026 (user OK: "implement the optimizations 1-3"): the default search of this building is kept beside it
+    # (SEED_FILE); a later build of the same building (the agent's rounds, the final round) starts from it
+    seed_path = Path(args.building).with_name(SEED_FILE)
+    skey = seed_key(building_all, brief, args.variant)
+    seed = None if building_all.get("architect_defaults") else load_seed(seed_path, skey)
+    building_prep = dict(building_all, architect_defaults=seed["defaults"],
+                         architect_refused_defaults=seed.get("refused") or {}) if seed else building_all
+    if seed:
+        print(f"architect seed: {len(seed['defaults'])} default(s) from {seed_path.name}")
     try:
-        prep = prepare(building_all, args.variant, brief, style_family=style_family_of(args.style))
+        prep = prepare(building_prep, args.variant, brief, style_family=style_family_of(args.style))
     except KeyError as exc:
         print(f"--variant {args.variant}: {exc}")
         return 2
+    if seed is None and prep.get("architect_defaults") is not None:
+        save_seed(seed_path, skey, prep.get("architect_defaults") or {}, prep.get("architect_refused_defaults") or {})
     building = prep["building"]
     whole = prep["whole"]
     views = prep["views"]

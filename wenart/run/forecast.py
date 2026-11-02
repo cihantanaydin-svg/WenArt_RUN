@@ -45,7 +45,7 @@ TOPDOWN_S = 150.0               # real10 run 2: 147 s
 TASK_CALL_S = 45.0              # one AI architect batch (12 questions, text, 27B; assumed until a run logs it)
 LOOK_CALL_S = 90.0              # one floor look (an image and up to 60 items; assumed)
 CHECK_DEFAULT_S = 60.0          # one seeded plan and model review (assumed without --measure)
-CHECKS_PER_BATCH = 4            # the together check, about 2 halving checks, the plan after (architect_ai._verdicts)
+CHECKS_PER_BATCH = 3            # the together check, the units judged at once in parallel, the plan after (_verdicts)
 RETRY_SHARE = 0.5               # extra batches for the retries (architect_ai.RETRIES)
 QUESTIONS_DEFAULT = 80          # architect_ai.MAX_QUESTIONS when the questions are not counted
 BATCH = 12                      # architect_ai.BATCH
@@ -57,6 +57,8 @@ FINAL_PER_VIEW_S = 14.0         # render (8 + 1 window pull), controls, the agen
 FINAL_FIXED_S = 600.0           # export, expected, combine, report and the final build's overhead
 ROUND_EXTRA_S = 240.0           # an agent round beyond its build: planner calls, apply, refit, changed previews
 MARGIN_S = 600.0                # scheduler.RESERVE_MARGIN_S
+JUDGE_MEASURE_S = 600.0         # the big loop's first measure: the judge scores every final view (BIG_LOOP_MEASURE_S)
+MAX_AGENT_ROUNDS = 3            # agent.loop.MAX_ROUNDS (a round removing fewer than 3 findings is the last, 2 Nov 2026)
 
 
 def _read(path: Path):
@@ -217,14 +219,17 @@ def forecast(project: str, building: dict, *, max_minutes: float = 300.0, gpu_sp
     final += build_s                                       # the final round's build
     add("final stages (build, render, export, controls, check, report)", final,
         "measured" if "render" in hist else "rate", f"{cams} view(s)")
+    add("judge's score of every final view (big loop measure, no cycles)", JUDGE_MEASURE_S, "assumed",
+        "scheduler.BIG_LOOP_MEASURE_S; the cycles are off by default since 2 Nov 2026")
     limit = float(max_minutes) * 60.0
     used = sum(r["seconds"] for r in rows)
     spare = limit - MARGIN_S - used
     round_s = build_s + ROUND_EXTRA_S
-    rounds = max(0, int(spare // round_s)) if spare > 0 else 0
+    rounds = min(MAX_AGENT_ROUNDS, max(0, int(spare // round_s))) if spare > 0 else 0
     if rounds:
-        add(f"agent rounds ({rounds})", rounds * round_s, "rate", f"a round {round_s / 60:.0f} min: its build and "
-            f"{ROUND_EXTRA_S / 60:.0f} min of calls, apply and changed previews")
+        add(f"agent rounds (up to {rounds})", rounds * round_s, "rate", f"a round {round_s / 60:.0f} min: its build "
+            f"and {ROUND_EXTRA_S / 60:.0f} min of calls, apply and changed previews; fewer when a round removes fewer "
+            f"than 3 findings")
     total = sum(r["seconds"] for r in rows)
     fits = render_start + final + MARGIN_S <= limit
     verdict = (f"the renders start at about {render_start / 60:.0f} min and the final stages end at about "

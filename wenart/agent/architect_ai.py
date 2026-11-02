@@ -179,12 +179,22 @@ SEEDS_MAX = 8                   # buildings whose first default search is kept (
 _SEEDS: dict = {}
 
 
-def _seed_key(building: dict, brief: Optional[dict]) -> str:
-    import hashlib
+SEED_PATH: Optional[Path] = None   # the project's seed file (build.SEED_FILE), set by answer_open / look / Argus
 
-    h = hashlib.sha256(json.dumps(building, sort_keys=True, default=str).encode("utf-8"))
-    h.update(json.dumps(brief, sort_keys=True, default=str).encode("utf-8"))
-    return h.hexdigest()
+
+def use_seed_file(project_out) -> None:
+    """2 Nov 2026: the default searches of ``project_out``'s building are read from and kept in its seed file (the
+    builds use the same file)."""
+    global SEED_PATH
+    from wenart.blender import build as BU
+
+    SEED_PATH = Path(project_out) / BU.SEED_FILE
+
+
+def _seed_key(building: dict, brief: Optional[dict]) -> str:
+    from wenart.blender import build as BU
+
+    return BU.seed_key(building, brief, "base")
 
 
 def prep_of(building: dict, brief: Optional[dict], ai_answers: dict) -> dict:
@@ -202,6 +212,10 @@ def prep_of(building: dict, brief: Optional[dict], ai_answers: dict) -> dict:
     trial["agent_overrides"] = dict(trial["agent_overrides"] or {}, architect=dict(ai_answers))
     key = _seed_key(building, brief)
     seed = _SEEDS.get(key)
+    if seed is None and SEED_PATH is not None:
+        disk = BU.load_seed(SEED_PATH, key)
+        if disk is not None:
+            seed = _SEEDS[key] = {"defaults": disk["defaults"], "refused": disk.get("refused") or {}}
     if seed is not None and not trial.get("architect_defaults"):
         trial["architect_defaults"] = copy.deepcopy(seed["defaults"])
         trial["architect_refused_defaults"] = copy.deepcopy(seed["refused"])
@@ -211,6 +225,8 @@ def prep_of(building: dict, brief: Optional[dict], ai_answers: dict) -> dict:
             _SEEDS.pop(next(iter(_SEEDS)))
         _SEEDS[key] = {"defaults": copy.deepcopy(prep.get("architect_defaults") or {}),
                        "refused": copy.deepcopy(prep.get("architect_refused_defaults") or {})}
+        if SEED_PATH is not None:
+            BU.save_seed(SEED_PATH, key, _SEEDS[key]["defaults"], _SEEDS[key]["refused"])
     return prep
 
 
@@ -260,25 +276,10 @@ def _verdicts(building: dict, brief: Optional[dict], accepted: dict, candidates:
     the AI removed the main bathroom's only shower, "the bathroom already has a shower" being the shower room's) no
     room loses a piece of its set (``set_gaps``). When the candidates together break something, each is checked on its
     own; ``groups`` (2 Nov 2026): lists of keys checked together then (a typical floor's answer with its copies)."""
-    majors_before = _open_keys(base_prep["architect"], "major")
-    counts_before = model_counts(base_prep)
-    gaps_before = set_gaps(base_prep)
+    before = (_open_keys(base_prep["architect"], "major"), model_counts(base_prep), set_gaps(base_prep))
 
     def judge(prep: dict, keys) -> dict:
-        out = {}
-        new_majors = _open_keys(prep["architect"], "major") - majors_before - set(keys)
-        worse = _worse(counts_before, model_counts(prep)) if counts_before else []
-        new_gaps = sorted(set_gaps(prep) - gaps_before)
-        for key in keys:
-            ok, why = settled(prep["architect"], key)
-            if ok and new_majors:
-                ok, why = False, f"opened {', '.join(sorted(new_majors))}"
-            elif ok and worse:
-                ok, why = False, f"the model review finds more: {'; '.join(worse)}"
-            elif ok and new_gaps:
-                ok, why = False, "a room loses a piece of its set: " + "; ".join(f"{r}: {m}" for r, m in new_gaps)
-            out[key] = (ok, why)
-        return out
+        return _judge(prep, keys, before)
 
     together = judge(prep_of(building, brief, dict(accepted, **candidates)), candidates)
     if len(candidates) == 1 or all(ok for ok, _why in together.values()) or \
@@ -288,6 +289,14 @@ def _verdicts(building: dict, brief: Optional[dict], accepted: dict, candidates:
     grouped = [[k for k in g if k in candidates] for g in groups or []]
     seen = {k for g in grouped for k in g}
     units = [g for g in grouped if g] + [[k] for k in candidates if k not in seen]
+    workers = check_workers()
+    if workers >= 3 and len(units) > 1:
+        # 2 Nov 2026 (user OK: "implement the optimizations 1-3"): on the pod (24 CPU threads, the checks single-
+        # threaded) every unit is judged on its own at once in parallel processes; halving below when that fails
+        try:
+            return _parallel_units(units, building, brief, accepted, candidates, before, workers)
+        except Exception:  # noqa: BLE001 - any process error: the halving judges them here
+            out = {}
 
     # 2 Nov 2026 (real10: one plan and model review a unit, 12 and more a batch): the units are judged in halves; a
     # half whose candidates hold together (or fail only on their own settling) is taken as judged, else split again
@@ -307,6 +316,74 @@ def _verdicts(building: dict, brief: Optional[dict], accepted: dict, candidates:
     mid = len(units) // 2
     visit(units[:mid])
     visit(units[mid:])
+    return out
+
+
+def _judge(prep: dict, keys, before: tuple) -> dict:
+    """``{key: (ok, why)}`` of ``keys`` on ``prep`` against ``before`` (the open majors, the model review's counts and
+    the set gaps of the plan before; ``_verdicts``)."""
+    majors_before, counts_before, gaps_before = before
+    out = {}
+    new_majors = _open_keys(prep["architect"], "major") - majors_before - set(keys)
+    worse = _worse(counts_before, model_counts(prep)) if counts_before else []
+    new_gaps = sorted(set_gaps(prep) - gaps_before)
+    for key in keys:
+        ok, why = settled(prep["architect"], key)
+        if ok and new_majors:
+            ok, why = False, f"opened {', '.join(sorted(new_majors))}"
+        elif ok and worse:
+            ok, why = False, f"the model review finds more: {'; '.join(worse)}"
+        elif ok and new_gaps:
+            ok, why = False, "a room loses a piece of its set: " + "; ".join(f"{r}: {m}" for r, m in new_gaps)
+        out[key] = (ok, why)
+    return out
+
+
+CHECK_WORKERS_MAX = 8           # parallel check processes at most (each holds a copy of the building and its plans)
+_PAR: dict = {}
+
+
+def check_workers() -> int:
+    """The parallel processes for the checks (2 Nov 2026): ``WENART_CHECK_WORKERS``, else the pod's CPU thread budget
+    (``WENART_CPU_THREADS``, exported by ``scripts/jobs/full.sh``), at most ``CHECK_WORKERS_MAX``; 1 (no processes)
+    without either (this session, the tests)."""
+    import os
+
+    for name in ("WENART_CHECK_WORKERS", "WENART_CPU_THREADS"):
+        try:
+            n = int(os.environ.get(name) or 0)
+        except ValueError:
+            n = 0
+        if n > 0:
+            return max(1, min(n, CHECK_WORKERS_MAX))
+    return 1
+
+
+def _par_init(building: dict, brief, accepted: dict, candidates: dict, before: tuple, seeds: dict) -> None:
+    _PAR.update(building=building, brief=brief, accepted=accepted, candidates=candidates, before=before)
+    _SEEDS.update(seeds)
+
+
+def _par_unit(keys: list) -> dict:
+    b = _PAR
+    prep = prep_of(b["building"], b["brief"], dict(b["accepted"], **{k: b["candidates"][k] for k in keys}))
+    return _judge(prep, keys, b["before"])
+
+
+def _parallel_units(units: list, building: dict, brief, accepted: dict, candidates: dict, before: tuple,
+                    workers: int) -> dict:
+    """Every unit judged on its own (``_judge``), ``workers`` processes at once (spawned: no fork of a process with
+    threads; each gets the building, the answers and this building's default-search seed once)."""
+    import multiprocessing as mp
+    from concurrent.futures import ProcessPoolExecutor
+
+    seeds = {k: v for k, v in _SEEDS.items() if k == _seed_key(building, brief)}
+    out: dict = {}
+    with ProcessPoolExecutor(max_workers=min(workers, len(units)), mp_context=mp.get_context("spawn"),
+                             initializer=_par_init,
+                             initargs=(building, brief, accepted, candidates, before, seeds)) as ex:
+        for res in ex.map(_par_unit, units):
+            out.update(res)
     return out
 
 
@@ -338,6 +415,7 @@ def answer_open(project_out, model, *, brief: Optional[dict] = None, building_na
     pick is asked again ``retries`` times with the reason (26 Oct 2026)."""
     t0 = time.time()
     project_out = Path(project_out)
+    use_seed_file(project_out)
     building = json.loads((project_out / building_name).read_text(encoding="utf-8"))
     odir = LG.orchestrator_dir(project_out)
     accepted = dict(_saved_answers(odir))
@@ -748,6 +826,7 @@ def look(project_out, model, *, brief: Optional[dict] = None, building_name: str
     ``orchestrator/architect_answers.json`` (the next build carries them out); logs ``architect_look.json`` / ``.md``."""
     t0 = time.time()
     project_out = Path(project_out)
+    use_seed_file(project_out)
     building = json.loads((project_out / building_name).read_text(encoding="utf-8"))
     odir = LG.orchestrator_dir(project_out)
     accepted = dict(_saved_answers(odir))

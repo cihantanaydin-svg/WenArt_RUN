@@ -319,6 +319,10 @@ STAGE_ORDER = ("pipeline_final", "layout", "refit", "build", "polish")
 # Milestone 13: 3 rounds (module docstring): real04 removed 20 findings in 6 rounds and 84.5 % of the round-1
 # findings were still there at the end; acceptance by finding removal makes a round without a removal the last one.
 MAX_ROUNDS = 3
+# 2 Nov 2026 (user OK: "implement the optimizations 1-3"; the measured gain of the rounds: real04 7 rounds 263 -> 241
+# findings, other runs 7-8 a run, 35-40 % of a run's time): a regular round that removes fewer findings than this
+# is the last one (its accepted edits still reach the scene)
+MIN_ROUND_REMOVED = 3
 MAX_CALLS_PER_ROOM = 12         # tool calls of one room session (reads included; dry_run counted, it is cheap)
 MAX_TRIES = 3
 WORKERS = 4                     # parallel room sessions (G1: 167 tokens/s at 4 streams vs 46 at 1)
@@ -328,6 +332,7 @@ STOPS = {
     "no_finding": "no critical or major finding left",
     "no_fixable": "no fixable critical or major finding left (the rest is locked, not built or needs review)",
     "no_edit": "no edit accepted in this round",
+    "low_gain": f"the round removed fewer than {MIN_ROUND_REMOVED} findings (its edits kept; more rounds would not pay)",
     "max_rounds": "max rounds reached",
     "deadline": "time budget: the final stages need the time left before the deadline - 20 min",
     "rerun_failed": "the re-run of the changed stages failed",
@@ -1526,7 +1531,7 @@ class AgentLoop:
     def __init__(self, project_out, model, *, rerun: Optional[Callable] = None, clock: Callable[[], float] = time.time,
                  deadline: Optional[float] = None, final_estimate=0.0, margin_s: float = MARGIN_S, reserve_s=0.0,
                  max_rounds: int = MAX_ROUNDS, max_calls: Optional[int] = None, max_tries: int = MAX_TRIES,
-                 code_critic: Optional[Callable] = None, vision_critic: Optional[Callable] = None, vision: bool = True,
+                 min_removed: int = 0, code_critic: Optional[Callable] = None, vision_critic: Optional[Callable] = None, vision: bool = True,
                  registry: Optional[TL.Registry] = None, apply_edit: Optional[Callable] = None, validators=None,
                  plausibility=None, catalog_loader: Optional[Callable] = None, out: Callable[[str], None] = print,
                  log: Optional[LG.AgentLog] = None, preview_dir: str = TL.PREVIEW_DIR, project: str = "",
@@ -1555,6 +1560,9 @@ class AgentLoop:
         self.margin_s = float(margin_s)
         self.reserve_s = reserve_s          # 27 Oct 2026: the time the regular rounds leave for the big loop
         self.max_rounds = int(max_rounds)
+        # 2 Nov 2026: a regular round removing fewer findings is the last (the orchestrator passes MIN_ROUND_REMOVED;
+        # 0: no such stop)
+        self.min_removed = int(min_removed)
         self.max_calls = None if max_calls is None else int(max_calls)
         self.max_tries = int(max_tries)
         self.code_critic = code_critic
@@ -2503,6 +2511,9 @@ class AgentLoop:
             res = self.round(k)
             if res["stop"]:
                 stop = res["stop"]
+                break
+            if int(res.get("findings_removed") or 0) < self.min_removed and k < self.max_rounds:
+                stop = "low_gain"
                 break
         if stop is None:
             stop = "max_rounds"

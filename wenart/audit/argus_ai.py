@@ -991,6 +991,8 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
 
     t0 = time.time()
     project_out = Path(project_out)
+    from wenart.agent import architect_ai as _AIA
+    _AIA.use_seed_file(project_out)                  # 2 Nov 2026: the builds' default searches, reused by the checks
     errors: list = []
     limit = float(budget_s if budget_s is not None else (BUDGET_S if documents else CYCLE_BUDGET_S))
     outer_ok = time_ok

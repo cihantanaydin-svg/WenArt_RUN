@@ -105,6 +105,8 @@ def orchestrated(tmp_path, chat, critic_rounds, *, buildings=None, rc=None, fail
                     server_control=lambda url, action: r.controls.append((len(r.cli.calls), action)) or True,
                     agent_loop_kwargs={"code_critic": critic, "vision": False, "apply_edit": FakeEdits(),
                                        "validators": fake_validators(),
+                                       # 2 Nov 2026: scripted rounds of one finding; the low-gain stop has its test
+                                       "min_removed": 0,
                                        # Milestone 13: the acceptance's dry re-check (the fake drops what the edit touched)
                                        "recheck": FixesWhatItTouched(critic)})
     return r

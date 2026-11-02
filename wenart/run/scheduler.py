@@ -2294,6 +2294,10 @@ class Orchestrator:
             self.out(f"{pr.name} round 0 measured: {pr.views} preview(s) in {pr.round0['previews_s']:.0f} s")
         kwargs = dict(self.agent_loop_kwargs)
         kwargs.setdefault("workers", self.seqs(self.opts.agent_key))     # M12: parallel room sessions
+        # 2 Nov 2026 (user OK: "implement the optimizations 1-3"): a round removing fewer than MIN_ROUND_REMOVED
+        # findings is the last regular round (WENART_AGENT_MIN_REMOVED overrides; 0 turns the stop off)
+        from wenart.agent import loop as _LP
+        kwargs.setdefault("min_removed", int(os.environ.get("WENART_AGENT_MIN_REMOVED", _LP.MIN_ROUND_REMOVED)))
         pr.agent_model = self.make_agent_model(url, pr)
         loop = AgentLoop(pr.out, pr.agent_model,
                          rerun=lambda stage, views, rnd, final: self.agent_rerun(pr, stage, views, rnd, final),
@@ -2658,11 +2662,14 @@ class Orchestrator:
             if pr.active:
                 self.check_part(pr, key, url, seqs)
 
-    BIG_LOOP_CYCLES = 4             # 26 Oct 2026: the big loop's cycles at most (time decides first)
+    # 26 Oct 2026: the big loop's cycles at most (time decides first). 2 Nov 2026 (user OK: "implement the
+    # optimizations 1-3"; measured: real04 1 cycle 30.64 -> 30.23 in 41 min, real06 2 cycles +0.7 / +0.3): no cycle by
+    # default, the first measure (the judge's score of every final view) stays; WENART_BIG_LOOP_CYCLES turns them on
+    BIG_LOOP_CYCLES = int(os.environ.get("WENART_BIG_LOOP_CYCLES", "0") or 0)
     # 27 Oct 2026 (run 180412: the agent's rounds took the time to the final stages, the big loop got no cycle; user:
     # "we need to give them time"): the regular rounds leave the big loop its first measure (the judge on every view)
     # and BIG_LOOP_RESERVE_CYCLES cycles (a final round's share of the final stages plus the cycle's own looks)
-    BIG_LOOP_RESERVE_CYCLES = 1
+    BIG_LOOP_RESERVE_CYCLES = 1 if BIG_LOOP_CYCLES > 0 else 0
     BIG_LOOP_MEASURE_S = 600.0      # the judge scores every final view (about 30 views, two at a time)
     BIG_LOOP_CYCLE_LOOK_S = 600.0   # a cycle's Argus look and the judge on the changed views
 
