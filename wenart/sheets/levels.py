@@ -267,6 +267,7 @@ _ELEVATION_RE = re.compile(r"\(\s*([+\-±]?\s*\d{1,3}[.,]\d{1,3})(?:\s*[-/]\s*([
 
 
 STOREY_M = 3.0                      # a typical plan's elevation range: its storeys at about this height
+ELEVATION_REACH = 15.0              # a bare elevation text this many title heights right of the title is its own
 
 
 _KOT_ELEVATION_RE = re.compile(r"(?<![\d.,])([+\-±]?\s*\d{1,3}[.,]\d{2})\s*KOTU?\b")
@@ -294,8 +295,8 @@ _BARE_ELEVATION_RE = re.compile(r"^\(?\s*([+\-±]?\s*\d{1,3}[.,]\d{1,3})(?:\s*[-
 
 def region_elevations(r) -> Optional[tuple[float, float]]:
     """A plan's floor elevation(s) from its title (``title_elevations``), else from a bare elevation text just right
-    of the title (real09: ``( 8,50 )`` written as three texts beside ``DUBLEKS KAT PLANI``): within 8 title heights to
-    the right of its end and 2 heights up or down."""
+    of the title (real09: ``( 8,50 )`` written as three texts beside ``DUBLEKS KAT PLANI``): within ``ELEVATION_REACH``
+    title heights to the right of its end and 2 heights up or down."""
     if not r.title:
         return None
     el = title_elevations(r.title["text"])
@@ -308,7 +309,7 @@ def region_elevations(r) -> Optional[tuple[float, float]]:
     cy = (tb[1] + tb[3]) / 2.0
     vals = []
     for t in getattr(r, "texts", []) or []:
-        if not (tb[2] - h <= t.box[0] <= tb[2] + 8.0 * h) or abs((t.box[1] + t.box[3]) / 2.0 - cy) > 2.0 * h:
+        if not (tb[2] - h <= t.box[0] <= tb[2] + ELEVATION_REACH * h) or abs((t.box[1] + t.box[3]) / 2.0 - cy) > 2.0 * h:
             continue
         m = _BARE_ELEVATION_RE.match(t.text.strip())
         if m:
@@ -335,6 +336,8 @@ def _by_title_elevation(plans: list, words: dict, warnings: Optional[list] = Non
             el = (fm, fm) if fm is not None else None
         if el is not None:
             titled.append((el, r, lw))
+        elif lw.order is not None:
+            return          # a titled storey of unknown elevation: where an untitled plan stands cannot be told (real09)
     if not titled:
         return
     untitled = [(region_elevations(r), r) for r in plans if words[id(r)] is None and r.title]
