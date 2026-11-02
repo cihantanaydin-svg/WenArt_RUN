@@ -3171,9 +3171,18 @@ Also: the AI architect's lessons review fits the agent model's 32k context (real
 30721 tokens): the facts leave out a typical floor's copies and are counted per type when large, the lessons go in
 batches (`lessons.review_batches`).
 
-Not done yet (next): a lamp rig in the living rooms (4b); clouds in the exterior sky and neighbouring buildings (5b);
-the Q4 missing-anchor downgrade, the F2/F7 measure alignment and stale vision findings (6b). Item 7 (AI polish) waits
-for the user's decision.
+Deferred items, done the same day (user: "go ahead with the deferred items 4b, 5b and 6b"):
+
+| item | rule |
+|---|---|
+| 4b living-room lamps | every floor and table lamp of a living room hosts a rig light (kind `lamp`, 800 lm table / 1100 lm floor x `RIG_GAIN`, warm, at most `RIG_LAMP_MAX` 4 a room; `lighting.rig_lamp_hosts`), in every mood; the evening `LAMP_LIGHTS` are unchanged |
+| 5b clouds | a CC0 Poly Haven pure-sky HDRI per mood (`materials.EXTERIOR_CLOUD_SKIES`) on the exterior camera rays only, turned to the sun's azimuth and scaled to the physical sky's band brightness; the physical sky still lights the scene; fetched with the style (`fetch.hdri_plan`), credited in `ATTRIBUTION.md`; a missing file keeps the cloudless sky with a warning |
+| 5b neighbours | one inferred house per fenced neighbour plot (8-12 x 7-10 m, 1-2 storeys, gable or flat roof, set back, neutral plaster), hidden from shadow, diffuse and volume rays like the horizon trees, an obstacle for the exterior cameras (`site.py`; switch `NEIGHBOUR_HOUSES`, env `WENART_NEIGHBOUR_HOUSES=off`) |
+| 6b missing anchor | a vision, judge or Argus claim that a room's anchor or main group is missing becomes a minor `framing` note when code shows the anchor built and visible in another view of the room (`critic_vision.downgrade_anchor_claims`, evidence kept) |
+| 6b doorway measure | architect F2 and critic F7/R3 use one doorway measure (`plausibility.door_measures`); `move_piece` moves a piece out of the critic's approach strip |
+| 6b stale findings | every vision and judge finding keeps the sha256 of its image; the inspector, Argus and the loop drop (and log) a finding whose view was re-rendered after it was seen (`critic_vision.drop_stale`); no hash: as before |
+
+Item 7 (AI polish) stays off for now (user, 2 Nov 2026).
 
 User decisions of 2 Nov 2026 (lesson UL258): the project GPU total is raised from $500 to $1000 ($427.68 used,
 counting the running real10 pod at its worst case); AI polish (item 7) stays off for now, the user decides later.
