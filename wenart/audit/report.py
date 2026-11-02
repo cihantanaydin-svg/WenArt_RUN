@@ -67,7 +67,11 @@ def inspector_line(inp: I.Inputs) -> dict:
     rec = inp.inspector
     if rec is None:
         return {"findings": [], "checked": {}, "note": "no inspector.json"}
-    found = [_norm(f, "inspector", "Q?") for f in (rec.get("code") or []) + (rec.get("vision") or [])]
+    # 2 Nov 2026 (real04 run 20261101-093151-full: an Argus finding handed to the agent came back through the
+    # inspector's record as new, was triaged and handed on again, five times, long after its view was fixed): the
+    # inspector's findings that Argus itself handed on are not read back (Argus lists its own findings in its lines)
+    found = [_norm(f, "inspector", "Q?") for f in (rec.get("code") or []) + (rec.get("vision") or [])
+             if not (f.get("source") == "argus" or str(f.get("message") or "").startswith("Argus: "))]
     return {"findings": found, "checked": {"round": rec.get("round"), **(rec.get("counts") or {})}}
 
 

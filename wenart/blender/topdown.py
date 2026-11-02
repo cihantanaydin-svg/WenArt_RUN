@@ -26,8 +26,11 @@ PAD_M = 1.0
 TILT_DEG = 35.0                 # 25 Oct 2026: the views are a bit angled (the walls and furniture show their height)
 AZIMUTH_DEG = 225.0             # 25 Oct 2026 (user): from the upper right (north-east) to the lower left (south-west)
 WALL_CUT_M = 0.6                # 25 Oct 2026 (user: "halved the walls"): an angled view cuts the walls here (was 1.2)
-CUT_KINDS = {"wall", "door", "window", "railing", "facade_detail", "splashback", "light_well",
-             "wall_plate"}         # 29 Oct 2026 (UL112): the switches and sockets are cut with their walls
+# 29 Oct 2026 (UL112): the switches and sockets are cut with their walls. 2 Nov 2026 (real04 run 20261101-093151-full:
+# 2 critical Q3 "the stairwell opening has no guard rail" on the top-down views, the 1.0 m glass guards built: the
+# 0.6 m cut took their cap rail and left a low strip of clear glass): railings stay whole (guards are thin, they hide
+# no room)
+CUT_KINDS = {"wall", "door", "window", "facade_detail", "splashback", "light_well", "wall_plate"}
 HIDE_KINDS = {"ceiling", "roof", "site_decor", "site_decor_part", "vegetation_card", "atmosphere", "building_copy",
               "site_hedge", "site_grass", "light"}
 # 31 Oct 2026 (user on real04 run 20261030-181158-full, the L-1 view: "There seems to be something wrong in the marked

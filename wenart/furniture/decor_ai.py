@@ -491,7 +491,8 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
             notes.append(f"{host['id']} wall: mirror: {side_why}")
     # 27 Oct 2026 (run 160846): art on the free walls too, not only above a sofa, bed or dresser
     if "wall_art" in allowed and rtype in FREE_WALL_ART_ROOM_TYPES:
-        for n, item in enumerate(D.free_wall_art(room, pieces, building, ctx, level), start=1):
+        for n, item in enumerate(D.free_wall_art(room, pieces, building, ctx, level, most=D.free_wall_art_most(room)),
+                                 start=1):
             slots.append(Slot(f"{room['id']}.wall{n}", "wall", ("wall_art",), None, None, items={"wall_art": item},
                               note=f"free wall, {item['size'][0]:.2f} m wide picture"))
     if "rug" in allowed:
@@ -858,6 +859,7 @@ def room_questions(building: dict, style_text: str, skip: Optional[set] = None,
     """Every room the AI decorates (furnished, verified, not a prayer room, with at least one slot); Milestone 10:
     not the rooms that take their partner's decor (``decor.copy_targets``; ``skip`` when the caller has them).
     27 Oct 2026: ``recipes`` put each room's recipe in its question (``question``)."""
+    building = D.decor_view(building)[0]          # 2 Nov 2026: untyped rooms dressed by what stands in them
     if skip is None:
         skip = set(D.copy_targets(building)[0])
     out = []
@@ -1157,6 +1159,25 @@ def room_minimum(room: dict, recipe: Optional[dict] = None, family: Optional[str
     return {"min": DN.decor_minimum(t, base, level), "base": base, "density": level, "why": why}
 
 
+# 2 Nov 2026 (house score item 1): a room's minimum counts its layers, not its pieces: four cushions are one layer
+# well dressed, not four items of decor. Each layer (``TYPE_LAYER``) counts at most LAYER_COUNT_MAX items; an item of
+# no layer counts one.
+LAYER_COUNT_MAX = 2
+
+
+def styled_count(items: list[dict]) -> int:
+    """The items of a room as its minimum counts them (the comment above)."""
+    per: dict[str, int] = {}
+    loose = 0
+    for it in items:
+        layer = TYPE_LAYER.get(str(it.get("type")))
+        if layer is None:
+            loose += 1
+        else:
+            per[layer] = per.get(layer, 0) + 1
+    return loose + sum(min(n, LAYER_COUNT_MAX) for n in per.values())
+
+
 def fill_to_minimum(rq: "RoomQuestion", items: list[dict], building: dict, new_id, recipe: Optional[dict] = None,
                     family: Optional[str] = None) -> list[dict]:
     """The items that bring a room up to its minimum (pure; 25 Oct 2026; 27 Oct 2026: ``room_minimum`` of its recipe
@@ -1166,7 +1187,7 @@ def fill_to_minimum(rq: "RoomQuestion", items: list[dict], building: dict, new_i
     rule`` with the reason."""
     goal = room_minimum(rq.room, recipe, family)
     want = goal["min"]
-    have = len(items)
+    have = styled_count(items)
     if have >= want:
         return []
     taken = {i.get("slot") for i in items}
@@ -1191,8 +1212,11 @@ def fill_to_minimum(rq: "RoomQuestion", items: list[dict], building: dict, new_i
             picks.append({"slot": slot.id, "type": dtype, "colour": None, "reasons": [why, why]})
     out = []
     for choice in picks:
-        if have + len(out) >= want:
+        if styled_count(items + out) >= want:
             break
+        layer = TYPE_LAYER.get(str(choice["type"]))
+        if layer and layer_counts(items + out).get(layer, 0) >= LAYER_COUNT_MAX:
+            continue                          # 2 Nov 2026: a full layer adds nothing; another kind of decor does
         made, _refused = build_items(rq, [choice], "rule", building, new_id)
         for it in made:
             it.update(method="rule", confidence=0.6, reason=choice["reasons"][0])
@@ -1276,6 +1300,82 @@ def fill_recipe(rq: "RoomQuestion", items: list[dict], building: dict, new_id,
     return out
 
 
+# 2 Nov 2026 (house score item 1, "fuller styled rooms"; the judge on real04: "sparse", "bare walls", "no textiles";
+# the salons held 1 picture in 51 m2, no curtain and no table lamp, because a recipe read from photos replaces the
+# built-in one and can be thin): every styled room gets at least the designer layers of its kind (``FLOOR_LAYERS``
+# of its space, the measured recipe's count when its photos show more): curtains at every window, art,
+# plants, a throw, styled tops, and a table lamp on every nightstand and side table whose top takes one. A sparse style
+# (``density.decor_density``) asks one of each. ``ensure_layers`` fills the missing layers as ``fill_recipe`` does (the
+# free slots, the same checks); the reason names the floor.
+FLOOR_LAYERS: dict[str, dict[str, int]] = {
+    "living": {"wall_art": 2, "plants": 2, "throw": 1, "table_lamps": 1, "styled_surfaces": 2, "curtains": 1},
+    "bedroom": {"wall_art": 1, "plants": 1, "throw": 1, "table_lamps": 1, "curtains": 1},
+    "child": {"wall_art": 2, "plants": 1, "table_lamps": 1, "curtains": 1},
+    "dining": {"wall_art": 1, "plants": 1, "styled_surfaces": 1, "curtains": 1},
+    "office": {"wall_art": 1, "plants": 1, "table_lamps": 1, "curtains": 1},
+    "hall": {"plants": 1},
+}
+LAMP_TOP_HOSTS: tuple[str, ...] = ("nightstand", "side_table")
+FLOOR_TAG = "2 Nov 2026, house score item 1: fuller styled rooms"
+
+
+def floor_recipe(rq: "RoomQuestion", recipe: Optional[dict] = None, family: Optional[str] = None) -> Optional[dict]:
+    """The layer floor of a room (the comment above) in a recipe's shape (``recipe.default_recipe``); None for a room
+    without one (a kitchen, a wet room, an outdoor room)."""
+    from wenart.style import density as DN
+    from wenart.style import recipe as RC
+    from wenart.style import references as RF
+
+    if OD.open_air_room(rq.room):
+        return None
+    space = RF.space_of(rq.room.get("room_type"), rq.room.get("room_subtype"))
+    floor = dict(FLOOR_LAYERS.get(space or "", {}))
+    if not floor:
+        return None
+    lamp_hosts = {s.host_id for s in rq.slots if s.kind == "top" and s.host_type in LAMP_TOP_HOSTS
+                  and "table_lamp" in s.types}
+    if "table_lamps" in floor:
+        floor["table_lamps"] = max(floor["table_lamps"], len(lamp_hosts))
+    if DN.decor_density(recipe, family)[0] == "sparse":
+        floor = {k: min(v, 1) for k, v in floor.items()}
+    base = RC.default_recipe(space)
+    measured = (recipe or {}).get("layers") or {}
+    layers = {k: dict(v) for k, v in (base.get("layers") or {}).items()}
+    for name, n in floor.items():                     # the measured count when the photos show more
+        got = (measured.get(name) or {}).get("median") if name in ((recipe or {}).get("must") or []) else None
+        layers[name] = {"share": 1.0, "median": max(float(n), float(got or 0))}
+    return dict(base, layers=layers, must=sorted(floor), family=(recipe or {}).get("family") or family,
+                source="floor")
+
+
+def ensure_layers(rq: "RoomQuestion", items: list[dict], building: dict, new_id, recipe: Optional[dict] = None,
+                  family: Optional[str] = None) -> list[dict]:
+    """The items that bring a room to its layer floor (``floor_recipe``; the comment above), ``method: rule``."""
+    from dataclasses import replace
+
+    from wenart.style import recipe as RC
+
+    floor = floor_recipe(rq, recipe, family)
+    if floor is None:
+        return []
+    # the lamps first, on the nightstands and side tables first (a plant or a vase of another layer would take the
+    # only place of a nightstand's top)
+    lamp_first = replace(rq, slots=sorted(rq.slots, key=lambda sl: sl.kind == "top"
+                                          and sl.host_type not in LAMP_TOP_HOSTS))
+    made: list[dict] = []
+    if "table_lamps" in floor["must"]:
+        made += fill_recipe(lamp_first, items, building, new_id, dict(floor, must=["table_lamps"]))
+    made += fill_recipe(rq, items + made, building, new_id,
+                        dict(floor, must=[m for m in floor["must"] if m != "table_lamps"]))
+    space = floor.get("space") or rq.room.get("room_type")
+    for it in made:
+        layer = TYPE_LAYER.get(str(it.get("type")), str(it.get("type")))
+        what = RC.LAYER_TEXT.get(layer, layer.replace("_", " ")).split(" (")[0]
+        it["reason"] = f"layer floor: a styled {space} room shows {what} ({FLOOR_TAG})"
+        it["confidence"] = 0.65
+    return made
+
+
 def load_recipes(path: Optional[str], style_path: Optional[str]) -> Optional[dict]:
     """``{space: recipe}`` of ``recipes.json`` (``path``, else beside ``style_path``); without the file the built-in
     recipes of every space (``recipe.default_recipe``: a styled room is the default, lesson UL42); ``path`` "none":
@@ -1318,7 +1418,17 @@ def mirror_to_twins(out: dict, before: set, targets: dict, new_id) -> list[str]:
 def apply(building: dict, style_text: str, answers: dict, model: Optional[str] = None,
           style: Optional[dict] = None, recipes: Optional[dict] = None) -> tuple[dict, list[RoomDecor]]:
     """The decorated building (new dict) and the per-room records (module docstring); ``style`` (Milestone 10): the
-    profile whose decor words (colours, plant species and pots, the mood's lamps) ``apply_brief_looks`` applies."""
+    profile whose decor words (colours, plant species and pots, the mood's lamps) ``apply_brief_looks`` applies.
+    2 Nov 2026: an untyped room is dressed by what stands in it (``decor.decor_view``); its drawn type is kept
+    (``decor.restore_room_types``, the change in ``decor_room_types``)."""
+    view, changes = D.decor_view(building)
+    out, records = _apply(view, style_text, answers, model, style, recipes)
+    D.restore_room_types(out, changes)
+    return out, records
+
+
+def _apply(building: dict, style_text: str, answers: dict, model: Optional[str] = None,
+           style: Optional[dict] = None, recipes: Optional[dict] = None) -> tuple[dict, list[RoomDecor]]:
     out = json.loads(json.dumps(building))
     # Milestone 13 (round 2): the rugs the group solver laid as group members are kept with their ids
     # (``decor.solver_rugs``, as ``decor.add_decor``); new items are numbered after them
@@ -1385,6 +1495,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         if items:
             dressed, replaced = living_dressing(q, items, out, new_id)      # 30 Oct 2026 (UL180)
             items = [i for i in items if i.get("id") not in replaced] + dressed
+            items += ensure_layers(q, items, out, new_id, room_recipe(room, recipes), family)   # 2 Nov 2026
             items += fill_to_minimum(q, items, out, new_id, room_recipe(room, recipes), family)
             # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the worktop, dressed
             # modestly by rule (the AI's slots hold no counter); the fallback gets it from decor.rule_decor_room
@@ -1406,6 +1517,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             fallback += required_items(q, fallback, out, new_id)
             dressed, replaced = living_dressing(q, fallback, out, new_id)   # 30 Oct 2026 (UL180)
             fallback = [i for i in fallback if i.get("id") not in replaced] + dressed
+            fallback += ensure_layers(q, fallback, out, new_id, room_recipe(room, recipes), family)
             fallback += fill_to_minimum(q, fallback, out, new_id, room_recipe(room, recipes), family)
             fallback += TT.dress_tops(room, pieces, out, fallback, new_id, q.slots,   # 28 Oct 2026
                                       density=out["decor_minimum"][room["id"]]["density"], notes=rec.notes)

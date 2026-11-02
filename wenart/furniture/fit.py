@@ -985,7 +985,15 @@ def rank_candidates(candidates: list[dict], width: float, depth: float, used: Op
     cache, room, target = taste
     head = ordered[:TASTE_POOL]
     pens = {e["id"]: T.steps(cache.get(e), room, target) for e in head}
-    head = sorted(head, key=lambda e: rank_key(e, width, depth, used, prefs, outdoor, pens, **extra(e)))
+    low = min(pens.values()) if pens else 0
+
+    def key(e):
+        # 2 Nov 2026 (house score item 3, "matching sets"): the models of the room's set (the fewest taste steps) are
+        # tried through the caps before the others (after a misfit's and an unknown size's own order), not only a
+        # soft penalty inside the size steps
+        rk = rank_key(e, width, depth, used, prefs, outdoor, pens, **extra(e))
+        return rk[:2] + (int(pens[e["id"]] > low),) + rk[2:]
+    head = sorted(head, key=key)
     return head + ordered[TASTE_POOL:]
 
 
@@ -3556,12 +3564,14 @@ def textile_library_item(item: dict, catalog, style_family: Optional[str], mode:
 
 
 def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
-                   mode: str = "commercial", host: Optional[dict] = None) -> Optional[dict]:
+                   mode: str = "commercial", host: Optional[dict] = None, taste=None) -> Optional[dict]:
     """``asset`` for a decor item (docs/milestone8.md §4): one of the catalogue's decor models of its type
     and of the style family or neutral (``decor_entries``, ``decor_styles_match``) that fits the item
     (``_decor_fit``), picked deterministically by the host id (``pick_index`` of ``decor_pick_key``); None
     (parametric decor; no wall art) when there is none. Blender scales the model to ``bbox_m``. Milestone 13:
-    only models usable in licence ``mode``; the asset carries the licence fields (``_finish``)."""
+    only models usable in licence ``mode``; the asset carries the licence fields (``_finish``). 2 Nov 2026 (house
+    score item 3): with ``taste`` (``(cache, room set, target)`` of ``wenart.furniture.taste``, as ``rank_candidates``)
+    the pick is made among the fitting models of the fewest taste steps (the room's wood tones and metal)."""
     mode = C.check_mode(mode)
     dtype = item.get("type", "")
     if dtype == "cushion" and isinstance(item.get("cushion_set"), dict):
@@ -3634,6 +3644,16 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     # the ones the user ranks highest (unranked = 5, as rank_key for furniture); the colour and the pick then choose
     # among them (a 0-2 model never reaches here: catalog.usable)
     fits, rank_note = user_rank_tier(fits)
+    taste_note = None
+    if taste and len(fits) > 1:                       # 2 Nov 2026 (item 3): the room's set first
+        from wenart.furniture import taste as T
+
+        cache, room_set, target = taste
+        pens = [T.steps(cache.get(e), room_set, target) for e, _f in fits]
+        low = min(pens)
+        if any(p > low for p in pens):
+            taste_note = f"{sum(p == low for p in pens)} of {len(fits)} fitting model(s) match the room's set"
+            fits = [x for x, p in zip(fits, pens) if p == low]
     colour = str(item.get("colour") or "").strip().casefold()
     coloured = [(e, f) for e, f in fits if colour and colour in str(e.get("name") or e.get("title") or "").casefold()]
     pool = coloured or fits
@@ -3649,6 +3669,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
         pick["fixture"] = role_why
     if rank_note:
         pick["user_rank"] = rank_note                 # 31 Oct 2026 (UL217): the user's best-ranked models first
+    if taste_note:
+        pick["taste"] = taste_note                    # 2 Nov 2026 (item 3)
     asset = decor_model_asset(entry, dtype, f, aspect_error=round(C.aspect_error(entry, width, depth), 4),
                               style_family=style_family, pick=pick,
                               extra={"pairing": pairing} if pairing else None)   # UL156: the host's limits
@@ -4269,8 +4291,10 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     if late_tvs:
         project["late_tvs"] = late_tvs
     for item in fitted.get("decor") or []:
+        room_set = taste_rooms.get(str(item.get("room_id") or "")) if taste_cache is not None else None
         item["asset"] = fit_decor_item(item, catalog, style_family=style_family, mode=mode,
-                                       host=by_id.get(item.get("host_id")))     # UL156: a lamp with its host
+                                       host=by_id.get(item.get("host_id")),     # UL156: a lamp with its host
+                                       taste=(taste_cache, room_set, taste_target) if room_set else None)
     if taste_cache is not None:
         taste_cache.save()
         project["taste"] = {"target": {k: v for k, v in taste_target.items() if k != "palette"},

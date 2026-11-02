@@ -146,12 +146,16 @@ def test_the_decor_stage_fills_a_room_to_its_style_and_the_architect_checks_the_
             - styled[fam]
         kept[fam] = out["decor_minimum"][rid]
         fill = [d for d in out["decor"] if str(d.get("reason", "")).startswith("styling")]
-        assert fill and f"the {fam} family" in fill[0]["reason"]
+        # 2 Nov 2026 (house score item 1): the layer floor comes first (one of each layer in a sparse style); the
+        # minimum's fill then tops the room up when the floor left it short (here the classic room)
+        floor = [d for d in out["decor"] if str(d.get("reason", "")).startswith("layer floor")]
+        assert floor and (fam != "classic" or (fill and f"the {fam} family" in fill[0]["reason"]))
         # the architect reads the decor stage's number: the room is styled for its own style
         s3 = AD.styled_rooms(out, fam)[1]
         assert s3["status"] == "ok" and f"a styled living {kept[fam]['min']}" in s3["answers"][0]["found"]
     assert [kept[f]["min"] for f in ("japandi", "scandinavian", "classic")] == [6, 9, 12]
-    assert counts["japandi"] == 6 < counts["scandinavian"] == 9 < counts["classic"]
+    assert all(counts[f] >= kept[f]["min"] for f in counts)                  # 2 Nov 2026: the floor may add more
+    assert counts["japandi"] < counts["scandinavian"] <= counts["classic"], counts
     total = {f: counts[f] + styled[f] for f in counts}                           # a sparse style, smaller groups
     assert styled["japandi"] > 0 and total["japandi"] < total["scandinavian"] <= total["classic"], (counts, styled)
     # no style: a balanced room, as before

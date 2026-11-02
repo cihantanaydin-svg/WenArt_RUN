@@ -41,6 +41,14 @@ REVIEW_SYSTEM = (
     "only when neither the evidence nor the facts show it. Base every verdict on the facts given, never on a "
     "guess.")
 EVIDENCE_PER_CHECK = 8          # findings per check given to the AI (the open ones first)
+# 2 Nov 2026 (real10 run 20261102-122729-full: "maximum context length is 32768 tokens ... your prompt contains at
+# least 30721 input tokens": 9 floors of rooms and 160 lessons in one prompt): the review fits the agent model's
+# context. The building facts leave out a typical floor's copies (their rooms are the typical floor's) and, when still
+# over FACTS_SHARE of the budget, count the furniture and decor per type; the lessons are asked in batches that fit
+# what is left. The budget: the server's context less the answer and a margin, at JSON_CHARS_PER_TOKEN.
+JSON_CHARS_PER_TOKEN = 2.0       # = loop.CHARS_PER_TOKEN_ADDED: JSON is about 2.3 characters per token, counted low
+PROMPT_MARGIN_TOKENS = 1500
+FACTS_SHARE = 0.6
 REVIEW_JSON = "architect_lessons.json"
 REVIEW_MD = "architect_lessons.md"
 
@@ -82,10 +90,68 @@ def _area(poly) -> float:
     return abs(sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(pts, pts[1:] + pts[:1]))) / 2.0
 
 
+def prompt_chars_max() -> int:
+    """The characters a review prompt may hold (the comment above)."""
+    from wenart.agent import model as AM
+
+    return int((AM.DEFAULT_MAX_MODEL_LEN - AM.CRITIC_MAX_TOKENS - PROMPT_MARGIN_TOKENS) * JSON_CHARS_PER_TOKEN)
+
+
+def compact_facts(facts: dict) -> dict:
+    """The facts with each room's furniture and decor counted per type (pure): ``{"type": n}``, the wood tones and
+    metals of its furniture as sets."""
+    rooms = []
+    for r in facts.get("rooms") or []:
+        furn: dict = {}
+        tones, metals = set(), set()
+        for f in r.get("furniture") or []:
+            furn[f["type"]] = furn.get(f["type"], 0) + 1
+            tones.update([f["wood_tone"]] if f.get("wood_tone") else [])
+            metals.update([f["metal"]] if f.get("metal") else [])
+        dec: dict = {}
+        for t in r.get("decor") or []:
+            dec[t] = dec.get(t, 0) + 1
+        row = dict(r, furniture=furn, decor=dec)
+        if tones:
+            row["wood_tones"] = sorted(tones)
+        if metals:
+            row["metals"] = sorted(metals)
+        rooms.append(row)
+    return dict(facts, rooms=rooms, compact=True)
+
+
+def review_batches(todo: list[dict], facts: dict, arch: Optional[dict], budget: Optional[int] = None) -> \
+        tuple[dict, list[list[dict]]]:
+    """``(facts, batches)``: the facts as sent (compact when the full ones pass FACTS_SHARE of the budget) and the
+    lessons' prompt items in batches that fit the rest of the budget (at least one lesson a batch)."""
+    budget = budget or prompt_chars_max()
+    if len(json.dumps(facts)) > FACTS_SHARE * budget:
+        facts = compact_facts(facts)
+    room = max(budget - len(json.dumps(facts)) - len(REVIEW_SYSTEM), budget // 10)
+    batches: list[list[dict]] = [[]]
+    used = 0
+    for x in todo:
+        item = {"id": x["id"], "lesson": x["lesson"], "question": x.get("question"),
+                "evidence": check_evidence(arch, x.get("checks"))}
+        size = len(json.dumps(item)) + 2
+        if batches[-1] and used + size > room:
+            batches.append([])
+            used = 0
+        batches[-1].append(item)
+        used += size
+    return facts, [b for b in batches if b]
+
+
 def building_facts(building: dict, architect: Optional[dict] = None) -> dict:
     """What the AI sees of a building (pure): rooms with their area, open-air flag, furniture (id, type, source,
-    the model's wood tone and metal) and decor types; the architect's counts per rule."""
+    the model's wood tone and metal) and decor types; the architect's counts per rule. 2 Nov 2026: a typical floor's
+    copies are left out (``typical_copies``: their ids), their rooms are the typical floor's."""
     from wenart.blender.outdoor import OPEN_AIR_ROOMS
+    from wenart.run.forecast import looked_levels
+
+    looked = set(looked_levels(building))
+    copies = sorted(str(lv.get("id")) for lv in building.get("levels") or []
+                    if isinstance(lv, dict) and lv.get("id") not in looked)
     furn: dict = {}
     for f in building.get("furniture") or []:
         if f.get("build") is not False:
@@ -100,6 +166,8 @@ def building_facts(building: dict, architect: Optional[dict] = None) -> dict:
         dec.setdefault(d.get("room_id"), []).append(str(d.get("type")))
     rooms = []
     for r in building.get("rooms") or []:
+        if copies and r.get("level_id") not in looked:
+            continue
         rooms.append({"id": r.get("id"), "type": r.get("room_type"), "level": r.get("level_id"),
                       "area_m2": round(_area(r.get("polygon")), 1),
                       "open_air": str(r.get("room_type") or "") in OPEN_AIR_ROOMS,
@@ -107,7 +175,10 @@ def building_facts(building: dict, architect: Optional[dict] = None) -> dict:
                       "decor": sorted(dec.get(r.get("id"), []))})
     counts = {q["id"]: {"status": q.get("status"), **(q.get("counts") or {})}
               for q in (architect or {}).get("questions") or []}
-    return {"rooms": rooms, "architect": counts}
+    out = {"rooms": rooms, "architect": counts}
+    if copies:
+        out["typical_copies"] = copies
+    return out
 
 
 def check_evidence(architect: Optional[dict], checks, limit: int = EVIDENCE_PER_CHECK) -> dict:
@@ -156,17 +227,19 @@ def review_lessons(project_out, model, *, building_name: str = "building_final.j
     todo = [x for x in L.lessons() if x.get("status") in ("open", "rule") and x.get("area") != "process"]
     rec = {"asked": len(todo), "verdicts": [], "model": getattr(model, "model", ""), "seconds": None}
     if todo:
-        ids = [x["id"] for x in todo]
-        reply = model.structured([{"role": "system", "content": REVIEW_SYSTEM},
-                                  {"role": "user", "content": json.dumps(
-                                      {"lessons": [{"id": x["id"], "lesson": x["lesson"],
-                                                    "question": x.get("question"),
-                                                    "evidence": check_evidence(arch, x.get("checks"))}
-                                                   for x in todo],
-                                       "building": building_facts(building, arch)})}],
-                                 review_schema(ids), call_id="lessons_review", name="lessons", kind="task")
-        rec["verdicts"] = [v for v in (reply.data or {}).get("verdicts") or [] if v.get("lesson") in ids]
-        rec["errors"] = list(reply.errors[:3]) if getattr(reply, "errors", None) else []
+        facts, batches = review_batches(todo, building_facts(building, arch), arch)
+        rec["errors"] = []
+        rec["batches"] = len(batches)
+        if facts.get("compact"):
+            rec["facts"] = "compact (furniture and decor counted per type: the full facts pass the context budget)"
+        for n, batch in enumerate(batches, start=1):
+            ids = [x["id"] for x in batch]
+            reply = model.structured([{"role": "system", "content": REVIEW_SYSTEM},
+                                      {"role": "user", "content": json.dumps({"lessons": batch, "building": facts})}],
+                                     review_schema(ids), call_id=f"lessons_review_{n}" if n > 1 else "lessons_review",
+                                     name="lessons", kind="task")
+            rec["verdicts"] += [v for v in (reply.data or {}).get("verdicts") or [] if v.get("lesson") in ids]
+            rec["errors"] += list(reply.errors[:3]) if getattr(reply, "errors", None) else []
     rec["seconds"] = round(time.time() - t0, 1)
     LG.write_json_atomic(odir / REVIEW_JSON, rec)
     lines = ["# The user's lessons, checked by the AI architect", "",

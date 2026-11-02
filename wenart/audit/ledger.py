@@ -1345,7 +1345,9 @@ def run(inp) -> dict:
     building = inp.stage("build") or inp.final
     if not building:
         return {"findings": [], "checked": {}, "note": "no building"}
-    building = with_variant_levels(building, inp.final)
+    # 2 Nov 2026 (real04 run 20261101-093151-full: 10 critical A1 again): ``inp.final`` is the last stage's building, the
+    # build's itself when a scene exists, so the variant levels were never put back; the final stage's building holds them
+    building = with_variant_levels(building, inp.stage("final") or inp.final)
     root = Path(inp.root)
     path = root / "source_items.json" if inp.layout == "pod" else root / "furniture" / inp.project / "source_items.json"
     if not path.is_file():

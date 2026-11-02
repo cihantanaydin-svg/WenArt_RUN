@@ -1433,7 +1433,9 @@ def pendant_lights(out: dict, room: dict, decor: list[dict], zone_loads: dict, f
         if f.get("mount") == "host" and f.get("host_id"):
             hosted.setdefault(f["host_id"], []).append(f)
     for pend in decor:
-        if pend.get("type") != "pendant_light" or not pend.get("center") or not pend.get("size"):
+        # 2 Nov 2026 (house-score item 4; real04's salon: 3 decor ceiling lights and no light in any): a decor ceiling
+        # light gets the pendant's rule too (its zone's ceiling light, else PENDANT_LUMENS)
+        if pend.get("type") not in ("pendant_light", "ceiling_light") or not pend.get("center") or not pend.get("size"):
             continue
         if hosted_z(pend) < floor_z + RIG_HOSTED_MIN_Z_M:
             continue                             # a pendant through a table hosts nothing (the rule of the hosts)
@@ -2526,9 +2528,12 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
             power, per_m2 = light_power(area, len(plans), dim, factor)
             for k, plan in enumerate(plans):
                 name = f"light_{room['id']}" if k == 0 else f"light_{room['id']}_{k + 1}"
+                # 2 Nov 2026 (house-score item 4: the windowless attic read as a "grey box" under the fill's 5200 K
+                # sun colour): the fill light takes the room's rig colour (warm, neutral in halls and baths)
                 area_lights.append(_room_light(bpy, common, collection, manifest_objects, assumed, room, level, plan,
-                                               name, power, per_m2, why, dim, ratio, temperature, ceiling_at, ceil_z,
-                                               len(plans), agent))
+                                               name, power, per_m2, why, dim, ratio,
+                                               rig_temperature_for(room.get("room_type"), lighting), ceiling_at,
+                                               ceil_z, len(plans), agent))
     sun_info = {"elevation_deg": elevation, "azimuth_deg": azimuth, "strength": strength, "temperature_k": temperature,
                 "strength_wm2_constant": SUN_STRENGTH_WM2, "mood_factor": mood_factor,
                 "mood_sun_strength": lighting.get("sun_strength"), "variant": levers["variant"],

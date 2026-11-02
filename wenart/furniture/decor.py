@@ -865,7 +865,17 @@ FREE_WALL_FRONT_M = 0.8
 FREE_WALL_ART_SHARE = 0.55
 FREE_WALL_ART_BOTTOM_M = 1.2
 FREE_WALL_ART_MAX = 2
+# 2 Nov 2026 (house score item 1; real04's 51 m2 salon held one picture): a large room takes a third picture
+FREE_WALL_ART_LARGE_MAX = 3
+FREE_WALL_ART_LARGE_M2 = 25.0
 WALL_STEP_M = 0.5
+
+
+def free_wall_art_most(room: dict) -> int:
+    """How many free-wall pictures a room takes (the comments above): FREE_WALL_ART_LARGE_MAX over
+    FREE_WALL_ART_LARGE_M2, else FREE_WALL_ART_MAX."""
+    area = float(room.get("area_computed") or room.get("area_m2") or 0.0)
+    return FREE_WALL_ART_LARGE_MAX if area > FREE_WALL_ART_LARGE_M2 else FREE_WALL_ART_MAX
 
 
 def _free_intervals(lo: float, hi: float, blocked: list[tuple[float, float]]) -> list[tuple[float, float]]:
@@ -1070,6 +1080,72 @@ def rooms_with_pieces(building: dict) -> list[tuple[dict, list[dict]]]:
         if f.get("room_id"):
             furniture_by_room.setdefault(f["room_id"], []).append(f)
     return [(room, furniture_by_room.get(room["id"], [])) for room in building["rooms"]]
+
+
+# 2 Nov 2026 (house score item 1, "fuller styled rooms"; real04's two play-and-rest rooms held a sofa, a TV unit and a
+# sideboard, yet were typed "other" at decor time and so dressed like a hall: no free-wall art, no living dressing, a
+# minimum of 3; the agent typed them living later and decor never ran again): the decor dresses a room by what stands
+# in it when its type says nothing. ``decor_room_type``: an ``other`` / ``unknown`` / untyped indoor room with a built
+# bed is dressed as a bedroom, with a sofa as a living room, with a dining table as a dining room; any other room keeps
+# its type. ``decor_view`` gives the building the decor stage works on (the rooms retyped, the rest shared) and the
+# changes; ``restore_room_types`` puts the drawn types back and records the changes (``decor_room_types``): the
+# building's own room types never change here.
+DECOR_UNTYPED: tuple[str, ...] = ("other", "unknown", "")
+DECOR_TYPE_BY_PIECE: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("bedroom", ("bed_double", "bed_single", "bunk_bed")),
+    ("living", ("sofa", "sofa_corner")),
+    ("dining", ("table_dining",)),
+)
+
+
+def decor_room_type(room: dict, pieces: list[dict]) -> tuple[str, Optional[str]]:
+    """``(type, why)``: the type a room is dressed as (the comment above); ``why`` None when it keeps its own."""
+    own = str(room.get("room_type") or "")
+    if own not in DECOR_UNTYPED:
+        return own, None
+    from wenart.blender import outdoor as OD
+
+    if OD.open_air_room(room):
+        return own or "other", None
+    built = {str(p.get("type")) for p in pieces if p.get("footprint") and p.get("build", True) is not False}
+    for rtype, types in DECOR_TYPE_BY_PIECE:
+        hit = sorted(built & set(types))
+        if hit:
+            return rtype, f"an untyped room ({own or 'no type'}) with a {hit[0].replace('_', ' ')} is dressed as a {rtype}"
+    return own or "other", None
+
+
+def decor_view(building: dict) -> tuple[dict, dict]:
+    """``(building, changes)``: the building with its untyped rooms retyped for the decor (``decor_room_type``; a new
+    top dict and rooms list, the other parts shared) and ``{room_id: {"from", "to", "why"}}``; no change: the same
+    building."""
+    changes: dict[str, dict] = {}
+    for room, pieces in rooms_with_pieces(building):
+        rtype, why = decor_room_type(room, pieces)
+        if why:
+            changes[room["id"]] = {"from": room.get("room_type"), "to": rtype, "why": why}
+    if not changes:
+        return building, changes
+    view = dict(building)
+    view["rooms"] = [dict(r, room_type=changes[r["id"]]["to"]) if r.get("id") in changes else r
+                     for r in building.get("rooms") or []]
+    return view, changes
+
+
+def restore_room_types(out: dict, changes: dict) -> None:
+    """Put the drawn room types back after the decor (``decor_view``) and keep the changes in
+    ``out["decor_room_types"]``."""
+    if not changes:
+        return
+    for room in out.get("rooms") or []:
+        ch = changes.get(room.get("id"))
+        if ch is None:
+            continue
+        if ch["from"] is None:
+            room.pop("room_type", None)
+        else:
+            room["room_type"] = ch["from"]
+    out["decor_room_types"] = changes
 
 
 def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> tuple[list[dict], dict]:

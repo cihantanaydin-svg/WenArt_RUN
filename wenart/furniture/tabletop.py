@@ -69,8 +69,9 @@ GROUPS: dict[str, tuple[int, tuple[str, ...]]] = {
     "console_table": (3, ("vase", "books", "bowl", "candle")),
     "dresser": (3, ("vase", "books", "tray", "candle")),
     "tv_unit": (3, ("books", "vase", "candle")),
-    "nightstand": (2, ("books", "candle", "plant_small")),
-    "side_table": (2, ("books", "candle", "plant_small")),
+    # 2 Nov 2026 (house score item 1: the judge saw no table lamp in real04's salons and bedrooms): a lamp first
+    "nightstand": (2, ("table_lamp", "books", "candle", "plant_small")),
+    "side_table": (2, ("table_lamp", "books", "candle", "plant_small")),
     "desk": (2, ("books", "plant_small")),
 }
 # the style's decor density (``style.density.decor_density``: a japandi or minimal room is sparse) -> pieces more or

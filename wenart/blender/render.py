@@ -557,8 +557,10 @@ WB_RIG_SHARE_MIN = 0.02
 # daylight's, never more than the mood's residual). A bpy 5.2.2 shim re-render of P4a's real02 scene at P4a's EV (its
 # m13.2 halls matched the pod's display wall R/B within 0.04): with 0 the 12 halls read 1.26-1.36 and the baths
 # 1.02-1.08 against the painted daylight walls' 1.30-1.55 (median 1.36); with 0.1 the halls read 1.35-1.46, close to
-# the 1.5 pin. 0 until a look decision asks for lamp-lit warmth.
-WB_RIG_RESIDUAL = 0.0
+# the 1.5 pin. 0 until a look decision asks for lamp-lit warmth. 2 Nov 2026 (house-score item 4, user: "start with the
+# score-budget table, then items 1-6"; the judge: "a single pendant", "flat"): 0.1, the measured value above: a lamp-lit
+# room keeps a little of its lamps' warmth
+WB_RIG_RESIDUAL = 0.1
 WB_VIEW_RULE = ("the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - "
                 "daylight / all metered light), with the residual cast of the project's daylight kept for every view")
 # 30 Oct 2026 (m13.6, ``wall_rig_mix``): the rig part of the mix is the rig light as the view's walls get it (the oak

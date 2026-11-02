@@ -3150,3 +3150,27 @@ the quality of the product most"): the fixes between runs gave the jumps (judge 
 | 1 agent rounds by measured gain | a regular round that removes fewer than `loop.MIN_ROUND_REMOVED` (3) findings is the last one, its edits kept (the scheduler passes it; `WENART_AGENT_MIN_REMOVED` overrides); the big loop keeps its first measure (the judge's score of every final view) and runs no cycle by default (`WENART_BIG_LOOP_CYCLES` turns them on) |
 | 2 the pod's CPU cores | the AI architect's and Argus's answer checks that fail together are judged unit by unit at once in parallel processes (`architect_ai.check_workers`: the pod's 24 CPU threads, at most 8 processes); on real10: same verdicts, 53 s against 179 s with 4 processes |
 | 3 the default search once | a building's default search is kept beside it (`build.SEED_FILE`, by content, brief and variant) and every later build, AI check and Argus check starts from it (a seed computed in the cloud session only helps when the pod builds the same building, so the pod computes it once) |
+
+### House score: the score budget and items 1-6 (2 Nov 2026, user: "start with the score-budget table, then items 1-6")
+
+The house score is 0.6 x the judge's part + 0.4 x the defects part (10 points a critical, 3 a major). The score budget
+(`python -m wenart.report.score_budget --results runs/<job>/results --project <p>`; the big loop's measure writes
+`orchestrator/score_budget.json` and `.md`) lists what each finding family and each judge tag costs. Every item is a
+general rule; real04 and real10 are the test cases.
+
+| item | rule |
+|---|---|
+| 1 fuller styled rooms | an untyped room (`other`, `unknown`) is dressed by what stands in it: a bed -> bedroom, a sofa -> living, a dining table -> dining (`decor.decor_view`; its drawn type is kept, the change in `decor_room_types`); every styled room gets its layer floor after the AI's items (`decor_ai.ensure_layers`, `FLOOR_LAYERS`: curtains at every window, art on 2 walls, 2 plants, a throw, styled tops, a table lamp on every nightstand and side table; one of each in a sparse style); the minimum counts layers (at most 2 items a layer; four cushions are not four items) and a full layer is not filled again; a room over 25 m2 takes a third free-wall picture; a nightstand's or side table's top group starts with a lamp |
+| 2 textured materials | a fine grain (noise bump) on plaster, ceilings, painted fronts and painted furniture (`materials.GRAIN`) |
+| 3 matching sets | a room takes the style's wood tone and one contrast (was: its first two tones and the style's, three in all); the models of the room's set (fewest taste steps) are tried through the caps before the others; a decor model is picked among the fitting models of the room's set (`fit_decor_item(taste=...)`) |
+| 4 layered lighting | a ceiling light gets the pendant's rule (a light of its own), the fill light takes the room type's warm white (`lighting.rig_temperature_for`), the white balance leaves a 10 % warm residual (`render.WB_RIG_RESIDUAL`) |
+| 5 a real outside | thinner haze (0.0003), context scans 0.85-1.2 in plan ratio and at most 6, a hero tree keeps its tallest tree group (no lollipop trees) |
+| 6 recurring criticals by rule | the ledger counts the variant's levels (A1), Argus's own findings are not read back to the inspector, railings are not cut in the top-down images, a slope canopy is in the scene check, a door slide keeps the doorway clear, and the user's rule (UL257): a door whose leaf is blocked or whose swing hits fixed equipment (a washbasin, a WC) opens the other way when that side is free (`door_states.plan_states`, `adjusted_by_ai` by code with `drawn_swing_side`) |
+
+Also: the AI architect's lessons review fits the agent model's 32k context (real10 run 20261102-122729-full asked
+30721 tokens): the facts leave out a typical floor's copies and are counted per type when large, the lessons go in
+batches (`lessons.review_batches`).
+
+Not done yet (next): a lamp rig in the living rooms (4b); clouds in the exterior sky and neighbouring buildings (5b);
+the Q4 missing-anchor downgrade, the F2/F7 measure alignment and stale vision findings (6b); the agent's swaps refit
+without the room's taste (3b). Item 7 (AI polish) waits for the user's decision.

@@ -686,6 +686,8 @@ def slide_spot(building: dict, o: dict, wall: dict, level: dict, openings: Seque
         r2 = head_room(there, wall, level)
         if r2 is None or r2 < MIN_CLEAR_M - 1e-9:
             continue
+        if not doorway_clear(building, o, wall, t):         # 2 Nov 2026: never slid into the fixed equipment
+            continue
         probes = [dict(o, center=[a[0] + u[0] * x, a[1] + u[1] * x]) for x in (t - half, t, t + half)]
         if all([r.get("id") if r else None for r in sides(p, wall, rooms)] == ids for p in probes):
             return t, r2, there["center"]
@@ -702,6 +704,57 @@ RELOCATE_GAP_M = 0.10             # a moved door keeps this from the other openi
 RELOCATE_END_M = 0.10             # ... and from the wall's ends (a jamb needs its wall)
 RELOCATE_FIXED_TYPES = ("toilet", "washbasin", "bathtub", "shower", "bidet", "kitchen_counter", "kitchen_island",
                         "sink_kitchen", "stove", "fridge", "stair")
+
+
+DOORWAY_APPROACH_M = 0.6          # = the critic's approach strip (furniture.plausibility F7, placer.APPROACH)
+
+
+def fixed_polys(building: dict, level_id) -> list:
+    """The outlines of the fixed equipment of a level that is built (``RELOCATE_FIXED_TYPES``; pure)."""
+    return [_rect(f["footprint"]) for f in building.get("furniture") or []
+            if f.get("level_id") == level_id and f.get("build") is not False
+            and (f.get("type") in RELOCATE_FIXED_TYPES or f.get("drawn_type") in RELOCATE_FIXED_TYPES)
+            and isinstance(f.get("footprint"), dict) and f["footprint"].get("center") and f["footprint"].get("size")]
+
+
+def sweep_blocked(o: dict, wall: dict, side: int, polys: Sequence) -> bool:
+    """A door's leaf swinging to ``side`` of its wall (+1 its left, ``shell.opening_room_side``) sweeps one of
+    ``polys`` (pure; 2 Nov 2026): the leaf's square, its width deep, from the door's centre on the wall."""
+    if not polys or not o.get("center"):
+        return False
+    a, u, _l = _axis(wall)
+    n = (-u[1], u[0])
+    w = float(o.get("width") or 0.8)
+    _cx, _cy, t = centre_on_wall(o, wall)
+    c = (a[0] + u[0] * t, a[1] + u[1] * t)
+    sq = [(c[0] + u[0] * x + n[0] * side * y, c[1] + u[1] * x + n[1] * side * y)
+          for x, y in ((-w / 2.0, 0.02), (w / 2.0, 0.02), (w / 2.0, w), (-w / 2.0, w))]
+    return any(_overlap(sq, poly) for poly in polys)
+
+
+def doorway_clear(building: dict, o: dict, wall: dict, t: float) -> bool:
+    """A door of ``wall`` at ``t`` (metres from its start) keeps its doorway clear of the fixed equipment (pure; 2 Nov
+    2026, real04 run 20261101-093151-full: the attic bathroom door slid 0.50 m for head room onto the drawn washbasin,
+    2 critical F7 / R3 and a Y2): the approach strip ``DOORWAY_APPROACH_M`` deep on both sides of the wall and the leaf's
+    swing on at least one side (``_swing_clear``)."""
+    level_id = o.get("level_id") or wall.get("level_id")
+    fixed = [f for f in building.get("furniture") or [] if f.get("level_id") == level_id and f.get("build") is not False
+             and (f.get("type") in RELOCATE_FIXED_TYPES or f.get("drawn_type") in RELOCATE_FIXED_TYPES)
+             and isinstance(f.get("footprint"), dict) and f["footprint"].get("center") and f["footprint"].get("size")]
+    a, u, _l = _axis(wall)
+    n = (-u[1], u[0])
+    width = float(o.get("width") or 0.8)
+    centre = (a[0] + u[0] * t, a[1] + u[1] * t)
+    if not fixed:
+        return True
+    polys = [_rect(f["footprint"]) for f in fixed]
+    half = width / 2.0
+    for s_ in (1.0, -1.0):
+        strip = [(centre[0] + u[0] * x + n[0] * s_ * y, centre[1] + u[1] * x + n[1] * s_ * y)
+                 for x, y in ((-half, 0.0), (half, 0.0), (half, DOORWAY_APPROACH_M), (-half, DOORWAY_APPROACH_M))]
+        if any(_overlap(strip, poly) for poly in polys):
+            return False
+    return _swing_clear(building, level_id, centre, u, n, width)
 
 
 def _swing_clear(building: dict, level_id, centre, u, n, width: float) -> bool:
@@ -1194,18 +1247,27 @@ def plan_states(building: dict, style, cameras: Sequence[dict] = ()) -> dict:
             continue
         prefer = camera_hinge(fr, side, cam["position"]) if cam and cam.get("position") else None
         _decide(rec, o, fr, side, room, op, want, why, pieces, others, prefer)
-        if rec["state"] == "closed" and side_assumed and "sloped ceiling" in str(rec.get("blocked") or ""):
-            # 30 Oct 2026 (UL128): the slope over its own side is too low for the open leaf and no swing side is
-            # drawn: it swings into the room on the other side when its leaf is free there
-            other = next((r for r in rs if r is not None and r.get("id") != into), None)
-            if other is not None:
-                trial = dict(rec)
-                _decide(trial, o, fr, -side, other, op, want, why, pieces, others, prefer)
-                if trial["state"] != "closed":
-                    trial.update(side=-side, into=other.get("id"), swing_turned=True,
-                                 reason=trial["reason"] + f"; its swing turned into {other.get('id')}: the slope over "
-                                                          f"{into} is too low for its open leaf (UL128)")
-                    rec, side_assumed = trial, False
+        # 30 Oct 2026 (UL128): the slope over its own side too low for the open leaf, no swing side drawn: it swings
+        # into the other room. 2 Nov 2026 (user: "for doors to the washbasin, the door can open to the other side, and
+        # this can be a general rule, if it is hiding something or not opening properly it can open to the other
+        # way"; real04 run 20261101-093151-full: the attic bathroom doors swept their washbasins, 2 critical R3): any
+        # door whose leaf cannot open on its side, or whose swing sweeps the fixed equipment there, opens the other
+        # way when its swing is free on that side (a drawn swing side too: kept as drawn_swing_side)
+        fixed = fixed_polys(building, lid)
+        turn_why = None
+        if rec["state"] == "closed" and rec.get("blocked"):
+            turn_why = f"its leaf cannot open into {into} ({rec.get('blocked')})"
+        elif rec["state"] != "closed" and sweep_blocked(o, wall, side, fixed):
+            turn_why = f"its swing into {into} sweeps the fixed equipment there"
+        other = next((r for r in rs if r is not None and r.get("id") != into), None) if turn_why else None
+        if other is not None and not sweep_blocked(o, wall, -side, fixed):
+            trial = dict(rec)
+            _decide(trial, o, fr, -side, other, op, want, why, pieces, others, prefer)
+            if trial["state"] != "closed" or sweep_blocked(o, wall, side, fixed):
+                trial.update(side=-side, into=other.get("id"), swing_turned=True,
+                             reason=str(trial.get("reason") or "") + f"; it opens the other way, into "
+                                                                    f"{other.get('id')}: {turn_why}")
+                rec, side_assumed = trial, False
         if rec["state"] != "closed" and rec.get("leaf_polys"):
             taken.setdefault(lid, []).extend((o["id"], p) for p in rec["leaf_polys"])
         if side_assumed and rec["state"] != "closed":
@@ -1451,10 +1513,15 @@ def apply_states(building: dict, style, cameras: Sequence[dict] = ()) -> tuple[d
     for oid, rec in states.items():
         by_id[oid]["leaf_state"] = rec
         if rec.get("swing_turned") and rec.get("into"):
-            # 30 Oct 2026 (UL128): the build hangs the leaf on this side (``shell.opening_room_side``: swing_side)
-            by_id[oid]["swing_side"] = rec["into"]
+            # 30 Oct 2026 (UL128): the build hangs the leaf on this side (``shell.opening_room_side``: swing_side).
+            # 2 Nov 2026: a drawn swing side is kept (drawn_swing_side) and the turn labelled adjusted_by_ai by code
+            o = by_id[oid]
+            o.setdefault("drawn_swing_side", o.get("swing_side"))
+            o["swing_side"] = rec["into"]
+            o["adjusted_by_ai"] = {"by": "code", "rule": "door opens the other way", "reason": rec.get("reason"),
+                                   "drawn_swing_side": o.get("drawn_swing_side")}
             assumed.append({"object": oid, "field": "swing_side", "value": rec["into"], "reason": rec.get("reason"),
-                            "parent": oid, "kind": "door_swing_under_roof"})
+                            "parent": oid, "kind": "door_swing_turned"})
         assumed.append({"object": oid, "field": "leaf_state",
                         "value": {k: rec.get(k) for k in ("state", "angle_deg", "slide_m", "hinge_side")},
                         "reason": rec.get("reason") or "", "parent": oid, "kind": "door_state"})

@@ -1196,10 +1196,12 @@ def raise_slopes_for_doors(building: dict, level: Optional[dict], roof: Optional
         def room_at(x):
             return DS.head_room(dict(o, center=[a[0] + u[0] * x, a[1] + u[1] * x]), wall, level) or 0.0
 
+        # 2 Nov 2026 (real04 run 20261101-093151-full: the door slid onto the drawn washbasin): a slide keeps its
+        # doorway clear of the fixed equipment (door_states.doorway_clear); the drawn place stays a candidate
         spots = [t0] + [x for x in DS._slide_spots(o, wall, openings)
                         if all([r.get("id") if r else None for r in DS.sides(
                             dict(o, center=[a[0] + u[0] * y, a[1] + u[1] * y]), wall, rooms)] == ids
-                            for y in (x - jamb, x, x + jamb))]
+                            for y in (x - jamb, x, x + jamb)) and DS.doorway_clear(building, o, wall, x)]
         t = max(spots, key=lambda x: (round(room_at(x), 3), -abs(x - t0)))
         centre = [a[0] + u[0] * t, a[1] + u[1] * t]
         raised = []

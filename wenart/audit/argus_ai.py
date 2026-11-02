@@ -412,6 +412,19 @@ def parse_args(text: str, tool: str, target: str) -> tuple[Optional[dict], str]:
     return args, ""
 
 
+ARGUS_PREFIX = "Argus: "
+
+
+def argus_message(message) -> str:
+    """``ARGUS_PREFIX`` and the message, the prefix once (2 Nov 2026, real04 run 20261101-093151-full: "Argus: Argus:
+    Argus: Argus: Argus: The camera frame is entirely black": a finding handed on, read back from the inspector's
+    record and handed on again, five runs after the frame was fixed)."""
+    text = str(message or "")
+    while text.startswith(ARGUS_PREFIX):
+        text = text[len(ARGUS_PREFIX):]
+    return ARGUS_PREFIX + text
+
+
 def _action(aid: str, tool: str, args: dict, f: dict, why: str, source: str) -> tuple[dict, dict]:
     """``(action, work finding)``: the tool call Argus makes and the finding it fixes (critic format, id ``a:<aid>``,
     the tool's cause), which joins the round's findings so the edit has its target."""
@@ -420,7 +433,7 @@ def _action(aid: str, tool: str, args: dict, f: dict, why: str, source: str) -> 
     work = {"id": fid, "check": str(f.get("check") or "AI"), "severity": f.get("severity") if f.get("severity") in
             ("critical", "major") else "major", "target": args.get("piece_id") or args.get("room_id") or
             args.get("view_id") or f.get("target"), "room_id": args.get("room_id"), "view": None, "source": "argus",
-            "message": f"Argus: {str(f.get('message') or '')[:300]}", "argus_cause": cause, "fix": "argus_tool"}
+            "message": argus_message(str(f.get('message') or '')[:300]), "argus_cause": cause, "fix": "argus_tool"}
     act = {"id": f"{source}:{aid}:{tool}:{work['target']}", "tool": tool, "args": args, "finding_id": fid,
            "why": str(why or "")[:240], "source": source, "cause": cause}
     return act, work
@@ -1186,7 +1199,7 @@ def work_findings(project_out) -> list[dict]:
             out.append(dict(w))
         elif w.get("fix") == "agent_round" and w.get("severity") in ("critical", "major"):
             out.append({"check": str(w.get("check") or "AI1"), "severity": w["severity"], "target": w.get("target"),
-                        "room": None, "view": None, "source": "argus", "message": f"Argus: {w.get('message')}"})
+                        "room": None, "view": None, "source": "argus", "message": argus_message(w.get("message"))})
     return out
 
 

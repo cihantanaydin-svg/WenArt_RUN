@@ -381,7 +381,14 @@ def steps(attrs: dict, room: dict, target: dict) -> int:
     if tone:
         main = target.get("wood_tone")
         used = list(room.get("tones") or [])
-        allowed = set(used[:2]) | ({main} if main else set())
+        # 2 Nov 2026 (house score item 3, "matching sets": real04's salon mixed light and medium wood with black and
+        # brass metal, because a room took its first two tones and the style's tone, three in all): the style's tone
+        # and one contrast, the first other tone the room took; without a style tone the room's first two
+        if main:
+            contrast = next((t for t in used if t != main), None)
+            allowed = {main} | ({contrast} if contrast else set())
+        else:
+            allowed = set(used[:2])
         if tone not in allowed:
             extra = len(allowed | {tone}) > 2
             jump = main is not None and {tone, main} == {"light", "dark"}

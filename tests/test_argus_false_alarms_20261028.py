@@ -116,3 +116,39 @@ def test_a_stage_leaves_no_process_running(tmp_path):
     assert SCH.subprocess_runner([sys.executable, "-c", "print(1)"], dict(__import__("os").environ), tmp_path, 30,
                                  clean) == 0
     assert "still running" not in clean.read_text(encoding="utf-8")
+
+
+def test_the_ledger_takes_the_variant_levels_from_the_final_stage(tmp_path, monkeypatch):
+    """2 Nov 2026 (real04 run 20261101-093151-full: 10 critical A1 again): ``inp.final`` is the build's building when a
+    scene exists, so the variant levels were never put back; the final stage's building is used."""
+    from types import SimpleNamespace
+    from wenart.audit import ledger as LD
+
+    final = _variant_building()
+    built = dict(final, levels=[lv for lv in final["levels"] if lv["id"] != "L-1b"],
+                 rooms=[r for r in final["rooms"] if r["level_id"] != "L-1b"])
+    stages = [("final", final), ("build", built)]
+    inp = SimpleNamespace(stages=stages, final=built, root=str(tmp_path), layout="pod", project="p",
+                          stage=lambda name: next((b for n, b in stages if n == name), None))
+    seen = []
+    real = LD.with_variant_levels
+    monkeypatch.setattr(LD, "with_variant_levels", lambda b, f: seen.append(f) or real(b, f))
+    LD.run(inp)
+    assert seen == [final]
+
+
+def test_an_argus_finding_is_not_read_back_and_prefixed_again():
+    """2 Nov 2026 (real04 run 20261101-093151-full: "Argus: Argus: Argus: Argus: Argus: The camera frame is entirely
+    black" on a view whose final render was fine): the prefix once, and the inspector line skips Argus's hand-ons."""
+    from types import SimpleNamespace
+    from wenart.audit import argus_ai as AX
+    from wenart.audit import report as AR
+
+    assert AX.argus_message("Argus: Argus: a black frame") == "Argus: a black frame"
+    assert AX.argus_message("a black frame") == "Argus: a black frame"
+    rec = {"round": 3, "code": [{"check": "F7", "severity": "critical", "target": "f1", "message": "basin blocks door",
+                                 "source": "code"}],
+           "vision": [{"check": "V1", "severity": "critical", "target": "cam_1", "source": "argus",
+                       "message": "Argus: The camera frame is entirely black"}]}
+    got = AR.inspector_line(SimpleNamespace(inspector=rec))
+    assert [f["check"] for f in got["findings"]] == ["F7"]

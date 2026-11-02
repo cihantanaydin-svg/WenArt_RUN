@@ -1642,19 +1642,19 @@ def test_fixround_p4a_every_view_keeps_the_project_daylight_cast():
     rig = R.normalise_whitepoint(P4A_RIG)
     cast = _rb([d ** 0.35 for d in day])                       # a white wall in a daylight room: the mood's cast
     assert cast == pytest.approx(1.145, abs=1e-3)
-    assert R.WB_RIG_RESIDUAL == 0.0 and "kept for every view" in R.WB_VIEW_RULE
+    assert R.WB_RIG_RESIDUAL == 0.1 and "kept for every view" in R.WB_VIEW_RULE    # 2 Nov 2026 (house-score item 4)
     for s in (0.02, 0.25, 0.5, 0.70, 0.79, 0.9, 1.0):
-        wp = R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, s, 0.35)
+        wp = R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, s, 0.35, 0.0)
         light = [(1 - s) * d + s * q for d, q in zip(day, rig)]
         assert _rb([v / w for v, w in zip(light, wp)]) == pytest.approx(cast, abs=1e-3), s
         assert wp[2] < P4A_ANCHOR[2] and wp[0] > P4A_ANCHOR[0], s     # warmer than the anchor: a positive mired shift
     # P4a's hall white point (share 1, the residual on the rig's colour) left 2.244 on white
     m132 = R.whitepoint_from(rig, 0.35)
     assert _rb([rig[i] / m132[i] for i in range(3)]) == pytest.approx(2.244, abs=2e-3)
-    full = R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 1.0, 0.35)
+    full = R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 1.0, 0.35, 0.0)
     assert _rb([rig[i] / full[i] for i in range(3)]) == pytest.approx(cast, abs=1e-3)
     # continuous in the share: no step between the kitchens (0.70-0.79) and the halls (0.90-1.0)
-    blue = [R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 0.70 + 0.01 * i, 0.35)[2] for i in range(31)]
+    blue = [R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 0.70 + 0.01 * i, 0.35, 0.0)[2] for i in range(31)]
     steps = [b1 - b2 for b1, b2 in zip(blue, blue[1:])]
     assert min(steps) > 0.0 and max(steps) < 0.01
     # the lever: the rig part's extra warmth, a share of the rig's colour over the daylight's, none at share 0,

@@ -295,11 +295,13 @@ def test_rooms_without_agreement_or_answers_get_the_rules_with_the_reason():
             and TT.REASON_TAG not in str(d.get("reason", ""))
             and d.get("rule") != "decor.ceiling_lights"    # 28 Oct 2026: + the lighting rule
             and not str(d.get("rule") or "").startswith("room_details.")    # 29 Oct 2026: + the photos' details
-            and d.get("rule") != DA.LIVING_DRESSING_RULE]   # 30 Oct 2026 (UL180): + the main sofa and its rug
+            and d.get("rule") != DA.LIVING_DRESSING_RULE   # 30 Oct 2026 (UL180): + the main sofa and its rug
+            and not str(d.get("reason", "")).startswith("layer floor")]    # 2 Nov 2026 (item 1): + the layer floor
     expected, _row = D.rule_decor_room(b, b["rooms"][0], b["furniture"], lambda lv: "x")
     assert sorted(d["type"] for d in rule) == sorted(d["type"] for d in expected) and rule
-    # 25 Oct 2026: the room is then filled up to a styled living room's minimum from its empty slots
-    filled = [d for d in out["decor"] if str(d.get("reason", "")).startswith("styling")]
+    # 25 Oct 2026: the room is then filled up to a styled living room's minimum from its empty slots (2 Nov 2026: the
+    # layer floor first, the minimum's fill after it)
+    filled = [d for d in out["decor"] if str(d.get("reason", "")).startswith(("styling", "layer floor"))]
     dressed = [d for d in out["decor"] if d.get("rule") == DA.LIVING_DRESSING_RULE]     # 30 Oct 2026 (UL180)
     assert filled and len(rule) + len(dressed) + len(filled) >= min(DA.ROOM_MIN["living"],
                                                                     len(rule) + len(records[0].slots))
@@ -494,11 +496,12 @@ def test_a_room_is_filled_up_to_its_styling_minimum_from_its_empty_slots():
     rec = records[0]
     mine = [d for d in out["decor"] if d["room_id"] == rec.room_id]
     ai = [d for d in mine if d["method"] == "ai"]
-    fill = [d for d in mine if str(d.get("reason", "")).startswith("styling")]
+    # 2 Nov 2026 (house score item 1): the layer floor fills first (confidence 0.65), the minimum's fill after it
+    fill = [d for d in mine if str(d.get("reason", "")).startswith(("styling", "layer floor"))]
     assert [d["type"] for d in ai] == ["vase"] and fill
     assert not {d["slot"] for d in fill} & {d["slot"] for d in ai}      # the fill takes the empty slots only
     assert len(mine) >= min(DA.ROOM_MIN["living"], len(rec.slots))
-    assert all(d["method"] == "rule" and d["confidence"] == 0.6 for d in fill)
+    assert all(d["method"] == "rule" and d["confidence"] in (0.6, 0.65) for d in fill)
 
 
 def test_a_long_top_is_styled_as_a_group_of_three():

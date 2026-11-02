@@ -3046,6 +3046,18 @@
    "request": "A pod run may take up to 5 hours (user, 2 Nov 2026: 'extend the cut off time to 5 hour'; was 4 h since 11 Oct 2026)",
    "lesson": "A pod run may take up to 5 hours (user, 2 Nov 2026: 'extend the cut off time to 5 hour'; was 4 h since 11 Oct 2026)",
    "question": null
+  },
+  {
+   "id": "UL257",
+   "date": "2026-11-02",
+   "area": "openings",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "A door whose leaf would hit or hide something (a washbasin, a WC, a bath, a kitchen run, another piece) or cannot open properly opens the other way, into the room on the other side, when its swing is free there; a drawn swing side is kept as drawn_swing_side (user, 2 Nov 2026: 'for doors to the washbasin, the door can open to the other side, and this can be a general rule, if it is hiding something or not opening properly it can open to the other way')",
+   "lesson": "A door whose leaf would hit or hide something (a washbasin, a WC, a bath, a kitchen run, another piece) or cannot open properly opens the other way, into the room on the other side, when its swing is free there; a drawn swing side is kept as drawn_swing_side (user, 2 Nov 2026: 'for doors to the washbasin, the door can open to the other side, and this can be a general rule, if it is hiding something or not opening properly it can open to the other way')",
+   "question": null
   }
  ]
 }

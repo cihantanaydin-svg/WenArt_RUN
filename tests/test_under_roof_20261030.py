@@ -127,7 +127,7 @@ def test_an_open_leaf_stays_under_the_slope_over_it():
     states2, assumed2 = DS.apply_states(b2, {"family": "modern"})
     rec2 = states2["d_2"]
     assert rec2["state"] == "open" and rec2["into"] == "high" and rec2.get("swing_turned")
-    assert b2["openings"][0]["swing_side"] == "high" and any(a["kind"] == "door_swing_under_roof" for a in assumed2)
+    assert b2["openings"][0]["swing_side"] == "high" and any(a["kind"] == "door_swing_turned" for a in assumed2)
     for poly in rec2["leaf_polys"]:
         assert DS.leaf_under_ceiling(poly, DS.leaf_head(b2["openings"][0], b2["levels"][0])) is None
 

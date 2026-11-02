@@ -1978,9 +1978,14 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
             continue
         manifest_objects.append(entry)
         if item.get("id"):
-            # 28 Oct 2026: a hung light's cord and canopy are part of it (S5 measures its top at the ceiling)
-            obs = [bpy.data.objects.get(n) for n in [entry["name"], (entry.get("suspension") or {}).get("name")] if n]
-            summary["objects"][str(item["id"])] = obs if len(obs) > 1 else obs[0]
+            # 28 Oct 2026: a hung light's cord and canopy are part of it (S5 measures its top at the ceiling). 2 Nov 2026
+            # (real04 run 20261101-093151-full: 2 critical S5 "it hangs in the air" on slope-mounted lights): the stem
+            # and sloped canopy of UL247 too
+            obs = [bpy.data.objects.get(n) for n in [entry["name"], (entry.get("suspension") or {}).get("name"),
+                                                     (entry.get("canopy") or {}).get("name")] if n]
+            obs = [o for o in obs if o is not None]
+            if obs:
+                summary["objects"][str(item["id"])] = obs if len(obs) > 1 else obs[0]
         if host_entry is not None:
             host_entry.setdefault("decor", []).append({"name": entry["name"], "type": entry["type"],
                                                        "method": entry["method"]})
@@ -3530,8 +3535,9 @@ def _slope_canopy_object(item: dict, verts, name: str, collection, owner_id, sta
     if not got:
         return
     cv, cf = got
-    _mesh_object(f"{name}_canopy", cv, cf, [material], [0] * len(cf), collection, owner_id, "decor", status)
-    entry["canopy"] = {"faces": len(cf), "rule": "UL247: a level light hangs from a stem and a sloped canopy"}
+    ob = _mesh_object(f"{name}_canopy", cv, cf, [material], [0] * len(cf), collection, owner_id, "decor", status)
+    entry["canopy"] = {"faces": len(cf), "rule": "UL247: a level light hangs from a stem and a sloped canopy",
+                       "name": getattr(ob, "name", f"{name}_canopy")}
 
 
 def slope_canopy(item: dict, verts) -> Optional[tuple[list, list]]:
