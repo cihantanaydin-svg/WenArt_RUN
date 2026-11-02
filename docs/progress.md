@@ -3186,3 +3186,27 @@ Item 7 (AI polish) stays off for now (user, 2 Nov 2026).
 
 User decisions of 2 Nov 2026 (lesson UL258): the project GPU total is raised from $500 to $1000 ($427.68 used,
 counting the running real10 pod at its worst case); AI polish (item 7) stays off for now, the user decides later.
+
+## real10 run 20261102-122729-full (2 Nov 2026, pod p1xb1oho2xxmjb, RTX PRO 6000 WK, 298 min, $12.85): first renders
+
+The first real10 run with renders: 71 views (65 interior, 6 exterior; ext_1, ext_2, ext_5 found no camera place) and
+the top-down plan of every floor; promoted as real10's latest run. The code was the morning's (commit 0f2b708f): none
+of the house-score items 1-6, 4b, 5b, 6b of the afternoon is in these renders.
+
+| part | minutes | note |
+|---|---|---|
+| setup, reading, fit, layout, decor | 22 | |
+| AI architect's answers | 14 | 93 min in the run before (seed, typical questions, parallel checks); 61 of 80 answered, 47 for the user |
+| architect's floor look | 7 | 75 min before; 107 decisions carried out |
+| Argus | 22 | time up after 1232 of 2144 findings |
+| builds | 13-18 each, 5 builds | the job log printed the running total (2015, 2925, 3866 s), read as growing builds; the line now names each run's own time |
+| agent rounds 0-2 | about 100 with their builds and previews | 11 edits accepted, 3 findings removed (measured); the dry re-check predicted 353 |
+| final build, render, checks | 13 + 34 + 6 | the render reserve kept the renders; the 3D export did not start (deadline: exit 1) |
+
+Forecast before the run: renders at about 127 min; actual about 247 min (the agent rounds ran on the predicted gain).
+Judge mean 2.03 (13 views at 1, none at 4-5); approximate house score 22.4; Argus score 1.3 (94 critical, 917 major).
+The score budget's largest parts: judge tags not_stylish (+13.3), missing_anchor (+9.7), bare_material (+9.5),
+bad_camera (+7.0, 33 views), empty_room (+6.3); findings conservation C1 (222 majors: the furniture of the typical
+floors' copies, left unfurnished on purpose by UL254, counted as lost), argus AI2 (111), process P2 (81). The views at 1:
+cameras in rooms of 2-3 m2 facing a wall (WCs, niches, small halls), the L0 master bedroom without its bed and with a
+glass-railed floor opening inside it, a sofa in a 2.1 m2 WC (r_L0_oda_8), ext_6 (a lawn and a fence).
