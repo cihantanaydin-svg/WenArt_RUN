@@ -193,3 +193,19 @@ def test_an_agent_refit_keeps_the_rooms_set(tmp_path, monkeypatch):
     assert room == {"tones": ["medium"], "metal": "brass"} and target == {"wood_tone": "light", "metal": "black",
                                                                           "palette": []}
     assert F.building_taste({"furniture": []}, {"id": "n"}) is None              # no fit record: as before
+
+
+def test_a_stage_run_more_than_once_names_its_last_runs_own_time():
+    """2 Nov 2026 (real10 run 20261102-122729-full: the job log's "build ok 3866.1s" was the running total of four
+    builds of 13-18 min, read as one build of 64 min)."""
+    from types import SimpleNamespace
+    from wenart.run import scheduler as SC
+    o = SC.Orchestrator.__new__(SC.Orchestrator)
+    lines = []
+    o.out = lines.append
+    pr = SimpleNamespace(name="p", ref=SimpleNamespace(private=False),
+                         parts={"build": [{"seconds": 1080.2}, {"seconds": 934.9}]})
+    o.say(pr, "build", "ok", 2015.1, None)
+    assert lines[-1] == "p build ok 2015.1s in all (run 2: 934.9s)"
+    o.say(SimpleNamespace(name="p", ref=pr.ref, parts={"fit": [{"seconds": 17.1}]}), "fit", "ok", 17.1, None)
+    assert lines[-1] == "p fit ok 17.1s"

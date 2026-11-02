@@ -668,6 +668,12 @@ class Orchestrator:
 
     def say(self, pr: ProjectRun, stage: str, status: str, seconds: float, note: Optional[str]) -> None:
         line = f"{pr.name} {stage} {status} {seconds:.1f}s"
+        # 2 Nov 2026 (real10 run 20261102-122729-full: "build ok 2015.2s ... 2925.3s ... 3866.1s" read as builds
+        # growing from 18 to 64 min; each build took 13-18 min, the line printed the stage's running total): a stage
+        # run more than once also names its last step's own time
+        steps = [s for s in (getattr(pr, "parts", None) or {}).get(stage) or [] if isinstance(s, dict)]
+        if len(steps) > 1 and steps[-1].get("seconds") is not None:
+            line += f" in all (run {len(steps)}: {float(steps[-1]['seconds']):.1f}s)"
         if note and not pr.ref.private:
             line += f": {note}"
         self.out(line)
