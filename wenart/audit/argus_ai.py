@@ -652,7 +652,7 @@ def discover(model, inp: I.Inputs, rep: dict, fact_lines: list[str], *, time_ok:
     named = sorted({f"{f.get('target')}: {str(f.get('message'))[:90]}" for f in rep.get("findings") or []
                     if f.get("severity") in ("critical", "major")})
     found, dropped = [], []
-    levels = [lv.get("id") for lv in building.get("levels") or []] or [None]
+    levels = [lv.get("id") for lv in looked_levels(building)] or [None]
 
     def one(_n: int, lv):
         if not time_ok():
@@ -713,6 +713,15 @@ VISIT_SYSTEM = SYSTEM + (
 VISIT_MAX_QUESTIONS = 24        # questions per floor and call
 VISIT_EXTERIOR_IMAGES = 2       # exterior views shown with an outdoor space's questions
 VISIT_SEVERITY = {"stair": "critical", "outdoor": "major", "rooms": "major", "sense": "major"}
+
+
+def looked_levels(building: dict) -> list[dict]:
+    """The levels Argus walks (pure): every level but the copies of a typical floor (``typical_of``; 2 Nov 2026, real10
+    run 20261102-063705-full: 6 of 9 floors were copies, each walked by the discovery, the visitor and the lessons:
+    the same floor, its findings the typical floor's)."""
+    levels = [lv for lv in building.get("levels") or [] if isinstance(lv, dict)]
+    ids = {lv.get("id") for lv in levels}
+    return [lv for lv in levels if not (lv.get("typical_of") and lv.get("typical_of") in ids)]
 
 
 def visitor_questions(building: dict, level_id: str) -> list[dict]:
@@ -801,7 +810,7 @@ def lesson_jobs(building: dict, inp: I.Inputs) -> list[tuple]:
     out = []
     inner = LS.lesson_questions("interior")
     outer = LS.lesson_questions("exterior")
-    for lv in building.get("levels") or []:
+    for lv in looked_levels(building):
         lid = lv.get("id")
         if not inner or not lid:
             continue
@@ -833,7 +842,7 @@ def visit(model, inp: I.Inputs, fact_lines: list[str], *, time_ok: Callable[[], 
     known = known_targets(building)
     exteriors = [p for p in inp.images if Path(str(p)).name.startswith("ext_")][:VISIT_EXTERIOR_IMAGES]
     jobs = []
-    for lv in building.get("levels") or []:
+    for lv in looked_levels(building):
         qs = visitor_questions(building, lv.get("id"))
         if qs:
             jobs.append((lv.get("id"), qs, None))

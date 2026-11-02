@@ -286,7 +286,8 @@ def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable
             {"target": "garage_north", "kind": "lost", "severity": "major", "what": "a garage is missing",
              "cause": "reading", "fix": "rule_needed", "element": "", "value": "", "args": "", "rule": ""}]}
 
-    rec = AX.investigate(out, MockModel(critic=[reply] * 40), out=lambda s: None)
+    # the lesson walk grows with every lesson of the user (8 calls a floor at 170 lessons): replies enough for all
+    rec = AX.investigate(out, MockModel(critic=[reply] * 120), out=lambda s: None)
     assert rec["items"] >= 3 and rec["triaged"] == rec["items"] and calls["triage"] == (rec["items"] + 1) // 2
     assert calls["discover"] == [False, True]                      # one call per floor, the floor's image when there is one
     assert calls["visit"] == [False, True]                         # the visitor walks every floor too
@@ -437,7 +438,8 @@ def test_argus_ai_reads_every_unknown_warning_and_survives_a_failing_call(tmp_pa
                            "cause": "reading", "fix": "rule_needed", "element": "", "value": "", "args": "",
                            "rule": "every odd thing is checked", "why": "an odd thing in the hall"} for it in batch]}
 
-    rec = AX.investigate(out, MockModel(critic=[reply] * 40), out=lambda s: None)
+    # the lesson walk grows with every lesson of the user (8 calls a floor at 170 lessons): replies enough for all
+    rec = AX.investigate(out, MockModel(critic=[reply] * 120), out=lambda s: None)
     assert seen.count("process:P0") == 5                            # every unknown warning was put to the model
     assert rec["errors"] and "the server went away" in rec["errors"][0]
     assert len(rec["untriaged"]) == 2 and rec["triaged"] == rec["items"] - 2

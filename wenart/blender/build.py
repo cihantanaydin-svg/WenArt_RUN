@@ -1264,8 +1264,10 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
         return prepare_once(dict(building_all, architect_defaults=defs), variant, brief, style_family)
 
     defaults = dict(building_all.get("architect_defaults") or {})
-    tried: dict = {}
-    refused: dict = {}
+    # 2 Nov 2026 (wenart/agent/architect_ai.prep_of): a plan seeded with an earlier search of the same building also
+    # carries the defaults that search refused; they are not tried again (the next choice of their chain is)
+    refused: dict = dict(building_all.get("architect_refused_defaults") or {})
+    tried: dict = {k: [v.get("choice")] for k, v in refused.items() if isinstance(v, dict)}
     for _ in range(AR.DEFAULT_ROUNDS):
         new = {k: v for k, v in AR.defaults_of(out["architect"], out.get("architect_answers") or {}, tried).items()
                if (defaults.get(k) or {}).get("choice") != v.get("choice")}

@@ -175,15 +175,43 @@ def prompt(batch: list[dict], building: dict, plan: AA.Plan, tried: Optional[dic
     return head + ":\n" + json.dumps(items, indent=1, ensure_ascii=False)
 
 
+SEEDS_MAX = 8                   # buildings whose first default search is kept (prep_of)
+_SEEDS: dict = {}
+
+
+def _seed_key(building: dict, brief: Optional[dict]) -> str:
+    import hashlib
+
+    h = hashlib.sha256(json.dumps(building, sort_keys=True, default=str).encode("utf-8"))
+    h.update(json.dumps(brief, sort_keys=True, default=str).encode("utf-8"))
+    return h.hexdigest()
+
+
 def prep_of(building: dict, brief: Optional[dict], ai_answers: dict) -> dict:
     """``build.prepare`` of ``building`` with the AI's answers in (``agent_overrides.architect``; the user's answers
-    come in through the brief or the project file and win). Pure."""
+    come in through the brief or the project file and win). Pure.
+
+    2 Nov 2026 (real10 run 20261102-063705-full: the answers' checks and the floor looks took 168 min, each check a
+    full default search of 7 min): the first default search of a building (its defaults and the refused ones) is kept
+    and seeds the later plans of the same building with other answers (``architect_defaults`` /
+    ``architect_refused_defaults``: ``build.prepare`` then only looks for the defaults those answers open)."""
     from wenart.blender import build as BU
 
     trial = copy.deepcopy(building)
     trial.setdefault("agent_overrides", {})
     trial["agent_overrides"] = dict(trial["agent_overrides"] or {}, architect=dict(ai_answers))
-    return BU.prepare(trial, "base", brief)
+    key = _seed_key(building, brief)
+    seed = _SEEDS.get(key)
+    if seed is not None and not trial.get("architect_defaults"):
+        trial["architect_defaults"] = copy.deepcopy(seed["defaults"])
+        trial["architect_refused_defaults"] = copy.deepcopy(seed["refused"])
+    prep = BU.prepare(trial, "base", brief)
+    if seed is None:
+        if len(_SEEDS) >= SEEDS_MAX:
+            _SEEDS.pop(next(iter(_SEEDS)))
+        _SEEDS[key] = {"defaults": copy.deepcopy(prep.get("architect_defaults") or {}),
+                       "refused": copy.deepcopy(prep.get("architect_refused_defaults") or {})}
+    return prep
 
 
 def review_of(building: dict, brief: Optional[dict], ai_answers: dict) -> dict:
@@ -225,12 +253,13 @@ def set_gaps(prep: dict) -> set:
 SET_CHECKS = ("G9", "G10")
 
 
-def _verdicts(building: dict, brief: Optional[dict], accepted: dict, candidates: dict, base_prep: dict) -> dict:
+def _verdicts(building: dict, brief: Optional[dict], accepted: dict, candidates: dict, base_prep: dict,
+              groups: Optional[list] = None) -> dict:
     """``{key: (ok, why)}`` for ``candidates`` on top of ``accepted`` (module docstring "nothing new breaks"): carried
     out (and its question settled), no major question opened, the model review no worse, and (26 Oct 2026, real06:
     the AI removed the main bathroom's only shower, "the bathroom already has a shower" being the shower room's) no
     room loses a piece of its set (``set_gaps``). When the candidates together break something, each is checked on its
-    own."""
+    own; ``groups`` (2 Nov 2026): lists of keys checked together then (a typical floor's answer with its copies)."""
     majors_before = _open_keys(base_prep["architect"], "major")
     counts_before = model_counts(base_prep)
     gaps_before = set_gaps(base_prep)
@@ -256,8 +285,10 @@ def _verdicts(building: dict, brief: Optional[dict], accepted: dict, candidates:
             not any(why.startswith(("opened", "the model review", "a room loses")) for _ok, why in together.values()):
         return together
     out = {}
-    for key, ans in candidates.items():
-        out.update(judge(prep_of(building, brief, dict(accepted, **{key: ans})), [key]))
+    grouped = [[k for k in g if k in candidates] for g in groups or []]
+    seen = {k for g in grouped for k in g}
+    for group in [g for g in grouped if g] + [[k] for k in candidates if k not in seen]:
+        out.update(judge(prep_of(building, brief, dict(accepted, **{k: candidates[k] for k in group})), group))
     return out
 
 
@@ -295,7 +326,8 @@ def answer_open(project_out, model, *, brief: Optional[dict] = None, building_na
     base_prep = prep_of(building, brief, accepted)
     base = base_prep["architect"]
     user_keys = {r["key"] for r in base.get("applied") or [] if r.get("by", "user") == "user"}
-    todo = open_questions(base, set(accepted) | user_keys)[:max_questions]
+    todo, copies = typical_questions(building, open_questions(base, set(accepted) | user_keys))
+    todo = todo[:max_questions]
     plan = AA.Plan(copy.deepcopy(building))
     entries: dict = {}
     model_name = getattr(model, "model", "")
@@ -311,12 +343,13 @@ def answer_open(project_out, model, *, brief: Optional[dict] = None, building_na
                 break
             base_prep = _ask_round(model, pending, building, brief, plan, accepted, base_prep, entries, tried,
                                    call_id=f"architect_{k // batch + 1}" + (f"_retry{attempt}" if attempt else ""),
-                                   model_name=model_name)
+                                   model_name=model_name, copies=copies)
             pending = _retry_list(pending, entries, tried, base_prep["architect"])
         out(f"architect AI: batch {k // batch + 1}: {sum(1 for q in part if entries.get(q['key'], {}).get('verdict') == 'accepted')} "
             f"of {len(part)} answer(s) accepted")
     rows = list(entries.values())
-    rec = {"asked": len(todo), "accepted": sum(1 for e in rows if e["verdict"] == "accepted"),
+    rec = {"asked": len(todo), "copies": sum(len(v) for v in copies.values()),
+           "accepted": sum(1 for e in rows if e["verdict"] == "accepted"),
            "refused": sum(1 for e in rows if e["verdict"] == "refused"),
            "ask_user": sum(1 for e in rows if e["verdict"] in ("ask_user", "no_answer")),
            "retried": sum(1 for e in rows if len(e.get("attempts") or []) > 1),
@@ -347,10 +380,54 @@ def _answer(opt: dict, reason: str, model_name: str, where) -> dict:
             "date": time.strftime("%Y-%m-%d", time.gmtime())}
 
 
+def typical_questions(building: dict, questions: list[dict]) -> tuple[list[dict], dict]:
+    """``(asked, copies)``: the questions to put to the model and ``{asked key: [the same question on the typical
+    floor's copies]}`` (pure; 2 Nov 2026, real10 run 20261102-063705-full: the same point was asked once per copy of
+    the typical floor, 7 times, and answered differently floor by floor). The same point of a typical floor and its
+    copies (``build.typical_units``) is asked once, on the typical floor; its answer is carried out on the copies too
+    (``_ask_round``), so the identical floors stay identical."""
+    from wenart.blender import build as BU
+
+    by_key = {q["key"]: q for q in questions}
+    units = BU.typical_units(building, list(by_key))
+    first = {}
+    copies: dict = {}
+    for unit, keys in units.items():
+        rep = unit if unit in by_key else keys[0]
+        first[rep] = True
+        others = [by_key[k] for k in keys if k != rep]
+        if others:
+            copies[rep] = others
+    return [q for q in questions if q["key"] in first], copies
+
+
+def _copy_candidates(key: str, pick: dict, copies: dict, entries: dict, model_name: str) -> dict:
+    """The answers of the copies of question ``key`` (``typical_questions``): the copy question's own option of the
+    same choice (its own elements and parameters), the reason naming the typical floor's answer."""
+    out = {}
+    for q in copies.get(key) or []:
+        opt = next((o for o in q["options"] if o["choice"] == pick["choice"]), None)
+        e = entries.setdefault(q["key"], {"key": q["key"], "severity": q["severity"], "found": q["found"],
+                                          "choice": None, "reason": None, "verdict": None, "why": None,
+                                          "attempts": [], "copy_of": key})
+        reason = f"as {key} on the typical floor: {pick['reason']}"
+        e["attempts"].append({"choice": pick["choice"], "reason": reason})
+        e.update(choice=pick["choice"], reason=reason)
+        if pick["choice"] == ASK_USER:
+            e.update(verdict="ask_user", why="left for the user (as the typical floor's question)")
+        elif opt is None:
+            e.update(verdict="refused", why=f"{pick['choice']!r} is not a choice of this copy's question")
+        else:
+            out[q["key"]] = _answer(opt, reason, model_name, q.get("where"))
+    return out
+
+
 def _ask_round(model, pending: list[dict], building: dict, brief, plan, accepted: dict, base_prep: dict,
-               entries: dict, tried: dict, *, call_id: str, model_name: str) -> dict:
+               entries: dict, tried: dict, *, call_id: str, model_name: str, copies: Optional[dict] = None) -> dict:
     """One call for the ``pending`` questions; the picks code accepts go into ``accepted`` (in place); every pick
-    is logged in ``entries``; a refused pick goes into ``tried`` with the reason. Returns the plan after."""
+    is logged in ``entries``; a refused pick goes into ``tried`` with the reason. Returns the plan after. ``copies``
+    (2 Nov 2026): a pick is carried out on the same question of the typical floor's copies as well, checked with it
+    (``typical_questions``)."""
     keys = [q["key"] for q in pending]
     choices = [o["choice"] for q in pending for o in q["options"]
                if o["choice"] not in {c for c, _w in tried.get(q["key"], [])}]
@@ -376,6 +453,7 @@ def _ask_round(model, pending: list[dict], building: dict, brief, plan, accepted
         e.update(choice=a["choice"], reason=a["reason"])
         if a["choice"] == ASK_USER:
             e.update(verdict="ask_user", why="left for the user")
+            _copy_candidates(q["key"], a, copies or {}, entries, model_name)
             continue
         opt = next((o for o in q["options"] if o["choice"] == a["choice"]), None)
         if opt is None:
@@ -384,11 +462,14 @@ def _ask_round(model, pending: list[dict], building: dict, brief, plan, accepted
             e.update(verdict="refused", why="a major question is settled only by a change or by the user")
         else:
             candidates[q["key"]] = _answer(opt, a["reason"], model_name, q.get("where"))
+            candidates.update(_copy_candidates(q["key"], a, copies or {}, entries, model_name))
             continue
         tried.setdefault(q["key"], []).append((a["choice"], e["why"]))
     if not candidates:
         return base_prep
-    for key, (ok, why) in _verdicts(building, brief, accepted, candidates, base_prep).items():
+    groups = [[q["key"]] + [c["key"] for c in (copies or {}).get(q["key"]) or []] for q in pending
+              if q["key"] in candidates and (copies or {}).get(q["key"])]
+    for key, (ok, why) in _verdicts(building, brief, accepted, candidates, base_prep, groups).items():
         entries[key].update(verdict="accepted" if ok else "refused", why=why)
         entries[key]["attempts"][-1].update(verdict=entries[key]["verdict"], why=why)
         if ok:
@@ -656,10 +737,20 @@ def look(project_out, model, *, brief: Optional[dict] = None, building_name: str
     base_prep = prep_of(building, brief, accepted)
     entries: list[dict] = []
     levels = [lv.get("id") for lv in base_prep["building"].get("levels") or []]
+    # 2 Nov 2026 (real10 run 20261102-063705-full: 9 floor looks, 75 min, 6 of them copies of the typical floor): a
+    # copy of a typical floor is not looked at; the typical floor's accepted answers and decisions are carried out on
+    # its copies (``typical_carry``), checked like every answer
+    copy_of = {lv.get("id"): lv.get("typical_of") for lv in base_prep["building"].get("levels") or []
+               if lv.get("typical_of") and lv.get("typical_of") in levels}
+    skipped: list[str] = []
     for lv in levels:
+        if lv in copy_of:
+            skipped.append(lv)
+            continue
         if not time_ok():
             out(f"architect look: time is up before {lv}")
             break
+        before = set(accepted)
         built = base_prep["building"]
         plan = AA.Plan(copy.deepcopy(built))
         record = base_prep["architect"]
@@ -749,8 +840,13 @@ def look(project_out, model, *, brief: Optional[dict] = None, building_name: str
                 break
             if attempt >= retries:
                 break
+        new_keys = [k for k in accepted if k not in before]
+        targets = [c for c, b in copy_of.items() if b == lv]
+        if new_keys and targets and time_ok():
+            base_prep = typical_carry(building, brief, accepted, base_prep, new_keys, lv, targets, entries)
         _save_answers(odir, accepted)
-    rec = {"levels": levels, "asked": sum(1 for e in entries if e["kind"] != "own"),
+    rec = {"levels": levels, "skipped_copies": skipped, "asked": sum(1 for e in entries if e["kind"] not in
+                                                                     ("own", "copy")),
            "decisions": sum(1 for e in entries if e["kind"] == "own"),
            "accepted": sum(1 for e in entries if e["verdict"] == "accepted"),
            "confirmed": sum(1 for e in entries if e["verdict"] == "confirmed"),
@@ -760,6 +856,47 @@ def look(project_out, model, *, brief: Optional[dict] = None, building_name: str
     LG.write_json_atomic(odir / LOOK_JSON, rec)
     (odir / LOOK_MD).write_text(look_md(rec), encoding="utf-8")
     return rec
+
+
+def typical_carry(building: dict, brief: Optional[dict], accepted: dict, base_prep: dict, keys: list, base: str,
+                  copies: list, entries: list) -> dict:
+    """The answers and decisions ``keys`` accepted on the typical floor ``base`` carried out on its ``copies`` (2 Nov
+    2026, real10): each key and its parameters with the level token moved (``_<base>_`` read as ``_<copy>_``), when the
+    copy has that open question or that element; checked together per key (``_verdicts``), accepted ones join
+    ``accepted`` (in place); logged as ``kind: copy``. Returns the plan after."""
+    from wenart.blender.typical_copies import _renamed
+
+    open_now = _open_keys(base_prep["architect"])
+    ids = {e["id"] for v in building.values() if isinstance(v, list) for e in v
+           if isinstance(e, dict) and isinstance(e.get("id"), str)}
+    candidates, groups, meta = {}, [], {}
+    for key in keys:
+        group = []
+        for c in copies:
+            tag, new_tag = f"_{base}_", f"_{c}_"
+            ck = key.replace(tag, new_tag)
+            if ck == key or ck in accepted:
+                continue
+            element = ck.split(":", 1)[1] if ":" in ck else ""
+            if ck not in open_now and not (key.startswith(AI_RULE + ".") and element in ids):
+                continue
+            ans = _renamed(copy.deepcopy(accepted[key]), {}, tag, new_tag)
+            ans["reason"] = ans["answer"] = f"as {key} on the typical floor {base}: {accepted[key].get('reason')}"
+            candidates[ck] = ans
+            group.append(ck)
+            e = {"level": c, "kind": "copy", "key": ck, "choice": ans.get("choice"), "reason": ans["reason"],
+                 "verdict": None, "why": None, "copy_of": key}
+            entries.append(e)
+            meta[ck] = e
+        if group:
+            groups.append(group)
+    if not candidates:
+        return base_prep
+    for k, (ok, why) in _verdicts(building, brief, accepted, candidates, base_prep, groups).items():
+        meta[k].update(verdict="accepted" if ok else "refused", why=why)
+        if ok:
+            accepted[k] = candidates[k]
+    return prep_of(building, brief, accepted)
 
 
 def _lessons() -> str:
@@ -806,7 +943,10 @@ def look_md(rec: dict) -> str:
              f"each floor's view of the model, {rec['decisions']} decision(s) of its own: {rec['accepted']} carried "
              f"out (checked by code: settled, no new major point, the model review no worse), {rec['confirmed']} "
              f"default(s) confirmed, {rec['refused']} refused; {rec.get('open_after')} open point(s) after "
-             f"({rec['seconds']:.0f} s).", "",
+             f"({rec['seconds']:.0f} s)." + (f" Copies of a typical floor not looked at (its accepted answers and "
+                                              f"decisions carried out on them, kind copy): "
+                                              f"{', '.join(rec['skipped_copies'])}." if rec.get('skipped_copies')
+                                              else ""), "",
              "| level | kind | key | choice | verdict | why | the model's reason |", "|---|---|---|---|---|---|---|"]
     for e in rec["entries"]:
         choice = e.get("choice") or ""
