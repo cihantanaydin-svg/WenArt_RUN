@@ -62,8 +62,9 @@ DAY_LIMITS = {"2026-10-09": 40.00,   # user, 9 Oct 2026 (M11 pods): "we can exte
                                      # limits for this test"
               "2026-10-27": 45.00,   # user, 27 Oct 2026: "yes, up to 180 min also don't need to wait for daily reset"
               "2026-10-28": 50.00,   # user, 28 Oct 2026: "ok to raise the cap to 50 usd"
-              "2026-10-30": 45.00}   # user, 30 Oct 2026: "you can run real06 after real04 pod run no need to wait
+              "2026-10-30": 45.00,   # user, 30 Oct 2026: "you can run real06 after real04 pod run no need to wait
                                      # for the budget limits" (real04 + real06, 240 min each)
+              "2026-11-02": 50.00}   # user, 2 Nov 2026: "raise today's cap to 50 and start the run" (real10, 5 h)
 
 
 def day_limit(day: str | None = None) -> float:
