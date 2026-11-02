@@ -998,6 +998,32 @@ def rank_candidates(candidates: list[dict], width: float, depth: float, used: Op
 
 
 TASTE_POOL = 25                  # the candidates whose look is read (the cost of a first run is bounded)
+_TASTE_CACHES: dict = {}
+
+
+def building_taste(building: dict, piece: dict):
+    """2 Nov 2026 (house score item 3: the agent's swaps and retypes refit a piece without the room's set): ``(cache,
+    room set, target)`` for a refit of ``piece`` in a fitted building, as ``fit_building`` ranks it: the target the
+    fit stage kept (``project.taste.target``, no palette), the wood tones and metal of the other fitted pieces of its
+    room (their ``asset.taste``, anchors first), the models' attributes from the assets folder (``WENART_ASSETS``, the
+    pod's library). None without the fit's record or the folder (the refit ranks as before)."""
+    from wenart.furniture import taste as T
+
+    root = os.environ.get("WENART_ASSETS")
+    project = building.get("project") if isinstance(building.get("project"), dict) else {}
+    rec = project.get("taste")
+    if not root or not isinstance(rec, dict) or not Path(root).is_dir():
+        return None
+    target = dict(rec.get("target") or {}, palette=[])
+    room_set: dict = {}
+    mates = [f for f in building.get("furniture") or [] if f.get("room_id") == piece.get("room_id")
+             and f.get("id") != piece.get("id") and ((f.get("asset") or {}).get("taste"))]
+    for f in sorted(mates, key=lambda f: (T.anchor_rank(str(f.get("type") or "")), str(f.get("id")))):
+        T.note(room_set, f["asset"]["taste"])
+    if root not in _TASTE_CACHES:
+        _TASTE_CACHES[root] = T.TasteCache(root)
+    return _TASTE_CACHES[root], room_set, target
+
 
 
 def ranking_reasons(tried: list[dict], chosen: dict) -> dict:

@@ -177,3 +177,19 @@ def test_the_lessons_review_fits_the_agent_models_context():
         assert len(json.dumps({"lessons": batch, "building": sent})) + len(LS.REVIEW_SYSTEM) <= budget
     big = dict(facts, rooms=facts["rooms"] * 6)
     assert LS.review_batches(todo[:3], big, None)[0].get("compact")
+
+
+def test_an_agent_refit_keeps_the_rooms_set(tmp_path, monkeypatch):
+    """2 Nov 2026 (item 3): the agent's refits rank by the room's set as the fit did (``fit.building_taste``)."""
+    from wenart.furniture import fit as F
+    b = {"project": {"taste": {"target": {"wood_tone": "light", "metal": "black"}}},
+         "furniture": [{"id": "sofa", "type": "sofa", "room_id": "r", "asset": {"taste": {"wood_tone": "medium"}}},
+                       {"id": "t", "type": "table_coffee", "room_id": "r", "asset": {"taste": {"metal": "brass"}}},
+                       {"id": "x", "type": "chair", "room_id": "other", "asset": {"taste": {"wood_tone": "dark"}}}]}
+    monkeypatch.delenv("WENART_ASSETS", raising=False)
+    assert F.building_taste(b, {"id": "new", "room_id": "r"}) is None
+    monkeypatch.setenv("WENART_ASSETS", str(tmp_path))
+    cache, room, target = F.building_taste(b, {"id": "new", "room_id": "r"})
+    assert room == {"tones": ["medium"], "metal": "brass"} and target == {"wood_tone": "light", "metal": "black",
+                                                                          "palette": []}
+    assert F.building_taste({"furniture": []}, {"id": "n"}) is None              # no fit record: as before

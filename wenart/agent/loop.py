@@ -1800,9 +1800,11 @@ class AgentLoop:
             source = fitted if isinstance(fitted, dict) else building
             try:
                 # 30 Oct 2026 (UL156, UL161): the room's type, as fit_building fits the piece (the room rules)
+                taste = F.building_taste(source, piece)    # 2 Nov 2026 (item 3): the room's set, as the fit
                 asset = F.fit_piece(dict(piece, build=True, **F.room_use_context(source, piece)), ctx.catalog(),
                                     mode=EO.licence_mode_of(source),
-                                    style_family=EO._style_family_of(source), ceiling=ceiling)
+                                    style_family=EO._style_family_of(source), ceiling=ceiling,
+                                    used={"taste": taste} if taste else None)
             except Exception:  # noqa: BLE001 - a prediction only: the piece keeps its box
                 asset = None
         asset = asset if _fitted(asset) else None

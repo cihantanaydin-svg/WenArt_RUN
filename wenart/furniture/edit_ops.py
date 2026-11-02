@@ -1612,7 +1612,9 @@ def _build_retyped(b: dict, item: dict, args: dict, catalog=None) -> dict:
             target = dict(target, **F.use_context(b, item))     # bathroom sense of 26 Oct 2026: a child's room
             target = dict(target, **F.room_use_context(b, item))   # 30 Oct 2026 (UL156, UL161): the room's type
             # fix round after P6a: the piece's room under a sloped ceiling, as fit_building fits it
-            asset = F.fit_piece(target, catalog, mode=mode, style_family=family, ceiling=F.piece_ceiling(b, item))
+            taste = F.building_taste(b, item)              # 2 Nov 2026 (item 3): the room's set, as the fit
+            asset = F.fit_piece(target, catalog, mode=mode, style_family=family, ceiling=F.piece_ceiling(b, item),
+                                used={"taste": taste} if taste else None)
             if hints and asset.get("method") == F.MODULE_METHOD:
                 asset["module_hints"] = copy.deepcopy(hints)
     except Exception as exc:  # noqa: BLE001 - review (T4): a refit error is a rejected edit with its reason, never a

@@ -3162,7 +3162,7 @@ general rule; real04 and real10 are the test cases.
 |---|---|
 | 1 fuller styled rooms | an untyped room (`other`, `unknown`) is dressed by what stands in it: a bed -> bedroom, a sofa -> living, a dining table -> dining (`decor.decor_view`; its drawn type is kept, the change in `decor_room_types`); every styled room gets its layer floor after the AI's items (`decor_ai.ensure_layers`, `FLOOR_LAYERS`: curtains at every window, art on 2 walls, 2 plants, a throw, styled tops, a table lamp on every nightstand and side table; one of each in a sparse style); the minimum counts layers (at most 2 items a layer; four cushions are not four items) and a full layer is not filled again; a room over 25 m2 takes a third free-wall picture; a nightstand's or side table's top group starts with a lamp |
 | 2 textured materials | a fine grain (noise bump) on plaster, ceilings, painted fronts and painted furniture (`materials.GRAIN`) |
-| 3 matching sets | a room takes the style's wood tone and one contrast (was: its first two tones and the style's, three in all); the models of the room's set (fewest taste steps) are tried through the caps before the others; a decor model is picked among the fitting models of the room's set (`fit_decor_item(taste=...)`) |
+| 3 matching sets | a room takes the style's wood tone and one contrast (was: its first two tones and the style's, three in all); the models of the room's set (fewest taste steps) are tried through the caps before the others; a decor model is picked among the fitting models of the room's set (`fit_decor_item(taste=...)`); the agent's swaps and retypes refit with the room's set too (`fit.building_taste`) |
 | 4 layered lighting | a ceiling light gets the pendant's rule (a light of its own), the fill light takes the room type's warm white (`lighting.rig_temperature_for`), the white balance leaves a 10 % warm residual (`render.WB_RIG_RESIDUAL`) |
 | 5 a real outside | thinner haze (0.0003), context scans 0.85-1.2 in plan ratio and at most 6, a hero tree keeps its tallest tree group (no lollipop trees) |
 | 6 recurring criticals by rule | the ledger counts the variant's levels (A1), Argus's own findings are not read back to the inspector, railings are not cut in the top-down images, a slope canopy is in the scene check, a door slide keeps the doorway clear, and the user's rule (UL257): a door whose leaf is blocked or whose swing hits fixed equipment (a washbasin, a WC) opens the other way when that side is free (`door_states.plan_states`, `adjusted_by_ai` by code with `drawn_swing_side`) |
@@ -3172,5 +3172,5 @@ Also: the AI architect's lessons review fits the agent model's 32k context (real
 batches (`lessons.review_batches`).
 
 Not done yet (next): a lamp rig in the living rooms (4b); clouds in the exterior sky and neighbouring buildings (5b);
-the Q4 missing-anchor downgrade, the F2/F7 measure alignment and stale vision findings (6b); the agent's swaps refit
-without the room's taste (3b). Item 7 (AI polish) waits for the user's decision.
+the Q4 missing-anchor downgrade, the F2/F7 measure alignment and stale vision findings (6b). Item 7 (AI polish) waits
+for the user's decision.
