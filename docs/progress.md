@@ -3230,7 +3230,22 @@ is general; the project that showed it is the test case. Measured by the reading
 | wide gaps in the outer walls (sliding door, garage door, entrance) are inferred walls with unverified openings, only when the outer walls do not close | real07 | ground floor left out | built; labels in no closed face 4 -> 0 |
 | the reading check sums the areas of the labelled spaces a room joins; comparison sheets for one-plan documents | real03 | 11 RC3 (open plans) | 3 RC3 (real mismatches) |
 
+| a glazed run on a window, door or glass layer between two walls closes an open facade (only when the walls do not close) | real09, real13, real07 | the living rooms' glazed facades left every level open | real07's 1st floor built; real09 kitchens closed, its living rooms still open |
+| a plan titled by its elevation ('+3.00 KOTU KAT PLANI', 'DUBLEKS ... (8,50)') takes the storey above the titled plan below it, one storey each; never while a titled storey's elevation is unknown | real09, real12 | dropped, or put in a wrong free storey | real09's duplex floor L3 |
+
 Argus U39 now reports the reading self-check's critical and major findings (lessons UL260-UL273 are measured by code).
-Open (not fixed): real03's glass screen between the windbreak and the hall's lobby (layer CAM-PER) is not built, so the
-two stay one room (needs a glass partition in the build); real07's 1st floor still has one hall in no closed face;
-real14's 434 labels outside the building and real08/real12 are read in the next pass.
+
+The regression set (12 projects) passes on the final code (19 min). The new projects' first baselines:
+
+| project | levels built | left out | verdict | critical / major |
+|---|---|---|---|---|
+| real07 | 2 (L0, L1) | 0 | fix before a pod run | 1 / 7 |
+| real09 | 0 | 6 (walls do not close: glazed corner facades) | fix before a pod run | 6 / 17 |
+| real13 | 0 | 8 (all levels found; walls do not close) | fix before a pod run | 8 / 86 |
+| real15 | 2 (L0, L1) | 0 | fix before a pod run | 1 / 2 |
+| real11, real14, real12, real08 | being read | | | |
+
+Open (next): the facades of real09 and real13 are glazed corners and runs with no wall near one end (chained glazed runs);
+real08's sheet is read as one region; real12's plans titled only by elevation stay unplaced (its titled plans give no
+elevation); real03's glass screen between the windbreak and the hall's lobby (layer CAM-PER) is not built (needs a
+glass partition in the build), and its 9 thin 0.8-0.9 m pieces are likely shower screens, built as walls.
