@@ -1,0 +1,35 @@
+{
+ "project": "real14",
+ "status": "needs_review",
+ "levels": [],
+ "levels_left_out": [
+  "1. Kat",
+  "1. Kat",
+  "2. Kat",
+  "2. Kat",
+  "3. Kat",
+  "3. Kat",
+  "4. Kat",
+  "4. Kat",
+  "5. Kat",
+  "5. Kat",
+  "6. Kat",
+  "6. Kat",
+  "Teras Katı",
+  "Teras Katı",
+  "Teras Katı",
+  "Teras Katı",
+  "Zemin Kat",
+  "Zemin Kat"
+ ],
+ "per_level": {},
+ "check": {
+  "verdict": "fix before a pod run",
+  "counts": {
+   "critical": 18,
+   "major": 133,
+   "minor": 0
+  },
+  "stacking": {}
+ }
+}
