@@ -554,17 +554,66 @@ def _f5(r: _Room) -> list[dict]:
 # F6, F7, R3: clearances, walkways, doors, windows (the placer's zones)
 # --------------------------------------------------------------------------
 
-def _f6_f7_r3(r: _Room) -> list[dict]:
-    out = []
+def _door_pieces(r: _Room) -> tuple[list[str], list, list, set]:
+    """``(ids, pieces, polys, hosted)`` of the room's floor pieces as F6 / F7 / R3 judge them. A module built into a
+    counter of the room (a hob, an under-counter fridge) sits inside its host (``hosted``): the host's own F7 / R3
+    finding covers the door, a second one for the module would count the same counter twice."""
     ids = [f["id"] for f in r.floor]
     pieces = [r.pieces[pid] for pid in ids]
+    polys = [r.polys[pid] for pid in ids]
+    hosted = {f["id"] for f in r.floor if f.get("built_into") in set(ids)}
+    return ids, pieces, polys, hosted
+
+
+def _door_measure(door: placer.DoorZone, ids: list[str], pieces: list, polys: list, hosted: set) -> dict:
+    """One doorway as F7 and R3 measure it (2 Nov 2026, rule B: the architect's F2 and its ``move_piece`` use this very
+    measure, so the two never disagree; real04 run 20261101-093151: F2's 25 % of a 0.8 m box let a 0.05 m move pass
+    while F7 still found the piece on the strip, and the audit's Y2 raised a critical).
+
+    ``approach``: ``{piece id: area m2}`` of the pieces on the door's ``placer.DOOR_APPROACH_M`` approach strip over
+    ``AREA_MIN_M2`` (F7, critical); ``swing``: the pieces in the leaf's half disc (R3); ``per_hinge``: the pieces in each
+    hinge's quarter disc (only when the swing is hit); ``free_hinge``: a hinge side the leaf can use, None when none is
+    free (R3 critical); ``blockers``: the pieces F7 or a critical R3 name, the largest approach area first; ``blocked``:
+    any. A stair (entered through its opening) and a hosted module are never judged."""
+    judged = [(pid, poly) for pid, p, poly in zip(ids, pieces, polys) if p.type != "stair" and pid not in hosted]
+    approach = {}
+    for pid, poly in judged:
+        area = poly.intersection(door.zone).area
+        if area > AREA_MIN_M2:
+            approach[pid] = area
+    swing, per_hinge = [], []
+    if door.swing is not None and not door.swing.is_empty:
+        swing = [pid for pid, poly in judged if poly.intersection(door.swing).area > AREA_MIN_M2]
+        if swing:
+            # M11 (pod G1, synthetic-01): no drawing gives the hinge side, and the half disc covers both
+            per_hinge = [[pid for pid, poly in judged if poly.intersection(q).area > AREA_MIN_M2]
+                         for q in door.hinge_swings()]
+    free = [i for i, h in enumerate(per_hinge) if not h]
+    free_hinge = free[0] if per_hinge and free else None
+    swing_blocked = bool(swing) and free_hinge is None
+    blockers = sorted(approach, key=lambda k: (-approach[k], str(k)))
+    blockers += [pid for pid in swing if swing_blocked and pid not in approach]
+    return {"door": door.id, "approach": approach, "approach_m": placer.DOOR_APPROACH_M, "area_min_m2": AREA_MIN_M2,
+            "swing": swing, "per_hinge": per_hinge, "free_hinge": free_hinge, "swing_blocked": swing_blocked,
+            "blockers": blockers, "blocked": bool(blockers)}
+
+
+def door_measures(building: dict, room: dict) -> list[dict]:
+    """``_door_measure`` of every door and doorless opening of ``room`` (``placer.room_context``'s doors, the ones F7 and
+    R3 judge), in their order (2 Nov 2026, rule B: the architect's F2 reads the critic's measure here)."""
+    r = _Room(building, room)
+    ids, pieces, polys, hosted = _door_pieces(r)
+    return [_door_measure(door, ids, pieces, polys, hosted) for door in r.ctx.doors]
+
+
+def _f6_f7_r3(r: _Room) -> list[dict]:
+    out = []
+    ids, pieces, polys, hosted = _door_pieces(r)
     for i, p in enumerate(pieces):
         p.index = i
-    polys = [r.polys[pid] for pid in ids]
     room_area = r.polygon.buffer(0.01, join_style="mitre")
-    # A module built into a counter of the room (a hob, an under-counter fridge) sits inside its host: the host's own
-    # F7 / R3 finding covers the door, a second one for the module would count the same counter twice.
-    hosted = {f["id"] for f in r.floor if f.get("built_into") in set(ids)}
+    # 2 Nov 2026 (rule B): one measure per door (``_door_measure``), shared with the architect's F2
+    measures = [(door, _door_measure(door, ids, pieces, polys, hosted)) for door in r.ctx.doors]
     for pid, p, poly in zip(ids, pieces, polys):
         item = r.item(pid)
         if p.type in FU.ACCESS_M and pid not in hosted:
@@ -583,26 +632,21 @@ def _f6_f7_r3(r: _Room) -> list[dict]:
                                                                                     placer.CLEARANCE_FRONT_M)},
                                            **_assumed(item))))
         # a stair is entered through its opening; a hosted module is judged with its counter
-        for door in (r.ctx.doors if p.type != "stair" and pid not in hosted else []):
-            if poly.intersection(door.zone).area > AREA_MIN_M2:
+        for door, m in measures:
+            area = m["approach"].get(pid)
+            if area is not None:
                 out.append(_violation("F7", pid, r.id, f"{p.type} blocks door {door.id}",
-                                      {"door": door.id, "area_m2": round(poly.intersection(door.zone).area, 3)}))
-    for door in r.ctx.doors:
-        if door.swing is None or door.swing.is_empty:
-            continue
-        hits = [pid for pid, p, poly in zip(ids, pieces, polys) if p.type != "stair" and pid not in hosted
-                and poly.intersection(door.swing).area > AREA_MIN_M2]
+                                      {"door": door.id, "area_m2": round(area, 3)}))
+    for door, m in measures:
+        hits = m["swing"]
         if hits:
             # M11 (pod G1, synthetic-01): no drawing gives the hinge side, and the half disc covers both. Critical
             # only when the leaf hits a piece on either hinge; else minor (the leaf is built closed and the door can hinge on
             # the free jamb).
-            per_hinge = [[pid for pid, p, poly in zip(ids, pieces, polys) if p.type != "stair" and pid not in hosted
-                          and poly.intersection(q).area > AREA_MIN_M2] for q in door.hinge_swings()]
-            free = [i for i, h in enumerate(per_hinge) if not h]
-            if per_hinge and free:
+            if m["free_hinge"] is not None:
                 out.append(_violation("R3", door.id, r.id, f"door {door.id} swings into {', '.join(hits)} on one "
                                       "hinge side; the other hinge side is free", {"pieces": hits,
-                                      "free_hinge": free[0]}, severity="minor"))
+                                      "free_hinge": m["free_hinge"]}, severity="minor"))
             else:
                 out.append(_violation("R3", door.id, r.id, f"door {door.id} swings into {', '.join(hits)}",
                                       {"pieces": hits}))

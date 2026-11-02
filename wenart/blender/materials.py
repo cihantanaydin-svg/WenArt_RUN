@@ -1916,11 +1916,13 @@ def exterior_world_nodes(scene, lighting: dict, sun_disc: bool = True, sun_eleva
     bg = nodes.new("ShaderNodeBackground")
     bg.name = "wenart_sky_camera"
     sky = _sky_texture_node(nodes, rec, disc=bool(rec["sun_disc"]))
+    sky.name = SKY_CAMERA_TEXTURE           # 2 Nov 2026: the cloud layer (exterior_sky_clouds) finds it by name
     links.new(sky.outputs["Color"], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = rec["strength"]
     if rec["sun_disc"] and rec.get("sun_disc_camera_only"):
         # Every ray but the camera's sees the sky without the disc: the lamp is the one direct sun.
         sky_lit = _sky_texture_node(nodes, rec, disc=False)
+        sky_lit.name = SKY_LIGHTING_TEXTURE
         bg_lit = nodes.new("ShaderNodeBackground")
         bg_lit.name = "wenart_sky_lighting"
         links.new(sky_lit.outputs["Color"], bg_lit.inputs["Color"])
@@ -1938,6 +1940,9 @@ def exterior_world_nodes(scene, lighting: dict, sun_disc: bool = True, sun_eleva
     scene["wenart_world_exterior"] = world.name
     scene["wenart_world_exterior_sun_disc"] = bool(rec["sun_disc"])
     scene["wenart_world_exterior_disc_camera_only"] = bool(rec["sun_disc"] and rec.get("sun_disc_camera_only"))
+    # 2 Nov 2026: what the camera sees of this sky (render.py records it per view); the cloud layer sets its HDRI id
+    rec["exterior_sky"] = EXTERIOR_SKY_PHYSICAL
+    scene[EXTERIOR_SKY_PROP] = EXTERIOR_SKY_PHYSICAL
     if scene.world is not None:
         scene["wenart_world_interior"] = scene.world.name
     return rec

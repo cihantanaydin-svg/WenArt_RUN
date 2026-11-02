@@ -890,6 +890,21 @@ def _covered(points, rects) -> float:
     return sum(1 for p in points if any(G.point_in_polygon(p, r) for r in rects)) / len(points)
 
 
+def doorway_text(door_id: str, rid: Optional[str], m: dict) -> str:
+    """F2's finding from the code critic's measure of a doorway (``plausibility.door_measures``; 2 Nov 2026, rule B):
+    the pieces on its approach strip with their areas (F7) and a leaf that hits a piece on both hinge sides (R3)."""
+    parts = []
+    if m.get("approach"):
+        on = sorted(m["approach"].items(), key=lambda kv: (-kv[1], str(kv[0])))
+        parts.append(f"{', '.join(f'{pid} ({area:.2f} m2)' for pid, area in on[:3])} on the "
+                     f"{float(m['approach_m']):.1f} m approach strip of {door_id} in {rid} (the code critic's F7: "
+                     f"more than {float(m['area_min_m2']):.2f} m2 of a piece on it)")
+    if m.get("swing_blocked"):
+        parts.append(f"the leaf of {door_id} swings into {', '.join(m['swing'][:3])} on both hinge sides in {rid} "
+                     f"(the code critic's R3)")
+    return "; ".join(parts) or f"the doorway of {door_id} in {rid} is blocked (the code critic's measure)"
+
+
 def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
     from wenart.furniture import fixture_use as FU
 
@@ -991,6 +1006,21 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                       f"Can {f['id']} be used where it stands?", [AA.option("keep")], where=where)
             else:
                 _ok(f4, f["id"], f"{100 * free:.0f}% free in front")
+    door_cache: dict = {}
+
+    def critic_doors(rid) -> dict:
+        """2 Nov 2026 (rule B): ``{door id: measure}`` of room ``rid`` as the code critic's F7 / R3 measure its doors
+        (``plausibility.door_measures``: the placer's approach strip, the leaf's swing, ``AREA_MIN_M2``); {} when the
+        room cannot be measured (F2's own box measures it then)."""
+        if rid not in door_cache:
+            from wenart.furniture import plausibility as PL
+            room = plan.room.get(rid)
+            try:
+                door_cache[rid] = {m["door"]: m for m in PL.door_measures(plan.b, room)} if room else {}
+            except Exception:  # noqa: BLE001 - a room without a usable outline
+                door_cache[rid] = {}
+        return door_cache[rid]
+
     for s in sides:
         o = s["opening"]
         w = plan.walls.get(o.get("wall_id"))
@@ -1007,9 +1037,21 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
         where = _where(s["type"], o.get("level_id"), o["center"])
         if s["type"] == "door" or gap:
             worst = (0.0, None, [])
+            measured = None                  # 2 Nov 2026 (rule B): the code critic's F7 / R3 measure of the worst side
             for sign, rid in ((1.0, s["a"]), (-1.0, s["b"])):
-                if not rid or rid not in by_room:
+                if not rid:
                     continue
+                m = critic_doors(rid).get(o["id"])
+                if m is not None:
+                    # the critic judges this doorway from rid: its approach strip and threshold decide (rule B)
+                    if m["blocked"]:
+                        area = sum(m["approach"].values()) or m["area_min_m2"]
+                        if measured is None or area > worst[0]:
+                            worst, measured = (area, rid, list(m["blockers"])), m
+                    continue
+                if rid not in by_room or measured is not None:
+                    continue
+                # the critic does not see the doorway from rid (its centre off the room's outline): F2's own box
                 nn = (n[0] * sign, n[1] * sign)
                 box = _box((c[0] + nn[0] * half_t, c[1] + nn[1] * half_t), u, nn, width, LIMITS["swing_depth_m"])
                 rects = [(g, r) for g, r, gt in by_room[rid] if gt not in FLOOR_ONLY]
@@ -1017,7 +1059,7 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                 cov = _covered(pts, [r for _g, r in rects])
                 if cov > worst[0]:
                     worst = (cov, rid, [g["id"] for g, r in rects if any(G.point_in_polygon(p, r) for p in pts)])
-            if worst[0] > LIMITS["swing_cover"]:
+            if measured is not None or worst[0] > LIMITS["swing_cover"]:
                 first = worst[2][0] if worst[2] else None
                 opts = ([AA.option("move_piece", f"move {first} clear of the doorway", piece_id=first,
                                    away_from=o["id"])] if first else [])
@@ -1025,12 +1067,14 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                 # kitchen run fills is a serving window over the counter, and a piece the AI added gives way
                 chain = _blocked_chain(plan, first, o, s, door=True)
                 opts += chain + [AA.option("keep")]
-                _open(f2, o["id"], f"{100 * worst[0]:.0f}% of the doorway of {o['id']} in {worst[1]} is taken by "
-                      f"{', '.join(worst[2][:3])}", f"Should {', '.join(worst[2][:2])} move away from {o['id']}?",
+                found = (doorway_text(o["id"], worst[1], measured) if measured is not None else
+                         f"{100 * worst[0]:.0f}% of the doorway of {o['id']} in {worst[1]} is taken by "
+                         f"{', '.join(worst[2][:3])}")
+                _open(f2, o["id"], found, f"Should {', '.join(worst[2][:2])} move away from {o['id']}?",
                       opts, where=where, **({"default": opts[0]["choice"]} if first else {}),
                       fallback=[c["choice"] for c in chain])
             else:
-                _ok(f2, o["id"], "doorway free")
+                _ok(f2, o["id"], "doorway free (the code critic's F7 approach strip and R3 swing)")
         else:
             sill = float(o.get("sill_height") if o.get("sill_height") is not None else 0.9)
             worst = (0.0, [])
