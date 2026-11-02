@@ -317,6 +317,8 @@ def _arc_dict(center, radius: float, pts, full: bool = False) -> dict:
     cx, cy = center
     if full:
         start, end = 0.0, 360.0
+    elif len(pts) < 2:
+        start = end = 0.0                       # a degenerate arc (no length): never a crash (real13)
     else:
         a0 = math.degrees(math.atan2(pts[0][1] - cy, pts[0][0] - cx)) % 360.0
         a1 = math.degrees(math.atan2(pts[-1][1] - cy, pts[-1][0] - cx)) % 360.0
@@ -653,6 +655,10 @@ class _Reader:
             full = kind == "CIRCLE"
             if full:
                 pts, _ = _closed_pts(pts, True)
+            if len(pts) < 2 or radius <= 0:
+                # real13 (2 Nov 2026): a zero-length arc in a block stopped the whole drawing's reading
+                self.skipped[f"{kind} (degenerate)"] += 1
+                return
             self._add(Stroke(id=eid, kind="circle" if full else "arc", pts=pts, closed=full, colour=colour,
                              layer=layer, block=chain, arc=_arc_dict((center.x, center.y), radius, pts, full=full)))
             return

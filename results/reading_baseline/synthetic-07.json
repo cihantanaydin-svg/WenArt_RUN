@@ -1,0 +1,54 @@
+{
+ "project": "synthetic-07",
+ "status": "ok",
+ "levels": [
+  "L-1",
+  "L-1b",
+  "L0",
+  "L1"
+ ],
+ "levels_left_out": [],
+ "per_level": {
+  "L-1": {
+   "rooms": 3,
+   "walls": 6,
+   "doors": 3,
+   "windows": 7,
+   "openings": 0,
+   "room_area": 70.1
+  },
+  "L-1b": {
+   "rooms": 2,
+   "walls": 6,
+   "doors": 3,
+   "windows": 7,
+   "openings": 0,
+   "room_area": 70.5
+  },
+  "L0": {
+   "rooms": 3,
+   "walls": 6,
+   "doors": 4,
+   "windows": 6,
+   "openings": 0,
+   "room_area": 70.1
+  },
+  "L1": {
+   "rooms": 3,
+   "walls": 6,
+   "doors": 2,
+   "windows": 2,
+   "openings": 0,
+   "room_area": 70.1
+  }
+ },
+ "check": {
+  "verdict": "ready",
+  "counts": {
+   "critical": 0,
+   "major": 0,
+   "minor": 0
+  },
+  "stacking": {}
+ }
+}

@@ -1,0 +1,36 @@
+{
+ "project": "real06",
+ "status": "ok",
+ "levels": [
+  "L0",
+  "L1"
+ ],
+ "levels_left_out": [],
+ "per_level": {
+  "L0": {
+   "rooms": 4,
+   "walls": 44,
+   "doors": 5,
+   "windows": 10,
+   "openings": 5,
+   "room_area": 89.2
+  },
+  "L1": {
+   "rooms": 8,
+   "walls": 43,
+   "doors": 10,
+   "windows": 14,
+   "openings": 7,
+   "room_area": 88.2
+  }
+ },
+ "check": {
+  "verdict": "ready",
+  "counts": {
+   "critical": 0,
+   "major": 4,
+   "minor": 0
+  },
+  "stacking": {}
+ }
+}

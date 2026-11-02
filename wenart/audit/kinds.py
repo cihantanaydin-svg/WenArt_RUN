@@ -173,6 +173,7 @@ CHECK_KIND.update({"U36": "taste", "M33": "taste"})
 CHECK_KIND.update({"U35": "no_sense", "M32": "no_sense"})
 # 30 Oct 2026 (UL153, photo P16): a living-dining room missing what its family takes from P16 (salon_details.review)
 CHECK_KIND.update({"U38": "taste", "M34": "taste"})
+CHECK_KIND.update({"U39": "misread"})       # 2 Nov 2026: the reading self-check's findings (lessons UL260-UL273)
 # 30 Oct 2026 (UL210, UL211): windows side by side on different sill or head lines, a window at its facade's corner
 # (window_order.review)
 CHECK_KIND.update({"M36": "no_sense"})

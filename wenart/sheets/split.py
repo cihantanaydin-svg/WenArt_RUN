@@ -354,8 +354,18 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
     text_boxes = [ents[j].rect for j in cand
                   if any(in_box(t.point, ents[j].rect) and not any(in_box(t.point, b) for b in first_boxes)
                          for t in texts)]
+    # 2 Nov 2026 (real13): five nested rectangles (layer MERBAS) frame a strip of eight titled plans drawn closer
+    # than the gap: the plans formed one first-pass cluster, the rectangles were no frames and their lines crossed
+    # every band between the titles, so no title cut was clear and eight plans became one "site plan". A rectangle
+    # holding two or more drawing titles (``drawing_titles``) away from its edges frames drawings: it is a frame.
+    dtitles = drawing_titles(texts)
     for k in sorted(cand, key=lambda k: -_area(ents[k].rect)):
         rect = ents[k].rect
+        titled_inside = sum(1 for t in dtitles if in_box(t.point, rect)
+                            and _edge_distance((t.point[0], t.point[1], t.point[0], t.point[1]), rect) > gap)
+        if k not in lines_of and titled_inside >= 2:
+            frames.append(k)
+            continue
         if k in lines_of:
             # A panel of a frame grid is a frame when it holds anything: the grid itself says where drawings end
             # (its drawings may come closer to its edges, and to each other, than the sheet's gap).
@@ -420,6 +430,10 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
     # Texts by their point (never bridging); a title that cut its group joins its own part.
     cluster_of = {id(x): c for c in clusters for x in c.ents}
     left: list[Txt] = []
+    # 2 Nov 2026 (real11: 82132 entities, thousands of texts): the clusters' geometry boxes are computed once, not
+    # once per text (the reading of one sheet took over an hour)
+    gboxes = [c.geometry_box for c in clusters]
+    heights = [b[3] - b[1] for b in gboxes]
     for t in texts:
         if t.id in title_owner:
             c = cluster_of.get(id(ents[title_owner[t.id]]))
@@ -427,13 +441,13 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
                 c.texts.append(t)
                 continue
         p = t.point
-        holders = [c for c in clusters if in_box(p, c.geometry_box)]
+        holders = [k for k, b in enumerate(gboxes) if in_box(p, b)]
         if holders:
-            min(holders, key=lambda c: _area(c.geometry_box)).texts.append(t)
+            clusters[min(holders, key=lambda k: _area(gboxes[k]))].texts.append(t)
             continue
         tframe = frame_of((p[0], p[1], p[0], p[1]))
-        near = [(point_box_distance(p, c.geometry_box), k) for k, c in enumerate(clusters) if c.frame == tframe]
-        near = [n for n in near if n[0] <= max(TEXT_REACH * gap, TITLE_REACH * _height(clusters[n[1]]) + t.height)]
+        near = [(point_box_distance(p, gboxes[k]), k) for k, c in enumerate(clusters) if c.frame == tframe]
+        near = [n for n in near if n[0] <= max(TEXT_REACH * gap, TITLE_REACH * heights[n[1]] + t.height)]
         if near:
             clusters[min(near)[1]].texts.append(t)
         else:
@@ -518,11 +532,31 @@ def _title_cuts(g: list[int], ents: list[Ent], titles: list[Txt], gap: float,
         if not cuts:
             continue
         centres = (boxes[:, axis] + boxes[:, axis + 2]) / 2.0
-        side = np.searchsorted(np.array(sorted(cuts)), centres)
-        parts = [[g[j] for j in np.flatnonzero(side == s)] for s in range(len(cuts) + 1)]
-        if any(len(p) < TITLE_PART_MIN for p in parts):
+        # 2 Nov 2026 (real13): a part too small to be a drawing (a note or the small sections beside a site plan,
+        # each with its own title) drops only the cut beside it, never every cut of the axis.
+        cuts = sorted(cuts)
+        while cuts:
+            side = np.searchsorted(np.array(cuts), centres)
+            parts = [[g[j] for j in np.flatnonzero(side == s)] for s in range(len(cuts) + 1)]
+            small = [s for s, p in enumerate(parts) if len(p) < TITLE_PART_MIN]
+            if not small:
+                break
+            s = small[0]
+            # merge the small part with its nearer neighbour along the axis (the pieces of one panel find each other
+            # before they reach the next drawing across the gap)
+            lo_s = min(float(boxes[j, axis]) for j in np.flatnonzero(side == s)) if parts[s] else -math.inf
+            hi_s = max(float(boxes[j, axis + 2]) for j in np.flatnonzero(side == s)) if parts[s] else math.inf
+            d_left = (lo_s - max(float(boxes[j, axis + 2]) for j in np.flatnonzero(side == s - 1))) \
+                if s > 0 and parts[s - 1] else math.inf
+            d_right = (min(float(boxes[j, axis]) for j in np.flatnonzero(side == s + 1)) - hi_s) \
+                if s < len(cuts) and parts[s + 1] else math.inf
+            if s == len(cuts) or (s > 0 and (d_left, len(parts[s - 1])) <= (d_right, len(parts[s + 1]))):
+                del cuts[s - 1]                               # joins the part before it
+            else:
+                del cuts[s]                                   # joins the part after it
+        if not cuts:
             continue
-        bounds = [-math.inf] + sorted(cuts) + [math.inf]
+        bounds = [-math.inf] + cuts + [math.inf]
         out = []
         for s, p in enumerate(parts):
             own = [t for t in titles if bounds[s] <= t.box[axis] < bounds[s + 1]]
@@ -533,37 +567,48 @@ def _title_cuts(g: list[int], ents: list[Ent], titles: list[Txt], gap: float,
 
 def _clear_cut(lo: np.ndarray, hi: np.ndarray, pa: float, pb: float, gap: float) -> Optional[float]:
     """The middle of the longest least-covered band between ``pa`` and ``pb`` (entity spans ``lo``-``hi`` on the
-    axis, bins of gap / ``RASTER_STEPS``), or None when that band still crosses more than ``TITLE_CUT_MIN``
-    entities and ``TITLE_CUT_CLEAR`` of the peak coverage (the inside of one drawing)."""
-    n = int(min(max(math.ceil((pb - pa) / max(gap / RASTER_STEPS, 1e-12)), 2), RASTER_MAX))
-    edges = np.linspace(pa, pb, n + 1)
+    axis), or None when that band still crosses more than ``TITLE_CUT_MIN`` entities and ``TITLE_CUT_CLEAR`` of the
+    peak coverage (the inside of one drawing). 2 Nov 2026 (real11: plans 1 m apart at 1:50, 0.02 units, under bins of
+    gap / ``RASTER_STEPS`` = 0.018 units, so no bin was ever empty): an exact sweep over the spans' ends, no bins."""
     sel = (hi > pa) & (lo < pb)
-    first = np.clip(np.searchsorted(edges, lo[sel], side="right") - 1, 0, n - 1)
-    last = np.clip(np.searchsorted(edges, hi[sel], side="left") - 1, 0, n - 1)
-    diff = np.zeros(n + 1)
-    np.add.at(diff, first, 1.0)
-    np.add.at(diff, last + 1, -1.0)
-    cov = np.cumsum(diff)[:n]
-    low = float(cov.min())
-    if low > max(TITLE_CUT_MIN, TITLE_CUT_CLEAR * float(cov.max())):
+    a = np.maximum(lo[sel], pa)
+    b = np.minimum(hi[sel], pb)
+    xs = np.concatenate([a, b, [pa, pb]])
+    ds = np.concatenate([np.ones(len(a)), -np.ones(len(b)), [0.0, 0.0]])
+    order = np.lexsort((ds, xs))                     # at one x the ends (-1) before the starts (+1)
+    xs, ds = xs[order], ds[order]
+    cov = np.cumsum(ds)
+    # the coverage on each open interval (xs[k], xs[k+1])
+    widths = np.diff(xs)
+    spans = cov[:-1]
+    keep = widths > 1e-12
+    if not keep.any():
         return None
-    best, run, start = (0, 0), 0, 0
-    for k, v in enumerate(cov):
-        if v == low:
-            if run == 0:
-                start = k
-            run += 1
-            if run > best[0]:
-                best = (run, start)
+    spans_k, widths_k, starts_k = spans[keep], widths[keep], xs[:-1][keep]
+    low, peak = float(spans_k.min()), float(spans_k.max())
+    if low > max(TITLE_CUT_MIN, TITLE_CUT_CLEAR * peak):
+        return None
+    # the longest run of neighbouring intervals at the minimum coverage
+    best, run_w, run_start, prev_end = (0.0, None), 0.0, None, None
+    for x0, w, c in zip(starts_k, widths_k, spans_k):
+        if c == low:
+            if run_start is None or prev_end is None or abs(x0 - prev_end) > 1e-12:
+                run_start, run_w = x0, 0.0
+            run_w += w
+            if run_w > best[0]:
+                best = (run_w, run_start)
+            prev_end = x0 + w
         else:
-            run = 0
-    run, start = best
-    return float((edges[start] + edges[start + run]) / 2.0)
+            run_start, prev_end = None, None
+    width, start = best
+    return None if start is None else float(start + width / 2.0)
 
 
 def _split_by_panel(groups: list[list[int]], ents: list[Ent], panel_boxes: list[Box]) -> list[list[int]]:
     """A group that the clustering joined across a panel edge is split by the panel holding each entity's centre;
-    an entity in no panel stays with the largest part of its group."""
+    an entity in no panel joins the part of its group whose panel is nearest. 2 Nov 2026 (real09): it joined the
+    largest part, and three section-mark lines 3 m right of the last panel stretched the 3rd plan's region over the
+    whole strip (its title then found no region)."""
     out = []
     for g in groups:
         parts: dict[Optional[int], list[int]] = {}
@@ -574,8 +619,9 @@ def _split_by_panel(groups: list[list[int]], ents: list[Ent], panel_boxes: list[
         if not parts:
             out.append(g)
             continue
-        if loose:
-            max(parts.values(), key=len).extend(loose)
+        for i in loose:
+            c = ents[i].centre
+            parts[min(parts, key=lambda n: point_box_distance(c, panel_boxes[n]))].append(i)
         out.extend(sorted(p) for p in parts.values())
     return out
 

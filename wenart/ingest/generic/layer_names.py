@@ -36,6 +36,9 @@ ROLES.update({
              "PORTA", "PORTE-FENETRE"),
     "window": ("PENCERE", "PENCERELER", "WINDOW", "WINDOWS", "FENSTER", "FENETRE", "FENETRES", "VENTANA",
                "VENTANAS", "FINESTRA", "FINESTRE", "DOGRAMA", "GLAZING"),
+    # 2 Nov 2026 (real03: the windbreak's glass screen on 'MYD - CAM-PER', its sliding doors on 'MYD - CAM')
+    "glass": ("CAM", "CAMLAR", "GLASS", "GLAS", "VERRE", "VETRO", "VIDRIO", "CURTAIN", "GIYDIRME", "VITRIN", "CAMEKAN",
+              "STOREFRONT"),
     "furniture": ("TEFRIS", "MOBILYA", "FURNITURE", "FURN", "MOEBEL", "MOBEL", "MOBILIER", "MUEBLE", "MUEBLES",
                   "ARREDO", "ARREDI", "ESYA"),
     "dimension": ("DIM", "DIMS", "DIMH", "DIMV", "DH", "DV", "OLCU", "OLCULER", "COTA", "COTAS", "BEMASSUNG",

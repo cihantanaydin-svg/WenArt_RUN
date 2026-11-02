@@ -156,6 +156,42 @@ def is_drawing_title(text: str) -> bool:
     return T.class_of(text) is not None or bool(_SCALE_WORDS_RE.search(folded))
 
 
+# 2 Nov 2026 (real03: "1+1 A1 Daire Tipi" / "Net Alan =" / "Brüt Alan =" beside each flat became 16 room labels
+# outside the building): the area-summary notes and flat names of a plan are no room labels. Words on fold_ascii
+# upper text; Turkish, English, German, French.
+_FLAT_WORDS = {"DAIRE", "DAIRESI", "FLAT", "APARTMENT", "APT", "UNIT", "WOHNUNG", "APPARTEMENT", "LOGEMENT", "BHK",
+               "KONUT", "BAGIMSIZ", "BOLUM", "BLOK", "BLOCK"}
+_TYPE_WORDS = {"TIP", "TIPI", "TYPE", "TYP", "NO", "NR", "NUMARA", "NUMBER"}
+_SUMMARY_WORDS = {"NET", "BRUT", "GROSS", "NETTO", "BRUTTO", "TOPLAM", "TOTAL", "KULLANIM", "INSAAT", "EMSAL",
+                  "CARPET", "BUILT", "UP", "BUILTUP", "SALEABLE", "SUPER", "PLINTH", "KAT", "PLOT", "SITE", "ARSA",
+                  "PARSEL", "OTURUM", "TABAN", "TAKS", "KAKS", "NFL", "BGF", "WFL", "NF", "GFA", "NIA", "GIA",
+                  "HABITABLE", "UTILE", "SHON", "SHAB", "SDP"}
+_AREA_NOUNS = {"ALAN", "ALANI", "AREA", "AREAS", "FLACHE", "WOHNFLACHE", "NUTZFLACHE", "SURFACE", "SUPERFICIE", "M2"}
+_ROOM_COUNT_RE = re.compile(r"\d\s*\+\s*\d")              # "1+1", "2+1": a Turkish flat type
+
+
+def is_annotation(text: str) -> bool:
+    """An area-summary note or a flat name, never a room label: no room keyword and either a formula (``Net Alan =``),
+    a flat type (``1+1``, ``3 BHK``), or only flat, type, summary and area words with single letters and numbers
+    (``A1 Daire Tipi``, ``Brüt Alan``, ``Kullanım Alanı``, ``Carpet Area``, ``Flat 3``, ``Wohnfläche``). A site area
+    like ``Oyun Alanı`` (play area) keeps its word and stays a label."""
+    text = collapse_spaced(text or "")
+    turkish, english = B.room_keyword_hits(_strip_suffixes(text)[0])
+    if turkish or english:
+        return False
+    folded = B.fold_ascii(text).upper()
+    if "=" in folded or _ROOM_COUNT_RE.search(folded):
+        return True
+    words = re.findall(r"[A-Z]+", folded)
+    long_words = [w for w in words if len(w) > 1]
+    vocab = _FLAT_WORDS | _TYPE_WORDS | _SUMMARY_WORDS | _AREA_NOUNS
+    if not long_words or any(w not in vocab for w in long_words):
+        return False
+    flat = any(w in _FLAT_WORDS for w in long_words)
+    summary = any(w in _AREA_NOUNS for w in long_words) and any(w in _SUMMARY_WORDS for w in long_words)
+    return flat or summary or all(w in _AREA_NOUNS for w in long_words)
+
+
 def _is_name_text(text: str, indoor_only: bool) -> bool:
     text = collapse_spaced(text)
     head, _, _ = _strip_suffixes(text)
@@ -219,6 +255,12 @@ def _line_height(run: TextRun) -> float:
     return max(fb[3] - fb[1], 1e-9)
 
 
+# 2 Nov 2026: an area line written with its symbol, ``A = 24,50 m²``, ``F: 24,50 m²``, ``NF = 18,20 m²``, ``Alan:
+# 12 m²`` (Turkish, German and French plans): the prefix is a code of at most 3 letters or an area word, then ``=``
+# or ``:``. It was a skipped line, so the room's printed area was lost.
+AREA_PREFIX_RE = re.compile(r"^(?:[A-Z]{1,3}|NET|BRUT|ALAN|ALANI|AREA|FLACHE|SURFACE|NET ALAN|NETTO)\s*[=:]$")
+
+
 def _classify(run: TextRun, default_system: str) -> _Line:
     """Kind of one run: ``area``, ``size``, ``name`` (keyword), ``other`` (words that may continue a
     name), or ``skip`` (a single length, a bare number, a long note: never part of a block)."""
@@ -233,6 +275,10 @@ def _classify(run: TextRun, default_system: str) -> _Line:
     if units.parse_length(text, default_system) is not None:
         return _Line(run, "skip", "", frame_box=box)
     head, size_text, area_text = _strip_suffixes(text)
+    if area_text and AREA_PREFIX_RE.match(B.fold_ascii(head).upper()):
+        return _Line(run, "area", "", area_text=area_text, frame_box=box)    # "A = 24,50 m²", "NF: 18,2 m²"
+    if is_annotation(text):
+        return _Line(run, "skip", "", frame_box=box)       # real03: "Net Alan =", "1+1 A1 Daire Tipi" are no rooms
     if _is_name_text(text, indoor_only=False):
         kind = "name"
     elif re.search(r"[^\W\d_]{2,}", head) and len(head.split()) <= MAX_NAME_WORDS:

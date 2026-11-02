@@ -1,0 +1,27 @@
+{
+ "project": "synthetic-04",
+ "status": "ok",
+ "levels": [
+  "L3"
+ ],
+ "levels_left_out": [],
+ "per_level": {
+  "L3": {
+   "rooms": 5,
+   "walls": 10,
+   "doors": 5,
+   "windows": 10,
+   "openings": 0,
+   "room_area": 83.9
+  }
+ },
+ "check": {
+  "verdict": "ready",
+  "counts": {
+   "critical": 0,
+   "major": 0,
+   "minor": 0
+  },
+  "stacking": {}
+ }
+}

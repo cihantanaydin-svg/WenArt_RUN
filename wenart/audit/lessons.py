@@ -100,6 +100,9 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   no throw, a throw without its woven pattern or its fringe. Kind ``taste``. 30 Oct 2026 (UL136 "I did not like this
   bed", UL137 "head section of this bed needs a rework", UL146 the P14 bed): a lumpy duvet or blanket, a wavy hem
   (``bedding_parts.cover_smoothness`` as built), a gap between the mattress and the headboard left open.
+- U39 (UL260-UL273, 2 Nov 2026, the reading lessons) the critical and major findings of the run's reading self-check
+  (``reading_check/reading_check.json``: levels left out, floors that do not stack, areas, drawn walls not built, walls
+  on no drawn line, labels outside the building), fixed by a reading rule and the regression set.
 - U38 (UL153, 30 Oct 2026, photo P16: "salon inspiration") a living or dining room missing what its style family takes
   from P16 (``wenart.furniture.salon_details.review``, the model review's M34): a sofa group or a dining set with no
   rug under it, a dining print under half the table's length, loose pendants over the table where the scheme asks one
@@ -117,6 +120,7 @@ problem when something looks for it on every run and routes it to the fix that r
 from __future__ import annotations
 
 import math
+from pathlib import Path
 from typing import Optional
 
 from wenart.audit import kinds as K
@@ -1109,8 +1113,53 @@ CHECK_LESSONS["U36"] = ("UL131", "UL140", "UL167")   # 30 Oct 2026: soft seats a
 
 
 def run(inp) -> dict:
-    """The line for ``report.LINE_MODULES``: the building as built (the scene's), else the final one."""
-    return audit(inp.stage("build") or inp.final, inp.manifest)
+    """The line for ``report.LINE_MODULES``: the building as built (the scene's), else the final one; U39 reads the
+    run's reading self-check."""
+    out = audit(inp.stage("build") or inp.final, inp.manifest)
+    try:
+        got = reading_check(getattr(inp, "root", None), getattr(inp, "project", None))
+        if got is None:
+            out["checked"]["U39"] = "no reading_check.json: not run"
+        else:
+            out["findings"] += got
+            out["checked"]["U39"] = len(got)
+    except Exception as exc:  # noqa: BLE001
+        out["checked"]["U39"] = f"failed: {type(exc).__name__}: {exc}"[:200]
+    return out
+
+
+READING_LESSONS = tuple(f"UL{n}" for n in range(260, 274))
+CHECK_LESSONS["U39"] = READING_LESSONS     # 2 Nov 2026: the reading lessons, measured by the reading self-check
+
+
+def reading_check(root, project: Optional[str]) -> Optional[list]:
+    """U39 (2 Nov 2026, lessons UL260-UL273; user: "We need to improve this initial project reading part", "improve
+    the best of your abilities the initial reading phase"): the critical and major findings of the run's reading
+    self-check (``wenart.reading_check``: levels left out, floors that do not stack, areas against the drawing's own
+    area texts, drawn walls not built, walls on no drawn line, labels outside the building) as Argus findings; None
+    when the run has no ``reading_check/reading_check.json``."""
+    import json
+
+    if root is None:
+        return None
+    root = Path(root)
+    cands = [root / "reading_check" / "reading_check.json", root / "ingest" / "reading_check" / "reading_check.json"]
+    if project:
+        cands += [root / project / "reading_check" / "reading_check.json",
+                  root / "final" / project / "reading_check" / "reading_check.json"]
+    path = next((c for c in cands if c.is_file()), None)
+    if path is None:
+        return None
+    res = json.loads(path.read_text(encoding="utf-8"))
+    out = []
+    for f in res.get("findings") or []:
+        if f.get("severity") not in ("critical", "major"):
+            continue
+        target = f.get("room_id") or f.get("wall_id") or f.get("level_id") or "reading"
+        out.append(_f("U39", f["severity"], target, f"reading check {f.get('check')}: {f.get('message')}",
+                      "UL265", "rerun_stage ingest (wenart.reading_check: fix the reading rule, then the regression "
+                      "set: python -m wenart.reading_check regress)", reading_check=f.get("check")))
+    return out
 
 
 # ------------------------------------------------------------------------------------------ the lesson walk

@@ -30,6 +30,7 @@ dimension texts of the generic core (M7).
 from __future__ import annotations
 
 import math
+import re
 import statistics
 from dataclasses import dataclass, field
 from typing import Optional
@@ -439,8 +440,12 @@ def check_text_height(regions) -> Check:
                  values=hs)
 
 
+BARE_INT_RE = re.compile(r"^\d{2,5}$")
+BARE_INT_UNITS = (0.01, 0.001)       # a bare whole-number dimension text in cm or mm
+
+
 def check_dimensions(regions) -> Check:
-    ratios = []
+    ratios, bare = [], []
     for r in regions:
         for e in r.ents:
             d = e.dim
@@ -449,7 +454,12 @@ def check_dimensions(regions) -> Check:
             length = U.parse_length(d.text)
             if length is not None and length.metres > 0:
                 ratios.append(length.metres / d.measured_units)
-    passed = {u: sum(1 for m in ratios if _ratio_ok(m, f)) for u, f in UNITS.items()}
+                bare.append(bool(BARE_INT_RE.match(d.text.strip())))
+    # 2 Nov 2026 (real13): a bare whole number ("315") is read as metres by parse_length, but plans write centimetres
+    # (Turkish, German, French) or millimetres that way; such a text says the drawing is in its unit, cm or mm, never m
+    passed = {u: sum(1 for m, b in zip(ratios, bare)
+                     if (any(_ratio_ok(m * k, f) for k in BARE_INT_UNITS) if b else _ratio_ok(m, f)))
+              for u, f in UNITS.items()}
     return _with_values(_decide("dimensions", passed, len(ratios)), ratios)
 
 
@@ -585,6 +595,52 @@ def _use_scaled(result: UnitResult, drawings, file_rel: str) -> bool:
 # Entry point
 # --------------------------------------------------------------------------
 
+DRAWING_SIDE_M = (4.0, 300.0)       # the median drawing region's longer side is a building's or a site's size
+DRAWING_MIN_ENTS = 50                # ... over the regions with this many entities (not a title box or a stamp)
+TIE_MIN = 3                          # a tie-break unit fits at least this many checks ...
+TIE_MARGIN = 2                       # ... this many more than any other decided unit, and more than any other unit
+
+
+def drawing_size_fit(drawings) -> set:
+    """The units at which the median drawing region's longer side is a building's or a site's size."""
+    sides = [max(r.geometry_box[2] - r.geometry_box[0], r.geometry_box[3] - r.geometry_box[1]) for r in drawings
+             if len(getattr(r, "ents", []) or []) >= DRAWING_MIN_ENTS]
+    if len(sides) < 2:
+        return set()
+    med = statistics.median(sides)
+    return {u for u, f in UNITS.items() if _in(med * f, DRAWING_SIDE_M)}
+
+
+def tie_break(checks: list[Check], drawings) -> Optional[tuple[str, dict]]:
+    """2 Nov 2026 (real13: no unit in the header, the level marks said cm from 26471 mark pairs, the dimensions m from
+    19 bare-number texts): the units each check finds plausible (its decided unit and every unit passing
+    ``DECIDE_SHARE`` of its samples; the text height's fitting units; the median drawing size) are counted; a decided
+    unit fitting ``TIE_MIN`` checks, ``TIE_MARGIN`` more than any other decided unit and more than any other unit is
+    used. ``(unit, {check: units})`` or None."""
+    fits: dict[str, set] = {}
+    for c in checks:
+        f = {u for u, v in (c.shares or {}).items() if v >= DECIDE_SHARE}
+        if c.unit:
+            f.add(c.unit)
+        if c.check == "text_height" and not c.unit and len(c.values) >= MIN_SAMPLES["text_height"]:
+            med = statistics.median(c.values)
+            f = {u for u, k in UNITS.items() if _in(med * k, TEXT_HEIGHT_M)}
+        if f:
+            fits[c.check] = f
+    size = drawing_size_fit(drawings)
+    if size:
+        fits["drawing_size"] = size
+    score = {u: sum(1 for f in fits.values() if u in f) for u in UNITS}
+    decided = {c.unit for c in checks if c.unit}
+    if not decided:
+        return None
+    best = max(decided, key=lambda u: (score[u], -list(UNITS).index(u)))
+    if score[best] < TIE_MIN or any(score[u] + TIE_MARGIN > score[best] for u in decided - {best}) \
+            or any(score[u] >= score[best] for u in UNITS if u != best):
+        return None
+    return best, fits
+
+
 def check_units(insunits: Optional[int], regions, file_rel: str) -> UnitResult:
     """The unit of one CAD document from its drawing regions (strays excluded)."""
     drawings = [r for r in regions if r.kind == "drawing"]
@@ -622,12 +678,30 @@ def check_units(insunits: Optional[int], regions, file_rel: str) -> UnitResult:
     if not decided and _use_scaled(result, drawings, file_rel):
         return result
     if header is None:
+        tie = tie_break(checks, drawings)
+        if tie is not None:
+            unit, fits = tie
+            result.unit, result.metres_per_unit, result.method = unit, UNITS[unit], "unit_check"
+            result.warnings.append(f"{file_rel}: $INSUNITS {insunits} names no unit and the checks do not agree on one "
+                                   f"({names(decided)}); {unit} fits most checks ("
+                                   + ", ".join(k for k, f in fits.items() if unit in f) + "): " + unit + " used")
+            return result
         result.warnings.append(f"{file_rel}: $INSUNITS {insunits} names no unit and the checks do not agree on one "
                                f"({names(decided) or 'none decided'}); the scale is left to the dimension texts")
         return result
     if support:
         result.warnings.append(f"{file_rel}: $INSUNITS {insunits} ({header}) used: {names(support)} support it, "
                                f"{names(against)} " + ", ".join(f"say {c.unit}" for c in against))
+        return result
+    tie = tie_break(checks + [Check("header", header, 1.0, 1)], drawings)
+    if tie is not None and tie[0] != header:
+        # 2 Nov 2026 (real14: $INSUNITS mm, the door widths cm from 514 swings, the text height and the drawing size
+        # cm or inch): a header the checks contradict gives way to the unit that fits most checks when it clearly
+        # leads (the header counts as one check)
+        unit, fits = tie
+        result.unit, result.metres_per_unit, result.method = unit, UNITS[unit], "unit_check"
+        result.conflict = (f"$INSUNITS {insunits} says {header}, but {unit} fits most checks ("
+                           + ", ".join(k for k, f in fits.items() if unit in f) + f"): {unit} used")
         return result
     result.review = (f"{file_rel}: unit check: $INSUNITS {insunits} says {header}, "
                      + ", ".join(f"{c.check} says {c.unit}" for c in against)

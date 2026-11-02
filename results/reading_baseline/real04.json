@@ -1,0 +1,54 @@
+{
+ "project": "real04",
+ "status": "ok",
+ "levels": [
+  "L-1",
+  "L-1b",
+  "L0",
+  "L1"
+ ],
+ "levels_left_out": [],
+ "per_level": {
+  "L-1": {
+   "rooms": 8,
+   "walls": 15,
+   "doors": 4,
+   "windows": 4,
+   "openings": 2,
+   "room_area": 162.8
+  },
+  "L-1b": {
+   "rooms": 8,
+   "walls": 13,
+   "doors": 4,
+   "windows": 2,
+   "openings": 2,
+   "room_area": 162.9
+  },
+  "L0": {
+   "rooms": 14,
+   "walls": 19,
+   "doors": 12,
+   "windows": 4,
+   "openings": 2,
+   "room_area": 138.4
+  },
+  "L1": {
+   "rooms": 8,
+   "walls": 17,
+   "doors": 6,
+   "windows": 2,
+   "openings": 1,
+   "room_area": 160.7
+  }
+ },
+ "check": {
+  "verdict": "ready",
+  "counts": {
+   "critical": 0,
+   "major": 59,
+   "minor": 0
+  },
+  "stacking": {}
+ }
+}

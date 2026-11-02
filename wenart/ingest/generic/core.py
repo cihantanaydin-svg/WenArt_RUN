@@ -1080,6 +1080,42 @@ def _raster_evidence_boxes(ex: LevelExtraction, page: GenericPage) -> None:
 # Walls inferred from labelled room outlines (Milestone 11)
 # --------------------------------------------------------------------------
 
+def _unclosed(warnings: list) -> int:
+    """The labels a plan's walls leave in no closed face ('outer walls do not close' review reasons)."""
+    return sum(1 for w in warnings if w.startswith(TP.REVIEW_PREFIX) and "outer walls do not close" in w)
+
+
+def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
+                problem: Optional[str] = None):
+    """The wide gaps of the outer ring bridged (``wide_gaps``): the candidate bridges on the bridged building's
+    outline are kept when the walls then close, or close in more labelled rooms; None when nothing improves."""
+    from wenart.ingest.generic import wide_gaps as WG
+
+    cands = WG.bridges(walls2)
+    if not cands:
+        return None
+    w3, o3 = WG.apply(walls2, openings, cands)
+    bw3, site3, _ = TP.split_plot(w3, o3, blocks, level_id=level_id)
+    idx3 = {o["index"] for o in site3["openings"]}
+    outline3 = TP.building_outline(bw3, [o for k, o in enumerate(o3) if k not in idx3])
+    kept = [b for b in cands if WG.on_outline(b, outline3)]
+    if not kept:
+        return None
+    w4, o4 = WG.apply(walls2, openings, kept)
+    bw4, site4, sw4 = TP.split_plot(w4, o4, blocks, level_id=level_id)
+    idx4 = {o["index"] for o in site4["openings"]}
+    b_open4 = [o for k, o in enumerate(o4) if k not in idx4]
+    problem4 = TP.outer_loop_problem(bw4, b_open4)
+    before, after = _unclosed(site_warnings), _unclosed(sw4)
+    if not (after < before or (problem is not None and problem4 is None and after <= before)):
+        return None                                        # nothing closes: the drawn walls stay as they are
+    ex.notes.append(f"{where}: {len(kept)} wide gap(s) in the outer walls bridged by inferred walls with unverified "
+                    f"openings (rule wide_gap: a sliding door, a garage door or an entrance the drawing gives no "
+                    f"symbol the openings reader knows): " + ", ".join(f"{b['width']:.2f} m" for b in kept)
+                    + f"; labels in no closed face {before} -> {after}")
+    return w4, o4, bw4, site4, sw4, b_open4, problem4
+
+
 def _walls_from_outlines(ex: LevelExtraction, where: str, problem: str, strokes_m: list, blocks: list, walls: list,
                          openings: list, owned: set, gap_log: list, file_rel: str, page_no: Optional[int], s: float):
     """When the drawn walls do not close (``problem``), infer them along the labelled room outlines
@@ -1258,6 +1294,12 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
             site_idx = {o["index"] for o in site["openings"]}
             b_openings = [o for k, o in enumerate(openings) if k not in site_idx]
             problem = TP.outer_loop_problem(bwalls, b_openings)
+    if (problem is not None or _unclosed(site_warnings)) and not is_raster:
+        # 2 Nov 2026 (real07: a sliding door, a garage door and an entrance without a symbol the openings reader
+        # knows): wide gaps in the outer ring are inferred openings (``wide_gaps``)
+        bridged = _outer_gaps(ex, where, walls2, openings, blocks, level_id, site_warnings, problem)
+        if bridged is not None:
+            walls2, openings, bwalls, site, site_warnings, b_openings, problem = bridged
     for w in site_warnings:
         if w.startswith(TP.REVIEW_PREFIX):
             ex.review.append(f"{where}: {w[len(TP.REVIEW_PREFIX):]}")

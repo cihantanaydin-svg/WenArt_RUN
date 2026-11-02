@@ -3210,3 +3210,27 @@ bad_camera (+7.0, 33 views), empty_room (+6.3); findings conservation C1 (222 ma
 floors' copies, left unfurnished on purpose by UL254, counted as lost), argus AI2 (111), process P2 (81). The views at 1:
 cameras in rooms of 2-3 m2 facing a wall (WCs, niches, small halls), the L0 master bedroom without its bed and with a
 glass-railed floor opening inside it, a sofa in a 2.1 m2 WC (r_L0_oda_8), ext_6 (a lawn and a fence).
+
+## Reading: general rules from real03 and eight new projects (2 Nov 2026, lessons UL266-UL273)
+
+User: "improve the best of your abilities the initial reading phase"; "im also giving you other projects that you can try
+to improve the reading" (real07-real09, real11-real15, added as `projects/<p>/` with a placeholder brief). Every rule
+is general; the project that showed it is the test case. Measured by the reading self-check and the regression set.
+
+| rule | found on | before | after |
+|---|---|---|---|
+| area-summary notes and flat names ('Net Alan =', '1+1 A1 Daire Tipi') are no room labels; 'A = 24,50 m²' is an area line | real03 | 16 labels outside the building, 37 majors | 0; 13 majors (RC3 3, RC5 10) |
+| the plan's filled walls stay when a face-line layer only draws the same walls again | real03 | the structure xref's outline replaced the partitions (127 walls, rooms 5-7 % small) | 161 walls, room areas as drawn |
+| a zero-length arc never stops a drawing's reading | real13, real15 | every plan dropped (IndexError) | read |
+| a rectangle holding >= 2 drawing titles is a sheet frame; a small part drops only the cut beside it (to its nearer neighbour); the cut test sweeps the exact spans (no bins) | real13, real11 | 8 (real13) and 9 (real11) plans in one region | one region per plan |
+| an entity outside every frame joins the nearest frame's drawing | real09 | a plan stretched over the whole strip, its title lost | the plan with its title |
+| the clusters' boxes computed once in the text assignment | real11 | the split ran > 1 hour | 10 s |
+| bare whole-number dimension texts are cm or mm, never m; a unit tie-break (level marks, dimensions, door swings, text height, drawing size) when the header has no unit or the checks contradict it | real13, real14, real15 | no scale: every level left out | cm |
+| level titles: bracketed level marks left out, Roman numerals, a title in several texts read as one line, a section's floor names never its title, a plan placed by its title elevation | real07, real09, real13 | upper floors, 'I.KAT', 'DUBLEKS', '1.BODRUM' + 'KAT PLANI' unread | levels read |
+| wide gaps in the outer walls (sliding door, garage door, entrance) are inferred walls with unverified openings, only when the outer walls do not close | real07 | ground floor left out | built; labels in no closed face 4 -> 0 |
+| the reading check sums the areas of the labelled spaces a room joins; comparison sheets for one-plan documents | real03 | 11 RC3 (open plans) | 3 RC3 (real mismatches) |
+
+Argus U39 now reports the reading self-check's critical and major findings (lessons UL260-UL273 are measured by code).
+Open (not fixed): real03's glass screen between the windbreak and the hall's lobby (layer CAM-PER) is not built, so the
+two stay one room (needs a glass partition in the build); real07's 1st floor still has one hall in no closed face;
+real14's 434 labels outside the building and real08/real12 are read in the next pass.

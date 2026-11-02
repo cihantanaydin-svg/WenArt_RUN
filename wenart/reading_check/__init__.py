@@ -90,8 +90,14 @@ def read_level_page(out_dir: Path, sheets: dict, page: dict):
     regions = {r["id"]: r for r in sheets.get("regions") or []}
     reg = regions.get(page.get("region"))
     dxf = source_dxf(out_dir, page.get("file"))
-    if reg is None or dxf is None:
+    if dxf is None:
         return None
+    if reg is None:
+        # a document of one plan (no multi-plan sheet): the whole drawing, at the page transform's scale
+        if page.get("region"):
+            return None
+        tf = page.get("tf") or [1.0, 0, 0, 0, 1.0, 0]
+        return dxf_generic.read_page(str(dxf), page["file"], units_to_m_override=math.hypot(tf[0], tf[3]))
     return dxf_generic.read_page(str(dxf), page["file"], region_box=tuple(reg["box"]),
                                  units_to_m_override=reg.get("metres_per_unit"))
 
@@ -181,39 +187,100 @@ def stacking(anchors: dict, reference: str) -> list:
 
 
 # ------------------------------------------------------------------------------------------------- areas (RC3)
-def area_findings(page, tf, rooms: list, level: str) -> list:
-    from shapely.geometry import Point, Polygon
+def _runs(texts) -> list:
+    """The page's texts as generic ``TextRun``s (a test's plain objects too)."""
+    from wenart.ingest.generic.model import TextRun
 
     out = []
+    for k, t in enumerate(texts):
+        if isinstance(t, TextRun):
+            out.append(t)
+        elif getattr(t, "text", None) and getattr(t, "box", None):
+            b = tuple(t.box)
+            out.append(TextRun(id=str(getattr(t, "id", k)), text=str(t.text), box=b,
+                               height=float(getattr(t, "height", None) or (b[3] - b[1]) or 1e-3),
+                               rotation_deg=float(getattr(t, "rotation_deg", 0.0) or 0.0)))
+    return out
+
+
+def area_findings(page, tf, rooms: list, level: str) -> list:
+    """RC3: the printed areas of the labelled spaces in a model room against its area. 2 Nov 2026 (real03): the areas
+    are read with their labels (``labels.merge_label_blocks``) and summed per room: an open-plan room that joins two
+    labelled spaces (``YAŞAMA 16.68`` + ``GİRİŞ HOLÜ 2.16`` + ``HOL 3.85``) matches their sum; area-summary notes
+    (``Net Alan = 54.20 m2``) are no space. A room of several labelled spaces where one has no printed area cannot be
+    summed: a minor finding names them. An area text with no name above it counts for the room it stands in."""
+    from shapely.geometry import Point, Polygon
+
+    from wenart.ingest.generic import labels as LB
+
     polys = [(r, Polygon(r["polygon"])) for r in rooms if r.get("polygon") and len(r["polygon"]) >= 3]
-    for t in page.texts:
-        m = AREA_RE.search(str(t.text or ""))
-        if not m:
-            continue
-        drawn = float(m.group(1).replace(",", "."))
-        p = _apply(tf, ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0))
+    runs = _runs(page.texts)
+    try:
+        blocks = LB.merge_label_blocks(runs)
+    except Exception:  # noqa: BLE001 - texts the label reader cannot take: the loose area texts only
+        blocks = []
+    in_block = {id(r) for b in blocks for r in b.runs}
+    spaces = [(b.name, b.area_m2, b.anchor) for b in blocks if not b.exterior]
+    for t in runs:
+        m = AREA_RE.search(t.text)
+        if m and id(t) not in in_block and not LB.is_annotation(t.text):
+            spaces.append((None, float(m.group(1).replace(",", ".")), ((t.box[0] + t.box[2]) / 2.0,
+                                                                        (t.box[1] + t.box[3]) / 2.0)))
+    per_room: dict = {}
+    for name, area, anchor in spaces:
+        p = _apply(tf, anchor)
         room = next((r for r, poly in polys if poly.contains(Point(p))), None)
-        if room is None:
+        if room is not None:
+            per_room.setdefault(room["id"], (room, []))[1].append((name, area, p))
+    out = []
+    for rid, (room, items) in per_room.items():
+        named = [(n, a) for n, a, _ in items if n]
+        with_area = [(n, a, p) for n, a, p in items if a]
+        if not with_area:
             continue
         model = float(room.get("area_computed") or Polygon(room["polygon"]).area)
+        label = room.get("label") or rid
+        if len(named) > 1 and any(a is None for _, a in named):
+            out.append(_finding("RC3", "minor", level, f"{label} ({rid}) joins {len(named)} labelled spaces ("
+                                + ", ".join(f"{n} {a:.2f} m2" if a else f"{n} (no area)" for n, a in named)
+                                + f"): the model has {model:.1f} m2", room_id=rid, model_m2=round(model, 2),
+                                spaces=[n for n, _ in named]))
+            continue
+        drawn = sum(a for _, a, _ in with_area)
         if abs(model - drawn) > max(AREA_TOL_SHARE * drawn, AREA_TOL_M2):
-            out.append(_finding("RC3", "major", level, f"{room.get('label') or room['id']} ({room['id']}): the drawing "
-                                f"says {drawn:.2f} m2, the model has {model:.1f} m2", room_id=room["id"],
-                                drawn_m2=drawn, model_m2=round(model, 2), at=[round(p[0], 2), round(p[1], 2)]))
+            parts = " + ".join(f"{n or 'area'} {a:.2f}" for n, a, _ in with_area)
+            at = with_area[0][2]
+            out.append(_finding("RC3", "major", level, f"{label} ({rid}): the drawing says "
+                                + (f"{parts} = {drawn:.2f}" if len(with_area) > 1 else f"{drawn:.2f}")
+                                + f" m2, the model has {model:.1f} m2", room_id=rid, drawn_m2=round(drawn, 2),
+                                model_m2=round(model, 2), at=[round(at[0], 2), round(at[1], 2)],
+                                spaces=[n for n, _, _ in with_area]))
     return out
 
 
 # ------------------------------------------------------------------------------------------------- walls (RC4, RC5)
-def drawn_wall_segments(page, tf) -> list:
-    """The straight strokes (building metres) of the layers whose name means wall, plaster or column, the axis lines
-    left out."""
+def model_wall_layers(walls: list) -> set:
+    """The layers the reading took a level's walls from (their evidence), upper case."""
+    out = set()
+    for w in walls:
+        for ev in w.get("evidence") or []:
+            if isinstance(ev, dict) and ev.get("layer"):
+                out.add(str(ev["layer"]).upper())
+    return out
+
+
+def drawn_wall_segments(page, tf, layers: set = frozenset()) -> list:
+    """The straight strokes (building metres) of the layers whose name means wall, plaster or column and of the
+    layers the reading took the walls from (``layers``, upper case: real02's face-line layer has no such name), the
+    axis lines left out."""
     from wenart.ingest.generic import axes as AX
     from wenart.ingest.generic import layer_names as LN
 
     axis = AX.axis_line_ids(page.strokes, page.texts)
     out = []
     for st in page.strokes:
-        if st.id in axis or getattr(st, "arc", None) or not LN.draws_walls(getattr(st, "layer", None)):
+        layer = getattr(st, "layer", None)
+        if st.id in axis or getattr(st, "arc", None) or not (LN.draws_walls(layer) or str(layer or "").upper() in layers):
             continue
         pts = [_apply(tf, p) for p in st.pts] + ([_apply(tf, st.pts[0])] if st.closed else [])
         for a, b in zip(pts, pts[1:]):
@@ -360,7 +427,7 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
         rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == lid]
         walls = [w for w in building.get("walls") or [] if w.get("level_id") == lid]
         findings += area_findings(page, tf, rooms, lid)
-        segs = drawn_wall_segments(page, tf)
+        segs = drawn_wall_segments(page, tf, model_wall_layers(walls))
         if segs:
             findings += wall_findings(segs, walls, lid, built_elsewhere(building, lid))
         else:

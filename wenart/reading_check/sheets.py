@@ -47,7 +47,21 @@ def _entities(doc, box):
             continue
         if box[0] <= p[0] <= box[2] and box[1] <= p[1] <= box[3]:
             out.append(e)
+        elif t == "INSERT" and _overlaps(e, box):
+            out.append(e)                     # real03: the whole plan is one block inserted away from its points
     return out
+
+
+def _overlaps(insert, box) -> bool:
+    from ezdxf import bbox
+
+    try:
+        ext = bbox.extents([insert], fast=True)
+    except Exception:  # noqa: BLE001 - a block without extents: left out
+        return False
+    if not ext.has_data:
+        return False
+    return not (ext.extmax.x < box[0] or ext.extmin.x > box[2] or ext.extmax.y < box[1] or ext.extmin.y > box[3])
 
 
 def _draw_drawing(ax, doc, ents, box, grey: bool = False):
@@ -125,6 +139,19 @@ def _mark_findings(ax, findings, building, level, tf):
                     color="#b71c1c", ha="center", bbox={"facecolor": "white", "alpha": 0.8, "lw": 0})
 
 
+def _model_box(building, level, tf, margin: float = 0.08):
+    """A one-plan document (no sheet region, 2 Nov 2026): the box of the level's walls and rooms in the drawing's
+    units, with a margin."""
+    inv = _inverse(tf)
+    pts = [inv(*p) for w in building.get("walls") or [] if w.get("level_id") == level for p in (w["start"], w["end"])]
+    pts += [inv(*p) for r in building.get("rooms") or [] if r.get("level_id") == level for p in r.get("polygon") or []]
+    if not pts:
+        return None
+    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+    m = margin * max(max(xs) - min(xs), max(ys) - min(ys))
+    return [min(xs) - m, min(ys) - m, max(xs) + m, max(ys) + m]
+
+
 def _combine(paths, titles, dest, header):
     from PIL import Image, ImageDraw, ImageFont
 
@@ -157,7 +184,8 @@ def draw(out_dir, result: Optional[dict] = None, renders: Optional[str] = None) 
 
     out_dir = Path(out_dir)
     building = json.loads((out_dir / "building.json").read_text(encoding="utf-8"))
-    sheets = json.loads((out_dir / "sheets.json").read_text(encoding="utf-8"))
+    sp = out_dir / "sheets.json"
+    sheets = json.loads(sp.read_text(encoding="utf-8")) if sp.is_file() else {}
     result = result or RC.check(out_dir)
     regions = {r["id"]: r for r in sheets.get("regions") or []}
     levels = {lv["id"]: lv for lv in building.get("levels") or []}
@@ -166,16 +194,18 @@ def draw(out_dir, result: Optional[dict] = None, renders: Optional[str] = None) 
     docs: dict = {}
     made = []
     for lid, pg in RC.level_pages(building).items():
-        reg = regions.get(pg["region"])
+        reg = regions.get(pg.get("region"))
         dxf = RC.source_dxf(out_dir, pg["file"])
-        if reg is None or dxf is None:
+        if dxf is None or (reg is None and pg.get("region")):
             continue
         if dxf not in docs:
             docs[dxf] = ezdxf.readfile(str(dxf))
         doc = docs[dxf]
-        box = reg["box"]
+        box = reg["box"] if reg is not None else _model_box(building, lid, pg["tf"])
+        if box is None:
+            continue
         ents = _entities(doc, box)
-        title = ((reg.get("title") or {}).get("text") or reg["id"]).strip()
+        title = (((reg or {}).get("title") or {}).get("text") or (reg or {}).get("id") or pg["file"]).strip()
         panels = []
         for k, (name, fn) in enumerate((
                 ("1 the source drawing", lambda ax: _draw_drawing(ax, doc, ents, box)),

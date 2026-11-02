@@ -42,7 +42,7 @@ CLASS_WORDS: list[tuple[str, str, str]] = [
     ("section", r"\bSCHNITT\b", "de"),
     ("section", r"\bCOUPE\b", "fr"),
     ("elevation", r"\bGORUNUS(?:U)?\b", "tr"),
-    ("elevation", r"\bCEPHE\b", "tr"),
+    ("elevation", r"\bCEPHE(?:SI|LERI)?\b", "tr"),           # real13: GUNEY CEPHESI (south facade)
     ("elevation", r"\bELEVATION\b", "en"),
     ("elevation", r"\bANSICHT\b", "de"),
     ("elevation", r"\bFACADE\b", "fr"),
@@ -160,6 +160,62 @@ def language_of(text: str) -> Optional[str]:
     return level.language if level else None
 
 
+MANY_LEVELS = 3
+LINE_HEIGHT_TOL = 0.15        # title lines: runs of the same height (within 15 %) ...
+LINE_BASELINE_TOL = 0.35      # ... on one baseline (within 0.35 x the height) ...
+LINE_GAP = 1.5                # ... at most 1.5 x the height apart join into one line
+
+
+def join_lines(texts) -> list:
+    """2 Nov 2026 (real09: '1.BODRUM' + 'KAT PLANI' + 'Ö:1/50' + '(0,00)', 'ÇATI' + 'KAT PLANI', each a text of its
+    own; the plans read 'KAT PLANI' with no level): the texts of one title line joined, left to right (same height
+    within ``LINE_HEIGHT_TOL``, same rotation, baselines within ``LINE_BASELINE_TOL`` heights, gaps up to ``LINE_GAP``
+    heights). A joined line is a new ``Txt`` with the id, layer and evidence of its class-word run (else its first) and
+    the union box; a text alone stays as it is. O(n log n): a sweep over the baselines."""
+    import dataclasses
+
+    items = sorted((t for t in texts if getattr(t, "height", 0) > 0),
+                   key=lambda t: (round(t.rotation_deg), t.box[1]))
+    out = [t for t in texts if not getattr(t, "height", 0) > 0]
+    k = 0
+    while k < len(items):
+        # one baseline band: texts of one rotation whose baselines lie within the tolerance of the band's first
+        first = items[k]
+        band = [first]
+        k += 1
+        while k < len(items) and round(items[k].rotation_deg) == round(first.rotation_deg) \
+                and items[k].box[1] - first.box[1] <= LINE_BASELINE_TOL * max(first.height, items[k].height):
+            band.append(items[k])
+            k += 1
+        band.sort(key=lambda t: t.box[0])
+        used: set = set()
+        for i, t in enumerate(band):
+            if id(t) in used:
+                continue
+            line, last = [t], t
+            used.add(id(t))
+            for u in band[i + 1:]:
+                if id(u) in used or abs(u.height - t.height) > LINE_HEIGHT_TOL * t.height:
+                    continue
+                gap = u.box[0] - last.box[2]
+                if gap > LINE_GAP * max(last.height, u.height):
+                    break
+                if gap < -0.5 * max(last.height, u.height):
+                    continue
+                line.append(u)
+                used.add(id(u))
+                last = u
+            if len(line) == 1:
+                out.append(t)
+                continue
+            key = next((x for x in line if class_of(x.text) is not None), line[0])
+            box = (min(x.box[0] for x in line), min(x.box[1] for x in line), max(x.box[2] for x in line),
+                   max(x.box[3] for x in line))
+            out.append(dataclasses.replace(key, text=" ".join(x.text.strip() for x in line), box=box,
+                                           height=max(x.height for x in line)))
+    return out
+
+
 def pick_title(texts, geometry_box, region_height: Optional[float] = None, fallback: bool = True):
     """The region's title: among its texts with a class or level word, the tallest (ties: the lowest, then the
     leftmost). Texts inside the drawing count only when they are clearly larger than its labels (>= 2 x the median
@@ -170,10 +226,16 @@ def pick_title(texts, geometry_box, region_height: Optional[float] = None, fallb
     if not texts:
         return None
     median_h = statistics.median(t.height for t in texts) if texts else 0.0
+    texts = join_lines(texts) if len(texts) > 1 else texts
     h = region_height if region_height is not None else (geometry_box[3] - geometry_box[1])
+    # 2 Nov 2026 (real13: the elevations' and a wall section's floor names, '2.3.Bodrum Kat' 58 units high, outranked
+    # the title 'MERDİVEN KESİTİ DETAYI' and made a floor plan of them): a region whose texts name
+    # ``MANY_LEVELS`` or more levels is a section or an elevation; its level words are floor names, never its title.
+    named = {lw.label for t in texts if class_of(t.text) is None for lw in (level_of(t.text),) if lw is not None}
+    many = len(named) >= MANY_LEVELS
     cands = []
     for t in texts:
-        if class_of(t.text) is None and level_of(t.text) is None:
+        if class_of(t.text) is None and (level_of(t.text) is None or many):
             continue
         p = t.point
         outside = p[1] < geometry_box[1] or p[1] > geometry_box[3] or p[0] < geometry_box[0] or p[0] > geometry_box[2]

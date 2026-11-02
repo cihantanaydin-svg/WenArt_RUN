@@ -26,7 +26,7 @@ from wenart import building as B
 # Level words (§3.1 item 3): (order or "top", kind, label, pattern, language).
 LEVEL_WORDS: list[tuple[object, str, str, str, str]] = [
     # real10 (1 Nov 2026): the roof terrace floor of an apartment block (its stair house over a flat roof) is the top
-    ("top", "roof_terrace", "Teras Katı", r"\bTERAS KATI?\b|\bCATI TERASI\b", "tr"),
+    ("top", "roof_terrace", "Teras Katı", r"\bTERAS\.?\s*KATI?\b|\bCATI TERASI\b", "tr"),
     ("top", "roof_terrace", "Roof Terrace", r"\bROOF TERRACE\b", "en"),
     ("top", "roof_terrace", "Dachterrasse", r"\bDACHTERRASSE\b", "de"),
     ("top", "roof_terrace", "Toit-terrasse", r"\bTOIT-TERRASSE\b|\bTOIT TERRASSE\b", "fr"),
@@ -63,12 +63,17 @@ _TYPICAL_RE = [
 ]
 _NTH_RE = [
     (re.compile(r"\b(\d{1,2})\s*\.\s*KAT\b"), "tr", "{n}. Kat"),
+    # 2 Nov 2026 (real07: 'I.KAT PLANI'): a floor numbered in Roman numerals
+    (re.compile(r"\b(I{1,3}|IV|VI{0,3}|IX|X)\s*\.\s*KAT\b"), "tr", "{n}. Kat"),
+    (re.compile(r"\b(I{1,3}|IV|VI{0,3}|IX|X)\s*\.\s*(?:OG|OBERGESCHOSS)\b"), "de", "{n}. Obergeschoss"),
     (re.compile(r"\b(\d{1,2})\s*(?:ST|ND|RD|TH)\s+FLOOR\b"), "en", "{n}th Floor"),
     (re.compile(r"\b(FIRST|SECOND|THIRD|FOURTH)\s+FLOOR\b"), "en", "{w} Floor"),
     (re.compile(r"\b(\d{1,2})\s*\.\s*(?:OG|OBERGESCHOSS)\b"), "de", "{n}. Obergeschoss"),
     (re.compile(r"\b(\d{1,2})\s*(?:ER|E|EME)\s+ETAGE\b"), "fr", "{n}e étage"),
 ]
-_ORDINALS = {"FIRST": 1, "SECOND": 2, "THIRD": 3, "FOURTH": 4}
+_ORDINALS = {"FIRST": 1, "SECOND": 2, "THIRD": 3, "FOURTH": 4, "I": 1, "II": 2, "III": 3, "IV": 4, "V": 5,
+             "VI": 6, "VII": 7, "VIII": 8, "IX": 9, "X": 10}
+_LEVEL_MARK_IN_BRACKETS_RE = re.compile(r"\([^()]*\d[^()]*\)")
 
 
 @dataclass
@@ -82,8 +87,10 @@ class LevelWord:
 
 
 def level_of(text: str) -> Optional[LevelWord]:
-    """The level a title names: basement -1, ground 0, ``n. KAT`` / ``n-th FLOOR`` / ``n. OG`` n, attic = the top."""
-    folded = _fold(text)
+    """The level a title names: basement -1, ground 0, ``n. KAT`` / ``n-th FLOOR`` / ``n. OG`` n, attic = the top.
+    2 Nov 2026 (real13: ``1.(+5.20 KOTU) KAT PLANI``, ``TERAS.(+13.30 KOTU) KAT PLANI``): a level mark in brackets
+    inside the title is left out before the words are read."""
+    folded = " ".join(_LEVEL_MARK_IN_BRACKETS_RE.sub(" ", _fold(text)).split())
     for order, kind, label, pattern, lang in _LEVEL_RE:
         if kind != "roof_terrace":                                     # the roof terrace floor first (the top)
             continue
@@ -255,12 +262,95 @@ def typical_orders(own: set, storeys: dict[int, str]) -> tuple[list[int], list[i
     return [first], [first] if first == 0 else [], "assumed"
 
 
+_ELEVATION_RE = re.compile(r"\(\s*([+\-±]?\s*\d{1,3}[.,]\d{1,3})(?:\s*[-/]\s*([+\-±]?\s*\d{1,3}[.,]\d{1,3}))?"
+                           r"\s*(?:KOTU?|KOT|M)?\s*\)")
+
+
+STOREY_M = 3.0                      # a typical plan's elevation range: its storeys at about this height
+
+
+def title_elevations(text: Optional[str]) -> Optional[tuple[float, float]]:
+    """The floor elevation(s) a title gives in brackets: ``(8,50)`` -> (8.5, 8.5), ``(2,50-5,50)`` -> (2.5, 5.5),
+    ``(+5.20 KOTU)`` -> (5.2, 5.2); None without one."""
+    m = _ELEVATION_RE.search(_fold(text or ""))
+    if not m:
+        return None
+    vals = [float(g.replace(" ", "").replace("±", "").replace(",", ".")) for g in m.groups() if g]
+    return min(vals), max(vals)
+
+
+_BARE_ELEVATION_RE = re.compile(r"^\(?\s*([+\-±]?\s*\d{1,3}[.,]\d{1,3})(?:\s*[-/]\s*([+\-±]?\s*\d{1,3}[.,]\d{1,3}))?"
+                                r"\s*\)?$")
+
+
+def region_elevations(r) -> Optional[tuple[float, float]]:
+    """A plan's floor elevation(s) from its title (``title_elevations``), else from a bare elevation text just right
+    of the title (real09: ``( 8,50 )`` written as three texts beside ``DUBLEKS KAT PLANI``): within 8 title heights to
+    the right of its end and 2 heights up or down."""
+    if not r.title:
+        return None
+    el = title_elevations(r.title["text"])
+    if el is not None:
+        return el
+    tb = r.title.get("box")
+    if not tb:
+        return None
+    h = max(tb[3] - tb[1], 1e-9)
+    cy = (tb[1] + tb[3]) / 2.0
+    vals = []
+    for t in getattr(r, "texts", []) or []:
+        if not (tb[2] - h <= t.box[0] <= tb[2] + 8.0 * h) or abs((t.box[1] + t.box[3]) / 2.0 - cy) > 2.0 * h:
+            continue
+        m = _BARE_ELEVATION_RE.match(t.text.strip())
+        if m:
+            vals.extend(float(g.replace(" ", "").replace("±", "").replace(",", ".")) for g in m.groups() if g)
+    return (min(vals), max(vals)) if vals else None
+
+
+def _by_title_elevation(plans: list, words: dict, warnings: Optional[list] = None) -> None:
+    """2 Nov 2026 (real09: '1.BODRUM KAT PLANI (0,00)', 'NORMAL KAT PLANI (2,50-5,50)', 'DUBLEKS KAT PLANI (8,50)',
+    'ÇATI KAT PLANI (11,50)'): a plan whose title names no level but gives its floor elevation in brackets takes the
+    storey right above the titled plan whose elevation lies below it (a typical plan: its highest storey), when the
+    titled plan above it (if any) lies higher. Its label is its own title's name ('Dubleks Kat')."""
+    titled = []
+    for r in plans:
+        lw, el = words[id(r)], region_elevations(r)
+        if lw is not None and el is not None:
+            titled.append((el, r, lw))
+    if not titled:
+        return
+    for r in plans:
+        if words[id(r)] is not None or not r.title:
+            continue
+        el = region_elevations(r)
+        if el is None:
+            continue
+        below = [(e, x, lw) for e, x, lw in titled if e[1] < el[0] and lw.order is not None]
+        above = [(e, x, lw) for e, x, lw in titled if e[0] > el[1]]
+        if not below:
+            continue
+        e_b, x_b, lw_b = max(below, key=lambda t: t[0][1])
+        span = max(1, round((e_b[1] - e_b[0]) / STOREY_M) + 1) if lw_b.typical else 1   # a typical plan's storeys
+        order = lw_b.order + span if lw_b.typical else lw_b.order + 1
+        if any(lw.order is not None and lw.order <= order for e, x, lw in above):
+            continue
+        name = re.sub(r"\(.*?\)|O\s*:\s*1\s*/\s*\d+|\bPLANI?\b", " ", _fold(r.title["text"]))
+        label = " ".join(w.capitalize() for w in name.split()) or f"{order}. Kat"
+        words[id(r)] = LevelWord(order=order, kind="floor", label=label, word=r.title["text"].strip(),
+                                 language="tr")
+        if warnings is not None:
+            warnings.append(f"{getattr(r, 'file', '')} {getattr(r, 'id', '')}: plan without a level word: level "
+                            f"{B.level_id(order)} '{label}' inferred from its title elevation {el[0]:+.2f} m (the storey "
+                            f"above '{x_b.title['text'].strip()}' at {e_b[1]:+.2f} m)")
+
+
 def assign_levels(plans: list, needs_review: list, warnings: list,
                   storeys: Optional[dict[int, str]] = None) -> None:
     words = {}
     for r in plans:
         lw = level_of(r.title["text"]) if r.title else None
         words[id(r)] = lw
+    _by_title_elevation(plans, words, warnings)
     storeys = storeys or {}
     own = {lw.order for lw in words.values() if lw is not None and lw.order is not None and not lw.typical}
     typical = {}

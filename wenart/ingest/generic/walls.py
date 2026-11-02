@@ -1055,6 +1055,26 @@ def along_share(elems: list[_Element], base: list[_Element]) -> float:
     return float(mine.intersection(near).area / max(mine.area, 1e-12))
 
 
+EXISTING_ALONG = 0.6            # filled walls covering this share of a face-line layer's walls ...
+EXISTING_AREA = 0.8             # ... with at least this share of their area keep the plan's filled walls (real03)
+
+
+def _existing_covers(prims: list[WallPrim], elems: list[_Element]) -> Optional[tuple[float, float]]:
+    """``(share, area ratio)`` when the filled wall material among ``prims`` covers the face-pair walls ``elems``
+    (``EXISTING_ALONG``, ``EXISTING_AREA``), else None."""
+    filled = [g for g in _prim_geoms(prims) if g.geom_type == "Polygon"]
+    pieces = [e.polygon for e in elems if e.kind == "face_pair"]
+    if not filled or not pieces:
+        return None
+    ex = unary_union(filled)
+    mine = unary_union(pieces)
+    if mine.area <= 0:
+        return None
+    share = float(mine.intersection(ex.buffer(ALONG_M, join_style=2)).area / mine.area)
+    ratio = float(ex.area / mine.area)
+    return (share, ratio) if share >= EXISTING_ALONG and ratio >= EXISTING_AREA else None
+
+
 def separate_rooms(anchors: list[tuple[float, float]], geoms: list) -> int:
     """How many separate faces of a layer's walls (and their door and window bridges) hold a room label: the walls of a
     plan part its labels into rooms; an outline around the building (balconies, railings) holds them all in one."""
@@ -1279,6 +1299,18 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         return prims, choice
     win = rows[0] if decided else picked[0]
     runner = (rows[1] if len(rows) > 1 else None) if decided else None
+    # 2 Nov 2026 (real03): the structure drawing's outline layer ('D BLOK_STA_NK$0$MYD - IZ-1', 0.30-0.35 m concrete
+    # walls only) closed in 54 of 66 labels and replaced the plan's own filled walls (123 pieces with every partition):
+    # the rooms came out merged and 5-7 % small. Filled wall material that already covers the chosen layer's walls
+    # (``EXISTING_ALONG`` of their area within ``ALONG_M``) and is at least ``EXISTING_AREA`` of their area is the
+    # better evidence: the layer only draws the same walls again, so the filled walls are kept.
+    kept = _existing_covers(prims, win["_elems"])
+    if kept is not None:
+        choice["reason"] = (f"the plan's filled wall material covers {kept[0]:.0%} of layer '{win['layer']}''s walls "
+                            f"and is {kept[1]:.1f} times their area: the layer draws the same walls again; the filled "
+                            f"walls are kept")
+        choice["existing_covers"] = {"layer": win["layer"], "share": round(kept[0], 3), "area_ratio": round(kept[1], 2)}
+        return prims, choice
     note = (f"walls drawn as face lines: layer '{win['layer']}' chosen by evidence (closes in {win['closed_in']} of "
             f"{len(labels)} labelled rooms, {win['pair_share']:.0%} of its long strokes pair, widths "
             f"{', '.join(f'{w:.2f}' for w in win['widths_m'])} m); runner-up "
