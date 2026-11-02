@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real10",
+ "stage": "sheets",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 132.89,
+ "fingerprint": "1155d365bd94beed8bae9be45e6ee7102bdf98f0051f4e943fdc0f653e39f83e",
+ "inputs": {
+  "projects/real10": "c5aceedf9b7a2a3abdca22a2778a59d21a43ad02059901e40de0a0abd1185e66",
+  "<LibreDWG VERSION>": "0.14 d9468ae p1"
+ },
+ "outputs": [
+  "sheets.json",
+  "sheets_report.md"
+ ],
+ "started_utc": "2026-11-02T12:34:40Z",
+ "git_commit": "0f2b708f98bcfa7cab6091def9da263e881324ef",
+ "log": "logs/sheets.log",
+ "note": null,
+ "run_id": "20261102-122729-full-20261102T123222Z",
+ "steps": [
+  {
+   "name": "sheets",
+   "rc": 0,
+   "seconds": 132.89
+  }
+ ],
+ "written": {}
+}

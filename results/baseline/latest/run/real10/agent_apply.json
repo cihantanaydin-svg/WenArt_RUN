@@ -1,0 +1,35 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real10",
+ "stage": "agent_apply",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 47.31,
+ "fingerprint": "0d89d8d6ff9426d752be13bd94fa9feb2688163f76277932b84d3837445717e3",
+ "inputs": {
+  "outputs/real10/building_decor.json": "a9a0cf98373f99b0e8180055986dfddcf1b5e537cd763c313774f06cec8072b7",
+  "outputs/real10/orchestrator/overrides.json": "48ed8a761dd3c4bc90f1d6456b35832271f37c99a3e319052b860cff9e2db81d"
+ },
+ "outputs": [
+  "building_agent.json"
+ ],
+ "started_utc": "2026-11-02T15:06:58Z",
+ "git_commit": "0f2b708f98bcfa7cab6091def9da263e881324ef",
+ "log": "logs/agent_apply.log",
+ "note": null,
+ "run_id": "20261102-122729-full-20261102T123222Z",
+ "steps": [
+  {
+   "name": "agent_apply",
+   "rc": 0,
+   "seconds": 8.28
+  },
+  {
+   "name": "agent_apply",
+   "rc": 0,
+   "seconds": 39.03
+  }
+ ],
+ "written": {}
+}

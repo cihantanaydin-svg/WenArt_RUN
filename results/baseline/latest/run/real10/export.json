@@ -1,0 +1,21 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real10",
+ "stage": "export",
+ "rc": null,
+ "status": "incomplete",
+ "seconds": 0.0,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "export/export_manifest.json"
+ ],
+ "started_utc": "2026-11-02T17:20:46Z",
+ "git_commit": "0f2b708f98bcfa7cab6091def9da263e881324ef",
+ "log": "logs/export.log",
+ "note": "deadline: export not started",
+ "run_id": "20261102-122729-full-20261102T123222Z",
+ "steps": [],
+ "written": {}
+}

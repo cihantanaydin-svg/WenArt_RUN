@@ -1,0 +1,32 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real10",
+ "stage": "decor",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 44.76,
+ "fingerprint": "051273d34d8928279694e4fee603d4dea5f3c87911a9fe3d474d84cae9f265ce",
+ "inputs": {
+  "outputs/real10/building_furnished.json": "e5278615db194385c5398864ec8613aeb4256184b3d2e5f1622838e0f4e22673",
+  "outputs/real10/style.json": "702760a848e4bcb52087f2cd7e7b71350010106c0d5195b5aae3e3a84a199d09",
+  "outputs/real10/decor_ai_answers.json": "53ef85b06a9abc9d3dacc2b8e4c54cc9870550765e7ef5b3d1e2a83f0f60fb05",
+  "outputs/real10/recipes.json": "c4c8995c06f3735b80965999d493020011b124bbbd06c76d9c2d08776c06e0ec"
+ },
+ "outputs": [
+  "building_decor.json"
+ ],
+ "started_utc": "2026-11-02T12:49:32Z",
+ "git_commit": "0f2b708f98bcfa7cab6091def9da263e881324ef",
+ "log": "logs/decor.log",
+ "note": null,
+ "run_id": "20261102-122729-full-20261102T123222Z",
+ "steps": [
+  {
+   "name": "decor",
+   "rc": 0,
+   "seconds": 44.76
+  }
+ ],
+ "written": {}
+}

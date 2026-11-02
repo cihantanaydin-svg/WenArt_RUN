@@ -1,0 +1,37 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real10",
+ "stage": "check",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 239.93,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "check/answers_qwen3.8-27b-fp8.json"
+ ],
+ "started_utc": "2026-11-02T17:12:37Z",
+ "git_commit": "0f2b708f98bcfa7cab6091def9da263e881324ef",
+ "log": "logs/check.log",
+ "note": null,
+ "run_id": "20261102-122729-full-20261102T123222Z",
+ "steps": [
+  {
+   "name": "run agent",
+   "rc": 0,
+   "seconds": 234.46
+  },
+  {
+   "name": "preference agent",
+   "rc": 0,
+   "seconds": 2.21
+  },
+  {
+   "name": "style-photo test agent",
+   "rc": 0,
+   "seconds": 3.26
+  }
+ ],
+ "written": {}
+}

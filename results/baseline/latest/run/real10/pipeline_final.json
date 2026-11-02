@@ -1,0 +1,50 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real10",
+ "stage": "pipeline_final",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 164.75,
+ "fingerprint": "1be804097f991f7f3b14be856ac79a7fef6d4282fcf0c0d575c740b7558ff7d8",
+ "inputs": {
+  "projects/real10": "c5aceedf9b7a2a3abdca22a2778a59d21a43ad02059901e40de0a0abd1185e66",
+  "outputs/real10/sheets/answers_qwen3-vl-8b.json": null,
+  "outputs/real10/sheets/answers_glm-4.6v-flash.json": null,
+  "outputs/real10/sheets/answers_qwen3.8-27b-fp8.json": null,
+  "outputs/real10/sheets/answers_qwen3.6-35b-a3b-fp8.json": null,
+  "outputs/real10/sheets/answers_bakeoff.json": null,
+  "outputs/real10/recognition/answers_qwen3-vl-8b.json": "2ca8febfbe5d89c0bc756059c123dae4e10966e46f162aaa10c623f5d2deb00b",
+  "outputs/real10/recognition/answers_glm-4.6v-flash.json": "05434faa4d832bf0b0a08a1b582a23d3542a091b8e29a25deb30a2a1b5f91119",
+  "outputs/real10/recognition/answers_qwen3.8-27b-fp8.json": null,
+  "outputs/real10/recognition/answers_qwen3.6-35b-a3b-fp8.json": null,
+  "outputs/real10/recognition/answers_bakeoff.json": null,
+  "<LibreDWG VERSION>": "0.14 d9468ae p1"
+ },
+ "outputs": [
+  "sheets.json",
+  "building.json",
+  "report.md"
+ ],
+ "started_utc": "2026-11-02T12:40:02Z",
+ "git_commit": "0f2b708f98bcfa7cab6091def9da263e881324ef",
+ "log": "logs/pipeline_final.log",
+ "note": "answers applied",
+ "run_id": "20261102-122729-full-20261102T123222Z",
+ "steps": [
+  {
+   "name": "pipeline_final",
+   "rc": 0,
+   "seconds": 163.55
+  },
+  {
+   "name": "site platforms",
+   "rc": 0,
+   "seconds": 1.2
+  }
+ ],
+ "written": {
+  "building.json": "e29a7b34dc56d1738c0dd9dbf485fc5997e8773813e144073160c61ec53eb5f9",
+  "sheets.json": "fd503ffb4a570cc7f55483a8b0619c2209d136ac50050d127829e544813c872a"
+ }
+}

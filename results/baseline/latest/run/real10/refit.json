@@ -1,0 +1,45 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real10",
+ "stage": "refit",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 149.55,
+ "fingerprint": "0aeb5a5956717ca80b033ca63fa9112d85cdb7211c54080d01eb0a9fcf169dc5",
+ "inputs": {
+  "outputs/real10/building_agent.json": "128714f06c739e9a811d54901362042f9df7956c122ae2d8ec37c02705baec85",
+  "outputs/real10/style.json": "702760a848e4bcb52087f2cd7e7b71350010106c0d5195b5aae3e3a84a199d09",
+  "wenart/furniture/catalog.json": "0299caac439e903f3eb7d1231ba9cc9bdd60f6aebed15ab46dcff0850d536c77",
+  "wenart/furniture/catalog_objaverse.json": null,
+  "wenart/furniture/catalog_library.json": "d5fcf6c8a7e7ba1cfc6a68188323a3d795a0b25ae4f00d075ae1173eb53ddade",
+  "outputs/real10/building.json": "e29a7b34dc56d1738c0dd9dbf485fc5997e8773813e144073160c61ec53eb5f9",
+  "outputs/real10/completion.json": "945c99564770632d234fb46938108e2623590e462507ced821b69ceb8c02f99e"
+ },
+ "outputs": [
+  "building_final.json"
+ ],
+ "started_utc": "2026-11-02T12:50:24Z",
+ "git_commit": "0f2b708f98bcfa7cab6091def9da263e881324ef",
+ "log": "logs/refit.log",
+ "note": null,
+ "run_id": "20261102-122729-full-20261102T123222Z",
+ "steps": [
+  {
+   "name": "refit",
+   "rc": 0,
+   "seconds": 48.12
+  },
+  {
+   "name": "refit",
+   "rc": 0,
+   "seconds": 47.82
+  },
+  {
+   "name": "refit",
+   "rc": 0,
+   "seconds": 53.61
+  }
+ ],
+ "written": {}
+}
