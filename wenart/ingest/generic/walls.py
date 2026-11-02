@@ -114,6 +114,7 @@ TREAD_PITCH_M = (0.18, 0.40)   # the first, overlapping >= 50 %) are stair tread
 TREAD_EVEN = 0.15
 TREAD_OVERLAP = 0.5
 ALONG_SHARE = 0.5              # real10: a second wall layer's pieces lie >= 50 % within 5 cm of the chosen layer's
+OWN_PAIR_SHARE = 0.7           # 2 Nov 2026: a thinly labelled plan's own best layer joins the document's at this pair share
 ALONG_M = 0.05                 # walls (the same walls drawn twice: masonry inside plaster)
 COLUMN_GAP_M = 0.05            # real10: a wall's masonry faces stop up to 5 cm short of the column or wall they meet
 LAYER_EXPLAINS = 0.70          # the wall layer must close around >= 70 % of the labelled rooms
@@ -1257,6 +1258,14 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     choice["layers"] = [{k: v for k, v in r.items() if k != "_elems"} for r in rows]
     decided = bool(rows) and labels and not rows[0]["grid"] and rows[0]["closed_in"] >= need
     picked = [r for r in rows if r["layer"] in document and not r["grid"]] if document and not decided else []
+    # 2 Nov 2026 (real10's 2nd basement, user: "2nd basement is fully underground and fully walled around"; its
+    # reinforced-concrete outer walls are drawn on the column layer 'kolon', which ranked first on the plan's own
+    # evidence, while the document's plaster and masonry layers left the outer ring open and the level out): a plan
+    # with too few labels to decide takes the document's layers and its own best layer when that layer is no grid,
+    # closes in at least as many labels as the document's best and pairs well (``OWN_PAIR_SHARE``)
+    if picked and rows and rows[0] not in picked and not rows[0]["grid"] \
+            and rows[0]["closed_in"] >= max(r["closed_in"] for r in picked) and rows[0]["pair_share"] >= OWN_PAIR_SHARE:
+        picked = [rows[0]] + picked
     if not decided and not picked:
         if rows and rows[0]["grid"]:
             choice["reason"] = (f"only axis grids close in the labels: "
@@ -1295,6 +1304,16 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         note = (f"walls drawn as face lines: layer(s) {', '.join(repr(r['layer']) for r in picked)} as the document's "
                 f"other plans chose (this plan's {len(labels)} label(s) close in too few rooms to decide: best "
                 f"'{rows[0]['layer']}' {rows[0]['closed_in']})")
+    # 2 Nov 2026 (real10, user: "kolon, SIVA and DUVAR are the Turkish words translate into English and it will make
+    # sense"): a layer whose name means wall, plaster or column / concrete structure (``layer_names``) draws the
+    # building's walls: it joins when its strokes pair into wall pieces and it is no axis grid
+    from wenart.ingest.generic import layer_names as LN
+    chosen = {win["layer"]} | {r["layer"] for r in also}
+    named = [r for r in rows if r["layer"] not in chosen and not r["grid"] and LN.draws_walls(r["layer"])]
+    if named:
+        also = list(also) + named
+        note += "; " + ", ".join(f"'{r['layer']}' ({LN.layer_role(r['layer'])})" for r in named) + \
+            " join(s) by the name (a wall, plaster or column layer draws walls)"
     layers = [win["layer"]] + [r["layer"] for r in also]
     elems = list(win["_elems"])
     if also:

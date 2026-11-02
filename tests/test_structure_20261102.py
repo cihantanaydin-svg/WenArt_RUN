@@ -106,3 +106,22 @@ def test_axis_lines_by_layer_linetype_or_the_bubble_at_their_end():
     texts = [TextRun(id="t3", text="3", box=(9.85, -0.2, 10.15, 0.2), height=0.4),
              TextRun(id="t4", text="salon", box=(3, 3, 6, 4), height=0.4)]
     assert AX.axis_line_ids(strokes, texts) == {"a1", "a2", "a3"}
+
+
+def test_a_thinly_labelled_plan_adds_its_own_best_wall_layer_to_the_documents():
+    """2 Nov 2026 (real10's 2nd basement, user: "2nd basement is fully underground and fully walled around"): its
+    concrete outer walls on the column layer ranked first on its own evidence, yet only the document's plaster and
+    masonry layers were taken and the outer ring stayed open."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent))
+    from test_generic_walls import _face_plan
+
+    from wenart.ingest.generic import walls as W
+    from wenart.ingest.generic.model import TextRun
+    page, _, _ = _face_plan()
+    page.texts.append(TextRun(id="t3", text="DEPO", box=(8.6, 6.0, 9.4, 6.2), height=0.2))   # a label nothing closes
+    page.document_wall_layers = ("MOB",)                      # the document's layer: here only a bed's outline
+    prims, choice = W.face_pair_walls(page, 1.0, [])
+    assert choice["used"] and choice["layer"] == "W1" and choice["also"] == ["MOB"]
+    assert choice["reason"] == "the document's other plans"

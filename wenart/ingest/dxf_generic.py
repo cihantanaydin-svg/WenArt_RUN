@@ -108,7 +108,9 @@ def units_to_m(insunits) -> Optional[float]:
 def is_wall_hint_layer(name: Optional[str]) -> bool:
     """Layer names that say "wall" (``WALL``, ``A-WALL``, ``DUVAR``, ``MUR``, ``PARED``, any case, anywhere), or
     concrete wall (``... - BA``, ``... - B-H``, ``BETONARME``, ``PERDE`` as the last word)."""
-    return bool(name) and (WALL_HINT_RE.search(name) is not None or CONCRETE_HINT_RE.search(name) is not None)
+    from wenart.ingest.generic import layer_names as LN     # 2 Nov 2026: wall, plaster, column words of 6 languages
+    return bool(name) and (WALL_HINT_RE.search(name) is not None or CONCRETE_HINT_RE.search(name) is not None
+                           or LN.draws_walls(name))
 
 
 def read_page(path: str | Path, file_rel: str, region_box=None, units_to_m_override: Optional[float] = None
