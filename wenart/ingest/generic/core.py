@@ -1086,12 +1086,13 @@ def _unclosed(warnings: list) -> int:
 
 
 def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
-                problem: Optional[str] = None):
+                problem: Optional[str] = None, strokes: Optional[list] = None):
     """The wide gaps of the outer ring bridged (``wide_gaps``): the candidate bridges on the bridged building's
     outline are kept when the walls then close, or close in more labelled rooms; None when nothing improves."""
     from wenart.ingest.generic import wide_gaps as WG
 
     cands = WG.bridges(walls2)
+    cands += WG.joinery_bridges(walls2, openings, strokes or [])    # glazed runs between two walls (real09, real13)
     if not cands:
         return None
     w3, o3 = WG.apply(walls2, openings, cands)
@@ -1111,7 +1112,9 @@ def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, leve
         return None                                        # nothing closes: the drawn walls stay as they are
     ex.notes.append(f"{where}: {len(kept)} wide gap(s) in the outer walls bridged by inferred walls with unverified "
                     f"openings (rule wide_gap: a sliding door, a garage door or an entrance the drawing gives no "
-                    f"symbol the openings reader knows): " + ", ".join(f"{b['width']:.2f} m" for b in kept)
+                    f"symbol the openings reader knows; rule glazed_run: a glazed run on a window, door or glass "
+                    f"layer between two walls): "
+                    + ", ".join(f"{b['width']:.2f} m ({b.get('rule') or 'wide_gap'})" for b in kept)
                     + f"; labels in no closed face {before} -> {after}")
     return w4, o4, bw4, site4, sw4, b_open4, problem4
 
@@ -1297,7 +1300,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     if (problem is not None or _unclosed(site_warnings)) and not is_raster:
         # 2 Nov 2026 (real07: a sliding door, a garage door and an entrance without a symbol the openings reader
         # knows): wide gaps in the outer ring are inferred openings (``wide_gaps``)
-        bridged = _outer_gaps(ex, where, walls2, openings, blocks, level_id, site_warnings, problem)
+        bridged = _outer_gaps(ex, where, walls2, openings, blocks, level_id, site_warnings, problem, non_wall)
         if bridged is not None:
             walls2, openings, bwalls, site, site_warnings, b_openings, problem = bridged
     for w in site_warnings:

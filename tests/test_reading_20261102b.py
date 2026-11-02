@@ -225,3 +225,29 @@ def test_a_clear_cut_narrower_than_the_old_bins_is_found():
     c = SP._clear_cut(lo, hi, 0.1, 1.1, gap=0.144)
     assert c is not None and 0.60 <= c <= 0.62
     assert SP._clear_cut(np.array([0.0] * 10), np.array([2.0] * 10), 0.1, 1.1, gap=0.144) is None
+
+
+def test_plans_titled_by_their_elevation_take_one_storey_each():
+    # real12: '+13.30 KOT KAT PLANI' and '+16.30 KOTU KAT PLANI' above a titled '3. KAT PLANI (+10.30)'
+    def plan(text):
+        return SimpleNamespace(title={"text": text, "box": [0, 0, 1, 1]}, texts=[], evidence=[], file="x", id=text)
+    plans = [plan("ZEMİN KAT PLANI (±0.00)"), plan("3. KAT PLANI (+10.30)"), plan("+16.30 KOTU KAT PLANI"),
+             plan("+13.30 KOT KAT PLANI")]
+    words = {id(r): LV.level_of(r.title["text"]) for r in plans}
+    LV._by_title_elevation(plans, words, [])
+    assert words[id(plans[3])].order == 4 and words[id(plans[2])].order == 5
+
+
+def test_a_glazed_run_between_two_walls_bridges_an_open_facade():
+    # real09: the living room's facade to the balcony is a 4 m door-window run on 'kapı-pencere', no wall faces
+    from wenart.ingest.generic.model import Stroke
+    walls = [_wall((0, 0), (0, 5)), _wall((0, 5), (8, 5)), _wall((8, 5), (8, 0)), _wall((8, 0), (4, 0))]
+    glass = Stroke(id="LINE:G", kind="line", pts=[(0.1, 0.0), (3.9, 0.0)], layer="kapı-pencere")
+    railing = Stroke(id="LINE:R", kind="line", pts=[(0.1, -1.2), (3.9, -1.2)], layer="balkon")
+    got = WGP.joinery_bridges(walls, [], [glass, railing])
+    assert len(got) == 1 and got[0]["rule"] == "glazed_run" and got[0]["entity"] == "LINE:G"
+    w2, o2 = WGP.apply(walls, [], got)
+    assert w2[-1].evidence["rule"] == "glazed_run" and w2[-1].evidence["layer"] == "kapı-pencere"
+    assert o2[-1].type_raw.endswith("glazed_run)")
+    # a window line inside a wall's own gap is the openings reader's, never a bridge
+    assert WGP.joinery_bridges(walls, [], [Stroke(id="LINE:W", kind="line", pts=[(0, 1), (0, 3)], layer="PENCERE")]) == []

@@ -122,6 +122,58 @@ def bridges(walls: list) -> list[dict]:
     return out
 
 
+JOINERY_ROLES = ("window", "door", "glass")
+JOINERY_M = (0.6, 8.0)          # a glazed run this long (a window band to a storefront)
+JOINERY_REACH_M = 0.35          # ... with a wall within this of each of its ends
+
+
+def joinery_bridges(walls: list, openings: list, strokes: list) -> list[dict]:
+    """2 Nov 2026 (real09: the living rooms' facades to the balconies are glazed runs on 'kapı-pencere' with no wall
+    faces; real13: 3.35 m glazed facades on 'KAPI-GOR'): a straight line on a window, door or glass layer
+    (``layer_names``), ``JOINERY_M`` long, with a wall within ``JOINERY_REACH_M`` of both its ends and its middle in
+    no wall or opening, is a bridge along that line (a glazed wall whose frame the drawing shows instead of wall
+    faces). The parallel lines of one frame give one bridge."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if len(walls) < 2 or not strokes:
+        return []
+    polys = [TP.wall_polygon(w) for w in walls]
+    tree = STRtree(polys)
+    covered = TP.bridged_union(walls, openings)
+    out: list[dict] = []
+    for st in strokes:
+        if getattr(st, "arc", None) or LN.layer_role(getattr(st, "layer", None)) not in JOINERY_ROLES:
+            continue
+        pts = list(getattr(st, "pts", []) or [])
+        if len(pts) < 2:
+            continue
+        a, b = tuple(pts[0]), tuple(pts[-1])
+        L = math.dist(a, b)
+        if not (JOINERY_M[0] <= L <= JOINERY_M[1]):
+            continue
+        if len(pts) > 2 and LineString(pts).length > L * 1.02:
+            continue                                       # not straight
+        mid = Point((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+        if covered.contains(mid):
+            continue                                       # a window in a wall gap: the openings reader has it
+        near_a = [int(i) for i in tree.query(Point(a).buffer(JOINERY_REACH_M), predicate="intersects")]
+        near_b = [int(i) for i in tree.query(Point(b).buffer(JOINERY_REACH_M), predicate="intersects")]
+        if not near_a or not near_b:
+            continue
+        ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
+        start = (a[0] - ux * JOINERY_REACH_M, a[1] - uy * JOINERY_REACH_M)
+        end = (b[0] + ux * JOINERY_REACH_M, b[1] + uy * JOINERY_REACH_M)
+        k = min(near_a + near_b, key=lambda i: polys[i].distance(mid))
+        t = min(float(walls[k].thickness), 0.3)
+        if any(LineString([x["start"], x["end"]]).buffer(max(t, 0.3)).contains(mid) for x in out):
+            continue                                       # another line of the same frame
+        out.append({"wall": k, "start": (round(start[0], 4), round(start[1], 4)),
+                    "end": (round(end[0], 4), round(end[1], 4)), "width": round(L, 3), "to": None,
+                    "from_free_end": None, "entity": getattr(st, "id", None), "layer": getattr(st, "layer", None),
+                    "thickness": t, "rule": "glazed_run"})
+    return out
+
+
 def apply(walls: list, openings: list, chosen: list[dict]) -> tuple[list, list]:
     """``(walls, openings)`` with the chosen bridges as inferred walls carrying unverified openings."""
     from wenart.ingest.model import OpeningItem, WallItem
@@ -134,7 +186,14 @@ def apply(walls: list, openings: list, chosen: list[dict]) -> tuple[list, list]:
                   f"door or an entrance)")
         ev = dict(a.evidence or {})
         ev.update(method="inferred", confidence=0.6, rule="wide_gap", reason=reason)
-        walls.append(WallItem(start=b["start"], end=b["end"], thickness=float(a.thickness), box=list(a.box),
+        if b.get("rule") == "glazed_run":
+            reason = (f"the outer walls did not close: a {b['width']:.2f} m glazed run on layer '{b.get('layer')}' "
+                      f"between two walls stands where the drawing shows no wall faces (a glazed wall or a "
+                      f"storefront)")
+            ev.update(rule="glazed_run", reason=reason, entity=b.get("entity") or ev.get("entity"),
+                      layer=b.get("layer"))
+        walls.append(WallItem(start=b["start"], end=b["end"], thickness=float(b.get("thickness") or a.thickness),
+                              box=list(a.box),
                               entity=f"inferred:wide_gap:{n}", evidence=ev, exterior=True, status="unverified",
                               inferred=True))
         (x0, y0), (x1, y1) = b["start"], b["end"]
@@ -143,7 +202,8 @@ def apply(walls: list, openings: list, chosen: list[dict]) -> tuple[list, list]:
         openings.append(OpeningItem(kind="opening", width=round(b["width"], 3),
                                     center=(round((x0 + x1) / 2.0, 4), round((y0 + y1) / 2.0, 4)), rotation_deg=rot,
                                     box=list(a.box), entity=f"inferred:wide_gap:{n}", evidence=oev,
-                                    status="unverified", type_raw="wide gap in the outer wall (rule wide_gap)",
+                                    status="unverified", type_raw=f"wide gap in the outer wall (rule "
+                                                                  f"{b.get('rule') or 'wide_gap'})",
                                     operation="unknown", operation_source="assumed"))
     return walls, openings
 

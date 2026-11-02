@@ -269,12 +269,21 @@ _ELEVATION_RE = re.compile(r"\(\s*([+\-±]?\s*\d{1,3}[.,]\d{1,3})(?:\s*[-/]\s*([
 STOREY_M = 3.0                      # a typical plan's elevation range: its storeys at about this height
 
 
+_KOT_ELEVATION_RE = re.compile(r"(?<![\d.,])([+\-±]?\s*\d{1,3}[.,]\d{2})\s*KOTU?\b")
+
+
 def title_elevations(text: Optional[str]) -> Optional[tuple[float, float]]:
     """The floor elevation(s) a title gives in brackets: ``(8,50)`` -> (8.5, 8.5), ``(2,50-5,50)`` -> (2.5, 5.5),
-    ``(+5.20 KOTU)`` -> (5.2, 5.2); None without one."""
-    m = _ELEVATION_RE.search(_fold(text or ""))
+    ``(+5.20 KOTU)`` -> (5.2, 5.2); or as a level mark named KOT / KOTU (real12: ``+3.00 KOTU KAT PLANI``); None
+    without one."""
+    folded = _fold(text or "")
+    m = _ELEVATION_RE.search(folded)
     if not m:
-        return None
+        k = _KOT_ELEVATION_RE.search(folded)
+        if not k:
+            return None
+        v = float(k.group(1).replace(" ", "").replace("±", "").replace(",", "."))
+        return v, v
     vals = [float(g.replace(" ", "").replace("±", "").replace(",", ".")) for g in m.groups() if g]
     return min(vals), max(vals)
 
@@ -314,17 +323,22 @@ def _by_title_elevation(plans: list, words: dict, warnings: Optional[list] = Non
     titled plan above it (if any) lies higher. Its label is its own title's name ('Dubleks Kat')."""
     titled = []
     for r in plans:
-        lw, el = words[id(r)], region_elevations(r)
-        if lw is not None and el is not None:
-            titled.append((el, r, lw))
-    if not titled:
-        return
-    for r in plans:
-        if words[id(r)] is not None or not r.title:
+        lw = words[id(r)]
+        if lw is None:
             continue
         el = region_elevations(r)
         if el is None:
-            continue
+            try:                                           # real12: 'ZEMİN KAT PLANI' with no elevation in its title
+                fm = floor_mark(r)
+            except Exception:  # noqa: BLE001 - a plan without readable marks has no elevation
+                fm = None
+            el = (fm, fm) if fm is not None else None
+        if el is not None:
+            titled.append((el, r, lw))
+    if not titled:
+        return
+    untitled = [(region_elevations(r), r) for r in plans if words[id(r)] is None and r.title]
+    for el, r in sorted(((e, r) for e, r in untitled if e is not None), key=lambda t: t[0][0]):
         below = [(e, x, lw) for e, x, lw in titled if e[1] < el[0] and lw.order is not None]
         above = [(e, x, lw) for e, x, lw in titled if e[0] > el[1]]
         if not below:
@@ -338,6 +352,7 @@ def _by_title_elevation(plans: list, words: dict, warnings: Optional[list] = Non
         label = " ".join(w.capitalize() for w in name.split()) or f"{order}. Kat"
         words[id(r)] = LevelWord(order=order, kind="floor", label=label, word=r.title["text"].strip(),
                                  language="tr")
+        titled.append((el, r, words[id(r)]))               # the next plan up stands above this one
         if warnings is not None:
             warnings.append(f"{getattr(r, 'file', '')} {getattr(r, 'id', '')}: plan without a level word: level "
                             f"{B.level_id(order)} '{label}' inferred from its title elevation {el[0]:+.2f} m (the storey "
