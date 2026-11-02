@@ -45,6 +45,25 @@ def _renamed(value, rename: dict, tag: str = "", new_tag: str = ""):
     return value
 
 
+TYPICAL_FURNISH_EACH_MAX = 3   # identical floors (a typical floor and its copies) up to this many are each furnished
+STAIR_TYPES = ("stair", "stairs", "staircase")      # kept on an unfurnished copy: the stair is the building's
+
+
+def unfurnished_copies(building: dict) -> dict[str, str]:
+    """``{copy level: typical floor}``: the copies left unfurnished (pure). User rule of 2 Nov 2026 ("for the buildings
+    with the same exact floors more than 3 floors, we can skip the furnishing of the each exact floors, only 1 example
+    floor furnishing would be enough"): when a typical floor and its copies are more than ``TYPICAL_FURNISH_EACH_MAX``
+    identical floors, only the typical floor is furnished; its copies keep their stairs and nothing else."""
+    levels = {lv["id"]: lv for lv in building.get("levels") or [] if isinstance(lv, dict) and lv.get("id")}
+    groups: dict = {}
+    for lid, lv in levels.items():
+        base = lv.get("typical_of")
+        if base and base in levels and base != lid:
+            groups.setdefault(base, []).append(lid)
+    return {c: base for base, copies in groups.items() if 1 + len(copies) > TYPICAL_FURNISH_EACH_MAX
+            for c in copies}
+
+
 def furnish_typical_copies(building: dict) -> list[dict]:
     """Every level that is a typical floor's copy (``typical_of``) furnished as its typical floor (in place; pure):
     its furniture and decor are replaced by the typical floor's, with the ids moved to the copy's level (``_<typical>_``
@@ -66,7 +85,27 @@ def furnish_typical_copies(building: dict) -> list[dict]:
     all_ids = {e["id"] for v in building.values() if isinstance(v, list) for e in v
                if isinstance(e, dict) and isinstance(e.get("id"), str)}
     records = []
+    bare = unfurnished_copies(building)
     for copy_id, base in sorted(base_of.items()):
+        if copy_id in bare:
+            counts = {}
+            for key in TYPICAL_FURNISHED:
+                old = building.get(key) or []
+                on = [e for e in old if isinstance(e, dict) and e.get("level_id") == copy_id]
+                keep = [e for e in on if key == "furniture" and str(e.get("type") or "").lower() in STAIR_TYPES]
+                building[key] = [e for e in old if not (isinstance(e, dict) and e.get("level_id") == copy_id)
+                                 or e in keep]
+                counts[key] = {"was": len(on), "now": len(keep)}
+            n = 1 + sum(1 for b in base_of.values() if b == base)
+            records.append({"object": f"level_{copy_id}", "field": "furnishing", "value": "none",
+                            "kind": "typical_copy", "parent": f"level_{copy_id}", "counts": counts,
+                            "reason": (f"{copy_id} is one of {n} identical floors (a copy of the typical floor {base}, "
+                                       f"typical_of): only {base} is furnished, as the example floor (user rule of 2 Nov "
+                                       f"2026: more than {TYPICAL_FURNISH_EACH_MAX} identical floors, one example floor "
+                                       f"furnished); its {counts['furniture']['was']} pieces and "
+                                       f"{counts['decor']['was']} decor items are left out, its stairs kept "
+                                       f"({counts['furniture']['now']})")})
+            continue
         tag, new_tag = f"_{base}_", f"_{copy_id}_"
         dz = float(levels[copy_id].get("elevation") or 0.0) - float(levels[base].get("elevation") or 0.0)
         rename: dict = {}

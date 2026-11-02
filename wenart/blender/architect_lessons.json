@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-01",
+ "updated": "2026-11-02",
  "lessons": [
   {
    "id": "UL01",
@@ -3009,6 +3009,16 @@
    "checks": [],
    "request": "A project without a style prompt or photos gets a modern style, listed as inferred (user, real10, 1 Nov 2026: 'modern style is fine')",
    "lesson": "A project without a style prompt or photos gets a modern style, listed as inferred (user, real10, 1 Nov 2026: 'modern style is fine')",
+   "question": null
+  },
+  {
+   "id": "UL254",
+   "date": "2026-11-02",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Buildings with more than 3 identical floors (a typical floor and its copies): only one example floor is furnished; the other identical floors are not furnished (their stairs stay). Up to 3 identical floors are each furnished, built as linked copies of the first. (user, 2 Nov 2026: 'for the buildings with the same exact floors more than 3 floors, we can skip the furnishing of the each exact floors, only 1 example floor furnishing would be enough')",
+   "lesson": "Buildings with more than 3 identical floors (a typical floor and its copies): only one example floor is furnished; the other identical floors are not furnished (their stairs stay). Up to 3 identical floors are each furnished, built as linked copies of the first. (user, 2 Nov 2026: 'for the buildings with the same exact floors more than 3 floors, we can skip the furnishing of the each exact floors, only 1 example floor furnishing would be enough')",
    "question": null
   }
  ]

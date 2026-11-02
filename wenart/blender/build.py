@@ -1433,7 +1433,10 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
         from wenart.blender.typical_copies import furnish_typical_copies
         for rec in furnish_typical_copies(vb):
             out["assumed"].append(rec)
-            out["typical_copies"][rec["object"][len("level_"):]] = rec["value"][len("as "):]
+            if rec["value"].startswith("as "):          # furnished as the typical floor: built as linked duplicates
+                out["typical_copies"][rec["object"][len("level_"):]] = rec["value"][len("as "):]
+            else:                                       # left unfurnished (more than 3 identical floors)
+                out.setdefault("unfurnished_copies", []).append(rec["object"][len("level_"):])
     # 27 Oct 2026 (real06's first floor: the stair arrived on a strip by the outer wall that its floor opening cut off
     # from the hall; user: "Needs a pathway here, how will the people go up to 2nd floor otherwise?"): before anything
     # is planned, every stair of a whole building must lead into its floors; an assumed stair that does not takes the
@@ -1948,9 +1951,12 @@ def main(argv: list[str]) -> int:
         for line in replayed_moves(replayed, camera_building(building, fit_not_built)):
             print(f"camera replay: {line}")
         # fix round after P5 (22 Oct 2026): the search sees the decor that is built (camera_building)
+        # 2 Nov 2026 (real10: 7 identical floors, one rendered): a level with no room to render needs no search (its
+        # plans would all be dropped by the filter below)
+        searched = level_room_ids & render_rooms
         plans = [p for p in cams.plan_cameras(camera_building(building, fit_not_built), level["id"],
                                               policy=args.camera_policy, lens_mm=args.lens_mm)
-                 if p.get("room_id") in render_rooms]
+                 if p.get("room_id") in render_rooms] if searched else []
         if covered and not cameras_extra:
             plans = [p for p in plans if p.get("room_id") not in covered]
         elif covered:
@@ -1959,7 +1965,7 @@ def main(argv: list[str]) -> int:
                     p["name"] = p["name"] + EXTRA_CAMERA_SUFFIX
                     p["extra"] = True
         no_view = [r for r in cams.rooms_without_view(building, level["id"], policy=args.camera_policy)
-                   if r.get("room_id") in render_rooms and r.get("room_id") not in covered]
+                   if r.get("room_id") in render_rooms and r.get("room_id") not in covered] if searched else []
         rooms_without_view.extend(no_view)
         warnings.extend(f"{r['room_id']}: no view ({r['reason']})" for r in no_view)
         for plan in plans:

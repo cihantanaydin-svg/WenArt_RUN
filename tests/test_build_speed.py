@@ -156,3 +156,37 @@ def test_copy_entries_and_summary():
     name_of, id_of = TC.renamer("L0", "L1")
     assert name_of("decor_dec_L0_003") == "decor_dec_L1_003" and name_of("4364 > root") == "4364 > root@L1"
     assert id_of("f_L0_001") == "f_L1_001" and id_of(5) == 5
+
+
+def _floors(n):
+    levels = [{"id": "L0", "elevation": 0.0}] + [{"id": f"L{k}", "elevation": 3.0 * k, "typical_of": "L0"}
+                                                 for k in range(1, n)]
+    b = {"levels": levels, "rooms": [], "furniture": [], "decor": []}
+    for lv in levels:
+        b["rooms"].append({"id": f"r_{lv['id']}_salon", "level_id": lv["id"], "polygon": [[0, 0], [4, 0], [4, 4]]})
+        b["furniture"] += [{"id": f"f_{lv['id']}_001", "level_id": lv["id"], "type": "sofa",
+                            "room_id": f"r_{lv['id']}_salon"},
+                           {"id": f"f_{lv['id']}_002", "level_id": lv["id"], "type": "stairs"}]
+        b["decor"].append({"id": f"dec_{lv['id']}_001", "level_id": lv["id"], "host_id": f"f_{lv['id']}_001"})
+    return b
+
+
+def test_more_than_three_identical_floors_furnish_one_example_floor():
+    """UL254 (user, 2 Nov 2026): more than 3 identical floors, one example floor furnished; the copies keep stairs."""
+    from wenart.blender import typical_copies as TC
+    b = _floors(7)
+    assert TC.unfurnished_copies(b) == {f"L{k}": "L0" for k in range(1, 7)}
+    recs = TC.furnish_typical_copies(b)
+    assert {r["value"] for r in recs} == {"none"} and len(recs) == 6
+    assert [f["id"] for f in b["furniture"] if f["level_id"] != "L0"] == [f"f_L{k}_002" for k in range(1, 7)]
+    assert [d["id"] for d in b["decor"]] == ["dec_L0_001"]
+    assert recs[0]["counts"] == {"furniture": {"was": 2, "now": 1}, "decor": {"was": 1, "now": 0}}
+
+
+def test_up_to_three_identical_floors_are_each_furnished_as_copies():
+    from wenart.blender import typical_copies as TC
+    b = _floors(3)
+    assert TC.unfurnished_copies(b) == {}
+    recs = TC.furnish_typical_copies(b)
+    assert [r["value"] for r in recs] == ["as L0", "as L0"]
+    assert sorted(f["id"] for f in b["furniture"] if f["level_id"] == "L2") == ["f_L2_001", "f_L2_002"]

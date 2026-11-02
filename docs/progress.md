@@ -3101,3 +3101,22 @@ real01's and the synthetic separator tests caught it). Checked here: the real03 
 removed (real03 reads as before: 8 bathrooms, 25 doors, 22 windows; one separator more between its living room and
 entrance hall). Not checked here: the Blender build (no Blender in this session), so the parapets, the stair-house
 roof and the street are first seen on the pod.
+
+## real10 run 20261101-233829-full (2 Nov 2026, pod c9lwtkfpqzh98k, RTX PRO 6000, 242 min, $10.04): no renders
+
+Stages 0-12 (reading, recognition, layout, decor, fit) were ok in about 30 min; the Blender build then ran about
+198 min without finishing and the watchdog stopped the pod at 240 min. Cause, found with a profiler on the collected
+model (`py-spy`, `cProfile`) and a local CPU build (`pip install bpy==5.2.2`, the pod's Blender, works in the cloud
+session): the build's `prepare` carries out the architect's safe defaults; 637 of them (about 80 a floor, the same
+points on 7 identical floors), and when a combined round opened a new point every default was tried alone, one plan
+round each (30-70 s on 9 floors): many hours. Fixes, each general (`tests/test_build_speed.py`):
+
+| what | rule |
+|---|---|
+| the floor outline (`geom2d.rect_union_outline`) tested every grid cell against every wall box (1.5 s a floor, called per floor in every round and every answer) | the covered cells by bisection on the sorted cell centres; the outline of a wall set and `close_jogs` cached by their input; `_drop_collinear` steps back one point after a deletion instead of starting over; `simple_polygon` sweeps the edges by x; `point_in_polygon` takes the exact edge distance only inside the edge's box; the site's 2 cm wall probes test only the polygons whose box holds them; room lookups per floor with boxes; the fixture seat tests only the obstacles whose box overlaps. A whole prepare round on real10: identical output, 72.8 s -> 9.5 s |
+| 637 defaults tried alone | the same point on a typical floor and its copies is one unit (`build.typical_units`, same id pattern, same place within 1 cm); the units that open a new point are found by halving (`build.refused_units`): real10's full prepare in 7 min (34 plan rounds, 762 defaults kept, 16 refused) |
+| the copies furnished on their own (the model picks varied floor by floor): 1,156 pieces and 1,601 decor items, about 0.6 s each in the build | user rule of 2 Nov 2026 (UL254): more than 3 identical floors, only the typical floor is furnished, the copies keep their stairs only (`typical_copies.unfurnished_copies`, listed as assumed); up to 3 identical floors are each furnished as the typical floor and built as linked duplicates of its objects (`typical_copies.copy_furniture`, a few ms a floor; falls back to building the pieces on any error) |
+| the camera search ran on every floor and dropped the rooms not rendered | a floor with no rendered room is not searched |
+
+Checked here: the local CPU build of real10 (no textures, no library models) ran to the end (rc 0, 23.6 min on 4
+shared CPUs; 6 floors of linked duplicates, 1,782 copied manifest entries) before the one-example-floor rule.
