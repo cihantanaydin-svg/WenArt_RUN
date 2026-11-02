@@ -240,7 +240,9 @@ def test_the_rig_light_on_the_walls_takes_the_corridors_cast_out():
         assert source == "walls" and share == pytest.approx(e["wb_walls"]["rig_share"])
         wp = R.mixed_whitepoint(e["wb_project_whitepoint"], rgb, share, 0.35, R.WB_RIG_RESIDUAL)
         casts[cam] = rb(light) / rb(wp)
-        assert casts[cam] < before - 0.15, (cam, casts[cam])
+        # 2 Nov 2026 (house score item 4: WB_RIG_RESIDUAL 0.1 keeps a little of the lamps' warmth): at least 0.10
+        # less cast than the run's (0.15 with no residual); the guard below, the daylight bedrooms' cast, is unchanged
+        assert casts[cam] < before - 0.10, (cam, casts[cam])
     # the corridors' walls keep no more cast than the project's daylight bedrooms keep on theirs (1.30-1.61)
     days = [rb(_exposure(rm, c)["wb_walls"]["light_rgb"]) / rb(_exposure(rm, c)["whitepoint"])
             for c in ("cam_r_L0_yatak_odasi_1", "cam_r_L0_yatak_odasi_2", "cam_r_L0_yatak_odasi_3",

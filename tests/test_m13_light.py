@@ -937,9 +937,12 @@ def test_fixround_p3_the_view_white_point_mixes_daylight_and_the_rig_by_its_shar
     # the project's daylight colour is recovered from its white point: the residual-corrected mix of share 0 is it
     day = R.normalise_whitepoint([v ** (1 / 0.65) for v in P3_ANCHOR])
     assert R.whitepoint_from(day, 0.35) == pytest.approx(P3_ANCHOR, abs=1e-5)
-    full = R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 1.0, 0.35)
+    full = R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 1.0, 0.35, 0.0)
     rig = R.normalise_whitepoint(RIG_2700K)
     assert full == pytest.approx(R.normalise_whitepoint([rig[i] / day[i] ** 0.35 for i in range(3)]), abs=1e-6)
+    # 2 Nov 2026 (house score item 4): the default leaves WB_RIG_RESIDUAL of the rig's warmth on white (a lower R/B
+    # white point: the lamp-lit wall stays a little warm)
+    assert _rb(R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 1.0, 0.35)) < _rb(full)
     ratios = [_rb(R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, s, 0.35)) for s in (0.0, 0.25, 0.5, 0.75, 1.0)]
     assert ratios == sorted(ratios) and ratios[0] < ratios[-1]                    # warmer with the rig's share
     # A white tile lit by the rig alone, scene-linear (pixel = light / white point): under the project point it is
@@ -951,7 +954,7 @@ def test_fixround_p3_the_view_white_point_mixes_daylight_and_the_rig_by_its_shar
     assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 1.0, 1.0) == pytest.approx(P3_ANCHOR, abs=1e-5)
     assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, None, 0.35) == pytest.approx(P3_ANCHOR, abs=1e-5)
     assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, float("nan"), 0.35) == pytest.approx(P3_ANCHOR, abs=1e-5)
-    assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 2.0, 0.35) == pytest.approx(full, abs=1e-6)
+    assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 2.0, 0.35, 0.0) == pytest.approx(full, abs=1e-6)
     neutral = R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 1.0, 0.0)
     assert _rb([RIG_2700K[i] / neutral[i] for i in range(3)]) == pytest.approx(1.0, abs=1e-4)
     # the rig share: 1 - daylight / all light (luminance of the two metered illuminants)
@@ -2237,8 +2240,8 @@ def test_fixround_p4b_the_white_point_follows_the_camera_rooms_rig(tmp_path, mon
     day = R.normalise_whitepoint([v ** (1 / 0.65) for v in P4B_ANCHOR])
     cast = _rb([d ** 0.35 for d in day])
     hall = R.normalise_whitepoint(WP_4000K)
-    right = R.mixed_whitepoint(P4B_ANCHOR, WP_4000K, 1.0, 0.35)
-    wrong = R.mixed_whitepoint(P4B_ANCHOR, WP_2700K, 1.0, 0.35)
+    right = R.mixed_whitepoint(P4B_ANCHOR, WP_4000K, 1.0, 0.35, 0.0)        # (2 Nov 2026: no extra rig warmth)
+    wrong = R.mixed_whitepoint(P4B_ANCHOR, WP_2700K, 1.0, 0.35, 0.0)
     assert cast == pytest.approx(1.271, abs=2e-3)
     assert _rb([a / b for a, b in zip(hall, right)]) == pytest.approx(cast, abs=1e-3)
     assert _rb([a / b for a, b in zip(hall, wrong)]) == pytest.approx(0.335, abs=2e-3)
@@ -2269,7 +2272,7 @@ def test_fixround_p4b_the_white_point_follows_the_camera_rooms_rig(tmp_path, mon
         assert gain == pytest.approx((1.0 / R.green_ratio(P4B_ANCHOR)) ** 0.1, abs=1e-6) and gain < 1.0
         assert rec["wb_day_green"] == 1.0 and rec["wb_view_tint_gain"] == gain
         assert rec["whitepoint"] == pytest.approx(
-            R.tinted_whitepoint(R.mixed_whitepoint(P4B_ANCHOR, rig, 0.9, 0.35, 0.0), gain), abs=1e-9)
+            R.tinted_whitepoint(R.mixed_whitepoint(P4B_ANCHOR, rig, 0.9, 0.35, R.WB_RIG_RESIDUAL), gain), abs=1e-9)
     # the diagnostic share: the block medians, clamped; never None for a view with light
     assert R.rig_share_p50(0.18159, 0.089643) == pytest.approx(0.506, abs=1e-3)       # P4b banyo_6_1 (sums: 0.439)
     assert R.rig_share_p50(0.1, 0.2) == 0.0 and R.rig_share_p50(0.1, None) == 1.0
@@ -3118,12 +3121,14 @@ def test_fixround_p5_view_white_tints_the_daylight_views_only(tmp_path, monkeypa
     assert share == pytest.approx(0.66, abs=0.01) and rec["wb_view_tint_gain"] == R.view_tint_gain(P5_ANCHOR, rec["wb_day_green"], 0.35,
                                                                                share)
     rig = R.normalise_whitepoint(WP_2700K)
-    assert rec["whitepoint"] == pytest.approx(R.tinted_whitepoint(R.mixed_whitepoint(P5_ANCHOR, rig, share, 0.35, 0.0),
+    assert rec["whitepoint"] == pytest.approx(R.tinted_whitepoint(R.mixed_whitepoint(P5_ANCHOR, rig, share, 0.35,
+                                                                                     R.WB_RIG_RESIDUAL),
                                                                   rec["wb_view_tint_gain"]), abs=1e-9)
     assert rec["wb_view_rule"].startswith(R.WB_VIEW_RULE)
     rec = view(None, [0.1, 0.1, 0.1])                                        # the rig alone: no daylight
     assert rec["wb_rig_share"] == 1.0 and rec["wb_day_green"] is None and rec["wb_view_tint_gain"] == 1.0
-    assert rec["whitepoint"] == pytest.approx(R.mixed_whitepoint(P5_ANCHOR, rig, 1.0, 0.35, 0.0), abs=1e-9)
+    assert rec["whitepoint"] == pytest.approx(R.mixed_whitepoint(P5_ANCHOR, rig, 1.0, 0.35, R.WB_RIG_RESIDUAL),
+                                              abs=1e-9)
     rec = view(green_day, kind="exterior")                                   # under the exterior sky: the anchor
     assert rec["whitepoint"] == P5_ANCHOR and "wb_view_tint_gain" not in rec
     monkeypatch.setattr(R, "rig_objects", lambda scene: [])                  # no rig: the metered light is daylight
