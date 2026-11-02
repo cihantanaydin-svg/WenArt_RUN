@@ -503,7 +503,8 @@ def referenced_asset_ids(building: dict, style: dict) -> list[str]:
     hdri = (style.get("lighting") or {}).get("hdri")
     if hdri:
         ids.add(str(hdri))
-    # 2 Nov 2026: the pure sky of the exterior views' cloud layer (a build cached before it reached the volume is redone)
+    # 2 Nov 2026: the pure sky of the exterior views' cloud layer (a build cached before it was on the volume is
+    # redone)
     try:
         from wenart.blender import materials as M
         cloud = M.exterior_cloud_sky(style.get("lighting") or {}).get("hdri")

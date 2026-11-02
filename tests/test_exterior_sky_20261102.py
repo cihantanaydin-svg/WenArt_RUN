@@ -71,7 +71,8 @@ def test_each_mood_gets_a_pure_sky_and_a_sunless_mood_keeps_the_physical_sky():
     assert {M.PURESKY_HDRIS[M.EXTERIOR_CLOUD_SKIES[m]]["sky"] for m in ("overcast", "cloudy soft")} == {"overcast"}
     assert M.PURESKY_HDRIS[pick["warm daylight"]]["sky"] == "partly cloudy"
     # the overcast moods reuse their own interior HDRI (already a pure sky)
-    assert pick["overcast"] == V.LIGHTING["overcast"]["hdri"] and pick["cloudy soft"] == V.LIGHTING["cloudy soft"]["hdri"]
+    assert pick["overcast"] == V.LIGHTING["overcast"]["hdri"]
+    assert pick["cloudy soft"] == V.LIGHTING["cloudy soft"]["hdri"]
     # an unknown daytime mood takes the default, a lighting without mood or with the sun down none
     assert M.exterior_cloud_sky({"mood": "studio sun", "sun_elevation_deg": 40})["hdri"] == M.EXTERIOR_CLOUD_DEFAULT
     assert M.exterior_cloud_sky({})["hdri"] is None
@@ -198,9 +199,9 @@ def test_the_render_manifest_names_the_sky_each_view_saw():
 def test_attribution_credits_the_exterior_pure_sky(tmp_path):
     from wenart.run import copy as CO
 
+    sky_file = "/a/hdris/kloofendal_38d_partly_cloudy_puresky_2k.hdr"
     scene = {"lighting": {"world": {"kind": "hdri", "file": "/a/hdris/kloppenheim_06_2k.hdr"},
-                          "world_exterior": {"clouds": {"used": True,
-                                                        "file": "/a/hdris/kloofendal_38d_partly_cloudy_puresky_2k.hdr"}}}}
+                          "world_exterior": {"clouds": {"used": True, "file": sky_file}}}}
     (tmp_path / "scene").mkdir()
     (tmp_path / "scene" / "scene_manifest.json").write_text(json.dumps(scene), encoding="utf-8")
     credits = {c["asset_id"]: c for c in CO.texture_credits(tmp_path)}
@@ -295,7 +296,8 @@ def test_a_house_stands_on_each_neighbour_plot_set_back_and_never_on_ours():
         assert c["width_m"][0] - 1e-6 <= h["width_m"] <= c["width_m"][1] + 1e-6
         assert c["depth_m"][0] - 1e-6 <= h["depth_m"] <= c["depth_m"][1] + 1e-6
         assert h["storeys"] in (1, 2) and h["roof"] in ("gable", "flat")
-        assert h["inferred"] is True and h["source"] == "inferred" and h["context"] is True and "inferred" in h["reason"]
+        assert h["inferred"] is True and h["source"] == "inferred" and h["context"] is True
+        assert "inferred" in h["reason"]
         assert h["hidden_rays"] == list(S.CONTEXT_HIDDEN_RAYS) and "visible_shadow" in h["hidden_rays"]
         assert h["base_z"] < 0.0 < h["eave_z"] < h["top_z"] < 12.0
         gate = next(s for s in by_plot[h["plot"]]["fence"] if s["kind"] == "gate")      # the front holds the gate
