@@ -1615,13 +1615,64 @@ def move_targets(plan: Plan, piece_id: str, text: str = "") -> list[str]:
     return [i for _d, i in sorted(near)]
 
 
+def approach_strips(plan: Plan, o: dict, room: Optional[dict]) -> list:
+    """The code critic's approach strip of door or doorless opening ``o`` in ``room`` (``placer.room_context``'s door
+    zone, the strip F7 measures; 2 Nov 2026, rule B) as one convex outline a move pushes a piece out of; [] for a
+    window, without a room, or when the critic does not see the opening from that room."""
+    from wenart.furniture import placer
+
+    if room is None or o.get("type") == "window":
+        return []
+    try:
+        ctx = placer.room_context(plan.b, room, walkways=False)
+    except Exception:  # noqa: BLE001 - a room without a usable outline: the doorway box alone
+        return []
+    out = []
+    for d in ctx.doors:
+        if d.id != o.get("id") or d.zone is None or d.zone.is_empty:
+            continue
+        hull = d.zone.convex_hull
+        if hull.geom_type == "Polygon":
+            out.append([(float(x), float(y)) for x, y in list(hull.exterior.coords)[:-1]])
+    return out
+
+
+def still_blocks(plan: Plan, moved: dict, door_ids: list) -> Optional[str]:
+    """Why the piece ``moved`` (a copy at its new place) still blocks one of ``door_ids`` by the code critic's measure
+    (``plausibility.door_measures``: on the approach strip over its area threshold, F7, or in the leaf's swing on both
+    hinge sides, R3), None when it blocks none (2 Nov 2026, rule B: the architect's move and the critic agree)."""
+    from wenart.furniture import plausibility as PL
+
+    room = plan.room.get(moved.get("room_id"))
+    if room is None or not door_ids:
+        return None
+    trial = dict(plan.b, furniture=[moved if g.get("id") == moved.get("id") else g
+                                    for g in plan.b.get("furniture") or []])
+    try:
+        measures = PL.door_measures(trial, room)
+    except Exception:  # noqa: BLE001 - not measurable: the move's own checks stand
+        return None
+    for m in measures:
+        if m["door"] not in door_ids or moved.get("id") not in m["blockers"]:
+            continue
+        area = m["approach"].get(moved.get("id"))
+        if area is not None:
+            return (f"it would still cover {area:.2f} m2 of the {float(m['approach_m']):.1f} m approach strip of "
+                    f"{m['door']} (the code critic's F7 allows {float(m['area_min_m2']):.2f} m2)")
+        return f"the leaf of {m['door']} would still swing into it on both hinge sides (the code critic's R3)"
+    return None
+
+
 def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from=None):
     """The piece moved the shortest way out of the doorway or the window strip of the openings ``away_from`` names
     and off the pieces it names (ids, a list or comma separated; 27 Oct 2026: a piece too, e.g. a basin over a
     drawn bath) to a free place in its room (``clashes.find_unit_place``: inside the room, clear of the other pieces
     and the doorways; at most 0.5 m for a drawn piece, 1 m for an added one). 27 Oct 2026: a drawn fixture first
     slides along its wall, else is seated in its drawn outline (``fixture_seat.free_fixture``, ``clashes.apply_fixture``:
-    a misread or merged outline becomes the real product on a wall, the fitted model follows)."""
+    a misread or merged outline becomes the real product on a wall, the fitted model follows). 2 Nov 2026 (rule B): away
+    from a door or a doorless opening the piece also leaves the code critic's approach strip (``approach_strips``), and
+    a move that leaves it blocking the doorway by the critic's measure is refused (``still_blocks``), so the architect's
+    F2 and the critic's F7 / R3 agree on the result."""
     from wenart.blender import clashes as CL
 
     f = _piece(plan, piece_id)
@@ -1640,6 +1691,9 @@ def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from=Non
         return False, f"{piece_id}: no opening or piece {away_from} to move away from"
     away_from = ", ".join(ids)
     room = plan.room.get(f.get("room_id"))
+    door_ids = [i for i in ids if i in plan.openings and plan.openings[i].get("type") != "window"]
+    for i in door_ids:
+        box += approach_strips(plan, plan.openings[i], room)
     peers = [(g, CL.shape(g)) for g in plan.b.get("furniture") or [] if g is not f and g.get("build") is not False
              and g.get("footprint") and g.get("level_id") == f.get("level_id")
              and str(g.get("type") or "") not in CL.FLOOR_ONLY + CL.SKIP_TYPES]
@@ -1656,19 +1710,28 @@ def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from=Non
         fix = CL.FS.free_fixture(f, room["polygon"], box + [p for g, sg in peers if CL.must_clear(f, g) for p in sg]
                                  + [d for d in doors if CL.shape_depth(sf, [d]) <= CL.CLASH_TOL_M],
                                  allow_seat=fixture)
-        if fix is not None:
+        blocked = None
+        if fix is not None and door_ids:
+            trial = copy.deepcopy(f)
+            CL.apply_fixture(trial, fix, {"by": "architect", "rule": f"architect {key}"}, [])
+            blocked = still_blocks(plan, trial, door_ids)
+        if fix is not None and blocked is None:
             reason = f"{fix['reason']}, clear of {away_from} (the answer to {key})"
             CL.apply_fixture(f, fix, {"by": "architect", "rule": f"architect {key}", "reason": reason},
                              plan.b.get("decor") or [])
             _mark(f, "adjusted_by_ai", key, ans, reason)
             return True, f"{piece_id}: {reason}"
         if not fixture:
-            return False, (f"{piece_id}: no free place along its wall clear of {away_from}: a {f.get('type')} keeps "
-                           f"its back on the wall (it stays where it is)")
+            return False, (f"{piece_id}: no free place along its wall clear of {away_from}"
+                           + (f" ({blocked})" if blocked else "")
+                           + f": a {f.get('type')} keeps its back on the wall (it stays where it is)")
     move = CL.find_unit_place([f], box, peers, {f.get("room_id"): room["polygon"]} if room else {}, doors)
     if move is None:
         return False, f"{piece_id}: no free place within the move limit clear of {away_from}"
     dx, dy, dist = move
+    blocked = still_blocks(plan, CL._moved(f, dx, dy), door_ids)
+    if blocked:
+        return False, f"{piece_id}: the move of {dist:.2f} m clear of {away_from} is not enough: {blocked}"
     reason = f"moved {dist:.2f} m clear of {away_from} (the answer to {key})"
     f.setdefault("drawn_footprint", copy.deepcopy(f["footprint"]))
     f["footprint"] = CL._moved(f, dx, dy)["footprint"]

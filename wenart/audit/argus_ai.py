@@ -425,6 +425,14 @@ def argus_message(message) -> str:
     return ARGUS_PREFIX + text
 
 
+def seen_of(f: dict) -> dict:
+    """2 Nov 2026 (rule C, ``critic_vision.seen_fields``): the image a vision finding was seen on (``image_sha256``,
+    ``image_file``, ``image_view``, from the finding or its evidence), carried into the work Argus hands on, so the
+    agent's loop drops it once the view is re-rendered."""
+    from wenart.agent import critic_vision as CVS
+    return CVS.seen_fields(f) if isinstance(f, dict) else {}
+
+
 def _action(aid: str, tool: str, args: dict, f: dict, why: str, source: str) -> tuple[dict, dict]:
     """``(action, work finding)``: the tool call Argus makes and the finding it fixes (critic format, id ``a:<aid>``,
     the tool's cause), which joins the round's findings so the edit has its target."""
@@ -433,7 +441,8 @@ def _action(aid: str, tool: str, args: dict, f: dict, why: str, source: str) -> 
     work = {"id": fid, "check": str(f.get("check") or "AI"), "severity": f.get("severity") if f.get("severity") in
             ("critical", "major") else "major", "target": args.get("piece_id") or args.get("room_id") or
             args.get("view_id") or f.get("target"), "room_id": args.get("room_id"), "view": None, "source": "argus",
-            "message": argus_message(str(f.get('message') or '')[:300]), "argus_cause": cause, "fix": "argus_tool"}
+            "message": argus_message(str(f.get('message') or '')[:300]), "argus_cause": cause, "fix": "argus_tool",
+            **seen_of(f)}
     act = {"id": f"{source}:{aid}:{tool}:{work['target']}", "tool": tool, "args": args, "finding_id": fid,
            "why": str(why or "")[:240], "source": source, "cause": cause}
     return act, work
@@ -1074,7 +1083,7 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
         elif v.get("fix") in ("agent_round", "rerun_stage"):
             work.append({"aid": aid, "fix": v["fix"], "check": f.get("check"), "severity": f.get("severity"),
                          "target": f.get("target"), "message": f.get("message"), "cause": v.get("cause"),
-                         "why": v.get("why")})
+                         "why": v.get("why"), **seen_of(f)})
     found, dropped = discover(model, inp, rep, fact_lines, time_ok=time_ok, out=out, errors=errors, tools=tools,
                               values=values) if discover_on else ([], [])
     # 27 Oct 2026: the visitor's walk (one question per stair, outdoor space, floor) beside the open discovery
@@ -1199,7 +1208,8 @@ def work_findings(project_out) -> list[dict]:
             out.append(dict(w))
         elif w.get("fix") == "agent_round" and w.get("severity") in ("critical", "major"):
             out.append({"check": str(w.get("check") or "AI1"), "severity": w["severity"], "target": w.get("target"),
-                        "room": None, "view": None, "source": "argus", "message": argus_message(w.get("message"))})
+                        "room": None, "view": None, "source": "argus", "message": argus_message(w.get("message")),
+                        **({"evidence": seen_of(w)} if seen_of(w) else {})})
     return out
 
 

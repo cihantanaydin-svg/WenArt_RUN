@@ -46,13 +46,40 @@ JUDGE_LOW = 2                         # a view the judge scores this or lower is
 RECURRING = 2                         # a signature seen in this many runs or more is recurring
 
 
+# 2 Nov 2026 (rule C, ``critic_vision.SEEN_KEYS``): the image a vision finding was seen on, kept in its evidence
+SEEN_KEYS = ("image_sha256", "image_file", "image_view")
+
+
 def _norm(f: dict, line: str, default_check: str) -> dict:
     """A finding of an existing line in Argus's format (``kinds.finding``)."""
     return K.finding(line, str(f.get("check") or default_check), str(f.get("severity") or "minor"),
                      f.get("target") or f.get("room_id") or f.get("room") or f.get("view") or "building",
                      str(f.get("message") or f.get("what") or ""),
-                     evidence={k: f[k] for k in ("view", "room", "room_id", "metrics", "cause", "source") if f.get(k)},
+                     evidence={k: f[k] for k in ("view", "room", "room_id", "metrics", "cause", "source", "downgraded",
+                                                 *SEEN_KEYS) if f.get(k)},
                      owner=f.get("owner") or f.get("cause"), fix=f.get("fix"), kind=f.get("kind"))
+
+
+def now_images(inp: I.Inputs):
+    """2 Nov 2026 (rule C): the sha256 of each final render now by its file name (``critic_vision.image_shas`` on the
+    project's ``renders/``; a collected run's ``renders/<project>/``): a vision finding whose recorded image differs is
+    stale."""
+    from wenart.agent import critic_vision as CV
+    from wenart.agent.tools import FINAL_RENDER_DIR
+
+    if getattr(inp, "root", None) is None:
+        return lambda _name: None           # no project folder: nothing to compare, every finding is kept
+    root = Path(inp.root)
+    return CV.image_shas(root / FINAL_RENDER_DIR if getattr(inp, "layout", "pod") == "pod"
+                         else root / FINAL_RENDER_DIR / str(getattr(inp, "project", "")))
+
+
+def _stale_note(stale: list[dict]) -> Optional[str]:
+    if not stale:
+        return None
+    first = stale[0]
+    return (f"{len(stale)} stale vision finding(s) dropped (seen on an image the view's final render no longer is), "
+            f"e.g. {first.get('check')} {first.get('target')}: {str(first.get('stale'))[:160]}")
 
 
 def model_line(inp: I.Inputs) -> dict:
@@ -70,18 +97,36 @@ def inspector_line(inp: I.Inputs) -> dict:
     # 2 Nov 2026 (real04 run 20261101-093151-full: an Argus finding handed to the agent came back through the
     # inspector's record as new, was triaged and handed on again, five times, long after its view was fixed): the
     # inspector's findings that Argus itself handed on are not read back (Argus lists its own findings in its lines)
-    found = [_norm(f, "inspector", "Q?") for f in (rec.get("code") or []) + (rec.get("vision") or [])
-             if not (f.get("source") == "argus" or str(f.get("message") or "").startswith("Argus: "))]
-    return {"findings": found, "checked": {"round": rec.get("round"), **(rec.get("counts") or {})}}
+    rows = [f for f in (rec.get("code") or []) + (rec.get("vision") or [])
+            if not (f.get("source") == "argus" or str(f.get("message") or "").startswith("Argus: "))]
+    # 2 Nov 2026 (rule C): a vision row seen on other pixels than the view's final render now is dropped, logged here
+    from wenart.agent import critic_vision as CV
+    rows, stale = CV.drop_stale(rows, now_images(inp))
+    found = [_norm(f, "inspector", "Q?") for f in rows]
+    return {"findings": found, "checked": {"round": rec.get("round"), **(rec.get("counts") or {})},
+            "note": _stale_note(stale), "stale": [_stale_row("inspector", f) for f in stale]}
+
+
+def _stale_row(line: str, f: dict) -> dict:
+    """A stale finding as the report logs it (rule C)."""
+    return {"line": line, "check": f.get("check"), "target": f.get("target") or f.get("view"),
+            "view": f.get("view") or f.get("image_view"), "message": str(f.get("message") or f.get("note") or "")[:200],
+            "why": f.get("stale")}
 
 
 def judge_line(inp: I.Inputs) -> dict:
     rows = inp.rubric
     if not rows:
         return {"findings": [], "checked": {}, "note": "no rubric_per_view.json (the big loop did not measure)"}
-    out = []
+    from wenart.agent import critic_vision as CV
+    now = now_images(inp)
+    out, stale = [], []
     for r in rows:
         if not isinstance(r, dict):
+            continue
+        why = CV.stale_reason(r, now(r.get("image_file"))) if r.get("image_file") else None
+        if why:              # 2 Nov 2026 (rule C): the view was re-rendered after the judge looked
+            stale.append(_stale_row("judge", dict(r, check="J1", target=r.get("view"), stale=why)))
             continue
         s = r.get("client_ready_score")
         if isinstance(s, int) and s <= JUDGE_LOW:
@@ -91,11 +136,14 @@ def judge_line(inp: I.Inputs) -> dict:
                                  kind="taste"))
         for p in r.get("problems") or []:
             if isinstance(p, dict):
-                out.append(_norm(dict(p, view=r.get("view")), "judge", "J2"))
+                out.append(_norm(dict(p, view=r.get("view"), **CV.seen_fields(r)), "judge", "J2"))
     scores = [r.get("client_ready_score") for r in rows if isinstance(r, dict)
               and isinstance(r.get("client_ready_score"), int)]
     return {"findings": out, "checked": {"views": len(rows),
-                                         "mean": round(sum(scores) / len(scores), 2) if scores else None}}
+                                         "mean": round(sum(scores) / len(scores), 2) if scores else None},
+            "note": (f"{len(stale)} view(s) re-rendered after the judge looked: their rows are stale and dropped "
+                     f"({', '.join(str(x.get('view')) for x in stale[:6])})") if stale else None,
+            "stale": stale}
 
 
 def module_line(name: str, inp: I.Inputs) -> Optional[dict]:
@@ -258,7 +306,9 @@ def run(inp: I.Inputs) -> dict:
                           "note": r.get("note")} for n, r in per_line.items()},
             "warning_counts": per_line["process"].get("warning_counts"),
             "unmatched_warnings": per_line["process"].get("unmatched") or [],
-            "missing": list(inp.missing), "guards": guards_of(inp), "own_edits": own_edits(inp), "findings": rows}
+            "missing": list(inp.missing), "guards": guards_of(inp), "own_edits": own_edits(inp), "findings": rows,
+            # 2 Nov 2026 (rule C): the vision findings and judge rows dropped as stale, with the reason
+            "stale": [x for res in per_line.values() for x in res.get("stale") or []]}
 
 
 # ---------------------------------------------------------------------------------------------------- problem log
@@ -417,6 +467,12 @@ def report_md(rep: dict, prev: Optional[list] = None) -> str:
     if rep.get("unmatched_warnings"):
         lines_ += ["", "Warnings no rule knows yet (Argus AI reads each one; a new rule in ``process.WARN_RULES`` "
                    "when one keeps coming):", ""] + [f"- {_cell(w)[:300]}" for w in rep["unmatched_warnings"]]
+    if rep.get("stale"):
+        lines_ += ["", "## Stale vision findings (dropped)", "",
+                   "Seen on an image that the view's final render no longer is (its sha256 differs): the claim is about "
+                   "pixels nobody sees any more, so it is not counted (rule C of 2 Nov 2026).", ""]
+        lines_ += [f"- {x.get('line')}: {x.get('check')} {_cell(x.get('target'))}: {_cell(x.get('message'))[:160]} "
+                   f"({_cell(x.get('why'))[:200]})" for x in rep["stale"][:60]]
     if rep.get("missing"):
         lines_ += ["", f"Records Argus could not read: {', '.join(rep['missing'])}."]
     return "\n".join(lines_) + "\n"

@@ -356,9 +356,13 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # 29 Oct 2026: the model review's M25 (a room without a light switch at its door, a bed without a socket, a kitchen
     # without a socket over its worktop, a plate on glass or behind a piece): the build plans the plates by code
     "wall_plates": (),
+    # 2 Nov 2026 (rule A, ``critic_vision.downgrade_anchor_claims``): a missing-anchor claim from one view while code
+    # shows the anchor built and visible in another view of the room: a framing note, no edit
+    "framing": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
+FRAMING_CAUSE = "framing"                   # = critic_vision.FRAMING (the flag in a downgraded finding's metrics)
 NO_TOOL_REASON: dict[str, str] = {
     "within_tolerance": f"within tolerance: a cut below {S2_TOLERANCE_M:.2f} m is not visible (S2 class tolerance); "
                         "no tool is offered",
@@ -452,6 +456,9 @@ NO_TOOL_REASON: dict[str, str] = {
                    "(wenart/blender/wall_plates.py: a switch on the latch side of each door, sockets beside the beds, "
                    "at the desk and the TV, over the worktop, by the bathroom mirror, never on glass or behind a "
                    "piece); no agent tool places a plate, so the finding is reported to the build",
+    "framing": "a framing note: the vision claim that the room's anchor or main group is missing came from one view, "
+               "while code shows the anchor built in the room and visible in another view of it (the render's "
+               "cross-check); the room needs no new piece, so no tool is offered and the note goes to the cameras",
     "unknown": "no agent tool fixes this check",
 }
 # Fix round after P6b: why a drawn fixed piece's F7 / G12 / G8 is "not yours" (``FIXTURE_LAYOUT``).
@@ -493,7 +500,9 @@ REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor",
                              # 29 Oct 2026: the rooms furnished for their use (model review M21) are the layout's
                              "room_use": "layout",
                              # 29 Oct 2026: the light switches and sockets (model review M25) are the build's
-                             "wall_plates": "build"}
+                             "wall_plates": "build",
+                             # 2 Nov 2026 (rule A): a view that does not frame the anchor another view shows
+                             "framing": "cameras"}
 # Fix round after P4a: the X2 kind of an opening the build clipped under the roof (``exterior_checks._x2``), and the
 # words of its message when an older finding has no kind.
 OPENING_CLIP_KIND = "opening_clip"
@@ -692,6 +701,8 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     metrics = _metrics(finding)
     target = finding.get("target")
     base = CHECK_CAUSE.get(check, "unknown")
+    if is_vision(finding) and metrics.get(FRAMING_CAUSE):
+        return FRAMING_CAUSE                   # 2 Nov 2026 (rule A): a framing note, kept through every copy
     if check in DRAWN_TYPE_CHECKS and is_vision(finding) and drawn_type_held(building, target):
         return "drawn_type"                    # fix round after P6a: a vision opinion, the drawing's type stays
     if check == "F1" and is_vision(finding) and target and not _is_piece(target, building) \

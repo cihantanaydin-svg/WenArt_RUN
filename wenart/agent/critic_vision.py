@@ -108,13 +108,30 @@ as a view the agent placed, not as the frontal view.
 Fix round after P6a (23 Oct 2026), review: X6's rule also judges a high agent pose and an agent plan the build keeps
 labelled ``frontal`` (a set of the planner's frontal view to another square pose) by their frame, so ``camera_role``
 tells such a plan that frames only part of the building or no sky as ``agent`` too.
+
+2 Nov 2026 (real04 run 20261101-093151; general rules, every project):
+
+- rule A, a missing-anchor claim seen on one view: a vision or judge finding that says a room's anchor or main group is
+  missing ("the bedroom has no bed ... reads as a corner office", seen on the view that faces the wardrobe while the bed
+  f_L0_019 showed in the room's two other views at visible shares 0.86 / 0.93) is downgraded to a minor framing note
+  (``downgrade_anchor_claims``, kind and cause ``framing``) when code shows the named anchor built in that room and
+  visible in another view of the room (``views_seen``: the final check's per-view cross-check of visible pieces and
+  shares, else the camera search's anchors and set in the frame), with the reason and the evidence (the piece, the other
+  view, its share). A claim whose own view shows the anchor clearly is kept (the piece does not read as itself: a look
+  problem, not framing);
+- rule C, a finding is tied to the image it was seen on: every vision-critic and judge finding records the sha256 of
+  that image (``stamp_seen``: ``evidence.image_sha256``, ``image_file``, ``image_view``); a finding whose image now
+  holds other pixels is dropped as stale with the reason (``drop_stale``: the loop's carry-over, the inspector's report,
+  Argus's lines); a finding with no recorded hash keeps today's behaviour. Why: "Argus: The camera frame is entirely
+  black and empty" and "obstructed by a car" were carried for many rounds after the final renders were fine.
 """
 from __future__ import annotations
 
+import hashlib
 import math
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional, Union
 
 from wenart.agent import critic_code as CC
 from wenart.agent import prompts as P
@@ -355,16 +372,19 @@ def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[s
     """One room: ``{"kept", "dropped", "error", "images"}``. ``looks`` (M12, the loop's mode): the renders and the
     plan crop only, the look checklist; else the M11 room checklist with the top-down image."""
     room = next(r for r in building.get("rooms") or [] if r.get("id") == room_id)
-    images, labels = [], []
+    images, labels, image_views = [], [], []
     if topdown is not None and not looks:
         images.append(topdown)
         labels.append("top-down plan of the room as built (pieces, fronts, doors, windows)")
+        image_views.append(None)
     for view, path in previews[:3 if looks else 2]:
         images.append(path)
         labels.append(f"render of view {view}")
+        image_views.append(view)
     if plan_crop is not None and len(images) < MAX_IMAGES:
         images.append(plan_crop)
         labels.append("crop of the source drawing (what the architect drew)")
+        image_views.append(None)
     from wenart.furniture import placer
     try:
         doors, windows = placer.room_openings(building, room)
@@ -388,6 +408,7 @@ def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[s
         return {"kept": [], "dropped": [], "error": "; ".join(reply.errors[:3]) or "no answer", "images": images}
     kept, dropped = screen(reply.data, room_ids(building, room_id, [v for v, _ in previews]), len(images), code,
                            room_id, call_id=call_id)
+    stamp_seen(kept + dropped, images, image_views)             # 2 Nov 2026 (rule C): the image each was seen on
     kept = reroute_light_findings(kept, building, room_id)      # fix round after P4a
     return {"kept": kept, "dropped": dropped, "error": None, "images": images}
 
@@ -786,6 +807,7 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
     if reply.data is None:
         return {"kept": [], "dropped": [], "error": "; ".join(reply.errors[:3]) or "no answer", "images": images}
     kept, dropped = screen(reply.data, ids, len(images), code, None, call_id=call_id)
+    stamp_seen(kept + dropped, images, [view, None])            # 2 Nov 2026 (rule C): the image each was seen on
     kept, dropped = drop_roof_type_claims(kept, dropped, building)
     kept, dropped = drop_camera_claims(kept, dropped, view, camera, eye, code, role=role,  # after P4b, P5 pass
                                        building=building, prep=prep)
@@ -858,6 +880,7 @@ def critique_model_view(model, building: dict, level_id: str, *, image: Path, co
     if reply.data is None:
         return {"kept": [], "dropped": [], "error": "; ".join(reply.errors[:3]) or "no answer", "images": [image]}
     kept, dropped = screen(reply.data, ids, 1, code, None, call_id=call_id)
+    stamp_seen(kept + dropped, [image])                         # 2 Nov 2026 (rule C): the top-down image's pixels
     room_of = {f.get("id"): f.get("room_id") for f in building.get("furniture") or []}
     for f in kept + dropped:
         if not f.get("room_id"):
@@ -866,3 +889,319 @@ def critique_model_view(model, building: dict, level_id: str, *, image: Path, co
             f["evidence"] = {}
         f["evidence"]["model_view"] = level_id
     return {"kept": kept, "dropped": dropped, "error": None, "images": [image]}
+
+
+# --------------------------------------------------------------------------
+# 2 Nov 2026, rule C (module docstring): a finding is tied to the image it was seen on
+# --------------------------------------------------------------------------
+
+SEEN_KEYS = ("image_sha256", "image_file", "image_view")
+STALE_CHECK = "stale_image"          # the log's check event of a finding dropped as stale
+
+
+def file_sha256(path) -> Optional[str]:
+    """The sha256 of the file at ``path`` (hex), None when it cannot be read."""
+    try:
+        h = hashlib.sha256()
+        with open(path, "rb") as fh:
+            for block in iter(lambda: fh.read(1 << 20), b""):
+                h.update(block)
+        return h.hexdigest()
+    except (OSError, TypeError):
+        return None
+
+
+def stamp_seen(findings: list[dict], images: list, views: Optional[list] = None) -> list[dict]:
+    """Rule C: each finding (in place) records the image it was seen on: its ``evidence.image`` (1-based) picks the
+    image of ``images``; ``evidence.image_sha256`` (the file's bytes), ``image_file`` (its name: a round preview and the
+    final render of a view share it) and ``image_view`` (``views``: the view each image renders, None for a plan crop
+    or a top-down image). A finding without a valid image index or an unreadable image stays as it is."""
+    shas: dict = {}
+    for f in findings or []:
+        ev = f.get("evidence") if isinstance(f.get("evidence"), dict) else None
+        if ev is None:
+            continue
+        try:
+            k = int(ev.get("image") or 0)
+        except (TypeError, ValueError):
+            continue
+        if not 1 <= k <= len(images or []):
+            continue
+        path = images[k - 1]
+        if path not in shas:
+            shas[path] = file_sha256(path)
+        if not shas[path]:
+            continue
+        ev["image_sha256"] = shas[path]
+        ev["image_file"] = Path(str(path)).name
+        view = views[k - 1] if views and k - 1 < len(views) else None
+        if view:
+            ev["image_view"] = view
+    return findings
+
+
+def seen_image(finding: dict) -> tuple[Optional[str], Optional[str], Optional[str]]:
+    """``(sha256, file name, view)`` of the image a finding was seen on (rule C): its own keys first (an inspector
+    row, a work item), else its evidence; Nones when it recorded none."""
+    if not isinstance(finding, dict):
+        return None, None, None
+    ev = finding.get("evidence") if isinstance(finding.get("evidence"), dict) else {}
+    got = [finding.get(k) or ev.get(k) for k in SEEN_KEYS]
+    return got[0], got[1], got[2]
+
+
+def seen_fields(finding: dict) -> dict:
+    """The rule-C keys a finding recorded (``SEEN_KEYS`` with a value), for a copy that keeps them."""
+    sha, name, view = seen_image(finding)
+    return {k: v for k, v in zip(SEEN_KEYS, (sha, name, view)) if v}
+
+
+def stale_reason(finding: dict, current_sha: Optional[str]) -> Optional[str]:
+    """Why ``finding`` is stale (rule C): it was seen on an image whose file now holds other pixels (``current_sha``,
+    the sha256 of that view's image now); None when it recorded no hash (today's behaviour), the image is not there
+    now (nothing to compare) or the pixels are the same."""
+    sha, name, view = seen_image(finding)
+    if not sha or not current_sha or str(sha) == str(current_sha):
+        return None
+    return (f"stale: seen on {name or 'an image'}{f' of view {view}' if view else ''} (sha256 {str(sha)[:12]}), whose "
+            f"image now holds other pixels (sha256 {str(current_sha)[:12]}): re-rendered after the look, so the claim "
+            f"is about an image nobody sees any more")
+
+
+def drop_stale(findings: list[dict], current: Union[dict, Callable[[str], Optional[str]]]
+               ) -> tuple[list[dict], list[dict]]:
+    """``(kept, stale)`` of ``findings`` (rule C). ``current``: the sha256 of each image now by its file name (a dict,
+    or a function of the name, e.g. ``image_shas``). A stale finding comes back as a copy with ``stale`` (the reason)
+    for the caller's log; a finding without a recorded hash, or whose image is not there now, is kept."""
+    look = current.get if isinstance(current, dict) else current
+    kept, stale = [], []
+    for f in findings or []:
+        _sha, name, _view = seen_image(f)
+        why = stale_reason(f, look(name)) if name else None
+        if why:
+            stale.append(dict(f, stale=why))
+        else:
+            kept.append(f)
+    return kept, stale
+
+
+def image_shas(*folders) -> Callable[[str], Optional[str]]:
+    """The sha256 of the image named ``name`` in the first of ``folders`` that holds it (cached; None when none does):
+    the ``current`` of ``drop_stale`` (rule C)."""
+    cache: dict = {}
+
+    def sha(name: str) -> Optional[str]:
+        if not name:
+            return None
+        if name not in cache:
+            cache[name] = None
+            for folder in folders:
+                if folder is None:
+                    continue
+                p = Path(folder) / Path(str(name)).name
+                if p.is_file():
+                    cache[name] = file_sha256(p)
+                    break
+        return cache[name]
+    return sha
+
+
+# --------------------------------------------------------------------------
+# 2 Nov 2026, rule A (module docstring): a missing-anchor claim on one view, the anchor shown by another
+# --------------------------------------------------------------------------
+
+ANCHOR_CLAIM_CHECKS = ("Q4", "R1", "F5", "Q12", "Q13")   # the checks a "room has no <anchor>" claim comes under
+ANCHOR_SEEN_SHARE = 0.5          # an anchor shows in a view when this share of its front is visible in the render
+FRAMING = "framing"              # the kind and cause of a downgraded claim (= causes.FRAMING_CAUSE)
+FRAMING_CHECK = "framing_note"   # the log's check event of a downgrade
+# the words a claim names an anchor type by (a type not listed: the words of its name, ``_type_words``)
+ANCHOR_TYPE_WORDS = {
+    "bed": ("bed",), "bed_double": ("bed", "double bed"), "bed_single": ("bed", "single bed"),
+    "bunk_bed": ("bed", "bunk"), "bed_bunk": ("bed", "bunk"), "crib": ("crib", "cot"),
+    "sofa": ("sofa", "couch", "settee"), "sofa_corner": ("sofa", "couch", "corner sofa"), "armchair": ("armchair",),
+    "chaise": ("chaise",), "table_dining": ("dining table", "table"),
+    "kitchen_counter": ("counter", "worktop", "kitchen run"), "kitchen_island": ("island",),
+    "sink_kitchen": ("sink",), "stove": ("hob", "stove", "cooker"), "fridge": ("fridge", "refrigerator"),
+    "toilet": ("toilet", "wc"), "washbasin": ("basin", "washbasin", "sink"), "shower": ("shower",),
+    "bathtub": ("bath", "bathtub", "tub"), "wardrobe": ("wardrobe",), "tall_cabinet": ("tall cabinet",),
+    "bench": ("bench",)}
+GENERIC_TYPE_WORDS = ("kitchen", "dining", "double", "single", "corner", "tall", "low", "small", "large")
+# a claim about the room's main group without a type: any anchor of the room answers it
+GROUP_WORDS = ("main furniture", "furniture group", "main group", "main piece", "main pieces", "anchor piece",
+               "seating group", "seating area", "sleeping area")
+_MISSING_BEFORE = r"\b(?:no|without|missing|lacks?|lacking|absent)\b(?:\W+\w+){0,2}?\W+"
+_MISSING_AFTER = r"(?:\W+\w+){0,4}?\W+(?:is|are)\s+(?:missing|absent|not\s+(?:there|visible|present|shown|seen))\b"
+
+
+def _type_words(ptype: str) -> tuple[str, ...]:
+    t = str(ptype or "").lower()
+    if t in ANCHOR_TYPE_WORDS:
+        return ANCHOR_TYPE_WORDS[t]
+    return tuple(w for w in re.split(r"[_\s]+", t) if len(w) >= 3 and w not in GENERIC_TYPE_WORDS)
+
+
+def _claims(text: str, word: str) -> bool:
+    """``text`` says ``word`` is missing: a missing word up to two words before it ("no bed", "without a bed",
+    "missing the main bed"), or "is / are missing, absent, not visible" up to four words after it."""
+    w = r"\s+".join(re.escape(x) for x in word.split())
+    return bool(re.search(_MISSING_BEFORE + w + r"(?:e?s)?\b", text)
+                or re.search(r"\b" + w + r"(?:e?s)?\b" + _MISSING_AFTER, text))
+
+
+def room_anchors(building: dict, room_id: str) -> list[dict]:
+    """The room's built anchors (``camsearch.view_set``: the room type's view anchors and the group anchors; the
+    pieces a view of the room is about)."""
+    from wenart.blender import camsearch as CS_
+
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == room_id), None)
+    pieces = [f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("room_id") == room_id
+              and TD.is_built(f)]
+    if room is None or not pieces:
+        return []
+    anchors, _set = CS_.view_set(room, pieces)
+    keep = set(anchors)
+    return [f for f in pieces if f.get("id") in keep]
+
+
+def claimed_anchors(message: str, anchors: list[dict]) -> Optional[dict]:
+    """``{anchor type: [pieces]}`` of the anchors a message says are missing (rule A; ``{"*": anchors}`` for a claim
+    about the main group that names no type), None when it claims none missing."""
+    text = " ".join(str(message or "").lower().split())
+    named: dict = {}
+    for f in anchors:
+        t = str(f.get("type") or "")
+        if any(_claims(text, w) for w in _type_words(t)):
+            named.setdefault(t, []).append(f)
+    if named:
+        return named
+    if any(_claims(text, w) for w in GROUP_WORDS):
+        return {"*": list(anchors)}
+    return None
+
+
+def crosscheck_of(manifest: Optional[dict]) -> dict:
+    """``{camera: json_crosscheck}`` of a check manifest (``cameras``) or a final manifest (``views``), {} without."""
+    if not isinstance(manifest, dict):
+        return {}
+    out = {}
+    cams = manifest.get("cameras")
+    if isinstance(cams, dict):
+        for cam, v in cams.items():
+            if isinstance(v, dict) and isinstance(v.get("json_crosscheck"), dict):
+                out[cam] = v["json_crosscheck"]
+    for v in manifest.get("views") or []:
+        if isinstance(v, dict) and v.get("camera") and isinstance(v.get("json_crosscheck"), dict):
+            out.setdefault(v["camera"], v["json_crosscheck"])
+    return out
+
+
+def views_seen(cameras: list, crosscheck: Optional[dict] = None) -> dict:
+    """What code says each interior view shows (rule A): ``{view: {"room_id", "pieces": {id: {"share", "source"}}}}``.
+    With the view's render cross-check (``crosscheck``: ``json_crosscheck.projected``) a piece's share is the visible
+    share of its front in the render (a piece the current pose no longer has in ``visible_furniture`` is left out);
+    else the camera search's ``anchors_in_frame`` / ``set_in_frame`` (in the frame and not hidden; share None)."""
+    out = {}
+    for c in cameras or []:
+        if not isinstance(c, dict) or not c.get("name") or not c.get("room_id"):
+            continue
+        listed = c.get("visible_furniture") if isinstance(c.get("visible_furniture"), list) else None
+        proj = ((crosscheck or {}).get(c["name"]) or {}).get("projected")
+        pieces: dict = {}
+        if isinstance(proj, dict) and proj:
+            for pid, rec in proj.items():
+                if not isinstance(rec, dict) or rec.get("kind") != "furniture" or rec.get("in_view") is False:
+                    continue
+                if rec.get("visible_share") is None or (listed is not None and pid not in listed):
+                    continue
+                pieces[pid] = {"share": round(float(rec["visible_share"]), 3),
+                               "source": "the render cross-check (visible share of its front)"}
+        else:
+            for pid in list(c.get("anchors_in_frame") or []) + list(c.get("set_in_frame") or []):
+                pieces.setdefault(pid, {"share": None, "source": "the camera search (in the frame, not hidden)"})
+        out[c["name"]] = {"room_id": c["room_id"], "pieces": pieces}
+    return out
+
+
+def _shown(rec: Optional[dict], min_share: float) -> bool:
+    return isinstance(rec, dict) and (rec.get("share") is None or float(rec["share"]) >= min_share - 1e-9)
+
+
+def anchor_shown(finding: dict, building: dict, seen: dict, min_share: float = ANCHOR_SEEN_SHARE) -> Optional[dict]:
+    """Rule A: ``{"room", "seen_on", "shown": [{piece, type, view, share, source}]}`` when ``finding`` (a vision or judge
+    claim under ``ANCHOR_CLAIM_CHECKS`` on a room) says the room's anchor or main group is missing and code shows each
+    anchor it names built in the room and visible in another view of the room (``views_seen``); None otherwise. A claim
+    whose own view (``image_view``, else ``evidence.view``) clearly shows every named anchor is no framing matter: None."""
+    from wenart.agent import causes as CS
+
+    if not CS.is_vision(finding) or str(finding.get("check")) not in ANCHOR_CLAIM_CHECKS:
+        return None
+    room_id = finding.get("target")
+    if room_id not in {r.get("id") for r in building.get("rooms") or []}:
+        return None
+    named = claimed_anchors(finding.get("message"), room_anchors(building, room_id))
+    if not named:
+        return None
+    ev = finding.get("evidence") if isinstance(finding.get("evidence"), dict) else {}
+    own = ev.get("image_view") or ev.get("view") or finding.get("view")
+    views = {v: rec for v, rec in (seen or {}).items() if rec.get("room_id") == room_id}
+    shown = []
+    for ptype, pieces in sorted(named.items()):
+        best = None
+        for f in pieces:
+            for v, rec in sorted(views.items()):
+                got = (rec.get("pieces") or {}).get(f.get("id"))
+                if v == own or not _shown(got, min_share):
+                    continue
+                key = (got["share"] if got["share"] is not None else -1.0)
+                if best is None or key > best[0]:
+                    best = (key, {"piece": f.get("id"), "type": f.get("type"), "view": v, "share": got["share"],
+                                  "source": got["source"]})
+        if best is None:
+            if ptype == "*":
+                continue
+            return None                      # a named anchor no other view shows: the claim stands
+        shown.append(best[1])
+        if ptype == "*":
+            break
+    if not shown:
+        return None
+    if own in views:
+        own_pieces = views[own].get("pieces") or {}
+        if all(_shown(own_pieces.get(s["piece"]), min_share) for s in shown):
+            return None                      # the claim's own view shows it: the piece does not read as itself
+    return {"room": room_id, "seen_on": own, "shown": shown}
+
+
+def downgrade_anchor_claims(findings: list[dict], building: dict, seen: dict,
+                            min_share: float = ANCHOR_SEEN_SHARE) -> tuple[list[dict], list[dict]]:
+    """``(findings, notes)`` (rule A): each missing-anchor claim code answers (``anchor_shown``) becomes a copy with
+    severity ``minor``, kind and cause ``framing``, ``downgraded`` (the reason), the message led by the framing note and
+    ``evidence.metrics`` (``framing``, ``severity_was``, ``anchor_shown``, ``seen_on``); the others stay as they are.
+    ``notes``: one record per downgrade for the caller's log. Never raises (a finding code cannot judge stays)."""
+    out, notes = [], []
+    for f in findings or []:
+        ev = f.get("evidence") if isinstance(f.get("evidence"), dict) else {}
+        metrics = ev.get("metrics") if isinstance(ev.get("metrics"), dict) else {}
+        try:
+            got = None if metrics.get(FRAMING) else anchor_shown(f, building, seen, min_share)
+        except Exception:  # noqa: BLE001 - code that cannot judge leaves the claim as it is
+            got = None
+        if got is None:
+            out.append(f)
+            continue
+        s = got["shown"][0]
+        share = f"a visible share of {float(s['share']):.2f}" if s["share"] is not None else "in its frame"
+        others = "; ".join(f"{x['piece']} in {x['view']}" for x in got["shown"][1:])
+        reason = (f"framing: code shows {s['type']} {s['piece']} built in {got['room']} and visible in view "
+                  f"{s['view']} ({share}, {s['source']})" + (f"; also {others}" if others else "")
+                  + f"; the claim comes from {('view ' + str(got['seen_on'])) if got['seen_on'] else 'one image'}, "
+                  f"which does not frame it: a framing note, not a missing piece")
+        new_metrics = dict(metrics, **{FRAMING: True}, severity_was=f.get("severity"), anchor_shown=got["shown"],
+                           seen_on=got["seen_on"])
+        out.append(dict(f, severity="minor", kind=FRAMING, cause=FRAMING, downgraded=reason,
+                        message=f"framing note ({s['piece']} shows in {s['view']}): {f.get('message')}",
+                        evidence=dict(ev, metrics=new_metrics)))
+        notes.append({"id": f.get("id"), "check": f.get("check"), "target": f.get("target"),
+                      "source": f.get("source"), "severity_was": f.get("severity"), "reason": reason,
+                      "evidence": got})
+    return out, notes

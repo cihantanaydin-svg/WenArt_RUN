@@ -150,6 +150,13 @@ KINDS["reference_missed"] = {
     "arises": "build, architect",
     "guards": ["model review M29", "Argus U33", "the architect's D7 / D8", "the lesson walk (AI5)"]}
 CHECK_KIND.update({"U33": "reference_missed", "M29": "reference_missed"})
+# 2 Nov 2026 (rule A; real04 run 20261101-093151: "the bedroom has no bed" on the view facing the wardrobe while the bed
+# showed in the room's two other views): a missing-anchor claim from one view that code answers is a framing note
+KINDS["framing"] = {
+    "what": "a view that does not frame a piece another view of the room shows: a vision claim that the room's anchor "
+            "is missing, answered by code (the anchor is built and visible in another view)",
+    "arises": "cameras, vision critics",
+    "guards": ["critic_vision.downgrade_anchor_claims (the render cross-check of every view)"]}
 CHECK_KIND.update({"U30": "taste", "M26": "taste"})     # 29 Oct 2026 (UL114): the bathroom's set (bath_details.review)
 # 29 Oct 2026 (UL115, UL118): a kitchen missing what its style family's kitchen details give it (kitchen_details.review)
 CHECK_KIND.update({"M27": "taste", "U31": "taste"})

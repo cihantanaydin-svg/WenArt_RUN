@@ -280,6 +280,15 @@ problems and Argus AI's work (``extra_work``: copies with an id each) through th
 (``mark_replayed``, ``mark_agent_views``, a tool or a stage, else dropped with the reason in the log; before, a judge
 problem without either was dropped silently).
 
+2 Nov 2026 (real04 run 20261101-093151; rules A and C of ``critic_vision``): the round's vision, judge and Argus findings
+pass ``critic_vision.downgrade_anchor_claims`` on what code says each view shows (``views_seen``: the round's cameras
+and the final check's cross-check), so "the bedroom has no bed" from the view facing the wardrobe is a minor framing
+note when another view of the room shows the bed (logged as a ``framing_note`` check); and a finding is tied to the
+image it was seen on: a cached vision answer or judge row whose image now holds other pixels is asked again, and a
+judge problem or Argus work item seen on a final render that has been re-rendered since is dropped as stale
+(``extra_work``, logged as a ``stale_image`` check with the reason). A finding with no recorded hash keeps today's
+behaviour.
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -1853,6 +1862,20 @@ class AgentLoop:
                 keys.append(("view", c["name"]))
         return keys
 
+    def preview_shas(self, ctx: TL.ToolContext):
+        """2 Nov 2026 (rule C): the sha256 of each view's image as a critic would see it now, by its file name (the
+        round's preview folder, then the final renders: ``ctx.preview_path``'s order)."""
+        return CV.image_shas(self.project_out / ctx.preview_dir, self.project_out / TL.FINAL_RENDER_DIR)
+
+    def views_seen(self, ctx: TL.ToolContext) -> dict:
+        """2 Nov 2026 (rule A): what code says each interior view shows (``critic_vision.views_seen``: the round's
+        cameras and the final check's per-view cross-check, ``check/check_manifest.json``). Never raises."""
+        try:
+            check = TL.read_json(self.project_out / "check" / "check_manifest.json")
+            return CV.views_seen(ctx.cameras(), CV.crosscheck_of(check))
+        except Exception:  # noqa: BLE001 - no record: no claim is downgraded
+            return {}
+
     def run_vision_critic(self, ctx: TL.ToolContext, code: dict, round_no: int) -> dict:
         """Kept and dropped vision findings of every room / exterior view with a render (re-asked only where the
         scene changed; the others keep their last answer)."""
@@ -1864,11 +1887,18 @@ class AgentLoop:
         kept, dropped, checks = [], [], []
         n = 0
         jobs = []
+        now = self.preview_shas(ctx)
         for kind, key in self.critique_keys(ctx, building):
             cache_key = f"{kind}:{key}"
             if self.stale_keys is not None and cache_key not in self.stale_keys and cache_key in self.vision_cache:
-                kept += self.vision_cache[cache_key]
-                continue
+                # 2 Nov 2026 (rule C): a cached answer seen on an image that now holds other pixels is asked again
+                _same, stale = CV.drop_stale(self.vision_cache[cache_key], now)
+                if not stale:
+                    kept += self.vision_cache[cache_key]
+                    continue
+                checks.append({"source": "vision", "target": key, "status": CV.STALE_CHECK,
+                               "note": f"{len(stale)} cached finding(s) seen on other pixels; asked again: "
+                                       f"{stale[0]['stale']}"})
             n += 1
             jobs.append((kind, key, cache_key, f"r{round_no}-v{n}"))
 
@@ -2330,7 +2360,15 @@ class AgentLoop:
         # big loop; Argus P10): the AI judge's problems on the final renders and Argus AI's work are vision findings of
         # this round (``extra_work``), marked, routed and dropped (with the reason, logged) by the same rules
         kept = []
-        looked = list(vision.get("kept") or []) + self.extra_work()
+        looked = list(vision.get("kept") or []) + self.extra_work(round_no)
+        # 2 Nov 2026 (rule A): a missing-anchor claim from one view is a framing note when code shows the anchor built
+        # and visible in another view of the room
+        looked, framing = CV.downgrade_anchor_claims(looked, rendered, self.views_seen(ctx))
+        for note in framing:
+            self.log.event("check", round_no, source=note.get("source"), check=CV.FRAMING_CHECK, status="downgraded",
+                           target=note.get("target"), note=note["reason"],
+                           evidence={"finding": note.get("id"), "checklist": note.get("check"),
+                                     "severity_was": note.get("severity_was"), **note["evidence"]})
         CS.mark_replayed(looked, ctx.cameras())
         # fix round after P6a, part 2: a claim about what the agent's own exterior view shows is that camera's
         CS.mark_agent_views(looked, ctx.cameras(), rendered)
@@ -2577,17 +2615,24 @@ class AgentLoop:
         style = str((st.get("family") or st.get("name") or "") if isinstance(st, dict) else (st or ""))
         errors = []
         jobs = []
+        now = CV.image_shas(self.project_out / TL.FINAL_RENDER_DIR)
         for cam in ctx.cameras():
             name = cam.get("name")
-            if only is not None and name not in only and name in cache:
-                continue
             image = self.project_out / TL.FINAL_RENDER_DIR / f"{name}_preview.jpg"
+            if only is not None and name not in only and name in cache:
+                # 2 Nov 2026 (rule C): a row judged on other pixels than the view's render now is judged again
+                why = CV.stale_reason(cache[name].get("row") or {}, now(image.name))
+                if not why:
+                    continue
+                self.log.event("check", int(getattr(ctx, "round", 0) or 0), source="judge", check=CV.STALE_CHECK,
+                               status="asked_again", target=name, note=why)
             if image.is_file():
                 jobs.append((name, cam, image))
+        seen = self.views_seen(ctx)                                               # 2 Nov 2026 (rule A)
         # 29 Oct 2026 (user: "make the pod use the GPU fully"): the views go to the judge at once (map_calls)
         answers = map_calls(self.model, lambda j: JD.judge_view(
             self.model, building, j[1], j[2], style=style, call_id=f"judge_{j[0]}",
-            reference=JD.reference_for(building, j[1])), jobs)                     # 27 Oct 2026 (UL42)
+            reference=JD.reference_for(building, j[1]), seen=seen), jobs)          # 27 Oct 2026 (UL42)
         for (name, _cam, _image), (got, exc) in zip(jobs, answers):
             if exc is not None:               # a view the judge cannot read keeps its last rows
                 errors.append(f"{name}: {type(exc).__name__}: {exc}")
@@ -2627,17 +2672,26 @@ class AgentLoop:
         self.extra_findings = list(judged["findings"]) + audit["work"]
         return {"score": score, "rows": judged["rows"], "findings": judged["findings"], "errors": judged["errors"]}
 
-    def extra_work(self) -> list[dict]:
+    def extra_work(self, round_no: Optional[int] = None) -> list[dict]:
         """26 Oct 2026 (Argus P10): copies of ``self.extra_findings`` (``measure``: the judge's problems on the final
         renders, Argus AI's work) for this round's work, each with an id a checklist step and an edit's reason can
         name (the judge's own ``j:<call>:<n>``; else ``<source initial>:<check>:<target>``, numbered when it repeats,
         as ``critic_code`` numbers its own) and without a cause, so ``round`` takes it again on this round's building.
-        The originals (the judge's cache) are never changed."""
+        The originals (the judge's cache) are never changed. 2 Nov 2026 (rule C): a finding seen on a final render
+        that has been re-rendered since (its ``image_sha256`` differs from the file in ``renders/`` now) is dropped as
+        stale, logged as a ``stale_image`` check with the reason (round ``round_no``)."""
         out: list[dict] = []
         seen: set = set()
         extra = list(getattr(self, "extra_findings", None) or [])
         ids = {str(f.get("id")) for f in extra if isinstance(f, dict) and f.get("id")}
         extra += [f for f in self.argus_work() if str(f.get("id")) not in ids]   # Argus's work in every round
+        extra, stale = CV.drop_stale([f for f in extra if isinstance(f, dict)],
+                                     CV.image_shas(self.project_out / TL.FINAL_RENDER_DIR))
+        for f in stale:
+            self.log.event("check", int(round_no if round_no is not None else len(self.rounds) + 1),
+                           source=f.get("source"), check=CV.STALE_CHECK, status="dropped", target=f.get("target"),
+                           note=f["stale"], evidence={"finding": f.get("id"), "checklist": f.get("check"),
+                                                      "message": str(f.get("message") or "")[:200]})
         for f in extra:
             if not isinstance(f, dict):
                 continue

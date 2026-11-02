@@ -186,10 +186,17 @@ def reference_for(building: dict, view: dict, root=None) -> Optional[Path]:
 
 
 def judge_view(model, building: dict, view: dict, image: Path, *, style: str = "", call_id: str = "",
-               reference: Optional[Path] = None) -> dict:
+               reference: Optional[Path] = None, seen: Optional[dict] = None) -> dict:
     """One view (module docstring): ``{"row": rubric row, "findings": [...], "dropped": [...], "error"}``. 27 Oct 2026
     (UL42): with ``reference`` (``reference_for``) the judge sees a good photo of the space beside the render and names
-    the layers the render lacks (``missing layer: ...`` problems)."""
+    the layers the render lacks (``missing layer: ...`` problems).
+
+    2 Nov 2026 (rules A and C, ``critic_vision``): every problem and the row record the sha256 of the render judged
+    (``image_sha256``, ``image_file``: a later report drops them once the view is re-rendered), and with ``seen``
+    (``critic_vision.views_seen``) a problem that says the room's anchor or main group is missing while code shows it
+    built and visible in another view of the room is a minor framing note (``downgrade_anchor_claims``; the row keeps
+    the notes in ``framing``)."""
+    from wenart.agent import critic_vision as CV
     from wenart.agent.model import user_message
 
     facts, allowed = view_facts(building, view)
@@ -226,7 +233,15 @@ def judge_view(model, building: dict, view: dict, image: Path, *, style: str = "
             dropped.append(f)
         else:
             findings.append(f)
-    row["problems"] = [{k: f[k] for k in ("check", "severity", "target", "message")} for f in findings]
+    CV.stamp_seen(findings + dropped, [image], [view.get("name")])         # 2 Nov 2026 (rule C)
+    row["image_sha256"], row["image_file"] = CV.file_sha256(image), Path(str(image)).name
+    if seen:                                                                 # 2 Nov 2026 (rule A)
+        findings, notes = CV.downgrade_anchor_claims(findings, building, seen)
+        if notes:
+            row["framing"] = [n["reason"] for n in notes]
+    row["problems"] = [dict({k: f[k] for k in ("check", "severity", "target", "message")},
+                            **({"kind": f["kind"]} if f.get("kind") else {}))
+                       for f in findings]
     return {"row": row, "findings": findings, "dropped": dropped, "error": None}
 
 

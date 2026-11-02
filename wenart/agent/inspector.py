@@ -13,6 +13,11 @@ the decor, the lighting), dropped with the reason, or left open. ``write(project
 
 Why: nothing the AI saw stays silent. A finding no tool fixes is listed with its owner, so the next code rule is
 written for it and the user is told before looking (CLAUDE.md: "Nothing changes silently").
+
+2 Nov 2026 (rule C, ``critic_vision.drop_stale``): a vision finding seen on an image that the final render of its view
+no longer is (its recorded ``image_sha256`` differs from the file in ``renders/`` now) is listed as dropped, stale, with
+the reason, unless an accepted edit of the final round fixed it; a finding with no recorded hash stays as before. Each
+row keeps the image it was seen on (``image_sha256``, ``image_file``, ``image_view``) for Argus.
 """
 from __future__ import annotations
 
@@ -52,9 +57,15 @@ def _row(f: dict, fixed: set, accepted_targets: set) -> dict:
     else:
         outcome = "open: " + (CS.NO_TOOL_REASON.get(cause) or "no tool for it")
     ev = f.get("evidence") if isinstance(f.get("evidence"), dict) else {}
-    return {"check": f.get("check"), "severity": f.get("severity"), "target": target, "room": f.get("room_id"),
-            "view": ev.get("view"), "source": f.get("source"), "message": f.get("message") or f.get("finding"),
-            "cause": cause, "outcome": outcome, "visitor": str(f.get("check")) in P.VISITOR_CHECKS}
+    from wenart.agent import critic_vision as CV
+    row = {"check": f.get("check"), "severity": f.get("severity"), "target": target, "room": f.get("room_id"),
+           "view": ev.get("view") or ev.get("image_view"), "source": f.get("source"),
+           "message": f.get("message") or f.get("finding"), "cause": cause, "outcome": outcome,
+           "visitor": str(f.get("check")) in P.VISITOR_CHECKS}
+    row.update(CV.seen_fields(f))            # 2 Nov 2026 (rule C): the image it was seen on
+    if f.get("downgraded"):
+        row["downgraded"] = f["downgraded"]  # 2 Nov 2026 (rule A): why a claim is a framing note
+    return row
 
 
 def architect_open(project_out: Path) -> list[dict]:
@@ -90,18 +101,28 @@ def report(project_out, round_no: int, findings: dict, accepted: list[dict]) -> 
         args = a.get("args") or {}
         targets |= {key_of(v) for k, v in args.items() if k in ("piece_id", "room_id", "target", "camera") and v}
     fixed = {(key_of(a.get("finding_check")), key_of(a.get("finding_target"))) for a in accepted or []}
-    kept = [_row(f, fixed, targets) for f in findings.get("vision_kept") or []]
+    from wenart.agent import critic_vision as CV
+    from wenart.agent.tools import FINAL_RENDER_DIR
+    now = CV.image_shas(Path(project_out) / FINAL_RENDER_DIR)        # 2 Nov 2026 (rule C): the final renders now
+    kept, stale = [], []
+    for f in findings.get("vision_kept") or []:
+        row = _row(f, fixed, targets)
+        why = None if row["outcome"].startswith("fixed") else CV.stale_reason(f, now(CV.seen_image(f)[1]))
+        if why:
+            stale.append(dict(row, outcome=f"dropped: {why}"))
+        else:
+            kept.append(row)
     code = [_row(f, fixed, targets) for f in findings.get("code") or []
             if f.get("severity") in ("critical", "major")]
     dropped = [dict(_row(f, fixed, targets), outcome=f"dropped: {f.get('dropped') or f.get('reason') or 'screened'}")
-               for f in findings.get("vision_dropped") or []]
+               for f in findings.get("vision_dropped") or []] + stale
     arch = architect_open(Path(project_out))
     rows = kept + code
     counts = {"seen": len(kept) + len(dropped), "visitor": sum(1 for r in kept if r["visitor"]),
               "fixed": sum(1 for r in rows if r["outcome"].startswith("fixed")),
               "handed": sum(1 for r in rows if r["outcome"].startswith("handed")),
               "open": sum(1 for r in rows if r["outcome"].startswith("open")),
-              "dropped": len(dropped), "architect_open": len(arch),
+              "dropped": len(dropped), "stale": len(stale), "architect_open": len(arch),
               "architect_open_major": sum(1 for a in arch if a["severity"] == "major")}
     model = model_review(Path(project_out))
     if model is not None:
@@ -153,14 +174,17 @@ def report_md(rec: dict, project: str = "") -> str:
             lines.append(f"- **{a['rule']} {a['topic']}** ({a['severity']}) {a['element']}: {a['found']}"
                          + (f" ({a['note']})" if a.get("note") else ""))
     if rec["dropped"]:
-        lines += ["", f"{len(rec['dropped'])} vision finding(s) dropped by code (in {REPORT_JSON} with the reason)."]
+        stale = int(c.get("stale") or 0)
+        lines += ["", f"{len(rec['dropped'])} vision finding(s) dropped by code (in {REPORT_JSON} with the reason)"
+                  + (f"; {stale} of them stale: seen on an image the view's final render no longer is" if stale else "")
+                  + "."]
     return "\n".join(lines) + "\n"
 
 
 def failed_record(round_no: int, error: str) -> dict:
     """The record written when the report cannot be made (30 Oct 2026): the failure, no findings, so an earlier run's
     record never stands for this run's (Argus' process line reports it, P13)."""
-    counts = {k: 0 for k in ("seen", "visitor", "fixed", "handed", "open", "dropped", "architect_open",
+    counts = {k: 0 for k in ("seen", "visitor", "fixed", "handed", "open", "dropped", "stale", "architect_open",
                              "architect_open_major")}
     return {"round": round_no, "error": str(error), "counts": counts, "vision": [], "code": [], "dropped": [],
             "architect_open": [], "model_review": None}

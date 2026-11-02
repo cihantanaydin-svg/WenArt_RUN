@@ -195,12 +195,12 @@ class _Room:
     """The measured facts of one room: its outline, context (doors, windows, walkways) and its built pieces in
     the frame of their fronts. Read-only views of the building."""
 
-    def __init__(self, building: dict, room: dict):
+    def __init__(self, building: dict, room: dict, walkways: bool = True):
         self.building = building
         self.room = room
         self.id = room["id"]
         self.type = room.get("room_type") or "unknown"
-        self.ctx = placer.room_context(building, room)
+        self.ctx = placer.room_context(building, room, walkways=walkways)
         self.polygon: Polygon = self.ctx.polygon
         self.ring = self.polygon.exterior
         self.items = [f for f in building.get("furniture") or [] if f.get("room_id") == self.id]
@@ -601,7 +601,7 @@ def _door_measure(door: placer.DoorZone, ids: list[str], pieces: list, polys: li
 def door_measures(building: dict, room: dict) -> list[dict]:
     """``_door_measure`` of every door and doorless opening of ``room`` (``placer.room_context``'s doors, the ones F7 and
     R3 judge), in their order (2 Nov 2026, rule B: the architect's F2 reads the critic's measure here)."""
-    r = _Room(building, room)
+    r = _Room(building, room, walkways=False)          # the door zones only: the walkways are G11's
     ids, pieces, polys, hosted = _door_pieces(r)
     return [_door_measure(door, ids, pieces, polys, hosted) for door in r.ctx.doors]
 

@@ -12,6 +12,13 @@ How: every check is code on the building JSON and the build plan (never a guess)
 rules (a door at least 0.70 m, 0.80 m to the outside; a habitable ceiling at least 2.40 m; a sill at least 0.85 m
 over a drop; 0.5 m free in front of a bed, a sofa or a wardrobe), named in ``LIMITS``. A rule whose fix code can
 make safely makes it (none here: these are drawing questions); the others ask, with options.
+
+2 Nov 2026 (rule B; real04 run 20261101-093151: F2 let a 0.05 m move pass at 25 % of its 0.8 m box while the code
+critic's F7 still found the piece on the door's approach strip, and the audit's Y2 raised a critical): F2 measures a
+doorway as the critic's F7 and R3 do (``plausibility.door_measures``: the placer's approach strip with the critic's
+area threshold, and the leaf's swing on both hinge sides), so the two always agree; its ``move_piece`` moves the piece
+clear of that strip and is refused when the critic would still find it there (``architect_actions.still_blocks``). F2's
+own box stays only for a doorway the critic does not see from a room.
 """
 from __future__ import annotations
 
@@ -30,7 +37,7 @@ LIMITS = {
     "fit_tol_m": 0.03, "overlap_tol_m": 0.05,
     "piece_inside": 0.80,
     "front_clear_m": 0.50, "front_free": 0.60,
-    "swing_depth_m": 0.80, "swing_cover": 0.25,
+    "swing_depth_m": 0.80, "swing_cover": 0.25,     # F2's own box: only where the code critic does not see a doorway
     "window_reach_m": 0.50, "window_cover": 0.50,
     "threshold_tol_m": 0.03,
 }
@@ -890,6 +897,20 @@ def _covered(points, rects) -> float:
     return sum(1 for p in points if any(G.point_in_polygon(p, r) for r in rects)) / len(points)
 
 
+def _near_door(centre, half_t: float, width: float, rects: list) -> bool:
+    """A piece rectangle of ``rects`` within the reach of a doorway at ``centre`` (pure; 2 Nov 2026, rule B): the
+    leaf's swing (radius ``width``), the approach strip and F2's own box (``LIMITS["swing_depth_m"]``) all lie within
+    ``half_t`` + max(width, box depth) + width / 2 of the opening's centre (+ 0.1 m); farther pieces can block neither
+    measure, so the room need not be measured."""
+    reach = half_t + max(width, LIMITS["swing_depth_m"]) + width / 2.0 + 0.1
+    pt = (float(centre[0]), float(centre[1]))
+    for r in rects:
+        if G.point_in_polygon(pt, r) or min(G.point_segment_distance(pt, r[i], r[(i + 1) % len(r)])
+                                            for i in range(len(r))) <= reach:
+            return True
+    return False
+
+
 def doorway_text(door_id: str, rid: Optional[str], m: dict) -> str:
     """F2's finding from the code critic's measure of a doorway (``plausibility.door_measures``; 2 Nov 2026, rule B):
     the pieces on its approach strip with their areas (F7) and a leaf that hits a piece on both hinge sides (R3)."""
@@ -1039,8 +1060,10 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
             worst = (0.0, None, [])
             measured = None                  # 2 Nov 2026 (rule B): the code critic's F7 / R3 measure of the worst side
             for sign, rid in ((1.0, s["a"]), (-1.0, s["b"])):
-                if not rid:
-                    continue
+                if not rid or rid not in by_room:
+                    continue                 # no piece in the room: free by either measure
+                if not _near_door(o["center"], half_t, width, [r for _g, r, _t in by_room[rid]]):
+                    continue                 # no piece within the reach of the strip, the swing or F2's box: free
                 m = critic_doors(rid).get(o["id"])
                 if m is not None:
                     # the critic judges this doorway from rid: its approach strip and threshold decide (rule B)
@@ -1049,7 +1072,7 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                         if measured is None or area > worst[0]:
                             worst, measured = (area, rid, list(m["blockers"])), m
                     continue
-                if rid not in by_room or measured is not None:
+                if measured is not None:
                     continue
                 # the critic does not see the doorway from rid (its centre off the room's outline): F2's own box
                 nn = (n[0] * sign, n[1] * sign)

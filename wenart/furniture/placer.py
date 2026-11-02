@@ -583,7 +583,10 @@ def room_openings(building: dict, room: dict) -> tuple[list[dict], list[dict]]:
     return doors, windows
 
 
-def room_context(building: dict, room: dict) -> RoomContext:
+def room_context(building: dict, room: dict, walkways: bool = True) -> RoomContext:
+    """The room's outline, door and window zones and (``walkways``) the walkway pairs of the empty room. 2 Nov 2026
+    (rule B): ``walkways`` False leaves ``baseline_pairs`` empty, for a caller that reads only the door zones (the
+    architect's F2 through ``plausibility.door_measures``)."""
     polygon = orient(Polygon(room["polygon"]), 1.0)   # CCW: left normal points inward
     if not polygon.is_valid:
         polygon = polygon.buffer(0)
@@ -620,7 +623,8 @@ def room_context(building: dict, room: dict) -> RoomContext:
                                   sill is None, width, float(op["height"]) if op.get("height") else None))
     ctx = RoomContext(room=room, polygon=polygon, shrunk=polygon.buffer(-ROOM_SHRINK_M, join_style="mitre"),
                       segments=segments, doors=doors, windows=windows)
-    ctx.baseline_pairs = [pair for pair in _all_pairs(ctx) if _pair_ok(pair, walkable_region([], ctx), [], ctx)]
+    if walkways:
+        ctx.baseline_pairs = [pair for pair in _all_pairs(ctx) if _pair_ok(pair, walkable_region([], ctx), [], ctx)]
     return ctx
 
 
