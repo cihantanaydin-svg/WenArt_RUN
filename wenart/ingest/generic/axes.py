@@ -67,6 +67,11 @@ def bubbles(strokes: Iterable, texts: Iterable) -> list[tuple[float, float, floa
     return out
 
 
+def _long(st, span: float) -> bool:
+    pts = list(getattr(st, "pts", []) or [])
+    return len(pts) >= 2 and span > 0 and math.dist(pts[0], pts[-1]) >= LINETYPE_SPAN_SHARE * span
+
+
 def _straight(st):
     pts = list(getattr(st, "pts", []) or [])
     if getattr(st, "arc", None) or len(pts) < 2:
@@ -82,12 +87,22 @@ def _straight(st):
     return a, b
 
 
+LINETYPE_SPAN_SHARE = 0.3             # a line marked by its linetype alone spans this share of the plan (a grid line)
+
+
 def axis_line_ids(strokes: list, texts: list) -> set:
-    """The ids of the axis lines among ``strokes`` (the module docstring)."""
+    """The ids of the axis lines among ``strokes`` (the module docstring). 2 Nov 2026: a line whose linetype alone
+    says centre / dash-dot is an axis line only when it spans ``LINETYPE_SPAN_SHARE`` of the plan (the overhead kitchen
+    cabinets and the centre lines of a furniture symbol are drawn dash-dot too, short); a grid layer or a bubble at its
+    end marks it at any length."""
     out = set()
     bub = bubbles(strokes, texts)
+    xs = [p[0] for st in strokes for p in (getattr(st, "pts", None) or [])]
+    ys = [p[1] for st in strokes for p in (getattr(st, "pts", None) or [])]
+    span = max(max(xs) - min(xs), max(ys) - min(ys)) if xs else 0.0
     for st in strokes:
-        if is_axis_style(getattr(st, "layer", None), getattr(st, "linetype", None)):
+        layer, lt = getattr(st, "layer", None), getattr(st, "linetype", None)
+        if is_axis_style(layer, None) or (lt and is_axis_style(None, lt) and _long(st, span)):
             if getattr(st, "kind", "line") in ("line", "polyline") and not getattr(st, "closed", False):
                 out.add(st.id)
             continue

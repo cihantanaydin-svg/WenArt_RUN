@@ -101,6 +101,7 @@ from __future__ import annotations
 import argparse
 import copy
 import math
+import os
 import re
 import subprocess
 from dataclasses import dataclass, field
@@ -2967,6 +2968,20 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         building["warnings"].extend(f"schema: {e}" for e in errors[:20])
     B.save(building, out_dir / "building.json", check=False)
     write_report(building, out_dir / "report.md", build.review_reasons, build)
+    # 2 Nov 2026 (user: "We need to improve this initial project reading part"): the reading checks itself against the
+    # drawing (wenart.reading_check: levels left out, floors that do not stack, areas, drawn walls not built, walls on
+    # no drawn line); its verdict and findings go to reading_check/ and the report; never fatal
+    if os.environ.get("WENART_READING_CHECK", "1") != "0":
+        try:
+            from wenart import reading_check as RCK
+            res = RCK.check(out_dir)
+            RCK.write(out_dir, res)
+            with (out_dir / "report.md").open("a", encoding="utf-8") as fh:
+                fh.write(f"\n## Reading check\n\nVerdict: **{res['verdict']}** ({res['counts']['critical']} critical, "
+                         f"{res['counts']['major']} major); every finding: `reading_check/reading_check.md`.\n")
+        except Exception as exc:  # noqa: BLE001 - the check never stops a reading
+            with (out_dir / "report.md").open("a", encoding="utf-8") as fh:
+                fh.write(f"\n## Reading check\n\nNot run: {type(exc).__name__}: {str(exc)[:200]}\n")
     return building, build
 
 

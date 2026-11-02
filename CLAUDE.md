@@ -193,6 +193,13 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   edit passes the same code checks. Every finding has a problem kind; a kind that recurs
   (`results/argus/problem_log.json`) gets a general rule. Review every run with
   `python -m wenart.audit run --results runs/<job>/results --project <p> --log`.
+- Reading (user requests of 2 Nov 2026: "We need to improve this initial project reading part", "can we keep improving
+  this regression set?"): every reading writes its self-check (`reading_check/reading_check.md`: levels left out, floors
+  that do not stack, areas against the drawing's area texts, drawn walls not built, walls on no drawn line, and what the
+  reading understood about the drawing); review it with its sheets (`python -m wenart.reading_check check --out <out>
+  --sheets`) before any pod run. Before committing a reading change run the regression set (`python -m
+  wenart.reading_check regress`); every project read and every structural correction of the user adds to it
+  (`results/reading_baseline/`, `--update` after the user accepts a change).
 - Every new request or correction of the user becomes a lesson (`python -m wenart.agent.lessons add "..."`,
   `wenart/blender/architect_lessons.json`); the architect checks the lessons on every project (user request of 25 Oct
   2026).

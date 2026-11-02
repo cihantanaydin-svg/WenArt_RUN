@@ -3138,6 +3138,18 @@
    "request": "The top floor's lift machine room is larger than the shaft below, so floors are placed by the core's stair first (the same concentric arcs of a spiral stair's eye on both plans), then by the shaft walls, the axis grid and the outline (user, 2 Nov 2026: 'Shaft on the terras, top flow is different than the rest as you are able to see', 'I am hoping everything we are understanding now here is going to be a lesson learned for the future projects in the pod right?')",
    "lesson": "The top floor's lift machine room is larger than the shaft below, so floors are placed by the core's stair first (the same concentric arcs of a spiral stair's eye on both plans), then by the shaft walls, the axis grid and the outline (user, 2 Nov 2026: 'Shaft on the terras, top flow is different than the rest as you are able to see', 'I am hoping everything we are understanding now here is going to be a lesson learned for the future projects in the pod right?')",
    "question": null
+  },
+  {
+   "id": "UL265",
+   "date": "2026-11-02",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "The project reading checks itself against the drawing before any pod run (levels left out, floors that do not stack, areas against the drawing's own area texts, drawn walls not built, walls on no drawn line), records what it understood about the drawing (layer meanings, linetypes, grid, core, underground levels), draws the comparison sheets, and every reading change passes the reading regression set, which grows with every project and every structural correction (user, 2 Nov 2026: 'We need to improve this initial project reading part currently it is requiring a lot of fixing', 'go ahead with all 4', 'can we keep improving this regression set?')",
+   "lesson": "The project reading checks itself against the drawing before any pod run (levels left out, floors that do not stack, areas against the drawing's own area texts, drawn walls not built, walls on no drawn line), records what it understood about the drawing (layer meanings, linetypes, grid, core, underground levels), draws the comparison sheets, and every reading change passes the reading regression set, which grows with every project and every structural correction (user, 2 Nov 2026: 'We need to improve this initial project reading part currently it is requiring a lot of fixing', 'go ahead with all 4', 'can we keep improving this regression set?')",
+   "question": null
   }
  ]
 }

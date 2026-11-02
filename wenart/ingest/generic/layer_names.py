@@ -29,6 +29,24 @@ ROLES: dict[str, tuple[str, ...]] = {
                   "BETON", "CONCRETE", "RC", "STAHLBETON", "STB", "VOILE", "SHEAR", "TASIYICI", "STRUCTURE",
                   "STRUCTURAL", "STRUKTUR"),
 }
+# 2 Nov 2026 (the reading's conventions record, wenart.reading_check.conventions): the other layers of a drawing, for
+# the record and the checks only (the walls' choice uses the three wall roles above)
+ROLES.update({
+    "door": ("KAPI", "KAPILAR", "DOOR", "DOORS", "TUR", "TUER", "TUEREN", "PORTE", "PORTES", "PUERTA", "PUERTAS",
+             "PORTA", "PORTE-FENETRE"),
+    "window": ("PENCERE", "PENCERELER", "WINDOW", "WINDOWS", "FENSTER", "FENETRE", "FENETRES", "VENTANA",
+               "VENTANAS", "FINESTRA", "FINESTRE", "DOGRAMA", "GLAZING"),
+    "furniture": ("TEFRIS", "MOBILYA", "FURNITURE", "FURN", "MOEBEL", "MOBEL", "MOBILIER", "MUEBLE", "MUEBLES",
+                  "ARREDO", "ARREDI", "ESYA"),
+    "dimension": ("DIM", "DIMS", "DIMH", "DIMV", "DH", "DV", "OLCU", "OLCULER", "COTA", "COTAS", "BEMASSUNG",
+                  "MASSE", "COTE", "COTES", "QUOTA", "QUOTE", "DIMENSION", "DIMENSIONS"),
+    "axis": ("AKS", "AKSLAR", "AXIS", "AXES", "GRID", "GRIDS", "ACHSE", "ACHSEN", "RASTER", "EKSEN", "ASSE", "EJE"),
+    "stair": ("MERDIVEN", "STAIR", "STAIRS", "TREPPE", "ESCALIER", "ESCALERA", "SCALA", "BASAMAK"),
+    "section": ("KESIT", "SECTION", "SCHNITT", "COUPE", "CORTE", "SEZIONE"),
+    "text": ("TEXT", "TEXTS", "YAZI", "YAZILAR", "TEXTE", "TEXTO", "TESTO", "NOTE", "NOTES", "ANNO"),
+    "hatch": ("HATCH", "TARAMA", "SCHRAFFUR", "HACHURE", "RAYADO", "TRATTEGGIO"),
+    "site": ("VAZIYET", "SITE", "LAGEPLAN", "PLAN-MASSE", "EMPLAZAMIENTO", "PLANIMETRIA", "PEYZAJ", "LANDSCAPE"),
+})
 WALL_ROLES: tuple[str, ...] = ("wall", "plaster", "structure")
 _WORD_RE = re.compile(r"[A-Z]+(?:-[A-Z]+)?")
 
