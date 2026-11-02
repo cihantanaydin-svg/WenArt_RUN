@@ -3036,6 +3036,16 @@
    "request": "Before every pod run, forecast the run time (python -m wenart.run forecast --project <p> --measure) and show it; on the pod the renders are reserved: the AI architect's answers, its floor look and Argus run only while the builds, previews and final stages still fit before the deadline (user, 2 Nov 2026: 'is there a way to predict the total required run time?' ... 'yes, build the forecast and the render reserve')",
    "lesson": "Before every pod run, forecast the run time (python -m wenart.run forecast --project <p> --measure) and show it; on the pod the renders are reserved: the AI architect's answers, its floor look and Argus run only while the builds, previews and final stages still fit before the deadline (user, 2 Nov 2026: 'is there a way to predict the total required run time?' ... 'yes, build the forecast and the render reserve')",
    "question": null
+  },
+  {
+   "id": "UL256",
+   "date": "2026-11-02",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "A pod run may take up to 5 hours (user, 2 Nov 2026: 'extend the cut off time to 5 hour'; was 4 h since 11 Oct 2026)",
+   "lesson": "A pod run may take up to 5 hours (user, 2 Nov 2026: 'extend the cut off time to 5 hour'; was 4 h since 11 Oct 2026)",
+   "question": null
   }
  ]
 }

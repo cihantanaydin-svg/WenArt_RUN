@@ -162,7 +162,7 @@ def measure(building: dict, brief: Optional[dict] = None) -> dict:
             "open": record.get("open")}
 
 
-def forecast(project: str, building: dict, *, max_minutes: float = 240.0, gpu_speed: float = 1.0,
+def forecast(project: str, building: dict, *, max_minutes: float = 300.0, gpu_speed: float = 1.0,
              hist: Optional[dict] = None, cpu: Optional[dict] = None, cameras: Optional[int] = None,
              reuse_stages: bool = False) -> dict:
     """The forecast of a full run of ``project`` (module docstring): ``{"rows": [{"part", "seconds", "source",

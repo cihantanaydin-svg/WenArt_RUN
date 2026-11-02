@@ -100,7 +100,7 @@ def parse_args(argv) -> argparse.Namespace:
                                                       "the newest run's, else outputs/<p>/building_final.json)")
     fc.add_argument("--measure", action="store_true", help="time one plan and one check here and count the AI "
                                                             "questions (a few minutes of CPU)")
-    fc.add_argument("--max-minutes", type=float, default=240.0)
+    fc.add_argument("--max-minutes", type=float, default=300.0, help="the pod limit (5 h since 2 Nov 2026)")
     fc.add_argument("--gpu-speed", type=float, default=1.0, help="wenart.run.plan.GPU_SPEED of the pod's GPU")
     fc.add_argument("--reuse-stages", action="store_true", help="the stages 0-12 are reused from the volume")
     fc.add_argument("--out", default=None, help="forecast JSON (default: print only)")

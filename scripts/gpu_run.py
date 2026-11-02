@@ -69,7 +69,7 @@ DAY_LIMITS = {"2026-10-09": 40.00,   # user, 9 Oct 2026 (M11 pods): "we can exte
 def day_limit(day: str | None = None) -> float:
     """The daily cap of UTC date ``day`` (default today): ``DAY_LIMITS`` or ``MAX_PER_DAY``."""
     return DAY_LIMITS.get(day or utc_now().strftime("%Y-%m-%d"), MAX_PER_DAY)
-MAX_MINUTES = 240               # user, 11 Oct 2026: "relax the pod time ... give them more time" (was 120)
+MAX_MINUTES = 300               # user, 2 Nov 2026: "extend the cut off time to 5 hour" (240 since 11 Oct 2026: "relax the pod time ... give them more time"; was 120)
 IMAGE = "runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404"
 DATACENTER = "EU-RO-1"
 VOLUME_NAME = "wenart"

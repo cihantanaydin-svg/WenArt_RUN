@@ -101,7 +101,7 @@ def test_pick_gpu_refuses_expensive():
 
 def test_day_limits_of_the_users_one_day_raises():
     assert gpu_run.day_limit("2026-10-09") == 40.0 and gpu_run.day_limit("2026-10-11") == 60.0   # real04 test
-    assert gpu_run.day_limit("2026-10-12") == gpu_run.MAX_PER_DAY == 30.0 and gpu_run.MAX_MINUTES == 240
+    assert gpu_run.day_limit("2026-10-12") == gpu_run.MAX_PER_DAY == 30.0 and gpu_run.MAX_MINUTES == 300
 
 
 def test_check_limits(monkeypatch):
@@ -111,9 +111,9 @@ def test_check_limits(monkeypatch):
     gpu_run.check_limits(1.01, 10, 0.0)                     # allowed since 3 Oct 2026 ($5/h limit)
     with pytest.raises(RuntimeError):
         gpu_run.check_limits(5.01, 10, 0.0)
-    gpu_run.check_limits(0.5, 240, 0.0)                      # 4 h per run since 11 Oct 2026 (user OK)
+    gpu_run.check_limits(0.5, 300, 0.0)                      # 5 h per run since 2 Nov 2026 (user OK; 4 h since 11 Oct)
     with pytest.raises(RuntimeError):
-        gpu_run.check_limits(0.5, 241, 0.0)
+        gpu_run.check_limits(0.5, 301, 0.0)
     gpu_run.check_limits(0.9, 120, 19.0)                     # $20.80 a day: allowed since 4 Oct 2026 ($30/day)
     with pytest.raises(RuntimeError, match="day"):
         gpu_run.check_limits(0.9, 120, 29.0)
