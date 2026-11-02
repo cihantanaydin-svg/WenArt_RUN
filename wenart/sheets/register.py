@@ -19,6 +19,13 @@ How (metres):
 - ``registration.shift_m`` / ``rotation_deg`` map a region's drawing onto the reference drawing, both in metres
   (``p_ref = R(rotation) (p metres_per_unit) + shift_m``); ``transform_to_building`` is that map followed by the
   reference's origin step;
+- 2 Nov 2026 (real10: the outline fit turned the first basement 90 degrees and the terrace plan 180 degrees, though
+  every plan of the sheet carries the same axis grid, 1-16 and A-H): a plan that shares at least ``GRID_MIN_AXES``
+  labelled axes in each direction with the reference (``grid_axes``: the bubbles, a label in a circle, two of each
+  axis at its ends) is registered by the grid (``grid_fit``, method ``axis_grid``): the rotation and the shift that put
+  every axis of the same label on the reference's, the residual their RMS; outlines of different floors may differ
+  (terraces, balconies), the grid does not. Without a shared grid the outline fit below keeps the sheet's
+  orientation (0 degrees) unless another rotation fits clearly better (``SAME_ORIENTATION_SHARE``);
 - every other plan: candidates at 0/90/180/270 degrees, started from its outline box aligned to the reference's at
   the centre and at each corner, refined by trimmed ICP (the 80 % nearest outline points, translation only); the
   lowest trimmed RMS wins (0 degrees on ties). Columns (closed squares 0.15-0.8 m) that match within 0.10 m refine the
@@ -54,6 +61,20 @@ MATCH_M = 0.05
 COLUMN_MATCH_M = 0.10
 COLUMNS_MIN = 3
 ROOF_MARGIN_M = (0.2, 2.0)
+# 2 Nov 2026 (the module docstring): the axis grid
+GRID_LABEL_RE = re.compile(r"^(?:[A-Z]{1,2}|\d{1,3})['\u2032]?$")
+GRID_BUBBLE_M = (0.25, 2.0)       # an axis bubble's diameter
+GRID_ALIGN_M = 0.10               # the bubbles of one axis: their cross coordinate within this ...
+GRID_SPAN_M = 3.0                 # ... and at least this far apart along the axis
+GRID_MIN_AXES = 2                 # shared labelled axes needed in each direction
+GRID_RESIDUAL_MAX_M = 0.05
+SAME_ORIENTATION_SHARE = 0.5      # another rotation than the sheet's wins only at under half its trimmed RMS
+# 2 Nov 2026 (user: "Shaft is the good place to align the floors", "align according to shaft"): the lift shaft
+LIFT_RE = re.compile(r"ASANSOR|ELEVATOR|\bLIFT\b|AUFZUG|ASCENSEUR|ASCENSOR")   # on folded (ASCII, upper) text
+CORE_RADIUS_M = 4.0               # the core's walls around the lift label: the shaft, its lobby, the stair
+CORE_SEGMENT_MIN_M = 0.3
+CORE_RESIDUAL_MAX_M = 0.10        # the core fit's trimmed RMS
+CORE_GRID_AGREE_M = 0.10          # the shaft and the axis grid agree: the grid's exact shift is used
 
 
 def enclosing_outlines(region, mpu: Optional[float], max_margin_m: Optional[float] = None) -> list:
@@ -165,14 +186,25 @@ def roof_outlines(region, mpu: float) -> list:
     return enclosing_outlines(region, mpu, ROOF_MARGIN_M[1])
 
 
+def axis_strokes(region) -> set:
+    """The ids of the region's axis lines (``generic.axes``: a grid layer, a centre / dash-dot linetype or a bubble at
+    their end; 2 Nov 2026): never part of an outline or a core."""
+    from wenart.ingest.generic import axes as AX
+    return AX.axis_line_ids([st for e in region.ents for st in e.strokes], region.texts)
+
+
 def outline(region, mpu: float, exclude: set) -> Optional[Polygon]:
-    """The plan's outline polygon in source units (None when nothing long enough is drawn)."""
+    """The plan's outline polygon in source units (None when nothing long enough is drawn). 2 Nov 2026: without the
+    axis lines (``axis_strokes``)."""
     lines = []
     min_len = SEGMENT_MIN_M / mpu
+    axes = axis_strokes(region)
     for e in region.ents:
         if e.id in exclude or e.dim is not None:
             continue
-        for a, b, _ in UC.segments(e.strokes):
+        for a, b, st in UC.segments(e.strokes):
+            if getattr(st, "id", None) in axes:
+                continue
             if math.dist(a, b) >= min_len:
                 lines.append(LineString([a, b]))
     if not lines:
@@ -223,6 +255,147 @@ def icp(moving: np.ndarray, ring: LineString, shift: np.ndarray) -> tuple[np.nda
     return t, rms
 
 
+def _is_bubble(e, mpu: float) -> bool:
+    """A circle of an axis bubble's size (``GRID_BUBBLE_M``): a CIRCLE, or one closed stroke in a square box."""
+    w, h = (e.box[2] - e.box[0]) * mpu, (e.box[3] - e.box[1]) * mpu
+    if not (GRID_BUBBLE_M[0] <= w <= GRID_BUBBLE_M[1] and abs(w - h) <= 0.15 * max(w, h)):
+        return False
+    if e.kind == "CIRCLE":
+        return True
+    return len(e.strokes) == 1 and bool(getattr(e.strokes[0], "closed", False)) and e.rect is None
+
+
+def grid_axes(region, mpu: Optional[float]) -> dict:
+    """``{label: ("v", x) | ("h", y)}`` in metres of the region's frame (source units x ``mpu``): the labelled axes of
+    its grid (the module docstring): a label (``GRID_LABEL_RE``) inside a bubble (``_is_bubble``); an axis needs two
+    bubbles of its label at least ``GRID_SPAN_M`` apart along it, their cross coordinates within ``GRID_ALIGN_M`` (the
+    largest such group of the label: a section marker of the same letter does not count)."""
+    if not mpu:
+        return {}
+    bubbles = [e for e in region.ents if _is_bubble(e, mpu)]
+    if not bubbles:
+        return {}
+    by_label: dict = {}
+    for t in region.texts:
+        label = str(t.text or "").strip().upper()
+        if not GRID_LABEL_RE.match(label):
+            continue
+        p = t.point
+        host = next((b for b in bubbles if b.box[0] <= p[0] <= b.box[2] and b.box[1] <= p[1] <= b.box[3]), None)
+        if host is not None:
+            by_label.setdefault(label, []).append((host.centre[0] * mpu, host.centre[1] * mpu))
+    out = {}
+    for label, pts in by_label.items():
+        best = None
+        for orient, cross, along in (("v", 0, 1), ("h", 1, 0)):
+            for p in pts:
+                group = [q for q in pts if abs(q[cross] - p[cross]) <= GRID_ALIGN_M]
+                span = max(q[along] for q in group) - min(q[along] for q in group)
+                if len(group) >= 2 and span >= GRID_SPAN_M and (best is None or len(group) > best[0]):
+                    best = (len(group), orient, sum(q[cross] for q in group) / len(group))
+        if best is not None:
+            out[label] = (best[1], best[2])
+    return out
+
+
+def _turn_axis(orient: str, c: float, theta: float) -> tuple[str, float]:
+    """An axis line (``v`` at x = c, ``h`` at y = c) turned by ``theta`` (0/90/180/270 degrees) about the origin."""
+    k = int(round(theta / 90.0)) % 4
+    if orient == "v":
+        return [("v", c), ("h", c), ("v", -c), ("h", -c)][k]
+    return [("h", c), ("v", -c), ("h", -c), ("v", c)][k]
+
+
+def grid_fit(ref_axes: dict, axes: dict) -> Optional[dict]:
+    """The rotation (0/90/180/270) and shift (metres) that put ``axes`` on ``ref_axes`` by label (pure; the module
+    docstring): ``{"rotation_deg", "shift": [dx, dy], "residual_m", "axes": {"v": n, "h": n}}`` (``p_ref = R p +
+    shift``), the rotation with the lowest RMS of the labels' offsets (0 degrees on ties), at least ``GRID_MIN_AXES``
+    shared axes in each direction; None without."""
+    best = None
+    for theta in (0.0, 90.0, 180.0, 270.0):
+        dx, dy = [], []
+        for label, (orient, c) in axes.items():
+            if label not in ref_axes:
+                continue
+            o2, c2 = _turn_axis(orient, c, theta)
+            ro, rc = ref_axes[label]
+            if o2 == ro:
+                (dx if ro == "v" else dy).append(rc - c2)
+        if len(dx) < GRID_MIN_AXES or len(dy) < GRID_MIN_AXES:
+            continue
+        tx, ty = float(np.median(dx)), float(np.median(dy))
+        res = float(np.sqrt(np.mean([(d - tx) ** 2 for d in dx] + [(d - ty) ** 2 for d in dy])))
+        key = (round(res, 4), theta != 0.0)
+        if best is None or key < best[0]:
+            best = (key, {"rotation_deg": theta, "shift": [_r(tx), _r(ty)], "residual_m": round(res, 4),
+                          "axes": {"v": len(dx), "h": len(dy)}})
+    return best[1] if best else None
+
+
+def lift_anchor(region) -> Optional[tuple[float, float]]:
+    """The point of the region's lift label (``LIFT_RE``: asansör, elevator, lift, Aufzug, ascenseur; a lift machine
+    room above the shaft too), in source units; the one nearest the region's centre when there are several."""
+    from wenart.sheets import titles as T
+    labels = [t.point for t in region.texts if LIFT_RE.search(T.fold(t.text or ""))]
+    if not labels:
+        return None
+    b = region.geometry_box
+    c = ((b[0] + b[2]) / 2.0, (b[1] + b[3]) / 2.0)
+    return min(labels, key=lambda p: math.dist(p, c))
+
+
+def core_segments(region, mpu: float, centre, exclude: set) -> list:
+    """The straight strokes (metres, the region's frame) of the core around ``centre`` (source units): every segment
+    of at least ``CORE_SEGMENT_MIN_M`` whose middle lies within ``CORE_RADIUS_M`` of it; no dimension, no cut line."""
+    cx, cy = centre[0] * mpu, centre[1] * mpu
+    out = []
+    axes = axis_strokes(region)
+    for e in region.ents:
+        if e.id in exclude or e.dim is not None:
+            continue
+        for a, b, st in UC.segments(e.strokes):
+            if getattr(st, "id", None) in axes:
+                continue
+            a_m, b_m = (a[0] * mpu, a[1] * mpu), (b[0] * mpu, b[1] * mpu)
+            if math.dist(a_m, b_m) < CORE_SEGMENT_MIN_M:
+                continue
+            mid = ((a_m[0] + b_m[0]) / 2.0, (a_m[1] + b_m[1]) / 2.0)
+            if math.dist(mid, (cx, cy)) <= CORE_RADIUS_M:
+                out.append((a_m, b_m))
+    return out
+
+
+def core_fit(ref_segs: list, ref_anchor, segs: list, anchor, theta: float) -> Optional[dict]:
+    """The shift (metres; ``p_ref = R(theta) p + shift``) that puts the core's walls on the reference core's (pure;
+    2 Nov 2026, user: "align according to shaft"): translation-only trimmed ICP of the core's sampled strokes onto the
+    reference core's strokes, started from the lift labels on each other. ``{"shift", "rms_m", "points"}``; None
+    without strokes on either side."""
+    if not ref_segs or not segs:
+        return None
+    ref_geom = shapely.MultiLineString([list(s) for s in ref_segs])
+    pts = []
+    for a, b in segs:
+        line = shapely.segmentize(LineString([a, b]), SAMPLE_M)
+        pts.extend(np.asarray(line.coords).tolist())
+    pts = np.asarray(pts, dtype=float) @ _rot(theta).T
+    an = np.asarray(anchor, dtype=float) @ _rot(theta).T
+    t = np.asarray(ref_anchor, dtype=float) - an
+    rms = math.inf
+    for _ in range(ICP_ITERS):
+        p = pts + t
+        q = shapely.get_coordinates(shapely.shortest_line(ref_geom, shapely.points(p)))[0::2]
+        d = np.hypot(*(q - p).T)
+        keep = d <= np.quantile(d, TRIM)
+        step = (q[keep] - p[keep]).mean(axis=0)
+        t = t + step
+        new = float(np.sqrt(np.mean(d[keep] ** 2)))
+        if abs(rms - new) < 1e-6 and float(np.hypot(*step)) < 1e-6:
+            rms = new
+            break
+        rms = new
+    return {"shift": [_r(t[0]), _r(t[1])], "rms_m": round(rms, 4), "points": int(len(pts))}
+
+
 def register(plans: list, reference, conflict: Callable, warnings: list) -> dict:
     """Registers ``plans`` (regions with ``metres_per_unit``) onto ``reference``. Returns ``{region id: outline
     polygon in building metres}`` for the outline cross-checks."""
@@ -249,6 +422,9 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
     ref_cols = np.array([(c[0] * ref_mpu + ref_t[0], c[1] * ref_mpu + ref_t[1])
                          for c in SC.columns_of(reference, ref_mpu)]).reshape(-1, 2)
     rb = ref_m.bounds
+    ref_axes = grid_axes(reference, ref_mpu)
+    ref_lift = lift_anchor(reference)
+    ref_core = core_segments(reference, ref_mpu, ref_lift, excl) if ref_lift is not None else []
     for r in plans:
         if r is reference:
             continue
@@ -260,23 +436,64 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
             warnings.append(f"registration: {r.file} {r.id} has no outline; not registered")
             continue
         pts0 = _points(poly, mpu)
-        best = None
-        for theta in (0.0, 90.0, 180.0, 270.0):
-            rot = _rot(theta)
-            pts = pts0 @ rot.T
-            mb = (pts[:, 0].min(), pts[:, 1].min(), pts[:, 0].max(), pts[:, 1].max())
-            inits = [((rb[0] + rb[2]) / 2 - (mb[0] + mb[2]) / 2, (rb[1] + rb[3]) / 2 - (mb[1] + mb[3]) / 2),
-                     (rb[0] - mb[0], rb[1] - mb[1]), (rb[2] - mb[2], rb[1] - mb[1]),
-                     (rb[0] - mb[0], rb[3] - mb[3]), (rb[2] - mb[2], rb[3] - mb[3])]
-            for init in inits:
-                t, rms = icp(pts, ring, np.array(init, dtype=float))
-                key = (round(rms, 4), theta != 0.0)
-                if best is None or key < best[0]:
-                    best = (key, theta, t, rms)
-        _, theta, t, rms = best
+        grid = grid_fit(ref_axes, grid_axes(r, mpu)) if ref_axes else None
+        grid_ok = grid is not None and grid["residual_m"] <= GRID_RESIDUAL_MAX_M
+        # 2 Nov 2026 (user: "align according to shaft"): the lift shaft first: the core's walls on the reference
+        # core's, at the grid's rotation (else the sheet's, 0 degrees); the grid's exact shift when the two agree
+        shaft = None
+        lift = lift_anchor(r)
+        if ref_core and lift is not None:
+            theta_s = grid["rotation_deg"] if grid_ok else 0.0
+            excl_r = set(enclosing_outlines(r, mpu)) | cut_line_entities(r)
+            shaft = core_fit(ref_core, (ref_lift[0] * ref_mpu, ref_lift[1] * ref_mpu),
+                             core_segments(r, mpu, lift, excl_r), (lift[0] * mpu, lift[1] * mpu), theta_s)
+            if shaft is not None:
+                shaft["rotation_deg"] = theta_s
+                if grid_ok:
+                    shaft["grid_gap_m"] = round(float(math.dist(shaft["shift"], grid["shift"])), 4)
+            if shaft is not None and shaft["rms_m"] > CORE_RESIDUAL_MAX_M:
+                warnings.append(f"registration: {r.id}: the lift core fits the reference's with an RMS of "
+                                f"{shaft['rms_m']:.3f} m (over {CORE_RESIDUAL_MAX_M} m): not used")
+                shaft = None
+        method = None
+        if shaft is not None:
+            theta = shaft["rotation_deg"]
+            if grid_ok and shaft["grid_gap_m"] <= CORE_GRID_AGREE_M:
+                t = np.array(grid["shift"], dtype=float) + ref_t
+                method = "shaft_grid"
+            else:
+                t = np.array(shaft["shift"], dtype=float) + ref_t   # the reference's raw metres -> the building frame
+                method = "shaft"
+                if grid_ok:
+                    cid = conflict("shaft_grid_mismatch", [r.id, reference.id],
+                                   f"{r.file} {r.id}: the lift shaft and the axis grid place the level "
+                                   f"{shaft['grid_gap_m']:.3f} m apart", "the lift shaft is used (user rule)")
+                    r.conflicts.append(cid)
+        elif grid_ok:
+            theta = grid["rotation_deg"]
+            t = np.array(grid["shift"], dtype=float) + ref_t       # the reference's raw metres -> the building frame
+            method = "axis_grid"
+        else:
+            per_theta: dict = {}
+            for theta in (0.0, 90.0, 180.0, 270.0):
+                rot = _rot(theta)
+                pts = pts0 @ rot.T
+                mb = (pts[:, 0].min(), pts[:, 1].min(), pts[:, 0].max(), pts[:, 1].max())
+                inits = [((rb[0] + rb[2]) / 2 - (mb[0] + mb[2]) / 2, (rb[1] + rb[3]) / 2 - (mb[1] + mb[3]) / 2),
+                         (rb[0] - mb[0], rb[1] - mb[1]), (rb[2] - mb[2], rb[1] - mb[1]),
+                         (rb[0] - mb[0], rb[3] - mb[3]), (rb[2] - mb[2], rb[3] - mb[3])]
+                for init in inits:
+                    t, rms = icp(pts, ring, np.array(init, dtype=float))
+                    if theta not in per_theta or round(rms, 4) < round(per_theta[theta][1], 4):
+                        per_theta[theta] = (t, rms)
+            # 2 Nov 2026: the sheet's orientation (0 degrees) unless another rotation fits clearly better
+            theta = min(per_theta, key=lambda th: (round(per_theta[th][1], 4), th != 0.0))
+            if theta != 0.0 and 0.0 in per_theta and per_theta[theta][1] > SAME_ORIENTATION_SHARE * per_theta[0.0][1]:
+                theta = 0.0
+            t, rms = per_theta[theta]
         rot = _rot(theta)
         pts = pts0 @ rot.T + t
-        method = "outline_icp"
+        method = method or "outline_icp"
         cols = np.array([np.asarray(c) * mpu @ rot.T + t for c in SC.columns_of(r, mpu)]).reshape(-1, 2)
         matched_cols = []
         if len(cols) and len(ref_cols):
@@ -286,6 +503,16 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
                 if d[k] <= COLUMN_MATCH_M:
                     matched_cols.append(ref_cols[k] - c)
         note = None
+        if method in ("shaft", "shaft_grid", "axis_grid"):
+            matched_cols = []                  # the shaft or the grid places the level: the columns do not move it
+            parts = []
+            if shaft is not None:
+                parts.append(f"lift shaft: core RMS {shaft['rms_m']:.3f} m over {shaft['points']} points")
+            if grid_ok:
+                parts.append(f"axis grid: {grid['axes']['v'] + grid['axes']['h']} shared axes, RMS "
+                             f"{grid['residual_m']:.3f} m" + (f", {shaft['grid_gap_m']:.3f} m from the shaft's"
+                                                               if shaft is not None else ""))
+            note = "; ".join(parts)
         if len(matched_cols) >= COLUMNS_MIN:
             t = t + np.mean(matched_cols, axis=0)
             pts = pts0 @ rot.T + t
@@ -302,7 +529,14 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
                           "shift_m": [_r(t[0] - ref_t[0]), _r(t[1] - ref_t[1])], "residual_m": round(residual, 4),
                           "matched": matched, "stairs_aligned": None, "note": note}
         outlines[r.id] = affinity.affine_transform(poly, [a, -b, b, a, t[0], t[1]])
-        if residual > RESIDUAL_MAX_M:
+        if grid_ok:
+            r.registration["grid_residual_m"] = grid["residual_m"]
+            r.registration["grid_axes"] = grid["axes"]
+        if shaft is not None:
+            r.registration["shaft"] = shaft
+        # a level placed by its shaft or the grid whose outline differs (terraces, balconies, a smaller basement) is
+        # no conflict: the core says where it stands
+        if residual > RESIDUAL_MAX_M and method not in ("shaft", "shaft_grid", "axis_grid"):
             cid = conflict("registration_residual", [r.id, reference.id],
                            f"{r.file} {r.id} ({(r.level or {}).get('id')}) registered onto {reference.id} "
                            f"({(reference.level or {}).get('id')}) with an RMS outline distance of {residual:.3f} m "

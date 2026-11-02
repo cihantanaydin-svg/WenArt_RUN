@@ -1,0 +1,108 @@
+"""2 Nov 2026 (user on real10: "There are too many mistakes in the structure", "go ahead with 1, 2 and 3", "Shaft is the
+good place to align the floors", "align according to shaft"): the levels of a multi-plan sheet are placed by their
+lift shaft (the core's walls on the reference core's), checked by the shared axis grid; the grid alone when a plan has
+no lift; the outline fit keeps the sheet's orientation unless another rotation fits clearly better. CPU only."""
+from __future__ import annotations
+
+import math
+from types import SimpleNamespace
+
+import pytest
+
+from wenart.sheets import register as RG
+
+
+def test_an_axis_turned_by_a_right_angle():
+    assert RG._turn_axis("v", 3.0, 0) == ("v", 3.0) and RG._turn_axis("v", 3.0, 90) == ("h", 3.0)
+    assert RG._turn_axis("v", 3.0, 180) == ("v", -3.0) and RG._turn_axis("v", 3.0, 270) == ("h", -3.0)
+    assert RG._turn_axis("h", 2.0, 90) == ("v", -2.0) and RG._turn_axis("h", 2.0, 270) == ("v", 2.0)
+
+
+def _grid(dx=0.0, dy=0.0, turn=0.0):
+    axes = {str(k + 1): ("v", 1.0 + 3.5 * k) for k in range(5)}
+    axes.update({c: ("h", 2.0 + 4.0 * k) for k, c in enumerate("ABCD")})
+    out = {}
+    for label, (o, c) in axes.items():
+        o2, c2 = RG._turn_axis(o, c, turn)
+        out[label] = (o2, c2 + (dx if o2 == "v" else dy))
+    return out
+
+
+def test_the_grid_gives_the_rotation_and_the_shift_by_label():
+    """real10: the basements carry the normal floor's grid 28.87 m to the left on the sheet; the outline fit had turned
+    them 90 degrees."""
+    ref = _grid()
+    moved = {k: (o, c - 28.87 if o == "v" else c) for k, (o, c) in ref.items()}
+    fit = RG.grid_fit(ref, moved)
+    assert fit["rotation_deg"] == 0.0 and fit["shift"] == [28.87, 0.0] and fit["residual_m"] == 0.0
+    assert fit["axes"] == {"v": 5, "h": 4}
+    # a plan drawn turned by 180 degrees: its axis 1 at the right end
+    turned = {}
+    for k, (o, c) in ref.items():
+        o2, c2 = RG._turn_axis(o, c, 180.0)     # p' = R(180) p: the plan as drawn is the reference turned back
+        turned[k] = (o2, c2)
+    fit = RG.grid_fit(ref, turned)
+    assert fit["rotation_deg"] == 180.0 and fit["residual_m"] == 0.0
+    assert RG.grid_fit(ref, {"1": ("v", 0.0), "A": ("h", 0.0)}) is None        # too few shared axes
+
+
+def _region(texts, ents, box=(0, 0, 100, 100)):
+    return SimpleNamespace(texts=texts, ents=ents, geometry_box=box)
+
+
+def _txt(text, x, y):
+    return SimpleNamespace(text=text, point=(x, y))
+
+
+def _circle(x, y, r):
+    return SimpleNamespace(kind="CIRCLE", box=(x - r, y - r, x + r, y + r), strokes=[], rect=None,
+                           centre=(x, y), id=f"CIRCLE:{x}:{y}", dim=None)
+
+
+def test_grid_axes_are_the_labels_in_bubbles_at_both_ends():
+    # units of 1 m (mpu 1); bubbles 0.6 m wide at the top and bottom of axes 1 and 2, left and right of A and B
+    texts = [_txt("1", 5, 0), _txt("1", 5, 30), _txt("2", 9, 0), _txt("2", 9, 30), _txt("A", 0, 8), _txt("A", 40, 8),
+             _txt("B", 0, 12), _txt("B", 40, 12), _txt("A", 20, 3),        # a section marker A: no bubble there
+             _txt("3", 13, 15)]                                            # a lone label: no axis
+    ents = [_circle(x, y, 0.3) for x, y in ((5, 0), (5, 30), (9, 0), (9, 30), (0, 8), (40, 8), (0, 12), (40, 12),
+                                            (13, 15))]
+    axes = RG.grid_axes(_region(texts, ents), 1.0)
+    assert axes == {"1": ("v", 5.0), "2": ("v", 9.0), "A": ("h", 8.0), "B": ("h", 12.0)}
+
+
+def test_the_lift_shaft_places_the_level():
+    """The core's walls (a shaft box and a stair wall) drawn 30 m to the right and 1.3 m lower land on the
+    reference's: the shift, a tiny RMS."""
+    ref_segs = [((10, 10), (12, 10)), ((12, 10), (12, 12)), ((12, 12), (10, 12)), ((10, 12), (10, 10)),
+                ((13, 9), (13, 14)), ((9, 14), (13, 14))]
+    segs = [((a[0] + 30, a[1] - 1.3), (b[0] + 30, b[1] - 1.3)) for a, b in ref_segs]
+    fit = RG.core_fit(ref_segs, (11.0, 11.0), segs, (41.4, 9.9), 0.0)   # the labels are 0.4 m apart in the shafts
+    assert fit["shift"] == pytest.approx([-30.0, 1.3], abs=0.02) and fit["rms_m"] < 0.02
+    assert RG.core_fit([], (0, 0), segs, (0, 0), 0.0) is None
+    reg = _region([_txt("ASANSÖR", 11, 11), _txt("salon", 50, 50)], [])
+    assert RG.lift_anchor(reg) == (11, 11)
+    assert RG.lift_anchor(_region([_txt("asansör mahali", 3, 4)], [])) == (3, 4)     # the machine room above it
+    assert RG.lift_anchor(_region([_txt("salon", 1, 1)], [])) is None
+
+
+# ------------------------------------------------------------------ axis lines are never walls
+def test_axis_lines_by_layer_linetype_or_the_bubble_at_their_end():
+    """2 Nov 2026 (user: "the red lines should have been dotted lines, those are for coordinates, you can understand
+    this from the numbers at the end"): real10's grid, layer aks, linetype ACAD_ISO04W100."""
+    from wenart.ingest.generic import axes as AX
+    from wenart.ingest.generic.model import Stroke, TextRun
+    assert AX.is_axis_style("aks", None) and AX.is_axis_style("S-GRID", None) and AX.is_axis_style("0", "CENTER2")
+    assert AX.is_axis_style("0", "ACAD_ISO04W100") and not AX.is_axis_style("AKSESUAR", None)
+    assert not AX.is_axis_style("DUVAR", "DASHED") and not AX.is_axis_style("WALL", "Continuous")
+    strokes = [
+        Stroke(id="a1", kind="line", pts=[(0, 0), (0, 30)], layer="aks"),                       # by layer
+        Stroke(id="a2", kind="line", pts=[(5, 0), (5, 30)], layer="0", linetype="ACAD_ISO04W100"),   # by linetype
+        Stroke(id="a3", kind="line", pts=[(10, 0.8), (10, 30)], layer="0"),                     # ends in bubble 3
+        Stroke(id="w1", kind="line", pts=[(0, 5), (20, 5)], layer="DUVAR"),                     # a wall
+        Stroke(id="w2", kind="line", pts=[(11, 0.5), (25, 0.5)], layer="DUVAR"),                # passes by, no aim
+        Stroke(id="b3", kind="circle", pts=[(10, 0)], closed=True, layer="0",
+               arc={"center": (10, 0), "radius": 0.5, "start_deg": 0, "end_deg": 360}),
+    ]
+    texts = [TextRun(id="t3", text="3", box=(9.85, -0.2, 10.15, 0.2), height=0.4),
+             TextRun(id="t4", text="salon", box=(3, 3, 6, 4), height=0.4)]
+    assert AX.axis_line_ids(strokes, texts) == {"a1", "a2", "a3"}

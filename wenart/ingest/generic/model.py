@@ -30,6 +30,9 @@ class Stroke:
     block: Optional[str] = None                           # DXF INSERT name chain, outermost first: "A/B"
     arc: Optional[dict] = None                            # {"center": (x, y), "radius", "start_deg", "end_deg"}
     source: str = "vector"                                # "vector" | "raster"
+    # 2 Nov 2026 (real10: the grid's dash-dot lines were read as solid strokes): the DXF linetype, resolved (BYLAYER
+    # -> the layer's, BYBLOCK -> the INSERT's); None for PDF and raster strokes (generic.axes)
+    linetype: Optional[str] = None
 
     def bbox(self) -> tuple[float, float, float, float]:
         xs = [p[0] for p in self.pts]

@@ -1932,6 +1932,14 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
         from wenart.sheets import register as RG
         from wenart.sheets import titles as T
         page.strokes = [st for st in page.strokes if not (st.layer and RG.CUT_LAYER_RE.search(T.fold(st.layer)))]
+    # 2 Nov 2026 (real10, user: "the red lines should have been dotted lines, those are for coordinates, you can
+    # understand this from the numbers at the end"): the axis lines of the grid are never walls, rooms or site decor
+    from wenart.ingest.generic import axes as AX
+    axis_ids = AX.axis_line_ids(page.strokes, page.texts)
+    if axis_ids:
+        page.strokes = [st for st in page.strokes if st.id not in axis_ids]
+        page.warnings.append(f"{len(axis_ids)} axis line(s) of the structural grid left out of the walls, the rooms "
+                             f"and the outline (a grid layer, a centre / dash-dot linetype or a bubble at their end)")
     if build is not None:
         build.source_pages[record.key] = _page_summary(page)
         # real10 (1 Nov 2026): a plan with too few room labels to choose its wall layers takes the document's (the

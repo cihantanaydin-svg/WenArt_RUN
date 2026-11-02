@@ -496,9 +496,26 @@ class _Reader:
 
     # ---- dispatch ----------------------------------------------------------
 
+    def _linetype(self, entity, layer: str, ref: Optional[_Ref]) -> Optional[str]:
+        """The entity's linetype name, resolved: BYLAYER -> its layer's, BYBLOCK -> the INSERT's (2 Nov 2026)."""
+        lt = str(entity.dxf.get("linetype", "BYLAYER") or "BYLAYER")
+        if lt.upper() == "BYBLOCK":
+            return getattr(ref, "linetype", None) if ref is not None else None
+        if lt.upper() != "BYLAYER":
+            return lt
+        cache = self.__dict__.setdefault("_layer_linetypes", {})
+        key = layer.upper()
+        if key not in cache:
+            try:
+                cache[key] = self.doc.layers.get(layer).dxf.get("linetype", None)
+            except Exception:  # noqa: BLE001 - an unknown layer: no linetype
+                cache[key] = None
+        return cache[key]
+
     def _entity(self, entity, eid: str, ref: Optional[_Ref]) -> None:
         kind = entity.dxftype()
         layer = self._effective_layer(entity, ref)
+        self._entity_linetype = self._linetype(entity, layer, ref)
         if entity.dxf.get("invisible", 0) or not self._layer_info(layer)[0]:
             self.hidden += 1
             if ref is None:
@@ -535,6 +552,8 @@ class _Reader:
     def _add(self, stroke: Stroke) -> None:
         if not stroke.pts:
             return
+        if stroke.linetype is None:                     # 2 Nov 2026: the entity's resolved linetype (generic.axes)
+            stroke.linetype = getattr(self, "_entity_linetype", None)
         if self._clip is None:
             self.strokes.append(stroke)
             return

@@ -3078,6 +3078,30 @@
    "request": "When the building's structure is wrong, review it before any full run: per floor the source drawing, the model's plan in the same orientation, the model's walls over the drawing and the top-down render, plus the drawn elevations next to the exterior views; then a short structure pod run (RUN_PROFILE=structure: top-down plans and exterior views only) (user, 2 Nov 2026: 'would it be possible that I will give feedback for the corrections and we only run the top down views and outside views? With a very short pod run?', 'Give those together also model and what came from the pod')",
    "lesson": "When the building's structure is wrong, review it before any full run: per floor the source drawing, the model's plan in the same orientation, the model's walls over the drawing and the top-down render, plus the drawn elevations next to the exterior views; then a short structure pod run (RUN_PROFILE=structure: top-down plans and exterior views only) (user, 2 Nov 2026: 'would it be possible that I will give feedback for the corrections and we only run the top down views and outside views? With a very short pod run?', 'Give those together also model and what came from the pod')",
    "question": null
+  },
+  {
+   "id": "UL260",
+   "date": "2026-11-02",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Floors of a building are aligned by the lift shaft: each level's core walls (the shaft, its lobby, the stair) are placed on the reference level's; the shared axis grid confirms it and gives the rotation; a plan without a shaft takes the grid; the outline fit is the last resort and keeps the sheet's orientation (user, 2 Nov 2026: 'Shaft is the good place to align the floors', 'align according to shaft')",
+   "lesson": "Floors of a building are aligned by the lift shaft: each level's core walls (the shaft, its lobby, the stair) are placed on the reference level's; the shared axis grid confirms it and gives the rotation; a plan without a shaft takes the grid; the outline fit is the last resort and keeps the sheet's orientation (user, 2 Nov 2026: 'Shaft is the good place to align the floors', 'align according to shaft')",
+   "question": null
+  },
+  {
+   "id": "UL261",
+   "date": "2026-11-02",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Axis (grid) lines are never walls, rooms or outline: a line on a grid layer, in a centre or dash-dot linetype, or ending in a numbered or lettered bubble is an axis line, even when it looks solid (user, 2 Nov 2026: 'the red lines should have been dotted lines, those are for coordinates, you can understand this from the numbers at the end', 'For the future project you can understand it right?')",
+   "lesson": "Axis (grid) lines are never walls, rooms or outline: a line on a grid layer, in a centre or dash-dot linetype, or ending in a numbered or lettered bubble is an axis line, even when it looks solid (user, 2 Nov 2026: 'the red lines should have been dotted lines, those are for coordinates, you can understand this from the numbers at the end', 'For the future project you can understand it right?')",
+   "question": null
   }
  ]
 }
