@@ -113,8 +113,9 @@ def test_an_open_leaf_stays_under_the_slope_over_it():
     head = DS.leaf_head(o, level)
     for poly in rec.get("leaf_polys") or []:
         assert DS.leaf_under_ceiling(poly, head) is None
-    # its drawn swing side is the low room: it stays closed, with the reason
-    assert rec["state"] == "closed" and "sloped ceiling" in rec["reason"]
+    # its drawn swing side is the low room: 2 Nov 2026 (UL257: a door that cannot open properly opens the other way)
+    # it opens into the high room, the sloped ceiling named
+    assert rec["state"] == "open" and rec["into"] == "high" and "sloped ceiling" in rec["reason"]
     # the same door on a flat level opens wide
     flat = copy.deepcopy(b)
     flat["levels"][0].pop("ceiling_planes")

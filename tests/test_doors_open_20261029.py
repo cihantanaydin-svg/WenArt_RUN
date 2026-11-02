@@ -143,10 +143,18 @@ def test_a_piece_in_the_swing_turns_the_hinge_or_keeps_the_door_closed():
     rec = DS.plan_states(ajar, SCANDI)["d_bed"]
     assert rec["state"] == "ajar" and 15.0 <= rec["angle_deg"] < 90.0 and "ajar at" in rec["reason"]
     assert "f_chest2" in rec["stopped_by"] and not DS._hits(rec["leaf_polys"][0], DS.piece_polys(ajar, "L0"))
-    # a wardrobe across both sweeps: closed (not even 15 degrees), with the piece named
+    # a wardrobe across both sweeps: 2 Nov 2026 (UL257, user: "if it is hiding something or not opening properly it
+    # can open to the other way"): the door opens the other way, into the hall, with the pieces named
     b["furniture"].append({"id": "f_robe", "type": "wardrobe", "level_id": "L0", "room_id": "r_bed",
                            "footprint": {"center": [7.4, 2.0], "size": [0.5, 1.2], "rotation_deg": 0.0}})
     rec = DS.plan_states(b, SCANDI)["d_bed"]
+    assert rec["state"] == "open" and rec["into"] == "r_hall" and rec["swing_turned"]
+    assert "opens the other way" in rec["reason"] and "f_robe" in rec["reason"]
+    # ... and a wardrobe in the hall's sweep too: closed (not even 15 degrees), with the piece named
+    both = copy.deepcopy(b)
+    both["furniture"].append({"id": "f_robe2", "type": "wardrobe", "level_id": "L0", "room_id": "r_hall",
+                              "footprint": {"center": [6.6, 2.0], "size": [0.5, 1.2], "rotation_deg": 0.0}})
+    rec = DS.plan_states(both, SCANDI)["d_bed"]
     assert rec["state"] == "closed" and "f_robe" in rec["reason"] and rec["blocked"]
     # a drawn hinge side is kept: the other jamb is never tried (the chest stops it: ajar)
     b3 = _house()
