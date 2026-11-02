@@ -1,0 +1,23 @@
+{
+ "project": "real09",
+ "status": "needs_review",
+ "levels": [],
+ "levels_left_out": [
+  "1. Bodrum Kat",
+  "1. Normal Kat",
+  "2. Normal Kat",
+  "Dubleks Kat",
+  "Zemin Kat",
+  "Çatı Katı"
+ ],
+ "per_level": {},
+ "check": {
+  "verdict": "fix before a pod run",
+  "counts": {
+   "critical": 6,
+   "major": 17,
+   "minor": 0
+  },
+  "stacking": {}
+ }
+}
