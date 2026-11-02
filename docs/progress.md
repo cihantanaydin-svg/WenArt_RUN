@@ -3174,3 +3174,6 @@ batches (`lessons.review_batches`).
 Not done yet (next): a lamp rig in the living rooms (4b); clouds in the exterior sky and neighbouring buildings (5b);
 the Q4 missing-anchor downgrade, the F2/F7 measure alignment and stale vision findings (6b). Item 7 (AI polish) waits
 for the user's decision.
+
+User decisions of 2 Nov 2026 (lesson UL258): the project GPU total is raised from $500 to $1000 ($427.68 used,
+counting the running real10 pod at its worst case); AI polish (item 7) stays off for now, the user decides later.

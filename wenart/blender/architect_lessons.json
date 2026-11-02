@@ -3058,6 +3058,16 @@
    "request": "A door whose leaf would hit or hide something (a washbasin, a WC, a bath, a kitchen run, another piece) or cannot open properly opens the other way, into the room on the other side, when its swing is free there; a drawn swing side is kept as drawn_swing_side (user, 2 Nov 2026: 'for doors to the washbasin, the door can open to the other side, and this can be a general rule, if it is hiding something or not opening properly it can open to the other way')",
    "lesson": "A door whose leaf would hit or hide something (a washbasin, a WC, a bath, a kitchen run, another piece) or cannot open properly opens the other way, into the room on the other side, when its swing is free there; a drawn swing side is kept as drawn_swing_side (user, 2 Nov 2026: 'for doors to the washbasin, the door can open to the other side, and this can be a general rule, if it is hiding something or not opening properly it can open to the other way')",
    "question": null
+  },
+  {
+   "id": "UL258",
+   "date": "2026-11-02",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "Project GPU total raised to $1000 and AI polish kept off for now, the user decides on it later (user, 2 Nov 2026: 'keep AI polish off for now (we will decide later), raise the total to 1000')",
+   "lesson": "Project GPU total raised to $1000 and AI polish kept off for now, the user decides on it later (user, 2 Nov 2026: 'keep AI polish off for now (we will decide later), raise the total to 1000')",
+   "question": null
   }
  ]
 }
