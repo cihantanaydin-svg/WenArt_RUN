@@ -1,0 +1,25 @@
+{
+ "project": "real13",
+ "status": "needs_review",
+ "levels": [],
+ "levels_left_out": [
+  "1. Bodrum Kat",
+  "1. Kat",
+  "2. Bodrum Kat",
+  "2. Kat",
+  "3. Bodrum Kat",
+  "3. Kat",
+  "Teras Katı",
+  "Zemin Kat"
+ ],
+ "per_level": {},
+ "check": {
+  "verdict": "fix before a pod run",
+  "counts": {
+   "critical": 8,
+   "major": 86,
+   "minor": 0
+  },
+  "stacking": {}
+ }
+}
