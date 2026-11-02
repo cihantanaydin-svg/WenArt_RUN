@@ -103,9 +103,11 @@ def close_underground(ex, to_building: Callable) -> Optional[str]:
         if not (GAP_MIN_M <= span <= GAP_MAX_M):
             continue
         t = min(float(ea[1].thickness), float(eb[1].thickness))
-        ev = {"method": "inferred", "confidence": 0.7, "rule": "underground_level",
-              "reason": f"a level fully below ground (soil outside on {len(sides)} sides): the {span:.2f} m gap in "
-                        f"its outer wall closed"}
+        # the evidence of the wall it continues (file, page, entity), as inferred with the rule and the reason
+        ev = dict(ea[1].evidence or {})
+        ev.update(method="inferred", confidence=0.7, rule="underground_level",
+                  reason=f"a level fully below ground (soil outside on {len(sides)} sides): the {span:.2f} m gap in "
+                         f"its outer wall closed")
         w = WallItem(start=(round(ea[0][0], 4), round(ea[0][1], 4)), end=(round(eb[0][0], 4), round(eb[0][1], 4)),
                      thickness=t, box=list(ea[1].box), entity=f"inferred:underground:{len(added) + 1}", evidence=ev,
                      exterior=True, status="unverified", inferred=True)
