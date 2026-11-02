@@ -16,6 +16,7 @@ hole", since a Blender n-gon has no holes).
 """
 from __future__ import annotations
 
+import bisect
 import math
 from typing import Iterable, Optional, Sequence
 
@@ -244,13 +245,18 @@ def rect_union_outline(rects: Sequence[Sequence[float]], tol: float = 1e-7) -> l
     ys = uniq([b[1] for b in boxes] + [b[3] for b in boxes])
     nx, ny = len(xs) - 1, len(ys) - 1
 
-    def covered(i: int, j: int) -> bool:
-        if not (0 <= i < nx and 0 <= j < ny):
-            return False
-        cx, cy = (xs[i] + xs[i + 1]) / 2.0, (ys[j] + ys[j + 1]) / 2.0
-        return any(b[0] < cx < b[2] and b[1] < cy < b[3] for b in boxes)
-
-    cells = {(i, j) for i in range(nx) for j in range(ny) if covered(i, j)}
+    # 2 Nov 2026 (real10 run 20261101-233829-full: a 9-floor block, 234 walls a floor; the test of every grid cell
+    # against every box took minutes a call and the build several hours): each box marks the cells whose centre lies
+    # strictly inside it (the same rule, found by bisection on the sorted cell centres), so the work follows the
+    # covered cells instead of cells x boxes
+    cxs = [(xs[i] + xs[i + 1]) / 2.0 for i in range(nx)]
+    cys = [(ys[j] + ys[j + 1]) / 2.0 for j in range(ny)]
+    cells: set[tuple[int, int]] = set()
+    for b in boxes:
+        i0, i1 = bisect.bisect_right(cxs, b[0]), bisect.bisect_left(cxs, b[2])
+        j0, j1 = bisect.bisect_right(cys, b[1]), bisect.bisect_left(cys, b[3])
+        for i in range(i0, i1):
+            cells.update((i, j) for j in range(j0, j1))
     edges: dict[tuple[int, int], list[tuple[int, int]]] = {}
     for i, j in sorted(cells):
         if (i, j - 1) not in cells:
@@ -282,16 +288,20 @@ def rect_union_outline(rects: Sequence[Sequence[float]], tol: float = 1e-7) -> l
 
 
 def _drop_collinear(pts: list[tuple[float, float]], tol: float = 1e-9) -> list[tuple[float, float]]:
+    """The points without the ones collinear with their neighbours (order kept): the first such point is deleted, then
+    the scan starts again. 2 Nov 2026 (real10): a deletion only changes its two neighbours' test, so the scan goes on
+    from the point before it (from the first point when the last one went: the first point's neighbour changed)
+    instead of from the start; the same points go in the same order (a wall union outline holds thousands of grid
+    points, and the restart from the start made this quadratic)."""
     out = list(pts)
-    changed = True
-    while changed and len(out) > 3:
-        changed = False
-        for k in range(len(out)):
-            a, b, c = out[k - 1], out[k], out[(k + 1) % len(out)]
-            if abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) <= tol:
-                del out[k]
-                changed = True
-                break
+    k = 0
+    while len(out) > 3 and k < len(out):
+        a, b, c = out[k - 1], out[k], out[(k + 1) % len(out)]
+        if abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) <= tol:
+            del out[k]
+            k = 0 if k >= len(out) else max(k - 1, 0)
+        else:
+            k += 1
     return out
 
 
@@ -723,13 +733,38 @@ def polygon_union_outline(polys: Sequence[Sequence[Sequence[float]]], eps: float
     return loops
 
 
+WALL_OUTLINE_CACHE_MAX = 512                # outlines kept (one per distinct wall set; a build asks each many times)
+_WALL_OUTLINE_CACHE: dict = {}
+
+
 def wall_outline(walls: Sequence[dict], tol_deg: float = 0.5) -> tuple[list[tuple[float, float]], str]:
     """``(outline, method)``: the outer outline of the union of the wall rectangles (centre line,
     thickness), counter-clockwise: the outer face of the outer walls. Axis-parallel walls (within
     ``tol_deg``) give the exact union (``rect_union_outline``, method ``wall_union``); walls at other angles the
     exact union of their quads (``polygon_union_outline``, method ``wall_union``; review #24); the convex hull of
     every wall corner (method ``convex_hull``, an approximation the callers record as assumed) only when that
-    fails."""
+    fails.
+    2 Nov 2026 (real10 run 20261101-233829-full): the outline of a wall set is cached by its centre lines and
+    thicknesses (the architect's rounds and the build ask for the same floor's outline many times); a copy is
+    returned, so a caller may change it."""
+    try:
+        key = (round(float(tol_deg), 6), tuple((tuple(map(float, w["start"])), tuple(map(float, w["end"])),
+                                              float(w["thickness"])) for w in walls))
+    except (KeyError, TypeError, ValueError):
+        key = None
+    hit = _WALL_OUTLINE_CACHE.get(key) if key is not None else None
+    if hit is not None:
+        return list(hit[0]), hit[1]
+    loop, method = _wall_outline(walls, tol_deg)
+    if key is not None:
+        if len(_WALL_OUTLINE_CACHE) >= WALL_OUTLINE_CACHE_MAX:
+            _WALL_OUTLINE_CACHE.pop(next(iter(_WALL_OUTLINE_CACHE)))
+        _WALL_OUTLINE_CACHE[key] = (tuple(loop), method)
+    return list(loop), method
+
+
+def _wall_outline(walls: Sequence[dict], tol_deg: float) -> tuple[list[tuple[float, float]], str]:
+    """``wall_outline`` without the cache."""
     rects, corners, axis, quads = [], [], True, []
     for w in walls:
         length = G.distance(w["start"], w["end"])
@@ -816,6 +851,10 @@ def _line_project(pt, a, b) -> tuple[float, float]:
     return (a[0] + dx * t, a[1] + dy * t)
 
 
+SIMPLE_BOX_M = 1e-2            # simple_polygon: the edge box margin (far above the tests' 1e-9 tolerance)
+SIMPLE_SHORT_M = 1e-6          # simple_polygon: an edge this short is tested against every edge
+
+
 def simple_polygon(polygon: Sequence[Sequence[float]], tol: float = 1e-9) -> bool:
     """True when no two non-adjacent edges of the polygon cross or touch (pure)."""
     pts = list(polygon)
@@ -831,19 +870,50 @@ def simple_polygon(polygon: Sequence[Sequence[float]], tol: float = 1e-9) -> boo
         return min(a[0], b[0]) - tol <= c[0] <= max(a[0], b[0]) + tol and \
             min(a[1], b[1]) - tol <= c[1] <= max(a[1], b[1]) + tol
 
+    def meets(i: int, j: int) -> bool:
+        a, b = pts[i], pts[(i + 1) % n]
+        c, d = pts[j], pts[(j + 1) % n]
+        o1, o2, o3, o4 = orient(a, b, c), orient(a, b, d), orient(c, d, a), orient(c, d, b)
+        if o1 != o2 and o3 != o4:
+            return True
+        return (o1 == 0 and on_seg(a, b, c)) or (o2 == 0 and on_seg(a, b, d)) or \
+            (o3 == 0 and on_seg(c, d, a)) or (o4 == 0 and on_seg(c, d, b))
+
+    # 2 Nov 2026 (real10 run 20261101-233829-full: 188-point outlines, 23 million orientation tests a prepare round):
+    # two edges whose boxes lie apart by more than SIMPLE_BOX_M can neither cross nor touch (a crossing point lies in
+    # both boxes; the tolerance of the tests is far smaller), so only edges whose x ranges meet are tested, swept in
+    # the order of their left ends; an edge shorter than SIMPLE_SHORT_M is tested against every other edge
+    boxes = []
     for i in range(n):
         a, b = pts[i], pts[(i + 1) % n]
-        for j in range(i + 1, n):
-            if j == i or (j + 1) % n == i or (i + 1) % n == j:
-                continue
-            c, d = pts[j], pts[(j + 1) % n]
-            o1, o2, o3, o4 = orient(a, b, c), orient(a, b, d), orient(c, d, a), orient(c, d, b)
-            if o1 != o2 and o3 != o4:
+        boxes.append((min(a[0], b[0]) - SIMPLE_BOX_M, min(a[1], b[1]) - SIMPLE_BOX_M,
+                      max(a[0], b[0]) + SIMPLE_BOX_M, max(a[1], b[1]) + SIMPLE_BOX_M))
+    short = [i for i in range(n) if math.hypot(pts[(i + 1) % n][0] - pts[i][0],
+                                                pts[(i + 1) % n][1] - pts[i][1]) < SIMPLE_SHORT_M]
+
+    def adjacent(i: int, j: int) -> bool:
+        return i == j or (j + 1) % n == i or (i + 1) % n == j
+
+    for i in short:
+        for j in range(n):
+            if not adjacent(i, j) and meets(min(i, j), max(i, j)):
                 return False
-            if (o1 == 0 and on_seg(a, b, c)) or (o2 == 0 and on_seg(a, b, d)) or \
-                    (o3 == 0 and on_seg(c, d, a)) or (o4 == 0 and on_seg(c, d, b)):
+    order = sorted(range(n), key=lambda k: boxes[k][0])
+    for p_, i in enumerate(order):
+        bi = boxes[i]
+        for j in order[p_ + 1:]:
+            bj = boxes[j]
+            if bj[0] > bi[2]:
+                break
+            if bj[1] > bi[3] or bi[1] > bj[3] or adjacent(i, j):
+                continue
+            if meets(min(i, j), max(i, j)):
                 return False
     return True
+
+
+CLOSE_JOGS_CACHE_MAX = 512
+_CLOSE_JOGS_CACHE: dict = {}
 
 
 def close_jogs(polygon: Sequence[Sequence[float]], jog_max: float, inward_max: Optional[float] = None
@@ -853,7 +923,28 @@ def close_jogs(polygon: Sequence[Sequence[float]], jog_max: float, inward_max: O
     shorter of the two is moved onto the line of the longer, unless that moves it inward by more than ``inward_max``
     (then the inner one moves out onto the outer line). ``closed`` counts the jogs closed. Why: real06's facade has
     piers 0.33 m deep every few metres; the roof's eaves followed each one, so every pier got its own gutter and two
-    downpipes (40 pipe boxes). An eaves line runs straight past such jogs: the overhang covers them."""
+    downpipes (40 pipe boxes). An eaves line runs straight past such jogs: the overhang covers them.
+    2 Nov 2026 (real10 run 20261101-233829-full): cached by the outline and the limits (the architect's answers ask for
+    every floor's facade lines again after each window they move); a copy is returned."""
+    try:
+        key = (tuple((float(p[0]), float(p[1])) for p in polygon), float(jog_max),
+               None if inward_max is None else float(inward_max))
+    except (TypeError, ValueError, IndexError):
+        key = None
+    hit = _CLOSE_JOGS_CACHE.get(key) if key is not None else None
+    if hit is not None:
+        return list(hit[0]), hit[1]
+    pts, closed = _close_jogs(polygon, jog_max, inward_max)
+    if key is not None:
+        if len(_CLOSE_JOGS_CACHE) >= CLOSE_JOGS_CACHE_MAX:
+            _CLOSE_JOGS_CACHE.pop(next(iter(_CLOSE_JOGS_CACHE)))
+        _CLOSE_JOGS_CACHE[key] = (tuple(pts), closed)
+    return list(pts), closed
+
+
+def _close_jogs(polygon: Sequence[Sequence[float]], jog_max: float, inward_max: Optional[float]
+                ) -> tuple[list[tuple[float, float]], int]:
+    """``close_jogs`` without the cache."""
     pts = clean_polygon(ccw(polygon))
     closed = 0
     guard = 0

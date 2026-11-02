@@ -254,12 +254,15 @@ class Plan:
         self._boxes = {r["id"]: (min(p[0] for p in r["polygon"]), min(p[1] for p in r["polygon"]),
                                  max(p[0] for p in r["polygon"]), max(p[1] for p in r["polygon"])) for r in self.rooms}
         self._runs: dict = {}
+        # 2 Nov 2026 (real10 run 20261101-233829-full: 202 rooms on 9 floors, 231,000 lookups a prepare round): the
+        # rooms of each floor in their order, so a lookup only walks its floor's rooms (the same first hit)
+        self._by_level: dict = {}
+        for r in self.rooms:
+            self._by_level.setdefault(r.get("level_id"), []).append(r)
 
     def room_at(self, pt, level_id) -> Optional[dict]:
         x, y = pt
-        for r in self.rooms:
-            if r.get("level_id") != level_id:
-                continue
+        for r in self._by_level.get(level_id, ()):
             x0, y0, x1, y1 = self._boxes[r["id"]]
             if x0 - 1e-9 <= x <= x1 + 1e-9 and y0 - 1e-9 <= y <= y1 + 1e-9 and G.point_in_polygon(pt, r["polygon"]):
                 return r
@@ -295,6 +298,15 @@ class Plan:
         n = (-u[1], u[0])
         reach = float(wall.get("thickness") or 0.2) / 2.0 + PROBE_M
         lid = wall.get("level_id")
+        box = self._boxes.get(room_id)
+        if box is not None and lid == (self.room.get(room_id) or {}).get("level_id"):
+            # 2 Nov 2026 (real10): a room whose box lies further than the probe's reach from the wall is never
+            # found by a probe (no run; the same result without the samples)
+            (bx, by) = (a[0] + u[0] * length, a[1] + u[1] * length)
+            if (box[2] + 1e-6 < min(a[0], bx) - reach or box[0] - 1e-6 > max(a[0], bx) + reach
+                    or box[3] + 1e-6 < min(a[1], by) - reach or box[1] - 1e-6 > max(a[1], by) + reach):
+                self._runs[key] = []
+                return []
         runs, cur = [], None
         steps = max(1, int(length / SAMPLE_M))
         for k in range(steps + 1):

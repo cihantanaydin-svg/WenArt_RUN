@@ -4513,11 +4513,15 @@ def wall_cut_spans(a, b, keep_out: Sequence, t: Optional[float] = None, over: Op
     nx, ny = uy, -ux                                            # ccw: the right side of the edge is outside
     offsets = (-over + 0.002, 0.002, t / 2.0, t - 0.002, t + over - 0.002)
     steps = max(1, int(math.ceil(length / WALL_CUT_STEP_M)))
+    # 2 Nov 2026 (real10 run 20261101-233829-full: a block's long platform edges, probed every 2 cm at five offsets
+    # in every round of the build's prepare): only the polygons whose box (widened by 1 mm) holds a probe point are
+    # tested (a point outside it is outside the polygon and off its edges: the same spans)
+    boxes = [(poly, G.bbox(poly)) for poly in keep_out if len(poly) > 0]
     hit = []
     for k in range(steps + 1):
         s = length * k / steps
         px, py = a[0] + ux * s, a[1] + uy * s
-        hit.append(any(_inside_any((px + nx * o, py + ny * o), keep_out) for o in offsets))
+        hit.append(any(_inside_boxed((px + nx * o, py + ny * o), boxes) for o in offsets))
     spans: list[list[float]] = []
     for k, h in enumerate(hit):
         if not h:
@@ -4556,6 +4560,14 @@ def _uncut(a, b, cuts: Sequence) -> list[tuple]:
 
 def _inside_any(p, polygons) -> bool:
     return any(G.point_in_polygon(p, poly) for poly in polygons)
+
+
+def _inside_boxed(p, boxes: Sequence) -> bool:
+    """``_inside_any`` over ``[(polygon, bbox)]``, the point tested only against the polygons whose box (widened by
+    1 mm) holds it."""
+    x, y = p[0], p[1]
+    return any(bb[0] - 1e-3 <= x <= bb[2] + 1e-3 and bb[1] - 1e-3 <= y <= bb[3] + 1e-3
+               and G.point_in_polygon(p, poly) for poly, bb in boxes)
 
 
 def against_edges(poly, keep_out: Sequence, reach: Optional[float] = None) -> list[int]:

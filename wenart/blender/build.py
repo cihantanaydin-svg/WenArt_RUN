@@ -1252,8 +1252,9 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
     26 Oct 2026 (user: "make the AI architect a lot more smart and let it take decisions more"): a point whose choice
     could not be carried out gets the next choice of its chain (``architect.chain_of``) the next round; a default
     that opens a major point that was not open before and has no safe fix of its own (a point the architect settles
-    by itself the next round does not count) is refused (tried alone when several came in one round) and the next
-    choice is tried instead (``out["architect_refused_defaults"]``: key -> the choice and the points it opened)."""
+    by itself the next round does not count) is refused (when several came in one round, they are tried in halves,
+    the copies of a typical floor's point with it: ``typical_units``, ``refused_units``) and the next choice is tried
+    instead (``out["architect_refused_defaults"]``: key -> the choice and the points it opened)."""
     out = prepare_once(building_all, variant, brief, style_family)
     if not out.get("whole") or out.get("architect") is None:
         return out
@@ -1274,15 +1275,24 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
             tried.setdefault(k, []).append(v.get("choice"))
         majors = AR.open_keys(out["architect"], "major")
         got = again(dict(defaults, **new))
-        if AR.open_keys(got["architect"], "major", undecided=True) - majors - set(new):
-            keep = {}
-            for k, v in sorted(new.items()):
-                more = AR.open_keys(again(dict(defaults, **{k: v}))["architect"], "major", undecided=True) \
-                    - majors - {k}
-                if more:
-                    refused[k] = {"choice": v.get("choice"), "opened": sorted(more)}
-                else:
-                    keep[k] = v
+        opened = AR.open_keys(got["architect"], "major", undecided=True) - majors - set(new)
+        if opened:
+            # 2 Nov 2026 (real10 run 20261101-233829-full: 637 defaults, one plan each when they were tried alone, the
+            # build still at it after three hours): the same point on a typical floor and its copies is one unit
+            # (typical_units), and the units are tried in halves: a half that opens nothing is kept whole, a half
+            # that does is split again, a single unit that does is refused (every key of it)
+            units = typical_units(building_all, new)
+
+            def opens(names: list) -> set:
+                keys = {k for u in names for k in units[u]}
+                return AR.open_keys(again(dict(defaults, **{k: new[k] for k in keys}))["architect"], "major",
+                                    undecided=True) - majors - keys
+
+            bad = refused_units(sorted(units), opens, opened)
+            keep = {k: new[k] for u in units if u not in bad for k in units[u]}
+            for u, more in bad.items():
+                for k in units[u]:
+                    refused[k] = {"choice": new[k].get("choice"), "opened": sorted(more)}
             if not keep:
                 continue
             new = keep
@@ -1291,6 +1301,88 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
         out = got
     out["architect_defaults"] = defaults
     out["architect_refused_defaults"] = refused
+    return out
+
+
+TYPICAL_UNIT_TOL_M = 0.01      # a copy's element and its typical floor's element at the same place (1 cm)
+
+
+def _element_spot(el: dict) -> Optional[tuple]:
+    """Where an element of the building JSON stands in plan (pure): a wall's middle, an opening's or a decor item's
+    centre, a piece's footprint centre, a polygon's box centre; None when it has no place."""
+    try:
+        if el.get("start") is not None and el.get("end") is not None:
+            return ((float(el["start"][0]) + float(el["end"][0])) / 2.0,
+                    (float(el["start"][1]) + float(el["end"][1])) / 2.0)
+        if el.get("center") is not None:
+            return float(el["center"][0]), float(el["center"][1])
+        fp = el.get("footprint")
+        if isinstance(fp, dict) and fp.get("center") is not None:
+            return float(fp["center"][0]), float(fp["center"][1])
+        poly = el.get("polygon")
+        if poly and len(poly) >= 3:
+            xs, ys = [float(p[0]) for p in poly], [float(p[1]) for p in poly]
+            return (min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0
+    except (TypeError, ValueError, IndexError, KeyError):
+        return None
+    return None
+
+
+def typical_units(building: dict, keys) -> dict[str, list[str]]:
+    """The architect's default keys (``rule:element``) grouped in units (pure; 2 Nov 2026, real10): a key on a level
+    that is a typical floor's copy (``typical_of``) joins the key of the same rule on the typical floor's element of
+    the same id pattern (``_<copy>_`` read as ``_<typical>_``) at the same place (``TYPICAL_UNIT_TOL_M``), or on the
+    typical floor itself (a level key); every other key is a unit of its own. ``{unit: [keys]}``, the keys sorted.
+    Why: an apartment block's typical floor is read once and copied (real10: L1-L6 copies of L0); its open points come
+    back on every copy, and the copies take the same decision as the floor they copy."""
+    base_of = {lv["id"]: lv["typical_of"] for lv in building.get("levels") or []
+               if isinstance(lv, dict) and lv.get("typical_of")}
+    units: dict[str, list[str]] = {}
+    spots: Optional[dict] = None
+    for k in sorted(keys):
+        rule, _, el = str(k).partition(":")
+        unit = k
+        for copy_id, base in base_of.items():
+            if el == copy_id:
+                unit = f"{rule}:{base}"
+                break
+            tag = f"_{copy_id}_"
+            if tag not in el:
+                continue
+            if spots is None:
+                spots = {e["id"]: _element_spot(e) for v in building.values() if isinstance(v, list)
+                         for e in v if isinstance(e, dict) and isinstance(e.get("id"), str)}
+            twin = el.replace(tag, f"_{base}_", 1)
+            a, b = spots.get(el), spots.get(twin)
+            if a is not None and b is not None and math.hypot(a[0] - b[0], a[1] - b[1]) <= TYPICAL_UNIT_TOL_M:
+                unit = f"{rule}:{twin}"
+            break
+        units.setdefault(unit, []).append(k)
+    return units
+
+
+def refused_units(names: list, opens, opened_by_all: Optional[set] = None) -> dict[str, set]:
+    """The units that open a new point, found by halving (pure apart from ``opens``; 2 Nov 2026, real10):
+    ``opens(names)`` -> the new major points the defaults of those units open together; ``opened_by_all`` the points
+    all of them opened (known: not asked again). A group that opens nothing is kept whole, one that does is split in
+    two halves, a single unit that does is refused with what it opened. ``{unit: opened}``. Why: trying every default
+    alone cost one plan each (637 on real10); halving costs about two plans per refused unit and level of halving."""
+    out: dict[str, set] = {}
+
+    def visit(group: list, more: Optional[set] = None) -> None:
+        if not group:
+            return
+        more = opens(group) if more is None else more
+        if not more:
+            return
+        if len(group) == 1:
+            out[group[0]] = set(more)
+            return
+        mid = len(group) // 2
+        visit(group[:mid])
+        visit(group[mid:])
+
+    visit(list(names), opened_by_all)
     return out
 
 
@@ -1333,7 +1425,15 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
            "warnings": list(vb["_variant"]["warnings"]), "assumed": [], "slabs": None, "roof": None,
            "open_rooms": set(), "outlines": {}, "ground_outline": [], "site": None, "faces": {},
            "brief": brief_args(building_all, brief), "terraces": [], "clips": [], "site_options": None,
-           "overrides_applied": None, "stair_access": None, "chimneys": None, "dormers": None}
+           "overrides_applied": None, "stair_access": None, "chimneys": None, "dormers": None,
+           "typical_copies": {}}
+    # 2 Nov 2026 (real10): a typical floor's copies furnished as the typical floor (furnish_typical_copies), before
+    # anything is planned on the pieces (the clash resolver and the architect see the copies as they will be built)
+    if whole:
+        from wenart.blender.typical_copies import furnish_typical_copies
+        for rec in furnish_typical_copies(vb):
+            out["assumed"].append(rec)
+            out["typical_copies"][rec["object"][len("level_"):]] = rec["value"][len("as "):]
     # 27 Oct 2026 (real06's first floor: the stair arrived on a strip by the outer wall that its floor opening cut off
     # from the hall; user: "Needs a pathway here, how will the people go up to 2nd floor otherwise?"): before anything
     # is planned, every stair of a whole building must lead into its floors; an assumed stair that does not takes the
@@ -1784,6 +1884,10 @@ def main(argv: list[str]) -> int:
     roof = prep["roof"]
     render_rooms = set(views["rooms"])
     room_levels = {r["id"]: r["level_id"] for r in building["rooms"]}
+    # 2 Nov 2026 (real10): the typical floors whose furniture objects their copies duplicate (typical_copies.py)
+    from wenart.blender import typical_copies as TC
+    typical_bases = set((prep.get("typical_copies") or {}).values())
+    typical_src: dict = {}
     for skip in views["skipped"]:
         if room_levels.get(skip["room_id"]) in {lv["id"] for lv in levels}:
             rooms_without_view.append({"room_id": skip["room_id"], "level_id": room_levels[skip["room_id"]],
@@ -1917,8 +2021,31 @@ def main(argv: list[str]) -> int:
             assumed.extend({"object": line.split(":")[0], "field": "feature_wall_standoff", "value": True,
                             "reason": line, "kind": "decor", "parent": line.split(":")[0].split()[-1]}
                            for line in fw_notes)
-        summary = furniture.create_furniture(level_furniture, level, col, library, style, args.assets, pass_indices,
-                                             manifest_objects, assumed, warnings, use_proxies=args.proxies)
+        # 2 Nov 2026 (real10; wenart/blender/typical_copies.py): a typical floor's furniture in its own collection, its
+        # copies (furnished as it by prepare_once) as linked duplicates of those objects
+        copy_src = typical_src.get((prep.get("typical_copies") or {}).get(level["id"]) or "")
+        copied = None
+        if copy_src is not None and not level.get("ceiling_planes") and not copy_src["level"].get("ceiling_planes"):
+            try:
+                copied = TC.copy_furniture(copy_src, level, col, manifest_objects)
+                print(f"level {level['id']}: {copied['objects']} furniture and decor objects copied from the typical "
+                      f"floor {copy_src['level']['id']} (linked duplicates)")
+            except Exception as exc:  # noqa: BLE001 - any bpy error: the pieces are built on their own instead
+                copied = None
+                warnings.append(f"level {level['id']}: the typical floor's furniture could not be copied "
+                                f"({type(exc).__name__}: {exc}); built on its own")
+        if copied is not None:
+            summary = copied["summary"]
+        else:
+            fcol = common.get_or_make_collection(f"furniture_{level['id']}", parent=col) \
+                if level["id"] in typical_bases else col
+            first_entry = len(manifest_objects)
+            summary = furniture.create_furniture(level_furniture, level, fcol, library, style, args.assets,
+                                                 pass_indices, manifest_objects, assumed, warnings,
+                                                 use_proxies=args.proxies)
+            if level["id"] in typical_bases:
+                typical_src[level["id"]] = {"level": level, "collection": fcol, "summary": summary,
+                                            "entries": manifest_objects[first_entry:], "scene_report": None}
         add_furniture_summary(furniture_summary, summary)
         if doors["mirrors"]:
             # 29 Oct 2026 (UL125): the walk-in dressing rooms' full-height mirrors (one mesh each)
@@ -1929,8 +2056,14 @@ def main(argv: list[str]) -> int:
         # Milestone 12 (docs/milestone12.md §4.6-§4.7, contract §13.3; hook owned by track S): the scene checks S1-S6
         # of this level's built furniture and decor (``summary["objects"]``: {piece or decor id: object}).
         from wenart.blender import scene_checks as SC
-        scene_report = SC.run_scene_checks(level_furniture, summary.get("objects") or {},
-                                           out / "checks" / f"scene_{level['id']}.json")
+        if copied is not None:              # a typical floor's copy: the same meshes one storey up (its report)
+            scene_report = TC.copy_scene_report(copy_src["scene_report"], copy_src["level"]["id"], level["id"])
+            SC.write_report(scene_report, out / "checks" / f"scene_{level['id']}.json")
+        else:
+            scene_report = SC.run_scene_checks(level_furniture, summary.get("objects") or {},
+                                               out / "checks" / f"scene_{level['id']}.json")
+            if level["id"] in typical_src:
+                typical_src[level["id"]]["scene_report"] = scene_report
         furniture_summary.setdefault("scene_checks", {})[level["id"]] = scene_report.get("counts") or {}
         # decor not built (S5 twice), dressed beds; fix round after P3 (16-17 Oct 2026): the pieces built into a
         # kitchen run (a drawn sink in its counter: furniture.built_in_ids), [{id, type, host, reason}]

@@ -157,6 +157,9 @@ def polygon_centroid(polygon: Sequence[Point]) -> tuple[float, float]:
     return (cx / (3.0 * area2), cy / (3.0 * area2))
 
 
+ON_EDGE_BOX_M = 1e-6          # the box margin of the on-edge pre-test (far above the 1e-9 on-edge distance)
+
+
 def point_in_polygon(p: Point, polygon: Sequence[Point]) -> bool:
     """Ray-casting point-in-polygon test. Points exactly on an edge count as inside."""
     x, y = p[0], p[1]
@@ -165,7 +168,11 @@ def point_in_polygon(p: Point, polygon: Sequence[Point]) -> bool:
     for i in range(n):
         x0, y0 = polygon[i][0], polygon[i][1]
         x1, y1 = polygon[(i + 1) % n][0], polygon[(i + 1) % n][1]
-        if point_segment_distance(p, (x0, y0), (x1, y1)) < 1e-9:
+        # 2 Nov 2026 (real10: millions of tests a build): a point outside the edge's box widened by ON_EDGE_BOX_M
+        # is further than 1e-9 from the edge, so the exact distance is only taken near the edge (same result)
+        if (min(x0, x1) - ON_EDGE_BOX_M <= x <= max(x0, x1) + ON_EDGE_BOX_M
+                and min(y0, y1) - ON_EDGE_BOX_M <= y <= max(y0, y1) + ON_EDGE_BOX_M
+                and point_segment_distance(p, (x0, y0), (x1, y1)) < 1e-9):
             return True
         if (y0 > y) != (y1 > y):
             x_cross = x0 + (y - y0) * (x1 - x0) / (y1 - y0)

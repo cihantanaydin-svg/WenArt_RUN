@@ -975,9 +975,19 @@ def drainage_answer(kit: Optional[dict], boxes: Sequence[dict]) -> dict:
 
 def _rooms_at(building: dict):
     rooms = [r for r in building.get("rooms") or [] if len(r.get("polygon") or []) >= 3]
+    # 2 Nov 2026 (real10 run 20261101-233829-full: every answer's walk check looked up both sides of 656 openings in
+    # 202 rooms): the rooms of each floor in their order with their boxes (widened by 1 micrometre, far above the
+    # on-edge tolerance), so a lookup tests only its floor's rooms whose box holds the point (the same first hit)
+    by_level: dict = {}
+    for r in rooms:
+        xs, ys = [p[0] for p in r["polygon"]], [p[1] for p in r["polygon"]]
+        by_level.setdefault(r.get("level_id"), []).append((r, min(xs) - 1e-6, min(ys) - 1e-6, max(xs) + 1e-6,
+                                                           max(ys) + 1e-6))
 
     def room_at(pt, level_id):
-        return next((r for r in rooms if r.get("level_id") == level_id and G.point_in_polygon(pt, r["polygon"])), None)
+        x, y = pt[0], pt[1]
+        return next((r for r, x0, y0, x1, y1 in by_level.get(level_id, ())
+                     if x0 <= x <= x1 and y0 <= y <= y1 and G.point_in_polygon(pt, r["polygon"])), None)
     return rooms, room_at
 
 

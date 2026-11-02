@@ -94,6 +94,11 @@ def _axes(poly) -> list[Point]:
     return out
 
 
+def _box(poly) -> tuple[float, float, float, float]:
+    xs, ys = [p[0] for p in poly], [p[1] for p in poly]
+    return min(xs), min(ys), max(xs), max(ys)
+
+
 def cut_depth(a, b) -> float:
     """How deep two convex polygons cut each other (the smallest overlap along their separating axes; 0 apart)."""
     depth = math.inf
@@ -265,6 +270,10 @@ def seat(ftype: str, drawn: dict, room, obstacles: Sequence = (), *, blocked: Op
     dc = (float(drawn["center"][0]), float(drawn["center"][1]))
     prods = [(float(w), float(d)) for w, d in (products if products is not None else products_of(ftype))]
     obs = [ccw(o) for o in obstacles if o is not None and len(o) >= 3]
+    # 2 Nov 2026 (real10: every piece of a floor is an obstacle; 750,000 cut tests a prepare round): two convex
+    # polygons whose boxes do not overlap do not cut each other (cut_depth 0), so only the obstacles whose box
+    # overlaps the candidate's are tested (the same places)
+    obs_boxes = [(o, _box(o)) for o in obs]
     best = None
     n = len(room_pts)
     for i in range(n):
@@ -285,7 +294,10 @@ def seat(ftype: str, drawn: dict, room, obstacles: Sequence = (), *, blocked: Op
                 covered = overlap_area(r, out_line)
                 if covered < MIN_DRAWN_SHARE * w * d - 1e-9 or not inside_room(r, room_pts):
                     continue
-                if any(cut_depth(r, o) > CUT_EPS_M for o in obs) or (blocked is not None and blocked(r)):
+                rb = _box(r)
+                if any(cut_depth(r, o) > CUT_EPS_M for o, ob in obs_boxes
+                       if ob[0] < rb[2] and rb[0] < ob[2] and ob[1] < rb[3] and rb[1] < ob[3]) \
+                        or (blocked is not None and blocked(r)):
                     continue
                 walls = wall_sides(r, room_pts, touch=True)
                 score = covered + CORNER_BONUS_M2 * max(0, len(walls) - 1)
