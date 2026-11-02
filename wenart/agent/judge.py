@@ -264,6 +264,102 @@ def verdict(before: Optional[dict], after: dict) -> str:
     return "better" if d >= MIN_GAIN else "same"
 
 
+BUDGET_JSON = "score_budget.json"
+BUDGET_MD = "score_budget.md"
+BUDGET_RAISE = 1                # the judge part: what a family of views is worth when each rises by this
+
+
+def _family(f: dict) -> str:
+    """The family of a finding: its source line (code critic, Argus line, architect) and its check."""
+    src = str(f.get("line") or f.get("source") or "code")
+    return f"{src}:{f.get('check') or '?'}"
+
+
+def score_budget(rows: list[dict], code_findings: list[dict], model_findings: list[dict], architect_open_major: int,
+                 views: Optional[int] = None) -> dict:
+    """2 Nov 2026 (user: "start with the score-budget table"): what each part of the house score costs (pure).
+
+    ``families``: every family of critical and major findings (``_family``: the source and the check) with its counts,
+    an example and ``gain``: the house score with that family gone less the score now (the defects part never
+    saturates, so the families are not additive: each gain is measured alone). ``tags``: the judge's tags with the
+    views that carry them and ``gain``: the score with each such view ``BUDGET_RAISE`` point higher. ``views``: the
+    views below 3 with the judge's note. Sorted by gain, the largest first."""
+    base = house_score(rows, code_findings, model_findings, architect_open_major, views)
+    found = [f for f in list(code_findings or []) + list(model_findings or [])
+             if f.get("severity") in ("critical", "major")]
+    fams: dict = {}
+    for f in found:
+        fams.setdefault(_family(f), []).append(f)
+    out_f = []
+    for fam, items in fams.items():
+        keep_code = [f for f in code_findings or [] if f not in items]
+        keep_model = [f for f in model_findings or [] if f not in items]
+        gain = house_score(rows, keep_code, keep_model, architect_open_major, views)["score"] - base["score"]
+        ex = items[0]
+        out_f.append({"family": fam, "critical": sum(1 for f in items if f.get("severity") == "critical"),
+                      "major": sum(1 for f in items if f.get("severity") == "major"), "gain": round(gain, 2),
+                      "example": f"{ex.get('target')}: {str(ex.get('message') or '')[:140]}"})
+    if architect_open_major:
+        gain = house_score(rows, code_findings, model_findings, 0, views)["score"] - base["score"]
+        out_f.append({"family": "architect:open major points", "critical": 0, "major": int(architect_open_major),
+                      "gain": round(gain, 2), "example": "the architect's open major questions (scene/architect.json)"})
+    out_t = []
+    scored = [r for r in rows or [] if isinstance(r.get("client_ready_score"), (int, float))]
+    tags: dict = {}
+    for r in scored:
+        for t in r.get("tags") or []:
+            if t != "looks_acceptable":
+                tags.setdefault(t, []).append(r)
+    for tag, rs in tags.items():
+        ids = {id(r) for r in rs}
+        raised = [dict(r, client_ready_score=min(5, r["client_ready_score"] + BUDGET_RAISE)) if id(r) in ids else r
+                  for r in rows]
+        gain = house_score(raised, code_findings, model_findings, architect_open_major, views)["score"] - base["score"]
+        out_t.append({"tag": tag, "views": len(rs), "gain": round(gain, 2),
+                      "mean_score": round(sum(r["client_ready_score"] for r in rs) / len(rs), 2),
+                      "example": f"{rs[0].get('view')}: {str(rs[0].get('note') or '')[:140]}"})
+    low = sorted((r for r in scored if r["client_ready_score"] < 3), key=lambda r: r["client_ready_score"])
+    return {"score": base, "families": sorted(out_f, key=lambda r: -r["gain"]),
+            "tags": sorted(out_t, key=lambda r: -r["gain"]),
+            "views": [{"view": r.get("view"), "score": r["client_ready_score"], "tags": r.get("tags"),
+                       "note": r.get("note")} for r in low]}
+
+
+def budget_md(budget: dict, top: int = 25, approximate: str = "") -> str:
+    """The score budget as a report (``score_budget``)."""
+    s = budget.get("score") or {}
+    lines = ["# Score budget: what costs the house score", "",
+             f"House score {s.get('score')} = {RUBRIC_WEIGHT:.0%} judge part {s.get('rubric_part')} (mean "
+             f"{s.get('rubric')} of 5) + {1 - RUBRIC_WEIGHT:.0%} defects part {s.get('defects_part')} "
+             f"({CRITICAL_POINTS:g} points a critical, {MAJOR_POINTS:g} a major, per view)." +
+             (f" {approximate}" if approximate else ""), "",
+             "## Finding families (the gain if the family were gone, each alone)", "",
+             "| family | critical | major | gain | example |", "|---|---|---|---|---|"]
+    for r in (budget.get("families") or [])[:top]:
+        lines.append(f"| {r['family']} | {r['critical']} | {r['major']} | +{r['gain']} | "
+                     f"{str(r['example']).replace('|', '/')} |")
+    lines += ["", f"## The judge's tags (the gain if each view with the tag scored {BUDGET_RAISE} higher)", "",
+              "| tag | views | their mean | gain | example |", "|---|---|---|---|---|"]
+    for r in budget.get("tags") or []:
+        lines.append(f"| {r['tag']} | {r['views']} | {r['mean_score']} | +{r['gain']} | "
+                     f"{str(r['example']).replace('|', '/')} |")
+    low = budget.get("views") or []
+    if low:
+        lines += ["", "## Views below 3", ""]
+        lines += [f"- {v['view']} ({v['score']}; {', '.join(v.get('tags') or [])}): {v.get('note')}" for v in low]
+    return "\n".join(lines) + "\n"
+
+
+def write_budget(project_out, budget: dict) -> None:
+    """``orchestrator/score_budget.json`` and ``.md``. Never raises."""
+    try:
+        odir = LG.orchestrator_dir(Path(project_out))
+        LG.write_json_atomic(odir / BUDGET_JSON, budget)
+        (odir / BUDGET_MD).write_text(budget_md(budget), encoding="utf-8")
+    except OSError:
+        pass
+
+
 def write(project_out, rows: list[dict], rec: Optional[dict] = None) -> None:
     """The rubric file and the big loop's record (module docstring). Never raises."""
     project_out = Path(project_out)

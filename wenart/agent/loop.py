@@ -2615,6 +2615,13 @@ class AgentLoop:
         score = JD.house_score(judged["rows"], list(code.get("findings") or []), audit["house"], majors,
                                views=len(ctx.cameras()))
         score["argus"] = audit["score"]
+        # 2 Nov 2026 (user: "start with the score-budget table"): what each family of findings and each judge tag costs
+        try:
+            JD.write_budget(self.project_out, JD.score_budget(judged["rows"], list(code.get("findings") or []),
+                                                              audit["house"], majors, views=len(ctx.cameras())))
+        except Exception as exc:  # noqa: BLE001 - the budget is a report, never a stop
+            self.log.event("check", round_no, check="score_budget", status="error",
+                           note=f"{type(exc).__name__}: {exc}")
         self.extra_findings = list(judged["findings"]) + audit["work"]
         return {"score": score, "rows": judged["rows"], "findings": judged["findings"], "errors": judged["errors"]}
 
