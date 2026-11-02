@@ -123,5 +123,22 @@ def test_a_thinly_labelled_plan_adds_its_own_best_wall_layer_to_the_documents():
     page.texts.append(TextRun(id="t3", text="DEPO", box=(8.6, 6.0, 9.4, 6.2), height=0.2))   # a label nothing closes
     page.document_wall_layers = ("MOB",)                      # the document's layer: here only a bed's outline
     prims, choice = W.face_pair_walls(page, 1.0, [])
-    assert choice["used"] and choice["layer"] == "W1" and choice["also"] == ["MOB"]
+    # ... and the corner column's layer A-BA (BA: betonarme, reinforced concrete) joins by its name
+    assert choice["used"] and choice["layer"] == "W1" and choice["also"] == ["MOB", "A-BA"]
     assert choice["reason"] == "the document's other plans"
+
+
+def test_the_cores_stair_places_the_top_floor_whose_machine_room_differs():
+    """2 Nov 2026 (user: "Shaft on the terras, top flow is different than the rest"): real10's terrace floor has a
+    lift machine room larger than the shaft below; its walls pulled the fit 0.60 / 1.26 m off. The spiral stair's
+    eye (the same concentric arcs on every floor) places it exactly."""
+    arcs = lambda cx, cy, radii: SimpleNamespace(strokes=[SimpleNamespace(arc={"center": (cx, cy), "radius": r})
+                                                          for r in radii], kind="ARC")
+    ref = SimpleNamespace(ents=[arcs(14.266, 11.37, (0.12, 0.17, 0.2, 0.8)), arcs(10.3, 11.7, (0.165, 0.19))])
+    top = SimpleNamespace(ents=[arcs(44.864, 12.627, (0.12, 0.17, 0.2, 0.8))])
+    eyes_ref = RG.stair_eyes(ref, 1.0, (12.0, 11.0))
+    eyes_top = RG.stair_eyes(top, 1.0, (42.0, 12.0))
+    fit = RG.stair_fit(eyes_ref, eyes_top, 0.0)
+    assert fit["common"] == 4 and fit["shift"] == pytest.approx([-30.598, -1.257], abs=1e-6)
+    assert RG.stair_fit(eyes_ref, RG.stair_eyes(SimpleNamespace(ents=[arcs(42, 12, (0.165, 0.19))]), 1.0,
+                                                (42.0, 12.0)), 0.0) is None          # only 2 radii in common

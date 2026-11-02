@@ -3102,6 +3102,42 @@
    "request": "Axis (grid) lines are never walls, rooms or outline: a line on a grid layer, in a centre or dash-dot linetype, or ending in a numbered or lettered bubble is an axis line, even when it looks solid (user, 2 Nov 2026: 'the red lines should have been dotted lines, those are for coordinates, you can understand this from the numbers at the end', 'For the future project you can understand it right?')",
    "lesson": "Axis (grid) lines are never walls, rooms or outline: a line on a grid layer, in a centre or dash-dot linetype, or ending in a numbered or lettered bubble is an axis line, even when it looks solid (user, 2 Nov 2026: 'the red lines should have been dotted lines, those are for coordinates, you can understand this from the numbers at the end', 'For the future project you can understand it right?')",
    "question": null
+  },
+  {
+   "id": "UL262",
+   "date": "2026-11-02",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "A CAD layer's name says what it draws, in any language: column / concrete (kolon, column, Stütze, poteau, betonarme, perde, BA), plaster (sıva, plaster, Putz, enduit) and wall (duvar, wall, Mauer, mur, pared) layers all draw the building's walls; a plan with few room labels adds its own best wall layer to the document's (user, 2 Nov 2026: 'kolon, SIVA and DUVAR are the Turkish words translate into English and it will make sense')",
+   "lesson": "A CAD layer's name says what it draws, in any language: column / concrete (kolon, column, Stütze, poteau, betonarme, perde, BA), plaster (sıva, plaster, Putz, enduit) and wall (duvar, wall, Mauer, mur, pared) layers all draw the building's walls; a plan with few room labels adds its own best wall layer to the document's (user, 2 Nov 2026: 'kolon, SIVA and DUVAR are the Turkish words translate into English and it will make sense')",
+   "question": null
+  },
+  {
+   "id": "UL263",
+   "date": "2026-11-02",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "A level fully below ground (a basement walled all round, soil outside) is entered from the stair core and then a door; its outer walls close; an entrance word outside its walls (GİRİŞ with an arrow) marks the way in, never a room, and never leaves the level out (user, 2 Nov 2026: 'For the second basement you can enter like this, first from the stairs and than from the door', '2n basement is fully underground and fully walled around', 'Project should be able to understand this')",
+   "lesson": "A level fully below ground (a basement walled all round, soil outside) is entered from the stair core and then a door; its outer walls close; an entrance word outside its walls (GİRİŞ with an arrow) marks the way in, never a room, and never leaves the level out (user, 2 Nov 2026: 'For the second basement you can enter like this, first from the stairs and than from the door', '2n basement is fully underground and fully walled around', 'Project should be able to understand this')",
+   "question": null
+  },
+  {
+   "id": "UL264",
+   "date": "2026-11-02",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "The top floor's lift machine room is larger than the shaft below, so floors are placed by the core's stair first (the same concentric arcs of a spiral stair's eye on both plans), then by the shaft walls, the axis grid and the outline (user, 2 Nov 2026: 'Shaft on the terras, top flow is different than the rest as you are able to see', 'I am hoping everything we are understanding now here is going to be a lesson learned for the future projects in the pod right?')",
+   "lesson": "The top floor's lift machine room is larger than the shaft below, so floors are placed by the core's stair first (the same concentric arcs of a spiral stair's eye on both plans), then by the shaft walls, the axis grid and the outline (user, 2 Nov 2026: 'Shaft on the terras, top flow is different than the rest as you are able to see', 'I am hoping everything we are understanding now here is going to be a lesson learned for the future projects in the pod right?')",
+   "question": null
   }
  ]
 }

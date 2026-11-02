@@ -75,6 +75,12 @@ CORE_RADIUS_M = 4.0               # the core's walls around the lift label: the 
 CORE_SEGMENT_MIN_M = 0.3
 CORE_RESIDUAL_MAX_M = 0.10        # the core fit's trimmed RMS
 CORE_GRID_AGREE_M = 0.10          # the shaft and the axis grid agree: the grid's exact shift is used
+# 2 Nov 2026 (user: "Shaft on the terras, top flow is different than the rest"): the lift machine room on the top
+# floor is larger than the shaft below, so its walls pulled the core fit 0.60 / 1.26 m off; the stair runs on
+# unchanged: the same set of concentric arcs (a spiral stair's eye, its newel) on two plans places them exactly
+STAIR_REACH_M = 6.0               # concentric arcs this close to the lift label (the core's stair)
+STAIR_RADII_M = (0.05, 1.5)
+STAIR_COMMON_MIN = 3              # radii two arc sets share (within 1 cm) to be the same stair
 
 
 def enclosing_outlines(region, mpu: Optional[float], max_margin_m: Optional[float] = None) -> list:
@@ -365,6 +371,49 @@ def core_segments(region, mpu: float, centre, exclude: set) -> list:
     return out
 
 
+def stair_eyes(region, mpu: float, centre) -> list:
+    """``[((cx, cy) metres, radii)]``: the sets of concentric arcs (a spiral stair's eye and newel) within
+    ``STAIR_REACH_M`` of ``centre`` (source units): arcs and circles of ``STAIR_RADII_M`` grouped by their centre
+    (1 cm), each set with at least two radii (rounded to 1 cm)."""
+    if centre is None:
+        return []
+    groups: dict = {}
+    for e in region.ents:
+        for st in e.strokes:
+            arc = getattr(st, "arc", None)
+            if not arc:
+                continue
+            cx, cy = float(arc["center"][0]) * mpu, float(arc["center"][1]) * mpu
+            r = float(arc["radius"]) * mpu
+            if not (STAIR_RADII_M[0] <= r <= STAIR_RADII_M[1]):
+                continue
+            if math.dist((cx, cy), (centre[0] * mpu, centre[1] * mpu)) > STAIR_REACH_M:
+                continue
+            key = (round(cx, 2), round(cy, 2))
+            g = groups.setdefault(key, {"radii": set(), "pts": []})
+            g["radii"].add(round(r, 2))
+            g["pts"].append((cx, cy))
+    return [((sum(p[0] for p in g["pts"]) / len(g["pts"]), sum(p[1] for p in g["pts"]) / len(g["pts"])), g["radii"])
+            for g in groups.values() if len(g["radii"]) >= 2]
+
+
+def stair_fit(ref_eyes: list, eyes: list, theta: float) -> Optional[dict]:
+    """The shift (metres, ``p_ref = R(theta) p + shift``) that puts a stair's eye on the reference's same stair: the
+    pair of arc sets sharing the most radii (at least ``STAIR_COMMON_MIN``); None without one (pure)."""
+    best = None
+    rot = _rot(theta)
+    for c0, r0 in ref_eyes:
+        for c1, r1 in eyes:
+            common = len({round(r, 2) for r in r0} & {round(r, 2) for r in r1})
+            if common < STAIR_COMMON_MIN:
+                continue
+            p = np.asarray(c1) @ rot.T
+            shift = [_r(c0[0] - p[0]), _r(c0[1] - p[1])]
+            if best is None or common > best["common"]:
+                best = {"shift": shift, "common": common, "centre_ref": [round(c0[0], 3), round(c0[1], 3)]}
+    return best
+
+
 def core_fit(ref_segs: list, ref_anchor, segs: list, anchor, theta: float) -> Optional[dict]:
     """The shift (metres; ``p_ref = R(theta) p + shift``) that puts the core's walls on the reference core's (pure;
     2 Nov 2026, user: "align according to shaft"): translation-only trimmed ICP of the core's sampled strokes onto the
@@ -425,6 +474,7 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
     ref_axes = grid_axes(reference, ref_mpu)
     ref_lift = lift_anchor(reference)
     ref_core = core_segments(reference, ref_mpu, ref_lift, excl) if ref_lift is not None else []
+    ref_eyes = stair_eyes(reference, ref_mpu, ref_lift)
     for r in plans:
         if r is reference:
             continue
@@ -455,15 +505,25 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
                 warnings.append(f"registration: {r.id}: the lift core fits the reference's with an RMS of "
                                 f"{shaft['rms_m']:.3f} m (over {CORE_RESIDUAL_MAX_M} m): not used")
                 shaft = None
+            # the core's stair, where both plans draw the same one, places the level exactly (the top floor's lift
+            # machine room differs from the shaft below; the stair does not)
+            stair = stair_fit(ref_eyes, stair_eyes(r, mpu, lift), theta_s) if ref_eyes else None
+            if stair is not None:
+                gap = round(float(math.dist(stair["shift"], shaft["shift"])), 4) if shaft is not None else None
+                shaft = dict(shaft or {"rms_m": None, "points": 0}, shift=stair["shift"], rotation_deg=theta_s,
+                             stair=dict(stair, walls_gap_m=gap), method="stair")
+                if grid_ok:
+                    shaft["grid_gap_m"] = round(float(math.dist(shaft["shift"], grid["shift"])), 4)
         method = None
         if shaft is not None:
             theta = shaft["rotation_deg"]
+            core = "stair" if shaft.get("stair") else "shaft"
             if grid_ok and shaft["grid_gap_m"] <= CORE_GRID_AGREE_M:
                 t = np.array(grid["shift"], dtype=float) + ref_t
-                method = "shaft_grid"
+                method = f"{core}_grid"
             else:
                 t = np.array(shaft["shift"], dtype=float) + ref_t   # the reference's raw metres -> the building frame
-                method = "shaft"
+                method = core
                 if grid_ok:
                     cid = conflict("shaft_grid_mismatch", [r.id, reference.id],
                                    f"{r.file} {r.id}: the lift shaft and the axis grid place the level "
@@ -503,10 +563,15 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
                 if d[k] <= COLUMN_MATCH_M:
                     matched_cols.append(ref_cols[k] - c)
         note = None
-        if method in ("shaft", "shaft_grid", "axis_grid"):
+        if method in ("stair", "stair_grid", "shaft", "shaft_grid", "axis_grid"):
             matched_cols = []                  # the shaft or the grid places the level: the columns do not move it
             parts = []
-            if shaft is not None:
+            if shaft is not None and shaft.get("stair"):
+                st = shaft["stair"]
+                parts.append(f"the core's stair: {st['common']} concentric arcs on the reference's"
+                             + (f" ({st['walls_gap_m']:.3f} m from the shaft walls' fit)" if st.get("walls_gap_m")
+                                is not None else ""))
+            elif shaft is not None:
                 parts.append(f"lift shaft: core RMS {shaft['rms_m']:.3f} m over {shaft['points']} points")
             if grid_ok:
                 parts.append(f"axis grid: {grid['axes']['v'] + grid['axes']['h']} shared axes, RMS "
@@ -536,7 +601,7 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
             r.registration["shaft"] = shaft
         # a level placed by its shaft or the grid whose outline differs (terraces, balconies, a smaller basement) is
         # no conflict: the core says where it stands
-        if residual > RESIDUAL_MAX_M and method not in ("shaft", "shaft_grid", "axis_grid"):
+        if residual > RESIDUAL_MAX_M and method not in ("stair", "stair_grid", "shaft", "shaft_grid", "axis_grid"):
             cid = conflict("registration_residual", [r.id, reference.id],
                            f"{r.file} {r.id} ({(r.level or {}).get('id')}) registered onto {reference.id} "
                            f"({(reference.level or {}).get('id')}) with an RMS outline distance of {residual:.3f} m "

@@ -101,6 +101,7 @@ from __future__ import annotations
 import argparse
 import copy
 import math
+import re
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -2330,6 +2331,9 @@ def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, f
         build.warn(f"no base level could be read; only alternative levels remain ({', '.join(sorted(by_level))})")
 
 
+ENTRANCE_WORD_RE = re.compile(r"^(?:BINA\s+)?(?:GIRIS|GIRISI|ENTRANCE|ENTRY|EINGANG|ENTREE|INGRESSO|ENTRADA|INGANG)$")
+
+
 def _labels_outside_building(ex: LevelExtraction) -> list[str]:
     """Indoor room names of a region page that lie outside the outline of the walls read as the building (review
     finding 10). A region page holds one plan, so such a name means its outer walls do not close and an inner block
@@ -2351,6 +2355,11 @@ def _labels_outside_building(ex: LevelExtraction) -> list[str]:
             continue
         if getattr(block, "room_type", None) == "balcony":
             continue           # an open balcony outside the outer walls (real06's VERANDA): ``topology`` records it
+        # 2 Nov 2026 (real10's 2nd basement, user: "2n basement is fully underground and fully walled around ... you can
+        # enter ... first from the stairs and than from the door"): an entrance word outside the walls (GİRİŞ with its
+        # arrow) marks the way in, not a room; it never leaves a level out
+        if ENTRANCE_WORD_RE.search(" ".join(B.fold_ascii(t.text or "").upper().split())):
+            continue
         points = (_to_building(ex, t.start), _to_building(ex, G.box_center(t.box)))
         if not any(outline.contains(Point(p)) for p in points):
             out.append(t.text)
