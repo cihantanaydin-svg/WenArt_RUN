@@ -3026,6 +3026,16 @@
    "request": "Buildings with more than 3 identical floors (a typical floor and its copies): only one example floor is furnished; the other identical floors are not furnished (their stairs stay). Up to 3 identical floors are each furnished, built as linked copies of the first. (user, 2 Nov 2026: 'for the buildings with the same exact floors more than 3 floors, we can skip the furnishing of the each exact floors, only 1 example floor furnishing would be enough')",
    "lesson": "Buildings with more than 3 identical floors (a typical floor and its copies): only one example floor is furnished; the other identical floors are not furnished (their stairs stay). Up to 3 identical floors are each furnished, built as linked copies of the first. (user, 2 Nov 2026: 'for the buildings with the same exact floors more than 3 floors, we can skip the furnishing of the each exact floors, only 1 example floor furnishing would be enough')",
    "question": null
+  },
+  {
+   "id": "UL255",
+   "date": "2026-11-02",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "Before every pod run, forecast the run time (python -m wenart.run forecast --project <p> --measure) and show it; on the pod the renders are reserved: the AI architect's answers, its floor look and Argus run only while the builds, previews and final stages still fit before the deadline (user, 2 Nov 2026: 'is there a way to predict the total required run time?' ... 'yes, build the forecast and the render reserve')",
+   "lesson": "Before every pod run, forecast the run time (python -m wenart.run forecast --project <p> --measure) and show it; on the pod the renders are reserved: the AI architect's answers, its floor look and Argus run only while the builds, previews and final stages still fit before the deadline (user, 2 Nov 2026: 'is there a way to predict the total required run time?' ... 'yes, build the forecast and the render reserve')",
+   "question": null
   }
  ]
 }

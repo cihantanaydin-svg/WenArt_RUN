@@ -3120,3 +3120,21 @@ round each (30-70 s on 9 floors): many hours. Fixes, each general (`tests/test_b
 
 Checked here: the local CPU build of real10 (no textures, no library models) ran to the end (rc 0, 23.6 min on 4
 shared CPUs; 6 floors of linked duplicates, 1,782 copied manifest entries) before the one-example-floor rule.
+
+## real10 run 20261102-063705-full (2 Nov 2026, pod 4s649704yh3iet, RTX PRO 6000, 242 min, $10.05): no renders
+
+The build was ok in 18 min (it had run 3 h without finishing the run before). The AI architect's answers (80
+questions, 93 min) and its floor look (9 floors, 75 min) then took the time, Argus was cut at the 4 h limit, and no
+render started. Causes and fixes (each general):
+
+| what | rule |
+|---|---|
+| every check of an AI answer was a full plan with the 7-minute default search | the first default search of a building seeds its later plans (`architect_ai.prep_of`; `build.prepare` takes the refused defaults as tried) |
+| the same point asked once per copy of the typical floor (7 times, answered differently) | asked once on the typical floor, carried out on the copies' own options and checked with it (`architect_ai.typical_questions`) |
+| 9 floors looked at, 6 of them copies; Argus walked them all three times | copies of a typical floor are not looked at or walked; the typical floor's accepted decisions are carried out on them (`architect_ai.typical_carry`, `argus_ai.looked_levels`) |
+| answers that failed together were checked one unit at a time | halving (`architect_ai._verdicts`) |
+| nothing kept time for the render: the AI steps ran while 2-3 x 60 s of build fitted | render reserve (`scheduler.render_reserve_s`): the AI architect's answers, its look and Argus start and go on only while the builds (measured, else the forecast's rate), the previews, the final stages and a 10 min margin still fit |
+| no way to see this before paying for a pod | `python -m wenart.run forecast --project <p> [--measure]`: every part of a run in minutes, measured / cpu / rate / assumed, the render start and the agent rounds that fit (lesson UL255: shown before every pod run) |
+
+Also: the Argus test failure since the lessons passed 168 (its scripted model had too few replies for the lesson
+walk), the lessons UL251-UL254 classified, no inferred forecourt in front of a door with a drawn landing.

@@ -94,6 +94,17 @@ def parse_args(argv) -> argparse.Namespace:
     pl.add_argument("--gpu", default=None, help="the pod's GPU (GPU_SPEED, vLLM sequences; default GPU_PRIORITY[0] "
                                                 "of scripts/gpu_run.py)")
 
+    fc = sub.add_parser("forecast", help="the minutes of a full run of a project before the pod (wenart.run.forecast)")
+    fc.add_argument("--project", required=True)
+    fc.add_argument("--building", default=None, help="building_final.json or a run's building_decor.json (default: "
+                                                      "the newest run's, else outputs/<p>/building_final.json)")
+    fc.add_argument("--measure", action="store_true", help="time one plan and one check here and count the AI "
+                                                            "questions (a few minutes of CPU)")
+    fc.add_argument("--max-minutes", type=float, default=240.0)
+    fc.add_argument("--gpu-speed", type=float, default=1.0, help="wenart.run.plan.GPU_SPEED of the pod's GPU")
+    fc.add_argument("--reuse-stages", action="store_true", help="the stages 0-12 are reused from the volume")
+    fc.add_argument("--out", default=None, help="forecast JSON (default: print only)")
+
     pod = sub.add_parser("pod", help="the whole run (inside scripts/jobs/full.sh)")
     pod.add_argument("--projects", default="", help="public projects, spaces or commas")
     _private_args(pod)
@@ -261,6 +272,9 @@ def main(argv=None) -> int:
     args = parse_args(argv)
     if args.command == "plan":
         return cmd_plan(args)
+    if args.command == "forecast":
+        from wenart.run import forecast as FC
+        return FC.main(args)
     if args.command == "pod":
         return cmd_pod(args)
     if args.command == "copy":

@@ -2336,6 +2336,8 @@ class Orchestrator:
                 or not (pr.out / "building_final.json").is_file():
             return False
         from wenart.agent import architect_ai as AI
+        if not self.reserve_ok(pr, 1, "architect look", say=True):
+            return False
         rc = self.run_step(pr, "agent", "topdown", S.topdown(self.tools, pr.ref))
         if rc != 0:
             self.out(f"{pr.name} topdown for the architect: exit {rc} (it decides from the facts only)")
@@ -2343,7 +2345,7 @@ class Orchestrator:
         try:
             model = pr.agent_model or self.make_agent_model(url, pr)
             rec = AI.look(pr.out, model, brief=self.project_brief(pr), out=self.out,
-                          time_ok=lambda: self.can_start(S.EST_BUILD_S * 3))
+                          time_ok=lambda: self.reserve_ok(pr, 1))
         except Exception as exc:  # noqa: BLE001 - the plan stands as the architect's defaults left it
             self.out(f"{pr.name} architect look: {type(exc).__name__}: {exc}")
             return False
@@ -2364,11 +2366,13 @@ class Orchestrator:
         if os.environ.get("WENART_ARGUS_AI", "1") == "0" or not (pr.out / "building_final.json").is_file():
             return False
         from wenart.audit import argus_ai as AX
+        if not self.reserve_ok(pr, 1, "Argus", say=True):
+            return False
         t0 = self.now()
         try:
             model = pr.agent_model or self.make_agent_model(url, pr)
             rec = AX.investigate(pr.out, model, brief=self.project_brief(pr), results=self.results, out=self.out,
-                                 time_ok=lambda: self.can_start(S.EST_BUILD_S * 3))
+                                 time_ok=lambda: self.reserve_ok(pr, 1))
         except Exception as exc:  # noqa: BLE001 - the run goes on with what the architect decided
             self.out(f"{pr.name} Argus: {type(exc).__name__}: {exc}")
             return False
@@ -2431,12 +2435,14 @@ class Orchestrator:
         if os.environ.get("WENART_ARCHITECT_AI", "1") == "0" or not (pr.out / "building_final.json").is_file():
             return
         from wenart.agent import architect_ai as AI
+        if not self.reserve_ok(pr, 1, "architect AI", say=True):
+            return
         brief = self.project_brief(pr)
         t0 = self.now()
         try:
             model = pr.agent_model or self.make_agent_model(url, pr)
             rec = AI.answer_open(pr.out, model, brief=brief, out=self.out,
-                                 time_ok=lambda: self.can_start(S.EST_BUILD_S * 2))
+                                 time_ok=lambda: self.reserve_ok(pr, 1))
         except Exception as exc:  # noqa: BLE001 - the questions stay open for the user
             self.out(f"{pr.name} architect AI: {type(exc).__name__}: {exc}")
             return
@@ -2683,6 +2689,66 @@ class Orchestrator:
             return None
         values = [float(st["seconds"]) for st in steps]
         return float(pick(values)) if pick is not None else values[-1]
+
+    RESERVE_MARGIN_S = 600.0
+
+    def build_estimate(self, pr) -> float:
+        """Seconds of one build of ``pr``: measured (this run, else the run before; the longest step), else the
+        forecast's rate from the building (``wenart.run.forecast.build_seconds_of``)."""
+        measured = self.step_seconds(pr, "build", max)
+        if measured is not None:
+            return float(measured)
+        try:
+            from wenart.run import forecast as FC
+            building = read_json(pr.out / "building_final.json")
+            return float(FC.build_seconds_of(building)) if isinstance(building, dict) else 900.0
+        except Exception:  # noqa: BLE001 - no estimate: 15 min (real04 10 min, real10 18 min)
+            return 900.0
+
+    def reserve_views(self, pr) -> int:
+        """The views ``pr`` will render: this run's, else its scene's cameras, else the forecast's count."""
+        if pr.views:
+            return int(pr.views)
+        views = self.scene_views(pr)
+        if views:
+            return int(views)
+        try:
+            from wenart.run import forecast as FC
+            building = read_json(pr.out / "building_final.json")
+            return int(FC.views_of(building)) if isinstance(building, dict) else 0
+        except Exception:  # noqa: BLE001
+            return 0
+
+    def render_reserve_s(self, pr, builds: int = 1) -> float:
+        """2 Nov 2026 (user: "yes, build the forecast and the render reserve"; real10 runs 20261101-233829-full and
+        20261102-063705-full ended without a render: the build, then the AI architect's answers and floor look used
+        the 4 h): the seconds ``pr`` still needs to render: ``builds`` builds (measured or forecast), the previews of
+        round 0, the final stages (``final_estimate``, its build counted at the measured build's length) and
+        ``RESERVE_MARGIN_S``. The AI architect's answers, its floor look and Argus start (and go on) only while this
+        reserve still fits before the deadline (``reserve_ok``)."""
+        speed = self.gpu_speed()
+        views = self.reserve_views(pr)
+        build = self.build_estimate(pr)
+        previews = self.step_seconds(pr, "agent_previews") or S.est_previews(views) / speed
+        try:
+            final = float(S.est_final(views, self.seqs(self.opts.agent_key), self.polish_on(pr)) / speed) \
+                if not (pr.views or self.scene_views(pr)) else float(self.final_estimate(pr))
+        except Exception:  # noqa: BLE001 - no estimate: the rate of the forecast
+            final = 600.0 + 14.0 * views
+        final += max(0.0, build - S.EST_BUILD_S / speed)
+        return max(0, int(builds)) * build + float(previews) + final + self.RESERVE_MARGIN_S
+
+    def reserve_ok(self, pr, builds: int = 1, what: str = "", say: bool = False) -> bool:
+        """True when ``render_reserve_s`` still fits before the deadline (no deadline: True); ``say`` logs a skip."""
+        if self.deadline is None:
+            return True
+        need = self.render_reserve_s(pr, builds)
+        ok = self.now() + need < float(self.deadline)
+        if not ok and say:
+            left = (float(self.deadline) - self.now()) / 60.0
+            self.out(f"{pr.name} {what}: skipped: the render reserve needs {need / 60:.0f} min "
+                     f"({builds} build(s), previews, final stages, margin) and {left:.0f} min are left")
+        return ok
 
     def export_estimate(self, pr) -> float:
         """Seconds of a 3D export of ``pr``'s scene: measured (this run, else the run before), else EXPORT_DEFAULT_S."""

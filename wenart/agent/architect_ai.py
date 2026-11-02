@@ -287,8 +287,26 @@ def _verdicts(building: dict, brief: Optional[dict], accepted: dict, candidates:
     out = {}
     grouped = [[k for k in g if k in candidates] for g in groups or []]
     seen = {k for g in grouped for k in g}
-    for group in [g for g in grouped if g] + [[k] for k in candidates if k not in seen]:
-        out.update(judge(prep_of(building, brief, dict(accepted, **{k: candidates[k] for k in group})), group))
+    units = [g for g in grouped if g] + [[k] for k in candidates if k not in seen]
+
+    # 2 Nov 2026 (real10: one plan and model review a unit, 12 and more a batch): the units are judged in halves; a
+    # half whose candidates hold together (or fail only on their own settling) is taken as judged, else split again
+    def visit(part: list) -> None:
+        if not part:
+            return
+        keys = [k for u in part for k in u]
+        res = judge(prep_of(building, brief, dict(accepted, **{k: candidates[k] for k in keys})), keys)
+        cross = any(why.startswith(("opened", "the model review", "a room loses")) for _ok, why in res.values())
+        if len(part) == 1 or not cross:
+            out.update(res)
+            return
+        mid = len(part) // 2
+        visit(part[:mid])
+        visit(part[mid:])
+
+    mid = len(units) // 2
+    visit(units[:mid])
+    visit(units[mid:])
     return out
 
 

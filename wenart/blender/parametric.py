@@ -4888,11 +4888,30 @@ def world_mesh(parts: Sequence[Part], center: Sequence[float], rotation_deg: flo
     return verts, faces, keys
 
 
+_BBOX_CACHE: dict = {}
+BBOX_CACHE_MAX = 4096
+
+
 def parametric_bbox(ftype: str, w: float, d: float, h: float, piece: dict | None = None) -> tuple[float, float, float]:
     """``(width, depth, height)`` of the parametric mesh (its real box);
-    ``piece`` as in ``build_parts``."""
+    ``piece`` as in ``build_parts``. 2 Nov 2026 (real10: 1,046 meshes built a model review only to measure them):
+    cached by the type, the sizes and the piece."""
+    import json as _json
+
+    try:
+        key = (ftype, float(w), float(d), float(h), _json.dumps(piece, sort_keys=True, default=str))
+    except (TypeError, ValueError):
+        key = None
+    hit = _BBOX_CACHE.get(key) if key is not None else None
+    if hit is not None:
+        return hit
     x0, y0, z0, x1, y1, z1 = _bbox(build_parts(ftype, w, d, h, piece=piece))
-    return (x1 - x0, y1 - y0, z1 - z0)
+    out = (x1 - x0, y1 - y0, z1 - z0)
+    if key is not None:
+        if len(_BBOX_CACHE) >= BBOX_CACHE_MAX:
+            _BBOX_CACHE.pop(next(iter(_BBOX_CACHE)))
+        _BBOX_CACHE[key] = out
+    return out
 
 
 def piece_bbox(piece: dict) -> tuple[float, float, float, str]:
