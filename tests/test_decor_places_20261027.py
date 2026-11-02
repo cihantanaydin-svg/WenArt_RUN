@@ -40,7 +40,9 @@ def test_art_hangs_on_a_free_wall_when_the_wall_behind_the_sofa_has_a_window():
     # the slots offer it, and the schema takes it without a piece to hang over
     slots, _notes = DA.room_slots(room, pieces, b)
     walls = [s for s in slots if s.id.startswith(f"{RID}.wall")]
-    assert len(walls) == 2 and all(s.kind == "wall" and s.types == ("wall_art",) for s in walls)
+    # 2 Nov 2026 (house score item 1): the 30 m2 room takes a third picture (``free_wall_art_most``)
+    assert D.free_wall_art_most(room) == 3
+    assert len(walls) == 3 and all(s.kind == "wall" and s.types == ("wall_art",) for s in walls)
 
 
 def test_a_low_piece_in_front_raises_the_picture():

@@ -301,7 +301,8 @@ def test_a_chain_of_partners_copies_the_roots_decor_to_every_room():
               and TT.REASON_TAG not in str(d.get("reason", ""))
               and d.get("rule") != "decor.ceiling_lights"                # 28 Oct 2026: + the lighting rule
               and not str(d.get("rule") or "").startswith("room_details.")    # 29 Oct 2026: + the room details
-              and d.get("rule") != DA.LIVING_DRESSING_RULE}                 # 30 Oct 2026 (UL180): + the main sofa
+              and d.get("rule") != DA.LIVING_DRESSING_RULE                  # 30 Oct 2026 (UL180): + the main sofa
+              and not str(d.get("reason", "")).startswith("layer floor")}  # 2 Nov 2026 (item 1): + the layer floor
     assert picked == {"cushion", "curtain", "vase"} and len(twin) == len(chain) == len(mine)
     for c in chain:
         d = twin[c["mirrored_from"]]                  # the copy of the twin's copy: the root's decor mirrored once
