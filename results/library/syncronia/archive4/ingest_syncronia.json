@@ -1,8 +1,8 @@
 {
  "zip": "/workspace/library/inbox/10R1cAka9IKwWgRKj1wi2GdU3wl6Fr_41/archive4.zip",
  "zip_name": "archive4.zip",
- "checked_utc": "2026-11-03T16:55:50Z",
- "fix_version": "syncronia-3",
+ "checked_utc": "2026-11-03T17:14:24Z",
+ "fix_version": "syncronia-4",
  "taken": 124,
  "listed": 742,
  "records": [
@@ -8187,7 +8187,7 @@
    "front": "-Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.134 of the extent): front -Y",
-   "sha256": "e2ac0cb67ad24d2ccb8dd49777f87b4423e3717413dc093a01202f309d287b2e",
+   "sha256": "8b0442e1e01292ca8ddbbf21308dfa32912b624f0a425333e25c733487e9341a",
    "id": "syncronia_b9589eb00126ec73d05df8b3",
    "title": "B&B Italia Spring Time (267 x 103 x 74 cm)"
   },
@@ -8229,7 +8229,7 @@
    "front": "-Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.150 of the extent): front -Y",
-   "sha256": "ed5cf618fcc1a5fec1265d2fd1f4b4ac0b67224ed3e3451a94e90ecb9233d272",
+   "sha256": "ea9b04638bbd13faf55f0d230a6b1c0631e620632cb279a0ec7eb2003f734dde",
    "id": "syncronia_44025e5a50d7c2af2435397e",
    "title": "B&B Italia Spring Time (267 x 143 x 74 cm)"
   },
@@ -10824,13 +10824,49 @@
    ],
    "triangles": 69792,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 4
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 4
+   },
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.390 of the extent): front -Y",
-   "sha256": "a9f33e97e8497e9b623e00e2418ee14d049c2ef0fc486ba553f017a77dcc90cc",
+   "sha256": "fbd8a0e2ef6f7b9ada814b97ba6a4d238e3054e5eeebc9c809ee3cb0d3bc4525",
    "id": "syncronia_9add3fc28c8fccf6ba6966a4",
    "title": "et al. Ari (74 x 79 x 74 cm)"
   },

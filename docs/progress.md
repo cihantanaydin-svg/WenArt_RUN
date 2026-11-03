@@ -3299,3 +3299,21 @@ New ranking batch `RANK_BATCH=syncronia` (`scripts/jobs/library_ranking.sh` inge
 
 Pods: inspection 3 min $0.04 and 5 min $0.19; intake and studio 5 min $0.05, 2.5 min $0.10 (part fix), 3.2 min $0.04
 (connected pieces).
+
+## The user's Drive folder Furnitures in the library and on the ranking page (3 Nov 2026, lesson UL294)
+
+Four more Syncronia sets (Archive 1-4, 8.5 GB: 1,761 model files; 946 SketchUp, CAD, Rhino or 3ds Max files cannot be
+read by free tools and are listed, not taken). The intake (`wenart/assets/syncronia.py`, `syncronia-4`) now takes every
+category: types from Syncronia's category folders, decor entries in the catalogue's decor section, materials from the
+material names, an upholstered piece's feet and the type, textures written again as RGB (a valid grey placeholder for
+textures the zips do not hold, their links removed).
+
+| step | result |
+|---|---|
+| taken (all five zips) | 414 models, fitting a real product size |
+| looked at on the studio sheets | 80 removed (26 broken or mistyped; Schock inset kitchen sinks, Rexa bathroom accessories, wall and recessed lamps), 6 fronts turned 180 degrees |
+| kept and usable (relaxed licence mode) | 334: 109 chairs, 55 sofas, 37 armchairs, 30 dining tables, 24 coffee tables, 14 pendant lights, 9 benches, 8 bar stools, 7 beds, 7 bathtubs, 7 chaises, ... |
+| ranking page | group "New models", 18 tabs "Syncronia <type>", 334 models |
+
+Pods: inspection 12.9 min $0.56; intake and studio 35.6 min $0.34; fixes 7.9 min $0.33, 8.6 min $0.36; dump 1.8 min $0.08;
+one setup failure (NVIDIA apt mirror) $0.03.

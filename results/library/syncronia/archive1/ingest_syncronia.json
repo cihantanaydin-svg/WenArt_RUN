@@ -1,8 +1,8 @@
 {
  "zip": "/workspace/library/inbox/1M82gvUOMzvwzohnjtPq7c0vibHzchXTK/archive1.zip",
  "zip_name": "archive1.zip",
- "checked_utc": "2026-11-03T16:53:29Z",
- "fix_version": "syncronia-3",
+ "checked_utc": "2026-11-03T17:11:55Z",
+ "fix_version": "syncronia-4",
  "taken": 67,
  "listed": 318,
  "records": [
@@ -2469,13 +2469,76 @@
    ],
    "triangles": 77805,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9373,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_metal_dark",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0627,
+      "textured": false,
+      "base_colour": [
+       0.0423,
+       0.0395,
+       0.0369,
+       1.0
+      ],
+      "colour_rgb": [
+       58,
+       56,
+       54
+      ],
+      "note": "dark painted metal",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 6,
+     "metal": 4
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 6,
+    "metal": 4
+   },
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.310 of the extent): front -Y",
-   "sha256": "8963a1eb822c98834179912f6a7cf3a26a8e10660ff7031329ca31a5f41bd4be",
+   "sha256": "b2ea82f4661d5b98790d1323de42fe40418528f9d355aa13587ae3d0bf701ddc",
    "id": "syncronia_59e270fa88a5bcd5fb717870",
    "title": "et al. Agami (74 x 74 x 81 cm)"
   },
