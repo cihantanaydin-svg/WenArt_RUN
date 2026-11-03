@@ -3246,6 +3246,18 @@
    "request": "Reading check: the printed areas of the labelled spaces one model room joins are summed (an open plan: living + entrance hall + hall); a glass screen layer (CAM, GLASS, VERRE, CAMEKAN) is recorded as glass; a glass screen inside the building is not built yet, so its two rooms stay one (real03: the windbreak and the hall's lobby) (user, 2 Nov 2026: 'improve the best of your abilities the initial reading phase', 'im also giving you other projects that you can try to improve the reading')",
    "lesson": "Reading check: the printed areas of the labelled spaces one model room joins are summed (an open plan: living + entrance hall + hall); a glass screen layer (CAM, GLASS, VERRE, CAMEKAN) is recorded as glass; a glass screen inside the building is not built yet, so its two rooms stay one (real03: the windbreak and the hall's lobby) (user, 2 Nov 2026: 'improve the best of your abilities the initial reading phase', 'im also giving you other projects that you can try to improve the reading')",
    "question": null
+  },
+  {
+   "id": "UL274",
+   "date": "2026-11-03",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "A room whose facade is drawn as window and door frames, balcony doors, a column and short pieces on other layers (no wall faces) is closed along those frames: the gaps its label's rays escape through are linked up to 1.6 m (an L along the walls at a corner), the walls are inferred where the frames stand (cut from a wall region like the room outlines' walls), the windows and doors drawn across them are read, and where frames run along a wall with no symbol read an unverified window, or a door when a door swing is hinged on it; open casements and door leaves are no frames; kept only when it closes in more labelled rooms (real09: every level was left out; real11, real13, real14) (user, 3 Nov 2026: 'go ahead with the glazed facades')",
+   "lesson": "A room whose facade is drawn as window and door frames, balcony doors, a column and short pieces on other layers (no wall faces) is closed along those frames: the gaps its label's rays escape through are linked up to 1.6 m (an L along the walls at a corner), the walls are inferred where the frames stand (cut from a wall region like the room outlines' walls), the windows and doors drawn across them are read, and where frames run along a wall with no symbol read an unverified window, or a door when a door swing is hinged on it; open casements and door leaves are no frames; kept only when it closes in more labelled rooms (real09: every level was left out; real11, real13, real14) (user, 3 Nov 2026: 'go ahead with the glazed facades')",
+   "question": null
   }
  ]
 }

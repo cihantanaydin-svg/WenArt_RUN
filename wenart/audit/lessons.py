@@ -100,7 +100,7 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   no throw, a throw without its woven pattern or its fringe. Kind ``taste``. 30 Oct 2026 (UL136 "I did not like this
   bed", UL137 "head section of this bed needs a rework", UL146 the P14 bed): a lumpy duvet or blanket, a wavy hem
   (``bedding_parts.cover_smoothness`` as built), a gap between the mattress and the headboard left open.
-- U39 (UL260-UL273, 2 Nov 2026, the reading lessons) the critical and major findings of the run's reading self-check
+- U39 (UL260-UL274, 2-3 Nov 2026, the reading lessons) the critical and major findings of the run's reading self-check
   (``reading_check/reading_check.json``: levels left out, floors that do not stack, areas, drawn walls not built, walls
   on no drawn line, labels outside the building), fixed by a reading rule and the regression set.
 - U38 (UL153, 30 Oct 2026, photo P16: "salon inspiration") a living or dining room missing what its style family takes
@@ -1128,7 +1128,7 @@ def run(inp) -> dict:
     return out
 
 
-READING_LESSONS = tuple(f"UL{n}" for n in range(260, 274))
+READING_LESSONS = tuple(f"UL{n}" for n in range(260, 275))
 CHECK_LESSONS["U39"] = READING_LESSONS     # 2 Nov 2026: the reading lessons, measured by the reading self-check
 
 

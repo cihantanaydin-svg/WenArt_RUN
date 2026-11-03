@@ -1092,7 +1092,8 @@ def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, leve
     from wenart.ingest.generic import wide_gaps as WG
 
     cands = WG.bridges(walls2)
-    cands += WG.joinery_bridges(walls2, openings, strokes or [])    # glazed runs between two walls (real09, real13)
+    # 3 Nov 2026: the glazed runs (``joinery_bridges``) are left to the facade closure that follows (``facade``): its
+    # walls follow the frames and carry the windows and doors drawn on them, where a run's bridge was a hole
     if not cands:
         return None
     w3, o3 = WG.apply(walls2, openings, cands)
@@ -1116,6 +1117,54 @@ def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, leve
                     f"layer between two walls): "
                     + ", ".join(f"{b['width']:.2f} m ({b.get('rule') or 'wide_gap'})" for b in kept)
                     + f"; labels in no closed face {before} -> {after}")
+    return w4, o4, bw4, site4, sw4, b_open4, problem4
+
+
+def _open_anchors(walls: list, openings: list, blocks: list) -> list:
+    """The anchors of the indoor room labels (no balcony) that stand in no closed face of the walls."""
+    faces = TP.faces(walls, openings)
+    out = []
+    for b in blocks:
+        if getattr(b, "exterior", False) or getattr(b, "room_type", None) == "balcony":
+            continue
+        pt = Point(b.anchor)
+        if not any(f.contains(pt) for f in faces):
+            out.append(tuple(b.anchor))
+    return out
+
+
+def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
+                    problem: Optional[str], strokes: list, file_rel: str, page_no, s: float, owned: set):
+    """The open rooms closed along their facades of window and door frames (``facade``): the inferred walls carry
+    the windows and doors drawn across them (``openings.openings_on_walls``), and an unverified window where frames
+    run along a wall and no symbol reads; kept when they close in more labelled rooms (or close the outer loop)."""
+    from wenart.ingest.generic import facade as FC
+
+    anchors = _open_anchors(walls2, openings, blocks)
+    if not anchors:
+        return None
+    faces, links = FC.close_rooms(walls2, strokes, anchors)
+    if not faces:
+        return None
+    new_walls = FC.facade_wall_items(walls2, list(faces.values()), openings, file_rel, page_no, units_to_m=s)
+    if not new_walls:
+        return None
+    taken = set(owned)
+    read = O.openings_on_walls(new_walls, strokes, file_rel, page_no, units_to_m=s, owned=taken)
+    framed = FC.frame_windows(new_walls, strokes, read, walls2)
+    w4, o4 = list(walls2) + new_walls, list(openings) + read + framed
+    bw4, site4, sw4 = TP.split_plot(w4, o4, [b for b in blocks], level_id=level_id)
+    idx4 = {o["index"] for o in site4["openings"]}
+    b_open4 = [o for k, o in enumerate(o4) if k not in idx4]
+    problem4 = TP.outer_loop_problem(bw4, b_open4)
+    before, after = _unclosed(site_warnings), _unclosed(sw4)
+    if not (after < before or (problem is not None and problem4 is None and after <= before)):
+        return None
+    owned.update(taken)
+    ex.notes.append(f"{where}: {len(faces)} room(s) closed along facades of window and door frames (rule glazed_facade):"
+                    f" {len(new_walls)} inferred wall(s), {len(links)} gap link(s) up to {FC.LINK_M:g} m, "
+                    f"{len(read)} drawn opening(s) read on them, {len(framed)} unverified window(s) where frames run "
+                    f"along them; labels in no closed face {before} -> {after}")
     return w4, o4, bw4, site4, sw4, b_open4, problem4
 
 
@@ -1299,10 +1348,17 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
             problem = TP.outer_loop_problem(bwalls, b_openings)
     if (problem is not None or _unclosed(site_warnings)) and not is_raster:
         # 2 Nov 2026 (real07: a sliding door, a garage door and an entrance without a symbol the openings reader
-        # knows): wide gaps in the outer ring are inferred openings (``wide_gaps``)
+        # knows): wide gaps between two free wall ends in the outer ring are inferred openings (``wide_gaps``)
         bridged = _outer_gaps(ex, where, walls2, openings, blocks, level_id, site_warnings, problem, non_wall)
         if bridged is not None:
             walls2, openings, bwalls, site, site_warnings, b_openings, problem = bridged
+    if (problem is not None or _unclosed(site_warnings)) and not is_raster:
+        # 3 Nov 2026 (user: "go ahead with the glazed facades"; real09, real11, real13, real14): the facades of window
+        # and door frames are closed around the rooms still open (``facade``); the openings drawn across them are read
+        glazed = _glazed_facades(ex, where, walls2, openings, blocks, level_id, site_warnings, problem, non_wall,
+                                 file_rel, page_no, s, owned)
+        if glazed is not None:
+            walls2, openings, bwalls, site, site_warnings, b_openings, problem = glazed
     for w in site_warnings:
         if w.startswith(TP.REVIEW_PREFIX):
             ex.review.append(f"{where}: {w[len(TP.REVIEW_PREFIX):]}")
