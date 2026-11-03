@@ -230,9 +230,11 @@ def ingest(zip_path: Path, work: Path, assets: Path, out: Path, blender: Optiona
             rec["classes"] = rec["material"]["classes"]
         else:
             rec["classes"] = {}
-        small = [p for p, c in zip(ps, classes) if c["class"] == "bedding"]
-        big = max((p["area"] for p in small), default=0.0)
-        rec["pillows"] = sum(1 for p in small if p["area"] < 0.25 * big)
+        rec["pillows"] = sum(1 for p, c in zip(ps, classes) if c["class"] == "bedding"
+                             and (c["by"] == "geometry:pillow" or (c["by"] == "name" and any(
+                                 w in PM._name_tokens(p.get("node"), p.get("mesh_name"), p.get("material_name"))
+                                 for w in ("pillow", "cuscin", "guancial", "oreiller", "kissen", "almohad")))))
+        rec["split_primitives"] = (rec.get("material") or {}).get("split", 0)
         fr = PM.front_from_parts(ps, classes)
         m = GM.measure(dest)
         from wenart.assets.audit import growth_entries as GE

@@ -34,7 +34,7 @@ def bed_obj(path: Path, cm: bool = True) -> None:
     pillows and four feet, each an object with a name that says nothing (Box01 ...)."""
     s = 1.0 if cm else 0.01
     parts = {"Box01": (0, 0, 8, 170, 215, 30),                   # frame (touches the feet, low)
-             "Box02": (0, 205, 8, 170, 215, 120),                # headboard (+Y, tall, thin)
+             "Box02": (1, 205, 9, 169, 215, 120),                # headboard (+Y, tall, thin; no shared corner)
              "Box03": (5, 5, 30, 165, 200, 52),                  # mattress (floats, covers the footprint)
              "Box04": (3, 3, 50, 167, 160, 56),                  # duvet
              "Box05": (15, 165, 52, 80, 200, 68),                # pillow
@@ -223,3 +223,49 @@ def test_the_job_script_ingests_before_the_studio():
     assert 'RANK_BATCH" = "syncronia"' in text and "wenart.assets.syncronia ingest" in text
     assert text.index("wenart.assets.syncronia ingest") < text.index("studio plan")
     assert "syncronia" in S.SOURCE_BATCHES
+
+
+@pytest.mark.skipif(not HAS_ASSIMP, reason="assimp not installed")
+def test_a_mesh_cut_by_the_vertex_limit_is_classified_by_its_connected_pieces(tmp_path):
+    """The second pod of 3 Nov 2026 (Maxalto Demetra 195 x 226, Selene 180 x 223): one 3DS mesh holds the base and half
+    the duvet, the other mesh the other half: the duvet halves (shared cut vertices) are one piece, white; the base
+    is upholstery; the mixed mesh is split into one primitive per class."""
+    def box(x0, y0, z0, x1, y1, z1):
+        return _box(x0, y0, z0, x1, y1, z1)
+    lines, n = [], 0
+    def emit(name, boxes):
+        nonlocal n
+        lines.append(f"o {name}")
+        for b in boxes:
+            v, f = box(*b)
+            lines.extend(f"v {x:g} {y:g} {z:g}" for x, y, z in v)
+            lines.extend("f " + " ".join(str(n + i) for i in q) for q in f)
+            n += 8
+    # A: base 170 x 215 on feet (floats at 18 cm) + left half of the duvet; B: right half of the duvet (shares x=85)
+    emit("sub01", [(0, 0, 18, 170, 215, 40), (3, 3, 40, 85, 200, 60)])
+    emit("sub02", [(85, 3, 40, 167, 200, 60)])
+    emit("metal", [(2, 2, 0, 8, 8, 18), (162, 2, 0, 168, 8, 18), (2, 207, 0, 8, 213, 18), (162, 207, 0, 168, 213, 18)])
+    src = tmp_path / "bed.obj"
+    src.write_text("\n".join(lines) + "\n")
+    out3 = tmp_path / "bed.3ds"
+    subprocess.run(["assimp", "export", str(src), str(out3), "-f3ds"], check=True, capture_output=True)
+    glb = tmp_path / "bed.glb"
+    from wenart.assets import zip_inspect as ZI
+    assert ZI.assimp_convert(out3, glb)["ok"]
+    fixed = tmp_path / "fixed.glb"
+    WH.fixup(glb, fixed, "bed_double", 0.01, None)
+    ps = PM.parts(fixed)
+    cls = PM.classify(ps, "bed_double")
+    by = {round(p["max"][2] - p["min"][2], 2): c["class"] for p, c in zip(ps, cls)}
+    # the duvet (both halves, 20 cm thick) is one piece of bedding; the base (22 cm) is the frame (lowest cover)
+    assert sum(1 for p in ps if abs((p["max"][2] - p["min"][2]) - 0.20) < 0.005) == 1
+    assert by[0.2] == "bedding" and by[0.22] == "frame"
+    rec = PM.assign(fixed, fixed, ps, cls)
+    assert rec["split"] >= 1
+    doc, _ = WH.read_glb(fixed)
+    mats = [m["name"] for m in doc["materials"]]
+    used = {mats[pr["material"]] for m in doc["meshes"] for pr in m["primitives"]}
+    assert used == {"wenart_bedding_linen", "wenart_upholstery_fabric", "wenart_legs_bronze"}
+    from wenart.assets.audit import glbmesh as GM
+    m0 = GM.measure(fixed)
+    assert m0["triangles"] == 7 * 12                    # every triangle kept once after the split

@@ -95,14 +95,41 @@ def _name_tokens(*names) -> str:
     return " ".join(re.sub(r"[^a-z]+", " ", str(n or "").lower()) for n in names)
 
 
+MERGE_M = 1e-4                         # vertices this close are one point (a mesh cut by the 3DS vertex limit)
+SMALL_SHARE = 0.003                    # a piece under this share of the model's surface (stitches, seams, buttons)
+                                       # takes the class of the piece it sits on
+
+
+def _components(n_verts: int, tris: np.ndarray) -> np.ndarray:
+    """The connected piece of every vertex (label propagation over the triangles, then pointer jumping)."""
+    labels = np.arange(n_verts, dtype=np.int64)
+    if not len(tris):
+        return labels
+    for _ in range(10000):
+        m = np.minimum(np.minimum(labels[tris[:, 0]], labels[tris[:, 1]]), labels[tris[:, 2]])
+        new = labels.copy()
+        for k in range(3):
+            np.minimum.at(new, tris[:, k], m)
+        new = new[new]
+        if np.array_equal(new, labels):
+            break
+        labels = new
+    return labels
+
+
 def parts(path) -> list[dict]:
-    """``[{"key": (mesh, prim), "node", "mesh_name", "material", "material_name", "min", "max", "tris", "area"}]``."""
+    """The connected pieces of a model (3 Nov 2026, the second syncronia pod: a 3DS export cuts meshes at its vertex
+    limit, so one mesh holds part of the base and part of the duvet): every primitive's triangles in the Z-up frame,
+    vertices closer than ``MERGE_M`` merged across primitives, then the connected pieces. Each piece: ``{"key":
+    [piece], "prims": {(mesh, prim): triangle indices of that primitive}, "node", "mesh_name", "material",
+    "material_name" (of the primitive with most of its triangles), "min", "max", "tris", "area"}``."""
     from wenart.assets.audit import glbmesh as GM
     from wenart.assets.models import _node_matrices
     doc, buffers = GM.read(path)
     meshes = doc.get("meshes") or []
     mats = doc.get("materials") or []
-    out = []
+    pos_all, tri_all, owner, local, info = [], [], [], [], []
+    offset = 0
     for index, world in _node_matrices(doc):
         node = doc["nodes"][index]
         if "mesh" not in node:
@@ -121,18 +148,46 @@ def parts(path) -> list[dict]:
             else:
                 idx = np.arange(len(pos), dtype=np.int64)
             tris = GM._triangles(int(prim.get("mode", 4)), idx)
-            area = 0.0
-            if len(tris):
-                a, b, c = pos[tris[:, 0]], pos[tris[:, 1]], pos[tris[:, 2]]
-                area = float(0.5 * np.linalg.norm(np.cross(b - a, c - a), axis=1).sum())
             mi = prim.get("material")
-            out.append({"key": [int(node["mesh"]), pi], "node": str(node.get("name") or ""),
-                        "mesh_name": str(mesh.get("name") or ""), "material": mi,
-                        "material_name": str((mats[mi] or {}).get("name") or "") if isinstance(mi, int)
-                        and mi < len(mats) else "",
-                        "min": [round(float(v), 4) for v in pos.min(axis=0)],
-                        "max": [round(float(v), 4) for v in pos.max(axis=0)],
-                        "tris": int(len(tris)), "area": round(area, 5)})
+            pid = len(info)
+            info.append({"key": (int(node["mesh"]), pi), "node": str(node.get("name") or ""),
+                         "mesh_name": str(mesh.get("name") or ""), "material": mi,
+                         "material_name": str((mats[mi] or {}).get("name") or "") if isinstance(mi, int)
+                         and mi < len(mats) else ""})
+            pos_all.append(pos)
+            tri_all.append(tris + offset)
+            owner.append(np.full(len(tris), pid, dtype=np.int64))
+            local.append(np.arange(len(tris), dtype=np.int64))
+            offset += len(pos)
+    if not pos_all:
+        return []
+    pos = np.concatenate(pos_all)
+    tris = np.concatenate(tri_all) if tri_all else np.zeros((0, 3), dtype=np.int64)
+    owner = np.concatenate(owner)
+    local = np.concatenate(local)
+    _u, canon = np.unique(np.round(pos / MERGE_M).astype(np.int64), axis=0, return_inverse=True)
+    canon = canon.reshape(-1)
+    ct = canon[tris]
+    vlab = _components(int(canon.max()) + 1, ct)
+    tlab = vlab[ct[:, 0]]
+    a, b, c = pos[tris[:, 0]], pos[tris[:, 1]], pos[tris[:, 2]]
+    tarea = 0.5 * np.linalg.norm(np.cross(b - a, c - a), axis=1)
+    out = []
+    order = np.argsort(tlab, kind="stable")
+    labs, starts = np.unique(tlab[order], return_index=True)
+    ends = list(starts[1:]) + [len(order)]
+    for k, (s0, s1) in enumerate(zip(starts, ends)):
+        sel = order[s0:s1]
+        vs = pos[tris[sel].reshape(-1)]
+        prims: dict = {}
+        for pid in np.unique(owner[sel]):
+            prims[info[int(pid)]["key"]] = local[sel[owner[sel] == pid]]
+        main = info[int(np.bincount(owner[sel]).argmax())]
+        out.append({"key": [k], "prims": prims, "node": main["node"], "mesh_name": main["mesh_name"],
+                    "material": main["material"], "material_name": main["material_name"],
+                    "min": [round(float(v), 4) for v in vs.min(axis=0)],
+                    "max": [round(float(v), 4) for v in vs.max(axis=0)],
+                    "tris": int(len(sel)), "area": round(float(tarea[sel].sum()), 5)})
     return out
 
 
@@ -167,39 +222,80 @@ def by_name(p: dict) -> Optional[str]:
     return None
 
 
-def bed_geometry(p: dict, box_min: list, box_max: list) -> str:
-    """The class of one part of a bed from its box (``box_*`` = the whole model's)."""
+def bed_geometry(p: dict, box_min: list, box_max: list, why: bool = False):
+    """The class of one part of a bed from its box (``box_*`` = the whole model's); ``why``: ``(class, rule)``."""
+    def ret(cls, rule):
+        return (cls, rule) if why else cls
     pmin, pmax = p["min"], p["max"]
     w, d = box_max[0] - box_min[0], box_max[1] - box_min[1]
     h = box_max[2] - box_min[2]
     pw, pd, ph = (pmax[i] - pmin[i] for i in range(3))
     if pmax[2] - box_min[2] <= LEG_TOP_M and pw <= LEG_FOOT_M and pd <= LEG_FOOT_M:
-        return "legs"
+        return ret("legs", "foot")
     thin = min(pw, pd)
     span = max(pw / w if pw >= pd else 0.0, pd / d if pd > pw else 0.0)
     if pmax[2] - box_min[2] >= HEAD_MIN_TOP * h and thin <= HEAD_THIN_M and span >= HEAD_SPAN:
-        return "headboard"
+        return ret("headboard", "panel")
     floats = pmin[2] - box_min[2] >= FLOAT_MIN_M
     covers = pw >= COVER_SPAN * w and pd >= COVER_SPAN * d
     if covers and pmax[2] - box_min[2] >= HEAD_MIN_TOP * h and ph >= BASE_SPAN_H * h:
-        return "frame"                 # the upholstered base with its headboard, one mesh (Maxalto Demetra, Selene)
+        return ret("frame", "base_headboard")   # the upholstered base with its headboard (Maxalto Demetra, Selene)
     if floats and covers:
-        return "bedding"
+        return ret("bedding", "cover")
     if floats and min(pw, pd) >= PILLOW_MIN_M and ph <= PILLOW_MAX_H_M and max(pw, pd) <= 0.9:
-        return "bedding"
-    return "frame"
+        return ret("bedding", "pillow")
+    return ret("frame", "rest")
+
+
+def _metal_fits(p: dict, box_min: list) -> bool:
+    """A metal-named part a bed's metal can be: low (its top under ``LEG_TOP_M`` + 5 cm: feet, a base frame)."""
+    return p["max"][2] - box_min[2] <= LEG_TOP_M + 0.05
+
+
+def _inside(c: list, big: dict, tol: float = 0.01) -> bool:
+    return all(big["min"][i] - tol <= c[i] <= big["max"][i] + tol for i in range(3))
 
 
 def classify(ps: list[dict], ftype: str) -> list[dict]:
-    """``[{"key", "class", "by": "name" | "geometry"}]`` for a bed; [] for another type."""
+    """``[{"key", "class", "by"}]`` for a bed (``"name"``, ``"geometry:<rule>"``, ``"base"``, ``"sits on"``); [] for
+    another type. After the per-part rules: when no covering part is the frame yet, the lowest covering soft part is
+    the base (it carries the mattress); a piece under ``SMALL_SHARE`` of the surface that only the last rule typed
+    takes the class of the smallest larger piece whose box holds its centre."""
     if ftype not in BED_TYPES or not ps:
         return []
     lo = [min(p["min"][i] for p in ps) for i in range(3)]
     hi = [max(p["max"][i] for p in ps) for i in range(3)]
+    total = sum(p["area"] for p in ps) or 1.0
     out = []
     for p in ps:
         cls = by_name(p)
-        out.append({"key": p["key"], "class": cls or bed_geometry(p, lo, hi), "by": "name" if cls else "geometry"})
+        if cls == "legs" and not _metal_fits(p, lo) and not any(
+                w in _name_tokens(p.get("node"), p.get("mesh_name")) for w in NAME_WORDS["legs"]):
+            cls = None                                   # a metal name on a high part: the geometry decides
+        if cls:
+            out.append({"key": p["key"], "class": cls, "by": "name"})
+            continue
+        g, rule = bed_geometry(p, lo, hi, why=True)
+        out.append({"key": p["key"], "class": g, "by": f"geometry:{rule}"})
+    covering = [(p, c) for p, c in zip(ps, out) if c["by"] in ("geometry:cover", "geometry:base_headboard")
+                or (c["class"] == "frame" and (p["max"][0] - p["min"][0]) >= COVER_SPAN * (hi[0] - lo[0])
+                    and (p["max"][1] - p["min"][1]) >= COVER_SPAN * (hi[1] - lo[1]))]
+    if covering and not any(c["class"] == "frame" for _p, c in covering):
+        soft = [(p, c) for p, c in covering if c["by"] == "geometry:cover"]
+        if len(soft) >= 2:
+            p0, c0 = min(soft, key=lambda pc: pc[0]["min"][2])
+            if all(p0["min"][2] < p["min"][2] - 0.02 for p, _c in soft if p is not p0):
+                c0.update({"class": "frame", "by": "base"})
+    big = [(p, c) for p, c in zip(ps, out) if p["area"] >= SMALL_SHARE * total]
+    for p, c in zip(ps, out):
+        if p["area"] >= SMALL_SHARE * total or c["by"] != "geometry:rest":
+            continue
+        centre = [(p["min"][i] + p["max"][i]) / 2 for i in range(3)]
+        hosts = [(bp, bc) for bp, bc in big if bp is not p and _inside(centre, bp)]
+        if hosts:
+            hp, hc = min(hosts, key=lambda pc: np.prod([max(pc[0]["max"][i] - pc[0]["min"][i], 1e-4)
+                                                        for i in range(3)]))
+            c.update({"class": hc["class"], "by": "sits on"})
     return out
 
 
@@ -232,11 +328,16 @@ def front_from_parts(ps: list[dict], classes: list[dict]) -> Optional[tuple[str,
 
 
 def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
-    """The GLB with one material per class (``PALETTE``); returns ``{"slots": material_slots, "classes": {class:
-    parts}, "materials": n}``. ``src`` may equal ``dst``."""
+    """The GLB with one material per class (``PALETTE``); a primitive whose triangles fall in several classes is split
+    into one primitive per class (the same vertex attributes, a new index accessor each). Returns ``{"slots":
+    material_slots, "classes": {class: pieces}, "materials": n, "split": primitives split}``. ``src`` may equal
+    ``dst``."""
     from wenart.assets import warehouse as WH
+    from wenart.assets.audit import glbmesh as GM
     doc, binary = WH.read_glb(src)
-    cls = {tuple(c["key"]): c["class"] for c in classes}
+    gdoc, buffers = GM.read(src)
+    binary = bytearray(binary or b"")
+    cls_of = {tuple(c["key"]): c["class"] for c in classes}
     names: list[str] = []
     mats = []
     for c in CLASSES:
@@ -248,28 +349,61 @@ def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
                      "pbrMetallicRoughness": {"baseColorFactor": [round(srgb_to_linear(v), 5) for v in pal["srgb"]]
                                               + [1.0], "metallicFactor": pal["metallic"],
                                               "roughnessFactor": pal["roughness"]}})
-    used: dict[str, float] = {}
+    by_prim: dict = {}
+    area_of: dict[str, float] = {}
     counts: dict[str, int] = {}
-    area = {tuple(p["key"]): p["area"] for p in ps}
+    for p in ps:
+        c = cls_of.get(tuple(p["key"]), "frame")
+        counts[c] = counts.get(c, 0) + 1
+        area_of[PALETTE[c]["name"]] = area_of.get(PALETTE[c]["name"], 0.0) + float(p["area"])
+        for key, idx in (p.get("prims") or {}).items():
+            by_prim.setdefault(tuple(key), {}).setdefault(c, []).append(np.asarray(idx, dtype=np.int64))
+    split = 0
+    views = doc.setdefault("bufferViews", [])
+    accessors = doc.setdefault("accessors", [])
     for mi, mesh in enumerate(doc.get("meshes") or []):
+        new_prims = []
         for pi, prim in enumerate(mesh.get("primitives") or []):
-            c = cls.get((mi, pi), "frame")
-            prim["material"] = names.index(PALETTE[c]["name"])
-            used[PALETTE[c]["name"]] = used.get(PALETTE[c]["name"], 0.0) + area.get((mi, pi), 0.0)
-            counts[c] = counts.get(c, 0) + 1
+            groups = by_prim.get((mi, pi)) or {"frame": []}
+            if len(groups) == 1:
+                prim["material"] = names.index(PALETTE[next(iter(groups))]["name"])
+                new_prims.append(prim)
+                continue
+            split += 1
+            if "indices" in prim:
+                idx = GM.accessor(gdoc, buffers, prim["indices"], as_float=False).reshape(-1).astype(np.int64)
+            else:
+                n = int(accessors[prim["attributes"]["POSITION"]]["count"])
+                idx = np.arange(n, dtype=np.int64)
+            tri = GM._triangles(int(prim.get("mode", 4)), idx)
+            for c, lists in groups.items():
+                sel = tri[np.concatenate(lists)].reshape(-1).astype(np.uint32)
+                binary += b"\x00" * (-len(binary) % 4)
+                views.append({"buffer": 0, "byteOffset": len(binary), "byteLength": int(sel.nbytes),
+                              "target": 34963})
+                binary += sel.tobytes()
+                accessors.append({"bufferView": len(views) - 1, "componentType": 5125, "count": int(len(sel)),
+                                  "type": "SCALAR"})
+                q = {k: v for k, v in prim.items() if k not in ("indices", "material", "mode")}
+                q.update(indices=len(accessors) - 1, material=names.index(PALETTE[c]["name"]), mode=4)
+                new_prims.append(q)
+        mesh["primitives"] = new_prims
     doc["materials"] = mats
-    WH.write_glb(dst, doc, binary)
-    total = sum(used.values()) or 1.0
+    bufs = doc.setdefault("buffers", [{}])
+    bufs[0].pop("uri", None)
+    bufs[0]["byteLength"] = len(binary)
+    WH.write_glb(dst, doc, bytes(binary))
+    total = sum(area_of.values()) or 1.0
     slots = []
     for i, name in enumerate(names):
-        pal = next(PALETTE[c] for c in CLASSES if PALETTE[c]["name"] == name)
-        if name not in used:
+        if name not in area_of:
             continue
+        pal = next(PALETTE[c] for c in CLASSES if PALETTE[c]["name"] == name)
         slots.append({"index": i, "name": name, "material": pal["material"], "materials": list(pal["materials"]),
-                      "agreed": True, "separable": True, "share": round(used[name] / total, 4), "textured": False,
+                      "agreed": True, "separable": True, "share": round(area_of[name] / total, 4), "textured": False,
                       "base_colour": [round(srgb_to_linear(v), 4) for v in pal["srgb"]] + [1.0],
                       "colour_rgb": list(pal["srgb"]), "note": pal["note"], "by": "wenart.assets.part_materials"})
-    return {"slots": slots, "classes": counts, "materials": len(mats)}
+    return {"slots": slots, "classes": counts, "materials": len(mats), "split": split}
 
 
 def material_fields(slots: list[dict], min_share: float = 0.05) -> dict:
@@ -285,6 +419,7 @@ def material_fields(slots: list[dict], min_share: float = 0.05) -> dict:
 def write_debug(path: Path, ps: list[dict], classes: list[dict]) -> None:
     import json
     cls = {tuple(c["key"]): c for c in classes}
-    rows = [dict(p, **{k: cls.get(tuple(p["key"]), {}).get(k) for k in ("class", "by")}) for p in ps]
+    rows = [dict({k: v for k, v in p.items() if k != "prims"}, prims=[list(k) for k in (p.get("prims") or {})],
+                 **{k: cls.get(tuple(p["key"]), {}).get(k) for k in ("class", "by")}) for p in ps]
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(json.dumps(rows, indent=1), encoding="utf-8")
