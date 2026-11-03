@@ -699,5 +699,6 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
         upper = between[1] if len(between) > 1 else None
         hit = next((o for o in seq if orders[o] == upper), None)
         if hit is not None:
-            sl["z_top"] = _value(known[hit] - base, "vector", [], note="the floor mark of the storey above")
+            ev = [_ev(file_rel or "", None, "section_storey_marks", region_id or "", text=f"{known[hit]:+.2f}")]
+            sl["z_top"] = _value(known[hit] - base, "vector", ev, note="the floor mark of the storey above")
     return ["heights from the storeys the sections name at their floor marks: " + "; ".join(lines)]
