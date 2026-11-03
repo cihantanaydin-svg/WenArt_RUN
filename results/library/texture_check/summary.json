@@ -1,0 +1,212 @@
+{
+ "checked_utc": "2026-11-03",
+ "totals": {
+  "usable | textured, all files there": 1962,
+  "not usable | textured, all files there": 1694,
+  "usable | untextured": 474,
+  "not usable | untextured": 229,
+  "not usable | textured, some files missing or broken": 12,
+  "usable | textured, some files missing or broken": 12,
+  "usable | textured, no usable file": 1
+ },
+ "usable_by_source": {
+  "polyhaven": {
+   "textured, all files there": 30
+  },
+  "abo": {
+   "textured, all files there": 735
+  },
+  "generated": {
+   "textured, all files there": 108
+  },
+  "objaverse": {
+   "textured, all files there": 26,
+   "untextured": 2
+  },
+  "hssd": {
+   "textured, all files there": 458,
+   "untextured": 83,
+   "textured, some files missing or broken": 2
+  },
+  "3dwh": {
+   "untextured": 78,
+   "textured, all files there": 605,
+   "textured, some files missing or broken": 10
+  },
+  "syncronia": {
+   "untextured": 311,
+   "textured, no usable file": 1
+  }
+ },
+ "usable_with_missing_or_broken": [
+  {
+   "id": "hssd_xxxx9bced4c2x856fx415cx9381x92ed933c0bb9",
+   "source": "hssd",
+   "type": "bench",
+   "usable": true,
+   "images": 6,
+   "used": 6,
+   "ok": 4,
+   "unreadable": 0,
+   "placeholder": 2,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "hssd_xxxx54c93c4fxabe2x463exafd8xcae01106dc7d",
+   "source": "hssd",
+   "type": "nightstand",
+   "usable": true,
+   "images": 8,
+   "used": 8,
+   "ok": 4,
+   "unreadable": 0,
+   "placeholder": 4,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "3dwh_194e20f8753e473bfda536eb",
+   "source": "3dwh",
+   "type": "office_chair",
+   "usable": true,
+   "images": 47,
+   "used": 47,
+   "ok": 38,
+   "unreadable": 0,
+   "placeholder": 9,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "3dwh_21c9edd946ef3fe05414cce2",
+   "source": "3dwh",
+   "type": "bar_stool",
+   "usable": true,
+   "images": 19,
+   "used": 19,
+   "ok": 16,
+   "unreadable": 0,
+   "placeholder": 3,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "3dwh_2e6456919541b6ef8ee3ef72",
+   "source": "3dwh",
+   "type": "dresser",
+   "usable": true,
+   "images": 13,
+   "used": 13,
+   "ok": 2,
+   "unreadable": 0,
+   "placeholder": 11,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "3dwh_8f18a2cb976eeab5d0216d70",
+   "source": "3dwh",
+   "type": "desk",
+   "usable": true,
+   "images": 57,
+   "used": 57,
+   "ok": 54,
+   "unreadable": 0,
+   "placeholder": 3,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "3dwh_b5054f8059c9e3727de0ef16",
+   "source": "3dwh",
+   "type": "chair",
+   "usable": true,
+   "images": 97,
+   "used": 97,
+   "ok": 61,
+   "unreadable": 0,
+   "placeholder": 36,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "3dwh_d1ed36390489612fbb2a5baa",
+   "source": "3dwh",
+   "type": "armchair",
+   "usable": true,
+   "images": 19,
+   "used": 19,
+   "ok": 16,
+   "unreadable": 0,
+   "placeholder": 3,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "3dwh_e4a04c16198b652085b55dac",
+   "source": "3dwh",
+   "type": "sofa",
+   "usable": true,
+   "images": 5,
+   "used": 5,
+   "ok": 4,
+   "unreadable": 0,
+   "placeholder": 1,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "3dwh_e60d792639d6fe753db649e5",
+   "source": "3dwh",
+   "type": "desk",
+   "usable": true,
+   "images": 54,
+   "used": 54,
+   "ok": 6,
+   "unreadable": 0,
+   "placeholder": 48,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "3dwh_ec9e42c2adfc98bf1d22c3e9",
+   "source": "3dwh",
+   "type": "chair",
+   "usable": true,
+   "images": 21,
+   "used": 21,
+   "ok": 20,
+   "unreadable": 0,
+   "placeholder": 1,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "3dwh_f9b540972598812dd68bdb44",
+   "source": "3dwh",
+   "type": "armchair",
+   "usable": true,
+   "images": 69,
+   "used": 69,
+   "ok": 1,
+   "unreadable": 0,
+   "placeholder": 68,
+   "missing": 0,
+   "status": "textured, some files missing or broken"
+  },
+  {
+   "id": "syncronia_fd14b292a5c01afed73e22a3",
+   "source": "syncronia",
+   "type": "side_table",
+   "usable": true,
+   "images": 1,
+   "used": 1,
+   "ok": 0,
+   "unreadable": 0,
+   "placeholder": 1,
+   "missing": 0,
+   "status": "textured, no usable file"
+  }
+ ]
+}
