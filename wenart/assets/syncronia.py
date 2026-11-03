@@ -265,11 +265,13 @@ def entry(rec: dict, m: dict, meta: dict, checked_utc: str) -> dict:
 def types_for(rel: str, meta: dict) -> tuple[list[str], str]:
     """The catalogue types a model may be: its category's (``CATEGORY_TYPES``), else its names' (``name_type``)."""
     from wenart.assets import warehouse as WH
+    from wenart.furniture import catalog as C
     cat = category_of(rel, meta)
     if cat in CATEGORY_TYPES:
         return list(CATEGORY_TYPES[cat]), f"category {cat}"
     names = WH.name_type(rel)
-    cands = [c for c in names.get("candidates") or [] if c != WH.UNTYPED_OBJECT]
+    valid = set(C.FURNITURE_TYPES) | set(C.DECOR_TYPES)          # a set or object family is no catalogue type
+    cands = [c for c in names.get("candidates") or [] if c in valid and c not in ("unknown", "stair")]
     return cands, (f"names ({names.get('where')})" if cands else f"category {cat}: no type")
 
 

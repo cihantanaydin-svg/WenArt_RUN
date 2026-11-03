@@ -340,3 +340,11 @@ def test_a_glb_with_latin1_names_is_read(tmp_path):
     assert doc["materials"][0]["name"] == "Cuir brûlé"
     from wenart.assets.audit import glbmesh as GM
     assert GM.read(path)[0]["materials"][0]["name"] == "Cuir brûlé"
+
+
+def test_a_name_type_outside_the_catalogue_types_is_no_type():
+    """The Furnitures pod (3 Nov 2026): a bathroom folder's names gave "bathroom_set", a family, not a catalogue
+    type; only furniture and decor types of the catalogue are candidates."""
+    cands, _why = SY.types_for("bathroom-furniture/x/set-bagno/1.3ds", {"type": "bathroom-furniture"})
+    assert all(c in C.FURNITURE_TYPES or c in C.DECOR_TYPES for c in cands)
+    assert SY.types_for("chairs/maxalto/febo/1.3ds", {"type": "chairs"})[0] == ["chair"]
