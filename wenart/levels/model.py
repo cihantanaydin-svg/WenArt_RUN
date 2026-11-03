@@ -561,6 +561,108 @@ def outside_doors(b: dict, levels: list, outline, outlines: dict) -> list[dict]:
     return out
 
 
+FACADE_GAP_WIDTH_M = (0.4, 4.0)     # 3 Nov 2026: the unreadable gaps of an outside wall the facade rule types
+FACADE_WINDOW = (0.9, 1.4)          # ... a window's sill and height when the level has no outside window to copy
+UNCLEAR_GAP = "unclassified gap content"
+
+
+def facade_gaps(b: dict, levels: list, outline, outlines: dict, spaces: Sequence[dict], tm: dict,
+                params: dict) -> list[dict]:
+    """3 Nov 2026 (real10, user: "tell me what purple means", then "go ahead"): a gap in an outside wall whose lines no
+    rule could read (``UNCLEAR_GAP``), or with nothing drawn in it (purple in the reading's sheets), is typed by what
+    lies outside it: onto a drawn
+    outdoor space at its floor (a balcony, terrace; ``outdoor.space_doors``' probe) it is a door (the space's door,
+    added to its ``doors``); with a drop outside (the ground more than ``flush_max`` under its floor, no space) it is a
+    window at the sill and height of the level's outside windows (their median; else ``FACADE_WINDOW``). A gap at
+    the ground with nothing drawn outside stays open (the architect's question). The drawn type stays
+    (``drawn_type``), ``type_inferred`` keeps the reason; pure apart from ``b`` and ``spaces``. Returns the
+    ``inferred`` records."""
+    from shapely.geometry import Point
+
+    from wenart.blender import site as S
+    from wenart.levels import outdoor as OD
+
+    rooms_by: dict = {}
+    for r in b.get("rooms") or []:
+        rooms_by.setdefault(r.get("level_id"), []).append(r)
+    by_id = {lv["id"]: lv for lv in levels}
+
+    def outside(o):
+        lv = by_id.get(o.get("level_id"))
+        if lv is None:
+            return None
+        sides = opening_sides(b, o, rooms_by.get(lv["id"]) or [], outlines.get(lv["id"]) or outline)
+        if sides is None or sum(sides["outside"]) != 1:
+            return None
+        k = 0 if sides["outside"][0] else 1
+        n = sides["normal"]
+        ow = (n[0], n[1]) if k == 0 else (-n[0], -n[1])
+        cx, cy = sides["centre"]
+        face = (cx + ow[0] * sides["half_t"], cy + ow[1] * sides["half_t"])
+        return lv, sides["rooms"][1 - k], face, ow
+
+    typical: dict = {}
+    for o in b.get("openings") or []:
+        if o.get("type") == "window" and o.get("sill_height") is not None and o.get("height") and outside(o):
+            typical.setdefault(o["level_id"], []).append((float(o["sill_height"]), float(o["height"])))
+    every = [x for v in typical.values() for x in v]
+    out = []
+    for o in b.get("openings") or []:
+        # an unclear gap, or an empty one (nothing drawn in it: "possible undrawn door or window"; real10's facade gaps
+        # once the dimension marks crossing them were left out, UL296)
+        if o.get("type") != "opening" or o.get("virtual") or o.get("drawn_type") \
+                or not FACADE_GAP_WIDTH_M[0] <= float(o.get("width") or 0.0) <= FACADE_GAP_WIDTH_M[1]:
+            continue
+        # a gap that holds another opening of its wall (real06: a 1.95 m gap around the drawn 0.70 m balcony door)
+        # is that opening's leftover, never a second door or window
+        held = [x for x in b.get("openings") or [] if x is not o and x.get("wall_id") == o.get("wall_id")
+                and x.get("type") in ("door", "window") and not x.get("virtual") and x.get("center") and o.get("center")
+                and G.distance(x["center"], o["center"]) < (float(x.get("width") or 0.0)
+                                                           + float(o.get("width") or 0.0)) / 2.0 - 0.05]
+        if held:
+            continue
+        side = outside(o)
+        if side is None:
+            continue
+        lv, room, face, ow = side
+        if room is None:
+            continue                     # no room of the house behind it: not a facade opening of a room
+        probe = (face[0] + ow[0] * OD.SPACE["door_probe"], face[1] + ow[1] * OD.SPACE["door_probe"])
+        floor = room_floor_z(b, room)
+        onto = None
+        for sp in spaces:
+            if sp.get("level_id") == lv["id"] and len(sp.get("polygon") or []) >= 3 \
+                    and OD._shp(sp["polygon"]).distance(Point(probe)) <= OD.SPACE["door_reach"]:
+                onto = sp
+                break
+        drop = floor - float(S.ground_z(tm, *probe))
+        if onto is not None:
+            o["drawn_type"], o["type"] = "opening", "door"
+            if o.get("height") is None:
+                o["height"] = 2.1
+            why = (f"a gap with unreadable lines in the outside wall onto the {onto.get('kind')} {onto['id']} "
+                   f"('{onto.get('label')}') at its floor: its door")
+            if o["id"] not in (onto.get("doors") or []):
+                onto.setdefault("doors", []).append(o["id"])
+        elif drop > float(params["flush_max"]):
+            rows = sorted(typical.get(lv["id"]) or every)
+            sill, height = rows[len(rows) // 2] if rows else FACADE_WINDOW
+            o["drawn_type"], o["type"] = "opening", "window"
+            o["drawn_sill_height"], o["drawn_height"] = o.get("sill_height"), o.get("height")
+            o["sill_height"], o["height"] = round(sill, 3), round(height, 3)
+            for k in ("swing_side", "operation", "operation_source", "threshold_z"):
+                o.pop(k, None)
+            why = (f"a gap with unreadable lines in the outside wall, {drop:.2f} m over the ground outside and no "
+                   f"balcony or terrace drawn there: a window (sill {sill:.2f} m, height {height:.2f} m, "
+                   + ("the level's windows)" if typical.get(lv["id"]) else
+                      "the building's windows)" if rows else "the default)"))
+        else:
+            continue
+        o["type_inferred"] = {"method": "facade_gap", "reason": why}
+        out.append({"item": f"opening {o['id']}", "value": o["type"], "reason": why})
+    return out
+
+
 def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlines: dict, tm: dict,
                ground_points: list, conflicts: list, warnings: list, spaces: Sequence[dict] = ()) -> list[dict]:
     """Step 6: ``site.entrances``. 26 Oct 2026: a door that opens onto a labelled outdoor space (``spaces``,
@@ -803,8 +905,12 @@ def main_entrance(b: dict, usable: Sequence[dict], marks: Sequence[dict]) -> tup
         # among the doors reached from the core, the one nearest the ground (the entrance storey; real10: the 1st
         # basement's front door, not a door of the shared hall a storey up)
         near_ground = float(e.get("rise") or 0.0) if tier == 1 else 0.0
-        ranked.append(((tier, round(near_ground, 2), S.nearest_axis(e["outward"]) != axis, -float(e["width"]),
-                        str(e["door_id"])), e, why))
+        # 3 Nov 2026 (real10): a door the plan draws beats a gap whose type was inferred (``facade_gaps``: a 2.86 m
+        # terrace gap of a hall the walls left open won on its width over the drawn 2.40 m double front door)
+        o = ops.get(e["door_id"]) or {}
+        guessed = bool(o.get("type_inferred")) or (o.get("drawn_type") not in (None, o.get("type")))
+        ranked.append(((tier, round(near_ground, 2), guessed, S.nearest_axis(e["outward"]) != axis,
+                        -float(e["width"]), str(e["door_id"])), e, why))
     ranked.sort(key=lambda x: x[0])
     _key, main, why = ranked[0]
     if len(ranked) > 1:
@@ -977,6 +1083,9 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
                                                lambda x, y: S.ground_z(tm, x, y), inferred, warnings)
     OD.mark_decor_used(b, site["outdoor_spaces"])
     inferred += OD.decor_summary(b)
+    # 3 Nov 2026 (real10): the outside walls' unreadable gaps: a door onto a drawn balcony or terrace, a window over a
+    # drop (before the entrances, so a balcony door lands on its balcony)
+    inferred += facade_gaps(b, levels, outline, outlines, site["outdoor_spaces"], tm, params)
     site["entrances"] = _entrances(b, marks, params, levels, outline, outlines, tm, g["points"], conflicts, warnings,
                                    spaces=site["outdoor_spaces"])
     for e in site["entrances"]:

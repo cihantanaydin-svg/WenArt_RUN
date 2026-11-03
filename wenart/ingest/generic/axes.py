@@ -124,3 +124,52 @@ def axis_line_ids(strokes: list, texts: list) -> set:
                 out.add(st.id)
                 break
     return out
+
+
+TICK_MAX_M = 0.10                     # 3 Nov 2026: a tick circle or slash this small (page metres) ...
+TICK_ON_M = 0.02                      # ... touching a dimension or axis line (this close) is part of the notation
+BUILDING_ROLES = ("window", "door", "glass", "wall", "plaster", "structure", "stair", "furniture", "sanitary",
+                  "finish", "site")
+
+
+def notation_ids(strokes: list, dimension_ids=frozenset()) -> set:
+    """3 Nov 2026 (real10, user: "I am talking about the lesson learned related to mixing the lines like the grid
+    lines"; UL261 kept the axis lines out of the walls, rooms and outline, but a dimension chain crossing a facade
+    recess's mouth and ending in its window to the salon, its DH lines and 7 cm tick circles and slashes on layer 0,
+    made both gaps "unclassified content", so the recess (UL277) became a room): the strokes of the drawing's notation,
+    never part of the building: the dimensions found (``dimension_ids``), every stroke on a grid layer
+    (``is_axis_style``), a dimension layer (``layer_names``: DH, DV, OLCU, DIM ...) or a text layer (a tag's leader
+    line: real10's '70/150' leader crossed the recess's window), and the tick marks (a circle or a short stroke at most
+    ``TICK_MAX_M`` across, page metres) that touch one of those lines, on a layer that draws no building element
+    (``BUILDING_ROLES``). The dimensions stay on the page for the scale; the readers that build
+    the walls' gaps leave these out. Pure."""
+    from shapely.geometry import LineString, Point
+    from shapely.strtree import STRtree
+
+    from wenart.ingest.generic import layer_names as LN
+
+    out = set(dimension_ids)
+    lines = []
+    for st in strokes:
+        layer = getattr(st, "layer", None)
+        # (a centre / dash-dot linetype alone marks only the long grid lines, which the page already left out:
+        # ``axis_line_ids``; short dash-dot strokes are glass, overhead cabinets, furniture centre lines)
+        if st.id in out or is_axis_style(layer, None) or LN.layer_role(layer) in ("dimension", "text"):
+            out.add(st.id)
+            if len(st.pts) >= 2:
+                lines.append(LineString(st.pts))
+    if not lines:
+        return out
+    tree = STRtree(lines)
+    for st in strokes:
+        # (a short piece of a window, door, glass or wall layer touching a dimension line along the facade is the
+        # building's: real10's right salon lost the frame nubs its glazed facade is closed by)
+        if st.id in out or not st.pts or LN.layer_role(getattr(st, "layer", None)) in BUILDING_ROLES:
+            continue
+        xs, ys = [p[0] for p in st.pts], [p[1] for p in st.pts]
+        if max(max(xs) - min(xs), max(ys) - min(ys)) > TICK_MAX_M:
+            continue
+        g = LineString(st.pts) if len(st.pts) >= 2 else Point(st.pts[0])
+        if any(lines[i].distance(g) <= TICK_ON_M for i in tree.query(g.buffer(TICK_ON_M))):
+            out.add(st.id)
+    return out

@@ -314,7 +314,7 @@
       "required": ["id", "kind", "description", "resolution"],
       "properties": {
         "id": {"type": "string"},
-        "kind": {"enum": ["unit_mismatch", "registration_residual", "level_mark_mismatch", "section_width_mismatch", "stair_alignment", "elevation_opening_mismatch", "variant_base_unclear", "region_class_disagreement", "outline_mismatch", "other"]},
+        "kind": {"enum": ["unit_mismatch", "registration_residual", "level_mark_mismatch", "section_width_mismatch", "stair_alignment", "elevation_opening_mismatch", "variant_base_unclear", "region_class_disagreement", "outline_mismatch", "shaft_grid_mismatch", "other"]},
         "regions": {"type": "array", "items": {"type": "string"}},
         "description": {"type": "string"},
         "resolution": {"type": "string"}

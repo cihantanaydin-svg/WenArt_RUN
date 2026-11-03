@@ -626,8 +626,8 @@ def test_core_extract_adds_the_gap_rule_notes(tmp_path, monkeypatch):
 
     real = O.gaps_and_openings
 
-    def wrapped(walls, strokes, file_rel, page_no, units_to_m=None):
-        out_walls, openings, log, owned = real(walls, strokes, file_rel, page_no, units_to_m=units_to_m)
+    def wrapped(walls, strokes, file_rel, page_no, units_to_m=None, **kw):
+        out_walls, openings, log, owned = real(walls, strokes, file_rel, page_no, units_to_m=units_to_m, **kw)
         out_walls[0].corrected_by_ai = {"rule": "lined_gap", "reason": "stand-in reason",
                                         "before": {"start": [0.0, 0.0], "end": [1.0, 0.0], "thickness": 0.3}}
         log.append({"kind": "run", "class": "open", "width": 1.0, "p0": [2.0, 3.0], "p1": [3.0, 3.0],

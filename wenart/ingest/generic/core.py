@@ -1175,6 +1175,28 @@ def _empty_gap(o) -> bool:
         and ev.get("rule") not in ("wide_gap", "glazed_run", "glazed_facade", "mirror_twin")
 
 
+def _open_twin(face, out_pt, axis, faces, outline) -> Optional[str]:
+    """The mirror axis (``"x = 12.34"``) when ``face`` lies on one side of the plan's mirror ``axis`` and its mirror
+    image is open air: no face covers more than a fifth of it and the mirror of the outside point is outside too;
+    else None."""
+    if axis is None:
+        return None
+    from shapely import affinity
+
+    kind, v = axis
+    lo, hi = (face.bounds[0], face.bounds[2]) if kind == "x" else (face.bounds[1], face.bounds[3])
+    if lo < v < hi:
+        return None                                   # it straddles the axis: no twin of its own
+    mf = affinity.scale(face, xfact=-1.0 if kind == "x" else 1.0, yfact=-1.0 if kind == "y" else 1.0,
+                        origin=(v, 0.0) if kind == "x" else (0.0, v))
+    if any(f.intersection(mf).area > 0.2 * face.area for f in faces):
+        return None
+    q = Point(2.0 * v - out_pt.x, out_pt.y) if kind == "x" else Point(out_pt.x, 2.0 * v - out_pt.y)
+    if outline.contains(q):
+        return None
+    return f"{kind} = {v:.2f}"
+
+
 def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, level_id):
     """3 Nov 2026 (real09, user: "wait a light well is not correct, there is not wall in the purple section"): an empty
     gap (``_empty_gap``) in a wall that the outside reaches on one side and, on the other, a face with no label, no
@@ -1183,12 +1205,17 @@ def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, l
     recess is outside. Never silent: each one is noted with the gap's entities."""
     import math as _m
 
+    from wenart.ingest.generic import facade as FC
+
     faces = TP.faces(walls2, openings)
     if not faces:
         return None
     outline = TP.building_outline(walls2, openings)
     anchors = [Point(b.anchor) for b in blocks]
-    splits = []
+    # 3 Nov 2026 (real10, user: "this section is still wrong should be similar as the mirror"): on a plan of two
+    # mirrored halves, the recess's twin decides when its own window could not be read
+    axis = FC.mirror_axis(walls2, FC.MIRROR_FIX_SHARE)
+    splits, pending, opened = [], [], []
     for k, o in enumerate(openings):
         if not _empty_gap(o):
             continue
@@ -1213,12 +1240,22 @@ def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, l
         others = [p for j, p in enumerate(openings) if j != k and not getattr(p, "virtual", False)]
         near = [p for p in others if (TP.opening_polygon(p, walls2) or Point(p.center).buffer(0.01)).distance(face) <= 0.02]
         if any(p.kind != "window" for p in near) or not any(p.kind == "window" for p in near):
+            if axis is not None and not any(p.kind == "door" for p in near):
+                pending.append((k, hk, o, face, out_pt, sum(1 for p in near if p.kind == "window")))
             continue
-        splits.append((k, hk, o, face.area, sum(1 for p in near if p.kind == "window")))
+        splits.append((k, hk, o, face.area, sum(1 for p in near if p.kind == "window"), None))
+        opened.append(face)
+    # the twins' pass: a recess whose own windows could not be read opens when its mirror twin is open air, the twins
+    # this pass opened counting as open (both are closed faces before it)
+    shut = [f for f in faces if not any(f.equals(g) for g in opened)]
+    for k, hk, o, face, out_pt, nwin in pending:
+        twin = _open_twin(face, out_pt, axis, shut, outline)
+        if twin is not None:
+            splits.append((k, hk, o, face.area, nwin, twin))
     if not splits:
         return None
     new_walls, drop = list(walls2), set()
-    for k, hk, o, area, nwin in splits:
+    for k, hk, o, area, nwin, twin in splits:
         w = new_walls[hk]
         (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
         L = math.hypot(x1 - x0, y1 - y0)
@@ -1234,9 +1271,11 @@ def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, l
         new_walls[hk] = pieces[0] if pieces else None
         new_walls += pieces[1:]
         drop.add(k)
+        why = (f"{nwin} window(s) of other rooms open onto it" if twin is None else
+               f"its mirror twin about {twin} is open air (the mirrored half reads the recess open)")
         ex.notes.append(f"{where}: the {o.width:.2f} m gap {o.entity} in an outer wall holds no door or window and the "
-                        f"{area:.2f} m2 space behind it has no door and {nwin} window(s) of other rooms open onto it: a "
-                        f"recess of the facade, open air (the wall is split there, no opening; corrected_by_ai)")
+                        f"{area:.2f} m2 space behind it has no door and {why}: a recess of the facade, open air (the "
+                        f"wall is split there, no opening; corrected_by_ai)")
     new_walls = [w for w in new_walls if w is not None]
     new_open = [o for j, o in enumerate(openings) if j not in drop]
     bw, site, sw = TP.split_plot(new_walls, new_open, blocks, level_id=level_id)
@@ -1246,6 +1285,7 @@ def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, l
 
 
 MIRROR_MAX_NEW_WALLS = 3        # mirror twins differ by at most this many walls the other half draws
+CORE_KEEP_OUT_M = 3.0           # no mirror fix within this of a lift label (the core: lift and stair, not mirrored)
 
 
 def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
@@ -1264,11 +1304,18 @@ def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: li
         return None
     before = MR.mirrored_face_pairs(walls2, openings, axis)
     base_unclosed = _unclosed(site_warnings)
+    # 3 Nov 2026 (real10, user: "core stairs and elevators and that section is shaft usually": the lift shaft's wall
+    # was copied into the stair beside it): the core around a lift label is not mirrored
+    from wenart.sheets import register as RG_
+    from wenart.sheets import titles as TI_
+    lifts = [Point(b.anchor).buffer(CORE_KEEP_OUT_M) for b in blocks
+             if RG_.LIFT_RE.search(TI_.fold(str(getattr(b, "name", "") or "")))]
+    keep_out = unary_union(lifts) if lifts else None
     kept_steps: list = []
     best = None
     notes = []
     for step in MR.STEPS:
-        res = MR.consistency(walls2, openings, axis, steps=tuple(kept_steps + [step]))
+        res = MR.consistency(walls2, openings, axis, steps=tuple(kept_steps + [step]), keep_out=keep_out)
         if res is None:
             continue
         w5, o5, log = res
@@ -1511,6 +1558,8 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     ex.warnings.extend(f"{where}: {w}" for w in wall_info.get("warnings", []))
     wall_strokes = prim_ids - set(wall_info.get("dropped_strokes", []))
     non_wall = [st for st in strokes_m if st.id not in wall_strokes]
+    # (the dimension finder's strokes are not passed: its "two parallel lines around a number" also takes a window's
+    # frame lines beside its size tag; the notation is read from the layers, UL296)
     walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s)
     for e in gap_log:
         if e.get("kind") == "wall_piece":

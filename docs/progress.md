@@ -3317,3 +3317,27 @@ textures the zips do not hold, their links removed).
 
 Pods: inspection 12.9 min $0.56; intake and studio 35.6 min $0.34; fixes 7.9 min $0.33, 8.6 min $0.36; dump 1.8 min $0.08;
 one setup failure (NVIDIA apt mirror) $0.03.
+
+## real10 from the core outwards, structure runs bare (3 Nov 2026 afternoon, lessons UL286-UL296)
+
+The user's real10 checks ("understanding the building starts with the stairs in the shaft", "green marking is outside
+shared hall", "this should be the main entrance", "red sections are small closets", "tell me what purple means") and
+the real04 structure run ("why there are furnitures inside", "exactly like the old full runs"):
+
+| rule | before | now |
+|---|---|---|
+| a band of 3+ short parallel strokes wider than a wall (0.6 m) and than long is drawn detail (a stair's newel and rails), never a wall | a 0.85 m "wall" across the core stair cut it off from its landing | the stair and the landing in one open space |
+| a stair core room that also holds the open landing in front of its stair and lift is two rooms joined by a virtual opening | Kat Holü missing on L0/L-1 | Merdiven (5.6 m2) + Kat Holü (5.1 m2) on every floor |
+| the sections' storey marks set the frame of the plans' relative level marks (+2.50 printed = building z 0) | the front door's '-0.50' threshold read 2.50 m up: "a door into the air" | flush: the 2.40 m double front door on L-1 is the main entrance |
+| a drawn door beats a gap whose type was inferred in the main-entrance ranking | (a 2.86 m terrace gap won on width) | d_L-1_001 |
+| an unreadable gap in an outside wall: a door onto a drawn balcony or terrace, a window over a drop (UL295) | 17 purple facade gaps on L0 | 10 windows on every typical floor, 6 terrace doors on L-1 (real06: its 160/160 east windows) |
+| the drawing's notation never mixes with the building's lines (UL261 extended, UL296): dimension and text-layer lines (by layer) and their 7 cm tick circles and slashes are never a gap's content (the dimension finder's own strokes are not used: its parallel-lines rule takes window frames) | a dimension chain made the left flat's facade recess a room ("There is no Oda on the left side that's outside"); 4 'windows' of real10 were drawn from DH / DV dimension lines | the recess open air; the 4 false windows gone |
+| a facade recess whose own window is unreadable follows its mirror twin when the twin is open air (two passes) | left recess a room, right open | both open, every typical floor |
+| closets: a small room with one door and no window is storage | "Oda (hall)" | Depo |
+| the structure profile builds the bare building (drawn fixed equipment only), `WENART_BARE_BUILD` (UL292) | furnished top-downs | bare top-downs and exteriors |
+| top-down plans: framing from the walls; site and terrain cut out over the floor | L-1 covered by the lawn | (checked on the next structure run) |
+
+real04 structure run (pod jbefyl38156bpt, RTX PRO 6000, 46 min, $1.92): ok; its reading did not change (no real04 rule
+changed), so the building is the one of 1 Nov (UL293: say what changed before a run). Still open on real10: L-1's right
+flat hall and kitchen merge with the central hall (walls the mirror rule should copy), window frame lines on the wall
+layer read as thin extra walls (the 7 purple gaps left per floor).

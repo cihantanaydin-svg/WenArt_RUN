@@ -2452,6 +2452,9 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     # 3 Nov 2026 (real09): the room holding the stair that stacks through the levels is the stair core
     for line in TW.stair_cores(b["rooms"], b["furniture"]):
         build.warn(f"stair core: {line}")
+    # 3 Nov 2026 (real10): a stair core room that holds the open landing in front of its stair is two rooms
+    for line in TW.split_core_landings(b["rooms"], b["openings"], b["furniture"]):
+        build.warn(f"core landing: {line}")
     # 3 Nov 2026 (real10, user: "green marking is outside shared hall"): the room the stair core opens into
     for line in TW.shared_halls(b["rooms"], b["openings"]):
         build.warn(f"shared hall: {line}")

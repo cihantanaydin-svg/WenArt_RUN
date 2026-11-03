@@ -420,6 +420,9 @@ def separators(walls: list[WallItem], openings: list[OpeningItem], gap_log: list
     return items, log
 
 
+MIRROR_SEP_GRAZE_M = 0.25       # a mirrored separator may run this far inside walls (its ends on a slightly offset twin)
+
+
 def _mirror_separators(axis: tuple, walls: list, openings: list, kept: list, log: list) -> None:
     """3 Nov 2026 (real10, user: "if the left is salon right also needs to be salon"): on a plan of two mirrored
     halves (``axis``: ``facade.mirror_axis``) the separator found between two room names of the labelled half is
@@ -441,8 +444,8 @@ def _mirror_separators(axis: tuple, walls: list, openings: list, kept: list, log
             continue
         seg = LineString(m)
         inner = LineString([seg.interpolate(0.05, normalized=True), seg.interpolate(0.95, normalized=True)])
-        if inner.intersects(union):
-            continue
+        if inner.intersection(union).length > MIRROR_SEP_GRAZE_M:
+            continue                                       # it runs through a wall (its ends may graze one)
         n_new = len(faces(walls, openings, lines + [m]))
         if n_new <= n_faces:
             continue
@@ -512,10 +515,15 @@ NEAREST_PER_END = 3              # the nearest walls tried from one free end
 def _nearest_candidates(walls: list[WallItem], gap_log: list[dict], openings: list) -> list[dict]:
     """Free end to the nearest point of another wall (any direction, at most ``SEPARATOR_MAX_M``, the segment crossing
     no wall): the separator between two room names where the walls stop offset (a hall's stub and a kitchen corner)."""
+    from shapely import STRtree
     from shapely.ops import nearest_points
+    from shapely.prepared import prep
 
     polys = [wall_polygon(w) for w in walls]
-    union = bridged_union(walls, openings)
+    if not polys:
+        return []
+    tree = STRtree(polys)
+    union = prep(bridged_union(walls, openings))
     out = []
     for e in gap_log:
         if e.get("kind") != "free_end":
@@ -523,9 +531,12 @@ def _nearest_candidates(walls: list[WallItem], gap_log: list[dict], openings: li
         (px, py) = e["point"]
         pt = Point(px, py)
         t = float(e.get("thickness") or 0.1)
-        own = [k for k, pg in enumerate(polys) if pg.distance(pt) <= t / 2.0 + 0.05]
+        # 3 Nov 2026 (real08's whole sheet: thousands of ends and walls): only the walls within reach, by the index
+        near = [int(k) for k in tree.query(pt.buffer(SEPARATOR_MAX_M))]
+        own = [k for k in near if polys[k].distance(pt) <= t / 2.0 + 0.05]
         cands = []
-        for k, pg in enumerate(polys):
+        for k in near:
+            pg = polys[k]
             if k in own:
                 continue
             d = pg.distance(pt)
@@ -535,7 +546,7 @@ def _nearest_candidates(walls: list[WallItem], gap_log: list[dict], openings: li
             seg = LineString([(px, py), (q.x, q.y)])
             inner = seg.interpolate(0.05, normalized=True), seg.interpolate(0.95, normalized=True)
             mid = LineString([(inner[0].x, inner[0].y), (inner[1].x, inner[1].y)])
-            if mid.intersects(union):
+            if union.intersects(mid):
                 continue                                   # it runs through a wall
             cands.append((d, (round(q.x, 4), round(q.y, 4)), k))
         for d, q, k in sorted(cands)[:NEAREST_PER_END]:

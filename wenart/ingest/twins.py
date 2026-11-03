@@ -447,14 +447,102 @@ def stair_cores(rooms: list[dict], furniture: list[dict]) -> list[str]:
 
 
 SHARED_HALL_REACH_M = 0.55       # an opening joins two rooms when its centre lies this close to both (core walls run 0.4-0.8 m thick)
+LANDING_MIN_M2 = 2.0             # 3 Nov 2026: a stair core room this much larger than its stair holds the shared hall ...
+LANDING_MIN_WIDTH_M = 0.9        # ... when the rest is this wide (a walkable hall, not a strip beside the flight)
+
+
+def _stair_box(f: dict) -> Polygon:
+    """The rectangle of a stair's footprint (centre, size, rotation)."""
+    fp = f["footprint"]
+    (cx, cy), (w, d) = fp["center"][:2], fp["size"][:2]
+    a = math.radians(float(fp.get("rotation_deg") or 0.0))
+    c, s = math.cos(a), math.sin(a)
+    return Polygon([(cx + x * c - y * s, cy + x * s + y * c)
+                    for x, y in ((-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2))])
+
+
+def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list[dict]) -> list[str]:
+    """3 Nov 2026 (real10, user: "Understanding the building starts with the stairs in the shaft", "green marking is
+    outside shared hall"; the plan draws no wall between the core stair and the landing in front of it and the lifts,
+    so once the stair's middle wall and rails were no longer read as a wall across the stair, stair and landing were one
+    face): a stair core room (``stair_cores``) whose part outside its stair's footprint is at least ``LANDING_MIN_M2``
+    and ``LANDING_MIN_WIDTH_M`` wide (and touches the floor's lift, where the floor has one) is two rooms: the stair
+    ('Merdiven', the footprint's part) and the shared hall in front of it ('Kat Holü' / 'Landing', type ``hall``,
+    ``label_inferred`` method ``shared_hall``), joined by a virtual opening along their common edge (open: no wall is
+    drawn there). Mutates ``rooms`` and ``openings``; returns one line per split."""
+    from shapely.geometry import MultiLineString
+    from shapely.ops import linemerge, unary_union
+
+    from wenart.sheets import register as RG
+    from wenart.sheets import titles as TI
+
+    stairs = [f for f in furniture if f.get("type") == "stair" and (f.get("footprint") or {}).get("size")]
+    notes = []
+    for r in list(rooms):
+        if (r.get("label_inferred") or {}).get("method") != "stair_core" or len(r.get("polygon") or []) < 3:
+            continue
+        poly = _poly(r)
+        mine = [f for f in stairs if f.get("level_id") == r["level_id"] and _stair_box(f).intersects(poly)]
+        if not mine:
+            continue
+        box = unary_union([_stair_box(f) for f in mine])
+        stair_part = poly.intersection(box)
+        rest = poly.difference(box)
+        if stair_part.is_empty or rest.is_empty:
+            continue
+        parts = sorted(getattr(rest, "geoms", [rest]), key=lambda g: -g.area)
+        hall = parts[0]
+        if hall.geom_type != "Polygon" or hall.interiors or hall.area < LANDING_MIN_M2 \
+                or hall.buffer(-LANDING_MIN_WIDTH_M / 2.0).is_empty:
+            # (a hole: a stair standing free inside the room, no landing in front of a core stair)
+            continue
+        lifts = [_poly(x) for x in rooms if x.get("level_id") == r["level_id"] and x.get("room_type") == "shaft"
+                 and RG.LIFT_RE.search(TI.fold(str(x.get("label_raw") or x.get("label") or "")))]
+        if lifts and not any(hall.distance(lp) <= SHARED_HALL_REACH_M for lp in lifts):
+            continue
+        # the stair keeps the footprint's part and the small leftovers (strips beside the flights)
+        stair_poly = unary_union([stair_part] + parts[1:]).buffer(0)
+        if stair_poly.geom_type != "Polygon":
+            stair_poly = max(stair_poly.geoms, key=lambda g: g.area)
+        edge = stair_poly.boundary.intersection(hall.boundary)
+        lines = [g for g in getattr(edge, "geoms", [edge]) if g.geom_type in ("LineString", "MultiLineString")]
+        merged = linemerge(MultiLineString([c for g in lines for c in getattr(g, "geoms", [g])])) if lines else None
+        if merged is None or merged.is_empty:
+            continue
+        cut = max(getattr(merged, "geoms", [merged]), key=lambda g: g.length)
+        if cut.length < 0.6:
+            continue
+        turkish = str(r.get("label") or "") == "Merdiven"
+        hall_id = f"{r['id']}_hall"
+        r["polygon"] = [[round(x, 4), round(y, 4)] for x, y in list(stair_poly.exterior.coords)[:-1]]
+        r["area_computed"] = round(stair_poly.area, 2)
+        rooms.append(dict(r, id=hall_id, label="Kat Holü" if turkish else "Landing", room_type="hall",
+                          polygon=[[round(x, 4), round(y, 4)] for x, y in list(hall.exterior.coords)[:-1]],
+                          area_computed=round(hall.area, 2), has_documented_furniture=False,
+                          label_inferred={"method": "shared_hall", "core": r["id"], "split_from": r["id"]}))
+        (ax, ay), (bx, by) = cut.coords[0], cut.coords[-1]
+        openings.append({"id": f"o_{hall_id}", "type": "opening", "level_id": r["level_id"], "wall_id": None,
+                         "virtual": True, "line": [[round(ax, 4), round(ay, 4)], [round(bx, 4), round(by, 4)]],
+                         "center": [round((ax + bx) / 2, 4), round((ay + by) / 2, 4)], "width": round(cut.length, 4),
+                         "height": None, "sill_height": None, "swing_side": None, "status": "verified",
+                         "evidence": [{"file": (r.get("evidence") or [{}])[0].get("file"), "method": "inferred",
+                                       "confidence": 0.8, "entity": f"split:{r['id']}",
+                                       "note": f"virtual separator ({cut.length:.2f} m): the stair core's stair and "
+                                               f"the shared hall in front of it, open (no wall drawn)",
+                                       "region_id": (r.get("evidence") or [{}])[0].get("region_id")}]})
+        notes.append(f"{r['level_id']}: the stair core {r['id']} ({poly.area:.1f} m2) holds its stair "
+                     f"({stair_poly.area:.1f} m2) and the shared hall in front of it: {hall_id} '{rooms[-1]['label']}' "
+                     f"({hall.area:.1f} m2, inferred), joined open along {cut.length:.2f} m")
+    return notes
 
 
 def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
     """3 Nov 2026 (real10, user: "green marking is outside shared hall", "core stairs and elevators and that section is
     shaft usually"): an unnamed room the building's stair core (``stair_cores``) opens into (an opening or door whose
     centre lies within ``SHARED_HALL_REACH_M`` of both) is the floor's shared hall in front of the core: 'Kat Holü'
-    ('Landing' on an English plan), type ``hall``, ``label_inferred`` (method ``shared_hall``). The flats' own halls
-    beside the core, behind a wall, are not joined to it. Returns one line per room."""
+    ('Landing' on an English plan), type ``hall``, ``label_inferred`` (method ``shared_hall``); where the floor has a
+    lift (a shaft labelled lift, asansör ...), the shared hall touches it too. The flats' own halls beside the core,
+    behind a wall, are not joined to it. Returns one line per room."""
     from shapely.geometry import Point
 
     from wenart import building as B
@@ -470,6 +558,12 @@ def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
             continue
         turkish = any(B.is_turkish_label(str(x.get("label_raw") or "")) for x in level_rooms if x.get("label_raw"))
         level_openings = [o for o in openings if o.get("level_id") == lid and o.get("center")]
+        # the core is the stair with the lifts (user: "core stairs and elevators and that section is shaft usually"):
+        # where the floor has a lift, the shared hall touches it too (a flat's own hall beside the stair does not)
+        from wenart.sheets import register as RG
+        from wenart.sheets import titles as TI
+        lifts = [_poly(x) for x in level_rooms if x.get("room_type") == "shaft"
+                 and RG.LIFT_RE.search(TI.fold(str(x.get("label_raw") or x.get("label") or "")))]
         for core in cores:
             cp = _poly(core)
             for r in level_rooms:
@@ -479,6 +573,8 @@ def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
                 joined = [o for o in level_openings if cp.distance(Point(o["center"][:2])) <= SHARED_HALL_REACH_M
                           and rp.distance(Point(o["center"][:2])) <= SHARED_HALL_REACH_M]
                 if not joined:
+                    continue
+                if lifts and not any(rp.distance(lp) <= SHARED_HALL_REACH_M for lp in lifts):
                     continue
                 old = r.get("label")
                 r["label"] = "Kat Holü" if turkish else "Landing"

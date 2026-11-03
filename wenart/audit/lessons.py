@@ -1128,7 +1128,7 @@ def run(inp) -> dict:
     return out
 
 
-READING_LESSONS = tuple(f"UL{n}" for n in (*range(260, 277), *range(278, 284), *range(286, 290)))
+READING_LESSONS = tuple(f"UL{n}" for n in (*range(260, 277), *range(278, 284), *range(286, 290), 295, 296))
 CHECK_LESSONS["U39"] = READING_LESSONS     # 2 Nov 2026: the reading lessons, measured by the reading self-check
 
 

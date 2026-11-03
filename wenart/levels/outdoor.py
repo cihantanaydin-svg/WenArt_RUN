@@ -214,8 +214,11 @@ def _bridges(strokes: list[dict], fixed_lines, gap: float) -> list[tuple]:
             ends.append((k, tuple(p), tuple(q)))
 
     def touching(k, geom, tol):
-        return [j for j in tree.query(geom.buffer(tol) if tol > 0 else geom) if j != k
-                and geoms[j].distance(geom) <= tol + 1e-9]
+        # 3 Nov 2026 (the regression set: real12's 'GALERİ İZİ' labels among dense hatching read for over an hour):
+        # the index answers the distance test itself (GEOS dwithin), not a Python loop over every bounding-box hit
+        hits = tree.query(geom, predicate="dwithin", distance=tol + 1e-9) if tol > 0 else \
+            tree.query(geom, predicate="intersects")
+        return [int(j) for j in hits if int(j) != k]
 
     free = [(k, p, q) for k, p, q in ends if not touching(k, Point(p), 0.002)]
     out = []

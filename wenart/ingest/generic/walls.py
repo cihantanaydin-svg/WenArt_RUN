@@ -113,6 +113,8 @@ TREAD_MIN = 4                  # real10: >= 4 parallel lines at an even pitch of
 TREAD_PITCH_M = (0.18, 0.40)   # the first, overlapping >= 50 %) are stair treads or slats, never wall faces
 TREAD_EVEN = 0.15
 TREAD_OVERLAP = 0.5
+WIDE_BAND_LINES = 3             # 3 Nov 2026: >= 3 short parallel strokes side by side, wider than 0.6 m and than long,
+WIDE_BAND_END_M = 0.05          # ... each ending with its pair within 5 cm, are drawn detail (a stair's newel and rails)
 ALONG_SHARE = 0.5              # real10: a second wall layer's pieces lie >= 50 % within 5 cm of the chosen layer's
 OWN_PAIR_SHARE = 0.7           # 2 Nov 2026: a thinly labelled plan's own best layer joins the document's at this pair share
 ALONG_M = 0.05                 # walls (the same walls drawn twice: masonry inside plaster)
@@ -742,6 +744,57 @@ def _drop_tread_runs(pairs: list[_Pair]) -> list[_Pair]:
     return [p for p in pairs if id(p) not in drop]
 
 
+def _drop_wide_bands(pairs: list[_Pair]) -> list[_Pair]:
+    """3 Nov 2026 (real10: the stair's middle wall and its rails, four parallel lines 0.6, 0.4 and 0.6 m apart and
+    0.85 m long on the plaster layer, paired into three 'wall pieces' side by side; the band they filled, 1.6 m wide
+    and 0.85 m long, became one wall 0.85 m thick across the stair that cut the stair off from its landing). Pairs side
+    by side (the far face of one is the near face of the next over the same stretch) make one band. A pair in a band of
+    three or more short strokes (each line ends with its pair, within ``WIDE_BAND_END_M``) that is wider than any wall
+    (``PAIR_WIDTH_M``) and wider than the pair is long is drawn detail (a newel, rails, balusters, slats), never a wall
+    piece; a wall's long face lines, split into short pieces at the lines crossing them, keep their pairs."""
+    if len(pairs) < 2:
+        return pairs
+    by_near: dict[int, list[_Pair]] = {}
+    by_far: dict[int, list[_Pair]] = {}
+    for p in pairs:
+        by_near.setdefault(id(p.lines[0]), []).append(p)
+        by_far.setdefault(id(p.lines[1]), []).append(p)
+
+    def short(a: _Pair) -> bool:
+        return all(ln.s1 - ln.s0 <= a.hi - a.lo + WIDE_BAND_END_M for ln in a.lines)
+
+    def overlaps(a: _Pair, b: _Pair) -> bool:
+        return short(b) and min(a.hi, b.hi) - max(a.lo, b.lo) >= TREAD_OVERLAP * min(a.hi - a.lo, b.hi - b.lo)
+
+    drop = set()
+    for p in pairs:
+        if not short(p):
+            continue
+        # walk to the far side through pairs whose near face is p's far face, and back through pairs whose far face is
+        # p's near face; count the lines of the band
+        lines, cur, seen = 2, p, {id(p)}
+        far = p.lines[1].off
+        while True:
+            nxt = [q for q in by_near.get(id(cur.lines[1]), []) if id(q) not in seen and overlaps(q, p)]
+            if not nxt:
+                break
+            cur = nxt[0]
+            seen.add(id(cur))
+            far, lines = cur.lines[1].off, lines + 1
+        near, cur = p.lines[0].off, p
+        while True:
+            nxt = [q for q in by_far.get(id(cur.lines[0]), []) if id(q) not in seen and overlaps(q, p)]
+            if not nxt:
+                break
+            cur = nxt[0]
+            seen.add(id(cur))
+            near, lines = cur.lines[0].off, lines + 1
+        band = far - near
+        if lines >= WIDE_BAND_LINES and band > PAIR_WIDTH_M[1] + 1e-9 and max(p.hi - p.lo, p.run) < band:
+            drop.add(id(p))
+    return [p for p in pairs if id(p) not in drop]
+
+
 def stepped_runs(pairs: list[_Pair]) -> None:
     """A wall pier whose other face steps (real06: a 0.85 m pier between two windows, drawn as a 0.35 m piece of the
     25 cm wall between two 0.25 m pieces 45 cm thick, the pilasters at the jambs) is one wall piece: pairs that share
@@ -1249,6 +1302,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
             lines = _merge_lines(group, u, n)
             found = _drop_tread_runs(_pairs_of(lines, layer, u, n))
             stepped_runs(found)
+            found = _drop_wide_bands(found)
             pairs.extend(found)
             in_pairs = {id(ln) for p in found if p.primary for ln in p.lines}
             for ln in lines:

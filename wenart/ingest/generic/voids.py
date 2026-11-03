@@ -23,7 +23,9 @@ from typing import Optional
 
 from wenart import building as B
 
-VOID_REACH_M = 4.0              # strokes within this of the label
+VOID_REACH_M = 4.0              # strokes within this of the label ...
+VOID_NEAR_M = 2.5               # ... tried first within this
+VOID_MAX_STROKES = 2000         # ... at most this many, the nearest
 VOID_AREA_M2 = (0.5, 80.0)      # a void this large (a stair's eye to a double-height living room)
 VOID_GAP_M = 0.5                # free stroke ends bridged up to this
 VOID_SAME_IOU = 0.8             # two labels whose outlines overlap this much: one void
@@ -45,16 +47,37 @@ def read_voids(texts: list, strokes: list) -> list[dict]:
     labels = [t for t in texts or [] if B.is_void_label(getattr(t, "text", None))]
     if not labels:
         return []
+    from shapely import STRtree
+
     lines = [{"id": st.id, "pts": [tuple(p) for p in st.pts], "layer": st.layer, "closed": st.closed}
              for st in strokes or [] if st.pts and len(st.pts) >= 2 and not OD.layer_skipped(st.layer)]
+    # 3 Nov 2026 (the regression set: real08 and real12 read for over an hour, every label measuring every stroke of
+    # the drawing and bridging thousands of hatch ends): one index, the strokes near the label (``VOID_REACH_M``,
+    # first the nearer ``VOID_NEAR_M``), at most ``VOID_MAX_STROKES`` of them, nearest first
+    geoms = [LineString(s["pts"]) for s in lines]
+    tree = STRtree(geoms) if geoms else None
+
+    def around(pt, reach):
+        if tree is None:
+            return []
+        idx = [int(j) for j in tree.query(pt.buffer(reach)) if geoms[int(j)].distance(pt) <= reach]
+        idx.sort(key=lambda j: geoms[j].distance(pt))
+        return [lines[j] for j in idx[:VOID_MAX_STROKES]]
+
+    def faces_at(anchor, near):
+        return [f for f in OD._faces(anchor, near, None, VOID_GAP_M)
+                if VOID_AREA_M2[0] <= f["polygon"].area <= VOID_AREA_M2[1]] if near else []
+
     out: list[dict] = []
     shapes: list = []
     for t in labels:
         anchor = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
         pt = Point(anchor)
-        near = [s for s in lines if LineString(s["pts"]).distance(pt) <= VOID_REACH_M]
-        faces = [f for f in OD._faces(anchor, near, None, VOID_GAP_M)
-                 if VOID_AREA_M2[0] <= f["polygon"].area <= VOID_AREA_M2[1]] if near else []
+        near = around(pt, VOID_NEAR_M)
+        faces = faces_at(anchor, near)
+        if not faces:
+            near = around(pt, VOID_REACH_M)
+            faces = faces_at(anchor, near)
         if not faces:
             out.append({"label": t.text, "anchor": [round(anchor[0], 4), round(anchor[1], 4)], "polygon": None,
                         "entity": t.id, "reason": f"no drawn outline of {VOID_AREA_M2[0]}-{VOID_AREA_M2[1]:.0f} m2 "

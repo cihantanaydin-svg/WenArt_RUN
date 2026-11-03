@@ -133,9 +133,10 @@ def _on_wall(o, w) -> bool:
 STEPS = ("thickness", "inferred", "missing", "openings")
 
 
-def consistency(walls: list, openings: list, axis=None, steps=STEPS) -> Optional[tuple[list, list, list]]:
+def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=None) -> Optional[tuple[list, list, list]]:
     """``(walls, openings, log)`` with the mirror fixes (the module docstring) of the given ``steps`` (``STEPS``), or
-    None (no mirror axis or nothing to fix). The inputs are not changed."""
+    None (no mirror axis or nothing to fix). ``keep_out``: a shapely geometry no copied wall or opening may touch (the
+    building's core: its lift and stair are not mirrored). The inputs are not changed."""
     from wenart.ingest.generic import facade as FC
     from wenart.ingest.model import OpeningItem, WallItem
 
@@ -216,6 +217,8 @@ def consistency(walls: list, openings: list, axis=None, steps=STEPS) -> Optional
                      thickness=float(w.thickness), box=list(w.box), entity=f"inferred:{RULE}:{len(added) + 1}",
                      evidence={}, exterior=bool(getattr(w, "exterior", False)), status="unverified", inferred=True)
         mp = TP.wall_polygon(m)
+        if keep_out is not None and mp.intersects(keep_out):
+            continue                                        # the core (lift and stair) is not mirrored
         if mp.intersection(polys).area >= 0.5 * mp.area:
             continue                                        # it lies in walls already (read in pieces)
         if any(TP.opening_polygon(o, walls) is not None and TP.opening_polygon(o, walls).intersects(mp)
@@ -236,6 +239,8 @@ def consistency(walls: list, openings: list, axis=None, steps=STEPS) -> Optional
         if not _drawn(o) or getattr(o, "virtual", False):
             continue
         mc = _mirror(o.center, axis)
+        if keep_out is not None and keep_out.distance(Point(mc)) <= o.width / 2.0:
+            continue                                        # the core (lift and stair) is not mirrored
         host = next((w for w in walls if _on_wall(OpeningItem(kind="", width=0, center=mc, rotation_deg=0, box=[],
                                                                entity="", evidence={}), w)), None)
         if host is None:

@@ -694,6 +694,17 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
                 entry["ceiling_height"] = assumed(round(ftf - slab_default, 3),
                                                   f"floor to floor {ftf:.2f} m less the slab {slab_default:.2f} m")
         lines.append(f"{lid}: floor {known[o]:+.2f} m (section mark) -> z {known[o] - base:+.2f} m")
+    if abs(base) > 0.005 and out.get("datum") is None:
+        # 3 Nov 2026 (real10, user: "this should be the main entrance to the building"): the ground floor's printed
+        # floor mark (+2.50) is building z 0, so every printed relative mark of the plans and elevations is read in
+        # the same frame (``levels.read.relative_zero``, ``exterior.elevation_z``); without it the front door's
+        # threshold mark '-0.50' (the 1st basement's floor, z -3.00) read 2.50 m above that floor: "a door into
+        # the air", and the building's front door was never its main entrance
+        ev = [_ev(file_rel or "", None, "section_storey_marks", region_id or "", text=f"{base:+.2f}")]
+        out["datum"] = _value(base, "vector", ev, note="the printed floor mark of the storey at building z 0 (the "
+                                                       "sections' storey marks): the plans' relative marks are read "
+                                                       "in this frame")
+        out["datum"]["relative"] = round(float(base), 3) + 0.0
     for sl in out.get("slabs") or []:
         between = sl.get("between") or []
         upper = between[1] if len(between) > 1 else None

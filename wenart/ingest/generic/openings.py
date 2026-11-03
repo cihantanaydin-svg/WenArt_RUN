@@ -1066,7 +1066,7 @@ def _inside_rect_part(it: _S, rect) -> bool:
 # --------------------------------------------------------------------------
 
 def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: int,
-                      units_to_m: Optional[float] = None
+                      units_to_m: Optional[float] = None, dimension_ids=frozenset()
                       ) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
     """Merge wall runs, find and classify gaps, extend free-end walls that host a drawn door or window.
 
@@ -1077,7 +1077,11 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     """
     theta = dominant_angle(walls)
     pieces, others = pieces_of(walls, theta)
-    index = StrokeIndex(strokes_m, theta)
+    # 3 Nov 2026 (UL261, UL296): the drawing's notation (axis lines, dimensions and their tick marks) is never a
+    # gap's content
+    from wenart.ingest.generic import axes as AX
+    notation = AX.notation_ids(strokes_m, dimension_ids)
+    index = StrokeIndex([st for st in strokes_m if st.id not in notation], theta)
     raster = bool(strokes_m) and all(st.source == "raster" for st in strokes_m)
     edge_m = RASTER_EDGE_PX * units_to_m if raster and units_to_m else 0.0
     runs = group_runs(pieces)

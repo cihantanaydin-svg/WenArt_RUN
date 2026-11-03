@@ -360,3 +360,164 @@ def test_the_main_entrance_is_the_door_reached_from_the_core_nearest_the_ground(
               {"door_id": "up", "level_id": "L0", "room_id": "hall0", "width": 2.3, "outward": [0, -1], "rise": 3.0}]
     main, why = LM.main_entrance(b, usable, [])
     assert main["door_id"] == "front" and "stair core" in why
+
+
+def test_the_shared_hall_touches_the_lift_where_the_floor_has_one():
+    from wenart.ingest import twins as TW
+
+    rooms = [{"id": "core", "level_id": "L0", "label": "Merdiven", "label_raw": None, "room_type": "stair",
+              "label_inferred": {"method": "stair_core"}, "polygon": [[3, 2], [6, 2], [6, 5], [3, 5]]},
+             {"id": "lift", "level_id": "L0", "label": "Asansör", "label_raw": "ASANSÖR", "room_type": "shaft",
+              "polygon": [[1, 2.2], [2.8, 2.2], [2.8, 4], [1, 4]]},
+             {"id": "land", "level_id": "L0", "label": "Oda", "label_raw": None, "room_type": "hall",
+              "polygon": [[1, 0], [6, 0], [6, 1.8], [1, 1.8]]},
+             {"id": "flat", "level_id": "L0", "label": "Oda", "label_raw": None, "room_type": "hall",
+              "polygon": [[6.3, 0], [10, 0], [10, 6], [6.3, 6]]}]
+    ops = [{"level_id": "L0", "center": [4.5, 1.9]}, {"level_id": "L0", "center": [6.15, 3.5]}]
+    TW.shared_halls(rooms, ops)
+    assert rooms[2]["label"] == "Kat Holü" and rooms[3]["label"] == "Oda"   # the flat joins the stair, not the lift
+
+
+def test_short_parallel_strokes_wider_than_a_wall_are_no_wall_pieces():
+    """real10: the stair's middle wall and rails, four lines 0.6, 0.4 and 0.6 m apart and 0.85 m long, made a 1.6 m
+    band read as one wall 0.85 m thick across the stair; a wall's long faces beside such strokes keep their pair."""
+    from wenart.ingest.generic import walls as W
+
+    def line(off, s0, s1):
+        return W._Line(off, s0, s1, [f"L{off}"])
+
+    u, n = (0.0, 1.0), (-1.0, 0.0)
+    stair = [line(o, 0.0, 0.85) for o in (0.0, 0.6, 1.0, 1.6)]
+    pairs = W._pairs_of(stair, "SIVA", u, n)
+    W.stepped_runs(pairs)
+    assert len(pairs) == 3 and W._drop_wide_bands(pairs) == []
+    # a 25 cm wall whose faces run on for 4 m, its pieces cut short by crossing lines, beside a 0.45 m pier band
+    wall = [line(0.0, 0.0, 4.0), line(0.25, 0.0, 4.0), line(0.5, 0.0, 0.85), line(0.95, 0.0, 0.85)]
+    pairs = W._pairs_of(wall, "SIVA", u, n)
+    W.stepped_runs(pairs)
+    kept = W._drop_wide_bands(pairs)
+    assert any(abs(p.width - 0.25) < 1e-9 for p in kept)
+
+
+def test_a_stair_core_holding_its_open_landing_splits_into_stair_and_shared_hall():
+    """real10: no wall is drawn between the core stair and the landing in front of it and the lift: the stair core
+    room is the stair (its footprint) and the shared hall 'Kat Holü', joined by a virtual opening."""
+    from wenart.ingest import twins as TW
+
+    rooms = [{"id": "core", "level_id": "L0", "label": "Merdiven", "label_raw": None, "room_type": "stair",
+              "label_inferred": {"method": "stair_core"}, "evidence": [{"file": "a.dwg"}],
+              "polygon": [[0, 0], [4.6, 0], [4.6, 3.5], [0, 3.5]]},
+             {"id": "lift", "level_id": "L0", "label": "Asansör", "label_raw": "ASANSÖR", "room_type": "shaft",
+              "polygon": [[0.1, 1.9], [1.4, 1.9], [1.4, 3.1], [0.1, 3.1]]}]
+    stairs = [{"type": "stair", "level_id": "L0", "footprint": {"center": [3.25, 2.35], "size": [2.7, 2.3],
+                                                                "rotation_deg": 0}}]
+    openings: list = []
+    notes = TW.split_core_landings(rooms, openings, stairs)
+    assert len(notes) == 1 and len(rooms) == 3
+    core, hall = rooms[0], rooms[2]
+    assert core["room_type"] == "stair" and hall["label"] == "Kat Holü" and hall["room_type"] == "hall"
+    assert abs(Polygon(core["polygon"]).area - 2.7 * 2.3) < 0.05
+    assert abs(Polygon(core["polygon"]).area + Polygon(hall["polygon"]).area - 4.6 * 3.5) < 0.05
+    assert openings and openings[0]["virtual"] and 2.0 < openings[0]["width"] < 5.1
+    # a stair standing free inside a room (a hole in the rest) is no core landing
+    free = [dict(rooms[0], polygon=[[0, 0], [6, 0], [6, 5], [0, 5]])]
+    assert TW.split_core_landings(free, [], [{"type": "stair", "level_id": "L0", "footprint": {
+        "center": [3, 2.5], "size": [2.7, 2.3], "rotation_deg": 0}}]) == []
+    # a stair core that is only its stair (no landing in it) stays one room
+    rooms2 = [dict(rooms[0], polygon=[[1.9, 1.2], [4.6, 1.2], [4.6, 3.5], [1.9, 3.5]])]
+    assert TW.split_core_landings(rooms2, [], stairs) == [] and len(rooms2) == 1
+
+
+def test_the_storey_marks_set_the_frame_of_the_plans_relative_marks():
+    """real10: the section names the storeys at -0.50, +2.50, +5.50; the ground floor's +2.50 is building z 0, so the
+    plan's '-0.50' at the front door is the 1st basement's floor (z -3.00), not a door 2.50 m up in the air."""
+    from wenart.levels import read as LR
+    from wenart.sheets import heights as HT
+
+    out: dict = {"levels": []}
+    levels = [{"order": -1, "id": "L-1"}, {"order": 0, "id": "L0"}, {"order": 1, "id": "L1"}]
+    HT.apply_storey_marks(out, levels, {-1: -0.5, 0: 2.5, 1: 5.5}, 0.2, "a.dwg", "r1")
+    z = {e["level_id"]: e["floor_z"]["value"] for e in out["levels"]}
+    assert z == {"L-1": -3.0, "L0": 0.0, "L1": 3.0}
+    assert out["datum"]["relative"] == 2.5 and LR.relative_zero(out["datum"]) == 2.5
+    # a section whose ground floor is printed ±0.00 keeps no datum of its own
+    out0: dict = {"levels": []}
+    HT.apply_storey_marks(out0, levels, {-1: -3.0, 0: 0.0, 1: 3.0}, 0.2, "a.dwg", "r1")
+    assert out0.get("datum") is None
+
+
+def test_unreadable_facade_gaps_are_windows_over_a_drop_and_doors_onto_a_balcony():
+    """real10 (user: "tell me what purple means"): a gap with unreadable lines in an outside wall is a window when
+    the ground lies under it (real06: the east windows tagged 160/160, 0.50 m over the ground), a door onto a drawn
+    balcony or terrace at its floor; a gap that holds another opening of its wall (real06's 1.95 m gap around the
+    0.70 m balcony door) stays as it is."""
+    import json
+    from pathlib import Path
+
+    from wenart.levels import model as M
+
+    path = Path(__file__).resolve().parent / "fixtures" / "real06_outdoor_20261026.json"
+    if not path.is_file():
+        import pytest
+        pytest.skip("real06 building not in the repository")
+    b = M.infer_levels(json.loads(path.read_text(encoding="utf-8")))
+    ops = {o["id"]: o for o in b["openings"]}
+    for oid in ("o_L0_005", "o_L0_006", "o_L1_003"):
+        assert ops[oid]["type"] == "window" and ops[oid]["drawn_type"] == "opening"
+        assert ops[oid]["type_inferred"]["method"] == "facade_gap" and ops[oid]["sill_height"] >= 0.6
+    assert ops["o_L1_001"]["type"] == "opening" and not ops["o_L1_001"].get("type_inferred")
+
+
+def test_dimension_lines_and_their_ticks_are_never_a_gaps_content():
+    """real10 (user: "This should have been a lesson learned from before ... fix it properly"): a dimension chain
+    crossing a facade recess's mouth (its DH line, a 7 cm tick circle and slash on layer 0) made the gap and the
+    recess's window 'unclassified', so the recess (UL277) became a room. Notation strokes are never gap content."""
+    import math
+
+    from wenart.ingest.generic import axes as AX
+
+    circle = [(0.341 + 0.035 * math.cos(a / 8 * math.pi), 7.229 + 0.035 * math.sin(a / 8 * math.pi))
+              for a in range(17)]
+    strokes = [Stroke(id="LINE:dh1", kind="line", pts=[(0.411, 7.229), (1.771, 7.229)], layer="DH"),
+               Stroke(id="LINE:dh2", kind="line", pts=[(0.341, 6.889), (0.341, 7.329)], layer="DH"),
+               Stroke(id="LINE:tick", kind="line", pts=[(0.341, 7.229), (0.411, 7.229)], layer="0"),
+               Stroke(id="CIRCLE:tick", kind="circle", pts=circle, layer="0"),
+               Stroke(id="LINE:axis", kind="line", pts=[(-1.0, 3.0), (5.0, 3.0)], layer="AKS"),
+               Stroke(id="LINE:dimfound", kind="line", pts=[(3.0, 0.0), (3.0, 1.0)], layer="0"),
+               Stroke(id="LINE:glass", kind="line", pts=[(1.70, 7.30), (1.70, 8.00)], layer="PENCERE"),
+               Stroke(id="CIRCLE:lamp", kind="circle", pts=[(p[0] + 2.0, p[1]) for p in circle], layer="0")]
+    got = AX.notation_ids(strokes, {"LINE:dimfound"})
+    assert got == {"LINE:dh1", "LINE:dh2", "LINE:tick", "CIRCLE:tick", "LINE:axis", "LINE:dimfound"}
+
+
+def test_a_recess_whose_window_is_unreadable_follows_its_open_mirror_twin():
+    """real10 (user: "this section is still wrong should be similar as the mirror", "There is no Oda on the left side
+    that's outside"): the left flat's facade recess, its window to the salon unreadable, is open air because its
+    mirror twin on the right half is; a twin covered by a room, or a space across the axis, decides nothing."""
+    from shapely.geometry import Point, box
+
+    from wenart.ingest.generic import core as C
+
+    face = box(0.3, 6.6, 1.8, 9.0)
+    outline = box(0.4, 0.0, 22.0, 18.0).difference(box(0.3, 6.6, 1.8, 9.0)).difference(box(20.6, 6.6, 22.1, 9.0))
+    axis = ("x", 11.2)
+    out = Point(0.1, 7.8)
+    assert C._open_twin(face, out, axis, [face], outline) == "x = 11.20"
+    assert C._open_twin(face, out, axis, [face, box(20.6, 6.6, 22.1, 9.0)], outline) is None   # the twin is a room
+    assert C._open_twin(box(10.0, 6.6, 12.0, 9.0), out, axis, [], outline) is None             # across the axis
+
+
+def test_every_conflict_kind_the_sheets_stage_writes_is_in_its_schema():
+    """real11 (3 Nov 2026): a registration conflict 'shaft_grid_mismatch' failed sheets.json's schema, so the reading
+    check reported 'the sheets need review' (critical) and a pod's sheets stage would stop the project."""
+    import json
+    import re
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    enum = set(json.loads((root / "wenart" / "schema" / "sheets.schema.json").read_text(encoding="utf-8"))
+               ["$defs"]["conflict"]["properties"]["kind"]["enum"])
+    kinds = set()
+    for f in (root / "wenart" / "sheets").glob("*.py"):
+        kinds |= set(re.findall(r"""conflict\(\s*["']([a-z_]+)["']""", f.read_text(encoding="utf-8")))
+    assert kinds and kinds <= enum, kinds - enum
