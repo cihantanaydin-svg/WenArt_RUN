@@ -850,3 +850,9 @@ def test_cmd_run_falls_back_to_the_next_gpu_type(monkeypatch):
     monkeypatch.setattr(gpu_run, "_run_once", once)
     assert gpu_run.cmd_run(argparse.Namespace(gpu=None)) == 0
     assert seen == [set(), {"RTX PRO 6000 WK"}]
+
+
+def test_the_structure_profile_needs_no_80_gb_card():
+    assert gpu_run.job_min_vram("scripts/jobs/full.sh") == 80
+    assert gpu_run.job_min_vram("scripts/jobs/full.sh", ["RUN_PROJECTS=real10", "RUN_PROFILE=structure"]) == 48
+    assert gpu_run.job_min_vram("scripts/jobs/full.sh", ["RUN_PROFILE=full"]) == 80

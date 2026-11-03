@@ -86,10 +86,18 @@ JOB_DISK_GB = {"scripts/jobs/full.sh": 150}
 # stock in the volume's data centre and the runner took the first card in stock, a 24 GB RTX PRO 4000 (stopped after
 # 2 min). A card under the job's memory is skipped like one out of stock.
 JOB_MIN_VRAM_GB = {"scripts/jobs/full.sh": 80}
+# 3 Nov 2026 (the sixth real10 structure run: no 80 GB card in stock under the price limit): the structure profile runs
+# no agent model (the 52 GB server the 80 GB are for), only the recognition models one at a time (8-10B, about 20 GB at
+# 90 % of the card) and Blender: 48 GB cards (RTX PRO 5000, L40S, RTX 6000 Ada) do
+PROFILE_MIN_VRAM_GB = {("scripts/jobs/full.sh", "structure"): 48}
 
 
-def job_min_vram(job: str) -> int:
-    """The least GPU memory (GB) of a run of ``job``: its ``JOB_MIN_VRAM_GB``, else 0 (the 24 GB floor of the list)."""
+def job_min_vram(job: str, env: list | None = None) -> int:
+    """The least GPU memory (GB) of a run of ``job``: its ``JOB_MIN_VRAM_GB`` (``PROFILE_MIN_VRAM_GB`` for its
+    ``RUN_PROFILE`` in ``env``, ``KEY=VALUE`` items), else 0 (the 24 GB floor of the list)."""
+    profile = next((str(e).split("=", 1)[1] for e in env or [] if str(e).startswith("RUN_PROFILE=")), None)
+    if (job, profile) in PROFILE_MIN_VRAM_GB:
+        return int(PROFILE_MIN_VRAM_GB[(job, profile)])
     return int(JOB_MIN_VRAM_GB.get(job, 0))
 
 
@@ -1060,7 +1068,8 @@ def _run_once(a: argparse.Namespace) -> int:
     count = getattr(a, "gpu_count", 1) or 1
     gpu = pick_gpu(catalog(), dc_availability(dc) if dc else None, a.gpu,
                    max_price=action_price_limit(minutes, getattr(a, "over_5_ok", False), count),
-                   min_memory=job_min_vram(job), skip=frozenset(getattr(a, "_skip_gpus", set()) or set()))
+                   min_memory=job_min_vram(job, getattr(a, "env", None)),
+                   skip=frozenset(getattr(a, "_skip_gpus", set()) or set()))
     today = spent_today(pods)
     check_limits(gpu["price"], minutes, today, count)
     worst = gpu["price"] * count * minutes / 60
