@@ -1,7 +1,7 @@
 {
  "zip": "/workspace/library/inbox/1iYSSFbHkn1DH2qtAJ7LF44bZccQ_SYwL/beds.zip",
  "zip_name": "beds.zip",
- "checked_utc": "2026-11-03T17:11:49Z",
+ "checked_utc": "2026-11-03T18:36:08Z",
  "fix_version": "syncronia-4",
  "taken": 7,
  "listed": 45,
@@ -413,7 +413,8 @@
    "front_note": "the pillows sit on the -X side (offset -0.35 of the footprint): front +X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.301 of the extent): front +X)",
    "sha256": "c9a15174523bb21860f70ff7a38f42c3feedf937852de0e4286b646ad22974bd",
    "id": "syncronia_91661aa8250a9bba52ec8e25",
-   "title": "Horm Ebridi Legno Sommier bed 169 x 205"
+   "title": "Horm Ebridi Legno Sommier bed 169 x 205",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_2.3DS",
@@ -547,7 +548,8 @@
    "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
    "sha256": "6efa20e82fc56b908230c0cd6b4bc46cac925a15b78899cdd5c01f5f4f2721be",
    "id": "syncronia_1264acbf9b6bf1a3e481e26b",
-   "title": "Maxalto (B&B Italia) Demetra bed 195 x 226"
+   "title": "Maxalto (B&B Italia) Demetra bed 195 x 226",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_3.3DS",
@@ -681,7 +683,8 @@
    "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
    "sha256": "a985b81e262e9b0949d65ce20d737cc643cb11e8c86b3eb5b2f94095d010ef0b",
    "id": "syncronia_71606884d3001847e7307f0c",
-   "title": "Maxalto (B&B Italia) Demetra bed 210 x 226"
+   "title": "Maxalto (B&B Italia) Demetra bed 210 x 226",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_4.3DS",
@@ -815,7 +818,8 @@
    "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
    "sha256": "b6c68554718bb034fe24cb371749a84ed46741ac239ab3c1cda89169dd6e7827",
    "id": "syncronia_b9c981b22ffff17ab6364113",
-   "title": "Maxalto (B&B Italia) Demetra bed 221 x 226"
+   "title": "Maxalto (B&B Italia) Demetra bed 221 x 226",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_5.3DS",
@@ -949,7 +953,8 @@
    "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
    "sha256": "f73963df14207abbbd3fba87dbf142e4a47c7872f4d82fc8135dabea0ff5ebf6",
    "id": "syncronia_df94c532dfc5699ddd5ccf82",
-   "title": "Maxalto (B&B Italia) Demetra bed 226 x 241"
+   "title": "Maxalto (B&B Italia) Demetra bed 226 x 241",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/selene/14366.3ds.zip/3D_9745_2.3DS",
@@ -1083,7 +1088,8 @@
    "front_note": "the headboard sit on the +X side (offset +0.45 of the footprint): front -X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.470 of the extent): front -X)",
    "sha256": "4d99f975d4bcf7f746b1bed83daf8405b293ae2977ddf40c390de32e7a607626",
    "id": "syncronia_1b62267562938e003d042011",
-   "title": "Maxalto (B&B Italia) Selene bed 170 x 226"
+   "title": "Maxalto (B&B Italia) Selene bed 170 x 226",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/selene/14366.3ds.zip/3D_9745_3.3DS",
@@ -1217,7 +1223,8 @@
    "front_note": "the headboard sit on the +X side (offset +0.45 of the footprint): front -X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.470 of the extent): front -X)",
    "sha256": "0f841fcde76366a772b46c574fd6746e0fe59449855c6adafba3db8b6b64752e",
    "id": "syncronia_3eba7f077ca6b3628c4de971",
-   "title": "Maxalto (B&B Italia) Selene bed 180 x 223"
+   "title": "Maxalto (B&B Italia) Selene bed 180 x 223",
+   "cached": true
   }
  ]
 }

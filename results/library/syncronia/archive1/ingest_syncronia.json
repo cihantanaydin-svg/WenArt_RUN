@@ -1,7 +1,7 @@
 {
  "zip": "/workspace/library/inbox/1M82gvUOMzvwzohnjtPq7c0vibHzchXTK/archive1.zip",
  "zip_name": "archive1.zip",
- "checked_utc": "2026-11-03T17:11:55Z",
+ "checked_utc": "2026-11-03T18:36:16Z",
  "fix_version": "syncronia-4",
  "taken": 67,
  "listed": 318,
@@ -1220,7 +1220,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.426 of the extent): front -Y",
    "sha256": "11d35212158fb6fff1393f651dd4dcc6bb2cecbf6f245bf3ec93c54e3f42edd8",
    "id": "syncronia_fa5731a7809673a92f082a47",
-   "title": "B&B Italia Beverly (70 x 82 x 95 cm)"
+   "title": "B&B Italia Beverly (70 x 82 x 95 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/beverly/11259.3ds.zip/3D_BV70B.3DS",
@@ -1324,7 +1325,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.424 of the extent): front -Y",
    "sha256": "683d87c35923a967c894f06ab52376d9eea8631a24cc956ec5a5c0c71bc48335",
    "id": "syncronia_b8e04162673305f7ef5cd0ec",
-   "title": "B&B Italia Beverly (70 x 76 x 78 cm)"
+   "title": "B&B Italia Beverly (70 x 76 x 78 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/grande-papilio/finishes/11231.zip/3D_GP.OBJ",
@@ -1461,7 +1463,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.408 of the extent): front -Y",
    "sha256": "1d3837ce810c95733ee0590764ef6797621e8c7167a8d7fb118ba165d0cda5e0",
    "id": "syncronia_e566766b77f2eca569ed8c05",
-   "title": "B&B Italia Grande Papilio (83 x 86 x 103 cm)"
+   "title": "B&B Italia Grande Papilio (83 x 86 x 103 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/le-bambole-bambola-armchair/75468.3ds.zip/BeB_Le_Bambole_Bambola_Armchair_LBA1.3DS",
@@ -1565,7 +1568,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.106 of the extent): front -Y",
    "sha256": "eeffa79b1efd765f9254280b28491cd30b1a92db8d44baf80575af05b1fd4550",
    "id": "syncronia_873adca05398548ec7e2c2db",
-   "title": "B&B Italia Le Bambole, Bambola Armchair (123 x 93 x 78 cm)"
+   "title": "B&B Italia Le Bambole, Bambola Armchair (123 x 93 x 78 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/mart/11208.3ds.zip/3D_MPG.3DS",
@@ -1606,7 +1610,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.154 of the extent): front +X",
    "sha256": "3592736c6447f1ffdcccebeae1fb7e8e757a9a90b8cb0c1a18eab3fea2e64966",
    "id": "syncronia_5aa4de6864d221e49cd306e1",
-   "title": "B&B Italia Mart (71 x 69 x 67 cm)"
+   "title": "B&B Italia Mart (71 x 69 x 67 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/mart/11208.3ds.zip/3D_MPR.3DS",
@@ -1647,7 +1652,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.379 of the extent): front +X",
    "sha256": "25cbb6093ff2c8ffe947911458e9f87836b8282c1ef6b6d718fb0c2a8dd54f9c",
    "id": "syncronia_46022258171ad5cb149f9bf7",
-   "title": "B&B Italia Mart (100 x 76 x 89 cm)"
+   "title": "B&B Italia Mart (100 x 76 x 89 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/mart-2012/11212.3ds.zip/3D_MPGIL.3DS",
@@ -1817,7 +1823,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.421 of the extent): front -Y",
    "sha256": "48de8be8595e5e12e870e33414184bf3dcfe0af507e4441def2dfa43e553a1b0",
    "id": "syncronia_005bd5901ccf7acef31271e8",
-   "title": "B&B Italia Metropolitan '14 (99 x 81 x 78 cm)"
+   "title": "B&B Italia Metropolitan '14 (99 x 81 x 78 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/metropolitan-14/11204.3ds.zip/3D_MP100ADP.3DS",
@@ -1921,7 +1928,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.386 of the extent): front -Y",
    "sha256": "90d40a7f3bc7a1aad81c2a82f3baa8fc21ee3e77470201fcb8b8cfe5feb61712",
    "id": "syncronia_5e07f1b0492623ad7081356f",
-   "title": "B&B Italia Metropolitan '14 (99 x 87 x 108 cm)"
+   "title": "B&B Italia Metropolitan '14 (99 x 87 x 108 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/metropolitan-14/11204.3ds.zip/3D_MP100AP.3DS",
@@ -2025,7 +2033,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.395 of the extent): front -Y",
    "sha256": "038ba20b327b8a07814d11684372d341fe1a6bb677be2eb432d2dbde6d2a30fd",
    "id": "syncronia_b6eb61dc4b4dc4c59a267fbd",
-   "title": "B&B Italia Metropolitan '14 (99 x 87 x 108 cm)"
+   "title": "B&B Italia Metropolitan '14 (99 x 87 x 108 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/metropolitan-14/11204.3ds.zip/3D_MP63.3DS",
@@ -2195,7 +2204,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.268 of the extent): front -Y",
    "sha256": "31b8561111cf58267f15c7957a773dec640571b9af7b76ad6e39d3a8145c2f5f",
    "id": "syncronia_014966e7f76e86d7473373b4",
-   "title": "B&B Italia Theo (68 x 73 x 79 cm)"
+   "title": "B&B Italia Theo (68 x 73 x 79 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/tulip-sixty-tulip/12415.3ds.zip/3D_TU4.3DS",
@@ -2299,7 +2309,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.140 of the extent): front -X",
    "sha256": "eeb8db18a37f7120b38c166bcd970643b7dd378d3647605e95e9a2b33d712617",
    "id": "syncronia_9e346f28f05e87842010f691",
-   "title": "B&B Italia Tulip Sixty - Tulip (66 x 66 x 71 cm)"
+   "title": "B&B Italia Tulip Sixty - Tulip (66 x 66 x 71 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/bb-italia/tulip-sixty-tulip/12415.3ds.zip/3D_TUD.3DS",
@@ -2436,7 +2447,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.186 of the extent): front -X",
    "sha256": "57276e6cbe824747064781e6ce93cb0d5cb603b56700ebd15d511ce863e4b100",
    "id": "syncronia_6ad60e55d95a40faedcedcea",
-   "title": "B&B Italia Tulip Sixty - Tulip (54 x 61 x 72 cm)"
+   "title": "B&B Italia Tulip Sixty - Tulip (54 x 61 x 72 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/et-al/agami/77474.3ds.zip/EtAl_AGAMI_1155.3ds",
@@ -2540,7 +2552,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.310 of the extent): front -Y",
    "sha256": "b2ea82f4661d5b98790d1323de42fe40418528f9d355aa13587ae3d0bf701ddc",
    "id": "syncronia_59e270fa88a5bcd5fb717870",
-   "title": "et al. Agami (74 x 74 x 81 cm)"
+   "title": "et al. Agami (74 x 74 x 81 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/et-al/agatha/52770.3ds",
@@ -2644,7 +2657,8 @@
    "front_note": "geometry: back_taller: top centroid offset +0.030 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "bd6a263473a6c92581fc9cdf8e5c876cb88479fb3beb8122b47909dbb11409ea",
    "id": "syncronia_5390d40200b9cc58f79fefa8",
-   "title": "et al. Agatha (60 x 59 x 82 cm)"
+   "title": "et al. Agatha (60 x 59 x 82 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/et-al/kicca/52790.3ds",
@@ -2748,7 +2762,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.084 of the extent): front +X",
    "sha256": "16a4073124b1410b48a6df112613c6aa92722c634782c89dd533c4f75c540f56",
    "id": "syncronia_a194149f43431316b38161ba",
-   "title": "et al. Kicca (57 x 62 x 76 cm)"
+   "title": "et al. Kicca (57 x 62 x 76 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/et-al/marka/52760.3ds",
@@ -2852,7 +2867,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.119 of the extent): front -Y",
    "sha256": "2924744de860b501f871e2b845e21dcbb909a3f77152d7669dfb07767cdd79de",
    "id": "syncronia_055a3278154bb6e8edc3821e",
-   "title": "et al. Marka (62 x 59 x 86 cm)"
+   "title": "et al. Marka (62 x 59 x 86 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/marte-design/dilmun-l/63856.fbx.zip/Marte_Dilmun_066_fbx.FBX",
@@ -2956,7 +2972,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.417 of the extent): front -Y",
    "sha256": "9399e9d6b486f6beb85f58283cdb663db21f79e8897b542f3cc091b63aeae430",
    "id": "syncronia_fc4239f8540b8a74e34e1dc3",
-   "title": "Marte Design Dilmun-L (75 x 83 x 90 cm)"
+   "title": "Marte Design Dilmun-L (75 x 83 x 90 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/marte-design/finn/65053.fbx.zip/Marte_Design_Finn_092_3DL_Low_fbx.FBX",
@@ -2997,7 +3014,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.082 of the extent): front -Y",
    "sha256": "ce679f1902ee22ec4b31ffef7b250732bb31ca09149b9bf1c18710b5408c3972",
    "id": "syncronia_4782f6a4a395b2c63c3744fd",
-   "title": "Marte Design Finn (95 x 72 x 79 cm)"
+   "title": "Marte Design Finn (95 x 72 x 79 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/marte-design/nami/64839.fbx.zip/M.Arte_Design_Nami_065_3DH_fbx.FBX",
@@ -3101,7 +3119,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.153 of the extent): front -Y",
    "sha256": "0c843e22782496baa8f3e5a39f5fefe659d2b1b423fe1b66efd23ab04f9c9981",
    "id": "syncronia_d8753be17fe3ca777989651a",
-   "title": "Marte Design Nami (70 x 70 x 70 cm)"
+   "title": "Marte Design Nami (70 x 70 x 70 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/maxalto/febo-2013/14118.3ds.zip/3D_2830CV.3DS",
@@ -3232,7 +3251,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.382 of the extent): front -Y",
    "sha256": "951b2e4ba2e593ef8351de71276f30e16924edca8e83b1284ca1725ad19afe52",
    "id": "syncronia_fe07a98206e5cc34bade1b31",
-   "title": "Maxalto (B&B Italia) Febo 2013 (77 x 96 x 106 cm)"
+   "title": "Maxalto (B&B Italia) Febo 2013 (77 x 96 x 106 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/maxalto/febo-2013/14118.3ds.zip/3D_2830V.3DS",
@@ -3336,7 +3356,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.382 of the extent): front -Y",
    "sha256": "57715900d51672c694096a61a2d7e715605d622bfce8fb1112b0372962ac2772",
    "id": "syncronia_735b5eb95245ee155549dd31",
-   "title": "Maxalto (B&B Italia) Febo 2013 (77 x 96 x 106 cm)"
+   "title": "Maxalto (B&B Italia) Febo 2013 (77 x 96 x 106 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/maxalto/febo-2013/14118.3ds.zip/3D_2831CV.3DS",
@@ -3506,7 +3527,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.279 of the extent): front -Y",
    "sha256": "33c501a098ac3251607b6d641df4465ee141ee0baf64568a7d0baa11ddbad4bf",
    "id": "syncronia_cad8fa63c58fb3b4a2bc6e0e",
-   "title": "Maxalto (B&B Italia) Febo 2014 (63 x 75 x 75 cm)"
+   "title": "Maxalto (B&B Italia) Febo 2014 (63 x 75 x 75 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/mdf-italia/achille-collection/80791.3ds.zip/MDF_Achille_Armchair_.3ds",
@@ -3583,7 +3605,8 @@
    "front_note": "geometry: back_taller: top centroid offset +0.054 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "7948e4414466a583364f7babc585bc164f14c75e74804a91f21ec11214c8392a",
    "id": "syncronia_ea41ed013dc16846ddd7594b",
-   "title": "MDF Italia Achille Collection (60 x 56 x 75 cm)"
+   "title": "MDF Italia Achille Collection (60 x 56 x 75 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/mdf-italia/cantle/174583.3ds.zip/MDF_Cantle_Armchair_F058100.3ds",
@@ -3687,7 +3710,8 @@
    "front_note": "geometry: back_taller: top centroid offset +0.053 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "94323eaf068a0d954c59d1a484ee4659415642d0f6d4db0adb37e5f0ba7e7abc",
    "id": "syncronia_53bbb66d00566f3228d483c1",
-   "title": "MDF Italia Cantle (75 x 64 x 71 cm)"
+   "title": "MDF Italia Cantle (75 x 64 x 71 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/mdf-italia/neil-twist/80556.3ds.zip/MDF_Neil_Twist_Armchair.3ds",
@@ -3791,7 +3815,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -Y (-0.368 of the extent): front +Y",
    "sha256": "00646a6c8427fd8e422aad93e1c66c49e4d1bdec142483e3aac3b1ece6dd23ac",
    "id": "syncronia_e9a1edf6ccbb3aae71250a4b",
-   "title": "MDF Italia Neil Twist (80 x 67 x 71 cm)"
+   "title": "MDF Italia Neil Twist (80 x 67 x 71 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/mdf-italia/peggy/174794.3ds.zip/MDF_Peggy Armchair_F069940.3ds",
@@ -3895,7 +3920,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.256 of the extent): front -Y",
    "sha256": "c0bafcba243aa463f3658950182b5814d1e8636a36cc3de725221c24b07f8b5b",
    "id": "syncronia_f0778df729d0d65859fc7850",
-   "title": "MDF Italia Peggy (109 x 89 x 74 cm)"
+   "title": "MDF Italia Peggy (109 x 89 x 74 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/mdf-italia/sign-matt/80797.3ds.zip/MDF_SIGN_ARMCHAIR.3DS",
@@ -3972,7 +3998,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.451 of the extent): front -X",
    "sha256": "984d698f931dddb469fb9b0e0ca8f3a43365b895825d62ff4f942eec64d2f00a",
    "id": "syncronia_d81ed4147e51d7f830b38cab",
-   "title": "MDF Italia SIGN Matt (72 x 70 x 59 cm)"
+   "title": "MDF Italia SIGN Matt (72 x 70 x 59 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/riva1920/bungalow-armchair/72783.fbx.zip/Riva1921_Bungalow_Armchair_fbx.fbx",
@@ -4049,7 +4076,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.134 of the extent): front -Y",
    "sha256": "25839e36be04a7d914cda5ad2913c5ad6b5e27b5d43063aaba6204aecb538a9d",
    "id": "syncronia_4795c2eb0c65c43f9b5de2c1",
-   "title": "Riva 1920 Bungalow Armchair (97 x 88 x 78 cm)"
+   "title": "Riva 1920 Bungalow Armchair (97 x 88 x 78 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/tonon/corda-armchair/64778.3ds.zip/162_11.3ds",
@@ -4126,7 +4154,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.295 of the extent): front -Y",
    "sha256": "bfbdded946d2ec4d88cd9b295a636ee87d9b8cbc15e82061c10fa07913cbb232",
    "id": "syncronia_600557201f7a7ae8e656bcfd",
-   "title": "Tonon Corda Armchair (59 x 60 x 83 cm)"
+   "title": "Tonon Corda Armchair (59 x 60 x 83 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/tonon/flower/76298.zip/9W0 03_05.3ds",
@@ -4167,7 +4196,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.308 of the extent): front -Y",
    "sha256": "7423cbf4341aa533853fc2d23cf33aa85ecf0117230e1f3aff7ac3e33581a2ee",
    "id": "syncronia_75ef356e7fa423ac4497f685",
-   "title": "Tonon Flower (63 x 60 x 88 cm)"
+   "title": "Tonon Flower (63 x 60 x 88 cm)",
+   "cached": true
   },
   {
    "rel": "armchairs/tonon/libra-armchair/63046.3ds.zip/Tonon_libra_298.11_3ds.3ds",
@@ -4244,7 +4274,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.162 of the extent): front -Y",
    "sha256": "a6a30b609546ef6d9d499d570d205564ad0a4e6af249686f84afccad8f12898c",
    "id": "syncronia_00630eb4f64bda1ff4755806",
-   "title": "Tonon Libra armchair (59 x 62 x 82 cm)"
+   "title": "Tonon Libra armchair (59 x 62 x 82 cm)",
+   "cached": true
   },
   {
    "rel": "bar-table/marte-design/molecular/63885.fbx.zip/Marte_Molecular_037_fbx.FBX",
@@ -4290,7 +4321,8 @@
    "front_note": "a side_table has no front",
    "sha256": "ee1d61d03b90a8231e499b5cca6ffa56579de7bedc9c6a10356d93d236e7385f",
    "id": "syncronia_fd14b292a5c01afed73e22a3",
-   "title": "Marte Design Molecular (46 x 45 x 37 cm)"
+   "title": "Marte Design Molecular (46 x 45 x 37 cm)",
+   "cached": true
   },
   {
    "rel": "bar-table/marte-design/shade/64223.fbx.zip/Marte_Design_Shade_050_fbx.fbx",
@@ -4410,7 +4442,8 @@
    "front_note": "a table_dining has no front",
    "sha256": "fc2c9729f3895277814ed4a23da7fefee045e19340b3562d94f22dbb8bf40d12",
    "id": "syncronia_d8e2e50da2e86a37bead4977",
-   "title": "Marte Design Tamashi (220 x 100 x 74 cm)"
+   "title": "Marte Design Tamashi (220 x 100 x 74 cm)",
+   "cached": true
   },
   {
    "rel": "bath-mirror/rexa/esperanto/43432.3ds.zip/8AEAD0001.3ds",
@@ -5582,7 +5615,8 @@
    "front_note": "geometry: detail_side: vertex counts {'-x': 421, '+x': 432, '-y': 111, '+y': 111} give no side with 1.3x more detail; -Y assumed, the audit's vision answer names the front",
    "sha256": "251203d96690dbb597c1c0e6fbacb20fc7939af1400c10be0d4150845eaed068",
    "id": "syncronia_b85bbbb836f23adff394af66",
-   "title": "Aquatica Bath Aphrodite (178 x 92 x 68 cm)"
+   "title": "Aquatica Bath Aphrodite (178 x 92 x 68 cm)",
+   "cached": true
   },
   {
    "rel": "bathtubs/aquatica-bath/corelia/60975.3ds",
@@ -5659,7 +5693,8 @@
    "front_note": "geometry: detail_side: vertex counts {'-x': 501, '+x': 501, '-y': 1028, '+y': 890} give no side with 1.3x more detail; -Y assumed, the audit's vision answer names the front",
    "sha256": "a9606c9fe6428653d24913871b2b764ef99a34d86a75b58c4a037d1755c36db4",
    "id": "syncronia_0556e173f8cdcb598bd7b568",
-   "title": "Aquatica Bath Corelia (168 x 86 x 53 cm)"
+   "title": "Aquatica Bath Corelia (168 x 86 x 53 cm)",
+   "cached": true
   },
   {
    "rel": "bathtubs/aquatica-bath/emmanuelle/60901.3ds",
@@ -5802,7 +5837,8 @@
    "front_note": "geometry: detail_side: vertex counts {'-x': 2789, '+x': 2652, '-y': 1493, '+y': 1343} give no side with 1.3x more detail; -Y assumed, the audit's vision answer names the front",
    "sha256": "702144ac9f0cd99e5246256160b1bdd0ad812b58da6d4cea3e4b163b86da5542",
    "id": "syncronia_1a99aed4039fe9eb5b495766",
-   "title": "Aquatica Bath Lullaby Mini (154 x 70 x 63 cm)"
+   "title": "Aquatica Bath Lullaby Mini (154 x 70 x 63 cm)",
+   "cached": true
   },
   {
    "rel": "bathtubs/aquatica-bath/lullaby-nano/61072.3ds",
@@ -5879,7 +5915,8 @@
    "front_note": "geometry: detail_side: 2046 vs 1179 vertices in the x slabs: front -X",
    "sha256": "a6b36b03b807d289cd5d41ec014f54bbf6112859f09ab4631bc62a948cfa6fc6",
    "id": "syncronia_8013eafb68202a3cb81b9060",
-   "title": "Aquatica Bath Lullaby Nano (130 x 61 x 70 cm)"
+   "title": "Aquatica Bath Lullaby Nano (130 x 61 x 70 cm)",
+   "cached": true
   },
   {
    "rel": "bathtubs/aquatica-bath/pamela/61101.3ds",
@@ -5953,7 +5990,8 @@
    "front_note": "geometry: detail_side: vertex counts {'-x': 125, '+x': 144, '-y': 160, '+y': 160} give no side with 1.3x more detail; -Y assumed, the audit's vision answer names the front",
    "sha256": "3c54a81f06de03922d9d8844bf35c9e271c55ec46236b16fe91f9c9b480fb8e8",
    "id": "syncronia_3469b326dbc08d34c25eec63",
-   "title": "Aquatica Bath Purescape 171 (183 x 100 x 79 cm)"
+   "title": "Aquatica Bath Purescape 171 (183 x 100 x 79 cm)",
+   "cached": true
   },
   {
    "rel": "bathtubs/aquatica-bath/purescape-171-mini/61074.3ds",
@@ -6030,7 +6068,8 @@
    "front_note": "geometry: detail_side: vertex counts {'-x': 917, '+x': 958, '-y': 546, '+y': 566} give no side with 1.3x more detail; -Y assumed, the audit's vision answer names the front",
    "sha256": "84780da29dd199814847ef8cfd1fc0d3ad9fe13b562c50c2d208d6332ab17cf4",
    "id": "syncronia_c884bcf94c3abd3afbe68c0d",
-   "title": "Aquatica Bath Purescape 171 Mini (183 x 100 x 79 cm)"
+   "title": "Aquatica Bath Purescape 171 Mini (183 x 100 x 79 cm)",
+   "cached": true
   },
   {
    "rel": "bathtubs/aquatica-bath/sensuality/60936.3ds",
@@ -6107,7 +6146,8 @@
    "front_note": "geometry: detail_side: vertex counts {'-x': 2103, '+x': 1961, '-y': 2802, '+y': 2807} give no side with 1.3x more detail; -Y assumed, the audit's vision answer names the front",
    "sha256": "1b8524b662c6d5f156a1add184d6029595301895271c1f0da55aa531be522e66",
    "id": "syncronia_fe120cc3762656d423e94b72",
-   "title": "Aquatica Bath Sensuality (179 x 90 x 66 cm)"
+   "title": "Aquatica Bath Sensuality (179 x 90 x 66 cm)",
+   "cached": true
   },
   {
    "rel": "bathtubs/aquatica-bath/sensuality-mini/61076.3ds",
@@ -6184,7 +6224,8 @@
    "front_note": "geometry: detail_side: vertex counts {'-x': 1273, '+x': 1311, '-y': 1996, '+y': 1948} give no side with 1.3x more detail; -Y assumed, the audit's vision answer names the front",
    "sha256": "9118576246c0c9a6cb00cdfe7f71833d326666d9dd4141f5033a16f60d4b0935",
    "id": "syncronia_592a1e6940d0c2ef22632d33",
-   "title": "Aquatica Bath Sensuality Mini (84 x 168 x 68 cm)"
+   "title": "Aquatica Bath Sensuality Mini (84 x 168 x 68 cm)",
+   "cached": true
   },
   {
    "rel": "bathtubs/aquatica-bath/spoon-2/60947.3ds",
@@ -6225,7 +6266,8 @@
    "front_note": "geometry: detail_side: 107 vs 74 vertices in the x slabs: front -X",
    "sha256": "fc9d6a82c61fd6cb87df83c9d2f935ca070582319e0b85b9be6e2d5946f1bd25",
    "id": "syncronia_4a736a820d7fb0449d26352c",
-   "title": "Aquatica Bath Spoon 2 (168 x 90 x 57 cm)"
+   "title": "Aquatica Bath Spoon 2 (168 x 90 x 57 cm)",
+   "cached": true
   },
   {
    "rel": "bathtubs/aquatica-bath/true-ofuro-heated/60963.3ds",
@@ -6368,7 +6410,8 @@
    "front_note": "geometry: detail_side: vertex counts {'-x': 1687, '+x': 2076, '-y': 5729, '+y': 4467} give no side with 1.3x more detail; -Y assumed, the audit's vision answer names the front",
    "sha256": "25df5defc238044a851d412a7807a06f4945917a39964e02bd2aab619910f579",
    "id": "syncronia_b6a24b2089569919253dfddf",
-   "title": "Aquatica Bath True Ofuro Nano (124 x 95 x 79 cm)"
+   "title": "Aquatica Bath True Ofuro Nano (124 x 95 x 79 cm)",
+   "cached": true
   },
   {
    "rel": "beds/horm/ebridi-legno-sommier/66196.3ds",
@@ -6473,7 +6516,8 @@
    "front_note": "the pillows sit on the -X side (offset -0.35 of the footprint): front +X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.301 of the extent): front +X)",
    "sha256": "c9a15174523bb21860f70ff7a38f42c3feedf937852de0e4286b646ad22974bd",
    "id": "syncronia_91661aa8250a9bba52ec8e25",
-   "title": "Horm Ebridi Legno Sommier bed 169 x 205"
+   "title": "Horm Ebridi Legno Sommier bed 169 x 205",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_2.3DS",
@@ -6607,7 +6651,8 @@
    "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
    "sha256": "6efa20e82fc56b908230c0cd6b4bc46cac925a15b78899cdd5c01f5f4f2721be",
    "id": "syncronia_1264acbf9b6bf1a3e481e26b",
-   "title": "Maxalto (B&B Italia) Demetra bed 195 x 226"
+   "title": "Maxalto (B&B Italia) Demetra bed 195 x 226",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_3.3DS",
@@ -6741,7 +6786,8 @@
    "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
    "sha256": "a985b81e262e9b0949d65ce20d737cc643cb11e8c86b3eb5b2f94095d010ef0b",
    "id": "syncronia_71606884d3001847e7307f0c",
-   "title": "Maxalto (B&B Italia) Demetra bed 210 x 226"
+   "title": "Maxalto (B&B Italia) Demetra bed 210 x 226",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_4.3DS",
@@ -6875,7 +6921,8 @@
    "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
    "sha256": "b6c68554718bb034fe24cb371749a84ed46741ac239ab3c1cda89169dd6e7827",
    "id": "syncronia_b9c981b22ffff17ab6364113",
-   "title": "Maxalto (B&B Italia) Demetra bed 221 x 226"
+   "title": "Maxalto (B&B Italia) Demetra bed 221 x 226",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_5.3DS",
@@ -7009,7 +7056,8 @@
    "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
    "sha256": "f73963df14207abbbd3fba87dbf142e4a47c7872f4d82fc8135dabea0ff5ebf6",
    "id": "syncronia_df94c532dfc5699ddd5ccf82",
-   "title": "Maxalto (B&B Italia) Demetra bed 226 x 241"
+   "title": "Maxalto (B&B Italia) Demetra bed 226 x 241",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/selene/14366.3ds.zip/3D_9745_2.3DS",
@@ -7143,7 +7191,8 @@
    "front_note": "the headboard sit on the +X side (offset +0.45 of the footprint): front -X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.470 of the extent): front -X)",
    "sha256": "4d99f975d4bcf7f746b1bed83daf8405b293ae2977ddf40c390de32e7a607626",
    "id": "syncronia_1b62267562938e003d042011",
-   "title": "Maxalto (B&B Italia) Selene bed 170 x 226"
+   "title": "Maxalto (B&B Italia) Selene bed 170 x 226",
+   "cached": true
   },
   {
    "rel": "beds/maxalto/selene/14366.3ds.zip/3D_9745_3.3DS",
@@ -7277,7 +7326,8 @@
    "front_note": "the headboard sit on the +X side (offset +0.45 of the footprint): front -X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.470 of the extent): front -X)",
    "sha256": "0f841fcde76366a772b46c574fd6746e0fe59449855c6adafba3db8b6b64752e",
    "id": "syncronia_3eba7f077ca6b3628c4de971",
-   "title": "Maxalto (B&B Italia) Selene bed 180 x 223"
+   "title": "Maxalto (B&B Italia) Selene bed 180 x 223",
+   "cached": true
   },
   {
    "rel": "benches/et-al/space/52809.3ds.zip/MetalMobil_242_Space.3ds",
@@ -7447,7 +7497,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.404 of the extent): front -Y",
    "sha256": "8c33ec73698ece635febdcd51928b2122f8700a4a0da814e9f91d5eeb4f03438",
    "id": "syncronia_66740fc2b1aad82d321cb499",
-   "title": "et al. Space (124 x 62 x 87 cm)"
+   "title": "et al. Space (124 x 62 x 87 cm)",
+   "cached": true
   },
   {
    "rel": "benches/et-al/space/52809.3ds.zip/MetalMobil_249_Space_H.120.3ds",
@@ -7551,7 +7602,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.404 of the extent): front -Y",
    "sha256": "8c33ec73698ece635febdcd51928b2122f8700a4a0da814e9f91d5eeb4f03438",
    "id": "syncronia_5dd76ae188da5516cac29f6e",
-   "title": "et al. Space (124 x 62 x 87 cm)"
+   "title": "et al. Space (124 x 62 x 87 cm)",
+   "cached": true
   },
   {
    "rel": "benches/et-al/space/52809.3ds.zip/MetalMobil_249_Space_H.160.3ds",
@@ -7754,7 +7806,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.413 of the extent): front -Y",
    "sha256": "047af78c2240c3fa9ea349f04437134b7070d4809fa5615ffa99a5bf25887c56",
    "id": "syncronia_5bbf5337d37d3bd1e09ec1ec",
-   "title": "et al. Space (84 x 62 x 87 cm)"
+   "title": "et al. Space (84 x 62 x 87 cm)",
+   "cached": true
   },
   {
    "rel": "benches/et-al/space/52809.3ds.zip/MetalMobil_251_Space_H.120.3ds",
@@ -7924,7 +7977,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.409 of the extent): front -Y",
    "sha256": "e77d1874a00979066289ad427a1b1a5ecddf7d87d9ffd8e9da5d1b17336851f3",
    "id": "syncronia_bd2f142bea83298ecaad2ee7",
-   "title": "et al. Space (74 x 62 x 87 cm)"
+   "title": "et al. Space (74 x 62 x 87 cm)",
+   "cached": true
   },
   {
    "rel": "benches/et-al/space/52809.3ds.zip/MetalMobil_252_Space.3ds",
@@ -8127,7 +8181,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.405 of the extent): front -Y",
    "sha256": "67b01067e864c3b01c24100c954302daef73ef9eda71754396099aadddff1dc6",
    "id": "syncronia_8259585e4a443901e0b993be",
-   "title": "et al. Space (124 x 62 x 115 cm)"
+   "title": "et al. Space (124 x 62 x 115 cm)",
+   "cached": true
   },
   {
    "rel": "benches/et-al/space/52809.3ds.zip/MetalMobil_766_Space_L.80.3ds",
@@ -8231,7 +8286,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.420 of the extent): front -Y",
    "sha256": "75d6d4a685bb8681a6726ec2138c2f5acd3807f686f0bca7f0d0b5f76a4b5a3c",
    "id": "syncronia_9e21bbbbf32e64addea15821",
-   "title": "et al. Space (82 x 62 x 115 cm)"
+   "title": "et al. Space (82 x 62 x 115 cm)",
+   "cached": true
   },
   {
    "rel": "benches/et-al/space/52809.3ds.zip/MetalMobil_767_Space_L.70.3ds",
@@ -8335,7 +8391,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.416 of the extent): front -Y",
    "sha256": "f5f8a27679a2722c44d641a39b1b59a8458f7e61477593ed50d93d7e1e938e0c",
    "id": "syncronia_020ff583639aa6d216ee3327",
-   "title": "et al. Space (72 x 62 x 115 cm)"
+   "title": "et al. Space (72 x 62 x 115 cm)",
+   "cached": true
   },
   {
    "rel": "benches/et-al/space/52809.3ds.zip/MetalMobil_768_Space.3ds",
@@ -8472,7 +8529,8 @@
    "front_note": "geometry: back_taller: top centroid offset +0.000 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "c242fcb03ddf829eaaf1bc61f7b1d8768efca883087f7552952b05e040a0798d",
    "id": "syncronia_b841b90e894b820bcdf968bb",
-   "title": "MDF Italia Le Banc (122 x 40 x 44 cm)"
+   "title": "MDF Italia Le Banc (122 x 40 x 44 cm)",
+   "cached": true
   },
   {
    "rel": "benches/riva1920/audrey/180557.obj.zip/Riva1920_Audrey_Bench.obj",
@@ -8549,7 +8607,8 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.245 of the extent): front +X",
    "sha256": "604f391c67545f0c0d4a5f4e95973a0a6aba2a0e4fe7430e4a3ea26358f9ac19",
    "id": "syncronia_f36cf65e26bfd030f8ed1ed7",
-   "title": "Riva 1920 Audrey (190 x 60 x 46 cm)"
+   "title": "Riva 1920 Audrey (190 x 60 x 46 cm)",
+   "cached": true
   },
   {
    "rel": "benches/riva1920/giacinto/180539.obj.zip/Riva1920_Giacinto_Bench.obj",
@@ -8680,7 +8739,8 @@
    "front_note": "geometry: back_taller: top centroid offset +0.003 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "9e61878ccd2a1886ad42beddd34142cddd03d5bf8fe3f775113dfd4671473bc4",
    "id": "syncronia_fc659d0e72c0dd684a687366",
-   "title": "Riva 1920 Giacinto (130 x 39 x 44 cm)"
+   "title": "Riva 1920 Giacinto (130 x 39 x 44 cm)",
+   "cached": true
   },
   {
    "rel": "benches/riva1920/riccio/180848.obj.zip/Riva1920_Riccio_Bench.obj",
@@ -8757,7 +8817,8 @@
    "front_note": "geometry: back_taller: top centroid offset +0.002 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "7733508009f6844aec3b9506e8b594b0cf8115984219d9e696dcbf474e781385",
    "id": "syncronia_f98ca729932579cbdec7ae63",
-   "title": "Riva 1920 Riccio (100 x 50 x 45 cm)"
+   "title": "Riva 1920 Riccio (100 x 50 x 45 cm)",
+   "cached": true
   },
   {
    "rel": "bookcases/bb-italia/arne/11685.3ds.zip/3D_LA73.3DS",
@@ -8896,7 +8957,8 @@
    "front_note": "geometry: open_side: panel fractions {'-x': 0.0524, '+x': 0.3878, '-y': 0.6621, '+y': 0.6621} give 0 axes with one closed side; -Y assumed, the audit's vision answer names the front",
    "sha256": "4fb92c7ccaae555d686d94a1dfc139a744a2fb4563aac7897587c7452ec5f770",
    "id": "syncronia_7cdbb306500b3b7804e6e05f",
-   "title": "B&B Italia Arne (35 x 90 x 165 cm)"
+   "title": "B&B Italia Arne (35 x 90 x 165 cm)",
+   "cached": true
   },
   {
    "rel": "bookcases/bb-italia/arne/11685.3ds.zip/3D_TA150_N.3DS",
@@ -9028,7 +9090,8 @@
    "front_note": "geometry: open_side: closed panel 0.99 at +Y, 0.01 at the other side: front -Y",
    "sha256": "61aea68373485740ccd675adfabb8bdb800cd60868233a3c691ad9e53b3ce777",
    "id": "syncronia_1f5c4820beb11b6b317715bd",
-   "title": "B&B Italia Arne (80 x 32 x 150 cm)"
+   "title": "B&B Italia Arne (80 x 32 x 150 cm)",
+   "cached": true
   },
   {
    "rel": "bookcases/bb-italia/flat-c/11863.3ds.zip/3D_FLC001.3DS",
@@ -9990,7 +10053,8 @@
    "front_note": "geometry: open_side: panel fractions {'-x': 0.9981, '+x': 1.0166, '-y': 0.045, '+y': 0.0293} give 0 axes with one closed side; -Y assumed, the audit's vision answer names the front",
    "sha256": "ec0600763fc43f5d4b2e97d5bb07ed0829e26eee25b8e991584434797a609b8c",
    "id": "syncronia_66ff6663fc50dde70c7ae8cf",
-   "title": "MDF Italia Melody (88 x 25 x 216 cm)"
+   "title": "MDF Italia Melody (88 x 25 x 216 cm)",
+   "cached": true
   },
   {
    "rel": "bookcases/mdf-italia/minima-30-sketch/80009.3ds.zip/MDF_Italia_New_Containers_Minima_.3ds",
@@ -10136,7 +10200,8 @@
    "front_note": "geometry: open_side: closed panel 1.06 at +Y, 0.22 at the other side: front -Y",
    "sha256": "16c5895cd29fb8f9ff76acaa24fbc5e13adf5289c87d317ae9df01a03114d0aa",
    "id": "syncronia_e9e27967c6a81b327898f122",
-   "title": "MDF Italia Random Collection (82 x 25 x 216 cm)"
+   "title": "MDF Italia Random Collection (82 x 25 x 216 cm)",
+   "cached": true
   },
   {
    "rel": "bookcases/mdf-italia/randomisismo/80624.3ds.zip/MDF_Randomissimo_F101401_L001.3DS",
@@ -10248,7 +10313,8 @@
    "front_note": "geometry: open_side: panel fractions {'-x': 0.6479, '+x': 0.6417, '-y': 0.0542, '+y': 0.0513} give 0 axes with one closed side; -Y assumed, the audit's vision answer names the front",
    "sha256": "90311b4d501dbd942cd3548041c8775f093d9cf483f5c1194b4c3bad89a07aea",
    "id": "syncronia_56f4c6aa406f8656bc28196b",
-   "title": "MDF Italia Randomito (207 x 51 x 243 cm)"
+   "title": "MDF Italia Randomito (207 x 51 x 243 cm)",
+   "cached": true
   },
   {
    "rel": "bookcases/mdf-italia/randomwood/80288.3ds.zip/MDF_Random.3DS",
@@ -10326,7 +10392,8 @@
    "front_note": "geometry: open_side: closed panel 1.06 at +Y, 0.22 at the other side: front -Y",
    "sha256": "16c5895cd29fb8f9ff76acaa24fbc5e13adf5289c87d317ae9df01a03114d0aa",
    "id": "syncronia_39d61dfbe30406910741c1cd",
-   "title": "MDF Italia Random_Wood (82 x 25 x 216 cm)"
+   "title": "MDF Italia Random_Wood (82 x 25 x 216 cm)",
+   "cached": true
   },
   {
    "rel": "bookcases/riva1920/book/180554.obj.zip/Riva1920_A-Book_Bookshelf.obj",

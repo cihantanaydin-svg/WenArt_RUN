@@ -3510,6 +3510,16 @@
    "request": "The drawing's notation never mixes with the building's lines (UL261 extended from the axis lines to every notation line): grid lines, dimension lines (a dimension layer such as DH / DV / OLCU, or a dimension found) and their tick circles and slashes are never walls, rooms, outline or the content of a wall's gap. A dimension chain crossing a facade recess's mouth and ending in its window to the salon made both gaps 'unclassified', so the recess rule of real09 did not apply and the recess became a room; the mirrored half, read open, was right (user, 3 Nov 2026, real10 L0: 'this section is still wrong should be similar as the mirror', 'There is no Oda on the left side that's outside', 'This should have been a lesson learned from before what happened fix it properly', 'I am talking about the lesson learned related to mixing the lines like the grid lines')",
    "lesson": "The drawing's notation never mixes with the building's lines (UL261 extended from the axis lines to every notation line): grid lines, dimension lines (a dimension layer such as DH / DV / OLCU, or a dimension found) and their tick circles and slashes are never walls, rooms, outline or the content of a wall's gap. A dimension chain crossing a facade recess's mouth and ending in its window to the salon made both gaps 'unclassified', so the recess rule of real09 did not apply and the recess became a room; the mirrored half, read open, was right (user, 3 Nov 2026, real10 L0: 'this section is still wrong should be similar as the mirror', 'There is no Oda on the left side that's outside', 'This should have been a lesson learned from before what happened fix it properly', 'I am talking about the lesson learned related to mixing the lines like the grid lines')",
    "question": null
+  },
+  {
+   "id": "UL297",
+   "date": "2026-11-03",
+   "area": "other",
+   "status": "built",
+   "checks": [],
+   "request": "Library models without real textures (plain colours, missing texture files) get the project style's PBR scans on their part materials: fabric linen in the design colour, oak or walnut veneer, leather, marble, black steel, bronze, chrome, brass, glass, ceramic; a model's own textures are kept (user, 3 Nov 2026, Syncronia: 'can we give textures to Syncronia? and I can re-rate them?', 'Use the most logical best textures')",
+   "lesson": "Library models without real textures (plain colours, missing texture files) get the project style's PBR scans on their part materials: fabric linen in the design colour, oak or walnut veneer, leather, marble, black steel, bronze, chrome, brass, glass, ceramic; a model's own textures are kept (user, 3 Nov 2026, Syncronia: 'can we give textures to Syncronia? and I can re-rate them?', 'Use the most logical best textures')",
+   "question": null
   }
  ]
 }

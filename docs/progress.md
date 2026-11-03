@@ -3341,3 +3341,21 @@ real04 structure run (pod jbefyl38156bpt, RTX PRO 6000, 46 min, $1.92): ok; its 
 changed), so the building is the one of 1 Nov (UL293: say what changed before a run). Still open on real10: L-1's right
 flat hall and kitchen merge with the central hall (walls the mirror rule should copy), window frame lines on the wall
 layer read as thin extra walls (the 7 purple gaps left per floor).
+
+## Syncronia models dressed with the style's texture scans, re-rated (3 Nov 2026, lesson UL297)
+
+User: "can we give textures to Syncronia? and I can re-rate them?", "Use the most logical best textures". Most Syncronia
+files carry plain colours (or texture links the zips do not hold). The intake's part materials (`wenart_*` slots:
+bedding, upholstery, oak, walnut, leather, marble, rattan, black metal, bronze legs, chrome, brass, glass, ceramic,
+lacquer, plastic) are now dressed at build time with the project style's PBR scans (`PART_DRESS` in
+`wenart/blender/furniture.py`, `dress-1`): fabric with the linen scan in the design colour, wood with oak or walnut
+veneer, metal with black steel or dark bronze, and so on. A model's own textured materials are left alone.
+
+| item | result |
+|---|---|
+| Syncronia models dressed (intake part slots) | 284 of 334 (50 keep their own file materials, mostly white sofas and armchairs) |
+| studio sheets rendered again | 334 of 334, 28 sheets, 0 failed |
+| ranking page | the same tabs; scores stay keyed by model id and can be changed; sheet URLs carry a content hash (no stale cache) |
+| texture check of the whole library (read-only pod) | 1,962 usable models textured with every file there, 474 untextured, 13 with problems, 0 sha mismatches |
+
+Pods: studio 17.2 min $0.21; texture check $0.12.

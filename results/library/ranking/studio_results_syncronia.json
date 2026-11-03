@@ -8,11 +8,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 19.85,
+   "seconds": 119.75,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.4947,
     -0.405,
@@ -29,11 +27,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 18.31,
+   "seconds": 9.63,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.2964,
     -0.3115,
@@ -50,11 +46,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 13.51,
+   "seconds": 8.43,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3393,
     -0.3636,
@@ -71,11 +65,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 13.51,
+   "seconds": 8.55,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3091,
     -0.2928,
@@ -134,11 +126,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 18.5,
+   "seconds": 10.16,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.4839,
     -0.4401,
@@ -155,11 +145,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.57,
+   "seconds": 8.48,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.2999,
     -0.2951,
@@ -176,11 +164,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 68.83,
+   "seconds": 44.38,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3774,
     -0.3212,
@@ -197,11 +183,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.98,
+   "seconds": 6.51,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3687,
     -0.3697,
@@ -260,11 +244,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.43,
+   "seconds": 6.47,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.4947,
     -0.4363,
@@ -281,11 +263,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 16.79,
+   "seconds": 10.6,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.2959,
     -0.2981,
@@ -302,11 +282,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 16.0,
+   "seconds": 7.27,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3035,
     -0.2686,
@@ -323,11 +301,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.48,
+   "seconds": 3.31,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3841,
     -0.4783,
@@ -365,11 +341,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.32,
+   "seconds": 6.39,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.6157,
     -0.4661,
@@ -386,11 +360,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 26.94,
+   "seconds": 16.12,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3743,
     -0.3664,
@@ -407,11 +379,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.44,
+   "seconds": 3.07,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.336,
     -0.3215,
@@ -428,11 +398,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.01,
+   "seconds": 6.55,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3706,
     -0.3937,
@@ -449,11 +417,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.4,
+   "seconds": 8.18,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.33,
     -0.33,
@@ -470,11 +436,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.89,
+   "seconds": 2.56,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3096,
     -0.2857,
@@ -491,11 +455,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.24,
+   "seconds": 8.94,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.4947,
     -0.4363,
@@ -512,7 +474,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.77,
+   "seconds": 5.2,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -531,11 +493,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.44,
+   "seconds": 5.14,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.4802,
     -0.4324,
@@ -552,11 +512,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 10.91,
+   "seconds": 4.26,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3171,
     -0.3726,
@@ -573,11 +531,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.01,
+   "seconds": 4.44,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3513,
     -0.361,
@@ -594,11 +550,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.9,
+   "seconds": 5.67,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3504,
     -0.3506,
@@ -615,11 +569,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.67,
+   "seconds": 4.92,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.4133,
     -0.4282,
@@ -636,11 +588,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 57.89,
+   "seconds": 32.78,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3981,
     -0.3338,
@@ -657,11 +607,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.68,
+   "seconds": 3.9,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3003,
     -0.2786,
@@ -678,11 +626,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 114.29,
+   "seconds": 70.36,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.547,
     -0.4445,
@@ -720,7 +666,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.32,
+   "seconds": 4.8,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -739,11 +685,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.61,
+   "seconds": 2.55,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3771,
     -0.4166,
@@ -760,11 +704,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.16,
+   "seconds": 5.55,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3841,
     -0.4783,
@@ -781,7 +723,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 19.33,
+   "seconds": 114.79,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -800,7 +742,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.98,
+   "seconds": 6.4,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -819,7 +761,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.26,
+   "seconds": 4.86,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -838,7 +780,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.37,
+   "seconds": 7.71,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -857,7 +799,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 27.71,
+   "seconds": 12.05,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -876,7 +818,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.24,
+   "seconds": 12.56,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -895,7 +837,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 14.43,
+   "seconds": 7.99,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -914,7 +856,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.2,
+   "seconds": 4.38,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -933,7 +875,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 19.69,
+   "seconds": 110.95,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -952,7 +894,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.13,
+   "seconds": 5.79,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1009,7 +951,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.44,
+   "seconds": 2.84,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1028,7 +970,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.72,
+   "seconds": 4.65,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1047,7 +989,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.44,
+   "seconds": 5.48,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1066,7 +1008,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 10.07,
+   "seconds": 10.99,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1085,7 +1027,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.74,
+   "seconds": 10.71,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1104,7 +1046,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.8,
+   "seconds": 8.73,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1123,7 +1065,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.81,
+   "seconds": 9.29,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1142,7 +1084,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.7,
+   "seconds": 16.3,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1161,7 +1103,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.27,
+   "seconds": 13.18,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1180,7 +1122,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.08,
+   "seconds": 11.45,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1199,7 +1141,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 19.65,
+   "seconds": 113.32,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1218,7 +1160,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.57,
+   "seconds": 3.01,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1237,7 +1179,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.49,
+   "seconds": 4.15,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1256,7 +1198,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.87,
+   "seconds": 3.67,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1275,7 +1217,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.31,
+   "seconds": 4.15,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1294,7 +1236,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.07,
+   "seconds": 4.83,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1313,7 +1255,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.89,
+   "seconds": 2.88,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1332,7 +1274,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.26,
+   "seconds": 3.45,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1351,7 +1293,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.31,
+   "seconds": 6.92,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1370,7 +1312,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.0,
+   "seconds": 109.81,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1389,7 +1331,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.22,
+   "seconds": 2.56,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1408,7 +1350,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.1,
+   "seconds": 8.19,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1427,7 +1369,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.31,
+   "seconds": 7.18,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1446,7 +1388,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.23,
+   "seconds": 2.8,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1465,7 +1407,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.88,
+   "seconds": 2.77,
    "warnings": [],
    "box_min": [
     -0.081,
@@ -1483,7 +1425,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.65,
+   "seconds": 4.05,
    "warnings": [],
    "box_min": [
     -0.2092,
@@ -1501,7 +1443,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.68,
+   "seconds": 6.98,
    "warnings": [],
    "box_min": [
     -0.1027,
@@ -1519,7 +1461,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.9,
+   "seconds": 2.54,
    "warnings": [],
    "box_min": [
     -0.1303,
@@ -1537,7 +1479,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.68,
+   "seconds": 2.08,
    "warnings": [],
    "box_min": [
     -0.2005,
@@ -1555,7 +1497,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.69,
+   "seconds": 4.4,
    "warnings": [],
    "box_min": [
     -0.0576,
@@ -1573,7 +1515,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 1.72,
+   "seconds": 4.02,
    "warnings": [
     "decor ceiling_light studio_item (no host): size [0.5, 0.5, 0.6343] capped at 0.6 m"
    ],
@@ -1593,7 +1535,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.92,
+   "seconds": 6.65,
    "warnings": [],
    "box_min": [
     -0.1672,
@@ -1611,7 +1553,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 16.97,
+   "seconds": 4.18,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1630,7 +1572,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.47,
+   "seconds": 8.41,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1649,7 +1591,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.38,
+   "seconds": 4.92,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1668,7 +1610,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 97.98,
+   "seconds": 70.23,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1687,7 +1629,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.86,
+   "seconds": 6.23,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1706,7 +1648,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.77,
+   "seconds": 4.17,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1725,7 +1667,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.16,
+   "seconds": 4.69,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1744,7 +1686,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.89,
+   "seconds": 5.17,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1763,7 +1705,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 10.41,
+   "seconds": 3.41,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1782,7 +1724,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.45,
+   "seconds": 6.52,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1820,7 +1762,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.3,
+   "seconds": 5.64,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1839,7 +1781,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.12,
+   "seconds": 4.24,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1858,7 +1800,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.34,
+   "seconds": 2.54,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1877,7 +1819,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 10.14,
+   "seconds": 5.78,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1896,7 +1838,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.06,
+   "seconds": 3.08,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1915,7 +1857,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.97,
+   "seconds": 5.86,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1934,7 +1876,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.5,
+   "seconds": 4.8,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1953,7 +1895,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.07,
+   "seconds": 4.73,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1972,7 +1914,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.34,
+   "seconds": 4.99,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -1991,7 +1933,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.86,
+   "seconds": 2.64,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2010,7 +1952,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.2,
+   "seconds": 3.45,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2029,7 +1971,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.46,
+   "seconds": 6.63,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2048,7 +1990,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.99,
+   "seconds": 4.9,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2067,7 +2009,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.96,
+   "seconds": 6.11,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2086,7 +2028,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.1,
+   "seconds": 4.5,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2105,7 +2047,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.98,
+   "seconds": 5.64,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2124,7 +2066,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.24,
+   "seconds": 6.9,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2143,7 +2085,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.12,
+   "seconds": 4.22,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2162,7 +2104,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.69,
+   "seconds": 4.26,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2181,7 +2123,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.86,
+   "seconds": 5.25,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2200,7 +2142,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.51,
+   "seconds": 3.77,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2219,7 +2161,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 14.6,
+   "seconds": 16.65,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2238,7 +2180,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.38,
+   "seconds": 4.72,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2257,7 +2199,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.0,
+   "seconds": 4.89,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2276,7 +2218,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.71,
+   "seconds": 3.18,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2295,7 +2237,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.22,
+   "seconds": 8.55,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2314,7 +2256,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.64,
+   "seconds": 7.52,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2333,7 +2275,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.63,
+   "seconds": 5.39,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2352,7 +2294,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 42.69,
+   "seconds": 51.4,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2371,7 +2313,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.0,
+   "seconds": 4.67,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2390,7 +2332,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 14.26,
+   "seconds": 8.79,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2409,7 +2351,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 20.52,
+   "seconds": 13.47,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2428,7 +2370,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.13,
+   "seconds": 5.8,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2447,7 +2389,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 109.56,
+   "seconds": 67.61,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2504,7 +2446,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.36,
+   "seconds": 3.3,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2523,7 +2465,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 14.27,
+   "seconds": 10.8,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2542,7 +2484,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.96,
+   "seconds": 4.85,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2561,7 +2503,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.79,
+   "seconds": 4.9,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2580,7 +2522,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.59,
+   "seconds": 9.47,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2599,7 +2541,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.16,
+   "seconds": 3.63,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2618,7 +2560,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.6,
+   "seconds": 2.73,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2637,7 +2579,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.61,
+   "seconds": 5.25,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2656,7 +2598,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.89,
+   "seconds": 8.14,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2675,7 +2617,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.68,
+   "seconds": 6.63,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2694,7 +2636,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 2.97,
+   "seconds": 4.23,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2713,7 +2655,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.1,
+   "seconds": 5.94,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2732,7 +2674,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.68,
+   "seconds": 4.93,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2751,7 +2693,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.77,
+   "seconds": 2.25,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2770,7 +2712,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.36,
+   "seconds": 3.92,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2789,7 +2731,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.67,
+   "seconds": 5.95,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2808,7 +2750,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.03,
+   "seconds": 4.88,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2827,7 +2769,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.27,
+   "seconds": 5.41,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2846,7 +2788,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.51,
+   "seconds": 4.02,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2865,7 +2807,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.39,
+   "seconds": 4.86,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2884,7 +2826,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 13.85,
+   "seconds": 8.65,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2903,7 +2845,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.79,
+   "seconds": 5.25,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2922,7 +2864,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.42,
+   "seconds": 3.36,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2941,7 +2883,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 13.48,
+   "seconds": 9.87,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2960,7 +2902,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.21,
+   "seconds": 6.62,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2979,7 +2921,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.89,
+   "seconds": 4.95,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -2998,7 +2940,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 38.24,
+   "seconds": 27.7,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3017,7 +2959,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 15.14,
+   "seconds": 5.93,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3036,7 +2978,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.61,
+   "seconds": 3.56,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3055,7 +2997,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.69,
+   "seconds": 5.06,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3074,7 +3016,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.74,
+   "seconds": 3.94,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3093,7 +3035,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.44,
+   "seconds": 2.96,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3112,7 +3054,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.46,
+   "seconds": 4.42,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3150,7 +3092,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.13,
+   "seconds": 3.84,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3169,7 +3111,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.11,
+   "seconds": 5.9,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3188,7 +3130,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.82,
+   "seconds": 7.52,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3207,7 +3149,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.0,
+   "seconds": 2.79,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3226,7 +3168,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.13,
+   "seconds": 5.32,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3245,7 +3187,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.1,
+   "seconds": 3.13,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3264,7 +3206,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.56,
+   "seconds": 3.64,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3283,7 +3225,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.47,
+   "seconds": 5.14,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3302,7 +3244,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.81,
+   "seconds": 4.33,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3321,7 +3263,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.43,
+   "seconds": 5.46,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3340,7 +3282,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.79,
+   "seconds": 4.31,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3359,7 +3301,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.06,
+   "seconds": 5.21,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3378,7 +3320,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.18,
+   "seconds": 4.5,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3397,7 +3339,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.58,
+   "seconds": 5.49,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3416,7 +3358,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.65,
+   "seconds": 4.72,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3435,7 +3377,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.18,
+   "seconds": 5.14,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3454,7 +3396,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.48,
+   "seconds": 7.08,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3473,7 +3415,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.34,
+   "seconds": 4.27,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3492,7 +3434,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.52,
+   "seconds": 3.94,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3511,7 +3453,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.85,
+   "seconds": 5.99,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3530,7 +3472,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.12,
+   "seconds": 6.98,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3549,7 +3491,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.64,
+   "seconds": 3.84,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3568,7 +3510,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.92,
+   "seconds": 4.53,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3587,7 +3529,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.89,
+   "seconds": 9.18,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3606,7 +3548,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.43,
+   "seconds": 3.22,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3625,7 +3567,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.83,
+   "seconds": 6.04,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3663,7 +3605,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.43,
+   "seconds": 4.16,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3682,11 +3624,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.72,
+   "seconds": 111.69,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.47,
     -0.792,
@@ -3724,11 +3664,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 30.2,
+   "seconds": 20.05,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.3679,
     -0.9652,
@@ -3745,11 +3683,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.99,
+   "seconds": 4.08,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.47,
     -0.792,
@@ -3766,11 +3702,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.87,
+   "seconds": 6.9,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.449,
     -0.7731,
@@ -3848,7 +3782,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.79,
+   "seconds": 1.9,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -3867,11 +3801,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.54,
+   "seconds": 5.17,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.2025,
     -0.2023,
@@ -3888,11 +3820,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.43,
+   "seconds": 6.5,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.2488,
     -0.2488,
@@ -3909,11 +3839,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.53,
+   "seconds": 4.61,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.2065,
     -0.2166,
@@ -3930,7 +3858,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 93.38,
+   "seconds": 22.39,
    "warnings": [],
    "box_min": [
     -0.4915,
@@ -3948,7 +3876,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 2.58,
+   "seconds": 5.7,
    "warnings": [],
    "box_min": [
     -0.061,
@@ -3966,7 +3894,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.54,
+   "seconds": 9.96,
    "warnings": [],
    "box_min": [
     -0.3732,
@@ -4002,7 +3930,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.55,
+   "seconds": 8.29,
    "warnings": [],
    "box_min": [
     -0.13,
@@ -4020,7 +3948,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.51,
+   "seconds": 4.26,
    "warnings": [],
    "box_min": [
     -0.0607,
@@ -4038,7 +3966,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 15.78,
+   "seconds": 35.94,
    "warnings": [],
    "box_min": [
     -0.7365,
@@ -4056,7 +3984,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 2.74,
+   "seconds": 3.1,
    "warnings": [],
    "box_min": [
     -0.0798,
@@ -4092,7 +4020,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.47,
+   "seconds": 2.73,
    "warnings": [],
    "box_min": [
     -0.0641,
@@ -4110,7 +4038,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 2.5,
+   "seconds": 3.0,
    "warnings": [],
    "box_min": [
     -0.1057,
@@ -4128,7 +4056,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 2.61,
+   "seconds": 4.41,
    "warnings": [],
    "box_min": [
     -0.076,
@@ -4146,7 +4074,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 1.3,
+   "seconds": 2.57,
    "warnings": [],
    "box_min": [
     -0.0612,
@@ -4164,7 +4092,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.98,
+   "seconds": 11.49,
    "warnings": [],
    "box_min": [
     -0.4927,
@@ -4182,7 +4110,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.43,
+   "seconds": 3.52,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -4220,7 +4148,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 13.05,
+   "seconds": 7.2,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -4279,11 +4207,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 13.2,
+   "seconds": 13.17,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.7595,
     -0.4913,
@@ -4300,11 +4226,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 20.36,
+   "seconds": 10.36,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.44,
     -0.48,
@@ -4342,11 +4266,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.81,
+   "seconds": 9.8,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.5541,
     -0.4946,
@@ -4384,11 +4306,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 15.0,
+   "seconds": 6.72,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.25,
     -0.48,
@@ -4405,11 +4325,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.28,
+   "seconds": 2.71,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.6909,
     -0.3216,
@@ -4426,11 +4344,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 13.28,
+   "seconds": 7.37,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.35,
     -0.48,
@@ -4468,11 +4384,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 15.49,
+   "seconds": 7.25,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.1519,
     -0.48,
@@ -4510,11 +4424,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 10.09,
+   "seconds": 8.17,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.0486,
     -0.48,
@@ -4531,11 +4443,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.07,
+   "seconds": 6.95,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.96,
     -0.4558,
@@ -4573,11 +4483,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.7,
+   "seconds": 9.63,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.231,
     -0.5689,
@@ -4615,11 +4523,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 14.3,
+   "seconds": 10.02,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.5023,
     -0.7024,
@@ -4636,11 +4542,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 20.25,
+   "seconds": 12.58,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.28,
     -0.5307,
@@ -4657,11 +4561,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 23.72,
+   "seconds": 12.12,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.8885,
     -0.5727,
@@ -4699,11 +4601,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.71,
+   "seconds": 10.57,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.385,
     -0.525,
@@ -4720,11 +4620,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 13.37,
+   "seconds": 6.56,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.9442,
     -0.5137,
@@ -4741,11 +4639,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.46,
+   "seconds": 5.33,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.6713,
     -0.3924,
@@ -4762,11 +4658,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 18.3,
+   "seconds": 12.38,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.53,
     -1.157,
@@ -4783,11 +4677,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 18.99,
+   "seconds": 9.31,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.03,
     -0.5313,
@@ -4867,11 +4759,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.96,
+   "seconds": 6.22,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.8788,
     -0.5815,
@@ -4888,11 +4778,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.99,
+   "seconds": 11.38,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.8789,
     -0.573,
@@ -4909,11 +4797,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 18.22,
+   "seconds": 10.79,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.1297,
     -0.4895,
@@ -4930,11 +4816,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 16.82,
+   "seconds": 10.18,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.9747,
     -0.4914,
@@ -4951,11 +4835,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.59,
+   "seconds": 6.91,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.53,
     -0.78,
@@ -4972,11 +4854,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.15,
+   "seconds": 7.6,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.16,
     -0.525,
@@ -4993,11 +4873,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 16.28,
+   "seconds": 9.1,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.5061,
     -1.1566,
@@ -5035,11 +4913,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.08,
+   "seconds": 4.12,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.565,
     -0.6104,
@@ -5056,11 +4932,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.97,
+   "seconds": 4.38,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.8217,
     -0.5101,
@@ -5077,11 +4951,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.79,
+   "seconds": 7.84,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.0294,
     -0.5295,
@@ -5098,11 +4970,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 17.28,
+   "seconds": 15.8,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.155,
     -0.5335,
@@ -5119,11 +4989,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 17.55,
+   "seconds": 8.23,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.8874,
     -0.4902,
@@ -5182,11 +5050,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 13.32,
+   "seconds": 7.74,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.1548,
     -0.53,
@@ -5203,11 +5069,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 16.1,
+   "seconds": 18.81,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.7572,
     -0.4182,
@@ -5245,11 +5109,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 16.39,
+   "seconds": 7.44,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.35,
     -0.525,
@@ -5266,11 +5128,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 13.09,
+   "seconds": 7.41,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.8693,
     -0.4666,
@@ -5329,11 +5189,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.93,
+   "seconds": 7.27,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.44,
     -0.5257,
@@ -5371,11 +5229,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 16.08,
+   "seconds": 8.13,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.5298,
     -0.7797,
@@ -5434,11 +5290,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.03,
+   "seconds": 7.16,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -1.4674,
     -1.0376,
@@ -5476,11 +5330,9 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.32,
+   "seconds": 6.6,
    "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
+   "dressing": {},
    "box_min": [
     -0.85,
     -0.8148,
@@ -5518,7 +5370,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.49,
+   "seconds": 3.25,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5537,7 +5389,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.74,
+   "seconds": 3.15,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5556,7 +5408,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.49,
+   "seconds": 2.53,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5575,7 +5427,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.65,
+   "seconds": 6.34,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5594,7 +5446,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.76,
+   "seconds": 1.8,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5632,7 +5484,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.86,
+   "seconds": 2.44,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5651,7 +5503,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 2.08,
+   "seconds": 2.27,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5670,7 +5522,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.25,
+   "seconds": 2.16,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5689,7 +5541,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.0,
+   "seconds": 4.75,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5708,7 +5560,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 18.69,
+   "seconds": 13.61,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5727,7 +5579,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.27,
+   "seconds": 1.87,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5746,7 +5598,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.5,
+   "seconds": 2.73,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5765,7 +5617,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 2.54,
+   "seconds": 2.93,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5784,7 +5636,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.61,
+   "seconds": 3.05,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5803,7 +5655,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.61,
+   "seconds": 3.29,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5841,7 +5693,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.53,
+   "seconds": 2.34,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5860,7 +5712,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.83,
+   "seconds": 4.02,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5879,7 +5731,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.6,
+   "seconds": 3.55,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5898,7 +5750,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.17,
+   "seconds": 3.88,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5917,7 +5769,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.68,
+   "seconds": 1.92,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5955,7 +5807,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.96,
+   "seconds": 2.87,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5974,7 +5826,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.83,
+   "seconds": 8.93,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -5993,7 +5845,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 19.55,
+   "seconds": 8.99,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6012,7 +5864,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.37,
+   "seconds": 2.82,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6031,7 +5883,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.97,
+   "seconds": 3.14,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6069,7 +5921,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.33,
+   "seconds": 4.6,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6107,7 +5959,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.39,
+   "seconds": 3.85,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6145,7 +5997,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 10.48,
+   "seconds": 16.62,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6164,7 +6016,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 14.03,
+   "seconds": 7.79,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6183,7 +6035,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.64,
+   "seconds": 5.87,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6202,7 +6054,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.9,
+   "seconds": 3.64,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6221,7 +6073,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.76,
+   "seconds": 3.52,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6240,7 +6092,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.74,
+   "seconds": 6.1,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6259,7 +6111,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.51,
+   "seconds": 6.26,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6297,7 +6149,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.54,
+   "seconds": 2.95,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6316,7 +6168,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.14,
+   "seconds": 1.9,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6335,7 +6187,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.04,
+   "seconds": 2.68,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6354,7 +6206,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.7,
+   "seconds": 4.54,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6373,7 +6225,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.44,
+   "seconds": 1.8,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6392,7 +6244,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 16.33,
+   "seconds": 12.01,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6411,7 +6263,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 3.89,
+   "seconds": 3.42,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6430,7 +6282,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.9,
+   "seconds": 2.44,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6449,7 +6301,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 2.95,
+   "seconds": 3.07,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6468,7 +6320,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.69,
+   "seconds": 2.22,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6487,7 +6339,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.44,
+   "seconds": 2.64,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6506,7 +6358,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.86,
+   "seconds": 9.78,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -6525,7 +6377,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 27.15,
+   "seconds": 19.0,
    "warnings": [],
    "dressing": {},
    "box_min": [

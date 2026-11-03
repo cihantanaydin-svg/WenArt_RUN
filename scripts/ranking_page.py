@@ -235,6 +235,7 @@ const TYPES = __TYPES__;
 const NAMES = __NAMES__;
 const GROUPS = __GROUPS__;       // [[group, [types]]]: the group row, then the types of the chosen group
 const SHEETS = __SHEETS__;       // null: the sheets are files beside the page; else {sheet: data URI} (one file)
+const SHEET_VER = __SHEETVER__;  // {sheet: content hash}: a re-rendered sheet gets a new URL (no stale cache)
 const STORE = __STORE__;         // "models": one document per model (scores/<id>); "rater": one per person
 let raterRef = null, saveTimer = null;
 const scores = {};             // id -> rank
@@ -325,7 +326,7 @@ function cardFor(m) {
   const card = document.createElement("article");
   card.className = "card"; card.tabIndex = 0; card.dataset.id = m.id;
   const shot = document.createElement("div"); shot.className = "shot";
-  shot.style.backgroundImage = 'url("' + (SHEETS ? SHEETS[m.sheet] : "sheets/" + m.sheet + ".jpg") + '")';
+  shot.style.backgroundImage = 'url("' + (SHEETS ? SHEETS[m.sheet] : "sheets/" + m.sheet + ".jpg" + (SHEET_VER[m.sheet] ? "?v=" + SHEET_VER[m.sheet] : "")) + '")';
   shot.style.backgroundPosition = m.x + "% " + m.y + "%";
   shot.onclick = () => { const big = $("big"); big.style.backgroundImage = shot.style.backgroundImage;
     big.style.backgroundPosition = shot.style.backgroundPosition; $("zoom").showModal(); };
@@ -521,11 +522,20 @@ def sheet_uris(folder: Path, sheets: list[str]) -> dict:
             for s in sheets}
 
 
+def sheet_versions(folder: Path, sheets: list[str]) -> dict:
+    """``{sheet: first 10 hex of the JPEG's sha256}`` (3 Nov 2026: re-rendered Syncronia sheets kept their file names,
+    so the page asks for ``sheets/<sheet>.jpg?v=<hash>`` and never shows a cached old sheet)."""
+    import hashlib
+    return {s: hashlib.sha256((folder / f"{s}.jpg").read_bytes()).hexdigest()[:10]
+            for s in sheets if (folder / f"{s}.jpg").is_file()}
+
+
 def page(rows: list[dict], types: list[str], rater: bool = False, sheets: dict | None = None,
-         groups: list | None = None) -> str:
+         groups: list | None = None, versions: dict | None = None) -> str:
     title = "Furniture Look Survey" if rater else "Furniture Ranking"
     names = dict(TYPE_NAMES, **{t: type_name(t) for t in types})
     return (PAGE.replace("__SHEETS__", json.dumps(sheets) if sheets else "null")
+            .replace("__SHEETVER__", json.dumps(versions or {}, separators=(",", ":")))
             .replace("__GROUPS__", json.dumps(groups if groups is not None else [["All", list(types)]]))
             .replace("__NAMEBOX__", NAMEBOX if rater else "")
             .replace("__COPY__", "Copy my scores" if rater else "Copy scores as text")
@@ -573,8 +583,9 @@ def main(argv: list[str] | None = None) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     inline = sheet_uris(rk / "sheets", sorted({m["sheet"] for m in rows})) if a.inline else None
     groups = tab_groups(types, procedural)
-    out.write_text(page(rows, types, a.rater, inline, groups), encoding="utf-8")
     sheets = sorted({m["sheet"] for m in rows})
+    versions = None if a.inline else sheet_versions(rk / "sheets", sheets)
+    out.write_text(page(rows, types, a.rater, inline, groups, versions), encoding="utf-8")
     print(json.dumps({"page": str(out), "models": len(rows), "types": types, "sheets": sheets,
                       "groups": [[g, len(ts)] for g, ts in groups]}))
     return 0
