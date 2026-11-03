@@ -270,3 +270,18 @@ def test_a_mesh_cut_by_the_vertex_limit_is_classified_by_its_connected_pieces(tm
     from wenart.assets.audit import glbmesh as GM
     m0 = GM.measure(fixed)
     assert m0["triangles"] == 7 * 12                    # every triangle kept once after the split
+
+
+def test_a_glb_with_latin1_names_is_read(tmp_path):
+    """The Furnitures pod of 3 Nov 2026: Assimp wrote the Latin-1 material names of 3DS files ("Cuir naturel brûlé")
+    into the GLB's JSON chunk; the reader takes them as Windows-1252 instead of stopping the whole zip."""
+    import struct
+    js = '{"asset":{"version":"2.0"},"materials":[{"name":"Cuir brûlé"}]}'.encode("cp1252")
+    js += b" " * (-len(js) % 4)
+    data = struct.pack("<III", 0x46546C67, 2, 12 + 8 + len(js)) + struct.pack("<II", len(js), 0x4E4F534A) + js
+    path = tmp_path / "latin1.glb"
+    path.write_bytes(data)
+    doc, _ = WH.read_glb(path)
+    assert doc["materials"][0]["name"] == "Cuir brûlé"
+    from wenart.assets.audit import glbmesh as GM
+    assert GM.read(path)[0]["materials"][0]["name"] == "Cuir brûlé"

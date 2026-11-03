@@ -479,7 +479,10 @@ def run(args) -> int:
     conv: dict = {}
     for m in models:                                   # 3DS: Assimp first (Blender 5.2 has no 3DS importer built in)
         if m["format"] == ".3ds":
-            r = assimp_convert(Path(m["src"]), work / "converted" / f"{m['id']}.glb")
+            try:
+                r = assimp_convert(Path(m["src"]), work / "converted" / f"{m['id']}.glb")
+            except Exception as exc:  # noqa: BLE001 - one model never stops the run (3 Nov 2026)
+                r = {"ok": False, "tool": "assimp", "error": f"{type(exc).__name__}: {exc}"}
             if r.get("ok"):
                 conv[m["id"]] = dict(r, importer="assimp")
             else:
@@ -493,7 +496,10 @@ def run(args) -> int:
         meta = meta_for(m["rel"], work)
         title = meta_title(meta) or WH.clean_title(PurePosixPath(m["rel"]).parent.name or PurePosixPath(m["rel"]).stem)
         if m["format"] == ".skp":
-            info = skp_info(Path(m["src"]), out / "skp_previews" / f"{n:03d}.png")
+            try:
+                info = skp_info(Path(m["src"]), out / "skp_previews" / f"{n:03d}.png")
+            except OSError as exc:
+                info = {"error": str(exc)}
             rows.append({"n": n, "id": m["id"], "rel": m["rel"], "format": ".skp", "ok": False, "title": title,
                          "meta": meta, "skp": info,
                          "convert_error": "SketchUp file: no open-source reader on Linux; export to GLB or COLLADA "
@@ -512,7 +518,11 @@ def run(args) -> int:
                              "title": title, "meta": meta, "convert_error": err})
                 continue
             glb = work / "converted" / f"{m['id']}.glb"
-        rec = measure_one(m, glb, work, extra)
+        try:
+            rec = measure_one(m, glb, work, extra)
+        except Exception as exc:  # noqa: BLE001 - one model never stops the run
+            rec = {"id": m["id"], "rel": m["rel"], "format": m["format"], "ok": False,
+                   "error": f"{type(exc).__name__}: {exc}"}
         rec.update(n=n, meta=meta, title=title)
         if m["format"] != ".glb":
             rec["convert"] = {k: conv[m["id"]].get(k) for k in ("importer", "objects", "meshes", "images")}

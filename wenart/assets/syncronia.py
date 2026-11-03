@@ -181,7 +181,10 @@ def ingest(zip_path: Path, work: Path, assets: Path, out: Path, blender: Optiona
     conv: dict = {}
     for mdl in models:
         if mdl["format"] == ".3ds":
-            r = ZI.assimp_convert(Path(mdl["src"]), work / "converted" / f"{mdl['id']}.glb")
+            try:
+                r = ZI.assimp_convert(Path(mdl["src"]), work / "converted" / f"{mdl['id']}.glb")
+            except Exception as exc:  # noqa: BLE001 - one model never stops the intake
+                r = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
             if r.get("ok"):
                 conv[mdl["id"]] = dict(r, converter="assimp")
         elif mdl["format"] not in (".glb", ".skp") and mdl["format"] not in NOT_INGESTED:
@@ -195,63 +198,67 @@ def ingest(zip_path: Path, work: Path, assets: Path, out: Path, blender: Optiona
         rel = mdl["rel"]
         meta = ZI.meta_for(rel, work)
         rec: dict = {"rel": rel, "format": mdl["format"], "uid": uid_of(rel), "taken": False}
-        if mdl["format"] in NOT_INGESTED:
-            rec["why"] = NOT_INGESTED[mdl["format"]]
+        try:
+            if mdl["format"] in NOT_INGESTED:
+                rec["why"] = NOT_INGESTED[mdl["format"]]
+                records.append(rec)
+                continue
+            glb = Path(mdl["src"]) if mdl["format"] == ".glb" else work / "converted" / f"{mdl['id']}.glb"
+            if mdl["format"] != ".glb" and mdl["id"] not in conv:
+                rec["why"] = "not converted (no free tool opened it)"
+                records.append(rec)
+                continue
+            types = list(META_TYPES.get(str(meta.get("type") or "").lower(), ()))
+            mrec = ZI.measure_one(mdl, glb, work, types)
+            rec.update({k: mrec.get(k) for k in ("type", "unit", "factor", "up_fix", "fits", "size_error", "box_m",
+                                                 "raw_box", "candidates", "triangles", "error")})
+            rec["converter"] = (conv.get(mdl["id"]) or {}).get("converter", "none")
+            rec["src_sha256"] = WH.sha256_file(Path(mdl["src"]))
+            if not mrec.get("ok"):
+                rec["why"] = f"not measured: {mrec.get('error')}"
+                records.append(rec)
+                continue
+            if not mrec.get("fits") or mrec.get("type") not in (types or [mrec.get("type")]):
+                rec["why"] = f"size outside every real {'/'.join(types) or mrec.get('type')} size: not a proper model"
+                records.append(rec)
+                continue
+            dest = assets / model_rel(rec["uid"])
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(Path(mrec["fixed"]).read_bytes())           # units, up axis, origin (warehouse.fixup)
+            doc, _bin = WH.read_glb(dest)
+            ps = PM.parts(dest)
+            classes = PM.classify(ps, rec["type"])
+            PM.write_debug(out / "parts" / f"{rec['uid']}.json", ps, classes)
+            if classes and PM.needs_materials(doc):
+                rec["material"] = PM.assign(dest, dest, ps, classes)
+                rec["classes"] = rec["material"]["classes"]
+            else:
+                rec["classes"] = {}
+            rec["pillows"] = sum(1 for p, c in zip(ps, classes) if c["class"] == "bedding"
+                                 and (c["by"] == "geometry:pillow" or (c["by"] == "name" and any(
+                                     w in PM._name_tokens(p.get("node"), p.get("mesh_name"), p.get("material_name"))
+                                     for w in ("pillow", "cuscin", "guancial", "oreiller", "kissen", "almohad")))))
+            rec["split_primitives"] = (rec.get("material") or {}).get("split", 0)
+            fr = PM.front_from_parts(ps, classes)
+            m = GM.measure(dest)
+            from wenart.assets.audit import growth_entries as GE
+            g_front, g_conf, g_note = GE.front_of(rec["type"], m.get("stats"))
+            if fr:
+                agree = g_conf != "low" and g_front == fr[0]
+                rec.update(front=fr[0], front_confidence="high" if agree else "medium",
+                           front_note=fr[1] + (f"; geometry agrees ({g_note})" if agree else f"; geometry: {g_note}"))
+            else:
+                rec.update(front=g_front, front_confidence=g_conf, front_note=g_note)
+            rec["sha256"] = WH.sha256_file(dest)
+            rec["taken"] = True
+            e = entry(rec, m, meta, checked)
+            entries.append(e)
+            rec["id"] = e["id"]
+            rec["title"] = e["title"]
             records.append(rec)
-            continue
-        glb = Path(mdl["src"]) if mdl["format"] == ".glb" else work / "converted" / f"{mdl['id']}.glb"
-        if mdl["format"] != ".glb" and mdl["id"] not in conv:
-            rec["why"] = "not converted (no free tool opened it)"
+        except Exception as exc:  # noqa: BLE001 - one model never stops the intake (3 Nov 2026)
+            rec.update(taken=False, why=f"failed: {type(exc).__name__}: {exc}")
             records.append(rec)
-            continue
-        types = list(META_TYPES.get(str(meta.get("type") or "").lower(), ()))
-        mrec = ZI.measure_one(mdl, glb, work, types)
-        rec.update({k: mrec.get(k) for k in ("type", "unit", "factor", "up_fix", "fits", "size_error", "box_m",
-                                             "raw_box", "candidates", "triangles", "error")})
-        rec["converter"] = (conv.get(mdl["id"]) or {}).get("converter", "none")
-        rec["src_sha256"] = WH.sha256_file(Path(mdl["src"]))
-        if not mrec.get("ok"):
-            rec["why"] = f"not measured: {mrec.get('error')}"
-            records.append(rec)
-            continue
-        if not mrec.get("fits") or mrec.get("type") not in (types or [mrec.get("type")]):
-            rec["why"] = f"size outside every real {'/'.join(types) or mrec.get('type')} size: not a proper model"
-            records.append(rec)
-            continue
-        dest = assets / model_rel(rec["uid"])
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_bytes(Path(mrec["fixed"]).read_bytes())           # units, up axis, origin (warehouse.fixup)
-        doc, _bin = WH.read_glb(dest)
-        ps = PM.parts(dest)
-        classes = PM.classify(ps, rec["type"])
-        PM.write_debug(out / "parts" / f"{rec['uid']}.json", ps, classes)
-        if classes and PM.needs_materials(doc):
-            rec["material"] = PM.assign(dest, dest, ps, classes)
-            rec["classes"] = rec["material"]["classes"]
-        else:
-            rec["classes"] = {}
-        rec["pillows"] = sum(1 for p, c in zip(ps, classes) if c["class"] == "bedding"
-                             and (c["by"] == "geometry:pillow" or (c["by"] == "name" and any(
-                                 w in PM._name_tokens(p.get("node"), p.get("mesh_name"), p.get("material_name"))
-                                 for w in ("pillow", "cuscin", "guancial", "oreiller", "kissen", "almohad")))))
-        rec["split_primitives"] = (rec.get("material") or {}).get("split", 0)
-        fr = PM.front_from_parts(ps, classes)
-        m = GM.measure(dest)
-        from wenart.assets.audit import growth_entries as GE
-        g_front, g_conf, g_note = GE.front_of(rec["type"], m.get("stats"))
-        if fr:
-            agree = g_conf != "low" and g_front == fr[0]
-            rec.update(front=fr[0], front_confidence="high" if agree else "medium",
-                       front_note=fr[1] + (f"; geometry agrees ({g_note})" if agree else f"; geometry: {g_note}"))
-        else:
-            rec.update(front=g_front, front_confidence=g_conf, front_note=g_note)
-        rec["sha256"] = WH.sha256_file(dest)
-        rec["taken"] = True
-        e = entry(rec, m, meta, checked)
-        entries.append(e)
-        rec["id"] = e["id"]
-        rec["title"] = e["title"]
-        records.append(rec)
     doc = {"zip": str(zip_path), "checked_utc": checked, "fix_version": FIX_VERSION,
            "taken": sum(1 for r in records if r["taken"]), "listed": len(records), "records": records}
     (out / "ingest_syncronia.json").write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")

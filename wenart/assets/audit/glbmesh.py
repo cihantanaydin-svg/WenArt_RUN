@@ -60,7 +60,8 @@ def read(path) -> tuple[dict, list]:
             clen, ctype = struct.unpack_from("<II", data, off)
             chunk = data[off + 8:off + 8 + clen]
             if ctype == CHUNK_JSON and doc is None:
-                doc = json.loads(chunk.decode("utf-8"))
+                from wenart.assets.warehouse import glb_text      # UTF-8, else Windows-1252 (Assimp's 3DS names)
+                doc = json.loads(glb_text(chunk))
             elif ctype == CHUNK_BIN and binary is None:
                 binary = chunk
             off += 8 + clen + (-clen % 4 if clen % 4 else 0)

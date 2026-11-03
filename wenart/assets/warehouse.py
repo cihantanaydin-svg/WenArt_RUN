@@ -765,6 +765,16 @@ def fix_materials(doc: dict, ftype: str) -> dict:
 # GLB rewrite
 # --------------------------------------------------------------------------
 
+def glb_text(chunk: bytes) -> str:
+    """A GLB's JSON chunk as text: UTF-8 as glTF asks, else Windows-1252 (3 Nov 2026, the user's Furnitures zips:
+    Assimp writes the Latin-1 material and texture names of 3DS files unchanged), so the names survive and the file
+    is written back as UTF-8."""
+    try:
+        return chunk.decode("utf-8")
+    except UnicodeDecodeError:
+        return chunk.decode("cp1252", errors="replace")
+
+
 def read_glb(path) -> tuple[dict, Optional[bytes]]:
     """``(json, BIN chunk bytes or None)`` of a GLB 2.0 file."""
     data = Path(path).read_bytes()
@@ -778,7 +788,7 @@ def read_glb(path) -> tuple[dict, Optional[bytes]]:
         clen, ctype = struct.unpack_from("<II", data, off)
         chunk = data[off + 8:off + 8 + clen]
         if ctype == CHUNK_JSON and doc is None:
-            doc = json.loads(chunk.decode("utf-8"))
+            doc = json.loads(glb_text(chunk))
         elif ctype == CHUNK_BIN and binary is None:
             binary = bytes(chunk)
         off += 8 + clen + (-clen % 4)
