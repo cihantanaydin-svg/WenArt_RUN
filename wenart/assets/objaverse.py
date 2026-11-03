@@ -170,7 +170,8 @@ REAL_SOURCES: tuple[str, ...] = ("abo", "objaverse")       # the generation plan
 # catalog_library.json must sort like every other source in the reports)
 # 3dwh (23 Oct 2026): the 3D Warehouse models of the user's zip (uploads of mixed quality, fixed by
 # wenart/assets/warehouse.py) rank after the curated sources and before Objaverse.
-SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "hssd", "gso", "3dwh", "objaverse", "generated")
+# syncronia (3 Nov 2026): manufacturer product models of the user's beds.zip, after the curated sources (= fit)
+SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "hssd", "gso", "syncronia", "3dwh", "objaverse", "generated")
 DECOR_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art",             # = catalog.DECOR_TYPES
                                  "vase", "bowl", "plant_small", "table_lamp", "mirror",   # Milestone 9 (§3)
                                  # Milestone 10 (docs/milestone10.md §1.1: the building schema's decor types, bar book_set)

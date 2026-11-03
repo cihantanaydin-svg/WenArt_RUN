@@ -176,20 +176,21 @@ def test_ingest_takes_the_proper_bed_with_part_materials_and_a_valid_entry(tmp_p
     cat = json.loads((ROOT / "wenart/furniture/catalog_library.json").read_text(encoding="utf-8"))
     path = tmp_path / "catalog_library.json"
     path.write_text(json.dumps(cat), encoding="utf-8")
+    before = sum(1 for x in cat["entries"] if x.get("source") == "syncronia")
     assert SY.merge(res["entries"], path) == {"added": 1, "replaced": 0}
     assert SY.merge(res["entries"], path) == {"added": 0, "replaced": 1}
     merged = json.loads(path.read_text(encoding="utf-8"))
     C.validate({"entries": [x for x in merged["entries"] if x.get("source") == "syncronia"]}, complete=False)
-    assert "syncronia" in merged["sources"] and merged["counts"]["syncronia"]["entries"] == 1
+    assert "syncronia" in merged["sources"] and merged["counts"]["syncronia"]["entries"] == before + 1
     # the studio batch sees it while pending; the review makes it usable
     rows = S.source_entries("syncronia", entries=merged["entries"])
-    assert [r["id"] for r in rows] == [e["id"]] and rows[0]["tab"] == "syncronia"
+    assert e["id"] in [r["id"] for r in rows] and all(r["tab"] == "syncronia" for r in rows)
     SY.review({e["id"]: {"status": "keep", "notes": ["looks right"]}}, path)
     kept = next(x for x in json.loads(path.read_text())["entries"] if x["id"] == e["id"])
     assert kept["audit"]["status"] == "keep" and C.usable(kept, "relaxed") and not C.usable(kept, "commercial")
     SY.review({e["id"]: {"status": "removed", "reasons": ["not a bed"]}}, path)
     gone = json.loads(path.read_text())["entries"]
-    assert S.source_entries("syncronia", entries=gone) == []
+    assert e["id"] not in [r["id"] for r in S.source_entries("syncronia", entries=gone)]
 
 
 def test_a_source_batch_gets_its_own_sheets_index_tab_and_group(tmp_path):
