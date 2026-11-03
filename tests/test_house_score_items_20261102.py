@@ -223,6 +223,8 @@ def test_the_structure_profile_renders_the_exterior_views_only(tmp_path):
                        {"name": "ext_2", "kind": "exterior"}]}
     assert SC.exterior_cameras(man) == ["ext_1", "ext_2"] and SC.exterior_cameras(None) == []
     assert SC.RunOptions(profile="structure").structure and not SC.RunOptions().structure
+    # 3 Nov 2026: the pod's orchestrator refused the profile (PROFILES lacked it; run 20261103-072111, exit 2)
+    assert "structure" in SC.PROFILES
     assert "structure profile" in ST.SKIP_REASONS
     o = SC.Orchestrator.__new__(SC.Orchestrator)
     o.opts = SC.RunOptions(profile="structure")

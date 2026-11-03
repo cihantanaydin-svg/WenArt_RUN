@@ -159,7 +159,7 @@ SELFTEST_ALIAS = "selftest-02"
 # a normal raster project since M7.
 SELFTEST_SOURCE = "review-01"
 AB_PHASES = ("all", "render", "judge")
-PROFILES = ("full", "smoke")
+PROFILES = ("full", "smoke", "structure")   # structure: 2 Nov 2026 (3 Nov: was missing here, the pod refused it)
 PHASE_NAMES = {
     1: "cpu: intake, pipeline, fit, style",
     2: "vlm glm: recognition, style photos",
@@ -805,7 +805,7 @@ class Orchestrator:
     def setup(self) -> None:
         o = self.opts
         if o.profile not in PROFILES:
-            raise RunError(f"unknown profile {o.profile!r} (full | smoke)")
+            raise RunError(f"unknown profile {o.profile!r} ({' | '.join(PROFILES)})")
         if o.ab_phase not in AB_PHASES:
             raise RunError(f"unknown --ab-phase {o.ab_phase!r} (all | render | judge)")
         if o.smoke and not o.vlm_url:
