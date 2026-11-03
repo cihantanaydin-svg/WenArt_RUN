@@ -1241,6 +1241,9 @@ def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, l
     return new_walls, new_open, bw, site, sw, b_open, TP.outer_loop_problem(bw, b_open)
 
 
+MIRROR_MAX_NEW_WALLS = 3        # mirror twins differ by at most this many walls the other half draws
+
+
 def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
                         problem: Optional[str]):
     """The mirror fixes of a plan of two mirrored halves (``mirror.consistency``), kept when more rooms pair as
@@ -1255,6 +1258,15 @@ def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: li
     if res is None:
         return None
     w5, o5, log = res
+    # 3 Nov 2026 (the regression set: real03, a block of different flat types (1+1 A1, A2, B, 2+1) in a symmetric
+    # shell, got 16 walls and 7 doors copied from one flat type into the other): mirror twins differ by a few slips
+    # (real09: at most one wall); halves that need more walls copied are different layouts
+    new_walls = sum(1 for e in log if str(e).startswith("wall inferred:mirror_twin"))
+    if new_walls > MIRROR_MAX_NEW_WALLS:
+        ex.notes.append(f"{where}: mirror check about {axis[0]} = {axis[1]:.2f}: the halves differ by {new_walls} walls "
+                        f"(over {MIRROR_MAX_NEW_WALLS}): different layouts, not mirror twins; {len(log)} fix(es) not "
+                        f"kept")
+        return None
     before = MR.mirrored_face_pairs(walls2, openings, axis)
     after = MR.mirrored_face_pairs(w5, o5, axis)
     bw5, site5, sw5 = TP.split_plot(w5, o5, blocks, level_id=level_id)

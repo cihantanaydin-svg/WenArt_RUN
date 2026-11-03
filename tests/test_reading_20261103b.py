@@ -225,3 +225,13 @@ def test_a_balcony_closes_where_its_lines_touch_the_facade_by_a_hair():
              {"id": "d", "pts": [(4.7999, 0.32), (0.2302, 0.32)], "layer": "balkon", "closed": False}]
     rec = OD.close_region((2.9, 2.4), lines, facade, None)
     assert rec is not None and 15.0 < rec["area_m2"] < 17.5
+
+
+def test_a_void_marked_with_its_diagonals_closes_its_box():
+    """real07's GALERİ: the box with an X; the label stands in one triangle of the cross."""
+    strokes = _rect(1, 0.0, 0.0, 2.25, 1.6) + [
+        Stroke(id="LINE:90", kind="line", pts=[(0.0, 0.0), (2.25, 1.6)], layer="merdiven"),
+        Stroke(id="LINE:91", kind="line", pts=[(0.0, 1.6), (2.25, 0.0)], layer="merdiven")]
+    voids = VD.read_voids([_text(1, "GALERİ", 1.1, 0.35)], strokes)
+    assert voids and voids[0]["polygon"] and abs(voids[0]["area_m2"] - 3.6) < 0.05
+    assert "diagonals" in voids[0]["reason"]

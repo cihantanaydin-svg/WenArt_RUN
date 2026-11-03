@@ -18,6 +18,7 @@ its free edges (the build's floor-opening rules).
 """
 from __future__ import annotations
 
+import math
 from typing import Optional
 
 from wenart import building as B
@@ -60,6 +61,18 @@ def read_voids(texts: list, strokes: list) -> list[dict]:
                                                   f"closes around the label: no void built"})
             continue
         f = min(faces, key=lambda f: f["polygon"].area)
+        crossed = False
+        ring = list(f["polygon"].simplify(0.01).exterior.coords)
+        main = _main_angle(near)
+        if any(math.dist(a, b) >= 0.3 and not _on_axes({"pts": [a, b]}, main) for a, b in zip(ring[:-1], ring[1:])):
+            # 3 Nov 2026 (real07's GALERİ: a box with its diagonals drawn, the usual mark of an opening in a floor):
+            # the label stands in a triangle of the cross (an outline with an edge askew to the drawing's main
+            # directions); without the lines askew to those directions the box closes
+            square = [s for s in near if _on_axes(s, main)]
+            faces2 = [g for g in OD._faces(anchor, square, None, VOID_GAP_M)
+                      if VOID_AREA_M2[0] <= g["polygon"].area <= VOID_AREA_M2[1]] if square else []
+            if faces2:
+                f, near, crossed = min(faces2, key=lambda g: g["polygon"].area), square, True
         poly = f["polygon"].buffer(-0.002, join_style=2).buffer(0.002, join_style=2)
         if poly.geom_type != "Polygon":
             poly = max(getattr(poly, "geoms", [f["polygon"]]), key=lambda g: g.area)
@@ -76,8 +89,38 @@ def read_voids(texts: list, strokes: list) -> list[dict]:
                     "reason": f"the label '{t.text}' means a void over the floor below; its outline is closed from "
                               f"{len(f['ids'])} drawn stroke(s) on {', '.join(repr(x) for x in layers[:3])}"
                               + (f" ({len(bridges)} gap(s) of up to {max(bridges):.2f} m bridged)" if bridges
-                                 else "") + f": {poly.area:.2f} m2"})
+                                 else "") + ("; the diagonals marking it left out" if crossed else "")
+                              + f": {poly.area:.2f} m2"})
     return out
+
+
+def _angles(st: dict) -> list[tuple[float, float]]:
+    pts = st["pts"]
+    out = []
+    for a, b in zip(pts[:-1], pts[1:]):
+        L = math.dist(a, b)
+        if L > 1e-6:
+            out.append((math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) % 90.0, L))
+    return out
+
+
+def _main_angle(strokes: list) -> float:
+    """The drawing's main direction near the label (degrees modulo 90): the length-weighted mode in 2 degree bins."""
+    bins: dict = {}
+    for st in strokes:
+        for ang, L in _angles(st):
+            k = int(round(ang / 2.0)) % 45
+            bins[k] = bins.get(k, 0.0) + L
+    return 2.0 * max(bins, key=bins.get) if bins else 0.0
+
+
+def _on_axes(st: dict, main: float, tol: float = 3.0) -> bool:
+    """Every segment of the stroke runs along the main direction or across it (within ``tol`` degrees)."""
+    for ang, _L in _angles(st):
+        d = abs(ang - main) % 90.0
+        if min(d, 90.0 - d) > tol:
+            return False
+    return True
 
 
 def room_labels(blocks: list, voids: Optional[list], faces: list) -> tuple[list, list[str]]:

@@ -3252,3 +3252,28 @@ Open (next): the facades of real09 and real13 are glazed corners and runs with n
 real08's sheet is read as one region; real12's plans titled only by elevation stay unplaced (its titled plans give no
 elevation); real03's glass screen between the windbreak and the hall's lobby (layer CAM-PER) is not built (needs a
 glass partition in the build), and its 9 thin 0.8-0.9 m pieces are likely shower screens, built as walls.
+
+## Reading from the user's checks of real09 (3 Nov 2026, lessons UL274-UL284)
+
+The user checked the real09 sheets ("use my vision and understanding to reinforce the decision", "use me more") and
+corrected the reading; every correction is a general rule and a lesson:
+
+| rule | user's words / case | before | now |
+|---|---|---|---|
+| rooms whose facade is drawn as window and door frames are closed along the frames (inferred walls carrying the drawn openings) | "go ahead with the glazed facades" (real09, real07) | living rooms open, levels left out; real07: 14 invented walls outside the facade | closed; real07's walls outside the facade gone |
+| an empty gap into a small doorless space with windows onto it is a facade recess (outside); enclosed, it is a light well | "there is not wall in the purple section" | a phantom wall, a "light well" | the recess open |
+| two mirrored halves: thickness, missing walls and openings made consistent; only twins (walls overlap 90 %, at most 3 walls copied) | "Most of these drawings are mirrored" | one flat half read | both flats alike; real01 / real03 (not twins) untouched |
+| storeys take their floor marks from the sections; plans titled by an elevation map to storeys | "check the other sections" (B-B: 0.00 / 2.50 / 5.50 / 8.50 / 11.50) | 2 of 5 levels placed, L-1 at -8.60 | 5 levels at the section's marks |
+| the room holding the stair that stacks on 3+ levels is the stair core | "it's the main shaft with the stairs" | "Oda (hall)" | Merdiven, L-1 to L3 |
+| tile grids are no stairs | (real09: six false stairs, a bathroom named Merdiven) | 6 false stairs | none |
+| balconies are shown on the sheets and mirrored to the unlabelled half | "are you showing the balkons here?" | one flat's balconies | both |
+| a plan with no axis grid and no lift is placed by its stair-layer lines on the floor below | "the attic must sit over its stair core" | attic 3.70 m off | on the stairs (mm); the check measures it too |
+| galeri / boşluk / void labels are floor openings (the drawn box, with its X diagonals left out) | "a 'galeri' void over the floor below" | floors over the voids | 4 voids in real09's attic, real07's GALERİ |
+| numbered treads describe the stair (two arms, the turn a landing with winders) | "inner stair (winders 1-17)" | two untyped boxes | four U stairs with 6-7 winders |
+| balcony lines touching the facade by a hair close | (real09's left attic terrace open by 3 mm) | 2 of 3 terraces | 3 terraces |
+
+Process: the reading check now reports the sheets' own review reasons as critical (a pod's sheets stage stops on them;
+UL284). Two short real10 structure runs built nothing (the structure profile missing from the orchestrator's list; then
+sheets.json failing its schema on the new registration methods), a third pod never started its container; all fixed,
+the fourth runs. Still open: the 20 cm walls along real09's tiled roof strips (parapet or roof edge, asked), the core
+stair read as one straight flight (three runs), the regression set on the final code.
