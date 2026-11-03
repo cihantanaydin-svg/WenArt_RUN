@@ -63,7 +63,6 @@ import math
 from collections import Counter
 from typing import Any, Iterable, Optional
 
-import jsonschema
 
 from wenart.synthetic.blocks import BLOCKS
 
@@ -478,6 +477,11 @@ LAYOUT: dict[str, Any] = {
 
 def validation_errors(data: Any) -> list[str]:
     """All violations of the layout schema as readable strings (empty = valid)."""
+    # 3 Nov 2026 (real10 structure run 20261103-080610-full: the build stopped inside Blender on "No module named
+    # 'jsonschema'": the architect's door rule imports furniture.doorway -> placer -> this module, and Blender's own
+    # Python has no jsonschema): imported only where a layout is validated
+    import jsonschema
+
     validator = jsonschema.Draft202012Validator(LAYOUT)
     errors = sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path))
     out = []
