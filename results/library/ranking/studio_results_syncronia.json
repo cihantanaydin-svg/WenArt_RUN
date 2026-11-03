@@ -1,8 +1,8 @@
 {
  "version": "ul217.1",
- "models": 419,
- "ok": 414,
- "failed": 5,
+ "models": 334,
+ "ok": 334,
+ "failed": 0,
  "rows": {
   "syncronia_005bd5901ccf7acef31271e8": {
    "ok": true,
@@ -872,7 +872,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 18.49,
+   "seconds": 8.24,
    "warnings": [],
    "dressing": {},
    "box_min": [
@@ -924,66 +924,6 @@
     1.1323
    ],
    "rendered": true
-  },
-  "syncronia_a871031622256873e4dffa7b": {
-   "ok": false,
-   "error": "not built as asked: ?",
-   "method": "?",
-   "fallback_reason": null,
-   "seconds": 0.0,
-   "warnings": [
-    "studio_piece: furniture type 'bathroom_set' has no parametric builder; proxy box used"
-   ],
-   "dressing": {},
-   "rendered": false
-  },
-  "syncronia_c08b239292d1a793d90c0131": {
-   "ok": false,
-   "error": "not built as asked: ?",
-   "method": "?",
-   "fallback_reason": null,
-   "seconds": 0.0,
-   "warnings": [
-    "studio_piece: furniture type 'bathroom_set' has no parametric builder; proxy box used"
-   ],
-   "dressing": {},
-   "rendered": false
-  },
-  "syncronia_e236ecabc414e01063af8147": {
-   "ok": false,
-   "error": "not built as asked: ?",
-   "method": "?",
-   "fallback_reason": null,
-   "seconds": 0.02,
-   "warnings": [
-    "studio_piece: furniture type 'bathroom_set' has no parametric builder; proxy box used"
-   ],
-   "dressing": {},
-   "rendered": false
-  },
-  "syncronia_fbe8e3d4c3ca6e6ff302323c": {
-   "ok": false,
-   "error": "not built as asked: ?",
-   "method": "?",
-   "fallback_reason": null,
-   "seconds": 0.0,
-   "warnings": [
-    "studio_piece: furniture type 'bathroom_set' has no parametric builder; proxy box used"
-   ],
-   "dressing": {},
-   "rendered": false
-  },
-  "syncronia_fde82bec42c8a0cc23bb919f": {
-   "ok": false,
-   "error": "not built as asked: ?",
-   "method": "?",
-   "fallback_reason": null,
-   "seconds": 0.0,
-   "warnings": [
-    "studio_piece: furniture type 'bathroom_set' has no parametric builder; proxy box used"
-   ],
-   "dressing": {},
-   "rendered": false
   },
   "syncronia_0556e173f8cdcb598bd7b568": {
    "ok": true,
@@ -1058,63 +998,6 @@
     0.4503,
     0.8417,
     0.57
-   ],
-   "rendered": true
-  },
-  "syncronia_592a1e6940d0c2ef22632d33": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 11.14,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.4197,
-    -0.8423,
-    0.0
-   ],
-   "box_max": [
-    0.4197,
-    0.8423,
-    0.6836
-   ],
-   "rendered": true
-  },
-  "syncronia_8013eafb68202a3cb81b9060": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 10.06,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.3036,
-    -0.6515,
-    0.0
-   ],
-   "box_max": [
-    0.3036,
-    0.6515,
-    0.7035
-   ],
-   "rendered": true
-  },
-  "syncronia_b6a24b2089569919253dfddf": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 7.52,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.6185,
-    -0.4742,
-    0.0
-   ],
-   "box_max": [
-    0.6185,
-    0.4741,
-    0.7927
    ],
    "rendered": true
   },
@@ -1460,44 +1343,6 @@
    ],
    "rendered": true
   },
-  "syncronia_f36cf65e26bfd030f8ed1ed7": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 13.21,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.3,
-    -0.95,
-    0.0
-   ],
-   "box_max": [
-    0.3,
-    0.95,
-    0.4586
-   ],
-   "rendered": true
-  },
-  "syncronia_f98ca729932579cbdec7ae63": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 11.61,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.5,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.5,
-    0.25,
-    0.4501
-   ],
-   "rendered": true
-  },
   "syncronia_fc659d0e72c0dd684a687366": {
    "ok": true,
    "method": "library",
@@ -1514,25 +1359,6 @@
     0.65,
     0.195,
     0.438
-   ],
-   "rendered": true
-  },
-  "syncronia_1f5c4820beb11b6b317715bd": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 19.53,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.4001,
-    -0.1608,
-    0.0
-   ],
-   "box_max": [
-    0.4001,
-    0.1608,
-    1.5
    ],
    "rendered": true
   },
@@ -1635,7 +1461,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.81,
+   "seconds": 3.74,
    "warnings": [],
    "box_min": [
     -0.081,
@@ -1653,7 +1479,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.44,
+   "seconds": 4.76,
    "warnings": [],
    "box_min": [
     -0.2092,
@@ -1671,7 +1497,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 7.05,
+   "seconds": 4.77,
    "warnings": [],
    "box_min": [
     -0.1027,
@@ -1689,7 +1515,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.18,
+   "seconds": 3.77,
    "warnings": [],
    "box_min": [
     -0.1303,
@@ -1703,49 +1529,11 @@
    ],
    "rendered": true
   },
-  "syncronia_1cfc07c4ea63aac4949c3e7b": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 5.03,
-   "warnings": [
-    "decor ceiling_light studio_item (no host): size [1.0668, 1.0668, 0.0635] capped at 0.6 m"
-   ],
-   "box_min": [
-    -0.5334,
-    -0.5334,
-    1.2
-   ],
-   "box_max": [
-    0.5334,
-    0.5334,
-    1.2635
-   ],
-   "rendered": true
-  },
-  "syncronia_3d27392d4c87c632824212ad": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 7.73,
-   "warnings": [],
-   "box_min": [
-    -0.0899,
-    -0.0856,
-    1.2
-   ],
-   "box_max": [
-    0.0899,
-    0.0856,
-    1.28
-   ],
-   "rendered": true
-  },
   "syncronia_53b71c1b52ad5f07a628984e": {
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.89,
+   "seconds": 4.68,
    "warnings": [],
    "box_min": [
     -0.2005,
@@ -1759,87 +1547,11 @@
    ],
    "rendered": true
   },
-  "syncronia_710baae01e750e502f972d07": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 6.82,
-   "warnings": [
-    "decor ceiling_light studio_item (no host): size [1.0208, 1.2598, 0.61] capped at 0.6 m"
-   ],
-   "box_min": [
-    -0.5104,
-    -0.6299,
-    1.2
-   ],
-   "box_max": [
-    0.5104,
-    0.6299,
-    1.81
-   ],
-   "rendered": true
-  },
-  "syncronia_75d282840d40b152550c1728": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 9.99,
-   "warnings": [
-    "decor ceiling_light studio_item (no host): size [0.7104, 0.9881, 0.58] capped at 0.6 m"
-   ],
-   "box_min": [
-    -0.3552,
-    -0.494,
-    1.2
-   ],
-   "box_max": [
-    0.3552,
-    0.494,
-    1.78
-   ],
-   "rendered": true
-  },
-  "syncronia_8a3991ff64c85a4067a12fb8": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 7.32,
-   "warnings": [],
-   "box_min": [
-    -0.0865,
-    -0.0954,
-    1.2
-   ],
-   "box_max": [
-    0.0865,
-    0.0954,
-    1.252
-   ],
-   "rendered": true
-  },
-  "syncronia_9a4c15266dcecc5959092f15": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 6.09,
-   "warnings": [],
-   "box_min": [
-    -0.1104,
-    -0.1104,
-    1.2
-   ],
-   "box_max": [
-    0.1104,
-    0.1104,
-    1.23
-   ],
-   "rendered": true
-  },
   "syncronia_bab86cc9ec1e8dd6ae5618f2": {
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.46,
+   "seconds": 4.69,
    "warnings": [],
    "box_min": [
     -0.0576,
@@ -1853,31 +1565,11 @@
    ],
    "rendered": true
   },
-  "syncronia_c0bd667ec26241f9f5cdc3dc": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 6.41,
-   "warnings": [
-    "decor ceiling_light studio_item (no host): size [0.53, 0.9738, 0.58] capped at 0.6 m"
-   ],
-   "box_min": [
-    -0.265,
-    -0.4869,
-    1.2
-   ],
-   "box_max": [
-    0.265,
-    0.4869,
-    1.78
-   ],
-   "rendered": true
-  },
   "syncronia_c9164c213f4980ae60bb85f8": {
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.47,
+   "seconds": 4.76,
    "warnings": [
     "decor ceiling_light studio_item (no host): size [0.5, 0.5, 0.6343] capped at 0.6 m"
    ],
@@ -1897,7 +1589,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 10.9,
+   "seconds": 3.44,
    "warnings": [],
    "box_min": [
     -0.1672,
@@ -4129,44 +3821,6 @@
    ],
    "rendered": true
   },
-  "syncronia_571a9744a69655e400d851a6": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 10.36,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.2752,
-    -0.5247,
-    0.0
-   ],
-   "box_max": [
-    0.2752,
-    0.5247,
-    0.7249
-   ],
-   "rendered": true
-  },
-  "syncronia_7bfe35cb34f000e5ab0f8a0c": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 8.58,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.225,
-    -0.2628,
-    0.0
-   ],
-   "box_max": [
-    0.225,
-    0.2628,
-    2.3197
-   ],
-   "rendered": true
-  },
   "syncronia_e54dfe6aae3151c2b7c2e374": {
    "ok": true,
    "method": "library",
@@ -4272,7 +3926,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 168.36,
+   "seconds": 91.53,
    "warnings": [],
    "box_min": [
     -0.4915,
@@ -4290,7 +3944,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.41,
+   "seconds": 2.1,
    "warnings": [],
    "box_min": [
     -0.061,
@@ -4308,7 +3962,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 17.6,
+   "seconds": 5.3,
    "warnings": [],
    "box_min": [
     -0.3732,
@@ -4326,7 +3980,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.87,
+   "seconds": 2.06,
    "warnings": [],
    "box_min": [
     -0.151,
@@ -4344,7 +3998,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.62,
+   "seconds": 5.44,
    "warnings": [],
    "box_min": [
     -0.13,
@@ -4358,47 +4012,11 @@
    ],
    "rendered": true
   },
-  "syncronia_5f4593de55d4021cd2724d22": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 2.97,
-   "warnings": [],
-   "box_min": [
-    -0.2499,
-    -0.0411,
-    1.2
-   ],
-   "box_max": [
-    0.2499,
-    0.0916,
-    3.5998
-   ],
-   "rendered": true
-  },
-  "syncronia_67299561f4c6630d9ac75f35": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 8.36,
-   "warnings": [],
-   "box_min": [
-    -0.089,
-    -0.116,
-    1.2
-   ],
-   "box_max": [
-    0.089,
-    0.116,
-    1.6413
-   ],
-   "rendered": true
-  },
   "syncronia_7fd858a4030cc427c2f47d73": {
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.1,
+   "seconds": 1.33,
    "warnings": [],
    "box_min": [
     -0.0607,
@@ -4416,7 +4034,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 69.45,
+   "seconds": 15.24,
    "warnings": [],
    "box_min": [
     -0.7365,
@@ -4434,7 +4052,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.99,
+   "seconds": 2.22,
    "warnings": [],
    "box_min": [
     -0.0798,
@@ -4448,29 +4066,11 @@
    ],
    "rendered": true
   },
-  "syncronia_95d2f9b8cfb5854a3f48e650": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 5.5,
-   "warnings": [],
-   "box_min": [
-    -0.0785,
-    -0.1615,
-    1.2
-   ],
-   "box_max": [
-    0.0785,
-    0.1615,
-    1.6675
-   ],
-   "rendered": true
-  },
   "syncronia_9ed75a9e66e04b50b87ff7cd": {
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 4.26,
+   "seconds": 1.22,
    "warnings": [],
    "box_min": [
     -0.2595,
@@ -4484,29 +4084,11 @@
    ],
    "rendered": true
   },
-  "syncronia_a3c1a7f44dc53cbb9ccd2cb7": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 9.87,
-   "warnings": [],
-   "box_min": [
-    -0.1046,
-    -0.1295,
-    1.2
-   ],
-   "box_max": [
-    0.1046,
-    0.1295,
-    1.6413
-   ],
-   "rendered": true
-  },
   "syncronia_b3e11c78f4250aa07be575d5": {
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.54,
+   "seconds": 1.78,
    "warnings": [],
    "box_min": [
     -0.0641,
@@ -4520,29 +4102,11 @@
    ],
    "rendered": true
   },
-  "syncronia_b67c5e4da75b0a3ff6c36632": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 4.64,
-   "warnings": [],
-   "box_min": [
-    -0.4423,
-    -0.2372,
-    1.2
-   ],
-   "box_max": [
-    0.4423,
-    0.2372,
-    1.7256
-   ],
-   "rendered": true
-  },
   "syncronia_c0708fe4059d3b52d95f01b3": {
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 8.06,
+   "seconds": 1.85,
    "warnings": [],
    "box_min": [
     -0.1057,
@@ -4560,7 +4124,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 5.14,
+   "seconds": 2.83,
    "warnings": [],
    "box_min": [
     -0.076,
@@ -4578,7 +4142,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 2.92,
+   "seconds": 1.14,
    "warnings": [],
    "box_min": [
     -0.0612,
@@ -4592,29 +4156,11 @@
    ],
    "rendered": true
   },
-  "syncronia_f59465bd577b79d253ae8592": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 6.28,
-   "warnings": [],
-   "box_min": [
-    -0.0591,
-    -0.116,
-    1.2
-   ],
-   "box_max": [
-    0.0609,
-    0.116,
-    1.6438
-   ],
-   "rendered": true
-  },
   "syncronia_fd7adb7a94e7f3fe4e71f758": {
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 11.32,
+   "seconds": 4.49,
    "warnings": [],
    "box_min": [
     -0.4927,
@@ -4663,63 +4209,6 @@
     0.225,
     0.225,
     0.455
-   ],
-   "rendered": true
-  },
-  "syncronia_8fcb967e1b0ed3e1b3eefede": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 12.49,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.2033,
-    -0.2301,
-    0.0
-   ],
-   "box_max": [
-    0.2033,
-    0.2301,
-    0.4324
-   ],
-   "rendered": true
-  },
-  "syncronia_befd74185c08eb8a6569075d": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 5.72,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.2033,
-    -0.2319,
-    0.0
-   ],
-   "box_max": [
-    0.2033,
-    0.2319,
-    0.4343
-   ],
-   "rendered": true
-  },
-  "syncronia_dd887e0c7a555269ed5e6d4d": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 2.25,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.2,
-    -0.15,
-    0.0
-   ],
-   "box_max": [
-    0.2,
-    0.15,
-    0.4
    ],
    "rendered": true
   },
@@ -4929,27 +4418,6 @@
    ],
    "rendered": true
   },
-  "syncronia_24860249357abe20a69a997e": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 12.84,
-   "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
-   "box_min": [
-    -0.7336,
-    -0.4115,
-    0.0
-   ],
-   "box_max": [
-    0.7336,
-    0.4115,
-    0.4378
-   ],
-   "rendered": true
-  },
   "syncronia_289c01d30f4c9785cf35a8b2": {
    "ok": true,
    "method": "library",
@@ -5122,7 +4590,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 9.58,
+   "seconds": 3.45,
    "warnings": [],
    "dressing": {
     "fabric_dressing": true
@@ -5687,7 +5155,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 12.71,
+   "seconds": 4.18,
    "warnings": [],
    "dressing": {
     "fabric_dressing": true
@@ -5813,7 +5281,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 10.31,
+   "seconds": 3.67,
    "warnings": [],
    "dressing": {
     "fabric_dressing": true
@@ -5914,32 +5382,11 @@
    ],
    "rendered": true
   },
-  "syncronia_ff7cad3a693be185746e6bc0": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 6.86,
-   "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
-   "box_min": [
-    -0.7424,
-    -0.4047,
-    0.0
-   ],
-   "box_max": [
-    0.7424,
-    0.4047,
-    1.1501
-   ],
-   "rendered": true
-  },
   "syncronia_ffd91f1f69d2a4304b0ed80f": {
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 10.07,
+   "seconds": 3.93,
    "warnings": [],
    "dressing": {
     "fabric_dressing": true
@@ -5977,27 +5424,6 @@
    ],
    "rendered": true
   },
-  "syncronia_0be6ab7bdffe2d4ded83908b": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 9.51,
-   "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
-   "box_min": [
-    -1.1684,
-    -1.1684,
-    0.0
-   ],
-   "box_max": [
-    1.1684,
-    1.1684,
-    1.016
-   ],
-   "rendered": true
-  },
   "syncronia_0df74ed5550c31e224357157": {
    "ok": true,
    "method": "library",
@@ -6016,27 +5442,6 @@
     1.4674,
     1.0375,
     0.8358
-   ],
-   "rendered": true
-  },
-  "syncronia_31ee6c49e162be995d23d30a": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 7.03,
-   "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
-   "box_min": [
-    -1.2954,
-    -1.2954,
-    0.0
-   ],
-   "box_max": [
-    1.2954,
-    1.2954,
-    1.016
    ],
    "rendered": true
   },
@@ -6084,7 +5489,7 @@
    "ok": true,
    "method": "library",
    "fallback_reason": null,
-   "seconds": 6.87,
+   "seconds": 2.62,
    "warnings": [],
    "dressing": {
     "fabric_dressing": true
@@ -6098,27 +5503,6 @@
     1.6249,
     1.1511,
     0.8221
-   ],
-   "rendered": true
-  },
-  "syncronia_d4679cc10d485383d914440c": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 8.17,
-   "warnings": [],
-   "dressing": {
-    "fabric_dressing": true
-   },
-   "box_min": [
-    -1.1684,
-    -1.2954,
-    0.0
-   ],
-   "box_max": [
-    1.1684,
-    1.2954,
-    1.016
    ],
    "rendered": true
   },
@@ -6635,25 +6019,6 @@
    ],
    "rendered": true
   },
-  "syncronia_1e8a217355f8ae987740ff39": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 8.11,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.3278,
-    -0.5508,
-    0.0
-   ],
-   "box_max": [
-    0.3278,
-    0.5508,
-    0.6556
-   ],
-   "rendered": true
-  },
   "syncronia_352fd9c1925c4888eba55265": {
    "ok": true,
    "method": "library",
@@ -6670,25 +6035,6 @@
     0.9007,
     0.4528,
     0.7445
-   ],
-   "rendered": true
-  },
-  "syncronia_3b4e43e00eb3d707931d2e9f": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 6.56,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.5,
-    -0.5,
-    0.0
-   ],
-   "box_max": [
-    0.5,
-    0.5,
-    0.72
    ],
    "rendered": true
   },
@@ -6768,44 +6114,6 @@
    ],
    "rendered": true
   },
-  "syncronia_5e49488bec3fa1c3594433d1": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 4.31,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.325,
-    -0.4995,
-    0.0
-   ],
-   "box_max": [
-    0.325,
-    0.4995,
-    0.72
-   ],
-   "rendered": true
-  },
-  "syncronia_5ee7ae299e4026ee7fcf847e": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 7.6,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -1.8221,
-    -0.45,
-    0.0
-   ],
-   "box_max": [
-    1.8221,
-    0.45,
-    0.741
-   ],
-   "rendered": true
-  },
   "syncronia_62bd9a0a4ad2670f6e230f41": {
    "ok": true,
    "method": "library",
@@ -6822,25 +6130,6 @@
     1.1004,
     0.4848,
     0.7288
-   ],
-   "rendered": true
-  },
-  "syncronia_6abcce1a44f1b50f6f26b602": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 5.26,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -1.25,
-    -0.555,
-    0.0
-   ],
-   "box_max": [
-    1.25,
-    0.555,
-    0.8
    ],
    "rendered": true
   },
@@ -6939,25 +6228,6 @@
    ],
    "rendered": true
   },
-  "syncronia_9c818eca6f2920d071b07c4a": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 7.08,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.4,
-    -0.4,
-    0.0
-   ],
-   "box_max": [
-    0.4,
-    0.4,
-    0.72
-   ],
-   "rendered": true
-  },
   "syncronia_9e19b856935acefd68e351cb": {
    "ok": true,
    "method": "library",
@@ -7050,25 +6320,6 @@
     1.2,
     0.5,
     0.73
-   ],
-   "rendered": true
-  },
-  "syncronia_c1643a2241da1e83dcea5065": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 4.8,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -1.5,
-    -0.555,
-    0.0
-   ],
-   "box_max": [
-    1.5,
-    0.555,
-    0.8
    ],
    "rendered": true
   },
@@ -7224,25 +6475,6 @@
    ],
    "rendered": true
   },
-  "syncronia_e94538e67afb511be062b2aa": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 8.84,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -1.1974,
-    -0.365,
-    0.0
-   ],
-   "box_max": [
-    1.1974,
-    0.365,
-    0.6
-   ],
-   "rendered": true
-  },
   "syncronia_efa2c80dccea6ce4c448252b": {
    "ok": true,
    "method": "library",
@@ -7297,823 +6529,6 @@
     1.0,
     0.4,
     0.7296
-   ],
-   "rendered": true
-  },
-  "syncronia_0b642d52edfda3242a3e6965": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 12.47,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.395,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.395,
-    0.25,
-    0.2272
-   ],
-   "rendered": true
-  },
-  "syncronia_0f9206d934f844a5c9e0c70b": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 22.4,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.44,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.44,
-    0.25,
-    0.2244
-   ],
-   "rendered": true
-  },
-  "syncronia_135accccbf671679a209605a": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 33.1,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.3,
-    -0.265,
-    0.0
-   ],
-   "box_max": [
-    0.3,
-    0.265,
-    0.2522
-   ],
-   "rendered": true
-  },
-  "syncronia_1a26f30b9afcee9cc9e12742": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 22.2,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.395,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.395,
-    0.25,
-    0.2381
-   ],
-   "rendered": true
-  },
-  "syncronia_1be230250b020276681c155a": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 50.64,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.5,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.5,
-    0.25,
-    0.2272
-   ],
-   "rendered": true
-  },
-  "syncronia_1c66f9c5d98fa9da02b3c18c": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 20.97,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.2,
-    -0.2,
-    0.0
-   ],
-   "box_max": [
-    0.2,
-    0.2,
-    0.2272
-   ],
-   "rendered": true
-  },
-  "syncronia_1d182d7854d7456e963af914": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 4.12,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.2098,
-    -0.21,
-    0.0
-   ],
-   "box_max": [
-    0.2098,
-    0.21,
-    0.4799
-   ],
-   "rendered": true
-  },
-  "syncronia_1e034898651dc48ed8543894": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 3.38,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.2195,
-    -0.209,
-    0.0
-   ],
-   "box_max": [
-    0.2195,
-    0.209,
-    0.9
-   ],
-   "rendered": true
-  },
-  "syncronia_204367323aedaca45331e980": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 45.45,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.5,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.5,
-    0.25,
-    0.236
-   ],
-   "rendered": true
-  },
-  "syncronia_22a8eab6296adcdce8052168": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 22.92,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.275,
-    -0.225,
-    0.0
-   ],
-   "box_max": [
-    0.275,
-    0.225,
-    0.2322
-   ],
-   "rendered": true
-  },
-  "syncronia_2517f6d32f22ad69ae1c1a51": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 41.82,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.43,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.43,
-    0.25,
-    0.2271
-   ],
-   "rendered": true
-  },
-  "syncronia_254f97ccf6aee91e63e2adab": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 8.44,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.228,
-    -0.228,
-    0.0
-   ],
-   "box_max": [
-    0.228,
-    0.228,
-    0.2385
-   ],
-   "rendered": true
-  },
-  "syncronia_25d9a7409e1906af42354d29": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 10.19,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.278,
-    -0.228,
-    0.0
-   ],
-   "box_max": [
-    0.278,
-    0.228,
-    0.2323
-   ],
-   "rendered": true
-  },
-  "syncronia_2e5ba7abbdd0a67e99da706b": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 23.26,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.5,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.5,
-    0.25,
-    0.2321
-   ],
-   "rendered": true
-  },
-  "syncronia_39080821d89914bd39e9fbcc": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 37.19,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.3825,
-    -0.255,
-    0.0
-   ],
-   "box_max": [
-    0.3825,
-    0.255,
-    0.2276
-   ],
-   "rendered": true
-  },
-  "syncronia_3eaf9bf6fecf6b7a983e09b0": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 5.43,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.2099,
-    -0.2099,
-    0.0
-   ],
-   "box_max": [
-    0.2099,
-    0.2099,
-    0.2
-   ],
-   "rendered": true
-  },
-  "syncronia_4bc435238e27eae826240809": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 17.49,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.1888,
-    -0.1888,
-    0.0
-   ],
-   "box_max": [
-    0.1888,
-    0.1887,
-    0.2025
-   ],
-   "rendered": true
-  },
-  "syncronia_4fe87bbeab850da3c2de3654": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 11.55,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.2175,
-    -0.2175,
-    0.0
-   ],
-   "box_max": [
-    0.2175,
-    0.2175,
-    0.2129
-   ],
-   "rendered": true
-  },
-  "syncronia_4ff7be6041cfed0b16894423": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 19.78,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.278,
-    -0.228,
-    0.0
-   ],
-   "box_max": [
-    0.278,
-    0.228,
-    0.2385
-   ],
-   "rendered": true
-  },
-  "syncronia_55e79d6c17b263d8f02e8b9d": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 6.82,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.395,
-    -0.227,
-    0.0
-   ],
-   "box_max": [
-    0.395,
-    0.227,
-    0.2272
-   ],
-   "rendered": true
-  },
-  "syncronia_5851af623ebe4a1e4ee8f937": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 8.29,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.2005,
-    -0.2737,
-    0.0
-   ],
-   "box_max": [
-    0.2005,
-    0.2737,
-    0.1822
-   ],
-   "rendered": true
-  },
-  "syncronia_594d14a47b64dd96092a344b": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 15.25,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.43,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.43,
-    0.25,
-    0.2162
-   ],
-   "rendered": true
-  },
-  "syncronia_6c4bd5123f8f1f9b65ade79f": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 20.23,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.245,
-    -0.255,
-    0.0
-   ],
-   "box_max": [
-    0.245,
-    0.255,
-    0.2122
-   ],
-   "rendered": true
-  },
-  "syncronia_7af515d7afee22fed3b484be": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 9.68,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.228,
-    -0.228,
-    0.0
-   ],
-   "box_max": [
-    0.228,
-    0.228,
-    0.2323
-   ],
-   "rendered": true
-  },
-  "syncronia_88132df7625212a3f58b54be": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 19.06,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.203,
-    -0.228,
-    0.0
-   ],
-   "box_max": [
-    0.203,
-    0.228,
-    0.2385
-   ],
-   "rendered": true
-  },
-  "syncronia_88e7de4c3a607244e292d6b8": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 16.87,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.285,
-    -0.255,
-    0.0
-   ],
-   "box_max": [
-    0.285,
-    0.255,
-    0.2122
-   ],
-   "rendered": true
-  },
-  "syncronia_8b24ad500329205e4d6b35db": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 34.91,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.43,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.43,
-    0.25,
-    0.2321
-   ],
-   "rendered": true
-  },
-  "syncronia_95859eeb2e0c00f19f8863a0": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 20.4,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.43,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.43,
-    0.25,
-    0.2358
-   ],
-   "rendered": true
-  },
-  "syncronia_99fbda33d2256a71913269ec": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 32.63,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.5,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.5,
-    0.25,
-    0.2272
-   ],
-   "rendered": true
-  },
-  "syncronia_9b206f6a64d197f20a22fd36": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 29.38,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.43,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.43,
-    0.25,
-    0.2327
-   ],
-   "rendered": true
-  },
-  "syncronia_9f398ac3d7443ccd2d814e34": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 44.68,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.5,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.5,
-    0.25,
-    0.2321
-   ],
-   "rendered": true
-  },
-  "syncronia_ae1322c029353a3588ccafe9": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 30.26,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.51,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.51,
-    0.25,
-    0.2242
-   ],
-   "rendered": true
-  },
-  "syncronia_b0a2fb5026c645ebee8b2c5f": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 22.97,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.225,
-    -0.215,
-    0.0
-   ],
-   "box_max": [
-    0.225,
-    0.215,
-    0.2322
-   ],
-   "rendered": true
-  },
-  "syncronia_b22171cf6d0dd53957830d76": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 47.52,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.43,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.43,
-    0.25,
-    0.2272
-   ],
-   "rendered": true
-  },
-  "syncronia_b35a8d307e79092faef1e2f9": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 21.02,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.285,
-    -0.255,
-    0.0
-   ],
-   "box_max": [
-    0.285,
-    0.255,
-    0.2122
-   ],
-   "rendered": true
-  },
-  "syncronia_bfe475f78738fc97f2b9606f": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 30.69,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.43,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.43,
-    0.25,
-    0.2272
-   ],
-   "rendered": true
-  },
-  "syncronia_ce33cca99837aad80f8d3831": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 20.05,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.43,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.43,
-    0.25,
-    0.2373
-   ],
-   "rendered": true
-  },
-  "syncronia_cfd506825fe7e6007d87b3b1": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 9.9,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.45,
-    -0.314,
-    0.0
-   ],
-   "box_max": [
-    0.45,
-    0.314,
-    0.2818
-   ],
-   "rendered": true
-  },
-  "syncronia_d2d9c74db7be8aac18a651fa": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 28.43,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.395,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.395,
-    0.25,
-    0.2371
-   ],
-   "rendered": true
-  },
-  "syncronia_e19486ae20ae8a227cb82f4f": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 5.03,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.225,
-    -0.225,
-    0.0
-   ],
-   "box_max": [
-    0.225,
-    0.225,
-    0.3
-   ],
-   "rendered": true
-  },
-  "syncronia_e85575d6e551de5f53625bcb": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 17.52,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.5,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.5,
-    0.25,
-    0.2156
-   ],
-   "rendered": true
-  },
-  "syncronia_f55f8b023dfaa3605210cab6": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 14.96,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.25,
-    -0.5,
-    0.0
-   ],
-   "box_max": [
-    0.25,
-    0.5,
-    0.2271
-   ],
-   "rendered": true
-  },
-  "syncronia_ff32e3b4baa88e03493e3b7c": {
-   "ok": true,
-   "method": "library",
-   "fallback_reason": null,
-   "seconds": 59.57,
-   "warnings": [],
-   "dressing": {},
-   "box_min": [
-    -0.39,
-    -0.25,
-    0.0
-   ],
-   "box_max": [
-    0.39,
-    0.25,
-    0.2271
    ],
    "rendered": true
   }

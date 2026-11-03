@@ -1,9 +1,9 @@
 {
  "zip": "/workspace/library/inbox/1M82gvUOMzvwzohnjtPq7c0vibHzchXTK/archive1.zip",
  "zip_name": "archive1.zip",
- "checked_utc": "2026-11-03T16:11:41Z",
- "fix_version": "syncronia-2",
- "taken": 76,
+ "checked_utc": "2026-11-03T16:53:29Z",
+ "fix_version": "syncronia-3",
+ "taken": 67,
  "listed": 318,
  "records": [
   {
@@ -4622,8 +4622,8 @@
    "converter": "assimp",
    "src_sha256": "39d1beb1e8dbbcacb35ad8f55499fd408c90d2a91cf50f58a1a9133565b0f552",
    "category": "bathroom",
-   "types_from": "category bathroom: no type",
-   "why": "no catalogue type (category bathroom: no type)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/rexa/catino/69692.3ds.zip/Rexa_Catino_Lavabo_Appoggio_600x350x115_01CA31101_3Ds.3ds",
@@ -4634,111 +4634,32 @@
    "converter": "assimp",
    "src_sha256": "0afa798ea98b482620325d394cc93deb81c94c4cf7c63aad611980b6b7c3c716",
    "category": "bathroom",
-   "types_from": "names (file)",
-   "type": "washbasin",
-   "unit": "millimetres",
-   "factor": 0.001,
-   "up_fix": null,
-   "fits": false,
-   "size_error": 15.9333,
-   "box_m": [
-    15.24,
-    8.89,
-    3.302
-   ],
-   "raw_box": [
-    15239.9986,
-    8889.9974,
-    3301.9998
-   ],
-   "candidates": [
-    "washbasin"
-   ],
-   "triangles": 3286,
-   "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/rexa/japan/69720.3ds.zip/Rexa_Japan_Lavabo_Foro scarico_ ¥42 H.48_01JP13202_3DS.3ds",
    "zip": "archive1.zip",
    "format": ".3ds",
    "uid": "syncronia_1d182d7854d7456e963af914",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "941e8a1106d1f66762e5bd9cd1e7102d08b5d19871c837c5054b66069a73a089",
    "category": "bathroom",
-   "types_from": "names (file)",
-   "type": "washbasin",
-   "unit": "metres",
-   "factor": 1.0,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    0.4195,
-    0.42,
-    0.4799
-   ],
-   "raw_box": [
-    0.4195,
-    0.42,
-    0.4799
-   ],
-   "candidates": [
-    "washbasin"
-   ],
-   "triangles": 16228,
-   "error": null,
-   "classes": {},
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset -0.002 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "a550573b3451fb6ba9eb07d48c43052626d35d581f348abf2310f37ba58f1594",
-   "id": "syncronia_1d182d7854d7456e963af914",
-   "title": "Rexa Japan (42 x 42 x 48 cm)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/rexa/murano/69699.3ds.zip/Rexa_Murano_Lavabo_ ¥42 H.20_01MU11201_3DS.3ds",
    "zip": "archive1.zip",
    "format": ".3ds",
    "uid": "syncronia_3eaf9bf6fecf6b7a983e09b0",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "052f65b07bed00c984d0423f3413a5b6266cb082dd13b95c11d56c5a63913de8",
    "category": "bathroom",
-   "types_from": "names (file)",
-   "type": "washbasin",
-   "unit": "metres",
-   "factor": 1.0,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    0.4199,
-    0.4198,
-    0.2
-   ],
-   "raw_box": [
-    0.4199,
-    0.4198,
-    0.2
-   ],
-   "candidates": [
-    "washbasin"
-   ],
-   "triangles": 11528,
-   "error": null,
-   "classes": {},
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.001 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "f4d5cac3880a0946265bb661484a2b4f859da44b164f3f1aaf639f0b2e18cb9e",
-   "id": "syncronia_3eaf9bf6fecf6b7a983e09b0",
-   "title": "Rexa Murano (42 x 42 x 20 cm)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/rexa/oo/69709.3ds.zip/Rexa_O_O_Lavabo Appoggio_01OO16101_3Ds.3ds",
@@ -4749,29 +4670,8 @@
    "converter": "assimp",
    "src_sha256": "cb805ca14948053bd61aa64986f00ed4fed6478947e03063becf08c62041371c",
    "category": "bathroom",
-   "types_from": "names (file)",
-   "type": "washbasin",
-   "unit": "millimetres",
-   "factor": 0.001,
-   "up_fix": null,
-   "fits": false,
-   "size_error": 20.1449,
-   "box_m": [
-    12.6869,
-    12.7,
-    4.7228
-   ],
-   "raw_box": [
-    12686.9148,
-    12699.9967,
-    4722.8048
-   ],
-   "candidates": [
-    "washbasin"
-   ],
-   "triangles": 26688,
-   "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/rexa/pod/69687.3ds.zip/Rexa_Pod_Lavabo_¥45 H.15_01PO21201_3DS.3ds",
@@ -4782,111 +4682,32 @@
    "converter": "assimp",
    "src_sha256": "870e08875b0460c2a144323fc3221a4e13461a8b096fcd85152d27b13cb5fbab",
    "category": "bathroom",
-   "types_from": "names (file)",
-   "type": "washbasin",
-   "unit": "millimetres",
-   "factor": 0.001,
-   "up_fix": null,
-   "fits": false,
-   "size_error": 18.05,
-   "box_m": [
-    11.43,
-    11.43,
-    3.8099
-   ],
-   "raw_box": [
-    11429.999,
-    11429.9972,
-    3809.9035
-   ],
-   "candidates": [
-    "washbasin"
-   ],
-   "triangles": 11117,
-   "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/rexa/smoking/69730.3ds.zip/Rexa_Smoking_Lavabo_a terra_a parete_LSMP424401_3DS.3ds",
    "zip": "archive1.zip",
    "format": ".3ds",
    "uid": "syncronia_1e034898651dc48ed8543894",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "f94d4237d6257fe0fb761fba7f1a3c874199b6026a528b6d56c23795449c801f",
    "category": "bathroom",
-   "types_from": "names (file)",
-   "type": "washbasin",
-   "unit": "millimetres",
-   "factor": 0.001,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    0.439,
-    0.418,
-    0.9
-   ],
-   "raw_box": [
-    439.0277,
-    417.9607,
-    899.9998
-   ],
-   "candidates": [
-    "washbasin"
-   ],
-   "triangles": 27320,
-   "error": null,
-   "classes": {},
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.016 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "b82ab86481d9eaf9dcb1cedde4a9e90e2eb0e63b45a530fa58a130b0c501ceb0",
-   "id": "syncronia_1e034898651dc48ed8543894",
-   "title": "Rexa Smoking (44 x 42 x 90 cm)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/rexa/soave/69705.3ds.zip/Rexa_Soave_lavabo_¥45 H.30_01SO42201_3DS.3ds",
    "zip": "archive1.zip",
    "format": ".3ds",
    "uid": "syncronia_e19486ae20ae8a227cb82f4f",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "65264f78e22b4b42c075438595eb82841c7be97b2efd292b5f13063503e7482f",
    "category": "bathroom",
-   "types_from": "names (file)",
-   "type": "washbasin",
-   "unit": "metres",
-   "factor": 1.0,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    0.45,
-    0.45,
-    0.3
-   ],
-   "raw_box": [
-    0.45,
-    0.45,
-    0.3
-   ],
-   "candidates": [
-    "washbasin"
-   ],
-   "triangles": 9020,
-   "error": null,
-   "classes": {},
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.001 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "0662f08f4284f8e6392eb66a7fcb14da005679f651abab547fa65a7a75cb269e",
-   "id": "syncronia_e19486ae20ae8a227cb82f4f",
-   "title": "Rexa Soave (45 x 45 x 30 cm)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/stocco/iks/81699.3ds.zip/Stocco_IKS_Up_Q32140C_DX.3ds",
@@ -4897,8 +4718,8 @@
    "converter": "assimp",
    "src_sha256": "3277326ff0034af6a816d60886abe6a749018a76f1da81c431e27c8ea2a5d51b",
    "category": "bathroom",
-   "types_from": "category bathroom: no type",
-   "why": "no catalogue type (category bathroom: no type)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/stocco/iks-full/81229.3ds.zip/Stocco_IKS_Full_Furniture_QM3470C.3ds",
@@ -4909,8 +4730,8 @@
    "converter": "assimp",
    "src_sha256": "15fecfc2e10733d88eb568da937b3e2ded0ee62b3d1277dc61a97ab7d32e3a3f",
    "category": "bathroom",
-   "types_from": "category bathroom: no type",
-   "why": "no catalogue type (category bathroom: no type)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/stocco/loop/81892.3ds.zip/Stocco_Loop51_Shelf_LP1270G.3ds",
@@ -4921,29 +4742,8 @@
    "converter": "assimp",
    "src_sha256": "5d601bf2f7adefb85b429527cac6b00978dd89e82077e58f2c646eaaf9474a54",
    "category": "bathroom",
-   "types_from": "names (file)",
-   "type": "bookshelf",
-   "unit": "millimetres",
-   "factor": 0.001,
-   "up_fix": null,
-   "fits": false,
-   "size_error": 1.8,
-   "box_m": [
-    0.7,
-    0.15,
-    0.25
-   ],
-   "raw_box": [
-    700.0,
-    150.0,
-    250.0
-   ],
-   "candidates": [
-    "bookshelf"
-   ],
-   "triangles": 332,
-   "error": null,
-   "why": "size outside every real bookshelf size: not a proper model"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/stocco/met/82373.3ds.zip/Stocco_Met_ME55100F.3ds",
@@ -4954,8 +4754,8 @@
    "converter": "assimp",
    "src_sha256": "0ac5d1c6cdb0ac0e3bc0a5dee1c0362b5c9128a1c7c23db586c51cc963b475e5",
    "category": "bathroom",
-   "types_from": "category bathroom: no type",
-   "why": "no catalogue type (category bathroom: no type)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/stocco/over-fit/85467.3ds.zip/Stocco_OverP_P.40_Mobile_anta.3ds",
@@ -4966,8 +4766,8 @@
    "converter": "assimp",
    "src_sha256": "eaa0cbda2f7ab3586ed330c254e9f864ada2276a24523643e0209df99a1f00b4",
    "category": "bathroom",
-   "types_from": "category bathroom: no type",
-   "why": "no catalogue type (category bathroom: no type)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/stocco/stilo/82565.3ds.zip/Stocco_Stilo_Column_PDB7035A.3ds",
@@ -4978,8 +4778,8 @@
    "converter": "assimp",
    "src_sha256": "a4794bedf8fc825c36edc2ba1f437e0591d5b639b7c9b6147cb23fdc79cfded6",
    "category": "bathroom",
-   "types_from": "category bathroom: no type",
-   "why": "no catalogue type (category bathroom: no type)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom/stocco/stilo-fit/174367.3ds.zip/Stocco_Over_Stilo_Mobile_Lavamani_StiloP_P.20.3ds",
@@ -4990,8 +4790,8 @@
    "converter": "assimp",
    "src_sha256": "50d6f14b65c9ba9a2a6b919a47a0325771cf0c82b1f0ce532e450763dfe72f7a",
    "category": "bathroom",
-   "types_from": "category bathroom: no type",
-   "why": "no catalogue type (category bathroom: no type)"
+   "types_from": "category bathroom: no catalogue type for it",
+   "why": "no catalogue type (category bathroom: no catalogue type for it)"
   },
   {
    "rel": "bathroom-furniture/artelinea/dama-collection/56966.3ds",
@@ -5022,84 +4822,19 @@
    "zip": "archive1.zip",
    "format": ".fbx",
    "uid": "syncronia_e236ecabc414e01063af8147",
-   "taken": true,
+   "taken": false,
    "converter": "blender",
    "src_sha256": "5f3a80b0b864f241e424ad18aa46c2d13bd4ea17924c1815480d6d0fe946505b",
    "category": "bathroom-furniture",
-   "types_from": "names (file)",
-   "type": "bathroom_set",
-   "unit": "metres",
-   "factor": 1.0,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    2.4,
-    0.66,
-    2.05
-   ],
-   "raw_box": [
-    2.4,
-    0.66,
-    2.05
-   ],
-   "candidates": [
-    "bathroom_set"
-   ],
-   "triangles": 3107,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 27
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 27
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a bathroom_set has no front",
-   "sha256": "b3e8008e108bbf0a7867d388e0bb950a5f3ce704cfd281947c3515c3ed2d6766",
-   "id": "syncronia_e236ecabc414e01063af8147",
-   "title": "Itlas Capri (240 x 66 x 205 cm)"
+   "types_from": "category bathroom-furniture: no type",
+   "why": "no catalogue type (category bathroom-furniture: no type)"
   },
   {
    "rel": "bathroom-furniture/itlas/elba/43177.fbx.zip/ITLAS_progetto_bagno_5_millimetri-Elba_WoshBowl_fbx.fbx",
    "zip": "archive1.zip",
    "format": ".fbx",
    "uid": "syncronia_a871031622256873e4dffa7b",
-   "taken": true,
+   "taken": false,
    "converter": "blender",
    "src_sha256": "342a56460ca414305728b780656d9f475e1fd417779c537b41622d62c63654ae",
    "category": "bathroom-furniture",
@@ -5127,282 +4862,43 @@
    ],
    "triangles": 2423,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 9
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 9
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a bathroom_set has no front",
-   "sha256": "b615f188b2cdeb0f67c51d627e49d48a0f280103e931b6f5fd3f38fe6669f4af",
-   "id": "syncronia_a871031622256873e4dffa7b",
-   "title": "Itlas Elba (75 x 115 x 40 cm)"
+   "why": "size outside every real bowl/tray size: not a proper model"
   },
   {
    "rel": "bathroom-furniture/itlas/la-maddalena/43159.fbx.zip/ITLAS_progetto_bagno_5_millimetri-maddalena_fbx.fbx",
    "zip": "archive1.zip",
    "format": ".fbx",
    "uid": "syncronia_fde82bec42c8a0cc23bb919f",
-   "taken": true,
+   "taken": false,
    "converter": "blender",
    "src_sha256": "150eedd2cbe4c0fa3f984653c2b477a32f2dc0715a8675dfe19bdf514444e936",
    "category": "bathroom-furniture",
-   "types_from": "names (file)",
-   "type": "bathroom_set",
-   "unit": "metres",
-   "factor": 1.0,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    2.4,
-    0.66,
-    2.05
-   ],
-   "raw_box": [
-    2.4,
-    0.66,
-    2.05
-   ],
-   "candidates": [
-    "bathroom_set"
-   ],
-   "triangles": 2733,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 13
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 13
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a bathroom_set has no front",
-   "sha256": "b2977648da843700427c62d106708547dd895f56885c219b880f89550c8b8582",
-   "id": "syncronia_fde82bec42c8a0cc23bb919f",
-   "title": "Itlas La Maddalena (240 x 66 x 205 cm)"
+   "types_from": "category bathroom-furniture: no type",
+   "why": "no catalogue type (category bathroom-furniture: no type)"
   },
   {
    "rel": "bathroom-furniture/itlas/murano/43152.fbx.zip/ITLAS_progetto_bagno_5_millimetri-murano_fbx.fbx",
    "zip": "archive1.zip",
    "format": ".fbx",
    "uid": "syncronia_fbe8e3d4c3ca6e6ff302323c",
-   "taken": true,
+   "taken": false,
    "converter": "blender",
    "src_sha256": "a77a9cde564103b66a36fec804902ca166ff2379d44bd3e308b93c05d0784d91",
    "category": "bathroom-furniture",
-   "types_from": "names (file)",
-   "type": "bathroom_set",
-   "unit": "metres",
-   "factor": 1.0,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    2.4,
-    0.71,
-    2.05
-   ],
-   "raw_box": [
-    2.4,
-    0.71,
-    2.05
-   ],
-   "candidates": [
-    "bathroom_set"
-   ],
-   "triangles": 4500,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 26
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 26
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a bathroom_set has no front",
-   "sha256": "0a3ae3a1a6a5c5c464085716f8634ad02306c3dc92bf40daeef6d810dab25ad3",
-   "id": "syncronia_fbe8e3d4c3ca6e6ff302323c",
-   "title": "Itlas Murano (240 x 71 x 205 cm)"
+   "types_from": "category bathroom-furniture: no type",
+   "why": "no catalogue type (category bathroom-furniture: no type)"
   },
   {
    "rel": "bathroom-furniture/itlas/pantelleria/43169.fbx.zip/ITLAS_progetto_bagno_5_millimetri-pantelleria_fbx.fbx",
    "zip": "archive1.zip",
    "format": ".fbx",
    "uid": "syncronia_c08b239292d1a793d90c0131",
-   "taken": true,
+   "taken": false,
    "converter": "blender",
    "src_sha256": "a74461bffed3dd5e3d276d20533da8eea743c0cdbcb4ea57d21095d19f8293e5",
    "category": "bathroom-furniture",
-   "types_from": "names (file)",
-   "type": "bathroom_set",
-   "unit": "metres",
-   "factor": 1.0,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.087,
-   "box_m": [
-    2.775,
-    0.46,
-    1.55
-   ],
-   "raw_box": [
-    2.775,
-    0.46,
-    1.55
-   ],
-   "candidates": [
-    "bathroom_set"
-   ],
-   "triangles": 19750,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 13
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 13
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a bathroom_set has no front",
-   "sha256": "1b74594869565631e9a3053a6078840c4adc4ece6e84e949f7ef3348e0630205",
-   "id": "syncronia_c08b239292d1a793d90c0131",
-   "title": "Itlas Pantelleria (278 x 46 x 155 cm)"
+   "types_from": "category bathroom-furniture: no type",
+   "why": "no catalogue type (category bathroom-furniture: no type)"
   },
   {
    "rel": "bathroom-furniture/rexa/argo/69619.3ds.zip/Rexa_Argo_Lavabo a parete_03UA461D1_3DS.3ds",

@@ -1,9 +1,9 @@
 {
  "zip": "/workspace/library/inbox/10R1cAka9IKwWgRKj1wi2GdU3wl6Fr_41/archive4.zip",
  "zip_name": "archive4.zip",
- "checked_utc": "2026-11-03T16:17:23Z",
- "fix_version": "syncronia-2",
- "taken": 172,
+ "checked_utc": "2026-11-03T16:55:50Z",
+ "fix_version": "syncronia-3",
+ "taken": 124,
  "listed": 742,
  "records": [
   {
@@ -3268,14 +3268,14 @@
    ],
    "triangles": 41636,
    "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/aquatica-bath/nanomorph/61312.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_5851af623ebe4a1e4ee8f937",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "690956e19a46c3d970a33dda930074e59c6064b349641b3a12afc7fc046d03d8",
    "category": "sinks",
@@ -3302,58 +3302,14 @@
    ],
    "triangles": 14058,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 1
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 1
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "+X",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.365 of the extent): front +X",
-   "sha256": "4f0bb07ef56c74ae30ba5c6469658eb2517fabcf0018998c2c993f73b0bd3ae7",
-   "id": "syncronia_5851af623ebe4a1e4ee8f937",
-   "title": "Aquatica Bath Nanomorph (55 x 40 x 18 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/carbon-n100/30076.zip/CARBON N100/CARN100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_25d9a7409e1906af42354d29",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "271aa83723d452eb124b484f45e0f5ce240ce8a6c2d729d132e7266fbb798da8",
    "category": "sinks",
@@ -3380,58 +3336,14 @@
    ],
    "triangles": 81268,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.231 of the extent): front -Y",
-   "sha256": "ddd9b6407fd2d0160bd4c63e257128359015d3cc90c6a725a1d70f373bd1e6b0",
-   "id": "syncronia_25d9a7409e1906af42354d29",
-   "title": "Schock CARBON N100 (56 x 46 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/carbon-n100-s/30077.zip/CARBON N100S/CARN100S.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_7af515d7afee22fed3b484be",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "8cb924b6b9e40c931d646f2e76e6905e63886cecdaa81d4f28e1ed0f78be011e",
    "category": "sinks",
@@ -3458,58 +3370,14 @@
    ],
    "triangles": 80542,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.232 of the extent): front -Y",
-   "sha256": "5215e99fd01001db8b029f40c5a3985ddcd8c693f9f463e0f28c33e5f554f4cf",
-   "id": "syncronia_7af515d7afee22fed3b484be",
-   "title": "Schock CARBON N100 S (46 x 46 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/euro-n100/30078.zip/EURO N100/EURN100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_1c66f9c5d98fa9da02b3c18c",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "82c99ba4db9c80f9f2f1178a14cf6df4756a7b27c147ea9584a3ce8f83129de3",
    "category": "sinks",
@@ -3536,58 +3404,14 @@
    ],
    "triangles": 197522,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.120 of the extent): front -Y",
-   "sha256": "da10bcc0a35e4304c9abd46dd7ca9dbf86c041c8ae7bd8f7d2ce4952ea20463f",
-   "id": "syncronia_1c66f9c5d98fa9da02b3c18c",
-   "title": "Schock EURO N100 (40 x 40 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/euro-r100/30079.3ds.zip/EURO R100/EURR100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_4fe87bbeab850da3c2de3654",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "2c33e1cc77b3c5dca8b4495fee9dd97a0d5317a5f1b94ee8e9106616f0367724",
    "category": "sinks",
@@ -3614,58 +3438,14 @@
    ],
    "triangles": 168469,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 3
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 3
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.300 of the extent): front -Y",
-   "sha256": "942ed4857475b99c013d3563f67e5291e4835773eea7314ebeb95283756b865e",
-   "id": "syncronia_4fe87bbeab850da3c2de3654",
-   "title": "Schock EURO R100 (44 x 44 x 21 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/galaxy-n100/30080.zip/GALAXY N100/GALN100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_254f97ccf6aee91e63e2adab",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "e018f6720195aedb27e8e0066ce6ef742847932dd365b248fb19228afa5b111c",
    "category": "sinks",
@@ -3692,58 +3472,14 @@
    ],
    "triangles": 80555,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.167 of the extent): front -Y",
-   "sha256": "c8d6fc609cbc4ecd98af23744438e9d22e68ea547a8254f42ceb62af63ce8d14",
-   "id": "syncronia_254f97ccf6aee91e63e2adab",
-   "title": "Schock GALAXY N100 (46 x 46 x 24 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/galaxy-n100-l/30081.zip/GALAXY N100L/GALN100L.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_4ff7be6041cfed0b16894423",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "37108733a00c4b11462abd9b19cf6222234c190f6956d1ea669103c1e4d748ca",
    "category": "sinks",
@@ -3770,58 +3506,14 @@
    ],
    "triangles": 197138,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.344 of the extent): front -Y",
-   "sha256": "cd82f2fdb6bbb76a5782d65f22c83ae490e641770c25ea368911c2eaf265100f",
-   "id": "syncronia_4ff7be6041cfed0b16894423",
-   "title": "Schock GALAXY N100 L (56 x 46 x 24 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/galaxy-n100-s/30082.zip/GALAXY N100S/GALN100S.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_88132df7625212a3f58b54be",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "e79c5e4629e08d2bc00d6095221e423e702c65a8499014a822ab9d7f166e5e8d",
    "category": "sinks",
@@ -3848,58 +3540,14 @@
    ],
    "triangles": 158545,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.173 of the extent): front -Y",
-   "sha256": "27cad0db54ba4f0b6cb54f22685e4f83401a432db262399784679cad6df9381d",
-   "id": "syncronia_88132df7625212a3f58b54be",
-   "title": "Schock GALAXY N100 S (41 x 46 x 24 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/horizont-d100/30083.zip/HORIZONT D100/HOND100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_ff32e3b4baa88e03493e3b7c",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "39834ed891d8dacff441a63e8b1db32f214c2d5fe9619b261f1cb3d2a6172115",
    "category": "sinks",
@@ -3926,58 +3574,14 @@
    ],
    "triangles": 826749,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset -0.043 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "2f56f35e30193ae92c63ba38a523b7515b1dae32339341689a39d1f08674ef0f",
-   "id": "syncronia_ff32e3b4baa88e03493e3b7c",
-   "title": "Schock HORIZONT D100 (78 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/horizont-d150/30084.zip/HORIZONT D150/HOND150.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_f55f8b023dfaa3605210cab6",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "069a7f21d4cca6f1ab89f58e6e3a36e08a0425ff7600e1e17cbafc1230fce385",
    "category": "sinks",
@@ -4004,51 +3608,7 @@
    ],
    "triangles": 196798,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-X",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.203 of the extent): front -X",
-   "sha256": "6207649944095163e9a3f61dff2524e209a8f6eba9d2c55694e3cc80878a01f4",
-   "id": "syncronia_f55f8b023dfaa3605210cab6",
-   "title": "Schock HORIZONT D150 (100 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/horizont-d200/30085.zip/HORIZONT D200/HOND200.3ds",
@@ -4082,14 +3642,14 @@
    ],
    "triangles": 477592,
    "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/horizont-n200/30086.zip/HORIZONT N200/HONN200.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_2517f6d32f22ad69ae1c1a51",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "cd0cdc3c2a587d57e41ca889f88f27e946273577cba2be85d6d7a1c113b85815",
    "category": "sinks",
@@ -4116,58 +3676,14 @@
    ],
    "triangles": 436185,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 6
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 6
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset -0.043 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "b2ff13adfce9fb9beb1c3cbcfcbb0b2f9d9bb85fd1d04927c3060a21feab8f89",
-   "id": "syncronia_2517f6d32f22ad69ae1c1a51",
-   "title": "Schock HORIZONT N200 (86 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/largo-m100/30095.zip/LARGO M100/LARM100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_cfd506825fe7e6007d87b3b1",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "09845f1d0b5563733418e977f70f5306f35c136ca25c49cec6f05906b1e881cd",
    "category": "sinks",
@@ -4194,58 +3710,14 @@
    ],
    "triangles": 142179,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.058 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "8c7eeb1b5ff980acb9e04e97fa851df143662d48d2924c23e308a79e8c1269bf",
-   "id": "syncronia_cfd506825fe7e6007d87b3b1",
-   "title": "Schock LARGO M100 (90 x 63 x 28 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/lithos-d100/30100.zip/LITHOS D100/LITD100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_95859eeb2e0c00f19f8863a0",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "2a04f0c505e0c98688e18ac9ba1762f360daa44c7787def865ff21e0bcc7c40e",
    "category": "sinks",
@@ -4272,58 +3744,14 @@
    ],
    "triangles": 216360,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.078 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "08a64f5c284ac0aad1aa4e4587cb1ad4c196ec5a4894436edd668aab0b3317b7",
-   "id": "syncronia_95859eeb2e0c00f19f8863a0",
-   "title": "Schock LITHOS D100 (86 x 50 x 24 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/lithos-d100-s/30101.zip/LITHOS D100S/LITD100S.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_1a26f30b9afcee9cc9e12742",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "97f67ddafeef146ef9ab91026cb8903a3dcb604fd4be1b0adb64920c6c93ef80",
    "category": "sinks",
@@ -4350,58 +3778,14 @@
    ],
    "triangles": 144492,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.023 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "27d9c91ef17cac7611c8c29b1beb6fc918e5f2c079e6f8bc1e47185689b7de3b",
-   "id": "syncronia_1a26f30b9afcee9cc9e12742",
-   "title": "Schock LITHOS D100 S (79 x 50 x 24 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/lithos-d150/30102.zip/LITHOS D150/LITD150.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_204367323aedaca45331e980",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "62a0c453d564f3495ca48f92bbaf3cd3aba725a419a45857ae24f57828518bbf",
    "category": "sinks",
@@ -4428,51 +3812,7 @@
    ],
    "triangles": 343145,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 6
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 6
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.035 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "7f284f99e3dd2e9eedf63af96c4e3e8b0da577224ece6f624877bcb449c22cec",
-   "id": "syncronia_204367323aedaca45331e980",
-   "title": "Schock LITHOS D150 (100 x 50 x 24 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/lithos-d200/30103.zip/LITHOS D200/LITD200.3ds",
@@ -4506,14 +3846,14 @@
    ],
    "triangles": 343664,
    "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/lithos-n200/30104.zip/LITHOS N200/LITN200.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_ce33cca99837aad80f8d3831",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "c88b2bc1fba545146bb96851fa4400518876a1fcec62ac283ddb1f01c684af03",
    "category": "sinks",
@@ -4540,58 +3880,14 @@
    ],
    "triangles": 292678,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.007 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "5367324924b2740507a1c0ff6ad04b98daeaa190f8c0d615e52dcb07888b0023",
-   "id": "syncronia_ce33cca99837aad80f8d3831",
-   "title": "Schock LITHOS N200 (86 x 50 x 24 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/lithos-n200-s/30105.zip/LITHOS N200S/LITN200S.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_d2d9c74db7be8aac18a651fa",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "3285929eb2dda9c5d643e3f8044d9656f77ca6cf30d91c66bad3a0eced6e3429",
    "category": "sinks",
@@ -4618,51 +3914,7 @@
    ],
    "triangles": 282534,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.010 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "2a50865821df5c1bad62e0ed49502977f33dac940204f8198b43efd9cad0cceb",
-   "id": "syncronia_d2d9c74db7be8aac18a651fa",
-   "title": "Schock LITHOS N200 S (79 x 50 x 24 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/lotus-c150/30106.zip/LOTUS C150/LOTC150.3ds",
@@ -4696,14 +3948,14 @@
    ],
    "triangles": 524634,
    "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/lotus-d100/30107.zip/LOTUS D100/LOTD100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_0f9206d934f844a5c9e0c70b",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "f80c484261786415f50b5ecc4254ab0081ee49d7b7f1f1d2b41766b1babaa37b",
    "category": "sinks",
@@ -4730,58 +3982,14 @@
    ],
    "triangles": 356249,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset -0.055 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "76ff46cf6ae2fa08494dc73c83a4fca141900f945c049206d90aac8e408570fe",
-   "id": "syncronia_0f9206d934f844a5c9e0c70b",
-   "title": "Schock LOTUS D100 (88 x 50 x 22 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/lotus-d150/30108.zip/LOTUS D150/LOTD150.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_ae1322c029353a3588ccafe9",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "f9cd8cae84fe961b5782d3ee1b4028895d31ce4676f68cf84d87eae29a8ddb69",
    "category": "sinks",
@@ -4808,58 +4016,14 @@
    ],
    "triangles": 499252,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 6
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 6
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.017 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "70ef3719d855bb63a979f7dc3db8c68945ef37ec1f5af2826cfce98798e7afb8",
-   "id": "syncronia_ae1322c029353a3588ccafe9",
-   "title": "Schock LOTUS D150 (102 x 50 x 22 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/nemo-n100/30097.zip/NEMO N100/NEMN100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_b35a8d307e79092faef1e2f9",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "1f3e81f0589c28f6f812ce5bc0eb375a13f8e57a5df0df72aee86931009d4030",
    "category": "sinks",
@@ -4886,58 +4050,14 @@
    ],
    "triangles": 265267,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.084 of the extent): front -Y",
-   "sha256": "ea57218b78e890532274c1e92809a347194db99cb64e22cff07ac194e91ee95c",
-   "id": "syncronia_b35a8d307e79092faef1e2f9",
-   "title": "Schock NEMO N100 (57 x 51 x 21 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/nemo-n100-s/30096.zip/NEMO N100S/NEMN100S.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_6c4bd5123f8f1f9b65ade79f",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "ec366fc4507ef1ac1e1a8a33bfc47fe8bf25952de89149697b9b2712a9884dda",
    "category": "sinks",
@@ -4964,51 +4084,7 @@
    ],
    "triangles": 290118,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.094 of the extent): front -Y",
-   "sha256": "edce523f19ba9bb471d4b19cfc043a58780ad4dc0f44e28d5f28cef6f7a665d0",
-   "id": "syncronia_6c4bd5123f8f1f9b65ade79f",
-   "title": "Schock NEMO N100 S (49 x 51 x 21 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/prepstation-d-150/30133.zip/PRPD150.3ds",
@@ -5042,24 +4118,24 @@
    ],
    "triangles": 289541,
    "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/quadro-n100/30099.zip/QUADRO N100/QUAN100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_22a8eab6296adcdce8052168",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "294d48ee2fa3a9dc21dca9c36eaa6b2425056f3a08102aa2e38aa6f6d95e92e3",
    "category": "sinks",
    "types_from": "category sinks",
-   "type": "washbasin",
+   "type": "sink_kitchen",
    "unit": "millimetres",
    "factor": 0.001,
    "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
+   "fits": false,
+   "size_error": 2.4446,
    "box_m": [
     0.55,
     0.45,
@@ -5072,72 +4148,28 @@
    ],
    "candidates": [
     "wall_art",
-    "washbasin"
+    "sink_kitchen"
    ],
    "triangles": 195223,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 6
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 6
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.163 of the extent): front -Y",
-   "sha256": "6587e7a7131cf48a8aa26c037a42d4fa1023bd7411bd860f64ee7822b77f66ae",
-   "id": "syncronia_22a8eab6296adcdce8052168",
-   "title": "Schock QUADRO N100 (55 x 45 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/quadro-n100-s/30098.zip/QUADRO N100S/QUAN100S.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_b0a2fb5026c645ebee8b2c5f",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "f21d6607ad90fd82753fc28c119c088b266a41663e82aa3efb4d90ac8db4c651",
    "category": "sinks",
    "types_from": "category sinks",
-   "type": "washbasin",
+   "type": "sink_kitchen",
    "unit": "millimetres",
    "factor": 0.001,
    "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
+   "fits": false,
+   "size_error": 2.4448,
    "box_m": [
     0.45,
     0.43,
@@ -5150,62 +4182,18 @@
    ],
    "candidates": [
     "wall_art",
-    "washbasin"
+    "sink_kitchen"
    ],
    "triangles": 203068,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.150 of the extent): front -Y",
-   "sha256": "2a24c1441ba99982f56a4cb07f58e2bef7af7af3991aa473290ec4daa1f908e5",
-   "id": "syncronia_b0a2fb5026c645ebee8b2c5f",
-   "title": "Schock QUADRO N100 S (45 x 43 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/signus-d100/30126.zip/SIGNUS D100/SIGD100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_bfe475f78738fc97f2b9606f",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "1a8eb4c6ab2ccea0172f69013ea9875e0f622ef685f07c5ef362565720a04000",
    "category": "sinks",
@@ -5232,58 +4220,14 @@
    ],
    "triangles": 422053,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.025 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "47299f2d90308e35e56ba8ecb8b79fefa0a0e975c2b02fa2dbefef03ee19d1de",
-   "id": "syncronia_bfe475f78738fc97f2b9606f",
-   "title": "Schock SIGNUS D100 (86 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/signus-d100-l/30127.zip/SIGNUS D100L/SIGD100L.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_99fbda33d2256a71913269ec",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "af58f69e64d65175fe3ecabe8ed3caa0be13d4b453b4c2adce403ec7f60fc4fa",
    "category": "sinks",
@@ -5310,58 +4254,14 @@
    ],
    "triangles": 455310,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 3
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 3
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset -0.031 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "2cb82558ea6d55ecdb7ef647a222225a2125a56174afdc06990550170796ca8d",
-   "id": "syncronia_99fbda33d2256a71913269ec",
-   "title": "Schock SIGNUS D100 L (100 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/signus-d150/30128.zip/SIGNUS D150/SIGD150.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_1be230250b020276681c155a",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "9233eab18b7816affe493d881d267b4adbd7c4a4cb7867da0babd1633fe73aa7",
    "category": "sinks",
@@ -5388,51 +4288,7 @@
    ],
    "triangles": 499309,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.064 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "7f04d5c9db1a136e672c3b8b151cb13e3fdcb9c8a291eab8f57b9d009de04cf6",
-   "id": "syncronia_1be230250b020276681c155a",
-   "title": "Schock SIGNUS D150 (100 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/signus-d200/30129.zip/SIGNUS D200/SIGD200.3ds",
@@ -5466,14 +4322,14 @@
    ],
    "triangles": 572013,
    "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/signus-n100-xl/30130.zip/SIGNUS N100 XL/SIGN100XL.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_0b642d52edfda3242a3e6965",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "d38622a776f32525635fc8f8682c6926f69288ecceb8e0d210dfcd102513965e",
    "category": "sinks",
@@ -5500,58 +4356,14 @@
    ],
    "triangles": 185096,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: offsets -0.089 (x) and +0.126 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "26add7e821cc65906565560a3e2e2eed32f2ef6312c3f1677fdcbcdb974961ac",
-   "id": "syncronia_0b642d52edfda3242a3e6965",
-   "title": "Schock SIGNUS N100 XL (79 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/signus-n100-xly/30131.zip/SIGNUS N100 XLY/SIGN100XLY.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_55e79d6c17b263d8f02e8b9d",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "f3f05c34b89b0224630688573c4440e8cf3aa586c50a30ff0fa61bf146e30968",
    "category": "sinks",
@@ -5578,58 +4390,14 @@
    ],
    "triangles": 86600,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: offsets -0.089 (x) and -0.099 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "f143cc68dd01b916895b57a2e033dac28f5cb294243d9851b352ca2abb886636",
-   "id": "syncronia_55e79d6c17b263d8f02e8b9d",
-   "title": "Schock SIGNUS N100 XLY (79 x 45 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/signus-n200/173337.zip/SIGNUS N200/SIGN200.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_b22171cf6d0dd53957830d76",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "d0746243cd3cab3ae4138fbbb5a43a123c113f5ca13f984866559b7f0338cc90",
    "category": "sinks",
@@ -5656,51 +4424,7 @@
    ],
    "triangles": 503118,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset -0.026 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "69b88b1b14fa25aba87a803614e54651ad77c00b3df10a5355cbee6ad3fa2bee",
-   "id": "syncronia_b22171cf6d0dd53957830d76",
-   "title": "Schock SIGNUS N200 (86 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/solido-n50/30116.zip/SOLIDO N50/SOLN50.3ds",
@@ -5734,14 +4458,14 @@
    ],
    "triangles": 181508,
    "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/solido-n75/30117.zip/SOLIDO N75/SOLN75.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_4bc435238e27eae826240809",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "a44eeb1947d544ebf2e062fa182faf785775e18eaeda9b3a4160a8a480a451e0",
    "category": "sinks",
@@ -5768,58 +4492,14 @@
    ],
    "triangles": 187424,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.218 of the extent): front -Y",
-   "sha256": "1659ca7f9246f8d65a902dfe5a625acc9b640085321130e4bdbb4b544c5b38eb",
-   "id": "syncronia_4bc435238e27eae826240809",
-   "title": "Schock SOLIDO N75 (38 x 38 x 20 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/typos-d100/30122.zip/TYPOS D100/TYPD100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_8b24ad500329205e4d6b35db",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "59e10d5172579fd9a298bec85db4e2127e4ab15aea6e60ed02009a087f1b47a7",
    "category": "sinks",
@@ -5846,58 +4526,14 @@
    ],
    "triangles": 386897,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset -0.001 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "f934f3f4fa93edf81dd9eb20828ac30d53942c7f8ea6f94074a928097a9cc67c",
-   "id": "syncronia_8b24ad500329205e4d6b35db",
-   "title": "Schock TYPOS D100 (86 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/typos-d100-l/30121.zip/TYPOS D100 L/TYPD100L.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_2e5ba7abbdd0a67e99da706b",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "335f69a01657eefcd5eb46e56634a76dbb3dad165c051bc68ee79f51a9a0638c",
    "category": "sinks",
@@ -5924,58 +4560,14 @@
    ],
    "triangles": 376424,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 5
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 5
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset -0.068 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "79dfa0c1fad4ce475760d14f0a0df9c1f34008c4535d8f31b0932d1c7842fa20",
-   "id": "syncronia_2e5ba7abbdd0a67e99da706b",
-   "title": "Schock TYPOS D100 L (100 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/typos-d150/30123.zip/TYPOS D150/TYPD150.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_9f398ac3d7443ccd2d814e34",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "7e461a8cfb122bc23abc4f057f1eac657d0177b0230c251fb767bf6cfb3e2091",
    "category": "sinks",
@@ -6002,51 +4594,7 @@
    ],
    "triangles": 495984,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 7
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 7
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.011 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "54302f432f8e4a03c0ba0dfc1a5e4e6170aad21a9b3d4dd9d95a64a0092842ca",
-   "id": "syncronia_9f398ac3d7443ccd2d814e34",
-   "title": "Schock TYPOS D150 (100 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/typos-d200/30124.zip/TYPOS D200/TYPD200.3ds",
@@ -6080,14 +4628,14 @@
    ],
    "triangles": 499468,
    "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/typos-n200/30125.zip/TYPOS N200/TYPN200.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_9b206f6a64d197f20a22fd36",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "dbbba6113e18aa8ad682fb72a79ea64ae25424a5d992b0a69e0c70cb27d29716",
    "category": "sinks",
@@ -6114,58 +4662,14 @@
    ],
    "triangles": 416359,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 7
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 7
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.000 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "ccaf654c315a9373a7d4019b04ee00b0f193a1546988040061564e7af9f746ad",
-   "id": "syncronia_9b206f6a64d197f20a22fd36",
-   "title": "Schock TYPOS N200 (86 x 50 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/vero-d100/30092.zip/VERO D100/VEOD100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_39080821d89914bd39e9fbcc",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "677fa1814a3c7b3ffafef80b992586bc3d9ad1776c2ce572166780076e0c4fd2",
    "category": "sinks",
@@ -6192,58 +4696,14 @@
    ],
    "triangles": 318619,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset -0.053 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "e644321da305ad1423b8a0acb6e77b03c81e3d91c1268e07140c8ae13f9c84df",
-   "id": "syncronia_39080821d89914bd39e9fbcc",
-   "title": "Schock VERO D100 (76 x 51 x 23 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/vero-n100/30093.zip/VERO N100/VEON100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_88e7de4c3a607244e292d6b8",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "1f3e81f0589c28f6f812ce5bc0eb375a13f8e57a5df0df72aee86931009d4030",
    "category": "sinks",
@@ -6270,58 +4730,14 @@
    ],
    "triangles": 265267,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 4
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 4
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.084 of the extent): front -Y",
-   "sha256": "ea57218b78e890532274c1e92809a347194db99cb64e22cff07ac194e91ee95c",
-   "id": "syncronia_88e7de4c3a607244e292d6b8",
-   "title": "Schock VERO N100 (57 x 51 x 21 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/vero-n100-l/30094.zip/VERO N100L/VEON100L.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_135accccbf671679a209605a",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "25b22259bd68d1b2d0f924c3cf87426908f4523d3a256bfa41ef8e5ca810e2c3",
    "category": "sinks",
@@ -6348,58 +4764,14 @@
    ],
    "triangles": 218463,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 3
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 3
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.128 of the extent): front -Y",
-   "sha256": "7fe277324235fa1084b428d7abb81e14e22296fbeb082f95b272021daf5afab7",
-   "id": "syncronia_135accccbf671679a209605a",
-   "title": "Schock VERO N100 L (60 x 53 x 25 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/waterfall-d100/30091.zip/WATERFALL D100/WATD100.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_594d14a47b64dd96092a344b",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "a4a8afb65bd0e89f48ef42c9719caf2965235a2e4f3039bfdc2a52cab7b36933",
    "category": "sinks",
@@ -6426,58 +4798,14 @@
    ],
    "triangles": 134915,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 3
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 3
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset -0.034 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "fd3a3d57c12c53fa3467b389916e6de1da6b085075e2c32073dbd8e603d946d2",
-   "id": "syncronia_594d14a47b64dd96092a344b",
-   "title": "Schock WATERFALL D100 (86 x 50 x 22 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/waterfall-d150/30090.zip/WATERFALL D150/WATD150.3ds",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_e85575d6e551de5f53625bcb",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "2ba24461184dd996e766567bde9c3397a70c9fbcbd340e295bba45904ac346c9",
    "category": "sinks",
@@ -6504,51 +4832,7 @@
    ],
    "triangles": 211448,
    "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_ceramic",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.8388,
-       0.807,
-       0.7454,
-       1.0
-      ],
-      "colour_rgb": [
-       236,
-       232,
-       224
-      ],
-      "note": "glazed white ceramic",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "ceramic": 6
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "ceramic": 6
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "geometry: back_taller: top centroid offset +0.018 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "59b5b0f109f32afe5db91b2faf8262600207a26998393847ab52e0ce16cf9fe9",
-   "id": "syncronia_e85575d6e551de5f53625bcb",
-   "title": "Schock WATERFALL D150 (100 x 50 x 22 cm)"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "sinks/schock/waterfall-d200/30089.zip/WATERFALL D200/WATD200.3ds",
@@ -6582,7 +4866,7 @@
    ],
    "triangles": 571578,
    "error": null,
-   "why": "size outside every real washbasin size: not a proper model"
+   "why": "size outside every real sink_kitchen size: not a proper model"
   },
   {
    "rel": "small-sofas/marte-design/nami-s/63708.fbx.zip/Marte_Nami_002_3DH_fbx.fbx",
@@ -21878,8 +20162,8 @@
    "converter": "assimp",
    "src_sha256": "887d3c194c7ff49263d316a36eaabcc7375701b9a76931d3f65c647d1fa01ceb",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/panzeri/gonio/72315.zip/Gonio/Gonio A019__.060.3ds",
@@ -21890,8 +20174,8 @@
    "converter": "assimp",
    "src_sha256": "c79cc2f06a871641015e93e6c2b55a116a50b145aaab44f2bdf5941a27c28c0b",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/panzeri/jay/72335.zip/Jay/Jay A135__.033.3ds",
@@ -21902,8 +20186,8 @@
    "converter": "assimp",
    "src_sha256": "d1ff8b826a27f8038bfb0a4cc3880025163544c2247d43b0e8e5711044622396",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/panzeri/jay/72335.zip/Jay/Jay A136__.033.3ds",
@@ -21914,8 +20198,8 @@
    "converter": "assimp",
    "src_sha256": "1fcbd4df9be966278504c3db1d9b767bb2df6cdf84fedbc47789006be766bb6e",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/chiodo-wall/183670.3ds.zip/Platek_chiodo_wall.3ds",
@@ -21926,8 +20210,8 @@
    "converter": "assimp",
    "src_sha256": "cec269c0eb00224d10cd691681aa2619d2f6e67a769bbe652b3a7ec360569ef7",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/eterea-wall/183882.3ds.zip/Platek_eterea_L_wall.3ds",
@@ -21938,8 +20222,8 @@
    "converter": "assimp",
    "src_sha256": "5b41370def6d4c5bdb5808e0318cfea1edc9e82587af4e59a02c63c421a6e6fd",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/flamingo-wall/184188.3ds.zip/Platek_flamingo_140_short_wall_bracket.3ds",
@@ -21950,8 +20234,8 @@
    "converter": "assimp",
    "src_sha256": "3b6cda65b65061488a3fefb354416e1661665521bb1379728d39520aa22a47bf",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/mesh-wall/184714.3ds.zip/Platek_mesh_wall.3ds",
@@ -21962,8 +20246,8 @@
    "converter": "assimp",
    "src_sha256": "0a142641eb0097788812bd5207891b4d9885000f7bd62d45aa434f45dc0919c9",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/mini-one-wall/184846.3ds.zip/Platek_mini_one_wall_mounted_1_opening.3ds",
@@ -21974,8 +20258,8 @@
    "converter": "assimp",
    "src_sha256": "40edb2308dc229896e74cddf0388956c226b3a8f71bc27d0bdf7353434467382",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/mini-special-wall/184918.3ds.zip/Platek_mini_special_wall_mounted_1_opening.3ds",
@@ -21986,8 +20270,8 @@
    "converter": "assimp",
    "src_sha256": "dd76affef810af8e655b07a9106899248eaed09153e6134476092eefb33306c2",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/monaco-wall/184938.3ds.zip/Platek_monaco_M_ceiling_mounted.3ds",
@@ -21998,8 +20282,8 @@
    "converter": "assimp",
    "src_sha256": "5b2599dc1e5f4c89ac91b53c1c395ca741ae292f3e8e048228b44f339428f6c8",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/passo-wall/184991.3ds.zip/Platek_passo.3ds",
@@ -22010,8 +20294,8 @@
    "converter": "assimp",
    "src_sha256": "23c1a0f1294379e0c91def4adeb53d39ac660701ff4820469f4b794e33bd4513",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/pix-round-wall/185047.3ds.zip/Platek_pix_round_40.3ds",
@@ -22022,8 +20306,8 @@
    "converter": "assimp",
    "src_sha256": "4ea1225ab751fe11b3ab4a2a721fcf681120eeee88f6a7b5b350dbb38cfc14c9",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/pix-square-wall/185048.3ds.zip/Platek_pix_square_26.3ds",
@@ -22034,8 +20318,8 @@
    "converter": "assimp",
    "src_sha256": "1fe6d1553f20ff73392bfe2265e7900e6ef01f3f525a21e458177903a3f103ac",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/sister-ray-wall/183223.3ds.zip/Platek_sister_ray_20_wall_mounted_double_emission.3ds",
@@ -22046,8 +20330,8 @@
    "converter": "assimp",
    "src_sha256": "44a9a05fdd192c3bf944770c930c986bb0729d8c4c3bbe4c852f615a2ea5a173",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/special-wall/185085.3ds.zip/Platek_special_wall_mounted_1_opening.3ds",
@@ -22058,8 +20342,8 @@
    "converter": "assimp",
    "src_sha256": "f13d867d2523a1eb41508c90cde515275f417cddec2c3a3517dff95cbdf64bee",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/platek/tetra-wall/185187.3ds.zip/Platek_Tetra_Wall_Washer75_1F.3DS",
@@ -22070,29 +20354,8 @@
    "converter": "assimp",
    "src_sha256": "22c88bee2021c7c350d69f499728772fd3431a71e019a1ccf78b90e23270c91a",
    "category": "wall-lamps",
-   "types_from": "names (file)",
-   "type": "washing_machine",
-   "unit": "feet",
-   "factor": 0.3048,
-   "up_fix": null,
-   "fits": false,
-   "size_error": 1.6535,
-   "box_m": [
-    0.9,
-    1.6137,
-    2.5208
-   ],
-   "raw_box": [
-    2.9528,
-    5.2942,
-    8.2705
-   ],
-   "candidates": [
-    "washing_machine"
-   ],
-   "triangles": 184,
-   "error": null,
-   "why": "size outside every real washing_machine size: not a proper model"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/simes/appeal/22730.3ds.zip/3ds/SIMES_Appeal.3DS",
@@ -22103,8 +20366,8 @@
    "converter": "assimp",
    "src_sha256": "c9417d8d493e7457d0d59fd5c6340521f308761585e1fadfb9e552047a1ef8bb",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/simes/concrete-applique/22735.3ds.zip/SIMES_C.8001W_Concrete Applique.3DS",
@@ -22115,8 +20378,8 @@
    "converter": "assimp",
    "src_sha256": "7f77b83030e26f0b16f7fe9dc568da9bd3774cc27ff5e4ab5bae12b852485bb4",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/simes/cool-applique/22738.3ds.zip/SIMES_S.7270W_Cool.3DS",
@@ -22127,8 +20390,8 @@
    "converter": "assimp",
    "src_sha256": "fdeaa8c0ee3974f512f91a31fb2c163fdbb49875450b8ef90d05a0c27e686435",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/simes/cool-square-applique/22843.3ds.zip/SIMES_S.7282W_Cool Square applique.3DS",
@@ -22139,8 +20402,8 @@
    "converter": "assimp",
    "src_sha256": "83e9c295f37701e8d3c5c0e6c94838663a7547ce67abec43a909bae94e183baa",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/simes/loft-round-applique/23099.3ds.zip/SIMES_S.6689W_Loft Round Wall.3DS",
@@ -22151,8 +20414,8 @@
    "converter": "assimp",
    "src_sha256": "fe56ec21f86b4c586ef1352152a7642b2e52595638a1b4042e4e4678add9b72e",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/simes/loft-square-applique/23102.3ds.zip/SIMES_S.6695W_Loft Square Wall.3DS",
@@ -22163,8 +20426,8 @@
    "converter": "assimp",
    "src_sha256": "85bd3a68a138188c78f94c93b9fed669b6bcd426a96fa111bb3c58b183a0469c",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/simes/look-applique/23111.3ds.zip/SIMES_S.7252W_Look Applique.3DS",
@@ -22175,8 +20438,8 @@
    "converter": "assimp",
    "src_sha256": "10788a21a3f9c2048d5865bfc05c24f7c4a5acce0019e1eefdc41731803a3221",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/simes/plan/23023.3ds.zip/SIMES_S.3897W_Plan.3DS",
@@ -22187,8 +20450,8 @@
    "converter": "assimp",
    "src_sha256": "0bc8d6537ca10f1e00331cf6caf3f2ba7fdcf552c1d572be72b76718fd557659",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/simes/skill-wood/23011.3ds.zip/SIMES_L.9260W_Skill Wood.3DS",
@@ -22199,8 +20462,8 @@
    "converter": "assimp",
    "src_sha256": "76d28226688977c12ef4881e26a7c7285e36b0010de79a8927a0b05ad543b380",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-lamps/simes/trim-applique/172920.3ds.zip/SIMES_S_3171W_Trim Applique.3ds",
@@ -22211,452 +20474,80 @@
    "converter": "assimp",
    "src_sha256": "037f840e78541a918a8bfefd497e876ad2aa72934257ae5aa7a58e916f957434",
    "category": "wall-lamps",
-   "types_from": "category wall-lamps: no type",
-   "why": "no catalogue type (category wall-lamps: no type)"
+   "types_from": "category wall-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/blinker-wall-recessed/22509.3ds.zip/BLINKER_WALL.3DS",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_67299561f4c6630d9ac75f35",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "5c2fa2402d1c7f16c769a1429635a93b64af99773a13ad6ccb1be1dbd41bc07e",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "pendant_light",
-   "unit": "millimetres",
-   "factor": 0.001,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0948,
-   "box_m": [
-    0.178,
-    0.232,
-    0.0913
-   ],
-   "raw_box": [
-    178.0,
-    231.9838,
-    91.3398
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 2976,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_lacquer",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.7305,
-       0.7084,
-       0.6584,
-       1.0
-      ],
-      "colour_rgb": [
-       222,
-       219,
-       212
-      ],
-      "note": "white lacquer",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "lacquer": 1
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "lacquer": 1
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a pendant_light has no front",
-   "sha256": "1828273662e0dbedbf9d28418c9948f7af9259686614bbbe379e58f656df0f6d",
-   "id": "syncronia_67299561f4c6630d9ac75f35",
-   "title": "Simes BLINKER WALL RECESSED (18 x 23 x 9 cm)"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/blinker-wall-recessed/22509.3ds.zip/MEGABLINKER_WALL.3DS",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_95d2f9b8cfb5854a3f48e650",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "c9fd9978a1f1d799bfb154e53cc581acb7797d9085f1116222e6661d144c2e4b",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "pendant_light",
-   "unit": "millimetres",
-   "factor": 0.001,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    0.157,
-    0.323,
-    0.1175
-   ],
-   "raw_box": [
-    157.0,
-    322.9992,
-    117.491
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 955,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_lacquer",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.7305,
-       0.7084,
-       0.6584,
-       1.0
-      ],
-      "colour_rgb": [
-       222,
-       219,
-       212
-      ],
-      "note": "white lacquer",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "lacquer": 1
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "lacquer": 1
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a pendant_light has no front",
-   "sha256": "4ba0f8cef3f3b56595ab6f0309bdf5405b9721af921ee366e2d72001d50d8bb1",
-   "id": "syncronia_95d2f9b8cfb5854a3f48e650",
-   "title": "Simes BLINKER WALL RECESSED (16 x 32 x 12 cm)"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/blinker-wall-recessed/22509.3ds.zip/MICROBLINKER_WALL.3DS",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_7bfe35cb34f000e5ab0f8a0c",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "e1ad7c3d93a96b1b6ad3a7a9c636bd7caaa6a6bbe8d75cca9a46a3b94d6c2ab1",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "floor_lamp",
-   "unit": "centimetres",
-   "factor": 0.01,
-   "up_fix": "z_up",
-   "fits": true,
-   "size_error": 0.1046,
-   "box_m": [
-    0.45,
-    0.5257,
-    2.3197
-   ],
-   "raw_box": [
-    45.0008,
-    231.9662,
-    52.5679
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 2442,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_lacquer",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.7305,
-       0.7084,
-       0.6584,
-       1.0
-      ],
-      "colour_rgb": [
-       222,
-       219,
-       212
-      ],
-      "note": "white lacquer",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "lacquer": 1
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "lacquer": 1
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a floor_lamp has no front",
-   "sha256": "f529e79d16959bd742446c9a4c2c9ddb7358ee2be9486c61717ccb9350193560",
-   "id": "syncronia_7bfe35cb34f000e5ab0f8a0c",
-   "title": "Simes BLINKER WALL RECESSED (45 x 53 x 232 cm)"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/blinker-wall-recessed/22509.3ds.zip/MINIBLINKER_WALL.3DS",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_f59465bd577b79d253ae8592",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "ee7a58097bb0e360d6e8a2c731c9e5b656898ce3a08b1b7aa40854e4ddf9527f",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "pendant_light",
-   "unit": "millimetres",
-   "factor": 0.001,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0661,
-   "box_m": [
-    0.098,
-    0.232,
-    0.0938
-   ],
-   "raw_box": [
-    98.0,
-    231.9839,
-    93.8
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 1639,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_lacquer",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.7305,
-       0.7084,
-       0.6584,
-       1.0
-      ],
-      "colour_rgb": [
-       222,
-       219,
-       212
-      ],
-      "note": "white lacquer",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "lacquer": 2
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "lacquer": 2
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a pendant_light has no front",
-   "sha256": "94723427340bd89eb9f817a92ceebf6ff4db005b9ca9c1034c372b0969b535f2",
-   "id": "syncronia_f59465bd577b79d253ae8592",
-   "title": "Simes BLINKER WALL RECESSED (10 x 23 x 9 cm)"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/concrete-wall/22737.3ds.zip/SIMES_C.8050W_Concrete Wall.3DS",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_b67c5e4da75b0a3ff6c36632",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "dd3fc9996d0ab0af41af3a52fcd10339ec110bc2e7729a5f14ef1496b0e83426",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "pendant_light",
-   "unit": "feet",
-   "factor": 0.3048,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    0.8846,
-    0.4744,
-    0.1757
-   ],
-   "raw_box": [
-    2.9022,
-    1.5563,
-    0.5763
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 576,
-   "error": null,
-   "classes": {},
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a pendant_light has no front",
-   "sha256": "da87d01abbd10eb0cd3dd638baa13cdd73ef6625990172a2ba3bd8d5581bd3e7",
-   "id": "syncronia_b67c5e4da75b0a3ff6c36632",
-   "title": "Simes CONCRETE WALL (88 x 47 x 18 cm)"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/ghost/22742.3ds.zip/SIMES_C.8026W_Ghost.3DS",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_a3c1a7f44dc53cbb9ccd2cb7",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "55564d8edcfe4aafc27623d08b7919be0bd1a7d13a764adf0fb2e96cbfd23c2e",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "pendant_light",
-   "unit": "millimetres",
-   "factor": 0.001,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0948,
-   "box_m": [
-    0.2093,
-    0.259,
-    0.0913
-   ],
-   "raw_box": [
-    209.3149,
-    259.0089,
-    91.3398
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 2976,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_lacquer",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.7305,
-       0.7084,
-       0.6584,
-       1.0
-      ],
-      "colour_rgb": [
-       222,
-       219,
-       212
-      ],
-      "note": "white lacquer",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "lacquer": 1
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "lacquer": 1
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a pendant_light has no front",
-   "sha256": "3ed4530b14e371db1491c83570a3be82500c4d9bfb0d3dd3d137d92a149123e7",
-   "id": "syncronia_a3c1a7f44dc53cbb9ccd2cb7",
-   "title": "Simes GHOST (21 x 26 x 9 cm)"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/look-wood-applique/22751.3ds.zip/SIMES_L.9202W_Look Wood Applique.3DS",
@@ -22667,32 +20558,8 @@
    "converter": "assimp",
    "src_sha256": "cf3e154c4b0d043cbc4a7ff14141b2894117a41effe9a064be62881946c99886",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "pendant_light",
-   "unit": "centimetres",
-   "factor": 0.01,
-   "up_fix": null,
-   "fits": false,
-   "size_error": 0.6935,
-   "box_m": [
-    2.2016,
-    0.3278,
-    0.83
-   ],
-   "raw_box": [
-    220.1556,
-    32.7809,
-    82.999
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 88,
-   "error": null,
-   "why": "size outside every real floor_lamp/table_lamp/pendant_light/ceiling_light size: not a proper model"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/marker/22540.3ds.zip/MARKER.3DS",
@@ -22703,112 +20570,20 @@
    "converter": "assimp",
    "src_sha256": "4966f8007903c14493c3f923c17ace122303efd048cdb948cb372ed26d48135d",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "pendant_light",
-   "unit": "centimetres",
-   "factor": 0.01,
-   "up_fix": null,
-   "fits": false,
-   "size_error": 1.3885,
-   "box_m": [
-    3.105,
-    0.65,
-    0.2235
-   ],
-   "raw_box": [
-    310.5,
-    65.0,
-    22.3546
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 1314,
-   "error": null,
-   "why": "size outside every real floor_lamp/table_lamp/pendant_light/ceiling_light size: not a proper model"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/nanoled-walk-recessed/23088.3ds.zip/SIMES_S.3256W_Nanoled Wall recessed.3DS",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_1cfc07c4ea63aac4949c3e7b",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "b192a0811358734fb9690947b198425c230d3866f225c8b908141ec9de1f6f76",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "ceiling_light",
-   "unit": "inches",
-   "factor": 0.0254,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    1.0668,
-    1.0668,
-    0.0635
-   ],
-   "raw_box": [
-    42.0,
-    42.0,
-    2.5
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 324,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_lacquer",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.7305,
-       0.7084,
-       0.6584,
-       1.0
-      ],
-      "colour_rgb": [
-       222,
-       219,
-       212
-      ],
-      "note": "white lacquer",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "lacquer": 1
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "lacquer": 1
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a ceiling_light has no front",
-   "sha256": "1a931f6b4159fab38d844ef573f7b3d7335f9bd58d17a9f7533e3a2e818d7744",
-   "id": "syncronia_1cfc07c4ea63aac4949c3e7b",
-   "title": "Simes NANOLED WALK RECESSED (107 x 107 x 6 cm)"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/runner/23043.3ds.zip/SIMES_S.7025W_Runner.3DS",
@@ -22819,156 +20594,32 @@
    "converter": "assimp",
    "src_sha256": "1fa3748d286f48c792dacf8244d77bb1f528d565d8c0fd87b086360440b42097",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "pendant_light",
-   "unit": "centimetres",
-   "factor": 0.01,
-   "up_fix": null,
-   "fits": false,
-   "size_error": 6.6796,
-   "box_m": [
-    9.9835,
-    0.357,
-    0.02
-   ],
-   "raw_box": [
-    998.3465,
-    35.7,
-    2.0
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 124,
-   "error": null,
-   "why": "size outside every real floor_lamp/table_lamp/pendant_light/ceiling_light size: not a proper model"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/skill/23033.3ds.zip/SIMES_S.6280N_Skill.3DS",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_9a4c15266dcecc5959092f15",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "19dbaf4dd980623a08b13ce618444902d986b76d1ec9aceb6e5d0acb284cf46b",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "ceiling_light",
-   "unit": "millimetres",
-   "factor": 0.001,
-   "up_fix": null,
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    0.2208,
-    0.2208,
-    0.03
-   ],
-   "raw_box": [
-    220.8131,
-    220.8115,
-    30.0
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 4636,
-   "error": null,
-   "classes": {},
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a ceiling_light has no front",
-   "sha256": "a2ccb8b5eeb1107a0edafcc093a93191de0028ea8602f2885c023e516db9cbd0",
-   "id": "syncronia_9a4c15266dcecc5959092f15",
-   "title": "Simes SKILL (22 x 22 x 3 cm)"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/step/172943.3ds.zip/SIMES_S_4655W_Step.3DS",
    "zip": "archive4.zip",
    "format": ".3ds",
    "uid": "syncronia_5f4593de55d4021cd2724d22",
-   "taken": true,
+   "taken": false,
    "converter": "assimp",
    "src_sha256": "0fad04332a32e074783d3fb11652b7e9f0fd37cb99579b2fc29065c7518c39a5",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "pendant_light",
-   "unit": "centimetres",
-   "factor": 0.01,
-   "up_fix": "z_up",
-   "fits": true,
-   "size_error": 0.0,
-   "box_m": [
-    0.4997,
-    0.0823,
-    2.0498
-   ],
-   "raw_box": [
-    49.9746,
-    204.9848,
-    8.2333
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 437,
-   "error": null,
-   "material": {
-    "slots": [
-     {
-      "index": 3,
-      "name": "wenart_lacquer",
-      "material": "other",
-      "materials": [
-       "other"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": false,
-      "base_colour": [
-       0.7305,
-       0.7084,
-       0.6584,
-       1.0
-      ],
-      "colour_rgb": [
-       222,
-       219,
-       212
-      ],
-      "note": "white lacquer",
-      "by": "wenart.assets.part_materials"
-     }
-    ],
-    "classes": {
-     "lacquer": 1
-    },
-    "materials": 4,
-    "split": 0
-   },
-   "classes": {
-    "lacquer": 1
-   },
-   "pillows": 0,
-   "split_primitives": 0,
-   "front": "-Y",
-   "front_confidence": "low",
-   "front_note": "a pendant_light has no front",
-   "sha256": "652039aca3e37db0ea1390db2b24fc89233727923380797fd28fff6835b981b9",
-   "id": "syncronia_5f4593de55d4021cd2724d22",
-   "title": "Simes STEP (50 x 8 x 205 cm)"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wall-recessed-lamps/simes/walker/23094.3ds.zip/SIMES_S.6325W_Walker.3DS",
@@ -22979,32 +20630,8 @@
    "converter": "assimp",
    "src_sha256": "2afb153afdcb3bd77f6537b8b64c68a950844ac2a5dcc5a16ad44fc3d5859fdf",
    "category": "wall-recessed-lamps",
-   "types_from": "names (folder wall-recessed-lamps)",
-   "type": "pendant_light",
-   "unit": "centimetres",
-   "factor": 0.01,
-   "up_fix": null,
-   "fits": false,
-   "size_error": 1.3885,
-   "box_m": [
-    3.105,
-    0.65,
-    0.1873
-   ],
-   "raw_box": [
-    310.5,
-    65.0,
-    18.7323
-   ],
-   "candidates": [
-    "floor_lamp",
-    "table_lamp",
-    "pendant_light",
-    "ceiling_light"
-   ],
-   "triangles": 960,
-   "error": null,
-   "why": "size outside every real floor_lamp/table_lamp/pendant_light/ceiling_light size: not a proper model"
+   "types_from": "category wall-recessed-lamps: no catalogue type for it",
+   "why": "no catalogue type (category wall-recessed-lamps: no catalogue type for it)"
   },
   {
    "rel": "wardrobes/maxalto/creso/14468.3ds.zip/3D_ACA1.3DS",
