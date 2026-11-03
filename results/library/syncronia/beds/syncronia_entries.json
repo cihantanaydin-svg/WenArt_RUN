@@ -1,0 +1,1460 @@
+{
+ "entries": [
+  {
+   "id": "syncronia_91661aa8250a9bba52ec8e25",
+   "type": "bed_double",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Horm Ebridi Legno Sommier bed 169 x 205",
+   "bbox_m": [
+    1.69,
+    2.05,
+    0.6125
+   ],
+   "bbox_model_m": [
+    2.05,
+    1.69,
+    0.6125
+   ],
+   "bbox_min_m": [
+    -1.025,
+    -0.845,
+    0.0
+   ],
+   "bbox_max_m": [
+    1.025,
+    0.845,
+    0.6125
+   ],
+   "front_axis": "+X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "the pillows sit on the -X side (offset -0.35 of the footprint): front +X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.301 of the extent): front +X)",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 80.71 x 66.54 x 24.11 read in inches fits a real bed_double (size table); written in metres by the syncronia fix-up: 1.69 x 2.05 x 0.613 m",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "the brand Horm: modern",
+   "glb": "models/syncronia/syncronia_91661aa8250a9bba52ec8e25.glb",
+   "sha256_glb": "c9a15174523bb21860f70ff7a38f42c3feedf937852de0e4286b646ad22974bd",
+   "uid": "syncronia_91661aa8250a9bba52ec8e25",
+   "title": "Horm Ebridi Legno Sommier bed 169 x 205",
+   "author": "Horm (manufacturer model, via Syncronia)",
+   "brand": "Horm",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/horm/ebridi-legno-sommier",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Horm Ebridi Legno Sommier bed 169 x 205\" by Horm (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/horm/ebridi-legno-sommier, from the user's zip \"beds.zip\" (beds/horm/ebridi-legno-sommier/66196.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 162520,
+   "vertices": 86275,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "has_mattress": true,
+   "has_bedding": true,
+   "has_pillows": true,
+   "has_cushions": false,
+   "bed_frame": false,
+   "bed_note": "the model carries its own mattress and bedding (part classes of wenart.assets.part_materials)",
+   "material_slots": [
+    {
+     "index": 0,
+     "name": "wenart_bedding_linen",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.517,
+     "textured": false,
+     "base_colour": [
+      0.8388,
+      0.8148,
+      0.7605,
+      1.0
+     ],
+     "colour_rgb": [
+      236,
+      233,
+      226
+     ],
+     "note": "white linen bedding (mattress, duvet, pillows)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 1,
+     "name": "wenart_upholstery_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.483,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric (frame)",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "beds/horm/ebridi-legno-sommier/66196.3ds",
+    "zip": "beds.zip",
+    "category": "beds",
+    "format": ".3ds",
+    "unit": "inches",
+    "factor": 0.0254,
+    "up_fix": null,
+    "raw_box_m": [
+     80.7087,
+     66.5354,
+     24.1142
+    ],
+    "candidates": [
+     "bed_single",
+     "bed_double"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "frame": 1,
+     "bedding": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "a09205a82d8c9120539c903260394d4ec57de9f7c3b96cba054bd1e0db30e360",
+    "meta": {
+     "title": "Beds, Ebridi Legno Sommier",
+     "brand": "horm",
+     "type": "beds",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-beds/horm/ebridi-legno-sommier",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:11:30Z"
+   }
+  },
+  {
+   "id": "syncronia_1264acbf9b6bf1a3e481e26b",
+   "type": "bed_double",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Demetra bed 195 x 226",
+   "bbox_m": [
+    1.953,
+    2.2556,
+    1.3086
+   ],
+   "bbox_model_m": [
+    1.953,
+    2.2556,
+    1.3086
+   ],
+   "bbox_min_m": [
+    -0.9765,
+    -1.1278,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.9765,
+    1.1278,
+    1.3086
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1953 x 2256 x 1309 read in millimetres fits a real bed_double (size table); written in metres by the syncronia fix-up: 1.95 x 2.26 x 1.31 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_1264acbf9b6bf1a3e481e26b.glb",
+   "sha256_glb": "6efa20e82fc56b908230c0cd6b4bc46cac925a15b78899cdd5c01f5f4f2721be",
+   "uid": "syncronia_1264acbf9b6bf1a3e481e26b",
+   "title": "Maxalto (B&B Italia) Demetra bed 195 x 226",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Demetra bed 195 x 226\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra, from the user's zip \"beds.zip\" (beds/maxalto/demetra/14386.3ds.zip/3D_9845_2.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 150910,
+   "vertices": 218108,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "has_mattress": true,
+   "has_bedding": true,
+   "has_pillows": true,
+   "has_cushions": false,
+   "bed_frame": false,
+   "bed_note": "the model carries its own mattress and bedding (part classes of wenart.assets.part_materials)",
+   "material_slots": [
+    {
+     "index": 0,
+     "name": "wenart_bedding_linen",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.494,
+     "textured": false,
+     "base_colour": [
+      0.8388,
+      0.8148,
+      0.7605,
+      1.0
+     ],
+     "colour_rgb": [
+      236,
+      233,
+      226
+     ],
+     "note": "white linen bedding (mattress, duvet, pillows)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 1,
+     "name": "wenart_upholstery_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5012,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric (frame)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 2,
+     "name": "wenart_legs_bronze",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0048,
+     "textured": false,
+     "base_colour": [
+      0.0685,
+      0.0467,
+      0.0319,
+      1.0
+     ],
+     "colour_rgb": [
+      74,
+      61,
+      50
+     ],
+     "note": "bronze metal feet",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_2.3DS",
+    "zip": "beds.zip",
+    "category": "beds",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1952.9998,
+     2255.6197,
+     1308.5899
+    ],
+    "candidates": [
+     "bed_single",
+     "bed_double"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "frame": 2,
+     "headboard": 1,
+     "bedding": 3,
+     "legs": 9
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "f643e621f1fa9388aeb63938db93f30059b6cbc3569536848a034b1737ee5fd9",
+    "meta": {
+     "title": "Beds, Demetra",
+     "brand": "maxalto",
+     "type": "beds",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:11:30Z"
+   }
+  },
+  {
+   "id": "syncronia_71606884d3001847e7307f0c",
+   "type": "bed_double",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Demetra bed 210 x 226",
+   "bbox_m": [
+    2.1,
+    2.2556,
+    1.3086
+   ],
+   "bbox_model_m": [
+    2.1,
+    2.2556,
+    1.3086
+   ],
+   "bbox_min_m": [
+    -1.05,
+    -1.1278,
+    0.0
+   ],
+   "bbox_max_m": [
+    1.05,
+    1.1278,
+    1.3086
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 2100 x 2256 x 1309 read in millimetres fits a real bed_double (size table); written in metres by the syncronia fix-up: 2.1 x 2.26 x 1.31 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_71606884d3001847e7307f0c.glb",
+   "sha256_glb": "a985b81e262e9b0949d65ce20d737cc643cb11e8c86b3eb5b2f94095d010ef0b",
+   "uid": "syncronia_71606884d3001847e7307f0c",
+   "title": "Maxalto (B&B Italia) Demetra bed 210 x 226",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Demetra bed 210 x 226\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra, from the user's zip \"beds.zip\" (beds/maxalto/demetra/14386.3ds.zip/3D_9845_3.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 150910,
+   "vertices": 214814,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "has_mattress": true,
+   "has_bedding": true,
+   "has_pillows": true,
+   "has_cushions": false,
+   "bed_frame": false,
+   "bed_note": "the model carries its own mattress and bedding (part classes of wenart.assets.part_materials)",
+   "material_slots": [
+    {
+     "index": 0,
+     "name": "wenart_bedding_linen",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4951,
+     "textured": false,
+     "base_colour": [
+      0.8388,
+      0.8148,
+      0.7605,
+      1.0
+     ],
+     "colour_rgb": [
+      236,
+      233,
+      226
+     ],
+     "note": "white linen bedding (mattress, duvet, pillows)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 1,
+     "name": "wenart_upholstery_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5002,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric (frame)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 2,
+     "name": "wenart_legs_bronze",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0047,
+     "textured": false,
+     "base_colour": [
+      0.0685,
+      0.0467,
+      0.0319,
+      1.0
+     ],
+     "colour_rgb": [
+      74,
+      61,
+      50
+     ],
+     "note": "bronze metal feet",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_3.3DS",
+    "zip": "beds.zip",
+    "category": "beds",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     2099.9999,
+     2255.6197,
+     1308.5899
+    ],
+    "candidates": [
+     "bed_single",
+     "bed_double"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "frame": 2,
+     "headboard": 1,
+     "bedding": 3,
+     "legs": 9
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "6c703144a44220b1c07cd0f676dc8006791a467163a02f473389283fd09c7d41",
+    "meta": {
+     "title": "Beds, Demetra",
+     "brand": "maxalto",
+     "type": "beds",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:11:30Z"
+   }
+  },
+  {
+   "id": "syncronia_b9c981b22ffff17ab6364113",
+   "type": "bed_double",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Demetra bed 221 x 226",
+   "bbox_m": [
+    2.21,
+    2.2556,
+    1.3086
+   ],
+   "bbox_model_m": [
+    2.21,
+    2.2556,
+    1.3086
+   ],
+   "bbox_min_m": [
+    -1.105,
+    -1.1278,
+    0.0
+   ],
+   "bbox_max_m": [
+    1.105,
+    1.1278,
+    1.3086
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 2210 x 2256 x 1309 read in millimetres fits a real bed_double (size table); written in metres by the syncronia fix-up: 2.21 x 2.26 x 1.31 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_b9c981b22ffff17ab6364113.glb",
+   "sha256_glb": "b6c68554718bb034fe24cb371749a84ed46741ac239ab3c1cda89169dd6e7827",
+   "uid": "syncronia_b9c981b22ffff17ab6364113",
+   "title": "Maxalto (B&B Italia) Demetra bed 221 x 226",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Demetra bed 221 x 226\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra, from the user's zip \"beds.zip\" (beds/maxalto/demetra/14386.3ds.zip/3D_9845_4.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 150910,
+   "vertices": 215464,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "has_mattress": true,
+   "has_bedding": true,
+   "has_pillows": false,
+   "has_cushions": false,
+   "bed_frame": false,
+   "bed_note": "the model carries its own mattress and bedding (part classes of wenart.assets.part_materials)",
+   "material_slots": [
+    {
+     "index": 0,
+     "name": "wenart_bedding_linen",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4096,
+     "textured": false,
+     "base_colour": [
+      0.8388,
+      0.8148,
+      0.7605,
+      1.0
+     ],
+     "colour_rgb": [
+      236,
+      233,
+      226
+     ],
+     "note": "white linen bedding (mattress, duvet, pillows)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 1,
+     "name": "wenart_upholstery_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5858,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric (frame)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 2,
+     "name": "wenart_legs_bronze",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0046,
+     "textured": false,
+     "base_colour": [
+      0.0685,
+      0.0467,
+      0.0319,
+      1.0
+     ],
+     "colour_rgb": [
+      74,
+      61,
+      50
+     ],
+     "note": "bronze metal feet",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_4.3DS",
+    "zip": "beds.zip",
+    "category": "beds",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     2209.9998,
+     2255.6197,
+     1308.5899
+    ],
+    "candidates": [
+     "bed_single",
+     "bed_double"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "frame": 4,
+     "headboard": 1,
+     "bedding": 1,
+     "legs": 9
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "e9161fae0c2b5407892c7e019c62741811821d6d5a8bd8b11673e91a605a40cd",
+    "meta": {
+     "title": "Beds, Demetra",
+     "brand": "maxalto",
+     "type": "beds",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:11:30Z"
+   }
+  },
+  {
+   "id": "syncronia_df94c532dfc5699ddd5ccf82",
+   "type": "bed_double",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Demetra bed 226 x 241",
+   "bbox_m": [
+    2.41,
+    2.2556,
+    1.3086
+   ],
+   "bbox_model_m": [
+    2.41,
+    2.2556,
+    1.3086
+   ],
+   "bbox_min_m": [
+    -1.205,
+    -1.1278,
+    0.0
+   ],
+   "bbox_max_m": [
+    1.205,
+    1.1278,
+    1.3086
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 2410 x 2256 x 1309 read in millimetres fits a real bed_double (size table); written in metres by the syncronia fix-up: 2.41 x 2.26 x 1.31 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_df94c532dfc5699ddd5ccf82.glb",
+   "sha256_glb": "f73963df14207abbbd3fba87dbf142e4a47c7872f4d82fc8135dabea0ff5ebf6",
+   "uid": "syncronia_df94c532dfc5699ddd5ccf82",
+   "title": "Maxalto (B&B Italia) Demetra bed 226 x 241",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Demetra bed 226 x 241\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra, from the user's zip \"beds.zip\" (beds/maxalto/demetra/14386.3ds.zip/3D_9845_5.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 150910,
+   "vertices": 214010,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "has_mattress": true,
+   "has_bedding": true,
+   "has_pillows": false,
+   "has_cushions": false,
+   "bed_frame": false,
+   "bed_note": "the model carries its own mattress and bedding (part classes of wenart.assets.part_materials)",
+   "material_slots": [
+    {
+     "index": 0,
+     "name": "wenart_bedding_linen",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4111,
+     "textured": false,
+     "base_colour": [
+      0.8388,
+      0.8148,
+      0.7605,
+      1.0
+     ],
+     "colour_rgb": [
+      236,
+      233,
+      226
+     ],
+     "note": "white linen bedding (mattress, duvet, pillows)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 1,
+     "name": "wenart_upholstery_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5844,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric (frame)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 2,
+     "name": "wenart_legs_bronze",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0045,
+     "textured": false,
+     "base_colour": [
+      0.0685,
+      0.0467,
+      0.0319,
+      1.0
+     ],
+     "colour_rgb": [
+      74,
+      61,
+      50
+     ],
+     "note": "bronze metal feet",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_5.3DS",
+    "zip": "beds.zip",
+    "category": "beds",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     2409.9998,
+     2255.6197,
+     1308.5899
+    ],
+    "candidates": [
+     "bed_single",
+     "bed_double"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "frame": 4,
+     "headboard": 1,
+     "bedding": 1,
+     "legs": 9
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "e78430bf58382e42b480d19133d801580446bbb2eeea9112d5e5e764fe46a09c",
+    "meta": {
+     "title": "Beds, Demetra",
+     "brand": "maxalto",
+     "type": "beds",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:11:30Z"
+   }
+  },
+  {
+   "id": "syncronia_1b62267562938e003d042011",
+   "type": "bed_double",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Selene bed 170 x 226",
+   "bbox_m": [
+    1.7,
+    2.258,
+    0.9047
+   ],
+   "bbox_model_m": [
+    2.258,
+    1.7,
+    0.9047
+   ],
+   "bbox_min_m": [
+    -1.129,
+    -0.85,
+    0.0
+   ],
+   "bbox_max_m": [
+    1.129,
+    0.85,
+    0.9047
+   ],
+   "front_axis": "-X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "the headboard sit on the +X side (offset +0.45 of the footprint): front -X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.470 of the extent): front -X)",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 225.8 x 170 x 90.47 read in centimetres fits a real bed_double (size table); written in metres by the syncronia fix-up: 1.7 x 2.26 x 0.905 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_1b62267562938e003d042011.glb",
+   "sha256_glb": "4d99f975d4bcf7f746b1bed83daf8405b293ae2977ddf40c390de32e7a607626",
+   "uid": "syncronia_1b62267562938e003d042011",
+   "title": "Maxalto (B&B Italia) Selene bed 170 x 226",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/selene",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Selene bed 170 x 226\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/selene, from the user's zip \"beds.zip\" (beds/maxalto/selene/14366.3ds.zip/3D_9745_2.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 123352,
+   "vertices": 154708,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "has_mattress": true,
+   "has_bedding": true,
+   "has_pillows": false,
+   "has_cushions": false,
+   "bed_frame": false,
+   "bed_note": "the model carries its own mattress and bedding (part classes of wenart.assets.part_materials)",
+   "material_slots": [
+    {
+     "index": 0,
+     "name": "wenart_bedding_linen",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4277,
+     "textured": false,
+     "base_colour": [
+      0.8388,
+      0.8148,
+      0.7605,
+      1.0
+     ],
+     "colour_rgb": [
+      236,
+      233,
+      226
+     ],
+     "note": "white linen bedding (mattress, duvet, pillows)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 1,
+     "name": "wenart_upholstery_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5668,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric (frame)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 2,
+     "name": "wenart_legs_bronze",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0055,
+     "textured": false,
+     "base_colour": [
+      0.0685,
+      0.0467,
+      0.0319,
+      1.0
+     ],
+     "colour_rgb": [
+      74,
+      61,
+      50
+     ],
+     "note": "bronze metal feet",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "beds/maxalto/selene/14366.3ds.zip/3D_9745_2.3DS",
+    "zip": "beds.zip",
+    "category": "beds",
+    "format": ".3ds",
+    "unit": "centimetres",
+    "factor": 0.01,
+    "up_fix": null,
+    "raw_box_m": [
+     225.803,
+     170.0,
+     90.4674
+    ],
+    "candidates": [
+     "bed_single",
+     "bed_double"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "bedding": 1,
+     "frame": 3,
+     "legs": 8,
+     "headboard": 1
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "10755005b20ba46e69ac9356198445209213a2dcb2b8708582c71e6961ee7e7a",
+    "meta": {
+     "title": "Beds, Selene",
+     "brand": "maxalto",
+     "type": "beds",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/selene",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:11:30Z"
+   }
+  },
+  {
+   "id": "syncronia_3eba7f077ca6b3628c4de971",
+   "type": "bed_double",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Selene bed 180 x 223",
+   "bbox_m": [
+    1.8,
+    2.226,
+    0.9047
+   ],
+   "bbox_model_m": [
+    2.226,
+    1.8,
+    0.9047
+   ],
+   "bbox_min_m": [
+    -1.113,
+    -0.9,
+    0.0
+   ],
+   "bbox_max_m": [
+    1.113,
+    0.9,
+    0.9047
+   ],
+   "front_axis": "-X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "the headboard sit on the +X side (offset +0.45 of the footprint): front -X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.470 of the extent): front -X)",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 222.6 x 180 x 90.47 read in centimetres fits a real bed_double (size table); written in metres by the syncronia fix-up: 1.8 x 2.23 x 0.905 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_3eba7f077ca6b3628c4de971.glb",
+   "sha256_glb": "0f841fcde76366a772b46c574fd6746e0fe59449855c6adafba3db8b6b64752e",
+   "uid": "syncronia_3eba7f077ca6b3628c4de971",
+   "title": "Maxalto (B&B Italia) Selene bed 180 x 223",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/selene",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Selene bed 180 x 223\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/selene, from the user's zip \"beds.zip\" (beds/maxalto/selene/14366.3ds.zip/3D_9745_3.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 123352,
+   "vertices": 154708,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "has_mattress": true,
+   "has_bedding": true,
+   "has_pillows": true,
+   "has_cushions": false,
+   "bed_frame": false,
+   "bed_note": "the model carries its own mattress and bedding (part classes of wenart.assets.part_materials)",
+   "material_slots": [
+    {
+     "index": 0,
+     "name": "wenart_bedding_linen",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5196,
+     "textured": false,
+     "base_colour": [
+      0.8388,
+      0.8148,
+      0.7605,
+      1.0
+     ],
+     "colour_rgb": [
+      236,
+      233,
+      226
+     ],
+     "note": "white linen bedding (mattress, duvet, pillows)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 1,
+     "name": "wenart_upholstery_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.475,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric (frame)",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 2,
+     "name": "wenart_legs_bronze",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0054,
+     "textured": false,
+     "base_colour": [
+      0.0685,
+      0.0467,
+      0.0319,
+      1.0
+     ],
+     "colour_rgb": [
+      74,
+      61,
+      50
+     ],
+     "note": "bronze metal feet",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "beds/maxalto/selene/14366.3ds.zip/3D_9745_3.3DS",
+    "zip": "beds.zip",
+    "category": "beds",
+    "format": ".3ds",
+    "unit": "centimetres",
+    "factor": 0.01,
+    "up_fix": null,
+    "raw_box_m": [
+     222.6,
+     180.0,
+     90.4674
+    ],
+    "candidates": [
+     "bed_single",
+     "bed_double"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "bedding": 3,
+     "frame": 2,
+     "legs": 8,
+     "headboard": 1
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "b807b39099062c7bdbd05e1b8817ed5c9195929f588b960c4b847541c9ea145e",
+    "meta": {
+     "title": "Beds, Selene",
+     "brand": "maxalto",
+     "type": "beds",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/selene",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:11:30Z"
+   }
+  }
+ ]
+}

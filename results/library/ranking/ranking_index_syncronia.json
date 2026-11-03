@@ -5,12 +5,118 @@
  "lesson": "UL217",
  "per_sheet": 20,
  "types": [
-  "syncronia"
+  "syncronia_armchair",
+  "syncronia_bar_stool",
+  "syncronia_bathtub",
+  "syncronia_bed_double",
+  "syncronia_bench",
+  "syncronia_bookshelf",
+  "syncronia_bowl",
+  "syncronia_ceiling_light",
+  "syncronia_chair",
+  "syncronia_chaise",
+  "syncronia_desk",
+  "syncronia_floor_lamp",
+  "syncronia_ottoman",
+  "syncronia_pendant_light",
+  "syncronia_side_table",
+  "syncronia_sofa",
+  "syncronia_sofa_corner",
+  "syncronia_table_coffee",
+  "syncronia_table_dining",
+  "syncronia_washbasin"
  ],
  "sheets": [
   {
-   "sheet": "syncronia-01",
-   "type": "syncronia",
+   "sheet": "syncronia_armchair-01",
+   "type": "syncronia_armchair",
+   "number": 1,
+   "of": 2,
+   "letters": {
+    "A": "syncronia_005bd5901ccf7acef31271e8",
+    "B": "syncronia_00630eb4f64bda1ff4755806",
+    "C": "syncronia_014966e7f76e86d7473373b4",
+    "D": "syncronia_055a3278154bb6e8edc3821e",
+    "E": "syncronia_46022258171ad5cb149f9bf7",
+    "F": "syncronia_4782f6a4a395b2c63c3744fd",
+    "G": "syncronia_4795c2eb0c65c43f9b5de2c1",
+    "H": "syncronia_5390d40200b9cc58f79fefa8",
+    "I": "syncronia_53bbb66d00566f3228d483c1",
+    "J": "syncronia_59e270fa88a5bcd5fb717870",
+    "K": "syncronia_5aa4de6864d221e49cd306e1",
+    "L": "syncronia_5bf827cc1f8e13d78a4ca0b4",
+    "M": "syncronia_5e07f1b0492623ad7081356f",
+    "N": "syncronia_600557201f7a7ae8e656bcfd",
+    "O": "syncronia_6ad60e55d95a40faedcedcea",
+    "P": "syncronia_735b5eb95245ee155549dd31",
+    "Q": "syncronia_75ef356e7fa423ac4497f685",
+    "R": "syncronia_873adca05398548ec7e2c2db",
+    "S": "syncronia_88037a0b57f2675820d89eb4",
+    "T": "syncronia_8d30154167f4bbecb248792c"
+   }
+  },
+  {
+   "sheet": "syncronia_armchair-02",
+   "type": "syncronia_armchair",
+   "number": 2,
+   "of": 2,
+   "letters": {
+    "A": "syncronia_9add3fc28c8fccf6ba6966a4",
+    "B": "syncronia_9e346f28f05e87842010f691",
+    "C": "syncronia_a194149f43431316b38161ba",
+    "D": "syncronia_b6eb61dc4b4dc4c59a267fbd",
+    "E": "syncronia_b8e04162673305f7ef5cd0ec",
+    "F": "syncronia_c48352ef9a3b0f08bae161c3",
+    "G": "syncronia_cad8fa63c58fb3b4a2bc6e0e",
+    "H": "syncronia_d81ed4147e51d7f830b38cab",
+    "I": "syncronia_d8753be17fe3ca777989651a",
+    "J": "syncronia_e566766b77f2eca569ed8c05",
+    "K": "syncronia_e9a1edf6ccbb3aae71250a4b",
+    "L": "syncronia_ea41ed013dc16846ddd7594b",
+    "M": "syncronia_f0778df729d0d65859fc7850",
+    "N": "syncronia_f6f27446c0204d2ddcd0e9ec",
+    "O": "syncronia_fa5731a7809673a92f082a47",
+    "P": "syncronia_fc4239f8540b8a74e34e1dc3",
+    "Q": "syncronia_fe07a98206e5cc34bade1b31"
+   }
+  },
+  {
+   "sheet": "syncronia_bar_stool-01",
+   "type": "syncronia_bar_stool",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_0c50805cc0d4481d50793073",
+    "B": "syncronia_1818c284fc26a5ec098389d0",
+    "C": "syncronia_37493b0ebe28f7db703f6f86",
+    "D": "syncronia_6e9a3c4f440f1b852f49e124",
+    "E": "syncronia_908ac4b0652e4281aec2036d",
+    "F": "syncronia_9a313d5201c378d2a65a81b3",
+    "G": "syncronia_d28b4a282832bfbc4901ca5c",
+    "H": "syncronia_f20d31fdf1da4fb6eb7be706"
+   }
+  },
+  {
+   "sheet": "syncronia_bathtub-01",
+   "type": "syncronia_bathtub",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_0556e173f8cdcb598bd7b568",
+    "B": "syncronia_1a99aed4039fe9eb5b495766",
+    "C": "syncronia_3469b326dbc08d34c25eec63",
+    "D": "syncronia_4a736a820d7fb0449d26352c",
+    "E": "syncronia_592a1e6940d0c2ef22632d33",
+    "F": "syncronia_8013eafb68202a3cb81b9060",
+    "G": "syncronia_b6a24b2089569919253dfddf",
+    "H": "syncronia_b85bbbb836f23adff394af66",
+    "I": "syncronia_c884bcf94c3abd3afbe68c0d",
+    "J": "syncronia_fe120cc3762656d423e94b72"
+   }
+  },
+  {
+   "sheet": "syncronia_bed_double-01",
+   "type": "syncronia_bed_double",
    "number": 1,
    "of": 1,
    "letters": {
@@ -22,12 +128,1295 @@
     "F": "syncronia_b9c981b22ffff17ab6364113",
     "G": "syncronia_df94c532dfc5699ddd5ccf82"
    }
+  },
+  {
+   "sheet": "syncronia_bench-01",
+   "type": "syncronia_bench",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_020ff583639aa6d216ee3327",
+    "B": "syncronia_5bbf5337d37d3bd1e09ec1ec",
+    "C": "syncronia_5dd76ae188da5516cac29f6e",
+    "D": "syncronia_66740fc2b1aad82d321cb499",
+    "E": "syncronia_8259585e4a443901e0b993be",
+    "F": "syncronia_9e21bbbbf32e64addea15821",
+    "G": "syncronia_b841b90e894b820bcdf968bb",
+    "H": "syncronia_bd2f142bea83298ecaad2ee7",
+    "I": "syncronia_f36cf65e26bfd030f8ed1ed7",
+    "J": "syncronia_f98ca729932579cbdec7ae63",
+    "K": "syncronia_fc659d0e72c0dd684a687366"
+   }
+  },
+  {
+   "sheet": "syncronia_bookshelf-01",
+   "type": "syncronia_bookshelf",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_1f5c4820beb11b6b317715bd",
+    "B": "syncronia_39d61dfbe30406910741c1cd",
+    "C": "syncronia_56f4c6aa406f8656bc28196b",
+    "D": "syncronia_66ff6663fc50dde70c7ae8cf",
+    "E": "syncronia_7cdbb306500b3b7804e6e05f",
+    "F": "syncronia_e9e27967c6a81b327898f122"
+   }
+  },
+  {
+   "sheet": "syncronia_bowl-01",
+   "type": "syncronia_bowl",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_13af87fbb63380d893ce3ea7",
+    "B": "syncronia_9a01f8d22a187b414d5d63c3",
+    "C": "syncronia_bc90d4b8eeae8690afcbedfa"
+   }
+  },
+  {
+   "sheet": "syncronia_ceiling_light-01",
+   "type": "syncronia_ceiling_light",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_0ba3b34693100187e7e22b67",
+    "B": "syncronia_1cfc07c4ea63aac4949c3e7b",
+    "C": "syncronia_3d27392d4c87c632824212ad",
+    "D": "syncronia_53b71c1b52ad5f07a628984e",
+    "E": "syncronia_710baae01e750e502f972d07",
+    "F": "syncronia_75d282840d40b152550c1728",
+    "G": "syncronia_8a3991ff64c85a4067a12fb8",
+    "H": "syncronia_9a4c15266dcecc5959092f15",
+    "I": "syncronia_bab86cc9ec1e8dd6ae5618f2",
+    "J": "syncronia_c0bd667ec26241f9f5cdc3dc",
+    "K": "syncronia_c9164c213f4980ae60bb85f8",
+    "L": "syncronia_cf405834c17d564d93905b90"
+   }
+  },
+  {
+   "sheet": "syncronia_chair-01",
+   "type": "syncronia_chair",
+   "number": 1,
+   "of": 6,
+   "letters": {
+    "A": "syncronia_006f9ed3e197fbbc259fe183",
+    "B": "syncronia_03193a4383f4f127c279c333",
+    "C": "syncronia_03626c07f452ea6c06561097",
+    "D": "syncronia_081b2d83755a2244e4cdb7cf",
+    "E": "syncronia_0e626978def478c663e05406",
+    "F": "syncronia_0f4e05d243061f564f22df59",
+    "G": "syncronia_1461077ea96289c4bb2235b1",
+    "H": "syncronia_159ad8418419dc122092d21e",
+    "I": "syncronia_18635f3a1814eb384ed1174f",
+    "J": "syncronia_1986144bbe25ad51060a8730",
+    "K": "syncronia_1a2acaf71a2b399148f6f0d7",
+    "L": "syncronia_1aa5a69613538b8624a3974a",
+    "M": "syncronia_1ab8029bd7e7aa6f996c8cc1",
+    "N": "syncronia_1bb7897bdbfe9bedb3aabb3c",
+    "O": "syncronia_1d2cef9183c0a75be124aa3e",
+    "P": "syncronia_1dbe38df3b85aae360d0a839",
+    "Q": "syncronia_1dd57ad1f28cd31c8d88d7d1",
+    "R": "syncronia_1f53d66c4288b41fbde977ca",
+    "S": "syncronia_20e8680509ead95184137cda",
+    "T": "syncronia_2246a73be8f13dda76eeede0"
+   }
+  },
+  {
+   "sheet": "syncronia_chair-02",
+   "type": "syncronia_chair",
+   "number": 2,
+   "of": 6,
+   "letters": {
+    "A": "syncronia_22c09895db89f2f217d9225d",
+    "B": "syncronia_22cf0c0bb12e9437e38c2369",
+    "C": "syncronia_255267591636bcba2ecaad4e",
+    "D": "syncronia_28776e16dd82583b8fd7b2cf",
+    "E": "syncronia_297563d9807bef50ec2a78b5",
+    "F": "syncronia_2f9b4e94d1f54aec4f89d7db",
+    "G": "syncronia_32a9b6269199776d39261ca4",
+    "H": "syncronia_3ba073ad33f76dcb488bf941",
+    "I": "syncronia_40bd7d6663e4ac86a8d919c0",
+    "J": "syncronia_427c40319d8094b81b817d32",
+    "K": "syncronia_428ff6ac024ece3cbbeba69f",
+    "L": "syncronia_44fe21c0a78611d9df211d9a",
+    "M": "syncronia_470826aef3693f4487309917",
+    "N": "syncronia_47778da1e7e318f5f55bae07",
+    "O": "syncronia_48e430c7abdb5b7a95f3ea89",
+    "P": "syncronia_4af90bc69ff047a6980e9781",
+    "Q": "syncronia_4b6b1b51205105539b2347c6",
+    "R": "syncronia_4f7a042fcb00a254dae3604d",
+    "S": "syncronia_50cc947bbe1b906117263add",
+    "T": "syncronia_5213df5892ba8aaeb73abcc7"
+   }
+  },
+  {
+   "sheet": "syncronia_chair-03",
+   "type": "syncronia_chair",
+   "number": 3,
+   "of": 6,
+   "letters": {
+    "A": "syncronia_523a5c59849f70fe3367f862",
+    "B": "syncronia_53fabf6095fb0cab86fcb492",
+    "C": "syncronia_54678154b7375fab32bacc10",
+    "D": "syncronia_58a28acad88e77bd16671ee1",
+    "E": "syncronia_5cb0de547fa76773186cf86d",
+    "F": "syncronia_5cdb0a7a0b0711801b5248b0",
+    "G": "syncronia_5e4b5cc7d469656511657a75",
+    "H": "syncronia_628e13c0f83ccde0c7c9df3a",
+    "I": "syncronia_64c192b270f48facbc65d510",
+    "J": "syncronia_65f18b8f8808fdc812e900fb",
+    "K": "syncronia_65f6b79b50c993b29fb10ea5",
+    "L": "syncronia_664d4ddd7b4c9df3f2ae6917",
+    "M": "syncronia_68849a74bf477ff5a59870f0",
+    "N": "syncronia_6a0467ad9d353e4318410f70",
+    "O": "syncronia_762170ebc40361fc1791e58f",
+    "P": "syncronia_7a16955823ed629fa4451f79",
+    "Q": "syncronia_7b4b09b8702324d07045fef4",
+    "R": "syncronia_7f0da789b7b2eb035df1eb4d",
+    "S": "syncronia_8148c9481e134b5df4748a55",
+    "T": "syncronia_82c5c2c528d09ab86682cd34"
+   }
+  },
+  {
+   "sheet": "syncronia_chair-04",
+   "type": "syncronia_chair",
+   "number": 4,
+   "of": 6,
+   "letters": {
+    "A": "syncronia_8c4e1d83d727f3721ee8fe04",
+    "B": "syncronia_8f21da17da2a9f9abd75c058",
+    "C": "syncronia_917fddf84c473a91252e207d",
+    "D": "syncronia_937cfaec15b2a5be290cf11c",
+    "E": "syncronia_95442ee428e7deadff401b3f",
+    "F": "syncronia_9d3196ad4f34e7af46c17a5a",
+    "G": "syncronia_a0a5469d95ea1bbe14c12ba0",
+    "H": "syncronia_a32aa4707708953b7974456c",
+    "I": "syncronia_a628db9a4a17725bf53bb080",
+    "J": "syncronia_aa61a0e3e644ffac12698e34",
+    "K": "syncronia_ab0f1b42270d20d0ddf657e1",
+    "L": "syncronia_ab38d2bfbe704c05647fb903",
+    "M": "syncronia_adcaca18e9a7db14251a2015",
+    "N": "syncronia_b219aaabce5a30b6d1a0ea82",
+    "O": "syncronia_b7e96ed8c59e40c556136a9a",
+    "P": "syncronia_bbadb327e128df8606f39d22",
+    "Q": "syncronia_bcf6e73770a0fbd34b39efea",
+    "R": "syncronia_be948721bd868a85ee3293d9",
+    "S": "syncronia_bea4c9087d51e81904c3ea5c",
+    "T": "syncronia_bf120cf1424d38b61389694d"
+   }
+  },
+  {
+   "sheet": "syncronia_chair-05",
+   "type": "syncronia_chair",
+   "number": 5,
+   "of": 6,
+   "letters": {
+    "A": "syncronia_c1cb97dcc8c790148eb96201",
+    "B": "syncronia_c5feded1389ae75b1de6b1f4",
+    "C": "syncronia_c611c6334c904f650fe21382",
+    "D": "syncronia_cf7044d25914a0dc4f46ea6c",
+    "E": "syncronia_d1210e20f6baae9408fab93e",
+    "F": "syncronia_d342563dba53a1699ba7a00f",
+    "G": "syncronia_d4536a843cc7de8602237c5d",
+    "H": "syncronia_d5a6cd5193c7feb1c8cbe446",
+    "I": "syncronia_d7ea8601ab387be2bf0d5f54",
+    "J": "syncronia_d861febd41410f0c563b9003",
+    "K": "syncronia_d8a12fda559d97327b990e24",
+    "L": "syncronia_dbb656fdb2b79d9e5944d959",
+    "M": "syncronia_dc49de9aa3b3245950122506",
+    "N": "syncronia_dd818ed4d6ce89592548f7d2",
+    "O": "syncronia_e20c2ec9e36105599448759e",
+    "P": "syncronia_e217eb0ad202d07499ebc642",
+    "Q": "syncronia_e54a48f247834f44b512801b",
+    "R": "syncronia_e5d914c82c18ec03af22bde9",
+    "S": "syncronia_f0015a40b82b066aac9a3da1",
+    "T": "syncronia_f39c9ebd5d65b656eec3ac57"
+   }
+  },
+  {
+   "sheet": "syncronia_chair-06",
+   "type": "syncronia_chair",
+   "number": 6,
+   "of": 6,
+   "letters": {
+    "A": "syncronia_f521ab91285269e385fd1783",
+    "B": "syncronia_f5ec86a06a0ee50fd0d19c31",
+    "C": "syncronia_f7f73972d9598f1341a80755",
+    "D": "syncronia_fa70b0b7ac0bb7696cb74b91",
+    "E": "syncronia_fac1a0318d7bfd00c78f9dec",
+    "F": "syncronia_fbf03d6c668cc4d833ae0429",
+    "G": "syncronia_fc5193247cb0a64882d3e43c",
+    "H": "syncronia_ff2a454e22dce60704d4e5f8",
+    "I": "syncronia_ffa4788d6d06ea8f592b825e"
+   }
+  },
+  {
+   "sheet": "syncronia_chaise-01",
+   "type": "syncronia_chaise",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_2238b4d95bd39b67a89b74a0",
+    "B": "syncronia_25ec1cf3242fd21342c9d91e",
+    "C": "syncronia_643774ff740013f30edfb550",
+    "D": "syncronia_99dc5d47211094dfdff2e1d1",
+    "E": "syncronia_d9d3f4aeab47c9aadfdff21b",
+    "F": "syncronia_e43f170e6e3e490efb773a97",
+    "G": "syncronia_f2da2f18e33fda36d48ba4ab"
+   }
+  },
+  {
+   "sheet": "syncronia_desk-01",
+   "type": "syncronia_desk",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_571a9744a69655e400d851a6"
+   }
+  },
+  {
+   "sheet": "syncronia_floor_lamp-01",
+   "type": "syncronia_floor_lamp",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_7bfe35cb34f000e5ab0f8a0c",
+    "B": "syncronia_e54dfe6aae3151c2b7c2e374",
+    "C": "syncronia_f75892f4e1b99f488d9e479e"
+   }
+  },
+  {
+   "sheet": "syncronia_ottoman-01",
+   "type": "syncronia_ottoman",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_16f48fca051b4a41dc6f54e6",
+    "B": "syncronia_2413653683a0001b7e60fdf0",
+    "C": "syncronia_88448195fc29fa1a09260025"
+   }
+  },
+  {
+   "sheet": "syncronia_pendant_light-01",
+   "type": "syncronia_pendant_light",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_083063021d998ac806ac04c8",
+    "B": "syncronia_14d0d1513ab4ae4cce3abf31",
+    "C": "syncronia_1893cc7879e857553345966b",
+    "D": "syncronia_2cd30788c06e64082812173d",
+    "E": "syncronia_2ce5cb68bf8fe5b7bc4a7172",
+    "F": "syncronia_5f4593de55d4021cd2724d22",
+    "G": "syncronia_67299561f4c6630d9ac75f35",
+    "H": "syncronia_7fd858a4030cc427c2f47d73",
+    "I": "syncronia_863fb780640a9030a146ff99",
+    "J": "syncronia_86a0afb515022eae31873136",
+    "K": "syncronia_95d2f9b8cfb5854a3f48e650",
+    "L": "syncronia_9ed75a9e66e04b50b87ff7cd",
+    "M": "syncronia_a3c1a7f44dc53cbb9ccd2cb7",
+    "N": "syncronia_b3e11c78f4250aa07be575d5",
+    "O": "syncronia_b67c5e4da75b0a3ff6c36632",
+    "P": "syncronia_c0708fe4059d3b52d95f01b3",
+    "Q": "syncronia_d122872ec85d769388d8d865",
+    "R": "syncronia_d1e8202c6100f2cabb694f77",
+    "S": "syncronia_f59465bd577b79d253ae8592",
+    "T": "syncronia_fd7adb7a94e7f3fe4e71f758"
+   }
+  },
+  {
+   "sheet": "syncronia_side_table-01",
+   "type": "syncronia_side_table",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_22c14bf028a271e4d03bd8b3",
+    "B": "syncronia_3db0e66637a5523ebe2c1fa1",
+    "C": "syncronia_8fcb967e1b0ed3e1b3eefede",
+    "D": "syncronia_befd74185c08eb8a6569075d",
+    "E": "syncronia_dd887e0c7a555269ed5e6d4d",
+    "F": "syncronia_f42c868f4af12bce77c210b1",
+    "G": "syncronia_fd14b292a5c01afed73e22a3"
+   }
+  },
+  {
+   "sheet": "syncronia_sofa-01",
+   "type": "syncronia_sofa",
+   "number": 1,
+   "of": 3,
+   "letters": {
+    "A": "syncronia_04d86949360b0da80293e201",
+    "B": "syncronia_06ee99a4f42d6ed6d19af88f",
+    "C": "syncronia_08483e811194f0f921203f55",
+    "D": "syncronia_09f4a3249c8040c194d98156",
+    "E": "syncronia_0a35f2deab87dbb678f6fdb5",
+    "F": "syncronia_0b5f98519e86d26e358e166e",
+    "G": "syncronia_1e7a1e024f8ef9549abd2350",
+    "H": "syncronia_23e3558ecf7f8472930834b8",
+    "I": "syncronia_24860249357abe20a69a997e",
+    "J": "syncronia_289c01d30f4c9785cf35a8b2",
+    "K": "syncronia_35bd2b3b991ad4450c2179c5",
+    "L": "syncronia_376fc2853737972b8d80e563",
+    "M": "syncronia_3b521912b81f85a1c88b7d25",
+    "N": "syncronia_3d2d4c585fc1ec377638d103",
+    "O": "syncronia_3f75b0e221b58c765bde1c50",
+    "P": "syncronia_411f894dede40656d34035a9",
+    "Q": "syncronia_52050c8d90e8596d7f86bce4",
+    "R": "syncronia_53f6f5ea8ce8726d3664c3b5",
+    "S": "syncronia_5c4676687ddd39b7be92e676",
+    "T": "syncronia_5c84baa322b4dfa66a13a456"
+   }
+  },
+  {
+   "sheet": "syncronia_sofa-02",
+   "type": "syncronia_sofa",
+   "number": 2,
+   "of": 3,
+   "letters": {
+    "A": "syncronia_5ce880a6fb0e9b3a7d3cd59f",
+    "B": "syncronia_5e2ee13d688d5dae0686724a",
+    "C": "syncronia_5f30229c131a8ddae67082ad",
+    "D": "syncronia_6493ef2b0db719cbf2c3b92f",
+    "E": "syncronia_66df85dba2a33178fe92a75d",
+    "F": "syncronia_70df99e7fce124eeae59d12e",
+    "G": "syncronia_71ad6bf916f19d1fa40df866",
+    "H": "syncronia_7359f7f5c47ad4061201526b",
+    "I": "syncronia_749edc36002a2a67608ce9e6",
+    "J": "syncronia_7a5cedafc65d41e1d77c123a",
+    "K": "syncronia_7b451f07fad664ca157ddab4",
+    "L": "syncronia_7ee757f3a7181e8089a67f4c",
+    "M": "syncronia_84f2ebe9d480214dd9e6d330",
+    "N": "syncronia_868594e709563778fd5b6bb9",
+    "O": "syncronia_87c0848b6323acbb1571b009",
+    "P": "syncronia_8f87a669ce5ec80752907e65",
+    "Q": "syncronia_8fcd392aa9f04e229abcc39f",
+    "R": "syncronia_9fe5738e1d061d6d5f76ad5b",
+    "S": "syncronia_a193a866911b2e36943be245",
+    "T": "syncronia_a9464e77257677d1f421500b"
+   }
+  },
+  {
+   "sheet": "syncronia_sofa-03",
+   "type": "syncronia_sofa",
+   "number": 3,
+   "of": 3,
+   "letters": {
+    "A": "syncronia_acc445536d226dfb594a2336",
+    "B": "syncronia_b13b1601952275c1a8fe566a",
+    "C": "syncronia_b461c05ea78ff6b8b2f5deb5",
+    "D": "syncronia_b9589eb00126ec73d05df8b3",
+    "E": "syncronia_c1a67efe4e4a685580b7031b",
+    "F": "syncronia_c2daeeeb28e0a45162588b7e",
+    "G": "syncronia_c6907f27d0d9087cc9b05d93",
+    "H": "syncronia_c7ed8f148c170607e4ca0195",
+    "I": "syncronia_c9961d2f402250928841363a",
+    "J": "syncronia_d337f0a4b3ebcc0b3bbbd3d8",
+    "K": "syncronia_d6ae6a81a9c24bca2e281ef4",
+    "L": "syncronia_dd712cdb3716f7096e627887",
+    "M": "syncronia_e4828db57aa75990f964e1cc",
+    "N": "syncronia_ea7b06fe2cd202c8e9299f99",
+    "O": "syncronia_ee5a4eeacb33207b62b3577c",
+    "P": "syncronia_ff7cad3a693be185746e6bc0",
+    "Q": "syncronia_ffd91f1f69d2a4304b0ed80f"
+   }
+  },
+  {
+   "sheet": "syncronia_sofa_corner-01",
+   "type": "syncronia_sofa_corner",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_029ae0d6f5950c42a69d13f0",
+    "B": "syncronia_0be6ab7bdffe2d4ded83908b",
+    "C": "syncronia_0df74ed5550c31e224357157",
+    "D": "syncronia_31ee6c49e162be995d23d30a",
+    "E": "syncronia_44025e5a50d7c2af2435397e",
+    "F": "syncronia_4ccc4b2c8b8504adaed88b01",
+    "G": "syncronia_609643ef9799ee56d05e2c81",
+    "H": "syncronia_d4679cc10d485383d914440c"
+   }
+  },
+  {
+   "sheet": "syncronia_table_coffee-01",
+   "type": "syncronia_table_coffee",
+   "number": 1,
+   "of": 2,
+   "letters": {
+    "A": "syncronia_01fd0e72e6ea15da0ee8c3a3",
+    "B": "syncronia_025ce2598ae09772ff4ac4e1",
+    "C": "syncronia_13a594bd4b606e0dd8807ad7",
+    "D": "syncronia_1625450217aad1390e964d6c",
+    "E": "syncronia_28b4f805d11be0f8c0ffe4c7",
+    "F": "syncronia_3ff9c289f09883371b2489cc",
+    "G": "syncronia_461ce2b2c78d980ac54d5f24",
+    "H": "syncronia_4ec739006eee5aa20a942c40",
+    "I": "syncronia_55b2187087dc16e335524f03",
+    "J": "syncronia_5ab1725a1aa956351af388a3",
+    "K": "syncronia_5f8733884dc18775a1c5f16d",
+    "L": "syncronia_6c42a2273d8c986b96f659a2",
+    "M": "syncronia_769ea27b8cd3afc9e3dde2ca",
+    "N": "syncronia_87999a3dd6e13ae42e685589",
+    "O": "syncronia_8c1d68f485699f7f4aa5d5c1",
+    "P": "syncronia_8f7c6d68863c5f50d9ccb3ee",
+    "Q": "syncronia_9e03d78641d205b069a681ac",
+    "R": "syncronia_a145cfb95e7118144e28fa92",
+    "S": "syncronia_aaab618aa85efd210fbaa0ca",
+    "T": "syncronia_b4ab356e0890100107092078"
+   }
+  },
+  {
+   "sheet": "syncronia_table_coffee-02",
+   "type": "syncronia_table_coffee",
+   "number": 2,
+   "of": 2,
+   "letters": {
+    "A": "syncronia_bee69434555a99809263af7d",
+    "B": "syncronia_ea020efd17b2e23eaf99fafd",
+    "C": "syncronia_efadfbf94ab436859d69cda2",
+    "D": "syncronia_f53a5c2468626a27fa285c55"
+   }
+  },
+  {
+   "sheet": "syncronia_table_dining-01",
+   "type": "syncronia_table_dining",
+   "number": 1,
+   "of": 2,
+   "letters": {
+    "A": "syncronia_051f327a1374cd6ee43d9095",
+    "B": "syncronia_0ab1993002553bac9199feef",
+    "C": "syncronia_11e3e4c2c7d594ea14336a99",
+    "D": "syncronia_1e8a217355f8ae987740ff39",
+    "E": "syncronia_352fd9c1925c4888eba55265",
+    "F": "syncronia_3b4e43e00eb3d707931d2e9f",
+    "G": "syncronia_450657cb71cc83eb9f1007d9",
+    "H": "syncronia_4a9efc354c1a2f0191cdc434",
+    "I": "syncronia_5061893d88c5e3668fd73681",
+    "J": "syncronia_558ecb93711a63f8a53d57dd",
+    "K": "syncronia_5e49488bec3fa1c3594433d1",
+    "L": "syncronia_5ee7ae299e4026ee7fcf847e",
+    "M": "syncronia_62bd9a0a4ad2670f6e230f41",
+    "N": "syncronia_6abcce1a44f1b50f6f26b602",
+    "O": "syncronia_6b229ee538f9691c377379db",
+    "P": "syncronia_6b74d8d6447a4130cf1e4b5c",
+    "Q": "syncronia_6c54da3296358c02932f2926",
+    "R": "syncronia_8622484c204893cc820b6458",
+    "S": "syncronia_88013971e64cc4b41800dafd",
+    "T": "syncronia_9c818eca6f2920d071b07c4a"
+   }
+  },
+  {
+   "sheet": "syncronia_table_dining-02",
+   "type": "syncronia_table_dining",
+   "number": 2,
+   "of": 2,
+   "letters": {
+    "A": "syncronia_9e19b856935acefd68e351cb",
+    "B": "syncronia_a44d43b43520dfeab5b60d22",
+    "C": "syncronia_b77fce430dfe5ab415725490",
+    "D": "syncronia_bc1deaaa68c6395b563b3080",
+    "E": "syncronia_bd63248a035970db248c98ae",
+    "F": "syncronia_c1643a2241da1e83dcea5065",
+    "G": "syncronia_c21dd0280fda4ee0d52a57ac",
+    "H": "syncronia_c248bd9f3e57b69da8aa4e09",
+    "I": "syncronia_c78a64281bb25e35a061566f",
+    "J": "syncronia_d0faa37f8b334b084d14be01",
+    "K": "syncronia_d2bf1f8bac04a6d06ded4fc5",
+    "L": "syncronia_d38fdac83991e77af575f23e",
+    "M": "syncronia_d5c07e3f2c74fe4e162b09ed",
+    "N": "syncronia_d8e2e50da2e86a37bead4977",
+    "O": "syncronia_e94538e67afb511be062b2aa",
+    "P": "syncronia_efa2c80dccea6ce4c448252b",
+    "Q": "syncronia_f2c27989697f3d8745246b5f",
+    "R": "syncronia_fd7f7ac0d226e1811011cc1a"
+   }
+  },
+  {
+   "sheet": "syncronia_washbasin-01",
+   "type": "syncronia_washbasin",
+   "number": 1,
+   "of": 3,
+   "letters": {
+    "A": "syncronia_0b642d52edfda3242a3e6965",
+    "B": "syncronia_0f9206d934f844a5c9e0c70b",
+    "C": "syncronia_135accccbf671679a209605a",
+    "D": "syncronia_1a26f30b9afcee9cc9e12742",
+    "E": "syncronia_1be230250b020276681c155a",
+    "F": "syncronia_1c66f9c5d98fa9da02b3c18c",
+    "G": "syncronia_1d182d7854d7456e963af914",
+    "H": "syncronia_1e034898651dc48ed8543894",
+    "I": "syncronia_204367323aedaca45331e980",
+    "J": "syncronia_22a8eab6296adcdce8052168",
+    "K": "syncronia_2517f6d32f22ad69ae1c1a51",
+    "L": "syncronia_254f97ccf6aee91e63e2adab",
+    "M": "syncronia_25d9a7409e1906af42354d29",
+    "N": "syncronia_2e5ba7abbdd0a67e99da706b",
+    "O": "syncronia_39080821d89914bd39e9fbcc",
+    "P": "syncronia_3eaf9bf6fecf6b7a983e09b0",
+    "Q": "syncronia_4bc435238e27eae826240809",
+    "R": "syncronia_4fe87bbeab850da3c2de3654",
+    "S": "syncronia_4ff7be6041cfed0b16894423",
+    "T": "syncronia_55e79d6c17b263d8f02e8b9d"
+   }
+  },
+  {
+   "sheet": "syncronia_washbasin-02",
+   "type": "syncronia_washbasin",
+   "number": 2,
+   "of": 3,
+   "letters": {
+    "A": "syncronia_5851af623ebe4a1e4ee8f937",
+    "B": "syncronia_594d14a47b64dd96092a344b",
+    "C": "syncronia_6c4bd5123f8f1f9b65ade79f",
+    "D": "syncronia_7af515d7afee22fed3b484be",
+    "E": "syncronia_88132df7625212a3f58b54be",
+    "F": "syncronia_88e7de4c3a607244e292d6b8",
+    "G": "syncronia_8b24ad500329205e4d6b35db",
+    "H": "syncronia_95859eeb2e0c00f19f8863a0",
+    "I": "syncronia_99fbda33d2256a71913269ec",
+    "J": "syncronia_9b206f6a64d197f20a22fd36",
+    "K": "syncronia_9f398ac3d7443ccd2d814e34",
+    "L": "syncronia_ae1322c029353a3588ccafe9",
+    "M": "syncronia_b0a2fb5026c645ebee8b2c5f",
+    "N": "syncronia_b22171cf6d0dd53957830d76",
+    "O": "syncronia_b35a8d307e79092faef1e2f9",
+    "P": "syncronia_bfe475f78738fc97f2b9606f",
+    "Q": "syncronia_ce33cca99837aad80f8d3831",
+    "R": "syncronia_cfd506825fe7e6007d87b3b1",
+    "S": "syncronia_d2d9c74db7be8aac18a651fa",
+    "T": "syncronia_e19486ae20ae8a227cb82f4f"
+   }
+  },
+  {
+   "sheet": "syncronia_washbasin-03",
+   "type": "syncronia_washbasin",
+   "number": 3,
+   "of": 3,
+   "letters": {
+    "A": "syncronia_e85575d6e551de5f53625bcb",
+    "B": "syncronia_f55f8b023dfaa3605210cab6",
+    "C": "syncronia_ff32e3b4baa88e03493e3b7c"
+   }
   }
  ],
  "models": {
+  "syncronia_005bd5901ccf7acef31271e8": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "B&B Italia Metropolitan '14 (99 x 81 x 78 cm)",
+   "size_m": [
+    0.99,
+    0.81,
+    0.78
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_00630eb4f64bda1ff4755806": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Tonon Libra armchair (59 x 62 x 82 cm)",
+   "size_m": [
+    0.59,
+    0.62,
+    0.82
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_014966e7f76e86d7473373b4": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "B&B Italia Theo (68 x 73 x 79 cm)",
+   "size_m": [
+    0.68,
+    0.73,
+    0.79
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_055a3278154bb6e8edc3821e": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "et al. Marka (62 x 59 x 86 cm)",
+   "size_m": [
+    0.62,
+    0.59,
+    0.86
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_46022258171ad5cb149f9bf7": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "B&B Italia Mart (100 x 76 x 89 cm)",
+   "size_m": [
+    0.76,
+    1.0,
+    0.89
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_4782f6a4a395b2c63c3744fd": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Marte Design Finn (95 x 72 x 79 cm)",
+   "size_m": [
+    0.95,
+    0.72,
+    0.79
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_4795c2eb0c65c43f9b5de2c1": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Riva 1920 Bungalow Armchair (97 x 88 x 78 cm)",
+   "size_m": [
+    0.97,
+    0.88,
+    0.78
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_5390d40200b9cc58f79fefa8": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "et al. Agatha (60 x 59 x 82 cm)",
+   "size_m": [
+    0.6,
+    0.59,
+    0.82
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_53bbb66d00566f3228d483c1": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "MDF Italia Cantle (75 x 64 x 71 cm)",
+   "size_m": [
+    0.75,
+    0.64,
+    0.71
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_59e270fa88a5bcd5fb717870": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "et al. Agami (74 x 74 x 81 cm)",
+   "size_m": [
+    0.74,
+    0.74,
+    0.81
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_5aa4de6864d221e49cd306e1": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "B&B Italia Mart (71 x 69 x 67 cm)",
+   "size_m": [
+    0.69,
+    0.71,
+    0.67
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_5bf827cc1f8e13d78a4ca0b4": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "Tonon Libra lounge (89 x 75 x 75 cm)",
+   "size_m": [
+    0.89,
+    0.75,
+    0.75
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_5e07f1b0492623ad7081356f": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "B&B Italia Metropolitan '14 (99 x 87 x 108 cm)",
+   "size_m": [
+    0.99,
+    0.87,
+    1.08
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_600557201f7a7ae8e656bcfd": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "Tonon Corda Armchair (59 x 60 x 83 cm)",
+   "size_m": [
+    0.59,
+    0.6,
+    0.83
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_6ad60e55d95a40faedcedcea": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "B&B Italia Tulip Sixty - Tulip (54 x 61 x 72 cm)",
+   "size_m": [
+    0.61,
+    0.54,
+    0.72
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_735b5eb95245ee155549dd31": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Febo 2013 (77 x 96 x 106 cm)",
+   "size_m": [
+    0.77,
+    0.96,
+    1.06
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_75ef356e7fa423ac4497f685": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "Tonon Flower (63 x 60 x 88 cm)",
+   "size_m": [
+    0.63,
+    0.6,
+    0.88
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_873adca05398548ec7e2c2db": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "B&B Italia Le Bambole, Bambola Armchair (123 x 93 x 78 cm)",
+   "size_m": [
+    1.23,
+    0.93,
+    0.78
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_88037a0b57f2675820d89eb4": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "Tonon Up Lounge (75 x 73 x 74 cm)",
+   "size_m": [
+    0.75,
+    0.73,
+    0.74
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_8d30154167f4bbecb248792c": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-01",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "et al. Kyk (67 x 64 x 73 cm)",
+   "size_m": [
+    0.67,
+    0.64,
+    0.73
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_9add3fc28c8fccf6ba6966a4": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "et al. Ari (74 x 79 x 74 cm)",
+   "size_m": [
+    0.74,
+    0.79,
+    0.74
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_9e346f28f05e87842010f691": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "B&B Italia Tulip Sixty - Tulip (66 x 66 x 71 cm)",
+   "size_m": [
+    0.66,
+    0.66,
+    0.71
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_a194149f43431316b38161ba": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "et al. Kicca (57 x 62 x 76 cm)",
+   "size_m": [
+    0.62,
+    0.57,
+    0.76
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_b6eb61dc4b4dc4c59a267fbd": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "B&B Italia Metropolitan '14 (99 x 87 x 108 cm)",
+   "size_m": [
+    0.99,
+    0.87,
+    1.08
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_b8e04162673305f7ef5cd0ec": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "B&B Italia Beverly (70 x 76 x 78 cm)",
+   "size_m": [
+    0.7,
+    0.76,
+    0.78
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_c48352ef9a3b0f08bae161c3": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Marte Design Qbot (96 x 86 x 75 cm)",
+   "size_m": [
+    0.96,
+    0.86,
+    0.75
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_cad8fa63c58fb3b4a2bc6e0e": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Febo 2014 (63 x 75 x 75 cm)",
+   "size_m": [
+    0.63,
+    0.75,
+    0.75
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_d81ed4147e51d7f830b38cab": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "MDF Italia SIGN Matt (72 x 70 x 59 cm)",
+   "size_m": [
+    0.7,
+    0.72,
+    0.59
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_d8753be17fe3ca777989651a": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "Marte Design Nami (70 x 70 x 70 cm)",
+   "size_m": [
+    0.7,
+    0.7,
+    0.7
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_e566766b77f2eca569ed8c05": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "B&B Italia Grande Papilio (83 x 86 x 103 cm)",
+   "size_m": [
+    0.83,
+    0.86,
+    1.03
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_e9a1edf6ccbb3aae71250a4b": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "MDF Italia Neil Twist (80 x 67 x 71 cm)",
+   "size_m": [
+    0.8,
+    0.67,
+    0.71
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_ea41ed013dc16846ddd7594b": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "MDF Italia Achille Collection (60 x 56 x 75 cm)",
+   "size_m": [
+    0.6,
+    0.56,
+    0.75
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_f0778df729d0d65859fc7850": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "MDF Italia Peggy (109 x 89 x 74 cm)",
+   "size_m": [
+    1.09,
+    0.89,
+    0.74
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_f6f27446c0204d2ddcd0e9ec": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "MDF Italia Mia (93 x 77 x 72 cm)",
+   "size_m": [
+    0.93,
+    0.77,
+    0.72
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_fa5731a7809673a92f082a47": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "B&B Italia Beverly (70 x 82 x 95 cm)",
+   "size_m": [
+    0.7,
+    0.82,
+    0.95
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_fc4239f8540b8a74e34e1dc3": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Marte Design Dilmun-L (75 x 83 x 90 cm)",
+   "size_m": [
+    0.75,
+    0.83,
+    0.9
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_fe07a98206e5cc34bade1b31": {
+   "type": "armchair",
+   "sheet": "syncronia_armchair-02",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Febo 2013 (77 x 96 x 106 cm)",
+   "size_m": [
+    0.77,
+    0.96,
+    1.06
+   ],
+   "tab": "syncronia_armchair"
+  },
+  "syncronia_0c50805cc0d4481d50793073": {
+   "type": "bar_stool",
+   "sheet": "syncronia_bar_stool-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Marte Design 42 Stool - 2021 (43 x 44 x 74 cm)",
+   "size_m": [
+    0.43,
+    0.44,
+    0.74
+   ],
+   "tab": "syncronia_bar_stool"
+  },
+  "syncronia_1818c284fc26a5ec098389d0": {
+   "type": "bar_stool",
+   "sheet": "syncronia_bar_stool-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Tonon Up stool (52 x 63 x 94 cm)",
+   "size_m": [
+    0.63,
+    0.52,
+    0.94
+   ],
+   "tab": "syncronia_bar_stool"
+  },
+  "syncronia_37493b0ebe28f7db703f6f86": {
+   "type": "bar_stool",
+   "sheet": "syncronia_bar_stool-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Marte Design Iko (38 x 38 x 57 cm)",
+   "size_m": [
+    0.38,
+    0.38,
+    0.57
+   ],
+   "tab": "syncronia_bar_stool"
+  },
+  "syncronia_6e9a3c4f440f1b852f49e124": {
+   "type": "bar_stool",
+   "sheet": "syncronia_bar_stool-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "Marte Design Alfa-H (55 x 54 x 99 cm)",
+   "size_m": [
+    0.55,
+    0.54,
+    0.99
+   ],
+   "tab": "syncronia_bar_stool"
+  },
+  "syncronia_908ac4b0652e4281aec2036d": {
+   "type": "bar_stool",
+   "sheet": "syncronia_bar_stool-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "et al. Main (48 x 45 x 63 cm)",
+   "size_m": [
+    0.48,
+    0.45,
+    0.63
+   ],
+   "tab": "syncronia_bar_stool"
+  },
+  "syncronia_9a313d5201c378d2a65a81b3": {
+   "type": "bar_stool",
+   "sheet": "syncronia_bar_stool-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "MDF Italia Aiku Stool (64 x 57 x 109 cm)",
+   "size_m": [
+    0.64,
+    0.57,
+    1.09
+   ],
+   "tab": "syncronia_bar_stool"
+  },
+  "syncronia_d28b4a282832bfbc4901ca5c": {
+   "type": "bar_stool",
+   "sheet": "syncronia_bar_stool-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "MDF Italia Duetto (38 x 38 x 67 cm)",
+   "size_m": [
+    0.38,
+    0.38,
+    0.67
+   ],
+   "tab": "syncronia_bar_stool"
+  },
+  "syncronia_f20d31fdf1da4fb6eb7be706": {
+   "type": "bar_stool",
+   "sheet": "syncronia_bar_stool-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "Tonon Question Mark Stool (64 x 60 x 113 cm)",
+   "size_m": [
+    0.6,
+    0.65,
+    1.13
+   ],
+   "tab": "syncronia_bar_stool"
+  },
+  "syncronia_0556e173f8cdcb598bd7b568": {
+   "type": "bathtub",
+   "sheet": "syncronia_bathtub-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Aquatica Bath Corelia (168 x 86 x 53 cm)",
+   "size_m": [
+    1.68,
+    0.86,
+    0.53
+   ],
+   "tab": "syncronia_bathtub"
+  },
+  "syncronia_1a99aed4039fe9eb5b495766": {
+   "type": "bathtub",
+   "sheet": "syncronia_bathtub-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Aquatica Bath Lullaby Mini (154 x 70 x 63 cm)",
+   "size_m": [
+    1.54,
+    0.7,
+    0.63
+   ],
+   "tab": "syncronia_bathtub"
+  },
+  "syncronia_3469b326dbc08d34c25eec63": {
+   "type": "bathtub",
+   "sheet": "syncronia_bathtub-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Aquatica Bath Purescape 171 (183 x 100 x 79 cm)",
+   "size_m": [
+    1.83,
+    1.0,
+    0.79
+   ],
+   "tab": "syncronia_bathtub"
+  },
+  "syncronia_4a736a820d7fb0449d26352c": {
+   "type": "bathtub",
+   "sheet": "syncronia_bathtub-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "Aquatica Bath Spoon 2 (168 x 90 x 57 cm)",
+   "size_m": [
+    0.9,
+    1.68,
+    0.57
+   ],
+   "tab": "syncronia_bathtub"
+  },
+  "syncronia_592a1e6940d0c2ef22632d33": {
+   "type": "bathtub",
+   "sheet": "syncronia_bathtub-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "Aquatica Bath Sensuality Mini (84 x 168 x 68 cm)",
+   "size_m": [
+    0.84,
+    1.68,
+    0.68
+   ],
+   "tab": "syncronia_bathtub"
+  },
+  "syncronia_8013eafb68202a3cb81b9060": {
+   "type": "bathtub",
+   "sheet": "syncronia_bathtub-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Aquatica Bath Lullaby Nano (130 x 61 x 70 cm)",
+   "size_m": [
+    0.61,
+    1.3,
+    0.7
+   ],
+   "tab": "syncronia_bathtub"
+  },
+  "syncronia_b6a24b2089569919253dfddf": {
+   "type": "bathtub",
+   "sheet": "syncronia_bathtub-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Aquatica Bath True Ofuro Nano (124 x 95 x 79 cm)",
+   "size_m": [
+    1.24,
+    0.95,
+    0.79
+   ],
+   "tab": "syncronia_bathtub"
+  },
+  "syncronia_b85bbbb836f23adff394af66": {
+   "type": "bathtub",
+   "sheet": "syncronia_bathtub-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "Aquatica Bath Aphrodite (178 x 92 x 68 cm)",
+   "size_m": [
+    1.78,
+    0.92,
+    0.68
+   ],
+   "tab": "syncronia_bathtub"
+  },
+  "syncronia_c884bcf94c3abd3afbe68c0d": {
+   "type": "bathtub",
+   "sheet": "syncronia_bathtub-01",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "Aquatica Bath Purescape 171 Mini (183 x 100 x 79 cm)",
+   "size_m": [
+    1.83,
+    1.0,
+    0.79
+   ],
+   "tab": "syncronia_bathtub"
+  },
+  "syncronia_fe120cc3762656d423e94b72": {
+   "type": "bathtub",
+   "sheet": "syncronia_bathtub-01",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "Aquatica Bath Sensuality (179 x 90 x 66 cm)",
+   "size_m": [
+    1.79,
+    0.9,
+    0.66
+   ],
+   "tab": "syncronia_bathtub"
+  },
   "syncronia_1264acbf9b6bf1a3e481e26b": {
    "type": "bed_double",
-   "sheet": "syncronia-01",
+   "sheet": "syncronia_bed_double-01",
    "letter": "A",
    "source": "syncronia",
    "title": "Maxalto (B&B Italia) Demetra bed 195 x 226",
@@ -36,11 +1425,11 @@
     2.26,
     1.31
    ],
-   "tab": "syncronia"
+   "tab": "syncronia_bed_double"
   },
   "syncronia_1b62267562938e003d042011": {
    "type": "bed_double",
-   "sheet": "syncronia-01",
+   "sheet": "syncronia_bed_double-01",
    "letter": "B",
    "source": "syncronia",
    "title": "Maxalto (B&B Italia) Selene bed 170 x 226",
@@ -49,11 +1438,11 @@
     2.26,
     0.9
    ],
-   "tab": "syncronia"
+   "tab": "syncronia_bed_double"
   },
   "syncronia_3eba7f077ca6b3628c4de971": {
    "type": "bed_double",
-   "sheet": "syncronia-01",
+   "sheet": "syncronia_bed_double-01",
    "letter": "C",
    "source": "syncronia",
    "title": "Maxalto (B&B Italia) Selene bed 180 x 223",
@@ -62,11 +1451,11 @@
     2.23,
     0.9
    ],
-   "tab": "syncronia"
+   "tab": "syncronia_bed_double"
   },
   "syncronia_71606884d3001847e7307f0c": {
    "type": "bed_double",
-   "sheet": "syncronia-01",
+   "sheet": "syncronia_bed_double-01",
    "letter": "D",
    "source": "syncronia",
    "title": "Maxalto (B&B Italia) Demetra bed 210 x 226",
@@ -75,11 +1464,11 @@
     2.26,
     1.31
    ],
-   "tab": "syncronia"
+   "tab": "syncronia_bed_double"
   },
   "syncronia_91661aa8250a9bba52ec8e25": {
    "type": "bed_double",
-   "sheet": "syncronia-01",
+   "sheet": "syncronia_bed_double-01",
    "letter": "E",
    "source": "syncronia",
    "title": "Horm Ebridi Legno Sommier bed 169 x 205",
@@ -88,11 +1477,11 @@
     2.05,
     0.61
    ],
-   "tab": "syncronia"
+   "tab": "syncronia_bed_double"
   },
   "syncronia_b9c981b22ffff17ab6364113": {
    "type": "bed_double",
-   "sheet": "syncronia-01",
+   "sheet": "syncronia_bed_double-01",
    "letter": "F",
    "source": "syncronia",
    "title": "Maxalto (B&B Italia) Demetra bed 221 x 226",
@@ -101,11 +1490,11 @@
     2.26,
     1.31
    ],
-   "tab": "syncronia"
+   "tab": "syncronia_bed_double"
   },
   "syncronia_df94c532dfc5699ddd5ccf82": {
    "type": "bed_double",
-   "sheet": "syncronia-01",
+   "sheet": "syncronia_bed_double-01",
    "letter": "G",
    "source": "syncronia",
    "title": "Maxalto (B&B Italia) Demetra bed 226 x 241",
@@ -114,7 +1503,4653 @@
     2.26,
     1.31
    ],
-   "tab": "syncronia"
+   "tab": "syncronia_bed_double"
+  },
+  "syncronia_020ff583639aa6d216ee3327": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "et al. Space (72 x 62 x 115 cm)",
+   "size_m": [
+    0.72,
+    0.62,
+    1.15
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_5bbf5337d37d3bd1e09ec1ec": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "et al. Space (84 x 62 x 87 cm)",
+   "size_m": [
+    0.84,
+    0.62,
+    0.87
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_5dd76ae188da5516cac29f6e": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "et al. Space (124 x 62 x 87 cm)",
+   "size_m": [
+    1.24,
+    0.62,
+    0.87
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_66740fc2b1aad82d321cb499": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "et al. Space (124 x 62 x 87 cm)",
+   "size_m": [
+    1.24,
+    0.62,
+    0.87
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_8259585e4a443901e0b993be": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "et al. Space (124 x 62 x 115 cm)",
+   "size_m": [
+    1.24,
+    0.62,
+    1.15
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_9e21bbbbf32e64addea15821": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "et al. Space (82 x 62 x 115 cm)",
+   "size_m": [
+    0.82,
+    0.62,
+    1.15
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_b841b90e894b820bcdf968bb": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "MDF Italia Le Banc (122 x 40 x 44 cm)",
+   "size_m": [
+    1.22,
+    0.4,
+    0.44
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_bd2f142bea83298ecaad2ee7": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "et al. Space (74 x 62 x 87 cm)",
+   "size_m": [
+    0.74,
+    0.62,
+    0.87
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_f36cf65e26bfd030f8ed1ed7": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "Riva 1920 Audrey (190 x 60 x 46 cm)",
+   "size_m": [
+    0.6,
+    1.9,
+    0.46
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_f98ca729932579cbdec7ae63": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "Riva 1920 Riccio (100 x 50 x 45 cm)",
+   "size_m": [
+    1.0,
+    0.5,
+    0.45
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_fc659d0e72c0dd684a687366": {
+   "type": "bench",
+   "sheet": "syncronia_bench-01",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "Riva 1920 Giacinto (130 x 39 x 44 cm)",
+   "size_m": [
+    1.3,
+    0.39,
+    0.44
+   ],
+   "tab": "syncronia_bench"
+  },
+  "syncronia_1f5c4820beb11b6b317715bd": {
+   "type": "bookshelf",
+   "sheet": "syncronia_bookshelf-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "B&B Italia Arne (80 x 32 x 150 cm)",
+   "size_m": [
+    0.8,
+    0.32,
+    1.5
+   ],
+   "tab": "syncronia_bookshelf"
+  },
+  "syncronia_39d61dfbe30406910741c1cd": {
+   "type": "bookshelf",
+   "sheet": "syncronia_bookshelf-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "MDF Italia Random_Wood (82 x 25 x 216 cm)",
+   "size_m": [
+    0.82,
+    0.25,
+    2.16
+   ],
+   "tab": "syncronia_bookshelf"
+  },
+  "syncronia_56f4c6aa406f8656bc28196b": {
+   "type": "bookshelf",
+   "sheet": "syncronia_bookshelf-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "MDF Italia Randomito (207 x 51 x 243 cm)",
+   "size_m": [
+    2.07,
+    0.51,
+    2.43
+   ],
+   "tab": "syncronia_bookshelf"
+  },
+  "syncronia_66ff6663fc50dde70c7ae8cf": {
+   "type": "bookshelf",
+   "sheet": "syncronia_bookshelf-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "MDF Italia Melody (88 x 25 x 216 cm)",
+   "size_m": [
+    0.88,
+    0.25,
+    2.16
+   ],
+   "tab": "syncronia_bookshelf"
+  },
+  "syncronia_7cdbb306500b3b7804e6e05f": {
+   "type": "bookshelf",
+   "sheet": "syncronia_bookshelf-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "B&B Italia Arne (35 x 90 x 165 cm)",
+   "size_m": [
+    0.35,
+    0.9,
+    1.65
+   ],
+   "tab": "syncronia_bookshelf"
+  },
+  "syncronia_e9e27967c6a81b327898f122": {
+   "type": "bookshelf",
+   "sheet": "syncronia_bookshelf-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "MDF Italia Random Collection (82 x 25 x 216 cm)",
+   "size_m": [
+    0.82,
+    0.25,
+    2.16
+   ],
+   "tab": "syncronia_bookshelf"
+  },
+  "syncronia_13af87fbb63380d893ce3ea7": {
+   "type": "bowl",
+   "sheet": "syncronia_bowl-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Alessi Breakfast board MW12 (16 x 31 x 2 cm)",
+   "size_m": [
+    0.16,
+    0.31,
+    0.02
+   ],
+   "tab": "syncronia_bowl",
+   "catalog_type": "decor_bowl",
+   "studio": "decor"
+  },
+  "syncronia_9a01f8d22a187b414d5d63c3": {
+   "type": "bowl",
+   "sheet": "syncronia_bowl-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Alessi Cheese board MW23 (42 x 42 x 2 cm)",
+   "size_m": [
+    0.42,
+    0.42,
+    0.02
+   ],
+   "tab": "syncronia_bowl",
+   "catalog_type": "decor_bowl",
+   "studio": "decor"
+  },
+  "syncronia_bc90d4b8eeae8690afcbedfa": {
+   "type": "bowl",
+   "sheet": "syncronia_bowl-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Alessi LA ROSA, Fruit bowl ESI15/21 (21 x 21 x 9 cm)",
+   "size_m": [
+    0.21,
+    0.21,
+    0.09
+   ],
+   "tab": "syncronia_bowl",
+   "catalog_type": "decor_bowl",
+   "studio": "decor"
+  },
+  "syncronia_0ba3b34693100187e7e22b67": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Platek Pix Square Ceiling (26 x 26 x 4 cm)",
+   "size_m": [
+    0.26,
+    0.26,
+    0.04
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_1cfc07c4ea63aac4949c3e7b": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Simes NANOLED WALK RECESSED (107 x 107 x 6 cm)",
+   "size_m": [
+    1.07,
+    1.07,
+    0.06
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_3d27392d4c87c632824212ad": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Panzeri Lola (18 x 17 x 8 cm)",
+   "size_m": [
+    0.18,
+    0.17,
+    0.08
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_53b71c1b52ad5f07a628984e": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "Platek Pix Round Ceiling (40 x 40 x 4 cm)",
+   "size_m": [
+    0.4,
+    0.4,
+    0.04
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_710baae01e750e502f972d07": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "Panzeri Carl (102 x 126 x 61 cm)",
+   "size_m": [
+    1.02,
+    1.26,
+    0.61
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_75d282840d40b152550c1728": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Panzeri Carl (71 x 99 x 58 cm)",
+   "size_m": [
+    0.71,
+    0.99,
+    0.58
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_8a3991ff64c85a4067a12fb8": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Panzeri Lola (17 x 19 x 5 cm)",
+   "size_m": [
+    0.17,
+    0.19,
+    0.05
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_9a4c15266dcecc5959092f15": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "Simes SKILL (22 x 22 x 3 cm)",
+   "size_m": [
+    0.22,
+    0.22,
+    0.03
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_bab86cc9ec1e8dd6ae5618f2": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "Platek Monaco Ceiling (12 x 12 x 21 cm)",
+   "size_m": [
+    0.12,
+    0.12,
+    0.21
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_c0bd667ec26241f9f5cdc3dc": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "Panzeri Carl (53 x 97 x 58 cm)",
+   "size_m": [
+    0.53,
+    0.97,
+    0.58
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_c9164c213f4980ae60bb85f8": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "Platek Mesh Soffitto (50 x 50 x 63 cm)",
+   "size_m": [
+    0.5,
+    0.5,
+    0.63
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_cf405834c17d564d93905b90": {
+   "type": "ceiling_light",
+   "sheet": "syncronia_ceiling_light-01",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "Panzeri Carl2 (33 x 13 x 9 cm)",
+   "size_m": [
+    0.33,
+    0.13,
+    0.09
+   ],
+   "tab": "syncronia_ceiling_light",
+   "catalog_type": "decor_ceiling_light",
+   "studio": "decor"
+  },
+  "syncronia_006f9ed3e197fbbc259fe183": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "et al. Ibis (51 x 56 x 109 cm)",
+   "size_m": [
+    0.56,
+    0.51,
+    1.09
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_03193a4383f4f127c279c333": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "et al. UNI (57 x 53 x 79 cm)",
+   "size_m": [
+    0.57,
+    0.53,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_03626c07f452ea6c06561097": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "et al. UNI (45 x 54 x 81 cm)",
+   "size_m": [
+    0.45,
+    0.54,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_081b2d83755a2244e4cdb7cf": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "MDF Italia Edo (53 x 53 x 81 cm)",
+   "size_m": [
+    0.53,
+    0.53,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_0e626978def478c663e05406": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Eunice (50 x 52 x 74 cm)",
+   "size_m": [
+    0.52,
+    0.5,
+    0.74
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_0f4e05d243061f564f22df59": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "et al. UNI (69 x 72 x 80 cm)",
+   "size_m": [
+    0.69,
+    0.72,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_1461077ea96289c4bb2235b1": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "et al. Ibis (54 x 56 x 99 cm)",
+   "size_m": [
+    0.56,
+    0.54,
+    0.99
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_159ad8418419dc122092d21e": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (54 x 59 x 83 cm)",
+   "size_m": [
+    0.59,
+    0.54,
+    0.83
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_18635f3a1814eb384ed1174f": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "et al. 001 (55 x 59 x 73 cm)",
+   "size_m": [
+    0.55,
+    0.59,
+    0.73
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_1986144bbe25ad51060a8730": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (69 x 72 x 81 cm)",
+   "size_m": [
+    0.69,
+    0.72,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_1a2acaf71a2b399148f6f0d7": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "MDF Italia Neil Collection chair (51 x 53 x 78 cm)",
+   "size_m": [
+    0.51,
+    0.53,
+    0.78
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_1aa5a69613538b8624a3974a": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "et al. UNI (55 x 54 x 80 cm)",
+   "size_m": [
+    0.55,
+    0.54,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_1ab8029bd7e7aa6f996c8cc1": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (54 x 59 x 82 cm)",
+   "size_m": [
+    0.59,
+    0.54,
+    0.82
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_1bb7897bdbfe9bedb3aabb3c": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "et al. Dalton (49 x 49 x 78 cm)",
+   "size_m": [
+    0.49,
+    0.49,
+    0.78
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_1d2cef9183c0a75be124aa3e": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Musa (56 x 44 x 114 cm)",
+   "size_m": [
+    0.44,
+    0.56,
+    1.14
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_1dbe38df3b85aae360d0a839": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Acanto (57 x 57 x 80 cm)",
+   "size_m": [
+    0.57,
+    0.57,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_1dd57ad1f28cd31c8d88d7d1": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "et al. UNI (46 x 53 x 111 cm)",
+   "size_m": [
+    0.46,
+    0.53,
+    1.11
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_1f53d66c4288b41fbde977ca": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "et al. UNI (48 x 54 x 80 cm)",
+   "size_m": [
+    0.48,
+    0.54,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_20e8680509ead95184137cda": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "et al. UNI (47 x 54 x 80 cm)",
+   "size_m": [
+    0.47,
+    0.54,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_2246a73be8f13dda76eeede0": {
+   "type": "chair",
+   "sheet": "syncronia_chair-01",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "et al. Kontea (61 x 57 x 120 cm)",
+   "size_m": [
+    0.57,
+    0.61,
+    1.2
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_22c09895db89f2f217d9225d": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Acanto (57 x 57 x 80 cm)",
+   "size_m": [
+    0.57,
+    0.57,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_22cf0c0bb12e9437e38c2369": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "et al. UNI (51 x 54 x 110 cm)",
+   "size_m": [
+    0.51,
+    0.54,
+    1.1
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_255267591636bcba2ecaad4e": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "et al. Ibis (65 x 68 x 79 cm)",
+   "size_m": [
+    0.68,
+    0.65,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_28776e16dd82583b8fd7b2cf": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (68 x 65 x 82 cm)",
+   "size_m": [
+    0.68,
+    0.65,
+    0.82
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_297563d9807bef50ec2a78b5": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "B&B Italia Lazy 05 (47 x 43 x 77 cm)",
+   "size_m": [
+    0.47,
+    0.43,
+    0.77
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_2f9b4e94d1f54aec4f89d7db": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "et al. UNI (47 x 53 x 79 cm)",
+   "size_m": [
+    0.47,
+    0.53,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_32a9b6269199776d39261ca4": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "et al. UNI (46 x 52 x 81 cm)",
+   "size_m": [
+    0.46,
+    0.52,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_3ba073ad33f76dcb488bf941": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "et al. UNI (53 x 45 x 81 cm)",
+   "size_m": [
+    0.45,
+    0.53,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_40bd7d6663e4ac86a8d919c0": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "et al. Ibis (55 x 56 x 79 cm)",
+   "size_m": [
+    0.56,
+    0.55,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_427c40319d8094b81b817d32": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (54 x 59 x 80 cm)",
+   "size_m": [
+    0.59,
+    0.54,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_428ff6ac024ece3cbbeba69f": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "et al. To-Kyo (50 x 54 x 83 cm)",
+   "size_m": [
+    0.5,
+    0.54,
+    0.83
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_44fe21c0a78611d9df211d9a": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "et al. UNI (51 x 52 x 79 cm)",
+   "size_m": [
+    0.51,
+    0.52,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_470826aef3693f4487309917": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "et al. Hull (48 x 50 x 75 cm)",
+   "size_m": [
+    0.48,
+    0.5,
+    0.75
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_47778da1e7e318f5f55bae07": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "et al. UNI (48 x 52 x 113 cm)",
+   "size_m": [
+    0.48,
+    0.52,
+    1.13
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_48e430c7abdb5b7a95f3ea89": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "et al. UNI (46 x 54 x 112 cm)",
+   "size_m": [
+    0.46,
+    0.54,
+    1.12
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_4af90bc69ff047a6980e9781": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Riva 1920 Cloe (54 x 58 x 84 cm)",
+   "size_m": [
+    0.54,
+    0.58,
+    0.84
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_4b6b1b51205105539b2347c6": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "Tonon Up (63 x 57 x 81 cm)",
+   "size_m": [
+    0.63,
+    0.57,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_4f7a042fcb00a254dae3604d": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Peplo (56 x 58 x 78 cm)",
+   "size_m": [
+    0.58,
+    0.56,
+    0.78
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_50cc947bbe1b906117263add": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "et al. UNI (49 x 54 x 80 cm)",
+   "size_m": [
+    0.49,
+    0.54,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_5213df5892ba8aaeb73abcc7": {
+   "type": "chair",
+   "sheet": "syncronia_chair-02",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "MDF Italia Flow Filo (54 x 56 x 82 cm)",
+   "size_m": [
+    0.54,
+    0.56,
+    0.82
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_523a5c59849f70fe3367f862": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "et al. Echo (50 x 55 x 83 cm)",
+   "size_m": [
+    0.5,
+    0.55,
+    0.83
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_53fabf6095fb0cab86fcb492": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Tonon Corda Chair (54 x 60 x 83 cm)",
+   "size_m": [
+    0.54,
+    0.6,
+    0.83
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_54678154b7375fab32bacc10": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "et al. Snap (48 x 50 x 79 cm)",
+   "size_m": [
+    0.48,
+    0.5,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_58a28acad88e77bd16671ee1": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "et al. UNI (57 x 70 x 79 cm)",
+   "size_m": [
+    0.57,
+    0.7,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_5cb0de547fa76773186cf86d": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "et al. Palau (48 x 50 x 80 cm)",
+   "size_m": [
+    0.48,
+    0.5,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_5cdb0a7a0b0711801b5248b0": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Fulgens '15 (53 x 53 x 81 cm)",
+   "size_m": [
+    0.53,
+    0.53,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_5e4b5cc7d469656511657a75": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Fulgens '15 (53 x 53 x 90 cm)",
+   "size_m": [
+    0.53,
+    0.53,
+    0.9
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_628e13c0f83ccde0c7c9df3a": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "et al. UNI (48 x 50 x 112 cm)",
+   "size_m": [
+    0.48,
+    0.5,
+    1.12
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_64c192b270f48facbc65d510": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "Tonon Libra chair (59 x 61 x 82 cm)",
+   "size_m": [
+    0.59,
+    0.61,
+    0.82
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_65f18b8f8808fdc812e900fb": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "et al. UNI (51 x 55 x 109 cm)",
+   "size_m": [
+    0.51,
+    0.55,
+    1.09
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_65f6b79b50c993b29fb10ea5": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "et al. Bikini (56 x 57 x 110 cm)",
+   "size_m": [
+    0.56,
+    0.57,
+    1.1
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_664d4ddd7b4c9df3f2ae6917": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "et al. UNI (54 x 49 x 98 cm)",
+   "size_m": [
+    0.49,
+    0.54,
+    0.98
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_68849a74bf477ff5a59870f0": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "et al. UNI (45 x 53 x 80 cm)",
+   "size_m": [
+    0.45,
+    0.53,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_6a0467ad9d353e4318410f70": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "et al. Ibis (51 x 56 x 100 cm)",
+   "size_m": [
+    0.56,
+    0.51,
+    1.0
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_762170ebc40361fc1791e58f": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "Tonon Up Wooden Arms (72 x 59 x 86 cm)",
+   "size_m": [
+    0.72,
+    0.59,
+    0.86
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_7a16955823ed629fa4451f79": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Teti (58 x 54 x 82 cm)",
+   "size_m": [
+    0.54,
+    0.58,
+    0.82
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_7b4b09b8702324d07045fef4": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "et al. UNI (51 x 52 x 109 cm)",
+   "size_m": [
+    0.51,
+    0.52,
+    1.09
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_7f0da789b7b2eb035df1eb4d": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "et al. Ring (52 x 52 x 79 cm)",
+   "size_m": [
+    0.52,
+    0.52,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_8148c9481e134b5df4748a55": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "et al. Classy (57 x 56 x 78 cm)",
+   "size_m": [
+    0.57,
+    0.56,
+    0.78
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_82c5c2c528d09ab86682cd34": {
+   "type": "chair",
+   "sheet": "syncronia_chair-03",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "et al. UNI (54 x 45 x 82 cm)",
+   "size_m": [
+    0.45,
+    0.54,
+    0.82
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_8c4e1d83d727f3721ee8fe04": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "et al. Ibis (54 x 56 x 79 cm)",
+   "size_m": [
+    0.56,
+    0.54,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_8f21da17da2a9f9abd75c058": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "et al. Ibis (53 x 56 x 79 cm)",
+   "size_m": [
+    0.56,
+    0.53,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_917fddf84c473a91252e207d": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "et al. UNI (68 x 65 x 80 cm)",
+   "size_m": [
+    0.68,
+    0.65,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_937cfaec15b2a5be290cf11c": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (69 x 72 x 81 cm)",
+   "size_m": [
+    0.69,
+    0.72,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_95442ee428e7deadff401b3f": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "et al. Ibis (63 x 53 x 79 cm)",
+   "size_m": [
+    0.63,
+    0.53,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_9d3196ad4f34e7af46c17a5a": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Acanto (61 x 73 x 86 cm)",
+   "size_m": [
+    0.61,
+    0.73,
+    0.86
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_a0a5469d95ea1bbe14c12ba0": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "et al. UNI (48 x 52 x 80 cm)",
+   "size_m": [
+    0.48,
+    0.52,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_a32aa4707708953b7974456c": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Musa (55 x 44 x 84 cm)",
+   "size_m": [
+    0.44,
+    0.55,
+    0.84
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_a628db9a4a17725bf53bb080": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "et al. UNI (43 x 50 x 102 cm)",
+   "size_m": [
+    0.43,
+    0.5,
+    1.02
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_aa61a0e3e644ffac12698e34": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (53 x 59 x 81 cm)",
+   "size_m": [
+    0.59,
+    0.53,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_ab0f1b42270d20d0ddf657e1": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Peplo (57 x 42 x 88 cm)",
+   "size_m": [
+    0.42,
+    0.57,
+    0.88
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_ab38d2bfbe704c05647fb903": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (53 x 59 x 80 cm)",
+   "size_m": [
+    0.59,
+    0.53,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_adcaca18e9a7db14251a2015": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "et al. UNI (44 x 51 x 115 cm)",
+   "size_m": [
+    0.44,
+    0.51,
+    1.15
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_b219aaabce5a30b6d1a0ea82": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "MDF Italia Press (48 x 55 x 84 cm)",
+   "size_m": [
+    0.48,
+    0.55,
+    0.84
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_b7e96ed8c59e40c556136a9a": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "B&B Italia Lazy 05 (47 x 43 x 67 cm)",
+   "size_m": [
+    0.47,
+    0.43,
+    0.67
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_bbadb327e128df8606f39d22": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "et al. UNI (46 x 53 x 82 cm)",
+   "size_m": [
+    0.46,
+    0.53,
+    0.82
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_bcf6e73770a0fbd34b39efea": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "et al. Mare (55 x 56 x 73 cm)",
+   "size_m": [
+    0.55,
+    0.56,
+    0.73
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_be948721bd868a85ee3293d9": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (59 x 61 x 73 cm)",
+   "size_m": [
+    0.59,
+    0.61,
+    0.73
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_bea4c9087d51e81904c3ea5c": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (55 x 59 x 81 cm)",
+   "size_m": [
+    0.59,
+    0.55,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_bf120cf1424d38b61389694d": {
+   "type": "chair",
+   "sheet": "syncronia_chair-04",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "et al. UNI (45 x 53 x 80 cm)",
+   "size_m": [
+    0.45,
+    0.53,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_c1cb97dcc8c790148eb96201": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "MDF Italia M1 (53 x 50 x 77 cm)",
+   "size_m": [
+    0.53,
+    0.5,
+    0.77
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_c5feded1389ae75b1de6b1f4": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "et al. Zero (60 x 69 x 79 cm)",
+   "size_m": [
+    0.6,
+    0.69,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_c611c6334c904f650fe21382": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "et al. UNI (55 x 53 x 79 cm)",
+   "size_m": [
+    0.55,
+    0.53,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_cf7044d25914a0dc4f46ea6c": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "B&B Italia Lazy 05 (56 x 52 x 107 cm)",
+   "size_m": [
+    0.52,
+    0.56,
+    1.07
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_d1210e20f6baae9408fab93e": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "et al. Ibis (69 x 72 x 79 cm)",
+   "size_m": [
+    0.72,
+    0.69,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_d342563dba53a1699ba7a00f": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "et al. UNI (43 x 50 x 114 cm)",
+   "size_m": [
+    0.43,
+    0.5,
+    1.14
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_d4536a843cc7de8602237c5d": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "et al. Ibis (54 x 56 x 109 cm)",
+   "size_m": [
+    0.56,
+    0.54,
+    1.09
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_d5a6cd5193c7feb1c8cbe446": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "et al. UNI (45 x 54 x 81 cm)",
+   "size_m": [
+    0.45,
+    0.54,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_d7ea8601ab387be2bf0d5f54": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (54 x 59 x 82 cm)",
+   "size_m": [
+    0.59,
+    0.54,
+    0.82
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_d861febd41410f0c563b9003": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (54 x 59 x 82 cm)",
+   "size_m": [
+    0.59,
+    0.54,
+    0.82
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_d8a12fda559d97327b990e24": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (59 x 61 x 72 cm)",
+   "size_m": [
+    0.59,
+    0.61,
+    0.72
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_dbb656fdb2b79d9e5944d959": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "et al. UNI (68 x 65 x 81 cm)",
+   "size_m": [
+    0.68,
+    0.65,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_dc49de9aa3b3245950122506": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "et al. Flint (56 x 51 x 74 cm)",
+   "size_m": [
+    0.56,
+    0.51,
+    0.74
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_dd818ed4d6ce89592548f7d2": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "B&B Italia Lazy 05 (56 x 52 x 102 cm)",
+   "size_m": [
+    0.52,
+    0.56,
+    1.02
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_e20c2ec9e36105599448759e": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "et al. Cuba (56 x 51 x 81 cm)",
+   "size_m": [
+    0.56,
+    0.51,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_e217eb0ad202d07499ebc642": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "et al. UNI (69 x 72 x 81 cm)",
+   "size_m": [
+    0.69,
+    0.72,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_e54a48f247834f44b512801b": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (54 x 59 x 81 cm)",
+   "size_m": [
+    0.59,
+    0.54,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_e5d914c82c18ec03af22bde9": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (54 x 59 x 82 cm)",
+   "size_m": [
+    0.59,
+    0.54,
+    0.82
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_f0015a40b82b066aac9a3da1": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "et al. UNI (49 x 53 x 79 cm)",
+   "size_m": [
+    0.49,
+    0.53,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_f39c9ebd5d65b656eec3ac57": {
+   "type": "chair",
+   "sheet": "syncronia_chair-05",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "et al. UNI (51 x 55 x 110 cm)",
+   "size_m": [
+    0.51,
+    0.55,
+    1.1
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_f521ab91285269e385fd1783": {
+   "type": "chair",
+   "sheet": "syncronia_chair-06",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (53 x 59 x 81 cm)",
+   "size_m": [
+    0.59,
+    0.53,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_f5ec86a06a0ee50fd0d19c31": {
+   "type": "chair",
+   "sheet": "syncronia_chair-06",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "et al. UNI (50 x 52 x 79 cm)",
+   "size_m": [
+    0.5,
+    0.52,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_f7f73972d9598f1341a80755": {
+   "type": "chair",
+   "sheet": "syncronia_chair-06",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (51 x 59 x 84 cm)",
+   "size_m": [
+    0.59,
+    0.51,
+    0.84
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_fa70b0b7ac0bb7696cb74b91": {
+   "type": "chair",
+   "sheet": "syncronia_chair-06",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (68 x 65 x 81 cm)",
+   "size_m": [
+    0.68,
+    0.65,
+    0.81
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_fac1a0318d7bfd00c78f9dec": {
+   "type": "chair",
+   "sheet": "syncronia_chair-06",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "et al. Classy (57 x 56 x 78 cm)",
+   "size_m": [
+    0.57,
+    0.56,
+    0.78
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_fbf03d6c668cc4d833ae0429": {
+   "type": "chair",
+   "sheet": "syncronia_chair-06",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "et al. UNI (57 x 54 x 80 cm)",
+   "size_m": [
+    0.57,
+    0.54,
+    0.8
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_fc5193247cb0a64882d3e43c": {
+   "type": "chair",
+   "sheet": "syncronia_chair-06",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "et al. UNI (52 x 70 x 79 cm)",
+   "size_m": [
+    0.52,
+    0.7,
+    0.79
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_ff2a454e22dce60704d4e5f8": {
+   "type": "chair",
+   "sheet": "syncronia_chair-06",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "MDF Italia Aiku - Aiku Soft (59 x 52 x 78 cm)",
+   "size_m": [
+    0.59,
+    0.52,
+    0.78
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_ffa4788d6d06ea8f592b825e": {
+   "type": "chair",
+   "sheet": "syncronia_chair-06",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "et al. Uni-Ka (52 x 59 x 85 cm)",
+   "size_m": [
+    0.59,
+    0.52,
+    0.85
+   ],
+   "tab": "syncronia_chair"
+  },
+  "syncronia_2238b4d95bd39b67a89b74a0": {
+   "type": "chaise",
+   "sheet": "syncronia_chaise-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Febo (94 x 158 x 85 cm)",
+   "size_m": [
+    0.94,
+    1.58,
+    0.85
+   ],
+   "tab": "syncronia_chaise"
+  },
+  "syncronia_25ec1cf3242fd21342c9d91e": {
+   "type": "chaise",
+   "sheet": "syncronia_chaise-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Febo '15 (173 x 95 x 79 cm)",
+   "size_m": [
+    1.73,
+    0.95,
+    0.79
+   ],
+   "tab": "syncronia_chaise"
+  },
+  "syncronia_643774ff740013f30edfb550": {
+   "type": "chaise",
+   "sheet": "syncronia_chaise-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "B&B Italia Mirto (74 x 193 x 72 cm)",
+   "size_m": [
+    0.74,
+    1.93,
+    0.72
+   ],
+   "tab": "syncronia_chaise"
+  },
+  "syncronia_99dc5d47211094dfdff2e1d1": {
+   "type": "chaise",
+   "sheet": "syncronia_chaise-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Febo (94 x 158 x 85 cm)",
+   "size_m": [
+    0.94,
+    1.58,
+    0.85
+   ],
+   "tab": "syncronia_chaise"
+  },
+  "syncronia_d9d3f4aeab47c9aadfdff21b": {
+   "type": "chaise",
+   "sheet": "syncronia_chaise-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Febo (155 x 90 x 85 cm)",
+   "size_m": [
+    0.9,
+    1.55,
+    0.85
+   ],
+   "tab": "syncronia_chaise"
+  },
+  "syncronia_e43f170e6e3e490efb773a97": {
+   "type": "chaise",
+   "sheet": "syncronia_chaise-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Febo '15 (173 x 95 x 79 cm)",
+   "size_m": [
+    1.73,
+    0.95,
+    0.79
+   ],
+   "tab": "syncronia_chaise"
+  },
+  "syncronia_f2da2f18e33fda36d48ba4ab": {
+   "type": "chaise",
+   "sheet": "syncronia_chaise-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Febo '15 (173 x 95 x 79 cm)",
+   "size_m": [
+    1.73,
+    0.95,
+    0.79
+   ],
+   "tab": "syncronia_chaise"
+  },
+  "syncronia_571a9744a69655e400d851a6": {
+   "type": "desk",
+   "sheet": "syncronia_desk-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "B&B Italia Arne (55 x 105 x 72 cm)",
+   "size_m": [
+    0.55,
+    1.05,
+    0.72
+   ],
+   "tab": "syncronia_desk"
+  },
+  "syncronia_7bfe35cb34f000e5ab0f8a0c": {
+   "type": "floor_lamp",
+   "sheet": "syncronia_floor_lamp-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Simes BLINKER WALL RECESSED (45 x 53 x 232 cm)",
+   "size_m": [
+    0.45,
+    0.53,
+    2.32
+   ],
+   "tab": "syncronia_floor_lamp"
+  },
+  "syncronia_e54dfe6aae3151c2b7c2e374": {
+   "type": "floor_lamp",
+   "sheet": "syncronia_floor_lamp-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Platek Dot Floor (30 x 25 x 109 cm)",
+   "size_m": [
+    0.3,
+    0.25,
+    1.09
+   ],
+   "tab": "syncronia_floor_lamp"
+  },
+  "syncronia_f75892f4e1b99f488d9e479e": {
+   "type": "floor_lamp",
+   "sheet": "syncronia_floor_lamp-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Platek Flamingo Floor (45 x 25 x 150 cm)",
+   "size_m": [
+    0.45,
+    0.25,
+    1.5
+   ],
+   "tab": "syncronia_floor_lamp"
+  },
+  "syncronia_16f48fca051b4a41dc6f54e6": {
+   "type": "ottoman",
+   "sheet": "syncronia_ottoman-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "B&B Italia Pouf Frank (40 x 40 x 47 cm)",
+   "size_m": [
+    0.4,
+    0.4,
+    0.47
+   ],
+   "tab": "syncronia_ottoman"
+  },
+  "syncronia_2413653683a0001b7e60fdf0": {
+   "type": "ottoman",
+   "sheet": "syncronia_ottoman-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Marte Design Shodo (50 x 50 x 43 cm)",
+   "size_m": [
+    0.5,
+    0.5,
+    0.43
+   ],
+   "tab": "syncronia_ottoman"
+  },
+  "syncronia_88448195fc29fa1a09260025": {
+   "type": "ottoman",
+   "sheet": "syncronia_ottoman-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "et al. Boom (41 x 43 x 45 cm)",
+   "size_m": [
+    0.41,
+    0.43,
+    0.45
+   ],
+   "tab": "syncronia_ottoman"
+  },
+  "syncronia_083063021d998ac806ac04c8": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Panzeri Arena (98 x 109 x 98 cm)",
+   "size_m": [
+    0.98,
+    1.09,
+    0.98
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_14d0d1513ab4ae4cce3abf31": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Panzeri Bella (12 x 32 x 12 cm)",
+   "size_m": [
+    0.12,
+    0.32,
+    0.12
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_1893cc7879e857553345966b": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Panzeri Zero Round (75 x 19 x 74 cm)",
+   "size_m": [
+    0.75,
+    0.19,
+    0.74
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_2cd30788c06e64082812173d": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "Simes FOCUS SUSPENSION (30 x 30 x 141 cm)",
+   "size_m": [
+    0.3,
+    0.3,
+    1.41
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_2ce5cb68bf8fe5b7bc4a7172": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "Panzeri Zero Round (26 x 26 x 10 cm)",
+   "size_m": [
+    0.26,
+    0.26,
+    0.1
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_5f4593de55d4021cd2724d22": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Simes STEP (50 x 8 x 205 cm)",
+   "size_m": [
+    0.5,
+    0.08,
+    2.05
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_67299561f4c6630d9ac75f35": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Simes BLINKER WALL RECESSED (18 x 23 x 9 cm)",
+   "size_m": [
+    0.18,
+    0.23,
+    0.09
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_7fd858a4030cc427c2f47d73": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "Platek Balina M Pendant (12 x 12 x 100 cm)",
+   "size_m": [
+    0.12,
+    0.12,
+    1.0
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_863fb780640a9030a146ff99": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "Panzeri Arena (147 x 147 x 159 cm)",
+   "size_m": [
+    1.47,
+    1.47,
+    1.59
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_86a0afb515022eae31873136": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "Platek Thais Ceiling (16 x 16 x 20 cm)",
+   "size_m": [
+    0.16,
+    0.16,
+    0.2
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_95d2f9b8cfb5854a3f48e650": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "Simes BLINKER WALL RECESSED (16 x 32 x 12 cm)",
+   "size_m": [
+    0.16,
+    0.32,
+    0.12
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_9ed75a9e66e04b50b87ff7cd": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "Platek Mini Corniche Ceiling recessed (52 x 144 x 38 cm)",
+   "size_m": [
+    0.52,
+    1.44,
+    0.38
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_a3c1a7f44dc53cbb9ccd2cb7": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "Simes GHOST (21 x 26 x 9 cm)",
+   "size_m": [
+    0.21,
+    0.26,
+    0.09
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_b3e11c78f4250aa07be575d5": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "Platek Flamingo Ceiling (9 x 8 x 18 cm)",
+   "size_m": [
+    0.09,
+    0.08,
+    0.18
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_b67c5e4da75b0a3ff6c36632": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "Simes CONCRETE WALL (88 x 47 x 18 cm)",
+   "size_m": [
+    0.88,
+    0.47,
+    0.18
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_c0708fe4059d3b52d95f01b3": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Panzeri Bella (18 x 13 x 10 cm)",
+   "size_m": [
+    0.18,
+    0.13,
+    0.1
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_d122872ec85d769388d8d865": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "Panzeri Bella (15 x 13 x 10 cm)",
+   "size_m": [
+    0.15,
+    0.13,
+    0.1
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_d1e8202c6100f2cabb694f77": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "Platek Rippling Pendant (12 x 12 x 19 cm)",
+   "size_m": [
+    0.12,
+    0.12,
+    0.19
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_f59465bd577b79d253ae8592": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "Simes BLINKER WALL RECESSED (10 x 23 x 9 cm)",
+   "size_m": [
+    0.1,
+    0.23,
+    0.09
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_fd7adb7a94e7f3fe4e71f758": {
+   "type": "pendant_light",
+   "sheet": "syncronia_pendant_light-01",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "Panzeri Zero Round (99 x 23 x 98 cm)",
+   "size_m": [
+    0.99,
+    0.23,
+    0.98
+   ],
+   "tab": "syncronia_pendant_light",
+   "catalog_type": "decor_pendant_light",
+   "studio": "decor"
+  },
+  "syncronia_22c14bf028a271e4d03bd8b3": {
+   "type": "side_table",
+   "sheet": "syncronia_side_table-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "et al. Cosmo (43 x 35 x 60 cm)",
+   "size_m": [
+    0.43,
+    0.35,
+    0.6
+   ],
+   "tab": "syncronia_side_table"
+  },
+  "syncronia_3db0e66637a5523ebe2c1fa1": {
+   "type": "side_table",
+   "sheet": "syncronia_side_table-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Marte Design Random (45 x 45 x 46 cm)",
+   "size_m": [
+    0.45,
+    0.45,
+    0.46
+   ],
+   "tab": "syncronia_side_table"
+  },
+  "syncronia_8fcb967e1b0ed3e1b3eefede": {
+   "type": "side_table",
+   "sheet": "syncronia_side_table-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "B&B Italia Pyllon (41 x 46 x 43 cm)",
+   "size_m": [
+    0.41,
+    0.46,
+    0.43
+   ],
+   "tab": "syncronia_side_table"
+  },
+  "syncronia_befd74185c08eb8a6569075d": {
+   "type": "side_table",
+   "sheet": "syncronia_side_table-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "B&B Italia Pyllon (41 x 46 x 43 cm)",
+   "size_m": [
+    0.41,
+    0.46,
+    0.43
+   ],
+   "tab": "syncronia_side_table"
+  },
+  "syncronia_dd887e0c7a555269ed5e6d4d": {
+   "type": "side_table",
+   "sheet": "syncronia_side_table-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "MDF Italia Metodo (40 x 30 x 40 cm)",
+   "size_m": [
+    0.4,
+    0.3,
+    0.4
+   ],
+   "tab": "syncronia_side_table"
+  },
+  "syncronia_f42c868f4af12bce77c210b1": {
+   "type": "side_table",
+   "sheet": "syncronia_side_table-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "MDF Italia Flow Low Table (44 x 44 x 57 cm)",
+   "size_m": [
+    0.44,
+    0.44,
+    0.57
+   ],
+   "tab": "syncronia_side_table"
+  },
+  "syncronia_fd14b292a5c01afed73e22a3": {
+   "type": "side_table",
+   "sheet": "syncronia_side_table-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Marte Design Molecular (46 x 45 x 37 cm)",
+   "size_m": [
+    0.46,
+    0.45,
+    0.37
+   ],
+   "tab": "syncronia_side_table"
+  },
+  "syncronia_04d86949360b0da80293e201": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (203 x 88 x 68 cm)",
+   "size_m": [
+    2.03,
+    0.88,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_06ee99a4f42d6ed6d19af88f": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "B&B Italia Solo '14 (152 x 98 x 66 cm)",
+   "size_m": [
+    1.52,
+    0.98,
+    0.66
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_08483e811194f0f921203f55": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (288 x 96 x 80 cm)",
+   "size_m": [
+    2.88,
+    0.96,
+    0.8
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_09f4a3249c8040c194d98156": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (231 x 89 x 68 cm)",
+   "size_m": [
+    2.31,
+    0.89,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_0a35f2deab87dbb678f6fdb5": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "B&B Italia Solo '14 (111 x 99 x 66 cm)",
+   "size_m": [
+    1.11,
+    0.99,
+    0.66
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_0b5f98519e86d26e358e166e": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (88 x 206 x 68 cm)",
+   "size_m": [
+    0.88,
+    2.06,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_1e7a1e024f8ef9549abd2350": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (250 x 96 x 80 cm)",
+   "size_m": [
+    2.5,
+    0.96,
+    0.8
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_23e3558ecf7f8472930834b8": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "et al. Kyk (138 x 64 x 73 cm)",
+   "size_m": [
+    1.38,
+    0.64,
+    0.73
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_24860249357abe20a69a997e": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (147 x 82 x 50 cm)",
+   "size_m": [
+    1.47,
+    0.82,
+    0.5
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_289c01d30f4c9785cf35a8b2": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (270 x 96 x 80 cm)",
+   "size_m": [
+    2.7,
+    0.96,
+    0.8
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_35bd2b3b991ad4450c2179c5": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "B&B Italia Metropolitan 14 (169 x 82 x 77 cm)",
+   "size_m": [
+    1.69,
+    0.82,
+    0.77
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_376fc2853737972b8d80e563": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (230 x 96 x 78 cm)",
+   "size_m": [
+    2.3,
+    0.96,
+    0.78
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_3b521912b81f85a1c88b7d25": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (213 x 89 x 68 cm)",
+   "size_m": [
+    2.13,
+    0.89,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_3d2d4c585fc1ec377638d103": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (210 x 96 x 80 cm)",
+   "size_m": [
+    2.1,
+    0.96,
+    0.8
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_3f75b0e221b58c765bde1c50": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (192 x 91 x 80 cm)",
+   "size_m": [
+    1.92,
+    0.91,
+    0.8
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_411f894dede40656d34035a9": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (157 x 88 x 68 cm)",
+   "size_m": [
+    1.57,
+    0.88,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_52050c8d90e8596d7f86bce4": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Amoenus (114 x 246 x 108 cm)",
+   "size_m": [
+    2.46,
+    1.14,
+    1.08
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_53f6f5ea8ce8726d3664c3b5": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (183 x 84 x 68 cm)",
+   "size_m": [
+    1.83,
+    0.84,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_5c4676687ddd39b7be92e676": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "B&B Italia Solo '14 (140 x 100 x 65 cm)",
+   "size_m": [
+    1.0,
+    1.4,
+    0.65
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_5c84baa322b4dfa66a13a456": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-01",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (256 x 106 x 88 cm)",
+   "size_m": [
+    2.56,
+    1.06,
+    0.88
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_5ce880a6fb0e9b3a7d3cd59f": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Amoenus (115 x 178 x 90 cm)",
+   "size_m": [
+    1.78,
+    1.15,
+    0.9
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_5e2ee13d688d5dae0686724a": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (204 x 88 x 68 cm)",
+   "size_m": [
+    2.04,
+    0.88,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_5f30229c131a8ddae67082ad": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (277 x 105 x 80 cm)",
+   "size_m": [
+    2.77,
+    1.05,
+    0.8
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_6493ef2b0db719cbf2c3b92f": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (189 x 103 x 80 cm)",
+   "size_m": [
+    1.89,
+    1.03,
+    0.8
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_66df85dba2a33178fe92a75d": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "et al. Nomad (134 x 78 x 86 cm)",
+   "size_m": [
+    1.34,
+    0.78,
+    0.86
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_70df99e7fce124eeae59d12e": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (106 x 231 x 91 cm)",
+   "size_m": [
+    1.06,
+    2.31,
+    0.91
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_71ad6bf916f19d1fa40df866": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (206 x 106 x 77 cm)",
+   "size_m": [
+    2.06,
+    1.06,
+    0.77
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_7359f7f5c47ad4061201526b": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (255 x 87 x 68 cm)",
+   "size_m": [
+    2.55,
+    0.87,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_749edc36002a2a67608ce9e6": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (203 x 88 x 68 cm)",
+   "size_m": [
+    2.03,
+    0.88,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_7a5cedafc65d41e1d77c123a": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "B&B Italia Andy 13 (291 x 117 x 82 cm)",
+   "size_m": [
+    2.91,
+    1.17,
+    0.82
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_7b451f07fad664ca157ddab4": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Amoenus (176 x 116 x 88 cm)",
+   "size_m": [
+    1.76,
+    1.16,
+    0.88
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_7ee757f3a7181e8089a67f4c": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Amoenus (115 x 176 x 90 cm)",
+   "size_m": [
+    1.76,
+    1.15,
+    0.9
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_84f2ebe9d480214dd9e6d330": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "B&B Italia Solo '14 (226 x 98 x 66 cm)",
+   "size_m": [
+    2.26,
+    0.98,
+    0.66
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_868594e709563778fd5b6bb9": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "B&B Italia Solo '14 (195 x 98 x 66 cm)",
+   "size_m": [
+    1.95,
+    0.98,
+    0.66
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_87c0848b6323acbb1571b009": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (156 x 106 x 86 cm)",
+   "size_m": [
+    1.06,
+    1.56,
+    0.86
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_8f87a669ce5ec80752907e65": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (232 x 105 x 80 cm)",
+   "size_m": [
+    2.32,
+    1.05,
+    0.8
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_8fcd392aa9f04e229abcc39f": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "B&B Italia Solo '14 (231 x 101 x 66 cm)",
+   "size_m": [
+    1.01,
+    2.31,
+    0.66
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_9fe5738e1d061d6d5f76ad5b": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "B&B Italia Love Papilo (145 x 86 x 102 cm)",
+   "size_m": [
+    1.45,
+    0.86,
+    1.02
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_a193a866911b2e36943be245": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "MDF Italia Mate (313 x 122 x 67 cm)",
+   "size_m": [
+    3.13,
+    1.22,
+    0.67
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_a9464e77257677d1f421500b": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-02",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "B&B Italia Serie UP 2000 (102 x 164 x 56 cm)",
+   "size_m": [
+    1.64,
+    1.02,
+    0.56
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_acc445536d226dfb594a2336": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (206 x 106 x 73 cm)",
+   "size_m": [
+    2.06,
+    1.06,
+    0.73
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_b13b1601952275c1a8fe566a": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (231 x 107 x 81 cm)",
+   "size_m": [
+    2.31,
+    1.07,
+    0.81
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_b461c05ea78ff6b8b2f5deb5": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "B&B Italia Solo '14 (177 x 98 x 66 cm)",
+   "size_m": [
+    1.77,
+    0.98,
+    0.66
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_b9589eb00126ec73d05df8b3": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "B&B Italia Spring Time (267 x 103 x 74 cm)",
+   "size_m": [
+    2.67,
+    1.03,
+    0.73
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_c1a67efe4e4a685580b7031b": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (183 x 107 x 68 cm)",
+   "size_m": [
+    1.83,
+    1.07,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_c2daeeeb28e0a45162588b7e": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (231 x 106 x 82 cm)",
+   "size_m": [
+    2.31,
+    1.06,
+    0.82
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_c6907f27d0d9087cc9b05d93": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "MDF Italia Yale X (151 x 84 x 79 cm)",
+   "size_m": [
+    1.51,
+    0.84,
+    0.79
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_c7ed8f148c170607e4ca0195": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "B&B Italia Andy 13 (247 x 117 x 82 cm)",
+   "size_m": [
+    2.47,
+    1.17,
+    0.82
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_c9961d2f402250928841363a": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (270 x 105 x 80 cm)",
+   "size_m": [
+    2.7,
+    1.05,
+    0.8
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_d337f0a4b3ebcc0b3bbbd3d8": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "B&B Italia Le Bambole, Bibambola & Grandbambola (174 x 93 x 78 cm)",
+   "size_m": [
+    1.74,
+    0.93,
+    0.78
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_d6ae6a81a9c24bca2e281ef4": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (232 x 90 x 68 cm)",
+   "size_m": [
+    2.32,
+    0.9,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_dd712cdb3716f7096e627887": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (157 x 102 x 68 cm)",
+   "size_m": [
+    1.57,
+    1.02,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_e4828db57aa75990f964e1cc": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (105 x 288 x 85 cm)",
+   "size_m": [
+    2.88,
+    1.05,
+    0.85
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_ea7b06fe2cd202c8e9299f99": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "B&B Italia Andy 13 (103 x 230 x 82 cm)",
+   "size_m": [
+    1.03,
+    2.3,
+    0.82
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_ee5a4eeacb33207b62b3577c": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (106 x 156 x 69 cm)",
+   "size_m": [
+    1.06,
+    1.56,
+    0.69
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_ff7cad3a693be185746e6bc0": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Marte Design Dilmun-S (148 x 81 x 115 cm)",
+   "size_m": [
+    1.48,
+    0.81,
+    1.15
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_ffd91f1f69d2a4304b0ed80f": {
+   "type": "sofa",
+   "sheet": "syncronia_sofa-03",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "B&B Italia Frank (106 x 156 x 68 cm)",
+   "size_m": [
+    1.06,
+    1.56,
+    0.68
+   ],
+   "tab": "syncronia_sofa"
+  },
+  "syncronia_029ae0d6f5950c42a69d13f0": {
+   "type": "sofa_corner",
+   "sheet": "syncronia_sofa_corner-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "B&B Italia Andy 13 (369 x 230 x 91 cm)",
+   "size_m": [
+    3.69,
+    2.3,
+    0.91
+   ],
+   "tab": "syncronia_sofa_corner"
+  },
+  "syncronia_0be6ab7bdffe2d4ded83908b": {
+   "type": "sofa_corner",
+   "sheet": "syncronia_sofa_corner-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (234 x 234 x 102 cm)",
+   "size_m": [
+    2.34,
+    2.34,
+    1.02
+   ],
+   "tab": "syncronia_sofa_corner"
+  },
+  "syncronia_0df74ed5550c31e224357157": {
+   "type": "sofa_corner",
+   "sheet": "syncronia_sofa_corner-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "B&B Italia Moon System (208 x 293 x 84 cm)",
+   "size_m": [
+    2.93,
+    2.08,
+    0.84
+   ],
+   "tab": "syncronia_sofa_corner"
+  },
+  "syncronia_31ee6c49e162be995d23d30a": {
+   "type": "sofa_corner",
+   "sheet": "syncronia_sofa_corner-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (259 x 259 x 102 cm)",
+   "size_m": [
+    2.59,
+    2.59,
+    1.02
+   ],
+   "tab": "syncronia_sofa_corner"
+  },
+  "syncronia_44025e5a50d7c2af2435397e": {
+   "type": "sofa_corner",
+   "sheet": "syncronia_sofa_corner-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "B&B Italia Spring Time (267 x 143 x 74 cm)",
+   "size_m": [
+    2.67,
+    1.43,
+    0.73
+   ],
+   "tab": "syncronia_sofa_corner"
+  },
+  "syncronia_4ccc4b2c8b8504adaed88b01": {
+   "type": "sofa_corner",
+   "sheet": "syncronia_sofa_corner-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Amoenus (170 x 163 x 99 cm)",
+   "size_m": [
+    1.7,
+    1.63,
+    0.99
+   ],
+   "tab": "syncronia_sofa_corner"
+  },
+  "syncronia_609643ef9799ee56d05e2c81": {
+   "type": "sofa_corner",
+   "sheet": "syncronia_sofa_corner-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "B&B Italia Andy 13 (325 x 230 x 82 cm)",
+   "size_m": [
+    3.25,
+    2.3,
+    0.82
+   ],
+   "tab": "syncronia_sofa_corner"
+  },
+  "syncronia_d4679cc10d485383d914440c": {
+   "type": "sofa_corner",
+   "sheet": "syncronia_sofa_corner-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omnia (234 x 259 x 102 cm)",
+   "size_m": [
+    2.34,
+    2.59,
+    1.02
+   ],
+   "tab": "syncronia_sofa_corner"
+  },
+  "syncronia_01fd0e72e6ea15da0ee8c3a3": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "B&B Italia Surface (150 x 137 x 37 cm)",
+   "size_m": [
+    1.5,
+    1.37,
+    0.37
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_025ce2598ae09772ff4ac4e1": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Marte Design Horn (58 x 153 x 37 cm)",
+   "size_m": [
+    0.58,
+    1.53,
+    0.37
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_13a594bd4b606e0dd8807ad7": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Pathos 2013 (110 x 110 x 40 cm)",
+   "size_m": [
+    1.1,
+    1.1,
+    0.4
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_1625450217aad1390e964d6c": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "B&B Italia Surface (150 x 35 x 37 cm)",
+   "size_m": [
+    1.5,
+    0.35,
+    0.37
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_28b4f805d11be0f8c0ffe4c7": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "Riva 1920 Delta (78 x 81 x 33 cm)",
+   "size_m": [
+    0.78,
+    0.81,
+    0.33
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_3ff9c289f09883371b2489cc": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Pathos 2013 (80 x 55 x 66 cm)",
+   "size_m": [
+    0.8,
+    0.55,
+    0.66
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_461ce2b2c78d980ac54d5f24": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "B&B Italia Surface (150 x 70 x 37 cm)",
+   "size_m": [
+    1.5,
+    0.7,
+    0.37
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_4ec739006eee5aa20a942c40": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "B&B Italia Surface (120 x 60 x 37 cm)",
+   "size_m": [
+    1.2,
+    0.6,
+    0.37
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_55b2187087dc16e335524f03": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "B&B Italia Surface (120 x 60 x 37 cm)",
+   "size_m": [
+    1.2,
+    0.6,
+    0.37
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_5ab1725a1aa956351af388a3": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Pathos 2013 (110 x 110 x 40 cm)",
+   "size_m": [
+    1.1,
+    1.1,
+    0.4
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_5f8733884dc18775a1c5f16d": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "MDF Italia Arpa Collection (87 x 87 x 28 cm)",
+   "size_m": [
+    0.87,
+    0.87,
+    0.28
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_6c42a2273d8c986b96f659a2": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "B&B Italia Button Tables (67 x 54 x 35 cm)",
+   "size_m": [
+    0.67,
+    0.54,
+    0.35
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_769ea27b8cd3afc9e3dde2ca": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "B&B Italia Surface (150 x 35 x 37 cm)",
+   "size_m": [
+    1.5,
+    0.35,
+    0.37
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_87999a3dd6e13ae42e685589": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Recipio (70 x 50 x 66 cm)",
+   "size_m": [
+    0.7,
+    0.5,
+    0.66
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_8c1d68f485699f7f4aa5d5c1": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "B&B Italia Surface (150 x 70 x 37 cm)",
+   "size_m": [
+    1.5,
+    0.7,
+    0.37
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_8f7c6d68863c5f50d9ccb3ee": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Marte Design Vessel (58 x 58 x 48 cm)",
+   "size_m": [
+    0.58,
+    0.58,
+    0.48
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_9e03d78641d205b069a681ac": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Pathos 2013 (71 x 54 x 66 cm)",
+   "size_m": [
+    0.71,
+    0.54,
+    0.66
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_a145cfb95e7118144e28fa92": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Recipio (80 x 55 x 65 cm)",
+   "size_m": [
+    0.8,
+    0.55,
+    0.65
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_aaab618aa85efd210fbaa0ca": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Omero 2009 (90 x 77 x 22 cm)",
+   "size_m": [
+    0.9,
+    0.77,
+    0.22
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_b4ab356e0890100107092078": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-01",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "B&B Italia Button Tables (82 x 82 x 40 cm)",
+   "size_m": [
+    0.82,
+    0.82,
+    0.4
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_bee69434555a99809263af7d": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-02",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Recipio (70 x 50 x 66 cm)",
+   "size_m": [
+    0.7,
+    0.5,
+    0.66
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_ea020efd17b2e23eaf99fafd": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-02",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "MDF Italia La Table Basse (129 x 90 x 28 cm)",
+   "size_m": [
+    1.29,
+    0.9,
+    0.28
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_efadfbf94ab436859d69cda2": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-02",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Pathos 2013 (70 x 50 x 67 cm)",
+   "size_m": [
+    0.7,
+    0.5,
+    0.67
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_f53a5c2468626a27fa285c55": {
+   "type": "table_coffee",
+   "sheet": "syncronia_table_coffee-02",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "B&B Italia Button Tables (54 x 44 x 50 cm)",
+   "size_m": [
+    0.54,
+    0.44,
+    0.5
+   ],
+   "tab": "syncronia_table_coffee"
+  },
+  "syncronia_051f327a1374cd6ee43d9095": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "B&B Italia Mirto (222 x 102 x 73 cm)",
+   "size_m": [
+    2.22,
+    1.02,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_0ab1993002553bac9199feef": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "B&B Italia Mirto (222 x 102 x 74 cm)",
+   "size_m": [
+    2.22,
+    1.02,
+    0.74
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_11e3e4c2c7d594ea14336a99": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "B&B Italia The Table (104 x 207 x 72 cm)",
+   "size_m": [
+    1.04,
+    2.07,
+    0.72
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_1e8a217355f8ae987740ff39": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "et al. XT (66 x 110 x 66 cm)",
+   "size_m": [
+    0.66,
+    1.1,
+    0.66
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_352fd9c1925c4888eba55265": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "Marte Design Hikari (180 x 91 x 74 cm)",
+   "size_m": [
+    1.8,
+    0.91,
+    0.74
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_3b4e43e00eb3d707931d2e9f": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "et al. Web (100 x 100 x 72 cm)",
+   "size_m": [
+    1.0,
+    1.0,
+    0.72
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_450657cb71cc83eb9f1007d9": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "MDF Italia Tense (180 x 90 x 73 cm)",
+   "size_m": [
+    1.8,
+    0.9,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_4a9efc354c1a2f0191cdc434": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "B&B Italia Lens (85 x 231 x 73 cm)",
+   "size_m": [
+    0.85,
+    2.31,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_5061893d88c5e3668fd73681": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "MDF Italia Tense Material Wood (180 x 90 x 73 cm)",
+   "size_m": [
+    1.8,
+    0.9,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_558ecb93711a63f8a53d57dd": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "B&B Italia Lens (85 x 271 x 74 cm)",
+   "size_m": [
+    0.85,
+    2.71,
+    0.74
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_5e49488bec3fa1c3594433d1": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "et al. Web (65 x 100 x 72 cm)",
+   "size_m": [
+    0.65,
+    1.0,
+    0.72
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_5ee7ae299e4026ee7fcf847e": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "MDF Italia La Grande Table (364 x 90 x 74 cm)",
+   "size_m": [
+    3.64,
+    0.9,
+    0.74
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_62bd9a0a4ad2670f6e230f41": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "B&B Italia Spring Time (220 x 97 x 73 cm)",
+   "size_m": [
+    2.2,
+    0.97,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_6abcce1a44f1b50f6f26b602": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "et al. Deck (250 x 111 x 80 cm)",
+   "size_m": [
+    2.5,
+    1.11,
+    0.8
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_6b229ee538f9691c377379db": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "Tonon Tabula-A (220 x 100 x 73 cm)",
+   "size_m": [
+    2.2,
+    1.0,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_6b74d8d6447a4130cf1e4b5c": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "B&B Italia Mirto (92 x 91 x 74 cm)",
+   "size_m": [
+    0.92,
+    0.91,
+    0.74
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_6c54da3296358c02932f2926": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "B&B Italia Mirto (92 x 91 x 73 cm)",
+   "size_m": [
+    0.92,
+    0.91,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_8622484c204893cc820b6458": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "et al. MT (80 x 80 x 75 cm)",
+   "size_m": [
+    0.8,
+    0.8,
+    0.75
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_88013971e64cc4b41800dafd": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "B&B Italia Eileen (300 x 105 x 73 cm)",
+   "size_m": [
+    3.0,
+    1.05,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_9c818eca6f2920d071b07c4a": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-01",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "et al. Web (80 x 80 x 72 cm)",
+   "size_m": [
+    0.8,
+    0.8,
+    0.72
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_9e19b856935acefd68e351cb": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "B&B Italia Mirto (151 x 91 x 74 cm)",
+   "size_m": [
+    1.51,
+    0.91,
+    0.74
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_a44d43b43520dfeab5b60d22": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "B&B Italia Athos 12 (250 x 100 x 73 cm)",
+   "size_m": [
+    2.5,
+    1.0,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_b77fce430dfe5ab415725490": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "MDF Italia Tense Material Stone (180 x 90 x 73 cm)",
+   "size_m": [
+    1.8,
+    0.9,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_bc1deaaa68c6395b563b3080": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "B&B Italia Athos 12 (200 x 100 x 73 cm)",
+   "size_m": [
+    2.0,
+    1.0,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_bd63248a035970db248c98ae": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "B&B Italia Eileen (240 x 100 x 73 cm)",
+   "size_m": [
+    2.4,
+    1.0,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_c1643a2241da1e83dcea5065": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "et al. Deck (300 x 111 x 80 cm)",
+   "size_m": [
+    3.0,
+    1.11,
+    0.8
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_c21dd0280fda4ee0d52a57ac": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Max (110 x 300 x 72 cm)",
+   "size_m": [
+    1.1,
+    3.0,
+    0.72
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_c248bd9f3e57b69da8aa4e09": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "Riva 1920 Rewood Pyramid Plank - Rewood collection (241 x 101 x 76 cm)",
+   "size_m": [
+    2.41,
+    1.01,
+    0.76
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_c78a64281bb25e35a061566f": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "Riva 1920 Bedrock Plank C (220 x 101 x 76 cm)",
+   "size_m": [
+    2.2,
+    1.01,
+    0.76
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_d0faa37f8b334b084d14be01": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "MDF Italia Rock Table (250 x 125 x 74 cm)",
+   "size_m": [
+    2.5,
+    1.25,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_d2bf1f8bac04a6d06ded4fc5": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "et al. XT (70 x 70 x 75 cm)",
+   "size_m": [
+    0.7,
+    0.7,
+    0.75
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_d38fdac83991e77af575f23e": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "et al. XT (70 x 70 x 75 cm)",
+   "size_m": [
+    0.7,
+    0.7,
+    0.75
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_d5c07e3f2c74fe4e162b09ed": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Max (110 x 240 x 72 cm)",
+   "size_m": [
+    1.1,
+    2.4,
+    0.72
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_d8e2e50da2e86a37bead4977": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "Marte Design Tamashi (220 x 100 x 74 cm)",
+   "size_m": [
+    2.2,
+    1.0,
+    0.74
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_e94538e67afb511be062b2aa": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "B&B Italia Eileen (239 x 73 x 60 cm)",
+   "size_m": [
+    2.39,
+    0.73,
+    0.6
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_efa2c80dccea6ce4c448252b": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Max (90 x 240 x 72 cm)",
+   "size_m": [
+    0.9,
+    2.4,
+    0.72
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_f2c27989697f3d8745246b5f": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "B&B Italia Mirto (151 x 91 x 73 cm)",
+   "size_m": [
+    1.51,
+    0.91,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_fd7f7ac0d226e1811011cc1a": {
+   "type": "table_dining",
+   "sheet": "syncronia_table_dining-02",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "MDF Italia Axy Table (200 x 80 x 73 cm)",
+   "size_m": [
+    2.0,
+    0.8,
+    0.73
+   ],
+   "tab": "syncronia_table_dining"
+  },
+  "syncronia_0b642d52edfda3242a3e6965": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Schock SIGNUS N100 XL (79 x 50 x 23 cm)",
+   "size_m": [
+    0.79,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_0f9206d934f844a5c9e0c70b": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Schock LOTUS D100 (88 x 50 x 22 cm)",
+   "size_m": [
+    0.88,
+    0.5,
+    0.22
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_135accccbf671679a209605a": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Schock VERO N100 L (60 x 53 x 25 cm)",
+   "size_m": [
+    0.6,
+    0.53,
+    0.25
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_1a26f30b9afcee9cc9e12742": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "Schock LITHOS D100 S (79 x 50 x 24 cm)",
+   "size_m": [
+    0.79,
+    0.5,
+    0.24
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_1be230250b020276681c155a": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "Schock SIGNUS D150 (100 x 50 x 23 cm)",
+   "size_m": [
+    1.0,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_1c66f9c5d98fa9da02b3c18c": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Schock EURO N100 (40 x 40 x 23 cm)",
+   "size_m": [
+    0.4,
+    0.4,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_1d182d7854d7456e963af914": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Rexa Japan (42 x 42 x 48 cm)",
+   "size_m": [
+    0.42,
+    0.42,
+    0.48
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_1e034898651dc48ed8543894": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "Rexa Smoking (44 x 42 x 90 cm)",
+   "size_m": [
+    0.44,
+    0.42,
+    0.9
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_204367323aedaca45331e980": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "Schock LITHOS D150 (100 x 50 x 24 cm)",
+   "size_m": [
+    1.0,
+    0.5,
+    0.24
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_22a8eab6296adcdce8052168": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "Schock QUADRO N100 (55 x 45 x 23 cm)",
+   "size_m": [
+    0.55,
+    0.45,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_2517f6d32f22ad69ae1c1a51": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "Schock HORIZONT N200 (86 x 50 x 23 cm)",
+   "size_m": [
+    0.86,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_254f97ccf6aee91e63e2adab": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "Schock GALAXY N100 (46 x 46 x 24 cm)",
+   "size_m": [
+    0.46,
+    0.46,
+    0.24
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_25d9a7409e1906af42354d29": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "Schock CARBON N100 (56 x 46 x 23 cm)",
+   "size_m": [
+    0.56,
+    0.46,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_2e5ba7abbdd0a67e99da706b": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "Schock TYPOS D100 L (100 x 50 x 23 cm)",
+   "size_m": [
+    1.0,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_39080821d89914bd39e9fbcc": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "Schock VERO D100 (76 x 51 x 23 cm)",
+   "size_m": [
+    0.77,
+    0.51,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_3eaf9bf6fecf6b7a983e09b0": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Rexa Murano (42 x 42 x 20 cm)",
+   "size_m": [
+    0.42,
+    0.42,
+    0.2
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_4bc435238e27eae826240809": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "Schock SOLIDO N75 (38 x 38 x 20 cm)",
+   "size_m": [
+    0.38,
+    0.38,
+    0.2
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_4fe87bbeab850da3c2de3654": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "Schock EURO R100 (44 x 44 x 21 cm)",
+   "size_m": [
+    0.43,
+    0.43,
+    0.21
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_4ff7be6041cfed0b16894423": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "Schock GALAXY N100 L (56 x 46 x 24 cm)",
+   "size_m": [
+    0.56,
+    0.46,
+    0.24
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_55e79d6c17b263d8f02e8b9d": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-01",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "Schock SIGNUS N100 XLY (79 x 45 x 23 cm)",
+   "size_m": [
+    0.79,
+    0.45,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_5851af623ebe4a1e4ee8f937": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Aquatica Bath Nanomorph (55 x 40 x 18 cm)",
+   "size_m": [
+    0.4,
+    0.55,
+    0.18
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_594d14a47b64dd96092a344b": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Schock WATERFALL D100 (86 x 50 x 22 cm)",
+   "size_m": [
+    0.86,
+    0.5,
+    0.22
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_6c4bd5123f8f1f9b65ade79f": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Schock NEMO N100 S (49 x 51 x 21 cm)",
+   "size_m": [
+    0.49,
+    0.51,
+    0.21
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_7af515d7afee22fed3b484be": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "Schock CARBON N100 S (46 x 46 x 23 cm)",
+   "size_m": [
+    0.46,
+    0.46,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_88132df7625212a3f58b54be": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "Schock GALAXY N100 S (41 x 46 x 24 cm)",
+   "size_m": [
+    0.41,
+    0.46,
+    0.24
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_88e7de4c3a607244e292d6b8": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Schock VERO N100 (57 x 51 x 21 cm)",
+   "size_m": [
+    0.57,
+    0.51,
+    0.21
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_8b24ad500329205e4d6b35db": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Schock TYPOS D100 (86 x 50 x 23 cm)",
+   "size_m": [
+    0.86,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_95859eeb2e0c00f19f8863a0": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "H",
+   "source": "syncronia",
+   "title": "Schock LITHOS D100 (86 x 50 x 24 cm)",
+   "size_m": [
+    0.86,
+    0.5,
+    0.24
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_99fbda33d2256a71913269ec": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "I",
+   "source": "syncronia",
+   "title": "Schock SIGNUS D100 L (100 x 50 x 23 cm)",
+   "size_m": [
+    1.0,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_9b206f6a64d197f20a22fd36": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "J",
+   "source": "syncronia",
+   "title": "Schock TYPOS N200 (86 x 50 x 23 cm)",
+   "size_m": [
+    0.86,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_9f398ac3d7443ccd2d814e34": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "K",
+   "source": "syncronia",
+   "title": "Schock TYPOS D150 (100 x 50 x 23 cm)",
+   "size_m": [
+    1.0,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_ae1322c029353a3588ccafe9": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "L",
+   "source": "syncronia",
+   "title": "Schock LOTUS D150 (102 x 50 x 22 cm)",
+   "size_m": [
+    1.02,
+    0.5,
+    0.22
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_b0a2fb5026c645ebee8b2c5f": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "M",
+   "source": "syncronia",
+   "title": "Schock QUADRO N100 S (45 x 43 x 23 cm)",
+   "size_m": [
+    0.45,
+    0.43,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_b22171cf6d0dd53957830d76": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "N",
+   "source": "syncronia",
+   "title": "Schock SIGNUS N200 (86 x 50 x 23 cm)",
+   "size_m": [
+    0.86,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_b35a8d307e79092faef1e2f9": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "O",
+   "source": "syncronia",
+   "title": "Schock NEMO N100 (57 x 51 x 21 cm)",
+   "size_m": [
+    0.57,
+    0.51,
+    0.21
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_bfe475f78738fc97f2b9606f": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "P",
+   "source": "syncronia",
+   "title": "Schock SIGNUS D100 (86 x 50 x 23 cm)",
+   "size_m": [
+    0.86,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_ce33cca99837aad80f8d3831": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "Q",
+   "source": "syncronia",
+   "title": "Schock LITHOS N200 (86 x 50 x 24 cm)",
+   "size_m": [
+    0.86,
+    0.5,
+    0.24
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_cfd506825fe7e6007d87b3b1": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "R",
+   "source": "syncronia",
+   "title": "Schock LARGO M100 (90 x 63 x 28 cm)",
+   "size_m": [
+    0.9,
+    0.63,
+    0.28
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_d2d9c74db7be8aac18a651fa": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "S",
+   "source": "syncronia",
+   "title": "Schock LITHOS N200 S (79 x 50 x 24 cm)",
+   "size_m": [
+    0.79,
+    0.5,
+    0.24
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_e19486ae20ae8a227cb82f4f": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-02",
+   "letter": "T",
+   "source": "syncronia",
+   "title": "Rexa Soave (45 x 45 x 30 cm)",
+   "size_m": [
+    0.45,
+    0.45,
+    0.3
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_e85575d6e551de5f53625bcb": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-03",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Schock WATERFALL D150 (100 x 50 x 22 cm)",
+   "size_m": [
+    1.0,
+    0.5,
+    0.22
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_f55f8b023dfaa3605210cab6": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-03",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Schock HORIZONT D150 (100 x 50 x 23 cm)",
+   "size_m": [
+    0.5,
+    1.0,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
+  },
+  "syncronia_ff32e3b4baa88e03493e3b7c": {
+   "type": "washbasin",
+   "sheet": "syncronia_washbasin-03",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Schock HORIZONT D100 (78 x 50 x 23 cm)",
+   "size_m": [
+    0.78,
+    0.5,
+    0.23
+   ],
+   "tab": "syncronia_washbasin"
   }
  }
 }

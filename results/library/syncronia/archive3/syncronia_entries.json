@@ -1,0 +1,5748 @@
+{
+ "entries": [
+  {
+   "id": "syncronia_e54dfe6aae3151c2b7c2e374",
+   "type": "floor_lamp",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Platek Dot Floor (30 x 25 x 109 cm)",
+   "bbox_m": [
+    0.3026,
+    0.2514,
+    1.0928
+   ],
+   "bbox_model_m": [
+    0.3026,
+    0.2514,
+    1.0928
+   ],
+   "bbox_min_m": [
+    -0.1513,
+    -0.1257,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.1513,
+    0.1257,
+    1.0928
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a floor_lamp has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 0.3026 x 0.2514 x 1.093 read in metres fits a real floor_lamp (size table); written in metres by the syncronia fix-up: 0.303 x 0.251 x 1.09 m",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "the brand Platek: modern",
+   "glb": "models/syncronia/syncronia_e54dfe6aae3151c2b7c2e374.glb",
+   "sha256_glb": "60c3c663ab97e3c21d7bd68d16ae5099614f6cac7105fa93ac57b0b1c66125a8",
+   "uid": "syncronia_e54dfe6aae3151c2b7c2e374",
+   "title": "Platek Dot Floor (30 x 25 x 109 cm)",
+   "author": "Platek (manufacturer model, via Syncronia)",
+   "brand": "Platek",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-floor-lamps/platek/dot-floor",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Platek Dot Floor (30 x 25 x 109 cm)\" by Platek (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-floor-lamps/platek/dot-floor, from the user's zip \"archive3.zip\" (floor-lamps/platek/dot-floor/183752.3ds.zip/Platek_dot_M_110_floor.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 2160,
+   "vertices": 1088,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": [
+     "KHR_materials_specular"
+    ]
+   },
+   "syncronia": {
+    "rel": "floor-lamps/platek/dot-floor/183752.3ds.zip/Platek_dot_M_110_floor.3ds",
+    "zip": "archive3.zip",
+    "category": "floor-lamps",
+    "format": ".3ds",
+    "unit": "metres",
+    "factor": 1.0,
+    "up_fix": null,
+    "raw_box_m": [
+     0.3026,
+     0.2514,
+     1.0928
+    ],
+    "candidates": [
+     "floor_lamp"
+    ],
+    "converter": "assimp",
+    "part_classes": {},
+    "fix_version": "syncronia-2",
+    "src_sha256": "cbee7c82d9b2849257f0ac40b3027b54b537f8e9f18c417cfb215713d5c98935",
+    "meta": {
+     "title": "Floor lamps, Dot Floor",
+     "brand": "platek",
+     "type": "floor-lamps",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-floor-lamps/platek/dot-floor",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_f75892f4e1b99f488d9e479e",
+   "type": "floor_lamp",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Platek Flamingo Floor (45 x 25 x 150 cm)",
+   "bbox_m": [
+    0.4503,
+    0.2537,
+    1.4999
+   ],
+   "bbox_model_m": [
+    0.4503,
+    0.2537,
+    1.4999
+   ],
+   "bbox_min_m": [
+    -0.2252,
+    -0.1268,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.2252,
+    0.1268,
+    1.4999
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a floor_lamp has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 0.4503 x 0.2537 x 1.5 read in metres fits a real floor_lamp (size table); written in metres by the syncronia fix-up: 0.45 x 0.254 x 1.5 m",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "the brand Platek: modern",
+   "glb": "models/syncronia/syncronia_f75892f4e1b99f488d9e479e.glb",
+   "sha256_glb": "ff12320dff586a5d92160435856bec2da12d164c0c0c67c57284ea8a5715e5e0",
+   "uid": "syncronia_f75892f4e1b99f488d9e479e",
+   "title": "Platek Flamingo Floor (45 x 25 x 150 cm)",
+   "author": "Platek (manufacturer model, via Syncronia)",
+   "brand": "Platek",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-floor-lamps/platek/flamingo-floor",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Platek Flamingo Floor (45 x 25 x 150 cm)\" by Platek (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-floor-lamps/platek/flamingo-floor, from the user's zip \"archive3.zip\" (floor-lamps/platek/flamingo-floor/185255.3ds.zip/Platek_flamingo_floor_1500.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 2224,
+   "vertices": 1120,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 4,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_lacquer",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.7305,
+      0.7084,
+      0.6584,
+      1.0
+     ],
+     "colour_rgb": [
+      222,
+      219,
+      212
+     ],
+     "note": "white lacquer",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "floor-lamps/platek/flamingo-floor/185255.3ds.zip/Platek_flamingo_floor_1500.3ds",
+    "zip": "archive3.zip",
+    "category": "floor-lamps",
+    "format": ".3ds",
+    "unit": "metres",
+    "factor": 1.0,
+    "up_fix": null,
+    "raw_box_m": [
+     0.4503,
+     0.2537,
+     1.4999
+    ],
+    "candidates": [
+     "floor_lamp"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "lacquer": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "ca06f37475bcc8a6d5bef9e7933fb213444771d377727b74afa8a5df180a1f29",
+    "meta": {
+     "title": "Floor lamps, Flamingo Floor",
+     "brand": "platek",
+     "type": "floor-lamps",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-floor-lamps/platek/flamingo-floor",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_5f8733884dc18775a1c5f16d",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "MDF Italia Arpa Collection (87 x 87 x 28 cm)",
+   "bbox_m": [
+    0.87,
+    0.87,
+    0.2769
+   ],
+   "bbox_model_m": [
+    0.87,
+    0.87,
+    0.2769
+   ],
+   "bbox_min_m": [
+    -0.435,
+    -0.435,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.435,
+    0.435,
+    0.2769
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the OBJ box 870 x 870 x 276.9 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.87 x 0.87 x 0.277 m",
+   "styles": [
+    "modern minimal"
+   ],
+   "style_note": "the brand MDF Italia: modern minimal",
+   "glb": "models/syncronia/syncronia_5f8733884dc18775a1c5f16d.glb",
+   "sha256_glb": "0d8e89b904ab4257074204a64376de418e0ea34522b757aee95ee8ae1e3a28cf",
+   "uid": "syncronia_5f8733884dc18775a1c5f16d",
+   "title": "MDF Italia Arpa Collection (87 x 87 x 28 cm)",
+   "author": "MDF Italia (manufacturer model, via Syncronia)",
+   "brand": "MDF Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-furniture/mdf-italia/arpa-collection",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"MDF Italia Arpa Collection (87 x 87 x 28 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-furniture/mdf-italia/arpa-collection, from the user's zip \"archive3.zip\" (furniture/mdf-italia/arpa-collection/172266.obj.zip/MDF_Arpa_standard_Coffee_table.obj); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from OBJ, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 176190,
+   "vertices": 116022,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 4,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "furniture/mdf-italia/arpa-collection/172266.obj.zip/MDF_Arpa_standard_Coffee_table.obj",
+    "zip": "archive3.zip",
+    "category": "furniture",
+    "format": ".obj",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     870.0,
+     870.0001,
+     276.8934
+    ],
+    "candidates": [
+     "table_coffee"
+    ],
+    "converter": "blender",
+    "part_classes": {
+     "wood": 6
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "f015e75eb57bfaaeb8a4b363e505de9332411c14427770817cb58f28b9a6450e",
+    "meta": {
+     "title": "Furniture, Arpa Collection",
+     "brand": "mdf-italia",
+     "type": "furniture",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-furniture/mdf-italia/arpa-collection",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_64c192b270f48facbc65d510",
+   "type": "chair",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Tonon Libra chair (59 x 61 x 82 cm)",
+   "bbox_m": [
+    0.5889,
+    0.6093,
+    0.8186
+   ],
+   "bbox_model_m": [
+    0.5889,
+    0.6093,
+    0.8186
+   ],
+   "bbox_min_m": [
+    -0.2945,
+    -0.3046,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.2945,
+    0.3046,
+    0.8186
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "geometry: back_taller: offsets +0.319 (x) and +0.325 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 588.9 x 609.3 x 818.6 read in millimetres fits a real chair (size table); written in metres by the syncronia fix-up: 0.589 x 0.609 x 0.819 m",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "the brand Tonon: modern",
+   "glb": "models/syncronia/syncronia_64c192b270f48facbc65d510.glb",
+   "sha256_glb": "7a8bb4565bc259ed29a1b6223069d94254cc07b2d1cd64430dd7b41ea51147da",
+   "uid": "syncronia_64c192b270f48facbc65d510",
+   "title": "Tonon Libra chair (59 x 61 x 82 cm)",
+   "author": "Tonon (manufacturer model, via Syncronia)",
+   "brand": "Tonon",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-furniture/tonon/libra-chair",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Tonon Libra chair (59 x 61 x 82 cm)\" by Tonon (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-furniture/tonon/libra-chair, from the user's zip \"archive3.zip\" (furniture/tonon/libra-chair/63044.3ds.zip/Tonon_libra_298.01_3ds.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 121964,
+   "vertices": 65995,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 4,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "furniture/tonon/libra-chair/63044.3ds.zip/Tonon_libra_298.01_3ds.3ds",
+    "zip": "archive3.zip",
+    "category": "furniture",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     588.9236,
+     609.2896,
+     818.6126
+    ],
+    "candidates": [
+     "chair",
+     "armchair",
+     "office_chair",
+     "bar_stool"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "wood": 6
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "5b981efeee9ec2e51f583d19d5b42b797892d50650aae35cbfd7b772028f0775",
+    "meta": {
+     "title": "Furniture, Libra chair",
+     "brand": "tonon",
+     "type": "furniture",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-furniture/tonon/libra-chair",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_5bf827cc1f8e13d78a4ca0b4",
+   "type": "armchair",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Tonon Libra lounge (89 x 75 x 75 cm)",
+   "bbox_m": [
+    0.8866,
+    0.7502,
+    0.7525
+   ],
+   "bbox_model_m": [
+    0.8866,
+    0.7502,
+    0.7525
+   ],
+   "bbox_min_m": [
+    -0.4433,
+    -0.3751,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.4433,
+    0.3751,
+    0.7525
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "medium",
+   "front_axis_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.262 of the extent): front -Y",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 886.6 x 750.2 x 752.5 read in millimetres fits a real armchair (size table); written in metres by the syncronia fix-up: 0.887 x 0.75 x 0.752 m",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "the brand Tonon: modern",
+   "glb": "models/syncronia/syncronia_5bf827cc1f8e13d78a4ca0b4.glb",
+   "sha256_glb": "4bb49e911def0cdde5030fc287decd024688c8b113077d9b02ae0b4e9e78ccc6",
+   "uid": "syncronia_5bf827cc1f8e13d78a4ca0b4",
+   "title": "Tonon Libra lounge (89 x 75 x 75 cm)",
+   "author": "Tonon (manufacturer model, via Syncronia)",
+   "brand": "Tonon",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-lounge-chair/tonon/libra-lounge",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Tonon Libra lounge (89 x 75 x 75 cm)\" by Tonon (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-lounge-chair/tonon/libra-lounge, from the user's zip \"archive3.zip\" (lounge-chair/tonon/libra-lounge/63048.3ds.zip/Tonon_libra_298.21_3ds.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 74096,
+   "vertices": 39069,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": [
+     "KHR_materials_specular"
+    ]
+   },
+   "syncronia": {
+    "rel": "lounge-chair/tonon/libra-lounge/63048.3ds.zip/Tonon_libra_298.21_3ds.3ds",
+    "zip": "archive3.zip",
+    "category": "lounge-chair",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     886.5574,
+     750.1916,
+     752.4902
+    ],
+    "candidates": [
+     "armchair"
+    ],
+    "converter": "assimp",
+    "part_classes": {},
+    "fix_version": "syncronia-2",
+    "src_sha256": "bb164b6faaf657c2e010746c5133085f38fbfa0f5f517b81b4fab3e52b412091",
+    "meta": {
+     "title": "Lounge Chair, Libra lounge",
+     "brand": "tonon",
+     "type": "lounge-chair",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-lounge-chair/tonon/libra-lounge",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_88037a0b57f2675820d89eb4",
+   "type": "armchair",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Tonon Up Lounge (75 x 73 x 74 cm)",
+   "bbox_m": [
+    0.7486,
+    0.7327,
+    0.7419
+   ],
+   "bbox_model_m": [
+    0.7486,
+    0.7327,
+    0.7419
+   ],
+   "bbox_min_m": [
+    -0.3743,
+    -0.3664,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.3743,
+    0.3664,
+    0.7419
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "medium",
+   "front_axis_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.311 of the extent): front -Y",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 748.6 x 732.7 x 741.9 read in millimetres fits a real armchair (size table); written in metres by the syncronia fix-up: 0.749 x 0.733 x 0.742 m",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "the brand Tonon: modern",
+   "glb": "models/syncronia/syncronia_88037a0b57f2675820d89eb4.glb",
+   "sha256_glb": "209519189e66adbb6cee4c723999c428637a053574934e033c7e1a39377b6569",
+   "uid": "syncronia_88037a0b57f2675820d89eb4",
+   "title": "Tonon Up Lounge (75 x 73 x 74 cm)",
+   "author": "Tonon (manufacturer model, via Syncronia)",
+   "brand": "Tonon",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-lounge-chair/tonon/lounge",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Tonon Up Lounge (75 x 73 x 74 cm)\" by Tonon (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-lounge-chair/tonon/lounge, from the user's zip \"archive3.zip\" (lounge-chair/tonon/lounge/76324.zip/917.27_28.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 219959,
+   "vertices": 130573,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.9955,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0045,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "lounge-chair/tonon/lounge/76324.zip/917.27_28.3ds",
+    "zip": "archive3.zip",
+    "category": "lounge-chair",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     748.5575,
+     732.717,
+     741.9073
+    ],
+    "candidates": [
+     "armchair"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "fabric": 9,
+     "metal": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "2a2da238b77d1aec57c08f0bd71bc40232847660897d481ee198e6e4d5b53923",
+    "meta": {
+     "title": "Lounge Chair, Up Lounge",
+     "brand": "tonon",
+     "type": "lounge-chair",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-lounge-chair/tonon/lounge",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_f53a5c2468626a27fa285c55",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Button Tables (54 x 44 x 50 cm)",
+   "bbox_m": [
+    0.5448,
+    0.4427,
+    0.5
+   ],
+   "bbox_model_m": [
+    0.5448,
+    0.4427,
+    0.5
+   ],
+   "bbox_min_m": [
+    -0.2724,
+    -0.2213,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.2724,
+    0.2213,
+    0.5
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 544.8 x 442.7 x 500 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.545 x 0.443 x 0.5 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_f53a5c2468626a27fa285c55.glb",
+   "sha256_glb": "dbf0eacfeecc10f65b9714e4a11f6d811e45623a01da8aaeb2b63cd3543a9a01",
+   "uid": "syncronia_f53a5c2468626a27fa285c55",
+   "title": "B&B Italia Button Tables (54 x 44 x 50 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/button-tables",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Button Tables (54 x 44 x 50 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/button-tables, from the user's zip \"archive3.zip\" (low-tables/bb-italia/button-tables/36150.skp.zip/BUTTON/3D_TB54.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 8624,
+   "vertices": 4823,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_lacquer",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5648,
+     "textured": false,
+     "base_colour": [
+      0.7305,
+      0.7084,
+      0.6584,
+      1.0
+     ],
+     "colour_rgb": [
+      222,
+      219,
+      212
+     ],
+     "note": "white lacquer",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_marble",
+     "material": "marble",
+     "materials": [
+      "marble"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4352,
+     "textured": false,
+     "base_colour": [
+      0.7605,
+      0.7305,
+      0.6724,
+      1.0
+     ],
+     "colour_rgb": [
+      226,
+      222,
+      214
+     ],
+     "note": "light marble",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "marble"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/button-tables/36150.skp.zip/BUTTON/3D_TB54.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     544.8241,
+     442.6548,
+     500.0002
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "marble": 1,
+     "lacquer": 1
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "b45a96e32d01481dd2faf87f82e574ae260fef8d65e0ca27ef1b891b5f1de098",
+    "meta": {
+     "title": "Low tables, Button Tables",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/button-tables",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_6c42a2273d8c986b96f659a2",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Button Tables (67 x 54 x 35 cm)",
+   "bbox_m": [
+    0.6661,
+    0.5412,
+    0.3528
+   ],
+   "bbox_model_m": [
+    0.6661,
+    0.5412,
+    0.3528
+   ],
+   "bbox_min_m": [
+    -0.333,
+    -0.2706,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.333,
+    0.2706,
+    0.3528
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 666.1 x 541.2 x 352.8 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.666 x 0.541 x 0.353 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_6c42a2273d8c986b96f659a2.glb",
+   "sha256_glb": "c98dd006c11090159c5e716474eeaa9390dac69b2a48c4f04a03182c738137c3",
+   "uid": "syncronia_6c42a2273d8c986b96f659a2",
+   "title": "B&B Italia Button Tables (67 x 54 x 35 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/button-tables",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Button Tables (67 x 54 x 35 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/button-tables, from the user's zip \"archive3.zip\" (low-tables/bb-italia/button-tables/36150.skp.zip/BUTTON/3D_TB66.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 8624,
+   "vertices": 4828,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_lacquer",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5158,
+     "textured": false,
+     "base_colour": [
+      0.7305,
+      0.7084,
+      0.6584,
+      1.0
+     ],
+     "colour_rgb": [
+      222,
+      219,
+      212
+     ],
+     "note": "white lacquer",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_marble",
+     "material": "marble",
+     "materials": [
+      "marble"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4842,
+     "textured": false,
+     "base_colour": [
+      0.7605,
+      0.7305,
+      0.6724,
+      1.0
+     ],
+     "colour_rgb": [
+      226,
+      222,
+      214
+     ],
+     "note": "light marble",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "marble"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/button-tables/36150.skp.zip/BUTTON/3D_TB66.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     666.0611,
+     541.1566,
+     352.8184
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "marble": 1,
+     "lacquer": 1
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "0c1bee770136726e3ffb38bb23cc8310aa32c465bb4fb5b319f8d3d5b2b63fc5",
+    "meta": {
+     "title": "Low tables, Button Tables",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/button-tables",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_b4ab356e0890100107092078",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Button Tables (82 x 82 x 40 cm)",
+   "bbox_m": [
+    0.8174,
+    0.8174,
+    0.4035
+   ],
+   "bbox_model_m": [
+    0.8174,
+    0.8174,
+    0.4035
+   ],
+   "bbox_min_m": [
+    -0.4087,
+    -0.4087,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.4087,
+    0.4087,
+    0.4035
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 817.4 x 817.4 x 403.5 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.817 x 0.817 x 0.404 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_b4ab356e0890100107092078.glb",
+   "sha256_glb": "c61c38e3a28c260c770b668018bba0228814c8613cdd40af7c1539ba1baccc0f",
+   "uid": "syncronia_b4ab356e0890100107092078",
+   "title": "B&B Italia Button Tables (82 x 82 x 40 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/button-tables",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Button Tables (82 x 82 x 40 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/button-tables, from the user's zip \"archive3.zip\" (low-tables/bb-italia/button-tables/36150.skp.zip/BUTTON/3D_TB80R.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 30160,
+   "vertices": 15890,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_lacquer",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.3896,
+     "textured": false,
+     "base_colour": [
+      0.7305,
+      0.7084,
+      0.6584,
+      1.0
+     ],
+     "colour_rgb": [
+      222,
+      219,
+      212
+     ],
+     "note": "white lacquer",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_marble",
+     "material": "marble",
+     "materials": [
+      "marble"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.6104,
+     "textured": false,
+     "base_colour": [
+      0.7605,
+      0.7305,
+      0.6724,
+      1.0
+     ],
+     "colour_rgb": [
+      226,
+      222,
+      214
+     ],
+     "note": "light marble",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "marble"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/button-tables/36150.skp.zip/BUTTON/3D_TB80R.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     817.3805,
+     817.3805,
+     403.4901
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "marble": 1,
+     "lacquer": 1
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "15a193d2d3c2848cf7313407c7103aa6de078859e10983e8a2f0c5d934d30784",
+    "meta": {
+     "title": "Low tables, Button Tables",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/button-tables",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_befd74185c08eb8a6569075d",
+   "type": "side_table",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Pyllon (41 x 46 x 43 cm)",
+   "bbox_m": [
+    0.4067,
+    0.4637,
+    0.4343
+   ],
+   "bbox_model_m": [
+    0.4067,
+    0.4637,
+    0.4343
+   ],
+   "bbox_min_m": [
+    -0.2033,
+    -0.2319,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.2033,
+    0.2319,
+    0.4343
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a side_table has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 0.4067 x 0.4637 x 0.4343 read in metres fits a real side_table (size table); written in metres by the syncronia fix-up: 0.407 x 0.464 x 0.434 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_befd74185c08eb8a6569075d.glb",
+   "sha256_glb": "a4227cde9c2eafe957d2cdfdb75b44b28f7a2dde727127fe0a1387381bf545b3",
+   "uid": "syncronia_befd74185c08eb8a6569075d",
+   "title": "B&B Italia Pyllon (41 x 46 x 43 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/pyllon",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Pyllon (41 x 46 x 43 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/pyllon, from the user's zip \"archive3.zip\" (low-tables/bb-italia/pyllon/11721.3ds.zip/3D_PY46.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 29456,
+   "vertices": 15228,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 4,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "metal"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/pyllon/11721.3ds.zip/3D_PY46.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "metres",
+    "factor": 1.0,
+    "up_fix": null,
+    "raw_box_m": [
+     0.4067,
+     0.4637,
+     0.4343
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "metal": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "8666b56c07363657e9fe59fd6cbf9d084c3b2b4d4248b426b584129dcda2b5a6",
+    "meta": {
+     "title": "Low tables, Pyllon",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/pyllon",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_8fcb967e1b0ed3e1b3eefede",
+   "type": "side_table",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Pyllon (41 x 46 x 43 cm)",
+   "bbox_m": [
+    0.4067,
+    0.4602,
+    0.4324
+   ],
+   "bbox_model_m": [
+    0.4067,
+    0.4602,
+    0.4324
+   ],
+   "bbox_min_m": [
+    -0.2033,
+    -0.2301,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.2033,
+    0.2301,
+    0.4324
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a side_table has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 0.4067 x 0.4602 x 0.4324 read in metres fits a real side_table (size table); written in metres by the syncronia fix-up: 0.407 x 0.46 x 0.432 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_8fcb967e1b0ed3e1b3eefede.glb",
+   "sha256_glb": "5ac94914553497082af4418b1f80b479bf8a628d7dcde1b6a5d55f6b2e55c790",
+   "uid": "syncronia_8fcb967e1b0ed3e1b3eefede",
+   "title": "B&B Italia Pyllon (41 x 46 x 43 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/pyllon",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Pyllon (41 x 46 x 43 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/pyllon, from the user's zip \"archive3.zip\" (low-tables/bb-italia/pyllon/11721.3ds.zip/3D_TPY46.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 104576,
+   "vertices": 53054,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 4,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "metal"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/pyllon/11721.3ds.zip/3D_TPY46.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "metres",
+    "factor": 1.0,
+    "up_fix": null,
+    "raw_box_m": [
+     0.4067,
+     0.4602,
+     0.4324
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "metal": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "c25781465a1bbb846d6becfce2987d3d294b8339a799b9b76a150d14ff43e8f8",
+    "meta": {
+     "title": "Low tables, Pyllon",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/pyllon",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_4ec739006eee5aa20a942c40",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Surface (120 x 60 x 37 cm)",
+   "bbox_m": [
+    1.2,
+    0.6001,
+    0.37
+   ],
+   "bbox_model_m": [
+    1.2,
+    0.6001,
+    0.37
+   ],
+   "bbox_min_m": [
+    -0.6,
+    -0.3,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.6,
+    0.3,
+    0.37
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1200 x 600.1 x 370 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 1.2 x 0.6 x 0.37 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_4ec739006eee5aa20a942c40.glb",
+   "sha256_glb": "1362e348920f54f7787653471de348b04f78f4655528140f954736923a28ac21",
+   "uid": "syncronia_4ec739006eee5aa20a942c40",
+   "title": "B&B Italia Surface (120 x 60 x 37 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Surface (120 x 60 x 37 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface, from the user's zip \"archive3.zip\" (low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF120.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 1236,
+   "vertices": 1008,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5067,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4933,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "metal",
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF120.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1200.0129,
+     600.0728,
+     370.0331
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "metal": 2,
+     "wood": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "1ef5584497b9d87f902c84493aba7c64b78f48cf25c021736ed788dd4a09bacb",
+    "meta": {
+     "title": "Low tables, Surface",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_55b2187087dc16e335524f03",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Surface (120 x 60 x 37 cm)",
+   "bbox_m": [
+    1.2,
+    0.6,
+    0.37
+   ],
+   "bbox_model_m": [
+    1.2,
+    0.6,
+    0.37
+   ],
+   "bbox_min_m": [
+    -0.6,
+    -0.3,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.6,
+    0.3,
+    0.37
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1200 x 600 x 370 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 1.2 x 0.6 x 0.37 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_55b2187087dc16e335524f03.glb",
+   "sha256_glb": "583573fb654c6455e68b773629e4f3cdcd71ddbce4c646aad46cbcda0329420d",
+   "uid": "syncronia_55b2187087dc16e335524f03",
+   "title": "B&B Italia Surface (120 x 60 x 37 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Surface (120 x 60 x 37 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface, from the user's zip \"archive3.zip\" (low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF120V.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 2460,
+   "vertices": 2004,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4846,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5154,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "metal",
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF120V.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1199.9924,
+     599.9633,
+     370.0331
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "metal": 2,
+     "wood": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "bc3c9da0741090ec0e9f0d558dfe29ce3d467a25641a56efee670c5e933586f5",
+    "meta": {
+     "title": "Low tables, Surface",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_1625450217aad1390e964d6c",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Surface (150 x 35 x 37 cm)",
+   "bbox_m": [
+    1.5,
+    0.35,
+    0.37
+   ],
+   "bbox_model_m": [
+    1.5,
+    0.35,
+    0.37
+   ],
+   "bbox_min_m": [
+    -0.75,
+    -0.175,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.75,
+    0.175,
+    0.37
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1500 x 350 x 370 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 1.5 x 0.35 x 0.37 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_1625450217aad1390e964d6c.glb",
+   "sha256_glb": "ace320e0041b4da9f6c4f4e941a603fb374e226897ea114989454e9b134d82d8",
+   "uid": "syncronia_1625450217aad1390e964d6c",
+   "title": "B&B Italia Surface (150 x 35 x 37 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Surface (150 x 35 x 37 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface, from the user's zip \"archive3.zip\" (low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF150A.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 1236,
+   "vertices": 1008,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4893,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5107,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "metal",
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF150A.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1500.0,
+     350.0,
+     370.0331
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "metal": 2,
+     "wood": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "9871b7cc62be873c811dc91b5b60f033dbf66428a810959f6a56aa12434dc39a",
+    "meta": {
+     "title": "Low tables, Surface",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_769ea27b8cd3afc9e3dde2ca",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Surface (150 x 35 x 37 cm)",
+   "bbox_m": [
+    1.5,
+    0.35,
+    0.37
+   ],
+   "bbox_model_m": [
+    1.5,
+    0.35,
+    0.37
+   ],
+   "bbox_min_m": [
+    -0.75,
+    -0.175,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.75,
+    0.175,
+    0.37
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1500 x 350 x 370 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 1.5 x 0.35 x 0.37 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_769ea27b8cd3afc9e3dde2ca.glb",
+   "sha256_glb": "ab2f55187a542def054a4f2419b42218b389dbee67124ea027153cf81053476a",
+   "uid": "syncronia_769ea27b8cd3afc9e3dde2ca",
+   "title": "B&B Italia Surface (150 x 35 x 37 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Surface (150 x 35 x 37 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface, from the user's zip \"archive3.zip\" (low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF150AV.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 2460,
+   "vertices": 2008,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4619,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5381,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "metal",
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF150AV.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1500.0,
+     350.0,
+     370.0331
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "metal": 2,
+     "wood": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "ef11692511a4d06a09ec99dfd54c90a15480ff5febfc373709b864ba03587017",
+    "meta": {
+     "title": "Low tables, Surface",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_461ce2b2c78d980ac54d5f24",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Surface (150 x 70 x 37 cm)",
+   "bbox_m": [
+    1.5,
+    0.7001,
+    0.3702
+   ],
+   "bbox_model_m": [
+    1.5,
+    0.7001,
+    0.3702
+   ],
+   "bbox_min_m": [
+    -0.75,
+    -0.35,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.75,
+    0.35,
+    0.3702
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1500 x 700.1 x 370.2 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 1.5 x 0.7 x 0.37 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_461ce2b2c78d980ac54d5f24.glb",
+   "sha256_glb": "0e329c3ca7d2eef161c30a874d642066a5e399393fbe2541fe0ed9f318e9c747",
+   "uid": "syncronia_461ce2b2c78d980ac54d5f24",
+   "title": "B&B Italia Surface (150 x 70 x 37 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Surface (150 x 70 x 37 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface, from the user's zip \"archive3.zip\" (low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF150B.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 1440,
+   "vertices": 1180,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5049,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4951,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "metal",
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF150B.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1500.0,
+     700.06,
+     370.2235
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "metal": 2,
+     "wood": 4
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "2665e555ef6570ca892bd723a1cc19241fcbe0d0a10715a88465f2877fd87a14",
+    "meta": {
+     "title": "Low tables, Surface",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_8c1d68f485699f7f4aa5d5c1",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Surface (150 x 70 x 37 cm)",
+   "bbox_m": [
+    1.5,
+    0.7001,
+    0.37
+   ],
+   "bbox_model_m": [
+    1.5,
+    0.7001,
+    0.37
+   ],
+   "bbox_min_m": [
+    -0.75,
+    -0.35,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.75,
+    0.35,
+    0.37
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1500 x 700.1 x 370 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 1.5 x 0.7 x 0.37 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_8c1d68f485699f7f4aa5d5c1.glb",
+   "sha256_glb": "eb362e4439ddad82af2a841ac084821dac21ac64d28a89ab39ef8084e0ae10b2",
+   "uid": "syncronia_8c1d68f485699f7f4aa5d5c1",
+   "title": "B&B Italia Surface (150 x 70 x 37 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Surface (150 x 70 x 37 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface, from the user's zip \"archive3.zip\" (low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF150BV.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 3480,
+   "vertices": 2845,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4766,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5234,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "metal",
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF150BV.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1500.0,
+     700.071,
+     370.0331
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "metal": 2,
+     "wood": 4
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "7939430c5d5107099619527fb006f1aa0934fb20cfe2d1ade73cfd21a44d70d8",
+    "meta": {
+     "title": "Low tables, Surface",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_01fd0e72e6ea15da0ee8c3a3",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Surface (150 x 137 x 37 cm)",
+   "bbox_m": [
+    1.5007,
+    1.3703,
+    0.37
+   ],
+   "bbox_model_m": [
+    1.5007,
+    1.3703,
+    0.37
+   ],
+   "bbox_min_m": [
+    -0.7503,
+    -0.6852,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.7503,
+    0.6852,
+    0.37
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1501 x 1370 x 370 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 1.5 x 1.37 x 0.37 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_01fd0e72e6ea15da0ee8c3a3.glb",
+   "sha256_glb": "7bb78f7d58d6bd095452ccb085486cf6ecb05beeaf91479eff81c20c67a05100",
+   "uid": "syncronia_01fd0e72e6ea15da0ee8c3a3",
+   "title": "B&B Italia Surface (150 x 137 x 37 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Surface (150 x 137 x 37 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface, from the user's zip \"archive3.zip\" (low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF150CV.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 5736,
+   "vertices": 4663,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.3068,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.6932,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "metal",
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/bb-italia/surface/36163.skp.zip/SURFACE/3D_TSF150CV.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1500.6595,
+     1370.3041,
+     370.0333
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "metal": 4,
+     "wood": 4
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "c8d585cd1f3ef08fdb499b9e0eb4cf713c616aa3fe7936e913cdc1ced6c51e1f",
+    "meta": {
+     "title": "Low tables, Surface",
+     "brand": "bb-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/bb-italia/surface",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_3db0e66637a5523ebe2c1fa1",
+   "type": "side_table",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Marte Design Random (45 x 45 x 46 cm)",
+   "bbox_m": [
+    0.45,
+    0.45,
+    0.455
+   ],
+   "bbox_model_m": [
+    0.45,
+    0.45,
+    0.455
+   ],
+   "bbox_min_m": [
+    -0.225,
+    -0.225,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.225,
+    0.225,
+    0.455
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a side_table has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the FBX box 0.45 x 0.45 x 0.455 read in metres fits a real side_table (size table); written in metres by the syncronia fix-up: 0.45 x 0.45 x 0.455 m",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "the brand Marte Design: modern",
+   "glb": "models/syncronia/syncronia_3db0e66637a5523ebe2c1fa1.glb",
+   "sha256_glb": "aaf41690dd7e74ede2c3ac16d16d419b242f2c1a223eae84a2951ee33481f4a2",
+   "uid": "syncronia_3db0e66637a5523ebe2c1fa1",
+   "title": "Marte Design Random (45 x 45 x 46 cm)",
+   "author": "Marte Design (manufacturer model, via Syncronia)",
+   "brand": "Marte Design",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/marte-design/random",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Marte Design Random (45 x 45 x 46 cm)\" by Marte Design (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/marte-design/random, from the user's zip \"archive3.zip\" (low-tables/marte-design/random/63763.fbx.zip/Marte_Random_045_3DH_fbx.fbx); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from FBX, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 23736,
+   "vertices": 31568,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": [
+     "KHR_materials_specular"
+    ]
+   },
+   "syncronia": {
+    "rel": "low-tables/marte-design/random/63763.fbx.zip/Marte_Random_045_3DH_fbx.fbx",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".fbx",
+    "unit": "metres",
+    "factor": 1.0,
+    "up_fix": null,
+    "raw_box_m": [
+     0.45,
+     0.45,
+     0.455
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "blender",
+    "part_classes": {},
+    "fix_version": "syncronia-2",
+    "src_sha256": "559a12c8ac8dd125673e158d465a0d502919c19a34c10158fae818cafb90db11",
+    "meta": {
+     "title": "Low tables, Random",
+     "brand": "marte-design",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/marte-design/random",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_aaab618aa85efd210fbaa0ca",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Omero 2009 (90 x 77 x 22 cm)",
+   "bbox_m": [
+    0.8992,
+    0.7715,
+    0.2225
+   ],
+   "bbox_model_m": [
+    0.8992,
+    0.7715,
+    0.2225
+   ],
+   "bbox_min_m": [
+    -0.4496,
+    -0.3857,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.4496,
+    0.3857,
+    0.2225
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 2.95 x 2.531 x 0.73 read in feet fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.899 x 0.771 x 0.223 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_aaab618aa85efd210fbaa0ca.glb",
+   "sha256_glb": "c23127eb15e50324839cdf83bc3d25587b8e7f31ff2f6073b94f46e1982075c4",
+   "uid": "syncronia_aaab618aa85efd210fbaa0ca",
+   "title": "Maxalto (B&B Italia) Omero 2009 (90 x 77 x 22 cm)",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/omero-2009",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Omero 2009 (90 x 77 x 22 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/omero-2009, from the user's zip \"archive3.zip\" (low-tables/maxalto/omero-2009/14211.3ds.zip/3D_2912.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 56784,
+   "vertices": 34093,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 4,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/maxalto/omero-2009/14211.3ds.zip/3D_2912.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "feet",
+    "factor": 0.3048,
+    "up_fix": null,
+    "raw_box_m": [
+     2.95,
+     2.5311,
+     0.73
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "wood": 13
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "2d722d006a652680a9cc1adec29e69161f8cf5f3e7b22180d792477f84fe61f7",
+    "meta": {
+     "title": "Low tables, Omero 2009",
+     "brand": "maxalto",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/omero-2009",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_9e03d78641d205b069a681ac",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Pathos 2013 (71 x 54 x 66 cm)",
+   "bbox_m": [
+    0.7059,
+    0.5428,
+    0.6606
+   ],
+   "bbox_model_m": [
+    0.7059,
+    0.5428,
+    0.6606
+   ],
+   "bbox_min_m": [
+    -0.3529,
+    -0.2714,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.3529,
+    0.2714,
+    0.6606
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 705.9 x 542.8 x 660.6 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.706 x 0.543 x 0.661 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_9e03d78641d205b069a681ac.glb",
+   "sha256_glb": "bfe392fc1a8a3d34daf66275fc5f03ee604afe2410fa713e05fd25ca8cf48757",
+   "uid": "syncronia_9e03d78641d205b069a681ac",
+   "title": "Maxalto (B&B Italia) Pathos 2013 (71 x 54 x 66 cm)",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Pathos 2013 (71 x 54 x 66 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013, from the user's zip \"archive3.zip\" (low-tables/maxalto/pathos-2013/14493.3ds.zip/3D_SMCE7.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 8700,
+   "vertices": 5055,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": [
+     "KHR_materials_specular"
+    ]
+   },
+   "syncronia": {
+    "rel": "low-tables/maxalto/pathos-2013/14493.3ds.zip/3D_SMCE7.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     705.8793,
+     542.8467,
+     660.6098
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {},
+    "fix_version": "syncronia-2",
+    "src_sha256": "9e14ee57d961c5a45e84eb8246cc591fcdc937fa43945b5d16a17442aefaddd5",
+    "meta": {
+     "title": "Low tables, Pathos 2013",
+     "brand": "maxalto",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_efadfbf94ab436859d69cda2",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Pathos 2013 (70 x 50 x 67 cm)",
+   "bbox_m": [
+    0.7001,
+    0.4996,
+    0.6656
+   ],
+   "bbox_model_m": [
+    0.7001,
+    0.4996,
+    0.6656
+   ],
+   "bbox_min_m": [
+    -0.3501,
+    -0.2498,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.3501,
+    0.2498,
+    0.6656
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 700.1 x 499.6 x 665.6 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.7 x 0.5 x 0.666 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_efadfbf94ab436859d69cda2.glb",
+   "sha256_glb": "1e86fe0cf862c206149a27eb51bd985355763471fa1415cd54ec43678bfe4524",
+   "uid": "syncronia_efadfbf94ab436859d69cda2",
+   "title": "Maxalto (B&B Italia) Pathos 2013 (70 x 50 x 67 cm)",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Pathos 2013 (70 x 50 x 67 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013, from the user's zip \"archive3.zip\" (low-tables/maxalto/pathos-2013/14493.3ds.zip/3D_SMCE7A.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 11438,
+   "vertices": 6293,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": [
+     "KHR_materials_specular"
+    ]
+   },
+   "syncronia": {
+    "rel": "low-tables/maxalto/pathos-2013/14493.3ds.zip/3D_SMCE7A.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     700.1412,
+     499.6341,
+     665.5517
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {},
+    "fix_version": "syncronia-2",
+    "src_sha256": "52765be0acd4998eaa6d5bbaa4d3e5c0dc002eaa15e6510d9fcb3793e0966aa0",
+    "meta": {
+     "title": "Low tables, Pathos 2013",
+     "brand": "maxalto",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_3ff9c289f09883371b2489cc",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Pathos 2013 (80 x 55 x 66 cm)",
+   "bbox_m": [
+    0.7952,
+    0.5545,
+    0.6555
+   ],
+   "bbox_model_m": [
+    0.7952,
+    0.5545,
+    0.6555
+   ],
+   "bbox_min_m": [
+    -0.3976,
+    -0.2773,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.3976,
+    0.2773,
+    0.6555
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 795.2 x 554.5 x 655.5 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.795 x 0.554 x 0.655 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_3ff9c289f09883371b2489cc.glb",
+   "sha256_glb": "2e8d1b3d66e5e3eb1272d726bbda45060d76cc7dd73b9032c1e969f1efeb8d50",
+   "uid": "syncronia_3ff9c289f09883371b2489cc",
+   "title": "Maxalto (B&B Italia) Pathos 2013 (80 x 55 x 66 cm)",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Pathos 2013 (80 x 55 x 66 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013, from the user's zip \"archive3.zip\" (low-tables/maxalto/pathos-2013/14493.3ds.zip/3D_SMCE8.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 10612,
+   "vertices": 5704,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": [
+     "KHR_materials_specular"
+    ]
+   },
+   "syncronia": {
+    "rel": "low-tables/maxalto/pathos-2013/14493.3ds.zip/3D_SMCE8.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     795.1978,
+     554.5337,
+     655.4745
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {},
+    "fix_version": "syncronia-2",
+    "src_sha256": "a1bb4316a57fb132f65f1b96cffcec8ff48effcc74851f5e7d2750cb2f39cdec",
+    "meta": {
+     "title": "Low tables, Pathos 2013",
+     "brand": "maxalto",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_13a594bd4b606e0dd8807ad7",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Pathos 2013 (110 x 110 x 40 cm)",
+   "bbox_m": [
+    1.1038,
+    1.1038,
+    0.4035
+   ],
+   "bbox_model_m": [
+    1.1038,
+    1.1038,
+    0.4035
+   ],
+   "bbox_min_m": [
+    -0.5519,
+    -0.5519,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.5519,
+    0.5519,
+    0.4035
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1104 x 1104 x 403.5 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 1.1 x 1.1 x 0.404 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_13a594bd4b606e0dd8807ad7.glb",
+   "sha256_glb": "3034925c14c62b129af873c1c8cea7ef99ad780aec2ecaffc4d5f54c514f2341",
+   "uid": "syncronia_13a594bd4b606e0dd8807ad7",
+   "title": "Maxalto (B&B Italia) Pathos 2013 (110 x 110 x 40 cm)",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Pathos 2013 (110 x 110 x 40 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013, from the user's zip \"archive3.zip\" (low-tables/maxalto/pathos-2013/14493.3ds.zip/3D_SMTV11.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 11176,
+   "vertices": 6090,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_brass",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.2493,
+     "textured": false,
+     "base_colour": [
+      0.552,
+      0.3515,
+      0.1221,
+      1.0
+     ],
+     "colour_rgb": [
+      196,
+      160,
+      98
+     ],
+     "note": "brushed brass",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_lacquer",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.7507,
+     "textured": false,
+     "base_colour": [
+      0.7305,
+      0.7084,
+      0.6584,
+      1.0
+     ],
+     "colour_rgb": [
+      222,
+      219,
+      212
+     ],
+     "note": "white lacquer",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "metal"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/maxalto/pathos-2013/14493.3ds.zip/3D_SMTV11.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1103.7592,
+     1103.7592,
+     403.5111
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "lacquer": 5,
+     "brass": 7
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "0b6c83f113092ed20609f84387cfd6e982684a65468d817042e136aa149e2b35",
+    "meta": {
+     "title": "Low tables, Pathos 2013",
+     "brand": "maxalto",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_5ab1725a1aa956351af388a3",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Pathos 2013 (110 x 110 x 40 cm)",
+   "bbox_m": [
+    1.1038,
+    1.1038,
+    0.4035
+   ],
+   "bbox_model_m": [
+    1.1038,
+    1.1038,
+    0.4035
+   ],
+   "bbox_min_m": [
+    -0.5519,
+    -0.5519,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.5519,
+    0.5519,
+    0.4035
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1104 x 1104 x 403.5 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 1.1 x 1.1 x 0.404 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_5ab1725a1aa956351af388a3.glb",
+   "sha256_glb": "b0c0a87032029991669fa9346e1996cd609eab03a9241e02b722836dcc158886",
+   "uid": "syncronia_5ab1725a1aa956351af388a3",
+   "title": "Maxalto (B&B Italia) Pathos 2013 (110 x 110 x 40 cm)",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Pathos 2013 (110 x 110 x 40 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013, from the user's zip \"archive3.zip\" (low-tables/maxalto/pathos-2013/14493.3ds.zip/3D_SMTV11P.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 11176,
+   "vertices": 6106,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_marble",
+     "material": "marble",
+     "materials": [
+      "marble"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.7488,
+     "textured": false,
+     "base_colour": [
+      0.7605,
+      0.7305,
+      0.6724,
+      1.0
+     ],
+     "colour_rgb": [
+      226,
+      222,
+      214
+     ],
+     "note": "light marble",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.2512,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "marble",
+    "metal"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/maxalto/pathos-2013/14493.3ds.zip/3D_SMTV11P.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1103.7592,
+     1103.7592,
+     403.511
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "marble": 1,
+     "metal": 11
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "889cc1a41941eb80c263ad78cfba2338731a12ed8262838dc198fc3b3b9a2c9a",
+    "meta": {
+     "title": "Low tables, Pathos 2013",
+     "brand": "maxalto",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/pathos-2013",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_a145cfb95e7118144e28fa92",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Recipio (80 x 55 x 65 cm)",
+   "bbox_m": [
+    0.7952,
+    0.5545,
+    0.6465
+   ],
+   "bbox_model_m": [
+    0.7952,
+    0.5545,
+    0.6465
+   ],
+   "bbox_min_m": [
+    -0.3976,
+    -0.2773,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.3976,
+    0.2773,
+    0.6465
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 795.2 x 554.5 x 646.5 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.795 x 0.554 x 0.646 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_a145cfb95e7118144e28fa92.glb",
+   "sha256_glb": "2ccc85edf170eee82b59a818455906628c2859a126a6abb2b252391e52f21eb6",
+   "uid": "syncronia_a145cfb95e7118144e28fa92",
+   "title": "Maxalto (B&B Italia) Recipio (80 x 55 x 65 cm)",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/recipio-0",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Recipio (80 x 55 x 65 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/recipio-0, from the user's zip \"archive3.zip\" (low-tables/maxalto/recipio-0/14478.3ds.zip/3D_LXC1.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 6928,
+   "vertices": 4780,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_lacquer",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5514,
+     "textured": false,
+     "base_colour": [
+      0.7305,
+      0.7084,
+      0.6584,
+      1.0
+     ],
+     "colour_rgb": [
+      222,
+      219,
+      212
+     ],
+     "note": "white lacquer",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4486,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/maxalto/recipio-0/14478.3ds.zip/3D_LXC1.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     795.1979,
+     554.5338,
+     646.5312
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "lacquer": 5,
+     "wood": 11
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "14bbaf55689cef31ba74e096b6850f9684cc254154de7d86fb42b4b7171f8378",
+    "meta": {
+     "title": "Low tables, Recipio",
+     "brand": "maxalto",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/recipio-0",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_bee69434555a99809263af7d",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Recipio (70 x 50 x 66 cm)",
+   "bbox_m": [
+    0.7001,
+    0.4996,
+    0.6564
+   ],
+   "bbox_model_m": [
+    0.7001,
+    0.4996,
+    0.6564
+   ],
+   "bbox_min_m": [
+    -0.3501,
+    -0.2498,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.3501,
+    0.2498,
+    0.6564
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 700.1 x 499.6 x 656.4 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.7 x 0.5 x 0.656 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_bee69434555a99809263af7d.glb",
+   "sha256_glb": "d88299345ff848a0abc90189199499f6d73e12b0df27b589a31059081f36e1fb",
+   "uid": "syncronia_bee69434555a99809263af7d",
+   "title": "Maxalto (B&B Italia) Recipio (70 x 50 x 66 cm)",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/recipio-0",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Recipio (70 x 50 x 66 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/recipio-0, from the user's zip \"archive3.zip\" (low-tables/maxalto/recipio-0/14478.3ds.zip/3D_LXC3.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 7754,
+   "vertices": 5213,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_lacquer",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.5527,
+     "textured": false,
+     "base_colour": [
+      0.7305,
+      0.7084,
+      0.6584,
+      1.0
+     ],
+     "colour_rgb": [
+      222,
+      219,
+      212
+     ],
+     "note": "white lacquer",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.4473,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/maxalto/recipio-0/14478.3ds.zip/3D_LXC3.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     700.1412,
+     499.6341,
+     656.4393
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "lacquer": 5,
+     "wood": 11
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "3316d17062408a521a5c5df7c505b6a165ba1130bf374ac5c4372ddd13a195a7",
+    "meta": {
+     "title": "Low tables, Recipio",
+     "brand": "maxalto",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/recipio-0",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_87999a3dd6e13ae42e685589",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Maxalto (B&B Italia) Recipio (70 x 50 x 66 cm)",
+   "bbox_m": [
+    0.7001,
+    0.4996,
+    0.6564
+   ],
+   "bbox_model_m": [
+    0.7001,
+    0.4996,
+    0.6564
+   ],
+   "bbox_min_m": [
+    -0.3501,
+    -0.2498,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.3501,
+    0.2498,
+    0.6564
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 700.1 x 499.6 x 656.4 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.7 x 0.5 x 0.656 m",
+   "styles": [
+    "modern",
+    "classic"
+   ],
+   "style_note": "the brand Maxalto (B&B Italia): modern, classic",
+   "glb": "models/syncronia/syncronia_87999a3dd6e13ae42e685589.glb",
+   "sha256_glb": "0077ab7f2562d51f7dc00a385931917c4e3e964883688c0199c6f6e0520e3afb",
+   "uid": "syncronia_87999a3dd6e13ae42e685589",
+   "title": "Maxalto (B&B Italia) Recipio (70 x 50 x 66 cm)",
+   "author": "Maxalto (B&B Italia) (manufacturer model, via Syncronia)",
+   "brand": "Maxalto (B&B Italia)",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/recipio-0",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Maxalto (B&B Italia) Recipio (70 x 50 x 66 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/recipio-0, from the user's zip \"archive3.zip\" (low-tables/maxalto/recipio-0/14478.3ds.zip/3D_LXC4.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 9846,
+   "vertices": 6493,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_lacquer",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.6592,
+     "textured": false,
+     "base_colour": [
+      0.7305,
+      0.7084,
+      0.6584,
+      1.0
+     ],
+     "colour_rgb": [
+      222,
+      219,
+      212
+     ],
+     "note": "white lacquer",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.3408,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/maxalto/recipio-0/14478.3ds.zip/3D_LXC4.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     700.1411,
+     499.634,
+     656.4392
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "lacquer": 10,
+     "wood": 11
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "758f1fe0d08efbd4e4aca66831407185f9470da7d02f2881d9dc2e366c42ff03",
+    "meta": {
+     "title": "Low tables, Recipio",
+     "brand": "maxalto",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/maxalto/recipio-0",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_f42c868f4af12bce77c210b1",
+   "type": "side_table",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "MDF Italia Flow Low Table (44 x 44 x 57 cm)",
+   "bbox_m": [
+    0.44,
+    0.44,
+    0.568
+   ],
+   "bbox_model_m": [
+    0.44,
+    0.44,
+    0.568
+   ],
+   "bbox_min_m": [
+    -0.22,
+    -0.22,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.22,
+    0.22,
+    0.568
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a side_table has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 440 x 440 x 568 read in millimetres fits a real side_table (size table); written in metres by the syncronia fix-up: 0.44 x 0.44 x 0.568 m",
+   "styles": [
+    "modern minimal"
+   ],
+   "style_note": "the brand MDF Italia: modern minimal",
+   "glb": "models/syncronia/syncronia_f42c868f4af12bce77c210b1.glb",
+   "sha256_glb": "d6f417025476a01bbc8e8156cb6b898615e8a7ac9ba8ebee679ad13a6046fe34",
+   "uid": "syncronia_f42c868f4af12bce77c210b1",
+   "title": "MDF Italia Flow Low Table (44 x 44 x 57 cm)",
+   "author": "MDF Italia (manufacturer model, via Syncronia)",
+   "brand": "MDF Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/mdf-italia/flow-low-table",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"MDF Italia Flow Low Table (44 x 44 x 57 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/mdf-italia/flow-low-table, from the user's zip \"archive3.zip\" (low-tables/mdf-italia/flow-low-table/80850.3ds.zip/MDF_FLOW_LOWTABLE_D43H59.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 72112,
+   "vertices": 45289,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 4,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/mdf-italia/flow-low-table/80850.3ds.zip/MDF_FLOW_LOWTABLE_D43H59.3ds",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     440.0,
+     440.0,
+     568.0
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "wood": 1
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "66c3169bb4e0f6cec141b4d1bfc3fa23364421551e0d0f9bc8fa84627e9c899b",
+    "meta": {
+     "title": "Low tables, Flow Low Table",
+     "brand": "mdf-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/mdf-italia/flow-low-table",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_ea020efd17b2e23eaf99fafd",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "MDF Italia La Table Basse (129 x 90 x 28 cm)",
+   "bbox_m": [
+    1.2941,
+    0.9,
+    0.275
+   ],
+   "bbox_model_m": [
+    1.2941,
+    0.9,
+    0.275
+   ],
+   "bbox_min_m": [
+    -0.6471,
+    -0.45,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.6471,
+    0.45,
+    0.275
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 1294 x 900 x 275 read in millimetres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 1.29 x 0.9 x 0.275 m",
+   "styles": [
+    "modern minimal"
+   ],
+   "style_note": "the brand MDF Italia: modern minimal",
+   "glb": "models/syncronia/syncronia_ea020efd17b2e23eaf99fafd.glb",
+   "sha256_glb": "710b0262e3b3afccf1a0b24188c6d639dc716a8d11cf71b99b6b1985d676ce17",
+   "uid": "syncronia_ea020efd17b2e23eaf99fafd",
+   "title": "MDF Italia La Table Basse (129 x 90 x 28 cm)",
+   "author": "MDF Italia (manufacturer model, via Syncronia)",
+   "brand": "MDF Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/mdf-italia/la-table-basse",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"MDF Italia La Table Basse (129 x 90 x 28 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/mdf-italia/la-table-basse, from the user's zip \"archive3.zip\" (low-tables/mdf-italia/la-table-basse/80810.3ds.zip/MDF_LA_TABLE_BASSE_90x125cm.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 2014,
+   "vertices": 1415,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 4,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/mdf-italia/la-table-basse/80810.3ds.zip/MDF_LA_TABLE_BASSE_90x125cm.3DS",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     1294.1274,
+     899.9999,
+     275.0001
+    ],
+    "candidates": [
+     "table_coffee",
+     "side_table"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "wood": 1
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "437c9c6a5596f1429779fe2245cea5d606933d4980bad53cacc6f2222c041da3",
+    "meta": {
+     "title": "Low tables, La Table Basse",
+     "brand": "mdf-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/mdf-italia/la-table-basse",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_dd887e0c7a555269ed5e6d4d",
+   "type": "side_table",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "MDF Italia Metodo (40 x 30 x 40 cm)",
+   "bbox_m": [
+    0.4,
+    0.3,
+    0.4
+   ],
+   "bbox_model_m": [
+    0.4,
+    0.3,
+    0.4
+   ],
+   "bbox_min_m": [
+    -0.2,
+    -0.15,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.2,
+    0.15,
+    0.4
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a side_table has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 400 x 300 x 400 read in millimetres fits a real side_table (size table); written in metres by the syncronia fix-up: 0.4 x 0.3 x 0.4 m",
+   "styles": [
+    "modern minimal"
+   ],
+   "style_note": "the brand MDF Italia: modern minimal",
+   "glb": "models/syncronia/syncronia_dd887e0c7a555269ed5e6d4d.glb",
+   "sha256_glb": "9f9f391e480e03cb41b7e5941318eb5827f1bc2162cc8453823ae70198f11b08",
+   "uid": "syncronia_dd887e0c7a555269ed5e6d4d",
+   "title": "MDF Italia Metodo (40 x 30 x 40 cm)",
+   "author": "MDF Italia (manufacturer model, via Syncronia)",
+   "brand": "MDF Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/mdf-italia/metodo",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"MDF Italia Metodo (40 x 30 x 40 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/mdf-italia/metodo, from the user's zip \"archive3.zip\" (low-tables/mdf-italia/metodo/80683.3ds.zip/MDF_Metodo_40.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 2393,
+   "vertices": 1785,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 4,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/mdf-italia/metodo/80683.3ds.zip/MDF_Metodo_40.3ds",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     399.986,
+     300.0,
+     400.0
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "wood": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "5b3f11436a90425d52d2d99911a8b47087410cb763cb52cd37d756c4b5d786aa",
+    "meta": {
+     "title": "Low tables, Metodo",
+     "brand": "mdf-italia",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/mdf-italia/metodo",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_28b4f805d11be0f8c0ffe4c7",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Riva 1920 Delta (78 x 81 x 33 cm)",
+   "bbox_m": [
+    0.7806,
+    0.8127,
+    0.3297
+   ],
+   "bbox_model_m": [
+    0.7806,
+    0.8127,
+    0.3297
+   ],
+   "bbox_min_m": [
+    -0.3903,
+    -0.4063,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.3903,
+    0.4063,
+    0.3297
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a table_coffee has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the OBJ box 0.7806 x 0.8127 x 0.3297 read in metres fits a real table_coffee (size table); written in metres by the syncronia fix-up: 0.781 x 0.813 x 0.33 m",
+   "styles": [
+    "modern",
+    "rustic"
+   ],
+   "style_note": "the brand Riva 1920: modern, rustic",
+   "glb": "models/syncronia/syncronia_28b4f805d11be0f8c0ffe4c7.glb",
+   "sha256_glb": "0d98a0fe918b0031e3376d6b68cb240417caab1067180232fab80c928c8887ec",
+   "uid": "syncronia_28b4f805d11be0f8c0ffe4c7",
+   "title": "Riva 1920 Delta (78 x 81 x 33 cm)",
+   "author": "Riva 1920 (manufacturer model, via Syncronia)",
+   "brand": "Riva 1920",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/riva1920/delta",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Riva 1920 Delta (78 x 81 x 33 cm)\" by Riva 1920 (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-low-tables/riva1920/delta, from the user's zip \"archive3.zip\" (low-tables/riva1920/delta/181289.obj.zip/Riva1920_Delta_1_Small Table.obj); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from OBJ, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 2230,
+   "vertices": 1592,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 4,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "wood"
+   ],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "low-tables/riva1920/delta/181289.obj.zip/Riva1920_Delta_1_Small Table.obj",
+    "zip": "archive3.zip",
+    "category": "low-tables",
+    "format": ".obj",
+    "unit": "metres",
+    "factor": 1.0,
+    "up_fix": null,
+    "raw_box_m": [
+     0.7806,
+     0.8127,
+     0.3297
+    ],
+    "candidates": [
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "side_table",
+     "console_table",
+     "nightstand"
+    ],
+    "converter": "blender",
+    "part_classes": {
+     "wood": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "ac0f9ee94ffd0e6ed4b4ea23fd6d14f2da8f1610fa5efe244db7df3ce616eba9",
+    "meta": {
+     "title": "Low tables, Delta",
+     "brand": "riva1920",
+     "type": "low-tables",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-low-tables/riva1920/delta",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_16f48fca051b4a41dc6f54e6",
+   "type": "ottoman",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "B&B Italia Pouf Frank (40 x 40 x 47 cm)",
+   "bbox_m": [
+    0.4049,
+    0.4045,
+    0.4664
+   ],
+   "bbox_model_m": [
+    0.4049,
+    0.4045,
+    0.4664
+   ],
+   "bbox_min_m": [
+    -0.2025,
+    -0.2023,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.2025,
+    0.2023,
+    0.4664
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a ottoman has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 404.9 x 404.5 x 466.4 read in millimetres fits a real ottoman (size table); written in metres by the syncronia fix-up: 0.405 x 0.405 x 0.466 m",
+   "styles": [
+    "modern",
+    "modern minimal"
+   ],
+   "style_note": "the brand B&B Italia: modern, modern minimal",
+   "glb": "models/syncronia/syncronia_16f48fca051b4a41dc6f54e6.glb",
+   "sha256_glb": "2a97a42ceff7518cc1f51665a4f71d4dfe15e114e6d0613b6d5a17231000c90c",
+   "uid": "syncronia_16f48fca051b4a41dc6f54e6",
+   "title": "B&B Italia Pouf Frank (40 x 40 x 47 cm)",
+   "author": "B&B Italia (manufacturer model, via Syncronia)",
+   "brand": "B&B Italia",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-pouf/bb-italia/pouf-frank",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"B&B Italia Pouf Frank (40 x 40 x 47 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-pouf/bb-italia/pouf-frank, from the user's zip \"archive3.zip\" (pouf/bb-italia/pouf-frank/11978.3ds.zip/3D_FP40.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 18180,
+   "vertices": 19350,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.8731,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.1269,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric",
+    "metal"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "pouf/bb-italia/pouf-frank/11978.3ds.zip/3D_FP40.3DS",
+    "zip": "archive3.zip",
+    "category": "pouf",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     404.9158,
+     404.5381,
+     466.3904
+    ],
+    "candidates": [
+     "ottoman",
+     "bench"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "fabric": 3,
+     "metal": 3
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "9498fe4b5f7f6ff63b7e8a7af23566d50c17a69a1dcbd18f17f5ee5d40c11447",
+    "meta": {
+     "title": "Pouf, Pouf Frank",
+     "brand": "bb-italia",
+     "type": "pouf",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-pouf/bb-italia/pouf-frank",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_88448195fc29fa1a09260025",
+   "type": "ottoman",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "et al. Boom (41 x 43 x 45 cm)",
+   "bbox_m": [
+    0.413,
+    0.4331,
+    0.4455
+   ],
+   "bbox_model_m": [
+    0.413,
+    0.4331,
+    0.4455
+   ],
+   "bbox_min_m": [
+    -0.2065,
+    -0.2166,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.2065,
+    0.2166,
+    0.4455
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a ottoman has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the 3DS box 413 x 433.1 x 445.5 read in millimetres fits a real ottoman (size table); written in metres by the syncronia fix-up: 0.413 x 0.433 x 0.446 m",
+   "styles": [
+    "modern",
+    "minimal"
+   ],
+   "style_note": "the brand et al.: modern, minimal",
+   "glb": "models/syncronia/syncronia_88448195fc29fa1a09260025.glb",
+   "sha256_glb": "d8ac864661286debee950487325ec5f045dc66a171ff3a365bf5d00996b6a07b",
+   "uid": "syncronia_88448195fc29fa1a09260025",
+   "title": "et al. Boom (41 x 43 x 45 cm)",
+   "author": "et al. (manufacturer model, via Syncronia)",
+   "brand": "et al.",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-pouf/et-al/boom",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"et al. Boom (41 x 43 x 45 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-pouf/et-al/boom, from the user's zip \"archive3.zip\" (pouf/et-al/boom/52807.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 21606,
+   "vertices": 13482,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.9788,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0212,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "pouf/et-al/boom/52807.3ds",
+    "zip": "archive3.zip",
+    "category": "pouf",
+    "format": ".3ds",
+    "unit": "millimetres",
+    "factor": 0.001,
+    "up_fix": null,
+    "raw_box_m": [
+     413.0,
+     433.144,
+     445.5
+    ],
+    "candidates": [
+     "ottoman",
+     "bench"
+    ],
+    "converter": "assimp",
+    "part_classes": {
+     "fabric": 7,
+     "metal": 4
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "43729d9db14977fab1478a1bd16647517d1699e92f3e7fb357750d7a9146c31c",
+    "meta": {
+     "title": "Pouf, Boom",
+     "brand": "et-al",
+     "type": "pouf",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-pouf/et-al/boom",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  },
+  {
+   "id": "syncronia_2413653683a0001b7e60fdf0",
+   "type": "ottoman",
+   "kind": "furniture",
+   "source": "syncronia",
+   "licence": "SYNCRONIA-UNREVIEWED",
+   "licence_url": "https://www.syncronia.com/en",
+   "licence_flag": "non_commercial",
+   "licence_declared_by": "publisher",
+   "commercial_safe": false,
+   "name": "Marte Design Shodo (50 x 50 x 43 cm)",
+   "bbox_m": [
+    0.4976,
+    0.4976,
+    0.433
+   ],
+   "bbox_model_m": [
+    0.4976,
+    0.4976,
+    0.433
+   ],
+   "bbox_min_m": [
+    -0.2488,
+    -0.2488,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.2488,
+    0.2488,
+    0.433
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "a ottoman has no front",
+   "unit_scale": 1.0,
+   "units_known": true,
+   "unit_note": "units known: the FBX box 0.4976 x 0.4976 x 0.433 read in metres fits a real ottoman (size table); written in metres by the syncronia fix-up: 0.498 x 0.498 x 0.433 m",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "the brand Marte Design: modern",
+   "glb": "models/syncronia/syncronia_2413653683a0001b7e60fdf0.glb",
+   "sha256_glb": "407b852b657333d6e30c102d98ac725ed633845ed138091d98d997eb412feffd",
+   "uid": "syncronia_2413653683a0001b7e60fdf0",
+   "title": "Marte Design Shodo (50 x 50 x 43 cm)",
+   "author": "Marte Design (manufacturer model, via Syncronia)",
+   "brand": "Marte Design",
+   "real_product": true,
+   "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-pouf/marte-design/shodo",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-2)",
+   "attribution": "\"Marte Design Shodo (50 x 50 x 43 cm)\" by Marte Design (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-pouf/marte-design/shodo, from the user's zip \"archive3.zip\" (pouf/marte-design/shodo/63747.fbx.zip/Marte_Shodo_101_Hw_fbx.fbx); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from FBX, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
+   "polycount": 28096,
+   "vertices": 14850,
+   "textured": false,
+   "vertex_colours": false,
+   "pbr_maps": {
+    "base_colour": false,
+    "metallic_roughness": false,
+    "normal": false,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 5,
+    "materials_with_base_colour": 0,
+    "images": 0,
+    "extensions": []
+   },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.9728,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_wood_oak",
+     "material": "wood",
+     "materials": [
+      "wood"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0272,
+     "textured": false,
+     "base_colour": [
+      0.3916,
+      0.2159,
+      0.0976,
+      1.0
+     ],
+     "colour_rgb": [
+      168,
+      128,
+      88
+     ],
+     "note": "oiled oak",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
+   "syncronia": {
+    "rel": "pouf/marte-design/shodo/63747.fbx.zip/Marte_Shodo_101_Hw_fbx.fbx",
+    "zip": "archive3.zip",
+    "category": "pouf",
+    "format": ".fbx",
+    "unit": "metres",
+    "factor": 1.0,
+    "up_fix": null,
+    "raw_box_m": [
+     0.4976,
+     0.4976,
+     0.433
+    ],
+    "candidates": [
+     "ottoman",
+     "bench"
+    ],
+    "converter": "blender",
+    "part_classes": {
+     "fabric": 1,
+     "wood": 4
+    },
+    "fix_version": "syncronia-2",
+    "src_sha256": "08052e4f75a853ca6020306ac5087b91a7e5dec58708d509210c73d2fa217649",
+    "meta": {
+     "title": "Pouf, Shodo",
+     "brand": "marte-design",
+     "type": "pouf",
+     "source": "https://www.syncronia.com/en/3d-bim-cad-models-pouf/marte-design/shodo",
+     "licence": "Manufacturer model from Syncronia, for use in a design project and its renders. The file itself is not cleared for republishing.",
+     "terms": "https://www.syncronia.com/en"
+    }
+   },
+   "growth": {
+    "pod": "syncronia",
+    "list": "ingest_syncronia.json",
+    "decision": "user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no"
+   },
+   "audit": {
+    "status": "pending",
+    "reasons": [
+     "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
+    ],
+    "fixes": {},
+    "version": "syncronia-2",
+    "checked_utc": "2026-11-03T16:16:49Z"
+   }
+  }
+ ]
+}

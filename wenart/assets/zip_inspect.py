@@ -237,6 +237,47 @@ def _find_file(name: str, base: Path) -> Optional[Path]:
     return None
 
 
+TEXTURE_MAX_PX = 2048                   # a larger texture is scaled down (a library model needs no more)
+
+
+def texture_bytes(data: bytes) -> tuple[bytes, str, Optional[str]]:
+    """``(bytes, mime, change)`` of one texture as Blender's glTF importer reads it (3 Nov 2026, the Furnitures zips:
+    CMYK JPEGs and TIFFs rendered magenta): a PNG or an RGB / grey JPEG under ``TEXTURE_MAX_PX`` stays as it is;
+    anything else Pillow opens is written again (RGB JPEG, or PNG when it has alpha), scaled down to
+    ``TEXTURE_MAX_PX``; what Pillow cannot open becomes the grey PNG. ``change`` says what was done (None: nothing)."""
+    import io
+    try:
+        from PIL import Image
+    except ImportError:                                   # no Pillow: keep PNG and JPEG, grey for the rest
+        if data[:4] == b"\x89PNG":
+            return data, "image/png", None
+        if data[:2] == b"\xff\xd8":
+            return data, "image/jpeg", None
+        return GREY_PNG, "image/png", "not png/jpeg (no Pillow): grey"
+    try:
+        im = Image.open(io.BytesIO(data))
+        im.load()
+    except Exception:  # noqa: BLE001 - an unreadable texture becomes grey
+        return GREY_PNG, "image/png", "unreadable image: grey"
+    fmt, mode = (im.format or "").upper(), im.mode
+    big = max(im.size) > TEXTURE_MAX_PX
+    if not big and ((fmt == "PNG" and mode in ("RGB", "RGBA", "L", "LA", "P")) or
+                    (fmt == "JPEG" and mode in ("RGB", "L"))):
+        return data, "image/png" if fmt == "PNG" else "image/jpeg", None
+    alpha = mode in ("RGBA", "LA") or (mode == "P" and "transparency" in im.info)
+    im = im.convert("RGBA" if alpha else "RGB")
+    if big:
+        im.thumbnail((TEXTURE_MAX_PX, TEXTURE_MAX_PX))
+    buf = io.BytesIO()
+    if alpha:
+        im.save(buf, "PNG", optimize=True)
+        mime = "image/png"
+    else:
+        im.save(buf, "JPEG", quality=88)
+        mime = "image/jpeg"
+    return buf.getvalue(), mime, f"{fmt or '?'} {mode}{' scaled' if big else ''} -> {mime}"
+
+
 def embed_images(glb: Path, base: Path) -> dict:
     """Every image a GLB names by an external URI embedded into its binary chunk (the file searched under ``base``,
     case-insensitively by name); a missing one becomes a 1 x 1 grey PNG so the file stays self-contained."""
@@ -252,10 +293,9 @@ def embed_images(glb: Path, base: Path) -> dict:
         data = f.read_bytes() if f else GREY_PNG
         if f is None:
             rec["missing"].append(str(uri))
-        mime = "image/png" if data[:4] == b"\x89PNG" else "image/jpeg" if data[:2] == b"\xff\xd8" else None
-        if mime is None:
-            data, mime = GREY_PNG, "image/png"
-            rec["missing"].append(f"{uri} (not png/jpeg)")
+        data, mime, change = texture_bytes(data)
+        if change:
+            rec.setdefault("converted", []).append(f"{uri}: {change}")
         binary += b"\x00" * (-len(binary) % 4)
         views = doc.setdefault("bufferViews", [])
         views.append({"buffer": 0, "byteOffset": len(binary), "byteLength": len(data)})
@@ -265,6 +305,21 @@ def embed_images(glb: Path, base: Path) -> dict:
         img["mimeType"] = mime
         if f is not None:
             rec["embedded"] += 1
+    for img in doc.get("images") or []:                 # images already in the file (bufferView): the same check
+        bv = img.get("bufferView")
+        if not isinstance(bv, int) or img.get("_wenart_done"):
+            continue
+        view = doc["bufferViews"][bv]
+        start = int(view.get("byteOffset", 0))
+        data = bytes(binary[start:start + int(view["byteLength"])])
+        new_data, mime, change = texture_bytes(data)
+        if change:
+            binary += b"\x00" * (-len(binary) % 4)
+            doc["bufferViews"].append({"buffer": 0, "byteOffset": len(binary), "byteLength": len(new_data)})
+            binary += new_data
+            img["bufferView"] = len(doc["bufferViews"]) - 1
+            img["mimeType"] = mime
+            rec.setdefault("converted", []).append(f"image {bv}: {change}")
     bufs = doc.setdefault("buffers", [{}])
     if not bufs:
         bufs.append({})

@@ -1,0 +1,1223 @@
+{
+ "zip": "/workspace/library/inbox/1iYSSFbHkn1DH2qtAJ7LF44bZccQ_SYwL/beds.zip",
+ "zip_name": "beds.zip",
+ "checked_utc": "2026-11-03T16:11:30Z",
+ "fix_version": "syncronia-2",
+ "taken": 7,
+ "listed": 45,
+ "records": [
+  {
+   "rel": "beds/bb-italia/alys/36101.skp.zip/Alys/batched/3D_LY153.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_486861c16f467d7b6b315a1e",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/alys/36101.skp.zip/Alys/batched/3D_LY160.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_e6cd39ec2f019da7469b2f3c",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/alys/36101.skp.zip/Alys/batched/3D_LY170.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_c2d614856743ec3df71d995a",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/alys/36101.skp.zip/Alys/batched/3D_LY180.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_6e4c899f45652b79cda978d0",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/alys/36101.skp.zip/Alys/batched/3D_LY193.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_17d189771ee401b0a97db1a1",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/alys/36101.skp.zip/Alys/batched/3D_LY200.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_9a3bb242f98d25080b714f63",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/alys-10/174999.skp.zip/B&BItalia_Alys10_Beds_LAL153_F.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_7398b59ba5ff405621c13243",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/husk/36103.skp.zip/Husk/batched/3D_LH170.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_aa9233826cec4a1564223fa1",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/husk/36103.skp.zip/Husk/batched/3D_LH180.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_43f47050919953d7c4eabbd7",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/le-bambole-bamboletto/77827.skp.zip/B&B_Bamboletto_LBL153.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_fb516074e365982e369c7213",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/papilio/173508.skp.zip/Papilio/batched/3D_LP153.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_fef1ea98de198754d7c14f98",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/papilio/173508.skp.zip/Papilio/batched/3D_LP160.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_48dbe26f194f27577f2dd6c9",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/papilio/173508.skp.zip/Papilio/batched/3D_LP170.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_31eb4557af17349eef266f46",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/papilio/173508.skp.zip/Papilio/batched/3D_LP180.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_b02bd1e5afca224e84afdc8a",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/papilio/173508.skp.zip/Papilio/batched/3D_LP193.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_bd3a0434588019dbd60b6313",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/papilio/173508.skp.zip/Papilio/batched/3D_LP200.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_eec3d5eac9a4c1bf8336aa97",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/richard/74566.skp.zip/BeB_Richard_Bed_LRA153.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_6e80488da74262d55edc7fd1",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/sake-bed/45088.skp.zip/BeB_Italia-Sake_LSK223D_skp.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_0f79d25a2d1fdaa659526d5b",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/siena/36105.skp.zip/Siena/batched/3D_LSI176.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_c38052c48673b4027898ac9c",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/siena/36105.skp.zip/Siena/batched/3D_LSI196.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_681b1be8e6685e8a97fc1cb0",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/siena/36105.skp.zip/Siena/batched/3D_LSI216.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_ee2f0e4fd1d2cb138e250df0",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/tufty-bed/36106.zip/Tufty Bed/batched/3D_LTU153.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_2bc83632dbece86086b2d279",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/tufty-bed/36106.zip/Tufty Bed/batched/3D_LTU160.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_38a45e1091b5a99c09e042ee",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/tufty-bed/36106.zip/Tufty Bed/batched/3D_LTU170.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_3f70a54857fa914b8cca4f9b",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/tufty-bed/36106.zip/Tufty Bed/batched/3D_LTU180.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_c5ce2be077a6a2caa62a8996",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/tufty-bed/36106.zip/Tufty Bed/batched/3D_LTU193.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_7f5e22a8941ac24ee1f67919",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/bb-italia/tufty-bed/36106.zip/Tufty Bed/batched/3D_LTU200.3DS.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_02613d8f19af0c1bfd3e3bf2",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/maxalto/alcova/79164.skp.zip/Maxalto_Alcova_ACLE_A.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_5dadf0f63a3610ea1b542f59",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/maxalto/alcova-2009/79232.skp.zip/Maxalto_Alcova09_ACLB2.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_cef03bd91ae1ef21c2ce1c97",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/maxalto/bauci/79299.skp.zip/Maxalto_Bauci_Bed_2045_2.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_63ef0ea9b40520484113ed04",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/maxalto/bed-dike/69342.skp.zip/Maxalto_Dike_LD153Q_skp.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_4b9fc5c4f0117da646edbbcf",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/maxalto/febo/78812.skp.zip/Maxalto_Febo_LFB153V.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_aa7afccb3a1004df3dfd8692",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/maxalto/lucrezia-erik/79192.skp.zip/Maxalto_Erik_TLK.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_96494151aa645ba548c269f7",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/maxalto/sileo/85138.skp.zip/Maxalto_Sileo_Bed_LSE153.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_6b1be05a3662268d1155865f",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/maxalto/talamo/79595.skp.zip/Maxalto_Talamo_Bed_ACL2.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_8834c1eff38ea093a5943bca",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/riva-1920/my-bed/72673.skp.zip/Riva1920_My_Bed.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_923fc03f7612f3d6966f6ed2",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/riva1920/sleepy/72668.skp.zip/Riva1920_Sleepy_.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_3b36069815c2903037f88831",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/riva1920/sospiro-bed/83994.skp.zip/Riva1920_Sospiro_Bed_180X240.skp",
+   "zip": "beds.zip",
+   "format": ".skp",
+   "uid": "syncronia_391f6cb376504976546172be",
+   "taken": false,
+   "why": "SketchUp file: no open-source reader (export it as COLLADA or glTF from SketchUp)"
+  },
+  {
+   "rel": "beds/horm/ebridi-legno-sommier/66196.3ds",
+   "zip": "beds.zip",
+   "format": ".3ds",
+   "uid": "syncronia_91661aa8250a9bba52ec8e25",
+   "taken": true,
+   "converter": "assimp",
+   "src_sha256": "a09205a82d8c9120539c903260394d4ec57de9f7c3b96cba054bd1e0db30e360",
+   "category": "beds",
+   "types_from": "category beds",
+   "type": "bed_double",
+   "unit": "inches",
+   "factor": 0.0254,
+   "up_fix": null,
+   "fits": true,
+   "size_error": 0.0,
+   "box_m": [
+    2.05,
+    1.69,
+    0.6125
+   ],
+   "raw_box": [
+    80.7087,
+    66.5354,
+    24.1142
+   ],
+   "candidates": [
+    "bed_single",
+    "bed_double"
+   ],
+   "triangles": 162520,
+   "error": null,
+   "material": {
+    "slots": [
+     {
+      "index": 0,
+      "name": "wenart_bedding_linen",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.517,
+      "textured": false,
+      "base_colour": [
+       0.8388,
+       0.8148,
+       0.7605,
+       1.0
+      ],
+      "colour_rgb": [
+       236,
+       233,
+       226
+      ],
+      "note": "white linen bedding (mattress, duvet, pillows)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 1,
+      "name": "wenart_upholstery_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.483,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric (frame)",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "frame": 1,
+     "bedding": 3
+    },
+    "materials": 3,
+    "split": 0
+   },
+   "classes": {
+    "frame": 1,
+    "bedding": 3
+   },
+   "pillows": 2,
+   "split_primitives": 0,
+   "front": "+X",
+   "front_confidence": "high",
+   "front_note": "the pillows sit on the -X side (offset -0.35 of the footprint): front +X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.301 of the extent): front +X)",
+   "sha256": "c9a15174523bb21860f70ff7a38f42c3feedf937852de0e4286b646ad22974bd",
+   "id": "syncronia_91661aa8250a9bba52ec8e25",
+   "title": "Horm Ebridi Legno Sommier bed 169 x 205"
+  },
+  {
+   "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_2.3DS",
+   "zip": "beds.zip",
+   "format": ".3ds",
+   "uid": "syncronia_1264acbf9b6bf1a3e481e26b",
+   "taken": true,
+   "converter": "assimp",
+   "src_sha256": "f643e621f1fa9388aeb63938db93f30059b6cbc3569536848a034b1737ee5fd9",
+   "category": "beds",
+   "types_from": "category beds",
+   "type": "bed_double",
+   "unit": "millimetres",
+   "factor": 0.001,
+   "up_fix": null,
+   "fits": true,
+   "size_error": 0.0025,
+   "box_m": [
+    1.953,
+    2.2556,
+    1.3086
+   ],
+   "raw_box": [
+    1952.9998,
+    2255.6197,
+    1308.5899
+   ],
+   "candidates": [
+    "bed_single",
+    "bed_double"
+   ],
+   "triangles": 150910,
+   "error": null,
+   "material": {
+    "slots": [
+     {
+      "index": 0,
+      "name": "wenart_bedding_linen",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.494,
+      "textured": false,
+      "base_colour": [
+       0.8388,
+       0.8148,
+       0.7605,
+       1.0
+      ],
+      "colour_rgb": [
+       236,
+       233,
+       226
+      ],
+      "note": "white linen bedding (mattress, duvet, pillows)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 1,
+      "name": "wenart_upholstery_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.5012,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric (frame)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 2,
+      "name": "wenart_legs_bronze",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0048,
+      "textured": false,
+      "base_colour": [
+       0.0685,
+       0.0467,
+       0.0319,
+       1.0
+      ],
+      "colour_rgb": [
+       74,
+       61,
+       50
+      ],
+      "note": "bronze metal feet",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "frame": 2,
+     "headboard": 1,
+     "bedding": 3,
+     "legs": 9
+    },
+    "materials": 3,
+    "split": 2
+   },
+   "classes": {
+    "frame": 2,
+    "headboard": 1,
+    "bedding": 3,
+    "legs": 9
+   },
+   "pillows": 2,
+   "split_primitives": 2,
+   "front": "-Y",
+   "front_confidence": "high",
+   "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
+   "sha256": "6efa20e82fc56b908230c0cd6b4bc46cac925a15b78899cdd5c01f5f4f2721be",
+   "id": "syncronia_1264acbf9b6bf1a3e481e26b",
+   "title": "Maxalto (B&B Italia) Demetra bed 195 x 226"
+  },
+  {
+   "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_3.3DS",
+   "zip": "beds.zip",
+   "format": ".3ds",
+   "uid": "syncronia_71606884d3001847e7307f0c",
+   "taken": true,
+   "converter": "assimp",
+   "src_sha256": "6c703144a44220b1c07cd0f676dc8006791a467163a02f473389283fd09c7d41",
+   "category": "beds",
+   "types_from": "category beds",
+   "type": "bed_double",
+   "unit": "millimetres",
+   "factor": 0.001,
+   "up_fix": null,
+   "fits": true,
+   "size_error": 0.05,
+   "box_m": [
+    2.1,
+    2.2556,
+    1.3086
+   ],
+   "raw_box": [
+    2099.9999,
+    2255.6197,
+    1308.5899
+   ],
+   "candidates": [
+    "bed_single",
+    "bed_double"
+   ],
+   "triangles": 150910,
+   "error": null,
+   "material": {
+    "slots": [
+     {
+      "index": 0,
+      "name": "wenart_bedding_linen",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.4951,
+      "textured": false,
+      "base_colour": [
+       0.8388,
+       0.8148,
+       0.7605,
+       1.0
+      ],
+      "colour_rgb": [
+       236,
+       233,
+       226
+      ],
+      "note": "white linen bedding (mattress, duvet, pillows)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 1,
+      "name": "wenart_upholstery_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.5002,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric (frame)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 2,
+      "name": "wenart_legs_bronze",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0047,
+      "textured": false,
+      "base_colour": [
+       0.0685,
+       0.0467,
+       0.0319,
+       1.0
+      ],
+      "colour_rgb": [
+       74,
+       61,
+       50
+      ],
+      "note": "bronze metal feet",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "frame": 2,
+     "headboard": 1,
+     "bedding": 3,
+     "legs": 9
+    },
+    "materials": 3,
+    "split": 2
+   },
+   "classes": {
+    "frame": 2,
+    "headboard": 1,
+    "bedding": 3,
+    "legs": 9
+   },
+   "pillows": 2,
+   "split_primitives": 2,
+   "front": "-Y",
+   "front_confidence": "high",
+   "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
+   "sha256": "a985b81e262e9b0949d65ce20d737cc643cb11e8c86b3eb5b2f94095d010ef0b",
+   "id": "syncronia_71606884d3001847e7307f0c",
+   "title": "Maxalto (B&B Italia) Demetra bed 210 x 226"
+  },
+  {
+   "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_4.3DS",
+   "zip": "beds.zip",
+   "format": ".3ds",
+   "uid": "syncronia_b9c981b22ffff17ab6364113",
+   "taken": true,
+   "converter": "assimp",
+   "src_sha256": "e9161fae0c2b5407892c7e019c62741811821d6d5a8bd8b11673e91a605a40cd",
+   "category": "beds",
+   "types_from": "category beds",
+   "type": "bed_double",
+   "unit": "millimetres",
+   "factor": 0.001,
+   "up_fix": null,
+   "fits": true,
+   "size_error": 0.105,
+   "box_m": [
+    2.21,
+    2.2556,
+    1.3086
+   ],
+   "raw_box": [
+    2209.9998,
+    2255.6197,
+    1308.5899
+   ],
+   "candidates": [
+    "bed_single",
+    "bed_double"
+   ],
+   "triangles": 150910,
+   "error": null,
+   "material": {
+    "slots": [
+     {
+      "index": 0,
+      "name": "wenart_bedding_linen",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.4096,
+      "textured": false,
+      "base_colour": [
+       0.8388,
+       0.8148,
+       0.7605,
+       1.0
+      ],
+      "colour_rgb": [
+       236,
+       233,
+       226
+      ],
+      "note": "white linen bedding (mattress, duvet, pillows)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 1,
+      "name": "wenart_upholstery_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.5858,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric (frame)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 2,
+      "name": "wenart_legs_bronze",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0046,
+      "textured": false,
+      "base_colour": [
+       0.0685,
+       0.0467,
+       0.0319,
+       1.0
+      ],
+      "colour_rgb": [
+       74,
+       61,
+       50
+      ],
+      "note": "bronze metal feet",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "frame": 4,
+     "headboard": 1,
+     "bedding": 1,
+     "legs": 9
+    },
+    "materials": 3,
+    "split": 2
+   },
+   "classes": {
+    "frame": 4,
+    "headboard": 1,
+    "bedding": 1,
+    "legs": 9
+   },
+   "pillows": 0,
+   "split_primitives": 2,
+   "front": "-Y",
+   "front_confidence": "high",
+   "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
+   "sha256": "b6c68554718bb034fe24cb371749a84ed46741ac239ab3c1cda89169dd6e7827",
+   "id": "syncronia_b9c981b22ffff17ab6364113",
+   "title": "Maxalto (B&B Italia) Demetra bed 221 x 226"
+  },
+  {
+   "rel": "beds/maxalto/demetra/14386.3ds.zip/3D_9845_5.3DS",
+   "zip": "beds.zip",
+   "format": ".3ds",
+   "uid": "syncronia_df94c532dfc5699ddd5ccf82",
+   "taken": true,
+   "converter": "assimp",
+   "src_sha256": "e78430bf58382e42b480d19133d801580446bbb2eeea9112d5e5e764fe46a09c",
+   "category": "beds",
+   "types_from": "category beds",
+   "type": "bed_double",
+   "unit": "millimetres",
+   "factor": 0.001,
+   "up_fix": null,
+   "fits": true,
+   "size_error": 0.1278,
+   "box_m": [
+    2.41,
+    2.2556,
+    1.3086
+   ],
+   "raw_box": [
+    2409.9998,
+    2255.6197,
+    1308.5899
+   ],
+   "candidates": [
+    "bed_single",
+    "bed_double"
+   ],
+   "triangles": 150910,
+   "error": null,
+   "material": {
+    "slots": [
+     {
+      "index": 0,
+      "name": "wenart_bedding_linen",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.4111,
+      "textured": false,
+      "base_colour": [
+       0.8388,
+       0.8148,
+       0.7605,
+       1.0
+      ],
+      "colour_rgb": [
+       236,
+       233,
+       226
+      ],
+      "note": "white linen bedding (mattress, duvet, pillows)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 1,
+      "name": "wenart_upholstery_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.5844,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric (frame)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 2,
+      "name": "wenart_legs_bronze",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0045,
+      "textured": false,
+      "base_colour": [
+       0.0685,
+       0.0467,
+       0.0319,
+       1.0
+      ],
+      "colour_rgb": [
+       74,
+       61,
+       50
+      ],
+      "note": "bronze metal feet",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "frame": 4,
+     "headboard": 1,
+     "bedding": 1,
+     "legs": 9
+    },
+    "materials": 3,
+    "split": 2
+   },
+   "classes": {
+    "frame": 4,
+    "headboard": 1,
+    "bedding": 1,
+    "legs": 9
+   },
+   "pillows": 0,
+   "split_primitives": 2,
+   "front": "-Y",
+   "front_confidence": "high",
+   "front_note": "the headboard sit on the +Y side (offset +0.45 of the footprint): front -Y; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y)",
+   "sha256": "f73963df14207abbbd3fba87dbf142e4a47c7872f4d82fc8135dabea0ff5ebf6",
+   "id": "syncronia_df94c532dfc5699ddd5ccf82",
+   "title": "Maxalto (B&B Italia) Demetra bed 226 x 241"
+  },
+  {
+   "rel": "beds/maxalto/selene/14366.3ds.zip/3D_9745_2.3DS",
+   "zip": "beds.zip",
+   "format": ".3ds",
+   "uid": "syncronia_1b62267562938e003d042011",
+   "taken": true,
+   "converter": "assimp",
+   "src_sha256": "10755005b20ba46e69ac9356198445209213a2dcb2b8708582c71e6961ee7e7a",
+   "category": "beds",
+   "types_from": "category beds",
+   "type": "bed_double",
+   "unit": "centimetres",
+   "factor": 0.01,
+   "up_fix": null,
+   "fits": true,
+   "size_error": 0.0036,
+   "box_m": [
+    2.258,
+    1.7,
+    0.9047
+   ],
+   "raw_box": [
+    225.803,
+    170.0,
+    90.4674
+   ],
+   "candidates": [
+    "bed_single",
+    "bed_double"
+   ],
+   "triangles": 123352,
+   "error": null,
+   "material": {
+    "slots": [
+     {
+      "index": 0,
+      "name": "wenart_bedding_linen",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.4277,
+      "textured": false,
+      "base_colour": [
+       0.8388,
+       0.8148,
+       0.7605,
+       1.0
+      ],
+      "colour_rgb": [
+       236,
+       233,
+       226
+      ],
+      "note": "white linen bedding (mattress, duvet, pillows)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 1,
+      "name": "wenart_upholstery_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.5668,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric (frame)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 2,
+      "name": "wenart_legs_bronze",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0055,
+      "textured": false,
+      "base_colour": [
+       0.0685,
+       0.0467,
+       0.0319,
+       1.0
+      ],
+      "colour_rgb": [
+       74,
+       61,
+       50
+      ],
+      "note": "bronze metal feet",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "bedding": 1,
+     "frame": 3,
+     "legs": 8,
+     "headboard": 1
+    },
+    "materials": 3,
+    "split": 2
+   },
+   "classes": {
+    "bedding": 1,
+    "frame": 3,
+    "legs": 8,
+    "headboard": 1
+   },
+   "pillows": 0,
+   "split_primitives": 2,
+   "front": "-X",
+   "front_confidence": "high",
+   "front_note": "the headboard sit on the +X side (offset +0.45 of the footprint): front -X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.470 of the extent): front -X)",
+   "sha256": "4d99f975d4bcf7f746b1bed83daf8405b293ae2977ddf40c390de32e7a607626",
+   "id": "syncronia_1b62267562938e003d042011",
+   "title": "Maxalto (B&B Italia) Selene bed 170 x 226"
+  },
+  {
+   "rel": "beds/maxalto/selene/14366.3ds.zip/3D_9745_3.3DS",
+   "zip": "beds.zip",
+   "format": ".3ds",
+   "uid": "syncronia_3eba7f077ca6b3628c4de971",
+   "taken": true,
+   "converter": "assimp",
+   "src_sha256": "b807b39099062c7bdbd05e1b8817ed5c9195929f588b960c4b847541c9ea145e",
+   "category": "beds",
+   "types_from": "category beds",
+   "type": "bed_double",
+   "unit": "centimetres",
+   "factor": 0.01,
+   "up_fix": null,
+   "fits": true,
+   "size_error": 0.0,
+   "box_m": [
+    2.226,
+    1.8,
+    0.9047
+   ],
+   "raw_box": [
+    222.6,
+    180.0,
+    90.4674
+   ],
+   "candidates": [
+    "bed_single",
+    "bed_double"
+   ],
+   "triangles": 123352,
+   "error": null,
+   "material": {
+    "slots": [
+     {
+      "index": 0,
+      "name": "wenart_bedding_linen",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.5196,
+      "textured": false,
+      "base_colour": [
+       0.8388,
+       0.8148,
+       0.7605,
+       1.0
+      ],
+      "colour_rgb": [
+       236,
+       233,
+       226
+      ],
+      "note": "white linen bedding (mattress, duvet, pillows)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 1,
+      "name": "wenart_upholstery_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.475,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric (frame)",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 2,
+      "name": "wenart_legs_bronze",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0054,
+      "textured": false,
+      "base_colour": [
+       0.0685,
+       0.0467,
+       0.0319,
+       1.0
+      ],
+      "colour_rgb": [
+       74,
+       61,
+       50
+      ],
+      "note": "bronze metal feet",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "bedding": 3,
+     "frame": 2,
+     "legs": 8,
+     "headboard": 1
+    },
+    "materials": 3,
+    "split": 2
+   },
+   "classes": {
+    "bedding": 3,
+    "frame": 2,
+    "legs": 8,
+    "headboard": 1
+   },
+   "pillows": 2,
+   "split_primitives": 2,
+   "front": "-X",
+   "front_confidence": "high",
+   "front_note": "the headboard sit on the +X side (offset +0.45 of the footprint): front -X; geometry agrees (geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.470 of the extent): front -X)",
+   "sha256": "0f841fcde76366a772b46c574fd6746e0fe59449855c6adafba3db8b6b64752e",
+   "id": "syncronia_3eba7f077ca6b3628c4de971",
+   "title": "Maxalto (B&B Italia) Selene bed 180 x 223"
+  }
+ ]
+}

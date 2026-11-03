@@ -348,3 +348,28 @@ def test_a_name_type_outside_the_catalogue_types_is_no_type():
     cands, _why = SY.types_for("bathroom-furniture/x/set-bagno/1.3ds", {"type": "bathroom-furniture"})
     assert all(c in C.FURNITURE_TYPES or c in C.DECOR_TYPES for c in cands)
     assert SY.types_for("chairs/maxalto/febo/1.3ds", {"type": "chairs"})[0] == ["chair"]
+
+
+def test_cmyk_and_tiff_textures_are_written_again_as_rgb(tmp_path):
+    """The Furnitures studio renders (3 Nov 2026): textured models rendered magenta, Blender's missing-image colour,
+    because their textures were CMYK JPEGs; textures are written again as RGB JPEG / PNG, at most 2048 px."""
+    import io
+    from PIL import Image
+    from wenart.assets import zip_inspect as ZI
+    buf = io.BytesIO()
+    Image.new("CMYK", (8, 8), (0, 50, 100, 0)).save(buf, "JPEG")
+    data, mime, change = ZI.texture_bytes(buf.getvalue())
+    assert mime == "image/jpeg" and change and Image.open(io.BytesIO(data)).mode == "RGB"
+    buf = io.BytesIO()
+    Image.new("RGB", (4, 4), (10, 20, 30)).save(buf, "TIFF")
+    assert ZI.texture_bytes(buf.getvalue())[1] == "image/jpeg"
+    buf = io.BytesIO()
+    Image.new("RGB", (4, 4)).save(buf, "PNG")
+    assert ZI.texture_bytes(buf.getvalue())[2] is None            # a plain PNG stays as it is
+    assert ZI.texture_bytes(b"not an image")[0] == ZI.GREY_PNG
+
+
+def test_sinks_and_wall_lamps_get_no_washbasin_or_pendant_type():
+    assert SY.types_for("sinks/schock/lithos/1.3ds", {"type": "sinks"})[0] == ["sink_kitchen"]
+    assert SY.types_for("wall-recessed-lamps/simes/step/1.3ds", {"type": "wall-recessed-lamps"})[0] == []
+    assert SY.types_for("bathroom/rexa/japan/1.3ds", {"type": "bathroom"})[0] == []

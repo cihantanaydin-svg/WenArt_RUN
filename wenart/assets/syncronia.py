@@ -71,7 +71,7 @@ USER_DECISION = ("user request of 3 Nov 2026: include the proper models of the u
                  "rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence "
                  "mode only, commercial_safe: no")
 MIN_TRIANGLES = 100                   # under this a model is a placeholder block (Platek's 24-triangle lights)
-FIX_VERSION = "syncronia-2"           # 2: part materials by connected pieces, generic materials by name and type
+FIX_VERSION = "syncronia-3"           # 2: part materials by connected pieces, by name and type; 3: textures re-encoded
 PENDING_REASON = "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
 # Syncronia's category folders (meta.json "type") -> the catalogue types (furniture or decor) a model may be
 _BEDS = ("bed_double", "bed_single")
@@ -123,8 +123,13 @@ CATEGORY_TYPES: dict[str, tuple[str, ...]] = {
     **{k: ("candle",) for k in ("candle-holders", "candles", "candelabra", "portacandele")},
     **{k: ("stove",) for k in ("cookers", "ovens", "hobs", "cucine", "range-cookers")},
     **{k: ("fridge",) for k in ("refrigerators", "fridges", "frigoriferi")},
-    **{k: ("washbasin",) for k in ("washbasins", "sinks", "lavabi", "washbasin")},
-    **{k: ("sink_kitchen",) for k in ("kitchen-sinks", "lavelli")},
+    **{k: ("washbasin",) for k in ("washbasins", "lavabi", "washbasin", "bathroom-sinks")},
+    # Syncronia's "sinks" are inset kitchen sinks (Schock, 3 Nov 2026): the kitchen sink type, whose real size (a unit
+    # with its cabinet) such a sink never fits, so none is taken as a washbasin
+    **{k: ("sink_kitchen",) for k in ("kitchen-sinks", "lavelli", "sinks")},
+    # no catalogue type: bathroom accessories (Rexa stools, stands), wall and recessed lamps (3 Nov 2026)
+    **{k: () for k in ("bathroom", "bathroom-accessories", "wall-recessed-lamps", "wall-lamps", "recessed-lamps",
+                       "outdoor-lamps", "spotlights")},
     **{k: ("bathtub",) for k in ("bathtubs", "vasche", "bathtub")},
     **{k: ("toilet",) for k in ("toilets", "wc", "vasi-wc", "sanitari")},
     **{k: ("shower",) for k in ("showers", "shower-trays", "docce", "shower-cabins")},
@@ -268,7 +273,8 @@ def types_for(rel: str, meta: dict) -> tuple[list[str], str]:
     from wenart.furniture import catalog as C
     cat = category_of(rel, meta)
     if cat in CATEGORY_TYPES:
-        return list(CATEGORY_TYPES[cat]), f"category {cat}"
+        return list(CATEGORY_TYPES[cat]), (f"category {cat}" if CATEGORY_TYPES[cat] else
+                                           f"category {cat}: no catalogue type for it")
     names = WH.name_type(rel)
     valid = set(C.FURNITURE_TYPES) | set(C.DECOR_TYPES)          # a set or object family is no catalogue type
     cands = [c for c in names.get("candidates") or [] if c in valid and c not in ("unknown", "stair")]
