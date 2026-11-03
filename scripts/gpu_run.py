@@ -129,6 +129,7 @@ NO_CONTAINER = "container never started (host fault)"
 # refused "There are no longer any instances available"): a GPU type refused for want of stock is skipped and the next
 # one of GPU_PRIORITY tried at once, at most GPU_FALLBACKS times (same price and memory limits)
 GPU_FALLBACKS = 4
+GPU_WAIT_POLL_S = 180            # --wait-for-gpu: the stock is checked this often
 NO_INSTANCE_RE = re.compile(r"no longer any instances available|no instances? (are )?available|not enough (free )?gpus",
                             re.I)
 API_FAIL_LIMIT = 30  # consecutive failed polls (~10 min) before the runner gives up watching
@@ -1028,10 +1029,21 @@ def cmd_run(a: argparse.Namespace) -> int:
     rc = 1
     a._skip_gpus = set(getattr(a, "_skip_gpus", set()) or set())
     attempt = fallbacks = 0
+    wait_until = time.time() + 60 * float(getattr(a, "wait_for_gpu", 0) or 0)
     while True:
         a._no_container = False
         a._no_instance = None
-        rc = _run_once(a)
+        try:
+            rc = _run_once(a)
+        except RuntimeError as e:
+            # 3 Nov 2026 (EU-RO-1 had no 48 GB card in stock for minutes at a time): with --wait-for-gpu the stock is
+            # checked again every GPU_WAIT_POLL_S until a card is free or the wait ends
+            if "no allowed GPU available now" in str(e) and time.time() + GPU_WAIT_POLL_S < wait_until:
+                print(f"no GPU in stock; checking again in {GPU_WAIT_POLL_S // 60} min "
+                      f"({max(0, int((wait_until - time.time()) // 60))} min of waiting left)", flush=True)
+                time.sleep(GPU_WAIT_POLL_S)
+                continue
+            raise
         if getattr(a, "_no_instance", None) and not getattr(a, "gpu", None) and fallbacks < GPU_FALLBACKS:
             fallbacks += 1
             a._skip_gpus.add(a._no_instance)
@@ -1420,6 +1432,8 @@ def main(argv: list[str] | None = None) -> int:
                    help="pin the pushed commit the pod checks out (Milestone 13 baselines on the M12 code); "
                         "the local tree is then not checked")
     r.add_argument("--dry-run", action="store_true")
+    r.add_argument("--wait-for-gpu", type=float, default=0, metavar="MINUTES",
+                   help="when no allowed GPU is in stock, check again every 3 min for up to MINUTES")
     r.add_argument("--allow-parallel", action="store_true",
                    help="start while another wenart pod is live (only with the user's OK; one pod at a time otherwise)")
     r.add_argument("--drive-upload", action="store_true",

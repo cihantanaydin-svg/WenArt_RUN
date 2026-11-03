@@ -856,3 +856,21 @@ def test_the_structure_profile_needs_no_80_gb_card():
     assert gpu_run.job_min_vram("scripts/jobs/full.sh") == 80
     assert gpu_run.job_min_vram("scripts/jobs/full.sh", ["RUN_PROJECTS=real10", "RUN_PROFILE=structure"]) == 48
     assert gpu_run.job_min_vram("scripts/jobs/full.sh", ["RUN_PROFILE=full"]) == 80
+
+
+def test_the_runner_waits_for_a_gpu_in_stock(monkeypatch):
+    calls = []
+
+    def once(a, outcomes=iter(["none", "none", "ok"])):
+        o = next(outcomes)
+        calls.append(o)
+        if o == "none":
+            raise RuntimeError("no allowed GPU available now:\n  RTX PRO 6000: no stock")
+        a._no_container = False
+        a._no_instance = None
+        return 0
+
+    monkeypatch.setattr(gpu_run, "_run_once", once)
+    monkeypatch.setattr(gpu_run, "GPU_WAIT_POLL_S", 0)
+    monkeypatch.setattr(gpu_run.time, "sleep", lambda s: None)
+    assert gpu_run.cmd_run(argparse.Namespace(gpu=None, wait_for_gpu=10)) == 0 and calls == ["none", "none", "ok"]
