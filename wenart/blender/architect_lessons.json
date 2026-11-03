@@ -3476,6 +3476,16 @@
    "request": "A pod run of a project whose reading did not change gives the same building as its last run: before a run say what changed for that project since its latest run (user, 3 Nov 2026, real04 structure run: 'It seems like these are exactly like the old full runs there is no change at all')",
    "lesson": "A pod run of a project whose reading did not change gives the same building as its last run: before a run say what changed for that project since its latest run (user, 3 Nov 2026, real04 structure run: 'It seems like these are exactly like the old full runs there is no change at all')",
    "question": null
+  },
+  {
+   "id": "UL294",
+   "date": "2026-11-03",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "In the Google Drive furniture folder there are 4 more zip files do the same to them. There are some models inside those zips (3 Nov 2026, the folder Furnitures: four more Syncronia sets; the intake takes every category: types from the category, decor entries, materials by names, feet and type, textures written again as RGB; every studio sheet is looked at, broken or mistyped models removed, wrong fronts turned; one ranking tab per type in New models)",
+   "lesson": "In the Google Drive furniture folder there are 4 more zip files do the same to them. There are some models inside those zips (3 Nov 2026, the folder Furnitures: four more Syncronia sets; the intake takes every category: types from the category, decor entries, materials by names, feet and type, textures written again as RGB; every studio sheet is looked at, broken or mistyped models removed, wrong fronts turned; one ranking tab per type in New models)",
+   "question": null
   }
  ]
 }
