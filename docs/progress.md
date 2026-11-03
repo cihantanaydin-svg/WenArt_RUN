@@ -3359,3 +3359,22 @@ veneer, metal with black steel or dark bronze, and so on. A model's own textured
 | texture check of the whole library (read-only pod) | 1,962 usable models textured with every file there, 474 untextured, 13 with problems, 0 sha mismatches |
 
 Pods: studio 17.2 min $0.21; texture check $0.12.
+
+## Syncronia: the white sofas and armchairs textured too (3 Nov 2026, lesson UL298)
+
+User: "texture the white sofas and armchairs too". The 50 models left out had several plain colours in their files
+(no texture), so the intake had kept their materials. Intake `syncronia-5`: such a model gets part materials too,
+each piece judged by its own file colour (`part_materials.own_colour_classes`): a light neutral cloth (an exporter's
+white or light grey) takes the palette's linen; a real colour stays on cloth, leather, lacquer, plastic or ceramic
+(`wenart_own_*`, dressed with the scan in that colour: the red Mart armchair stays red); a white or grey wood part is
+lacquer in its colour; dark wood walnut; metal chrome, black metal, bronze or (a bright gold) brass. A model whose
+source file and box are the same keeps its review and front.
+
+| item | result |
+|---|---|
+| Syncronia models with the style's scans | 333 of 334 (the one left carries its own textures) |
+| files re-written | 49 (the 284 dressed before unchanged), 13 keep a real colour of their own |
+| reviews and fronts | all kept (same source, same box) |
+| first pod's look | a Fulgens seat and a Spring Time top turned oak, the Pathos frame brass: fixed (white wood is lacquer; warm metal bronze unless a bright gold; Pathos's file colour is a bright gold, so it stays brass) |
+
+Pods: 20.8 min $0.62, 8.2 min $0.16.

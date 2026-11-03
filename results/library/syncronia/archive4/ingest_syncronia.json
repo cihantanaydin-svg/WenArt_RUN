@@ -1,7 +1,7 @@
 {
  "zip": "/workspace/library/inbox/10R1cAka9IKwWgRKj1wi2GdU3wl6Fr_41/archive4.zip",
  "zip_name": "archive4.zip",
- "checked_utc": "2026-11-03T19:15:42Z",
+ "checked_utc": "2026-11-03T19:38:44Z",
  "fix_version": "syncronia-5",
  "taken": 124,
  "listed": 742,
@@ -16400,48 +16400,50 @@
      },
      {
       "index": 4,
-      "name": "wenart_wood_oak",
-      "material": "wood",
+      "name": "wenart_own_lacquer",
+      "material": "other",
       "materials": [
-       "wood"
+       "other"
       ],
       "agreed": true,
       "separable": true,
       "share": 0.7505,
       "textured": false,
       "base_colour": [
-       0.3916,
-       0.2159,
-       0.0976,
+       0.7835,
+       0.7835,
+       0.7835,
        1.0
       ],
       "colour_rgb": [
-       168,
-       128,
-       88
+       229,
+       229,
+       229
       ],
-      "note": "oiled oak",
+      "note": "white lacquer in the file's own colour #e5e5e5",
       "by": "wenart.assets.part_materials"
      }
     ],
     "classes": {
      "chrome": 10,
-     "wood": 6
+     "own_lacquer_e5e5e5": 6
     },
     "materials": 5,
     "split": 0
    },
    "classes": {
     "chrome": 10,
-    "wood": 6
+    "own_lacquer_e5e5e5": 6
    },
-   "own_colours": [],
+   "own_colours": [
+    "white lacquer in the file's own colour #e5e5e5"
+   ],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "a table_dining has no front",
-   "sha256": "3f2496f53dd7a9324b51a599553d1433b457c869fadc4b6742b231a38176c260",
+   "sha256": "fc26f328b59378f6ccf89a099aaba60786a0643e58efe1938d6336750125159d",
    "id": "syncronia_62bd9a0a4ad2670f6e230f41",
    "title": "B&B Italia Spring Time (220 x 97 x 73 cm)"
   },
