@@ -76,3 +76,75 @@ def test_run_types_units_and_verdicts(beds_zip, tmp_path):
     report = (out / "report.md").read_text()
     assert "Formats Blender cannot open" in report and ".max" in report
     assert (out / "inspect.csv").is_file()
+
+
+def fake_skp(version="23.1.340"):
+    """A SketchUp-like file: the UTF-16 header with the version and an embedded PNG preview."""
+    import io
+    from PIL import Image
+    buf = io.BytesIO()
+    Image.new("RGB", (16, 12), (10, 200, 30)).save(buf, "PNG")
+    head = ("﻿SketchUp Model{" + version + "}").encode("utf-16-le")
+    return b"\xff\xfe\xff\x0e" + head + b"\x00" * 64 + buf.getvalue() + b"\x00" * 32
+
+
+def test_nested_zips_skp_and_meta(tmp_path):
+    import io
+    inner = io.BytesIO()
+    with zipfile.ZipFile(inner, "w") as zf:
+        zf.writestr("72673.skp", fake_skp())
+    src = tmp_path / "g.glb"
+    box_glb(src, 1.6, 2.1, 1.0)
+    inner2 = io.BytesIO()
+    with zipfile.ZipFile(inner2, "w") as zf:
+        zf.write(src, "bed.glb")
+    z = tmp_path / "beds.zip"
+    with zipfile.ZipFile(z, "w") as zf:
+        zf.writestr("beds/riva/my-bed/72673.skp.zip", inner.getvalue())
+        zf.writestr("beds/riva/my-bed/meta.json", json.dumps({"name": "My Bed"}))
+        zf.writestr("beds/maxalto/selene/14366.zip", inner2.getvalue())
+        zf.writestr("beds/maxalto/selene/meta.json", json.dumps({"title": "Selene"}))
+    out = tmp_path / "out"
+    assert ZI.main(["run", "--zip", str(z), "--work", str(tmp_path / "w"), "--out", str(out),
+                    "--types", "bed_single,bed_double", "--no-render"]) == 0
+    doc = json.loads((out / "inspect.json").read_text())
+    rows = {r["format"]: r for r in doc["models"]}
+    sk = rows[".skp"]
+    assert sk["title"] == "My Bed" and sk["verdict"] == "needs_sketchup_export"
+    assert sk["skp"]["version"] == "23.1.340" and sk["skp"]["sketchup_year"] == 2023
+    assert (out / "skp_previews" / f"{sk['n']:03d}.png").read_bytes()[:4] == b"\x89PNG"
+    g = rows[".glb"]
+    assert g["title"] == "Selene" and g["type"] == "bed_double" and g["fits"]
+    assert len(doc["scan"]["nested"]) == 2
+    assert set(json.loads((out / "meta_all.json").read_text())) == {"beds/riva/my-bed/meta.json",
+                                                                     "beds/maxalto/selene/meta.json"}
+    assert "SketchUp files" in (out / "report.md").read_text()
+
+
+@pytest.mark.skipif(__import__("shutil").which("assimp") is None, reason="assimp not installed")
+def test_3ds_through_assimp_with_texture(tmp_path):
+    import subprocess
+    from PIL import Image
+    d = tmp_path / "src"
+    d.mkdir()
+    Image.new("RGB", (8, 8), (200, 120, 60)).save(d / "WOOD.JPG")
+    (d / "cube.mtl").write_text("newmtl wood\nKd 1 1 1\nmap_Kd WOOD.JPG\n")
+    v = [(x, y, z) for x in (0, 63) for y in (0, 80) for z in (0, 40)]       # a queen bed box in inches, Z up as 3DS
+    f = [(1, 2, 4, 3), (5, 7, 8, 6), (1, 5, 6, 2), (3, 4, 8, 7), (1, 3, 7, 5), (2, 6, 8, 4)]
+    (d / "cube.obj").write_text("mtllib cube.mtl\n" + "".join("v %g %g %g\n" % p for p in v)
+                                + "vt 0 0\nvt 1 0\nvt 1 1\nvt 0 1\nusemtl wood\n"
+                                + "".join("f %d/1 %d/2 %d/3 %d/4\n" % q for q in f))
+    subprocess.run(["assimp", "export", str(d / "cube.obj"), str(d / "66196.3ds"), "-f3ds"], check=True,
+                   capture_output=True)
+    z = tmp_path / "beds.zip"
+    with zipfile.ZipFile(z, "w") as zf:
+        zf.write(d / "66196.3ds", "beds/horm/ebridi/66196.3ds")
+        zf.write(d / "WOOD.JPG", "beds/horm/ebridi/WOOD.JPG")
+    out = tmp_path / "out"
+    assert ZI.main(["run", "--zip", str(z), "--work", str(tmp_path / "w"), "--out", str(out),
+                    "--types", "bed_single,bed_double", "--no-render"]) == 0
+    r = json.loads((out / "inspect.json").read_text())["models"][0]
+    assert r["ok"] and r["format"] == ".3ds" and r["convert"]["importer"] == "assimp"
+    assert r["type"] == "bed_double" and r["unit"] == "inches" and r["fits"]
+    doc, _ = WH.read_glb(r["fixed"])
+    assert not WH.external_files(doc) and doc.get("images")

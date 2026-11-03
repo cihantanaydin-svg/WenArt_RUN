@@ -63,59 +63,215 @@ def safe_rel(name: str) -> Optional[str]:
     return str(p)
 
 
+NESTED_MAX_BYTES = 400_000_000                   # a nested zip above this is listed, not opened
+NESTED_DEPTH = 3
+LISTED_EXTS = (".skp", ".json")                   # extracted for their facts (SketchUp version and preview, metadata)
+
+
+def _copy(zf: zipfile.ZipFile, info: zipfile.ZipInfo, target: Path) -> None:
+    if target.is_file() and target.stat().st_size == info.file_size:
+        return
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with zf.open(info) as src, target.open("wb") as fh:
+        while True:
+            chunk = src.read(1 << 22)
+            if not chunk:
+                break
+            fh.write(chunk)
+
+
+def _scan_zip(zf: zipfile.ZipFile, prefix: str, depth: int, files: Path, out: dict) -> None:
+    for info in zf.infolist():
+        if info.is_dir():
+            continue
+        name = prefix + WH.member_name(info)
+        ext = PurePosixPath(name.replace("\\", "/")).suffix.lower() or "(none)"
+        out["members"].append({"name": name, "ext": ext, "bytes": info.file_size, "depth": depth})
+        if ext not in MODEL_EXTS + SIDE_EXTS + LISTED_EXTS + (".zip",):
+            continue
+        rel = safe_rel(name)
+        if rel is None or WH._is_link(info):
+            if not any(part.startswith("__MACOSX") or part.startswith("._") for part in name.split("/")):
+                out["refused"].append(name)
+            continue
+        if ext == ".zip":
+            if depth >= NESTED_DEPTH or info.file_size > NESTED_MAX_BYTES:
+                out["nested_skipped"].append(name)
+                continue
+            import io
+            try:
+                with zipfile.ZipFile(io.BytesIO(zf.read(info))) as inner:
+                    out["nested"].append(name)
+                    _scan_zip(inner, rel + "/", depth + 1, files, out)
+            except zipfile.BadZipFile:
+                out["nested_bad"].append(name)
+            continue
+        _copy(zf, info, files / rel)
+
+
 def scan(zip_path: Path, work: Path) -> dict:
-    """Every member listed; the GLBs extracted by ``warehouse.extract`` into ``<work>/glb``; other model formats and
-    every side file extracted under their safe relative path into ``<work>/files``."""
-    members, refused = [], []
-    files = work / "files"
+    """Every member listed, nested zips opened (``NESTED_DEPTH`` levels; a nested member's name is the zip's path,
+    a slash and its own name); model files, side files (textures, .mtl, .bin), SketchUp files and JSON metadata
+    extracted under their safe relative path into ``<work>/files``."""
+    out: dict = {"members": [], "refused": [], "nested": [], "nested_skipped": [], "nested_bad": []}
     with zipfile.ZipFile(zip_path) as zf:
-        for info in zf.infolist():
-            if info.is_dir():
-                continue
-            name = WH.member_name(info)
-            ext = PurePosixPath(name.replace("\\", "/")).suffix.lower() or "(none)"
-            members.append({"name": name, "ext": ext, "bytes": info.file_size})
-            if ext == ".glb":
-                continue                                      # warehouse.extract below
-            if ext not in MODEL_EXTS + SIDE_EXTS:
-                continue
-            rel = safe_rel(name)
-            if rel is None or WH._is_link(info):
-                refused.append(name)
-                continue
-            target = files / rel
-            if target.is_file() and target.stat().st_size == info.file_size:
-                continue
-            target.parent.mkdir(parents=True, exist_ok=True)
-            with zf.open(info) as src, target.open("wb") as fh:
-                while True:
-                    chunk = src.read(1 << 22)
-                    if not chunk:
-                        break
-                    fh.write(chunk)
-    glb = WH.extract(zip_path, work / "glb")
+        _scan_zip(zf, "", 0, work / "files", out)
     by_ext: dict = {}
-    for m in members:
+    for m in out["members"]:
         e = by_ext.setdefault(m["ext"], {"files": 0, "bytes": 0})
         e["files"] += 1
         e["bytes"] += m["bytes"]
-    return {"members": members, "by_ext": dict(sorted(by_ext.items(), key=lambda kv: -kv[1]["bytes"])),
-            "refused": refused + glb["refused"], "glb_extract": {k: v for k, v in glb.items() if k != "refused"}}
+    out["by_ext"] = dict(sorted(by_ext.items(), key=lambda kv: -kv[1]["bytes"]))
+    return out
 
 
 def model_list(work: Path) -> list[dict]:
-    """``[{"id", "rel", "src", "format"}]``: the extracted GLBs and the other model files (a .gltf, .bin or .mtl side
-    file is no model of its own; a .gltf is)."""
+    """``[{"id", "rel", "src", "format"}]``: every model file under ``<work>/files`` (a .bin or .mtl side file is no
+    model of its own; a .gltf is), SketchUp files included (listed, not converted)."""
     out = []
-    for r in WH.list_glbs(work / "glb"):
-        out.append({"id": uid_of(r["rel"]), "rel": r["rel"], "src": str(work / "glb" / r["file"]), "format": ".glb"})
     files = work / "files"
     if files.is_dir():
         for p in sorted(files.rglob("*")):
-            if p.is_file() and p.suffix.lower() in MODEL_EXTS and p.suffix.lower() != ".glb":
+            if p.is_file() and p.suffix.lower() in MODEL_EXTS + (".skp",):
                 rel = p.relative_to(files).as_posix()
                 out.append({"id": uid_of(rel), "rel": rel, "src": str(p), "format": p.suffix.lower()})
     return out
+
+
+def meta_for(rel: str, work: Path) -> dict:
+    """The ``meta.json`` nearest to a model (its folder, then the parents inside the zip), or {}."""
+    files = work / "files"
+    parts = PurePosixPath(rel).parts[:-1]
+    for i in range(len(parts), 0, -1):
+        p = files.joinpath(*parts[:i], "meta.json")
+        if p.is_file():
+            try:
+                return json.loads(p.read_text(encoding="utf-8", errors="replace"))
+            except json.JSONDecodeError:
+                return {"_unreadable": str(p.name)}
+    return {}
+
+
+def meta_title(meta: dict) -> Optional[str]:
+    for k in ("name", "title", "product", "product_name", "model"):
+        v = meta.get(k)
+        if isinstance(v, str) and v.strip():
+            return v.strip()
+        if isinstance(v, dict):
+            for kk in ("name", "title"):
+                if isinstance(v.get(kk), str):
+                    return v[kk]
+    return None
+
+
+def skp_info(path: Path, preview_out: Optional[Path]) -> dict:
+    """What a SketchUp file tells without SketchUp: the header ("SketchUp Model" in UTF-16 and the version in
+    braces) and the embedded preview PNG (the largest PNG stream in the file, written to ``preview_out``)."""
+    data = path.read_bytes()
+    rec: dict = {"bytes": len(data)}
+    head = data[:200]
+    try:
+        text = head.decode("utf-16-le", errors="ignore")
+    except Exception:  # noqa: BLE001
+        text = ""
+    rec["header"] = "".join(ch for ch in text if 32 <= ord(ch) < 127)[:60]
+    import re
+    m = re.search(r"\{(\d+)\.(\d+)\.(\d+)\}", rec["header"])
+    if m:
+        rec["version"] = f"{m.group(1)}.{m.group(2)}.{m.group(3)}"
+        rec["sketchup_year"] = (2000 + int(m.group(1))) if int(m.group(1)) >= 13 else None
+    best = None
+    i = 0
+    sig = b"\x89PNG\r\n\x1a\n"
+    while True:
+        a = data.find(sig, i)
+        if a < 0:
+            break
+        b = data.find(b"IEND", a)
+        if b < 0:
+            break
+        b += 8
+        if best is None or (b - a) > (best[1] - best[0]):
+            best = (a, b)
+        i = b
+    if best and preview_out is not None:
+        preview_out.parent.mkdir(parents=True, exist_ok=True)
+        preview_out.write_bytes(data[best[0]:best[1]])
+        rec["preview"] = str(preview_out)
+        rec["preview_bytes"] = best[1] - best[0]
+    return rec
+
+
+def assimp_convert(src: Path, dst: Path, timeout_s: int = 300) -> dict:
+    """``assimp export <src> <dst> -fglb2`` (the Open Asset Import Library's command-line tool, BSD-3), then the
+    textures it names by path embedded (``embed_images``). ``{"ok", "tool", "error", "images"}``."""
+    import shutil
+    exe = shutil.which("assimp")
+    if not exe:
+        return {"ok": False, "error": "assimp not installed"}
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        p = subprocess.run([exe, "export", str(src), str(dst), "-fglb2"], capture_output=True, text=True,
+                           timeout=timeout_s, check=False)
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "tool": "assimp", "error": f"timed out after {timeout_s} s"}
+    if p.returncode != 0 or not dst.is_file():
+        return {"ok": False, "tool": "assimp", "error": (p.stdout + p.stderr)[-400:]}
+    emb = embed_images(dst, src.parent)
+    return {"ok": True, "tool": "assimp", "images": emb}
+
+
+GREY_PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010802000000907753de0000000c4944415408d763"
+                         "68686800000304018119e1b7e00000000049454e44ae426082")
+
+
+def _find_file(name: str, base: Path) -> Optional[Path]:
+    name = name.replace("\\", "/")
+    p = base / name
+    if p.is_file():
+        return p
+    stem = PurePosixPath(name).name.lower()
+    for q in base.rglob("*"):
+        if q.is_file() and q.name.lower() == stem:
+            return q
+    return None
+
+
+def embed_images(glb: Path, base: Path) -> dict:
+    """Every image a GLB names by an external URI embedded into its binary chunk (the file searched under ``base``,
+    case-insensitively by name); a missing one becomes a 1 x 1 grey PNG so the file stays self-contained."""
+    doc, binary = WH.read_glb(glb)
+    binary = bytearray(binary or b"")
+    rec = {"embedded": 0, "missing": []}
+    for img in doc.get("images") or []:
+        uri = img.get("uri")
+        if not uri or str(uri).startswith("data:"):
+            continue
+        import urllib.parse
+        f = _find_file(urllib.parse.unquote(str(uri)), base)
+        data = f.read_bytes() if f else GREY_PNG
+        if f is None:
+            rec["missing"].append(str(uri))
+        mime = "image/png" if data[:4] == b"\x89PNG" else "image/jpeg" if data[:2] == b"\xff\xd8" else None
+        if mime is None:
+            data, mime = GREY_PNG, "image/png"
+            rec["missing"].append(f"{uri} (not png/jpeg)")
+        binary += b"\x00" * (-len(binary) % 4)
+        views = doc.setdefault("bufferViews", [])
+        views.append({"buffer": 0, "byteOffset": len(binary), "byteLength": len(data)})
+        binary += data
+        img.pop("uri", None)
+        img["bufferView"] = len(views) - 1
+        img["mimeType"] = mime
+        if f is not None:
+            rec["embedded"] += 1
+    bufs = doc.setdefault("buffers", [{}])
+    if not bufs:
+        bufs.append({})
+    bufs[0].pop("uri", None)
+    bufs[0]["byteLength"] = len(binary)
+    WH.write_glb(glb, doc, bytes(binary))
+    return rec
 
 
 def blender_run(blender: str, mode: str, jobs: list, work: Path, timeout_s: int) -> dict:
@@ -184,6 +340,10 @@ def verdict(rec: dict) -> tuple[str, list[str]]:
     """``usable`` | ``usable_with_fixes`` | ``not_usable`` and the reasons, from code facts only (the renders are
     looked at separately)."""
     notes: list[str] = []
+    if rec.get("format") == ".skp":
+        sk = rec.get("skp") or {}
+        return "needs_sketchup_export", [f"SketchUp {sk.get('sketchup_year') or sk.get('version') or '?'} file"
+                                         + (", preview image saved" if sk.get("preview") else "")]
     if not rec.get("ok"):
         return "not_usable", [rec.get("error") or rec.get("convert_error") or "not measured"]
     if not rec.get("fits"):
@@ -210,6 +370,10 @@ def verdict(rec: dict) -> tuple[str, list[str]]:
 
 def contact_sheets(rows: list[dict], out: Path, per_sheet: int = 12) -> list[str]:
     from PIL import Image, ImageDraw
+    for r in rows:                                     # a SketchUp file shows its own preview image
+        prev = (r.get("skp") or {}).get("preview")
+        if not r.get("render_front") and prev and Path(prev).is_file():
+            r["render_front"] = prev
     tiles = [r for r in rows if r.get("render_front") and Path(r["render_front"]).is_file()]
     sheets = []
     tw, th = 640, 480
@@ -225,12 +389,15 @@ def contact_sheets(rows: list[dict], out: Path, per_sheet: int = 12) -> list[str
             for j, key in enumerate(("render_front", "render_back")):
                 p = r.get(key)
                 if p and Path(p).is_file():
-                    sheet.paste(Image.open(p).convert("RGB"), (x0 + j * tw, y0 + 40))
+                    im = Image.open(p).convert("RGB")
+                    im.thumbnail((tw, th))
+                    sheet.paste(im, (x0 + j * tw, y0 + 40))
             box = r.get("box_m") or ["?", "?", "?"]
             label = (f"#{r['n']} {ascii_label(r.get('title') or r['rel'])}"
                      f" | {r.get('type')} {box[0]} x {box[1]} x {box[2]} m | {r.get('verdict')}")
             draw.text((x0 + 8, y0 + 6), label[:150], fill=(0, 0, 0))
-            draw.text((x0 + 8, y0 + 22), "front view (-Y)            back view (+Y)", fill=(90, 90, 90))
+            draw.text((x0 + 8, y0 + 22), "SketchUp preview (embedded in the file)" if r.get("format") == ".skp"
+                      else "front view (-Y)            back view (+Y)", fill=(90, 90, 90))
         name = f"sheet_{s // per_sheet + 1:02d}.jpg"
         sheet.save(out / name, quality=85)
         sheets.append(name)
@@ -279,6 +446,15 @@ def write_report(scan_rec: dict, rows: list[dict], out: Path, zip_name: str, sec
         lines.append(f"| {r['n']} | {ascii_label(r.get('title') or r['rel'])} | {r['format']} | {r.get('type') or '-'} "
                      f"| {b} | {r.get('unit') or '-'} | {r.get('triangles') or '-'} | {tex} | {r.get('verdict')} | "
                      f"{'; '.join(r.get('notes') or [])[:160]} |")
+    lines += ["", f"Nested zips opened: {len(scan_rec.get('nested') or [])}; skipped (too big or too deep): "
+              f"{len(scan_rec.get('nested_skipped') or [])}; unreadable: {len(scan_rec.get('nested_bad') or [])}"]
+    skps = [r for r in rows if r.get("format") == ".skp"]
+    if skps:
+        lines += ["", "## SketchUp files", "", "| # | model | version | file MB | preview |", "|---|---|---|---|---|"]
+        for r in skps:
+            sk = r.get("skp") or {}
+            lines.append(f"| {r['n']} | {ascii_label(r.get('title') or r['rel'])} | {sk.get('version') or '?'} | "
+                         f"{(sk.get('bytes') or 0) / 1e6:.1f} | {'yes' if sk.get('preview') else 'no'} |")
     if scan_rec.get("refused"):
         lines += ["", f"Refused members (unsafe path or name too long): {len(scan_rec['refused'])}"]
     unsup = {e: v for e, v in scan_rec["by_ext"].items() if e in UNSUPPORTED_EXTS}
@@ -300,23 +476,44 @@ def run(args) -> int:
           ", ".join(f"{e} {v['files']}" for e, v in list(sc["by_ext"].items())[:12]), flush=True)
     models = model_list(work)
     print(f"[zip_inspect] {len(models)} model files", flush=True)
+    conv: dict = {}
+    for m in models:                                   # 3DS: Assimp first (Blender 5.2 has no 3DS importer built in)
+        if m["format"] == ".3ds":
+            r = assimp_convert(Path(m["src"]), work / "converted" / f"{m['id']}.glb")
+            if r.get("ok"):
+                conv[m["id"]] = dict(r, importer="assimp")
+            else:
+                conv[m["id"] + ":assimp"] = r
     conv_jobs = [{"id": m["id"], "src": m["src"], "dst": str(work / "converted" / f"{m['id']}.glb")}
-                 for m in models if m["format"] != ".glb"]
-    conv = blender_run(args.blender, "convert", conv_jobs, work, timeout_s=3600) if conv_jobs else {}
+                 for m in models if m["format"] not in (".glb", ".skp") and m["id"] not in conv]
+    if conv_jobs:
+        conv.update(blender_run(args.blender, "convert", conv_jobs, work, timeout_s=3600))
     rows = []
     for n, m in enumerate(models, 1):
+        meta = meta_for(m["rel"], work)
+        title = meta_title(meta) or WH.clean_title(PurePosixPath(m["rel"]).parent.name or PurePosixPath(m["rel"]).stem)
+        if m["format"] == ".skp":
+            info = skp_info(Path(m["src"]), out / "skp_previews" / f"{n:03d}.png")
+            rows.append({"n": n, "id": m["id"], "rel": m["rel"], "format": ".skp", "ok": False, "title": title,
+                         "meta": meta, "skp": info,
+                         "convert_error": "SketchUp file: no open-source reader on Linux; export to GLB or COLLADA "
+                                          "from SketchUp first"})
+            continue
         if m["format"] == ".glb":
             glb = Path(m["src"])
         else:
             c = conv.get(m["id"]) or {}
             if not c.get("ok"):
+                err = c.get("error") or "not converted"
+                a = conv.get(m["id"] + ":assimp")
+                if a:
+                    err = f"assimp: {a.get('error')}; blender: {err}"
                 rows.append({"n": n, "id": m["id"], "rel": m["rel"], "format": m["format"], "ok": False,
-                             "title": WH.clean_title(PurePosixPath(m["rel"]).stem),
-                             "convert_error": c.get("error") or "not converted"})
+                             "title": title, "meta": meta, "convert_error": err})
                 continue
             glb = work / "converted" / f"{m['id']}.glb"
         rec = measure_one(m, glb, work, extra)
-        rec["n"] = n
+        rec.update(n=n, meta=meta, title=title)
         if m["format"] != ".glb":
             rec["convert"] = {k: conv[m["id"]].get(k) for k in ("importer", "objects", "meshes", "images")}
         rows.append(rec)
@@ -341,6 +538,14 @@ def run(args) -> int:
     except Exception as exc:  # noqa: BLE001 - the table stays useful without sheets
         print(f"[zip_inspect] contact sheets failed: {exc}", flush=True)
         sheets = []
+    metas = {}
+    for mp in sorted((work / "files").rglob("meta.json")) if (work / "files").is_dir() else []:
+        try:
+            metas[mp.relative_to(work / "files").as_posix()] = json.loads(mp.read_text(encoding="utf-8",
+                                                                                      errors="replace"))
+        except json.JSONDecodeError:
+            metas[mp.relative_to(work / "files").as_posix()] = {"_unreadable": True}
+    (out / "meta_all.json").write_text(json.dumps(metas, ensure_ascii=False, indent=1), encoding="utf-8")
     write_report(sc, rows, out, zip_path.name, time.time() - t0)
     print(f"[zip_inspect] done: {len(rows)} models, {len(sheets)} sheet(s), {time.time() - t0:.0f} s", flush=True)
     return 0

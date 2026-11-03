@@ -57,6 +57,14 @@ else
 fi
 if [ "$(head -c 2 "$ZIP")" != "PK" ]; then echo "[zip_inspect] $NAME is not a zip"; exit 3; fi
 
+# Assimp (BSD-3) converts 3DS, which Blender 5.2 no longer imports without an extension; best effort
+if ! command -v assimp >/dev/null 2>&1; then
+  apt-get install -y -qq --no-install-recommends assimp-utils >/dev/null 2>&1 \
+    || { apt-get update -qq >/dev/null 2>&1 && apt-get install -y -qq --no-install-recommends assimp-utils >/dev/null 2>&1; } \
+    || echo "[zip_inspect] assimp-utils could not be installed: 3DS files go to Blender only"
+fi
+command -v assimp >/dev/null 2>&1 && echo "[zip_inspect] $(assimp version 2>/dev/null | head -3 | tr '\n' ' ')"
+
 # the zip itself stays on the volume; the extraction and the fixed GLBs go to the fast container disk
 "$PY" -m wenart.assets.zip_inspect run --zip "$ZIP" --work "$FAST" --out "$RESULTS/zip_inspect" \
   --types "$TYPES" --blender "$WENART_BLENDER" --render-minutes "$RENDER_MIN"
