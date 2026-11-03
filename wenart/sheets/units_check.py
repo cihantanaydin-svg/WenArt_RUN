@@ -599,6 +599,8 @@ DRAWING_SIDE_M = (4.0, 300.0)       # the median drawing region's longer side is
 DRAWING_MIN_ENTS = 50                # ... over the regions with this many entities (not a title box or a stamp)
 TIE_MIN = 3                          # a tie-break unit fits at least this many checks ...
 TIE_MARGIN = 2                       # ... this many more than any other decided unit, and more than any other unit
+STRONG_SHARE = 0.9                   # 3 Nov 2026: ... or as many as a unit no check decides, when a check decides it
+STRONG_SAMPLES = 20                  # ... with this share of at least this many samples
 
 
 def drawing_size_fit(drawings) -> set:
@@ -635,8 +637,14 @@ def tie_break(checks: list[Check], drawings) -> Optional[tuple[str, dict]]:
     if not decided:
         return None
     best = max(decided, key=lambda u: (score[u], -list(UNITS).index(u)))
+    # 3 Nov 2026 (real20: no unit in the header; the door widths say cm from 47 swings (share 0.98); the text height,
+    # the drawing size and a wall thickness share of 0.55 fit inches as well): a unit a check decides strongly
+    # (``STRONG_SHARE`` of ``STRONG_SAMPLES`` or more) wins a tie with a unit no check decides
+    strong = any(c.unit == best and (c.shares or {}).get(best, 0.0) >= STRONG_SHARE and c.samples >= STRONG_SAMPLES
+                 for c in checks)
     if score[best] < TIE_MIN or any(score[u] + TIE_MARGIN > score[best] for u in decided - {best}) \
-            or any(score[u] >= score[best] for u in UNITS if u != best):
+            or any(score[u] > score[best] or (score[u] == score[best] and (u in decided or not strong))
+                   for u in UNITS if u != best):
         return None
     return best, fits
 

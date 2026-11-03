@@ -430,12 +430,51 @@ def _by_title_elevation(plans: list, words: dict, warnings: Optional[list] = Non
                             f"above '{x_b.title['text'].strip()}' at {e_b[1]:+.2f} m)")
 
 
+USER_BOX_IOU = 0.5              # 3 Nov 2026: a brief's plan box names the region it overlaps this much
+
+
+def _iou_box(a, b) -> float:
+    ix = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    iy = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = ix * iy
+    area = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / area if area > 0 else 0.0
+
+
+def user_level(r, user_levels) -> Optional[dict]:
+    """The brief's ``plan_levels`` entry for plan region ``r`` (its box overlapping the region's by ``USER_BOX_IOU``,
+    the best one), else None."""
+    box = getattr(r, "box", None)
+    if not box or not user_levels:
+        return None
+    best = max(((_iou_box(box, e["box"]), e) for e in user_levels if e.get("box")), key=lambda t: t[0],
+               default=(0.0, None))
+    return best[1] if best[0] >= USER_BOX_IOU else None
+
+
 def assign_levels(plans: list, needs_review: list, warnings: list,
-                  storeys: Optional[dict[int, str]] = None, storey_el: Optional[dict] = None) -> None:
+                  storeys: Optional[dict[int, str]] = None, storey_el: Optional[dict] = None,
+                  user_levels: Optional[list] = None) -> None:
+    """``user_levels`` (3 Nov 2026, the brief's ``plan_levels``): the user's level of a plan the drawing gives no level
+    title (real19: "r3 ground, r4-r6 upper"; real20: two buildings, one plan each): its level word as if the plan
+    were titled so (``method`` user), or ``ignore`` (the plan is left out)."""
     words = {}
     for r in plans:
         lw = level_of(r.title["text"]) if r.title else None
+        if lw is None:
+            entry = user_level(r, user_levels)
+            if entry is not None:
+                if entry["level"].strip().lower() == "ignore":
+                    r.use, r.ignored_reason = "ignored", "the user's brief leaves this plan out (plan_levels: ignore)"
+                    warnings.append(f"{r.file} {r.id}: left out by the user's brief (plan_levels)")
+                    continue
+                lw = level_of(entry["level"])
+                if lw is not None:
+                    r.user_level = entry["level"]
+                    warnings.append(f"{r.file} {r.id}: plan without a level title: level '{entry['level']}' from the "
+                                    f"user's brief (plan_levels)")
         words[id(r)] = lw
+    plans[:] = [r for r in plans if id(r) in words]
     if storey_el:
         _by_storey_elevation(plans, words, storey_el, storeys or {}, warnings)
     _by_title_elevation(plans, words, warnings)

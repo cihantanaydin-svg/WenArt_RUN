@@ -154,6 +154,8 @@ def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=No
             continue
         w, v = walls[i], walls[j]
         tw, tv = float(w.thickness), float(v.thickness)
+        if keep_out is not None and (TP.wall_polygon(w).intersects(keep_out) or TP.wall_polygon(v).intersects(keep_out)):
+            continue                 # 3 Nov 2026 (real10 L-1): the core (lift and stair) is no mirror of anything
         if tw - tv > THICK_DIFF_M and tw >= THICK_RATIO * tv and _drawn(v):
             ma, mb = _mirror(v.start, axis), _mirror(v.end, axis)
             before = (tuple(w.start), tuple(w.end), tw)
@@ -186,6 +188,8 @@ def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=No
             continue
         w, v = walls[i], walls[j]
         if not _inferred(w) or not _drawn(v):
+            continue
+        if keep_out is not None and (TP.wall_polygon(w).intersects(keep_out) or TP.wall_polygon(v).intersects(keep_out)):
             continue
         ma, mb = _mirror(v.start, axis), _mirror(v.end, axis)
         u = _dir(ma, mb)

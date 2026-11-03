@@ -141,6 +141,18 @@ def _white_balance_problem(value: Any) -> Optional[str]:
     return None
 
 
+def _plan_levels_problem(value) -> Optional[str]:
+    """``plan_levels``: a list of ``{box: [x0, y0, x1, y1], level: str}`` (3 Nov 2026)."""
+    if not isinstance(value, list):
+        return f"expected a list of {{box, level}}, got {value!r}"
+    for item in value:
+        box = item.get("box") if isinstance(item, dict) else None
+        if not (isinstance(box, list) and len(box) == 4 and all(isinstance(v, (int, float)) for v in box)
+                and isinstance(item.get("level"), str) and item["level"].strip()):
+            return f"expected {{box: [x0, y0, x1, y1], level: text}}, got {item!r}"
+    return None
+
+
 VALUE_RULES = {
     "render.lens_mm": _lens_problem,
     "slab_thickness": _metres(0.05, 0.6),                # Milestone 10 (review): a slab, never a typo of cm
@@ -150,6 +162,7 @@ VALUE_RULES = {
     "furnished_rooms_keep": _names_problem,
     "variants": _variants_problem,
     "failed_levels": _one_of("leave_out", "stop"),
+    "plan_levels": _plan_levels_problem,
     "site": _one_of("full", "ground"),
     "render.twin_rooms": _one_of("one", "all"),
     # Milestone 11 (docs/milestone11.md §17: D5, D6)

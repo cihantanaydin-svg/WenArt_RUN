@@ -1,0 +1,6 @@
+# real16: the user's DWG of 3 Nov 2026 (real16.dwg), given with real16-real20 to check the project reading ("We check also
+# these drawings"). No brief from the user yet: the style below is our choice (inferred).
+style: Modern, warm white walls, light oak plank floor, light grey fabric sofa, walnut and black metal accents,
+  large windows with anthracite aluminium frames, minimal decor with a few large plants, warm daylight
+library:
+  licence_mode: relaxed

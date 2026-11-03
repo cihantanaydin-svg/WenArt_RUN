@@ -33,7 +33,7 @@ def test_synthetic_brief_keeps_its_style_and_assumes_the_rest():
                                 "furnished_rooms", "furnished_rooms_keep", "furnished_rooms_keep_size",
                                 # 29 Oct 2026 (UL99, UL98): the media wall and the room fill
                                 "media_wall", "tv_in_bedroom", "room_fill", "variants",
-                                "failed_levels", "site", "exterior.facade", "exterior.roof", "exterior.window_frame",
+                                "failed_levels", "plan_levels", "site", "exterior.facade", "exterior.roof", "exterior.window_frame",
                                 "exterior.door", "exterior.paving", "exterior.garden",
                                 "render.views_per_room", "render.resolution", "render.samples", "render.lens_mm",
                                 "render.exterior_views", "render.twin_rooms",

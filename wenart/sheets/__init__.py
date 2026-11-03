@@ -261,7 +261,8 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     storeys = LV.storey_words([r for r in regions if r.cls == "section" and r.use == "heights"])
     # 3 Nov 2026 (real09): the storeys' floor elevations on the sections place the plans titled by an elevation
     storey_el = LV.storey_elevations([r for r in regions if r.cls == "section"])
-    LV.assign_levels(plans, needs_review, warnings, storeys, storey_el)
+    # 3 Nov 2026: the user's levels of the plans the drawing gives no level title (the brief's plan_levels)
+    LV.assign_levels(plans, needs_review, warnings, storeys, storey_el, user_levels=values.get("plan_levels") or [])
     levels_json, variants_json = VR.group(plans, values.get("variants", "all"), conflict, warnings)
     read_plans = [r for r in plans if r.use == "read" and r.level is not None]
     multi = multi_region(regions)
@@ -374,7 +375,9 @@ def multi_region(regions: list) -> bool:
     project is read region by region in one registered frame (M10). Otherwise every page is one plan (M2-M9)."""
     per_sheet: dict[tuple, int] = {}
     for r in regions:
-        if r.use == "read":
+        # 3 Nov 2026 (real20: two buildings on one sheet, the user's brief leaving one out): a plan the brief leaves
+        # out still makes the sheet one of regions, so the other plan is read by its region (and its sheet's unit)
+        if r.use == "read" or "plan_levels" in str(getattr(r, "ignored_reason", "") or ""):
             per_sheet[(r.file, r.sheet.id)] = per_sheet.get((r.file, r.sheet.id), 0) + 1
     return any(n >= 2 for n in per_sheet.values()) or any(r.use in ("heights", "exterior") for r in regions)
 

@@ -1,0 +1,10 @@
+# real21: the second building of the user's real20.dwg (3 Nov 2026: "Two different buildings"): plan r2, the long
+# block with the central corridor and two lifts; real20 is the other building (plan r1). No brief from the user yet:
+# the style below is our choice (inferred).
+style: Modern, warm white walls, light oak plank floor, light grey fabric sofa, walnut and black metal accents,
+  large windows with anthracite aluminium frames, minimal decor with a few large plants, warm daylight
+library:
+  licence_mode: relaxed
+plan_levels:
+  - {box: [-28960.9, 116.249, -27376.466, 3038.495], level: Zemin Kat}
+  - {box: [-25501.49, 1734.885, -23607.016, 3193.896], level: ignore}

@@ -1,0 +1,41 @@
+{
+ "project": "real19",
+ "status": "ok",
+ "levels": [
+  "L0",
+  "L1"
+ ],
+ "levels_left_out": [
+  "2. Kat",
+  "3. Kat"
+ ],
+ "per_level": {
+  "L0": {
+   "rooms": 18,
+   "walls": 55,
+   "doors": 9,
+   "windows": 0,
+   "openings": 0,
+   "room_area": 236.2
+  },
+  "L1": {
+   "rooms": 1,
+   "walls": 85,
+   "doors": 2,
+   "windows": 0,
+   "openings": 0,
+   "room_area": 440.6
+  }
+ },
+ "check": {
+  "verdict": "fix before a pod run",
+  "counts": {
+   "critical": 3,
+   "major": 4,
+   "minor": 1
+  },
+  "stacking": {
+   "L1": 2.819
+  }
+ }
+}

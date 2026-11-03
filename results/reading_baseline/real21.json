@@ -1,0 +1,27 @@
+{
+ "project": "real21",
+ "status": "ok",
+ "levels": [
+  "L0"
+ ],
+ "levels_left_out": [],
+ "per_level": {
+  "L0": {
+   "rooms": 45,
+   "walls": 73,
+   "doors": 32,
+   "windows": 7,
+   "openings": 7,
+   "room_area": 372.8
+  }
+ },
+ "check": {
+  "verdict": "ready",
+  "counts": {
+   "critical": 0,
+   "major": 4,
+   "minor": 0
+  },
+  "stacking": {}
+ }
+}

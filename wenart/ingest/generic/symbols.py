@@ -1086,7 +1086,7 @@ def _split_geometric(cl: Cluster, table: dict) -> list[tuple[Cluster, int]]:
                 home = k
                 break
         if home is None:
-            dists = [p.exterior.distance(g) for p in polys]
+            dists = [p.boundary.distance(g) for p in polys]     # (3 Nov 2026, real17: a top contour of two parts)
             k = int(np.argmin(dists))
             if dists[k] <= ATTACH_M:
                 home = k
@@ -2851,6 +2851,12 @@ def l_shape(cl: Cluster, theta: float) -> Optional[dict]:
     if min(w, h) < 2 * L_ARM_M[0]:
         return None
     outline = max(tops, key=lambda tm: tm[0].area)[0]
+    if outline.geom_type != "Polygon":
+        # 3 Nov 2026 (real17: a top contour of two parts crashed the reading): its largest part is the outline
+        parts = [g for g in getattr(outline, "geoms", []) if g.geom_type == "Polygon"]
+        if not parts:
+            return None
+        outline = max(parts, key=lambda g: g.area)
     poly = Polygon([to_f(q) for q in outline.exterior.coords])
     if not poly.is_valid:
         poly = poly.buffer(0)

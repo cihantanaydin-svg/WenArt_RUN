@@ -1,0 +1,48 @@
+{
+ "project": "real17",
+ "status": "ok",
+ "levels": [
+  "L0",
+  "L1",
+  "L2"
+ ],
+ "levels_left_out": [
+  "3. Normal Kat",
+  "Bodrum Kat"
+ ],
+ "per_level": {
+  "L0": {
+   "rooms": 1,
+   "walls": 7,
+   "doors": 0,
+   "windows": 0,
+   "openings": 0,
+   "room_area": 717.7
+  },
+  "L1": {
+   "rooms": 4,
+   "walls": 7,
+   "doors": 0,
+   "windows": 0,
+   "openings": 0,
+   "room_area": 515.0
+  },
+  "L2": {
+   "rooms": 23,
+   "walls": 85,
+   "doors": 19,
+   "windows": 10,
+   "openings": 3,
+   "room_area": 174.0
+  }
+ },
+ "check": {
+  "verdict": "fix before a pod run",
+  "counts": {
+   "critical": 2,
+   "major": 10,
+   "minor": 2
+  },
+  "stacking": {}
+ }
+}

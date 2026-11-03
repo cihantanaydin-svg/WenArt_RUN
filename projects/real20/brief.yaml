@@ -1,0 +1,11 @@
+# real20: the user's DWG of 3 Nov 2026 (real20.dwg), given with real16-real20 to check the project reading ("We check also
+# these drawings"). No brief from the user yet: the style below is our choice (inferred).
+style: Modern, warm white walls, light oak plank floor, light grey fabric sofa, walnut and black metal accents,
+  large windows with anthracite aluminium frames, minimal decor with a few large plants, warm daylight
+library:
+  licence_mode: relaxed
+# The user (3 Nov 2026): the drawing's two untitled plans are two different buildings; this project is the one of
+# plan r1 (a single storey), real21 is the other (plan r2, the long block with two lifts)
+plan_levels:
+  - {box: [-25501.49, 1734.885, -23607.016, 3193.896], level: Zemin Kat}
+  - {box: [-28960.9, 116.249, -27376.466, 3038.495], level: ignore}

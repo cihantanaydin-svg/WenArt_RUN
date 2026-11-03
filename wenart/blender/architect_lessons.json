@@ -3516,7 +3516,9 @@
    "date": "2026-11-03",
    "area": "other",
    "status": "built",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "Library models without real textures (plain colours, missing texture files) get the project style's PBR scans on their part materials: fabric linen in the design colour, oak or walnut veneer, leather, marble, black steel, bronze, chrome, brass, glass, ceramic; a model's own textures are kept (user, 3 Nov 2026, Syncronia: 'can we give textures to Syncronia? and I can re-rate them?', 'Use the most logical best textures')",
    "lesson": "Library models without real textures (plain colours, missing texture files) get the project style's PBR scans on their part materials: fabric linen in the design colour, oak or walnut veneer, leather, marble, black steel, bronze, chrome, brass, glass, ceramic; a model's own textures are kept (user, 3 Nov 2026, Syncronia: 'can we give textures to Syncronia? and I can re-rate them?', 'Use the most logical best textures')",
    "question": null
@@ -3526,9 +3528,33 @@
    "date": "2026-11-03",
    "area": "other",
    "status": "built",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "A library model without textures whose file has real colours gets part materials too, each piece by its own file colour: a light neutral (white, light grey: an exporter's default) takes its class's scanned material, a real colour stays on the cloth, leather, lacquer, plastic or ceramic with the matching scan in that colour, wood is oak or walnut and metal brass, chrome or black metal by the colour; geometry and review kept (user, 3 Nov 2026, Syncronia: 'texture the white sofas and armchairs too')",
    "lesson": "A library model without textures whose file has real colours gets part materials too, each piece by its own file colour: a light neutral (white, light grey: an exporter's default) takes its class's scanned material, a real colour stays on the cloth, leather, lacquer, plastic or ceramic with the matching scan in that colour, wood is oak or walnut and metal brass, chrome or black metal by the colour; geometry and review kept (user, 3 Nov 2026, Syncronia: 'texture the white sofas and armchairs too')",
+   "question": null
+  },
+  {
+   "id": "UL299",
+   "date": "2026-11-03",
+   "area": "reading",
+   "status": "process",
+   "checks": [],
+   "request": "Plans the drawing gives no level title are asked of the user with the sheet image; the answer is kept in the project's brief (plan_levels: the plan's box in drawing units and its level, or ignore) and read on every run; two buildings drawn on one sheet become two projects, each leaving the other's plan out (user, 3 Nov 2026: real19 'r3 ground, r4-r6 upper', real20 'Two different buildings')",
+   "lesson": "Plans the drawing gives no level title are asked of the user with the sheet image; the answer is kept in the project's brief (plan_levels: the plan's box in drawing units and its level, or ignore) and read on every run; two buildings drawn on one sheet become two projects, each leaving the other's plan out (user, 3 Nov 2026: real19 'r3 ground, r4-r6 upper', real20 'Two different buildings')",
+   "question": null
+  },
+  {
+   "id": "UL300",
+   "date": "2026-11-03",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "In the flats beside a building's core the core stays out of every mirror fix (thickness, lines, copies), and a stair's lines next to the core wall are never a wall piece: the flat's own walls and its entrance door close it off from the shared hall (user, 3 Nov 2026, real10 L-1: 'fix the L-1 right flat')",
+   "lesson": "In the flats beside a building's core the core stays out of every mirror fix (thickness, lines, copies), and a stair's lines next to the core wall are never a wall piece: the flat's own walls and its entrance door close it off from the shared hall (user, 3 Nov 2026, real10 L-1: 'fix the L-1 right flat')",
    "question": null
   }
  ]

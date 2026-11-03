@@ -50,7 +50,7 @@ from typing import Optional
 
 import cv2
 import numpy as np
-from shapely.geometry import Point, Polygon
+from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 from shapely.strtree import STRtree
 
@@ -115,6 +115,7 @@ TREAD_EVEN = 0.15
 TREAD_OVERLAP = 0.5
 WIDE_BAND_LINES = 3             # 3 Nov 2026: >= 3 short parallel strokes side by side, wider than 0.6 m and than long,
 WIDE_BAND_END_M = 0.05          # ... each ending with its pair within 5 cm, are drawn detail (a stair's newel and rails)
+WIDE_BAND_STUB_M = 0.4          # ... and so is a piece this thick between one such stroke and a long face, in such a band
 ALONG_SHARE = 0.5              # real10: a second wall layer's pieces lie >= 50 % within 5 cm of the chosen layer's
 OWN_PAIR_SHARE = 0.7           # 2 Nov 2026: a thinly labelled plan's own best layer joins the document's at this pair share
 ALONG_M = 0.05                 # walls (the same walls drawn twice: masonry inside plaster)
@@ -760,15 +761,24 @@ def _drop_wide_bands(pairs: list[_Pair]) -> list[_Pair]:
         by_near.setdefault(id(p.lines[0]), []).append(p)
         by_far.setdefault(id(p.lines[1]), []).append(p)
 
+    def ends_with(ln: _Line, a: _Pair) -> bool:
+        return ln.s1 - ln.s0 <= a.hi - a.lo + WIDE_BAND_END_M
+
     def short(a: _Pair) -> bool:
-        return all(ln.s1 - ln.s0 <= a.hi - a.lo + WIDE_BAND_END_M for ln in a.lines)
+        return all(ends_with(ln, a) for ln in a.lines)
+
+    def stub(a: _Pair) -> bool:
+        # 3 Nov 2026 (real10 L-1: a stair line 0.57 m off the core wall's long face, beside the 0.31 m antre wall):
+        # a thick piece between one short stroke and a long face
+        return a.width >= WIDE_BAND_STUB_M and any(ends_with(ln, a) for ln in a.lines)
 
     def overlaps(a: _Pair, b: _Pair) -> bool:
-        return short(b) and min(a.hi, b.hi) - max(a.lo, b.lo) >= TREAD_OVERLAP * min(a.hi - a.lo, b.hi - b.lo)
+        # (the band is walked from a short piece or a stub, ``p`` below, through any pair beside it over its stretch)
+        return min(a.hi, b.hi) - max(a.lo, b.lo) >= TREAD_OVERLAP * min(a.hi - a.lo, b.hi - b.lo)
 
     drop = set()
     for p in pairs:
-        if not short(p):
+        if not (short(p) or stub(p)):
             continue
         # walk to the far side through pairs whose near face is p's far face, and back through pairs whose far face is
         # p's near face; count the lines of the band
@@ -793,6 +803,53 @@ def _drop_wide_bands(pairs: list[_Pair]) -> list[_Pair]:
         if lines >= WIDE_BAND_LINES and band > PAIR_WIDTH_M[1] + 1e-9 and max(p.hi - p.lo, p.run) < band:
             drop.add(id(p))
     return [p for p in pairs if id(p) not in drop]
+
+
+FLIGHT_MIN_TREADS = 3            # 3 Nov 2026: a pair band crossed by >= 3 treads at an even pitch is a stair flight
+FLIGHT_CROSS_SHARE = 0.9        # ... a tread crosses at least this share of the band's width ...
+FLIGHT_PAIR_MIN_W = 0.3         # ... only bands this wide are checked (a flight's half is 0.45-0.65 m)
+
+
+def _drop_flight_pairs(pairs: list[_Pair], cross: list) -> list[_Pair]:
+    """3 Nov 2026 (real10 L-1, user: "fix the L-1 right flat"): the half of a stair flight between the core wall's face
+    and the flight's walking line (0.57 m) paired into a 'wall' that took the right flat's antre wall into a 0.88 m band
+    and left the flat's entrance door without a wall, so the antre and the kitchen merged with the hall. A pair whose
+    band is crossed from face to face (``FLIGHT_CROSS_SHARE``) by ``FLIGHT_MIN_TREADS`` or more lines of the other
+    direction at an even tread pitch (``TREAD_PITCH_M``, each step within ``TREAD_EVEN`` of their median) is a stair
+    flight, never a wall piece (a wall's band is crossed by at most the two jambs of an opening). ``cross``: shapely
+    lines of the layer's directions across the pair's (at about 90 degrees)."""
+    if not cross or not pairs:
+        return pairs
+    from shapely.strtree import STRtree
+
+    tree = STRtree(cross)
+    out = []
+    for p in pairs:
+        if p.width < FLIGHT_PAIR_MIN_W:
+            out.append(p)
+            continue
+        band = p.polygon()
+        ts = []
+        for j in tree.query(band):
+            inter = band.intersection(cross[int(j)])
+            if inter.is_empty or inter.length < FLIGHT_CROSS_SHARE * p.width:
+                continue
+            c = inter.centroid
+            ts.append(c.x * p.u[0] + c.y * p.u[1])
+        ts = sorted(ts)
+        uniq = [t for k, t in enumerate(ts) if k == 0 or t - ts[k - 1] > 0.02]
+        steps = [b - a for a, b in zip(uniq, uniq[1:])]
+        run = best = 0
+        for k, d in enumerate(steps):
+            if TREAD_PITCH_M[0] <= d <= TREAD_PITCH_M[1] and (run == 0 or abs(d - steps[k - 1]) <= TREAD_EVEN * d):
+                run += 1
+            else:
+                run = 1 if TREAD_PITCH_M[0] <= d <= TREAD_PITCH_M[1] else 0
+            best = max(best, run)
+        if best + 1 >= FLIGHT_MIN_TREADS:
+            continue
+        out.append(p)
+    return out
 
 
 def stepped_runs(pairs: list[_Pair]) -> None:
@@ -1291,18 +1348,27 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     columns = _column_candidates(page, s)
     rows = []
     skip = {i for p in prims for i in p.stroke_ids}
-    for layer, pieces in _straight_pieces(page, s, skip).items():
+    by_layer = _straight_pieces(page, s, skip)
+    # 3 Nov 2026: every layer's straight pieces 0.1-2 m long (a stair's treads are often on its own layer), for the
+    # flight test of the pairs (``_drop_flight_pairs``)
+    tread_like = [(a, b) for pcs in by_layer.values() for _sid, a, b in pcs if 0.1 <= math.dist(a, b) <= 2.0]
+    for layer, pieces in by_layer.items():
         ids = {sid for sid, _, _ in pieces}
         dims = ids & set(dimension_ids)
         if dims and len(dims) >= DIMENSION_LAYER_SHARE * len(ids):
             pieces = [pc for pc in pieces if pc[0] not in dims]
         pairs: list[_Pair] = []
         long_lines = paired = 0
-        for u, n, group in _direction_groups(pieces):
-            lines = _merge_lines(group, u, n)
+        groups = [(u, n, _merge_lines(group, u, n)) for u, n, group in _direction_groups(pieces)]
+        for u, n, lines in groups:
             found = _drop_tread_runs(_pairs_of(lines, layer, u, n))
             stepped_runs(found)
             found = _drop_wide_bands(found)
+            # the pieces of any layer across these (about 90 degrees): the treads of a flight crossing a pair's band
+            if any(p.width >= FLIGHT_PAIR_MIN_W for p in found):
+                cross = [LineString([a, b]) for a, b in tread_like
+                         if abs((b[0] - a[0]) * u[0] + (b[1] - a[1]) * u[1]) < 0.1 * math.dist(a, b)]
+                found = _drop_flight_pairs(found, cross)
             pairs.extend(found)
             in_pairs = {id(ln) for p in found if p.primary for ln in p.lines}
             for ln in lines:

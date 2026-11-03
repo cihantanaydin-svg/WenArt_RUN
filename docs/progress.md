@@ -3378,3 +3378,30 @@ source file and box are the same keeps its review and front.
 | first pod's look | a Fulgens seat and a Spring Time top turned oak, the Pathos frame brass: fixed (white wood is lacquer; warm metal bronze unless a bright gold; Pathos's file colour is a bright gold, so it stays brass) |
 
 Pods: 20.8 min $0.62, 8.2 min $0.16.
+
+## real10 L-1 right flat, the user's new drawings real16-real21 (3 Nov 2026 evening, lessons UL299-UL300)
+
+real10 L-1 (user: "fix the L-1 right flat"): the right flat's antre and kitchen were one 45.9 m2 "Kat Holü" with the
+central entrance hall.
+
+| cause | rule | now |
+|---|---|---|
+| a stair line 0.57 m off the core wall's face paired into a "wall" that took the antre's wall into a 0.88 m band; the flat's entrance door had no wall | a thick piece (>= 0.4 m) between one short stroke and a long face, in a band wider than any wall and than it is long, is drawn detail; a band crossed by >= 3 treads is a flight | the central hall 23.2 m2, the right flat apart |
+| the mirror's thickness step thinned the lift's walls (0.77 -> 0.25 m) | the core keep-out applies to every mirror step | lift, stair, Kat Holü as on the left |
+
+Still open: the right flat's antre and kitchen are one room (22.5 m2): its kitchen opens to the vestibule through a
+0.9 m doorway framed by a short jamb (90/210) the reading takes as no wall.
+
+New drawings (user: "We check also these drawings"):
+
+| project | what it is | first reading | after today |
+|---|---|---|---|
+| real16 | a complex with parking (OTOPARK), site plan, sections | 3 levels left out, 3 untitled plans | to do |
+| real17 | a strip of titled plans, sections, elevations | crashed (a two-part outline) | L0-L2 read; L-1 and L3 walls open |
+| real18 | a strip of titled plans, sections, elevations | 6 levels left out (walls open) | to do |
+| real19 | 4 untitled plans | nothing read | the user's levels (plan_levels): L0, L1 read; L2 walls open |
+| real20 | 2 untitled plans: two buildings (user) | no unit, nothing read | split: real20 (plan r1, walls open), real21 (plan r2, ready) |
+
+General fixes: the user's plan levels in the brief (plan_levels: box and level, or ignore); a sheet with a plan the
+brief leaves out is still read by its regions; a unit one check decides strongly (0.98 of 47 door swings) wins a tie with
+a unit no check decides; two crashes on two-part outlines.
