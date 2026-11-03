@@ -653,3 +653,51 @@ def _assumed_levels(out: dict, levels: list[dict], ceiling: float, slab: float, 
         out["slabs"].append({"between": [prev, lv["id"]], "thickness": assumed(slab, f"{why}: brief slab_thickness"),
                              "z_top": assumed(round(order * FLOOR_TO_FLOOR_M, 3), f"{why}: the level's floor")})
         prev = lv["id"]
+
+
+def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_default: float, file_rel: Optional[str],
+                       region_id: Optional[str]) -> list[str]:
+    """3 Nov 2026 (real09, user: "You can understand this by checking the other sections in the drawing like this one";
+    its A-A section's slab bands mapped 2 of 5 levels, a datum in another frame put the 1st basement at -8.60): when the
+    sections name the storeys at their floor marks (``levels.storey_elevations``) for at least two levels, every such
+    level's floor z is its mark (the ground floor's at 0 when it is named, else the lowest named storey's) and its
+    floor-to-floor height the next storey's mark less its own (the top storey's from ``top``); a ceiling height without
+    a drawn one is that less the slab. Returns the warning lines."""
+    orders = {lv["order"]: lv["id"] for lv in levels}
+    known = {o: float(e) for o, e in storey_el.items() if o != "top" and o in orders}
+    top_order = max(orders) if orders else None
+    if "top" in storey_el and top_order is not None and top_order not in known \
+            and all(float(storey_el["top"]) > e for e in known.values()):
+        known[top_order] = float(storey_el["top"])          # the section's top storey (ÇATI KAT) is the top level
+    if len(known) < 2:
+        return []
+    base = known[0] if 0 in known else min(known.items())[1]
+    seq = sorted(known)
+    top_mark = storey_el.get("top")
+    by_id = {e["level_id"]: e for e in out.get("levels") or []}
+    lines = []
+    for k, o in enumerate(seq):
+        lid = orders[o]
+        entry = by_id.get(lid)
+        if entry is None:
+            entry = {"level_id": lid, "level_mark": None, "level_mark_target_z": None}
+            out.setdefault("levels", []).append(entry)
+        ev = [_ev(file_rel or "", None, "section_storey_marks", region_id or "", text=f"{known[o]:+.2f}")]
+        entry["floor_z"] = _value(known[o] - base, "vector", ev, note="the floor mark of the storey the section names")
+        nxt = known[seq[k + 1]] if k + 1 < len(seq) else (float(top_mark) if top_mark is not None and
+                                                           float(top_mark) > known[o] + 0.5 else None)
+        if nxt is not None:
+            ftf = nxt - known[o]
+            entry["floor_to_floor"] = _value(ftf, "vector", ev, note="the next storey's floor mark less this one")
+            ceil = entry.get("ceiling_height") or {}
+            if ceil.get("method") != "vector" or not (0 < float(ceil.get("value") or 0) < ftf):
+                entry["ceiling_height"] = assumed(round(ftf - slab_default, 3),
+                                                  f"floor to floor {ftf:.2f} m less the slab {slab_default:.2f} m")
+        lines.append(f"{lid}: floor {known[o]:+.2f} m (section mark) -> z {known[o] - base:+.2f} m")
+    for sl in out.get("slabs") or []:
+        between = sl.get("between") or []
+        upper = between[1] if len(between) > 1 else None
+        hit = next((o for o in seq if orders[o] == upper), None)
+        if hit is not None:
+            sl["z_top"] = _value(known[hit] - base, "vector", [], note="the floor mark of the storey above")
+    return ["heights from the storeys the sections name at their floor marks: " + "; ".join(lines)]

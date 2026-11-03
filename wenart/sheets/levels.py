@@ -196,6 +196,47 @@ def storey_words(regions: list) -> dict[int, str]:
     return dict(sorted(out.items()))
 
 
+STOREY_MARK_TOL_M = 0.4            # a storey name sits on its floor: the floor mark at most this far above its level
+
+
+def storey_elevations(regions: list) -> dict:
+    """3 Nov 2026 (real09, user: "You can understand this by checking the other sections in the drawing like this one":
+    B-B KESİTİ names 1.BODRUM KAT 0.00, ZEMİN KAT +2.50, 1.NORMAL KAT +5.50, 2.NORMAL KAT +8.50, ÇATI KAT +11.50):
+    ``{order or "top": floor elevation}`` from the sections: the level marks' values against their height on the
+    section (a straight fit), and each storey name the highest mark at most ``STOREY_MARK_TOL_M`` above its own
+    height (the floor it stands on). The first section that names a storey wins."""
+    from wenart.sheets import units_check as UC
+
+    out: dict = {}
+    for r in regions:
+        texts = getattr(r, "texts", None) or []
+        marks = [(t.point[1], v) for t, v in UC.mark_texts(texts)]
+        if len(marks) < 3:
+            continue
+        ys = [m[0] for m in marks]
+        vs = [m[1] for m in marks]
+        my, mv = sum(ys) / len(ys), sum(vs) / len(vs)
+        sxx = sum((y - my) ** 2 for y in ys)
+        if sxx <= 0:
+            continue
+        beta = sum((y - my) * (v - mv) for y, v in zip(ys, vs)) / sxx
+        if beta <= 0:
+            continue                                   # marks rise with the section's height
+        alpha = mv - beta * my
+        floor_vals = sorted(set(round(v, 2) for v in vs))
+        for t in texts:
+            lw = level_of(t.text)
+            if lw is None or lw.typical:
+                continue
+            here = alpha + beta * t.point[1]
+            below = [v for v in floor_vals if v <= here + STOREY_MARK_TOL_M]
+            if not below:
+                continue
+            key = "top" if lw.order is None else lw.order
+            out.setdefault(key, max(below))
+    return out
+
+
 def roof_terrace_heights(regions: list) -> Optional[dict]:
     """real10 (1 Nov 2026): the roof terrace floor's heights from a section's level marks. Each storey label of the
     section (``6. NORMAL KAT``) is paired with the level mark beside it (the nearest in height, within three text
@@ -317,6 +358,33 @@ def region_elevations(r) -> Optional[tuple[float, float]]:
     return (min(vals), max(vals)) if vals else None
 
 
+def _by_storey_elevation(plans: list, words: dict, storey_el: dict, storeys: dict,
+                         warnings: Optional[list] = None) -> None:
+    """3 Nov 2026 (real09: 'DUBLEKS KAT PLANI (8,50)'; the section names 2.NORMAL KAT at +8.50): a plan with no level
+    word whose title elevation is a storey's floor elevation on the sections (``storey_elevations``, within
+    ``STOREY_MARK_TOL_M``) is that storey."""
+    taken = {lw.order for lw in words.values() if lw is not None and lw.order is not None and not lw.typical}
+    for r in plans:
+        if words[id(r)] is not None or not r.title:
+            continue
+        el = region_elevations(r)
+        if el is None or abs(el[1] - el[0]) > 1e-6:
+            continue
+        hit = [k for k, e in storey_el.items() if k != "top" and abs(e - el[0]) <= STOREY_MARK_TOL_M and k not in taken]
+        if len(hit) != 1:
+            continue
+        order = hit[0]
+        name = re.sub(r"\(.*?\)|O\s*:\s*1\s*/\s*\d+|\bPLANI?\b", " ", _fold(r.title["text"]))
+        own = " ".join(w.capitalize() for w in name.split())
+        label = storeys.get(order) or own or f"{order}. Kat"
+        words[id(r)] = LevelWord(order=order, kind="floor", label=label, word=r.title["text"].strip(), language="tr")
+        taken.add(order)
+        if warnings is not None:
+            warnings.append(f"{getattr(r, 'file', '')} {getattr(r, 'id', '')}: plan '{r.title['text'].strip()}' at "
+                            f"{el[0]:+.2f} m is the storey '{label}' the sections name at {storey_el[order]:+.2f} m "
+                            f"(level {B.level_id(order)})")
+
+
 def _by_title_elevation(plans: list, words: dict, warnings: Optional[list] = None) -> None:
     """2 Nov 2026 (real09: '1.BODRUM KAT PLANI (0,00)', 'NORMAL KAT PLANI (2,50-5,50)', 'DUBLEKS KAT PLANI (8,50)',
     'ÇATI KAT PLANI (11,50)'): a plan whose title names no level but gives its floor elevation in brackets takes the
@@ -363,11 +431,13 @@ def _by_title_elevation(plans: list, words: dict, warnings: Optional[list] = Non
 
 
 def assign_levels(plans: list, needs_review: list, warnings: list,
-                  storeys: Optional[dict[int, str]] = None) -> None:
+                  storeys: Optional[dict[int, str]] = None, storey_el: Optional[dict] = None) -> None:
     words = {}
     for r in plans:
         lw = level_of(r.title["text"]) if r.title else None
         words[id(r)] = lw
+    if storey_el:
+        _by_storey_elevation(plans, words, storey_el, storeys or {}, warnings)
     _by_title_elevation(plans, words, warnings)
     storeys = storeys or {}
     own = {lw.order for lw in words.values() if lw is not None and lw.order is not None and not lw.typical}

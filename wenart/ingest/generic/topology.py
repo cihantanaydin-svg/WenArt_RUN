@@ -586,7 +586,12 @@ def stair_room_label(face, stairs: list = (), turkish: bool = True) -> Optional[
     return STAIR_LABELS["turkish" if turkish else "english"]
 
 
-def unlabelled_face_type(face, walls: list, openings: list, stairs: list = ()) -> tuple[str, str]:
+LIGHT_WELL_MAX_M2 = 12.0           # 3 Nov 2026: a doorless face up to this size that windows of other rooms open onto
+LIGHT_WELL_LABELS = ("Işıklık", "Light well")
+
+
+def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), others: Optional[list] = None
+                         ) -> tuple[str, str]:
     """``("hall", reason)`` when an unlabelled face holds a stair or touches >= 2 doors/openings, else
     ``("unknown", reason)``. The room stays ``unverified`` either way.
 
@@ -611,6 +616,29 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = ()) -
         else:
             touching += 1
     left_out = f" ({glassless} gap(s) without glass not counted as doors)" if glassless else ""
+    # 3 Nov 2026 (real09, user: the space beside the bathroom is "a light well (ışıklık)"): a small face no door
+    # reaches that the windows of other rooms open onto is a light well (open to the sky, no room)
+    if touching == 0 and poly.area <= LIGHT_WELL_MAX_M2:
+        onto = 0
+        for o in openings:
+            if o.kind != "window":
+                continue
+            p = opening_polygon(o, walls)
+            if p is None or p.distance(poly) > 0.02:
+                continue
+            if others is None or any(g is not face and not g.equals(poly) and p.buffer(0.15).intersects(g)
+                                     for g in others):
+                onto += 1
+        if onto:
+            return "shaft", (f"light well: a face of {poly.area:.2f} m2 that no door reaches and {onto} window(s) of "
+                             f"other rooms open onto (ışıklık)")
     if touching >= 2:
         return "hall", f"unlabelled face touching {touching} doors/openings{left_out}"
     return "unknown", f"unlabelled face touching {touching} door/opening{left_out}"
+
+
+def light_well_label(reason: Optional[str], turkish: bool) -> Optional[str]:
+    """The label of a face ``unlabelled_face_type`` found a light well (else None)."""
+    if reason and reason.startswith("light well"):
+        return LIGHT_WELL_LABELS[0] if turkish else LIGHT_WELL_LABELS[1]
+    return None

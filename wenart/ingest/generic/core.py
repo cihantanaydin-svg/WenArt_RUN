@@ -82,6 +82,7 @@ from pathlib import Path
 from typing import Optional
 
 from shapely.geometry import Point
+from shapely.ops import unary_union
 
 from wenart import building as B
 from wenart import units as U
@@ -1120,6 +1121,113 @@ def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, leve
     return w4, o4, bw4, site4, sw4, b_open4, problem4
 
 
+RECESS_MAX_M2 = 15.0
+
+
+def _empty_gap(o) -> bool:
+    """An opening the openings reader found nothing in (no door, no window): an unclassified gap."""
+    return o.kind == "opening" and not getattr(o, "virtual", False) and "unclassified gap" in (o.type_raw or "")
+
+
+def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, level_id):
+    """3 Nov 2026 (real09, user: "wait a light well is not correct, there is not wall in the purple section"): an empty
+    gap (``_empty_gap``) in a wall that the outside reaches on one side and, on the other, a face with no label, no
+    other door or opening, at most ``RECESS_MAX_M2``, that windows of other rooms open onto: a recess of the facade
+    (the bathroom's and the WC's windows face the open air). The wall is split at the gap, the gap is no opening, the
+    recess is outside. Never silent: each one is noted with the gap's entities."""
+    import math as _m
+
+    faces = TP.faces(walls2, openings)
+    if not faces:
+        return None
+    outline = TP.building_outline(walls2, openings)
+    anchors = [Point(b.anchor) for b in blocks]
+    splits = []
+    for k, o in enumerate(openings):
+        if not _empty_gap(o):
+            continue
+        hk = TP.host_wall(o, walls2)
+        if hk is None:
+            continue
+        w = walls2[hk]
+        (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+        L = _m.hypot(x1 - x0, y1 - y0)
+        if L <= 0:
+            continue
+        nx, ny = -(y1 - y0) / L, (x1 - x0) / L
+        d = float(w.thickness) / 2.0 + 0.15
+        sides = [Point(o.center[0] + nx * d, o.center[1] + ny * d), Point(o.center[0] - nx * d, o.center[1] - ny * d)]
+        inner = [next((f for f in faces if f.contains(q)), None) for q in sides]
+        if sum(1 for f in inner if f is not None) != 1:
+            continue
+        face = next(f for f in inner if f is not None)
+        out_pt = sides[inner.index(None)]
+        if outline.contains(out_pt) or face.area > RECESS_MAX_M2 or any(face.contains(a) for a in anchors):
+            continue
+        others = [p for j, p in enumerate(openings) if j != k and not getattr(p, "virtual", False)]
+        near = [p for p in others if (TP.opening_polygon(p, walls2) or Point(p.center).buffer(0.01)).distance(face) <= 0.02]
+        if any(p.kind != "window" for p in near) or not any(p.kind == "window" for p in near):
+            continue
+        splits.append((k, hk, o, face.area, sum(1 for p in near if p.kind == "window")))
+    if not splits:
+        return None
+    new_walls, drop = list(walls2), set()
+    for k, hk, o, area, nwin in splits:
+        w = new_walls[hk]
+        (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+        L = math.hypot(x1 - x0, y1 - y0)
+        ux, uy = (x1 - x0) / L, (y1 - y0) / L
+        t = (o.center[0] - x0) * ux + (o.center[1] - y0) * uy
+        a, b = t - o.width / 2.0, t + o.width / 2.0
+        pieces = []
+        for s0, s1 in ((0.0, a), (b, L)):
+            if s1 - s0 >= 0.02:
+                piece = dataclasses.replace(w, start=(round(x0 + ux * s0, 4), round(y0 + uy * s0, 4)),
+                                            end=(round(x0 + ux * s1, 4), round(y0 + uy * s1, 4)))
+                pieces.append(piece)
+        new_walls[hk] = pieces[0] if pieces else None
+        new_walls += pieces[1:]
+        drop.add(k)
+        ex.notes.append(f"{where}: the {o.width:.2f} m gap {o.entity} in an outer wall holds no door or window and the "
+                        f"{area:.2f} m2 space behind it has no door and {nwin} window(s) of other rooms open onto it: a "
+                        f"recess of the facade, open air (the wall is split there, no opening; corrected_by_ai)")
+    new_walls = [w for w in new_walls if w is not None]
+    new_open = [o for j, o in enumerate(openings) if j not in drop]
+    bw, site, sw = TP.split_plot(new_walls, new_open, blocks, level_id=level_id)
+    idx = {o["index"] for o in site["openings"]}
+    b_open = [o for j, o in enumerate(new_open) if j not in idx]
+    return new_walls, new_open, bw, site, sw, b_open, TP.outer_loop_problem(bw, b_open)
+
+
+def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
+                        problem: Optional[str]):
+    """The mirror fixes of a plan of two mirrored halves (``mirror.consistency``), kept when more rooms pair as
+    mirror images and no labelled room is left open (nor the outer walls)."""
+    from wenart.ingest.generic import facade as FC
+    from wenart.ingest.generic import mirror as MR
+
+    axis = FC.mirror_axis(walls2)
+    if axis is None:
+        return None
+    res = MR.consistency(walls2, openings, axis)
+    if res is None:
+        return None
+    w5, o5, log = res
+    before = MR.mirrored_face_pairs(walls2, openings, axis)
+    after = MR.mirrored_face_pairs(w5, o5, axis)
+    bw5, site5, sw5 = TP.split_plot(w5, o5, blocks, level_id=level_id)
+    idx5 = {o["index"] for o in site5["openings"]}
+    b_open5 = [o for k, o in enumerate(o5) if k not in idx5]
+    problem5 = TP.outer_loop_problem(bw5, b_open5)
+    if after <= before or _unclosed(sw5) > _unclosed(site_warnings) or (problem is None and problem5 is not None):
+        ex.notes.append(f"{where}: mirror check about {axis[0]} = {axis[1]:.2f}: {len(log)} fix(es) not kept "
+                        f"(rooms in mirror pairs {before} -> {after})")
+        return None
+    ex.notes.append(f"{where}: mirror check about {axis[0]} = {axis[1]:.2f} (the plan's two halves are mirror images):"
+                    f" rooms in mirror pairs {before} -> {after}; " + "; ".join(log))
+    return w5, o5, bw5, site5, sw5, b_open5, problem5
+
+
 def _open_anchors(walls: list, openings: list, blocks: list) -> list:
     """The anchors of the indoor room labels (no balcony) that stand in no closed face of the walls."""
     faces = TP.faces(walls, openings)
@@ -1143,7 +1251,14 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
     anchors = _open_anchors(walls2, openings, blocks)
     if not anchors:
         return None
-    faces, links = FC.close_rooms(walls2, strokes, anchors)
+    # the mirrored twins of the labelled rooms where the drafter named one flat only (real09)
+    faces_now = TP.faces(walls2, openings)
+    hull = unary_union([TP.wall_polygon(w) for w in walls2]).convex_hull
+    labelled = [tuple(b.anchor) for b in blocks if not getattr(b, "exterior", False)
+                and getattr(b, "room_type", None) != "balcony"]
+    seeds = FC.mirror_seeds(walls2, labelled, lambda q: hull.contains(Point(q))
+                            and not any(f.contains(Point(q)) for f in faces_now))
+    faces, links = FC.close_rooms(walls2, strokes, anchors + seeds)
     if not faces:
         return None
     new_walls = FC.facade_wall_items(walls2, list(faces.values()), openings, file_rel, page_no, units_to_m=s)
@@ -1161,6 +1276,9 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
     if not (after < before or (problem is not None and problem4 is None and after <= before)):
         return None
     owned.update(taken)
+    if seeds:
+        ex.notes.append(f"{where}: {len(seeds)} mirrored twin(s) of labelled rooms tried at the plan's mirror axis "
+                        f"(the drafter named one half only): {sum(1 for k in faces if k >= len(anchors))} closed")
     ex.notes.append(f"{where}: {len(faces)} room(s) closed along facades of window and door frames (rule glazed_facade):"
                     f" {len(new_walls)} inferred wall(s), {len(links)} gap link(s) up to {FC.LINK_M:g} m, "
                     f"{len(read)} drawn opening(s) read on them, {len(framed)} unverified window(s) where frames run "
@@ -1359,6 +1477,18 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                                  file_rel, page_no, s, owned)
         if glazed is not None:
             walls2, openings, bwalls, site, site_warnings, b_openings, problem = glazed
+    if not is_raster:
+        # 3 Nov 2026 (real09, user: "wait a light well is not correct, there is not wall in the purple section"): an
+        # empty gap in an outer wall into a doorless recess is open air, not an opening (``_open_recesses``)
+        opened = _open_recesses(ex, where, walls2, openings, blocks, level_id)
+        if opened is not None:
+            walls2, openings, bwalls, site, site_warnings, b_openings, problem = opened
+    if not is_raster:
+        # 3 Nov 2026 (user: "Most of these drawings are mirrored it can help to fix the issues"): the two mirrored
+        # halves of a plan check each other (``mirror``)
+        mirrored = _mirror_consistency(ex, where, walls2, openings, blocks, level_id, site_warnings, problem)
+        if mirrored is not None:
+            walls2, openings, bwalls, site, site_warnings, b_openings, problem = mirrored
     for w in site_warnings:
         if w.startswith(TP.REVIEW_PREFIX):
             ex.review.append(f"{where}: {w[len(TP.REVIEW_PREFIX):]}")

@@ -431,10 +431,12 @@ def _generic_rooms(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> R
     union = TP.bridged_union(ex.walls, real, ex.separators)
 
     turkish = ex.report.get("unlabelled_label", R.UNLABELLED_LABEL) == R.UNLABELLED_LABEL
+    all_faces = TP.faces(ex.walls, real, ex.separators)     # 3 Nov 2026: a light well's windows open onto other rooms
 
     def face_type(poly):
-        room_type, reason = TP.unlabelled_face_type(poly, ex.walls, real, stairs)
+        room_type, reason = TP.unlabelled_face_type(poly, ex.walls, real, stairs, others=all_faces)
         label = TP.stair_room_label(poly, stairs, turkish)   # Milestone 11 (M8): a stair core is no "Oda"
+        label = label or TP.light_well_label(reason, turkish)  # 3 Nov 2026 (real09): a light well is no "Oda"
         return (room_type, reason, label) if label else (room_type, reason)
 
     anchors = [_to_building(ex, t.start) for t in ex.labels]

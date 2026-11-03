@@ -172,6 +172,7 @@ def twin_transforms(rooms: list[dict], openings: list[dict], furniture: list[dic
     return out
 
 
+MIRROR_LABEL_IOU = 0.95     # 3 Nov 2026: ... or overlapping it by 95 % (intersection over union)
 MIRROR_LABEL_TOL = 0.10      # real10: an unlabelled face within 10 cm (Hausdorff) of a labelled room's mirror
 
 
@@ -219,7 +220,9 @@ def mirror_labels(rooms: list[dict]) -> list[str]:
         for a in named:
             mirrored = _mirror_poly(_poly(a), axis)
             cands = [(mirrored.hausdorff_distance(_poly(b)), b["id"], b) for b in blank if b["id"] not in taken]
-            cands = [c for c in cands if c[0] <= MIRROR_LABEL_TOL]
+            # 3 Nov 2026 (real09: the left flat's entrance hall and living room overlap their twins' mirrors by 99 %,
+            # a door notch puts one point 0.24-0.27 m off): an overlap of ``MIRROR_LABEL_IOU`` is a twin too
+            cands = [c for c in cands if c[0] <= MIRROR_LABEL_TOL or _iou(mirrored, _poly(c[2])) >= MIRROR_LABEL_IOU]
             if not cands:
                 continue
             dist, _, b = min(cands, key=lambda c: (c[0], c[1]))
@@ -359,3 +362,8 @@ def apply_twin_copies(furniture: list[dict], copies: list[dict]) -> list[str]:
                      + (f", front {c['front_deg']:g} deg" if c["front_deg"] is not None else "")
                      + f" ({c['reason']}; inferred)")
     return lines
+
+
+def _iou(a: Polygon, b: Polygon) -> float:
+    u = a.union(b).area
+    return float(a.intersection(b).area / u) if u > 0 else 0.0

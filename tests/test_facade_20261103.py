@@ -66,3 +66,41 @@ def test_framed_openings_are_windows_and_doors_by_their_swing():
                   arc={"center": (5.05, 2.2), "radius": 0.85, "start_deg": 90.0, "end_deg": 180.0})
     got = FC.frame_windows(new, strokes + [door], [], walls)
     assert "door" in {o.kind for o in got}                                             # the balcony door's swing
+
+
+# ------------------------------------------------------------------ the storeys a section names at their floor marks
+from wenart.sheets import heights as HT  # noqa: E402
+from wenart.sheets import levels as LV  # noqa: E402
+from wenart.sheets.model import Txt  # noqa: E402
+
+
+def _section():
+    """real09's B-B: the storeys named just above their floors, the floor marks and the sill / head marks between."""
+    marks = [("±0.00", 0), ("+2.20", 220), ("+2.50", 250), ("+3.40", 340), ("+4.90", 490), ("+5.50", 550),
+             ("+6.40", 640), ("+8.50", 850), ("+9.40", 940), ("+11.50", 1150), ("+15.20", 1520)]
+    names = [("1.BODRUM KAT", 20), ("ZEMİN KAT", 275), ("1.NORMAL KAT", 575), ("2.NORMAL KAT", 875), ("ÇATI KAT", 1175)]
+    texts = [Txt(id=f"m{k}", text=t, box=(-200, y, -150, y + 12), height=12.0) for k, (t, y) in enumerate(marks)]
+    texts += [Txt(id=f"n{k}", text=t, box=(100, y, 220, y + 12), height=12.0) for k, (t, y) in enumerate(names)]
+    return SimpleNamespace(texts=texts)
+
+
+def test_the_storeys_a_section_names_take_their_floor_marks():
+    got = LV.storey_elevations([_section()])
+    assert got == {-1: 0.0, 0: 2.5, 1: 5.5, 2: 8.5, "top": 11.5}
+
+
+def test_a_plan_titled_by_its_elevation_is_the_storey_at_that_level_and_the_floors_follow_the_marks():
+    def plan(text):
+        return SimpleNamespace(title={"text": text, "box": [0, 0, 1, 1]}, texts=[], evidence=[], file="x", id=text)
+    plans = [plan("1.BODRUM KAT PLANI (0,00)"), plan("NORMAL KAT PLANI (2,50-5,50)"), plan("DUBLEKS KAT PLANI (8,50)"),
+             plan("ÇATI KAT PLANI (11,50)")]
+    words = {id(r): LV.level_of(r.title["text"]) for r in plans}
+    storey_el = LV.storey_elevations([_section()])
+    LV._by_storey_elevation(plans, words, storey_el, {2: "2. Normal Kat"}, [])
+    assert words[id(plans[2])].order == 2 and words[id(plans[2])].label == "2. Normal Kat"
+    levels = [{"id": f"L{o}", "order": o, "kind": "floor"} for o in (-1, 0, 1, 2, 3)]
+    out = {"levels": [], "slabs": []}
+    HT.apply_storey_marks(out, levels, storey_el, 0.2, "x.dwg", "r9")
+    z = {e["level_id"]: e["floor_z"]["value"] for e in out["levels"]}
+    assert z == {"L-1": -2.5, "L0": 0.0, "L1": 3.0, "L2": 6.0, "L3": 9.0}
+    assert all(e["floor_z"]["method"] == "vector" for e in out["levels"])

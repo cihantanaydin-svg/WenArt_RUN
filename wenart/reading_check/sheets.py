@@ -100,11 +100,14 @@ def _draw_model(ax, building, level, tf, box, colour=True, labels=True):
         if labels:
             c = Polygon(pts).representative_point()
             ax.text(c.x, c.y, f"{room.get('label') or ''}\n({room.get('room_type') or '?'})", fontsize=4.5,
-                    ha="center", va="center", color="#6b4f00")
+                    ha="center", va="center", color="#6b4f00", clip_on=True)
     for w in walls.values():
         (x0, y0), (x1, y1) = inv(*w["start"]), inv(*w["end"])
         lw = max(0.6, min(4.5, float(w.get("thickness") or 0.2) * scale * 3000))
-        ax.plot([x0, x1], [y0, y1], color="#222222" if colour else "#c62828", lw=lw, solid_capstyle="butt")
+        # 3 Nov 2026 (user: "use my vision and understanding to reinforce the decision"): what the reading inferred
+        # (no drawn wall there) is orange, so the user can check every inference against the drawing
+        col = INFERRED_COLOUR if _inferred(w) else ("#222222" if colour else "#c62828")
+        ax.plot([x0, x1], [y0, y1], color=col, lw=lw, solid_capstyle="butt")
     for o in building.get("openings") or []:
         w = walls.get(o.get("wall_id"))
         if o.get("level_id") != level or not w or not o.get("center"):
@@ -114,9 +117,19 @@ def _draw_model(ax, building, level, tf, box, colour=True, labels=True):
         half = float(o.get("width") or 0.9) / 2.0
         cx, cy = o["center"]
         p0, p1 = inv(cx - dx / n * half, cy - dy / n * half), inv(cx + dx / n * half, cy + dy / n * half)
-        ax.plot([p0[0], p1[0]], [p0[1], p1[1]], color="#1565c0" if o.get("type") == "window" else "#2e7d32", lw=3.2,
-                solid_capstyle="butt")
+        col = {"window": "#1565c0", "door": "#2e7d32"}.get(o.get("type"), "#8e24aa")
+        ax.plot([p0[0], p1[0]], [p0[1], p1[1]], color=col, lw=3.2, solid_capstyle="butt",
+                ls=(0, (2, 1)) if _inferred(o) else "-")
     _frame(ax, box)
+
+
+INFERRED_COLOUR = "#ef6c00"
+
+
+def _inferred(item: dict) -> bool:
+    """A wall or opening the reading inferred (evidence method ``inferred``): drawn orange / dashed."""
+    return bool(item.get("inferred")) or any(isinstance(e, dict) and e.get("method") == "inferred"
+                                             for e in item.get("evidence") or [])
 
 
 def _mark_findings(ax, findings, building, level, tf):
@@ -128,7 +141,7 @@ def _mark_findings(ax, findings, building, level, tf):
         if f["check"] == "RC4":
             for a, b in f.get("pieces") or []:
                 p0, p1 = inv(*a), inv(*b)
-                ax.plot([p0[0], p1[0]], [p0[1], p1[1]], color="#ff8f00", lw=3.0, alpha=0.9)
+                ax.plot([p0[0], p1[0]], [p0[1], p1[1]], color="#fdd835", lw=3.0, alpha=0.9)
         elif f["check"] == "RC5" and f.get("wall_id") in walls:
             w = walls[f["wall_id"]]
             p0, p1 = inv(*w["start"]), inv(*w["end"])
@@ -209,10 +222,11 @@ def draw(out_dir, result: Optional[dict] = None, renders: Optional[str] = None) 
         panels = []
         for k, (name, fn) in enumerate((
                 ("1 the source drawing", lambda ax: _draw_drawing(ax, doc, ents, box)),
-                ("2 the model's plan (rooms yellow, doors green, windows blue)",
+                ("2 the model's plan (rooms yellow; walls black, inferred walls orange; doors green, windows blue, "
+                 "other openings purple, inferred openings dashed)",
                  lambda ax: _draw_model(ax, building, lid, pg["tf"], box)),
-                ("3 the model's walls (red) over the drawing (grey); findings: missing drawn walls orange, walls on "
-                 "no drawn line magenta",
+                ("3 the model's walls over the drawing (grey): drawn red, inferred orange; findings: drawn walls the "
+                 "model lacks yellow, walls on no drawn line magenta",
                  lambda ax: (_draw_drawing(ax, doc, ents, box, grey=True),
                              _draw_model(ax, building, lid, pg["tf"], box, colour=False, labels=False),
                              _mark_findings(ax, result["findings"], building, lid, pg["tf"]))))):

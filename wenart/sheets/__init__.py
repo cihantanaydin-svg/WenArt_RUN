@@ -259,7 +259,9 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     plans = [r for r in regions if r.use == "read" and r.cls in CL.PLAN_CLASSES]
     # real10 (1 Nov 2026): the storeys the sections name tell how many floors a typical floor plan stands for.
     storeys = LV.storey_words([r for r in regions if r.cls == "section" and r.use == "heights"])
-    LV.assign_levels(plans, needs_review, warnings, storeys)
+    # 3 Nov 2026 (real09): the storeys' floor elevations on the sections place the plans titled by an elevation
+    storey_el = LV.storey_elevations([r for r in regions if r.cls == "section"])
+    LV.assign_levels(plans, needs_review, warnings, storeys, storey_el)
     levels_json, variants_json = VR.group(plans, values.get("variants", "all"), conflict, warnings)
     read_plans = [r for r in plans if r.use == "read" and r.level is not None]
     multi = multi_region(regions)
@@ -300,6 +302,10 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     cut = RG.cut_line(read_plans, sections[0]) if sections and reference is not None and outlines else None
     heights_json, hw = HT.heights(section_geom, base_levels, ref_extent, values,
                                   sections[0].file if sections else None, conflict, cut)
+    if storey_el:
+        # 3 Nov 2026 (real09): the storeys the sections name at their floor marks set the floor heights
+        hw += HT.apply_storey_marks(heights_json, base_levels, storey_el, float(values.get("slab_thickness", 0.20)),
+                                    sections[0].file if sections else None, sections[0].id if sections else None)
     # real10 (1 Nov 2026): a roof terrace floor on top: its parapet and stair house heights from the section's marks.
     if any(lv.get("roof_terrace") for lv in levels_json) and sections:
         rt = LV.roof_terrace_heights(sections)
