@@ -117,6 +117,12 @@ BOOT_TIMEOUT_S = 15 * 60  # pod RUNNING but no status server -> stop it
 CONTAINER_START_S = 6 * 60
 CONTAINER_RETRIES = 2
 NO_CONTAINER = "container never started (host fault)"
+# 3 Nov 2026 (the fifth real10 structure run's retry: the catalog listed an RTX PRO 6000 WK in stock, the creation was
+# refused "There are no longer any instances available"): a GPU type refused for want of stock is skipped and the next
+# one of GPU_PRIORITY tried at once, at most GPU_FALLBACKS times (same price and memory limits)
+GPU_FALLBACKS = 4
+NO_INSTANCE_RE = re.compile(r"no longer any instances available|no instances? (are )?available|not enough (free )?gpus",
+                            re.I)
 API_FAIL_LIMIT = 30  # consecutive failed polls (~10 min) before the runner gives up watching
 UA = "wenart-gpu-run/0.2 (+https://github.com/cihantanaydin-svg/WenArt_RUN)"  # Cloudflare bans urllib's default UA
 JOB_RE = re.compile(r"^scripts/jobs/[A-Za-z0-9_.-]+\.sh$")
@@ -216,9 +222,10 @@ def action_price_limit(minutes: int, over_5_ok: bool = False, count: int = 1) ->
 
 
 def pick_gpu(catalog: list[dict], dc_avail: dict[str, str] | None, want: str | None,
-            max_price: float = MAX_PRICE_PER_H, min_memory: int = 0) -> dict:
+            max_price: float = MAX_PRICE_PER_H, min_memory: int = 0, skip=frozenset()) -> dict:
     """Choose a GPU from the live catalog. Raises with a clear message if none fits. ``min_memory``: the job's GPU
-    memory in GB (``job_min_vram``); a smaller card is skipped, also when named with ``--gpu``."""
+    memory in GB (``job_min_vram``); a smaller card is skipped, also when named with ``--gpu``. ``skip``: GPU names a
+    pod creation of this run was refused for (no instance left)."""
     by_name = {g["name"]: g for g in catalog}
     if want in EXCLUDED_GPUS:
         raise RuntimeError(f"{want} is not allowed (excluded GPUs: {', '.join(EXCLUDED_GPUS)})")
@@ -228,6 +235,9 @@ def pick_gpu(catalog: list[dict], dc_avail: dict[str, str] | None, want: str | N
         g = by_name.get(name)
         if not g:
             reasons.append(f"{name}: not in catalog")
+            continue
+        if name in skip:
+            reasons.append(f"{name}: refused a pod creation of this run (no instance left)")
             continue
         if min_memory and int(g.get("memory") or 0) < min_memory:
             reasons.append(f"{name}: {g.get('memory')} GB, the job needs {min_memory} GB")
@@ -1008,14 +1018,23 @@ def cmd_run(a: argparse.Namespace) -> int:
     """``run``: one pod for the job; a pod whose container never starts (``NO_CONTAINER``) is replaced by a new one,
     at most ``CONTAINER_RETRIES`` times."""
     rc = 1
-    for attempt in range(CONTAINER_RETRIES + 1):
+    a._skip_gpus = set(getattr(a, "_skip_gpus", set()) or set())
+    attempt = fallbacks = 0
+    while True:
         a._no_container = False
+        a._no_instance = None
         rc = _run_once(a)
+        if getattr(a, "_no_instance", None) and not getattr(a, "gpu", None) and fallbacks < GPU_FALLBACKS:
+            fallbacks += 1
+            a._skip_gpus.add(a._no_instance)
+            print(f"{a._no_instance}: no instance left; trying the next GPU type ({fallbacks} of {GPU_FALLBACKS})")
+            continue
         if not getattr(a, "_no_container", False):
             return rc
-        if attempt < CONTAINER_RETRIES:
-            print(f"retrying with a new pod ({attempt + 1} of {CONTAINER_RETRIES}): the last one's container never "
-                  f"started")
+        if attempt >= CONTAINER_RETRIES:
+            break
+        attempt += 1
+        print(f"retrying with a new pod ({attempt} of {CONTAINER_RETRIES}): the last one's container never started")
     print(f"no pod started its container in {CONTAINER_RETRIES + 1} attempts: giving up")
     return rc
 
@@ -1041,7 +1060,7 @@ def _run_once(a: argparse.Namespace) -> int:
     count = getattr(a, "gpu_count", 1) or 1
     gpu = pick_gpu(catalog(), dc_availability(dc) if dc else None, a.gpu,
                    max_price=action_price_limit(minutes, getattr(a, "over_5_ok", False), count),
-                   min_memory=job_min_vram(job))
+                   min_memory=job_min_vram(job), skip=frozenset(getattr(a, "_skip_gpus", set()) or set()))
     today = spent_today(pods)
     check_limits(gpu["price"], minutes, today, count)
     worst = gpu["price"] * count * minutes / 60
@@ -1090,6 +1109,8 @@ def _run_once(a: argparse.Namespace) -> int:
                                                       gpu_count=count), retries=1)
         pod_id = pod["id"]
     except ApiError as e:
+        if NO_INSTANCE_RE.search(str(e)):
+            a._no_instance = gpu["name"].split("x ", 1)[-1] if count > 1 else gpu["name"]
         print(f"pod creation failed: {e}; checking for an orphan named {name}")
         for p in our_pods(all_pods()):
             if p.get("name") == name:

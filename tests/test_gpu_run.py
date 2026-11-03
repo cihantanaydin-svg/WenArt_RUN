@@ -823,3 +823,30 @@ def test_a_pod_whose_container_never_starts_is_replaced(monkeypatch):
     monkeypatch.setattr(gpu_run, "_run_once", always_dead)
     assert gpu_run.cmd_run(argparse.Namespace()) == 1 and len(calls) == gpu_run.CONTAINER_RETRIES + 1
     assert gpu_run.CONTAINER_START_S < gpu_run.BOOT_TIMEOUT_S
+
+
+def test_a_gpu_type_without_instances_is_skipped_for_the_next():
+    """The fifth real10 structure run: an RTX PRO 6000 WK listed in stock, its creation refused ('There are no longer
+    any instances available'); the runner tries the next GPU type of the priority list."""
+    cat = [{"name": n, "id": n, "price": {"secure": 1.0}, "availability": "HIGH", "memory": 96}
+           for n in gpu_run.GPU_PRIORITY[:3]]
+    first = gpu_run.pick_gpu(cat, None, None)["name"]
+    second = gpu_run.pick_gpu(cat, None, None, skip={first})["name"]
+    assert first == gpu_run.GPU_PRIORITY[0] and second == gpu_run.GPU_PRIORITY[1]
+    assert gpu_run.NO_INSTANCE_RE.search('HTTP 400: {"detail":"There are no longer any instances available with '
+                                         'the requested specifications."}')
+
+
+def test_cmd_run_falls_back_to_the_next_gpu_type(monkeypatch):
+    seen = []
+
+    def once(a, refused=iter(["RTX PRO 6000 WK", None])):
+        name = next(refused)
+        seen.append(set(a._skip_gpus))
+        a._no_instance = name
+        a._no_container = False
+        return 1 if name else 0
+
+    monkeypatch.setattr(gpu_run, "_run_once", once)
+    assert gpu_run.cmd_run(argparse.Namespace(gpu=None)) == 0
+    assert seen == [set(), {"RTX PRO 6000 WK"}]
