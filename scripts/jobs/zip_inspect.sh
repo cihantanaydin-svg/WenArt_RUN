@@ -64,6 +64,7 @@ fetch() {   # <id> <bytes> <path on the volume>
   if [ "$(head -c 2 "$zip")" != "PK" ]; then echo "[zip_inspect] $(basename "$zip") is not a zip"; return 3; fi
 }
 
+df -h "${WENART_WS:-/workspace}" 2>/dev/null | tail -1 | sed 's/^/[volume] /' || true   # the user may grow it to 600 GB (3 Nov 2026)
 rc=0
 IFS=',' read -r -a ITEMS <<< "$LIST"
 for item in "${ITEMS[@]}"; do

@@ -104,6 +104,7 @@ run_step() {
   return 0
 }
 
+df -h "${WENART_WS:-/workspace}" 2>/dev/null | tail -1 | sed 's/^/[volume] /' || true   # the user may grow it to 600 GB (3 Nov 2026)
 cd "$REPO"
 mkdir -p "$RESULTS" "$JOB_DIR" "$WORK" "$OUT" "$ASSETS"
 log "job $JOB: batch [${RANK_BATCH:-none}], types [${RANK_TYPES:-all of the batch}], workers $RANK_WORKERS," \
