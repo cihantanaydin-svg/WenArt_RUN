@@ -798,3 +798,28 @@ def test_a_job_skips_cards_under_its_gpu_memory():
         gpu_run.pick_gpu(cat, stock, None, min_memory=80)                         # now: no pod, a clear reason
     with pytest.raises(RuntimeError, match="the job needs 80 GB"):
         gpu_run.pick_gpu(cat, None, "RTX PRO 4000", min_memory=80)
+
+
+def test_a_pod_whose_container_never_starts_is_replaced(monkeypatch):
+    """3 Nov 2026 (user: "why it is not initializing"): two pods stayed RUNNING with no container on their hosts; the
+    runner replaces such a pod by a new one, at most CONTAINER_RETRIES times."""
+    calls = []
+
+    def fake_once(a, outcomes=iter([True, False])):
+        no_container = next(outcomes)
+        calls.append(no_container)
+        a._no_container = no_container
+        return 1 if no_container else 0
+
+    monkeypatch.setattr(gpu_run, "_run_once", fake_once)
+    assert gpu_run.cmd_run(argparse.Namespace()) == 0 and calls == [True, False]
+    calls.clear()
+
+    def always_dead(a):
+        calls.append(True)
+        a._no_container = True
+        return 1
+
+    monkeypatch.setattr(gpu_run, "_run_once", always_dead)
+    assert gpu_run.cmd_run(argparse.Namespace()) == 1 and len(calls) == gpu_run.CONTAINER_RETRIES + 1
+    assert gpu_run.CONTAINER_START_S < gpu_run.BOOT_TIMEOUT_S

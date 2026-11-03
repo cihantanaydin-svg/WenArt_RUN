@@ -110,6 +110,13 @@ GPU_PRIORITY = ["RTX PRO 6000", "RTX PRO 6000 WK", "RTX 5090", "RTX PRO 5000", "
 EXCLUDED_GPUS = ("L4",)       # never, not even with --gpu (docs/milestone6.md §0)
 POLL_S = 20
 BOOT_TIMEOUT_S = 15 * 60  # pod RUNNING but no status server -> stop it
+# 3 Nov 2026 (user: "Why it is stoped why there is that many stops no starts", "why it is not initializing"): two pods
+# of the day stayed RUNNING with no container started (runtime null) on their hosts, while every healthy pod's status
+# server answered within 45-90 s. A pod whose status server has not answered after CONTAINER_START_S is given up,
+# terminated and replaced by a new pod (another host), at most CONTAINER_RETRIES times; each attempt is logged.
+CONTAINER_START_S = 6 * 60
+CONTAINER_RETRIES = 2
+NO_CONTAINER = "container never started (host fault)"
 API_FAIL_LIMIT = 30  # consecutive failed polls (~10 min) before the runner gives up watching
 UA = "wenart-gpu-run/0.2 (+https://github.com/cihantanaydin-svg/WenArt_RUN)"  # Cloudflare bans urllib's default UA
 JOB_RE = re.compile(r"^scripts/jobs/[A-Za-z0-9_.-]+\.sh$")
@@ -998,6 +1005,22 @@ def leave_running_on_signal(result: str, pod_status: str | None, stop_on_signal:
 
 
 def cmd_run(a: argparse.Namespace) -> int:
+    """``run``: one pod for the job; a pod whose container never starts (``NO_CONTAINER``) is replaced by a new one,
+    at most ``CONTAINER_RETRIES`` times."""
+    rc = 1
+    for attempt in range(CONTAINER_RETRIES + 1):
+        a._no_container = False
+        rc = _run_once(a)
+        if not getattr(a, "_no_container", False):
+            return rc
+        if attempt < CONTAINER_RETRIES:
+            print(f"retrying with a new pod ({attempt + 1} of {CONTAINER_RETRIES}): the last one's container never "
+                  f"started")
+    print(f"no pod started its container in {CONTAINER_RETRIES + 1} attempts: giving up")
+    return rc
+
+
+def _run_once(a: argparse.Namespace) -> int:
     job = validate_job_path(a.job)
     commit = resolve_commit(getattr(a, "commit", None), a.allow_dirty, job)
     minutes = min(a.max_minutes, MAX_MINUTES)
@@ -1120,6 +1143,12 @@ def cmd_run(a: argparse.Namespace) -> int:
                 gpu_name = f"{count}x {gpu_name}"
             if pod_status == "RUNNING" and first_running is None:
                 first_running = time.time()
+            if first_running and not seen_status and time.time() - first_running > CONTAINER_START_S:
+                result = NO_CONTAINER
+                print(f"{result}: no status server {CONTAINER_START_S // 60} min after the pod started "
+                      f"(healthy pods answer within 1-2 min); terminating it")
+                save_pod_log("no-container")
+                break
             if first_running and not seen_status and time.time() - first_running > BOOT_TIMEOUT_S:
                 result = "no status server after boot timeout"
                 print(f"{result}; stopping the pod")
@@ -1198,6 +1227,8 @@ def cmd_run(a: argparse.Namespace) -> int:
             print(f"could not write docs/gpu-log.md: {e}")
         if not a.keep and not result.startswith("api unreachable"):
             terminate(pod_id)
+        if result == NO_CONTAINER:
+            a._no_container = True
         print(f"result: {result}; {minutes_used:.1f} min, ~${cost:.2f}; files in runs/{job_id}/")
     return 0 if final_status and final_status["exit_code"] == 0 else 1
 

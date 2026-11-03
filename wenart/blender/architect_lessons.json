@@ -3374,6 +3374,16 @@
    "request": "Before a pod run, the reading check must be ready including the sheets stage's own review reasons (a sheets.json that fails its schema stops a pod's sheets stage and nothing is built), and the orchestrator must accept the run's profile locally (user, 3 Nov 2026: 'run the pod just for the structure'; two short real10 runs built nothing: the structure profile missing from PROFILES, then the sheets schema)",
    "lesson": "Before a pod run, the reading check must be ready including the sheets stage's own review reasons (a sheets.json that fails its schema stops a pod's sheets stage and nothing is built), and the orchestrator must accept the run's profile locally (user, 3 Nov 2026: 'run the pod just for the structure'; two short real10 runs built nothing: the structure profile missing from PROFILES, then the sheets schema)",
    "question": null
+  },
+  {
+   "id": "UL285",
+   "date": "2026-11-03",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "A pod run is started and re-attached with the longest local time limit (2 h), and re-attached before that limit ends, so a runner is always attached to collect the results when the pod stops itself; a pod that stopped with no runner attached has its results fetched from the volume at once (user, 3 Nov 2026: 'Why it is stopped why there is that many stops ... prioritize this'; the real10 structure run's runner was killed by the session's 30 min background limit and the results stayed on the volume)",
+   "lesson": "A pod run is started and re-attached with the longest local time limit (2 h), and re-attached before that limit ends, so a runner is always attached to collect the results when the pod stops itself; a pod that stopped with no runner attached has its results fetched from the volume at once (user, 3 Nov 2026: 'Why it is stopped why there is that many stops ... prioritize this'; the real10 structure run's runner was killed by the session's 30 min background limit and the results stayed on the volume)",
+   "question": null
   }
  ]
 }
