@@ -439,13 +439,111 @@ def front_from_parts(ps: list[dict], classes: list[dict]) -> Optional[tuple[str,
     return None
 
 
-def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
+# 3 Nov 2026 (the user: "texture the white sofas and armchairs too"): a model without textures whose base colours
+# do say something (several colours, not all near white: ``needs_materials`` False) still gets part materials, each
+# piece judged by its own file colour (``own_colour_classes``): a light neutral colour (white, light grey: an
+# exporter's default) says nothing, the piece takes its class's palette material; a dark neutral piece is walnut,
+# black metal or a fabric in its own colour; a real colour stays on the cloth, leather, lacquer, plastic and ceramic
+# pieces (``OWN_TINT``: materials ``wenart_own_<class>``, dressed at build time with the scan in that colour) and
+# picks oak or walnut, brass, chrome or black metal for wood and metal pieces.
+NEUTRAL_SAT = 0.12                     # sRGB saturation under this: white, grey or black (no hue)
+LIGHT_LUM = 0.5                        # ... and a luminance at least this: an exporter's default, says nothing
+DARK_LUM = 0.3                         # a luminance under this: a dark piece (walnut, black metal)
+OWN_TINT: dict[str, str] = {"fabric": "fabric", "frame": "fabric", "headboard": "fabric", "bedding": "bedding",
+                            "leather": "leather", "lacquer": "lacquer", "plastic": "plastic", "ceramic": "ceramic"}
+OWN_BASE: dict[str, str] = {"fabric": "fabric", "bedding": "bedding", "leather": "leather", "lacquer": "lacquer",
+                            "plastic": "plastic", "ceramic": "ceramic"}
+WOOD_CLASSES = ("wood", "wood_dark")
+METAL_CLASSES = ("metal", "chrome", "legs")
+
+
+def linear_to_srgb(c: float) -> float:
+    c = min(1.0, max(0.0, float(c)))
+    return 255.0 * (c * 12.92 if c <= 0.0031308 else 1.055 * c ** (1 / 2.4) - 0.055)
+
+
+def file_colour(doc: dict, p: dict) -> Optional[list[int]]:
+    """The sRGB base colour (0-255) of a piece's main material in the file, None without one."""
+    mats = doc.get("materials") or []
+    mi = p.get("material")
+    if not isinstance(mi, int) or mi >= len(mats):
+        return None
+    col = ((mats[mi] or {}).get("pbrMetallicRoughness") or {}).get("baseColorFactor")
+    if not isinstance(col, list) or len(col) < 3:
+        return None
+    return [int(round(linear_to_srgb(v))) for v in col[:3]]
+
+
+def colour_kind(srgb: Optional[list[int]]) -> str:
+    """``light`` (a light neutral or no colour: says nothing), ``dark`` (a dark neutral), ``colour`` (a hue)."""
+    if not srgb:
+        return "light"
+    hi, lo = max(srgb) / 255.0, min(srgb) / 255.0
+    sat = (hi - lo) / hi if hi > 0 else 0.0
+    lum = (0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2]) / 255.0
+    if sat < NEUTRAL_SAT:
+        return "light" if lum >= LIGHT_LUM else ("dark" if lum < DARK_LUM else "grey")
+    return "colour"
+
+
+def _luminance(srgb: list[int]) -> float:
+    return (0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2]) / 255.0
+
+
+def _warm_yellow(srgb: list[int]) -> bool:
+    r, g, b = srgb
+    return r > b * 1.35 and g > b * 1.15 and _luminance(srgb) >= 0.35
+
+
+def own_colour_classes(doc: dict, ps: list[dict], classes: list[dict]) -> tuple[list[dict], dict]:
+    """The classes of a model with real file colours (block comment above): ``(classes, palette)``: each class
+    record gains ``file_rgb`` and ``kind``; a piece that keeps its colour gets the class ``own_<base>_<hex>`` with its
+    ``palette`` entry (``wenart_own_<base>``, then ``.001``, ``.002`` for more colours of that base)."""
+    palette: dict[str, dict] = {}
+    count: dict[str, int] = {}
+    out = []
+    for p, c in zip(ps, classes):
+        rgb = file_colour(doc, p)
+        kind = colour_kind(rgb)
+        cls = c["class"]
+        new = cls
+        if rgb is None:
+            pass                                          # no file colour: the class's palette material
+        elif cls in WOOD_CLASSES:
+            if kind == "grey":                            # a mid grey wood part: painted in its own grey
+                new = "own:lacquer"
+            else:
+                new = "wood_dark" if kind == "dark" or _luminance(rgb) < DARK_LUM else "wood"
+        elif cls in METAL_CLASSES:
+            if kind == "colour" and _warm_yellow(rgb):
+                new = "brass"
+            else:
+                new = "metal" if _luminance(rgb) < 0.45 else "chrome"
+        elif cls in OWN_TINT and kind != "light":
+            new = "own:" + OWN_TINT[cls]
+        if new.startswith("own:"):
+            base = new[4:]
+            hexcol = "".join(f"{v:02x}" for v in rgb)
+            new = f"own_{base}_{hexcol}"
+            if new not in palette:
+                n = count.get(base, 0)
+                count[base] = n + 1
+                pal = PALETTE[OWN_BASE[base]]
+                palette[new] = dict(pal, name=f"wenart_own_{base}" + (f".{n:03d}" if n else ""), srgb=list(rgb),
+                                    note=f"{pal['note'].split(' (')[0]} in the file's own colour #{hexcol}")
+        out.append(dict(c, **{"class": new, "file_rgb": rgb, "kind": kind,
+                              **({"was": cls} if new != cls else {})}))
+    return out, palette
+
+
+def assign(src, dst, ps: list[dict], classes: list[dict], palette: Optional[dict] = None) -> dict:
     """The GLB with one material per class (``PALETTE``); a primitive whose triangles fall in several classes is split
     into one primitive per class (the same vertex attributes, a new index accessor each). Returns ``{"slots":
     material_slots, "classes": {class: pieces}, "materials": n, "split": primitives split}``. ``src`` may equal
     ``dst``."""
     from wenart.assets import warehouse as WH
     from wenart.assets.audit import glbmesh as GM
+    PAL = dict(PALETTE, **(palette or {}))
     doc, binary = WH.read_glb(src)
     gdoc, buffers = GM.read(src)
     binary = bytearray(binary or b"")
@@ -454,7 +552,7 @@ def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
     mats = []
     present = list(CLASSES) + sorted({c["class"] for c in classes} - set(CLASSES))
     for c in present:
-        pal = PALETTE[c]
+        pal = PAL[c]
         if pal["name"] in names:
             continue
         names.append(pal["name"])
@@ -471,7 +569,7 @@ def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
     for p in ps:
         c = cls_of.get(tuple(p["key"]), "frame")
         counts[c] = counts.get(c, 0) + 1
-        area_of[PALETTE[c]["name"]] = area_of.get(PALETTE[c]["name"], 0.0) + float(p["area"])
+        area_of[PAL[c]["name"]] = area_of.get(PAL[c]["name"], 0.0) + float(p["area"])
         for key, idx in (p.get("prims") or {}).items():
             by_prim.setdefault(tuple(key), {}).setdefault(c, []).append(np.asarray(idx, dtype=np.int64))
     split = 0
@@ -482,7 +580,7 @@ def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
         for pi, prim in enumerate(mesh.get("primitives") or []):
             groups = by_prim.get((mi, pi)) or {(classes[0]["class"] if classes else "frame"): []}
             if len(groups) == 1:
-                prim["material"] = names.index(PALETTE[next(iter(groups))]["name"])
+                prim["material"] = names.index(PAL[next(iter(groups))]["name"])
                 new_prims.append(prim)
                 continue
             split += 1
@@ -501,7 +599,7 @@ def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
                 accessors.append({"bufferView": len(views) - 1, "componentType": 5125, "count": int(len(sel)),
                                   "type": "SCALAR"})
                 q = {k: v for k, v in prim.items() if k not in ("indices", "material", "mode")}
-                q.update(indices=len(accessors) - 1, material=names.index(PALETTE[c]["name"]), mode=4)
+                q.update(indices=len(accessors) - 1, material=names.index(PAL[c]["name"]), mode=4)
                 new_prims.append(q)
         mesh["primitives"] = new_prims
     doc["materials"] = mats
@@ -514,7 +612,7 @@ def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
     for i, name in enumerate(names):
         if name not in area_of:
             continue
-        pal = next(PALETTE[c] for c in present if PALETTE[c]["name"] == name)
+        pal = next(PAL[c] for c in present if PAL[c]["name"] == name)
         slots.append({"index": i, "name": name, "material": pal["material"], "materials": list(pal["materials"]),
                       "agreed": True, "separable": True, "share": round(area_of[name] / total, 4), "textured": False,
                       "base_colour": [round(srgb_to_linear(v), 4) for v in pal["srgb"]] + [1.0],

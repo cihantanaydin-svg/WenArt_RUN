@@ -414,3 +414,92 @@ def test_intake_part_materials_are_dressed_with_the_style_scans():
     assert [(i, k) for i, _n, k, _o in plan] == [(0, "wood"), (2, "bedding")]
     e = {"id": "x", "glb": "a.glb", "material_slots": [{"index": 0, "by": "wenart.assets.part_materials"}]}
     assert S.job_sha(e, {}) != S.job_sha(dict(e, material_slots=[{"index": 0}]), {})
+
+
+def _mat(lin):
+    return {"pbrMetallicRoughness": {"baseColorFactor": list(lin) + [1.0]}}
+
+
+def test_a_model_with_real_file_colours_gets_part_materials_by_each_pieces_colour():
+    """3 Nov 2026 (UL298, the user: "texture the white sofas and armchairs too"): a light neutral piece (an exporter's
+    white or light grey) takes its class's palette material, a real colour stays on the cloth in a ``wenart_own_*``
+    material, a dark leg is black metal, a mid grey wood part is lacquer in its own grey."""
+    doc = {"materials": [_mat((0.6, 0.6, 0.6)), _mat((0.8, 0.05, 0.04)), _mat((0.02, 0.018, 0.015)),
+                         _mat((0.2, 0.2, 0.2)), _mat((0.4, 0.25, 0.12)), _mat((0.7, 0.5, 0.15))]}
+    assert not PM.needs_materials(doc) and not PM._uses_texture(doc)
+    ps = [{"key": [k], "material": m, "area": 1.0} for k, m in enumerate([0, 1, 2, 3, 4, 5, None])]
+    cls = ["fabric", "fabric", "legs", "wood", "wood", "metal", "fabric"]
+    out, pal = PM.own_colour_classes(doc, ps, [{"key": [k], "class": c, "by": "type"} for k, c in enumerate(cls)])
+    got = [c["class"] for c in out]
+    assert got[0] == "fabric" and got[6] == "fabric"                 # light grey / no colour: the palette's linen
+    assert got[1].startswith("own_fabric_") and pal[got[1]]["name"] == "wenart_own_fabric"
+    assert pal[got[1]]["srgb"][0] > 200 and pal[got[1]]["srgb"][1] < 90   # the file's red kept
+    assert got[2] == "metal"                                          # a dark foot: black metal
+    assert got[3].startswith("own_lacquer_")                          # a mid grey wood part: grey lacquer
+    assert got[4] == "wood"                                           # a mid brown: oak
+    assert got[5] == "brass"                                          # a warm yellow metal
+    # a second colour of the same base gets its own material name
+    doc2 = {"materials": [_mat((0.8, 0.05, 0.04)), _mat((0.05, 0.1, 0.6))]}
+    out2, pal2 = PM.own_colour_classes(doc2, ps[:2], [{"key": [0], "class": "fabric"}, {"key": [1], "class": "frame"}])
+    assert sorted(v["name"] for v in pal2.values()) == ["wenart_own_fabric", "wenart_own_fabric.001"]
+
+
+def test_own_colour_materials_are_dressed_and_a_material_only_change_keeps_the_review(tmp_path):
+    from wenart.blender import furniture as BF
+    for base in PM.OWN_BASE:
+        key, _over = BF.PART_DRESS[f"wenart_own_{base}"]
+        assert key.startswith("colour_"), key                         # the scan in the slot's own colour
+    assert [k for _i, _n, k, _o in BF.part_dress_plan(["wenart_own_fabric.001"])] == ["colour_fabric"]
+    path = tmp_path / "cat.json"
+    old = {"id": "syncronia_y", "source": "syncronia", "kind": "furniture", "type": "sofa", "sha256_glb": "a" * 64,
+           "front_axis": "+Y", "bbox_m": [2.0, 0.9, 0.7], "bbox_model_m": [2.0, 0.9, 0.7],
+           "front_axis_confidence": "high", "syncronia": {"src_sha256": "s" * 64},
+           "audit": {"status": "keep", "reviewed_by": "Claude", "notes": []}}
+    path.write_text(json.dumps({"entries": [old], "decor": []}), encoding="utf-8")
+    new = dict(old, sha256_glb="b" * 64, front_axis="-Y", audit={"status": "pending"})
+    SY.merge([new], path)
+    e = json.loads(path.read_text())["entries"][0]
+    assert e["audit"]["status"] == "keep" and e["front_axis"] == "+Y" and e["sha256_glb"] == "b" * 64
+    assert any("materials changed" in n for n in e["audit"]["notes"])
+    SY.merge([dict(new, sha256_glb="c" * 64, bbox_model_m=[2.1, 0.9, 0.7])], path)   # another shape: a new review
+    assert json.loads(path.read_text())["entries"][0]["audit"]["status"] == "pending"
+
+
+@pytest.mark.skipif(not HAS_ASSIMP, reason="assimp not installed")
+def test_a_coloured_sofa_file_is_written_with_own_colour_part_materials(tmp_path):
+    """UL298 end to end on a GLB: a sofa in light grey cloth with red cushions and dark feet (an MTL with three
+    colours, through 3DS as the Syncronia files come): the cloth takes the palette linen, the cushions keep their red
+    in ``wenart_own_fabric``, the feet are black metal; every triangle kept."""
+    (tmp_path / "s.mtl").write_text("newmtl grey\nKd 0.8 0.8 0.8\nnewmtl red\nKd 0.85 0.1 0.08\n"
+                                    "newmtl dark\nKd 0.05 0.04 0.04\n")
+    lines, n = ["mtllib s.mtl"], 0
+    for name, mat, b in (("body", "grey", (0, 0, 12, 200, 90, 70)), ("cush1", "red", (20, 10, 45, 90, 60, 85)),
+                         ("cush2", "red", (110, 10, 45, 180, 60, 85)), ("foot1", "dark", (2, 2, 0, 8, 8, 12)),
+                         ("foot2", "dark", (192, 2, 0, 198, 8, 12)), ("foot3", "dark", (2, 82, 0, 8, 88, 12)),
+                         ("foot4", "dark", (192, 82, 0, 198, 88, 12))):
+        v, f = _box(*b)
+        lines += [f"o {name}", f"usemtl {mat}"] + [f"v {x:g} {y:g} {z:g}" for x, y, z in v]
+        lines += ["f " + " ".join(str(n + i) for i in q) for q in f]
+        n += 8
+    (tmp_path / "s.obj").write_text("\n".join(lines) + "\n")
+    subprocess.run(["assimp", "export", str(tmp_path / "s.obj"), str(tmp_path / "s.3ds"), "-f3ds"], check=True,
+                   capture_output=True)
+    from wenart.assets import zip_inspect as ZI
+    assert ZI.assimp_convert(tmp_path / "s.3ds", tmp_path / "s.glb")["ok"]
+    fixed = tmp_path / "f.glb"
+    WH.fixup(tmp_path / "s.glb", fixed, "sofa", 0.01, None)
+    doc, _ = WH.read_glb(fixed)
+    assert not PM.needs_materials(doc) and not PM._uses_texture(doc)
+    ps = PM.parts(fixed)
+    cls, own = PM.own_colour_classes(doc, ps, PM.classify_any(ps, "sofa"))
+    rec = PM.assign(fixed, fixed, ps, cls, palette=own)
+    doc, _ = WH.read_glb(fixed)
+    mats = [m["name"] for m in doc["materials"]]
+    used = {mats[pr["material"]] for m in doc["meshes"] for pr in m["primitives"]}
+    assert used == {"wenart_fabric", "wenart_own_fabric", "wenart_metal_dark"}, used
+    red = next(m for m in doc["materials"] if m["name"] == "wenart_own_fabric")
+    r, g, _b = red["pbrMetallicRoughness"]["baseColorFactor"][:3]
+    assert r > 0.5 and g < 0.2
+    from wenart.assets.audit import glbmesh as GM
+    assert GM.measure(fixed)["triangles"] == 7 * 12
+    assert {s["name"] for s in rec["slots"]} == used

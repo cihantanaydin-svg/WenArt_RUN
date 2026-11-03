@@ -3033,6 +3033,14 @@ PART_DRESS: dict[str, tuple[str, dict | None]] = {
     "wenart_ceramic": ("ceramic", None),
     "wenart_lacquer": ("painted", None),                      # the style's paint
     "wenart_plastic": ("painted", {"slug": "lacquer_matte"}), # a matte shell (a moulded chair's plastic)
+    # 3 Nov 2026 (UL298, "texture the white sofas and armchairs too"): a piece that keeps its file's own colour
+    # (``part_materials.own_colour_classes``): the same scan in the nearest named colour of the slot
+    "wenart_own_fabric": ("colour_fabric", None),
+    "wenart_own_bedding": ("colour_bedding", None),
+    "wenart_own_leather": ("colour_leather", None),
+    "wenart_own_lacquer": ("colour_painted", None),
+    "wenart_own_plastic": ("colour_painted", {"slug": "lacquer_matte"}),
+    "wenart_own_ceramic": ("colour_ceramic", None),
 }
 PART_DRESS_VERSION = "dress-1"        # part of the studio's job sha: a change re-renders the dressed models
 

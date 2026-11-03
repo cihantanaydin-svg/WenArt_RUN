@@ -71,8 +71,9 @@ USER_DECISION = ("user request of 3 Nov 2026: include the proper models of the u
                  "rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence "
                  "mode only, commercial_safe: no")
 MIN_TRIANGLES = 100                   # under this a model is a placeholder block (Platek's 24-triangle lights)
-FIX_VERSION = "syncronia-4"           # 2: part materials by pieces, name, type; 3: textures re-encoded; 4: missing
-                                      # textures unlinked, a valid grey PNG
+FIX_VERSION = "syncronia-5"           # 2: part materials by pieces, name, type; 3: textures re-encoded; 4: missing
+                                      # textures unlinked, a valid grey PNG; 5: models with real file colours get
+                                      # part materials too, each piece by its own colour (UL298)
 PENDING_REASON = "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
 # Syncronia's category folders (meta.json "type") -> the catalogue types (furniture or decor) a model may be
 _BEDS = ("bed_double", "bed_single")
@@ -341,6 +342,14 @@ def _one(job: dict) -> dict:
         if classes and PM.needs_materials(doc):
             rec["material"] = PM.assign(dest, dest, ps, classes)
             rec["classes"] = rec["material"]["classes"]
+        elif classes and not PM._uses_texture(doc):
+            # 3 Nov 2026 (UL298, the user: "texture the white sofas and armchairs too"): real file colours, no
+            # texture: each piece by its own colour (``part_materials.own_colour_classes``)
+            classes, own = PM.own_colour_classes(doc, ps, classes)
+            PM.write_debug(cache_dir.parent / "parts" / f"{rec['uid']}.json", ps, classes)
+            rec["material"] = PM.assign(dest, dest, ps, classes, palette=own)
+            rec["classes"] = rec["material"]["classes"]
+            rec["own_colours"] = sorted(v["note"] for v in own.values())
         else:
             rec["classes"] = {}
         rec["pillows"] = sum(1 for p, c in zip(ps, classes) if c["class"] == "bedding"
@@ -450,8 +459,18 @@ def merge(entries: list[dict], path: Optional[Path] = None) -> dict:
         rows = lists[target]
         at = next((i for i, x in enumerate(rows) if x.get("id") == e["id"]), None)
         old = rows[at] if at is not None else None
-        if old and old.get("sha256_glb") == e.get("sha256_glb") and (old.get("audit") or {}).get("reviewed_by"):
-            e = dict(e, audit=old["audit"], front_axis=old["front_axis"], bbox_m=old["bbox_m"],
+        same_file = old and old.get("sha256_glb") == e.get("sha256_glb")
+        # 3 Nov 2026 (UL298): the same source model with the same box whose materials only changed keeps its review
+        # (and its reviewed front); its sheet is rendered again and the user re-rates it
+        same_shape = (old and (old.get("syncronia") or {}).get("src_sha256")
+                      and (old.get("syncronia") or {}).get("src_sha256") == (e.get("syncronia") or {}).get("src_sha256")
+                      and old.get("bbox_model_m") == e.get("bbox_model_m"))
+        if (same_file or same_shape) and (old.get("audit") or {}).get("reviewed_by"):
+            audit = old["audit"]
+            if not same_file:
+                note = f"materials changed ({FIX_VERSION}), geometry the same: the review kept"
+                audit = dict(audit, notes=[n for n in audit.get("notes") or [] if n != note] + [note])
+            e = dict(e, audit=audit, front_axis=old["front_axis"], bbox_m=old["bbox_m"],
                      front_axis_note=old.get("front_axis_note"),
                      front_axis_confidence=old.get("front_axis_confidence"))   # the same file keeps its review
         if at is None:

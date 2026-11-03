@@ -3520,6 +3520,16 @@
    "request": "Library models without real textures (plain colours, missing texture files) get the project style's PBR scans on their part materials: fabric linen in the design colour, oak or walnut veneer, leather, marble, black steel, bronze, chrome, brass, glass, ceramic; a model's own textures are kept (user, 3 Nov 2026, Syncronia: 'can we give textures to Syncronia? and I can re-rate them?', 'Use the most logical best textures')",
    "lesson": "Library models without real textures (plain colours, missing texture files) get the project style's PBR scans on their part materials: fabric linen in the design colour, oak or walnut veneer, leather, marble, black steel, bronze, chrome, brass, glass, ceramic; a model's own textures are kept (user, 3 Nov 2026, Syncronia: 'can we give textures to Syncronia? and I can re-rate them?', 'Use the most logical best textures')",
    "question": null
+  },
+  {
+   "id": "UL298",
+   "date": "2026-11-03",
+   "area": "other",
+   "status": "built",
+   "checks": [],
+   "request": "A library model without textures whose file has real colours gets part materials too, each piece by its own file colour: a light neutral (white, light grey: an exporter's default) takes its class's scanned material, a real colour stays on the cloth, leather, lacquer, plastic or ceramic with the matching scan in that colour, wood is oak or walnut and metal brass, chrome or black metal by the colour; geometry and review kept (user, 3 Nov 2026, Syncronia: 'texture the white sofas and armchairs too')",
+   "lesson": "A library model without textures whose file has real colours gets part materials too, each piece by its own file colour: a light neutral (white, light grey: an exporter's default) takes its class's scanned material, a real colour stays on the cloth, leather, lacquer, plastic or ceramic with the matching scan in that colour, wood is oak or walnut and metal brass, chrome or black metal by the colour; geometry and review kept (user, 3 Nov 2026, Syncronia: 'texture the white sofas and armchairs too')",
+   "question": null
   }
  ]
 }
