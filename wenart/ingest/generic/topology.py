@@ -388,7 +388,8 @@ def _free_extent(anchor, wall_polys: list[Polygon], hulls: list[Polygon], reach:
 # --------------------------------------------------------------------------
 
 def separators(walls: list[WallItem], openings: list[OpeningItem], gap_log: list[dict], label_blocks: list,
-               stairs: list, units_to_m: Optional[float] = None) -> tuple[list[OpeningItem], list[dict]]:
+               stairs: list, units_to_m: Optional[float] = None,
+               axis: Optional[tuple] = None) -> tuple[list[OpeningItem], list[dict]]:
     """Virtual separators that keep two room names (or a stair and a room name) out of one face.
 
     ``walls``: the building walls; ``gap_log``: the log of ``openings.gaps_and_openings`` (its wall indices refer to
@@ -407,8 +408,51 @@ def separators(walls: list[WallItem], openings: list[OpeningItem], gap_log: list
         # candidates separate keep their logs).
         for cand in sorted(_face_candidates(walls, gap_log, openings), key=lambda c: c["length"]):
             score = _consider(cand, walls, openings, kept, names, stairs, log, score)
+    if score["excess"] > 0:
+        # 3 Nov 2026 (real10, user: "Red markings showing the inside hall": the flat's hall and its salon shared one
+        # face; the hall's wall stub ends 0.65 m short of the kitchen wall's corner, offset, so no aligned candidate
+        # existed): a free end to the nearest point of another wall, crossing no wall
+        for cand in sorted(_nearest_candidates(walls, gap_log, openings), key=lambda c: c["length"]):
+            score = _consider(cand, walls, openings, kept, names, stairs, log, score)
+    if axis is not None:
+        _mirror_separators(axis, walls, openings, kept, log)
     items = [_separator_item(c, walls, units_to_m) for c in kept]
     return items, log
+
+
+def _mirror_separators(axis: tuple, walls: list, openings: list, kept: list, log: list) -> None:
+    """3 Nov 2026 (real10, user: "if the left is salon right also needs to be salon"): on a plan of two mirrored
+    halves (``axis``: ``facade.mirror_axis``) the separator found between two room names of the labelled half is
+    mirrored to the other half, whose faces carry no names to separate, when its mirror runs between walls (both ends
+    within 0.05 m of a wall) through no wall and splits a face there."""
+    polys = [wall_polygon(w) for w in walls]
+    union = bridged_union(walls, openings)
+    lines = [c["line"] for c in kept]
+    n_faces = len(faces(walls, openings, lines))
+    for c in list(kept):
+        (x0, y0), (x1, y1) = c["line"]
+        if axis[0] == "x":
+            m = [(round(2 * axis[1] - x0, 4), y0), (round(2 * axis[1] - x1, 4), y1)]
+        else:
+            m = [(x0, round(2 * axis[1] - y0, 4)), (x1, round(2 * axis[1] - y1, 4))]
+        if any(LineString(m).hausdorff_distance(LineString(other)) <= 0.2 for other in lines):
+            continue                                       # a separator stands there (or it is its own mirror)
+        if not all(min(pg.distance(Point(q)) for pg in polys) <= 0.05 for q in m):
+            continue
+        seg = LineString(m)
+        inner = LineString([seg.interpolate(0.05, normalized=True), seg.interpolate(0.95, normalized=True)])
+        if inner.intersects(union):
+            continue
+        n_new = len(faces(walls, openings, lines + [m]))
+        if n_new <= n_faces:
+            continue
+        cand = {"kind": "mirror_twin", "line": m, "length": c["length"], "walls": [],
+                "reason": f"the mirror of the separator between two room names on the other half ({axis[0]} = "
+                          f"{axis[1]:.2f}): the drafter named one of the two mirrored halves only"}
+        kept.append(cand)
+        lines.append(m)
+        n_faces = n_new
+        log.append({k: v for k, v in cand.items()} | {"kept": True})
 
 
 def _consider(cand: dict, walls: list, openings: list, kept: list, names: list, stairs: list, log: list,
@@ -459,6 +503,44 @@ def _face_candidates(walls: list[WallItem], gap_log: list[dict], openings: list)
             continue
         line = [(round(px, 4), round(py, 4)), (round(px + dx * d, 4), round(py + dy * d, 4))]
         out.append({"kind": "end_to_face", "line": line, "length": round(d, 4), "walls": [e.get("wall")]})
+    return out
+
+
+NEAREST_PER_END = 3              # the nearest walls tried from one free end
+
+
+def _nearest_candidates(walls: list[WallItem], gap_log: list[dict], openings: list) -> list[dict]:
+    """Free end to the nearest point of another wall (any direction, at most ``SEPARATOR_MAX_M``, the segment crossing
+    no wall): the separator between two room names where the walls stop offset (a hall's stub and a kitchen corner)."""
+    from shapely.ops import nearest_points
+
+    polys = [wall_polygon(w) for w in walls]
+    union = bridged_union(walls, openings)
+    out = []
+    for e in gap_log:
+        if e.get("kind") != "free_end":
+            continue
+        (px, py) = e["point"]
+        pt = Point(px, py)
+        t = float(e.get("thickness") or 0.1)
+        own = [k for k, pg in enumerate(polys) if pg.distance(pt) <= t / 2.0 + 0.05]
+        cands = []
+        for k, pg in enumerate(polys):
+            if k in own:
+                continue
+            d = pg.distance(pt)
+            if not (t < d <= SEPARATOR_MAX_M):
+                continue
+            _a, q = nearest_points(pt, pg)
+            seg = LineString([(px, py), (q.x, q.y)])
+            inner = seg.interpolate(0.05, normalized=True), seg.interpolate(0.95, normalized=True)
+            mid = LineString([(inner[0].x, inner[0].y), (inner[1].x, inner[1].y)])
+            if mid.intersects(union):
+                continue                                   # it runs through a wall
+            cands.append((d, (round(q.x, 4), round(q.y, 4)), k))
+        for d, q, k in sorted(cands)[:NEAREST_PER_END]:
+            out.append({"kind": "end_to_nearest", "line": [(round(px, 4), round(py, 4)), q], "length": round(d, 4),
+                        "walls": [e.get("wall"), k]})
     return out
 
 
@@ -634,7 +716,31 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
                              f"other rooms open onto (ışıklık)")
     if touching >= 2:
         return "hall", f"unlabelled face touching {touching} doors/openings{left_out}"
+    # 3 Nov 2026 (real10, user: "red sections are small closets (small rooms with a door to store some stuff
+    # inside)"): a small face with one door and no window is a closet (storage)
+    if touching == 1 and CLOSET_M2[0] <= poly.area <= CLOSET_M2[1]:
+        windows = 0
+        for o in openings:
+            if o.kind != "window":
+                continue
+            p = opening_polygon(o, walls)
+            if p is not None and p.distance(poly) <= 0.02:
+                windows += 1
+        if windows == 0:
+            return "storage", (f"closet: a face of {poly.area:.2f} m2 with one door and no window (a small room to "
+                               f"store things)")
     return "unknown", f"unlabelled face touching {touching} door/opening{left_out}"
+
+
+CLOSET_M2 = (0.3, 3.5)
+CLOSET_LABELS = ("Depo", "Closet")
+
+
+def closet_label(reason: Optional[str], turkish: bool) -> Optional[str]:
+    """The label of a face ``unlabelled_face_type`` found a closet (else None)."""
+    if reason and reason.startswith("closet"):
+        return CLOSET_LABELS[0] if turkish else CLOSET_LABELS[1]
+    return None
 
 
 def light_well_label(reason: Optional[str], turkish: bool) -> Optional[str]:

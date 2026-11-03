@@ -444,3 +444,47 @@ def stair_cores(rooms: list[dict], furniture: list[dict]) -> list[str]:
         notes.append(f"{r['level_id']}: room {r['id']} ('{old}') holds the stair that stands at the same spot on "
                      f"{len(levels)} levels ({', '.join(levels)}): the building's stair core, '{r['label']}' (inferred)")
     return notes
+
+
+SHARED_HALL_REACH_M = 0.55       # an opening joins two rooms when its centre lies this close to both (core walls run 0.4-0.8 m thick)
+
+
+def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
+    """3 Nov 2026 (real10, user: "green marking is outside shared hall", "core stairs and elevators and that section is
+    shaft usually"): an unnamed room the building's stair core (``stair_cores``) opens into (an opening or door whose
+    centre lies within ``SHARED_HALL_REACH_M`` of both) is the floor's shared hall in front of the core: 'Kat Holü'
+    ('Landing' on an English plan), type ``hall``, ``label_inferred`` (method ``shared_hall``). The flats' own halls
+    beside the core, behind a wall, are not joined to it. Returns one line per room."""
+    from shapely.geometry import Point
+
+    from wenart import building as B
+
+    notes = []
+    by_level: dict = {}
+    for r in rooms:
+        if len(r.get("polygon") or []) >= 3:
+            by_level.setdefault(r["level_id"], []).append(r)
+    for lid, level_rooms in by_level.items():
+        cores = [r for r in level_rooms if (r.get("label_inferred") or {}).get("method") == "stair_core"]
+        if not cores:
+            continue
+        turkish = any(B.is_turkish_label(str(x.get("label_raw") or "")) for x in level_rooms if x.get("label_raw"))
+        level_openings = [o for o in openings if o.get("level_id") == lid and o.get("center")]
+        for core in cores:
+            cp = _poly(core)
+            for r in level_rooms:
+                if r is core or r.get("label_raw") or str(r.get("label") or "").strip().lower() not in GENERIC_LABELS:
+                    continue
+                rp = _poly(r)
+                joined = [o for o in level_openings if cp.distance(Point(o["center"][:2])) <= SHARED_HALL_REACH_M
+                          and rp.distance(Point(o["center"][:2])) <= SHARED_HALL_REACH_M]
+                if not joined:
+                    continue
+                old = r.get("label")
+                r["label"] = "Kat Holü" if turkish else "Landing"
+                r["room_type"] = "hall"
+                r["inferred"] = True
+                r["label_inferred"] = {"method": "shared_hall", "core": core["id"]}
+                notes.append(f"{lid}: room {r['id']} ('{old}') is the shared hall the stair core {core['id']} opens "
+                             f"into ({len(joined)} opening(s)): '{r['label']}' (inferred)")
+    return notes

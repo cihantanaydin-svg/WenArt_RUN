@@ -241,3 +241,93 @@ def test_a_void_marked_with_its_diagonals_closes_its_box():
     voids = VD.read_voids([_text(1, "GALERİ", 1.1, 0.35)], strokes)
     assert voids and voids[0]["polygon"] and abs(voids[0]["area_m2"] - 3.6) < 0.05
     assert "diagonals" in voids[0]["reason"]
+
+
+# ------------------------------------------------------------------ real10's typical floor (the user's markings)
+def _w(s, e, t=0.2):
+    from types import SimpleNamespace as NS
+    return NS(start=s, end=e, thickness=t, box=[0, 0, 0, 0], evidence={"file": "x.dwg", "entity": "W"}, entity="W",
+              status="verified", inferred=False, exterior=False)
+
+
+def test_a_hall_and_a_salon_split_where_the_walls_stop_offset():
+    """The flat's inside hall (a corridor) runs into the salon between a wall stub's end and a kitchen wall's corner,
+    0.65 m offset: a separator from the stub's free end to the nearest wall keeps 'antre' and 'salon' apart."""
+    from shapely.geometry import Point as P
+
+    from wenart.ingest.generic import topology as TP
+
+    walls = [_w((0, 0), (8, 0)), _w((8, 0), (8, 8)), _w((8, 8), (0, 8)), _w((0, 8), (0, 0)),
+             _w((3, 8), (3, 3.5)),                    # the hall's wall stub, free end at (3, 3.5)
+             _w((4.2, 0), (4.2, 2.8)), _w((4.2, 2.8), (8, 2.8))]   # the kitchen block, its corner at (4.2, 2.8)
+    gap_log = [{"kind": "free_end", "point": (3.0, 3.5), "direction": (0.0, -1.0), "thickness": 0.2, "wall": 4,
+                "gap_class": "none"}]
+    blocks = [SimpleNamespace(name="antre", anchor=(3.6, 6.0), exterior=False),
+              SimpleNamespace(name="salon", anchor=(1.5, 2.0), exterior=False)]
+    seps, log = TP.separators(walls, [], gap_log, blocks, [])
+    assert seps, log
+    fs = TP.faces(walls, [], [s.line for s in seps])
+    holder = [next(k for k, f in enumerate(fs) if f.contains(P(b.anchor))) for b in blocks]
+    assert holder[0] != holder[1]
+
+
+def test_the_separator_of_the_named_half_is_mirrored():
+    from wenart.ingest.generic import topology as TP
+
+    walls = [_w((0, 0), (16, 0)), _w((16, 0), (16, 8)), _w((16, 8), (0, 8)), _w((0, 8), (0, 0)), _w((8, 0), (8, 8)),
+             _w((3, 8), (3, 3.5)), _w((4.2, 0), (4.2, 2.8)), _w((4.2, 2.8), (8, 2.8)),
+             _w((13, 8), (13, 3.5)), _w((11.8, 0), (11.8, 2.8)), _w((11.8, 2.8), (8, 2.8))]
+    gap_log = [{"kind": "free_end", "point": (3.0, 3.5), "direction": (0.0, -1.0), "thickness": 0.2, "wall": 5,
+                "gap_class": "none"}]
+    blocks = [SimpleNamespace(name="antre", anchor=(3.6, 6.0), exterior=False),
+              SimpleNamespace(name="salon", anchor=(1.5, 2.0), exterior=False)]
+    seps, log = TP.separators(walls, [], gap_log, blocks, [], axis=("x", 8.0))
+    assert len(seps) == 2 and any(e.get("kind") == "mirror_twin" for e in log)
+    xs = sorted(round(s.center[0], 1) for s in seps)
+    assert xs[0] < 8 < xs[1] and abs((xs[0] + xs[1]) / 2 - 8.0) < 0.05
+
+
+def test_the_room_the_stair_core_opens_into_is_the_shared_hall():
+    from wenart.ingest import twins as TW
+
+    rooms = [{"id": "core", "level_id": "L0", "label": "Merdiven", "label_raw": None, "room_type": "stair",
+              "label_inferred": {"method": "stair_core"}, "polygon": [[0, 2], [3, 2], [3, 5], [0, 5]]},
+             {"id": "land", "level_id": "L0", "label": "Oda", "label_raw": None, "room_type": "hall",
+              "polygon": [[0, 0], [3, 0], [3, 1.8], [0, 1.8]]},
+             {"id": "inner", "level_id": "L0", "label": "Oda", "label_raw": None, "room_type": "hall",
+              "polygon": [[-2, 2], [-0.2, 2], [-0.2, 5], [-2, 5]]},
+             {"id": "s", "level_id": "L0", "label": "Salon", "label_raw": "SALON", "room_type": "living",
+              "polygon": [[5, 0], [8, 0], [8, 3], [5, 3]]}]
+    notes = TW.shared_halls(rooms, [{"level_id": "L0", "center": [1.5, 1.9], "type": "opening"}])
+    assert notes and [r["label"] for r in rooms] == ["Merdiven", "Kat Holü", "Oda", "Salon"]
+
+
+def test_the_stair_core_takes_the_room_holding_most_of_the_stair_in_the_plans_language():
+    from wenart.ingest import twins as TW
+
+    rooms = [{"id": "core", "level_id": "L0", "label": "Room", "label_raw": None, "room_type": "living",
+              "polygon": [[0, 2], [3, 2], [3, 5], [0, 5]]},
+             {"id": "hall", "level_id": "L0", "label": "Oda", "label_raw": None, "room_type": "hall",
+              "polygon": [[0, 0], [3, 0], [3, 2], [0, 2]]},
+             {"id": "s", "level_id": "L0", "label": "Salon", "label_raw": "SALON", "room_type": "living",
+              "polygon": [[5, 0], [8, 0], [8, 3], [5, 3]]}]
+    stairs = [{"type": "stair", "level_id": lv, "footprint": {"center": [1.5, 2.9], "size": [2.7, 2.4],
+                                                              "rotation_deg": 0}} for lv in ("L-1", "L0", "L1")]
+    TW.stair_cores(rooms, stairs)
+    assert rooms[0]["label"] == "Merdiven" and rooms[0]["room_type"] == "stair" and rooms[1]["label"] == "Oda"
+
+
+def test_a_small_room_with_one_door_and_no_window_is_a_closet():
+    """real10 (user: "red sections are small closets (small rooms with a door to store some stuff inside)")."""
+    from wenart.ingest.generic import topology as TP
+    from wenart.ingest.model import OpeningItem
+
+    walls = [_w((0, 0), (1.0, 0)), _w((1.0, 0), (1.0, 1.6)), _w((1.0, 1.6), (0, 1.6)), _w((0, 1.6), (0, 0))]
+    door = OpeningItem(kind="door", width=0.7, center=(0.5, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="D",
+                       evidence={})
+    face = Polygon([(0.1, 0.1), (0.9, 0.1), (0.9, 1.5), (0.1, 1.5)])
+    rt, why = TP.unlabelled_face_type(face, walls, [door])
+    assert rt == "storage" and why.startswith("closet") and TP.closet_label(why, True) == "Depo"
+    win = OpeningItem(kind="window", width=0.6, center=(0.5, 1.6), rotation_deg=0.0, box=[0, 0, 1, 1], entity="W",
+                      evidence={})
+    assert TP.unlabelled_face_type(face, walls, [door, win])[0] == "unknown"   # a window: no closet

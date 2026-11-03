@@ -438,6 +438,7 @@ def _generic_rooms(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> R
         room_type, reason = TP.unlabelled_face_type(poly, ex.walls, real, stairs, others=all_faces)
         label = TP.stair_room_label(poly, stairs, turkish)   # Milestone 11 (M8): a stair core is no "Oda"
         label = label or TP.light_well_label(reason, turkish)  # 3 Nov 2026 (real09): a light well is no "Oda"
+        label = label or TP.closet_label(reason, turkish)      # 3 Nov 2026 (real10): a closet is a "Depo"
         return (room_type, reason, label) if label else (room_type, reason)
 
     anchors = [_to_building(ex, t.start) for t in ex.labels]
@@ -2451,6 +2452,9 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     # 3 Nov 2026 (real09): the room holding the stair that stacks through the levels is the stair core
     for line in TW.stair_cores(b["rooms"], b["furniture"]):
         build.warn(f"stair core: {line}")
+    # 3 Nov 2026 (real10, user: "green marking is outside shared hall"): the room the stair core opens into
+    for line in TW.shared_halls(b["rooms"], b["openings"]):
+        build.warn(f"shared hall: {line}")
     for second, info in TW.twin_transforms(b["rooms"], b["openings"], b["furniture"]).items():
         room = next(r for r in b["rooms"] if r["id"] == second)
         room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],

@@ -130,9 +130,12 @@ def _on_wall(o, w) -> bool:
     return LineString([a, b]).distance(Point(o.center)) <= float(w.thickness) / 2.0 + 0.05
 
 
-def consistency(walls: list, openings: list, axis=None) -> Optional[tuple[list, list, list]]:
-    """``(walls, openings, log)`` with the mirror fixes (the module docstring), or None (no mirror axis or nothing to
-    fix). The inputs are not changed."""
+STEPS = ("thickness", "inferred", "missing", "openings")
+
+
+def consistency(walls: list, openings: list, axis=None, steps=STEPS) -> Optional[tuple[list, list, list]]:
+    """``(walls, openings, log)`` with the mirror fixes (the module docstring) of the given ``steps`` (``STEPS``), or
+    None (no mirror axis or nothing to fix). The inputs are not changed."""
     from wenart.ingest.generic import facade as FC
     from wenart.ingest.model import OpeningItem, WallItem
 
@@ -145,7 +148,7 @@ def consistency(walls: list, openings: list, axis=None) -> Optional[tuple[list, 
     log: list[str] = []
     drop_openings: set = set()
     # 1. thickness
-    for i, j in pairs.items():
+    for i, j in (pairs.items() if "thickness" in steps else ()):
         if i == j:
             continue
         w, v = walls[i], walls[j]
@@ -177,7 +180,7 @@ def consistency(walls: list, openings: list, axis=None) -> Optional[tuple[list, 
     # 1b. an inferred wall whose twin is drawn takes the twin's mirrored line and thickness over its own span (real09:
     # the right kitchen's inferred facade wall stood 0.22 m off the line of the drawn wall its left twin stands on);
     # its openings move onto that line
-    for i, j in pairs.items():
+    for i, j in (pairs.items() if "inferred" in steps else ()):
         if i == j:
             continue
         w, v = walls[i], walls[j]
@@ -205,7 +208,7 @@ def consistency(walls: list, openings: list, axis=None) -> Optional[tuple[list, 
     # 2. missing walls
     polys = unary_union([TP.wall_polygon(w) for w in walls])
     added = []
-    for i, w in enumerate(list(walls)):
+    for i, w in (enumerate(list(walls)) if "missing" in steps else ()):
         if i in pairs or not _drawn(w) or math.dist(w.start, w.end) < MISSING_MIN_M or _on_axis(w, axis):
             continue
         ma, mb = _mirror(w.start, axis), _mirror(w.end, axis)
@@ -226,10 +229,10 @@ def consistency(walls: list, openings: list, axis=None) -> Optional[tuple[list, 
         added.append(m)
         log.append(f"wall {m.entity} inferred: the mirror of {w.entity} ({math.dist(w.start, w.end):.2f} m)")
     walls += added
-    # 3. openings: a drawn opening's twin
+    # 3. openings: a drawn opening's twin (step "openings")
     new_open = []
     replace: set = set()
-    for o in openings:
+    for o in (openings if "openings" in steps else ()):
         if not _drawn(o) or getattr(o, "virtual", False):
             continue
         mc = _mirror(o.center, axis)

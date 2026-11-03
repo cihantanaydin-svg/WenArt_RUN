@@ -3396,6 +3396,42 @@
    "request": "A building is understood from its core first: the stairs in the shaft with the lifts are one shaft section through every floor; the core stair is read as drawn (a U stair with winders around its eye from its numbered treads, aligned with the drawing, its footprint holding the whole turn) and the room holding most of it is the stair core in the drawing's language; then the two mirrored halves are made alike (balconies and terraces mirrored even when their outline is inferred) (user, 3 Nov 2026, real10: 'Understanding the building starts with the stairs in the shaft', 'core stairs and elevators and that section is shaft usually', 'the building is missing some sections', 'Don't forget the mirror rule for real10')",
    "lesson": "A building is understood from its core first: the stairs in the shaft with the lifts are one shaft section through every floor; the core stair is read as drawn (a U stair with winders around its eye from its numbered treads, aligned with the drawing, its footprint holding the whole turn) and the room holding most of it is the stair core in the drawing's language; then the two mirrored halves are made alike (balconies and terraces mirrored even when their outline is inferred) (user, 3 Nov 2026, real10: 'Understanding the building starts with the stairs in the shaft', 'core stairs and elevators and that section is shaft usually', 'the building is missing some sections', 'Don't forget the mirror rule for real10')",
    "question": null
+  },
+  {
+   "id": "UL287",
+   "date": "2026-11-03",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "A flat's inside hall (the corridor from its entrance past the bathrooms) is a room of its own, apart from the salon (a separator from a wall's free end to the nearest wall where the walls stop offset); the half the drafter left unnamed gets the same separators, walls and openings by mirror, so its salon is a salon too; the room the stair core opens into is the floor's shared hall (Kat Holü / Landing) (user, 3 Nov 2026, real10: 'Red markings showing the inside hall, green marking is outside shared hall, for the cyan if the left is salon right also needs to be salon')",
+   "lesson": "A flat's inside hall (the corridor from its entrance past the bathrooms) is a room of its own, apart from the salon (a separator from a wall's free end to the nearest wall where the walls stop offset); the half the drafter left unnamed gets the same separators, walls and openings by mirror, so its salon is a salon too; the room the stair core opens into is the floor's shared hall (Kat Holü / Landing) (user, 3 Nov 2026, real10: 'Red markings showing the inside hall, green marking is outside shared hall, for the cyan if the left is salon right also needs to be salon')",
+   "question": null
+  },
+  {
+   "id": "UL288",
+   "date": "2026-11-03",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "In a building with a stair core the main entrance is the outside door reached from the core through the shared hall and the passages, whatever its width (a double entrance door), before any door into a flat's room or garden (user, 3 Nov 2026, real10: 'this should be the main entrance to the building, find a way to figure out the main enterences')",
+   "lesson": "In a building with a stair core the main entrance is the outside door reached from the core through the shared hall and the passages, whatever its width (a double entrance door), before any door into a flat's room or garden (user, 3 Nov 2026, real10: 'this should be the main entrance to the building, find a way to figure out the main enterences')",
+   "question": null
+  },
+  {
+   "id": "UL289",
+   "date": "2026-11-03",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "A small unnamed room (0.3-3.5 m2) with one door and no window is a closet for storing things (storage, Depo / Closet), never furnished as a room (user, 3 Nov 2026, real10: 'red sections are small closets (small rooms with a door to store some stuff inside)')",
+   "lesson": "A small unnamed room (0.3-3.5 m2) with one door and no window is a closet for storing things (storage, Depo / Closet), never furnished as a room (user, 3 Nov 2026, real10: 'red sections are small closets (small rooms with a door to store some stuff inside)')",
+   "question": null
   }
  ]
 }

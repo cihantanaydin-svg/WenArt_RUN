@@ -706,11 +706,55 @@ GARDEN_DOOR_MIN = 1.60
 HINGED = (None, "swing", "double", "unknown")          # building.schema: operation null = swing (assumed)
 
 
-def main_tier(e: dict, opening: Optional[dict], room: Optional[dict], marked: bool) -> tuple[int, str]:
+# 3 Nov 2026 (real10, user: "this should be the main entrance to the building, find a way to figure out the main
+# enterences"; "Understanding the building starts with the stairs in the shaft"): in a building with a stair core the
+# main entrance is the outside door reached from the core: the stair core, the shared hall it opens into and the halls
+# joined to them through openings (at most CORE_PATH_HOPS rooms from the core); a door into one of those rooms ranks
+# right after a door the documents mark, whatever its width up to CORE_DOOR_MAX (a double entrance door)
+CORE_PATH_HOPS = 3
+CORE_DOOR_MAX = 3.2
+JOIN_REACH_M = 0.55              # = twins.SHARED_HALL_REACH_M (core walls run 0.4-0.8 m thick)
+
+
+def core_path(b: dict, level_id: Optional[str]) -> dict:
+    """``{room id: hops}``: the rooms of ``level_id`` reached from its stair core (rooms whose ``label_inferred``
+    method is ``stair_core`` or ``shared_hall``) through openings joining hall rooms, at most ``CORE_PATH_HOPS`` (pure)."""
+    from shapely.geometry import Point, Polygon
+
+    rooms = [r for r in b.get("rooms") or [] if isinstance(r, dict) and r.get("level_id") == level_id
+             and len(r.get("polygon") or []) >= 3]
+    start = [r for r in rooms if (r.get("label_inferred") or {}).get("method") in ("stair_core", "shared_hall")]
+    if not start:
+        return {}
+    polys = {r["id"]: Polygon(r["polygon"]) for r in rooms}
+    pts = [Point(o["center"][:2]) for o in b.get("openings") or [] if isinstance(o, dict)
+           and o.get("level_id") == level_id and o.get("center")]
+    hops = {r["id"]: 0 for r in start}
+    frontier = list(hops)
+    while frontier:
+        nxt = []
+        for rid in frontier:
+            if hops[rid] >= CORE_PATH_HOPS:
+                continue
+            here = polys[rid]
+            near = [q for q in pts if here.distance(q) <= JOIN_REACH_M]
+            for r in rooms:
+                if r["id"] in hops or r.get("room_type") not in ("hall", "stair", "unknown"):
+                    continue
+                if any(polys[r["id"]].distance(q) <= JOIN_REACH_M for q in near):
+                    hops[r["id"]] = hops[rid] + 1
+                    nxt.append(r["id"])
+        frontier = nxt
+    return hops
+
+
+def main_tier(e: dict, opening: Optional[dict], room: Optional[dict], marked: bool,
+              core_hops: Optional[int] = None) -> tuple[int, str]:
     """``(tier, reason)`` of an entrance for the main entrance (pure; lower is better): 0 a door marked as the
-    entrance in the documents (a GIRIS / entrance mark); 1 a hinged entrance-size door into a hall, entry, corridor or
-    stair room; 2 such a door into another room (not a garage or a service room); 3 any other door up to
-    ``GARDEN_DOOR_MIN``; 4 a wider (garden or terrace) door."""
+    entrance in the documents (a GIRIS / entrance mark); 1 a door into a room reached from the stair core
+    (``core_path``, ``core_hops``); 2 a hinged entrance-size door into a hall, entry, corridor or stair room; 3 such a
+    door into another room (not a garage or a service room); 4 any other door up to ``GARDEN_DOOR_MIN``; 5 a wider
+    (garden or terrace) door."""
     from wenart.blender import site as S
 
     w = float(e.get("width") or 0.0)
@@ -721,16 +765,20 @@ def main_tier(e: dict, opening: Optional[dict], room: Optional[dict], marked: bo
     what = f"{e['door_id']}, a {w:.2f} m {op or 'swing'} door into {into}"
     if marked:
         return 0, f"{what}: marked as the entrance in the documents"
+    if core_hops is not None and op in HINGED + ("sliding", "folding") and MAIN_DOOR_WIDTH[0] - 1e-6 <= w <= \
+            CORE_DOOR_MAX + 1e-6:
+        return 1, (f"{what}: the outside door reached from the stair core ({core_hops} room(s) from it through the "
+                   f"shared halls): the building's main entrance (inferred)")
     size = op in HINGED and (MAIN_DOOR_WIDTH[0] - 1e-6 <= w <= MAIN_DOOR_WIDTH[1] + 1e-6
                              or (op == "double" and MAIN_DOOR_WIDTH[0] - 1e-6 <= w <= MAIN_DOUBLE_MAX + 1e-6))
     if size and role == "hall":
-        return 1, f"{what}: a hinged entrance door into a hall (inferred)"
+        return 2, f"{what}: a hinged entrance door into a hall (inferred)"
     if size and role in (None, "room"):
-        return 2, f"{what}: no entrance door into a hall; a hinged entrance-size door into a room (inferred)"
+        return 3, f"{what}: no entrance door into a hall; a hinged entrance-size door into a room (inferred)"
     if w <= GARDEN_DOOR_MIN + 1e-6:
-        return 3, f"{what}: no hinged entrance door into a hall or a room; the next door up to " \
+        return 4, f"{what}: no hinged entrance door into a hall or a room; the next door up to " \
                   f"{GARDEN_DOOR_MIN:.2f} m (inferred)"
-    return 4, f"{what}: only garden or terrace doors (over {GARDEN_DOOR_MIN:.2f} m) lead outside (inferred)"
+    return 5, f"{what}: only garden or terrace doors (over {GARDEN_DOOR_MIN:.2f} m) lead outside (inferred)"
 
 
 def main_entrance(b: dict, usable: Sequence[dict], marks: Sequence[dict]) -> tuple[dict, str]:
@@ -746,10 +794,12 @@ def main_entrance(b: dict, usable: Sequence[dict], marks: Sequence[dict]) -> tup
     axis = max(counts, key=lambda a: (counts[a], -order.index(a)))
     ops = {o.get("id"): o for o in b.get("openings") or [] if isinstance(o, dict)}
     rooms = {r.get("id"): r for r in b.get("rooms") or [] if isinstance(r, dict)}
+    paths = {lid: core_path(b, lid) for lid in {e.get("level_id") for e in usable}}
     ranked = []
     for e in usable:
         marked = any(m.get("kind") == "entrance" and e["door_id"] in " ".join(m.get("used_for") or []) for m in marks)
-        tier, why = main_tier(e, ops.get(e["door_id"]), rooms.get(e.get("room_id")), marked)
+        hops = (paths.get(e.get("level_id")) or {}).get(e.get("room_id"))
+        tier, why = main_tier(e, ops.get(e["door_id"]), rooms.get(e.get("room_id")), marked, hops)
         ranked.append(((tier, S.nearest_axis(e["outward"]) != axis, -float(e["width"]), str(e["door_id"])), e, why))
     ranked.sort(key=lambda x: x[0])
     _key, main, why = ranked[0]

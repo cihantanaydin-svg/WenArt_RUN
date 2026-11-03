@@ -1250,39 +1250,62 @@ MIRROR_MAX_NEW_WALLS = 3        # mirror twins differ by at most this many walls
 
 def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
                         problem: Optional[str]):
-    """The mirror fixes of a plan of two mirrored halves (``mirror.consistency``), kept when more rooms pair as
-    mirror images and no labelled room is left open (nor the outer walls)."""
+    """The mirror fixes of a plan of two mirrored halves (``mirror.consistency``), step by step (thickness, inferred
+    walls, missing walls, openings): a step that changes a drawn wall (thickness, an inferred wall onto its twin's
+    line) is kept when more rooms pair as mirror images, one that copies a missing wall or an opening of the twin when
+    no fewer pair; always with no labelled room left open, the outer walls closed and at most
+    ``MIRROR_MAX_NEW_WALLS`` walls copied. 3 Nov 2026 (real10's 1st basement: six walls read 0.5-0.9 m
+    thick on one half, a missing wall and seven openings; together they paired one room fewer and none was kept)."""
     from wenart.ingest.generic import facade as FC
     from wenart.ingest.generic import mirror as MR
 
     axis = FC.mirror_axis(walls2, FC.MIRROR_FIX_SHARE)
     if axis is None:
         return None
-    res = MR.consistency(walls2, openings, axis)
-    if res is None:
-        return None
-    w5, o5, log = res
-    # 3 Nov 2026 (the regression set: real03, a block of different flat types (1+1 A1, A2, B, 2+1) in a symmetric
-    # shell, got 16 walls and 7 doors copied from one flat type into the other): mirror twins differ by a few slips
-    # (real09: at most one wall); halves that need more walls copied are different layouts
-    new_walls = sum(1 for e in log if str(e).startswith("wall inferred:mirror_twin"))
-    if new_walls > MIRROR_MAX_NEW_WALLS:
-        ex.notes.append(f"{where}: mirror check about {axis[0]} = {axis[1]:.2f}: the halves differ by {new_walls} walls "
-                        f"(over {MIRROR_MAX_NEW_WALLS}): different layouts, not mirror twins; {len(log)} fix(es) not "
-                        f"kept")
-        return None
     before = MR.mirrored_face_pairs(walls2, openings, axis)
-    after = MR.mirrored_face_pairs(w5, o5, axis)
-    bw5, site5, sw5 = TP.split_plot(w5, o5, blocks, level_id=level_id)
-    idx5 = {o["index"] for o in site5["openings"]}
-    b_open5 = [o for k, o in enumerate(o5) if k not in idx5]
-    problem5 = TP.outer_loop_problem(bw5, b_open5)
-    if after <= before or _unclosed(sw5) > _unclosed(site_warnings) or (problem is None and problem5 is not None):
-        ex.notes.append(f"{where}: mirror check about {axis[0]} = {axis[1]:.2f}: {len(log)} fix(es) not kept "
-                        f"(rooms in mirror pairs {before} -> {after})")
+    base_unclosed = _unclosed(site_warnings)
+    kept_steps: list = []
+    best = None
+    notes = []
+    for step in MR.STEPS:
+        res = MR.consistency(walls2, openings, axis, steps=tuple(kept_steps + [step]))
+        if res is None:
+            continue
+        w5, o5, log = res
+        # 3 Nov 2026 (the regression set: real03, a block of different flat types (1+1 A1, A2, B, 2+1) in a symmetric
+        # shell, got 16 walls and 7 doors copied from one flat type into the other): mirror twins differ by a few
+        # slips (real09: at most one wall); halves that need more walls copied are different layouts
+        new_walls = sum(1 for e in log if str(e).startswith("wall inferred:mirror_twin"))
+        if new_walls > MIRROR_MAX_NEW_WALLS:
+            notes.append(f"{step}: the halves differ by {new_walls} walls (over {MIRROR_MAX_NEW_WALLS}): different "
+                         f"layouts, not mirror twins")
+            if step == "missing":
+                ex.notes.append(f"{where}: mirror check about {axis[0]} = {axis[1]:.2f}: " + "; ".join(notes) +
+                                "; no fix kept")
+                return None
+            continue
+        after = MR.mirrored_face_pairs(w5, o5, axis)
+        bw5, site5, sw5 = TP.split_plot(w5, o5, blocks, level_id=level_id)
+        idx5 = {o["index"] for o in site5["openings"]}
+        b_open5 = [o for k, o in enumerate(o5) if k not in idx5]
+        problem5 = TP.outer_loop_problem(bw5, b_open5)
+        floor = best[-1] if best else before
+        # changing a drawn wall's line or thickness must pair more rooms; copying a missing wall or an opening of the
+        # twin must pair no fewer
+        worse = after <= floor if step in ("thickness", "inferred") else after < floor
+        if worse or _unclosed(sw5) > base_unclosed or (problem is None and problem5 is not None):
+            notes.append(f"{step} not kept (rooms in mirror pairs {floor} -> {after})")
+            continue
+        kept_steps.append(step)
+        best = (w5, o5, bw5, site5, sw5, b_open5, problem5, log, after)
+    if best is None:
+        ex.notes.append(f"{where}: mirror check about {axis[0]} = {axis[1]:.2f}: no fix kept"
+                        + (f" ({'; '.join(notes)})" if notes else ""))
         return None
+    w5, o5, bw5, site5, sw5, b_open5, problem5, log, after = best
     ex.notes.append(f"{where}: mirror check about {axis[0]} = {axis[1]:.2f} (the plan's two halves are mirror images):"
-                    f" rooms in mirror pairs {before} -> {after}; " + "; ".join(log))
+                    f" steps kept {', '.join(kept_steps)}; rooms in mirror pairs {before} -> {after}; " + "; ".join(log)
+                    + (f" (not kept: {'; '.join(notes)})" if notes else ""))
     return w5, o5, bw5, site5, sw5, b_open5, problem5
 
 
@@ -1587,7 +1610,9 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
             extras = [e for e in extras if not any(q.buffer(-0.05).contains(Point(e["footprint"]["center"]))
                                                    for q in sn_polys)]
     stairs = [p for p in pieces if p.type == "stair"]
-    seps, sep_log = TP.separators(bwalls, b_openings, gap_log, blocks, stairs, units_to_m=s)
+    from wenart.ingest.generic import facade as FC_
+    seps, sep_log = TP.separators(bwalls, b_openings, gap_log, blocks, stairs, units_to_m=s,
+                                  axis=FC_.mirror_axis(bwalls, FC_.MIRROR_FIX_SHARE))
     rows = face_table(TP.faces(bwalls, b_openings, seps), blocks, bwalls, b_openings, stairs)
     SY.apply_room_checks(pieces, cands + extras, [{"polygon": r["polygon"], "room_type": r["room_type"],
                                                    "label": r["label"]} for r in rows], ex.notes)
