@@ -1,0 +1,120 @@
+{
+ "schema_version": 1,
+ "kind": "ranking_index",
+ "version": "ul217.1",
+ "lesson": "UL217",
+ "per_sheet": 20,
+ "types": [
+  "syncronia"
+ ],
+ "sheets": [
+  {
+   "sheet": "syncronia-01",
+   "type": "syncronia",
+   "number": 1,
+   "of": 1,
+   "letters": {
+    "A": "syncronia_1264acbf9b6bf1a3e481e26b",
+    "B": "syncronia_1b62267562938e003d042011",
+    "C": "syncronia_3eba7f077ca6b3628c4de971",
+    "D": "syncronia_71606884d3001847e7307f0c",
+    "E": "syncronia_91661aa8250a9bba52ec8e25",
+    "F": "syncronia_b9c981b22ffff17ab6364113",
+    "G": "syncronia_df94c532dfc5699ddd5ccf82"
+   }
+  }
+ ],
+ "models": {
+  "syncronia_1264acbf9b6bf1a3e481e26b": {
+   "type": "bed_double",
+   "sheet": "syncronia-01",
+   "letter": "A",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Demetra bed 195 x 226",
+   "size_m": [
+    1.95,
+    2.26,
+    1.31
+   ],
+   "tab": "syncronia"
+  },
+  "syncronia_1b62267562938e003d042011": {
+   "type": "bed_double",
+   "sheet": "syncronia-01",
+   "letter": "B",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Selene bed 170 x 226",
+   "size_m": [
+    1.7,
+    2.26,
+    0.9
+   ],
+   "tab": "syncronia"
+  },
+  "syncronia_3eba7f077ca6b3628c4de971": {
+   "type": "bed_double",
+   "sheet": "syncronia-01",
+   "letter": "C",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Selene bed 180 x 223",
+   "size_m": [
+    1.8,
+    2.23,
+    0.9
+   ],
+   "tab": "syncronia"
+  },
+  "syncronia_71606884d3001847e7307f0c": {
+   "type": "bed_double",
+   "sheet": "syncronia-01",
+   "letter": "D",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Demetra bed 210 x 226",
+   "size_m": [
+    2.1,
+    2.26,
+    1.31
+   ],
+   "tab": "syncronia"
+  },
+  "syncronia_91661aa8250a9bba52ec8e25": {
+   "type": "bed_double",
+   "sheet": "syncronia-01",
+   "letter": "E",
+   "source": "syncronia",
+   "title": "Horm Ebridi Legno Sommier bed 169 x 205",
+   "size_m": [
+    1.69,
+    2.05,
+    0.61
+   ],
+   "tab": "syncronia"
+  },
+  "syncronia_b9c981b22ffff17ab6364113": {
+   "type": "bed_double",
+   "sheet": "syncronia-01",
+   "letter": "F",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Demetra bed 221 x 226",
+   "size_m": [
+    2.21,
+    2.26,
+    1.31
+   ],
+   "tab": "syncronia"
+  },
+  "syncronia_df94c532dfc5699ddd5ccf82": {
+   "type": "bed_double",
+   "sheet": "syncronia-01",
+   "letter": "G",
+   "source": "syncronia",
+   "title": "Maxalto (B&B Italia) Demetra bed 226 x 241",
+   "size_m": [
+    2.41,
+    2.26,
+    1.31
+   ],
+   "tab": "syncronia"
+  }
+ }
+}

@@ -3277,3 +3277,25 @@ UL284). Two short real10 structure runs built nothing (the structure profile mis
 sheets.json failing its schema on the new registration methods), a third pod never started its container; all fixed,
 the fourth runs. Still open: the 20 cm walls along real09's tiled roof strips (parapet or roof edge, asked), the core
 stair read as one straight flight (three runs), the regression set on the final code.
+
+## The user's beds.zip in the library and on the ranking page (3 Nov 2026, lesson UL290)
+
+beds.zip (463 MB, Google Drive) is a Syncronia download set: 24 beds of B&B Italia, Maxalto, Riva 1920, MDF Italia and
+Horm. The cloud proxy refuses Google Drive, so pods download it (`scripts/jobs/zip_inspect.sh`,
+`wenart/assets/zip_inspect.py`: nested zips, 3DS through Assimp, SketchUp version and preview, report and sheets).
+
+| format | models | taken |
+|---|---:|---|
+| 3DS | 7 | all 7: Horm Ebridi, Maxalto Demetra (4 sizes), Maxalto Selene (2 sizes) |
+| SketchUp (.skp 2015-2018) | 38 | none: no open-source reader (export as COLLADA or glTF from SketchUp) |
+| IGES (MDF Italia Yale) | 1 | none: CAD surfaces, no mesh |
+
+New library source `syncronia` (`wenart/assets/syncronia.py`; relaxed licence mode only, licence not reviewed by the
+user's decision): units, up axis and origin fixed; part materials (`wenart/assets/part_materials.py`: the files carry
+none) by connected pieces (meshes cut by the 3DS vertex limit are joined), upholstery the fit recolours, white linen
+bedding, bronze feet; front from the head end. The studio renders were looked at and the 7 entries set to `keep`.
+New ranking batch `RANK_BATCH=syncronia` (`scripts/jobs/library_ranking.sh` ingests first) and a tab
+"Syncronia beds (beds.zip)" in the group "New models", first on the ranking page.
+
+Pods: inspection 3 min $0.04 and 5 min $0.19; intake and studio 5 min $0.05, 2.5 min $0.10 (part fix), 3.2 min $0.04
+(connected pieces).

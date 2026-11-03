@@ -1,0 +1,142 @@
+{
+ "version": "ul217.1",
+ "models": 7,
+ "ok": 7,
+ "failed": 0,
+ "rows": {
+  "syncronia_1264acbf9b6bf1a3e481e26b": {
+   "ok": true,
+   "method": "library",
+   "fallback_reason": null,
+   "seconds": 10.07,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.9765,
+    -1.1278,
+    0.0
+   ],
+   "box_max": [
+    0.9765,
+    1.1278,
+    1.3086
+   ],
+   "rendered": true
+  },
+  "syncronia_1b62267562938e003d042011": {
+   "ok": true,
+   "method": "library",
+   "fallback_reason": null,
+   "seconds": 9.74,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.85,
+    -1.129,
+    0.0
+   ],
+   "box_max": [
+    0.85,
+    1.129,
+    0.9047
+   ],
+   "rendered": true
+  },
+  "syncronia_3eba7f077ca6b3628c4de971": {
+   "ok": true,
+   "method": "library",
+   "fallback_reason": null,
+   "seconds": 7.8,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.9,
+    -1.113,
+    0.0
+   ],
+   "box_max": [
+    0.9,
+    1.113,
+    0.9047
+   ],
+   "rendered": true
+  },
+  "syncronia_71606884d3001847e7307f0c": {
+   "ok": true,
+   "method": "library",
+   "fallback_reason": null,
+   "seconds": 9.81,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -1.05,
+    -1.1278,
+    0.0
+   ],
+   "box_max": [
+    1.05,
+    1.1278,
+    1.3086
+   ],
+   "rendered": true
+  },
+  "syncronia_91661aa8250a9bba52ec8e25": {
+   "ok": true,
+   "method": "library",
+   "fallback_reason": null,
+   "seconds": 11.7,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -0.943,
+    -1.113,
+    0.0
+   ],
+   "box_max": [
+    0.9394,
+    1.025,
+    0.6125
+   ],
+   "rendered": true
+  },
+  "syncronia_b9c981b22ffff17ab6364113": {
+   "ok": true,
+   "method": "library",
+   "fallback_reason": null,
+   "seconds": 8.27,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -1.105,
+    -1.1278,
+    0.0
+   ],
+   "box_max": [
+    1.105,
+    1.1278,
+    1.3086
+   ],
+   "rendered": true
+  },
+  "syncronia_df94c532dfc5699ddd5ccf82": {
+   "ok": true,
+   "method": "library",
+   "fallback_reason": null,
+   "seconds": 9.08,
+   "warnings": [],
+   "dressing": {},
+   "box_min": [
+    -1.205,
+    -1.1278,
+    0.0
+   ],
+   "box_max": [
+    1.205,
+    1.1278,
+    1.3086
+   ],
+   "rendered": true
+  }
+ },
+ "missing_files": []
+}
