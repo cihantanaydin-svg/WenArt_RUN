@@ -131,20 +131,25 @@ fi
 # entries merged (audit pending) into this checkout's catalogue for the studio, and returned in
 # $RESULTS/library/syncronia/ (syncronia_entries.json, ingest_syncronia.json, parts/) for the session to review
 if [ "$RANK_BATCH" = "syncronia" ]; then
-  SY_ZIP="${SYNC_ZIP:-$WS/library/inbox/1iYSSFbHkn1DH2qtAJ7LF44bZccQ_SYwL/beds.zip}"
-  if [ "$(stat -c %s "$SY_ZIP" 2>/dev/null || echo 0)" != "462846689" ]; then
-    mkdir -p "$(dirname "$SY_ZIP")"
-    curl -fL --retry 3 -C - -o "$SY_ZIP" \
-      "https://drive.usercontent.google.com/download?id=1iYSSFbHkn1DH2qtAJ7LF44bZccQ_SYwL&export=download&confirm=t" \
-      || log "beds.zip download failed"
-  fi
   if ! command -v assimp >/dev/null 2>&1; then
     apt-get install -y -qq --no-install-recommends assimp-utils >/dev/null 2>&1 \
       || { apt-get update -qq >/dev/null 2>&1 && apt-get install -y -qq --no-install-recommends assimp-utils >/dev/null 2>&1; } \
       || log "assimp-utils could not be installed"
   fi
-  run_step ingest "$PY" -m wenart.assets.syncronia ingest --zip "$SY_ZIP" --work "$RANK_ROOT/syncronia" \
-    --assets "$ASSETS" --out "$RESULTS/library/syncronia" --blender "$WENART_BLENDER" --merge-catalog
+  # every zip of wenart.assets.syncronia.ZIPS (beds.zip, then the user's Drive folder Furnitures, 3 Nov 2026)
+  while IFS=: read -r SY_ID SY_BYTES SY_NAME; do
+    SY_ZIP="$WS/library/inbox/$SY_ID/$SY_NAME"
+    if [ "$(stat -c %s "$SY_ZIP" 2>/dev/null || echo 0)" != "$SY_BYTES" ]; then
+      mkdir -p "$(dirname "$SY_ZIP")"
+      curl -fsSL --retry 3 -C - -o "$SY_ZIP" \
+        "https://drive.usercontent.google.com/download?id=$SY_ID&export=download&confirm=t" \
+        || log "$SY_NAME download failed"
+    fi
+    run_step "ingest-${SY_NAME%.zip}" "$PY" -m wenart.assets.syncronia ingest --zip "$SY_ZIP" --zip-name "$SY_NAME" \
+      --work "$RANK_ROOT/syncronia/${SY_NAME%.zip}" --assets "$ASSETS" \
+      --out "$RESULTS/library/syncronia/${SY_NAME%.zip}" --blender "$WENART_BLENDER" --merge-catalog
+  done < <("$PY" -c 'from wenart.assets import syncronia as S
+for i, b, n in S.ZIPS: print(f"{i}:{b}:{n}")')
 fi
 
 # the Poly Haven models of the ranked types or batch (the library GLBs are on the volume)

@@ -184,7 +184,7 @@ def test_ingest_takes_the_proper_bed_with_part_materials_and_a_valid_entry(tmp_p
     assert "syncronia" in merged["sources"] and merged["counts"]["syncronia"]["entries"] == before + 1
     # the studio batch sees it while pending; the review makes it usable
     rows = S.source_entries("syncronia", entries=merged["entries"])
-    assert e["id"] in [r["id"] for r in rows] and all(r["tab"] == "syncronia" for r in rows)
+    assert e["id"] in [r["id"] for r in rows] and all(r["tab"] == "syncronia_" + r["type"] for r in rows)
     SY.review({e["id"]: {"status": "keep", "notes": ["looks right"]}}, path)
     kept = next(x for x in json.loads(path.read_text())["entries"] if x["id"] == e["id"])
     assert kept["audit"]["status"] == "keep" and C.usable(kept, "relaxed") and not C.usable(kept, "commercial")
@@ -217,6 +217,61 @@ def test_a_source_batch_gets_its_own_sheets_index_tab_and_group(tmp_path):
     assert "Syncronia beds (beds.zip)" in html and S.GROUP_NEW in html
     assert html.index("Syncronia beds (beds.zip)") < html.index(RP.type_name("bed_double"))
     assert RP.type_name("syncronia") == "Syncronia beds (beds.zip)"
+
+
+def test_other_types_get_materials_from_names_feet_and_type():
+    """3 Nov 2026 (the Furnitures zips): a chair's "Legno noce" part is walnut, its unnamed parts the type's wood; an
+    armchair's unnamed thin foot is dark metal; a lamp's "Vetro" glass; a sofa's unnamed body upholstery fabric."""
+    def part(name, mn, mx, area=1.0):
+        return {"key": [len(name)], "node": "", "mesh_name": "", "material_name": name, "min": mn, "max": mx,
+                "tris": 100, "area": area}
+    chair = [part("Legno noce", [-0.25, -0.25, 0.4], [0.25, 0.25, 0.9]),
+             part("Material #3", [-0.25, -0.25, 0.0], [-0.22, -0.22, 0.4]),
+             part("Material #4", [-0.25, -0.25, 0.42], [0.25, 0.25, 0.47])]
+    assert [c["class"] for c in PM.classify_any(chair, "chair")] == ["wood_dark", "wood", "wood"]
+    arm = [part("Object01", [-0.4, -0.4, 0.15], [0.4, 0.4, 0.8]), part("Object02", [-0.4, -0.4, 0.0], [-0.36, -0.36, 0.15])]
+    assert [c["class"] for c in PM.classify_any(arm, "armchair")] == ["fabric", "metal"]
+    lamp = [part("Vetro satinato", [-0.2, -0.2, 0.0], [0.2, 0.2, 0.3])]
+    assert PM.classify_any(lamp, "pendant_light")[0]["class"] == "glass"
+    sofa = [part("Object01", [-1.0, -0.45, 0.1], [1.0, 0.45, 0.85])]
+    assert PM.classify_any(sofa, "sofa")[0]["class"] == "fabric"
+    assert PM.material_of_name("Pelle cuoio") == "leather" and PM.material_of_name("Cromato lucido") == "chrome"
+
+
+def test_decor_entries_get_decor_rows_on_their_own_tab():
+    e = {"id": "syncronia_lamp", "type": "decor_ceiling_light", "kind": "decor", "decor_type": "ceiling_light",
+         "source": "syncronia", "glb": "models/syncronia/syncronia_lamp.glb", "bbox_m": [0.4, 0.4, 0.2],
+         "licence": SY.LICENCE, "licence_flag": "non_commercial", "audit": {"status": "pending"}, "title": "Civic Minu ceiling lamp",
+         "front_axis": "-Y", "up_axis": "+Z", "origin_offset": [0, 0, 0]}
+    chair = dict(e, id="syncronia_chair", type="chair", kind="furniture", decor_type=None, bbox_m=[0.5, 0.55, 0.85],
+                 title="Maxalto Febo chair")
+    rows = S.source_entries("syncronia", entries=[e, chair])
+    by = {r["id"]: r for r in rows}
+    assert by["syncronia_lamp"]["tab"] == "syncronia_ceiling_light" and S.is_decor_row(by["syncronia_lamp"])
+    assert by["syncronia_chair"]["tab"] == "syncronia_chair" and not S.is_decor_row(by["syncronia_chair"])
+    assert S.tab_group("syncronia_chair") == S.GROUP_NEW
+    spec = importlib.util.spec_from_file_location("ranking_page", ROOT / "scripts" / "ranking_page.py")
+    RP = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(RP)
+    assert RP.type_name("syncronia_chair") == "Syncronia chairs"
+    assert RP.type_name("syncronia_ceiling_light") == "Syncronia ceiling lights"
+
+
+def test_a_reviewed_entry_keeps_its_review_when_its_file_is_unchanged(tmp_path):
+    path = tmp_path / "cat.json"
+    old = {"id": "syncronia_x", "source": "syncronia", "kind": "furniture", "type": "chair", "sha256_glb": "a" * 64,
+           "front_axis": "+X", "bbox_m": [0.55, 0.5, 0.8], "front_axis_confidence": "high",
+           "audit": {"status": "keep", "reviewed_by": "Claude"}}
+    path.write_text(json.dumps({"entries": [old], "decor": []}), encoding="utf-8")
+    new = dict(old, front_axis="-Y", bbox_m=[0.5, 0.55, 0.8], audit={"status": "pending"})
+    SY.merge([new], path)
+    assert json.loads(path.read_text())["entries"][0]["audit"]["status"] == "keep"
+    SY.merge([dict(new, sha256_glb="b" * 64)], path)
+    assert json.loads(path.read_text())["entries"][0]["audit"]["status"] == "pending"
+    # a decor entry goes to the decor list, and an id never sits in both
+    SY.merge([dict(new, kind="decor", type="decor_vase", decor_type="vase")], path)
+    doc = json.loads(path.read_text())
+    assert not doc["entries"] and doc["decor"][0]["id"] == "syncronia_x"
 
 
 def test_the_job_script_ingests_before_the_studio():

@@ -53,9 +53,13 @@ TYPE_NAMES = {"syncronia": "Syncronia beds (beds.zip)", "ours": "Our builds", "b
 
 
 def type_name(t: str) -> str:
-    """The tab's readable name: ``TYPE_NAMES``, else the type in words ("small_x_y" -> "X y")."""
+    """The tab's readable name: ``TYPE_NAMES``, a source batch's tab "<source>_<type>" as "Syncronia beds" (3 Nov
+    2026), else the type in words ("small_x_y" -> "X y")."""
     if t in TYPE_NAMES:
         return TYPE_NAMES[t]
+    for b in S.SOURCE_BATCHES:
+        if str(t).startswith(b + "_"):
+            return f"{b.capitalize()} {type_name(str(t)[len(b) + 1:]).lower()}"
     words = str(t)[len(S.SMALL_PREFIX):] if str(t).startswith(S.SMALL_PREFIX) else str(t)
     return words.replace("_", " ").capitalize()
 

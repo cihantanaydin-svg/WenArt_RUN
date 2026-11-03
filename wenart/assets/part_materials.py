@@ -83,7 +83,81 @@ PALETTE: dict[str, dict] = {
                   "material": "fabric", "materials": ["fabric"], "note": "taupe upholstery fabric (headboard)"},
     "legs": {"name": "wenart_legs_bronze", "srgb": [74, 61, 50], "roughness": 0.38, "metallic": 1.0,
              "material": "metal", "materials": ["metal"], "note": "bronze metal feet"},
+    # 3 Nov 2026 (the user's Furnitures zips: chairs, tables, sofas, lamps, decor): the materials a material name or a
+    # type gives (``MATERIAL_NAME_WORDS``, ``TYPE_MATERIAL``)
+    "fabric": {"name": "wenart_fabric", "srgb": [150, 139, 126], "roughness": 0.95, "metallic": 0.0,
+               "material": "fabric", "materials": ["fabric"], "note": "taupe upholstery fabric"},
+    "leather": {"name": "wenart_leather", "srgb": [120, 78, 52], "roughness": 0.5, "metallic": 0.0,
+                "material": "other", "materials": ["other"], "note": "cognac leather"},
+    "wood": {"name": "wenart_wood_oak", "srgb": [168, 128, 88], "roughness": 0.55, "metallic": 0.0,
+             "material": "wood", "materials": ["wood"], "note": "oiled oak"},
+    "wood_dark": {"name": "wenart_wood_walnut", "srgb": [92, 62, 42], "roughness": 0.5, "metallic": 0.0,
+                  "material": "wood", "materials": ["wood"], "note": "walnut"},
+    "metal": {"name": "wenart_metal_dark", "srgb": [58, 56, 54], "roughness": 0.4, "metallic": 1.0,
+              "material": "metal", "materials": ["metal"], "note": "dark painted metal"},
+    "chrome": {"name": "wenart_chrome", "srgb": [210, 210, 212], "roughness": 0.12, "metallic": 1.0,
+               "material": "metal", "materials": ["metal"], "note": "polished chrome or steel"},
+    "brass": {"name": "wenart_brass", "srgb": [196, 160, 98], "roughness": 0.3, "metallic": 1.0,
+              "material": "metal", "materials": ["metal"], "note": "brushed brass"},
+    "glass": {"name": "wenart_glass", "srgb": [225, 232, 232], "roughness": 0.04, "metallic": 0.0, "alpha": 0.25,
+              "material": "glass", "materials": ["glass"], "note": "clear glass"},
+    "marble": {"name": "wenart_marble", "srgb": [226, 222, 214], "roughness": 0.22, "metallic": 0.0,
+               "material": "marble", "materials": ["marble"], "note": "light marble"},
+    "plastic": {"name": "wenart_plastic", "srgb": [232, 230, 226], "roughness": 0.45, "metallic": 0.0,
+                "material": "other", "materials": ["other"], "note": "matte white plastic"},
+    "lacquer": {"name": "wenart_lacquer", "srgb": [222, 219, 212], "roughness": 0.3, "metallic": 0.0,
+                "material": "other", "materials": ["other"], "note": "white lacquer"},
+    "ceramic": {"name": "wenart_ceramic", "srgb": [236, 232, 224], "roughness": 0.25, "metallic": 0.0,
+                "material": "other", "materials": ["other"], "note": "glazed white ceramic"},
+    "rattan": {"name": "wenart_rattan", "srgb": [190, 156, 108], "roughness": 0.8, "metallic": 0.0,
+               "material": "rattan", "materials": ["rattan"], "note": "natural rattan or cord"},
 }
+# material-name words (English, Italian, French, German, Spanish; lower case, parts of words), first match wins
+MATERIAL_NAME_WORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("glass", ("glass", "vetro", "verre", "glas", "cristal", "vidrio", "mirror", "specchio")),
+    ("chrome", ("chrome", "cromo", "cromat", "inox", "steel", "acciaio", "stainless", "nickel", "nichel", "alumin",
+                "allumin", "silver", "argento")),
+    ("brass", ("brass", "ottone", "bronze", "bronzo", "gold", "oro", "copper", "rame", "laiton")),
+    ("metal", ("metal", "iron", "ferro", "fer ", "eisen", "hierro", "verniciat")),
+    ("leather", ("leather", "pelle", "cuoio", "cuir", "leder", "cuero", "nabuk", "nubuck")),
+    ("marble", ("marble", "marmo", "marbre", "marmor", "stone", "pietra", "granit", "travertin", "onyx")),
+    ("rattan", ("rattan", "wicker", "vimini", "cane", "paglia", "rope", "corda", "cord", "rush")),
+    ("wood_dark", ("walnut", "noce", "wenge", "ebony", "ebano", "smoked", "termotrattat", "dark wood")),
+    ("wood", ("wood", "legno", "bois", "holz", "madera", "oak", "rovere", "ash", "frassino", "teak", "beech",
+              "faggio", "pine", "pino", "birch", "betulla", "cherry", "ciliegio", "veneer", "impiallacc", "plywood")),
+    ("fabric", ("fabric", "tessuto", "stoffa", "tissu", "stoff", "textil", "tela", "velvet", "velluto", "boucle",
+                "linen", "lino", "wool", "lana", "cotton", "cotone", "felt", "feltro", "cushion", "cuscin",
+                "upholster", "imbott")),
+    ("lacquer", ("lacquer", "laccat", "laque", "lack", "matt", "opaco")),
+    ("plastic", ("plastic", "plastica", "polyprop", "polipropil", "polycarb", "policarb", "abs", "resin", "resina",
+                 "nylon", "pvc")),
+    ("ceramic", ("ceramic", "ceramica", "porcelain", "porcellana", "gres", "terracotta")),
+)
+# the material of a part no name speaks for, by the model's type (its feet: ``legs``, dark metal)
+UPHOLSTERED = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bench", "office_chair")
+WOODEN = ("chair", "bar_stool", "table_dining", "table_coffee", "side_table", "console_table", "desk", "sideboard",
+          "tv_unit", "bookshelf", "nightstand", "dresser", "wardrobe", "display_cabinet", "tall_cabinet",
+          "shoe_cabinet", "wall_cabinet", "crib", "bunk_bed")
+LIGHTS = ("pendant_light", "ceiling_light", "table_lamp", "floor_lamp")
+
+
+def type_material(ftype: str) -> str:
+    if ftype in UPHOLSTERED or ftype in BED_TYPES:
+        return "fabric"
+    if ftype in WOODEN:
+        return "wood"
+    if ftype in LIGHTS:
+        return "lacquer"
+    return "ceramic"
+
+
+def material_of_name(name: str) -> Optional[str]:
+    """The palette class a material or part name says (``MATERIAL_NAME_WORDS``), else None."""
+    text = " " + _name_tokens(name) + " "
+    for cls, words in MATERIAL_NAME_WORDS:
+        if any(w in text for w in words):
+            return cls
+    return None
 
 
 def srgb_to_linear(c: float) -> float:
@@ -256,6 +330,34 @@ def _inside(c: list, big: dict, tol: float = 0.01) -> bool:
     return all(big["min"][i] - tol <= c[i] <= big["max"][i] + tol for i in range(3))
 
 
+def classify_any(ps: list[dict], ftype: str) -> list[dict]:
+    """The classes of any model (3 Nov 2026): a bed by ``classify``; any other type piece by piece: the material its
+    names say (``material_of_name``: material, mesh, node), else an upholstered piece's thin foot on the floor is dark
+    metal, else the type's material (``type_material``)."""
+    if ftype in BED_TYPES:
+        return classify(ps, ftype)
+    if not ps:
+        return []
+    lo = [min(p["min"][i] for p in ps) for i in range(3)]
+    h = max(p["max"][2] for p in ps) - lo[2]
+    upholstered = type_material(ftype) == "fabric"
+    out = []
+    for p in ps:
+        cls = (material_of_name(p.get("material_name") or "") or material_of_name(p.get("mesh_name") or "")
+               or material_of_name(p.get("node") or ""))
+        if cls:
+            out.append({"key": p["key"], "class": cls, "by": "name"})
+            continue
+        pw, pd = p["max"][0] - p["min"][0], p["max"][1] - p["min"][1]
+        # an upholstered piece's unnamed feet: thin, on the floor, in the lower part (a wooden piece's legs keep wood)
+        if (upholstered and len(ps) > 1 and pw <= LEG_FOOT_M and pd <= LEG_FOOT_M and p["min"][2] - lo[2] <= 0.02
+                and p["max"][2] - lo[2] <= max(LEG_TOP_M, 0.5 * h)):
+            out.append({"key": p["key"], "class": "metal", "by": "geometry:foot"})
+            continue
+        out.append({"key": p["key"], "class": type_material(ftype), "by": "type"})
+    return out
+
+
 def classify(ps: list[dict], ftype: str) -> list[dict]:
     """``[{"key", "class", "by"}]`` for a bed (``"name"``, ``"geometry:<rule>"``, ``"base"``, ``"sits on"``); [] for
     another type. After the per-part rules: when no covering part is the frame yet, the lowest covering soft part is
@@ -340,15 +442,19 @@ def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
     cls_of = {tuple(c["key"]): c["class"] for c in classes}
     names: list[str] = []
     mats = []
-    for c in CLASSES:
+    present = list(CLASSES) + sorted({c["class"] for c in classes} - set(CLASSES))
+    for c in present:
         pal = PALETTE[c]
         if pal["name"] in names:
             continue
         names.append(pal["name"])
-        mats.append({"name": pal["name"], "doubleSided": True,
-                     "pbrMetallicRoughness": {"baseColorFactor": [round(srgb_to_linear(v), 5) for v in pal["srgb"]]
-                                              + [1.0], "metallicFactor": pal["metallic"],
-                                              "roughnessFactor": pal["roughness"]}})
+        mat = {"name": pal["name"], "doubleSided": True,
+               "pbrMetallicRoughness": {"baseColorFactor": [round(srgb_to_linear(v), 5) for v in pal["srgb"]]
+                                        + [float(pal.get("alpha", 1.0))], "metallicFactor": pal["metallic"],
+                                        "roughnessFactor": pal["roughness"]}}
+        if pal.get("alpha", 1.0) < 1.0:
+            mat["alphaMode"] = "BLEND"
+        mats.append(mat)
     by_prim: dict = {}
     area_of: dict[str, float] = {}
     counts: dict[str, int] = {}
@@ -364,7 +470,7 @@ def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
     for mi, mesh in enumerate(doc.get("meshes") or []):
         new_prims = []
         for pi, prim in enumerate(mesh.get("primitives") or []):
-            groups = by_prim.get((mi, pi)) or {"frame": []}
+            groups = by_prim.get((mi, pi)) or {(classes[0]["class"] if classes else "frame"): []}
             if len(groups) == 1:
                 prim["material"] = names.index(PALETTE[next(iter(groups))]["name"])
                 new_prims.append(prim)
@@ -398,7 +504,7 @@ def assign(src, dst, ps: list[dict], classes: list[dict]) -> dict:
     for i, name in enumerate(names):
         if name not in area_of:
             continue
-        pal = next(PALETTE[c] for c in CLASSES if PALETTE[c]["name"] == name)
+        pal = next(PALETTE[c] for c in present if PALETTE[c]["name"] == name)
         slots.append({"index": i, "name": name, "material": pal["material"], "materials": list(pal["materials"]),
                       "agreed": True, "separable": True, "share": round(area_of[name] / total, 4), "textured": False,
                       "base_colour": [round(srgb_to_linear(v), 4) for v in pal["srgb"]] + [1.0],

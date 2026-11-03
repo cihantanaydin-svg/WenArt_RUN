@@ -246,7 +246,7 @@ def tab_group(rank_type: str, procedural: bool = False) -> str:
     (``TAB_GROUPS``), ``Small items`` (``small_<kind>``), else ``Furniture``."""
     if procedural:
         return GROUP_OURS
-    if rank_type in SOURCE_BATCHES:
+    if rank_type in SOURCE_BATCHES or any(str(rank_type).startswith(b + "_") for b in SOURCE_BATCHES):
         return GROUP_NEW
     if str(rank_type).startswith(SMALL_PREFIX):
         return GROUP_SMALL
@@ -704,23 +704,33 @@ def results_doc(index: dict, work: Path) -> dict:
 # --------------------------------------------------------------------------
 
 def source_entries(source: str, mode: str = "relaxed", entries: Optional[list[dict]] = None) -> list[dict]:
-    """The furniture models of one library source for its own tab (``SOURCE_BATCHES``): every entry of the source
-    the fit could use once its audit passes (not removed, the licence mode, the bed rule), pending ones included,
-    tab = the source, ordered by type and id."""
+    """The models of one library source for its own tabs (``SOURCE_BATCHES``): every furniture and decor entry of the
+    source the fit could use once its audit passes (not removed, the licence mode, the bed rule), pending ones
+    included; one tab per type (``<source>_<type>``: "Syncronia beds", "Syncronia chairs" ...); a decor model is a
+    decor row on its stage (``_studio_entry``); ordered by type and id. ``entries``: furniture and decor entries
+    (default: the library catalogue's ``entries`` and ``decor``)."""
+    from wenart.assets.audit import items as I
     from wenart.furniture import catalog as C
     from wenart.furniture import fit as F
+    if entries is None:
+        lib = I.read_json(I.LIBRARY_PATH) or {}
+        entries = list(lib.get("entries") or []) + list(lib.get("decor") or [])
     rows = []
-    for e in (entries if entries is not None else catalogue_entries()):
-        if e.get("source") != source or not e.get("bbox_m"):
+    for e in entries:
+        if not isinstance(e, dict) or e.get("source") != source or not e.get("bbox_m") or not e.get("glb"):
             continue
         status = str((e.get("audit") or {}).get("status") or "").lower()
         if status in ("removed", "remove"):
             continue
         probe = dict(e, audit=dict(e.get("audit") or {}, status="keep"))   # pending counts as passed here
-        if not (C.usable(probe, mode) and F.bed_usable(e)):
+        if not C.usable(probe, mode):
             continue
-        rows.append(dict(e, tab=source))
-    return sorted(rows, key=lambda e: (str(e["type"]), str(e["id"])))
+        if e.get("kind") == "decor":
+            dtype = str(e.get("decor_type") or str(e.get("type"))[len("decor_"):])
+            rows.append(dict(_studio_entry(e, dtype, "decor", dtype), tab=f"{source}_{dtype}"))
+        elif F.bed_usable(e):
+            rows.append(dict(e, tab=f"{source}_{e['type']}"))
+    return sorted(rows, key=lambda e: (str(e["tab"]), str(e["id"])))
 
 
 def batch_entries(batch: str = "", types: Optional[list[str]] = None, mode: str = "relaxed",
