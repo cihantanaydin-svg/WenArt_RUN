@@ -89,7 +89,9 @@ OBJAVERSE_CACHE = f"{MODELS_DIR}/objaverse"     # <assets>/models/objaverse/<uid
 # growth_run ingest --source hssd). = wenart.furniture.catalog.LIBRARY_SOURCES (tests/test_library_growth_p4.py).
 # 3dwh (23 Oct 2026): the 3D Warehouse models of the user's zip, fixed and written to <assets>/models/3dwh/<uid>.glb by
 # growth_run ingest --source 3dwh (wenart/assets/warehouse.py; relaxed licence mode only).
-LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso", "hssd", "3dwh")
+# syncronia (3 Nov 2026): the manufacturer models of the user's zip "beds.zip", written to
+# <assets>/models/syncronia/<uid>.glb by wenart/assets/syncronia.py (relaxed licence mode only).
+LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso", "hssd", "3dwh", "syncronia")
 CACHE_SOURCES = LIBRARY_SOURCES          # the Milestone 13 name (hssd joined LIBRARY_SOURCES in build round 2)
 _UID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
 # Fields of the fit asset (catalogue entry) kept in the manifest entry of an Objaverse model.

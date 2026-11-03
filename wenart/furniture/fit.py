@@ -359,7 +359,8 @@ UPHOLSTERED_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise
 # gso: M12 pod P4 scans; hssd: M13 pod P2 (docs/milestone13.md §12 D2; CC BY-NC 4.0, candidates in relaxed mode only)
 # 3dwh (23 Oct 2026): the 3D Warehouse models of the user's zip (uploads of mixed quality, fixed by
 # wenart/assets/warehouse.py) rank after the curated sources and before Objaverse.
-SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "hssd", "gso", "3dwh", "objaverse", "generated")
+# syncronia (3 Nov 2026): manufacturer product models of the user's zip "beds.zip", after the curated sources too.
+SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "hssd", "gso", "syncronia", "3dwh", "objaverse", "generated")
 GENERATED = "generated"
 DEFAULT_QUALITY = 3.0
 SIZE_BUCKET = 0.05           # real-size error steps: models within the same 5 % step are ranked by quality

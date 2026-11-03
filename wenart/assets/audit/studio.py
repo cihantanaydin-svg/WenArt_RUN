@@ -216,6 +216,12 @@ TAB_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("Electronics", ("tv", "monitor", "laptop", "microwave")),
 )
 GROUP_OURS, GROUP_FURNITURE, GROUP_SMALL = "Our builds", "Furniture", "Small items"
+# 3 Nov 2026 (the user: "open up a new ranking tab in the ranking page for them so I can rank them"): a library source
+# new to the page gets its own batch (ranking_index_<source>.json) and its own tab (the batch name) in the group
+# GROUP_NEW, shown first; its models are the source's catalogue entries (``source_entries``: pending ones too, so the
+# user ranks them while they wait for their audit; removed ones never)
+SOURCE_BATCHES: tuple[str, ...] = ("syncronia",)
+GROUP_NEW = "New models"
 # --types names a type or one of these (the pod job's RANK_TYPES with RANK_BATCH=remaining)
 TYPE_ALIASES: dict[str, tuple[str, ...]] = {
     "decor": tuple(t for name, ts in TAB_GROUPS if name != "Electronics" for t in ts),
@@ -240,6 +246,8 @@ def tab_group(rank_type: str, procedural: bool = False) -> str:
     (``TAB_GROUPS``), ``Small items`` (``small_<kind>``), else ``Furniture``."""
     if procedural:
         return GROUP_OURS
+    if rank_type in SOURCE_BATCHES:
+        return GROUP_NEW
     if str(rank_type).startswith(SMALL_PREFIX):
         return GROUP_SMALL
     for name, types in TAB_GROUPS:
@@ -495,7 +503,7 @@ def sheet_plan(entries: list[dict], per_sheet: int = PER_SHEET) -> list[dict]:
     sheets: list[dict] = []
     by_type: dict[str, list[dict]] = {}
     for e in entries:
-        by_type.setdefault(e.get("group") or e["type"], []).append(e)
+        by_type.setdefault(e.get("tab") or e.get("group") or e["type"], []).append(e)
     for ftype, rows in by_type.items():
         count = math.ceil(len(rows) / per_sheet)
         for n in range(count):
@@ -519,6 +527,8 @@ def index_doc(entries: list[dict], sheets: list[dict]) -> dict:
             if e.get("procedural"):
                 models[iid].update({"group": e.get("group"), "procedural": True, "style": e.get("style_name"),
                                     "method": e.get("method")})
+            if e.get("tab"):                      # a source batch: its own tab (SOURCE_BATCHES)
+                models[iid]["tab"] = e["tab"]
             if is_decor_row(e):                   # the remaining batch: its catalogue type and kind
                 models[iid].update({"catalog_type": e.get("catalog_type"), "studio": e.get("studio")})
     return {"schema_version": 1, "kind": "ranking_index", "version": STUDIO_VERSION, "lesson": "UL217",
@@ -693,6 +703,26 @@ def results_doc(index: dict, work: Path) -> dict:
 # CLI
 # --------------------------------------------------------------------------
 
+def source_entries(source: str, mode: str = "relaxed", entries: Optional[list[dict]] = None) -> list[dict]:
+    """The furniture models of one library source for its own tab (``SOURCE_BATCHES``): every entry of the source
+    the fit could use once its audit passes (not removed, the licence mode, the bed rule), pending ones included,
+    tab = the source, ordered by type and id."""
+    from wenart.furniture import catalog as C
+    from wenart.furniture import fit as F
+    rows = []
+    for e in (entries if entries is not None else catalogue_entries()):
+        if e.get("source") != source or not e.get("bbox_m"):
+            continue
+        status = str((e.get("audit") or {}).get("status") or "").lower()
+        if status in ("removed", "remove"):
+            continue
+        probe = dict(e, audit=dict(e.get("audit") or {}, status="keep"))   # pending counts as passed here
+        if not (C.usable(probe, mode) and F.bed_usable(e)):
+            continue
+        rows.append(dict(e, tab=source))
+    return sorted(rows, key=lambda e: (str(e["type"]), str(e["id"])))
+
+
 def batch_entries(batch: str = "", types: Optional[list[str]] = None, mode: str = "relaxed",
                   procedural: bool = False, proc_tag: str = PROC_TAG) -> list[dict]:
     """The models of one studio run: our builds (``procedural``), the ``remaining`` batch (``remaining_entries``,
@@ -701,8 +731,11 @@ def batch_entries(batch: str = "", types: Optional[list[str]] = None, mode: str 
         return procedural_entries(tag=proc_tag)
     if batch == REMAINING:
         return remaining_entries(mode, types=list(types) if types else None)
+    if batch in SOURCE_BATCHES:
+        rows = source_entries(batch, mode)
+        return [e for e in rows if not types or e["type"] in types]
     if batch:
-        raise ValueError(f"unknown batch {batch!r} (known: {REMAINING})")
+        raise ValueError(f"unknown batch {batch!r} (known: {REMAINING}, {', '.join(SOURCE_BATCHES)})")
     return rank_entries(list(types) if types else RANK_TYPES, mode)
 
 
@@ -714,7 +747,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--types", default="",
                     help="comma list of types (default: bed_double,sofa,armchair; with --batch every type of the batch;"
                          f" there also the groups {', '.join(sorted(TYPE_ALIASES))})")
-    ap.add_argument("--batch", default="", choices=("", REMAINING),
+    ap.add_argument("--batch", default="", choices=("", REMAINING) + SOURCE_BATCHES,
                     help="remaining: every library model the pipeline may use that no committed sheet shows (decor, "
                          "the extras the fit takes first, small items, other furniture types)")
     ap.add_argument("--mode", default="relaxed")

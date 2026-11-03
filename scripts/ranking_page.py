@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from wenart.assets.audit import studio as S  # noqa: E402
 
 COLS, ROWS, TILE, HEAD = 5, 4, int(S.SETTINGS["sheet_tile_px"]), 56
-TYPE_NAMES = {"ours": "Our builds", "bed_double": "Beds", "sofa": "Sofas", "armchair": "Armchairs", "sofa_corner": "Corner sofas",
+TYPE_NAMES = {"syncronia": "Syncronia beds (beds.zip)", "ours": "Our builds", "bed_double": "Beds", "sofa": "Sofas", "armchair": "Armchairs", "sofa_corner": "Corner sofas",
               "table_coffee": "Coffee tables", "side_table": "Side tables", "tv_unit": "TV units",
               "floor_lamp": "Floor lamps", "ottoman": "Ottomans", "bookshelf": "Bookshelves",
               "console_table": "Console tables", "sideboard": "Sideboards", "display_cabinet": "Display cabinets",
@@ -79,7 +79,7 @@ def models(index: dict, results: dict | None) -> list[dict]:
             m = index["models"][iid]
             row, col = divmod(i, COLS)
             out.append({"id": iid, "type": m.get("type") or sheet["type"],
-                        "tab": m.get("group") or m.get("type") or sheet["type"], "sheet": sheet["sheet"], "letter": letter,
+                        "tab": m.get("tab") or m.get("group") or m.get("type") or sheet["type"], "sheet": sheet["sheet"], "letter": letter,
                         "title": m.get("title") or "", "size": m.get("size_m"), "source": m.get("source"),
                         "x": round(100.0 * col / (COLS - 1), 4),
                         "y": round(100.0 * (HEAD + row * TILE) / (HEAD + ROWS * TILE - TILE), 4)})
@@ -547,6 +547,8 @@ def main(argv: list[str] | None = None) -> int:
     # 31 Oct 2026: the library's index and our builds' (ranking_index_<tag>.json, first: the tab to score now)
     pairs = []
     files = sorted(rk.glob("ranking_index_*.json")) + [rk / "ranking_index.json"]
+    # 3 Nov 2026: a new source's batch (studio.SOURCE_BATCHES) first, so its group and tab open the page
+    files.sort(key=lambda f: 0 if f.stem[len("ranking_index_"):] in S.SOURCE_BATCHES else 1)
     for f in files:
         suffix = f.stem[len("ranking_index"):]
         res_path = rk / f"studio_results{suffix}.json"

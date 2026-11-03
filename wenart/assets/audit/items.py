@@ -34,7 +34,9 @@ FIELDS = ("bbox_m", "bbox_model_m", "bbox_min_m", "bbox_max_m", "origin_offset",
           # fix round after P5 (22 Oct 2026): what a run's render showed on the model (checks.render_print_check)
           "render_findings",
           # 23 Oct 2026: the 3D Warehouse record (name evidence, unit, fix-up; checks.title_check reads it for extras)
-          "3dwh")
+          "3dwh",
+          # 3 Nov 2026: the Syncronia record (zip member, unit, part materials; wenart/assets/syncronia.py)
+          "syncronia")
 # The catalogue sections the audit reads and writes: furniture, decor and (23 Oct 2026, the user's request to keep
 # every 3D Warehouse model) the extras: trees, doors, windows and objects (kinds ``WH.EXTRA_KINDS``), audited like
 # the rest; the furniture fit never reads the extras.

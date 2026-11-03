@@ -233,7 +233,7 @@ from wenart.blender.proxies import COINCIDENT_LIFT, footprints_overlap, mount_bo
 
 CC0 = "CC0"
 CC_BY = "CC-BY-4.0"
-LIBRARIES = ("polyhaven", "abo", "objaverse", "generated", "gso", "hssd", "3dwh", "parametric")
+LIBRARIES = ("polyhaven", "abo", "objaverse", "generated", "gso", "hssd", "3dwh", "syncronia", "parametric")
 # Licence gate of the model kind (docs/milestone7.md §6.3, docs/milestone8.md §2; the rule of
 # wenart.assets.fetch.check_licence with kind "models", repeated here because Blender's Python imports this
 # module without the asset code). Generated models carry the licence text "generated (<model>, <licence>)".
@@ -244,14 +244,17 @@ MODEL_LICENCES = {"polyhaven": (CC0,), "abo": (CC_BY,), "objaverse": (CC0, CC_BY
                   "hssd": ("CC-BY-NC-4.0",),
                   # 3dwh: the 3D Warehouse models of the user's zip (23 Oct 2026; licences not reviewed by the user's
                   # decision, relaxed licence mode only; = wenart.assets.warehouse.LICENCE)
-                  "3dwh": ("3DWH-UNREVIEWED",)}
+                  "3dwh": ("3DWH-UNREVIEWED",),
+                  # syncronia: the manufacturer models of the user's zip "beds.zip" (3 Nov 2026; licence not reviewed,
+                  # relaxed licence mode only; = wenart.assets.syncronia.LICENCE)
+                  "syncronia": ("SYNCRONIA-UNREVIEWED",)}
 GENERATED_LICENCE_PREFIX = "GENERATED"
 # Milestone 8: sources whose other licences pass when the catalogue flagged them (recorded, not filtered); Milestone 13:
 # the HSSD layer the same way (its one licence is flagged non_commercial).
-FLAGGED_SOURCES = ("objaverse", "hssd", "3dwh")
+FLAGGED_SOURCES = ("objaverse", "hssd", "3dwh", "syncronia")
 # The flag a source's every model must carry (the dataset's terms, not a per-object licence): an HSSD asset without
 # ``licence_flag: non_commercial`` was not fitted through the Milestone 13 catalogue and is refused.
-SOURCE_FLAGS = {"hssd": "non_commercial", "3dwh": "non_commercial"}
+SOURCE_FLAGS = {"hssd": "non_commercial", "3dwh": "non_commercial", "syncronia": "non_commercial"}
 # Milestone 13 (§13.3): the catalogue's flag words (``wenart.furniture.catalog.LICENCE_FLAGS`` without ``none``).
 LICENCE_FLAGS = ("non_commercial", "share_alike", "no_derivatives", "research_only", "regional", "tool_nc", "unknown")
 CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")

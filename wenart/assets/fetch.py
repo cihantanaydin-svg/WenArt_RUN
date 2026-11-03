@@ -99,10 +99,10 @@ def _entry_flag(entry: dict) -> str:
     return entry.get("licence_flag") or NO_FLAG
 # A source's own licence text -> its flag (= wenart.furniture.catalog.SOURCE_TEXT_FLAGS): the 3D Warehouse models of
 # the user's zip, licences not reviewed (user decision of 23 Oct 2026), relaxed licence mode only.
-_SOURCE_FLAGS = {"3DWH-UNREVIEWED": "non_commercial"}
+_SOURCE_FLAGS = {"3DWH-UNREVIEWED": "non_commercial", "SYNCRONIA-UNREVIEWED": "non_commercial"}
 MODEL_SOURCE_LICENCES = {"objaverse": tuple(_FLAGS), "abo": (CC_BY,), "gso": (CC_BY,),
                          "hssd": ("CC-BY-NC-4.0",),   # gso: M12 pod P4; hssd: M13 (relaxed licence mode only)
-                         "3dwh": tuple(_SOURCE_FLAGS)}
+                         "3dwh": ("3DWH-UNREVIEWED",), "syncronia": ("SYNCRONIA-UNREVIEWED",)}
 GENERATED = "generated"                     # model source; its licence starts with this word
 # Manifest sections; the licence rule depends on the kind.
 KINDS = ("textures", "hdris", "models")

@@ -23,6 +23,9 @@
 # Env (all optional): RANK_TYPES (comma list), RANK_WORKERS (default 4), RANK_ROOT, RANK_SAMPLES, WENART_ASSETS;
 # RANK_PROCEDURAL=1 renders our own builds instead (every parametric and module builder in the projects' styles,
 # 31 Oct 2026), RANK_PROC_TAG (default ours) names them: ranking_index_<tag>.json, studio_results_<tag>.json.
+# RANK_BATCH=syncronia (3 Nov 2026, the user's beds.zip): ingest the proper models of the zip, then their own tab:
+#   scripts/gpu_run.py run --job scripts/jobs/library_ranking.sh --env RANK_BATCH=syncronia --max-minutes 40 \
+#     --purpose "beds.zip: library intake of the proper models and their ranking tab"
 # RANK_BATCH=remaining (31 Oct 2026, user: "include all remaining library models for ranking after the real04 run"):
 # every library model the pipeline may use that no committed sheet shows (the decor models, the extras the fit takes
 # first, the small items' models, any other furniture type), each on the stage of its kind (studio.decor_stage: a
@@ -119,6 +122,28 @@ if [ -n "${RANK_SAMPLES:-}" ]; then ARGS+=(--samples "$RANK_SAMPLES"); fi
 if [ "$RANK_PROCEDURAL" = "1" ]; then
   ARGS+=(--procedural --proc-tag "$RANK_PROC_TAG")
   RESULTS_FILE="$OUT/studio_results_${RANK_PROC_TAG}.json"
+fi
+
+# 3 Nov 2026 (the user: "Include into the library (the proper ones) and also open up a new ranking tab"): a source
+# batch that brings its own models first ingests them (RANK_BATCH=syncronia: the user's beds.zip, on the volume since
+# the inspection pod; downloaded again when missing): converted, part materials, <assets>/models/syncronia/, the
+# entries merged (audit pending) into this checkout's catalogue for the studio, and returned in
+# $RESULTS/library/syncronia/ (syncronia_entries.json, ingest_syncronia.json, parts/) for the session to review
+if [ "$RANK_BATCH" = "syncronia" ]; then
+  SY_ZIP="${SYNC_ZIP:-$WS/library/inbox/1iYSSFbHkn1DH2qtAJ7LF44bZccQ_SYwL/beds.zip}"
+  if [ "$(stat -c %s "$SY_ZIP" 2>/dev/null || echo 0)" != "462846689" ]; then
+    mkdir -p "$(dirname "$SY_ZIP")"
+    curl -fL --retry 3 -C - -o "$SY_ZIP" \
+      "https://drive.usercontent.google.com/download?id=1iYSSFbHkn1DH2qtAJ7LF44bZccQ_SYwL&export=download&confirm=t" \
+      || log "beds.zip download failed"
+  fi
+  if ! command -v assimp >/dev/null 2>&1; then
+    apt-get install -y -qq --no-install-recommends assimp-utils >/dev/null 2>&1 \
+      || { apt-get update -qq >/dev/null 2>&1 && apt-get install -y -qq --no-install-recommends assimp-utils >/dev/null 2>&1; } \
+      || log "assimp-utils could not be installed"
+  fi
+  run_step ingest "$PY" -m wenart.assets.syncronia ingest --zip "$SY_ZIP" --work "$RANK_ROOT/syncronia" \
+    --assets "$ASSETS" --out "$RESULTS/library/syncronia" --blender "$WENART_BLENDER" --merge-catalog
 fi
 
 # the Poly Haven models of the ranked types or batch (the library GLBs are on the volume)
