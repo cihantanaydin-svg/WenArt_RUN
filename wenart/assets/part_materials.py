@@ -10,9 +10,11 @@ What:
   materials keeps them;
 - ``classify(parts, ftype)``: each primitive's part class for a bed (``BED_TYPES``): ``bedding`` (mattress, duvet,
   sheets, pillows, throws), ``legs``, ``headboard``, ``frame``. The names decide first (``NAME_WORDS``: English,
-  Italian, French, German, Spanish); geometry decides the rest (``bed_geometry``): a small foot under ``LEG_TOP_M``,
-  a tall thin panel on one side, the soft parts that float above the floor and cover most of the footprint, pillows
-  near the head end, the rest the frame. Another type gets no classes (nothing is guessed);
+  Italian, French, German, Spanish), then a material name that says metal (``MATERIAL_WORDS``: the feet or a metal
+  base); geometry decides the rest (``bed_geometry``): a small foot under ``LEG_TOP_M``, a tall thin panel on one
+  side, a covering part that reaches the top and is tall (the upholstered base with its headboard in one mesh), the
+  soft parts that float above the floor and cover most of the footprint, pillows near the head end, the rest the
+  frame. Another type gets no classes (nothing is guessed);
 - ``assign(src, dst, classes)``: the GLB rewritten with one material per class (``PALETTE``: a white linen for the
   bedding, a taupe upholstery fabric for the frame and the headboard, a bronze metal for the legs; glTF PBR factors,
   roughness and metallic set), the primitives pointed at them; returns the ``material_slots`` record of the catalogue
@@ -61,6 +63,15 @@ NAME_WORDS: dict[str, tuple[str, ...]] = {
     "frame": ("frame", "giroletto", "struttura", "telaio", "base", "sommier", "rete", "rail", "fianc", "cadre",
               "rahmen", "estructura"),
 }
+
+# words in material names that say a part's material (3 Nov 2026, the Maxalto 3DS files name their materials "fabric"
+# and "metal"): a metal part of a bed is its feet or its metal base frame
+MATERIAL_WORDS: dict[str, tuple[str, ...]] = {
+    "legs": ("metal", "steel", "chrome", "brass", "bronze", "iron", "alumin", "acciaio", "metallo", "ottone", "ferro",
+             "inox"),
+}
+BASE_SPAN_H = 0.5                      # a covering part at least this share of the model's height tall that reaches
+                                       # its top is the base with its headboard (upholstery), not bedding
 
 # glTF PBR factors (linear base colour) of each class; the colour in sRGB for the catalogue's colour_rgb
 PALETTE: dict[str, dict] = {
@@ -143,9 +154,15 @@ def needs_materials(doc: dict) -> bool:
 
 
 def by_name(p: dict) -> Optional[str]:
+    """The class the names give: the part words (``NAME_WORDS``) in the node, mesh and material names, then the
+    material words (``MATERIAL_WORDS``) in the material name; None when no name says it."""
     text = _name_tokens(p.get("node"), p.get("mesh_name"), p.get("material_name"))
     for cls in ("bedding", "legs", "headboard", "frame"):
         if any(w in text for w in NAME_WORDS[cls]):
+            return cls
+    mat = _name_tokens(p.get("material_name"))
+    for cls, words in MATERIAL_WORDS.items():
+        if any(w in mat for w in words):
             return cls
     return None
 
@@ -163,7 +180,10 @@ def bed_geometry(p: dict, box_min: list, box_max: list) -> str:
     if pmax[2] - box_min[2] >= HEAD_MIN_TOP * h and thin <= HEAD_THIN_M and span >= HEAD_SPAN:
         return "headboard"
     floats = pmin[2] - box_min[2] >= FLOAT_MIN_M
-    if floats and pw >= COVER_SPAN * w and pd >= COVER_SPAN * d:
+    covers = pw >= COVER_SPAN * w and pd >= COVER_SPAN * d
+    if covers and pmax[2] - box_min[2] >= HEAD_MIN_TOP * h and ph >= BASE_SPAN_H * h:
+        return "frame"                 # the upholstered base with its headboard, one mesh (Maxalto Demetra, Selene)
+    if floats and covers:
         return "bedding"
     if floats and min(pw, pd) >= PILLOW_MIN_M and ph <= PILLOW_MAX_H_M and max(pw, pd) <= 0.9:
         return "bedding"

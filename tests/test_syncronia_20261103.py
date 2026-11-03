@@ -108,6 +108,29 @@ def test_bed_parts_are_classified_by_geometry():
     assert PM.classify([part(lo, hi)], "sofa") == []
 
 
+def test_the_maxalto_parts_of_the_pod_get_the_right_classes():
+    """The part boxes of the pod of 3 Nov 2026 (Maxalto Demetra 195 x 226 and Selene 170 x 226, Horm Ebridi): the
+    base with its headboard in one "fabric" mesh is upholstery, the mattress and duvet mesh is bedding, the "metal"
+    mesh is the feet and metal base."""
+    def part(name, mat, mn, mx, area=1.0):
+        return {"key": [0, 0], "node": name, "mesh_name": "", "material_name": mat, "min": mn, "max": mx,
+                "tris": 1000, "area": area}
+    demetra = [part("sub03", "fabric", [-0.0096, 0.3816, 0.5084], [0.805, 0.8921, 0.6432], 0.76),
+               part("sub02", "fabric", [-0.9765, -1.1213, 0.2092], [0.9765, 0.9152, 0.6432], 9.23),
+               part("sub01", "fabric", [-0.8499, -1.1278, 0.1788], [0.8635, 1.1278, 1.3086], 11.97),
+               part("metal", "metal", [-0.8224, -1.0883, 0.0], [0.8268, 0.9996, 0.1827], 0.1)]
+    assert [c["class"] for c in PM.classify(demetra, "bed_double")] == ["bedding", "bedding", "frame", "legs"]
+    selene = [part("sub02", "fabric", [-1.1092, -0.7498, 0.1775], [1.129, 0.7336, 0.9047], 9.29),
+              part("sub01", "fabric", [-1.129, -0.85, 0.1997], [0.9116, 0.85, 0.6148], 9.22),
+              part("metal", "metal", [-1.0895, -0.7296, 0.0], [0.9984, 0.7099, 0.1906], 0.1)]
+    assert [c["class"] for c in PM.classify(selene, "bed_double")] == ["frame", "bedding", "legs"]
+    ebridi = [part("stitch_re1_inst_2", "Material #25", [-0.94, 0.0633, 0.5098], [-0.4879, 0.7367, 0.6125], 0.39),
+              part("stitch_re1", "Material #25", [-0.94, -0.7367, 0.5098], [-0.4879, -0.0633, 0.6125], 0.39),
+              part("stitch_re0", "Material #25", [-0.975, -0.805, 0.33], [0.975, 0.805, 0.51], 7.43),
+              part("stitch_res", "Material #25", [-1.025, -0.845, 0.0], [1.025, 0.845, 0.33], 7.66)]
+    assert [c["class"] for c in PM.classify(ebridi, "bed_double")] == ["bedding", "bedding", "bedding", "frame"]
+
+
 def test_a_textured_or_coloured_model_keeps_its_materials():
     assert PM.needs_materials({"materials": [{"pbrMetallicRoughness": {"baseColorFactor": [1, 1, 1, 1]}}]})
     assert PM.needs_materials({"materials": [{}]})
