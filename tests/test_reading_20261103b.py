@@ -331,3 +331,32 @@ def test_a_small_room_with_one_door_and_no_window_is_a_closet():
     win = OpeningItem(kind="window", width=0.6, center=(0.5, 1.6), rotation_deg=0.0, box=[0, 0, 1, 1], entity="W",
                       evidence={})
     assert TP.unlabelled_face_type(face, walls, [door, win])[0] == "unknown"   # a window: no closet
+
+
+def test_the_main_entrance_is_the_door_reached_from_the_core_nearest_the_ground():
+    """real10 (user: "this should be the main entrance to the building"): the 1st basement's 2.40 m double front door
+    into the passage the shared hall opens onto, not a bedroom's garden door nor a door a storey up."""
+    from wenart.levels import model as LM
+
+    def room(rid, lid, label, rtype, poly, method=None):
+        r = {"id": rid, "level_id": lid, "label": label, "label_raw": None, "room_type": rtype, "polygon": poly}
+        if method:
+            r["label_inferred"] = {"method": method}
+        return r
+
+    b = {"rooms": [room("core", "L-1", "Merdiven", "stair", [[4, 6], [7, 6], [7, 9], [4, 9]], "stair_core"),
+                   room("hall", "L-1", "Kat Holü", "hall", [[4, 4], [7, 4], [7, 5.8], [4, 5.8]], "shared_hall"),
+                   room("pass", "L-1", "Oda", "hall", [[5, 0.2], [6.5, 0.2], [6.5, 3.8], [5, 3.8]]),
+                   room("bed", "L-1", "Yatak", "bedroom", [[0, 6], [3, 6], [3, 9], [0, 9]]),
+                   room("core0", "L0", "Merdiven", "stair", [[4, 6], [7, 6], [7, 9], [4, 9]], "stair_core"),
+                   room("hall0", "L0", "Kat Holü", "hall", [[4, 4], [7, 4], [7, 5.8], [4, 5.8]], "shared_hall")],
+         "openings": [{"id": "o1", "level_id": "L-1", "center": [5.5, 5.9], "type": "opening"},
+                      {"id": "o2", "level_id": "L-1", "center": [5.7, 3.9], "type": "opening"},
+                      {"id": "front", "level_id": "L-1", "center": [5.7, 0.1], "type": "door", "operation": "double"},
+                      {"id": "garden", "level_id": "L-1", "center": [1.5, 9.1], "type": "door", "operation": "swing"},
+                      {"id": "up", "level_id": "L0", "center": [5.5, 3.95], "type": "door", "operation": "sliding"}]}
+    usable = [{"door_id": "front", "level_id": "L-1", "room_id": "pass", "width": 2.4, "outward": [0, -1], "rise": 0.1},
+              {"door_id": "garden", "level_id": "L-1", "room_id": "bed", "width": 0.8, "outward": [0, 1], "rise": 0.1},
+              {"door_id": "up", "level_id": "L0", "room_id": "hall0", "width": 2.3, "outward": [0, -1], "rise": 3.0}]
+    main, why = LM.main_entrance(b, usable, [])
+    assert main["door_id"] == "front" and "stair core" in why

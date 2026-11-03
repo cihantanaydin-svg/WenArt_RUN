@@ -800,7 +800,11 @@ def main_entrance(b: dict, usable: Sequence[dict], marks: Sequence[dict]) -> tup
         marked = any(m.get("kind") == "entrance" and e["door_id"] in " ".join(m.get("used_for") or []) for m in marks)
         hops = (paths.get(e.get("level_id")) or {}).get(e.get("room_id"))
         tier, why = main_tier(e, ops.get(e["door_id"]), rooms.get(e.get("room_id")), marked, hops)
-        ranked.append(((tier, S.nearest_axis(e["outward"]) != axis, -float(e["width"]), str(e["door_id"])), e, why))
+        # among the doors reached from the core, the one nearest the ground (the entrance storey; real10: the 1st
+        # basement's front door, not a door of the shared hall a storey up)
+        near_ground = float(e.get("rise") or 0.0) if tier == 1 else 0.0
+        ranked.append(((tier, round(near_ground, 2), S.nearest_axis(e["outward"]) != axis, -float(e["width"]),
+                        str(e["door_id"])), e, why))
     ranked.sort(key=lambda x: x[0])
     _key, main, why = ranked[0]
     if len(ranked) > 1:
