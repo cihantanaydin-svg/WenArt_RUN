@@ -13,7 +13,9 @@
 #     --env ZIP_FILE_ID=1iYSSFbHkn1DH2qtAJ7LF44bZccQ_SYwL --env ZIP_BYTES=462846689 --env ZIP_NAME=beds.zip \
 #     --env ZIP_TYPES=bed_single,bed_double --purpose "inspect beds.zip from Google Drive (user request)"
 #
-# Env: ZIP_FILE_ID (required), ZIP_BYTES (the Drive size; checked when given), ZIP_NAME (file name on the volume),
+# Several files (3 Nov 2026, the user's Drive folder "Furnitures"):
+#   ... --env 'ZIP_LIST=<id>:<bytes>:archive1.zip,<id>:<bytes>:archive2.zip' --disk 120
+# Env: ZIP_LIST or ZIP_FILE_ID (required), ZIP_BYTES (the Drive size; checked when given), ZIP_NAME (file name on the volume),
 # ZIP_TYPES (expected types, comma-separated), ZIP_RENDER_MIN (render budget, minutes; default 25).
 set -Eeuo pipefail
 trap 'echo "[zip_inspect] ERROR at line $LINENO" >&2' ERR
@@ -25,37 +27,12 @@ exec > >(tee -a "$LOGS/zip_inspect-${JOB_ID:-job}.log") 2>&1
 ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 PY="${WENART_PY:-$WS/venv/bin/python}"
 export WENART_BLENDER="${WENART_BLENDER:-$WS/tools/blender/blender}"
-FILE_ID="${ZIP_FILE_ID:?ZIP_FILE_ID is required}"
-if ! [[ "$FILE_ID" =~ ^[A-Za-z0-9_-]+$ ]]; then echo "[zip_inspect] ZIP_FILE_ID is not a Drive id"; exit 2; fi
-NAME="${ZIP_NAME:-$FILE_ID.zip}"
-NAME="$(basename "$NAME")"
-BYTES="${ZIP_BYTES:-}"
 TYPES="${ZIP_TYPES:-}"
 RENDER_MIN="${ZIP_RENDER_MIN:-25}"
-ROOT=$WS/library/inbox/$FILE_ID
-ZIP=$ROOT/$NAME
-FAST=/opt/wenart/zip_inspect/$FILE_ID          # container disk: fast, wiped with the pod
-mkdir -p "$ROOT" "$FAST"
-
-have=$(stat -c %s "$ZIP" 2>/dev/null || echo 0)
-if [ -n "$BYTES" ] && [ "$have" = "$BYTES" ]; then
-  echo "[zip_inspect] $(ts) $NAME already on the volume ($have bytes)"
-else
-  URL="https://drive.usercontent.google.com/download?id=$FILE_ID&export=download&confirm=t"
-  echo "[zip_inspect] $(ts) downloading $NAME"
-  for i in 1 2 3 4; do
-    if curl -fL --retry 3 -C - -o "$ZIP" "$URL"; then break; fi
-    echo "[zip_inspect] download attempt $i failed"; sleep $((2 ** i))
-  done
-  have=$(stat -c %s "$ZIP" 2>/dev/null || echo 0)
-  echo "[zip_inspect] $(ts) downloaded $have bytes"
-  if [ -n "$BYTES" ] && [ "$have" != "$BYTES" ]; then
-    echo "[zip_inspect] size $have != Drive size $BYTES (is the file shared as 'anyone with the link'?)"
-    head -c 600 "$ZIP" | tr -cd '[:print:]\n' | head -20 || true
-    exit 3
-  fi
-fi
-if [ "$(head -c 2 "$ZIP")" != "PK" ]; then echo "[zip_inspect] $NAME is not a zip"; exit 3; fi
+# one file (ZIP_FILE_ID, ZIP_BYTES, ZIP_NAME) or several (3 Nov 2026, the user's Drive folder "Furnitures":
+# ZIP_LIST="<id>:<bytes>:<name>,<id>:<bytes>:<name>,..."; each zip's report in $RESULTS/zip_inspect/<name stem>/)
+LIST="${ZIP_LIST:-${ZIP_FILE_ID:?ZIP_FILE_ID or ZIP_LIST is required}:${ZIP_BYTES:-}:${ZIP_NAME:-${ZIP_FILE_ID:-x}.zip}}"
+MULTI=0; case "$LIST" in *,*) MULTI=1 ;; esac
 
 # Assimp (BSD-3) converts 3DS, which Blender 5.2 no longer imports without an extension; best effort
 if ! command -v assimp >/dev/null 2>&1; then
@@ -65,9 +42,47 @@ if ! command -v assimp >/dev/null 2>&1; then
 fi
 command -v assimp >/dev/null 2>&1 && echo "[zip_inspect] $(assimp version 2>/dev/null | head -3 | tr '\n' ' ')"
 
-# the zip itself stays on the volume; the extraction and the fixed GLBs go to the fast container disk
-"$PY" -m wenart.assets.zip_inspect run --zip "$ZIP" --work "$FAST" --out "$RESULTS/zip_inspect" \
-  --types "$TYPES" --blender "$WENART_BLENDER" --render-minutes "$RENDER_MIN"
-cp -f "$FAST"/blender_*.log "$RESULTS/zip_inspect/" 2>/dev/null || true
-cp -f "$FAST"/blender_*_result.json "$RESULTS/zip_inspect/" 2>/dev/null || true
-echo "[zip_inspect] $(ts) done"
+fetch() {   # <id> <bytes> <path on the volume>
+  local id=$1 bytes=$2 zip=$3 have
+  have=$(stat -c %s "$zip" 2>/dev/null || echo 0)
+  if [ -n "$bytes" ] && [ "$have" = "$bytes" ]; then
+    echo "[zip_inspect] $(ts) $(basename "$zip") already on the volume ($have bytes)"; return 0
+  fi
+  echo "[zip_inspect] $(ts) downloading $(basename "$zip")"
+  for i in 1 2 3 4; do
+    if curl -fsSL --retry 3 -C - -o "$zip" \
+        "https://drive.usercontent.google.com/download?id=$id&export=download&confirm=t"; then break; fi
+    echo "[zip_inspect] download attempt $i failed"; sleep $((2 ** i))
+  done
+  have=$(stat -c %s "$zip" 2>/dev/null || echo 0)
+  echo "[zip_inspect] $(ts) downloaded $have bytes"
+  if [ -n "$bytes" ] && [ "$have" != "$bytes" ]; then
+    echo "[zip_inspect] size $have != Drive size $bytes (is the file shared as 'anyone with the link'?)"
+    head -c 600 "$zip" | tr -cd '[:print:]\n' | head -20 || true
+    return 3
+  fi
+  if [ "$(head -c 2 "$zip")" != "PK" ]; then echo "[zip_inspect] $(basename "$zip") is not a zip"; return 3; fi
+}
+
+rc=0
+IFS=',' read -r -a ITEMS <<< "$LIST"
+for item in "${ITEMS[@]}"; do
+  IFS=':' read -r FILE_ID BYTES NAME <<< "$item"
+  if ! [[ "$FILE_ID" =~ ^[A-Za-z0-9_-]+$ ]]; then echo "[zip_inspect] '$FILE_ID' is not a Drive id"; rc=2; continue; fi
+  NAME="$(basename "${NAME:-$FILE_ID.zip}")"
+  ROOT=$WS/library/inbox/$FILE_ID
+  ZIP=$ROOT/$NAME
+  FAST=/opt/wenart/zip_inspect/$FILE_ID          # container disk: fast, wiped with the pod
+  mkdir -p "$ROOT" "$FAST"
+  fetch "$FILE_ID" "$BYTES" "$ZIP" || { rc=3; continue; }
+  OUTD="$RESULTS/zip_inspect"
+  [ "$MULTI" = "1" ] && OUTD="$RESULTS/zip_inspect/${NAME%.zip}"
+  # the zip itself stays on the volume; the extraction and the fixed GLBs go to the fast container disk
+  "$PY" -m wenart.assets.zip_inspect run --zip "$ZIP" --work "$FAST" --out "$OUTD" \
+    --types "$TYPES" --blender "$WENART_BLENDER" --render-minutes "$RENDER_MIN" || rc=1
+  cp -f "$FAST"/blender_*.log "$OUTD/" 2>/dev/null || true
+  cp -f "$FAST"/blender_*_result.json "$OUTD/" 2>/dev/null || true
+  rm -rf "$FAST/files" "$FAST/converted" "$FAST/glb"   # the container disk's scratch only (the zip stays)
+done
+echo "[zip_inspect] $(ts) done (rc $rc)"
+exit "$rc"
