@@ -39,6 +39,9 @@ ROLES.update({
     # 2 Nov 2026 (real03: the windbreak's glass screen on 'MYD - CAM-PER', its sliding doors on 'MYD - CAM')
     "glass": ("CAM", "CAMLAR", "GLASS", "GLAS", "VERRE", "VETRO", "VIDRIO", "CURTAIN", "GIYDIRME", "VITRIN", "CAMEKAN",
               "STOREFRONT"),
+    # 3 Nov 2026 (real09: the kitchens' and bathrooms' tile grids on 'karo' were read as stairs)
+    "finish": ("KARO", "SERAMIK", "FAYANS", "KAPLAMA", "TILE", "TILES", "TILING", "FLIESEN", "FLIESE", "CARRELAGE",
+               "PISO", "PAVIMENTO", "PARKE", "PARQUET", "LAMINAT", "LAMINATE", "MERMER", "MARBLE"),
     "furniture": ("TEFRIS", "MOBILYA", "FURNITURE", "FURN", "MOEBEL", "MOBEL", "MOBILIER", "MUEBLE", "MUEBLES",
                   "ARREDO", "ARREDI", "ESYA"),
     "dimension": ("DIM", "DIMS", "DIMH", "DIMV", "DH", "DV", "OLCU", "OLCULER", "COTA", "COTAS", "BEMASSUNG",

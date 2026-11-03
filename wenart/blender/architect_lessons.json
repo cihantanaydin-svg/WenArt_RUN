@@ -3304,6 +3304,42 @@
    "request": "The sections name the storeys at their floor marks (real09's B-B: 1.BODRUM KAT 0.00, ZEMİN KAT +2.50, 1.NORMAL KAT +5.50, 2.NORMAL KAT +8.50, ÇATI KAT +11.50): each storey takes the floor mark it stands on; a plan titled by an elevation is the storey at that level ('DUBLEKS KAT PLANI (8,50)' is the 2. Normal Kat), a typical plan stands only for the storeys in its elevation range, and the floor heights are the marks (user, 3 Nov 2026: 'You can understand this by checking the other sections in the drawing like this one')",
    "lesson": "The sections name the storeys at their floor marks (real09's B-B: 1.BODRUM KAT 0.00, ZEMİN KAT +2.50, 1.NORMAL KAT +5.50, 2.NORMAL KAT +8.50, ÇATI KAT +11.50): each storey takes the floor mark it stands on; a plan titled by an elevation is the storey at that level ('DUBLEKS KAT PLANI (8,50)' is the 2. Normal Kat), a typical plan stands only for the storeys in its elevation range, and the floor heights are the marks (user, 3 Nov 2026: 'You can understand this by checking the other sections in the drawing like this one')",
    "question": null
+  },
+  {
+   "id": "UL279",
+   "date": "2026-11-03",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "The room holding the stair that stands at the same spot on three or more levels is the building's stair core ('Merdiven', type stair), stair and landing together, even when the stair covers only half of it; a family house's hall with its stair stays a hall (user, 3 Nov 2026: 'This section is wrong it s the main shaft with the stairs you should be able to understand it')",
+   "lesson": "The room holding the stair that stands at the same spot on three or more levels is the building's stair core ('Merdiven', type stair), stair and landing together, even when the stair covers only half of it; a family house's hall with its stair stays a hall (user, 3 Nov 2026: 'This section is wrong it s the main shaft with the stairs you should be able to understand it')",
+   "question": null
+  },
+  {
+   "id": "UL280",
+   "date": "2026-11-03",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Tile grids (layer karo / seramik / fayans / tile) and treads cut by four or more evenly spaced cross lines are floor finish, never a stair (real09: six kitchen and bathroom tile grids read as stairs, a bathroom named 'Merdiven') (user, 3 Nov 2026, while checking real09's stair core)",
+   "lesson": "Tile grids (layer karo / seramik / fayans / tile) and treads cut by four or more evenly spaced cross lines are floor finish, never a stair (real09: six kitchen and bathroom tile grids read as stairs, a bathroom named 'Merdiven') (user, 3 Nov 2026, while checking real09's stair core)",
+   "question": null
+  },
+  {
+   "id": "UL281",
+   "date": "2026-11-03",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Balconies and terraces are shown on the reading sheets (green), and the unlabelled mirrored half gets its balcony from its twin (user, 3 Nov 2026: 'are you showing the balkons here?')",
+   "lesson": "Balconies and terraces are shown on the reading sheets (green), and the unlabelled mirrored half gets its balcony from its twin (user, 3 Nov 2026: 'are you showing the balkons here?')",
+   "question": null
   }
  ]
 }

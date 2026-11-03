@@ -1200,9 +1200,42 @@ def _straight(segs: list[Seg], to_f) -> list[tuple[str, float, float, float, Seg
     return out
 
 
+FINISH_SHARE = 0.5          # 3 Nov 2026: tread lines mostly on a floor-finish layer (tiles) are no stair
+GRID_CUTS = 4               # ... nor treads cut by this many evenly spaced cross lines (a tile grid)
+
+
+def _finish_share(segs: list) -> float:
+    """The share of the straight lines' length on a floor-finish layer (``layer_names``: karo, tile, Fliesen ...)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    total = finish = 0.0
+    for s in segs:
+        if s.curve or s.dot:
+            continue
+        L = s.length
+        total += L
+        if LN.layer_role(getattr(s.stroke, "layer", None)) == "finish":
+            finish += L
+    return finish / total if total > 0 else 0.0
+
+
+def _even(values: list, lo: float, hi: float) -> bool:
+    """Values evenly spaced at a pitch between ``lo`` and ``hi`` (within ``STAIR_STEP_TOL``)."""
+    v = sorted(values)
+    steps = [b - a for a, b in zip(v, v[1:])]
+    if not steps:
+        return False
+    med = sorted(steps)[len(steps) // 2]
+    return lo <= med <= hi and all(abs(st - med) <= max(STAIR_STEP_TOL * med, 0.02) for st in steps)
+
+
 def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
     """Flights of evenly spaced tread lines (§2.8): ``{"flights", "landing", "bbox_f", "segs"}`` in the aligned
-    frame, or None."""
+    frame, or None. 3 Nov 2026 (real09: the tile grids of the kitchens and bathrooms, layer 'karo', read as six
+    stairs; one bathroom was named a stair): lines mostly on a floor-finish layer (``FINISH_SHARE``) are no stair,
+    and treads cut by ``GRID_CUTS`` or more evenly spaced cross lines are a tile grid."""
+    if _finish_share(cl.segs) >= FINISH_SHARE:
+        return None
     to_f, from_f = _frame(theta)
     axis_segs = _straight(cl.segs, to_f)
     best = None
@@ -1219,6 +1252,9 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
             if len(crossing) >= STAIR_DIVIDER_SHARE * len(treads):
                 cuts.append(o[1])
         cuts = sorted(set(round(c, 3) for c in cuts))
+        if len(cuts) >= GRID_CUTS and _even(cuts, STAIR_STEP_M[0] * (1 - STAIR_STEP_TOL),
+                                           STAIR_STEP_M[1] * (1 + STAIR_STEP_TOL) * 2.0):
+            continue                                    # a grid of tiles, not treads
         pieces = []
         for off, lo, hi, members in treads:
             bounds = [lo] + [c for c in cuts if lo + 0.01 < c < hi - 0.01] + [hi]
@@ -1240,6 +1276,9 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
     if best is None:
         return None
     axis, flights, cuts = best
+    tread_segs = [sg for f in flights for sg in f.get("segs") or []]
+    if tread_segs and _finish_share(tread_segs) >= FINISH_SHARE:
+        return None                                     # the treads are tile joints (real09: 'karo')
     xs = [p[0] for s in cl.segs for p in map(to_f, s.pts)]
     ys = [p[1] for s in cl.segs for p in map(to_f, s.pts)]
     bbox = (min(xs), min(ys), max(xs), max(ys))

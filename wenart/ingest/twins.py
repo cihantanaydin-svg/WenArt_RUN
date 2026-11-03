@@ -367,3 +367,42 @@ def apply_twin_copies(furniture: list[dict], copies: list[dict]) -> list[str]:
 def _iou(a: Polygon, b: Polygon) -> float:
     u = a.union(b).area
     return float(a.intersection(b).area / u) if u > 0 else 0.0
+
+
+CORE_LEVELS = 3               # 3 Nov 2026: a stair at one spot on this many levels is the building's stair core
+CORE_REACH_M = 0.6
+GENERIC_LABELS = {"oda", "room", "hol", "hall"}
+
+
+def stair_cores(rooms: list[dict], furniture: list[dict]) -> list[str]:
+    """3 Nov 2026 (real09, user: "This section is wrong it s the main shaft with the stairs you should be able to
+    understand it"): a room no text names (or named only by a placeholder) that holds a drawn stair standing at the same
+    spot (within ``CORE_REACH_M``) on at least ``CORE_LEVELS`` levels is the building's stair core: it is named
+    'Merdiven' ('Stair' on an English page), type ``stair``, ``label_inferred`` (method ``stair_core``). A family
+    house's hall with its stair (two levels) stays a hall. Returns one line per room."""
+    stairs = [f for f in furniture if f.get("type") == "stair" and (f.get("footprint") or {}).get("center")]
+    notes = []
+    for r in rooms:
+        if r.get("label_raw") or len(r.get("polygon") or []) < 3:
+            continue
+        if str(r.get("label") or "").strip().lower() not in GENERIC_LABELS and r.get("room_type") not in ("hall",
+                                                                                                           "unknown"):
+            continue
+        poly = _poly(r)
+        mine = [f for f in stairs if f.get("level_id") == r["level_id"] and poly.contains(Point(f["footprint"]["center"]))]
+        if not mine:
+            continue
+        c = mine[0]["footprint"]["center"]
+        levels = sorted({f["level_id"] for f in stairs
+                         if math.dist(f["footprint"]["center"][:2], c[:2]) <= CORE_REACH_M})
+        if len(levels) < CORE_LEVELS:
+            continue
+        turkish = str(r.get("label") or "").strip().lower() in ("oda", "hol")
+        old = r.get("label")
+        r["label"] = "Merdiven" if turkish else "Stair"
+        r["room_type"] = "stair"
+        r["inferred"] = True
+        r["label_inferred"] = {"method": "stair_core", "levels": levels}
+        notes.append(f"{r['level_id']}: room {r['id']} ('{old}') holds the stair that stands at the same spot on "
+                     f"{len(levels)} levels ({', '.join(levels)}): the building's stair core, '{r['label']}' (inferred)")
+    return notes

@@ -2443,6 +2443,9 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     # real10 (1 Nov 2026): one of two mirrored halves labelled only: the other's faces take the mirrored labels.
     for line in TW.mirror_labels(b["rooms"]):
         build.warn(f"mirror label: {line}")
+    # 3 Nov 2026 (real09): the room holding the stair that stacks through the levels is the stair core
+    for line in TW.stair_cores(b["rooms"], b["furniture"]):
+        build.warn(f"stair core: {line}")
     for second, info in TW.twin_transforms(b["rooms"], b["openings"], b["furniture"]).items():
         room = next(r for r in b["rooms"] if r["id"] == second)
         room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],

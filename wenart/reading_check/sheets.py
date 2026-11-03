@@ -101,6 +101,19 @@ def _draw_model(ax, building, level, tf, box, colour=True, labels=True):
             c = Polygon(pts).representative_point()
             ax.text(c.x, c.y, f"{room.get('label') or ''}\n({room.get('room_type') or '?'})", fontsize=4.5,
                     ha="center", va="center", color="#6b4f00", clip_on=True)
+    # 3 Nov 2026 (user: "are you showing the balkons here?"): the level's balconies and terraces, green
+    for osp in (building.get("site") or {}).get("outdoor_spaces") or []:
+        if osp.get("level_id") != level or not osp.get("polygon"):
+            continue
+        pts = [inv(*p) for p in osp["polygon"]]
+        xs, ys = zip(*(pts + pts[:1]))
+        if colour:
+            ax.fill(xs, ys, color="#c8e6c9", alpha=0.8, lw=0)
+        ax.plot(xs, ys, color="#2e7d32", lw=0.8, ls="-" if colour else "--")
+        if labels:
+            c = Polygon(pts).representative_point()
+            ax.text(c.x, c.y, f"{osp.get('label') or ''}\n({osp.get('kind') or ''})", fontsize=4.5, ha="center",
+                    va="center", color="#1b5e20", clip_on=True)
     for w in walls.values():
         (x0, y0), (x1, y1) = inv(*w["start"]), inv(*w["end"])
         lw = max(0.6, min(4.5, float(w.get("thickness") or 0.2) * scale * 3000))
@@ -222,8 +235,8 @@ def draw(out_dir, result: Optional[dict] = None, renders: Optional[str] = None) 
         panels = []
         for k, (name, fn) in enumerate((
                 ("1 the source drawing", lambda ax: _draw_drawing(ax, doc, ents, box)),
-                ("2 the model's plan (rooms yellow; walls black, inferred walls orange; doors green, windows blue, "
-                 "other openings purple, inferred openings dashed)",
+                ("2 the model's plan (rooms yellow, balconies and terraces green; walls black, inferred walls orange; "
+                 "doors green, windows blue, other openings purple, inferred openings dashed)",
                  lambda ax: _draw_model(ax, building, lid, pg["tf"], box)),
                 ("3 the model's walls over the drawing (grey): drawn red, inferred orange; findings: drawn walls the "
                  "model lacks yellow, walls on no drawn line magenta",

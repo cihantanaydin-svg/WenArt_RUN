@@ -253,10 +253,16 @@ def _shift_piece(f: FurnitureItem, sh: _Shift) -> None:
             landing["polygon"] = sh.pts(landing["polygon"])
 
 
-def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline) -> None:
+def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls: Optional[list] = None) -> None:
     """The outline of every labelled outdoor space without a closed face, closed from the drawn strokes around its
     label (page metres; ``wenart.levels.outdoor.read_outline``), as ``outline_inferred`` on its site area; never
-    silent (a note per space)."""
+    silent (a note per space). 3 Nov 2026 (real09, user: "are you showing the balkons here?"; the drafter named the
+    balcony of one flat only): on a plan of two mirrored halves (``facade.mirror_axis`` of ``walls``) a read outdoor
+    space with no label at its mirror gets a twin there, read from the strokes around the mirrored anchor the same
+    way (its label the twin's, ``label_inferred``)."""
+    import copy as _copy
+
+    from wenart.ingest.generic import facade as FC
     from wenart.levels import outdoor as OD
 
     areas = [a for a in site.get("areas") or [] if not a.get("polygon")
@@ -265,11 +271,40 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline) -> Non
         return
     lines = [{"id": st.id, "pts": [tuple(p) for p in st.pts], "layer": st.layer, "closed": st.closed}
              for st in strokes if st.pts and len(st.pts) >= 2]
+    facade = outline if outline is not None and not outline.is_empty else None
     for a in areas:
-        rec = OD.read_outline(a, lines, outline if outline is not None and not outline.is_empty else None)
+        rec = OD.read_outline(a, lines, facade)
         ex.notes.append(f"{where}: outdoor space '{a.get('label')}': " + (
             rec["reason"] + (f"; {rec['steps']['reason']}" if rec.get("steps") else "") if rec is not None else
             "no drawn outline closes around the label (the level inference infers one)"))
+    axis = FC.mirror_axis(walls) if walls else None
+    if axis is None:
+        return
+    anchors = [tuple(a["anchor"]) for a in site.get("areas") or [] if a.get("anchor")]
+    for a in list(areas):
+        if not a.get("outline_inferred") or not a.get("anchor"):
+            continue
+        x, y = a["anchor"]
+        q = (2.0 * axis[1] - x, y) if axis[0] == "x" else (x, 2.0 * axis[1] - y)
+        if any(math.dist(q, b) <= 1.5 for b in anchors):
+            continue                                        # a label of its own stands there
+        twin = _copy.deepcopy(a)
+        twin.pop("outline_inferred", None)
+        twin["anchor"] = [round(q[0], 4), round(q[1], 4)]
+        twin["id"] = f"{a.get('id') or 'sa'}_mirror"
+        twin["label_raw"] = None
+        twin["label_inferred"] = {"method": "mirror", "of": a.get("id"), "axis": [axis[0], round(axis[1], 4)]}
+        twin["note"] = (f"the mirror twin of outdoor space {a.get('id')} across the plan's axis ({axis[0]} = "
+                        f"{axis[1]:.2f}): the drawing names one of the two mirrored halves only")
+        twin["label_raw"] = a.get("label_raw") or a.get("label")
+        rec = OD.read_outline(twin, lines, facade)
+        twin["label_raw"] = None
+        if rec is None:
+            continue
+        site.setdefault("areas", []).append(twin)
+        anchors.append(q)
+        ex.notes.append(f"{where}: outdoor space '{a.get('label')}' mirrored for the other half (no label there): "
+                        f"{rec['reason']}")
 
 
 def _shift_site(site: dict, sh: _Shift) -> None:
@@ -1125,8 +1160,12 @@ RECESS_MAX_M2 = 15.0
 
 
 def _empty_gap(o) -> bool:
-    """An opening the openings reader found nothing in (no door, no window): an unclassified gap."""
-    return o.kind == "opening" and not getattr(o, "virtual", False) and "unclassified gap" in (o.type_raw or "")
+    """An opening the openings reader found nothing in (no door, no window): a plain ``opening`` of a wall run's gap
+    (real09: one recess's gap noted 'unclassified gap content', its mirror twin's not), never one of the bridges the
+    reading inferred (wide gaps, glazed runs, facades, mirror twins)."""
+    ev = o.evidence if isinstance(o.evidence, dict) else {}
+    return o.kind == "opening" and not getattr(o, "virtual", False) and ev.get("method") != "inferred" \
+        and ev.get("rule") not in ("wide_gap", "glazed_run", "glazed_facade", "mirror_twin")
 
 
 def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, level_id):
@@ -1501,7 +1540,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     outline = TP.building_outline(bwalls, b_openings)
     # 26 Oct 2026 (real06's VERANDA and BALKON: no walls around them, nothing built): a labelled outdoor space without
     # a closed face is closed from the drawn strokes around its label (wenart.levels.outdoor.read_outline)
-    _outdoor_outlines(ex, where, site, non_wall, outline)
+    _outdoor_outlines(ex, where, site, non_wall, outline, bwalls)
 
     # 5. Furniture, separators, faces. Milestone 12 (track R): the re-read's extra candidates and its symbols.
     extras: list[dict] = []
