@@ -8,27 +8,27 @@
  "levels_left_out": [],
  "per_level": {
   "L0": {
-   "rooms": 9,
+   "rooms": 10,
    "walls": 65,
    "doors": 6,
-   "windows": 9,
-   "openings": 16,
+   "windows": 11,
+   "openings": 12,
    "room_area": 123.6
   },
   "L1": {
-   "rooms": 9,
+   "rooms": 10,
    "walls": 79,
-   "doors": 9,
-   "windows": 10,
+   "doors": 8,
+   "windows": 11,
    "openings": 8,
-   "room_area": 93.1
+   "room_area": 93.2
   }
  },
  "check": {
   "verdict": "fix before a pod run",
   "counts": {
    "critical": 1,
-   "major": 6,
+   "major": 4,
    "minor": 5
   },
   "stacking": {}
