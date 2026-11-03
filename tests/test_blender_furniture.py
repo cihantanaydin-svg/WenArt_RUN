@@ -880,11 +880,14 @@ def test_model_licence_gate_matches_the_asset_rule():
     # 3dwh (23 Oct 2026): the 3D Warehouse models of the user's zip, licences not reviewed (relaxed mode only)
     assert F.MODEL_LICENCES == {"polyhaven": ("CC0",), "abo": ("CC-BY-4.0",), "objaverse": ("CC0", "CC-BY-4.0"),
                                 "generated": (), "gso": ("CC-BY-4.0",), "hssd": ("CC-BY-NC-4.0",),
-                                "3dwh": ("3DWH-UNREVIEWED",)}
+                                "3dwh": ("3DWH-UNREVIEWED",),
+                                # syncronia (3 Nov 2026): the manufacturer models of the user's beds.zip, relaxed only
+                                "syncronia": ("SYNCRONIA-UNREVIEWED",)}
+    assert F.MODEL_LICENCES["syncronia"] == fetch.MODEL_SOURCE_LICENCES["syncronia"] and "syncronia" in F.LIBRARIES
     assert F.MODEL_LICENCES["hssd"] == fetch.MODEL_SOURCE_LICENCES["hssd"] and "hssd" in F.LIBRARIES
     assert F.MODEL_LICENCES["3dwh"] == fetch.MODEL_SOURCE_LICENCES["3dwh"] and "3dwh" in F.LIBRARIES
-    assert F.FLAGGED_SOURCES == ("objaverse", "hssd", "3dwh")
-    assert F.SOURCE_FLAGS == {"hssd": "non_commercial", "3dwh": "non_commercial"}
+    assert F.FLAGGED_SOURCES == ("objaverse", "hssd", "3dwh", "syncronia")
+    assert F.SOURCE_FLAGS == {"hssd": "non_commercial", "3dwh": "non_commercial", "syncronia": "non_commercial"}
     assert F.CC_BY_FIELDS == fetch.CC_BY_FIELDS and F.CC_BY == fetch.CC_BY
     assert F.licence_refusal(_library_asset([1, 1, 1])) is None
     assert F.licence_refusal(_objaverse_asset([1, 1, 1])) is None
