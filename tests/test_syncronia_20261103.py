@@ -395,3 +395,22 @@ def test_the_grey_placeholder_png_is_valid_and_missing_textures_are_unlinked(tmp
     assert ZI.strip_texture_links(doc, {0}) == 2
     assert "baseColorTexture" not in doc["materials"][0]["pbrMetallicRoughness"]
     assert PM.needs_materials(doc)                     # an image no material uses says nothing
+
+
+def test_intake_part_materials_are_dressed_with_the_style_scans():
+    """3 Nov 2026 (the user: "can we give textures to Syncronia? ... Use the most logical best textures"): every part
+    material of the intake maps to the builder's key of the most fitting scanned material, and the studio re-renders a
+    dressed model when the dressing changes."""
+    from wenart.blender import furniture as BF
+    from wenart.style import vocabulary as V
+    names = {pal["name"] for pal in PM.PALETTE.values()}
+    assert names <= set(BF.PART_DRESS), names - set(BF.PART_DRESS)          # every intake material is dressed
+    assert BF.PART_DRESS["wenart_fabric"][0] == "colour_fabric"             # linen weave scan, the design colour
+    assert BF.PART_DRESS["wenart_leather"][0] == "leather"                  # brown_leather scan
+    for _name, (key, over) in BF.PART_DRESS.items():
+        if over:
+            assert (V.FURNITURE_MATERIALS.get(over["slug"]) or V.MATERIALS.get(over["slug"])), over
+    plan = BF.part_dress_plan(["wenart_wood_walnut.001", "Material #3", "wenart_bedding_linen"])
+    assert [(i, k) for i, _n, k, _o in plan] == [(0, "wood"), (2, "bedding")]
+    e = {"id": "x", "glb": "a.glb", "material_slots": [{"index": 0, "by": "wenart.assets.part_materials"}]}
+    assert S.job_sha(e, {}) != S.job_sha(dict(e, material_slots=[{"index": 0}]), {})

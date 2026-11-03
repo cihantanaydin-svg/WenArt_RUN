@@ -488,6 +488,10 @@ def job_sha(entry: dict, settings: dict) -> str:
     body = {"v": STUDIO_VERSION, "entry": {k: entry.get(k) for k in keys}, "settings": settings}
     if entry.get("procedural"):                   # our build: its code and its style decide the picture
         body["procedural"] = {"code": entry.get("code_sha"), "style": entry.get("style_name"), "id": entry["id"]}
+    if any(isinstance(sl, dict) and sl.get("by") == "wenart.assets.part_materials"
+           for sl in entry.get("material_slots") or []):   # 3 Nov 2026: dressed with the style's scans at build
+        from wenart.blender.furniture import PART_DRESS_VERSION
+        body["dress"] = PART_DRESS_VERSION
     if is_decor_row(entry):                       # a decor or extras model: its stage decides the picture
         body["decor"] = {"v": DECOR_STUDIO_VERSION, "type": entry["type"], "stage": decor_stage(entry)}
     return hashlib.sha256(json.dumps(body, sort_keys=True, default=str).encode("utf-8")).hexdigest()

@@ -163,8 +163,9 @@ print(" ".join(e["id"] for e in S.batch_entries(sys.argv[2], types) if e.get("gl
 if [ "${#PH_IDS[@]}" -gt 0 ] && [ "$RANK_PROCEDURAL" != "1" ]; then
   run_step models "$PY" -m wenart.assets models fetch --assets "$ASSETS" --size 1k --ids "${PH_IDS[@]}"
 fi
-if [ "$RANK_PROCEDURAL" = "1" ]; then
-  # our builds wear the projects' textures: the latest projects' style sets and every furniture texture set of the
+if [ "$RANK_PROCEDURAL" = "1" ] || [ "$RANK_BATCH" = "syncronia" ]; then
+  # our builds wear the projects' textures (3 Nov 2026: so do the intake's part materials of a source batch,
+  # furniture.PART_DRESS: the linen, veneer, leather, marble and metal scans): the latest projects' style sets and every furniture texture set of the
   # vocabulary (wenart.assets.fetch.fetch_for_style; idempotent, 2k, CC0)
   for st in "$REPO"/results/baseline/latest/run/*/style.json; do
     [ -f "$st" ] && run_step "textures-$(basename "$(dirname "$st")")" "$PY" -m wenart.assets fetch --style "$st" \

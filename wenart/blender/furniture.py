@@ -3011,6 +3011,76 @@ def _material_look(mat) -> dict:
     return out
 
 
+# 3 Nov 2026 (the user: "can we give textures to Syncronia? ... Use the most logical best textures"): the part materials
+# a library model got at its intake (``wenart.assets.part_materials``: material names ``wenart_<class>``, written when
+# the file carried no materials) wear the style's real texture scans at build time: the parametric key of each class
+# (``_Materials.get``: box UVs in metres on every mesh, ``common.assign_box_uvs``) and, where the class names a wood or
+# a finish of its own, that slug and its scan. Upholstery takes the design's fabric colour, else its own (nearest name).
+PART_DRESS: dict[str, tuple[str, dict | None]] = {
+    "wenart_fabric": ("colour_fabric", None),                 # the style's fabric: the linen weave scan
+    "wenart_upholstery_fabric": ("colour_fabric", None),
+    "wenart_bedding_linen": ("bedding", None),                # white linen weave
+    "wenart_wood_oak": ("wood", None),                        # the style's furniture wood (oak or walnut veneer scan)
+    "wenart_wood_walnut": ("wood", {"slug": "wood_veneer_walnut"}),
+    "wenart_leather": ("leather", None),                      # Poly Haven's brown_leather scan, cognac
+    "wenart_marble": ("marble", None),                        # the marble scan
+    "wenart_rattan": ("rattan", None),                        # the wicker photo
+    "wenart_metal_dark": ("steel", {"slug": "metal_black"}),  # black metal on the brushed-metal scan (Metal032)
+    "wenart_legs_bronze": ("steel", {"slug": "dark_bronze"}), # dark bronze feet
+    "wenart_chrome": ("steel", None),                         # brushed steel
+    "wenart_brass": ("brass", None),                          # brass on the brushed-metal scan
+    "wenart_glass": ("glass", None),
+    "wenart_ceramic": ("ceramic", None),
+    "wenart_lacquer": ("painted", None),                      # the style's paint
+    "wenart_plastic": ("painted", {"slug": "lacquer_matte"}), # a matte shell (a moulded chair's plastic)
+}
+PART_DRESS_VERSION = "dress-1"        # part of the studio's job sha: a change re-renders the dressed models
+
+
+def part_dress_plan(names: list) -> list[tuple[int, str, str, dict | None]]:
+    """``[(slot index, glTF name, key, override)]`` of the slots ``PART_DRESS`` dresses (pure; ``.001`` suffixes
+    ignored)."""
+    out = []
+    for i, name in enumerate(names):
+        base = _base_name(name or "")
+        if base in PART_DRESS:
+            key, over = PART_DRESS[base]
+            out.append((i, base, key, over))
+    return out
+
+
+def _dress_parts(piece: dict, mats_list: list, mats, overrides: dict | None = None) -> tuple[list, dict | None]:
+    """The style's materials on the part-material slots of a library model (``PART_DRESS``); returns the materials
+    and the record (None when the model has none)."""
+    from wenart.style import colours as CL
+    from wenart.style import vocabulary as V
+    plan = part_dress_plan([getattr(m, "name", None) for m in mats_list])
+    if not plan:
+        return mats_list, None
+    design = piece.get("design") if isinstance(piece.get("design"), dict) else {}
+    wanted = design.get("fabric_colour") or (piece.get("asset") or {}).get("fabric_colour")
+    out, rows = list(mats_list), []
+    for i, name, key, over in plan:
+        colour = None
+        if key.startswith(P.COLOUR_PREFIX):
+            own = _material_look(mats_list[i]).get("rgb")
+            colour = wanted or (CL.nearest(own) if own else None)
+        ov = dict(overrides or {})
+        if over:
+            base_key = key[len(P.COLOUR_PREFIX):] if key.startswith(P.COLOUR_PREFIX) else key
+            slug = over["slug"]
+            entry = V.FURNITURE_MATERIALS.get(slug) or V.MATERIALS.get(slug) or {}
+            ov[base_key] = {"slug": slug, "asset": entry.get("asset"), "colour": over.get("colour")}
+        try:
+            mat = mats.get(key, False, colour=colour, overrides=ov or overrides)
+        except Exception as exc:  # noqa: BLE001 - a key the style lacks keeps the intake's material
+            rows.append({"slot": name, "key": key, "kept": f"{type(exc).__name__}: {exc}"})
+            continue
+        out[i] = mat
+        rows.append({"slot": name, "key": key, "colour": colour, "material": getattr(mat, "name", None)})
+    return out, {"slots": rows, "rule": f"part materials of the intake dressed with the style ({PART_DRESS_VERSION})"}
+
+
 def _dress_fabric(piece: dict, geo: dict, mats_list: list, mats, overrides: dict | None = None
                   ) -> tuple[list, dict | None]:
     """30 Oct 2026 (lesson UL140, user: "I like this sofa but it needs more details"; real04's corner sofa rendered in
@@ -3075,6 +3145,10 @@ def _library_object(piece, file: Path, name, status, floor_z, collection, librar
         for missing in record.get("missing") or []:
             warnings.append(f"{piece['id']}: recolour slot {missing} not found in {asset.get('asset_id')}; left as "
                             "it is")
+    if mats is not None:                          # 3 Nov 2026: the intake's part materials wear the style's scans
+        mats_list, parts_dressing = _dress_parts(piece, mats_list, mats, overrides)
+        if parts_dressing is not None:
+            entry["part_dressing"] = parts_dressing
     if soft and mats is not None:
         mats_list, dressing = _dress_fabric(piece, geo, mats_list, mats, overrides)
         if dressing is not None:
