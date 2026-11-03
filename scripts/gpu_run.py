@@ -1055,8 +1055,12 @@ def _run_once(a: argparse.Namespace) -> int:
 
     pods = all_pods()
     running = live_pods(pods)
-    if running:
+    if running and not getattr(a, "allow_parallel", False):
         raise RuntimeError("a wenart pod is already live (one at a time): " + ", ".join(p["id"] for p in running))
+    if running:
+        # 3 Nov 2026 (user: "there is already existing pod you can run in parallel"): with the user's OK
+        print("note: another wenart pod is live (" + ", ".join(p["id"] for p in running) + "); started alongside it "
+              "with the user's OK (--allow-parallel)")
     stale = [p for p in our_pods(pods) if p["status"] in ("EXITED",)]
     for p in stale:
         print(f"warning: stopped wenart pod {p['id']} still exists (disk billing); terminate it with 'terminate {p['id']}'")
@@ -1416,6 +1420,8 @@ def main(argv: list[str] | None = None) -> int:
                    help="pin the pushed commit the pod checks out (Milestone 13 baselines on the M12 code); "
                         "the local tree is then not checked")
     r.add_argument("--dry-run", action="store_true")
+    r.add_argument("--allow-parallel", action="store_true",
+                   help="start while another wenart pod is live (only with the user's OK; one pod at a time otherwise)")
     r.add_argument("--drive-upload", action="store_true",
                    help="pass the RunPod secret rclone_conf: the job uploads the 3D files to Google Drive")
     r.add_argument("--over-5-ok", action="store_true",
