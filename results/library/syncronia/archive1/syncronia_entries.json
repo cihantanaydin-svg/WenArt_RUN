@@ -56,7 +56,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/beverly",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Beverly (70 x 82 x 95 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/beverly, from the user's zip \"archive1.zip\" (armchairs/bb-italia/beverly/11259.3ds.zip/3D_BV70A.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 36883,
    "vertices": 19758,
@@ -152,7 +152,7 @@
      "metal": 15,
      "leather": 12
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "40ffafaba2c67ac7436b60ca48508eaec71fe0f9c4bfd6004f69983fe0cfc30b",
     "meta": {
      "title": "Armchairs, Beverly",
@@ -174,8 +174,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -234,7 +234,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/beverly",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Beverly (70 x 76 x 78 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/beverly, from the user's zip \"archive1.zip\" (armchairs/bb-italia/beverly/11259.3ds.zip/3D_BV70B.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 36253,
    "vertices": 19435,
@@ -330,7 +330,7 @@
      "metal": 15,
      "leather": 12
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "a8031800a96b20b4c244e9afa2f80de7d2cc270831d41efe25e44e316668f641",
     "meta": {
      "title": "Armchairs, Beverly",
@@ -352,8 +352,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -412,7 +412,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/grande-papilio",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Grande Papilio (83 x 86 x 103 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/grande-papilio, from the user's zip \"archive1.zip\" (armchairs/bb-italia/grande-papilio/finishes/11231.zip/3D_GPA.OBJ); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from OBJ, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 13253,
    "vertices": 24975,
@@ -509,7 +509,7 @@
      "fabric": 4,
      "metal": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "6bbdef162eb76e96606a1ad07210eb35b7dceb8eff57dec887be8a47f80421ba",
     "meta": {
      "title": "Armchairs, Grande Papilio",
@@ -531,8 +531,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -591,7 +591,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/le-bambole-bambola-armchair",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Le Bambole, Bambola Armchair (123 x 93 x 78 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/le-bambole-bambola-armchair, from the user's zip \"archive1.zip\" (armchairs/bb-italia/le-bambole-bambola-armchair/75468.3ds.zip/BeB_Le_Bambole_Bambola_Armchair_LBA1.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 52098,
    "vertices": 26308,
@@ -687,7 +687,7 @@
      "fabric": 6,
      "metal": 4
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "7442bb47b4dd57baf5d5fe87ddb6be21fc61f2bce52a457850e11f91f3582f14",
     "meta": {
      "title": "Armchairs, Le Bambole, Bambola Armchair",
@@ -709,8 +709,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -762,14 +762,14 @@
    ],
    "style_note": "the brand B&B Italia: modern, modern minimal",
    "glb": "models/syncronia/syncronia_5aa4de6864d221e49cd306e1.glb",
-   "sha256_glb": "3592736c6447f1ffdcccebeae1fb7e8e757a9a90b8cb0c1a18eab3fea2e64966",
+   "sha256_glb": "9a65c3098e75ac6c522bc975e680d31a4248a342083ead5517861f8711b8957c",
    "uid": "syncronia_5aa4de6864d221e49cd306e1",
    "title": "B&B Italia Mart (71 x 69 x 67 cm)",
    "author": "B&B Italia (manufacturer model, via Syncronia)",
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/mart",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Mart (71 x 69 x 67 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/mart, from the user's zip \"archive1.zip\" (armchairs/bb-italia/mart/11208.3ds.zip/3D_MPG.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 16174,
    "vertices": 12914,
@@ -781,13 +781,69 @@
     "normal": false,
     "occlusion": false,
     "emissive": false,
-    "materials": 2,
+    "materials": 5,
     "materials_with_base_colour": 0,
     "images": 0,
-    "extensions": [
-     "KHR_materials_specular"
-    ]
+    "extensions": []
    },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.3366,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_own_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.6634,
+     "textured": false,
+     "base_colour": [
+      0.8632,
+      0.0908,
+      0.0513,
+      1.0
+     ],
+     "colour_rgb": [
+      239,
+      85,
+      64
+     ],
+     "note": "taupe upholstery fabric in the file's own colour #ef5540",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
    "syncronia": {
     "rel": "armchairs/bb-italia/mart/11208.3ds.zip/3D_MPG.3DS",
     "zip": "archive1.zip",
@@ -805,8 +861,11 @@
      "armchair"
     ],
     "converter": "assimp",
-    "part_classes": {},
-    "fix_version": "syncronia-4",
+    "part_classes": {
+     "fabric": 2,
+     "own_fabric_ef5540": 1
+    },
+    "fix_version": "syncronia-5",
     "src_sha256": "598c22e944af2c2a639f3c7614b1de2a543956b3028f6e76decf474573fd660b",
     "meta": {
      "title": "Armchairs, Mart",
@@ -828,8 +887,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -881,17 +940,17 @@
    ],
    "style_note": "the brand B&B Italia: modern, modern minimal",
    "glb": "models/syncronia/syncronia_46022258171ad5cb149f9bf7.glb",
-   "sha256_glb": "25cbb6093ff2c8ffe947911458e9f87836b8282c1ef6b6d718fb0c2a8dd54f9c",
+   "sha256_glb": "9c6fcbf5f9a47a5ef3bd58c34ca99b52be609f43df180804e76fda6b149cbb98",
    "uid": "syncronia_46022258171ad5cb149f9bf7",
    "title": "B&B Italia Mart (100 x 76 x 89 cm)",
    "author": "B&B Italia (manufacturer model, via Syncronia)",
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/mart",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Mart (100 x 76 x 89 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/mart, from the user's zip \"archive1.zip\" (armchairs/bb-italia/mart/11208.3ds.zip/3D_MPR.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 3796,
-   "vertices": 5394,
+   "vertices": 5853,
    "textured": false,
    "vertex_colours": false,
    "pbr_maps": {
@@ -900,13 +959,94 @@
     "normal": false,
     "occlusion": false,
     "emissive": false,
-    "materials": 2,
+    "materials": 6,
     "materials_with_base_colour": 0,
     "images": 0,
-    "extensions": [
-     "KHR_materials_specular"
-    ]
+    "extensions": []
    },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_chrome",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0243,
+     "textured": false,
+     "base_colour": [
+      0.6445,
+      0.6445,
+      0.6584,
+      1.0
+     ],
+     "colour_rgb": [
+      210,
+      210,
+      212
+     ],
+     "note": "polished chrome or steel",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.1178,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 5,
+     "name": "wenart_own_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.8579,
+     "textured": false,
+     "base_colour": [
+      0.8632,
+      0.0908,
+      0.0513,
+      1.0
+     ],
+     "colour_rgb": [
+      239,
+      85,
+      64
+     ],
+     "note": "taupe upholstery fabric in the file's own colour #ef5540",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
    "syncronia": {
     "rel": "armchairs/bb-italia/mart/11208.3ds.zip/3D_MPR.3DS",
     "zip": "archive1.zip",
@@ -924,8 +1064,12 @@
      "armchair"
     ],
     "converter": "assimp",
-    "part_classes": {},
-    "fix_version": "syncronia-4",
+    "part_classes": {
+     "own_fabric_ef5540": 1,
+     "fabric": 1,
+     "chrome": 1
+    },
+    "fix_version": "syncronia-5",
     "src_sha256": "3c55ff253fe994fcbd9ebc3f388dd3836db8c0967510f2d6a3f902482c53a566",
     "meta": {
      "title": "Armchairs, Mart",
@@ -947,8 +1091,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -1007,7 +1151,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/metropolitan-14",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Metropolitan '14 (99 x 81 x 78 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/metropolitan-14, from the user's zip \"archive1.zip\" (armchairs/bb-italia/metropolitan-14/11204.3ds.zip/3D_MP100.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 64208,
    "vertices": 33218,
@@ -1104,7 +1248,7 @@
      "fabric": 1,
      "chrome": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "ec3dec3c5b8ecfb38ebe1341ae19da04d27ad3d2878985a5b592e5c1fcd50b32",
     "meta": {
      "title": "Armchairs, Metropolitan &#039;14",
@@ -1126,8 +1270,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -1186,7 +1330,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/metropolitan-14",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Metropolitan '14 (99 x 87 x 108 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/metropolitan-14, from the user's zip \"archive1.zip\" (armchairs/bb-italia/metropolitan-14/11204.3ds.zip/3D_MP100ADP.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 73728,
    "vertices": 64705,
@@ -1283,7 +1427,7 @@
      "fabric": 2,
      "chrome": 2
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "bb46709bbe7a81ccfb3a149c605e2b9f6d3a6cf5796ac8806dd67daef921eafa",
     "meta": {
      "title": "Armchairs, Metropolitan &#039;14",
@@ -1305,8 +1449,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -1365,7 +1509,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/metropolitan-14",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Metropolitan '14 (99 x 87 x 108 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/metropolitan-14, from the user's zip \"archive1.zip\" (armchairs/bb-italia/metropolitan-14/11204.3ds.zip/3D_MP100AP.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 109544,
    "vertices": 56161,
@@ -1462,7 +1606,7 @@
      "fabric": 3,
      "metal": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "d78b809941a688b8b6a51075f568c8068acf04744d303b7bda61ecd03b4770f4",
     "meta": {
      "title": "Armchairs, Metropolitan &#039;14",
@@ -1484,8 +1628,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -1544,7 +1688,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/theo",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Theo (68 x 73 x 79 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/theo, from the user's zip \"archive1.zip\" (armchairs/bb-italia/theo/11251.3ds.zip/3D_THP.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 13684,
    "vertices": 9427,
@@ -1640,7 +1784,7 @@
      "fabric": 9,
      "plastic": 2
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "ee61155249920caa4ece3ff242923e19f516736a6856644d71abe5cc80549fed",
     "meta": {
      "title": "Armchairs, Theo",
@@ -1662,8 +1806,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -1722,7 +1866,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/tulip-sixty-tulip",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Tulip Sixty - Tulip (66 x 66 x 71 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/tulip-sixty-tulip, from the user's zip \"archive1.zip\" (armchairs/bb-italia/tulip-sixty-tulip/12415.3ds.zip/3D_TU4.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 94700,
    "vertices": 48094,
@@ -1819,7 +1963,7 @@
      "metal": 9,
      "fabric": 4
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "a3698744a66014a265998c681f7bcafb802044d9a92311fdaaa760f7e5ca0538",
     "meta": {
      "title": "Armchairs, Tulip Sixty - Tulip",
@@ -1841,8 +1985,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -1901,7 +2045,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/tulip-sixty-tulip",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Tulip Sixty - Tulip (54 x 61 x 72 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/bb-italia/tulip-sixty-tulip, from the user's zip \"archive1.zip\" (armchairs/bb-italia/tulip-sixty-tulip/12415.3ds.zip/3D_TUF.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 93172,
    "vertices": 47882,
@@ -1998,7 +2142,7 @@
      "metal": 2,
      "fabric": 4
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "f2c496b0f4eb13c917d8adeecbf35cd105ae2ef4f80e251398102242635077ef",
     "meta": {
      "title": "Armchairs, Tulip Sixty - Tulip",
@@ -2020,8 +2164,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -2080,7 +2224,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/et-al/agami",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Agami (74 x 74 x 81 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/et-al/agami, from the user's zip \"archive1.zip\" (armchairs/et-al/agami/77474.3ds.zip/EtAl_AGAMI_1155.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 77805,
    "vertices": 47381,
@@ -2177,7 +2321,7 @@
      "fabric": 6,
      "metal": 4
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "57dc507bf59f44977c254f917a7d0cac2af33509c814e246839fd84b10e0ce22",
     "meta": {
      "title": "Armchairs, Agami",
@@ -2199,8 +2343,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -2259,7 +2403,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/et-al/agatha",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Agatha (60 x 59 x 82 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/et-al/agatha, from the user's zip \"archive1.zip\" (armchairs/et-al/agatha/52770.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 9396,
    "vertices": 6263,
@@ -2356,7 +2500,7 @@
      "fabric": 13,
      "metal": 3
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "8809cc5a1a20e9e02cef1a7cfac0b4fe6ebdc643155dd591732cb7e9ff0bd1d4",
     "meta": {
      "title": "Armchairs, Agatha",
@@ -2378,8 +2522,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -2438,7 +2582,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/et-al/kicca",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Kicca (57 x 62 x 76 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/et-al/kicca, from the user's zip \"archive1.zip\" (armchairs/et-al/kicca/52790.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 4432,
    "vertices": 2434,
@@ -2535,7 +2679,7 @@
      "fabric": 4,
      "metal": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "80b5afca3145cdc97674aeb8e83419ef15ea8b1d0264a58495537156ebdbeec6",
     "meta": {
      "title": "Armchairs, Kicca",
@@ -2557,8 +2701,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -2617,7 +2761,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/et-al/marka",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Marka (62 x 59 x 86 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/et-al/marka, from the user's zip \"archive1.zip\" (armchairs/et-al/marka/52760.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 8259,
    "vertices": 6378,
@@ -2713,7 +2857,7 @@
      "fabric": 6,
      "metal": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "2c07fa310fa93fd5d1e65fa3736fdb4c2a53842e14fb87ec1728331b7021b7ae",
     "meta": {
      "title": "Armchairs, Marka",
@@ -2735,8 +2879,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -2794,7 +2938,7 @@
    "brand": "Marte Design",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/marte-design/dilmun-l",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Marte Design Dilmun-L (75 x 83 x 90 cm)\" by Marte Design (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/marte-design/dilmun-l, from the user's zip \"archive1.zip\" (armchairs/marte-design/dilmun-l/63856.fbx.zip/Marte_Dilmun_066_fbx.FBX); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from FBX, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 9600,
    "vertices": 5138,
@@ -2891,7 +3035,7 @@
      "fabric": 3,
      "metal": 6
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "6d1ecd02198790deb0d6dbe8eb495d97e6d452e81a4648d5ae263e262b0e3613",
     "meta": {
      "title": "Armchairs, Dilmun-L",
@@ -2913,8 +3057,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -2965,14 +3109,14 @@
    ],
    "style_note": "the brand Marte Design: modern",
    "glb": "models/syncronia/syncronia_4782f6a4a395b2c63c3744fd.glb",
-   "sha256_glb": "ce679f1902ee22ec4b31ffef7b250732bb31ca09149b9bf1c18710b5408c3972",
+   "sha256_glb": "1993b17e2b5422d8eb364bb0d19b29bf1e44a5db8e31104d13a44e173072ee5f",
    "uid": "syncronia_4782f6a4a395b2c63c3744fd",
    "title": "Marte Design Finn (95 x 72 x 79 cm)",
    "author": "Marte Design (manufacturer model, via Syncronia)",
    "brand": "Marte Design",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/marte-design/finn",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Marte Design Finn (95 x 72 x 79 cm)\" by Marte Design (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/marte-design/finn, from the user's zip \"archive1.zip\" (armchairs/marte-design/finn/65053.fbx.zip/Marte_Design_Finn_092_3DL_Low_fbx.FBX); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from FBX, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 15364,
    "vertices": 13351,
@@ -2984,13 +3128,119 @@
     "normal": false,
     "occlusion": false,
     "emissive": false,
-    "materials": 4,
+    "materials": 7,
     "materials_with_base_colour": 0,
     "images": 0,
-    "extensions": [
-     "KHR_materials_specular"
-    ]
+    "extensions": []
    },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.6418,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0081,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 5,
+     "name": "wenart_own_fabric.001",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.034,
+     "textured": false,
+     "base_colour": [
+      0.1714,
+      0.1248,
+      0.1248,
+      1.0
+     ],
+     "colour_rgb": [
+      115,
+      99,
+      99
+     ],
+     "note": "taupe upholstery fabric in the file's own colour #736363",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 6,
+     "name": "wenart_own_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.3161,
+     "textured": false,
+     "base_colour": [
+      0.5029,
+      0.2747,
+      0.2747,
+      1.0
+     ],
+     "colour_rgb": [
+      188,
+      143,
+      143
+     ],
+     "note": "taupe upholstery fabric in the file's own colour #bc8f8f",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
    "syncronia": {
     "rel": "armchairs/marte-design/finn/65053.fbx.zip/Marte_Design_Finn_092_3DL_Low_fbx.FBX",
     "zip": "archive1.zip",
@@ -3008,8 +3258,13 @@
      "armchair"
     ],
     "converter": "blender",
-    "part_classes": {},
-    "fix_version": "syncronia-4",
+    "part_classes": {
+     "own_fabric_bc8f8f": 2,
+     "fabric": 2,
+     "own_fabric_736363": 7,
+     "metal": 4
+    },
+    "fix_version": "syncronia-5",
     "src_sha256": "baeba8f7b09f0dcd3af7cc4bfb748f32d854309fe6ffdce3c27b325038a8c0cc",
     "meta": {
      "title": "Armchairs, Finn",
@@ -3031,8 +3286,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -3090,7 +3345,7 @@
    "brand": "Marte Design",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/marte-design/nami",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Marte Design Nami (70 x 70 x 70 cm)\" by Marte Design (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/marte-design/nami, from the user's zip \"archive1.zip\" (armchairs/marte-design/nami/64839.fbx.zip/M.Arte_Design_Nami_065_3DH_fbx.FBX); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from FBX, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 54856,
    "vertices": 28910,
@@ -3186,7 +3441,7 @@
      "metal": 4,
      "fabric": 8
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "c2f8cae6cffc2537e71bd7621f18b4963fdc80723e052c0b73687f87a3bf8dea",
     "meta": {
      "title": "Armchairs, Nami",
@@ -3208,8 +3463,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -3268,7 +3523,7 @@
    "brand": "Maxalto (B&B Italia)",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/maxalto/febo-2013",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Maxalto (B&B Italia) Febo 2013 (77 x 96 x 106 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/maxalto/febo-2013, from the user's zip \"archive1.zip\" (armchairs/maxalto/febo-2013/14118.3ds.zip/3D_2830CV.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 18554,
    "vertices": 10617,
@@ -3390,7 +3645,7 @@
      "metal": 4,
      "plastic": 4
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "fee2d573288c5d8d433a75f1eecbbfe11d5643edf258215a6b726d14b6b3d83a",
     "meta": {
      "title": "Armchairs, Febo 2013",
@@ -3412,8 +3667,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -3472,7 +3727,7 @@
    "brand": "Maxalto (B&B Italia)",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/maxalto/febo-2013",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Maxalto (B&B Italia) Febo 2013 (77 x 96 x 106 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/maxalto/febo-2013, from the user's zip \"archive1.zip\" (armchairs/maxalto/febo-2013/14118.3ds.zip/3D_2830V.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 18554,
    "vertices": 10617,
@@ -3568,7 +3823,7 @@
      "fabric": 10,
      "plastic": 4
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "f50198ee0d37113f0b4675a3efeaac6d179666964150654b1a2132ab73210c78",
     "meta": {
      "title": "Armchairs, Febo 2013",
@@ -3590,8 +3845,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -3650,7 +3905,7 @@
    "brand": "Maxalto (B&B Italia)",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/maxalto/febo-2014",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Maxalto (B&B Italia) Febo 2014 (63 x 75 x 75 cm)\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/maxalto/febo-2014, from the user's zip \"archive1.zip\" (armchairs/maxalto/febo-2014/14111.3ds.zip/3D_2832V.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 31855,
    "vertices": 17337,
@@ -3746,7 +4001,7 @@
      "fabric": 6,
      "plastic": 4
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "a00bed1159848912ed9a14f3c5b72adc60bd93d78f8b11ef2ebd4564ddf8d48b",
     "meta": {
      "title": "Armchairs, Febo 2014",
@@ -3768,8 +4023,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -3827,7 +4082,7 @@
    "brand": "MDF Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/mdf-italia/achille-collection",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"MDF Italia Achille Collection (60 x 56 x 75 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/mdf-italia/achille-collection, from the user's zip \"archive1.zip\" (armchairs/mdf-italia/achille-collection/80791.3ds.zip/MDF_Achille_Armchair_.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 29256,
    "vertices": 17304,
@@ -3897,7 +4152,7 @@
     "part_classes": {
      "fabric": 2
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "54a26965b96b527c5e9bce9f8d6f6ce9f1b89e6cdabac5142f692234437aadfb",
     "meta": {
      "title": "Armchairs, Achille Collection",
@@ -3919,8 +4174,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -3978,7 +4233,7 @@
    "brand": "MDF Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/mdf-italia/cantle",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"MDF Italia Cantle (75 x 64 x 71 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/mdf-italia/cantle, from the user's zip \"archive1.zip\" (armchairs/mdf-italia/cantle/174583.3ds.zip/MDF_Cantle_Armchair_F058100.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 654328,
    "vertices": 405105,
@@ -4074,7 +4329,7 @@
      "fabric": 4,
      "metal": 4
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "8bc2f9e69a303385107da9078e3fb23470eb243b8bcf7bf66a0a22f1dac34312",
     "meta": {
      "title": "Armchairs, Cantle",
@@ -4096,8 +4351,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -4155,7 +4410,7 @@
    "brand": "MDF Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/mdf-italia/neil-twist",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"MDF Italia Neil Twist (80 x 67 x 71 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/mdf-italia/neil-twist, from the user's zip \"archive1.zip\" (armchairs/mdf-italia/neil-twist/80556.3ds.zip/MDF_Neil_Twist_Armchair.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 456638,
    "vertices": 612047,
@@ -4251,7 +4506,7 @@
      "fabric": 614,
      "metal": 4
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "44267e1383fc8470906b65d207dfd8b4bcb9607b7c7b835fef28b5038a624f8f",
     "meta": {
      "title": "Armchairs, Neil Twist",
@@ -4273,8 +4528,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -4332,7 +4587,7 @@
    "brand": "MDF Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/mdf-italia/peggy",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"MDF Italia Peggy (109 x 89 x 74 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/mdf-italia/peggy, from the user's zip \"archive1.zip\" (armchairs/mdf-italia/peggy/174794.3ds.zip/MDF_Peggy Armchair_F069940.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 1009170,
    "vertices": 589834,
@@ -4428,7 +4683,7 @@
      "fabric": 2,
      "metal": 8
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "735551868ee3ecceb085a1f96be1ad85033185c2619761a55736b00e09b67566",
     "meta": {
      "title": "Armchairs, Peggy",
@@ -4450,8 +4705,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -4509,7 +4764,7 @@
    "brand": "MDF Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/mdf-italia/sign-matt",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"MDF Italia SIGN Matt (72 x 70 x 59 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/mdf-italia/sign-matt, from the user's zip \"archive1.zip\" (armchairs/mdf-italia/sign-matt/80797.3ds.zip/MDF_SIGN_ARMCHAIR.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 36769,
    "vertices": 21148,
@@ -4579,7 +4834,7 @@
     "part_classes": {
      "fabric": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "3560a9b98062fc0b5a7b0469a6513c2ff3950695084e7cf4f56de98f34d73c78",
     "meta": {
      "title": "Armchairs, SIGN Matt",
@@ -4601,8 +4856,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -4661,7 +4916,7 @@
    "brand": "Riva 1920",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/riva1920/bungalow-armchair",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Riva 1920 Bungalow Armchair (97 x 88 x 78 cm)\" by Riva 1920 (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/riva1920/bungalow-armchair, from the user's zip \"archive1.zip\" (armchairs/riva1920/bungalow-armchair/72783.fbx.zip/Riva1921_Bungalow_Armchair_fbx.fbx); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from FBX, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 66373,
    "vertices": 59900,
@@ -4731,7 +4986,7 @@
     "part_classes": {
      "fabric": 84
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "8cbaccaea80755a08d1577dc176bcde0f497a951d20b66b9a8f80342bb25cac2",
     "meta": {
      "title": "Armchairs, Bungalow Armchair",
@@ -4753,8 +5008,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -4812,7 +5067,7 @@
    "brand": "Tonon",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/tonon/corda-armchair",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Tonon Corda Armchair (59 x 60 x 83 cm)\" by Tonon (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/tonon/corda-armchair, from the user's zip \"archive1.zip\" (armchairs/tonon/corda-armchair/64778.3ds.zip/162_11.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 142408,
    "vertices": 153166,
@@ -4882,7 +5137,7 @@
     "part_classes": {
      "fabric": 25
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "532d8e39c549300ae1132551188ef9834635de7663c45db0b3e584418fca5a41",
     "meta": {
      "title": "Armchairs, Corda Armchair",
@@ -4904,8 +5159,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -4956,14 +5211,14 @@
    ],
    "style_note": "the brand Tonon: modern",
    "glb": "models/syncronia/syncronia_75ef356e7fa423ac4497f685.glb",
-   "sha256_glb": "7423cbf4341aa533853fc2d23cf33aa85ecf0117230e1f3aff7ac3e33581a2ee",
+   "sha256_glb": "8f28d442240b93e1f7bd16c93dfba91a3cd2aee55f5caf3772645891a9298e32",
    "uid": "syncronia_75ef356e7fa423ac4497f685",
    "title": "Tonon Flower (63 x 60 x 88 cm)",
    "author": "Tonon (manufacturer model, via Syncronia)",
    "brand": "Tonon",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/tonon/flower",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Tonon Flower (63 x 60 x 88 cm)\" by Tonon (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/tonon/flower, from the user's zip \"archive1.zip\" (armchairs/tonon/flower/76298.zip/9W0 03_05.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 4115174,
    "vertices": 2182278,
@@ -4975,13 +5230,94 @@
     "normal": false,
     "occlusion": false,
     "emissive": false,
-    "materials": 451,
+    "materials": 6,
     "materials_with_base_colour": 0,
     "images": 0,
-    "extensions": [
-     "KHR_materials_specular"
-    ]
+    "extensions": []
    },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_chrome",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0059,
+     "textured": false,
+     "base_colour": [
+      0.6445,
+      0.6445,
+      0.6584,
+      1.0
+     ],
+     "colour_rgb": [
+      210,
+      210,
+      212
+     ],
+     "note": "polished chrome or steel",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 4,
+     "name": "wenart_fabric",
+     "material": "fabric",
+     "materials": [
+      "fabric"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.9934,
+     "textured": false,
+     "base_colour": [
+      0.305,
+      0.2582,
+      0.2086,
+      1.0
+     ],
+     "colour_rgb": [
+      150,
+      139,
+      126
+     ],
+     "note": "taupe upholstery fabric",
+     "by": "wenart.assets.part_materials"
+    },
+    {
+     "index": 5,
+     "name": "wenart_metal_dark",
+     "material": "metal",
+     "materials": [
+      "metal"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 0.0007,
+     "textured": false,
+     "base_colour": [
+      0.0423,
+      0.0395,
+      0.0369,
+      1.0
+     ],
+     "colour_rgb": [
+      58,
+      56,
+      54
+     ],
+     "note": "dark painted metal",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [
+    "fabric"
+   ],
+   "recolourable_fabric": true,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
    "syncronia": {
     "rel": "armchairs/tonon/flower/76298.zip/9W0 03_05.3ds",
     "zip": "archive1.zip",
@@ -4999,8 +5335,12 @@
      "armchair"
     ],
     "converter": "assimp",
-    "part_classes": {},
-    "fix_version": "syncronia-4",
+    "part_classes": {
+     "fabric": 5,
+     "chrome": 4,
+     "metal": 4
+    },
+    "fix_version": "syncronia-5",
     "src_sha256": "140682a3189d4a95c6d1414284586ee43811922d5d09f6e70e3ef9289c299e0b",
     "meta": {
      "title": "Armchairs, Flower",
@@ -5022,8 +5362,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -5081,7 +5421,7 @@
    "brand": "Tonon",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-armchairs/tonon/libra-armchair",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Tonon Libra armchair (59 x 62 x 82 cm)\" by Tonon (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-armchairs/tonon/libra-armchair, from the user's zip \"archive1.zip\" (armchairs/tonon/libra-armchair/63046.3ds.zip/Tonon_libra_298.11_3ds.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 65644,
    "vertices": 35990,
@@ -5151,7 +5491,7 @@
     "part_classes": {
      "fabric": 5
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "05f5e0429d9274c89b248de33c49db1abff9a7bbd817e4a1ee591b582d2dd0e8",
     "meta": {
      "title": "Armchairs, Libra armchair",
@@ -5173,8 +5513,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -5232,7 +5572,7 @@
    "brand": "Marte Design",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bar-table/marte-design/molecular",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Marte Design Molecular (46 x 45 x 37 cm)\" by Marte Design (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bar-table/marte-design/molecular, from the user's zip \"archive1.zip\" (bar-table/marte-design/molecular/63885.fbx.zip/Marte_Molecular_037_fbx.FBX); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from FBX, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 4308,
    "vertices": 3224,
@@ -5274,7 +5614,7 @@
     ],
     "converter": "blender",
     "part_classes": {},
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "6015c4158b01e40fd51714b51dde40cf60a423f0ff194e6abbc736eb4bf90eac",
     "meta": {
      "title": "Bar table, Molecular",
@@ -5296,8 +5636,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -5355,7 +5695,7 @@
    "brand": "Marte Design",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bar-table/marte-design/tamashi",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Marte Design Tamashi (220 x 100 x 74 cm)\" by Marte Design (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bar-table/marte-design/tamashi, from the user's zip \"archive1.zip\" (bar-table/marte-design/tamashi/64473.fbx.zip/M.Arte_Tamashi_220_3DH_fbx.FBX); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from FBX, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 1516,
    "vertices": 1288,
@@ -5430,7 +5770,7 @@
     "part_classes": {
      "wood": 9
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "4012bb6920d58ea3d4d741ca1e20020e76d0f84720c4062dcafd370198a3ef7d",
     "meta": {
      "title": "Bar table, Tamashi",
@@ -5452,8 +5792,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -5511,7 +5851,7 @@
    "brand": "Aquatica Bath",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/aphrodite",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Aquatica Bath Aphrodite (178 x 92 x 68 cm)\" by Aquatica Bath (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/aphrodite, from the user's zip \"archive1.zip\" (bathtubs/aquatica-bath/aphrodite/61017.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 15424,
    "vertices": 9987,
@@ -5579,7 +5919,7 @@
     "part_classes": {
      "ceramic": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "c59b84deb923508ae40773f86c2ab26dd288a33fce9e44120f52124a880d7f70",
     "meta": {
      "title": "Bathtubs, Aphrodite",
@@ -5601,8 +5941,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -5660,7 +6000,7 @@
    "brand": "Aquatica Bath",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/corelia",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Aquatica Bath Corelia (168 x 86 x 53 cm)\" by Aquatica Bath (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/corelia, from the user's zip \"archive1.zip\" (bathtubs/aquatica-bath/corelia/60975.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 24616,
    "vertices": 12378,
@@ -5728,7 +6068,7 @@
     "part_classes": {
      "ceramic": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "205deeabbfa34b2e723c816e8c3356bcdb4caf02f963a0d2fa78691efd05156c",
     "meta": {
      "title": "Bathtubs, Corelia",
@@ -5750,8 +6090,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -5809,7 +6149,7 @@
    "brand": "Aquatica Bath",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/lullaby-mini",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Aquatica Bath Lullaby Mini (154 x 70 x 63 cm)\" by Aquatica Bath (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/lullaby-mini, from the user's zip \"archive1.zip\" (bathtubs/aquatica-bath/lullaby-mini/61019.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 63852,
    "vertices": 38767,
@@ -5877,7 +6217,7 @@
     "part_classes": {
      "ceramic": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "5d8cbe8e572ecf69b3177a982161c4593dbea8a178bdf7c6660cb748f0ac2eb8",
     "meta": {
      "title": "Bathtubs, Lullaby Mini",
@@ -5899,8 +6239,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -5958,7 +6298,7 @@
    "brand": "Aquatica Bath",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/lullaby-nano",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Aquatica Bath Lullaby Nano (130 x 61 x 70 cm)\" by Aquatica Bath (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/lullaby-nano, from the user's zip \"archive1.zip\" (bathtubs/aquatica-bath/lullaby-nano/61072.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 69585,
    "vertices": 35553,
@@ -6026,7 +6366,7 @@
     "part_classes": {
      "ceramic": 3
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "a73db2254f3bda302b05e28fdd17b4848a8d1ace72b4313d6e09ed0b7e3df5cb",
     "meta": {
      "title": "Bathtubs, Lullaby Nano",
@@ -6048,8 +6388,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -6100,14 +6440,14 @@
    ],
    "style_note": "the brand Aquatica Bath: modern",
    "glb": "models/syncronia/syncronia_3469b326dbc08d34c25eec63.glb",
-   "sha256_glb": "3c54a81f06de03922d9d8844bf35c9e271c55ec46236b16fe91f9c9b480fb8e8",
+   "sha256_glb": "479c5c978b2a7b40391ef82e311a39730019515d655d4303acc78f86f3164013",
    "uid": "syncronia_3469b326dbc08d34c25eec63",
    "title": "Aquatica Bath Purescape 171 (183 x 100 x 79 cm)",
    "author": "Aquatica Bath (manufacturer model, via Syncronia)",
    "brand": "Aquatica Bath",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/purescape-171",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Aquatica Bath Purescape 171 (183 x 100 x 79 cm)\" by Aquatica Bath (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/purescape-171, from the user's zip \"archive1.zip\" (bathtubs/aquatica-bath/purescape-171/60912.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 4354,
    "vertices": 2364,
@@ -6119,13 +6459,42 @@
     "normal": false,
     "occlusion": false,
     "emissive": false,
-    "materials": 2,
+    "materials": 4,
     "materials_with_base_colour": 0,
     "images": 0,
-    "extensions": [
-     "KHR_materials_specular"
-    ]
+    "extensions": []
    },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_ceramic",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.8388,
+      0.807,
+      0.7454,
+      1.0
+     ],
+     "colour_rgb": [
+      236,
+      232,
+      224
+     ],
+     "note": "glazed white ceramic",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
    "syncronia": {
     "rel": "bathtubs/aquatica-bath/purescape-171/60912.3ds",
     "zip": "archive1.zip",
@@ -6143,8 +6512,10 @@
      "bathtub"
     ],
     "converter": "assimp",
-    "part_classes": {},
-    "fix_version": "syncronia-4",
+    "part_classes": {
+     "ceramic": 1
+    },
+    "fix_version": "syncronia-5",
     "src_sha256": "a26f80d3b102f9ec82bec82b5a256250e06640ec191ede85b5aaf6e9bd4cdc97",
     "meta": {
      "title": "Bathtubs, Purescape 171",
@@ -6166,8 +6537,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -6225,7 +6596,7 @@
    "brand": "Aquatica Bath",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/purescape-171-mini",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Aquatica Bath Purescape 171 Mini (183 x 100 x 79 cm)\" by Aquatica Bath (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/purescape-171-mini, from the user's zip \"archive1.zip\" (bathtubs/aquatica-bath/purescape-171-mini/61074.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 47196,
    "vertices": 26993,
@@ -6293,7 +6664,7 @@
     "part_classes": {
      "ceramic": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "99089e8b26cf47748816b90a682cd1f7a78a5b8c2da35183fea97971375f3b23",
     "meta": {
      "title": "Bathtubs, Purescape 171 Mini",
@@ -6315,8 +6686,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -6374,7 +6745,7 @@
    "brand": "Aquatica Bath",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/sensuality",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Aquatica Bath Sensuality (179 x 90 x 66 cm)\" by Aquatica Bath (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/sensuality, from the user's zip \"archive1.zip\" (bathtubs/aquatica-bath/sensuality/60936.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 90248,
    "vertices": 48102,
@@ -6442,7 +6813,7 @@
     "part_classes": {
      "ceramic": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "ad0945219939a538f5ba1352b1480d34e192adcc9cd25c784f21ba87848a17ab",
     "meta": {
      "title": "Bathtubs, Sensuality",
@@ -6464,8 +6835,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -6523,7 +6894,7 @@
    "brand": "Aquatica Bath",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/sensuality-mini",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Aquatica Bath Sensuality Mini (84 x 168 x 68 cm)\" by Aquatica Bath (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/sensuality-mini, from the user's zip \"archive1.zip\" (bathtubs/aquatica-bath/sensuality-mini/61076.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 127800,
    "vertices": 64584,
@@ -6591,7 +6962,7 @@
     "part_classes": {
      "ceramic": 2
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "b0868b0f8c1041092e2d5d1a475f510923cc05c62b9bf13ab67bd8b0d1aa8bc0",
     "meta": {
      "title": "Bathtubs, Sensuality Mini",
@@ -6613,8 +6984,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -6665,14 +7036,14 @@
    ],
    "style_note": "the brand Aquatica Bath: modern",
    "glb": "models/syncronia/syncronia_4a736a820d7fb0449d26352c.glb",
-   "sha256_glb": "fc9d6a82c61fd6cb87df83c9d2f935ca070582319e0b85b9be6e2d5946f1bd25",
+   "sha256_glb": "a74c1ebd4e16703c42725c7e0e63b8b923d0d19f151362c257851ee92e89e60c",
    "uid": "syncronia_4a736a820d7fb0449d26352c",
    "title": "Aquatica Bath Spoon 2 (168 x 90 x 57 cm)",
    "author": "Aquatica Bath (manufacturer model, via Syncronia)",
    "brand": "Aquatica Bath",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/spoon-2",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Aquatica Bath Spoon 2 (168 x 90 x 57 cm)\" by Aquatica Bath (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/spoon-2, from the user's zip \"archive1.zip\" (bathtubs/aquatica-bath/spoon-2/60947.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 4150,
    "vertices": 2195,
@@ -6684,13 +7055,42 @@
     "normal": false,
     "occlusion": false,
     "emissive": false,
-    "materials": 2,
+    "materials": 4,
     "materials_with_base_colour": 0,
     "images": 0,
-    "extensions": [
-     "KHR_materials_specular"
-    ]
+    "extensions": []
    },
+   "material_slots": [
+    {
+     "index": 3,
+     "name": "wenart_ceramic",
+     "material": "other",
+     "materials": [
+      "other"
+     ],
+     "agreed": true,
+     "separable": true,
+     "share": 1.0,
+     "textured": false,
+     "base_colour": [
+      0.8388,
+      0.807,
+      0.7454,
+      1.0
+     ],
+     "colour_rgb": [
+      236,
+      232,
+      224
+     ],
+     "note": "glazed white ceramic",
+     "by": "wenart.assets.part_materials"
+    }
+   ],
+   "material_tags": [],
+   "recolourable_fabric": false,
+   "recolourable_wood": false,
+   "material_tags_note": "part materials of wenart.assets.part_materials (the file has no materials): by part (a bed), material names, feet and the type's material",
    "syncronia": {
     "rel": "bathtubs/aquatica-bath/spoon-2/60947.3ds",
     "zip": "archive1.zip",
@@ -6708,8 +7108,10 @@
      "bathtub"
     ],
     "converter": "assimp",
-    "part_classes": {},
-    "fix_version": "syncronia-4",
+    "part_classes": {
+     "ceramic": 1
+    },
+    "fix_version": "syncronia-5",
     "src_sha256": "21fb349c433d0e02a1c6bd5614b7c6edbdc9bd5c54dfc4e2676213ad31c7d8a8",
     "meta": {
      "title": "Bathtubs, Spoon 2",
@@ -6731,8 +7133,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -6790,7 +7192,7 @@
    "brand": "Aquatica Bath",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/true-ofuro-nano",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Aquatica Bath True Ofuro Nano (124 x 95 x 79 cm)\" by Aquatica Bath (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bathtubs/aquatica-bath/true-ofuro-nano, from the user's zip \"archive1.zip\" (bathtubs/aquatica-bath/true-ofuro-nano/67096.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 63644,
    "vertices": 40422,
@@ -6858,7 +7260,7 @@
     "part_classes": {
      "ceramic": 14
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "d6424702fd2db04d4d031565717e15f94778d5201e396ccb7f6352fd300b53bc",
     "meta": {
      "title": "Bathtubs, True Ofuro Nano",
@@ -6880,8 +7282,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -6939,7 +7341,7 @@
    "brand": "Horm",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/horm/ebridi-legno-sommier",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Horm Ebridi Legno Sommier bed 169 x 205\" by Horm (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/horm/ebridi-legno-sommier, from the user's zip \"archive1.zip\" (beds/horm/ebridi-legno-sommier/66196.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 162520,
    "vertices": 86275,
@@ -7042,7 +7444,7 @@
      "frame": 1,
      "bedding": 3
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "a09205a82d8c9120539c903260394d4ec57de9f7c3b96cba054bd1e0db30e360",
     "meta": {
      "title": "Beds, Ebridi Legno Sommier",
@@ -7064,8 +7466,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -7124,7 +7526,7 @@
    "brand": "Maxalto (B&B Italia)",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Maxalto (B&B Italia) Demetra bed 195 x 226\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra, from the user's zip \"archive1.zip\" (beds/maxalto/demetra/14386.3ds.zip/3D_9845_2.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 150910,
    "vertices": 218108,
@@ -7254,7 +7656,7 @@
      "bedding": 3,
      "legs": 9
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "f643e621f1fa9388aeb63938db93f30059b6cbc3569536848a034b1737ee5fd9",
     "meta": {
      "title": "Beds, Demetra",
@@ -7276,8 +7678,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -7336,7 +7738,7 @@
    "brand": "Maxalto (B&B Italia)",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Maxalto (B&B Italia) Demetra bed 210 x 226\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra, from the user's zip \"archive1.zip\" (beds/maxalto/demetra/14386.3ds.zip/3D_9845_3.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 150910,
    "vertices": 214814,
@@ -7466,7 +7868,7 @@
      "bedding": 3,
      "legs": 9
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "6c703144a44220b1c07cd0f676dc8006791a467163a02f473389283fd09c7d41",
     "meta": {
      "title": "Beds, Demetra",
@@ -7488,8 +7890,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -7548,7 +7950,7 @@
    "brand": "Maxalto (B&B Italia)",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Maxalto (B&B Italia) Demetra bed 221 x 226\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra, from the user's zip \"archive1.zip\" (beds/maxalto/demetra/14386.3ds.zip/3D_9845_4.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 150910,
    "vertices": 215464,
@@ -7678,7 +8080,7 @@
      "bedding": 1,
      "legs": 9
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "e9161fae0c2b5407892c7e019c62741811821d6d5a8bd8b11673e91a605a40cd",
     "meta": {
      "title": "Beds, Demetra",
@@ -7700,8 +8102,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -7760,7 +8162,7 @@
    "brand": "Maxalto (B&B Italia)",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Maxalto (B&B Italia) Demetra bed 226 x 241\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/demetra, from the user's zip \"archive1.zip\" (beds/maxalto/demetra/14386.3ds.zip/3D_9845_5.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 150910,
    "vertices": 214010,
@@ -7890,7 +8292,7 @@
      "bedding": 1,
      "legs": 9
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "e78430bf58382e42b480d19133d801580446bbb2eeea9112d5e5e764fe46a09c",
     "meta": {
      "title": "Beds, Demetra",
@@ -7912,8 +8314,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -7972,7 +8374,7 @@
    "brand": "Maxalto (B&B Italia)",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/selene",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Maxalto (B&B Italia) Selene bed 170 x 226\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/selene, from the user's zip \"archive1.zip\" (beds/maxalto/selene/14366.3ds.zip/3D_9745_2.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 123352,
    "vertices": 154708,
@@ -8102,7 +8504,7 @@
      "legs": 8,
      "headboard": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "10755005b20ba46e69ac9356198445209213a2dcb2b8708582c71e6961ee7e7a",
     "meta": {
      "title": "Beds, Selene",
@@ -8124,8 +8526,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -8184,7 +8586,7 @@
    "brand": "Maxalto (B&B Italia)",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/selene",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Maxalto (B&B Italia) Selene bed 180 x 223\" by Maxalto (B&B Italia) (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-beds/maxalto/selene, from the user's zip \"archive1.zip\" (beds/maxalto/selene/14366.3ds.zip/3D_9745_3.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 123352,
    "vertices": 154708,
@@ -8314,7 +8716,7 @@
      "legs": 8,
      "headboard": 1
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "b807b39099062c7bdbd05e1b8817ed5c9195929f588b960c4b847541c9ea145e",
     "meta": {
      "title": "Beds, Selene",
@@ -8336,8 +8738,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -8396,7 +8798,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Space (124 x 62 x 87 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space, from the user's zip \"archive1.zip\" (benches/et-al/space/52809.3ds.zip/MetalMobil_249_Space.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 6424,
    "vertices": 3535,
@@ -8492,7 +8894,7 @@
      "fabric": 7,
      "metal": 12
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "2d90256d63b4f133adc2a3f550485f074dd07ce057cc4da0917ecccf4a1a734e",
     "meta": {
      "title": "Benches, Space",
@@ -8514,8 +8916,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -8574,7 +8976,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Space (124 x 62 x 87 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space, from the user's zip \"archive1.zip\" (benches/et-al/space/52809.3ds.zip/MetalMobil_249_Space_H.120.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 6424,
    "vertices": 3535,
@@ -8670,7 +9072,7 @@
      "fabric": 7,
      "metal": 12
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "2d90256d63b4f133adc2a3f550485f074dd07ce057cc4da0917ecccf4a1a734e",
     "meta": {
      "title": "Benches, Space",
@@ -8692,8 +9094,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -8752,7 +9154,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Space (84 x 62 x 87 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space, from the user's zip \"archive1.zip\" (benches/et-al/space/52809.3ds.zip/MetalMobil_250_Space_L.80 .3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 6424,
    "vertices": 3490,
@@ -8848,7 +9250,7 @@
      "fabric": 6,
      "metal": 12
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "0179a5753e11255ba682557c571d6b76cd0049eccd9d1c6f522fb825d7d34d79",
     "meta": {
      "title": "Benches, Space",
@@ -8870,8 +9272,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -8930,7 +9332,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Space (74 x 62 x 87 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space, from the user's zip \"archive1.zip\" (benches/et-al/space/52809.3ds.zip/MetalMobil_251_Space_L.70 .3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 6424,
    "vertices": 3840,
@@ -9026,7 +9428,7 @@
      "fabric": 6,
      "metal": 12
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "1b7f04172e0ea644ebf0e535501ca51a659a1f48e806c1c0b2cdb8918dcba6a5",
     "meta": {
      "title": "Benches, Space",
@@ -9048,8 +9450,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -9108,7 +9510,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Space (124 x 62 x 115 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space, from the user's zip \"archive1.zip\" (benches/et-al/space/52809.3ds.zip/MetalMobil_765_Space_L.120.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 6204,
    "vertices": 2957,
@@ -9204,7 +9606,7 @@
      "fabric": 7,
      "metal": 12
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "fa82d85b3786a5925468ec8707f24e6b53f0efe20fc048e23ec07721cf2a960d",
     "meta": {
      "title": "Benches, Space",
@@ -9226,8 +9628,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -9286,7 +9688,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Space (82 x 62 x 115 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space, from the user's zip \"archive1.zip\" (benches/et-al/space/52809.3ds.zip/MetalMobil_766_Space_L.80.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 5890,
    "vertices": 2772,
@@ -9382,7 +9784,7 @@
      "fabric": 9,
      "metal": 12
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "410c394bf94d48ed89e7d9d512ebb77ff14db756c6fe09cadffb23ac752f1788",
     "meta": {
      "title": "Benches, Space",
@@ -9404,8 +9806,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -9464,7 +9866,7 @@
    "brand": "et al.",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"et al. Space (72 x 62 x 115 cm)\" by et al. (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/et-al/space, from the user's zip \"archive1.zip\" (benches/et-al/space/52809.3ds.zip/MetalMobil_767_Space_L.70.3ds); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 5890,
    "vertices": 2778,
@@ -9560,7 +9962,7 @@
      "fabric": 10,
      "metal": 12
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "4f276ed4a3fe0bacfc239e62a1b5b585bc17fe42523be63f15a7cefc2036deda",
     "meta": {
      "title": "Benches, Space",
@@ -9582,8 +9984,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -9641,7 +10043,7 @@
    "brand": "MDF Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/mdf-italia/le-banc",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"MDF Italia Le Banc (122 x 40 x 44 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/mdf-italia/le-banc, from the user's zip \"archive1.zip\" (benches/mdf-italia/le-banc/80450.3ds.zip/MDF_Benches_LeBanc_L120.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 10360,
    "vertices": 14172,
@@ -9737,7 +10139,7 @@
      "fabric": 1,
      "metal": 4
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "8a2dcc2245a3eb21ed2b76b8f64f85f2c31d67d4e77f4b8ced2c8b11231a451d",
     "meta": {
      "title": "Benches, Le Banc",
@@ -9759,8 +10161,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -9819,7 +10221,7 @@
    "brand": "Riva 1920",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/riva1920/audrey",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Riva 1920 Audrey (190 x 60 x 46 cm)\" by Riva 1920 (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/riva1920/audrey, from the user's zip \"archive1.zip\" (benches/riva1920/audrey/180557.obj.zip/Riva1920_Audrey_Bench.obj); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from OBJ, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 101728,
    "vertices": 103272,
@@ -9889,7 +10291,7 @@
     "part_classes": {
      "fabric": 396
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "164115e87ba1cb531a452ffc098877855a877a5af1a0ff5bb84e3fb66812c6b8",
     "meta": {
      "title": "Benches, Audrey",
@@ -9911,8 +10313,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -9971,7 +10373,7 @@
    "brand": "Riva 1920",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/riva1920/giacinto",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Riva 1920 Giacinto (130 x 39 x 44 cm)\" by Riva 1920 (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/riva1920/giacinto, from the user's zip \"archive1.zip\" (benches/riva1920/giacinto/180539.obj.zip/Riva1920_Giacinto_Bench.obj); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from OBJ, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 58056,
    "vertices": 33357,
@@ -10094,7 +10496,7 @@
      "glass": 2,
      "fabric": 14
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "5ef28327e9a85eace8abbf8164ea773d3365303ab6b053b2404f5802f66d1931",
     "meta": {
      "title": "Benches, Giacinto",
@@ -10116,8 +10518,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -10176,7 +10578,7 @@
    "brand": "Riva 1920",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-benches/riva1920/riccio",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"Riva 1920 Riccio (100 x 50 x 45 cm)\" by Riva 1920 (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-benches/riva1920/riccio, from the user's zip \"archive1.zip\" (benches/riva1920/riccio/180848.obj.zip/Riva1920_Riccio_Bench.obj); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from OBJ, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 116836,
    "vertices": 114891,
@@ -10246,7 +10648,7 @@
     "part_classes": {
      "fabric": 361
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "b621b786e7806881370ad9760a61a1a81e2775873255c82cbf2d18bdf7973e52",
     "meta": {
      "title": "Benches, Riccio",
@@ -10268,8 +10670,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -10328,7 +10730,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bookcases/bb-italia/arne",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Arne (35 x 90 x 165 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bookcases/bb-italia/arne, from the user's zip \"archive1.zip\" (bookcases/bb-italia/arne/11685.3ds.zip/3D_LA90.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 58764,
    "vertices": 44496,
@@ -10425,7 +10827,7 @@
      "wood": 7,
      "lacquer": 9
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "5e8405c8e2b144b06c8bf300d52d2b4342c87991c560c73db00a471230492ab6",
     "meta": {
      "title": "Bookcases, Arne",
@@ -10447,8 +10849,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -10507,7 +10909,7 @@
    "brand": "B&B Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bookcases/bb-italia/arne",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"B&B Italia Arne (80 x 32 x 150 cm)\" by B&B Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bookcases/bb-italia/arne, from the user's zip \"archive1.zip\" (bookcases/bb-italia/arne/11685.3ds.zip/3D_TA150_N.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 10268,
    "vertices": 6723,
@@ -10631,7 +11033,7 @@
      "wood": 2,
      "metal": 3
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "a73123e48c3b2271f70f220dd546200198d5e4090e153fa42120b067c57b3231",
     "meta": {
      "title": "Bookcases, Arne",
@@ -10653,8 +11055,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -10712,7 +11114,7 @@
    "brand": "MDF Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bookcases/mdf-italia/melody",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"MDF Italia Melody (88 x 25 x 216 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bookcases/mdf-italia/melody, from the user's zip \"archive1.zip\" (bookcases/mdf-italia/melody/80461.3ds.zip/MDF_MELODY.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 38427,
    "vertices": 35763,
@@ -10783,7 +11185,7 @@
     "part_classes": {
      "wood": 2
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "c0b94dc538c627d6bc6ce5221425329d9da573081fe919f829b418441105c5e3",
     "meta": {
      "title": "Bookcases, Melody",
@@ -10805,8 +11207,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -10864,7 +11266,7 @@
    "brand": "MDF Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bookcases/mdf-italia/random-collection",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"MDF Italia Random Collection (82 x 25 x 216 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bookcases/mdf-italia/random-collection, from the user's zip \"archive1.zip\" (bookcases/mdf-italia/random-collection/80288.3ds.zip/MDF_Random.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 17011,
    "vertices": 16403,
@@ -10935,7 +11337,7 @@
     "part_classes": {
      "wood": 55
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "5c5bfb3f91384d80b9c5f7ade2c0f65b34cfa930d353d4f3d6d4c52a7a9496a9",
     "meta": {
      "title": "Bookcases, Random Collection",
@@ -10957,8 +11359,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -11016,7 +11418,7 @@
    "brand": "MDF Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bookcases/mdf-italia/randomito",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"MDF Italia Randomito (207 x 51 x 243 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bookcases/mdf-italia/randomito, from the user's zip \"archive1.zip\" (bookcases/mdf-italia/randomito/80561.3ds.zip/MDF_Randomito.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 332,
    "vertices": 616,
@@ -11087,7 +11489,7 @@
     "part_classes": {
      "wood": 21
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "eae8d67ee37e1962262364f2aeecedc81768234be19e5f37fc54f3d5980cac3a",
     "meta": {
      "title": "Bookcases, Randomito",
@@ -11109,8 +11511,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   },
   {
@@ -11168,7 +11570,7 @@
    "brand": "MDF Italia",
    "real_product": true,
    "source_url": "https://www.syncronia.com/en/3d-bim-cad-models-bookcases/mdf-italia/randomwood",
-   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-4)",
+   "via": "Syncronia manufacturer models (syncronia.com), the user's zips (beds.zip, the folder Furnitures); converted by wenart/assets/syncronia.py (syncronia-5)",
    "attribution": "\"MDF Italia Random_Wood (82 x 25 x 216 cm)\" by MDF Italia (manufacturer model, via Syncronia), https://www.syncronia.com/en/3d-bim-cad-models-bookcases/mdf-italia/randomwood, from the user's zip \"archive1.zip\" (bookcases/mdf-italia/randomwood/80288.3ds.zip/MDF_Random.3DS); licence not reviewed (user request of 3 Nov 2026: include the proper models of the user's Syncronia zips in the library and rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence mode only, commercial_safe: no); changes: converted from 3DS, units, up axis and origin fixed, part materials added, scaled to the drawn footprint, re-oriented, rendered; PoC use in relaxed licence mode only",
    "polycount": 17011,
    "vertices": 16403,
@@ -11239,7 +11641,7 @@
     "part_classes": {
      "wood": 55
     },
-    "fix_version": "syncronia-4",
+    "fix_version": "syncronia-5",
     "src_sha256": "5c5bfb3f91384d80b9c5f7ade2c0f65b34cfa930d353d4f3d6d4c52a7a9496a9",
     "meta": {
      "title": "Bookcases, Random_Wood",
@@ -11261,8 +11663,8 @@
      "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
     ],
     "fixes": {},
-    "version": "syncronia-4",
-    "checked_utc": "2026-11-03T17:11:55Z"
+    "version": "syncronia-5",
+    "checked_utc": "2026-11-03T19:11:09Z"
    }
   }
  ]

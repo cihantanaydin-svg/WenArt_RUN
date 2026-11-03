@@ -437,7 +437,12 @@ def test_a_model_with_real_file_colours_gets_part_materials_by_each_pieces_colou
     assert got[2] == "metal"                                          # a dark foot: black metal
     assert got[3].startswith("own_lacquer_")                          # a mid grey wood part: grey lacquer
     assert got[4] == "wood"                                           # a mid brown: oak
-    assert got[5] == "brass"                                          # a warm yellow metal
+    assert got[5] == "legs"                                           # a deeper warm metal: dark bronze (Pathos)
+    gold = {"materials": [_mat((0.85, 0.6, 0.2)), _mat((0.9, 0.9, 0.9))]}
+    o3, p3 = PM.own_colour_classes(gold, ps[:2], [{"key": [0], "class": "metal"}, {"key": [1], "class": "wood"}])
+    assert o3[0]["class"] == "brass"                                  # a bright gold: brass
+    assert o3[1]["class"].startswith("own_lacquer_")                  # a white wood part: white lacquer, not oak
+    assert p3[o3[1]["class"]]["srgb"][0] > 240
     # a second colour of the same base gets its own material name
     doc2 = {"materials": [_mat((0.8, 0.05, 0.04)), _mat((0.05, 0.1, 0.6))]}
     out2, pal2 = PM.own_colour_classes(doc2, ps[:2], [{"key": [0], "class": "fabric"}, {"key": [1], "class": "frame"}])

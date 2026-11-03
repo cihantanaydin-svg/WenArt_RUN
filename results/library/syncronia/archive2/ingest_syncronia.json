@@ -1,8 +1,8 @@
 {
  "zip": "/workspace/library/inbox/11vr2z6dp0io9zig4TBC8j6hVa1woZTpF/archive2.zip",
  "zip_name": "archive2.zip",
- "checked_utc": "2026-11-03T18:37:03Z",
- "fix_version": "syncronia-4",
+ "checked_utc": "2026-11-03T19:13:31Z",
+ "fix_version": "syncronia-5",
  "taken": 136,
  "listed": 233,
  "records": [
@@ -682,8 +682,7 @@
    "front_note": "a ceiling_light has no front",
    "sha256": "b84196a51d6da439d6ff7edc77ebf407af69597647164b6fb1188c2cdedc150a",
    "id": "syncronia_c0bd667ec26241f9f5cdc3dc",
-   "title": "Panzeri Carl (53 x 97 x 58 cm)",
-   "cached": true
+   "title": "Panzeri Carl (53 x 97 x 58 cm)"
   },
   {
    "rel": "ceiling-lamps/panzeri/carl/72311.zip/Carl/Carl X123__.007.3ds",
@@ -761,8 +760,7 @@
    "front_note": "a ceiling_light has no front",
    "sha256": "9626d17715c9fb83ea86319e3fa4d4ea1e3e155b5a709b0e08e18fb31710e1b7",
    "id": "syncronia_75d282840d40b152550c1728",
-   "title": "Panzeri Carl (71 x 99 x 58 cm)",
-   "cached": true
+   "title": "Panzeri Carl (71 x 99 x 58 cm)"
   },
   {
    "rel": "ceiling-lamps/panzeri/carl/72311.zip/Carl/Carl X123__.010.3ds",
@@ -840,8 +838,7 @@
    "front_note": "a ceiling_light has no front",
    "sha256": "c88cf5b044a576ec386e4cd7fc78265766b54f6bb57bae18ad5547af4b2ca6c3",
    "id": "syncronia_710baae01e750e502f972d07",
-   "title": "Panzeri Carl (102 x 126 x 61 cm)",
-   "cached": true
+   "title": "Panzeri Carl (102 x 126 x 61 cm)"
   },
   {
    "rel": "ceiling-lamps/panzeri/carl2/72312.zip/Carl2/Carl2 P125__.033.3ds",
@@ -919,8 +916,7 @@
    "front_note": "a ceiling_light has no front",
    "sha256": "22a7536373541b90da9a1e1e076ccbf1eb0f8fe3e1160066770a64c9d939b5a0",
    "id": "syncronia_cf405834c17d564d93905b90",
-   "title": "Panzeri Carl2 (33 x 13 x 9 cm)",
-   "cached": true
+   "title": "Panzeri Carl2 (33 x 13 x 9 cm)"
   },
   {
    "rel": "ceiling-lamps/panzeri/lola/72328.zip/Lola/Lola P120__.020.3ds",
@@ -998,8 +994,7 @@
    "front_note": "a ceiling_light has no front",
    "sha256": "d8450a81ca7db0a6abc9a5ea860fdade1662eadb85786a12555e7ac81d7ba1f4",
    "id": "syncronia_8a3991ff64c85a4067a12fb8",
-   "title": "Panzeri Lola (17 x 19 x 5 cm)",
-   "cached": true
+   "title": "Panzeri Lola (17 x 19 x 5 cm)"
   },
   {
    "rel": "ceiling-lamps/panzeri/lola/72328.zip/Lola/Lola X120__.020.3ds",
@@ -1077,8 +1072,7 @@
    "front_note": "a ceiling_light has no front",
    "sha256": "95303a41164924247d4f3f77312acdbf5941c5181773dd45e8480d08069a1eee",
    "id": "syncronia_3d27392d4c87c632824212ad",
-   "title": "Panzeri Lola (18 x 17 x 8 cm)",
-   "cached": true
+   "title": "Panzeri Lola (18 x 17 x 8 cm)"
   },
   {
    "rel": "ceiling-lamps/platek/balina-m-pendant/185282.3ds.zip/Platek_balina_M_100_ceiling.3ds",
@@ -1156,8 +1150,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "8546816379be3ba89ba0916dc40ec4639a96e40a991718ca8637a6d6835d93d9",
    "id": "syncronia_7fd858a4030cc427c2f47d73",
-   "title": "Platek Balina M Pendant (12 x 12 x 100 cm)",
-   "cached": true
+   "title": "Platek Balina M Pendant (12 x 12 x 100 cm)"
   },
   {
    "rel": "ceiling-lamps/platek/flamingo-ceiling/184270.3ds.zip/Platek_flamingo_17_ceiling.3ds",
@@ -1235,8 +1228,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "8c59a07847539a06a35dc3ce0d330f6a0d7ef4159d0035e13c2a762d2615a56b",
    "id": "syncronia_b3e11c78f4250aa07be575d5",
-   "title": "Platek Flamingo Ceiling (9 x 8 x 18 cm)",
-   "cached": true
+   "title": "Platek Flamingo Ceiling (9 x 8 x 18 cm)"
   },
   {
    "rel": "ceiling-lamps/platek/mesh-soffitto/184711.3ds.zip/Platek_mesh_xl_60_ceiling.3ds",
@@ -1314,8 +1306,7 @@
    "front_note": "a ceiling_light has no front",
    "sha256": "c045bc27e017735c825f867dff4f9c403eb8f8df4eaedc72cdb1dcfe30bcf397",
    "id": "syncronia_c9164c213f4980ae60bb85f8",
-   "title": "Platek Mesh Soffitto (50 x 50 x 63 cm)",
-   "cached": true
+   "title": "Platek Mesh Soffitto (50 x 50 x 63 cm)"
   },
   {
    "rel": "ceiling-lamps/platek/mini-corniche-ceiling-recessed/185360.3ds.zip/Platek_Mini_Corniche_Ceiling_Recessed_100.3DS",
@@ -1349,16 +1340,79 @@
    ],
    "triangles": 120,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_glass",
+      "material": "glass",
+      "materials": [
+       "glass"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.1768,
+      "textured": false,
+      "base_colour": [
+       0.7529,
+       0.807,
+       0.807,
+       1.0
+      ],
+      "colour_rgb": [
+       225,
+       232,
+       232
+      ],
+      "note": "clear glass",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_lacquer",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.8232,
+      "textured": false,
+      "base_colour": [
+       0.7305,
+       0.7084,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       222,
+       219,
+       212
+      ],
+      "note": "white lacquer",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "lacquer": 1,
+     "glass": 1
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "lacquer": 1,
+    "glass": 1
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "a pendant_light has no front",
-   "sha256": "6e40000d5cd79093b9801c4d71738ed41c4679a614c9934cf96f7be1b5042ccc",
+   "sha256": "a69c3c672cb54dcd668a87c5fbe17962903ed7146128c63f3ffb1f105946e65e",
    "id": "syncronia_9ed75a9e66e04b50b87ff7cd",
-   "title": "Platek Mini Corniche Ceiling recessed (52 x 144 x 38 cm)",
-   "cached": true
+   "title": "Platek Mini Corniche Ceiling recessed (52 x 144 x 38 cm)"
   },
   {
    "rel": "ceiling-lamps/platek/monaco-ceiling/184926.3ds.zip/Platek_monaco_M_ceiling_mounted.3ds",
@@ -1436,8 +1490,7 @@
    "front_note": "a ceiling_light has no front",
    "sha256": "33507d63df33adae4085392664784c2bd27f68abdfadc74a1c9e2741b7cf13f9",
    "id": "syncronia_bab86cc9ec1e8dd6ae5618f2",
-   "title": "Platek Monaco Ceiling (12 x 12 x 21 cm)",
-   "cached": true
+   "title": "Platek Monaco Ceiling (12 x 12 x 21 cm)"
   },
   {
    "rel": "ceiling-lamps/platek/nano-ceiling-recessed/184953.3ds.zip/Platek_Nano_square_ceiling_recessed.3ds",
@@ -1583,8 +1636,7 @@
    "front_note": "a ceiling_light has no front",
    "sha256": "35a8f0fd127d3b7355749cc6661946f73bc68892cd2e28f4a79e2a7cc1b3d23c",
    "id": "syncronia_53b71c1b52ad5f07a628984e",
-   "title": "Platek Pix Round Ceiling (40 x 40 x 4 cm)",
-   "cached": true
+   "title": "Platek Pix Round Ceiling (40 x 40 x 4 cm)"
   },
   {
    "rel": "ceiling-lamps/platek/pix-square-ceiling/185048.3ds.zip/Platek_pix_square_26.3ds",
@@ -1662,8 +1714,7 @@
    "front_note": "a ceiling_light has no front",
    "sha256": "ef051d0b11418bd4a36d74788158394afe308fd2efbb03e2d6bf8ab635129b8f",
    "id": "syncronia_0ba3b34693100187e7e22b67",
-   "title": "Platek Pix Square Ceiling (26 x 26 x 4 cm)",
-   "cached": true
+   "title": "Platek Pix Square Ceiling (26 x 26 x 4 cm)"
   },
   {
    "rel": "ceiling-lamps/platek/thais-ceiling/185219.3ds.zip/Platek_thais_pendant.3ds",
@@ -1741,8 +1792,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "1ca5394a54dc8e29401afe4e1efe81cdb7f34c6a8a59b7e604e2b679fa17b397",
    "id": "syncronia_86a0afb515022eae31873136",
-   "title": "Platek Thaïs Ceiling (16 x 16 x 20 cm)",
-   "cached": true
+   "title": "Platek Thaïs Ceiling (16 x 16 x 20 cm)"
   },
   {
    "rel": "ceiling-lamps/simes/focus-suspension/22740.3ds.zip/SIMES_S.1176W_Focus Suspension.3DS",
@@ -1776,16 +1826,81 @@
    ],
    "triangles": 25710,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_lacquer",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9747,
+      "textured": false,
+      "base_colour": [
+       0.7305,
+       0.7084,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       222,
+       219,
+       212
+      ],
+      "note": "white lacquer",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_own_lacquer",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0253,
+      "textured": false,
+      "base_colour": [
+       0.2122,
+       0.2122,
+       0.2122,
+       1.0
+      ],
+      "colour_rgb": [
+       127,
+       127,
+       127
+      ],
+      "note": "white lacquer in the file's own colour #7f7f7f",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "lacquer": 13,
+     "own_lacquer_7f7f7f": 2
+    },
+    "materials": 5,
+    "split": 1
+   },
+   "classes": {
+    "lacquer": 13,
+    "own_lacquer_7f7f7f": 2
+   },
+   "own_colours": [
+    "white lacquer in the file's own colour #7f7f7f"
+   ],
    "pillows": 0,
-   "split_primitives": 0,
+   "split_primitives": 1,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "a pendant_light has no front",
-   "sha256": "66a06721c156c6717991f8998eb7f676201dd7186db39cbe20cc201756d1139b",
+   "sha256": "6f27c115e7a3f924295f2a477f3b1c3b4d77c6ef15731860db46c0ae78c3ae97",
    "id": "syncronia_2cd30788c06e64082812173d",
-   "title": "Simes FOCUS SUSPENSION (30 x 30 x 141 cm)",
-   "cached": true
+   "title": "Simes FOCUS SUSPENSION (30 x 30 x 141 cm)"
   },
   {
    "rel": "chairs/alessi/piana/10443.3ds",
@@ -1938,8 +2053,7 @@
    "front_note": "geometry: back_taller: top centroid offset +0.003 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "3b1daeede1d13db882eec93661d33b5387de4bd7ee8c7e61af1c7d77b334b2c0",
    "id": "syncronia_b7e96ed8c59e40c556136a9a",
-   "title": "B&B Italia Lazy 05 (47 x 43 x 67 cm)",
-   "cached": true
+   "title": "B&B Italia Lazy 05 (47 x 43 x 67 cm)"
   },
   {
    "rel": "chairs/bb-italia/lazy-05/11607.3ds.zip/3D_SGLA77.3DS",
@@ -2046,8 +2160,7 @@
    "front_note": "geometry: back_taller: top centroid offset +0.003 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "ec72daf5b75a6ff349dc1a184f79d70c6ee63debb989de0cc0f53d44bfde4adf",
    "id": "syncronia_297563d9807bef50ec2a78b5",
-   "title": "B&B Italia Lazy 05 (47 x 43 x 77 cm)",
-   "cached": true
+   "title": "B&B Italia Lazy 05 (47 x 43 x 77 cm)"
   },
   {
    "rel": "chairs/bb-italia/lazy-05/11607.3ds.zip/3D_SLA100.3DS",
@@ -2181,8 +2294,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.462 of the extent): front -X",
    "sha256": "99f1c28009957998a695cd9963cdb74bffa8b5c794625bde0f159dc2dbb84523",
    "id": "syncronia_dd818ed4d6ce89592548f7d2",
-   "title": "B&B Italia Lazy 05 (56 x 52 x 102 cm)",
-   "cached": true
+   "title": "B&B Italia Lazy 05 (56 x 52 x 102 cm)"
   },
   {
    "rel": "chairs/bb-italia/lazy-05/11607.3ds.zip/3D_SLA118.3DS",
@@ -2289,8 +2401,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.462 of the extent): front -X",
    "sha256": "dcf28a9f77da765d430bde18502641b819c673293fd3cbe67437ee9cb04c570e",
    "id": "syncronia_cf7044d25914a0dc4f46ea6c",
-   "title": "B&B Italia Lazy 05 (56 x 52 x 107 cm)",
-   "cached": true
+   "title": "B&B Italia Lazy 05 (56 x 52 x 107 cm)"
   },
   {
    "rel": "chairs/et-al/001/52810.3ds",
@@ -2370,8 +2481,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.114 of the extent): front -Y",
    "sha256": "eb708f72bd24dbaa5340a7beee9b31e4a22052b45c435989b04deefb2cc2bc50",
    "id": "syncronia_18635f3a1814eb384ed1174f",
-   "title": "et al. 001 (55 x 59 x 73 cm)",
-   "cached": true
+   "title": "et al. 001 (55 x 59 x 73 cm)"
   },
   {
    "rel": "chairs/et-al/bikini/52740.3ds",
@@ -2451,8 +2561,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.330 of the extent): front -Y",
    "sha256": "7d4b500f7e2664d5b85038e1efde06d101f1fcb9e336535a9586733a16d88efe",
    "id": "syncronia_65f6b79b50c993b29fb10ea5",
-   "title": "et al. Bikini (56 x 57 x 110 cm)",
-   "cached": true
+   "title": "et al. Bikini (56 x 57 x 110 cm)"
   },
   {
    "rel": "chairs/et-al/classy/59277.3ds.zip/Et_Al_Classy_1090_3ds.3ds",
@@ -2532,8 +2641,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.347 of the extent): front -Y",
    "sha256": "367e9d69355aa1937c0d88b9cb6d9446ac7811ff06d3c260b70eae3eabf7f054",
    "id": "syncronia_8148c9481e134b5df4748a55",
-   "title": "et al. Classy (57 x 56 x 78 cm)",
-   "cached": true
+   "title": "et al. Classy (57 x 56 x 78 cm)"
   },
   {
    "rel": "chairs/et-al/classy/Et_Al_Classy_1090_3ds.3ds",
@@ -2613,8 +2721,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.347 of the extent): front -Y",
    "sha256": "367e9d69355aa1937c0d88b9cb6d9446ac7811ff06d3c260b70eae3eabf7f054",
    "id": "syncronia_fac1a0318d7bfd00c78f9dec",
-   "title": "et al. Classy (57 x 56 x 78 cm)",
-   "cached": true
+   "title": "et al. Classy (57 x 56 x 78 cm)"
   },
   {
    "rel": "chairs/et-al/cuba/52659.3ds",
@@ -2694,8 +2801,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.379 of the extent): front -Y",
    "sha256": "4ff4177e77631f062dbfbf61ee1916c8697049fff95b3fddb9962b8d801002f5",
    "id": "syncronia_e20c2ec9e36105599448759e",
-   "title": "et al. Cuba (56 x 51 x 81 cm)",
-   "cached": true
+   "title": "et al. Cuba (56 x 51 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/dalton/52736.3ds",
@@ -2775,8 +2881,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.401 of the extent): front -Y",
    "sha256": "6ef6e1d74b49d9ef1be2847811b1de316bb6d12b2f854d03df6438f2d25ed5e7",
    "id": "syncronia_1bb7897bdbfe9bedb3aabb3c",
-   "title": "et al. Dalton (49 x 49 x 78 cm)",
-   "cached": true
+   "title": "et al. Dalton (49 x 49 x 78 cm)"
   },
   {
    "rel": "chairs/et-al/echo/52780.3ds",
@@ -2856,8 +2961,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.407 of the extent): front -Y",
    "sha256": "0c73afe8c6e9d93fb886059ec06109564554d68520be34fb57372d7d03abb4e4",
    "id": "syncronia_523a5c59849f70fe3367f862",
-   "title": "et al. Echo (50 x 55 x 83 cm)",
-   "cached": true
+   "title": "et al. Echo (50 x 55 x 83 cm)"
   },
   {
    "rel": "chairs/et-al/flint/52727.3ds",
@@ -2937,8 +3041,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.228 of the extent): front -Y",
    "sha256": "d7204db87fced9952ae9552813853245a0627202c434fb879b868808b560c2e9",
    "id": "syncronia_dc49de9aa3b3245950122506",
-   "title": "et al. Flint (56 x 51 x 74 cm)",
-   "cached": true
+   "title": "et al. Flint (56 x 51 x 74 cm)"
   },
   {
    "rel": "chairs/et-al/hull/52516.3ds.zip/MetalMobil_627_Hull.3ds",
@@ -3018,8 +3121,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.385 of the extent): front -Y",
    "sha256": "c79e5e167d9264b99a592d19780c82817a4f343e068122a4b95f5637097be0f6",
    "id": "syncronia_470826aef3693f4487309917",
-   "title": "et al. Hull (48 x 50 x 75 cm)",
-   "cached": true
+   "title": "et al. Hull (48 x 50 x 75 cm)"
   },
   {
    "rel": "chairs/et-al/ibis/52806.3ds.zip/MetalMobil_002-DP sedia Ibis.3ds",
@@ -3099,8 +3201,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.112 of the extent): front +X",
    "sha256": "9e69c3ae26b8ee548292cba5cade94fac2907928951515ba7df67331692fca40",
    "id": "syncronia_d1210e20f6baae9408fab93e",
-   "title": "et al. Ibis (69 x 72 x 79 cm)",
-   "cached": true
+   "title": "et al. Ibis (69 x 72 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/ibis/52806.3ds.zip/MetalMobil_002-DR sedia Ibis.3ds",
@@ -3180,8 +3281,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.117 of the extent): front +X",
    "sha256": "fb21b74c3650fb15a532a31c27f8e4f4177a448f66abc86c2de2703410e4465d",
    "id": "syncronia_255267591636bcba2ecaad4e",
-   "title": "et al. Ibis (65 x 68 x 79 cm)",
-   "cached": true
+   "title": "et al. Ibis (65 x 68 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/ibis/52806.3ds.zip/MetalMobil_002_Ibis.3ds",
@@ -3261,8 +3361,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.148 of the extent): front +X",
    "sha256": "e811a9be0a59c2018076272b63131b2cbdd3760bca54eb78f224f9746c91666f",
    "id": "syncronia_40bd7d6663e4ac86a8d919c0",
-   "title": "et al. Ibis (55 x 56 x 79 cm)",
-   "cached": true
+   "title": "et al. Ibis (55 x 56 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/ibis/52806.3ds.zip/MetalMobil_139_Ibis.3ds",
@@ -3342,8 +3441,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.159 of the extent): front +X",
    "sha256": "3e3f0e4a52ac3ea5ae2a97446519eac39c143124c80633ae58c9d5c71cf11a7d",
    "id": "syncronia_8c4e1d83d727f3721ee8fe04",
-   "title": "et al. Ibis (54 x 56 x 79 cm)",
-   "cached": true
+   "title": "et al. Ibis (54 x 56 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/ibis/52806.3ds.zip/MetalMobil_160-G sedia Ibis.3ds",
@@ -3423,8 +3521,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.143 of the extent): front -Y",
    "sha256": "a4608456bc979e2331d4b0c94d62254a1f4ddd312ec8becf901e90e1bb64074b",
    "id": "syncronia_95442ee428e7deadff401b3f",
-   "title": "et al. Ibis (63 x 53 x 79 cm)",
-   "cached": true
+   "title": "et al. Ibis (63 x 53 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/ibis/52806.3ds.zip/MetalMobil_160_Ibis.3ds",
@@ -3504,8 +3601,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.144 of the extent): front +X",
    "sha256": "1cf8416442a0b4a648dd50c12d4bdad9c9aa80340f67ba76b1d23f5f8533fbba",
    "id": "syncronia_8f21da17da2a9f9abd75c058",
-   "title": "et al. Ibis (53 x 56 x 79 cm)",
-   "cached": true
+   "title": "et al. Ibis (53 x 56 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/ibis/52806.3ds.zip/MetalMobil_302-B sgab.Ibis.3ds",
@@ -3585,8 +3681,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.136 of the extent): front +X",
    "sha256": "985a5293ff4d142786fc35fc7282bd9023494ee467141e206cbb19d6fde95fbb",
    "id": "syncronia_1461077ea96289c4bb2235b1",
-   "title": "et al. Ibis (54 x 56 x 99 cm)",
-   "cached": true
+   "title": "et al. Ibis (54 x 56 x 99 cm)"
   },
   {
    "rel": "chairs/et-al/ibis/52806.3ds.zip/MetalMobil_302_Ibis.3ds",
@@ -3666,8 +3761,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.101 of the extent): front +X",
    "sha256": "406c28c3b04237a55d642e71e4ceba4d914455c821228b354ed7f26f06b2f110",
    "id": "syncronia_d4536a843cc7de8602237c5d",
-   "title": "et al. Ibis (54 x 56 x 109 cm)",
-   "cached": true
+   "title": "et al. Ibis (54 x 56 x 109 cm)"
   },
   {
    "rel": "chairs/et-al/ibis/52806.3ds.zip/MetalMobil_303-B sgab.Ibis.3ds",
@@ -3747,8 +3841,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.122 of the extent): front +X",
    "sha256": "000924387a889cc4f4c067c795bfba290a73d125d9e27b28c34554f3d6938774",
    "id": "syncronia_6a0467ad9d353e4318410f70",
-   "title": "et al. Ibis (51 x 56 x 100 cm)",
-   "cached": true
+   "title": "et al. Ibis (51 x 56 x 100 cm)"
   },
   {
    "rel": "chairs/et-al/ibis/52806.3ds.zip/MetalMobil_303_Ibis.3ds",
@@ -3828,8 +3921,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.114 of the extent): front +X",
    "sha256": "c814780fcdd37918f5b5d93272761124fa2289173ee521bb737dc362f037ab84",
    "id": "syncronia_006f9ed3e197fbbc259fe183",
-   "title": "et al. Ibis (51 x 56 x 109 cm)",
-   "cached": true
+   "title": "et al. Ibis (51 x 56 x 109 cm)"
   },
   {
    "rel": "chairs/et-al/kontea/52744.3ds",
@@ -3909,8 +4001,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.248 of the extent): front +X",
    "sha256": "0d2ae52d56ef24d0a441eb6c629f72a58b9384c6c1a06600a67701a66025fdf5",
    "id": "syncronia_2246a73be8f13dda76eeede0",
-   "title": "et al. Kontea (61 x 57 x 120 cm)",
-   "cached": true
+   "title": "et al. Kontea (61 x 57 x 120 cm)"
   },
   {
    "rel": "chairs/et-al/kyo/52731.3ds",
@@ -3990,8 +4081,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.391 of the extent): front -Y",
    "sha256": "33f68c123252e38e3e5115cea9054c18f2180b32eaff90c56ef59b7e85d57591",
    "id": "syncronia_428ff6ac024ece3cbbeba69f",
-   "title": "et al. To-Kyo (50 x 54 x 83 cm)",
-   "cached": true
+   "title": "et al. To-Kyo (50 x 54 x 83 cm)"
   },
   {
    "rel": "chairs/et-al/mare/52734.3ds",
@@ -4071,8 +4161,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.226 of the extent): front -Y",
    "sha256": "5957e2d938d33f56b5850b3ff26fadd30cc2e20bbef001c93eb72131642c6564",
    "id": "syncronia_bcf6e73770a0fbd34b39efea",
-   "title": "et al. Maré (55 x 56 x 73 cm)",
-   "cached": true
+   "title": "et al. Maré (55 x 56 x 73 cm)"
   },
   {
    "rel": "chairs/et-al/palau/52455.3ds.zip/1020_Palau.3ds",
@@ -4152,8 +4241,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.390 of the extent): front -Y",
    "sha256": "46fa24174f79c18f3f0f7fe9e3a95f0f116b07f018e609d38d3faa35a8130b38",
    "id": "syncronia_5cb0de547fa76773186cf86d",
-   "title": "et al. Palau (48 x 50 x 80 cm)",
-   "cached": true
+   "title": "et al. Palau (48 x 50 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/ring/52682.3ds",
@@ -4233,8 +4321,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.423 of the extent): front -Y",
    "sha256": "1d5878e439645c5f8002642f2e72ee45a53ed7eb5b6ac435492c4e26f0aa329c",
    "id": "syncronia_7f0da789b7b2eb035df1eb4d",
-   "title": "et al. Ring (52 x 52 x 79 cm)",
-   "cached": true
+   "title": "et al. Ring (52 x 52 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/shade/53034.3ds.zip/211_Pif.3ds",
@@ -4350,8 +4437,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.384 of the extent): front -Y",
    "sha256": "311d47161d9191812f28cd012217972d9799f88948fc7a5b4168c7806925226f",
    "id": "syncronia_54678154b7375fab32bacc10",
-   "title": "et al. Snap (48 x 50 x 79 cm)",
-   "cached": true
+   "title": "et al. Snap (48 x 50 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/220_Uni.3ds",
@@ -4575,8 +4661,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.374 of the extent): front +X",
    "sha256": "872b3cc26a3c681bcba8f0937f63976406c4940dce91bada5cbe95975bd6ed6f",
    "id": "syncronia_664d4ddd7b4c9df3f2ae6917",
-   "title": "et al. UNI (54 x 49 x 98 cm)",
-   "cached": true
+   "title": "et al. UNI (54 x 49 x 98 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/378M sgab.UNI.3ds",
@@ -4656,8 +4741,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.317 of the extent): front -Y",
    "sha256": "299f37e616eb725a392f6d75dee3bca21d8348833b4881505df768b0204fd84e",
    "id": "syncronia_f39c9ebd5d65b656eec3ac57",
-   "title": "et al. UNI (51 x 55 x 110 cm)",
-   "cached": true
+   "title": "et al. UNI (51 x 55 x 110 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/378_Uni.3ds",
@@ -4737,8 +4821,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.262 of the extent): front -Y",
    "sha256": "efda766937eb9fb97f24d59cedf65b8b8543f451a3d0c06d2f5a56f6917e8aff",
    "id": "syncronia_65f18b8f8808fdc812e900fb",
-   "title": "et al. UNI (51 x 55 x 109 cm)",
-   "cached": true
+   "title": "et al. UNI (51 x 55 x 109 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/380B-sgab.Uni.3ds",
@@ -4818,8 +4901,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.384 of the extent): front -Y",
    "sha256": "1e9b7278e1d740996b3a03fcee6acc6dc7568e7508a94597c056bef284ef1007",
    "id": "syncronia_a628db9a4a17725bf53bb080",
-   "title": "et al. UNI (43 x 50 x 102 cm)",
-   "cached": true
+   "title": "et al. UNI (43 x 50 x 102 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/380M sgab.UNI.3ds",
@@ -4899,8 +4981,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.362 of the extent): front -Y",
    "sha256": "fadb289a030b66124145fc4bcffeb456f92b583fe83fffcc660a2705b50a5e06",
    "id": "syncronia_adcaca18e9a7db14251a2015",
-   "title": "et al. UNI (44 x 51 x 115 cm)",
-   "cached": true
+   "title": "et al. UNI (44 x 51 x 115 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/380_Uni.3ds",
@@ -4980,8 +5061,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.370 of the extent): front -Y",
    "sha256": "7466c244b6773eba4f01e842eb9327c4127af923aa15e21762b311ecace907e5",
    "id": "syncronia_d342563dba53a1699ba7a00f",
-   "title": "et al. UNI (43 x 50 x 114 cm)",
-   "cached": true
+   "title": "et al. UNI (43 x 50 x 114 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/386M sgab.UNI.3ds",
@@ -5061,8 +5141,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.349 of the extent): front -Y",
    "sha256": "53a41efeec1f6dac18ea22cc14b935dff1b67101c292ab792472f07c9422e64b",
    "id": "syncronia_47778da1e7e318f5f55bae07",
-   "title": "et al. UNI (48 x 52 x 113 cm)",
-   "cached": true
+   "title": "et al. UNI (48 x 52 x 113 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/386_Uni.3ds",
@@ -5142,8 +5221,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.369 of the extent): front -Y",
    "sha256": "7212837188793ea890a149014cc9cefc25364e4191010b0ca40ecae07801a5ba",
    "id": "syncronia_628e13c0f83ccde0c7c9df3a",
-   "title": "et al. UNI (48 x 50 x 112 cm)",
-   "cached": true
+   "title": "et al. UNI (48 x 50 x 112 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/391M sgab.Uni a slitta.3ds",
@@ -5223,8 +5301,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.301 of the extent): front -Y",
    "sha256": "4b9a85935c432faaebc623ec038c1b441d6cfae6e221319ef236cd6cb7aea148",
    "id": "syncronia_22cf0c0bb12e9437e38c2369",
-   "title": "et al. UNI (51 x 54 x 110 cm)",
-   "cached": true
+   "title": "et al. UNI (51 x 54 x 110 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/391_Uni.3ds",
@@ -5304,8 +5381,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.261 of the extent): front -Y",
    "sha256": "64e84c58b6415ad17b316a8920e5f0167786ffb0bf13419a9d544f2fe08c3ddd",
    "id": "syncronia_7b4b09b8702324d07045fef4",
-   "title": "et al. UNI (51 x 52 x 109 cm)",
-   "cached": true
+   "title": "et al. UNI (51 x 52 x 109 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/393M sgab.UNI.3ds",
@@ -5385,8 +5461,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.273 of the extent): front -Y",
    "sha256": "7f0a791ec2f99422281f7b5e0194254520cb67f6c36463fec7a7070d076de90e",
    "id": "syncronia_48e430c7abdb5b7a95f3ea89",
-   "title": "et al. UNI (46 x 54 x 112 cm)",
-   "cached": true
+   "title": "et al. UNI (46 x 54 x 112 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/393_Uni.3ds",
@@ -5466,8 +5541,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.285 of the extent): front -Y",
    "sha256": "82a73daa5a4994d034d687c9da208479724cf3ff8662d8465ec7860bbf7d1250",
    "id": "syncronia_1dd57ad1f28cd31c8d88d7d1",
-   "title": "et al. UNI (46 x 53 x 111 cm)",
-   "cached": true
+   "title": "et al. UNI (46 x 53 x 111 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/544_Uni.3ds",
@@ -5547,8 +5621,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.379 of the extent): front -Y",
    "sha256": "d2eb2576a18b73552b2c63ebb666f070b044950c7087629aae6aac2f3ee51496",
    "id": "syncronia_f5ec86a06a0ee50fd0d19c31",
-   "title": "et al. UNI (50 x 52 x 79 cm)",
-   "cached": true
+   "title": "et al. UNI (50 x 52 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/550-M_Uni.3ds",
@@ -5628,8 +5701,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.371 of the extent): front -Y",
    "sha256": "cd3eb438d82aa94ae8e7b01c7a399cc0a155c4018839f78571e0744142eaea54",
    "id": "syncronia_20e8680509ead95184137cda",
-   "title": "et al. UNI (47 x 54 x 80 cm)",
-   "cached": true
+   "title": "et al. UNI (47 x 54 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/550_Uni.3ds",
@@ -5709,8 +5781,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.375 of the extent): front -Y",
    "sha256": "b1724f944c8fbc7fa6692f3ebdd68600a3a93dbe7484f3943ce066ab94860df7",
    "id": "syncronia_2f9b4e94d1f54aec4f89d7db",
-   "title": "et al. UNI (47 x 53 x 79 cm)",
-   "cached": true
+   "title": "et al. UNI (47 x 53 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/551M poltr.UNI.3ds",
@@ -5790,8 +5861,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.301 of the extent): front -Y",
    "sha256": "53c52a7ee88d4de9b793ca0aee5fbdc53775db34b9b625447b24264c7b867e0a",
    "id": "syncronia_1aa5a69613538b8624a3974a",
-   "title": "et al. UNI (55 x 54 x 80 cm)",
-   "cached": true
+   "title": "et al. UNI (55 x 54 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/551_Uni.3ds",
@@ -5871,8 +5941,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.291 of the extent): front -Y",
    "sha256": "7f98a981fcd460c10ec08b86d15b511fece4e5ec35e3e0a25ac85d14fe32b364",
    "id": "syncronia_c611c6334c904f650fe21382",
-   "title": "et al. UNI (55 x 53 x 79 cm)",
-   "cached": true
+   "title": "et al. UNI (55 x 53 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/552-G_Uni.3ds",
@@ -5952,8 +6021,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.373 of the extent): front -Y",
    "sha256": "a12344dbb261d90bc771daca73176decfc51bbcc35346410c0e35056762e5f9a",
    "id": "syncronia_03193a4383f4f127c279c333",
-   "title": "et al. UNI (57 x 53 x 79 cm)",
-   "cached": true
+   "title": "et al. UNI (57 x 53 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/552-T_Uni.3ds",
@@ -6033,8 +6101,7 @@
    "front_note": "geometry: back_taller: offsets -0.161 (x) and +0.094 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "210eb95a7f3e520dde9ab5a9beee6d0984b4b1934e053a4b7354a857d3af7eaf",
    "id": "syncronia_fc5193247cb0a64882d3e43c",
-   "title": "et al. UNI (52 x 70 x 79 cm)",
-   "cached": true
+   "title": "et al. UNI (52 x 70 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/552G-T_Uni.3ds",
@@ -6114,8 +6181,7 @@
    "front_note": "geometry: back_taller: offsets -0.182 (x) and +0.094 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "597e88cf28ea8c68b840fbcb91cec4ba69e88515c863a32c6b285c5c90c046f6",
    "id": "syncronia_58a28acad88e77bd16671ee1",
-   "title": "et al. UNI (57 x 70 x 79 cm)",
-   "cached": true
+   "title": "et al. UNI (57 x 70 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/552M sedia UNI.3ds",
@@ -6195,8 +6261,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.371 of the extent): front -Y",
    "sha256": "d08b02550df5aea30d1f1782ac0e7a490014ddaa465fcee4942140124e0390e5",
    "id": "syncronia_50cc947bbe1b906117263add",
-   "title": "et al. UNI (49 x 54 x 80 cm)",
-   "cached": true
+   "title": "et al. UNI (49 x 54 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/552M-G sedia UNI.3ds",
@@ -6276,8 +6341,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.371 of the extent): front -Y",
    "sha256": "0a03c1e93a8128665cf0ff22a1c6bf8becad7aadd9dc32f531f91bf781a8b1a9",
    "id": "syncronia_fbf03d6c668cc4d833ae0429",
-   "title": "et al. UNI (57 x 54 x 80 cm)",
-   "cached": true
+   "title": "et al. UNI (57 x 54 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/552_Uni.3ds",
@@ -6357,8 +6421,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.373 of the extent): front -Y",
    "sha256": "7941cec0df087c87867c8d41ed0c1d1e9a6f973266f1551b231a33cd10019371",
    "id": "syncronia_f0015a40b82b066aac9a3da1",
-   "title": "et al. UNI (49 x 53 x 79 cm)",
-   "cached": true
+   "title": "et al. UNI (49 x 53 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/553M sedia UNI.3ds",
@@ -6438,8 +6501,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.370 of the extent): front -Y",
    "sha256": "6d046ed553c3a4f10056075afcf6d17dbd7c0f8eb6b7d14a3aba70fd804db9a0",
    "id": "syncronia_d5a6cd5193c7feb1c8cbe446",
-   "title": "et al. UNI (45 x 54 x 81 cm)",
-   "cached": true
+   "title": "et al. UNI (45 x 54 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/553_Uni.3ds",
@@ -6519,8 +6581,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.379 of the extent): front -Y",
    "sha256": "8c8446a39fa3573ec5f25d95aa6235e81d7962588a2ecb8b49ebf1f28ed3bc6b",
    "id": "syncronia_bf120cf1424d38b61389694d",
-   "title": "et al. UNI (45 x 53 x 80 cm)",
-   "cached": true
+   "title": "et al. UNI (45 x 53 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/558-DP sedia Uni.3ds",
@@ -6600,8 +6661,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.306 of the extent): front -Y",
    "sha256": "f93ffc5e7e9139a08af652b0cf563cead26c8fa2152ce5fb1031652c54f4c346",
    "id": "syncronia_917fddf84c473a91252e207d",
-   "title": "et al. UNI (68 x 65 x 80 cm)",
-   "cached": true
+   "title": "et al. UNI (68 x 65 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/558-DR sedia Uni.3ds",
@@ -6681,8 +6741,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.316 of the extent): front -Y",
    "sha256": "3da781ede9483ae41c861070c9a1484f4d99cadeda6427c9c9ed8d3f15c10715",
    "id": "syncronia_0f4e05d243061f564f22df59",
-   "title": "et al. UNI (69 x 72 x 80 cm)",
-   "cached": true
+   "title": "et al. UNI (69 x 72 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/558M-DP sedia Uni.3ds",
@@ -6762,8 +6821,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.307 of the extent): front -Y",
    "sha256": "1a5314bb19f2378620aa2b547351e58f1a61ec8b14226270c8e6025c3b982759",
    "id": "syncronia_dbb656fdb2b79d9e5944d959",
-   "title": "et al. UNI (68 x 65 x 81 cm)",
-   "cached": true
+   "title": "et al. UNI (68 x 65 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/558M-DR sedia Uni.3ds",
@@ -6843,8 +6901,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.318 of the extent): front -Y",
    "sha256": "e97b37c2f02ded59dd543b9682367c6255b91fba4de78b1fe663c0b5d0ed1a63",
    "id": "syncronia_e217eb0ad202d07499ebc642",
-   "title": "et al. UNI (69 x 72 x 81 cm)",
-   "cached": true
+   "title": "et al. UNI (69 x 72 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/562M sedia UNI.3ds",
@@ -6924,8 +6981,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.371 of the extent): front -Y",
    "sha256": "62fd81af6d64a99dd13bace48aec91233c2b40dc206e1ff67314d37af19a5abe",
    "id": "syncronia_1f53d66c4288b41fbde977ca",
-   "title": "et al. UNI (48 x 54 x 80 cm)",
-   "cached": true
+   "title": "et al. UNI (48 x 54 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/562_Uni.3ds",
@@ -7005,8 +7061,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.377 of the extent): front -Y",
    "sha256": "1a5ed8203854d96db30c746e939286bb5841a2bc4b565da0886f1bba6bab2398",
    "id": "syncronia_a0a5469d95ea1bbe14c12ba0",
-   "title": "et al. UNI (48 x 52 x 80 cm)",
-   "cached": true
+   "title": "et al. UNI (48 x 52 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/565_Uni.3ds",
@@ -7086,8 +7141,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.379 of the extent): front -Y",
    "sha256": "cd998c58f1e55e9d62af83e32f33754902306061f669fbe4d2d56a507611b208",
    "id": "syncronia_44fe21c0a78611d9df211d9a",
-   "title": "et al. UNI (51 x 52 x 79 cm)",
-   "cached": true
+   "title": "et al. UNI (51 x 52 x 79 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/577-M_Uni.3ds",
@@ -7167,8 +7221,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.372 of the extent): front -Y",
    "sha256": "254320e10c249d9f09f8fad7b47471163207d8b49fdd76bcd5aa496933921331",
    "id": "syncronia_03626c07f452ea6c06561097",
-   "title": "et al. UNI (45 x 54 x 81 cm)",
-   "cached": true
+   "title": "et al. UNI (45 x 54 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/577_Uni.3ds",
@@ -7248,8 +7301,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.380 of the extent): front -Y",
    "sha256": "aaa1da8f31d3a9aefc3f581684b3ddba9e61be085102aeb85e9c776185005765",
    "id": "syncronia_68849a74bf477ff5a59870f0",
-   "title": "et al. UNI (45 x 53 x 80 cm)",
-   "cached": true
+   "title": "et al. UNI (45 x 53 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/602 sedia Uni.3ds",
@@ -7329,8 +7381,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.378 of the extent): front +X",
    "sha256": "85c51ebea918ff8736640676cb0996df05dde0662428bff3a1e8a4168c3b7cb6",
    "id": "syncronia_3ba073ad33f76dcb488bf941",
-   "title": "et al. UNI (53 x 45 x 81 cm)",
-   "cached": true
+   "title": "et al. UNI (53 x 45 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/602M sedia Uni.3ds",
@@ -7410,8 +7461,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.369 of the extent): front +X",
    "sha256": "736c5a77a928b6e2950bc1880f4ce65166d70d77dc8f6dcff6a15d27a8b6a9f2",
    "id": "syncronia_82c5c2c528d09ab86682cd34",
-   "title": "et al. UNI (54 x 45 x 82 cm)",
-   "cached": true
+   "title": "et al. UNI (54 x 45 x 82 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/603 sedia Uni.3ds",
@@ -7491,8 +7541,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.383 of the extent): front -Y",
    "sha256": "bf9005a27d91179f32eb4b9519c921dcb03ce8711ab713d474c13c5c4ae82a4f",
    "id": "syncronia_32a9b6269199776d39261ca4",
-   "title": "et al. UNI (46 x 52 x 81 cm)",
-   "cached": true
+   "title": "et al. UNI (46 x 52 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni/53019.3ds.zip/603M sedia Uni.3ds",
@@ -7572,8 +7621,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.374 of the extent): front -Y",
    "sha256": "21cbdf794285f319bc883414c34bcbf8338611340ae06200dd82a5c2cf7eeb36",
    "id": "syncronia_bbadb327e128df8606f39d22",
-   "title": "et al. UNI (46 x 53 x 82 cm)",
-   "cached": true
+   "title": "et al. UNI (46 x 53 x 82 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_594_Uni-ka.3ds",
@@ -7653,8 +7701,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.138 of the extent): front +X",
    "sha256": "5154d214c81ef71d821cb7be597c364ba114150e697d9275ea16aa36c9acdc5b",
    "id": "syncronia_bea4c9087d51e81904c3ea5c",
-   "title": "et al. Uni-Ka (55 x 59 x 81 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (55 x 59 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_595-M_Uni-ka.3ds",
@@ -7734,8 +7781,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.142 of the extent): front +X",
    "sha256": "62b73ba3ffd7a3d855d59e68c9c3a30366b18ca58b89173883a5717a18475de5",
    "id": "syncronia_e54a48f247834f44b512801b",
-   "title": "et al. Uni-Ka (54 x 59 x 81 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (54 x 59 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_595_Uni-ka.3ds",
@@ -7815,8 +7861,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.129 of the extent): front +X",
    "sha256": "78d77c0f692574ce49819207b0de5abfbd6a6faed8f530f93f670adb0160049e",
    "id": "syncronia_427c40319d8094b81b817d32",
-   "title": "et al. Uni-Ka (54 x 59 x 80 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (54 x 59 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_596-M_Uni-ka.3ds",
@@ -7896,8 +7941,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.146 of the extent): front +X",
    "sha256": "4b602c08c4150aad56dc0ba2e036fc7b4d7d169ea4de5a7da4f4a7e2040a0953",
    "id": "syncronia_d7ea8601ab387be2bf0d5f54",
-   "title": "et al. Uni-Ka (54 x 59 x 82 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (54 x 59 x 82 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_596_Uni-ka.3ds",
@@ -7977,8 +8021,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.132 of the extent): front +X",
    "sha256": "f71a03f01eda74f19442d5281bb919620f63990d21ec0360974453e3112ddfef",
    "id": "syncronia_aa61a0e3e644ffac12698e34",
-   "title": "et al. Uni-Ka (53 x 59 x 81 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (53 x 59 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_597-DP poltr.Uni-ka.3ds",
@@ -8058,8 +8101,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.112 of the extent): front -Y",
    "sha256": "b98e7ce780f0085c8e4833df117bd3f95a40074a5e9b44aa07c17aab941bb271",
    "id": "syncronia_fa70b0b7ac0bb7696cb74b91",
-   "title": "et al. Uni-Ka (68 x 65 x 81 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (68 x 65 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_597-DR poltr.Uni-ka.3ds",
@@ -8139,8 +8181,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.144 of the extent): front -Y",
    "sha256": "b64d510a2c9fdd1c349a7bc646a28ae38c1abc16787db97654cb266e124aac60",
    "id": "syncronia_937cfaec15b2a5be290cf11c",
-   "title": "et al. Uni-Ka (69 x 72 x 81 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (69 x 72 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_597M-DP poltr.Uni-ka.3ds",
@@ -8220,8 +8261,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.118 of the extent): front -Y",
    "sha256": "1b1c47e53c75b15db42eafed6e7bbd62d340d4a2b416b91ebf776baeabd5fa83",
    "id": "syncronia_28776e16dd82583b8fd7b2cf",
-   "title": "et al. Uni-Ka (68 x 65 x 82 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (68 x 65 x 82 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_597M-DR poltr.Uni-ka.3ds",
@@ -8301,8 +8341,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.144 of the extent): front -Y",
    "sha256": "995af01987c9dea60499e176ed60cfc1cf96cfaa50921500afbccfa2054b2755",
    "id": "syncronia_1986144bbe25ad51060a8730",
-   "title": "et al. Uni-Ka (69 x 72 x 81 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (69 x 72 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_598-M_Uni-ka.3ds",
@@ -8382,8 +8421,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.159 of the extent): front +X",
    "sha256": "18145bd34b283909ce519b0cf7226d294852f084ff9f8fbd3d817e1d8e1eb4c7",
    "id": "syncronia_ffa4788d6d06ea8f592b825e",
-   "title": "et al. Uni-Ka (52 x 59 x 85 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (52 x 59 x 85 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_598_Uni-ka.3ds",
@@ -8463,8 +8501,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.145 of the extent): front +X",
    "sha256": "0c56193fe9c7512573984d0d96eeb155ac37ea8bacc120dd03d2ebe72f0d8ef8",
    "id": "syncronia_f7f73972d9598f1341a80755",
-   "title": "et al. Uni-Ka (51 x 59 x 84 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (51 x 59 x 84 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_599-M_Uni-ka.3ds",
@@ -8544,8 +8581,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.146 of the extent): front +X",
    "sha256": "73f0ef6b5c08f65bff98434a12e337dc61a574ca609f9d04dcc9eac1aef2b01f",
    "id": "syncronia_d861febd41410f0c563b9003",
-   "title": "et al. Uni-Ka (54 x 59 x 82 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (54 x 59 x 82 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_599_Uni-ka.3ds",
@@ -8625,8 +8661,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.132 of the extent): front +X",
    "sha256": "de432bfc1cb13d4bf7f8e3a0eda0e702f2c8242c7095d2baee2d202c484cf294",
    "id": "syncronia_ab38d2bfbe704c05647fb903",
-   "title": "et al. Uni-Ka (53 x 59 x 80 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (53 x 59 x 80 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_600-M_Uni-ka.3ds",
@@ -8706,8 +8741,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.156 of the extent): front +X",
    "sha256": "9e3b13f7ce434c737154dd613949752e750645181a4df8bdafee3dfd5e4bd1a4",
    "id": "syncronia_159ad8418419dc122092d21e",
-   "title": "et al. Uni-Ka (54 x 59 x 83 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (54 x 59 x 83 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_600_Uni-ka.3ds",
@@ -8787,8 +8821,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.149 of the extent): front +X",
    "sha256": "19c8084d005f2525232c5853eca9fc97b281a0a0183a387b8140cd244586862f",
    "id": "syncronia_e5d914c82c18ec03af22bde9",
-   "title": "et al. Uni-Ka (54 x 59 x 82 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (54 x 59 x 82 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_601-M_Uni-ka.3ds",
@@ -8868,8 +8901,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.144 of the extent): front +X",
    "sha256": "e252c5c9e104597a8df229b84532bcb1fa7cf437be68c5c3673581e7522632c9",
    "id": "syncronia_1ab8029bd7e7aa6f996c8cc1",
-   "title": "et al. Uni-Ka (54 x 59 x 82 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (54 x 59 x 82 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_601_Uni-ka.3ds",
@@ -8949,8 +8981,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.129 of the extent): front +X",
    "sha256": "b22e19a8553543b6c8295a833afc91dcdd3f0b450b45def0d0dcb74257c42631",
    "id": "syncronia_f521ab91285269e385fd1783",
-   "title": "et al. Uni-Ka (53 x 59 x 81 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (53 x 59 x 81 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_604 poltr.Uni-ka.3ds",
@@ -9030,8 +9061,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.115 of the extent): front -Y",
    "sha256": "ec30279b1d991337fdef7f914200c4e35907941e2076331df86839a6720eada3",
    "id": "syncronia_d8a12fda559d97327b990e24",
-   "title": "et al. Uni-Ka (59 x 61 x 72 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (59 x 61 x 72 cm)"
   },
   {
    "rel": "chairs/et-al/uni-ka/52743.3ds.zip/MetalMobil_604M poltr.Uni-ka.3ds",
@@ -9111,8 +9141,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.132 of the extent): front -Y",
    "sha256": "071726fab7eefa7d7d471655994932dd4be41c823bc2e60e09ab88d965f6009f",
    "id": "syncronia_be948721bd868a85ee3293d9",
-   "title": "et al. Uni-Ka (59 x 61 x 73 cm)",
-   "cached": true
+   "title": "et al. Uni-Ka (59 x 61 x 73 cm)"
   },
   {
    "rel": "chairs/et-al/zero/52758.3ds",
@@ -9192,8 +9221,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.469 of the extent): front -Y",
    "sha256": "a8ef748e6d9c27eaf70002339a6569ab2fe6c2b2062357d8f77d3806f4d744f1",
    "id": "syncronia_c5feded1389ae75b1de6b1f4",
-   "title": "et al. Zero (60 x 69 x 79 cm)",
-   "cached": true
+   "title": "et al. Zero (60 x 69 x 79 cm)"
   },
   {
    "rel": "chairs/marte-design/radar/63881.fbx.zip/Marte_Radar_fbx.fbx",
@@ -9336,8 +9364,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.285 of the extent): front -Y",
    "sha256": "f72d7bd688a7ecd0298be1b7277bf25003dd428133bfac78f7d7998046816590",
    "id": "syncronia_22c09895db89f2f217d9225d",
-   "title": "Maxalto (B&B Italia) Acanto (57 x 57 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Acanto (57 x 57 x 80 cm)"
   },
   {
    "rel": "chairs/maxalto/acanto/14349.3ds.zip/3D_ARSE.3DS",
@@ -9444,8 +9471,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.382 of the extent): front -Y",
    "sha256": "1bf291b66a81057e09fd0bbf6575bd6b618748faf75d65f6e81cc2ff6e6d60a5",
    "id": "syncronia_1dbe38df3b85aae360d0a839",
-   "title": "Maxalto (B&B Italia) Acanto (57 x 57 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Acanto (57 x 57 x 80 cm)"
   },
   {
    "rel": "chairs/maxalto/acanto-0/14154.3ds.zip/3D_ARPL.3DS",
@@ -9552,8 +9578,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.447 of the extent): front -Y",
    "sha256": "47d46e986501faca1bc8c72be52f03311624758aecf9aca7bc957b26f4bdedaa",
    "id": "syncronia_9d3196ad4f34e7af46c17a5a",
-   "title": "Maxalto (B&B Italia) Acanto (61 x 73 x 86 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Acanto (61 x 73 x 86 cm)"
   },
   {
    "rel": "chairs/maxalto/eunice/14331.3ds.zip/3D_9617.3DS",
@@ -9687,8 +9712,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.378 of the extent): front +X",
    "sha256": "4bb31eebb629df86f7446edb85606c5649ac14706b17677e20cfec1ab3f29f77",
    "id": "syncronia_0e626978def478c663e05406",
-   "title": "Maxalto (B&B Italia) Eunice (50 x 52 x 74 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Eunice (50 x 52 x 74 cm)"
   },
   {
    "rel": "chairs/maxalto/fulgens-15/14746.3ds.zip/3D_LX53.3DS",
@@ -9724,16 +9748,81 @@
    ],
    "triangles": 23952,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_own_lacquer",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.5726,
+      "textured": false,
+      "base_colour": [
+       0.1095,
+       0.1095,
+       0.1095,
+       1.0
+      ],
+      "colour_rgb": [
+       93,
+       93,
+       93
+      ],
+      "note": "white lacquer in the file's own colour #5d5d5d",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_wood_oak",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.4274,
+      "textured": false,
+      "base_colour": [
+       0.3916,
+       0.2159,
+       0.0976,
+       1.0
+      ],
+      "colour_rgb": [
+       168,
+       128,
+       88
+      ],
+      "note": "oiled oak",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "own_lacquer_5d5d5d": 2,
+     "wood": 1
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "own_lacquer_5d5d5d": 2,
+    "wood": 1
+   },
+   "own_colours": [
+    "white lacquer in the file's own colour #5d5d5d"
+   ],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: top centroid offset +0.070 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "916c38b168a493d6598ed8b22a8e43f537588b4f2635e3694dea1914bf7d12d0",
+   "sha256": "81a8007ce37c6a2ba34dd6e559020aea621f76cc580389f4ab58db344b567586",
    "id": "syncronia_5e4b5cc7d469656511657a75",
-   "title": "Maxalto (B&B Italia) Fulgens '15 (53 x 53 x 90 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Fulgens '15 (53 x 53 x 90 cm)"
   },
   {
    "rel": "chairs/maxalto/fulgens-15/14746.3ds.zip/3D_LX53B.3DS",
@@ -9769,16 +9858,81 @@
    ],
    "triangles": 23248,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_own_lacquer",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.5589,
+      "textured": false,
+      "base_colour": [
+       0.1095,
+       0.1095,
+       0.1095,
+       1.0
+      ],
+      "colour_rgb": [
+       93,
+       93,
+       93
+      ],
+      "note": "white lacquer in the file's own colour #5d5d5d",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_wood_oak",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.4411,
+      "textured": false,
+      "base_colour": [
+       0.3916,
+       0.2159,
+       0.0976,
+       1.0
+      ],
+      "colour_rgb": [
+       168,
+       128,
+       88
+      ],
+      "note": "oiled oak",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "own_lacquer_5d5d5d": 2,
+     "wood": 1
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "own_lacquer_5d5d5d": 2,
+    "wood": 1
+   },
+   "own_colours": [
+    "white lacquer in the file's own colour #5d5d5d"
+   ],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: top centroid offset +0.074 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "23c06049cb665590d6ae24474865232047b739834e1351a093ffedbad4313250",
+   "sha256": "c1f2cf3a3a6ed759417a37e37d6921af6371603476412cf8376ac280e33278d5",
    "id": "syncronia_5cdb0a7a0b0711801b5248b0",
-   "title": "Maxalto (B&B Italia) Fulgens '15 (53 x 53 x 81 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Fulgens '15 (53 x 53 x 81 cm)"
   },
   {
    "rel": "chairs/maxalto/musa/14318.3ds.zip/3D_SM46G.3DS",
@@ -9912,8 +10066,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.397 of the extent): front -X",
    "sha256": "430ae7118de8f68fb4848f487100a9ced1dd1b3b18142306f3828dbf7fa9fc8b",
    "id": "syncronia_1d2cef9183c0a75be124aa3e",
-   "title": "Maxalto (B&B Italia) Musa (56 x 44 x 114 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Musa (56 x 44 x 114 cm)"
   },
   {
    "rel": "chairs/maxalto/musa/14318.3ds.zip/3D_SM46S.3DS",
@@ -10020,8 +10173,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.415 of the extent): front -X",
    "sha256": "f88451dc244b5d3f5ae5f1ef2819d68f1d2320d9bed4d45bc11c582244738ae7",
    "id": "syncronia_a32aa4707708953b7974456c",
-   "title": "Maxalto (B&B Italia) Musa (55 x 44 x 84 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Musa (55 x 44 x 84 cm)"
   },
   {
    "rel": "chairs/maxalto/musa/14318.3ds.zip/3D_SM55B.3DS",
@@ -10137,8 +10289,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.451 of the extent): front +X",
    "sha256": "1f88a6371c3e6c16bc2095b0240922f6c31f79411b211b8b96378ab88c35f9e9",
    "id": "syncronia_ab0f1b42270d20d0ddf657e1",
-   "title": "Maxalto (B&B Italia) Peplo (57 x 42 x 88 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Peplo (57 x 42 x 88 cm)"
   },
   {
    "rel": "chairs/maxalto/peplo/14312.3ds.zip/3D_SMS58.3DS",
@@ -10218,8 +10369,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.249 of the extent): front +X",
    "sha256": "e6c8847b3ce100b46d8f1ae52cfc2525d59d28144ca046462eb60f5a65650382",
    "id": "syncronia_4f7a042fcb00a254dae3604d",
-   "title": "Maxalto (B&B Italia) Peplo (56 x 58 x 78 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Peplo (56 x 58 x 78 cm)"
   },
   {
    "rel": "chairs/maxalto/teti/14306.3ds.zip/3D_SMSB_A.3DS",
@@ -10353,8 +10503,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.397 of the extent): front -X",
    "sha256": "03d9b549feb804b47fe59c18d604c80d65678e7dcf06e3a49ac6557fc2932b9f",
    "id": "syncronia_7a16955823ed629fa4451f79",
-   "title": "Maxalto (B&B Italia) Teti (58 x 54 x 82 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Teti (58 x 54 x 82 cm)"
   },
   {
    "rel": "chairs/mdf-italia/aiku-aiku-soft/80354.3ds.zip/MDF_Aiku_Chair_4_Leg_conica.3DS",
@@ -10390,16 +10539,81 @@
    ],
    "triangles": 73024,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_own_lacquer",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.6587,
+      "textured": false,
+      "base_colour": [
+       0.1095,
+       0.1095,
+       0.1095,
+       1.0
+      ],
+      "colour_rgb": [
+       93,
+       93,
+       93
+      ],
+      "note": "white lacquer in the file's own colour #5d5d5d",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_wood_oak",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.3413,
+      "textured": false,
+      "base_colour": [
+       0.3916,
+       0.2159,
+       0.0976,
+       1.0
+      ],
+      "colour_rgb": [
+       168,
+       128,
+       88
+      ],
+      "note": "oiled oak",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "wood": 10,
+     "own_lacquer_5d5d5d": 9
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "wood": 10,
+    "own_lacquer_5d5d5d": 9
+   },
+   "own_colours": [
+    "white lacquer in the file's own colour #5d5d5d"
+   ],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.349 of the extent): front -Y",
-   "sha256": "cb4df04b0664c46296d7ad56bc3c875e1cf6847c9a3c680994c013bd42128aec",
+   "sha256": "c903da2dafd4de0dc469be483b9d4c6cb52e3b4e91f49137ebf573c6e646c3e9",
    "id": "syncronia_ff2a454e22dce60704d4e5f8",
-   "title": "MDF Italia Aiku - Aiku Soft (59 x 52 x 78 cm)",
-   "cached": true
+   "title": "MDF Italia Aiku - Aiku Soft (59 x 52 x 78 cm)"
   },
   {
    "rel": "chairs/mdf-italia/edo/174788.3ds.zip/MDF_Edo_F057105.3ds",
@@ -10479,8 +10693,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.380 of the extent): front -Y",
    "sha256": "d1f58aaceaf184f02e36464bdbc02db2bb158daf7f25bce4f0fa688c6046b484",
    "id": "syncronia_081b2d83755a2244e4cdb7cf",
-   "title": "MDF Italia Edo (53 x 53 x 81 cm)",
-   "cached": true
+   "title": "MDF Italia Edo (53 x 53 x 81 cm)"
   },
   {
    "rel": "chairs/mdf-italia/flow-filo/80593.3ds.zip/FLOW_FILO_CHAIR.3ds",
@@ -10560,8 +10773,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.273 of the extent): front -Y",
    "sha256": "267bf805d423fba92faefa7b32a1c9e00a1370e2fd4d2f24a2392b422ad8cf04",
    "id": "syncronia_5213df5892ba8aaeb73abcc7",
-   "title": "MDF Italia Flow Filo (54 x 56 x 82 cm)",
-   "cached": true
+   "title": "MDF Italia Flow Filo (54 x 56 x 82 cm)"
   },
   {
    "rel": "chairs/mdf-italia/m1/80581.3ds.zip/MDF_M1_Chair_.3DS",
@@ -10597,16 +10809,81 @@
    ],
    "triangles": 12470,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_own_lacquer",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0114,
+      "textured": false,
+      "base_colour": [
+       0.1248,
+       0.1221,
+       0.1248,
+       1.0
+      ],
+      "colour_rgb": [
+       99,
+       98,
+       99
+      ],
+      "note": "white lacquer in the file's own colour #636263",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_wood_oak",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9886,
+      "textured": false,
+      "base_colour": [
+       0.3916,
+       0.2159,
+       0.0976,
+       1.0
+      ],
+      "colour_rgb": [
+       168,
+       128,
+       88
+      ],
+      "note": "oiled oak",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "wood": 2,
+     "own_lacquer_636263": 4
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "wood": 2,
+    "own_lacquer_636263": 4
+   },
+   "own_colours": [
+    "white lacquer in the file's own colour #636263"
+   ],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.447 of the extent): front -Y",
-   "sha256": "264a15e4b711f16d01c238fccb95f104d6a8cd4cceae45a5bfca99b0e06a755a",
+   "sha256": "36f28f27a3c780d34fcebfc211e091afcb1e4a2591de291320ce614b3e8c34bf",
    "id": "syncronia_c1cb97dcc8c790148eb96201",
-   "title": "MDF Italia M1 (53 x 50 x 77 cm)",
-   "cached": true
+   "title": "MDF Italia M1 (53 x 50 x 77 cm)"
   },
   {
    "rel": "chairs/mdf-italia/neil/80823.3ds.zip/MDF_NEIL_BASIC_HIGH_COUNTER.3ds",
@@ -10678,16 +10955,52 @@
    ],
    "triangles": 309404,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_wood_oak",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.3916,
+       0.2159,
+       0.0976,
+       1.0
+      ],
+      "colour_rgb": [
+       168,
+       128,
+       88
+      ],
+      "note": "oiled oak",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "wood": 1122
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "wood": 1122
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "+Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -Y (-0.401 of the extent): front +Y",
-   "sha256": "0ab69e6d3170c6c93ff16e4b0220cc3781af43b8386fac5cf89ac77c838534cc",
+   "sha256": "ddbf0b67d0f7b8154f2272dc2975daa9b9c711bdc950a84cb27770101d4768ef",
    "id": "syncronia_1a2acaf71a2b399148f6f0d7",
-   "title": "MDF Italia Neil Collection chair (51 x 53 x 78 cm)",
-   "cached": true
+   "title": "MDF Italia Neil Collection chair (51 x 53 x 78 cm)"
   },
   {
    "rel": "chairs/mdf-italia/press/174907.3ds.zip/MDF_Press_Chair_4 gambe_legno_070524.3ds",
@@ -10767,8 +11080,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.394 of the extent): front -Y",
    "sha256": "efaba3bdf9efaf7c198694203c76cf7df91697b423473df3d817fb2ac9f30f11",
    "id": "syncronia_b219aaabce5a30b6d1a0ea82",
-   "title": "MDF Italia Press (48 x 55 x 84 cm)",
-   "cached": true
+   "title": "MDF Italia Press (48 x 55 x 84 cm)"
   },
   {
    "rel": "chairs/mdf-italia/universal-collection/80985.3ds.zip/MDF_Universal_4_legged _oak_base.3ds",
@@ -10884,8 +11196,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.437 of the extent): front -Y",
    "sha256": "b3b1a3f569c52f0a03a2970cdaa35f082b9798e6c8a95aa2d2845aa7f3c4f8cc",
    "id": "syncronia_4af90bc69ff047a6980e9781",
-   "title": "Riva 1920 Cloe (54 x 58 x 84 cm)",
-   "cached": true
+   "title": "Riva 1920 Cloe (54 x 58 x 84 cm)"
   },
   {
    "rel": "chairs/tonon/corda-chair/64777.3ds.zip/162_01.3ds",
@@ -10965,8 +11276,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.360 of the extent): front -Y",
    "sha256": "936778d40e395e12ff5a64da580766ec7db6ee66117a573040d0e63c72f24be4",
    "id": "syncronia_53fabf6095fb0cab86fcb492",
-   "title": "Tonon Corda Chair (54 x 60 x 83 cm)",
-   "cached": true
+   "title": "Tonon Corda Chair (54 x 60 x 83 cm)"
   },
   {
    "rel": "chairs/tonon/up/64780.3ds.zip/up_917.L1_3ds.3ds",
@@ -11046,8 +11356,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.179 of the extent): front -Y",
    "sha256": "a8cbf673e8e443d56b09578d13d7671ef6110a1b4cd9a8d50031c59bc6695abb",
    "id": "syncronia_4b6b1b51205105539b2347c6",
-   "title": "Tonon Up (63 x 57 x 81 cm)",
-   "cached": true
+   "title": "Tonon Up (63 x 57 x 81 cm)"
   },
   {
    "rel": "chairs/tonon/wooden-arms/63538.3ds.zip/Tonon_Up_Wooden_Arms_917_11_3ds.3ds",
@@ -11127,8 +11436,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.143 of the extent): front -Y",
    "sha256": "9e18bc7d478460a9a5ab6d7b747d636a840488abd0bb0eecbc395af47072c53d",
    "id": "syncronia_762170ebc40361fc1791e58f",
-   "title": "Tonon Up Wooden Arms (72 x 59 x 86 cm)",
-   "cached": true
+   "title": "Tonon Up Wooden Arms (72 x 59 x 86 cm)"
   },
   {
    "rel": "chaises-longues/bb-italia/landscape-05/11801.3ds.zip/3D_LSB.3DS",
@@ -11295,8 +11603,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.468 of the extent): front -Y",
    "sha256": "571d27b62eb9dc91a8ad1ede81e528a3c265b3b0032aaa930ff4ee517c4673fb",
    "id": "syncronia_643774ff740013f30edfb550",
-   "title": "B&B Italia Mirto (74 x 193 x 72 cm)",
-   "cached": true
+   "title": "B&B Italia Mirto (74 x 193 x 72 cm)"
   },
   {
    "rel": "chaises-longues/bb-italia/mirto/11829.3ds.zip/3D_MI54T.3DS",
@@ -11435,8 +11742,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.396 of the extent): front -Y",
    "sha256": "dc943a2e48b277523d18acb1885daadaf5035bf7c6e50419e859e0393a1ae2de",
    "id": "syncronia_2238b4d95bd39b67a89b74a0",
-   "title": "Maxalto (B&B Italia) Febo (94 x 158 x 85 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Febo (94 x 158 x 85 cm)"
   },
   {
    "rel": "chaises-longues/maxalto/febo/14355.3ds.zip/3D_2807LV.3DS",
@@ -11541,8 +11847,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.397 of the extent): front -Y",
    "sha256": "09ed8262fec8320e87af86b5c8a908730b3d061534929d53e21889abac607900",
    "id": "syncronia_99dc5d47211094dfdff2e1d1",
-   "title": "Maxalto (B&B Italia) Febo (94 x 158 x 85 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Febo (94 x 158 x 85 cm)"
   },
   {
    "rel": "chaises-longues/maxalto/febo/14355.3ds.zip/3D_2807V.3DS",
@@ -11647,8 +11952,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.363 of the extent): front -X",
    "sha256": "33b2e9c859c4978de5b60893c1c2f819aafad74d6e534c5fb88e285f9a941620",
    "id": "syncronia_d9d3f4aeab47c9aadfdff21b",
-   "title": "Maxalto (B&B Italia) Febo (155 x 90 x 85 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Febo (155 x 90 x 85 cm)"
   },
   {
    "rel": "chaises-longues/maxalto/febo-15/14730.3ds.zip/3D_2833CTD.3DS",
@@ -11682,16 +11986,79 @@
    ],
    "triangles": 56960,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9722,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_metal_dark",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0278,
+      "textured": false,
+      "base_colour": [
+       0.0423,
+       0.0395,
+       0.0369,
+       1.0
+      ],
+      "colour_rgb": [
+       58,
+       56,
+       54
+      ],
+      "note": "dark painted metal",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 1863,
+     "metal": 8
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 1863,
+    "metal": 8
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets +0.247 (x) and +0.255 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "5b8ecdca51f2483aac1546749cd67b1dac4d1932ef4705c0b7860bfd914c4d50",
+   "sha256": "aee731339f63120a61e95fc4ac8dc2a9a0a1f92ae4d85d9d8630c99ae78eed46",
    "id": "syncronia_25ec1cf3242fd21342c9d91e",
-   "title": "Maxalto (B&B Italia) Febo '15 (173 x 95 x 79 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Febo '15 (173 x 95 x 79 cm)"
   },
   {
    "rel": "chaises-longues/maxalto/febo-15/14730.3ds.zip/3D_2833LTD.3DS",
@@ -11725,16 +12092,81 @@
    ],
    "triangles": 63256,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9001,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_own_lacquer",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0999,
+      "textured": false,
+      "base_colour": [
+       0.1329,
+       0.1329,
+       0.1329,
+       1.0
+      ],
+      "colour_rgb": [
+       102,
+       102,
+       102
+      ],
+      "note": "white lacquer in the file's own colour #666666",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 1863,
+     "own_lacquer_666666": 6
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 1863,
+    "own_lacquer_666666": 6
+   },
+   "own_colours": [
+    "white lacquer in the file's own colour #666666"
+   ],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets +0.247 (x) and +0.255 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "87bb3d88ec89e85976f69b6005acfc5824c0573961cbd6574fe0376cb39a9e36",
+   "sha256": "a4711729e92988ad82ca9d3d4a4305e8950cee7b695085fd64a0f26d882f800e",
    "id": "syncronia_f2da2f18e33fda36d48ba4ab",
-   "title": "Maxalto (B&B Italia) Febo '15 (173 x 95 x 79 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Febo '15 (173 x 95 x 79 cm)"
   },
   {
    "rel": "chaises-longues/maxalto/febo-15/14730.3ds.zip/3D_2833TD.3DS",
@@ -11768,16 +12200,79 @@
    ],
    "triangles": 60584,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0311,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9689,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 1863,
+     "chrome": 4
+    },
+    "materials": 5,
+    "split": 1
+   },
+   "classes": {
+    "fabric": 1863,
+    "chrome": 4
+   },
+   "own_colours": [],
    "pillows": 0,
-   "split_primitives": 0,
+   "split_primitives": 1,
    "front": "-Y",
    "front_confidence": "low",
-   "front_note": "geometry: back_taller: offsets +0.247 (x) and +0.255 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "787532890647a11f8697fb3d6370e1d0f8bc8648c9489b21c3848db580241ef3",
+   "front_note": "geometry: back_taller: offsets +0.252 (x) and +0.251 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
+   "sha256": "fba0dbb620d90eb8ee6ef32cc85bea153bdcda6e70b41234e731a1da83e9ed81",
    "id": "syncronia_e43f170e6e3e490efb773a97",
-   "title": "Maxalto (B&B Italia) Febo '15 (173 x 95 x 79 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Febo '15 (173 x 95 x 79 cm)"
   },
   {
    "rel": "coffee-table/marte-design/horn/64214.fbx.zip/Marte_Design_Horn_037_fbx.FBX",
@@ -11855,8 +12350,7 @@
    "front_note": "a table_coffee has no front",
    "sha256": "63baa25026063fdaa492bc1be0c6bc13e11905be8532ec5eec4b790ba1d62c94",
    "id": "syncronia_025ce2598ae09772ff4ac4e1",
-   "title": "Marte Design Horn (58 x 153 x 37 cm)",
-   "cached": true
+   "title": "Marte Design Horn (58 x 153 x 37 cm)"
   },
   {
    "rel": "coffee-table/marte-design/lamp/64196.fbx.zip/Marte_Design_Lamp_045_fbx.FBX",
@@ -11972,8 +12466,7 @@
    "front_note": "a table_coffee has no front",
    "sha256": "d720d39baa8acccd9ad31f1b2a9a89fe0595d10cb949ecd0c5fa3057c0c2311d",
    "id": "syncronia_8f7c6d68863c5f50d9ccb3ee",
-   "title": "Marte Design Vessel (58 x 58 x 48 cm)",
-   "cached": true
+   "title": "Marte Design Vessel (58 x 58 x 48 cm)"
   },
   {
    "rel": "comfort-chair/et-al/dunk/73072.3ds.zip/EtAl_Dunk_1190_3DS.3ds",
@@ -12118,8 +12611,7 @@
    "front_note": "a bowl has no front",
    "sha256": "5aa8eab3ca0a77b4ccf89c80886aadef51e206ac4ca797dd7d7bd4fc69fcae46",
    "id": "syncronia_13af87fbb63380d893ce3ea7",
-   "title": "Alessi Breakfast board MW12 (16 x 31 x 2 cm)",
-   "cached": true
+   "title": "Alessi Breakfast board MW12 (16 x 31 x 2 cm)"
   },
   {
    "rel": "decorative-objects/alessi/criss-cross/10389.3ds",
@@ -12209,8 +12701,7 @@
    "front_note": "a bowl has no front",
    "sha256": "cd1b5021cdc41abe351e4b1ba68f9bb3dbf85cacea1c8ac00b079507e6c048dd",
    "id": "syncronia_bc90d4b8eeae8690afcbedfa",
-   "title": "Alessi LA ROSA, Fruit bowl ESI15/21 (21 x 21 x 9 cm)",
-   "cached": true
+   "title": "Alessi LA ROSA, Fruit bowl ESI15/21 (21 x 21 x 9 cm)"
   },
   {
    "rel": "dishes/alessi/cheese-board-mw23/10643.fbx.zip/1-MD-Alessi_Dressed_in_wood_MW23.fbx",
@@ -12288,8 +12779,7 @@
    "front_note": "a bowl has no front",
    "sha256": "b54f78a536a72349eec512880249e192ec9b5e059de195b4d409b17d4c14c063",
    "id": "syncronia_9a01f8d22a187b414d5d63c3",
-   "title": "Alessi Cheese board MW23 (42 x 42 x 2 cm)",
-   "cached": true
+   "title": "Alessi Cheese board MW23 (42 x 42 x 2 cm)"
   },
   {
    "rel": "divani/baxter/aura/174361.3ds.zip/Baxter_Aura_abaco_2024.3ds",
@@ -12405,8 +12895,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "85572bc818dc8d34655ebea761a85c12a1741255fc2eec380039be06a4dbe27b",
    "id": "syncronia_352fd9c1925c4888eba55265",
-   "title": "Marte Design Hikari (180 x 91 x 74 cm)",
-   "cached": true
+   "title": "Marte Design Hikari (180 x 91 x 74 cm)"
   }
  ]
 }

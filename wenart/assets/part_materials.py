@@ -443,12 +443,14 @@ def front_from_parts(ps: list[dict], classes: list[dict]) -> Optional[tuple[str,
 # do say something (several colours, not all near white: ``needs_materials`` False) still gets part materials, each
 # piece judged by its own file colour (``own_colour_classes``): a light neutral colour (white, light grey: an
 # exporter's default) says nothing, the piece takes its class's palette material; a dark neutral piece is walnut,
-# black metal or a fabric in its own colour; a real colour stays on the cloth, leather, lacquer, plastic and ceramic
+# black metal or a fabric in its own colour (a white or grey wood part: lacquer in its colour); a real colour stays on
+# the cloth, leather, lacquer, plastic and ceramic
 # pieces (``OWN_TINT``: materials ``wenart_own_<class>``, dressed at build time with the scan in that colour) and
 # picks oak or walnut, brass, chrome or black metal for wood and metal pieces.
 NEUTRAL_SAT = 0.12                     # sRGB saturation under this: white, grey or black (no hue)
 LIGHT_LUM = 0.5                        # ... and a luminance at least this: an exporter's default, says nothing
 DARK_LUM = 0.3                         # a luminance under this: a dark piece (walnut, black metal)
+BRASS_LUM = 0.78                       # a warm metal at least this light (a bright gold) is brass, else dark bronze
 OWN_TINT: dict[str, str] = {"fabric": "fabric", "frame": "fabric", "headboard": "fabric", "bedding": "bedding",
                             "leather": "leather", "lacquer": "lacquer", "plastic": "plastic", "ceramic": "ceramic"}
 OWN_BASE: dict[str, str] = {"fabric": "fabric", "bedding": "bedding", "leather": "leather", "lacquer": "lacquer",
@@ -510,13 +512,15 @@ def own_colour_classes(doc: dict, ps: list[dict], classes: list[dict]) -> tuple[
         if rgb is None:
             pass                                          # no file colour: the class's palette material
         elif cls in WOOD_CLASSES:
-            if kind == "grey":                            # a mid grey wood part: painted in its own grey
+            # a white or grey part of a model with several colours is a chosen finish, not a default: painted in
+            # its own colour (the second pod of 3 Nov 2026: a Fulgens seat and a Spring Time top turned oak)
+            if kind in ("light", "grey"):
                 new = "own:lacquer"
             else:
                 new = "wood_dark" if kind == "dark" or _luminance(rgb) < DARK_LUM else "wood"
         elif cls in METAL_CLASSES:
-            if kind == "colour" and _warm_yellow(rgb):
-                new = "brass"
+            if kind == "colour" and _warm_yellow(rgb):    # a bright gold is brass, a deeper one bronze (Pathos)
+                new = "brass" if _luminance(rgb) >= BRASS_LUM else "legs"
             else:
                 new = "metal" if _luminance(rgb) < 0.45 else "chrome"
         elif cls in OWN_TINT and kind != "light":

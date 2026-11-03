@@ -1,8 +1,8 @@
 {
  "zip": "/workspace/library/inbox/10R1cAka9IKwWgRKj1wi2GdU3wl6Fr_41/archive4.zip",
  "zip_name": "archive4.zip",
- "checked_utc": "2026-11-03T18:38:39Z",
- "fix_version": "syncronia-4",
+ "checked_utc": "2026-11-03T19:15:42Z",
+ "fix_version": "syncronia-5",
  "taken": 124,
  "listed": 742,
  "records": [
@@ -4968,16 +4968,79 @@
    ],
    "triangles": 50166,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0032,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9968,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 31,
+     "chrome": 8
+    },
+    "materials": 5,
+    "split": 1
+   },
+   "classes": {
+    "fabric": 31,
+    "chrome": 8
+   },
+   "own_colours": [],
    "pillows": 0,
-   "split_primitives": 0,
+   "split_primitives": 1,
    "front": "+Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -Y (-0.222 of the extent): front +Y",
-   "sha256": "bfba6c24069f47001c214e62eb99f124945c1bb491f12752ff321760baad0320",
+   "sha256": "a65f8adce14127fe082dd95aa7e66df91b399234b8f31a10da08ee8fd2dd5d9b",
    "id": "syncronia_c7ed8f148c170607e4ca0195",
-   "title": "B&B Italia Andy 13 (247 x 117 x 82 cm)",
-   "cached": true
+   "title": "B&B Italia Andy 13 (247 x 117 x 82 cm)"
   },
   {
    "rel": "sofas/bb-italia/andy-13/11061.3ds.zip/3D_AD253D.3DS",
@@ -5011,16 +5074,79 @@
    ],
    "triangles": 52220,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0023,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9977,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 15,
+     "chrome": 4
+    },
+    "materials": 5,
+    "split": 1
+   },
+   "classes": {
+    "fabric": 15,
+    "chrome": 4
+   },
+   "own_colours": [],
    "pillows": 0,
-   "split_primitives": 0,
+   "split_primitives": 1,
    "front": "-Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.379 of the extent): front -Y",
-   "sha256": "d345738f358ba1ba35955dd18ac93a691fc3b7777ef6c24c8f74d4f62287b96c",
+   "sha256": "b6ba7badf12bc584526ecf1c1e06c5af139af97ad1f4d476668de8b742d2dbfd",
    "id": "syncronia_ea7b06fe2cd202c8e9299f99",
-   "title": "B&B Italia Andy 13 (103 x 230 x 82 cm)",
-   "cached": true
+   "title": "B&B Italia Andy 13 (103 x 230 x 82 cm)"
   },
   {
    "rel": "sofas/bb-italia/andy-13/11061.3ds.zip/3D_AD292.3DS",
@@ -5054,16 +5180,79 @@
    ],
    "triangles": 50150,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0029,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9971,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 33,
+     "chrome": 8
+    },
+    "materials": 5,
+    "split": 1
+   },
+   "classes": {
+    "fabric": 33,
+    "chrome": 8
+   },
+   "own_colours": [],
    "pillows": 0,
-   "split_primitives": 0,
+   "split_primitives": 1,
    "front": "+Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -Y (-0.222 of the extent): front +Y",
-   "sha256": "990fd7cc3f8a45e8b93f4bc78a6fdd50b29e4330f7c2be5feba7933793beaf90",
+   "sha256": "03788fe0862fe2038986e8ebc9db1c4565dd7cbfa76f856b18ef310a3e1c1ec2",
    "id": "syncronia_7a5cedafc65d41e1d77c123a",
-   "title": "B&B Italia Andy 13 (291 x 117 x 82 cm)",
-   "cached": true
+   "title": "B&B Italia Andy 13 (291 x 117 x 82 cm)"
   },
   {
    "rel": "sofas/bb-italia/andy-13/11061.3ds.zip/3D_AD326AD.3DS",
@@ -5097,16 +5286,79 @@
    ],
    "triangles": 62480,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0017,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9983,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 41,
+     "chrome": 6
+    },
+    "materials": 5,
+    "split": 1
+   },
+   "classes": {
+    "fabric": 41,
+    "chrome": 6
+   },
+   "own_colours": [],
    "pillows": 0,
-   "split_primitives": 0,
+   "split_primitives": 1,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets -0.294 (x) and -0.352 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "714c75a5ebe34d0a51d66b1328fae1c739e55600652d26864a311391190aeda8",
+   "sha256": "d24f1be3fcda2cb531d04c5ce8466c6ea9d593464279fa8a90dda395f7b75db9",
    "id": "syncronia_609643ef9799ee56d05e2c81",
-   "title": "B&B Italia Andy 13 (325 x 230 x 82 cm)",
-   "cached": true
+   "title": "B&B Italia Andy 13 (325 x 230 x 82 cm)"
   },
   {
    "rel": "sofas/bb-italia/andy-13/11061.3ds.zip/3D_AD346.3DS",
@@ -5174,16 +5426,79 @@
    ],
    "triangles": 64340,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0028,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9972,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 49,
+     "chrome": 11
+    },
+    "materials": 5,
+    "split": 1
+   },
+   "classes": {
+    "fabric": 49,
+    "chrome": 11
+   },
+   "own_colours": [],
    "pillows": 0,
-   "split_primitives": 0,
+   "split_primitives": 1,
    "front": "+Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -Y (-0.370 of the extent): front +Y",
-   "sha256": "58fadc7d7534fdd11542c149d99d011498e77b183785c21067e4ea0cacf496b6",
+   "sha256": "0700bebb48f5569b6866508a1862adcbff68a630e6f7f36a41b2083e0514f910",
    "id": "syncronia_029ae0d6f5950c42a69d13f0",
-   "title": "B&B Italia Andy 13 (369 x 230 x 91 cm)",
-   "cached": true
+   "title": "B&B Italia Andy 13 (369 x 230 x 91 cm)"
   },
   {
    "rel": "sofas/bb-italia/andy-13/11061.3ds.zip/3D_AD412.3DS",
@@ -5285,16 +5600,52 @@
    ],
    "triangles": 61998,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 6
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 6
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets -0.254 (x) and -0.239 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "aa31b2862bb32d1745156830685d1fb2ea66c3ac340fcfaf52ffcdc047215a85",
+   "sha256": "1f14460bbf7ad6b45d543062a5e73e1178b8b87045199a2c4d3821c3a543200d",
    "id": "syncronia_ffd91f1f69d2a4304b0ed80f",
-   "title": "B&B Italia Frank (106 x 156 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (106 x 156 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F156P.3DS",
@@ -5328,16 +5679,52 @@
    ],
    "triangles": 38450,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 3
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 3
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: top centroid offset +0.027 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
-   "sha256": "c5406b1ed82f2fc65d058891f0314b8565ebe7e8233c3d0cd971c0b4d000e887",
+   "sha256": "2500657e16c738af042e4d1a17306151cd3eebdc76b5149124a45f614e3ebf5d",
    "id": "syncronia_24860249357abe20a69a997e",
-   "title": "B&B Italia Frank (147 x 82 x 50 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (147 x 82 x 50 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F156P2.3DS",
@@ -5371,16 +5758,52 @@
    ],
    "triangles": 63812,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 5
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 5
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "+Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -Y (-0.386 of the extent): front +Y",
-   "sha256": "e6d0e466162bcce721c52bd4720dedc91d3c446c72cd480363cd1f2adc678f65",
+   "sha256": "ab1650306f5971839d41ce0dbd02b1219c5e8efbe96300ac518e4b81276bbcfd",
    "id": "syncronia_411f894dede40656d34035a9",
-   "title": "B&B Italia Frank (157 x 88 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (157 x 88 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F156PD.3DS",
@@ -5414,16 +5837,52 @@
    ],
    "triangles": 55512,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 4
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 4
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets +0.243 (x) and -0.385 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "8a8da2d23b4bfd90915cc9424ccec5ecc77ea88f9fafc5645a37a3daa3314fa8",
+   "sha256": "c28d8d4a2f7fba7735ac17eb6eb1de1db697b4d1bcc418ca05210266612f95e9",
    "id": "syncronia_749edc36002a2a67608ce9e6",
-   "title": "B&B Italia Frank (203 x 88 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (203 x 88 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F182TD.3DS",
@@ -5457,16 +5916,52 @@
    ],
    "triangles": 63060,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 5
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 5
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets +0.204 (x) and -0.207 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "b6867118167cfac074c6fb541436dcc944f67d443276acd7a94221bd97bb8f47",
+   "sha256": "fc74d7737e422898460856e100bee233e41f52444094102572030cc6855be2c0",
    "id": "syncronia_53f6f5ea8ce8726d3664c3b5",
-   "title": "B&B Italia Frank (183 x 84 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (183 x 84 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F206.3DS",
@@ -5500,16 +5995,52 @@
    ],
    "triangles": 57946,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 2
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 2
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "+Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -Y (-0.170 of the extent): front +Y",
-   "sha256": "436edb8d7fdc0a1e975131647e4c207f71d085734093bdf5668929c244f7e74c",
+   "sha256": "05be722fb7c4ae7904780d58a57d6316d0910ba4b9a14e51dacea94ff1a570c3",
    "id": "syncronia_3b521912b81f85a1c88b7d25",
-   "title": "B&B Italia Frank (213 x 89 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (213 x 89 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F206P2.3DS",
@@ -5543,16 +6074,52 @@
    ],
    "triangles": 63812,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 5
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 5
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "+Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -Y (-0.386 of the extent): front +Y",
-   "sha256": "69afda9661af879c31c01d1d1948d426c195bde17c0d864e56dec0bb134bb483",
+   "sha256": "af4fa805178f9d4e216c683ac6583066ed47e3a4e00e0fffc29738932adeea9c",
    "id": "syncronia_5e2ee13d688d5dae0686724a",
-   "title": "B&B Italia Frank (204 x 88 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (204 x 88 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F206PD.3DS",
@@ -5586,16 +6153,52 @@
    ],
    "triangles": 50316,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 4
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 4
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets -0.243 (x) and -0.385 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "dddaf8fae3c6f724e4978612a498462e8ac2f14a61f95f8cf9b6f5a22baf128f",
+   "sha256": "b516f99cd4857651b48dd939471c42bfb54c17454169c7fb5dcd165a1e543479",
    "id": "syncronia_04d86949360b0da80293e201",
-   "title": "B&B Italia Frank (203 x 88 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (203 x 88 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F231CHD.3DS",
@@ -5629,16 +6232,52 @@
    ],
    "triangles": 58822,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 5
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 5
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets +0.342 (x) and -0.253 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "8d8c605d10c80308648b9da954fc8b692c9ff93d2d9ff0c456e0ce9b94629c68",
+   "sha256": "cfcbc32490e679365f329306b3e0d58aa606471c1bc558d2d9ad87d985b0cf22",
    "id": "syncronia_09f4a3249c8040c194d98156",
-   "title": "B&B Italia Frank (231 x 89 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (231 x 89 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F231TD.3DS",
@@ -5672,16 +6311,52 @@
    ],
    "triangles": 63060,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 5
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 5
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets -0.204 (x) and -0.207 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "44c8d22fc3933ccc2f27f6786e2ab9a9982527b9c51b04114d0101b30f936316",
+   "sha256": "8e4e0670a3d7e9870ebc08c3ed6dc05bcebd2561ca307474cabe2aaa701d60dc",
    "id": "syncronia_d6ae6a81a9c24bca2e281ef4",
-   "title": "B&B Italia Frank (232 x 90 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (232 x 90 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F256.3DS",
@@ -5715,16 +6390,52 @@
    ],
    "triangles": 57946,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 2
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 2
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "+Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -Y (-0.170 of the extent): front +Y",
-   "sha256": "9888f652b36775c421c964980d356645f080563db90c8ba52e799ab7c413ceb9",
+   "sha256": "08ac3a5aa52825b08a6a627a3eb7ab19cc03ed9bc54ca6496e773435344315ec",
    "id": "syncronia_7359f7f5c47ad4061201526b",
-   "title": "B&B Italia Frank (255 x 87 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (255 x 87 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_9F91PQ.3DS",
@@ -5897,8 +6608,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.355 of the extent): front -X",
    "sha256": "2a2848d95f0ea3cc5f558a4841444360f0468cb5fcd4e03f217ba8837162768a",
    "id": "syncronia_87c0848b6323acbb1571b009",
-   "title": "B&B Italia Frank (156 x 106 x 86 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (156 x 106 x 86 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F156CHD.3DS",
@@ -6003,8 +6713,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.281 of the extent): front -Y",
    "sha256": "e0ff54966c9905490c657a20cb983286862cb68d06a17ba1752b4c7ae8726668",
    "id": "syncronia_ee5a4eeacb33207b62b3577c",
-   "title": "B&B Italia Frank (106 x 156 x 69 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (106 x 156 x 69 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F156P.3DS",
@@ -6072,16 +6781,52 @@
    ],
    "triangles": 63812,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 5
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 5
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "+Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -Y (-0.386 of the extent): front +Y",
-   "sha256": "f6cc262ad5551bfa0152718c8fbb563831ba44f9415d0bb6ec21b04734c2a188",
+   "sha256": "b85843a9d7ba6ce54b13a109a59e850cd6c82eec727c55a691656cbc6b66dc3a",
    "id": "syncronia_dd712cdb3716f7096e627887",
-   "title": "B&B Italia Frank (157 x 102 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (157 x 102 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F156PD.3DS",
@@ -6115,16 +6860,52 @@
    ],
    "triangles": 58220,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 4
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 4
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets +0.423 (x) and +0.240 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "b5c1a08c63a0fe74065240f1ca5e9e339fe3a1ae12a92d902a845f7ff457c145",
+   "sha256": "4a05f5462016a1a4bb9eb30493e06f877419fa3777ffbb7837382333fa65b679",
    "id": "syncronia_0b5f98519e86d26e358e166e",
-   "title": "B&B Italia Frank (88 x 206 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (88 x 206 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F156PQ.3DS",
@@ -6192,16 +6973,52 @@
    ],
    "triangles": 63060,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 5
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 5
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "geometry: back_taller: offsets -0.204 (x) and -0.207 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
-   "sha256": "fe988812df75ce6de375df72f4790ba0b46a4ec80a94070c056d5876ee546eaa",
+   "sha256": "77c8e3a1a6dc38263f27b4d40065d66c54b165264eda868e2f1bc38877df199b",
    "id": "syncronia_c1a67efe4e4a685580b7031b",
-   "title": "B&B Italia Frank (183 x 107 x 68 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (183 x 107 x 68 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F206.3DS",
@@ -6340,8 +7157,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.276 of the extent): front -Y",
    "sha256": "4f94da443596a8a6cbff818f2a862c6d4d6e1ace2650879cbcbe4d2aafb084bb",
    "id": "syncronia_71ad6bf916f19d1fa40df866",
-   "title": "B&B Italia Frank (206 x 106 x 77 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (206 x 106 x 77 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F206PD.3DS",
@@ -6446,8 +7262,7 @@
    "front_note": "geometry: back_taller: offsets +0.245 (x) and +0.312 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "2a3822848c20097b46e93af9dbe945487147254b2da96d90b4d647f51f963606",
    "id": "syncronia_acc445536d226dfb594a2336",
-   "title": "B&B Italia Frank (206 x 106 x 73 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (206 x 106 x 73 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F231CH.3DS",
@@ -6552,8 +7367,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.428 of the extent): front -Y",
    "sha256": "7b47386bfd4f01e7188510ce45fa630d291cfcff69a0ad693182a20dbb6d2889",
    "id": "syncronia_70df99e7fce124eeae59d12e",
-   "title": "B&B Italia Frank (106 x 231 x 91 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (106 x 231 x 91 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F231CHD.3DS",
@@ -6658,8 +7472,7 @@
    "front_note": "geometry: back_taller: offsets -0.274 (x) and +0.247 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "3a229967ee401f7f767a1ab78db4bf360aa9d602f7ba521b67b7d544c33d3c53",
    "id": "syncronia_c2daeeeb28e0a45162588b7e",
-   "title": "B&B Italia Frank (231 x 106 x 82 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (231 x 106 x 82 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F231TD.3DS",
@@ -6764,8 +7577,7 @@
    "front_note": "geometry: back_taller: offsets +0.169 (x) and +0.234 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "4ac93a881f961fe42013792ac86e9e006f5d0d91de9504db65c3020a8f18f273",
    "id": "syncronia_b13b1601952275c1a8fe566a",
-   "title": "B&B Italia Frank (231 x 107 x 81 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (231 x 107 x 81 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F256.3DS",
@@ -6870,8 +7682,7 @@
    "front_note": "geometry: back_taller: offsets +0.114 (x) and +0.145 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "aecb51c3e229d81aef04cac12230f7ccbd8e33a1c12b04aeb301a3ab35055740",
    "id": "syncronia_5c84baa322b4dfa66a13a456",
-   "title": "B&B Italia Frank (256 x 106 x 88 cm)",
-   "cached": true
+   "title": "B&B Italia Frank (256 x 106 x 88 cm)"
   },
   {
    "rel": "sofas/bb-italia/frank/11079.3ds.zip/3D_F58P.3DS",
@@ -7010,8 +7821,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.127 of the extent): front -Y",
    "sha256": "2fdcc84e8fcec36f1c1c72839fed06858982d9b9aaa1a8d7db6c9cbbfa286926",
    "id": "syncronia_d337f0a4b3ebcc0b3bbbd3d8",
-   "title": "B&B Italia Le Bambole, Bibambola & Grandbambola (174 x 93 x 78 cm)",
-   "cached": true
+   "title": "B&B Italia Le Bambole, Bibambola & Grandbambola (174 x 93 x 78 cm)"
   },
   {
    "rel": "sofas/bb-italia/love-papilo/11090.3ds.zip/3D_LPA.3DS",
@@ -7045,16 +7855,52 @@
    ],
    "triangles": 40840,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 3
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 3
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.412 of the extent): front -Y",
-   "sha256": "08d145a3a4ecfe7447c1063fe907614d94a0353ddeda9ce5beabad6ed289a568",
+   "sha256": "020ec5fd581e7c9ab0ad50e28425e54a1c93f7f3f9e2c50e182bc8ddab4b51b7",
    "id": "syncronia_9fe5738e1d061d6d5f76ad5b",
-   "title": "B&B Italia Love Papilo (145 x 86 x 102 cm)",
-   "cached": true
+   "title": "B&B Italia Love Papilo (145 x 86 x 102 cm)"
   },
   {
    "rel": "sofas/bb-italia/metropolitan-14/13296.3ds.zip/3D_MP170.3DS",
@@ -7088,16 +7934,79 @@
    ],
    "triangles": 49520,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0805,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.9195,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 1,
+     "chrome": 3
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 1,
+    "chrome": 3
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.412 of the extent): front -Y",
-   "sha256": "64603d4cca1a3a666b1b14f40af33c0cea693d30a0ed4cd1965835bbb7b623a6",
+   "sha256": "1b7d6b3f3e7071a49624b831e0ab5aa9f156c8550a72c4090adeeb255af63c4a",
    "id": "syncronia_35bd2b3b991ad4450c2179c5",
-   "title": "B&B Italia Metropolitan ’14 (169 x 82 x 77 cm)",
-   "cached": true
+   "title": "B&B Italia Metropolitan ’14 (169 x 82 x 77 cm)"
   },
   {
    "rel": "sofas/bb-italia/moon-system/11099.3ds.zip/3D_MS288S.3DS",
@@ -7175,8 +8084,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.451 of the extent): front +X",
    "sha256": "367e5f1d5925a45b692fced18b7b47a6cc7b07c7b945efdd975cab661ecb50ad",
    "id": "syncronia_0df74ed5550c31e224357157",
-   "title": "B&B Italia Moon System (208 x 293 x 84 cm)",
-   "cached": true
+   "title": "B&B Italia Moon System (208 x 293 x 84 cm)"
   },
   {
    "rel": "sofas/bb-italia/serie-2000/11106.3ds.zip/3D_UP4.3DS",
@@ -7254,8 +8162,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.162 of the extent): front +X",
    "sha256": "b4b52c840534f90a0776d538375e0e819631405981a522ff725cb9e93c63dcfc",
    "id": "syncronia_a9464e77257677d1f421500b",
-   "title": "B&B Italia Serie UP 2000 (102 x 164 x 56 cm)",
-   "cached": true
+   "title": "B&B Italia Serie UP 2000 (102 x 164 x 56 cm)"
   },
   {
    "rel": "sofas/bb-italia/solo-14/12346.3ds.zip/3D_SN109.3DS",
@@ -7387,8 +8294,7 @@
    "front_note": "geometry: back_taller: top centroid offset -0.052 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "ee7d1e500b778f048156c8016920f83542d514cde9591f7c7001f62b42b5f0a2",
    "id": "syncronia_0a35f2deab87dbb678f6fdb5",
-   "title": "B&B Italia Solo '14 (111 x 99 x 66 cm)",
-   "cached": true
+   "title": "B&B Italia Solo '14 (111 x 99 x 66 cm)"
   },
   {
    "rel": "sofas/bb-italia/solo-14/12346.3ds.zip/3D_SN140LD.3DS",
@@ -7520,8 +8426,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.260 of the extent): front +X",
    "sha256": "6de1c5d111b1c9cc828f936c0dfced7014ee4c653a48b096aee6b0dff2faa311",
    "id": "syncronia_5c4676687ddd39b7be92e676",
-   "title": "B&B Italia Solo '14 (140 x 100 x 65 cm)",
-   "cached": true
+   "title": "B&B Italia Solo '14 (140 x 100 x 65 cm)"
   },
   {
    "rel": "sofas/bb-italia/solo-14/12346.3ds.zip/3D_SN150TD.3DS",
@@ -7653,8 +8558,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.171 of the extent): front -Y",
    "sha256": "529579953e8fcc22476e2a0fc388ef540f5e6b92b3eb8e7a4d4df675e008c676",
    "id": "syncronia_06ee99a4f42d6ed6d19af88f",
-   "title": "B&B Italia Solo '14 (152 x 98 x 66 cm)",
-   "cached": true
+   "title": "B&B Italia Solo '14 (152 x 98 x 66 cm)"
   },
   {
    "rel": "sofas/bb-italia/solo-14/12346.3ds.zip/3D_SN178.3DS",
@@ -7786,8 +8690,7 @@
    "front_note": "geometry: back_taller: top centroid offset -0.041 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "450f019bdf2ed627d89c4393c3accc109e9869dc24469990bd972e4b142e0bfc",
    "id": "syncronia_b461c05ea78ff6b8b2f5deb5",
-   "title": "B&B Italia Solo '14 (177 x 98 x 66 cm)",
-   "cached": true
+   "title": "B&B Italia Solo '14 (177 x 98 x 66 cm)"
   },
   {
    "rel": "sofas/bb-italia/solo-14/12346.3ds.zip/3D_SN193TD.3DS",
@@ -7919,8 +8822,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.172 of the extent): front -Y",
    "sha256": "e4b777ce1d4a01c5572d1ad7336c8d17d7d09139cd70da2c4180df5f21236fe6",
    "id": "syncronia_868594e709563778fd5b6bb9",
-   "title": "B&B Italia Solo '14 (195 x 98 x 66 cm)",
-   "cached": true
+   "title": "B&B Italia Solo '14 (195 x 98 x 66 cm)"
   },
   {
    "rel": "sofas/bb-italia/solo-14/12346.3ds.zip/3D_SN222.3DS",
@@ -8052,8 +8954,7 @@
    "front_note": "geometry: back_taller: top centroid offset -0.061 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "a1dff68ef0bfcefeb3bb423e0ebf9a976a74a8426f06d59771b58184f6996497",
    "id": "syncronia_84f2ebe9d480214dd9e6d330",
-   "title": "B&B Italia Solo '14 (226 x 98 x 66 cm)",
-   "cached": true
+   "title": "B&B Italia Solo '14 (226 x 98 x 66 cm)"
   },
   {
    "rel": "sofas/bb-italia/solo-14/12346.3ds.zip/3D_SN230LD.3DS",
@@ -8185,8 +9086,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.187 of the extent): front +X",
    "sha256": "c64f1be51f7c60a3f38528c40eecb1b986e1c01ab9a9e4f31213420f8db880a4",
    "id": "syncronia_8fcd392aa9f04e229abcc39f",
-   "title": "B&B Italia Solo '14 (231 x 101 x 66 cm)",
-   "cached": true
+   "title": "B&B Italia Solo '14 (231 x 101 x 66 cm)"
   },
   {
    "rel": "sofas/bb-italia/spring-time/11152.3ds.zip/3D_ST266_10.3DS",
@@ -8220,16 +9120,106 @@
    ],
    "triangles": 166816,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0044,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.6538,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 5,
+      "name": "wenart_plastic",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.3418,
+      "textured": false,
+      "base_colour": [
+       0.807,
+       0.7913,
+       0.7605,
+       1.0
+      ],
+      "colour_rgb": [
+       232,
+       230,
+       226
+      ],
+      "note": "matte white plastic",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "chrome": 23,
+     "fabric": 7,
+     "plastic": 2
+    },
+    "materials": 6,
+    "split": 2
+   },
+   "classes": {
+    "chrome": 23,
+    "fabric": 7,
+    "plastic": 2
+   },
+   "own_colours": [],
    "pillows": 0,
-   "split_primitives": 0,
+   "split_primitives": 2,
    "front": "-Y",
    "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.134 of the extent): front -Y",
-   "sha256": "8b0442e1e01292ca8ddbbf21308dfa32912b624f0a425333e25c733487e9341a",
+   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.120 of the extent): front -Y",
+   "sha256": "9f3a5f0a147a0f6f2e659b443eeada66c3ea9b31a1fe054378b11a6d3095ded9",
    "id": "syncronia_b9589eb00126ec73d05df8b3",
-   "title": "B&B Italia Spring Time (267 x 103 x 74 cm)",
-   "cached": true
+   "title": "B&B Italia Spring Time (267 x 103 x 74 cm)"
   },
   {
    "rel": "sofas/bb-italia/spring-time/11152.3ds.zip/3D_ST266_14.3DS",
@@ -8263,16 +9253,106 @@
    ],
    "triangles": 168724,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.0049,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.6325,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 5,
+      "name": "wenart_plastic",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.3625,
+      "textured": false,
+      "base_colour": [
+       0.807,
+       0.7913,
+       0.7605,
+       1.0
+      ],
+      "colour_rgb": [
+       232,
+       230,
+       226
+      ],
+      "note": "matte white plastic",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "chrome": 28,
+     "fabric": 7,
+     "plastic": 2
+    },
+    "materials": 6,
+    "split": 2
+   },
+   "classes": {
+    "chrome": 28,
+    "fabric": 7,
+    "plastic": 2
+   },
+   "own_colours": [],
    "pillows": 0,
-   "split_primitives": 0,
+   "split_primitives": 2,
    "front": "-Y",
    "front_confidence": "medium",
-   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.150 of the extent): front -Y",
-   "sha256": "ea9b04638bbd13faf55f0d230a6b1c0631e620632cb279a0ec7eb2003f734dde",
+   "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.135 of the extent): front -Y",
+   "sha256": "097076eae0d9d0abd1056d63e75a4efcbaa4e813203890125f87b93b59df6df2",
    "id": "syncronia_44025e5a50d7c2af2435397e",
-   "title": "B&B Italia Spring Time (267 x 143 x 74 cm)",
-   "cached": true
+   "title": "B&B Italia Spring Time (267 x 143 x 74 cm)"
   },
   {
    "rel": "sofas/bb-italia/spring-time/11152.3ds.zip/3D_STT.3DS",
@@ -8452,8 +9532,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.346 of the extent): front -Y",
    "sha256": "798d906c06c9b2de95de46b11202a31ccce95c73aac027fa45d850822c53a6d2",
    "id": "syncronia_66df85dba2a33178fe92a75d",
-   "title": "et al. Nomad (134 x 78 x 86 cm)",
-   "cached": true
+   "title": "et al. Nomad (134 x 78 x 86 cm)"
   },
   {
    "rel": "sofas/marte-design/dilmun-s/64834.fbx.zip/Marte_Design_Dilmun-S_3DH_fbx.FBX",
@@ -8558,8 +9637,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.237 of the extent): front -Y",
    "sha256": "e5b4369f82393a77fc315047589335629e36c875e2d849ee0648dee93703b374",
    "id": "syncronia_ff7cad3a693be185746e6bc0",
-   "title": "Marte Design Dilmun-S (148 x 81 x 115 cm)",
-   "cached": true
+   "title": "Marte Design Dilmun-S (148 x 81 x 115 cm)"
   },
   {
    "rel": "sofas/maxalto/amoenus/14044.3ds.zip/3D_AC116CLD.3DS",
@@ -8664,8 +9742,7 @@
    "front_note": "geometry: back_taller: offsets +0.356 (x) and -0.240 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "d499e9ad3669d85f2f3c5a9fe876823718ef4460a0b3c566fc779b8e187dba1b",
    "id": "syncronia_7b451f07fad664ca157ddab4",
-   "title": "Maxalto (B&B Italia) Amoenus (176 x 116 x 88 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Amoenus (176 x 116 x 88 cm)"
   },
   {
    "rel": "sofas/maxalto/amoenus/14044.3ds.zip/3D_AC170G.3DS",
@@ -8797,8 +9874,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.300 of the extent): front -Y",
    "sha256": "cf2f86a851b9948137d3fa39f2213a3acd2982615b679c4236b4f274dd7a0e93",
    "id": "syncronia_4ccc4b2c8b8504adaed88b01",
-   "title": "Maxalto (B&B Italia) Amoenus (170 x 163 x 99 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Amoenus (170 x 163 x 99 cm)"
   },
   {
    "rel": "sofas/maxalto/amoenus/14044.3ds.zip/3D_AC176AD.3DS",
@@ -8903,8 +9979,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.271 of the extent): front -X",
    "sha256": "a4e2d787aabc04c8d89a09baa0507030d2c5407ac18a7db4ab7f7922788b3eae",
    "id": "syncronia_5ce880a6fb0e9b3a7d3cd59f",
-   "title": "Maxalto (B&B Italia) Amoenus (115 x 178 x 90 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Amoenus (115 x 178 x 90 cm)"
   },
   {
    "rel": "sofas/maxalto/amoenus/14044.3ds.zip/3D_AC176TD.3DS",
@@ -9009,8 +10084,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.298 of the extent): front -X",
    "sha256": "d1e7cb710ade6d6ba6b1735ee702ca346c29ffc584cb3d438b69d722b5f880f4",
    "id": "syncronia_7ee757f3a7181e8089a67f4c",
-   "title": "Maxalto (B&B Italia) Amoenus (115 x 176 x 90 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Amoenus (115 x 176 x 90 cm)"
   },
   {
    "rel": "sofas/maxalto/amoenus/14044.3ds.zip/3D_AC229.3DS",
@@ -9115,8 +10189,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.286 of the extent): front -X",
    "sha256": "0210c0e76f630d8c4361c8f29534e1b641e6087f8ad5daf13a07d70217928a9e",
    "id": "syncronia_52050c8d90e8596d7f86bce4",
-   "title": "Maxalto (B&B Italia) Amoenus (114 x 246 x 108 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Amoenus (114 x 246 x 108 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2402.3DS",
@@ -9221,8 +10294,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.146 of the extent): front -X",
    "sha256": "2f6f44339b278e12901e19fc472408ae119870f1d4edc73feaa621d9c422cbdf",
    "id": "syncronia_e4828db57aa75990f964e1cc",
-   "title": "Maxalto (B&B Italia) Omnia (105 x 288 x 85 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (105 x 288 x 85 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2403DX.3DS",
@@ -9327,8 +10399,7 @@
    "front_note": "geometry: back_taller: offsets +0.122 (x) and +0.148 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "97076fcdb1125cb2c0ef9b63fe17450050e04a04a86c1409c4c7021ced0fdd09",
    "id": "syncronia_8f87a669ce5ec80752907e65",
-   "title": "Maxalto (B&B Italia) Omnia (232 x 105 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (232 x 105 x 80 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2404DX.3DS",
@@ -9433,8 +10504,7 @@
    "front_note": "geometry: back_taller: offsets +0.147 (x) and +0.175 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "094a648e52812f5a692e647b29e089533e1ad69ba3b9c457aa06efc952838351",
    "id": "syncronia_5f30229c131a8ddae67082ad",
-   "title": "Maxalto (B&B Italia) Omnia (277 x 105 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (277 x 105 x 80 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2405DX.3DS",
@@ -9539,8 +10609,7 @@
    "front_note": "geometry: back_taller: offsets -0.202 (x) and +0.166 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "a884ead2c7ae64641d349cc51cb846719f5500a200b8bf39437fd3f590e9d171",
    "id": "syncronia_c9961d2f402250928841363a",
-   "title": "Maxalto (B&B Italia) Omnia (270 x 105 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (270 x 105 x 80 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2410ADX.3DS",
@@ -9645,8 +10714,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.147 of the extent): front -Y",
    "sha256": "f1377acf2a058fe2700d84b048986cf26011d9e9f421f8d21f6ee635cab4bdb2",
    "id": "syncronia_3d2d4c585fc1ec377638d103",
-   "title": "Maxalto (B&B Italia) Omnia (210 x 96 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (210 x 96 x 80 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2411ADX.3DS",
@@ -9751,8 +10819,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.147 of the extent): front -Y",
    "sha256": "e694b352f6fd62c13b86101914a882ccd6619851308e82055fde9436482ea49d",
    "id": "syncronia_1e7a1e024f8ef9549abd2350",
-   "title": "Maxalto (B&B Italia) Omnia (250 x 96 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (250 x 96 x 80 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2412ADX.3DS",
@@ -9857,8 +10924,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.137 of the extent): front -Y",
    "sha256": "b72188bb12bf644c0c06fbfd84b5adfb86a8d36d7e75c6bd92601268bcbcbf14",
    "id": "syncronia_08483e811194f0f921203f55",
-   "title": "Maxalto (B&B Italia) Omnia (288 x 96 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (288 x 96 x 80 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2413DX.3DS",
@@ -9963,8 +11029,7 @@
    "front_note": "geometry: back_taller: offsets +0.122 (x) and +0.148 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "78bfd58c018c37023731bc0aef68e5a6a8e2118275aee150e2f61a0bec76c2b6",
    "id": "syncronia_376fc2853737972b8d80e563",
-   "title": "Maxalto (B&B Italia) Omnia (230 x 96 x 78 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (230 x 96 x 78 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2414DX.3DS",
@@ -10069,8 +11134,7 @@
    "front_note": "geometry: back_taller: offsets +0.147 (x) and +0.175 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "94bc47fec47450ddc984b6836c34fed8b5bb5b6d126e8308a47a1f355ec6e233",
    "id": "syncronia_289c01d30f4c9785cf35a8b2",
-   "title": "Maxalto (B&B Italia) Omnia (270 x 96 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (270 x 96 x 80 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2415DX.3DS",
@@ -10175,8 +11239,7 @@
    "front_note": "geometry: back_taller: offsets -0.096 (x) and +0.161 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "984584457704359c262db3b475a13dfb041167ed456729f1a5a45051f86d94b2",
    "id": "syncronia_6493ef2b0db719cbf2c3b92f",
-   "title": "Maxalto (B&B Italia) Omnia (189 x 103 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (189 x 103 x 80 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2416DX.3DS",
@@ -10281,8 +11344,7 @@
    "front_note": "geometry: back_taller: offsets +0.102 (x) and +0.128 (y) do not single out one axis; -Y assumed, the audit's vision answer names the front",
    "sha256": "a04f539113ec9af0ac4958eb60cf1d5ee73702f01412bf7632cd8c7f952b9f6d",
    "id": "syncronia_3f75b0e221b58c765bde1c50",
-   "title": "Maxalto (B&B Italia) Omnia (192 x 91 x 80 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (192 x 91 x 80 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2420P.3DS",
@@ -10387,8 +11449,7 @@
    "front_note": "geometry: back_taller: top centroid offset -0.019 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "6f804be2665dee76f85625ea45be853af9ebe00b85c8cf1adc69bb20d239a1f4",
    "id": "syncronia_0be6ab7bdffe2d4ded83908b",
-   "title": "Maxalto (B&B Italia) Omnia (234 x 234 x 102 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (234 x 234 x 102 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2421P.3DS",
@@ -10493,8 +11554,7 @@
    "front_note": "geometry: back_taller: top centroid offset -0.019 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "8fa8fbf96498d0e7e594007562bf5d043a412dcc59860202b5af01aa0e4d4800",
    "id": "syncronia_d4679cc10d485383d914440c",
-   "title": "Maxalto (B&B Italia) Omnia (234 x 259 x 102 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (234 x 259 x 102 cm)"
   },
   {
    "rel": "sofas/maxalto/omnia/14041.3ds.zip/3D_2422P.3DS",
@@ -10599,8 +11659,7 @@
    "front_note": "geometry: back_taller: top centroid offset -0.019 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "cac4db6b0e4b05f4605f9e25924abbfa6c7e02529040db88aa4390e1e30eb6c6",
    "id": "syncronia_31ee6c49e162be995d23d30a",
-   "title": "Maxalto (B&B Italia) Omnia (259 x 259 x 102 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Omnia (259 x 259 x 102 cm)"
   },
   {
    "rel": "sofas/mdf-italia/cosy-curve/80995.3ds.zip/MDF_ARM_COVERED_IN_TEXTILE_LEG.3ds",
@@ -10773,8 +11832,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.230 of the extent): front -Y",
    "sha256": "c2792278d3a91e9f17bed59857b81f0e8cc87a53b842c5c04b91ca7301758a4c",
    "id": "syncronia_a193a866911b2e36943be245",
-   "title": "MDF Italia Mate (313 x 122 x 67 cm)",
-   "cached": true
+   "title": "MDF Italia Mate (313 x 122 x 67 cm)"
   },
   {
    "rel": "sofas/mdf-italia/yale-x/80892.3ds.zip/MDF_YALE_X_160_P86.3ds",
@@ -10852,8 +11910,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.211 of the extent): front -Y",
    "sha256": "f037702aa19bf254abb9f3e717d25dad5fa68cbc725e99b0140938bf0eca1f72",
    "id": "syncronia_c6907f27d0d9087cc9b05d93",
-   "title": "MDF Italia Yale X (151 x 84 x 79 cm)",
-   "cached": true
+   "title": "MDF Italia Yale X (151 x 84 x 79 cm)"
   },
   {
    "rel": "sofas-and-armchairs/et-al/ari/82021.3ds.zip/EtAl_ARI_1300.3ds",
@@ -10932,8 +11989,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.390 of the extent): front -Y",
    "sha256": "fbd8a0e2ef6f7b9ada814b97ba6a4d238e3054e5eeebc9c809ee3cb0d3bc4525",
    "id": "syncronia_9add3fc28c8fccf6ba6966a4",
-   "title": "et al. Ari (74 x 79 x 74 cm)",
-   "cached": true
+   "title": "et al. Ari (74 x 79 x 74 cm)"
   },
   {
    "rel": "sofas-and-armchairs/et-al/cosmo/84910.3ds.zip/EtAl_Cosmo_1515_side_table.3ds",
@@ -11011,8 +12067,7 @@
    "front_note": "a side_table has no front",
    "sha256": "617e0354fe5cdf74178975d176738db39c88391c70210ee792506cbf5e294659",
    "id": "syncronia_22c14bf028a271e4d03bd8b3",
-   "title": "et al. Cosmo (43 x 35 x 60 cm)",
-   "cached": true
+   "title": "et al. Cosmo (43 x 35 x 60 cm)"
   },
   {
    "rel": "sofas-and-armchairs/et-al/kyk/53018.3ds.zip/542_Kyk.3ds",
@@ -11118,8 +12173,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.082 of the extent): front -Y",
    "sha256": "9a90272d59013c534f070f9bb8bac15093ddcf832b99bde44093c8375de386ff",
    "id": "syncronia_8d30154167f4bbecb248792c",
-   "title": "et al. Kyk (67 x 64 x 73 cm)",
-   "cached": true
+   "title": "et al. Kyk (67 x 64 x 73 cm)"
   },
   {
    "rel": "sofas-and-armchairs/et-al/kyk/53018.3ds.zip/543_Kyk.3ds",
@@ -11225,8 +12279,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.107 of the extent): front -Y",
    "sha256": "f91a1fce2de7b10c842411f7b28e791862e215881aee1b34387f9d0a09cea2c0",
    "id": "syncronia_23e3558ecf7f8472930834b8",
-   "title": "et al. Kyk (138 x 64 x 73 cm)",
-   "cached": true
+   "title": "et al. Kyk (138 x 64 x 73 cm)"
   },
   {
    "rel": "sofas-and-armchairs/marte-design/qbot/63771.fbx.zip/Marte_Qbot_001_3DH_fbx.fbx",
@@ -11332,8 +12385,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.114 of the extent): front -Y",
    "sha256": "04a7402741032be3bd6e260ba220d5de645fe80de8f4d7621ee0b5734dae2756",
    "id": "syncronia_c48352ef9a3b0f08bae161c3",
-   "title": "Marte Design Qbot (96 x 86 x 75 cm)",
-   "cached": true
+   "title": "Marte Design Qbot (96 x 86 x 75 cm)"
   },
   {
    "rel": "sofas-and-armchairs/mdf-italia/mia/80631.3ds.zip/MDF_MIA_ARMCHAIR_FISSA.3DS",
@@ -11366,16 +12418,79 @@
    ],
    "triangles": 114712,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.004,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_fabric",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.996,
+      "textured": false,
+      "base_colour": [
+       0.305,
+       0.2582,
+       0.2086,
+       1.0
+      ],
+      "colour_rgb": [
+       150,
+       139,
+       126
+      ],
+      "note": "taupe upholstery fabric",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "fabric": 8,
+     "chrome": 4
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "fabric": 8,
+    "chrome": 4
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "medium",
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.093 of the extent): front -Y",
-   "sha256": "63ffa6b6263af709f30fb4e3a17b3a7f43d67d8e55ef269aaa30289da1eb2c77",
+   "sha256": "0bd2bdcbc509537ae1de7a1c291b7186034ec6ecb1298e467580b9a373851917",
    "id": "syncronia_f6f27446c0204d2ddcd0e9ec",
-   "title": "MDF Italia Mia (93 x 77 x 72 cm)",
-   "cached": true
+   "title": "MDF Italia Mia (93 x 77 x 72 cm)"
   },
   {
    "rel": "stools/alessi/tempo/10381.3ds",
@@ -11463,8 +12578,7 @@
    "front_note": "geometry: back_taller: top centroid offset -0.037 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "d9aea2067978ac1c40ae135c0c541f04be40b105d4f5e4cc35123d6329dbe827",
    "id": "syncronia_908ac4b0652e4281aec2036d",
-   "title": "et al. Main (48 x 45 x 63 cm)",
-   "cached": true
+   "title": "et al. Main (48 x 45 x 63 cm)"
   },
   {
    "rel": "stools/marte-design/42-stool-2021/63849.fbx.zip/Marte_42_stool_005_3DH_fbx.FBX",
@@ -11542,8 +12656,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.089 of the extent): front -Y",
    "sha256": "b5cc7009e82d4107fa2269fd5573e5b0d666b0200fbaca74a4a14e3c37317fc4",
    "id": "syncronia_0c50805cc0d4481d50793073",
-   "title": "Marte Design 42 Stool - 2021 (43 x 44 x 74 cm)",
-   "cached": true
+   "title": "Marte Design 42 Stool - 2021 (43 x 44 x 74 cm)"
   },
   {
    "rel": "stools/marte-design/alfa-h/63879.fbx.zip/Marte_AlfaH_002_fbx.FBX",
@@ -11621,8 +12734,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.378 of the extent): front -Y",
    "sha256": "b48b1d1431ef20df86354d847c91f9dc9eb25b0a6cce9809885388755e081134",
    "id": "syncronia_6e9a3c4f440f1b852f49e124",
-   "title": "Marte Design Alfa-H (55 x 54 x 99 cm)",
-   "cached": true
+   "title": "Marte Design Alfa-H (55 x 54 x 99 cm)"
   },
   {
    "rel": "stools/marte-design/iko/63704.fbx.zip/Marte_IKO_000_3DH_fbx.fbx",
@@ -11727,8 +12839,7 @@
    "front_note": "geometry: back_taller: top centroid offset -0.045 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "85bdb05c493515251a9c5bf5c838044bc7c0a557ea6b380e0ec9dc54ab4d92bf",
    "id": "syncronia_37493b0ebe28f7db703f6f86",
-   "title": "Marte Design Iko (38 x 38 x 57 cm)",
-   "cached": true
+   "title": "Marte Design Iko (38 x 38 x 57 cm)"
   },
   {
    "rel": "stools/maxalto/lithos/14714.3ds.zip/3D_SLP4.3DS",
@@ -11840,8 +12951,7 @@
    "front_note": "geometry: back_taller: top centroid offset +0.037 of the extent on y is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "77a9fb09c78a6f1aae64f7f9ae309da0aabbc79c34995075e576447f348ab586",
    "id": "syncronia_9a313d5201c378d2a65a81b3",
-   "title": "MDF Italia Aiku Stool (64 x 57 x 109 cm)",
-   "cached": true
+   "title": "MDF Italia Aiku Stool (64 x 57 x 109 cm)"
   },
   {
    "rel": "stools/mdf-italia/duetto/174912.3ds.zip/MDF_Duetto_stool_H65.3ds",
@@ -11919,8 +13029,7 @@
    "front_note": "geometry: back_taller: top centroid offset -0.003 of the extent on x is below 0.08: no taller side; -Y assumed, the audit's vision answer names the front",
    "sha256": "33e8d3b87a96df26e17a4c4ddd3ddf5712c82d3c7c360f5481753059f27976ca",
    "id": "syncronia_d28b4a282832bfbc4901ca5c",
-   "title": "MDF Italia Duetto (38 x 38 x 67 cm)",
-   "cached": true
+   "title": "MDF Italia Duetto (38 x 38 x 67 cm)"
   },
   {
    "rel": "stools/mdf-italia/flow-stool/79876.3ds.zip/MDF_FlowPad_stool.3DS",
@@ -12134,8 +13243,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.228 of the extent): front -X",
    "sha256": "90543424b841ec171d22541918e893bb5503ee5f8cbb751da3abd7bfa9cc6d63",
    "id": "syncronia_f20d31fdf1da4fb6eb7be706",
-   "title": "Tonon Question Mark Stool (64 x 60 x 113 cm)",
-   "cached": true
+   "title": "Tonon Question Mark Stool (64 x 60 x 113 cm)"
   },
   {
    "rel": "stools/tonon/stool/64787.3ds.zip/up_907.41_3ds.3ds",
@@ -12240,8 +13348,7 @@
    "front_note": "geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.093 of the extent): front -X",
    "sha256": "c47131a60e33929b2dce0bd774b4c180ea79aaa3f5b231373f125857afa8ebf9",
    "id": "syncronia_1818c284fc26a5ec098389d0",
-   "title": "Tonon Up stool (52 x 63 x 94 cm)",
-   "cached": true
+   "title": "Tonon Up stool (52 x 63 x 94 cm)"
   },
   {
    "rel": "suspension-lamps/panzeri/arena/72308.zip/Arena/Arena L074__.100.3ds",
@@ -12321,8 +13428,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "43984c57bcede33121613e3416c40ea5373acc90da8e7e33ef6c7a3dda156669",
    "id": "syncronia_083063021d998ac806ac04c8",
-   "title": "Panzeri Arena (98 x 109 x 98 cm)",
-   "cached": true
+   "title": "Panzeri Arena (98 x 109 x 98 cm)"
   },
   {
    "rel": "suspension-lamps/panzeri/arena/72308.zip/Arena/Arena L074__.150.3ds",
@@ -12402,8 +13508,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "73e1d79bfe0eb4bfefa94053fb7f29c3f8521aebdf833f4f6b177840ec5b7388",
    "id": "syncronia_863fb780640a9030a146ff99",
-   "title": "Panzeri Arena (147 x 147 x 159 cm)",
-   "cached": true
+   "title": "Panzeri Arena (147 x 147 x 159 cm)"
   },
   {
    "rel": "suspension-lamps/panzeri/arena/72308.zip/Arena/Arena L074__.200.3ds",
@@ -12663,8 +13768,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "b4dbeffc2798dc93c3f818b98d9be8c8df5884d5432f388b55e354c83fb1c079",
    "id": "syncronia_c0708fe4059d3b52d95f01b3",
-   "title": "Panzeri Bella (18 x 13 x 10 cm)",
-   "cached": true
+   "title": "Panzeri Bella (18 x 13 x 10 cm)"
   },
   {
    "rel": "suspension-lamps/panzeri/bella/72309.zip/Bella/Bella C052__.011.3ds",
@@ -12744,8 +13848,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "a0ce8a1d01864374a1f6112b3c840e23b72b25783d42f60815b9c86d0d9f06a3",
    "id": "syncronia_14d0d1513ab4ae4cce3abf31",
-   "title": "Panzeri Bella (12 x 32 x 12 cm)",
-   "cached": true
+   "title": "Panzeri Bella (12 x 32 x 12 cm)"
   },
   {
    "rel": "suspension-lamps/panzeri/bella/72309.zip/Bella/Bella L052__.011.3ds",
@@ -12969,8 +14072,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "297a28d93f1e7d99ea9d021b26871a16a0c4bded2b5bd9ae87850d9b058c0cd3",
    "id": "syncronia_d122872ec85d769388d8d865",
-   "title": "Panzeri Bella (15 x 13 x 10 cm)",
-   "cached": true
+   "title": "Panzeri Bella (15 x 13 x 10 cm)"
   },
   {
    "rel": "suspension-lamps/panzeri/zero-round/72279.zip/Zero Round/Zero Round A033__.025.3ds",
@@ -13050,8 +14152,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "25f6a37a3d759d21d6e0b8010f26495fb0fada035ed4731a668d8e1cb78f8952",
    "id": "syncronia_2ce5cb68bf8fe5b7bc4a7172",
-   "title": "Panzeri Zero Round (26 x 26 x 10 cm)",
-   "cached": true
+   "title": "Panzeri Zero Round (26 x 26 x 10 cm)"
   },
   {
    "rel": "suspension-lamps/panzeri/zero-round/72279.zip/Zero Round/Zero Round M033__.050.3ds",
@@ -13383,8 +14484,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "5a0fb6a021f4577e8bfad1d6277508a55b439b67469c5458126eba4abdba6507",
    "id": "syncronia_1893cc7879e857553345966b",
-   "title": "Panzeri Zero Round (75 x 19 x 74 cm)",
-   "cached": true
+   "title": "Panzeri Zero Round (75 x 19 x 74 cm)"
   },
   {
    "rel": "suspension-lamps/panzeri/zero-round/72279.zip/Zero Round/Zero Round P033__.100.3ds",
@@ -13464,8 +14564,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "8c61ae42b9e06faa3412a64738ff9fa90b31d3f4916435d7040b3b21e9df0ccd",
    "id": "syncronia_fd7adb7a94e7f3fe4e71f758",
-   "title": "Panzeri Zero Round (99 x 23 x 98 cm)",
-   "cached": true
+   "title": "Panzeri Zero Round (99 x 23 x 98 cm)"
   },
   {
    "rel": "suspension-lamps/platek/rippling-pendant/183147.3ds.zip/Platek_rippling_M_pendant.3ds",
@@ -13543,8 +14642,7 @@
    "front_note": "a pendant_light has no front",
    "sha256": "7ba3823f7bd898b7300ddb36f7f7d4000c2a277594eedc1256ebad52a071128a",
    "id": "syncronia_d1e8202c6100f2cabb694f77",
-   "title": "Platek Rippling Pendant (12 x 12 x 19 cm)",
-   "cached": true
+   "title": "Platek Rippling Pendant (12 x 12 x 19 cm)"
   },
   {
    "rel": "table-lamps/alessi/amanita/10437.3ds",
@@ -13683,8 +14781,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "78bf49a4dd26f1e5902f04be2aca6666ccc0f9ca2980f67c6d793aaab90912bc",
    "id": "syncronia_bc1deaaa68c6395b563b3080",
-   "title": "B&B Italia Athos 12 (200 x 100 x 73 cm)",
-   "cached": true
+   "title": "B&B Italia Athos 12 (200 x 100 x 73 cm)"
   },
   {
    "rel": "tables/bb-italia/athos-12/11507.3ds.zip/3D_TAH205A.3DS",
@@ -13831,8 +14928,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "adf99df82775b86a001ed659742d17667993178f948339ac567683afe0cfbfa5",
    "id": "syncronia_a44d43b43520dfeab5b60d22",
-   "title": "B&B Italia Athos 12 (250 x 100 x 73 cm)",
-   "cached": true
+   "title": "B&B Italia Athos 12 (250 x 100 x 73 cm)"
   },
   {
    "rel": "tables/bb-italia/athos-12/11507.3ds.zip/3D_TAH255A.3DS",
@@ -13979,8 +15075,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "2517f30dd8e44b4ed409a187b7931110d2a99dd83fea551d60a8538cc65fe685",
    "id": "syncronia_bd63248a035970db248c98ae",
-   "title": "B&B Italia Eileen (240 x 100 x 73 cm)",
-   "cached": true
+   "title": "B&B Italia Eileen (240 x 100 x 73 cm)"
   },
   {
    "rel": "tables/bb-italia/eileen/11513.3ds.zip/3D_TEL240MC.3DS",
@@ -14089,8 +15184,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "5ee95e41407d6fe8dd7c45bd3b2af753711f234d7366b76cf38c1afc022e238d",
    "id": "syncronia_e94538e67afb511be062b2aa",
-   "title": "B&B Italia Eileen (239 x 73 x 60 cm)",
-   "cached": true
+   "title": "B&B Italia Eileen (239 x 73 x 60 cm)"
   },
   {
    "rel": "tables/bb-italia/eileen/11513.3ds.zip/3D_TEL300C.3DS",
@@ -14199,8 +15293,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "4293454fcacd8833011aac25b2d8f781f5bc9f62f1bf7016092e57c49e2f5cd0",
    "id": "syncronia_88013971e64cc4b41800dafd",
-   "title": "B&B Italia Eileen (300 x 105 x 73 cm)",
-   "cached": true
+   "title": "B&B Italia Eileen (300 x 105 x 73 cm)"
   },
   {
    "rel": "tables/bb-italia/lens/11524.3ds.zip/3D_TL230.3DS",
@@ -14336,8 +15429,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "6745fe2ec96ea77d9bed1841930b12f93c98e0ce860cf904e792bfab3dcfa89a",
    "id": "syncronia_4a9efc354c1a2f0191cdc434",
-   "title": "B&B Italia Lens (85 x 231 x 73 cm)",
-   "cached": true
+   "title": "B&B Italia Lens (85 x 231 x 73 cm)"
   },
   {
    "rel": "tables/bb-italia/lens/11524.3ds.zip/3D_TL271.3DS",
@@ -14473,8 +15565,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "8972b98db5c95b02228a5ad7841a0d1fc1ef99853a2fb7ca2b677b1a9b588a8f",
    "id": "syncronia_558ecb93711a63f8a53d57dd",
-   "title": "B&B Italia Lens (85 x 271 x 74 cm)",
-   "cached": true
+   "title": "B&B Italia Lens (85 x 271 x 74 cm)"
   },
   {
    "rel": "tables/bb-italia/mirto-0/11571.3ds.zip/3D_MI150T.3DS",
@@ -14583,8 +15674,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "a0ced2b1a28239aec7b799322b8cd81e26e6c62f415e4dbd47d2183be33b1478",
    "id": "syncronia_f2c27989697f3d8745246b5f",
-   "title": "B&B Italia Mirto (151 x 91 x 73 cm)",
-   "cached": true
+   "title": "B&B Italia Mirto (151 x 91 x 73 cm)"
   },
   {
    "rel": "tables/bb-italia/mirto-0/11571.3ds.zip/3D_MI150TL.3DS",
@@ -14693,8 +15783,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "a898d8efe69a31674848e606659794371a94e4e40cf7c91ee7d2aae2d5b78dbd",
    "id": "syncronia_9e19b856935acefd68e351cb",
-   "title": "B&B Italia Mirto (151 x 91 x 74 cm)",
-   "cached": true
+   "title": "B&B Italia Mirto (151 x 91 x 74 cm)"
   },
   {
    "rel": "tables/bb-italia/mirto-0/11571.3ds.zip/3D_MI220T.3DS",
@@ -14803,8 +15892,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "544aed1ea67a0d4c0b2a7c3a6fb59e21f64b11363f4d11757d8a37c9cbaa9c1b",
    "id": "syncronia_051f327a1374cd6ee43d9095",
-   "title": "B&B Italia Mirto (222 x 102 x 73 cm)",
-   "cached": true
+   "title": "B&B Italia Mirto (222 x 102 x 73 cm)"
   },
   {
    "rel": "tables/bb-italia/mirto-0/11571.3ds.zip/3D_MI220TL.3DS",
@@ -14913,8 +16001,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "b27f8dc4a91b232669183bf4d874d5a630701575f112e8c35548cb0a5a7f8215",
    "id": "syncronia_0ab1993002553bac9199feef",
-   "title": "B&B Italia Mirto (222 x 102 x 74 cm)",
-   "cached": true
+   "title": "B&B Italia Mirto (222 x 102 x 74 cm)"
   },
   {
    "rel": "tables/bb-italia/mirto-0/11571.3ds.zip/3D_MI90T.3DS",
@@ -15023,8 +16110,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "1b7e7b38633c337f214df0ca19db2ebff8a3f9bebbcc2a007e3a39ed464d3254",
    "id": "syncronia_6c54da3296358c02932f2926",
-   "title": "B&B Italia Mirto (92 x 91 x 73 cm)",
-   "cached": true
+   "title": "B&B Italia Mirto (92 x 91 x 73 cm)"
   },
   {
    "rel": "tables/bb-italia/mirto-0/11571.3ds.zip/3D_MI90TL.3DS",
@@ -15133,8 +16219,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "8901be54a4674ec85cf873e429c8c2dfbf616d95045be0c27e57d022ec57c1f3",
    "id": "syncronia_6b74d8d6447a4130cf1e4b5c",
-   "title": "B&B Italia Mirto (92 x 91 x 74 cm)",
-   "cached": true
+   "title": "B&B Italia Mirto (92 x 91 x 74 cm)"
   },
   {
    "rel": "tables/bb-italia/spring-time/11577.3ds.zip/3D_ST.3DS",
@@ -15286,16 +16371,79 @@
    ],
    "triangles": 52784,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_chrome",
+      "material": "metal",
+      "materials": [
+       "metal"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.2495,
+      "textured": false,
+      "base_colour": [
+       0.6445,
+       0.6445,
+       0.6584,
+       1.0
+      ],
+      "colour_rgb": [
+       210,
+       210,
+       212
+      ],
+      "note": "polished chrome or steel",
+      "by": "wenart.assets.part_materials"
+     },
+     {
+      "index": 4,
+      "name": "wenart_wood_oak",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 0.7505,
+      "textured": false,
+      "base_colour": [
+       0.3916,
+       0.2159,
+       0.0976,
+       1.0
+      ],
+      "colour_rgb": [
+       168,
+       128,
+       88
+      ],
+      "note": "oiled oak",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "chrome": 10,
+     "wood": 6
+    },
+    "materials": 5,
+    "split": 0
+   },
+   "classes": {
+    "chrome": 10,
+    "wood": 6
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "a table_dining has no front",
-   "sha256": "66462bf81e5181d3e4665402cfebc911604330f121982f42fde34170caf91f89",
+   "sha256": "3f2496f53dd7a9324b51a599553d1433b457c869fadc4b6742b231a38176c260",
    "id": "syncronia_62bd9a0a4ad2670f6e230f41",
-   "title": "B&B Italia Spring Time (220 x 97 x 73 cm)",
-   "cached": true
+   "title": "B&B Italia Spring Time (220 x 97 x 73 cm)"
   },
   {
    "rel": "tables/bb-italia/table/36230.skp.zip/THE TABLE/3D_TBT200_10C.3DS",
@@ -15458,8 +16606,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "0315ec960ea45a979343e3148403ec9037a019e9c6ce9a9487c23e96b0357199",
    "id": "syncronia_11e3e4c2c7d594ea14336a99",
-   "title": "B&B Italia The Table (104 x 207 x 72 cm)",
-   "cached": true
+   "title": "B&B Italia The Table (104 x 207 x 72 cm)"
   },
   {
    "rel": "tables/et-al/ax/52820.3ds",
@@ -15845,8 +16992,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "6a962c0978b0a3250044d786f6409e5487c6165ca4e9c1def072a29e89f4f9e4",
    "id": "syncronia_6abcce1a44f1b50f6f26b602",
-   "title": "et al. Deck (250 x 111 x 80 cm)",
-   "cached": true
+   "title": "et al. Deck (250 x 111 x 80 cm)"
   },
   {
    "rel": "tables/et-al/deck/52826.3ds.zip/MetalMobil_503-C tavolo Deck.3ds",
@@ -15928,8 +17074,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "b9290216da6f14691d7748d764787cfaa4c80da9b25207e87da59c213d1ee4e7",
    "id": "syncronia_c1643a2241da1e83dcea5065",
-   "title": "et al. Deck (300 x 111 x 80 cm)",
-   "cached": true
+   "title": "et al. Deck (300 x 111 x 80 cm)"
   },
   {
    "rel": "tables/et-al/ex/52815.3ds",
@@ -16163,8 +17308,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "5c0cec230cc12d118fd278beb8045c601c30ce08506365de7a8870cf0464cbfb",
    "id": "syncronia_8622484c204893cc820b6458",
-   "title": "et al. MT (80 x 80 x 75 cm)",
-   "cached": true
+   "title": "et al. MT (80 x 80 x 75 cm)"
   },
   {
    "rel": "tables/et-al/mt/52829.3ds.zip/MetalMobil_481AF tavolo MT.3ds",
@@ -17386,8 +18530,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "6f9c3a0af9cd2bb26d2bdd6ad732060163468b62003de29ae8cc775f1a6d7d1b",
    "id": "syncronia_9c818eca6f2920d071b07c4a",
-   "title": "et al. Web (80 x 80 x 72 cm)",
-   "cached": true
+   "title": "et al. Web (80 x 80 x 72 cm)"
   },
   {
    "rel": "tables/et-al/web/53020.3ds.zip/468_Web.3ds",
@@ -17469,8 +18612,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "a16f66b4cb773c0ef018f78b19126feeb3c28d3b7b300acaa998de6b975f0f26",
    "id": "syncronia_3b4e43e00eb3d707931d2e9f",
-   "title": "et al. Web (100 x 100 x 72 cm)",
-   "cached": true
+   "title": "et al. Web (100 x 100 x 72 cm)"
   },
   {
    "rel": "tables/et-al/web/53020.3ds.zip/469_Web.3ds",
@@ -17552,8 +18694,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "acb0a368cbab823ae850a82ce25ed51f42174a87ea515e16d10f5b9675795ae2",
    "id": "syncronia_5e49488bec3fa1c3594433d1",
-   "title": "et al. Web (65 x 100 x 72 cm)",
-   "cached": true
+   "title": "et al. Web (65 x 100 x 72 cm)"
   },
   {
    "rel": "tables/et-al/xt/52830.3ds.zip/MetalMobil_477AF_XT.3ds",
@@ -17863,8 +19004,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "544579d05af187105888d4a5d483cc57b221f09df1b711873c6d886030578826",
    "id": "syncronia_d2bf1f8bac04a6d06ded4fc5",
-   "title": "et al. XT (70 x 70 x 75 cm)",
-   "cached": true
+   "title": "et al. XT (70 x 70 x 75 cm)"
   },
   {
    "rel": "tables/et-al/xt/52830.3ds.zip/MetalMobil_478A_XT.3ds",
@@ -18250,8 +19390,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "417d6f2752556a41920a443656d84dee4bb2e60f8ce0052d8b43dcf3915974e7",
    "id": "syncronia_d38fdac83991e77af575f23e",
-   "title": "et al. XT (70 x 70 x 75 cm)",
-   "cached": true
+   "title": "et al. XT (70 x 70 x 75 cm)"
   },
   {
    "rel": "tables/et-al/xt/52830.3ds.zip/MetalMobil_480AQ_XT.3ds",
@@ -18371,8 +19510,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "3d23abbaf6744a96f499b01cc9a879e9423eb868c54a322ee8acb17d80e693ce",
    "id": "syncronia_1e8a217355f8ae987740ff39",
-   "title": "et al. XT (66 x 110 x 66 cm)",
-   "cached": true
+   "title": "et al. XT (66 x 110 x 66 cm)"
   },
   {
    "rel": "tables/et-al/xt/52830.3ds.zip/MetalMobil_480BT_XT.3ds",
@@ -19279,8 +20417,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "d476ab82ce0ded4bed1e42f7550e20fada5e1bf2a536cb497dcfbac0f62c8912",
    "id": "syncronia_efa2c80dccea6ce4c448252b",
-   "title": "Maxalto (B&B Italia) Max (90 x 240 x 72 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Max (90 x 240 x 72 cm)"
   },
   {
    "rel": "tables/maxalto/max/14216.3ds.zip/3D_SMTR24N.3DS",
@@ -19389,8 +20526,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "05b1d972d3ea90ef629ecc5a893e28500b2b9fccd1530b3fdefac73e0f6ed956",
    "id": "syncronia_d5c07e3f2c74fe4e162b09ed",
-   "title": "Maxalto (B&B Italia) Max (110 x 240 x 72 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Max (110 x 240 x 72 cm)"
   },
   {
    "rel": "tables/maxalto/max/14216.3ds.zip/3D_SMTR30.3DS",
@@ -19499,8 +20635,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "c388320f0685662d52b4445a206b0f7cae8492c844cc2ccd58c8119c366109df",
    "id": "syncronia_c21dd0280fda4ee0d52a57ac",
-   "title": "Maxalto (B&B Italia) Max (110 x 300 x 72 cm)",
-   "cached": true
+   "title": "Maxalto (B&B Italia) Max (110 x 300 x 72 cm)"
   },
   {
    "rel": "tables/mdf-italia/axy-table/80700.3ds.zip/MDF_Table_Axy_Assieme_80X200.3ds",
@@ -19582,8 +20717,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "64674d63336ae94a2af248a2cb1e95f2bfcf4d030f5401b19e03e894db67bb1b",
    "id": "syncronia_fd7f7ac0d226e1811011cc1a",
-   "title": "MDF Italia Axy Table (200 x 80 x 73 cm)",
-   "cached": true
+   "title": "MDF Italia Axy Table (200 x 80 x 73 cm)"
   },
   {
    "rel": "tables/mdf-italia/la-grande-table/80742.3ds.zip/MDF_LA_GRANDE_TABLE _90x360 cm.3DS",
@@ -19665,8 +20799,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "ef216133e67882f24d8510953cf664cb94054b7cc6ea55744f41d327dca74b28",
    "id": "syncronia_5ee7ae299e4026ee7fcf847e",
-   "title": "MDF Italia La Grande Table (364 x 90 x 74 cm)",
-   "cached": true
+   "title": "MDF Italia La Grande Table (364 x 90 x 74 cm)"
   },
   {
    "rel": "tables/mdf-italia/nvl-table/80371.3ds.zip/MDF_NVL_Table_120x200.3ds",
@@ -19787,8 +20920,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "fa09ed0e920275cc6d9584e378d1587d5a975458563e5cf7f0c5eb5540e68a7a",
    "id": "syncronia_d0faa37f8b334b084d14be01",
-   "title": "MDF Italia Rock Table (250 x 125 x 74 cm)",
-   "cached": true
+   "title": "MDF Italia Rock Table (250 x 125 x 74 cm)"
   },
   {
    "rel": "tables/mdf-italia/rock-table-maxi/80660.obj.zip/MDF_Rock_Table_Maxi_1.obj",
@@ -19899,16 +21031,52 @@
    ],
    "triangles": 16052,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_wood_oak",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.3916,
+       0.2159,
+       0.0976,
+       1.0
+      ],
+      "colour_rgb": [
+       168,
+       128,
+       88
+      ],
+      "note": "oiled oak",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "wood": 15
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "wood": 15
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "a table_dining has no front",
-   "sha256": "b2a50349aed8fd9ea31a8f1dfe256a19e5b6dd45998e338fedf7c8ffd7d31bd8",
+   "sha256": "ab8b283b3b3c0a9e8b6bfa789ba0779c175a710768850e126025e7c46340f35c",
    "id": "syncronia_450657cb71cc83eb9f1007d9",
-   "title": "MDF Italia Tense (180 x 90 x 73 cm)",
-   "cached": true
+   "title": "MDF Italia Tense (180 x 90 x 73 cm)"
   },
   {
    "rel": "tables/mdf-italia/tense-material-stone/79817.3ds.zip/MDFItalia_TENSE_90x180_1_2_Side_Doors_350.3DS",
@@ -19942,16 +21110,52 @@
    ],
    "triangles": 16052,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_wood_oak",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.3916,
+       0.2159,
+       0.0976,
+       1.0
+      ],
+      "colour_rgb": [
+       168,
+       128,
+       88
+      ],
+      "note": "oiled oak",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "wood": 15
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "wood": 15
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "a table_dining has no front",
-   "sha256": "b2a50349aed8fd9ea31a8f1dfe256a19e5b6dd45998e338fedf7c8ffd7d31bd8",
+   "sha256": "ab8b283b3b3c0a9e8b6bfa789ba0779c175a710768850e126025e7c46340f35c",
    "id": "syncronia_b77fce430dfe5ab415725490",
-   "title": "MDF Italia Tense Material Stone (180 x 90 x 73 cm)",
-   "cached": true
+   "title": "MDF Italia Tense Material Stone (180 x 90 x 73 cm)"
   },
   {
    "rel": "tables/mdf-italia/tense-material-wood/79817.3ds.zip/MDFItalia_TENSE_90x180_1_2_Side_Doors_350.3DS",
@@ -19985,16 +21189,52 @@
    ],
    "triangles": 16052,
    "error": null,
-   "classes": {},
+   "material": {
+    "slots": [
+     {
+      "index": 3,
+      "name": "wenart_wood_oak",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": false,
+      "base_colour": [
+       0.3916,
+       0.2159,
+       0.0976,
+       1.0
+      ],
+      "colour_rgb": [
+       168,
+       128,
+       88
+      ],
+      "note": "oiled oak",
+      "by": "wenart.assets.part_materials"
+     }
+    ],
+    "classes": {
+     "wood": 15
+    },
+    "materials": 4,
+    "split": 0
+   },
+   "classes": {
+    "wood": 15
+   },
+   "own_colours": [],
    "pillows": 0,
    "split_primitives": 0,
    "front": "-Y",
    "front_confidence": "low",
    "front_note": "a table_dining has no front",
-   "sha256": "b2a50349aed8fd9ea31a8f1dfe256a19e5b6dd45998e338fedf7c8ffd7d31bd8",
+   "sha256": "ab8b283b3b3c0a9e8b6bfa789ba0779c175a710768850e126025e7c46340f35c",
    "id": "syncronia_5061893d88c5e3668fd73681",
-   "title": "MDF Italia Tense Material Wood (180 x 90 x 73 cm)",
-   "cached": true
+   "title": "MDF Italia Tense Material Wood (180 x 90 x 73 cm)"
   },
   {
    "rel": "tables/riva-1920/bedrock-plank-c-0/43521.fbx.zip/Riva1920_Bedrock_Plank_fbx.fbx",
@@ -20076,8 +21316,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "3c1e13dae39167d0def10df2b422f7e11de353a84299aad99c485705e9267090",
    "id": "syncronia_c78a64281bb25e35a061566f",
-   "title": "Riva 1920 Bedrock Plank C (220 x 101 x 76 cm)",
-   "cached": true
+   "title": "Riva 1920 Bedrock Plank C (220 x 101 x 76 cm)"
   },
   {
    "rel": "tables/riva1920/rewood-pyramid-plank-rewood-collection/181628.fbx.zip/Riva1920_Rewood_Pyramid_Plank_Table.obj",
@@ -20186,8 +21425,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "5250baa11902366e4923b26a60d7b5bc5056e1cde4b51842a96ce0745b44833f",
    "id": "syncronia_c248bd9f3e57b69da8aa4e09",
-   "title": "Riva 1920 Rewood Pyramid Plank - Rewood collection (241 x 101 x 76 cm)",
-   "cached": true
+   "title": "Riva 1920 Rewood Pyramid Plank - Rewood collection (241 x 101 x 76 cm)"
   },
   {
    "rel": "tables/tonon/tabula/63534.3ds.zip/Tonon_Tabula-A_230_92_3ds.3ds",
@@ -20269,8 +21507,7 @@
    "front_note": "a table_dining has no front",
    "sha256": "ecb2b65baef60401173f26b32a784e7fa9bd2b461224897751a4e72e52553d4b",
    "id": "syncronia_6b229ee538f9691c377379db",
-   "title": "Tonon Tabula-A (220 x 100 x 73 cm)",
-   "cached": true
+   "title": "Tonon Tabula-A (220 x 100 x 73 cm)"
   },
   {
    "rel": "vases/alessi/e-li-li/10401.3ds",
@@ -21251,8 +22488,7 @@
    "front_note": "geometry: detail_side: 800 vs 311 vertices in the y slabs: front -Y",
    "sha256": "fcf2d5dedd05041717179dd1082e4f8615f9d3333ea36da3269d7e7ed0c730a3",
    "id": "syncronia_571a9744a69655e400d851a6",
-   "title": "B&B Italia Arne (55 x 105 x 72 cm)",
-   "cached": true
+   "title": "B&B Italia Arne (55 x 105 x 72 cm)"
   }
  ]
 }
