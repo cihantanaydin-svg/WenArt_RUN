@@ -288,16 +288,23 @@ def _one(job: dict) -> dict:
     from wenart.assets.audit import growth_entries as GE
     mdl, rec, meta = job["mdl"], dict(job["rec"]), job["meta"]
     work, assets, out = Path(job["work"]), Path(job["assets"]), Path(job["out"])
+    cache_dir = Path(job.get("cache") or work / "cache")
     try:
         glb = Path(mdl["src"]) if mdl["format"] == ".glb" else work / "converted" / f"{mdl['id']}.glb"
         rec["src_sha256"] = WH.sha256_file(Path(mdl["src"]))
         key = _cache_key(rec["src_sha256"])
-        cache = work / "cache" / f"{rec['uid']}.json"
+        cache = cache_dir / f"{rec['uid']}.json"
         dest = assets / model_rel(rec["uid"])
         if cache.is_file() and dest.is_file():
             old = json.loads(cache.read_text(encoding="utf-8"))
             if old.get("key") == key and old.get("sha256") == WH.sha256_file(dest):
                 return {"rec": dict(old["rec"], cached=True), "entry": old.get("entry")}
+        if mdl["format"] == ".3ds":                       # Assimp in the worker: the models convert in parallel
+            r = ZI.assimp_convert(Path(mdl["src"]), glb)
+            rec["converter"] = "assimp" if r.get("ok") else "none"
+            if not r.get("ok"):
+                rec["why"] = f"not converted: {r.get('error')}"
+                return {"rec": rec, "entry": None}
         types, why = types_for(rec["rel"], meta)
         rec["category"] = category_of(rec["rel"], meta)
         rec["types_from"] = why
@@ -321,7 +328,7 @@ def _one(job: dict) -> dict:
         doc, _bin = WH.read_glb(dest)
         ps = PM.parts(dest)
         classes = PM.classify_any(ps, rec["type"])
-        PM.write_debug(work / "parts" / f"{rec['uid']}.json", ps, classes)     # on the volume, not the results
+        PM.write_debug(cache_dir.parent / "parts" / f"{rec['uid']}.json", ps, classes)   # beside the cache
         if classes and PM.needs_materials(doc):
             rec["material"] = PM.assign(dest, dest, ps, classes)
             rec["classes"] = rec["material"]["classes"]
@@ -355,7 +362,7 @@ def _one(job: dict) -> dict:
 
 
 def ingest(zip_path: Path, work: Path, assets: Path, out: Path, blender: Optional[str] = None,
-           workers: int = 1, zip_name: Optional[str] = None) -> dict:
+           workers: int = 1, zip_name: Optional[str] = None, cache: Optional[Path] = None) -> dict:
     """Every model of the zip (module docstring); returns ``{"records": [...], "entries": [...]}``."""
     from wenart.assets import zip_inspect as ZI
     checked = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -368,13 +375,7 @@ def ingest(zip_path: Path, work: Path, assets: Path, out: Path, blender: Optiona
     blender_jobs = []
     for mdl in models:
         if mdl["format"] == ".3ds":
-            dst = work / "converted" / f"{mdl['id']}.glb"
-            try:
-                r = ZI.assimp_convert(Path(mdl["src"]), dst)
-            except Exception as exc:  # noqa: BLE001 - one model never stops the intake
-                r = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
-            if r.get("ok"):
-                conv[mdl["id"]] = dict(r, converter="assimp")
+            conv[mdl["id"]] = {"ok": True, "converter": "assimp (in the worker)"}
         elif mdl["format"] not in (".glb", ".skp") and mdl["format"] not in NOT_INGESTED:
             blender_jobs.append({"id": mdl["id"], "src": mdl["src"],
                                  "dst": str(work / "converted" / f"{mdl['id']}.glb")})
@@ -395,7 +396,7 @@ def ingest(zip_path: Path, work: Path, assets: Path, out: Path, blender: Optiona
             continue
         rec["converter"] = (conv.get(mdl["id"]) or {}).get("converter", "none")
         jobs.append({"mdl": mdl, "rec": rec, "meta": meta, "work": str(work), "assets": str(assets),
-                     "out": str(out), "checked": checked})
+                     "out": str(out), "checked": checked, "cache": str(cache) if cache else None})
     if workers > 1 and len(jobs) > 1:
         with ProcessPoolExecutor(max_workers=workers) as pool:
             results = list(pool.map(_one, jobs, chunksize=1))
@@ -502,6 +503,7 @@ def main(argv=None) -> int:
     i.add_argument("--assets", required=True)
     i.add_argument("--out", required=True)
     i.add_argument("--blender", default=None)
+    i.add_argument("--cache", default=None, help="the per-model cache (default <work>/cache; keep it on the volume)")
     i.add_argument("--workers", type=int, default=max(1, min(16, (os.cpu_count() or 2) - 1)))
     i.add_argument("--merge-catalog", action="store_true", help="also merge the entries into the catalogue (pending)")
     mg = sub.add_parser("merge")
@@ -512,7 +514,8 @@ def main(argv=None) -> int:
     rv.add_argument("--catalog", default=None)
     a = ap.parse_args(argv)
     if a.cmd == "ingest":
-        res = ingest(Path(a.zip), Path(a.work), Path(a.assets), Path(a.out), a.blender, a.workers, a.zip_name)
+        res = ingest(Path(a.zip), Path(a.work), Path(a.assets), Path(a.out), a.blender, a.workers, a.zip_name,
+                     Path(a.cache) if a.cache else None)
         types: dict = {}
         for e in res["entries"]:
             types[e.get("decor_type") or e["type"]] = types.get(e.get("decor_type") or e["type"], 0) + 1

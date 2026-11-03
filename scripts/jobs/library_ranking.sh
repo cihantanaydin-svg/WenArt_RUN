@@ -145,9 +145,12 @@ if [ "$RANK_BATCH" = "syncronia" ]; then
         "https://drive.usercontent.google.com/download?id=$SY_ID&export=download&confirm=t" \
         || log "$SY_NAME download failed"
     fi
+    rm -rf "/opt/wenart/syncronia/${SY_NAME%.zip}/files"    # the container disk's scratch of an earlier zip only
     run_step "ingest-${SY_NAME%.zip}" "$PY" -m wenart.assets.syncronia ingest --zip "$SY_ZIP" --zip-name "$SY_NAME" \
-      --work "$RANK_ROOT/syncronia/${SY_NAME%.zip}" --assets "$ASSETS" \
+      --work "/opt/wenart/syncronia/${SY_NAME%.zip}" --cache "$RANK_ROOT/syncronia/${SY_NAME%.zip}/cache" \
+      --assets "$ASSETS" \
       --out "$RESULTS/library/syncronia/${SY_NAME%.zip}" --blender "$WENART_BLENDER" --merge-catalog
+    rm -rf "/opt/wenart/syncronia/${SY_NAME%.zip}"            # the zip's scratch (the GLBs are in the assets)
   done < <("$PY" -c 'from wenart.assets import syncronia as S
 for i, b, n in S.ZIPS: print(f"{i}:{b}:{n}")')
 fi
