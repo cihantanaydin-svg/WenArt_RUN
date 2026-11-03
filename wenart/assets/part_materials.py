@@ -265,10 +265,20 @@ def parts(path) -> list[dict]:
     return out
 
 
+def _uses_texture(doc: dict) -> bool:
+    """A material links a texture (an image in the file that no material uses says nothing)."""
+    def has(obj) -> bool:
+        if isinstance(obj, dict):
+            return any((k.endswith("Texture") and isinstance(v, dict) and isinstance(v.get("index"), int))
+                       or has(v) for k, v in obj.items())
+        return False
+    return any(has(m) for m in doc.get("materials") or [])
+
+
 def needs_materials(doc: dict) -> bool:
     """No texture, and the base colours say nothing about the parts: every one near white or missing
     (``WHITE_MIN``), or one colour for the whole model (an exporter's default material, e.g. Assimp's grey)."""
-    if doc.get("images") or doc.get("textures"):
+    if _uses_texture(doc):
         return False
     colours = set()
     white = True

@@ -138,7 +138,8 @@ def test_a_textured_or_coloured_model_keeps_its_materials():
     assert PM.needs_materials({"materials": [{"pbrMetallicRoughness": {"baseColorFactor": [0.6, 0.6, 0.6, 1]}}]})
     assert not PM.needs_materials({"materials": [{"pbrMetallicRoughness": {"baseColorFactor": [0.3, 0.2, 0.1, 1]}},
                                                  {"pbrMetallicRoughness": {"baseColorFactor": [0.9, 0.9, 0.9, 1]}}]})
-    assert not PM.needs_materials({"materials": [{}], "images": [{"uri": "a.png"}], "textures": [{"source": 0}]})
+    assert not PM.needs_materials({"materials": [{"pbrMetallicRoughness": {"baseColorTexture": {"index": 0}}}],
+                                   "images": [{"uri": "a.png"}], "textures": [{"source": 0}]})
 
 
 @pytest.mark.skipif(not HAS_ASSIMP, reason="assimp not installed")
@@ -373,3 +374,24 @@ def test_sinks_and_wall_lamps_get_no_washbasin_or_pendant_type():
     assert SY.types_for("sinks/schock/lithos/1.3ds", {"type": "sinks"})[0] == ["sink_kitchen"]
     assert SY.types_for("wall-recessed-lamps/simes/step/1.3ds", {"type": "wall-recessed-lamps"})[0] == []
     assert SY.types_for("bathroom/rexa/japan/1.3ds", {"type": "bathroom"})[0] == []
+
+
+def test_the_grey_placeholder_png_is_valid_and_missing_textures_are_unlinked(tmp_path):
+    """The dump of 3 Nov 2026: the magenta models carried the grey placeholder for textures the zip did not hold; its
+    IDAT checksum was wrong (Blender refused it). The placeholder is a valid PNG now, and a missing texture's links
+    go, so the model takes its part materials."""
+    import struct
+    import zlib
+    from wenart.assets import zip_inspect as ZI
+    d, off = ZI.GREY_PNG, 8
+    while off < len(d):
+        n, = struct.unpack(">I", d[off:off + 4])
+        kind, body = d[off + 4:off + 8], d[off + 8:off + 8 + n]
+        assert zlib.crc32(kind + body) & 0xFFFFFFFF == struct.unpack(">I", d[off + 8 + n:off + 12 + n])[0], kind
+        off += 12 + n
+    doc = {"materials": [{"pbrMetallicRoughness": {"baseColorTexture": {"index": 0}, "baseColorFactor": [1, 1, 1, 1]},
+                          "extensions": {"KHR_materials_specular": {"specularColorTexture": {"index": 0}}}}],
+           "textures": [{"source": 0}], "images": [{"uri": "missing.jpg"}]}
+    assert ZI.strip_texture_links(doc, {0}) == 2
+    assert "baseColorTexture" not in doc["materials"][0]["pbrMetallicRoughness"]
+    assert PM.needs_materials(doc)                     # an image no material uses says nothing

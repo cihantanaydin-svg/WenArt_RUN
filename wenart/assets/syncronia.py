@@ -71,7 +71,8 @@ USER_DECISION = ("user request of 3 Nov 2026: include the proper models of the u
                  "rank them; licence not reviewed (the user: \"Disregard the license things for now\"): relaxed licence "
                  "mode only, commercial_safe: no")
 MIN_TRIANGLES = 100                   # under this a model is a placeholder block (Platek's 24-triangle lights)
-FIX_VERSION = "syncronia-3"           # 2: part materials by connected pieces, by name and type; 3: textures re-encoded
+FIX_VERSION = "syncronia-4"           # 2: part materials by pieces, name, type; 3: textures re-encoded; 4: missing
+                                      # textures unlinked, a valid grey PNG
 PENDING_REASON = "new Syncronia model (the user's zips, 3 Nov 2026): waiting for the look at its studio render"
 # Syncronia's category folders (meta.json "type") -> the catalogue types (furniture or decor) a model may be
 _BEDS = ("bed_double", "bed_single")

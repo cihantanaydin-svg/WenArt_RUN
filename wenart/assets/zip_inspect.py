@@ -221,8 +221,20 @@ def assimp_convert(src: Path, dst: Path, timeout_s: int = 300) -> dict:
     return {"ok": True, "tool": "assimp", "images": emb}
 
 
-GREY_PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010802000000907753de0000000c4944415408d763"
-                         "68686800000304018119e1b7e00000000049454e44ae426082")
+def _png(rgb: tuple = (128, 128, 128)) -> bytes:
+    """A 1 x 1 PNG with correct chunk checksums (3 Nov 2026: the hand-written bytes before had a bad IDAT checksum,
+    which Pillow ignores and Blender's reader refuses: the models rendered magenta)."""
+    import struct
+    import zlib
+
+    def chunk(kind: bytes, body: bytes) -> bytes:
+        return struct.pack(">I", len(body)) + kind + body + struct.pack(">I", zlib.crc32(kind + body) & 0xFFFFFFFF)
+    raw = zlib.compress(b"\x00" + bytes(rgb))
+    return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
+            + chunk(b"IDAT", raw) + chunk(b"IEND", b""))
+
+
+GREY_PNG = _png()
 
 
 def _find_file(name: str, base: Path) -> Optional[Path]:
@@ -278,6 +290,30 @@ def texture_bytes(data: bytes) -> tuple[bytes, str, Optional[str]]:
     return buf.getvalue(), mime, f"{fmt or '?'} {mode}{' scaled' if big else ''} -> {mime}"
 
 
+TEXTURE_SLOTS = ("baseColorTexture", "metallicRoughnessTexture")
+MATERIAL_TEXTURES = ("normalTexture", "occlusionTexture", "emissiveTexture")
+
+
+def strip_texture_links(doc: dict, dead: set) -> int:
+    """Remove every material link (the PBR slots, normal, occlusion, emissive and the extensions' texture fields) to
+    the texture indexes in ``dead``; returns how many links went. The material's factors stay."""
+    n = 0
+
+    def clean(obj: dict) -> None:
+        nonlocal n
+        for key in list(obj.keys()):
+            val = obj[key]
+            if key.endswith("Texture") and isinstance(val, dict) and val.get("index") in dead:
+                del obj[key]
+                n += 1
+            elif isinstance(val, dict):
+                clean(val)
+    for mat in doc.get("materials") or []:
+        if isinstance(mat, dict):
+            clean(mat)
+    return n
+
+
 def embed_images(glb: Path, base: Path) -> dict:
     """Every image a GLB names by an external URI embedded into its binary chunk (the file searched under ``base``,
     case-insensitively by name); a missing one becomes a 1 x 1 grey PNG so the file stays self-contained."""
@@ -293,6 +329,7 @@ def embed_images(glb: Path, base: Path) -> dict:
         data = f.read_bytes() if f else GREY_PNG
         if f is None:
             rec["missing"].append(str(uri))
+            img["_wenart_missing"] = True
         data, mime, change = texture_bytes(data)
         if change:
             rec.setdefault("converted", []).append(f"{uri}: {change}")
@@ -305,6 +342,12 @@ def embed_images(glb: Path, base: Path) -> dict:
         img["mimeType"] = mime
         if f is not None:
             rec["embedded"] += 1
+    missing_images = {i for i, img in enumerate(doc.get("images") or []) if img.get("_wenart_missing")}
+    for img in doc.get("images") or []:
+        img.pop("_wenart_missing", None)
+    if missing_images:                                   # a texture never found: its links go, the factors stay
+        dead = {ti for ti, t in enumerate(doc.get("textures") or []) if t.get("source") in missing_images}
+        rec["unlinked_textures"] = strip_texture_links(doc, dead)
     for img in doc.get("images") or []:                 # images already in the file (bufferView): the same check
         bv = img.get("bufferView")
         if not isinstance(bv, int) or img.get("_wenart_done"):
