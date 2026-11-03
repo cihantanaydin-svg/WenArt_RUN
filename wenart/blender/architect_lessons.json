@@ -3437,10 +3437,44 @@
    "id": "UL290",
    "date": "2026-11-03",
    "area": "other",
-   "status": "open",
+   "status": "process",
    "checks": [],
    "request": "Include into the library (the proper ones) and also open up a new ranking tab in the ranking page for them so I can rank them (3 Nov 2026, the user's beds.zip of Syncronia manufacturer models: the models a free tool opens and that fit a real product size join the library as source syncronia with part materials (upholstery the fit recolours, white bedding, bronze feet), audit pending until their studio render is looked at; SketchUp and IGES files are listed, not taken; a new library source gets its own ranking batch and tab, shown first)",
    "lesson": "Include into the library (the proper ones) and also open up a new ranking tab in the ranking page for them so I can rank them (3 Nov 2026, the user's beds.zip of Syncronia manufacturer models: the models a free tool opens and that fit a real product size join the library as source syncronia with part materials (upholstery the fit recolours, white bedding, bronze feet), audit pending until their studio render is looked at; SketchUp and IGES files are listed, not taken; a new library source gets its own ranking batch and tab, shown first)",
+   "question": null
+  },
+  {
+   "id": "UL291",
+   "date": "2026-11-03",
+   "area": "roof",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "On an attic floor, the wall lines drawn at the front and back of a tiled roof strip are gable ends: the facade wall rises under the roof slope as a triangle; no attic-height wall and no parapet stands there (user, 3 Nov 2026, real09: 'gable ends'; the roof as the elevations and sections draw it)",
+   "lesson": "On an attic floor, the wall lines drawn at the front and back of a tiled roof strip are gable ends: the facade wall rises under the roof slope as a triangle; no attic-height wall and no parapet stands there (user, 3 Nov 2026, real09: 'gable ends'; the roof as the elevations and sections draw it)",
+   "question": null
+  },
+  {
+   "id": "UL292",
+   "date": "2026-11-03",
+   "area": "other",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "A structure run (RUN_PROFILE=structure) shows the bare building: walls, floors, doors, windows, stairs, roof, site and the drawn fixed equipment (kitchen runs, sanitary ware) only; no movable furniture, no decor in its top-down plans or exterior views (user, 3 Nov 2026, real04 structure run: 'why there are furnitures inside in the last pod run?')",
+   "lesson": "A structure run (RUN_PROFILE=structure) shows the bare building: walls, floors, doors, windows, stairs, roof, site and the drawn fixed equipment (kitchen runs, sanitary ware) only; no movable furniture, no decor in its top-down plans or exterior views (user, 3 Nov 2026, real04 structure run: 'why there are furnitures inside in the last pod run?')",
+   "question": null
+  },
+  {
+   "id": "UL293",
+   "date": "2026-11-03",
+   "area": "other",
+   "status": "process",
+   "checks": [],
+   "request": "A pod run of a project whose reading did not change gives the same building as its last run: before a run say what changed for that project since its latest run (user, 3 Nov 2026, real04 structure run: 'It seems like these are exactly like the old full runs there is no change at all')",
+   "lesson": "A pod run of a project whose reading did not change gives the same building as its last run: before a run say what changed for that project since its latest run (user, 3 Nov 2026, real04 structure run: 'It seems like these are exactly like the old full runs there is no change at all')",
    "question": null
   }
  ]

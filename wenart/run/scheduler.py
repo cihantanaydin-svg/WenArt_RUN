@@ -1007,6 +1007,11 @@ class Orchestrator:
     def run(self) -> int:
         """All phases; the exit code (§2.1)."""
         self.setup()
+        if self.opts.structure:
+            # 3 Nov 2026 (user: "why there are furnitures inside in the last pod run?"): the structure profile's
+            # builds are the bare building (wenart/blender/build.py BARE_ENV: drawn fixed equipment only)
+            os.environ["WENART_BARE_BUILD"] = "1"
+            self.out("structure profile: bare builds (no furniture, no decor; the drawn fixed equipment stays)")
         left = "no deadline" if self.deadline is None else f"{self.deadline - self.now():.0f} s to the deadline"
         self.out(f"run {self.run_id}: projects [{' '.join(pr.name for pr in self.runs)}], A/B "
                  f"[{' '.join(pr.name for pr in self.ab_runs)}] ({self.opts.ab_phase}), profile {self.opts.profile}, "

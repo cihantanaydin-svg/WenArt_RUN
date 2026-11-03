@@ -42,6 +42,15 @@ SITE_CUT_KINDS = {"terrain", "site_area", "site_platform", "site_steps", "site_w
                   "site_handrail", "site_bank", "site_lawn"}
 
 
+def mesh_bbox(o):
+    """The world box of a mesh object's own vertices (no modifier, so no Boolean cutter in it)."""
+    mw = o.matrix_world
+    pts = [mw @ v.co for v in o.data.vertices] if o.type == "MESH" and len(o.data.vertices) else None
+    if not pts:
+        return bbox(o)
+    return [min(p[i] for p in pts) for i in range(3)], [max(p[i] for p in pts) for i in range(3)]
+
+
 def bbox(o):
     from mathutils import Vector
     pts = [o.matrix_world @ Vector(c) for c in o.bound_box]
@@ -129,7 +138,52 @@ def bisect_top(o, z: float) -> None:
 COVER_AREA_M2 = 25.0             # a visible object this large in plan standing above the cut may hide the level
 
 
-def _report_covers(level_id: str, z: float) -> list:
+def carve_footprint(box, z0: float, z1: float) -> int:
+    """3 Nov 2026 (real10's L-1 view: the earth's section at the cut covered the basement, its terrain solid across
+    the building's footprint): the ground and outdoor surfaces (``SITE_CUT_KINDS``) lose the level's footprint ``box``
+    (its walls' box) from ``z0`` (just under the level's floor) to ``z1`` by a Boolean difference, so the earth stands
+    around the level, not over it; a surface the Boolean leaves over the footprint is hidden for the view."""
+    import bpy
+
+    cutter = bpy.data.objects.get("topdown_footprint")
+    if cutter is None:
+        bpy.ops.mesh.primitive_cube_add(size=1.0)
+        cutter = bpy.context.active_object
+        cutter.name = "topdown_footprint"
+    cutter.scale = (max(box[2] - box[0], 0.1), max(box[3] - box[1], 0.1), max(z1 - z0, 0.1))
+    cutter.location = ((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0, (z0 + z1) / 2.0)
+    cutter.hide_render = True
+    cutter.display_type = "WIRE"
+    carved = []
+    for o in bpy.data.objects:
+        if o.type != "MESH" or o.hide_render or o is cutter or o.name.startswith("topdown_") \
+                or str(o.get("wenart_kind")) not in SITE_CUT_KINDS:
+            continue
+        lo, hi = mesh_bbox(o)
+        if hi[0] < box[0] or lo[0] > box[2] or hi[1] < box[1] or lo[1] > box[3] or hi[2] <= z0:
+            continue
+        m = o.modifiers.new("topdown_footprint", "BOOLEAN")
+        m.operation = "DIFFERENCE"
+        m.object = cutter
+        if "EXACT" in {i.identifier for i in m.bl_rna.properties["solver"].enum_items}:
+            m.solver = "EXACT"
+        carved.append(o)
+    if carved:
+        dg = bpy.context.evaluated_depsgraph_get()
+        cx, cy = (box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0
+        for o in carved:
+            ev = o.evaluated_get(dg)
+            mw = ev.matrix_world
+            inside = [(mw @ v.co) for v in ev.data.vertices]
+            # a vertex left well inside the footprint above the level's floor: the Boolean did not carve it
+            if any(abs(q.x - cx) < (box[2] - box[0]) / 2.0 - 0.5 and abs(q.y - cy) < (box[3] - box[1]) / 2.0 - 0.5
+                   and q.z > z0 + 0.3 for q in inside):
+                o.hide_render = True
+                print(f"TOPDOWN_COVER: '{o.name}' (kind {o.get('wenart_kind')}) not carved over the footprint: hidden")
+    return len(carved)
+
+
+def _report_covers(level_id: str, z: float, box=None) -> list:
     """3 Nov 2026 (real10 structure run 20261103-094348-full: the L-1 view showed only a lawn): the visible meshes still
     reaching more than 0.3 m above the cut whose plan box is over ``COVER_AREA_M2`` are printed to the build log
     (``TOPDOWN_COVER``), so a view a surface hides names what hides it."""
@@ -188,18 +242,23 @@ def render_level(level_id: str, elevation: float, out: str, res: int, samples: i
             hide = bbox(o)[0][2] >= (wall_cut if kind in CUT_KINDS | (SITE_CUT_KINDS if tilt > 0 else set())
                                      else cut) - 0.01
         o.hide_render = hide
-        for m in [m for m in o.modifiers if m.name == "topdown_section"] if o.type == "MESH" else []:
+        for m in [m for m in o.modifiers if m.name in ("topdown_section", "topdown_footprint")] \
+                if o.type == "MESH" else []:
             o.modifiers.remove(m)
-    if tilt > 0:
-        section_cut(wall_cut, CUT_KINDS | SITE_CUT_KINDS)
-        _report_covers(level_id, wall_cut)
+    # 3 Nov 2026 (real10 structure run 20261103-094348-full: the L-1 view showed a lawn with every room number at one
+    # point: the frame was measured after the section cut, from boxes a Boolean against the 2000 m cutter had blown
+    # up): the frame comes from the walls' own vertices, before anything is cut
     col = bpy.data.collections.get(f"level_{level_id}")
     walls = [o for o in (col.all_objects if col else []) if o.type == "MESH" and str(o.get("wenart_kind")) == "wall"]
     if not walls:
         return {}
-    los, his = zip(*[bbox(o) for o in walls])
+    los, his = zip(*[mesh_bbox(o) for o in walls])
     x0, y0 = min(v[0] for v in los) - PAD_M, min(v[1] for v in los) - PAD_M
     x1, y1 = max(v[0] for v in his) + PAD_M, max(v[1] for v in his) + PAD_M
+    if tilt > 0:
+        section_cut(wall_cut, CUT_KINDS | SITE_CUT_KINDS)
+        carve_footprint((x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M), elevation - 0.05, wall_cut + 1.0)
+        _report_covers(level_id, wall_cut, (x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M))
     import math
     from mathutils import Vector
 

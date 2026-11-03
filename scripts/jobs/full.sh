@@ -153,6 +153,9 @@ AGENT_SETUP="${AGENT_MODEL:-agent}"
 if [ "${NO_ORCHESTRATOR:-0}" = "1" ]; then POD_ARGS+=(--no-orchestrator); AGENT_SETUP=""; fi
 # 2 Nov 2026: the structure profile runs no agent either (no agent model to download)
 if [ "${RUN_PROFILE:-full}" = "structure" ]; then AGENT_SETUP=""; fi
+# 3 Nov 2026 (user: "why there are furnitures inside in the last pod run?"): the structure profile builds the bare
+# building (drawn fixed equipment only: stairs, kitchen runs, sanitary ware; wenart/blender/build.py bare_building)
+if [ "${RUN_PROFILE:-full}" = "structure" ]; then export WENART_BARE_BUILD=1; fi
 if [ -n "${AGENT_MODEL:-}" ]; then POD_ARGS+=(--agent-model "$AGENT_MODEL"); fi
 # 11 Oct 2026 (user: pods get more time): more orchestrator rounds when the pod has the time; Milestone 13 (K4,
 # the user's rule of 12 Oct 2026): the default is 3 (python -m wenart.run pod --agent-rounds)

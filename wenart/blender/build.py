@@ -337,6 +337,38 @@ def cameras_from_spec(value, project_id: str | None = None, env=None) -> str | N
     return text
 
 
+BARE_ENV = "WENART_BARE_BUILD"       # 3 Nov 2026: the structure profile builds the bare building (scripts/jobs/full.sh)
+BARE_DECOR_KEYS = ("decor", "bath_details", "dressing", "salon_details", "bedding", "seat_cushions", "wall_items")
+
+
+def bare_build_flag(env=None) -> bool:
+    """3 Nov 2026 (user, real04 structure run: "why there are furnitures inside in the last pod run?"): whether this
+    build is the bare building of a structure check (``env[BARE_ENV]`` in ``1 / true / yes / on``)."""
+    text = str((os.environ if env is None else env).get(BARE_ENV) or "").strip().lower()
+    return text in ("1", "true", "yes", "on")
+
+
+def bare_building(building: dict) -> tuple[dict, int, int]:
+    """``(building, left out, kept)`` (pure): the building of a structure check: the fixed equipment drawn in the
+    documents (``fixture_use.FIXED_TYPES``: stairs, kitchen runs and appliances, sanitary ware; CLAUDE.md treats it
+    like walls) stays; every other piece (drawn movable furniture, the AI's added pieces) and the decor go. The drawn
+    pieces stay in the building JSON for the full run; only this build leaves them out."""
+    from wenart.furniture.fixture_use import FIXED_TYPES
+
+    keep, out = [], 0
+    for f in building.get("furniture") or []:
+        if str(f.get("type") or "") == "stair" or (f.get("type") in FIXED_TYPES
+                                                   and f.get("source") == "from_documents"):
+            keep.append(f)
+        else:
+            out += 1
+    bare = dict(building, furniture=keep)
+    for k in BARE_DECOR_KEYS:
+        if k in bare:
+            bare[k] = type(bare[k])() if isinstance(bare[k], (list, dict)) else None
+    return bare, out, len(keep)
+
+
 def cameras_extra_flag(value=None, env=None) -> bool:
     """``--cameras-extra`` (pure): the flag, else ``env[CAMERAS_EXTRA_ENV]`` in ``1 / true / yes / on``."""
     if value:
@@ -413,7 +445,7 @@ def fingerprint_args(building: str, style: str | None = None, assets: str | None
             "brief": brief or {},
             "cameras_from": None if record is None else {k: record[k] for k in ("path", "sha256", "missing") if k in record},
             "cameras_extra": bool(extra) if record is not None else False,
-            "light_variant": variant_name}
+            "light_variant": variant_name, "bare": bare_build_flag()}
 
 
 def load_brief_file(path: str | None) -> dict | None:
@@ -1785,6 +1817,10 @@ def main(argv: list[str]) -> int:
             print(f"--lens-mm {args.lens_mm:g}: {exc}")
             return 2
     building_all = json.loads(Path(args.building).read_text(encoding="utf-8"))
+    if bare_build_flag():
+        building_all, left_out, kept = bare_building(building_all)
+        print(f"BARE_BUILD: structure check: {left_out} furniture piece(s) and the decor left out, {kept} piece(s) of "
+              f"drawn fixed equipment kept ({BARE_ENV})")
     try:
         brief = load_brief_file(args.brief)
     except (OSError, ValueError) as exc:
