@@ -31,6 +31,14 @@ How (metres):
   lowest trimmed RMS wins (0 degrees on ties). Columns (closed squares 0.15-0.8 m) that match within 0.10 m refine the
   shift when >= 3 match (method ``columns``). The residual is the RMS distance of all outline points to the
   reference outline; ``matched`` counts those within 5 cm;
+- 3 Nov 2026 (real09: the attic plan has no axis bubbles and no lift; its outline fit put it 3.70 m off the duplex
+  floor below, while its three stairs, the core's and the two flats' inner ones, are drawn on layer 'merdiven' on both):
+  a plan with neither a shared grid nor a core is placed by its stairs drawn on a stair layer or block when they lie
+  on the stairs of a level already placed by a reference, grid, core or stair (``stair_layer_fit``, method
+  ``stair_layer``): the stair lines sampled every ``STAIR_SAMPLE_M``, the shift that lays most of them on the placed
+  level's (a cross-correlation of the two rasters, then nearest-point refinement), kept when at least
+  ``STAIR_LAYER_SHARE`` of them lie within ``MATCH_M`` and no shift ``STAIR_LAYER_FAR_M`` away fits nearly as well
+  (a mirrored twin stair); the adjacent levels first;
 - stairs (blocks or layers named ``merdiven``, ``stair``, ``treppe``, ``escalier``) of adjacent levels must overlap
   (``stairs_aligned``; a stair on one level only is listed, no stairs on either gives null).
 """
@@ -47,6 +55,7 @@ from shapely.geometry import LineString, MultiPolygon, Polygon
 from shapely.ops import unary_union
 
 from wenart.sheets import classify as SC
+from wenart.sheets import titles as TI
 from wenart.sheets import units_check as UC
 from wenart.sheets.model import box_union
 
@@ -81,6 +90,14 @@ CORE_GRID_AGREE_M = 0.10          # the shaft and the axis grid agree: the grid'
 STAIR_REACH_M = 6.0               # concentric arcs this close to the lift label (the core's stair)
 STAIR_RADII_M = (0.05, 1.5)
 STAIR_COMMON_MIN = 3              # radii two arc sets share (within 1 cm) to be the same stair
+# 3 Nov 2026 (the module docstring): the stairs drawn on a stair layer place a plan with no grid and no core
+STAIR_SAMPLE_M = 0.05             # the stair lines sampled this often (and rastered at this cell)
+STAIR_LAYER_MIN_POINTS = 60       # about 3 m of stair lines at least
+STAIR_LAYER_SHARE = 0.5           # the share of them within MATCH_M of the placed level's stair lines
+STAIR_LAYER_FAR_M = 1.0           # another shift this far away (a mirrored twin stair) ...
+STAIR_LAYER_UNIQUE = 0.8          # ... fitting at least this share of the best one's raster score: ambiguous
+STAIR_LAYER_REFINE_M = 0.15       # nearest-point refinement: pairs within this
+PLACED_METHODS = ("reference", "stair", "stair_grid", "stair_layer", "shaft", "shaft_grid", "axis_grid")
 
 
 def enclosing_outlines(region, mpu: Optional[float], max_margin_m: Optional[float] = None) -> list:
@@ -445,6 +462,151 @@ def core_fit(ref_segs: list, ref_anchor, segs: list, anchor, theta: float) -> Op
     return {"shift": [_r(t[0]), _r(t[1])], "rms_m": round(rms, 4), "points": int(len(pts))}
 
 
+def stair_segments(region, mpu: float) -> tuple[np.ndarray, list]:
+    """``(segments, layers)``: the line segments of the stairs drawn on a stair layer or block (``classify.stairs_of``'s
+    names), an ``(m, 2, 2)`` array in the drawing's metres (source units x ``mpu``), and the layer names."""
+    out, layers = [], set()
+    for e in region.ents:
+        name = TI.fold(" ".join(x for x in (e.block or "", e.layer or "") if x))
+        if not SC.STAIR_RE.search(name):
+            continue
+        layers.add(e.block or e.layer)
+        for st in e.strokes:
+            pts = np.asarray(getattr(st, "pts", []) or [], dtype=float).reshape(-1, 2) * mpu
+            if len(pts) >= 2:
+                out.append(np.stack([pts[:-1], pts[1:]], axis=1))
+    return (np.vstack(out) if out else np.zeros((0, 2, 2))), sorted(x for x in layers if x)
+
+
+def sample_segments(segs: np.ndarray) -> np.ndarray:
+    """Points every ``STAIR_SAMPLE_M`` along the segments (their ends included)."""
+    out = []
+    for a, b in segs:
+        n = max(1, int(float(np.hypot(*(b - a))) / STAIR_SAMPLE_M))
+        out.append(a + (b - a) * (np.arange(n + 1)[:, None] / n))
+    return np.vstack(out) if out else np.zeros((0, 2))
+
+
+def _nearest_on_segments(pts: np.ndarray, segs: np.ndarray, chunk: int = 800) -> tuple[np.ndarray, np.ndarray]:
+    """For each point: the distance to the nearest segment and the nearest point on it. 3 Nov 2026: points matched to
+    points sampled along lines alias (a line parallel to the shift "matches" one sample along), so the refinement and
+    the share use the segments themselves."""
+    a, b = segs[:, 0, :], segs[:, 1, :]
+    ab = b - a
+    ll = np.maximum((ab ** 2).sum(-1), 1e-12)
+    d = np.empty(len(pts))
+    q = np.empty((len(pts), 2))
+    for i in range(0, len(pts), chunk):
+        p = pts[i:i + chunk, None, :]
+        t = np.clip(((p - a[None]) * ab[None]).sum(-1) / ll[None], 0.0, 1.0)
+        c = a[None] + t[..., None] * ab[None]
+        dd = ((p - c) ** 2).sum(-1)
+        k = dd.argmin(1)
+        r = np.arange(len(k))
+        d[i:i + chunk] = np.sqrt(dd[r, k])
+        q[i:i + chunk] = c[r, k]
+    return d, q
+
+
+def _raster(pts: np.ndarray, origin: np.ndarray, shape: tuple) -> np.ndarray:
+    g = np.zeros(shape)
+    ij = np.floor((pts - origin) / STAIR_SAMPLE_M).astype(int)
+    ok = (ij[:, 0] >= 0) & (ij[:, 1] >= 0) & (ij[:, 0] < shape[0]) & (ij[:, 1] < shape[1])
+    g[ij[ok, 0], ij[ok, 1]] = 1.0
+    return g
+
+
+def stair_layer_fit(target: np.ndarray, moving: np.ndarray) -> Optional[dict]:
+    """The shift (metres) that lays the ``moving`` stair points (the plan's, rotated, ``sample_segments``) on the
+    ``target`` stair segments (a placed level's, building metres, ``(m, 2, 2)``): the best cross-correlation of the two
+    rasters (the target's grown by one cell), refined by the nearest points on the target's segments (translation
+    only). ``{"shift", "share", "score", "second"}`` (``share``: the moving points within ``MATCH_M`` of a target
+    segment after the refinement; ``second``: the best raster score of a shift ``STAIR_LAYER_FAR_M`` away, as a share
+    of the best one's) or None (too few points) (pure)."""
+    tpts = sample_segments(target) if len(target) else np.zeros((0, 2))
+    if len(moving) < STAIR_LAYER_MIN_POINTS or len(tpts) < STAIR_LAYER_MIN_POINTS:
+        return None
+    tmin, mmin = tpts.min(0), moving.min(0)
+    size = (np.ceil((tpts.max(0) - tmin) / STAIR_SAMPLE_M) + np.ceil((moving.max(0) - mmin) / STAIR_SAMPLE_M)
+            + 3).astype(int)
+    shape = (int(size[0]), int(size[1]))
+    g = _raster(tpts, tmin, shape)
+    grown = g.copy()
+    for dx in (-1, 0, 1):
+        for dy in (-1, 0, 1):
+            grown = np.maximum(grown, np.roll(np.roll(g, dx, 0), dy, 1))
+    h = _raster(moving, mmin, shape)
+    corr = np.real(np.fft.ifft2(np.fft.fft2(grown) * np.conj(np.fft.fft2(h)))) / max(h.sum(), 1.0)
+
+    def shift_of(k: int) -> np.ndarray:
+        i, j = np.unravel_index(k, corr.shape)
+        i = i - shape[0] if i > shape[0] // 2 else i
+        j = j - shape[1] if j > shape[1] // 2 else j
+        return tmin - mmin + np.array([i, j], dtype=float) * STAIR_SAMPLE_M
+
+    flat = corr.ravel()
+    order = np.argsort(flat)[::-1]
+    best = shift_of(int(order[0]))
+    score = float(flat[order[0]])
+    second = 0.0
+    for k in order[1:20000]:
+        if float(np.hypot(*(shift_of(int(k)) - best))) > STAIR_LAYER_FAR_M:
+            second = float(flat[k]) / score if score > 0 else 0.0
+            break
+    t = best.copy()
+    for _ in range(60):
+        d, q = _nearest_on_segments(moving + t, target)
+        keep = d < STAIR_LAYER_REFINE_M
+        if keep.sum() < 10:
+            break
+        step = (q[keep] - (moving[keep] + t)).mean(0)
+        t = t + step
+        if float(np.hypot(*step)) < 1e-6:
+            break
+    d, _ = _nearest_on_segments(moving + t, target)
+    return {"shift": [_r(t[0]), _r(t[1])], "share": round(float((d <= MATCH_M).mean()), 4),
+            "score": round(score, 4), "second": round(second, 4)}
+
+
+def _stair_layer(r, mpu: float, placed: list, cache: dict) -> Optional[dict]:
+    """The stair-layer placement of plan ``r`` (``stair_layer_fit``) onto the best of the ``placed`` plans, the
+    adjacent levels first, at the sheet's orientation, else another rotation; None without a clear one."""
+    segs, layers = stair_segments(r, mpu)
+    pts = sample_segments(segs)
+    if len(pts) < STAIR_LAYER_MIN_POINTS:
+        return None
+    order = (r.level or {}).get("order")
+
+    def target_of(p) -> np.ndarray:
+        if p.id not in cache:
+            ts, _ = stair_segments(p, p.metres_per_unit)
+            tf = p.transform_to_building
+            u = ts / p.metres_per_unit
+            cache[p.id] = np.stack([tf[0] * u[..., 0] + tf[1] * u[..., 1] + tf[2],
+                                    tf[3] * u[..., 0] + tf[4] * u[..., 1] + tf[5]], axis=-1) if len(ts) else ts
+        return cache[p.id]
+
+    def near(p) -> bool:
+        o = (p.level or {}).get("order")
+        return order is not None and o is not None and abs(o - order) == 1
+
+    for group in ([p for p in placed if near(p)], [p for p in placed if not near(p)]):
+        found = []
+        for theta in (0.0, 90.0, 180.0, 270.0):
+            moving = pts @ _rot(theta).T
+            for p in group:
+                fit = stair_layer_fit(target_of(p), moving)
+                if fit is None or fit["share"] < STAIR_LAYER_SHARE or fit["second"] >= STAIR_LAYER_UNIQUE:
+                    continue
+                found.append(dict(fit, rotation_deg=theta, target=p.id, target_level=(p.level or {}).get("id"),
+                                  layers=layers, points=int(len(pts))))
+            if found and theta == 0.0:
+                break                                      # the sheet's orientation fits: no other rotation is tried
+        if found:
+            return max(found, key=lambda f: (f["share"], f["rotation_deg"] == 0.0))
+    return None
+
+
 def register(plans: list, reference, conflict: Callable, warnings: list) -> dict:
     """Registers ``plans`` (regions with ``metres_per_unit``) onto ``reference``. Returns ``{region id: outline
     polygon in building metres}`` for the outline cross-checks."""
@@ -475,7 +637,11 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
     ref_lift = lift_anchor(reference)
     ref_core = core_segments(reference, ref_mpu, ref_lift, excl) if ref_lift is not None else []
     ref_eyes = stair_eyes(reference, ref_mpu, ref_lift)
-    for r in plans:
+    # 3 Nov 2026: the plans placed by a grid or a core first, so a plan without either can lay its stairs on theirs
+    placed, stair_cache = [reference], {}
+    anchored = {r.id: lift_anchor(r) is not None or bool(ref_axes and r.metres_per_unit
+                                                          and grid_axes(r, r.metres_per_unit)) for r in plans}
+    for r in sorted(plans, key=lambda x: not anchored.get(x.id)):
         if r is reference:
             continue
         mpu = r.metres_per_unit
@@ -515,6 +681,7 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
                 if grid_ok:
                     shaft["grid_gap_m"] = round(float(math.dist(shaft["shift"], grid["shift"])), 4)
         method = None
+        stair_layer = None
         if shaft is not None:
             theta = shaft["rotation_deg"]
             core = "stair" if shaft.get("stair") else "shaft"
@@ -533,6 +700,10 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
             theta = grid["rotation_deg"]
             t = np.array(grid["shift"], dtype=float) + ref_t       # the reference's raw metres -> the building frame
             method = "axis_grid"
+        elif (stair_layer := _stair_layer(r, mpu, placed, stair_cache)) is not None:
+            theta = stair_layer["rotation_deg"]
+            t = np.array(stair_layer["shift"], dtype=float)        # fitted in the building frame already
+            method = "stair_layer"
         else:
             per_theta: dict = {}
             for theta in (0.0, 90.0, 180.0, 270.0):
@@ -563,6 +734,12 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
                 if d[k] <= COLUMN_MATCH_M:
                     matched_cols.append(ref_cols[k] - c)
         note = None
+        if method == "stair_layer":
+            matched_cols = []                  # the stairs place the level: the columns do not move it
+            note = (f"the stairs drawn on {', '.join(repr(x) for x in stair_layer['layers'][:3])}: "
+                    f"{stair_layer['share']:.0%} of their lines within {MATCH_M * 100:.0f} cm of the stairs of "
+                    f"{stair_layer['target']} ({stair_layer['target_level']}); the next best shift "
+                    f"{STAIR_LAYER_FAR_M:.1f} m away scores {stair_layer['second']:.0%} of it")
         if method in ("stair", "stair_grid", "shaft", "shaft_grid", "axis_grid"):
             matched_cols = []                  # the shaft or the grid places the level: the columns do not move it
             parts = []
@@ -599,9 +776,13 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
             r.registration["grid_axes"] = grid["axes"]
         if shaft is not None:
             r.registration["shaft"] = shaft
-        # a level placed by its shaft or the grid whose outline differs (terraces, balconies, a smaller basement) is
-        # no conflict: the core says where it stands
-        if residual > RESIDUAL_MAX_M and method not in ("stair", "stair_grid", "shaft", "shaft_grid", "axis_grid"):
+        if method == "stair_layer":
+            r.registration["stair_layer"] = {k: stair_layer[k] for k in ("target", "share", "second", "points")}
+        if method in PLACED_METHODS:
+            placed.append(r)
+        # a level placed by its shaft, its stairs or the grid whose outline differs (terraces, balconies, a smaller
+        # basement, an attic under its roof) is no conflict: the core says where it stands
+        if residual > RESIDUAL_MAX_M and method not in PLACED_METHODS:
             cid = conflict("registration_residual", [r.id, reference.id],
                            f"{r.file} {r.id} ({(r.level or {}).get('id')}) registered onto {reference.id} "
                            f"({(reference.level or {}).get('id')}) with an RMS outline distance of {residual:.3f} m "

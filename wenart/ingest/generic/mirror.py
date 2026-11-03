@@ -136,7 +136,7 @@ def consistency(walls: list, openings: list, axis=None) -> Optional[tuple[list, 
     from wenart.ingest.generic import facade as FC
     from wenart.ingest.model import OpeningItem, WallItem
 
-    axis = axis or FC.mirror_axis(walls)
+    axis = axis or FC.mirror_axis(walls, FC.MIRROR_FIX_SHARE)
     if axis is None:
         return None
     walls = [copy.copy(w) for w in walls]

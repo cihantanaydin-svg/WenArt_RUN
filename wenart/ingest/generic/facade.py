@@ -331,7 +331,7 @@ def frame_windows(new_walls: list, strokes: list, read: list, walls: list) -> li
                                rotation_deg=math.degrees(math.atan2(uy, ux)), box=list(w.box),
                                entity=f"inferred:glazed_facade_{kind}:{n}", evidence=ev, status="unverified",
                                type_raw=f"{kind} frames on an inferred facade wall (rule glazed_facade)",
-                               assumed=["height"] if door else ["height", "sill"],
+                               assumed=["height"] if door else ["height", "sill_height"],
                                operation="swing" if door else None, operation_source="geometry" if door else None))
     return out
 
@@ -397,14 +397,19 @@ def facade_wall_items(walls: list, faces: list, openings: list, file_rel: str, p
 
 
 MIRROR_SHARE = 0.6              # walls mirrored about the axis overlap this share of themselves: a mirrored plan
+# 3 Nov 2026 (the regression set: real01, a nearly symmetric house (83 %), got five mirrored walls and lost 8 of its 9
+# rooms): the steps that add or change walls, openings, room seeds or outdoor spaces from the mirror need two mirrored
+# halves (real09: 93-100 %); naming a room after its mirror twin keeps ``MIRROR_SHARE``
+MIRROR_FIX_SHARE = 0.9
 MIRROR_NEAR_M = 0.05
 SEED_CLEAR_M = 1.0              # a mirrored seed with a label this close is that label's room (no seed)
 
 
-def mirror_axis(walls: list) -> Optional[tuple[str, float]]:
+def mirror_axis(walls: list, min_share: float = MIRROR_SHARE) -> Optional[tuple[str, float]]:
     """The axis of a plan of two mirrored halves (the flats of an apartment floor): the vertical or horizontal line
     through the middle of the walls' extent about which the walls overlap themselves the most, when they overlap at
-    least ``MIRROR_SHARE``; None otherwise."""
+    least ``min_share`` (``MIRROR_SHARE``, ``MIRROR_FIX_SHARE`` for the steps that change the model); None
+    otherwise."""
     from shapely import affinity
 
     polys = [TP.wall_polygon(w) for w in walls]
@@ -419,7 +424,7 @@ def mirror_axis(walls: list) -> Optional[tuple[str, float]]:
         m = affinity.scale(u, xfact=-1.0 if axis == "x" else 1.0, yfact=-1.0 if axis == "y" else 1.0,
                            origin=(v, 0.0) if axis == "x" else (0.0, v))
         share = u.intersection(m.buffer(MIRROR_NEAR_M, join_style=2)).area / u.area
-        if share >= MIRROR_SHARE and (best is None or share > best[0]):
+        if share >= min_share and (best is None or share > best[0]):
             best = (share, axis, v)
     return (best[1], best[2]) if best else None
 
@@ -429,7 +434,7 @@ def mirror_seeds(walls: list, labelled: list, open_test) -> list:
     of frames like its twin's, stayed open and out of the model): the mirrors of the labelled rooms' anchors about the
     plan's mirror axis (``mirror_axis``) that stand in an open area (``open_test``) with no label near them; the
     closed faces become rooms the mirror-label rule names after their twins (``twins.mirror_labels``)."""
-    axis = mirror_axis(walls)
+    axis = mirror_axis(walls, MIRROR_FIX_SHARE)
     if axis is None:
         return []
     out = []

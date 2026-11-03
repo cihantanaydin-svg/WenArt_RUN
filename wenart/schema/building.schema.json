@@ -283,8 +283,11 @@
         "outline": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3, "description": "Outer face of the outer walls of the level above (the level below when larger)"},
         "openings": {"type": "array", "items": {"type": "object", "required": ["id", "kind", "polygon", "source"], "properties": {
           "id": {"type": "string"},
-          "kind": {"enum": ["stair_void", "other"]},
+          "kind": {"enum": ["stair_void", "void", "other"], "description": "void (3 Nov 2026): a room whose label means a void over the floor below (galeri, boşluk, void, open to below ...), its outline"},
           "furniture_id": {"type": ["string", "null"], "description": "The stair under the void"},
+          "room_id": {"type": ["string", "null"], "description": "kind void: the room the plan of the level above labels as a void"},
+          "reason": {"type": ["string", "null"]},
+          "entity": {"type": ["string", "null"], "description": "kind void: the label's text entity"},
           "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3},
           "source": {"enum": ["drawn", "derived", "assumed"]}
         }}},

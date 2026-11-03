@@ -277,7 +277,7 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
         ex.notes.append(f"{where}: outdoor space '{a.get('label')}': " + (
             rec["reason"] + (f"; {rec['steps']['reason']}" if rec.get("steps") else "") if rec is not None else
             "no drawn outline closes around the label (the level inference infers one)"))
-    axis = FC.mirror_axis(walls) if walls else None
+    axis = FC.mirror_axis(walls, FC.MIRROR_FIX_SHARE) if walls else None
     if axis is None:
         return
     anchors = [tuple(a["anchor"]) for a in site.get("areas") or [] if a.get("anchor")]
@@ -308,6 +308,9 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
 
 
 def _shift_site(site: dict, sh: _Shift) -> None:
+    from wenart.ingest.generic import voids as VD
+
+    VD.shift(site.get("voids"), sh.p)
     for w in site.get("boundary_walls", []):
         w["start"], w["end"] = list(sh.p(w["start"])), list(sh.p(w["end"]))
     for a in site.get("areas", []):
@@ -1245,7 +1248,7 @@ def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: li
     from wenart.ingest.generic import facade as FC
     from wenart.ingest.generic import mirror as MR
 
-    axis = FC.mirror_axis(walls2)
+    axis = FC.mirror_axis(walls2, FC.MIRROR_FIX_SHARE)
     if axis is None:
         return None
     res = MR.consistency(walls2, openings, axis)
@@ -1541,6 +1544,15 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     # 26 Oct 2026 (real06's VERANDA and BALKON: no walls around them, nothing built): a labelled outdoor space without
     # a closed face is closed from the drawn strokes around its label (wenart.levels.outdoor.read_outline)
     _outdoor_outlines(ex, where, site, non_wall, outline, bwalls)
+    # 3 Nov 2026 (real09, user: "each duplex flat has its inner stair and a 'galeri' void over the floor below"): the
+    # voids the plan labels (galeri, boşluk, void, open to below ...) with their drawn outlines (generic.voids)
+    from wenart.ingest.generic import voids as VD
+    site["voids"] = VD.read_voids(texts_m, strokes_m)
+    for v in site["voids"]:
+        ex.notes.append(f"{where}: void '{v['label']}': {v['reason']}")
+    if site["voids"]:
+        blocks, void_notes = VD.room_labels(blocks, site["voids"], TP.faces(bwalls, b_openings))
+        ex.notes.extend(f"{where}: {n}" for n in void_notes)
 
     # 5. Furniture, separators, faces. Milestone 12 (track R): the re-read's extra candidates and its symbols.
     extras: list[dict] = []
@@ -1550,6 +1562,14 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                                         level_id=level_id, file_rel=file_rel, page_no=page_no, units_to_m=s,
                                         notes=ex.notes, extra_out=extras, symbols_out=symbols)
     site["decor"] = decor
+    if not is_raster:
+        # 3 Nov 2026 (real09, user: "each duplex flat has its inner stair (winders 1-17)"): stairs whose treads are
+        # numbered, read from the numbers where the stair rule found none (generic.stair_numbers)
+        from wenart.ingest.generic import stair_numbers as SN
+        pieces, cands, sn_polys = SN.apply(pieces, cands, texts_m, non_wall, s, file_rel, page_no, ex.notes)
+        if sn_polys:
+            extras = [e for e in extras if not any(q.buffer(-0.05).contains(Point(e["footprint"]["center"]))
+                                                   for q in sn_polys)]
     stairs = [p for p in pieces if p.type == "stair"]
     seps, sep_log = TP.separators(bwalls, b_openings, gap_log, blocks, stairs, units_to_m=s)
     rows = face_table(TP.faces(bwalls, b_openings, seps), blocks, bwalls, b_openings, stairs)

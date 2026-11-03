@@ -176,7 +176,18 @@ MIRROR_LABEL_IOU = 0.95     # 3 Nov 2026: ... or overlapping it by 95 % (interse
 MIRROR_LABEL_TOL = 0.10      # real10: an unlabelled face within 10 cm (Hausdorff) of a labelled room's mirror
 
 
-def mirror_labels(rooms: list[dict]) -> list[str]:
+def _wall_axis(walls: list, level_id: str):
+    """The level's mirror axis from its walls (``generic.facade.mirror_axis``), or None."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import facade as FC
+
+    items = [SimpleNamespace(start=tuple(w["start"]), end=tuple(w["end"]), thickness=float(w.get("thickness") or 0.2))
+             for w in walls or [] if w.get("level_id") == level_id and w.get("start") and w.get("end")]
+    return FC.mirror_axis(items) if len(items) >= 4 else None
+
+
+def mirror_labels(rooms: list[dict], walls: Optional[list] = None) -> list[str]:
     """real10 (1 Nov 2026): a plan that labels only one of two mirrored halves (the two flats of an apartment floor,
     a semi-detached pair: the drafter wrote the names in one). Per level, the mirror axis is the one most pairs of a
     labelled room and an unlabelled face of the same area (2 %) on one line agree on (within ``TOL``); an unlabelled
@@ -204,18 +215,21 @@ def mirror_labels(rooms: list[dict]) -> list[str]:
                     votes.append(("x", (ca.x + cb.x) / 2.0))
                 if abs(ca.x - cb.x) <= TOL and abs(ca.y - cb.y) > TOL:
                     votes.append(("y", (ca.y + cb.y) / 2.0))
-        if not votes:
-            continue
         groups: list[list[tuple[str, float]]] = []
         for v in sorted(votes):
             if groups and groups[-1][0][0] == v[0] and v[1] - groups[-1][-1][1] <= TOL:
                 groups[-1].append(v)
             else:
                 groups.append([v])
-        best = max(groups, key=len)
-        if len(best) < 2:
-            continue
-        axis = (best[0][0], sorted(v[1] for v in best)[len(best) // 2])
+        best = max(groups, key=len) if groups else []
+        if len(best) >= 2:
+            axis = (best[0][0], sorted(v[1] for v in best)[len(best) // 2])
+        else:
+            # 3 Nov 2026 (real09's attic: one pair of equal areas only, the living rooms differ by 4 % by a door
+            # notch): the walls' own mirror axis (``generic.facade.mirror_axis``)
+            axis = _wall_axis(walls, level_id)
+            if axis is None:
+                continue
         taken: set = set()
         for a in named:
             mirrored = _mirror_poly(_poly(a), axis)

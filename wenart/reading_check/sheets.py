@@ -114,6 +114,39 @@ def _draw_model(ax, building, level, tf, box, colour=True, labels=True):
             c = Polygon(pts).representative_point()
             ax.text(c.x, c.y, f"{osp.get('label') or ''}\n({osp.get('kind') or ''})", fontsize=4.5, ha="center",
                     va="center", color="#1b5e20", clip_on=True)
+    # 3 Nov 2026 (real09's attic: the user checks the galeri voids and the stairs on the sheet): the openings of the
+    # level's floor (voids hatched, stair voids dotted) and the stairs (their footprint and flights), blue
+    for sl in building.get("slabs") or []:
+        if sl.get("above_level_id") != level or sl.get("variants"):
+            continue
+        for o in sl.get("openings") or []:
+            if len(o.get("polygon") or []) < 3:
+                continue
+            pts = [inv(*q) for q in o["polygon"]]
+            xs, ys = zip(*(pts + pts[:1]))
+            void = o.get("kind") != "stair_void"
+            if colour:
+                ax.fill(xs, ys, facecolor="white", edgecolor="#0277bd", hatch="xxx" if void else "...", lw=0.6,
+                        alpha=0.9)
+            ax.plot(xs, ys, color="#0277bd", lw=0.8, ls="-" if void else ":")
+            if labels and void:
+                c = Polygon(pts).representative_point()
+                ax.text(c.x, c.y, "void", fontsize=4.0, ha="center", va="center", color="#01579b", clip_on=True)
+    for f in building.get("furniture") or []:
+        if f.get("level_id") != level or f.get("type") != "stair" or not f.get("footprint"):
+            continue
+        fp = f["footprint"]
+        cx, cy = fp["center"]
+        sx, sy = fp["size"][0] / 2.0, fp["size"][1] / 2.0
+        a = math.radians(float(fp.get("rotation_deg") or 0.0))
+        ca, sa = math.cos(a), math.sin(a)
+        pts = [inv(cx + ca * u - sa * v, cy + sa * u + ca * v) for u, v in ((-sx, -sy), (sx, -sy), (sx, sy), (-sx, sy))]
+        xs, ys = zip(*(pts + pts[:1]))
+        ax.plot(xs, ys, color="#0d47a1", lw=1.0)
+        for fl in ((f.get("details") or {}).get("stair") or f.get("stair") or {}).get("flights") or []:
+            if fl.get("start") and fl.get("end"):
+                p0, p1 = inv(*fl["start"]), inv(*fl["end"])
+                ax.annotate("", xy=p1, xytext=p0, arrowprops={"arrowstyle": "->", "color": "#0d47a1", "lw": 0.8})
     for w in walls.values():
         (x0, y0), (x1, y1) = inv(*w["start"]), inv(*w["end"])
         lw = max(0.6, min(4.5, float(w.get("thickness") or 0.2) * scale * 3000))
@@ -235,8 +268,9 @@ def draw(out_dir, result: Optional[dict] = None, renders: Optional[str] = None) 
         panels = []
         for k, (name, fn) in enumerate((
                 ("1 the source drawing", lambda ax: _draw_drawing(ax, doc, ents, box)),
-                ("2 the model's plan (rooms yellow, balconies and terraces green; walls black, inferred walls orange; "
-                 "doors green, windows blue, other openings purple, inferred openings dashed)",
+                ("2 the model's plan (rooms yellow, balconies and terraces green, floor voids hatched blue, stairs "
+                 "dark blue; walls black, inferred walls orange; doors green, windows blue, other openings purple, "
+                 "inferred openings dashed)",
                  lambda ax: _draw_model(ax, building, lid, pg["tf"], box)),
                 ("3 the model's walls over the drawing (grey): drawn red, inferred orange; findings: drawn walls the "
                  "model lacks yellow, walls on no drawn line magenta",

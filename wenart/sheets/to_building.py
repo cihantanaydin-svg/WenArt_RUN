@@ -168,9 +168,10 @@ def _stairs(level_id: Optional[str], furniture: list[dict]) -> list[dict]:
 
 
 def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], sec: Optional[dict],
-          slab_default: float, slab_id: str) -> Optional[dict]:
+          slab_default: float, slab_id: str, rooms: Optional[list[dict]] = None,
+          voids: Optional[list[dict]] = None) -> Optional[dict]:
     """The slab under ``lv`` (over ``below``): outline = the larger of the two outer-wall outlines, stair voids over
-    the stairs of the level below."""
+    the stairs of the level below, and the voids ``lv``'s plan draws (``void_openings``)."""
     below_id = below["id"] if below else None
     own = _outline(unions.get(lv["id"]))
     under = _outline(unions.get(below_id)) if below_id else None
@@ -197,6 +198,9 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
                                                                                   fp["rotation_deg"])]
         openings.append({"id": f"sv_{slab_id[3:]}_{len(openings) + 1:03d}", "kind": "stair_void",
                          "furniture_id": f["id"], "polygon": poly, "source": "derived"})
+    if below is not None:
+        for o in void_openings(lv["id"], rooms or [], voids):
+            openings.append(dict(o, id=f"sv_{slab_id[3:]}_{len(openings) + 1:03d}"))
     ev = list(thick.get("evidence") or [])
     ev.append(B.evidence(lv["evidence"][0]["file"] if lv.get("evidence") else "", "derived", 1.0,
                          entity=f"outline of the outer walls of {lv['id']}" + (f" (larger {below_id} below)"
@@ -206,6 +210,31 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
             "thickness": round(thickness, 3), "thickness_source": "section" if from_section else "assumed_default",
             "outline": outline, "openings": openings, "variants": [],
             "status": "verified" if from_section else "assumed", "evidence": ev}
+
+
+def void_openings(level_id: str, rooms: list[dict], voids: Optional[list[dict]] = None) -> list[dict]:
+    """3 Nov 2026 (real09, user: "each duplex flat has its inner stair and a 'galeri' void over the floor below"): the
+    voids the plan of ``level_id`` labels (``generic.voids``: a drawn outline around a label galeri, boşluk, void, open
+    to below, Luftraum ...) and its rooms whose label means a void (``building.is_void_label``) are openings of the
+    floor slab under them (kind ``void``, source ``drawn``; the build cuts them out of the floor and the ceiling below
+    and guards their free edges)."""
+    out = []
+    for v in voids or []:
+        if v.get("level_id") != level_id or len(v.get("polygon") or []) < 3:
+            continue
+        out.append({"kind": "void", "room_id": None, "polygon": [[round(float(x), 4), round(float(y), 4)]
+                                                                 for x, y in v["polygon"]],
+                    "source": "drawn", "reason": v.get("reason"), "entity": v.get("entity")})
+    for r in rooms:
+        if r.get("level_id") != level_id or len(r.get("polygon") or []) < 3:
+            continue
+        if not (B.is_void_label(r.get("label_raw")) or B.is_void_label(r.get("label"))):
+            continue
+        out.append({"kind": "void", "room_id": r["id"], "polygon": [[round(float(x), 4), round(float(y), 4)]
+                                                                     for x, y in r["polygon"]],
+                    "source": "drawn", "reason": f"the room labelled '{r.get('label_raw') or r.get('label')}' is a "
+                                                 f"void over the floor below"})
+    return out
 
 
 def _same_slab(a: dict, b: dict, furniture: list[dict]) -> bool:
@@ -224,7 +253,8 @@ def _same_slab(a: dict, b: dict, furniture: list[dict]) -> bool:
 
 
 def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[dict], slab_default: float,
-                warn, variants: Optional[list[dict]] = None) -> list[dict]:
+                warn, variants: Optional[list[dict]] = None, rooms: Optional[list[dict]] = None,
+                voids: Optional[list[dict]] = None) -> list[dict]:
     """One slab under every built base level (``sl_<level id>``); for each alternative, the slabs under and over its
     level again as ``sl_<above>__<variant id>`` (``variants: [id]``, level ids naming the base levels) when their
     outline or stair voids differ (an alternative's stair within 0.1 m of the base stair keeps the base slab); when the
@@ -242,7 +272,8 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
 
     out = []
     for lv in base:
-        slab = _slab(lv, below_of(lv), unions, furniture, by_base.get(lv["id"]), slab_default, f"sl_{lv['id']}")
+        slab = _slab(lv, below_of(lv), unions, furniture, by_base.get(lv["id"]), slab_default, f"sl_{lv['id']}",
+                     rooms, voids)
         if slab is None:
             warn(f"slab under {lv['id']}: no closed outer wall outline; slab not written")
             continue
@@ -269,7 +300,7 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
                 pairs.append((f"sl_{above['id']}", above, alt_as_base, above["id"]))
             for base_slab_id, top, under, above_id in pairs:
                 mine = _slab(top, under, unions, furniture, by_base.get(above_id), slab_default,
-                             f"{base_slab_id}__{v['id']}")
+                             f"{base_slab_id}__{v['id']}", rooms, voids)
                 theirs = by_id.get(base_slab_id)
                 if mine is None or (theirs is not None and _same_slab(mine, theirs, furniture)):
                     continue

@@ -42,8 +42,8 @@ ROLES.update({
     # 3 Nov 2026 (real09: the kitchens' and bathrooms' tile grids on 'karo' were read as stairs)
     "finish": ("KARO", "SERAMIK", "FAYANS", "KAPLAMA", "TILE", "TILES", "TILING", "FLIESEN", "FLIESE", "CARRELAGE",
                "PISO", "PAVIMENTO", "PARKE", "PARQUET", "LAMINAT", "LAMINATE", "MERMER", "MARBLE"),
-    "furniture": ("TEFRIS", "MOBILYA", "FURNITURE", "FURN", "MOEBEL", "MOBEL", "MOBILIER", "MUEBLE", "MUEBLES",
-                  "ARREDO", "ARREDI", "ESYA"),
+    "furniture": ("TEFRIS", "TEF", "MOBILYA", "FURNITURE", "FURN", "MOEBEL", "MOBEL", "MOBILIER", "MUEBLE",
+                  "MUEBLES", "ARREDO", "ARREDI", "ESYA"),
     "dimension": ("DIM", "DIMS", "DIMH", "DIMV", "DH", "DV", "OLCU", "OLCULER", "COTA", "COTAS", "BEMASSUNG",
                   "MASSE", "COTE", "COTES", "QUOTA", "QUOTE", "DIMENSION", "DIMENSIONS"),
     "axis": ("AKS", "AKSLAR", "AXIS", "AXES", "GRID", "GRIDS", "ACHSE", "ACHSEN", "RASTER", "EKSEN", "ASSE", "EJE"),
@@ -52,6 +52,10 @@ ROLES.update({
     "text": ("TEXT", "TEXTS", "YAZI", "YAZILAR", "TEXTE", "TEXTO", "TESTO", "NOTE", "NOTES", "ANNO"),
     "hatch": ("HATCH", "TARAMA", "SCHRAFFUR", "HACHURE", "RAYADO", "TRATTEGGIO"),
     "site": ("VAZIYET", "SITE", "LAGEPLAN", "PLAN-MASSE", "EMPLAZAMIENTO", "PLANIMETRIA", "PEYZAJ", "LANDSCAPE"),
+    # 3 Nov 2026 (real07: the WCs and basins on 'S-TEF', sıhhi tefriş): sanitary ware differs from floor to floor. Last:
+    # any other word of the name decides first (real03's '00_VİTRİFİYE AKS' draws axis lines)
+    "sanitary": ("VITRIFIYE", "SIHHI", "SANITARY", "SANITAER", "SANITAR", "SANITAIRE", "SANITARIO", "SANITARIOS",
+                 "SANITARI", "PLUMBING"),
 })
 WALL_ROLES: tuple[str, ...] = ("wall", "plaster", "structure")
 _WORD_RE = re.compile(r"[A-Z]+(?:-[A-Z]+)?")

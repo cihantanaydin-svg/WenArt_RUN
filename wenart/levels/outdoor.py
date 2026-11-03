@@ -193,6 +193,9 @@ def _segments_of(pts) -> list:
     return [(tuple(pts[i]), tuple(pts[i + 1])) for i in range(len(pts) - 1) if G.distance(pts[i], pts[i + 1]) > 1e-6]
 
 
+RAY_HIT_TOL_M = 0.005           # a bridging ray passing this close to a line hits it
+
+
 def _bridges(strokes: list[dict], fixed_lines, gap: float) -> list[tuple]:
     """Bridging segments for the free ends of ``strokes`` (pure, shapely): an end that touches no other stroke or
     boundary line is extended along its direction to the first stroke or line within ``gap``, else joined to the
@@ -217,6 +220,16 @@ def _bridges(strokes: list[dict], fixed_lines, gap: float) -> list[tuple]:
     free = [(k, p, q) for k, p, q in ends if not touching(k, Point(p), 0.002)]
     out = []
     used = set()
+    # 3 Nov 2026 (real09's left attic terrace): an end that touches a line (within 2 mm) without meeting it leaves the
+    # faces open by a fraction of a millimetre; it is carried 4 mm on along its direction, so it crosses that line
+    for k, p, q in ends:
+        near_j = touching(k, Point(p), 0.002)
+        if not near_j or any(geoms[j].distance(Point(p)) <= 1e-9 for j in near_j):
+            continue
+        d = G.distance(q, p)
+        if d > 1e-9:
+            ux, uy = (p[0] - q[0]) / d, (p[1] - q[1]) / d
+            out.append((p, (p[0] + ux * 0.004, p[1] + uy * 0.004), 0.004))
     for k, p, q in free:
         d = G.distance(q, p)
         if d <= 1e-9:
@@ -231,6 +244,16 @@ def _bridges(strokes: list[dict], fixed_lines, gap: float) -> list[tuple]:
                     dist = G.distance(p, c)
                     if dist > 1e-6 and (best is None or dist < best[0]):
                         best = (dist, c)
+        if best is None:
+            # 3 Nov 2026 (real09's left attic terrace: its balcony line ran 0.4 mm beside the facade's edge, the ray
+            # along it hit nothing and the terrace stayed open by 3 mm, while its mirror twin closed): a line within
+            # ``RAY_HIT_TOL_M`` of the ray is hit at its point nearest the ray; the bridge runs 1 mm past it (a node)
+            from shapely.ops import nearest_points
+            for j in touching(k, ray, RAY_HIT_TOL_M):
+                _a, c = nearest_points(ray, geoms[j])
+                dist = (c.x - p[0]) * ux + (c.y - p[1]) * uy
+                if dist > 1e-6 and (best is None or dist < best[0]):
+                    best = (dist, (c.x + ux * 0.001, c.y + uy * 0.001))
         if best is not None:
             out.append((p, tuple(best[1]), round(best[0], 3)))
             continue

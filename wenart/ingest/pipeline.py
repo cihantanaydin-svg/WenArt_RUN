@@ -235,6 +235,7 @@ class ProjectBuild:
         self.sheets: Optional[dict] = None
         self.reference_region: Optional[str] = None
         self.frame_shift: tuple[float, float] = (0.0, 0.0)
+        self.voids: list[dict] = []             # 3 Nov 2026: labelled voids (generic.voids), building frame
         # Milestone 12 (track R): the counts of the reading step (``generic.reading.read_furniture``) for the report.
         self.reading: dict = {}
         # Milestone 13 (K3): the recognition questions withdrawn because code typed their piece before the AI
@@ -704,6 +705,10 @@ def _add_site(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> None:
         target["boundary_walls"].append(item)
     for a in site.get("areas", []):
         target["areas"].append({"id": a.get("id"), "level_id": level_id, **{k: v for k, v in a.items() if k != "id"}})
+    # 3 Nov 2026: the voids the plan labels (generic.voids) become openings of the level's floor slab (slabs_block)
+    for v in site.get("voids") or []:
+        if v.get("polygon"):
+            build.voids.append(dict(v, level_id=level_id))
     for d in site.get("decor", []):
         target["decor"].append({"id": d.get("id"), "level_id": level_id,
                                 **{k: v for k, v in d.items() if k not in ("id", "box")}})
@@ -2441,7 +2446,7 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         room["twin_residual_m"] = None
         room["same_as"] = None
     # real10 (1 Nov 2026): one of two mirrored halves labelled only: the other's faces take the mirrored labels.
-    for line in TW.mirror_labels(b["rooms"]):
+    for line in TW.mirror_labels(b["rooms"], b["walls"]):
         build.warn(f"mirror label: {line}")
     # 3 Nov 2026 (real09): the room holding the stair that stacks through the levels is the stair core
     for line in TW.stair_cores(b["rooms"], b["furniture"]):
@@ -2472,7 +2477,7 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         build.warn(f"stair {rec['stair']}: {rec['reason']}")
     slab_default = float(BR.value(BR.load_brief(project_dir), "slab_thickness", 0.20))
     b["slabs"] = TB.slabs_block(sheets, b["levels"], build.unions, b["furniture"], slab_default, build.warn,
-                                b["variants"])
+                                b["variants"], b["rooms"], build.voids)
     terrace = TB.roof_terrace(b, sheets, build.warn)      # real10: parapets and the stair house of a roof terrace
     b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], build.frame_shift, b.get("site"),
                               terrace=terrace)

@@ -11,7 +11,8 @@ CAD document) and returns the findings, each with its check, severity, level and
 - RC4 drawn wall lines the model does not build (the strokes of the layers whose name means wall, plaster or column,
   ``generic.layer_names``; major over ``MISSING_MAJOR_M`` of wall face per level);
 - RC5 model walls on no drawn wall line (major; inferred walls are listed apart);
-- RC6 the reading's own review reasons (needs review) and the labels it found outside the building (major).
+- RC6 the reading's own review reasons (needs review) and the labels it found outside the building (major); the
+  sheets' review reasons (critical: a pod's sheets stage stops the project) and their schema errors (major).
 
 ``verdict``: ``ready`` without a critical finding, else ``fix before a pod run``. ``write(out_dir, result)`` writes
 ``reading_check/reading_check.json`` and ``.md``; ``wenart.reading_check.sheets`` draws the comparison sheets (the
@@ -133,14 +134,22 @@ def page_axes(page, tf) -> dict:
     return out
 
 
+# 3 Nov 2026 (real07: the WCs and basins of two different floors, on 'S-TEF' and 'TEFRIŞ', made the upper floor
+# "5.67 m off" though its outline lies exactly on the ground floor's): arcs on these layers move from floor to floor
+NOT_ANCHOR_ROLES = ("furniture", "sanitary", "finish", "dimension", "text", "hatch", "site", "door", "window", "glass")
+
+
 def page_stairs(page, tf) -> list:
     """``[((x, y), radii)]`` in building metres: sets of concentric arcs (a spiral stair's eye, a newel) with at
-    least three radii."""
+    least three radii; arcs on a layer whose name means furniture, sanitary ware, a finish, a door or a window
+    (``NOT_ANCHOR_ROLES``) are no anchors."""
+    from wenart.ingest.generic import layer_names as LN
+
     s = math.hypot(tf[0], tf[3])
     groups: dict = {}
     for st in page.strokes:
         arc = getattr(st, "arc", None)
-        if not arc:
+        if not arc or LN.layer_role(getattr(st, "layer", None)) in NOT_ANCHOR_ROLES:
             continue
         r = float(arc["radius"]) * s
         if not (0.05 <= r <= 1.5):
@@ -154,15 +163,56 @@ def page_stairs(page, tf) -> list:
             for g in groups.values() if len(g["radii"]) >= 3]
 
 
-def stacking(anchors: dict, reference: str) -> list:
-    """RC2 findings: each level's axes and stairs against the reference level's (``anchors``: ``{level: {"axes",
-    "stairs"}}``)."""
+def page_stair_lines(page, tf):
+    """The line segments on the stair layers (``layer_names`` role ``stair``) in building metres (an ``(m, 2, 2)``
+    array)."""
+    import numpy as np
+
+    from wenart.ingest.generic import layer_names as LN
+
+    out = []
+    for st in page.strokes:
+        if LN.layer_role(getattr(st, "layer", None)) != "stair":
+            continue
+        pts = [_apply(tf, p) for p in getattr(st, "pts", []) or []]
+        out += [(a, b) for a, b in zip(pts[:-1], pts[1:])]
+    return np.array(out, dtype=float).reshape(-1, 2, 2)
+
+
+def stair_line_gap(lines, other) -> Optional[float]:
+    """3 Nov 2026 (real09: the attic's three stairs on 'merdiven' lay 3.70 m off the duplex floor's): how far a level's
+    stair-layer lines (segments) lie from the same stairs on the level next to it (``register.stair_layer_fit``: a clear
+    fit of at least half of them), None without a clear fit."""
+    from wenart.sheets import register as RG
+
+    if lines is None or other is None or not len(lines) or not len(other):
+        return None
+    fit = RG.stair_layer_fit(other, RG.sample_segments(lines))
+    if fit is None or fit["share"] < RG.STAIR_LAYER_SHARE or fit["second"] >= RG.STAIR_LAYER_UNIQUE:
+        return None
+    return math.hypot(*fit["shift"])
+
+
+def stacking(anchors: dict, reference: str, orders: Optional[dict] = None) -> list:
+    """RC2 findings: each level's axes and stairs against the reference level's, and its stair-layer lines against
+    the level's next to it (below, else above; ``orders``: ``{level: order}``) (``anchors``: ``{level: {"axes",
+    "stairs", "stair_lines"}}``)."""
     out = []
     ref = anchors.get(reference) or {}
+    orders = orders or {}
+    by_order = {o: lid for lid, o in orders.items() if lid in anchors}
+    ref_order = orders.get(reference)
     for lid, a in anchors.items():
         if lid == reference:
             continue
         gaps = []
+        lo = orders.get(lid)
+        if lo is not None and ref_order is not None and lo != ref_order:
+            nxt = by_order.get(lo - 1 if lo > ref_order else lo + 1)   # the level next to it, toward the reference
+            if nxt is not None:
+                g = stair_line_gap(a.get("stair_lines"), (anchors.get(nxt) or {}).get("stair_lines"))
+                if g is not None:
+                    gaps.append((g, f"the stair lines on {nxt}"))
         for label, (o, c) in (a.get("axes") or {}).items():
             ro = (ref.get("axes") or {}).get(label)
             if ro and ro[0] == o:
@@ -179,9 +229,11 @@ def stacking(anchors: dict, reference: str) -> list:
         if typical > STACK_TOL_M:
             sev = "critical" if typical > STACK_CRITICAL_M else "major"
             axis_off = [g for g in gaps if g[1].startswith("axis") and g[0] > STACK_TOL_M]
+            lines = [g for g in gaps if g[1].startswith("the stair lines")]
             out.append(_finding("RC2", sev, lid, f"{lid} does not stack on {reference}: its anchors are {typical:.2f} m "
                                 f"off (median of {len(gaps)}: {len(axis_off)} axes, "
-                                f"{sum(1 for g in gaps if not g[1].startswith('axis'))} arc sets)",
+                                f"{sum(1 for g in gaps if g[1].startswith('the arc sets'))} arc sets"
+                                + (f", {lines[0][1]} {lines[0][0]:.2f} m" if lines else "") + ")",
                                 offset_m=round(typical, 3)))
     return out
 
@@ -412,6 +464,17 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     for w in building.get("warnings") or []:
         if "lies outside the building" in w or "outer walls do not close" in w:
             findings.append(_finding("RC6", "major", None, w[:300]))
+    # 3 Nov 2026 (real10 structure run 20261103-073227-full built nothing: sheets.json failed its schema on the new
+    # registration methods, and a pod's sheets stage stops a project whose sheets need review): the sheets' own
+    # review reasons are critical
+    for n in sheets.get("needs_review") or []:
+        reason = n.get("reason") if isinstance(n, dict) else str(n)
+        findings.append(_finding("RC6", "critical", None, f"the sheets need review (a pod's sheets stage stops the "
+                                                          f"project): {str(reason)[:240]}", region=(n or {}).get(
+                                                              "region") if isinstance(n, dict) else None))
+    for w in sheets.get("warnings") or []:
+        if str(w).startswith("schema: "):
+            findings.append(_finding("RC6", "major", None, f"sheets.json: {str(w)[:280]}"))
     pages = level_pages(building)
     anchors, checked, notes = {}, [], []
     conv = {"layers": {}, "levels": {}}
@@ -422,7 +485,8 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
             continue
         tf = pg["tf"]
         checked.append(lid)
-        anchors[lid] = {"axes": page_axes(page, tf), "stairs": page_stairs(page, tf)}
+        anchors[lid] = {"axes": page_axes(page, tf), "stairs": page_stairs(page, tf),
+                        "stair_lines": page_stair_lines(page, tf)}
         _note_conventions(conv, lid, page, anchors[lid], sheets, pg, building)
         rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == lid]
         walls = [w for w in building.get("walls") or [] if w.get("level_id") == lid]
@@ -434,7 +498,7 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
             notes.append(f"{lid}: no layer named wall, plaster or column: walls not compared")
     ref = reference or next((lid for lid in ("L0", "L1") if lid in anchors), next(iter(anchors), None))
     if ref:
-        findings += stacking(anchors, ref)
+        findings += stacking(anchors, ref, {lv["id"]: lv.get("order") for lv in building.get("levels") or []})
     counts = {s: sum(1 for f in findings if f["severity"] == s) for s in ("critical", "major", "minor")}
     return {"project": (building.get("project") or {}).get("id"), "levels_checked": checked, "reference": ref,
             "conventions": conv,

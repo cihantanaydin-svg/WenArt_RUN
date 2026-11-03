@@ -74,6 +74,9 @@ _TURKISH_ROOM_KEYWORDS = [
     ("saft", "shaft"),           # real03: ELEKTRİK / MEKANİK ŞAFT, HAVA BACASI (shafts are not furnished)
     ("baca", "shaft"),
     ("asansor", "shaft"),        # a lift shaft
+    ("galeri", "shaft"),         # 3 Nov 2026 (real09, user: the duplex flats' 'galeri' over the floor below): a void
+    ("bosluk", "shaft"),         # BOŞLUK / GALERİ BOŞLUĞU (a void: no floor, never furnished, see VOID_WORDS)
+    ("boslug", "shaft"),
     ("balkon", "balcony"),
     ("teras", "balcony"),
     ("kiler", "storage"),
@@ -104,10 +107,29 @@ _ENGLISH_ROOM_KEYWORDS = [
     ("pooja", "prayer"), ("puja", "prayer"), ("prayer", "prayer"), ("mandir", "prayer"),
     ("stair", "stair"), ("staircase", "stair"), ("stairwell", "stair"), ("shaft", "shaft"), ("lift", "shaft"),
     ("elevator", "shaft"),
+    ("void", "shaft"), ("open to below", "shaft"), ("double height", "shaft"), ("luftraum", "shaft"),
+    ("vide", "shaft"), ("vacio", "shaft"), ("doble altura", "shaft"), ("vuoto", "shaft"), ("doppia altezza", "shaft"),
     ("study", "other"), ("office", "other"), ("utility", "other"), ("laundry", "other"),
     ("servant", "other"), ("maid", "other"),
 ]
 _ROOM_TYPE_KEYWORDS = _TURKISH_ROOM_KEYWORDS + _ENGLISH_ROOM_KEYWORDS
+# 3 Nov 2026 (real09, user: "each duplex flat has its inner stair and a 'galeri' void over the floor below"): a room
+# whose label means a void over the floor below (a gallery space, double height) has no floor of its own: its outline
+# is an opening in its level's floor slab (``sheets.to_building``: kind ``void``, source ``drawn``) with guards on its
+# free edges; it is typed ``shaft`` (never furnished). Turkish words at the start of a word, the others whole words.
+VOID_WORDS_TURKISH = ("galeri", "bosluk", "boslug")
+VOID_WORDS = ("void", "open to below", "double height", "luftraum", "vide", "vacio", "doble altura", "vuoto",
+              "doppia altezza")
+
+
+def is_void_label(label: Optional[str]) -> bool:
+    """A room label that means a void over the floor below (``VOID_WORDS``)."""
+    if not label:
+        return False
+    text = fold_ascii(str(label)).lower()
+    if any(re.search(rf"(?<![a-z]){w}(?!e)", text) for w in VOID_WORDS_TURKISH):   # not 'Galerie' (a mezzanine)
+        return True
+    return any(english_keyword_re(w).search(text) for w in VOID_WORDS)
 # English words for the bathroom rule: a bath or shower word together with a toilet word is a
 # bathroom (``Bath+ Toilet``, ``Bath/WC``); Turkish labels keep wc first (``Banyo/WC`` -> wc).
 _ENGLISH_BATH_WORDS = ("bath", "bath room", "shower")
