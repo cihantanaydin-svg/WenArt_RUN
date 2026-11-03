@@ -388,6 +388,22 @@ CORE_REACH_M = 0.6
 GENERIC_LABELS = {"oda", "room", "hol", "hall"}
 
 
+def _holds_most(poly, fp: dict) -> bool:
+    """The room polygon holds at least half of a piece's footprint rectangle."""
+    from shapely.geometry import Polygon
+
+    try:
+        cx, cy = fp["center"][:2]
+        w, d = fp["size"][:2]
+        a = math.radians(float(fp.get("rotation_deg") or 0.0))
+    except (KeyError, TypeError, ValueError):
+        return False
+    ca, sa = math.cos(a), math.sin(a)
+    rect = Polygon([(cx + ca * u - sa * v, cy + sa * u + ca * v)
+                    for u, v in ((-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2))])
+    return rect.area > 0 and poly.intersection(rect).area >= 0.5 * rect.area
+
+
 def stair_cores(rooms: list[dict], furniture: list[dict]) -> list[str]:
     """3 Nov 2026 (real09, user: "This section is wrong it s the main shaft with the stairs you should be able to
     understand it"): a room no text names (or named only by a placeholder) that holds a drawn stair standing at the same
@@ -403,7 +419,10 @@ def stair_cores(rooms: list[dict], furniture: list[dict]) -> list[str]:
                                                                                                            "unknown"):
             continue
         poly = _poly(r)
-        mine = [f for f in stairs if f.get("level_id") == r["level_id"] and poly.contains(Point(f["footprint"]["center"]))]
+        # 3 Nov 2026 (real10: the core stair's centre stood in the hall in front of the stair room): the room holding
+        # the stair's centre, or at least half of its footprint
+        mine = [f for f in stairs if f.get("level_id") == r["level_id"]
+                and (poly.contains(Point(f["footprint"]["center"])) or _holds_most(poly, f["footprint"]))]
         if not mine:
             continue
         c = mine[0]["footprint"]["center"]
@@ -411,7 +430,12 @@ def stair_cores(rooms: list[dict], furniture: list[dict]) -> list[str]:
                          if math.dist(f["footprint"]["center"][:2], c[:2]) <= CORE_REACH_M})
         if len(levels) < CORE_LEVELS:
             continue
-        turkish = str(r.get("label") or "").strip().lower() in ("oda", "hol")
+        # the drawing's language: the placeholder, else the labels the level's plan writes (real10: the core room had
+        # no placeholder and came out 'Stair' on a Turkish plan)
+        from wenart import building as B
+        turkish = str(r.get("label") or "").strip().lower() in ("oda", "hol") or any(
+            B.is_turkish_label(str(x.get("label_raw") or "")) for x in rooms
+            if x.get("level_id") == r["level_id"] and x.get("label_raw"))
         old = r.get("label")
         r["label"] = "Merdiven" if turkish else "Stair"
         r["room_type"] = "stair"

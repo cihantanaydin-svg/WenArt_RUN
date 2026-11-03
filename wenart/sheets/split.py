@@ -285,18 +285,29 @@ def panel_rectangles(ents: list[Ent], min_side: float, tol: float) -> list[tuple
 # Sheet box
 # --------------------------------------------------------------------------
 
+FRAME_MIN_SPREAD = 0.05         # a frame candidate covers at least this share of the 2-98 % box of the centres
+
+
 def sheet_box(ents: list[Ent], texts: list[Txt]) -> tuple[Box, Optional[Ent]]:
     """The frame's box (the largest rectangle holding >= 50 % of the entity centres) or the 2-98 % box."""
     centres = [e.centre for e in ents] + [t.point for t in texts]
     if not centres:
         return (0.0, 0.0, 1.0, 1.0), None
-    for e in sorted((e for e in ents if e.rect is not None), key=lambda e: -_area(e.rect)):
-        inside = sum(1 for c in centres if in_box(c, e.rect))
-        if inside >= FRAME_HOLD_SHARE * len(centres) and inside >= 3:
-            return e.rect, e
     arr = np.asarray(centres, dtype=float)
     lo = np.percentile(arr, PERCENTILES[0], axis=0)
     hi = np.percentile(arr, PERCENTILES[1], axis=0)
+    # 3 Nov 2026 (real08: one sheet of many thousand rectangles and entities; counting the centres in every rectangle
+    # took over an hour): counted with numpy, and only rectangles of at least FRAME_MIN_SPREAD of the centres' spread
+    # (a frame holding half of the sheet is a large one)
+    spread = max(float(hi[0] - lo[0]) * float(hi[1] - lo[1]), 0.0)
+    need = max(FRAME_HOLD_SHARE * len(centres), 3)
+    xs, ys = arr[:, 0], arr[:, 1]
+    for e in sorted((e for e in ents if e.rect is not None and _area(e.rect) >= FRAME_MIN_SPREAD * spread),
+                    key=lambda e: -_area(e.rect)):
+        r = e.rect
+        inside = int(np.count_nonzero((xs >= r[0]) & (xs <= r[2]) & (ys >= r[1]) & (ys <= r[3])))
+        if inside >= need:
+            return e.rect, e
     box = (float(lo[0]), float(lo[1]), float(hi[0]), float(hi[1]))
     if box[2] - box[0] <= 0 or box[3] - box[1] <= 0:
         allb = box_union(e.box for e in ents) if ents else box_union(t.box for t in texts)

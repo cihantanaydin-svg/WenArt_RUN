@@ -183,7 +183,13 @@ def test_numbered_treads_read_a_u_stair_with_winders():
     assert st["turn"] == "U" and [f["lines"] for f in st["flights"]] == [4, 5] and st["winders"] == 7
     assert all(abs(f["width"] - 0.8) < 0.01 for f in st["flights"])
     assert st["direction"][1] > 0.9                                         # it rises from 1 northwards (drawn)
-    assert st["landing"] is not None and st["landing"]["depth"] < 0.9       # the band beyond the arms, not the eye
+    land = Polygon(st["landing"]["polygon"]) if st["landing"] else None
+    assert land is not None and land.bounds[1] >= 1.0                       # the band beyond the arms, not the eye
+    assert land.bounds[0] <= 0.05 and land.bounds[2] >= 2.35                # across the whole stair
+    assert abs(st["polygon"].minimum_rotated_rectangle.area - st["polygon"].area) < 1e-6   # a rectangle ...
+    assert all(abs(round(c, 4) % 1.0 - 0.0) < 1 for c in st["polygon"].bounds)
+    cs = list(st["polygon"].exterior.coords)
+    assert all(abs(a[0] - b[0]) < 1e-6 or abs(a[1] - b[1]) < 1e-6 for a, b in zip(cs, cs[1:]))   # ... not tilted
 
 
 def test_a_numbered_stair_replaces_its_untyped_parts():

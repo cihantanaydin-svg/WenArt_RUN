@@ -126,6 +126,32 @@ def bisect_top(o, z: float) -> None:
     o.data = me
 
 
+COVER_AREA_M2 = 25.0             # a visible object this large in plan standing above the cut may hide the level
+
+
+def _report_covers(level_id: str, z: float) -> list:
+    """3 Nov 2026 (real10 structure run 20261103-094348-full: the L-1 view showed only a lawn): the visible meshes still
+    reaching more than 0.3 m above the cut whose plan box is over ``COVER_AREA_M2`` are printed to the build log
+    (``TOPDOWN_COVER``), so a view a surface hides names what hides it."""
+    import bpy
+
+    dg = bpy.context.evaluated_depsgraph_get()
+    out = []
+    for o in bpy.data.objects:
+        if o.type != "MESH" or o.hide_render or o.name.startswith("topdown_"):
+            continue
+        lo, hi = bbox(o)
+        if (hi[0] - lo[0]) * (hi[1] - lo[1]) < COVER_AREA_M2:
+            continue
+        top = evaluated_top(o, dg)
+        if top is not None and top > z + 0.3:
+            out.append((o.name, str(o.get("wenart_kind")), round(lo[2], 2), round(top, 2)))
+    for name, kind, lo_z, top in out[:12]:
+        print(f"TOPDOWN_COVER {level_id}: '{name}' (kind {kind}) from z {lo_z} to {top} stands above the cut at "
+              f"{z:.2f} m and spans over {COVER_AREA_M2:.0f} m2")
+    return out
+
+
 def restore_meshes() -> None:
     """The meshes ``bisect_top`` replaced get their own data back."""
     import bpy
@@ -166,6 +192,7 @@ def render_level(level_id: str, elevation: float, out: str, res: int, samples: i
             o.modifiers.remove(m)
     if tilt > 0:
         section_cut(wall_cut, CUT_KINDS | SITE_CUT_KINDS)
+        _report_covers(level_id, wall_cut)
     col = bpy.data.collections.get(f"level_{level_id}")
     walls = [o for o in (col.all_objects if col else []) if o.type == "MESH" and str(o.get("wenart_kind")) == "wall"]
     if not walls:

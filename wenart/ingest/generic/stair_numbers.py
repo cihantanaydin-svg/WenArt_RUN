@@ -157,10 +157,15 @@ def stair_of(chain: list, strokes: list) -> Optional[dict]:
                 segs.append((a, b, st.id))
     near = MultiPoint(pts).convex_hull.buffer(WIDTH_M[1])
     segs = [s for s in segs if near.intersects(LineString([s[0], s[1]]))]
+    # 3 Nov 2026 (real10's core: the arms read from the numbers lay 2-8 degrees askew, the box tilted and the winders
+    # around the eye fell outside it): the arms follow the drawing's main directions (within SNAP_DEG) and the footprint
+    # is a rectangle in that frame holding the arms and every number of the turn
+    main = _main_angle(segs) if segs else math.degrees(math.atan2(*reversed(_unit(pts[arms[0][0]], pts[arms[0][-1]]))))
     flights, shapes, ids = [], [], set()
+    arm_axes = []
     for arm in arms:
         apts = [pts[i] for i in arm]
-        axis = _unit(apts[0], apts[-1])
+        axis = _snap(_unit(apts[0], apts[-1]), main)
         normal = (-axis[1], axis[0])
         treads = _treads(apts, axis, segs)
         widths = sorted(math.dist(a, b) for a, b, _ in treads)
@@ -172,8 +177,11 @@ def stair_of(chain: list, strokes: list) -> Optional[dict]:
             off = offs[len(offs) // 2]
         else:
             off = 0.0
-        s = (apts[0][0] + normal[0] * off, apts[0][1] + normal[1] * off)
-        e = (apts[-1][0] + normal[0] * off, apts[-1][1] + normal[1] * off)
+        cx = sum(q[0] for q in apts) / len(apts) + normal[0] * off
+        cy = sum(q[1] for q in apts) / len(apts) + normal[1] * off
+        proj = [(q[0] - cx) * axis[0] + (q[1] - cy) * axis[1] for q in apts]
+        s = (cx + axis[0] * proj[0], cy + axis[1] * proj[0])
+        e = (cx + axis[0] * proj[-1], cy + axis[1] * proj[-1])
         going = math.dist(s, e) / max(len(apts) - 1, 1)
         ids |= {sid for _, _, sid in treads}
         flights.append({"start": [round(s[0], 4), round(s[1], 4)], "end": [round(e[0], 4), round(e[1], 4)],
@@ -182,45 +190,62 @@ def stair_of(chain: list, strokes: list) -> Optional[dict]:
         s0 = (s[0] - axis[0] * half, s[1] - axis[1] * half)
         e0 = (e[0] + axis[0] * half, e[1] + axis[1] * half)
         shapes.append(LineString([s0, e0]).buffer(width / 2.0, cap_style=2))
+        arm_axes.append(axis)
     in_arms = {i for arm in arms for i in arm}
     turn_pts = [pts[i] for i in range(len(pts)) if i not in in_arms]
     landing = None
     winders = 0
     turn = "straight"
+    # the footprint: the arms and the turn's tread lines (the winders run from the eye to the stair's outer edge; without
+    # them, each turn number grown by half the widest arm), as a rectangle in the main frame
+    wmax = max(f["width"] for f in flights)
+    theta = math.radians(main)
+    ct, st_ = math.cos(theta), math.sin(theta)
+    to_f = lambda q: (q[0] * ct + q[1] * st_, -q[0] * st_ + q[1] * ct)
+    from_f = lambda q: (q[0] * ct - q[1] * st_, q[0] * st_ + q[1] * ct)
+    cloud = [c for sh in shapes for c in sh.exterior.coords]
+    for q in [pts[i] for i in range(len(pts)) if i not in {k for arm in arms for k in arm}]:
+        lines = [sg for sg in segs if LineString([sg[0], sg[1]]).distance(Point(q)) <= TREAD_REACH_M
+                 and math.dist(sg[0], sg[1]) <= wmax * 1.6]
+        if lines:
+            cloud += [c for sg in lines for c in (sg[0], sg[1])]
+            ids |= {sg[2] for sg in lines}
+        else:
+            cloud += [(q[0] + dx, q[1] + dy) for dx, dy in ((wmax / 2, 0), (-wmax / 2, 0), (0, wmax / 2),
+                                                            (0, -wmax / 2))]
+    fx = [to_f(q) for q in cloud]
+    bx = (min(q[0] for q in fx), min(q[1] for q in fx), max(q[0] for q in fx), max(q[1] for q in fx))
+    poly = Polygon([from_f(q) for q in ((bx[0], bx[1]), (bx[2], bx[1]), (bx[2], bx[3]), (bx[0], bx[3]))])
     if len(arms) == 2:
-        a1 = _unit(pts[arms[0][0]], pts[arms[0][-1]])
-        a2 = _unit(pts[arms[1][0]], pts[arms[1][-1]])
+        a1, a2 = arm_axes
         ang = abs(_angle(a1, a2))
         turn = "U" if ang >= 150.0 else ("L" if 60.0 <= ang <= 120.0 else "other")
         if turn == "other":
             return {"skip": f"two arms {ang:.0f} degrees apart in the numbers {values[0]}-{values[-1]}"}
-        # the landing: the turn between the arms (its numbers are winders), as far as the arms reach across
-        ends = [shapes[0], shapes[1]]
-        zone = unary_union([Point(p).buffer(max(f["spacing"] for f in flights)) for p in turn_pts]
-                           + [Point(pts[arms[0][-1]]).buffer(0.05), Point(pts[arms[1][0]]).buffer(0.05)])
-        hull = unary_union(ends + [zone]).minimum_rotated_rectangle
-        rest = hull.difference(unary_union(ends).buffer(0.01))
         if turn == "U":
-            # a U stair's turn is the band beyond the arms' upper ends (the eye between the arms is no landing)
-            top = min(max(x * a1[0] + y * a1[1] for x, y in sh.exterior.coords) for sh in ends) - 0.01
-            far = 50.0
+            # a U stair's turn is the band beyond the arms' far ends, across the whole stair (the eye between the arms
+            # is no landing)
+            top = max(max(x * a1[0] + y * a1[1] for x, y in sh.exterior.coords) for sh in shapes)
             n1 = (-a1[1], a1[0])
-            base = (a1[0] * top, a1[1] * top)
-            half = Polygon([(base[0] + n1[0] * far, base[1] + n1[1] * far),
-                            (base[0] - n1[0] * far, base[1] - n1[1] * far),
-                            (base[0] - n1[0] * far + a1[0] * far, base[1] - n1[1] * far + a1[1] * far),
-                            (base[0] + n1[0] * far + a1[0] * far, base[1] + n1[1] * far + a1[1] * far)])
-            rest = rest.intersection(half)
-        if not rest.is_empty:
-            part = max(getattr(rest, "geoms", [rest]), key=lambda g: g.area)
-            land = part.minimum_rotated_rectangle
-            if land.area >= 0.2:
-                lc = list(land.exterior.coords)
-                sides = [math.dist(lc[0], lc[1]), math.dist(lc[1], lc[2])]
-                landing = {"polygon": [[round(x, 4), round(y, 4)] for x, y in lc[:-1]], "depth": round(min(sides), 4)}
-                shapes.append(land)
+            corners = list(poly.exterior.coords)[:4]
+            far = max(x * a1[0] + y * a1[1] for x, y in corners)
+            lo = min(x * n1[0] + y * n1[1] for x, y in corners)
+            hi = max(x * n1[0] + y * n1[1] for x, y in corners)
+            if far - top >= 0.2:
+                land = Polygon([(a1[0] * u + n1[0] * v, a1[1] * u + n1[1] * v)
+                                for u, v in ((top, lo), (far, lo), (far, hi), (top, hi))])
+                landing = {"polygon": [[round(x, 4), round(y, 4)] for x, y in list(land.exterior.coords)[:-1]],
+                           "depth": round(far - top, 4)}
+        else:
+            rest = poly.difference(unary_union(shapes).buffer(0.01))
+            if not rest.is_empty:
+                part = max(getattr(rest, "geoms", [rest]), key=lambda g: g.area)
+                land = part.minimum_rotated_rectangle
+                if land.area >= 0.2:
+                    lc = list(land.exterior.coords)
+                    landing = {"polygon": [[round(x, 4), round(y, 4)] for x, y in lc[:-1]],
+                               "depth": round(min(math.dist(lc[0], lc[1]), math.dist(lc[1], lc[2])), 4)}
         winders = len(turn_pts)
-    poly = unary_union(shapes).minimum_rotated_rectangle
     first = flights[0]
     d = _unit(first["start"], first["end"])
     reason = (f"the treads are numbered {values[0]}-{values[-1]} ({len(values)} numbers): "
@@ -230,6 +255,29 @@ def stair_of(chain: list, strokes: list) -> Optional[dict]:
     return {"flights": flights, "landing": landing, "winders": winders, "turn": turn,
             "direction": [round(d[0], 4), round(d[1], 4)], "polygon": poly, "steps": values[-1],
             "entities": sorted({str(c[2].id) for c in chain}) + sorted(ids), "reason": reason}
+
+
+SNAP_DEG = 15.0                 # an arm within this of the drawing's main directions follows them
+
+
+def _main_angle(segs: list) -> float:
+    """The main direction of the stair's lines (degrees modulo 90): the length-weighted mode in 2 degree bins."""
+    bins: dict = {}
+    for a, b, _sid in segs:
+        L = math.dist(a, b)
+        k = int(round((math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) % 90.0) / 2.0)) % 45
+        bins[k] = bins.get(k, 0.0) + L
+    return 2.0 * max(bins, key=bins.get) if bins else 0.0
+
+
+def _snap(u, main: float) -> tuple[float, float]:
+    """``u`` turned onto the nearest of the main directions when within ``SNAP_DEG``."""
+    ang = math.degrees(math.atan2(u[1], u[0]))
+    best = min((main + 90.0 * k for k in range(-4, 5)), key=lambda c: abs((ang - c + 180.0) % 360.0 - 180.0))
+    if abs((ang - best + 180.0) % 360.0 - 180.0) <= SNAP_DEG:
+        r = math.radians(best)
+        return math.cos(r), math.sin(r)
+    return u
 
 
 def _footprint(poly: Polygon, axis) -> tuple[tuple[float, float], tuple[float, float], float]:

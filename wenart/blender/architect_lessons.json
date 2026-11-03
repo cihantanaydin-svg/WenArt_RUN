@@ -3384,6 +3384,18 @@
    "request": "A pod run is started and re-attached with the longest local time limit (2 h), and re-attached before that limit ends, so a runner is always attached to collect the results when the pod stops itself; a pod that stopped with no runner attached has its results fetched from the volume at once (user, 3 Nov 2026: 'Why it is stopped why there is that many stops ... prioritize this'; the real10 structure run's runner was killed by the session's 30 min background limit and the results stayed on the volume)",
    "lesson": "A pod run is started and re-attached with the longest local time limit (2 h), and re-attached before that limit ends, so a runner is always attached to collect the results when the pod stops itself; a pod that stopped with no runner attached has its results fetched from the volume at once (user, 3 Nov 2026: 'Why it is stopped why there is that many stops ... prioritize this'; the real10 structure run's runner was killed by the session's 30 min background limit and the results stayed on the volume)",
    "question": null
+  },
+  {
+   "id": "UL286",
+   "date": "2026-11-03",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "A building is understood from its core first: the stairs in the shaft with the lifts are one shaft section through every floor; the core stair is read as drawn (a U stair with winders around its eye from its numbered treads, aligned with the drawing, its footprint holding the whole turn) and the room holding most of it is the stair core in the drawing's language; then the two mirrored halves are made alike (balconies and terraces mirrored even when their outline is inferred) (user, 3 Nov 2026, real10: 'Understanding the building starts with the stairs in the shaft', 'core stairs and elevators and that section is shaft usually', 'the building is missing some sections', 'Don't forget the mirror rule for real10')",
+   "lesson": "A building is understood from its core first: the stairs in the shaft with the lifts are one shaft section through every floor; the core stair is read as drawn (a U stair with winders around its eye from its numbered treads, aligned with the drawing, its footprint holding the whole turn) and the room holding most of it is the stair core in the drawing's language; then the two mirrored halves are made alike (balconies and terraces mirrored even when their outline is inferred) (user, 3 Nov 2026, real10: 'Understanding the building starts with the stairs in the shaft', 'core stairs and elevators and that section is shaft usually', 'the building is missing some sections', 'Don't forget the mirror rule for real10')",
+   "question": null
   }
  ]
 }

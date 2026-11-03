@@ -282,7 +282,7 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
         return
     anchors = [tuple(a["anchor"]) for a in site.get("areas") or [] if a.get("anchor")]
     for a in list(areas):
-        if not a.get("outline_inferred") or not a.get("anchor"):
+        if not a.get("anchor"):
             continue
         x, y = a["anchor"]
         q = (2.0 * axis[1] - x, y) if axis[0] == "x" else (x, 2.0 * axis[1] - y)
@@ -297,14 +297,18 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
         twin["note"] = (f"the mirror twin of outdoor space {a.get('id')} across the plan's axis ({axis[0]} = "
                         f"{axis[1]:.2f}): the drawing names one of the two mirrored halves only")
         twin["label_raw"] = a.get("label_raw") or a.get("label")
-        rec = OD.read_outline(twin, lines, facade)
+        rec = OD.read_outline(twin, lines, facade) if a.get("outline_inferred") else None
         twin["label_raw"] = None
-        if rec is None:
-            continue
+        if a.get("outline_inferred") and rec is None:
+            continue                                        # its twin closed from the strokes, the mirror does not
+        # 3 Nov 2026 (real10, user: "the building is missing some sections", "Don't forget the mirror rule"): a space
+        # whose outline the level inference infers (none closes from the strokes) gets its twin too; the inference
+        # builds both alike
+        twin.setdefault("label", a.get("label") or a.get("label_raw"))
         site.setdefault("areas", []).append(twin)
         anchors.append(q)
         ex.notes.append(f"{where}: outdoor space '{a.get('label')}' mirrored for the other half (no label there): "
-                        f"{rec['reason']}")
+                        + (rec["reason"] if rec else "its outline inferred by the level inference like its twin's"))
 
 
 def _shift_site(site: dict, sh: _Shift) -> None:
