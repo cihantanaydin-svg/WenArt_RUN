@@ -282,3 +282,13 @@ def test_a_wall_item_with_no_ceiling_read_over_it_takes_the_level_ceiling(monkey
     monkeypatch.setattr(BD, "_ceiling", lambda building, room: 2.6)
     assert BD.ceiling_at({}, {"level_id": "L0"}, (0, 0), (0.5, 0.02), 0.0) == 2.6
     assert BD.FEATURE_PANEL_MIN_H_M > 0
+
+
+def test_a_common_area_room_subtype_is_valid_in_the_schema():
+    """real10 structure run 20261104-122252-full: the fire stair's room_subtype 'common' failed the building schema, the
+    reading needed review and nothing was built."""
+    import json
+    from pathlib import Path
+
+    s = json.loads((Path(__file__).resolve().parents[1] / "wenart" / "schema" / "building.schema.json").read_text())
+    assert "common" in s["$defs"]["room"]["properties"]["room_subtype"]["enum"]

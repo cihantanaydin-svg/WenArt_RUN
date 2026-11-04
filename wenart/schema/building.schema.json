@@ -430,7 +430,7 @@
         "area_label": {"type": ["number", "null"], "description": "Area read from the drawing in m², e.g. 24.5 from 'Salon 24,50 m²' (sq ft converted)"},
         "label_size": {"$ref": "#/$defs/label_size"},
         "has_documented_furniture": {"type": "boolean"},
-        "room_subtype": {"enum": ["child", null], "description": "Milestone 10: child = a child's room (Çocuk Odası, kid, nursery): cribs and bunk beds allowed"},
+        "room_subtype": {"enum": ["child", "common", null], "description": "Milestone 10: child = a child's room (Çocuk Odası, kid, nursery): cribs and bunk beds allowed; 4 Nov 2026 (UL305): common = a common area of a building with several dwellings (a shared hall, a fire escape stair): no furniture, its own floor, walls and ceiling"},
         "adjusted_by_ai": {"type": ["object", "null"], "description": "Milestone 11: a change by the agent (CLAUDE.md evidence and inference rules); Milestone 12 also rule, crop, fix_fixture, not_furniture (tracks R, G): reason, round, log_seq, model, the changed fields with their old values", "properties": {"reason": {"type": "string"}, "round": {"type": "integer"}, "log_seq": {"type": "integer"}, "model": {"type": "string"}, "changed": {"type": "object"}}, "required": ["reason"]},
         "inferred": {"type": "boolean", "description": "Milestone 11: inferred by code or the agent, not read from the documents; listed in the report"},
         "corrected_by_ai": {"type": ["object", "null"], "description": "Milestone 11: a clear geometry error fixed by the agent (correct_geometry): reason, evidence, before", "properties": {"reason": {"type": "string"}, "evidence": {"type": "object"}, "before": {"type": "object"}}, "required": ["reason"]},
