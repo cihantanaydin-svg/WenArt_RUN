@@ -48,6 +48,7 @@ CHECKS = {"RC8": "elevation openings against the plans, per floor",
 MATCH_M = 0.5                  # an elevation opening and a plan opening this close along the facade are one opening
 ALIGN_SEARCH_M = 4.0           # the facade's left end may be off by this much (a balcony, the eaves, a level mark)
 ALIGN_STEP_M = 0.05            # the shifts tried, this far apart
+ALIGN_FAR_SHARE = 0.5          # a shift beyond ALIGN_SEARCH_M matches at least this share of the openings
 ALIGN_MIN_SHARE = 0.3          # aligned when this share of the smaller side's openings match (at least ALIGN_MIN_N)
 ALIGN_MIN_N = 2
 SIDE_ANGLE_DEG = 45.0          # a wall faces a side when its outward normal is within this (to_building.SIDE_ANGLE_DEG)
@@ -265,6 +266,21 @@ def _fmt_x(xs: list[float]) -> str:
     return ", ".join(f"{x:.2f}" for x in sorted(xs)[:8]) + (" ..." if len(xs) > 8 else "")
 
 
+def z_shift(positions: list, bands: dict) -> float:
+    """0.0 when most of an elevation's openings stand at a level's height; else the common vertical shift (from the
+    floors less the sills, in ``ALIGN_STEP_M`` steps) that puts the most of them at one (4 Nov 2026, real07: its
+    elevation heights came from a section whose marks are no storeys, sills at 7 and 10 m on a two-storey house)."""
+    def placed(d: float) -> int:
+        return sum(1 for p in positions if level_of_z(bands, float(p["sill"]) + d, float(p["head"]) + d))
+
+    if not positions or placed(0.0) * 2 >= len(positions):
+        return 0.0
+    cands = {round(round((lo - float(p["sill"]) + k) / ALIGN_STEP_M) * ALIGN_STEP_M, 3)
+             for p in positions for lo, _ in bands.values() for k in (0.0, 0.9)}
+    best = max(sorted(cands, key=abs), key=placed, default=0.0)
+    return best if placed(best) > placed(0.0) else 0.0
+
+
 def rc8(building: dict, sheets: dict) -> list[dict]:
     """The elevations' openings against the plans' openings on the walls facing that side, per floor (the module
     docstring); then ``rc8_stacked``. Without a north arrow the compass sides are placed by fit: of the four building
@@ -331,11 +347,17 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
                 for p in g.filled.exterior.coords), default=0.0)
     front = max((_dot(p, outv) for g in geo.values() if g.filled is not None
                  for p in g.filled.exterior.coords), default=0.0)
+    dz = z_shift(positions, bands)
     seen_by: dict = {}
     unplaced = []
     for p in positions:
-        lid = level_of_z(bands, float(p["sill"]), float(p["head"]))
+        lid = level_of_z(bands, float(p["sill"]) + dz, float(p["head"]) + dz)
         (seen_by.setdefault(lid, []) if lid else unplaced).append(p)
+    if dz:
+        out.append(_finding("RC8", "minor", None, f"{name}: its openings stand at no level's height as read (sills "
+                            + _fmt_x([float(p['sill']) for p in positions]) + f" m); shifted {dz:+.2f} m they fit the "
+                            f"levels (inferred): the elevation's heights and the section's disagree",
+                            [f"elevation {rid}", "section / levels"], region=rid, z_shift_m=dz))
     plan_by: dict = {}
     for lid, g in geo.items():
         ops = []
@@ -350,17 +372,25 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
     cand = {0.0}
     for lid, ex in es_all:
         for px, _ in plan_by.get(lid, []):
-            if abs(ex - px) <= ALIGN_SEARCH_M:
-                cand.add(round(round((ex - px) / ALIGN_STEP_M) * ALIGN_STEP_M, 3))
+            cand.add(round(round((ex - px) / ALIGN_STEP_M) * ALIGN_STEP_M, 3))
 
     def score(shift: float) -> int:
         return sum(len(_greedy([float(p["x"]) for p in seen_by.get(lid, [])], [x for x, _ in plan_by.get(lid, [])],
                                shift, MATCH_M)) for lid in seen_by)
 
-    best = max(sorted(cand, key=abs), key=score)
-    matched = score(best)
+    # The left end as drawn is trusted within ALIGN_SEARCH_M; a shift beyond it (the drawn left end was a sheet
+    # frame, a site wall or a tree: real07) must match clearly more and at least ALIGN_FAR_SHARE of the openings.
     n_plan = sum(len(plan_by.get(lid, [])) for lid in seen_by)
-    aligned = matched >= max(ALIGN_MIN_N, ALIGN_MIN_SHARE * min(len(es_all), n_plan or 1))
+    smaller = min(len(es_all), n_plan or 1)
+    near = [c for c in cand if abs(c) <= ALIGN_SEARCH_M]
+    best = max(sorted(near, key=abs), key=score)
+    far = [c for c in cand if abs(c) > ALIGN_SEARCH_M]
+    if far:
+        best_far = max(sorted(far, key=abs), key=score)
+        if score(best_far) >= max(score(best) + ALIGN_MIN_N, ALIGN_FAR_SHARE * smaller):
+            best = best_far
+    matched = score(best)
+    aligned = matched >= max(ALIGN_MIN_N, ALIGN_MIN_SHARE * smaller)
     for lv in levels:
         lid = lv["id"]
         es = seen_by.get(lid, [])

@@ -110,6 +110,7 @@ RECT_AXIS_SHARE = 0.01             # a line this little off level or plumb (shar
 RECT_SKIP_KINDS = ("HATCH", "DIMENSION")
 OPENING_LAYER_ROLES = ("window", "door", "glass")
 RECT_OVERLAP_SHARE = 0.3           # a rectangle sharing more of its area with a larger one kept is the same opening
+STANDING_LINE_M = 1.0            # a wall line standing on the ground is at least this long (the facade's left end)
 RECT_INNER_SHARE = 0.7             # a frame's inner line runs this share of its side (a second frame line, a mullion)
 
 
@@ -758,9 +759,16 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
         # wall outline; the roof's eaves reach further out but start above the ground).
         g_tol = 0.05 / mpu
         outlines = [st.bbox() for e in region.ents for st in e.strokes if st.closed and len(st.pts) >= 4]
-        standing = [b for b in outlines if abs(b[1] - ground) <= g_tol] or outlines
-        widest = max(standing, key=lambda b: b[2] - b[0], default=None)
-        x_left = widest[0] if widest is not None else region.geometry_box[0]
+        standing = [b for b in outlines if abs(b[1] - ground) <= g_tol]
+        # 4 Nov 2026 (real07, real10: walls drawn as loose LINEs inside a sheet frame): without a closed outline on
+        # the ground, the leftmost wall line standing on it (a vertical line at least STANDING_LINE_M long whose
+        # lower end is on the ground); the sheet frame crosses the ground line and never stands on it.
+        stand_x = [min(a[0], b[0]) for e in region.ents if e.kind not in RECT_SKIP_KINDS
+                   for a, b, _st in UC.segments(e.strokes)
+                   if abs(a[0] - b[0]) <= RECT_AXIS_SHARE * abs(a[1] - b[1])
+                   and abs(a[1] - b[1]) * mpu >= STANDING_LINE_M and abs(min(a[1], b[1]) - ground) <= g_tol]
+        widest = max(standing or ([] if stand_x else outlines), key=lambda b: b[2] - b[0], default=None)
+        x_left = widest[0] if widest is not None else min(stand_x) if stand_x else region.geometry_box[0]
         # 4 Nov 2026 (real10: every elevation drawn as loose LINEs, so no closed rectangle and no opening was seen):
         # the rectangles are assembled from the straight pieces of every stroke (``frame_rects``), closed outlines
         # included; of nested frames only the outermost opening-sized one counts.

@@ -220,6 +220,7 @@ def _line(ents, a, b, layer="0"):
 def test_frame_rects_from_loose_lines_and_nested_frames():
     ents: list = []
     _line(ents, (-1.0, 0.0), (20.0, 0.0))                              # the ground line
+    _line(ents, (0.0, 0.0), (0.0, 3.0))                                # the facade's left wall line, on the ground
     # a window drawn as three nested rectangles of loose LINEs with a mullion, its sill a long band line (T joints)
     _lines(ents, (2.0, 1.0, 3.4, 2.4), sides=(False, True, True, True))
     _line(ents, (1.0, 1.0), (6.0, 1.0), layer="PENCERE")
@@ -246,4 +247,4 @@ def test_frame_rects_from_loose_lines_and_nested_frames():
     _, seen = EX.facade_of(region, None, None, [])
     assert seen["windows"] == 1 and seen["doors"] == 2
     win = next(p for p in seen["positions_m"] if p["kind"] == "window")
-    assert abs(win["width"] - 1.4) < 1e-6 and abs(win["sill"] - 1.0) < 1e-6 and abs(win["x"] - 3.7) < 1e-6
+    assert abs(win["width"] - 1.4) < 1e-6 and abs(win["sill"] - 1.0) < 1e-6 and abs(win["x"] - 2.7) < 1e-6
