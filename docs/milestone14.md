@@ -48,16 +48,28 @@ how the user's feedback compounds and how the user is replaced step by step.
 - Expected first effect: real09, real11, real13, real14, real16, real18 go from "levels left out" to "levels read,
   places to check".
 
-### R3 The ranker (the generalisation engine)
-- A small open-source model (gradient boosting or logistic regression, scikit-learn, CPU, seconds to train) per
-  decision kind. Features: what the hand rules compute today (layer name class, linetype, length, thickness, parallel
-  partner distance, text nearby, block name, swing arc, position on the outline, the mirror twin's answer, the typical
-  floor's answer, the raster reader's answer).
-- Labels: R1's truth and corrections plus the synthetic projects (R7). Today's accepted readings already give about
-  500 rooms, 500 doors, 340 windows, 300 other openings and 3,200 walls, each a labelled decision; the gaps and strokes
-  around them give the negatives.
-- The ranker never draws geometry (CLAUDE.md evidence rules): it ranks code-built candidates. A rule stays as a hard
-  constraint only where it is physics (a door is not wider than its wall run), everything else becomes a feature.
+### R3 The ranker (the generalisation engine; design of 4 Nov 2026, evening)
+- A small open-source model per decision kind, trained on CPU in seconds: one-vs-rest logistic regression written in
+  numpy, its standardisation and coefficients stored as JSON in `wenart/reading_check/models/<decision>.json` with the
+  commit, the projects and the metrics it was trained on (no pickles, no new dependency, reproducible). Gradient
+  boosting only if the linear model is shown to lose on held-out projects.
+- Four steps, in this order: (1) **instrument**: every reading writes `report["decisions"]`, one record per decision
+  (kind `gap_kind` | `wall_or_notation` | `inside_or_outside` | `stair_or_grid` | `region_class`, the element, its
+  place in building metres, a flat dict of numeric features, the rule cascade's answer with a rule confidence from a
+  fixed table (a swing arc 0.95, a named door 0.9, an open leaf 0.8, a window of 3 or more lines with glass 0.9, of 2
+  lines 0.6, doorless 0.5, unclassified 0.2 ...), the final answer after every later pass, `decided_by`); (2)
+  **label**: a pure join of the decision records with the truth (the nearest truth opening within 0.5 m and 0.3 m of
+  width gives a gap its class; a truth wall covering a stroke makes it a wall; a gap on the outline with nothing in the
+  truth is open air); (3) **learn**: leave-one-project-out, the weights of the labels are not equal: a user correction
+  counts 10, a synthetic truth 3, an accepted reading 1, because the accepted readings are the reader's own answers
+  (training on them alone teaches the ranker to copy the rules; the corrections are where the rules were wrong and the
+  synthetic cases are exact); the report compares the ranker with the rules on every project and, above all, on the
+  corrections (how many of the user's corrected cases it now gets right without breaking the accepted ones); (4)
+  **integrate**: the ranker scores the candidates after the rule cascade; it decides only where the rule confidence
+  is under its threshold and its own margin is over its threshold (`decided_by: ranker`, logged with both); a hard
+  constraint that is physics stays a rule (a gap with a swing arc is a door, a door is never wider than its wall run);
+  a low margin on both sides is an RC7 place and, in the pod, a question for the vision model (UL329).
+- The ranker never draws geometry: it ranks code-built candidates.
 - Report per retrain: which features carry which decision; a feature that no longer matters is a rule that can go.
 
 ### R4 Independent second opinions (the first automatic reviewer)
@@ -69,6 +81,10 @@ how the user's feedback compounds and how the user is replaced step by step.
   plan from the region image: rooms with labels, door and window counts per room, stairs, outside spaces. Compared
   with the vector reading per room: a third opinion, cheap (one short pod, about 10 min per batch of projects).
 - These do not change the model (trust order stays vector > OCR > AI): they produce findings and ranker features.
+- Known risk of the raster second opinion: on a vector plan drawn as face lines (no fill) the raster wall mask may
+  miss what the vector reader sees, and the disagreement becomes noise. So the raster opinion is calibrated on the
+  accepted projects first (its precision against the accepted readings), its trust goes into the R9 ledger, and it
+  gates nothing until it earns it. The vision model is the stronger second opinion and needs the pod.
 
 ### R5 Cross-document consistency (the second automatic reviewer)
 - Plans against sections: storey count and heights, the ground, the roof; against elevations: windows per facade and
@@ -98,8 +114,10 @@ how the user's feedback compounds and how the user is replaced step by step.
 
 ### R8 Stability tests (fragility without a user)
 - Every project read again mirrored, rotated 90 degrees, scaled to millimetres, with generic layer names and with the
-  text layers removed; the readings must agree (allowing what the removed layer carried). A place that changes is a
-  fragile decision: it is a finding and a ranker example.
+  text layers removed (ezdxf transforms of the converted DXF); each variant's reading is scored against the original
+  reading as its truth with R1's matcher, so the stability score is the reading score itself; a place that changes is a
+  fragile decision: it is a finding, a ranker example and a sign of a rule that trusts one drafter's habit (UL262's
+  layer words are a feature for the ranker, never the only evidence).
 
 ### R9 The user's detailed reviews stay; the machine's findings get accept-or-reject (user, 4 Nov 2026: "accept and
 reject might be not enough, possibly I may need to continue detailed reviews for some time more")
