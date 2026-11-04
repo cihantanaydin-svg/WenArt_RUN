@@ -414,7 +414,7 @@ def _space_anchors(site: Optional[dict], rooms: list[dict], level_ids: set) -> l
 
 def roof_outline_record(plan: dict, walls: list[dict], level_id: str, site: Optional[dict] = None,
                         rooms: Optional[list[dict]] = None, overhang: Optional[float] = None,
-                        levels: Optional[list[dict]] = None) -> dict:
+                        levels: Optional[list[dict]] = None, every_floor: bool = False) -> dict:
     """The roof plan's roofs put on the building (pure apart from shapely; ``ROOF_FIT``).
 
     How: the drawn wall line of the roof plan (else its eaves loop moved in by ``overhang``, else by each of
@@ -439,7 +439,10 @@ def roof_outline_record(plan: dict, walls: list[dict], level_id: str, site: Opti
            "fit": None, "reaches": [], "min_overhang_m": None, "drawn_overhang_m": plan.get("overhang_m"),
            "evidence": [dict(e, rule="roof_plan_outline") for e in plan.get("evidence") or []],
            "note": plan.get("note")}
-    wall_line, _how = geom2d.wall_outline([w for w in walls if w.get("level_id") == level_id])
+    # 4 Nov 2026 (real07, user: "also why didn't you use this to model the roof"): a roof plan draws the roof of the
+    # whole house, over the lower wings and the garage too; when it does not fit the top floor's walls it is fitted on
+    # the outer walls of every floor together (``every_floor``)
+    wall_line, _how = geom2d.wall_outline([w for w in walls if every_floor or w.get("level_id") == level_id])
     if len(wall_line) < 3:
         rec["reason"] = f"no outer walls of {level_id} to put the roof plan on"
         return rec
@@ -466,8 +469,15 @@ def roof_outline_record(plan: dict, walls: list[dict], level_id: str, site: Opti
         return rec
     fit, what = best
     rec["fit"] = dict(fit, line=what, within_m={str(k): v for k, v in fit["within_m"].items()})
+    if (fit["rms_m"] > cfg["rms_max_m"] or fit["within_m"][0.10] < cfg["share_min"]) and not every_floor:
+        alt = roof_outline_record(plan, walls, level_id, site, rooms, overhang, levels, every_floor=True)
+        if alt.get("used"):
+            alt["note"] = ((alt.get("note") or "") + f"; put on the outer walls of every floor (the top floor "
+                           f"{level_id} alone: RMS {fit['rms_m']:.2f} m)").lstrip("; ")
+            return alt
     if fit["rms_m"] > cfg["rms_max_m"] or fit["within_m"][0.10] < cfg["share_min"]:
-        rec["reason"] = (f"{what} of {plan.get('region_id')} does not fit on the outer walls of {level_id} (RMS "
+        rec["reason"] = (f"{what} of {plan.get('region_id')} does not fit on the outer walls of "
+                         f"{'every floor' if every_floor else level_id} (RMS "
                          f"{fit['rms_m']:.2f} m, {fit['within_m'][0.10]:.0%} of it within 0.10 m; needs "
                          f"{cfg['rms_max_m']:.2f} m along {cfg['share_min']:.0%})")
         return rec

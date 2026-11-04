@@ -606,3 +606,18 @@ def test_a_door_size_tag_makes_its_gap_a_door():
     got = C._door_tags(ex, "x", [], [gap, win], [tag], 1.0)
     assert got[0].kind == "door" and abs(got[0].width - 0.8) < 1e-6 and got[0].height == 2.1
     assert got[1].kind == "window"
+
+
+def test_a_u_stairs_numbers_jump_the_landing_past_a_dimension_text():
+    """real07 (user: "Stairs are missing in the project"): steps 1-9 on one arm, a wall-thickness text '10' beside
+    step 9, the real 10-18 on the arm across the landing."""
+    from wenart.ingest.generic import stair_numbers as SN
+
+    def t(v, x, y):
+        return SimpleNamespace(text=str(v), height=0.1, box=(x - 0.05, y - 0.05, x + 0.05, y + 0.05))
+
+    lower = [t(k, 4.5 - 0.27 * (k - 1), 0.0) for k in range(1, 10)]          # 1 at x 4.5 ... 9 at x 2.34
+    dim = [t(10, 2.1, 0.25)]                                                  # the wall-thickness text
+    upper = [t(k, 2.34 + 0.27 * (k - 10), 2.4) for k in range(10, 19)]       # 10 ... 18 across the landing
+    chain = SN.chains(lower + dim + upper)[0]
+    assert [v for v, _p, _t in chain] == list(range(1, 19))

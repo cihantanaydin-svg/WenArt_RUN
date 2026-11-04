@@ -30,6 +30,7 @@ from wenart import building as B
 NUMBER_RE = re.compile(r"^\s*(\d{1,2})\s*$")
 NUMBER_H_MAX_M = 0.30           # tread numbers are small texts
 STEP_M = (0.08, 0.60)           # the next number this far away (a tread's going, a winder's)
+TURN_JUMP_M = 3.0               # 4 Nov 2026: across a half landing to the next arm at most this far (it must lead on)
 MIN_STEPS = 6                   # a chain of at least this many numbers, the last at least this
 ARM_TURN_DEG = 25.0             # numbers in one arm: their steps within this of the arm's first step
 ARM_MIN_POINTS = 3              # an arm holds at least this many numbers
@@ -64,12 +65,34 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
         while True:
             v, p, _t = nums[chain[-1]]
             nxt = None
+
+            def leads(k: int, value: int) -> bool:
+                # 4 Nov 2026 (real07, user: "Stairs are missing in the project"): a candidate the next number follows
+                q = nums[k][1]
+                return any(STEP_M[0] <= math.dist(q, nums[j][1]) <= STEP_M[1] for j in by_value.get(value + 1, [])
+                           if j not in chain and j != k)
+
             for skip, (lo, hi) in ((1, STEP_M), (2, (STEP_M[0] * 2, STEP_M[1] * 2))):
                 cands = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + skip, [])
                          if k not in chain and lo <= math.dist(p, nums[k][1]) <= hi]
                 if cands:
-                    nxt = min(cands)[1]
+                    # a candidate that leads on wins (the U-stair's step 9 had the wall-thickness text '10' beside it;
+                    # its real step 10 lies across the landing)
+                    on = [c for c in cands if leads(c[1], v + skip)]
+                    nxt = min(on or cands)[1]
+                    if not on:
+                        far = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + 1, [])
+                               if k not in chain and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M
+                               and leads(k, v + 1)]
+                        if far:
+                            nxt = min(far)[1]
                     break
+            if nxt is None:
+                # the turn: the next number across the landing, where the next arm starts (it leads on)
+                far = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + 1, [])
+                       if k not in chain and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M and leads(k, v + 1)]
+                if far:
+                    nxt = min(far)[1]
             if nxt is None:
                 break
             chain.append(nxt)
