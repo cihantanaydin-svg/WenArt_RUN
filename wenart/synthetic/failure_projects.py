@@ -283,6 +283,44 @@ def project_15() -> FailureProject:
                           "a U stair with numbered treads 1-17 and winders at the turn", [plan], [GROUND], BRIEF)
 
 
+def project_16() -> FailureProject:
+    """synthetic-16-open-recess (UL313): a 1.2 m wide, 3.0 m deep recess between the two bedrooms of the top row,
+    open to the facade (the outline steps in round it), the bedrooms' windows opening onto its sides, no label and
+    no door inside. Truth: 6 rooms; the recess is open air, not a room."""
+    W, H = 12.0, 9.0
+    outline = [(0.0, 0.0), (W, 0.0), (W, H), (8.1, H), (8.1, 6.0), (6.9, 6.0), (6.9, H), (0.0, H)]
+    walls = FC.outline_walls("e", outline) + [
+        Wall("i1", (0.0, 4.4), (W, 4.4), INT_T), Wall("i2", (0.0, 5.8), (8.5, 5.8), INT_T),
+        Wall("i3", (7.0, 0.0), (7.0, 4.4), INT_T), Wall("i4", (3.6, 5.8), (3.6, H), INT_T),
+        Wall("i6", (8.5, 4.4), (8.5, 5.875), INT_T)]
+    plan = Plan("p0", (10.0, 10.0), walls, title="ZEMİN KAT PLANI")
+    for oid, kind, wall, at, width, kw in [
+            ("entrance", "door", "e8", (0.125, 5.1), 1.0, dict(hinge="end", side=1)),
+            ("d_salon", "door", "i1", (3.0, 4.4), 0.9, dict(hinge="start", side=-1)),
+            ("d_yatak", "door", "i1", (7.8, 4.4), 0.9, dict(hinge="end", side=-1)),
+            ("d_mutfak", "door", "i2", (1.8, 5.8), 0.9, dict(hinge="start", side=1)),
+            ("d_ebeveyn", "door", "i2", (5.0, 5.8), 0.9, dict(hinge="end", side=1)),
+            ("d_cocuk", "door", "i6", (8.5, 5.1), 0.9, dict(hinge="start", side=-1)),
+            ("w_salon1", "window", "e1", (2.0, 0.125), 1.6, {}), ("w_salon2", "window", "e1", (5.0, 0.125), 1.6, {}),
+            ("w_salon3", "window", "e8", (0.125, 2.2), 1.4, {}), ("w_yatak1", "window", "e1", (9.5, 0.125), 1.4, {}),
+            ("w_yatak2", "window", "e2", (W - 0.125, 2.2), 1.2, {}),
+            ("w_mutfak", "window", "e7", (1.8, H - 0.125), 1.2, {}),
+            ("w_ebeveyn1", "window", "e7", (5.2, H - 0.125), 1.4, {}),
+            ("w_ebeveyn2", "window", "e6", (6.775, 7.6), 0.9, {}),
+            ("w_cocuk1", "window", "e4", (8.225, 7.6), 0.9, {}),
+            ("w_cocuk2", "window", "e3", (10.0, H - 0.125), 1.4, {}),
+            ("w_cocuk3", "window", "e2", (W - 0.125, 6.6), 1.0, {})]:
+        FC.place(plan, oid, kind, wall, at, width, **kw)
+    plan.labels = [Label("SALON", (3.5, 2.2)), Label("YATAK ODASI", (9.5, 2.6)), Label("HOL", (5.0, 5.1)),
+                   Label("MUTFAK", (1.8, 7.4)), Label("EBEVEYN ODASI", (5.1, 7.4), height=0.2),
+                   Label("ÇOCUK ODASI", (10.1, 7.4))]
+    recess = [[6.9, 6.0], [8.1, 6.0], [8.1, H], [6.9, H]]
+    return FailureProject("synthetic-16-open-recess", "open_recess", "UL313",
+                          "a narrow recess between two bedrooms, open to the facade, windows onto it, no label",
+                          [plan], [GROUND], BRIEF,
+                          extra_truth={"open_air": [{"kind": "recess", "polygon": recess, "width": 1.2, "depth": 3.0}]})
+
+
 def failure_projects() -> list[FailureProject]:
     return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13(), project_14(),
-            project_15()]
+            project_15(), project_16()]

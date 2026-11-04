@@ -288,6 +288,7 @@ failure), and the mark goes.
 | `synthetic-13-typical-floor` | typical_floor | UL278, UL303 | 7 | 6 each | L0 6, L1-L6 5 | L0 9, L1-L6 10 | 1 each | as the truth, 7 levels at the section's marks | pass |
 | `synthetic-14-elevation-title` | elevation_title | UL271 | 2 | 6 + 6 | 6 + 5 | 9 + 10 | 1 + 1 | one level: 0 / 11 / 19 / 2 | xfail |
 | `synthetic-15-winder-stair` | winder_stair | UL282 | 1 | 6 | 6 | 9 | 1 (17 risers) | 6 / 6 / 9 / 1 (a landing, no winders) | counts pass; winders xfail |
+| `synthetic-16-open-recess` | open_recess | UL313 | 1 | 6 | 6 | 11 | 0 | 6 / 6 / 11 / 0 (+1 doubled opening) | pass |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -355,6 +356,16 @@ the well's end), six straight treads back, every tread numbered 1 to 17 on `MERD
 Truth: one stair, 17 risers, its arms (`straight` 1-6, `winder` 7-11, `straight` 12-17). Reader today: the stair, the
 rooms and the openings right, but the turn is read as a flat 1.75 m landing and the tread numbers are not used (strict
 xfail on the winders and the 17 treads).
+
+### synthetic-16-open-recess (UL313)
+
+A 1.2 m wide, 3.0 m deep recess between the two bedrooms of the top row (EBEVEYN ODASI and ÇOCUK ODASI), open to the
+facade (the outline steps in round it), the bedrooms' windows opening onto its sides, no label and no door inside.
+Truth: 6 rooms, 11 windows; the recess is open air (`open_air`), not a room. Reader today: right (passes: the recess
+stays outside, both windows onto it are read); one doorless opening is read on top of the ÇOCUK ODASI's door (not
+counted by the tests). An early draft of this drawing whose outer walls crossed at the corners ("+" corners, 12.5 cm
+past the faces) made the reader close the recess mouth with a 3.85 m window and join the recess to the bedroom: the
+open-recess rule depends on clean corners.
 
 ## Coordinate conventions
 

@@ -86,6 +86,7 @@ EXPECTED_NAMES = [
     "synthetic-13-typical-floor",
     "synthetic-14-elevation-title",
     "synthetic-15-winder-stair",
+    "synthetic-16-open-recess",
 ]
 
 
@@ -383,3 +384,19 @@ def test_15_winders_and_seventeen_treads(generated, read):
     assert t["per_level"]["L0"]["stairs"][0]["risers"] == 17
     assert not st.get("landing")                                   # the turn is winders, not a landing
     assert (st.get("risers") or st.get("treads")) == 17
+
+
+# --- synthetic-16-open-recess --------------------------------------------------------------------------------------
+
+def test_16_open_recess_is_outside_in_the_truth(generated):
+    t = truth_of(generated, "synthetic-16-open-recess")
+    recess = Polygon(t["open_air"][0]["polygon"])
+    assert recess.area == pytest.approx(1.2 * 3.0)
+    assert not any(Polygon(r["polygon"]).intersection(recess).area > 1e-6 for r in t["per_level"]["L0"]["rooms"])
+
+
+def test_16_open_recess_is_no_room(generated, read):
+    t = truth_of(generated, "synthetic-16-open-recess")
+    b = read("synthetic-16-open-recess")
+    recess = Polygon(t["open_air"][0]["polygon"])
+    assert not any(Polygon(r["polygon"]).intersection(recess).area > 0.1 for r in b["rooms"])
