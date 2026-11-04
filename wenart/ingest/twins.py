@@ -780,3 +780,42 @@ def flat_entrance_doors(rooms: list[dict], openings: list[dict]) -> list[str]:
                      f"the flat's entrance door (a thick panelled entrance door with its frame)")
     return notes
 
+
+GARAGE_DOOR_MIN_M = 2.2          # 4 Nov 2026 (UL320): a car passes an opening this wide (a car is 1.8-1.9 m)
+GARAGE_DOOR_H_M = 2.25           # a sectional garage door's clear height when the drawing gives none
+GARAGE_DOOR_REACH_M = 0.35       # the opening's centre this close to the garage's outline
+
+
+def garage_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> list[str]:
+    """4 Nov 2026 (real07, user: "If this is a garage (garaj) there will be a car inside and that car should be able to
+    enter and exit, it requires a different kind of a door it requires a garage door"; lesson UL320): the widest
+    opening of at least ``GARAGE_DOOR_MIN_M`` in a garage's outer walls (a window, a gap or a door the reading typed) is
+    its sectional garage door: ``type`` door, ``door_type`` garage_sectional, from the floor, ``GARAGE_DOOR_H_M`` high
+    unless drawn. Returns a note per garage."""
+    notes = []
+    outer = {w["id"] for w in walls if w.get("exterior")}
+    for r in rooms:
+        if r.get("room_type") != "garage" or len(r.get("polygon") or []) < 3:
+            continue
+        ring = Polygon(r["polygon"]).exterior
+        cands = [o for o in openings if o.get("level_id") == r.get("level_id") and o.get("center")
+                 and not o.get("virtual") and float(o.get("width") or 0.0) >= GARAGE_DOOR_MIN_M
+                 and (o.get("wall_id") in outer or not o.get("wall_id"))
+                 and ring.distance(Point(o["center"][:2])) <= GARAGE_DOOR_REACH_M]
+        if not cands or any(o.get("door_type") == "garage_sectional" for o in cands):
+            continue
+        o = max(cands, key=lambda x: float(x.get("width") or 0.0))
+        was = o.get("type")
+        o["type"] = "door"
+        o["door_type"] = "garage_sectional"
+        o["operation"], o["operation_source"] = "sectional", "assumed"
+        o["sill_height"] = 0.0
+        if not o.get("height") or float(o.get("height") or 0.0) < 2.0:
+            o["height"] = GARAGE_DOOR_H_M
+        o["door_decision"] = {"kind": "garage_sectional", "rule": "garage_door (UL320)",
+                              "reason": f"the widest outer opening ({float(o['width']):.2f} m) of the garage {r['id']}: "
+                                        f"its sectional garage door, so a car can drive in and out"}
+        notes.append(f"{r.get('level_id')}: {o['id']} ({was}, {float(o['width']):.2f} m) in the outer wall of the garage "
+                     f"{r['id']} is its sectional garage door")
+    return notes
+

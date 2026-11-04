@@ -35,7 +35,7 @@ SCHEMA_VERSION = "0.1"
 
 METHODS = ("vector", "raster", "ocr", "ai", "derived", "inferred")   # inferred: Milestone 11
 ROOM_TYPES = ("living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer", "stair",
-              "shaft", "other",
+              "shaft", "garage", "technical", "other",
               "unknown")
 
 # Element kind -> ID prefix. Rooms and levels have their own functions.
@@ -82,6 +82,15 @@ _TURKISH_ROOM_KEYWORDS = [
     ("kiler", "storage"),
     ("depo", "storage"),
     ("siginak", "storage"),      # real10: SIĞINAK (the basement shelter)
+    # 4 Nov 2026 (real07, user: "If this is a garage (garaj) there will be a car inside ... it requires a garage door";
+    # "this is kat kalaruferi, it is like a heating room"): garages and the boiler / plant rooms
+    ("garaj", "garage"),
+    ("otopark", "garage"),
+    ("kat kal", "technical"),    # KAT KAL. = kat kaloriferi, the flat's own boiler
+    ("kalorifer", "technical"),
+    ("kazan", "technical"),      # KAZAN DAİRESİ, the boiler room
+    ("tesisat", "technical"),
+    ("hidrofor", "technical"),
     ("calisma", "other"),
 ]
 # English room names (docs/milestone7.md §2.7.2). An English keyword is a whole word (an
@@ -104,6 +113,8 @@ _ENGLISH_ROOM_KEYWORDS = [
     ("veranda", "balcony"),
     ("store", "storage"), ("storeroom", "storage"), ("storage", "storage"), ("closet", "storage"),
     ("box room", "storage"),
+    ("garage", "garage"), ("carport", "garage"), ("boiler room", "technical"), ("plant room", "technical"),
+    ("boiler", "technical"), ("technical room", "technical"), ("mechanical room", "technical"),
     ("pooja", "prayer"), ("puja", "prayer"), ("prayer", "prayer"), ("mandir", "prayer"),
     ("stair", "stair"), ("staircase", "stair"), ("stairwell", "stair"), ("shaft", "shaft"), ("lift", "shaft"),
     ("elevator", "shaft"),
@@ -142,8 +153,8 @@ _TURKISH_LETTERS = set("çğıöşüÇĞİÖŞÜ")
 # When several keywords match, the room type that comes first here wins:
 # ``EBEVEYN BANYO`` is a bathroom, ``SALON + MUTFAK`` a living room (its
 # documented kitchen pieces stay kitchen pieces), ``Kitchen & Dining`` a kitchen.
-ROOM_TYPE_PRIORITY = ("wc", "bathroom", "storage", "balcony", "stair", "shaft", "bedroom", "living", "kitchen", "dining",
-                      "prayer", "hall", "other")
+ROOM_TYPE_PRIORITY = ("wc", "bathroom", "storage", "balcony", "stair", "shaft", "garage", "technical", "bedroom", "living",
+                      "kitchen", "dining", "prayer", "hall", "other")
 # ``hall`` alone names a living room when its face is at least this large and this compact (§2.7.2).
 HALL_AS_LIVING_MIN_AREA = 9.0
 HALL_AS_LIVING_MAX_ASPECT = 2.5
@@ -393,7 +404,7 @@ def normalise_room_label(label_raw: str, turkish: Optional[bool] = None) -> tupl
     ``turkish`` forces the language (e.g. from the page); None decides by
     ``is_turkish_label``. ``area_label`` is a float in m² or None.
     """
-    text, area = parse_area_label(label_raw.strip())
+    text, area = parse_area_label(_textfold.despaced(label_raw.strip()))   # 'H A V U Z' -> 'HAVUZ' (4 Nov 2026)
     text = re.sub(r"\s+", " ", text)
     if turkish is None:
         turkish = is_turkish_label(text)

@@ -221,6 +221,9 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
         for r in CL.outside_views(doc_regions):
             warnings.append(f"{r.file} {r.id}: slab bands but no room name, beside sections with rooms: an elevation "
                             f"(inferred)")
+        for r in CL.repeated_title_site_plans(doc_regions):
+            warnings.append(f"{r.file} {r.id}: its title '{(r.title or {}).get('text')}' titles another drawing too and "
+                            f"it names the streets: the site plan (the title is a key drawing's caption)")
         regions.extend(doc_regions)
     for s in strays_json:
         s.pop("_m", None)
@@ -287,6 +290,22 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
 
     # Heights and exterior.
     sections = [r for r in regions if r.use == "heights" and r.cls == "section"]
+    base_levels = [{"id": lv["id"], "order": lv["order"], "kind": lv["kind"]} for lv in levels_json]
+    ref_extent = None
+    if reference is not None and reference.id in outlines:
+        b = outlines[reference.id].bounds
+        # The outline's box and the extent most of it reaches (an entrance step outside the walls left out).
+        ref_extent = [(b[2] - b[0], b[3] - b[1]), RG.wall_extent(outlines[reference.id])]
+    if len(sections) > 1:
+        # 4 Nov 2026 (real07, user: "There are lots of details on how the roofing should have been ... why you are not
+        # using it to design the roof?"): the site plan, titled by a section mark among its thumbnails, came first and
+        # gave heights no storey can have and a flat roof; the drawn sections A-A and B-B were never read. The
+        # section whose width fits the plans and whose heights are storeys is read first (``_section_fit``).
+        ranked = sorted(sections, key=lambda r: _section_fit(r, base_levels, ref_extent, values))
+        if ranked[0] is not sections[0]:
+            warnings.append(f"sections: {ranked[0].id} read for the heights before {sections[0].id} (its width fits "
+                            f"the plans and its heights are storeys)")
+        sections = ranked
     section_geom = None
     if sections:
         sec = sections[0]
@@ -294,12 +313,6 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
         if len(sections) > 1:
             warnings.append(f"{len(sections)} sections: heights from {sections[0].id}; "
                             f"{', '.join(s.id for s in sections[1:])} not read for heights")
-    base_levels = [{"id": lv["id"], "order": lv["order"], "kind": lv["kind"]} for lv in levels_json]
-    ref_extent = None
-    if reference is not None and reference.id in outlines:
-        b = outlines[reference.id].bounds
-        # The outline's box and the extent most of it reaches (an entrance step outside the walls left out).
-        ref_extent = [(b[2] - b[0], b[3] - b[1]), RG.wall_extent(outlines[reference.id])]
     cut = RG.cut_line(read_plans, sections[0]) if sections and reference is not None and outlines else None
     heights_json, hw = HT.heights(section_geom, base_levels, ref_extent, values,
                                   sections[0].file if sections else None, conflict, cut)
@@ -452,6 +465,25 @@ def _pdf_scale(doc) -> tuple[Optional[float], str]:
     if len(ratios) == 1:
         return next(iter(ratios)) * METRES_PER_POINT, "pdf_scale_text"
     return None, "none"
+
+
+def _section_fit(region, base_levels: list, ref_extent, values: dict) -> tuple:
+    """The rank of a section for the heights (lower first, pure but for the heights it reads): 0 when its heights
+    are storeys and its width fits the plans, 1 when only one holds, 2 when neither; the drawing's order breaks ties
+    (a stable sort)."""
+    geom = getattr(region, "_section", None)
+    if geom is None:
+        return (3,)
+    seen: list = []
+    try:
+        out, _w = HT.heights(geom, base_levels, ref_extent, values, region.file,
+                             lambda kind, *a, **k: seen.append(kind) or "x", None)
+    except Exception:  # noqa: BLE001 - a section the heights cannot read ranks last
+        return (3,)
+    out.pop("_mark_frame", None)
+    bad = HT.implausible(out, base_levels) is not None
+    misfit = "section_width_mismatch" in seen
+    return (int(bad) + int(misfit),)
 
 
 def _reference(plans: list, levels: list) -> Optional[Region]:

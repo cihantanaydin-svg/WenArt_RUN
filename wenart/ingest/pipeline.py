@@ -2471,6 +2471,8 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         build.warn(f"fire stair: {line}")
     for line in TW.flat_entrance_doors(b["rooms"], b["openings"]):          # 4 Nov 2026 (UL316)
         build.warn(f"flat entrance: {line}")
+    for line in TW.garage_doors(b["rooms"], b["openings"], b["walls"]):     # 4 Nov 2026 (UL320)
+        build.warn(f"garage door: {line}")
     for second, info in TW.twin_transforms(b["rooms"], b["openings"], b["furniture"]).items():
         room = next(r for r in b["rooms"] if r["id"] == second)
         room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],

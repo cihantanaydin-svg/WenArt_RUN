@@ -3497,3 +3497,17 @@ real10 structure run 20261104-132729 (pod 4iwuqm1zkvnl2t, RTX PRO 6000 WK, 57 mi
 
 real07 structure run 20261104-144248 (pod i7ctmtu60hdsxs, 19 min, $0.79, the storey-height fix): ok, both floors' top-downs
 and 9 exterior views; zip with the comparison sheets sent.
+
+### real07 review (4 Nov 2026, evening; lessons UL320-UL326)
+
+| user | cause found | status |
+|---|---|---|
+| "If this is a garage (garaj) ... it requires a garage door" | 'Garaj' typed other (no garage type); its 3.41 m outer gap typed a window | built: room types `garage`, `technical` (GARAJ, OTOPARK, KAT KAL., KALORİFER, KAZAN, TESİSAT ...); a garage's widest outer opening >= 2.2 m is its sectional garage door (`twins.garage_doors`); the drive to the street: open |
+| "this is kat kalaruferi ... the entrance to the room is wrong door" | typed other; its drawn 80/210 door read as a 1.56 m unclassified gap | type built; door size tags (W/H on the door text layer) setting the door in its gap: open |
+| "why you are not using it to design the roof?" | the site plan r1 (YERLEŞİM / APLİKASYON PLANI with key drawings) took the caption 'B-B KESİTİ' and was the heights section; the real sections A-A, B-B read heights no storey can have (L0 ceilings 6.3 and 17.3 m); the roof plan's eaves loop was fitted against the upper floor only | built: site plan titles YERLEŞİM / APLİKASYON / KONUM PLANI, a repeated title on a region naming streets is the site plan, sections ranked by fit; open: the sections' storey reading, the roof over all parts (upper floor and wings, hip roofs, tiles) |
+| "where is the havuz (pool) ?" | the label is letter-spaced 'H A V U Z' | built: letter-spaced words read as words everywhere (`textfold.despaced`); the pool from it: to check |
+| "there should have been 2 villas right?" | the site plan (A BLOK, B BLOK) was not read as a site plan | site plan now classified; its registration (the plan's outline is the plot's, 23 x 36 m) and the second villa: open |
+| "2nd floor not modeled properly" | the L1 top-down shows a solid block at the wall cut (the cut capped the whole floor) | open |
+| "give some more modern details" (roof edge) | the flat roof wore concrete tiles; its edge read as a dentil course | built: gravel and a metal fascia and coping on flat roofs |
+| "This wall do not exist" (L1 Hol) | the top edge of the curved stair arriving in the Hol read as a wall with a 2.23 m gap | open, with the stair |
+| "Stairs are missing in the project" | the curved stair (numbers 1-18) matches none of the stair readers | open: a curved / winder stair reader; no building of several floors without a stair |

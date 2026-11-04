@@ -567,3 +567,20 @@ def test_a_flat_roof_has_a_flat_covering_and_a_metal_fascia():
     assert cov["material"] == "green_roof"
     cov, _, _ = BU.roof_slot_looks({"type": "hip"}, {"roof": {"material": "concrete_tiles"}})
     assert cov["material"] == "concrete_tiles"
+
+
+def test_a_garage_gets_its_sectional_garage_door():
+    """real07 (user: "If this is a garage (garaj) there will be a car inside ... it requires a garage door")."""
+    from wenart import building as B
+    from wenart.ingest import twins as TW
+
+    assert B.normalise_room_label("GARAJ")[1] == "garage" and B.normalise_room_label("KAT KAL.")[1] == "technical"
+    room = {"id": "r_L0_garaj", "level_id": "L0", "room_type": "garage", "polygon": [[0, 0], [3.5, 0], [3.5, 6.5],
+                                                                                     [0, 6.5]]}
+    walls = [{"id": "w1", "level_id": "L0", "exterior": True}]
+    gap = {"id": "o1", "level_id": "L0", "type": "window", "width": 3.0, "center": [1.75, 0.0], "wall_id": "w1",
+           "height": 1.2}
+    small = {"id": "o2", "level_id": "L0", "type": "window", "width": 1.0, "center": [0.0, 3.0], "wall_id": "w1"}
+    notes = TW.garage_doors([room], [gap, small], walls)
+    assert notes and gap["type"] == "door" and gap["door_type"] == "garage_sectional" and gap["height"] == 2.25
+    assert small["type"] == "window"

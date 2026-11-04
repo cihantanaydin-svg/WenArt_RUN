@@ -29,6 +29,8 @@ CLASS_WORDS: list[tuple[str, str, str]] = [
     ("roof_plan", r"\bDACH(?:DR)?AUFSICHT\b", "de"),
     ("roof_plan", r"\bPLAN DE(?:S)? TOITURES?\b", "fr"),
     ("site_plan", r"\bVAZIYET(?: PLANI)?\b", "tr"),
+    # 4 Nov 2026 (real07, user: "there should have been 2 villas right?"): the layout and setting-out plans of a site
+    ("site_plan", r"\b(?:YERLESIM|APLIKASYON|KONUM|YERLESIM VE APLIKASYON) PLANI\b", "tr"),
     ("site_plan", r"\bSITE PLAN\b", "en"),
     ("site_plan", r"\bLAGEPLAN\b", "de"),
     ("site_plan", r"\bPLAN DE MASSE\b", "fr"),

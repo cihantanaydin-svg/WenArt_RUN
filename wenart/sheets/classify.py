@@ -314,6 +314,25 @@ def outside_views(regions: list[Region]) -> list[Region]:
     return changed
 
 
+def repeated_title_site_plans(regions: list[Region]) -> list[Region]:
+    """4 Nov 2026 (real07, user: "there should have been 2 villas right?"): the site plan, with small key drawings of
+    a section, an elevation and a plan below it, took the caption 'B-B KESİTİ' of its key section as its title (the
+    sheet's real B-B section carries it too) and was read as the section. A region whose title text another region
+    also carries and that names the streets (``street_words``, letter-spaced 'Y O L' too) is the site plan; it is
+    reclassified (method ``geometry``) and returned."""
+    from collections import Counter
+
+    titled = [r for r in regions if r.class_method == "title" and r.title and r.cls != "site_plan"]
+    count = Counter(T.fold(r.title.get("text") or "") for r in titled)
+    out = []
+    for r in titled:
+        if count[T.fold(r.title.get("text") or "")] < 2 or not (r.features or {}).get("street_words"):
+            continue
+        r.cls, r.class_method, r.status = "site_plan", "geometry", "verified"
+        out.append(r)
+    return out
+
+
 def _at_frame_edge(region: Region, frames: list, gap: float) -> bool:
     b = region.geometry_box
     for fr in frames:
