@@ -110,6 +110,57 @@ def evaluated_top(o, dg):
     return max(zs) if zs else None
 
 
+CAP_MAX_THICK_M = 0.8           # a cut loop this thin (area / half its perimeter) is a wall's section, never a floor
+
+
+def _edge_loops(edges) -> list:
+    """The cut edges grouped into connected loops (pure bmesh)."""
+    left, loops = set(edges), []
+    while left:
+        start = left.pop()
+        loop, todo = [start], [start]
+        while todo:
+            e = todo.pop()
+            for v in e.verts:
+                for f in v.link_edges:
+                    if f in left:
+                        left.discard(f)
+                        loop.append(f)
+                        todo.append(f)
+        loops.append(loop)
+    return loops
+
+
+def _loop_thickness(loop, mw) -> float:
+    """Area / half perimeter of a loop of edges in plan (world metres): about a wall's thickness for its section."""
+    pts, per = {}, 0.0
+    for e in loop:
+        a, b = (mw @ e.verts[0].co), (mw @ e.verts[1].co)
+        per += ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** 0.5
+        for v, w in ((e.verts[0], a), (e.verts[1], b)):
+            pts[v.index] = (w.x, w.y)
+    if per <= 0 or len(pts) < 3:
+        return 0.0
+    # the loop's polygon area: order the points by walking the edges
+    adj: dict = {}
+    for e in loop:
+        i, j = e.verts[0].index, e.verts[1].index
+        adj.setdefault(i, []).append(j)
+        adj.setdefault(j, []).append(i)
+    start = next(iter(adj))
+    order, prev, cur = [start], None, start
+    for _ in range(len(adj)):
+        nxt = next((k for k in adj[cur] if k != prev and k not in order[1:]), None)
+        if nxt is None or nxt == start:
+            break
+        order.append(nxt)
+        prev, cur = cur, nxt
+    poly = [pts[k] for k in order]
+    area = abs(sum(poly[k][0] * poly[(k + 1) % len(poly)][1] - poly[(k + 1) % len(poly)][0] * poly[k][1]
+                   for k in range(len(poly)))) / 2.0
+    return area / (per / 2.0)
+
+
 def bisect_top(o, z: float) -> None:
     """Cut ``o`` at world height ``z`` with a plane: the part above goes, the cut is closed (a copy of the mesh: the
     original data comes back for the next level, ``restore_meshes``)."""
@@ -129,7 +180,12 @@ def bisect_top(o, z: float) -> None:
                                  plane_no=no, clear_outer=True)
     edges = [e for e in res.get("geom_cut", []) if isinstance(e, bmesh.types.BMEdge)]
     if edges:
-        bmesh.ops.holes_fill(bm, edges=edges, sides=0)
+        # 4 Nov 2026 (real07, user: "2nd floor not modeled properly check it"): the walls under a roof are one mesh of
+        # pieces; filling every hole of the cut closed the loop round the whole floor and the view showed a solid
+        # block. Only a wall's own section is closed: a loop no thicker than CAP_MAX_THICK_M (area / half perimeter)
+        for loop in _edge_loops(edges):
+            if _loop_thickness(loop, mw) <= CAP_MAX_THICK_M:
+                bmesh.ops.holes_fill(bm, edges=loop, sides=0)
     bm.to_mesh(me)
     bm.free()
     o.data = me

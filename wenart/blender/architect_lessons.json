@@ -3787,7 +3787,7 @@
    "id": "UL320",
    "date": "2026-11-04",
    "area": "plan",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -3799,7 +3799,7 @@
    "id": "UL321",
    "date": "2026-11-04",
    "area": "plan",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -3875,6 +3875,18 @@
    "checks": [],
    "request": "4 Nov 2026 (user, real07 L1: 'there is no wall here and the section on the left of that none existing wall is giyinme soyunma, a place for dressing'): where a drawn partition simply ends short of the next wall, with no door and no frame in the gap, the gap is an open passage from floor to ceiling, never a wall with an opening cut in it; a giyinme-soyunma is a dressing room (wardrobes), part of the bedroom it opens into.",
    "lesson": "4 Nov 2026 (user, real07 L1: 'there is no wall here and the section on the left of that none existing wall is giyinme soyunma, a place for dressing'): where a drawn partition simply ends short of the next wall, with no door and no frame in the gap, the gap is an open passage from floor to ceiling, never a wall with an opening cut in it; a giyinme-soyunma is a dressing room (wardrobes), part of the bedroom it opens into.",
+   "question": null
+  },
+  {
+   "id": "UL328",
+   "date": "2026-11-04",
+   "area": "plan",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'This door frame must be angled and same needs to be on the other mirror side'): where the boundary between a hall and a living room runs on a chamfer the drawing leaves open, a glazed double door in its frame stands along the chamfer (angled with it), and the mirrored flat gets the same.",
+   "lesson": "4 Nov 2026 (user, real10: 'This door frame must be angled and same needs to be on the other mirror side'): where the boundary between a hall and a living room runs on a chamfer the drawing leaves open, a glazed double door in its frame stands along the chamfer (angled with it), and the mirrored flat gets the same.",
    "question": null
   }
  ]

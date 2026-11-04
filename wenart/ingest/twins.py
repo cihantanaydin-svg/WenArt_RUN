@@ -819,3 +819,70 @@ def garage_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> 
                      f"{r['id']} is its sectional garage door")
     return notes
 
+
+CHAMFER_DEG = (20.0, 70.0)        # 4 Nov 2026 (UL328): a boundary this far off the walls' directions is a chamfer ...
+CHAMFER_LEN_M = (1.0, 2.5)        # ... this long
+CHAMFER_T_M = 0.10                # the frame's wall
+CHAMFER_SIDES = {"hall"}, {"living", "dining", "kitchen", "other"}
+
+
+def chamfer_frames(rooms: list[dict], openings: list[dict], walls: list[dict]) -> list[str]:
+    """4 Nov 2026 (real10, user: "This door frame must be angled and same needs to be on the other mirror side";
+    lesson UL328): a room boundary the drawing leaves open on a chamfer (a virtual separator ``CHAMFER_DEG`` off the
+    walls' directions, ``CHAMFER_LEN_M`` long) between a hall and a living room is a glazed double door in its frame along
+    the chamfer: a thin inferred wall on the line holding the door. Every such chamfer gets it (the mirrored flat too).
+    Returns a note per frame."""
+    import math as _m
+
+    notes = []
+    by_level: dict = {}
+    for r in rooms:
+        if len(r.get("polygon") or []) >= 3:
+            by_level.setdefault(r.get("level_id"), []).append(r)
+    dirs: dict = {}
+    for w in walls:
+        dx, dy = w["end"][0] - w["start"][0], w["end"][1] - w["start"][1]
+        if dx or dy:
+            dirs.setdefault(w.get("level_id"), []).append(_m.degrees(_m.atan2(dy, dx)) % 90.0)
+    n = 0
+    for o in openings:
+        if not o.get("virtual") or not o.get("line") or o.get("chamfer_frame"):
+            continue
+        (x0, y0), (x1, y1) = o["line"]
+        length = _m.hypot(x1 - x0, y1 - y0)
+        if not CHAMFER_LEN_M[0] <= length <= CHAMFER_LEN_M[1]:
+            continue
+        ang = _m.degrees(_m.atan2(y1 - y0, x1 - x0)) % 90.0
+        main = sorted(dirs.get(o.get("level_id")) or [0.0])[len(dirs.get(o.get("level_id")) or [0.0]) // 2]
+        off = min(abs(ang - main) % 90.0, 90.0 - abs(ang - main) % 90.0)
+        if not CHAMFER_DEG[0] <= off <= CHAMFER_DEG[1]:
+            continue
+        mid = ((x0 + x1) / 2.0, (y0 + y1) / 2.0)
+        nx, ny = -(y1 - y0) / length, (x1 - x0) / length
+        sides = []
+        for sgn in (1, -1):
+            q = Point(mid[0] + sgn * nx * 0.3, mid[1] + sgn * ny * 0.3)
+            sides.append(next((r for r in by_level.get(o.get("level_id")) or [] if Polygon(r["polygon"]).contains(q)),
+                              None))
+        types = {str((r or {}).get("room_type") or "") for r in sides}
+        if not (types & CHAMFER_SIDES[0] and types & CHAMFER_SIDES[1]):
+            continue
+        n += 1
+        lv = o.get("level_id")
+        wid = f"w_{lv}_chamfer_{n:02d}"
+        walls.append({"id": wid, "level_id": lv, "start": [x0, y0], "end": [x1, y1], "thickness": CHAMFER_T_M,
+                      "exterior": False, "status": "unverified", "inferred": True,
+                      "evidence": [{"file": "building.json", "method": "inferred", "confidence": 0.6,
+                                    "rule": "chamfer_frame", "text": "the frame of the glazed door on the chamfer (UL328)"}]})
+        o.update({"virtual": False, "type": "door", "wall_id": wid, "width": round(length - 0.04, 3),
+                  "center": [round(mid[0], 4), round(mid[1], 4)],
+                  "rotation_deg": round(_m.degrees(_m.atan2(y1 - y0, x1 - x0)), 3), "glazed": True,
+                  "door_type": "french", "door_style": "glazed", "leaves": 2, "chamfer_frame": True,
+                  "door_decision": {"kind": "french", "rule": "chamfer_frame (UL328)",
+                                    "reason": "the open chamfer between the hall and the living room: a glazed double "
+                                              "door in its frame along the chamfer"}})
+        o.pop("line", None)
+        notes.append(f"{lv}: {o['id']} on the chamfer between {sides[0]['id']} and {sides[1]['id']} "
+                     f"({length:.2f} m): a glazed double door in its frame along it")
+    return notes
+

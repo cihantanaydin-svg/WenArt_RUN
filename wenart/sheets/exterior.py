@@ -979,6 +979,17 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
             roof["plan_outline"] = None
             roof["plan_outline_note"] = "; ".join(reasons)
             warnings.append(f"roof: the outline of the roof plan is not read: {'; '.join(reasons)}")
+        po = roof.get("plan_outline") or {}
+        if roof.get("type") == "flat" and roof.get("type_source") == "section" and (po.get("hip_lines") or 0) >= 2:
+            # 4 Nov 2026 (real07, user: "also why didn't you use this to model the roof"): the roof plan draws hip and
+            # valley lines; a section with no roof profile (read as flat) does not outrank it: a hip roof
+            roof = dict(roof, type="hip", type_source="roof_plan",
+                        evidence=list(roof.get("evidence") or []) + list(po.get("evidence") or []),
+                        note=f"the roof plan {po.get('region_id')} draws {po['hip_lines']} hip or valley lines: a hip "
+                             f"roof (the section shows no roof profile)",
+                        assumed=list(roof.get("assumed") or []) + ["pitch (the roof plan gives no slope)"])
+            warnings.append(f"roof: the roof plan draws {po['hip_lines']} hip or valley lines: a hip roof, not the "
+                            f"section's flat reading")
     out["roof"] = roof
 
     # Site plans (registered onto the reference through the building's outline) and the north.

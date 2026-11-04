@@ -621,3 +621,47 @@ def test_a_u_stairs_numbers_jump_the_landing_past_a_dimension_text():
     upper = [t(k, 2.34 + 0.27 * (k - 10), 2.4) for k in range(10, 19)]       # 10 ... 18 across the landing
     chain = SN.chains(lower + dim + upper)[0]
     assert [v for v, _p, _t in chain] == list(range(1, 19))
+
+
+def test_an_open_chamfer_between_hall_and_living_room_gets_a_glazed_frame():
+    """real10 (user: "This door frame must be angled and same needs to be on the other mirror side")."""
+    from wenart.ingest import twins as TW
+
+    hall = {"id": "r_hall", "level_id": "L0", "room_type": "hall", "polygon": [[2, 0], [6, 0], [6, 4], [2, 4], [0, 2]]}
+    living = {"id": "r_liv", "level_id": "L0", "room_type": "living", "polygon": [[-4, -4], [2, -4], [2, 0], [0, 2],
+                                                                                  [-4, 2]]}
+    walls = [{"id": "w1", "level_id": "L0", "start": [-4, -4], "end": [6, -4], "thickness": 0.2}]
+    sep = {"id": "o1", "level_id": "L0", "type": "opening", "virtual": True, "line": [[0, 2], [1, 1]]}
+    notes = TW.chamfer_frames([hall, living], [sep], walls)
+    assert notes and sep["type"] == "door" and sep["glazed"] and not sep["virtual"]
+    assert any(w["id"].endswith("chamfer_01") for w in walls)
+
+
+def test_the_top_down_cut_closes_wall_sections_never_the_floor_loop():
+    """real07 (user: "2nd floor not modeled properly check it"): the L1 view showed a solid block."""
+    from wenart.blender import topdown as TD
+
+    class M:                                      # identity world matrix
+        def __matmul__(self, co):
+            return co
+
+    class Obj:                                    # hashable like bmesh's verts and edges
+        def __init__(self, **kw):
+            self.__dict__.update(kw)
+
+    def loop(pts, base):
+        vs = [Obj(co=SimpleNamespace(x=x, y=y), index=base + k, link_edges=[]) for k, (x, y) in enumerate(pts)]
+        es = []
+        for k in range(len(vs)):
+            e = Obj(verts=(vs[k], vs[(k + 1) % len(vs)]))
+            es.append(e)
+            vs[k].link_edges.append(e)
+            vs[(k + 1) % len(vs)].link_edges.append(e)
+        return es
+
+    wall = loop([(0, 0), (10, 0), (10, 0.25), (0, 0.25)], 0)
+    floor = loop([(0, 0), (12, 0), (12, 10), (0, 10)], 10)
+    loops = TD._edge_loops(wall + floor)
+    assert len(loops) == 2
+    thick = sorted(TD._loop_thickness(lp, M()) for lp in loops)
+    assert thick[0] <= TD.CAP_MAX_THICK_M < thick[1]
