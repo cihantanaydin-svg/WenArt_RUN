@@ -65,6 +65,8 @@ def _overlaps(insert, box) -> bool:
 
 
 DIMENSION_TYPES = ("DIMENSION", "ARC_DIMENSION", "LARGE_RADIAL_DIMENSION")
+CONTENT_ROLES = ("wall", "plaster", "structure", "door", "window", "glass", "finish", "furniture", "stair", "sanitary",
+                 "hatch", "site", "section")
 
 
 def is_grid_or_dimension(dxftype: str, layer: Optional[str], linetype: Optional[str]) -> bool:
@@ -80,6 +82,108 @@ def is_grid_or_dimension(dxftype: str, layer: Optional[str], linetype: Optional[
         return True
     lt = (linetype or "").upper()
     return lt not in ("", "BYLAYER", "BYBLOCK", "CONTINUOUS") and AX.is_axis_style(None, lt)
+
+
+def _linetype(doc, e) -> str:
+    lt = e.dxf.get("linetype", "BYLAYER") or "BYLAYER"
+    if lt.upper() == "BYLAYER":
+        try:
+            lt = doc.layers.get(e.dxf.layer).dxf.linetype
+        except Exception:  # noqa: BLE001 - an unknown layer: continuous
+            lt = "CONTINUOUS"
+    return lt
+
+
+def _segments(e) -> list:
+    t = e.dxftype()
+    try:
+        if t == "LINE":
+            return [((e.dxf.start.x, e.dxf.start.y), (e.dxf.end.x, e.dxf.end.y))]
+        if t == "LWPOLYLINE":
+            pts = [tuple(p[:2]) for p in e.get_points("xy")]
+            return list(zip(pts, pts[1:]))
+    except Exception:  # noqa: BLE001 - an entity without points: none
+        return []
+    return []
+
+
+def grid_and_dimension_marks(doc, ents) -> set:
+    """The entities of ``ents`` that belong to the grid or the dimensions: those ``is_grid_or_dimension`` names, and on
+    any layer the marks that hang on their lines (real10: the bubbles, dimension dots and ticks on layer '0'): a circle
+    at the end of a grid line (a bubble), a text inside a bubble, and, measured by the drawing's dimension text height,
+    a dot no larger than it within 2.5 radii of a dimension line and a tick no longer than twice it across one; never
+    on a layer named for content (``CONTENT_ROLES``). Unit-free; a round column on a grid line stays."""
+    import statistics
+
+    from shapely.geometry import LineString, Point
+    from shapely.strtree import STRtree
+
+    from wenart.ingest.generic import axes as AX
+    from wenart.ingest.generic import layer_names as LN
+
+    hidden, dim_ids = set(), set()
+    heights = []
+    for e in ents:
+        layer, lt = e.dxf.get("layer"), _linetype(doc, e)
+        if is_grid_or_dimension(e.dxftype(), layer, lt):
+            hidden.add(id(e))
+            axis = LN.layer_role(layer) == "axis" or AX.is_axis_style(layer, None) or (
+                lt.upper() not in ("BYLAYER", "BYBLOCK", "CONTINUOUS") and AX.is_axis_style(None, lt))
+            if not axis:
+                dim_ids.add(id(e))
+                if e.dxftype() == "TEXT" and float(e.dxf.get("height", 0) or 0) > 0:
+                    heights.append(float(e.dxf.height))
+    segs, dim_segs, ends = [], [], []
+    for e in ents:
+        if id(e) in hidden:
+            for a, b in _segments(e):
+                if a != b:
+                    segs.append(LineString([a, b]))
+                    if id(e) in dim_ids:
+                        dim_segs.append(LineString([a, b]))
+                    else:
+                        ends += [Point(a), Point(b)]               # grid line ends: where the bubbles are
+    if not segs:
+        return hidden
+    h = statistics.median(heights) if heights else None
+    end_tree = STRtree(ends) if ends else None
+    dim_tree = STRtree(dim_segs) if dim_segs else None
+    bubbles = []
+    for e in ents:
+        if id(e) in hidden or LN.layer_role(e.dxf.get("layer")) in CONTENT_ROLES:
+            continue                                            # a mark on a furniture, door, wall ... layer is content
+        t = e.dxftype()
+        if t in ("CIRCLE", "ARC"):
+            c, r = Point(e.dxf.center.x, e.dxf.center.y), float(e.dxf.radius)
+            if r <= 0:
+                continue
+            if end_tree is not None and len(end_tree.query(c.buffer(1.6 * r))) and (h is None or r > h):
+                hidden.add(id(e))                               # a bubble at a line's end
+                bubbles.append(c.buffer(r))
+            elif h is not None and r <= h and dim_tree is not None \
+                    and any(dim_segs[i].distance(c) <= 2.5 * r for i in dim_tree.query(c.buffer(2.5 * r))):
+                hidden.add(id(e))                               # a dot on a dimension line
+        elif t == "LINE" and h is not None and dim_tree is not None:
+            (a, b), = _segments(e) or [((0, 0), (0, 0))]
+            if a == b:
+                continue
+            tick = LineString([a, b])
+            if tick.length <= 2.0 * h and any(dim_segs[i].intersects(tick) for i in dim_tree.query(tick)):
+                hidden.add(id(e))                               # a tick across a dimension line
+    if bubbles:
+        tree = STRtree(bubbles)
+        for e in ents:
+            if id(e) not in hidden and e.dxftype() in ("TEXT", "MTEXT"):
+                q = Point(e.dxf.insert.x, e.dxf.insert.y)
+                if any(bubbles[i].contains(q) for i in tree.query(q)):
+                    hidden.add(id(e))                           # a grid label in its bubble
+    return hidden
+
+
+def is_wall_layer(layer) -> bool:
+    from wenart.ingest.generic import layer_names as LN
+
+    return LN.draws_walls(layer)
 
 
 def _draw_drawing(ax, doc, ents, box, grey: bool = False, clean: bool = False):
@@ -99,7 +203,8 @@ def _draw_drawing(ax, doc, ents, box, grey: bool = False, clean: bool = False):
                 properties.is_visible = False
 
         fe.push_property_override_function(hide)
-        ents = [e for e in ents if e.dxftype() not in DIMENSION_TYPES]
+        marks = grid_and_dimension_marks(doc, ents)
+        ents = [e for e in ents if id(e) not in marks]
     fe.draw_entities(ents)
     _frame(ax, box)
 
