@@ -3446,3 +3446,17 @@ Baselines of real10, real15 and real17 accepted and updated.
 | floor bands (UL310) | bands run on the outline with jogs and notches under 0.20 m straightened onto the outer line, reaching 0.10 m into the wall (`facade.band_outline`): one piece per facade instead of short boxes with loose end blocks |
 | real17 shop floor | still open: the floor read before the others never gets their wall layer (DUVAR); with it, the 4.70 m shopfront and the slanted right facade still leave the shops open |
 
+
+### Pod runs and fixes, 4 Nov 2026 afternoon (user: "run the structure pod for real10", "Run also a structure pod for real07 ... in paralel")
+
+| run | result | cause | general fix |
+|---|---|---|---|
+| real10 20261104-120646 | host fault, container never started (6 min, $0.26) | RunPod | retry |
+| real07 20261104-120732 | decor stage stopped (17 min, $0.70) | a WC panel -0.22 m high (no ceiling read over it) | no ceiling read -> the level's; panels under 0.6 m left out; decor items of size <= 0 dropped with a warning |
+| real10 20261104-122252 | reading needed review, nothing built (12 min, $0.53) | room_subtype 'common' not in the schema | schema: 'common' allowed |
+| real07 20261104-122605 | build stopped: walls -0.20 m high (12.5 min, $0.52) | the section named both storeys at -34.23; its slab bands gave a 35 m ceiling | storey marks used only when they rise >= 2 m a storey; section heights outside 2-8 m a storey not used (assumed heights) |
+
+real17 shop floor: a plan read before the document's other plans chose their wall layers, that fails, is read again
+after them with those layers (the reference region too, placed by its registration). L0 now gets DUVAR's walls; still
+open: the bottom facade (a block on 'Standart' and the 4.70 m shopfront window), the slanted lower right facade broken
+by its window frames, and the shops' east partitions drawn as single lines.
