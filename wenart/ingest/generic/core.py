@@ -1347,6 +1347,475 @@ def _short_joins(ex, where: str, walls2: list, openings: list, blocks: list, lev
     return new + joints, openings, bw, site, sw, b_open, prob
 
 
+# --------------------------------------------------------------------------
+# The outline closure: the last closure pass (Milestone 14 R2, 4 Nov 2026)
+# --------------------------------------------------------------------------
+
+OUTLINE_CLOSURE_RULE = "outline_closure"   # the evidence rule (``reading_check.CLOSURE_RULE`` is the same word)
+CLOSURE_CONFIDENCE = 0.3        # every wall this pass infers carries this: a guess along the outline, to be checked
+CLOSURE_MAX_M = 8.0             # a gap of the outer ring is bridged up to this long (a wide shopfront)
+CLOSURE_ROUNDS = 3              # free ends are bridged again after a round closed some (a chain of gaps)
+CLOSURE_GROW_M = 0.75           # the drawn outline: strokes >= CLOSURE_STROKE_MIN_M grown by this, merged, holes ...
+CLOSURE_STROKE_MIN_M = 0.5      # ... filled, shrunk back (sheets.register.outline: GROW_M, SEGMENT_MIN_M)
+CLOSURE_OUTLINE_TOL_M = 0.75    # a bridge lies inside the drawn outline grown by this: never past what is drawn
+CLOSURE_OUTDOOR_CLEAR_M = 0.5   # no bridge this close to a balcony or terrace label, none enclosing one
+CLOSURE_END_TOL_M = 0.3         # a free end is on the outer ring when this close to the building outline's boundary
+CLOSURE_OUTLINE_ROLES = ("dimension", "axis", "text", "section", "hatch", "site")   # strokes no outline is made of
+CLOSURE_MIN_SEGMENT_M = 0.05
+CLOSURE_SUPPORT_MIN = 0.5       # a bridge from a corner end needs drawn lines along this share of it ...
+CLOSURE_SUPPORT_TOL_M = 0.15    # ... within half its thickness plus this (a frame line on the wall face)
+CLOSURE_SUPPORT_LINE_M = 0.15   # ... each line at least this long (no hinge ticks)
+CLOSURE_UNLABELLED_MAX_M2 = 6.0 # a corner bridge closing an unlabelled space over this is refused
+CLOSURE_ON_OUTLINE_M = 2.0      # a corner bridge runs along the drawn outline: its mean distance to the boundary at most
+
+
+def drawn_outline(strokes_m: list, walls: list, exclude: set = frozenset()):
+    """The plan's drawn outline (page metres), as ``sheets.register.outline`` finds a region's: the wall rectangles
+    and every drawn line of at least ``CLOSURE_STROKE_MIN_M`` (no dimension, axis, text, section, hatch or site layer,
+    no arc, none of ``exclude``: the dimension strokes) grown by ``CLOSURE_GROW_M`` (square ends, mitred), merged, the
+    largest part's holes filled, shrunk back. None when nothing is drawn."""
+    from wenart.ingest.generic import layer_names as LN
+
+    geoms = [TP.wall_polygon(w) for w in walls]
+    for st in strokes_m:
+        pts = [tuple(p) for p in (getattr(st, "pts", None) or [])]
+        if len(pts) < 2 or st.id in exclude or getattr(st, "arc", None) \
+                or LN.layer_role(getattr(st, "layer", None)) in CLOSURE_OUTLINE_ROLES:
+            continue
+        line = LineString(pts + ([pts[0]] if getattr(st, "closed", False) else []))
+        if line.length >= CLOSURE_STROKE_MIN_M:
+            geoms.append(line)
+    if not geoms:
+        return None
+    grown = unary_union([g.buffer(CLOSURE_GROW_M, cap_style=3, join_style=2) for g in geoms])
+    parts = [p for p in getattr(grown, "geoms", [grown]) if not p.is_empty]
+    if not parts:
+        return None
+    best = max(parts, key=lambda p: p.area)
+    filled = Polygon(best.exterior).buffer(-CLOSURE_GROW_M, join_style=2)
+    parts = [p for p in getattr(filled, "geoms", [filled]) if not p.is_empty]
+    return max(parts, key=lambda p: p.area) if parts else None
+
+
+def _outer_thickness(bwalls: list, b_openings: list) -> tuple[float, str]:
+    """The median thickness of the walls on the building outline (the outer walls), else of every building wall,
+    else the outer default (``outlines.OUTER_DEFAULT_M``); with how it was found."""
+    import statistics
+
+    outline = TP.building_outline(bwalls, b_openings)
+    outer = [w for w in bwalls if not outline.is_empty and TP.wall_polygon(w).distance(outline.boundary) <= 0.05]
+    if outer:
+        return round(statistics.median(float(w.thickness) for w in outer), 3), f"median of {len(outer)} outer wall(s)"
+    if bwalls:
+        return round(statistics.median(float(w.thickness) for w in bwalls), 3), f"median of {len(bwalls)} wall(s)"
+    return OL.OUTER_DEFAULT_M, "the outer default (no wall read)"
+
+
+def _same_split_wall(wa, wb, da, pa, pb) -> bool:
+    """Two facing free ends of one wall split in two (``_open_recesses``, ``_open_recess_chains`` keep the entity):
+    a gap the reading opened on purpose, never closed again."""
+    if wa.entity != wb.entity:
+        return False
+    (x0, y0), (x1, y1) = tuple(wb.start), tuple(wb.end)
+    L = math.hypot(x1 - x0, y1 - y0)
+    if L <= 1e-9:
+        return False
+    ux, uy = (x1 - x0) / L, (y1 - y0) / L
+    return abs(ux * da[1] - uy * da[0]) < 0.09 and abs((pb[0] - pa[0]) * da[1] - (pb[1] - pa[1]) * da[0]) <= 0.1
+
+
+def _runs_on(w, d, p) -> bool:
+    """A wall running straight on past point ``p`` in direction ``d`` (parallel within about 5 degrees, reaching ahead
+    of ``p``): the end at ``p`` is a joint inside one wall run, not a corner."""
+    (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+    L = math.hypot(x1 - x0, y1 - y0)
+    if L <= 1e-9 or abs((x1 - x0) / L * d[1] - (y1 - y0) / L * d[0]) >= 0.09:
+        return False
+    return max((q[0] - p[0]) * d[0] + (q[1] - p[1]) * d[1] for q in ((x0, y0), (x1, y1))) > JOIN_TOUCH_M
+
+
+def ring_ends(walls2: list, bwalls: list, b_openings: list) -> list:
+    """Every end of a building wall on the outer ring (within ``CLOSURE_END_TOL_M`` of ``topology.building_outline``'s
+    boundary): ``(wall index, "start"/"end", point, outward unit direction, half thickness, free)``. ``free`` when no
+    other wall touches the end (``JOIN_TOUCH_M``); else a *corner end*: the walls it touches turn away from it, none
+    runs straight on past it (``_runs_on``: that end would be a joint inside one wall run). A corner end matters where
+    a facade is drawn without walls (real11: the kitchen's glazed front runs from the shaft wall's corner to the
+    salon wall's corner): the wall may run on past the corner along what is drawn."""
+    polys = [TP.wall_polygon(w) for w in walls2]
+    building = {id(w) for w in bwalls}
+    outline = TP.building_outline(bwalls, b_openings)
+    if outline.is_empty:
+        return []
+    ring = outline.boundary
+    out = []
+    for k, w in enumerate(walls2):
+        if id(w) not in building:
+            continue
+        (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+        L = math.hypot(x1 - x0, y1 - y0)
+        if L <= 0:
+            continue
+        ux, uy = (x1 - x0) / L, (y1 - y0) / L
+        nx, ny = -uy, ux
+        h = float(w.thickness) / 2.0
+        for which, (px, py), (dx, dy) in (("start", (x0, y0), (-ux, -uy)), ("end", (x1, y1), (ux, uy))):
+            if ring.distance(Point(px, py)) > CLOSURE_END_TOL_M:
+                continue
+            face = LineString([(px + nx * h, py + ny * h), (px - nx * h, py - ny * h)])
+            touching = [j for j in range(len(polys)) if j != k and polys[j].distance(face) <= JOIN_TOUCH_M]
+            if any(_runs_on(walls2[j], (dx, dy), (px, py)) for j in touching):
+                continue
+            out.append((k, which, (px, py), (dx, dy), h, not touching))
+    return out
+
+
+def _stroke_lines(strokes: list) -> list:
+    """The drawn lines (no arcs, at least ``CLOSURE_SUPPORT_LINE_M`` long) a bridge may run along."""
+    out = []
+    for st in strokes or ():
+        pts = [tuple(p) for p in (getattr(st, "pts", None) or [])]
+        if len(pts) < 2 or getattr(st, "arc", None):
+            continue
+        line = LineString(pts)
+        if line.length >= CLOSURE_SUPPORT_LINE_M:
+            out.append(line)
+    return out
+
+
+def support_share(seg, lines: list, tree, tol: float) -> float:
+    """The share of a bridge's length (``seg`` = (a, b)) that drawn ``lines`` run along: pieces within ``tol`` of
+    it, parallel within about 10 degrees, their spans on the bridge merged (pure)."""
+    a, b = seg
+    L = math.dist(a, b)
+    if L <= 1e-9 or not lines:
+        return 0.0
+    ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
+    axis = LineString([a, b])
+    spans = []
+    for i in tree.query(axis.buffer(tol, cap_style=2)):
+        c = list(lines[int(i)].coords)
+        for p, q in zip(c, c[1:]):
+            vl = math.dist(p, q)
+            if vl < 1e-9 or abs((q[0] - p[0]) / vl * uy - (q[1] - p[1]) / vl * ux) > 0.17:
+                continue
+            if LineString([p, q]).distance(axis) > tol:
+                continue
+            s0, s1 = sorted(((p[0] - a[0]) * ux + (p[1] - a[1]) * uy, (q[0] - a[0]) * ux + (q[1] - a[1]) * uy))
+            s0, s1 = max(0.0, s0), min(L, s1)
+            if s1 > s0:
+                spans.append((s0, s1))
+    covered, cur = 0.0, None
+    for s0, s1 in sorted(spans):
+        if cur is None or s0 > cur[1]:
+            covered += (cur[1] - cur[0]) if cur else 0.0
+            cur = [s0, s1]
+        else:
+            cur[1] = max(cur[1], s1)
+    covered += (cur[1] - cur[0]) if cur else 0.0
+    return min(1.0, covered / L)
+
+
+def closure_candidates(walls2: list, bwalls: list, b_openings: list, strokes: list = (), thickness: float = 0.25,
+                       ends: Optional[list] = None, outline=None) -> list[dict]:
+    """The bridges the outer ring's ends suggest (pure; page metres), from every wall end on the building outline
+    (``ring_ends``: free ends, and corner ends where the wall may run on past the corner):
+
+    - *straight*: the wall run on along its own axis, in a band of its thickness, to the first building wall it meets
+      within ``CLOSURE_MAX_M`` (the end of the wall across the gap, or the side of a wall: the end and the outline),
+      beyond what ``_short_joins`` joins (``JOIN_MAX_M``);
+    - *corner*: two ends whose axes cross ahead of both within ``CLOSURE_MAX_M`` (a glazed corner: both walls run on
+      to the corner) when the walls turn by at least 30 degrees (``CORNER_MIN_SIN``) and the corner is farther than
+      ``CORNER_MAX_M`` from one of them (nearer corners are ``_short_joins``' work).
+
+    Each candidate: ``{"kind", "ends": [(wall index, which)], "src": [the walls], "segments": [(a, b)], "length",
+    "free": every end free, "support": the share of its length drawn lines run along (``support_share``, within half
+    the ``thickness`` + ``CLOSURE_SUPPORT_TOL_M``), "outline_dist": how far it runs inside the drawn ``outline`` (the
+    length-weighted mean distance of its ends and middles to the outline's boundary; 0 without one), "from", "to"}``,
+    the free-end candidates first, then the ones nearest the drawn outline (a facade before a counter line), the
+    shortest first. None between the two pieces of one split wall (``_same_split_wall``: a recess opened on
+    purpose)."""
+    from shapely.strtree import STRtree
+
+    polys = [TP.wall_polygon(w) for w in walls2]
+    building = {id(w) for w in bwalls}
+    if ends is None:
+        ends = ring_ends(walls2, bwalls, b_openings)
+    if not ends:
+        return []
+    lines = _stroke_lines(strokes)
+    tree = STRtree(lines) if lines else None
+    tol = thickness / 2.0 + CLOSURE_SUPPORT_TOL_M
+
+    def support(segs) -> float:                       # length-weighted over the segments (a door jamb's segment is short)
+        total = sum(math.dist(a, b) for a, b in segs)
+        if tree is None or total <= 1e-9:
+            return 0.0
+        return sum(support_share(s, lines, tree, tol) * math.dist(*s) for s in segs) / total
+
+    ring_d = outline.boundary if outline is not None and not outline.is_empty else None
+
+    def inside(segs) -> float:                        # length-weighted mean distance to the drawn outline's boundary
+        total = sum(math.dist(a, b) for a, b in segs)
+        if ring_d is None or total <= 1e-9:
+            return 0.0
+        return sum(sum(ring_d.distance(Point(q)) for q in (a, b, ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0))) / 3.0
+                   * math.dist(a, b) for a, b in segs) / total
+
+    def name(k, which, p) -> str:
+        return f"{walls2[k].entity.split(',')[0]} {which} at ({p[0]:.2f}, {p[1]:.2f})"
+
+    out: list[dict] = []
+    for k, which, (px, py), (dx, dy), h, free in ends:
+        nx, ny = -dy, dx
+        far = (px + dx * CLOSURE_MAX_M, py + dy * CLOSURE_MAX_M)
+        band = Polygon([(px + nx * h, py + ny * h), (px - nx * h, py - ny * h),
+                        (far[0] - nx * h, far[1] - ny * h), (far[0] + nx * h, far[1] + ny * h)])
+        best = None
+        for j, g in enumerate(polys):
+            if j == k or id(walls2[j]) not in building or not g.intersects(band):
+                continue
+            part = g.intersection(band)
+            if part.area <= 1e-5:
+                continue
+            d = min(((qx - px) * dx + (qy - py) * dy) for qx, qy in
+                    (c for gg in getattr(part, "geoms", [part]) if hasattr(gg, "exterior") for c in gg.exterior.coords))
+            if d > JOIN_MAX_M and (best is None or d < best[0]):
+                best = (d, j)
+        if best is None:
+            continue
+        d, j = best
+        if _same_split_wall(walls2[k], walls2[j], (dx, dy), (px, py), tuple(walls2[j].start)):
+            continue
+        q = (round(px + dx * (d + 0.01), 4), round(py + dy * (d + 0.01), 4))
+        segs = [((px, py), q)]
+        out.append({"kind": "straight", "ends": [(k, which)], "src": [walls2[k]], "segments": segs, "length": d,
+                    "free": free, "support": support(segs), "outline_dist": inside(segs),
+                    "from": name(k, which, (px, py)),
+                    "to": f"{walls2[j].entity.split(',')[0]} ({d:.2f} m along the wall's axis)"})
+    for i, (ka, wa, pa, da, ha, fa) in enumerate(ends):
+        for kb, wb, pb, db, hb, fb in ends[i + 1:]:
+            if ka == kb:
+                continue
+            cross = da[0] * db[1] - da[1] * db[0]
+            if abs(cross) < CORNER_MIN_SIN:
+                continue
+            rx, ry = pb[0] - pa[0], pb[1] - pa[1]
+            ta = (rx * db[1] - ry * db[0]) / cross                # pa + ta * da == pb + tb * db
+            tb = (rx * da[1] - ry * da[0]) / cross
+            if not (-JOIN_TOUCH_M <= ta <= CLOSURE_MAX_M and -JOIN_TOUCH_M <= tb <= CLOSURE_MAX_M) \
+                    or max(ta, tb) <= CORNER_MAX_M:
+                continue
+            corner = (round(pa[0] + da[0] * ta, 4), round(pa[1] + da[1] * ta, 4))
+            segs = [(p, corner) for p, t in ((pa, ta), (pb, tb)) if t > CLOSURE_MIN_SEGMENT_M]
+            if not segs:
+                continue
+            out.append({"kind": "corner", "ends": [(ka, wa), (kb, wb)], "src": [walls2[ka], walls2[kb]],
+                        "segments": segs, "length": max(ta, 0.0) + max(tb, 0.0), "free": fa and fb,
+                        "support": support(segs), "outline_dist": inside(segs), "from": name(ka, wa, pa),
+                        "to": f"{name(kb, wb, pb)}; corner at ({corner[0]:.2f}, {corner[1]:.2f})"})
+    return sorted(out, key=lambda c: (0 if c["free"] else 1, round(c["outline_dist"], 1), c["length"]))
+
+
+def _closure_walls(cands: list[dict], thickness: float, file_rel: str, page_no, problem) -> list:
+    """The inferred ``WallItem``s of the chosen candidates: the median outer thickness, evidence method ``inferred``,
+    confidence ``CLOSURE_CONFIDENCE``, rule ``OUTLINE_CLOSURE_RULE``, a note naming the two wall ends and the gap,
+    ``inferred`` and status ``unverified`` (the schema's wall status has no third word; ``inferred: true`` says it)."""
+    out = []
+    for n, c in enumerate(cands, start=1):
+        src = c["src"][0]
+        ents = "+".join(w.entity.split(",")[0] for w in c["src"])
+        for m, (a, b) in enumerate(c["segments"], start=1):
+            ev = B.evidence(file_rel, "inferred", CLOSURE_CONFIDENCE, page=page_no, entity=f"closure:{ents}",
+                            rule=OUTLINE_CLOSURE_RULE)
+            ev["note"] = (f"the outer ring did not close ({problem or 'a room label in no closed face'}): a "
+                          f"{c['length']:.2f} m gap from {c['from']} to {c['to']} bridged along the outline "
+                          f"({c['kind']}, segment {m} of {len(c['segments'])}, drawn lines along {c['support']:.0%} of "
+                          f"it); thickness {thickness:.2f} m (the median outer wall); confidence {CLOSURE_CONFIDENCE:g}:"
+                          f" check it on the comparison sheet")
+            out.append(WallItem(start=(round(a[0], 4), round(a[1], 4)), end=(round(b[0], 4), round(b[1], 4)),
+                                thickness=thickness, box=list(src.box), entity=f"closure:{ents}:{n}.{m}",
+                                evidence=ev, exterior=True, status="unverified", inferred=True))
+    return out
+
+
+def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
+                     problem: Optional[str], bwalls: list, b_openings: list, strokes: list, exclude: set,
+                     file_rel: str, page_no, units_to_m: Optional[float] = None, owned: Optional[set] = None):
+    """The last closure pass (4 Nov 2026, Milestone 14 R2; the plan's words: "never leave a level out; carry
+    confidence instead"; the user's request behind it: "I want structure recognition to be cumulatively better with
+    the feedbacks I am giving").
+
+    What: when the outer ring still does not close, or a room label still lies in no closed face, after every other
+    pass (outlines, wide gaps, short joins, glazed facades, recesses, the mirror, the size tags), the gaps of the outer
+    ring are bridged by inferred walls at confidence ``CLOSURE_CONFIDENCE`` (0.3): from every wall end on the
+    building outline (a free end, or a corner the wall may run on past) the wall runs on along its own axis to the
+    wall across the gap or the wall it meets sideways (*straight*), or two ends run on to the corner where their axes
+    cross (*corner*: a glazed corner) (``closure_candidates``), up to ``CLOSURE_MAX_M``, in up to ``CLOSURE_ROUNDS``
+    rounds (a chain of gaps). Every bridge gets the median outer wall thickness (``_outer_thickness``), evidence
+    method ``inferred``, rule ``outline_closure`` and a note naming the two wall ends and the gap length; the door and
+    window symbols drawn across the bridges are read onto them (``openings.openings_on_walls``), frames running along
+    them give unverified windows (``facade.frame_windows``): nothing is invented.
+
+    The outline: ``drawn_outline`` finds the plan's drawn outline as ``sheets.register.outline`` does (the long
+    strokes grown by 0.75 m, merged, the holes filled, shrunk back). It is the guard, not the generator: a grow-and-
+    shrink outline cuts a glazed corner (two walls stopping short of a corner leave a notch that no closing fills)
+    and bulges over a balcony's railing, so the walls' own axes give the bridges and the drawn outline says where no
+    bridge may go: none beyond the drawn outline grown by ``CLOSURE_OUTLINE_TOL_M`` (nothing is built past what is
+    drawn). ``topology.building_outline`` of the walls says which ends are on the outer ring. A bridge from a corner
+    end needs the drawing's support: drawn lines (frames, a glazed run) along at least ``CLOSURE_SUPPORT_MIN`` of its
+    length, it runs along the drawn outline (every point within ``CLOSURE_ON_OUTLINE_M`` of its boundary: real11's
+    kitchen counter line, 1.9 m inside the facade, had lines along all of it and is no facade), and it may not close
+    an unlabelled space over ``CLOSURE_UNLABELLED_MAX_M2`` (a courtyard, a terrace, a niche) into the building; a
+    free end is an evident gap and needs none of these.
+
+    Never: across or beside a drawn door or window already read (``_join_clear``); within ``CLOSURE_OUTDOOR_CLEAR_M``
+    of a balcony or terrace label, or enclosing one (a drawn balcony outline stays outside; the plot split keeps the
+    site); between the two pieces of a wall the recess passes split on purpose; through a wall end another bridge of
+    the round already uses. Kept only when the ring then closes, or more labelled rooms close (the rule of
+    ``_short_joins``); then every bridge not needed for that is dropped again (the longest first). Never silent:
+    ``ex.notes`` (one line per bridge), ``ex.warnings`` (the summary) and ``ex.report["outline_closure"]`` (every
+    candidate, kept or refused, with the reason). Returns the 7-tuple of the other passes, or None when nothing
+    closes (the level is then built marked under ``failed_levels: build_marked``, its reasons on the level)."""
+    from wenart.ingest.generic import facade as FC
+
+    report: dict = {"problem": problem, "unclosed_before": _unclosed(site_warnings), "kept": [], "refused": []}
+    ex.report["outline_closure"] = report
+    outline = drawn_outline(strokes, walls2, exclude)
+    guard = outline.buffer(CLOSURE_OUTLINE_TOL_M, join_style=2) if outline is not None else None
+    if outline is not None:                           # the debug image and the report show what guarded the bridges
+        report["outline"] = [[round(x, 3), round(y, 3)] for x, y in outline.simplify(0.05).exterior.coords]
+    outdoor = [Point(b.anchor) for b in blocks if TP._outdoor_label(b)]
+    indoor = [Point(b.anchor) for b in blocks if not getattr(b, "exterior", False) and not TP._outdoor_label(b)]
+    thickness, how = _outer_thickness(bwalls, b_openings)
+    report["thickness"] = {"m": thickness, "how": how}
+
+    def check(ws):
+        bw, site, sw = TP.split_plot(ws, openings, blocks, level_id=level_id)
+        idx = {o["index"] for o in site["openings"]}
+        b_open = [o for j, o in enumerate(openings) if j not in idx]
+        return bw, site, sw, b_open, TP.outer_loop_problem(bw, b_open)
+
+    def refuse(c, why):
+        report["refused"].append({"kind": c["kind"], "from": c["from"], "to": c["to"], "length_m": round(c["length"], 3),
+                                  "support": round(c["support"], 2), "free": c["free"],
+                                  "outline_dist": round(c["outline_dist"], 2), "why": why})
+
+    def touches(c, faces) -> bool:
+        return any(LineString([a, b]).distance(f) <= 0.05 for a, b in c["segments"] for f in faces)
+
+    before = _unclosed(site_warnings)
+    chosen: list[dict] = []
+    cur_walls, cur_b, cur_bo = list(walls2), list(bwalls), list(b_openings)
+    faces_before = TP.faces(bwalls, b_openings)
+    for _round in range(CLOSURE_ROUNDS):
+        used: set = set()
+        added = []
+        for c in closure_candidates(cur_walls, cur_b, cur_bo, strokes, thickness, outline=outline):
+            if any(e in used for e in c["ends"]):
+                refuse(c, "a bridge of this round uses that wall end already")
+                continue
+            if not c["free"] and c["support"] < CLOSURE_SUPPORT_MIN:
+                refuse(c, f"it runs on past a corner with drawn lines along {c['support']:.0%} of it only (a free "
+                          f"end is an evident gap; a corner needs the drawing's support)")
+                continue
+            if not all(_join_clear(a, b, openings) for a, b in c["segments"]):
+                refuse(c, "a drawn door or window lies on or beside it")
+                continue
+            if guard is not None and not all(guard.contains(Point((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0))
+                                             for a, b in c["segments"]):
+                refuse(c, f"beyond the drawn outline (more than {CLOSURE_OUTLINE_TOL_M:g} m past what is drawn)")
+                continue
+            if not c["free"] and c["outline_dist"] > CLOSURE_ON_OUTLINE_M:
+                refuse(c, f"it runs on past a corner {c['outline_dist']:.1f} m inside the drawn outline (more than "
+                          f"{CLOSURE_ON_OUTLINE_M:g} m: a counter or furniture line, not the facade)")
+                continue
+            if any(LineString([a, b]).distance(q) <= CLOSURE_OUTDOOR_CLEAR_M for a, b in c["segments"] for q in outdoor):
+                refuse(c, "a balcony or terrace label stands beside it (an outdoor space, not a room)")
+                continue
+            used.update(c["ends"])
+            added.append(c)
+        if not added:
+            break
+        trial = cur_walls + _closure_walls(added, thickness, file_rel, page_no, problem)
+        bw, site, sw, b_open, prob = check(trial)
+        # a bridge that closes a balcony or terrace label into a new face encloses an outdoor space; one from a corner
+        # that closes an unlabelled space (a courtyard, a niche) into the building has no drawing behind it: dropped
+        new_faces = [f for f in TP.faces(bw, b_open) if not any(g.contains(f.representative_point()) for g in faces_before)]
+        bad = [f for f in new_faces if any(f.contains(q) for q in outdoor)]
+        blank = [f for f in new_faces if f.area > CLOSURE_UNLABELLED_MAX_M2 and not any(f.contains(q) for q in indoor)]
+        keep = []
+        for c in added:
+            if touches(c, bad):
+                refuse(c, "it would close a balcony or terrace label into a room")
+            elif not c["free"] and touches(c, blank):
+                refuse(c, f"it would close an unlabelled space over {CLOSURE_UNLABELLED_MAX_M2:g} m2 into the building")
+            else:
+                keep.append(c)
+        if len(keep) != len(added):
+            added = keep
+            if not added:
+                break
+            trial = cur_walls + _closure_walls(added, thickness, file_rel, page_no, problem)
+            bw, site, sw, b_open, prob = check(trial)
+        chosen += added
+        cur_walls, cur_b, cur_bo = trial, bw, b_open
+        if prob is None and _unclosed(sw) == 0:
+            break
+    if not chosen:
+        ex.notes.append(f"{where}: outline closure: no bridge for the open outer ring "
+                        f"({problem or 'labels in no closed face'}); {len(report['refused'])} candidate(s) refused")
+        return None
+    bw, site, sw, b_open, prob = check(walls2 + _closure_walls(chosen, thickness, file_rel, page_no, problem))
+    after = _unclosed(sw)
+    if not (after < before or (problem is not None and prob is None and after <= before)):
+        for c in chosen:
+            refuse(c, f"the walls do not close with it either (labels in no closed face {before} -> {after}, "
+                      f"{prob or 'the ring closes'})")
+        ex.notes.append(f"{where}: outline closure: {len(chosen)} bridge(s) tried along the outline, the walls do not "
+                        f"close with them (labels in no closed face {before} -> {after}; {prob or 'the ring closes'}):"
+                        f" not used")
+        return None
+    # only the bridges the closing needs stay: the ones farthest inside the drawn outline dropped first (a counter line
+    # closes a kitchen as well as its facade does; the facade is kept), then the longest
+    for c in sorted(list(chosen), key=lambda c: (-round(c["outline_dist"], 1), -c["length"])):
+        rest = [x for x in chosen if x is not c]
+        if not rest:
+            break
+        r2 = check(walls2 + _closure_walls(rest, thickness, file_rel, page_no, problem))
+        if _unclosed(r2[2]) <= after and (r2[4] is None or prob is not None):
+            refuse(c, "not needed: the walls close as well without it")
+            chosen = rest
+            bw, site, sw, b_open, prob = r2
+    new_walls = _closure_walls(chosen, thickness, file_rel, page_no, problem)
+    # the door and window symbols drawn across the bridges, and the frames running along them (nothing invented)
+    taken = set(owned) if owned is not None else set()
+    read = O.openings_on_walls(new_walls, list(strokes), file_rel, page_no, units_to_m=units_to_m, owned=taken)
+    framed = FC.frame_windows(new_walls, list(strokes), read, walls2)
+    if owned is not None:
+        owned.update(taken)
+    all_walls, all_open = walls2 + new_walls, list(openings) + read + framed
+    bw, site, sw = TP.split_plot(all_walls, all_open, blocks, level_id=level_id)
+    idx = {o["index"] for o in site["openings"]}
+    b_open = [o for j, o in enumerate(all_open) if j not in idx]
+    prob = TP.outer_loop_problem(bw, b_open)
+    for c in chosen:
+        report["kept"].append({"kind": c["kind"], "from": c["from"], "to": c["to"], "length_m": round(c["length"], 3),
+                               "support": round(c["support"], 2), "free": c["free"],
+                               "outline_dist": round(c["outline_dist"], 2),
+                               "segments": [[list(a), list(b)] for a, b in c["segments"]]})
+        ex.notes.append(f"{where}: outline closure ({c['kind']}, confidence {CLOSURE_CONFIDENCE:g}): a {c['length']:.2f} m "
+                        f"gap of the outer ring from {c['from']} to {c['to']} bridged by {len(c['segments'])} inferred "
+                        f"wall(s) of {thickness:.2f} m ({how}); drawn lines along {c['support']:.0%} of it"
+                        + ("" if c["free"] else "; the wall runs on past a corner"))
+    report.update(unclosed_after=_unclosed(sw), problem_after=prob, openings_read=len(read), windows_framed=len(framed))
+    ex.warnings.append(f"{where}: the outer ring did not close ({problem or 'room label(s) in no closed face'}): "
+                       f"{len(new_walls)} inferred wall(s) bridge {len(chosen)} gap(s) along the outline at confidence "
+                       f"{CLOSURE_CONFIDENCE:g} (rule {OUTLINE_CLOSURE_RULE}; {len(read)} drawn opening(s) read on them, "
+                       f"{len(framed)} unverified window(s) where frames run along them; labels in no closed face "
+                       f"{before} -> {_unclosed(sw)}): check them on the comparison sheets (reading check RC7)")
+    return all_walls, all_open, bw, site, sw, b_open, prob
+
+
 SIZE_TAG_RE = re.compile(r"^\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")   # a window's size tag: width/height in cm
 TAG_REACH_M = 0.8               # a size tag stands this close to the wall of its window ...
 TAG_ANGLE_DEG = 15.0            # ... written along it
@@ -2212,6 +2681,15 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                 openings, bwalls, site, site_warnings, b_openings, problem = tagged, bw_t, site_t, sw_t, b_open_t, prob_t
             else:
                 ex.notes.append(f"{where}: the windows of the size tags left out: they would open the walls")
+    if (problem is not None or _unclosed(site_warnings)) and not is_raster:
+        # 4 Nov 2026 (Milestone 14 R2, "never leave a level out; carry confidence instead"): the last pass bridges the
+        # gaps of the outer ring along the outline at confidence 0.3 (``_outline_closure``); what stays open marks the
+        # level low-confidence in the pipeline (failed_levels: build_marked) instead of leaving it out
+        closed = _outline_closure(ex, where, walls2, openings, blocks, level_id, site_warnings, problem, bwalls,
+                                  b_openings, non_wall, SY._dimension_ids(dims), file_rel, page_no, units_to_m=s,
+                                  owned=owned)
+        if closed is not None:
+            walls2, openings, bwalls, site, site_warnings, b_openings, problem = closed
     for w in site_warnings:
         if w.startswith(TP.REVIEW_PREFIX):
             ex.review.append(f"{where}: {w[len(TP.REVIEW_PREFIX):]}")
