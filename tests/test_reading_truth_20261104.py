@@ -150,15 +150,19 @@ def test_the_weighted_total_and_the_partial_truth():
 
 
 def test_the_gate_falls_and_holds():
-    last = {"commit": "a", "overall": 90.0, "projects": {"p1": {"total": 95.0}, "p2": {"total": 85.0}}}
-    assert SC.falls(None, last) == []
-    held = {"overall": 89.6, "projects": {"p1": {"total": 93.5}, "p2": {"total": 85.7}}}
+    stored = [{"commit": "a", "overall": 90.0, "projects": {"p1": {"total": 95.0}, "p2": {"total": 85.0}}},
+              {"commit": "b", "overall": 96.0, "projects": {"p1": {"total": 96.0}}}]       # a subset run after
+    last = SC.latest(stored)
+    assert last["projects"]["p1"] == {"total": 96.0, "commit": "b"} and last["projects"]["p2"]["commit"] == "a"
+    assert last["overall"] == 90.5 and SC.latest([]) is None and SC.falls(None, last) == []
+    held = {"overall": 90.1, "projects": {"p1": {"total": 94.5}, "p2": {"total": 85.7}}}
     assert SC.falls(last, held) == []
-    fell = {"overall": 89.4, "projects": {"p1": {"total": 92.9}, "p2": {"total": 85.9}}}
-    out = SC.falls(last, fell)
-    assert out == ["overall: 90.00 -> 89.40", "p1: 95.00 -> 92.90"]
-    gone = {"overall": 95.0, "projects": {"p1": {"total": 95.0}}}
-    assert SC.falls(last, gone) == ["p2: 85.00 -> 0.00 (not scored)"]
+    fell = {"overall": 89.9, "projects": {"p1": {"total": 93.9}, "p2": {"total": 85.9}}}
+    assert SC.falls(last, fell) == ["overall: 90.50 -> 89.90", "p1: 96.00 -> 93.90"]
+    subset = {"overall": 95.5, "projects": {"p1": {"total": 95.5}, "p9": {"total": 10.0}}}  # p9 scored first time
+    assert SC.falls(last, subset) == []
+    failed = {"overall": 48.0, "projects": {"p1": {"total": 96.0}, "p2": {"total": 0.0, "error": "no DXF"}}}
+    assert SC.falls(last, failed) == ["overall: 90.50 -> 48.00", "p2: 85.00 -> 0.00 (reading failed: no DXF)"]
     assert SC.overall({"p1": {"total": 95.0}, "p2": {"total": 85.0}}) == 90.0
 
 

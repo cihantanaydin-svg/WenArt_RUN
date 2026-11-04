@@ -1,0 +1,526 @@
+{
+ "project": "synthetic-04",
+ "source": "accepted_reading",
+ "status": "accepted",
+ "commit": "c60f929dd7e06009599bdfc3472daafb320dd647",
+ "date": "2026-11-04",
+ "levels": [
+  {
+   "id": "L3",
+   "label": "3. Kat",
+   "elevation": 9.0,
+   "order": 3
+  }
+ ],
+ "levels_left_out": [],
+ "per_level": {
+  "L3": {
+   "rooms": [
+    {
+     "id": "r_L3_salon_mutfak",
+     "label": "Salon + Mutfak",
+     "room_type": "living",
+     "area": 39.05,
+     "centroid": [
+      3.141,
+      3.383
+     ],
+     "polygon": [
+      [
+       0.25,
+       0.25
+      ],
+      [
+       6.95,
+       0.25
+      ],
+      [
+       6.95,
+       4.55
+      ],
+      [
+       3.45,
+       4.55
+      ],
+      [
+       3.45,
+       7.75
+      ],
+      [
+       0.25,
+       7.75
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L3_yatak_odasi",
+     "label": "Yatak Odası",
+     "room_type": "bedroom",
+     "area": 20.21,
+     "centroid": [
+      9.4,
+      2.4
+     ],
+     "polygon": [
+      [
+       7.05,
+       0.25
+      ],
+      [
+       11.75,
+       0.25
+      ],
+      [
+       11.75,
+       4.55
+      ],
+      [
+       7.05,
+       4.55
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L3_hol",
+     "label": "Hol",
+     "room_type": "hall",
+     "area": 8.32,
+     "centroid": [
+      5.238,
+      5.816
+     ],
+     "polygon": [
+      [
+       3.55,
+       4.65
+      ],
+      [
+       7.95,
+       4.65
+      ],
+      [
+       7.95,
+       5.85
+      ],
+      [
+       5.15,
+       5.85
+      ],
+      [
+       5.15,
+       7.75
+      ],
+      [
+       3.55,
+       7.75
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L3_cocuk_odasi",
+     "label": "Çocuk Odası",
+     "room_type": "bedroom",
+     "area": 11.47,
+     "centroid": [
+      9.9,
+      6.2
+     ],
+     "polygon": [
+      [
+       8.05,
+       4.65
+      ],
+      [
+       11.75,
+       4.65
+      ],
+      [
+       11.75,
+       7.75
+      ],
+      [
+       8.05,
+       7.75
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L3_banyo",
+     "label": "Banyo",
+     "room_type": "bathroom",
+     "area": 4.86,
+     "centroid": [
+      6.6,
+      6.85
+     ],
+     "polygon": [
+      [
+       5.25,
+       5.95
+      ],
+      [
+       7.95,
+       5.95
+      ],
+      [
+       7.95,
+       7.75
+      ],
+      [
+       5.25,
+       7.75
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    }
+   ],
+   "doors": [
+    {
+     "id": "d_L3_001",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      4.35,
+      7.875
+     ],
+     "wall_id": "w_L3_003",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "d_L3_002",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      4.4,
+      4.6
+     ],
+     "wall_id": "w_L3_006",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "d_L3_003",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      5.2,
+      6.85
+     ],
+     "wall_id": "w_L3_009",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "d_L3_004",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      8.0,
+      5.25
+     ],
+     "wall_id": "w_L3_010",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "d_L3_005",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      7.5,
+      4.6
+     ],
+     "wall_id": "w_L3_006",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L3_001",
+     "type": "window",
+     "width": 1.8,
+     "center": [
+      2.0,
+      0.125
+     ],
+     "wall_id": "w_L3_001",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "win_L3_002",
+     "type": "window",
+     "width": 1.8,
+     "center": [
+      5.0,
+      0.125
+     ],
+     "wall_id": "w_L3_001",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "win_L3_003",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      0.125,
+      2.3
+     ],
+     "wall_id": "w_L3_004",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "win_L3_004",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      0.125,
+      6.2
+     ],
+     "wall_id": "w_L3_004",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "win_L3_005",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      1.85,
+      7.875
+     ],
+     "wall_id": "w_L3_003",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "win_L3_006",
+     "type": "window",
+     "width": 0.6,
+     "center": [
+      6.6,
+      7.875
+     ],
+     "wall_id": "w_L3_003",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "win_L3_007",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      9.9,
+      7.875
+     ],
+     "wall_id": "w_L3_003",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "win_L3_008",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      11.875,
+      6.2
+     ],
+     "wall_id": "w_L3_002",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "win_L3_009",
+     "type": "window",
+     "width": 1.8,
+     "center": [
+      9.4,
+      0.125
+     ],
+     "wall_id": "w_L3_001",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "win_L3_010",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      11.875,
+      2.4
+     ],
+     "wall_id": "w_L3_002",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    }
+   ],
+   "openings": [],
+   "walls": [
+    {
+     "id": "w_L3_001",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      12.0,
+      0.125
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "w_L3_002",
+     "start": [
+      11.875,
+      0.0
+     ],
+     "end": [
+      11.875,
+      8.0
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "w_L3_003",
+     "start": [
+      0.0,
+      7.875
+     ],
+     "end": [
+      12.0,
+      7.875
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "w_L3_004",
+     "start": [
+      0.125,
+      0.0
+     ],
+     "end": [
+      0.125,
+      8.0
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "w_L3_005",
+     "start": [
+      3.5,
+      4.65
+     ],
+     "end": [
+      3.5,
+      7.75
+     ],
+     "thickness": 0.1,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "w_L3_006",
+     "start": [
+      3.45,
+      4.6
+     ],
+     "end": [
+      11.75,
+      4.6
+     ],
+     "thickness": 0.1,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "w_L3_007",
+     "start": [
+      7.0,
+      0.25
+     ],
+     "end": [
+      7.0,
+      4.55
+     ],
+     "thickness": 0.1,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "w_L3_008",
+     "start": [
+      5.15,
+      5.9
+     ],
+     "end": [
+      7.95,
+      5.9
+     ],
+     "thickness": 0.1,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "w_L3_009",
+     "start": [
+      5.2,
+      5.95
+     ],
+     "end": [
+      5.2,
+      7.75
+     ],
+     "thickness": 0.1,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "w_L3_010",
+     "start": [
+      8.0,
+      4.65
+     ],
+     "end": [
+      8.0,
+      7.75
+     ],
+     "thickness": 0.1,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 1.0
+    }
+   ],
+   "stairs": []
+  }
+ }
+}

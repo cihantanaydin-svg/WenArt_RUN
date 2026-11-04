@@ -220,19 +220,39 @@ def overall(projects: dict) -> float:
 
 # --- the gate and the files -----------------------------------------------------------------------------------------
 
+def latest(stored: list) -> Optional[dict]:
+    """The newest stored numbers per project folded into one entry (pure): ``{"projects": {p: {..., "commit"}},
+    "overall"}``; None when nothing is stored. A subset run (``--projects``) stores only what it scored, so the
+    gate compares each project with the last entry that has it."""
+    projects: dict = {}
+    for entry in reversed(stored or []):
+        for p, v in (entry.get("projects") or {}).items():
+            if p not in projects:
+                projects[p] = dict(v, commit=entry.get("commit"))
+    return {"projects": projects, "overall": overall(projects)} if projects else None
+
+
 def falls(last: Optional[dict], new: dict) -> list[str]:
-    """What fell against the last stored entry (pure): the overall by more than ``GATE_OVERALL_DROP``, a project by
-    more than ``GATE_PROJECT_DROP``; a project missing from the new entry falls to 0."""
+    """What fell against the stored numbers (pure; ``last`` is ``latest(stored)``): over the projects both have,
+    the overall by more than ``GATE_OVERALL_DROP`` or a project by more than ``GATE_PROJECT_DROP``. A project whose
+    reading failed stands at 0 with its error and falls; a project scored for the first time is not compared."""
     if not last:
         return []
+    was_all, now_all = last.get("projects") or {}, new.get("projects") or {}
+    common = [p for p in now_all if p in was_all]
+    if not common:
+        return []
     out = []
-    if float(new.get("overall") or 0) < float(last.get("overall") or 0) - GATE_OVERALL_DROP:
-        out.append(f"overall: {float(last.get('overall') or 0):.2f} -> {float(new.get('overall') or 0):.2f}")
-    for p, was in (last.get("projects") or {}).items():
-        now = (new.get("projects") or {}).get(p) or {}
-        w, n = float(was.get("total") or 0), float(now.get("total") or 0)
+    w_over = overall({p: was_all[p] for p in common})
+    n_over = overall({p: now_all[p] for p in common})
+    if n_over < w_over - GATE_OVERALL_DROP:
+        out.append(f"overall: {w_over:.2f} -> {n_over:.2f}" + (f" ({len(common)} projects)" if len(common) < len(
+            was_all) else ""))
+    for p in common:
+        w, n = float(was_all[p].get("total") or 0), float(now_all[p].get("total") or 0)
         if n < w - GATE_PROJECT_DROP:
-            out.append(f"{p}: {w:.2f} -> {n:.2f}" + ("" if now else " (not scored)"))
+            err = now_all[p].get("error")
+            out.append(f"{p}: {w:.2f} -> {n:.2f}" + (f" (reading failed: {err})" if err else ""))
     return out
 
 
@@ -289,10 +309,13 @@ def main(args) -> int:
     entry["overall"] = overall(entry["projects"])
     print(table(entry))
     stored = load_scores()
-    fell = falls(stored[-1] if stored else None, entry) if args.gate else []
-    if fell:
-        print("GATE: fell against " + ((stored[-1].get("commit") or "?")[:12] if stored else "-") + "\n  "
-              + "\n  ".join(fell))
+    last = latest(stored)
+    fell = falls(last, entry) if args.gate else []
+    if args.gate:
+        against = sorted({(v.get("commit") or "?")[:12] for p, v in (last or {}).get("projects", {}).items()
+                          if p in entry["projects"]})
+        print(("GATE: fell" if fell else "GATE: holds") + " against " + (", ".join(against) or "nothing stored")
+              + ("\n  " + "\n  ".join(fell) if fell else ""))
     if args.update and not fell:
         SCORES_PATH.parent.mkdir(parents=True, exist_ok=True)
         SCORES_PATH.write_text(json.dumps(stored + [entry], ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
