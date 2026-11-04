@@ -311,3 +311,17 @@ def test_the_sheets_draw_closure_walls_dashed_and_number_the_places():
     assert sorted(t.get_text() for t in ax2.texts) == ["place 1", "place 2"]
     plt.close(fig)
     plt.close(fig2)
+
+
+def test_every_conflict_kind_the_sheets_write_is_in_the_building_schema():
+    """real11, once its levels were built: the registration's shaft_grid_mismatch conflict failed the building schema
+    and the project went needs_review for that alone (the kind was in the sheets schema only)."""
+    import json
+    from pathlib import Path
+
+    root = Path(B.__file__).resolve().parent / "schema"
+    sheets = json.loads((root / "sheets.schema.json").read_text(encoding="utf-8"))
+    building = json.loads((root / "building.schema.json").read_text(encoding="utf-8"))
+    sheet_kinds = set(sheets["$defs"]["conflict"]["properties"]["kind"]["enum"])
+    building_kinds = set(building["$defs"]["conflict"]["properties"]["kind"]["enum"])
+    assert sheet_kinds <= building_kinds, sheet_kinds - building_kinds
