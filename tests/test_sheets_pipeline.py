@@ -458,10 +458,9 @@ def test_the_region_origin_says_why_it_is_not_used(fmt, units, tf, origin, why):
     assert (reason is None) if why is None else (why in reason)
 
 
-def test_a_region_whose_outer_walls_do_not_close_is_left_out(tmp_path):
-    # Review finding 10: the basement's east wall is not drawn; the west room closes and was taken for the building,
-    # MUTFAK lay outside it and the level was built with one room (status ok). Now the region cannot be read: its
-    # level is left out, named with the label.
+def _open_basement(tmp_path, brief=None):
+    """The fixture with the basement's east wall not drawn (review finding 10): the west room closes, MUTFAK lies
+    outside the walls read as the building."""
     import ezdxf
 
     import _sheets_fixture as FX
@@ -469,6 +468,8 @@ def test_a_region_whose_outer_walls_do_not_close_is_left_out(tmp_path):
     project = tmp_path / "open"
     project.mkdir()
     path = write_sheet(project / "sheet.dxf")
+    if brief is not None:
+        (project / "brief.yaml").write_text(brief, encoding="utf-8")
     doc = ezdxf.readfile(path)
     msp = doc.modelspace()
     ox, oy = FX.PLANS["basement"][0]
@@ -479,6 +480,28 @@ def test_a_region_whose_outer_walls_do_not_close_is_left_out(tmp_path):
             msp.delete_entity(e)
     doc.saveas(path)
     building, _ = P.run_project(project, tmp_path / "out", no_ai=True)
+    return building
+
+
+def test_a_region_whose_outer_walls_do_not_close_is_built_marked_low_confidence(tmp_path):
+    # Review finding 10 (then): the basement's east wall is not drawn; the west room closes and was taken for the
+    # building, MUTFAK lay outside it: the level was left out. 4 Nov 2026 (Milestone 14 R2, failed_levels build_marked,
+    # user: "never leave a level out; carry confidence instead"): the level is built with what closes (SALON, no room
+    # invented for MUTFAK), marked reading_confidence low with the reason naming the label; the status stays ok.
+    building = _open_basement(tmp_path)
+    assert not building.get("levels_left_out") and building["status"] == "ok"
+    assert [lv["id"] for lv in building["levels"]] == ["L-1", "L-1b", "L0", "L1"]
+    level = next(lv for lv in building["levels"] if lv["id"] == "L-1")
+    assert level["reading_confidence"] == "low"
+    assert any("outer walls do not close" in r and "'MUTFAK'" in r for r in level["reading_review"])
+    assert "reading_confidence" not in next(lv for lv in building["levels"] if lv["id"] == "L0")
+    assert [r["label"] for r in building["rooms"] if r["level_id"] == "L-1"] == ["Salon"]
+    assert any("built, reading confidence low" in w for w in building["warnings"])
+    assert B.validation_errors(building) == []
+
+
+def test_a_brief_asking_leave_out_still_leaves_the_open_region_out(tmp_path):
+    building = _open_basement(tmp_path, brief="failed_levels: leave_out\n")
     left = {x["region_id"]: x["reason"] for x in building["levels_left_out"]}
     assert list(left) == ["r3"] and "outer walls do not close" in left["r3"] and "'MUTFAK'" in left["r3"]
     assert [lv["id"] for lv in building["levels"]] == ["L-1b", "L0", "L1"]

@@ -175,6 +175,12 @@ class LevelExtraction:
     notes: list[str] = field(default_factory=list)  # report lines (rules that fired, dropped separators, ...)
     review: list[str] = field(default_factory=list) # needs_review reasons found while reading the page (generic core)
     report: dict = field(default_factory=dict)      # generic core: data for the report and debug image (not saved)
+    # 4 Nov 2026 (Milestone 14 R2, user: "never leave a level out; carry confidence instead"): the review reasons of
+    # a region the pipeline builds anyway (``failed_levels: build_marked``) move here; the level is written with
+    # ``reading_confidence: low`` and these reasons as ``reading_review``. ``reading_places``: the places of the
+    # level to check (``{"kind", "text", "at": [x, y]}``, building metres: the room labels in no closed face).
+    reading_review: list[str] = field(default_factory=list)
+    reading_places: list[dict] = field(default_factory=list)
 
     @property
     def metres_per_unit(self) -> Optional[float]:

@@ -154,6 +154,14 @@ RECOGNITION_DIR = "recognition"
 SYMBOL_COLOUR = (150, 60, 200)      # Milestone 12 debug images: symbols moved out of the furniture (purple, dashed)
 LEVEL_MARK_COLOUR = (140, 70, 20)   # ... and the level marks (brown; orange is the scale dimensions)
 READING_LEGEND = "symbols purple dashed, level marks brown, not built dashed"
+# 4 Nov 2026 (Milestone 14 R2, user: "never leave a level out; carry confidence instead"; the request behind it: "I
+# want structure recognition to be cumulatively better with the feedbacks I am giving"): the ``failed_levels`` policy
+# when the brief names none, and the confidence a level built with review reasons carries (``levels[].
+# reading_confidence``). The 11 of 21 real projects that lost whole levels over open outer walls lost the 95 % that
+# was right with them; now the level is built and its places to check are listed (reading check RC7).
+FAILED_LEVELS_DEFAULT = "build_marked"
+READING_CONFIDENCE_LOW = "low"
+BUILT_MARKED_NOTE = "built, reading confidence low"
 
 
 @dataclass
@@ -250,6 +258,10 @@ class ProjectBuild:
         # page_summary``: layers, block inserts, hatches, closed outlines), taken before the page model is dropped.
         self.source_pages: dict = {}
         self.document_wall_layers: dict[str, list[str]] = {}   # real10: file -> the face-pair wall layers chosen
+        # 4 Nov 2026 (Milestone 14 R2): the brief's ``failed_levels`` policy (``build_marked`` | ``leave_out`` |
+        # ``stop``), read once in ``run_project``; the level ids built with review reasons under ``build_marked``.
+        self.failed_levels: str = FAILED_LEVELS_DEFAULT
+        self.marked_levels: set[str] = set()
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -405,6 +417,32 @@ def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: l
     return out
 
 
+def _level_review(build: ProjectBuild, level_id: str, ex: LevelExtraction, reason: str, marked: bool,
+                  places: Optional[list] = None) -> None:
+    """A review reason the level assembly finds (open outer loop, labels in no closed face): under
+    ``failed_levels: build_marked`` for a region level (``marked``) it marks the level (``reading_review``, the places
+    to check, a warning) instead of stopping the project; else the project needs review as before (4 Nov 2026,
+    Milestone 14 R2, user: "never leave a level out; carry confidence instead")."""
+    if not marked:
+        build.review(reason)
+        return
+    ex.reading_review.append(reason)
+    ex.reading_places.extend(places or [])
+    build.marked_levels.add(level_id)
+    build.warn(f"{reason} ({BUILT_MARKED_NOTE})")
+
+
+def _mark_level(level: dict, ex: LevelExtraction) -> None:
+    """``reading_confidence: low``, ``reading_review`` and ``reading_places`` on a level built with review reasons
+    (``_build_marked``, ``_level_review``); nothing on a level without them (schema ``level``)."""
+    if not ex.reading_review:
+        return
+    level["reading_confidence"] = READING_CONFIDENCE_LOW
+    level["reading_review"] = list(ex.reading_review)
+    if ex.reading_places:
+        level["reading_places"] = [dict(p) for p in ex.reading_places]
+
+
 def _level_dict(level_id: str, record: PageRecord, works: list[PageWork]) -> dict:
     label, order = record.level_label, record.level_order
     if label is None:
@@ -493,12 +531,20 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
         result = R.derive_rooms(level_id, ex.walls, ex.labels, anchors, fallbacks, ex.file, build.ids)
     for text in result.warnings:
         build.warn(text)
-    if not result.closed and not any("outer walls do not close" in r for r in ex.review):
-        build.review(f"{level_id}: outer walls do not form a closed loop ({master.where})")
+    marked = build.failed_levels == FAILED_LEVELS_DEFAULT and record.region_id is not None and build.sheets is not None
+    if not result.closed and not any("outer walls do not close" in r for r in ex.review + ex.reading_review):
+        _level_review(build, level_id, ex, f"{level_id}: outer walls do not form a closed loop ({master.where})", marked)
     if result.unplaced_labels:
-        # A room label outside every face means the walls around that room do not close.
+        # A room label outside every face means the walls around that room do not close. 4 Nov 2026 (build_marked):
+        # the rooms stay as they are (none invented); the labels are recorded on the level as places to check.
         names = ", ".join(f"'{t.text}'" for t in result.unplaced_labels)
-        build.review(f"{level_id}: room labels outside every enclosed room ({names}); walls do not close ({master.where})")
+        _level_review(build, level_id, ex, f"{level_id}: room labels outside every enclosed room ({names}); walls do "
+                                            f"not close ({master.where})", marked,
+                      places=[{"kind": "unplaced_label", "text": t.text,
+                               "at": [round(v, 4) for v in _to_building(ex, t.start)],
+                               "note": "a room label in no closed face: the walls around that room do not close"}
+                              for t in result.unplaced_labels])
+    _mark_level(level, ex)
     if generic:
         from wenart.ingest.generic import topology as TP
         build.unions[level_id] = TP.bridged_union(ex.walls, [o for o in ex.openings if not o.virtual],
@@ -1715,8 +1761,16 @@ def _m10_sections(b: dict) -> list[str]:
                      f"{lv.get('region_id') or '-'} | {lv['elevation']:.2f} | {lv.get('elevation_source') or '-'} | "
                      f"{lv['ceiling_height']:.2f} | {lv['ceiling_height_source']} |")
     left = b.get("levels_left_out") or []
-    lines += ["", "Levels left out (failed_levels: leave_out):", ""]
+    lines += ["", "Levels left out (failed_levels):", ""]
     lines += [f"- {x['label']} ({x.get('region_id') or '-'}): {_cell(x['reason'])}" for x in left] or ["- none"]
+    # 4 Nov 2026 (Milestone 14 R2): the levels built although their reading has review reasons (build_marked)
+    low = [lv for lv in b["levels"] if lv.get("reading_confidence") == READING_CONFIDENCE_LOW]
+    lines += ["", f"Levels built with low reading confidence (failed_levels: {FAILED_LEVELS_DEFAULT}; the reading "
+                  f"check lists their places under RC7):", ""]
+    lines += [f"- {lv['id']} {lv['label']} ({lv.get('region_id') or '-'}): "
+              + "; ".join(_cell(r) for r in lv.get("reading_review") or [])
+              + (f"; {len(lv['reading_places'])} label(s) in no closed face" if lv.get("reading_places") else "")
+              for lv in low] or ["- none"]
     lines += ["", "| Variant | Label | Levels | Rooms changed | Exterior changed |", "|---|---|---|---|---|"]
     for v in b.get("variants") or []:
         lines.append(f"| {v['id']} | {_cell(v['label'])} | {', '.join(v['levels'])} | "
@@ -2294,19 +2348,48 @@ def _brief_value(project_dir: Path, key: str, default):
     return BR.value(BR.load_brief(project_dir), key, default)
 
 
-def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, failed: dict,
-               project_dir: Path) -> None:
+def _build_marked(build: ProjectBuild, record: PageRecord, extraction: LevelExtraction) -> bool:
+    """4 Nov 2026 (Milestone 14 R2, user: "never leave a level out; carry confidence instead"): under the policy
+    ``failed_levels: build_marked`` (the default) a region whose reading has review reasons is built anyway when
+    something can be placed: it has a scale, a frame (``transform_to_building``) and at least one building wall.
+
+    What: the review reasons move to ``extraction.reading_review`` (the level is written with ``reading_confidence:
+    low`` and these reasons, ``_level_dict``), each becomes a warning naming the region (never silent), and the level
+    id is remembered in ``build.marked_levels`` (``_assemble_level`` marks what it finds later the same way). Returns
+    False, changing nothing, under ``leave_out`` / ``stop``, and for a region with no scale, no frame or no wall
+    (nothing can be placed: it is left out as before).
+
+    Why: 11 of 21 real projects lost whole levels over an outer ring that did not close or one label outside the
+    closed faces; the 95 % of the level that was right was never seen. The user's request: "I want structure
+    recognition to be cumulatively better with the feedbacks I am giving"; the places to check now stand on the
+    comparison sheets (reading check RC7) instead of a missing floor."""
+    if build.failed_levels != FAILED_LEVELS_DEFAULT:
+        return False
+    if extraction.scale is None or extraction.transform_to_building is None or not extraction.walls:
+        return False
+    if not extraction.review:
+        return True                                     # nothing to mark: built as any other region
+    where = f"{record.file} {record.region_id} ({record.level_id})"
+    for reason in extraction.review:
+        extraction.reading_review.append(reason)
+        build.warn(f"{where}: {reason} ({BUILT_MARKED_NOTE}: failed_levels {FAILED_LEVELS_DEFAULT})")
+    extraction.review = []
+    build.marked_levels.add(record.level_id)
+    return True
+
+
+def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, failed: dict) -> None:
     """``failed_levels`` (brief; user decision 3): ``leave_out`` leaves a level whose region could not be read out of
     the building and lists it in ``levels_left_out`` with the levels above it (a missing level never leaves the
     building above it floating; a basement that fails leaves only the basements below it, the levels from the
     ground floor up stand on the terrain); an alternative level that fails drops only its variant. The status stays
     ``ok`` while at least one level remains (docs/milestone10.md §1.6b row 7); ``stop``, or no level left, ends the
-    project ``needs_review`` with every region's reason."""
-    from wenart import brief as BR
-
+    project ``needs_review`` with every region's reason. 4 Nov 2026: ``build_marked`` (the default, ``_build_marked``)
+    comes here only with the regions nothing can be placed in (no scale, no frame, no wall) and leaves those out the
+    same way."""
     if not failed:
         return
-    policy = BR.value(BR.load_brief(project_dir), "failed_levels", "leave_out")
+    policy = build.failed_levels
     if policy == "stop":
         for reasons in failed.values():
             for r in reasons:
@@ -2332,7 +2415,7 @@ def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, f
         left.append({"label": rec.level_label if rec else lid, "order": rec.level_order if rec else None,
                      "region_id": rec.region_id if rec else None, "variant": rec.variant if rec else None,
                      "reason": reason})
-        build.warn(f"level {lid} left out (failed_levels: leave_out): {reason}")
+        build.warn(f"level {lid} left out (failed_levels: {policy}): {reason}")
         by_level.pop(lid, None)
     if not by_level:
         for reasons in failed.values():
@@ -2342,9 +2425,10 @@ def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, f
         build.warn(f"no base level could be read; only alternative levels remain ({', '.join(sorted(by_level))})")
 
 
-# 4 Nov 2026 (real17 L0: 'DÜKKAN GİRİŞİ', the shop entrance): up to two words may name whose entrance it is
+# 4 Nov 2026 (real17 L0: 'DÜKKAN GİRİŞİ', the shop entrance): up to two words may name whose entrance it is; (real11
+# L-1: 'SIĞINAK KAÇIŞI', the shelter's escape hatch outside the walls) an exit or escape word is a way out, no room
 ENTRANCE_WORD_RE = re.compile(r"^(?:[A-Z0-9.]+\s+){0,2}(?:GIRIS|GIRISI|ENTRANCE|ENTRY|EINGANG|ENTREE|INGRESSO|ENTRADA|"
-                              r"INGANG)$")
+                              r"INGANG|CIKIS|CIKISI|KACIS|KACISI|EXIT|ESCAPE|AUSGANG|SORTIE|USCITA|SALIDA)$")
 # 4 Nov 2026 (real17 L0: 'TABİ ZEMİNE GÖMÜLÜ SU DEPOSU', a water tank buried in the ground beside the building): a
 # label of something buried or underground outside the walls is a site item, not a room of the level
 BURIED_WORD_RE = re.compile(r"\b(?:GOMULU|BURIED|UNDERGROUND|YERALTI|TOPRAK\s+ALTI|UNTERIRDISCH|ENTERRE)\b")
@@ -2369,8 +2453,9 @@ def _labels_outside_building(ex: LevelExtraction) -> list[str]:
         block = getattr(t, "block", None)
         if block is None or getattr(block, "exterior", False):
             continue
-        if getattr(block, "room_type", None) == "balcony":
-            continue           # an open balcony outside the outer walls (real06's VERANDA): ``topology`` records it
+        if getattr(block, "room_type", None) == "balcony" or TP._outdoor_label(block):
+            continue           # an open balcony, terrace or canopy outside the outer walls (real06's VERANDA, real11's
+            #                    GİRİŞ SAÇAK): ``topology`` records it as an outdoor space
         # 2 Nov 2026 (real10's 2nd basement, user: "2n basement is fully underground and fully walled around ... you can
         # enter ... first from the stairs and than from the door"): an entrance word outside the walls (GİRİŞ with its
         # arrow) marks the way in, not a room; it never leaves a level out
@@ -2802,6 +2887,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     if build.sheets is not None:
         build.reference_region = next((r["id"] for r in build.sheets.get("regions") or []
                                        if (r.get("registration") or {}).get("method") == "reference"), None)
+    build.failed_levels = str(_brief_value(project_dir, "failed_levels", FAILED_LEVELS_DEFAULT))
     records = classify_pages(project_dir, work_dir=out_dir / "converted", ocr=ocr, sheets=sheets)
     evidence_only = _evidence_only_pages(records)
     works: dict[tuple, PageWork] = {}
@@ -2938,9 +3024,12 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                 build.warn(f"{record.file} p{record.page}: evidence-only raster page has no scale; not used")
                 continue
         elif record.region_id is not None and build.sheets is not None and (
-                extraction.review or extraction.scale is None or extraction.transform_to_building is None):
+                extraction.review or extraction.scale is None or extraction.transform_to_building is None) \
+                and not _build_marked(build, record, extraction):
             # Milestone 10 (§3.1 item 10): a region that cannot be read leaves its level out (failed_levels), decided
-            # once every region was read; its reasons name the region.
+            # once every region was read; its reasons name the region. 4 Nov 2026 (``build_marked``): only a region
+            # with no scale, no frame or no building wall comes here; one with review reasons is built and marked
+            # (``_build_marked``).
             reasons = list(extraction.review) or [f"{record.file} {record.region_id}: no scale source"]
             failed.setdefault(record.level_id, []).extend(f"{record.region_id} ({record.level_id}): {r}"
                                                           for r in reasons)
@@ -2969,7 +3058,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             build.generic.append(work)
 
     if build.sheets is not None:
-        _leave_out(build, records, by_level, failed, project_dir)
+        _leave_out(build, records, by_level, failed)
         for rec in not_selected:
             reason = (f"alternative read, not built: the brief's variants "
                       f"({_brief_value(project_dir, 'variants', 'all')}) do not select it")
