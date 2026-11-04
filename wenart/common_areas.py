@@ -17,18 +17,19 @@ COMMON_SUBTYPE = "common"
 COMMON_ROOM_WORDS = ("KAT HOLU", "BINA GIRISI", "BINA GIRIS HOLU", "APARTMAN GIRISI", "ORTAK ALAN", "MERDIVEN HOLU",
                      "ASANSOR HOLU", "ASANSOR ONU", "LOBI", "LOBBY", "LANDING", "COMMON HALL", "COMMON AREA",
                      "STAIR HALL", "LIFT LOBBY", "ELEVATOR LOBBY", "ENTRANCE LOBBY", "TREPPENHAUS", "HALL D'ENTREE")
-# the common hall's floor when the brief names none (``style["common_floor"]`` wins): large stone-look porcelain
-COMMON_FLOOR = {"material": "tiles_large_porcelain", "colour": "grey",
-                "params": {"pattern": "grid", "tile_size_m": [0.6, 0.6], "grout_m": 0.002, "grout_colour": "grey"},
-                "reason": "a common area (shared hall, UL305): hard-wearing stone-look porcelain 60 x 60 cm"}
-
-# ... its walls (``style["common_walls"]`` wins): a washable satin paint in greige, not the flats' wall colour ...
-COMMON_WALLS = {"material": "plaster_white", "colour": "greige",
-                "reason": "a common area (shared hall, UL305): washable satin wall paint in greige"}
-# ... and its ceiling (``style["common_ceiling"]`` wins): plain matte plaster in light grey (the user: "ceiling also could
-# be different if you understand roofing as ceiling")
-COMMON_CEILING = {"material": "plaster_white", "colour": "light grey",
-                  "reason": "a common area (shared hall, UL305): plain matte plaster ceiling in light grey"}
+# 4 Nov 2026 (user on real10: "THis 21 oda hall ... needs to have unique flooring and ceiling and walls"; the first
+# greige paint, grey porcelain and light grey plaster read like a flat's bathroom and hall): a lobby's finishes, none of
+# them used in the flats. Each slot of the style wins (``style["common_floor"]``, ``common_walls``, ``common_ceiling``).
+# The floor: polished light grey marble ...
+COMMON_FLOOR = {"material": "marble_slab", "colour": "light grey",
+                "reason": "a common area (shared hall, UL305, UL316): polished light grey marble, a lobby's floor"}
+# ... the walls: greige venetian (polished) plaster ...
+COMMON_WALLS = {"material": "venetian_plaster", "colour": "greige",
+                "reason": "a common area (shared hall, UL305, UL316): greige venetian plaster, a lobby's walls"}
+# ... and the ceiling: warm wood slats (the user: "ceiling also could be different if you understand roofing as
+# ceiling")
+COMMON_CEILING = {"material": "wood_slat", "colour": None,
+                  "reason": "a common area (shared hall, UL305, UL316): a wood slat ceiling, a lobby's ceiling"}
 
 _TR = str.maketrans({"ı": "i", "İ": "I", "ş": "s", "Ş": "S", "ğ": "g", "Ğ": "G", "ü": "u", "Ü": "U", "ö": "o",
                      "Ö": "O", "ç": "c", "Ç": "C"})

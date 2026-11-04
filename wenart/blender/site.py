@@ -6773,6 +6773,27 @@ def build_neighbour_houses(houses: Sequence[dict], collection, make_material, en
     return rec
 
 
+UPPER_FLOOR_SITE_M = 1.0     # a wall drawn outside the building on a floor this far over the ground is no garden wall
+
+
+def upper_floor_wall(wall: dict, levels: Sequence[dict], terrain: dict) -> Optional[str]:
+    """4 Nov 2026 (real10, user: "What are these white thing on the ground"): the air-conditioner boxes ('KLİMA') drawn
+    beside the balconies of the typical floor, outside its walls, went to the site and stood on the ground as 1.2 m
+    garden walls. A wall drawn outside the building on the plan of a floor whose floor stands more than
+    ``UPPER_FLOOR_SITE_M`` over the ground there belongs to that floor's facade (a balcony's or an AC unit's box), not
+    to the garden: the reason it is not built, or None (pure)."""
+    lv = next((x for x in levels or [] if x.get("id") == wall.get("level_id")), None)
+    if lv is None or lv.get("elevation") is None or not wall.get("start") or not wall.get("end"):
+        return None
+    (x0, y0), (x1, y1) = wall["start"], wall["end"]
+    ground = ground_z(terrain, (x0 + x1) / 2.0, (y0 + y1) / 2.0)
+    floor = float(lv["elevation"])
+    if floor - ground <= UPPER_FLOOR_SITE_M:
+        return None
+    return (f"drawn outside the walls on the plan of {lv['id']}, whose floor stands {floor - ground:.2f} m over the "
+            f"ground there: part of that floor's facade (a balcony's or an air-conditioner's box), not a garden wall")
+
+
 def label_holder(site: dict, area: dict) -> Optional[str]:
     """The drawn surface that holds a labelled site area (pure; lesson UL129): a paving, parking, grass or pool of the
     site that names it (``area_id``) or whose outline holds its label's anchor; None."""
@@ -6866,6 +6887,10 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     ground_is_grass = False
     if mode == "full":
         for w in _built(site.get("boundary_walls")):
+            why = upper_floor_wall(w, levels, terrain)
+            if why:
+                not_built.append({"id": w.get("id"), "kind": "site_wall", "reason": why})
+                continue
             plot_walls.append(w)
         for key, kind, lift in (("grass", "grass", GRASS_LIFT), ("paving", "paving", PAVING_LIFT),
                                 ("parking", "parking", PAVING_LIFT)):

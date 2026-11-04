@@ -152,7 +152,9 @@ def test_an_open_roof_terrace_edge_gets_a_parapet():
          + [wall("p1", "L1", (3, 0), (6, 0), 0.2)]}
     n = TB._edge_parapets(b, b["levels"][1], 0.9, "section mark")
     new = [w for w in b["walls"] if "edge_parapet" in w["id"]]
-    assert n == len(new) >= 4 and all(w["parapet"] and w["height"] == 0.9 and w["level_id"] == "L1" for w in new)
+    # user: "Too much wall on top a little wall with handrails should have been enough"
+    assert n == len(new) >= 4 and all(w["parapet"] and w["height"] == 0.5 and w["level_id"] == "L1"
+                                      and w["guard"]["top_m"] == 1.1 for w in new)
     import math
     total = sum(math.dist(w["start"], w["end"]) for w in new)
     assert 30.0 < total < 36.0                        # the 36 m edge less the drawn 3 m piece and its reach
@@ -322,3 +324,233 @@ def test_section_heights_outside_a_storey_are_implausible():
     ok = {"levels": [{"level_id": "L0", "floor_z": v(0.0), "ceiling_height": v(2.7)},
                      {"level_id": "L1", "floor_z": v(3.0), "ceiling_height": v(2.7)}]}
     assert H.implausible(ok, levels) is None
+
+
+def _room(walls_xy, label=("SALON", 2.5, 2.0)):
+    from wenart.ingest.generic import labels as LB
+    from wenart.ingest.generic import topology as TP
+    from wenart.ingest.generic.model import TextRun
+    from wenart.ingest.model import WallItem
+
+    walls = [WallItem(start=a, end=b, thickness=0.2, box=[0, 0, 1, 1], entity=f"LINE:{k}", evidence={})
+             for k, (a, b) in enumerate(walls_xy)]
+    name, x, y = label
+    blocks = LB.merge_label_blocks([TextRun(id="T1", text=name, box=(x - 0.4, y - 0.1, x + 0.4, y + 0.1),
+                                            height=0.2)], "x.dxf", 1)
+    bw, site, sw = TP.split_plot(walls, [], blocks, level_id="L0")
+    return walls, blocks, sw, TP.outer_loop_problem(bw, [])
+
+
+def test_a_drawn_wall_stopping_short_of_a_shared_corner_is_joined_to_it():
+    """real17 L0: the 4.70 m shopfront and the facade wall both stopped about 0.5 m short of their corner column."""
+    from wenart.ingest.generic import core as C
+
+    walls, blocks, sw, prob = _room([((0.5, 0.0), (5.0, 0.0)), ((5.0, 0.0), (5.0, 4.0)), ((5.0, 4.0), (0.0, 4.0)),
+                                     ((0.0, 4.0), (0.0, 0.45))])
+    assert C._unclosed(sw) or prob
+    ex = SimpleNamespace(notes=[])
+    got = C._short_joins(ex, "x", walls, [], blocks, "L0", sw, prob)
+    assert got is not None and got[6] is None and not C._unclosed(got[4])
+    assert len(got[0]) == 4 and "shared corner" in ex.notes[0]          # no wall added, two lengthened
+
+
+def test_a_wide_gap_between_drawn_walls_is_never_joined():
+    """'There are no walls here why are you imagining these?': an open 1.2 m front stays open."""
+    from wenart.ingest.generic import core as C
+
+    walls, blocks, sw, prob = _room([((1.2, 0.0), (5.0, 0.0)), ((5.0, 0.0), (5.0, 4.0)), ((5.0, 4.0), (0.0, 4.0)),
+                                     ((0.0, 4.0), (0.0, 0.0))])
+    assert C._short_joins(SimpleNamespace(notes=[]), "x", walls, [], blocks, "L0", sw, prob) is None
+
+
+def test_a_crack_between_two_drawn_walls_at_a_wall_end_is_filled():
+    """real17 L0: a stair wall's corner 9 mm off the facade wall's corner left the shop open to the street."""
+    from wenart.ingest.generic import core as C
+
+    walls, blocks, sw, prob = _room([((0.0, 0.0), (5.0, 0.0)), ((0.0, 0.0), (0.0, 2.1)), ((0.0, 2.1), (4.892, 2.1)),
+                                     ((5.0, 0.0), (5.0, 1.996))], label=("SALON", 2.5, 1.0))
+    walls[3].thickness = 0.21                                  # its top-left corner 5 mm off the top wall's corner
+    from wenart.ingest.generic import topology as TP
+    bw, site, sw = TP.split_plot(walls, [], blocks, level_id="L0")
+    prob = TP.outer_loop_problem(bw, [])
+    assert C._unclosed(sw) or prob
+    ex = SimpleNamespace(notes=[])
+    got = C._short_joins(ex, "x", walls, [], blocks, "L0", sw, prob)
+    assert got is not None and not C._unclosed(got[4])
+    assert any(w.entity.startswith("joint:") and w.inferred for w in got[0])
+
+
+def test_shop_entrance_and_buried_tank_labels_outside_never_leave_a_level_out():
+    from wenart import building as B
+    from wenart.ingest import pipeline as PL
+
+    for t in ("DÜKKAN GİRİŞİ", "BİNA GİRİŞİ", "MAIN ENTRANCE"):
+        assert PL.ENTRANCE_WORD_RE.search(" ".join(B.fold_ascii(t).upper().split()))
+    assert PL.BURIED_WORD_RE.search(B.fold_ascii("TABİ ZEMİNE GÖMÜLÜ SU DEPOSU").upper())
+    assert not PL.ENTRANCE_WORD_RE.search("DUKKAN") and not PL.BURIED_WORD_RE.search("SU DEPOSU")
+
+
+def test_the_source_drawing_panel_leaves_out_the_grid_and_the_dimensions():
+    """User: 'on the top left one marked, remove the coordinate and measurement lines'."""
+    from wenart.reading_check import sheets as SH
+
+    assert SH.is_grid_or_dimension("DIMENSION", "DUVAR", "CONTINUOUS")
+    assert SH.is_grid_or_dimension("LINE", "AKS", "CONTINUOUS")
+    assert SH.is_grid_or_dimension("TEXT", "AKS YAZISI", "CONTINUOUS")
+    assert SH.is_grid_or_dimension("LINE", "OLCU", "CONTINUOUS")
+    assert SH.is_grid_or_dimension("LINE", "Standart", "CENTER2")
+    assert not SH.is_grid_or_dimension("LINE", "DUVAR", "CONTINUOUS")
+    assert not SH.is_grid_or_dimension("LINE", "pencere", "HIDDEN")
+
+
+def test_a_self_touching_room_face_is_split_into_its_spaces():
+    """real17 L3: two spaces whose corners touch at one point came as one self-touching ring."""
+    from shapely.geometry import Polygon
+
+    from wenart.ingest import rooms as R
+    from wenart.ingest.model import WallItem
+
+    shell = [(-1, -1), (5, -1), (5, 5), (-1, 5)]
+    hole = [(0, 0), (2, 0), (2, 2), (4, 2), (4, 4), (2, 4), (2, 2), (0, 2)]
+    union = Polygon(shell, [hole])
+    walls = [WallItem(start=(-0.5, -0.5), end=(4.5, -0.5), thickness=1.0, box=[0, 0, 1, 1], entity="LINE:1",
+                      evidence={})]
+    res = R.derive_rooms("L0", walls, [], [], union=union)
+    polys = [Polygon(r["polygon"]) for r in res.rooms]
+    assert len(polys) == 2 and all(q.is_valid and abs(q.area - 4.0) < 1e-6 for q in polys)
+
+
+def test_a_window_size_tag_sets_its_window():
+    """real17 L0 (user: "these sections could be full windows glass"): '200/240' on the window text layer beside a facade
+    is one 2.00 m window, 2.40 m high from the floor, in place of the two small windows read from its frame; it moves
+    off the column it would overlap; '100/50' is a high window."""
+    from wenart.ingest.generic import core as C
+    from wenart.ingest.generic.model import TextRun
+    from wenart.ingest.model import OpeningItem, WallItem
+
+    def wall(a, b, t=0.2, e="LINE:1"):
+        return WallItem(start=a, end=b, thickness=t, box=[0, 0, 1, 1], entity=e, evidence={})
+
+    def win(x, w=0.44):
+        return OpeningItem(kind="window", width=w, center=(x, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1],
+                           entity=f"w{x}", evidence={})
+
+    walls = [wall((0.0, 0.0), (8.0, 0.0)), wall((4.0, 0.0), (4.4, 0.0), t=0.4, e="INSERT:col")]   # a column
+    tags = [TextRun(id="T1", text="200/240", box=(2.6, -0.45, 3.6, -0.3), height=0.15,
+                    evidence=[{"layer": "penc-yazi"}]),
+            TextRun(id="T2", text="100/50", box=(6.0, -0.45, 6.8, -0.3), height=0.15,
+                    evidence=[{"layer": "PENCERE"}]),
+            TextRun(id="T3", text="100/210", box=(0.5, -0.45, 1.3, -0.3), height=0.15,
+                    evidence=[{"layer": "kapi-yazi"}])]              # a door tag: not a window
+    ex = SimpleNamespace(notes=[])
+    got = C._window_tags(ex, "x", walls, [win(2.5), win(3.4)], tags, 1.0)
+    w = sorted([o for o in got if o.kind == "window"], key=lambda o: o.center[0])
+    assert len(w) == 2
+    assert abs(w[0].width - 2.0) < 1e-6 and w[0].height == 2.4 and w[0].sill == 0.0
+    assert w[0].center[0] + w[0].width / 2.0 <= 4.0 + 1e-6                 # clear of the column
+    assert abs(w[1].width - 1.0) < 1e-6 and abs(w[1].sill - 1.7) < 1e-6 and "sill_height" in w[1].assumed
+
+
+def test_grid_bubbles_and_dimension_dots_on_layer_0_are_left_out_of_the_source_panel():
+    """real10: the bubbles, dimension dots and ticks sit on layer '0'; a round column on a grid line and the furniture
+    stay."""
+    from wenart.reading_check import sheets as SH
+
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+    for name in ("AKS", "DIMH", "TEFRIS"):
+        doc.layers.add(name)
+    msp.add_line((0, 0), (10, 0), dxfattribs={"layer": "AKS"})
+    bubble = msp.add_circle((10.5, 0), 0.5, dxfattribs={"layer": "0"})
+    column = msp.add_circle((5, 0), 0.3, dxfattribs={"layer": "0"})
+    msp.add_line((0, -3), (4, -3), dxfattribs={"layer": "DIMH"})
+    msp.add_text("400", height=0.2, dxfattribs={"layer": "DIMH", "insert": (2, -2.8)})
+    dot = msp.add_circle((4.0, -3.05), 0.04, dxfattribs={"layer": "0"})
+    tick = msp.add_line((-0.1, -3.1), (0.1, -2.9), dxfattribs={"layer": "0"})
+    chair = msp.add_circle((4.0, -3.0), 0.1, dxfattribs={"layer": "TEFRIS"})
+    wall = msp.add_line((0, -3.2), (0, 5), dxfattribs={"layer": "0"})
+    hidden = SH.grid_and_dimension_marks(doc, list(msp))
+    assert {id(bubble), id(dot), id(tick)} <= hidden
+    assert not {id(column), id(chair), id(wall)} & hidden
+
+
+def test_a_stair_arriving_from_below_under_a_room_cuts_no_hole_above():
+    """real17: the shops' stairs go down to their basement stores; the first floor's bedrooms over them got holes."""
+    from wenart.sheets import to_building as TB
+
+    def stair(level, x=2.0):
+        return {"id": f"f_{level}", "level_id": level, "type": "stair",
+                "footprint": {"center": [x, 1.0], "size": [3.0, 1.4], "rotation_deg": 0.0}}
+
+    room = {"id": "r_L1_oda", "level_id": "L1", "label": "Oda", "room_type": "bedroom",
+            "polygon": [[0, -1], [5, -1], [5, 3], [0, 3]]}
+    f = stair("L0")
+    assert TB.arrival_only(f, "L-1", "L1", [stair("L-1"), f], [room])
+    assert not TB.arrival_only(f, "L-1", "L1", [stair("L-1"), f, stair("L1")], [room])   # it goes on up
+    assert not TB.arrival_only(f, "L-1", "L1", [f], [room])                               # it starts here
+    assert not TB.arrival_only(f, "L-1", "L1", [stair("L-1"), f], [])                    # nothing drawn above
+
+
+def test_a_wall_outside_the_roof_keeps_its_own_height():
+    """real10 (user: "Too much wall on top"): the terrace parapets were raised to the stair house's roof."""
+    from wenart.blender import shell as SH
+
+    cut = {"outline": [[7, 6], [14, 6], [14, 11], [7, 11]]}
+    assert SH.outside_roof({"start": [0, 0], "end": [5, 0]}, cut)
+    assert not SH.outside_roof({"start": [8, 7], "end": [12, 7]}, cut)
+    assert not SH.outside_roof({"start": [0, 0], "end": [5, 0]}, {"outline": None})
+
+
+def test_a_wall_drawn_outside_an_upper_floor_is_no_garden_wall():
+    """real10 (user: "What are these white thing on the ground"): the AC boxes beside the typical floor's balconies
+    stood on the ground as 1.2 m white walls."""
+    from wenart.blender import site as ST
+
+    terrain = {"kind": "flat", "z": {"+x": -3.0, "-x": -3.0, "+y": -3.0, "-y": -3.0}}
+    levels = [{"id": "L-1", "elevation": -3.0}, {"id": "L0", "elevation": 0.0}]
+    up = {"id": "sw_L0_005", "level_id": "L0", "start": [4.39, 18.1], "end": [5.51, 18.1]}
+    low = dict(up, id="sw_L-1_001", level_id="L-1")
+    assert "facade" in ST.upper_floor_wall(up, levels, terrain)
+    assert ST.upper_floor_wall(low, levels, terrain) is None
+
+
+def test_a_door_from_the_common_hall_into_a_flat_is_the_flats_entrance_door():
+    """real10 (user: "the Doors to this place from the actual living areas needs to be outside doors, kinda doors you
+    can use to enter to the flat")."""
+    from wenart.ingest import twins as TW
+
+    hall = {"id": "r_L1_kat_holu", "level_id": "L1", "label": "Kat Holü", "room_type": "hall",
+            "polygon": [[0, 0], [3, 0], [3, 2], [0, 2]]}
+    antre = {"id": "r_L1_antre", "level_id": "L1", "label": "Antre", "room_type": "hall",
+             "polygon": [[3, 0], [6, 0], [6, 2], [3, 2]]}
+    lift = {"id": "r_L1_asansor", "level_id": "L1", "label": "Asansör", "room_type": "shaft",
+            "polygon": [[0, 2], [2, 2], [2, 4], [0, 4]]}
+    d1 = {"id": "d1", "level_id": "L1", "type": "door", "center": [3.0, 1.0], "width": 1.0}
+    d2 = {"id": "d2", "level_id": "L1", "type": "door", "center": [1.0, 2.0], "width": 0.9}    # into the lift
+    d3 = {"id": "d3", "level_id": "L1", "type": "door", "center": [4.5, 0.0], "width": 0.9}    # the flat's own door
+    notes = TW.flat_entrance_doors([hall, antre, lift], [d1, d2, d3])
+    assert d1["door_style"] == "entrance" and d1["flat_entrance"] and len(notes) == 1
+    assert "door_style" not in d2 and "door_style" not in d3
+
+
+def test_the_common_hall_has_finishes_no_flat_uses():
+    """real10 (user: "needs to have unique flooring and ceiling and walls")."""
+    from wenart import common_areas as CA
+    from wenart.style import finishes as F
+
+    for slot in (CA.COMMON_FLOOR, CA.COMMON_WALLS, CA.COMMON_CEILING):
+        assert slot["material"] in F.MATERIALS
+    assert len({CA.COMMON_FLOOR["material"], CA.COMMON_WALLS["material"], CA.COMMON_CEILING["material"]}) == 3
+
+
+def test_floor_bands_die_into_pilasters():
+    """real10 (user: "all these details on the outside of the building is not good enough ... All details must be a
+    lot better"): the band wrapped every pilaster in short pieces (knots)."""
+    from wenart.blender import facade as F
+
+    outline = [(0, 0), (4, 0), (4, -0.3), (4.5, -0.3), (4.5, 0), (10, 0), (10, 8), (0, 8)]
+    assert F.pier_edges(outline) == {1, 2, 3}
+    wrap = F._band_boxes(outline, 2.9, 3.1, 0.03, [], "band", "L1")
+    clean = F._band_boxes(outline, 2.9, 3.1, 0.03, [], "band", "L1", piers=True)
+    assert len(wrap) == 8 and len(clean) == 5
+    assert all(b["size"][0] > 1.0 for b in clean)

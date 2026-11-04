@@ -81,7 +81,7 @@ import re
 from pathlib import Path
 from typing import Optional
 
-from shapely.geometry import Point
+from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
 from wenart import building as B
@@ -1163,6 +1163,318 @@ def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, leve
     return w4, o4, bw4, site4, sw4, b_open4, problem4
 
 
+JOIN_MAX_M = 0.40               # 4 Nov 2026: a free wall end this close to a wall on its own line joins it ...
+JOIN_MIN_M = 0.02               # ... (closer is the slit the wall union closes anyway)
+JOIN_TOUCH_M = 0.05             # an end with another wall this close is no free end
+CORNER_MAX_M = 0.60             # two free ends whose lines cross this close ahead of both meet in that corner
+CORNER_MIN_SIN = 0.5            # ... when the two walls turn by at least 30 degrees
+JOIN_OPENING_CLEAR_M = 0.30     # no join runs through or beside a drawn door or window
+JOINT_MAX_M = 0.15              # a crack or slit this narrow between two drawn walls, at the end of one, is filled ...
+JOINT_MAX_M2 = 0.10             # ... when the fill is this small (no cavity between two parallel walls)
+
+
+def _free_ends(walls2: list, polys: list) -> list:
+    """(wall index, "start"/"end", end point, outward unit direction, half thickness) of every wall end that touches
+    no other wall."""
+    ends = []
+    for k, w in enumerate(walls2):
+        (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+        L = math.hypot(x1 - x0, y1 - y0)
+        if L <= 0:
+            continue
+        ux, uy = (x1 - x0) / L, (y1 - y0) / L
+        nx, ny = -uy, ux
+        h = float(w.thickness) / 2.0
+        for which, (px, py), (dx, dy) in (("start", (x0, y0), (-ux, -uy)), ("end", (x1, y1), (ux, uy))):
+            face = LineString([(px + nx * h, py + ny * h), (px - nx * h, py - ny * h)])
+            if not any(j != k and polys[j].distance(face) <= JOIN_TOUCH_M for j in range(len(polys))):
+                ends.append((k, which, (px, py), (dx, dy), h))
+    return ends
+
+
+def _join_clear(p, q, openings: list) -> bool:
+    """True when no drawn door or window lies on or beside the stretch from ``p`` to ``q``."""
+    seg = LineString([p, q])
+    return not any(seg.distance(Point(tuple(o.center))) <= JOIN_OPENING_CLEAR_M + float(o.width) / 2.0
+                   for o in openings if not getattr(o, "virtual", False))
+
+
+def _joints(walls: list, openings: list) -> list:
+    """Fill walls (``WallItem``) for the cracks and slits of at most ``JOINT_MAX_M`` between two drawn walls next to
+    the end of one of them (real17 L0: a stair wall's corner 9 mm off the facade wall's corner; a 12 cm slit between a
+    wall end and its column), each the smallest rectangle over the closed gap; none over a door or window."""
+    from shapely.strtree import STRtree
+
+    from wenart.ingest.model import WallItem
+
+    polys = [TP.wall_polygon(w) for w in walls]
+    opolys = [q for q in (TP.opening_polygon(o, walls) for o in openings) if q is not None]
+    tree = STRtree(polys)
+    r = JOINT_MAX_M / 2.0 + 0.01
+    out = []
+    for i, pi in enumerate(polys):
+        for j in sorted(int(x) for x in tree.query(pi.buffer(JOINT_MAX_M))):
+            if j <= i or not 1e-6 < pi.distance(polys[j]) <= JOINT_MAX_M:
+                continue
+            pair = unary_union([pi, polys[j]])
+            fill = pair.buffer(r).buffer(-r).difference(pair)          # round: diagonal cracks too
+            ends = [(Point(tuple(walls[k].start)), Point(tuple(walls[k].end)), float(walls[k].thickness) / 2.0)
+                    for k in (i, j)]
+            for g in getattr(fill, "geoms", [fill]):
+                if g.area <= 1e-6 or g.area > JOINT_MAX_M2 or g.distance(pi) > 1e-3 or g.distance(polys[j]) > 1e-3:
+                    continue
+                if not any(g.distance(e) <= h + JOINT_MAX_M for a, b, h in ends for e in (a, b)):
+                    continue
+                rect = g.minimum_rotated_rectangle
+                if any(rect.intersects(q) for q in opolys):
+                    continue
+                cs = list(rect.exterior.coords)[:4]
+                e1, e2 = math.dist(cs[0], cs[1]), math.dist(cs[1], cs[2])
+                if e1 >= e2:
+                    a, b, t = ((cs[1][0] + cs[2][0]) / 2, (cs[1][1] + cs[2][1]) / 2), \
+                        ((cs[0][0] + cs[3][0]) / 2, (cs[0][1] + cs[3][1]) / 2), e2
+                else:
+                    a, b, t = ((cs[0][0] + cs[1][0]) / 2, (cs[0][1] + cs[1][1]) / 2), \
+                        ((cs[2][0] + cs[3][0]) / 2, (cs[2][1] + cs[3][1]) / 2), e1
+                if math.dist(a, b) < 0.01:
+                    continue
+                w = walls[i]
+                ev = dict(w.evidence or {})
+                ev.update(method="inferred", confidence=0.8, rule="joint",
+                          reason=f"a {pi.distance(polys[j]):.3f} m crack between the drawn walls {w.entity} and "
+                                 f"{walls[j].entity}, at the end of one of them, left the room open: filled")
+                out.append(WallItem(start=(round(a[0], 4), round(a[1], 4)), end=(round(b[0], 4), round(b[1], 4)),
+                                    thickness=round(max(t, 0.02) + 0.01, 3), box=list(w.box),
+                                    entity=f"joint:{w.entity.split(',')[0]}+{walls[j].entity.split(',')[0]}",
+                                    evidence=ev, exterior=bool(w.exterior), status="unverified", inferred=True))
+    return out
+
+
+def _short_joins(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
+                 problem: Optional[str] = None):
+    """4 Nov 2026 (real17 L0, user: "Those walls already drawed, all open ones needs to be walls these sections could
+    be full windows glass"; then "There are no walls here why are you imagining these?"): drawn walls stopping a few
+    cm short of the wall or column they belong to left the outer ring open. Only drawn walls are lengthened, no wall
+    is added where the drawing has none:
+    - a free wall end whose own band (its thickness, along its axis) meets another wall within ``JOIN_MAX_M`` is
+      extended onto it;
+    - two free ends whose lines cross within ``CORNER_MAX_M`` ahead of both (a corner, often with its drawn column)
+      are both extended to the corner.
+    No join runs past a drawn door or window. Kept when the walls then close, or close in more labelled rooms; never
+    silent."""
+    polys = [TP.wall_polygon(w) for w in walls2]
+    ends = _free_ends(walls2, polys)
+    ext: dict = {}                                                  # (k, which) -> (new point, length added)
+    for k, which, (px, py), (dx, dy), h in ends:
+        nx, ny = -dy, dx
+        band = Polygon([(px + nx * h, py + ny * h), (px - nx * h, py - ny * h),
+                        (px - nx * h + dx * JOIN_MAX_M, py - ny * h + dy * JOIN_MAX_M),
+                        (px + nx * h + dx * JOIN_MAX_M, py + ny * h + dy * JOIN_MAX_M)])
+        best = None
+        for j, g in enumerate(polys):
+            if j == k or not g.intersects(band):
+                continue
+            part = g.intersection(band)
+            if part.area <= 1e-5:
+                continue
+            d = min(((qx - px) * dx + (qy - py) * dy) for qx, qy in
+                    (c for gg in getattr(part, "geoms", [part]) if hasattr(gg, "exterior") for c in gg.exterior.coords))
+            if JOIN_MIN_M <= d <= JOIN_MAX_M and (best is None or d < best):
+                best = d
+        if best is None:
+            continue
+        q = (round(px + dx * (best + 0.01), 4), round(py + dy * (best + 0.01), 4))
+        if _join_clear((px, py), q, openings):
+            ext[(k, which)] = (q, best)
+    corners = []
+    for i, (ka, wa, pa, da, ha) in enumerate(ends):
+        for kb, wb, pb, db, hb in ends[i + 1:]:
+            if ka == kb or (ka, wa) in ext or (kb, wb) in ext:
+                continue
+            cross = da[0] * db[1] - da[1] * db[0]
+            if abs(cross) < CORNER_MIN_SIN:
+                continue
+            rx, ry = pb[0] - pa[0], pb[1] - pa[1]
+            ta = (rx * db[1] - ry * db[0]) / cross                # pa + ta * da == pb + tb * db
+            tb = (rx * da[1] - ry * da[0]) / cross
+            if not (-JOIN_TOUCH_M <= ta <= CORNER_MAX_M and -JOIN_TOUCH_M <= tb <= CORNER_MAX_M) \
+                    or max(ta, tb) < JOIN_MIN_M:
+                continue
+            corners.append((ta + tb, ka, wa, pa, da, ta + hb, kb, wb, pb, db, tb + ha))
+    used: set = set()
+    for _, ka, wa, pa, da, la, kb, wb, pb, db, lb in sorted(corners):
+        if (ka, wa) in used or (kb, wb) in used:
+            continue
+        qa = (round(pa[0] + da[0] * la, 4), round(pa[1] + da[1] * la, 4))
+        qb = (round(pb[0] + db[0] * lb, 4), round(pb[1] + db[1] * lb, 4))
+        if not (_join_clear(pa, qa, openings) and _join_clear(pb, qb, openings)):
+            continue
+        used |= {(ka, wa), (kb, wb)}
+        if la > 0:
+            ext[(ka, wa)] = (qa, la)
+        if lb > 0:
+            ext[(kb, wb)] = (qb, lb)
+    new = list(walls2)
+    for (k, which), (q, _) in ext.items():
+        new[k] = dataclasses.replace(new[k], **{which: q})
+    joints = _joints(new, openings)
+    if not ext and not joints:
+        return None
+
+    def check(ws):
+        bw, site, sw = TP.split_plot(ws, openings, blocks, level_id=level_id)
+        idx = {o["index"] for o in site["openings"]}
+        b_open = [o for j, o in enumerate(openings) if j not in idx]
+        return bw, site, sw, b_open, TP.outer_loop_problem(bw, b_open)
+
+    before = _unclosed(site_warnings)
+    bw, site, sw, b_open, prob = check(new + joints)
+    after = _unclosed(sw)
+    if not (after < before or (problem is not None and prob is None and after <= before)):
+        return None
+    for jt in list(joints):                                   # only the joints the closing needs stay
+        rest = [x for x in joints if x is not jt]
+        r2 = check(new + rest)
+        if _unclosed(r2[2]) <= after and (r2[4] is None or prob is not None):
+            joints = rest
+            bw, site, sw, b_open, prob = r2
+    moved = sorted(ext.items())
+    ex.notes.append(f"{where}: {len(moved)} wall end(s) stopping just short of a wall, a column or a shared corner "
+                    f"joined to it (" + ", ".join(f"{walls2[k].entity} {which} +{d:.2f} m"
+                                                  for (k, which), (_, d) in moved[:8])
+                    + f"), {len(joints)} crack(s) up to {JOINT_MAX_M:.2f} m between drawn walls filled ("
+                    + ", ".join(j.entity for j in joints[:6]) + f"); labels in no closed face {before} -> {_unclosed(sw)}")
+    return new + joints, openings, bw, site, sw, b_open, prob
+
+
+SIZE_TAG_RE = re.compile(r"^\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")   # a window's size tag: width/height in cm
+TAG_REACH_M = 0.8               # a size tag stands this close to the wall of its window ...
+TAG_ANGLE_DEG = 15.0            # ... written along it
+TAG_SHIFT_M = 0.35              # the tagged window moves at most this far to clear a column, a wall end or a door
+TAG_COLLINEAR_M = 0.08          # a wall piece on the host's line (this close to its axis) is the same wall run
+FULL_GLASS_M = 2.0              # a tagged window this high starts at the floor (a shop window: full glass) ...
+WINDOW_HEAD_M = 2.2             # ... a lower one has its head at the usual lintel height (its sill assumed from it)
+
+
+def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float):
+    """4 Nov 2026 (real17 L0, user: "these sections could be full windows glass, check it"): a window size tag ("470/240",
+    width/height in cm, on a window text layer) written along a wall within ``TAG_REACH_M`` is that wall's window: one
+    window of that width and height, centred at the tag and moved up to ``TAG_SHIFT_M`` to clear the columns, the run's
+    ends and the doors; the windows read inside its span are replaced (a frame read as wall, a frame split into small
+    windows). A window ``FULL_GLASS_M`` or higher starts at the floor, a lower one ends at ``WINDOW_HEAD_M`` (its sill
+    assumed). Returns the new openings or None."""
+    from wenart.ingest.generic import layer_names as LN
+    from wenart.ingest.model import OpeningItem
+
+    tags = []
+    for t in texts_m:
+        m = SIZE_TAG_RE.match(t.text or "")
+        layer = (t.evidence[0].get("layer") if t.evidence else None)
+        if m and LN.layer_role(layer) in ("window", "glass"):
+            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+    if not tags or not walls2:
+        return None
+    polys = [TP.wall_polygon(w) for w in walls2]
+    out = list(openings)
+    done, skipped = [], []
+    for t, width, height in tags:
+        cx, cy = (t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0
+        r = math.radians(t.rotation_deg or 0.0)
+        td = (math.cos(r), math.sin(r))
+        best = None
+        for k, w in enumerate(walls2):
+            (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+            L = math.hypot(x1 - x0, y1 - y0)
+            if L < 0.3:
+                continue
+            ux, uy = (x1 - x0) / L, (y1 - y0) / L
+            if abs(td[0] * uy - td[1] * ux) > math.sin(math.radians(TAG_ANGLE_DEG)):
+                continue
+            s_ = (cx - x0) * ux + (cy - y0) * uy
+            d = abs(-(cx - x0) * uy + (cy - y0) * ux)
+            if d <= TAG_REACH_M and -0.1 <= s_ <= L + 0.1 and (best is None or d < best[0]):
+                best = (d, k, (x0, y0), (ux, uy), s_)
+        if best is None:
+            skipped.append(f"{t.text}: no wall along it within {TAG_REACH_M:.1f} m")
+            continue
+        _, k, (x0, y0), (ux, uy), s_ = best
+        nx, ny = -uy, ux
+        host = walls2[k]
+        h = float(host.thickness) / 2.0
+
+        def along(q):
+            return (q[0] - x0) * ux + (q[1] - y0) * uy
+
+        def off(q):
+            return (q[0] - x0) * nx + (q[1] - y0) * ny
+
+        run = [along(host.start), along(host.end)]
+        blocked = []
+        band = Polygon([(x0 + nx * h - ux * 50, y0 + ny * h - uy * 50), (x0 + nx * h + ux * 50, y0 + ny * h + uy * 50),
+                        (x0 - nx * h + ux * 50, y0 - ny * h + uy * 50), (x0 - nx * h - ux * 50, y0 - ny * h - uy * 50)])
+        for j, g in enumerate(polys):
+            if j == k or not g.intersects(band):
+                continue
+            w = walls2[j]
+            wl = math.dist(tuple(w.start), tuple(w.end))
+            par = wl > 0 and abs(((w.end[0] - w.start[0]) * uy - (w.end[1] - w.start[1]) * ux) / wl) < 0.1
+            if par and max(abs(off(w.start)), abs(off(w.end))) <= TAG_COLLINEAR_M \
+                    and float(w.thickness) <= float(host.thickness) + 0.05:
+                run += [along(w.start), along(w.end)]                    # the same wall run (a thicker piece: a column)
+                continue
+            part = g.intersection(band)
+            if part.area <= 1e-5:
+                continue
+            ps = [along(c) for gg in getattr(part, "geoms", [part]) if hasattr(gg, "exterior")
+                  for c in gg.exterior.coords]
+            blocked.append((min(ps), max(ps)))
+        for j, o in enumerate(out):
+            if o.kind == "door" and abs(off(o.center)) <= h + 0.05:
+                a = along(o.center)
+                blocked.append((a - float(o.width) / 2.0, a + float(o.width) / 2.0))
+        # the free stretch of the run around the tag
+        lo, hi = min(run), max(run)
+        for a, b in blocked:
+            if b <= s_:
+                lo = max(lo, b)
+            elif a >= s_:
+                hi = min(hi, a)
+            else:
+                lo = hi = s_                                             # the tag stands on a column or a door
+        if hi - lo < width - 2 * TAG_SHIFT_M or hi - lo < 0.3:
+            skipped.append(f"{t.text}: only {max(0.0, hi - lo):.2f} m free on its wall")
+            continue
+        a0 = min(max(s_ - width / 2.0, lo), max(lo, hi - width))
+        a1 = min(a0 + width, hi)
+        if abs((a0 + a1) / 2.0 - s_) > TAG_SHIFT_M + max(0.0, width - (hi - lo)) / 2.0:
+            skipped.append(f"{t.text}: its window would move more than {TAG_SHIFT_M:.2f} m off the tag")
+            continue
+        gone = [o for o in out if o.kind in ("window", "opening") and not o.virtual
+                and abs(off(o.center)) <= h + 0.05 and a0 - 0.05 <= along(o.center) <= a1 + 0.05
+                and (o.kind == "window" or a0 - 0.05 <= along(o.center) - float(o.width) / 2.0
+                     and along(o.center) + float(o.width) / 2.0 <= a1 + 0.05)]   # a gap only when wholly inside
+        out = [o for o in out if all(o is not g for g in gone)]
+        mid = (a0 + a1) / 2.0
+        ev = dict(t.evidence[0]) if t.evidence else {}
+        ev.update(method="vector", confidence=0.9, rule="size_tag",
+                  reason=f"the window size tag '{t.text}' (width/height in cm) beside the wall")
+        full = height >= FULL_GLASS_M
+        out.append(OpeningItem(kind="window", width=round(a1 - a0, 3),
+                               center=(round(x0 + ux * mid, 4), round(y0 + uy * mid, 4)),
+                               rotation_deg=math.degrees(math.atan2(uy, ux)),
+                               box=[v / units_to_m for v in t.box], entity=t.id, evidence=ev, height=height,
+                               sill=0.0 if full else round(max(0.0, WINDOW_HEAD_M - height), 2),
+                               assumed=[] if full else ["sill_height"],
+                               type_raw=f"window size tag {t.text.strip()}"))
+        done.append(f"{t.text.strip()} ({len(gone)} read window(s) replaced"
+                    + (f", {a1 - a0:.2f} m free" if a1 - a0 < width - 1e-3 else "") + ")")
+    if done:
+        ex.notes.append(f"{where}: {len(done)} window(s) set by their size tags: " + ", ".join(done[:12]))
+    if skipped:
+        ex.notes.append(f"{where}: window size tags not used: " + "; ".join(skipped[:8]))
+    return out if done else None
+
+
 RECESS_MAX_M2 = 15.0
 
 
@@ -1771,6 +2083,12 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         if bridged is not None:
             walls2, openings, bwalls, site, site_warnings, b_openings, problem = bridged
     if (problem is not None or _unclosed(site_warnings)) and not is_raster:
+        # 4 Nov 2026 (real17 L0, user: "Those walls already drawed, all open ones needs to be walls"): a wall end
+        # stopping just short of a column or wall on its own line joins it (``_short_joins``)
+        joined = _short_joins(ex, where, walls2, openings, blocks, level_id, site_warnings, problem)
+        if joined is not None:
+            walls2, openings, bwalls, site, site_warnings, b_openings, problem = joined
+    if (problem is not None or _unclosed(site_warnings)) and not is_raster:
         # 3 Nov 2026 (user: "go ahead with the glazed facades"; real09, real11, real13, real14): the facades of window
         # and door frames are closed around the rooms still open (``facade``); the openings drawn across them are read
         glazed = _glazed_facades(ex, where, walls2, openings, blocks, level_id, site_warnings, problem, non_wall,
@@ -1794,6 +2112,19 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         mirrored = _mirror_consistency(ex, where, walls2, openings, blocks, level_id, site_warnings, problem)
         if mirrored is not None:
             walls2, openings, bwalls, site, site_warnings, b_openings, problem = mirrored
+    if not is_raster:
+        # 4 Nov 2026 (real17, user: "these sections could be full windows glass, check it"): a window size tag sets its
+        # window (``_window_tags``)
+        tagged = _window_tags(ex, where, walls2, openings, texts_m, s)
+        if tagged is not None:
+            bw_t, site_t, sw_t = TP.split_plot(walls2, tagged, blocks, level_id=level_id)
+            idx = {o["index"] for o in site_t["openings"]}
+            b_open_t = [o for j, o in enumerate(tagged) if j not in idx]
+            prob_t = TP.outer_loop_problem(bw_t, b_open_t)
+            if _unclosed(sw_t) <= _unclosed(site_warnings) and (prob_t is None or problem is not None):
+                openings, bwalls, site, site_warnings, b_openings, problem = tagged, bw_t, site_t, sw_t, b_open_t, prob_t
+            else:
+                ex.notes.append(f"{where}: the windows of the size tags left out: they would open the walls")
     for w in site_warnings:
         if w.startswith(TP.REVIEW_PREFIX):
             ex.review.append(f"{where}: {w[len(TP.REVIEW_PREFIX):]}")

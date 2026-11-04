@@ -895,7 +895,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         wall_planes = ((roof_cut.get("wall_planes") or {}).get(wall["id"]) or cut_planes) if roof_cut else None
         part_spans = plane_spans(wall, start, end, (roof_cut.get("wall_spans") or {}).get(wall["id"]) or []) \
             if roof_cut else []
-        if cut_planes is not None:
+        if cut_planes is not None and not outside_roof(wall, roof_cut):
             # Under the roof: a box up past the ridge, cut by the roof underside (knee wall, gable end);
             # under a roof terrace the parapet height instead (roof.parapet_cuts).
             height, wall_assumed = float(roof_cut["top"]) + 0.5 - floor_z, {}
@@ -1181,6 +1181,19 @@ def plane_spans(wall: dict, start, end, spans: list[dict]) -> list[tuple[float, 
         return []
     marked = [dict(s, z_top=float(i)) for i, s in enumerate(spans)]
     return [(s0, s1, spans[int(round(i))]["planes"]) for s0, s1, i in trimmed_spans(wall, start, end, marked)]
+
+
+def outside_roof(wall: dict, roof_cut: Optional[dict]) -> bool:
+    """4 Nov 2026 (real10, user: "Too much wall on top"): the roof terrace's parapets stood 2.8 m high, raised to the
+    stair house's roof and cut by its underside. A wall wholly outside the roof's outline (5 cm in) is under no roof: it
+    keeps its own height (pure)."""
+    outline = (roof_cut or {}).get("outline")
+    if not outline or len(outline) < 3:
+        return False
+    from shapely.geometry import LineString, Polygon
+
+    inner = Polygon(outline).buffer(-0.05, join_style=2)
+    return inner.is_empty or not inner.intersects(LineString([tuple(wall["start"][:2]), tuple(wall["end"][:2])]))
 
 
 def wall_pieces(start, end, thickness: float, floor_z: float, height: float, planes, parapets,
@@ -4108,6 +4121,41 @@ def build_outside_details(building: dict, level: dict, collection, library, look
         counts["sills"] += 1
     rail_mat = look_material(library, looks.get("railing") or {"material": "steel_brushed"})
     glass = library.guard_glass()           # 30 Oct 2026 (UL145): an outdoor guard's tinted glass
+    # 4 Nov 2026 (real10, user: "a little wall with handrails should have been enough"): a wall with a ``guard`` (the
+    # roof terrace's low parapet walls) carries the style's balustrade from its top up to the guard's top
+    guarded = [w for w in walls.values() if isinstance(w.get("guard"), dict) and w["start"] != w["end"]
+               and float(w["guard"].get("top_m") or 0.0) > float(w.get("height") or 0.0) + 0.1]
+    if guarded:
+        parts, slots = [], []
+        kind = D.balustrade_kind(style)
+        for w in guarded:
+            z0 = floor_z + float(w.get("height") or 0.0)
+            a, b = tuple(w["start"][:2]), tuple(w["end"][:2])
+            # the low wall's cap (coping), the handrail standing on it
+            cap = D.coping(a, b, z0, float(w.get("thickness") or 0.2))       # one mesh: (verts, faces)
+            z1 = z0 + D.DIMS["coping_t"]
+            metal, panes = D.balustrade(a, b, z1, floor_z + float(w["guard"]["top_m"]) - z1, kind)
+            metal = ([cap] if cap and cap[0] else []) + metal
+            parts += metal + panes
+            slots += [0] * sum(len(f) for _v, f in metal) + [1] * sum(len(f) for _v, f in panes)
+        verts, faces = geom2d.merge(parts)
+        name = f"parapet_rail_{level['id']}"
+        ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="railing",
+                                    status="assumed", materials=[rail_mat, glass], face_material_indices=slots)
+        ob.pass_index = 0
+        top = max(float(w["guard"]["top_m"]) for w in guarded)
+        reason = (f"{len(guarded)} parapet wall(s) of the roof terrace: a low wall with a {kind.replace('_', ' ')} "
+                  f"handrail on it up to {top:.2f} m (the kind follows the style)")
+        manifest_objects.append({
+            "name": ob.name, "wenart_id": name, "kind": "railing", "status": "assumed", "level_id": level["id"],
+            "element_id": guarded[0]["id"], "parent": None, "evidence": [], "material": rail_mat.name,
+            "textured": False, "pass_index": 0,
+            "assumed": {"detail": "parapet_rail", "height_m": top, "walls": [w["id"] for w in guarded],
+                        "reason": reason},
+        })
+        assumed.append({"object": ob.name, "field": "parapet_rail", "value": top, "reason": reason,
+                        "parent": guarded[0]["id"], "kind": "railing"})
+        counts["railings"] = counts.get("railings", 0) + 1
     for room in building["rooms"]:
         if room["level_id"] != level["id"] or room.get("room_type") != "balcony" or len(room["polygon"]) < 3:
             continue

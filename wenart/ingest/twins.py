@@ -739,3 +739,44 @@ def fire_stairs(rooms: list[dict], openings: list[dict], furniture: list[dict]) 
             notes.append(f"{lv}: {f['id']} in {room['id']} is a fire escape stair ({st['fire_escape_reason']}): "
                          f"hard-wearing treads, steel rails; its room a common area")
     return notes
+
+
+ENTRANCE_DOOR_REACH_M = 0.35     # 4 Nov 2026 (UL316): a door this close to the walls of a common hall and of a flat's room
+# the rooms a flat's entrance door opens into (a basement's shelter or store from the common hall is no flat)
+DWELLING_TYPES = ("hall", "corridor", "living", "kitchen", "dining", "bedroom", "study")
+
+
+def flat_entrance_doors(rooms: list[dict], openings: list[dict]) -> list[str]:
+    """4 Nov 2026 (real10, user: "the Doors to this place from the actual living areas needs to be outside doors, kinda
+    doors you can use to enter to the flat"; lesson UL316): a door between a common area (``common_areas``) and a flat's
+    room (``DWELLING_TYPES``, no common area) is that flat's entrance door: ``door_style`` ``entrance``
+    (the thick panelled entrance door with its frame, never an inside door model), ``flat_entrance: true``. A door
+    whose style the documents or the architect named keeps it. Returns a note per door."""
+    from wenart import common_areas as CA
+
+    notes = []
+    by_level: dict = {}
+    for r in rooms:
+        if len(r.get("polygon") or []) >= 3:
+            by_level.setdefault(r.get("level_id"), []).append(r)
+    for o in openings:
+        if o.get("type") != "door" or o.get("virtual") or not o.get("center"):
+            continue
+        lrooms = by_level.get(o.get("level_id")) or []
+        c = Point(o["center"][:2])
+        near = [r for r in lrooms if Polygon(r["polygon"]).exterior.distance(c) <= ENTRANCE_DOOR_REACH_M]
+        common = [r for r in near if CA.is_common_room(r)]
+        flat = [r for r in near if not CA.is_common_room(r) and str(r.get("room_type") or "") in DWELLING_TYPES]
+        if not common or not flat:
+            continue
+        if o.get("door_style") and o.get("door_style") != "entrance":
+            continue
+        o["door_style"] = "entrance"
+        o["flat_entrance"] = True
+        o.setdefault("door_decision", {"kind": "entrance", "rule": "flat_entrance (UL316)",
+                                       "reason": f"the door from the common area {common[0]['id']} into "
+                                                 f"{flat[0]['id']}: the flat's entrance door"})
+        notes.append(f"{o.get('level_id')}: {o['id']} from the common area {common[0]['id']} into {flat[0]['id']} is "
+                     f"the flat's entrance door (a thick panelled entrance door with its frame)")
+    return notes
+

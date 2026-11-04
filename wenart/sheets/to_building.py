@@ -167,11 +167,44 @@ def _stairs(level_id: Optional[str], furniture: list[dict]) -> list[dict]:
     return [f for f in furniture if level_id is not None and f["level_id"] == level_id and f["type"] == "stair"]
 
 
+def _footprint_poly(f: dict) -> Polygon:
+    fp = f["footprint"]
+    return Polygon(G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"]))
+
+
+def arrival_only(f: dict, below2_id: Optional[str], above_id: str, furniture: list[dict],
+                 rooms: Optional[list[dict]]) -> bool:
+    """4 Nov 2026 (real17: the two shop stairs of the ground floor go down to the shops' basement stores; the first
+    floor got holes for them in its bedrooms): a stair drawn on a level that is the top of the stair from the level
+    under it (a stair there on at least half its footprint), with no stair over it on the level above and a room there
+    (not a stair, not a void) on at least half its footprint, ends on this level: no opening in the slab above."""
+    if below2_id is None or not rooms:
+        return False
+    fp = _footprint_poly(f)
+    if fp.area <= 0:
+        return False
+    if not any(_footprint_poly(g).intersection(fp).area >= 0.5 * min(fp.area, _footprint_poly(g).area)
+               for g in _stairs(below2_id, furniture)):
+        return False
+    if any(_footprint_poly(g).intersection(fp).area > 0.2 * fp.area for g in _stairs(above_id, furniture)):
+        return False
+    cover = 0.0
+    for r in rooms:
+        if r.get("level_id") != above_id or r.get("room_type") == "stair" or B.is_void_label(r.get("label")) \
+                or len(r.get("polygon") or []) < 3:
+            continue
+        poly = Polygon(r["polygon"])
+        if poly.is_valid:
+            cover += poly.intersection(fp).area
+    return cover >= 0.5 * fp.area
+
+
 def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], sec: Optional[dict],
           slab_default: float, slab_id: str, rooms: Optional[list[dict]] = None,
-          voids: Optional[list[dict]] = None) -> Optional[dict]:
+          voids: Optional[list[dict]] = None, below2_id: Optional[str] = None) -> Optional[dict]:
     """The slab under ``lv`` (over ``below``): outline = the larger of the two outer-wall outlines, stair voids over
-    the stairs of the level below, and the voids ``lv``'s plan draws (``void_openings``)."""
+    the stairs of the level below (not over a stair that only arrives there from ``below2_id``: ``arrival_only``), and
+    the voids ``lv``'s plan draws (``void_openings``)."""
     below_id = below["id"] if below else None
     own = _outline(unions.get(lv["id"]))
     under = _outline(unions.get(below_id)) if below_id else None
@@ -190,7 +223,11 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
     # ``stair_access.opening_polygon``); a stair without drawn flights keeps its footprint
     from wenart.blender import stair_access as SA
     rise = float(lv.get("elevation") or 0.0) - float(below.get("elevation") or 0.0) if below else None
+    ended = []
     for f in _stairs(below_id, furniture):
+        if arrival_only(f, below2_id, lv["id"], furniture, rooms):
+            ended.append(f["id"])
+            continue
         fp = f["footprint"]
         poly = SA.derived_opening(f, rise, rise - thickness) if rise and rise > thickness else None
         if poly is None:
@@ -206,6 +243,12 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
                          entity=f"outline of the outer walls of {lv['id']}" + (f" (larger {below_id} below)"
                                                                                  if outline is under else ""),
                          region_id=lv.get("region_id"), rule="outer_wall_outline"))
+    if ended:
+        e = B.evidence(lv["evidence"][0]["file"] if lv.get("evidence") else "", "derived", 1.0,
+                       entity=", ".join(ended), region_id=lv.get("region_id"), rule="stair_ends_below")
+        e["reason"] = (f"the stair(s) {', '.join(ended)} of {below_id} arrive from {below2_id} and {lv['id']} draws "
+                       f"rooms over them: no opening in this slab")
+        ev.append(e)
     return {"id": slab_id, "below_level_id": below_id, "above_level_id": lv["id"], "z_top": float(lv["elevation"]),
             "thickness": round(thickness, 3), "thickness_source": "section" if from_section else "assumed_default",
             "outline": outline, "openings": openings, "variants": [],
@@ -272,8 +315,10 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
 
     out = []
     for lv in base:
-        slab = _slab(lv, below_of(lv), unions, furniture, by_base.get(lv["id"]), slab_default, f"sl_{lv['id']}",
-                     rooms, voids)
+        b1 = below_of(lv)
+        b2 = below_of(b1) if b1 is not None else None
+        slab = _slab(lv, b1, unions, furniture, by_base.get(lv["id"]), slab_default, f"sl_{lv['id']}",
+                     rooms, voids, below2_id=b2["id"] if b2 else None)
         if slab is None:
             warn(f"slab under {lv['id']}: no closed outer wall outline; slab not written")
             continue
@@ -563,6 +608,16 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
 
 
 ROOF_TERRACE_PARAPET_M = 1.10      # real10: a roof terrace's parapet when no mark gives it (assumed)
+# 4 Nov 2026 (real10, user: "Too much wall on top a little wall with handrails should have been enough"): a roof
+# terrace's parapet is a low wall with a handrail on it up to the guard height (the section's mark or more)
+PARAPET_LOW_M = 0.50               # the low wall ...
+GUARD_TOP_M = 1.10                 # ... and the top of the handrail on it, at least
+
+
+def _guarded(w: dict, top_m: float, source: str) -> None:
+    """A parapet wall as a ``PARAPET_LOW_M`` low wall with a handrail on it to ``top_m`` (``guard``)."""
+    w["height"] = round(min(float(w.get("height") or PARAPET_LOW_M), PARAPET_LOW_M), 3)
+    w["guard"] = {"top_m": round(max(float(top_m), GUARD_TOP_M), 3), "kind": "handrail", "source": source}
 HOUSE_REACH_M = 0.40               # a wall within this of the top level's rooms belongs to the stair house
 
 
@@ -594,6 +649,7 @@ def roof_terrace(b: dict, sheets: dict, warn) -> Optional[dict]:
             continue
         w["height"] = round(float(parapet if parapet is not None else ROOF_TERRACE_PARAPET_M), 3)
         w["parapet"] = True
+        _guarded(w, w["height"], "section mark" if parapet is not None else "assumed")
         n_par += 1
     # 4 Nov 2026 (real10, user: "If nothing is built in the last floor roof etc, putting a bit parapet would be nice so
     # people on the last floor can walk safely"): the terrace plan drew only three short parapet pieces, the edge stood
@@ -680,12 +736,15 @@ def _edge_parapets(b: dict, top: dict, height: float, source: str) -> int:
             b["walls"].append({
                 "id": f"w_{top['id']}_edge_parapet_{n:03d}", "level_id": top["id"],
                 "start": [round(x0, 4) + 0.0, round(y0, 4) + 0.0], "end": [round(x1, 4) + 0.0, round(y1, 4) + 0.0],
-                "thickness": round(min(t_out, EDGE_PARAPET_T_M), 3), "height": round(height, 3), "exterior": True,
+                "thickness": round(min(t_out, EDGE_PARAPET_T_M), 3), "height": round(min(height, PARAPET_LOW_M), 3),
+                "exterior": True,
                 "status": "unverified", "parapet": True,
+                "guard": {"top_m": round(max(float(height), GUARD_TOP_M), 3), "kind": "handrail", "source": source},
                 "evidence": [B.evidence("building.json", "inferred", 0.6, rule="roof_terrace_edge_parapet",
                                         text=f"the terrace's edge over the outer walls of the floor below stands "
-                                             f"open: a {height:.2f} m parapet ({source}) so the terrace is safe to "
-                                             f"walk on")]})
+                                             f"open: a {min(height, PARAPET_LOW_M):.2f} m low wall with a handrail "
+                                             f"to {max(height, GUARD_TOP_M):.2f} m ({source}) so the terrace is safe "
+                                             f"to walk on")]})
     return n
 
 

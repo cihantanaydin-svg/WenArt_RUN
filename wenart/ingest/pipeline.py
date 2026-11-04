@@ -2342,7 +2342,12 @@ def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, f
         build.warn(f"no base level could be read; only alternative levels remain ({', '.join(sorted(by_level))})")
 
 
-ENTRANCE_WORD_RE = re.compile(r"^(?:BINA\s+)?(?:GIRIS|GIRISI|ENTRANCE|ENTRY|EINGANG|ENTREE|INGRESSO|ENTRADA|INGANG)$")
+# 4 Nov 2026 (real17 L0: 'DÜKKAN GİRİŞİ', the shop entrance): up to two words may name whose entrance it is
+ENTRANCE_WORD_RE = re.compile(r"^(?:[A-Z0-9.]+\s+){0,2}(?:GIRIS|GIRISI|ENTRANCE|ENTRY|EINGANG|ENTREE|INGRESSO|ENTRADA|"
+                              r"INGANG)$")
+# 4 Nov 2026 (real17 L0: 'TABİ ZEMİNE GÖMÜLÜ SU DEPOSU', a water tank buried in the ground beside the building): a
+# label of something buried or underground outside the walls is a site item, not a room of the level
+BURIED_WORD_RE = re.compile(r"\b(?:GOMULU|BURIED|UNDERGROUND|YERALTI|TOPRAK\s+ALTI|UNTERIRDISCH|ENTERRE)\b")
 
 
 def _labels_outside_building(ex: LevelExtraction) -> list[str]:
@@ -2369,7 +2374,8 @@ def _labels_outside_building(ex: LevelExtraction) -> list[str]:
         # 2 Nov 2026 (real10's 2nd basement, user: "2n basement is fully underground and fully walled around ... you can
         # enter ... first from the stairs and than from the door"): an entrance word outside the walls (GİRİŞ with its
         # arrow) marks the way in, not a room; it never leaves a level out
-        if ENTRANCE_WORD_RE.search(" ".join(B.fold_ascii(t.text or "").upper().split())):
+        folded = " ".join(B.fold_ascii(t.text or "").upper().split())
+        if ENTRANCE_WORD_RE.search(folded) or BURIED_WORD_RE.search(folded):
             continue
         points = (_to_building(ex, t.start), _to_building(ex, G.box_center(t.box)))
         if not any(outline.contains(Point(p)) for p in points):
@@ -2463,6 +2469,8 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         build.warn(f"lift door: {line}")
     for line in TW.fire_stairs(b["rooms"], b["openings"], b["furniture"]):   # 4 Nov 2026 (UL307, UL312)
         build.warn(f"fire stair: {line}")
+    for line in TW.flat_entrance_doors(b["rooms"], b["openings"]):          # 4 Nov 2026 (UL316)
+        build.warn(f"flat entrance: {line}")
     for second, info in TW.twin_transforms(b["rooms"], b["openings"], b["furniture"]).items():
         room = next(r for r in b["rooms"] if r["id"] == second)
         room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],

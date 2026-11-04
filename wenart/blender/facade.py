@@ -337,18 +337,53 @@ def _drop_jogs(pts: list, tol: float) -> list:
     return pts
 
 
+PIER_FRONT_MAX_M = 0.9    # 4 Nov 2026 (user on real10: "all these details ... not good enough"): a pilaster's face ...
+PIER_DEPTH_MAX_M = 0.6    # ... standing this far out of the facade at most ...
+BAND_STUB_M = 0.25        # ... and any other outline edge this short gets no band piece (no knots on the facade)
+
+
+def _turn(a, b, c) -> float:
+    return (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])
+
+
+def pier_edges(pts: list) -> set:
+    """The edges of a counter-clockwise outline that belong to a pilaster (pure): a front of at most
+    ``PIER_FRONT_MAX_M`` between two sides of at most ``PIER_DEPTH_MAX_M`` square to it, standing out (both of the
+    front's corners convex, the sides' outer corners concave). A floor band dies into a pilaster's sides instead of
+    wrapping it in short pieces, so the pilaster runs on uninterrupted (real10: the knots at every band and pilaster)."""
+    n = len(pts)
+    out: set = set()
+    if n < 6:
+        return out
+    L = [G.distance(pts[i], pts[(i + 1) % n]) for i in range(n)]
+    for i in range(n):
+        f, s1, s2 = i, (i - 1) % n, (i + 1) % n
+        if not (L[f] <= PIER_FRONT_MAX_M and L[s1] <= PIER_DEPTH_MAX_M and L[s2] <= PIER_DEPTH_MAX_M):
+            continue
+        a, b, c, d = pts[s1], pts[f], pts[s2], pts[(i + 2) % n]
+        before, after = pts[(i - 2) % n], pts[(i + 3) % n]
+        if _turn(a, b, c) > 0 and _turn(b, c, d) > 0 and _turn(before, a, b) < 0 and _turn(c, d, after) < 0:
+            u = ((c[0] - b[0]) / max(L[f], 1e-9), (c[1] - b[1]) / max(L[f], 1e-9))
+            v = ((b[0] - a[0]) / max(L[s1], 1e-9), (b[1] - a[1]) / max(L[s1], 1e-9))
+            if abs(u[0] * v[0] + u[1] * v[1]) < 0.2:                   # the sides square to the front
+                out |= {s1, f, s2}
+    return out
+
+
 def _band_boxes(outline, z0: float, z1: float, proud: float, items, kind: str, level_id: Optional[str],
-                min_span: float = DIMENSIONS["min_span"], inset: float = 0.0) -> list[dict]:
+                min_span: float = DIMENSIONS["min_span"], inset: float = 0.0, piers: bool = False) -> list[dict]:
     """One box per uncut stretch of every outline edge: ``proud`` in front of the face, from ``z0`` to ``z1``;
     ``inset`` (4 Nov 2026): the box reaches this far behind the face line too (into the wall, where a straightened
-    jog lets the wall step back), so the band never floats."""
+    jog lets the wall step back), so the band never floats. ``piers`` (4 Nov 2026): no piece on a pilaster
+    (``pier_edges``) nor on an edge under ``BAND_STUB_M``: the band dies into the pilaster's sides."""
     out = []
     pts = geom2d.ccw(outline)
     n = len(pts)
+    skip = pier_edges(pts) if piers else set()
     for i in range(n):
         p, q = pts[i], pts[(i + 1) % n]
         length = G.distance(p, q)
-        if length < min_span:
+        if length < min_span or i in skip or (piers and length < BAND_STUB_M):
             continue
         ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
         nx, ny = uy, -ux                                       # counter-clockwise outline: right of the edge is out
@@ -463,12 +498,16 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
         cuts = opening_items(building, below, outline, True) + opening_items(building, lv, outline, True)
         # 4 Nov 2026 (UL310): on the straightened outline, reaching into the wall where the wall steps back
         boxes += _band_boxes(band_outline(outline), zc - h / 2.0, zc + h / 2.0, DIMENSIONS["band_proud"], cuts, "band",
-                             lv["id"], inset=BAND_CLEAN_M)
+                             lv["id"], inset=BAND_CLEAN_M, piers=True)
     if boxes and any(b["kind"] == "band" for b in boxes):
         assumed.append({"field": "slab_band", "value": DIMENSIONS["band_height"], "reason": out_looks["band"]["reason"]})
     if roof_model and roof_model.get("type") == "flat" and roof_model.get("over_level_id"):
         top = next((lv for lv in order if lv["id"] == roof_model["over_level_id"]), None)
         outline = outlines.get(top["id"]) if top else None
+        # 4 Nov 2026 (real10, roof terrace): a roof with its own outline (the stair house's) gets its coping there, not
+        # round the whole top level at the stair house's height
+        if len(roof_model.get("outline") or []) >= 3:
+            outline = roof_model["outline"]
         if outline and len(outline) >= 3 and roof_model.get("eaves_z") is not None:
             z = float(roof_model["eaves_z"]) + float(roof_model.get("parapet") or 0.0)   # M12: on a flat_cut parapet
             boxes += _band_boxes(outline, z, z + DIMENSIONS["coping_height"], DIMENSIONS["coping_proud"], [], "coping",

@@ -34,7 +34,8 @@ ROLES: dict[str, tuple[str, ...]] = {
 ROLES.update({
     "door": ("KAPI", "KAPILAR", "DOOR", "DOORS", "TUR", "TUER", "TUEREN", "PORTE", "PORTES", "PUERTA", "PUERTAS",
              "PORTA", "PORTE-FENETRE"),
-    "window": ("PENCERE", "PENCERELER", "WINDOW", "WINDOWS", "FENSTER", "FENETRE", "FENETRES", "VENTANA",
+    # 4 Nov 2026 (real17: the window size tags on 'penc-yazi'): PENC, the short form of PENCERE
+    "window": ("PENCERE", "PENCERELER", "PENC", "WINDOW", "WINDOWS", "FENSTER", "FENETRE", "FENETRES", "VENTANA",
                "VENTANAS", "FINESTRA", "FINESTRE", "DOGRAMA", "GLAZING"),
     # 2 Nov 2026 (real03: the windbreak's glass screen on 'MYD - CAM-PER', its sliding doors on 'MYD - CAM')
     "glass": ("CAM", "CAMLAR", "GLASS", "GLAS", "VERRE", "VETRO", "VIDRIO", "CURTAIN", "GIYDIRME", "VITRIN", "CAMEKAN",

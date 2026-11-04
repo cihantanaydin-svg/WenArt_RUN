@@ -3460,3 +3460,40 @@ real17 shop floor: a plan read before the document's other plans chose their wal
 after them with those layers (the reference region too, placed by its registration). L0 now gets DUVAR's walls; still
 open: the bottom facade (a block on 'Standart' and the 4.70 m shopfront window), the slanted lower right facade broken
 by its window frames, and the shops' east partitions drawn as single lines.
+
+### real17 shop floor closed, window size tags, structure zips (4 Nov 2026, late afternoon; lessons UL314-UL315)
+
+User: "Those walls already drawed, all open ones needs to be walls these sections could be full windows glass, check
+it", then "There are no walls here why are you imagining these?" (the walls I had added in front of the columns were
+removed), then "General rule always include into structure pod run zips these files. on the top left one marked,
+remove the coordinate and measurement lines".
+
+| rule | what it does | real17 |
+|---|---|---|
+| short joins (`core._short_joins`) | only drawn walls are lengthened: a free wall end that stops <= 0.40 m short of a wall on its own line, or two free ends whose lines cross <= 0.60 m ahead of both (a corner, often with its column), meet; never past a door or window; kept only when rooms close | L0: the shopfront and the left facade met at their corner column, the stair wall at its column |
+| crack joints (`core._joints`) | a crack or slit of at most 0.15 m between two drawn walls at a wall end is filled (round closing: diagonal cracks too); only the joints the closing needs stay, each `inferred` with its reason | L0: a 9 mm corner-to-corner crack (stair wall / facade) and a 12 cm slit (wall end / column) |
+| entrance and buried labels | "<word> GİRİŞİ" / "<word> ENTRANCE" and labels of something buried or underground (GÖMÜLÜ ...) outside the walls never leave a level out | L0: 'DÜKKAN GİRİŞİ' (twice) and the buried water tank |
+| self-touching faces (`rooms.derive_rooms`) | two spaces whose corners touch at one point are two faces, not one invalid ring | L3: the shower |
+| window size tags (`core._window_tags`) | a "W/H" text (cm) on a window text layer ('PENC' added as the short form of PENCERE) along a wall within 0.8 m is one window of that size, moved <= 0.35 m clear of columns, run ends and doors; it replaces the small windows read inside its span; >= 2.0 m high starts at the floor (full glass), lower ones end at a 2.20 m head (sill assumed) | L0: the 4.70 m shopfront and the five shop windows of the left facade as full glass; L1/L3: the slanted facade's 150/140 windows that had been read as wall |
+| stairs that end below (`to_building.arrival_only`) | a stair drawn on a level that is the top of the stair from the level under it, with no stair over it and a room drawn over it on the level above, cuts no hole in the slab above (logged in the slab's evidence) | L1: no holes in the bedrooms over the shops' stairs down to their basement stores |
+| structure zips (`python -m wenart.reading_check zip`) | every structure run's zip: top-downs, exterior views and the comparison sheets (pod top-down as panel 4); panel 1 now leaves out the grid (axis lines, bubbles, labels) and the dimensions (`sheets.is_grid_or_dimension`) | - |
+
+real17 reading: **ready** with L-1, L0, L1, L2 (typical), L3 (before: L-1 only). Left: the ground floor's core stair
+(a winding stair, 19 risers) is not read and its hall with the building entrance is typed as a shaft (the small ŞAFT
+label lies in it), so nothing leads from L0 up to L1 yet; the flats' entrance halls are 1.4 m2 smaller than their area
+texts (RC3); 25 m of the basement's drawn walls not built.
+
+real10 structure run 20261104-132729 (pod 4iwuqm1zkvnl2t, RTX PRO 6000 WK, 57 min, $2.48, commit 024cc566): ok.
+
+### real10 review of run 20261104-132729 (4 Nov 2026, evening; lessons UL316-UL319)
+
+| user | cause | general fix |
+|---|---|---|
+| "What are these white thing on the ground" | the air-conditioner boxes (KLİMA) drawn beside the typical floor's balconies, outside its walls, went to the site and stood on the ground as 1.2 m white walls | a wall drawn outside the walls of a floor more than 1 m over the ground is part of that floor's facade, never built on the ground (`site.upper_floor_wall`, UL318) |
+| "Too much wall on top a little wall with handrails should have been enough" | the roof terrace's 0.9 m parapets were raised to the stair house's roof (2.8 m) and cut by it | parapets: a 0.5 m low wall with a coping and the style's balustrade on it to 1.10 m (or the section's mark) (`to_building._guarded`, `shell` parapet rails); a wall wholly outside the roof keeps its own height (`shell.outside_roof`); the coping runs on the roof's own outline (UL317) |
+| "all these details on the outside ... All details must be a lot better" (the knots where bands meet pilasters) | each floor band was one box per outline edge, so it wrapped every pilaster in short pieces | bands die into the pilasters' sides (`facade.pier_edges`: a front <= 0.9 m between sides <= 0.6 m standing out), no band piece under 0.25 m; the full review of the other exterior details is open (UL319) |
+| "THis 21 oda hall ... unique flooring and ceiling and walls ... the Doors ... needs to be outside doors" | the common finish (grey porcelain, greige paint, light grey plaster) read like the flats' own; the doors into the flats were inside doors | the common areas take a lobby's finishes no flat uses (polished light grey marble, greige venetian plaster, a wood slat ceiling); a door from a common area into a flat's room is that flat's entrance door (`twins.flat_entrance_doors`: `door_style` entrance, the thick panelled entrance door; real10: 2 a floor, L-1 to L6) (UL316) |
+| "This door frame must be angled and same needs to be on the other mirror side" | the drawing has a straight 1.10 m glazed frame and a 1.03 m passage; the reading made one diagonal virtual boundary, and read the two flats' doors differently | open: asked the user how the angled frame is built |
+
+real07 structure run 20261104-144248 (pod i7ctmtu60hdsxs, 19 min, $0.79, the storey-height fix): ok, both floors' top-downs
+and 9 exterior views; zip with the comparison sheets sent.

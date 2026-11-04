@@ -280,7 +280,17 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
             walls[i].exterior = True
             result.exterior_walls.append(i)
 
-    faces = [ring_to_polygon(ring) for ring in union.interiors]
+    faces = []
+    for ring in union.interiors:
+        face = ring_to_polygon(ring)
+        if Polygon(face).is_valid:
+            faces.append(face)
+            continue
+        # 4 Nov 2026 (real17 L3's shower): two spaces whose corners touch at one point make one self-touching ring
+        # (after rounding to 0.1 mm); each is its own face
+        fixed = Polygon(face).buffer(0)
+        faces.extend(ring_to_polygon(g.exterior) for g in getattr(fixed, "geoms", [fixed])
+                     if g.geom_type == "Polygon" and g.area > 1e-4)
     lines = _separator_lines(separators)
     if lines:
         faces = [snap_to_separators(face, lines) for face in faces]

@@ -3734,6 +3734,54 @@
    "request": "4 Nov 2026 (user, real17 ground floor: 'Those walls already drawed, all open ones needs to be walls these sections could be full windows glass, check it', then 'There are no walls here why are you imagining these?'): only drawn walls are built. A drawn wall that stops a few cm short of its column, of the next wall on its line or of a shared corner is joined to it, and a crack of at most 15 cm between two drawn walls at a wall end is filled, when that closes the rooms; no wall is ever added across an opening the drawing leaves open. A drawn front with a window size tag (W/H, on a window text layer) is glass of that size.",
    "lesson": "4 Nov 2026 (user, real17 ground floor: 'Those walls already drawed, all open ones needs to be walls these sections could be full windows glass, check it', then 'There are no walls here why are you imagining these?'): only drawn walls are built. A drawn wall that stops a few cm short of its column, of the next wall on its line or of a shared corner is joined to it, and a crack of at most 15 cm between two drawn walls at a wall end is filled, when that closes the rooms; no wall is ever added across an opening the drawing leaves open. A drawn front with a window size tag (W/H, on a window text layer) is glass of that size.",
    "question": null
+  },
+  {
+   "id": "UL316",
+   "date": "2026-11-04",
+   "area": "plan",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'THis 21 oda hall hall which is the common area (not a living area) for all apartment users needs to have unique flooring and ceiling and walls ... also the Doors to this place from the actual living areas needs to be outside doors, kinda doors you can use to enter to the flat'): a common hall's floor, walls and ceiling use finishes no flat uses (a lobby's: polished stone floor, polished plaster walls, a slat ceiling); every door from a common area into a flat's room is that flat's entrance door (a thick panelled entrance door with its frame), never an inside door.",
+   "lesson": "4 Nov 2026 (user, real10: 'THis 21 oda hall hall which is the common area (not a living area) for all apartment users needs to have unique flooring and ceiling and walls ... also the Doors to this place from the actual living areas needs to be outside doors, kinda doors you can use to enter to the flat'): a common hall's floor, walls and ceiling use finishes no flat uses (a lobby's: polished stone floor, polished plaster walls, a slat ceiling); every door from a common area into a flat's room is that flat's entrance door (a thick panelled entrance door with its frame), never an inside door.",
+   "question": null
+  },
+  {
+   "id": "UL317",
+   "date": "2026-11-04",
+   "area": "roof",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10 roof terrace: 'Too much wall on top a little wall with handrails should have been enough'): a roof terrace's edge is a low wall (0.5 m) with a handrail on it to the guard height (1.10 m or the section's mark), never a storey-high wall; a wall outside the roof is never raised to the roof.",
+   "lesson": "4 Nov 2026 (user, real10 roof terrace: 'Too much wall on top a little wall with handrails should have been enough'): a roof terrace's edge is a low wall (0.5 m) with a handrail on it to the guard height (1.10 m or the section's mark), never a storey-high wall; a wall outside the roof is never raised to the roof.",
+   "question": null
+  },
+  {
+   "id": "UL318",
+   "date": "2026-11-04",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'What are these white thing on the ground in real10'): boxes drawn outside the walls on an upper floor's plan (air-conditioner units, KLİMA, beside the balconies) belong to that floor's facade, never to the garden: nothing drawn outside an upper floor is built on the ground.",
+   "lesson": "4 Nov 2026 (user, real10: 'What are these white thing on the ground in real10'): boxes drawn outside the walls on an upper floor's plan (air-conditioner units, KLİMA, beside the balconies) belong to that floor's facade, never to the garden: nothing drawn outside an upper floor is built on the ground.",
+   "question": null
+  },
+  {
+   "id": "UL319",
+   "date": "2026-11-04",
+   "area": "facade",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10 facade: 'all these details on the outside of the building is not good enough, some of them marked in the drawing for you to understand. All details must be a lot better', marking the knots where the floor bands meet the pilasters and a block at a pilaster top): floor bands die into the pilasters' sides (the pilaster runs on uninterrupted), no band piece shorter than 0.25 m, a coping only on the roof's own edge; every exterior detail is checked for quality on each run.",
+   "lesson": "4 Nov 2026 (user, real10 facade: 'all these details on the outside of the building is not good enough, some of them marked in the drawing for you to understand. All details must be a lot better', marking the knots where the floor bands meet the pilasters and a block at a pilaster top): floor bands die into the pilasters' sides (the pilaster runs on uninterrupted), no band piece shorter than 0.25 m, a coping only on the roof's own edge; every exterior detail is checked for quality on each run.",
+   "question": null
   }
  ]
 }

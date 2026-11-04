@@ -1978,7 +1978,8 @@ def wall_cut(model: dict, walls: Optional[Sequence[dict]] = None) -> Optional[di
     if not model.get("convex"):
         return None
     cut = {"planes": underside(model), "top": max([float(p[2]) for pl in model["planes"] for p in pl["points"]]
-                                                  + [float(model.get("ridge_z") or 0.0)])}   # UL234: a raised slope
+                                                  + [float(model.get("ridge_z") or 0.0)]),   # UL234: a raised slope
+           "outline": model.get("outline")}
     if model.get("dormers"):
         cut["dormers"] = [{"id": d.get("id"), "inner": d["inner"], "under": tuple(d["under"])}
                           for d in model["dormers"] if len(d.get("inner") or []) >= 3 and d.get("under")]
