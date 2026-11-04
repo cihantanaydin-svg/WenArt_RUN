@@ -53,11 +53,13 @@ XFAIL_COUNTS = {
     "synthetic-10-glazed-facade": _xfail("glazed_facade", "UL274", "the frames become one 6.3 m window"),
     "synthetic-12-mirrored-halves": _xfail("mirrored_halves", "UL276", "unswung door gaps are openings or a window"),
     "synthetic-14-elevation-title": _xfail("elevation_title", "UL271", "the two plans are read as one level"),
+    "synthetic-16-open-recess": _xfail("open_recess", "UL313", "an opening doubles the corridor-end door"),
     "synthetic-17-garage-lift": _xfail("garage_lift", "UL320", "the 3.4 m garage opening is read as a window"),
     "synthetic-19-symmetric-house": _xfail("symmetric_single_flat", "UL276", "4 doors, 3 windows mirrored into it"),
 }
-# every drawn room and opening of synthetic-19 is read; only extra ones are (its counts and its own test)
-XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items() if k != "synthetic-19-symmetric-house"}
+# every drawn room and opening of synthetic-16 and -19 is read; only extra ones are not (the counts)
+XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items()
+                  if k not in ("synthetic-16-open-recess", "synthetic-19-symmetric-house")}
 
 
 def _params(names, marks: dict):
@@ -225,14 +227,14 @@ def read(generated, tmp_path_factory):
 
 
 def reader_counts(b: dict) -> dict:
-    per = collections.defaultdict(lambda: {"rooms": 0, "doors": 0, "windows": 0, "stairs": 0})
+    per = collections.defaultdict(lambda: {"rooms": 0, "doors": 0, "windows": 0, "openings": 0, "stairs": 0})
     for lv in b["levels"]:
         per[lv["id"]]
     for r in b["rooms"]:
         per[r["level_id"]]["rooms"] += 1
     for o in b["openings"]:
-        if o["type"] in ("door", "window"):
-            per[o["level_id"]][o["type"] + "s"] += 1
+        key = o["type"] + "s"                       # doors, windows, openings (doorless or unclassified)
+        per[o["level_id"]][key] = per[o["level_id"]].get(key, 0) + 1
     for f in b["furniture"]:
         if f.get("type") == "stair":
             per[f["level_id"]]["stairs"] += 1

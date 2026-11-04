@@ -712,8 +712,9 @@ def reading_truth(project: FailureProject) -> dict:
 
 
 def counts(truth: dict) -> dict:
-    """Per-level counts of rooms, doors, windows and stairs (what the tests compare with the reader)."""
-    return {lid: {k: len(v[k]) for k in ("rooms", "doors", "windows", "stairs")}
+    """Per-level counts of rooms, doors, windows, doorless openings and stairs (what the tests compare with the
+    reader: an invented opening counts as much as a missed one)."""
+    return {lid: {k: len(v[k]) for k in ("rooms", "doors", "windows", "openings", "stairs")}
             for lid, v in truth["per_level"].items()}
 
 

@@ -278,7 +278,7 @@ failure), and the mark goes.
 | Doors / windows | a door is a 90° swing `ARC` and the open leaf `LINE` on `KAPI`, hinged on the face of the side it swings to; a window four lines along the gap on `PENCERE`; a sliding door two leaf rectangles; a garage door a dashed overhead line |
 | Truth | `truth/reading_truth.json`: `{project, source: synthetic, status: accepted, levels [{id, label, elevation, order}], per_level {L0: {rooms [{id, label, room_type, area, centroid, polygon}], doors, windows [{id, width, center, type}], openings, walls [{id, start, end, thickness}], stairs [{id, kind, center, risers, ...}]}}, failure_class, lesson, summary, drawing {file, insunits, plans [{key, origin_m, title, levels}]}}` plus the class's own keys (`site`, `open_air`, `typical_plan`, `roof`, `drawings`). Building metres: the outer wall faces of each plan from the origin (the reader's building frame); `drawing.plans[].origin_m` is where each plan sits on the sheet |
 
-| Project | Class | Lesson | Levels | Rooms | Doors | Windows | Stairs | Reader today (rooms / doors / windows / stairs per level) | Tests |
+| Project | Class | Lesson | Levels | Rooms | Doors | Windows | Stairs | Reader today (rooms / doors / windows / stairs per level; doorless openings named) | Tests |
 |---|---|---|---|---|---|---|---|---|---|
 | `synthetic-08-spaced-labels` | spaced_labels | UL323 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 (labels `Yatakodası`, no pool) | counts, geometry pass; words, pool xfail |
 | `synthetic-09-jamb-stubs` | jamb_stubs | UL301 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 | pass |
@@ -288,7 +288,7 @@ failure), and the mark goes.
 | `synthetic-13-typical-floor` | typical_floor | UL278, UL303 | 7 | 6 each | L0 6, L1-L6 5 | L0 9, L1-L6 10 | 1 each | as the truth, 7 levels at the section's marks | pass |
 | `synthetic-14-elevation-title` | elevation_title | UL271 | 2 | 6 + 6 | 6 + 5 | 9 + 10 | 1 + 1 | one level: 0 / 11 / 19 / 2 | xfail |
 | `synthetic-15-winder-stair` | winder_stair | UL286 | 1 | 6 | 6 | 9 | 1 (17 risers) | 6 / 6 / 9 / 1 (a landing, no winders) | counts pass; winders xfail |
-| `synthetic-16-open-recess` | open_recess | UL313 | 1 | 6 | 6 | 11 | 0 | 6 / 6 / 11 / 0 (+1 doubled opening) | pass |
+| `synthetic-16-open-recess` | open_recess | UL313 | 1 | 6 | 6 | 11 | 0 | 6 / 6 / 11 / 0 + 1 opening doubling a door | counts xfail; geometry, recess pass |
 | `synthetic-17-garage-lift` | garage_lift | UL320, UL306 | 1 | 7 | 8 | 7 | 0 | 7 / 7 / 8 / 0 (the garage opening a window) | counts, garage xfail; lift pass |
 | `synthetic-18-sheet-frame` | sheet_frame | UL268 | 2 | 6 + 6 | 6 + 5 | 9 + 10 | 1 + 1 | as the truth (heights assumed) | levels pass; section region xfail |
 | `synthetic-19-symmetric-house` | symmetric_single_flat | UL276 | 1 | 6 | 6 | 9 | 0 | 6 / 10 / 12 / 0 (4 doors, 3 windows mirrored in) | counts, nothing-extra xfail; geometry pass |
@@ -365,8 +365,8 @@ xfail on the winders and the 17 treads).
 A 1.2 m wide, 3.0 m deep recess between the two bedrooms of the top row (EBEVEYN ODASI and ÇOCUK ODASI), open to the
 facade (the outline steps in round it), the bedrooms' windows opening onto its sides, no label and no door inside.
 Truth: 6 rooms, 11 windows; the recess is open air (`open_air`), not a room. Reader today: right (passes: the recess
-stays outside, both windows onto it are read); one doorless opening is read on top of the ÇOCUK ODASI's door (not
-counted by the tests). An early draft of this drawing whose outer walls crossed at the corners ("+" corners, 12.5 cm
+stays outside, both windows onto it are read); but one doorless opening is read on top of the ÇOCUK ODASI's door at
+the corridor's end (an invented opening: strict xfail on the counts, which include the doorless openings). An early draft of this drawing whose outer walls crossed at the corners ("+" corners, 12.5 cm
 past the faces) made the reader close the recess mouth with a 3.85 m window and join the recess to the bedroom: the
 open-recess rule depends on clean corners.
 
