@@ -175,6 +175,26 @@ def test_truth_openings_sit_on_their_walls_and_between_rooms(generated, name):
             assert any(r.distance(c) <= 0.2 for r in rooms), (lid, o)
 
 
+def _box_poly(box) -> Polygon:
+    (x0, y0), (x1, y1) = box
+    return Polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
+
+
+@pytest.mark.parametrize("name", NAMES)
+def test_truth_stairs_stand_inside_their_room(generated, name):
+    """Every truth stair's box (and each of its arms) lies inside one room and crosses no wall: the stair is drawn
+    inside the room's inner faces, never into a wall."""
+    t = truth_of(generated, name)
+    for lid, lv in t["per_level"].items():
+        walls = [FC.Wall(w["id"], tuple(w["start"]), tuple(w["end"]), w["thickness"]).rect() for w in lv["walls"]]
+        rooms = [Polygon(r["polygon"]) for r in lv["rooms"]]
+        for st in lv["stairs"]:
+            for box in [st["box"]] + [a["box"] for a in st.get("arms") or []]:
+                poly = _box_poly(box)
+                assert any(r.buffer(1e-6).contains(poly) for r in rooms), (lid, st["id"], box)
+                assert all(w.intersection(poly).area < 1e-9 for w in walls), (lid, st["id"], box)
+
+
 @pytest.mark.parametrize("name", NAMES)
 def test_dxf_layers_are_the_cad_office_ones(generated, name):
     import ezdxf.recover
@@ -383,13 +403,17 @@ def _stair(b: dict) -> dict:
     return stairs[0].get("stair") or {}
 
 
-@_xfail("winder_stair", "UL282", "the winders are read as a flat landing and the tread numbers are not used")
+@_xfail("winder_stair", "UL286", "the turn is read as a flat landing by the stair rule; the numbered-tread reader "
+                                 "(steps_drawn, winders) does not take this stair")
 def test_15_winders_and_seventeen_treads(generated, read):
     t = truth_of(generated, "synthetic-15-winder-stair")
+    truth = t["per_level"]["L0"]["stairs"][0]
+    assert truth["risers"] == 17
+    winders = next(a for a in truth["arms"] if a["kind"] == "winder")
     st = _stair(read("synthetic-15-winder-stair"))
-    assert t["per_level"]["L0"]["stairs"][0]["risers"] == 17
-    assert not st.get("landing")                                   # the turn is winders, not a landing
-    assert (st.get("risers") or st.get("treads")) == 17
+    # what wenart.ingest.generic.stair_numbers writes for a stair read from its numbers (1-17, winders at the turn)
+    assert st.get("steps_drawn") == 17
+    assert st.get("winders") == winders["treads"][1] - winders["treads"][0] + 1
 
 
 # --- synthetic-16-open-recess --------------------------------------------------------------------------------------

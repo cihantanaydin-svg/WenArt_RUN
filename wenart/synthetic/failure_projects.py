@@ -217,17 +217,18 @@ def project_12() -> FailureProject:
 def stair_house(key: str, origin, title: Optional[str], *, winders: int = 0, numbers: bool = False,
                 flight1: int = 9, flight2: int = 9, going: float = 0.25) -> Plan:
     """The base flat with its L-shaped top-right room turned into the stair hall (MERDİVEN): a U stair of two
-    flights along x in the box x 8.7..11.8, y 5.95..8.8, turning at the right end (a landing, or winders)."""
+    flights along x in the box x 8.7..11.7, y 5.95..8.7 (5 cm clear of the room's inner faces at x 11.75 and y 8.75),
+    turning at the right end (a landing, or winders)."""
     plan = base_house(key, origin, title)
     _relabel(plan, {"ÇOCUK ODASI": "MERDİVEN"})
     for lb in plan.labels:
         if lb.text == "MERDİVEN":
             lb.at = (7.6, 7.4)
-    prims, truth = FC.u_stair(8.7, 5.95, 11.8, 8.8, going, flight1, flight2, winders=winders, numbers=numbers)
+    prims, truth = FC.u_stair(8.7, 5.95, 11.7, 8.7, going, flight1, flight2, winders=winders, numbers=numbers)
     plan.prims += prims
     kind = "u_winder" if winders else "u_landing"
     risers = truth["treads"] + (0 if winders else 1)
-    plan.stairs.append(StairTruth("s_{L}_001", kind, (10.25, 7.375), risers, extra=truth))
+    plan.stairs.append(StairTruth("s_{L}_001", kind, ((8.7 + 11.7) / 2, (5.95 + 8.7) / 2), risers, extra=truth))
     return plan
 
 
@@ -274,12 +275,13 @@ def project_14() -> FailureProject:
 
 
 def project_15() -> FailureProject:
-    """synthetic-15-winder-stair (UL282): the base flat with a U stair in the stair hall: six straight treads, five
-    winders round the turn (radial lines from the well's end), six straight treads back, every tread numbered 1 to 17
+    """synthetic-15-winder-stair (UL286: the core stair is read as drawn, a U stair with winders round its eye from
+    its numbered treads): the base flat with a U stair in the stair hall: six straight treads, five winders round the
+    turn (radial lines from the well's end), six straight treads back, every tread numbered 1 to 17
     on the stair layer, the walking line with its arrow. Truth: one stair, 17 risers, its three arms."""
     plan = stair_house("p0", (10.0, 10.0), "ZEMİN KAT PLANI", winders=5, numbers=True, flight1=6, flight2=6,
                        going=0.27)
-    return FailureProject("synthetic-15-winder-stair", "winder_stair", "UL282",
+    return FailureProject("synthetic-15-winder-stair", "winder_stair", "UL286",
                           "a U stair with numbered treads 1-17 and winders at the turn", [plan], [GROUND], BRIEF)
 
 

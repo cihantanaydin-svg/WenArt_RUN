@@ -287,7 +287,7 @@ failure), and the mark goes.
 | `synthetic-12-mirrored-halves` | mirrored_halves | UL276 | 1 | 8 | 8 | 12 | 0 | 8 / 4 / 13 / 0 (+3 openings; 4 rooms `Oda`) | xfail |
 | `synthetic-13-typical-floor` | typical_floor | UL278, UL303 | 7 | 6 each | L0 6, L1-L6 5 | L0 9, L1-L6 10 | 1 each | as the truth, 7 levels at the section's marks | pass |
 | `synthetic-14-elevation-title` | elevation_title | UL271 | 2 | 6 + 6 | 6 + 5 | 9 + 10 | 1 + 1 | one level: 0 / 11 / 19 / 2 | xfail |
-| `synthetic-15-winder-stair` | winder_stair | UL282 | 1 | 6 | 6 | 9 | 1 (17 risers) | 6 / 6 / 9 / 1 (a landing, no winders) | counts pass; winders xfail |
+| `synthetic-15-winder-stair` | winder_stair | UL286 | 1 | 6 | 6 | 9 | 1 (17 risers) | 6 / 6 / 9 / 1 (a landing, no winders) | counts pass; winders xfail |
 | `synthetic-16-open-recess` | open_recess | UL313 | 1 | 6 | 6 | 11 | 0 | 6 / 6 / 11 / 0 (+1 doubled opening) | pass |
 | `synthetic-17-garage-lift` | garage_lift | UL320, UL306 | 1 | 7 | 8 | 7 | 0 | 7 / 7 / 8 / 0 (the garage opening a window) | counts, garage xfail; lift pass |
 | `synthetic-18-sheet-frame` | sheet_frame | UL268 | 2 | 6 + 6 | 6 + 5 | 9 + 10 | 1 + 1 | as the truth (heights assumed) | levels pass; section region xfail |
@@ -352,7 +352,7 @@ elevation, `+3.00 KOTU KAT PLANI` (bedrooms and a study, no entrance); both with
 L1 at +3.00. Reader today: one level only and no rooms (with the title `1. KAT PLANI` the same sheet reads as two levels
 with all rooms: the elevation title is the failure; strict xfails).
 
-### synthetic-15-winder-stair (UL282)
+### synthetic-15-winder-stair (UL286)
 
 The base flat with the stair hall: a U stair of six straight treads, five winders round the half turn (radial lines from
 the well's end), six straight treads back, every tread numbered 1 to 17 on `MERDIVEN`, the walking line with its arrow.
