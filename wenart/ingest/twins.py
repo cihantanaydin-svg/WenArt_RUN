@@ -886,3 +886,34 @@ def chamfer_frames(rooms: list[dict], openings: list[dict], walls: list[dict]) -
                      f"({length:.2f} m): a glazed double door in its frame along it")
     return notes
 
+
+DRESSING_WORDS = ("GIYINME", "SOYUNMA", "DRESSING", "WALK-IN", "WALK IN", "GARDEROBE", "ANKLEIDE", "VESTIDOR")
+PASSAGE_REACH_M = 0.35
+
+
+def open_passages(rooms: list[dict], openings: list[dict], levels: list[dict]) -> list[str]:
+    """4 Nov 2026 (real07 L1, user: "there is no wall here and the section on the left of that none existing wall is
+    giyinme soyunma, a place for dressing"; lesson UL327): a doorless opening between a dressing room and the room it
+    belongs to is an open passage up to the ceiling (no wall over it): its height is the level's ceiling height.
+    Returns a note per passage."""
+    from wenart.sheets import titles as TI
+
+    ceil = {lv["id"]: float(lv.get("ceiling_height") or 2.7) for lv in levels or []}
+    notes = []
+    for o in openings:
+        if o.get("type") != "opening" or o.get("virtual") or not o.get("center"):
+            continue
+        c = Point(o["center"][:2])
+        near = [r for r in rooms if r.get("level_id") == o.get("level_id") and len(r.get("polygon") or []) >= 3
+                and Polygon(r["polygon"]).exterior.distance(c) <= PASSAGE_REACH_M]
+        dress = [r for r in near if any(w in TI.fold(" ".join(str(r.get(k) or "") for k in ("label", "label_raw")))
+                                        for w in DRESSING_WORDS)]
+        if not dress or len(near) < 2:
+            continue
+        h = ceil.get(o.get("level_id"), 2.7)
+        o["height"] = round(h, 3)
+        o["open_passage"] = True
+        notes.append(f"{o.get('level_id')}: {o['id']} into the dressing room {dress[0]['id']}: an open passage up to the "
+                     f"ceiling ({h:.2f} m), no wall over it")
+    return notes
+

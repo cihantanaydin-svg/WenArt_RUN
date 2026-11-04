@@ -2475,6 +2475,8 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         build.warn(f"garage door: {line}")
     for line in TW.chamfer_frames(b["rooms"], b["openings"], b["walls"]):   # 4 Nov 2026 (UL328)
         build.warn(f"chamfer frame: {line}")
+    for line in TW.open_passages(b["rooms"], b["openings"], b["levels"]):    # 4 Nov 2026 (UL327)
+        build.warn(f"open passage: {line}")
     for second, info in TW.twin_transforms(b["rooms"], b["openings"], b["furniture"]).items():
         room = next(r for r in b["rooms"] if r["id"] == second)
         room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],

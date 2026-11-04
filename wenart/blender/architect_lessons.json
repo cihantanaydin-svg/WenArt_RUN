@@ -3847,7 +3847,7 @@
    "id": "UL325",
    "date": "2026-11-04",
    "area": "report",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -3871,8 +3871,10 @@
    "id": "UL327",
    "date": "2026-11-04",
    "area": "other",
-   "status": "open",
-   "checks": [],
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "4 Nov 2026 (user, real07 L1: 'there is no wall here and the section on the left of that none existing wall is giyinme soyunma, a place for dressing'): where a drawn partition simply ends short of the next wall, with no door and no frame in the gap, the gap is an open passage from floor to ceiling, never a wall with an opening cut in it; a giyinme-soyunma is a dressing room (wardrobes), part of the bedroom it opens into.",
    "lesson": "4 Nov 2026 (user, real07 L1: 'there is no wall here and the section on the left of that none existing wall is giyinme soyunma, a place for dressing'): where a drawn partition simply ends short of the next wall, with no door and no frame in the gap, the gap is an open passage from floor to ceiling, never a wall with an opening cut in it; a giyinme-soyunma is a dressing room (wardrobes), part of the bedroom it opens into.",
    "question": null

@@ -665,3 +665,14 @@ def test_the_top_down_cut_closes_wall_sections_never_the_floor_loop():
     assert len(loops) == 2
     thick = sorted(TD._loop_thickness(lp, M()) for lp in loops)
     assert thick[0] <= TD.CAP_MAX_THICK_M < thick[1]
+
+
+def test_a_doorless_opening_into_a_dressing_room_is_an_open_passage():
+    """real07 (user: "there is no wall here and the section on the left ... is giyinme soyunma")."""
+    from wenart.ingest import twins as TW
+
+    dress = {"id": "r_d", "level_id": "L1", "label": "Giyinme-soyunma", "polygon": [[0, 0], [2, 0], [2, 4], [0, 4]]}
+    bed = {"id": "r_b", "level_id": "L1", "label": "Yatak Od.", "polygon": [[2, 0], [6, 0], [6, 4], [2, 4]]}
+    o = {"id": "o1", "level_id": "L1", "type": "opening", "center": [2.0, 0.6], "width": 0.8, "height": 2.1}
+    notes = TW.open_passages([dress, bed], [o], [{"id": "L1", "ceiling_height": 2.7}])
+    assert notes and o["height"] == 2.7 and o["open_passage"]
