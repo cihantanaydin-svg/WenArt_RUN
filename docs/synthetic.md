@@ -289,6 +289,7 @@ failure), and the mark goes.
 | `synthetic-14-elevation-title` | elevation_title | UL271 | 2 | 6 + 6 | 6 + 5 | 9 + 10 | 1 + 1 | one level: 0 / 11 / 19 / 2 | xfail |
 | `synthetic-15-winder-stair` | winder_stair | UL282 | 1 | 6 | 6 | 9 | 1 (17 risers) | 6 / 6 / 9 / 1 (a landing, no winders) | counts pass; winders xfail |
 | `synthetic-16-open-recess` | open_recess | UL313 | 1 | 6 | 6 | 11 | 0 | 6 / 6 / 11 / 0 (+1 doubled opening) | pass |
+| `synthetic-17-garage-lift` | garage_lift | UL320, UL306 | 1 | 7 | 8 | 7 | 0 | 7 / 7 / 8 / 0 (the garage opening a window) | counts, garage xfail; lift pass |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -366,6 +367,15 @@ stays outside, both windows onto it are read); one doorless opening is read on t
 counted by the tests). An early draft of this drawing whose outer walls crossed at the corners ("+" corners, 12.5 cm
 past the faces) made the reader close the recess mouth with a 3.85 m window and join the recess to the bedroom: the
 open-recess rule depends on clean corners.
+
+### synthetic-17-garage-lift (UL320, UL306)
+
+The base flat with the bottom-right bedroom turned into a `GARAJ` with a 3.4 m opening in the outer wall (the gap and
+the overhead door's dashed line on `KAPI`) and a door to the corridor, and an `ASANSÖR` shaft at the corridor's end
+(about 1.65 × 1.75 m inside, the diagonal cross on `ASANSOR`) with a 0.9 m sliding landing door. Truth: 7 rooms (GARAJ
+garage, ASANSÖR shaft), 8 doors (the garage door and the lift door among them), 7 windows. Reader today: the garage and
+the shaft typed right and the lift door read, but the garage opening is read as a 3.4 m window (strict xfails on the
+counts and the garage door).
 
 ## Coordinate conventions
 

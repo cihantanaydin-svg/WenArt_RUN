@@ -321,6 +321,33 @@ def project_16() -> FailureProject:
                           extra_truth={"open_air": [{"kind": "recess", "polygon": recess, "width": 1.2, "depth": 3.0}]})
 
 
+def project_17() -> FailureProject:
+    """synthetic-17-garage-lift (UL320, UL306): the base flat with the bottom-right bedroom turned into a GARAJ with
+    a 3.4 m opening in the outer wall (the gap and the overhead door's dashed line on KAPI) and a door to the
+    corridor, and an ASANSÖR shaft (1.65 x 1.75 m inside, the diagonal cross on ASANSOR) at the corridor's end with
+    a sliding landing door. Truth: 7 rooms (GARAJ garage, ASANSÖR shaft), the garage door and the lift door."""
+    plan = base_house()
+    _relabel(plan, {"YATAK ODASI": "GARAJ"})
+    _drop(plan, "w_yatak1", "w_yatak2")
+    plan.walls = [w for w in plan.walls if w.id != "i6"] + [
+        Wall("i6", (8.5, 4.4), (8.5, 6.375), INT_T), Wall("i7", (10.3, 4.4), (10.3, 6.375), INT_T),
+        Wall("i8", (8.5, 6.3), (10.3, 6.3), INT_T)]
+    plan.openings.append(Opening("garage", "garage", "e1", 9.5, 3.4))
+    plan.openings.append(Opening("lift", "sliding", "i6", 0.7, 0.9, truth_type="door"))
+    x0, y0, x1, y1 = 8.575, 4.475, 10.225, 6.225
+    plan.prims += [Prim("line", "ASANSOR", [(x0 + 0.1, y0 + 0.1), (x1 - 0.1, y1 - 0.1)]),
+                   Prim("line", "ASANSOR", [(x0 + 0.1, y1 - 0.1), (x1 - 0.1, y0 + 0.1)]),
+                   Prim("poly", "ASANSOR", [(x0 + 0.1, y0 + 0.1), (x1 - 0.1, y0 + 0.1), (x1 - 0.1, y1 - 0.1),
+                                            (x0 + 0.1, y1 - 0.1)], closed=True)]
+    plan.labels.append(Label("ASANSÖR", (9.4, 5.4), height=0.18))
+    for lb in plan.labels:
+        if lb.text == "ÇOCUK ODASI":
+            lb.at = (9.25, 7.6)
+    return FailureProject("synthetic-17-garage-lift", "garage_lift", "UL320",
+                          "a garage with a 3.4 m opening to the outside and a lift shaft with a landing door",
+                          [plan], [GROUND], BRIEF, extra_truth={"lessons": ["UL320", "UL306"]})
+
+
 def failure_projects() -> list[FailureProject]:
     return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13(), project_14(),
-            project_15(), project_16()]
+            project_15(), project_16(), project_17()]

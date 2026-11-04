@@ -53,6 +53,7 @@ XFAIL_COUNTS = {
     "synthetic-10-glazed-facade": _xfail("glazed_facade", "UL274", "the frames become one 6.3 m window"),
     "synthetic-12-mirrored-halves": _xfail("mirrored_halves", "UL276", "unswung door gaps are openings or a window"),
     "synthetic-14-elevation-title": _xfail("elevation_title", "UL271", "the two plans are read as one level"),
+    "synthetic-17-garage-lift": _xfail("garage_lift", "UL320", "the 3.4 m garage opening is read as a window"),
 }
 XFAIL_GEOMETRY = dict(XFAIL_COUNTS)
 
@@ -87,6 +88,7 @@ EXPECTED_NAMES = [
     "synthetic-14-elevation-title",
     "synthetic-15-winder-stair",
     "synthetic-16-open-recess",
+    "synthetic-17-garage-lift",
 ]
 
 
@@ -400,3 +402,24 @@ def test_16_open_recess_is_no_room(generated, read):
     b = read("synthetic-16-open-recess")
     recess = Polygon(t["open_air"][0]["polygon"])
     assert not any(Polygon(r["polygon"]).intersection(recess).area > 0.1 for r in b["rooms"])
+
+
+# --- synthetic-17-garage-lift --------------------------------------------------------------------------------------
+
+@_xfail("garage_lift", "UL320", "the garage's 3.4 m opening is read as a window")
+def test_17_garage_has_its_wide_door(generated, read):
+    b = read("synthetic-17-garage-lift")
+    garage = [r for r in b["rooms"] if r["room_type"] == "garage"]
+    assert len(garage) == 1
+    wide = [o for o in b["openings"]
+            if abs(o["width"] - 3.4) <= WIDTH_TOL_M and math.dist(o["center"], (9.5, 0.125)) < CENTRE_TOL_M]
+    assert len(wide) == 1 and wide[0]["type"] == "door"
+
+
+def test_17_lift_shaft_has_its_landing_door(generated, read):
+    b = read("synthetic-17-garage-lift")
+    shafts = [r for r in b["rooms"] if r["room_type"] == "shaft"]
+    assert len(shafts) == 1
+    poly = Polygon(shafts[0]["polygon"])
+    doors = [o for o in b["openings"] if o["type"] == "door" and poly.exterior.distance(Point(o["center"])) < 0.2]
+    assert len(doors) == 1 and doors[0]["width"] == pytest.approx(0.9, abs=WIDTH_TOL_M)
