@@ -46,7 +46,8 @@ CHECKS = {"RC8": "elevation openings against the plans, per floor",
 
 # RC8
 MATCH_M = 0.5                  # an elevation opening and a plan opening this close along the facade are one opening
-ALIGN_SEARCH_M = 1.5           # the facade's left end may be off by this much (a pilaster, a balcony, the roof's eaves)
+ALIGN_SEARCH_M = 4.0           # the facade's left end may be off by this much (a balcony, the eaves, a level mark)
+ALIGN_STEP_M = 0.05            # the shifts tried, this far apart
 ALIGN_MIN_SHARE = 0.3          # aligned when this share of the smaller side's openings match (at least ALIGN_MIN_N)
 ALIGN_MIN_N = 2
 SIDE_ANGLE_DEG = 45.0          # a wall faces a side when its outward normal is within this (to_building.SIDE_ANGLE_DEG)
@@ -350,7 +351,7 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
     for lid, ex in es_all:
         for px, _ in plan_by.get(lid, []):
             if abs(ex - px) <= ALIGN_SEARCH_M:
-                cand.add(round(ex - px, 3))
+                cand.add(round(round((ex - px) / ALIGN_STEP_M) * ALIGN_STEP_M, 3))
 
     def score(shift: float) -> int:
         return sum(len(_greedy([float(p["x"]) for p in seen_by.get(lid, [])], [x for x, _ in plan_by.get(lid, [])],

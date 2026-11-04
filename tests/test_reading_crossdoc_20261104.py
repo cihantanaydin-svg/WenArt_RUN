@@ -240,5 +240,10 @@ def test_frame_rects_from_loose_lines_and_nested_frames():
     region.metres_per_unit = 1.0
     _, seen = EX.facade_of(region, None, None, [])
     assert seen["windows"] == 1 and seen["doors"] == 1
+    # a door drawn as one open three-sided polyline standing on the ground line counts without an inner frame
+    st = Stroke(id="ent:door3", kind="polyline", pts=[(15.0, 0.0), (15.0, 2.1), (16.0, 2.1), (16.0, 0.0)], layer="0")
+    ents.append(Ent(id="LWPOLYLINE:9", kind="LWPOLYLINE", layer="0", box=st.bbox(), strokes=[st]))
+    _, seen = EX.facade_of(region, None, None, [])
+    assert seen["windows"] == 1 and seen["doors"] == 2
     win = next(p for p in seen["positions_m"] if p["kind"] == "window")
     assert abs(win["width"] - 1.4) < 1e-6 and abs(win["sill"] - 1.0) < 1e-6 and abs(win["x"] - 3.7) < 1e-6

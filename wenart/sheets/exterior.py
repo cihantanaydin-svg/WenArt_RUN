@@ -146,7 +146,7 @@ def frame_rects(ents: list, mpu: float) -> list[dict]:
                 hs.append((min(a[0], b[0]), max(a[0], b[0]), (a[1] + b[1]) / 2.0, e.id, on_layer))
             elif abs(dx) <= RECT_AXIS_SHARE * length:
                 vs.append((min(a[1], b[1]), max(a[1], b[1]), (a[0] + b[0]) / 2.0, e.id, on_layer))
-    seen, out = set(), []
+    seen, out = {}, []
     for pairs, cover, swap in ((vs, hs, False), (hs, vs, True)):
         by_ends: dict = {}
         for p in pairs:
@@ -156,10 +156,11 @@ def frame_rects(ents: list, mpu: float) -> list[dict]:
         for c in cover:
             by_across.setdefault(round(c[2] / tol), []).append(c)
 
-        def covered(at: float, s0: float, s1: float):
+        def covered(at: float, s0: float, s1: float, prefer: str):
             k = round(at / tol)
-            return next((c for d in (-1, 0, 1) for c in by_across.get(k + d, ())
-                         if abs(c[2] - at) <= tol and c[0] - tol <= s0 and s1 <= c[1] + tol), None)
+            hits = [c for d in (-1, 0, 1) for c in by_across.get(k + d, ())
+                    if abs(c[2] - at) <= tol and c[0] - tol <= s0 and s1 <= c[1] + tol]
+            return next((c for c in hits if c[3] == prefer), hits[0] if hits else None)
 
         for (k0, k1), group in by_ends.items():
             others = [p for d0 in (-1, 0, 1) for d1 in (-1, 0, 1) for p in by_ends.get((k0 + d0, k1 + d1), ())]
@@ -169,21 +170,26 @@ def frame_rects(ents: list, mpu: float) -> list[dict]:
                     if not lo <= gap <= hi or abs(q[0] - p[0]) > tol or abs(q[1] - p[1]) > tol:
                         continue
                     s0, s1 = (p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0
-                    c0 = covered(s0, p[2], q[2])
-                    c1 = covered(s1, p[2], q[2]) if c0 is not None else None
+                    c0 = covered(s0, p[2], q[2], p[3])
+                    c1 = covered(s1, p[2], q[2], p[3]) if c0 is not None else None
                     if c1 is None:
                         continue
                     box = (s0, p[2], s1, q[2]) if swap else (p[2], s0, q[2], s1)
                     key = tuple(round(v / tol) for v in box)
-                    if key in seen:
-                        continue
-                    seen.add(key)
                     parts = (p, q, c0, c1)
-                    out.append({"box": box, "entity": (c0 if not swap else p)[3],
-                                "entities": sorted({x[3] for x in parts}),
-                                "opening_layer": any(x[4] for x in parts)})
+                    ids = [x[3] for x in parts]
+                    one = max(ids.count(i) for i in ids)       # sides drawn by one entity
+                    if key in seen and seen[key]["one"] >= one:
+                        continue
+                    rect = {"box": box, "entity": (c0 if not swap else p)[3], "entities": sorted(set(ids)),
+                            "opening_layer": any(x[4] for x in parts), "one": one}
+                    if key in seen:
+                        seen[key].update(rect)
+                    else:
+                        seen[key] = rect
+                        out.append(rect)
     # A frame: an inner line parallel to a side, inside the rectangle, as long as most of it (the frame's second
-    # line, a mullion, a transom, a sash). A balcony front, a band or a plain panel has none.
+    # line, a mullion, a transom, a sash). A balcony front, a band or a plain panel of loose lines has none.
     import bisect
 
     v_sorted = sorted(vs, key=lambda v: v[2])
@@ -200,7 +206,10 @@ def frame_rects(ents: list, mpu: float) -> list[dict]:
 
     for r in out:
         x0, y0, x1, y1 = r["box"]
-        r["framed"] = inner(v_sorted, v_keys, x0, x1, y0, y1) or inner(h_sorted, h_keys, y0, y1, x0, x1)
+        # one entity drawing three or four sides (a closed outline, a door's three-sided outline on the ground
+        # line, a block's rectangle) is an object drawn as such
+        r["framed"] = r.pop("one") >= 3 or inner(v_sorted, v_keys, x0, x1, y0, y1) \
+            or inner(h_sorted, h_keys, y0, y1, x0, x1)
     return out
 
 
