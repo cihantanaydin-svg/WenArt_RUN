@@ -254,7 +254,7 @@ south facade carries the plinth, the east one does not); no DIMENSION entities a
 unit evidence is area labels, level marks, door arcs, wall thicknesses and text heights); the basement is below the ground
 line on every side (ground 0.00; its outside door and windows get terrain and light wells from the build, both assumed).
 
-## synthetic-08 ... synthetic-18: the failure classes (4 Nov 2026, Milestone 14 track R7)
+## synthetic-08 ... synthetic-22: the failure classes (4 Nov 2026, Milestone 14 track R7)
 
 The user's goal: "I want structure recognition to be cumulatively better with the feedbacks I am giving". Each of
 these projects is a small house or flat drawn the way Turkish CAD offices draw (one R2000 DXF `plan.dxf` in
@@ -292,6 +292,9 @@ failure), and the mark goes.
 | `synthetic-17-garage-lift` | garage_lift | UL320, UL306 | 1 | 7 | 8 | 7 | 0 | 7 / 7 / 8 / 0 (the garage opening a window) | counts, garage xfail; lift pass |
 | `synthetic-18-sheet-frame` | sheet_frame | UL268 | 2 | 6 + 6 | 6 + 5 | 9 + 10 | 1 + 1 | as the truth (heights assumed) | levels pass; section region xfail |
 | `synthetic-19-symmetric-house` | symmetric_single_flat | UL276 | 1 | 6 | 6 | 9 | 0 | 6 / 10 / 12 / 0 (4 doors, 3 windows mirrored in) | counts, nothing-extra xfail; geometry pass |
+| `synthetic-20-glazed-corner` | glazed_corner | UL274 | 1 | 6 | 7 | 10 | 0 | 6 / 7 / 7 / 0 (one 6.4 m window, one 3.9 m door for the L of frames) | xfail |
+| `synthetic-21-parapet` | roof_terrace_parapet | UL304, UL317 | 3 | 6 + 6 + 2 | 6 + 5 + 1 | 9 + 10 + 2 | 1 each | as the truth; the terrace edge walls 3.0 m, no parapet | counts, geometry, levels pass; parapets xfail |
+| `synthetic-22-curved-stair` | curved_stair | open (real07) | 1 | 6 | 6 | 9 | 1 (18 risers) | 6 / 6 / 9 / 0 (no stair) | counts, stair xfail; geometry pass |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -302,7 +305,8 @@ road labelled the same way (`H A V U Z`, `Y O L`), as real07's site plan was. Tr
 as words, one pool (`site.pools`, building metres: the outline round the HAVUZ label). Reader today: rooms, doors and
 windows right and the room types right, but a two-word label loses its word gap (`Yatakodası`, `Çocukodası`), and the
 site plan's spaced `H A V U Z` is not read, so there is no pool (with the same labels written whole, the pool is read:
-the drawing is right) — both strict xfails.
+the drawing is right) — both strict xfails. A third: the pool's outline and its coping are read as four 0.3 m plot
+walls (strict xfail).
 
 ### synthetic-09-jamb-stubs (UL301)
 
@@ -341,9 +345,11 @@ gaps are doorless openings and its entrance gap a window (strict xfails).
 
 One sheet: the ground floor plan (`ZEMİN KAT PLANI`), a plan titled `1-6. NORMAL KAT PLANI` standing for the six
 storeys above it (a window where the ground floor has its entrance), both with the U stair (`MERDİVEN`, two flights of
-9 treads and a landing), and a section `A-A KESİTİ` naming the storeys at their level marks (`ZEMİN KAT ±0.00`,
+9 treads and a landing in x 8.7..11.7, y 5.95..8.7, 5 cm clear of the room's faces), and a section `A-A KESİTİ` naming the storeys at their level marks (`ZEMİN KAT ±0.00`,
 `1. NORMAL KAT +3.00` ... `6. NORMAL KAT +18.00`, `ÇATI +21.00`). Truth: 7 levels, L1 to L6 the typical plan at 3.00 m
-steps, the roof at +21.00. Reader today: right (passes: 7 levels at the section's marks, the typical plan on each).
+steps, the roof at +21.00. Reader today: right (passes: 7 levels at the section's marks, the typical plan on each),
+except the stair: the stair rule drops the first and last tread of each 9-tread flight (1.75 m read for 2.25 m; strict
+xfail, the same in synthetic-18).
 
 ### synthetic-14-elevation-title (UL271)
 
@@ -357,8 +363,10 @@ with all rooms: the elevation title is the failure; strict xfails).
 The base flat with the stair hall: a U stair of six straight treads, five winders round the half turn (radial lines from
 the well's end), six straight treads back, every tread numbered 1 to 17 on `MERDIVEN`, the walking line with its arrow.
 Truth: one stair, 17 risers, its arms (`straight` 1-6, `winder` 7-11, `straight` 12-17). Reader today: the stair, the
-rooms and the openings right, but the turn is read as a flat 1.75 m landing and the tread numbers are not used (strict
-xfail on the winders and the 17 treads).
+rooms and the openings right, but the stair rule reads the turn as a flat 1.65 m landing and keeps its reading, so the
+numbered-tread reader (`stair_numbers`: `steps_drawn`, `winders`) never takes the stair (strict xfail asserting
+`steps_drawn` 17 and 5 winders). UL286 is the lesson: the core stair read as drawn, a U stair with winders round its
+eye from its numbered treads (real10, 3 Nov 2026).
 
 ### synthetic-16-open-recess (UL313)
 
@@ -395,7 +403,39 @@ plan of two mirrored halves. Every door and window is drawn where it stands; not
 the base flat. Truth: as the base flat (6 rooms, 6 doors, 9 windows). Reader today: every drawn room and opening right,
 but the mirror rule adds the mirror of four doors (one of them a second entrance on the right facade) and three windows
 (strict xfails on the counts and on "nothing read where nothing is drawn"). Not one of the classes asked for; added as
-the eleventh case of the set.
+an extra case of the set.
+
+### synthetic-20-glazed-corner (UL274, the L at a corner)
+
+The SALON's two facades round its bottom-left corner have no wall faces: along the bottom (x 0..7 m) a 2.3 m window,
+a 2.4 m sliding door and a 1.1 m window, up the left side (y 0..4.4 m) two 1.8 m windows, each a frame rectangle across
+the 25 cm wall band, an L-shaped corner column and posts between the frames on `KOLON`. Truth: both walls stand there
+(`drawn: false`), 7 doors, 10 windows. Reader today: the room closes, but the L of frames becomes one inferred 6.4 m
+window along the bottom and one 3.9 m door up the side (strict xfails on the counts, the geometry and the frames).
+
+### synthetic-21-parapet (UL304, UL317)
+
+A two-storey house with a roof terrace floor: `ZEMİN KAT PLANI`, `1. KAT PLANI` and `TERAS KATI PLANI` (the stair house
+MERDİVEN in the top-right corner, 25 cm walls, the U stair, a door onto the terrace and two windows; every other edge a
+20 cm parapet on `DUVAR` along the outer faces; the open `TERAS` inside), and `A-A KESİTİ` naming `ZEMİN KAT ±0.00`,
+`1. KAT +3.00`, `TERAS KATI +6.00` with the parapet top `+6.90` and the stair house's roof `+9.00` (real10's roof
+terrace: +23.50, parapet +24.40, stair house +26.50). Truth: three levels, on L2 the TERAS (balcony) and the stair
+house, the four edge walls `parapet: true`, `height` 0.90 (`roof_terrace` in the truth: floor mark 6.00, parapet 0.90,
+stair house 3.00). Reader today: the three levels and the roof terrace flag right, rooms and openings right, but the
+terrace's edge walls stay full 3.0 m walls without the parapet flag (strict xfail).
+
+### synthetic-22-curved-stair (open: real07)
+
+No lesson is built for it yet: real07's curved stair (numbers 1-18) "matches none of the stair readers" (docs/progress.md,
+4 Nov 2026, user: "Stairs are missing in the project"). The base flat's stair hall holds a half-turn curved stair of 18
+treads round a 0.3 m eye (outer radius 1.3 m): two arcs, 19 radial tread lines, the treads numbered 1 to 18. Truth: one
+stair, kind `curved`, 18 risers, its box and the arc's centre and radii. Reader today: rooms and openings right, no
+stair at all (strict xfails on the counts and the stair).
+
+With synthetic-20 to -22 every failure class R7 names in docs/milestone14.md has a case: letter-spaced labels (08),
+two-stub jambs (09), glazed facades and corners (10, 20), dimension chains (11), mirrored halves (12, and 19 for the
+other side), typical floors and sections naming storeys (13), plans titled by elevation (14), winder and curved stairs
+(15, 22), open recesses (16), garages and lift shafts (17), sheet frames with several titles (18), parapets (21).
 
 ## Coordinate conventions
 

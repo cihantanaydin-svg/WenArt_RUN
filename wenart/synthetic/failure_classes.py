@@ -73,6 +73,7 @@ class Wall:
     b: tuple
     t: float
     drawn: bool = True
+    truth: dict = field(default_factory=dict)   # extra truth fields (a parapet: {"parapet": True, "height": 0.9})
 
     @property
     def length(self) -> float:
@@ -366,31 +367,63 @@ def u_stair(x0: float, y0: float, x1: float, y1: float, going: float, flight1: i
     return out, truth
 
 
-def section_prims(origin: tuple, width: float, storeys: list, roof: tuple, title: str) -> list[Prim]:
-    """A building section on KESIT / KOT in sheet metres: the two outer walls, a 20 cm slab at every floor mark,
-    the roof slab, the ground line, at the right of every slab its level mark ('±0.00', '+3.00', ...) with the
-    mark's triangle, at the left the storey's name (``storeys`` = [(name, elevation)], ``roof`` = (name,
-    elevation)), the title below."""
+def mark_prims(mx: float, y: float, z: float) -> list[Prim]:
+    """A level mark at sheet point (mx, y): the triangle, its line and the value ('±0.00', '+3.00') on KOT."""
+    mark = "±0.00" if abs(z) < 1e-9 else f"{z:+.2f}"
+    return [Prim("poly", L_LEVEL, [(mx, y), (mx - 0.15, y + 0.2), (mx + 0.15, y + 0.2)], closed=True),
+            Prim("line", L_LEVEL, [(mx - 0.4, y), (mx + 1.6, y)]),
+            Prim("text", L_LEVEL, [(mx + 0.25, y + 0.08)], text=mark, height=0.25, align="BOTTOM_LEFT")]
+
+
+def section_prims(origin: tuple, width: float, storeys: list, roof: tuple, title: str,
+                  wall_top: float = 0.6) -> list[Prim]:
+    """A building section on KESIT / KOT in sheet metres: the two outer walls (``wall_top`` past the roof slab), a
+    20 cm slab at every floor mark, the roof slab, the ground line, at the right of every slab its level mark
+    ('±0.00', '+3.00', ...) with the mark's triangle, at the left the storey's name (``storeys`` = [(name,
+    elevation)], ``roof`` = (name, elevation)), the title below."""
     ox, oy = origin
     top = roof[1]
     out = [Prim("line", L_SECTION, [(ox - 2.0, oy), (ox + width + 2.0, oy)]),
-           Prim("poly", L_SECTION, [(ox, oy - 0.5), (ox + 0.25, oy - 0.5), (ox + 0.25, oy + top + 0.6),
-                                    (ox, oy + top + 0.6)], closed=True),
+           Prim("poly", L_SECTION, [(ox, oy - 0.5), (ox + 0.25, oy - 0.5), (ox + 0.25, oy + top + wall_top),
+                                    (ox, oy + top + wall_top)], closed=True),
            Prim("poly", L_SECTION, [(ox + width - 0.25, oy - 0.5), (ox + width, oy - 0.5),
-                                    (ox + width, oy + top + 0.6), (ox + width - 0.25, oy + top + 0.6)], closed=True)]
+                                    (ox + width, oy + top + wall_top), (ox + width - 0.25, oy + top + wall_top)],
+                closed=True)]
     for name, z in list(storeys) + [roof]:
         y = oy + z
         out.append(Prim("poly", L_SECTION, [(ox + 0.25, y - 0.2), (ox + width - 0.25, y - 0.2),
                                              (ox + width - 0.25, y), (ox + 0.25, y)], closed=True))
-        mark = "±0.00" if abs(z) < 1e-9 else f"{z:+.2f}"
-        mx = ox + width + 0.8
-        out += [Prim("poly", L_LEVEL, [(mx, y), (mx - 0.15, y + 0.2), (mx + 0.15, y + 0.2)], closed=True),
-                Prim("line", L_LEVEL, [(mx - 0.4, y), (mx + 1.6, y)]),
-                Prim("text", L_LEVEL, [(mx + 0.25, y + 0.08)], text=mark, height=0.25, align="BOTTOM_LEFT"),
-                Prim("text", L_TEXT, [(ox - 0.5, y + 0.3)], text=name, height=0.25, align="BOTTOM_RIGHT")]
+        out += mark_prims(ox + width + 0.8, y, z)
+        out.append(Prim("text", L_TEXT, [(ox - 0.5, y + 0.3)], text=name, height=0.25, align="BOTTOM_RIGHT"))
     out.append(Prim("text", L_TEXT, [(ox + width / 2, oy - 1.7)], text=title, height=TITLE_H))
     out.append(Prim("text", L_TEXT, [(ox + width / 2, oy - 2.3)], text="ÖLÇEK 1/100", height=0.2))
     return out
+
+
+def curved_stair(cx: float, cy: float, r_in: float, r_out: float, treads: int, a0: float = -90.0,
+                 sweep: float = 180.0) -> tuple[list[Prim], dict]:
+    """A curved stair on MERDIVEN round the centre (cx, cy): the inner and outer arcs from ``a0`` over ``sweep``
+    degrees counter-clockwise, ``treads + 1`` radial tread lines, every tread numbered from 1 at ``a0`` (real07's
+    curved stair, numbers 1-18). Returns the prims and the truth record."""
+    out = [Prim("arc", L_STAIR, [(cx, cy)], radius=r_out, angles=(r6(a0 % 360), r6((a0 + sweep) % 360))),
+           Prim("arc", L_STAIR, [(cx, cy)], radius=r_in, angles=(r6(a0 % 360), r6((a0 + sweep) % 360)))]
+    for k in range(treads + 1):
+        a = math.radians(a0 + sweep * k / treads)
+        out.append(Prim("line", L_STAIR, [(r6(cx + r_in * math.cos(a)), r6(cy + r_in * math.sin(a))),
+                                          (r6(cx + r_out * math.cos(a)), r6(cy + r_out * math.sin(a)))]))
+    rm = (r_in + r_out) / 2
+    for k in range(treads):
+        a = math.radians(a0 + sweep * (k + 0.5) / treads)
+        out.append(Prim("text", L_STAIR, [(r6(cx + rm * math.cos(a)), r6(cy + rm * math.sin(a)))], text=str(k + 1),
+                        height=0.12))
+    pts = [(cx + r * math.cos(math.radians(a0 + sweep * k / 36)), cy + r * math.sin(math.radians(a0 + sweep * k / 36)))
+           for r in (r_in, r_out) for k in range(37)]
+    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+    truth = {"treads": treads, "centre": rp((cx, cy)), "radii": [r6(r_in), r6(r_out)], "sweep_deg": r6(sweep),
+             "arms": [{"kind": "curved", "treads": [1, treads],
+                       "box": [rp((min(xs), min(ys))), rp((max(xs), max(ys)))]}],
+             "box": [rp((min(xs), min(ys))), rp((max(xs), max(ys)))]}
+    return out, truth
 
 
 # --------------------------------------------------------------------------
@@ -688,7 +721,7 @@ def plan_truth(plan: Plan, lid: str) -> dict:
         for i, rec in enumerate(items):
             rec["id"] = f"{prefix}_{lid}_{i + 1:03d}"
     walls = [{"id": f"w_{lid}_{i + 1:03d}", "start": rp(w.a), "end": rp(w.b), "thickness": r6(w.t),
-              **({} if w.drawn else {"drawn": False})} for i, w in enumerate(plan.walls)]
+              **({} if w.drawn else {"drawn": False}), **w.truth} for i, w in enumerate(plan.walls)]
     stairs = [{"id": s.id.replace("{L}", lid), "kind": s.kind, "center": rp(s.center), "risers": s.risers, **s.extra}
               for s in plan.stairs]
     return {"rooms": rooms, "doors": doors, "windows": windows, "openings": openings, "walls": walls, "stairs": stairs}

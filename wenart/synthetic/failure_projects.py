@@ -397,6 +397,113 @@ def project_19() -> FailureProject:
                           [plan], [GROUND], BRIEF)
 
 
+def project_20() -> FailureProject:
+    """synthetic-20-glazed-corner (UL274, the L at a corner): the SALON's two facades round its bottom-left corner
+    have no wall faces: along the bottom (x 0..7) a 2.3 m window, a 2.4 m sliding door and a 1.1 m window, up the
+    left side (y 0..4.4) two 1.8 m windows, each a frame rectangle across the wall band, with an L-shaped corner
+    column and posts between the frames on KOLON. The other walls are drawn as usual. Truth: both walls stand there
+    (``drawn: false``) with their door and four windows."""
+    plan = base_house()
+    _drop(plan, "w_salon1", "w_salon2", "w_salon3")
+    c = EXT_T / 2
+    plan.walls = [w for w in plan.walls if w.id not in ("e1", "e4")] + [
+        Wall("e1a", (0.0, c), (7.0, c), EXT_T, drawn=False), Wall("e1b", (7.0, c), (12.0, c), EXT_T),
+        Wall("e4a", (c, 9.0), (c, 4.4), EXT_T), Wall("e4b", (c, 4.4), (c, 0.0), EXT_T, drawn=False)]
+    for op in plan.openings:
+        if op.wall == "e1":
+            op.wall, op.s = "e1b", op.s - 7.0
+        elif op.wall == "e4":
+            op.wall = "e4a"                       # the entrance: e4a starts where e4 did
+    plan.openings += [Opening("g_win_a", "window", "e1a", 1.5, 2.3),
+                      Opening("g_slide", "sliding", "e1a", 4.15, 2.4),
+                      Opening("g_win_b", "window", "e1a", 6.2, 1.1),
+                      Opening("g_win_c", "window", "e4b", 4.4 - 1.25, 1.8),
+                      Opening("g_win_d", "window", "e4b", 4.4 - 3.35, 1.8)]
+    plan.prims.append(Prim("poly", "KOLON", [(0.0, 0.0), (0.35, 0.0), (0.35, EXT_T), (EXT_T, EXT_T), (EXT_T, 0.35),
+                                             (0.0, 0.35)], closed=True))
+    for x0, x1 in ((2.65, 2.95), (5.35, 5.65)):
+        plan.prims.append(Prim("poly", "KOLON", [(x0, 0.0), (x1, 0.0), (x1, EXT_T), (x0, EXT_T)], closed=True))
+    plan.prims.append(Prim("poly", "KOLON", [(0.0, 2.15), (EXT_T, 2.15), (EXT_T, 2.45), (0.0, 2.45)], closed=True))
+    return FailureProject("synthetic-20-glazed-corner", "glazed_corner", "UL274",
+                          "a living room whose two facades round a corner are drawn only as frames and posts",
+                          [plan], [GROUND], BRIEF)
+
+
+def terrace_plan(key: str, origin) -> Plan:
+    """The roof terrace floor over a 12.0 x 9.0 m house: the stair house (MERDİVEN, 25 cm walls, the U stair, a door
+    and two windows) in the top-right corner, every other edge a 20 cm parapet on DUVAR along the outer faces, the
+    open TERAS inside them."""
+    pt, ht = 0.20, EXT_T
+    walls = [Wall("p1", (0.0, 0.1), (12.0, 0.1), pt, truth={"parapet": True, "height": 0.9}),
+             Wall("p2", (11.9, 0.0), (11.9, 5.8), pt, truth={"parapet": True, "height": 0.9}),
+             Wall("p3", (6.5, 8.9), (0.0, 8.9), pt, truth={"parapet": True, "height": 0.9}),
+             Wall("p4", (0.1, 9.0), (0.1, 0.0), pt, truth={"parapet": True, "height": 0.9}),
+             Wall("h1", (12.0, 8.875), (6.375, 8.875), ht), Wall("h2", (11.875, 5.675), (11.875, 9.0), ht),
+             Wall("h3", (6.5, 5.675), (6.5, 9.0), ht), Wall("h4", (6.375, 5.8), (12.0, 5.8), ht)]
+    plan = Plan(key, origin, walls, title="TERAS KATI PLANI")
+    plan.openings = [Opening("d_teras", "door", "h4", 7.5 - 6.375, 0.9, hinge="start", side=1),
+                     Opening("w_house1", "window", "h1", 12.0 - 10.0, 1.2),
+                     Opening("w_house2", "window", "h2", 7.4 - 5.675, 1.0)]
+    prims, truth = FC.u_stair(8.7, 5.95, 11.7, 8.7, 0.25, 9, 9)
+    plan.prims += prims
+    plan.stairs.append(StairTruth("s_{L}_001", "u_landing", ((8.7 + 11.7) / 2, (5.95 + 8.7) / 2), 19, extra=truth))
+    plan.labels = [Label("TERAS", (3.5, 3.0)), Label("MERDİVEN", (7.6, 7.4))]
+    return plan
+
+
+def project_21() -> FailureProject:
+    """synthetic-21-parapet (UL304, UL317): a two-storey house with a roof terrace floor (TERAS KATI PLANI): the
+    stair house in the corner, the rest of the roof an open terrace whose edge is a 20 cm, 0.90 m parapet drawn on
+    the wall layer, and a section (A-A KESİTİ) naming ZEMİN KAT ±0.00 and 1. KAT +3.00, the terrace floor TERAS
+    KATI +6.00, the parapet top +6.90 and the stair house's roof +9.00 (real10's roof terrace: +23.50, parapet
+    +24.40, stair house +26.50). Truth: three levels, the terrace level's edge walls parapets 0.90 m high."""
+    g = stair_house("p0", (10.0, 10.0), "ZEMİN KAT PLANI")
+    u = stair_house("p1", (30.0, 10.0), "1. KAT PLANI")
+    upper_floor(u)
+    t = terrace_plan("p2", (50.0, 10.0))
+    ox, oy, wd = 70.0, 10.0, 12.0
+    section = FC.section_prims((ox, oy), wd, [("ZEMİN KAT", 0.0), ("1. KAT", 3.0)], ("TERAS KATI", 6.0),
+                               "A-A KESİTİ", wall_top=0.9)
+    # the stair house on the right of the section (walls to its roof slab at +9.00) and the two marks above the terrace
+    hx = ox + 6.5
+    section += [Prim("poly", FC.L_SECTION, [(hx, oy + 6.0), (hx + 0.25, oy + 6.0), (hx + 0.25, oy + 9.0),
+                                            (hx, oy + 9.0)], closed=True),
+                Prim("poly", FC.L_SECTION, [(ox + wd - 0.25, oy + 6.9), (ox + wd, oy + 6.9), (ox + wd, oy + 9.0),
+                                            (ox + wd - 0.25, oy + 9.0)], closed=True),
+                Prim("poly", FC.L_SECTION, [(hx, oy + 8.8), (ox + wd, oy + 8.8), (ox + wd, oy + 9.0),
+                                            (hx, oy + 9.0)], closed=True),
+                Prim("text", L_TEXT, [(ox - 0.5, oy + 6.9 + 0.3)], text="PARAPET", height=0.2, align="BOTTOM_RIGHT")]
+    section += FC.mark_prims(ox - 2.6, oy + 6.9, 6.9) + FC.mark_prims(ox + wd + 0.8, oy + 9.0, 9.0)
+    levels = [TruthLevel("L0", "Zemin Kat", 0.0, 0, "p0"), TruthLevel("L1", "1. Kat", 3.0, 1, "p1"),
+              TruthLevel("L2", "Teras Katı", 6.0, 2, "p2")]
+    return FailureProject("synthetic-21-parapet", "roof_terrace_parapet", "UL304",
+                          "a roof terrace floor whose open edge is a parapet, its heights in the section",
+                          [g, u, t], levels, BRIEF, sheet_prims=section,
+                          extra_truth={"lessons": ["UL304", "UL317"],
+                                       "roof_terrace": {"level": "L2", "floor_mark": 6.0, "parapet_height": 0.9,
+                                                        "house_height": 3.0,
+                                                        "parapet_walls": ["w_L2_001", "w_L2_002", "w_L2_003",
+                                                                          "w_L2_004"]}})
+
+
+def project_22() -> FailureProject:
+    """synthetic-22-curved-stair (open: real07, 4 Nov 2026, 'Stairs are missing in the project': its curved stair,
+    numbers 1-18, matched none of the stair readers): the base flat's stair hall holds a half-turn curved stair of
+    18 treads round a 0.3 m eye (outer radius 1.3 m), the treads radial lines between two arcs, numbered 1 to 18.
+    Truth: one stair, kind curved, 18 risers."""
+    plan = base_house()
+    _relabel(plan, {"ÇOCUK ODASI": "MERDİVEN"})
+    for lb in plan.labels:
+        if lb.text == "MERDİVEN":
+            lb.at = (7.6, 7.4)
+    prims, truth = FC.curved_stair(10.2, 7.35, 0.3, 1.3, 18)
+    plan.prims += prims
+    plan.stairs.append(StairTruth("s_{L}_001", "curved", (10.2 + 0.65, 7.35), 18, extra=truth))
+    return FailureProject("synthetic-22-curved-stair", "curved_stair", "open:real07",
+                          "a half-turn curved stair with its treads numbered 1-18", [plan], [GROUND], BRIEF)
+
+
 def failure_projects() -> list[FailureProject]:
     return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13(), project_14(),
-            project_15(), project_16(), project_17(), project_18(), project_19()]
+            project_15(), project_16(), project_17(), project_18(), project_19(), project_20(), project_21(),
+            project_22()]

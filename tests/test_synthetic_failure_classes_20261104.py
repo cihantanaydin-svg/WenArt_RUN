@@ -56,10 +56,12 @@ XFAIL_COUNTS = {
     "synthetic-16-open-recess": _xfail("open_recess", "UL313", "an opening doubles the corridor-end door"),
     "synthetic-17-garage-lift": _xfail("garage_lift", "UL320", "the 3.4 m garage opening is read as a window"),
     "synthetic-19-symmetric-house": _xfail("symmetric_single_flat", "UL276", "4 doors, 3 windows mirrored into it"),
+    "synthetic-20-glazed-corner": _xfail("glazed_corner", "UL274", "the L of frames is one window and one door"),
+    "synthetic-22-curved-stair": _xfail("curved_stair", "open:real07", "the curved stair is not read at all"),
 }
-# every drawn room and opening of synthetic-16 and -19 is read; only extra ones are not (the counts)
+# every drawn room and opening of synthetic-16, -19 and -22 is read; the counts fail on what is extra or missing
 XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items()
-                  if k not in ("synthetic-16-open-recess", "synthetic-19-symmetric-house")}
+                  if k not in ("synthetic-16-open-recess", "synthetic-19-symmetric-house", "synthetic-22-curved-stair")}
 
 
 def _params(names, marks: dict):
@@ -95,6 +97,9 @@ EXPECTED_NAMES = [
     "synthetic-17-garage-lift",
     "synthetic-18-sheet-frame",
     "synthetic-19-symmetric-house",
+    "synthetic-20-glazed-corner",
+    "synthetic-21-parapet",
+    "synthetic-22-curved-stair",
 ]
 
 
@@ -511,3 +516,46 @@ def test_19_nothing_is_mirrored_into_one_flat(generated, read):
     extra = [o["id"] for o in read("synthetic-19-symmetric-house")["openings"]
              if not any(math.dist(o["center"], q["center"]) <= CENTRE_TOL_M for q in truth_ops)]
     assert extra == []
+
+
+# --- synthetic-20-glazed-corner ------------------------------------------------------------------------------------
+
+@_xfail("glazed_corner", "UL274", "the frames round the corner are read as one 6.4 m window and one 3.9 m door")
+def test_20_glazed_corner_frames_are_its_door_and_windows(generated, read):
+    b = read("synthetic-20-glazed-corner")
+    bottom = sorted((o["type"], round(o["width"], 1)) for o in b["openings"]
+                    if o["center"][1] < 0.5 and o["center"][0] < 7.0)
+    left = sorted((o["type"], round(o["width"], 1)) for o in b["openings"]
+                  if o["center"][0] < 0.5 and o["center"][1] < 4.4)
+    assert bottom == [("door", 2.4), ("window", 1.1), ("window", 2.3)]
+    assert left == [("window", 1.8), ("window", 1.8)]
+
+
+# --- synthetic-21-parapet ------------------------------------------------------------------------------------------
+
+def test_21_roof_terrace_level_from_the_title_and_section(generated, read):
+    b = read("synthetic-21-parapet")
+    assert [(lv["id"], lv["elevation"]) for lv in b["levels"]] == [("L0", 0.0), ("L1", 3.0), ("L2", 6.0)]
+    assert next(lv for lv in b["levels"] if lv["id"] == "L2").get("roof_terrace") is True
+
+
+@_xfail("roof_terrace_parapet", "UL304", "the terrace's edge walls stay full 3.0 m walls, no parapet")
+def test_21_terrace_edge_walls_are_parapets_of_the_section_height(generated, read):
+    t = truth_of(generated, "synthetic-21-parapet")
+    walls = [w for w in read("synthetic-21-parapet")["walls"] if w["level_id"] == "L2"]
+    for tw in t["per_level"]["L2"]["walls"]:
+        if not tw.get("parapet"):
+            continue
+        line = FC.Wall(tw["id"], tuple(tw["start"]), tuple(tw["end"]), tw["thickness"]).rect().buffer(0.05)
+        on = [w for w in walls if line.contains(Point(w["start"])) and line.contains(Point(w["end"]))]
+        assert on, tw["id"]
+        for w in on:
+            assert w.get("parapet") is True and abs(float(w.get("height") or 0.0) - tw["height"]) <= 0.05, w["id"]
+
+
+# --- synthetic-22-curved-stair -------------------------------------------------------------------------------------
+
+@_xfail("curved_stair", "open:real07", "no stair reader takes a curved stair (real07: 'Stairs are missing')")
+def test_22_curved_stair_with_its_eighteen_treads(generated, read):
+    st = _stair(read("synthetic-22-curved-stair"))
+    assert st.get("steps_drawn") == 18

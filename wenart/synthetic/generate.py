@@ -43,7 +43,7 @@ synthetic-07 (``SheetProject``, docs/milestone10.md §3.4) is written by ``gener
 truth files (``building.json``, ``sheets_truth.json``, ``heights_truth.json``, ``exterior_truth.json``), all computed
 from the layout of ``wenart.synthetic.sheet`` (see ``sheet_truth``).
 
-synthetic-08 ... synthetic-18 (``FailureProject``, 4 Nov 2026, Milestone 14 track R7) are written by
+synthetic-08 ... synthetic-22 (``FailureProject``, 4 Nov 2026, Milestone 14 track R7) are written by
 ``failure_classes.generate_failure_project``: one CAD-office DXF ``plan.dxf`` (centimetres), the brief and
 ``truth/reading_truth.json``, each project carrying one failure class the user found in the real drawings
 (``failure_projects``, docs/synthetic.md).
