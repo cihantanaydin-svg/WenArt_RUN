@@ -1370,7 +1370,8 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
     for t in texts_m:
         m = SIZE_TAG_RE.match(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
-        if m and LN.layer_role(layer) in ("window", "glass"):
+        if m and LN.layer_role(layer) in ("window", "glass") \
+                and not _door_like_tag(t, int(m.group(1)), int(m.group(2)), openings):
             tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
     if not tags or not walls2:
         return None
@@ -1479,6 +1480,21 @@ DOOR_TAG_REACH_M = 1.2          # 4 Nov 2026 (UL321): a door size tag stands thi
 DOOR_TAG_KINDS = ("opening", "window", "door")
 
 
+def _door_like_tag(t, w_cm: int, h_cm: int, openings: list) -> bool:
+    """4 Nov 2026 (real07: every size tag, doors' and windows', on the joinery layer DOĞRAMA): a tag on a window or joinery
+    layer is a door's when it is door-high (>= 200 cm) and door-wide (<= 120 cm) and the nearest opening within
+    ``DOOR_TAG_REACH_M`` is a door or a gap, not a window."""
+    if h_cm < 200 or w_cm > 120:
+        return False
+    c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
+    near = [(math.dist(c, tuple(o.center)), o) for o in openings if not o.virtual]
+    near = [x for x in near if x[0] <= DOOR_TAG_REACH_M]
+    if not near:
+        return False
+    o = min(near, key=lambda x: x[0])[1]
+    return o.kind in ("door", "opening") or "gap" in str(o.type_raw or "")
+
+
 def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float,
                keep_width: bool = False):
     """4 Nov 2026 (real07, user: "the entrance to the room is wrong door not recognized properly", "where is the
@@ -1493,7 +1509,8 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
     for t in texts_m:
         m = SIZE_TAG_RE.match(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
-        if m and LN.layer_role(layer) == "door":
+        if m and (LN.layer_role(layer) == "door" or (LN.layer_role(layer) == "window"
+                                                     and _door_like_tag(t, int(m.group(1)), int(m.group(2)), openings))):
             tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
     if not tags:
         return None

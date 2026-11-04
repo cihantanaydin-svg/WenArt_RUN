@@ -3512,3 +3512,9 @@ and 9 exterior views; zip with the comparison sheets sent.
 | "This wall do not exist" (L1 Hol) | the top edge of the curved stair arriving in the Hol read as a wall with a 2.23 m gap | open, with the stair |
 | "Stairs are missing in the project" | the curved stair (numbers 1-18) matches none of the stair readers | open: a curved / winder stair reader; no building of several floors without a stair |
 | "there is no wall here and the section on the left ... is giyinme soyunma, a place for dressing" (L1) | the 10 cm partition between the dressing room and the bedroom ends short of the wall; the 0.80 m passage below it (no door, no frame) was read as a wall with an unclassified gap, so a wall stands over the passage | open: a gap where a drawn partition simply ends, with no door and no frame, is an open passage (no wall over it); a dressing room type |
+
+real07 re-read after the fixes (4 Nov 2026, 16:00): Garaj is a garage with its 3.41 m sectional garage door, Kat Kal. a
+technical room, the U-stair (1-18 across its half landing) is read on L0. Still open: the roof plan's eaves loop fits
+neither the top floor's walls nor every floor's together (to look at: the plan's frame against the building), the
+pool (no HAVUZ text found in the DXF as one entity: the letters may be separate texts), the door tags (all of real07's
+size tags are on the joinery layer DOĞRAMA: door-high, door-wide tags beside a door or gap now count as door tags).
