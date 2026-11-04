@@ -285,6 +285,7 @@ failure), and the mark goes.
 | `synthetic-10-glazed-facade` | glazed_facade | UL274 | 1 | 6 | 7 | 9 | 0 | 6 / 6 / 9 / 0 (the frames one 6.3 m window) | xfail |
 | `synthetic-11-dimension-chains` | dimension_chains | UL261, UL296 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 | pass |
 | `synthetic-12-mirrored-halves` | mirrored_halves | UL276 | 1 | 8 | 8 | 12 | 0 | 8 / 4 / 13 / 0 (+3 openings; 4 rooms `Oda`) | xfail |
+| `synthetic-13-typical-floor` | typical_floor | UL278, UL303 | 7 | 6 each | L0 6, L1-L6 5 | L0 9, L1-L6 10 | 1 each | as the truth, 7 levels at the section's marks | pass |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -329,6 +330,14 @@ HOL and BANYO above, the entrance from the top facade. The left flat carries the
 flat has the same walls, door gaps and windows but no labels and no swings. Truth: 8 rooms (the right flat's named after
 their twins), 8 doors, 12 windows. Reader today: the right flat's rooms stay `Oda` (type unknown), its three inner door
 gaps are doorless openings and its entrance gap a window (strict xfails).
+
+### synthetic-13-typical-floor (UL278, UL303)
+
+One sheet: the ground floor plan (`ZEMİN KAT PLANI`), a plan titled `1-6. NORMAL KAT PLANI` standing for the six
+storeys above it (a window where the ground floor has its entrance), both with the U stair (`MERDİVEN`, two flights of
+9 treads and a landing), and a section `A-A KESİTİ` naming the storeys at their level marks (`ZEMİN KAT ±0.00`,
+`1. NORMAL KAT +3.00` ... `6. NORMAL KAT +18.00`, `ÇATI +21.00`). Truth: 7 levels, L1 to L6 the typical plan at 3.00 m
+steps, the roof at +21.00. Reader today: right (passes: 7 levels at the section's marks, the typical plan on each).
 
 ## Coordinate conventions
 

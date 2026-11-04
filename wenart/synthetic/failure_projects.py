@@ -214,5 +214,44 @@ def project_12() -> FailureProject:
                           [plan], [GROUND], BRIEF)
 
 
+def stair_house(key: str, origin, title: Optional[str], *, winders: int = 0, numbers: bool = False,
+                flight1: int = 9, flight2: int = 9, going: float = 0.25) -> Plan:
+    """The base flat with its L-shaped top-right room turned into the stair hall (MERDİVEN): a U stair of two
+    flights along x in the box x 8.7..11.8, y 5.95..8.8, turning at the right end (a landing, or winders)."""
+    plan = base_house(key, origin, title)
+    _relabel(plan, {"ÇOCUK ODASI": "MERDİVEN"})
+    for lb in plan.labels:
+        if lb.text == "MERDİVEN":
+            lb.at = (7.6, 7.4)
+    prims, truth = FC.u_stair(8.7, 5.95, 11.8, 8.8, going, flight1, flight2, winders=winders, numbers=numbers)
+    plan.prims += prims
+    kind = "u_winder" if winders else "u_landing"
+    risers = truth["treads"] + (0 if winders else 1)
+    plan.stairs.append(StairTruth("s_{L}_001", kind, (10.25, 7.375), risers, extra=truth))
+    return plan
+
+
+def project_13() -> FailureProject:
+    """synthetic-13-typical-floor (UL278, UL303): one sheet with the ground floor plan (ZEMİN KAT PLANI), one plan
+    titled '1-6. NORMAL KAT PLANI' standing for the six storeys above it, and a section (A-A KESİTİ) naming the
+    storeys at their level marks (ZEMİN KAT ±0.00, 1. NORMAL KAT +3.00 ... 6. NORMAL KAT +18.00, ÇATI +21.00).
+    Both plans carry the U stair. The typical plan has a window where the ground floor has its entrance. Truth:
+    7 levels, L1 to L6 the typical plan at 3.00 m steps."""
+    g = stair_house("p0", (10.0, 10.0), "ZEMİN KAT PLANI")
+    t = stair_house("p1", (30.0, 10.0), "1-6. NORMAL KAT PLANI")
+    _drop(t, "entrance")
+    t.openings.append(Opening("w_hol", "window", "e4", 3.9, 1.0))
+    storeys = [("ZEMİN KAT", 0.0)] + [(f"{k}. NORMAL KAT", 3.0 * k) for k in range(1, 7)]
+    section = FC.section_prims((50.0, 10.0), 12.0, storeys, ("ÇATI", 21.0), "A-A KESİTİ")
+    levels = [TruthLevel("L0", "Zemin Kat", 0.0, 0, "p0")] + [
+        TruthLevel(f"L{k}", f"{k}. Normal Kat", 3.0 * k, k, "p1") for k in range(1, 7)]
+    return FailureProject("synthetic-13-typical-floor", "typical_floor", "UL278",
+                          "a typical plan standing for six floors and a section naming the storeys at level marks",
+                          [g, t], levels, BRIEF, sheet_prims=section,
+                          extra_truth={"lessons": ["UL278", "UL303"], "roof": {"label": "ÇATI", "elevation": 21.0},
+                                       "typical_plan": {"title": "1-6. NORMAL KAT PLANI",
+                                                        "levels": [f"L{k}" for k in range(1, 7)]}})
+
+
 def failure_projects() -> list[FailureProject]:
-    return [project_08(), project_09(), project_10(), project_11(), project_12()]
+    return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13()]

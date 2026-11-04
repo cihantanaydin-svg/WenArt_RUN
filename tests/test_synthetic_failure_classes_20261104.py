@@ -82,6 +82,7 @@ EXPECTED_NAMES = [
     "synthetic-10-glazed-facade",
     "synthetic-11-dimension-chains",
     "synthetic-12-mirrored-halves",
+    "synthetic-13-typical-floor",
 ]
 
 
@@ -339,3 +340,18 @@ def test_12_mirrored_flat_rooms_take_their_twins_names(generated, read):
     b = read("synthetic-12-mirrored-halves")
     right = sorted(_fold(r["label"]) for r in b["rooms"] if Polygon(r["polygon"]).centroid.x > 7.0)
     assert right == ["banyo", "hol", "salon", "yatak odasi"]
+
+
+# --- synthetic-13-typical-floor ------------------------------------------------------------------------------------
+
+def test_13_typical_floor_truth_levels(generated):
+    t = truth_of(generated, "synthetic-13-typical-floor")
+    assert [(lv["id"], lv["elevation"]) for lv in t["levels"]] == [(f"L{k}", 3.0 * k) for k in range(7)]
+    assert all(FC.counts(t)[f"L{k}"] == FC.counts(t)["L1"] for k in range(1, 7))
+    assert t["typical_plan"]["levels"] == [f"L{k}" for k in range(1, 7)]
+
+
+def test_13_typical_plan_stands_for_six_storeys(generated, read):
+    b = read("synthetic-13-typical-floor")
+    assert [(lv["id"], lv["elevation"]) for lv in b["levels"]] == [(f"L{k}", 3.0 * k) for k in range(7)]
+    assert [_fold(lv["label"]) for lv in b["levels"]] == ["zemin kat"] + [f"{k}. normal kat" for k in range(1, 7)]
