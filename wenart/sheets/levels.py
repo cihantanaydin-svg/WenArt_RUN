@@ -55,6 +55,9 @@ _NTH_BASEMENT_RE = [
     (re.compile(r"\b(\d{1,2})\s*(?:ER|E|EME)\s+SOUS-SOL\b"), "fr", "{n}e sous-sol"),
 ]
 _NTH_NORMAL_RE = re.compile(r"\b(\d{1,2})\s*\.\s*(?:NORMAL|TIP)\s+KAT\b")
+# 4 Nov 2026 (real17: '1.2. NORMAL KAT PLANI' read as the 2nd floor only): a title listing its floors ('1.2.', '1-2',
+# '2-3-4.', '1,2.') before (NORMAL / TIP) KAT stands for those floors; two numbers joined by '-' are a range
+_LISTED_RE = re.compile(r"(?<![\d.,])(\d{1,2}(?:\s*[.,\-/]+\s*\d{1,2})+)\s*\.?\s*((?:NORMAL|TIP)\s+)?KAT\b")
 _TYPICAL_RE = [
     (re.compile(r"\bNORMAL KAT\b|\bTIP KAT\b"), "tr", "Normal Kat"),
     (re.compile(r"\bTYPICAL FLOOR\b|\bTYPICAL PLAN\b"), "en", "Typical Floor"),
@@ -84,6 +87,7 @@ class LevelWord:
     word: str
     language: str
     typical: bool = False         # a typical floor plan: it stands for every upper floor without a plan of its own
+    orders: tuple = ()            # 4 Nov 2026: the floors a typical plan's title lists ('1.2. NORMAL KAT' -> (1, 2))
 
 
 def level_of(text: str) -> Optional[LevelWord]:
@@ -102,6 +106,11 @@ def level_of(text: str) -> Optional[LevelWord]:
         if m and int(m.group(1)) > 0:
             n = int(m.group(1))
             return LevelWord(order=-n, kind="basement", label=label.format(n=n), word=m.group(0), language=lang)
+    listed = _listed_floors(folded)
+    if listed is not None:
+        orders, word = listed
+        return LevelWord(order=orders[0], kind="floor", label="Normal Kat" if "NORMAL" in word or "TIP" in word
+                         else "Kat", word=word, language="tr", typical=True, orders=tuple(orders))
     m = _NTH_NORMAL_RE.search(folded)
     if m and int(m.group(1)) > 0:
         n = int(m.group(1))
@@ -282,6 +291,20 @@ def roof_terrace_heights(regions: list) -> Optional[dict]:
 
     return {"floor_mark": floor, "parapet_height": nearest(1.0, 0.5, 1.5), "house_height": nearest(step, 2.4, 4.0),
             "storey_marks": {str(k): v for k, v in sorted(storey.items())}, "marks": marks_sorted}
+
+
+def _listed_floors(folded: str) -> Optional[tuple[list[int], str]]:
+    """(orders, word) of a title that lists its floors (``_LISTED_RE``), or None."""
+    m = _LISTED_RE.search(folded)
+    if not m:
+        return None
+    nums = [int(x) for x in re.findall(r"\d{1,2}", m.group(1))]
+    if "-" in m.group(1) and len(nums) == 2 and nums[1] > nums[0]:
+        nums = list(range(nums[0], nums[1] + 1))
+    nums = sorted(set(nums))
+    if len(nums) < 2 or nums[0] < 1 or nums[-1] > 60:
+        return None
+    return nums, m.group(0)
 
 
 def typical_orders(own: set, storeys: dict[int, str]) -> tuple[list[int], list[int], str]:
@@ -484,7 +507,7 @@ def assign_levels(plans: list, needs_review: list, warnings: list,
     for r in plans:
         lw = words[id(r)]
         if lw is not None and lw.typical:
-            typical[id(r)] = typical_orders(own, storeys)
+            typical[id(r)] = (list(lw.orders), [], "title") if lw.orders else typical_orders(own, storeys)
             own |= set(typical[id(r)][0])
     orders = sorted(own)
     top = max(max(orders) + 1, 1) if orders else 0

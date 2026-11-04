@@ -561,3 +561,7 @@ def load(path: str | Path, check: bool = True) -> dict:
     if check:
         validate(building)
     return building
+
+
+# 4 Nov 2026 (lesson UL305): the common areas (shared halls ...) live in ``wenart.common_areas`` (Blender imports it)
+from wenart.common_areas import COMMON_SUBTYPE, COMMON_ROOM_WORDS, is_common_room  # noqa: E402,F401

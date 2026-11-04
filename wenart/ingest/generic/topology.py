@@ -146,6 +146,17 @@ def building_outline(walls: list, openings: list = ()):
     return unary_union(parts) if parts else Polygon()
 
 
+def _outdoor_label(block) -> bool:
+    """A label of an outdoor space (balcony, terrace, veranda ...: ``levels.outdoor.space_kind``) or of the room type
+    balcony / terrace."""
+    if getattr(block, "room_type", None) in ("balcony", "terrace"):
+        return True
+    from wenart.levels import outdoor as OD
+
+    name = getattr(block, "name", None) or getattr(block, "text", None)
+    return bool(name) and OD.space_kind(name) is not None
+
+
 def outer_loop_problem(walls: list, openings: list = ()) -> Optional[str]:
     """Why the building walls do not form one closed outer loop, or None (§2.5)."""
     parts = _parts(bridged_union(walls, openings))
@@ -208,7 +219,9 @@ def split_plot(walls: list[WallItem], openings: list[OpeningItem], label_blocks:
                 if i in building or comp.distance(core) > WING_NEAR_M:
                     continue
                 hull = Polygon(comp.exterior).convex_hull
-                held = [b for b in indoor if hull.contains(Point(b.anchor))
+                # 4 Nov 2026 (real17 L3: the parapet ring of a balcony holding its 'BALKON' label joined as a "wing" and
+                # the level was left out, its building walls in 2 parts): an outdoor space's label never makes a wing
+                held = [b for b in indoor if hull.contains(Point(b.anchor)) and not _outdoor_label(b)
                         and not any(_label_in(Polygon(r), b) for k in building for r in comps[k].interiors)]
                 if held:
                     building.add(i)

@@ -115,7 +115,18 @@ def _arms(points: list) -> list[list[int]]:
     first = run(list(range(n)))
     if len(first) == n:
         return [first]
+    # 4 Nov 2026 (real10's fire escape stair, user: "There should have been fire escape ladders here": its top number
+    # 16 stands by the arrow on the landing, off the arm's line, so the run back from it turned at once): an end number
+    # off its arm is on the landing; the arm runs from the number next to it
+    if len(first) < ARM_MIN_POINTS and n > ARM_MIN_POINTS + 1:
+        inner = run(list(range(1, n)))
+        if len(inner) >= ARM_MIN_POINTS:
+            first = inner
     last = run(list(range(n - 1, -1, -1)))[::-1]
+    if len(last) < ARM_MIN_POINTS and n > ARM_MIN_POINTS + 1:
+        inner = run(list(range(n - 2, -1, -1)))[::-1]
+        if len(inner) >= ARM_MIN_POINTS:
+            last = inner
     if set(first) & set(last):
         return [first] if len(first) >= len(last) else [last]
     return [r for r in (first, last) if len(r) >= ARM_MIN_POINTS]

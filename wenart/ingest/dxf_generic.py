@@ -94,6 +94,9 @@ CURVE_TYPES = ("LINE", "LWPOLYLINE", "POLYLINE", "ARC", "CIRCLE", "ELLIPSE", "SP
 FILLED_TYPES = ("SOLID", "TRACE", "3DFACE")
 # Hatch boundary path flags (DXF group code 92) and hatch styles (code 75).
 PATH_EXTERNAL, PATH_OUTERMOST = 1, 16
+# real17 (4 Nov 2026): a text box path is the island a CAD program leaves around a text inside the hatch (the "25"
+# thickness texts written in a slanted outer wall); the material runs on under the text, so the island is no hole.
+PATH_TEXTBOX = 8
 HATCH_STYLE_OUTER, HATCH_STYLE_IGNORE = 1, 2
 
 
@@ -743,6 +746,8 @@ class _Reader:
         ocs = hatch.ocs()
         elevation = float(hatch.dxf.get("elevation", Vec3()).z)
         for k, (bp, f) in enumerate(zip(paths, flags)):
+            if f & PATH_TEXTBOX:
+                continue
             if has_external and style == HATCH_STYLE_IGNORE and not f & PATH_EXTERNAL:
                 continue
             if has_external and style == HATCH_STYLE_OUTER and not f & (PATH_EXTERNAL | PATH_OUTERMOST):

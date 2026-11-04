@@ -1055,7 +1055,11 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
         # an upper floor's space high over the ground is a slab with a guard; a ground-floor space over a slope keeps
         # its base (retaining walls, stepped bands, a railing over a drop: the platform rules)
         upper = ground_lv is not None and float(lv["elevation"]) > float(ground_lv["elevation"]) + 0.5
-        elevated = upper and z - g["min"] > SPACE["elevated_min"]
+        # 4 Nov 2026 (real10, user: "I am not understanding this sections in the ground floor, there could be a mistake":
+        # the ground floor's balconies stand a storey over the garden, read as ground-floor spaces they got retaining
+        # walls and planted steps down 3 m): a balcony is a cantilevered slab; high over the ground under it, it has a
+        # guard on whichever floor it is
+        elevated = (upper or sk["kind"] == "balcony") and z - g["min"] > SPACE["elevated_min"]
         base = str(a.get("id") or f"sa_{level_id}_{B.slugify(a.get('label') or 'space')}").replace("sa_", "os_", 1)
         seen_ids[base] = seen_ids.get(base, 0) + 1
         sid = base if seen_ids[base] == 1 else f"{base}_{seen_ids[base]}"

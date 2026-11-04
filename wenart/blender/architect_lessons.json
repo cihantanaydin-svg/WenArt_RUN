@@ -3578,6 +3578,138 @@
    "request": "4 Nov 2026 (user, real17: 'Stop wasting time trying to correct the real17, some of the projects are seem to be not good enough to be corrected. If you think that is you can tell me so I can check the drawing directly, Give me the real17 drawings'): when a project keeps needing fix after fix, stop after the first clear general fixes, tell the user plainly which problems are the drawing's and which are the reader's, and give them the drawings (every region as an image, with the model drawn over each plan) to check directly, instead of grinding on one project.",
    "lesson": "4 Nov 2026 (user, real17: 'Stop wasting time trying to correct the real17, some of the projects are seem to be not good enough to be corrected. If you think that is you can tell me so I can check the drawing directly, Give me the real17 drawings'): when a project keeps needing fix after fix, stop after the first clear general fixes, tell the user plainly which problems are the drawing's and which are the reader's, and give them the drawings (every region as an image, with the model drawn over each plan) to check directly, instead of grinding on one project.",
    "question": null
+  },
+  {
+   "id": "UL303",
+   "date": "2026-11-04",
+   "area": "openings",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'Why there is not window here'): the floors one typical plan draws are the same; a code decision on an opening of that plan (a gap read as a window because the plan's furniture stands in front of it) holds on every floor the plan draws, so the architect never adds a window on some floors only.",
+   "lesson": "4 Nov 2026 (user, real10: 'Why there is not window here'): the floors one typical plan draws are the same; a code decision on an opening of that plan (a gap read as a window because the plan's furniture stands in front of it) holds on every floor the plan draws, so the architect never adds a window on some floors only.",
+   "question": null
+  },
+  {
+   "id": "UL304",
+   "date": "2026-11-04",
+   "area": "terrace",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'If nothing is built in the last floor roof etc, putting a bit parapet would be nice so people on the last floor can walk safely'): a roof terrace's open edge (the outer walls of the floor below, where no wall of the top level stands) gets a parapet, the section's height or 1.10 m assumed.",
+   "lesson": "4 Nov 2026 (user, real10: 'If nothing is built in the last floor roof etc, putting a bit parapet would be nice so people on the last floor can walk safely'): a roof terrace's open edge (the outer walls of the floor below, where no wall of the top level stands) gets a parapet, the section's height or 1.10 m assumed.",
+   "question": null
+  },
+  {
+   "id": "UL305",
+   "date": "2026-11-04",
+   "area": "materials",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'for the kat holu (hall halls) ares like that, here 26 is not a living area, this is common use area for people to reach to their houses, flooring roofing and any furniture should be different, this is a general rule'): the shared halls (Kat Holü, landings, the building's entrance hall) are common areas, not a flat's rooms: a hard-wearing stone or tile floor, a plain ceiling with simple lights, no residential furniture or decor. Then: 'here I was trying to say flooring and the walls nothing to do with the roofing'. Then: 'ceiling also could be different if you understand roofing as ceiling'.",
+   "lesson": "4 Nov 2026 (user, real10: 'for the kat holu (hall halls) ... this is common use area for people to reach to their houses, flooring roofing and any furniture should be different, this is a general rule'; then 'I was trying to say flooring and the walls nothing to do with the roofing'): the shared halls (Kat Holü, landings, the building's entrance hall) are common areas, not a flat's rooms: a hard-wearing stone-look floor and their own wall finish, no residential furniture or decor, their own ceiling ('ceiling also could be different if you understand roofing as ceiling').",
+   "question": null
+  },
+  {
+   "id": "UL306",
+   "date": "2026-11-04",
+   "area": "openings",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'here is for the elevator (asansor) there should be a door for the elevator like sliding door again this is a general rule'): every lift shaft gets a lift door (a sliding door) on each floor, onto the shared hall it opens into.",
+   "lesson": "4 Nov 2026 (user, real10: 'here is for the elevator (asansor) there should be a door for the elevator like sliding door again this is a general rule'): every lift shaft gets a lift door (a sliding door) on each floor, onto the shared hall it opens into.",
+   "question": null
+  },
+  {
+   "id": "UL307",
+   "date": "2026-11-04",
+   "area": "access",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'There should have been fire escape ladders here, and a door to reach there via Hall halls the common use area'): a stair drawn in its own enclosure off the shared hall (between two flats, winder treads, no flat's door into it) is the building's fire escape stair: built as a stair (a common area), reached by a door from the shared hall; never a storage room or a flat's hall.",
+   "lesson": "4 Nov 2026 (user, real10: 'There should have been fire escape ladders here, and a door to reach there via Hall halls the common use area'): a stair drawn in its own enclosure off the shared hall (between two flats, winder treads, no flat's door into it) is the building's fire escape stair: built as a stair (a common area), reached by a door from the shared hall; never a storage room or a flat's hall.",
+   "question": null
+  },
+  {
+   "id": "UL308",
+   "date": "2026-11-04",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'is there a reason for the elevations in real10?'): the ground the sections draw is the ground: a ground line that runs on under upper floors standing out past the basement walls is read, and its height comes from the level mark standing on it in the storeys' frame (real10: '-0.50' -> the 1st basement's floor), never the 0.15 m default under the ground floor when the drawing shows the ground.",
+   "lesson": "4 Nov 2026 (user, real10: 'is there a reason for the elevations in real10?'): the ground the sections draw is the ground: a ground line that runs on under upper floors standing out past the basement walls is read, and its height comes from the level mark standing on it in the storeys' frame (real10: '-0.50' -> the 1st basement's floor), never the 0.15 m default under the ground floor when the drawing shows the ground.",
+   "question": null
+  },
+  {
+   "id": "UL309",
+   "date": "2026-11-04",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real17: 'continue with the real17 drawing seems ok'): the reader's own errors, general rules: a hatch's text island is no hole in a wall; a window block turned with a slanted wall follows the wall's angle and a window block across a gap is that window; a box filled by its label is no wall; notation layers (text, dimensions, axes) never give the walls; a sheet titled details or a plan at 1:25 or larger is a detail; a title listing floors ('1.2. NORMAL KAT') stands for those floors.",
+   "lesson": "4 Nov 2026 (user, real17: 'continue with the real17 drawing seems ok'): the reader's own errors, general rules: a hatch's text island is no hole in a wall; a window block turned with a slanted wall follows the wall's angle and a window block across a gap is that window; a box filled by its label is no wall; notation layers (text, dimensions, axes) never give the walls; a sheet titled details or a plan at 1:25 or larger is a detail; a title listing floors ('1.2. NORMAL KAT') stands for those floors.",
+   "question": null
+  },
+  {
+   "id": "UL310",
+   "date": "2026-11-04",
+   "area": "facade",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10 exterior: 'Make these details better', marking the floor bands of the facade and the small blocks where they meet the pilasters): the facade's floor bands (string courses) and their junctions with the pilasters are built as real mouldings with clean profiles and mitred or returned ends, never as wavy strips with loose wedge blocks.",
+   "lesson": "4 Nov 2026 (user, real10 exterior: 'Make these details better', marking the floor bands of the facade and the small blocks where they meet the pilasters): the facade's floor bands (string courses) and their junctions with the pilasters are built as real mouldings with clean profiles and mitred or returned ends, never as wavy strips with loose wedge blocks.",
+   "question": null
+  },
+  {
+   "id": "UL311",
+   "date": "2026-11-04",
+   "area": "terrace",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'I am not understanding this sections in the ground floor, there could be a mistake check it', marking the stepped planted stone banks under the ground floor's balconies): a balcony is a cantilevered slab; high over the ground under it (the ground floor of a building whose basement stands at grade) it has a guard, never retaining walls or planted steps down to the garden.",
+   "lesson": "4 Nov 2026 (user, real10: 'I am not understanding this sections in the ground floor, there could be a mistake check it', marking the stepped planted stone banks under the ground floor's balconies): a balcony is a cantilevered slab; high over the ground under it (the ground floor of a building whose basement stands at grade) it has a guard, never retaining walls or planted steps down to the garden.",
+   "question": null
+  },
+  {
+   "id": "UL312",
+   "date": "2026-11-04",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'Fire stairs should be like fire stairs not like regular stairs'): a fire escape stair is built as one: concrete or stone treads, a plain steel handrail, its enclosure behind a fire door from the shared hall, exit signs; never the flats' timber stair look.",
+   "lesson": "4 Nov 2026 (user, real10: 'Fire stairs should be like fire stairs not like regular stairs'): a fire escape stair is built as one: concrete or stone treads, a plain steel handrail, its enclosure behind a fire door from the shared hall, exit signs; never the flats' timber stair look.",
+   "question": null
+  },
+  {
+   "id": "UL313",
+   "date": "2026-11-04",
+   "area": "plan",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real10: 'These 2 oda should not exist and that 2 area should be outside', the narrow recess between the two master bedrooms, open to the facade): a doorless, unlabelled space reached only through a facade gap as wide as itself (and the space behind it) is an open-air recess or light well, never rooms; the windows onto it stay windows.",
+   "lesson": "4 Nov 2026 (user, real10: 'These 2 oda should not exist and that 2 area should be outside', the narrow recess between the two master bedrooms, open to the facade): a doorless, unlabelled space reached only through a facade gap as wide as itself (and the space behind it) is an open-air recess or light well, never rooms; the windows onto it stay windows.",
+   "question": null
   }
  ]
 }

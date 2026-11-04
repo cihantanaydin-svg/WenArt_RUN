@@ -85,6 +85,13 @@ def wall_face_material(style: dict, room: Optional[dict] = None) -> dict:
     (docs/milestone11.md §1.3 M2, §3.2 ``set_material``): a kitchen takes the ``kitchen_walls`` slot when the agent
     set one, else the walls like any other room. 29 Oct 2026 (UL119): a room whose scheme paints it all round takes
     that look (``scheme_walls``)."""
+    # 4 Nov 2026 (lesson UL305, user on real10: "... common use area ... I was trying to say flooring and the walls
+    # nothing to do with the roofing"): a shared hall's walls take the common areas' own finish, not the flats'
+    from wenart import common_areas as CA
+    if CA.is_common_room(room):
+        slot = _slot(style, "common_walls") or CA.COMMON_WALLS
+        return {"material": slot.get("material") or "plaster_white", "asset": slot.get("asset"), "tint": None,
+                "colour": slot.get("colour"), "scheme": slot.get("reason") or "common area walls (UL305)"}
     own = scheme_walls(room, style)
     if own is not None:
         return {"material": own["material"], "asset": None, "tint": None, "colour": own["colour"],

@@ -231,7 +231,9 @@ DECOR_ROOM_STATUSES: tuple[str, ...] = ("verified", "unverified")
 
 def room_takes_decor(room: dict) -> bool:
     """A room decor may dress (pure): a status of ``DECOR_ROOM_STATUSES`` and not a ``NO_DECOR_ROOM_TYPES`` room."""
-    return room.get("status") in DECOR_ROOM_STATUSES and room.get("room_type") not in NO_DECOR_ROOM_TYPES
+    from wenart import common_areas as _B
+    return room.get("status") in DECOR_ROOM_STATUSES and room.get("room_type") not in NO_DECOR_ROOM_TYPES \
+        and not _B.is_common_room(room)                      # UL305: a shared hall is no flat's room
 CORNER_INSET_M = 0.25             # plant centre from each wall of the corner
 HOST_TYPES: dict[str, str] = {    # host type -> decor type
     "sofa": "cushion", "bed_double": "cushion", "bed_single": "cushion",
@@ -1156,6 +1158,10 @@ def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> t
            "wall_art": "-", "note": ""}
     if room.get("room_type") in NO_DECOR_ROOM_TYPES:
         row["note"] = f"{room['room_type']} room: no decor (docs/milestone7.md §0)"
+        return items, row
+    from wenart import common_areas as _B
+    if _B.is_common_room(room):
+        row["note"] = "a common area of the building (shared hall, UL305): no decor"
         return items, row
     for host in pieces:
         if not trusted_host(host) or host["type"] not in HOST_TYPES or not piece_is_built(host):

@@ -42,6 +42,10 @@ BAND_M = (0.05, 0.6)
 ROOF_MIN_M = 0.5
 GROUND_REACH_M = 1.0
 GROUND_MIN_M = 1.0                     # a ground line is at least 1 m long (not a slab or eaves end)
+GROUND_OVERHANG_M = 3.0                # 4 Nov 2026 (real10): a ground line runs on under upper floors this far out ...
+GROUND_TOUCH_M = 0.05                  # ... to a wall face it ends on (within this)
+GROUND_MARK_TOL_M = 0.20               # a level mark up to this far above a ground line stands on it (real10: its point
+                                       # 0.144 m above the line, as every mark of that section)
 MARK_TOL_M = 0.05
 SECTION_WIDTH_TOL = (0.01, 0.05)       # 1 % or 5 cm
 PROFILE_TOL_M = 0.01
@@ -190,6 +194,12 @@ def read_section(region, mpu: Optional[float]) -> SectionGeometry:
     on_tol = _metres(0.01, mpu, 0.001, width)
     apexes = [m[2] for m in g.marks]
     symbols = [(m[2][0], m[2][1], m[0].point[1] + m[0].height) for m in g.marks]
+    overhang = _metres(GROUND_OVERHANG_M, mpu, 0.15, width)
+    touch = _metres(GROUND_TOUCH_M, mpu, 0.005, width)
+
+    def _on_face(x: float, y: float) -> bool:
+        return any(abs(w.a[0] - x) <= touch and min(w.a[1], w.b[1]) - touch <= y <= max(w.a[1], w.b[1]) + touch
+                   for w in walls)
     for ln in horiz:
         lx0, lx1 = sorted((ln.a[0], ln.b[0]))
         if lx1 - lx0 < min_ground:
@@ -201,6 +211,14 @@ def read_section(region, mpu: Optional[float]) -> SectionGeometry:
         if lx1 <= x0 + 1e-6 and x0 - lx1 <= reach:
             g.ground.append(("left", ln.a[1], ln.id))
         elif lx0 >= x1 - 1e-6 and lx0 - x1 <= reach:
+            g.ground.append(("right", ln.a[1], ln.id))
+        # 4 Nov 2026 (real10, user: "is there a reason for the elevations in real10?": section A-A draws the ground at
+        # the 1st basement's floor, the floors above standing 1.6 and 2.3 m out past the basement walls; the line ran
+        # under them to the basement wall, no ground was read and the ground was assumed 0.15 m under the ground floor):
+        # a line from outside the outermost face that ends on a wall face under the floors above is the ground too.
+        elif lx0 < x0 - 1e-6 and x0 < lx1 <= x0 + overhang and _on_face(lx1, ln.a[1]):
+            g.ground.append(("left", ln.a[1], ln.id))
+        elif lx1 > x1 + 1e-6 and x1 - overhang <= lx0 < x1 and _on_face(lx0, ln.a[1]):
             g.ground.append(("right", ln.a[1], ln.id))
     return g
 
@@ -349,6 +367,8 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
                       "rel": rec["value"] if rec.get("relative") else None,
                       "abs": rec.get("absolute") if rec.get("absolute") is not None else
                       (None if rec.get("relative") else rec["value"])})
+    # 4 Nov 2026 (real10): the relative marks with the slab-band z they point at, for ``apply_storey_marks``
+    out["_mark_frame"] = [(float(m["rel"]), z(m["y"])) for m in marks if m["rel"] is not None]
     datum = None
     if marks:
         near = min(marks, key=lambda m: abs(m["y"] - zero_y))
@@ -712,4 +732,36 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
         if hit is not None:
             ev = [_ev(file_rel or "", None, "section_storey_marks", region_id or "", text=f"{known[hit]:+.2f}")]
             sl["z_top"] = _value(known[hit] - base, "vector", ev, note="the floor mark of the storey above")
-    return ["heights from the storeys the sections name at their floor marks: " + "; ".join(lines)]
+    lines = ["heights from the storeys the sections name at their floor marks: " + "; ".join(lines)]
+    frame = out.pop("_mark_frame", None) or []
+    shift = _frame_shift(frame, base)
+    if shift is not None and abs(shift) > MARK_TOL_M:
+        # 4 Nov 2026 (real10, user: "is there a reason for the elevations in real10?"): the slab bands mapped the
+        # levels one storey off (the 2nd basement's floor is no band), so the ground line drawn at the 1st basement's
+        # floor read -6.00; the section's own level marks put it in the storeys' frame (-0.50 -> z -3.00)
+        for g in out.get("ground") or []:
+            zv = g.get("z") or {}
+            if zv.get("method") == "vector" and zv.get("value") is not None:
+                # a mark standing on the ground line gives it (real10: '-0.50' -> z -3.00); else the median shift
+                on = sorted(((zb - float(zv["value"]), rel) for rel, zb in frame
+                             if -MARK_TOL_M <= zb - float(zv["value"]) <= GROUND_MARK_TOL_M))
+                on = [rel for _d, rel in on]
+                new_z = (on[0] - base) if on else float(zv["value"]) + shift
+                how = f"the level mark {on[0]:+.2f} on the line" if on else \
+                    f"moved {shift:+.2f} m (the median of the section's level marks)"
+                zv["value"] = round(new_z, 3)
+                zv["note"] = ((zv.get("note") + "; ") if zv.get("note") else "") + \
+                    f"in the storey marks' frame: {how}"
+        lines.append(f"ground moved {shift:+.2f} m into the storey marks' frame (the section's level marks)")
+    return lines
+
+
+def _frame_shift(frame: list, base: float) -> Optional[float]:
+    """4 Nov 2026: how far the slab-band frame lies from the storey marks' frame: the median of (mark - base) less the
+    band z the mark points at, over the section's relative marks, when most of them agree within ``MARK_TOL_M``."""
+    if not frame:
+        return None
+    d = sorted(rel - base - zb for rel, zb in frame)
+    med = d[len(d) // 2]
+    agree = sum(1 for v in d if abs(v - med) <= MARK_TOL_M)
+    return med if agree >= max(2, (len(d) + 1) // 2) else None

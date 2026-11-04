@@ -71,6 +71,7 @@ OUTLINE_MIN_VERTICES, OUTLINE_MAX_VERTICES = 4, 12
 OUTLINE_WIDTH_M = (0.05, 0.60)
 OUTLINE_MIN_LENGTH_M = 0.4
 OUTLINE_CONFIDENCE = 0.8
+TEXT_FRAME_SHARE = 0.4         # 4 Nov 2026 (real17): a thin closed outline whose text fills this share of it frames it
 DXF_HATCH_CONFIDENCE = 0.95
 RASTER_CONFIDENCE = 0.85
 
@@ -97,6 +98,7 @@ PAIR_WIDTH_M = (0.05, 0.60)    # two parallel faces of one layer this far apart 
 PAIR_OVERLAP_M = 0.4           # ... overlapping this much make a wall piece on their own (a primary pair)
 PAIR_MIN_M = 0.02              # shorter overlaps are noise; a secondary pair (< 0.4 m) must touch the wall network
 PAIR_ANGLE_DEG = 1.0
+NOTATION_ROLES = ("text", "dimension", "axis")   # layers whose lines are the drawing's notation, never a wall's faces
 PAIR_SAME_M = 0.001            # face pieces of one line closer than this are one face (duplicates, split lines)
 PAIR_TOUCH_M = 0.01
 PAIR_EXTEND_M = 0.6            # a face running on past its partner fills the band up to wall material this far
@@ -489,6 +491,13 @@ def _outline_walls(page: GenericPage, s: float, used: set) -> list[WallPrim]:
         x0, y0, x1, y1 = st.bbox()
         probes.append(Point((x0 + x1) / 2.0 * s, (y0 + y1) / 2.0 * s))
     tree = STRtree(probes)
+    # 4 Nov 2026 (real17 L-1: the "8 NOLU DÜKKAN AİT DEPO" label boxes read as 2.83 m walls, their text filling 56 % of
+    # them): a text inside the outline whose box fills >= ``TEXT_FRAME_SHARE`` of its area is framed by it, not written
+    # in a wall or on a fixture (a "25" thickness text in a wall outline fills 4 %, real03's labelled 60 x 30 cm shafts
+    # 15-17 %).
+    texts = [(Point((tx.box[0] + tx.box[2]) / 2.0 * s, (tx.box[1] + tx.box[3]) / 2.0 * s),
+              (tx.box[2] - tx.box[0]) * (tx.box[3] - tx.box[1]) * s * s) for tx in (page.texts or []) if tx.text.strip()]
+    text_tree = STRtree([pt for pt, _ in texts]) if texts else None
     out = []
     for st, poly in cands:
         inner = poly.buffer(-0.002)
@@ -496,6 +505,9 @@ def _outline_walls(page: GenericPage, s: float, used: set) -> list[WallPrim]:
             continue
         hit = any(others[int(j)] is not st for j in tree.query(inner, predicate="contains"))
         if hit:
+            continue
+        if text_tree is not None and any(texts[int(j)][1] >= TEXT_FRAME_SHARE * poly.area
+                                         for j in text_tree.query(inner, predicate="contains")):
             continue
         used.add(st.id)
         out.append(WallPrim(kind="outline", entity=st.id, stroke_ids=[st.id], method="vector",
@@ -1352,7 +1364,12 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     # 3 Nov 2026: every layer's straight pieces 0.1-2 m long (a stair's treads are often on its own layer), for the
     # flight test of the pairs (``_drop_flight_pairs``)
     tread_like = [(a, b) for pcs in by_layer.values() for _sid, a, b in pcs if 0.1 <= math.dist(a, b) <= 2.0]
+    from wenart.ingest.generic import layer_names as LN
     for layer, pieces in by_layer.items():
+        if LN.layer_role(layer) in NOTATION_ROLES:
+            # 4 Nov 2026 (real17 L0, user: "the drawing seems ok"): the sheet's double frame on the text layer YAZILAR
+            # closed in every label and was chosen as the walls; notation layers never draw walls (UL296)
+            continue
         ids = {sid for sid, _, _ in pieces}
         dims = ids & set(dimension_ids)
         if dims and len(dims) >= DIMENSION_LAYER_SHARE * len(ids):

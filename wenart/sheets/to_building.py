@@ -595,6 +595,11 @@ def roof_terrace(b: dict, sheets: dict, warn) -> Optional[dict]:
         w["height"] = round(float(parapet if parapet is not None else ROOF_TERRACE_PARAPET_M), 3)
         w["parapet"] = True
         n_par += 1
+    # 4 Nov 2026 (real10, user: "If nothing is built in the last floor roof etc, putting a bit parapet would be nice so
+    # people on the last floor can walk safely"): the terrace plan drew only three short parapet pieces, the edge stood
+    # open; where no wall of the top level stands on the edge of the floor below, a parapet is inferred along it
+    edge = _edge_parapets(b, top, float(parapet if parapet is not None else ROOF_TERRACE_PARAPET_M),
+                          "section mark" if parapet is not None else "assumed")
     if house_h is not None:
         top["ceiling_height"] = round(float(house_h), 3)
         top["ceiling_height_source"] = "section"
@@ -606,6 +611,10 @@ def roof_terrace(b: dict, sheets: dict, warn) -> Optional[dict]:
         outline = [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(main.exterior.coords)[:-1]]
     sources = {"parapet_height": "level_mark" if parapet is not None else "assumed",
                "house_height": "level_mark" if house_h is not None else "assumed"}
+    if edge:
+        warn(f"roof terrace {top['id']}: {edge} parapet piece(s) inferred along the terrace's open edge (the outer walls "
+             f"of the floor below), {parapet if parapet is not None else ROOF_TERRACE_PARAPET_M:.2f} m high, so the "
+             f"terrace is safe to walk on")
     warn(f"roof terrace {top['id']}: {n_par} wall(s) on the terrace's edge are parapets "
          f"{parapet if parapet is not None else ROOF_TERRACE_PARAPET_M:.2f} m high "
          f"({'section mark' if parapet is not None else 'assumed'}); the stair house "
@@ -614,6 +623,70 @@ def roof_terrace(b: dict, sheets: dict, warn) -> Optional[dict]:
     return {"level_id": top["id"], "outline": outline,
             "house_height": float(house_h) if house_h is not None else float(top["ceiling_height"]),
             "parapet_height": float(parapet if parapet is not None else ROOF_TERRACE_PARAPET_M), "sources": sources}
+
+
+EDGE_PARAPET_MIN_M = 0.30          # an open stretch of the terrace's edge shorter than this needs no parapet piece
+EDGE_COVERED_M = 0.30              # a top-level wall this close to the edge already stands on it
+EDGE_PARAPET_T_M = 0.20            # an inferred parapet's thickness (at most the outer walls')
+EDGE_SIMPLIFY_M = 0.05             # the edge's jogs from outer walls of different thickness are straightened this much
+EDGE_CORNER_MIN_M = 0.05           # a whole edge of the outline this short still gets its piece (the corners stay closed)
+
+
+def _edge_parapets(b: dict, top: dict, height: float, source: str) -> int:
+    """4 Nov 2026: parapet walls (``parapet: true``, inferred) along the open stretches of a roof terrace's edge: the
+    centre line of the outer walls of the highest level below that has walls, less where a wall of the top level
+    stands within ``EDGE_COVERED_M``. Returns the number of pieces added to ``b["walls"]``."""
+    import statistics
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
+
+    below = []
+    for lv in sorted((lv for lv in b.get("levels") or [] if lv.get("order") is not None
+                      and lv["order"] < (top.get("order") or 0)), key=lambda lv: -lv["order"]):
+        below = [w for w in b.get("walls") or [] if w["level_id"] == lv["id"] and w["start"] != w["end"]]
+        if below:
+            break
+    if not below:
+        return 0
+    u = unary_union([LineString([w["start"], w["end"]]).buffer(float(w.get("thickness") or 0.2) / 2.0, cap_style=2,
+                                                                 join_style=2) for w in below])
+    u = u.buffer(0.02, join_style=2).buffer(-0.02, join_style=2)
+    parts = [g for g in getattr(u, "geoms", [u]) if not g.is_empty]
+    if not parts:
+        return 0
+    filled = Polygon(max(parts, key=lambda g: Polygon(g.exterior).area).exterior)
+    outer = [float(w["thickness"]) for w in below if w.get("exterior") and w.get("thickness")]
+    t_out = statistics.median(outer) if outer else 0.25
+    ring = filled.buffer(-t_out / 2.0, join_style=2)
+    if ring.is_empty:
+        return 0
+    ring = max(getattr(ring, "geoms", [ring]), key=lambda g: g.area).simplify(EDGE_SIMPLIFY_M)
+    own = [LineString([w["start"], w["end"]]) for w in b.get("walls") or []
+           if w["level_id"] == top["id"] and w["start"] != w["end"]]
+    covered = unary_union([ln.buffer(EDGE_COVERED_M) for ln in own]) if own else None
+    pts = list(ring.exterior.coords)
+    n = 0
+    for a, c in zip(pts, pts[1:]):
+        seg = LineString([a, c])
+        rest = seg.difference(covered) if covered is not None else seg
+        whole = abs(rest.length - seg.length) < 1e-6
+        for piece in getattr(rest, "geoms", [rest]):
+            # a whole edge of the ring keeps the parapet closed round its corners; a stretch left between walls of the
+            # top level needs ``EDGE_PARAPET_MIN_M``
+            if piece.is_empty or piece.length < (EDGE_CORNER_MIN_M if whole else EDGE_PARAPET_MIN_M):
+                continue
+            (x0, y0), (x1, y1) = piece.coords[0], piece.coords[-1]
+            n += 1
+            b["walls"].append({
+                "id": f"w_{top['id']}_edge_parapet_{n:03d}", "level_id": top["id"],
+                "start": [round(x0, 4) + 0.0, round(y0, 4) + 0.0], "end": [round(x1, 4) + 0.0, round(y1, 4) + 0.0],
+                "thickness": round(min(t_out, EDGE_PARAPET_T_M), 3), "height": round(height, 3), "exterior": True,
+                "status": "unverified", "parapet": True,
+                "evidence": [B.evidence("building.json", "inferred", 0.6, rule="roof_terrace_edge_parapet",
+                                        text=f"the terrace's edge over the outer walls of the floor below stands "
+                                             f"open: a {height:.2f} m parapet ({source}) so the terrace is safe to "
+                                             f"walk on")]})
+    return n
 
 
 def _value_of(entry) -> Optional[float]:

@@ -721,6 +721,10 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
         out["reason"] = "the room has no polygon"
         return out
     brief = brief if brief is not None else ((building.get("project") or {}).get("brief") or {})
+    from wenart import common_areas as _B
+    if _B.is_common_room(room):
+        out["reason"] = "a common area of the building (shared hall, UL305): no furniture groups"
+        return out
     if own_type in schemas.NOT_FURNISHED_ROOM_TYPES or own_type in ("prayer", "stair", "shaft", "storage"):
         # 26 Oct 2026: a storage room read as a dressing room (its label, its bedroom door) is furnished as one
         if not (own_type == "storage" and room_kind(building, room) == "dressing"):

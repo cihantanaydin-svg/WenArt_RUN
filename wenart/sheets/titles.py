@@ -46,8 +46,10 @@ CLASS_WORDS: list[tuple[str, str, str]] = [
     ("elevation", r"\bELEVATION\b", "en"),
     ("elevation", r"\bANSICHT\b", "de"),
     ("elevation", r"\bFACADE\b", "fr"),
-    ("detail", r"\bDETAY\b", "tr"),
-    ("detail", r"\bDETAIL\b", "en"),
+    # 4 Nov 2026 (real17: the sheet 'DETAYLAR' (details) of window, door and stair details read as a floor): the plural
+    # and the possessive (DETAYI, DETAYLAR, DETAYLARI; DETAILS) too
+    ("detail", r"\bDETAY(?:I|LAR|LARI)?\b", "tr"),
+    ("detail", r"\bDETAILS?\b", "en"),
     ("legend", r"\bLEJANT\b", "tr"),
     ("legend", r"\bLEGEND\b", "en"),
     ("legend", r"\bLEGENDE\b", "de"),
@@ -95,12 +97,26 @@ def class_of(text: str) -> Optional[tuple[str, list[str], str]]:
         if m:
             if cls == "roof_plan" and re.search(r"\bCATI KAT", folded):
                 continue                          # ÇATI KAT PLANI: the attic floor plan, not a roof plan
+            if cls == "floor_plan" and _detail_scale(folded):
+                # 4 Nov 2026 (real17: 'PLAN 1:20', the plan of a window and a door at 1:20, read as the 1st floor): a
+                # plan at a detail scale is a detail drawing (floors are drawn at 1:50 or smaller)
+                return "detail", [m.group(0), _detail_scale(folded)], lang
             words = [m.group(0)]
             level = level_of(text)
             if level is not None:
                 words.insert(0, level.word)
             return cls, words, lang
     return None
+
+
+DETAIL_SCALE_MAX = 25            # a drawing at 1:25 or larger (1:20, 1:10, 1:5) is a detail
+_SCALE_RE = re.compile(r"\b1\s*[:/]\s*(\d+)\b")
+
+
+def _detail_scale(folded: str) -> Optional[str]:
+    """The scale text ('1:20') of a title at a detail scale (``DETAIL_SCALE_MAX``), or None."""
+    m = _SCALE_RE.search(folded)
+    return m.group(0) if m and 1 < int(m.group(1)) <= DETAIL_SCALE_MAX else None
 
 
 def alternative_of(text: str) -> Optional[tuple[str, str]]:

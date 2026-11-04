@@ -1946,6 +1946,11 @@ def floor_style(room: dict, style: dict, outdoor: dict | None = None) -> tuple[d
     terracotta, polished concrete ...), else the wet floor."""
     if outdoor and (outdoor.get("material") or outdoor.get("slug")):
         return dict(outdoor, material=outdoor.get("material") or outdoor.get("slug")), False
+    # 4 Nov 2026 (lesson UL305, user on real10: "here 26 is not a living area, this is common use area ... flooring
+    # roofing and any furniture should be different"): a shared hall takes a hard-wearing stone-look floor
+    from wenart import common_areas as CA
+    if CA.is_common_room(room):
+        return dict(style.get("common_floor") or CA.COMMON_FLOOR), False
     kind = slot_room_type(room.get("room_type"))
     if kind in KITCHEN_TYPES and isinstance(style.get("floor"), dict) and _wet_safe(style["floor"].get("material")):
         return style["floor"], True
@@ -2468,6 +2473,9 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
         outside = room["id"] in open_rooms or str(room.get("room_type") or "") in OUTDOOR_FLOOR_ROOMS
         floor_mat, wet = floor_material(room, style, library, whole.get("terrace_floor") if outside else None)
         ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
+        from wenart import common_areas as CA
+        if CA.is_common_room(room):              # UL305: the shared hall's own ceiling, not the flats'
+            ceiling_style = style.get("common_ceiling") or CA.COMMON_CEILING
         ceil_mat = slot_material(library, ceiling_style)
         if len(room["polygon"]) < 3:
             warnings.append(f"{room['id']}: polygon with fewer than 3 points, no floor")

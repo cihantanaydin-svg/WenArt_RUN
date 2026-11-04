@@ -226,6 +226,9 @@ def completion_skip_reason(room: dict, settings: Settings, building: Optional[di
         return f"furnished_rooms: {settings.mode} (drawn furniture only restyled, Milestone 9)"
     if rtype in schemas.NOT_FURNISHED_ROOM_TYPES:
         return f"{rtype} room: never furnished by AI"
+    from wenart import common_areas as _B
+    if _B.is_common_room(room):
+        return "a common area of the building (shared hall, UL305): never furnished"
     if rtype not in schemas.ALLOWED_TYPES and not dressing_kind(room, building):
         return f"room type {rtype}: no furniture types to complete"
     if is_kept(room, settings):

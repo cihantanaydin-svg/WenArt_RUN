@@ -2458,6 +2458,8 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     # 3 Nov 2026 (real10, user: "green marking is outside shared hall"): the room the stair core opens into
     for line in TW.shared_halls(b["rooms"], b["openings"]):
         build.warn(f"shared hall: {line}")
+    for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"]):     # 4 Nov 2026 (UL306)
+        build.warn(f"lift door: {line}")
     for second, info in TW.twin_transforms(b["rooms"], b["openings"], b["furniture"]).items():
         room = next(r for r in b["rooms"] if r["id"] == second)
         room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],

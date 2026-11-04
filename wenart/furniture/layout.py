@@ -287,8 +287,10 @@ def empty_rooms(building: dict) -> list[dict]:
 def not_furnished_rooms(building: dict) -> list[dict]:
     """Empty rooms whose type is never furnished by AI (``schemas.NOT_FURNISHED_ROOM_TYPES``: prayer), in
     building order; the layout lists them as skipped instead of passing them over silently."""
+    from wenart import common_areas as _B
     return [r for r in building["rooms"]
-            if not r.get("has_documented_furniture") and r.get("room_type") in schemas.NOT_FURNISHED_ROOM_TYPES]
+            if not r.get("has_documented_furniture") and (r.get("room_type") in schemas.NOT_FURNISHED_ROOM_TYPES
+                                                          or _B.is_common_room(r))]
 
 
 def _next_furniture_number(building: dict, level_id: str) -> int:

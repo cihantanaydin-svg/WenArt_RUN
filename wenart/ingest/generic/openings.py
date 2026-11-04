@@ -167,6 +167,7 @@ _FOLD = str.maketrans({"İ": "I", "ı": "i", "Ş": "S", "ş": "s", "Ğ": "G", "�
                        "ö": "o", "Ç": "C", "ç": "c", " ": "_", "-": "_"})
 DOOR_WORDS = ("KAPI", "DOOR")   # a block named for a door (folded) ...
 WINDOW_WORDS = ("PENCERE", "WINDOW")
+WINDOW_TOKENS = ("WIN", "PEN")   # 4 Nov 2026 (real17: "fm-win1"): a whole name part that abbreviates a window word
 NO_SWING_OPERATIONS = ("sliding", "pocket", "folding")   # ... that opens without a swing arc: a door by its name
 SLIDING_LEAF = (0.45, 1.10)     # x gap width: a sliding leaf, overlapping the gap by >= 40 % of it ...
 SLIDING_OVERLAP = 0.4
@@ -501,6 +502,7 @@ class Gap:
     hit: Optional[Piece] = None                  # end gaps: the wall hit
     cls: str = ""                 # door | window | opening | unclassified | empty | closed | open
     found: dict = field(default_factory=dict)
+    slant: float = 0.0            # end gaps: the drawn wall's angle off the axis (deg) where its pieces step (``_slant``)
 
     @property
     def width(self) -> float:
@@ -708,7 +710,8 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         # of a window (fix round after P6b).
         in_band = all(abs(g.across(q)) <= g.t / 2.0 + BAND_SLACK_M for q in it.pts)
         for p, q in zip(it.pts, it.pts[1:] + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])):
-            if not _parallel(p, q, g.axis):
+            # 4 Nov 2026 (real17 L-1): in a slanted wall read as steps the window block follows the wall's own angle
+            if not (_parallel(p, q, g.axis) or (g.slant and _parallel(p, q, g.axis, g.slant))):
                 continue
             off = g.across(((p[0] + q[0]) / 2, (p[1] + q[1]) / 2))
             if abs(off) > g.t / 2.0 + BAND_SLACK_M:
@@ -731,6 +734,7 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
             g.cls = "window"
             g.found = {"lines": list({id(it): it for it, _ in parallel}.values()), "glass": sorted(glass)}
             return
+    if len({off for _, off in parallel}) >= 2:
         no_glass = (f"{len({off for _, off in parallel})} lines along the gap, {len(framed)} of them ending at its "
                     f"jambs and {len(glass)} glass between the faces (>= {WINDOW_LINES_MIN} and >= {GLASS_MIN_LINES} "
                     f"needed): the others run on past the gap (outlines, an axis, a beam above), so no window")
@@ -753,6 +757,13 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.cls = "door"
         g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": leaves, "leaf": True, "swing": 0.0,
                    "radius": None, "double": False, "sliding": True}
+        return
+    # 4 Nov 2026 (real17): a window block across the gap is that window; after the doors (real15: balcony sliding doors
+    # drawn as blocks on the window layer stay doors) and after the wall faces drawn on across the gap
+    named_window = _named_window(g, zone)
+    if named_window is not None and g.cls != "closed":
+        g.cls = "window"
+        g.found = {"lines": named_window[0], "glass": [], "by_name": named_window[1]}
         return
     # Doorless: nothing in the band (the jamb faces at the gap ends do not count) and no door-like arc. Strokes
     # that are only in the classification zone (a chair or a round table beside an open plan) do not count; an
@@ -1007,6 +1018,50 @@ def _named_door(g: Gap, zone: list) -> Optional[tuple[list, str]]:
     return None if best is None else (sorted(groups[best[1]], key=lambda it: it.st.id), ops[best[1]])
 
 
+def _window_name(name: str) -> bool:
+    folded = name.translate(_FOLD).upper()
+    if any(w in folded for w in DOOR_WORDS):
+        return False
+    if any(w in folded for w in WINDOW_WORDS):
+        return True
+    return any(tok.rstrip("0123456789") in WINDOW_TOKENS for tok in folded.replace(".", "_").split("_") if tok)
+
+
+def _named_window(g: Gap, zone: list) -> Optional[tuple[list, str]]:
+    """4 Nov 2026 (real17 L-1: the WC windows are a detailed "fm-win1" block on the "pencere" layer whose glass
+    lines cover 62 % of the gap between thick frame profiles): (strokes, name) of the window block instance in this
+    gap, named for a window (``WINDOW_WORDS``, a ``WINDOW_TOKENS`` name part; no door word) or drawn on a window
+    layer, whose strokes together span >= ``WINDOW_COVER`` of the gap along and whose middle lies in the wall band
+    (+- ``BAND_SLACK_M``). None when no such block is drawn there."""
+    groups: dict[str, list] = {}
+    names_of: dict[str, str] = {}
+    for it in zone:
+        if not it.st.block:
+            continue
+        names = it.st.block.split("/")
+        parts = it.st.id.split("/")
+        hit = next((i for i, name in enumerate(names) if _window_name(name)), None)
+        if hit is None and it.st.layer and _window_name(it.st.layer):
+            hit = len(names) - 1
+        if hit is None:
+            continue
+        key = "/".join(parts[:hit + 1]) if len(parts) > len(names) else it.st.block
+        groups.setdefault(key, []).append(it)
+        names_of[key] = names[hit] if _window_name(names[hit]) else f"{names[hit]} on layer {it.st.layer}"
+    best = None
+    for key, items in groups.items():
+        along = [g.along(p) for it in items for p in it.pts]
+        across = [g.across(p) for it in items for p in it.pts]
+        overlap = min(max(along), g.b) - max(min(along), g.a)
+        if overlap < WINDOW_COVER * g.width or abs((min(across) + max(across)) / 2.0) > g.t / 2.0 + BAND_SLACK_M:
+            continue
+        if max(along) - min(along) > g.width + 2.0 * OWN_MARGIN_M:
+            continue                                # a block running on past the gap is not this gap's window
+        if best is None or overlap > best[0]:
+            best = (overlap, key)
+    return None if best is None else (sorted(groups[best[1]], key=lambda it: it.st.id), names_of[best[1]])
+
+
 def operation_word(names) -> Optional[str]:
     """The operation a block name says (``OPERATION_WORDS``), or None."""
     for name in names:
@@ -1049,11 +1104,11 @@ def _arc_mid(arc: dict) -> tuple[float, float]:
     return (cx + arc["radius"] * math.cos(am), cy + arc["radius"] * math.sin(am))
 
 
-def _parallel(p, q, axis: str) -> bool:
+def _parallel(p, q, axis: str, slant: float = 0.0) -> bool:
     if math.dist(p, q) <= 1e-9:
         return False
     ang = math.degrees(math.atan2(q[1] - p[1], q[0] - p[0])) % 180.0
-    target = 0.0 if axis == "h" else 90.0
+    target = (0.0 if axis == "h" else 90.0) + slant
     d = abs(ang - target) % 180.0
     return min(d, 180.0 - d) <= WINDOW_ANGLE_DEG
 
@@ -1196,8 +1251,10 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                 continue
             q, a, b = hit
             # The same gap as a classified run gap: the run gap holds it (an open run gap does not).
+            # 4 Nov 2026 (real17 L-1): two free ends that cast at each other face one gap, however far their lines lie
+            # apart (the steps of a slanted wall): the first cast holds it.
             dup = next((g for g in gaps if g.cls != "open" and g.axis == p.axis
-                        and abs(g.c - p.c) <= RUN_OFFSET_M + 0.01
+                        and (abs(g.c - p.c) <= RUN_OFFSET_M + 0.01 or (g.kind == "end" and g.hit is p and g.free[0] is q))
                         and min(g.b, b) - max(g.a, a) >= 0.5 * min(g.width, b - a)), None)
             if dup is not None:
                 if corner is None:
@@ -1209,7 +1266,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                 if corner is None:
                     end_log.append({"piece": p, "which": which, "gap": None})
                 continue
-            g = Gap("end", p.axis, p.c, p.t, a, b, [p, q], free=(p, which), hit=q)
+            g = Gap("end", p.axis, p.c, p.t, a, b, [p, q], free=(p, which), hit=q, slant=_slant(p, q))
             if g.width < GAP_MIN_M:
                 g.cls = "closed"
             elif corner is not None:
@@ -1655,6 +1712,23 @@ def _cast_from(p: Piece, which: str, pieces: list[Piece], start: float) -> Optio
     """``_cast`` from ``start`` (a perpendicular wall's far face) instead of ``p``'s end."""
     trial = dataclasses.replace(p, b=start) if which == "end" else dataclasses.replace(p, a=start)
     return _cast(trial, which, [q for q in pieces if q is not p] + [trial])
+
+
+def _slant(p: Piece, q: Piece) -> float:
+    """4 Nov 2026 (real17 L-1: an outer wall drawn 1.9 deg off the plan's frame is read as axis steps 3-6 cm apart; the
+    WC windows in it are drawn at the wall's angle): the angle (deg, signed, in the aligned frame) of the line through
+    the centres of two pieces on one axis whose lines lie more than ``RUN_OFFSET_M`` apart, when it is within
+    ``AXIS_TOL_DEG`` of the axis; else 0 (one line, or two walls side by side)."""
+    if p.axis != q.axis or abs(q.c - p.c) <= RUN_OFFSET_M:
+        return 0.0
+    along = (q.a + q.b) / 2.0 - (p.a + p.b) / 2.0
+    if abs(along) <= 1e-9:
+        return 0.0
+    dc = q.c - p.c
+    if along < 0:
+        along, dc = -along, -dc
+    ang = math.degrees(math.atan2(dc, along)) if p.axis == "h" else -math.degrees(math.atan2(dc, along))
+    return ang if abs(ang) <= AXIS_TOL_DEG else 0.0
 
 
 def _is_free(p: Piece, which: str, pieces: list[Piece]) -> bool:

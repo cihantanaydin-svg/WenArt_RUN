@@ -307,6 +307,7 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
         # 3 Nov 2026 (real09): the storeys the sections name at their floor marks set the floor heights
         hw += HT.apply_storey_marks(heights_json, base_levels, storey_el, float(values.get("slab_thickness", 0.20)),
                                     sections[0].file if sections else None, sections[0].id if sections else None)
+    heights_json.pop("_mark_frame", None)
     # real10 (1 Nov 2026): a roof terrace floor on top: its parapet and stair house heights from the section's marks.
     if any(lv.get("roof_terrace") for lv in levels_json) and sections:
         rt = LV.roof_terrace_heights(sections)

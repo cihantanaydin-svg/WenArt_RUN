@@ -792,6 +792,43 @@ def gaps_behind_furniture(building: dict) -> list[str]:
             ev.append({"file": "building.json", "method": "inferred", "confidence": 0.7,
                        "rule": "gap_behind_furniture", "text": reason})
         out.append(reason)
+        out.extend(_same_on_typical_floors(building, o, reason))
+    return out
+
+
+TYPICAL_SAME_M = 0.01           # the same drawn opening on the floors one typical plan draws: centres this close
+
+
+def _same_on_typical_floors(building: dict, o: dict, reason: str) -> list[str]:
+    """4 Nov 2026 (real10, user: "Why there is not window here": the master bedroom's drawn 1.50 m window was read as a
+    window on L0 only, where the plan's furniture stands in front of it; on L1-L6, drawn by the same NORMAL KAT plan,
+    it stayed an untyped gap, and the architect added a window the drawing does not have): the floors one plan draws
+    are the same; the same opening on each of them (same plan region, same centre and width) is typed the same way."""
+    region = {lv["id"]: lv.get("region_id") for lv in building.get("levels") or []}
+    own = region.get(o.get("level_id"))
+    if not own:
+        return []
+    out = []
+    for q in building.get("openings") or []:
+        if q is o or q.get("level_id") == o.get("level_id") or region.get(q.get("level_id")) != own:
+            continue
+        if not unsure_passage(q) or abs(float(q.get("width") or 0) - float(o.get("width") or 0)) > TYPICAL_SAME_M:
+            continue
+        if math.dist(q.get("center") or (1e9, 1e9), o["center"]) > TYPICAL_SAME_M:
+            continue
+        _keep_drawn(q, "type", "sill_height", "height", "threshold_z", "swing_side", "operation")
+        why = (f"{q['id']}: the same drawn gap as {o['id']} on the plan both floors are drawn by ({own}): read as "
+               f"{o['id']} is ({reason})")
+        q["type"], q["sill_height"], q["height"] = o["type"], o["sill_height"], o["height"]
+        for key in ("threshold_z", "swing_side", "operation", "operation_source"):
+            q.pop(key, None)
+        q["corrected_by_ai"] = {"by": "code", "rule": "gap_behind_furniture", "reason": why, "same_as": o["id"]}
+        drop_entrance(building, q["id"], "code gap_behind_furniture")
+        ev = q.setdefault("evidence", [])
+        if isinstance(ev, list):
+            ev.append({"file": "building.json", "method": "inferred", "confidence": 0.7,
+                       "rule": "gap_behind_furniture", "text": why})
+        out.append(why)
     return out
 
 

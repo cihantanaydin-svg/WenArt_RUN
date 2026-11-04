@@ -3407,3 +3407,30 @@ New drawings (user: "We check also these drawings"):
 General fixes: the user's plan levels in the brief (plan_levels: box and level, or ignore); a sheet with a plan the
 brief leaves out is still read by its regions; a unit one check decides strongly (0.98 of 47 door swings) wins a tie with
 a unit no check decides; two crashes on two-part outlines.
+
+## real17, real10 feedback: ground, window, parapet, common halls, lift doors (4 Nov 2026, lessons UL302-UL309)
+
+real10 structure run 20261104-050839-full (pod 5pbv8j3aluv76p, RTX PRO 6000, 57 min, $2.36): bare top-downs of all
+10 floors and 9 exteriors sent as a zip, with the drawings zip (every region, the reading drawn over each plan).
+
+| user point | cause | general rule (lesson) |
+|---|---|---|
+| real17 "stop wasting time ... give me the drawings" | - | stop early, say what is the drawing's and what the reader's, send the drawings (UL302, process) |
+| real17 "the drawing seems ok" | reader errors | hatch text islands are no holes; windows follow a slanted wall; a window block across a gap is that window; a box filled by its label is no wall; notation layers never give walls; details sheets / plans at 1:25+ are details; '1.2. NORMAL KAT' lists its floors (UL309) |
+| real10 "is there a reason for the elevations?" | section ground line ran under the upper floors' overhang; heights one storey off | ground lines under an overhang are read; a level mark on the line sets its height in the storey marks' frame: ground -3.00 m at the 1st basement floor, not 0.15 m under L0 (UL308) |
+| real10 "why there is not window here" | the drawn bedroom window typed on L0 only; the architect added a window on L1-L6 | a code decision on an opening of a typical plan holds on every floor that plan draws (UL303) |
+| real10 "a bit parapet ... walk safely" | the roof terrace edge had no walls | a parapet along the roof terrace's open edge, the section's 0.90 m (UL304) |
+| real10 "kat holu ... common use area" ("flooring and the walls"; "ceiling also could be different") | shared halls typed like a flat's hall | common areas (`wenart.common_areas`): stone-look porcelain floor, greige satin walls, a light grey plaster ceiling, never furnished or decorated (UL305) |
+| real10 "a door for the elevator like sliding door" | no door drawn into the shaft | every lift shaft gets a sliding landing door onto the hall beside it; a drawn door there becomes sliding (UL306) |
+| real10 "fire escape ladders here, and a door" | the fire stair's top number stands on the landing, off its arm | an end number off its arm is on the landing: the stair is read (U, 1-16); its room split and the 140/230 door from the shared hall still open (UL307) |
+| real10 "these sections in the ground floor" (stepped stone banks) | ground-floor balconies read as ground-floor spaces | a balcony high over the ground under it has a guard on any floor (UL311) |
+| real10 "fire stairs should be like fire stairs" | - | open: concrete treads, steel rail, fire door, exit signs (UL312) |
+| real10 "make these details better" (floor bands) | one box per outline edge, jogs, ends past corners | open: one mitred ring per band (UL310) |
+| real10 "these 2 oda should not exist ... outside" | the recess between the master bedrooms closed into rooms | open: a doorless unlabelled space behind a facade gap as wide as itself is open air (UL313) |
+
+real17 now: L-1 closes (both WC windows read), the details sheet is left out, L0 (shops behind glazed shopfronts)
+does not close yet, so the floors above it are left out until it does (the earlier "success" used the sheet frame).
+
+Regression (`python -m wenart.reading_check regress`): every project ok except real10 (L1-L6 windows 11 -> 14 as L0; L7
+walls 28 -> 117, the parapets), real15 (window blocks read: L0 windows 3 -> 12, L1 4 -> 15, untyped openings fewer),
+real17 (L0 no longer built from the sheet frame: L-1 only until the shop floor closes); baselines wait for the user.

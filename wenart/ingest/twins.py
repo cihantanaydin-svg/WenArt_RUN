@@ -584,3 +584,86 @@ def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
                 notes.append(f"{lid}: room {r['id']} ('{old}') is the shared hall the stair core {core['id']} opens "
                              f"into ({len(joined)} opening(s)): '{r['label']}' (inferred)")
     return notes
+
+
+LIFT_DOOR_W_M = 0.90             # 4 Nov 2026 (UL306): a lift's landing door (a car door of 0.80-0.90 m) ...
+LIFT_DOOR_H_M = 2.10             # ... this high, sliding
+LIFT_WALL_REACH_M = 0.60         # a room, an opening or a wall this close to the shaft is beside it (core walls 0.2-0.5 m)
+MACHINE_RE_WORDS = ("MAHAL", "MAKINE", "MACHINE", "MOTOR", "MASCHINEN")   # a lift's machine room is no shaft
+
+
+def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> list[str]:
+    """4 Nov 2026 (lesson UL306, user on real10: "here is for the elevator (asansor) there should be a door for the
+    elevator like sliding door again this is a general rule"): every lift shaft (a ``shaft`` room labelled lift,
+    asansör ...; not its machine room) has its landing door on each floor: a door or opening drawn in its wall is that
+    door, made sliding; else a sliding door ``LIFT_DOOR_W_M`` wide is inferred in the wall towards the room beside it
+    (a common area first, then a hall or corridor, the longest common edge). Mutates ``openings``; returns one line
+    per shaft."""
+    from shapely.geometry import LineString
+
+    from wenart import common_areas as CA
+    from wenart.sheets import register as RG
+    from wenart.sheets import titles as TI
+
+    notes = []
+    for s in rooms:
+        label = TI.fold(str(s.get("label_raw") or s.get("label") or ""))
+        if s.get("room_type") != "shaft" or not RG.LIFT_RE.search(label) or any(w in label for w in MACHINE_RE_WORDS) \
+                or len(s.get("polygon") or []) < 3:
+            continue
+        sp, lv = _poly(s), s["level_id"]
+        drawn = [o for o in openings if o.get("level_id") == lv and not o.get("virtual") and o.get("center")
+                 and o.get("type") in ("door", "opening") and sp.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M]
+        if drawn:
+            o = max(drawn, key=lambda o: float(o.get("width") or 0))
+            if o.get("operation") != "sliding" or o.get("type") != "door":
+                o["type"], o["operation"], o["operation_source"], o["lift_door"] = "door", "sliding", "assumed", True
+                o["swing_side"] = None
+                o.setdefault("evidence", []).append({"file": (s.get("evidence") or [{}])[0].get("file") or "building.json",
+                                                     "method": "inferred", "confidence": 0.8, "rule": "lift_door",
+                                                     "note": f"the door of lift shaft {s['id']}: a sliding landing door"})
+                notes.append(f"{lv}: {o['id']} in the wall of lift shaft {s['id']} is its sliding landing door")
+            continue
+        cands = []
+        for r in rooms:
+            if r is s or r.get("level_id") != lv or r.get("room_type") == "shaft" or len(r.get("polygon") or []) < 3:
+                continue
+            rp = _poly(r)
+            if sp.distance(rp) > LIFT_WALL_REACH_M:
+                continue
+            edge = sp.exterior.intersection(rp.buffer(LIFT_WALL_REACH_M))
+            pieces = [g for g in getattr(edge, "geoms", [edge]) if g.geom_type == "LineString"]
+            if not pieces:
+                continue
+            piece = max(pieces, key=lambda g: g.length)
+            if piece.length < LIFT_DOOR_W_M + 0.1:
+                continue
+            rank = (CA.is_common_room(r), str(r.get("room_type") or "") in ("hall", "corridor"), piece.length)
+            cands.append((rank, r, piece))
+        if not cands:
+            notes.append(f"{lv}: lift shaft {s['id']}: no hall beside it, no landing door inferred")
+            continue
+        _rank, room, piece = max(cands, key=lambda c: c[0])
+        mid = piece.interpolate(0.5, normalized=True)
+        near = [(LineString([w["start"], w["end"]]).distance(mid), w) for w in walls
+                if w.get("level_id") == lv and w["start"] != w["end"]]
+        near = [(d, w) for d, w in near if d <= LIFT_WALL_REACH_M]
+        if not near:
+            notes.append(f"{lv}: lift shaft {s['id']}: no wall between it and {room['id']}, no landing door inferred")
+            continue
+        wall = min(near, key=lambda x: x[0])[1]
+        axis = LineString([wall["start"], wall["end"]])
+        c = axis.interpolate(axis.project(mid))
+        width = round(min(LIFT_DOOR_W_M, piece.length - 0.1), 3)
+        oid = f"d_{s['id']}_lift"
+        openings.append({"id": oid, "type": "door", "level_id": lv, "wall_id": wall["id"],
+                         "center": [round(c.x, 4), round(c.y, 4)], "width": width, "height": LIFT_DOOR_H_M,
+                         "sill_height": 0.0, "swing_side": None, "operation": "sliding", "operation_source": "assumed",
+                         "lift_door": True, "status": "unverified",
+                         "evidence": [{"file": (s.get("evidence") or [{}])[0].get("file") or "building.json",
+                                       "method": "inferred", "confidence": 0.6, "rule": "lift_door",
+                                       "note": f"lift shaft {s['id']} has no door drawn: a {width:.2f} m sliding landing "
+                                               f"door towards {room['id']} (UL306)"}]})
+        notes.append(f"{lv}: lift shaft {s['id']}: a {width:.2f} m sliding landing door inferred towards {room['id']} "
+                     f"({'common area' if CA.is_common_room(room) else room.get('room_type')}) in {wall['id']}")
+    return notes
