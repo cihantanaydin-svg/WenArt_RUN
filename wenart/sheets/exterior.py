@@ -103,6 +103,128 @@ NORTH_BLOCK_RE = re.compile(r"KUZEY|NORTH|NORD")
 PLOT_WALL_M = (0.05, 0.6)            # site plan: two closed rings this far apart inside the plot are a plot wall
 WINDOW_M = ((0.4, 3.0), (0.4, 2.6))
 DOOR_M = ((0.7, 3.0), (1.9, 2.8))
+# 4 Nov 2026 (real10's elevations are loose LINEs): rectangles assembled from separate lines (``frame_rects``)
+RECT_JOIN_M = 0.03                 # two line ends this close (metres) meet at a corner
+RECT_SIDE_M = (0.3, 3.2)           # the sides of an opening-sized rectangle (metres)
+RECT_AXIS_SHARE = 0.01             # a line this little off level or plumb (share of its length) is horizontal / vertical
+RECT_SKIP_KINDS = ("HATCH", "DIMENSION")
+OPENING_LAYER_ROLES = ("window", "door", "glass")
+RECT_OVERLAP_SHARE = 0.3           # a rectangle sharing more of its area with a larger one kept is the same opening
+RECT_INNER_SHARE = 0.7             # a frame's inner line runs this share of its side (a second frame line, a mullion)
+
+
+def frame_rects(ents: list, mpu: float) -> list[dict]:
+    """Axis-aligned rectangles drawn by straight pieces (a closed outline's edges, a polyline's, or separate LINEs),
+    each side ``RECT_SIDE_M`` long: ``{"box" (source units), "entity" (a side's entity), "entities",
+    "opening_layer" (a side on a window, door or glass layer)}``.
+
+    What / why (4 Nov 2026, real10: its four elevations are 25,000-57,000 LINE entities, no polyline and no block, so
+    the elevation reader saw no window; user's goal "some AI or something else to give the feedbacks by itself instead
+    of me" needs the elevation's windows to compare with the plans). How: two parallel pieces whose ends lie level
+    within ``RECT_JOIN_M`` (two vertical frame sides from the same bottom to the same top), with a perpendicular piece
+    covering each pair of ends (it meets them at a corner or runs on: a sill line under the frame, a band line over
+    it). Both ways round: the vertical sides paired and the horizontal ones covering, and the reverse. The pieces are
+    indexed by their end heights on a grid of ``RECT_JOIN_M`` cells, so 50,000 lines take well under a second. The
+    layer is not required (real10 draws its window frames on layer 0); a side on an opening layer is recorded."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if not mpu:
+        return []
+    tol = RECT_JOIN_M / mpu
+    lo, hi = RECT_SIDE_M[0] / mpu - tol, RECT_SIDE_M[1] / mpu + tol
+    hs, vs = [], []                    # (along_lo, along_hi, across, entity, on opening layer), source units
+    for e in ents:
+        if e.kind in RECT_SKIP_KINDS:
+            continue
+        on_layer = LN.layer_role(e.layer) in OPENING_LAYER_ROLES
+        for a, b, _st in UC.segments(e.strokes):
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            length = math.hypot(dx, dy)
+            if length < lo:
+                continue
+            if abs(dy) <= RECT_AXIS_SHARE * length:
+                hs.append((min(a[0], b[0]), max(a[0], b[0]), (a[1] + b[1]) / 2.0, e.id, on_layer))
+            elif abs(dx) <= RECT_AXIS_SHARE * length:
+                vs.append((min(a[1], b[1]), max(a[1], b[1]), (a[0] + b[0]) / 2.0, e.id, on_layer))
+    seen, out = set(), []
+    for pairs, cover, swap in ((vs, hs, False), (hs, vs, True)):
+        by_ends: dict = {}
+        for p in pairs:
+            if p[1] - p[0] <= hi:
+                by_ends.setdefault((round(p[0] / tol), round(p[1] / tol)), []).append(p)
+        by_across: dict = {}
+        for c in cover:
+            by_across.setdefault(round(c[2] / tol), []).append(c)
+
+        def covered(at: float, s0: float, s1: float):
+            k = round(at / tol)
+            return next((c for d in (-1, 0, 1) for c in by_across.get(k + d, ())
+                         if abs(c[2] - at) <= tol and c[0] - tol <= s0 and s1 <= c[1] + tol), None)
+
+        for (k0, k1), group in by_ends.items():
+            others = [p for d0 in (-1, 0, 1) for d1 in (-1, 0, 1) for p in by_ends.get((k0 + d0, k1 + d1), ())]
+            for p in group:
+                for q in others:
+                    gap = q[2] - p[2]
+                    if not lo <= gap <= hi or abs(q[0] - p[0]) > tol or abs(q[1] - p[1]) > tol:
+                        continue
+                    s0, s1 = (p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0
+                    c0 = covered(s0, p[2], q[2])
+                    c1 = covered(s1, p[2], q[2]) if c0 is not None else None
+                    if c1 is None:
+                        continue
+                    box = (s0, p[2], s1, q[2]) if swap else (p[2], s0, q[2], s1)
+                    key = tuple(round(v / tol) for v in box)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    parts = (p, q, c0, c1)
+                    out.append({"box": box, "entity": (c0 if not swap else p)[3],
+                                "entities": sorted({x[3] for x in parts}),
+                                "opening_layer": any(x[4] for x in parts)})
+    # A frame: an inner line parallel to a side, inside the rectangle, as long as most of it (the frame's second
+    # line, a mullion, a transom, a sash). A balcony front, a band or a plain panel has none.
+    import bisect
+
+    v_sorted = sorted(vs, key=lambda v: v[2])
+    h_sorted = sorted(hs, key=lambda h: h[2])
+    v_keys = [v[2] for v in v_sorted]
+    h_keys = [h[2] for h in h_sorted]
+
+    def inner(lines, keys, a0, a1, s0, s1) -> bool:
+        need = RECT_INNER_SHARE * (s1 - s0)
+        for ln in lines[bisect.bisect_right(keys, a0 + tol):bisect.bisect_left(keys, a1 - tol)]:
+            if ln[0] >= s0 - tol and ln[1] <= s1 + tol and ln[1] - ln[0] >= need:
+                return True
+        return False
+
+    for r in out:
+        x0, y0, x1, y1 = r["box"]
+        r["framed"] = inner(v_sorted, v_keys, x0, x1, y0, y1) or inner(h_sorted, h_keys, y0, y1, x0, x1)
+    return out
+
+
+def outermost(cands: list, tol: float) -> list:
+    """The candidates ``(kind, box, ...)`` not inside another, larger candidate's box (within ``tol``) and not
+    covering more than ``RECT_OVERLAP_SHARE`` of their own area with a larger one kept: a window frame drawn as two or
+    three nested rectangles, a door leaf inside its frame, or a glazed grid read as overlapping cells, is counted once
+    (4 Nov 2026, real10)."""
+    def area(b) -> float:
+        return max(b[2] - b[0], 0.0) * max(b[3] - b[1], 0.0)
+
+    def inside(a, b) -> bool:
+        return (b[0] - tol <= a[0] and b[1] - tol <= a[1] and a[2] <= b[2] + tol and a[3] <= b[3] + tol
+                and area(b) > area(a))
+
+    def shared(a, b) -> float:
+        return area((max(a[0], b[0]), max(a[1], b[1]), min(a[2], b[2]), min(a[3], b[3])))
+
+    order = sorted(cands, key=lambda c: -area(c[1]))
+    kept: list = []
+    for c in order:
+        if not any(inside(c[1], k[1]) or shared(c[1], k[1]) > RECT_OVERLAP_SHARE * area(c[1]) for k in kept):
+            kept.append(c)
+    return sorted(kept, key=lambda c: (c[1][0], c[1][1]))
 
 
 def area_kind(label: str) -> Optional[str]:
@@ -630,25 +752,32 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
         standing = [b for b in outlines if abs(b[1] - ground) <= g_tol] or outlines
         widest = max(standing, key=lambda b: b[2] - b[0], default=None)
         x_left = widest[0] if widest is not None else region.geometry_box[0]
-        for e in region.ents:
-            for st in e.strokes:
-                if not st.closed or len(st.pts) != 4:
-                    continue
-                b = st.bbox()
-                w, h = (b[2] - b[0]) * mpu, (b[3] - b[1]) * mpu
-                at_ground = (b[1] - ground) * mpu <= 0.3
-                kind = None
-                if at_ground and DOOR_M[0][0] <= w <= DOOR_M[0][1] and DOOR_M[1][0] <= h <= DOOR_M[1][1]:
-                    doors += 1
-                    kind = "door"
-                elif not at_ground and WINDOW_M[0][0] <= w <= WINDOW_M[0][1] and WINDOW_M[1][0] <= h <= WINDOW_M[1][1]:
-                    windows += 1
-                    kind = "window"
-                if kind:
-                    # x: the centre from the facade's left end; sill and head in building z.
-                    positions.append({"kind": kind, "x": round(((b[0] + b[2]) / 2.0 - x_left) * mpu, 3) + 0.0,
-                                      "x_left": round((b[0] - x_left) * mpu, 3) + 0.0, "width": round(w, 3),
-                                      "sill": zy(b[1]), "head": zy(b[3]), "entity": e.id})
+        # 4 Nov 2026 (real10: every elevation drawn as loose LINEs, so no closed rectangle and no opening was seen):
+        # the rectangles are assembled from the straight pieces of every stroke (``frame_rects``), closed outlines
+        # included; of nested frames only the outermost opening-sized one counts.
+        cands = []
+        for rect in frame_rects(region.ents, mpu):
+            if not rect["framed"]:
+                continue
+            b = rect["box"]
+            w, h = (b[2] - b[0]) * mpu, (b[3] - b[1]) * mpu
+            at_ground = (b[1] - ground) * mpu <= 0.3
+            kind = None
+            if at_ground and DOOR_M[0][0] <= w <= DOOR_M[0][1] and DOOR_M[1][0] <= h <= DOOR_M[1][1]:
+                kind = "door"
+            elif not at_ground and WINDOW_M[0][0] <= w <= WINDOW_M[0][1] and WINDOW_M[1][0] <= h <= WINDOW_M[1][1]:
+                kind = "window"
+            if kind:
+                cands.append((kind, b, rect))
+        for kind, b, rect in outermost(cands, RECT_JOIN_M / mpu):
+            if kind == "door":
+                doors += 1
+            else:
+                windows += 1
+            # x: the centre from the facade's left end; sill and head in building z.
+            positions.append({"kind": kind, "x": round(((b[0] + b[2]) / 2.0 - x_left) * mpu, 3) + 0.0,
+                              "x_left": round((b[0] - x_left) * mpu, 3) + 0.0, "width": round((b[2] - b[0]) * mpu, 3),
+                              "sill": zy(b[1]), "head": zy(b[3]), "entity": rect["entity"]})
     seen = {"region": region.id, "side": side, "view_bearing_deg": view_bearing_deg(side, north_deg),
             "windows": windows, "doors": doors, "positions_m": sorted(positions, key=lambda p: (p["x"], p["sill"])),
             "plan_check": None}
