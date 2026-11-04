@@ -3782,6 +3782,90 @@
    "request": "4 Nov 2026 (user, real10 facade: 'all these details on the outside of the building is not good enough, some of them marked in the drawing for you to understand. All details must be a lot better', marking the knots where the floor bands meet the pilasters and a block at a pilaster top): floor bands die into the pilasters' sides (the pilaster runs on uninterrupted), no band piece shorter than 0.25 m, a coping only on the roof's own edge; every exterior detail is checked for quality on each run.",
    "lesson": "4 Nov 2026 (user, real10 facade: 'all these details on the outside of the building is not good enough, some of them marked in the drawing for you to understand. All details must be a lot better', marking the knots where the floor bands meet the pilasters and a block at a pilaster top): floor bands die into the pilasters' sides (the pilaster runs on uninterrupted), no band piece shorter than 0.25 m, a coping only on the roof's own edge; every exterior detail is checked for quality on each run.",
    "question": null
+  },
+  {
+   "id": "UL320",
+   "date": "2026-11-04",
+   "area": "plan",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real07: 'If this is a garage (garaj) there will be a car inside and that car should be able to enter and exit, it requires a different kind of a door it requires a garage door'): a garage (GARAJ, garage, carport) is typed a garage; the wide opening in its outer wall is a sectional garage door a car can pass, with a drive from it to the street.",
+   "lesson": "4 Nov 2026 (user, real07: 'If this is a garage (garaj) there will be a car inside and that car should be able to enter and exit, it requires a different kind of a door it requires a garage door'): a garage (GARAJ, garage, carport) is typed a garage; the wide opening in its outer wall is a sectional garage door a car can pass, with a drive from it to the street.",
+   "question": null
+  },
+  {
+   "id": "UL321",
+   "date": "2026-11-04",
+   "area": "plan",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real07: 'this is kat kalaruferi, it is like a heating room, and the entrance to the room is wrong door not recognized properly'): a boiler or heating room (KAT KAL., KAT KALORİFERİ, KAZAN DAİRESİ, boiler room) is a technical room; its drawn door (the swing and the size tag W/H on the door text layer) is a door of that size, never a wide unclassified gap.",
+   "lesson": "4 Nov 2026 (user, real07: 'this is kat kalaruferi, it is like a heating room, and the entrance to the room is wrong door not recognized properly'): a boiler or heating room (KAT KAL., KAT KALORİFERİ, KAZAN DAİRESİ, boiler room) is a technical room; its drawn door (the swing and the size tag W/H on the door text layer) is a door of that size, never a wide unclassified gap.",
+   "question": null
+  },
+  {
+   "id": "UL322",
+   "date": "2026-11-04",
+   "area": "roof",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real07: 'There are lots of details on how the roofing should have been on top of the garage etc. why you are not using it to design the roof?'): the roof is designed from every drawing that shows it: the roof plan's eaves, hips and valleys over all the parts of the building (the upper floor and the lower wings, the garage), the sections' and the elevations' pitches, eaves and ridge heights and their covering (tiles); a site plan is never read as a section.",
+   "lesson": "4 Nov 2026 (user, real07: 'There are lots of details on how the roofing should have been on top of the garage etc. why you are not using it to design the roof?'): the roof is designed from every drawing that shows it: the roof plan's eaves, hips and valleys over all the parts of the building (the upper floor and the lower wings, the garage), the sections' and the elevations' pitches, eaves and ridge heights and their covering (tiles); a site plan is never read as a section.",
+   "question": null
+  },
+  {
+   "id": "UL323",
+   "date": "2026-11-04",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "reading"
+   ],
+   "request": "4 Nov 2026 (user, real07: 'where is the havuz (pool) ?'): labels written letter-spaced ('H A V U Z', 'Y O L') are read as their words; a drawn pool (its outline, water hatch, level mark) is built with its coping and water.",
+   "lesson": "4 Nov 2026 (user, real07: 'where is the havuz (pool) ?'): labels written letter-spaced ('H A V U Z', 'Y O L') are read as their words; a drawn pool (its outline, water hatch, level mark) is built with its coping and water.",
+   "question": null
+  },
+  {
+   "id": "UL324",
+   "date": "2026-11-04",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real07: 'there should have been 2 villas right?'): the site plan is read for how many buildings stand on the plot and where (copies of the drawn house, turned and mirrored as drawn), the plot, the roads, the pools and the trees.",
+   "lesson": "4 Nov 2026 (user, real07: 'there should have been 2 villas right?'): the site plan is read for how many buildings stand on the plot and where (copies of the drawn house, turned and mirrored as drawn), the plot, the roads, the pools and the trees.",
+   "question": null
+  },
+  {
+   "id": "UL325",
+   "date": "2026-11-04",
+   "area": "report",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real07: '2nd floor not modeled properly check it'): every floor is checked on its top-down view; a view that shows a solid block instead of the rooms is a fault of the view or of the model and is fixed before the user sees it.",
+   "lesson": "4 Nov 2026 (user, real07: '2nd floor not modeled properly check it'): every floor is checked on its top-down view; a view that shows a solid block instead of the rooms is a fault of the view or of the model and is fixed before the user sees it.",
+   "question": null
+  },
+  {
+   "id": "UL326",
+   "date": "2026-11-04",
+   "area": "facade",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "4 Nov 2026 (user, real07: 'I did not like these outside details, give some more modern details', marking the roof edge whose tile texture read as a row of dentils and the blocks capping the pilasters): a flat roof takes a flat covering (gravel on the membrane, or the style's flat covering) and a slim anthracite metal fascia and coping; tiles are for pitched roofs only; no classical dentil, bracket or block detail on a modern facade.",
+   "lesson": "4 Nov 2026 (user, real07: 'I did not like these outside details, give some more modern details', marking the roof edge whose tile texture read as a row of dentils and the blocks capping the pilasters): a flat roof takes a flat covering (gravel on the membrane, or the style's flat covering) and a slim anthracite metal fascia and coping; tiles are for pitched roofs only; no classical dentil, bracket or block detail on a modern facade.",
+   "question": null
   }
  ]
 }

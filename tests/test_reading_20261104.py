@@ -554,3 +554,16 @@ def test_floor_bands_die_into_pilasters():
     clean = F._band_boxes(outline, 2.9, 3.1, 0.03, [], "band", "L1", piers=True)
     assert len(wrap) == 8 and len(clean) == 5
     assert all(b["size"][0] > 1.0 for b in clean)
+
+
+def test_a_flat_roof_has_a_flat_covering_and_a_metal_fascia():
+    """real07 (user: "I did not like these outside details, give some more modern details"): the flat roof's tile
+    edge read as a dentil course."""
+    from wenart.blender import build as BU
+
+    cov, fascia, note = BU.roof_slot_looks({"type": "flat"}, {"roof": {"material": "concrete_tiles"}})
+    assert cov["material"] == "gravel" and fascia["material"] == "aluminium_anthracite" and note
+    cov, fascia, _ = BU.roof_slot_looks({"type": "flat"}, {"roof": {"material": "green_roof"}})
+    assert cov["material"] == "green_roof"
+    cov, _, _ = BU.roof_slot_looks({"type": "hip"}, {"roof": {"material": "concrete_tiles"}})
+    assert cov["material"] == "concrete_tiles"

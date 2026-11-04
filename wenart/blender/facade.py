@@ -465,6 +465,12 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
                                               "reason": "window surround (style family; not drawn)"},
     }
     out_looks["coping"] = out_looks["band"]
+    if (roof_model or {}).get("type") == "flat" and not looks.get("coping"):
+        # 4 Nov 2026 (real07, user: "give some more modern details"): a flat roof's coping is a slim anthracite metal
+        # cap like its fascia, not a render block
+        mat, colour, _why = KIT_LOOKS["gutter"]
+        out_looks["coping"] = {"material": mat, "colour": colour, "source": "build", "assumed": True,
+                               "reason": "a flat roof's coping: slim anthracite aluminium, like its fascia (not drawn)"}
     boxes: list[dict] = []
     assumed = []
     order = sorted(levels, key=lambda lv: float(lv["elevation"]))

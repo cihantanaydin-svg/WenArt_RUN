@@ -2713,7 +2713,29 @@ def roof_slot_looks(roof: dict, looks: dict) -> tuple[dict, dict, dict | None]:
         note = {"object": "roof", "field": "fascia_material", "value": material,
                 "reason": PITCHED_FASCIA_REASON.format(material=material)}
         return covering, fascia, note
+    if roof.get("type") == "flat":
+        # 4 Nov 2026 (real07, user: "I did not like these outside details, give some more modern details"): a flat
+        # roof wore the style's concrete tiles, its edge a row of tile teeth like a classical dentil course. A flat
+        # roof takes a flat covering (gravel on the membrane, unless the style names a flat one) and a slim
+        # anthracite aluminium fascia on its edge, the modern coping
+        from wenart.blender import facade as FA
+        if str(covering.get("material") or "") not in FLAT_COVERINGS:
+            covering = {"material": "gravel", "colour": "grey", "rgb": None, "asset": None, "source": "build",
+                        "assumed": True, "reason": FLAT_ROOF_REASON, "evidence": []}
+        material, colour, _why = FA.KIT_LOOKS["gutter"]
+        fascia = {"material": material, "colour": colour, "rgb": None, "asset": None, "source": "build",
+                  "assumed": True, "reason": FLAT_FASCIA_REASON.format(material=material), "evidence": []}
+        note = {"object": "roof", "field": "fascia_material", "value": material,
+                "reason": FLAT_FASCIA_REASON.format(material=material)}
+        return covering, fascia, note
     return covering, covering, None
+
+
+FLAT_COVERINGS = ("gravel", "green_roof", "concrete_exposed", "concrete_polished", "standing_seam", "decking", "paving",
+                  "paving_stone", "microcement")
+FLAT_ROOF_REASON = "flat roof: gravel on the membrane (a tile covering is for a pitched roof; not drawn)"
+FLAT_FASCIA_REASON = ("flat roof: its edge a slim {material} fascia, the modern coping (no tile edge, no dentils; "
+                      "not drawn)")
 
 
 def unused_replayed(plans: list[dict], camera_plans: list[dict], dropped: list[dict] | None = None) -> list[dict]:
