@@ -561,6 +561,13 @@ def assign_levels(plans: list, needs_review: list, warnings: list,
         return
     for r in untitled:
         r.use, r.ignored_reason = "ignored", "plan without a level title (its level cannot be told)"
+        if titled and not free and getattr(r, "class_method", None) == "geometry":
+            # 4 Nov 2026 (real04 r14, after the letter-spaced labels were read): an untitled drawing that only its
+            # geometry calls a plan, while every level between the titled ones has its plan, is an extra drawing (a key
+            # plan, a copy): listed, never a stop
+            warnings.append(f"{r.file} {r.id}: a plan by its geometry without a level title while every level has its "
+                            f"plan: an extra drawing, not read")
+            continue
         needs_review.append({"region": r.id, "file": r.file,
                              "reason": f"{r.file} {r.id}: plan without a level title; {len(untitled)} untitled plans, "
                                        f"{len(free)} free level slot(s)"})
