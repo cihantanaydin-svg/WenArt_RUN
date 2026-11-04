@@ -3568,6 +3568,16 @@
    "request": "A door jamb the drafter drew as two stubs side by side, or as a frame cap at a wall end, still ends the wall's door gap: a cast from a free wall end counts the stubs at one spot together and hits frame caps, so the door in that gap is read (user, 4 Nov 2026, real10 L-1: 'fix the antre and kitchen')",
    "lesson": "A door jamb the drafter drew as two stubs side by side, or as a frame cap at a wall end, still ends the wall's door gap: a cast from a free wall end counts the stubs at one spot together and hits frame caps, so the door in that gap is read (user, 4 Nov 2026, real10 L-1: 'fix the antre and kitchen')",
    "question": null
+  },
+  {
+   "id": "UL302",
+   "date": "2026-11-04",
+   "area": "reading",
+   "status": "process",
+   "checks": [],
+   "request": "4 Nov 2026 (user, real17: 'Stop wasting time trying to correct the real17, some of the projects are seem to be not good enough to be corrected. If you think that is you can tell me so I can check the drawing directly, Give me the real17 drawings'): when a project keeps needing fix after fix, stop after the first clear general fixes, tell the user plainly which problems are the drawing's and which are the reader's, and give them the drawings (every region as an image, with the model drawn over each plan) to check directly, instead of grinding on one project.",
+   "lesson": "4 Nov 2026 (user, real17: 'Stop wasting time trying to correct the real17, some of the projects are seem to be not good enough to be corrected. If you think that is you can tell me so I can check the drawing directly, Give me the real17 drawings'): when a project keeps needing fix after fix, stop after the first clear general fixes, tell the user plainly which problems are the drawing's and which are the reader's, and give them the drawings (every region as an image, with the model drawn over each plan) to check directly, instead of grinding on one project.",
+   "question": null
   }
  ]
 }
