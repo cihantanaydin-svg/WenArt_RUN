@@ -75,6 +75,8 @@ def compare(base: dict, new: dict) -> list[str]:
         out.append(f"critical findings: {(bc.get('counts') or {}).get('critical', 0)} -> "
                    f"{(nc.get('counts') or {}).get('critical', 0)}")
     for lid, off in (nc.get("stacking") or {}).items():
+        if lid not in (base.get("levels") or []):
+            continue                                   # 4 Nov 2026: a level the baseline never read cannot regress
         was = (bc.get("stacking") or {}).get(lid) or 0.0
         if off is not None and off > was + STACK_TOL_M:
             out.append(f"{lid} stacking offset: {was:.2f} -> {off:.2f} m")

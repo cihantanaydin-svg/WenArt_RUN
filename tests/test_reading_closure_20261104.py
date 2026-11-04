@@ -325,3 +325,17 @@ def test_every_conflict_kind_the_sheets_write_is_in_the_building_schema():
     sheet_kinds = set(sheets["$defs"]["conflict"]["properties"]["kind"]["enum"])
     building_kinds = set(building["$defs"]["conflict"]["properties"]["kind"]["enum"])
     assert sheet_kinds <= building_kinds, sheet_kinds - building_kinds
+
+
+def test_a_level_the_baseline_never_read_has_no_stacking_regression():
+    """real13 after build_marked: L4 is read for the first time, 2.95 m off L0; the baseline had no L4 at all, so
+    that is a new finding to fix, not a regression of the reading (the per-level counts skip such levels too)."""
+    from wenart.reading_check import regress as RG
+
+    base = {"status": "needs_review", "levels": [], "levels_left_out": ["3. Kat"], "per_level": {},
+            "check": {"verdict": "fix before a pod run", "counts": {"critical": 1}, "stacking": {}}}
+    new = {"status": "ok", "levels": ["L0", "L4"], "levels_left_out": [], "per_level": {"L0": {}, "L4": {}},
+           "check": {"verdict": "fix before a pod run", "counts": {"critical": 1}, "stacking": {"L4": 2.95}}}
+    assert RG.compare(base, new) == []
+    base2 = dict(base, levels=["L4"], per_level={"L4": {}})
+    assert RG.compare(base2, new) == ["L4 stacking offset: 0.00 -> 2.95 m"]
