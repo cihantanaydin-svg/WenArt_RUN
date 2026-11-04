@@ -97,5 +97,29 @@ def project_08(spaced: bool = True) -> FailureProject:
                                                 "labels": ["HAVUZ", "YOL"]}})
 
 
+def _drop(plan: Plan, *ids: str) -> None:
+    plan.openings = [o for o in plan.openings if o.id not in ids]
+
+
+def _relabel(plan: Plan, mapping: dict) -> None:
+    for lb in plan.labels:
+        lb.text = mapping.get(lb.text, lb.text)
+
+
+def project_09() -> FailureProject:
+    """synthetic-09-jamb-stubs (UL301): the inner walls are 16 cm thick and every inner door's jambs are drawn the
+    way real10's drafter drew them: on one side of the gap the wall faces stop open and two short stubs stand side by
+    side across the wall (7 cm and 3 cm, 5 cm long, the frame and its stop), on the other side the wall faces stop
+    open with a frame cap (one line across the wall end on KAPI). The doors are drawn as usual (arc and leaf)."""
+    plan = base_house()
+    plan.walls = [Wall(w.id, w.a, w.b, 0.16) if w.id.startswith("i") else w for w in plan.walls]
+    for op in plan.openings:
+        if op.kind == "door" and op.wall.startswith("i"):
+            op.jamb_start, op.jamb_end = ("cap", "stubs") if op.hinge == "start" else ("stubs", "cap")
+    return FailureProject("synthetic-09-jamb-stubs", "jamb_stubs", "UL301",
+                          "door jambs drawn as two short stubs side by side and as frame caps at open wall ends",
+                          [plan], [GROUND], BRIEF)
+
+
 def failure_projects() -> list[FailureProject]:
-    return [project_08()]
+    return [project_08(), project_09()]

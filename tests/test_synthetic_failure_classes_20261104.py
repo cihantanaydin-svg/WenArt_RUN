@@ -76,6 +76,7 @@ def truth_of(generated, name) -> dict:
 
 EXPECTED_NAMES = [
     "synthetic-08-spaced-labels",
+    "synthetic-09-jamb-stubs",
 ]
 
 
@@ -276,3 +277,30 @@ def test_08_spaced_pool_label_gives_the_pool(generated, read):
     pools = (b.get("site") or {}).get("pools") or []
     assert len(pools) == 1
     assert Polygon(pools[0]["polygon"]).symmetric_difference(Polygon(t["site"]["pools"][0]["polygon"])).area < 0.1
+
+
+# --- synthetic-09-jamb-stubs ---------------------------------------------------------------------------------------
+
+def test_09_jamb_stubs_are_drawn(generated):
+    import ezdxf.recover
+    doc, _ = ezdxf.recover.readfile(str(generated / "synthetic-09-jamb-stubs" / FC.DXF_FILE))
+    walls = list(doc.modelspace().query('LWPOLYLINE[layer=="DUVAR"]'))
+    small = [e for e in walls if e.closed and len(e) == 4 and _box_size(e) in ((5.0, 7.0), (3.0, 5.0))]
+    assert len(small) == 2 * 5                 # two stubs at one jamb of each of the five inner doors
+    assert any(not e.closed for e in walls)    # the wall faces stop open at the jambs
+    caps = doc.modelspace().query('LINE[layer=="KAPI"]')
+    assert sum(1 for e in caps if round(math.dist(e.dxf.start, e.dxf.end), 3) == 16.0) == 5
+
+
+def _box_size(e) -> tuple:
+    xs = [p[0] for p in e.get_points()]
+    ys = [p[1] for p in e.get_points()]
+    return tuple(sorted((round(max(xs) - min(xs), 3), round(max(ys) - min(ys), 3))))
+
+
+def test_09_doors_in_stub_jambs_are_read(generated, read):
+    t = truth_of(generated, "synthetic-09-jamb-stubs")
+    b = read("synthetic-09-jamb-stubs")
+    doors = [o for o in b["openings"] if o["type"] == "door"]
+    for d in t["per_level"]["L0"]["doors"]:
+        assert any(math.dist(o["center"], d["center"]) <= CENTRE_TOL_M for o in doors), d

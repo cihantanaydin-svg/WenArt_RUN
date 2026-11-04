@@ -281,6 +281,7 @@ failure), and the mark goes.
 | Project | Class | Lesson | Levels | Rooms | Doors | Windows | Stairs | Reader today (rooms / doors / windows / stairs per level) | Tests |
 |---|---|---|---|---|---|---|---|---|---|
 | `synthetic-08-spaced-labels` | spaced_labels | UL323 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 (labels `Yatakodası`, no pool) | counts, geometry pass; words, pool xfail |
+| `synthetic-09-jamb-stubs` | jamb_stubs | UL301 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 | pass |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -292,6 +293,13 @@ as words, one pool (`site.pools`, building metres: the outline round the HAVUZ l
 windows right and the room types right, but a two-word label loses its word gap (`Yatakodası`, `Çocukodası`), and the
 site plan's spaced `H A V U Z` is not read, so there is no pool (with the same labels written whole, the pool is read:
 the drawing is right) — both strict xfails.
+
+### synthetic-09-jamb-stubs (UL301)
+
+The base flat with 16 cm inner walls; at every inner door the wall faces stop open, on the hinge side's far jamb two
+short stubs stand side by side across the wall (7 cm and 3 cm, 5 cm long: the frame and its stop, on `DUVAR`) and on
+the other jamb a frame cap closes the wall end (one 16 cm `LINE` on `KAPI`), as real10's drafter drew them. Reader
+today: every door read at its place (passes).
 
 ## Coordinate conventions
 
