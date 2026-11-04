@@ -676,3 +676,16 @@ def test_a_doorless_opening_into_a_dressing_room_is_an_open_passage():
     o = {"id": "o1", "level_id": "L1", "type": "opening", "center": [2.0, 0.6], "width": 0.8, "height": 2.1}
     notes = TW.open_passages([dress, bed], [o], [{"id": "L1", "ceiling_height": 2.7}])
     assert notes and o["height"] == 2.7 and o["open_passage"]
+
+
+def test_a_word_written_letter_by_letter_is_one_label():
+    """real07 (user: "where is the havuz (pool) ?"): 'H', 'A', 'V', 'U', 'Z' were five texts."""
+    from wenart.ingest.generic import labels as LB
+    from wenart.ingest.generic.model import TextRun
+
+    letters = [TextRun(id=f"T{k}", text=c, box=(k * 0.4, 0.0, k * 0.4 + 0.2, 0.25), height=0.25)
+               for k, c in enumerate("HAVUZ")]
+    other = TextRun(id="X", text="SALON", box=(0, 3, 1, 3.25), height=0.25)
+    out = LB.join_spaced_letters(letters + [other])
+    assert sorted(t.text for t in out) == ["HAVUZ", "SALON"]
+    assert LB.area_kind("HAVUZ") == "pool"

@@ -377,13 +377,55 @@ def _services_text(run: TextRun) -> bool:
     return any(SERVICES_LAYER_RE.search(name.upper()) for name in layers if name)
 
 
+LETTER_GAP_H = 3.0              # 4 Nov 2026 (UL323): letters of one word written one by one at most this many heights apart
+LETTER_H_TOL = 0.25             # ... of one height (within this share) ...
+LETTER_LINE_TOL = 0.5           # ... and on one line (centres within this many heights)
+
+
+def join_spaced_letters(texts: list) -> list:
+    """4 Nov 2026 (real07, user: "where is the havuz (pool) ?"): a word written as single letters, each its own text
+    ('H', 'A', 'V', 'U', 'Z'), is one text: runs of three or more one-letter texts of one height on one horizontal line,
+    each next letter within ``LETTER_GAP_H`` heights, become one run with the joined word (the others stay as they are)."""
+    singles = [t for t in texts if len((t.text or "").strip()) == 1 and (t.text or "").strip().isalpha()
+               and abs(float(getattr(t, "rotation_deg", 0.0) or 0.0)) % 360.0 < 1.0 and t.height > 0]
+    if len(singles) < 3:
+        return texts
+    singles.sort(key=lambda t: (round((t.box[1] + t.box[3]) / 2.0 / max(t.height, 1e-9)), t.box[0]))
+    used: set = set()
+    words = []
+    for i, a in enumerate(singles):
+        if id(a) in used:
+            continue
+        run = [a]
+        for b in singles[i + 1:]:
+            last = run[-1]
+            h = last.height
+            if id(b) in used or abs(b.height - h) > LETTER_H_TOL * h:
+                continue
+            if abs((b.box[1] + b.box[3]) / 2.0 - (last.box[1] + last.box[3]) / 2.0) > LETTER_LINE_TOL * h:
+                continue
+            gap = b.box[0] - last.box[2]
+            if -0.2 * h <= gap <= LETTER_GAP_H * h:
+                run.append(b)
+        if len(run) >= 3:
+            used |= {id(t) for t in run}
+            x0, y0 = min(t.box[0] for t in run), min(t.box[1] for t in run)
+            x1, y1 = max(t.box[2] for t in run), max(t.box[3] for t in run)
+            words.append(TextRun(id=run[0].id, text="".join(t.text.strip() for t in run), box=(x0, y0, x1, y1),
+                                 height=run[0].height, rotation_deg=0.0, source=run[0].source,
+                                 evidence=[dict(e) for e in run[0].evidence]))
+    if not words:
+        return texts
+    return [t for t in texts if id(t) not in used] + words
+
+
 def merge_label_blocks(texts_m: list[TextRun], file_rel: Optional[str] = None,
                        page: Optional[int] = None) -> list[LabelBlock]:
     """Text runs of one page -> room/site label blocks (§2.7.2), in reading order (top to bottom, left to right).
 
     ``file_rel``/``page`` build the evidence of runs that carry none (vector runs: confidence 1.0).
     """
-    texts_m = [t for t in texts_m if not _services_text(t)]
+    texts_m = join_spaced_letters([t for t in texts_m if not _services_text(t)])
     system = page_unit_system(texts_m)
     lines = [_classify(t, system) for t in texts_m if t.text and t.text.strip()]
     candidates = [ln for ln in lines if ln.kind != "skip"]
