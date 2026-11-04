@@ -123,8 +123,8 @@ Tracks that touch different modules run in parallel in worktree agents, as the l
 
 | day | work | the user sees |
 |---|---|---|
-| 1 (5 Nov) | R1: correction records of UL274 to UL328 backfilled, truth from the accepted readings, the score script; R2: closure that never leaves a level out (glazed runs, cracks, the twin, the typical floor), RC7 low-confidence places | real09, real11, real13 read with every level; the first score table of all 21 projects; sheets with low-confidence colours |
-| 2 (6 Nov) | R2: candidates with margins for gap kind and wall-vs-notation; R5: elevation windows against the plan, section storeys against the levels, size tags against doors and windows; R9 capture: a remark becomes a record with its crop | sheets of real10, real09, real17 with the reviewers' findings pre-marked, for the user's detailed review; every remark answered with its record and crop |
+| 1 (5 Nov) | R1: correction records of UL274 to UL328 backfilled, truth from the accepted readings, the score script; R2: closure that never leaves a level out (glazed runs, cracks, the twin, the typical floor), RC7 low-confidence places; everything on all 21 real projects and the 7 synthetic ones | every real project read with every level (the 11 that lose levels today first); the first score table of all 28 projects; sheets with low-confidence colours |
+| 2 (6 Nov) | R2: candidates with margins for gap kind and wall-vs-notation; R5: elevation windows against the plan, section storeys against the levels, size tags against doors and windows; R9 capture: a remark becomes a record with its crop | the sheets of every project with the reviewers' findings pre-marked, for the user's detailed review of as many as the user wants (the user's time is the only limit); every remark answered with its record and crop |
 | 3 (7 Nov) | R3: ranker v1 (gap kind, wall vs notation) trained on truth and corrections, compared with the fall-through rules on held-out projects; R8: mirror, rotation, unit and layer-name stability; score per commit as a gate | the ranker's gain per project; the fragile places found by the stability tests |
 | 4 (8 Nov) | R4: the raster reader on the rendered regions as a second opinion; R7: generator options for the first five failure classes; the lesson-to-test rule | disagreement findings on the open projects; the lessons file with a case per reading lesson |
 | 5 (9 Nov) | R6: critic calibrated with one short pod (vision extraction and the question bank), recall and precision against the user's past corrections; R9: the findings page | the calibration table (what the machine finds of what the user found); the page with the first findings |
@@ -158,4 +158,6 @@ dollars.
 1. R1: the correction records of UL274 to UL328 and the truth of the accepted projects; the score script.
 2. R2: candidates with margins for gap kind and wall-vs-notation; closure that never leaves a level out; RC7.
 3. R5: windows per facade from the elevations against the plan; storeys from the sections against the levels.
-4. Test cases: real09 (glazed facades), real10 (recess, typical floors), real17 (core stair, shop front).
+4. All 21 real projects and the 7 synthetic ones from the first day (user, 4 Nov 2026: "why only 3 projects?"); real09
+   (glazed facades), real10 (recess, typical floors) and real17 (core stair, shop front) are only named because they
+   show three different failure classes. Every change is scored on every project.
