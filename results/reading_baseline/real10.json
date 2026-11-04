@@ -1,6 +1,6 @@
 {
  "project": "real10",
- "status": "ok",
+ "status": "needs_review",
  "levels": [
   "L-2",
   "L-1",
@@ -32,64 +32,64 @@
    "room_area": 237.0
   },
   "L0": {
-   "rooms": 31,
-   "walls": 233,
+   "rooms": 26,
+   "walls": 245,
    "doors": 29,
-   "windows": 14,
-   "openings": 40,
-   "room_area": 277.6
+   "windows": 16,
+   "openings": 28,
+   "room_area": 267.9
   },
   "L1": {
-   "rooms": 31,
-   "walls": 233,
+   "rooms": 26,
+   "walls": 245,
    "doors": 29,
-   "windows": 14,
-   "openings": 40,
-   "room_area": 277.6
+   "windows": 16,
+   "openings": 28,
+   "room_area": 267.9
   },
   "L2": {
-   "rooms": 31,
-   "walls": 233,
+   "rooms": 26,
+   "walls": 245,
    "doors": 29,
-   "windows": 14,
-   "openings": 40,
-   "room_area": 277.6
+   "windows": 16,
+   "openings": 28,
+   "room_area": 267.9
   },
   "L3": {
-   "rooms": 31,
-   "walls": 233,
+   "rooms": 26,
+   "walls": 245,
    "doors": 29,
-   "windows": 14,
-   "openings": 40,
-   "room_area": 277.6
+   "windows": 16,
+   "openings": 28,
+   "room_area": 267.9
   },
   "L4": {
-   "rooms": 31,
-   "walls": 233,
+   "rooms": 26,
+   "walls": 245,
    "doors": 29,
-   "windows": 14,
-   "openings": 40,
-   "room_area": 277.6
+   "windows": 16,
+   "openings": 28,
+   "room_area": 267.9
   },
   "L5": {
-   "rooms": 31,
-   "walls": 233,
+   "rooms": 26,
+   "walls": 245,
    "doors": 29,
-   "windows": 14,
-   "openings": 40,
-   "room_area": 277.6
+   "windows": 16,
+   "openings": 28,
+   "room_area": 267.9
   },
   "L6": {
-   "rooms": 31,
-   "walls": 233,
+   "rooms": 26,
+   "walls": 245,
    "doors": 29,
-   "windows": 14,
-   "openings": 40,
-   "room_area": 277.6
+   "windows": 16,
+   "openings": 28,
+   "room_area": 267.9
   },
   "L7": {
    "rooms": 2,
-   "walls": 117,
+   "walls": 133,
    "doors": 2,
    "windows": 0,
    "openings": 1,
@@ -100,7 +100,7 @@
   "verdict": "ready",
   "counts": {
    "critical": 0,
-   "major": 48,
+   "major": 61,
    "minor": 1
   },
   "stacking": {}
