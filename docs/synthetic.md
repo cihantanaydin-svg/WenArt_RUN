@@ -283,6 +283,7 @@ failure), and the mark goes.
 | `synthetic-08-spaced-labels` | spaced_labels | UL323 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 (labels `Yatakodası`, no pool) | counts, geometry pass; words, pool xfail |
 | `synthetic-09-jamb-stubs` | jamb_stubs | UL301 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 | pass |
 | `synthetic-10-glazed-facade` | glazed_facade | UL274 | 1 | 6 | 7 | 9 | 0 | 6 / 6 / 9 / 0 (the frames one 6.3 m window) | xfail |
+| `synthetic-11-dimension-chains` | dimension_chains | UL261, UL296 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 | pass |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -310,6 +311,15 @@ lines, the sliding door on `KAPI` with its two leaves), and short posts between 
 wall (`drawn: false`) with its door and two windows (7 doors, 9 windows). Reader today: the room closes, but the frames
 become one 6.3 m inferred window plus a doubled side window; the sliding door and both windows are missing (strict
 xfail).
+
+### synthetic-11-dimension-chains (UL261, UL296)
+
+The base flat with the notation real10 and real13 carry: exploded dimension chains on `OLCU` (one line, a 7 cm tick
+circle and a 10 cm slash at every point, extension lines, the lengths in centimetres) 0.3 m outside the outer faces on
+all four sides marking every window jamb and wall, the totals 0.9 m out, and two chains 0.3 m inside the walls (along
+the SALON's facade and the ÇOCUK ODASI's right wall); and a grid of solid axis lines on `AKS` through the wall centres
+with numbered (1-4) and lettered (A-C) bubbles at both ends. Truth: as the base flat. Reader today: right (passes; no
+wall, window or room from the notation).
 
 ## Coordinate conventions
 

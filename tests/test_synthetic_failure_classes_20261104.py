@@ -79,6 +79,7 @@ EXPECTED_NAMES = [
     "synthetic-08-spaced-labels",
     "synthetic-09-jamb-stubs",
     "synthetic-10-glazed-facade",
+    "synthetic-11-dimension-chains",
 ]
 
 
@@ -316,3 +317,14 @@ def test_10_glazed_facade_frames_are_its_door_and_windows(generated, read):
     on_facade = sorted((o["type"], round(o["width"], 1)) for o in b["openings"]
                        if o["center"][1] < 0.5 and o["center"][0] < 7.0)
     assert on_facade == [("door", 2.4), ("window", 1.1), ("window", 2.2)]
+
+
+# --- synthetic-11-dimension-chains ---------------------------------------------------------------------------------
+
+def test_11_notation_is_never_a_wall(generated, read):
+    b = read("synthetic-11-dimension-chains")
+    outline = Polygon([(0, 0), (12, 0), (12, 9), (0, 9)]).buffer(0.05)
+    for w in b["walls"]:
+        assert outline.contains(Point(w["start"])) and outline.contains(Point(w["end"])), w["id"]
+    for o in b["openings"]:
+        assert outline.contains(Point(o["center"])), o["id"]

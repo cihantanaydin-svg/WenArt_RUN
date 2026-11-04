@@ -146,5 +146,36 @@ def project_10() -> FailureProject:
                           [plan], [GROUND], BRIEF)
 
 
+def project_11() -> FailureProject:
+    """synthetic-11-dimension-chains (UL261, UL296): the base flat with the notation real10 and real13 carry:
+    exploded dimension chains on OLCU 0.3 m outside the outer faces (and a total chain 0.9 m out) on all four sides
+    and 0.3 m inside the walls of the SALON and the ÇOCUK ODASI, each with 7 cm tick circles, slashes, extension
+    lines and lengths in centimetres; and a grid of solid axis lines on AKS through the wall centres with lettered
+    and numbered bubbles at both ends. None of it is a wall, a window or a room."""
+    plan = base_house()
+    W, H = 12.0, 9.0
+    xs_bottom = [0.0, 1.2, 2.8, 4.2, 5.8, 6.925, 7.075, 8.8, 10.2, 12.0]
+    xs_top = [0.0, 1.4, 2.6, 3.925, 4.075, 4.95, 5.55, 6.425, 6.575, 8.5, 9.9, 12.0]
+    ys_left = [0.0, 1.5, 2.9, 4.325, 4.475, 4.6, 5.6, 5.725, 5.875, 9.0]
+    ys_right = [0.0, 1.6, 2.8, 4.325, 4.475, 6.1, 7.1, 9.0]
+    plan.prims += FC.dim_chain(xs_bottom, (-0.3,), "x", ext_from=-0.05)
+    plan.prims += FC.dim_chain([0.0, W], (-0.9,), "x")
+    plan.prims += FC.dim_chain(xs_top, (H + 0.3,), "x", ext_from=H + 0.05)
+    plan.prims += FC.dim_chain([0.0, W], (H + 0.9,), "x")
+    plan.prims += FC.dim_chain(ys_left, (-0.3,), "y", ext_from=-0.05)
+    plan.prims += FC.dim_chain([0.0, H], (-0.9,), "y")
+    plan.prims += FC.dim_chain(ys_right, (W + 0.3,), "y", ext_from=W + 0.05)
+    plan.prims += FC.dim_chain([0.0, H], (W + 0.9,), "y")
+    # inside chains, 0.3 m from the inner faces: along the SALON's facade and the ÇOCUK ODASI's right wall
+    plan.prims += FC.dim_chain([0.25, 1.2, 2.8, 4.2, 5.8, 6.925], (0.25 + 0.3,), "x")
+    plan.prims += FC.dim_chain([4.475, 6.1, 7.1, 8.75], (W - 0.25 - 0.3,), "y")
+    plan.prims += FC.axis_grid([0.125, 4.0, 7.0, 11.875], [0.125, 4.4, 8.875], (-2.0, -2.0, W + 2.0, H + 2.0),
+                               ["1", "2", "3", "4"], ["A", "B", "C"])
+    plan.title_at = (6.0, -3.6)
+    return FailureProject("synthetic-11-dimension-chains", "dimension_chains", "UL296",
+                          "dimension chains outside and inside the walls with tick circles and slashes, and an axis "
+                          "grid with bubbles", [plan], [GROUND], BRIEF, extra_truth={"lessons": ["UL261", "UL296"]})
+
+
 def failure_projects() -> list[FailureProject]:
-    return [project_08(), project_09(), project_10()]
+    return [project_08(), project_09(), project_10(), project_11()]
