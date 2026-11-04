@@ -177,5 +177,42 @@ def project_11() -> FailureProject:
                           "grid with bubbles", [plan], [GROUND], BRIEF, extra_truth={"lessons": ["UL261", "UL296"]})
 
 
+def project_12() -> FailureProject:
+    """synthetic-12-mirrored-halves (UL276): two flats mirrored about a 25 cm party wall (x = 7.0, the building
+    14.0 x 9.0 m). The left flat carries the labels and the door swings; the right flat is its mirror image with the
+    same walls, door gaps and windows but no labels and no swings (the drafter drew one flat and mirrored the walls
+    only). Each flat: SALON below, YATAK ODASI, HOL and BANYO above. Truth: 8 rooms, the right flat's rooms named
+    after their twins, 8 doors, 12 windows."""
+    W, H = 14.0, 9.0
+    plan = Plan("p0", (10.0, 10.0), outer_walls("e", W, H) + [Wall("party", (7.0, 0.0), (7.0, H), EXT_T)],
+                title="ZEMİN KAT PLANI")
+    left_walls = [Wall("a1", (0.0, 4.6), (7.0, 4.6), INT_T), Wall("a2", (3.0, 4.6), (3.0, H), INT_T),
+                  Wall("a3", (5.0, 4.6), (5.0, H), INT_T)]
+    plan.walls += left_walls + [Wall("b" + w.id[1:], (W - w.a[0], w.a[1]), (W - w.b[0], w.b[1]), w.t)
+                                for w in left_walls]
+    left = [("entrance", "door", "e3", (4.0, H - 0.125), 1.0, dict(hinge="start", side=1)),
+            ("d_salon", "door", "a1", (4.0, 4.6), 0.9, dict(hinge="start", side=-1)),
+            ("d_yatak", "door", "a2", (3.0, 6.0), 0.9, dict(hinge="start", side=1)),
+            ("d_banyo", "door", "a3", (5.0, 6.0), 0.8, dict(hinge="end", side=-1)),
+            ("w_salon1", "window", "e1", (2.0, 0.125), 1.6, {}),
+            ("w_salon2", "window", "e1", (5.0, 0.125), 1.6, {}),
+            ("w_salon3", "window", "e4", (0.125, 2.3), 1.2, {}),
+            ("w_yatak1", "window", "e4", (0.125, 6.8), 1.2, {}),
+            ("w_yatak2", "window", "e3", (1.5, H - 0.125), 1.2, {}),
+            ("w_banyo", "window", "e3", (6.0, H - 0.125), 0.6, {})]
+    wall_mirror = {"e1": "e1", "e3": "e3", "e4": "e2", "a1": "b1", "a2": "b2", "a3": "b3"}
+    for oid, kind, wall, at, width, kw in left:
+        FC.place(plan, oid, kind, wall, at, width, **kw)
+    for oid, kind, wall, at, width, kw in left:
+        FC.place(plan, oid + "_m", kind, wall_mirror[wall], (W - at[0], at[1]), width,
+                 draw_symbol=(kind != "door"), **kw)
+    plan.labels = [Label("SALON", (3.5, 2.3)), Label("YATAK ODASI", (1.5, 7.0)), Label("HOL", (4.0, 7.0)),
+                   Label("BANYO", (6.0, 7.4))]
+    plan.truth_rooms = {(W - lb.at[0], lb.at[1]): lb.text for lb in plan.labels}
+    return FailureProject("synthetic-12-mirrored-halves", "mirrored_halves", "UL276",
+                          "two mirrored flats about a party wall; only the left flat carries labels and door swings",
+                          [plan], [GROUND], BRIEF)
+
+
 def failure_projects() -> list[FailureProject]:
-    return [project_08(), project_09(), project_10(), project_11()]
+    return [project_08(), project_09(), project_10(), project_11(), project_12()]

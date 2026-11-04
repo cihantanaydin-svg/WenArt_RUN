@@ -51,6 +51,7 @@ def _xfail(cls: str, lesson: str, what: str = ""):
 # What the reader does not handle yet (4 Nov 2026, measured on the generated projects): per test, per project.
 XFAIL_COUNTS = {
     "synthetic-10-glazed-facade": _xfail("glazed_facade", "UL274", "the frames become one 6.3 m window"),
+    "synthetic-12-mirrored-halves": _xfail("mirrored_halves", "UL276", "unswung door gaps are openings or a window"),
 }
 XFAIL_GEOMETRY = dict(XFAIL_COUNTS)
 
@@ -80,6 +81,7 @@ EXPECTED_NAMES = [
     "synthetic-09-jamb-stubs",
     "synthetic-10-glazed-facade",
     "synthetic-11-dimension-chains",
+    "synthetic-12-mirrored-halves",
 ]
 
 
@@ -328,3 +330,12 @@ def test_11_notation_is_never_a_wall(generated, read):
         assert outline.contains(Point(w["start"])) and outline.contains(Point(w["end"])), w["id"]
     for o in b["openings"]:
         assert outline.contains(Point(o["center"])), o["id"]
+
+
+# --- synthetic-12-mirrored-halves ----------------------------------------------------------------------------------
+
+@_xfail("mirrored_halves", "UL276", "the unlabelled flat's rooms stay 'Oda'")
+def test_12_mirrored_flat_rooms_take_their_twins_names(generated, read):
+    b = read("synthetic-12-mirrored-halves")
+    right = sorted(_fold(r["label"]) for r in b["rooms"] if Polygon(r["polygon"]).centroid.x > 7.0)
+    assert right == ["banyo", "hol", "salon", "yatak odasi"]

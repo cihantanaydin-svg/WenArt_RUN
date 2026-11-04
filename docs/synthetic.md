@@ -284,6 +284,7 @@ failure), and the mark goes.
 | `synthetic-09-jamb-stubs` | jamb_stubs | UL301 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 | pass |
 | `synthetic-10-glazed-facade` | glazed_facade | UL274 | 1 | 6 | 7 | 9 | 0 | 6 / 6 / 9 / 0 (the frames one 6.3 m window) | xfail |
 | `synthetic-11-dimension-chains` | dimension_chains | UL261, UL296 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 | pass |
+| `synthetic-12-mirrored-halves` | mirrored_halves | UL276 | 1 | 8 | 8 | 12 | 0 | 8 / 4 / 13 / 0 (+3 openings; 4 rooms `Oda`) | xfail |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -320,6 +321,14 @@ all four sides marking every window jamb and wall, the totals 0.9 m out, and two
 the SALON's facade and the ÇOCUK ODASI's right wall); and a grid of solid axis lines on `AKS` through the wall centres
 with numbered (1-4) and lettered (A-C) bubbles at both ends. Truth: as the base flat. Reader today: right (passes; no
 wall, window or room from the notation).
+
+### synthetic-12-mirrored-halves (UL276)
+
+Two flats mirrored about a 25 cm party wall (the building 14.0 × 9.0 m, the wall at x = 7.0): SALON below, YATAK ODASI,
+HOL and BANYO above, the entrance from the top facade. The left flat carries the labels and the door swings; the right
+flat has the same walls, door gaps and windows but no labels and no swings. Truth: 8 rooms (the right flat's named after
+their twins), 8 doors, 12 windows. Reader today: the right flat's rooms stay `Oda` (type unknown), its three inner door
+gaps are doorless openings and its entrance gap a window (strict xfails).
 
 ## Coordinate conventions
 
