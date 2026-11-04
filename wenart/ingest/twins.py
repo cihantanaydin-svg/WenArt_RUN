@@ -808,7 +808,7 @@ def garage_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> 
         was = o.get("type")
         o["type"] = "door"
         o["door_type"] = "garage_sectional"
-        o["operation"], o["operation_source"] = "sectional", "assumed"
+        o["operation"], o["operation_source"] = "unknown", "assumed"     # the schema's ways; door_type says sectional
         o["sill_height"] = 0.0
         if not o.get("height") or float(o.get("height") or 0.0) < 2.0:
             o["height"] = GARAGE_DOOR_H_M
