@@ -89,6 +89,7 @@ EXPECTED_NAMES = [
     "synthetic-15-winder-stair",
     "synthetic-16-open-recess",
     "synthetic-17-garage-lift",
+    "synthetic-18-sheet-frame",
 ]
 
 
@@ -423,3 +424,20 @@ def test_17_lift_shaft_has_its_landing_door(generated, read):
     poly = Polygon(shafts[0]["polygon"])
     doors = [o for o in b["openings"] if o["type"] == "door" and poly.exterior.distance(Point(o["center"])) < 0.2]
     assert len(doors) == 1 and doors[0]["width"] == pytest.approx(0.9, abs=WIDTH_TOL_M)
+
+
+# --- synthetic-18-sheet-frame --------------------------------------------------------------------------------------
+
+def test_18_sheet_frame_levels_from_the_plan_titles(generated, read):
+    b = read("synthetic-18-sheet-frame")
+    assert [(lv["id"], lv["elevation"]) for lv in b["levels"]] == [("L0", 0.0), ("L1", 3.0)]
+
+
+@_xfail("sheet_frame", "UL268", "the section 1.5 m beside the plans inside the frame is no region of its own")
+def test_18_sheet_frame_holds_three_titled_drawings(generated, read):
+    read("synthetic-18-sheet-frame")
+    t = truth_of(generated, "synthetic-18-sheet-frame")
+    sheets = json.loads((_READS["synthetic-18-sheet-frame"][1] / "sheets.json").read_text(encoding="utf-8"))
+    read_titles = {(r.get("title") or {}).get("text"): r["class"] for r in sheets["regions"]}
+    for d in t["drawings"]:
+        assert read_titles.get(d["title"]) == d["class"], d

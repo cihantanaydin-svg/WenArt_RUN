@@ -290,6 +290,7 @@ failure), and the mark goes.
 | `synthetic-15-winder-stair` | winder_stair | UL282 | 1 | 6 | 6 | 9 | 1 (17 risers) | 6 / 6 / 9 / 1 (a landing, no winders) | counts pass; winders xfail |
 | `synthetic-16-open-recess` | open_recess | UL313 | 1 | 6 | 6 | 11 | 0 | 6 / 6 / 11 / 0 (+1 doubled opening) | pass |
 | `synthetic-17-garage-lift` | garage_lift | UL320, UL306 | 1 | 7 | 8 | 7 | 0 | 7 / 7 / 8 / 0 (the garage opening a window) | counts, garage xfail; lift pass |
+| `synthetic-18-sheet-frame` | sheet_frame | UL268 | 2 | 6 + 6 | 6 + 5 | 9 + 10 | 1 + 1 | as the truth (heights assumed) | levels pass; section region xfail |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -376,6 +377,14 @@ the overhead door's dashed line on `KAPI`) and a door to the corridor, and an `A
 garage, ASANSÖR shaft), 8 doors (the garage door and the lift door among them), 7 windows. Reader today: the garage and
 the shaft typed right and the lift door read, but the garage opening is read as a 3.4 m window (strict xfails on the
 counts and the garage door).
+
+### synthetic-18-sheet-frame (UL268)
+
+One sheet frame (`PAFTA`, 47 × 18 m at drawing scale, a title block at its bottom right) holding three titled drawings
+only 1.5 m apart: `ZEMİN KAT PLANI`, `1. KAT PLANI` (both with the U stair) and the section `A-A KESİTİ` naming
+`ZEMİN KAT ±0.00`, `1. KAT +3.00`, `ÇATI +6.00`. Truth: two levels, three drawings (`drawings`). Reader today: both
+plans and their levels right (from the titles), but the section 1.5 m beside the first floor plan is no region of its
+own, so the heights are assumed (strict xfail on the three drawings).
 
 ## Coordinate conventions
 

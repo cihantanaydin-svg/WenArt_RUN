@@ -348,6 +348,29 @@ def project_17() -> FailureProject:
                           [plan], [GROUND], BRIEF, extra_truth={"lessons": ["UL320", "UL306"]})
 
 
+def project_18() -> FailureProject:
+    """synthetic-18-sheet-frame (UL268): one sheet frame (PAFTA, 47 x 18 m at drawing scale, a title block at its
+    bottom right) holding three titled drawings only 1.5 m apart: the ground floor plan, the first floor plan
+    (1. KAT PLANI) and a section (A-A KESİTİ) naming the two storeys and the roof. Both plans carry the U stair.
+    Truth: two levels, three drawings."""
+    g = stair_house("p0", (2.0, 4.0), "ZEMİN KAT PLANI")
+    u = stair_house("p1", (15.5, 4.0), "1. KAT PLANI")
+    upper_floor(u)
+    sheet = FC.section_prims((30.5, 4.0), 12.0, [("ZEMİN KAT", 0.0), ("1. KAT", 3.0)], ("ÇATI", 6.0), "A-A KESİTİ")
+    sheet += [Prim("poly", L_FRAME, [(0.0, 0.0), (47.0, 0.0), (47.0, 18.0), (0.0, 18.0)], closed=True),
+              Prim("poly", L_FRAME, [(38.0, 0.0), (47.0, 0.0), (47.0, 3.0), (38.0, 3.0)], closed=True),
+              Prim("text", L_TEXT, [(42.5, 2.2)], text="KONUT PROJESİ", height=0.4),
+              Prim("text", L_TEXT, [(42.5, 1.3)], text="MİMARİ UYGULAMA PROJESİ", height=0.25),
+              Prim("text", L_TEXT, [(42.5, 0.5)], text="PAFTA NO: M-01", height=0.25)]
+    levels = [TruthLevel("L0", "Zemin Kat", 0.0, 0, "p0"), TruthLevel("L1", "1. Kat", 3.0, 1, "p1")]
+    return FailureProject("synthetic-18-sheet-frame", "sheet_frame", "UL268",
+                          "one sheet frame holding three titled drawings close together",
+                          [g, u], levels, BRIEF,
+                          extra_truth={"drawings": [{"title": "ZEMİN KAT PLANI", "class": "floor_plan"},
+                                                    {"title": "1. KAT PLANI", "class": "floor_plan"},
+                                                    {"title": "A-A KESİTİ", "class": "section"}]})
+
+
 def failure_projects() -> list[FailureProject]:
     return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13(), project_14(),
-            project_15(), project_16(), project_17()]
+            project_15(), project_16(), project_17(), project_18()]
