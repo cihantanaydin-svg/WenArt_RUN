@@ -1038,10 +1038,12 @@ def cmd_run(a: argparse.Namespace) -> int:
         except RuntimeError as e:
             # 3 Nov 2026 (EU-RO-1 had no 48 GB card in stock for minutes at a time): with --wait-for-gpu the stock is
             # checked again every GPU_WAIT_POLL_S until a card is free or the wait ends
-            if "no allowed GPU available now" in str(e) and time.time() + GPU_WAIT_POLL_S < wait_until:
-                print(f"no GPU in stock; checking again in {GPU_WAIT_POLL_S // 60} min "
+            # 4 Nov 2026 (user: "check every minute instead of every 3"): --wait-poll sets the interval
+            poll = max(30, int(getattr(a, "wait_poll", 0) or GPU_WAIT_POLL_S))
+            if "no allowed GPU available now" in str(e) and time.time() + poll < wait_until:
+                print(f"no GPU in stock; checking again in {poll} s "
                       f"({max(0, int((wait_until - time.time()) // 60))} min of waiting left)", flush=True)
-                time.sleep(GPU_WAIT_POLL_S)
+                time.sleep(poll)
                 continue
             raise
         if getattr(a, "_no_instance", None) and not getattr(a, "gpu", None) and fallbacks < GPU_FALLBACKS:
@@ -1433,7 +1435,9 @@ def main(argv: list[str] | None = None) -> int:
                         "the local tree is then not checked")
     r.add_argument("--dry-run", action="store_true")
     r.add_argument("--wait-for-gpu", type=float, default=0, metavar="MINUTES",
-                   help="when no allowed GPU is in stock, check again every 3 min for up to MINUTES")
+                   help="when no allowed GPU is in stock, check again every 3 min (--wait-poll) for up to MINUTES")
+    r.add_argument("--wait-poll", type=int, default=GPU_WAIT_POLL_S, metavar="SECONDS",
+                   help="with --wait-for-gpu: how often the stock is checked (at least 30 s)")
     r.add_argument("--allow-parallel", action="store_true",
                    help="start while another wenart pod is live (only with the user's OK; one pod at a time otherwise)")
     r.add_argument("--drive-upload", action="store_true",
