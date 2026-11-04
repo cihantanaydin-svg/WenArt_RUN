@@ -17,90 +17,90 @@
  "per_level": {
   "L-2": {
    "rooms": 6,
-   "walls": 96,
+   "walls": 97,
    "doors": 6,
    "windows": 1,
-   "openings": 6,
-   "room_area": 246.6
+   "openings": 5,
+   "room_area": 246.7
   },
   "L-1": {
-   "rooms": 18,
-   "walls": 169,
-   "doors": 40,
+   "rooms": 21,
+   "walls": 162,
+   "doors": 42,
    "windows": 3,
-   "openings": 21,
-   "room_area": 236.1
+   "openings": 18,
+   "room_area": 237.0
   },
   "L0": {
-   "rooms": 28,
-   "walls": 242,
+   "rooms": 31,
+   "walls": 233,
    "doors": 28,
    "windows": 14,
-   "openings": 47,
-   "room_area": 274.8
+   "openings": 41,
+   "room_area": 277.5
   },
   "L1": {
-   "rooms": 28,
-   "walls": 242,
+   "rooms": 31,
+   "walls": 233,
    "doors": 28,
    "windows": 11,
-   "openings": 50,
-   "room_area": 274.8
+   "openings": 44,
+   "room_area": 277.5
   },
   "L2": {
-   "rooms": 28,
-   "walls": 242,
+   "rooms": 31,
+   "walls": 233,
    "doors": 28,
    "windows": 11,
-   "openings": 50,
-   "room_area": 274.8
+   "openings": 44,
+   "room_area": 277.5
   },
   "L3": {
-   "rooms": 28,
-   "walls": 242,
+   "rooms": 31,
+   "walls": 233,
    "doors": 28,
    "windows": 11,
-   "openings": 50,
-   "room_area": 274.8
+   "openings": 44,
+   "room_area": 277.5
   },
   "L4": {
-   "rooms": 28,
-   "walls": 242,
+   "rooms": 31,
+   "walls": 233,
    "doors": 28,
    "windows": 11,
-   "openings": 50,
-   "room_area": 274.8
+   "openings": 44,
+   "room_area": 277.5
   },
   "L5": {
-   "rooms": 28,
-   "walls": 242,
+   "rooms": 31,
+   "walls": 233,
    "doors": 28,
    "windows": 11,
-   "openings": 50,
-   "room_area": 274.8
+   "openings": 44,
+   "room_area": 277.5
   },
   "L6": {
-   "rooms": 28,
-   "walls": 242,
+   "rooms": 31,
+   "walls": 233,
    "doors": 28,
    "windows": 11,
-   "openings": 50,
-   "room_area": 274.8
+   "openings": 44,
+   "room_area": 277.5
   },
   "L7": {
    "rooms": 2,
-   "walls": 35,
+   "walls": 28,
    "doors": 2,
    "windows": 0,
-   "openings": 2,
-   "room_area": 20.2
+   "openings": 1,
+   "room_area": 22.9
   }
  },
  "check": {
   "verdict": "ready",
   "counts": {
    "critical": 0,
-   "major": 12,
+   "major": 11,
    "minor": 1
   },
   "stacking": {}
