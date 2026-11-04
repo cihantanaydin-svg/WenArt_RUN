@@ -1,0 +1,101 @@
+"""The synthetic failure-class projects (synthetic-08 ...), one per way real drawings broke the reader.
+
+What (4 Nov 2026, Milestone 14 track R7): the layouts of the failure-class projects as readable code. Each function
+returns a ``FailureProject`` (``wenart.synthetic.failure_classes``) with one failure class the user found in the real
+drawings of 3 and 4 Nov 2026 and the lesson that taught it. The user's goal: "I want structure recognition to be
+cumulatively better with the feedbacks I am giving".
+
+Why: one class per project, so a reading that fails names its class; small houses (4-8 rooms, one level unless the
+class needs more) so a reading takes seconds.
+
+How: ``base_house`` is the 12.0 x 9.0 m CAD-office flat every class starts from (six rooms around a corridor, outer
+walls 25 cm, inner walls 15 cm, Turkish labels, a title and a scale note below); each class function changes only what
+its class needs. ``failure_projects()`` lists them in order.
+"""
+from __future__ import annotations
+
+from typing import Optional
+
+from wenart.synthetic import failure_classes as FC
+from wenart.synthetic.failure_classes import (
+    EXT_T, INT_T, L_FRAME, L_TEXT, FailureProject, Label, Opening, Plan, Prim, StairTruth, TruthLevel, Wall,
+    outer_walls)
+
+BRIEF = {"style": "Modern, oak floor, white walls, warm daylight"}
+GROUND = TruthLevel("L0", "Zemin Kat", 0.0, 0, "p0")
+
+
+def base_house(key: str = "p0", origin=(10.0, 10.0), title: str = "ZEMİN KAT PLANI") -> Plan:
+    """12.0 x 9.0 m: SALON and YATAK ODASI below an 8.5 m corridor (HOL, the entrance on the left), MUTFAK, BANYO and
+    an L-shaped ÇOCUK ODASI above it (the corridor ends at x = 8.5, the bedroom wraps round its end). 6 rooms, 6
+    doors, 9 windows. Deliberately not mirror-symmetric: the walls overlap their mirror about the middle by about 85 %,
+    under the reader's 90 % for a plan of two mirrored halves (``facade.MIRROR_FIX_SHARE``)."""
+    walls = outer_walls("e", 12.0, 9.0) + [
+        Wall("i1", (0.0, 4.4), (12.0, 4.4), INT_T),       # corridor, lower side
+        Wall("i2", (0.0, 5.8), (8.5, 5.8), INT_T),        # corridor, upper side
+        Wall("i3", (7.0, 0.0), (7.0, 4.4), INT_T),        # SALON | YATAK ODASI
+        Wall("i4", (4.0, 5.8), (4.0, 9.0), INT_T),        # MUTFAK | BANYO
+        Wall("i5", (6.5, 5.8), (6.5, 9.0), INT_T),        # BANYO | ÇOCUK ODASI
+        Wall("i6", (8.5, 4.4), (8.5, 5.875), INT_T),      # the corridor's end (to i2's outer face: a clean corner)
+    ]
+    openings = [
+        Opening("entrance", "door", "e4", 3.9, 1.0, hinge="end", side=1),    # e4 runs down: s = 9 - y
+        Opening("d_salon", "door", "i1", 3.0, 0.9, hinge="start", side=-1),
+        Opening("d_yatak", "door", "i1", 7.8, 0.9, hinge="end", side=-1),
+        Opening("d_mutfak", "door", "i2", 2.0, 0.9, hinge="start", side=1),
+        Opening("d_banyo", "door", "i2", 5.2, 0.8, hinge="end", side=1),
+        Opening("d_cocuk", "door", "i2", 7.5, 0.9, hinge="start", side=1),
+        Opening("w_salon1", "window", "e1", 2.0, 1.6),
+        Opening("w_salon2", "window", "e1", 5.0, 1.6),
+        Opening("w_salon3", "window", "e4", 6.8, 1.4),
+        Opening("w_yatak1", "window", "e1", 9.5, 1.4),
+        Opening("w_yatak2", "window", "e2", 2.2, 1.2),    # e2 runs up: s = y
+        Opening("w_mutfak", "window", "e3", 10.0, 1.2),   # e3 runs right to left: s = 12 - x
+        Opening("w_banyo", "window", "e3", 6.75, 0.6),
+        Opening("w_cocuk1", "window", "e3", 2.8, 1.4),
+        Opening("w_cocuk2", "window", "e2", 6.6, 1.0),
+    ]
+    labels = [Label("SALON", (3.5, 2.2)), Label("YATAK ODASI", (9.5, 2.6)), Label("HOL", (5.0, 5.1)),
+              Label("MUTFAK", (2.0, 7.4)), Label("BANYO", (5.25, 7.4)), Label("ÇOCUK ODASI", (9.25, 7.4))]
+    return Plan(key, origin, walls, openings, labels, title=title)
+
+
+def project_08(spaced: bool = True) -> FailureProject:
+    """synthetic-08-spaced-labels (UL323): every room label written letter by letter as separate TEXT entities
+    ("S A L O N", "Y A T A K   O D A S I" with a blank letter slot between the words), and a site plan (VAZİYET
+    PLANI) beside the floor plan whose pool and road are labelled the same way ("H A V U Z", "Y O L"), as real07's
+    site plan was. Truth: the room labels as their words, one pool (the outline round the HAVUZ label)."""
+    plan = base_house()
+    for lb in plan.labels:
+        lb.spaced = spaced
+    sx, sy = 40.0, 10.0                     # the site plan's origin on the sheet (the plot's lower-left corner)
+    bx, by = 4.0, 6.0                       # the building's outer faces on the plot
+    px0, py0, px1, py1 = 19.0, 8.0, 25.0, 11.0
+    site = [Prim("poly", "VAZIYET", [(sx, sy), (sx + 30, sy), (sx + 30, sy + 22), (sx, sy + 22)], closed=True),
+            Prim("poly", "VAZIYET", [(sx + bx, sy + by), (sx + bx + 12, sy + by), (sx + bx + 12, sy + by + 9),
+                                     (sx + bx, sy + by + 9)], closed=True),
+            Prim("poly", "HAVUZ", [(sx + px0, sy + py0), (sx + px1, sy + py0), (sx + px1, sy + py1),
+                                   (sx + px0, sy + py1)], closed=True),
+            Prim("poly", "HAVUZ", [(sx + px0 - 0.3, sy + py0 - 0.3), (sx + px1 + 0.3, sy + py0 - 0.3),
+                                   (sx + px1 + 0.3, sy + py1 + 0.3), (sx + px0 - 0.3, sy + py1 + 0.3)], closed=True),
+            # the paved terrace from the house's right face round the pool, the garden path to the gate, the road
+            Prim("poly", "VAZIYET", [(sx + bx + 12, sy + 7.0), (sx + 26.5, sy + 7.0), (sx + 26.5, sy + 12.0),
+                                     (sx + bx + 12, sy + 12.0)], closed=True),
+            Prim("line", "VAZIYET", [(sx, sy + 10.6), (sx + bx, sy + 10.6)]),
+            Prim("line", "VAZIYET", [(sx, sy + 11.6), (sx + bx, sy + 11.6)]),
+            Prim("poly", "VAZIYET", [(sx - 2, sy - 3), (sx + 32, sy - 3), (sx + 32, sy), (sx - 2, sy)], closed=True)]
+    for lb in (Label("HAVUZ", (sx + (px0 + px1) / 2, sy + (py0 + py1) / 2), spaced=spaced),
+               Label("YOL", (sx + 15, sy - 1.5), spaced=spaced), Label("±0.00", (sx + bx + 6, sy + by + 4.5))):
+        site += FC.label_prims(lb)
+    site.append(Prim("text", L_TEXT, [(sx + 15, sy - 5)], text="VAZİYET PLANI", height=0.8))
+    site.append(Prim("text", L_TEXT, [(sx + 15, sy - 6.2)], text="ÖLÇEK 1/200", height=0.4))
+    pool = [[px0 - bx, py0 - by], [px1 - bx, py0 - by], [px1 - bx, py1 - by], [px0 - bx, py1 - by]]
+    return FailureProject("synthetic-08-spaced-labels", "spaced_labels", "UL323",
+                          "room and site labels written letter by letter as separate TEXT entities",
+                          [plan], [GROUND], BRIEF, sheet_prims=site,
+                          extra_truth={"site": {"pools": [{"label": "HAVUZ", "polygon": pool}],
+                                                "labels": ["HAVUZ", "YOL"]}})
+
+
+def failure_projects() -> list[FailureProject]:
+    return [project_08()]

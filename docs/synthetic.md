@@ -254,6 +254,45 @@ south facade carries the plinth, the east one does not); no DIMENSION entities a
 unit evidence is area labels, level marks, door arcs, wall thicknesses and text heights); the basement is below the ground
 line on every side (ground 0.00; its outside door and windows get terrain and light wells from the build, both assumed).
 
+## synthetic-08 ... synthetic-18: the failure classes (4 Nov 2026, Milestone 14 track R7)
+
+The user's goal: "I want structure recognition to be cumulatively better with the feedbacks I am giving". Each of
+these projects is a small house or flat drawn the way Turkish CAD offices draw (one R2000 DXF `plan.dxf` in
+centimetres, `$INSUNITS = 5`; layers `DUVAR` walls, `KAPI` doors, `PENCERE` windows, `YAZI` texts, `OLCU` dimensions,
+`AKS` axes, `MERDIVEN` stairs, `KESIT` / `KOT` sections and level marks, `PAFTA` the sheet frame; Turkish labels; a
+title and `ÖLÇEK 1/50` below each plan) carrying exactly **one** failure class the user found in the real drawings of
+3 and 4 Nov 2026 (`docs/progress.md`, lessons UL261-UL323 in `wenart/blender/architect_lessons.json`), with its truth
+written from the same layout data. Code: `wenart/synthetic/failure_classes.py` (the layout model, the DXF writer, the
+truth), `wenart/synthetic/failure_projects.py` (one function per project); the generator command above writes them
+too (`--only synthetic-12-mirrored-halves` for one). Tests: `tests/test_synthetic_failure_classes_20261104.py`
+(determinism, currency, the truth's format and consistency, and a CPU reading of every project through
+`wenart.ingest.pipeline.run_project(..., no_ai=True)` against the truth). Where the reader does not handle a class yet,
+its test is a strict xfail naming the class and the lesson: a reader change that fixes the class makes it XPASS (a
+failure), and the mark goes.
+
+| | |
+|---|---|
+| Folder | `plan.dxf` (the only document), `brief.yaml` (one `style`), `truth/reading_truth.json`; the preview `results/synthetic/<project>_plan_p1.jpg` |
+| Base flat | `failure_projects.base_house`: 12.0 × 9.0 m, outer walls 25 cm, inner walls 15 cm; SALON and YATAK ODASI below an 8.5 m corridor (HOL, the entrance on the left), MUTFAK, BANYO and an L-shaped ÇOCUK ODASI above it; 6 rooms, 6 doors, 9 windows. Deliberately not mirror-symmetric (its walls overlap their mirror about 85 %, under the reader's 90 % for "two mirrored halves") |
+| Walls | the closed rings of the wall union with the opening gaps cut, as `LWPOLYLINE`s on `DUVAR` (what a drafter's wall outlines are); the truth's walls are the centre lines (`start`, `end`, `thickness`), the rooms the holes of the union of the uncut walls (walls run on through doors and windows) |
+| Doors / windows | a door is a 90° swing `ARC` and the open leaf `LINE` on `KAPI`, hinged on the face of the side it swings to; a window four lines along the gap on `PENCERE`; a sliding door two leaf rectangles; a garage door a dashed overhead line |
+| Truth | `truth/reading_truth.json`: `{project, source: synthetic, status: accepted, levels [{id, label, elevation, order}], per_level {L0: {rooms [{id, label, room_type, area, centroid, polygon}], doors, windows [{id, width, center, type}], openings, walls [{id, start, end, thickness}], stairs [{id, kind, center, risers, ...}]}}, failure_class, lesson, summary, drawing {file, insunits, plans [{key, origin_m, title, levels}]}}` plus the class's own keys (`site`, `open_air`, `typical_plan`, `roof`, `drawings`). Building metres: the outer wall faces of each plan from the origin (the reader's building frame); `drawing.plans[].origin_m` is where each plan sits on the sheet |
+
+| Project | Class | Lesson | Levels | Rooms | Doors | Windows | Stairs | Reader today (rooms / doors / windows / stairs per level) | Tests |
+|---|---|---|---|---|---|---|---|---|---|
+| `synthetic-08-spaced-labels` | spaced_labels | UL323 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 (labels `Yatakodası`, no pool) | counts, geometry pass; words, pool xfail |
+
+### synthetic-08-spaced-labels (UL323)
+
+Every room label is written letter by letter, one `TEXT` per letter 1.6 letter heights apart, a blank letter slot
+between words (`S A L O N`, `Y A T A K   O D A S I`), and a site plan (`VAZİYET PLANI`, 1/200, 30 m right of the floor
+plan) shows the plot, the house outline, a paved terrace, a 6 × 3 m pool with its coping and the road, the pool and the
+road labelled the same way (`H A V U Z`, `Y O L`), as real07's site plan was. Truth: the six rooms with their labels
+as words, one pool (`site.pools`, building metres: the outline round the HAVUZ label). Reader today: rooms, doors and
+windows right and the room types right, but a two-word label loses its word gap (`Yatakodası`, `Çocukodası`), and the
+site plan's spaced `H A V U Z` is not read, so there is no pool (with the same labels written whole, the pool is read:
+the drawing is right) — both strict xfails.
+
 ## Coordinate conventions
 
 | Frame | Units | Origin | Axes | Where |
