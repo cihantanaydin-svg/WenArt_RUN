@@ -3710,6 +3710,30 @@
    "request": "4 Nov 2026 (user, real10: 'These 2 oda should not exist and that 2 area should be outside', the narrow recess between the two master bedrooms, open to the facade): a doorless, unlabelled space reached only through a facade gap as wide as itself (and the space behind it) is an open-air recess or light well, never rooms; the windows onto it stay windows.",
    "lesson": "4 Nov 2026 (user, real10: 'These 2 oda should not exist and that 2 area should be outside', the narrow recess between the two master bedrooms, open to the facade): a doorless, unlabelled space reached only through a facade gap as wide as itself (and the space behind it) is an open-air recess or light well, never rooms; the windows onto it stay windows.",
    "question": null
+  },
+  {
+   "id": "UL314",
+   "date": "2026-11-04",
+   "area": "report",
+   "status": "built",
+   "checks": [
+    "reading"
+   ],
+   "request": "4 Nov 2026 (user: 'General rule always include into structure pod run zips these files. on the top left one marked, remove the coordinate and measurement lines'): every structure pod run zip holds the pod's renders (top-down plans, exterior views) together with the reading check's comparison sheets (python -m wenart.reading_check zip); panel 1 of each sheet, the source drawing, is drawn without the grid (axis lines, bubbles, grid labels) and without dimensions (DIMENSION entities, dimension layers).",
+   "lesson": "4 Nov 2026 (user: 'General rule always include into structure pod run zips these files. on the top left one marked, remove the coordinate and measurement lines'): every structure pod run zip holds the pod's renders (top-down plans, exterior views) together with the reading check's comparison sheets (python -m wenart.reading_check zip); panel 1 of each sheet, the source drawing, is drawn without the grid (axis lines, bubbles, grid labels) and without dimensions (DIMENSION entities, dimension layers).",
+   "question": null
+  },
+  {
+   "id": "UL315",
+   "date": "2026-11-04",
+   "area": "reading",
+   "status": "open",
+   "checks": [
+    "reading"
+   ],
+   "request": "4 Nov 2026 (user, real17 ground floor: 'Those walls already drawed, all open ones needs to be walls these sections could be full windows glass, check it', then 'There are no walls here why are you imagining these?'): only drawn walls are built. A drawn wall that stops a few cm short of its column, of the next wall on its line or of a shared corner is joined to it, and a crack of at most 15 cm between two drawn walls at a wall end is filled, when that closes the rooms; no wall is ever added across an opening the drawing leaves open. A drawn front with a window size tag (W/H, on a window text layer) is glass of that size.",
+   "lesson": "4 Nov 2026 (user, real17 ground floor: 'Those walls already drawed, all open ones needs to be walls these sections could be full windows glass, check it', then 'There are no walls here why are you imagining these?'): only drawn walls are built. A drawn wall that stops a few cm short of its column, of the next wall on its line or of a shared corner is joined to it, and a crack of at most 15 cm between two drawn walls at a wall end is filled, when that closes the rooms; no wall is ever added across an opening the drawing leaves open. A drawn front with a window size tag (W/H, on a window text layer) is glass of that size.",
+   "question": null
   }
  ]
 }

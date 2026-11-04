@@ -64,7 +64,27 @@ def _overlaps(insert, box) -> bool:
     return not (ext.extmax.x < box[0] or ext.extmin.x > box[2] or ext.extmax.y < box[1] or ext.extmin.y > box[3])
 
 
-def _draw_drawing(ax, doc, ents, box, grey: bool = False):
+DIMENSION_TYPES = ("DIMENSION", "ARC_DIMENSION", "LARGE_RADIAL_DIMENSION")
+
+
+def is_grid_or_dimension(dxftype: str, layer: Optional[str], linetype: Optional[str]) -> bool:
+    """4 Nov 2026 (user: "on the top left one marked, remove the coordinate and measurement lines"): a dimension, or a
+    line of the grid (its axis lines, bubbles and labels): a DIMENSION entity, a layer whose name says axis / grid or
+    dimension (``layer_names.layer_role``), or a centre / dash-dot linetype (``axes.is_axis_style``)."""
+    from wenart.ingest.generic import axes as AX
+    from wenart.ingest.generic import layer_names as LN
+
+    if dxftype in DIMENSION_TYPES:
+        return True
+    if LN.layer_role(layer) in ("axis", "dimension") or AX.is_axis_style(layer, None):
+        return True
+    lt = (linetype or "").upper()
+    return lt not in ("", "BYLAYER", "BYBLOCK", "CONTINUOUS") and AX.is_axis_style(None, lt)
+
+
+def _draw_drawing(ax, doc, ents, box, grey: bool = False, clean: bool = False):
+    """The drawing's entities; ``clean`` leaves out the grid and the dimensions (``is_grid_or_dimension``), also inside
+    blocks."""
     from ezdxf.addons.drawing import Frontend, RenderContext
     from ezdxf.addons.drawing.config import BackgroundPolicy, ColorPolicy, Configuration
     from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
@@ -72,7 +92,15 @@ def _draw_drawing(ax, doc, ents, box, grey: bool = False):
     cfg = Configuration(background_policy=BackgroundPolicy.WHITE,
                         color_policy=ColorPolicy.CUSTOM if grey else ColorPolicy.BLACK,
                         custom_fg_color="#b4b4b4", lineweight_scaling=0.4 if grey else 0.5)
-    Frontend(RenderContext(doc), MatplotlibBackend(ax), config=cfg).draw_entities(ents)
+    fe = Frontend(RenderContext(doc), MatplotlibBackend(ax), config=cfg)
+    if clean:
+        def hide(entity, properties):
+            if is_grid_or_dimension(entity.dxftype(), properties.layer, properties.linetype_name):
+                properties.is_visible = False
+
+        fe.push_property_override_function(hide)
+        ents = [e for e in ents if e.dxftype() not in DIMENSION_TYPES]
+    fe.draw_entities(ents)
     _frame(ax, box)
 
 
@@ -267,7 +295,8 @@ def draw(out_dir, result: Optional[dict] = None, renders: Optional[str] = None) 
         title = (((reg or {}).get("title") or {}).get("text") or (reg or {}).get("id") or pg["file"]).strip()
         panels = []
         for k, (name, fn) in enumerate((
-                ("1 the source drawing", lambda ax: _draw_drawing(ax, doc, ents, box)),
+                ("1 the source drawing (no grid, no dimensions)",
+                 lambda ax: _draw_drawing(ax, doc, ents, box, clean=True)),
                 ("2 the model's plan (rooms yellow, balconies and terraces green, floor voids hatched blue, stairs "
                  "dark blue; walls black, inferred walls orange; doors green, windows blue, other openings purple, "
                  "inferred openings dashed)",

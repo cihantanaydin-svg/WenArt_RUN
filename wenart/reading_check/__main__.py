@@ -1,5 +1,7 @@
 """``python -m wenart.reading_check check --out <pipeline output> [--sheets]`` (the reading self-check, its comparison
-sheets) and ``python -m wenart.reading_check regress [--projects ...] [--update]`` (the reading regression set)."""
+sheets), ``python -m wenart.reading_check regress [--projects ...] [--update]`` (the reading regression set) and
+``python -m wenart.reading_check zip --out <reading> --results <run results> --project <p> --dest <zip>`` (a structure
+run's zip: renders and comparison sheets together, ``pack``)."""
 from __future__ import annotations
 
 import argparse
@@ -17,8 +19,17 @@ def main(argv=None) -> int:
     r.add_argument("--projects", default=None, help="comma separated (default: every baseline)")
     r.add_argument("--update", action="store_true", help="write the new numbers as the baseline")
     r.add_argument("--work", default=None, help="work folder for the readings (default: a temporary folder)")
+    z = sub.add_parser("zip", help="a structure run's zip: the pod's renders with the comparison sheets")
+    z.add_argument("--out", required=True, help="the local reading of the run's commit (building.json, converted/)")
+    z.add_argument("--results", required=True, help="the run's collected results folder (runs/<job>/results)")
+    z.add_argument("--project", required=True)
+    z.add_argument("--dest", required=True, help="the zip to write")
     args = ap.parse_args(argv)
     import wenart.reading_check as RC
+    if args.cmd == "zip":
+        from wenart.reading_check import pack as PK
+        print(PK.pack(args.out, args.results, args.project, args.dest))
+        return 0
     if args.cmd == "check":
         res = RC.check(args.out)
         d = RC.write(args.out, res)
