@@ -1,0 +1,1110 @@
+{
+ "project": "synthetic-18-sheet-frame",
+ "source": "synthetic",
+ "status": "accepted",
+ "units": "building metres (outer wall faces from the origin of each plan)",
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Zemin Kat",
+   "elevation": 0.0,
+   "order": 0
+  },
+  {
+   "id": "L1",
+   "label": "1. Kat",
+   "elevation": 3.0,
+   "order": 1
+  }
+ ],
+ "per_level": {
+  "L0": {
+   "rooms": [
+    {
+     "id": "r_L0_001",
+     "label": "SALON",
+     "room_type": "living",
+     "area": 27.2006,
+     "centroid": [
+      3.5875,
+      2.2875
+     ],
+     "polygon": [
+      [
+       0.25,
+       0.25
+      ],
+      [
+       6.925,
+       0.25
+      ],
+      [
+       6.925,
+       4.325
+      ],
+      [
+       0.25,
+       4.325
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_002",
+     "label": "YATAK ODASI",
+     "room_type": "bedroom",
+     "area": 19.0506,
+     "centroid": [
+      9.4125,
+      2.2875
+     ],
+     "polygon": [
+      [
+       7.075,
+       0.25
+      ],
+      [
+       11.75,
+       0.25
+      ],
+      [
+       11.75,
+       4.325
+      ],
+      [
+       7.075,
+       4.325
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_003",
+     "label": "HOL",
+     "room_type": "hall",
+     "area": 10.2187,
+     "centroid": [
+      4.3375,
+      5.1
+     ],
+     "polygon": [
+      [
+       0.25,
+       4.475
+      ],
+      [
+       8.425,
+       4.475
+      ],
+      [
+       8.425,
+       5.725
+      ],
+      [
+       0.25,
+       5.725
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_004",
+     "label": "MERDİVEN",
+     "room_type": "stair",
+     "area": 19.3231,
+     "centroid": [
+      9.392535,
+      6.8208
+     ],
+     "polygon": [
+      [
+       8.575,
+       4.475
+      ],
+      [
+       11.75,
+       4.475
+      ],
+      [
+       11.75,
+       8.75
+      ],
+      [
+       6.575,
+       8.75
+      ],
+      [
+       6.575,
+       5.875
+      ],
+      [
+       8.425,
+       5.875
+      ],
+      [
+       8.5,
+       5.875
+      ],
+      [
+       8.575,
+       5.875
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_005",
+     "label": "MUTFAK",
+     "room_type": "kitchen",
+     "area": 10.5656,
+     "centroid": [
+      2.0875,
+      7.3125
+     ],
+     "polygon": [
+      [
+       0.25,
+       5.875
+      ],
+      [
+       3.925,
+       5.875
+      ],
+      [
+       3.925,
+       8.75
+      ],
+      [
+       0.25,
+       8.75
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_006",
+     "label": "BANYO",
+     "room_type": "bathroom",
+     "area": 6.7562,
+     "centroid": [
+      5.25,
+      7.3125
+     ],
+     "polygon": [
+      [
+       4.075,
+       5.875
+      ],
+      [
+       6.425,
+       5.875
+      ],
+      [
+       6.425,
+       8.75
+      ],
+      [
+       4.075,
+       8.75
+      ]
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "id": "d_L0_001",
+     "width": 1.0,
+     "center": [
+      0.125,
+      5.1
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_002",
+     "width": 0.9,
+     "center": [
+      3.0,
+      4.4
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_003",
+     "width": 0.9,
+     "center": [
+      7.8,
+      4.4
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_004",
+     "width": 0.9,
+     "center": [
+      2.0,
+      5.8
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_005",
+     "width": 0.8,
+     "center": [
+      5.2,
+      5.8
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_006",
+     "width": 0.9,
+     "center": [
+      7.5,
+      5.8
+     ],
+     "type": "door"
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L0_001",
+     "width": 1.6,
+     "center": [
+      2.0,
+      0.125
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_002",
+     "width": 1.6,
+     "center": [
+      5.0,
+      0.125
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_003",
+     "width": 1.4,
+     "center": [
+      0.125,
+      2.2
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_004",
+     "width": 1.4,
+     "center": [
+      9.5,
+      0.125
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_005",
+     "width": 1.2,
+     "center": [
+      11.875,
+      2.2
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_006",
+     "width": 1.2,
+     "center": [
+      2.0,
+      8.875
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_007",
+     "width": 0.6,
+     "center": [
+      5.25,
+      8.875
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_008",
+     "width": 1.4,
+     "center": [
+      9.2,
+      8.875
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_009",
+     "width": 1.0,
+     "center": [
+      11.875,
+      6.6
+     ],
+     "type": "window"
+    }
+   ],
+   "openings": [],
+   "walls": [
+    {
+     "id": "w_L0_001",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      12.0,
+      0.125
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L0_002",
+     "start": [
+      11.875,
+      0.0
+     ],
+     "end": [
+      11.875,
+      9.0
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L0_003",
+     "start": [
+      12.0,
+      8.875
+     ],
+     "end": [
+      0.0,
+      8.875
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L0_004",
+     "start": [
+      0.125,
+      9.0
+     ],
+     "end": [
+      0.125,
+      0.0
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L0_005",
+     "start": [
+      0.0,
+      4.4
+     ],
+     "end": [
+      12.0,
+      4.4
+     ],
+     "thickness": 0.15
+    },
+    {
+     "id": "w_L0_006",
+     "start": [
+      0.0,
+      5.8
+     ],
+     "end": [
+      8.5,
+      5.8
+     ],
+     "thickness": 0.15
+    },
+    {
+     "id": "w_L0_007",
+     "start": [
+      7.0,
+      0.0
+     ],
+     "end": [
+      7.0,
+      4.4
+     ],
+     "thickness": 0.15
+    },
+    {
+     "id": "w_L0_008",
+     "start": [
+      4.0,
+      5.8
+     ],
+     "end": [
+      4.0,
+      9.0
+     ],
+     "thickness": 0.15
+    },
+    {
+     "id": "w_L0_009",
+     "start": [
+      6.5,
+      5.8
+     ],
+     "end": [
+      6.5,
+      9.0
+     ],
+     "thickness": 0.15
+    },
+    {
+     "id": "w_L0_010",
+     "start": [
+      8.5,
+      4.4
+     ],
+     "end": [
+      8.5,
+      5.875
+     ],
+     "thickness": 0.15
+    }
+   ],
+   "stairs": [
+    {
+     "id": "s_L0_001",
+     "kind": "u_landing",
+     "center": [
+      10.2,
+      7.325
+     ],
+     "risers": 19,
+     "treads": 18,
+     "arms": [
+      {
+       "kind": "straight",
+       "treads": [
+        1,
+        9
+       ],
+       "box": [
+        [
+         8.7,
+         5.95
+        ],
+        [
+         10.95,
+         7.225
+        ]
+       ]
+      },
+      {
+       "kind": "landing",
+       "box": [
+        [
+         10.95,
+         5.95
+        ],
+        [
+         11.7,
+         8.7
+        ]
+       ]
+      },
+      {
+       "kind": "straight",
+       "treads": [
+        10,
+        18
+       ],
+       "box": [
+        [
+         8.7,
+         7.425
+        ],
+        [
+         10.95,
+         8.7
+        ]
+       ]
+      }
+     ],
+     "box": [
+      [
+       8.7,
+       5.95
+      ],
+      [
+       11.7,
+       8.7
+      ]
+     ]
+    }
+   ]
+  },
+  "L1": {
+   "rooms": [
+    {
+     "id": "r_L1_001",
+     "label": "EBEVEYN YATAK ODASI",
+     "room_type": "bedroom",
+     "area": 27.2006,
+     "centroid": [
+      3.5875,
+      2.2875
+     ],
+     "polygon": [
+      [
+       0.25,
+       0.25
+      ],
+      [
+       6.925,
+       0.25
+      ],
+      [
+       6.925,
+       4.325
+      ],
+      [
+       0.25,
+       4.325
+      ]
+     ]
+    },
+    {
+     "id": "r_L1_002",
+     "label": "YATAK ODASI",
+     "room_type": "bedroom",
+     "area": 19.0506,
+     "centroid": [
+      9.4125,
+      2.2875
+     ],
+     "polygon": [
+      [
+       7.075,
+       0.25
+      ],
+      [
+       11.75,
+       0.25
+      ],
+      [
+       11.75,
+       4.325
+      ],
+      [
+       7.075,
+       4.325
+      ]
+     ]
+    },
+    {
+     "id": "r_L1_003",
+     "label": "HOL",
+     "room_type": "hall",
+     "area": 10.2187,
+     "centroid": [
+      4.3375,
+      5.1
+     ],
+     "polygon": [
+      [
+       0.25,
+       4.475
+      ],
+      [
+       8.425,
+       4.475
+      ],
+      [
+       8.425,
+       5.725
+      ],
+      [
+       0.25,
+       5.725
+      ]
+     ]
+    },
+    {
+     "id": "r_L1_004",
+     "label": "MERDİVEN",
+     "room_type": "stair",
+     "area": 19.3231,
+     "centroid": [
+      9.392535,
+      6.8208
+     ],
+     "polygon": [
+      [
+       8.575,
+       4.475
+      ],
+      [
+       11.75,
+       4.475
+      ],
+      [
+       11.75,
+       8.75
+      ],
+      [
+       6.575,
+       8.75
+      ],
+      [
+       6.575,
+       5.875
+      ],
+      [
+       8.425,
+       5.875
+      ],
+      [
+       8.5,
+       5.875
+      ],
+      [
+       8.575,
+       5.875
+      ]
+     ]
+    },
+    {
+     "id": "r_L1_005",
+     "label": "ÇALIŞMA ODASI",
+     "room_type": "other",
+     "area": 10.5656,
+     "centroid": [
+      2.0875,
+      7.3125
+     ],
+     "polygon": [
+      [
+       0.25,
+       5.875
+      ],
+      [
+       3.925,
+       5.875
+      ],
+      [
+       3.925,
+       8.75
+      ],
+      [
+       0.25,
+       8.75
+      ]
+     ]
+    },
+    {
+     "id": "r_L1_006",
+     "label": "BANYO",
+     "room_type": "bathroom",
+     "area": 6.7562,
+     "centroid": [
+      5.25,
+      7.3125
+     ],
+     "polygon": [
+      [
+       4.075,
+       5.875
+      ],
+      [
+       6.425,
+       5.875
+      ],
+      [
+       6.425,
+       8.75
+      ],
+      [
+       4.075,
+       8.75
+      ]
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "id": "d_L1_001",
+     "width": 0.9,
+     "center": [
+      3.0,
+      4.4
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L1_002",
+     "width": 0.9,
+     "center": [
+      7.8,
+      4.4
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L1_003",
+     "width": 0.9,
+     "center": [
+      2.0,
+      5.8
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L1_004",
+     "width": 0.8,
+     "center": [
+      5.2,
+      5.8
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L1_005",
+     "width": 0.9,
+     "center": [
+      7.5,
+      5.8
+     ],
+     "type": "door"
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L1_001",
+     "width": 1.6,
+     "center": [
+      2.0,
+      0.125
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_002",
+     "width": 1.6,
+     "center": [
+      5.0,
+      0.125
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_003",
+     "width": 1.4,
+     "center": [
+      0.125,
+      2.2
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_004",
+     "width": 1.4,
+     "center": [
+      9.5,
+      0.125
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_005",
+     "width": 1.2,
+     "center": [
+      11.875,
+      2.2
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_006",
+     "width": 1.2,
+     "center": [
+      2.0,
+      8.875
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_007",
+     "width": 0.6,
+     "center": [
+      5.25,
+      8.875
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_008",
+     "width": 1.4,
+     "center": [
+      9.2,
+      8.875
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_009",
+     "width": 1.0,
+     "center": [
+      11.875,
+      6.6
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_010",
+     "width": 1.0,
+     "center": [
+      0.125,
+      5.1
+     ],
+     "type": "window"
+    }
+   ],
+   "openings": [],
+   "walls": [
+    {
+     "id": "w_L1_001",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      12.0,
+      0.125
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L1_002",
+     "start": [
+      11.875,
+      0.0
+     ],
+     "end": [
+      11.875,
+      9.0
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L1_003",
+     "start": [
+      12.0,
+      8.875
+     ],
+     "end": [
+      0.0,
+      8.875
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L1_004",
+     "start": [
+      0.125,
+      9.0
+     ],
+     "end": [
+      0.125,
+      0.0
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L1_005",
+     "start": [
+      0.0,
+      4.4
+     ],
+     "end": [
+      12.0,
+      4.4
+     ],
+     "thickness": 0.15
+    },
+    {
+     "id": "w_L1_006",
+     "start": [
+      0.0,
+      5.8
+     ],
+     "end": [
+      8.5,
+      5.8
+     ],
+     "thickness": 0.15
+    },
+    {
+     "id": "w_L1_007",
+     "start": [
+      7.0,
+      0.0
+     ],
+     "end": [
+      7.0,
+      4.4
+     ],
+     "thickness": 0.15
+    },
+    {
+     "id": "w_L1_008",
+     "start": [
+      4.0,
+      5.8
+     ],
+     "end": [
+      4.0,
+      9.0
+     ],
+     "thickness": 0.15
+    },
+    {
+     "id": "w_L1_009",
+     "start": [
+      6.5,
+      5.8
+     ],
+     "end": [
+      6.5,
+      9.0
+     ],
+     "thickness": 0.15
+    },
+    {
+     "id": "w_L1_010",
+     "start": [
+      8.5,
+      4.4
+     ],
+     "end": [
+      8.5,
+      5.875
+     ],
+     "thickness": 0.15
+    }
+   ],
+   "stairs": [
+    {
+     "id": "s_L1_001",
+     "kind": "u_landing",
+     "center": [
+      10.2,
+      7.325
+     ],
+     "risers": 19,
+     "treads": 18,
+     "arms": [
+      {
+       "kind": "straight",
+       "treads": [
+        1,
+        9
+       ],
+       "box": [
+        [
+         8.7,
+         5.95
+        ],
+        [
+         10.95,
+         7.225
+        ]
+       ]
+      },
+      {
+       "kind": "landing",
+       "box": [
+        [
+         10.95,
+         5.95
+        ],
+        [
+         11.7,
+         8.7
+        ]
+       ]
+      },
+      {
+       "kind": "straight",
+       "treads": [
+        10,
+        18
+       ],
+       "box": [
+        [
+         8.7,
+         7.425
+        ],
+        [
+         10.95,
+         8.7
+        ]
+       ]
+      }
+     ],
+     "box": [
+      [
+       8.7,
+       5.95
+      ],
+      [
+       11.7,
+       8.7
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ "failure_class": "sheet_frame",
+ "lesson": "UL268",
+ "summary": "one sheet frame holding three titled drawings close together",
+ "drawings": [
+  {
+   "title": "ZEMİN KAT PLANI",
+   "class": "floor_plan"
+  },
+  {
+   "title": "1. KAT PLANI",
+   "class": "floor_plan"
+  },
+  {
+   "title": "A-A KESİTİ",
+   "class": "section"
+  }
+ ],
+ "drawing": {
+  "file": "plan.dxf",
+  "insunits": 5,
+  "units_per_metre": 100.0,
+  "plans": [
+   {
+    "key": "p0",
+    "origin_m": [
+     2.0,
+     4.0
+    ],
+    "title": "ZEMİN KAT PLANI",
+    "levels": [
+     "L0"
+    ]
+   },
+   {
+    "key": "p1",
+    "origin_m": [
+     15.5,
+     4.0
+    ],
+    "title": "1. KAT PLANI",
+    "levels": [
+     "L1"
+    ]
+   }
+  ]
+ }
+}

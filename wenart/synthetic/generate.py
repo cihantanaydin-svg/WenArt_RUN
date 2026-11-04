@@ -42,6 +42,11 @@ synthetic-07 (``SheetProject``, docs/milestone10.md §3.4) is written by ``gener
 ``projects.DWG_SHA256_07``; without ``dxf2dwg`` the DWG is not written and the generator says so), the brief and the four
 truth files (``building.json``, ``sheets_truth.json``, ``heights_truth.json``, ``exterior_truth.json``), all computed
 from the layout of ``wenart.synthetic.sheet`` (see ``sheet_truth``).
+
+synthetic-08 ... synthetic-22 (``FailureProject``, 4 Nov 2026, Milestone 14 track R7) are written by
+``failure_classes.generate_failure_project``: one CAD-office DXF ``plan.dxf`` (centimetres), the brief and
+``truth/reading_truth.json``, each project carrying one failure class the user found in the real drawings
+(``failure_projects``, docs/synthetic.md).
 """
 from __future__ import annotations
 
@@ -72,6 +77,8 @@ from wenart.synthetic import sheet as sheet_layout
 from wenart.synthetic import sheet_truth
 from wenart.synthetic.sheet import SheetProject
 from wenart.synthetic.sheet_writer import write_sheet_dxf
+from wenart.synthetic.failure_classes import FailureProject, counts as failure_counts, generate_failure_project
+from wenart.synthetic.failure_projects import failure_projects
 
 CREATED_UTC = "2026-10-01T00:00:00Z"
 PIPELINE_COMMIT = "synthetic-generator"
@@ -715,6 +722,8 @@ def generate_project(project, out_root: Path, results_dir: Optional[Path] = None
         return generate_cad_project(project, out_root, results_dir, fixtures_root)
     if isinstance(project, SheetProject):
         return generate_sheet_project(project, out_root, results_dir)
+    if isinstance(project, FailureProject):
+        return generate_failure_project(project, out_root, results_dir)
     project_dir = Path(out_root) / project.name
     project_dir.mkdir(parents=True, exist_ok=True)
     (project_dir / "truth").mkdir(exist_ok=True)
@@ -746,10 +755,14 @@ def main(argv=None) -> int:
         fixtures = DEFAULT_FIXTURES if Path(args.out).resolve() == (REPO_ROOT / "projects").resolve() else None
     else:
         fixtures = Path(args.fixtures) if args.fixtures else None
-    for project in all_projects():
+    for project in all_projects() + failure_projects():
         if args.only and project.name != args.only:
             continue
         truth = generate_project(project, Path(args.out), results, fixtures)
+        if isinstance(project, FailureProject):
+            print(f"{project.name}: {project.failure_class} ({project.lesson}), {len(truth['levels'])} levels, "
+                  f"per level {failure_counts(truth)}")
+            continue
         print(f"{project.name}: {len(truth['levels'])} levels, {len(truth['walls'])} walls, "
               f"{len(truth['openings'])} openings, {len(truth['rooms'])} rooms, {len(truth['furniture'])} furniture, "
               f"{len(truth['conflicts'])} conflicts, {len(truth['unverified'])} unverified")
