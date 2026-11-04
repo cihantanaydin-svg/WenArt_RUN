@@ -2377,6 +2377,10 @@ def _labels_outside_building(ex: LevelExtraction) -> list[str]:
         folded = " ".join(B.fold_ascii(t.text or "").upper().split())
         if ENTRANCE_WORD_RE.search(folded) or BURIED_WORD_RE.search(folded):
             continue
+        # 4 Nov 2026 (real17's 'HİDROFOR', a pump room in the garden): a technical room outside the walls (pump, tank,
+        # boiler house) is a site installation; it never leaves a level out
+        if B.room_type_for(t.text or "") == "technical":
+            continue
         points = (_to_building(ex, t.start), _to_building(ex, G.box_center(t.box)))
         if not any(outline.contains(Point(p)) for p in points):
             out.append(t.text)
