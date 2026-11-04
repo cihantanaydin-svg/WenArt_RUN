@@ -510,8 +510,12 @@ def test_a_wall_drawn_outside_an_upper_floor_is_no_garden_wall():
     levels = [{"id": "L-1", "elevation": -3.0}, {"id": "L0", "elevation": 0.0}]
     up = {"id": "sw_L0_005", "level_id": "L0", "start": [4.39, 18.1], "end": [5.51, 18.1]}
     low = dict(up, id="sw_L-1_001", level_id="L-1")
-    assert "facade" in ST.upper_floor_wall(up, levels, terrain)
-    assert ST.upper_floor_wall(low, levels, terrain) is None
+    outline = [[0, 0], [20, 0], [20, 18], [0, 18]]
+    assert "facade" in ST.upper_floor_wall(up, levels, terrain, outline)
+    assert ST.upper_floor_wall(low, levels, terrain, outline) is None
+    far = dict(up, start=[4.39, 25.0], end=[5.51, 25.0])            # a garden wall away from the house
+    assert ST.upper_floor_wall(far, levels, terrain, outline) is None
+    assert ST.upper_floor_wall(dict(up, kind="plot"), levels, terrain, outline) is None
 
 
 def test_a_door_from_the_common_hall_into_a_flat_is_the_flats_entrance_door():
@@ -584,3 +588,21 @@ def test_a_garage_gets_its_sectional_garage_door():
     notes = TW.garage_doors([room], [gap, small], walls)
     assert notes and gap["type"] == "door" and gap["door_type"] == "garage_sectional" and gap["height"] == 2.25
     assert small["type"] == "window"
+
+
+def test_a_door_size_tag_makes_its_gap_a_door():
+    """real07 (user: "where is the entrance to the bus wc you missed the door"): the 80/210 door read as a gap."""
+    from wenart.ingest.generic import core as C
+    from wenart.ingest.generic.model import TextRun
+    from wenart.ingest.model import OpeningItem
+
+    gap = OpeningItem(kind="opening", width=0.52, center=(2.0, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="g",
+                      evidence={}, type_raw="unclassified gap content")
+    win = OpeningItem(kind="window", width=1.2, center=(6.0, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="w",
+                      evidence={})
+    tag = TextRun(id="T", text="80/210", box=(2.2, 0.2, 2.8, 0.35), height=0.12, rotation_deg=45.0,
+                  evidence=[{"layer": "kapi-yazi"}])
+    ex = SimpleNamespace(notes=[])
+    got = C._door_tags(ex, "x", [], [gap, win], [tag], 1.0)
+    assert got[0].kind == "door" and abs(got[0].width - 0.8) < 1e-6 and got[0].height == 2.1
+    assert got[1].kind == "window"

@@ -6776,15 +6776,25 @@ def build_neighbour_houses(houses: Sequence[dict], collection, make_material, en
 UPPER_FLOOR_SITE_M = 1.0     # a wall drawn outside the building on a floor this far over the ground is no garden wall
 
 
-def upper_floor_wall(wall: dict, levels: Sequence[dict], terrain: dict) -> Optional[str]:
+UPPER_FLOOR_FACADE_M = 2.0   # ... and that stands this close to the building (an AC box on the facade, not a garden wall)
+
+
+def upper_floor_wall(wall: dict, levels: Sequence[dict], terrain: dict,
+                     outline: Optional[Sequence[Sequence[float]]] = None) -> Optional[str]:
     """4 Nov 2026 (real10, user: "What are these white thing on the ground"): the air-conditioner boxes ('KLİMA') drawn
     beside the balconies of the typical floor, outside its walls, went to the site and stood on the ground as 1.2 m
     garden walls. A wall drawn outside the building on the plan of a floor whose floor stands more than
     ``UPPER_FLOOR_SITE_M`` over the ground there belongs to that floor's facade (a balcony's or an AC unit's box), not
     to the garden: the reason it is not built, or None (pure)."""
     lv = next((x for x in levels or [] if x.get("id") == wall.get("level_id")), None)
-    if lv is None or lv.get("elevation") is None or not wall.get("start") or not wall.get("end"):
-        return None
+    if lv is None or lv.get("elevation") is None or not wall.get("start") or not wall.get("end") \
+            or wall.get("kind") == "plot":
+        return None                                   # a plot wall is the garden's, whatever floor draws it
+    if outline is not None and len(outline) >= 3:
+        from shapely.geometry import LineString, Polygon
+        if Polygon(outline).distance(LineString([tuple(wall["start"][:2]), tuple(wall["end"][:2])])) \
+                > UPPER_FLOOR_FACADE_M:
+            return None                               # away from the building: a garden wall
     (x0, y0), (x1, y1) = wall["start"], wall["end"]
     ground = ground_z(terrain, (x0 + x1) / 2.0, (y0 + y1) / 2.0)
     floor = float(lv["elevation"])
@@ -6887,7 +6897,7 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     ground_is_grass = False
     if mode == "full":
         for w in _built(site.get("boundary_walls")):
-            why = upper_floor_wall(w, levels, terrain)
+            why = upper_floor_wall(w, levels, terrain, outline)
             if why:
                 not_built.append({"id": w.get("id"), "kind": "site_wall", "reason": why})
                 continue

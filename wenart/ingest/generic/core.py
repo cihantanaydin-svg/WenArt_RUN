@@ -1475,6 +1475,63 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
     return out if done else None
 
 
+DOOR_TAG_REACH_M = 1.2          # 4 Nov 2026 (UL321): a door size tag stands this close to its door's gap
+DOOR_TAG_KINDS = ("opening", "window", "door")
+
+
+def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float,
+               keep_width: bool = False):
+    """4 Nov 2026 (real07, user: "the entrance to the room is wrong door not recognized properly", "where is the
+    entrance to the bus wc you missed the door"; lesson UL321): a door size tag ("80/210", width/height in cm, on a door
+    text layer; written along the leaf, so at any angle) is the door of the nearest unclassified gap, window-typed gap
+    or door within ``DOOR_TAG_REACH_M``: a door of that width and height, centred where the gap is; a gap read wider
+    than the door keeps the rest as wall. Returns the new openings or None."""
+    from wenart.ingest.generic import layer_names as LN
+    from wenart.ingest.model import OpeningItem
+
+    tags = []
+    for t in texts_m:
+        m = SIZE_TAG_RE.match(t.text or "")
+        layer = (t.evidence[0].get("layer") if t.evidence else None)
+        if m and LN.layer_role(layer) == "door":
+            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+    if not tags:
+        return None
+    out = list(openings)
+    taken: set = set()
+    done = []
+    for t, width, height in tags:
+        c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
+        best = None
+        for j, o in enumerate(out):
+            if j in taken or o.virtual or o.kind not in DOOR_TAG_KINDS:
+                continue
+            if o.kind == "window" and "gap" not in str(o.type_raw or ""):
+                continue                                       # a drawn window keeps its kind
+            if o.kind == "door" and abs(float(o.width) - width) <= 0.05:
+                continue                                       # already the tagged door
+            d = math.dist(c, tuple(o.center))
+            if d <= DOOR_TAG_REACH_M and (best is None or d < best[0]):
+                best = (d, j)
+        if best is None:
+            continue
+        j = best[1]
+        o = out[j]
+        ev = dict(t.evidence[0]) if t.evidence else {}
+        ev.update(method="vector", confidence=0.9, rule="size_tag",
+                  reason=f"the door size tag '{t.text.strip()}' (width/height in cm) beside the gap")
+        new_w = float(o.width) if keep_width and float(o.width) > width else width
+        out[j] = dataclasses.replace(o, kind="door", width=round(new_w, 3), height=height, evidence=ev,
+                                     type_raw=f"door size tag {t.text.strip()}",
+                                     assumed=[a for a in (o.assumed or []) if a != "height"])
+        taken.add(j)
+        done.append(f"{t.text.strip()} ({o.kind} {float(o.width):.2f} m -> door {new_w:.2f} m)")
+    if done:
+        ex.notes.append(f"{where}: {len(done)} door(s) set by their size tags: " + ", ".join(done[:12]))
+        return out
+    return None
+
+
 RECESS_MAX_M2 = 15.0
 
 
@@ -2115,6 +2172,19 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     if not is_raster:
         # 4 Nov 2026 (real17, user: "these sections could be full windows glass, check it"): a window size tag sets its
         # window (``_window_tags``)
+        for keep_width in (False, True):
+            doored = _door_tags(ex, where, walls2, openings, texts_m, s, keep_width=keep_width)
+            if doored is None:
+                break
+            bw_d, site_d, sw_d = TP.split_plot(walls2, doored, blocks, level_id=level_id)
+            idx = {o["index"] for o in site_d["openings"]}
+            b_open_d = [o for j, o in enumerate(doored) if j not in idx]
+            prob_d = TP.outer_loop_problem(bw_d, b_open_d)
+            if _unclosed(sw_d) <= _unclosed(site_warnings) and (prob_d is None or problem is not None):
+                openings, bwalls, site, site_warnings, b_openings, problem = doored, bw_d, site_d, sw_d, b_open_d, prob_d
+                break
+            ex.notes.append(f"{where}: the doors of the size tags at their own widths would open the walls"
+                            + ("" if keep_width else ": they keep their gaps' widths"))
         tagged = _window_tags(ex, where, walls2, openings, texts_m, s)
         if tagged is not None:
             bw_t, site_t, sw_t = TP.split_plot(walls2, tagged, blocks, level_id=level_id)

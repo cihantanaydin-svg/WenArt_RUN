@@ -439,7 +439,10 @@ def test_a_roof_terrace_floor_has_parapets_and_a_flat_roof_over_its_stair_house(
     sheets = {"heights": {"roof_terrace": {"floor_mark": 23.5, "parapet_height": 0.9, "house_height": 3.0}}}
     terrace = TB.roof_terrace(b, sheets, lambda t: None)
     walls = {w["id"]: w for w in b["walls"]}
-    assert walls["p1"]["height"] == 0.9 and walls["p1"]["parapet"] is True
+    # 4 Nov 2026 (user: "Too much wall on top a little wall with handrails should have been enough"): the 0.9 m mark is
+    # the guard's top; the parapet is a 0.5 m low wall with a handrail on it
+    assert walls["p1"]["height"] == 0.5 and walls["p1"]["parapet"] is True
+    assert walls["p1"]["guard"]["top_m"] == 1.1
     assert walls["h1"]["height"] == 3.0 and not walls["h1"].get("parapet")
     roof = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], terrace=terrace)
     assert roof["type"] == "flat" and roof["over_level_id"] == "L7" and roof["eaves_height"]["value"] == 24.0
