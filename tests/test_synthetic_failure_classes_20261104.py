@@ -52,6 +52,7 @@ def _xfail(cls: str, lesson: str, what: str = ""):
 XFAIL_COUNTS = {
     "synthetic-10-glazed-facade": _xfail("glazed_facade", "UL274", "the frames become one 6.3 m window"),
     "synthetic-12-mirrored-halves": _xfail("mirrored_halves", "UL276", "unswung door gaps are openings or a window"),
+    "synthetic-14-elevation-title": _xfail("elevation_title", "UL271", "the two plans are read as one level"),
 }
 XFAIL_GEOMETRY = dict(XFAIL_COUNTS)
 
@@ -83,6 +84,7 @@ EXPECTED_NAMES = [
     "synthetic-11-dimension-chains",
     "synthetic-12-mirrored-halves",
     "synthetic-13-typical-floor",
+    "synthetic-14-elevation-title",
 ]
 
 
@@ -355,3 +357,11 @@ def test_13_typical_plan_stands_for_six_storeys(generated, read):
     b = read("synthetic-13-typical-floor")
     assert [(lv["id"], lv["elevation"]) for lv in b["levels"]] == [(f"L{k}", 3.0 * k) for k in range(7)]
     assert [_fold(lv["label"]) for lv in b["levels"]] == ["zemin kat"] + [f"{k}. normal kat" for k in range(1, 7)]
+
+
+# --- synthetic-14-elevation-title ----------------------------------------------------------------------------------
+
+@_xfail("elevation_title", "UL271", "a plan titled only '+3.00 KOTU KAT PLANI' is not a storey of its own")
+def test_14_elevation_title_gives_the_storey(generated, read):
+    b = read("synthetic-14-elevation-title")
+    assert [(lv["id"], lv["elevation"]) for lv in b["levels"]] == [("L0", 0.0), ("L1", 3.0)]

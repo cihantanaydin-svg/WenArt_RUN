@@ -286,6 +286,7 @@ failure), and the mark goes.
 | `synthetic-11-dimension-chains` | dimension_chains | UL261, UL296 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 | pass |
 | `synthetic-12-mirrored-halves` | mirrored_halves | UL276 | 1 | 8 | 8 | 12 | 0 | 8 / 4 / 13 / 0 (+3 openings; 4 rooms `Oda`) | xfail |
 | `synthetic-13-typical-floor` | typical_floor | UL278, UL303 | 7 | 6 each | L0 6, L1-L6 5 | L0 9, L1-L6 10 | 1 each | as the truth, 7 levels at the section's marks | pass |
+| `synthetic-14-elevation-title` | elevation_title | UL271 | 2 | 6 + 6 | 6 + 5 | 9 + 10 | 1 + 1 | one level: 0 / 11 / 19 / 2 | xfail |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -338,6 +339,13 @@ storeys above it (a window where the ground floor has its entrance), both with t
 9 treads and a landing), and a section `A-A KESİTİ` naming the storeys at their level marks (`ZEMİN KAT ±0.00`,
 `1. NORMAL KAT +3.00` ... `6. NORMAL KAT +18.00`, `ÇATI +21.00`). Truth: 7 levels, L1 to L6 the typical plan at 3.00 m
 steps, the roof at +21.00. Reader today: right (passes: 7 levels at the section's marks, the typical plan on each).
+
+### synthetic-14-elevation-title (UL271)
+
+Two plans of a two-storey house stacked on one sheet: `ZEMİN KAT PLANI` on top, and below it a plan titled only by its
+elevation, `+3.00 KOTU KAT PLANI` (bedrooms and a study, no entrance); both with the U stair. Truth: L0 Zemin Kat ±0.00,
+L1 at +3.00. Reader today: one level only and no rooms (with the title `1. KAT PLANI` the same sheet reads as two levels
+with all rooms: the elevation title is the failure; strict xfails).
 
 ## Coordinate conventions
 

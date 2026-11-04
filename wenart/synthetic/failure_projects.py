@@ -253,5 +253,25 @@ def project_13() -> FailureProject:
                                                         "levels": [f"L{k}" for k in range(1, 7)]}})
 
 
+def upper_floor(plan: Plan) -> None:
+    """The upper floor of a two-storey house: bedrooms instead of the living rooms, a window for the entrance."""
+    _relabel(plan, {"SALON": "EBEVEYN YATAK ODASI", "MUTFAK": "ÇALIŞMA ODASI"})
+    _drop(plan, "entrance")
+    plan.openings.append(Opening("w_hol", "window", "e4", 3.9, 1.0))
+
+
+def project_14() -> FailureProject:
+    """synthetic-14-elevation-title (UL271): two plans of a two-storey house stacked on one sheet, the ground floor
+    plan titled 'ZEMİN KAT PLANI' on top and below it a plan titled only by its elevation, '+3.00 KOTU KAT PLANI'
+    (no floor word). Both carry the U stair. Truth: L0 Zemin Kat ±0.00 and L1 at +3.00."""
+    g = stair_house("p0", (10.0, 26.0), "ZEMİN KAT PLANI")
+    u = stair_house("p1", (10.0, 10.0), "+3.00 KOTU KAT PLANI")
+    upper_floor(u)
+    levels = [TruthLevel("L0", "Zemin Kat", 0.0, 0, "p0"), TruthLevel("L1", "1. Kat", 3.0, 1, "p1")]
+    return FailureProject("synthetic-14-elevation-title", "elevation_title", "UL271",
+                          "a plan titled only by its elevation under a titled ground floor plan",
+                          [g, u], levels, BRIEF)
+
+
 def failure_projects() -> list[FailureProject]:
-    return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13()]
+    return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13(), project_14()]
