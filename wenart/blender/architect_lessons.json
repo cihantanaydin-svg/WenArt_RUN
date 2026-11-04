@@ -3866,6 +3866,16 @@
    "request": "4 Nov 2026 (user, real07: 'I did not like these outside details, give some more modern details', marking the roof edge whose tile texture read as a row of dentils and the blocks capping the pilasters): a flat roof takes a flat covering (gravel on the membrane, or the style's flat covering) and a slim anthracite metal fascia and coping; tiles are for pitched roofs only; no classical dentil, bracket or block detail on a modern facade.",
    "lesson": "4 Nov 2026 (user, real07: 'I did not like these outside details, give some more modern details', marking the roof edge whose tile texture read as a row of dentils and the blocks capping the pilasters): a flat roof takes a flat covering (gravel on the membrane, or the style's flat covering) and a slim anthracite metal fascia and coping; tiles are for pitched roofs only; no classical dentil, bracket or block detail on a modern facade.",
    "question": null
+  },
+  {
+   "id": "UL327",
+   "date": "2026-11-04",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "4 Nov 2026 (user, real07 L1: 'there is no wall here and the section on the left of that none existing wall is giyinme soyunma, a place for dressing'): where a drawn partition simply ends short of the next wall, with no door and no frame in the gap, the gap is an open passage from floor to ceiling, never a wall with an opening cut in it; a giyinme-soyunma is a dressing room (wardrobes), part of the bedroom it opens into.",
+   "lesson": "4 Nov 2026 (user, real07 L1: 'there is no wall here and the section on the left of that none existing wall is giyinme soyunma, a place for dressing'): where a drawn partition simply ends short of the next wall, with no door and no frame in the gap, the gap is an open passage from floor to ceiling, never a wall with an opening cut in it; a giyinme-soyunma is a dressing room (wardrobes), part of the bedroom it opens into.",
+   "question": null
   }
  ]
 }
