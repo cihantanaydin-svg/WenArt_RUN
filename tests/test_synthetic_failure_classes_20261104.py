@@ -317,6 +317,16 @@ def test_08_spaced_pool_label_gives_the_pool(generated, read):
     assert Polygon(pools[0]["polygon"]).symmetric_difference(Polygon(t["site"]["pools"][0]["polygon"])).area < 0.1
 
 
+@_xfail("spaced_labels", "UL323", "the pool's outline and its coping are read as 0.3 m plot walls")
+def test_08_pool_outline_is_no_plot_wall(generated, read):
+    t = truth_of(generated, "synthetic-08-spaced-labels")
+    edge = Polygon(t["site"]["pools"][0]["polygon"]).exterior
+    walls = (read("synthetic-08-spaced-labels").get("site") or {}).get("boundary_walls") or []
+    on_pool = [w["id"] for w in walls
+               if edge.distance(Point(w["start"])) < 0.5 and edge.distance(Point(w["end"])) < 0.5]
+    assert on_pool == []
+
+
 # --- synthetic-09-jamb-stubs ---------------------------------------------------------------------------------------
 
 def test_09_jamb_stubs_are_drawn(generated):
@@ -387,6 +397,21 @@ def test_13_typical_plan_stands_for_six_storeys(generated, read):
     b = read("synthetic-13-typical-floor")
     assert [(lv["id"], lv["elevation"]) for lv in b["levels"]] == [(f"L{k}", 3.0 * k) for k in range(7)]
     assert [_fold(lv["label"]) for lv in b["levels"]] == ["zemin kat"] + [f"{k}. normal kat" for k in range(1, 7)]
+
+
+def _flight_misses(t: dict, b: dict, lid: str) -> list:
+    """The straight arms of the truth stair on ``lid`` whose length the reader's flights do not give (within 0.1 m)."""
+    truth = t["per_level"][lid]["stairs"][0]
+    want = sorted(round(a["box"][1][0] - a["box"][0][0], 3) for a in truth["arms"] if a["kind"] == "straight")
+    st = next(f["stair"] for f in b["furniture"] if f.get("type") == "stair" and f["level_id"] == lid)
+    got = sorted(round(math.dist(f["start"], f["end"]), 3) for f in st.get("flights") or [])
+    return [] if len(got) == len(want) and all(abs(g - w) <= 0.1 for g, w in zip(got, want)) else [want, got]
+
+
+@_xfail("typical_floor", "UL278", "the stair rule drops the end treads of each flight (1.75 m read for 2.25 m)")
+def test_13_stair_flights_hold_every_drawn_tread(generated, read):
+    assert _flight_misses(truth_of(generated, "synthetic-13-typical-floor"), read("synthetic-13-typical-floor"),
+                          "L0") == []
 
 
 # --- synthetic-14-elevation-title ----------------------------------------------------------------------------------
@@ -470,6 +495,11 @@ def test_18_sheet_frame_holds_three_titled_drawings(generated, read):
     read_titles = {(r.get("title") or {}).get("text"): r["class"] for r in sheets["regions"]}
     for d in t["drawings"]:
         assert read_titles.get(d["title"]) == d["class"], d
+
+
+@_xfail("sheet_frame", "UL268", "the stair rule drops the end treads of each flight (1.75 m read for 2.25 m)")
+def test_18_stair_flights_hold_every_drawn_tread(generated, read):
+    assert _flight_misses(truth_of(generated, "synthetic-18-sheet-frame"), read("synthetic-18-sheet-frame"), "L0") == []
 
 
 # --- synthetic-19-symmetric-house ----------------------------------------------------------------------------------
