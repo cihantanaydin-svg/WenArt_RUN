@@ -54,8 +54,10 @@ XFAIL_COUNTS = {
     "synthetic-12-mirrored-halves": _xfail("mirrored_halves", "UL276", "unswung door gaps are openings or a window"),
     "synthetic-14-elevation-title": _xfail("elevation_title", "UL271", "the two plans are read as one level"),
     "synthetic-17-garage-lift": _xfail("garage_lift", "UL320", "the 3.4 m garage opening is read as a window"),
+    "synthetic-19-symmetric-house": _xfail("symmetric_single_flat", "UL276", "4 doors, 3 windows mirrored into it"),
 }
-XFAIL_GEOMETRY = dict(XFAIL_COUNTS)
+# every drawn room and opening of synthetic-19 is read; only extra ones are (its counts and its own test)
+XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items() if k != "synthetic-19-symmetric-house"}
 
 
 def _params(names, marks: dict):
@@ -90,6 +92,7 @@ EXPECTED_NAMES = [
     "synthetic-16-open-recess",
     "synthetic-17-garage-lift",
     "synthetic-18-sheet-frame",
+    "synthetic-19-symmetric-house",
 ]
 
 
@@ -441,3 +444,14 @@ def test_18_sheet_frame_holds_three_titled_drawings(generated, read):
     read_titles = {(r.get("title") or {}).get("text"): r["class"] for r in sheets["regions"]}
     for d in t["drawings"]:
         assert read_titles.get(d["title"]) == d["class"], d
+
+
+# --- synthetic-19-symmetric-house ----------------------------------------------------------------------------------
+
+@_xfail("symmetric_single_flat", "UL276", "the mirror rule adds the mirror of 4 doors and 3 windows to one flat")
+def test_19_nothing_is_mirrored_into_one_flat(generated, read):
+    t = truth_of(generated, "synthetic-19-symmetric-house")
+    truth_ops = t["per_level"]["L0"]["doors"] + t["per_level"]["L0"]["windows"]
+    extra = [o["id"] for o in read("synthetic-19-symmetric-house")["openings"]
+             if not any(math.dist(o["center"], q["center"]) <= CENTRE_TOL_M for q in truth_ops)]
+    assert extra == []

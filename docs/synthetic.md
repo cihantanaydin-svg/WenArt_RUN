@@ -291,6 +291,7 @@ failure), and the mark goes.
 | `synthetic-16-open-recess` | open_recess | UL313 | 1 | 6 | 6 | 11 | 0 | 6 / 6 / 11 / 0 (+1 doubled opening) | pass |
 | `synthetic-17-garage-lift` | garage_lift | UL320, UL306 | 1 | 7 | 8 | 7 | 0 | 7 / 7 / 8 / 0 (the garage opening a window) | counts, garage xfail; lift pass |
 | `synthetic-18-sheet-frame` | sheet_frame | UL268 | 2 | 6 + 6 | 6 + 5 | 9 + 10 | 1 + 1 | as the truth (heights assumed) | levels pass; section region xfail |
+| `synthetic-19-symmetric-house` | symmetric_single_flat | UL276 | 1 | 6 | 6 | 9 | 0 | 6 / 10 / 12 / 0 (4 doors, 3 windows mirrored in) | counts, nothing-extra xfail; geometry pass |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -385,6 +386,16 @@ only 1.5 m apart: `ZEMİN KAT PLANI`, `1. KAT PLANI` (both with the U stair) and
 `ZEMİN KAT ±0.00`, `1. KAT +3.00`, `ÇATI +6.00`. Truth: two levels, three drawings (`drawings`). Reader today: both
 plans and their levels right (from the titles), but the section 1.5 m beside the first floor plan is no region of its
 own, so the heights are assumed (strict xfail on the three drawings).
+
+### synthetic-19-symmetric-house (UL276, the other side)
+
+One flat, not two: the base flat before it was made asymmetric (both corridor walls the full 12 m, the top-right
+bedroom a plain rectangle), so its walls overlap their mirror about the middle by more than the reader's 90 % for a
+plan of two mirrored halves. Every door and window is drawn where it stands; nothing is mirrored. Found while building
+the base flat. Truth: as the base flat (6 rooms, 6 doors, 9 windows). Reader today: every drawn room and opening right,
+but the mirror rule adds the mirror of four doors (one of them a second entrance on the right facade) and three windows
+(strict xfails on the counts and on "nothing read where nothing is drawn"). Not one of the classes asked for; added as
+the eleventh case of the set.
 
 ## Coordinate conventions
 

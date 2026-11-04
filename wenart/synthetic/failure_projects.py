@@ -371,6 +371,30 @@ def project_18() -> FailureProject:
                                                     {"title": "A-A KESİTİ", "class": "section"}]})
 
 
+def project_19() -> FailureProject:
+    """synthetic-19-symmetric-house (UL276, its other side): one flat, not two, whose walls are almost mirror images
+    about the middle: both corridor walls run the full 12 m and the top-right bedroom is a plain rectangle (the base
+    flat before its corridor end and L-shaped bedroom made it asymmetric). Nothing is mirrored: every door and window
+    is drawn and stands where it is drawn. Found while building the base flat (4 Nov 2026): the mirror rule took
+    this plan for two mirrored halves and added the mirror of four doors and three windows. Truth: 6 rooms, 6 doors,
+    9 windows."""
+    plan = base_house()
+    plan.walls = [w for w in plan.walls if w.id not in ("i2", "i6")] + [Wall("i2", (0.0, 5.8), (12.0, 5.8), INT_T)]
+    for lb in plan.labels:
+        if lb.text == "HOL":
+            lb.at = (9.8, 5.1)
+    for op in plan.openings:
+        if op.id == "d_yatak":
+            op.s = 8.5
+        if op.id == "d_cocuk":
+            op.s = 8.0
+        if op.id == "w_cocuk2":
+            op.s = 7.4
+    return FailureProject("synthetic-19-symmetric-house", "symmetric_single_flat", "UL276",
+                          "one flat whose walls are nearly mirror-symmetric: nothing may be mirrored into it",
+                          [plan], [GROUND], BRIEF)
+
+
 def failure_projects() -> list[FailureProject]:
     return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13(), project_14(),
-            project_15(), project_16(), project_17(), project_18()]
+            project_15(), project_16(), project_17(), project_18(), project_19()]
