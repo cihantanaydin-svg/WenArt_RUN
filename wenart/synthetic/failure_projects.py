@@ -273,5 +273,16 @@ def project_14() -> FailureProject:
                           [g, u], levels, BRIEF)
 
 
+def project_15() -> FailureProject:
+    """synthetic-15-winder-stair (UL282): the base flat with a U stair in the stair hall: six straight treads, five
+    winders round the turn (radial lines from the well's end), six straight treads back, every tread numbered 1 to 17
+    on the stair layer, the walking line with its arrow. Truth: one stair, 17 risers, its three arms."""
+    plan = stair_house("p0", (10.0, 10.0), "ZEMİN KAT PLANI", winders=5, numbers=True, flight1=6, flight2=6,
+                       going=0.27)
+    return FailureProject("synthetic-15-winder-stair", "winder_stair", "UL282",
+                          "a U stair with numbered treads 1-17 and winders at the turn", [plan], [GROUND], BRIEF)
+
+
 def failure_projects() -> list[FailureProject]:
-    return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13(), project_14()]
+    return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13(), project_14(),
+            project_15()]

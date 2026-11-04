@@ -85,6 +85,7 @@ EXPECTED_NAMES = [
     "synthetic-12-mirrored-halves",
     "synthetic-13-typical-floor",
     "synthetic-14-elevation-title",
+    "synthetic-15-winder-stair",
 ]
 
 
@@ -365,3 +366,20 @@ def test_13_typical_plan_stands_for_six_storeys(generated, read):
 def test_14_elevation_title_gives_the_storey(generated, read):
     b = read("synthetic-14-elevation-title")
     assert [(lv["id"], lv["elevation"]) for lv in b["levels"]] == [("L0", 0.0), ("L1", 3.0)]
+
+
+# --- synthetic-15-winder-stair -------------------------------------------------------------------------------------
+
+def _stair(b: dict) -> dict:
+    stairs = [f for f in b["furniture"] if f.get("type") == "stair"]
+    assert len(stairs) == 1
+    return stairs[0].get("stair") or {}
+
+
+@_xfail("winder_stair", "UL282", "the winders are read as a flat landing and the tread numbers are not used")
+def test_15_winders_and_seventeen_treads(generated, read):
+    t = truth_of(generated, "synthetic-15-winder-stair")
+    st = _stair(read("synthetic-15-winder-stair"))
+    assert t["per_level"]["L0"]["stairs"][0]["risers"] == 17
+    assert not st.get("landing")                                   # the turn is winders, not a landing
+    assert (st.get("risers") or st.get("treads")) == 17
