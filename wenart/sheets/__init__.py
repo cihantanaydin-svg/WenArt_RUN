@@ -308,6 +308,14 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
         hw += HT.apply_storey_marks(heights_json, base_levels, storey_el, float(values.get("slab_thickness", 0.20)),
                                     sections[0].file if sections else None, sections[0].id if sections else None)
     heights_json.pop("_mark_frame", None)
+    bad = HT.implausible(heights_json, base_levels)
+    if bad:
+        # 4 Nov 2026 (real07): heights no storey can have are not used; the floors take the assumed defaults
+        heights_json["levels"], heights_json["slabs"] = [], []
+        HT._assumed_levels(heights_json, base_levels, float(values.get("ceiling_height", 2.70)),
+                           float(values.get("slab_thickness", 0.20)), f"the section's heights are no storeys ({bad})")
+        hw.append(f"the section's heights are no storeys ({bad}): the floors take the assumed heights")
+        warnings.append(f"the section's heights are no storeys ({bad}): the floors take the assumed heights")
     # real10 (1 Nov 2026): a roof terrace floor on top: its parapet and stair house heights from the section's marks.
     if any(lv.get("roof_terrace") for lv in levels_json) and sections:
         rt = LV.roof_terrace_heights(sections)

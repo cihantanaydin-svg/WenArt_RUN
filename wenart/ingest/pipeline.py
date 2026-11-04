@@ -1957,7 +1957,8 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
         # layers its other plans chose by evidence, generic.walls.face_pair_walls).
         page.document_wall_layers = tuple(build.document_wall_layers.get(record.file, ()))
     origin, why = _region_origin(record)
-    is_reference = build is not None and record.region_id is not None and record.region_id == build.reference_region
+    is_reference = build is not None and record.region_id is not None and record.region_id == build.reference_region \
+        and not getattr(record, "deferred_retry", False)
     if origin is not None and build is not None and not is_reference:
         origin = (origin[0] + build.frame_shift[0], origin[1] + build.frame_shift[1])
     ex = core.extract(page, record.level_id, record.file, answers=answers, no_ai=no_ai,
@@ -2794,7 +2795,13 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     # M10: the reference region is read first: its outer wall faces fix the building origin for every region.
     order = sorted(records, key=lambda r: 0 if r.region_id is not None and r.region_id == build.reference_region else 1)
     leads = _crop_leads(order, selected_alts, build.sheets)    # fix round after P3: who writes recognition/crops
+    # 4 Nov 2026 (real17, user: "fix the real17 shop floor"): a region read before the document's other plans chose
+    # their wall layers by evidence, that fails, is read again after them with those layers (once)
+    deferred: set = set()
+    done_keys: set = set()
     for record in order:
+        retry = record.key in deferred
+        done_keys.add(record.key)
         if record.region_id is not None and record.skip_reason:
             # Milestone 10: a region that is no plan (title block, section, ...) is listed, never a review.
             build.warn(f"{record.file} {record.region_id}: {record.skip_reason}")
@@ -2831,7 +2838,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             build.review(f"{record.file} p{record.page}: {record.page_class} without a level title "
                          f"(found: {record.level_label_raw!r})")
             continue
-        if getattr(record, "level_note", None):
+        if getattr(record, "level_note", None) and not retry:
             build.warn(f"{record.file} p{record.page}: {record.level_note}")
         elif record.label_source == "assumed":
             build.warn(f"level title missing: assumed {record.level_id} {record.level_label}")
@@ -2851,7 +2858,22 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             extraction = copy.deepcopy(typical_reads[record.region_id])
             extraction.level_assumed = record.label_source == "assumed"
         elif record.extractor == "generic":
+            had_layers = bool(build.document_wall_layers.get(record.file))
             extraction = _extract_generic(record, out_dir, answers, no_ai, build, lead=record.key in leads)
+            if record.region_id is not None and extraction.review and not had_layers and not retry \
+                    and any(r.extractor == "generic" and r.file == record.file and r.key not in done_keys
+                            and r.region_id is not None for r in order):
+                deferred.add(record.key)
+                # the reference read again is placed by its registration like the others (they were read without it)
+                record.deferred_retry = True
+                if record.region_id == build.reference_region:
+                    build.frame_shift = (0.0, 0.0)
+                order.append(record)
+                continue
+            if retry:
+                extraction.notes.append(f"{record.file} {record.region_id}: read again with the wall layers the "
+                                        f"document's other plans chose "
+                                        f"({', '.join(build.document_wall_layers.get(record.file) or []) or 'none'})")
             extraction.level_assumed = record.label_source == "assumed"
             # 2 Nov 2026 (real10's 2nd basement, user: "2n basement is fully underground and fully walled around"): a
             # level with soil outside its walls on 3 or more sides is closed all round, with no opening to the soil

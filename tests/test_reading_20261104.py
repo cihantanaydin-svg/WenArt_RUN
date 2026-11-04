@@ -292,3 +292,33 @@ def test_a_common_area_room_subtype_is_valid_in_the_schema():
 
     s = json.loads((Path(__file__).resolve().parents[1] / "wenart" / "schema" / "building.schema.json").read_text())
     assert "common" in s["$defs"]["room"]["properties"]["room_subtype"]["enum"]
+
+
+def test_storey_marks_that_do_not_rise_with_the_storeys_are_no_storey_frame():
+    """real07: the section named the ground floor and the 1st floor at the same mark -34.23; L1 stood on L0 and L0's
+    walls were -0.20 m high."""
+    from wenart.sheets import heights as H
+
+    out = {"levels": [{"level_id": "L0", "floor_z": {"value": 0.0}}], "slabs": [], "ground": []}
+    levels = [{"id": "L0", "order": 0}, {"id": "L1", "order": 1}]
+    lines = H.apply_storey_marks(out, levels, {0: -34.23, 1: -34.23}, 0.2, "x.dwg", "r1")
+    assert lines and "do not rise" in lines[0] and out["levels"][0]["floor_z"]["value"] == 0.0
+    ok = H.apply_storey_marks({"levels": [], "slabs": [], "ground": []}, levels, {0: 0.0, 1: 3.0}, 0.2, "x", "r1")
+    assert ok and "heights from the storeys" in ok[0]
+
+
+def test_section_heights_outside_a_storey_are_implausible():
+    """real07: the section's slab bands put L1 35.66 m over L0 (a 35.46 m ceiling): such heights are no storeys."""
+    from wenart.sheets import heights as H
+
+    levels = [{"id": "L0", "order": 0}, {"id": "L1", "order": 1}]
+    v = lambda x: {"value": x, "method": "vector"}
+    bad = {"levels": [{"level_id": "L0", "floor_z": v(0.0), "ceiling_height": v(35.46)},
+                      {"level_id": "L1", "floor_z": v(35.66), "ceiling_height": v(2.7)}]}
+    assert "ceiling" in H.implausible(bad, levels)
+    step = {"levels": [{"level_id": "L0", "floor_z": v(0.0), "ceiling_height": v(2.7)},
+                       {"level_id": "L1", "floor_z": v(0.4), "ceiling_height": v(2.7)}]}
+    assert "L0 -> L1" in H.implausible(step, levels)
+    ok = {"levels": [{"level_id": "L0", "floor_z": v(0.0), "ceiling_height": v(2.7)},
+                     {"level_id": "L1", "floor_z": v(3.0), "ceiling_height": v(2.7)}]}
+    assert H.implausible(ok, levels) is None

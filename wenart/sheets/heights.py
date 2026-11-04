@@ -42,6 +42,7 @@ BAND_M = (0.05, 0.6)
 ROOF_MIN_M = 0.5
 GROUND_REACH_M = 1.0
 GROUND_MIN_M = 1.0                     # a ground line is at least 1 m long (not a slab or eaves end)
+STOREY_MIN_M = 2.0                     # 4 Nov 2026: storey marks rise at least this much a storey
 GROUND_OVERHANG_M = 3.0                # 4 Nov 2026 (real10): a ground line runs on under upper floors this far out ...
 GROUND_TOUCH_M = 0.05                  # ... to a wall face it ends on (within this)
 GROUND_MARK_TOL_M = 0.20               # a level mark up to this far above a ground line stands on it (real10: its point
@@ -665,6 +666,32 @@ def _assumed_level(out: dict, lv: dict, ceiling: float, slab: float, why: str) -
                           "level_mark": None, "level_mark_target_z": None})
 
 
+STOREY_MAX_M = 8.0                     # 4 Nov 2026: a storey (floor to floor, a ceiling) at most this high
+
+
+def implausible(out: dict, levels: list[dict]) -> Optional[str]:
+    """4 Nov 2026 (real07: its section's slab bands put L1 35.66 m over L0, a 35.46 m ceiling): why the heights a
+    section gave are no storeys (a ceiling or a floor-to-floor step outside ``STOREY_MIN_M``-``STOREY_MAX_M`` a
+    storey), or None."""
+    order = {lv["id"]: lv.get("order") or 0 for lv in levels}
+    rows = []
+    for e in out.get("levels") or []:
+        fz, ch = e.get("floor_z") or {}, e.get("ceiling_height") or {}
+        if ch.get("method") == "vector" and ch.get("value") is not None \
+                and not 1.8 <= float(ch["value"]) <= STOREY_MAX_M:
+            return f"{e['level_id']} ceiling {float(ch['value']):.2f} m"
+        if fz.get("method") == "vector" and fz.get("value") is not None and e["level_id"] in order:
+            rows.append((order[e["level_id"]], float(fz["value"]), e["level_id"]))
+    rows.sort()
+    for (o1, z1, a), (o2, z2, b) in zip(rows, rows[1:]):
+        if o2 == o1:
+            continue
+        step = (z2 - z1) / (o2 - o1)
+        if not STOREY_MIN_M <= step <= STOREY_MAX_M:
+            return f"{a} -> {b} {z2 - z1:+.2f} m"
+    return None
+
+
 def _assumed_levels(out: dict, levels: list[dict], ceiling: float, slab: float, why: str) -> None:
     prev = None
     for lv in levels:
@@ -691,6 +718,15 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
         known[top_order] = float(storey_el["top"])          # the section's top storey (ÇATI KAT) is the top level
     if len(known) < 2:
         return []
+    # 4 Nov 2026 (real07 structure run 20261104-122605-full: its section named the ground floor and the 1st floor at the
+    # same mark -34.23, L1 stood on L0, L0's walls were -0.20 m high and the build stopped): the marks must rise with
+    # the storeys, at least ``STOREY_MIN_M`` a storey, or they are no storey frame (the slab bands' heights stay)
+    seq0 = sorted(known)
+    rises = [known[b] - known[a] for a, b in zip(seq0, seq0[1:])]
+    if any(r < STOREY_MIN_M * (b - a) for r, (a, b) in zip(rises, zip(seq0, seq0[1:]))):
+        return [f"the storeys the sections name at their floor marks do not rise by at least {STOREY_MIN_M:.1f} m a "
+                f"storey ({', '.join(f'{orders[o]} {known[o]:+.2f}' for o in seq0)}): not used, the slab bands' "
+                f"heights stay"]
     base = known[0] if 0 in known else min(known.items())[1]
     seq = sorted(known)
     top_mark = storey_el.get("top")
