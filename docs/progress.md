@@ -3534,3 +3534,16 @@ technical, outside the walls; technical rooms outside never leave a level out). 
 Still open (real07): the roof plan's eaves loop (the loop read is 17.6 x 27.6 m, the house 16.4 x 12.2 m: a wrong
 loop), hip roofs over the garage and the side wings, the second villa from the site plan (its registration), the
 sections' storey heights, the drive from the garage to the street. No pod was run for these (user).
+
+## Milestone 14 started: structure recognition that learns (4 Nov 2026)
+
+The user (4 Nov 2026): "I want structure recognition to be cumulatively better with the feedbacks I am giving, and some
+AI or something else to give the feedbacks by itself instead of me at some point"; "the timeline is too long"; "accept
+and reject might be not enough, possibly I may need to continue detailed reviews for some time more"; "why only 3
+projects?"; and "yes" to the plan and to the rule change. Plan: `docs/milestone14.md` (day plan, every track on all 21
+real and 7 synthetic projects). Decisions recorded in `CLAUDE.md` (evidence rules) and lesson UL329.
+
+Day 1, in parallel worktrees: R1 (truth corpus from the accepted readings, the correction store backfilled from the
+3 and 4 Nov reviews, the reading score per commit) and R2 (the outline closure pass, `failed_levels: build_marked` as
+the default so no level with a scale and walls is left out, RC7 low-confidence places on the comparison sheets).
+Environment: this cloud session built LibreDWG with `scripts/cloud-setup.sh`'s LibreDWG part (about 10 min).

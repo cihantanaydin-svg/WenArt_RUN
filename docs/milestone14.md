@@ -1,4 +1,4 @@
-# Milestone 14 (proposed 4 Nov 2026, waiting for the user's OK): structure recognition that learns
+# Milestone 14 (proposed and approved 4 Nov 2026, user: "yes"): structure recognition that learns
 
 Goal (user, 4 Nov 2026): "I want structure recognition to be cumulatively better with the feedbacks I am giving, and
 some AI or something else to give the feedbacks by itself instead of me at some point."
@@ -145,7 +145,7 @@ dollars.
 | reviewer precision (accept rate) | not measured | over 70 %, per reviewer in the ledger |
 | readings that change under mirror, rotation, layer renaming | not measured | 0 on accepted projects |
 
-## 6. Rules this touches (need the user's OK)
+## 6. Rules this touches (user OK of 4 Nov 2026: "yes")
 
 - Milestone 10 rule "AI only proposes; an agreed class never makes a region a plan": unchanged for geometry (AI never
   draws a wall), but AI and the ranker may decide between code-built candidates when the code is undecided, logged

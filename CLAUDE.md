@@ -154,6 +154,16 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   final vision check compares every render with the building JSON and the source plan; its findings go back to
   the stage that caused them.
 - Save a debug image per page with detected elements drawn over the original, colored by method and confidence.
+- Milestone 14 (user OK of 4 Nov 2026, `docs/milestone14.md`): structure recognition learns from the user's corrections.
+  Every reader decision is a candidate with a score and a margin (its confidence); a ranker trained on the user's
+  corrections and, where the code is undecided, the vision model may decide between code-built candidates (gap kind,
+  wall or notation, inside or outside, stair or grid, region class), logged with `decided_by` and the margin; geometry
+  still comes only from the drawings (AI never draws a wall). A level is never left out while it has a scale, a
+  transform and walls: it is built with `reading_confidence: low` and its reasons (`failed_levels: build_marked`, the
+  default). Every correction of the user becomes a record in `results/reading_corrections.jsonl` and a truth entry in
+  `results/reading_truth/`; the reading score (`python -m wenart.reading_check score`) is measured per commit on all
+  projects and a change ships only when it rises and no project falls. The user keeps giving detailed reviews as long as
+  the user wants (accept or reject is only for the machine's own findings).
 
 ## Engineering conventions
 - Open-weight models and open-source tools only; library models of any licence by default (`licence_mode: relaxed`,
