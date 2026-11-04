@@ -267,3 +267,18 @@ def test_a_floor_band_runs_on_a_straightened_outline():
     assert all(abs(b["size"][1] - 0.13) < 1e-9 for b in boxes)
     assert F.band_outline([[0, 0], [5, 0], [5, 4], [0, 4]]) == [[5.0, -0.0], [5.0, 4.0], [0.0, 4.0], [0.0, -0.0]] or \
         len(F.band_outline([[0, 0], [5, 0], [5, 4], [0, 4]])) == 4
+
+
+def test_a_wall_item_with_no_ceiling_read_over_it_takes_the_level_ceiling(monkeypatch):
+    """real07 structure run 20261104-120732-full: a WC's fluted panel got a height of -0.22 m (no ceiling read over its
+    spot), the building JSON failed its schema and the run stopped."""
+    from wenart.furniture import bath_details as BD
+
+    class D:
+        @staticmethod
+        def ceiling_over(*a, **k):
+            return 0.0
+    monkeypatch.setattr(BD, "_decor_module", lambda: D)
+    monkeypatch.setattr(BD, "_ceiling", lambda building, room: 2.6)
+    assert BD.ceiling_at({}, {"level_id": "L0"}, (0, 0), (0.5, 0.02), 0.0) == 2.6
+    assert BD.FEATURE_PANEL_MIN_H_M > 0

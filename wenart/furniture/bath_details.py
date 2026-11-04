@@ -108,9 +108,12 @@ def ceiling_at(building: dict, room: dict, centre, size, rot: float) -> float:
     sloped ceiling over it (``decor.ceiling_over``; a flat ceiling without a roof model)."""
     D = _decor_module()
     try:
-        return float(D.ceiling_over(building, room["level_id"], centre[:2], size[:2], float(rot)))
+        z = float(D.ceiling_over(building, room["level_id"], centre[:2], size[:2], float(rot)))
     except Exception:  # noqa: BLE001 - no roof model: the level's flat ceiling
         return _ceiling(building, room)
+    # 4 Nov 2026 (real07 structure run 20261104-120732-full: a WC's fluted panel got a height of -0.22 m, the building
+    # JSON failed its schema and the run stopped): no ceiling read over the spot is the level's flat ceiling
+    return z if z > 0.0 else _ceiling(building, room)
 
 
 def under_slope(building: dict, room: dict, centre, size, rot: float, bottom: float) -> bool:
@@ -1016,6 +1019,9 @@ def _cove(building, room, ctx, pieces, spec, new_id) -> tuple[list[dict], list[s
     return out, notes
 
 
+FEATURE_PANEL_MIN_H_M = 0.6      # 4 Nov 2026: a feature panel lower than this is left out (never a size <= 0)
+
+
 def _feature_panels(building, room, ctx, pieces, spec, rec, new_id) -> tuple[list[dict], list[str]]:
     """B13 (the panel behind the fluted vanity) or B24 (the fluted wall behind the WC, planned by ``plan_room``)."""
     out, notes = [], []
@@ -1025,9 +1031,13 @@ def _feature_panels(building, room, ctx, pieces, spec, rec, new_id) -> tuple[lis
         # 30 Oct 2026 (UL128): floor to the ceiling over the panel (the sloped one under the roof), not the flat one
         here = min(ceiling, ceiling_at(building, room, pnl["center"], (pnl["width"], pnl["thickness"]),
                                        pnl["rotation_deg"]) - SLOPE_CLEAR_M + 0.005)
-        out.append(_item(room, "feature_panel", [*pnl["center"], 0.0], pnl["rotation_deg"],
-                         (pnl["width"], pnl["thickness"], round(here - 0.005, 3)), rec["feature_why"], spec, new_id,
-                         [pnl["anchor"]], material=pnl["material"]))
+        if here - 0.005 < FEATURE_PANEL_MIN_H_M:
+            notes.append(f"{room['id']}: no room for the fluted panel behind {pnl['anchor']} ({here:.2f} m under the "
+                         f"ceiling): left out")
+        else:
+            out.append(_item(room, "feature_panel", [*pnl["center"], 0.0], pnl["rotation_deg"],
+                             (pnl["width"], pnl["thickness"], round(here - 0.005, 3)), rec["feature_why"], spec, new_id,
+                             [pnl["anchor"]], material=pnl["material"]))
     elif rec.get("feature") == "vanity_panel":
         for basin in (p for p in pieces if p.get("type") == "washbasin"
                       and BT.bath_look(p).get("vanity") == "fluted"):
@@ -1041,6 +1051,9 @@ def _feature_panels(building, room, ctx, pieces, spec, rec, new_id) -> tuple[lis
             centre = [back[0] + n[0] * t / 2.0, back[1] + n[1] * t / 2.0, 0.0]
             rot = placer._rotation_for_normal(n)
             here = min(ceiling, ceiling_at(building, room, centre, (w, t), rot) - SLOPE_CLEAR_M + 0.005)   # UL128
+            if here - 0.005 < FEATURE_PANEL_MIN_H_M:
+                notes.append(f"{room['id']}: no room for the panel behind {basin['id']}: left out")
+                break
             out.append(_item(room, "feature_panel", centre, rot,
                              (w, t, round(here - 0.005, 3)), rec["feature_why"], spec, new_id, [basin["id"]],
                              material=spec.get("panel") or "terrazzo"))

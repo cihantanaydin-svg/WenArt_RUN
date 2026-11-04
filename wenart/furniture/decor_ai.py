@@ -2282,6 +2282,15 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
             style = style[0] if style else None
         out, records = apply(building, style_text, answers, style=style, recipes=recipes)
         out_path = Path(args.out)
+        # 4 Nov 2026 (real07 structure run: one panel with a negative height failed the schema and stopped the run): an
+        # item with a size of 0 or less is no item; it is left out with a warning
+        bad = [d for d in out.get("decor") or [] if any(float(v) <= 0.0 for v in (d.get("size") or [1.0]))]
+        if bad:
+            out["decor"] = [d for d in out["decor"] if d not in bad]
+            out.setdefault("warnings", []).extend(f"decor {d.get('id')} ({d.get('type')}): size {d.get('size')} has a "
+                                                  f"side of 0 or less: left out" for d in bad)
+            print(f"decor apply: {len(bad)} item(s) with a size of 0 or less left out: "
+                  f"{', '.join(str(d.get('id')) for d in bad)}")
         B.save(out, out_path)
         model = answers.get("model")
         (out_path.parent / "decor_ai.json").write_text(json.dumps(summary(records, out, model), ensure_ascii=False,
