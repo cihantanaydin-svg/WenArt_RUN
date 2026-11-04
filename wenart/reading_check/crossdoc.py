@@ -56,8 +56,14 @@ SLIT_CLOSE_M = 0.03            # the wall union's slits closed (topology.SLIT_CL
 BAND_TOL_M = 0.3               # an opening's mid height this far below a level's floor still belongs to it
 STACK_MATCH_M = 0.3            # the plans' facade: an outer opening on one floor and on another this close are one
 NORTH_CANDIDATES_DEG = (0.0, 90.0, 180.0, 270.0)
+NORTH_MARGIN_MIN = 0.20        # a north placed by fit with a smaller margin over the next axis is weak ...
+NORTH_MARGIN_MIN_N = 5         # ... or fewer openings ahead of it than this
+WIDTH_TOL_M = 0.5              # an elevation opening and a plan opening are alike in width within this ...
+WIDTH_TOL_SHARE = 0.4          # ... or this share of the wider one
+SMALL_FRAME_M = 0.5            # a frame smaller than this both ways is no window (a vent, a panel)
+STRIP_X_M = 0.1                # frames one above the other within this along the facade ...
+STRIP_GAP_M = 0.3              # ... with less wall than this between them are cells of one glazed strip
 LOCAL_SIDES = {"right": 0.0, "back": 90.0, "left": 180.0, "front": 270.0}
-MAJOR_EXTRA_N = 2              # a level with this many openings on the elevation only is major
 # RC9
 STOREY_M = (2.0, 8.0)          # a storey's floor-to-floor height outside this is no storey (UL 4 Nov 2026, real07)
 LEVEL_TOL_M = 0.05             # the section's floor mark and the model's level differ by more than this
@@ -78,7 +84,7 @@ SIZE_TAG_FALLBACK_RE = re.compile(r"^\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")
 TAG_REACH_M = 0.8              # a tag stands this close to a wall of its level, its opening this close to it
 TAG_WIDTH_TOL_M = 0.10
 TAG_SIZE_CM = ((40, 600), (40, 400))
-TAG_LAYER_ROLES = ("door", "window", "glass")
+TAG_LAYER_ROLES = ("door", "window", "glass", "text", None)   # real10 writes its tags on TEXT
 TAG_NEAREST_M = 1.5            # the nearest opening named in the message
 TAG_MAJOR_N = 3
 # RC12
@@ -228,18 +234,6 @@ def _dot(p, u) -> float:
     return p[0] * u[0] + p[1] * u[1]
 
 
-def _greedy(es: list[float], ps: list[float], shift: float, tol: float) -> list[tuple[int, int]]:
-    pairs = sorted(((abs(e - (p + shift)), i, j) for i, e in enumerate(es) for j, p in enumerate(ps)
-                    if abs(e - (p + shift)) <= tol))
-    used_i, used_j, out = set(), set(), []
-    for _, i, j in pairs:
-        if i not in used_i and j not in used_j:
-            used_i.add(i)
-            used_j.add(j)
-            out.append((i, j))
-    return out
-
-
 # ---------------------------------------------------------------------------------------------------------------- RC8
 def _elevations(building: dict, sheets: dict) -> list[dict]:
     els = (building.get("facade") or {}).get("elevations")
@@ -302,20 +296,28 @@ def rc8(building: dict, sheets: dict) -> list[dict]:
             empty.append(name)
             continue
         els.append((el, name, positions))
-    inferred = None
+    inferred, weak, margin = None, False, 1.0
     if north is None and any(EX.normal_deg(el.get("side"), None) is None for el, _, _ in els):
         scores = {}
         for cand in NORTH_CANDIDATES_DEG:
             scores[cand] = sum(_compare_elevation(el, EX.normal_deg(el.get("side"), cand), name, positions, ctx)[1]
                                for el, name, positions in els if EX.normal_deg(el.get("side"), cand) is not None)
         best = max(NORTH_CANDIDATES_DEG, key=lambda c: scores[c])
-        if scores[best] > 0 and sorted(scores.values())[-2] < scores[best]:
+        second = sorted(scores.values())[-2]
+        if scores[best] > 0 and second < scores[best]:
             north = inferred = best
+            margin = (scores[best] - second) / scores[best]
+            # weak: a small share over the next axis, or a few openings only (12 against 8 on real07's four
+            # elevations is no evidence for a compass)
+            weak = margin < NORTH_MARGIN_MIN or scores[best] - second < NORTH_MARGIN_MIN_N
             others = ", ".join(f"{c:.0f}: {v}" for c, v in scores.items() if c != best)
             out.append(_finding("RC8", "info", None, f"no north arrow read: the compass sides placed by fit, north = "
                                 f"{best:.0f} deg from the building's +Y ({scores[best]} elevation openings match plan "
-                                f"openings; the other axes {others}) (inferred)", ["elevations", "plans"],
-                                north_inferred_deg=best))
+                                f"openings against {second} on the next axis: margin {margin * 100:.0f} %; the other "
+                                f"axes {others}) (inferred)" + (f"; a weak fit (under {NORTH_MARGIN_MIN * 100:.0f} % or fewer "
+                                                                f"than {NORTH_MARGIN_MIN_N} openings ahead): the "
+                                                                f"findings below are minor at most" if weak else ""),
+                                ["elevations", "plans"], north_inferred_deg=best, north_margin=round(margin, 3)))
     no_north = []
     for el, name, positions in els:
         normal = EX.normal_deg(el.get("side"), north)
@@ -326,6 +328,10 @@ def rc8(building: dict, sheets: dict) -> list[dict]:
         if inferred is not None:
             for f in found:
                 f["north_inferred_deg"] = inferred
+                if weak and f["severity"] in ("critical", "major"):
+                    f["severity"] = "minor"
+                    f["message"] += (f" (minor at most: the north was placed by a weak fit, margin "
+                                     f"{margin * 100:.0f} %, {scores[best] - second} openings)")
         out += found
     if no_north:
         out.append(_finding("RC8", "info", None, "not compared with the plans: " + "; ".join(no_north)
@@ -337,16 +343,80 @@ def rc8(building: dict, sheets: dict) -> list[dict]:
     return out + rc8_stacked(building)
 
 
+def _wide_alike(we: float, wp: float) -> bool:
+    """Two openings' widths agree (``WIDTH_TOL_M`` or ``WIDTH_TOL_SHARE`` of the wider): alignment and matching only
+    pair openings of about one size (real10's east side was aligned on the wrong windows by position alone)."""
+    return abs(we - wp) <= max(WIDTH_TOL_M, WIDTH_TOL_SHARE * max(we, wp))
+
+
+def _greedy(es: list, ps: list, shift: float, tol: float) -> list[tuple[int, int]]:
+    """Pairs (i, j) of elevation items ``(x, width)`` and plan items ``(x, width)``: nearest first, within ``tol``
+    along the facade after ``shift``, widths alike."""
+    pairs = sorted(((abs(e[0] - (p[0] + shift)), i, j) for i, e in enumerate(es) for j, p in enumerate(ps)
+                    if abs(e[0] - (p[0] + shift)) <= tol and _wide_alike(e[1], p[1])))
+    used_i, used_j, out = set(), set(), []
+    for _, i, j in pairs:
+        if i not in used_i and j not in used_j:
+            used_i.add(i)
+            used_j.add(j)
+            out.append((i, j))
+    return out
+
+
+def _columns(items: list, tol: float) -> list[list]:
+    """Items ``(x, ...)`` grouped into columns: sorted by x, a new column where the gap to the last exceeds ``tol``."""
+    cols: list[list] = []
+    for it in sorted(items, key=lambda t: t[0]):
+        if cols and it[0] - cols[-1][-1][0] <= tol:
+            cols[-1].append(it)
+        else:
+            cols.append([it])
+    return cols
+
+
+def drop_strips(positions: list) -> tuple[list, list]:
+    """(kept, dropped): an elevation's openings minus the frames smaller than ``SMALL_FRAME_M`` both ways and the cells
+    of tall glazed strips (a stair shaft's glazing: frames one above the other at one x with less than
+    ``STRIP_GAP_M`` of wall between them, real10's south side); neither is a window a plan draws as such."""
+    dropped = []
+    kept = []
+    for p in positions:
+        if float(p.get("width") or 0) < SMALL_FRAME_M and float(p["head"]) - float(p["sill"]) < SMALL_FRAME_M:
+            dropped.append((p, "smaller than %.1f m both ways" % SMALL_FRAME_M))
+        else:
+            kept.append(p)
+    strip = set()
+    for col in _columns([(float(p["x"]), k, p) for k, p in enumerate(kept)], STRIP_X_M):
+        stack = sorted(col, key=lambda t: float(t[2]["sill"]))
+        for a, b in zip(stack, stack[1:]):
+            if float(b[2]["sill"]) - float(a[2]["head"]) < STRIP_GAP_M:
+                strip.update((a[1], b[1]))
+    dropped += [(p, "a cell of a tall glazed strip (no wall between it and the next frame)")
+                for k, p in enumerate(kept) if k in strip]
+    return [p for k, p in enumerate(kept) if k not in strip], dropped
+
+
 def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx: dict) -> tuple[list, int]:
-    """(findings, openings matched) of one elevation seen along ``normal`` against the plans (``rc8``)."""
+    """(findings, openings matched) of one elevation seen along ``normal`` against the plans (``rc8``): one finding
+    per column of openings (within ``MATCH_M`` along the facade across the floors) the elevation and the plans do not
+    share, and one per floor with openings on the elevation and none on the plan for that side."""
     out: list[dict] = []
     levels, bands, region_of, ground, geo = (ctx["levels"], ctx["bands"], ctx["region_of"], ctx["ground"], ctx["geo"])
     rid, side, title = el.get("region_id") or el.get("region"), el.get("side"), el.get("title") or ""
+    src_el = f"elevation {rid}" + (f" ({title.strip()})" if title else "")
     along, outv = _axis(normal)
     left = min((_dot(p, along) for g in geo.values() if g.filled is not None
                 for p in g.filled.exterior.coords), default=0.0)
     front = max((_dot(p, outv) for g in geo.values() if g.filled is not None
                  for p in g.filled.exterior.coords), default=0.0)
+    positions, dropped = drop_strips(positions)
+    if dropped:
+        why: dict = {}
+        for _, reason in dropped:
+            why[reason] = why.get(reason, 0) + 1
+        out.append(_finding("RC8", "info", None, f"{name}: {len(dropped)} frame(s) left out of the comparison ("
+                            + "; ".join(f"{n} {r}" for r, n in why.items()) + ")", [src_el], region=rid,
+                            dropped=len(dropped)))
     dz = z_shift(positions, bands)
     seen_by: dict = {}
     unplaced = []
@@ -357,7 +427,7 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
         out.append(_finding("RC8", "minor", None, f"{name}: its openings stand at no level's height as read (sills "
                             + _fmt_x([float(p['sill']) for p in positions]) + f" m); shifted {dz:+.2f} m they fit the "
                             f"levels (inferred): the elevation's heights and the section's disagree",
-                            [f"elevation {rid}", "section / levels"], region=rid, z_shift_m=dz))
+                            [src_el, "section / levels"], region=rid, z_shift_m=dz))
     plan_by: dict = {}
     for lid, g in geo.items():
         ops = []
@@ -365,22 +435,22 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
             head = bands[lid][0] + float(o.get("sill_height") or 0.0) + float(o.get("height") or 0.0)
             if ground is not None and head <= ground + 0.05:
                 continue                     # under the ground line: an elevation does not draw it
-            ops.append((_dot(o["center"], along) - left, o))
+            ops.append((_dot(o["center"], along) - left, float(o.get("width") or 0.0), o))
         plan_by[lid] = ops
-    # One shift per elevation: the facade's left end as drawn against the plans' outline
-    es_all = [(lid, float(p["x"])) for lid, ps in seen_by.items() for p in ps]
+    es_by = {lid: [(float(p["x"]), float(p.get("width") or 0.0), p) for p in ps] for lid, ps in seen_by.items()}
+    es_all = [(lid, e) for lid, es in es_by.items() for e in es]
     cand = {0.0}
-    for lid, ex in es_all:
-        for px, _ in plan_by.get(lid, []):
-            cand.add(round(round((ex - px) / ALIGN_STEP_M) * ALIGN_STEP_M, 3))
+    for lid, e in es_all:
+        for p in plan_by.get(lid, []):
+            if _wide_alike(e[1], p[1]):
+                cand.add(round(round((e[0] - p[0]) / ALIGN_STEP_M) * ALIGN_STEP_M, 3))
 
     def score(shift: float) -> int:
-        return sum(len(_greedy([float(p["x"]) for p in seen_by.get(lid, [])], [x for x, _ in plan_by.get(lid, [])],
-                               shift, MATCH_M)) for lid in seen_by)
+        return sum(len(_greedy(es_by.get(lid, []), plan_by.get(lid, []), shift, MATCH_M)) for lid in es_by)
 
     # The left end as drawn is trusted within ALIGN_SEARCH_M; a shift beyond it (the drawn left end was a sheet
     # frame, a site wall or a tree: real07) must match clearly more and at least ALIGN_FAR_SHARE of the openings.
-    n_plan = sum(len(plan_by.get(lid, [])) for lid in seen_by)
+    n_plan = sum(len(plan_by.get(lid, [])) for lid in es_by)
     smaller = min(len(es_all), n_plan or 1)
     near = [c for c in cand if abs(c) <= ALIGN_SEARCH_M]
     best = max(sorted(near, key=abs), key=score)
@@ -391,55 +461,66 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
             best = best_far
     matched = score(best)
     aligned = matched >= max(ALIGN_MIN_N, ALIGN_MIN_SHARE * smaller)
-    for lv in levels:
-        lid = lv["id"]
-        es = seen_by.get(lid, [])
-        ps = plan_by.get(lid, [])
-        if not es and not ps:
-            continue
-        src = [f"elevation {rid}" + (f" ({title.strip()})" if title else ""),
-               f"plan of {lid}" + (f" ({region_of.get(lid)})" if region_of.get(lid) else "")]
-        ew = sum(1 for p in es if p["kind"] == "window")
-        ed = len(es) - ew
-        pw = sum(1 for _, o in ps if o.get("type") == "window")
-        pd = sum(1 for _, o in ps if o.get("type") == "door")
-        counts = (f"{name} shows {len(es)} opening(s) on {lid} ({ew} windows, {ed} doors); the plan has {len(ps)} "
-                  f"on its walls facing {side} ({pw} windows, {pd} doors, {len(ps) - pw - pd} other)")
-        if aligned:
-            pairs = _greedy([float(p["x"]) for p in es], [x for x, _ in ps], best, MATCH_M)
-            ei = {i for i, _ in pairs}
-            pj = {j for _, j in pairs}
-            e_only = [float(p["x"]) for i, p in enumerate(es) if i not in ei]
-            p_only = [(x, o) for j, (x, o) in enumerate(ps) if j not in pj]
-            if not e_only and not p_only:
-                continue
-            msg = counts + f"; positions aligned (shift {best:+.2f} m, {len(pairs)} matched within {MATCH_M} m)"
-            if e_only:
-                msg += f"; on the elevation only at x {_fmt_x(e_only)} m from its left end"
-            if p_only:
-                msg += "; on the plan only: " + ", ".join(f"{o['id']} ({o.get('type')}, x {x + best:.2f} m)"
-                                                         for x, o in p_only[:8])
-            n_e = len(e_only)
-            place = None
-            if e_only:
-                t = e_only[0] - best + left
-                place = (along[0] * t + outv[0] * front, along[1] * t + outv[1] * front)
-            elif p_only:
-                place = tuple(p_only[0][1]["center"])
-            ids = [o["id"] for _, o in p_only]
-        else:
-            if len(es) == len(ps):
-                continue
-            n_e = max(len(es) - len(ps), 0)
-            msg = counts + " (positions not aligned: counts compared)"
-            place, ids = None, []
-        sev = "major" if (n_e >= MAJOR_EXTRA_N or (es and not ps)) else "minor"
-        out.append(_finding("RC8", sev, lid, msg, src, place, ids, side=side, region=rid))
+    order = {lv["id"]: k for k, lv in enumerate(levels)}
+
+    def floors(lids) -> str:
+        return ", ".join(sorted(set(lids), key=lambda x: order.get(x, 99)))
+
+    # A whole floor: openings on the elevation, none on the plan for that side
+    for lid, es in es_by.items():
+        if es and not plan_by.get(lid):
+            out.append(_finding("RC8", "major", lid, f"{name} shows {len(es)} opening(s) on {lid} (x "
+                                f"{_fmt_x([e[0] for e in es])} m); the plan of {lid} has none on its walls facing "
+                                f"{side}", [src_el, f"plan of {lid}" + (f" ({region_of.get(lid)})" if region_of.get(lid)
+                                                                         else "")], region=rid, side=side))
+    if not aligned:
+        diffs = [(lid, len(es_by.get(lid, [])), len(plan_by.get(lid, []))) for lid in order
+                 if plan_by.get(lid) and len(es_by.get(lid, [])) != len(plan_by.get(lid, []))]
+        if diffs:
+            out.append(_finding("RC8", "minor", None, f"{name}: positions not aligned with the plans (only {matched} "
+                                f"opening(s) match), counts compared: " + "; ".join(
+                                    f"{lid} elevation {a} / plan {b}" for lid, a, b in diffs),
+                                [src_el, "plans"], region=rid, side=side))
+    else:
+        e_only, p_only, shown = [], [], []
+        for lid in es_by.keys() | plan_by.keys():
+            es, ps = es_by.get(lid, []), plan_by.get(lid, [])
+            pairs = _greedy(es, ps, best, MATCH_M)
+            ei, pj = {i for i, _ in pairs}, {j for _, j in pairs}
+            shown += [(e[0], lid) for e in es]
+            if es and ps:
+                e_only += [(e[0], lid, e) for i, e in enumerate(es) if i not in ei]
+            p_only += [(p[0] + best, lid, p) for j, p in enumerate(ps) if j not in pj and es]
+        for col in _columns(e_only, MATCH_M):
+            xs = [c[0] for c in col]
+            x = sum(xs) / len(xs)
+            missing = [c[1] for c in col]
+            on_el = [lid for sx, lid in shown if abs(sx - x) <= MATCH_M]
+            sev = "major" if len(set(missing)) >= 2 and len(set(on_el)) >= 3 else "minor"
+            t = x - best + left
+            place = (along[0] * t + outv[0] * front, along[1] * t + outv[1] * front)
+            w = sum(c[2][1] for c in col) / len(col)
+            out.append(_finding("RC8", sev, missing[0], f"{name}: an opening {w:.2f} m wide at x {x:.2f} m from its left "
+                                f"end is drawn on {floors(on_el)}; the plan has none there on {floors(missing)} "
+                                f"(positions aligned, shift {best:+.2f} m)", [src_el, "plans of " + floors(missing)],
+                                place, [], region=rid, side=side, column_x=round(x, 2),
+                                levels_shown=sorted(set(on_el), key=lambda v: order.get(v, 99)),
+                                levels_missing=sorted(set(missing), key=lambda v: order.get(v, 99))))
+        for col in _columns(p_only, MATCH_M):
+            xs = [c[0] for c in col]
+            x = sum(xs) / len(xs)
+            lids = [c[1] for c in col]
+            ids = [c[2][2]["id"] for c in col]
+            o = col[0][2][2]
+            out.append(_finding("RC8", "minor", lids[0], f"{name}: the plan's {o.get('type')} at x {x:.2f} m "
+                                f"({col[0][2][1]:.2f} m wide; {', '.join(ids[:6])}) on {floors(lids)} is not drawn "
+                                f"there on the elevation", [f"plans of {floors(lids)}", src_el],
+                                tuple(o["center"]), ids, region=rid, side=side, column_x=round(x, 2),
+                                levels_missing=sorted(set(lids), key=lambda v: order.get(v, 99))))
     if unplaced:
         out.append(_finding("RC8", "minor", None, f"{name}: {len(unplaced)} of its {len(positions)} openings stand "
                             f"at no level's height (sills " + _fmt_x([float(p['sill']) for p in unplaced])
-                            + " m): the elevation's heights and the levels disagree", [f"elevation {rid}",
-                                                                                        "levels"], region=rid))
+                            + " m): the elevation's heights and the levels disagree", [src_el, "levels"], region=rid))
     return out, (matched if aligned else 0)
 
 

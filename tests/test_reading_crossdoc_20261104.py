@@ -54,10 +54,56 @@ def test_rc8_names_the_window_the_plan_lacks_per_floor():
     l0 = [f for f in found if f["level_id"] == "L0"]
     l1 = [f for f in found if f["level_id"] == "L1"]
     assert len(l0) == 1 and l0[0]["severity"] == "minor"
-    assert "elevation only at x 8.10" in l0[0]["message"]
+    assert "at x 8.10 m" in l0[0]["message"] and l0[0]["levels_missing"] == ["L0"]
     assert abs(l0[0]["place"]["x"] - 8.0) < 0.05 and abs(l0[0]["place"]["y"] + 0.1) < 0.05
     assert len(l1) == 1 and l1[0]["severity"] == "major"          # the plan has none where the elevation shows two
     assert l1[0]["sources"][0].startswith("elevation r_el")
+
+
+def _column_case(side: str = "front"):
+    lv = [("L0", 0.0), ("L1", 3.0), ("L2", 6.0), ("L3", 9.0)]
+    ops = [_window(lid, k, x) for lid, _ in lv for k, x in ((1, 2.0), (2, 5.0))] + [_window("L0", 3, 8.0)]
+    b = _building(lv, ops)
+    b["facade"] = {"elevations": [_elevation({z: [2.1, 5.1, 8.1] for _, z in lv}, side=side)]}
+    return b
+
+
+def test_rc8_one_finding_per_column():
+    # a window column at x 8.1 drawn on all four floors, missing on the plans of L1-L3: one major finding
+    b = _column_case()
+    found = [f for f in CD.rc8(b, {}) if f["severity"] != "info"]
+    assert len(found) == 1 and found[0]["severity"] == "major"
+    assert found[0]["levels_shown"] == ["L0", "L1", "L2", "L3"] and found[0]["levels_missing"] == ["L1", "L2", "L3"]
+    # drawn on two floors only: minor
+    b["facade"] = {"elevations": [_elevation({0.0: [2.1, 5.1, 8.1], 3.0: [2.1, 5.1, 8.1], 6.0: [2.1, 5.1],
+                                              9.0: [2.1, 5.1]})]}
+    found = [f for f in CD.rc8(b, {}) if f["severity"] != "info"]
+    assert [f["severity"] for f in found] == ["minor"]
+
+
+def test_rc8_drops_small_frames_and_glazed_strips():
+    b = _building([("L0", 0.0), ("L1", 3.0)], [_window("L0", 1, 2.0), _window("L1", 1, 2.0)])
+    el = _elevation({0.0: [2.1], 3.0: [2.1]})
+    el["positions_m"] += [{"kind": "window", "x": 6.1, "width": 1.0, "sill": z, "head": z + 2.05}
+                          for z in (0.5, 2.6, 4.7)]                       # a stair shaft's cells, 5 cm apart
+    el["positions_m"].append({"kind": "window", "x": 8.0, "width": 0.4, "sill": 1.5, "head": 1.9})   # a vent
+    b["facade"] = {"elevations": [el]}
+    found = CD.rc8(b, {})
+    assert [f for f in found if f["severity"] != "info"] == []
+    info = [f for f in found if f.get("dropped")]
+    assert info and info[0]["dropped"] == 4 and "glazed strip" in info[0]["message"]
+
+
+def test_rc8_weak_north_fit_caps_severity(monkeypatch):
+    b = _column_case(side="south")
+    found = CD.rc8(b, {})
+    info = next(f for f in found if "placed by fit" in f["message"])
+    assert "margin" in info["message"] and info["north_margin"] >= CD.NORTH_MARGIN_MIN
+    assert any(f["severity"] == "major" for f in found)
+    monkeypatch.setattr(CD, "NORTH_MARGIN_MIN", 1.01)                     # every fit is weak now
+    found = CD.rc8(b, {})
+    assert not any(f["severity"] == "major" for f in found)
+    assert any("weak fit" in f["message"] for f in found if f["severity"] == "minor")
 
 
 def test_rc8_clean_when_the_elevation_matches_the_plan():
