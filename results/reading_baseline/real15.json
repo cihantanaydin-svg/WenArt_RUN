@@ -11,16 +11,16 @@
    "rooms": 1,
    "walls": 107,
    "doors": 17,
-   "windows": 3,
-   "openings": 20,
+   "windows": 12,
+   "openings": 11,
    "room_area": 1256.8
   },
   "L1": {
    "rooms": 1,
-   "walls": 85,
+   "walls": 84,
    "doors": 23,
-   "windows": 4,
-   "openings": 19,
+   "windows": 15,
+   "openings": 7,
    "room_area": 1256.8
   }
  },
@@ -28,7 +28,7 @@
   "verdict": "ready",
   "counts": {
    "critical": 0,
-   "major": 2,
+   "major": 3,
    "minor": 2
   },
   "stacking": {}

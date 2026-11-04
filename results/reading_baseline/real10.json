@@ -26,70 +26,70 @@
   "L-1": {
    "rooms": 22,
    "walls": 162,
-   "doors": 42,
+   "doors": 43,
    "windows": 3,
-   "openings": 18,
+   "openings": 17,
    "room_area": 237.0
   },
   "L0": {
    "rooms": 31,
    "walls": 233,
-   "doors": 28,
+   "doors": 29,
    "windows": 14,
-   "openings": 41,
+   "openings": 40,
    "room_area": 277.6
   },
   "L1": {
    "rooms": 31,
    "walls": 233,
-   "doors": 28,
-   "windows": 11,
-   "openings": 44,
+   "doors": 29,
+   "windows": 14,
+   "openings": 40,
    "room_area": 277.6
   },
   "L2": {
    "rooms": 31,
    "walls": 233,
-   "doors": 28,
-   "windows": 11,
-   "openings": 44,
+   "doors": 29,
+   "windows": 14,
+   "openings": 40,
    "room_area": 277.6
   },
   "L3": {
    "rooms": 31,
    "walls": 233,
-   "doors": 28,
-   "windows": 11,
-   "openings": 44,
+   "doors": 29,
+   "windows": 14,
+   "openings": 40,
    "room_area": 277.6
   },
   "L4": {
    "rooms": 31,
    "walls": 233,
-   "doors": 28,
-   "windows": 11,
-   "openings": 44,
+   "doors": 29,
+   "windows": 14,
+   "openings": 40,
    "room_area": 277.6
   },
   "L5": {
    "rooms": 31,
    "walls": 233,
-   "doors": 28,
-   "windows": 11,
-   "openings": 44,
+   "doors": 29,
+   "windows": 14,
+   "openings": 40,
    "room_area": 277.6
   },
   "L6": {
    "rooms": 31,
    "walls": 233,
-   "doors": 28,
-   "windows": 11,
-   "openings": 44,
+   "doors": 29,
+   "windows": 14,
+   "openings": 40,
    "room_area": 277.6
   },
   "L7": {
    "rooms": 2,
-   "walls": 28,
+   "walls": 117,
    "doors": 2,
    "windows": 0,
    "openings": 1,
@@ -100,7 +100,7 @@
   "verdict": "ready",
   "counts": {
    "critical": 0,
-   "major": 11,
+   "major": 48,
    "minor": 1
   },
   "stacking": {}

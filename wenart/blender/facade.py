@@ -263,9 +263,85 @@ def _edge_cuts(p, q, items: Sequence[dict], z0: float, z1: float, tol: float = 0
     return out
 
 
+BAND_CLEAN_M = 0.10      # 4 Nov 2026 (UL310): jogs and notches of the outline under 2 x this are straightened for the bands
+
+
+def band_outline(outline) -> list:
+    """4 Nov 2026 (lesson UL310, user on real10: "Make these details better", the floor bands): the outline a floor band
+    runs on: the jogs and notches under ``2 x BAND_CLEAN_M`` of the outer walls (walls of different thickness, frame
+    pieces) straightened (closed by a mitred grow and shrink), so a band runs on in one piece instead of breaking into
+    short boxes with ends standing out as loose blocks; the outline itself without shapely."""
+    try:
+        from shapely.geometry import Polygon
+    except ImportError:
+        return outline
+    poly = Polygon(outline).buffer(0)
+    if poly.is_empty:
+        return outline
+    clean = poly.buffer(BAND_CLEAN_M, join_style=2, mitre_limit=5.0).buffer(-BAND_CLEAN_M, join_style=2,
+                                                                         mitre_limit=5.0).simplify(0.002)
+    if clean.is_empty:
+        return outline
+    if clean.geom_type != "Polygon":
+        clean = max(clean.geoms, key=lambda g: g.area)
+    pts = _drop_jogs(geom2d.ccw([tuple(q) for q in list(clean.exterior.coords)[:-1]]), 2.0 * BAND_CLEAN_M)
+    return [[round(x, 4), round(y, 4)] for x, y in pts]
+
+
+def _drop_jogs(pts: list, tol: float) -> list:
+    """A counter-clockwise outline with its steps under ``tol`` gone (pure): a short edge between two parallel edges
+    running the same way is a jog; the inner of the two moves out onto the outer one's line."""
+    pts = [tuple(q) for q in pts]
+    for _ in range(len(pts)):
+        n = len(pts)
+        if n < 5:
+            break
+        changed = False
+        for i in range(n):
+            a, b, c, d = pts[i - 1], pts[i], pts[(i + 1) % n], pts[(i + 2) % n]
+            bc, ab, cd = G.distance(b, c), G.distance(a, b), G.distance(c, d)
+            if bc >= tol or ab <= bc or cd <= bc or ab < 1e-9 or cd < 1e-9:
+                continue
+            u1 = ((b[0] - a[0]) / ab, (b[1] - a[1]) / ab)
+            u2 = ((d[0] - c[0]) / cd, (d[1] - c[1]) / cd)
+            if u1[0] * u2[0] + u1[1] * u2[1] < math.cos(math.radians(5.0)):
+                continue
+            nx, ny = u1[1], -u1[0]                                   # outward of a counter-clockwise outline
+            s1, s2 = a[0] * nx + a[1] * ny, c[0] * nx + c[1] * ny
+            if s1 >= s2:                                             # cd is inner: onto ab's line
+                k = s1 - s2
+                c, d = (c[0] + nx * k, c[1] + ny * k), (d[0] + nx * k, d[1] + ny * k)
+                pts[(i + 1) % n], pts[(i + 2) % n] = c, d
+            else:
+                k = s2 - s1
+                a, b = (a[0] + nx * k, a[1] + ny * k), (b[0] + nx * k, b[1] + ny * k)
+                pts[i - 1], pts[i] = a, b
+            changed = True
+            break
+        if not changed:
+            break
+        # drop repeated and collinear points
+        out = []
+        for q in pts:
+            if not out or G.distance(out[-1], q) > 1e-6:
+                out.append(q)
+        if len(out) > 1 and G.distance(out[0], out[-1]) <= 1e-6:
+            out.pop()
+        keep = []
+        for i, q in enumerate(out):
+            a, c = out[i - 1], out[(i + 1) % len(out)]
+            cross = (q[0] - a[0]) * (c[1] - q[1]) - (q[1] - a[1]) * (c[0] - q[0])
+            if abs(cross) > 1e-9 * max(1.0, G.distance(a, c)):
+                keep.append(q)
+        pts = keep
+    return pts
+
+
 def _band_boxes(outline, z0: float, z1: float, proud: float, items, kind: str, level_id: Optional[str],
-                min_span: float = DIMENSIONS["min_span"]) -> list[dict]:
-    """One box per uncut stretch of every outline edge: ``proud`` in front of the face, from ``z0`` to ``z1``."""
+                min_span: float = DIMENSIONS["min_span"], inset: float = 0.0) -> list[dict]:
+    """One box per uncut stretch of every outline edge: ``proud`` in front of the face, from ``z0`` to ``z1``;
+    ``inset`` (4 Nov 2026): the box reaches this far behind the face line too (into the wall, where a straightened
+    jog lets the wall step back), so the band never floats."""
     out = []
     pts = geom2d.ccw(outline)
     n = len(pts)
@@ -281,10 +357,10 @@ def _band_boxes(outline, z0: float, z1: float, proud: float, items, kind: str, l
             a2 = a - proud if a <= 1e-9 else a
             b2 = b + proud if b >= length - 1e-9 else b
             mid = ((a2 + b2) / 2.0)
+            off = (proud - inset) / 2.0
             out.append({"kind": kind, "level_id": level_id,
-                        "center": [p[0] + ux * mid + nx * proud / 2.0, p[1] + uy * mid + ny * proud / 2.0,
-                                   (z0 + z1) / 2.0],
-                        "size": [b2 - a2, proud, z1 - z0], "rotation_deg": math.degrees(math.atan2(uy, ux))})
+                        "center": [p[0] + ux * mid + nx * off, p[1] + uy * mid + ny * off, (z0 + z1) / 2.0],
+                        "size": [b2 - a2, proud + inset, z1 - z0], "rotation_deg": math.degrees(math.atan2(uy, ux))})
     return out
 
 
@@ -385,7 +461,9 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
         zc = float(lv["elevation"]) - t / 2.0
         h = max(DIMENSIONS["band_height"], t)
         cuts = opening_items(building, below, outline, True) + opening_items(building, lv, outline, True)
-        boxes += _band_boxes(outline, zc - h / 2.0, zc + h / 2.0, DIMENSIONS["band_proud"], cuts, "band", lv["id"])
+        # 4 Nov 2026 (UL310): on the straightened outline, reaching into the wall where the wall steps back
+        boxes += _band_boxes(band_outline(outline), zc - h / 2.0, zc + h / 2.0, DIMENSIONS["band_proud"], cuts, "band",
+                             lv["id"], inset=BAND_CLEAN_M)
     if boxes and any(b["kind"] == "band" for b in boxes):
         assumed.append({"field": "slab_band", "value": DIMENSIONS["band_height"], "reason": out_looks["band"]["reason"]})
     if roof_model and roof_model.get("type") == "flat" and roof_model.get("over_level_id"):

@@ -667,3 +667,75 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> li
         notes.append(f"{lv}: lift shaft {s['id']}: a {width:.2f} m sliding landing door inferred towards {room['id']} "
                      f"({'common area' if CA.is_common_room(room) else room.get('room_type')}) in {wall['id']}")
     return notes
+
+
+FIRE_WORDS = ("YANGIN", "FIRE ESCAPE", "FIRE STAIR", "KACIS", "ACIL CIKIS", "EMERGENCY", "NOTTREPPE", "FLUCHT",
+              "SECOURS")
+FLAT_ROOM_TYPES = ("bedroom", "living", "kitchen", "dining", "bathroom", "wc", "study", "dressing")
+FIRE_DOOR_REACH_M = 0.35         # an opening this close to the stair room's wall joins it to the room beyond ...
+PASSAGE_MIN_M = 0.75             # ... when it is a door or a gap at least this wide (a 0.64 m gap is a window's)
+
+
+def fire_stairs(rooms: list[dict], openings: list[dict], furniture: list[dict]) -> list[str]:
+    """4 Nov 2026 (lessons UL307, UL312, user on real10: "There should have been fire escape ladders here, and a door to
+    reach there via Hall halls the common use area", "Fire stairs should be like fire stairs not like regular stairs"):
+    the fire escape stairs of a building: a stair named for it (``FIRE_WORDS`` in its room's or a room's label beside
+    it), or, on a floor with a common area, a stair other than the core stair (``stair_core``, or the one beside the
+    lift) whose room opens into no flat's room. Its piece gets ``details.stair.fire_escape`` (the build gives it
+    hard-wearing treads and steel rails) and its room is a common area. Mutates the pieces and rooms; one line each."""
+    from wenart import common_areas as CA
+    from wenart.sheets import register as RG
+    from wenart.sheets import titles as TI
+
+    notes = []
+    by_level: dict = {}
+    for f in furniture:
+        if f.get("type") == "stair" and (f.get("footprint") or {}).get("center"):
+            by_level.setdefault(f.get("level_id"), []).append(f)
+    for lv, stairs in by_level.items():
+        lrooms = [r for r in rooms if r.get("level_id") == lv and len(r.get("polygon") or []) >= 3]
+        polys = {r["id"]: _poly(r) for r in lrooms}
+
+        def room_of(f):
+            c = Point(f["footprint"]["center"][:2])
+            return next((r for r in lrooms if polys[r["id"]].contains(c)), None)
+
+        lifts = [polys[r["id"]] for r in lrooms if r.get("room_type") == "shaft"
+                 and RG.LIFT_RE.search(TI.fold(str(r.get("label_raw") or r.get("label") or "")))]
+        common = any(CA.is_common_room(r) for r in lrooms)
+        for f in stairs:
+            room = room_of(f)
+            if room is None:
+                continue
+            words = TI.fold(" ".join(str(room.get(k) or "") for k in ("label", "label_raw")))
+            named = any(w in words for w in FIRE_WORDS)
+            # with a lift on the floor the core stair is the one beside it (real10: the fire stair spans the floors too
+            # and was read as a stair core); without one, the stair core
+            core = any(polys[room["id"]].distance(lp) <= 1.0 for lp in lifts) if lifts else \
+                (room.get("label_inferred") or {}).get("method") == "stair_core" and len(stairs) < 2
+            if not named and (len(stairs) < 2 or not common or core):
+                continue
+            # a stair opening into a flat's rooms is the flat's own stair (a duplex), never the building's fire stair
+            flat = []
+            for o in openings:
+                if o.get("level_id") != lv or not o.get("center") or o.get("virtual"):
+                    continue
+                c = Point(o["center"])
+                if polys[room["id"]].exterior.distance(c) > FIRE_DOOR_REACH_M:
+                    continue
+                for r in lrooms:
+                    if r is not room and polys[r["id"]].exterior.distance(c) <= FIRE_DOOR_REACH_M \
+                            and str(r.get("room_type") or "") in FLAT_ROOM_TYPES \
+                            and (o.get("type") == "door" or (o.get("type") == "opening"
+                                                             and float(o.get("width") or 0) >= PASSAGE_MIN_M)):
+                        flat.append(r["id"])
+            if flat and not named:
+                continue
+            st = f.setdefault("details", {}).setdefault("stair", {})
+            st["fire_escape"] = True
+            st["fire_escape_reason"] = ("named a fire stair" if named else
+                                        "a stair beside the core stair, off the common area, into no flat's room")
+            room["room_subtype"] = CA.COMMON_SUBTYPE
+            notes.append(f"{lv}: {f['id']} in {room['id']} is a fire escape stair ({st['fire_escape_reason']}): "
+                         f"hard-wearing treads, steel rails; its room a common area")
+    return notes

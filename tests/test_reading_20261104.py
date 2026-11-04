@@ -225,3 +225,45 @@ def test_a_numbered_stair_whose_end_number_stands_on_the_landing_keeps_both_arms
     assert len(arms) == 2 and arms[0][:5] == [0, 1, 2, 3, 4] and arms[1] == [10, 11, 12, 13, 14]
     straight = [(0.0, 0.25 * k) for k in range(8)]
     assert SN._arms(straight) == [list(range(8))]
+
+
+def test_a_second_stair_off_the_common_hall_is_a_fire_escape_stair():
+    """real10 (user: "Fire stairs should be like fire stairs not like regular stairs")."""
+    from wenart.ingest import twins as TW
+
+    def room(rid, label, rtype, poly, **kw):
+        return dict({"id": rid, "level_id": "L1", "label": label, "room_type": rtype, "polygon": poly}, **kw)
+
+    rooms = [room("lift", "Asansör", "shaft", [[0, 0], [1.6, 0], [1.6, 1.6], [0, 1.6]]),
+             room("core", "Merdiven", "stair", [[1.8, 0], [4.5, 0], [4.5, 2.5], [1.8, 2.5]],
+                  label_inferred={"method": "stair_core"}),
+             room("hall", "Kat Holü", "hall", [[0, 2.7], [4.5, 2.7], [4.5, 4.5], [0, 4.5]],
+                  label_inferred={"method": "shared_hall"}),
+             room("fire", "Merdiven", "stair", [[1.0, 6.0], [3.0, 6.0], [3.0, 9.0], [1.0, 9.0]],
+                  label_inferred={"method": "stair_core"}),
+             room("kitchen", "Mutfak", "kitchen", [[3.2, 6.0], [6.0, 6.0], [6.0, 9.0], [3.2, 9.0]])]
+    stairs = [{"id": "s1", "level_id": "L1", "type": "stair", "footprint": {"center": [3.1, 1.2], "size": [2.7, 2.3]}},
+              {"id": "s2", "level_id": "L1", "type": "stair", "footprint": {"center": [2.0, 7.5], "size": [1.7, 2.8]}}]
+    window_gap = [{"id": "o1", "level_id": "L1", "type": "opening", "center": [3.1, 7.0], "width": 0.64}]
+    notes = TW.fire_stairs(rooms, window_gap, stairs)
+    assert len(notes) == 1 and stairs[1]["details"]["stair"]["fire_escape"] and "details" not in stairs[0]
+    assert rooms[3]["room_subtype"] == "common"
+    # a stair with a door into a flat's room is that flat's own stair
+    stairs[1].pop("details")
+    door = [{"id": "d1", "level_id": "L1", "type": "door", "center": [3.1, 7.0], "width": 0.8}]
+    assert TW.fire_stairs(rooms, door, stairs) == []
+
+
+def test_a_floor_band_runs_on_a_straightened_outline():
+    """real10 (user: "Make these details better", the floor bands): jogs of a few cm and notches under 0.2 m are
+    straightened onto the outer line; a real recess stays."""
+    from wenart.blender import facade as F
+
+    o = [[0, 0], [10, 0], [10, 5], [10.03, 5], [10.03, 9], [6, 9], [6, 6], [4.2, 6], [4.2, 9], [0.06, 9], [0.06, 5],
+         [0, 5]]
+    clean = F.band_outline(o)
+    assert len(clean) == 8 and [10.03, 0.0] in clean and [4.2, 6.0] in clean
+    boxes = F._band_boxes(clean, 2.9, 3.1, 0.03, [], "band", "L1", inset=0.1)
+    assert all(abs(b["size"][1] - 0.13) < 1e-9 for b in boxes)
+    assert F.band_outline([[0, 0], [5, 0], [5, 4], [0, 4]]) == [[5.0, -0.0], [5.0, 4.0], [0.0, 4.0], [0.0, -0.0]] or \
+        len(F.band_outline([[0, 0], [5, 0], [5, 4], [0, 4]])) == 4

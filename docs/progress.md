@@ -3434,3 +3434,15 @@ does not close yet, so the floors above it are left out until it does (the earli
 Regression (`python -m wenart.reading_check regress`): every project ok except real10 (L1-L6 windows 11 -> 14 as L0; L7
 walls 28 -> 117, the parapets), real15 (window blocks read: L0 windows 3 -> 12, L1 4 -> 15, untyped openings fewer),
 real17 (L0 no longer built from the sheet frame: L-1 only until the shop floor closes); baselines wait for the user.
+
+### Open items done (4 Nov 2026, evening; user: "yes accept the baselines, then fix the open items")
+
+Baselines of real10, real15 and real17 accepted and updated.
+
+| item | rule |
+|---|---|
+| the recess between the master bedrooms (UL313) | from a plain facade gap, faces reached through plain gaps (stacked wall lines a few cm apart joined) with no label, no door, nothing drawn inside but notation, at most 3 m wide and 15 m2 together, with windows of rooms opening onto them, are open air: the walls split, the rooms' gaps onto it become windows (`core._open_recess_chains`); real10 L0-L6: 31 -> 26 rooms, the slot and three facade notches open |
+| fire escape stairs (UL307, UL312) | a second stair off the common area, away from the lift and opening into no flat's room (or named for fire), is a fire escape (`twins.fire_stairs`): its room a common area, terrazzo treads and steel bar rails (`shell.FIRE_STAIR_*`); real10: L-1 to L6 |
+| floor bands (UL310) | bands run on the outline with jogs and notches under 0.20 m straightened onto the outer line, reaching 0.10 m into the wall (`facade.band_outline`): one piece per facade instead of short boxes with loose end blocks |
+| real17 shop floor | still open: the floor read before the others never gets their wall layer (DUVAR); with it, the 4.70 m shopfront and the slanted right facade still leave the shops open |
+

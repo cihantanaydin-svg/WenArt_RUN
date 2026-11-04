@@ -2460,6 +2460,8 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         build.warn(f"shared hall: {line}")
     for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"]):     # 4 Nov 2026 (UL306)
         build.warn(f"lift door: {line}")
+    for line in TW.fire_stairs(b["rooms"], b["openings"], b["furniture"]):   # 4 Nov 2026 (UL307, UL312)
+        build.warn(f"fire stair: {line}")
     for second, info in TW.twin_transforms(b["rooms"], b["openings"], b["furniture"]).items():
         room = next(r for r in b["rooms"] if r["id"] == second)
         room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],

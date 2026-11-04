@@ -1284,6 +1284,176 @@ def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, l
     return new_walls, new_open, bw, site, sw, b_open, TP.outer_loop_problem(bw, b_open)
 
 
+RECESS_CHAIN_MAX_M2 = 15.0      # 4 Nov 2026: a recess of several faces together at most this large ...
+RECESS_MAX_WIDTH_M = 3.0        # ... each face at most this wide (a slot or light well, not a room)
+RECESS_WINDOW_MAX_M = 2.0       # a gap from a labelled room onto it this narrow, with lines in it, is a window
+UNCLASSIFIED = "unclassified gap content"
+RECESS_STACK_M = 0.05           # gaps of walls stacked this close (a slit the wall union closes) touch each other
+RECESS_CONTENT_MIN_M = 0.2      # a drawn line this long inside a face is content ...
+RECESS_CONTENT_MAX = 4          # ... and this many of them make a face no recess ...
+RECESS_CONTENT_INSET_M = 0.25   # ... counted this far in from its edge (fixtures and treads stand in it, frames at it)
+
+
+def _gap_faces(o, walls2: list, faces: list):
+    """The faces on both sides of an opening's wall (None outside every face), or None without a host wall."""
+    hk = TP.host_wall(o, walls2)
+    if hk is None:
+        return None
+    w = walls2[hk]
+    (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+    L = math.hypot(x1 - x0, y1 - y0)
+    if L <= 0:
+        return None
+    nx, ny = -(y1 - y0) / L, (x1 - x0) / L
+    d = float(w.thickness) / 2.0 + 0.12
+    pts = [Point(o.center[0] + nx * d, o.center[1] + ny * d), Point(o.center[0] - nx * d, o.center[1] - ny * d)]
+    return hk, pts, [next((f for f in faces if f.contains(q)), None) for q in pts]
+
+
+def _open_recess_chains(ex, where: str, walls2: list, openings: list, blocks: list, level_id, strokes: list = ()):
+    """4 Nov 2026 (lesson UL313, real10: "These 2 oda should not exist and that 2 area should be outside"): a slot in
+    the facade between two flats' rooms, 1.80 x 5.40 m, open to the sky; the rooms' walls on its two sides line up, so
+    each line was read as one wall across the slot with a 1.80 m gap, and the slot as a chain of closed faces; the
+    shower rooms' windows onto it held lines no window rule read. From a plain gap in an outer wall, the faces reached
+    through plain gaps are a recess when each has no label and no door and is at most ``RECESS_MAX_WIDTH_M`` wide, all
+    together at most ``RECESS_CHAIN_MAX_M2``, and every other opening onto them comes from a labelled room as a window
+    or a gap with lines in it (an empty gap from a room is a doorway: no recess) - at least one. The walls are split
+    at the chain's gaps (no openings) and the rooms' gaps onto it are windows. Never silent."""
+    faces = TP.faces(walls2, openings)
+    if not faces:
+        return None
+    outline = TP.building_outline(walls2, openings)
+    anchors = [Point(b.anchor) for b in blocks]
+
+    def labelled(f) -> bool:
+        return any(f.contains(a) for a in anchors)
+
+    # a recess holds nothing drawn but the notation (real10's fire stair below its flight: treads and a landing behind a
+    # facade gap, no door, no label, is no recess)
+    from wenart.ingest.generic import axes as AX
+    notation = AX.notation_ids(list(strokes)) if strokes else set()
+    marks = []
+    for st in strokes or []:
+        if st.id in notation or not st.pts or len(st.pts) < 2:
+            continue
+        xs, ys = [q[0] for q in st.pts], [q[1] for q in st.pts]
+        if max(max(xs) - min(xs), max(ys) - min(ys)) >= RECESS_CONTENT_MIN_M:
+            marks.append(Point((min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0))
+
+    def drawn_in(f) -> bool:
+        inner = f.buffer(-RECESS_CONTENT_INSET_M)            # window frames at its edge are no content
+        return not inner.is_empty and sum(1 for m in marks if inner.contains(m)) >= RECESS_CONTENT_MAX
+
+    def narrow(f) -> bool:
+        r = f.minimum_rotated_rectangle
+        if r.geom_type != "Polygon":
+            return True
+        c = list(r.exterior.coords)
+        return min(math.dist(c[0], c[1]), math.dist(c[1], c[2])) <= RECESS_MAX_WIDTH_M
+
+    polys = {}
+    for j, p in enumerate(openings):
+        if not getattr(p, "virtual", False):
+            polys[j] = TP.opening_polygon(p, walls2) or Point(p.center).buffer(0.05)
+    rim = outline.exterior if hasattr(outline, "exterior") else outline.boundary
+    done_gaps: set = set()
+    chains = []
+    for k, o in enumerate(openings):
+        if k in done_gaps or k not in polys or not _empty_gap(o) or polys[k].distance(rim) > 0.05:
+            continue
+        # the graph of gaps and faces that touch (stacked walls a few cm apart: their gaps touch each other)
+        chain, gaps, windows, ok, why = [], {k}, set(), True, ""
+
+        queue = [("g", k)]
+        while queue and ok:
+            kind, x = queue.pop()
+            if kind == "g":
+                gp = polys[x]
+                for f in faces:
+                    if f.distance(gp) > 0.02 or any(f.equals(c) for c in chain):
+                        continue
+                    if labelled(f) or f.area > RECESS_MAX_M2 or drawn_in(f):     # a room (its fixtures drawn)
+                        p = openings[x]
+                        if p.kind == "window" or (getattr(p, "type_raw", None) == UNCLASSIFIED
+                                                  and p.width <= RECESS_WINDOW_MAX_M):
+                            windows.add(x)
+                            gaps.discard(x)
+                            continue
+                        ok, why = False, f"room {f.area:.2f} gap {x} {openings[x].kind} {getattr(openings[x], 'type_raw', None)} w {openings[x].width:.2f}"
+                        break
+                    if not narrow(f):
+                        ok, why = False, f"face {f.area:.2f} narrow {narrow(f)} drawn {drawn_in(f)} at {[round(v, 2) for v in f.bounds]} n {sum(1 for m in marks if f.buffer(-0.05).contains(m))}"
+                        break
+                    chain.append(f)
+                    queue.append(("f", f))
+                if not ok:
+                    break
+                for j, q in polys.items():
+                    if j not in gaps and j not in windows and _empty_gap(openings[j]) and q.distance(gp) <= RECESS_STACK_M:
+                        gaps.add(j)
+                        queue.append(("g", j))
+            else:
+                for j, q in polys.items():
+                    if j in gaps or j in windows or q.distance(x) > 0.02:
+                        continue
+                    p = openings[j]
+                    if p.kind == "door":
+                        ok, why = False, f"door {j}"
+                        break
+                    if p.kind == "window" or _empty_gap(p):
+                        gaps.add(j)
+                        queue.append(("g", j))
+        bad = [j for j in gaps if not _empty_gap(openings[j])]
+        if not ok or bad or not windows or not chain or sum(f.area for f in chain) > RECESS_CHAIN_MAX_M2:
+            continue
+        done_gaps |= gaps
+        chains.append((chain, gaps, windows))
+    if not chains:
+        return None
+    # split every wall at the chain's gaps
+    cuts: dict = {}
+    for _chain, gaps, _w in chains:
+        for j in gaps:
+            hk = TP.host_wall(openings[j], walls2)
+            if hk is not None:
+                cuts.setdefault(hk, []).append(openings[j])
+    new_walls = list(walls2)
+    for hk, ops in cuts.items():
+        w = walls2[hk]
+        (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+        L = math.hypot(x1 - x0, y1 - y0)
+        ux, uy = (x1 - x0) / L, (y1 - y0) / L
+        spans = sorted(((o.center[0] - x0) * ux + (o.center[1] - y0) * uy - o.width / 2.0,
+                        (o.center[0] - x0) * ux + (o.center[1] - y0) * uy + o.width / 2.0) for o in ops)
+        pieces, at = [], 0.0
+        for a, b in spans + [(L, L)]:
+            if a - at >= 0.02:
+                pieces.append(dataclasses.replace(w, start=(round(x0 + ux * at, 4), round(y0 + uy * at, 4)),
+                                                  end=(round(x0 + ux * a, 4), round(y0 + uy * a, 4))))
+            at = max(at, b)
+        new_walls[hk] = pieces[0] if pieces else None
+        new_walls += pieces[1:]
+    drop = set().union(*(g for _c, g, _w in chains))
+    for chain, gaps, windows in chains:
+        for j in windows:
+            p = openings[j]
+            if p.kind != "window":
+                p.kind = "window"
+                if isinstance(p.evidence, dict):
+                    p.evidence = dict(p.evidence, note=(str(p.evidence.get("note") or "") + "; a window onto the open "
+                                                        "recess (UL313)").lstrip("; "))
+        ex.notes.append(f"{where}: {len(chain)} face(s) of {sum(f.area for f in chain):.2f} m2 reached from the facade "
+                        f"through {len(gaps)} plain gap(s) ({', '.join(openings[j].entity for j in sorted(gaps))[:200]}) "
+                        f"have no label and no door and {len(windows)} window(s) of rooms open onto them: a recess of "
+                        f"the facade, open air (the walls are split at the gaps, no openings; corrected_by_ai, UL313)")
+    new_walls = [w for w in new_walls if w is not None]
+    new_open = [o for j, o in enumerate(openings) if j not in drop]
+    bw, site, sw = TP.split_plot(new_walls, new_open, blocks, level_id=level_id)
+    idx = {o["index"] for o in site["openings"]}
+    b_open = [o for j, o in enumerate(new_open) if j not in idx]
+    return new_walls, new_open, bw, site, sw, b_open, TP.outer_loop_problem(bw, b_open)
+
+
 MIRROR_MAX_NEW_WALLS = 3        # mirror twins differ by at most this many walls the other half draws
 CORE_KEEP_OUT_M = 3.0           # no mirror fix within this of a lift label (the core: lift and stair, not mirrored)
 
@@ -1613,6 +1783,11 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         opened = _open_recesses(ex, where, walls2, openings, blocks, level_id)
         if opened is not None:
             walls2, openings, bwalls, site, site_warnings, b_openings, problem = opened
+        # 4 Nov 2026 (real10, user: "These 2 oda should not exist and that 2 area should be outside"): a recess reached
+        # through a chain of gaps (``_open_recess_chains``)
+        chained = _open_recess_chains(ex, where, walls2, openings, blocks, level_id, non_wall)
+        if chained is not None:
+            walls2, openings, bwalls, site, site_warnings, b_openings, problem = chained
     if not is_raster:
         # 3 Nov 2026 (user: "Most of these drawings are mirrored it can help to fix the issues"): the two mirrored
         # halves of a plan check each other (``mirror``)

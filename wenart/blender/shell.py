@@ -3126,6 +3126,11 @@ STAIR_WOOD_TREAD_FAMILIES: tuple[str, ...] = ("modern", "contemporary", "modern 
                                               "japandi", "rustic", "classic")
 
 
+FIRE_STAIR_TREAD = {"material": "terrazzo", "colour": "grey"}           # 4 Nov 2026 (UL312)
+FIRE_STAIR_RAILING = {"material": "steel_brushed", "kind": "bars"}
+FIRE_STAIR_REASON = "a fire escape stair: grey terrazzo treads, plain steel bar rails (UL312)"
+
+
 def stair_finishes(style: dict | None, tread_slot: dict | None) -> tuple[dict | None, str, str]:
     """``(tread slot or None to keep the floor's, metal slug, why)`` of a stair by the house's family (pure; H8)."""
     fam = str((style or {}).get("family") or "").lower()
@@ -3352,13 +3357,20 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
         room = stair_room(piece, rooms)
         slot, _wet = floor_style(room or {}, style)
         tread_slot, _metal, finish_why = stair_finishes(style, slot)     # 29 Oct 2026 (H8): the family's finishes
+        # 4 Nov 2026 (lesson UL312, user on real10: "Fire stairs should be like fire stairs not like regular stairs"): a
+        # fire escape stair (``details.stair.fire_escape``, ``twins.fire_stairs``) has terrazzo treads and plain steel
+        # bar rails, never the flats' finishes
+        fire = bool(((piece.get("details") or {}).get("stair") or {}).get("fire_escape"))
+        if fire:
+            tread_slot, finish_why = dict(FIRE_STAIR_TREAD), FIRE_STAIR_REASON
         tread = slot_material(library, tread_slot or slot, unverified=unverified)
         # fix round after P4b (17 Oct 2026): a smooth paint of the wall colour (STAIR_STRUCTURE_REASON)
         structure = slot_material(library, stair_structure_slot(walls_style), unverified=unverified)
         plan = stair_build_plan(plan, level_walls)          # fix round after P4b: the stair meets its walls
         # 25 Oct 2026: the balustrade follows the style; 28 Oct 2026: the whole stair's design, one continuous
         # balustrade per open side (stair_guard_plan), and no spandrel panel over a floor opening
-        stair_guard_plan(building, level, plan, style, floor_voids, None if shaft else ceiling_voids)
+        stair_guard_plan(building, level, plan, dict(style, railing=dict(FIRE_STAIR_RAILING)) if fire else style,
+                         floor_voids, None if shaft else ceiling_voids)
         stair_under_plan(plan, level_walls, plan.get("floor_voids") or ())   # 27 Oct 2026: closed where low
         verts, faces, slots, parts = stair_mesh(plan, floor_z)
         name = f"furn_{piece['id']}"
