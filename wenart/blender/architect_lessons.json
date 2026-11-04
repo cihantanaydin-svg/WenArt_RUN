@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-03",
+ "updated": "2026-11-04",
  "lessons": [
   {
    "id": "UL01",
@@ -3555,6 +3555,18 @@
    ],
    "request": "In the flats beside a building's core the core stays out of every mirror fix (thickness, lines, copies), and a stair's lines next to the core wall are never a wall piece: the flat's own walls and its entrance door close it off from the shared hall (user, 3 Nov 2026, real10 L-1: 'fix the L-1 right flat')",
    "lesson": "In the flats beside a building's core the core stays out of every mirror fix (thickness, lines, copies), and a stair's lines next to the core wall are never a wall piece: the flat's own walls and its entrance door close it off from the shared hall (user, 3 Nov 2026, real10 L-1: 'fix the L-1 right flat')",
+   "question": null
+  },
+  {
+   "id": "UL301",
+   "date": "2026-11-04",
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "A door jamb the drafter drew as two stubs side by side, or as a frame cap at a wall end, still ends the wall's door gap: a cast from a free wall end counts the stubs at one spot together and hits frame caps, so the door in that gap is read (user, 4 Nov 2026, real10 L-1: 'fix the antre and kitchen')",
+   "lesson": "A door jamb the drafter drew as two stubs side by side, or as a frame cap at a wall end, still ends the wall's door gap: a cast from a free wall end counts the stubs at one spot together and hits frame caps, so the door in that gap is read (user, 4 Nov 2026, real10 L-1: 'fix the antre and kitchen')",
    "question": null
   }
  ]

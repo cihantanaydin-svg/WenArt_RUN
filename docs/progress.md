@@ -3389,8 +3389,10 @@ central entrance hall.
 | a stair line 0.57 m off the core wall's face paired into a "wall" that took the antre's wall into a 0.88 m band; the flat's entrance door had no wall | a thick piece (>= 0.4 m) between one short stroke and a long face, in a band wider than any wall and than it is long, is drawn detail; a band crossed by >= 3 treads is a flight | the central hall 23.2 m2, the right flat apart |
 | the mirror's thickness step thinned the lift's walls (0.77 -> 0.25 m) | the core keep-out applies to every mirror step | lift, stair, Kat Holü as on the left |
 
-Still open: the right flat's antre and kitchen are one room (22.5 m2): its kitchen opens to the vestibule through a
-0.9 m doorway framed by a short jamb (90/210) the reading takes as no wall.
+4 Nov 2026 (user: "fix the antre and kitchen"): the right kitchen's door jamb is two stubs side by side (7 and 3 cm
+of the 16 cm wall, one a frame cap), its left twin one stub of 9 cm; the cast from the wall's free end needed 8 cm of
+one piece and skipped caps, so the kitchen door was never read. Stubs at one spot now cover the band together and
+caps are hit too (UL301): the right flat's Mutfak 11.6 m2 and Antre 10.8 m2, as the left flat's.
 
 New drawings (user: "We check also these drawings"):
 

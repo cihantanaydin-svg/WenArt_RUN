@@ -101,3 +101,17 @@ def test_a_sheet_with_a_plan_the_brief_leaves_out_is_read_by_its_regions():
     assert multi_region(regions)
     regions[1].ignored_reason = "no title and no geometry rule gives a class"
     assert not multi_region(regions)
+
+
+def test_a_free_end_cast_hits_side_by_side_stubs_and_frame_caps():
+    """real10 L-1 (user: "fix the antre and kitchen"): the right kitchen's door jamb is two stubs side by side (7 and 3 cm
+    of the 16 cm wall), one of them a frame cap; its left twin's single stub covers 9 cm. Together, and with the cap
+    counted, they stop the cast from the wall's free end, so the kitchen door gap is read."""
+    from wenart.ingest.generic import openings as O
+
+    wall = O.Piece(k=0, axis="h", c=6.49, t=0.16, a=13.76, b=14.828, wall=None)
+    stub = O.Piece(k=1, axis="v", c=15.906, t=0.21, a=6.37, b=6.44, wall=None)        # 3 cm of the band
+    cap = O.Piece(k=2, axis="v", c=15.881, t=0.14, a=6.44, b=6.509, wall=None)        # 7 cm of the band
+    assert O._cast(wall, "end", [wall, stub]) is None                                 # the stub alone: too little
+    hit = O._cast(wall, "end", [wall, stub], [cap])
+    assert hit is not None and abs(hit[2] - 15.801) < 0.02 and abs(hit[1] - 14.828) < 1e-9

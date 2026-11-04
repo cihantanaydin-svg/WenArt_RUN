@@ -117,6 +117,7 @@ from wenart.ingest.model import DOOR_SWING_PROBE, OpeningItem, WallItem
 RUN_OFFSET_M = 0.02
 RUN_THICKNESS_M = 0.03
 FREE_END_M = 0.05
+CAST_STUB_M = 0.05             # 4 Nov 2026: stubs side by side (faces within this along the cast) cover a wall's band together
 GAP_MIN_M = 0.25
 GAP_MAX_M = 3.0
 GAP_IGNORE_M = 0.005
@@ -1088,6 +1089,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     order = {id(q): q.run for q in pieces}
     caps, cap_log = end_caps(runs, edge_m)
     ends = [p for p in pieces if id(p) not in caps]    # the pieces that end walls (frames and nubs do not)
+    cap_pieces = [p for p in pieces if id(p) in caps]
     runs = [r for r in ([q for q in run if id(q) not in caps] for run in runs) if r]
     runs, piece_log = join_fused_strips(runs, index, edge_m)
     piece_log += cap_log
@@ -1186,7 +1188,8 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                 corner = _buried_end(p, which, ends)
                 if corner is None:
                     continue
-            hit = _cast(p, which, ends) if corner is None else _cast_from(p, which, ends, corner)
+            # 4 Nov 2026: a frame or nub at a wall's end (a cap) is wall material a cast from a free end hits too
+            hit = _cast(p, which, ends, cap_pieces) if corner is None else _cast_from(p, which, ends, corner)
             if hit is None:
                 if corner is None:                  # a buried end is no free end: no separator candidate
                     end_log.append({"piece": p, "which": which, "gap": None})
@@ -1664,19 +1667,39 @@ def _is_free(p: Piece, which: str, pieces: list[Piece]) -> bool:
     return True
 
 
-def _cast(p: Piece, which: str, pieces: list[Piece]) -> Optional[tuple[Piece, float, float]]:
-    """First wall face hit from a free end along the axis within GAP_MAX_M: (wall, gap a, gap b)."""
+def _cast(p: Piece, which: str, pieces: list[Piece], also: list = ()) -> Optional[tuple[Piece, float, float]]:
+    """First wall face hit from a free end along the axis within GAP_MAX_M: (wall, gap a, gap b). ``also``: further
+    targets (the caps: frames and nubs at wall ends, 4 Nov 2026)."""
     lo, hi = p.c - p.t / 2.0, p.c + p.t / 2.0
     best = None
-    for q in pieces:
+    spans = []
+    for q in list(pieces) + [x for x in also if x not in pieces]:
         if q is p:
             continue
         r = q.rect()
         if p.axis == "h":
-            c0, c1, s0, s1 = r[1], r[3], r[0], r[2]
+            spans.append((q, r[1], r[3], r[0], r[2]))
         else:
-            c0, c1, s0, s1 = r[0], r[2], r[1], r[3]
-        if min(c1, hi) - max(c0, lo) < 0.5 * p.t:
+            spans.append((q, r[0], r[2], r[1], r[3]))
+    for q, c0, c1, s0, s1 in spans:
+        cover = min(c1, hi) - max(c0, lo)
+        if 0.0 < cover < 0.5 * p.t:
+            # 4 Nov 2026 (real10 L-1, user: "fix the antre and kitchen": the right kitchen's door jamb drawn as two stubs
+            # side by side, 7 and 3 cm of the 16 cm wall, where its left twin's one stub covers 9 cm; the kitchen door
+            # was never cast and the kitchen and the antre were one room): the stubs whose near faces stand within
+            # ``CAST_STUB_M`` of this one cover the band together
+            near = [(a, b) for q2, a, b, t0, t1 in spans
+                    if q2 is not q and abs((t0 if which == "end" else t1) - (s0 if which == "end" else s1)) <= CAST_STUB_M]
+            ivs = sorted([(max(c0, lo), min(c1, hi))] + [(max(a, lo), min(b, hi)) for a, b in near if min(b, hi) > max(a, lo)])
+            total, cur = 0.0, None
+            for a, b in ivs:
+                if cur is None or a > cur[1]:
+                    total += (cur[1] - cur[0]) if cur else 0.0
+                    cur = [a, b]
+                else:
+                    cur[1] = max(cur[1], b)
+            cover = total + ((cur[1] - cur[0]) if cur else 0.0)
+        if cover < 0.5 * p.t:
             continue
         if which == "end":
             d = s0 - p.b
