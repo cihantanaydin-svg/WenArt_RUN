@@ -3518,3 +3518,19 @@ technical room, the U-stair (1-18 across its half landing) is read on L0. Still 
 neither the top floor's walls nor every floor's together (to look at: the plan's frame against the building), the
 pool (no HAVUZ text found in the DXF as one entity: the letters may be separate texts), the door tags (all of real07's
 size tags are on the joinery layer DOĞRAMA: door-high, door-wide tags beside a door or gap now count as door tags).
+
+### Closing the 4 Nov review round (user: "Finish the job as soon as possible"; "Don't run any more pods for now")
+
+Built since the real07 review table: real10's open chamfer between hall and living room is a glazed double door in
+its frame along it (both mirrored flats, L0-L6, UL328, the default the user can change); real07's doors from their
+size tags on the joinery layer DOĞRAMA (8 doors), its U-stair (numbers 1-18 across the half landing), its hip roof from
+the roof plan's hip lines, the open passage into the dressing room (UL327), the pool label written letter by letter;
+the top-down cut closes only wall sections (needs a pod run to see).
+
+Regression m found four changes, all fixed: real07 needs_review (garage door operation outside the schema), real04 and
+real11/real12 (an untitled extra drawing stopped the sheets; now listed), real17 back to 1 level (HİDROFOR, now
+technical, outside the walls; technical rooms outside never leave a level out). Final regression n on HEAD: see below.
+
+Still open (real07): the roof plan's eaves loop (the loop read is 17.6 x 27.6 m, the house 16.4 x 12.2 m: a wrong
+loop), hip roofs over the garage and the side wings, the second villa from the site plan (its registration), the
+sections' storey heights, the drive from the garage to the street. No pod was run for these (user).
