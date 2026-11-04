@@ -1695,7 +1695,13 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
         b_open = [o for j, o in enumerate(openings) if j not in idx]
         return bw, site, sw, b_open, TP.outer_loop_problem(bw, b_open)
 
+    refused_keys: set = set()
+
     def refuse(c, why):
+        key = (c["kind"], c["from"], c["to"], why)
+        if key in refused_keys:
+            return                                        # the same candidate comes back every round: listed once
+        refused_keys.add(key)
         report["refused"].append({"kind": c["kind"], "from": c["from"], "to": c["to"], "length_m": round(c["length"], 3),
                                   "support": round(c["support"], 2), "free": c["free"],
                                   "outline_dist": round(c["outline_dist"], 2), "why": why})
