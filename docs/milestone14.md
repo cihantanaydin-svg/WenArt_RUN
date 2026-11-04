@@ -101,25 +101,38 @@ how the user's feedback compounds and how the user is replaced step by step.
   text layers removed; the readings must agree (allowing what the removed layer carried). A place that changes is a
   fragile decision: it is a finding and a ranker example.
 
-### R9 The review page and the trust ledger (the user's new role)
-- One page per project like the furniture ranking page: one finding at a time with its sheet crop and the two
-  candidates; accept, reject, or "other" with a click on the drawing. Each answer writes a correction record (R1).
-- A trust ledger per reviewer (R4 raster, R4 vision, R5 each check, R6 critic, R3 ranker margin band): precision
-  against the user's answers over the last N findings. Above the threshold a reviewer's finding is auto-accepted
-  (written to truth, applied through the normal candidate path, logged); below, it waits for the user. Thresholds are
-  the user's to set; the ledger is in the report of every run.
+### R9 The user's detailed reviews stay; the machine's findings get accept-or-reject (user, 4 Nov 2026: "accept and
+reject might be not enough, possibly I may need to continue detailed reviews for some time more")
+- The user keeps reviewing the sheets in detail, in free words, as long as the user wants. What changes is the capture:
+  every remark is turned at once into a correction record (R1) with the level, the place and the element the AI
+  locates from the remark and the sheet, and the crop is shown back in the reply so a misplaced record is caught in the
+  same exchange. One remark gives one truth entry, one correction record and, when general, one lesson with a
+  synthetic case. The detailed review trains the ranker directly.
+- The sheets are made for detailed review: low-confidence places in their own colour and numbered ("place 7"), the
+  reviewers' own findings pre-marked, the two candidates drawn where the reader was unsure.
+- The machine's findings (R4 to R6, R8) go to a page like the furniture ranking page: one finding with its crop and
+  its candidates, accept, reject, or a free-text answer. This is an addition for the reviewers' output, not a
+  replacement of the user's review.
+- A trust ledger per reviewer: precision against the user's answers over the last N findings. Above a threshold the
+  user sets, a reviewer's finding is auto-accepted (written to truth, applied through the normal candidate path,
+  logged); below, it waits. The ledger is in the report of every run. The user decides when to enable auto-accept.
 
-## 4. Phases, exit criteria, cost
+## 4. Day plan (user, 4 Nov 2026: "the timeline is too long"); each day ends with something the user can look at
 
-| phase | work | exit criterion | where |
-|---|---|---|---|
-| P1 | R1 truth and corrections backfilled; the score; R2 candidate decisions for gaps, walls vs notation, closure | every real project reads every level; score reported per commit; real09, real10, real17 in the truth | CPU (here or the Mac) |
-| P2 | R3 ranker for gap kind and wall vs notation; R5 sections, elevations, size tags; R8 stability | the ranker beats the fall-through rules on held-out projects; stability findings 0 on the accepted projects | CPU |
-| P3 | R4 raster second opinion; R7 generator options for the known failure classes; the lesson-to-test rule | disagreement findings on the 11 open projects reviewed; every reading lesson has a case | CPU |
-| P4 | R4 vision extraction; R6 critic calibrated; R9 page and ledger | critic recall over 80 % and precision over 70 % on held-out corrections; the user answers only page items | one short pod per batch (about 10 min, under $1) |
-| P5 | auto-accept above thresholds; the user's corrections per project measured | under 3 user corrections per new project; new DWGs read to "ready" without the user in most cases | CPU + short pods |
+Tracks that touch different modules run in parallel in worktree agents, as the lessons of 30 Oct did.
 
-No full run is needed for any phase. Pod cost of the whole milestone: a few dollars.
+| day | work | the user sees |
+|---|---|---|
+| 1 (5 Nov) | R1: correction records of UL274 to UL328 backfilled, truth from the accepted readings, the score script; R2: closure that never leaves a level out (glazed runs, cracks, the twin, the typical floor), RC7 low-confidence places | real09, real11, real13 read with every level; the first score table of all 21 projects; sheets with low-confidence colours |
+| 2 (6 Nov) | R2: candidates with margins for gap kind and wall-vs-notation; R5: elevation windows against the plan, section storeys against the levels, size tags against doors and windows; R9 capture: a remark becomes a record with its crop | sheets of real10, real09, real17 with the reviewers' findings pre-marked, for the user's detailed review; every remark answered with its record and crop |
+| 3 (7 Nov) | R3: ranker v1 (gap kind, wall vs notation) trained on truth and corrections, compared with the fall-through rules on held-out projects; R8: mirror, rotation, unit and layer-name stability; score per commit as a gate | the ranker's gain per project; the fragile places found by the stability tests |
+| 4 (8 Nov) | R4: the raster reader on the rendered regions as a second opinion; R7: generator options for the first five failure classes; the lesson-to-test rule | disagreement findings on the open projects; the lessons file with a case per reading lesson |
+| 5 (9 Nov) | R6: critic calibrated with one short pod (vision extraction and the question bank), recall and precision against the user's past corrections; R9: the findings page | the calibration table (what the machine finds of what the user found); the page with the first findings |
+| 6 (10 Nov) | the trust ledger; a new DWG read end to end through the loop; corrections per project measured | the first project reviewed by the machine before the user |
+
+After day 6 the loop runs on every new drawing; the user's detailed reviews continue as long as the user wants and
+each one raises the score and the reviewers' recall. No full run is needed; pod cost of the whole milestone a few
+dollars.
 
 ## 5. Measures
 
@@ -140,7 +153,7 @@ No full run is needed for any phase. Pod cost of the whole milestone: a few doll
 - Auto-accept of a reviewer's finding above its trust threshold: the thresholds and the first enabling are the user's
   decision; until then every finding waits on the page.
 
-## 7. First steps (this week)
+## 7. First steps (day 1)
 
 1. R1: the correction records of UL274 to UL328 and the truth of the accepted projects; the score script.
 2. R2: candidates with margins for gap kind and wall-vs-notation; closure that never leaves a level out; RC7.
