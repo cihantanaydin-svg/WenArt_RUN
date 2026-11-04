@@ -282,6 +282,7 @@ failure), and the mark goes.
 |---|---|---|---|---|---|---|---|---|---|
 | `synthetic-08-spaced-labels` | spaced_labels | UL323 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 (labels `Yatakodası`, no pool) | counts, geometry pass; words, pool xfail |
 | `synthetic-09-jamb-stubs` | jamb_stubs | UL301 | 1 | 6 | 6 | 9 | 0 | 6 / 6 / 9 / 0 | pass |
+| `synthetic-10-glazed-facade` | glazed_facade | UL274 | 1 | 6 | 7 | 9 | 0 | 6 / 6 / 9 / 0 (the frames one 6.3 m window) | xfail |
 
 ### synthetic-08-spaced-labels (UL323)
 
@@ -300,6 +301,15 @@ The base flat with 16 cm inner walls; at every inner door the wall faces stop op
 short stubs stand side by side across the wall (7 cm and 3 cm, 5 cm long: the frame and its stop, on `DUVAR`) and on
 the other jamb a frame cap closes the wall end (one 16 cm `LINE` on `KAPI`), as real10's drafter drew them. Reader
 today: every door read at its place (passes).
+
+### synthetic-10-glazed-facade (UL274)
+
+The SALON's facade (the bottom wall from x = 0 to 7 m) has no wall faces: only its frames, a 2.2 m window, a 2.4 m
+sliding door and a 1.1 m window, each a frame rectangle across the 25 cm wall band (windows on `PENCERE` with two glass
+lines, the sliding door on `KAPI` with its two leaves), and short posts between them on `KOLON`. The truth keeps the
+wall (`drawn: false`) with its door and two windows (7 doors, 9 windows). Reader today: the room closes, but the frames
+become one 6.3 m inferred window plus a doubled side window; the sliding door and both windows are missing (strict
+xfail).
 
 ## Coordinate conventions
 

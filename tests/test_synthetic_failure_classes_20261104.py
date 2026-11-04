@@ -50,6 +50,7 @@ def _xfail(cls: str, lesson: str, what: str = ""):
 
 # What the reader does not handle yet (4 Nov 2026, measured on the generated projects): per test, per project.
 XFAIL_COUNTS = {
+    "synthetic-10-glazed-facade": _xfail("glazed_facade", "UL274", "the frames become one 6.3 m window"),
 }
 XFAIL_GEOMETRY = dict(XFAIL_COUNTS)
 
@@ -77,6 +78,7 @@ def truth_of(generated, name) -> dict:
 EXPECTED_NAMES = [
     "synthetic-08-spaced-labels",
     "synthetic-09-jamb-stubs",
+    "synthetic-10-glazed-facade",
 ]
 
 
@@ -304,3 +306,13 @@ def test_09_doors_in_stub_jambs_are_read(generated, read):
     doors = [o for o in b["openings"] if o["type"] == "door"]
     for d in t["per_level"]["L0"]["doors"]:
         assert any(math.dist(o["center"], d["center"]) <= CENTRE_TOL_M for o in doors), d
+
+
+# --- synthetic-10-glazed-facade ------------------------------------------------------------------------------------
+
+@_xfail("glazed_facade", "UL274", "the frames of the facade are read as one wide inferred window")
+def test_10_glazed_facade_frames_are_its_door_and_windows(generated, read):
+    b = read("synthetic-10-glazed-facade")
+    on_facade = sorted((o["type"], round(o["width"], 1)) for o in b["openings"]
+                       if o["center"][1] < 0.5 and o["center"][0] < 7.0)
+    assert on_facade == [("door", 2.4), ("window", 1.1), ("window", 2.2)]

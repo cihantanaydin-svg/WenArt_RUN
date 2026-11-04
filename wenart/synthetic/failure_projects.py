@@ -121,5 +121,30 @@ def project_09() -> FailureProject:
                           [plan], [GROUND], BRIEF)
 
 
+def project_10() -> FailureProject:
+    """synthetic-10-glazed-facade (UL274): the SALON's facade (the bottom wall from x = 0 to 7) has no wall faces:
+    it is drawn only as its frames, a 2.2 m window, a 2.4 m sliding door to the garden and a 1.1 m window, each a
+    frame rectangle across the wall band (windows on PENCERE, the sliding door on KAPI) with short posts between them
+    on a column layer (KOLON). The other walls are drawn as usual. Truth: the wall stands there (``drawn: false``)
+    with two windows and a door."""
+    plan = base_house()
+    _drop(plan, "w_salon1", "w_salon2")
+    e1 = plan.wall("e1")
+    plan.walls.remove(e1)
+    plan.walls[0:0] = [Wall("e1a", (0.0, EXT_T / 2), (7.0, EXT_T / 2), EXT_T, drawn=False),
+                       Wall("e1b", (7.0, EXT_T / 2), (12.0, EXT_T / 2), EXT_T)]
+    for op in plan.openings:
+        if op.wall == "e1":
+            op.wall, op.s = "e1b", op.s - 7.0
+    plan.openings += [Opening("g_win_a", "window", "e1a", 1.55, 2.2),
+                      Opening("g_slide", "sliding", "e1a", 4.15, 2.4),
+                      Opening("g_win_b", "window", "e1a", 6.2, 1.1)]
+    for x0, x1 in ((0.25, 0.45), (2.65, 2.95), (5.35, 5.65)):
+        plan.prims.append(Prim("poly", "KOLON", [(x0, 0.0), (x1, 0.0), (x1, EXT_T), (x0, EXT_T)], closed=True))
+    return FailureProject("synthetic-10-glazed-facade", "glazed_facade", "UL274",
+                          "a living room whose outer wall is drawn only as window and sliding-door frames",
+                          [plan], [GROUND], BRIEF)
+
+
 def failure_projects() -> list[FailureProject]:
-    return [project_08(), project_09()]
+    return [project_08(), project_09(), project_10()]
