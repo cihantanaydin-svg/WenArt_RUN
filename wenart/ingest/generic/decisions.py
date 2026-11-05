@@ -219,10 +219,10 @@ class DecisionLog:
         g.decision = record
         return record
 
-    def finish_gaps(self, gaps: list, exterior, theta: float, mirror_axis) -> None:
-        """After every gap of the level is classified (the end of ``gaps_and_openings``): the exterior test, the
-        mirror twin's answer, the gap-stage answer (``gaps_answer``: the class after the caller's own rules, lining,
-        inside-wall, two-walls), the place in page metres; a record whose gap the caller dropped is marked."""
+    def fill_gap_context(self, gaps: list, exterior, theta: float, mirror_axis) -> None:
+        """Once every gap of the level is classified and the walls are merged (before the openings are built): the
+        place in page metres, the exterior test and the mirror twin's cascade answer go into every record. The ranker
+        decides after this (``openings._apply_ranker``), so it sees the same features the labels are made from."""
         kept = {id(g) for g in gaps}
         by_centre = []
         for rec, g in self.gap_records:
@@ -233,23 +233,11 @@ class DecisionLog:
             corners = [_rot(p, theta) for p in (g.point(g.a, -g.t / 2), g.point(g.b, -g.t / 2),
                                                  g.point(g.b, g.t / 2), g.point(g.a, g.t / 2))]
             rec["features"]["exterior"] = bool(exterior(corners)) if exterior is not None else False
-            rec["gaps_answer"] = gap_answer(g) if id(g) in kept else DROPPED
             if id(g) in kept:
                 by_centre.append((centre, rec))
-                caller = caller_rule(g)
-                if caller is not None and (rec["rule"] != caller or rec["rule_answer"] != rec["gaps_answer"]):
-                    # the caller's own rule decided after the cascade (wall material across the gap, a lining wall,
-                    # two walls on one line, a free end with nothing drawn): that is the reader's rule answer; the
-                    # cascade's stays on the record, and a ranker decision it overrode goes back to the rule
-                    rec["cascade_rule"], rec["cascade_answer"] = rec["rule"], rec["rule_answer"]
-                    rec["rule"], rec["rule_answer"] = caller, rec["gaps_answer"]
-                    rec["rule_confidence"] = rule_confidence(caller)
-                    if rec.get("decided_by") == DECIDED_RANKER:
-                        rec["decided_by"] = DECIDED_RULE
-                        rec["ranker_overridden_by"] = caller
         for rec, g in self.gap_records:
             twin = None
-            if mirror_axis is not None and rec["gaps_answer"] != DROPPED:
+            if mirror_axis is not None and id(g) in kept:
                 axis, v = mirror_axis
                 c = rec["place_page"]
                 m = (2 * v - c[0], c[1]) if axis == "x" else (c[0], 2 * v - c[1])
@@ -262,6 +250,27 @@ class DecisionLog:
             for cls in ("door", "window", "opening"):
                 f[f"twin_{cls}"] = twin == cls
             f.setdefault("typical_known", False)      # the typical floor's answer needs the other levels: not here yet
+
+    def finish_gaps(self, gaps: list) -> None:
+        """At the end of ``gaps_and_openings``: the gap-stage answer (``gaps_answer``: the class after the caller's own
+        rules, lining, inside-wall, two-walls, and the ranker), the caller's rule where it decided, and a record whose
+        gap the caller dropped is marked."""
+        kept = {id(g) for g in gaps}
+        for rec, g in self.gap_records:
+            rec["gaps_answer"] = gap_answer(g) if id(g) in kept else DROPPED
+            if id(g) not in kept:
+                continue
+            caller = caller_rule(g)
+            if caller is not None and (rec["rule"] != caller or rec["rule_answer"] != rec["gaps_answer"]):
+                # the caller's own rule decided after the cascade (wall material across the gap, a lining wall, two
+                # walls on one line, a free end with nothing drawn): that is the reader's rule answer; the cascade's
+                # stays on the record, and a ranker decision it overrode goes back to the rule
+                rec["cascade_rule"], rec["cascade_answer"] = rec["rule"], rec["rule_answer"]
+                rec["rule"], rec["rule_answer"] = caller, rec["gaps_answer"]
+                rec["rule_confidence"] = rule_confidence(caller)
+                if rec.get("decided_by") == DECIDED_RANKER:
+                    rec["decided_by"] = DECIDED_RULE
+                    rec["ranker_overridden_by"] = caller
 
     # -- walls (page metres) --
     def add_wall(self, record: dict) -> dict:

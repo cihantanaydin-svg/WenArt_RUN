@@ -276,10 +276,10 @@ def test_decide_trusts_the_rule_decides_above_the_margin_and_falls_back_without_
 def test_without_a_model_file_the_rules_alone_decide(monkeypatch, tmp_path):
     """A missing model file means the rules alone, never an error; the lookup is cached per process."""
     RK.reset_models()
-    assert RK.load_model(DEC.KIND_GAP, tmp_path) is None
-    assert RK.decide(DEC.KIND_GAP, {"width": 0.9}, "opening", 0.2, allowed=["door", "opening"],
-                     model=RK.load_model(DEC.KIND_GAP, tmp_path)) == ("opening", "rule", 0.0, {})
+    assert RK.load_model(DEC.KIND_GAP, tmp_path) is None                 # an empty models folder
     monkeypatch.setattr(RK, "load_model", lambda kind, models_dir=None: None)
+    assert RK.decide(DEC.KIND_GAP, {"width": 0.9}, "opening", 0.2, allowed=["door", "opening"]) == \
+        ("opening", "rule", 0.0, {})
     walls = [R.wall((0, 0), (2, 0)), R.wall((2.9, 0), (5, 0))]
     out_walls, openings, gap_log, records = _read(walls, [], ranker=True)
     assert [o.kind for o in openings] == ["opening"]

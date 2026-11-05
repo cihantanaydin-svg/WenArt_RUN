@@ -642,10 +642,12 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set, log=None) -> Non
     5 Nov 2026 (Milestone 14 R3; user: "I want structure recognition to be cumulatively better with the feedbacks I am
     giving"): the rule cascade (``_classify_gap_rules``) answers first and its answer is kept in ``g.rule_cls``. With a
     decision log the gap becomes a record (``decisions.DecisionLog``: the features the rules looked at, the rule that
-    fired and its fixed confidence, ``decisions.RULE_CONFIDENCE``), and the ranker (``reading_check.ranker.decide``) may
-    re-type the gap where the rule is weak and its own margin is clear (``_apply_ranker``: only between door, window and
-    opening on a run gap that makes an element anyway; never closed or open, never an end gap, never against a hard
-    constraint). Without a log nothing else happens (the unit tests' direct calls)."""
+    fired and its fixed confidence, ``decisions.RULE_CONFIDENCE``). The ranker (``reading_check.ranker.decide``) acts
+    later, in ``gaps_and_openings`` once every gap is classified and the walls are merged (its features need the
+    exterior test and the mirror twin's answer): it may re-type a gap where the rule is weak and its own margin is
+    clear (``_apply_ranker``: only between door, window and opening on a run gap that makes an element anyway; never
+    closed or open, never an end gap, never against a hard constraint). Without a log nothing else happens (the unit
+    tests' direct calls)."""
     _classify_gap_rules(g, index, owned_global)
     g.rule_cls = g.cls
     if log is None:
@@ -654,11 +656,11 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set, log=None) -> Non
 
     features = gap_features(g, index, owned_global, log)
     rule, confidence = gap_rule(g, features, raster=bool(getattr(log, "raster", False)))
-    rec = log.add_gap(g, {"kind": DEC.KIND_GAP, "id": None, "gap": g.kind, "features": features, "rule": rule,
-                          "rule_answer": DEC._answer_of_class(g.cls), "rule_confidence": confidence,
-                          "final_answer": None, "decided_by": DEC.DECIDED_RULE})
-    if log.ranker:
-        _apply_ranker(g, rec)
+    log.add_gap(g, {"kind": DEC.KIND_GAP, "id": None, "gap": g.kind, "features": features, "rule": rule,
+                    "rule_answer": DEC._answer_of_class(g.cls), "rule_confidence": confidence,
+                    "final_answer": None, "decided_by": DEC.DECIDED_RULE})
+    # the ranker decides later, once every gap is classified and the walls are merged (``gaps_and_openings``: the
+    # exterior test and the mirror twin's answer are features it needs)
 
 
 def gap_features(g: Gap, index: StrokeIndex, owned_global: set, log) -> dict:
@@ -1552,6 +1554,17 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     _trim_into_bands(out_walls, theta)
 
     exterior = _exterior_test(out_walls)
+    if decisions is not None:
+        # 5 Nov 2026 (Milestone 14 R3): every gap is classified and the walls are merged: the records get the exterior
+        # test and the mirror twin's answer, and the ranker may re-type a run gap the cascade left empty or
+        # unclassified (door, window or opening: an element either way; never an end gap, never a wall made or
+        # removed, ``_apply_ranker``) before the openings are built from the gaps
+        from wenart.ingest.generic import facade as FC
+        decisions.fill_gap_context(gaps, exterior, theta, FC.mirror_axis(out_walls, FC.MIRROR_SHARE))
+        if decisions.ranker:
+            for g in gaps:
+                if g.decision is not None and g.kind != "end" and g.cls in ("empty", "unclassified"):
+                    _apply_ranker(g, g.decision)
     openings: list[OpeningItem] = []
     log: list[dict] = []
     gap_pos: dict[int, int] = {}
@@ -1595,10 +1608,9 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                     "entity": o.entity})
     log.extend(ctx.dropped)
     if decisions is not None:
-        # 5 Nov 2026 (Milestone 14 R3): every gap's record gets the exterior test, its mirror twin's answer and the
-        # class after this function's own rules (``DecisionLog.finish_gaps``)
-        from wenart.ingest.generic import facade as FC
-        decisions.finish_gaps(gaps, exterior, theta, FC.mirror_axis(out_walls, FC.MIRROR_SHARE))
+        # 5 Nov 2026 (Milestone 14 R3): every gap's record gets the class after this function's own rules and the
+        # ranker (``DecisionLog.finish_gaps``); the caller's rule takes the record over where it decided
+        decisions.finish_gaps(gaps)
     return out_walls, openings, log, owned
 
 

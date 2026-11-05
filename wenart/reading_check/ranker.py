@@ -572,8 +572,8 @@ def train(labelled: list[dict], kind: str, *, commit: Optional[str] = None, date
         counts[r.get("source")] = counts.get(r.get("source"), 0) + 1
     result = lopo(labelled, kind, l2=l2)
     model["trained_on"] = {"commit": commit or TR.git_head(), "date": date or TR.today(),
-                           "projects": sorted({r.get("project") for r in rows}), "rows": len(rows),
-                           "counts_per_source": counts, "label_weights": LABEL_WEIGHTS,
+                           "projects": sorted({r.get("project") for r in rows}), "rows": len(table["rows"]),
+                           "labelled_rows": len(rows), "counts_per_source": counts, "label_weights": LABEL_WEIGHTS,
                            "labels": label_counts(rows).get(kind, {}).get("by_label", {})}
     model["metrics"] = {"leave_one_project_out": result["per_project"], "overall": result["overall"],
                         "changed_in_lopo": result["changed"], "rule_trust": RULE_TRUST, "margin_min": MARGIN_MIN}
