@@ -232,8 +232,8 @@ def test_only_the_uncovered_piece_of_a_wall_is_reported():
     assert len(raw) == 1 and raw[0]["kind"] == "wall_vector_only"
     assert raw[0]["geom"][1] == [6.0, 0.0] and raw[0]["geom"][2] == [10.0, 0.0]
     # a piece shorter than WALL_PIECE_MIN_M (a junction difference) is none
-    assert RO.raw_differences(_level(walls=[_wall("w", (0, 0), (6.3, 0))]), _level(walls=[_wall("r", (0, 0), (6, 0))])) \
-        == []
+    short = RO.raw_differences(_level(walls=[_wall("w", (0, 0), (6.3, 0))]), _level(walls=[_wall("r", (0, 0), (6, 0))]))
+    assert short == []
 
 
 def test_openings_by_centre_and_class():

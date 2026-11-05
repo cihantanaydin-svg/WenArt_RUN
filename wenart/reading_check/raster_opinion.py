@@ -12,9 +12,10 @@ level read from a CAD region (``reading_check.level_pages``; a typical floor's c
    note, and a few misread leftover numbers cancelled the known pixel size (real13 L0: no scale, no reading). The
    entities are the region's (``region_entities``: hatches too); colours are dropped (a monochrome plot): a solid fill
    is drawn black when its colour is dark (``FILL_INK_MAX``) and left out when light (a room tint), a pattern hatch
-   drawn when dense and left out when its lines are a finish (``HATCH_FINISH_M``: tiles, ground). The pixel -> building-metre transform is exact (the page transform of the level, ``transform_to_building``),
-   so no registration is guessed: ``render_level`` returns it as ``pixel_to_building`` (OpenCV pixel centres;
-   matplotlib snaps a line to whole pixels, so a drawn line lies within one pixel, 1 cm, of it).
+   drawn when dense and left out when its lines are a finish (``HATCH_FINISH_M``: tiles, ground). The pixel ->
+   building-metre transform is exact (the page transform of the level, ``transform_to_building``), so no
+   registration is guessed: ``render_level`` returns it as ``pixel_to_building`` (OpenCV pixel centres; matplotlib
+   snaps a line to whole pixels, so a drawn line lies within one pixel, 1 cm, of it).
 2. **Read**: the PNG is a one-page raster project in a temporary folder, read by ``pipeline.run_project(no_ai=True)``
    (the raster adapter ``ingest.raster`` and the generic core, as for a scan). The raster API takes no scale argument,
    so the known pixel size goes in the way the reader accepts a verified one (``raster.load_image``, ``generic.scale
@@ -30,9 +31,10 @@ level read from a CAD region (``reading_check.level_pages``; a typical floor's c
    when the other reading does not cover it either (a wall the other side reads in two pieces, a room it splits in
    two, is no disagreement): rooms by the share of the area inside the other side's rooms (``room_cover_share``);
    walls by the pieces of their centre lines that run along none of the other side's walls (``uncovered_pieces``,
-   for every wall: one the matcher pairs with a shorter piece still has its uncovered rest). Kinds (``KINDS``): a wall only the raster or only the
-   vector reading has (the uncovered pieces >= ``WALL_PIECE_MIN_M``), a room only one closes, an opening only one has,
-   an opening both have with another type. Virtual separators are no drawn element and are not compared.
+   for every wall: one the matcher pairs with a shorter piece still has its uncovered rest). Kinds (``KINDS``): a
+   wall only the raster or only the vector reading has (the uncovered pieces >= ``WALL_PIECE_MIN_M``), a room only
+   one closes, an opening only one has, an opening both have with another type. Virtual separators are no drawn
+   element and are not compared.
    Findings of one kind on one level within ``GROUP_M`` of each other that describe one place are one finding (its
    members listed; ``near``: wall pieces on one line, openings by centre, rooms that overlap or share a centroid;
    walls meeting at a corner stay two findings, else a plan's walls chain into one). A level whose raster walls
@@ -88,8 +90,8 @@ CHECK = "RC13"
 NAME = "raster second opinion"
 SOURCES = ["vector", "raster"]
 # 1. render
-PX_PER_M = 100.0               # pixels per building metre (the raster reader's constants are tuned on 150 dpi 1:50 scans,
-                               # about 118 px/m)
+PX_PER_M = 100.0               # pixels per building metre (the raster reader's constants are tuned on 150 dpi 1:50
+                               # scans, about 118 px/m)
 MAX_SIDE_PX = 8000             # ... the long side capped (the pixel size then drops; it is recorded)
 FIG_DPI = 100                  # matplotlib's dots per inch for the figure (line widths are in points)
 LINEWEIGHT_SCALING = 1.5       # a 0.25 mm pen is drawn about 1.5 px wide, as on a 150 dpi scan
@@ -103,7 +105,8 @@ RENDER_CLEAN = True            # the grid and the dimensions left out (``sheets.
 RENDER_MARGIN_M = 1.0          # white paper around the region's box on the canvas: a plan drawn to its extents would
                                # put its outer walls on the image edge, where the raster reader drops wall components
 UNICODE_ESCAPE = re.compile(r"\\U\+([0-9A-Fa-f]{4})")
-FILL_INK_MAX = 128.0           # a solid fill this dark (luminance 0-255 of its own colour) is drawn black, else left out
+FILL_INK_MAX = 128.0           # a solid fill this dark (luminance 0-255 of its own colour) is drawn black, else it
+                               # is left out
 HATCH_FINISH_M = 0.2           # a pattern hatch whose lines lie further apart than this is a finish (tiles, ground):
                                # left out; denser ones (poché, concrete, sand) are drawn
 ONE_PLAN_MARGIN = 0.15         # a one-plan document: the drawing's extents, or the model's box with this margin ...
@@ -688,7 +691,8 @@ def level_box(doc, building: dict, lid: str, page: dict, regions: dict) -> Optio
         return None
     tf = page["tf"]
     inv = _invert(tf)
-    pts = [_apply(inv, p) for w in building.get("walls") or [] if w.get("level_id") == lid for p in (w["start"], w["end"])]
+    pts = [_apply(inv, p) for w in building.get("walls") or [] if w.get("level_id") == lid
+           for p in (w["start"], w["end"])]
     pts += [_apply(inv, p) for r in building.get("rooms") or [] if r.get("level_id") == lid
             for p in r.get("polygon") or []]
     model = None
