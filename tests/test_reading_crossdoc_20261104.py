@@ -55,7 +55,7 @@ def test_rc8_names_the_window_the_plan_lacks_per_floor():
     l1 = [f for f in found if f["level_id"] == "L1"]
     assert len(l0) == 1 and l0[0]["severity"] == "minor"
     assert "at x 8.10 m" in l0[0]["message"] and l0[0]["levels_missing"] == ["L0"]
-    assert abs(l0[0]["place"]["x"] - 8.0) < 0.05 and abs(l0[0]["place"]["y"] + 0.1) < 0.05
+    assert abs(l0[0]["place"]["x"] - 8.0) < 0.05 and abs(l0[0]["place"]["y"]) < 0.05   # on the facing wall's centre line
     assert len(l1) == 1 and l1[0]["severity"] == "major"          # the plan has none where the elevation shows two
     assert l1[0]["sources"][0].startswith("elevation r_el")
 
@@ -267,6 +267,7 @@ def test_frame_rects_from_loose_lines_and_nested_frames():
     ents: list = []
     _line(ents, (-1.0, 0.0), (20.0, 0.0))                              # the ground line
     _line(ents, (0.0, 0.0), (0.0, 3.0))                                # the facade's left wall line, on the ground
+    _line(ents, (0.0, 3.0), (20.0, 3.0))                               # ... its eaves line ending on it
     # a window drawn as three nested rectangles of loose LINEs with a mullion, its sill a long band line (T joints)
     _lines(ents, (2.0, 1.0, 3.4, 2.4), sides=(False, True, True, True))
     _line(ents, (1.0, 1.0), (6.0, 1.0), layer="PENCERE")
@@ -307,6 +308,7 @@ def _region(ents, box=(-1.0, 0.0, 30.0, 8.0)):
 def _ground(ents, x1=30.0):
     _line(ents, (-1.0, 0.0), (x1, 0.0))
     _line(ents, (0.0, 0.0), (0.0, 7.0))                               # the facade's left wall line
+    _line(ents, (0.0, 7.0), (x1 - 2.0, 7.0))                          # ... its eaves line ending on it
 
 
 def test_multi_leaf_window_is_one_window():
@@ -367,6 +369,7 @@ def test_left_end_rule_skips_jambs_circles_and_takes_the_plinth():
     ents: list = []
     _line(ents, (-5.0, 0.0), (30.0, 0.0))                             # the ground line, longer than the facade
     _line(ents, (3.0, -0.4), (3.0, 7.0))                              # the facade's left wall, down into the plinth
+    _line(ents, (3.0, 7.0), (20.0, 7.0))                              # ... with its eaves line
     _line(ents, (5.0, 0.0), (5.0, 2.1))                               # a door jamb
     _line(ents, (1.0, 0.0), (1.0, 0.8))                               # a short post on the ground: under 1 m
     circ = Stroke(id="ent:c", kind="circle", pts=[(0.4, 0.05), (0.5, 0.05), (0.5, 0.15), (0.4, 0.15)], closed=True,
@@ -379,7 +382,16 @@ def test_left_end_rule_skips_jambs_circles_and_takes_the_plinth():
     _line(ents2, (-5.0, 0.0), (30.0, 0.0))
     _line(ents2, (1.0, 0.0), (1.0, 0.8))
     _line(ents2, (5.0, 0.0), (5.0, 2.1))
+    _line(ents2, (5.0, 2.1), (6.0, 2.1))                              # its door head
     assert EX.facade_left_end(ents2, 0.0, 1.0, (-5.0, 0.0, 30.0, 7.0)) == (5.0, "standing_line")
+    # a lone level-mark leader 0.10 m under the ground, left of a wall standing 0.20 m up on its plinth: the wall
+    ents3: list = []
+    _line(ents3, (-5.0, 0.0), (30.0, 0.0))
+    _line(ents3, (-2.0, -0.1), (-2.0, 9.0))                           # the leader: only the ground line crosses it
+    _line(ents3, (1.0, 0.2), (1.0, 7.0))
+    _line(ents3, (1.0, 0.2), (12.0, 0.2))                             # the plinth's top
+    _line(ents3, (1.0, 7.0), (12.0, 7.0))                             # the eaves
+    assert EX.facade_left_end(ents3, 0.0, 1.0, (-5.0, -0.1, 30.0, 9.0))[0] == 1.0
 
 
 def test_spandrel_piece_between_two_windows_is_dropped():
@@ -462,3 +474,210 @@ def test_rc9_without_a_section_is_one_info_finding():
     found = CD.rc9(b, sheets)
     assert [f["severity"] for f in found] == ["info"]
     assert not any("the section" in s for f in found for s in f["sources"])
+
+
+# ------------------------------------------- 5 Nov 2026 review round 3: plain windows, strokes, grids, boards, ground
+def _poly(ents, box, closed=True, layer="0", eid=None):
+    x0, y0, x1, y1 = box
+    n = len(ents)
+    st = Stroke(id=f"ent:p{n}", kind="polyline", pts=[(x0, y0), (x1, y0), (x1, y1), (x0, y1)], closed=closed, layer=layer)
+    ents.append(Ent(id=eid or f"LWPOLYLINE:{n}", kind="LWPOLYLINE", layer=layer, box=st.bbox(), strokes=[st]))
+
+
+def _windows(ents):
+    _, seen = EX.facade_of(_region(ents), None, None, [])
+    return sorted((round(p["width"], 2), round(p["sill"], 2)) for p in seen["positions_m"] if p["kind"] == "window")
+
+
+def test_b_plain_window_with_centre_mullion():
+    # b: a 1.40 x 1.40 m window of four LINEs with one centre mullion
+    ents: list = []
+    _ground(ents)
+    _lines(ents, (2.0, 1.0, 3.4, 2.4))
+    _line(ents, (2.7, 1.0), (2.7, 2.4))
+    assert _windows(ents) == [(1.4, 1.0)]
+    # b2: the same with the leaves' swing diagonals
+    _line(ents, (2.0, 1.0), (2.7, 1.7))
+    _line(ents, (2.7, 1.7), (2.0, 2.4))
+    assert _windows(ents) == [(1.4, 1.0)]
+
+
+def test_b3_closed_polyline_with_mullion_is_one_window():
+    ents: list = []
+    _ground(ents)
+    _poly(ents, (2.0, 1.0, 3.4, 2.4))
+    _line(ents, (2.7, 1.0), (2.7, 2.4))
+    assert _windows(ents) == [(1.4, 1.0)]
+
+
+def test_d_twin_two_leaf_windows_are_read():
+    for gap in (0.05, 0.15):
+        ents: list = []
+        _ground(ents)
+        for x0 in (2.0, 2.0 + 1.4 + gap):
+            _lines(ents, (x0, 1.0, x0 + 1.4, 2.4))
+            _line(ents, (x0 + 0.7, 1.0), (x0 + 0.7, 2.4))
+        got = _windows(ents)
+        assert got and sum(w for w, _ in got) >= 2.8 - 1e-6, (gap, got)
+
+
+def test_t_two_bare_two_leaf_windows_between_band_lines():
+    ents: list = []
+    _ground(ents)
+    _line(ents, (1.0, 1.0), (8.0, 1.0))
+    _line(ents, (1.0, 2.4), (8.0, 2.4))
+    for x0 in (2.0, 4.0):
+        _line(ents, (x0, 1.0), (x0, 2.4))
+        _line(ents, (x0 + 1.2, 1.0), (x0 + 1.2, 2.4))
+        _line(ents, (x0 + 0.6, 1.0), (x0 + 0.6, 2.4))
+    assert _windows(ents) == [(1.2, 1.0), (1.2, 1.0)]
+
+
+def test_i_four_light_window_and_i2_four_panel_sliding_door():
+    # i: a 2.4 x 1.5 m four-light window, heads one piece per leaf, no transom: a window, not a railing grid
+    ents: list = []
+    _ground(ents)
+    for k in range(4):
+        a, b = 2.0 + 0.6 * k, 2.6 + 0.6 * k
+        _line(ents, (a, 1.0), (b, 1.0))
+        _line(ents, (a, 2.5), (b, 2.5))
+    for k in range(5):
+        _line(ents, (2.0 + 0.6 * k, 1.0), (2.0 + 0.6 * k, 2.5))
+    assert _windows(ents) == [(2.4, 1.0)]
+    # i2: a 2.8 x 2.2 m four-panel sliding door on the ground
+    ents2: list = []
+    _ground(ents2)
+    for k in range(4):
+        _line(ents2, (2.0 + 0.7 * k, 0.0), (2.7 + 0.7 * k, 0.0))
+        _line(ents2, (2.0 + 0.7 * k, 2.2), (2.7 + 0.7 * k, 2.2))
+    for k in range(5):
+        _line(ents2, (2.0 + 0.7 * k, 0.0), (2.0 + 0.7 * k, 2.2))
+    _, seen = EX.facade_of(_region(ents2), None, None, [])
+    assert [(p["kind"], round(p["width"], 2)) for p in seen["positions_m"]] == [("door", 2.8)]
+
+
+def test_one_stroke_sides_survive_a_band_and_a_nested_outline():
+    # a window drawn as a closed polyline whose sill is collinear with a band line, and a second outline 2 cm inside
+    ents: list = []
+    _ground(ents)
+    _line(ents, (1.0, 1.0), (2.0, 1.0))
+    _line(ents, (3.2, 1.0), (8.0, 1.0))
+    _poly(ents, (2.0, 1.0, 3.2, 2.4))
+    _poly(ents, (2.02, 1.02, 3.18, 2.38))
+    rects = [r for r in EX.frame_rects(ents, 1.0) if abs(r["box"][0] - 2.0) < 1e-6 and abs(r["box"][2] - 3.2) < 1e-6]
+    assert rects and rects[0]["framed"]
+    assert _windows(ents) == [(1.2, 1.0)]
+
+
+def test_boards_are_no_window_and_a_panelled_door_is_a_door():
+    ents: list = []
+    _ground(ents)
+    # a 1.5 x 1.2 m cladding panel with board lines 0.2 m apart
+    _lines(ents, (6.0, 1.0, 7.5, 2.2))
+    for k in range(1, 6):
+        _line(ents, (6.0, 1.0 + 0.2 * k), (7.5, 1.0 + 0.2 * k))
+    # a 1.0 x 2.1 m panelled entrance door on the ground, panel lines 0.3 m apart
+    _lines(ents, (2.0, 0.0, 3.0, 2.1))
+    for k in range(1, 7):
+        _line(ents, (2.0, 0.3 * k), (3.0, 0.3 * k))
+    _, seen = EX.facade_of(_region(ents), None, None, [])
+    assert [(p["kind"], round(p["width"], 2)) for p in seen["positions_m"]] == [("door", 1.0)]
+
+
+def test_a_wrong_ground_reference_keeps_the_windows():
+    # the ground reference at the top storey (z 6.0 over the drawn ground): three storeys of windows under it
+    ents: list = []
+    _ground(ents)
+    _line(ents, (-1.0, 6.0), (30.0, 6.0))                             # a long roof line at the wrong reference
+    for y0 in (1.0, 4.0):
+        for x0 in (2.0, 5.0):
+            _lines(ents, (x0, y0, x0 + 1.2, y0 + 1.4))
+            _line(ents, (x0 + 0.6, y0), (x0 + 0.6, y0 + 1.4))
+    region = _region(ents)
+    warns: list = []
+    _, seen = EX.facade_of(region, {"y_ref": 6.0, "z_ref": 0.0}, None, warns)
+    assert seen["windows"] == 4 and any("ground reference" in w for w in warns)
+
+
+# ------------------------------------------------------------------ 5 Nov 2026 review round 3: crossdoc items 7-12
+def test_a_set_back_facing_wall_keeps_the_column_major():
+    # the front wall of L1-L3 between x 6 and 10 is set back 1.5 m (a loggia): a column at x 8 on every floor
+    b = _column_case()
+    for lid in ("L1", "L2", "L3"):
+        b["walls"] = [w for w in b["walls"] if w["id"] != f"w_{lid}_0"]
+        b["walls"] += [
+            {"id": f"w_{lid}_0a", "level_id": lid, "start": [0.0, 0.0], "end": [6.0, 0.0], "thickness": 0.2,
+             "height": 2.7, "exterior": True},
+            {"id": f"w_{lid}_0b", "level_id": lid, "start": [6.0, 0.0], "end": [6.0, 1.5], "thickness": 0.2,
+             "height": 2.7, "exterior": True},
+            {"id": f"w_{lid}_0c", "level_id": lid, "start": [6.0, 1.5], "end": [10.0, 1.5], "thickness": 0.2,
+             "height": 2.7, "exterior": True},
+            {"id": f"w_{lid}_0d", "level_id": lid, "start": [10.0, 1.5], "end": [10.0, 0.0], "thickness": 0.2,
+             "height": 2.7, "exterior": True}]
+        for o in b["openings"]:
+            if o["level_id"] == lid:
+                o["wall_id"] = f"w_{lid}_0a"
+    found = [f for f in CD.rc8(b, {}) if f.get("column_x") == 8.1]
+    assert found and found[0]["severity"] == "major" and "w_L1_0c" in found[0]["element_ids"]
+    assert abs(found[0]["place"]["y"] - 1.5) < 0.05
+
+
+def test_findings_are_the_same_under_any_hash_seed(tmp_path):
+    import json
+    import subprocess
+    import sys
+
+    b = _column_case()
+    b["facade"]["elevations"][0]["positions_m"].append({"kind": "window", "x": 14.0, "width": 1.2, "sill": 0.9,
+                                                         "head": 2.3})
+    src = tmp_path / "b.json"
+    src.write_text(json.dumps(b))
+    code = ("import json,sys; from wenart.reading_check import crossdoc as CD; "
+            "b=json.load(open(sys.argv[1])); print(json.dumps(CD.rc8(b, {}) + CD.rc12(b), sort_keys=True))")
+    outs = []
+    for seed in ("0", "1"):
+        env = dict(__import__("os").environ, PYTHONHASHSEED=seed)
+        outs.append(subprocess.run([sys.executable, "-c", code, str(src)], capture_output=True, text=True, env=env,
+                                   check=True, cwd=str(__import__("pathlib").Path(CD.__file__).parents[2])).stdout)
+    assert outs[0] == outs[1]
+
+
+def test_a_north_tie_is_said():
+    # front and back walls carry windows that look the same from outside (x 2.1 and 5.1 from each one's left end):
+    # north 0 and north 180 fit alike, by every score
+    b = _building([("L0", 0.0)], [])
+    b["openings"] = [_window("L0", 1, 2.0), _window("L0", 2, 5.0),
+                     dict(_window("L0", 3, 0.0, wall="w_L0_2"), center=[8.0, 8.0]),
+                     dict(_window("L0", 4, 0.0, wall="w_L0_2"), center=[5.0, 8.0])]
+    b["facade"] = {"elevations": [_elevation({0.0: [2.1, 5.1]}, side="south")]}
+    found = CD.rc8(b, {})
+    assert any("two axes fit alike (0 and 180 degrees" in f["message"] for f in found), [f["message"] for f in found]
+    assert not any(f.get("north_inferred_deg") is not None for f in found)
+
+
+def test_a_plan_opening_behind_a_dropped_strip_is_matched():
+    b = _building([("L0", 0.0), ("L1", 3.0)], [_window("L0", 1, 2.0), _window("L1", 1, 2.0),
+                                              _window("L0", 2, 6.0, width=1.0), _window("L1", 2, 6.0, width=1.0)])
+    el = _elevation({0.0: [2.1], 3.0: [2.1]})
+    el["positions_m"] += [{"kind": "window", "x": 6.1, "width": 1.0, "sill": z, "head": z + 2.05}
+                          for z in (0.5, 2.6, 4.7)]
+    b["facade"] = {"elevations": [el]}
+    assert not any("not drawn there" in f["message"] for f in CD.rc8(b, {}))
+
+
+def test_court_walls_are_left_out():
+    # a 2 m deep court in the front: its back wall at y 2 looks at nothing but the court's own side walls ... and a
+    # wall 3 m in front of it (a garden wall of the level, 2 m high): openings on it are left out
+    b = _building([("L0", 0.0)], [_window("L0", 1, 2.0), _window("L0", 2, 5.0)])
+    b["walls"].append({"id": "w_L0_screen", "level_id": "L0", "start": [0.0, -3.0], "end": [10.0, -3.0],
+                       "thickness": 0.2, "height": 2.0, "exterior": True})
+    g = CD.LevelGeometry(b, "L0")
+    assert "w_L0_0" in g.hidden and g.facing(270.0) == []
+    assert len(g.facing(270.0, hidden=True)) == 2
+
+
+def test_block_names_in_lists_and_units():
+    assert CD.named_buildings(["A-B BLOK"])[0] == 2
+    assert CD.named_buildings(["BLOK 19 CM"])[0] == 0
+    assert CD.named_buildings(["BLOK H=2.40"])[0] == 0
+    assert CD.named_buildings(["BLOK A"])[0] == 1

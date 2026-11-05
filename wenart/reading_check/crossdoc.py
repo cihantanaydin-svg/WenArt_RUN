@@ -68,6 +68,8 @@ STRIP_MIN_CELLS = 3            # ... when at least this many are stacked (a door
 EXTENT_TOL_M = 0.5             # a column further than this beyond the facing walls' extent is outside the facade
 WALL_NEAR_PLACE_M = 0.5        # the plan's wall pieces this close to a missing opening's place are named with it
 WHOLE_FLOOR_MIN = 2            # a floor with at least this many frames and no plan opening on that side is major
+COURT_RAY_M = 6.0              # an exterior wall's outward ray meeting another wall within this looks into a court
+COURT_WALL_MIN_H_M = 1.5       # ... a wall at least this high (a balcony parapet does not hide the facade)
 LOCAL_SIDES = {"right": 0.0, "back": 90.0, "left": 180.0, "front": 270.0}
 # RC9
 STOREY_M = (2.0, 8.0)          # a storey's floor-to-floor height outside this is no storey (UL 4 Nov 2026, real07)
@@ -80,8 +82,13 @@ HEIGHT_CONFLICTS = {"section_width_mismatch": "minor", "level_mark_mismatch": "m
 # 5 Nov 2026 (review): whole words only (BLOC must not leave a K to be read as block "K"), the genitive BLOĞU / BLOKU;
 # a count of dwellings (konut, mesken, dubleks, ev, daire) is no count of buildings (a zoning note): an info finding
 BLOCK_WORD = r"(?:BLOCK|BLOGU|BLOKU|BLOK|BLOC)(?![A-Z])"
-BLOCK_RES = [re.compile(r"(?<![A-Z0-9])([A-Z]|\d{1,2})\s*[-.]?\s*" + BLOCK_WORD),
-             re.compile(r"(?<![A-Z0-9])(?:BLOCK|BLOK|BLOC)(?![A-Z])\s*[-.]?\s*([A-Z]|\d{1,2})(?![A-Z0-9])")]
+# 5 Nov 2026 (round 3): 'A-B BLOK' names A and B; after the word a name only when the text ends or a comma, a dash,
+# a slash follows ('BLOK 19 CM', 'BLOK H=2.40' name no block)
+BLOCK_NAME = r"(?:[A-Z]|\d{1,2})"
+BLOCK_RES = [re.compile(r"(?<![A-Z0-9.,])(" + BLOCK_NAME + r"(?:\s*[-/,&]\s*" + BLOCK_NAME + r")*)\s*[-.]?\s*"
+                        + BLOCK_WORD),
+             re.compile(r"(?<![A-Z0-9])(?:BLOCK|BLOK|BLOC)(?![A-Z])\s*[-.]?\s*(" + BLOCK_NAME
+                        + r")(?=\s*(?:$|[,/\-\n]))")]
 COUNT_RES = [re.compile(r"(?<![\d.,])(\d{1,2})\s*ADET\s+(?:VILLA|BINA|BLOK|IKIZ)(?![A-Z])"),
              re.compile(r"(?<![\d.,])(\d{1,2})\s+(?:VILLAS|BUILDINGS|BLOCKS)(?![A-Z])")]
 DWELLING_RES = [re.compile(r"(?<![\d.,])(\d{1,3})\s*ADET\s+(?:KONUT|MESKEN|DUBLEKS|EV|DAIRE)(?![A-Z])"),
@@ -229,11 +236,47 @@ class LevelGeometry:
         self.by_id = {w["id"]: w for w in self.walls}
         self.filled = level_outline(self.walls, self.openings)
         self.normals = {w["id"]: outward_deg(w, self.filled) for w in self.walls if w.get("exterior")}
+        self.hidden = self._hidden()
 
-    def facing(self, normal: float) -> list[dict]:
-        """The openings on the exterior walls facing ``normal``."""
-        ids = {wid for wid, n in self.normals.items() if n is not None and angle_gap(n, normal) <= SIDE_ANGLE_DEG}
+    def _hidden(self) -> set:
+        """5 Nov 2026 (round 3): exterior walls whose outward ray meets another wall of the level (at least
+        ``COURT_WALL_MIN_H_M`` high) within ``COURT_RAY_M``: they look into a court or a shaft, not out of the facade."""
+        from shapely.strtree import STRtree
+
+        tall = [w for w in self.walls if float(w.get("height") or 3.0) >= COURT_WALL_MIN_H_M]
+        polys = [wall_polygon(w) for w in tall]
+        keep = [(w, pg) for w, pg in zip(tall, polys) if pg is not None]
+        if not keep:
+            return set()
+        tree = STRtree([pg for _, pg in keep])
+        out = set()
+        for w in self.walls:
+            n = self.normals.get(w["id"])
+            if n is None:
+                continue
+            (x0, y0), (x1, y1) = w["start"], w["end"]
+            mx, my = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+            r = math.radians(n)
+            start = float(w.get("thickness") or 0.1) / 2.0 + 0.05
+            ray = LineString([(mx + math.cos(r) * start, my + math.sin(r) * start),
+                              (mx + math.cos(r) * COURT_RAY_M, my + math.sin(r) * COURT_RAY_M)])
+            for k in tree.query(ray):
+                other, pg = keep[int(k)]
+                if other["id"] != w["id"] and pg.intersects(ray):
+                    out.add(w["id"])
+                    break
+        return out
+
+    def facing(self, normal: float, hidden: bool = False) -> list[dict]:
+        """The openings on the exterior walls facing ``normal`` (``hidden``: the ones on walls looking into a court
+        or a shaft instead, which the elevation does not show)."""
+        ids = {wid for wid, n in self.normals.items() if n is not None and angle_gap(n, normal) <= SIDE_ANGLE_DEG
+               and (wid in self.hidden) == hidden}
         return [o for o in self.openings if o.get("wall_id") in ids and o.get("center")]
+
+    def facing_walls(self, normal: float) -> list[dict]:
+        return sorted((self.by_id[wid] for wid, n in self.normals.items() if n is not None
+                       and angle_gap(n, normal) <= SIDE_ANGLE_DEG and wid not in self.hidden), key=lambda w: w["id"])
 
 
 def _axis(normal: float) -> tuple[tuple[float, float], tuple[float, float]]:
@@ -322,23 +365,41 @@ def rc8(building: dict, sheets: dict) -> list[dict]:
     if north is None and any(EX.normal_deg(el.get("side"), None) is None for el, _, _ in els):
         scores = {}
         for cand in NORTH_CANDIDATES_DEG:
-            scores[cand] = sum(_compare_elevation(el, EX.normal_deg(el.get("side"), cand), name, positions, ctx)[1]
-                               for el, name, positions in els if EX.normal_deg(el.get("side"), cand) is not None)
-        best = max(NORTH_CANDIDATES_DEG, key=lambda c: scores[c])
-        second = sorted(scores.values())[-2]
-        if scores[best] > 0 and second < scores[best]:
+            parts = [_compare_elevation(el, EX.normal_deg(el.get("side"), cand), name, positions, ctx)[1]
+                     for el, name, positions in els if EX.normal_deg(el.get("side"), cand) is not None]
+            scores[cand] = (sum(p_[0] for p_ in parts), sum(p_[1] for p_ in parts), round(sum(p_[2] for p_ in parts), 3))
+        ranked = sorted(NORTH_CANDIDATES_DEG, key=lambda c: (-scores[c][0], c))
+        best, nxt = ranked[0], ranked[1]
+        how = ""
+        if scores[best][0] == scores[nxt][0] and scores[best][0] > 0:
+            # 5 Nov 2026 (round 3, real07: 9 against 9): the pairs inside wider plan openings, then the drawn width
+            tied = [c for c in ranked if scores[c][0] == scores[best][0]]
+            for k, label in ((1, "the openings inside wider plan openings"), (2, "the drawn facade widths")):
+                tied.sort(key=lambda c: (-scores[c][k], c))
+                if scores[tied[0]][k] != scores[tied[1]][k]:
+                    best, nxt, how = tied[0], tied[1], f"; tie broken by {label}"
+                    break
+            else:
+                best = None
+                out.append(_finding("RC8", "info", None, f"no north arrow read and two axes fit alike ("
+                                    + " and ".join(f"{c:.0f}" for c in tied[:2]) + " degrees from the building's +Y, "
+                                    f"{scores[tied[0]][0]} openings each): not compared", ["elevations", "plans"]))
+        second = scores[nxt][0] if best is not None else 0
+        if best is not None and scores[best][0] > 0 and (second < scores[best][0] or how):
             north = inferred = best
-            margin = (scores[best] - second) / scores[best]
+            top = scores[best][0]
+            margin = (top - second) / top
             # weak: a small share over the next axis, or a few openings only (12 against 8 on real07's four
-            # elevations is no evidence for a compass)
-            weak = margin < NORTH_MARGIN_MIN or scores[best] - second < NORTH_MARGIN_MIN_N
-            others = ", ".join(f"{c:.0f}: {v}" for c, v in scores.items() if c != best)
+            # elevations is no evidence for a compass); a tie broken by a second score is weak too
+            weak = margin < NORTH_MARGIN_MIN or top - second < NORTH_MARGIN_MIN_N or bool(how)
+            others = ", ".join(f"{c:.0f}: {v[0]}" for c, v in scores.items() if c != best)
             out.append(_finding("RC8", "info", None, f"no north arrow read: the compass sides placed by fit, north = "
-                                f"{best:.0f} deg from the building's +Y ({scores[best]} elevation openings match plan "
-                                f"openings against {second} on the next axis: margin {margin * 100:.0f} %; the other "
-                                f"axes {others}) (inferred)" + (f"; a weak fit (under {NORTH_MARGIN_MIN * 100:.0f} % or fewer "
-                                                                f"than {NORTH_MARGIN_MIN_N} openings ahead): the "
-                                                                f"findings below are minor at most" if weak else ""),
+                                f"{best:.0f} deg from the building's +Y ({top} elevation openings match plan "
+                                f"openings against {second} on the next axis: margin {margin * 100:.0f} %{how}; the "
+                                f"other axes {others}) (inferred)" + (f"; a weak fit (under {NORTH_MARGIN_MIN * 100:.0f} %, "
+                                                                      f"fewer than {NORTH_MARGIN_MIN_N} openings ahead "
+                                                                      f"or a tie): the findings below are minor at most"
+                                                                      if weak else ""),
                                 ["elevations", "plans"], north_inferred_deg=best, north_margin=round(margin, 3)))
     no_north = []
     for el, name, positions in els:
@@ -353,7 +414,7 @@ def rc8(building: dict, sheets: dict) -> list[dict]:
                 if weak and f["severity"] in ("critical", "major"):
                     f["severity"] = "minor"
                     f["message"] += (f" (minor at most: the north was placed by a weak fit, margin "
-                                     f"{margin * 100:.0f} %, {scores[best] - second} openings)")
+                                     f"{margin * 100:.0f} %, {scores[inferred][0] - second} openings)")
         out += found
     if no_north:
         out.append(_finding("RC8", "info", None, "not compared with the plans: " + "; ".join(no_north)
@@ -459,6 +520,8 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
     front = max((_dot(p, outv) for g in geo.values() if g.filled is not None
                  for p in g.filled.exterior.coords), default=0.0)
     positions, dropped = drop_strips(positions)
+    strips = [(float(p["x"]) - float(p.get("width") or 0) / 2.0, float(p["x"]) + float(p.get("width") or 0) / 2.0)
+              for p, why in dropped if "strip" in why]
     if dropped:
         why: dict = {}
         for _, reason in dropped:
@@ -481,6 +544,12 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
                             f"elevations' (shifted by the project's {dz0:+.2f} m and {residual:+.2f} m more they fit the "
                             f"levels, inferred)", [src_el, "the other elevations"], region=rid, z_shift_m=residual))
     plan_by: dict = {}
+    court = sorted(o["id"] for g in geo.values() for o in g.facing(normal, hidden=True))
+    if court:
+        out.append(_finding("RC8", "info", None, f"{name}: {len(court)} plan opening(s) on walls looking into a court or "
+                            f"a shaft (another wall within {COURT_RAY_M:.0f} m in front) left out: "
+                            + ", ".join(court[:8]) + (" ..." if len(court) > 8 else ""), [src_el, "plans"], None,
+                            court, region=rid, side=side))
     for lid, g in geo.items():
         ops = []
         for o in g.facing(normal):
@@ -516,6 +585,10 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
             best = best_far
     matched = score(best)
     with_inside = sum(len(_greedy(es_by.get(lid, []), plan_by.get(lid, []), best, MATCH_M)) for lid in es_by)
+    # the drawn width of the openings against the plan's (a tie-break of the north fit)
+    e_span = [v for e in (e for es in es_by.values() for e in es) for v in (e[0] - e[1] / 2.0, e[0] + e[1] / 2.0)]
+    p_span = [v for p_ in (p_ for ps in plan_by.values() for p_ in ps) for v in (p_[0] - p_[1] / 2.0, p_[0] + p_[1] / 2.0)]
+    span_gap = abs((max(e_span) - min(e_span)) - (max(p_span) - min(p_span))) if e_span and p_span else 99.0
     aligned = with_inside >= max(ALIGN_MIN_N, ALIGN_MIN_SHARE * smaller)
     order = {lv["id"]: k for k, lv in enumerate(levels)}
 
@@ -542,56 +615,67 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
                                 [src_el, "plans"], region=rid, side=side))
     else:
         e_only, p_only, shown = [], [], []
-        for lid in es_by.keys() | plan_by.keys():
+        for lid in sorted(es_by.keys() | plan_by.keys(), key=lambda v: (order.get(v, 99), v)):
             es, ps = es_by.get(lid, []), plan_by.get(lid, [])
             pairs = _greedy(es, ps, best, MATCH_M)
             ei, pj = {i for i, _ in pairs}, {j for _, j in pairs}
             shown += [(e[0], lid) for e in es]
             if lid not in whole:
                 e_only += [(e[0], lid, e) for i, e in enumerate(es) if i not in ei]
-            p_only += [(p[0] + best, lid, p) for j, p in enumerate(ps) if j not in pj and es]
+            # a plan opening behind a glazed strip left out of the comparison is that strip's
+            p_only += [(p_[0] + best, lid, p_) for j, p_ in enumerate(ps) if j not in pj and es
+                       and not any(a - CONTAIN_TOL_M <= p_[0] + best <= b + CONTAIN_TOL_M for a, b in strips)]
         # the facade's extent: the facing walls' span along it (elevation x), all levels
         ext = [_dot(pt, along) - left + best for g in geo.values() for wid, n in g.normals.items()
                if n is not None and angle_gap(n, normal) <= SIDE_ANGLE_DEG for pt in (g.by_id[wid]["start"],
                                                                                       g.by_id[wid]["end"])]
         outside = []
         for col in _columns(e_only, MATCH_M):
+            col = sorted(col, key=lambda c: (order.get(c[1], 99), c[0]))
             xs = [c[0] for c in col]
             x = sum(xs) / len(xs)
             if ext and not (min(ext) - EXTENT_TOL_M <= x <= max(ext) + EXTENT_TOL_M):
                 outside.append(x)
                 continue
-            missing = [c[1] for c in col]
-            on_el = [lid for sx, lid in shown if abs(sx - x) <= MATCH_M]
-            sev = "major" if len(set(missing)) >= 2 and len(set(on_el)) >= 3 else "minor"
+            missing = sorted({c[1] for c in col}, key=lambda v: (order.get(v, 99), v))
+            on_el = sorted({lid for sx, lid in shown if abs(sx - x) <= MATCH_M}, key=lambda v: (order.get(v, 99), v))
+            sev = "major" if len(missing) >= 2 and len(on_el) >= 3 else "minor"
             t = x - best + left
-            place = (along[0] * t + outv[0] * front, along[1] * t + outv[1] * front)
             w = sum(c[2][1] for c in col) / len(col)
-            # the plan's wall pieces at that place on the floors that lack it (what should hold the opening)
-            walls = sorted({w_["id"] for lid in set(missing) for w_ in geo[lid].walls
-                            if _seg_dist(place, tuple(w_["start"]), tuple(w_["end"]))
-                            <= WALL_NEAR_PLACE_M + float(w_.get("thickness") or 0) / 2.0})
+            # 5 Nov 2026 (round 3): the facing walls of those floors at that x, at any depth (a set-back wall too)
+            hits = []
+            for lid in missing:
+                for w_ in geo[lid].facing_walls(normal):
+                    a, b = _dot(w_["start"], along), _dot(w_["end"], along)
+                    if min(a, b) - CONTAIN_TOL_M <= t <= max(a, b) + CONTAIN_TOL_M:
+                        hits.append((lid, w_))
+            walls = sorted({w_["id"] for _, w_ in hits})
+            if hits:
+                lid0, w0 = min(hits, key=lambda h: (order.get(h[0], 99), -_dot(h[1]["start"], outv), h[1]["id"]))
+                depth = front - _dot(w0["start"], outv)
+                place = (along[0] * t + outv[0] * (front - depth), along[1] * t + outv[1] * (front - depth))
+            else:
+                place = (along[0] * t + outv[0] * front, along[1] * t + outv[1] * front)
             frames = sorted({str(c[2][2].get("entity")) for c in col if c[2][2].get("entity")})
-            # no wall of the facade's front line there: the frame sits on a set-back or recessed wall (a stepped
-            # facade, real10 east and north) whose depth the elevation does not show: minor
-            recessed = not walls
-            if recessed:
+            # no facing wall at that x on those floors (a notch, a court): minor
+            notch = not hits
+            if notch:
                 sev = "minor"
             out.append(_finding("RC8", sev, missing[0], f"{name}: an opening {w:.2f} m wide at x {x:.2f} m from its left "
                                 f"end is drawn on {floors(on_el)}; the plan has none there on {floors(missing)} (plan "
-                                f"point ({place[0]:.2f}, {place[1]:.2f}); wall pieces there: "
+                                f"point ({place[0]:.2f}, {place[1]:.2f}); facing wall pieces there: "
                                 f"{', '.join(walls[:6]) or 'none'}{' ...' if len(walls) > 6 else ''}; positions aligned, "
-                                f"shift {best:+.2f} m)" + ("; no wall of the front line there: on a set-back wall, "
-                                                           "minor" if recessed else ""), [src_el, "plans of " + floors(missing)],
+                                f"shift {best:+.2f} m)" + ("; no facing wall at that x (a notch or a court): minor"
+                                                           if notch else ""), [src_el, "plans of " + floors(missing)],
                                 place, frames + walls, region=rid, side=side, column_x=round(x, 2),
-                                levels_shown=sorted(set(on_el), key=lambda v: order.get(v, 99)),
-                                levels_missing=sorted(set(missing), key=lambda v: order.get(v, 99)),
-                                plan_walls=walls, elevation_entities=frames))
+                                levels_shown=on_el, levels_missing=missing, plan_walls=walls,
+                                elevation_entities=frames))
         if outside:
             out.append(_finding("RC8", "info", None, f"{name}: {len(outside)} column(s) beyond the facing walls' extent "
                                 f"(x {_fmt_x(outside)} m) left out: not openings of this facade", [src_el, "plans"],
                                 region=rid, side=side))
         for col in _columns(p_only, MATCH_M):
+            col = sorted(col, key=lambda c: (order.get(c[1], 99), c[2][2]["id"]))
             xs = [c[0] for c in col]
             x = sum(xs) / len(xs)
             lids = [c[1] for c in col]
@@ -601,12 +685,12 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
                                 f"({col[0][2][1]:.2f} m wide; {', '.join(ids[:6])}) on {floors(lids)} is not drawn "
                                 f"there on the elevation", [f"plans of {floors(lids)}", src_el],
                                 tuple(o["center"]), ids, region=rid, side=side, column_x=round(x, 2),
-                                levels_missing=sorted(set(lids), key=lambda v: order.get(v, 99))))
+                                levels_missing=sorted(set(lids), key=lambda v: (order.get(v, 99), v))))
     if unplaced:
         out.append(_finding("RC8", "minor", None, f"{name}: {len(unplaced)} of its {len(positions)} openings stand "
                             f"at no level's height (sills " + _fmt_x([float(p['sill']) for p in unplaced])
                             + " m): the elevation's heights and the levels disagree", [src_el, "levels"], region=rid))
-    return out, (matched if aligned else 0)
+    return out, ((matched, with_inside, -span_gap) if aligned else (0, 0, -99.0))
 
 
 def rc8_stacked(building: dict) -> list[dict]:
@@ -783,7 +867,7 @@ def named_buildings(texts: list[str]) -> tuple[int, list[str]]:
         f = _fold(t).replace("BLOĞU", "BLOGU")
         for rx in BLOCK_RES:
             for m in rx.finditer(f):
-                blocks.add(m.group(1))
+                blocks.update(n for n in re.split(r"\s*[-/,&]\s*", m.group(1).strip()) if n)
                 words.append(str(t).strip())
         for rx in COUNT_RES:
             for m in rx.finditer(f):
