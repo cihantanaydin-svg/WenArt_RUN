@@ -172,7 +172,8 @@ def test_brief_m10_defaults():
     values = BR.merge_brief({})["values"]
     assert values["furnished_rooms"] == "complete"
     assert values["furnished_rooms_keep"] == [] and values["furnished_rooms_keep_size"] is False
-    assert values["variants"] == "all" and values["failed_levels"] == "leave_out" and values["site"] == "full"
+    # 4 Nov 2026 (Milestone 14 R2, user: "never leave a level out; carry confidence instead"): build_marked is the default
+    assert values["variants"] == "all" and values["failed_levels"] == "build_marked" and values["site"] == "full"
     assert values["slab_thickness"] == pytest.approx(0.20)
     assert values["render"]["twin_rooms"] == "one" and values["render"]["exterior_views"] is True
     assert set(values["exterior"]) == {"facade", "roof", "window_frame", "door", "paving", "garden"}

@@ -148,6 +148,10 @@ Tracks that touch different modules run in parallel in worktree agents, as the l
 | 5 (9 Nov) | R6: critic calibrated with one short pod (vision extraction and the question bank), recall and precision against the user's past corrections; R9: the findings page | the calibration table (what the machine finds of what the user found); the page with the first findings |
 | 6 (10 Nov) | the trust ledger; a new DWG read end to end through the loop; corrections per project measured | the first project reviewed by the machine before the user |
 
+State at 5 Nov 2026, 14:00 UTC: day 1 and the day-2 items R5 and R9 are merged (R1, R7, R8, R9, R5; see
+docs/progress.md "Milestone 14, days 1 and 2"); R2 is in its second review round; R3 (the ranker) starts when R2 is
+merged; R4 and R6 follow.
+
 After day 6 the loop runs on every new drawing; the user's detailed reviews continue as long as the user wants and
 each one raises the score and the reviewers' recall. No full run is needed; pod cost of the whole milestone a few
 dollars.

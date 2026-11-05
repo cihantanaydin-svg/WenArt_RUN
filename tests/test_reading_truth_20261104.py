@@ -392,10 +392,16 @@ def test_the_correction_records_parse_and_point_at_real_lessons_and_projects():
     ids = {l["id"] for l in lessons["lessons"]}
     projects = {p.name for p in (REPO / "projects").iterdir() if p.is_dir()}
     assert TR.correction_errors(records, ids, projects) == []
-    assert all(r["source"] == "backfill_progress" and r["status"] == "accepted" for r in records)
+    # 5 Nov 2026: the store grows (the user's remarks through `remark add`, the machine's proposals); the backfill
+    # records keep their shape, every record has a known source and status, the ids stay sequential
+    backfill = [r for r in records if r["source"] == "backfill_progress"]
+    assert len(backfill) >= 40 and all(r["status"] == "accepted" for r in backfill)
+    assert all(r["date"] in ("2026-11-03", "2026-11-04") for r in backfill)
+    assert all(r["source"] in ("backfill_progress", "user_review", "machine_review") for r in records)
+    assert all(r["status"] in ("accepted", "proposed", "rejected") for r in records)
     assert all(r["id"] == f"C{i + 1:04d}" for i, r in enumerate(records))
     assert {r["project"] for r in records} >= {"real07", "real09", "real10", "real17", "real19"}
-    assert all(r["date"] in ("2026-11-03", "2026-11-04") for r in records)
+    assert all(len(r["date"]) == 10 and r["date"][:4] == "2026" for r in records)
     assert all(r.get("note") for r in records if r["lesson"] is None)          # no lesson: the note says why
     # the checker itself
     bad = [{"id": "C0001", "date": "2026-11-04", "project": "nowhere", "level": None, "place": {"x": 1},

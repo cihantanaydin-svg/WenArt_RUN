@@ -251,6 +251,9 @@
         "region_id": {"type": ["string", "null"], "description": "Milestone 10: the sheets.json region the level was read from"},
         "elevation_source": {"enum": ["section", "elevation_drawing", "level_mark", "assumed_default"], "description": "Milestone 10: where the elevation comes from"},
         "floor_to_floor": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
+        "reading_confidence": {"enum": ["low"], "description": "4 Nov 2026 (Milestone 14 R2, failed_levels: build_marked, user: 'never leave a level out; carry confidence instead'): low = the region was built although its reading has review reasons (outer walls that do not close, labels in no closed face); absent = no such reason. The reading check lists the level under RC7"},
+        "reading_review": {"type": "array", "items": {"type": "string"}, "description": "4 Nov 2026: the reading's review reasons of a level built with reading_confidence low (they were warnings, not a stop); the room labels left in no closed face are among them"},
+        "reading_places": {"type": "array", "description": "4 Nov 2026: the places of a low-confidence level to check on the comparison sheets (RC7): a room label in no closed face (kind unplaced_label) with its building coordinates", "items": {"type": "object", "required": ["kind", "at"], "properties": {"kind": {"enum": ["unplaced_label"]}, "text": {"type": "string"}, "at": {"$ref": "#/$defs/point"}, "note": {"type": "string"}}}},
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
       }
     },

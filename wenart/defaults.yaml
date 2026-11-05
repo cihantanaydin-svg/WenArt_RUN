@@ -99,7 +99,11 @@ brief:
   tv_in_bedroom: master            # master (the master bedroom) | all (every bedroom with a double bed, never a child's) | none
   room_fill: true                  # 29 Oct 2026 (UL98, UL102, UL103): a sideboard by the dining table, bookshelves, a bathroom's storage column
   variants: all                    # all | base | a list of alternative names (as titled)
-  failed_levels: leave_out         # leave_out (listed, levels above too) | stop (the project ends needs_review)
+  failed_levels: build_marked      # 4 Nov 2026 (Milestone 14 R2, user: "never leave a level out; carry confidence instead"):
+                                   # build_marked = a level with a scale, a frame and walls is built even when its reading
+                                   # has review reasons; the level gets reading_confidence low and the reasons (reading_review);
+                                   # only a level with no scale, no frame or no wall is left out | leave_out (every failed level
+                                   # listed, the levels above it too) | stop (the project ends needs_review)
   plan_levels: []                  # 3 Nov 2026: the user's level of plans the drawing gives no level title: a list of
                                    # {box: [x0, y0, x1, y1] (drawing units, the plan's region), level: 'Zemin Kat' | '1. Kat' | ignore}
   site: full                       # full = plot, paving, grass, plot wall, parking as drawn | ground = a neutral ground plane

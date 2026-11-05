@@ -12,7 +12,16 @@ CAD document) and returns the findings, each with its check, severity, level and
   ``generic.layer_names``; major over ``MISSING_MAJOR_M`` of wall face per level);
 - RC5 model walls on no drawn wall line (major; inferred walls are listed apart);
 - RC6 the reading's own review reasons (needs review) and the labels it found outside the building (major); the
-  sheets' review reasons (critical: a pod's sheets stage stops the project) and their schema errors (major).
+  sheets' review reasons (critical: a pod's sheets stage stops the project) and their schema errors (major);
+- RC7 low-confidence places (4 Nov 2026, Milestone 14 R2; user: "never leave a level out; carry confidence instead"):
+  a level built with ``reading_confidence: low`` (its ``reading_review`` reasons; major), every room label the level
+  left in no closed face (``reading_places``; minor) and every wall the outline closure inferred (evidence rule
+  ``outline_closure``, confidence 0.3; minor). The places with a position are numbered ("place 7") so the user can
+  name them on the comparison sheets, where they are drawn in their own colour; RC7 is listed first in the markdown.
+  RC7 alone never changes the verdict: these are places to check, not a stop.
+
+- RC8 to RC12 (5 Nov 2026, Milestone 14 R5, ``wenart.reading_check.crossdoc``): the cross-document checks, advisory
+  (reported, counted under ``counts["advisory"]``, never in the verdict until they earn it).
 
 ``verdict``: ``ready`` without a critical finding, else ``fix before a pod run``. ``write(out_dir, result)`` writes
 ``reading_check/reading_check.json`` and ``.md``; ``wenart.reading_check.sheets`` draws the comparison sheets (the
@@ -45,7 +54,12 @@ SEGMENT_MIN_M = 0.3
 AREA_RE = re.compile(r"(\d{1,4}[.,]\d{1,2})\s*(?:M2|M²|M\^2)\b", re.IGNORECASE)
 CHECKS = {"RC1": "level left out", "RC2": "floors do not stack", "RC3": "room area against the drawing's area text",
           "RC4": "drawn walls the model does not build", "RC5": "model walls on no drawn wall line",
-          "RC6": "the reading's own review reasons"}
+          "RC6": "the reading's own review reasons", "RC7": "low-confidence places"}
+# 4 Nov 2026 (RC7): the evidence rule of the walls the outline closure inferred (``generic.core.OUTLINE_CLOSURE_RULE``,
+# the same word; tests/test_reading_closure_20261104.py pins it) and the confidence a level built with review reasons
+# carries (``pipeline.READING_CONFIDENCE_LOW``)
+CLOSURE_RULE = "outline_closure"
+CONFIDENCE_LOW = "low"
 
 
 def _finding(check: str, severity: str, level: Optional[str], message: str, **extra) -> dict:
@@ -450,6 +464,53 @@ def built_elsewhere(building: dict, level: str) -> list:
     return out
 
 
+# ------------------------------------------------------------------------------------------- low confidence (RC7)
+def is_closure_wall(wall: dict) -> bool:
+    """A wall the outline closure inferred (evidence rule ``CLOSURE_RULE``): drawn in its own colour on the sheets."""
+    return any(isinstance(e, dict) and e.get("rule") == CLOSURE_RULE for e in wall.get("evidence") or [])
+
+
+def low_confidence_findings(building: dict) -> list:
+    """RC7 (pure): per level with ``reading_confidence: low`` one major finding with its ``reading_review`` reasons;
+    per room label the level left in no closed face (``reading_places``) and per outline-closure wall one minor
+    finding with its place (``at``, building metres) and a number ``place`` (1, 2, ... in the levels' order, the
+    closure walls of a level before its labels) for the sheets and the user's remarks ("place 7")."""
+    out = []
+    n = 0
+    walls_of: dict = {}
+    for w in building.get("walls") or []:
+        if is_closure_wall(w):
+            walls_of.setdefault(w.get("level_id"), []).append(w)
+    for lv in building.get("levels") or []:
+        lid = lv["id"]
+        reasons = list(lv.get("reading_review") or [])
+        if lv.get("reading_confidence") == CONFIDENCE_LOW:
+            out.append(_finding("RC7", "major", lid, f"{lid} {lv.get('label') or ''}: built with low reading "
+                                f"confidence (failed_levels build_marked): " + ("; ".join(reasons) or "no reason "
+                                                                                                      "recorded"),
+                                reasons=reasons, region=lv.get("region_id")))
+        for w in walls_of.get(lid) or []:
+            ev = next((e for e in w.get("evidence") or [] if isinstance(e, dict) and e.get("rule") == CLOSURE_RULE),
+                      {})
+            (x0, y0), (x1, y1) = w["start"], w["end"]
+            n += 1
+            out.append(_finding("RC7", "minor", lid, f"place {n}: wall {w.get('id')} ({math.dist(w['start'], w['end']):.2f} m)"
+                                f" inferred by the outline closure at confidence {ev.get('confidence', 0.3):g}: "
+                                f"{ev.get('note') or ev.get('reason') or 'the outer ring did not close'}",
+                                place=n, wall_id=w.get("id"), at=[round((x0 + x1) / 2.0, 2), round((y0 + y1) / 2.0, 2)],
+                                confidence=ev.get("confidence")))
+        for p in lv.get("reading_places") or []:
+            if not p.get("at"):
+                continue
+            n += 1
+            out.append(_finding("RC7", "minor", lid, f"place {n}: room label '{p.get('text') or '?'}' at "
+                                f"({p['at'][0]:.2f}, {p['at'][1]:.2f}) m in no closed face: "
+                                f"{p.get('note') or 'the walls around that room do not close'}",
+                                place=n, at=[round(float(p["at"][0]), 2), round(float(p["at"][1]), 2)],
+                                kind=p.get("kind"), text=p.get("text")))
+    return out
+
+
 # ------------------------------------------------------------------------------------------------------- the check
 def check(out_dir, reference: Optional[str] = None) -> dict:
     """The findings of a pipeline output (the module docstring)."""
@@ -457,12 +518,20 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     building = json.loads((out_dir / "building.json").read_text(encoding="utf-8"))
     sheets_path = out_dir / "sheets.json"
     sheets = json.loads(sheets_path.read_text(encoding="utf-8")) if sheets_path.is_file() else {}
-    findings = []
+    findings = low_confidence_findings(building)                   # RC7 first (the module docstring)
     for lo in building.get("levels_left_out") or []:
         findings.append(_finding("RC1", "critical", f"order {lo.get('order')}", f"level {lo.get('label')} left out "
                                  f"of the model: {lo.get('reason')}", region=lo.get("region_id")))
+    carried = [r for lv in building.get("levels") or [] for r in lv.get("reading_review") or []]
+    # 5 Nov 2026 (review): the per-label "lies outside the building" warnings of a level marked for those labels are
+    # RC7's places too (the quoted names of the level's reasons)
+    carried_names = {n for r in carried for n in re.findall(r"'([^']+)'", r)}
     for w in building.get("warnings") or []:
         if "lies outside the building" in w or "outer walls do not close" in w:
+            if any(r in w for r in carried):
+                continue                                # 4 Nov 2026: a reason a low-confidence level carries is RC7's
+            if "lies outside the building" in w and any(f"'{n}'" in w for n in carried_names):
+                continue
             findings.append(_finding("RC6", "major", None, w[:300]))
     # 3 Nov 2026 (real10 structure run 20261103-073227-full built nothing: sheets.json failed its schema on the new
     # registration methods, and a pod's sheets stage stops a project whose sheets need review): the sheets' own
@@ -499,7 +568,23 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     ref = reference or next((lid for lid in ("L0", "L1") if lid in anchors), next(iter(anchors), None))
     if ref:
         findings += stacking(anchors, ref, {lv["id"]: lv.get("order") for lv in building.get("levels") or []})
-    counts = {s: sum(1 for f in findings if f["severity"] == s) for s in ("critical", "major", "minor")}
+    # 5 Nov 2026 (Milestone 14 R5): the cross-document checks RC8-RC12 (elevations against the plans per floor,
+    # sections against the levels, the site plan against the model, size tags against the openings read, twins and
+    # typical floors against each other) join the reading check as ADVISORY findings: reported and counted apart,
+    # never part of the verdict until the trust ledger (R9) shows they earned it; their ``info`` severity is a note.
+    # A failure of the module is one info finding, never a stop of the reading check.
+    try:
+        from wenart.reading_check import crossdoc as CD
+        cross = CD.findings(out_dir)
+    except Exception as exc:  # noqa: BLE001 - an advisory check never stops the reading check
+        cross = [{"check": "RC8", "name": "cross-document checks", "severity": "info", "level_id": None,
+                  "message": f"the cross-document checks did not run: {type(exc).__name__}: {str(exc)[:200]}"}]
+    for f in cross:
+        f["advisory"] = True
+    findings += cross
+    counts = {s: sum(1 for f in findings if f["severity"] == s and not f.get("advisory"))
+              for s in ("critical", "major", "minor")}
+    counts["advisory"] = {s: sum(1 for f in cross if f["severity"] == s) for s in ("major", "minor", "info")}
     return {"project": (building.get("project") or {}).get("id"), "levels_checked": checked, "reference": ref,
             "conventions": conv,
             "findings": findings, "counts": counts, "notes": notes,
@@ -541,15 +626,21 @@ def write(out_dir, result: dict) -> Path:
     d = Path(out_dir) / "reading_check"
     d.mkdir(parents=True, exist_ok=True)
     (d / "reading_check.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
+    adv = (result.get("counts") or {}).get("advisory") or {}
+    adv_text = (f" Cross-document checks RC8-RC12, advisory: {adv.get('major', 0)} major, {adv.get('minor', 0)} "
+                f"minor, {adv.get('info', 0)} info (not in the verdict)." if adv else "")
     lines = [f"# Reading check: {result.get('project')}", "",
              f"Verdict: **{result['verdict']}** ({result['counts']['critical']} critical, {result['counts']['major']} "
              f"major, {result['counts']['minor']} minor). Levels checked against the drawing: "
-             f"{', '.join(result['levels_checked']) or 'none'}; reference {result.get('reference')}.", "",
+             f"{', '.join(result['levels_checked']) or 'none'}; reference {result.get('reference')}.{adv_text}", "",
              "| check | severity | level | finding |", "|---|---|---|---|"]
-    order = {"critical": 0, "major": 1, "minor": 2}
-    for f in sorted(result["findings"], key=lambda f: (order[f["severity"]], f["check"], str(f.get("level_id")))):
-        lines.append(f"| {f['check']} {f['name']} | {f['severity']} | {f.get('level_id') or '-'} | "
-                     f"{f['message'].replace('|', '/')} |")
+    order = {"critical": 0, "major": 1, "minor": 2, "info": 3}
+    # 4 Nov 2026: RC7's low-confidence places first (the user checks them on the sheets), then by severity
+    for f in sorted(result["findings"], key=lambda f: (0 if f["check"] == "RC7" else 1, order.get(f["severity"], 3),
+                                                       1 if f.get("advisory") else 0, f["check"],
+                                                       str(f.get("level_id")), str(f.get("place") or 0))):
+        lines.append(f"| {f['check']} {f['name']}{' (advisory)' if f.get('advisory') else ''} | {f['severity']} | "
+                     f"{f.get('level_id') or '-'} | {f['message'].replace('|', '/')} |")
     if result.get("notes"):
         lines += ["", "Notes:"] + [f"- {n}" for n in result["notes"]]
     conv = result.get("conventions") or {}
