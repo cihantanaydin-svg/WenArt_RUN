@@ -371,11 +371,14 @@ def _wide_alike(we: float, wp: float) -> bool:
     return abs(we - wp) <= max(WIDTH_TOL_M, WIDTH_TOL_SHARE * max(we, wp))
 
 
-def _greedy(es: list, ps: list, shift: float, tol: float) -> list[tuple[int, int]]:
+def _greedy(es: list, ps: list, shift: float, tol: float, contain: bool = True) -> list[tuple[int, int]]:
     """Pairs (i, j) of elevation items ``(x, width)`` and plan items ``(x, width)``: nearest first, within ``tol``
     along the facade after ``shift`` with widths alike, or one inside the other's span whatever the widths (an
-    elevation frame inside a wider plan gap or window); further frames inside a matched plan opening pair with it."""
+    elevation frame inside a wider plan gap or window); further frames inside a matched plan opening pair with it.
+    ``contain=False``: widths alike only (the alignment and the north fit)."""
     def contains(e, p) -> bool:
+        if not contain:
+            return False
         lo_e, hi_e = e[0] - e[1] / 2.0, e[0] + e[1] / 2.0
         lo_p, hi_p = p[0] + shift - p[1] / 2.0, p[0] + shift + p[1] / 2.0
         return (lo_p - CONTAIN_TOL_M <= lo_e and hi_e <= hi_p + CONTAIN_TOL_M) or \
@@ -495,7 +498,10 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
                 cand.add(round(round((e[0] - p[0]) / ALIGN_STEP_M) * ALIGN_STEP_M, 3))
 
     def score(shift: float) -> int:
-        return sum(len(_greedy(es_by.get(lid, []), plan_by.get(lid, []), shift, MATCH_M)) for lid in es_by)
+        # strict pairs (widths alike) for the alignment and the north fit: a wide plan gap holding any frame would
+        # make every axis fit about as well
+        return sum(len(_greedy(es_by.get(lid, []), plan_by.get(lid, []), shift, MATCH_M, contain=False))
+                   for lid in es_by)
 
     # The left end as drawn is trusted within ALIGN_SEARCH_M; a shift beyond it (the drawn left end was a sheet
     # frame, a site wall or a tree: real07) must match clearly more and at least ALIGN_FAR_SHARE of the openings.
@@ -509,7 +515,8 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
         if score(best_far) >= max(score(best) + ALIGN_MIN_N, ALIGN_FAR_SHARE * smaller):
             best = best_far
     matched = score(best)
-    aligned = matched >= max(ALIGN_MIN_N, ALIGN_MIN_SHARE * smaller)
+    with_inside = sum(len(_greedy(es_by.get(lid, []), plan_by.get(lid, []), best, MATCH_M)) for lid in es_by)
+    aligned = with_inside >= max(ALIGN_MIN_N, ALIGN_MIN_SHARE * smaller)
     order = {lv["id"]: k for k, lv in enumerate(levels)}
 
     def floors(lids) -> str:
@@ -565,11 +572,17 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
                             if _seg_dist(place, tuple(w_["start"]), tuple(w_["end"]))
                             <= WALL_NEAR_PLACE_M + float(w_.get("thickness") or 0) / 2.0})
             frames = sorted({str(c[2][2].get("entity")) for c in col if c[2][2].get("entity")})
+            # no wall of the facade's front line there: the frame sits on a set-back or recessed wall (a stepped
+            # facade, real10 east and north) whose depth the elevation does not show: minor
+            recessed = not walls
+            if recessed:
+                sev = "minor"
             out.append(_finding("RC8", sev, missing[0], f"{name}: an opening {w:.2f} m wide at x {x:.2f} m from its left "
                                 f"end is drawn on {floors(on_el)}; the plan has none there on {floors(missing)} (plan "
                                 f"point ({place[0]:.2f}, {place[1]:.2f}); wall pieces there: "
                                 f"{', '.join(walls[:6]) or 'none'}{' ...' if len(walls) > 6 else ''}; positions aligned, "
-                                f"shift {best:+.2f} m)", [src_el, "plans of " + floors(missing)],
+                                f"shift {best:+.2f} m)" + ("; no wall of the front line there: on a set-back wall, "
+                                                           "minor" if recessed else ""), [src_el, "plans of " + floors(missing)],
                                 place, frames + walls, region=rid, side=side, column_x=round(x, 2),
                                 levels_shown=sorted(set(on_el), key=lambda v: order.get(v, 99)),
                                 levels_missing=sorted(set(missing), key=lambda v: order.get(v, 99)),
