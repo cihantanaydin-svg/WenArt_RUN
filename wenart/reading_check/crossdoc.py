@@ -547,9 +547,13 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
     court = sorted(o["id"] for g in geo.values() for o in g.facing(normal, hidden=True))
     if court:
         out.append(_finding("RC8", "info", None, f"{name}: {len(court)} plan opening(s) on walls looking into a court or "
-                            f"a shaft (another wall within {COURT_RAY_M:.0f} m in front) left out: "
+                            f"a shaft (another wall within {COURT_RAY_M:.0f} m in front) are not required on the "
+                            f"elevation (they still match a frame drawn there): "
                             + ", ".join(court[:8]) + (" ..." if len(court) > 8 else ""), [src_el, "plans"], None,
                             court, region=rid, side=side))
+    # openings in a court or a shaft: never 'not drawn on the elevation', but a frame drawn at one is theirs
+    court_by = {lid: [(_dot(o["center"], along) - left, float(o.get("width") or 0.0), o)
+                      for o in g.facing(normal, hidden=True)] for lid, g in geo.items()}
     for lid, g in geo.items():
         ops = []
         for o in g.facing(normal):
@@ -621,7 +625,9 @@ def _compare_elevation(el: dict, normal: float, name: str, positions: list, ctx:
             ei, pj = {i for i, _ in pairs}, {j for _, j in pairs}
             shown += [(e[0], lid) for e in es]
             if lid not in whole:
-                e_only += [(e[0], lid, e) for i, e in enumerate(es) if i not in ei]
+                rest = [e for i, e in enumerate(es) if i not in ei]
+                in_court = {i for i, _ in _greedy(rest, court_by.get(lid, []), best, MATCH_M)}
+                e_only += [(e[0], lid, e) for i, e in enumerate(rest) if i not in in_court]
             # a plan opening behind a glazed strip left out of the comparison is that strip's
             p_only += [(p_[0] + best, lid, p_) for j, p_ in enumerate(ps) if j not in pj and es
                        and not any(a - CONTAIN_TOL_M <= p_[0] + best <= b + CONTAIN_TOL_M for a, b in strips)]

@@ -120,7 +120,8 @@ RECT_PART_LINE_M = 0.1             # ... no line of at least this length inside 
 PART_ALIKE_SHARE = 0.1            # parts of a rectangle this alike (or symmetric) are the leaves of one window
 BAND_OVERSHOOT_M = 0.15            # head and sill running this far past both corners are band lines
 BALUSTER_PITCH_M = 0.25            # posts closer than this are balusters
-BOARD_MIN_ROWS = 3                 # this many evenly spaced inner horizontals ...
+BOARD_MIN_ROWS = 2                 # this many evenly spaced full-width inner horizontals (real06: 2 board lines)
+BOARD_DOUBLE_M = 0.05             # board joint lines this close are one joint
 BOARD_PITCH_M = 0.35               # ... closer than this, with no inner vertical, are boards or siding
 GRID_MIN_POSTS = 3                 # this many evenly spaced inner verticals and no inner horizontal: a railing grid
 GRID_SPACING_SHARE = 0.2           # evenly spaced: every gap within this share of the mean gap
@@ -382,7 +383,13 @@ def _judge(rects: list, hs: list, vs: list, tol: float, mpu: float, ground: Opti
                 r["why_not"] = f"a railing panel ({h * mpu:.2f} m high standing on a slab line)"
         if r["why_not"] is None:
             # boards: evenly spaced full-width inner horizontals at board pitch, no inner vertical
-            rows = sorted({round(ln[2], 9) for ln in long_h if y0 + tol < ln[2] < y1 - tol})
+            rows = []
+            for y in sorted({round(ln[2], 9) for ln in long_h if y0 + tol < ln[2] < y1 - tol}):
+                if rows and (y - rows[-1][-1]) * mpu <= BOARD_DOUBLE_M:
+                    rows[-1].append(y)                     # a board joint drawn as two lines 2 cm apart
+                else:
+                    rows.append([y])
+            rows = [sum(r_) / len(r_) for r_ in rows]
             if len(rows) >= BOARD_MIN_ROWS and not long_v:
                 gaps = [b - a for a, b in zip([y0] + rows, rows + [y1])]
                 mean = sum(gaps) / len(gaps)
