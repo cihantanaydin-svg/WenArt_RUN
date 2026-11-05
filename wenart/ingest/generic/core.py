@@ -2546,11 +2546,13 @@ def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: li
     no fewer pair; always with no labelled room left open, the outer walls closed and at most
     ``MIRROR_MAX_NEW_WALLS`` walls copied. 3 Nov 2026 (real10's 1st basement: six walls read 0.5-0.9 m
     thick on one half, a missing wall and seven openings; together they paired one room fewer and none was kept)."""
-    from wenart.ingest.generic import facade as FC
     from wenart.ingest.generic import mirror as MR
 
-    axis = FC.mirror_axis(walls2, FC.MIRROR_FIX_SHARE)
+    # 5 Nov 2026: the layout inside the shell must be mirrored too (``mirror.halves_axis``), not only the shell
+    axis, why_not = MR.halves_axis(walls2, openings=openings, labels=blocks)
     if axis is None:
+        if why_not:
+            ex.notes.append(f"{where}: mirror check: {why_not}; no fix")
         return None
     before = MR.mirrored_face_pairs(walls2, openings, axis)
     base_unclosed = _unclosed(site_warnings)

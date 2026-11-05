@@ -41,6 +41,7 @@ THICK_RATIO = 1.8
 MISSING_MIN_M = 0.6
 OPENING_TOL_M = 0.25            # an opening's twin: its centre within this of the mirrored centre
 AXIS_CLEAR_M = 0.3              # walls on the axis (the party wall) are their own twins
+INNER_CLEAR_M = 0.05            # a wall this close to the box around all walls is the shell, not the halves' layout
 RULE = "mirror_twin"
 
 
@@ -128,6 +129,98 @@ def _inferred(item) -> bool:
 def _on_wall(o, w) -> bool:
     a, b = _seg(w)
     return LineString([a, b]).distance(Point(o.center)) <= float(w.thickness) / 2.0 + 0.05
+
+
+def inner_walls(walls: list) -> list:
+    """The walls that stand more than ``INNER_CLEAR_M`` from the box around all walls: the layout inside the shell."""
+    polys = [TP.wall_polygon(w) for w in walls]
+    if not polys:
+        return []
+    ring = unary_union(polys).envelope.exterior
+    return [w for w, pg in zip(walls, polys) if pg.distance(ring) > INNER_CLEAR_M]
+
+
+def mirror_share(walls: list, axis) -> float:
+    """The share of the walls' area that overlaps its mirror about ``axis`` (``facade.mirror_axis``'s measure)."""
+    from shapely import affinity
+
+    from wenart.ingest.generic import facade as FC
+
+    if not walls:
+        return 0.0
+    u = unary_union([TP.wall_polygon(w) for w in walls])
+    if u.area <= 0:
+        return 0.0
+    m = affinity.scale(u, xfact=-1.0 if axis[0] == "x" else 1.0, yfact=-1.0 if axis[0] == "y" else 1.0,
+                       origin=(axis[1], 0.0) if axis[0] == "x" else (0.0, axis[1]))
+    return u.intersection(m.buffer(FC.MIRROR_NEAR_M, join_style=2)).area / u.area
+
+
+def label_pairs(walls: list, openings: list, axis, labels: list) -> tuple[int, int]:
+    """``(agree, disagree)``: of the faces that pair with the mirror of another face (intersection over union >= 0.9)
+    and both hold a room label (``labels``: LabelBlocks; site areas and labels of no room type left out), the pairs
+    whose labels share a room type and those whose labels share none. A face that is its own mirror (it straddles the
+    axis) is no pair."""
+    from shapely import affinity
+
+    named = [(Point(b.anchor), b.room_type) for b in labels or []
+             if not getattr(b, "exterior", False) and getattr(b, "room_type", "other") not in ("other", "unknown")]
+    if not named:
+        return 0, 0
+    faces = TP.faces(walls, openings)
+    types = [{t for p, t in named if f.contains(p)} for f in faces]
+    agree = disagree = 0
+    seen = set()
+    for i, f in enumerate(faces):
+        if not types[i] or i in seen:
+            continue
+        m = affinity.scale(f, xfact=-1.0 if axis[0] == "x" else 1.0, yfact=-1.0 if axis[0] == "y" else 1.0,
+                           origin=(axis[1], 0.0) if axis[0] == "x" else (0.0, axis[1]))
+        for j, g in enumerate(faces):
+            u = m.union(g).area
+            if u <= 0 or m.intersection(g).area / u < 0.9:
+                continue
+            if j != i and types[j]:
+                seen.update((i, j))
+                if types[i] & types[j]:
+                    agree += 1
+                else:
+                    disagree += 1
+            break
+    return agree, disagree
+
+
+def halves_axis(walls: list, min_share: Optional[float] = None, openings: Optional[list] = None,
+                labels: Optional[list] = None) -> tuple[Optional[tuple], Optional[str]]:
+    """``(axis, note)``: the axis of a plan of two mirrored halves for the steps that change the model, or None with
+    the reason. 5 Nov 2026 (a single house in a symmetric shell, synthetic-06, -07, -19 and the outline fixture: the
+    outer walls and the walls across the whole plan make ``facade.mirror_axis`` overlap 0.95 on their own, and the
+    mirror fixes copied walls, doors and windows of one room into the other). Two more conditions:
+
+    1. the walls inside the shell (``inner_walls``) overlap their mirror by ``min_share`` (``MIRROR_FIX_SHARE``) too:
+       two mirrored flats repeat their layout there, a single dwelling usually does not;
+    2. the labelled rooms that mirror each other are the same rooms (``label_pairs``): more pairs share a room type
+       than not (synthetic-07's ground floor: its right side is split in the middle, Banyo below and Hol above, a
+       symmetric layout of two different rooms). Mirrored flats name their twins alike (real02, real10), or name one
+       half only (real09: no labelled pair, no objection)."""
+    from wenart.ingest.generic import facade as FC
+
+    share = FC.MIRROR_FIX_SHARE if min_share is None else min_share
+    axis = FC.mirror_axis(walls, share)
+    if axis is None:
+        return None, None
+    inner = inner_walls(walls)
+    got = mirror_share(inner, axis)
+    if got < share:
+        return None, (f"the shell is symmetric about {axis[0]} = {axis[1]:.2f} but the {len(inner)} walls inside it "
+                      f"overlap their mirror {got:.0%} (< {share:.0%}): one layout, not two mirrored halves")
+    if labels:
+        agree, disagree = label_pairs(walls, openings or [], axis, labels)
+        if disagree > agree:
+            return None, (f"the layout is symmetric about {axis[0]} = {axis[1]:.2f} but {disagree} of its "
+                          f"{agree + disagree} mirrored labelled room pairs are different rooms: one dwelling, not "
+                          f"two mirrored halves")
+    return axis, None
 
 
 STEPS = ("thickness", "inferred", "missing", "openings")
@@ -243,6 +336,8 @@ def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=No
         if not _drawn(o) or getattr(o, "virtual", False):
             continue
         mc = _mirror(o.center, axis)
+        if math.dist(mc, o.center) <= OPENING_TOL_M:
+            continue                                        # it is its own mirror (on a wall across the axis)
         if keep_out is not None and keep_out.distance(Point(mc)) <= o.width / 2.0:
             continue                                        # the core (lift and stair) is not mirrored
         host = next((w for w in walls if _on_wall(OpeningItem(kind="", width=0, center=mc, rotation_deg=0, box=[],
