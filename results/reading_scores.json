@@ -1,0 +1,1012 @@
+[
+ {
+  "commit": "c60f929dd7e06009599bdfc3472daafb320dd647",
+  "date": "2026-11-04",
+  "projects": {
+   "real01": {
+    "levels": {
+     "truth": 1,
+     "read": 1,
+     "matched": 1,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 9,
+     "read": 9,
+     "matched": 9,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 5,
+     "read": 5,
+     "matched": 5,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 9,
+     "read": 9,
+     "matched": 9,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 4,
+     "read": 4,
+     "matched": 4,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 13,
+     "read": 13,
+     "matched": 13,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 1,
+     "read": 1,
+     "matched": 1,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "real02": {
+    "levels": {
+     "truth": 4,
+     "read": 4,
+     "matched": 4,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 40,
+     "read": 40,
+     "matched": 40,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 26,
+     "read": 26,
+     "matched": 26,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 12,
+     "read": 12,
+     "matched": 12,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 10,
+     "read": 10,
+     "matched": 10,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 64,
+     "read": 64,
+     "matched": 64,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 8,
+     "read": 8,
+     "matched": 8,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "real03": {
+    "levels": {
+     "truth": 1,
+     "read": 1,
+     "matched": 1,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 49,
+     "read": 49,
+     "matched": 49,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 25,
+     "read": 25,
+     "matched": 25,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 22,
+     "read": 22,
+     "matched": 22,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 14,
+     "read": 14,
+     "matched": 14,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 161,
+     "read": 161,
+     "matched": 161,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "real04": {
+    "levels": {
+     "truth": 4,
+     "read": 4,
+     "matched": 4,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 40,
+     "read": 40,
+     "matched": 40,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 26,
+     "read": 26,
+     "matched": 26,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 12,
+     "read": 12,
+     "matched": 12,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 10,
+     "read": 10,
+     "matched": 10,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 64,
+     "read": 64,
+     "matched": 64,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 8,
+     "read": 8,
+     "matched": 8,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "real06": {
+    "levels": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 13,
+     "read": 13,
+     "matched": 13,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 15,
+     "read": 15,
+     "matched": 15,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 33,
+     "read": 33,
+     "matched": 33,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 4,
+     "read": 4,
+     "matched": 4,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 87,
+     "read": 87,
+     "matched": 87,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "real07": {
+    "levels": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 21,
+     "read": 21,
+     "matched": 21,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 21,
+     "read": 21,
+     "matched": 21,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 21,
+     "read": 21,
+     "matched": 21,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 16,
+     "read": 16,
+     "matched": 16,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 144,
+     "read": 144,
+     "matched": 144,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 1,
+     "read": 1,
+     "matched": 1,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "real10": {
+    "levels": {
+     "truth": 10,
+     "read": 10,
+     "matched": 10,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 212,
+     "read": 212,
+     "matched": 212,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 268,
+     "read": 268,
+     "matched": 268,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 116,
+     "read": 116,
+     "matched": 116,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 205,
+     "read": 205,
+     "matched": 205,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 2121,
+     "read": 2121,
+     "matched": 2121,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 17,
+     "read": 17,
+     "matched": 17,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "real15": {
+    "levels": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 40,
+     "read": 40,
+     "matched": 40,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 27,
+     "read": 27,
+     "matched": 27,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 18,
+     "read": 18,
+     "matched": 18,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 191,
+     "read": 191,
+     "matched": 191,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 5,
+     "read": 5,
+     "matched": 5,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "real17": {
+    "levels": {
+     "truth": 1,
+     "read": 1,
+     "matched": 1,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 1,
+     "read": 1,
+     "matched": 1,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 35,
+     "read": 35,
+     "matched": 35,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "real19": {
+    "levels": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 19,
+     "read": 19,
+     "matched": 19,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 12,
+     "read": 12,
+     "matched": 12,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 140,
+     "read": 140,
+     "matched": 140,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "real21": {
+    "levels": {
+     "truth": 1,
+     "read": 1,
+     "matched": 1,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 45,
+     "read": 45,
+     "matched": 45,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 33,
+     "read": 33,
+     "matched": 33,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 7,
+     "read": 7,
+     "matched": 7,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 6,
+     "read": 6,
+     "matched": 6,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 73,
+     "read": 73,
+     "matched": 73,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "synthetic-01": {
+    "levels": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 10,
+     "read": 10,
+     "matched": 10,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 9,
+     "read": 9,
+     "matched": 9,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 12,
+     "read": 12,
+     "matched": 12,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 16,
+     "read": 16,
+     "matched": 16,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "synthetic-03": {
+    "levels": {
+     "truth": 3,
+     "read": 3,
+     "matched": 3,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 19,
+     "read": 19,
+     "matched": 19,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 17,
+     "read": 17,
+     "matched": 17,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 16,
+     "read": 16,
+     "matched": 16,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 28,
+     "read": 28,
+     "matched": 28,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "synthetic-04": {
+    "levels": {
+     "truth": 1,
+     "read": 1,
+     "matched": 1,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 5,
+     "read": 5,
+     "matched": 5,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 5,
+     "read": 5,
+     "matched": 5,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 10,
+     "read": 10,
+     "matched": 10,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 10,
+     "read": 10,
+     "matched": 10,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "synthetic-05": {
+    "levels": {
+     "truth": 1,
+     "read": 1,
+     "matched": 1,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 9,
+     "read": 9,
+     "matched": 9,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 9,
+     "read": 9,
+     "matched": 9,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 10,
+     "read": 10,
+     "matched": 10,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 14,
+     "read": 14,
+     "matched": 14,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "synthetic-06": {
+    "levels": {
+     "truth": 1,
+     "read": 1,
+     "matched": 1,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 8,
+     "read": 8,
+     "matched": 8,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 7,
+     "read": 7,
+     "matched": 7,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 10,
+     "read": 10,
+     "matched": 10,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 2,
+     "read": 2,
+     "matched": 2,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 11,
+     "read": 11,
+     "matched": 11,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   },
+   "synthetic-07": {
+    "levels": {
+     "truth": 4,
+     "read": 4,
+     "matched": 4,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "rooms": {
+     "truth": 12,
+     "read": 12,
+     "matched": 12,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "doors": {
+     "truth": 20,
+     "read": 20,
+     "matched": 20,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "windows": {
+     "truth": 30,
+     "read": 30,
+     "matched": 30,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "openings": {
+     "truth": 0,
+     "read": 0,
+     "matched": 0,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "walls": {
+     "truth": 25,
+     "read": 25,
+     "matched": 25,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "stairs": {
+     "truth": 4,
+     "read": 4,
+     "matched": 4,
+     "recall": 1.0,
+     "precision": 1.0,
+     "f1": 1.0
+    },
+    "total": 100.0
+   }
+  },
+  "overall": 100.0
+ }
+]
