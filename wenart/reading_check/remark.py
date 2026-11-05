@@ -29,6 +29,7 @@ CROP_DIR = REPO / "results" / "reading_corrections" / "crops"
 PROJECTS_DIR = REPO / "projects"
 SOURCE_USER = "user_review"
 STATUS_ACCEPTED = "accepted"
+NO_LESSON_NOTE = "no lesson yet: the general rule for this remark is still to be written"   # truth.correction_errors needs a note when lesson is null
 ELEMENT_KINDS = ("wall", "opening", "door", "window", "room", "stair", "level", "label", "region", "roof", "site",
                  "other")
 TRUTH_OPS = ("add", "remove", "retype", "move")
@@ -108,7 +109,7 @@ def validate_truth_action(action) -> str | None:
 
 def build_record(records: list[dict], *, project: str, text: str, level: str | None = None,
                  place: dict | None = None, element_ids: list[str] | None = None, kind: str = "other",
-                 reader_answer: str = "", right_answer: str = "", lesson: str | None = None,
+                 reader_answer: str = "", right_answer: str = "", lesson: str | None = None, note: str | None = None,
                  truth_action: dict | None = None, building: dict | None = None,
                  projects: Iterable[str] | None = None, lesson_ids: Iterable[str] | None = None,
                  date: str | None = None) -> dict:
@@ -143,6 +144,8 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
         rec["element_ids"] = ids
     if truth_action is not None:
         rec["truth_action"] = truth_action
+    if note or lesson is None:
+        rec["note"] = note or NO_LESSON_NOTE
     return rec
 
 
@@ -249,7 +252,7 @@ def add(args, corrections: Path = CORRECTIONS_PATH, crop_dir: Path = CROP_DIR):
     rec = build_record(records, project=args.project, text=args.text, level=args.level,
                        place=parse_place(args.place) if args.place else None, element_ids=args.element or [],
                        kind=args.kind, reader_answer=args.reader_answer, right_answer=args.right_answer,
-                       lesson=args.lesson, truth_action=action, building=building, projects=project_names(),
+                       lesson=args.lesson, note=getattr(args, "note", None), truth_action=action, building=building, projects=project_names(),
                        lesson_ids=lesson_ids())
     crop = None
     if building is not None:
@@ -298,6 +301,7 @@ def main(argv=None) -> int:
     a.add_argument("--reader-answer", default="")
     a.add_argument("--right-answer", default="")
     a.add_argument("--lesson")
+    a.add_argument("--note", help="why there is no lesson, or what the record needs")
     a.add_argument("--out")
     a.add_argument("--truth-action")
     ls = sub.add_parser("list")
