@@ -216,7 +216,9 @@ def test_a_closure_matching_an_outdoor_area_text_is_refused_and_says_so():
                      ((0.0, -5.0), (5.0, -5.0))])
     frames = _frames([((0.0, 1.0), (0.0, -1.7)), ((5.0, 1.0), (5.0, -1.7))])   # drawn frames along the gap
     ex2, got2 = _close(walls2, [], blocks, frames)
-    assert got2 is not None and got2[6] is None
+    # 5 Nov 2026 (review): the two blocks are each closed; joining them closes no room: two blocks stay two blocks
+    assert got2 is None
+    assert any("joining blocks is no closure" in r["why"] for r in ex2.report["outline_closure"]["refused"])
 
 
 def test_the_closure_pass_stays_silent_when_the_ring_closes():
@@ -411,3 +413,137 @@ def test_a_level_the_baseline_never_read_has_no_stacking_regression():
     assert RG.compare(base, new) == []
     base2 = dict(base, levels=["L4"], per_level={"L4": {}})
     assert RG.compare(base2, new) == ["L4 stacking offset: 0.00 -> 2.95 m"]
+
+
+# ------------------------------------------------------------------------------- the review of 5 Nov 2026 (real18 L0)
+def test_a_wall_fragment_is_never_a_ring_end_and_never_forces_a_bridge():
+    """real18 L0: a detached 0.26 m piece of a line read as a wall forced a 6.45 m bridge to reach it."""
+    walls = _walls([((0.0, 0.0), (5.0, 0.0)), ((5.0, 0.0), (5.0, 4.0)), ((5.0, 4.0), (0.0, 4.0)), ((0.0, 4.0), (0.0, 0.0)),
+                    ((5.0, 5.0), (5.0, 5.26))])                                 # the fragment, on the right wall's axis
+    blocks = _blocks([("SALON", 2.5, 2.0)])
+    # every wall as a building wall (real18: no component enclosed a label, so every wall was kept as building)
+    assert TP.outer_loop_problem(walls, []) == "building walls form 2 separate parts"
+    frag, lines = C.wall_fragments(walls, walls, [])
+    assert frag == {id(walls[4])} and len(lines) == 1 and "0.26 m" in lines[0]
+    assert all(walls[k] is not walls[4] for k, *_ in C.ring_ends(walls, walls, [], frag))
+    assert not any(c["from"].startswith("LINE:4") or "LINE:4 " in c["to"]
+                   for c in C.closure_candidates(walls, walls, [], [], 0.2, fragments=frag))
+    ex = SimpleNamespace(notes=[], warnings=[], report={})
+    got = C._outline_closure(ex, "x", walls, [], blocks, "L0", [], "building walls form 2 separate parts", walls, [],
+                             [], set(), "x.dxf", 1)
+    assert got is None and ex.report["outline_closure"]["fragments"] == lines
+    assert any("fragment" in n for n in ex.notes)
+
+
+def test_a_free_end_just_short_of_its_wall_is_never_bridged_through_it_to_the_next():
+    """A gap under JOIN_MAX_M is the short-join pass's case; before, the closure took the first wall beyond 0.40 m and
+    bridged through the near wall to the far one."""
+    walls = _walls([((0.0, 0.0), (4.7, 0.0)), ((0.0, 0.0), (0.0, 4.0)), ((0.0, 4.0), (5.0, 4.0)), ((5.0, 4.0), (5.0, 0.4)),
+                    ((5.0, 0.3), (5.0, -3.0)),                                    # the wall 0.2 m ahead of the free end
+                    ((8.0, 4.0), (8.0, -3.0))])                                   # another wall 3 m further on
+    blocks = _blocks([("SALON", 2.5, 2.0)])
+    cands = C.closure_candidates(walls, walls, [], [], 0.2)
+    straight = [c for c in cands if c["kind"] == "straight" and c["from"].startswith("LINE:0 end")]
+    assert straight and straight[0]["short"] and straight[0]["length"] < C.JOIN_MAX_M
+    assert not any(c["kind"] == "straight" and c["from"].startswith("LINE:0 end") and c["length"] > 1.0 for c in cands)
+    ex, got = _close(walls, [], blocks, [])
+    whys = [r["why"] for r in ex.report["outline_closure"]["refused"]]
+    assert any("short-join pass's case" in w for w in whys), whys
+    assert not any(w.evidence.get("rule") == C.OUTLINE_CLOSURE_RULE and abs(w.end[0] - 8.0) < 0.1
+                   for w in (got[0] if got else []))
+
+
+def test_a_double_line_wall_gives_one_bridge_not_two_parallel_ones():
+    """Item 7: a wall drawn as two parallel lines 0.3 m apart, both stopping short of the side wall: one bridge; the
+    second runs parallel within two thicknesses and is refused."""
+    walls = _walls([((0.0, 4.0), (6.0, 4.0)), ((0.0, 4.0), (0.0, 0.0)), ((6.0, 4.0), (6.0, -0.3)),
+                    ((0.0, 0.0), (4.0, 0.0)), ((0.0, 0.3), (4.0, 0.3))])          # the double line, ends at x = 4
+    blocks = _blocks([("SALON", 3.0, 2.5)])
+    ex, got = _close(walls, [], blocks, _frames([((4.0, 0.0), (6.0, 0.0)), ((4.0, 0.3), (6.0, 0.3))]))
+    assert got is not None and C._unclosed(got[4]) == 0
+    added = [w for w in got[0] if w.evidence.get("rule") == C.OUTLINE_CLOSURE_RULE]
+    assert len(added) == 1
+    assert any("parallel to an accepted bridge" in r["why"] for r in ex.report["outline_closure"]["refused"])
+
+
+def test_corner_support_comes_from_the_buildings_own_layers_not_furniture():
+    walls = _walls([((0.0, 0.0), (4.0, 0.0)), ((4.0, 0.0), (4.0, -1.5)), ((0.0, 0.0), (0.0, 5.0)),
+                    ((0.0, 5.0), (7.0, 5.0)), ((7.0, 5.0), (7.0, 3.0)), ((7.0, 3.0), (9.0, 3.0))])
+    blocks = _blocks([("MUTFAK", 2.0, 2.5)])
+    segs = [((4.0, 0.0), (7.0, 0.0)), ((7.0, 0.0), (7.0, 3.0))]
+    furniture = _frames(segs, layer="TEFRIS")                                  # a furniture layer
+    ex, got = _close(walls, [], blocks, furniture)
+    assert got is None and any("drawn lines along 0%" in r["why"] for r in ex.report["outline_closure"]["refused"])
+    unnamed = [Stroke(id=f"U{k}", kind="line", pts=[a, b], layer="0") for k, (a, b) in enumerate(segs)]
+    ex2, got2 = _close(walls, [], blocks, unnamed)                             # an unnamed layer counts (a PDF has none)
+    assert got2 is not None and C._unclosed(got2[4]) == 0
+    added = [w for w in got2[0] if w.evidence.get("rule") == C.OUTLINE_CLOSURE_RULE]
+    assert added and "drawn wall lines along 0%" in added[0].evidence["note"]  # RC5's measure, named in the note
+    assert "other building lines along 100%" in added[0].evidence["note"]
+
+
+def test_openings_read_onto_a_bridge_are_unverified_and_merged():
+    host = _walls([((0.0, 0.0), (6.0, 0.0))])
+    door = OpeningItem(kind="door", width=0.9, center=(2.0, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="D",
+                       evidence=B.evidence("x.dxf", "vector", 0.9, page=1, entity="D"))
+    win = OpeningItem(kind="window", width=0.8, center=(2.5, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="W",
+                      evidence=B.evidence("x.dxf", "vector", 0.95, page=1, entity="W"))
+    far = OpeningItem(kind="window", width=1.0, center=(5.0, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="W2",
+                      evidence=B.evidence("x.dxf", "vector", 0.95, page=1, entity="W2"))
+    out, merged = C._dedupe_openings([door, win, far], host)
+    assert merged == 1 and len(out) == 2
+    assert all(o.status == "unverified" and o.evidence["confidence"] == C.CLOSURE_CONFIDENCE for o in out)
+    kept = next(o for o in out if o.kind == "door")
+    assert kept.width == pytest.approx(1.35, abs=0.01) and kept.center[0] == pytest.approx(2.225, abs=0.01)
+
+
+def test_build_marked_keeps_the_levels_above_an_unreadable_one_and_marks_them():
+    """Item 8: under build_marked only the wall-less level is left out; the ones above are built and marked."""
+    PL, build, rec0 = _build_and_record()
+    rec1 = PL.PageRecord(file="x.dwg", page=1, format="dwg", kind="vector", page_class="floor_plan", level_id="L1",
+                         level_label="1. Kat", level_order=1, region_id="r2")
+    by_level = {"L1": [SimpleNamespace(record=rec1)]}
+    PL._leave_out(build, [rec0, rec1], by_level, {"L0": ["r1 (L0): x.dwg r1: no building walls found"]})
+    assert [lo["label"] for lo in build.building["levels_left_out"]] == ["Zemin Kat"]
+    assert "L1" in by_level and build.below_unread == {"L1": "L0"}
+    PL2, build2, _ = _build_and_record("leave_out")
+    PL2._leave_out(build2, [rec0, rec1], {"L1": [SimpleNamespace(record=rec1)]}, {"L0": ["r1 (L0): no walls"]})
+    assert [lo["label"] for lo in build2.building["levels_left_out"]] == ["Zemin Kat", "1. Kat"]
+
+
+def test_the_marked_warning_names_the_file_once_also_for_a_one_plan_project():
+    PL, build, record = _build_and_record()
+    record.region_id = None                                                    # a one-plan project (item 9)
+    ex = _extraction(review=("x.dwg: outer walls do not close (building walls enclose no face)",))
+    assert PL._build_marked(build, record, ex)
+    w = next(w for w in build.building["warnings"] if PL.BUILT_MARKED_NOTE in w)
+    assert w.count("x.dwg") == 1 and w.startswith("p1 (L0): x.dwg: outer walls do not close")
+
+
+def test_rc6_skips_the_per_label_warnings_a_marked_level_carries(tmp_path):
+    b = {"project": {"id": "p"},
+         "levels": [{"id": "L0", "label": "Zemin Kat", "reading_confidence": "low",
+                     "reading_review": ["x.dwg r1: outer walls do not close: room label(s) 'OTOPARK', 'WC' lie "
+                                        "outside the walls read as the building"]}],
+         "walls": [], "warnings": ["x.dwg: room label 'OTOPARK' at (1.00, 2.00) m lies outside the building (outside the plot)",
+                                   "x.dwg: room label 'DEPO' at (1.00, 9.00) m lies outside the building (outside the plot)"]}
+    (tmp_path / "building.json").write_text(json.dumps(b), encoding="utf-8")
+    res = RC.check(tmp_path)
+    rc6 = [f["message"] for f in res["findings"] if f["check"] == "RC6"]
+    assert len(rc6) == 1 and "'DEPO'" in rc6[0]
+
+
+def test_the_regress_reports_new_low_confidence_levels_and_their_stacking_as_notes():
+    from wenart.reading_check import regress as RG
+
+    base = {"status": "ok", "levels": ["L0"], "levels_left_out": ["1. Kat"], "per_level": {"L0": {}},
+            "check": {"verdict": "ready", "counts": {"critical": 0}, "stacking": {}}}
+    new = {"status": "ok", "levels": ["L0", "L1"], "levels_left_out": [], "per_level": {"L0": {}, "L1": {}},
+           "low_confidence": {"L1": ["r2 (L1): outer walls do not close"]},
+           "check": {"verdict": "fix before a pod run", "counts": {"critical": 1}, "stacking": {"L1": 2.0}}}
+    assert "critical findings: 0 -> 1" in RG.compare(base, new) and not any("L1" in d for d in RG.compare(base, new))
+    note = RG.notes(base, new)
+    assert len(note) == 1 and "new level L1 (low confidence: r2 (L1): outer walls do not close)" in note[0]
+    assert "stacks 2.00 m off" in note[0]
+    base2 = dict(base, levels=["L0", "L1"], per_level={"L0": {}, "L1": {}})
+    assert any("L1 newly low confidence" in d for d in RG.compare(base2, new))

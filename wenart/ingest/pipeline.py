@@ -101,6 +101,7 @@ from __future__ import annotations
 import argparse
 import copy
 import math
+import json
 import os
 import re
 import subprocess
@@ -262,6 +263,10 @@ class ProjectBuild:
         # ``stop``), read once in ``run_project``; the level ids built with review reasons under ``build_marked``.
         self.failed_levels: str = FAILED_LEVELS_DEFAULT
         self.marked_levels: set[str] = set()
+        # 5 Nov 2026 (review): level id -> the unreadable level below it (built and marked under build_marked), and
+        # the outline closure's report per level (written to reading_check/outline_closure.json)
+        self.below_unread: dict[str, str] = {}
+        self.outline_closure: dict[str, dict] = {}
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -439,8 +444,15 @@ def _mark_level(level: dict, ex: LevelExtraction) -> None:
         return
     level["reading_confidence"] = READING_CONFIDENCE_LOW
     level["reading_review"] = list(ex.reading_review)
-    if ex.reading_places:
-        level["reading_places"] = [dict(p) for p in ex.reading_places]
+    places, seen = [], set()
+    for p in ex.reading_places:                        # one place per label (the core and the assembly may both add it)
+        key = (p.get("text"), round(float(p["at"][0]), 1), round(float(p["at"][1]), 1)) if p.get("at") else None
+        if key in seen:
+            continue
+        seen.add(key)
+        places.append(dict(p))
+    if places:
+        level["reading_places"] = places
 
 
 def _level_dict(level_id: str, record: PageRecord, works: list[PageWork]) -> dict:
@@ -531,7 +543,23 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
         result = R.derive_rooms(level_id, ex.walls, ex.labels, anchors, fallbacks, ex.file, build.ids)
     for text in result.warnings:
         build.warn(text)
-    marked = build.failed_levels == FAILED_LEVELS_DEFAULT and record.region_id is not None and build.sheets is not None
+    # 5 Nov 2026 (review): a one-plan project (no region) is marked the same way, never stopped
+    marked = build.failed_levels == FAILED_LEVELS_DEFAULT
+    from wenart.ingest.generic.core import CLOSURE_CONFIDENCE, OUTLINE_CLOSURE_RULE
+    n_closure = sum(1 for w in ex.walls if isinstance(w.evidence, dict) and w.evidence.get("rule") == OUTLINE_CLOSURE_RULE)
+    if n_closure:
+        # the ring closes only through the outline closure's bridges: the level is low-confidence by construction
+        _level_review(build, level_id, ex, f"{level_id}: outer ring closed by {n_closure} inferred wall(s) (confidence "
+                                            f"{CLOSURE_CONFIDENCE:g}, rule {OUTLINE_CLOSURE_RULE})", marked)
+    if ex.walls and not result.rooms:
+        reason = f"{level_id}: {len(ex.walls)} wall(s) and no room closed on this level"
+        if marked:
+            _level_review(build, level_id, ex, reason, True)
+        else:
+            build.warn(reason)
+    if level_id in build.below_unread:
+        _level_review(build, level_id, ex, f"{level_id}: the level below ({build.below_unread[level_id]}) could not be "
+                                            f"read (no scale, no frame or no wall there)", marked)
     if not result.closed and not any("outer walls do not close" in r for r in ex.review + ex.reading_review):
         _level_review(build, level_id, ex, f"{level_id}: outer walls do not form a closed loop ({master.where})", marked)
     if result.unplaced_labels:
@@ -2369,10 +2397,12 @@ def _build_marked(build: ProjectBuild, record: PageRecord, extraction: LevelExtr
         return False
     if not extraction.review:
         return True                                     # nothing to mark: built as any other region
-    where = f"{record.file} {record.region_id} ({record.level_id})"
+    # 5 Nov 2026 (review): the reason names the file already; the warning adds the region and the level once
+    tag = f"{record.region_id} ({record.level_id})" if record.region_id else f"p{record.page} ({record.level_id})"
     for reason in extraction.review:
         extraction.reading_review.append(reason)
-        build.warn(f"{where}: {reason} ({BUILT_MARKED_NOTE}: failed_levels {FAILED_LEVELS_DEFAULT})")
+        text = reason if reason.startswith(record.file) else f"{record.file}: {reason}"
+        build.warn(f"{tag}: {text} ({BUILT_MARKED_NOTE}: failed_levels {FAILED_LEVELS_DEFAULT})")
     extraction.review = []
     build.marked_levels.add(record.level_id)
     return True
@@ -2407,7 +2437,11 @@ def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, f
             if lid in out:
                 continue
             above = (other.level_order or 0) > order if order >= 0 else (other.level_order or 0) < order
-            if above:
+            if above and policy == FAILED_LEVELS_DEFAULT:
+                # 5 Nov 2026 (review): under build_marked only the unreadable level is left out; the levels above it
+                # are built and marked low ("the level below could not be read", ``_assemble_level``)
+                build.below_unread.setdefault(lid, rec.level_id)
+            elif above:
                 out[lid] = f"{'above' if order >= 0 else 'below'} the left-out level {rec.level_id}"
     left = build.building.setdefault("levels_left_out", [])
     for lid, reason in sorted(out.items(), key=lambda kv: (info[kv[0]].level_order if kv[0] in info else 0, kv[0])):
@@ -2468,7 +2502,7 @@ def _labels_outside_building(ex: LevelExtraction) -> list[str]:
             continue
         points = (_to_building(ex, t.start), _to_building(ex, G.box_center(t.box)))
         if not any(outline.contains(Point(p)) for p in points):
-            out.append(t.text)
+            out.append((t.text, [round(v, 4) for v in points[1]]))     # 5 Nov 2026 (review): with its place
     return out
 
 
@@ -3000,7 +3034,13 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                 if outside:
                     extraction.review.append(
                         f"{record.file} {record.region_id}: outer walls do not close: room label(s) "
-                        f"{', '.join(repr(t) for t in outside)} lie outside the walls read as the building")
+                        f"{', '.join(repr(t) for t, _ in outside)} lie outside the walls read as the building")
+                    # 5 Nov 2026 (review): the places of those labels go with the level (RC7 numbers them)
+                    extraction.reading_places.extend(
+                        {"kind": "unplaced_label", "text": t, "at": at,
+                         "note": "a room label outside the walls read as the building"} for t, at in outside)
+            if extraction.report.get("outline_closure"):
+                build.outline_closure[record.level_id] = extraction.report["outline_closure"]
         audit = (record.conversion or {}).get("audit") or {}
         if audit.get("errors"):
             _mark_unverified(extraction)
@@ -3038,8 +3078,12 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                                conflict["resolution"])
             continue
         else:
-            for reason in extraction.review:
-                build.review(reason)
+            # 5 Nov 2026 (review): a one-plan project with a scale, a frame and walls is built marked, not stopped
+            if not _build_marked(build, record, extraction):
+                for reason in extraction.review:
+                    build.review(reason)
+            if extraction.report.get("outline_closure"):
+                build.outline_closure[record.level_id] = extraction.report["outline_closure"]
             if extraction.report.get("questions") and (extraction.scale is None or
                                                         extraction.transform_to_building is None):
                 build.question_only.append(extraction)
@@ -3121,6 +3165,13 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     # 2 Nov 2026 (user: "We need to improve this initial project reading part"): the reading checks itself against the
     # drawing (wenart.reading_check: levels left out, floors that do not stack, areas, drawn walls not built, walls on
     # no drawn line); its verdict and findings go to reading_check/ and the report; never fatal
+    if build.outline_closure:
+        # 5 Nov 2026 (review): the outline closure's record per level (kept and refused candidates with their reasons,
+        # the fragments, the drawn outline, the mirror axis) is saved; the comparison sheets draw the refused ones
+        rc_dir = out_dir / "reading_check"
+        rc_dir.mkdir(parents=True, exist_ok=True)
+        (rc_dir / "outline_closure.json").write_text(json.dumps(build.outline_closure, ensure_ascii=False, indent=1,
+                                                               default=str) + "\n", encoding="utf-8")
     if os.environ.get("WENART_READING_CHECK", "1") != "0":
         try:
             from wenart import reading_check as RCK

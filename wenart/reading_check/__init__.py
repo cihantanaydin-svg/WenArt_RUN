@@ -520,10 +520,15 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
         findings.append(_finding("RC1", "critical", f"order {lo.get('order')}", f"level {lo.get('label')} left out "
                                  f"of the model: {lo.get('reason')}", region=lo.get("region_id")))
     carried = [r for lv in building.get("levels") or [] for r in lv.get("reading_review") or []]
+    # 5 Nov 2026 (review): the per-label "lies outside the building" warnings of a level marked for those labels are
+    # RC7's places too (the quoted names of the level's reasons)
+    carried_names = {n for r in carried for n in re.findall(r"'([^']+)'", r)}
     for w in building.get("warnings") or []:
         if "lies outside the building" in w or "outer walls do not close" in w:
             if any(r in w for r in carried):
                 continue                                # 4 Nov 2026: a reason a low-confidence level carries is RC7's
+            if "lies outside the building" in w and any(f"'{n}'" in w for n in carried_names):
+                continue
             findings.append(_finding("RC6", "major", None, w[:300]))
     # 3 Nov 2026 (real10 structure run 20261103-073227-full built nothing: sheets.json failed its schema on the new
     # registration methods, and a pod's sheets stage stops a project whose sheets need review): the sheets' own

@@ -56,10 +56,34 @@ def numbers(out_dir: Path) -> dict:
                     "openings": sum(1 for o in ops if o.get("type") not in ("door", "window")),
                     "room_area": round(sum(float(r.get("area_computed") or 0) for r in rooms), 1)}
     stack = {f["level_id"]: f.get("offset_m") for f in res["findings"] if f["check"] == "RC2"}
+    # 5 Nov 2026 (review): the levels built with reading_confidence low and their reasons are compared numbers too
+    low = {lv["id"]: list(lv.get("reading_review") or []) for lv in b.get("levels") or []
+           if lv.get("reading_confidence") == "low"}
     return {"project": (b.get("project") or {}).get("id"), "status": b.get("status"),
             "levels": [lv["id"] for lv in b.get("levels") or []],
             "levels_left_out": sorted(str(lo.get("label")) for lo in b.get("levels_left_out") or []),
+            "low_confidence": low,
             "per_level": per, "check": {"verdict": res["verdict"], "counts": res["counts"], "stacking": stack}}
+
+
+def notes(base: dict, new: dict) -> list[str]:
+    """What changed without being a regression (pure; 5 Nov 2026, review): a level the baseline never read, with its
+    low-confidence reason when it has one and its stacking offset as a new finding; printed with the comparison so a
+    level that newly goes low-confidence or stacks badly is never silent."""
+    out = []
+    old_levels = set(base.get("levels") or [])
+    low = new.get("low_confidence") or {}
+    stack = (new.get("check") or {}).get("stacking") or {}
+    for lid in new.get("levels") or []:
+        if lid in old_levels:
+            continue
+        text = f"new level {lid}"
+        if lid in low:
+            text += f" (low confidence: {'; '.join(low[lid])[:200]})"
+        if stack.get(lid):
+            text += f"; new finding: it stacks {stack[lid]:.2f} m off the reference"
+        out.append(text)
+    return out
 
 
 def compare(base: dict, new: dict) -> list[str]:
@@ -84,6 +108,11 @@ def compare(base: dict, new: dict) -> list[str]:
         was = (bc.get("stacking") or {}).get(lid) or 0.0
         if off is not None and off > was + STACK_TOL_M:
             out.append(f"{lid} stacking offset: {was:.2f} -> {off:.2f} m")
+    # 5 Nov 2026 (review): a level the baseline read that now carries reading_confidence low is a regression
+    old_low = set(base.get("low_confidence") or {})
+    for lid, reasons in (new.get("low_confidence") or {}).items():
+        if lid in (base.get("levels") or []) and lid not in old_low:
+            out.append(f"{lid} newly low confidence: {'; '.join(reasons)[:200]}")
     for lid, b in (base.get("per_level") or {}).items():
         n = (new.get("per_level") or {}).get(lid)
         if n is None:
@@ -129,10 +158,15 @@ def main(args) -> int:
             print(f"{p}: baseline {'updated' if args.update else 'written'} ({new['check']['verdict']}, "
                   f"{len(new['levels'])} levels)")
             continue
-        diffs = compare(json.loads(path.read_text(encoding="utf-8")), new)
+        base = json.loads(path.read_text(encoding="utf-8"))
+        diffs = compare(base, new)
         if diffs:
             failed += 1
             print(f"{p}: REGRESSED\n  " + "\n  ".join(diffs))
         else:
-            print(f"{p}: ok ({new['check']['verdict']}, {len(new['levels'])} levels)")
+            print(f"{p}: ok ({new['check']['verdict']}, {len(new['levels'])} levels"
+                  + (f", {len(new.get('low_confidence') or {})} low confidence" if new.get("low_confidence") else "")
+                  + ")")
+        for n in notes(base, new):
+            print(f"  note: {n}")
     return 1 if failed else 0
