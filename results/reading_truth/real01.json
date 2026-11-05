@@ -2,14 +2,16 @@
  "project": "real01",
  "source": "accepted_reading",
  "status": "accepted",
- "commit": "c60f929dd7e06009599bdfc3472daafb320dd647",
- "date": "2026-11-04",
+ "commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+ "date": "2026-11-05",
  "levels": [
   {
    "id": "L0",
    "label": "Ground floor",
    "elevation": 0.0,
-   "order": 0
+   "order": 0,
+   "source": "accepted_reading",
+   "label_source": "assumed"
   }
  ],
  "levels_left_out": [],
@@ -44,7 +46,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_bath_toilet",
@@ -74,7 +78,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_drawing_room",
@@ -112,7 +118,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_room",
@@ -142,7 +150,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "r_L0_pooja",
@@ -172,7 +182,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_store",
@@ -202,7 +214,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_bed_room_2",
@@ -232,7 +246,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_kitchen",
@@ -262,7 +278,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_dining",
@@ -300,7 +318,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "doors": [
@@ -314,7 +334,9 @@
      ],
      "wall_id": "w_L0_009",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_002",
@@ -326,7 +348,9 @@
      ],
      "wall_id": "w_L0_009",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_003",
@@ -338,7 +362,9 @@
      ],
      "wall_id": "w_L0_011",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_004",
@@ -350,7 +376,9 @@
      ],
      "wall_id": "w_L0_002",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_005",
@@ -362,7 +390,9 @@
      ],
      "wall_id": "w_L0_005",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -376,7 +406,9 @@
      ],
      "wall_id": "w_L0_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_002",
@@ -388,7 +420,9 @@
      ],
      "wall_id": "w_L0_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_003",
@@ -400,7 +434,9 @@
      ],
      "wall_id": "w_L0_003",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_004",
@@ -412,7 +448,9 @@
      ],
      "wall_id": "w_L0_007",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_005",
@@ -424,7 +462,9 @@
      ],
      "wall_id": "w_L0_007",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_006",
@@ -436,7 +476,9 @@
      ],
      "wall_id": "w_L0_007",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_007",
@@ -448,7 +490,9 @@
      ],
      "wall_id": "w_L0_008",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_008",
@@ -460,7 +504,9 @@
      ],
      "wall_id": "w_L0_008",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_009",
@@ -472,7 +518,9 @@
      ],
      "wall_id": "w_L0_013",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [
@@ -486,7 +534,9 @@
      ],
      "wall_id": "w_L0_010",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "verified"
     },
     {
      "id": "o_L0_002",
@@ -498,7 +548,9 @@
      ],
      "wall_id": "w_L0_011",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "verified"
     },
     {
      "id": "o_L0_003",
@@ -510,7 +562,9 @@
      ],
      "wall_id": "w_L0_011",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "verified"
     },
     {
      "id": "o_L0_004",
@@ -523,6 +577,8 @@
      "wall_id": null,
      "source": "accepted_reading",
      "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
      "virtual": true
     }
    ],
@@ -538,9 +594,10 @@
       0.115
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_002",
@@ -553,9 +610,10 @@
       2.439
      ],
      "thickness": 0.155,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "derived",
+     "status": "verified"
     },
     {
      "id": "w_L0_003",
@@ -568,9 +626,10 @@
       2.783
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_004",
@@ -583,9 +642,10 @@
       3.66
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_005",
@@ -598,9 +658,10 @@
       4.192
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "derived",
+     "status": "verified"
     },
     {
      "id": "w_L0_006",
@@ -613,9 +674,10 @@
       4.575
      ],
      "thickness": 0.155,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_007",
@@ -628,9 +690,10 @@
       7.203
      ],
      "thickness": 0.225,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_008",
@@ -643,9 +706,10 @@
       7.316
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_009",
@@ -658,9 +722,10 @@
       7.09
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_010",
@@ -673,9 +738,10 @@
       7.09
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_011",
@@ -688,9 +754,10 @@
       7.09
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_012",
@@ -703,9 +770,10 @@
       4.117
      ],
      "thickness": 0.155,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_013",
@@ -718,9 +786,10 @@
       7.091
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": [
@@ -764,9 +833,17 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ]
   }
+ },
+ "accepted": {
+  "on": "2026-11-02",
+  "scope": "all",
+  "levels": null,
+  "note": "user, 2 Nov 2026: the reading regression set ('go ahead with all 4', 'can we keep improving this regression set?'); its first baselines are the readings the user had reviewed on the comparison sheets (docs/progress.md, Reading self-check and regression set)"
  }
 }

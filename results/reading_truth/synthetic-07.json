@@ -1,33 +1,41 @@
 {
  "project": "synthetic-07",
- "source": "accepted_reading",
+ "source": "synthetic",
  "status": "accepted",
- "commit": "c60f929dd7e06009599bdfc3472daafb320dd647",
- "date": "2026-11-04",
+ "commit": null,
+ "date": "2026-11-05",
  "levels": [
   {
    "id": "L-1",
    "label": "Bodrum Kat",
    "elevation": -3.0,
-   "order": -1
+   "order": -1,
+   "source": "synthetic",
+   "label_source": "title"
   },
   {
    "id": "L-1b",
    "label": "Bodrum Kat",
    "elevation": -3.0,
-   "order": -1
+   "order": -1,
+   "source": "synthetic",
+   "label_source": "title"
   },
   {
    "id": "L0",
    "label": "Zemin Kat",
    "elevation": 0.0,
-   "order": 0
+   "order": 0,
+   "source": "synthetic",
+   "label_source": "title"
   },
   {
    "id": "L1",
    "label": "Çatı Katı",
    "elevation": 3.0,
-   "order": 1
+   "order": 1,
+   "source": "synthetic",
+   "label_source": "title"
   }
  ],
  "levels_left_out": [],
@@ -61,8 +69,10 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1_mutfak",
@@ -91,8 +101,10 @@
        3.95
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1_hol",
@@ -121,37 +133,15 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "doors": [
     {
      "id": "d_L-1_001",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      7.6,
-      4.0
-     ],
-     "wall_id": "w_L-1_002",
-     "source": "accepted_reading",
-     "confidence": 0.85
-    },
-    {
-     "id": "d_L-1_002",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      8.0,
-      7.875
-     ],
-     "wall_id": "w_L-1_003",
-     "source": "accepted_reading",
-     "confidence": 0.85
-    },
-    {
-     "id": "d_L-1_003",
      "type": "door",
      "width": 0.9,
      "center": [
@@ -159,32 +149,38 @@
       6.0
      ],
      "wall_id": "w_L-1_005",
-     "source": "accepted_reading",
-     "confidence": 0.85
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
-     "id": "d_L-1_004",
+     "id": "d_L-1_002",
      "type": "door",
      "width": 0.8,
      "center": [
       7.6,
       4.0
      ],
-     "wall_id": "w_L-1_002",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L-1_006",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
-     "id": "d_L-1_005",
+     "id": "d_L-1_003",
      "type": "door",
      "width": 0.9,
      "center": [
-      6.1,
-      2.0
+      8.0,
+      7.875
      ],
-     "wall_id": "w_L-1_005",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L-1_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -197,8 +193,10 @@
       0.125
      ],
      "wall_id": "w_L-1_001",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1_002",
@@ -209,8 +207,10 @@
       0.125
      ],
      "wall_id": "w_L-1_001",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1_003",
@@ -221,35 +221,13 @@
       0.125
      ],
      "wall_id": "w_L-1_001",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1_004",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      1.5,
-      7.875
-     ],
-     "wall_id": "w_L-1_003",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L-1_005",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      4.5,
-      7.875
-     ],
-     "wall_id": "w_L-1_003",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L-1_006",
      "type": "window",
      "width": 1.2,
      "center": [
@@ -257,8 +235,38 @@
       4.0
      ],
      "wall_id": "w_L-1_004",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
+    },
+    {
+     "id": "win_L-1_005",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      1.5,
+      7.875
+     ],
+     "wall_id": "w_L-1_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
+    },
+    {
+     "id": "win_L-1_006",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      4.5,
+      7.875
+     ],
+     "wall_id": "w_L-1_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1_007",
@@ -268,33 +276,11 @@
       9.875,
       6.0
      ],
-     "wall_id": "w_L-1_006",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L-1_008",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      0.125,
-      4.0
-     ],
-     "wall_id": "w_L-1_004",
-     "source": "accepted_reading",
-     "confidence": 0.6
-    },
-    {
-     "id": "win_L-1_009",
-     "type": "window",
-     "width": 0.6,
-     "center": [
-      9.875,
-      2.0
-     ],
-     "wall_id": "w_L-1_006",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L-1_002",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [],
@@ -302,47 +288,50 @@
     {
      "id": "w_L-1_001",
      "start": [
-      0.25,
+      0.0,
       0.125
      ],
      "end": [
-      9.75,
+      10.0,
       0.125
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_002",
      "start": [
-      6.15,
-      4.0
+      9.875,
+      0.0
      ],
      "end": [
-      9.75,
-      4.0
+      9.875,
+      8.0
      ],
-     "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_003",
      "start": [
-      0.25,
+      0.0,
       7.875
      ],
      "end": [
-      9.75,
+      10.0,
       7.875
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_004",
@@ -355,9 +344,10 @@
       8.0
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_005",
@@ -370,56 +360,47 @@
       7.75
      ],
      "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_006",
      "start": [
-      9.875,
-      0.0
+      6.1,
+      4.0
      ],
      "end": [
-      9.875,
-      8.0
+      9.75,
+      4.0
      ],
-     "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": [
     {
-     "id": "f_L-1_001",
+     "id": "f_L-1_006",
      "center": [
       9.25,
       6.0
      ],
      "size": [
-      3.0,
-      1.0
+      1.0,
+      3.0
      ],
-     "rotation_deg": 90.0,
+     "rotation_deg": 0.0,
      "room_id": "r_L-1_hol",
-     "turn": "straight",
-     "flights": [
-      {
-       "start": [
-        9.25,
-        4.5
-       ],
-       "end": [
-        9.25,
-        7.5
-       ],
-       "width": 1.0,
-       "lines": 13
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "turn": null,
+     "flights": [],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ]
   },
@@ -429,44 +410,14 @@
      "id": "r_L-1b_salon_acik_mutfak",
      "label": "Salon + Açık Mutfak",
      "room_type": "living",
-     "area": 43.5,
+     "area": 57.19,
      "centroid": [
-      3.15,
-      4.0
+      4.287,
+      3.545
      ],
      "polygon": [
       [
        0.25,
-       0.25
-      ],
-      [
-       6.05,
-       0.25
-      ],
-      [
-       6.05,
-       7.75
-      ],
-      [
-       0.25,
-       7.75
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0
-    },
-    {
-     "id": "r_L-1b_oda",
-     "label": "Hol",
-     "room_type": "hall",
-     "area": 13.32,
-     "centroid": [
-      7.95,
-      2.1
-     ],
-     "polygon": [
-      [
-       6.15,
        0.25
       ],
       [
@@ -478,12 +429,22 @@
        3.95
       ],
       [
-       6.15,
+       6.05,
        3.95
+      ],
+      [
+       6.05,
+       7.75
+      ],
+      [
+       0.25,
+       7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1b_hol",
@@ -512,37 +473,15 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "doors": [
     {
      "id": "d_L-1b_001",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      7.6,
-      4.0
-     ],
-     "wall_id": "w_L-1b_002",
-     "source": "accepted_reading",
-     "confidence": 0.85
-    },
-    {
-     "id": "d_L-1b_002",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      8.0,
-      7.875
-     ],
-     "wall_id": "w_L-1b_003",
-     "source": "accepted_reading",
-     "confidence": 0.85
-    },
-    {
-     "id": "d_L-1b_003",
      "type": "door",
      "width": 0.9,
      "center": [
@@ -550,32 +489,38 @@
       6.0
      ],
      "wall_id": "w_L-1b_005",
-     "source": "accepted_reading",
-     "confidence": 0.85
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
-     "id": "d_L-1b_004",
+     "id": "d_L-1b_002",
      "type": "door",
      "width": 0.8,
      "center": [
       7.6,
       4.0
      ],
-     "wall_id": "w_L-1b_002",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L-1b_006",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
-     "id": "d_L-1b_005",
+     "id": "d_L-1b_003",
      "type": "door",
      "width": 0.9,
      "center": [
-      6.1,
-      2.0
+      8.0,
+      7.875
      ],
-     "wall_id": "w_L-1b_007",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L-1b_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -588,8 +533,10 @@
       0.125
      ],
      "wall_id": "w_L-1b_001",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1b_002",
@@ -600,8 +547,10 @@
       0.125
      ],
      "wall_id": "w_L-1b_001",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1b_003",
@@ -612,35 +561,13 @@
       0.125
      ],
      "wall_id": "w_L-1b_001",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1b_004",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      1.5,
-      7.875
-     ],
-     "wall_id": "w_L-1b_003",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L-1b_005",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      4.5,
-      7.875
-     ],
-     "wall_id": "w_L-1b_003",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L-1b_006",
      "type": "window",
      "width": 1.2,
      "center": [
@@ -648,8 +575,38 @@
       4.0
      ],
      "wall_id": "w_L-1b_004",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
+    },
+    {
+     "id": "win_L-1b_005",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      1.5,
+      7.875
+     ],
+     "wall_id": "w_L-1b_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
+    },
+    {
+     "id": "win_L-1b_006",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      4.5,
+      7.875
+     ],
+     "wall_id": "w_L-1b_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1b_007",
@@ -659,33 +616,11 @@
       9.875,
       6.0
      ],
-     "wall_id": "w_L-1b_006",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L-1b_008",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      0.125,
-      4.0
-     ],
-     "wall_id": "w_L-1b_004",
-     "source": "accepted_reading",
-     "confidence": 0.6
-    },
-    {
-     "id": "win_L-1b_009",
-     "type": "window",
-     "width": 0.6,
-     "center": [
-      9.875,
-      2.0
-     ],
-     "wall_id": "w_L-1b_006",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L-1b_002",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [],
@@ -693,47 +628,50 @@
     {
      "id": "w_L-1b_001",
      "start": [
-      0.25,
+      0.0,
       0.125
      ],
      "end": [
-      9.75,
+      10.0,
       0.125
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_002",
      "start": [
-      6.15,
-      4.0
+      9.875,
+      0.0
      ],
      "end": [
-      9.75,
-      4.0
+      9.875,
+      8.0
      ],
-     "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_003",
      "start": [
-      0.25,
+      0.0,
       7.875
      ],
      "end": [
-      9.75,
+      10.0,
       7.875
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_004",
@@ -746,9 +684,10 @@
       8.0
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_005",
@@ -761,71 +700,47 @@
       7.75
      ],
      "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_006",
      "start": [
-      9.875,
-      0.0
+      6.1,
+      4.0
      ],
      "end": [
-      9.875,
-      8.0
-     ],
-     "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
-    },
-    {
-     "id": "w_L-1b_007",
-     "start": [
-      6.1,
-      4.05
-     ],
-     "end": [
-      6.1,
-      0.25
+      9.75,
+      4.0
      ],
      "thickness": 0.1,
-     "status": "unverified",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": [
     {
-     "id": "f_L-1b_001",
+     "id": "f_L-1b_006",
      "center": [
       9.25,
       6.0
      ],
      "size": [
-      3.0,
-      1.0
+      1.0,
+      3.0
      ],
-     "rotation_deg": 90.0,
+     "rotation_deg": 0.0,
      "room_id": "r_L-1b_hol",
-     "turn": "straight",
-     "flights": [
-      {
-       "start": [
-        9.25,
-        4.5
-       ],
-       "end": [
-        9.25,
-        7.5
-       ],
-       "width": 1.0,
-       "lines": 13
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "turn": null,
+     "flights": [],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ]
   },
@@ -858,8 +773,10 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_banyo",
@@ -888,8 +805,10 @@
        3.95
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_hol",
@@ -918,37 +837,15 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "doors": [
     {
      "id": "d_L0_001",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      4.5,
-      0.125
-     ],
-     "wall_id": "w_L0_001",
-     "source": "accepted_reading",
-     "confidence": 0.85
-    },
-    {
-     "id": "d_L0_002",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      7.6,
-      4.0
-     ],
-     "wall_id": "w_L0_002",
-     "source": "accepted_reading",
-     "confidence": 0.85
-    },
-    {
-     "id": "d_L0_003",
      "type": "door",
      "width": 1.4,
      "center": [
@@ -956,11 +853,13 @@
       7.875
      ],
      "wall_id": "w_L0_003",
-     "source": "accepted_reading",
-     "confidence": 0.85
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
-     "id": "d_L0_004",
+     "id": "d_L0_002",
      "type": "door",
      "width": 0.9,
      "center": [
@@ -968,32 +867,38 @@
       6.0
      ],
      "wall_id": "w_L0_005",
-     "source": "accepted_reading",
-     "confidence": 0.85
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
-     "id": "d_L0_005",
+     "id": "d_L0_003",
      "type": "door",
      "width": 0.8,
      "center": [
       7.6,
       4.0
      ],
-     "wall_id": "w_L0_002",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L0_006",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
-     "id": "d_L0_006",
+     "id": "d_L0_004",
      "type": "door",
      "width": 0.9,
      "center": [
-      6.1,
-      2.0
+      4.5,
+      0.125
      ],
-     "wall_id": "w_L0_005",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L0_001",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -1006,8 +911,10 @@
       0.125
      ],
      "wall_id": "w_L0_001",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_002",
@@ -1018,35 +925,13 @@
       0.125
      ],
      "wall_id": "w_L0_001",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_003",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      1.5,
-      7.875
-     ],
-     "wall_id": "w_L0_003",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L0_004",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      4.5,
-      7.875
-     ],
-     "wall_id": "w_L0_003",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L0_005",
      "type": "window",
      "width": 1.2,
      "center": [
@@ -1054,8 +939,38 @@
       4.0
      ],
      "wall_id": "w_L0_004",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
+    },
+    {
+     "id": "win_L0_004",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      1.5,
+      7.875
+     ],
+     "wall_id": "w_L0_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
+    },
+    {
+     "id": "win_L0_005",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      4.5,
+      7.875
+     ],
+     "wall_id": "w_L0_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_006",
@@ -1065,33 +980,11 @@
       9.875,
       3.0
      ],
-     "wall_id": "w_L0_006",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L0_007",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      0.125,
-      4.0
-     ],
-     "wall_id": "w_L0_004",
-     "source": "accepted_reading",
-     "confidence": 0.6
-    },
-    {
-     "id": "win_L0_008",
-     "type": "window",
-     "width": 0.6,
-     "center": [
-      9.875,
-      5.0
-     ],
-     "wall_id": "w_L0_006",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L0_002",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [],
@@ -1099,47 +992,50 @@
     {
      "id": "w_L0_001",
      "start": [
-      0.25,
+      0.0,
       0.125
      ],
      "end": [
-      9.75,
+      10.0,
       0.125
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_002",
      "start": [
-      6.15,
-      4.0
+      9.875,
+      0.0
      ],
      "end": [
-      9.75,
-      4.0
+      9.875,
+      8.0
      ],
-     "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_003",
      "start": [
-      0.25,
+      0.0,
       7.875
      ],
      "end": [
-      9.75,
+      10.0,
       7.875
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_004",
@@ -1152,9 +1048,10 @@
       8.0
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_005",
@@ -1167,56 +1064,47 @@
       7.75
      ],
      "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_006",
      "start": [
-      9.875,
-      0.0
+      6.1,
+      4.0
      ],
      "end": [
-      9.875,
-      8.0
+      9.75,
+      4.0
      ],
-     "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": [
     {
-     "id": "f_L0_001",
+     "id": "f_L0_005",
      "center": [
       9.25,
       6.0
      ],
      "size": [
-      3.0,
-      1.0
+      1.0,
+      3.0
      ],
-     "rotation_deg": 90.0,
+     "rotation_deg": 0.0,
      "room_id": "r_L0_hol",
-     "turn": "straight",
-     "flights": [
-      {
-       "start": [
-        9.25,
-        4.5
-       ],
-       "end": [
-        9.25,
-        7.5
-       ],
-       "width": 1.0,
-       "lines": 13
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "turn": null,
+     "flights": [],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ]
   },
@@ -1249,8 +1137,10 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_teras",
@@ -1279,8 +1169,10 @@
        3.95
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_hol",
@@ -1309,25 +1201,15 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "doors": [
     {
      "id": "d_L1_001",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      7.6,
-      4.0
-     ],
-     "wall_id": "w_L1_002",
-     "source": "accepted_reading",
-     "confidence": 0.85
-    },
-    {
-     "id": "d_L1_002",
      "type": "door",
      "width": 0.9,
      "center": [
@@ -1335,32 +1217,24 @@
       6.0
      ],
      "wall_id": "w_L1_005",
-     "source": "accepted_reading",
-     "confidence": 0.85
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
-     "id": "d_L1_003",
+     "id": "d_L1_002",
      "type": "door",
      "width": 0.8,
      "center": [
       7.6,
       4.0
      ],
-     "wall_id": "w_L1_002",
-     "source": "accepted_reading",
-     "confidence": 0.6
-    },
-    {
-     "id": "d_L1_004",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      6.1,
-      2.0
-     ],
-     "wall_id": "w_L1_005",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L1_006",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -1373,8 +1247,10 @@
       4.0
      ],
      "wall_id": "w_L1_004",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L1_002",
@@ -1384,33 +1260,11 @@
       9.875,
       6.0
      ],
-     "wall_id": "w_L1_006",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L1_003",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      0.125,
-      4.0
-     ],
-     "wall_id": "w_L1_004",
-     "source": "accepted_reading",
-     "confidence": 0.6
-    },
-    {
-     "id": "win_L1_004",
-     "type": "window",
-     "width": 0.6,
-     "center": [
-      9.875,
-      2.0
-     ],
-     "wall_id": "w_L1_006",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L1_002",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [],
@@ -1426,24 +1280,26 @@
       0.125
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_002",
      "start": [
-      6.15,
-      4.0
+      9.875,
+      0.0
      ],
      "end": [
-      9.75,
-      4.0
+      9.875,
+      8.0
      ],
-     "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_003",
@@ -1456,24 +1312,26 @@
       7.875
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_004",
      "start": [
       0.125,
-      0.25
+      0.0
      ],
      "end": [
       0.125,
-      7.75
+      8.0
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_005",
@@ -1486,24 +1344,26 @@
       7.75
      ],
      "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_006",
      "start": [
-      9.875,
-      0.25
+      6.1,
+      4.0
      ],
      "end": [
-      9.875,
-      7.75
+      9.75,
+      4.0
      ],
-     "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.8
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": [
@@ -1514,30 +1374,20 @@
       6.0
      ],
      "size": [
-      3.0,
-      1.0
+      1.0,
+      3.0
      ],
-     "rotation_deg": 90.0,
+     "rotation_deg": 0.0,
      "room_id": "r_L1_hol",
-     "turn": "straight",
-     "flights": [
-      {
-       "start": [
-        9.25,
-        4.5
-       ],
-       "end": [
-        9.25,
-        7.5
-       ],
-       "width": 1.0,
-       "lines": 13
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "turn": null,
+     "flights": [],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ]
   }
- }
+ },
+ "truth_file": "projects/synthetic-07/truth/building.json"
 }

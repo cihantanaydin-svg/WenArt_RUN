@@ -2,32 +2,40 @@
  "project": "real02",
  "source": "accepted_reading",
  "status": "accepted",
- "commit": "c60f929dd7e06009599bdfc3472daafb320dd647",
- "date": "2026-11-04",
+ "commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+ "date": "2026-11-05",
  "levels": [
   {
    "id": "L-1",
    "label": "Bodrum Kat",
    "elevation": -3.0,
-   "order": -1
+   "order": -1,
+   "source": "accepted_reading",
+   "label_source": "title"
   },
   {
    "id": "L-1b",
    "label": "Bodrum Kat",
    "elevation": -3.0,
-   "order": -1
+   "order": -1,
+   "source": "accepted_reading",
+   "label_source": "title"
   },
   {
    "id": "L0",
    "label": "Zemin Kat",
    "elevation": 0.0,
-   "order": 0
+   "order": 0,
+   "source": "accepted_reading",
+   "label_source": "title"
   },
   {
    "id": "L1",
    "label": "Çatı Katı",
    "elevation": 3.15,
-   "order": 1
+   "order": 1,
+   "source": "accepted_reading",
+   "label_source": "title"
   }
  ],
  "levels_left_out": [],
@@ -78,7 +86,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1_salon_2",
@@ -124,7 +134,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1_mutfak",
@@ -162,7 +174,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1_mutfak_2",
@@ -200,7 +214,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1_koridor",
@@ -254,7 +270,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L-1_koridor_2",
@@ -308,7 +326,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L-1_banyo",
@@ -338,7 +358,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1_banyo_2",
@@ -368,7 +390,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "doors": [
@@ -382,7 +406,9 @@
      ],
      "wall_id": "w_L-1_010",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L-1_002",
@@ -394,7 +420,9 @@
      ],
      "wall_id": "w_L-1_012",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L-1_003",
@@ -406,7 +434,9 @@
      ],
      "wall_id": "w_L-1_009",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L-1_004",
@@ -418,7 +448,9 @@
      ],
      "wall_id": "w_L-1_013",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -432,7 +464,9 @@
      ],
      "wall_id": "w_L-1_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1_002",
@@ -444,7 +478,9 @@
      ],
      "wall_id": "w_L-1_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1_003",
@@ -456,7 +492,9 @@
      ],
      "wall_id": "w_L-1_007",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1_004",
@@ -468,7 +506,9 @@
      ],
      "wall_id": "w_L-1_015",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [
@@ -483,6 +523,8 @@
      "wall_id": null,
      "source": "accepted_reading",
      "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
      "virtual": true
     },
     {
@@ -496,6 +538,8 @@
      "wall_id": null,
      "source": "accepted_reading",
      "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
      "virtual": true
     }
    ],
@@ -511,9 +555,10 @@
       0.101
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_002",
@@ -526,9 +571,10 @@
       7.093
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_003",
@@ -541,9 +587,10 @@
       7.093
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_004",
@@ -556,9 +603,10 @@
       7.508
      ],
      "thickness": 0.17,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_005",
@@ -571,9 +619,10 @@
       9.835
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_006",
@@ -586,9 +635,10 @@
       11.901
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_007",
@@ -601,9 +651,10 @@
       11.801
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_008",
@@ -616,9 +667,10 @@
       11.801
      ],
      "thickness": 0.095,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_009",
@@ -631,9 +683,10 @@
       8.145
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "verified"
     },
     {
      "id": "w_L-1_010",
@@ -646,9 +699,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_011",
@@ -661,9 +715,10 @@
       11.801
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_012",
@@ -676,9 +731,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_013",
@@ -691,9 +747,10 @@
       8.145
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "verified"
     },
     {
      "id": "w_L-1_014",
@@ -706,9 +763,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_015",
@@ -721,9 +779,10 @@
       11.801
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": [
@@ -767,7 +826,9 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "f_L-1_020",
@@ -809,7 +870,9 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ]
   },
@@ -863,7 +926,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L-1b_salon_2",
@@ -909,7 +974,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L-1b_oda",
@@ -939,7 +1006,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1b_oda_2",
@@ -969,7 +1038,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1b_koridor",
@@ -999,7 +1070,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L-1b_merdiven",
@@ -1029,7 +1102,10 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "inferred": true
     },
     {
      "id": "r_L-1b_merdiven_2",
@@ -1059,7 +1135,10 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "inferred": true
     },
     {
      "id": "r_L-1b_banyo",
@@ -1089,7 +1168,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1b_banyo_2",
@@ -1119,7 +1200,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L-1b_koridor_2",
@@ -1149,7 +1232,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     }
    ],
    "doors": [
@@ -1163,7 +1248,9 @@
      ],
      "wall_id": "w_L-1b_008",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L-1b_002",
@@ -1175,7 +1262,9 @@
      ],
      "wall_id": "w_L-1b_009",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L-1b_003",
@@ -1187,7 +1276,9 @@
      ],
      "wall_id": "w_L-1b_011",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L-1b_004",
@@ -1199,7 +1290,9 @@
      ],
      "wall_id": "w_L-1b_012",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -1213,7 +1306,9 @@
      ],
      "wall_id": "w_L-1b_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1b_002",
@@ -1225,7 +1320,9 @@
      ],
      "wall_id": "w_L-1b_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [
@@ -1240,6 +1337,8 @@
      "wall_id": null,
      "source": "accepted_reading",
      "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
      "virtual": true
     },
     {
@@ -1253,6 +1352,8 @@
      "wall_id": null,
      "source": "accepted_reading",
      "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
      "virtual": true
     },
     {
@@ -1266,6 +1367,8 @@
      "wall_id": null,
      "source": "accepted_reading",
      "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
      "virtual": true
     },
     {
@@ -1279,6 +1382,8 @@
      "wall_id": null,
      "source": "accepted_reading",
      "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
      "virtual": true
     }
    ],
@@ -1294,9 +1399,10 @@
       0.101
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_002",
@@ -1309,9 +1415,10 @@
       7.393
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_003",
@@ -1324,9 +1431,10 @@
       7.393
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_004",
@@ -1339,9 +1447,10 @@
       7.518
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_005",
@@ -1354,9 +1463,10 @@
       9.835
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_006",
@@ -1369,9 +1479,10 @@
       11.901
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_007",
@@ -1384,9 +1495,10 @@
       11.801
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_008",
@@ -1399,9 +1511,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_009",
@@ -1414,9 +1527,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_010",
@@ -1429,9 +1543,10 @@
       11.801
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_011",
@@ -1444,9 +1559,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_012",
@@ -1459,9 +1575,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1b_013",
@@ -1474,9 +1591,10 @@
       11.801
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": [
@@ -1520,7 +1638,9 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "f_L-1b_016",
@@ -1562,7 +1682,9 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ]
   },
@@ -1596,7 +1718,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_e_yatak_odasi",
@@ -1626,7 +1750,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_e_yatak_odasi_2",
@@ -1656,7 +1782,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_yatak_odasi_2",
@@ -1686,7 +1814,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_koridor",
@@ -1716,7 +1846,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L0_e_banyo",
@@ -1754,7 +1886,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_e_banyo_2",
@@ -1792,7 +1926,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_koridor_2",
@@ -1822,7 +1958,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L0_yatak_odasi_3",
@@ -1852,7 +1990,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L0_yatak_odasi_4",
@@ -1882,7 +2022,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L0_merdiven",
@@ -1912,7 +2054,10 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "inferred": true
     },
     {
      "id": "r_L0_merdiven_2",
@@ -1942,7 +2087,10 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "inferred": true
     },
     {
      "id": "r_L0_banyo",
@@ -1972,7 +2120,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_banyo_2",
@@ -2002,7 +2152,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "doors": [
@@ -2016,7 +2168,9 @@
      ],
      "wall_id": "w_L0_002",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_002",
@@ -2028,7 +2182,9 @@
      ],
      "wall_id": "w_L0_002",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_003",
@@ -2040,7 +2196,9 @@
      ],
      "wall_id": "w_L0_002",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_004",
@@ -2052,7 +2210,9 @@
      ],
      "wall_id": "w_L0_002",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_005",
@@ -2064,7 +2224,9 @@
      ],
      "wall_id": "w_L0_010",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_006",
@@ -2076,7 +2238,9 @@
      ],
      "wall_id": "w_L0_010",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_007",
@@ -2088,7 +2252,9 @@
      ],
      "wall_id": "w_L0_011",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_008",
@@ -2100,7 +2266,9 @@
      ],
      "wall_id": "w_L0_016",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_009",
@@ -2112,7 +2280,9 @@
      ],
      "wall_id": "w_L0_017",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_010",
@@ -2124,7 +2294,9 @@
      ],
      "wall_id": "w_L0_017",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_011",
@@ -2136,7 +2308,9 @@
      ],
      "wall_id": "w_L0_007",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_012",
@@ -2148,7 +2322,9 @@
      ],
      "wall_id": "w_L0_007",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -2162,7 +2338,9 @@
      ],
      "wall_id": "w_L0_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_002",
@@ -2174,7 +2352,9 @@
      ],
      "wall_id": "w_L0_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_003",
@@ -2186,7 +2366,9 @@
      ],
      "wall_id": "w_L0_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_004",
@@ -2198,7 +2380,9 @@
      ],
      "wall_id": "w_L0_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [
@@ -2212,7 +2396,9 @@
      ],
      "wall_id": "w_L0_011",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L0_002",
@@ -2224,7 +2410,9 @@
      ],
      "wall_id": "w_L0_016",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     }
    ],
    "walls": [
@@ -2239,9 +2427,10 @@
       1.6
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_002",
@@ -2254,9 +2443,10 @@
       5.894
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_003",
@@ -2269,9 +2459,10 @@
       7.094
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_004",
@@ -2284,9 +2475,10 @@
       7.094
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_005",
@@ -2299,9 +2491,10 @@
       7.519
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_006",
@@ -2314,9 +2507,10 @@
       9.836
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_007",
@@ -2329,9 +2523,10 @@
       11.9
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_008",
@@ -2344,9 +2539,10 @@
       1.5
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_009",
@@ -2359,9 +2555,10 @@
       11.8
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_010",
@@ -2374,9 +2571,10 @@
       11.8
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_011",
@@ -2389,9 +2587,10 @@
       11.8
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_012",
@@ -2404,9 +2603,10 @@
       7.444
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_013",
@@ -2419,9 +2619,10 @@
       1.5
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_014",
@@ -2434,9 +2635,10 @@
       11.8
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_015",
@@ -2449,9 +2651,10 @@
       7.444
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_016",
@@ -2464,9 +2667,10 @@
       11.8
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_017",
@@ -2479,9 +2683,10 @@
       11.8
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_018",
@@ -2494,9 +2699,10 @@
       11.8
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_019",
@@ -2509,9 +2715,10 @@
       1.5
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": [
@@ -2555,7 +2762,9 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "f_L0_002",
@@ -2597,7 +2806,9 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ]
   },
@@ -2639,7 +2850,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
@@ -2677,7 +2890,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
@@ -2715,7 +2930,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_koridor",
@@ -2761,7 +2978,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_koridor_2",
@@ -2807,7 +3026,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_banyo",
@@ -2837,7 +3058,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_banyo_2",
@@ -2867,7 +3090,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_teras_2",
@@ -2905,7 +3130,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     }
    ],
    "doors": [
@@ -2919,7 +3146,9 @@
      ],
      "wall_id": "w_L1_003",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_002",
@@ -2931,7 +3160,9 @@
      ],
      "wall_id": "w_L1_003",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_003",
@@ -2943,7 +3174,9 @@
      ],
      "wall_id": "w_L1_010",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_004",
@@ -2955,7 +3188,9 @@
      ],
      "wall_id": "w_L1_012",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_005",
@@ -2967,7 +3202,9 @@
      ],
      "wall_id": "w_L1_014",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_006",
@@ -2979,7 +3216,9 @@
      ],
      "wall_id": "w_L1_016",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -2993,7 +3232,9 @@
      ],
      "wall_id": "w_L1_010",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L1_002",
@@ -3005,7 +3246,9 @@
      ],
      "wall_id": "w_L1_016",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [
@@ -3019,7 +3262,9 @@
      ],
      "wall_id": "w_L1_003",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L1_002",
@@ -3031,7 +3276,9 @@
      ],
      "wall_id": "w_L1_003",
      "source": "accepted_reading",
-     "confidence": 0.6
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified"
     }
    ],
    "walls": [
@@ -3046,9 +3293,10 @@
       0.101
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_002",
@@ -3061,9 +3309,10 @@
       7.318
      ],
      "thickness": 0.55,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_003",
@@ -3076,9 +3325,10 @@
       7.518
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_004",
@@ -3091,9 +3341,10 @@
       7.567
      ],
      "thickness": 0.05,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_005",
@@ -3106,9 +3357,10 @@
       9.835
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_006",
@@ -3121,9 +3373,10 @@
       10.246
      ],
      "thickness": 0.11,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_007",
@@ -3136,9 +3389,10 @@
       10.246
      ],
      "thickness": 0.11,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_008",
@@ -3151,9 +3405,10 @@
       11.901
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_009",
@@ -3166,9 +3421,10 @@
       11.801
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_010",
@@ -3181,9 +3437,10 @@
       10.201
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_011",
@@ -3196,9 +3453,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_012",
@@ -3211,9 +3469,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_013",
@@ -3226,9 +3485,10 @@
       11.801
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_014",
@@ -3241,9 +3501,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_015",
@@ -3256,9 +3517,10 @@
       11.801
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_016",
@@ -3271,9 +3533,10 @@
       10.201
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_017",
@@ -3286,9 +3549,10 @@
       11.801
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": [
@@ -3332,7 +3596,9 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "f_L1_002",
@@ -3374,9 +3640,17 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ]
   }
+ },
+ "accepted": {
+  "on": "2026-11-02",
+  "scope": "all",
+  "levels": null,
+  "note": "user, 2 Nov 2026: the reading regression set ('go ahead with all 4', 'can we keep improving this regression set?'); its first baselines are the readings the user had reviewed on the comparison sheets (docs/progress.md, Reading self-check and regression set)"
  }
 }

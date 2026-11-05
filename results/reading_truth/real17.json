@@ -2,14 +2,16 @@
  "project": "real17",
  "source": "accepted_reading",
  "status": "partial",
- "commit": "c60f929dd7e06009599bdfc3472daafb320dd647",
- "date": "2026-11-04",
+ "commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+ "date": "2026-11-05",
  "levels": [
   {
    "id": "L-1",
    "label": "Bodrum Kat",
    "elevation": -4.048,
-   "order": -1
+   "order": -1,
+   "source": "accepted_reading",
+   "label_source": "title"
   }
  ],
  "levels_left_out": [
@@ -289,7 +291,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     }
    ],
    "doors": [],
@@ -304,7 +308,9 @@
      ],
      "wall_id": "w_L-1_026",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L-1_002",
@@ -316,7 +322,9 @@
      ],
      "wall_id": "w_L-1_035",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [],
@@ -332,9 +340,10 @@
       9.418
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_002",
@@ -347,9 +356,10 @@
       9.433
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_003",
@@ -362,9 +372,10 @@
       9.461
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_004",
@@ -377,9 +388,10 @@
       9.48
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_005",
@@ -392,9 +404,10 @@
       9.494
      ],
      "thickness": 0.115,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_006",
@@ -407,9 +420,10 @@
       9.5
      ],
      "thickness": 0.285,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_007",
@@ -422,9 +436,10 @@
       9.522
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_008",
@@ -437,9 +452,10 @@
       9.552
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_009",
@@ -452,9 +468,10 @@
       9.688
      ],
      "thickness": 0.505,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_010",
@@ -467,9 +484,10 @@
       12.996
      ],
      "thickness": 0.38,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_011",
@@ -482,9 +500,10 @@
       15.056
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_012",
@@ -497,9 +516,10 @@
       15.731
      ],
      "thickness": 0.25,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_013",
@@ -512,9 +532,10 @@
       17.476
      ],
      "thickness": 0.3,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_014",
@@ -527,9 +548,10 @@
       17.781
      ],
      "thickness": 0.25,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_015",
@@ -542,9 +564,10 @@
       19.106
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_016",
@@ -557,9 +580,10 @@
       22.022
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_017",
@@ -572,9 +596,10 @@
       22.022
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_018",
@@ -587,9 +612,10 @@
       22.072
      ],
      "thickness": 0.3,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_019",
@@ -602,9 +628,10 @@
       22.072
      ],
      "thickness": 0.3,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_020",
@@ -617,9 +644,10 @@
       22.097
      ],
      "thickness": 0.25,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_021",
@@ -632,9 +660,10 @@
       22.222
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_022",
@@ -647,9 +676,10 @@
       17.906
      ],
      "thickness": 0.25,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_023",
@@ -662,9 +692,10 @@
       10.106
      ],
      "thickness": 0.3,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_024",
@@ -677,9 +708,10 @@
       9.926
      ],
      "thickness": 0.3,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_025",
@@ -692,9 +724,10 @@
       21.822
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_026",
@@ -707,9 +740,10 @@
       21.611
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "derived",
+     "status": "verified"
     },
     {
      "id": "w_L-1_027",
@@ -722,9 +756,10 @@
       19.302
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_028",
@@ -737,9 +772,10 @@
       17.901
      ],
      "thickness": 0.29,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_029",
@@ -752,9 +788,10 @@
       17.326
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_030",
@@ -767,9 +804,10 @@
       15.851
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_031",
@@ -782,9 +820,10 @@
       14.841
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_032",
@@ -797,9 +836,10 @@
       9.776
      ],
      "thickness": 0.49,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_033",
@@ -812,9 +852,10 @@
       13.402
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_034",
@@ -827,9 +868,10 @@
       12.806
      ],
      "thickness": 0.27,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L-1_035",
@@ -842,9 +884,10 @@
       10.541
      ],
      "thickness": 0.26,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "derived",
+     "status": "verified"
     }
    ],
    "stairs": [
@@ -876,7 +919,9 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "f_L-1_002",
@@ -918,9 +963,17 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified"
     }
    ]
   }
+ },
+ "accepted": {
+  "on": "2026-11-04",
+  "scope": "all",
+  "levels": null,
+  "note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done); L-1 only, the other levels were left out then"
  }
 }

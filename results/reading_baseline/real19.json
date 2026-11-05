@@ -37,5 +37,13 @@
   "stacking": {
    "L1": 2.819
   }
- }
+ },
+ "accepted_by_user": true,
+ "accepted_on": "2026-11-03",
+ "accepted_scope": "partial",
+ "accepted_levels": [
+  "L0",
+  "L1"
+ ],
+ "accepted_note": "user, 3 Nov 2026: 'r3 ground, r4-r6 upper' (the plan levels; L0 and L1 read, L2 walls open); the reading itself was not accepted as a baseline"
 }

@@ -2,9 +2,11 @@
 sheets), ``python -m wenart.reading_check regress [--projects ...] [--update]`` (the reading regression set),
 ``python -m wenart.reading_check zip --out <reading> --results <run results> --project <p> --dest <zip>`` (a structure
 run's zip: renders and comparison sheets together, ``pack``), ``python -m wenart.reading_check truth build
-[--projects ...] [--work DIR]`` (the truth corpus from the accepted readings, ``truth``) and ``python -m
-wenart.reading_check score [--projects ...] [--work DIR] [--update] [--gate]`` (the reading score against the truth,
-``score``; Milestone 14 R1, 4 Nov 2026)."""
+[--projects ...] [--work DIR] [--fresh] [--allow-drift]`` (the truth corpus from the accepted readings and the
+synthetic projects' exact truth; ``truth add`` / ``truth remove`` put a user correction into it, ``truth``) and
+``python -m wenart.reading_check score [--projects ...] [--work DIR] [--fresh] [--update] [--gate]`` (the reading
+score against the truth, ``score``; Milestone 14 R1, 4 Nov 2026). ``--fresh`` reads a project again even when
+``--work`` already holds its reading."""
 from __future__ import annotations
 
 import argparse
@@ -27,12 +29,40 @@ def main(argv=None) -> int:
     z.add_argument("--results", required=True, help="the run's collected results folder (runs/<job>/results)")
     z.add_argument("--project", required=True)
     z.add_argument("--dest", required=True, help="the zip to write")
-    t = sub.add_parser("truth", help="the truth corpus: `truth build` reads the accepted projects and writes "
-                                     "results/reading_truth/<project>.json")
-    t.add_argument("action", choices=["build"])
-    t.add_argument("--projects", default=None, help="comma separated (default: every baseline with status ok)")
+    t = sub.add_parser("truth", help="the truth corpus: `truth build` reads the accepted projects (accepted_by_user "
+                                     "in the baseline) and takes the synthetic projects' exact truth, writing "
+                                     "results/reading_truth/<project>.json; `truth add` / `truth remove` put a user "
+                                     "correction into it")
+    t.add_argument("action", choices=["build", "add", "remove"])
+    t.add_argument("--projects", default=None, help="build: comma separated (default: every accepted baseline and "
+                                                    "every synthetic project with a truth)")
     t.add_argument("--work", default=None, help="work folder for the readings (a reading already there is used again)")
     t.add_argument("--fresh", action="store_true", help="read again even when --work holds a reading")
+    t.add_argument("--allow-drift", action="store_true",
+                   help="build: write a reading that drifted from the accepted baseline, marked status drifted")
+    t.add_argument("--project", default=None, help="add/remove: the project")
+    t.add_argument("--level", default=None, help="add/remove: the level id (L0, L-1 ...)")
+    t.add_argument("--kind", default=None, choices=["room", "door", "window", "opening", "wall", "stair", "level"],
+                   help="add/remove: the element kind")
+    t.add_argument("--source", default=None, choices=["user_correction", "synthetic"],
+                   help="add/remove: the element's source (default user_correction)")
+    t.add_argument("--correction", default=None, help="add/remove: the correction record id (C0012)")
+    t.add_argument("--date", default=None, help="add/remove: the date of the correction (default today)")
+    t.add_argument("--id", default=None, help="add/remove: the element id (remove: the element to negate)")
+    t.add_argument("--center", default=None, help="x,y in building metres (door, window, opening, stair, room)")
+    t.add_argument("--width", default=None, help="door / window / opening width in metres")
+    t.add_argument("--wall-id", dest="wall_id", default=None)
+    t.add_argument("--label", default=None, help="room label (or the level's label with --kind level)")
+    t.add_argument("--room-type", dest="room_type", default=None)
+    t.add_argument("--area", default=None, help="room area in m2")
+    t.add_argument("--polygon", default=None, help="room polygon 'x,y;x,y;...' in building metres")
+    t.add_argument("--start", default=None, help="wall start x,y")
+    t.add_argument("--end", default=None, help="wall end x,y")
+    t.add_argument("--thickness", default=None, help="wall thickness in metres")
+    t.add_argument("--size", default=None, help="stair footprint 'w,d' in metres")
+    t.add_argument("--turn", default=None, help="stair turn: straight, U, other")
+    t.add_argument("--elevation", default=None, help="level elevation (with --kind level)")
+    t.add_argument("--order", default=None, help="level order (with --kind level)")
     s = sub.add_parser("score", help="score the readings against the truth (results/reading_truth/)")
     s.add_argument("--projects", default=None, help="comma separated (default: every project with a truth file)")
     s.add_argument("--work", default=None, help="work folder for the readings (a reading already there is used again)")
