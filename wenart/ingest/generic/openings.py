@@ -1145,6 +1145,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     caps, cap_log = end_caps(runs, edge_m)
     ends = [p for p in pieces if id(p) not in caps]    # the pieces that end walls (frames and nubs do not)
     cap_pieces = [p for p in pieces if id(p) in caps]
+    cap_of = {e["piece"]: e["of"] for e in cap_log}        # a cap's piece -> the wall piece whose end it caps
     runs = [r for r in ([q for q in run if id(q) not in caps] for run in runs) if r]
     runs, piece_log = join_fused_strips(runs, index, edge_m)
     piece_log += cap_log
@@ -1243,8 +1244,11 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                 corner = _buried_end(p, which, ends)
                 if corner is None:
                     continue
-            # 4 Nov 2026: a frame or nub at a wall's end (a cap) is wall material a cast from a free end hits too
-            hit = _cast(p, which, ends, cap_pieces) if corner is None else _cast_from(p, which, ends, corner)
+            # 4 Nov 2026: a frame or nub at a wall's end (a cap) is wall material a cast from a free end hits too;
+            # never the cap of this wall's own end (its frame belongs to the opening the cast is looking for: P7,
+            # real01's store door)
+            others_caps = [c for c in cap_pieces if cap_of.get(c.k) != p.k]
+            hit = _cast(p, which, ends, others_caps) if corner is None else _cast_from(p, which, ends, corner)
             if hit is None:
                 if corner is None:                  # a buried end is no free end: no separator candidate
                     end_log.append({"piece": p, "which": which, "gap": None})
