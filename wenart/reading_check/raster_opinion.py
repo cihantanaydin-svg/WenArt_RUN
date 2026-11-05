@@ -1304,6 +1304,10 @@ def calibrate_project(project: str, res: dict, truth: dict) -> dict:
             "judged": judged}
 
 
+PER_PROJECT_KEYS = ("raster_score", "raster_types", "vector_score", "findings", "right", "unjudged", "seconds",
+                    "levels_scored", "error")
+
+
 def trust_from(per_project: dict, commit: Optional[str] = None) -> dict:
     """The trust file's content from the calibration of several projects (pure)."""
     kinds = {}
@@ -1314,9 +1318,7 @@ def trust_from(per_project: dict, commit: Optional[str] = None) -> dict:
                     "trusted": bool(n) and r / n >= TRUST_MIN}
     return {"note": TRUST_NOTE, "commit": commit, "date": _dt.date.today().isoformat(), "threshold": TRUST_MIN,
             "projects": sorted(per_project), "kinds": kinds,
-            "per_project": {p: {k: v.get(k) for k in ("raster_score", "vector_score", "findings", "right", "unjudged",
-                                                       "seconds", "levels_scored", "error")
-                                if v.get(k) is not None}
+            "per_project": {p: {k: v.get(k) for k in PER_PROJECT_KEYS if v.get(k) is not None}
                             for p, v in sorted(per_project.items())}}
 
 
