@@ -302,6 +302,10 @@ class DecisionLog:
             else:
                 rec["final_answer"] = _final_gap_answer(place, rec["features"].get("width", 0.0), ops, segs)
             out.append(rec)
+        wall_model = None
+        if self.ranker and self.wall_records:
+            from wenart.reading_check import ranker as RK
+            wall_model = RK.load_model(KIND_WALL)
         for rec in self.wall_records:
             pp = rec.pop("place_page", None)
             line = rec.pop("line_page", None)
@@ -312,6 +316,16 @@ class DecisionLog:
                 rec["final_answer"] = "wall" if any(covers_segment(a, b, s) for s in segs) else "notation"
             else:
                 rec["final_answer"] = "notation"
+            if wall_model is not None:
+                # 5 Nov 2026 (R3 step 4): the wall ranker advises only. Moving a pair into or out of the wall network
+                # is geometry the network rules build (joins, columns, the mask), so its answer is recorded and
+                # counted (``ranker_advice``), never applied; decided_by stays rule.
+                answer, by, margin, scores = RK.decide(KIND_WALL, rec["features"], rec["rule_answer"],
+                                                       rec["rule_confidence"], allowed=RK.allowed_answers(rec),
+                                                       model=wall_model)
+                rec["scores"], rec["margin"] = scores, margin
+                if by == RK.DECIDED_RANKER and answer != rec["rule_answer"]:
+                    rec["ranker_advice"] = answer
             out.append(rec)
         return out
 
@@ -407,11 +421,13 @@ def summary(records: list[dict]) -> dict:
     out: dict = {}
     for r in records:
         k = out.setdefault(r["kind"], {"n": 0, "rule_answer": {}, "final_answer": {}, "decided_by": {},
-                                       "changed_after_rule": 0})
+                                       "changed_after_rule": 0, "ranker_advice": 0, "low_confidence": 0})
         k["n"] += 1
         for key in ("rule_answer", "final_answer", "decided_by"):
             v = str(r.get(key))
             k[key][v] = k[key].get(v, 0) + 1
         if r.get("final_answer") not in (r.get("rule_answer"), DROPPED):
             k["changed_after_rule"] += 1
+        k["ranker_advice"] += 1 if r.get("ranker_advice") else 0
+        k["low_confidence"] += 1 if r.get("low_confidence") else 0
     return out

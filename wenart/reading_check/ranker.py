@@ -27,7 +27,10 @@ wall | notation) that scores the code-built candidates of a decision from the fe
    a door; a gap wider than its wall run is never a door; an end gap makes no element; closed and open are never the
    ranker's answers because they make or remove a wall; a pair on a dimension or axis layer, in a dimension chain or
    an axis grid is never a wall). A missing model file means the rules alone, never an error. The models are loaded
-   once per process.
+   once per process. The gap ranker re-types an opening element in ``openings.classify_gap``; the wall ranker only
+   advises (``ranker_advice`` on the pair's record, counted in the level's summary): moving a pair into or out of the
+   wall network is geometry the network rules build (joins, columns, the mask), so v1 measures what it would say and
+   applies nothing there.
 
 ``python -m wenart.reading_check.ranker train|eval|explain|label --work DIR [--projects a,b] [--kind k]``: ``train``
 labels the readings in ``DIR`` (one folder per project, as ``score --work`` leaves them), fits both models, writes them
