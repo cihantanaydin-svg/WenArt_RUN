@@ -3563,7 +3563,7 @@ track's agent for another round. Merged on `opus_branch_11`, in order: R7 (25fef
 | R8 stability | `python -m wenart.reading_check stability`: every project read again mirrored, rotated, in mm, with renamed layers and without dimension texts, scored against its own reading | without dimension texts real06 and real07 read nothing (no scale source); renamed layers: synthetic-06 37.9 (labels keyed on layer A-ANNO), real07 70.3; rotate90: real06 19.6 (unit read 5000 instead of 50); mirror moves a door's hinge side (real07 d_L0_001) |
 | R9 remark capture | `python -m wenart.reading_check remark add ...`: a review remark becomes a correction record with a crop of the place (the user keeps reviewing in detail, as asked) | the example record on real10's kitchen window came out at the right wall |
 | R5 cross-document checks | `crossdoc.py` RC8 elevations against plans per floor and column, RC9 sections against levels, RC10 site plan against the model, RC11 size tags against openings, RC12 twins and typical floors; the elevation reader assembles openings from loose lines (real10's and real07's elevations had yielded zero) | first machine-found reading error: real10's two kitchen windows (tag 165/210) read as stacked wall pieces on L0-L6, named with the wall ids; RC10 raises real07's second villa and the missing pool; real10 RC8 majors 12 -> 7 after three rounds (2 true, the rest a stepped facade and a roof cornice) |
-| R2 closure, no level left out | the outline closure pass, `failed_levels: build_marked` as the default, RC7 low-confidence places on the sheets, a shared outdoor guard for both inferred-wall passes (the 3 Nov glazed-facade pass had closed real11's left kitchen over its balcony) | projects read with every level 10 of 21 -> 17 of 21 (real11 9 levels, real13 8, real14 18, real16 3, real18 6, real19 4, real20 1); no closure wall where a ring already closed; open: real08 (17.7 MB DWG, over 50 min), real12 (no walls read, six untitled plans); 23 review findings in the second round (a fragment forcing a parallel bridge, a bridge through a near wall, support from any layer, a level closed only by bridges not marked low) |
+| R2 closure, no level left out | the outline closure pass, `failed_levels: build_marked` as the default, RC7 low-confidence places on the sheets, a shared outdoor guard for both inferred-wall passes (the 3 Nov glazed-facade pass had closed real11's left kitchen over its balcony) | projects read with every level 10 of 20 -> 19 of 20 after its second round (see the next section); no closure wall where a ring already closed; open: real08 (17.7 MB DWG, over 50 min), real12 (no walls read, six untitled plans); 23 review findings in the second round (a fragment forcing a parallel bridge, a bridge through a near wall, support from any layer, a level closed only by bridges not marked low) |
 
 Also: 25 CPU tests fail on the main branch before any Milestone 14 merge (the same 25 on 92cf9f81 and after every
 merge; from the 3-4 Nov work: synthetic-07 sheets, real02 twins, the mirror-twin pass, four lessons without a check,
@@ -3576,3 +3576,60 @@ disk filled with readings and was cleaned.
 
 Waiting for the user: the new readings of real11, real13, real14, real16, real18, real19 and real20 (their sheets with
 RC7 places) to accept as baselines and truth; the four proposed records above.
+
+## Milestone 14, day 2 evening (5 Nov 2026): R2 merged, the user's corrections in the truth
+
+Merged since the last section, each after a multi-lens adversarial review whose confirmed findings went back to the
+track for another round: R2 (57bb3e72; second round: fragments never force a bridge, no bridge through a near wall,
+support only from the building's own lines, joining closed blocks is no closure, a level closed only by bridges or with
+walls and no room is marked low, the levels above an unreadable one are built and marked, labels outside the walls
+get numbered RC7 places, the regression reports newly read levels as notes, `reading_check/outline_closure.json` per
+level with every refused candidate); the cross-document checks wired into `check()` as advisory findings (e74e5cf6);
+the fixes of 14 old failing tests (cae049d4, merged only up to the reviewed commit) and their review points
+(bbc6cd3f: in-tolerance count changes are regression notes; UL315 asked by the lesson walk); the located user
+corrections (29c2a5e0).
+
+There are 20 real projects (real01 to real21; real05 was never used), not 21 as written before. Regression set on the
+merged tree, all 26 projects (real07 and real12 are the two stale baselines, identical before Milestone 14):
+
+| project | levels before (baseline) | left out before | levels now | left out now | marked low |
+|---|---|---|---|---|---|
+| real01-04, 06, 07, 10, 15, 21 | as before | 0 | as before | 0 | 0 |
+| real08 | 1 | 0 | 1 | 0 | 0 (status needs_review: the whole sheet is read as one plan) |
+| real09 | 0 | 6 | 5 | 0 | 0 |
+| real11 | 0 | 10 | 9 | 0 | 5 (rings closed by inferred walls: the kitchens' glazed fronts) |
+| real12 | 0 | 4 | 0 | 4 | 0 (no walls read; six untitled plans) |
+| real13 | 0 | 8 | 8 | 0 | 8 (hatch-drawn walls mostly unread) |
+| real14 | 0 | 18 | 18 | 0 | 18 (a room schedule read as labels) |
+| real16 | 0 | 3 | 3 | 0 | 3 |
+| real17 | 1 | 4 | 5 | 0 | 0 |
+| real18 | 0 | 6 | 6 | 0 | 6 (hatch-drawn walls) |
+| real19 | 2 | 2 | 4 | 0 | 1 |
+| real20 | 0 | 1 | 1 | 0 | 1 |
+
+Real projects read with every level: 10 of 20 -> 19 of 20 (real12 is the one left; real08 reads but as one region).
+
+The user's corrections are now on the drawings and in the truth: of the 58 records, 39 describe a placeable element,
+36 were located on the current readings (place, element ids, `place_source: located_by_machine`, confidence, a note
+and a crop), and 21 were applied to the truth of real06, real07 and real10 as `user_correction` (125 truth elements;
+every element keeps its `corrections` list). Rules learnt in the review: a record goes into the truth only with the
+user's own words (C0022 had none: the session's note was its source, reverted); a confirm keeps the reading's element
+and changes only its source; where the user named one element and the reading has two, the vector geometry decides
+(C0047: real07's heating-room door is one 0.80 m door at the drawn centre, the tag's second door is a double read;
+C0034: real10's lift door is on the shaft's south wall as drawn, the reading's east door is absent). 6 records wait for
+the user to accept their project (real09 x5, real17 L0), 12 are not applied (no words, no place, low confidence, held,
+or the machine's own proposals C0055-C0058). The score now measures what the user taught: real07 99.71 (the double
+door), real10 99.34 (the lift and fire-stair doors still read as openings), real06 100. `remark add` now refuses a
+placeable remark without a place.
+
+R3 (the ranker) is built and parked: decisions recorded per level (`reading_check/decisions_<level>.json`), labelled
+from the truth (user corrections x10, synthetic x3, accepted readings x1), a numpy logistic regression stored as JSON,
+`python -m wenart.reading_check ranker retrain`; with a nested trust gate it changes only transitions that were right
+on at least 60 % of held-out cases (without it, 26 changes, 2 of 8 right on real projects: real10's kitchen
+pass-throughs became windows). Held out, it equals the rules on real projects (0.775) and lifts synthetic-12 from 87.2
+to 99.6. It had no user-correction labels until today; it retrains on the merged reader with them before it merges.
+
+Open: the mirror-twin fix (single houses no longer get mirror copies; 11 old tests and synthetic-19's xfails pass; real
+mirrored plans keep their copies, duplicates removed) is under review; R4 (raster second opinion) and R6 (the vision
+critic, one short pod) are next; the stability map's targets (scale without dimension texts, labels on any layer, the
+unit under rotation) are queued as reader work.
