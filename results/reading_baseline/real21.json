@@ -23,5 +23,9 @@
    "minor": 0
   },
   "stacking": {}
- }
+ },
+ "accepted_by_user": true,
+ "accepted_on": "2026-11-03",
+ "accepted_scope": "all",
+ "accepted_note": "user, 3 Nov 2026: 'Two different buildings' (real20 split into real20 and real21; real21's plan r2 read ready; docs/progress.md, real10 L-1 right flat, the user's new drawings)"
 }

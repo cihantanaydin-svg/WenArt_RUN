@@ -28,5 +28,9 @@
    "minor": 1
   },
   "stacking": {}
- }
+ },
+ "accepted_by_user": true,
+ "accepted_on": "2026-11-04",
+ "accepted_scope": "all",
+ "accepted_note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done); L-1 only, the other levels were left out then"
 }

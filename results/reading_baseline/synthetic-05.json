@@ -23,5 +23,9 @@
    "minor": 0
   },
   "stacking": {}
- }
+ },
+ "accepted_by_user": true,
+ "accepted_on": "2026-11-02",
+ "accepted_scope": "all",
+ "accepted_note": "synthetic project of the regression set of 2 Nov 2026; its truth is exact (projects/<p>/truth/building.json), so the truth corpus takes that file, not this reading"
 }
