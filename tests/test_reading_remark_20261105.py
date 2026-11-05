@@ -86,3 +86,39 @@ def test_add_redo_list(tmp_path, monkeypatch):
     assert remark.select(remark.load(f), "real09") == []
     assert remark.select(remark.load(f), since="2999-01-01") == []
     assert "window here" in remark.table(remark.load(f))
+
+
+def test_a_placeable_remark_is_refused_without_a_place_or_a_place_note(tmp_path, monkeypatch):
+    """Review of 5 Nov 2026: `remark add` enforces the place rule of truth.correction_errors at capture: a wall,
+    door, window, opening, room or stair remark needs --place, --element (its place is taken) or --place-note."""
+    for kind in remark.PLACEABLE_KINDS:
+        with pytest.raises(ValueError, match="needs its place"):
+            rec(kind=kind)
+    r = rec(kind="wall", place_note="the walls were removed the same day; their places are not recorded")
+    assert r["place"] is None and r["place_note"].startswith("the walls")
+    assert correction_errors([r], [], ["real10"]) == []
+    with pytest.raises(ValueError, match="--place-note"):
+        rec(kind="door", place_note="   ")                                  # a blank note is no note
+    assert rec(kind="wall", element_ids=["w_L0_002"], building=B)["place"] == {"x": 4.0, "y": 1.5}
+    assert rec(kind="level")["place"] is None and "place_note" not in rec(kind="level")
+    # the command line: --place-note reaches the record; without it the record is not written
+    f, crops = tmp_path / "c.jsonl", tmp_path / "crops"
+    monkeypatch.setattr(remark, "project_names", lambda: ["real10"])
+    monkeypatch.setattr(remark, "lesson_ids", lambda: [])
+    monkeypatch.setattr(remark, "CORRECTIONS_PATH", f)
+    assert remark.main(["add", "--project", "real10", "--text", "This wall do not exist", "--kind", "wall"]) == 2
+    assert not f.exists()
+    ns = argparse.Namespace(project="real10", text="This wall do not exist", level="L1", place=None, element=None,
+                            kind="wall", reader_answer="", right_answer="", lesson=None, out=None,
+                            truth_action=None, place_note="removed the same day")
+    rec_, crop = remark.add(ns, f, crops)
+    assert rec_["place_note"] == "removed the same day" and crop is None and remark.load(f)[0]["id"] == "C0001"
+
+
+def test_the_crop_can_show_the_drawing(tmp_path):
+    """Review of 5 Nov 2026: a crop may carry the drawing's own strokes (the jambs and swings a place was taken
+    from); without a converted DXF there are none."""
+    assert remark.drawing_lines(tmp_path, B, "L0", {"x": 1, "y": 1}) == []
+    p = remark.draw_crop(B, "L0", {"x": 2, "y": 1}, [], tmp_path / "C0002.png",
+                         lines=[((1.0, 0.0), (1.0, 0.1)), ((1.9, 0.0), (1.9, 0.1))])
+    assert p.is_file() and p.stat().st_size > 1000

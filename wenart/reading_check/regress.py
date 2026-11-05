@@ -83,6 +83,15 @@ def notes(base: dict, new: dict) -> list[str]:
         if stack.get(lid):
             text += f"; new finding: it stacks {stack[lid]:.2f} m off the reference"
         out.append(text)
+    # 5 Nov 2026 (review of the test fixes): a count that moved within the tolerance (an 8-room level may gain or lose
+    # 2 rooms and still pass) is written as a note, so "regression set unchanged" means unchanged, not "within 10 %"
+    for lid, b in (base.get("per_level") or {}).items():
+        n = (new.get("per_level") or {}).get(lid)
+        if n is None:
+            continue
+        for key in PER_LEVEL:
+            if n.get(key, 0) != b.get(key, 0) and abs(n.get(key, 0) - b.get(key, 0)) <= max(COUNT_MIN, COUNT_TOL * b.get(key, 0)):
+                out.append(f"{lid} {key}: {b.get(key)} -> {n.get(key)} (within the tolerance)")
     return out
 
 

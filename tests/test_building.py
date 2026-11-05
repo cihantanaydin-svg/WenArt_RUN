@@ -114,7 +114,8 @@ def test_room_type_priority_covers_every_keyword_type():
     # docs/milestone7.md §1.3 adds dining and prayer (between kitchen and hall) to the M6 order; real03 (10 Oct
     # 2026, docs/milestone11.md §19.8) adds stair and shaft after balcony (YANGIN MERDİVENİ is a stair room); real07
     # (4 Nov 2026, lessons UL320 and UL321) adds garage (GARAJ, OTOPARK, carport) and technical (KAT KALORİFERİ, KAZAN
-    # DAİRESİ, boiler room) after shaft, before the living types (a GARAJ + DEPO or a KAZAN DAİRESİ HOLÜ is no hall).
+    # DAİRESİ, boiler room) after shaft, before the living types (a GARAJ HOLÜ or a KAZAN DAİRESİ HOLÜ is no hall; a
+    # 'GARAJ + DEPO' is typed storage, which comes first: an open question to the user, noted 5 Nov 2026).
     assert B.ROOM_TYPE_PRIORITY == ("wc", "bathroom", "storage", "balcony", "stair", "shaft", "garage", "technical",
                                     "bedroom", "living", "kitchen", "dining", "prayer", "hall", "other")
     assert {t for _, t in B._ENGLISH_ROOM_KEYWORDS} == set(B.ROOM_TYPE_PRIORITY)

@@ -1128,10 +1128,11 @@ def run(inp) -> dict:
     return out
 
 
-READING_LESSONS = tuple(f"UL{n}" for n in (*range(260, 277), *range(278, 284), *range(286, 290), 295, 296, 300, 301, 308, 309,
-                                             315))
+READING_LESSONS = tuple(f"UL{n}" for n in (*range(260, 277), *range(278, 284), *range(286, 290), 295, 296, 300, 301, 308, 309))
 CHECK_LESSONS["U39"] = READING_LESSONS     # 2 Nov 2026: the reading lessons, measured by the reading self-check
-# (UL315 of 4 Nov: drawn walls joined, no wall across an open gap: RC4 drawn walls not built, RC5 walls on no drawn line)
+# 5 Nov 2026 (review): UL315 (no imagined wall across an open section) is NOT measured by U39: U39 keeps only the
+# critical and major reading-check findings, and RC5 rates an inferred wall minor; UL315 is asked by the lesson walk
+# (its question) until a check of inferred walls over drawn openings exists
 
 
 def reading_check(root, project: Optional[str]) -> Optional[list]:
