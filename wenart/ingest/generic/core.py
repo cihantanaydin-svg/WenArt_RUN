@@ -1367,6 +1367,44 @@ CLOSURE_SUPPORT_TOL_M = 0.15    # ... within half its thickness plus this (a fra
 CLOSURE_SUPPORT_LINE_M = 0.15   # ... each line at least this long (no hinge ticks)
 CLOSURE_UNLABELLED_MAX_M2 = 6.0 # a corner bridge closing an unlabelled space over this is refused
 CLOSURE_ON_OUTLINE_M = 2.0      # a corner bridge runs along the drawn outline: its mean distance to the boundary at most
+CLOSURE_OUTDOOR_AREA_TOL = 0.10 # a closed face within this share of an outdoor space's area text (10.00 m2) is that space
+
+
+def outdoor_guard(blocks: list, walls: list) -> dict:
+    """What no inferred wall may close into a room (5 Nov 2026, real11 L0: the glazed-facade pass closed the left
+    kitchen along its balcony's railing and the balcony became kitchen floor; the right half, closed by the outline
+    closure along the facade, kept its balcony): ``points`` = the anchors of the balcony, terrace, porch ... labels
+    (``topology._outdoor_label``) and, when the plan has two mirrored halves (``facade.mirror_axis``), their mirror
+    images (the drafter names one half only; a balcony on one half protects its twin on the other);
+    ``areas`` = the area texts of those labels in m2 (``10.00 m2``); ``axis`` = the mirror axis or None."""
+    from wenart.ingest.generic import facade as FC
+
+    outdoor = [b for b in blocks if TP._outdoor_label(b)]
+    points = [(Point(b.anchor), False, b.name) for b in outdoor]
+    axis = FC.mirror_axis(walls, FC.MIRROR_FIX_SHARE) if walls else None
+    if axis is not None:
+        for b in outdoor:
+            x, y = b.anchor
+            q = (2.0 * axis[1] - x, y) if axis[0] == "x" else (x, 2.0 * axis[1] - y)
+            points.append((Point(q), True, b.name))
+    areas = [(float(b.area_m2), b.name) for b in outdoor if getattr(b, "area_m2", None)]
+    return {"points": points, "areas": areas, "axis": axis}
+
+
+def outdoor_enclosure(face, guard: dict) -> Optional[str]:
+    """Why a face an inferred wall would close is no room, or None: it holds an outdoor-space label, or the mirror
+    image of one on the plan's twin half, or its area is within ``CLOSURE_OUTDOOR_AREA_TOL`` of an outdoor space's
+    area text on the level (the balcony's ``10.00 m2`` ringed by its railing)."""
+    for pt, mirrored, name in guard["points"]:
+        if face.contains(pt):
+            return (f"it would close the mirror image of the '{name}' label (the plan's twin half names the balcony "
+                    f"or terrace there) into a room" if mirrored else
+                    f"it would close the '{name}' label (a balcony, terrace or porch) into a room")
+    for a, name in guard["areas"]:
+        if abs(face.area - a) <= CLOSURE_OUTDOOR_AREA_TOL * a:
+            return (f"it would close an area of {face.area:.2f} m2 into the building, within "
+                    f"{CLOSURE_OUTDOOR_AREA_TOL:.0%} of the '{name}' label's area text {a:.2f} m2 (that outdoor space)")
+    return None
 
 
 def drawn_outline(strokes_m: list, walls: list, exclude: set = frozenset()):
@@ -1684,8 +1722,11 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
     guard = outline.buffer(CLOSURE_OUTLINE_TOL_M, join_style=2) if outline is not None else None
     if outline is not None:                           # the debug image and the report show what guarded the bridges
         report["outline"] = [[round(x, 3), round(y, 3)] for x, y in outline.simplify(0.05).exterior.coords]
-    outdoor = [Point(b.anchor) for b in blocks if TP._outdoor_label(b)]
+    og = outdoor_guard(blocks, walls2)                    # balcony labels, their mirror images, their area texts
+    outdoor = [pt for pt, _m, _n in og["points"]]
     indoor = [Point(b.anchor) for b in blocks if not getattr(b, "exterior", False) and not TP._outdoor_label(b)]
+    if og["axis"] is not None:
+        report["mirror_axis"] = [og["axis"][0], round(og["axis"][1], 3)]
     thickness, how = _outer_thickness(bwalls, b_openings)
     report["thickness"] = {"m": thickness, "how": how}
 
@@ -1706,16 +1747,17 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
                                   "support": round(c["support"], 2), "free": c["free"],
                                   "outline_dist": round(c["outline_dist"], 2), "why": why})
 
-    def touches(c, faces) -> bool:
-        return any(LineString([a, b]).distance(f) <= 0.05 for a, b in c["segments"] for f in faces)
+    def touches(c, faces) -> bool:                      # a face's edge lies half a wall away from the bridge's axis
+        return any(LineString([a, b]).distance(f) <= thickness / 2.0 + 0.06 for a, b in c["segments"] for f in faces)
 
     before = _unclosed(site_warnings)
     chosen: list[dict] = []
     cur_walls, cur_b, cur_bo = list(walls2), list(bwalls), list(b_openings)
-    faces_before = TP.faces(bwalls, b_openings)
     for _round in range(CLOSURE_ROUNDS):
         used: set = set()
-        added = []
+        added: list[dict] = []
+        added_walls: list = []                            # the walls of this round's accepted bridges so far
+        without = TP.faces(cur_walls, openings)           # the faces before the next candidate
         for c in closure_candidates(cur_walls, cur_b, cur_bo, strokes, thickness, outline=outline):
             if any(e in used for e in c["ends"]):
                 refuse(c, "a bridge of this round uses that wall end already")
@@ -1735,34 +1777,38 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
                 refuse(c, f"it runs on past a corner {c['outline_dist']:.1f} m inside the drawn outline (more than "
                           f"{CLOSURE_ON_OUTLINE_M:g} m: a counter or furniture line, not the facade)")
                 continue
-            if any(LineString([a, b]).distance(q) <= CLOSURE_OUTDOOR_CLEAR_M for a, b in c["segments"] for q in outdoor):
-                refuse(c, "a balcony or terrace label stands beside it (an outdoor space, not a room)")
+            beside = next((n for pt, m, n in og["points"] for a, b in c["segments"]
+                           if LineString([a, b]).distance(pt) <= CLOSURE_OUTDOOR_CLEAR_M), None)
+            if beside is not None:
+                refuse(c, f"the '{beside}' label (a balcony or terrace, or its mirror image on the plan's twin half) "
+                          f"stands beside it: an outdoor space, not a room")
+                continue
+            # 5 Nov 2026 (real11: a counter-line bridge judged in the same trial as the facade corner split the kitchen
+            # into kitchen and a 3.4 m2 sliver, and the sliver's match with a balcony's area text refused the right
+            # bridge): every candidate is judged on the faces it makes on its own, in order, on top of the bridges
+            # accepted so far. A face that holds a balcony or terrace label (or its mirror image), or matches an
+            # outdoor space's area text, is an outdoor space; a corner bridge closing an unlabelled space over
+            # ``CLOSURE_UNLABELLED_MAX_M2`` (a courtyard, a niche) has no drawing behind it.
+            cw = _closure_walls([c], thickness, file_rel, page_no, problem)
+            with_c = TP.faces(cur_walls + added_walls + cw, openings)
+            made = [f for f in with_c if not any(g.contains(f.representative_point())
+                                                 and abs(g.area - f.area) <= 0.02 * g.area + 0.01 for g in without)]
+            why = next((w for f in made for w in [outdoor_enclosure(f, og)] if w), None)
+            if why:
+                refuse(c, why)
+                continue
+            if not c["free"] and any(f.area > CLOSURE_UNLABELLED_MAX_M2 and not any(f.contains(q) for q in indoor)
+                                     for f in made):
+                refuse(c, f"it would close an unlabelled space over {CLOSURE_UNLABELLED_MAX_M2:g} m2 into the building")
                 continue
             used.update(c["ends"])
             added.append(c)
+            added_walls += cw
+            without = with_c
         if not added:
             break
-        trial = cur_walls + _closure_walls(added, thickness, file_rel, page_no, problem)
+        trial = cur_walls + added_walls
         bw, site, sw, b_open, prob = check(trial)
-        # a bridge that closes a balcony or terrace label into a new face encloses an outdoor space; one from a corner
-        # that closes an unlabelled space (a courtyard, a niche) into the building has no drawing behind it: dropped
-        new_faces = [f for f in TP.faces(bw, b_open) if not any(g.contains(f.representative_point()) for g in faces_before)]
-        bad = [f for f in new_faces if any(f.contains(q) for q in outdoor)]
-        blank = [f for f in new_faces if f.area > CLOSURE_UNLABELLED_MAX_M2 and not any(f.contains(q) for q in indoor)]
-        keep = []
-        for c in added:
-            if touches(c, bad):
-                refuse(c, "it would close a balcony or terrace label into a room")
-            elif not c["free"] and touches(c, blank):
-                refuse(c, f"it would close an unlabelled space over {CLOSURE_UNLABELLED_MAX_M2:g} m2 into the building")
-            else:
-                keep.append(c)
-        if len(keep) != len(added):
-            added = keep
-            if not added:
-                break
-            trial = cur_walls + _closure_walls(added, thickness, file_rel, page_no, problem)
-            bw, site, sw, b_open, prob = check(trial)
         chosen += added
         cur_walls, cur_b, cur_bo = trial, bw, b_open
         if prob is None and _unclosed(sw) == 0:
@@ -2418,6 +2464,21 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
     seeds = FC.mirror_seeds(walls2, labelled, lambda q: hull.contains(Point(q))
                             and not any(f.contains(Point(q)) for f in faces_now))
     faces, links = FC.close_rooms(walls2, strokes, anchors + seeds)
+    if not faces:
+        return None
+    # 5 Nov 2026 (real11 L0: the left kitchen's face ran along the balcony's railing and took the 'BALKON 10.00 m2'
+    # in): a face holding an outdoor-space label, the mirror image of one, or matching an outdoor area text is no
+    # room; it is not closed here (the outline closure may close the room along its facade, under the same guard)
+    guard = outdoor_guard(blocks, walls2)
+    kept_faces = {}
+    for k, face in faces.items():
+        why = outdoor_enclosure(face, guard)
+        if why:
+            ex.notes.append(f"{where}: glazed facade: the face closed around the label at ({(anchors + seeds)[k][0]:.2f}, "
+                            f"{(anchors + seeds)[k][1]:.2f}) m is no room: {why}; not closed along those frames")
+        else:
+            kept_faces[k] = face
+    faces = kept_faces
     if not faces:
         return None
     new_walls = FC.facade_wall_items(walls2, list(faces.values()), openings, file_rel, page_no, units_to_m=s)

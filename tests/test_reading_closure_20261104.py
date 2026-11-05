@@ -147,6 +147,70 @@ def test_no_bridge_closes_a_balcony_label_into_a_room():
     assert got is None and any("balcony or terrace" in r["why"] for r in ex.report["outline_closure"]["refused"])
 
 
+def _blocks_with_area(labels):
+    """Labels with an area text under the name ('BALKON' over '10.00 m²'), as drafters write them."""
+    runs = []
+    for k, (name, x, y, area) in enumerate(labels):
+        runs.append(TextRun(id=f"T{k}n", text=name, box=(x - 0.4, y - 0.1, x + 0.4, y + 0.1), height=0.2))
+        if area:
+            runs.append(TextRun(id=f"T{k}a", text=area, box=(x - 0.4, y - 0.4, x + 0.4, y - 0.2), height=0.2))
+    return LB.merge_label_blocks(runs, "x.dxf", 1)
+
+
+def test_a_balcony_on_one_half_protects_its_mirror_image_on_the_twin_half():
+    """(c) The drafter names the balcony of one flat only (real11, real09): the plan's two mirrored halves each have a
+    glazed corner; the left notch holds 'BALKON', the right one nothing. Without the mirror guard the right corner
+    would close (it closes a labelled room); with it both corners are refused, the right one by the mirror."""
+    walls = _walls([((2.0, 0.0), (5.0, 0.0)), ((5.0, 0.0), (5.0, 4.0)), ((0.0, 4.0), (12.0, 4.0)),
+                    ((0.0, 4.0), (0.0, 1.5)),                                   # the left flat, open at (0, 0)
+                    ((7.0, 0.0), (10.0, 0.0)), ((7.0, 0.0), (7.0, 4.0)), ((12.0, 4.0), (12.0, 1.5)),   # its mirror
+                    ((0.0, 4.0), (0.0, 7.0)), ((0.0, 7.0), (12.0, 7.0)), ((12.0, 7.0), (12.0, 4.0))])  # a closed room
+    blocks = _blocks([("SALON", 3.0, 2.5), ("SALON", 9.0, 2.5), ("YATAK ODASI", 6.0, 5.5), ("BALKON", 0.7, 0.6)])
+    og = C.outdoor_guard(blocks, walls)
+    assert og["axis"] == ("x", pytest.approx(6.0)) and len(og["points"]) == 2
+    assert [m for _p, m, _n in og["points"]] == [False, True] and og["points"][1][0].x == pytest.approx(11.3)
+    frames = _frames([((2.0, 0.0), (0.0, 0.0)), ((0.0, 1.5), (0.0, 0.0)), ((10.0, 0.0), (12.0, 0.0)),
+                      ((12.0, 1.5), (12.0, 0.0))])
+    assert C._unclosed(_state(walls, [], blocks)[1]) == 2                       # both salons open, the bedroom closed
+    ex, got = _close(walls, [], blocks, frames)
+    assert got is None
+    whys = [r["why"] for r in ex.report["outline_closure"]["refused"]]
+    assert any("mirror image of the 'BALKON' label" in w for w in whys), whys
+    assert any("'BALKON' label (a balcony" in w for w in whys), whys
+    # the same plan without the balcony label: the right corner closes its salon (the guard was the only obstacle)
+    blocks2 = _blocks([("SALON", 3.0, 2.5), ("SALON", 9.0, 2.5), ("YATAK ODASI", 6.0, 5.5)])
+    ex2, got2 = _close(walls, [], blocks2, frames)
+    assert got2 is not None and C._unclosed(got2[4]) == 0
+
+
+def test_a_closure_matching_an_outdoor_area_text_is_refused_and_says_so():
+    """(d) Two free ends bridge a 10 m2 recess between two wall parts; the level's 'BALKON 10.00 m2' label stands
+    elsewhere: the recess is that balcony, not a room, and the report says which text it matched."""
+    walls = _walls([((0.0, 2.0), (0.0, 6.0)), ((0.0, 6.0), (5.0, 6.0)), ((5.0, 6.0), (5.0, 2.0)), ((5.0, 2.0), (0.0, 2.0)),
+                    ((0.0, 2.0), (0.0, 1.0)), ((5.0, 2.0), (5.0, 1.0)),            # the recess's side walls, free ends
+                    ((0.0, -0.283), (5.0, -0.283)), ((0.0, -0.283), (0.0, -4.0)), ((5.0, -0.283), (5.0, -4.0)),
+                    ((0.0, -4.0), (5.0, -4.0))])                                    # a second part below
+    blocks = _blocks_with_area([("SALON", 2.5, 4.0, None), ("YATAK ODASI", 2.5, -2.0, None), ("BALKON", 9.0, 1.0, "10.00 m²")])
+    assert [b.area_m2 for b in blocks if b.name == "BALKON"] == [10.0]
+    assert _state(walls, [], blocks)[3] == "building walls form 2 separate parts"
+    ex, got = _close(walls, [], blocks, [])
+    whys = [r["why"] for r in ex.report["outline_closure"]["refused"]]
+    assert any("within 10% of the 'BALKON' label's area text 10.00 m2" in w for w in whys), whys
+    # judged one by one: the first side's bridge makes no face and joins the parts; the second would close the 10 m2
+    # recess and is refused, so no room of the balcony's size exists afterwards
+    faces = TP.faces(got[0], got[1]) if got is not None else []
+    assert not any(abs(f.area - 10.0) <= 1.0 for f in faces)
+    assert sum(1 for w in (got[0] if got else []) if w.inferred) <= 1
+    # the same recess 1.5 m taller is no 10 m2 balcony: the parts are joined
+    walls2 = _walls([((0.0, 2.0), (0.0, 6.0)), ((0.0, 6.0), (5.0, 6.0)), ((5.0, 6.0), (5.0, 2.0)), ((5.0, 2.0), (0.0, 2.0)),
+                     ((0.0, 2.0), (0.0, 1.0)), ((5.0, 2.0), (5.0, 1.0)),
+                     ((0.0, -1.8), (5.0, -1.8)), ((0.0, -1.8), (0.0, -5.0)), ((5.0, -1.8), (5.0, -5.0)),
+                     ((0.0, -5.0), (5.0, -5.0))])
+    frames = _frames([((0.0, 1.0), (0.0, -1.7)), ((5.0, 1.0), (5.0, -1.7))])   # drawn frames along the gap
+    ex2, got2 = _close(walls2, [], blocks, frames)
+    assert got2 is not None and got2[6] is None
+
+
 def test_the_closure_pass_stays_silent_when_the_ring_closes():
     walls = _walls([((0.0, 0.0), (5.0, 0.0)), ((5.0, 0.0), (5.0, 4.0)), ((5.0, 4.0), (0.0, 4.0)),
                     ((0.0, 4.0), (0.0, 0.0))])
