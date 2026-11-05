@@ -3890,6 +3890,16 @@
    "request": "4 Nov 2026 (user, real10: 'This door frame must be angled and same needs to be on the other mirror side'): where the boundary between a hall and a living room runs on a chamfer the drawing leaves open, a glazed double door in its frame stands along the chamfer (angled with it), and the mirrored flat gets the same.",
    "lesson": "4 Nov 2026 (user, real10: 'This door frame must be angled and same needs to be on the other mirror side'): where the boundary between a hall and a living room runs on a chamfer the drawing leaves open, a glazed double door in its frame stands along the chamfer (angled with it), and the mirrored flat gets the same.",
    "question": null
+  },
+  {
+   "id": "UL329",
+   "date": "2026-11-04",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "4 Nov 2026 (user OK on Milestone 14): the reading's ranker and the vision model may decide between code-built candidates where the code is undecided (gap kind, wall or notation, inside or outside, stair or grid, region class), logged with decided_by and the margin; geometry still comes only from the drawings (AI never draws a wall); every such decision is reviewed by the independent reviewers and carries its confidence.",
+   "lesson": "4 Nov 2026 (user OK on Milestone 14): the reading's ranker and the vision model may decide between code-built candidates where the code is undecided (gap kind, wall or notation, inside or outside, stair or grid, region class), logged with decided_by and the margin; geometry still comes only from the drawings (AI never draws a wall); every such decision is reviewed by the independent reviewers and carries its confidence.",
+   "question": null
   }
  ]
 }

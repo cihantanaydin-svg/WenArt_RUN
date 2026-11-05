@@ -1,0 +1,2852 @@
+{
+ "project": "real06",
+ "source": "accepted_reading",
+ "status": "accepted",
+ "commit": "c60f929dd7e06009599bdfc3472daafb320dd647",
+ "date": "2026-11-04",
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Ground floor",
+   "elevation": 0.0,
+   "order": 0
+  },
+  {
+   "id": "L1",
+   "label": "Level 1",
+   "elevation": 3.0,
+   "order": 1
+  }
+ ],
+ "levels_left_out": [],
+ "per_level": {
+  "L0": {
+   "rooms": [
+    {
+     "id": "r_L0_salon",
+     "label": "Salon",
+     "room_type": "living",
+     "area": 55.586,
+     "centroid": [
+      4.88,
+      5.415
+     ],
+     "polygon": [
+      [
+       0.451,
+       4.05
+      ],
+      [
+       0.5,
+       4.05
+      ],
+      [
+       0.5,
+       3.55
+      ],
+      [
+       3.5,
+       3.55
+      ],
+      [
+       3.5,
+       4.65
+      ],
+      [
+       3.65,
+       4.65
+      ],
+      [
+       3.65,
+       3.55
+      ],
+      [
+       4.33,
+       3.55
+      ],
+      [
+       4.33,
+       3.526
+      ],
+      [
+       4.575,
+       3.526
+      ],
+      [
+       4.575,
+       3.3
+      ],
+      [
+       4.6,
+       3.3
+      ],
+      [
+       4.6,
+       0.45
+      ],
+      [
+       8.35,
+       0.45
+      ],
+      [
+       8.35,
+       0.95
+      ],
+      [
+       8.401,
+       0.95
+      ],
+      [
+       8.401,
+       6.0
+      ],
+      [
+       8.35,
+       6.0
+      ],
+      [
+       8.35,
+       6.75
+      ],
+      [
+       8.401,
+       6.75
+      ],
+      [
+       8.401,
+       9.1
+      ],
+      [
+       7.0,
+       9.1
+      ],
+      [
+       7.0,
+       9.2
+      ],
+      [
+       4.6,
+       9.2
+      ],
+      [
+       4.6,
+       9.05
+      ],
+      [
+       3.65,
+       9.05
+      ],
+      [
+       3.65,
+       8.3
+      ],
+      [
+       3.5,
+       8.3
+      ],
+      [
+       3.5,
+       9.05
+      ],
+      [
+       0.451,
+       9.05
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L0_mutfak",
+     "label": "Mutfak",
+     "room_type": "kitchen",
+     "area": 11.571,
+     "centroid": [
+      1.924,
+      11.284
+     ],
+     "polygon": [
+      [
+       0.451,
+       9.35
+      ],
+      [
+       3.475,
+       9.35
+      ],
+      [
+       3.475,
+       11.3
+      ],
+      [
+       3.35,
+       11.3
+      ],
+      [
+       3.35,
+       13.05
+      ],
+      [
+       2.95,
+       13.05
+      ],
+      [
+       2.95,
+       13.3
+      ],
+      [
+       0.95,
+       13.3
+      ],
+      [
+       0.95,
+       13.25
+      ],
+      [
+       0.451,
+       13.25
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L0_antre_m2",
+     "label": "Antre M²",
+     "room_type": "hall",
+     "area": 13.252,
+     "centroid": [
+      4.969,
+      11.51
+     ],
+     "polygon": [
+      [
+       3.475,
+       9.35
+      ],
+      [
+       7.0,
+       9.35
+      ],
+      [
+       7.0,
+       11.2
+      ],
+      [
+       7.026,
+       11.2
+      ],
+      [
+       7.026,
+       11.298
+      ],
+      [
+       6.0,
+       11.298
+      ],
+      [
+       6.0,
+       11.3
+      ],
+      [
+       5.75,
+       11.3
+      ],
+      [
+       5.75,
+       13.8
+      ],
+      [
+       5.7,
+       13.8
+      ],
+      [
+       5.7,
+       14.3
+      ],
+      [
+       3.654,
+       14.3
+      ],
+      [
+       3.654,
+       13.55
+      ],
+      [
+       3.626,
+       13.55
+      ],
+      [
+       3.626,
+       13.3
+      ],
+      [
+       3.6,
+       13.3
+      ],
+      [
+       3.6,
+       11.3
+      ],
+      [
+       3.475,
+       11.3
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L0_oda",
+     "label": "Oda",
+     "room_type": "hall",
+     "area": 2.129,
+     "centroid": [
+      7.825,
+      10.275
+     ],
+     "polygon": [
+      [
+       7.25,
+       9.35
+      ],
+      [
+       8.401,
+       9.35
+      ],
+      [
+       8.401,
+       11.2
+      ],
+      [
+       7.25,
+       11.2
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L0_banyo",
+     "label": "Banyo",
+     "room_type": "bathroom",
+     "area": 6.675,
+     "centroid": [
+      7.203,
+      12.871
+     ],
+     "polygon": [
+      [
+       5.99,
+       13.8
+      ],
+      [
+       6.0,
+       13.8
+      ],
+      [
+       6.0,
+       11.448
+      ],
+      [
+       7.026,
+       11.448
+      ],
+      [
+       7.026,
+       11.5
+      ],
+      [
+       8.401,
+       11.5
+      ],
+      [
+       8.401,
+       13.8
+      ],
+      [
+       8.35,
+       13.8
+      ],
+      [
+       8.35,
+       14.3
+      ],
+      [
+       6.19,
+       14.3
+      ],
+      [
+       6.19,
+       13.9
+      ],
+      [
+       5.99,
+       13.9
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    }
+   ],
+   "doors": [
+    {
+     "id": "d_L0_001",
+     "type": "door",
+     "width": 2.15,
+     "center": [
+      6.325,
+      0.325
+     ],
+     "wall_id": "w_L0_001",
+     "source": "accepted_reading",
+     "confidence": 0.85
+    },
+    {
+     "id": "d_L0_003",
+     "type": "door",
+     "width": 0.75,
+     "center": [
+      6.475,
+      11.373
+     ],
+     "wall_id": "w_L0_015",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L0_005",
+     "type": "door",
+     "width": 0.75,
+     "center": [
+      4.475,
+      0.975
+     ],
+     "wall_id": "w_L0_033",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L0_006",
+     "type": "door",
+     "width": 0.95,
+     "center": [
+      7.125,
+      9.925
+     ],
+     "wall_id": "w_L0_038",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L0_007",
+     "type": "door",
+     "width": 2.95,
+     "center": [
+      1.975,
+      3.425
+     ],
+     "wall_id": "w_L0_004",
+     "source": "accepted_reading",
+     "confidence": 0.85
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L0_001",
+     "type": "window",
+     "width": 1.95,
+     "center": [
+      5.625,
+      9.275
+     ],
+     "wall_id": "w_L0_012",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "d_L0_004",
+     "type": "window",
+     "width": 0.65,
+     "center": [
+      4.675,
+      14.425
+     ],
+     "wall_id": "w_L0_022",
+     "source": "accepted_reading",
+     "confidence": 0.85
+    },
+    {
+     "id": "o_L0_002",
+     "type": "window",
+     "width": 0.825,
+     "center": [
+      6.388,
+      14.425
+     ],
+     "wall_id": "w_L0_022",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "o_L0_003",
+     "type": "window",
+     "width": 2.15,
+     "center": [
+      0.326,
+      6.725
+     ],
+     "wall_id": "w_L0_023",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "o_L0_004",
+     "type": "window",
+     "width": 1.45,
+     "center": [
+      0.326,
+      11.325
+     ],
+     "wall_id": "w_L0_023",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "o_L0_005",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      2.325
+     ],
+     "wall_id": "w_L0_045",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "o_L0_006",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      4.725
+     ],
+     "wall_id": "w_L0_045",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "o_L0_007",
+     "type": "window",
+     "width": 1.876,
+     "center": [
+      8.526,
+      10.288
+     ],
+     "wall_id": "w_L0_045",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "win_L0_002",
+     "type": "window",
+     "width": 0.665,
+     "center": [
+      3.993,
+      14.425
+     ],
+     "wall_id": "w_L0_022",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L0_003",
+     "type": "window",
+     "width": 0.7,
+     "center": [
+      5.376,
+      14.425
+     ],
+     "wall_id": "w_L0_022",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L0_004",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      7.601,
+      14.425
+     ],
+     "wall_id": "w_L0_022",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L0_005",
+     "type": "window",
+     "width": 0.7,
+     "center": [
+      0.35,
+      3.675
+     ],
+     "wall_id": "w_L0_024",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L0_006",
+     "type": "window",
+     "width": 1.1,
+     "center": [
+      3.575,
+      4.1
+     ],
+     "wall_id": "w_L0_029",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L0_007",
+     "type": "window",
+     "width": 0.775,
+     "center": [
+      7.125,
+      10.813
+     ],
+     "wall_id": "w_L0_038",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    }
+   ],
+   "openings": [
+    {
+     "id": "o_L0_001",
+     "type": "opening",
+     "width": 2.9,
+     "center": [
+      2.4,
+      9.2
+     ],
+     "wall_id": "w_L0_009",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "o_L0_008",
+     "type": "opening",
+     "width": 1.95,
+     "center": [
+      3.475,
+      10.325
+     ],
+     "wall_id": null,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "virtual": true
+    }
+   ],
+   "walls": [
+    {
+     "id": "w_L0_001",
+     "start": [
+      4.35,
+      0.325
+     ],
+     "end": [
+      8.38,
+      0.325
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_002",
+     "start": [
+      8.651,
+      1.425
+     ],
+     "end": [
+      8.85,
+      1.425
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_003",
+     "start": [
+      8.661,
+      3.225
+     ],
+     "end": [
+      8.85,
+      3.225
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_004",
+     "start": [
+      0.5,
+      3.425
+     ],
+     "end": [
+      4.33,
+      3.425
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_005",
+     "start": [
+      8.661,
+      3.825
+     ],
+     "end": [
+      8.85,
+      3.825
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_006",
+     "start": [
+      0.0,
+      5.525
+     ],
+     "end": [
+      0.201,
+      5.525
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_007",
+     "start": [
+      8.661,
+      5.625
+     ],
+     "end": [
+      8.85,
+      5.625
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_008",
+     "start": [
+      0.0,
+      7.925
+     ],
+     "end": [
+      0.201,
+      7.925
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_009",
+     "start": [
+      0.451,
+      9.2
+     ],
+     "end": [
+      4.6,
+      9.2
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_011",
+     "start": [
+      7.0,
+      9.225
+     ],
+     "end": [
+      8.4,
+      9.225
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_012",
+     "start": [
+      4.6,
+      9.275
+     ],
+     "end": [
+      7.0,
+      9.275
+     ],
+     "thickness": 0.15,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_013",
+     "start": [
+      0.0,
+      10.475
+     ],
+     "end": [
+      0.201,
+      10.475
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_014",
+     "start": [
+      7.026,
+      11.35
+     ],
+     "end": [
+      8.4,
+      11.35
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_015",
+     "start": [
+      6.0,
+      11.373
+     ],
+     "end": [
+      7.03,
+      11.373
+     ],
+     "thickness": 0.15,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_016",
+     "start": [
+      0.0,
+      12.175
+     ],
+     "end": [
+      0.201,
+      12.175
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_017",
+     "start": [
+      2.95,
+      13.3
+     ],
+     "end": [
+      3.376,
+      13.3
+     ],
+     "thickness": 0.5,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_018",
+     "start": [
+      0.45,
+      13.4
+     ],
+     "end": [
+      0.95,
+      13.4
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_019",
+     "start": [
+      0.226,
+      13.403
+     ],
+     "end": [
+      0.45,
+      13.403
+     ],
+     "thickness": 0.245,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_020",
+     "start": [
+      0.95,
+      13.425
+     ],
+     "end": [
+      2.95,
+      13.425
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_021",
+     "start": [
+      5.99,
+      14.1
+     ],
+     "end": [
+      6.19,
+      14.1
+     ],
+     "thickness": 0.4,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_022",
+     "start": [
+      3.661,
+      14.425
+     ],
+     "end": [
+      8.38,
+      14.425
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_023",
+     "start": [
+      0.326,
+      4.05
+     ],
+     "end": [
+      0.326,
+      13.28
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_024",
+     "start": [
+      0.35,
+      3.3
+     ],
+     "end": [
+      0.35,
+      4.05
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_025",
+     "start": [
+      3.475,
+      11.3
+     ],
+     "end": [
+      3.475,
+      13.3
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_026",
+     "start": [
+      3.504,
+      13.55
+     ],
+     "end": [
+      3.504,
+      14.526
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_027",
+     "start": [
+      3.501,
+      13.3
+     ],
+     "end": [
+      3.501,
+      13.52
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_028",
+     "start": [
+      3.501,
+      13.52
+     ],
+     "end": [
+      3.501,
+      13.55
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_029",
+     "start": [
+      3.575,
+      3.55
+     ],
+     "end": [
+      3.575,
+      4.65
+     ],
+     "thickness": 0.15,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_030",
+     "start": [
+      3.575,
+      8.3
+     ],
+     "end": [
+      3.575,
+      9.1
+     ],
+     "thickness": 0.15,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_031",
+     "start": [
+      4.45,
+      2.8
+     ],
+     "end": [
+      4.45,
+      3.3
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_032",
+     "start": [
+      4.453,
+      3.3
+     ],
+     "end": [
+      4.453,
+      3.526
+     ],
+     "thickness": 0.245,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_033",
+     "start": [
+      4.475,
+      0.45
+     ],
+     "end": [
+      4.475,
+      2.8
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_034",
+     "start": [
+      5.125,
+      0.0
+     ],
+     "end": [
+      5.125,
+      0.2
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_035",
+     "start": [
+      5.845,
+      13.8
+     ],
+     "end": [
+      5.845,
+      14.3
+     ],
+     "thickness": 0.29,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_036",
+     "start": [
+      5.853,
+      14.3
+     ],
+     "end": [
+      5.853,
+      14.526
+     ],
+     "thickness": 0.245,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_037",
+     "start": [
+      5.875,
+      11.3
+     ],
+     "end": [
+      5.875,
+      13.8
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_038",
+     "start": [
+      7.125,
+      9.35
+     ],
+     "end": [
+      7.125,
+      11.2
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_039",
+     "start": [
+      7.525,
+      0.0
+     ],
+     "end": [
+      7.525,
+      0.2
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_040",
+     "start": [
+      8.5,
+      0.45
+     ],
+     "end": [
+      8.5,
+      0.95
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_041",
+     "start": [
+      8.5,
+      6.0
+     ],
+     "end": [
+      8.5,
+      6.75
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_042",
+     "start": [
+      8.5,
+      13.8
+     ],
+     "end": [
+      8.5,
+      14.3
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_043",
+     "start": [
+      8.503,
+      0.226
+     ],
+     "end": [
+      8.503,
+      0.45
+     ],
+     "thickness": 0.245,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_044",
+     "start": [
+      8.503,
+      14.3
+     ],
+     "end": [
+      8.503,
+      14.526
+     ],
+     "thickness": 0.245,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L0_045",
+     "start": [
+      8.526,
+      0.95
+     ],
+     "end": [
+      8.526,
+      13.8
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    }
+   ],
+   "stairs": [
+    {
+     "id": "f_L0_001",
+     "center": [
+      4.676,
+      12.938
+     ],
+     "size": [
+      2.2,
+      2.725
+     ],
+     "rotation_deg": 0.0,
+     "room_id": "r_L0_antre_m2",
+     "turn": "U",
+     "flights": [
+      {
+       "start": [
+        4.076,
+        11.575
+       ],
+       "end": [
+        4.076,
+        13.075
+       ],
+       "width": 1.0,
+       "lines": 7
+      },
+      {
+       "start": [
+        5.276,
+        11.575
+       ],
+       "end": [
+        5.276,
+        13.075
+       ],
+       "width": 1.0,
+       "lines": 7
+      }
+     ],
+     "source": "accepted_reading",
+     "confidence": 0.9
+    }
+   ]
+  },
+  "L1": {
+   "rooms": [
+    {
+     "id": "r_L1_ebeveyn_y_odasi",
+     "label": "Ebeveyn Y.odası",
+     "room_type": "bedroom",
+     "area": 23.317,
+     "centroid": [
+      6.496,
+      3.524
+     ],
+     "polygon": [
+      [
+       4.6,
+       2.8
+      ],
+      [
+       4.6,
+       2.8
+      ],
+      [
+       4.6,
+       0.45
+      ],
+      [
+       8.35,
+       0.45
+      ],
+      [
+       8.35,
+       0.95
+      ],
+      [
+       8.401,
+       0.95
+      ],
+      [
+       8.401,
+       6.0
+      ],
+      [
+       8.35,
+       6.0
+      ],
+      [
+       8.35,
+       6.6
+      ],
+      [
+       4.6,
+       6.6
+      ],
+      [
+       4.6,
+       3.55
+      ],
+      [
+       4.6,
+       3.55
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L1_cocuk_odasi",
+     "label": "Çocuk Odası",
+     "room_type": "bedroom",
+     "area": 22.392,
+     "centroid": [
+      2.453,
+      6.357
+     ],
+     "polygon": [
+      [
+       0.451,
+       4.05
+      ],
+      [
+       0.51,
+       4.05
+      ],
+      [
+       0.51,
+       3.55
+      ],
+      [
+       4.45,
+       3.55
+      ],
+      [
+       4.45,
+       9.05
+      ],
+      [
+       3.85,
+       9.05
+      ],
+      [
+       3.85,
+       9.2
+      ],
+      [
+       0.95,
+       9.2
+      ],
+      [
+       0.95,
+       9.031
+      ],
+      [
+       0.451,
+       9.031
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L1_soyunma_odasi",
+     "label": "Soyunma Odası",
+     "room_type": "other",
+     "area": 5.882,
+     "centroid": [
+      7.201,
+      7.975
+     ],
+     "polygon": [
+      [
+       6.0,
+       6.75
+      ],
+      [
+       8.401,
+       6.75
+      ],
+      [
+       8.401,
+       9.2
+      ],
+      [
+       6.0,
+       9.2
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L1_oda",
+     "label": "Oda",
+     "room_type": "hall",
+     "area": 3.062,
+     "centroid": [
+      5.225,
+      7.975
+     ],
+     "polygon": [
+      [
+       4.6,
+       9.05
+      ],
+      [
+       4.6,
+       9.05
+      ],
+      [
+       4.6,
+       6.75
+      ],
+      [
+       5.85,
+       6.75
+      ],
+      [
+       5.85,
+       9.2
+      ],
+      [
+       4.6,
+       9.2
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L1_hol",
+     "label": "Hol",
+     "room_type": "hall",
+     "area": 11.033,
+     "centroid": [
+      4.687,
+      11.754
+     ],
+     "polygon": [
+      [
+       3.505,
+       9.35
+      ],
+      [
+       3.85,
+       9.35
+      ],
+      [
+       3.85,
+       9.35
+      ],
+      [
+       4.6,
+       9.35
+      ],
+      [
+       4.6,
+       9.35
+      ],
+      [
+       5.85,
+       9.35
+      ],
+      [
+       5.85,
+       12.4
+      ],
+      [
+       5.748,
+       12.4
+      ],
+      [
+       5.748,
+       13.8
+      ],
+      [
+       5.65,
+       13.8
+      ],
+      [
+       5.65,
+       14.3
+      ],
+      [
+       3.654,
+       14.3
+      ],
+      [
+       3.654,
+       13.52
+      ],
+      [
+       3.626,
+       13.52
+      ],
+      [
+       3.626,
+       13.3
+      ],
+      [
+       3.6,
+       13.3
+      ],
+      [
+       3.6,
+       11.3
+      ],
+      [
+       3.505,
+       11.3
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L1_dus",
+     "label": "Duş",
+     "room_type": "bathroom",
+     "area": 4.529,
+     "centroid": [
+      7.184,
+      10.294
+     ],
+     "polygon": [
+      [
+       6.0,
+       9.35
+      ],
+      [
+       8.401,
+       9.35
+      ],
+      [
+       8.401,
+       11.191
+      ],
+      [
+       7.0,
+       11.191
+      ],
+      [
+       7.0,
+       11.3
+      ],
+      [
+       6.0,
+       11.3
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L1_oda_2",
+     "label": "Oda",
+     "room_type": "bedroom",
+     "area": 11.338,
+     "centroid": [
+      1.893,
+      11.307
+     ],
+     "polygon": [
+      [
+       0.451,
+       9.351
+      ],
+      [
+       0.95,
+       9.351
+      ],
+      [
+       0.95,
+       9.35
+      ],
+      [
+       3.349,
+       9.35
+      ],
+      [
+       3.349,
+       11.3
+      ],
+      [
+       3.35,
+       11.3
+      ],
+      [
+       3.35,
+       13.05
+      ],
+      [
+       3.0,
+       13.05
+      ],
+      [
+       3.0,
+       13.3
+      ],
+      [
+       0.95,
+       13.3
+      ],
+      [
+       0.95,
+       13.25
+      ],
+      [
+       0.451,
+       13.25
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    },
+    {
+     "id": "r_L1_banyo",
+     "label": "Banyo",
+     "room_type": "bathroom",
+     "area": 6.671,
+     "centroid": [
+      7.203,
+      12.871
+     ],
+     "polygon": [
+      [
+       5.998,
+       12.4
+      ],
+      [
+       6.0,
+       12.4
+      ],
+      [
+       6.0,
+       11.45
+      ],
+      [
+       7.0,
+       11.45
+      ],
+      [
+       7.0,
+       11.501
+      ],
+      [
+       8.401,
+       11.501
+      ],
+      [
+       8.401,
+       13.8
+      ],
+      [
+       8.35,
+       13.8
+      ],
+      [
+       8.35,
+       14.3
+      ],
+      [
+       6.19,
+       14.3
+      ],
+      [
+       6.19,
+       13.9
+      ],
+      [
+       5.998,
+       13.9
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0
+    }
+   ],
+   "doors": [
+    {
+     "id": "d_L1_001",
+     "type": "door",
+     "width": 2.15,
+     "center": [
+      6.325,
+      0.325
+     ],
+     "wall_id": "w_L1_001",
+     "source": "accepted_reading",
+     "confidence": 0.85
+    },
+    {
+     "id": "d_L1_002",
+     "type": "door",
+     "width": 0.85,
+     "center": [
+      5.125,
+      6.675
+     ],
+     "wall_id": "w_L1_008",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L1_003",
+     "type": "door",
+     "width": 0.75,
+     "center": [
+      7.175,
+      9.275
+     ],
+     "wall_id": "w_L1_012",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L1_006",
+     "type": "door",
+     "width": 0.85,
+     "center": [
+      3.427,
+      9.875
+     ],
+     "wall_id": "w_L1_026",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L1_007",
+     "type": "door",
+     "width": 0.75,
+     "center": [
+      4.475,
+      0.975
+     ],
+     "wall_id": "w_L1_031",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L1_008",
+     "type": "door",
+     "width": 0.85,
+     "center": [
+      4.525,
+      8.575
+     ],
+     "wall_id": "w_L1_032",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L1_009",
+     "type": "door",
+     "width": 0.5,
+     "center": [
+      5.873,
+      14.05
+     ],
+     "wall_id": "w_L1_035",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L1_010",
+     "type": "door",
+     "width": 0.75,
+     "center": [
+      5.925,
+      11.925
+     ],
+     "wall_id": "w_L1_036",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L1_011",
+     "type": "door",
+     "width": 0.45,
+     "center": [
+      8.526,
+      9.775
+     ],
+     "wall_id": "w_L1_043",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    },
+    {
+     "id": "d_L1_012",
+     "type": "door",
+     "width": 0.7,
+     "center": [
+      3.776,
+      3.425
+     ],
+     "wall_id": "w_L1_004",
+     "source": "accepted_reading",
+     "confidence": 0.95
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L1_001",
+     "type": "window",
+     "width": 0.95,
+     "center": [
+      7.125,
+      6.675
+     ],
+     "wall_id": "w_L1_008",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "o_L1_003",
+     "type": "window",
+     "width": 1.95,
+     "center": [
+      1.975,
+      13.425
+     ],
+     "wall_id": "w_L1_019",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "d_L1_004",
+     "type": "window",
+     "width": 0.65,
+     "center": [
+      4.675,
+      14.425
+     ],
+     "wall_id": "w_L1_021",
+     "source": "accepted_reading",
+     "confidence": 0.85
+    },
+    {
+     "id": "o_L1_004",
+     "type": "window",
+     "width": 0.824,
+     "center": [
+      6.388,
+      14.425
+     ],
+     "wall_id": "w_L1_021",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "d_L1_005",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      0.326,
+      6.375
+     ],
+     "wall_id": "w_L1_022",
+     "source": "accepted_reading",
+     "confidence": 0.85
+    },
+    {
+     "id": "o_L1_005",
+     "type": "window",
+     "width": 1.45,
+     "center": [
+      0.326,
+      11.325
+     ],
+     "wall_id": "w_L1_022",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "o_L1_006",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      2.325
+     ],
+     "wall_id": "w_L1_043",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "o_L1_007",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      4.725
+     ],
+     "wall_id": "w_L1_043",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "win_L1_002",
+     "type": "window",
+     "width": 1.7,
+     "center": [
+      1.326,
+      3.425
+     ],
+     "wall_id": "w_L1_004",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L1_003",
+     "type": "window",
+     "width": 0.75,
+     "center": [
+      8.001,
+      6.675
+     ],
+     "wall_id": "w_L1_008",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L1_004",
+     "type": "window",
+     "width": 0.8,
+     "center": [
+      6.376,
+      9.275
+     ],
+     "wall_id": "w_L1_012",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L1_005",
+     "type": "window",
+     "width": 0.824,
+     "center": [
+      7.988,
+      9.275
+     ],
+     "wall_id": "w_L1_012",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L1_006",
+     "type": "window",
+     "width": 0.665,
+     "center": [
+      3.994,
+      14.425
+     ],
+     "wall_id": "w_L1_021",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L1_007",
+     "type": "window",
+     "width": 0.65,
+     "center": [
+      5.351,
+      14.425
+     ],
+     "wall_id": "w_L1_021",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L1_008",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      7.601,
+      14.425
+     ],
+     "wall_id": "w_L1_021",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L1_009",
+     "type": "window",
+     "width": 0.975,
+     "center": [
+      3.427,
+      10.813
+     ],
+     "wall_id": "w_L1_026",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L1_010",
+     "type": "window",
+     "width": 0.75,
+     "center": [
+      4.45,
+      3.175
+     ],
+     "wall_id": "w_L1_030",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L1_011",
+     "type": "window",
+     "width": 1.425,
+     "center": [
+      5.873,
+      13.113
+     ],
+     "wall_id": "w_L1_035",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    },
+    {
+     "id": "win_L1_012",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      8.526,
+      10.625
+     ],
+     "wall_id": "w_L1_043",
+     "source": "accepted_reading",
+     "confidence": 0.9
+    }
+   ],
+   "openings": [
+    {
+     "id": "o_L1_001",
+     "type": "opening",
+     "width": 1.95,
+     "center": [
+      3.175,
+      3.425
+     ],
+     "wall_id": "w_L1_004",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    },
+    {
+     "id": "o_L1_002",
+     "type": "opening",
+     "width": 2.0,
+     "center": [
+      4.85,
+      9.275
+     ],
+     "wall_id": "w_L1_012",
+     "source": "accepted_reading",
+     "confidence": 0.5
+    }
+   ],
+   "walls": [
+    {
+     "id": "w_L1_001",
+     "start": [
+      4.35,
+      0.325
+     ],
+     "end": [
+      8.381,
+      0.325
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_002",
+     "start": [
+      8.651,
+      1.425
+     ],
+     "end": [
+      8.85,
+      1.425
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_003",
+     "start": [
+      8.661,
+      3.225
+     ],
+     "end": [
+      8.85,
+      3.225
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_004",
+     "start": [
+      0.47,
+      3.425
+     ],
+     "end": [
+      4.301,
+      3.425
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_005",
+     "start": [
+      8.661,
+      3.825
+     ],
+     "end": [
+      8.85,
+      3.825
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_006",
+     "start": [
+      0.0,
+      5.475
+     ],
+     "end": [
+      0.201,
+      5.475
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_007",
+     "start": [
+      8.661,
+      5.625
+     ],
+     "end": [
+      8.85,
+      5.625
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_008",
+     "start": [
+      4.6,
+      6.675
+     ],
+     "end": [
+      8.4,
+      6.675
+     ],
+     "thickness": 0.15,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_009",
+     "start": [
+      0.0,
+      7.275
+     ],
+     "end": [
+      0.201,
+      7.275
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_010",
+     "start": [
+      0.451,
+      9.191
+     ],
+     "end": [
+      0.95,
+      9.191
+     ],
+     "thickness": 0.32,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_011",
+     "start": [
+      3.85,
+      9.2
+     ],
+     "end": [
+      4.6,
+      9.2
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_012",
+     "start": [
+      0.451,
+      9.275
+     ],
+     "end": [
+      8.4,
+      9.275
+     ],
+     "thickness": 0.15,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_013",
+     "start": [
+      0.0,
+      10.475
+     ],
+     "end": [
+      0.201,
+      10.475
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_014",
+     "start": [
+      7.0,
+      11.346
+     ],
+     "end": [
+      8.4,
+      11.346
+     ],
+     "thickness": 0.31,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_015",
+     "start": [
+      6.0,
+      11.375
+     ],
+     "end": [
+      7.0,
+      11.375
+     ],
+     "thickness": 0.15,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_016",
+     "start": [
+      0.0,
+      12.175
+     ],
+     "end": [
+      0.201,
+      12.175
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_017",
+     "start": [
+      3.0,
+      13.175
+     ],
+     "end": [
+      3.35,
+      13.175
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_018",
+     "start": [
+      0.45,
+      13.4
+     ],
+     "end": [
+      0.95,
+      13.4
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_019",
+     "start": [
+      0.95,
+      13.425
+     ],
+     "end": [
+      3.0,
+      13.425
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_020",
+     "start": [
+      5.998,
+      14.1
+     ],
+     "end": [
+      6.19,
+      14.1
+     ],
+     "thickness": 0.4,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_021",
+     "start": [
+      3.661,
+      14.425
+     ],
+     "end": [
+      8.381,
+      14.425
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_022",
+     "start": [
+      0.326,
+      4.05
+     ],
+     "end": [
+      0.326,
+      13.526
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_023",
+     "start": [
+      0.348,
+      3.3
+     ],
+     "end": [
+      0.348,
+      3.55
+     ],
+     "thickness": 0.245,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_024",
+     "start": [
+      0.355,
+      3.55
+     ],
+     "end": [
+      0.355,
+      4.05
+     ],
+     "thickness": 0.31,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_025",
+     "start": [
+      3.175,
+      13.3
+     ],
+     "end": [
+      3.175,
+      13.526
+     ],
+     "thickness": 0.35,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_026",
+     "start": [
+      3.427,
+      9.35
+     ],
+     "end": [
+      3.427,
+      11.3
+     ],
+     "thickness": 0.155,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_027",
+     "start": [
+      3.475,
+      11.3
+     ],
+     "end": [
+      3.475,
+      13.3
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_028",
+     "start": [
+      3.504,
+      13.52
+     ],
+     "end": [
+      3.504,
+      14.526
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_029",
+     "start": [
+      3.501,
+      13.3
+     ],
+     "end": [
+      3.501,
+      13.52
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_030",
+     "start": [
+      4.45,
+      2.8
+     ],
+     "end": [
+      4.45,
+      3.55
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_031",
+     "start": [
+      4.475,
+      0.45
+     ],
+     "end": [
+      4.475,
+      2.8
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_032",
+     "start": [
+      4.525,
+      3.55
+     ],
+     "end": [
+      4.525,
+      9.05
+     ],
+     "thickness": 0.15,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_033",
+     "start": [
+      5.125,
+      0.0
+     ],
+     "end": [
+      5.125,
+      0.2
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_034",
+     "start": [
+      5.82,
+      13.8
+     ],
+     "end": [
+      5.82,
+      14.3
+     ],
+     "thickness": 0.34,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_035",
+     "start": [
+      5.873,
+      12.4
+     ],
+     "end": [
+      5.873,
+      14.3
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_036",
+     "start": [
+      5.925,
+      6.75
+     ],
+     "end": [
+      5.925,
+      12.4
+     ],
+     "thickness": 0.15,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_037",
+     "start": [
+      7.525,
+      0.0
+     ],
+     "end": [
+      7.525,
+      0.2
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_038",
+     "start": [
+      8.5,
+      0.45
+     ],
+     "end": [
+      8.5,
+      0.95
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_039",
+     "start": [
+      8.5,
+      6.0
+     ],
+     "end": [
+      8.5,
+      6.6
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_040",
+     "start": [
+      8.5,
+      13.8
+     ],
+     "end": [
+      8.5,
+      14.3
+     ],
+     "thickness": 0.3,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_041",
+     "start": [
+      8.503,
+      0.226
+     ],
+     "end": [
+      8.503,
+      0.45
+     ],
+     "thickness": 0.245,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_042",
+     "start": [
+      8.503,
+      14.3
+     ],
+     "end": [
+      8.503,
+      14.526
+     ],
+     "thickness": 0.245,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    },
+    {
+     "id": "w_L1_043",
+     "start": [
+      8.526,
+      0.95
+     ],
+     "end": [
+      8.526,
+      13.8
+     ],
+     "thickness": 0.25,
+     "status": "verified",
+     "source": "accepted_reading",
+     "confidence": 0.8
+    }
+   ],
+   "stairs": [
+    {
+     "id": "f_L1_001",
+     "center": [
+      4.67,
+      12.819
+     ],
+     "size": [
+      3.186,
+      2.212
+     ],
+     "rotation_deg": 90.0,
+     "room_id": "r_L1_hol",
+     "turn": "straight",
+     "flights": [
+      {
+       "start": [
+        4.076,
+        11.575
+       ],
+       "end": [
+        4.076,
+        13.075
+       ],
+       "width": 1.0,
+       "lines": 7
+      }
+     ],
+     "source": "accepted_reading",
+     "confidence": 0.9
+    }
+   ]
+  }
+ }
+}

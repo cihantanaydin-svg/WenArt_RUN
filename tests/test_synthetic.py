@@ -363,9 +363,13 @@ def test_cli_runs(tmp_path):
 
 @pytest.mark.skipif(not COMMITTED.exists(), reason="projects/ not present")
 def test_committed_previews_are_current(generated):
-    """results/synthetic holds exactly one preview per visible page of the seven projects."""
+    """results/synthetic holds exactly one preview per visible page of the seven projects, plus one per failure-class
+    project (synthetic-08 ..., 4 Nov 2026, ``tests/test_synthetic_failure_classes_20261104.py`` checks those)."""
+    from wenart.synthetic.failure_classes import PREVIEW
+    from wenart.synthetic.failure_projects import failure_projects
     committed = sorted(p.stem for p in (ROOT / "results" / "synthetic").glob("*.jpg"))
-    assert committed == sorted(p.stem for p in generated[1].glob("*.jpg"))
+    failure = sorted(Path(PREVIEW.format(name=p.name)).stem for p in failure_projects())
+    assert committed == sorted([p.stem for p in generated[1].glob("*.jpg")] + failure)
 
 
 # --------------------------------------------------------------------------
