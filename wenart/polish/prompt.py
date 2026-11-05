@@ -69,6 +69,8 @@ ROOM_WORDS: dict[str, str] = {
     "prayer": "prayer room",
     "stair": "stair hall",
     "shaft": "shaft",
+    "garage": "garage",               # 4 Nov 2026 (UL320): GARAJ, carport
+    "technical": "technical plant room",   # 4 Nov 2026 (UL321): boiler or heating room
     "other": "room",
     "unknown": "room",
 }
@@ -322,8 +324,12 @@ DECOR_WORDS: dict[str, str] = {
     # 30 Oct 2026 (wenart.furniture.salon_details, photo P16, UL153)
     "panel_wall": "handle-less full-height wall panels with a lit niche", "wall_discs": "black round wall discs",
 }
-# rooms[].room_subtype words (Milestone 10: a child's room holds cribs and bunk beds).
-SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom"}
+# rooms[].room_subtype words (Milestone 10: a child's room holds cribs and bunk beds; 4 Nov 2026, UL305 / UL316: a
+# common area of a building with several dwellings, a shared hall or a fire stair, with its own lobby finishes).
+# ``{room}`` is the room type's words.
+SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom", "common": "communal {room} of an apartment building"}
+# The room types a subtype applies to (a subtype not listed applies to every room type).
+SUBTYPE_ROOM_TYPES: dict[str, tuple] = {"child": ("bedroom",)}
 
 PROMPT_TAIL = "light through the windows, soft natural shadows, realistic materials and textures, sharp focus"
 
@@ -489,8 +495,8 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
     if room is None:
         warnings.append(f"no prompt words for room type {room_type!r}; used 'room'")
         room = "room"
-    if room_subtype and room_type == "bedroom":
-        room = _words(SUBTYPE_WORDS, room_subtype, "room subtype", warnings) or room
+    if room_subtype and room_type in SUBTYPE_ROOM_TYPES.get(room_subtype, (room_type,)):
+        room = (_words(SUBTYPE_WORDS, room_subtype, "room subtype", warnings) or room).format(room=room)
     family = style_family(profile)
     family_words = _words(FAMILY_WORDS, family, "style family", warnings)
     if family is None:
