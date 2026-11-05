@@ -3714,10 +3714,10 @@
   {
    "id": "UL314",
    "date": "2026-11-04",
-   "area": "report",
+   "area": "process",
    "status": "built",
    "checks": [
-    "reading"
+    "build"
    ],
    "request": "4 Nov 2026 (user: 'General rule always include into structure pod run zips these files. on the top left one marked, remove the coordinate and measurement lines'): every structure pod run zip holds the pod's renders (top-down plans, exterior views) together with the reading check's comparison sheets (python -m wenart.reading_check zip); panel 1 of each sheet, the source drawing, is drawn without the grid (axis lines, bubbles, grid labels) and without dimensions (DIMENSION entities, dimension layers).",
    "lesson": "4 Nov 2026 (user: 'General rule always include into structure pod run zips these files. on the top left one marked, remove the coordinate and measurement lines'): every structure pod run zip holds the pod's renders (top-down plans, exterior views) together with the reading check's comparison sheets (python -m wenart.reading_check zip); panel 1 of each sheet, the source drawing, is drawn without the grid (axis lines, bubbles, grid labels) and without dimensions (DIMENSION entities, dimension layers).",
@@ -3729,7 +3729,7 @@
    "area": "reading",
    "status": "open",
    "checks": [
-    "reading"
+    "build"
    ],
    "request": "4 Nov 2026 (user, real17 ground floor: 'Those walls already drawed, all open ones needs to be walls these sections could be full windows glass, check it', then 'There are no walls here why are you imagining these?'): only drawn walls are built. A drawn wall that stops a few cm short of its column, of the next wall on its line or of a shared corner is joined to it, and a crack of at most 15 cm between two drawn walls at a wall end is filled, when that closes the rooms; no wall is ever added across an opening the drawing leaves open. A drawn front with a window size tag (W/H, on a window text layer) is glass of that size.",
    "lesson": "4 Nov 2026 (user, real17 ground floor: 'Those walls already drawed, all open ones needs to be walls these sections could be full windows glass, check it', then 'There are no walls here why are you imagining these?'): only drawn walls are built. A drawn wall that stops a few cm short of its column, of the next wall on its line or of a shared corner is joined to it, and a crack of at most 15 cm between two drawn walls at a wall end is filled, when that closes the rooms; no wall is ever added across an opening the drawing leaves open. A drawn front with a window size tag (W/H, on a window text layer) is glass of that size.",
@@ -3822,14 +3822,14 @@
   {
    "id": "UL323",
    "date": "2026-11-04",
-   "area": "reading",
+   "area": "site",
    "status": "built",
    "checks": [
-    "reading"
+    "build"
    ],
    "request": "4 Nov 2026 (user, real07: 'where is the havuz (pool) ?'): labels written letter-spaced ('H A V U Z', 'Y O L') are read as their words; a drawn pool (its outline, water hatch, level mark) is built with its coping and water.",
    "lesson": "4 Nov 2026 (user, real07: 'where is the havuz (pool) ?'): labels written letter-spaced ('H A V U Z', 'Y O L') are read as their words; a drawn pool (its outline, water hatch, level mark) is built with its coping and water.",
-   "question": null
+   "question": "Is every pool, road or other area written on the drawings (also letter-spaced, like 'H A V U Z' or 'Y O L') built where it is drawn, a pool with its coping and water?"
   },
   {
    "id": "UL324",
@@ -3846,14 +3846,14 @@
   {
    "id": "UL325",
    "date": "2026-11-04",
-   "area": "report",
+   "area": "plan",
    "status": "built",
    "checks": [
     "build"
    ],
    "request": "4 Nov 2026 (user, real07: '2nd floor not modeled properly check it'): every floor is checked on its top-down view; a view that shows a solid block instead of the rooms is a fault of the view or of the model and is fixed before the user sees it.",
    "lesson": "4 Nov 2026 (user, real07: '2nd floor not modeled properly check it'): every floor is checked on its top-down view; a view that shows a solid block instead of the rooms is a fault of the view or of the model and is fixed before the user sees it.",
-   "question": null
+   "question": "Does this floor's top-down view show its rooms, walls and doors as drawn, never a solid block or a closed slab over them?"
   },
   {
    "id": "UL326",
@@ -3894,8 +3894,8 @@
   {
    "id": "UL329",
    "date": "2026-11-04",
-   "area": "other",
-   "status": "open",
+   "area": "reading",
+   "status": "process",
    "checks": [],
    "request": "4 Nov 2026 (user OK on Milestone 14): the reading's ranker and the vision model may decide between code-built candidates where the code is undecided (gap kind, wall or notation, inside or outside, stair or grid, region class), logged with decided_by and the margin; geometry still comes only from the drawings (AI never draws a wall); every such decision is reviewed by the independent reviewers and carries its confidence.",
    "lesson": "4 Nov 2026 (user OK on Milestone 14): the reading's ranker and the vision model may decide between code-built candidates where the code is undecided (gap kind, wall or notation, inside or outside, stair or grid, region class), logged with decided_by and the margin; geometry still comes only from the drawings (AI never draws a wall); every such decision is reviewed by the independent reviewers and carries its confidence.",
