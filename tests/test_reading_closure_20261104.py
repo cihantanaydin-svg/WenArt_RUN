@@ -201,6 +201,14 @@ def test_a_closure_matching_an_outdoor_area_text_is_refused_and_says_so():
     faces = TP.faces(got[0], got[1]) if got is not None else []
     assert not any(abs(f.area - 10.0) <= 1.0 for f in faces)
     assert sum(1 for w in (got[0] if got else []) if w.inferred) <= 1
+    # the same recess with a room label in it is that room, whatever its area (real11 L5: a 10.98 m2 kitchen is no
+    # 10.00 m2 balcony): both sides close
+    blocks3 = _blocks_with_area([("SALON", 2.5, 4.0, None), ("YATAK ODASI", 2.5, -2.0, None),
+                                 ("KİLER", 2.5, 1.0, None), ("BALKON", 9.0, 1.0, "10.00 m²")])
+    ex3, got3 = _close(walls, [], blocks3, [])
+    assert got3 is not None and got3[6] is None
+    assert not any("area text" in r["why"] for r in ex3.report["outline_closure"]["refused"])
+    assert any(abs(f.area - 10.0) <= 0.5 for f in TP.faces(got3[0], got3[1]))
     # the same recess 1.5 m taller is no 10 m2 balcony: the parts are joined
     walls2 = _walls([((0.0, 2.0), (0.0, 6.0)), ((0.0, 6.0), (5.0, 6.0)), ((5.0, 6.0), (5.0, 2.0)), ((5.0, 2.0), (0.0, 2.0)),
                      ((0.0, 2.0), (0.0, 1.0)), ((5.0, 2.0), (5.0, 1.0)),

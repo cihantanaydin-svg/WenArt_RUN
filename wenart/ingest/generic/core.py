@@ -1388,18 +1388,23 @@ def outdoor_guard(blocks: list, walls: list) -> dict:
             q = (2.0 * axis[1] - x, y) if axis[0] == "x" else (x, 2.0 * axis[1] - y)
             points.append((Point(q), True, b.name))
     areas = [(float(b.area_m2), b.name) for b in outdoor if getattr(b, "area_m2", None)]
-    return {"points": points, "areas": areas, "axis": axis}
+    indoor = [Point(b.anchor) for b in blocks if not getattr(b, "exterior", False) and not TP._outdoor_label(b)]
+    return {"points": points, "areas": areas, "axis": axis, "indoor": indoor}
 
 
 def outdoor_enclosure(face, guard: dict) -> Optional[str]:
     """Why a face an inferred wall would close is no room, or None: it holds an outdoor-space label, or the mirror
-    image of one on the plan's twin half, or its area is within ``CLOSURE_OUTDOOR_AREA_TOL`` of an outdoor space's
-    area text on the level (the balcony's ``10.00 m2`` ringed by its railing)."""
+    image of one on the plan's twin half, or (a face with no room label in it) its area is within
+    ``CLOSURE_OUTDOOR_AREA_TOL`` of an outdoor space's area text on the level (the balcony's ``10.00 m2`` ringed by
+    its railing). A face holding a room label is that room whatever its area (real11 L5: the 10.98 m2 kitchen is no
+    10.00 m2 balcony)."""
     for pt, mirrored, name in guard["points"]:
         if face.contains(pt):
             return (f"it would close the mirror image of the '{name}' label (the plan's twin half names the balcony "
                     f"or terrace there) into a room" if mirrored else
                     f"it would close the '{name}' label (a balcony, terrace or porch) into a room")
+    if any(face.contains(q) for q in guard.get("indoor") or []):
+        return None
     for a, name in guard["areas"]:
         if abs(face.area - a) <= CLOSURE_OUTDOOR_AREA_TOL * a:
             return (f"it would close an area of {face.area:.2f} m2 into the building, within "
