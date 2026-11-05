@@ -270,6 +270,7 @@ class ProjectBuild:
         # 5 Nov 2026 (Milestone 14 R3): level id -> the reader's decision records (``generic.decisions``), written to
         # reading_check/decisions_<level>.json
         self.decisions: dict[str, list] = {}
+        self.decision_summaries: dict[str, dict] = {}
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -3046,6 +3047,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                 build.outline_closure[record.level_id] = extraction.report["outline_closure"]
             if extraction.report.get("decisions") is not None:
                 build.decisions[record.level_id] = extraction.report["decisions"]
+                build.decision_summaries[record.level_id] = extraction.report.get("decisions_summary") or {}
         audit = (record.conversion or {}).get("audit") or {}
         if audit.get("errors"):
             _mark_unverified(extraction)
@@ -3091,6 +3093,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                 build.outline_closure[record.level_id] = extraction.report["outline_closure"]
             if extraction.report.get("decisions") is not None:
                 build.decisions[record.level_id] = extraction.report["decisions"]
+                build.decision_summaries[record.level_id] = extraction.report.get("decisions_summary") or {}
             if extraction.report.get("questions") and (extraction.scale is None or
                                                         extraction.transform_to_building is None):
                 build.question_only.append(extraction)
@@ -3186,8 +3189,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         rc_dir.mkdir(parents=True, exist_ok=True)
         for level_id, records in build.decisions.items():
             (rc_dir / f"decisions_{level_id}.json").write_text(
-                json.dumps({"level_id": level_id, "count": len(records), "records": records}, ensure_ascii=False,
-                           default=str) + "\n", encoding="utf-8")
+                json.dumps({"level_id": level_id, "count": len(records),
+                            "summary": build.decision_summaries.get(level_id) or {}, "records": records},
+                           ensure_ascii=False, default=str) + "\n", encoding="utf-8")
     if os.environ.get("WENART_READING_CHECK", "1") != "0":
         try:
             from wenart import reading_check as RCK

@@ -231,12 +231,12 @@ def test_the_committed_models_reproduce_from_their_committed_tables():
     """The committed model equals a fresh fit of its committed table, bit for bit (no randomness anywhere)."""
     seen = 0
     for kind in RK.CLASSES:
-        mp, tp = RK.model_path(kind), RK.table_path(kind)
-        if not (mp.is_file() and tp.is_file()):
+        mp = RK.model_path(kind)
+        table = RK.read_table(kind)
+        if not mp.is_file() or table is None:
             continue
         seen += 1
         model = json.loads(mp.read_text(encoding="utf-8"))
-        table = json.loads(tp.read_text(encoding="utf-8"))
         fresh = RK.fit(table, l2=model["l2"], iterations=model["iterations"])
         for key in ("features", "mean", "std", "classes", "coef", "intercept"):
             assert fresh[key] == model[key], (kind, key)

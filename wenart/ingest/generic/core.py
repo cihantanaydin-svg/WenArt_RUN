@@ -3140,6 +3140,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     # 5 Nov 2026 (Milestone 14 R3): the decision records in building metres with their final answers read off the
     # built level; every ranker decision is a page note and every place too weak on both sides a reading place
     ex.report["decisions"] = decisions.finalize((ox, oy), bwalls, b_openings)
+    ex.report["decisions_summary"] = decisions.summary()
     for rec in ex.report["decisions"]:
         if rec.get("decided_by") == DEC.DECIDED_RANKER and rec.get("ranker_answer"):
             ex.notes.append(f"{where}: gap at ({rec['place'][0]:.2f}, {rec['place'][1]:.2f}) m: the ranker decided "

@@ -73,6 +73,8 @@ L2 = 1.0                         # ridge on the standardised coefficients (the i
 NEWTON_ITERATIONS = 25           # Newton steps; the weighted logistic loss with a ridge is convex and converges well before
 NO_POSITIVES_INTERCEPT = -10.0   # a class without a positive example scores about 0 everywhere
 ROUND = 10                       # the stored numbers' decimals (enough for bit-for-bit reproduction after rounding)
+TABLE_MAX_ROWS = 6000            # the committed table keeps every synthetic and user-correction row and thins the
+                                 # accepted-reading rows to this total with a fixed stride (the files stay small)
 _MODELS: dict[str, Optional[dict]] = {}
 
 
@@ -224,10 +226,26 @@ def design(records: list[dict], names: list[str]) -> np.ndarray:
     return X
 
 
-def table_of(labelled: list[dict], kind: str) -> dict:
-    """The committed training table of one kind (pure): the feature names, one row per labelled record, its label (or
-    the class it negates), its weight, project and source."""
-    rows = [r for r in labelled if r.get("kind") == kind]
+def thin(rows: list[dict], max_rows: int = TABLE_MAX_ROWS) -> list[dict]:
+    """The rows of a table thinned to ``max_rows`` (pure, deterministic): every synthetic and user-correction row is
+    kept; the accepted-reading rows, in their order, are taken with a fixed stride so every project keeps its share.
+    Nothing is thinned under the cap."""
+    if len(rows) <= max_rows:
+        return list(rows)
+    keep = [r for r in rows if r.get("source") != "accepted_reading"]
+    rest = [r for r in rows if r.get("source") == "accepted_reading"]
+    room = max(0, max_rows - len(keep))
+    if room == 0 or not rest:
+        return keep
+    stride = len(rest) / room
+    chosen = {id(r) for r in keep} | {id(rest[int(i * stride)]) for i in range(room)}
+    return [r for r in rows if id(r) in chosen]
+
+
+def table_of(labelled: list[dict], kind: str, max_rows: int = TABLE_MAX_ROWS) -> dict:
+    """The committed training table of one kind (pure): the feature names, one row per labelled record (thinned to
+    ``max_rows``, ``thin``), its label (or the class it negates), its weight, project and source."""
+    rows = thin([r for r in labelled if r.get("kind") == kind], max_rows)
     names = feature_names(rows)
     X = design(rows, names)
     return {"kind": kind, "features": names, "rows": [[round(float(v), 6) for v in row] for row in X.tolist()],
@@ -350,7 +368,18 @@ def model_path(kind: str, models_dir: Path = MODELS_DIR) -> Path:
 
 
 def table_path(kind: str, models_dir: Path = MODELS_DIR) -> Path:
-    return Path(models_dir) / f"{kind}_table.json"
+    return Path(models_dir) / f"{kind}_table.json.gz"
+
+
+def read_table(kind: str, models_dir: Path = MODELS_DIR) -> Optional[dict]:
+    """The committed training table of a kind (gzip JSON), None when there is none."""
+    import gzip
+
+    path = table_path(kind, models_dir)
+    if not path.is_file():
+        return None
+    with gzip.open(path, "rt", encoding="utf-8") as fh:
+        return json.load(fh)
 
 
 def load_model(kind: str, models_dir: Path = MODELS_DIR) -> Optional[dict]:
@@ -516,10 +545,13 @@ def train(labelled: list[dict], kind: str, *, commit: Optional[str] = None, date
 
 
 def write_model(kind: str, model: dict, table: dict, models_dir: Path = MODELS_DIR) -> Path:
+    """The model as readable JSON and its table as gzip JSON (``mtime`` fixed so the archive is reproducible)."""
+    import gzip
+
     Path(models_dir).mkdir(parents=True, exist_ok=True)
     model_path(kind, models_dir).write_text(json.dumps(model, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    table_path(kind, models_dir).write_text(json.dumps(table, ensure_ascii=False, separators=(",", ":")) + "\n",
-                                           encoding="utf-8")
+    with gzip.GzipFile(table_path(kind, models_dir), "wb", mtime=0) as fh:
+        fh.write((json.dumps(table, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8"))
     reset_models()
     return model_path(kind, models_dir)
 

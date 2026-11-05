@@ -189,6 +189,7 @@ class DecisionLog:
     ranker: bool = True                                   # step 4: the ranker may decide (False: the rules alone)
     gap_records: list = field(default_factory=list)       # [(record, gap)]
     wall_records: list = field(default_factory=list)      # [record]
+    wall_counts: list = field(default_factory=list)       # [{layer, rule, pairs, without_record}] (``count_wall``)
     _texts: list = field(default_factory=list)            # _Text, page metres
     _theta: float = 0.0
     _aligned: Optional[list] = None                       # the texts in the gaps' aligned frame (cached per theta)
@@ -256,6 +257,18 @@ class DecisionLog:
         record.setdefault("decided_by", DECIDED_RULE)
         self.wall_records.append(record)
         return record
+
+    def count_wall(self, layer: str, rule: str, n: int, left_out: int) -> None:
+        """The pairs a layer's rule decided and how many of them have no record (``walls.PAIR_RECORD_CAP``)."""
+        self.wall_counts.append({"layer": layer, "rule": rule, "pairs": n, "without_record": left_out})
+
+    def summary(self) -> dict:
+        """What the level's records hold (the per-level file's ``summary``): counts per kind, rule and answer, the
+        pairs left without a record, the ranker's decisions and the low-confidence places."""
+        out = summary([r for r, _g in self.gap_records] + self.wall_records)
+        out["wall_pairs_per_layer_rule"] = list(self.wall_counts)
+        out["pairs_without_record"] = sum(c["without_record"] for c in self.wall_counts)
+        return out
 
     # -- the end of the level --
     def finalize(self, origin: tuple[float, float], walls: list, openings: list) -> list[dict]:

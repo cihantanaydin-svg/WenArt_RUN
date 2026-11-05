@@ -1603,10 +1603,6 @@ def _record_pair_decisions(decisions, page: GenericPage, s: float, cands: list[d
     walls later (``DecisionLog.finalize``). Pure apart from appending to the log; nothing when there is no log."""
     if decisions is None or not cands:
         return
-    import bisect
-
-    from wenart.ingest.generic import axes as AX
-    from wenart.ingest.generic import decisions as DEC
     from wenart.ingest.generic import layer_names as LN
 
     n_labels = max(1, len(_labels_m(page, s)))
@@ -1622,12 +1618,11 @@ def _record_pair_decisions(decisions, page: GenericPage, s: float, cands: list[d
         role = LN.layer_role(layer) or "none"
         row = row_of.get(layer)
         grid = bool(row and row.get("grid"))
-        pairs = cand["pairs"]
-        if cand["notation"] and len(pairs) > PAIR_RECORD_CAP:
-            pairs = sorted(pairs, key=lambda p: -(p.hi - p.lo))[:PAIR_RECORD_CAP]
         offsets = sorted(ln.off for ln in cand["lines"])
-        for p in pairs:
-            length = p.hi - p.lo
+        # the rule per pair, then at most PAIR_RECORD_CAP records per rule and layer (the longest pairs; a stair's
+        # treads give thousands of equal tread-run pairs); what is left out is counted, never silent
+        ruled: dict[str, list] = {}
+        for p in cand["pairs"]:
             if cand["notation"]:
                 rule = "notation_layer"
             elif id(p) in cand["dropped"]:
@@ -1638,43 +1633,65 @@ def _record_pair_decisions(decisions, page: GenericPage, s: float, cands: list[d
                 rule = ("wall_chosen_layer" if decided else "wall_document_layer") if p.primary else "secondary_pair"
             else:
                 rule = "layer_not_chosen" if decided else "layer_not_chosen_undecided"
+            ruled.setdefault(rule, []).append(p)
+        for rule, pairs in ruled.items():
+            decisions.count_wall(layer, rule, len(pairs), max(0, len(pairs) - PAIR_RECORD_CAP))
+            if len(pairs) > PAIR_RECORD_CAP:
+                ruled[rule] = sorted(pairs, key=lambda q: -(q.hi - q.lo))[:PAIR_RECORD_CAP]
+        for rule, pairs in ruled.items():
             answer = "wall" if rule in ("wall_chosen_layer", "wall_document_layer", "secondary_pair") else "notation"
-            ids = p.ids()
-            strokes = [stroke_of[i] for i in ids if i in stroke_of]
-            mid_off = (p.lines[0].off + p.lines[1].off) / 2.0
-            centre = p.point((p.lo + p.hi) / 2.0, mid_off)
-            near_text = 0
-            if tx is not None:
-                near_text = int((np.hypot(tx - centre[0], ty - centre[1]) <= TEXT_NEAR_M).sum())
-            collinear = 0
-            for ln in p.lines:
-                lo_i = bisect.bisect_left(offsets, ln.off - COLLINEAR_M)
-                hi_i = bisect.bisect_right(offsets, ln.off + COLLINEAR_M)
-                collinear += max(0, hi_i - lo_i - 1)
-            f = {"length": length, "width": p.width, "primary": bool(p.primary), "run_length": p.run,
-                 "aspect": length / p.width if p.width > 0 else 0.0,
-                 "line_length_max": max(ln.s1 - ln.s0 for ln in p.lines),
-                 "line_length_min": min(ln.s1 - ln.s0 for ln in p.lines),
-                 "linetype_axis": any(AX.is_axis_style(st.layer, st.linetype) for st in strokes),
-                 "in_dimension_chain": any(i in dim_ids for i in ids),
-                 "in_axis_grid": grid, "inside_block": any(getattr(st, "block", None) for st in strokes),
-                 "text_within_0_3m": near_text, "collinear_neighbours": collinear,
-                 "layer_chosen": layer in chosen, "layer_decided": bool(decided),
-                 "layer_closed_in_share": (row["closed_in"] / max(1, len(_labels_m(page, s)))) if row else 0.0,
-                 "layer_pair_share": row["pair_share"] if row else 0.0,
-                 "layer_rooms": row["rooms"] if row else 0, "layer_pairs": row["pairs"] if row else 0,
-                 "layer_dimension_pieces": cand.get("dimension_pieces", 0)}
-            for r in ("wall", "plaster", "structure", "door", "window", "glass", "furniture", "text", "dimension",
-                      "axis", "stair", "finish", "hatch", "none"):
-                f[f"role_{r}"] = role == r
-            f["role_other"] = f"role_{role}" not in f
-            rec = {"kind": DEC.KIND_WALL, "id": "+".join(ids[:4]), "layer": layer, "features": {k: DEC._num(v) for k, v in f.items()},
-                   "rule": rule, "rule_answer": answer, "rule_confidence": DEC.rule_confidence(rule),
-                   "final_answer": None, "decided_by": DEC.DECIDED_RULE,
-                   "place_page": [round(centre[0], 4), round(centre[1], 4)],
-                   "axis": round(math.degrees(math.atan2(p.u[1], p.u[0])) % 180.0, 2),
-                   "line_page": [list(p.point(p.lo, mid_off)), list(p.point(p.hi, mid_off))]}
-            decisions.add_wall(rec)
+            for p in pairs:
+                _record_pair(decisions, p, layer, role, rule, answer, row, grid, chosen, decided, offsets, stroke_of,
+                             dim_ids, tx, ty, n_labels, cand)
+
+
+def _record_pair(decisions, p: _Pair, layer: str, role: str, rule: str, answer: str, row, grid: bool, chosen: set,
+                 decided: bool, offsets: list, stroke_of: dict, dim_ids: set, tx, ty, n_labels: int,
+                 cand: dict) -> None:
+    """One pair's record (``_record_pair_decisions``): its features, the rule and its answer, its place and centre
+    line in page metres (``DecisionLog.finalize`` shifts them to building metres and reads the final answer)."""
+    import bisect
+
+    from wenart.ingest.generic import axes as AX
+    from wenart.ingest.generic import decisions as DEC
+
+    length = p.hi - p.lo
+    ids = p.ids()
+    strokes = [stroke_of[i] for i in ids if i in stroke_of]
+    mid_off = (p.lines[0].off + p.lines[1].off) / 2.0
+    centre = p.point((p.lo + p.hi) / 2.0, mid_off)
+    near_text = 0
+    if tx is not None:
+        near_text = int((np.hypot(tx - centre[0], ty - centre[1]) <= TEXT_NEAR_M).sum())
+    collinear = 0
+    for ln in p.lines:
+        lo_i = bisect.bisect_left(offsets, ln.off - COLLINEAR_M)
+        hi_i = bisect.bisect_right(offsets, ln.off + COLLINEAR_M)
+        collinear += max(0, hi_i - lo_i - 1)
+    f = {"length": length, "width": p.width, "primary": bool(p.primary), "run_length": p.run,
+         "aspect": length / p.width if p.width > 0 else 0.0,
+         "line_length_max": max(ln.s1 - ln.s0 for ln in p.lines),
+         "line_length_min": min(ln.s1 - ln.s0 for ln in p.lines),
+         "linetype_axis": any(AX.is_axis_style(st.layer, st.linetype) for st in strokes),
+         "in_dimension_chain": any(i in dim_ids for i in ids),
+         "in_axis_grid": grid, "inside_block": any(getattr(st, "block", None) for st in strokes),
+         "text_within_0_3m": near_text, "collinear_neighbours": collinear,
+         "layer_chosen": layer in chosen, "layer_decided": bool(decided),
+         "layer_closed_in_share": (row["closed_in"] / n_labels) if row else 0.0,
+         "layer_pair_share": row["pair_share"] if row else 0.0,
+         "layer_rooms": row["rooms"] if row else 0, "layer_pairs": row["pairs"] if row else 0,
+         "layer_dimension_pieces": cand.get("dimension_pieces", 0)}
+    for r in ("wall", "plaster", "structure", "door", "window", "glass", "furniture", "text", "dimension", "axis",
+              "stair", "finish", "hatch", "none"):
+        f[f"role_{r}"] = role == r
+    f["role_other"] = f"role_{role}" not in f
+    rec = {"kind": DEC.KIND_WALL, "id": "+".join(ids[:4]), "layer": layer,
+           "features": {k: DEC._num(v) for k, v in f.items()}, "rule": rule, "rule_answer": answer,
+           "rule_confidence": DEC.rule_confidence(rule), "final_answer": None, "decided_by": DEC.DECIDED_RULE,
+           "place_page": [round(centre[0], 4), round(centre[1], 4)],
+           "axis": round(math.degrees(math.atan2(p.u[1], p.u[0])) % 180.0, 2),
+           "line_page": [list(p.point(p.lo, mid_off)), list(p.point(p.hi, mid_off))]}
+    decisions.add_wall(rec)
 
 
 # --------------------------------------------------------------------------
