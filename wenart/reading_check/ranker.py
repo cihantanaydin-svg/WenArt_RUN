@@ -454,7 +454,7 @@ def _accuracy(rows: list[dict], model: Optional[dict]) -> dict:
             "integrated_acc": round(integ / n, 4) if n else None, "corrections": corrections, "changed": changed}
 
 
-def lopo(labelled: list[dict], kind: str) -> dict:
+def lopo(labelled: list[dict], kind: str, l2: float = L2) -> dict:
     """Leave-one-project-out (pure): for each project with labelled records of ``kind``, a model trained on the other
     projects' records scores it. ``{"per_project": {p: metrics}, "overall": metrics}``."""
     rows = [r for r in labelled if r.get("kind") == kind]
@@ -466,7 +466,7 @@ def lopo(labelled: list[dict], kind: str) -> dict:
     for p in projects:
         train_rows = [r for r in rows if r.get("project") != p]
         test_rows = [r for r in rows if r.get("project") == p]
-        model = fit(table_of(train_rows, kind)) if train_rows else None
+        model = fit(table_of(train_rows, kind), l2=l2) if train_rows else None
         m = _accuracy(test_rows, model)
         per[p] = {k: v for k, v in m.items() if k != "changed"}
         changed.extend(m["changed"])
@@ -548,18 +548,19 @@ def collect(work: Path, projects: Optional[list[str]] = None) -> tuple[list[dict
     return labelled, skipped
 
 
-def train(labelled: list[dict], kind: str, *, commit: Optional[str] = None, date: Optional[str] = None) -> dict:
+def train(labelled: list[dict], kind: str, *, commit: Optional[str] = None, date: Optional[str] = None,
+          l2: float = L2) -> dict:
     """The committed model of a kind from labelled records: the table, the fit, the leave-one-project-out metrics and
     the provenance (pure apart from the git commit lookup when ``commit`` is None). Returns ``{"model", "table"}``."""
     from wenart.reading_check import truth as TR
 
     table = table_of(labelled, kind)
-    model = fit(table)
+    model = fit(table, l2=l2)
     rows = [r for r in labelled if r.get("kind") == kind]
     counts: dict = {}
     for r in rows:
         counts[r.get("source")] = counts.get(r.get("source"), 0) + 1
-    result = lopo(labelled, kind)
+    result = lopo(labelled, kind, l2=l2)
     model["trained_on"] = {"commit": commit or TR.git_head(), "date": date or TR.today(),
                            "projects": sorted({r.get("project") for r in rows}), "rows": len(rows),
                            "counts_per_source": counts, "label_weights": LABEL_WEIGHTS,
@@ -589,6 +590,8 @@ def main(argv=None) -> int:
     ap.add_argument("--projects", default=None, help="comma separated (default: every project with a truth file)")
     ap.add_argument("--kind", default=None, help=f"one of {', '.join(CLASSES)} (default: both)")
     ap.add_argument("--models", default=str(MODELS_DIR), help="the models folder")
+    ap.add_argument("--l2", type=float, default=L2, help=f"the ridge on the standardised coefficients (default {L2})")
+    ap.add_argument("--changes", type=int, default=40, help="how many held-out changed decisions to print")
     args = ap.parse_args(argv)
     kinds = [args.kind] if args.kind else list(CLASSES)
     models_dir = Path(args.models)
@@ -615,9 +618,17 @@ def main(argv=None) -> int:
         if not any(r.get("kind") == kind for r in labelled):
             print(f"{kind}: nothing to train on")
             continue
-        got = train(labelled, kind)
+        got = train(labelled, kind, l2=args.l2)
+        print(f"{kind}: ridge l2 {args.l2:g}")
         print(lopo_table({"per_project": got["model"]["metrics"]["leave_one_project_out"],
                           "overall": got["model"]["metrics"]["overall"]}))
+        changed = got["model"]["metrics"]["changed_in_lopo"]
+        right = sum(1 for c in changed if c["right"])
+        print(f"{kind}: {len(changed)} decisions the held-out ranker changed, {right} right, {len(changed) - right} wrong")
+        for c in changed[:max(0, args.changes)]:
+            place = f"({c['place'][0]:.2f}, {c['place'][1]:.2f})" if c.get("place") else "?"
+            print(f"  {c['project']} {c['level_id']} at {place} m: {c['rule_answer']} -> {c['ranker_answer']} "
+                  f"(margin {c['margin']:.2f}; truth {c['label']}: {'right' if c['right'] else 'wrong'})")
         print(explain_text(got["model"]))
         if args.action == "train":
             print(f"{kind}: written to {write_model(kind, got['model'], got['table'], models_dir)}")
