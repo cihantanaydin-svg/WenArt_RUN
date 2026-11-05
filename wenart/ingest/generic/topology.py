@@ -425,8 +425,11 @@ def separators(walls: list[WallItem], openings: list[OpeningItem], gap_log: list
         # 3 Nov 2026 (real10, user: "Red markings showing the inside hall": the flat's hall and its salon shared one
         # face; the hall's wall stub ends 0.65 m short of the kitchen wall's corner, offset, so no aligned candidate
         # existed): a free end to the nearest point of another wall, crossing no wall
+        # A nearest-point candidate is kept only for the names it separates: one that only separates a stair from a
+        # labelled face leaves a hall that holds its stair as drawn (real02's L-1b: the open kitchen and the salon
+        # share one face by design, and the corridor with the stair was cut in two)
         for cand in sorted(_nearest_candidates(walls, gap_log, openings), key=lambda c: c["length"]):
-            score = _consider(cand, walls, openings, kept, names, stairs, log, score)
+            score = _consider(cand, walls, openings, kept, names, stairs, log, score, names_only=True)
     if axis is not None:
         _mirror_separators(axis, walls, openings, kept, log)
     items = [_separator_item(c, walls, units_to_m) for c in kept]
@@ -472,9 +475,9 @@ def _mirror_separators(axis: tuple, walls: list, openings: list, kept: list, log
 
 
 def _consider(cand: dict, walls: list, openings: list, kept: list, names: list, stairs: list, log: list,
-              score: dict) -> dict:
-    """Keep ``cand`` (appended to ``kept``) when it lowers the score; one log entry either way. Returns the score
-    with the kept separators."""
+              score: dict, names_only: bool = False) -> dict:
+    """Keep ``cand`` (appended to ``kept``) when it lowers the score (``names_only``: when it lowers the count of
+    room names sharing a face); one log entry either way. Returns the score with the kept separators."""
     entry = {k: v for k, v in cand.items() if k != "poly"}
     if cand["length"] > SEPARATOR_MAX_M:
         entry.update(kept=False, reason=f"longer than {SEPARATOR_MAX_M} m")
@@ -486,6 +489,8 @@ def _consider(cand: dict, walls: list, openings: list, kept: list, names: list, 
         reasons.append("two room names shared one face")
     if new["stair_mixed"] < score["stair_mixed"]:
         reasons.append("separates the stair from a labelled face")
+    if names_only and not new["excess"] < score["excess"]:
+        reasons = []
     if reasons:
         cand["reason"] = "; ".join(reasons)
         kept.append(cand)
