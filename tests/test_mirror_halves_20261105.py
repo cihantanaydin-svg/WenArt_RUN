@@ -8,7 +8,9 @@ through the pipeline with a garden wall or a parapet added (the reviewers' varia
 from __future__ import annotations
 
 import copy
+import json
 import math
+from pathlib import Path
 
 import pytest
 
@@ -17,6 +19,8 @@ from wenart.ingest.generic import labels as LB
 from wenart.ingest.generic import mirror as MR
 from wenart.ingest.generic.model import TextRun
 from wenart.ingest.model import OpeningItem, WallItem
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _walls(xy, t=0.2):
@@ -145,3 +149,60 @@ def test_the_reviewers_variants_get_nothing_mirrored(variants, name):
     assert sum(o["type"] == "door" for o in ops) == 6 and sum(o["type"] == "window" for o in ops) == 9
     assert not any(o is not q and o["type"] == q["type"] and math.dist(o["center"], q["center"]) <= 0.05
                    for o in ops for q in ops)
+
+
+# --- the user's corrections keep naming their elements (stable mirror-copy ids, 5 Nov 2026) ------------------------
+
+ID_FIXTURE = ROOT / "tests" / "fixtures" / "reading_ids.json"
+CORRECTED = ("real06", "real07", "real10")
+
+
+def _named(project: str) -> list[tuple]:
+    t = json.loads((ROOT / "results" / "reading_truth" / f"{project}.json").read_text(encoding="utf-8"))
+    return [(lid, k, e) for lid, lv in t["per_level"].items() for k, v in lv.items() if isinstance(v, list)
+            for e in v if e.get("source") == "user_correction" and not e.get("absent")]
+
+
+def _near(kind: str, truth_el: dict, read_el: dict) -> bool:
+    from wenart.reading_check import score as SC
+    if kind == "walls":
+        return all(min(math.dist(truth_el[a], read_el[b]) for b in ("start", "end")) <= SC.WALL_LATERAL_M
+                   for a in ("start", "end"))
+    tol = {"rooms": SC.ROOM_CENTROID_M, "stairs": SC.STAIR_CENTER_M}.get(kind, SC.OPENING_CENTER_M)
+    f = "centroid" if kind == "rooms" else "center"
+    return math.dist(truth_el[f], read_el[f]) <= tol
+
+
+def _check(project: str, read: dict) -> list:
+    """The user_correction elements of the truth with no reading element of the same id within the score's
+    tolerance of its place (``read``: ``{(level, id): element}``)."""
+    bad = []
+    for lid, kind, e in _named(project):
+        r = read.get((lid, e["id"]))
+        if r is None or not _near(kind, e, r):
+            bad.append((lid, kind, e["id"], e.get("correction")))
+    return bad
+
+
+@pytest.mark.parametrize("project", CORRECTED)
+def test_every_user_corrected_element_keeps_its_id(project):
+    """Every user_correction element of the truth names an element of the branch's reading (the fixture: its ids and
+    places, ``tests/fixtures/reading_ids.json``) at its place, within the score's tolerance: a change of the reader's
+    numbering never leaves a correction on an empty or a different element (real10 C0043 moved from o_Lk_033/034 to
+    o_Lk_030/031 with the stable mirror-copy ids; scripts/migrate_reading_ids.py renamed them)."""
+    rows = json.loads(ID_FIXTURE.read_text(encoding="utf-8"))["projects"][project]
+    read = {(r["level"], r["id"]): r for r in rows}
+    assert _check(project, read) == []
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("project", CORRECTED)
+def test_user_corrected_ids_on_a_fresh_reading(project, tmp_path):
+    """The same on a fresh CPU reading of the project (minutes; real10 about 15)."""
+    from wenart.ingest import pipeline as PL
+    from wenart.reading_check import truth as TR
+
+    b = PL.run_project(ROOT / "projects" / project, tmp_path / project, no_ai=True)[0]
+    read = {(lid, e["id"]): e for lid, lv in TR.extract(b)["per_level"].items() for v in lv.values()
+            if isinstance(v, list) for e in v}
+    assert _check(project, read) == []

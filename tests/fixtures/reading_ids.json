@@ -1,0 +1,757 @@
+{
+ "note": "The reading's elements (id, kind, place) that the user_correction entries of results/reading_truth/ name (real06, real07, real10; the CPU reading of 5 Nov 2026 with stable mirror-copy ids). Rebuilt by tests/test_mirror_halves_20261105.py::test_user_corrected_ids_on_a_fresh_reading (slow).",
+ "projects": {
+  "real06": [],
+  "real07": [
+   {
+    "level": "L0",
+    "kind": "doors",
+    "id": "d_L0_002",
+    "center": [
+     5.815,
+     2.19
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "doors",
+    "id": "o_L0_014",
+    "center": [
+     2.03,
+     0.24
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "rooms",
+    "id": "r_L0_garaj",
+    "centroid": [
+     1.993,
+     3.47
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "rooms",
+    "id": "r_L0_kat_kal",
+    "centroid": [
+     5.09,
+     1.207
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "stairs",
+    "id": "f_L0_012",
+    "center": [
+     8.668,
+     4.541
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "openings",
+    "id": "o_L1_005",
+    "center": [
+     7.542,
+     8.14
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "rooms",
+    "id": "r_L1_giyinme_soyunma",
+    "centroid": [
+     6.695,
+     9.634
+    ]
+   }
+  ],
+  "real10": [
+   {
+    "level": "L-1",
+    "kind": "doors",
+    "id": "d_L-1_001",
+    "center": [
+     11.19,
+     1.915
+    ]
+   },
+   {
+    "level": "L-1",
+    "kind": "doors",
+    "id": "d_L-1_022",
+    "center": [
+     15.314,
+     6.49
+    ]
+   },
+   {
+    "level": "L-1",
+    "kind": "doors",
+    "id": "d_L-1_023",
+    "center": [
+     8.741,
+     7.24
+    ]
+   },
+   {
+    "level": "L-1",
+    "kind": "doors",
+    "id": "d_L-1_024",
+    "center": [
+     13.641,
+     7.24
+    ]
+   },
+   {
+    "level": "L-1",
+    "kind": "rooms",
+    "id": "r_L-1_oda",
+    "centroid": [
+     14.755,
+     4.228
+    ]
+   },
+   {
+    "level": "L-1",
+    "kind": "rooms",
+    "id": "r_L-1_oda_3",
+    "centroid": [
+     15.639,
+     9.468
+    ]
+   },
+   {
+    "level": "L-1",
+    "kind": "rooms",
+    "id": "r_L-1_oda_4",
+    "centroid": [
+     12.159,
+     8.994
+    ]
+   },
+   {
+    "level": "L-1",
+    "kind": "rooms",
+    "id": "r_L-1_oda_4_hall",
+    "centroid": [
+     11.127,
+     5.127
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "doors",
+    "id": "d_L0_017",
+    "center": [
+     8.741,
+     7.24
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "doors",
+    "id": "d_L0_018",
+    "center": [
+     13.641,
+     7.24
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "doors",
+    "id": "o_L0_030",
+    "center": [
+     6.275,
+     7.025
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "doors",
+    "id": "o_L0_031",
+    "center": [
+     16.105,
+     7.025
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "openings",
+    "id": "o_L0_003",
+    "center": [
+     11.19,
+     6.29
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "openings",
+    "id": "o_L0_006",
+    "center": [
+     9.666,
+     8.45
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "rooms",
+    "id": "r_L0_depo",
+    "centroid": [
+     14.053,
+     9.99
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "rooms",
+    "id": "r_L0_depo_2",
+    "centroid": [
+     8.319,
+     9.995
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "rooms",
+    "id": "r_L0_merdiven",
+    "centroid": [
+     11.19,
+     5.485
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "rooms",
+    "id": "r_L0_oda_5",
+    "centroid": [
+     12.203,
+     8.991
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "rooms",
+    "id": "r_L0_oda_5_hall",
+    "centroid": [
+     10.954,
+     7.415
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "stairs",
+    "id": "f_L0_023",
+    "center": [
+     12.112,
+     9.008
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "stairs",
+    "id": "f_L0_024",
+    "center": [
+     11.194,
+     4.654
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "windows",
+    "id": "o_L0_022",
+    "center": [
+     20.23,
+     14.74
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "doors",
+    "id": "d_L1_017",
+    "center": [
+     8.741,
+     7.24
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "doors",
+    "id": "d_L1_018",
+    "center": [
+     13.641,
+     7.24
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "doors",
+    "id": "o_L1_030",
+    "center": [
+     6.275,
+     7.025
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "doors",
+    "id": "o_L1_031",
+    "center": [
+     16.105,
+     7.025
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "openings",
+    "id": "o_L1_003",
+    "center": [
+     11.19,
+     6.29
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "openings",
+    "id": "o_L1_006",
+    "center": [
+     9.666,
+     8.45
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "rooms",
+    "id": "r_L1_merdiven",
+    "centroid": [
+     11.19,
+     5.485
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "stairs",
+    "id": "f_L1_024",
+    "center": [
+     11.194,
+     4.654
+    ]
+   },
+   {
+    "level": "L1",
+    "kind": "windows",
+    "id": "o_L1_022",
+    "center": [
+     20.23,
+     14.74
+    ]
+   },
+   {
+    "level": "L2",
+    "kind": "doors",
+    "id": "d_L2_017",
+    "center": [
+     8.741,
+     7.24
+    ]
+   },
+   {
+    "level": "L2",
+    "kind": "doors",
+    "id": "d_L2_018",
+    "center": [
+     13.641,
+     7.24
+    ]
+   },
+   {
+    "level": "L2",
+    "kind": "doors",
+    "id": "o_L2_030",
+    "center": [
+     6.275,
+     7.025
+    ]
+   },
+   {
+    "level": "L2",
+    "kind": "doors",
+    "id": "o_L2_031",
+    "center": [
+     16.105,
+     7.025
+    ]
+   },
+   {
+    "level": "L2",
+    "kind": "openings",
+    "id": "o_L2_003",
+    "center": [
+     11.19,
+     6.29
+    ]
+   },
+   {
+    "level": "L2",
+    "kind": "openings",
+    "id": "o_L2_006",
+    "center": [
+     9.666,
+     8.45
+    ]
+   },
+   {
+    "level": "L2",
+    "kind": "rooms",
+    "id": "r_L2_merdiven",
+    "centroid": [
+     11.19,
+     5.485
+    ]
+   },
+   {
+    "level": "L2",
+    "kind": "stairs",
+    "id": "f_L2_024",
+    "center": [
+     11.194,
+     4.654
+    ]
+   },
+   {
+    "level": "L2",
+    "kind": "windows",
+    "id": "o_L2_022",
+    "center": [
+     20.23,
+     14.74
+    ]
+   },
+   {
+    "level": "L3",
+    "kind": "doors",
+    "id": "d_L3_017",
+    "center": [
+     8.741,
+     7.24
+    ]
+   },
+   {
+    "level": "L3",
+    "kind": "doors",
+    "id": "d_L3_018",
+    "center": [
+     13.641,
+     7.24
+    ]
+   },
+   {
+    "level": "L3",
+    "kind": "doors",
+    "id": "o_L3_030",
+    "center": [
+     6.275,
+     7.025
+    ]
+   },
+   {
+    "level": "L3",
+    "kind": "doors",
+    "id": "o_L3_031",
+    "center": [
+     16.105,
+     7.025
+    ]
+   },
+   {
+    "level": "L3",
+    "kind": "openings",
+    "id": "o_L3_003",
+    "center": [
+     11.19,
+     6.29
+    ]
+   },
+   {
+    "level": "L3",
+    "kind": "openings",
+    "id": "o_L3_006",
+    "center": [
+     9.666,
+     8.45
+    ]
+   },
+   {
+    "level": "L3",
+    "kind": "rooms",
+    "id": "r_L3_merdiven",
+    "centroid": [
+     11.19,
+     5.485
+    ]
+   },
+   {
+    "level": "L3",
+    "kind": "stairs",
+    "id": "f_L3_024",
+    "center": [
+     11.194,
+     4.654
+    ]
+   },
+   {
+    "level": "L3",
+    "kind": "windows",
+    "id": "o_L3_022",
+    "center": [
+     20.23,
+     14.74
+    ]
+   },
+   {
+    "level": "L4",
+    "kind": "doors",
+    "id": "d_L4_017",
+    "center": [
+     8.741,
+     7.24
+    ]
+   },
+   {
+    "level": "L4",
+    "kind": "doors",
+    "id": "d_L4_018",
+    "center": [
+     13.641,
+     7.24
+    ]
+   },
+   {
+    "level": "L4",
+    "kind": "doors",
+    "id": "o_L4_030",
+    "center": [
+     6.275,
+     7.025
+    ]
+   },
+   {
+    "level": "L4",
+    "kind": "doors",
+    "id": "o_L4_031",
+    "center": [
+     16.105,
+     7.025
+    ]
+   },
+   {
+    "level": "L4",
+    "kind": "openings",
+    "id": "o_L4_003",
+    "center": [
+     11.19,
+     6.29
+    ]
+   },
+   {
+    "level": "L4",
+    "kind": "openings",
+    "id": "o_L4_006",
+    "center": [
+     9.666,
+     8.45
+    ]
+   },
+   {
+    "level": "L4",
+    "kind": "rooms",
+    "id": "r_L4_merdiven",
+    "centroid": [
+     11.19,
+     5.485
+    ]
+   },
+   {
+    "level": "L4",
+    "kind": "stairs",
+    "id": "f_L4_024",
+    "center": [
+     11.194,
+     4.654
+    ]
+   },
+   {
+    "level": "L4",
+    "kind": "windows",
+    "id": "o_L4_022",
+    "center": [
+     20.23,
+     14.74
+    ]
+   },
+   {
+    "level": "L5",
+    "kind": "doors",
+    "id": "d_L5_017",
+    "center": [
+     8.741,
+     7.24
+    ]
+   },
+   {
+    "level": "L5",
+    "kind": "doors",
+    "id": "d_L5_018",
+    "center": [
+     13.641,
+     7.24
+    ]
+   },
+   {
+    "level": "L5",
+    "kind": "doors",
+    "id": "o_L5_030",
+    "center": [
+     6.275,
+     7.025
+    ]
+   },
+   {
+    "level": "L5",
+    "kind": "doors",
+    "id": "o_L5_031",
+    "center": [
+     16.105,
+     7.025
+    ]
+   },
+   {
+    "level": "L5",
+    "kind": "openings",
+    "id": "o_L5_003",
+    "center": [
+     11.19,
+     6.29
+    ]
+   },
+   {
+    "level": "L5",
+    "kind": "openings",
+    "id": "o_L5_006",
+    "center": [
+     9.666,
+     8.45
+    ]
+   },
+   {
+    "level": "L5",
+    "kind": "rooms",
+    "id": "r_L5_merdiven",
+    "centroid": [
+     11.19,
+     5.485
+    ]
+   },
+   {
+    "level": "L5",
+    "kind": "stairs",
+    "id": "f_L5_024",
+    "center": [
+     11.194,
+     4.654
+    ]
+   },
+   {
+    "level": "L5",
+    "kind": "windows",
+    "id": "o_L5_022",
+    "center": [
+     20.23,
+     14.74
+    ]
+   },
+   {
+    "level": "L6",
+    "kind": "doors",
+    "id": "d_L6_017",
+    "center": [
+     8.741,
+     7.24
+    ]
+   },
+   {
+    "level": "L6",
+    "kind": "doors",
+    "id": "d_L6_018",
+    "center": [
+     13.641,
+     7.24
+    ]
+   },
+   {
+    "level": "L6",
+    "kind": "doors",
+    "id": "o_L6_030",
+    "center": [
+     6.275,
+     7.025
+    ]
+   },
+   {
+    "level": "L6",
+    "kind": "doors",
+    "id": "o_L6_031",
+    "center": [
+     16.105,
+     7.025
+    ]
+   },
+   {
+    "level": "L6",
+    "kind": "openings",
+    "id": "o_L6_003",
+    "center": [
+     11.19,
+     6.29
+    ]
+   },
+   {
+    "level": "L6",
+    "kind": "openings",
+    "id": "o_L6_006",
+    "center": [
+     9.666,
+     8.45
+    ]
+   },
+   {
+    "level": "L6",
+    "kind": "rooms",
+    "id": "r_L6_merdiven",
+    "centroid": [
+     11.19,
+     5.485
+    ]
+   },
+   {
+    "level": "L6",
+    "kind": "stairs",
+    "id": "f_L6_024",
+    "center": [
+     11.194,
+     4.654
+    ]
+   },
+   {
+    "level": "L6",
+    "kind": "windows",
+    "id": "o_L6_022",
+    "center": [
+     20.23,
+     14.74
+    ]
+   }
+  ]
+ }
+}
