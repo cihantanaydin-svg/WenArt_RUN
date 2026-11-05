@@ -415,6 +415,71 @@ def test_the_correction_records_parse_and_point_at_real_lessons_and_projects():
     assert any("null without a note" in e for e in errs)
 
 
+def _remark(**kw) -> dict:
+    base = {"id": "C0100", "date": "2026-11-05", "project": "real10", "level": "L0", "place": None,
+            "element_kind": "wall", "reader_answer": "a wall", "right_answer": "no wall",
+            "user_words": "This wall do not exist", "lesson": None, "note": "no lesson yet", "source": "user_review",
+            "status": "accepted"}
+    base.update(kw)
+    return base
+
+
+def test_a_placeable_remark_of_the_users_review_needs_a_place_or_a_place_note():
+    """5 Nov 2026: a correction joins the truth and the ranker's labels only through its place; every future remark
+    about a wall, door, window, opening, room or stair is placed at capture (or says why it cannot be)."""
+    err = TR.correction_errors([_remark()], [], ["real10"])
+    assert len(err) == 1 and "needs a place or a place_note" in err[0] and err[0].startswith("C0100")
+    for kind in TR.PLACEABLE_KINDS:
+        assert TR.correction_errors([_remark(element_kind=kind)], [], ["real10"]), kind
+    ok = [_remark(place={"x": 10.87, "y": 5.69}),
+          _remark(place_note="the walls were removed the same day; their places are not recorded"),
+          _remark(element_kind="level"), _remark(element_kind="roof"), _remark(element_kind="label"),
+          _remark(status="proposed"), _remark(source="machine_review"), _remark(source="backfill_progress")]
+    for r in ok:
+        assert TR.correction_errors([r], [], ["real10"]) == [], r
+    assert TR.correction_errors([_remark(place_note="  ")], [], ["real10"])          # a blank note is no note
+    # the located fields of the backfilled records stay consistent too
+    assert "neither a place nor a place_note" in TR.correction_errors(
+        [_remark(source="backfill_progress", placeable=True)], [], ["real10"])[0]
+    assert "without a why" in TR.correction_errors(
+        [_remark(source="backfill_progress", element_kind="level", placeable=False)], [], ["real10"])[0]
+    assert TR.correction_errors([_remark(source="backfill_progress", element_kind="level", placeable=False,
+                                         why="a level elevation")], [], ["real10"]) == []
+
+
+def test_every_correction_record_is_placed_or_says_why_and_the_applied_ones_are_in_the_truth():
+    """5 Nov 2026: the 58 records of 3-5 Nov located on the current readings: each says whether it is placeable;
+    a placed one carries its level, element ids, source, confidence and note, and a truth action in the vocabulary
+    of `truth add|remove` (retype as remove + add); an applied action is in its project's truth file under its
+    correction id; the machine's proposals are never applied."""
+    from wenart.reading_check import remark as RM
+
+    records = TR.load_corrections()
+    assert all(isinstance(r.get("placeable"), bool) for r in records)
+    assert all(r.get("why") for r in records if r["placeable"] is False)
+    placed = [r for r in records if r["placeable"] and r.get("place")]
+    assert all(r.get("place_note") for r in records if r["placeable"])
+    assert len(placed) >= 30
+    for r in placed:
+        assert r["level"] and r["element_ids"] and r["place_source"] == "located_by_machine", r["id"]
+        assert 0.0 <= float(r["place_confidence"]) <= 1.0, r["id"]
+        assert RM.validate_truth_action(r["truth_action"]) is None, r["id"]
+        for el in r["truth_action"].get("elements") or [r["truth_action"]]:
+            assert el["op"] in ("add", "remove") and el["kind"] in TR.KIND_TO_TYPE and el["level"], r["id"]
+    for r in records:
+        if r["status"] == "proposed" or r["source"] == "machine_review":
+            assert (r.get("truth_applied") or {}).get("status") != "applied", r["id"]
+    applied = [r for r in records if (r.get("truth_applied") or {}).get("status") == "applied"]
+    assert len(applied) >= 20
+    for r in applied:
+        truth = TR.load_truth(r["project"])
+        assert r["id"] in (truth.get("corrections") or []), r["id"]
+        tagged = [e for lv in truth["per_level"].values() for els in lv.values() for e in els
+                  if e.get("correction") == r["id"]]
+        assert tagged and all(e["source"] == TR.SOURCE_USER for e in tagged), r["id"]
+        assert float(r["place_confidence"]) >= 0.6, r["id"]
+
+
 # --- a synthetic failure class against its exact truth (one DXF reading, seconds) -----------------------------------
 
 @pytest.mark.xfail(strict=True, reason="synthetic-06 scored against its exact truth stays below 100 until the reader "

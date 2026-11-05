@@ -636,10 +636,22 @@ def load_corrections(path: Path = CORRECTIONS_PATH) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
+PLACEABLE_KINDS = ("wall", "door", "window", "opening", "room", "stair")    # an element with one place on a level
+SOURCE_REVIEW = "user_review"                                              # a remark captured by `remark add`
+
+
 def correction_errors(records: list[dict], lesson_ids: Iterable[str], projects: Iterable[str]) -> list[str]:
     """What is wrong with the correction records (pure): a missing field, an unknown element kind, a lesson not in
     the lessons file (null needs a ``note``), a project not in ``projects/``, a place that is neither null nor
-    ``{x, y}``, a repeated id."""
+    ``{x, y}``, a repeated id.
+
+    5 Nov 2026 (Milestone 14, user: "I want structure recognition to be cumulatively better with the feedbacks I am
+    giving"): a correction joins the truth and the ranker's labels only through its place. 57 of the first 58 records
+    had none, so nothing joined them to a gap, a wall or a room. Two rules keep the store placeable from now on:
+    an accepted remark of the user's review (``source: user_review``, ``status: accepted``) about a placeable element
+    (``PLACEABLE_KINDS``: wall, door, window, opening, room, stair) needs a ``place`` or an explicit ``place_note``
+    (why it has none), so every future remark is placed at capture; and a record that says ``placeable: true`` needs
+    the same, while ``placeable: false`` needs its ``why``."""
     lessons, known, seen, out = set(lesson_ids), set(projects), set(), []
     for rec in records:
         rid = rec.get("id")
@@ -662,6 +674,15 @@ def correction_errors(records: list[dict], lesson_ids: Iterable[str], projects: 
         if place is not None and not (isinstance(place, dict) and set(place) >= {"x", "y"}
                                       and all(isinstance(place[k], (int, float)) for k in ("x", "y"))):
             out.append(f"{rid}: place {place!r} is neither null nor {{x, y}}")
+        unplaced = place is None and not str(rec.get("place_note") or "").strip()
+        if (unplaced and rec.get("element_kind") in PLACEABLE_KINDS and rec.get("source") == SOURCE_REVIEW
+                and rec.get("status") == "accepted"):
+            out.append(f"{rid}: a {rec['element_kind']} remark of the user's review needs a place or a place_note "
+                       f"(why it has none)")
+        elif unplaced and rec.get("placeable") is True:
+            out.append(f"{rid}: placeable but neither a place nor a place_note")
+        if rec.get("placeable") is False and not str(rec.get("why") or "").strip():
+            out.append(f"{rid}: placeable false without a why")
     return out
 
 

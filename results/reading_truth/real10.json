@@ -3090,103 +3090,6 @@
      "status": "verified"
     },
     {
-     "id": "r_L-1_oda",
-     "label": "Mutfak",
-     "room_type": "kitchen",
-     "area": 11.637,
-     "centroid": [
-      14.755,
-      4.228
-     ],
-     "polygon": [
-      [
-       13.39,
-       2.07
-      ],
-      [
-       16.11,
-       2.07
-      ],
-      [
-       16.11,
-       6.064
-      ],
-      [
-       16.061,
-       6.064
-      ],
-      [
-       16.061,
-       6.129
-      ],
-      [
-       16.0,
-       6.129
-      ],
-      [
-       16.0,
-       6.189
-      ],
-      [
-       15.941,
-       6.189
-      ],
-      [
-       15.941,
-       6.249
-      ],
-      [
-       15.921,
-       6.249
-      ],
-      [
-       15.921,
-       6.279
-      ],
-      [
-       15.831,
-       6.279
-      ],
-      [
-       15.831,
-       6.37
-      ],
-      [
-       15.8,
-       6.37
-      ],
-      [
-       15.8,
-       6.41
-      ],
-      [
-       13.76,
-       6.41
-      ],
-      [
-       13.76,
-       6.44
-      ],
-      [
-       13.42,
-       6.44
-      ],
-      [
-       13.42,
-       2.59
-      ],
-      [
-       13.39,
-       2.59
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "inferred": true
-    },
-    {
      "id": "r_L-1_oda_2",
      "label": "Salon",
      "room_type": "living",
@@ -3388,103 +3291,6 @@
      "inferred": true
     },
     {
-     "id": "r_L-1_oda_3",
-     "label": "Antre",
-     "room_type": "hall",
-     "area": 10.842,
-     "centroid": [
-      15.639,
-      9.468
-     ],
-     "polygon": [
-      [
-       13.76,
-       6.57
-      ],
-      [
-       15.801,
-       6.57
-      ],
-      [
-       15.801,
-       6.509
-      ],
-      [
-       15.861,
-       6.509
-      ],
-      [
-       16.59,
-       7.223
-      ],
-      [
-       16.59,
-       7.34
-      ],
-      [
-       16.61,
-       7.34
-      ],
-      [
-       16.61,
-       12.81
-      ],
-      [
-       16.64,
-       12.81
-      ],
-      [
-       16.64,
-       12.971
-      ],
-      [
-       16.64,
-       13.905
-      ],
-      [
-       15.569,
-       13.905
-      ],
-      [
-       15.569,
-       8.67
-      ],
-      [
-       15.819,
-       8.67
-      ],
-      [
-       15.819,
-       8.51
-      ],
-      [
-       13.797,
-       8.51
-      ],
-      [
-       13.797,
-       8.304
-      ],
-      [
-       13.796,
-       8.304
-      ],
-      [
-       13.796,
-       6.69
-      ],
-      [
-       13.76,
-       6.69
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "inferred": true
-    },
-    {
      "id": "r_L-1_antre",
      "label": "Antre",
      "room_type": "hall",
@@ -3599,95 +3405,6 @@
      "confidence": 1.0,
      "method": "vector",
      "status": "verified"
-    },
-    {
-     "id": "r_L-1_oda_4",
-     "label": "Merdiven",
-     "room_type": "stair",
-     "area": 6.1,
-     "centroid": [
-      12.159,
-      8.994
-     ],
-     "polygon": [
-      [
-       13.486,
-       8.591
-      ],
-      [
-       13.486,
-       7.732
-      ],
-      [
-       10.752,
-       7.732
-      ],
-      [
-       10.752,
-       7.94
-      ],
-      [
-       11.316,
-       7.94
-      ],
-      [
-       11.316,
-       8.79
-      ],
-      [
-       10.752,
-       8.79
-      ],
-      [
-       10.715,
-       8.79
-      ],
-      [
-       10.715,
-       9.829
-      ],
-      [
-       10.716,
-       9.829
-      ],
-      [
-       10.716,
-       10.19
-      ],
-      [
-       11.504,
-       10.19
-      ],
-      [
-       11.504,
-       10.16
-      ],
-      [
-       12.74,
-       10.16
-      ],
-      [
-       12.74,
-       10.19
-      ],
-      [
-       13.389,
-       10.19
-      ],
-      [
-       13.389,
-       10.159
-      ],
-      [
-       13.389,
-       8.591
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "inferred": true
     },
     {
      "id": "r_L-1_asansor",
@@ -4687,12 +4404,101 @@
      "status": "verified"
     },
     {
+     "id": "r_L-1_oda_4",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 6.1,
+     "centroid": [
+      12.159,
+      8.994
+     ],
+     "polygon": [
+      [
+       13.486,
+       8.591
+      ],
+      [
+       13.486,
+       7.732
+      ],
+      [
+       10.752,
+       7.732
+      ],
+      [
+       10.752,
+       7.94
+      ],
+      [
+       11.316,
+       7.94
+      ],
+      [
+       11.316,
+       8.79
+      ],
+      [
+       10.752,
+       8.79
+      ],
+      [
+       10.715,
+       8.79
+      ],
+      [
+       10.715,
+       9.829
+      ],
+      [
+       10.716,
+       9.829
+      ],
+      [
+       10.716,
+       10.19
+      ],
+      [
+       11.504,
+       10.19
+      ],
+      [
+       11.504,
+       10.16
+      ],
+      [
+       12.74,
+       10.16
+      ],
+      [
+       12.74,
+       10.19
+      ],
+      [
+       13.389,
+       10.19
+      ],
+      [
+       13.389,
+       10.159
+      ],
+      [
+       13.389,
+       8.591
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0017",
+     "added_on": "2026-11-05"
+    },
+    {
      "id": "r_L-1_oda_4_hall",
      "label": "Kat Holü",
      "room_type": "hall",
      "area": 23.09,
      "centroid": [
-      11.127,
+      11.128,
       5.127
      ],
      "polygon": [
@@ -4865,11 +4671,205 @@
        8.591
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "inferred": true
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0027",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "r_L-1_oda",
+     "label": "Mutfak",
+     "room_type": "kitchen",
+     "area": 11.637,
+     "centroid": [
+      14.755,
+      4.228
+     ],
+     "polygon": [
+      [
+       13.39,
+       2.07
+      ],
+      [
+       16.11,
+       2.07
+      ],
+      [
+       16.11,
+       6.064
+      ],
+      [
+       16.061,
+       6.064
+      ],
+      [
+       16.061,
+       6.129
+      ],
+      [
+       16.0,
+       6.129
+      ],
+      [
+       16.0,
+       6.189
+      ],
+      [
+       15.941,
+       6.189
+      ],
+      [
+       15.941,
+       6.249
+      ],
+      [
+       15.921,
+       6.249
+      ],
+      [
+       15.921,
+       6.279
+      ],
+      [
+       15.831,
+       6.279
+      ],
+      [
+       15.831,
+       6.37
+      ],
+      [
+       15.8,
+       6.37
+      ],
+      [
+       15.8,
+       6.41
+      ],
+      [
+       13.76,
+       6.41
+      ],
+      [
+       13.76,
+       6.44
+      ],
+      [
+       13.42,
+       6.44
+      ],
+      [
+       13.42,
+       2.59
+      ],
+      [
+       13.39,
+       2.59
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0028",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "r_L-1_oda_3",
+     "label": "Antre",
+     "room_type": "hall",
+     "area": 10.842,
+     "centroid": [
+      15.639,
+      9.468
+     ],
+     "polygon": [
+      [
+       13.76,
+       6.57
+      ],
+      [
+       15.801,
+       6.57
+      ],
+      [
+       15.801,
+       6.509
+      ],
+      [
+       15.861,
+       6.509
+      ],
+      [
+       16.59,
+       7.223
+      ],
+      [
+       16.59,
+       7.34
+      ],
+      [
+       16.61,
+       7.34
+      ],
+      [
+       16.61,
+       12.81
+      ],
+      [
+       16.64,
+       12.81
+      ],
+      [
+       16.64,
+       12.971
+      ],
+      [
+       16.64,
+       13.905
+      ],
+      [
+       15.569,
+       13.905
+      ],
+      [
+       15.569,
+       8.67
+      ],
+      [
+       15.819,
+       8.67
+      ],
+      [
+       15.819,
+       8.51
+      ],
+      [
+       13.797,
+       8.51
+      ],
+      [
+       13.797,
+       8.304
+      ],
+      [
+       13.796,
+       8.304
+      ],
+      [
+       13.796,
+       6.69
+      ],
+      [
+       13.76,
+       6.69
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0028",
+     "added_on": "2026-11-05"
     }
    ],
    "doors": [
@@ -4914,20 +4914,6 @@
      "confidence": 0.5,
      "method": "derived",
      "status": "unverified"
-    },
-    {
-     "id": "d_L-1_001",
-     "type": "door",
-     "width": 2.4,
-     "center": [
-      11.19,
-      1.915
-     ],
-     "wall_id": "w_L-1_003",
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
     },
     {
      "id": "o_L-1_006",
@@ -5239,48 +5225,6 @@
      "status": "verified"
     },
     {
-     "id": "d_L-1_022",
-     "type": "door",
-     "width": 0.973,
-     "center": [
-      15.314,
-      6.49
-     ],
-     "wall_id": "w_L-1_016",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L-1_023",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      8.741,
-      7.24
-     ],
-     "wall_id": "w_L-1_108",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L-1_024",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      13.641,
-      7.24
-     ],
-     "wall_id": "w_L-1_138",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
      "id": "d_L-1_025",
      "type": "door",
      "width": 0.92,
@@ -5475,6 +5419,66 @@
      "confidence": 0.6,
      "method": "inferred",
      "status": "unverified"
+    },
+    {
+     "id": "d_L-1_001",
+     "type": "door",
+     "width": 2.4,
+     "center": [
+      11.19,
+      1.915
+     ],
+     "wall_id": "w_L-1_003",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0019",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L-1_022",
+     "type": "door",
+     "width": 0.973,
+     "center": [
+      15.314,
+      6.49
+     ],
+     "wall_id": "w_L-1_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0028",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L-1_023",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      8.741,
+      7.24
+     ],
+     "wall_id": "w_L-1_108",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L-1_024",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      13.641,
+      7.24
+     ],
+     "wall_id": "w_L-1_138",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
     }
    ],
    "windows": [
@@ -8682,223 +8686,6 @@
      "status": "verified"
     },
     {
-     "id": "r_L0_salon",
-     "label": "Salon",
-     "room_type": "living",
-     "area": 37.061,
-     "centroid": [
-      3.819,
-      5.144
-     ],
-     "polygon": [
-      [
-       0.57,
-       2.07
-      ],
-      [
-       6.86,
-       2.07
-      ],
-      [
-       6.861,
-       6.439
-      ],
-      [
-       5.689,
-       7.611
-      ],
-      [
-       5.61,
-       7.61
-      ],
-      [
-       5.61,
-       9.091
-      ],
-      [
-       2.25,
-       9.091
-      ],
-      [
-       2.25,
-       9.0
-      ],
-      [
-       2.27,
-       9.0
-      ],
-      [
-       2.27,
-       7.96
-      ],
-      [
-       2.3,
-       7.96
-      ],
-      [
-       2.3,
-       7.32
-      ],
-      [
-       2.25,
-       7.32
-      ],
-      [
-       2.25,
-       6.99
-      ],
-      [
-       2.44,
-       6.99
-      ],
-      [
-       2.44,
-       6.49
-      ],
-      [
-       1.611,
-       6.49
-      ],
-      [
-       1.611,
-       6.43
-      ],
-      [
-       0.93,
-       6.43
-      ],
-      [
-       0.93,
-       6.46
-      ],
-      [
-       0.57,
-       6.46
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_oda_2",
-     "label": "Salon",
-     "room_type": "living",
-     "area": 37.124,
-     "centroid": [
-      18.561,
-      5.151
-     ],
-     "polygon": [
-      [
-       15.52,
-       2.07
-      ],
-      [
-       21.81,
-       2.07
-      ],
-      [
-       21.81,
-       6.46
-      ],
-      [
-       21.45,
-       6.46
-      ],
-      [
-       21.45,
-       6.43
-      ],
-      [
-       20.83,
-       6.43
-      ],
-      [
-       20.83,
-       6.49
-      ],
-      [
-       19.94,
-       6.49
-      ],
-      [
-       19.94,
-       6.99
-      ],
-      [
-       20.139,
-       6.99
-      ],
-      [
-       20.139,
-       7.32
-      ],
-      [
-       20.08,
-       7.32
-      ],
-      [
-       20.08,
-       7.96
-      ],
-      [
-       20.11,
-       7.96
-      ],
-      [
-       20.11,
-       9.0
-      ],
-      [
-       20.139,
-       9.0
-      ],
-      [
-       20.139,
-       9.11
-      ],
-      [
-       17.2,
-       9.11
-      ],
-      [
-       17.2,
-       9.106
-      ],
-      [
-       16.77,
-       9.106
-      ],
-      [
-       16.77,
-       7.61
-      ],
-      [
-       16.691,
-       7.611
-      ],
-      [
-       15.589,
-       6.509
-      ],
-      [
-       15.59,
-       6.44
-      ],
-      [
-       15.52,
-       6.44
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "inferred": true
-    },
-    {
      "id": "r_L0_oda_3",
      "label": "Mutfak",
      "room_type": "kitchen",
@@ -9043,319 +8830,6 @@
       [
        12.37,
        4.08
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "inferred": true
-    },
-    {
-     "id": "r_L0_merdiven",
-     "label": "Merdiven",
-     "room_type": "storage",
-     "area": 1.877,
-     "centroid": [
-      11.19,
-      5.485
-     ],
-     "polygon": [
-      [
-       10.33,
-       4.939
-      ],
-      [
-       12.05,
-       4.939
-      ],
-      [
-       12.05,
-       6.03
-      ],
-      [
-       10.33,
-       6.03
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L0_oda_4",
-     "label": "Oda",
-     "room_type": "hall",
-     "area": 9.127,
-     "centroid": [
-      15.547,
-      8.892
-     ],
-     "polygon": [
-      [
-       13.781,
-       6.571
-      ],
-      [
-       15.49,
-       6.571
-      ],
-      [
-       15.49,
-       6.54
-      ],
-      [
-       15.59,
-       6.54
-      ],
-      [
-       15.591,
-       6.511
-      ],
-      [
-       16.689,
-       7.609
-      ],
-      [
-       16.61,
-       7.61
-      ],
-      [
-       16.61,
-       12.44
-      ],
-      [
-       15.57,
-       12.44
-      ],
-      [
-       15.57,
-       9.54
-      ],
-      [
-       15.54,
-       9.54
-      ],
-      [
-       15.54,
-       8.54
-      ],
-      [
-       15.44,
-       8.54
-      ],
-      [
-       15.44,
-       8.51
-      ],
-      [
-       13.798,
-       8.51
-      ],
-      [
-       13.798,
-       8.304
-      ],
-      [
-       13.796,
-       8.304
-      ],
-      [
-       13.796,
-       6.69
-      ],
-      [
-       13.781,
-       6.69
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L0_antre",
-     "label": "Antre",
-     "room_type": "hall",
-     "area": 11.472,
-     "centroid": [
-      6.784,
-      9.757
-     ],
-     "polygon": [
-      [
-       5.691,
-       7.609
-      ],
-      [
-       6.859,
-       6.441
-      ],
-      [
-       6.86,
-       6.888
-      ],
-      [
-       7.02,
-       6.888
-      ],
-      [
-       7.02,
-       6.481
-      ],
-      [
-       7.94,
-       6.481
-      ],
-      [
-       7.94,
-       6.571
-      ],
-      [
-       8.62,
-       6.571
-      ],
-      [
-       8.62,
-       6.69
-      ],
-      [
-       8.585,
-       6.69
-      ],
-      [
-       8.585,
-       8.304
-      ],
-      [
-       8.582,
-       8.304
-      ],
-      [
-       8.582,
-       8.501
-      ],
-      [
-       6.94,
-       8.501
-      ],
-      [
-       6.94,
-       8.54
-      ],
-      [
-       6.84,
-       8.54
-      ],
-      [
-       6.84,
-       9.54
-      ],
-      [
-       6.81,
-       9.54
-      ],
-      [
-       6.81,
-       10.31
-      ],
-      [
-       6.84,
-       10.31
-      ],
-      [
-       6.84,
-       10.44
-      ],
-      [
-       6.811,
-       10.44
-      ],
-      [
-       6.811,
-       12.41
-      ],
-      [
-       6.84,
-       12.41
-      ],
-      [
-       6.84,
-       12.69
-      ],
-      [
-       6.97,
-       12.69
-      ],
-      [
-       6.97,
-       12.72
-      ],
-      [
-       7.459,
-       12.72
-      ],
-      [
-       7.459,
-       13.909
-      ],
-      [
-       5.77,
-       13.909
-      ],
-      [
-       5.77,
-       7.61
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_oda_5",
-     "label": "Merdiven",
-     "room_type": "stair",
-     "area": 6.16,
-     "centroid": [
-      12.203,
-      8.991
-     ],
-     "polygon": [
-      [
-       11.316,
-       7.94
-      ],
-      [
-       11.316,
-       8.79
-      ],
-      [
-       10.753,
-       8.79
-      ],
-      [
-       10.753,
-       10.159
-      ],
-      [
-       13.486,
-       10.159
-      ],
-      [
-       13.486,
-       7.732
-      ],
-      [
-       10.753,
-       7.732
-      ],
-      [
-       10.753,
-       7.94
       ]
      ],
      "source": "accepted_reading",
@@ -9721,94 +9195,6 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
-    },
-    {
-     "id": "r_L0_depo",
-     "label": "Depo",
-     "room_type": "storage",
-     "area": 0.365,
-     "centroid": [
-      14.053,
-      9.99
-     ],
-     "polygon": [
-      [
-       13.766,
-       9.672
-      ],
-      [
-       14.34,
-       9.672
-      ],
-      [
-       14.34,
-       10.308
-      ],
-      [
-       13.766,
-       10.308
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L0_depo_2",
-     "label": "Depo",
-     "room_type": "storage",
-     "area": 0.354,
-     "centroid": [
-      8.319,
-      9.995
-     ],
-     "polygon": [
-      [
-       8.04,
-       9.672
-      ],
-      [
-       8.585,
-       9.672
-      ],
-      [
-       8.585,
-       9.829
-      ],
-      [
-       8.586,
-       9.829
-      ],
-      [
-       8.586,
-       10.16
-      ],
-      [
-       8.617,
-       10.16
-      ],
-      [
-       8.617,
-       10.19
-      ],
-      [
-       8.636,
-       10.19
-      ],
-      [
-       8.636,
-       10.308
-      ],
-      [
-       8.04,
-       10.308
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
     },
     {
      "id": "r_L0_oda_8",
@@ -10429,7 +9815,7 @@
      "area": 5.78,
      "centroid": [
       10.954,
-      7.415
+      7.416
      ],
      "polygon": [
       [
@@ -10569,11 +9955,740 @@
        8.79
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "inferred": true
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0017",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "r_L0_oda_5",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 6.16,
+     "centroid": [
+      12.204,
+      8.991
+     ],
+     "polygon": [
+      [
+       11.316,
+       7.94
+      ],
+      [
+       11.316,
+       8.79
+      ],
+      [
+       10.753,
+       8.79
+      ],
+      [
+       10.753,
+       10.159
+      ],
+      [
+       13.486,
+       10.159
+      ],
+      [
+       13.486,
+       7.732
+      ],
+      [
+       10.753,
+       7.732
+      ],
+      [
+       10.753,
+       7.94
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0017",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "r_L0_oda_4",
+     "label": "Oda",
+     "room_type": "hall",
+     "area": 9.127,
+     "centroid": [
+      15.547,
+      8.892
+     ],
+     "polygon": [
+      [
+       13.781,
+       6.571
+      ],
+      [
+       15.49,
+       6.571
+      ],
+      [
+       15.49,
+       6.54
+      ],
+      [
+       15.59,
+       6.54
+      ],
+      [
+       15.591,
+       6.511
+      ],
+      [
+       16.689,
+       7.609
+      ],
+      [
+       16.61,
+       7.61
+      ],
+      [
+       16.61,
+       12.44
+      ],
+      [
+       15.57,
+       12.44
+      ],
+      [
+       15.57,
+       9.54
+      ],
+      [
+       15.54,
+       9.54
+      ],
+      [
+       15.54,
+       8.54
+      ],
+      [
+       15.44,
+       8.54
+      ],
+      [
+       15.44,
+       8.51
+      ],
+      [
+       13.798,
+       8.51
+      ],
+      [
+       13.798,
+       8.304
+      ],
+      [
+       13.796,
+       8.304
+      ],
+      [
+       13.796,
+       6.69
+      ],
+      [
+       13.781,
+       6.69
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0018",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "r_L0_antre",
+     "label": "Antre",
+     "room_type": "hall",
+     "area": 11.472,
+     "centroid": [
+      6.784,
+      9.757
+     ],
+     "polygon": [
+      [
+       5.691,
+       7.609
+      ],
+      [
+       6.859,
+       6.441
+      ],
+      [
+       6.86,
+       6.888
+      ],
+      [
+       7.02,
+       6.888
+      ],
+      [
+       7.02,
+       6.481
+      ],
+      [
+       7.94,
+       6.481
+      ],
+      [
+       7.94,
+       6.571
+      ],
+      [
+       8.62,
+       6.571
+      ],
+      [
+       8.62,
+       6.69
+      ],
+      [
+       8.585,
+       6.69
+      ],
+      [
+       8.585,
+       8.304
+      ],
+      [
+       8.582,
+       8.304
+      ],
+      [
+       8.582,
+       8.501
+      ],
+      [
+       6.94,
+       8.501
+      ],
+      [
+       6.94,
+       8.54
+      ],
+      [
+       6.84,
+       8.54
+      ],
+      [
+       6.84,
+       9.54
+      ],
+      [
+       6.81,
+       9.54
+      ],
+      [
+       6.81,
+       10.31
+      ],
+      [
+       6.84,
+       10.31
+      ],
+      [
+       6.84,
+       10.44
+      ],
+      [
+       6.811,
+       10.44
+      ],
+      [
+       6.811,
+       12.41
+      ],
+      [
+       6.84,
+       12.41
+      ],
+      [
+       6.84,
+       12.69
+      ],
+      [
+       6.97,
+       12.69
+      ],
+      [
+       6.97,
+       12.72
+      ],
+      [
+       7.459,
+       12.72
+      ],
+      [
+       7.459,
+       13.909
+      ],
+      [
+       5.77,
+       13.909
+      ],
+      [
+       5.77,
+       7.61
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0018",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "r_L0_salon",
+     "label": "Salon",
+     "room_type": "living",
+     "area": 37.061,
+     "centroid": [
+      3.819,
+      5.144
+     ],
+     "polygon": [
+      [
+       0.57,
+       2.07
+      ],
+      [
+       6.86,
+       2.07
+      ],
+      [
+       6.861,
+       6.439
+      ],
+      [
+       5.689,
+       7.611
+      ],
+      [
+       5.61,
+       7.61
+      ],
+      [
+       5.61,
+       9.091
+      ],
+      [
+       2.25,
+       9.091
+      ],
+      [
+       2.25,
+       9.0
+      ],
+      [
+       2.27,
+       9.0
+      ],
+      [
+       2.27,
+       7.96
+      ],
+      [
+       2.3,
+       7.96
+      ],
+      [
+       2.3,
+       7.32
+      ],
+      [
+       2.25,
+       7.32
+      ],
+      [
+       2.25,
+       6.99
+      ],
+      [
+       2.44,
+       6.99
+      ],
+      [
+       2.44,
+       6.49
+      ],
+      [
+       1.611,
+       6.49
+      ],
+      [
+       1.611,
+       6.43
+      ],
+      [
+       0.93,
+       6.43
+      ],
+      [
+       0.93,
+       6.46
+      ],
+      [
+       0.57,
+       6.46
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0018",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "r_L0_oda_2",
+     "label": "Salon",
+     "room_type": "living",
+     "area": 37.124,
+     "centroid": [
+      18.561,
+      5.151
+     ],
+     "polygon": [
+      [
+       15.52,
+       2.07
+      ],
+      [
+       21.81,
+       2.07
+      ],
+      [
+       21.81,
+       6.46
+      ],
+      [
+       21.45,
+       6.46
+      ],
+      [
+       21.45,
+       6.43
+      ],
+      [
+       20.83,
+       6.43
+      ],
+      [
+       20.83,
+       6.49
+      ],
+      [
+       19.94,
+       6.49
+      ],
+      [
+       19.94,
+       6.99
+      ],
+      [
+       20.139,
+       6.99
+      ],
+      [
+       20.139,
+       7.32
+      ],
+      [
+       20.08,
+       7.32
+      ],
+      [
+       20.08,
+       7.96
+      ],
+      [
+       20.11,
+       7.96
+      ],
+      [
+       20.11,
+       9.0
+      ],
+      [
+       20.139,
+       9.0
+      ],
+      [
+       20.139,
+       9.11
+      ],
+      [
+       17.2,
+       9.11
+      ],
+      [
+       17.2,
+       9.106
+      ],
+      [
+       16.77,
+       9.106
+      ],
+      [
+       16.77,
+       7.61
+      ],
+      [
+       16.691,
+       7.611
+      ],
+      [
+       15.589,
+       6.509
+      ],
+      [
+       15.59,
+       6.44
+      ],
+      [
+       15.52,
+       6.44
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0018",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "r_L0_depo_2",
+     "label": "Depo",
+     "room_type": "storage",
+     "area": 0.354,
+     "centroid": [
+      8.319,
+      9.995
+     ],
+     "polygon": [
+      [
+       8.04,
+       9.672
+      ],
+      [
+       8.585,
+       9.672
+      ],
+      [
+       8.585,
+       9.829
+      ],
+      [
+       8.586,
+       9.829
+      ],
+      [
+       8.586,
+       10.16
+      ],
+      [
+       8.617,
+       10.16
+      ],
+      [
+       8.617,
+       10.19
+      ],
+      [
+       8.636,
+       10.19
+      ],
+      [
+       8.636,
+       10.308
+      ],
+      [
+       8.04,
+       10.308
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0020",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "r_L0_depo",
+     "label": "Depo",
+     "room_type": "storage",
+     "area": 0.365,
+     "centroid": [
+      14.053,
+      9.99
+     ],
+     "polygon": [
+      [
+       13.766,
+       9.672
+      ],
+      [
+       14.34,
+       9.672
+      ],
+      [
+       14.34,
+       10.308
+      ],
+      [
+       13.766,
+       10.308
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0020",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L0_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      1.205,
+      7.865
+     ],
+     "polygon": [
+      [
+       0.57,
+       6.69
+      ],
+      [
+       1.84,
+       6.69
+      ],
+      [
+       1.84,
+       9.04
+      ],
+      [
+       0.57,
+       9.04
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0023",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
+    },
+    {
+     "id": "r_L0_merdiven",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 1.877,
+     "centroid": [
+      11.19,
+      5.485
+     ],
+     "polygon": [
+      [
+       10.33,
+       4.939
+      ],
+      [
+       12.05,
+       4.939
+      ],
+      [
+       12.05,
+       6.03
+      ],
+      [
+       10.33,
+       6.03
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L0_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L0_room_absent_003",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
     }
    ],
    "doors": [
@@ -10817,34 +10932,6 @@
      "status": "verified"
     },
     {
-     "id": "d_L0_017",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      8.741,
-      7.24
-     ],
-     "wall_id": "w_L0_152",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_018",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      13.641,
-      7.24
-     ],
-     "wall_id": "w_L0_194",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
      "id": "d_L0_019",
      "type": "door",
      "width": 0.8,
@@ -10985,6 +11072,66 @@
      "status": "unverified"
     },
     {
+     "id": "o_L0_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L0_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "o_L0_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L0_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L0_017",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      8.741,
+      7.24
+     ],
+     "wall_id": "w_L0_152",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L0_018",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      13.641,
+      7.24
+     ],
+     "wall_id": "w_L0_194",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
      "id": "o_L0_033",
      "type": "door",
      "width": 1.615,
@@ -10993,10 +11140,11 @@
       7.025
      ],
      "wall_id": "w_L0_chamfer_01",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     },
     {
      "id": "o_L0_034",
@@ -11007,10 +11155,11 @@
       7.025
      ],
      "wall_id": "w_L0_chamfer_02",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     }
    ],
    "windows": [
@@ -11127,20 +11276,6 @@
      "status": "unverified"
     },
     {
-     "id": "o_L0_022",
-     "type": "window",
-     "width": 1.5,
-     "center": [
-      20.23,
-      14.74
-     ],
-     "wall_id": "w_L0_220",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
      "id": "o_L0_023",
      "type": "window",
      "width": 1.5,
@@ -11237,6 +11372,21 @@
      "confidence": 0.9,
      "method": "vector",
      "status": "verified"
+    },
+    {
+     "id": "o_L0_022",
+     "type": "window",
+     "width": 1.5,
+     "center": [
+      20.23,
+      14.74
+     ],
+     "wall_id": "w_L0_220",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0032",
+     "added_on": "2026-11-05"
     }
    ],
    "openings": [
@@ -11263,10 +11413,13 @@
       6.29
      ],
      "wall_id": "w_L0_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0035",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L0_004",
@@ -11305,10 +11458,13 @@
       8.45
      ],
      "wall_id": "w_L0_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0034",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L0_007",
@@ -15574,39 +15730,15 @@
       2.719,
       2.302
      ],
-     "rotation_deg": 0.0,
-     "room_id": "r_L0_oda_5",
+     "rotation_deg": null,
+     "room_id": null,
      "turn": "U",
-     "flights": [
-      {
-       "start": [
-        11.339,
-        8.011
-       ],
-       "end": [
-        11.339,
-        9.005
-       ],
-       "width": 1.1737,
-       "lines": 5
-      },
-      {
-       "start": [
-        12.875,
-        8.61
-       ],
-       "end": [
-        12.875,
-        7.857
-       ],
-       "width": 1.1936,
-       "lines": 4
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0016",
+     "added_on": "2026-11-05"
     },
     {
      "id": "f_L0_024",
@@ -15618,39 +15750,15 @@
       1.718,
       2.83
      ],
-     "rotation_deg": 0.0,
-     "room_id": "r_L0_oda",
+     "rotation_deg": null,
+     "room_id": null,
      "turn": "U",
-     "flights": [
-      {
-       "start": [
-        10.742,
-        4.842
-       ],
-       "end": [
-        10.742,
-        3.862
-       ],
-       "width": 0.8142,
-       "lines": 6
-      },
-      {
-       "start": [
-        11.646,
-        3.97
-       ],
-       "end": [
-        11.646,
-        4.775
-       ],
-       "width": 0.8142,
-       "lines": 5
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
     }
    ]
   },
@@ -16266,38 +16374,6 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
-    },
-    {
-     "id": "r_L1_merdiven",
-     "label": "Merdiven",
-     "room_type": "storage",
-     "area": 1.877,
-     "centroid": [
-      11.19,
-      5.485
-     ],
-     "polygon": [
-      [
-       10.33,
-       4.939
-      ],
-      [
-       12.05,
-       4.939
-      ],
-      [
-       12.05,
-       6.03
-      ],
-      [
-       10.33,
-       6.03
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
     },
     {
      "id": "r_L1_oda_4",
@@ -17790,6 +17866,109 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "r_L1_merdiven",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 1.877,
+     "centroid": [
+      11.19,
+      5.485
+     ],
+     "polygon": [
+      [
+       10.33,
+       4.939
+      ],
+      [
+       12.05,
+       4.939
+      ],
+      [
+       12.05,
+       6.03
+      ],
+      [
+       10.33,
+       6.03
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L1_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L1_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
     }
    ],
    "doors": [
@@ -18033,34 +18212,6 @@
      "status": "verified"
     },
     {
-     "id": "d_L1_017",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      8.741,
-      7.24
-     ],
-     "wall_id": "w_L1_152",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L1_018",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      13.641,
-      7.24
-     ],
-     "wall_id": "w_L1_194",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
      "id": "d_L1_019",
      "type": "door",
      "width": 0.8,
@@ -18201,6 +18352,66 @@
      "status": "unverified"
     },
     {
+     "id": "o_L1_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L1_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "o_L1_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L1_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L1_017",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      8.741,
+      7.24
+     ],
+     "wall_id": "w_L1_152",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L1_018",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      13.641,
+      7.24
+     ],
+     "wall_id": "w_L1_194",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
      "id": "o_L1_033",
      "type": "door",
      "width": 1.615,
@@ -18209,10 +18420,11 @@
       7.025
      ],
      "wall_id": "w_L1_chamfer_03",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     },
     {
      "id": "o_L1_034",
@@ -18223,10 +18435,11 @@
       7.025
      ],
      "wall_id": "w_L1_chamfer_04",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     }
    ],
    "windows": [
@@ -18343,20 +18556,6 @@
      "status": "unverified"
     },
     {
-     "id": "o_L1_022",
-     "type": "window",
-     "width": 1.5,
-     "center": [
-      20.23,
-      14.74
-     ],
-     "wall_id": "w_L1_220",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
      "id": "o_L1_023",
      "type": "window",
      "width": 1.5,
@@ -18453,6 +18652,21 @@
      "confidence": 0.9,
      "method": "vector",
      "status": "verified"
+    },
+    {
+     "id": "o_L1_022",
+     "type": "window",
+     "width": 1.5,
+     "center": [
+      20.23,
+      14.74
+     ],
+     "wall_id": "w_L1_220",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0032",
+     "added_on": "2026-11-05"
     }
    ],
    "openings": [
@@ -18479,10 +18693,13 @@
       6.29
      ],
      "wall_id": "w_L1_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0035",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L1_004",
@@ -18521,10 +18738,13 @@
       8.45
      ],
      "wall_id": "w_L1_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0034",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L1_007",
@@ -22834,39 +23054,15 @@
       1.718,
       2.83
      ],
-     "rotation_deg": 0.0,
-     "room_id": "r_L1_oda",
+     "rotation_deg": null,
+     "room_id": null,
      "turn": "U",
-     "flights": [
-      {
-       "start": [
-        10.742,
-        4.842
-       ],
-       "end": [
-        10.742,
-        3.862
-       ],
-       "width": 0.8142,
-       "lines": 6
-      },
-      {
-       "start": [
-        11.646,
-        3.97
-       ],
-       "end": [
-        11.646,
-        4.775
-       ],
-       "width": 0.8142,
-       "lines": 5
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
     }
    ]
   },
@@ -23482,38 +23678,6 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
-    },
-    {
-     "id": "r_L2_merdiven",
-     "label": "Merdiven",
-     "room_type": "storage",
-     "area": 1.877,
-     "centroid": [
-      11.19,
-      5.485
-     ],
-     "polygon": [
-      [
-       10.33,
-       4.939
-      ],
-      [
-       12.05,
-       4.939
-      ],
-      [
-       12.05,
-       6.03
-      ],
-      [
-       10.33,
-       6.03
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
     },
     {
      "id": "r_L2_oda_4",
@@ -25006,6 +25170,109 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "r_L2_merdiven",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 1.877,
+     "centroid": [
+      11.19,
+      5.485
+     ],
+     "polygon": [
+      [
+       10.33,
+       4.939
+      ],
+      [
+       12.05,
+       4.939
+      ],
+      [
+       12.05,
+       6.03
+      ],
+      [
+       10.33,
+       6.03
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L2_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L2_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
     }
    ],
    "doors": [
@@ -25249,34 +25516,6 @@
      "status": "verified"
     },
     {
-     "id": "d_L2_017",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      8.741,
-      7.24
-     ],
-     "wall_id": "w_L2_152",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L2_018",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      13.641,
-      7.24
-     ],
-     "wall_id": "w_L2_194",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
      "id": "d_L2_019",
      "type": "door",
      "width": 0.8,
@@ -25417,6 +25656,66 @@
      "status": "unverified"
     },
     {
+     "id": "o_L2_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L2_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "o_L2_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L2_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L2_017",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      8.741,
+      7.24
+     ],
+     "wall_id": "w_L2_152",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L2_018",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      13.641,
+      7.24
+     ],
+     "wall_id": "w_L2_194",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
      "id": "o_L2_033",
      "type": "door",
      "width": 1.615,
@@ -25425,10 +25724,11 @@
       7.025
      ],
      "wall_id": "w_L2_chamfer_05",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     },
     {
      "id": "o_L2_034",
@@ -25439,10 +25739,11 @@
       7.025
      ],
      "wall_id": "w_L2_chamfer_06",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     }
    ],
    "windows": [
@@ -25559,20 +25860,6 @@
      "status": "unverified"
     },
     {
-     "id": "o_L2_022",
-     "type": "window",
-     "width": 1.5,
-     "center": [
-      20.23,
-      14.74
-     ],
-     "wall_id": "w_L2_220",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
      "id": "o_L2_023",
      "type": "window",
      "width": 1.5,
@@ -25669,6 +25956,21 @@
      "confidence": 0.9,
      "method": "vector",
      "status": "verified"
+    },
+    {
+     "id": "o_L2_022",
+     "type": "window",
+     "width": 1.5,
+     "center": [
+      20.23,
+      14.74
+     ],
+     "wall_id": "w_L2_220",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0032",
+     "added_on": "2026-11-05"
     }
    ],
    "openings": [
@@ -25695,10 +25997,13 @@
       6.29
      ],
      "wall_id": "w_L2_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0035",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L2_004",
@@ -25737,10 +26042,13 @@
       8.45
      ],
      "wall_id": "w_L2_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0034",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L2_007",
@@ -30050,39 +30358,15 @@
       1.718,
       2.83
      ],
-     "rotation_deg": 0.0,
-     "room_id": "r_L2_oda",
+     "rotation_deg": null,
+     "room_id": null,
      "turn": "U",
-     "flights": [
-      {
-       "start": [
-        10.742,
-        4.842
-       ],
-       "end": [
-        10.742,
-        3.862
-       ],
-       "width": 0.8142,
-       "lines": 6
-      },
-      {
-       "start": [
-        11.646,
-        3.97
-       ],
-       "end": [
-        11.646,
-        4.775
-       ],
-       "width": 0.8142,
-       "lines": 5
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
     }
    ]
   },
@@ -30698,38 +30982,6 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
-    },
-    {
-     "id": "r_L3_merdiven",
-     "label": "Merdiven",
-     "room_type": "storage",
-     "area": 1.877,
-     "centroid": [
-      11.19,
-      5.485
-     ],
-     "polygon": [
-      [
-       10.33,
-       4.939
-      ],
-      [
-       12.05,
-       4.939
-      ],
-      [
-       12.05,
-       6.03
-      ],
-      [
-       10.33,
-       6.03
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
     },
     {
      "id": "r_L3_oda_4",
@@ -32222,6 +32474,109 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "r_L3_merdiven",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 1.877,
+     "centroid": [
+      11.19,
+      5.485
+     ],
+     "polygon": [
+      [
+       10.33,
+       4.939
+      ],
+      [
+       12.05,
+       4.939
+      ],
+      [
+       12.05,
+       6.03
+      ],
+      [
+       10.33,
+       6.03
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L3_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L3_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
     }
    ],
    "doors": [
@@ -32465,34 +32820,6 @@
      "status": "verified"
     },
     {
-     "id": "d_L3_017",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      8.741,
-      7.24
-     ],
-     "wall_id": "w_L3_152",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L3_018",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      13.641,
-      7.24
-     ],
-     "wall_id": "w_L3_194",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
      "id": "d_L3_019",
      "type": "door",
      "width": 0.8,
@@ -32633,6 +32960,66 @@
      "status": "unverified"
     },
     {
+     "id": "o_L3_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L3_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "o_L3_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L3_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L3_017",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      8.741,
+      7.24
+     ],
+     "wall_id": "w_L3_152",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L3_018",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      13.641,
+      7.24
+     ],
+     "wall_id": "w_L3_194",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
      "id": "o_L3_033",
      "type": "door",
      "width": 1.615,
@@ -32641,10 +33028,11 @@
       7.025
      ],
      "wall_id": "w_L3_chamfer_07",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     },
     {
      "id": "o_L3_034",
@@ -32655,10 +33043,11 @@
       7.025
      ],
      "wall_id": "w_L3_chamfer_08",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     }
    ],
    "windows": [
@@ -32775,20 +33164,6 @@
      "status": "unverified"
     },
     {
-     "id": "o_L3_022",
-     "type": "window",
-     "width": 1.5,
-     "center": [
-      20.23,
-      14.74
-     ],
-     "wall_id": "w_L3_220",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
      "id": "o_L3_023",
      "type": "window",
      "width": 1.5,
@@ -32885,6 +33260,21 @@
      "confidence": 0.9,
      "method": "vector",
      "status": "verified"
+    },
+    {
+     "id": "o_L3_022",
+     "type": "window",
+     "width": 1.5,
+     "center": [
+      20.23,
+      14.74
+     ],
+     "wall_id": "w_L3_220",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0032",
+     "added_on": "2026-11-05"
     }
    ],
    "openings": [
@@ -32911,10 +33301,13 @@
       6.29
      ],
      "wall_id": "w_L3_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0035",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L3_004",
@@ -32953,10 +33346,13 @@
       8.45
      ],
      "wall_id": "w_L3_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0034",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L3_007",
@@ -37266,39 +37662,15 @@
       1.718,
       2.83
      ],
-     "rotation_deg": 0.0,
-     "room_id": "r_L3_oda",
+     "rotation_deg": null,
+     "room_id": null,
      "turn": "U",
-     "flights": [
-      {
-       "start": [
-        10.742,
-        4.842
-       ],
-       "end": [
-        10.742,
-        3.862
-       ],
-       "width": 0.8142,
-       "lines": 6
-      },
-      {
-       "start": [
-        11.646,
-        3.97
-       ],
-       "end": [
-        11.646,
-        4.775
-       ],
-       "width": 0.8142,
-       "lines": 5
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
     }
    ]
   },
@@ -37914,38 +38286,6 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
-    },
-    {
-     "id": "r_L4_merdiven",
-     "label": "Merdiven",
-     "room_type": "storage",
-     "area": 1.877,
-     "centroid": [
-      11.19,
-      5.485
-     ],
-     "polygon": [
-      [
-       10.33,
-       4.939
-      ],
-      [
-       12.05,
-       4.939
-      ],
-      [
-       12.05,
-       6.03
-      ],
-      [
-       10.33,
-       6.03
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
     },
     {
      "id": "r_L4_oda_4",
@@ -39438,6 +39778,109 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "r_L4_merdiven",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 1.877,
+     "centroid": [
+      11.19,
+      5.485
+     ],
+     "polygon": [
+      [
+       10.33,
+       4.939
+      ],
+      [
+       12.05,
+       4.939
+      ],
+      [
+       12.05,
+       6.03
+      ],
+      [
+       10.33,
+       6.03
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L4_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L4_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
     }
    ],
    "doors": [
@@ -39681,34 +40124,6 @@
      "status": "verified"
     },
     {
-     "id": "d_L4_017",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      8.741,
-      7.24
-     ],
-     "wall_id": "w_L4_152",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L4_018",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      13.641,
-      7.24
-     ],
-     "wall_id": "w_L4_194",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
      "id": "d_L4_019",
      "type": "door",
      "width": 0.8,
@@ -39849,6 +40264,66 @@
      "status": "unverified"
     },
     {
+     "id": "o_L4_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L4_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "o_L4_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L4_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L4_017",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      8.741,
+      7.24
+     ],
+     "wall_id": "w_L4_152",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L4_018",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      13.641,
+      7.24
+     ],
+     "wall_id": "w_L4_194",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
      "id": "o_L4_033",
      "type": "door",
      "width": 1.615,
@@ -39857,10 +40332,11 @@
       7.025
      ],
      "wall_id": "w_L4_chamfer_09",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     },
     {
      "id": "o_L4_034",
@@ -39871,10 +40347,11 @@
       7.025
      ],
      "wall_id": "w_L4_chamfer_10",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     }
    ],
    "windows": [
@@ -39991,20 +40468,6 @@
      "status": "unverified"
     },
     {
-     "id": "o_L4_022",
-     "type": "window",
-     "width": 1.5,
-     "center": [
-      20.23,
-      14.74
-     ],
-     "wall_id": "w_L4_220",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
      "id": "o_L4_023",
      "type": "window",
      "width": 1.5,
@@ -40101,6 +40564,21 @@
      "confidence": 0.9,
      "method": "vector",
      "status": "verified"
+    },
+    {
+     "id": "o_L4_022",
+     "type": "window",
+     "width": 1.5,
+     "center": [
+      20.23,
+      14.74
+     ],
+     "wall_id": "w_L4_220",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0032",
+     "added_on": "2026-11-05"
     }
    ],
    "openings": [
@@ -40127,10 +40605,13 @@
       6.29
      ],
      "wall_id": "w_L4_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0035",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L4_004",
@@ -40169,10 +40650,13 @@
       8.45
      ],
      "wall_id": "w_L4_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0034",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L4_007",
@@ -44482,39 +44966,15 @@
       1.718,
       2.83
      ],
-     "rotation_deg": 0.0,
-     "room_id": "r_L4_oda",
+     "rotation_deg": null,
+     "room_id": null,
      "turn": "U",
-     "flights": [
-      {
-       "start": [
-        10.742,
-        4.842
-       ],
-       "end": [
-        10.742,
-        3.862
-       ],
-       "width": 0.8142,
-       "lines": 6
-      },
-      {
-       "start": [
-        11.646,
-        3.97
-       ],
-       "end": [
-        11.646,
-        4.775
-       ],
-       "width": 0.8142,
-       "lines": 5
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
     }
    ]
   },
@@ -45130,38 +45590,6 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
-    },
-    {
-     "id": "r_L5_merdiven",
-     "label": "Merdiven",
-     "room_type": "storage",
-     "area": 1.877,
-     "centroid": [
-      11.19,
-      5.485
-     ],
-     "polygon": [
-      [
-       10.33,
-       4.939
-      ],
-      [
-       12.05,
-       4.939
-      ],
-      [
-       12.05,
-       6.03
-      ],
-      [
-       10.33,
-       6.03
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
     },
     {
      "id": "r_L5_oda_4",
@@ -46654,6 +47082,109 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "r_L5_merdiven",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 1.877,
+     "centroid": [
+      11.19,
+      5.485
+     ],
+     "polygon": [
+      [
+       10.33,
+       4.939
+      ],
+      [
+       12.05,
+       4.939
+      ],
+      [
+       12.05,
+       6.03
+      ],
+      [
+       10.33,
+       6.03
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L5_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L5_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
     }
    ],
    "doors": [
@@ -46897,34 +47428,6 @@
      "status": "verified"
     },
     {
-     "id": "d_L5_017",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      8.741,
-      7.24
-     ],
-     "wall_id": "w_L5_152",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L5_018",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      13.641,
-      7.24
-     ],
-     "wall_id": "w_L5_194",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
      "id": "d_L5_019",
      "type": "door",
      "width": 0.8,
@@ -47065,6 +47568,66 @@
      "status": "unverified"
     },
     {
+     "id": "o_L5_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L5_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "o_L5_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L5_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L5_017",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      8.741,
+      7.24
+     ],
+     "wall_id": "w_L5_152",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L5_018",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      13.641,
+      7.24
+     ],
+     "wall_id": "w_L5_194",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
      "id": "o_L5_033",
      "type": "door",
      "width": 1.615,
@@ -47073,10 +47636,11 @@
       7.025
      ],
      "wall_id": "w_L5_chamfer_11",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     },
     {
      "id": "o_L5_034",
@@ -47087,10 +47651,11 @@
       7.025
      ],
      "wall_id": "w_L5_chamfer_12",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     }
    ],
    "windows": [
@@ -47207,20 +47772,6 @@
      "status": "unverified"
     },
     {
-     "id": "o_L5_022",
-     "type": "window",
-     "width": 1.5,
-     "center": [
-      20.23,
-      14.74
-     ],
-     "wall_id": "w_L5_220",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
      "id": "o_L5_023",
      "type": "window",
      "width": 1.5,
@@ -47317,6 +47868,21 @@
      "confidence": 0.9,
      "method": "vector",
      "status": "verified"
+    },
+    {
+     "id": "o_L5_022",
+     "type": "window",
+     "width": 1.5,
+     "center": [
+      20.23,
+      14.74
+     ],
+     "wall_id": "w_L5_220",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0032",
+     "added_on": "2026-11-05"
     }
    ],
    "openings": [
@@ -47343,10 +47909,13 @@
       6.29
      ],
      "wall_id": "w_L5_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0035",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L5_004",
@@ -47385,10 +47954,13 @@
       8.45
      ],
      "wall_id": "w_L5_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0034",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L5_007",
@@ -51698,39 +52270,15 @@
       1.718,
       2.83
      ],
-     "rotation_deg": 0.0,
-     "room_id": "r_L5_oda",
+     "rotation_deg": null,
+     "room_id": null,
      "turn": "U",
-     "flights": [
-      {
-       "start": [
-        10.742,
-        4.842
-       ],
-       "end": [
-        10.742,
-        3.862
-       ],
-       "width": 0.8142,
-       "lines": 6
-      },
-      {
-       "start": [
-        11.646,
-        3.97
-       ],
-       "end": [
-        11.646,
-        4.775
-       ],
-       "width": 0.8142,
-       "lines": 5
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
     }
    ]
   },
@@ -52346,38 +52894,6 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
-    },
-    {
-     "id": "r_L6_merdiven",
-     "label": "Merdiven",
-     "room_type": "storage",
-     "area": 1.877,
-     "centroid": [
-      11.19,
-      5.485
-     ],
-     "polygon": [
-      [
-       10.33,
-       4.939
-      ],
-      [
-       12.05,
-       4.939
-      ],
-      [
-       12.05,
-       6.03
-      ],
-      [
-       10.33,
-       6.03
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
     },
     {
      "id": "r_L6_oda_4",
@@ -53870,6 +54386,109 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "r_L6_merdiven",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 1.877,
+     "centroid": [
+      11.19,
+      5.485
+     ],
+     "polygon": [
+      [
+       10.33,
+       4.939
+      ],
+      [
+       12.05,
+       4.939
+      ],
+      [
+       12.05,
+       6.03
+      ],
+      [
+       10.33,
+       6.03
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L6_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L6_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
     }
    ],
    "doors": [
@@ -54113,34 +54732,6 @@
      "status": "verified"
     },
     {
-     "id": "d_L6_017",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      8.741,
-      7.24
-     ],
-     "wall_id": "w_L6_152",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L6_018",
-     "type": "door",
-     "width": 1.1,
-     "center": [
-      13.641,
-      7.24
-     ],
-     "wall_id": "w_L6_194",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
      "id": "d_L6_019",
      "type": "door",
      "width": 0.8,
@@ -54281,6 +54872,66 @@
      "status": "unverified"
     },
     {
+     "id": "o_L6_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L6_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "o_L6_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L6_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L6_017",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      8.741,
+      7.24
+     ],
+     "wall_id": "w_L6_152",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L6_018",
+     "type": "door",
+     "width": 1.1,
+     "center": [
+      13.641,
+      7.24
+     ],
+     "wall_id": "w_L6_194",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0040",
+     "added_on": "2026-11-05"
+    },
+    {
      "id": "o_L6_033",
      "type": "door",
      "width": 1.615,
@@ -54289,10 +54940,11 @@
       7.025
      ],
      "wall_id": "w_L6_chamfer_13",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     },
     {
      "id": "o_L6_034",
@@ -54303,10 +54955,11 @@
       7.025
      ],
      "wall_id": "w_L6_chamfer_14",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0043",
+     "added_on": "2026-11-05"
     }
    ],
    "windows": [
@@ -54423,20 +55076,6 @@
      "status": "unverified"
     },
     {
-     "id": "o_L6_022",
-     "type": "window",
-     "width": 1.5,
-     "center": [
-      20.23,
-      14.74
-     ],
-     "wall_id": "w_L6_220",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
      "id": "o_L6_023",
      "type": "window",
      "width": 1.5,
@@ -54533,6 +55172,21 @@
      "confidence": 0.9,
      "method": "vector",
      "status": "verified"
+    },
+    {
+     "id": "o_L6_022",
+     "type": "window",
+     "width": 1.5,
+     "center": [
+      20.23,
+      14.74
+     ],
+     "wall_id": "w_L6_220",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0032",
+     "added_on": "2026-11-05"
     }
    ],
    "openings": [
@@ -54559,10 +55213,13 @@
       6.29
      ],
      "wall_id": "w_L6_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0035",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L6_004",
@@ -54601,10 +55258,13 @@
       8.45
      ],
      "wall_id": "w_L6_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "correction": "C0034",
+     "removed_on": "2026-11-05"
     },
     {
      "id": "o_L6_007",
@@ -58914,39 +59574,15 @@
       1.718,
       2.83
      ],
-     "rotation_deg": 0.0,
-     "room_id": "r_L6_oda",
+     "rotation_deg": null,
+     "room_id": null,
      "turn": "U",
-     "flights": [
-      {
-       "start": [
-        10.742,
-        4.842
-       ],
-       "end": [
-        10.742,
-        3.862
-       ],
-       "width": 0.8142,
-       "lines": 6
-      },
-      {
-       "start": [
-        11.646,
-        3.97
-       ],
-       "end": [
-        11.646,
-        4.775
-       ],
-       "width": 0.8142,
-       "lines": 5
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05"
     }
    ]
   },
@@ -61438,5 +62074,21 @@
   "scope": "all",
   "levels": null,
   "note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done)"
- }
+ },
+ "corrections": [
+  "C0016",
+  "C0017",
+  "C0018",
+  "C0019",
+  "C0020",
+  "C0023",
+  "C0027",
+  "C0028",
+  "C0032",
+  "C0034",
+  "C0035",
+  "C0037",
+  "C0040",
+  "C0043"
+ ]
 }

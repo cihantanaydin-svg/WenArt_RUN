@@ -27,54 +27,6 @@
   "L0": {
    "rooms": [
     {
-     "id": "r_L0_kat_kal",
-     "label": "Kat Kal.",
-     "room_type": "technical",
-     "area": 3.788,
-     "centroid": [
-      5.09,
-      1.207
-     ],
-     "polygon": [
-      [
-       3.88,
-       0.38
-      ],
-      [
-       6.2,
-       0.38
-      ],
-      [
-       6.2,
-       2.1
-      ],
-      [
-       4.58,
-       2.1
-      ],
-      [
-       4.58,
-       2.14
-      ],
-      [
-       4.34,
-       2.14
-      ],
-      [
-       4.34,
-       1.64
-      ],
-      [
-       3.88,
-       1.64
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
      "id": "r_L0_dus_wc",
      "label": "Duş+wc",
      "room_type": "wc",
@@ -113,54 +65,6 @@
      "confidence": 1.0,
      "method": "vector",
      "status": "verified"
-    },
-    {
-     "id": "r_L0_garaj",
-     "label": "Garaj",
-     "room_type": "garage",
-     "area": 21.364,
-     "centroid": [
-      1.993,
-      3.47
-     ],
-     "polygon": [
-      [
-       0.28,
-       0.78
-      ],
-      [
-       0.33,
-       0.78
-      ],
-      [
-       0.33,
-       0.34
-      ],
-      [
-       3.7,
-       0.34
-      ],
-      [
-       3.7,
-       6.599
-      ],
-      [
-       0.33,
-       6.599
-      ],
-      [
-       0.33,
-       6.2
-      ],
-      [
-       0.28,
-       6.2
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "unverified"
     },
     {
      "id": "r_L0_oda",
@@ -549,23 +453,107 @@
      "confidence": 1.0,
      "method": "vector",
      "status": "unverified"
+    },
+    {
+     "id": "r_L0_garaj",
+     "label": "Garaj",
+     "room_type": "garage",
+     "area": 21.364,
+     "centroid": [
+      1.993,
+      3.47
+     ],
+     "polygon": [
+      [
+       0.28,
+       0.78
+      ],
+      [
+       0.33,
+       0.78
+      ],
+      [
+       0.33,
+       0.34
+      ],
+      [
+       3.7,
+       0.34
+      ],
+      [
+       3.7,
+       6.599
+      ],
+      [
+       0.33,
+       6.599
+      ],
+      [
+       0.33,
+       6.2
+      ],
+      [
+       0.28,
+       6.2
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0044",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "r_L0_kat_kal",
+     "label": "Kat Kal.",
+     "room_type": "technical",
+     "area": 3.788,
+     "centroid": [
+      5.09,
+      1.207
+     ],
+     "polygon": [
+      [
+       3.88,
+       0.38
+      ],
+      [
+       6.2,
+       0.38
+      ],
+      [
+       6.2,
+       2.1
+      ],
+      [
+       4.58,
+       2.1
+      ],
+      [
+       4.58,
+       2.14
+      ],
+      [
+       4.34,
+       2.14
+      ],
+      [
+       4.34,
+       1.64
+      ],
+      [
+       3.88,
+       1.64
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0046",
+     "added_on": "2026-11-05"
     }
    ],
    "doors": [
-    {
-     "id": "d_L0_001",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      5.36,
-      2.19
-     ],
-     "wall_id": "w_L0_012",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "unverified"
-    },
     {
      "id": "d_L0_002",
      "type": "door",
@@ -687,10 +675,26 @@
       0.24
      ],
      "wall_id": "w_L0_069",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0045",
+     "added_on": "2026-11-05"
+    },
+    {
+     "id": "d_L0_001",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      5.36,
+      2.19
+     ],
+     "wall_id": "w_L0_012",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0047",
+     "added_on": "2026-11-05"
     }
    ],
    "windows": [
@@ -833,6 +837,23 @@
      "confidence": 0.6,
      "method": "inferred",
      "status": "unverified"
+    },
+    {
+     "id": "uc_L0_window_absent_001",
+     "type": "window",
+     "width": 3.41,
+     "center": [
+      2.03,
+      0.24
+     ],
+     "wall_id": null,
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0045",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
     }
    ],
    "openings": [
@@ -2049,39 +2070,15 @@
       2.121,
       2.671
      ],
-     "rotation_deg": -90.0,
-     "room_id": "r_L0_oda_2",
+     "rotation_deg": null,
+     "room_id": null,
      "turn": "U",
-     "flights": [
-      {
-       "start": [
-        9.67,
-        3.961
-       ],
-       "end": [
-        7.47,
-        3.961
-       ],
-       "width": 0.96,
-       "lines": 9
-      },
-      {
-       "start": [
-        7.745,
-        5.122
-       ],
-       "end": [
-        9.87,
-        5.122
-       ],
-       "width": 0.96,
-       "lines": 9
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0054",
+     "added_on": "2026-11-05"
     }
    ]
   },
@@ -2624,46 +2621,6 @@
      "status": "unverified"
     },
     {
-     "id": "r_L1_giyinme_soyunma",
-     "label": "Giyinme-soyunma",
-     "room_type": "other",
-     "area": 5.939,
-     "centroid": [
-      6.695,
-      9.634
-     ],
-     "polygon": [
-      [
-       5.932,
-       7.68
-      ],
-      [
-       7.452,
-       7.68
-      ],
-      [
-       7.452,
-       11.6
-      ],
-      [
-       5.982,
-       11.6
-      ],
-      [
-       5.982,
-       11.2
-      ],
-      [
-       5.932,
-       11.2
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
      "id": "r_L1_yatak_od_3",
      "label": "Yatak Od.",
      "room_type": "bedroom",
@@ -2718,6 +2675,47 @@
      "confidence": 1.0,
      "method": "vector",
      "status": "verified"
+    },
+    {
+     "id": "r_L1_giyinme_soyunma",
+     "label": "Giyinme-soyunma",
+     "room_type": "dressing",
+     "area": 5.939,
+     "centroid": [
+      6.694,
+      9.634
+     ],
+     "polygon": [
+      [
+       5.932,
+       7.68
+      ],
+      [
+       7.452,
+       7.68
+      ],
+      [
+       7.452,
+       11.6
+      ],
+      [
+       5.982,
+       11.6
+      ],
+      [
+       5.982,
+       11.2
+      ],
+      [
+       5.932,
+       11.2
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0052",
+     "added_on": "2026-11-05"
     }
    ],
    "doors": [
@@ -3076,20 +3074,6 @@
      "status": "unverified"
     },
     {
-     "id": "o_L1_005",
-     "type": "opening",
-     "width": 0.72,
-     "center": [
-      7.542,
-      8.14
-     ],
-     "wall_id": "w_L1_056",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
-    },
-    {
      "id": "o_L1_006",
      "type": "opening",
      "width": 2.86,
@@ -3102,6 +3086,21 @@
      "confidence": 0.5,
      "method": "derived",
      "status": "unverified"
+    },
+    {
+     "id": "o_L1_005",
+     "type": "opening",
+     "width": 0.72,
+     "center": [
+      7.542,
+      8.14
+     ],
+     "wall_id": "w_L1_056",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0051",
+     "added_on": "2026-11-05"
     }
    ],
    "walls": [
@@ -4369,6 +4368,44 @@
      "method": "inferred",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "uc_L1_wall_absent_001",
+     "start": [
+      7.542,
+      7.78
+     ],
+     "end": [
+      7.542,
+      8.5
+     ],
+     "thickness": 0.18,
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0051",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
+    },
+    {
+     "id": "uc_L1_wall_absent_002",
+     "start": [
+      9.752,
+      5.69
+     ],
+     "end": [
+      11.982,
+      5.69
+     ],
+     "thickness": 0.18,
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0053",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05"
     }
    ],
    "stairs": []
@@ -4387,5 +4424,15 @@
   "L0 doors: 6 -> 10",
   "L1 doors: 8 -> 11",
   "L1 openings: 8 -> 5"
+ ],
+ "corrections": [
+  "C0044",
+  "C0045",
+  "C0046",
+  "C0047",
+  "C0051",
+  "C0052",
+  "C0053",
+  "C0054"
  ]
 }
