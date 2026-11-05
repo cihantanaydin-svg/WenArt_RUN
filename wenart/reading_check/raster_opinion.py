@@ -7,15 +7,19 @@ level read from a CAD region (``reading_check.level_pages``; a typical floor's c
 1. **Render**: the level's region of the DXF is drawn to a grey PNG by ezdxf's matplotlib backend (black lines on
    white, texts drawn, no colours) at ``PX_PER_M`` pixels per building metre, the long side capped at ``MAX_SIDE_PX``.
    The grid and the dimensions are left out as on the sheets' first panel (``RENDER_CLEAN``,
-   ``sheets.is_grid_or_dimension``: entities and layers that say so; dimension chains on layers with other names
-   stay). The pixel -> building-metre transform is exact (the page transform of the level, ``transform_to_building``),
+   ``sheets.is_grid_or_dimension``: entities and layers that say so), and so are the bare numbers and level marks
+   (``stability.is_dimension_text``; size tags stay): the raster reader trusts its dimension texts over a raster scale
+   note, and a few misread leftover numbers cancelled the known pixel size (real13 L0: no scale, no reading). The
+   entities are the region's (``region_entities``: hatches too); colours are dropped (a monochrome plot): a solid fill
+   is drawn black when its colour is dark (``FILL_INK_MAX``) and left out when light (a room tint), a pattern hatch
+   drawn when dense and left out when its lines are a finish (``HATCH_FINISH_M``: tiles, ground). The pixel -> building-metre transform is exact (the page transform of the level, ``transform_to_building``),
    so no registration is guessed: ``render_level`` returns it as ``pixel_to_building`` (OpenCV pixel centres;
    matplotlib snaps a line to whole pixels, so a drawn line lies within one pixel, 1 cm, of it).
 2. **Read**: the PNG is a one-page raster project in a temporary folder, read by ``pipeline.run_project(no_ai=True)``
    (the raster adapter ``ingest.raster`` and the generic core, as for a scan). The raster API takes no scale argument,
    so the known pixel size goes in the way the reader accepts a verified one (``raster.load_image``, ``generic.scale
    ._provisional_scale``): the PNG carries its pixel size as metadata (pHYs, ``dpi`` = 0.0254 x px_per_m x
-   ``NOTE_RATIO``) and a printed scale note ``SCALE 1:<NOTE_RATIO>`` in a white band above the drawing, which the OCR
+   ``NOTE_RATIO``) and a printed scale note ``SCALE 1/<NOTE_RATIO>`` in a white band above the drawing, which the OCR
    reads; the drawing's own scale notes are left out of the render (several different notes would cancel each other).
    The reader may still prefer the dimension texts when they disagree by more than 1 % (its rule for a raster page);
    the scale it used is recorded (``scale_used``), and the mapping back never depends on it: raster building metres
@@ -89,7 +93,7 @@ PX_PER_M = 100.0               # pixels per building metre (the raster reader's 
 MAX_SIDE_PX = 8000             # ... the long side capped (the pixel size then drops; it is recorded)
 FIG_DPI = 100                  # matplotlib's dots per inch for the figure (line widths are in points)
 LINEWEIGHT_SCALING = 1.5       # a 0.25 mm pen is drawn about 1.5 px wide, as on a 150 dpi scan
-NOTE_RATIO = 100               # the printed scale note: SCALE 1:100 ...
+NOTE_RATIO = 100               # the printed scale note: SCALE 1/100 (a slash: the colon's dots split a glyph row) ...
 NOTE_BAND_PX = 110             # ... in a white band this tall above the drawing
 NOTE_TEXT_PX = 40              # ... its letters this tall
 NOTE_FONT = "DejaVuSans.ttf"
@@ -99,6 +103,9 @@ RENDER_CLEAN = True            # the grid and the dimensions left out (``sheets.
 RENDER_MARGIN_M = 1.0          # white paper around the region's box on the canvas: a plan drawn to its extents would
                                # put its outer walls on the image edge, where the raster reader drops wall components
 UNICODE_ESCAPE = re.compile(r"\\U\+([0-9A-Fa-f]{4})")
+FILL_INK_MAX = 128.0           # a solid fill this dark (luminance 0-255 of its own colour) is drawn black, else left out
+HATCH_FINISH_M = 0.2           # a pattern hatch whose lines lie further apart than this is a finish (tiles, ground):
+                               # left out; denser ones (poché, concrete, sand) are drawn
 ONE_PLAN_MARGIN = 0.15         # a one-plan document: the drawing's extents, or the model's box with this margin ...
 ONE_PLAN_MARGIN_M = 2.0        # ... and at least this many metres, when the extents are far larger (stray entities)
 ONE_PLAN_EXTENT_FACTOR = 3.0
@@ -487,7 +494,7 @@ def _message(level: str, kind: str, members: list, size: float, at: tuple) -> st
                f"vector reading does not have: {names}"
     if kind == "room_vector_only":
         names = ", ".join(m["what"]["vector"] for m in members[:3])
-        return f"{level}: the raster reading does not close {names} {where} ({members[0]['what']['raster']})"
+        return f"{level}: the raster reading does not close {names} {where}: {members[0]['what']['raster']}"
     if kind == "opening_raster_only":
         names = ", ".join(m["what"]["raster"] for m in members[:3])
         return f"{level}: the raster reading has {names} {where}; the vector reading has no opening there"
@@ -706,6 +713,95 @@ def level_box(doc, building: dict, lid: str, page: dict, regions: dict) -> Optio
     return drawing
 
 
+SOLID_TYPES = ("SOLID", "TRACE", "3DFACE")
+ANCHORED_TYPES = ("LINE", "INSERT", "TEXT", "MTEXT", "CIRCLE", "ARC", "LWPOLYLINE", "DIMENSION")   # sheets._entities
+
+
+def region_entities(doc, box: list) -> list:
+    """The model-space entities of a region: those ``sheets._entities`` takes (by their anchor point, and a block
+    insert that overlaps the box) and every other type (HATCH, SOLID, POLYLINE, SPLINE, ELLIPSE ...) whose
+    bounding-box centre lies in the box. ``sheets._entities`` alone leaves out the hatches, and real13's and real18's
+    walls are drawn by their hatches."""
+    from ezdxf import bbox
+
+    from wenart.reading_check import sheets as SH
+
+    out = SH._entities(doc, box)
+    for e in doc.modelspace():
+        if e.dxftype() in ANCHORED_TYPES:
+            continue
+        try:
+            ext = bbox.extents([e], fast=True)
+        except Exception:  # noqa: BLE001 - an entity without extents is not drawn
+            continue
+        if not ext.has_data:
+            continue
+        cx, cy = (ext.extmin.x + ext.extmax.x) / 2.0, (ext.extmin.y + ext.extmax.y) / 2.0
+        if box[0] <= cx <= box[2] and box[1] <= cy <= box[3]:
+            out.append(e)
+    return out
+
+
+def is_solid_fill(entity) -> bool:
+    """A filled area: a HATCH (or MPOLYGON) with a solid fill, a SOLID, TRACE or 3DFACE."""
+    t = entity.dxftype()
+    if t in SOLID_TYPES:
+        return True
+    if t in ("HATCH", "MPOLYGON"):
+        try:
+            return bool(entity.dxf.get("solid_fill", 0))
+        except Exception:  # noqa: BLE001 - unknown: a pattern
+            return False
+    return False
+
+
+def _aci(doc, entity) -> Optional[int]:
+    """The entity's AutoCAD colour index, BYLAYER resolved through its layer (None for a true colour)."""
+    try:
+        if entity.dxf.hasattr("true_color"):
+            return None
+        c = int(entity.dxf.get("color", 256))
+        if c == 256:
+            c = abs(int(doc.layers.get(entity.dxf.layer).dxf.color))
+        return 7 if c == 0 else c
+    except Exception:  # noqa: BLE001 - unknown layer: the default colour
+        return 7
+
+
+def fill_luminance(doc, entity, colour: Optional[str]) -> float:
+    """The luminance (0-255) of a solid fill's own colour (the drawing's colour, before the monochrome policy);
+    ACI 7 (white on black, black on white) is black."""
+    try:
+        aci = _aci(doc, entity)
+        if aci == 7:
+            return 0.0
+        if aci is None:
+            r, g, b = entity.rgb
+        else:
+            from ezdxf.colors import aci2rgb
+
+            r, g, b = aci2rgb(aci)
+    except Exception:  # noqa: BLE001 - an unknown colour: ink
+        return 0.0
+    return 0.299 * r + 0.587 * g + 0.114 * b
+
+
+def hatch_spacing_m(entity, mpu: float) -> Optional[float]:
+    """The smallest distance between the lines of a pattern hatch, in building metres (None without a pattern)."""
+    try:
+        lines = entity.pattern.lines
+    except Exception:  # noqa: BLE001 - no pattern definition
+        return None
+    out = []
+    for ln in lines or []:
+        a = math.radians(float(ln.angle))
+        ox, oy = float(ln.offset[0]), float(ln.offset[1])
+        d = abs(-math.sin(a) * ox + math.cos(a) * oy)
+        if d > 0:
+            out.append(d * float(mpu))
+    return min(out) if out else None
+
+
 def decode_unicode_texts(ents: list) -> int:
     """The DXF unicode escapes (``\\U+0130`` for İ) of the TEXT / ATTRIB / MTEXT entities to draw decoded in memory
     (the matplotlib backend prints them as written: 'ZEM\\U+0130N' is no word for the OCR); returns how many."""
@@ -748,6 +844,7 @@ def render_level(doc, ents: list, box: list, tf: list, dest: Path, px_per_m: flo
     from PIL import Image, ImageDraw, ImageFont
 
     from wenart.ingest.generic import scale as GS
+    from wenart.reading_check import stability as ST
 
     clean = RENDER_CLEAN if clean is None else bool(clean)
     mpu = math.hypot(float(tf[0]), float(tf[3]))
@@ -772,6 +869,7 @@ def render_level(doc, ents: list, box: list, tf: list, dest: Path, px_per_m: flo
                         lineweight_scaling=LINEWEIGHT_SCALING)
     fe = Frontend(RenderContext(doc), MatplotlibBackend(ax), config=cfg)
     hidden: list = []
+    screened = {"fills": 0, "patterns": 0, "numbers": 0}
     n_ents = len(ents)
     if clean:
         from wenart.reading_check import sheets as SH
@@ -783,6 +881,20 @@ def render_level(doc, ents: list, box: list, tf: list, dest: Path, px_per_m: flo
         if clean and SH.is_grid_or_dimension(entity.dxftype(), properties.layer, properties.linetype_name):
             properties.is_visible = False
             return
+        # no colours (ColorPolicy.BLACK, a monochrome plot); a solid fill is drawn black when its colour is dark
+        # (poché) and left out when it is light (a room or stair tint: paper on a screened plot); a pattern hatch is
+        # drawn when its lines are dense (poché, concrete) and left out when they are a finish (tiles, ground)
+        if is_solid_fill(entity):
+            if fill_luminance(doc, entity, properties.color) > FILL_INK_MAX:
+                properties.is_visible = False
+                screened["fills"] += 1
+            return
+        if entity.dxftype() == "HATCH":
+            sp = hatch_spacing_m(entity, mpu)
+            if sp is not None and sp > HATCH_FINISH_M:
+                properties.is_visible = False
+                screened["patterns"] += 1
+            return
         if entity.dxftype() in TEXT_TYPES:
             try:
                 text = entity.plain_text() if entity.dxftype() == "MTEXT" else entity.dxf.get("text", "")
@@ -791,6 +903,12 @@ def render_level(doc, ents: list, box: list, tf: list, dest: Path, px_per_m: flo
             if text and GS.note_ratio(str(text)):
                 properties.is_visible = False
                 hidden.append(str(text)[:60])
+            elif clean and text and ST.is_dimension_text(str(text), properties.layer):
+                # a bare number, a dimension value or a level mark (``stability.is_dimension_text``; size tags such
+                # as 90/210 stay): the reader trusts its dimension texts over a raster scale note, so a few leftover
+                # numbers read wrong cancel the known pixel size (real13 L0: seven numbers, no scale, no reading)
+                properties.is_visible = False
+                screened["numbers"] += 1
 
     fe.push_property_override_function(hide)
     fe.draw_entities(ents)
@@ -805,7 +923,7 @@ def render_level(doc, ents: list, box: list, tf: list, dest: Path, px_per_m: flo
     grey = Image.fromarray(rgba[..., :3]).convert("L")
     sheet = Image.new("L", (grey.width, grey.height + NOTE_BAND_PX), 255)
     sheet.paste(grey, (0, NOTE_BAND_PX))
-    note = f"SCALE 1:{NOTE_RATIO}"
+    note = f"SCALE 1/{NOTE_RATIO}"
     try:
         font = ImageFont.truetype(NOTE_FONT, NOTE_TEXT_PX)
     except OSError:
@@ -817,7 +935,7 @@ def render_level(doc, ents: list, box: list, tf: list, dest: Path, px_per_m: flo
     return {"png": str(dest), "size": [sheet.width, sheet.height], "px_per_m": ppm, "units_per_px": upp,
             "box": [float(box[0]), bottom, right, float(box[3])], "band_px": NOTE_BAND_PX, "dpi": dpi, "note": note,
             "scale_notes_hidden": hidden, "entities": n_ents, "entities_drawn": len(ents), "clean": clean,
-            "texts_decoded": decoded, "margin_m": margin_m,
+            "texts_decoded": decoded, "margin_m": margin_m, "screened": screened,
             "pixel_to_building": pixel_transform([box[0], bottom, right, box[3]], upp, NOTE_BAND_PX, tf)}
 
 
@@ -982,15 +1100,13 @@ def level_opinion(out_dir: Path, building: dict, lid: str, page: dict, doc, regi
     """The raster opinion of one level: render, read, map, compare (module docstring steps 1-3). Returns
     ``{level, render, raster: {status, seconds, scale_used, counts ...}, agreement, findings, vector, raster_level}``
     (``vector`` and ``raster_level``: the truth-shaped level dicts, for the calibration)."""
-    from wenart.reading_check import sheets as SH
-
     t0 = time.time()
     rec: dict = {"level": lid, "file": page.get("file"), "region": page.get("region")}
     box = level_box(doc, building, lid, page, regions)
     if box is None:
         rec.update(status="skipped", reason="no box for the level's region")
         return rec
-    ents = SH._entities(doc, box)
+    ents = region_entities(doc, box)
     wd = Path(work) / lid
     png = wd / f"plan_{lid}.png"
     render = render_level(doc, ents, box, page["tf"], png)

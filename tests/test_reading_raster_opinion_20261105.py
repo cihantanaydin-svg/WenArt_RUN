@@ -107,7 +107,7 @@ def test_the_render_has_the_known_size_metadata_and_transform(rendered):
     assert im.size == (800 + m, 600 + m + RO.NOTE_BAND_PX) == tuple(r["size"])
     assert im.mode == "L"
     assert abs(im.info["dpi"][0] - 0.0254 * RO.PX_PER_M * RO.NOTE_RATIO) < 0.01           # pHYs: 254 dpi
-    assert r["note"] == f"SCALE 1:{RO.NOTE_RATIO}"
+    assert r["note"] == f"SCALE 1/{RO.NOTE_RATIO}"
     assert any("1/50" in t for t in r["scale_notes_hidden"])                              # the drawing's own note
     assert r["texts_decoded"] == 1                                                        # ZEM\\U+0130N -> ZEMİN
     # the transform: pixel centre (u, v) -> building metres, 0.01 m a pixel, y down
