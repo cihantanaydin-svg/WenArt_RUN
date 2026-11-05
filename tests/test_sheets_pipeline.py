@@ -143,13 +143,24 @@ def test_slabs_roof_and_site(built):
 
 
 def test_failed_level_is_left_out_with_the_levels_above(tmp_path):
+    # 5 Nov 2026 (Milestone 14 R2, review item 8): under build_marked (the default) only the wall-less level is left
+    # out; the level above it is built and marked low with the reason. Under leave_out the levels above go too
+    # (Milestone 10: a missing level never leaves the building above it floating).
     building, build, _ = _build(tmp_path, walls={"ground": False})
     left = {x["region_id"]: x["reason"] for x in building["levels_left_out"]}
-    assert set(left) == {"r2", "r5"}
-    assert "no building walls" in left["r2"] and "above the left-out level L0" in left["r5"]
-    assert [lv["id"] for lv in building["levels"]] == ["L-1", "L-1b"]
-    assert building["status"] == "ok"
-    assert [v["levels"] for v in building["variants"]] == [["L-1"], ["L-1b"]]
+    assert set(left) == {"r2"} and "no building walls" in left["r2"]
+    assert [lv["id"] for lv in building["levels"]] == ["L-1", "L-1b", "L1"]
+    l1 = next(lv for lv in building["levels"] if lv["id"] == "L1")
+    assert l1["reading_confidence"] == "low"
+    assert any("the level below (L0) could not be read" in r for r in l1["reading_review"])
+    assert building["status"] == "ok" and all("L1" in v["levels"] for v in building["variants"])
+    building2, _, _ = _build(tmp_path, name="q", brief="failed_levels: leave_out\n", walls={"ground": False})
+    left2 = {x["region_id"]: x["reason"] for x in building2["levels_left_out"]}
+    assert set(left2) == {"r2", "r5"}
+    assert "no building walls" in left2["r2"] and "above the left-out level L0" in left2["r5"]
+    assert [lv["id"] for lv in building2["levels"]] == ["L-1", "L-1b"]
+    assert building2["status"] == "ok"
+    assert [v["levels"] for v in building2["variants"]] == [["L-1"], ["L-1b"]]
 
 
 def test_a_failed_alternative_drops_only_its_variant(tmp_path):
@@ -160,11 +171,16 @@ def test_a_failed_alternative_drops_only_its_variant(tmp_path):
 
 
 def test_only_alternative_levels_left_still_ok(tmp_path):
-    # §1.6b row 7: the status stays ok while at least one level remains.
+    # §1.6b row 7: the status stays ok while at least one level remains. 5 Nov 2026 (review item 8): under
+    # build_marked the attic above the wall-less ground floor is built and marked; under leave_out it goes too.
     building, build, _ = _build(tmp_path, walls={"ground": False, "basement": False})
-    assert [lv["id"] for lv in building["levels"]] == ["L-1b"]
-    assert building["status"] == "ok" and [v["id"] for v in building["variants"]] == ["l-1b-acik-mutfak"]
-    assert any("only alternative levels remain" in w for w in building["warnings"])
+    assert [lv["id"] for lv in building["levels"]] == ["L-1b", "L1"] and building["status"] == "ok"
+    assert next(lv for lv in building["levels"] if lv["id"] == "L1")["reading_confidence"] == "low"
+    building2, _, _ = _build(tmp_path, name="q", brief="failed_levels: leave_out\n",
+                             walls={"ground": False, "basement": False})
+    assert [lv["id"] for lv in building2["levels"]] == ["L-1b"]
+    assert building2["status"] == "ok" and [v["id"] for v in building2["variants"]] == ["l-1b-acik-mutfak"]
+    assert any("only alternative levels remain" in w for w in building2["warnings"])
 
 
 def test_brief_variants_base_leaves_the_alternative_unbuilt(tmp_path):
