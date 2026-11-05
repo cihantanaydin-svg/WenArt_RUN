@@ -317,6 +317,12 @@ def test_apply_trust_lowers_the_kinds_below_the_threshold():
     assert by["wall_vector_only"]["severity"] == "info" and "0.10" in by["wall_vector_only"]["message"]
     assert by["wall_vector_only"]["severity_by_size"] == "major"
     assert by["opening_raster_only"]["severity"] == "info" and "not calibrated" in by["opening_raster_only"]["message"]
+    # a new trust file applies afresh (``retrust``): the severity by size comes back, the old note goes
+    trust["kinds"]["wall_vector_only"] = {"findings": 30, "right": 27, "precision": 0.9}
+    RO.apply_trust(found, trust)
+    assert by["wall_vector_only"]["severity"] == "major"
+    assert "info only" not in by["wall_vector_only"]["message"] and "0.90" in by["wall_vector_only"]["message"]
+    assert by["wall_vector_only"]["message"].count("[") == 1
 
 
 def test_the_trust_file_shape():

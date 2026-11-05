@@ -67,6 +67,7 @@ import datetime as _dt
 import json
 import math
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -542,18 +543,45 @@ def apply_trust(findings: list, trust: Optional[dict]) -> list:
     for f in findings:
         if f["kind"] not in KINDS:                  # a level's note (no reading, a weak reading): info by itself
             continue
+        if "base_message" not in f:                                 # idempotent: a new trust file applies afresh
+            f["base_message"] = re.sub(r" \[(?:info only|raster precision)[^\]]*\]$", "", f["message"])
+        base = f["base_message"]
+        f["severity"] = f.get("severity_by_size") or f["severity"]
         k = kinds.get(f["kind"]) or {}
         n, prec = int(k.get("findings") or 0), k.get("precision")
         f["trust"] = {"precision": prec, "findings": n, "threshold": threshold}
         if prec is None or n == 0:
-            if f["severity"] != "info":
-                f["severity"] = "info"
-            f["message"] += " [info only: this kind of raster finding is not calibrated yet]"
+            f["severity"] = "info"
+            f["message"] = base + " [info only: this kind of raster finding is not calibrated yet]"
         elif float(prec) < threshold:
             f["severity"] = "info"
-            f["message"] += (f" [info only: raster precision for this kind {float(prec):.2f} on {n} calibrated "
-                             f"findings < {threshold:g}]")
+            f["message"] = base + (f" [info only: raster precision for this kind {float(prec):.2f} on {n} "
+                                   f"calibrated findings < {threshold:g}]")
+        else:
+            f["message"] = base + f" [raster precision for this kind {float(prec):.2f} on {n} calibrated findings]"
     return findings
+
+
+def retrust(out_dir, trust: Optional[dict] = None) -> dict:
+    """The stored opinion of a pipeline output (``reading_check/raster_opinion.json``) with the current trust file
+    applied again (no new reading); rewrites the json and the md and returns the result."""
+    out_dir = Path(out_dir)
+    res = json.loads((out_dir / "reading_check" / "raster_opinion.json").read_text(encoding="utf-8"))
+    trust = trust if trust is not None else load_trust()
+    for rec in res.get("levels") or []:
+        apply_trust(rec.get("findings") or [], trust)
+    _totals(res, trust)
+    write(out_dir, res)
+    return res
+
+
+def _totals(res: dict, trust: Optional[dict]) -> None:
+    res["findings"] = [f for rec in res["levels"] for f in rec.get("findings") or []]
+    res["counts"] = {s: sum(1 for f in res["findings"] if f["severity"] == s) for s in ("major", "minor", "info")}
+    res["counts_by_kind"] = {k: sum(1 for f in res["findings"] if f["kind"] == k) for k in KINDS}
+    res["trust"] = {"commit": (trust or {}).get("commit"), "threshold": (trust or {}).get("threshold", TRUST_MIN),
+                    "kinds": {k: (v.get("precision"), v.get("findings"))
+                              for k, v in ((trust or {}).get("kinds") or {}).items()}}
 
 
 def judge(finding: dict, truth_level: dict) -> Optional[bool]:
@@ -1036,12 +1064,7 @@ def opinion(out_dir, work: Optional[Path] = None, levels: Optional[list] = None,
             log(f"{res['project']} {lid}: {len(rec.get('findings') or [])} findings, "
                 f"{(rec.get('raster') or {}).get('seconds')} s raster, {rec.get('seconds')} s in all")
     res["seconds"] = round(time.time() - t0, 1)
-    res["findings"] = [f for rec in res["levels"] for f in rec.get("findings") or []]
-    res["counts"] = {s: sum(1 for f in res["findings"] if f["severity"] == s) for s in ("major", "minor", "info")}
-    res["counts_by_kind"] = {k: sum(1 for f in res["findings"] if f["kind"] == k) for k in KINDS}
-    res["trust"] = {"commit": (trust or {}).get("commit"), "threshold": (trust or {}).get("threshold", TRUST_MIN),
-                    "kinds": {k: (v.get("precision"), v.get("findings"))
-                              for k, v in ((trust or {}).get("kinds") or {}).items()}}
+    _totals(res, trust)
     write(out_dir, res)
     if own_work:
         shutil.rmtree(work, ignore_errors=True)
@@ -1226,6 +1249,8 @@ def main(argv=None) -> int:
     k.add_argument("--fresh", action="store_true", help="read the projects again")
     k.add_argument("--write", action="store_true", help=f"store the precision per kind in {TRUST_PATH.name}")
     k.add_argument("--json", default=None, help="write the per-project calibration to this file")
+    t = sub.add_parser("retrust", help="apply the current trust file to stored opinions (no new reading)")
+    t.add_argument("--out", required=True, nargs="+", help="pipeline output folders with raster_opinion.json")
     p = sub.add_parser("projects", help="read projects and run the opinion on each; the most telling findings")
     p.add_argument("--projects", required=True, help="comma separated")
     p.add_argument("--work", required=True, help="work folder (a vector reading already there is used again)")
@@ -1243,6 +1268,11 @@ def main(argv=None) -> int:
                       keep_images=args.keep_images, log=log)
         print(f"raster opinion {res['project']}: {res['counts']} in {res['seconds']} s -> "
               f"{Path(args.out) / 'reading_check' / 'raster_opinion.md'}")
+        return 0
+    if args.cmd == "retrust":
+        for out in args.out:
+            res = retrust(out)
+            print(f"raster opinion {res.get('project')}: {res['counts']} (trust {res['trust']['commit']})")
         return 0
     if args.cmd == "calibrate":
         projects = [x.strip() for x in (args.projects or "").split(",") if x.strip()] or TR.truth_projects()
@@ -1268,8 +1298,9 @@ def main(argv=None) -> int:
         for f in res["findings"]:
             every.append(dict(f, project=q))
     for f in telling(every, args.top):
+        what = f.get("what") or {}
         print(f"{f['project']} {f['level_id']} {f['kind']} [{f['severity']}/{f.get('severity_by_size')}] "
-              f"{f['message']}")
+              f"{f['message']}\n    vector: {what.get('vector')}\n    raster: {what.get('raster')}")
     if args.json:
         Path(args.json).write_text(json.dumps(every, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     return 0
