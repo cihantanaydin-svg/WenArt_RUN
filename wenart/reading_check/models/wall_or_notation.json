@@ -1,0 +1,4180 @@
+{
+ "kind": "wall_or_notation",
+ "features": [
+  "aspect",
+  "collinear_neighbours",
+  "in_axis_grid",
+  "in_dimension_chain",
+  "inside_block",
+  "layer_chosen",
+  "layer_closed_in_share",
+  "layer_decided",
+  "layer_dimension_pieces",
+  "layer_pair_share",
+  "layer_pairs",
+  "layer_rooms",
+  "length",
+  "line_length_max",
+  "line_length_min",
+  "linetype_axis",
+  "primary",
+  "role_axis",
+  "role_dimension",
+  "role_door",
+  "role_finish",
+  "role_furniture",
+  "role_glass",
+  "role_hatch",
+  "role_none",
+  "role_other",
+  "role_plaster",
+  "role_stair",
+  "role_structure",
+  "role_text",
+  "role_wall",
+  "role_window",
+  "run_length",
+  "text_within_0_3m",
+  "width"
+ ],
+ "mean": [
+  5.2432151167,
+  5.8228333333,
+  0.0,
+  0.0328333333,
+  0.2408333333,
+  0.2538333333,
+  0.2782355833,
+  0.9858333333,
+  5.9018333333,
+  0.5012488333,
+  32.3648333333,
+  1.2143333333,
+  0.7719370833,
+  1.4566968333,
+  0.8353900833,
+  0.0056666667,
+  0.508,
+  0.0,
+  0.0581666667,
+  0.0401666667,
+  0.0071666667,
+  0.1585,
+  0.0078333333,
+  0.1223333333,
+  0.1338333333,
+  0.0086666667,
+  0.0563333333,
+  0.065,
+  0.0253333333,
+  0.0063333333,
+  0.1736666667,
+  0.1366666667,
+  0.1491731667,
+  0.2523333333,
+  0.2207635167
+ ],
+ "std": [
+  10.5462591775,
+  8.7832100418,
+  1.0,
+  0.1782001839,
+  0.4275893344,
+  0.4352033688,
+  0.3945201973,
+  0.1181777146,
+  13.3908873233,
+  0.4114871491,
+  39.4548779828,
+  2.71975389,
+  1.4531840882,
+  2.4921446268,
+  1.4676916285,
+  0.0750636767,
+  0.4999359959,
+  1.0,
+  0.2340583379,
+  0.1963499569,
+  0.0843522706,
+  0.3652091866,
+  0.0881587898,
+  0.3276703967,
+  0.3404731593,
+  0.0926906444,
+  0.2305642836,
+  0.2465258607,
+  0.1571354688,
+  0.0793298319,
+  0.3788225911,
+  0.3434951075,
+  0.5604627131,
+  0.5916033769,
+  0.1452672129
+ ],
+ "classes": [
+  "wall",
+  "notation"
+ ],
+ "coef": [
+  [
+   -0.2824393283,
+   0.07845173,
+   0.0,
+   -0.1575130181,
+   -0.4361083779,
+   1.0360659032,
+   -0.1011330228,
+   0.0431531977,
+   -0.1237388249,
+   0.6374290207,
+   -0.6907528131,
+   -0.4627014529,
+   -0.0119359496,
+   -0.0111050304,
+   0.3305030868,
+   -0.2716480059,
+   0.342854805,
+   0.0,
+   0.0376129457,
+   0.2315044452,
+   -0.2906057849,
+   -0.707101571,
+   0.1143512984,
+   -0.341703582,
+   0.1454369612,
+   -0.0947823252,
+   0.5006049644,
+   -0.9645139817,
+   0.3920488802,
+   0.0965684766,
+   0.4833690282,
+   0.4647117908,
+   0.2384887244,
+   0.0811112652,
+   -1.240283604
+  ],
+  [
+   0.2824393283,
+   -0.07845173,
+   0.0,
+   0.1575130181,
+   0.4361083779,
+   -1.0360659032,
+   0.1011330228,
+   -0.0431531977,
+   0.1237388249,
+   -0.6374290207,
+   0.6907528131,
+   0.4627014529,
+   0.0119359496,
+   0.0111050304,
+   -0.3305030868,
+   0.2716480059,
+   -0.342854805,
+   0.0,
+   -0.0376129457,
+   -0.2315044452,
+   0.2906057849,
+   0.707101571,
+   -0.1143512984,
+   0.341703582,
+   -0.1454369612,
+   0.0947823252,
+   -0.5006049644,
+   0.9645139817,
+   -0.3920488802,
+   -0.0965684766,
+   -0.4833690282,
+   -0.4647117908,
+   -0.2384887244,
+   -0.0811112652,
+   1.240283604
+  ]
+ ],
+ "intercept": [
+  -0.6853883967,
+  0.6853883967
+ ],
+ "l2": 10.0,
+ "iterations": 25,
+ "trained_on": {
+  "commit": "1f705237e29a3c8d4cbf968ee034247d465883cf",
+  "date": "2026-11-05",
+  "projects": [
+   "real02",
+   "real03",
+   "real04",
+   "real06",
+   "real07",
+   "real10",
+   "real15",
+   "real19",
+   "real21",
+   "synthetic-06",
+   "synthetic-07",
+   "synthetic-08-spaced-labels",
+   "synthetic-09-jamb-stubs",
+   "synthetic-10-glazed-facade",
+   "synthetic-11-dimension-chains",
+   "synthetic-12-mirrored-halves",
+   "synthetic-13-typical-floor",
+   "synthetic-14-elevation-title",
+   "synthetic-15-winder-stair",
+   "synthetic-16-open-recess",
+   "synthetic-17-garage-lift",
+   "synthetic-18-sheet-frame",
+   "synthetic-19-symmetric-house",
+   "synthetic-20-glazed-corner",
+   "synthetic-21-parapet",
+   "synthetic-22-curved-stair"
+  ],
+  "rows": 6000,
+  "labelled_rows": 21024,
+  "counts_per_source": {
+   "accepted_reading": 19207,
+   "synthetic": 1817
+  },
+  "label_weights": {
+   "user_correction": 10.0,
+   "synthetic": 3.0,
+   "accepted_reading": 1.0
+  },
+  "labels": {
+   "notation": 13636,
+   "wall": 7388
+  }
+ },
+ "metrics": {
+  "leave_one_project_out": {
+   "real02": {
+    "n": 1498,
+    "rules_acc": 0.9466,
+    "ranker_acc": 0.9499,
+    "integrated_acc": 0.9479,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real03": {
+    "n": 1776,
+    "rules_acc": 0.7973,
+    "ranker_acc": 0.7376,
+    "integrated_acc": 0.7967,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real04": {
+    "n": 1498,
+    "rules_acc": 0.9466,
+    "ranker_acc": 0.9499,
+    "integrated_acc": 0.9479,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real06": {
+    "n": 2849,
+    "rules_acc": 0.7294,
+    "ranker_acc": 0.6936,
+    "integrated_acc": 0.7294,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real07": {
+    "n": 3897,
+    "rules_acc": 0.7814,
+    "ranker_acc": 0.7698,
+    "integrated_acc": 0.7814,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real10": {
+    "n": 4421,
+    "rules_acc": 0.7354,
+    "ranker_acc": 0.6998,
+    "integrated_acc": 0.7268,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real15": {
+    "n": 2133,
+    "rules_acc": 0.8481,
+    "ranker_acc": 0.7848,
+    "integrated_acc": 0.8467,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real19": {
+    "n": 529,
+    "rules_acc": 0.7202,
+    "ranker_acc": 0.7864,
+    "integrated_acc": 0.7202,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real21": {
+    "n": 606,
+    "rules_acc": 0.6089,
+    "ranker_acc": 0.6568,
+    "integrated_acc": 0.5891,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-06": {
+    "n": 65,
+    "rules_acc": 0.7538,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.7538,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-07": {
+    "n": 269,
+    "rules_acc": 0.6803,
+    "ranker_acc": 0.8513,
+    "integrated_acc": 0.6803,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-08-spaced-labels": {
+    "n": 62,
+    "rules_acc": 0.5484,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.5645,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-09-jamb-stubs": {
+    "n": 73,
+    "rules_acc": 0.5479,
+    "ranker_acc": 0.9178,
+    "integrated_acc": 0.5616,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-10-glazed-facade": {
+    "n": 69,
+    "rules_acc": 0.4928,
+    "ranker_acc": 0.9565,
+    "integrated_acc": 0.5072,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-11-dimension-chains": {
+    "n": 93,
+    "rules_acc": 0.6989,
+    "ranker_acc": 0.8602,
+    "integrated_acc": 0.7097,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-12-mirrored-halves": {
+    "n": 80,
+    "rules_acc": 0.525,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.55,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-13-typical-floor": {
+    "n": 165,
+    "rules_acc": 0.6424,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.6545,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-14-elevation-title": {
+    "n": 165,
+    "rules_acc": 0.6,
+    "ranker_acc": 0.6303,
+    "integrated_acc": 0.6121,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-15-winder-stair": {
+    "n": 75,
+    "rules_acc": 0.6267,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.64,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-16-open-recess": {
+    "n": 73,
+    "rules_acc": 0.5479,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.5479,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-17-garage-lift": {
+    "n": 65,
+    "rules_acc": 0.6462,
+    "ranker_acc": 0.9846,
+    "integrated_acc": 0.6615,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-18-sheet-frame": {
+    "n": 165,
+    "rules_acc": 0.6424,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.6545,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-19-symmetric-house": {
+    "n": 61,
+    "rules_acc": 0.541,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.5574,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-20-glazed-corner": {
+    "n": 74,
+    "rules_acc": 0.4324,
+    "ranker_acc": 0.9459,
+    "integrated_acc": 0.4459,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-21-parapet": {
+    "n": 201,
+    "rules_acc": 0.6766,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.6866,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-22-curved-stair": {
+    "n": 62,
+    "rules_acc": 0.5484,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.5645,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   }
+  },
+  "overall": {
+   "n": 21024,
+   "rules_acc": 0.7756,
+   "ranker_acc": 0.7802,
+   "integrated_acc": 0.7742,
+   "corrections": {
+    "n": 0,
+    "rules": 0,
+    "ranker": 0,
+    "integrated": 0
+   }
+  },
+  "changed_in_lopo": [
+   {
+    "project": "real02",
+    "level_id": "L0",
+    "place": [
+     10.627,
+     5.8936
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8466,
+    "right": true
+   },
+   {
+    "project": "real02",
+    "level_id": "L0",
+    "place": [
+     4.546,
+     5.8936
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8466,
+    "right": true
+   },
+   {
+    "project": "real03",
+    "level_id": "L0",
+    "place": [
+     0.153,
+     6.7005
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8874,
+    "right": true
+   },
+   {
+    "project": "real03",
+    "level_id": "L0",
+    "place": [
+     33.053,
+     6.7005
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8874,
+    "right": false
+   },
+   {
+    "project": "real03",
+    "level_id": "L0",
+    "place": [
+     26.178,
+     5.8255
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.642,
+    "right": false
+   },
+   {
+    "project": "real03",
+    "level_id": "L0",
+    "place": [
+     16.603,
+     14.0505
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8886,
+    "right": true
+   },
+   {
+    "project": "real03",
+    "level_id": "L0",
+    "place": [
+     7.028,
+     5.8255
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.642,
+    "right": false
+   },
+   {
+    "project": "real04",
+    "level_id": "L0",
+    "place": [
+     10.627,
+     5.8936
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.86,
+    "right": true
+   },
+   {
+    "project": "real04",
+    "level_id": "L0",
+    "place": [
+     4.546,
+     5.8936
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.86,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     8.7406,
+     8.0495
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8946,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     13.6405,
+     8.0495
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8946,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     6.8905,
+     12.5645
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3068,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     13.1628,
+     9.8367
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6842,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     19.1006,
+     1.9144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5738,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     18.5406,
+     16.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.872,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     16.9705,
+     9.2394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6654,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     16.3056,
+     1.9144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5646,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     12.2155,
+     12.4894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3012,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     10.2756,
+     8.4395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3556,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     10.1656,
+     12.4894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3028,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     9.8155,
+     2.0144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6836,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     6.0755,
+     1.9144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5646,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     5.4106,
+     9.2394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6654,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     3.8405,
+     16.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.872,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     11.0684,
+     9.8367
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6842,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     18.5455,
+     16.6694
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.656,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     18.5406,
+     16.5094
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6246,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     3.8405,
+     16.5094
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6256,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-1",
+    "place": [
+     3.8356,
+     16.6694
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.657,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     20.3655,
+     7.8395
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.5338,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     11.6972,
+     15.7632
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.7492,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     11.6206,
+     15.7757
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.6826,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     10.8655,
+     15.9395
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.9834,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     10.5506,
+     15.9645
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "wall",
+    "margin": 0.9102,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     11.1806,
+     15.9645
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.9102,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     11.9555,
+     15.9644
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.9666,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     13.1703,
+     9.8442
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.3538,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     13.1438,
+     9.8177
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.5984,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     16.1359,
+     9.2635
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.969,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     13.936,
+     9.2153
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.971,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     13.0156,
+     15.2819
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.9828,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     13.3135,
+     9.6834
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.9092,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     13.0095,
+     9.9874
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.9662,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     11.2199,
+     9.9326
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.945,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     11.0608,
+     9.8442
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.3538,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     11.0873,
+     9.8177
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.5984,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L-2",
+    "place": [
+     10.9724,
+     9.6851
+    ],
+    "rule_answer": "notation",
+    "ranker_answer": "wall",
+    "label": "notation",
+    "margin": 0.9666,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     6.6506,
+     0.5394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5884,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     6.9556,
+     0.5844
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.9342,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     6.7956,
+     0.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.9382,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.0055,
+     0.5394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.843,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.3756,
+     0.5394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.843,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     15.7306,
+     0.5394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3978,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     15.4256,
+     0.5844
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.9342,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     15.5855,
+     0.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.838,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.4617,
+     6.2594
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3564,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     11.9193,
+     6.2594
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3564,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     0.2006,
+     9.8395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3762,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     22.1805,
+     9.8395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3762,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     0.2006,
+     12.2394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5714,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     0.0506,
+     12.2894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8234,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     22.1805,
+     12.2394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5714,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     22.3306,
+     12.2894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8234,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.3756,
+     12.5695
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3074,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.948,
+     12.5695
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3434,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.0055,
+     12.5695
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3074,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.3456,
+     13.5893
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6908,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.0355,
+     13.5893
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5338,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.0606,
+     13.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4802,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.3205,
+     13.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4802,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.2481,
+     13.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3912,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.133,
+     13.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3912,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     1.7006,
+     13.8395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.419,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.6805,
+     13.8395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.419,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     1.7006,
+     15.6395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.6048,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     1.5355,
+     15.6895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8226,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.6805,
+     15.6395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.6048,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.8455,
+     15.6895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.7214,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     1.5855,
+     15.7094
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.7512,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.7956,
+     15.7094
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6178,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.8455,
+     17.8944
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8128,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.5355,
+     17.8944
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8128,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     13.125,
+     9.7989
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4886,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     21.8455,
+     9.4594
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3666,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     21.8455,
+     12.6195
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8166,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.3456,
+     7.1694
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5808,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     16.8368,
+     9.3044
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.631,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     15.0906,
+     0.1495
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8474,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     14.7405,
+     18.3795
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8246,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     14.6906,
+     18.2294
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5738,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     13.0406,
+     0.1495
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6276,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.8906,
+     18.2294
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3806,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.8406,
+     18.3795
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8246,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.6406,
+     12.4594
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.485,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.2592,
+     9.9997
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4674,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.1779,
+     8.6095
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3352,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.8279,
+     8.5145
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3938,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.5029,
+     8.5145
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3974,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.0719,
+     9.9997
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4674,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     8.7405,
+     6.7544
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3154,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     7.6906,
+     18.2294
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5738,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     7.6405,
+     18.3795
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8246,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     7.2906,
+     0.1495
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8474,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     5.5443,
+     9.3044
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7604,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     2.0356,
+     7.1694
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5808,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     0.5356,
+     9.4594
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5638,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     11.1061,
+     9.7989
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4886,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.9655,
+     0.5394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.939,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.4155,
+     0.5394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.939,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     6.9405,
+     1.9144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8508,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     15.4405,
+     1.9144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8508,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     6.0756,
+     1.9144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7322,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     16.3055,
+     1.9144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7322,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.9105,
+     6.2345
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.9012,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.4705,
+     6.2345
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9012,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.4405,
+     6.2644
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7346,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     11.9405,
+     6.2644
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7346,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.843,
+     6.5645
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7252,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.538,
+     6.5645
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7252,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     0.7156,
+     6.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.576,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     1.7156,
+     6.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5766,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.6655,
+     6.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5766,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     21.6655,
+     6.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.576,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     2.1555,
+     7.1544
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.487,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.2255,
+     7.1544
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.487,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     8.7406,
+     8.0495
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9834,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     13.6406,
+     8.0495
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9834,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.0555,
+     8.4395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3942,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.2755,
+     8.4395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5854,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     0.7156,
+     9.1394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5782,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     1.7156,
+     9.1394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.489,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.6655,
+     9.1394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.489,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     21.6655,
+     9.1394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5782,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     0.2406,
+     9.8395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.7374,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     22.1406,
+     9.8395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.7374,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     0.2406,
+     12.2394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8334,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     22.1406,
+     12.2394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8334,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.3556,
+     12.5645
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7316,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.978,
+     12.5645
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.723,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     11.4031,
+     12.5645
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5782,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.0256,
+     12.5645
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7316,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     0.7156,
+     12.9395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.576,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     1.7156,
+     12.9395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5768,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.6655,
+     12.9395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5768,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     21.6655,
+     12.9395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.576,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.1655,
+     13.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9444,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.2156,
+     13.5895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9444,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     1.7406,
+     13.8395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7374,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.6406,
+     13.8395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7374,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     1.7406,
+     15.6394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8334,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.6406,
+     15.6394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8334,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     5.6905,
+     16.4394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.9106,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     16.6905,
+     16.4394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.9106,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     2.8556,
+     16.4894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5812,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     19.5255,
+     16.4894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5812,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     13.1627,
+     9.8367
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9454,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     20.5805,
+     12.9395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9472,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     16.9706,
+     9.2394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9416,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     16.7405,
+     16.6544
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5812,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     16.7405,
+     17.7145
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5748,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     16.7405,
+     18.1144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.556,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     16.3055,
+     1.9144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.92,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     15.4905,
+     0.7894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5456,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     15.4905,
+     1.7245
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5852,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     15.4656,
+     6.4894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7364,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     15.0906,
+     0.1895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9402,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     14.6906,
+     18.1894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8348,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     13.6406,
+     9.562
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7618,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     13.6406,
+     10.3895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8502,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     13.6406,
+     6.7544
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7366,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.4706,
+     6.2345
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5866,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.2156,
+     12.4894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8506,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.2156,
+     13.3045
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4014,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     12.2156,
+     13.8895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.6946,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.2755,
+     8.4395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.867,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.1655,
+     12.4894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8506,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.1655,
+     13.3045
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5912,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     10.1655,
+     13.8895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.6946,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.9106,
+     6.2345
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5866,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.4905,
+     18.1894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8338,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     9.3406,
+     0.1895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9024,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     8.7405,
+     6.7544
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7366,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     7.6906,
+     18.1894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.8348,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     7.2905,
+     0.1895
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9402,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     6.9406,
+     6.4894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5864,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     6.8905,
+     0.7894
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5466,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     6.7905,
+     0.6394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.9328,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     6.8905,
+     1.7245
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5864,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     6.0756,
+     1.9144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.92,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     5.6406,
+     16.6544
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5812,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     5.6406,
+     17.7145
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5748,
+    "right": false
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     5.6406,
+     18.1144
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.556,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     5.4106,
+     9.2394
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9416,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     1.8005,
+     12.9395
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9472,
+    "right": true
+   },
+   {
+    "project": "real10",
+    "level_id": "L0",
+    "place": [
+     11.0683,
+     9.8367
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.9454,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L0",
+    "place": [
+     12.0756,
+     23.9879
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4362,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L0",
+    "place": [
+     21.5254,
+     31.587
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.307,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L0",
+    "place": [
+     21.5254,
+     31.862
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3602,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L0",
+    "place": [
+     21.5254,
+     31.7245
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6586,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L0",
+    "place": [
+     21.5254,
+     31.7245
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5788,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     16.3151,
+     11.3195
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.918,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     7.2651,
+     23.8445
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4396,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     8.6275,
+     23.8445
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4488,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     12.4151,
+     23.8445
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3118,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     15.2051,
+     23.8445
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4426,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     16.6679,
+     23.8445
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.308,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     22.0151,
+     25.7195
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.622,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     6.8901,
+     27.2571
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.823,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     6.7526,
+     27.2696
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5694,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     7.0276,
+     27.2696
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.5694,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     17.2651,
+     31.0945
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4782,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     12.3901,
+     31.6945
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.431,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     17.8901,
+     31.6945
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4288,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     25.1901,
+     31.6945
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4286,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     26.1401,
+     12.7695
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3104,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     26.1401,
+     18.0445
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4434,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     21.2401,
+     31.3695
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.744,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     18.5151,
+     15.2445
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4506,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     18.5151,
+     23.6445
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.452,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     16.5901,
+     12.6945
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4618,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     6.8901,
+     27.1445
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4666,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     6.8901,
+     27.3946
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4666,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     6.8901,
+     27.2696
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4956,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     17.2901,
+     31.0945
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3228,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     25.3651,
+     31.6945
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7442,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     21.0151,
+     15.0695
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.7432,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     17.6651,
+     31.6945
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.8834,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     16.5901,
+     12.6695
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3172,
+    "right": false
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     6.8901,
+     27.1695
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.309,
+    "right": true
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     6.8901,
+     27.3696
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.309,
+    "right": true
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     3.5206,
+     5.0961
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.482,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     11.977,
+     5.0961
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.482,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     3.5202,
+     9.4666
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6334,
+    "right": true
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     11.9773,
+     9.4666
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6334,
+    "right": true
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     3.5202,
+     9.6794
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3472,
+    "right": true
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     11.9774,
+     9.6794
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3472,
+    "right": true
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     10.7703,
+     12.0961
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4786,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     10.6238,
+     16.6711
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.9244,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     4.7273,
+     16.7461
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.784,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     10.7703,
+     16.7461
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.419,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     3.5202,
+     19.1627
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3478,
+    "right": true
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     11.9774,
+     19.1627
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3472,
+    "right": true
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     3.5202,
+     19.3756
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6338,
+    "right": true
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     11.9773,
+     19.3756
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.6334,
+    "right": true
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     3.5206,
+     23.7461
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.482,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     11.977,
+     23.7461
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.482,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     11.977,
+     5.0961
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4782,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     11.9773,
+     9.5499
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4828,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     11.9773,
+     19.2922
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4828,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     11.977,
+     23.7461
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4782,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     10.7696,
+     12.0961
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7748,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     10.771,
+     16.7461
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.77,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     4.7259,
+     12.0961
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.7616,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     4.7286,
+     16.746
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.771,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     3.5206,
+     5.0961
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4782,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     3.5203,
+     9.5499
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4828,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     3.5203,
+     19.2922
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4828,
+    "right": false
+   },
+   {
+    "project": "real21",
+    "level_id": "L0",
+    "place": [
+     3.5206,
+     23.7461
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4782,
+    "right": false
+   },
+   {
+    "project": "synthetic-08-spaced-labels",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4758,
+    "right": true
+   },
+   {
+    "project": "synthetic-09-jamb-stubs",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.527,
+    "right": true
+   },
+   {
+    "project": "synthetic-10-glazed-facade",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.885
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4728,
+    "right": true
+   },
+   {
+    "project": "synthetic-11-dimension-chains",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4886,
+    "right": true
+   },
+   {
+    "project": "synthetic-12-mirrored-halves",
+    "level_id": "L0",
+    "place": [
+     8.0,
+     8.8771
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3684,
+    "right": true
+   },
+   {
+    "project": "synthetic-12-mirrored-halves",
+    "level_id": "L0",
+    "place": [
+     6.0,
+     8.8771
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3684,
+    "right": true
+   },
+   {
+    "project": "synthetic-13-typical-floor",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5012,
+    "right": true
+   },
+   {
+    "project": "synthetic-13-typical-floor",
+    "level_id": "L1",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5012,
+    "right": true
+   },
+   {
+    "project": "synthetic-14-elevation-title",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.482,
+    "right": true
+   },
+   {
+    "project": "synthetic-14-elevation-title",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     24.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.482,
+    "right": true
+   },
+   {
+    "project": "synthetic-15-winder-stair",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.468,
+    "right": true
+   },
+   {
+    "project": "synthetic-17-garage-lift",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.8767
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4714,
+    "right": true
+   },
+   {
+    "project": "synthetic-18-sheet-frame",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5012,
+    "right": true
+   },
+   {
+    "project": "synthetic-18-sheet-frame",
+    "level_id": "L1",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.5012,
+    "right": true
+   },
+   {
+    "project": "synthetic-19-symmetric-house",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.455,
+    "right": true
+   },
+   {
+    "project": "synthetic-20-glazed-corner",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.875
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3848,
+    "right": true
+   },
+   {
+    "project": "synthetic-21-parapet",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4998,
+    "right": true
+   },
+   {
+    "project": "synthetic-21-parapet",
+    "level_id": "L1",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4998,
+    "right": true
+   },
+   {
+    "project": "synthetic-22-curved-stair",
+    "level_id": "L0",
+    "place": [
+     5.25,
+     8.876
+    ],
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4758,
+    "right": true
+   }
+  ],
+  "rule_trust": 0.6,
+  "margin_min": 0.3
+ }
+}

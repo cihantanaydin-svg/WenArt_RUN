@@ -51,7 +51,9 @@ def _xfail(cls: str, lesson: str, what: str = ""):
 # What the reader does not handle yet (4 Nov 2026, measured on the generated projects): per test, per project.
 XFAIL_COUNTS = {
     "synthetic-10-glazed-facade": _xfail("glazed_facade", "UL274", "the frames become one 6.3 m window"),
-    "synthetic-12-mirrored-halves": _xfail("mirrored_halves", "UL276", "unswung door gaps are openings or a window"),
+    # 5 Nov 2026 (Milestone 14 R3): synthetic-12's counts pass since the ranker re-types the unlabelled flat's four
+    # bare door gaps (their mirror twins are drawn doors, no label stands beside them); its rooms still take no names
+    # (XFAIL_GEOMETRY below, test_12_mirrored_flat_rooms_take_their_twins_names)
     "synthetic-14-elevation-title": _xfail("elevation_title", "UL271", "the two plans are read as one level"),
     "synthetic-16-open-recess": _xfail("open_recess", "UL313", "an opening doubles the corridor-end door"),
     "synthetic-17-garage-lift": _xfail("garage_lift", "UL320", "the 3.4 m garage opening is read as a window"),
@@ -62,6 +64,9 @@ XFAIL_COUNTS = {
 # every drawn room and opening of synthetic-16, -19 and -22 is read; the counts fail on what is extra or missing
 XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items()
                   if k not in ("synthetic-16-open-recess", "synthetic-19-symmetric-house", "synthetic-22-curved-stair")}
+XFAIL_GEOMETRY["synthetic-12-mirrored-halves"] = _xfail(
+    "mirrored_halves", "UL276", "the unlabelled flat's rooms stay 'Oda' (its four bare door gaps are the ranker's "
+                                "doors since 5 Nov 2026)")
 
 
 def _params(names, marks: dict):

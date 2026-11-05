@@ -1,0 +1,990 @@
+{
+ "kind": "gap_kind",
+ "features": [
+  "arc_radius_ratio",
+  "arcs",
+  "arcs_door_like",
+  "arcs_swing",
+  "content_count",
+  "content_length",
+  "cover_share",
+  "exterior",
+  "framed_offsets",
+  "glass_lines",
+  "jamb_lines",
+  "kind_end",
+  "kind_run",
+  "kind_split",
+  "labels_both_sides",
+  "labels_one_side",
+  "named_door",
+  "named_window",
+  "open_leaves",
+  "outdoor_within_2m",
+  "outline_distance",
+  "parallel_offsets",
+  "role_axis",
+  "role_dimension",
+  "role_door",
+  "role_furniture",
+  "role_glass",
+  "role_none",
+  "role_other",
+  "role_plaster",
+  "role_structure",
+  "role_text",
+  "role_wall",
+  "role_window",
+  "run_length",
+  "sliding_leaves",
+  "tag_distance",
+  "tag_door_like",
+  "tag_height",
+  "tag_width_ratio",
+  "thickness",
+  "twin_door",
+  "twin_known",
+  "twin_opening",
+  "twin_window",
+  "typical_known",
+  "width"
+ ],
+ "mean": [
+  0.2374037772,
+  4.3623559539,
+  0.2163892446,
+  0.2317541613,
+  15.1632522407,
+  7.1206987196,
+  0.3873275928,
+  0.3892445583,
+  0.6338028169,
+  0.3322663252,
+  13.4942381562,
+  0.0633802817,
+  0.5697823303,
+  0.366837388,
+  0.4596670935,
+  0.4218950064,
+  0.0012804097,
+  0.0147247119,
+  0.0121638924,
+  0.0326504481,
+  1.3904931498,
+  0.8226632522,
+  0.0,
+  0.0,
+  3.7970550576,
+  19.9078104994,
+  0.1734955186,
+  11.47631242,
+  17.2772087068,
+  1.8866837388,
+  0.5089628681,
+  0.0,
+  1.7112676056,
+  10.6203585147,
+  11.6219660691,
+  0.0160051216,
+  1.7643409731,
+  0.2119078105,
+  0.4559539052,
+  0.1627434699,
+  0.211709347,
+  0.0691421255,
+  0.5352112676,
+  0.0544174136,
+  0.0448143406,
+  0.0,
+  2.1802645327
+ ],
+ "std": [
+  0.3779727387,
+  15.3252594276,
+  0.4950849559,
+  0.6588824753,
+  28.789462375,
+  12.8111110313,
+  0.4450881915,
+  0.4875789496,
+  1.3622247778,
+  0.7405200171,
+  46.8048256931,
+  0.2436456886,
+  0.4951064798,
+  0.4819416134,
+  0.4983706017,
+  0.4938619341,
+  0.0357598977,
+  0.1204487226,
+  0.1096172074,
+  0.1777199943,
+  0.8037741001,
+  1.405102673,
+  1.0,
+  1.0,
+  12.3881078216,
+  131.3282014447,
+  1.7279769752,
+  92.9435265029,
+  214.3795277683,
+  4.145014053,
+  1.6484141527,
+  1.0,
+  4.453543216,
+  28.951589606,
+  7.2391404186,
+  0.1254948514,
+  0.5026294003,
+  0.4086598712,
+  0.8787685004,
+  0.5006136429,
+  0.0962018326,
+  0.253695668,
+  0.4987586256,
+  0.2268394998,
+  0.2068961466,
+  1.0,
+  2.4368179799
+ ],
+ "classes": [
+  "door",
+  "window",
+  "opening",
+  "closed",
+  "open"
+ ],
+ "coef": [
+  [
+   1.01286681,
+   -0.2846762998,
+   0.6056851633,
+   0.2533568673,
+   0.2795096809,
+   0.0730104587,
+   -0.1147683993,
+   -0.1431891903,
+   -0.3044770965,
+   -0.2823844289,
+   0.2675143868,
+   0.0901616596,
+   0.3822304703,
+   -0.4382528431,
+   -0.2567065742,
+   -0.013951749,
+   0.23123039,
+   -0.3242678684,
+   0.5446153244,
+   0.257612836,
+   0.3435042464,
+   -0.2873450974,
+   0.0,
+   0.0,
+   -0.2039604044,
+   -0.0989472988,
+   -0.0421660378,
+   -0.111639816,
+   -0.0469033617,
+   -0.3102777745,
+   -0.4055172125,
+   0.0,
+   0.2653825046,
+   -0.777089942,
+   0.034091189,
+   0.4907771465,
+   -0.2723529264,
+   -0.1521514674,
+   -0.0693575447,
+   -0.0598996601,
+   -0.3596613014,
+   0.7372885621,
+   -0.2928689783,
+   0.0562737343,
+   0.1057534916,
+   0.0,
+   -0.4847396072
+  ],
+  [
+   -0.1988172196,
+   -0.2168873158,
+   -0.3665026411,
+   -0.5062985103,
+   -0.0690767263,
+   -0.3304930338,
+   -0.0298074331,
+   0.255061101,
+   1.2141558044,
+   -0.1609274318,
+   0.0463869852,
+   -0.2349411183,
+   0.1127846778,
+   0.002908995,
+   -0.2385952854,
+   0.130595361,
+   -0.0837089664,
+   0.7556637936,
+   -0.3163502859,
+   -0.1507122425,
+   0.0773185822,
+   0.7848917293,
+   0.0,
+   0.0,
+   -0.0698526181,
+   -2.26518e-05,
+   0.1811426361,
+   -0.0928384741,
+   -0.0016349336,
+   0.7082787342,
+   -0.4582351687,
+   0.0,
+   0.0940480909,
+   0.6522981739,
+   -0.4840917836,
+   -0.0085781866,
+   0.2451825394,
+   -0.1319029461,
+   -0.166298555,
+   0.0373283851,
+   0.122388681,
+   0.1239464301,
+   -0.2315911091,
+   0.1425126172,
+   0.2449311632,
+   0.0,
+   -0.8829675161
+  ],
+  [
+   -0.5770961515,
+   -0.2867974858,
+   -0.520144818,
+   0.0387996621,
+   0.0771703011,
+   -0.1476487614,
+   0.2264427459,
+   0.2072688732,
+   -0.3107269001,
+   -0.6400945117,
+   0.0387600325,
+   0.1344755564,
+   0.4070692898,
+   -0.4861730677,
+   0.317144011,
+   -0.2891251062,
+   -0.1376617001,
+   -0.2665062087,
+   -0.2712405019,
+   -0.0500621707,
+   -0.3198986708,
+   -0.5578677168,
+   0.0,
+   0.0,
+   -0.0805970217,
+   -0.2454529499,
+   -0.1007794731,
+   -0.0020760188,
+   -0.0223398556,
+   0.1405987973,
+   -0.1722771355,
+   0.0,
+   -0.1575787953,
+   0.0401658497,
+   -0.4734867278,
+   -0.3266295023,
+   -0.0401114175,
+   0.0392552572,
+   0.0934454951,
+   -0.0858388219,
+   -0.121273522,
+   -0.3461436775,
+   -0.3832031807,
+   0.58445137,
+   -0.1577653878,
+   0.0,
+   -0.4431728549
+  ],
+  [
+   -0.9068648306,
+   0.2814138292,
+   -0.2182827238,
+   -0.1674905586,
+   0.0769726575,
+   -0.2299022703,
+   0.698843483,
+   0.1324782885,
+   -1.7500805508,
+   0.4907260057,
+   -0.6494138316,
+   -0.4258510463,
+   0.2402849454,
+   -0.0315595533,
+   -0.1044727891,
+   -0.0431095321,
+   -0.1647203807,
+   -0.2509683903,
+   -0.2848772331,
+   -0.0645382746,
+   -0.1108577664,
+   -0.2249802484,
+   0.0,
+   0.0,
+   -0.0119354511,
+   0.1987580066,
+   0.0557644648,
+   0.1044628068,
+   -0.3848222336,
+   -0.0163195658,
+   0.3765885794,
+   0.0,
+   0.3463579876,
+   -0.2698150441,
+   -0.4245708691,
+   -0.1702072336,
+   -0.1032847074,
+   0.075199434,
+   0.0524913281,
+   0.1408145101,
+   0.2551444259,
+   -0.343453076,
+   0.3660642834,
+   -0.4784471521,
+   -0.261532591,
+   0.0,
+   -0.2422436856
+  ],
+  [
+   -0.148772521,
+   -0.0268518636,
+   -0.1822376838,
+   -0.1852610139,
+   -0.2039936937,
+   0.43182965,
+   -0.4152737645,
+   -0.2619420246,
+   0.2688047358,
+   0.0109175729,
+   0.024738202,
+   0.4758708356,
+   -0.6392954099,
+   0.4161819958,
+   0.0977742502,
+   0.1208349136,
+   -0.0960021429,
+   -0.2421323777,
+   -0.2254106708,
+   0.0752462449,
+   0.1111419654,
+   -0.3574814658,
+   0.0,
+   0.0,
+   0.3318675163,
+   -0.2072727633,
+   -0.0791014245,
+   -0.0951926402,
+   0.2493347105,
+   -0.2687890312,
+   -0.2859751356,
+   0.0,
+   -0.3522138035,
+   0.0946598352,
+   0.6717992998,
+   -0.3565617831,
+   0.3100369111,
+   0.1065034518,
+   0.044325154,
+   -0.0953544461,
+   -0.1211652612,
+   -0.4965955398,
+   0.0054054967,
+   -0.0683058343,
+   -0.1227792975,
+   0.0,
+   0.7772425304
+  ]
+ ],
+ "intercept": [
+  -2.9057117011,
+  -3.5405555648,
+  -4.1804455196,
+  -2.1303113663,
+  -1.5467881716
+ ],
+ "l2": 10.0,
+ "iterations": 25,
+ "trained_on": {
+  "commit": "1f705237e29a3c8d4cbf968ee034247d465883cf",
+  "date": "2026-11-05",
+  "projects": [
+   "real01",
+   "real02",
+   "real03",
+   "real04",
+   "real06",
+   "real07",
+   "real10",
+   "real15",
+   "real17",
+   "real19",
+   "real21",
+   "synthetic-06",
+   "synthetic-07",
+   "synthetic-08-spaced-labels",
+   "synthetic-09-jamb-stubs",
+   "synthetic-10-glazed-facade",
+   "synthetic-11-dimension-chains",
+   "synthetic-12-mirrored-halves",
+   "synthetic-13-typical-floor",
+   "synthetic-14-elevation-title",
+   "synthetic-15-winder-stair",
+   "synthetic-16-open-recess",
+   "synthetic-17-garage-lift",
+   "synthetic-18-sheet-frame",
+   "synthetic-19-symmetric-house",
+   "synthetic-20-glazed-corner",
+   "synthetic-21-parapet",
+   "synthetic-22-curved-stair"
+  ],
+  "rows": 1562,
+  "labelled_rows": 1562,
+  "counts_per_source": {
+   "accepted_reading": 1224,
+   "synthetic": 338
+  },
+  "label_weights": {
+   "user_correction": 10.0,
+   "synthetic": 3.0,
+   "accepted_reading": 1.0
+  },
+  "labels": {
+   "window": 289,
+   "door": 321,
+   "opening": 117,
+   "open": 475,
+   "closed": 360
+  }
+ },
+ "metrics": {
+  "leave_one_project_out": {
+   "real01": {
+    "n": 18,
+    "rules_acc": 0.9444,
+    "ranker_acc": 0.7778,
+    "integrated_acc": 0.9444,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real02": {
+    "n": 43,
+    "rules_acc": 0.907,
+    "ranker_acc": 0.8372,
+    "integrated_acc": 0.907,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real03": {
+    "n": 215,
+    "rules_acc": 0.7907,
+    "ranker_acc": 0.7535,
+    "integrated_acc": 0.7907,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real04": {
+    "n": 43,
+    "rules_acc": 0.907,
+    "ranker_acc": 0.8372,
+    "integrated_acc": 0.907,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real06": {
+    "n": 49,
+    "rules_acc": 0.5102,
+    "ranker_acc": 0.5714,
+    "integrated_acc": 0.5102,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real07": {
+    "n": 83,
+    "rules_acc": 0.6506,
+    "ranker_acc": 0.5663,
+    "integrated_acc": 0.6145,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real10": {
+    "n": 515,
+    "rules_acc": 0.6252,
+    "ranker_acc": 0.5417,
+    "integrated_acc": 0.6252,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real15": {
+    "n": 137,
+    "rules_acc": 0.8613,
+    "ranker_acc": 0.7226,
+    "integrated_acc": 0.8613,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real17": {
+    "n": 6,
+    "rules_acc": 0.6667,
+    "ranker_acc": 1.0,
+    "integrated_acc": 0.6667,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real19": {
+    "n": 48,
+    "rules_acc": 0.9375,
+    "ranker_acc": 0.7708,
+    "integrated_acc": 0.9375,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "real21": {
+    "n": 67,
+    "rules_acc": 0.9403,
+    "ranker_acc": 0.8507,
+    "integrated_acc": 0.9403,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-06": {
+    "n": 1,
+    "rules_acc": 0.0,
+    "ranker_acc": 0.0,
+    "integrated_acc": 0.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-07": {
+    "n": 34,
+    "rules_acc": 1.0,
+    "ranker_acc": 0.9412,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-08-spaced-labels": {
+    "n": 15,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-09-jamb-stubs": {
+    "n": 15,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-10-glazed-facade": {
+    "n": 13,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-11-dimension-chains": {
+    "n": 15,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-12-mirrored-halves": {
+    "n": 20,
+    "rules_acc": 0.8,
+    "ranker_acc": 0.95,
+    "integrated_acc": 0.95,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-13-typical-floor": {
+    "n": 30,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-14-elevation-title": {
+    "n": 43,
+    "rules_acc": 0.6279,
+    "ranker_acc": 0.6279,
+    "integrated_acc": 0.6279,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-15-winder-stair": {
+    "n": 15,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-16-open-recess": {
+    "n": 17,
+    "rules_acc": 0.9412,
+    "ranker_acc": 0.9412,
+    "integrated_acc": 0.9412,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-17-garage-lift": {
+    "n": 15,
+    "rules_acc": 0.9333,
+    "ranker_acc": 0.9333,
+    "integrated_acc": 0.9333,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-18-sheet-frame": {
+    "n": 30,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-19-symmetric-house": {
+    "n": 15,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-20-glazed-corner": {
+    "n": 12,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-21-parapet": {
+    "n": 33,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   },
+   "synthetic-22-curved-stair": {
+    "n": 15,
+    "rules_acc": 1.0,
+    "ranker_acc": 1.0,
+    "integrated_acc": 1.0,
+    "corrections": {
+     "n": 0,
+     "rules": 0,
+     "ranker": 0,
+     "integrated": 0
+    }
+   }
+  },
+  "overall": {
+   "n": 1562,
+   "rules_acc": 0.7753,
+   "ranker_acc": 0.7151,
+   "integrated_acc": 0.7753,
+   "corrections": {
+    "n": 0,
+    "rules": 0,
+    "ranker": 0,
+    "integrated": 0
+   }
+  },
+  "changed_in_lopo": [
+   {
+    "project": "real07",
+    "level_id": "L0",
+    "place": [
+     5.36,
+     2.19
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "closed",
+    "margin": 0.5648,
+    "right": false
+   },
+   {
+    "project": "real07",
+    "level_id": "L0",
+    "place": [
+     7.49,
+     2.19
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "opening",
+    "margin": 0.3799,
+    "right": false
+   },
+   {
+    "project": "real07",
+    "level_id": "L0",
+    "place": [
+     5.445,
+     3.3901
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "closed",
+    "margin": 0.6685,
+    "right": false
+   },
+   {
+    "project": "real07",
+    "level_id": "L0",
+    "place": [
+     10.64,
+     5.74
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "opening",
+    "margin": 0.9017,
+    "right": false
+   },
+   {
+    "project": "real07",
+    "level_id": "L0",
+    "place": [
+     3.79,
+     2.54
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "opening",
+    "margin": 0.4772,
+    "right": false
+   },
+   {
+    "project": "real07",
+    "level_id": "L0",
+    "place": [
+     3.79,
+     2.79
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "door",
+    "margin": 0.7625,
+    "right": true
+   },
+   {
+    "project": "real07",
+    "level_id": "L0",
+    "place": [
+     11.665,
+     6.235
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "opening",
+    "margin": 0.9842,
+    "right": false
+   },
+   {
+    "project": "real07",
+    "level_id": "L0",
+    "place": [
+     11.665,
+     9.19
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "opening",
+    "margin": 0.9075,
+    "right": false
+   },
+   {
+    "project": "real07",
+    "level_id": "L1",
+    "place": [
+     13.2594,
+     5.69
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "door",
+    "margin": 0.9222,
+    "right": true
+   },
+   {
+    "project": "real07",
+    "level_id": "L1",
+    "place": [
+     11.7424,
+     6.41
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "closed",
+    "margin": 0.5382,
+    "right": false
+   },
+   {
+    "project": "synthetic-12-mirrored-halves",
+    "level_id": "L0",
+    "place": [
+     10.0,
+     4.6021
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "door",
+    "margin": 0.5072,
+    "right": true
+   },
+   {
+    "project": "synthetic-12-mirrored-halves",
+    "level_id": "L0",
+    "place": [
+     9.0,
+     6.0021
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "door",
+    "margin": 0.3783,
+    "right": true
+   },
+   {
+    "project": "synthetic-12-mirrored-halves",
+    "level_id": "L0",
+    "place": [
+     11.0,
+     6.0021
+    ],
+    "rule_answer": "opening",
+    "ranker_answer": "door",
+    "label": "door",
+    "margin": 0.3789,
+    "right": true
+   }
+  ],
+  "rule_trust": 0.6,
+  "margin_min": 0.3
+ }
+}
