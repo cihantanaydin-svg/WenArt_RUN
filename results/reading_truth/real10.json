@@ -3180,11 +3180,16 @@
        2.59
       ]
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 1.0,
      "method": "derived",
      "status": "unverified",
-     "inferred": true
+     "inferred": true,
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0028"
+     ],
+     "correction": "C0028"
     },
     {
      "id": "r_L-1_oda_2",
@@ -3478,11 +3483,16 @@
        6.69
       ]
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 1.0,
      "method": "derived",
      "status": "unverified",
-     "inferred": true
+     "inferred": true,
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0028"
+     ],
+     "correction": "C0028"
     },
     {
      "id": "r_L-1_antre",
@@ -3683,11 +3693,16 @@
        8.591
       ]
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 1.0,
      "method": "derived",
      "status": "unverified",
-     "inferred": true
+     "inferred": true,
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0017"
+     ],
+     "correction": "C0017"
     },
     {
      "id": "r_L-1_asansor",
@@ -4865,11 +4880,17 @@
        8.591
       ]
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 1.0,
      "method": "derived",
      "status": "unverified",
-     "inferred": true
+     "inferred": true,
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0017",
+      "C0027"
+     ],
+     "correction": "C0027"
     }
    ],
    "doors": [
@@ -4924,10 +4945,15 @@
       1.915
      ],
      "wall_id": "w_L-1_003",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.85,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0019"
+     ],
+     "correction": "C0019"
     },
     {
      "id": "o_L-1_006",
@@ -5247,10 +5273,15 @@
       6.49
      ],
      "wall_id": "w_L-1_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0028"
+     ],
+     "correction": "C0028"
     },
     {
      "id": "d_L-1_023",
@@ -5261,10 +5292,15 @@
       7.24
      ],
      "wall_id": "w_L-1_108",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L-1_024",
@@ -5275,10 +5311,16 @@
       7.24
      ],
      "wall_id": "w_L-1_138",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0027",
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L-1_025",
@@ -9054,7 +9096,7 @@
     {
      "id": "r_L0_merdiven",
      "label": "Merdiven",
-     "room_type": "storage",
+     "room_type": "stair",
      "area": 1.877,
      "centroid": [
       11.19,
@@ -9078,10 +9120,18 @@
        6.03
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "status": "unverified",
+     "changed": [
+      "room_type"
+     ],
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "r_L0_oda_4",
@@ -9358,11 +9408,16 @@
        7.94
       ]
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 1.0,
      "method": "derived",
      "status": "unverified",
-     "inferred": true
+     "inferred": true,
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0017"
+     ],
+     "correction": "C0017"
     },
     {
      "id": "r_L0_asansor",
@@ -9749,10 +9804,15 @@
        10.308
       ]
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 1.0,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0020"
+     ],
+     "correction": "C0020"
     },
     {
      "id": "r_L0_depo_2",
@@ -9805,10 +9865,15 @@
        10.308
       ]
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 1.0,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0020"
+     ],
+     "correction": "C0020"
     },
     {
      "id": "r_L0_oda_8",
@@ -10569,11 +10634,130 @@
        8.79
       ]
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 1.0,
      "method": "derived",
      "status": "unverified",
-     "inferred": true
+     "inferred": true,
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0017"
+     ],
+     "correction": "C0017"
+    },
+    {
+     "id": "uc_L0_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      1.205,
+      7.865
+     ],
+     "polygon": [
+      [
+       0.57,
+       6.69
+      ],
+      [
+       1.84,
+       6.69
+      ],
+      [
+       1.84,
+       9.04
+      ],
+      [
+       0.57,
+       9.04
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0023",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0023"
+     ]
+    },
+    {
+     "id": "uc_L0_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
+    },
+    {
+     "id": "uc_L0_room_absent_003",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
     }
    ],
    "doors": [
@@ -10726,11 +10910,34 @@
       9.085
      ],
      "wall_id": "w_L0_176",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "lift_door": true
+     "lift_door": true,
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034",
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "kolon",
+       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
+       "what": "column outline x 10.466 to 10.716"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
+       "what": "the core stair's winders starting at x 10.746"
+      }
+     ],
+     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)"
     },
     {
      "id": "d_L0_011",
@@ -10825,10 +11032,15 @@
       7.24
      ],
      "wall_id": "w_L0_152",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L0_018",
@@ -10839,10 +11051,15 @@
       7.24
      ],
      "wall_id": "w_L0_194",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L0_019",
@@ -10993,10 +11210,15 @@
       7.025
      ],
      "wall_id": "w_L0_chamfer_01",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
     },
     {
      "id": "o_L0_034",
@@ -11007,10 +11229,68 @@
       7.025
      ],
      "wall_id": "w_L0_chamfer_02",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
+    },
+    {
+     "id": "o_L0_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L0_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "DUVAR",
+       "entity": "LINE:14EC3D,LINE:14EC3E",
+       "what": "jambs at x 9.216 and 10.116 (a 0.9 m gap) in the shaft's south wall"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F0CB",
+       "what": "the sliding leaves meeting at x 9.666"
+      }
+     ],
+     "note": "the lift's sliding landing door in the shaft's south wall onto the shared hall (plan r8)"
+    },
+    {
+     "id": "o_L0_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L0_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ]
     }
    ],
    "windows": [
@@ -11135,10 +11415,15 @@
       14.74
      ],
      "wall_id": "w_L0_220",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0032"
+     ],
+     "correction": "C0032"
     },
     {
      "id": "o_L0_023",
@@ -11263,10 +11548,16 @@
       6.29
      ],
      "wall_id": "w_L0_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "o_L0_004",
@@ -11305,10 +11596,16 @@
       8.45
      ],
      "wall_id": "w_L0_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034"
     },
     {
      "id": "o_L0_007",
@@ -15603,10 +15900,15 @@
        "lines": 4
       }
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.85,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0016"
+     ],
+     "correction": "C0016"
     },
     {
      "id": "f_L0_024",
@@ -15647,10 +15949,15 @@
        "lines": 5
       }
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.85,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     }
    ]
   },
@@ -16270,7 +16577,7 @@
     {
      "id": "r_L1_merdiven",
      "label": "Merdiven",
-     "room_type": "storage",
+     "room_type": "stair",
      "area": 1.877,
      "centroid": [
       11.19,
@@ -16294,10 +16601,18 @@
        6.03
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "status": "unverified",
+     "changed": [
+      "room_type"
+     ],
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "r_L1_oda_4",
@@ -17790,6 +18105,82 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "uc_L1_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
+    },
+    {
+     "id": "uc_L1_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
     }
    ],
    "doors": [
@@ -17942,11 +18333,34 @@
       9.085
      ],
      "wall_id": "w_L1_176",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "lift_door": true
+     "lift_door": true,
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034",
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "kolon",
+       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
+       "what": "column outline x 10.466 to 10.716"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
+       "what": "the core stair's winders starting at x 10.746"
+      }
+     ],
+     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)"
     },
     {
      "id": "d_L1_011",
@@ -18041,10 +18455,15 @@
       7.24
      ],
      "wall_id": "w_L1_152",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L1_018",
@@ -18055,10 +18474,15 @@
       7.24
      ],
      "wall_id": "w_L1_194",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L1_019",
@@ -18209,10 +18633,15 @@
       7.025
      ],
      "wall_id": "w_L1_chamfer_03",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
     },
     {
      "id": "o_L1_034",
@@ -18223,10 +18652,68 @@
       7.025
      ],
      "wall_id": "w_L1_chamfer_04",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
+    },
+    {
+     "id": "o_L1_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L1_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "DUVAR",
+       "entity": "LINE:14EC3D,LINE:14EC3E",
+       "what": "jambs at x 9.216 and 10.116 (a 0.9 m gap) in the shaft's south wall"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F0CB",
+       "what": "the sliding leaves meeting at x 9.666"
+      }
+     ],
+     "note": "the lift's sliding landing door in the shaft's south wall onto the shared hall (plan r8)"
+    },
+    {
+     "id": "o_L1_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L1_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ]
     }
    ],
    "windows": [
@@ -18351,10 +18838,15 @@
       14.74
      ],
      "wall_id": "w_L1_220",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0032"
+     ],
+     "correction": "C0032"
     },
     {
      "id": "o_L1_023",
@@ -18479,10 +18971,16 @@
       6.29
      ],
      "wall_id": "w_L1_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "o_L1_004",
@@ -18521,10 +19019,16 @@
       8.45
      ],
      "wall_id": "w_L1_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034"
     },
     {
      "id": "o_L1_007",
@@ -22863,10 +23367,15 @@
        "lines": 5
       }
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.85,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     }
    ]
   },
@@ -23486,7 +23995,7 @@
     {
      "id": "r_L2_merdiven",
      "label": "Merdiven",
-     "room_type": "storage",
+     "room_type": "stair",
      "area": 1.877,
      "centroid": [
       11.19,
@@ -23510,10 +24019,18 @@
        6.03
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "status": "unverified",
+     "changed": [
+      "room_type"
+     ],
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "r_L2_oda_4",
@@ -25006,6 +25523,82 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "uc_L2_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
+    },
+    {
+     "id": "uc_L2_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
     }
    ],
    "doors": [
@@ -25158,11 +25751,34 @@
       9.085
      ],
      "wall_id": "w_L2_176",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "lift_door": true
+     "lift_door": true,
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034",
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "kolon",
+       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
+       "what": "column outline x 10.466 to 10.716"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
+       "what": "the core stair's winders starting at x 10.746"
+      }
+     ],
+     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)"
     },
     {
      "id": "d_L2_011",
@@ -25257,10 +25873,15 @@
       7.24
      ],
      "wall_id": "w_L2_152",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L2_018",
@@ -25271,10 +25892,15 @@
       7.24
      ],
      "wall_id": "w_L2_194",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L2_019",
@@ -25425,10 +26051,15 @@
       7.025
      ],
      "wall_id": "w_L2_chamfer_05",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
     },
     {
      "id": "o_L2_034",
@@ -25439,10 +26070,68 @@
       7.025
      ],
      "wall_id": "w_L2_chamfer_06",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
+    },
+    {
+     "id": "o_L2_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L2_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "DUVAR",
+       "entity": "LINE:14EC3D,LINE:14EC3E",
+       "what": "jambs at x 9.216 and 10.116 (a 0.9 m gap) in the shaft's south wall"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F0CB",
+       "what": "the sliding leaves meeting at x 9.666"
+      }
+     ],
+     "note": "the lift's sliding landing door in the shaft's south wall onto the shared hall (plan r8)"
+    },
+    {
+     "id": "o_L2_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L2_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ]
     }
    ],
    "windows": [
@@ -25567,10 +26256,15 @@
       14.74
      ],
      "wall_id": "w_L2_220",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0032"
+     ],
+     "correction": "C0032"
     },
     {
      "id": "o_L2_023",
@@ -25695,10 +26389,16 @@
       6.29
      ],
      "wall_id": "w_L2_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "o_L2_004",
@@ -25737,10 +26437,16 @@
       8.45
      ],
      "wall_id": "w_L2_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034"
     },
     {
      "id": "o_L2_007",
@@ -30079,10 +30785,15 @@
        "lines": 5
       }
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.85,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     }
    ]
   },
@@ -30702,7 +31413,7 @@
     {
      "id": "r_L3_merdiven",
      "label": "Merdiven",
-     "room_type": "storage",
+     "room_type": "stair",
      "area": 1.877,
      "centroid": [
       11.19,
@@ -30726,10 +31437,18 @@
        6.03
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "status": "unverified",
+     "changed": [
+      "room_type"
+     ],
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "r_L3_oda_4",
@@ -32222,6 +32941,82 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "uc_L3_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
+    },
+    {
+     "id": "uc_L3_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
     }
    ],
    "doors": [
@@ -32374,11 +33169,34 @@
       9.085
      ],
      "wall_id": "w_L3_176",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "lift_door": true
+     "lift_door": true,
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034",
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "kolon",
+       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
+       "what": "column outline x 10.466 to 10.716"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
+       "what": "the core stair's winders starting at x 10.746"
+      }
+     ],
+     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)"
     },
     {
      "id": "d_L3_011",
@@ -32473,10 +33291,15 @@
       7.24
      ],
      "wall_id": "w_L3_152",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L3_018",
@@ -32487,10 +33310,15 @@
       7.24
      ],
      "wall_id": "w_L3_194",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L3_019",
@@ -32641,10 +33469,15 @@
       7.025
      ],
      "wall_id": "w_L3_chamfer_07",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
     },
     {
      "id": "o_L3_034",
@@ -32655,10 +33488,68 @@
       7.025
      ],
      "wall_id": "w_L3_chamfer_08",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
+    },
+    {
+     "id": "o_L3_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L3_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "DUVAR",
+       "entity": "LINE:14EC3D,LINE:14EC3E",
+       "what": "jambs at x 9.216 and 10.116 (a 0.9 m gap) in the shaft's south wall"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F0CB",
+       "what": "the sliding leaves meeting at x 9.666"
+      }
+     ],
+     "note": "the lift's sliding landing door in the shaft's south wall onto the shared hall (plan r8)"
+    },
+    {
+     "id": "o_L3_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L3_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ]
     }
    ],
    "windows": [
@@ -32783,10 +33674,15 @@
       14.74
      ],
      "wall_id": "w_L3_220",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0032"
+     ],
+     "correction": "C0032"
     },
     {
      "id": "o_L3_023",
@@ -32911,10 +33807,16 @@
       6.29
      ],
      "wall_id": "w_L3_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "o_L3_004",
@@ -32953,10 +33855,16 @@
       8.45
      ],
      "wall_id": "w_L3_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034"
     },
     {
      "id": "o_L3_007",
@@ -37295,10 +38203,15 @@
        "lines": 5
       }
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.85,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     }
    ]
   },
@@ -37918,7 +38831,7 @@
     {
      "id": "r_L4_merdiven",
      "label": "Merdiven",
-     "room_type": "storage",
+     "room_type": "stair",
      "area": 1.877,
      "centroid": [
       11.19,
@@ -37942,10 +38855,18 @@
        6.03
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "status": "unverified",
+     "changed": [
+      "room_type"
+     ],
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "r_L4_oda_4",
@@ -39438,6 +40359,82 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "uc_L4_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
+    },
+    {
+     "id": "uc_L4_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
     }
    ],
    "doors": [
@@ -39590,11 +40587,34 @@
       9.085
      ],
      "wall_id": "w_L4_176",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "lift_door": true
+     "lift_door": true,
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034",
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "kolon",
+       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
+       "what": "column outline x 10.466 to 10.716"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
+       "what": "the core stair's winders starting at x 10.746"
+      }
+     ],
+     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)"
     },
     {
      "id": "d_L4_011",
@@ -39689,10 +40709,15 @@
       7.24
      ],
      "wall_id": "w_L4_152",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L4_018",
@@ -39703,10 +40728,15 @@
       7.24
      ],
      "wall_id": "w_L4_194",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L4_019",
@@ -39857,10 +40887,15 @@
       7.025
      ],
      "wall_id": "w_L4_chamfer_09",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
     },
     {
      "id": "o_L4_034",
@@ -39871,10 +40906,68 @@
       7.025
      ],
      "wall_id": "w_L4_chamfer_10",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
+    },
+    {
+     "id": "o_L4_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L4_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "DUVAR",
+       "entity": "LINE:14EC3D,LINE:14EC3E",
+       "what": "jambs at x 9.216 and 10.116 (a 0.9 m gap) in the shaft's south wall"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F0CB",
+       "what": "the sliding leaves meeting at x 9.666"
+      }
+     ],
+     "note": "the lift's sliding landing door in the shaft's south wall onto the shared hall (plan r8)"
+    },
+    {
+     "id": "o_L4_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L4_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ]
     }
    ],
    "windows": [
@@ -39999,10 +41092,15 @@
       14.74
      ],
      "wall_id": "w_L4_220",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0032"
+     ],
+     "correction": "C0032"
     },
     {
      "id": "o_L4_023",
@@ -40127,10 +41225,16 @@
       6.29
      ],
      "wall_id": "w_L4_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "o_L4_004",
@@ -40169,10 +41273,16 @@
       8.45
      ],
      "wall_id": "w_L4_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034"
     },
     {
      "id": "o_L4_007",
@@ -44511,10 +45621,15 @@
        "lines": 5
       }
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.85,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     }
    ]
   },
@@ -45134,7 +46249,7 @@
     {
      "id": "r_L5_merdiven",
      "label": "Merdiven",
-     "room_type": "storage",
+     "room_type": "stair",
      "area": 1.877,
      "centroid": [
       11.19,
@@ -45158,10 +46273,18 @@
        6.03
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "status": "unverified",
+     "changed": [
+      "room_type"
+     ],
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "r_L5_oda_4",
@@ -46654,6 +47777,82 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "uc_L5_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
+    },
+    {
+     "id": "uc_L5_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
     }
    ],
    "doors": [
@@ -46806,11 +48005,34 @@
       9.085
      ],
      "wall_id": "w_L5_176",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "lift_door": true
+     "lift_door": true,
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034",
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "kolon",
+       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
+       "what": "column outline x 10.466 to 10.716"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
+       "what": "the core stair's winders starting at x 10.746"
+      }
+     ],
+     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)"
     },
     {
      "id": "d_L5_011",
@@ -46905,10 +48127,15 @@
       7.24
      ],
      "wall_id": "w_L5_152",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L5_018",
@@ -46919,10 +48146,15 @@
       7.24
      ],
      "wall_id": "w_L5_194",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L5_019",
@@ -47073,10 +48305,15 @@
       7.025
      ],
      "wall_id": "w_L5_chamfer_11",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
     },
     {
      "id": "o_L5_034",
@@ -47087,10 +48324,68 @@
       7.025
      ],
      "wall_id": "w_L5_chamfer_12",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
+    },
+    {
+     "id": "o_L5_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L5_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "DUVAR",
+       "entity": "LINE:14EC3D,LINE:14EC3E",
+       "what": "jambs at x 9.216 and 10.116 (a 0.9 m gap) in the shaft's south wall"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F0CB",
+       "what": "the sliding leaves meeting at x 9.666"
+      }
+     ],
+     "note": "the lift's sliding landing door in the shaft's south wall onto the shared hall (plan r8)"
+    },
+    {
+     "id": "o_L5_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L5_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ]
     }
    ],
    "windows": [
@@ -47215,10 +48510,15 @@
       14.74
      ],
      "wall_id": "w_L5_220",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0032"
+     ],
+     "correction": "C0032"
     },
     {
      "id": "o_L5_023",
@@ -47343,10 +48643,16 @@
       6.29
      ],
      "wall_id": "w_L5_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "o_L5_004",
@@ -47385,10 +48691,16 @@
       8.45
      ],
      "wall_id": "w_L5_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034"
     },
     {
      "id": "o_L5_007",
@@ -51727,10 +53039,15 @@
        "lines": 5
       }
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.85,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     }
    ]
   },
@@ -52350,7 +53667,7 @@
     {
      "id": "r_L6_merdiven",
      "label": "Merdiven",
-     "room_type": "storage",
+     "room_type": "stair",
      "area": 1.877,
      "centroid": [
       11.19,
@@ -52374,10 +53691,18 @@
        6.03
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "status": "unverified",
+     "changed": [
+      "room_type"
+     ],
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "r_L6_oda_4",
@@ -53870,6 +55195,82 @@
      "method": "derived",
      "status": "unverified",
      "inferred": true
+    },
+    {
+     "id": "uc_L6_room_absent_001",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      13.28
+     ],
+     "polygon": [
+      [
+       10.33,
+       12.57
+      ],
+      [
+       12.05,
+       12.57
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       10.33,
+       13.99
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
+    },
+    {
+     "id": "uc_L6_room_absent_002",
+     "label": "Oda",
+     "room_type": null,
+     "area": null,
+     "centroid": [
+      11.19,
+      15.825
+     ],
+     "polygon": [
+      [
+       10.33,
+       13.99
+      ],
+      [
+       12.05,
+       13.99
+      ],
+      [
+       12.05,
+       17.66
+      ],
+      [
+       10.33,
+       17.66
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0037",
+     "added_on": "2026-11-05",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0037"
+     ]
     }
    ],
    "doors": [
@@ -54022,11 +55423,34 @@
       9.085
      ],
      "wall_id": "w_L6_176",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "lift_door": true
+     "lift_door": true,
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034",
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "kolon",
+       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
+       "what": "column outline x 10.466 to 10.716"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
+       "what": "the core stair's winders starting at x 10.746"
+      }
+     ],
+     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)"
     },
     {
      "id": "d_L6_011",
@@ -54121,10 +55545,15 @@
       7.24
      ],
      "wall_id": "w_L6_152",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L6_018",
@@ -54135,10 +55564,15 @@
       7.24
      ],
      "wall_id": "w_L6_194",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0040"
+     ],
+     "correction": "C0040"
     },
     {
      "id": "d_L6_019",
@@ -54289,10 +55723,15 @@
       7.025
      ],
      "wall_id": "w_L6_chamfer_13",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
     },
     {
      "id": "o_L6_034",
@@ -54303,10 +55742,68 @@
       7.025
      ],
      "wall_id": "w_L6_chamfer_14",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0043"
+     ],
+     "correction": "C0043"
+    },
+    {
+     "id": "o_L6_006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      9.666,
+      8.45
+     ],
+     "wall_id": "w_L6_031",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0034",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "evidence": [
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "DUVAR",
+       "entity": "LINE:14EC3D,LINE:14EC3E",
+       "what": "jambs at x 9.216 and 10.116 (a 0.9 m gap) in the shaft's south wall"
+      },
+      {
+       "file": "real10.dwg",
+       "method": "vector",
+       "layer": "SIVA",
+       "entity": "LINE:14F0CB",
+       "what": "the sliding leaves meeting at x 9.666"
+      }
+     ],
+     "note": "the lift's sliding landing door in the shaft's south wall onto the shared hall (plan r8)"
+    },
+    {
+     "id": "o_L6_003",
+     "type": "door",
+     "width": 1.4,
+     "center": [
+      11.19,
+      6.29
+     ],
+     "wall_id": "w_L6_016",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0035",
+     "added_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ]
     }
    ],
    "windows": [
@@ -54431,10 +55928,15 @@
       14.74
      ],
      "wall_id": "w_L6_220",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0032"
+     ],
+     "correction": "C0032"
     },
     {
      "id": "o_L6_023",
@@ -54559,10 +56061,16 @@
       6.29
      ],
      "wall_id": "w_L6_016",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     },
     {
      "id": "o_L6_004",
@@ -54601,10 +56109,16 @@
       8.45
      ],
      "wall_id": "w_L6_031",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "corrections": [
+      "C0034"
+     ],
+     "correction": "C0034"
     },
     {
      "id": "o_L6_007",
@@ -58943,10 +60457,15 @@
        "lines": 5
       }
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.85,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "confirmed_on": "2026-11-05",
+     "corrections": [
+      "C0035"
+     ],
+     "correction": "C0035"
     }
    ]
   },
@@ -61438,5 +62957,20 @@
   "scope": "all",
   "levels": null,
   "note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done)"
- }
+ },
+ "corrections": [
+  "C0016",
+  "C0017",
+  "C0019",
+  "C0020",
+  "C0023",
+  "C0027",
+  "C0028",
+  "C0032",
+  "C0034",
+  "C0035",
+  "C0037",
+  "C0040",
+  "C0043"
+ ]
 }

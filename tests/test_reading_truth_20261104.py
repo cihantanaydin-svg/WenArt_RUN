@@ -415,6 +415,145 @@ def test_the_correction_records_parse_and_point_at_real_lessons_and_projects():
     assert any("null without a note" in e for e in errs)
 
 
+def _remark(**kw) -> dict:
+    base = {"id": "C0100", "date": "2026-11-05", "project": "real10", "level": "L0", "place": None,
+            "element_kind": "wall", "reader_answer": "a wall", "right_answer": "no wall",
+            "user_words": "This wall do not exist", "lesson": None, "note": "no lesson yet", "source": "user_review",
+            "status": "accepted"}
+    base.update(kw)
+    return base
+
+
+def test_a_placeable_remark_of_the_users_review_needs_a_place_or_a_place_note():
+    """5 Nov 2026: a correction joins the truth and the ranker's labels only through its place; every future remark
+    about a wall, door, window, opening, room or stair is placed at capture (or says why it cannot be)."""
+    err = TR.correction_errors([_remark()], [], ["real10"])
+    assert len(err) == 1 and "needs a place or a place_note" in err[0] and err[0].startswith("C0100")
+    for kind in TR.PLACEABLE_KINDS:
+        assert TR.correction_errors([_remark(element_kind=kind)], [], ["real10"]), kind
+    ok = [_remark(place={"x": 10.87, "y": 5.69}),
+          _remark(place_note="the walls were removed the same day; their places are not recorded"),
+          _remark(element_kind="level"), _remark(element_kind="roof"), _remark(element_kind="label"),
+          _remark(status="proposed"), _remark(source="machine_review"), _remark(source="backfill_progress")]
+    for r in ok:
+        assert TR.correction_errors([r], [], ["real10"]) == [], r
+    assert TR.correction_errors([_remark(place_note="  ")], [], ["real10"])          # a blank note is no note
+    # the located fields of the backfilled records stay consistent too
+    assert "neither a place nor a place_note" in TR.correction_errors(
+        [_remark(source="backfill_progress", placeable=True)], [], ["real10"])[0]
+    assert "without a why" in TR.correction_errors(
+        [_remark(source="backfill_progress", element_kind="level", placeable=False)], [], ["real10"])[0]
+    assert TR.correction_errors([_remark(source="backfill_progress", element_kind="level", placeable=False,
+                                         why="a level elevation")], [], ["real10"]) == []
+
+
+def test_every_correction_record_is_placed_or_says_why_and_the_applied_ones_are_in_the_truth():
+    """5 Nov 2026: the 58 records of 3-5 Nov located on the current readings: each says whether it is placeable;
+    a placed one carries its level, element ids, source, confidence and note, and a truth action in the vocabulary
+    of `truth add|remove` (retype as remove + add); an applied action is in its project's truth file under its
+    correction id; the machine's proposals are never applied."""
+    from wenart.reading_check import remark as RM
+
+    records = TR.load_corrections()
+    assert all(isinstance(r.get("placeable"), bool) for r in records)
+    assert all(r.get("why") for r in records if r["placeable"] is False)
+    placed = [r for r in records if r["placeable"] and r.get("place")]
+    assert all(r.get("place_note") for r in records if r["placeable"])
+    assert len(placed) >= 30
+    for r in placed:
+        assert r["level"] and r["element_ids"] and r["place_source"] == "located_by_machine", r["id"]
+        assert 0.0 <= float(r["place_confidence"]) <= 1.0, r["id"]
+        assert RM.validate_truth_action(r["truth_action"]) is None, r["id"]
+        for el in r["truth_action"].get("elements") or [r["truth_action"]]:
+            assert el["op"] in ("add", "remove") and el["kind"] in TR.KIND_TO_TYPE and el["level"], r["id"]
+    for r in records:
+        if r["status"] == "proposed" or r["source"] == "machine_review":
+            assert (r.get("truth_applied") or {}).get("status") != "applied", r["id"]
+    applied = [r for r in records if (r.get("truth_applied") or {}).get("status") == "applied"]
+    assert len(applied) >= 20
+    for r in applied:
+        assert TR.correction_applicable(r) is None, r["id"]          # accepted, with the user's words
+        assert float(r["place_confidence"]) >= 0.6, r["id"]
+        truth = TR.load_truth(r["project"])
+        assert r["id"] in (truth.get("corrections") or []), r["id"]
+        # review of 5 Nov 2026: every listed result is in the truth as listed, and nothing else carries the id
+        tagged = {(lid, typ, e["id"]): e for lid, lv in truth["per_level"].items() for typ, els in lv.items()
+                  for e in els if r["id"] in (e.get("corrections") or [])}
+        listed = {(x["level"], x["type"], x["id"]): x["state"] for x in r["truth_applied"]["results"]}
+        assert listed and set(listed) == set(tagged), r["id"]
+        assert r["truth_applied"]["elements"] == len(listed), r["id"]
+        for key, state in listed.items():
+            e = tagged[key]
+            assert e["source"] == TR.SOURCE_USER and r["id"] in e["corrections"], (r["id"], key)
+            assert (state == "absent") == bool(e.get("absent")), (r["id"], key)
+            assert state.startswith("changed") == bool(e.get("changed")), (r["id"], key)
+    # the session's own notes (no user words) and the machine's proposals never reach the truth
+    not_applied = {r["id"]: r for r in records if (r.get("truth_applied") or {}).get("status") == "not_applied"}
+    assert "no user words" in not_applied["C0022"]["truth_applied"]["why"]
+    assert "UL287" in not_applied["C0018"]["truth_applied"]["why"]
+    real06 = TR.load_truth("real06")
+    assert not real06.get("corrections") and all(
+        e["source"] == TR.SOURCE_ACCEPTED for lv in real06["per_level"].values() for els in lv.values() for e in els)
+    # C0047: one door at the drawn centre (the DXF jambs 5.34 and 6.14), the size tag's second door a double read
+    doors = {e["id"]: e for e in TR.load_truth("real07")["per_level"]["L0"]["doors"]}
+    assert doors["d_L0_002"]["center"] == [5.74, 2.19] and doors["d_L0_002"]["width"] == 0.8
+    assert doors["d_L0_002"]["evidence"] and not doors["d_L0_002"].get("absent")
+    assert doors["d_L0_001"]["absent"] is True and "double read" in doors["d_L0_001"]["note"]
+    # C0034: one lift door per floor, the south one; the reading's east one negated with the drawing's evidence
+    real10 = TR.load_truth("real10")
+    for lv in ("L0", "L1", "L2", "L3", "L4", "L5", "L6"):
+        lift = [e for e in real10["per_level"][lv]["doors"] if e["id"] in (f"o_{lv}_006", f"o_{lv}_019")]
+        assert sorted((e["id"], bool(e.get("absent"))) for e in lift) == [(f"o_{lv}_006", False),
+                                                                         (f"o_{lv}_019", True)]
+        assert any(ev["layer"] == "kolon" for ev in next(e for e in lift if e.get("absent"))["evidence"])
+
+
+def test_a_confirm_keeps_the_readings_element_and_collects_every_correction_id():
+    """Review of 5 Nov 2026: a confirm changes only the source and the correction ids (a stair keeps its rotation,
+    room and flights); a field that differs is a change, listed; an element touched twice keeps both ids."""
+    t = TR.extract(building(), project="tiny")
+    stair = copy.deepcopy(t["per_level"]["L0"]["stairs"][0])
+    TR.add_element(t, "stair", "L0", {"id": stair["id"], "turn": stair["turn"]}, correction="C0016", date="2026-11-05")
+    got = t["per_level"]["L0"]["stairs"][0]
+    assert {k: v for k, v in got.items() if k not in ("source", "correction", "corrections", "confirmed_on")} == \
+        {k: v for k, v in stair.items() if k != "source"}
+    assert got["source"] == TR.SOURCE_USER and got["corrections"] == ["C0016"] and "changed" not in got
+    assert got["rotation_deg"] == stair["rotation_deg"] and got["flights"] == stair["flights"]
+    door = t["per_level"]["L0"]["doors"][0]
+    TR.add_element(t, "door", "L0", {"id": door["id"]}, correction="C0027")
+    TR.add_element(t, "door", "L0", {"id": door["id"], "center": "1.5,0", "width": "0.8"}, correction="C0040")
+    got = next(e for e in t["per_level"]["L0"]["doors"] if e["id"] == door["id"])
+    assert got["corrections"] == ["C0027", "C0040"] and got["correction"] == "C0040"
+    assert got["changed"] == ["center", "width"] and got["method"] == "user" and got["center"] == [1.5, 0.0]
+    TR.remove_element(t, "door", "L0", {"id": door["id"], "note": "a double read"}, correction="C0047")
+    assert got["absent"] is True and got["corrections"] == ["C0027", "C0040", "C0047"] and got["note"] == "a double read"
+    assert len(t["per_level"]["L0"]["doors"]) == 1                     # confirmed in place, never appended twice
+
+
+def test_only_accepted_records_with_the_users_words_reach_the_truth(tmp_path, monkeypatch, capsys):
+    """Review of 5 Nov 2026: a backfilled record without user words is the session's own note; a machine proposal
+    waits; a remark of the user's review is the user's words itself."""
+    base = _remark(source="backfill_progress", place={"x": 1.0, "y": 1.0})
+    assert TR.correction_applicable(base) is None
+    assert "no user words" in TR.correction_applicable(dict(base, user_words=None))
+    assert TR.correction_applicable(dict(base, user_words=None, source="user_review")) is None
+    assert "waits" in TR.correction_applicable(dict(base, status="proposed"))
+    assert TR.correction_applicable(None) == "no such record in the correction store"
+    err = TR.correction_errors([dict(base, user_words=None, truth_applied={"status": "applied"})], [], ["real10"])
+    assert len(err) == 1 and "applied to the truth but no user words" in err[0]
+    # the command line refuses it before touching the truth
+    corr = tmp_path / "c.jsonl"
+    corr.write_text(json.dumps(dict(base, id="C0100", user_words=None)) + "\n", encoding="utf-8")
+    monkeypatch.setattr(TR, "CORRECTIONS_PATH", corr)
+    monkeypatch.setattr(TR, "load_corrections", lambda path=corr: [json.loads(corr.read_text())])
+    monkeypatch.setattr(TR, "TRUTH_DIR", tmp_path)
+    import argparse
+    args = argparse.Namespace(action="add", project="real10", level="L0", kind="door", source=None,
+                              correction="C0100", date=None, id=None, center="1,1", width="0.9")
+    assert TR.main(args) == 2 and "no user words" in capsys.readouterr().out
+    assert not (tmp_path / "real10.json").exists()
+
+
 # --- a synthetic failure class against its exact truth (one DXF reading, seconds) -----------------------------------
 
 @pytest.mark.xfail(strict=True, reason="synthetic-06 scored against its exact truth stays below 100 until the reader "
