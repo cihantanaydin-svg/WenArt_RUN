@@ -71,7 +71,7 @@ def _two_rooms(path: Path) -> Path:
         hatch = msp.add_hatch(color=7, dxfattribs={"layer": "DUVAR"})
         hatch.paths.add_polyline_path([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], is_closed=True)
     for text, at, h in (("SALON", (1300, 2000), 250), ("YATAK ODASI", (4500, 2800), 250),
-                        ("ZEMIN KAT PLANI", (500, 4500), 350), ("ÖLÇEK 1/50", (500, 5050), 200)):
+                        ("ZEM\\U+0130N KAT PLANI", (500, 4500), 350), ("ÖLÇEK 1/50", (500, 5050), 200)):
         msp.add_text(text, height=h, dxfattribs={"layer": "YAZI", "insert": at})
     doc.saveas(path)
     return path
@@ -103,16 +103,19 @@ def test_the_render_has_the_known_size_metadata_and_transform(rendered):
     _d, r = rendered
     im = Image.open(r["png"])
     assert r["px_per_m"] == RO.PX_PER_M
-    assert im.size == (800, 600 + RO.NOTE_BAND_PX) == tuple(r["size"])
+    m = int(round(2 * RO.RENDER_MARGIN_M * RO.PX_PER_M))                  # white paper around the region's box
+    assert im.size == (800 + m, 600 + m + RO.NOTE_BAND_PX) == tuple(r["size"])
     assert im.mode == "L"
     assert abs(im.info["dpi"][0] - 0.0254 * RO.PX_PER_M * RO.NOTE_RATIO) < 0.01           # pHYs: 254 dpi
     assert r["note"] == f"SCALE 1:{RO.NOTE_RATIO}"
     assert any("1/50" in t for t in r["scale_notes_hidden"])                              # the drawing's own note
+    assert r["texts_decoded"] == 1                                                        # ZEM\\U+0130N -> ZEMİN
     # the transform: pixel centre (u, v) -> building metres, 0.01 m a pixel, y down
     tf = r["pixel_to_building"]
     assert tf[0] == pytest.approx(0.01) and tf[4] == pytest.approx(-0.01) and tf[1] == tf[3] == 0.0
     x0, y0 = RO._apply(tf, (0.0, RO.NOTE_BAND_PX))          # the first drawing pixel's centre
-    assert x0 == pytest.approx(-0.5 + 0.005) and y0 == pytest.approx(5.5 - 0.005)
+    edge = RO.RENDER_MARGIN_M
+    assert x0 == pytest.approx(-0.5 - edge + 0.005) and y0 == pytest.approx(5.5 + edge - 0.005)
 
 
 def test_the_drawn_lines_fall_where_the_transform_says(rendered):
@@ -172,8 +175,9 @@ def test_the_raster_reading_maps_back_within_a_decimetre(raster_read):
     b = RO.map_building(rr["building"], f, "L0")
     walls = b["walls"]
     assert len(walls) >= 4
-    offsets = [_offset_to_drawn(w) for w in walls]
-    assert max(offsets) <= 0.1, offsets
+    # (the reader's stubs under 0.3 m, a corner nub, are no wall to place)
+    offsets = [_offset_to_drawn(w) for w in walls if RO._seg_len(w["start"], w["end"]) >= 0.3]
+    assert len(offsets) >= 4 and max(offsets) <= 0.1, offsets
     for w in walls:
         assert abs(float(w["thickness"]) - 0.2) <= 0.1
     outer = [{"start": a, "end": b, "thickness": 0.2} for a, b in WALLS_M[:4]]

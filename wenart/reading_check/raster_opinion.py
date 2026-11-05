@@ -96,6 +96,9 @@ NOTE_FONT = "DejaVuSans.ttf"
 TEXT_TYPES = ("TEXT", "MTEXT", "ATTRIB")
 RENDER_CLEAN = True            # the grid and the dimensions left out (``sheets.is_grid_or_dimension``, the sheets'
                                # panel 1): the vector reader leaves them out before it reads walls too
+RENDER_MARGIN_M = 1.0          # white paper around the region's box on the canvas: a plan drawn to its extents would
+                               # put its outer walls on the image edge, where the raster reader drops wall components
+UNICODE_ESCAPE = re.compile(r"\\U\+([0-9A-Fa-f]{4})")
 ONE_PLAN_MARGIN = 0.15         # a one-plan document: the drawing's extents, or the model's box with this margin ...
 ONE_PLAN_MARGIN_M = 2.0        # ... and at least this many metres, when the extents are far larger (stray entities)
 ONE_PLAN_EXTENT_FACTOR = 3.0
@@ -703,12 +706,37 @@ def level_box(doc, building: dict, lid: str, page: dict, regions: dict) -> Optio
     return drawing
 
 
+def decode_unicode_texts(ents: list) -> int:
+    """The DXF unicode escapes (``\\U+0130`` for İ) of the TEXT / ATTRIB / MTEXT entities to draw decoded in memory
+    (the matplotlib backend prints them as written: 'ZEM\\U+0130N' is no word for the OCR); returns how many."""
+    n = 0
+    for e in ents:
+        try:
+            if e.dxftype() not in TEXT_TYPES:
+                continue
+            key = "text"
+            old = e.text if e.dxftype() == "MTEXT" else e.dxf.get(key, "")
+        except Exception:  # noqa: BLE001 - a text without content stays as it is
+            continue
+        if not old or "\\U+" not in old:
+            continue
+        new = UNICODE_ESCAPE.sub(lambda mo: chr(int(mo.group(1), 16)), old)
+        if e.dxftype() == "MTEXT":
+            e.text = new
+        else:
+            e.dxf.text = new
+        n += 1
+    return n
+
+
 def render_level(doc, ents: list, box: list, tf: list, dest: Path, px_per_m: float = PX_PER_M,
-                 max_side: int = MAX_SIDE_PX, clean: bool = None) -> dict:
-    """The level's region drawn to a grey PNG ``dest`` (module docstring, step 1). Returns the render record:
-    ``png``, ``size`` [w, h], ``px_per_m`` (after the cap), ``units_per_px``, ``box`` (the drawing box covered, its
-    right and bottom edges moved to whole pixels), ``band_px``, ``dpi`` (the pHYs metadata), ``note``, ``scale_notes_hidden``
-    and ``pixel_to_building`` (``pixel_transform``)."""
+                 max_side: int = MAX_SIDE_PX, clean: bool = None, margin_m: float = None) -> dict:
+    """The level's region drawn to a grey PNG ``dest`` (module docstring, step 1): ``ents`` (the region's entities)
+    on a canvas of ``box`` plus ``margin_m`` (default ``RENDER_MARGIN_M``) of white paper on each side. Returns the
+    render record: ``png``, ``size`` [w, h], ``px_per_m`` (after the cap), ``units_per_px``, ``box`` (the drawing box
+    the canvas covers, its right and bottom edges moved to whole pixels), ``band_px``, ``dpi`` (the pHYs metadata),
+    ``note``, ``scale_notes_hidden``, ``texts_decoded`` and ``pixel_to_building`` (``pixel_transform``)."""
+    margin_m = RENDER_MARGIN_M if margin_m is None else margin_m
     import matplotlib
 
     matplotlib.use("Agg")
@@ -723,7 +751,12 @@ def render_level(doc, ents: list, box: list, tf: list, dest: Path, px_per_m: flo
 
     clean = RENDER_CLEAN if clean is None else bool(clean)
     mpu = math.hypot(float(tf[0]), float(tf[3]))
+    if mpu <= 0:
+        raise ValueError(f"empty transform: {tf}")
+    m = float(margin_m) / mpu                          # paper around the drawing: no wall touches the image edge
+    box = [float(box[0]) - m, float(box[1]) - m, float(box[2]) + m, float(box[3]) + m]
     bw, bh = float(box[2]) - float(box[0]), float(box[3]) - float(box[1])
+    decoded = decode_unicode_texts(ents)
     if mpu <= 0 or bw <= 0 or bh <= 0:
         raise ValueError(f"empty box or transform: {box}, {tf}")
     ppm = float(px_per_m)
@@ -784,6 +817,7 @@ def render_level(doc, ents: list, box: list, tf: list, dest: Path, px_per_m: flo
     return {"png": str(dest), "size": [sheet.width, sheet.height], "px_per_m": ppm, "units_per_px": upp,
             "box": [float(box[0]), bottom, right, float(box[3])], "band_px": NOTE_BAND_PX, "dpi": dpi, "note": note,
             "scale_notes_hidden": hidden, "entities": n_ents, "entities_drawn": len(ents), "clean": clean,
+            "texts_decoded": decoded, "margin_m": margin_m,
             "pixel_to_building": pixel_transform([box[0], bottom, right, box[3]], upp, NOTE_BAND_PX, tf)}
 
 
