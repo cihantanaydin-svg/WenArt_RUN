@@ -1,21 +1,25 @@
 {
  "project": "real07",
  "source": "accepted_reading",
- "status": "partial",
- "commit": "c60f929dd7e06009599bdfc3472daafb320dd647",
- "date": "2026-11-04",
+ "status": "drifted",
+ "commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+ "date": "2026-11-05",
  "levels": [
   {
    "id": "L0",
    "label": "Zemin Kat",
    "elevation": 0.0,
-   "order": 0
+   "order": 0,
+   "source": "accepted_reading",
+   "label_source": "title"
   },
   {
    "id": "L1",
    "label": "1. Kat",
    "elevation": 3.0,
-   "order": 1
+   "order": 1,
+   "source": "accepted_reading",
+   "label_source": "title"
   }
  ],
  "levels_left_out": [],
@@ -66,7 +70,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_dus_wc",
@@ -104,7 +110,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_garaj",
@@ -150,7 +158,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L0_oda",
@@ -180,7 +190,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "r_L0_hol",
@@ -242,7 +254,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L0_mutfak",
@@ -312,7 +326,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_antre",
@@ -338,7 +354,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L0_utu_od",
@@ -392,7 +410,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_oda_2",
@@ -430,7 +450,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "r_L0_yasam_alani",
@@ -476,7 +498,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_yemek_bolumu",
@@ -522,7 +546,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     }
    ],
    "doors": [
@@ -536,7 +562,9 @@
      ],
      "wall_id": "w_L0_012",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "d_L0_002",
@@ -548,7 +576,9 @@
      ],
      "wall_id": "w_L0_012",
      "source": "accepted_reading",
-     "confidence": 0.85
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_004",
@@ -560,7 +590,9 @@
      ],
      "wall_id": "w_L0_027",
      "source": "accepted_reading",
-     "confidence": 0.85
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "o_L0_008",
@@ -572,7 +604,9 @@
      ],
      "wall_id": "w_L0_034",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "d_L0_005",
@@ -584,7 +618,9 @@
      ],
      "wall_id": "w_L0_040",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "d_L0_006",
@@ -596,7 +632,9 @@
      ],
      "wall_id": "w_L0_042",
      "source": "accepted_reading",
-     "confidence": 0.85
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_007",
@@ -608,7 +646,9 @@
      ],
      "wall_id": "w_L0_054",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_008",
@@ -620,7 +660,9 @@
      ],
      "wall_id": "w_L0_015",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "o_L0_013",
@@ -632,7 +674,9 @@
      ],
      "wall_id": "w_L0_068",
      "source": "accepted_reading",
-     "confidence": 0.6
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified"
     },
     {
      "id": "o_L0_014",
@@ -644,7 +688,9 @@
      ],
      "wall_id": "w_L0_069",
      "source": "accepted_reading",
-     "confidence": 0.6
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified"
     }
    ],
    "windows": [
@@ -658,7 +704,9 @@
      ],
      "wall_id": "w_L0_003",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "win_L0_001",
@@ -670,7 +718,9 @@
      ],
      "wall_id": "w_L0_003",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_002",
@@ -682,7 +732,9 @@
      ],
      "wall_id": "w_L0_007",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_003",
@@ -694,7 +746,9 @@
      ],
      "wall_id": "w_L0_036",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_004",
@@ -706,7 +760,9 @@
      ],
      "wall_id": "w_L0_044",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_005",
@@ -718,7 +774,9 @@
      ],
      "wall_id": "w_L0_067",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_006",
@@ -730,7 +788,9 @@
      ],
      "wall_id": "w_L0_067",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_007",
@@ -742,7 +802,9 @@
      ],
      "wall_id": "w_L0_038",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_008",
@@ -754,7 +816,9 @@
      ],
      "wall_id": "w_L0_058",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "o_L0_015",
@@ -766,7 +830,9 @@
      ],
      "wall_id": "w_L0_070",
      "source": "accepted_reading",
-     "confidence": 0.6
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified"
     }
    ],
    "openings": [
@@ -780,7 +846,9 @@
      ],
      "wall_id": "w_L0_012",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L0_003",
@@ -792,7 +860,9 @@
      ],
      "wall_id": "w_L0_015",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L0_004",
@@ -804,7 +874,9 @@
      ],
      "wall_id": "w_L0_015",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L0_006",
@@ -816,7 +888,9 @@
      ],
      "wall_id": "w_L0_018",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L0_007",
@@ -828,7 +902,9 @@
      ],
      "wall_id": "w_L0_034",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L0_009",
@@ -840,7 +916,9 @@
      ],
      "wall_id": "w_L0_034",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L0_010",
@@ -852,7 +930,9 @@
      ],
      "wall_id": "w_L0_040",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L0_011",
@@ -864,7 +944,9 @@
      ],
      "wall_id": "w_L0_058",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L0_012",
@@ -876,7 +958,9 @@
      ],
      "wall_id": "w_L0_058",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L0_016",
@@ -889,6 +973,8 @@
      "wall_id": null,
      "source": "accepted_reading",
      "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
      "virtual": true
     },
     {
@@ -902,6 +988,8 @@
      "wall_id": null,
      "source": "accepted_reading",
      "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
      "virtual": true
     }
    ],
@@ -917,9 +1005,10 @@
       0.24
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_002",
@@ -932,9 +1021,10 @@
       0.24
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_003",
@@ -947,9 +1037,10 @@
       0.24
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_004",
@@ -962,9 +1053,10 @@
       0.265
      ],
      "thickness": 0.25,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_005",
@@ -977,9 +1069,10 @@
       0.265
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_006",
@@ -992,9 +1085,10 @@
       1.94
      ],
      "thickness": 0.6,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_007",
@@ -1007,9 +1101,10 @@
       1.94
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_008",
@@ -1022,9 +1117,10 @@
       1.965
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_009",
@@ -1037,9 +1133,10 @@
       2.045
      ],
      "thickness": 0.49,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_010",
@@ -1052,9 +1149,10 @@
       2.065
      ],
      "thickness": 0.45,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_012",
@@ -1067,9 +1165,10 @@
       2.19
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_013",
@@ -1082,9 +1181,10 @@
       2.405
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_014",
@@ -1097,9 +1197,10 @@
       3.365
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_015",
@@ -1112,9 +1213,10 @@
       3.39
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_017",
@@ -1127,9 +1229,10 @@
       5.315
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_018",
@@ -1142,9 +1245,10 @@
       5.74
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_019",
@@ -1157,9 +1261,10 @@
       5.763
      ],
      "thickness": 0.245,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_020",
@@ -1172,9 +1277,10 @@
       5.765
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_021",
@@ -1187,9 +1293,10 @@
       6.62
      ],
      "thickness": 0.04,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_022",
@@ -1202,9 +1309,10 @@
       6.62
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_023",
@@ -1217,9 +1325,10 @@
       6.64
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_024",
@@ -1232,9 +1341,10 @@
       6.66
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_025",
@@ -1247,9 +1357,10 @@
       6.72
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_026",
@@ -1262,9 +1373,10 @@
       6.72
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_027",
@@ -1277,9 +1389,10 @@
       6.739
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_028",
@@ -1292,9 +1405,10 @@
       7.765
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_029",
@@ -1307,9 +1421,10 @@
       8.065
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_030",
@@ -1322,9 +1437,10 @@
       9.715
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_031",
@@ -1337,9 +1453,10 @@
       10.015
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_032",
@@ -1352,9 +1469,10 @@
       11.72
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_033",
@@ -1367,9 +1485,10 @@
       11.74
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_034",
@@ -1382,9 +1501,10 @@
       11.74
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_035",
@@ -1397,9 +1517,10 @@
       11.74
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_036",
@@ -1412,9 +1533,10 @@
       6.2
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_037",
@@ -1427,9 +1549,10 @@
       0.19
      ],
      "thickness": 0.25,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_038",
@@ -1442,9 +1565,10 @@
       0.78
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_039",
@@ -1457,9 +1581,10 @@
       6.6
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_040",
@@ -1472,9 +1597,10 @@
       6.599
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_042",
@@ -1487,9 +1613,10 @@
       3.3
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_043",
@@ -1502,9 +1629,10 @@
       6.84
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_044",
@@ -1517,9 +1645,10 @@
       11.2
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_045",
@@ -1532,9 +1661,10 @@
       11.6
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_046",
@@ -1547,9 +1677,10 @@
       2.1
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_048",
@@ -1562,9 +1693,10 @@
       5.6
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_049",
@@ -1577,9 +1709,10 @@
       3.48
      ],
      "thickness": 0.25,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_050",
@@ -1592,9 +1725,10 @@
       0.1
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_051",
@@ -1607,9 +1741,10 @@
       0.1
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_053",
@@ -1622,9 +1757,10 @@
       2.1
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_054",
@@ -1637,9 +1773,10 @@
       5.15
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_055",
@@ -1652,9 +1789,10 @@
       2.33
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_056",
@@ -1667,9 +1805,10 @@
       6.54
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_057",
@@ -1682,9 +1821,10 @@
       6.54
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_058",
@@ -1697,9 +1837,10 @@
       11.6
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_059",
@@ -1712,9 +1853,10 @@
       2.48
      ],
      "thickness": 0.04,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_060",
@@ -1727,9 +1869,10 @@
       2.33
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_061",
@@ -1742,9 +1885,10 @@
       1.8
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_062",
@@ -1757,9 +1901,10 @@
       1.8
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_063",
@@ -1772,9 +1917,10 @@
       6.5
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_064",
@@ -1787,9 +1933,10 @@
       11.6
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_065",
@@ -1802,9 +1949,10 @@
       2.09
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_066",
@@ -1817,9 +1965,10 @@
       11.84
      ],
      "thickness": 0.245,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_067",
@@ -1832,9 +1981,10 @@
       11.1
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_068",
@@ -1847,9 +1997,11 @@
       11.74
      ],
      "thickness": 0.28,
-     "status": "unverified",
      "source": "accepted_reading",
-     "confidence": 0.6
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified",
+     "inferred": true
     },
     {
      "id": "w_L0_069",
@@ -1862,9 +2014,11 @@
       0.24
      ],
      "thickness": 0.2,
-     "status": "unverified",
      "source": "accepted_reading",
-     "confidence": 0.6
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified",
+     "inferred": true
     },
     {
      "id": "w_L0_070",
@@ -1877,9 +2031,11 @@
       2.065
      ],
      "thickness": 0.45,
-     "status": "unverified",
      "source": "accepted_reading",
-     "confidence": 0.6
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified",
+     "inferred": true
     }
    ],
    "stairs": [
@@ -1923,7 +2079,9 @@
       }
      ],
      "source": "accepted_reading",
-     "confidence": 0.85
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified"
     }
    ]
   },
@@ -2013,7 +2171,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L1_yatak_od",
@@ -2083,7 +2243,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_hol",
@@ -2169,7 +2331,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L1_oda",
@@ -2199,7 +2363,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "r_L1_yatak_od_2",
@@ -2285,7 +2451,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_oda_2",
@@ -2331,7 +2499,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "r_L1_banyo_2",
@@ -2393,7 +2563,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_banyo_3",
@@ -2447,7 +2619,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "r_L1_giyinme_soyunma",
@@ -2485,7 +2659,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L1_yatak_od_3",
@@ -2539,7 +2715,9 @@
       ]
      ],
      "source": "accepted_reading",
-     "confidence": 1.0
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "doors": [
@@ -2553,7 +2731,9 @@
      ],
      "wall_id": "w_L1_023",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "d_L1_002",
@@ -2565,7 +2745,9 @@
      ],
      "wall_id": "w_L1_032",
      "source": "accepted_reading",
-     "confidence": 0.85
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_003",
@@ -2577,7 +2759,9 @@
      ],
      "wall_id": "w_L1_032",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "d_L1_004",
@@ -2589,7 +2773,9 @@
      ],
      "wall_id": "w_L1_038",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_005",
@@ -2601,7 +2787,9 @@
      ],
      "wall_id": "w_L1_046",
      "source": "accepted_reading",
-     "confidence": 0.85
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_006",
@@ -2613,7 +2801,9 @@
      ],
      "wall_id": "w_L1_062",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_007",
@@ -2625,7 +2815,9 @@
      ],
      "wall_id": "w_L1_062",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "d_L1_008",
@@ -2637,7 +2829,9 @@
      ],
      "wall_id": "w_L1_062",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified"
     },
     {
      "id": "d_L1_009",
@@ -2649,7 +2843,9 @@
      ],
      "wall_id": "w_L1_069",
      "source": "accepted_reading",
-     "confidence": 0.85
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_010",
@@ -2661,7 +2857,9 @@
      ],
      "wall_id": "w_L1_059",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L1_011",
@@ -2673,7 +2871,9 @@
      ],
      "wall_id": "w_L1_062",
      "source": "accepted_reading",
-     "confidence": 0.95
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -2687,7 +2887,9 @@
      ],
      "wall_id": "w_L1_001",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L1_002",
@@ -2699,7 +2901,9 @@
      ],
      "wall_id": "w_L1_007",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L1_003",
@@ -2711,7 +2915,9 @@
      ],
      "wall_id": "w_L1_046",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L1_004",
@@ -2723,7 +2929,9 @@
      ],
      "wall_id": "w_L1_048",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L1_005",
@@ -2735,7 +2943,9 @@
      ],
      "wall_id": "w_L1_048",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "o_L1_004",
@@ -2747,7 +2957,9 @@
      ],
      "wall_id": "w_L1_052",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "win_L1_006",
@@ -2759,7 +2971,9 @@
      ],
      "wall_id": "w_L1_054",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L1_007",
@@ -2771,7 +2985,9 @@
      ],
      "wall_id": "w_L1_081",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L1_008",
@@ -2783,7 +2999,9 @@
      ],
      "wall_id": "w_L1_081",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L1_009",
@@ -2795,7 +3013,9 @@
      ],
      "wall_id": "w_L1_072",
      "source": "accepted_reading",
-     "confidence": 0.9
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L1_010",
@@ -2807,7 +3027,9 @@
      ],
      "wall_id": "w_L1_083",
      "source": "accepted_reading",
-     "confidence": 0.6
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified"
     }
    ],
    "openings": [
@@ -2821,7 +3043,9 @@
      ],
      "wall_id": "w_L1_023",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L1_002",
@@ -2833,7 +3057,9 @@
      ],
      "wall_id": "w_L1_046",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L1_003",
@@ -2845,7 +3071,9 @@
      ],
      "wall_id": "w_L1_046",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     },
     {
      "id": "o_L1_005",
@@ -2857,7 +3085,9 @@
      ],
      "wall_id": "w_L1_056",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "verified"
     },
     {
      "id": "o_L1_006",
@@ -2869,7 +3099,9 @@
      ],
      "wall_id": "w_L1_059",
      "source": "accepted_reading",
-     "confidence": 0.5
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
     }
    ],
    "walls": [
@@ -2884,9 +3116,10 @@
       0.24
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_002",
@@ -2899,9 +3132,10 @@
       0.24
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_003",
@@ -2914,9 +3148,10 @@
       0.26
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_004",
@@ -2929,9 +3164,10 @@
       0.265
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_005",
@@ -2944,9 +3180,10 @@
       0.53
      ],
      "thickness": 0.3,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_006",
@@ -2959,9 +3196,10 @@
       1.89
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_007",
@@ -2974,9 +3212,10 @@
       1.94
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_008",
@@ -2989,9 +3228,10 @@
       1.96
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_009",
@@ -3004,9 +3244,10 @@
       1.965
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_010",
@@ -3019,9 +3260,10 @@
       2.045
      ],
      "thickness": 0.49,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_011",
@@ -3034,9 +3276,10 @@
       2.065
      ],
      "thickness": 0.45,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_012",
@@ -3049,9 +3292,10 @@
       2.14
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_013",
@@ -3064,9 +3308,10 @@
       2.405
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_014",
@@ -3079,9 +3324,10 @@
       3.365
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_015",
@@ -3094,9 +3340,10 @@
       3.39
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_016",
@@ -3109,9 +3356,10 @@
       3.39
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_017",
@@ -3124,9 +3372,10 @@
       4.115
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_018",
@@ -3139,9 +3388,10 @@
       4.965
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_019",
@@ -3154,9 +3404,10 @@
       5.315
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_020",
@@ -3169,9 +3420,10 @@
       5.62
      ],
      "thickness": 0.04,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_021",
@@ -3184,9 +3436,10 @@
       5.665
      ],
      "thickness": 0.15,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_022",
@@ -3199,9 +3452,10 @@
       5.67
      ],
      "thickness": 0.14,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_023",
@@ -3214,9 +3468,10 @@
       5.69
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_024",
@@ -3229,9 +3484,10 @@
       5.69
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_025",
@@ -3244,9 +3500,10 @@
       5.69
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_027",
@@ -3259,9 +3516,10 @@
       5.765
      ],
      "thickness": 0.25,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_028",
@@ -3274,9 +3532,10 @@
       5.765
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_029",
@@ -3289,9 +3548,10 @@
       5.908
      ],
      "thickness": 0.045,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_030",
@@ -3304,9 +3564,10 @@
       6.265
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_031",
@@ -3319,9 +3580,10 @@
       6.29
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_032",
@@ -3334,9 +3596,10 @@
       7.09
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_033",
@@ -3349,9 +3612,10 @@
       7.09
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_034",
@@ -3364,9 +3628,10 @@
       7.115
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_035",
@@ -3379,9 +3644,10 @@
       7.37
      ],
      "thickness": 0.14,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_036",
@@ -3394,9 +3660,10 @@
       7.39
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_037",
@@ -3409,9 +3676,10 @@
       7.39
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_038",
@@ -3424,9 +3692,10 @@
       7.59
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_039",
@@ -3439,9 +3708,10 @@
       7.59
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_040",
@@ -3454,9 +3724,10 @@
       7.59
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_041",
@@ -3469,9 +3740,10 @@
       7.765
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_042",
@@ -3484,9 +3756,10 @@
       8.065
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_043",
@@ -3499,9 +3772,10 @@
       9.715
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_044",
@@ -3514,9 +3788,10 @@
       10.015
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_046",
@@ -3529,9 +3804,10 @@
       11.74
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_047",
@@ -3544,9 +3820,10 @@
       11.74
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_048",
@@ -3559,9 +3836,10 @@
       11.2
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_049",
@@ -3574,9 +3852,10 @@
       7.68
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_050",
@@ -3589,9 +3868,10 @@
       5.931
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_051",
@@ -3604,9 +3884,10 @@
       11.6
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_052",
@@ -3619,9 +3900,10 @@
       5.89
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_054",
@@ -3634,9 +3916,10 @@
       5.59
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_055",
@@ -3649,9 +3932,10 @@
       0.1
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_056",
@@ -3664,9 +3948,10 @@
       11.6
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_057",
@@ -3679,9 +3964,10 @@
       0.1
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_058",
@@ -3694,9 +3980,10 @@
       2.48
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_059",
@@ -3709,9 +3996,10 @@
       3.34
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_060",
@@ -3724,9 +4012,10 @@
       7.54
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_062",
@@ -3739,9 +4028,10 @@
       11.1
      ],
      "thickness": 0.18,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_063",
@@ -3754,9 +4044,10 @@
       2.33
      ],
      "thickness": 0.11,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_064",
@@ -3769,9 +4060,10 @@
       7.18
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_065",
@@ -3784,9 +4076,10 @@
       5.6
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_066",
@@ -3799,9 +4092,10 @@
       11.6
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_067",
@@ -3814,9 +4108,10 @@
       0.68
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_068",
@@ -3829,9 +4124,10 @@
       2.33
      ],
      "thickness": 0.4,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_069",
@@ -3844,9 +4140,10 @@
       7.34
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_070",
@@ -3859,9 +4156,10 @@
       11.98
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_071",
@@ -3874,9 +4172,10 @@
       1.8
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_072",
@@ -3889,9 +4188,10 @@
       6.24
      ],
      "thickness": 0.1,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "verified"
     },
     {
      "id": "w_L1_073",
@@ -3904,9 +4204,10 @@
       5.83
      ],
      "thickness": 0.065,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_074",
@@ -3919,9 +4220,10 @@
       1.8
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_075",
@@ -3934,9 +4236,10 @@
       11.98
      ],
      "thickness": 0.23,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_076",
@@ -3949,9 +4252,10 @@
       7.3
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_077",
@@ -3964,9 +4268,10 @@
       11.6
      ],
      "thickness": 0.33,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_078",
@@ -3979,9 +4284,10 @@
       2.086
      ],
      "thickness": 0.24,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_079",
@@ -3994,9 +4300,10 @@
       7.88
      ],
      "thickness": 0.25,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_080",
@@ -4009,9 +4316,10 @@
       11.84
      ],
      "thickness": 0.245,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_081",
@@ -4024,9 +4332,10 @@
       11.1
      ],
      "thickness": 0.28,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_082",
@@ -4039,9 +4348,10 @@
       7.48
      ],
      "thickness": 0.2,
-     "status": "verified",
      "source": "accepted_reading",
-     "confidence": 0.8
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L1_083",
@@ -4054,12 +4364,28 @@
       1.84
      ],
      "thickness": 0.18,
-     "status": "unverified",
      "source": "accepted_reading",
-     "confidence": 0.6
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified",
+     "inferred": true
     }
    ],
    "stairs": []
   }
- }
+ },
+ "accepted": {
+  "on": "2026-11-04",
+  "scope": "partial",
+  "levels": [
+   "L0",
+   "L1"
+  ],
+  "note": "user, 4 Nov 2026: reviewed both floors on the structure run 20261104-144248 and its comparison sheets (real07 review); the reading itself was not accepted as a baseline (its check was not ready)"
+ },
+ "drift": [
+  "L0 doors: 6 -> 10",
+  "L1 doors: 8 -> 11",
+  "L1 openings: 8 -> 5"
+ ]
 }

@@ -11,7 +11,10 @@ with its baseline:
 - the check's critical findings never more, its stacking offsets never larger by ``STACK_TOL_M``.
 
 A difference is printed per project and number; the command exits 1 when any project regressed. ``--update`` writes
-the new numbers as the baseline (after a change the user accepted: the set keeps improving, one project at a time).
+the new numbers as the baseline (after a change the user accepted: the set keeps improving, one project at a time);
+the user's acceptance fields of the old baseline (``ACCEPT_FIELDS``: ``accepted_by_user``, ``accepted_on``,
+``accepted_scope``, ``accepted_levels``, ``accepted_note``; 5 Nov 2026, Milestone 14 R1) are carried over, because
+an update follows the user's acceptance and the truth corpus (``truth.py``) builds only from accepted baselines.
 
 Why: real10's reading fixes of 2 Nov 2026 broke 18 tests of real02, real06 and the wall rules before anyone saw it; a
 rule for one project must never quietly change another.
@@ -32,6 +35,7 @@ COUNT_MIN = 2
 AREA_TOL = 0.03
 STACK_TOL_M = 0.05
 PER_LEVEL = ("rooms", "walls", "doors", "windows", "openings")
+ACCEPT_FIELDS = ("accepted_by_user", "accepted_on", "accepted_scope", "accepted_levels", "accepted_note")
 
 
 def numbers(out_dir: Path) -> dict:
@@ -116,6 +120,9 @@ def main(args) -> int:
         path = BASELINE_DIR / f"{p}.json"
         if args.update or not path.is_file():
             BASELINE_DIR.mkdir(parents=True, exist_ok=True)
+            if path.is_file():                                     # the user's acceptance outlives an update
+                old = json.loads(path.read_text(encoding="utf-8"))
+                new.update({k: old[k] for k in ACCEPT_FIELDS if k in old})
             path.write_text(json.dumps(new, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
             print(f"{p}: baseline {'updated' if args.update else 'written'} ({new['check']['verdict']}, "
                   f"{len(new['levels'])} levels)")
