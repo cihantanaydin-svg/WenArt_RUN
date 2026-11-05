@@ -3547,3 +3547,32 @@ Day 1, in parallel worktrees: R1 (truth corpus from the accepted readings, the c
 3 and 4 Nov reviews, the reading score per commit) and R2 (the outline closure pass, `failed_levels: build_marked` as
 the default so no level with a scale and walls is left out, RC7 low-confidence places on the comparison sheets).
 Environment: this cloud session built LibreDWG with `scripts/cloud-setup.sh`'s LibreDWG part (about 10 min).
+
+## Milestone 14, days 1 and 2 (4 to 5 Nov 2026): what is merged, measured and open
+
+Every track ran in its own worktree on the model its size asked for (the hard ones on Fable, the muscle on Opus and
+Sonnet; the session organised, reviewed and questioned). Every branch was reviewed before its merge by a multi-lens
+adversarial workflow (each finding checked by two independent refuters); the confirmed findings went back to the
+track's agent for another round. Merged on `opus_branch_11`, in order: R7 (25fef18d), R1 (3c8cb8f8, round 2
+102d13d5), R9 (afc0aa22), R8 (71faf066), R5 (ecc2e50a); R2 is in its second review round.
+
+| track | result | measure |
+|---|---|---|
+| R1 truth, corrections, score | `results/reading_truth/` for 32 projects (real ones only with `accepted_by_user: true` in the baseline, synthetic ones from the generator's exact truth), `results/reading_corrections.jsonl` (54 user corrections of 3-4 Nov backfilled), `python -m wenart.reading_check score` with `--gate`, `truth add` / `truth remove` for a correction | first honest score 95.7: real projects 100 by construction; synthetic-14 (elevation-titled plan) 44.9, -22 (curved stair) 81.2, -06 86.8, -12 (mirrored halves) 87.2, -10 (glazed facade) 94.4 |
+| R7 synthetic failure classes | synthetic-08 to -22, one drawing habit the user found each (spaced labels, jamb stubs, glazed facade and corner, dimension chains, mirrored halves, typical floor with a section, elevation-only title, winder and curved stairs, open recess, garage and lift, sheet frame, parapet, symmetric flat), exact truth, deterministic | 28 strict xfail tests are the reader's targets; three reader faults found on the way (mirrored openings invented over a 90 % symmetry, one tread dropped per flight, pool outlines as plot walls) |
+| R8 stability | `python -m wenart.reading_check stability`: every project read again mirrored, rotated, in mm, with renamed layers and without dimension texts, scored against its own reading | without dimension texts real06 and real07 read nothing (no scale source); renamed layers: synthetic-06 37.9 (labels keyed on layer A-ANNO), real07 70.3; rotate90: real06 19.6 (unit read 5000 instead of 50); mirror moves a door's hinge side (real07 d_L0_001) |
+| R9 remark capture | `python -m wenart.reading_check remark add ...`: a review remark becomes a correction record with a crop of the place (the user keeps reviewing in detail, as asked) | the example record on real10's kitchen window came out at the right wall |
+| R5 cross-document checks | `crossdoc.py` RC8 elevations against plans per floor and column, RC9 sections against levels, RC10 site plan against the model, RC11 size tags against openings, RC12 twins and typical floors; the elevation reader assembles openings from loose lines (real10's and real07's elevations had yielded zero) | first machine-found reading error: real10's two kitchen windows (tag 165/210) read as stacked wall pieces on L0-L6, named with the wall ids; RC10 raises real07's second villa and the missing pool; real10 RC8 majors 12 -> 7 after three rounds (2 true, the rest a stepped facade and a roof cornice) |
+| R2 closure, no level left out | the outline closure pass, `failed_levels: build_marked` as the default, RC7 low-confidence places on the sheets, a shared outdoor guard for both inferred-wall passes (the 3 Nov glazed-facade pass had closed real11's left kitchen over its balcony) | projects read with every level 10 of 21 -> 17 of 21 (real11 9 levels, real13 8, real14 18, real16 3, real18 6, real19 4, real20 1); no closure wall where a ring already closed; open: real08 (17.7 MB DWG, over 50 min), real12 (no walls read, six untitled plans); 23 review findings in the second round (a fragment forcing a parallel bridge, a bridge through a near wall, support from any layer, a level closed only by bridges not marked low) |
+
+Also: 25 CPU tests fail on the main branch before any Milestone 14 merge (the same 25 on 92cf9f81 and after every
+merge; from the 3-4 Nov work: synthetic-07 sheets, real02 twins, the mirror-twin pass, four lessons without a check,
+polish vocabulary, a flat roof's gravel), being fixed by an Opus agent; the 2,198 errors of the first full run were
+pytest's shared `/tmp/pytest-of-root` pruned by parallel runs (private `--basetemp` from now on). Machine-found faults
+are correction records with `source: machine_review, status: proposed` (C0055 to C0058: the real10 kitchen windows,
+real11's notation texts read as room names, the left flat's Duş partition); they become `accepted` only when the user
+says so. Environment: this cloud session built LibreDWG; the machine rebooted on the night of 4 Nov without loss; the
+disk filled with readings and was cleaned.
+
+Waiting for the user: the new readings of real11, real13, real14, real16, real18, real19 and real20 (their sheets with
+RC7 places) to accept as baselines and truth; the four proposed records above.
