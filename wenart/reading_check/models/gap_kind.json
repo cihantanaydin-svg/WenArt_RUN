@@ -411,7 +411,7 @@
  "l2": 10.0,
  "iterations": 25,
  "trained_on": {
-  "commit": "1f705237e29a3c8d4cbf968ee034247d465883cf",
+  "commit": "8800ec218712d3f1dfafa39bee20362e286e1dd0",
   "date": "2026-11-05",
   "projects": [
    "real01",
@@ -474,7 +474,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.9444
    },
    "real02": {
     "n": 43,
@@ -486,7 +487,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.907
    },
    "real03": {
     "n": 215,
@@ -498,7 +500,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.7907
    },
    "real04": {
     "n": 43,
@@ -510,7 +513,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.907
    },
    "real06": {
     "n": 49,
@@ -522,7 +526,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.5102
    },
    "real07": {
     "n": 83,
@@ -534,7 +539,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6386
    },
    "real10": {
     "n": 515,
@@ -546,7 +552,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6252
    },
    "real15": {
     "n": 137,
@@ -558,7 +565,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.8613
    },
    "real17": {
     "n": 6,
@@ -570,7 +578,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6667
    },
    "real19": {
     "n": 48,
@@ -582,7 +591,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.9375
    },
    "real21": {
     "n": 67,
@@ -594,7 +604,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.9403
    },
    "synthetic-06": {
     "n": 1,
@@ -606,7 +617,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.0
    },
    "synthetic-07": {
     "n": 34,
@@ -618,7 +630,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-08-spaced-labels": {
     "n": 15,
@@ -630,7 +643,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-09-jamb-stubs": {
     "n": 15,
@@ -642,7 +656,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-10-glazed-facade": {
     "n": 13,
@@ -654,7 +669,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-11-dimension-chains": {
     "n": 15,
@@ -666,7 +682,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-12-mirrored-halves": {
     "n": 20,
@@ -678,7 +695,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.8
    },
    "synthetic-13-typical-floor": {
     "n": 30,
@@ -690,7 +708,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-14-elevation-title": {
     "n": 43,
@@ -702,7 +721,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6279
    },
    "synthetic-15-winder-stair": {
     "n": 15,
@@ -714,7 +734,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-16-open-recess": {
     "n": 17,
@@ -726,7 +747,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.9412
    },
    "synthetic-17-garage-lift": {
     "n": 15,
@@ -738,7 +760,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.9333
    },
    "synthetic-18-sheet-frame": {
     "n": 30,
@@ -750,7 +773,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-19-symmetric-house": {
     "n": 15,
@@ -762,7 +786,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-20-glazed-corner": {
     "n": 12,
@@ -774,7 +799,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-21-parapet": {
     "n": 33,
@@ -786,7 +812,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    },
    "synthetic-22-curved-stair": {
     "n": 15,
@@ -798,7 +825,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 1.0
    }
   },
   "overall": {
@@ -811,7 +839,8 @@
     "rules": 0,
     "ranker": 0,
     "integrated": 0
-   }
+   },
+   "trusted_acc": 0.7746
   },
   "changed_in_lopo": [
    {
@@ -821,11 +850,14 @@
      5.36,
      2.19
     ],
+    "rule": "unclassified",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "closed",
     "margin": 0.5648,
-    "right": false
+    "right": false,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real07",
@@ -834,11 +866,14 @@
      7.49,
      2.19
     ],
+    "rule": "unclassified",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "opening",
     "margin": 0.3799,
-    "right": false
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real07",
@@ -847,11 +882,14 @@
      5.445,
      3.3901
     ],
+    "rule": "unclassified",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "closed",
     "margin": 0.6685,
-    "right": false
+    "right": false,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real07",
@@ -860,11 +898,14 @@
      10.64,
      5.74
     ],
+    "rule": "unclassified",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "opening",
     "margin": 0.9017,
-    "right": false
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real07",
@@ -873,11 +914,14 @@
      3.79,
      2.54
     ],
+    "rule": "unclassified",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "opening",
     "margin": 0.4772,
-    "right": false
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real07",
@@ -886,11 +930,14 @@
      3.79,
      2.79
     ],
+    "rule": "unclassified",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "door",
     "margin": 0.7625,
-    "right": true
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real07",
@@ -899,11 +946,14 @@
      11.665,
      6.235
     ],
+    "rule": "doorless",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "opening",
     "margin": 0.9842,
-    "right": false
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real07",
@@ -912,11 +962,14 @@
      11.665,
      9.19
     ],
+    "rule": "unclassified",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "opening",
     "margin": 0.9075,
-    "right": false
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real07",
@@ -925,11 +978,14 @@
      13.2594,
      5.69
     ],
+    "rule": "unclassified",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "door",
     "margin": 0.9222,
-    "right": true
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real07",
@@ -938,11 +994,14 @@
      11.7424,
      6.41
     ],
+    "rule": "unclassified",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "closed",
     "margin": 0.5382,
-    "right": false
+    "right": false,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "synthetic-12-mirrored-halves",
@@ -951,11 +1010,14 @@
      10.0,
      4.6021
     ],
+    "rule": "doorless",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "door",
     "margin": 0.5072,
-    "right": true
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-12-mirrored-halves",
@@ -964,11 +1026,14 @@
      9.0,
      6.0021
     ],
+    "rule": "doorless",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "door",
     "margin": 0.3783,
-    "right": true
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-12-mirrored-halves",
@@ -977,14 +1042,31 @@
      11.0,
      6.0021
     ],
+    "rule": "doorless",
     "rule_answer": "opening",
     "ranker_answer": "door",
     "label": "door",
     "margin": 0.3789,
-    "right": true
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    }
   ],
   "rule_trust": 0.6,
-  "margin_min": 0.3
+  "margin_min": 0.3,
+  "transition_min": 3,
+  "transition_precision": 0.6
+ },
+ "transitions": {
+  "doorless->door": {
+   "right": 3,
+   "wrong": 1,
+   "trusted": true
+  },
+  "unclassified->door": {
+   "right": 2,
+   "wrong": 7,
+   "trusted": false
+  }
  }
 }
