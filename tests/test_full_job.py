@@ -142,12 +142,14 @@ def test_header_names_the_current_selftest_source():
 
 
 def test_env_knobs_reach_the_orchestrator_arguments():
+    """RUN_PROFILE (2 Nov 2026, user: "only run the top down views and outside views ... a very short pod run"; lesson
+    UL259) picks the orchestrator's profile: full by default, structure on request."""
     text = _flat()
     for knob in ("RUN_PROJECTS", "PRIVATE_PROJECTS", "PRIVATE_SELFTEST", "AB_PROJECTS", "AB_CONTROL_PROJECT",
-                 "AB_PHASE", "RUN_FORCE", "RENDER_SAMPLES"):
+                 "AB_PHASE", "RUN_FORCE", "RENDER_SAMPLES", "RUN_PROFILE"):
         assert knob in text, knob
     for flag in ("--projects", "--private", "--private-selftest", "--ab", "--ab-phase", "--ab-controls", "--force",
-                 "--results", "--profile full"):
+                 "--results", '--profile "${RUN_PROFILE:-full}"'):
         assert flag in text, flag
 
 
