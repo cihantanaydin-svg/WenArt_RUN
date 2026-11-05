@@ -249,7 +249,9 @@ class DecisionLog:
             f["twin_known"] = twin is not None
             for cls in ("door", "window", "opening"):
                 f[f"twin_{cls}"] = twin == cls
-            f.setdefault("typical_known", False)      # the typical floor's answer needs the other levels: not here yet
+            # (no "typical floor's answer" feature: a level that a typical floor plan stands for reads that plan's
+            # extraction again (pipeline, ``typical_of``), so its answer for the same gap is this record's own answer,
+            # a leak and no second opinion; it can come back when two storeys are read from independent drawings)
 
     def finish_gaps(self, gaps: list) -> None:
         """At the end of ``gaps_and_openings``: the gap-stage answer (``gaps_answer``: the class after the caller's own

@@ -187,8 +187,8 @@ def _tiny_table():
 
 def test_the_learner_is_deterministic_and_separates_the_tiny_table():
     table = _tiny_table()
-    m1 = RK.fit(table)
-    m2 = RK.fit(copy.deepcopy(table))
+    m1 = RK.fit(table, l2=1.0)                    # the stored numbers below were fitted at ridge 1
+    m2 = RK.fit(copy.deepcopy(table), l2=1.0)
     assert json.dumps(m1, sort_keys=True) == json.dumps(m2, sort_keys=True)
     assert m1["classes"] == list(RK.CLASSES[DEC.KIND_GAP]) and m1["features"] == table["features"]
     for row, lab in zip(table["rows"], table["labels"]):
@@ -215,8 +215,8 @@ def test_a_negative_only_label_teaches_one_classifier():
     table["weights"].append(10.0)
     table["projects"].append("t")
     table["sources"].append("user_correction")
-    m = RK.fit(table)
-    base = RK.fit(_tiny_table())
+    m = RK.fit(table, l2=1.0)
+    base = RK.fit(_tiny_table(), l2=1.0)
     names = table["features"]
     # the door classifier learnt the negative: that row scores lower as a door than before
     row = dict(zip(names, [0.0, 1.0, 1.0]))
@@ -438,6 +438,27 @@ def test_lopo_reports_the_nested_trusted_accuracy():
         assert m["trusted_acc"] == 1.0                                         # 3 of 3 held-out changes of the other
     assert all(c["rule"] == "doorless" and c["right"] for c in res["changed"])
     assert RK.transition_trust(res["changed"])["doorless->door"]["trusted"] is True
+
+
+def test_the_ranker_is_a_subcommand_and_the_models_say_why_a_change_needs_trust(capsys):
+    from wenart.reading_check import __main__ as M
+
+    assert M.DELEGATED["ranker"] == ("wenart.reading_check.ranker", "main")
+    assert M.main(["ranker", "explain"]) == 0
+    assert "gap_kind:" in capsys.readouterr().out
+    for kind in RK.CLASSES:
+        if RK.model_path(kind).is_file():
+            note = json.loads(RK.model_path(kind).read_text(encoding="utf-8"))["note"]
+            assert "26 decisions" in note and "2 of its 8" in note
+    assert "26 decisions" in RK.decide.__doc__ and "2 of its 8" in RK.decide.__doc__
+
+
+def test_no_typical_floor_feature_is_recorded():
+    """A level a typical floor plan stands for reads that plan's extraction again, so its answer is the record's own:
+    no feature of it is written (a leak, not a second opinion)."""
+    walls = [R.wall((0, 0), (2, 0)), R.wall((2.9, 0), (5, 0))]
+    out_walls, openings, gap_log, records = _read(walls, [])
+    assert not any(k.startswith("typical") for r in records for k in r["features"])
 
 
 def test_rc7_numbers_an_undecided_gap_with_its_own_words():

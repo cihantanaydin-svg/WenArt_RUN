@@ -32,10 +32,13 @@ wall | notation) that scores the code-built candidates of a decision from the fe
    wall network is geometry the network rules build (joins, columns, the mask), so v1 measures what it would say and
    applies nothing there.
 
-``python -m wenart.reading_check.ranker train|eval|explain|label --work DIR [--projects a,b] [--kind k]``: ``train``
-labels the readings in ``DIR`` (one folder per project, as ``score --work`` leaves them), fits both models, writes them
-with their tables and prints the leave-one-project-out table and the explanation; ``eval`` prints the table without
-writing; ``explain`` prints the stored models' top features; ``label`` prints the label counts per kind and source.
+``python -m wenart.reading_check ranker retrain|train|evaluate|explain|label --work DIR [--projects a,b] [--kind k]``
+(also ``python -m wenart.reading_check.ranker``): ``retrain`` is the whole retrain in one command (every project with a
+truth file read with the rules alone into ``DIR`` unless its reading is there, ``--fresh`` to read again, then
+``train``); ``train`` labels the readings in ``DIR`` (one folder per project, as ``score --work`` leaves them), fits
+both models, writes them with their tables and prints the leave-one-project-out table, the held-out changes, the
+transition trust and the explanation; ``evaluate`` (or ``eval``) prints the same without writing; ``explain`` prints
+the stored models' top features; ``label`` prints the label counts per kind and source.
 
 Why: a correction used to become one hand-written rule and nothing measured whether it helped the other projects.
 The ranker makes the corrections compound: every accept, reject or remark of the user is a labelled example, the
@@ -73,16 +76,34 @@ MARGIN_MIN = 0.3                 # the ranker's top score must lead the second b
 # enough (``transition_trust``); the trusted transitions are stored with the model and re-measured on every retrain.
 TRANSITION_MIN = 3               # at least this many held-out changes of a transition ...
 TRANSITION_PRECISION = 0.6       # ... and at least this share of them right
+TRUST_NOTE = ("The integration (ranker.decide) applies a ranker change only when the rule's confidence is under "
+              "rule_trust, the ranker's margin is at least margin_min, the answer is allowed by the hard constraints "
+              "(a swing arc is a door, a gap wider than its run is never a door, an end gap makes no element, closed "
+              "and open are never the ranker's) and its transition (the weak rule -> the ranker's answer) is trusted in "
+              "'transitions': right on at least transition_precision of at least transition_min held-out changes of "
+              "the leave-one-project-out run. Why (5 Nov 2026, the first model, before the trust check): the gates "
+              "alone changed 26 decisions on the 28 readings, 21 of them on accepted real projects, and held out the "
+              "ranker was right on 2 of its 8 changes on real projects; real10's two kitchen pass-throughs (a counter "
+              "drawn in a 1.5 m gap of an inner wall) became windows on seven floors and their counters vanished. "
+              "With the trust check: 5 changes (synthetic-12's four bare door gaps, one real07 gap). The "
+              "wall_or_notation model only advises (ranker_advice on the pair's record): held out it beats the rules "
+              "by 0.004 and its integrated changes were right on 123 of 277; moving a pair into or out of the wall "
+              "network is geometry.")
 LABEL_WEIGHTS = {"user_correction": 10.0, "synthetic": 3.0, "accepted_reading": 1.0}   # docs/milestone14.md R3 (3)
 PLACE_TOL_M = 0.5                # a truth opening this close to a gap's place ...
 WIDTH_TOL_M = 0.3                # ... and this close in width labels the gap
 WALL_LATERAL_M = 0.15            # a truth wall covers a place or a pair within this of its centre line
 WALL_END_M = 0.05                # ... inside its extent grown by this
 OVERLAP_SHARE = 0.5              # a truth wall covers a pair when they overlap this share of the pair's length
-L2 = 1.0                         # ridge on the standardised coefficients (the intercept is free)
+L2 = 10.0                        # ridge on the standardised coefficients (the intercept is free); 5 Nov 2026: ridge 1,
+                                 # 3 and 10 gave the same leave-one-project-out accuracy, 10 the fewest wrong changes
+                                 # (gap_kind held out: 23 changes 5 right at 1, 13 / 5 at 3, 12 / 5 at 10)
 NEWTON_ITERATIONS = 25           # Newton steps; the weighted logistic loss with a ridge is convex and converges well before
 NO_POSITIVES_INTERCEPT = -10.0   # a class without a positive example scores about 0 everywhere
 ROUND = 10                       # the stored numbers' decimals (enough for bit-for-bit reproduction after rounding)
+OTHER_ADAPTER = ("synthetic-01", "synthetic-02", "synthetic-03", "synthetic-04", "synthetic-05")
+                                 # read by the synthetic adapter, not the generic core: no decision records (retrain
+                                 # keeps their reading for the score and does not read them again for want of records)
 TABLE_MAX_ROWS = 6000            # the committed table keeps every synthetic and user-correction row and thins the
                                  # accepted-reading rows to this total with a fixed stride (the files stay small)
 _MODELS: dict[str, Optional[dict]] = {}
@@ -384,7 +405,15 @@ def decide(kind: str, features: dict, rule_answer: str, rule_confidence: float, 
     minus second among the allowed answers) is at least ``MARGIN_MIN`` and its answer differs from the rule's through a
     trusted transition (the model's ``transitions``, ``transition_trust``; a model without them, such as a fresh fit in
     the leave-one-project-out run, trusts every transition); else the rule's answer with ``decided_by: rule`` (a ranker
-    that agrees with the rule decides nothing: the rule built the element). ``scores`` is empty without a model."""
+    that agrees with the rule decides nothing: the rule built the element). ``scores`` is empty without a model.
+
+    Why the transition must be trusted (5 Nov 2026, decided with the coordinator): with ``RULE_TRUST`` and
+    ``MARGIN_MIN`` alone the first committed gap model changed 26 decisions on the 28 readings, 21 of them on accepted
+    real projects, and on held-out real projects it was right on 2 of its 8 changes; real10's two kitchen pass-throughs
+    (a counter drawn in a 1.5 m gap of an inner wall) became windows on seven floors and their counters vanished. A
+    change the ranker has not been shown to get right on other projects (at least ``TRANSITION_PRECISION`` of at least
+    ``TRANSITION_MIN`` held-out changes) is recorded, never applied; with the check the same model changed 5 decisions.
+    The model JSON says the same in its ``note`` (``TRUST_NOTE``)."""
     model = model if model is not None else load_model(kind)
     if model is None:
         return rule_answer, DECIDED_RULE, 0.0, {}
@@ -637,7 +666,58 @@ def train(labelled: list[dict], kind: str, *, commit: Optional[str] = None, date
                         "transition_min": TRANSITION_MIN, "transition_precision": TRANSITION_PRECISION}
     # the transitions the integration trusts (decide): measured on the held-out changes of every project
     model["transitions"] = transition_trust(result["changed"])
+    model["note"] = TRUST_NOTE
     return {"model": model, "table": table}
+
+
+def retrain(work: Path, projects: Optional[list[str]] = None, *, fresh: bool = False, l2: float = L2,
+            models_dir: Path = MODELS_DIR, kinds: Optional[list[str]] = None, log=print) -> dict:
+    """The whole retrain in one call (``python -m wenart.reading_check ranker retrain --work DIR``): every project with
+    a truth file is read with the rules alone (``WENART_RANKER=0``; its decision records do not depend on the ranker,
+    and one reading at a time) into ``work/<p>`` unless a reading with decision records is there already (``--fresh``
+    reads again), the records are labelled, both models are fitted with their leave-one-project-out metrics and
+    transition trust and written to ``models_dir``. Returns ``{kind: model}``."""
+    import os
+
+    from wenart.reading_check import regress as RG
+    from wenart.reading_check import truth as TR
+
+    names = projects or TR.truth_projects()
+    work = Path(work)
+    work.mkdir(parents=True, exist_ok=True)
+    old = os.environ.get("WENART_RANKER")
+    os.environ["WENART_RANKER"] = "0"
+    try:
+        for p in names:
+            folder = work / p
+            if not fresh and (folder / "building.json").is_file() and \
+                    (any((folder / "reading_check").glob("decisions_*.json")) or p in OTHER_ADAPTER):
+                continue
+            log(f"{p}: reading (rules alone)")
+            try:
+                RG.read_project(p, work)
+            except Exception as exc:                           # one failed reading must not hide the others
+                log(f"{p}: reading failed: {type(exc).__name__}: {str(exc)[:200]}")
+    finally:
+        if old is None:
+            os.environ.pop("WENART_RANKER", None)
+        else:
+            os.environ["WENART_RANKER"] = old
+    labelled, skipped = collect(work, names)
+    for p, why in sorted(skipped.items()):
+        log(f"{p}: skipped ({why})")
+    out = {}
+    for kind in kinds or list(CLASSES):
+        if not any(r.get("kind") == kind for r in labelled):
+            log(f"{kind}: nothing to train on")
+            continue
+        got = train(labelled, kind, l2=l2)
+        write_model(kind, got["model"], got["table"], models_dir)
+        log(f"{kind}: written to {model_path(kind, models_dir)}")
+        log(lopo_table({"per_project": got["model"]["metrics"]["leave_one_project_out"],
+                        "overall": got["model"]["metrics"]["overall"]}))
+        out[kind] = got["model"]
+    return out
 
 
 def write_model(kind: str, model: dict, table: dict, models_dir: Path = MODELS_DIR) -> Path:
@@ -654,8 +734,10 @@ def write_model(kind: str, model: dict, table: dict, models_dir: Path = MODELS_D
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m wenart.reading_check.ranker", description=__doc__.split("\n")[0])
-    ap.add_argument("action", choices=["train", "eval", "evaluate", "explain", "label"],
-                    help="evaluate is the same as eval (for shells that treat the word specially)")
+    ap.add_argument("action", choices=["retrain", "train", "eval", "evaluate", "explain", "label"],
+                    help="retrain: read every truth project with the rules alone (or reuse the readings in --work) and "
+                         "write both models, one command; evaluate is the same as eval")
+    ap.add_argument("--fresh", action="store_true", help="retrain: read every project again")
     ap.add_argument("--work", default=None, help="the readings, one folder per project (score --work leaves them)")
     ap.add_argument("--projects", default=None, help="comma separated (default: every project with a truth file)")
     ap.add_argument("--kind", default=None, help=f"one of {', '.join(CLASSES)} (default: both)")
@@ -674,6 +756,14 @@ def main(argv=None) -> int:
         print("ranker: --work DIR is needed (the readings to label)")
         return 2
     projects = [p.strip() for p in (args.projects or "").split(",") if p.strip()] or None
+    if args.action == "retrain":
+        got = retrain(Path(args.work), projects, fresh=args.fresh, l2=args.l2, models_dir=models_dir, kinds=kinds)
+        for kind, model in got.items():
+            print(f"{kind}: transitions: " + "; ".join(
+                f"{k} {t['right']} right / {t['wrong']} wrong{' TRUSTED' if t['trusted'] else ''}"
+                for k, t in model["transitions"].items()))
+            print(explain_text(model))
+        return 0 if got else 1
     labelled, skipped = collect(Path(args.work), projects)
     for p, why in sorted(skipped.items()):
         print(f"{p}: skipped ({why})")

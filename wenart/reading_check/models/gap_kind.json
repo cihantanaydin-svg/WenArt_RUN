@@ -1068,5 +1068,6 @@
    "wrong": 7,
    "trusted": false
   }
- }
+ },
+ "note": "The integration (ranker.decide) applies a ranker change only when the rule's confidence is under rule_trust, the ranker's margin is at least margin_min, the answer is allowed by the hard constraints (a swing arc is a door, a gap wider than its run is never a door, an end gap makes no element, closed and open are never the ranker's) and its transition (the weak rule -> the ranker's answer) is trusted in 'transitions': right on at least transition_precision of at least transition_min held-out changes of the leave-one-project-out run. Why (5 Nov 2026, the first model, before the trust check): the gates alone changed 26 decisions on the 28 readings, 21 of them on accepted real projects, and held out the ranker was right on 2 of its 8 changes on real projects; real10's two kitchen pass-throughs (a counter drawn in a 1.5 m gap of an inner wall) became windows on seven floors and their counters vanished. With the trust check: 5 changes (synthetic-12's four bare door gaps, one real07 gap). The wall_or_notation model only advises (ranker_advice on the pair's record): held out it beats the rules by 0.004 and its integrated changes were right on 123 of 277; moving a pair into or out of the wall network is geometry."
 }
