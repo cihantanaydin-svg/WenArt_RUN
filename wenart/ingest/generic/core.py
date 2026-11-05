@@ -2813,9 +2813,16 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         return ex
     s = float(sc["metres_per_unit"])
     strokes_m, texts_m = to_metres(page, s)
+    # 5 Nov 2026 (Milestone 14 R3; user: "I want structure recognition to be cumulatively better with the feedbacks I
+    # am giving"): the level's decision log; the wall reader and the gap classifier write one record per decision into
+    # it, the end of this function writes them to ``ex.report["decisions"]`` (the pipeline: reading_check/decisions_*)
+    from wenart.ingest.generic import decisions as DEC
+    dim_stroke_ids = frozenset(i for d in dims if d.how != "dimension_entity" for i in d.stroke_ids)
+    decisions = DEC.DecisionLog(level_id, texts=texts_m, dimension_ids=dim_stroke_ids, units_to_m=s,
+                                ranker=DEC.ranker_enabled())
 
     # 3. Walls and openings (G2's order, tests/_real01_page.py g2_chain).
-    prims = W.wall_primitives(page, s, frozenset(i for d in dims if d.how != "dimension_entity" for i in d.stroke_ids))
+    prims = W.wall_primitives(page, s, dim_stroke_ids, decisions=decisions)
     mask = W.wall_mask(page, prims, s)
     prim_ids = {i for p in prims for i in p.stroke_ids}
     walls, wall_info = W.walls_from_mask(mask, [st for st in strokes_m if st.id not in prim_ids], file_rel, page_no,
@@ -2825,7 +2832,8 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     non_wall = [st for st in strokes_m if st.id not in wall_strokes]
     # (the dimension finder's strokes are not passed: its "two parallel lines around a number" also takes a window's
     # frame lines beside its size tag; the notation is read from the layers, UL296)
-    walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s)
+    walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s,
+                                                           decisions=decisions)
     for e in gap_log:
         if e.get("kind") == "wall_piece":
             # A door leaf fused to a wall face (the run's faces kept; also in the wall's evidence note) or a frame or
@@ -3129,6 +3137,16 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         sym["center"] = [round(sym["center"][0] - ox, ROUND), round(sym["center"][1] - oy, ROUND)]
         sym["level_id"] = level_id
     ex.report["symbols"] = symbols
+    # 5 Nov 2026 (Milestone 14 R3): the decision records in building metres with their final answers read off the
+    # built level; every ranker decision is a page note and every place too weak on both sides a reading place
+    ex.report["decisions"] = decisions.finalize((ox, oy), bwalls, b_openings)
+    for rec in ex.report["decisions"]:
+        if rec.get("decided_by") == DEC.DECIDED_RANKER and rec.get("ranker_answer"):
+            ex.notes.append(f"{where}: gap at ({rec['place'][0]:.2f}, {rec['place'][1]:.2f}) m: the ranker decided "
+                            f"{rec['ranker_answer']} (margin {rec.get('margin', 0):.2f}) over the rule's "
+                            f"{rec['rule_answer']} ({rec['rule']} {rec['rule_confidence']:.2f}); final "
+                            f"{rec['final_answer']}")
+    ex.reading_places.extend(decisions.places())
     for row in sep_log:
         if row.get("line"):
             row["line_building"] = [list(sh.p(q)) for q in row["line"]]

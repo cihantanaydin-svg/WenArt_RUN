@@ -267,6 +267,9 @@ class ProjectBuild:
         # the outline closure's report per level (written to reading_check/outline_closure.json)
         self.below_unread: dict[str, str] = {}
         self.outline_closure: dict[str, dict] = {}
+        # 5 Nov 2026 (Milestone 14 R3): level id -> the reader's decision records (``generic.decisions``), written to
+        # reading_check/decisions_<level>.json
+        self.decisions: dict[str, list] = {}
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -3041,6 +3044,8 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                          "note": "a room label outside the walls read as the building"} for t, at in outside)
             if extraction.report.get("outline_closure"):
                 build.outline_closure[record.level_id] = extraction.report["outline_closure"]
+            if extraction.report.get("decisions") is not None:
+                build.decisions[record.level_id] = extraction.report["decisions"]
         audit = (record.conversion or {}).get("audit") or {}
         if audit.get("errors"):
             _mark_unverified(extraction)
@@ -3084,6 +3089,8 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                     build.review(reason)
             if extraction.report.get("outline_closure"):
                 build.outline_closure[record.level_id] = extraction.report["outline_closure"]
+            if extraction.report.get("decisions") is not None:
+                build.decisions[record.level_id] = extraction.report["decisions"]
             if extraction.report.get("questions") and (extraction.scale is None or
                                                         extraction.transform_to_building is None):
                 build.question_only.append(extraction)
@@ -3172,6 +3179,15 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         rc_dir.mkdir(parents=True, exist_ok=True)
         (rc_dir / "outline_closure.json").write_text(json.dumps(build.outline_closure, ensure_ascii=False, indent=1,
                                                                default=str) + "\n", encoding="utf-8")
+    if build.decisions:
+        # 5 Nov 2026 (Milestone 14 R3): the reader's decision records per level (gap kinds, wall or notation; the
+        # features, the rule, its confidence, the final answer, who decided), the ranker's labelled examples
+        rc_dir = out_dir / "reading_check"
+        rc_dir.mkdir(parents=True, exist_ok=True)
+        for level_id, records in build.decisions.items():
+            (rc_dir / f"decisions_{level_id}.json").write_text(
+                json.dumps({"level_id": level_id, "count": len(records), "records": records}, ensure_ascii=False,
+                           default=str) + "\n", encoding="utf-8")
     if os.environ.get("WENART_READING_CHECK", "1") != "0":
         try:
             from wenart import reading_check as RCK
