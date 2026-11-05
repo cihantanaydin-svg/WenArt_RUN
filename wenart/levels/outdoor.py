@@ -69,7 +69,11 @@ SPACE_WORDS: tuple[tuple[str, Optional[str], str], ...] = (
     ("winter_garden", "glass", r"\b(kis bahce|winter ?gardens?\b|wintergarten|jardin d.?hiver|conservatory\b|"
                                r"sun ?room\b|sera\b)"),
     ("veranda", "roof", r"\b(veranda|verandah)"),
-    ("porch", "roof", r"\b(sundurma|portik|porch(es)?\b|portico\b|porche\b|vordach\b|saçak alti)"),
+    # 4 Nov 2026 (real11: 'GİRİŞ SAÇAK', the entrance canopy, and its projection 'GİRİŞ SAÇAK İZDÜŞÜMÜ' on the plan
+    # below, left every level out as a room label outside the walls): a canopy or eaves label (saçak, canopy, auvent,
+    # marquise, pensilina) names a roofed outdoor space at a door, never a room; 'saçak alti' is matched on folded text
+    ("porch", "roof", r"\b(sundurma|portik|porch(es)?\b|portico\b|porche\b|vordach\b|saca[kg]|canopy\b|canopies\b|"
+                      r"auvent\b|marquise\b|marquesina\b|pensilina\b|tettoia\b)"),      # saçak, saçağı (real13)
     ("loggia", "building", r"\b(loggia|lodzi|lojya)"),
     ("pergola", "pergola", r"\b(pergola|cardak|kameriye)"),
     ("balcony", None, r"\b(balkon|balcony\b|balconies\b|balcon\b)"),

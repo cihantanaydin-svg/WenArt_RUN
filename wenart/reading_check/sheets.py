@@ -7,6 +7,11 @@ drawing's orientation (rooms, walls, doors green, windows blue, stairs purple), 
 drawing (grey) with the findings marked (drawn wall faces the model lacks orange, model walls on no drawn line
 magenta, area mismatches with their numbers), 4 the pod's top-down render when ``renders`` holds ``top_<level>_plan.jpg``.
 
+4 Nov 2026 (Milestone 14 R2 and R9; user: "never leave a level out; carry confidence instead"): the walls of the
+outline closure (``reading_check.CLOSURE_RULE``, confidence 0.3) are orange dashed on panels 2 and 3 (their own
+colour next to the solid orange of the other inferred walls), and the low-confidence places of RC7 (closure walls,
+room labels in no closed face) are numbered on panel 3 in red ("place 7"), so a remark of the user can name one.
+
 How: the model is mapped into the drawing's units by the inverse of each level's page transform (what the model used);
 the drawing is drawn by ezdxf's matplotlib backend (white background, black lines).
 """
@@ -284,9 +289,11 @@ def _draw_model(ax, building, level, tf, box, colour=True, labels=True):
         (x0, y0), (x1, y1) = inv(*w["start"]), inv(*w["end"])
         lw = max(0.6, min(4.5, float(w.get("thickness") or 0.2) * scale * 3000))
         # 3 Nov 2026 (user: "use my vision and understanding to reinforce the decision"): what the reading inferred
-        # (no drawn wall there) is orange, so the user can check every inference against the drawing
-        col = INFERRED_COLOUR if _inferred(w) else ("#222222" if colour else "#c62828")
-        ax.plot([x0, x1], [y0, y1], color=col, lw=lw, solid_capstyle="butt")
+        # (no drawn wall there) is orange, so the user can check every inference against the drawing. 4 Nov 2026
+        # (RC7): a wall of the outline closure (confidence 0.3, the last pass) is orange dashed: its own colour
+        closure = RC.is_closure_wall(w)
+        col = INFERRED_COLOUR if _inferred(w) or closure else ("#222222" if colour else "#c62828")
+        ax.plot([x0, x1], [y0, y1], color=col, lw=lw, solid_capstyle="butt", ls=CLOSURE_DASH if closure else "-")
     for o in building.get("openings") or []:
         w = walls.get(o.get("wall_id"))
         if o.get("level_id") != level or not w or not o.get("center"):
@@ -303,6 +310,8 @@ def _draw_model(ax, building, level, tf, box, colour=True, labels=True):
 
 
 INFERRED_COLOUR = "#ef6c00"
+CLOSURE_DASH = (0, (3, 1.5))       # 4 Nov 2026 (RC7): the outline closure's walls, orange dashed
+PLACE_COLOUR = "#d50000"           # ... and the numbered low-confidence places ("place 7") on panel 3
 
 
 def _inferred(item: dict) -> bool:
@@ -311,9 +320,33 @@ def _inferred(item: dict) -> bool:
                                              for e in item.get("evidence") or [])
 
 
+REFUSED_COLOUR = "#9e9e9e"         # 5 Nov 2026 (review): the closure candidates refused, grey dashed on panel 3
+
+
+def _draw_closure_overlay(ax, building, level, tf, closure: Optional[dict]) -> int:
+    """On top of everything else on panel 3 (5 Nov 2026, review: the RC5 magenta hid the orange dash): the outline
+    closure's walls dashed orange again, and the candidates it refused grey dashed (``reading_check/outline_closure.json``,
+    page metres: drawing units are page metres over the page scale). Returns how many refused candidates were drawn."""
+    inv = _inverse(tf)
+    for w in building.get("walls") or []:
+        if w.get("level_id") == level and RC.is_closure_wall(w):
+            (x0, y0), (x1, y1) = inv(*w["start"]), inv(*w["end"])
+            ax.plot([x0, x1], [y0, y1], color=INFERRED_COLOUR, lw=2.2, ls=CLOSURE_DASH, solid_capstyle="butt",
+                    zorder=10)
+    n = 0
+    s = math.hypot(tf[0], tf[3]) or 1.0
+    for c in (closure or {}).get("refused") or []:
+        for a, b in c.get("segments") or []:
+            ax.plot([a[0] / s, b[0] / s], [a[1] / s, b[1] / s], color=REFUSED_COLOUR, lw=1.0, ls=(0, (2, 2)),
+                    alpha=0.7, zorder=9)
+        n += 1
+    return n
+
+
 def _mark_findings(ax, findings, building, level, tf):
     inv = _inverse(tf)
     walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == level}
+    placed: list = []
     for f in findings:
         if f.get("level_id") != level:
             continue
@@ -329,6 +362,17 @@ def _mark_findings(ax, findings, building, level, tf):
             p = inv(*f["at"])
             ax.text(p[0], p[1], f"drawn {f['drawn_m2']:.1f} / model {f['model_m2']:.1f} m2", fontsize=6,
                     color="#b71c1c", ha="center", bbox={"facecolor": "white", "alpha": 0.8, "lw": 0})
+        elif f["check"] == "RC7" and f.get("at") and f.get("place"):
+            # 4 Nov 2026 (Milestone 14 R2, R9: "low-confidence places in their own colour and numbered ('place 7')")
+            p = inv(*f["at"])
+            ax.plot(p[0], p[1], marker="o", ms=11, mfc="none", mec=PLACE_COLOUR, mew=1.4)
+            # 5 Nov 2026 (review): labels of places under 0.5 m apart would overprint: each later one steps aside
+            step = 0.45 / math.hypot(tf[0], tf[3])
+            k = sum(1 for q in placed if math.dist(q, f["at"]) < 0.5)
+            placed.append(tuple(f["at"]))
+            ax.text(p[0] + k * step * 0.6, p[1] + k * step, f"place {f['place']}", fontsize=6.5, color=PLACE_COLOUR,
+                    ha="left", va="bottom", fontweight="bold",
+                    bbox={"facecolor": "white", "alpha": 0.85, "lw": 0, "pad": 1.0})
 
 
 def _model_box(building, level, tf, margin: float = 0.08):
@@ -379,6 +423,8 @@ def draw(out_dir, result: Optional[dict] = None, renders: Optional[str] = None) 
     sp = out_dir / "sheets.json"
     sheets = json.loads(sp.read_text(encoding="utf-8")) if sp.is_file() else {}
     result = result or RC.check(out_dir)
+    oc = out_dir / "reading_check" / "outline_closure.json"
+    closure = json.loads(oc.read_text(encoding="utf-8")) if oc.is_file() else {}
     regions = {r["id"]: r for r in sheets.get("regions") or []}
     levels = {lv["id"]: lv for lv in building.get("levels") or []}
     d = out_dir / "reading_check"
@@ -403,14 +449,18 @@ def draw(out_dir, result: Optional[dict] = None, renders: Optional[str] = None) 
                 ("1 the source drawing (no grid, no dimensions)",
                  lambda ax: _draw_drawing(ax, doc, ents, box, clean=True)),
                 ("2 the model's plan (rooms yellow, balconies and terraces green, floor voids hatched blue, stairs "
-                 "dark blue; walls black, inferred walls orange; doors green, windows blue, other openings purple, "
-                 "inferred openings dashed)",
+                 "dark blue; walls black, inferred walls orange, outline-closure walls orange dashed; doors green, "
+                 "windows blue, other openings purple, inferred openings dashed)",
                  lambda ax: _draw_model(ax, building, lid, pg["tf"], box)),
-                ("3 the model's walls over the drawing (grey): drawn red, inferred orange; findings: drawn walls the "
-                 "model lacks yellow, walls on no drawn line magenta",
+                ("3 the model's walls over the drawing (grey): drawn red, inferred orange, outline-closure walls "
+                 "orange dashed; findings: drawn walls the model lacks yellow, walls on no drawn line magenta, "
+                 "low-confidence places (RC7) numbered red: 'place 7'"
+                 + (f"; {len((closure.get(lid) or {}).get('refused') or [])} closure candidate(s) refused: grey dashed"
+                    if closure.get(lid) else ""),
                  lambda ax: (_draw_drawing(ax, doc, ents, box, grey=True),
                              _draw_model(ax, building, lid, pg["tf"], box, colour=False, labels=False),
-                             _mark_findings(ax, result["findings"], building, lid, pg["tf"]))))):
+                             _mark_findings(ax, result["findings"], building, lid, pg["tf"]),
+                             _draw_closure_overlay(ax, building, lid, pg["tf"], closure.get(lid)))))):
             fig, ax = plt.subplots(figsize=(9, 9))
             fn(ax)
             p = d / f"_{lid}_{k + 1}.png"

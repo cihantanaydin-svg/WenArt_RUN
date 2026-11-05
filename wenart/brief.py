@@ -161,7 +161,10 @@ VALUE_RULES = {
     "furnished_rooms": _one_of("keep", "complete"),
     "furnished_rooms_keep": _names_problem,
     "variants": _variants_problem,
-    "failed_levels": _one_of("leave_out", "stop"),
+    # 4 Nov 2026 (Milestone 14 R2, user: "never leave a level out; carry confidence instead"): ``build_marked`` (the
+    # default) builds a region with review reasons when it has a scale, a frame and walls, marking its level
+    # ``reading_confidence: low``; ``leave_out`` and ``stop`` stay for briefs that ask for them
+    "failed_levels": _one_of("build_marked", "leave_out", "stop"),
     "plan_levels": _plan_levels_problem,
     "site": _one_of("full", "ground"),
     "render.twin_rooms": _one_of("one", "all"),

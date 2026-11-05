@@ -314,14 +314,17 @@ def split_plot(walls: list[WallItem], openings: list[OpeningItem], label_blocks:
             continue
         if not outline.is_empty and outline.contains(Point(b.anchor)):
             continue                                     # inside the outline but in no face: rooms report it
-        if getattr(b, "room_type", None) == "balcony":
+        if getattr(b, "room_type", None) == "balcony" or _outdoor_label(b):
             # An open balcony (railing, no walls) outside the outer walls is not a gap in them (real03, 10 Oct
             # 2026: the corner flats' balconies stand in the hull of the building): recorded in site, not built.
+            # 4 Nov 2026 (real11: 'GİRİŞ SAÇAK', the entrance canopy between the two wings): every outdoor-space
+            # label (``_outdoor_label``: terrace, porch, canopy ...) the same way; none leaves a level out.
+            what = "balcony" if getattr(b, "room_type", None) == "balcony" else "outdoor space"
             extent = _free_extent(b.anchor, all_walls_geom, plot_hulls)
             site["areas"].append(_area(b, None, level_id, extent=extent,
-                                       note="open balcony outside the outer walls (no walls drawn around it)"))
-            warnings.append(f"balcony '{b.name}' at ({b.anchor[0]:.2f}, {b.anchor[1]:.2f}) m lies outside the outer "
-                            f"walls: an open balcony, recorded in site, not a room")
+                                       note=f"open {what} outside the outer walls (no walls drawn around it)"))
+            warnings.append(f"{what} '{b.name}' at ({b.anchor[0]:.2f}, {b.anchor[1]:.2f}) m lies outside the outer "
+                            f"walls: an open {what}, recorded in site, not a room")
             continue
         if hull is not None and hull.contains(Point(b.anchor)):
             warnings.append(REVIEW_PREFIX + f"outer walls do not close: room label '{b.name}' at ({b.anchor[0]:.2f}, "

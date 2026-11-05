@@ -327,16 +327,24 @@ def test_unclosed_outer_walls_need_review(tmp_path):
     msp.delete_entity(walls[2])   # the top outer wall
     doc.saveas(project / "zemin_kat.dxf")
     building = build_project(project, tmp_path / "out")
-    assert building["status"] == "needs_review"
+    # 5 Nov 2026 (Milestone 14 R2, review item 9): a one-plan project is built with its level marked low, not
+    # stopped (failed_levels build_marked, the default); the brief's leave_out keeps the stop
+    assert building["status"] == "ok"
+    l0 = building["levels"][0]
+    assert l0["reading_confidence"] == "low"
     # Salon and Yatak Odası are still enclosed; Mutfak, Hol and Banyo are open to the outside.
+    assert any("walls do not close" in r and "'MUTFAK'" in r for r in l0["reading_review"])
     assert any("walls do not close" in w and "'MUTFAK'" in w for w in building["warnings"])
     assert len(building["walls"]) == 7 and sorted(r["label"] for r in building["rooms"]) == ["Salon", "Yatak Odası"]
     B.validate(building)
+    (project / "brief.yaml").write_text("failed_levels: leave_out\n", encoding="utf-8")
+    assert build_project(project, tmp_path / "out_leave_out")["status"] == "needs_review"
+    (project / "brief.yaml").unlink()
     # Without the left wall as well, only Yatak Odası stays enclosed.
     msp.delete_entity(walls[3])
     doc.saveas(project / "zemin_kat.dxf")
     building = build_project(project, tmp_path / "out2")
-    assert building["status"] == "needs_review"
+    assert building["status"] == "ok" and building["levels"][0]["reading_confidence"] == "low"
     assert [r["label"] for r in building["rooms"]] == ["Yatak Odası"]
     assert any("walls do not close" in w and "'SALON 24,50 m²'" in w for w in building["warnings"])
 
@@ -354,9 +362,12 @@ def test_open_outer_wall_without_labels_needs_review(tmp_path):
             msp.delete_entity(text)
     doc.saveas(project / "zemin_kat.dxf")
     building = build_project(project, tmp_path / "out")
-    assert building["status"] == "needs_review"
-    assert any("needs review" in w and "closed loop" in w for w in building["warnings"])
-    assert "Status: **needs_review**" in (tmp_path / "out" / "report.md").read_text(encoding="utf-8")
+    # 5 Nov 2026 (review item 9): built and marked low, the open loop its reason; not stopped
+    assert building["status"] == "ok"
+    l0 = building["levels"][0]
+    assert l0["reading_confidence"] == "low" and any("closed loop" in r for r in l0["reading_review"])
+    assert any("closed loop" in w and "built, reading confidence low" in w for w in building["warnings"])
+    assert "Status: **ok**" in (tmp_path / "out" / "report.md").read_text(encoding="utf-8")
     # The enclosed rooms are still reported for the reviewer.
     assert sorted(r["label"] for r in building["rooms"]) == ["Salon", "Yatak Odası"]
     B.validate(building)
@@ -374,9 +385,11 @@ def test_detached_wall_rectangle_does_not_crash_outline_check(tmp_path):
     doc.saveas(project / "zemin_kat.dxf")
     out = tmp_path / "out"
     building = build_project(project, out)
-    assert building["status"] == "needs_review"
+    # 5 Nov 2026 (review item 9): built marked low, not stopped; the files are written either way
+    assert building["status"] == "ok"
     assert (out / "building.json").is_file() and (out / "report.md").is_file()
-    assert any("needs review" in w and "L0" in w and "closed loop" in w for w in building["warnings"])
+    assert any("L0" in w and "closed loop" in w and "built, reading confidence low" in w for w in building["warnings"])
+    assert next(lv for lv in building["levels"] if lv["id"] == "L0")["reading_confidence"] == "low"
     assert any("outline check skipped" in w and "L0" in w for w in building["warnings"])
     assert [lv["id"] for lv in building["levels"]] == ["L0", "L1"]
     assert not [c for c in building["conflicts"] if c["kind"] == "outline_mismatch"]
