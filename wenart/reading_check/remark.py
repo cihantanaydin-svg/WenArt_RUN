@@ -2,8 +2,10 @@
 
 What: ``python -m wenart.reading_check.remark add|list|show|redo``. ``add`` appends one record to
 ``results/reading_corrections.jsonl`` (the format of ``truth.py`` is kept; only the optional fields
-``element_ids``, ``truth_action`` and ``history`` are new) and, when the reading folder is given, draws a crop
-``results/reading_corrections/crops/<id>.png`` of the place from ``building.json``.
+``element_ids``, ``truth_action``, ``place_note`` and ``history`` are new) and, when the reading folder is given,
+draws a crop ``results/reading_corrections/crops/<id>.png`` of the place from ``building.json`` (``--drawing``: with
+the drawing's own strokes over it). A wall, door, window, opening, room or stair remark needs ``--place``,
+``--element`` or ``--place-note`` (review of 5 Nov 2026).
 
 Why (5 Nov 2026, Milestone 14, R9): the user keeps reviewing the reading sheets in detail ("possibly I may need
 to continue detailed reviews for some time more"). His free words ("This wall do not exist") used to end as text in
@@ -32,6 +34,7 @@ STATUS_ACCEPTED = "accepted"
 NO_LESSON_NOTE = "no lesson yet: the general rule for this remark is still to be written"   # truth.correction_errors needs a note when lesson is null
 ELEMENT_KINDS = ("wall", "opening", "door", "window", "room", "stair", "level", "label", "region", "roof", "site",
                  "other")
+PLACEABLE_KINDS = ("wall", "door", "window", "opening", "room", "stair")   # as truth.PLACEABLE_KINDS
 TRUTH_OPS = ("add", "remove", "retype", "move")
 ELEMENT_LISTS = ("walls", "openings", "rooms", "furniture")
 CROP_SIZE_M = 6.0                 # side of the window around the place, building metres
@@ -112,8 +115,12 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
                  reader_answer: str = "", right_answer: str = "", lesson: str | None = None, note: str | None = None,
                  truth_action: dict | None = None, building: dict | None = None,
                  projects: Iterable[str] | None = None, lesson_ids: Iterable[str] | None = None,
-                 date: str | None = None) -> dict:
-    """One correction record (pure). Raises ValueError with the reason when something is wrong."""
+                 date: str | None = None, place_note: str | None = None) -> dict:
+    """One correction record (pure). Raises ValueError with the reason when something is wrong. 5 Nov 2026 (review):
+    a remark about a placeable element (``PLACEABLE_KINDS``: wall, door, window, opening, room, stair) is refused
+    without a place (``--place``, or ``--element`` whose place is taken) or a ``place_note`` saying why it has none,
+    so every remark joins the truth and the ranker's labels at capture (``truth.correction_errors`` checks the
+    same)."""
     if projects is not None and project not in set(projects):
         raise ValueError(f"project {project!r} not in projects/")
     if kind not in ELEMENT_KINDS:
@@ -137,9 +144,15 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
                 place = element_place(*hit)
             if level is None:
                 level = hit[1].get("level_id")
+    note_place = (place_note or "").strip()
+    if kind in PLACEABLE_KINDS and place is None and not note_place:
+        raise ValueError(f"a {kind} remark needs its place: give --place x,y (building metres) or --element <id> "
+                         f"(its place is taken), or --place-note saying why it has none")
     rec = {"id": next_id(records), "date": date or today(), "project": project, "level": level, "place": place,
            "element_kind": kind, "reader_answer": reader_answer, "right_answer": right_answer,
            "user_words": text, "lesson": lesson, "source": SOURCE_USER, "status": STATUS_ACCEPTED}
+    if note_place:
+        rec["place_note"] = note_place
     if ids:
         rec["element_ids"] = ids
     if truth_action is not None:
@@ -149,9 +162,12 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
     return rec
 
 
-def draw_crop(building: dict, level_id: str | None, place: dict | None, element_ids: list[str], path: Path) -> Path:
+def draw_crop(building: dict, level_id: str | None, place: dict | None, element_ids: list[str], path: Path,
+              lines: list | None = None) -> Path:
     """Draw the crop (matplotlib, headless): walls grey, doors green, windows blue, room labels, the named
-    elements red, the place a red cross, a 1 m scale bar. 6 x 6 m around the place, else the whole level."""
+    elements red, the place a red cross, a 1 m scale bar. 6 x 6 m around the place, else the whole level.
+    ``lines`` (``drawing_lines``): the drawing's own strokes in building metres, drawn thin black over the model,
+    so the user sees the jambs, swings and frames the place was taken from."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -199,6 +215,8 @@ def draw_crop(building: dict, level_id: str | None, place: dict | None, element_
         if c:
             ax.text(c["x"], c["y"], str(r.get("label") or r.get("id")), fontsize=7, ha="center", va="center",
                     color=COLOURS["mark"] if r.get("id") in named else COLOURS["room"], zorder=5, clip_on=True)
+    for (ax0, ay0), (ax1, ay1) in lines or []:
+        ax.plot([ax0, ax1], [ay0, ay1], color="black", lw=0.6, zorder=5.5)
     if place:
         ax.plot([place["x"]], [place["y"]], marker="+", ms=26, mew=5, color="white", zorder=6)   # shows on red
         ax.plot([place["x"]], [place["y"]], marker="+", ms=22, mew=2, color=COLOURS["mark"], zorder=7)
@@ -214,6 +232,53 @@ def draw_crop(building: dict, level_id: str | None, place: dict | None, element_
     fig.savefig(path)
     plt.close(fig)
     return path
+
+
+NOTATION_LAYER_WORDS = ("OLCU", "OLÇÜ", "DIM", "AKS", "AXIS", "GRID")
+
+
+def drawing_lines(out, building: dict, level_id: str | None, place: dict | None, size: float = CROP_SIZE_M) -> list:
+    """The drawing's strokes around ``place`` on ``level_id`` in building metres: the LINE, LWPOLYLINE and ARC
+    entities of the reading's converted DXF (``<out>/converted/*.dxf``) mapped by the level's page transform
+    (``building["documents"][*]["pages"]``, the one the model used), dimensions and grid layers left out. Empty when
+    the reading has no DXF or the level no page transform."""
+    import math
+    out = Path(out)
+    tf = next((pg.get("transform_to_building") for d in building.get("documents") or []
+               for pg in d.get("pages") or [] if pg.get("level_id") == level_id and pg.get("transform_to_building")),
+              None)
+    dxfs = sorted((out / "converted").glob("*.dxf")) if (out / "converted").is_dir() else []
+    if not tf or not dxfs or not place:
+        return []
+    import ezdxf
+    a, b, c, d, e, f = tf
+    to_b = lambda x, y: (a * x + b * y + c, d * x + e * y + f)
+    h = size / 2 + 0.5
+    near = lambda q: abs(q[0] - place["x"]) <= h and abs(q[1] - place["y"]) <= h
+    segs = []
+    for ent in ezdxf.readfile(str(dxfs[0])).modelspace():
+        t = ent.dxftype()
+        layer = (ent.dxf.get("layer") or "").upper()
+        if t.endswith("DIMENSION") or any(w in layer for w in NOTATION_LAYER_WORDS):
+            continue
+        try:
+            if t == "LINE":
+                pts = [to_b(ent.dxf.start.x, ent.dxf.start.y), to_b(ent.dxf.end.x, ent.dxf.end.y)]
+            elif t == "LWPOLYLINE":
+                pts = [to_b(x, y) for x, y in ent.get_points("xy")]
+            elif t == "ARC":
+                r, a0, a1 = ent.dxf.radius, ent.dxf.start_angle, ent.dxf.end_angle
+                a1 = a1 + 360 if a1 < a0 else a1
+                pts = [to_b(ent.dxf.center.x + r * math.cos(math.radians(a0 + (a1 - a0) * i / 12)),
+                            ent.dxf.center.y + r * math.sin(math.radians(a0 + (a1 - a0) * i / 12)))
+                       for i in range(13)]
+            else:
+                continue
+        except Exception:  # noqa: BLE001 - an entity without points: left out
+            continue
+        if any(near(q) for q in pts):
+            segs += list(zip(pts, pts[1:]))
+    return segs
 
 
 # ---- file code -------------------------------------------------------------------------------------------------
@@ -253,17 +318,19 @@ def add(args, corrections: Path = CORRECTIONS_PATH, crop_dir: Path = CROP_DIR):
                        place=parse_place(args.place) if args.place else None, element_ids=args.element or [],
                        kind=args.kind, reader_answer=args.reader_answer, right_answer=args.right_answer,
                        lesson=args.lesson, note=getattr(args, "note", None), truth_action=action, building=building, projects=project_names(),
-                       lesson_ids=lesson_ids())
+                       lesson_ids=lesson_ids(), place_note=getattr(args, "place_note", None))
     crop = None
     if building is not None:
+        lines = (drawing_lines(args.out, building, rec["level"], rec["place"])
+                 if getattr(args, "drawing", False) else None)
         crop = draw_crop(building, rec["level"], rec["place"], rec.get("element_ids", []),
-                         Path(crop_dir) / f"{rec['id']}.png")
+                         Path(crop_dir) / f"{rec['id']}.png", lines=lines)
     save(corrections, records + [rec])
     return rec, crop
 
 
 def redo(rid: str, place: dict, corrections: Path = CORRECTIONS_PATH, crop_dir: Path = CROP_DIR,
-         building: dict | None = None, date: str | None = None):
+         building: dict | None = None, date: str | None = None, lines: list | None = None):
     records = load(corrections)
     rec = next((r for r in records if r.get("id") == rid), None)
     if rec is None:
@@ -272,7 +339,8 @@ def redo(rid: str, place: dict, corrections: Path = CORRECTIONS_PATH, crop_dir: 
     rec["place"] = place
     crop = None
     if building is not None:
-        crop = draw_crop(building, rec.get("level"), place, rec.get("element_ids", []), Path(crop_dir) / f"{rid}.png")
+        crop = draw_crop(building, rec.get("level"), place, rec.get("element_ids", []), Path(crop_dir) / f"{rid}.png",
+                         lines=lines)
     save(corrections, records)
     return rec, crop
 
@@ -302,7 +370,10 @@ def main(argv=None) -> int:
     a.add_argument("--right-answer", default="")
     a.add_argument("--lesson")
     a.add_argument("--note", help="why there is no lesson, or what the record needs")
+    a.add_argument("--place-note", help="how the place was found, or why a wall/door/window/opening/room/stair "
+                                        "remark has none (needed when there is neither --place nor --element)")
     a.add_argument("--out")
+    a.add_argument("--drawing", action="store_true", help="draw the drawing's own strokes in the crop (with --out)")
     a.add_argument("--truth-action")
     ls = sub.add_parser("list")
     ls.add_argument("--project")
@@ -313,6 +384,7 @@ def main(argv=None) -> int:
     rd.add_argument("id")
     rd.add_argument("--place", required=True)
     rd.add_argument("--out")
+    rd.add_argument("--drawing", action="store_true", help="draw the drawing's own strokes in the crop (with --out)")
     args = ap.parse_args(argv)
     try:
         if args.action == "add":
@@ -329,8 +401,12 @@ def main(argv=None) -> int:
             print(json.dumps(rec, ensure_ascii=False))
             print(f"crop: {c}" if c.is_file() else "crop: none")
         else:
-            rec, crop = redo(args.id, parse_place(args.place),
-                             building=load_building(args.out) if args.out else None)
+            building = load_building(args.out) if args.out else None
+            lines = None
+            if building is not None and args.drawing:
+                level = next((r.get("level") for r in load(CORRECTIONS_PATH) if r.get("id") == args.id), None)
+                lines = drawing_lines(args.out, building, level, parse_place(args.place))
+            rec, crop = redo(args.id, parse_place(args.place), building=building, lines=lines)
             print(json.dumps(rec, ensure_ascii=False))
             print(f"crop: {crop}" if crop else "crop: not redrawn (no --out)")
     except (ValueError, json.JSONDecodeError) as e:

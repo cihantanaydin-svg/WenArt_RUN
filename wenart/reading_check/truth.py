@@ -569,10 +569,81 @@ def _ensure_level(truth: dict, level: str, *, source: str, label: Optional[str] 
     return lv
 
 
+# 5 Nov 2026 (review of the located corrections): a confirm keeps the reading's element exactly (a stair keeps its
+# rotation, room and flights) and changes only its source and correction ids; a field the user gives that differs
+# is a change (``changed``, method ``user``); an element touched by several corrections keeps all of their ids.
+CONFIRM_FIELDS = ("label", "room_type", "area", "polygon", "center", "width", "wall_id", "start", "end", "thickness",
+                  "size", "turn")
+
+
+def _with_correction(el: dict, correction: Optional[str]) -> dict:
+    """``el`` with ``correction`` added to its ``corrections`` (every correction that touched it, in order) and set as
+    its ``correction`` (the latest, kept for older readers of the files)."""
+    ids = list(el.get("corrections") or ([el["correction"]] if el.get("correction") else []))
+    if correction and correction not in ids:
+        ids.append(correction)
+    if ids:
+        el["corrections"] = ids
+    if correction:
+        el["correction"] = correction
+    return el
+
+
+def _annotate(el: dict, fields: dict) -> dict:
+    """The evidence and note a caller gives with a correction (the drawing's entities that prove it), kept on the
+    element; the command line does not pass them, Python callers may."""
+    if fields.get("evidence"):
+        el["evidence"] = list(fields["evidence"])
+    if fields.get("note"):
+        el["note"] = str(fields["note"])
+    return el
+
+
+def _parsed(t: str, key: str, value):
+    if key in ("center", "start", "end", "size"):
+        return _parse_xy(value)
+    if key == "polygon":
+        return _parse_poly(value)
+    if key in ("area", "width", "thickness"):
+        return round(float(value), ROUND)
+    return value
+
+
+def confirm_element(kind: str, existing: dict, fields: dict, *, source: str = SOURCE_USER,
+                    correction: Optional[str] = None, date: Optional[str] = None) -> dict:
+    """The user's confirm of an element the truth already holds by its id (pure): a copy of ``existing`` with only
+    ``source`` and the correction ids changed; a given field that differs from the element is applied and listed in
+    ``changed`` (then ``method`` is ``user`` and the reading's confidence no longer applies). A negated element that
+    is confirmed exists again."""
+    t = KIND_TO_TYPE[kind]
+    el = json.loads(json.dumps(existing))
+    changed = []
+    for key in CONFIRM_FIELDS:
+        if fields.get(key) in (None, ""):
+            continue
+        value = _parsed(t, key, fields[key])
+        slot = "centroid" if t == "rooms" and key == "center" else key       # a room is found by its centroid
+        if el.get(slot) != value:
+            el[slot] = value
+            changed.append(key)
+    if t == "rooms" and "polygon" in changed and "center" not in changed:
+        el["centroid"] = centroid(el.get("polygon") or [])
+    if changed:
+        el["changed"] = sorted(set(el.get("changed") or []) | set(changed))
+        el.update(method="user", confidence=None)
+    for k in ("absent", "removed_on"):
+        el.pop(k, None)
+    el.update(source=source, confirmed_on=date or today())
+    _with_correction(el, correction)
+    return _annotate(el, fields)
+
+
 def add_element(truth: dict, kind: str, level: str, fields: dict, *, source: str = SOURCE_USER,
                 correction: Optional[str] = None, date: Optional[str] = None) -> dict:
     """``truth`` with an element (or, ``kind == "level"``, a level) added by the user (pure in the sense that it
-    returns the changed dict it was given); the element is returned in ``truth["last_added"]``."""
+    returns the changed dict it was given); the element is returned in ``truth["last_added"]``. When the truth
+    already holds an element of that kind with the given ``id`` (the reading's own element), it is confirmed
+    (``confirm_element``): kept exactly, only its source and correction ids change, unless a given field differs."""
     if kind == "level":
         lv = _ensure_level(truth, level, source=source, label=fields.get("label"),
                            elevation=float(fields["elevation"]) if fields.get("elevation") is not None else None,
@@ -585,10 +656,17 @@ def add_element(truth: dict, kind: str, level: str, fields: dict, *, source: str
         t = KIND_TO_TYPE[kind]
         _ensure_level(truth, level, source=source)
         bucket = truth["per_level"].setdefault(level, {k: [] for k in ELEMENT_TYPES}).setdefault(t, [])
-        el = element_from_fields(kind, fields, source=source, correction=correction, date=date)
-        if not el.get("id"):
-            el["id"] = f"uc_{level}_{kind}_{sum(1 for e in bucket if e.get('source') == SOURCE_USER) + 1:03d}"
-        bucket[:] = [e for e in bucket if e.get("id") != el["id"]] + [el]
+        existing = next((i for i, e in enumerate(bucket) if fields.get("id") and e.get("id") == fields["id"]), None)
+        if existing is not None:                 # a confirm (or a retype) of the reading's own element: kept exactly
+            el = confirm_element(kind, bucket[existing], fields, source=source, correction=correction, date=date)
+            bucket[existing] = el
+        else:
+            el = element_from_fields(kind, fields, source=source, correction=correction, date=date)
+            if not el.get("id"):
+                el["id"] = f"uc_{level}_{kind}_{sum(1 for e in bucket if e.get('source') == SOURCE_USER) + 1:03d}"
+            _with_correction(el, correction)
+            _annotate(el, fields)
+            bucket.append(el)
         truth["last_added"] = el
     if correction:
         truth["corrections"] = sorted(set(truth.get("corrections") or []) | {correction})
@@ -621,7 +699,9 @@ def remove_element(truth: dict, kind: str, level: str, fields: dict, *, source: 
             bucket.append(target)
     if target is None:
         raise ValueError(f"no {kind} {fields.get('id')} on {level} in the truth")
-    target.update(absent=True, source=source, correction=correction, removed_on=date or today())
+    target.update(absent=True, source=source, removed_on=date or today())
+    _with_correction(target, correction)
+    _annotate(target, fields)
     truth["last_removed"] = target
     if correction:
         truth["corrections"] = sorted(set(truth.get("corrections") or []) | {correction})
@@ -640,6 +720,20 @@ PLACEABLE_KINDS = ("wall", "door", "window", "opening", "room", "stair")    # an
 SOURCE_REVIEW = "user_review"                                              # a remark captured by `remark add`
 
 
+def correction_applicable(rec: Optional[dict]) -> Optional[str]:
+    """Why a correction record may not go into the truth, None when it may (pure). 5 Nov 2026 (review): the truth
+    holds what the user said. A record goes in only when it is ``accepted`` (a machine proposal waits for the user)
+    and carries the user's words (``user_words``); a remark of the user's review (``source: user_review``) is the
+    user's words itself. A backfilled record without words states the session's own note, not the user's."""
+    if rec is None:
+        return "no such record in the correction store"
+    if rec.get("status") != "accepted":
+        return f"status {rec.get('status')!r}: waits for the user's confirmation"
+    if rec.get("source") != SOURCE_REVIEW and not str(rec.get("user_words") or "").strip():
+        return "no user words: the record states the session's own note, not the user's"
+    return None
+
+
 def correction_errors(records: list[dict], lesson_ids: Iterable[str], projects: Iterable[str]) -> list[str]:
     """What is wrong with the correction records (pure): a missing field, an unknown element kind, a lesson not in
     the lessons file (null needs a ``note``), a project not in ``projects/``, a place that is neither null nor
@@ -651,7 +745,9 @@ def correction_errors(records: list[dict], lesson_ids: Iterable[str], projects: 
     an accepted remark of the user's review (``source: user_review``, ``status: accepted``) about a placeable element
     (``PLACEABLE_KINDS``: wall, door, window, opening, room, stair) needs a ``place`` or an explicit ``place_note``
     (why it has none), so every future remark is placed at capture; and a record that says ``placeable: true`` needs
-    the same, while ``placeable: false`` needs its ``why``."""
+    the same, while ``placeable: false`` needs its ``why``. A record marked applied to the truth
+    (``truth_applied.status: applied``) must be one ``correction_applicable`` allows: accepted, with the user's
+    words."""
     lessons, known, seen, out = set(lesson_ids), set(projects), set(), []
     for rec in records:
         rid = rec.get("id")
@@ -683,6 +779,9 @@ def correction_errors(records: list[dict], lesson_ids: Iterable[str], projects: 
             out.append(f"{rid}: placeable but neither a place nor a place_note")
         if rec.get("placeable") is False and not str(rec.get("why") or "").strip():
             out.append(f"{rid}: placeable false without a why")
+        why = correction_applicable(rec)
+        if (rec.get("truth_applied") or {}).get("status") == "applied" and why:
+            out.append(f"{rid}: applied to the truth but {why}")
     return out
 
 
@@ -702,6 +801,12 @@ def main(args) -> int:
         if not args.project or not args.kind or not args.level:
             print("reading truth add/remove: --project, --level and --kind are needed")
             return 2
+        if args.correction and (args.source or SOURCE_USER) == SOURCE_USER:
+            rec = next((r for r in load_corrections() if r.get("id") == args.correction), None)
+            why = correction_applicable(rec)
+            if why:
+                print(f"reading truth {args.action}: correction {args.correction} is not applied: {why}")
+                return 2
         truth = load_truth(args.project) or new_truth(args.project)
         fields = {k: getattr(args, k, None) for k in ("id", "label", "room_type", "area", "polygon", "center",
                                                       "width", "wall_id", "start", "end", "thickness", "size",

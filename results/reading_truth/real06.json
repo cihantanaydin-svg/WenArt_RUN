@@ -547,6 +547,34 @@
      "status": "unverified"
     },
     {
+     "id": "o_L0_005",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      2.325
+     ],
+     "wall_id": "w_L0_045",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
+    },
+    {
+     "id": "o_L0_006",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      4.725
+     ],
+     "wall_id": "w_L0_045",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
+    },
+    {
      "id": "o_L0_007",
      "type": "window",
      "width": 1.876,
@@ -643,36 +671,6 @@
      "confidence": 0.9,
      "method": "vector",
      "status": "verified"
-    },
-    {
-     "id": "o_L0_005",
-     "type": "window",
-     "width": 1.6,
-     "center": [
-      8.526,
-      2.325
-     ],
-     "wall_id": "w_L0_045",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0022",
-     "added_on": "2026-11-05"
-    },
-    {
-     "id": "o_L0_006",
-     "type": "window",
-     "width": 1.6,
-     "center": [
-      8.526,
-      4.725
-     ],
-     "wall_id": "w_L0_045",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0022",
-     "added_on": "2026-11-05"
     }
    ],
    "openings": [
@@ -2138,6 +2136,34 @@
      "status": "unverified"
     },
     {
+     "id": "o_L1_006",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      2.325
+     ],
+     "wall_id": "w_L1_043",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
+    },
+    {
+     "id": "o_L1_007",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      4.725
+     ],
+     "wall_id": "w_L1_043",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified"
+    },
+    {
      "id": "win_L1_002",
      "type": "window",
      "width": 1.7,
@@ -2290,36 +2316,6 @@
      "confidence": 0.9,
      "method": "vector",
      "status": "verified"
-    },
-    {
-     "id": "o_L1_006",
-     "type": "window",
-     "width": 1.6,
-     "center": [
-      8.526,
-      2.325
-     ],
-     "wall_id": "w_L1_043",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0022",
-     "added_on": "2026-11-05"
-    },
-    {
-     "id": "o_L1_007",
-     "type": "window",
-     "width": 1.6,
-     "center": [
-      8.526,
-      4.725
-     ],
-     "wall_id": "w_L1_043",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0022",
-     "added_on": "2026-11-05"
     }
    ],
    "openings": [
@@ -3083,8 +3079,5 @@
   "scope": "all",
   "levels": null,
   "note": "user, 2 Nov 2026: the reading regression set ('go ahead with all 4', 'can we keep improving this regression set?'); its first baselines are the readings the user had reviewed on the comparison sheets (docs/progress.md, Reading self-check and regression set)"
- },
- "corrections": [
-  "C0022"
- ]
+ }
 }
