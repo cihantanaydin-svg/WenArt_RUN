@@ -6,7 +6,10 @@ run's zip: renders and comparison sheets together, ``pack``), ``python -m wenart
 synthetic projects' exact truth; ``truth add`` / ``truth remove`` put a user correction into it, ``truth``) and
 ``python -m wenart.reading_check score [--projects ...] [--work DIR] [--fresh] [--update] [--gate]`` (the reading
 score against the truth, ``score``; Milestone 14 R1, 4 Nov 2026). ``--fresh`` reads a project again even when
-``--work`` already holds its reading."""
+``--work`` already holds its reading. 5 Nov 2026: ``remark add|list|show|redo`` (a user's review remark as a
+correction record with a crop), ``stability`` (the reading under mirror, rotation, unit and layer changes) and
+``crossdoc`` (the cross-document checks RC8-RC12) are reachable here as well, each with its own parser
+(``python -m wenart.reading_check crossdoc --help``)."""
 from __future__ import annotations
 
 import argparse
@@ -14,7 +17,18 @@ import sys
 from pathlib import Path
 
 
+# 5 Nov 2026 (Milestone 14): the modules with a command line of their own, reachable here as subcommands too
+# (``python -m wenart.reading_check remark add ...``); each keeps its own parser.
+DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("wenart.reading_check.stability", "main"),
+             "crossdoc": ("wenart.reading_check.crossdoc", "_main")}
+
+
 def main(argv=None) -> int:
+    args_in = list(sys.argv[1:] if argv is None else argv)
+    if args_in and args_in[0] in DELEGATED:
+        import importlib
+        module, fn = DELEGATED[args_in[0]]
+        return int(getattr(importlib.import_module(module), fn)(args_in[1:]) or 0)
     ap = argparse.ArgumentParser(prog="python -m wenart.reading_check")
     sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("check", help="check a pipeline output against its drawing")
