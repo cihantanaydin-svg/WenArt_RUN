@@ -332,7 +332,7 @@ class DecisionLog:
                 # counted (``ranker_advice``), never applied; decided_by stays rule.
                 answer, by, margin, scores = RK.decide(KIND_WALL, rec["features"], rec["rule_answer"],
                                                        rec["rule_confidence"], allowed=RK.allowed_answers(rec),
-                                                       model=wall_model)
+                                                       model=wall_model, rule=rec.get("rule"))
                 rec["scores"], rec["margin"] = scores, margin
                 if by == RK.DECIDED_RANKER and answer != rec["rule_answer"]:
                     rec["ranker_advice"] = answer

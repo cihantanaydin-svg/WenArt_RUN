@@ -375,3 +375,77 @@ def test_synthetic_12_bare_gaps_of_the_mirrored_flat_become_doors_by_the_ranker(
     assert records["summary"]["gap_kind"]["decided_by"]["ranker"] == 4
     report = (out / "report.md").read_text(encoding="utf-8")
     assert report.count("the ranker decided door") == 4        # never silent: one page note per ranker decision
+
+
+# ------------------------------------------------------------------------------------------- the transition trust
+def test_transition_trust_needs_enough_right_held_out_changes():
+    changed = ([{"rule": "doorless", "ranker_answer": "door", "right": True}] * 3
+               + [{"rule": "doorless", "ranker_answer": "door", "right": False}]
+               + [{"rule": "unclassified", "ranker_answer": "door", "right": r} for r in (True, False, False, False)]
+               + [{"rule": "unclassified", "ranker_answer": "window", "right": True}] * 2)
+    trust = RK.transition_trust(changed)
+    assert trust["doorless->door"] == {"right": 3, "wrong": 1, "trusted": True}           # 3 of 4 >= 0.6
+    assert trust["unclassified->door"]["trusted"] is False                              # 1 of 4
+    assert trust["unclassified->window"]["trusted"] is False                            # 2 < TRANSITION_MIN
+
+
+def test_decide_applies_only_a_trusted_transition_and_an_agreeing_ranker_decides_nothing():
+    model = _model_saying(DEC.KIND_GAP, "door")
+    model["transitions"] = {"doorless->door": {"right": 3, "wrong": 0, "trusted": True},
+                            "unclassified->door": {"right": 1, "wrong": 3, "trusted": False}}
+    allowed = ["door", "window", "opening"]
+    assert RK.decide(DEC.KIND_GAP, {}, "opening", 0.5, allowed=allowed, model=model, rule="doorless")[:2] == \
+        ("door", "ranker")
+    got = RK.decide(DEC.KIND_GAP, {}, "opening", 0.2, allowed=allowed, model=model, rule="unclassified")
+    assert got[:2] == ("opening", "rule") and got[2] >= RK.MARGIN_MIN
+    assert RK.untrusted_change(model, "unclassified", "opening", 0.2, got[3], got[2], allowed) == "door"
+    # an agreeing ranker: the rule built the element
+    assert RK.decide(DEC.KIND_GAP, {}, "door", 0.5, allowed=allowed, model=model, rule="door_sliding_leaf")[:2] == \
+        ("door", "rule")
+
+
+def test_an_untrusted_change_is_recorded_and_becomes_a_low_confidence_place(monkeypatch):
+    model = _model_saying(DEC.KIND_GAP, "door")
+    model["transitions"] = {}
+    monkeypatch.setattr(RK, "load_model", lambda kind, models_dir=None: model)
+    walls = [R.wall((0, 0), (2, 0)), R.wall((2.9, 0), (5, 0))]
+    log = DEC.DecisionLog("L0", ranker=True)
+    out_walls, openings, gap_log, owned = O.gaps_and_openings(walls, [], "t.pdf", 1, decisions=log)
+    records = log.finalize((0.0, 0.0), out_walls, openings)
+    assert [o.kind for o in openings] == ["opening"]
+    rec = [r for r in records if r["kind"] == DEC.KIND_GAP][0]
+    assert rec["decided_by"] == "rule" and rec["ranker_untrusted"] == "door"
+    assert "not been shown" in rec["low_confidence"]
+    places = log.places()
+    assert len(places) == 1 and places[0]["kind"] == "undecided_gap" and places[0]["at"] == pytest.approx([2.45, 0.0])
+
+
+def test_lopo_reports_the_nested_trusted_accuracy():
+    """Two projects whose bare gaps are doors where a twin says so: held out, each project's changes count only when
+    the other project's held-out changes trust their transition."""
+    rows = []
+    for p in ("a", "b"):
+        for k in range(6):
+            twin = k % 2 == 0
+            rows.append({"kind": DEC.KIND_GAP, "project": p, "level_id": "L0", "place": [k, 0.0], "gap": "run",
+                         "features": {"twin_door": twin, "width": 0.9, "run_length": 9.0, "glass_lines": 0},
+                         "rule": "doorless", "rule_answer": "opening", "rule_confidence": 0.5,
+                         "label": "door" if twin else "opening", "weight": 3.0, "source": "synthetic"})
+    res = RK.lopo(rows, DEC.KIND_GAP, l2=1.0)
+    for p in ("a", "b"):
+        m = res["per_project"][p]
+        assert m["rules_acc"] == 0.5 and m["integrated_acc"] == 1.0          # the ranker learns the twin
+        assert m["trusted_acc"] == 1.0                                         # 3 of 3 held-out changes of the other
+    assert all(c["rule"] == "doorless" and c["right"] for c in res["changed"])
+    assert RK.transition_trust(res["changed"])["doorless->door"]["trusted"] is True
+
+
+def test_rc7_numbers_an_undecided_gap_with_its_own_words():
+    import wenart.reading_check as RCK
+
+    b = {"levels": [{"id": "L0", "label": "Zemin", "reading_places": [
+        {"kind": "undecided_gap", "text": "opening", "at": [2.45, 0.0], "note": "rule unclassified at 0.20 and ..."}]}],
+        "walls": []}
+    got = RCK.low_confidence_findings(b)
+    assert len(got) == 1 and got[0]["severity"] == "minor"
+    assert "gap at (2.45, 0.00) m kept as opening on weak evidence" in got[0]["message"]

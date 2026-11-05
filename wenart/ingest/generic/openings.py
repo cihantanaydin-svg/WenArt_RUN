@@ -793,18 +793,26 @@ def _apply_ranker(g: Gap, rec: dict) -> None:
     """Step 4 (5 Nov 2026): let the ranker decide the gap's kind where the rule is weak (``ranker.RULE_TRUST``) and its
     own margin clear (``ranker.MARGIN_MIN``), under the hard constraints that stay rules: a gap with a swing arc is a
     door; a gap wider than its wall run is never a door; an end gap makes no element (a ranker door there would extend
-    a wall: geometry); the answer is door, window or opening only (closed and open make or remove a wall). The record
-    gets ``decided_by``, ``margin`` and ``scores``; a weak rule with a weak ranker is a low-confidence place."""
+    a wall: geometry); the answer is door, window or opening only (closed and open make or remove a wall); and the
+    change must be a transition the held-out run trusted (``ranker.transition_trust``). The record gets
+    ``decided_by``, ``margin`` and ``scores``; an untrusted change is written as ``ranker_untrusted`` (never applied);
+    a weak rule with a weak or untrusted ranker is a low-confidence place."""
     from wenart.reading_check import ranker as RK
 
     f = rec["features"]
     allowed = RK.allowed_answers(rec)                 # the hard constraints, in one place (ranker.allowed_answers)
+    model = RK.load_model(rec["kind"])
     answer, by, margin, scores = RK.decide(rec["kind"], f, rec["rule_answer"], rec["rule_confidence"],
-                                           allowed=allowed)
+                                           allowed=allowed, model=model, rule=rec.get("rule"))
     rec["decided_by"] = by
     if scores:
         rec["scores"] = scores
         rec["margin"] = margin
+        if by != RK.DECIDED_RANKER:
+            would = RK.untrusted_change(model, rec.get("rule"), rec["rule_answer"], rec["rule_confidence"], scores,
+                                        margin, allowed)
+            if would is not None:
+                rec["ranker_untrusted"] = would
     if by == RK.DECIDED_RANKER and answer != rec["rule_answer"]:
         content = list(g.found.get("content", []))
         note = (f"ranker: {answer} (margin {margin:.2f}) over the rule's {rec['rule_answer']} "
@@ -817,9 +825,13 @@ def _apply_ranker(g: Gap, rec: dict) -> None:
             g.cls = "window"
             g.found = {"lines": content, "glass": [], "content": content, "by_ranker": {"margin": margin, "note": note}}
         rec["ranker_answer"] = answer
-    elif scores and rec["rule_confidence"] < RK.RULE_TRUST and margin < RK.MARGIN_MIN and len(allowed) > 1:
-        rec["low_confidence"] = (f"rule {rec['rule']} at {rec['rule_confidence']:.2f} and the ranker's margin "
-                                 f"{margin:.2f} are both weak: {rec['rule_answer']} kept")
+    elif scores and rec["rule_confidence"] < RK.RULE_TRUST and len(allowed) > 1 and \
+            (margin < RK.MARGIN_MIN or rec.get("ranker_untrusted")):
+        why = (f"the ranker's margin {margin:.2f} is weak" if margin < RK.MARGIN_MIN else
+               f"the ranker's {rec['ranker_untrusted']} (margin {margin:.2f}) is a change it has not been shown to get "
+               f"right on other projects")
+        rec["low_confidence"] = (f"rule {rec['rule']} at {rec['rule_confidence']:.2f} and {why}: "
+                                 f"{rec['rule_answer']} kept")
 
 
 def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:

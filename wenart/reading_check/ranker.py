@@ -66,6 +66,13 @@ DECIDED_RULE = "rule"
 DECIDED_RANKER = "ranker"
 RULE_TRUST = 0.6                 # a rule at or above this confidence is trusted; the ranker answers below it only
 MARGIN_MIN = 0.3                 # the ranker's top score must lead the second by this much to decide
+# 5 Nov 2026 (measured on the first model): with RULE_TRUST and MARGIN_MIN alone the committed gap model changed 21
+# decisions on accepted real projects (real06, real07, real10, real15, real17; real10's repeated on its six typical
+# floors) and held out it was right on 2 of 8 changes there. A change is made only for a transition (the weak rule ->
+# the ranker's answer, ``transition_key``) whose held-out changes on the leave-one-project-out run were right often
+# enough (``transition_trust``); the trusted transitions are stored with the model and re-measured on every retrain.
+TRANSITION_MIN = 3               # at least this many held-out changes of a transition ...
+TRANSITION_PRECISION = 0.6       # ... and at least this share of them right
 LABEL_WEIGHTS = {"user_correction": 10.0, "synthetic": 3.0, "accepted_reading": 1.0}   # docs/milestone14.md R3 (3)
 PLACE_TOL_M = 0.5                # a truth opening this close to a gap's place ...
 WIDTH_TOL_M = 0.3                # ... and this close in width labels the gap
@@ -371,11 +378,13 @@ def allowed_answers(rec: dict) -> list[str]:
 
 
 def decide(kind: str, features: dict, rule_answer: str, rule_confidence: float, allowed=None,
-           model: Optional[dict] = None) -> tuple[str, str, float, dict]:
+           model: Optional[dict] = None, rule: Optional[str] = None) -> tuple[str, str, float, dict]:
     """``(answer, decided_by, margin, scores)`` (step 4; pure given the model): the ranker's answer when the rule's
-    confidence is under ``RULE_TRUST``, the ranker has a model, more than one answer is allowed and its margin (top
-    share minus second among the allowed answers) is at least ``MARGIN_MIN``; else the rule's answer with
-    ``decided_by: rule``. ``scores`` is empty without a model."""
+    confidence is under ``RULE_TRUST``, the ranker has a model, more than one answer is allowed, its margin (top share
+    minus second among the allowed answers) is at least ``MARGIN_MIN`` and its answer differs from the rule's through a
+    trusted transition (the model's ``transitions``, ``transition_trust``; a model without them, such as a fresh fit in
+    the leave-one-project-out run, trusts every transition); else the rule's answer with ``decided_by: rule`` (a ranker
+    that agrees with the rule decides nothing: the rule built the element). ``scores`` is empty without a model."""
     model = model if model is not None else load_model(kind)
     if model is None:
         return rule_answer, DECIDED_RULE, 0.0, {}
@@ -383,9 +392,23 @@ def decide(kind: str, features: dict, rule_answer: str, rule_confidence: float, 
     allowed = list(allowed) if allowed else list(scores)
     ranked = sorted(((scores.get(a, 0.0), a) for a in allowed), key=lambda t: (-t[0], t[1]))
     margin = round(ranked[0][0] - (ranked[1][0] if len(ranked) > 1 else 0.0), 4)
-    if rule_confidence < RULE_TRUST and len(ranked) > 1 and margin >= MARGIN_MIN:
-        return ranked[0][1], DECIDED_RANKER, margin, scores
+    top = ranked[0][1]
+    if rule_confidence < RULE_TRUST and len(ranked) > 1 and margin >= MARGIN_MIN and top != rule_answer:
+        trust = model.get("transitions")
+        if trust is None or (trust.get(transition_key(rule, top)) or {}).get("trusted"):
+            return top, DECIDED_RANKER, margin, scores
     return rule_answer, DECIDED_RULE, margin, scores
+
+
+def untrusted_change(model: Optional[dict], rule: Optional[str], rule_answer: str, rule_confidence: float,
+                     scores: dict, margin: float, allowed) -> Optional[str]:
+    """The answer the ranker would have given if its transition were trusted (for the record; pure), else None."""
+    if not model or not scores or model.get("transitions") is None or rule_confidence >= RULE_TRUST \
+            or margin < MARGIN_MIN:
+        return None
+    ranked = sorted(((scores.get(a, 0.0), a) for a in allowed), key=lambda t: (-t[0], t[1]))
+    top = ranked[0][1] if ranked else rule_answer
+    return top if top != rule_answer and len(ranked) > 1 else None
 
 
 def model_path(kind: str, models_dir: Path = MODELS_DIR) -> Path:
@@ -437,14 +460,15 @@ def _accuracy(rows: list[dict], model: Optional[dict]) -> dict:
         n += 1
         rules += r["rule_answer"] == lab
         answer, by, margin, scores = decide(r["kind"], r["features"], r["rule_answer"], r["rule_confidence"],
-                                            allowed=allowed_answers(r), model=model)
+                                            allowed=allowed_answers(r), model=model, rule=r.get("rule"))
         top = max(scores, key=lambda c: (scores[c], c)) if scores else r["rule_answer"]
         rank += top == lab
         integ += answer == lab
         if by == DECIDED_RANKER and answer != r["rule_answer"]:
             changed.append({"project": r.get("project"), "level_id": r.get("level_id"), "place": r.get("place"),
-                            "rule_answer": r["rule_answer"], "ranker_answer": answer, "label": lab,
-                            "margin": margin, "right": answer == lab})
+                            "rule": r.get("rule"), "rule_answer": r["rule_answer"], "ranker_answer": answer,
+                            "label": lab, "margin": margin, "right": answer == lab,
+                            "rule_right": r["rule_answer"] == lab, "source": r.get("source")})
         if r.get("source") == "user_correction":
             corrections["n"] += 1
             corrections["rules"] += r["rule_answer"] == lab
@@ -479,7 +503,40 @@ def lopo(labelled: list[dict], kind: str, l2: float = L2) -> dict:
     overall = {"n": pooled_n, "rules_acc": round(pooled_rules / pooled_n, 4) if pooled_n else None,
                "ranker_acc": round(pooled_rank / pooled_n, 4) if pooled_n else None,
                "integrated_acc": round(pooled_integ / pooled_n, 4) if pooled_n else None, "corrections": pooled_corr}
+    # the transition trust, nested: a project's changes count only when the OTHER projects' held-out changes trust
+    # their transition (so a project never earns its own trust in this number)
+    pooled_trusted = 0
+    for p in projects:
+        m = per[p]
+        trust = transition_trust([c for c in changed if c["project"] != p])
+        delta = sum(int(c["right"]) - int(c["rule_right"]) for c in changed
+                    if c["project"] == p and trust.get(transition_key(c["rule"], c["ranker_answer"]), {}).get("trusted"))
+        right = round((m["rules_acc"] or 0) * m["n"]) + delta
+        m["trusted_acc"] = round(right / m["n"], 4) if m["n"] else None
+        pooled_trusted += right
+    overall["trusted_acc"] = round(pooled_trusted / pooled_n, 4) if pooled_n else None
     return {"per_project": per, "overall": overall, "changed": changed}
+
+
+def transition_key(rule: Optional[str], answer: str) -> str:
+    """The name of a ranker change: the rule that gave the weak answer and the ranker's answer (``doorless->door``)."""
+    return f"{rule}->{answer}"
+
+
+def transition_trust(changed: list[dict]) -> dict:
+    """``{transition: {"right", "wrong", "trusted"}}`` from held-out changes (pure): a transition is trusted when at least
+    ``TRANSITION_MIN`` held-out changes of it exist and at least ``TRANSITION_PRECISION`` of them were right. The R9
+    trust ledger's idea applied to the ranker: a change the ranker has not been shown to get right on other projects is
+    not made."""
+    out: dict = {}
+    for c in changed:
+        k = transition_key(c.get("rule"), c["ranker_answer"])
+        t = out.setdefault(k, {"right": 0, "wrong": 0})
+        t["right" if c["right"] else "wrong"] += 1
+    for t in out.values():
+        n = t["right"] + t["wrong"]
+        t["trusted"] = n >= TRANSITION_MIN and t["right"] >= TRANSITION_PRECISION * n
+    return dict(sorted(out.items()))
 
 
 def explain(model: dict, top: int = 8) -> dict:
@@ -499,11 +556,11 @@ def explain_text(model: dict, top: int = 8) -> str:
 
 
 def lopo_table(result: dict) -> str:
-    rows = [["project", "n", "rules", "ranker", "integrated", "corrections (n rules/ranker/integrated)"]]
+    rows = [["project", "n", "rules", "ranker", "integrated", "trusted", "corrections (n rules/ranker/integrated)"]]
     for p, m in sorted(result["per_project"].items()) + [("overall", result["overall"])]:
         c = m["corrections"]
         rows.append([p, str(m["n"]), f"{(m['rules_acc'] or 0):.3f}", f"{(m['ranker_acc'] or 0):.3f}",
-                     f"{(m['integrated_acc'] or 0):.3f}",
+                     f"{(m['integrated_acc'] or 0):.3f}", f"{(m.get('trusted_acc') or 0):.3f}",
                      f"{c['n']} {c['rules']}/{c['ranker']}/{c['integrated']}" if c["n"] else "-"])
     widths = [max(len(r[i]) for r in rows) for i in range(len(rows[0]))]
     return "\n".join("  ".join(c.ljust(widths[i]) if i == 0 else c.rjust(widths[i]) for i, c in enumerate(r))
@@ -576,7 +633,10 @@ def train(labelled: list[dict], kind: str, *, commit: Optional[str] = None, date
                            "labelled_rows": len(rows), "counts_per_source": counts, "label_weights": LABEL_WEIGHTS,
                            "labels": label_counts(rows).get(kind, {}).get("by_label", {})}
     model["metrics"] = {"leave_one_project_out": result["per_project"], "overall": result["overall"],
-                        "changed_in_lopo": result["changed"], "rule_trust": RULE_TRUST, "margin_min": MARGIN_MIN}
+                        "changed_in_lopo": result["changed"], "rule_trust": RULE_TRUST, "margin_min": MARGIN_MIN,
+                        "transition_min": TRANSITION_MIN, "transition_precision": TRANSITION_PRECISION}
+    # the transitions the integration trusts (decide): measured on the held-out changes of every project
+    model["transitions"] = transition_trust(result["changed"])
     return {"model": model, "table": table}
 
 
@@ -635,6 +695,9 @@ def main(argv=None) -> int:
         changed = got["model"]["metrics"]["changed_in_lopo"]
         right = sum(1 for c in changed if c["right"])
         print(f"{kind}: {len(changed)} decisions the held-out ranker changed, {right} right, {len(changed) - right} wrong")
+        print(f"{kind}: transitions (held out): " + "; ".join(
+            f"{k} {t['right']} right / {t['wrong']} wrong{' TRUSTED' if t['trusted'] else ''}"
+            for k, t in got["model"]["transitions"].items()))
         for c in changed[:max(0, args.changes)]:
             place = f"({c['place'][0]:.2f}, {c['place'][1]:.2f})" if c.get("place") else "?"
             print(f"  {c['project']} {c['level_id']} at {place} m: {c['rule_answer']} -> {c['ranker_answer']} "

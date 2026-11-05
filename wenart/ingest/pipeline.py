@@ -443,8 +443,21 @@ def _level_review(build: ProjectBuild, level_id: str, ex: LevelExtraction, reaso
 
 def _mark_level(level: dict, ex: LevelExtraction) -> None:
     """``reading_confidence: low``, ``reading_review`` and ``reading_places`` on a level built with review reasons
-    (``_build_marked``, ``_level_review``); nothing on a level without them (schema ``level``)."""
+    (``_build_marked``, ``_level_review``). 5 Nov 2026 (Milestone 14 R3): a level without review reasons still gets
+    its undecided gaps as ``reading_places`` (kind ``undecided_gap``: the rule under the ranker's trust and the ranker
+    weak or untrusted there), so RC7 numbers them; a typical-floor copy leaves them to the level it copies."""
     if not ex.reading_review:
+        if not level.get("typical_of"):
+            gaps, seen = [], set()
+            for p in ex.reading_places:
+                if p.get("kind") != "undecided_gap" or not p.get("at"):
+                    continue
+                key = (round(float(p["at"][0]), 2), round(float(p["at"][1]), 2))
+                if key not in seen:
+                    seen.add(key)
+                    gaps.append(dict(p))
+            if gaps:
+                level["reading_places"] = gaps
         return
     level["reading_confidence"] = READING_CONFIDENCE_LOW
     level["reading_review"] = list(ex.reading_review)
