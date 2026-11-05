@@ -653,7 +653,7 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set, log=None) -> Non
     from wenart.ingest.generic import decisions as DEC
 
     features = gap_features(g, index, owned_global, log)
-    rule, confidence = gap_rule(g, features, raster=any(it.st.source == "raster" for it in index.items[:1]))
+    rule, confidence = gap_rule(g, features, raster=bool(getattr(log, "raster", False)))
     rec = log.add_gap(g, {"kind": DEC.KIND_GAP, "id": None, "gap": g.kind, "features": features, "rule": rule,
                           "rule_answer": DEC._answer_of_class(g.cls), "rule_confidence": confidence,
                           "final_answer": None, "decided_by": DEC.DECIDED_RULE})
@@ -732,7 +732,8 @@ def gap_features(g: Gap, index: StrokeIndex, owned_global: set, log) -> dict:
         if it.st.closed and len(it.pts) > 2 and it.geom.length >= 1.0:
             outline_d = min(outline_d, it.geom.distance(centre))
     normal = (0.0, 1.0) if g.axis == "h" else (1.0, 0.0)
-    f = {"width": width, "thickness": g.t, "run_length": g.run_len or (max(p.b for p in g.pieces) - min(p.a for p in g.pieces)),
+    own = [p for p in g.pieces if p.axis == g.axis] or list(g.pieces)   # an end gap's hit piece lies on the other axis
+    f = {"width": width, "thickness": g.t, "run_length": g.run_len or (max(p.b for p in own) - min(p.a for p in own)),
          "kind_run": g.kind == "run", "kind_split": g.kind == "split", "kind_end": g.kind == "end",
          "exterior": False,
          "arcs": len(arcs), "arcs_swing": swing, "arcs_door_like": door_like, "arc_radius_ratio": best_ratio,
@@ -1340,6 +1341,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     raster = bool(strokes_m) and all(st.source == "raster" for st in strokes_m)
     log = decisions
     if log is not None:
+        log.raster = raster
         log.begin_gaps(theta)
     edge_m = RASTER_EDGE_PX * units_to_m if raster and units_to_m else 0.0
     runs = group_runs(pieces)

@@ -188,6 +188,7 @@ class DecisionLog:
     dimension_ids: frozenset = frozenset()
     units_to_m: Optional[float] = None
     ranker: bool = True                                   # step 4: the ranker may decide (False: the rules alone)
+    raster: bool = False                                  # a scan's traced lines (``gaps_and_openings`` sets it)
     gap_records: list = field(default_factory=list)       # [(record, gap)]
     wall_records: list = field(default_factory=list)      # [record]
     wall_counts: list = field(default_factory=list)       # [{layer, rule, pairs, without_record}] (``count_wall``)
