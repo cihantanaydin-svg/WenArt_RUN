@@ -58,6 +58,7 @@ RULE_CONFIDENCE: dict[str, float] = {
     "open_split": 0.70,            # a split run gap whose part holds no symbol: two walls on one line (real02)
     "doorless": 0.50,              # nothing in the band and no door-like arc: a passage, or an undrawn door or window
     "unclassified": 0.20,          # strokes in the band that no rule reads: the weakest answer of the cascade
+    "end_gap_open": 0.60,          # an end gap with no door or window drawn makes no element: the free end stays free
     # wall_or_notation: the face-pair wall reader of walls.face_pair_walls
     "notation_layer": 0.95,        # a text, dimension or axis layer never draws a wall (UL296)
     "axis_grid": 0.90,             # a layer whose pieces cross straight through each other is an axis grid (real10)
@@ -231,9 +232,20 @@ class DecisionLog:
             corners = [_rot(p, theta) for p in (g.point(g.a, -g.t / 2), g.point(g.b, -g.t / 2),
                                                  g.point(g.b, g.t / 2), g.point(g.a, g.t / 2))]
             rec["features"]["exterior"] = bool(exterior(corners)) if exterior is not None else False
-            rec["gaps_answer"] = _answer_of_class(g.cls) if id(g) in kept else DROPPED
+            rec["gaps_answer"] = gap_answer(g) if id(g) in kept else DROPPED
             if id(g) in kept:
                 by_centre.append((centre, rec))
+                caller = caller_rule(g)
+                if caller is not None and (rec["rule"] != caller or rec["rule_answer"] != rec["gaps_answer"]):
+                    # the caller's own rule decided after the cascade (wall material across the gap, a lining wall,
+                    # two walls on one line, a free end with nothing drawn): that is the reader's rule answer; the
+                    # cascade's stays on the record, and a ranker decision it overrode goes back to the rule
+                    rec["cascade_rule"], rec["cascade_answer"] = rec["rule"], rec["rule_answer"]
+                    rec["rule"], rec["rule_answer"] = caller, rec["gaps_answer"]
+                    rec["rule_confidence"] = rule_confidence(caller)
+                    if rec.get("decided_by") == DECIDED_RANKER:
+                        rec["decided_by"] = DECIDED_RULE
+                        rec["ranker_overridden_by"] = caller
         for rec, g in self.gap_records:
             twin = None
             if mirror_axis is not None and rec["gaps_answer"] != DROPPED:
@@ -317,6 +329,31 @@ class DecisionLog:
 def _answer_of_class(cls: str) -> str:
     """The decision answer of a gap class (``empty`` and ``unclassified`` both become an opening element)."""
     return {"empty": "opening", "unclassified": "opening"}.get(cls, cls)
+
+
+def gap_answer(g) -> str:
+    """The reader's answer for a gap at the end of ``gaps_and_openings``: an end gap left empty or unclassified makes
+    no element (``open``: the free end stays free); every other class as ``_answer_of_class``."""
+    if g.kind == "end" and g.cls in ("empty", "unclassified"):
+        return "open"
+    return _answer_of_class(g.cls)
+
+
+def caller_rule(g) -> Optional[str]:
+    """The rule of ``gaps_and_openings`` itself that decided a gap after the cascade (pure): wall material of other
+    pieces across it (``closed_inside_wall``), a thinner wall along its face (``open_lined``), a split run whose part
+    holds no symbol (``open_split``), or an end gap with no door or window drawn (``end_gap_open``: the free end stays
+    free, no element). None when the cascade's answer stood."""
+    found = g.found or {}
+    if found.get("inside"):
+        return "closed_inside_wall"
+    if found.get("lining"):
+        return "open_lined"
+    if found.get("split_reason"):
+        return "open_split"
+    if g.kind == "end" and g.cls in ("empty", "unclassified"):
+        return "end_gap_open"
+    return None
 
 
 def covers_point(p, seg) -> bool:

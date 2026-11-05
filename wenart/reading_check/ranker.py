@@ -129,9 +129,27 @@ def _nearest_opening(place, width: float, level_truth: dict) -> Optional[tuple]:
     return best
 
 
-def label_gap(rec: dict, level_truth: dict, truth_source: str) -> Optional[dict]:
+def _truth_walls(level_truth: dict) -> list[tuple]:
+    """``[(box, wall)]`` of a level's truth walls with their boxes grown by the matching tolerance (one pass per level;
+    the per-record loops skip the walls whose box misses the place)."""
+    out = []
+    for w in level_truth.get("walls") or []:
+        if not (w.get("start") and w.get("end")):
+            continue
+        (x0, y0), (x1, y1) = w["start"], w["end"]
+        g = max(WALL_LATERAL_M, float(w.get("thickness") or 0.0) / 2.0) + WALL_END_M
+        out.append(((min(x0, x1) - g, min(y0, y1) - g, max(x0, x1) + g, max(y0, y1) + g), w))
+    return out
+
+
+def _in_box(box, p) -> bool:
+    return box[0] <= float(p[0]) <= box[2] and box[1] <= float(p[1]) <= box[3]
+
+
+def label_gap(rec: dict, level_truth: dict, truth_source: str, walls: Optional[list] = None) -> Optional[dict]:
     """The label of a ``gap_kind`` record from one level's truth (pure): ``{"label", "weight", "source"}``; a negated
-    truth element gives ``{"negative_of": class, ...}``; None for a record without a place."""
+    truth element gives ``{"negative_of": class, ...}``; None for a record without a place. ``walls`` is
+    ``_truth_walls(level_truth)`` when the caller has it already."""
     place = rec.get("place")
     if not place:
         return None
@@ -146,23 +164,25 @@ def label_gap(rec: dict, level_truth: dict, truth_source: str) -> Optional[dict]
         else:
             out["label"] = kind
         return out
-    walls = [w for w in level_truth.get("walls") or [] if w.get("start") and w.get("end") and not w.get("absent")]
-    covered = next((w for w in walls if _wall_covers_point(w, place)), None)
+    walls = _truth_walls(level_truth) if walls is None else walls
+    covered = next((w for box, w in walls if not w.get("absent") and _in_box(box, place)
+                    and _wall_covers_point(w, place)), None)
     if covered is not None:
         src = covered.get("source") or truth_source
         return {"label": "closed", "weight": LABEL_WEIGHTS.get(src, 1.0), "source": src, "element": covered.get("id")}
     return {"label": "open", "weight": LABEL_WEIGHTS.get(truth_source, 1.0), "source": truth_source, "element": None}
 
 
-def label_wall(rec: dict, level_truth: dict, truth_source: str) -> Optional[dict]:
+def label_wall(rec: dict, level_truth: dict, truth_source: str, walls: Optional[list] = None) -> Optional[dict]:
     """The label of a ``wall_or_notation`` record (pure): ``wall`` when a truth wall covers the pair's centre line,
     else ``notation``; a negated truth wall covering it is a negative of ``wall``."""
     line = rec.get("line")
     if not line:
         return None
     a, b = line
-    for w in level_truth.get("walls") or []:
-        if w.get("start") and w.get("end") and _wall_covers_segment(w, a, b):
+    walls = _truth_walls(level_truth) if walls is None else walls
+    for box, w in walls:
+        if _in_box(box, a) and _in_box(box, b) and _wall_covers_segment(w, a, b):
             src = w.get("source") or truth_source
             out = {"weight": LABEL_WEIGHTS.get(src, 1.0), "source": src, "element": w.get("id")}
             if w.get("absent"):
@@ -180,12 +200,14 @@ def label(decisions: list[dict], truth: dict) -> list[dict]:
     truth labels only its levels."""
     per = truth.get("per_level") or {}
     src = truth.get("source") or "accepted_reading"
+    walls_of = {lid: _truth_walls(lv) for lid, lv in per.items()}
     out = []
     for rec in decisions:
         lv = per.get(rec.get("level_id"))
-        if lv is None:
+        if lv is None or rec.get("final_answer") == "dropped":     # a candidate the reader discarded is no decision
             continue
-        lab = label_gap(rec, lv, src) if rec.get("kind") == KIND_GAP else label_wall(rec, lv, src)
+        lab = label_gap(rec, lv, src, walls_of[rec["level_id"]]) if rec.get("kind") == KIND_GAP \
+            else label_wall(rec, lv, src, walls_of[rec["level_id"]])
         if lab is None:
             continue
         out.append(dict(rec, **lab))
@@ -558,7 +580,8 @@ def write_model(kind: str, model: dict, table: dict, models_dir: Path = MODELS_D
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m wenart.reading_check.ranker", description=__doc__.split("\n")[0])
-    ap.add_argument("action", choices=["train", "eval", "explain", "label"])
+    ap.add_argument("action", choices=["train", "eval", "evaluate", "explain", "label"],
+                    help="evaluate is the same as eval (for shells that treat the word specially)")
     ap.add_argument("--work", default=None, help="the readings, one folder per project (score --work leaves them)")
     ap.add_argument("--projects", default=None, help="comma separated (default: every project with a truth file)")
     ap.add_argument("--kind", default=None, help=f"one of {', '.join(CLASSES)} (default: both)")
