@@ -20,6 +20,9 @@ CAD document) and returns the findings, each with its check, severity, level and
   name them on the comparison sheets, where they are drawn in their own colour; RC7 is listed first in the markdown.
   RC7 alone never changes the verdict: these are places to check, not a stop.
 
+- RC8 to RC12 (5 Nov 2026, Milestone 14 R5, ``wenart.reading_check.crossdoc``): the cross-document checks, advisory
+  (reported, counted under ``counts["advisory"]``, never in the verdict until they earn it).
+
 ``verdict``: ``ready`` without a critical finding, else ``fix before a pod run``. ``write(out_dir, result)`` writes
 ``reading_check/reading_check.json`` and ``.md``; ``wenart.reading_check.sheets`` draws the comparison sheets (the
 drawing, the model in the drawing's orientation, the model's walls over the drawing, the findings marked).
@@ -565,7 +568,23 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     ref = reference or next((lid for lid in ("L0", "L1") if lid in anchors), next(iter(anchors), None))
     if ref:
         findings += stacking(anchors, ref, {lv["id"]: lv.get("order") for lv in building.get("levels") or []})
-    counts = {s: sum(1 for f in findings if f["severity"] == s) for s in ("critical", "major", "minor")}
+    # 5 Nov 2026 (Milestone 14 R5): the cross-document checks RC8-RC12 (elevations against the plans per floor,
+    # sections against the levels, the site plan against the model, size tags against the openings read, twins and
+    # typical floors against each other) join the reading check as ADVISORY findings: reported and counted apart,
+    # never part of the verdict until the trust ledger (R9) shows they earned it; their ``info`` severity is a note.
+    # A failure of the module is one info finding, never a stop of the reading check.
+    try:
+        from wenart.reading_check import crossdoc as CD
+        cross = CD.findings(out_dir)
+    except Exception as exc:  # noqa: BLE001 - an advisory check never stops the reading check
+        cross = [{"check": "RC8", "name": "cross-document checks", "severity": "info", "level_id": None,
+                  "message": f"the cross-document checks did not run: {type(exc).__name__}: {str(exc)[:200]}"}]
+    for f in cross:
+        f["advisory"] = True
+    findings += cross
+    counts = {s: sum(1 for f in findings if f["severity"] == s and not f.get("advisory"))
+              for s in ("critical", "major", "minor")}
+    counts["advisory"] = {s: sum(1 for f in cross if f["severity"] == s) for s in ("major", "minor", "info")}
     return {"project": (building.get("project") or {}).get("id"), "levels_checked": checked, "reference": ref,
             "conventions": conv,
             "findings": findings, "counts": counts, "notes": notes,
@@ -607,17 +626,21 @@ def write(out_dir, result: dict) -> Path:
     d = Path(out_dir) / "reading_check"
     d.mkdir(parents=True, exist_ok=True)
     (d / "reading_check.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
+    adv = (result.get("counts") or {}).get("advisory") or {}
+    adv_text = (f" Cross-document checks RC8-RC12, advisory: {adv.get('major', 0)} major, {adv.get('minor', 0)} "
+                f"minor, {adv.get('info', 0)} info (not in the verdict)." if adv else "")
     lines = [f"# Reading check: {result.get('project')}", "",
              f"Verdict: **{result['verdict']}** ({result['counts']['critical']} critical, {result['counts']['major']} "
              f"major, {result['counts']['minor']} minor). Levels checked against the drawing: "
-             f"{', '.join(result['levels_checked']) or 'none'}; reference {result.get('reference')}.", "",
+             f"{', '.join(result['levels_checked']) or 'none'}; reference {result.get('reference')}.{adv_text}", "",
              "| check | severity | level | finding |", "|---|---|---|---|"]
-    order = {"critical": 0, "major": 1, "minor": 2}
+    order = {"critical": 0, "major": 1, "minor": 2, "info": 3}
     # 4 Nov 2026: RC7's low-confidence places first (the user checks them on the sheets), then by severity
-    for f in sorted(result["findings"], key=lambda f: (0 if f["check"] == "RC7" else 1, order[f["severity"]],
-                                                       f["check"], str(f.get("level_id")), f.get("place") or 0)):
-        lines.append(f"| {f['check']} {f['name']} | {f['severity']} | {f.get('level_id') or '-'} | "
-                     f"{f['message'].replace('|', '/')} |")
+    for f in sorted(result["findings"], key=lambda f: (0 if f["check"] == "RC7" else 1, order.get(f["severity"], 3),
+                                                       1 if f.get("advisory") else 0, f["check"],
+                                                       str(f.get("level_id")), str(f.get("place") or 0))):
+        lines.append(f"| {f['check']} {f['name']}{' (advisory)' if f.get('advisory') else ''} | {f['severity']} | "
+                     f"{f.get('level_id') or '-'} | {f['message'].replace('|', '/')} |")
     if result.get("notes"):
         lines += ["", "Notes:"] + [f"- {n}" for n in result["notes"]]
     conv = result.get("conventions") or {}
