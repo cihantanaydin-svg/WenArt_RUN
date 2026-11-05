@@ -556,9 +556,9 @@ def test_only_accepted_records_with_the_users_words_reach_the_truth(tmp_path, mo
 
 # --- a synthetic failure class against its exact truth (one DXF reading, seconds) -----------------------------------
 
-@pytest.mark.xfail(strict=True, reason="synthetic-06 scored against its exact truth stays below 100 until the reader "
-                                       "handles what it misreads (Milestone 14 R1: the first honest number)")
 def test_synthetic_06_against_its_exact_truth_scores_100(tmp_path):
+    """Was a strict xfail (Milestone 14 R1: the first honest number); synthetic-06 reads its exact truth since 5 Nov
+    2026 (``mirror.halves``: its symmetric shell no longer gets the mirror of two walls, two doors and two windows)."""
     folder = TR.reading("synthetic-06", tmp_path)
     b = json.loads((folder / "building.json").read_text(encoding="utf-8"))
     truth = TR.synthetic_truth("synthetic-06", TR.synthetic_truth_file("synthetic-06"))

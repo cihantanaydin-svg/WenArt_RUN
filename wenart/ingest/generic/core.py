@@ -262,7 +262,6 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
     way (its label the twin's, ``label_inferred``)."""
     import copy as _copy
 
-    from wenart.ingest.generic import facade as FC
     from wenart.levels import outdoor as OD
 
     areas = [a for a in site.get("areas") or [] if not a.get("polygon")
@@ -277,7 +276,7 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
         ex.notes.append(f"{where}: outdoor space '{a.get('label')}': " + (
             rec["reason"] + (f"; {rec['steps']['reason']}" if rec.get("steps") else "") if rec is not None else
             "no drawn outline closes around the label (the level inference infers one)"))
-    axis = FC.mirror_axis(walls, FC.MIRROR_FIX_SHARE) if walls else None
+    axis = _halves(ex, walls) if walls else None
     if axis is None:
         return
     anchors = [tuple(a["anchor"]) for a in site.get("areas") or [] if a.get("anchor")]
@@ -1379,18 +1378,20 @@ CLOSURE_NO_SUPPORT_ROLES = ("furniture", "dimension", "hatch", "section", "site"
                             "sanitary", "axis")
 
 
-def outdoor_guard(blocks: list, walls: list) -> dict:
+def outdoor_guard(blocks: list, walls: list, axis="halves") -> dict:
     """What no inferred wall may close into a room (5 Nov 2026, real11 L0: the glazed-facade pass closed the left
     kitchen along its balcony's railing and the balcony became kitchen floor; the right half, closed by the outline
     closure along the facade, kept its balcony): ``points`` = the anchors of the balcony, terrace, porch ... labels
     (``topology._outdoor_label``) and, when the plan has two mirrored halves (``facade.mirror_axis``), their mirror
     images (the drafter names one half only; a balcony on one half protects its twin on the other);
-    ``areas`` = the area texts of those labels in m2 (``10.00 m2``); ``axis`` = the mirror axis or None."""
-    from wenart.ingest.generic import facade as FC
+    ``areas`` = the area texts of those labels in m2 (``10.00 m2``); ``axis`` = the mirror axis or None (the level's
+    decision ``_halves`` passed by the caller; by default ``mirror.halves_axis`` of ``walls`` and ``blocks``)."""
+    from wenart.ingest.generic import mirror as MR
 
     outdoor = [b for b in blocks if TP._outdoor_label(b)]
     points = [(Point(b.anchor), False, b.name) for b in outdoor]
-    axis = FC.mirror_axis(walls, FC.MIRROR_FIX_SHARE) if walls else None
+    if axis == "halves":
+        axis = MR.halves_axis(walls, labels=blocks)[0] if walls else None
     if axis is not None:
         for b in outdoor:
             x, y = b.anchor
@@ -1875,7 +1876,7 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
     guard = outline.buffer(CLOSURE_OUTLINE_TOL_M, join_style=2) if outline is not None else None
     if outline is not None:                           # the debug image and the report show what guarded the bridges
         report["outline"] = [[round(x, 3), round(y, 3)] for x, y in outline.simplify(0.05).exterior.coords]
-    og = outdoor_guard(blocks, walls2)                    # balcony labels, their mirror images, their area texts
+    og = outdoor_guard(blocks, walls2, _halves(ex, walls2, openings, blocks, level_id))   # balconies, mirrors, areas
     indoor = [Point(b.anchor) for b in blocks if not getattr(b, "exterior", False) and not TP._outdoor_label(b)]
     if og["axis"] is not None:
         report["mirror_axis"] = [og["axis"][0], round(og["axis"][1], 3)]
@@ -2285,8 +2286,6 @@ def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, l
     recess is outside. Never silent: each one is noted with the gap's entities."""
     import math as _m
 
-    from wenart.ingest.generic import facade as FC
-
     faces = TP.faces(walls2, openings)
     if not faces:
         return None
@@ -2294,7 +2293,7 @@ def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, l
     anchors = [Point(b.anchor) for b in blocks]
     # 3 Nov 2026 (real10, user: "this section is still wrong should be similar as the mirror"): on a plan of two
     # mirrored halves, the recess's twin decides when its own window could not be read
-    axis = FC.mirror_axis(walls2, FC.MIRROR_FIX_SHARE)
+    axis = _halves(ex, walls2, openings, blocks, level_id)
     splits, pending, opened = [], [], []
     for k, o in enumerate(openings):
         if not _empty_gap(o):
@@ -2538,6 +2537,24 @@ MIRROR_MAX_NEW_WALLS = 3        # mirror twins differ by at most this many walls
 CORE_KEEP_OUT_M = 3.0           # no mirror fix within this of a lift label (the core: lift and stair, not mirrored)
 
 
+def _halves(ex, walls: list, openings: list = (), blocks: list = (), level_id=None) -> Optional[tuple]:
+    """The level's one decision whether its plan is two mirrored halves (``mirror.halves``), made once on the first
+    rule that asks and kept on the extraction (``ex.report["mirror"]``); every mirror rule of the level uses it
+    (outdoor outlines and guard, recess twins, mirror seeds, the mirror fixes, the separators). Returns the axis or
+    None. 5 Nov 2026 (review: the other mirror users kept the shell-only gate)."""
+    from wenart.ingest.generic import mirror as MR
+
+    rep = ex.report.get("mirror")
+    if rep is None:
+        h = MR.halves(walls, list(openings or []), list(blocks or []), level_id) if walls else {"axis": None,
+                                                                                                "note": None}
+        rep = dict(h, axis=list(h["axis"]) if h["axis"] else None)
+        ex.report["mirror"] = rep
+        if h.get("note"):
+            ex.notes.append(f"mirror check: {h['note']}; no mirror rule on this level")
+    return tuple(rep["axis"]) if rep.get("axis") else None
+
+
 def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
                         problem: Optional[str]):
     """The mirror fixes of a plan of two mirrored halves (``mirror.consistency``), step by step (thickness, inferred
@@ -2548,21 +2565,15 @@ def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: li
     thick on one half, a missing wall and seven openings; together they paired one room fewer and none was kept)."""
     from wenart.ingest.generic import mirror as MR
 
-    # 5 Nov 2026: the layout inside the shell must be mirrored too (``mirror.halves_axis``), not only the shell
-    axis, why_not = MR.halves_axis(walls2, openings=openings, labels=blocks)
+    # 5 Nov 2026: the level's one mirror decision (``_halves``: the layout inside the shell is mirrored too)
+    axis = _halves(ex, walls2, openings, blocks, level_id)
     if axis is None:
-        if why_not:
-            ex.notes.append(f"{where}: mirror check: {why_not}; no fix")
         return None
     before = MR.mirrored_face_pairs(walls2, openings, axis)
     base_unclosed = _unclosed(site_warnings)
     # 3 Nov 2026 (real10, user: "core stairs and elevators and that section is shaft usually": the lift shaft's wall
     # was copied into the stair beside it): the core around a lift label is not mirrored
-    from wenart.sheets import register as RG_
-    from wenart.sheets import titles as TI_
-    lifts = [Point(b.anchor).buffer(CORE_KEEP_OUT_M) for b in blocks
-             if RG_.LIFT_RE.search(TI_.fold(str(getattr(b, "name", "") or "")))]
-    keep_out = unary_union(lifts) if lifts else None
+    keep_out = MR.core_keep_out(blocks)
     kept_steps: list = []
     best = None
     notes = []
@@ -2637,14 +2648,15 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
     labelled = [tuple(b.anchor) for b in blocks if not getattr(b, "exterior", False)
                 and getattr(b, "room_type", None) != "balcony"]
     seeds = FC.mirror_seeds(walls2, labelled, lambda q: hull.contains(Point(q))
-                            and not any(f.contains(Point(q)) for f in faces_now))
+                            and not any(f.contains(Point(q)) for f in faces_now),
+                            axis=_halves(ex, walls2, openings, blocks, level_id))
     faces, links = FC.close_rooms(walls2, strokes, anchors + seeds)
     if not faces:
         return None
     # 5 Nov 2026 (real11 L0: the left kitchen's face ran along the balcony's railing and took the 'BALKON 10.00 m2'
     # in): a face holding an outdoor-space label, the mirror image of one, or matching an outdoor area text is no
     # room; it is not closed here (the outline closure may close the room along its facade, under the same guard)
-    guard = outdoor_guard(blocks, walls2)
+    guard = outdoor_guard(blocks, walls2, _halves(ex, walls2, openings, blocks, level_id))
     kept_faces = {}
     for k, face in faces.items():
         why = outdoor_enclosure(face, guard)
@@ -2974,7 +2986,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     stairs = [p for p in pieces if p.type == "stair"]
     from wenart.ingest.generic import facade as FC_
     seps, sep_log = TP.separators(bwalls, b_openings, gap_log, blocks, stairs, units_to_m=s,
-                                  axis=FC_.mirror_axis(bwalls, FC_.MIRROR_FIX_SHARE))
+                                  axis=_halves(ex, bwalls, b_openings, blocks, level_id))
     rows = face_table(TP.faces(bwalls, b_openings, seps), blocks, bwalls, b_openings, stairs)
     SY.apply_room_checks(pieces, cands + extras, [{"polygon": r["polygon"], "room_type": r["room_type"],
                                                    "label": r["label"]} for r in rows], ex.notes)

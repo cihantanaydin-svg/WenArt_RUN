@@ -41,7 +41,9 @@ THICK_RATIO = 1.8
 MISSING_MIN_M = 0.6
 OPENING_TOL_M = 0.25            # an opening's twin: its centre within this of the mirrored centre
 AXIS_CLEAR_M = 0.3              # walls on the axis (the party wall) are their own twins
-INNER_CLEAR_M = 0.05            # a wall this close to the box around all walls is the shell, not the halves' layout
+INNER_CLEAR_M = 0.05            # a wall this close to the building's outline is the shell, not the halves' layout
+CORE_KEEP_OUT_M = 3.0           # no mirror fix within this of a lift label (core.CORE_KEEP_OUT_M, the same value)
+MIRROR_MAX_NEW_WALLS = 3        # core.MIRROR_MAX_NEW_WALLS (the same value): the halves differ by at most this many walls
 RULE = "mirror_twin"
 
 
@@ -131,13 +133,40 @@ def _on_wall(o, w) -> bool:
     return LineString([a, b]).distance(Point(o.center)) <= float(w.thickness) / 2.0 + 0.05
 
 
-def inner_walls(walls: list) -> list:
-    """The walls that stand more than ``INNER_CLEAR_M`` from the box around all walls: the layout inside the shell."""
-    polys = [TP.wall_polygon(w) for w in walls]
-    if not polys:
+def core_keep_out(labels: list):
+    """The building's core: a disc of ``CORE_KEEP_OUT_M`` around every lift label (3 Nov 2026, real10: the lift and the
+    stair are not mirrored), or None."""
+    from wenart.sheets import register as RG_
+    from wenart.sheets import titles as TI_
+
+    lifts = [Point(b.anchor).buffer(CORE_KEEP_OUT_M) for b in labels or []
+             if RG_.LIFT_RE.search(TI_.fold(str(getattr(b, "name", "") or "")))]
+    return unary_union(lifts) if lifts else None
+
+
+def inner_walls(walls: list, openings: list = (), labels: list = (), level_id=None, bw=None) -> list:
+    """The walls of the building that stand more than ``INNER_CLEAR_M`` from the building's outline: the layout inside
+    the shell. The building walls are ``topology.split_plot``'s, less the walls that bound only an enclosure (a face
+    with another face inside its ring: the garden inside a garden wall all round the house, which ``split_plot``
+    keeps as building because the house's labels lie inside its ring); the outline is the convex hull of the rest
+    (a terrace parapet joined to the house is on it)."""
+    from shapely.geometry import Polygon
+
+    if bw is None:
+        bw = TP.split_plot(list(walls), list(openings or []), list(labels or []), level_id=level_id)[0] or list(walls)
+    faces = TP.faces(bw, list(openings or []))
+    rooms = [f for f in faces if not any(Polygon(f.exterior).contains(g.representative_point())
+                                         for g in faces if g is not f)]
+    if rooms and len(rooms) < len(faces):
+        polys = [(w, TP.wall_polygon(w)) for w in bw]
+        bw = [w for w, pg in polys if any(pg.distance(f) <= INNER_CLEAR_M for f in rooms)] or bw
+    # the convex hull, not the closed outline: early in the reading a flat may still be open to its facade (real09's
+    # unlabelled flat before its facade of frames is closed), and its walls would all lie on a closed outline
+    outline = unary_union([TP.wall_polygon(w) for w in bw]).convex_hull
+    if outline.is_empty:
         return []
-    ring = unary_union(polys).envelope.exterior
-    return [w for w, pg in zip(walls, polys) if pg.distance(ring) > INNER_CLEAR_M]
+    ring = outline.boundary
+    return [w for w in bw if TP.wall_polygon(w).distance(ring) > INNER_CLEAR_M]
 
 
 def mirror_share(walls: list, axis) -> float:
@@ -156,14 +185,56 @@ def mirror_share(walls: list, axis) -> float:
     return u.intersection(m.buffer(FC.MIRROR_NEAR_M, join_style=2)).area / u.area
 
 
+def centre_coverage(w, others: list, axis) -> float:
+    """The share of ``w``'s centre line whose mirror about ``axis`` runs on the centre line of another wall of
+    ``others``: parallel, within half the thicker wall (+ 0.05 m) of it. Measured on centre lines, not areas, so a wall
+    read too thick (a counter fused with it, its centre shifted) still pairs with its twin."""
+    a, b = _seg(w)
+    ma, mb = _mirror(a, axis), _mirror(b, axis)
+    L = math.dist(ma, mb)
+    if L <= 1e-9:
+        return 0.0
+    u = _dir(ma, mb)
+    spans = []
+    for v in others:
+        if v is w:
+            continue
+        c, d = _seg(v)
+        uv = _dir(c, d)
+        if abs(u[0] * uv[1] - u[1] * uv[0]) > PAIR_ANGLE:
+            continue
+        tol = max(float(w.thickness), float(v.thickness)) / 2.0 + 0.05
+        if any(abs(-(p[0] - ma[0]) * u[1] + (p[1] - ma[1]) * u[0]) > tol for p in (c, d)):
+            continue
+        t0, t1 = sorted(((p[0] - ma[0]) * u[0] + (p[1] - ma[1]) * u[1]) for p in (c, d))
+        lo, hi = max(t0, 0.0), min(t1, L)
+        if hi > lo:
+            spans.append((lo, hi))
+    covered, cur = 0.0, None
+    for lo, hi in sorted(spans):
+        if cur is None or lo > cur[1]:
+            covered += (cur[1] - cur[0]) if cur else 0.0
+            cur = [lo, hi]
+        else:
+            cur[1] = max(cur[1], hi)
+    covered += (cur[1] - cur[0]) if cur else 0.0
+    return covered / L
+
+
+# Room types that may stand for each other in mirrored twins (5 Nov 2026 review: 'Banyo' and 'Banyo / WC', 'Mutfak' and
+# 'Salon + Açık Mutfak' are the same rooms of two flats)
+ROOM_FAMILIES = {"bathroom": "wet", "wc": "wet", "shower": "wet", "kitchen": "day", "living": "day", "dining": "day"}
+LABEL_DISAGREE_MIN = 2          # at least this many mirrored labelled room pairs of different rooms refuse the halves
+
+
 def label_pairs(walls: list, openings: list, axis, labels: list) -> tuple[int, int]:
     """``(agree, disagree)``: of the faces that pair with the mirror of another face (intersection over union >= 0.9)
     and both hold a room label (``labels``: LabelBlocks; site areas and labels of no room type left out), the pairs
-    whose labels share a room type and those whose labels share none. A face that is its own mirror (it straddles the
-    axis) is no pair."""
+    whose labels share a room family (``ROOM_FAMILIES``: wet rooms one family, kitchen, living and dining another) and
+    those whose labels share none. A face that is its own mirror (it straddles the axis) is no pair."""
     from shapely import affinity
 
-    named = [(Point(b.anchor), b.room_type) for b in labels or []
+    named = [(Point(b.anchor), ROOM_FAMILIES.get(b.room_type, b.room_type)) for b in labels or []
              if not getattr(b, "exterior", False) and getattr(b, "room_type", "other") not in ("other", "unknown")]
     if not named:
         return 0, 0
@@ -190,37 +261,75 @@ def label_pairs(walls: list, openings: list, axis, labels: list) -> tuple[int, i
     return agree, disagree
 
 
-def halves_axis(walls: list, min_share: Optional[float] = None, openings: Optional[list] = None,
-                labels: Optional[list] = None) -> tuple[Optional[tuple], Optional[str]]:
-    """``(axis, note)``: the axis of a plan of two mirrored halves for the steps that change the model, or None with
-    the reason. 5 Nov 2026 (a single house in a symmetric shell, synthetic-06, -07, -19 and the outline fixture: the
-    outer walls and the walls across the whole plan make ``facade.mirror_axis`` overlap 0.95 on their own, and the
-    mirror fixes copied walls, doors and windows of one room into the other). Two more conditions:
+MISSING_EVIDENCE = 2            # a wall left out of the share as missing needs this many walls that do pair
 
-    1. the walls inside the shell (``inner_walls``) overlap their mirror by ``min_share`` (``MIRROR_FIX_SHARE``) too:
-       two mirrored flats repeat their layout there, a single dwelling usually does not;
-    2. the labelled rooms that mirror each other are the same rooms (``label_pairs``): more pairs share a room type
-       than not (synthetic-07's ground floor: its right side is split in the middle, Banyo below and Hol above, a
-       symmetric layout of two different rooms). Mirrored flats name their twins alike (real02, real10), or name one
-       half only (real09: no labelled pair, no objection)."""
+
+def halves(walls: list, openings: list = (), labels: list = (), level_id=None,
+           min_share: Optional[float] = None) -> dict:
+    """The decision whether a plan is two mirrored halves (the one decision every mirror rule of a level uses):
+    ``{"axis": (axis, value) or None, "note": why not or None, "share", "walls_inside", "self_mirror", "paired",
+    "missing", "labels": [agree, disagree]}``.
+
+    5 Nov 2026 (a single house in a symmetric shell, synthetic-06, -07, -19 and the outline fixture: the outer walls and
+    the walls across the whole plan made ``facade.mirror_axis`` overlap ~0.95 on their own, and the mirror fixes copied
+    walls, doors and windows of one room into another; review of 5 Nov: a garden wall or a terrace parapet, walls on the
+    axis and one defective wall must not decide it). The plan is two mirrored halves when
+
+    1. ``facade.mirror_axis`` of all walls reaches ``min_share`` (``MIRROR_FIX_SHARE``), as before;
+    2. the walls inside the building's shell (``inner_walls``: plot walls and the outline left out), away from the core
+       (``core_keep_out``) and not their own mirror (``pair_walls`` i -> i: a wall on the axis or across it pairs with
+       itself in any layout), pair with a mirror twin: at least ``MISSING_EVIDENCE`` of them, and their centre lines
+       (``centre_coverage``) are covered by ``min_share``; up to ``MIRROR_MAX_NEW_WALLS`` walls with no twin (the walls
+       the missing step copies) are left out of the share while at least ``MISSING_EVIDENCE`` times as many pair;
+    3. the labelled rooms that mirror each other are the same rooms (``label_pairs``): at least ``LABEL_DISAGREE_MIN``
+       pairs of different rooms, and more than agree, refuse (synthetic-07's ground floor: a symmetric layout of Banyo
+       below and Hol above). Mirrored flats name their twins alike (real02, real10), or one half only (real09)."""
     from wenart.ingest.generic import facade as FC
 
     share = FC.MIRROR_FIX_SHARE if min_share is None else min_share
+    out = {"axis": None, "note": None, "share": None, "walls_inside": 0, "self_mirror": 0, "paired": 0, "missing": 0,
+           "labels": None}
     axis = FC.mirror_axis(walls, share)
     if axis is None:
-        return None, None
-    inner = inner_walls(walls)
-    got = mirror_share(inner, axis)
-    if got < share:
-        return None, (f"the shell is symmetric about {axis[0]} = {axis[1]:.2f} but the {len(inner)} walls inside it "
-                      f"overlap their mirror {got:.0%} (< {share:.0%}): one layout, not two mirrored halves")
+        return out
+    keep_out = core_keep_out(labels)
+    bw = TP.split_plot(list(walls), list(openings or []), list(labels or []), level_id=level_id)[0] or list(walls)
+    inner = [w for w in inner_walls(walls, openings, labels, level_id, bw=bw)
+             if keep_out is None or not TP.wall_polygon(w).intersects(keep_out)]
+    pairs = pair_walls(inner, axis)
+    others = [w for i, w in enumerate(inner) if pairs.get(i) != i]
+    cover = [(w, centre_coverage(w, bw, axis), math.dist(*_seg(w))) for w in others]
+    paired = [c for c in cover if c[1] >= PAIR_OVERLAP]
+    lonely = sorted((c for c in cover if c[1] < PAIR_OVERLAP), key=lambda c: c[1] * c[2] - c[2])
+    n_missing = min(MIRROR_MAX_NEW_WALLS, len(lonely), len(paired) // MISSING_EVIDENCE)
+    counted = paired + lonely[n_missing:]
+    total = sum(c[2] for c in counted)
+    got = sum(c[1] * c[2] for c in counted) / total if total > 0 else 0.0
+    out.update(share=round(got, 3), walls_inside=len(inner), self_mirror=len(inner) - len(others), paired=len(paired),
+               missing=n_missing)
+    where = f"{axis[0]} = {axis[1]:.2f}"
+    if len(paired) < MISSING_EVIDENCE or got < share:
+        out["note"] = (f"the shell is symmetric about {where} but of the {len(inner)} walls inside it "
+                       f"({len(inner) - len(others)} their own mirror, left out) {len(paired)} pair with a mirror twin "
+                       f"and their centre lines are {got:.0%} covered (< {share:.0%}, {n_missing} missing allowed): one "
+                       f"layout, not two mirrored halves")
+        return out
     if labels:
-        agree, disagree = label_pairs(walls, openings or [], axis, labels)
-        if disagree > agree:
-            return None, (f"the layout is symmetric about {axis[0]} = {axis[1]:.2f} but {disagree} of its "
-                          f"{agree + disagree} mirrored labelled room pairs are different rooms: one dwelling, not "
-                          f"two mirrored halves")
-    return axis, None
+        agree, disagree = label_pairs(walls, list(openings or []), axis, labels)
+        out["labels"] = [agree, disagree]
+        if disagree >= LABEL_DISAGREE_MIN and disagree > agree:
+            out["note"] = (f"the layout is symmetric about {where} but {disagree} of its {agree + disagree} mirrored "
+                           f"labelled room pairs are different rooms: one dwelling, not two mirrored halves")
+            return out
+    out["axis"] = axis
+    return out
+
+
+def halves_axis(walls: list, min_share: Optional[float] = None, openings: Optional[list] = None,
+                labels: Optional[list] = None, level_id=None) -> tuple[Optional[tuple], Optional[str]]:
+    """``(axis, note)`` of ``halves``: the axis of a plan of two mirrored halves, or None with the reason."""
+    h = halves(walls, openings or [], labels or [], level_id, min_share)
+    return h["axis"], h["note"]
 
 
 STEPS = ("thickness", "inferred", "missing", "openings")
@@ -336,8 +445,8 @@ def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=No
         if not _drawn(o) or getattr(o, "virtual", False):
             continue
         mc = _mirror(o.center, axis)
-        if math.dist(mc, o.center) <= OPENING_TOL_M:
-            continue                                        # it is its own mirror (on a wall across the axis)
+        if math.dist(mc, o.center) <= OPENING_TOL_M + o.width / 2.0:
+            continue                                        # it is its own twin (the twin match's radius below)
         if keep_out is not None and keep_out.distance(Point(mc)) <= o.width / 2.0:
             continue                                        # the core (lift and stair) is not mirrored
         host = next((w for w in walls if _on_wall(OpeningItem(kind="", width=0, center=mc, rotation_deg=0, box=[],
