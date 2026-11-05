@@ -3726,14 +3726,14 @@
   {
    "id": "UL315",
    "date": "2026-11-04",
-   "area": "reading",
+   "area": "plan",
    "status": "open",
    "checks": [
     "build"
    ],
    "request": "4 Nov 2026 (user, real17 ground floor: 'Those walls already drawed, all open ones needs to be walls these sections could be full windows glass, check it', then 'There are no walls here why are you imagining these?'): only drawn walls are built. A drawn wall that stops a few cm short of its column, of the next wall on its line or of a shared corner is joined to it, and a crack of at most 15 cm between two drawn walls at a wall end is filled, when that closes the rooms; no wall is ever added across an opening the drawing leaves open. A drawn front with a window size tag (W/H, on a window text layer) is glass of that size.",
    "lesson": "4 Nov 2026 (user, real17 ground floor: 'Those walls already drawed, all open ones needs to be walls these sections could be full windows glass, check it', then 'There are no walls here why are you imagining these?'): only drawn walls are built. A drawn wall that stops a few cm short of its column, of the next wall on its line or of a shared corner is joined to it, and a crack of at most 15 cm between two drawn walls at a wall end is filled, when that closes the rooms; no wall is ever added across an opening the drawing leaves open. A drawn front with a window size tag (W/H, on a window text layer) is glass of that size.",
-   "question": null
+   "question": "Is every wall of the model drawn on the plan, and every open section that the drawing leaves open (a shopfront, a full glass section, a passage) built as glass or open, never as an imagined wall?"
   },
   {
    "id": "UL316",
