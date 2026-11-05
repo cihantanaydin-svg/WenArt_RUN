@@ -518,8 +518,9 @@ def dwg_roundtrip(dxf_paths: Sequence[Path], out_json: Path, bin_dir: Optional[P
     for dxf in dxf_paths:
         dxf = Path(dxf)
         entry: dict = {"dxf": str(dxf), "ok": False}
-        dwg = work / (dxf.stem + ".dwg")
-        back = work / (dxf.stem + "_back.dxf")
+        # the project folder in the name: every failure-class project's DXF is plan.dxf
+        dwg = work / f"{dxf.parent.name}__{dxf.stem}.dwg"
+        back = work / f"{dxf.parent.name}__{dxf.stem}_back.dxf"
         try:
             counts_in, audit_in = entity_counts(dxf)
             entry["counts_in"], entry["audit_errors_in"] = counts_in, audit_in
