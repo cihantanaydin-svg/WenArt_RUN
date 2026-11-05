@@ -151,6 +151,19 @@ def test_a_reading_that_drifted_from_the_accepted_numbers_is_marked():
     assert TR.drift(base, numbers_of(fewer)) == []
     fewer["walls"] = [w for w in fewer["walls"] if w["level_id"] != "L0"]        # 3 -> 0: a drift
     assert TR.drift(base, numbers_of(fewer)) == ["L0 walls: 3 -> 0"]
+    # a better verdict or status is no drift of the content; a level the user never saw is
+    worse_base = dict(base, status="needs_review", check={"verdict": "fix before a pod run",
+                                                           "counts": {"critical": 1}, "stacking": {}})
+    assert TR.drift(worse_base, numbers_of(b)) == []
+    more = copy.deepcopy(b)
+    more["levels"].append({"id": "L2", "label": "2. Kat", "order": 2, "elevation": 6.0})
+    assert TR.drift(base, numbers_of(more)) == []                                 # more levels: no count drift
+    truth, msgs = TR.truth_of("tiny", more, base, numbers=numbers_of(more), commit="c3")
+    assert truth["status"] == "drifted" and truth["drift"] == ["levels not accepted: ['L2']"]
+    # a level the baseline left out stays out and is no drift (the user accepted the reading without it)
+    truth, msgs = TR.truth_of("tiny", more, dict(base, levels_left_out=["2. Kat"]), numbers=numbers_of(more),
+                              commit="c3")
+    assert msgs == [] and [lv["id"] for lv in truth["levels"]] == ["L0", "L1"] and truth["status"] == "partial"
 
 
 def test_the_commit_stamp_of_a_reading(tmp_path):

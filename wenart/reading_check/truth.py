@@ -346,16 +346,12 @@ def reading(project: str, work: Path, fresh: bool = False) -> Path:
 
 
 def drift(baseline: dict, numbers: dict) -> list[str]:
-    """The differences of a reading's key numbers from the accepted baseline (``regress.compare``, both ways: a
-    reading with more rooms than the user accepted is not the accepted reading either)."""
+    """The differences of a reading's key numbers from the accepted baseline (``regress.compare``; its count lines
+    are symmetric, so a reading with more rooms than the user accepted is a drift too; a better verdict or status is
+    no drift of the content). A level the user never saw is caught by ``truth_of`` on the truth's own levels."""
     from wenart.reading_check import regress as RG
 
-    out = list(RG.compare(baseline, numbers))
-    keys = {line.split(":")[0] for line in out}
-    for line in RG.compare(numbers, baseline):           # the other direction: what the reading has beyond the baseline
-        if line.split(":")[0] not in keys:               # (the count lines are symmetric: not twice)
-            out.append(line)
-    return out
+    return list(RG.compare(baseline, numbers))
 
 
 def truth_of(project: str, building: dict, baseline: Optional[dict], *, numbers: Optional[dict] = None,
@@ -374,6 +370,9 @@ def truth_of(project: str, building: dict, baseline: Optional[dict], *, numbers:
         keep = set(acc["levels"] or [])
         truth["levels"] = [lv for lv in truth["levels"] if lv["id"] in keep]
         truth["per_level"] = {lid: v for lid, v in truth["per_level"].items() if lid in keep}
+    unseen = [lv["id"] for lv in truth["levels"] if lv["id"] not in set((baseline or {}).get("levels") or [])]
+    if unseen:                                        # a level the reading has and the user never saw
+        diffs.append(f"levels not accepted: {unseen}")
     truth["status"] = "drifted" if diffs else ("partial" if acc["scope"] == "partial" or leave_out else "accepted")
     truth["accepted"] = {"on": acc["on"], "scope": acc["scope"], "levels": acc["levels"], "note": acc["note"]}
     if diffs:

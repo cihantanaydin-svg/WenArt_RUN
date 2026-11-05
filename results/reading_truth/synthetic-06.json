@@ -1,15 +1,17 @@
 {
  "project": "synthetic-06",
- "source": "accepted_reading",
+ "source": "synthetic",
  "status": "accepted",
- "commit": "c60f929dd7e06009599bdfc3472daafb320dd647",
- "date": "2026-11-04",
+ "commit": null,
+ "date": "2026-11-05",
  "levels": [
   {
    "id": "L0",
    "label": "Ground floor",
    "elevation": 0.0,
-   "order": 0
+   "order": 0,
+   "source": "synthetic",
+   "label_source": "assumed"
   }
  ],
  "levels_left_out": [],
@@ -20,273 +22,193 @@
      "id": "r_L0_kitchen",
      "label": "Kitchen",
      "room_type": "kitchen",
-     "area": 9.063,
+     "area": 8.919,
      "centroid": [
-      1.469,
-      2.045
+      1.448,
+      2.057
      ],
      "polygon": [
       [
-       0.23,
-       0.23
+       0.229,
+       0.229
       ],
       [
-       2.745,
-       0.23
+       2.667,
+       0.229
       ],
       [
-       2.745,
-       2.059
+       2.667,
+       3.886
       ],
       [
-       2.67,
-       2.059
-      ],
-      [
-       2.67,
-       3.888
-      ],
-      [
-       0.23,
-       3.888
+       0.229,
+       3.886
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
-    },
-    {
-     "id": "r_L0_light_well",
-     "label": "Light well",
-     "room_type": "shaft",
-     "area": 6.409,
-     "centroid": [
-      3.658,
-      2.02
-     ],
-     "polygon": [
-      [
-       2.745,
-       0.23
-      ],
-      [
-       4.572,
-       0.23
-      ],
-      [
-       4.572,
-       2.059
-      ],
-      [
-       4.497,
-       2.059
-      ],
-      [
-       4.497,
-       3.888
-      ],
-      [
-       2.82,
-       3.888
-      ],
-      [
-       2.82,
-       2.059
-      ],
-      [
-       2.745,
-       2.059
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_living_room",
      "label": "Living Room",
      "room_type": "living",
-     "area": 9.063,
+     "area": 15.608,
      "centroid": [
-      5.848,
-      2.045
+      4.953,
+      2.057
      ],
      "polygon": [
       [
-       4.572,
-       0.23
+       2.819,
+       0.229
       ],
       [
        7.087,
-       0.23
+       0.229
       ],
       [
        7.087,
-       3.888
+       3.886
       ],
       [
-       4.647,
-       3.888
-      ],
-      [
-       4.647,
-       2.059
-      ],
-      [
-       4.572,
-       2.059
+       2.819,
+       3.886
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_bath",
      "label": "Bath",
      "room_type": "bathroom",
-     "area": 3.253,
+     "area": 3.252,
      "centroid": [
-      1.297,
-      4.8
+      1.295,
+      4.801
      ],
      "polygon": [
       [
-       0.23,
-       4.038
+       0.229,
+       4.039
       ],
       [
-       2.364,
-       4.038
+       2.362,
+       4.039
       ],
       [
-       2.364,
-       5.562
+       2.362,
+       5.563
       ],
       [
-       0.23,
-       5.562
+       0.229,
+       5.563
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_lobby",
      "label": "Lobby",
      "room_type": "hall",
-     "area": 3.49,
+     "area": 6.968,
      "centroid": [
-      3.659,
-      4.8
+      4.801,
+      4.801
      ],
      "polygon": [
       [
-       2.514,
-       4.038
-      ],
-      [
-       4.803,
-       4.038
-      ],
-      [
-       4.803,
-       5.562
-      ],
-      [
-       2.514,
-       5.562
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0
-    },
-    {
-     "id": "r_L0_room",
-     "label": "Room",
-     "room_type": "hall",
-     "area": 3.253,
-     "centroid": [
-      6.02,
-      4.8
-     ],
-     "polygon": [
-      [
-       4.953,
-       4.038
+       2.515,
+       4.039
       ],
       [
        7.087,
-       4.038
+       4.039
       ],
       [
        7.087,
-       5.562
+       5.563
       ],
       [
-       4.953,
-       5.562
+       2.515,
+       5.563
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_bed_room",
      "label": "Bed Room",
      "room_type": "bedroom",
-     "area": 10.717,
+     "area": 10.73,
      "centroid": [
       1.829,
-      7.393
+      7.391
      ],
      "polygon": [
       [
-       0.23,
-       5.718
+       0.229,
+       5.715
       ],
       [
        3.429,
-       5.718
+       5.715
       ],
       [
        3.429,
        9.068
       ],
       [
-       0.23,
+       0.229,
        9.068
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L0_master_bed_room",
      "label": "Master Bed Room",
      "room_type": "bedroom",
-     "area": 11.738,
+     "area": 11.752,
      "centroid": [
-      5.335,
-      7.393
+      5.334,
+      7.391
      ],
      "polygon": [
       [
-       3.583,
-       5.718
+       3.581,
+       5.715
       ],
       [
        7.087,
-       5.718
+       5.715
       ],
       [
        7.087,
        9.068
       ],
       [
-       3.583,
+       3.581,
        9.068
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "doors": [
@@ -295,84 +217,70 @@
      "type": "door",
      "width": 0.914,
      "center": [
-      7.202,
-      4.802
+      7.201,
+      4.801
      ],
-     "wall_id": "w_L0_009",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "wall_id": "w_L0_002",
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_002",
      "type": "door",
      "width": 0.762,
      "center": [
-      2.439,
-      4.802
+      2.438,
+      4.801
      ],
-     "wall_id": "w_L0_006",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "wall_id": "w_L0_008",
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_003",
      "type": "door",
      "width": 0.813,
      "center": [
-      2.998,
-      5.64
+      2.997,
+      5.639
      ],
-     "wall_id": "w_L0_003",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "wall_id": "w_L0_006",
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_004",
      "type": "door",
      "width": 0.813,
      "center": [
-      4.116,
-      5.64
+      4.115,
+      5.639
      ],
-     "wall_id": "w_L0_003",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "wall_id": "w_L0_006",
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L0_005",
      "type": "door",
      "width": 0.813,
      "center": [
-      6.249,
-      3.963
+      6.248,
+      3.962
      ],
-     "wall_id": "w_L0_002",
-     "source": "accepted_reading",
-     "confidence": 0.95
-    },
-    {
-     "id": "d_L0_006",
-     "type": "door",
-     "width": 0.762,
-     "center": [
-      4.878,
-      4.802
-     ],
-     "wall_id": "w_L0_010",
-     "source": "accepted_reading",
-     "confidence": 0.6
-    },
-    {
-     "id": "d_L0_007",
-     "type": "door",
-     "width": 0.813,
-     "center": [
-      1.068,
-      3.963
-     ],
-     "wall_id": "w_L0_002",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "wall_id": "w_L0_005",
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -381,120 +289,112 @@
      "type": "window",
      "width": 1.219,
      "center": [
-      1.449,
-      0.115
+      1.448,
+      0.114
      ],
-     "wall_id": "w_L0_001",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "wall_id": "w_L0_003",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_002",
      "type": "window",
      "width": 1.829,
      "center": [
-      4.954,
-      0.115
+      4.953,
+      0.114
      ],
-     "wall_id": "w_L0_001",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "wall_id": "w_L0_003",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_003",
      "type": "window",
-     "width": 1.524,
+     "width": 1.219,
      "center": [
-      1.83,
-      9.183
+      7.201,
+      2.057
      ],
-     "wall_id": "w_L0_004",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "wall_id": "w_L0_002",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_004",
      "type": "window",
-     "width": 1.524,
+     "width": 0.61,
      "center": [
-      5.335,
-      9.183
+      0.114,
+      4.801
      ],
-     "wall_id": "w_L0_004",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "wall_id": "w_L0_001",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_005",
      "type": "window",
-     "width": 0.61,
+     "width": 1.524,
      "center": [
-      0.115,
-      4.802
+      1.829,
+      9.182
      ],
-     "wall_id": "w_L0_005",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "wall_id": "w_L0_004",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_006",
      "type": "window",
-     "width": 1.219,
+     "width": 1.524,
      "center": [
-      0.115,
-      7.392
+      5.334,
+      9.182
      ],
-     "wall_id": "w_L0_005",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "wall_id": "w_L0_004",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_007",
      "type": "window",
      "width": 1.219,
      "center": [
-      7.202,
-      2.058
+      7.201,
+      7.391
      ],
-     "wall_id": "w_L0_009",
-     "source": "accepted_reading",
-     "confidence": 0.9
+     "wall_id": "w_L0_002",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L0_008",
      "type": "window",
      "width": 1.219,
      "center": [
-      7.202,
-      7.392
-     ],
-     "wall_id": "w_L0_009",
-     "source": "accepted_reading",
-     "confidence": 0.9
-    },
-    {
-     "id": "win_L0_009",
-     "type": "window",
-     "width": 1.219,
-     "center": [
-      5.868,
-      0.115
+      0.114,
+      7.391
      ],
      "wall_id": "w_L0_001",
-     "source": "accepted_reading",
-     "confidence": 0.6
-    },
-    {
-     "id": "win_L0_010",
-     "type": "window",
-     "width": 1.219,
-     "center": [
-      0.115,
-      2.058
-     ],
-     "wall_id": "w_L0_005",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [
@@ -503,25 +403,14 @@
      "type": "opening",
      "width": 1.829,
      "center": [
-      2.745,
-      1.145
+      2.743,
+      1.143
      ],
      "wall_id": null,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "virtual": true
-    },
-    {
-     "id": "o_L0_002",
-     "type": "opening",
-     "width": 1.829,
-     "center": [
-      4.572,
-      1.145
-     ],
-     "wall_id": null,
-     "source": "accepted_reading",
-     "confidence": 0.8,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "verified",
      "virtual": true
     }
    ],
@@ -529,170 +418,150 @@
     {
      "id": "w_L0_001",
      "start": [
-      0.231,
-      0.115
+      0.114,
+      0.0
      ],
      "end": [
-      7.101,
-      0.115
+      0.114,
+      9.296
      ],
-     "thickness": 0.23,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "thickness": 0.229,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_002",
      "start": [
-      0.231,
-      3.963
+      7.201,
+      0.0
      ],
      "end": [
-      7.087,
-      3.963
+      7.201,
+      9.296
      ],
-     "thickness": 0.15,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "thickness": 0.229,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_003",
      "start": [
-      0.231,
-      5.64
+      0.229,
+      0.114
      ],
      "end": [
       7.087,
-      5.64
+      0.114
      ],
-     "thickness": 0.155,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "thickness": 0.229,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_004",
      "start": [
-      0.231,
-      9.183
+      0.229,
+      9.182
      ],
      "end": [
-      7.101,
-      9.183
+      7.087,
+      9.182
      ],
-     "thickness": 0.23,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "thickness": 0.229,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_005",
      "start": [
-      0.115,
-      0.001
+      0.229,
+      3.962
      ],
      "end": [
-      0.115,
-      9.297
+      7.087,
+      3.962
      ],
-     "thickness": 0.23,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "thickness": 0.152,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_006",
      "start": [
-      2.439,
-      4.038
+      0.229,
+      5.639
      ],
      "end": [
-      2.439,
-      5.562
+      7.087,
+      5.639
      ],
-     "thickness": 0.15,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "thickness": 0.152,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_007",
      "start": [
-      2.745,
-      2.059
+      2.743,
+      2.057
      ],
      "end": [
-      2.745,
-      3.887
+      2.743,
+      3.886
      ],
-     "thickness": 0.15,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "thickness": 0.152,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_008",
      "start": [
-      3.506,
-      5.718
+      2.438,
+      4.039
      ],
      "end": [
-      3.506,
-      9.067
+      2.438,
+      5.563
      ],
-     "thickness": 0.155,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.95
+     "thickness": 0.152,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L0_009",
      "start": [
-      7.202,
-      0.001
+      3.505,
+      5.715
      ],
      "end": [
-      7.202,
-      9.297
+      3.505,
+      9.068
      ],
-     "thickness": 0.23,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 0.95
-    },
-    {
-     "id": "w_L0_010",
-     "start": [
-      4.878,
-      4.038
-     ],
-     "end": [
-      4.878,
-      5.562
-     ],
-     "thickness": 0.15,
-     "status": "unverified",
-     "source": "accepted_reading",
-     "confidence": 0.6
-    },
-    {
-     "id": "w_L0_011",
-     "start": [
-      4.572,
-      2.059
-     ],
-     "end": [
-      4.572,
-      3.887
-     ],
-     "thickness": 0.15,
-     "status": "unverified",
-     "source": "accepted_reading",
-     "confidence": 0.6
+     "thickness": 0.152,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": []
   }
- }
+ },
+ "truth_file": "projects/synthetic-06/truth/building.json"
 }

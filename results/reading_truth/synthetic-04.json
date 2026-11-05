@@ -1,15 +1,16 @@
 {
  "project": "synthetic-04",
- "source": "accepted_reading",
+ "source": "synthetic",
  "status": "accepted",
- "commit": "c60f929dd7e06009599bdfc3472daafb320dd647",
- "date": "2026-11-04",
+ "commit": null,
+ "date": "2026-11-05",
  "levels": [
   {
    "id": "L3",
    "label": "3. Kat",
    "elevation": 9.0,
-   "order": 3
+   "order": 3,
+   "source": "synthetic"
   }
  ],
  "levels_left_out": [],
@@ -51,8 +52,10 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L3_yatak_odasi",
@@ -81,8 +84,10 @@
        4.55
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L3_hol",
@@ -119,8 +124,10 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L3_cocuk_odasi",
@@ -149,8 +156,10 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "r_L3_banyo",
@@ -179,8 +188,10 @@
        7.75
       ]
      ],
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "doors": [
@@ -193,8 +204,10 @@
       7.875
      ],
      "wall_id": "w_L3_003",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L3_002",
@@ -205,8 +218,10 @@
       4.6
      ],
      "wall_id": "w_L3_006",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L3_003",
@@ -217,8 +232,10 @@
       6.85
      ],
      "wall_id": "w_L3_009",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L3_004",
@@ -229,8 +246,10 @@
       5.25
      ],
      "wall_id": "w_L3_010",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "d_L3_005",
@@ -241,8 +260,10 @@
       4.6
      ],
      "wall_id": "w_L3_006",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "windows": [
@@ -255,8 +276,10 @@
       0.125
      ],
      "wall_id": "w_L3_001",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L3_002",
@@ -267,8 +290,10 @@
       0.125
      ],
      "wall_id": "w_L3_001",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L3_003",
@@ -279,8 +304,10 @@
       2.3
      ],
      "wall_id": "w_L3_004",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L3_004",
@@ -291,8 +318,10 @@
       6.2
      ],
      "wall_id": "w_L3_004",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L3_005",
@@ -303,8 +332,10 @@
       7.875
      ],
      "wall_id": "w_L3_003",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L3_006",
@@ -315,8 +346,10 @@
       7.875
      ],
      "wall_id": "w_L3_003",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L3_007",
@@ -327,8 +360,10 @@
       7.875
      ],
      "wall_id": "w_L3_003",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L3_008",
@@ -339,8 +374,10 @@
       6.2
      ],
      "wall_id": "w_L3_002",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L3_009",
@@ -351,8 +388,10 @@
       0.125
      ],
      "wall_id": "w_L3_001",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "win_L3_010",
@@ -363,8 +402,10 @@
       2.4
      ],
      "wall_id": "w_L3_002",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "openings": [],
@@ -380,9 +421,10 @@
       0.125
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L3_002",
@@ -395,9 +437,10 @@
       8.0
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L3_003",
@@ -410,9 +453,10 @@
       7.875
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L3_004",
@@ -425,9 +469,10 @@
       8.0
      ],
      "thickness": 0.25,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L3_005",
@@ -440,9 +485,10 @@
       7.75
      ],
      "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L3_006",
@@ -455,9 +501,10 @@
       4.6
      ],
      "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L3_007",
@@ -470,9 +517,10 @@
       4.55
      ],
      "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L3_008",
@@ -485,9 +533,10 @@
       5.9
      ],
      "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L3_009",
@@ -500,9 +549,10 @@
       7.75
      ],
      "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     },
     {
      "id": "w_L3_010",
@@ -515,12 +565,14 @@
       7.75
      ],
      "thickness": 0.1,
-     "status": "verified",
-     "source": "accepted_reading",
-     "confidence": 1.0
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified"
     }
    ],
    "stairs": []
   }
- }
+ },
+ "truth_file": "projects/synthetic-04/truth/building.json"
 }
