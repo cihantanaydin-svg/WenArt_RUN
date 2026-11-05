@@ -153,9 +153,12 @@ def mm_factor(doc) -> Optional[float]:
     from ezdxf import units as U
 
     code = int(doc.header.get("$INSUNITS", 0) or 0)
-    if code in (0, MM_INSUNITS) or code not in U.METER_FACTOR:
+    if code in (0, MM_INSUNITS):
         return None
-    return float(U.conversion_factor(code, MM_INSUNITS))
+    try:
+        return float(U.conversion_factor(code, MM_INSUNITS))
+    except Exception:
+        return None
 
 
 def apply_mm(doc) -> dict:
