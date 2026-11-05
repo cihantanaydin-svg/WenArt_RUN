@@ -303,7 +303,11 @@ def write_variant(project: str, sources: list[Path], variant: str, vdir: Path,
         if n.get("skipped"):
             skipped.append(f"{src.name}: {n['skipped']}")
         notes[src.name] = n
-        doc.saveas(str(vdir / src.name))
+        try:
+            doc.saveas(str(vdir / src.name))
+        except AttributeError:                       # a converted DXF whose material table ezdxf cannot refresh
+            doc.update_all = lambda: None
+            doc.saveas(str(vdir / src.name))
     out = {"files": notes}
     if skipped and len(skipped) == len(sources):
         out["skipped"] = "; ".join(skipped)
@@ -661,7 +665,10 @@ def main(argv=None) -> int:
     work = Path(args.work) if args.work else Path(tempfile.mkdtemp(prefix="reading_stability_"))
     results = []
     for p in [x.strip() for x in args.projects.split(",") if x.strip()]:
-        r = stability_project(p, work, variants, fresh=args.fresh)
+        try:
+            r = stability_project(p, work, variants, fresh=args.fresh)
+        except Exception as exc:                     # one project must not stop the others
+            r = {"project": p, "variants": {}, "skipped": f"{type(exc).__name__}: {exc}"}
         results.append(r)
         out = work / "stability" / f"{p}.json"
         out.parent.mkdir(parents=True, exist_ok=True)
