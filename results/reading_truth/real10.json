@@ -5502,7 +5502,10 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)"
     },
     {
      "id": "d_L-1_038",
@@ -5516,7 +5519,10 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)"
     }
    ],
    "windows": [
@@ -11843,7 +11849,10 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)"
     },
     {
      "id": "o_L0_030",
@@ -19266,7 +19275,10 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)"
     },
     {
      "id": "o_L1_030",
@@ -26684,7 +26696,10 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)"
     },
     {
      "id": "o_L2_030",
@@ -34102,7 +34117,10 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)"
     },
     {
      "id": "o_L3_030",
@@ -41520,7 +41538,10 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)"
     },
     {
      "id": "o_L4_030",
@@ -48938,7 +48959,10 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)"
     },
     {
      "id": "o_L5_030",
@@ -56356,7 +56380,10 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "absent": true,
+     "removed_on": "2026-11-05",
+     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)"
     },
     {
      "id": "o_L6_030",
