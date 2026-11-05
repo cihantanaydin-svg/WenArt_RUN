@@ -3187,11 +3187,18 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         # features, the rule, its confidence, the final answer, who decided), the ranker's labelled examples
         rc_dir = out_dir / "reading_check"
         rc_dir.mkdir(parents=True, exist_ok=True)
+        typical = {lv["id"]: lv.get("typical_of") for lv in building.get("levels") or []}
         for level_id, records in build.decisions.items():
-            (rc_dir / f"decisions_{level_id}.json").write_text(
-                json.dumps({"level_id": level_id, "count": len(records),
-                            "summary": build.decision_summaries.get(level_id) or {}, "records": records},
-                           ensure_ascii=False, default=str) + "\n", encoding="utf-8")
+            # a typical-floor copy (real10's L1 to L6 of L0) repeats the original's decisions: its file says so and
+            # carries the copy's level id, so the ranker's labels count the drawing once (ranker.read_decisions)
+            copy_of = typical.get(level_id)
+            recs = [dict(r, level_id=level_id) for r in records] if copy_of else records
+            payload = {"level_id": level_id, "count": len(recs),
+                       "summary": build.decision_summaries.get(level_id) or {}, "records": recs}
+            if copy_of:
+                payload["typical_of"] = copy_of
+            (rc_dir / f"decisions_{level_id}.json").write_text(json.dumps(payload, ensure_ascii=False, default=str)
+                                                                + "\n", encoding="utf-8")
     if os.environ.get("WENART_READING_CHECK", "1") != "0":
         try:
             from wenart import reading_check as RCK

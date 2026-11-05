@@ -513,11 +513,21 @@ def lopo_table(result: dict) -> str:
 # --- collecting the readings -------------------------------------------------------------------------------------------
 
 def read_decisions(folder: Path) -> list[dict]:
-    """The decision records of a reading (``reading_check/decisions_*.json``), each with its project added."""
+    """The decision records of a reading (``reading_check/decisions_*.json``). A level that is a typical-floor copy
+    of another (``typical_of`` in building.json, real10's L1 to L6 of L0) repeats the original's decisions: its file
+    is left out, so one drawing counts once (the file itself says ``typical_of``)."""
     out = []
-    rc = Path(folder) / "reading_check"
-    for path in sorted(rc.glob("decisions_*.json")):
+    folder = Path(folder)
+    copies: set = set()
+    try:
+        b = json.loads((folder / "building.json").read_text(encoding="utf-8"))
+        copies = {lv["id"] for lv in b.get("levels") or [] if lv.get("typical_of")}
+    except (OSError, ValueError):
+        pass
+    for path in sorted((folder / "reading_check").glob("decisions_*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
+        if data.get("typical_of") or data.get("level_id") in copies:
+            continue
         out.extend(data.get("records") or [])
     return out
 

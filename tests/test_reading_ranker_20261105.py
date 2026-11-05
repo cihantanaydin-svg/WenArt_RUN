@@ -344,3 +344,34 @@ def test_the_ranker_retypes_a_bare_gap_in_the_classifier_and_logs_it(monkeypatch
     out_walls, openings, gap_log, records = _read(end_walls, [], ranker=True)
     assert openings == []
     assert all(r["decided_by"] == "rule" for r in records if r["kind"] == DEC.KIND_GAP)
+
+
+# ------------------------------------------------------------------------------------------------------ end to end
+@pytest.mark.skipif(not RK.model_path(DEC.KIND_GAP).is_file(), reason="no committed gap_kind model")
+def test_synthetic_12_bare_gaps_of_the_mirrored_flat_become_doors_by_the_ranker(tmp_path):
+    """synthetic-12 (mirrored halves, UL276): the unlabelled flat's four door gaps are drawn without swings; the
+    cascade calls them doorless (0.5) and the pipeline made three openings and a window of them. With the committed
+    model the ranker re-types them (their mirror twins are drawn doors, no label stands beside them): the reading has
+    the truth's 8 doors, each ranker door is unverified with decided_by in its evidence, the gap log and the decision
+    records say so with the margin, and the records file is written per level. (The committed model has seen this
+    project's labels; the held-out number is in the model's metrics.)"""
+    from wenart.ingest import pipeline as PL
+
+    out = tmp_path / "s12"
+    building, _ = PL.run_project(REPO / "projects" / "synthetic-12-mirrored-halves", out, no_ai=True)
+    doors = [o for o in building["openings"] if o["type"] == "door"]
+    assert len(doors) == 8 and not [o for o in building["openings"] if o["type"] == "opening"]
+    by_ranker = [o for o in doors if any(e.get("decided_by") == "ranker" for e in o["evidence"])]
+    assert len(by_ranker) == 4
+    for o in by_ranker:
+        ev = next(e for e in o["evidence"] if e.get("decided_by") == "ranker")
+        assert o["status"] == "unverified" and ev["method"] == "inferred" and ev["rule"] == "ranker"
+        assert RK.MARGIN_MIN <= ev["margin"] and ev["confidence"] <= O.CONF_DOORLESS
+        assert o["center"][0] > 7.0                           # the right (unlabelled) flat
+    records = json.loads((out / "reading_check" / "decisions_L0.json").read_text(encoding="utf-8"))
+    ranked = [r for r in records["records"] if r["kind"] == DEC.KIND_GAP and r["decided_by"] == "ranker"]
+    assert len(ranked) == 4 and all(r["ranker_answer"] == "door" and r["margin"] >= RK.MARGIN_MIN for r in ranked)
+    assert all(r["features"]["twin_door"] is True and r["rule"] == "doorless" for r in ranked)
+    assert records["summary"]["gap_kind"]["decided_by"]["ranker"] == 4
+    report = (out / "report.md").read_text(encoding="utf-8")
+    assert report.count("the ranker decided door") == 4        # never silent: one page note per ranker decision
