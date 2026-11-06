@@ -2886,7 +2886,11 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     non_wall = [st for st in strokes_m if st.id not in wall_strokes]
     # (the dimension finder's strokes are not passed: its "two parallel lines around a number" also takes a window's
     # frame lines beside its size tag; the notation is read from the layers, UL296)
-    walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s)
+    # 6 Nov 2026: the wall primitives' strokes go along, so a door leaf the wall mask read as a thin wall goes back to
+    # its door (``openings.leaf_walls``)
+    walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s,
+                                                           wall_strokes=[st for st in strokes_m
+                                                                         if st.id in wall_strokes])
     for e in gap_log:
         if e.get("kind") == "wall_piece":
             # A door leaf fused to a wall face (the run's faces kept; also in the wall's evidence note) or a frame or

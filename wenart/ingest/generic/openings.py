@@ -1123,15 +1123,28 @@ def _inside_rect_part(it: _S, rect) -> bool:
 # --------------------------------------------------------------------------
 
 def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: int,
-                      units_to_m: Optional[float] = None, dimension_ids=frozenset()
+                      units_to_m: Optional[float] = None, dimension_ids=frozenset(), wall_strokes=()
                       ) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
     """Merge wall runs, find and classify gaps, extend free-end walls that host a drawn door or window.
 
     ``strokes_m`` are the page's strokes in page metres **without** the wall primitives (hatch lines, fills).
     Returns ``(walls, openings, gap_log, owned)``: the merged/extended walls (page metres), the openings on them
     (page metres; ``box`` in page units when ``units_to_m`` is given), one log dict per gap and free end, and the
-    ids of the strokes the openings own.
+    ids of the strokes the openings own. 6 Nov 2026: ``wall_strokes`` (the wall primitives' strokes, page metres)
+    let a door leaf read as a thin wall go back to the door (``leaf_walls``).
     """
+    leaf_log: list[dict] = []
+    leaves = leaf_walls(walls, wall_strokes)
+    if leaves:
+        by_id = {st.id: st for st in wall_strokes}
+        for k in sorted(leaves):
+            w = walls[k]
+            leaf_log.append({"kind": "wall_piece", "wall": str(w.entity),
+                             "note": f"a door leaf, not a wall: a {math.dist(w.start, w.end):.2f} x "
+                                     f"{float(w.thickness):.3f} m piece drawn on the door layer "
+                                     f"{by_id[leaves[k][0]].layer} (its strokes go back to the door symbol)"})
+        strokes_m = list(strokes_m) + [by_id[i] for k in sorted(leaves) for i in leaves[k]]
+        walls = [w for k, w in enumerate(walls) if k not in leaves]
     theta = dominant_angle(walls)
     pieces, others = pieces_of(walls, theta)
     # 3 Nov 2026 (UL261, UL296): the drawing's notation (axis lines, dimensions and their tick marks) is never a
@@ -1387,7 +1400,33 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
         log.append({"kind": "continuous", "class": o.kind, "center": list(o.center), "width": o.width,
                     "entity": o.entity})
     log.extend(ctx.dropped)
+    log.extend(leaf_log)
     return out_walls, openings, log, owned
+
+
+LEAF_WALL_MAX_M = LEAF_WIDTH_M + 0.02    # 6 Nov 2026: a door leaf read as a wall is at most this thick ...
+LEAF_WALL_MIN_LEN_M = 0.4                # ... and at least this long (a leaf, not a frame or a jamb block)
+
+
+def leaf_walls(walls: list[WallItem], wall_strokes) -> dict[int, list[str]]:
+    """6 Nov 2026 (real03: the bedrooms' door blocks draw the open leaf as a 0.80 x 0.05 m rectangle on the door
+    layer; the wall mask read it as a thin wall, so the swing had no leaf and three bedrooms and a flat's entrance had
+    no door): ``{wall index: its stroke ids}`` of the walls drawn only by strokes on a door layer
+    (``layer_names.layer_role`` "door"), at most ``LEAF_WALL_MAX_M`` thick and at least ``LEAF_WALL_MIN_LEN_M`` long.
+    A door layer never draws a wall."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if not wall_strokes:
+        return {}
+    by_id = {st.id: st for st in wall_strokes}
+    out = {}
+    for k, w in enumerate(walls):
+        if float(w.thickness) > LEAF_WALL_MAX_M or math.dist(w.start, w.end) < LEAF_WALL_MIN_LEN_M:
+            continue
+        ids = [e.strip() for e in str(w.entity or "").split(",") if e.strip()]
+        if ids and all(i in by_id and LN.layer_role(by_id[i].layer) == "door" for i in ids):
+            out[k] = ids
+    return out
 
 
 def openings_on_walls(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: Optional[int],

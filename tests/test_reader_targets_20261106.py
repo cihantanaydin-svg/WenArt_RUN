@@ -264,3 +264,36 @@ def test_a_door_high_tag_on_a_door_layer_decides_door_over_a_drawn_window_of_its
     assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [win(1.5)], [tag], 1.0) is None
 
 
+# --------------------------------------------------------------------------
+# A door leaf read as a thin wall goes back to its door
+# --------------------------------------------------------------------------
+
+def test_a_door_leaf_read_as_a_thin_wall_goes_back_to_its_door():
+    """real03: the bedrooms' door blocks draw the open leaf as a 0.80 x 0.05 m rectangle on the door layer; the wall mask
+    read it as a thin wall, so the swing in the continuous wall had no leaf and the bedroom no door."""
+    vert = R.wall((13.4539, 10.6), (13.4539, 14.05), t=0.1, entity="RING")
+    leaf_rect = R.stroke([(14.303, 10.8005), (14.303, 10.7505), (13.503, 10.7505), (13.503, 10.8005)], closed=True)
+    leaf_rect.layer = "MYD - KAPI"
+    leaf_wall = R.wall((13.5039, 10.7755), (14.303, 10.7755), t=0.05, entity=leaf_rect.id)
+    hinge = (13.503, 10.7505)
+    swing = R.arc(hinge, 0.80, 0.0, 90.0)                           # from the open (+x) to the closed (+y) position
+    swing.layer = "MYD - KAPI"
+    walls, openings, log, owned = O.gaps_and_openings([vert, leaf_wall], [swing], "t.dxf", 1,
+                                                      wall_strokes=[leaf_rect])
+    assert [str(w.entity) for w in walls] == ["RING"]
+    doors = [o for o in openings if o.kind == "door"]
+    assert len(doors) == 1 and doors[0].width == pytest.approx(0.8, abs=0.01)
+    assert doors[0].center == pytest.approx((13.4539, 11.1505), abs=0.01)
+    assert leaf_rect.id in owned
+    assert any(e.get("kind") == "wall_piece" and "door leaf" in e["note"] for e in log)
+
+
+def test_a_thin_wall_on_a_wall_layer_stays_a_wall():
+    piece = R.stroke([(0, 0), (2, 0), (2, 0.05), (0, 0.05)], closed=True)
+    piece.layer = "DUVAR"
+    w = R.wall((0, 0.025), (2, 0.025), t=0.05, entity=piece.id)
+    assert O.leaf_walls([w], [piece]) == {}
+    piece.layer = "KAPI"
+    assert O.leaf_walls([w], [piece]) == {0: [piece.id]}
+    short = R.wall((0, 0.025), (0.2, 0.025), t=0.05, entity=piece.id)          # a frame or a jamb block, no leaf
+    assert O.leaf_walls([short], [piece]) == {}
