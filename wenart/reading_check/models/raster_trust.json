@@ -1,0 +1,1475 @@
+{
+ "note": "Precision of the raster second opinion (RC13) per finding kind against results/reading_truth/ (python -m wenart.reading_check raster calibrate --write). A finding is right when the truth agrees with the raster side. A kind below the threshold (or with no calibrated finding) writes its findings with severity info. The truth of a real project is its accepted reading, so there every finding is a disagreement with what the user accepted.",
+ "commit": "f25925a87d989e7c3a60f2f1179c02294d8a6cbe",
+ "date": "2026-11-05",
+ "threshold": 0.5,
+ "projects": [
+  "real02",
+  "real03",
+  "real04",
+  "real06",
+  "real07",
+  "real10",
+  "real15",
+  "real17",
+  "real19",
+  "real21",
+  "synthetic-01",
+  "synthetic-03",
+  "synthetic-04",
+  "synthetic-05",
+  "synthetic-06",
+  "synthetic-07",
+  "synthetic-08-spaced-labels",
+  "synthetic-09-jamb-stubs",
+  "synthetic-10-glazed-facade",
+  "synthetic-11-dimension-chains",
+  "synthetic-12-mirrored-halves",
+  "synthetic-13-typical-floor",
+  "synthetic-14-elevation-title",
+  "synthetic-15-winder-stair",
+  "synthetic-16-open-recess",
+  "synthetic-17-garage-lift",
+  "synthetic-18-sheet-frame",
+  "synthetic-19-symmetric-house",
+  "synthetic-20-glazed-corner",
+  "synthetic-21-parapet",
+  "synthetic-22-curved-stair"
+ ],
+ "kinds": {
+  "wall_raster_only": {
+   "findings": 43,
+   "right": 0,
+   "precision": 0.0,
+   "trusted": false
+  },
+  "wall_vector_only": {
+   "findings": 228,
+   "right": 4,
+   "precision": 0.0175,
+   "trusted": false
+  },
+  "room_raster_only": {
+   "findings": 2,
+   "right": 0,
+   "precision": 0.0,
+   "trusted": false
+  },
+  "room_vector_only": {
+   "findings": 183,
+   "right": 0,
+   "precision": 0.0,
+   "trusted": false
+  },
+  "opening_raster_only": {
+   "findings": 46,
+   "right": 0,
+   "precision": 0.0,
+   "trusted": false
+  },
+  "opening_vector_only": {
+   "findings": 233,
+   "right": 25,
+   "precision": 0.1073,
+   "trusted": false
+  },
+  "opening_type_differs": {
+   "findings": 20,
+   "right": 0,
+   "precision": 0.0,
+   "trusted": false
+  }
+ },
+ "per_project": {
+  "real02": {
+   "raster_score": 31.25,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 0.0,
+    "openings": 0.0,
+    "walls": 0.3119
+   },
+   "vector_score": 98.89,
+   "findings": {
+    "wall_raster_only": 2,
+    "wall_vector_only": 29,
+    "room_raster_only": 0,
+    "room_vector_only": 16,
+    "opening_raster_only": 11,
+    "opening_vector_only": 23,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 374.2,
+   "levels_scored": [
+    "L-1",
+    "L-1b",
+    "L0",
+    "L1"
+   ]
+  },
+  "real03": {
+   "raster_score": 29.6,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 0.0,
+    "openings": 0.0,
+    "walls": 0.0324
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 21,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 2,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 368.0,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "real04": {
+   "raster_score": 31.25,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 0.0,
+    "openings": 0.0,
+    "walls": 0.3119
+   },
+   "vector_score": 98.89,
+   "findings": {
+    "wall_raster_only": 2,
+    "wall_vector_only": 29,
+    "room_raster_only": 0,
+    "room_vector_only": 16,
+    "opening_raster_only": 11,
+    "opening_vector_only": 23,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 406.4,
+   "levels_scored": [
+    "L-1",
+    "L-1b",
+    "L0",
+    "L1"
+   ]
+  },
+  "real06": {
+   "raster_score": 29.41,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 0.0,
+    "openings": 0.0,
+    "walls": 0.0
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 3,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 2,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 272.1,
+   "levels_scored": [
+    "L0",
+    "L1"
+   ]
+  },
+  "real07": {
+   "raster_score": 29.41,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 0.0,
+    "openings": 0.0,
+    "walls": 0.0
+   },
+   "vector_score": 99.09,
+   "findings": {
+    "wall_raster_only": 1,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 513.2,
+   "levels_scored": [
+    "L0",
+    "L1"
+   ]
+  },
+  "real10": {
+   "raster_score": 29.45,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 0.0,
+    "openings": 0.0,
+    "walls": 0.0061
+   },
+   "vector_score": 99.34,
+   "findings": {
+    "wall_raster_only": 9,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 493.1,
+   "levels_scored": [
+    "L-1",
+    "L-2",
+    "L0",
+    "L7"
+   ]
+  },
+  "real15": {
+   "raster_score": 29.41,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 0.0,
+    "openings": 0.0,
+    "walls": 0.0
+   },
+   "vector_score": 99.65,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 876.3,
+   "levels_scored": [
+    "L0",
+    "L1"
+   ]
+  },
+  "real17": {
+   "raster_score": 35.71,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 1.0,
+    "windows": 0.0,
+    "openings": 1.0,
+    "walls": 0.0
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 80.0,
+   "levels_scored": [
+    "L-1"
+   ]
+  },
+  "real19": {
+   "raster_score": 48.3,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0952,
+    "stairs": 0.0,
+    "doors": 0.5882,
+    "windows": 1.0,
+    "openings": 1.0,
+    "walls": 0.2994
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 2,
+    "wall_vector_only": 22,
+    "room_raster_only": 0,
+    "room_vector_only": 15,
+    "opening_raster_only": 0,
+    "opening_vector_only": 5,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 120.8,
+   "levels_scored": [
+    "L0",
+    "L1"
+   ]
+  },
+  "real21": {
+   "raster_score": 40.18,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 1.0,
+    "doors": 0.0408,
+    "windows": 0.0,
+    "openings": 0.0,
+    "walls": 0.5437
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 25,
+    "room_raster_only": 0,
+    "room_vector_only": 45,
+    "opening_raster_only": 11,
+    "opening_vector_only": 34,
+    "opening_type_differs": 4
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 122.1,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-01": {
+   "raster_score": 71.79,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.3333,
+    "stairs": 1.0,
+    "doors": 0.5714,
+    "windows": 0.6667,
+    "openings": 1.0,
+    "walls": 0.8571
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 2,
+    "room_raster_only": 0,
+    "room_vector_only": 4,
+    "opening_raster_only": 0,
+    "opening_vector_only": 6,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 9.8,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-03": {
+   "raster_score": 95.8,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 1.0,
+    "stairs": 1.0,
+    "doors": 0.7273,
+    "windows": 1.0,
+    "openings": 1.0,
+    "walls": 1.0
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 3,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 16.0,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-04": {
+   "raster_score": 96.15,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 1.0,
+    "stairs": 1.0,
+    "doors": 0.75,
+    "windows": 1.0,
+    "openings": 1.0,
+    "walls": 1.0
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 2,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 14.1,
+   "levels_scored": [
+    "L3"
+   ]
+  },
+  "synthetic-05": {
+   "raster_score": 97.45,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.9412,
+    "stairs": 1.0,
+    "doors": 0.9412,
+    "windows": 1.0,
+    "openings": 1.0,
+    "walls": 0.963
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 1,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 1,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 13.6,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-06": {
+   "raster_score": 76.62,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.9091,
+    "stairs": 1.0,
+    "doors": 1.0,
+    "windows": 0.0,
+    "openings": 0.0,
+    "walls": 1.0
+   },
+   "vector_score": 86.81,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 1,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 12,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 1,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 4,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 8.4,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-07": {
+   "raster_score": 49.36,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.4,
+    "windows": 0.7429,
+    "openings": 1.0,
+    "walls": 0.6111
+   },
+   "vector_score": 94.01,
+   "findings": {
+    "wall_raster_only": 1,
+    "wall_vector_only": 9,
+    "room_raster_only": 0,
+    "room_vector_only": 9,
+    "opening_raster_only": 0,
+    "opening_vector_only": 17,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 6,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 32.2,
+   "levels_scored": [
+    "L-1",
+    "L-1b",
+    "L0",
+    "L1"
+   ]
+  },
+  "synthetic-08-spaced-labels": {
+   "raster_score": 54.08,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 1.0,
+    "doors": 0.0,
+    "windows": 1.0,
+    "openings": 0.0,
+    "walls": 0.5714
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 6,
+    "room_raster_only": 0,
+    "room_vector_only": 6,
+    "opening_raster_only": 0,
+    "opening_vector_only": 5,
+    "opening_type_differs": 1
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 9.7,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-09-jamb-stubs": {
+   "raster_score": 57.43,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 1.0,
+    "doors": 0.0,
+    "windows": 0.9474,
+    "openings": 1.0,
+    "walls": 0.5714
+   },
+   "vector_score": 98.46,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 6,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 5,
+    "opening_type_differs": 1
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 7.5,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-10-glazed-facade": {
+   "raster_score": 59.74,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 1.0,
+    "doors": 0.25,
+    "windows": 0.8,
+    "openings": 1.0,
+    "walls": 0.6667
+   },
+   "vector_score": 94.4,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 7,
+    "room_raster_only": 0,
+    "room_vector_only": 6,
+    "opening_raster_only": 0,
+    "opening_vector_only": 7,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 1,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 1,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 7.1,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-11-dimension-chains": {
+   "raster_score": 57.43,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 1.0,
+    "doors": 0.0,
+    "windows": 0.9474,
+    "openings": 1.0,
+    "walls": 0.5714
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 6,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 5,
+    "opening_type_differs": 1
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 9.0,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-12-mirrored-halves": {
+   "raster_score": 57.41,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.2222,
+    "stairs": 1.0,
+    "doors": 0.0,
+    "windows": 0.6316,
+    "openings": 1.0,
+    "walls": 0.5333
+   },
+   "vector_score": 87.18,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 8,
+    "room_raster_only": 0,
+    "room_vector_only": 4,
+    "opening_raster_only": 0,
+    "opening_vector_only": 13,
+    "opening_type_differs": 1
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 4,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 7.2,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-13-typical-floor": {
+   "raster_score": 44.22,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 0.973,
+    "openings": 0.0,
+    "walls": 0.5714
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 12,
+    "room_raster_only": 0,
+    "room_vector_only": 12,
+    "opening_raster_only": 0,
+    "opening_vector_only": 10,
+    "opening_type_differs": 2
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 22.8,
+   "levels_scored": [
+    "L0",
+    "L1"
+   ]
+  },
+  "synthetic-14-elevation-title": {
+   "raster_score": 31.25,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 0.0,
+    "openings": 1.0,
+    "walls": 0.0
+   },
+   "vector_score": 44.94,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 1,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 1
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 17.6,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-15-winder-stair": {
+   "raster_score": 44.54,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 1.0,
+    "openings": 0.0,
+    "walls": 0.5714
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 6,
+    "room_raster_only": 0,
+    "room_vector_only": 6,
+    "opening_raster_only": 0,
+    "opening_vector_only": 5,
+    "opening_type_differs": 1
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 11.6,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-16-open-recess": {
+   "raster_score": 57.18,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 1.0,
+    "doors": 0.0,
+    "windows": 0.9167,
+    "openings": 1.0,
+    "walls": 0.6
+   },
+   "vector_score": 92.86,
+   "findings": {
+    "wall_raster_only": 1,
+    "wall_vector_only": 4,
+    "room_raster_only": 1,
+    "room_vector_only": 0,
+    "opening_raster_only": 1,
+    "opening_vector_only": 5,
+    "opening_type_differs": 1
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 7.5,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-17-garage-lift": {
+   "raster_score": 53.36,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 1.0,
+    "doors": 0.0,
+    "windows": 1.0,
+    "openings": 0.0,
+    "walls": 0.4706
+   },
+   "vector_score": 97.36,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 9,
+    "room_raster_only": 0,
+    "room_vector_only": 7,
+    "opening_raster_only": 0,
+    "opening_vector_only": 7,
+    "opening_type_differs": 1
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 1,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 10.0,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-18-sheet-frame": {
+   "raster_score": 44.22,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 0.973,
+    "openings": 0.0,
+    "walls": 0.5714
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 12,
+    "room_raster_only": 0,
+    "room_vector_only": 12,
+    "opening_raster_only": 0,
+    "opening_vector_only": 10,
+    "opening_type_differs": 2
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 23.5,
+   "levels_scored": [
+    "L0",
+    "L1"
+   ]
+  },
+  "synthetic-19-symmetric-house": {
+   "raster_score": 57.77,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 1.0,
+    "doors": 0.0,
+    "windows": 0.9474,
+    "openings": 1.0,
+    "walls": 0.6154
+   },
+   "vector_score": 93.96,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 5,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 12,
+    "opening_type_differs": 1
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 7,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 7.5,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-20-glazed-corner": {
+   "raster_score": 58.7,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 1.0,
+    "doors": 0.25,
+    "windows": 0.75,
+    "openings": 1.0,
+    "walls": 0.6316
+   },
+   "vector_score": 91.99,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 7,
+    "room_raster_only": 0,
+    "room_vector_only": 6,
+    "opening_raster_only": 0,
+    "opening_vector_only": 7,
+    "opening_type_differs": 0
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 2,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 2,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 6.1,
+   "levels_scored": [
+    "L0"
+   ]
+  },
+  "synthetic-21-parapet": {
+   "raster_score": 42.88,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.1538,
+    "windows": 0.7755,
+    "openings": 0.0,
+    "walls": 0.4314
+   },
+   "vector_score": 100.0,
+   "findings": {
+    "wall_raster_only": 1,
+    "wall_vector_only": 16,
+    "room_raster_only": 0,
+    "room_vector_only": 13,
+    "opening_raster_only": 8,
+    "opening_vector_only": 11,
+    "opening_type_differs": 2
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 24.2,
+   "levels_scored": [
+    "L0",
+    "L1",
+    "L2"
+   ]
+  },
+  "synthetic-22-curved-stair": {
+   "raster_score": 44.54,
+   "raster_types": {
+    "levels": 1.0,
+    "rooms": 0.0,
+    "stairs": 0.0,
+    "doors": 0.0,
+    "windows": 1.0,
+    "openings": 0.0,
+    "walls": 0.5714
+   },
+   "vector_score": 81.25,
+   "findings": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 6,
+    "room_raster_only": 0,
+    "room_vector_only": 6,
+    "opening_raster_only": 0,
+    "opening_vector_only": 5,
+    "opening_type_differs": 1
+   },
+   "right": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "unjudged": {
+    "wall_raster_only": 0,
+    "wall_vector_only": 0,
+    "room_raster_only": 0,
+    "room_vector_only": 0,
+    "opening_raster_only": 0,
+    "opening_vector_only": 0,
+    "opening_type_differs": 0
+   },
+   "seconds": 8.6,
+   "levels_scored": [
+    "L0"
+   ]
+  }
+ },
+ "notes": [
+  "Calibrated on 5 Nov 2026 at the commit named (raster_opinion.py; later commits changed only docstrings and the per-project keys of this file): 31 projects with a truth, the CAD levels only (real01 is a PDF: no CAD level).",
+  "real02 and real04 give identical numbers: the same building in two DWG files; both are counted.",
+  "On a real project the truth is the accepted reading, so a finding is right only where the user's corrections changed the truth; no listed real finding was right. The 29 right findings are synthetic: openings and walls the vector reader invents on synthetic-06, -07, -10, -12, -17, -19, -20 that the raster reading does not have.",
+  "Vector-only differences on a level where the raster walls cover under 30 % of the vector wall length are folded (raster_weak) and not judged."
+ ]
+}
