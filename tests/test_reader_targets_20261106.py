@@ -98,6 +98,16 @@ def test_the_first_winder_is_not_the_arms_last_tread():
     assert st["winders"] == 5 and st["turn"] == "U"
 
 
+def test_a_deeper_tread_on_the_arms_line_is_no_winder():
+    """real18 (the regression set): a U stair with a half landing numbers its 8 and 9 by the landing, 0.41 and 0.36 m
+    on but on the arms' lines; they stay the arms' treads (no winders)."""
+    pts = [(7.0 + 0.26 * k, 8.75) for k in range(7)] + [(8.96, 8.75), (8.61, 6.67)]
+    pts += [(8.25 - 0.25 * k, 6.67) for k in range(7)]
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+    st = SN.stair_of(chain, [])
+    assert [f["lines"] for f in st["flights"]] == [8, 8] and st["winders"] == 0
+
+
 def test_a_stair_piece_holding_a_chain_takes_what_the_numbers_say():
     """The stair rule's piece keeps its footprint and flights; the numbers give the treads drawn, the winders, the rise
     direction (drawn, so the architect never flips it) and the flights' order (the flight by number 1 first)."""
@@ -175,6 +185,24 @@ def test_a_row_of_grid_numbers_is_no_stair():
     assert SN.chains(grid) == []
     texts = [_t(v, x, y) for v, (x, y) in _REAL13_B.items()] + grid
     assert [[v for v, _p, _t in c] for c in SN.chains(texts)] == [list(range(1, 16))]
+
+
+def test_three_numbered_stairs_side_by_side_each_keep_their_numbers():
+    """real18 L3 (the target: "treads 1-16"): a U stair 1-16 between two L stairs 1-15; its 8 is 1.6 m from the near L
+    stair's 9 and 2.1 m from its own 9 (across its half landing). The longest regular chains win and the U stair is
+    built again without the numbers they took."""
+    lower = [(8.5, 5.62), (8.5, 5.8), (8.48, 6.02), (8.4, 6.18), (8.18, 6.22), (8.0, 6.24), (7.83, 6.23), (7.61, 6.22),
+             (7.42, 6.22), (7.24, 6.22), (7.04, 6.22), (6.81, 6.22), (6.61, 6.22), (6.41, 6.22), (6.23, 6.22)]
+    upper = [(x, 15.47 - y) for x, y in lower]                                # the mirror image about y 7.735
+    u = [(7.0 + 0.2794 * k, 8.75) for k in range(8)] + [(8.61 - 0.2686 * k, 6.67) for k in range(8)]
+    texts = []
+    for tag, pts in (("L", lower), ("M", upper), ("U", u)):
+        for k, (x, y) in enumerate(pts):
+            t = _t(k + 1, x, y)
+            t.id = f"{tag}{k + 1}"
+            texts.append(t)
+    got = sorted((c[0][2].id[0], [t.id[0] for _v, _p, t in c].count(c[0][2].id[0]), len(c)) for c in SN.chains(texts))
+    assert got == [("L", 15, 15), ("M", 15, 15), ("U", 16, 16)]
 
 
 def test_a_stair_of_many_arms_is_still_a_stair():

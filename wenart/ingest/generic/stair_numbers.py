@@ -55,19 +55,22 @@ def _numbers(texts: list) -> list[tuple[int, tuple[float, float], object]]:
 
 
 def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
-    """The runs of tread numbers (the module docstring), longest first; each number in one run only (pure)."""
+    """The runs of tread numbers (the module docstring), longest first (of equal ones the most regular); each number
+    in one run only, a run built again without the numbers a longer one took (pure)."""
     nums = _numbers(texts)
     by_value: dict[int, list[int]] = {}
     for k, (v, _p, _t) in enumerate(nums):
         by_value.setdefault(v, []).append(k)
-    found = []
     # 6 Nov 2026 (real10 L7, the roof terrace: the plan of the top floor numbers the arriving stair 2-17, its first
     # tread under the plan's cut; real07 L1 the same, 2-18): a 2 with no 1 within a step of it starts a chain too
     starts = list(by_value.get(1, []))
     starts += [k for k in by_value.get(2, []) if not any(math.dist(nums[k][1], nums[j][1]) <= STEP_M[1]
                                                           for j in by_value.get(1, []))]
-    for start in starts:
+
+    def build(start: int, banned: set) -> list[int]:
+        """The chain from ``start``, never through a number of ``banned`` (another stair's)."""
         chain = [start]
+        held = set(banned) | {start}
         while True:
             v, p, _t = nums[chain[-1]]
             nxt = None
@@ -76,11 +79,11 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
                 # 4 Nov 2026 (real07, user: "Stairs are missing in the project"): a candidate the next number follows
                 q = nums[k][1]
                 return any(STEP_M[0] <= math.dist(q, nums[j][1]) <= STEP_M[1] for j in by_value.get(value + 1, [])
-                           if j not in chain and j != k)
+                           if j not in held and j != k)
 
             for skip, (lo, hi) in ((1, STEP_M), (2, (STEP_M[0] * 2, STEP_M[1] * 2))):
                 cands = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + skip, [])
-                         if k not in chain and lo <= math.dist(p, nums[k][1]) <= hi]
+                         if k not in held and lo <= math.dist(p, nums[k][1]) <= hi]
                 if cands:
                     # a candidate that leads on wins (the U-stair's step 9 had the wall-thickness text '10' beside it;
                     # its real step 10 lies across the landing)
@@ -99,7 +102,7 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
                             on = [c for c in cands if c[1] == nxt]
                     if not on:
                         far = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + 1, [])
-                               if k not in chain and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M
+                               if k not in held and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M
                                and leads(k, v + 1)]
                         if far:
                             nxt = min(far)[1]
@@ -107,7 +110,7 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
             if nxt is None:
                 # the turn: the next number across the landing, where the next arm starts (it leads on)
                 far = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + 1, [])
-                       if k not in chain and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M and leads(k, v + 1)]
+                       if k not in held and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M and leads(k, v + 1)]
                 if far:
                     nxt = min(far)[1]
                 # 6 Nov 2026 (real13 L-1: two stairs side by side; the near stair's 8 stands on its landing, 1.1 m from
@@ -118,24 +121,38 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
                     math.dist(nums[a][1], nums[b][1]) <= STEP_M[1] for a, b in zip(chain[-ARM_MIN_POINTS:],
                                                                                   chain[-ARM_MIN_POINTS + 1:]))
                 near = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + 1, [])
-                        if arm and k not in chain and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M
+                        if arm and k not in held and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M
                         and any(STEP_M[0] <= math.dist(nums[k][1], nums[j][1]) <= TURN_JUMP_M
-                                for j in by_value.get(v + 2, []) if j not in chain and j != k)]
+                                for j in by_value.get(v + 2, []) if j not in held and j != k)]
                 if near and (not far or min(near)[0] * TURN_NEAR_RATIO < min(far)[0]):
                     nxt = min(near)[1]
             if nxt is None:
                 break
             chain.append(nxt)
-        if len(chain) >= MIN_STEPS and nums[chain[-1]][0] >= MIN_STEPS:
-            found.append(chain)
-    found.sort(key=len, reverse=True)
-    used: set = set()
+            held.add(nxt)
+        return chain
+
+    def jump(chain: list[int]) -> float:
+        return max((math.dist(nums[a][1], nums[b][1]) for a, b in zip(chain, chain[1:])), default=0.0)
+
+    # 6 Nov 2026 (real18 L3: three numbered stairs side by side; one stair's 1-8 jumped 1.6 m to another's 9-15 and that
+    # 15-number chain won over the other stair's own regular 1-15): the longest chain first, of equal ones the one with
+    # the shortest longest step; the others are built again without the numbers taken
     out = []
-    for chain in found:
-        if used & set(chain):
-            continue
-        used |= set(chain)
-        out.append([nums[k] for k in chain])
+    used: set = set()
+    while True:
+        found = []
+        for start in starts:
+            if start in used:
+                continue
+            chain = build(start, used)
+            if len(chain) >= MIN_STEPS and nums[chain[-1]][0] >= MIN_STEPS:
+                found.append(chain)
+        if not found:
+            break
+        best = min(found, key=lambda c: (-len(c), round(jump(c), 3), c[0]))
+        used |= set(best)
+        out.append([nums[k] for k in best])
     return out
 
 
@@ -189,13 +206,16 @@ def _arms(points: list) -> list[list[int]]:
     return [r for r in (first, last) if len(r) >= ARM_MIN_POINTS]
 
 
-ARM_STEP_SPREAD = 0.25          # 6 Nov 2026: a tread's step within this share of its arm's median step
+ARM_STEP_SPREAD = 0.25          # 6 Nov 2026: a tread's step within this share of its arm's median step ...
+ARM_TRIM_DEG = 5.0              # ... and a number at the arm's end off its line by more than this is the first winder
 
 
 def _trim_arm(points: list, arm: list[int], at_end: bool) -> list[int]:
     """``arm`` without the numbers at its turn end (its end for the first arm, its start for the last) whose step from
     their neighbour in the arm differs from the arm's median step by more than ``ARM_STEP_SPREAD``; at least
-    ``ARM_MIN_POINTS`` numbers are kept (pure)."""
+    ``ARM_MIN_POINTS`` numbers are kept (pure). Only a number off the arm's line (more than ``ARM_TRIM_DEG`` off the
+    line of the rest of the arm) is a winder: a deeper last or first tread on the line (real18: the 8 and the 9 by the
+    half landing, 0.41 and 0.36 m on) stays the arm's."""
     out = list(arm)
     while len(out) > ARM_MIN_POINTS:
         steps = [math.dist(points[a], points[b]) for a, b in zip(out, out[1:])]
@@ -203,7 +223,12 @@ def _trim_arm(points: list, arm: list[int], at_end: bool) -> list[int]:
         edge = steps[-1] if at_end else steps[0]
         if med <= 0 or abs(edge - med) <= ARM_STEP_SPREAD * med:
             break
-        out = out[:-1] if at_end else out[1:]
+        rest = out[:-1] if at_end else out[1:]
+        axis = _unit(points[rest[0]], points[rest[-1]])
+        tip = _unit(points[rest[-1]], points[out[-1]]) if at_end else _unit(points[out[0]], points[rest[0]])
+        if abs(_angle(axis, tip)) <= ARM_TRIM_DEG:
+            break
+        out = rest
     return out
 
 
