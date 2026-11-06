@@ -2247,6 +2247,2253 @@
     }
    },
    "overall": 95.73
+  },
+  {
+   "commit": "48326eb73bdf9dec23cc3538717cfa9af6e01269",
+   "date": "2026-11-06",
+   "projects": {
+    "real01": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 5,
+      "read": 5,
+      "matched": 5,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 4,
+      "read": 4,
+      "matched": 4,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 13,
+      "read": 13,
+      "matched": 13,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "real02": {
+     "levels": {
+      "truth": 4,
+      "read": 4,
+      "matched": 4,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 40,
+      "read": 38,
+      "matched": 38,
+      "absent_hits": 0,
+      "recall": 0.95,
+      "precision": 1.0,
+      "f1": 0.9744
+     },
+     "doors": {
+      "truth": 26,
+      "read": 26,
+      "matched": 26,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 10,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 0.7,
+      "precision": 1.0,
+      "f1": 0.8235
+     },
+     "walls": {
+      "truth": 64,
+      "read": 64,
+      "matched": 64,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 8,
+      "read": 8,
+      "matched": 8,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 98.51,
+     "truth_status": "accepted",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "real03": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 49,
+      "read": 49,
+      "matched": 49,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 25,
+      "read": 25,
+      "matched": 25,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 22,
+      "read": 22,
+      "matched": 22,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 14,
+      "read": 14,
+      "matched": 14,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 161,
+      "read": 161,
+      "matched": 161,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "real04": {
+     "levels": {
+      "truth": 4,
+      "read": 4,
+      "matched": 4,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 40,
+      "read": 38,
+      "matched": 38,
+      "absent_hits": 0,
+      "recall": 0.95,
+      "precision": 1.0,
+      "f1": 0.9744
+     },
+     "doors": {
+      "truth": 26,
+      "read": 26,
+      "matched": 26,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 10,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 0.7,
+      "precision": 1.0,
+      "f1": 0.8235
+     },
+     "walls": {
+      "truth": 64,
+      "read": 64,
+      "matched": 64,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 8,
+      "read": 8,
+      "matched": 8,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 98.51,
+     "truth_status": "accepted",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "real06": {
+     "levels": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 13,
+      "read": 13,
+      "matched": 13,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 15,
+      "read": 15,
+      "matched": 15,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 31,
+      "read": 33,
+      "matched": 31,
+      "absent_hits": 2,
+      "recall": 1.0,
+      "precision": 0.9394,
+      "f1": 0.9688
+     },
+     "openings": {
+      "truth": 4,
+      "read": 4,
+      "matched": 4,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 87,
+      "read": 87,
+      "matched": 87,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 99.63,
+     "truth_status": "accepted",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "real07": {
+     "levels": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 21,
+      "read": 20,
+      "matched": 20,
+      "absent_hits": 0,
+      "recall": 0.9524,
+      "precision": 1.0,
+      "f1": 0.9756
+     },
+     "doors": {
+      "truth": 20,
+      "read": 21,
+      "matched": 20,
+      "absent_hits": 1,
+      "recall": 1.0,
+      "precision": 0.9524,
+      "f1": 0.9756
+     },
+     "windows": {
+      "truth": 21,
+      "read": 21,
+      "matched": 21,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 16,
+      "read": 15,
+      "matched": 15,
+      "absent_hits": 0,
+      "recall": 0.9375,
+      "precision": 1.0,
+      "f1": 0.9677
+     },
+     "walls": {
+      "truth": 142,
+      "read": 144,
+      "matched": 141,
+      "absent_hits": 1,
+      "recall": 0.993,
+      "precision": 0.9792,
+      "f1": 0.986
+     },
+     "stairs": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 99.01,
+     "truth_status": "drifted",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "real10": {
+     "levels": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 212,
+      "read": 212,
+      "matched": 212,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 273,
+      "read": 266,
+      "matched": 259,
+      "absent_hits": 7,
+      "recall": 0.9487,
+      "precision": 0.9737,
+      "f1": 0.961
+     },
+     "windows": {
+      "truth": 116,
+      "read": 116,
+      "matched": 116,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 184,
+      "read": 197,
+      "matched": 183,
+      "absent_hits": 14,
+      "recall": 0.9946,
+      "precision": 0.9289,
+      "f1": 0.9606
+     },
+     "walls": {
+      "truth": 2121,
+      "read": 2121,
+      "matched": 2121,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 17,
+      "read": 17,
+      "matched": 17,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 99.31,
+     "truth_status": "accepted",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "real15": {
+     "levels": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 40,
+      "read": 40,
+      "matched": 40,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 27,
+      "read": 27,
+      "matched": 27,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 18,
+      "read": 16,
+      "matched": 16,
+      "absent_hits": 0,
+      "recall": 0.8889,
+      "precision": 1.0,
+      "f1": 0.9412
+     },
+     "walls": {
+      "truth": 191,
+      "read": 191,
+      "matched": 191,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 5,
+      "read": 5,
+      "matched": 5,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 99.65,
+     "truth_status": "accepted",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "real17": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 35,
+      "read": 35,
+      "matched": 35,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "partial",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "real19": {
+     "levels": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 19,
+      "read": 19,
+      "matched": 19,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 140,
+      "read": 140,
+      "matched": 140,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "partial",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "real21": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 45,
+      "read": 45,
+      "matched": 45,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 33,
+      "read": 33,
+      "matched": 33,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 7,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 73,
+      "read": 73,
+      "matched": 73,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "accepted_reading",
+     "truth_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+     "read_commit": "unknown"
+    },
+    "synthetic-01": {
+     "levels": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 16,
+      "read": 16,
+      "matched": 16,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-03": {
+     "levels": {
+      "truth": 3,
+      "read": 3,
+      "matched": 3,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 19,
+      "read": 19,
+      "matched": 19,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 17,
+      "read": 17,
+      "matched": 17,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 16,
+      "read": 16,
+      "matched": 16,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 28,
+      "read": 28,
+      "matched": 28,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-04": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 5,
+      "read": 5,
+      "matched": 5,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 5,
+      "read": 5,
+      "matched": 5,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-05": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 14,
+      "read": 14,
+      "matched": 14,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-06": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 5,
+      "read": 5,
+      "matched": 5,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 8,
+      "read": 8,
+      "matched": 8,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-07": {
+     "levels": {
+      "truth": 4,
+      "read": 4,
+      "matched": 4,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 11,
+      "read": 11,
+      "matched": 11,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 22,
+      "read": 22,
+      "matched": 22,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 24,
+      "read": 24,
+      "matched": 24,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 4,
+      "read": 4,
+      "matched": 4,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-08-spaced-labels": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-09-jamb-stubs": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 15,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.6667,
+      "f1": 0.8
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 98.46,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-10-glazed-facade": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 7,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 0.8571,
+      "precision": 1.0,
+      "f1": 0.9231
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 0.7778,
+      "precision": 0.7778,
+      "f1": 0.7778
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 11,
+      "read": 12,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 0.9091,
+      "precision": 0.8333,
+      "f1": 0.8696
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 94.4,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-11-dimension-chains": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-12-mirrored-halves": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 8,
+      "read": 8,
+      "matched": 8,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 8,
+      "read": 4,
+      "matched": 4,
+      "absent_hits": 0,
+      "recall": 0.5,
+      "precision": 1.0,
+      "f1": 0.6667
+     },
+     "windows": {
+      "truth": 12,
+      "read": 13,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.9231,
+      "f1": 0.96
+     },
+     "openings": {
+      "truth": 0,
+      "read": 3,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.0,
+      "f1": 0.0
+     },
+     "walls": {
+      "truth": 11,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 0.9091,
+      "precision": 1.0,
+      "f1": 0.9524
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 87.18,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-13-typical-floor": {
+     "levels": {
+      "truth": 7,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 42,
+      "read": 42,
+      "matched": 42,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 36,
+      "read": 36,
+      "matched": 36,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 69,
+      "read": 69,
+      "matched": 69,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 70,
+      "read": 70,
+      "matched": 70,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 7,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-14-elevation-title": {
+     "levels": {
+      "truth": 2,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 0.5,
+      "precision": 1.0,
+      "f1": 0.6667
+     },
+     "rooms": {
+      "truth": 12,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "f1": 0.0
+     },
+     "doors": {
+      "truth": 11,
+      "read": 11,
+      "matched": 5,
+      "absent_hits": 0,
+      "recall": 0.4545,
+      "precision": 0.4545,
+      "f1": 0.4545
+     },
+     "windows": {
+      "truth": 19,
+      "read": 19,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 0.4737,
+      "precision": 0.4737,
+      "f1": 0.4737
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 20,
+      "read": 20,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "f1": 0.5
+     },
+     "stairs": {
+      "truth": 2,
+      "read": 2,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "f1": 0.5
+     },
+     "total": 44.94,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-15-winder-stair": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-16-open-recess": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 11,
+      "read": 11,
+      "matched": 11,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 1,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.0,
+      "f1": 0.0
+     },
+     "walls": {
+      "truth": 13,
+      "read": 13,
+      "matched": 13,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 92.86,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-17-garage-lift": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 7,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 8,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 0.875,
+      "precision": 1.0,
+      "f1": 0.9333
+     },
+     "windows": {
+      "truth": 7,
+      "read": 8,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.875,
+      "f1": 0.9333
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 12,
+      "read": 14,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.8571,
+      "f1": 0.9231
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 97.36,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-18-sheet-frame": {
+     "levels": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 11,
+      "read": 11,
+      "matched": 11,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 19,
+      "read": 19,
+      "matched": 19,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 20,
+      "read": 20,
+      "matched": 20,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-19-symmetric-house": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-20-glazed-corner": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 7,
+      "read": 7,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 0.8571,
+      "precision": 0.8571,
+      "f1": 0.8571
+     },
+     "windows": {
+      "truth": 10,
+      "read": 7,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 0.6,
+      "precision": 0.8571,
+      "f1": 0.7059
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 12,
+      "read": 12,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 0.8333,
+      "precision": 0.8333,
+      "f1": 0.8333
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 91.99,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-21-parapet": {
+     "levels": {
+      "truth": 3,
+      "read": 3,
+      "matched": 3,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 14,
+      "read": 14,
+      "matched": 14,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 21,
+      "read": 21,
+      "matched": 21,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 28,
+      "read": 28,
+      "matched": 28,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 3,
+      "read": 3,
+      "matched": 3,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    },
+    "synthetic-22-curved-stair": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 1,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "f1": 0.0
+     },
+     "total": 81.25,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "unknown"
+    }
+   },
+   "overall": 96.35
   }
  ]
 }
