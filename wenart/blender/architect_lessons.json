@@ -3920,6 +3920,16 @@
    "request": "A drawing that draws no windows (an area or licence plan: rooms with their areas, walls, doors, parcel lines) still gets windows: a habitable room on an outer wall with no drawn window gets an inferred window, and a room onto a balcony an inferred balcony door, marked inferred with the reason; a building that reads no window at all is a finding the machine raises before the user looks. Found on real21's structure run of 6 Nov 2026 (0 windows: the drawing draws none).",
    "lesson": "A drawing that draws no windows (an area or licence plan: rooms with their areas, walls, doors, parcel lines) still gets windows: a habitable room on an outer wall with no drawn window gets an inferred window, and a room onto a balcony an inferred balcony door, marked inferred with the reason; a building that reads no window at all is a finding the machine raises before the user looks. Found on real21's structure run of 6 Nov 2026 (0 windows: the drawing draws none).",
    "question": null
+  },
+  {
+   "id": "UL332",
+   "date": "2026-11-06",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "A drawing that draws fewer storeys than the building has (one typical plan, a block with lifts and a common core, a 'normal' area text) is built with all its storeys: the count from sections, elevations, level marks, floor-listing titles, area tables and zoning texts, else a default by building type marked as a guess the user can correct; the typical plan repeats, the ground floor follows the footprint evidence, a roof on top. User, 6 Nov 2026: 'real21 only 1 floor seems to be built you need to extrapolate what needs to be done. all floors needs to be done'.",
+   "lesson": "A drawing that draws fewer storeys than the building has (one typical plan, a block with lifts and a common core, a 'normal' area text) is built with all its storeys: the count from sections, elevations, level marks, floor-listing titles, area tables and zoning texts, else a default by building type marked as a guess the user can correct; the typical plan repeats, the ground floor follows the footprint evidence, a roof on top. User, 6 Nov 2026: 'real21 only 1 floor seems to be built you need to extrapolate what needs to be done. all floors needs to be done'.",
+   "question": null
   }
  ]
 }
