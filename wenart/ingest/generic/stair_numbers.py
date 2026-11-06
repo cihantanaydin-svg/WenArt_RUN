@@ -683,10 +683,18 @@ def enrich(piece, chain: list, st: Optional[dict]) -> str:
         said.append(f"{values[-1]} treads drawn")
     if st is None or st.get("skip"):
         return "; ".join(said)
-    if st.get("winders") and not data.get("winders"):
+    # the turn and the winders only where the stair rule read the same flights as the numbers' arms (real09: the rule
+    # read one straight flight of a U stair numbered 1-17; a U turn on one flight would be no stair the build knows)
+    same = len(data.get("flights") or []) == len(st.get("flights") or [])
+    if not same:
+        said.append(f"the numbers make {len(st.get('flights') or [])} flight(s) ({st.get('turn')}), the stair rule "
+                    f"{len(data.get('flights') or [])}: the rule's flights kept")
+    if same and st.get("winders") and not data.get("winders"):
         data["winders"] = int(st["winders"])
         said.append(f"{st['winders']} winder(s) in the turn")
-    if st.get("curved") and not data.get("curved"):
+    if not same:
+        pass
+    elif st.get("curved") and not data.get("curved"):
         data["curved"] = st["curved"]
         data["turn"], data["turn_assumed"] = "other", False
         said.append("a curved stair")

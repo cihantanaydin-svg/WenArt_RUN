@@ -122,6 +122,22 @@ def test_a_stair_piece_holding_a_chain_takes_what_the_numbers_say():
     assert stair["direction"] == [1.0, 0.0]
 
 
+def test_a_stair_piece_of_other_flights_keeps_its_turn():
+    """real09 (found by the regression set): the stair rule read one straight flight of a U stair numbered 1-17; the
+    numbers give the treads drawn, but no U turn and no winders on one flight."""
+    pts = [(8.835 + 0.27 * k, 6.5735) for k in range(6)]
+    pts += [(10.5749, 6.5264), (10.9874, 6.8261), (11.145, 7.311), (10.9874, 7.7959), (10.5749, 8.0956)]
+    pts += [(10.185 - 0.27 * k, 8.0485) for k in range(6)]
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+    stair = {"flights": [{"start": [8.97, 6.59], "end": [10.05, 6.59], "width": 1.2, "lines": 5, "spacing": 0.27}],
+             "landing": None, "direction": [1.0, 0.0], "direction_assumed": True, "turn": "straight",
+             "turn_assumed": True, "reason": "rule"}
+    piece = SimpleNamespace(details={"stair": stair}, evidence={})
+    said = SN.enrich(piece, chain, SN.stair_of(chain, []))
+    assert stair["steps_drawn"] == 17 and "winders" not in stair and stair["turn"] == "straight"
+    assert "the rule's flights kept" in said
+
+
 def test_numbered_treads_that_fit_no_shape_still_give_the_treads_drawn():
     texts = [_t(k, 1.0 + 0.27 * k, 2.0) for k in range(1, 12)]
     chain = SN.chains(texts)[0]
