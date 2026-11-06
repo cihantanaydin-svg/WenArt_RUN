@@ -748,8 +748,16 @@ def train(labelled: list[dict], kind: str, *, commit: Optional[str] = None, date
     return {"model": model, "table": table}
 
 
+def keep_sources(labelled: list[dict], sources: Optional[list[str]]) -> list[dict]:
+    """The labelled records whose label source is in ``sources`` (all when None; 6 Nov 2026: the user's ruling that
+    only the corrections he made count as truth for the real projects, so the accepted-reading labels can be left out,
+    ``--sources user_correction,synthetic``)."""
+    return list(labelled) if not sources else [r for r in labelled if r.get("source") in set(sources)]
+
+
 def retrain(work: Path, projects: Optional[list[str]] = None, *, fresh: bool = False, l2: float = L2,
-            models_dir: Path = MODELS_DIR, kinds: Optional[list[str]] = None, log=print) -> dict:
+            models_dir: Path = MODELS_DIR, kinds: Optional[list[str]] = None, log=print,
+            sources: Optional[list[str]] = None) -> dict:
     """The whole retrain in one call (``python -m wenart.reading_check ranker retrain --work DIR``): every project with
     a truth file is read with the rules alone (``WENART_RANKER=0``; its decision records do not depend on the ranker,
     and one reading at a time) into ``work/<p>`` unless a reading with decision records is there already (``--fresh``
@@ -785,6 +793,7 @@ def retrain(work: Path, projects: Optional[list[str]] = None, *, fresh: bool = F
         else:
             os.environ["WENART_RANKER"] = old
     labelled, skipped = collect(work, names)
+    labelled = keep_sources(labelled, sources)
     for p, why in sorted(skipped.items()):
         log(f"{p}: skipped ({why})")
     out = {}
@@ -825,7 +834,10 @@ def main(argv=None) -> int:
     ap.add_argument("--models", default=str(MODELS_DIR), help="the models folder")
     ap.add_argument("--l2", type=float, default=L2, help=f"the ridge on the standardised coefficients (default {L2})")
     ap.add_argument("--changes", type=int, default=40, help="how many held-out changed decisions to print")
+    ap.add_argument("--sources", default=None,
+                    help="comma separated label sources to keep (e.g. user_correction,synthetic); default: all")
     args = ap.parse_args(argv)
+    sources = [s.strip() for s in (args.sources or "").split(",") if s.strip()] or None
     kinds = [args.kind] if args.kind else list(CLASSES)
     models_dir = Path(args.models)
     if args.action == "explain":
@@ -838,14 +850,19 @@ def main(argv=None) -> int:
         return 2
     projects = [p.strip() for p in (args.projects or "").split(",") if p.strip()] or None
     if args.action == "retrain":
-        got = retrain(Path(args.work), projects, fresh=args.fresh, l2=args.l2, models_dir=models_dir, kinds=kinds)
+        got = retrain(Path(args.work), projects, fresh=args.fresh, l2=args.l2, models_dir=models_dir, kinds=kinds,
+                      sources=sources)
         for kind, model in got.items():
+            print(f"{kind}: labels per source {model['trained_on']['counts_per_source']}")
             print(f"{kind}: transitions: " + "; ".join(
                 f"{k} {t['right']} right / {t['wrong']} wrong{' TRUSTED' if t['trusted'] else ''}"
                 for k, t in model["transitions"].items()))
+            print(f"{kind}: nested (two-level) trust per group: "
+                  f"{model['metrics']['overall'].get('nested_trusted_in_groups')}")
             print(explain_text(model))
         return 0 if got else 1
     labelled, skipped = collect(Path(args.work), projects)
+    labelled = keep_sources(labelled, sources)
     for p, why in sorted(skipped.items()):
         print(f"{p}: skipped ({why})")
     counts = label_counts(labelled)
@@ -869,10 +886,13 @@ def main(argv=None) -> int:
         print(f"{kind}: transitions (held out): " + "; ".join(
             f"{k} {t['right']} right / {t['wrong']} wrong{' TRUSTED' if t['trusted'] else ''}"
             for k, t in got["model"]["transitions"].items()))
+        print(f"{kind}: nested (two-level) trust per group: "
+              f"{got['model']['metrics']['overall'].get('nested_trusted_in_groups')}")
         for c in changed[:max(0, args.changes)]:
             place = f"({c['place'][0]:.2f}, {c['place'][1]:.2f})" if c.get("place") else "?"
+            truth = f"negated {c['negated']}" if c.get("negative") else f"truth {c['label']}"
             print(f"  {c['project']} {c['level_id']} at {place} m: {c['rule_answer']} -> {c['ranker_answer']} "
-                  f"(margin {c['margin']:.2f}; truth {c['label']}: {'right' if c['right'] else 'wrong'})")
+                  f"(margin {c['margin']:.2f}; {truth}: {'right' if c['right'] else 'wrong'})")
         print(explain_text(got["model"]))
         if args.action == "train":
             print(f"{kind}: written to {write_model(kind, got['model'], got['table'], models_dir)}")
