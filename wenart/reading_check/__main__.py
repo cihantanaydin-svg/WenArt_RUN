@@ -9,7 +9,8 @@ score against the truth, ``score``; Milestone 14 R1, 4 Nov 2026). ``--fresh`` re
 ``--work`` already holds its reading. 5 Nov 2026: ``remark add|list|show|redo`` (a user's review remark as a
 correction record with a crop), ``stability`` (the reading under mirror, rotation, unit and layer changes) and
 ``crossdoc`` (the cross-document checks RC8-RC12) are reachable here as well, each with its own parser
-(``python -m wenart.reading_check crossdoc --help``)."""
+(``python -m wenart.reading_check crossdoc --help``); and ``raster`` (5 Nov 2026, Milestone 14 R4: the raster second
+opinion RC13, ``raster check|calibrate|projects``)."""
 from __future__ import annotations
 
 import argparse
@@ -20,7 +21,8 @@ from pathlib import Path
 # 5 Nov 2026 (Milestone 14): the modules with a command line of their own, reachable here as subcommands too
 # (``python -m wenart.reading_check remark add ...``); each keeps its own parser.
 DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("wenart.reading_check.stability", "main"),
-             "crossdoc": ("wenart.reading_check.crossdoc", "_main")}
+             "crossdoc": ("wenart.reading_check.crossdoc", "_main"),
+             "raster": ("wenart.reading_check.raster_opinion", "main")}
 
 
 def main(argv=None) -> int:
