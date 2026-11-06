@@ -1,9 +1,10 @@
 """``python -m wenart.reading_check check --out <pipeline output> [--sheets]`` (the reading self-check, its comparison
 sheets), ``python -m wenart.reading_check regress [--projects ...] [--update]`` (the reading regression set),
 ``python -m wenart.reading_check zip --out <reading> --results <run results> --project <p> --dest <zip>`` (a structure
-run's zip: renders and comparison sheets together, ``pack``), ``python -m wenart.reading_check truth build
-[--projects ...] [--work DIR] [--fresh] [--allow-drift]`` (the truth corpus from the accepted readings and the
-synthetic projects' exact truth; ``truth add`` / ``truth remove`` put a user correction into it, ``truth``) and
+run's zip: renders and comparison sheets together, ``pack``), ``python -m wenart.reading_check truth accept
+--projects ... [--work DIR] [--fresh] [--allow-drift]`` (store the reading the user accepted), ``truth build
+[--projects ...]`` (derive the truth: the accepted reading plus a replay of the user's correction records by place;
+6 Nov 2026), ``truth add`` / ``truth remove`` (record a user correction and rebuild, ``truth``) and
 ``python -m wenart.reading_check score [--projects ...] [--work DIR] [--fresh] [--update] [--gate]`` (the reading
 score against the truth, ``score``; Milestone 14 R1, 4 Nov 2026). ``--fresh`` reads a project again even when
 ``--work`` already holds its reading. 5 Nov 2026: ``remark add|list|show|redo`` (a user's review remark as a
@@ -47,26 +48,40 @@ def main(argv=None) -> int:
     z.add_argument("--results", required=True, help="the run's collected results folder (runs/<job>/results)")
     z.add_argument("--project", required=True)
     z.add_argument("--dest", required=True, help="the zip to write")
-    t = sub.add_parser("truth", help="the truth corpus: `truth build` reads the accepted projects (accepted_by_user "
-                                     "in the baseline) and takes the synthetic projects' exact truth, writing "
-                                     "results/reading_truth/<project>.json; `truth add` / `truth remove` put a user "
-                                     "correction into it")
-    t.add_argument("action", choices=["build", "add", "remove"])
-    t.add_argument("--projects", default=None, help="build: comma separated (default: every accepted baseline and "
-                                                    "every synthetic project with a truth)")
-    t.add_argument("--work", default=None, help="work folder for the readings (a reading already there is used again)")
-    t.add_argument("--fresh", action="store_true", help="read again even when --work holds a reading")
+    t = sub.add_parser("truth", help="the truth: `truth accept` stores the reading the user accepted "
+                                     "(results/reading_accepted/); `truth build` derives "
+                                     "results/reading_truth/<project>.json from it and the correction records (a replay "
+                                     "by place; the synthetic projects from their exact truth); `truth add` / `truth "
+                                     "remove` record a user correction and rebuild")
+    t.add_argument("action", choices=["accept", "build", "add", "remove"])
+    t.add_argument("--projects", default=None, help="accept/build: comma separated (build's default: every accepted "
+                                                    "baseline and every synthetic project with a truth)")
+    t.add_argument("--work", default=None, help="accept: work folder for the readings (a reading there is used again)")
+    t.add_argument("--fresh", action="store_true", help="accept: read again even when --work holds a reading")
     t.add_argument("--allow-drift", action="store_true",
-                   help="build: write a reading that drifted from the accepted baseline, marked status drifted")
+                   help="accept: store a reading that drifted from the accepted baseline, marked status drifted")
+    t.add_argument("--user-said", dest="user_said", default=None,
+                   help="accept: the user's own words accepting this reading (needed when the baseline's accepted_on "
+                        "is older than the reading's commit; stored in the accepted file)")
     t.add_argument("--project", default=None, help="add/remove: the project")
     t.add_argument("--level", default=None, help="add/remove: the level id (L0, L-1 ...)")
     t.add_argument("--kind", default=None, choices=["room", "door", "window", "opening", "wall", "stair", "level"],
                    help="add/remove: the element kind")
-    t.add_argument("--source", default=None, choices=["user_correction", "synthetic"],
-                   help="add/remove: the element's source (default user_correction)")
-    t.add_argument("--correction", default=None, help="add/remove: the correction record id (C0012)")
+    t.add_argument("--source", default=None, choices=["user_correction"],
+                   help="add/remove: the element's source (only user_correction)")
+    t.add_argument("--correction", default=None, help="add/remove: the record the operation joins (C0012: accepted, "
+                                                      "with the user's words, of the same project)")
+    t.add_argument("--text", default=None, help="add/remove without --correction: the user's own words (a new record)")
+    t.add_argument("--lesson", default=None, help="add/remove with --text: the lesson id the record states")
+    t.add_argument("--reader-answer", dest="reader_answer", default=None, help="add/remove with --text")
+    t.add_argument("--right-answer", dest="right_answer", default=None, help="add/remove with --text")
+    t.add_argument("--confirm", action="store_true", help="add: confirm the element at the place as it is")
+    t.add_argument("--retype", action="store_true", help="add: change the type (label) of the element at the place, "
+                                                         "keeping its geometry")
     t.add_argument("--date", default=None, help="add/remove: the date of the correction (default today)")
-    t.add_argument("--id", default=None, help="add/remove: the element id (remove: the element to negate)")
+    t.add_argument("--id", default=None, help="add/remove: an element by id, turned into its place: the reader's id "
+                                             "in --reading, or a truth id of the current truth file")
+    t.add_argument("--reading", default=None, help="add/remove: the reading (folder or building.json) --id is from")
     t.add_argument("--center", default=None, help="x,y in building metres (door, window, opening, stair, room)")
     t.add_argument("--width", default=None, help="door / window / opening width in metres")
     t.add_argument("--wall-id", dest="wall_id", default=None)

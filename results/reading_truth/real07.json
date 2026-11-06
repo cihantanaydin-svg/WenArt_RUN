@@ -23,104 +23,25 @@
   }
  ],
  "levels_left_out": [],
+ "accepted": {
+  "on": "2026-11-04",
+  "scope": "partial",
+  "levels": [
+   "L0",
+   "L1"
+  ],
+  "note": "user, 4 Nov 2026: reviewed both floors on the structure run 20261104-144248 and its comparison sheets (real07 review); the reading itself was not accepted as a baseline (its check was not ready)"
+ },
+ "drift": [
+  "L0 doors: 6 -> 10",
+  "L1 doors: 8 -> 11",
+  "L1 openings: 8 -> 5"
+ ],
  "per_level": {
   "L0": {
    "rooms": [
     {
-     "id": "r_L0_kat_kal",
-     "label": "Kat Kal.",
-     "room_type": "technical",
-     "area": 3.788,
-     "centroid": [
-      5.09,
-      1.207
-     ],
-     "polygon": [
-      [
-       3.88,
-       0.38
-      ],
-      [
-       6.2,
-       0.38
-      ],
-      [
-       6.2,
-       2.1
-      ],
-      [
-       4.58,
-       2.1
-      ],
-      [
-       4.58,
-       2.14
-      ],
-      [
-       4.34,
-       2.14
-      ],
-      [
-       4.34,
-       1.64
-      ],
-      [
-       3.88,
-       1.64
-      ]
-     ],
-     "source": "user_correction",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified",
-     "confirmed_on": "2026-11-05",
-     "corrections": [
-      "C0046"
-     ],
-     "correction": "C0046"
-    },
-    {
-     "id": "r_L0_dus_wc",
-     "label": "Duş+wc",
-     "room_type": "wc",
-     "area": 3.793,
-     "centroid": [
-      7.496,
-      1.246
-     ],
-     "polygon": [
-      [
-       6.38,
-       0.43
-      ],
-      [
-       6.88,
-       0.43
-      ],
-      [
-       6.88,
-       0.38
-      ],
-      [
-       8.6,
-       0.38
-      ],
-      [
-       8.6,
-       2.1
-      ],
-      [
-       6.38,
-       2.1
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_garaj",
+     "id": "t_L0_room_0001",
      "label": "Garaj",
      "room_type": "garage",
      "area": 21.364,
@@ -166,14 +87,15 @@
      "confidence": 1.0,
      "method": "vector",
      "status": "unverified",
-     "confirmed_on": "2026-11-05",
+     "reader_id": "r_L0_garaj",
      "corrections": [
       "C0044"
      ],
-     "correction": "C0044"
+     "correction": "C0044",
+     "confirmed_on": "2026-11-04"
     },
     {
-     "id": "r_L0_oda",
+     "id": "t_L0_room_0002",
      "label": "Oda",
      "room_type": "hall",
      "area": 0.594,
@@ -202,10 +124,163 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L0_oda"
     },
     {
-     "id": "r_L0_hol",
+     "id": "t_L0_room_0003",
+     "label": "Ütü Od.",
+     "room_type": "other",
+     "area": 6.558,
+     "centroid": [
+      4.955,
+      4.929
+     ],
+     "polygon": [
+      [
+       3.88,
+       3.48
+      ],
+      [
+       6.2,
+       3.48
+      ],
+      [
+       6.2,
+       5.6
+      ],
+      [
+       5.78,
+       5.6
+      ],
+      [
+       5.78,
+       5.641
+      ],
+      [
+       5.54,
+       5.641
+      ],
+      [
+       5.54,
+       5.886
+      ],
+      [
+       5.5,
+       5.886
+      ],
+      [
+       5.5,
+       6.599
+      ],
+      [
+       3.88,
+       6.599
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_utu_od"
+    },
+    {
+     "id": "t_L0_room_0004",
+     "label": "Kat Kal.",
+     "room_type": "technical",
+     "area": 3.788,
+     "centroid": [
+      5.09,
+      1.207
+     ],
+     "polygon": [
+      [
+       3.88,
+       0.38
+      ],
+      [
+       6.2,
+       0.38
+      ],
+      [
+       6.2,
+       2.1
+      ],
+      [
+       4.58,
+       2.1
+      ],
+      [
+       4.58,
+       2.14
+      ],
+      [
+       4.34,
+       2.14
+      ],
+      [
+       4.34,
+       1.64
+      ],
+      [
+       3.88,
+       1.64
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_kat_kal",
+     "corrections": [
+      "C0046"
+     ],
+     "correction": "C0046",
+     "confirmed_on": "2026-11-04"
+    },
+    {
+     "id": "t_L0_room_0005",
+     "label": "Duş+wc",
+     "room_type": "wc",
+     "area": 3.793,
+     "centroid": [
+      7.496,
+      1.246
+     ],
+     "polygon": [
+      [
+       6.38,
+       0.43
+      ],
+      [
+       6.88,
+       0.43
+      ],
+      [
+       6.88,
+       0.38
+      ],
+      [
+       8.6,
+       0.38
+      ],
+      [
+       8.6,
+       2.1
+      ],
+      [
+       6.38,
+       2.1
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_dus_wc"
+    },
+    {
+     "id": "t_L0_room_0006",
      "label": "Hol",
      "room_type": "hall",
      "area": 6.225,
@@ -266,10 +341,130 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L0_hol"
     },
     {
-     "id": "r_L0_mutfak",
+     "id": "t_L0_room_0007",
+     "label": "Yaşam Alanı",
+     "room_type": "other",
+     "area": 32.677,
+     "centroid": [
+      8.643,
+      8.74
+     ],
+     "polygon": [
+      [
+       5.78,
+       5.93
+      ],
+      [
+       6.2,
+       5.93
+      ],
+      [
+       6.2,
+       5.88
+      ],
+      [
+       11.5,
+       5.88
+      ],
+      [
+       11.5,
+       11.6
+      ],
+      [
+       5.83,
+       11.6
+      ],
+      [
+       5.83,
+       11.2
+      ],
+      [
+       5.78,
+       11.2
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_yasam_alani"
+    },
+    {
+     "id": "t_L0_room_0008",
+     "label": "Oda",
+     "room_type": "hall",
+     "area": 10.716,
+     "centroid": [
+      9.04,
+      4.521
+     ],
+     "polygon": [
+      [
+       6.53,
+       3.48
+      ],
+      [
+       9.506,
+       3.48
+      ],
+      [
+       9.506,
+       3.39
+      ],
+      [
+       11.5,
+       3.39
+      ],
+      [
+       11.5,
+       5.6
+      ],
+      [
+       6.53,
+       5.6
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "r_L0_oda_2"
+    },
+    {
+     "id": "t_L0_room_0009",
+     "label": "Antre",
+     "room_type": "hall",
+     "area": 1.031,
+     "centroid": [
+      10.838,
+      3.044
+     ],
+     "polygon": [
+      [
+       9.514,
+       3.39
+      ],
+      [
+       11.499,
+       2.352
+      ],
+      [
+       11.5,
+       3.39
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "r_L0_antre"
+    },
+    {
+     "id": "t_L0_room_0010",
      "label": "Mutfak",
      "room_type": "kitchen",
      "area": 17.785,
@@ -338,182 +533,11 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L0_mutfak"
     },
     {
-     "id": "r_L0_antre",
-     "label": "Antre",
-     "room_type": "hall",
-     "area": 1.031,
-     "centroid": [
-      10.838,
-      3.044
-     ],
-     "polygon": [
-      [
-       9.514,
-       3.39
-      ],
-      [
-       11.499,
-       2.352
-      ],
-      [
-       11.5,
-       3.39
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L0_utu_od",
-     "label": "Ütü Od.",
-     "room_type": "other",
-     "area": 6.558,
-     "centroid": [
-      4.955,
-      4.929
-     ],
-     "polygon": [
-      [
-       3.88,
-       3.48
-      ],
-      [
-       6.2,
-       3.48
-      ],
-      [
-       6.2,
-       5.6
-      ],
-      [
-       5.78,
-       5.6
-      ],
-      [
-       5.78,
-       5.641
-      ],
-      [
-       5.54,
-       5.641
-      ],
-      [
-       5.54,
-       5.886
-      ],
-      [
-       5.5,
-       5.886
-      ],
-      [
-       5.5,
-       6.599
-      ],
-      [
-       3.88,
-       6.599
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_oda_2",
-     "label": "Oda",
-     "room_type": "hall",
-     "area": 10.716,
-     "centroid": [
-      9.04,
-      4.521
-     ],
-     "polygon": [
-      [
-       6.53,
-       3.48
-      ],
-      [
-       9.506,
-       3.48
-      ],
-      [
-       9.506,
-       3.39
-      ],
-      [
-       11.5,
-       3.39
-      ],
-      [
-       11.5,
-       5.6
-      ],
-      [
-       6.53,
-       5.6
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L0_yasam_alani",
-     "label": "Yaşam Alanı",
-     "room_type": "other",
-     "area": 32.677,
-     "centroid": [
-      8.643,
-      8.74
-     ],
-     "polygon": [
-      [
-       5.78,
-       5.93
-      ],
-      [
-       6.2,
-       5.93
-      ],
-      [
-       6.2,
-       5.88
-      ],
-      [
-       11.5,
-       5.88
-      ],
-      [
-       11.5,
-       11.6
-      ],
-      [
-       5.83,
-       11.6
-      ],
-      [
-       5.83,
-       11.2
-      ],
-      [
-       5.78,
-       11.2
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_yemek_bolumu",
+     "id": "t_L0_room_0011",
      "label": "Yemek Bölümü",
      "room_type": "other",
      "area": 19.115,
@@ -558,12 +582,93 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L0_yemek_bolumu"
     }
    ],
    "doors": [
     {
-     "id": "d_L0_001",
+     "id": "t_L0_door_0001",
+     "type": "door",
+     "width": 3.41,
+     "center": [
+      2.03,
+      0.24
+     ],
+     "wall_id": "w_L0_069",
+     "source": "user_correction",
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified",
+     "reader_id": "o_L0_014",
+     "corrections": [
+      "C0045"
+     ],
+     "correction": "C0045",
+     "confirmed_on": "2026-11-04"
+    },
+    {
+     "id": "t_L0_door_0002",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      3.79,
+      2.79
+     ],
+     "wall_id": "w_L0_040",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "d_L0_005"
+    },
+    {
+     "id": "t_L0_door_0003",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      4.49,
+      2.79
+     ],
+     "wall_id": "w_L0_042",
+     "source": "accepted_reading",
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_006"
+    },
+    {
+     "id": "t_L0_door_0004",
+     "type": "door",
+     "width": 0.85,
+     "center": [
+      5.015,
+      6.739
+     ],
+     "wall_id": "w_L0_027",
+     "source": "accepted_reading",
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_004"
+    },
+    {
+     "id": "t_L0_door_0005",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      5.141,
+      3.39
+     ],
+     "wall_id": "w_L0_015",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_008"
+    },
+    {
+     "id": "u_C0047_1",
      "type": "door",
      "width": 0.8,
      "center": [
@@ -575,16 +680,17 @@
      "confidence": 0.9,
      "method": "vector",
      "status": "unverified",
+     "reader_id": "d_L0_001",
      "absent": true,
-     "removed_on": "2026-11-05",
      "corrections": [
       "C0047"
      ],
      "correction": "C0047",
-     "note": "a double read of the Kat Kal door: the 80/210 size tag placed a second door 0.38 m west of the drawn gap (5.34 to 6.14), half inside the wall"
+     "note": "a double read of the Kat Kal door: the 80/210 size tag placed a second door 0.38 m west of the drawn gap (5.34 to 6.14), half inside the wall",
+     "removed_on": "2026-11-04"
     },
     {
-     "id": "d_L0_002",
+     "id": "t_L0_door_0007",
      "type": "door",
      "width": 0.8,
      "center": [
@@ -596,15 +702,16 @@
      "confidence": null,
      "method": "user",
      "status": "verified",
-     "changed": [
-      "center",
-      "width"
-     ],
-     "confirmed_on": "2026-11-05",
+     "reader_id": "d_L0_002",
      "corrections": [
       "C0047"
      ],
      "correction": "C0047",
+     "changed": [
+      "center",
+      "width"
+     ],
+     "note": "the one drawn door of Kat Kal. at its drawn centre (user: 'the entrance to the room is wrong door'); vector geometry of the DXF",
      "evidence": [
       {
        "file": "real07.dwg",
@@ -642,94 +749,10 @@
        "what": "size tag 80/210 at (5.63, 1.74)"
       }
      ],
-     "note": "the one drawn door of Kat Kal. at its drawn centre (user: 'the entrance to the room is wrong door'); vector geometry of the DXF"
+     "confirmed_on": "2026-11-04"
     },
     {
-     "id": "d_L0_004",
-     "type": "door",
-     "width": 0.85,
-     "center": [
-      5.015,
-      6.739
-     ],
-     "wall_id": "w_L0_027",
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "o_L0_008",
-     "type": "door",
-     "width": 2.32,
-     "center": [
-      13.69,
-      11.74
-     ],
-     "wall_id": "w_L0_034",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "d_L0_005",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      3.79,
-      2.79
-     ],
-     "wall_id": "w_L0_040",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "d_L0_006",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      4.49,
-      2.79
-     ],
-     "wall_id": "w_L0_042",
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_007",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      11.59,
-      4.581
-     ],
-     "wall_id": "w_L0_054",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_008",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      5.141,
-      3.39
-     ],
-     "wall_id": "w_L0_015",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "o_L0_013",
+     "id": "t_L0_door_0008",
      "type": "door",
      "width": 3.12,
      "center": [
@@ -740,73 +763,43 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "o_L0_013"
     },
     {
-     "id": "o_L0_014",
+     "id": "t_L0_door_0009",
      "type": "door",
-     "width": 3.41,
+     "width": 0.9,
      "center": [
-      2.03,
-      0.24
+      11.59,
+      4.581
      ],
-     "wall_id": "w_L0_069",
-     "source": "user_correction",
-     "confidence": 0.6,
-     "method": "inferred",
+     "wall_id": "w_L0_054",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_007"
+    },
+    {
+     "id": "t_L0_door_0010",
+     "type": "door",
+     "width": 2.32,
+     "center": [
+      13.69,
+      11.74
+     ],
+     "wall_id": "w_L0_034",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
      "status": "unverified",
-     "confirmed_on": "2026-11-05",
-     "corrections": [
-      "C0045"
-     ],
-     "correction": "C0045"
+     "reader_id": "o_L0_008"
     }
    ],
    "windows": [
     {
-     "id": "o_L0_001",
-     "type": "window",
-     "width": 0.64,
-     "center": [
-      6.56,
-      0.24
-     ],
-     "wall_id": "w_L0_003",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "win_L0_001",
-     "type": "window",
-     "width": 0.62,
-     "center": [
-      7.69,
-      0.24
-     ],
-     "wall_id": "w_L0_003",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_002",
-     "type": "window",
-     "width": 1.52,
-     "center": [
-      14.04,
-      1.94
-     ],
-     "wall_id": "w_L0_007",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_003",
+     "id": "t_L0_window_0001",
      "type": "window",
      "width": 2.57,
      "center": [
@@ -817,52 +810,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L0_003"
     },
     {
-     "id": "win_L0_004",
-     "type": "window",
-     "width": 1.72,
-     "center": [
-      5.64,
-      9.04
-     ],
-     "wall_id": "w_L0_044",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_005",
-     "type": "window",
-     "width": 1.72,
-     "center": [
-      15.941,
-      4.34
-     ],
-     "wall_id": "w_L0_067",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_006",
-     "type": "window",
-     "width": 1.72,
-     "center": [
-      15.941,
-      8.74
-     ],
-     "wall_id": "w_L0_067",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_007",
+     "id": "t_L0_window_0002",
      "type": "window",
      "width": 0.55,
      "center": [
@@ -873,38 +825,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L0_007"
     },
     {
-     "id": "win_L0_008",
-     "type": "window",
-     "width": 0.7,
-     "center": [
-      11.665,
-      5.54
-     ],
-     "wall_id": "w_L0_058",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "o_L0_015",
-     "type": "window",
-     "width": 2.31,
-     "center": [
-      10.53,
-      2.065
-     ],
-     "wall_id": "w_L0_070",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified"
-    },
-    {
-     "id": "uc_L0_window_absent_001",
+     "id": "u_C0045_1",
      "type": "window",
      "width": 3.41,
      "center": [
@@ -916,101 +841,136 @@
      "confidence": null,
      "method": "user",
      "correction": "C0045",
-     "added_on": "2026-11-05",
      "absent": true,
-     "removed_on": "2026-11-05",
      "corrections": [
       "C0045"
-     ]
+     ],
+     "removed_on": "2026-11-04"
+    },
+    {
+     "id": "t_L0_window_0003",
+     "type": "window",
+     "width": 1.72,
+     "center": [
+      5.64,
+      9.04
+     ],
+     "wall_id": "w_L0_044",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_004"
+    },
+    {
+     "id": "t_L0_window_0004",
+     "type": "window",
+     "width": 0.64,
+     "center": [
+      6.56,
+      0.24
+     ],
+     "wall_id": "w_L0_003",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_001"
+    },
+    {
+     "id": "t_L0_window_0005",
+     "type": "window",
+     "width": 0.62,
+     "center": [
+      7.69,
+      0.24
+     ],
+     "wall_id": "w_L0_003",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_001"
+    },
+    {
+     "id": "t_L0_window_0006",
+     "type": "window",
+     "width": 2.31,
+     "center": [
+      10.53,
+      2.065
+     ],
+     "wall_id": "w_L0_070",
+     "source": "accepted_reading",
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified",
+     "reader_id": "o_L0_015"
+    },
+    {
+     "id": "t_L0_window_0007",
+     "type": "window",
+     "width": 0.7,
+     "center": [
+      11.665,
+      5.54
+     ],
+     "wall_id": "w_L0_058",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_008"
+    },
+    {
+     "id": "t_L0_window_0008",
+     "type": "window",
+     "width": 1.52,
+     "center": [
+      14.04,
+      1.94
+     ],
+     "wall_id": "w_L0_007",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_002"
+    },
+    {
+     "id": "t_L0_window_0009",
+     "type": "window",
+     "width": 1.72,
+     "center": [
+      15.941,
+      4.34
+     ],
+     "wall_id": "w_L0_067",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_005"
+    },
+    {
+     "id": "t_L0_window_0010",
+     "type": "window",
+     "width": 1.72,
+     "center": [
+      15.941,
+      8.74
+     ],
+     "wall_id": "w_L0_067",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_006"
     }
    ],
    "openings": [
     {
-     "id": "o_L0_002",
-     "type": "opening",
-     "width": 2.22,
-     "center": [
-      7.49,
-      2.19
-     ],
-     "wall_id": "w_L0_012",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L0_003",
-     "type": "opening",
-     "width": 1.15,
-     "center": [
-      4.975,
-      3.39
-     ],
-     "wall_id": "w_L0_015",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L0_004",
-     "type": "opening",
-     "width": 0.33,
-     "center": [
-      6.365,
-      3.39
-     ],
-     "wall_id": "w_L0_015",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L0_006",
-     "type": "opening",
-     "width": 1.52,
-     "center": [
-      10.64,
-      5.74
-     ],
-     "wall_id": "w_L0_018",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L0_007",
-     "type": "opening",
-     "width": 0.33,
-     "center": [
-      11.665,
-      11.74
-     ],
-     "wall_id": "w_L0_034",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L0_009",
-     "type": "opening",
-     "width": 0.25,
-     "center": [
-      11.665,
-      11.74
-     ],
-     "wall_id": "w_L0_034",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L0_010",
+     "id": "t_L0_opening_0001",
      "type": "opening",
      "width": 1.88,
      "center": [
@@ -1021,38 +981,56 @@
      "source": "accepted_reading",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "o_L0_010"
     },
     {
-     "id": "o_L0_011",
+     "id": "t_L0_opening_0002",
      "type": "opening",
-     "width": 0.61,
+     "width": 1.15,
      "center": [
-      11.665,
-      6.235
+      4.975,
+      3.39
      ],
-     "wall_id": "w_L0_058",
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L0_012",
-     "type": "opening",
-     "width": 2.62,
-     "center": [
-      11.665,
-      9.19
-     ],
-     "wall_id": "w_L0_058",
+     "wall_id": "w_L0_015",
      "source": "accepted_reading",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "o_L0_003"
     },
     {
-     "id": "o_L0_016",
+     "id": "t_L0_opening_0003",
+     "type": "opening",
+     "width": 0.33,
+     "center": [
+      6.365,
+      3.39
+     ],
+     "wall_id": "w_L0_015",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_004"
+    },
+    {
+     "id": "t_L0_opening_0004",
+     "type": "opening",
+     "width": 2.22,
+     "center": [
+      7.49,
+      2.19
+     ],
+     "wall_id": "w_L0_012",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_002"
+    },
+    {
+     "id": "t_L0_opening_0005",
      "type": "opening",
      "width": 1.994,
      "center": [
@@ -1064,10 +1042,11 @@
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "virtual": true
+     "virtual": true,
+     "reader_id": "o_L0_016"
     },
     {
-     "id": "o_L0_017",
+     "id": "t_L0_opening_0006",
      "type": "opening",
      "width": 2.294,
      "center": [
@@ -1079,300 +1058,105 @@
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "virtual": true
+     "virtual": true,
+     "reader_id": "o_L0_017"
+    },
+    {
+     "id": "t_L0_opening_0007",
+     "type": "opening",
+     "width": 1.52,
+     "center": [
+      10.64,
+      5.74
+     ],
+     "wall_id": "w_L0_018",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_006"
+    },
+    {
+     "id": "t_L0_opening_0008",
+     "type": "opening",
+     "width": 0.61,
+     "center": [
+      11.665,
+      6.235
+     ],
+     "wall_id": "w_L0_058",
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_011"
+    },
+    {
+     "id": "t_L0_opening_0009",
+     "type": "opening",
+     "width": 2.62,
+     "center": [
+      11.665,
+      9.19
+     ],
+     "wall_id": "w_L0_058",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_012"
+    },
+    {
+     "id": "t_L0_opening_0010",
+     "type": "opening",
+     "width": 0.33,
+     "center": [
+      11.665,
+      11.74
+     ],
+     "wall_id": "w_L0_034",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_007"
+    },
+    {
+     "id": "t_L0_opening_0011",
+     "type": "opening",
+     "width": 0.25,
+     "center": [
+      11.665,
+      11.74
+     ],
+     "wall_id": "w_L0_034",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_009"
     }
    ],
    "walls": [
     {
-     "id": "w_L0_001",
+     "id": "t_L0_wall_0001",
      "start": [
-      3.74,
-      0.24
+      0.14,
+      0.78
      ],
      "end": [
-      3.88,
-      0.24
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_002",
-     "start": [
-      8.6,
-      0.24
-     ],
-     "end": [
-      8.78,
-      0.24
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_003",
-     "start": [
-      3.88,
-      0.24
-     ],
-     "end": [
-      9.63,
-      0.24
+      0.14,
+      6.2
      ],
      "thickness": 0.28,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_036"
     },
     {
-     "id": "w_L0_004",
-     "start": [
-      6.24,
-      0.265
-     ],
-     "end": [
-      6.38,
-      0.265
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_005",
-     "start": [
-      6.38,
-      0.265
-     ],
-     "end": [
-      6.88,
-      0.265
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_006",
-     "start": [
-      3.84,
-      1.94
-     ],
-     "end": [
-      4.34,
-      1.94
-     ],
-     "thickness": 0.6,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_007",
-     "start": [
-      12.23,
-      1.94
-     ],
-     "end": [
-      15.4,
-      1.94
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_008",
-     "start": [
-      15.4,
-      1.965
-     ],
-     "end": [
-      15.8,
-      1.965
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_009",
-     "start": [
-      11.83,
-      2.045
-     ],
-     "end": [
-      12.23,
-      2.045
-     ],
-     "thickness": 0.49,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_010",
-     "start": [
-      11.69,
-      2.065
-     ],
-     "end": [
-      11.83,
-      2.065
-     ],
-     "thickness": 0.45,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_012",
-     "start": [
-      4.58,
-      2.19
-     ],
-     "end": [
-      9.38,
-      2.19
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_013",
-     "start": [
-      11.68,
-      2.405
-     ],
-     "end": [
-      11.79,
-      2.405
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_014",
-     "start": [
-      16.081,
-      3.365
-     ],
-     "end": [
-      16.18,
-      3.365
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_015",
-     "start": [
-      3.88,
-      3.39
-     ],
-     "end": [
-      9.506,
-      3.39
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_017",
-     "start": [
-      16.09,
-      5.315
-     ],
-     "end": [
-      16.18,
-      5.315
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_018",
-     "start": [
-      6.2,
-      5.74
-     ],
-     "end": [
-      11.5,
-      5.74
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_019",
-     "start": [
-      5.54,
-      5.763
-     ],
-     "end": [
-      5.78,
-      5.763
-     ],
-     "thickness": 0.245,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_020",
-     "start": [
-      5.78,
-      5.765
-     ],
-     "end": [
-      6.2,
-      5.765
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_021",
+     "id": "t_L0_wall_0002",
      "start": [
       0.0,
       6.62
@@ -1385,250 +1169,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_021"
     },
     {
-     "id": "w_L0_022",
-     "start": [
-      15.75,
-      6.62
-     ],
-     "end": [
-      15.8,
-      6.62
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_023",
-     "start": [
-      11.83,
-      6.64
-     ],
-     "end": [
-      15.75,
-      6.64
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_024",
-     "start": [
-      11.54,
-      6.66
-     ],
-     "end": [
-      11.83,
-      6.66
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_025",
-     "start": [
-      0.29,
-      6.72
-     ],
-     "end": [
-      0.33,
-      6.72
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_026",
-     "start": [
-      3.7,
-      6.72
-     ],
-     "end": [
-      3.88,
-      6.72
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_027",
-     "start": [
-      0.33,
-      6.739
-     ],
-     "end": [
-      5.5,
-      6.739
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_028",
-     "start": [
-      16.081,
-      7.765
-     ],
-     "end": [
-      16.18,
-      7.765
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_029",
-     "start": [
-      5.4,
-      8.065
-     ],
-     "end": [
-      5.5,
-      8.065
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_030",
-     "start": [
-      16.081,
-      9.715
-     ],
-     "end": [
-      16.18,
-      9.715
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_031",
-     "start": [
-      5.4,
-      10.015
-     ],
-     "end": [
-      5.5,
-      10.015
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_032",
-     "start": [
-      5.54,
-      11.72
-     ],
-     "end": [
-      5.79,
-      11.72
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_033",
-     "start": [
-      5.79,
-      11.74
-     ],
-     "end": [
-      7.58,
-      11.74
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_034",
-     "start": [
-      10.7,
-      11.74
-     ],
-     "end": [
-      15.796,
-      11.74
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_035",
-     "start": [
-      11.5,
-      11.74
-     ],
-     "end": [
-      11.83,
-      11.74
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_036",
-     "start": [
-      0.14,
-      0.78
-     ],
-     "end": [
-      0.14,
-      6.2
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_037",
+     "id": "t_L0_wall_0003",
      "start": [
       0.165,
       0.14
@@ -1641,10 +1186,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_037"
     },
     {
-     "id": "w_L0_038",
+     "id": "t_L0_wall_0004",
      "start": [
       0.165,
       0.19
@@ -1657,10 +1203,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_038"
     },
     {
-     "id": "w_L0_039",
+     "id": "t_L0_wall_0005",
      "start": [
       0.165,
       6.2
@@ -1673,427 +1220,28 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_039"
     },
     {
-     "id": "w_L0_040",
+     "id": "t_L0_wall_0006",
      "start": [
-      3.79,
-      0.34
+      0.29,
+      6.72
      ],
      "end": [
-      3.79,
-      6.599
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_042",
-     "start": [
-      4.49,
-      2.24
-     ],
-     "end": [
-      4.49,
-      3.3
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_043",
-     "start": [
-      5.62,
-      6.64
-     ],
-     "end": [
-      5.62,
-      6.84
+      0.33,
+      6.72
      ],
      "thickness": 0.24,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_025"
     },
     {
-     "id": "w_L0_044",
-     "start": [
-      5.64,
-      5.886
-     ],
-     "end": [
-      5.64,
-      11.2
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_045",
-     "start": [
-      5.665,
-      11.2
-     ],
-     "end": [
-      5.665,
-      11.6
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_046",
-     "start": [
-      6.29,
-      0.39
-     ],
-     "end": [
-      6.29,
-      2.1
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_048",
-     "start": [
-      6.365,
-      3.48
-     ],
-     "end": [
-      6.365,
-      5.6
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_049",
-     "start": [
-      6.365,
-      3.44
-     ],
-     "end": [
-      6.365,
-      3.48
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_050",
-     "start": [
-      7.265,
-      0.0
-     ],
-     "end": [
-      7.265,
-      0.1
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_051",
-     "start": [
-      8.115,
-      0.0
-     ],
-     "end": [
-      8.115,
-      0.1
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_053",
-     "start": [
-      8.69,
-      0.38
-     ],
-     "end": [
-      8.69,
-      2.1
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_054",
-     "start": [
-      11.59,
-      2.33
-     ],
-     "end": [
-      11.59,
-      5.15
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_055",
-     "start": [
-      11.615,
-      1.84
-     ],
-     "end": [
-      11.615,
-      2.33
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_056",
-     "start": [
-      11.64,
-      5.93
-     ],
-     "end": [
-      11.64,
-      6.54
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_057",
-     "start": [
-      11.64,
-      6.5
-     ],
-     "end": [
-      11.64,
-      6.54
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_058",
-     "start": [
-      11.665,
-      5.15
-     ],
-     "end": [
-      11.665,
-      11.6
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_059",
-     "start": [
-      11.81,
-      2.29
-     ],
-     "end": [
-      11.81,
-      2.48
-     ],
-     "thickness": 0.04,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_060",
-     "start": [
-      12.03,
-      2.29
-     ],
-     "end": [
-      12.03,
-      2.33
-     ],
-     "thickness": 0.4,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_061",
-     "start": [
-      13.165,
-      1.7
-     ],
-     "end": [
-      13.165,
-      1.8
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_062",
-     "start": [
-      14.915,
-      1.7
-     ],
-     "end": [
-      14.915,
-      1.8
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_063",
-     "start": [
-      15.915,
-      5.6
-     ],
-     "end": [
-      15.915,
-      6.5
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_064",
-     "start": [
-      15.915,
-      11.1
-     ],
-     "end": [
-      15.915,
-      11.6
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_065",
-     "start": [
-      15.92,
-      1.84
-     ],
-     "end": [
-      15.92,
-      2.09
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_066",
-     "start": [
-      15.918,
-      11.6
-     ],
-     "end": [
-      15.918,
-      11.84
-     ],
-     "thickness": 0.245,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_067",
-     "start": [
-      15.941,
-      2.09
-     ],
-     "end": [
-      15.941,
-      11.1
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_068",
-     "start": [
-      7.58,
-      11.74
-     ],
-     "end": [
-      10.71,
-      11.74
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "inferred": true
-    },
-    {
-     "id": "w_L0_069",
+     "id": "t_L0_wall_0007",
      "start": [
       3.74,
       0.24
@@ -2107,10 +1255,505 @@
      "confidence": 0.6,
      "method": "inferred",
      "status": "unverified",
-     "inferred": true
+     "inferred": true,
+     "reader_id": "w_L0_069"
     },
     {
-     "id": "w_L0_070",
+     "id": "t_L0_wall_0008",
+     "start": [
+      0.33,
+      6.739
+     ],
+     "end": [
+      5.5,
+      6.739
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_027"
+    },
+    {
+     "id": "t_L0_wall_0009",
+     "start": [
+      3.79,
+      0.34
+     ],
+     "end": [
+      3.79,
+      6.599
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_040"
+    },
+    {
+     "id": "t_L0_wall_0010",
+     "start": [
+      3.7,
+      6.72
+     ],
+     "end": [
+      3.88,
+      6.72
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_026"
+    },
+    {
+     "id": "t_L0_wall_0011",
+     "start": [
+      3.74,
+      0.24
+     ],
+     "end": [
+      3.88,
+      0.24
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_001"
+    },
+    {
+     "id": "t_L0_wall_0012",
+     "start": [
+      3.84,
+      1.94
+     ],
+     "end": [
+      4.34,
+      1.94
+     ],
+     "thickness": 0.6,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_006"
+    },
+    {
+     "id": "t_L0_wall_0013",
+     "start": [
+      4.49,
+      2.24
+     ],
+     "end": [
+      4.49,
+      3.3
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_042"
+    },
+    {
+     "id": "t_L0_wall_0014",
+     "start": [
+      5.4,
+      8.065
+     ],
+     "end": [
+      5.5,
+      8.065
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_029"
+    },
+    {
+     "id": "t_L0_wall_0015",
+     "start": [
+      5.4,
+      10.015
+     ],
+     "end": [
+      5.5,
+      10.015
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_031"
+    },
+    {
+     "id": "t_L0_wall_0016",
+     "start": [
+      5.62,
+      6.64
+     ],
+     "end": [
+      5.62,
+      6.84
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_043"
+    },
+    {
+     "id": "t_L0_wall_0017",
+     "start": [
+      5.64,
+      5.886
+     ],
+     "end": [
+      5.64,
+      11.2
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_044"
+    },
+    {
+     "id": "t_L0_wall_0018",
+     "start": [
+      5.54,
+      5.763
+     ],
+     "end": [
+      5.78,
+      5.763
+     ],
+     "thickness": 0.245,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_019"
+    },
+    {
+     "id": "t_L0_wall_0019",
+     "start": [
+      5.665,
+      11.2
+     ],
+     "end": [
+      5.665,
+      11.6
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_045"
+    },
+    {
+     "id": "t_L0_wall_0020",
+     "start": [
+      5.54,
+      11.72
+     ],
+     "end": [
+      5.79,
+      11.72
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_032"
+    },
+    {
+     "id": "t_L0_wall_0021",
+     "start": [
+      5.78,
+      5.765
+     ],
+     "end": [
+      6.2,
+      5.765
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_020"
+    },
+    {
+     "id": "t_L0_wall_0022",
+     "start": [
+      6.29,
+      0.39
+     ],
+     "end": [
+      6.29,
+      2.1
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_046"
+    },
+    {
+     "id": "t_L0_wall_0023",
+     "start": [
+      6.24,
+      0.265
+     ],
+     "end": [
+      6.38,
+      0.265
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_004"
+    },
+    {
+     "id": "t_L0_wall_0024",
+     "start": [
+      6.365,
+      3.44
+     ],
+     "end": [
+      6.365,
+      3.48
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_049"
+    },
+    {
+     "id": "t_L0_wall_0025",
+     "start": [
+      6.365,
+      3.48
+     ],
+     "end": [
+      6.365,
+      5.6
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_048"
+    },
+    {
+     "id": "t_L0_wall_0026",
+     "start": [
+      6.38,
+      0.265
+     ],
+     "end": [
+      6.88,
+      0.265
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_005"
+    },
+    {
+     "id": "t_L0_wall_0027",
+     "start": [
+      5.79,
+      11.74
+     ],
+     "end": [
+      7.58,
+      11.74
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_033"
+    },
+    {
+     "id": "t_L0_wall_0028",
+     "start": [
+      3.88,
+      3.39
+     ],
+     "end": [
+      9.506,
+      3.39
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_015"
+    },
+    {
+     "id": "t_L0_wall_0029",
+     "start": [
+      3.88,
+      0.24
+     ],
+     "end": [
+      9.63,
+      0.24
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_003"
+    },
+    {
+     "id": "t_L0_wall_0030",
+     "start": [
+      4.58,
+      2.19
+     ],
+     "end": [
+      9.38,
+      2.19
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_012"
+    },
+    {
+     "id": "t_L0_wall_0031",
+     "start": [
+      7.265,
+      0.0
+     ],
+     "end": [
+      7.265,
+      0.1
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_050"
+    },
+    {
+     "id": "t_L0_wall_0032",
+     "start": [
+      8.115,
+      0.0
+     ],
+     "end": [
+      8.115,
+      0.1
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_051"
+    },
+    {
+     "id": "t_L0_wall_0033",
+     "start": [
+      8.6,
+      0.24
+     ],
+     "end": [
+      8.78,
+      0.24
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_002"
+    },
+    {
+     "id": "t_L0_wall_0034",
+     "start": [
+      8.69,
+      0.38
+     ],
+     "end": [
+      8.69,
+      2.1
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_053"
+    },
+    {
+     "id": "t_L0_wall_0035",
+     "start": [
+      6.2,
+      5.74
+     ],
+     "end": [
+      11.5,
+      5.74
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_018"
+    },
+    {
+     "id": "t_L0_wall_0036",
+     "start": [
+      7.58,
+      11.74
+     ],
+     "end": [
+      10.71,
+      11.74
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified",
+     "inferred": true,
+     "reader_id": "w_L0_068"
+    },
+    {
+     "id": "t_L0_wall_0037",
      "start": [
       11.69,
       2.065
@@ -2124,12 +1767,489 @@
      "confidence": 0.6,
      "method": "inferred",
      "status": "unverified",
-     "inferred": true
+     "inferred": true,
+     "reader_id": "w_L0_070"
+    },
+    {
+     "id": "t_L0_wall_0038",
+     "start": [
+      11.59,
+      2.33
+     ],
+     "end": [
+      11.59,
+      5.15
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_054"
+    },
+    {
+     "id": "t_L0_wall_0039",
+     "start": [
+      11.615,
+      1.84
+     ],
+     "end": [
+      11.615,
+      2.33
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_055"
+    },
+    {
+     "id": "t_L0_wall_0040",
+     "start": [
+      11.64,
+      5.93
+     ],
+     "end": [
+      11.64,
+      6.54
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_056"
+    },
+    {
+     "id": "t_L0_wall_0041",
+     "start": [
+      11.64,
+      6.5
+     ],
+     "end": [
+      11.64,
+      6.54
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_057"
+    },
+    {
+     "id": "t_L0_wall_0042",
+     "start": [
+      11.665,
+      5.15
+     ],
+     "end": [
+      11.665,
+      11.6
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_058"
+    },
+    {
+     "id": "t_L0_wall_0043",
+     "start": [
+      11.5,
+      11.74
+     ],
+     "end": [
+      11.83,
+      11.74
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_035"
+    },
+    {
+     "id": "t_L0_wall_0044",
+     "start": [
+      11.54,
+      6.66
+     ],
+     "end": [
+      11.83,
+      6.66
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_024"
+    },
+    {
+     "id": "t_L0_wall_0045",
+     "start": [
+      11.68,
+      2.405
+     ],
+     "end": [
+      11.79,
+      2.405
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_013"
+    },
+    {
+     "id": "t_L0_wall_0046",
+     "start": [
+      11.69,
+      2.065
+     ],
+     "end": [
+      11.83,
+      2.065
+     ],
+     "thickness": 0.45,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_010"
+    },
+    {
+     "id": "t_L0_wall_0047",
+     "start": [
+      11.81,
+      2.29
+     ],
+     "end": [
+      11.81,
+      2.48
+     ],
+     "thickness": 0.04,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_059"
+    },
+    {
+     "id": "t_L0_wall_0048",
+     "start": [
+      11.83,
+      2.045
+     ],
+     "end": [
+      12.23,
+      2.045
+     ],
+     "thickness": 0.49,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_009"
+    },
+    {
+     "id": "t_L0_wall_0049",
+     "start": [
+      12.03,
+      2.29
+     ],
+     "end": [
+      12.03,
+      2.33
+     ],
+     "thickness": 0.4,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_060"
+    },
+    {
+     "id": "t_L0_wall_0050",
+     "start": [
+      13.165,
+      1.7
+     ],
+     "end": [
+      13.165,
+      1.8
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_061"
+    },
+    {
+     "id": "t_L0_wall_0051",
+     "start": [
+      10.7,
+      11.74
+     ],
+     "end": [
+      15.796,
+      11.74
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_034"
+    },
+    {
+     "id": "t_L0_wall_0052",
+     "start": [
+      11.83,
+      6.64
+     ],
+     "end": [
+      15.75,
+      6.64
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_023"
+    },
+    {
+     "id": "t_L0_wall_0053",
+     "start": [
+      12.23,
+      1.94
+     ],
+     "end": [
+      15.4,
+      1.94
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_007"
+    },
+    {
+     "id": "t_L0_wall_0054",
+     "start": [
+      14.915,
+      1.7
+     ],
+     "end": [
+      14.915,
+      1.8
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_062"
+    },
+    {
+     "id": "t_L0_wall_0055",
+     "start": [
+      15.4,
+      1.965
+     ],
+     "end": [
+      15.8,
+      1.965
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_008"
+    },
+    {
+     "id": "t_L0_wall_0056",
+     "start": [
+      15.75,
+      6.62
+     ],
+     "end": [
+      15.8,
+      6.62
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_022"
+    },
+    {
+     "id": "t_L0_wall_0057",
+     "start": [
+      15.915,
+      5.6
+     ],
+     "end": [
+      15.915,
+      6.5
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_063"
+    },
+    {
+     "id": "t_L0_wall_0058",
+     "start": [
+      15.915,
+      11.1
+     ],
+     "end": [
+      15.915,
+      11.6
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_064"
+    },
+    {
+     "id": "t_L0_wall_0059",
+     "start": [
+      15.92,
+      1.84
+     ],
+     "end": [
+      15.92,
+      2.09
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_065"
+    },
+    {
+     "id": "t_L0_wall_0060",
+     "start": [
+      15.918,
+      11.6
+     ],
+     "end": [
+      15.918,
+      11.84
+     ],
+     "thickness": 0.245,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_066"
+    },
+    {
+     "id": "t_L0_wall_0061",
+     "start": [
+      15.941,
+      2.09
+     ],
+     "end": [
+      15.941,
+      11.1
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_067"
+    },
+    {
+     "id": "t_L0_wall_0062",
+     "start": [
+      16.081,
+      3.365
+     ],
+     "end": [
+      16.18,
+      3.365
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_014"
+    },
+    {
+     "id": "t_L0_wall_0063",
+     "start": [
+      16.081,
+      7.765
+     ],
+     "end": [
+      16.18,
+      7.765
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_028"
+    },
+    {
+     "id": "t_L0_wall_0064",
+     "start": [
+      16.081,
+      9.715
+     ],
+     "end": [
+      16.18,
+      9.715
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_030"
+    },
+    {
+     "id": "t_L0_wall_0065",
+     "start": [
+      16.09,
+      5.315
+     ],
+     "end": [
+      16.18,
+      5.315
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_017"
     }
    ],
    "stairs": [
     {
-     "id": "f_L0_012",
+     "id": "t_L0_stair_0001",
      "center": [
       8.668,
       4.541
@@ -2171,18 +2291,133 @@
      "confidence": 0.85,
      "method": "vector",
      "status": "verified",
-     "confirmed_on": "2026-11-05",
+     "reader_id": "f_L0_012",
      "corrections": [
       "C0054"
      ],
-     "correction": "C0054"
+     "correction": "C0054",
+     "confirmed_on": "2026-11-04"
     }
    ]
   },
   "L1": {
    "rooms": [
     {
-     "id": "r_L1_banyo",
+     "id": "t_L1_room_0001",
+     "label": "Giyinme-soyunma",
+     "room_type": "dressing",
+     "area": 5.939,
+     "centroid": [
+      6.695,
+      9.634
+     ],
+     "polygon": [
+      [
+       5.932,
+       7.68
+      ],
+      [
+       7.452,
+       7.68
+      ],
+      [
+       7.452,
+       11.6
+      ],
+      [
+       5.982,
+       11.6
+      ],
+      [
+       5.982,
+       11.2
+      ],
+      [
+       5.932,
+       11.2
+      ]
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "status": "verified",
+     "reader_id": "r_L1_giyinme_soyunma",
+     "corrections": [
+      "C0052"
+     ],
+     "correction": "C0052",
+     "changed": [
+      "room_type"
+     ],
+     "confirmed_on": "2026-11-04"
+    },
+    {
+     "id": "t_L1_room_0002",
+     "label": "Banyo",
+     "room_type": "bathroom",
+     "area": 6.479,
+     "centroid": [
+      7.865,
+      6.651
+     ],
+     "polygon": [
+      [
+       5.932,
+       5.931
+      ],
+      [
+       5.932,
+       5.931
+      ],
+      [
+       5.932,
+       5.93
+      ],
+      [
+       6.352,
+       5.93
+      ],
+      [
+       6.352,
+       5.89
+      ],
+      [
+       6.633,
+       5.89
+      ],
+      [
+       6.633,
+       5.74
+      ],
+      [
+       6.682,
+       5.74
+      ],
+      [
+       6.682,
+       5.78
+      ],
+      [
+       9.752,
+       5.78
+      ],
+      [
+       9.752,
+       7.5
+      ],
+      [
+       5.932,
+       7.5
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L1_banyo_2"
+    },
+    {
+     "id": "t_L1_room_0003",
      "label": "Banyo",
      "room_type": "bathroom",
      "area": 7.69,
@@ -2267,82 +2502,68 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L1_banyo"
     },
     {
-     "id": "r_L1_yatak_od",
+     "id": "t_L1_room_0004",
      "label": "Yatak Od.",
      "room_type": "bedroom",
-     "area": 14.259,
+     "area": 16.63,
      "centroid": [
-      13.92,
-      3.853
+      9.702,
+      9.524
      ],
      "polygon": [
       [
-       11.832,
-       2.48
+       7.632,
+       7.68
       ],
       [
-       11.982,
-       2.48
+       9.752,
+       7.68
       ],
       [
-       11.982,
-       2.33
+       9.752,
+       7.64
       ],
       [
-       12.382,
-       2.33
+       9.892,
+       7.64
       ],
       [
-       12.382,
-       2.08
+       9.892,
+       7.54
       ],
       [
-       15.552,
-       2.08
+       9.932,
+       7.54
       ],
       [
-       15.552,
-       2.13
+       9.932,
+       7.18
       ],
       [
-       15.953,
-       2.13
+       11.652,
+       7.18
       ],
       [
-       15.953,
-       5.641
+       11.652,
+       11.6
       ],
       [
-       15.902,
-       5.641
-      ],
-      [
-       15.902,
-       5.6
-      ],
-      [
-       11.982,
-       5.6
-      ],
-      [
-       11.982,
-       5.15
-      ],
-      [
-       11.832,
-       5.15
+       7.632,
+       11.6
       ]
      ],
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L1_yatak_od_3"
     },
     {
-     "id": "r_L1_hol",
+     "id": "t_L1_room_0005",
      "label": "Hol",
      "room_type": "hall",
      "area": 17.123,
@@ -2427,10 +2648,11 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L1_hol"
     },
     {
-     "id": "r_L1_oda",
+     "id": "t_L1_room_0006",
      "label": "Oda",
      "room_type": "hall",
      "area": 2.098,
@@ -2459,10 +2681,60 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L1_oda"
     },
     {
-     "id": "r_L1_yatak_od_2",
+     "id": "t_L1_room_0007",
+     "label": "Oda",
+     "room_type": "unknown",
+     "area": 0.188,
+     "centroid": [
+      13.297,
+      6.006
+     ],
+     "polygon": [
+      [
+       13.092,
+       5.78
+      ],
+      [
+       13.492,
+       5.78
+      ],
+      [
+       13.492,
+       5.781
+      ],
+      [
+       13.567,
+       5.781
+      ],
+      [
+       13.567,
+       5.83
+      ],
+      [
+       13.492,
+       5.83
+      ],
+      [
+       13.492,
+       6.24
+      ],
+      [
+       13.092,
+       6.24
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "r_L1_oda_2"
+    },
+    {
+     "id": "t_L1_room_0008",
      "label": "Yatak Od.",
      "room_type": "bedroom",
      "area": 18.856,
@@ -2547,122 +2819,84 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L1_yatak_od_2"
     },
     {
-     "id": "r_L1_oda_2",
-     "label": "Oda",
-     "room_type": "unknown",
-     "area": 0.188,
+     "id": "t_L1_room_0009",
+     "label": "Yatak Od.",
+     "room_type": "bedroom",
+     "area": 14.259,
      "centroid": [
-      13.297,
-      6.006
+      13.92,
+      3.853
      ],
      "polygon": [
       [
-       13.092,
-       5.78
+       11.832,
+       2.48
       ],
       [
-       13.492,
-       5.78
+       11.982,
+       2.48
       ],
       [
-       13.492,
-       5.781
+       11.982,
+       2.33
       ],
       [
-       13.567,
-       5.781
+       12.382,
+       2.33
       ],
       [
-       13.567,
-       5.83
+       12.382,
+       2.08
       ],
       [
-       13.492,
-       5.83
+       15.552,
+       2.08
       ],
       [
-       13.492,
-       6.24
+       15.552,
+       2.13
       ],
       [
-       13.092,
-       6.24
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L1_banyo_2",
-     "label": "Banyo",
-     "room_type": "bathroom",
-     "area": 6.479,
-     "centroid": [
-      7.865,
-      6.651
-     ],
-     "polygon": [
-      [
-       5.932,
-       5.931
+       15.953,
+       2.13
       ],
       [
-       5.932,
-       5.931
+       15.953,
+       5.641
       ],
       [
-       5.932,
-       5.93
+       15.902,
+       5.641
       ],
       [
-       6.352,
-       5.93
+       15.902,
+       5.6
       ],
       [
-       6.352,
-       5.89
+       11.982,
+       5.6
       ],
       [
-       6.633,
-       5.89
+       11.982,
+       5.15
       ],
       [
-       6.633,
-       5.74
-      ],
-      [
-       6.682,
-       5.74
-      ],
-      [
-       6.682,
-       5.78
-      ],
-      [
-       9.752,
-       5.78
-      ],
-      [
-       9.752,
-       7.5
-      ],
-      [
-       5.932,
-       7.5
+       11.832,
+       5.15
       ]
      ],
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L1_yatak_od"
     },
     {
-     "id": "r_L1_banyo_3",
+     "id": "t_L1_room_0010",
      "label": "Banyo",
      "room_type": "bathroom",
      "area": 3.989,
@@ -2715,158 +2949,13 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L1_giyinme_soyunma",
-     "label": "Giyinme-soyunma",
-     "room_type": "dressing",
-     "area": 5.939,
-     "centroid": [
-      6.695,
-      9.634
-     ],
-     "polygon": [
-      [
-       5.932,
-       7.68
-      ],
-      [
-       7.452,
-       7.68
-      ],
-      [
-       7.452,
-       11.6
-      ],
-      [
-       5.982,
-       11.6
-      ],
-      [
-       5.982,
-       11.2
-      ],
-      [
-       5.932,
-       11.2
-      ]
-     ],
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "status": "verified",
-     "changed": [
-      "room_type"
-     ],
-     "confirmed_on": "2026-11-05",
-     "corrections": [
-      "C0052"
-     ],
-     "correction": "C0052"
-    },
-    {
-     "id": "r_L1_yatak_od_3",
-     "label": "Yatak Od.",
-     "room_type": "bedroom",
-     "area": 16.63,
-     "centroid": [
-      9.702,
-      9.524
-     ],
-     "polygon": [
-      [
-       7.632,
-       7.68
-      ],
-      [
-       9.752,
-       7.68
-      ],
-      [
-       9.752,
-       7.64
-      ],
-      [
-       9.892,
-       7.64
-      ],
-      [
-       9.892,
-       7.54
-      ],
-      [
-       9.932,
-       7.54
-      ],
-      [
-       9.932,
-       7.18
-      ],
-      [
-       11.652,
-       7.18
-      ],
-      [
-       11.652,
-       11.6
-      ],
-      [
-       7.632,
-       11.6
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
+     "status": "unverified",
+     "reader_id": "r_L1_banyo_3"
     }
    ],
    "doors": [
     {
-     "id": "d_L1_001",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      13.259,
-      5.69
-     ],
-     "wall_id": "w_L1_023",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "d_L1_002",
-     "type": "door",
-     "width": 0.81,
-     "center": [
-      10.647,
-      7.09
-     ],
-     "wall_id": "w_L1_032",
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L1_003",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      10.792,
-      7.09
-     ],
-     "wall_id": "w_L1_032",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "d_L1_004",
+     "id": "t_L1_door_0001",
      "type": "door",
      "width": 0.8,
      "center": [
@@ -2877,80 +2966,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_004"
     },
     {
-     "id": "d_L1_005",
-     "type": "door",
-     "width": 2.12,
-     "center": [
-      10.192,
-      11.74
-     ],
-     "wall_id": "w_L1_046",
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L1_006",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      11.742,
-      3.185
-     ],
-     "wall_id": "w_L1_062",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L1_007",
-     "type": "door",
-     "width": 0.45,
-     "center": [
-      11.742,
-      5.375
-     ],
-     "wall_id": "w_L1_062",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "d_L1_008",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      11.742,
-      6.41
-     ],
-     "wall_id": "w_L1_062",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "d_L1_009",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      13.042,
-      6.84
-     ],
-     "wall_id": "w_L1_069",
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L1_010",
+     "id": "t_L1_door_0002",
      "type": "door",
      "width": 0.8,
      "center": [
@@ -2961,10 +2981,101 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_010"
     },
     {
-     "id": "d_L1_011",
+     "id": "t_L1_door_0003",
+     "type": "door",
+     "width": 2.12,
+     "center": [
+      10.192,
+      11.74
+     ],
+     "wall_id": "w_L1_046",
+     "source": "accepted_reading",
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_005"
+    },
+    {
+     "id": "t_L1_door_0004",
+     "type": "door",
+     "width": 0.81,
+     "center": [
+      10.647,
+      7.09
+     ],
+     "wall_id": "w_L1_032",
+     "source": "accepted_reading",
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_002"
+    },
+    {
+     "id": "t_L1_door_0005",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      10.792,
+      7.09
+     ],
+     "wall_id": "w_L1_032",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "d_L1_003"
+    },
+    {
+     "id": "t_L1_door_0006",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      11.742,
+      3.185
+     ],
+     "wall_id": "w_L1_062",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_006"
+    },
+    {
+     "id": "t_L1_door_0007",
+     "type": "door",
+     "width": 0.45,
+     "center": [
+      11.742,
+      5.375
+     ],
+     "wall_id": "w_L1_062",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "d_L1_007"
+    },
+    {
+     "id": "t_L1_door_0008",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      11.742,
+      6.41
+     ],
+     "wall_id": "w_L1_062",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "d_L1_008"
+    },
+    {
+     "id": "t_L1_door_0009",
      "type": "door",
      "width": 0.8,
      "center": [
@@ -2975,54 +3086,43 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_011"
+    },
+    {
+     "id": "t_L1_door_0010",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      13.042,
+      6.84
+     ],
+     "wall_id": "w_L1_069",
+     "source": "accepted_reading",
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_009"
+    },
+    {
+     "id": "t_L1_door_0011",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      13.259,
+      5.69
+     ],
+     "wall_id": "w_L1_023",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "d_L1_001"
     }
    ],
    "windows": [
     {
-     "id": "win_L1_001",
-     "type": "window",
-     "width": 0.62,
-     "center": [
-      7.842,
-      0.24
-     ],
-     "wall_id": "w_L1_001",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L1_002",
-     "type": "window",
-     "width": 1.52,
-     "center": [
-      14.192,
-      1.94
-     ],
-     "wall_id": "w_L1_007",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L1_003",
-     "type": "window",
-     "width": 1.72,
-     "center": [
-      14.142,
-      11.74
-     ],
-     "wall_id": "w_L1_046",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L1_004",
+     "id": "t_L1_window_0001",
      "type": "window",
      "width": 0.62,
      "center": [
@@ -3033,10 +3133,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_004"
     },
     {
-     "id": "win_L1_005",
+     "id": "t_L1_window_0002",
      "type": "window",
      "width": 1.72,
      "center": [
@@ -3047,10 +3148,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_005"
     },
     {
-     "id": "o_L1_004",
+     "id": "t_L1_window_0003",
      "type": "window",
      "width": 2.251,
      "center": [
@@ -3061,10 +3163,11 @@
      "source": "accepted_reading",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "o_L1_004"
     },
     {
-     "id": "win_L1_006",
+     "id": "t_L1_window_0004",
      "type": "window",
      "width": 0.62,
      "center": [
@@ -3075,52 +3178,26 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_006"
     },
     {
-     "id": "win_L1_007",
+     "id": "t_L1_window_0005",
      "type": "window",
-     "width": 1.72,
+     "width": 0.62,
      "center": [
-      16.093,
-      4.34
+      7.842,
+      0.24
      ],
-     "wall_id": "w_L1_081",
+     "wall_id": "w_L1_001",
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_001"
     },
     {
-     "id": "win_L1_008",
-     "type": "window",
-     "width": 1.95,
-     "center": [
-      16.093,
-      8.625
-     ],
-     "wall_id": "w_L1_081",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L1_009",
-     "type": "window",
-     "width": 0.36,
-     "center": [
-      13.542,
-      6.01
-     ],
-     "wall_id": "w_L1_072",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L1_010",
+     "id": "t_L1_window_0006",
      "type": "window",
      "width": 1.16,
      "center": [
@@ -3131,54 +3208,88 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "win_L1_010"
+    },
+    {
+     "id": "t_L1_window_0007",
+     "type": "window",
+     "width": 0.36,
+     "center": [
+      13.542,
+      6.01
+     ],
+     "wall_id": "w_L1_072",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_009"
+    },
+    {
+     "id": "t_L1_window_0008",
+     "type": "window",
+     "width": 1.72,
+     "center": [
+      14.142,
+      11.74
+     ],
+     "wall_id": "w_L1_046",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_003"
+    },
+    {
+     "id": "t_L1_window_0009",
+     "type": "window",
+     "width": 1.52,
+     "center": [
+      14.192,
+      1.94
+     ],
+     "wall_id": "w_L1_007",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_002"
+    },
+    {
+     "id": "t_L1_window_0010",
+     "type": "window",
+     "width": 1.72,
+     "center": [
+      16.093,
+      4.34
+     ],
+     "wall_id": "w_L1_081",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_007"
+    },
+    {
+     "id": "t_L1_window_0011",
+     "type": "window",
+     "width": 1.95,
+     "center": [
+      16.093,
+      8.625
+     ],
+     "wall_id": "w_L1_081",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_008"
     }
    ],
    "openings": [
     {
-     "id": "o_L1_001",
-     "type": "opening",
-     "width": 2.23,
-     "center": [
-      10.867,
-      5.69
-     ],
-     "wall_id": "w_L1_023",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L1_002",
-     "type": "opening",
-     "width": 0.33,
-     "center": [
-      11.817,
-      11.74
-     ],
-     "wall_id": "w_L1_046",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L1_003",
-     "type": "opening",
-     "width": 0.25,
-     "center": [
-      11.817,
-      11.74
-     ],
-     "wall_id": "w_L1_046",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L1_005",
+     "id": "t_L1_opening_0001",
      "type": "opening",
      "width": 0.72,
      "center": [
@@ -3190,14 +3301,15 @@
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "confirmed_on": "2026-11-05",
+     "reader_id": "o_L1_005",
      "corrections": [
       "C0051"
      ],
-     "correction": "C0051"
+     "correction": "C0051",
+     "confirmed_on": "2026-11-04"
     },
     {
-     "id": "o_L1_006",
+     "id": "t_L1_opening_0002",
      "type": "opening",
      "width": 2.86,
      "center": [
@@ -3208,444 +3320,126 @@
      "source": "accepted_reading",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "o_L1_006"
+    },
+    {
+     "id": "t_L1_opening_0003",
+     "type": "opening",
+     "width": 2.23,
+     "center": [
+      10.867,
+      5.69
+     ],
+     "wall_id": "w_L1_023",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L1_001"
+    },
+    {
+     "id": "t_L1_opening_0004",
+     "type": "opening",
+     "width": 0.33,
+     "center": [
+      11.817,
+      11.74
+     ],
+     "wall_id": "w_L1_046",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L1_002"
+    },
+    {
+     "id": "t_L1_opening_0005",
+     "type": "opening",
+     "width": 0.25,
+     "center": [
+      11.817,
+      11.74
+     ],
+     "wall_id": "w_L1_046",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L1_003"
     }
    ],
    "walls": [
     {
-     "id": "w_L1_001",
+     "id": "t_L1_wall_0001",
      "start": [
-      7.032,
-      0.24
+      5.552,
+      6.265
      ],
      "end": [
-      11.842,
-      0.24
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_002",
-     "start": [
-      9.352,
-      0.24
-     ],
-     "end": [
-      9.532,
-      0.24
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_003",
-     "start": [
-      11.842,
-      0.26
-     ],
-     "end": [
-      11.942,
-      0.26
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_004",
-     "start": [
-      6.632,
-      0.265
-     ],
-     "end": [
-      7.032,
-      0.265
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_005",
-     "start": [
-      11.942,
-      0.53
-     ],
-     "end": [
-      11.982,
-      0.53
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_006",
-     "start": [
-      6.634,
-      1.89
-     ],
-     "end": [
-      7.53,
-      1.89
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_007",
-     "start": [
-      12.382,
-      1.94
-     ],
-     "end": [
-      15.552,
-      1.94
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_008",
-     "start": [
-      11.692,
-      1.96
-     ],
-     "end": [
-      11.802,
-      1.96
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_009",
-     "start": [
-      15.552,
-      1.965
-     ],
-     "end": [
-      15.952,
-      1.965
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_010",
-     "start": [
-      11.982,
-      2.045
-     ],
-     "end": [
-      12.382,
-      2.045
-     ],
-     "thickness": 0.49,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_011",
-     "start": [
-      11.802,
-      2.065
-     ],
-     "end": [
-      11.982,
-      2.065
-     ],
-     "thickness": 0.45,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_012",
-     "start": [
-      8.952,
-      2.14
-     ],
-     "end": [
-      9.352,
-      2.14
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_013",
-     "start": [
-      11.832,
-      2.405
-     ],
-     "end": [
-      11.982,
-      2.405
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_014",
-     "start": [
-      16.233,
-      3.365
-     ],
-     "end": [
-      16.332,
-      3.365
+      5.652,
+      6.265
      ],
      "thickness": 0.23,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_030"
     },
     {
-     "id": "w_L1_015",
+     "id": "t_L1_wall_0002",
      "start": [
-      6.642,
-      3.39
+      5.552,
+      7.115
      ],
      "end": [
-      9.352,
-      3.39
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_016",
-     "start": [
-      6.642,
-      3.39
-     ],
-     "end": [
-      9.492,
-      3.39
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_017",
-     "start": [
-      6.252,
-      4.115
-     ],
-     "end": [
-      6.352,
-      4.115
+      5.652,
+      7.115
      ],
      "thickness": 0.23,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_034"
     },
     {
-     "id": "w_L1_018",
+     "id": "t_L1_wall_0003",
      "start": [
-      6.252,
-      4.965
+      5.552,
+      8.065
      ],
      "end": [
-      6.352,
-      4.965
+      5.652,
+      8.065
      ],
      "thickness": 0.23,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_042"
     },
     {
-     "id": "w_L1_019",
+     "id": "t_L1_wall_0004",
      "start": [
-      16.242,
-      5.315
+      5.552,
+      10.015
      ],
      "end": [
-      16.332,
-      5.315
+      5.652,
+      10.015
      ],
      "thickness": 0.23,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_044"
     },
     {
-     "id": "w_L1_020",
-     "start": [
-      11.842,
-      5.62
-     ],
-     "end": [
-      11.942,
-      5.62
-     ],
-     "thickness": 0.04,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_021",
-     "start": [
-      6.352,
-      5.665
-     ],
-     "end": [
-      6.682,
-      5.665
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_022",
-     "start": [
-      11.942,
-      5.67
-     ],
-     "end": [
-      11.982,
-      5.67
-     ],
-     "thickness": 0.14,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_023",
-     "start": [
-      6.682,
-      5.69
-     ],
-     "end": [
-      15.902,
-      5.69
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_024",
-     "start": [
-      9.752,
-      5.69
-     ],
-     "end": [
-      9.892,
-      5.69
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_025",
-     "start": [
-      12.952,
-      5.69
-     ],
-     "end": [
-      13.492,
-      5.69
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_027",
-     "start": [
-      5.692,
-      5.765
-     ],
-     "end": [
-      5.932,
-      5.765
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_028",
-     "start": [
-      5.932,
-      5.765
-     ],
-     "end": [
-      6.352,
-      5.765
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_029",
+     "id": "t_L1_wall_0005",
      "start": [
       5.652,
       5.908
@@ -3658,298 +3452,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_029"
     },
     {
-     "id": "w_L1_030",
-     "start": [
-      5.552,
-      6.265
-     ],
-     "end": [
-      5.652,
-      6.265
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_031",
-     "start": [
-      13.092,
-      6.29
-     ],
-     "end": [
-      13.592,
-      6.29
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_032",
-     "start": [
-      9.892,
-      7.09
-     ],
-     "end": [
-      11.652,
-      7.09
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_033",
-     "start": [
-      9.892,
-      7.09
-     ],
-     "end": [
-      11.692,
-      7.09
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_034",
-     "start": [
-      5.552,
-      7.115
-     ],
-     "end": [
-      5.652,
-      7.115
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_035",
-     "start": [
-      15.902,
-      7.37
-     ],
-     "end": [
-      15.953,
-      7.37
-     ],
-     "thickness": 0.14,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_036",
-     "start": [
-      12.992,
-      7.39
-     ],
-     "end": [
-      13.132,
-      7.39
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_037",
-     "start": [
-      13.132,
-      7.39
-     ],
-     "end": [
-      15.902,
-      7.39
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_038",
-     "start": [
-      5.932,
-      7.59
-     ],
-     "end": [
-      9.752,
-      7.59
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_039",
-     "start": [
-      5.892,
-      7.59
-     ],
-     "end": [
-      5.932,
-      7.59
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_040",
-     "start": [
-      9.752,
-      7.59
-     ],
-     "end": [
-      9.892,
-      7.59
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_041",
-     "start": [
-      16.233,
-      7.765
-     ],
-     "end": [
-      16.332,
-      7.765
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_042",
-     "start": [
-      5.552,
-      8.065
-     ],
-     "end": [
-      5.652,
-      8.065
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_043",
-     "start": [
-      16.233,
-      9.715
-     ],
-     "end": [
-      16.332,
-      9.715
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_044",
-     "start": [
-      5.552,
-      10.015
-     ],
-     "end": [
-      5.652,
-      10.015
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_046",
-     "start": [
-      5.942,
-      11.74
-     ],
-     "end": [
-      15.947,
-      11.74
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_047",
-     "start": [
-      11.652,
-      11.74
-     ],
-     "end": [
-      11.982,
-      11.74
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_048",
-     "start": [
-      5.792,
-      5.89
-     ],
-     "end": [
-      5.792,
-      11.2
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_049",
+     "id": "t_L1_wall_0006",
      "start": [
       5.792,
       7.5
@@ -3962,10 +3469,45 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_049"
     },
     {
-     "id": "w_L1_050",
+     "id": "t_L1_wall_0007",
+     "start": [
+      5.792,
+      5.89
+     ],
+     "end": [
+      5.792,
+      11.2
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_048"
+    },
+    {
+     "id": "t_L1_wall_0008",
+     "start": [
+      5.692,
+      5.765
+     ],
+     "end": [
+      5.932,
+      5.765
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_027"
+    },
+    {
+     "id": "t_L1_wall_0009",
      "start": [
       5.812,
       5.89
@@ -3978,10 +3520,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_050"
     },
     {
-     "id": "w_L1_051",
+     "id": "t_L1_wall_0010",
      "start": [
       5.817,
       11.2
@@ -3994,10 +3537,79 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_051"
     },
     {
-     "id": "w_L1_052",
+     "id": "t_L1_wall_0011",
+     "start": [
+      5.892,
+      7.59
+     ],
+     "end": [
+      5.932,
+      7.59
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_039"
+    },
+    {
+     "id": "t_L1_wall_0012",
+     "start": [
+      5.932,
+      5.765
+     ],
+     "end": [
+      6.352,
+      5.765
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_028"
+    },
+    {
+     "id": "t_L1_wall_0013",
+     "start": [
+      6.252,
+      4.115
+     ],
+     "end": [
+      6.352,
+      4.115
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_017"
+    },
+    {
+     "id": "t_L1_wall_0014",
+     "start": [
+      6.252,
+      4.965
+     ],
+     "end": [
+      6.352,
+      4.965
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_018"
+    },
+    {
+     "id": "t_L1_wall_0015",
      "start": [
       6.493,
       0.386
@@ -4010,10 +3622,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_052"
     },
     {
-     "id": "w_L1_054",
+     "id": "t_L1_wall_0016",
      "start": [
       6.517,
       3.48
@@ -4026,10 +3639,62 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_054"
     },
     {
-     "id": "w_L1_055",
+     "id": "t_L1_wall_0017",
+     "start": [
+      6.352,
+      5.665
+     ],
+     "end": [
+      6.682,
+      5.665
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_021"
+    },
+    {
+     "id": "t_L1_wall_0018",
+     "start": [
+      6.632,
+      0.265
+     ],
+     "end": [
+      7.032,
+      0.265
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_004"
+    },
+    {
+     "id": "t_L1_wall_0019",
+     "start": [
+      6.634,
+      1.89
+     ],
+     "end": [
+      7.53,
+      1.89
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_006"
+    },
+    {
+     "id": "t_L1_wall_0020",
      "start": [
       7.417,
       0.0
@@ -4042,443 +3707,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_055"
     },
     {
-     "id": "w_L1_056",
-     "start": [
-      7.542,
-      7.68
-     ],
-     "end": [
-      7.542,
-      11.6
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_057",
-     "start": [
-      8.267,
-      0.0
-     ],
-     "end": [
-      8.267,
-      0.1
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_058",
-     "start": [
-      9.442,
-      0.38
-     ],
-     "end": [
-      9.442,
-      2.48
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_059",
-     "start": [
-      9.442,
-      0.34
-     ],
-     "end": [
-      9.442,
-      3.34
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_060",
-     "start": [
-      9.842,
-      5.78
-     ],
-     "end": [
-      9.842,
-      7.54
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_062",
-     "start": [
-      11.742,
-      2.33
-     ],
-     "end": [
-      11.742,
-      11.1
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_063",
-     "start": [
-      11.747,
-      2.08
-     ],
-     "end": [
-      11.747,
-      2.33
-     ],
-     "thickness": 0.11,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_064",
-     "start": [
-      11.742,
-      6.89
-     ],
-     "end": [
-      11.742,
-      7.18
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_065",
-     "start": [
-      11.817,
-      5.15
-     ],
-     "end": [
-      11.817,
-      5.6
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_066",
-     "start": [
-      11.817,
-      11.1
-     ],
-     "end": [
-      11.817,
-      11.6
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_067",
-     "start": [
-      11.822,
-      0.38
-     ],
-     "end": [
-      11.822,
-      0.68
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_068",
-     "start": [
-      12.182,
-      2.29
-     ],
-     "end": [
-      12.182,
-      2.33
-     ],
-     "thickness": 0.4,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_069",
-     "start": [
-      13.042,
-      5.74
-     ],
-     "end": [
-      13.042,
-      7.34
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_070",
-     "start": [
-      13.167,
-      11.88
-     ],
-     "end": [
-      13.167,
-      11.98
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_071",
-     "start": [
-      13.317,
-      1.7
-     ],
-     "end": [
-      13.317,
-      1.8
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_072",
-     "start": [
-      13.542,
-      5.83
-     ],
-     "end": [
-      13.542,
-      6.24
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_073",
-     "start": [
-      13.599,
-      5.78
-     ],
-     "end": [
-      13.599,
-      5.83
-     ],
-     "thickness": 0.065,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_074",
-     "start": [
-      15.067,
-      1.7
-     ],
-     "end": [
-      15.067,
-      1.8
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_075",
-     "start": [
-      15.117,
-      11.88
-     ],
-     "end": [
-      15.117,
-      11.98
-     ],
-     "thickness": 0.23,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_076",
-     "start": [
-      16.067,
-      5.78
-     ],
-     "end": [
-      16.067,
-      7.3
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_077",
-     "start": [
-      16.067,
-      11.1
-     ],
-     "end": [
-      16.067,
-      11.6
-     ],
-     "thickness": 0.33,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_078",
-     "start": [
-      16.072,
-      1.84
-     ],
-     "end": [
-      16.072,
-      2.086
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_079",
-     "start": [
-      16.077,
-      7.65
-     ],
-     "end": [
-      16.077,
-      7.88
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_080",
-     "start": [
-      16.069,
-      11.6
-     ],
-     "end": [
-      16.069,
-      11.84
-     ],
-     "thickness": 0.245,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_081",
-     "start": [
-      16.093,
-      2.086
-     ],
-     "end": [
-      16.093,
-      11.1
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_082",
-     "start": [
-      16.092,
-      7.44
-     ],
-     "end": [
-      16.092,
-      7.48
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_083",
-     "start": [
-      11.712,
-      0.68
-     ],
-     "end": [
-      11.712,
-      1.84
-     ],
-     "thickness": 0.18,
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "inferred": true
-    },
-    {
-     "id": "uc_L1_wall_absent_001",
+     "id": "u_C0051_1",
      "start": [
       7.542,
       7.78
@@ -4492,15 +3725,275 @@
      "confidence": null,
      "method": "user",
      "correction": "C0051",
-     "added_on": "2026-11-05",
      "absent": true,
-     "removed_on": "2026-11-05",
      "corrections": [
+      "C0051"
+     ],
+     "removed_on": "2026-11-04"
+    },
+    {
+     "id": "t_L1_wall_0021.1",
+     "start": [
+      7.542,
+      8.5
+     ],
+     "end": [
+      7.542,
+      11.6
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_056",
+     "cut_by": [
       "C0051"
      ]
     },
     {
-     "id": "uc_L1_wall_absent_002",
+     "id": "t_L1_wall_0022",
+     "start": [
+      5.932,
+      7.59
+     ],
+     "end": [
+      9.752,
+      7.59
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_038"
+    },
+    {
+     "id": "t_L1_wall_0023",
+     "start": [
+      6.642,
+      3.39
+     ],
+     "end": [
+      9.352,
+      3.39
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_015"
+    },
+    {
+     "id": "t_L1_wall_0024",
+     "start": [
+      6.642,
+      3.39
+     ],
+     "end": [
+      9.492,
+      3.39
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_016"
+    },
+    {
+     "id": "t_L1_wall_0037.1",
+     "start": [
+      6.682,
+      5.69
+     ],
+     "end": [
+      9.752,
+      5.69
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_023",
+     "cut_by": [
+      "C0053"
+     ]
+    },
+    {
+     "id": "t_L1_wall_0025",
+     "start": [
+      8.267,
+      0.0
+     ],
+     "end": [
+      8.267,
+      0.1
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_057"
+    },
+    {
+     "id": "t_L1_wall_0026",
+     "start": [
+      8.952,
+      2.14
+     ],
+     "end": [
+      9.352,
+      2.14
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_012"
+    },
+    {
+     "id": "t_L1_wall_0027",
+     "start": [
+      7.032,
+      0.24
+     ],
+     "end": [
+      11.842,
+      0.24
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_001"
+    },
+    {
+     "id": "t_L1_wall_0028",
+     "start": [
+      9.352,
+      0.24
+     ],
+     "end": [
+      9.532,
+      0.24
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_002"
+    },
+    {
+     "id": "t_L1_wall_0029",
+     "start": [
+      9.442,
+      0.38
+     ],
+     "end": [
+      9.442,
+      2.48
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_058"
+    },
+    {
+     "id": "t_L1_wall_0030",
+     "start": [
+      9.442,
+      0.34
+     ],
+     "end": [
+      9.442,
+      3.34
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_059"
+    },
+    {
+     "id": "t_L1_wall_0032",
+     "start": [
+      9.752,
+      7.59
+     ],
+     "end": [
+      9.892,
+      7.59
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_040"
+    },
+    {
+     "id": "t_L1_wall_0033",
+     "start": [
+      9.842,
+      5.78
+     ],
+     "end": [
+      9.842,
+      7.54
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_060"
+    },
+    {
+     "id": "t_L1_wall_0034",
+     "start": [
+      9.892,
+      7.09
+     ],
+     "end": [
+      11.652,
+      7.09
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_032"
+    },
+    {
+     "id": "t_L1_wall_0035",
+     "start": [
+      9.892,
+      7.09
+     ],
+     "end": [
+      11.692,
+      7.09
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_033"
+    },
+    {
+     "id": "u_C0053_1",
      "start": [
       9.752,
       5.69
@@ -4514,31 +4007,734 @@
      "confidence": null,
      "method": "user",
      "correction": "C0053",
-     "added_on": "2026-11-05",
      "absent": true,
-     "removed_on": "2026-11-05",
      "corrections": [
       "C0053"
+     ],
+     "removed_on": "2026-11-04"
+    },
+    {
+     "id": "t_L1_wall_0036",
+     "start": [
+      5.942,
+      11.74
+     ],
+     "end": [
+      15.947,
+      11.74
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_046"
+    },
+    {
+     "id": "t_L1_wall_0038",
+     "start": [
+      11.712,
+      0.68
+     ],
+     "end": [
+      11.712,
+      1.84
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.6,
+     "method": "inferred",
+     "status": "unverified",
+     "inferred": true,
+     "reader_id": "w_L1_083"
+    },
+    {
+     "id": "t_L1_wall_0039",
+     "start": [
+      11.742,
+      2.33
+     ],
+     "end": [
+      11.742,
+      11.1
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_062"
+    },
+    {
+     "id": "t_L1_wall_0040",
+     "start": [
+      11.742,
+      6.89
+     ],
+     "end": [
+      11.742,
+      7.18
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_064"
+    },
+    {
+     "id": "t_L1_wall_0041",
+     "start": [
+      11.692,
+      1.96
+     ],
+     "end": [
+      11.802,
+      1.96
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_008"
+    },
+    {
+     "id": "t_L1_wall_0042",
+     "start": [
+      11.747,
+      2.08
+     ],
+     "end": [
+      11.747,
+      2.33
+     ],
+     "thickness": 0.11,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_063"
+    },
+    {
+     "id": "t_L1_wall_0043",
+     "start": [
+      11.822,
+      0.38
+     ],
+     "end": [
+      11.822,
+      0.68
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_067"
+    },
+    {
+     "id": "t_L1_wall_0044",
+     "start": [
+      11.817,
+      5.15
+     ],
+     "end": [
+      11.817,
+      5.6
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_065"
+    },
+    {
+     "id": "t_L1_wall_0045",
+     "start": [
+      11.817,
+      11.1
+     ],
+     "end": [
+      11.817,
+      11.6
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_066"
+    },
+    {
+     "id": "t_L1_wall_0046",
+     "start": [
+      11.652,
+      11.74
+     ],
+     "end": [
+      11.982,
+      11.74
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_047"
+    },
+    {
+     "id": "t_L1_wall_0047",
+     "start": [
+      11.842,
+      0.26
+     ],
+     "end": [
+      11.942,
+      0.26
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_003"
+    },
+    {
+     "id": "t_L1_wall_0048",
+     "start": [
+      11.802,
+      2.065
+     ],
+     "end": [
+      11.982,
+      2.065
+     ],
+     "thickness": 0.45,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_011"
+    },
+    {
+     "id": "t_L1_wall_0050",
+     "start": [
+      11.832,
+      2.405
+     ],
+     "end": [
+      11.982,
+      2.405
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_013"
+    },
+    {
+     "id": "t_L1_wall_0051",
+     "start": [
+      11.942,
+      0.53
+     ],
+     "end": [
+      11.982,
+      0.53
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_005"
+    },
+    {
+     "id": "t_L1_wall_0053",
+     "start": [
+      11.982,
+      2.045
+     ],
+     "end": [
+      12.382,
+      2.045
+     ],
+     "thickness": 0.49,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_010"
+    },
+    {
+     "id": "t_L1_wall_0054",
+     "start": [
+      12.182,
+      2.29
+     ],
+     "end": [
+      12.182,
+      2.33
+     ],
+     "thickness": 0.4,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_068"
+    },
+    {
+     "id": "t_L1_wall_0055",
+     "start": [
+      13.042,
+      5.74
+     ],
+     "end": [
+      13.042,
+      7.34
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_069"
+    },
+    {
+     "id": "t_L1_wall_0056",
+     "start": [
+      12.992,
+      7.39
+     ],
+     "end": [
+      13.132,
+      7.39
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_036"
+    },
+    {
+     "id": "t_L1_wall_0057",
+     "start": [
+      13.167,
+      11.88
+     ],
+     "end": [
+      13.167,
+      11.98
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_070"
+    },
+    {
+     "id": "t_L1_wall_0058",
+     "start": [
+      12.952,
+      5.69
+     ],
+     "end": [
+      13.492,
+      5.69
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_025"
+    },
+    {
+     "id": "t_L1_wall_0059",
+     "start": [
+      13.317,
+      1.7
+     ],
+     "end": [
+      13.317,
+      1.8
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_071"
+    },
+    {
+     "id": "t_L1_wall_0060",
+     "start": [
+      13.092,
+      6.29
+     ],
+     "end": [
+      13.592,
+      6.29
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_031"
+    },
+    {
+     "id": "t_L1_wall_0061",
+     "start": [
+      13.542,
+      5.83
+     ],
+     "end": [
+      13.542,
+      6.24
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
+     "reader_id": "w_L1_072"
+    },
+    {
+     "id": "t_L1_wall_0062",
+     "start": [
+      13.599,
+      5.78
+     ],
+     "end": [
+      13.599,
+      5.83
+     ],
+     "thickness": 0.065,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_073"
+    },
+    {
+     "id": "t_L1_wall_0037.2",
+     "start": [
+      11.982,
+      5.69
+     ],
+     "end": [
+      15.902,
+      5.69
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_023",
+     "cut_by": [
+      "C0053"
      ]
+    },
+    {
+     "id": "t_L1_wall_0063",
+     "start": [
+      12.382,
+      1.94
+     ],
+     "end": [
+      15.552,
+      1.94
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_007"
+    },
+    {
+     "id": "t_L1_wall_0064",
+     "start": [
+      13.132,
+      7.39
+     ],
+     "end": [
+      15.902,
+      7.39
+     ],
+     "thickness": 0.18,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_037"
+    },
+    {
+     "id": "t_L1_wall_0065",
+     "start": [
+      15.067,
+      1.7
+     ],
+     "end": [
+      15.067,
+      1.8
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_074"
+    },
+    {
+     "id": "t_L1_wall_0066",
+     "start": [
+      15.117,
+      11.88
+     ],
+     "end": [
+      15.117,
+      11.98
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_075"
+    },
+    {
+     "id": "t_L1_wall_0067",
+     "start": [
+      15.552,
+      1.965
+     ],
+     "end": [
+      15.952,
+      1.965
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_009"
+    },
+    {
+     "id": "t_L1_wall_0068",
+     "start": [
+      15.902,
+      7.37
+     ],
+     "end": [
+      15.953,
+      7.37
+     ],
+     "thickness": 0.14,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_035"
+    },
+    {
+     "id": "t_L1_wall_0069",
+     "start": [
+      16.072,
+      1.84
+     ],
+     "end": [
+      16.072,
+      2.086
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_078"
+    },
+    {
+     "id": "t_L1_wall_0070",
+     "start": [
+      16.067,
+      5.78
+     ],
+     "end": [
+      16.067,
+      7.3
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_076"
+    },
+    {
+     "id": "t_L1_wall_0071",
+     "start": [
+      16.067,
+      11.1
+     ],
+     "end": [
+      16.067,
+      11.6
+     ],
+     "thickness": 0.33,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_077"
+    },
+    {
+     "id": "t_L1_wall_0072",
+     "start": [
+      16.069,
+      11.6
+     ],
+     "end": [
+      16.069,
+      11.84
+     ],
+     "thickness": 0.245,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_080"
+    },
+    {
+     "id": "t_L1_wall_0073",
+     "start": [
+      16.077,
+      7.65
+     ],
+     "end": [
+      16.077,
+      7.88
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_079"
+    },
+    {
+     "id": "t_L1_wall_0074",
+     "start": [
+      16.093,
+      2.086
+     ],
+     "end": [
+      16.093,
+      11.1
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_081"
+    },
+    {
+     "id": "t_L1_wall_0075",
+     "start": [
+      16.092,
+      7.44
+     ],
+     "end": [
+      16.092,
+      7.48
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_082"
+    },
+    {
+     "id": "t_L1_wall_0076",
+     "start": [
+      16.233,
+      3.365
+     ],
+     "end": [
+      16.332,
+      3.365
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_014"
+    },
+    {
+     "id": "t_L1_wall_0077",
+     "start": [
+      16.233,
+      7.765
+     ],
+     "end": [
+      16.332,
+      7.765
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_041"
+    },
+    {
+     "id": "t_L1_wall_0078",
+     "start": [
+      16.233,
+      9.715
+     ],
+     "end": [
+      16.332,
+      9.715
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_043"
+    },
+    {
+     "id": "t_L1_wall_0079",
+     "start": [
+      16.242,
+      5.315
+     ],
+     "end": [
+      16.332,
+      5.315
+     ],
+     "thickness": 0.23,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_019"
     }
    ],
    "stairs": []
   }
  },
- "accepted": {
-  "on": "2026-11-04",
-  "scope": "partial",
-  "levels": [
-   "L0",
-   "L1"
-  ],
-  "note": "user, 4 Nov 2026: reviewed both floors on the structure run 20261104-144248 and its comparison sheets (real07 review); the reading itself was not accepted as a baseline (its check was not ready)"
- },
- "drift": [
-  "L0 doors: 6 -> 10",
-  "L1 doors: 8 -> 11",
-  "L1 openings: 8 -> 5"
- ],
  "corrections": [
   "C0044",
   "C0045",
@@ -4548,5 +4744,200 @@
   "C0052",
   "C0053",
   "C0054"
- ]
+ ],
+ "built_from": {
+  "reading": "results/reading_accepted/real07.json",
+  "reading_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+  "records": [
+   "C0044",
+   "C0045",
+   "C0046",
+   "C0047",
+   "C0051",
+   "C0052",
+   "C0053",
+   "C0054"
+  ]
+ },
+ "build_report": {
+  "applied": [
+   {
+    "record": "C0044",
+    "n": 1,
+    "op": "add",
+    "kind": "room",
+    "level": "L0",
+    "place": [
+     1.993,
+     3.47
+    ],
+    "state": "confirmed"
+   },
+   {
+    "record": "C0045",
+    "n": 1,
+    "op": "remove",
+    "kind": "window",
+    "level": "L0",
+    "place": [
+     2.03,
+     0.24
+    ],
+    "state": "negated"
+   },
+   {
+    "record": "C0045",
+    "n": 2,
+    "op": "add",
+    "kind": "door",
+    "level": "L0",
+    "place": [
+     2.03,
+     0.24
+    ],
+    "state": "confirmed"
+   },
+   {
+    "record": "C0046",
+    "n": 1,
+    "op": "add",
+    "kind": "room",
+    "level": "L0",
+    "place": [
+     5.09,
+     1.207
+    ],
+    "state": "confirmed"
+   },
+   {
+    "record": "C0047",
+    "n": 1,
+    "op": "add",
+    "kind": "door",
+    "level": "L0",
+    "place": [
+     5.74,
+     2.19
+    ],
+    "state": "replaced",
+    "changed": [
+     "center",
+     "width"
+    ]
+   },
+   {
+    "record": "C0047",
+    "n": 2,
+    "op": "remove",
+    "kind": "door",
+    "level": "L0",
+    "place": [
+     5.36,
+     2.19
+    ],
+    "state": "removed",
+    "removed": 1
+   },
+   {
+    "record": "C0051",
+    "n": 1,
+    "op": "add",
+    "kind": "opening",
+    "level": "L1",
+    "place": [
+     7.542,
+     8.14
+    ],
+    "state": "confirmed"
+   },
+   {
+    "record": "C0051",
+    "n": 2,
+    "op": "remove",
+    "kind": "wall",
+    "level": "L1",
+    "place": [
+     7.542,
+     7.78
+    ],
+    "state": "cut",
+    "cut": 1
+   },
+   {
+    "record": "C0052",
+    "n": 1,
+    "op": "add",
+    "kind": "room",
+    "level": "L1",
+    "place": [
+     6.694,
+     9.634
+    ],
+    "state": "replaced",
+    "changed": [
+     "room_type"
+    ]
+   },
+   {
+    "record": "C0053",
+    "n": 1,
+    "op": "remove",
+    "kind": "wall",
+    "level": "L1",
+    "place": [
+     9.752,
+     5.69
+    ],
+    "state": "cut",
+    "cut": 4
+   },
+   {
+    "record": "C0054",
+    "n": 1,
+    "op": "add",
+    "kind": "stair",
+    "level": "L0",
+    "place": [
+     8.668,
+     4.541
+    ],
+    "state": "confirmed"
+   }
+  ],
+  "unmatched": [],
+  "not_replayed": [
+   {
+    "record": "C0002",
+    "why": "no truth action (nothing placeable to replay)"
+   },
+   {
+    "record": "C0010",
+    "why": "no user words: the record states the session's own note, not the user's"
+   },
+   {
+    "record": "C0012",
+    "why": "no user words: the record states the session's own note, not the user's"
+   },
+   {
+    "record": "C0048",
+    "why": "no truth action (nothing placeable to replay)"
+   },
+   {
+    "record": "C0049",
+    "why": "no truth action (nothing placeable to replay)"
+   },
+   {
+    "record": "C0050",
+    "why": "no truth action (nothing placeable to replay)"
+   },
+   {
+    "record": "C0080",
+    "why": "status 'proposed': waits for the user's confirmation"
+   },
+   {
+    "record": "C0083",
+    "why": "status 'proposed': waits for the user's confirmation"
+   }
+  ]
+ }
 }

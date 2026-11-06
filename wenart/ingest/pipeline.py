@@ -602,8 +602,16 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
     bld["rooms"].extend(rooms)
 
     openings = []
+    mirror_n: dict = {}
     for opening in list(ex.openings) + list(ex.separators):
-        opening_id = build.ids.next(opening.kind, level_id)
+        if str(opening.entity or "").startswith("inferred:mirror_twin:"):
+            # 5 Nov 2026: a mirror copy (generic.mirror) has its own numbers (d_L0_m001), so a copy the reader no longer
+            # makes does not shift the ids of the other elements; the copies may still shift among themselves (m002 ->
+            # m001). Ids are reader hints only: the truth identifies its elements by place (reading_check.truth)
+            mirror_n[opening.kind] = mirror_n.get(opening.kind, 0) + 1
+            opening_id = f"{B.ID_PREFIX[opening.kind]}_{level_id}_m{mirror_n[opening.kind]:03d}"
+        else:
+            opening_id = build.ids.next(opening.kind, level_id)
         openings.append(_opening_dict(level_id, opening, opening_id, walls, rooms, build))
     bld["openings"].extend(openings)
     if generic:

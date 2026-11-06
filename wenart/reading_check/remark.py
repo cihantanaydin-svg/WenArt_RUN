@@ -1,8 +1,8 @@
 """Capture of the user's review remarks as correction records, each with a small crop image of the place.
 
-What: ``python -m wenart.reading_check.remark add|list|show|redo``. ``add`` appends one record to
+What: ``python -m wenart.reading_check.remark add|list|show|redo|confirm``. ``add`` appends one record to
 ``results/reading_corrections.jsonl`` (the format of ``truth.py`` is kept; only the optional fields
-``element_ids``, ``truth_action``, ``place_note`` and ``history`` are new) and, when the reading folder is given,
+``reader_ids``, ``truth_action``, ``place_note`` and ``history`` are new) and, when the reading folder is given,
 draws a crop ``results/reading_corrections/crops/<id>.png`` of the place from ``building.json`` (``--drawing``: with
 the drawing's own strokes over it). A wall, door, window, opening, room or stair remark needs ``--place``,
 ``--element`` or ``--place-note`` (review of 5 Nov 2026).
@@ -35,7 +35,7 @@ NO_LESSON_NOTE = "no lesson yet: the general rule for this remark is still to be
 ELEMENT_KINDS = ("wall", "opening", "door", "window", "room", "stair", "level", "label", "region", "roof", "site",
                  "other")
 PLACEABLE_KINDS = ("wall", "door", "window", "opening", "room", "stair")   # as truth.PLACEABLE_KINDS
-TRUTH_OPS = ("add", "remove", "retype", "move")
+TRUTH_OPS = ("add", "remove", "retype", "confirm", "move")   # the replay knows add, remove, confirm, retype
 ELEMENT_LISTS = ("walls", "openings", "rooms", "furniture")
 CROP_SIZE_M = 6.0                 # side of the window around the place, building metres
 CROP_PX = 600
@@ -120,7 +120,9 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
     a remark about a placeable element (``PLACEABLE_KINDS``: wall, door, window, opening, room, stair) is refused
     without a place (``--place``, or ``--element`` whose place is taken) or a ``place_note`` saying why it has none,
     so every remark joins the truth and the ranker's labels at capture (``truth.correction_errors`` checks the
-    same)."""
+    same). 6 Nov 2026 (the derived truth): a record names a place; the reader's ids given with ``--element`` are kept
+    as hints in ``reader_ids`` (the one name of the id hints), never as truth ids: the truth's ids change with every
+    build and nothing joins on them."""
     if projects is not None and project not in set(projects):
         raise ValueError(f"project {project!r} not in projects/")
     if kind not in ELEMENT_KINDS:
@@ -154,7 +156,7 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
     if note_place:
         rec["place_note"] = note_place
     if ids:
-        rec["element_ids"] = ids
+        rec["reader_ids"] = ids
     if truth_action is not None:
         rec["truth_action"] = truth_action
     if note or lesson is None:
@@ -162,12 +164,45 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
     return rec
 
 
+def _truth_of(project: str) -> dict | None:
+    from wenart.reading_check import truth as TR
+    return TR.load_truth(project)
+
+
+def truth_marks(rec: dict, truth: dict | None) -> list:
+    """``[(type, element)]`` to mark on a record's crop, by place (6 Nov 2026, the derived truth): the truth elements
+    the build put the record's operations on (their ``corrections`` hold the record's id); for a record the truth does
+    not hold yet, the places its ``truth_action`` names (a centre, a polygon, a wall's ends). Never a reader's id."""
+    from wenart.reading_check import truth as TR
+
+    rid = rec.get("id")
+    lid = rec.get("level")
+    marks = []
+    if truth and rid:
+        marks = [(t, e) for lvl, lv in (truth.get("per_level") or {}).items() for t in TR.ELEMENT_TYPES
+                 for e in lv.get(t) or [] if rid in (e.get("corrections") or []) and (lid is None or lvl == lid)]
+    if marks:
+        return marks
+    for op in TR.record_ops(rec):
+        t = TR.KIND_TO_TYPE.get(op.get("kind"))
+        if t is None or (lid is not None and op.get("level") not in (None, lid)):
+            continue
+        try:
+            el = TR.element_from_fields(op["kind"], op, source=TR.SOURCE_USER, correction=rid, date=rec.get("date"))
+        except (ValueError, TypeError):
+            continue
+        marks.append((t, el))
+    return marks
+
+
 def draw_crop(building: dict, level_id: str | None, place: dict | None, element_ids: list[str], path: Path,
-              lines: list | None = None) -> Path:
+              lines: list | None = None, marks: list | None = None) -> Path:
     """Draw the crop (matplotlib, headless): walls grey, doors green, windows blue, room labels, the named
     elements red, the place a red cross, a 1 m scale bar. 6 x 6 m around the place, else the whole level.
     ``lines`` (``drawing_lines``): the drawing's own strokes in building metres, drawn thin black over the model,
-    so the user sees the jambs, swings and frames the place was taken from."""
+    so the user sees the jambs, swings and frames the place was taken from. ``marks`` (``truth_marks``): the record's
+    truth elements drawn red at their own places (5 Nov 2026: a reader's id may name another element after a
+    renumbering, a place does not)."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -217,6 +252,17 @@ def draw_crop(building: dict, level_id: str | None, place: dict | None, element_
                     color=COLOURS["mark"] if r.get("id") in named else COLOURS["room"], zorder=5, clip_on=True)
     for (ax0, ay0), (ax1, ay1) in lines or []:
         ax.plot([ax0, ax1], [ay0, ay1], color="black", lw=0.6, zorder=5.5)
+    for t, e in marks or []:
+        if t == "walls" and e.get("start") and e.get("end"):
+            ax.plot([e["start"][0], e["end"][0]], [e["start"][1], e["end"][1]], color=COLOURS["mark"],
+                    lw=lw(e.get("thickness") or 0.2), alpha=0.6, zorder=6)
+        elif t == "rooms" and len(e.get("polygon") or []) >= 3:
+            xs = [q[0] for q in e["polygon"]] + [e["polygon"][0][0]]
+            ys = [q[1] for q in e["polygon"]] + [e["polygon"][0][1]]
+            ax.plot(xs, ys, color=COLOURS["mark"], lw=2, zorder=6)
+        elif e.get("center"):
+            ax.plot([e["center"][0]], [e["center"][1]], marker="o", ms=14, mfc="none", mew=2.5,
+                    color=COLOURS["mark"], zorder=6)
     if place:
         ax.plot([place["x"]], [place["y"]], marker="+", ms=26, mew=5, color="white", zorder=6)   # shows on red
         ax.plot([place["x"]], [place["y"]], marker="+", ms=22, mew=2, color=COLOURS["mark"], zorder=7)
@@ -323,8 +369,9 @@ def add(args, corrections: Path = CORRECTIONS_PATH, crop_dir: Path = CROP_DIR):
     if building is not None:
         lines = (drawing_lines(args.out, building, rec["level"], rec["place"])
                  if getattr(args, "drawing", False) else None)
-        crop = draw_crop(building, rec["level"], rec["place"], rec.get("element_ids", []),
-                         Path(crop_dir) / f"{rec['id']}.png", lines=lines)
+        from wenart.reading_check import truth as TR
+        crop = draw_crop(building, rec["level"], rec["place"], [], Path(crop_dir) / f"{rec['id']}.png", lines=lines,
+                         marks=truth_marks(rec, TR.load_truth(rec["project"])))
     save(corrections, records + [rec])
     return rec, crop
 
@@ -339,10 +386,32 @@ def redo(rid: str, place: dict, corrections: Path = CORRECTIONS_PATH, crop_dir: 
     rec["place"] = place
     crop = None
     if building is not None:
-        crop = draw_crop(building, rec.get("level"), place, rec.get("element_ids", []), Path(crop_dir) / f"{rid}.png",
-                         lines=lines)
+        # marked by the places of the record's truth elements, never by a reader's id (5 Nov 2026)
+        from wenart.reading_check import truth as TR
+        crop = draw_crop(building, rec.get("level"), place, [], Path(crop_dir) / f"{rid}.png", lines=lines,
+                         marks=truth_marks(rec, TR.load_truth(rec.get("project"))))
     save(corrections, records)
     return rec, crop
+
+
+def confirm(rid: str, corrections: Path = CORRECTIONS_PATH, date: str | None = None) -> dict:
+    """The user confirms a record's place (6 Nov 2026, review: a record the machine placed below the confidence the
+    truth needs could never be released): ``place_source`` becomes ``user_confirmed``, the old source and confidence
+    go to the record's history, and the record no longer waits (``truth.correction_applicable``). Run ``truth build``
+    afterwards."""
+    records = load(corrections)
+    rec = next((r for r in records if r.get("id") == rid), None)
+    if rec is None:
+        raise ValueError(f"no record {rid}")
+    if rec.get("place") is None:
+        raise ValueError(f"{rid} has no place to confirm (give one with `remark redo {rid} --place x,y` first)")
+    if rec.get("place_source") != "user_confirmed":
+        rec.setdefault("history", []).append({"date": date or today(), "old_place_source": rec.get("place_source"),
+                                              "old_place_confidence": rec.get("place_confidence"),
+                                              "reason": "the user confirmed the place (remark confirm)"})
+        rec["place_source"] = "user_confirmed"
+        save(corrections, records)
+    return rec
 
 
 def select(records: list[dict], project: str | None = None, since: str | None = None) -> list[dict]:
@@ -380,6 +449,8 @@ def main(argv=None) -> int:
     ls.add_argument("--since")
     sh = sub.add_parser("show")
     sh.add_argument("id")
+    cf = sub.add_parser("confirm", help="the user confirms the record's place (it no longer waits for the user)")
+    cf.add_argument("id")
     rd = sub.add_parser("redo")
     rd.add_argument("id")
     rd.add_argument("--place", required=True)
@@ -391,6 +462,10 @@ def main(argv=None) -> int:
             rec, crop = add(args)
             print(json.dumps(rec, ensure_ascii=False))
             print(f"crop: {crop}" if crop else "crop: none (no --out)")
+        elif args.action == "confirm":
+            rec = confirm(args.id)
+            print(f"{rec['id']}: place {rec.get('place')} confirmed by the user; run `truth build --projects "
+                  f"{rec.get('project')}`")
         elif args.action == "list":
             print(table(select(load(CORRECTIONS_PATH), args.project, args.since)))
         elif args.action == "show":

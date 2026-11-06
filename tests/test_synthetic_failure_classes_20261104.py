@@ -55,13 +55,13 @@ XFAIL_COUNTS = {
     "synthetic-14-elevation-title": _xfail("elevation_title", "UL271", "the two plans are read as one level"),
     "synthetic-16-open-recess": _xfail("open_recess", "UL313", "an opening doubles the corridor-end door"),
     "synthetic-17-garage-lift": _xfail("garage_lift", "UL320", "the 3.4 m garage opening is read as a window"),
-    "synthetic-19-symmetric-house": _xfail("symmetric_single_flat", "UL276", "4 doors, 3 windows mirrored into it"),
     "synthetic-20-glazed-corner": _xfail("glazed_corner", "UL274", "the L of frames is one window and one door"),
     "synthetic-22-curved-stair": _xfail("curved_stair", "open:real07", "the curved stair is not read at all"),
 }
-# every drawn room and opening of synthetic-16, -19 and -22 is read; the counts fail on what is extra or missing
+# every drawn room and opening of synthetic-16 and -22 is read; the counts fail on what is extra or missing
+# (synthetic-19, the symmetric single house, reads right since 5 Nov 2026: mirror.halves_axis)
 XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items()
-                  if k not in ("synthetic-16-open-recess", "synthetic-19-symmetric-house", "synthetic-22-curved-stair")}
+                  if k not in ("synthetic-16-open-recess", "synthetic-22-curved-stair")}
 
 
 def _params(names, marks: dict):
@@ -509,8 +509,9 @@ def test_18_stair_flights_hold_every_drawn_tread(generated, read):
 
 # --- synthetic-19-symmetric-house ----------------------------------------------------------------------------------
 
-@_xfail("symmetric_single_flat", "UL276", "the mirror rule adds the mirror of 4 doors and 3 windows to one flat")
 def test_19_nothing_is_mirrored_into_one_flat(generated, read):
+    """Failure class symmetric_single_flat (UL276): fixed 5 Nov 2026 (``mirror.halves_axis``: the layout inside the
+    shell must be mirrored too and the mirrored labelled rooms must be the same rooms)."""
     t = truth_of(generated, "synthetic-19-symmetric-house")
     truth_ops = t["per_level"]["L0"]["doors"] + t["per_level"]["L0"]["windows"]
     extra = [o["id"] for o in read("synthetic-19-symmetric-house")["openings"]
