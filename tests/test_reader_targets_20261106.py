@@ -151,6 +151,16 @@ def test_two_numbered_stairs_side_by_side_keep_their_own_numbers():
     assert st["turn"] == "U" and st["steps"] == 15
 
 
+def test_a_row_of_grid_numbers_is_no_stair():
+    """real06 (found by the regression set): the structural grid's numbers 1-8, 1.3 m apart in a row outside the
+    building, gave a 'stair' of six treads when a number on a landing could be up to 3 m on; that holds only after an
+    arm of tread steps."""
+    grid = [_t(v, 3.0 + 1.3 * v, 17.0) for v in range(1, 9)]
+    assert SN.chains(grid) == []
+    texts = [_t(v, x, y) for v, (x, y) in _REAL13_B.items()] + grid
+    assert [[v for v, _p, _t in c] for c in SN.chains(texts)] == [list(range(1, 16))]
+
+
 def test_a_stair_of_many_arms_is_still_a_stair():
     """real13 L-1's other stair, 1-18 round a well (three straight runs, winders between): numbered treads always give
     a stair, its runs the flights, the turn 'other'."""

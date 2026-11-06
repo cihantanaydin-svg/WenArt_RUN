@@ -113,8 +113,12 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
                 # 6 Nov 2026 (real13 L-1: two stairs side by side; the near stair's 8 stands on its landing, 1.1 m from
                 # 7 and from 9, and the other stair's 8 led on, 2.8 m away): a nearer number on the landing that the
                 # next one follows across it (within TURN_JUMP_M) wins over one more than twice as far
+                # (only after an arm of tread steps: a row of grid numbers 1.3 m apart is no stair)
+                arm = len(chain) >= ARM_MIN_POINTS and all(
+                    math.dist(nums[a][1], nums[b][1]) <= STEP_M[1] for a, b in zip(chain[-ARM_MIN_POINTS:],
+                                                                                  chain[-ARM_MIN_POINTS + 1:]))
                 near = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + 1, [])
-                        if k not in chain and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M
+                        if arm and k not in chain and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M
                         and any(STEP_M[0] <= math.dist(nums[k][1], nums[j][1]) <= TURN_JUMP_M
                                 for j in by_value.get(v + 2, []) if j not in chain and j != k)]
                 if near and (not far or min(near)[0] * TURN_NEAR_RATIO < min(far)[0]):
