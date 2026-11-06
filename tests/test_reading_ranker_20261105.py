@@ -347,34 +347,47 @@ def test_the_ranker_retypes_a_bare_gap_in_the_classifier_and_logs_it(monkeypatch
 
 
 # ------------------------------------------------------------------------------------------------------ end to end
-@pytest.mark.skipif(not RK.model_path(DEC.KIND_GAP).is_file(), reason="no committed gap_kind model")
-def test_synthetic_12_bare_gaps_of_the_mirrored_flat_become_doors_by_the_ranker(tmp_path):
-    """synthetic-12 (mirrored halves, UL276): the unlabelled flat's four door gaps are drawn without swings; the
-    cascade calls them doorless (0.5) and the pipeline made three openings and a window of them. With the committed
-    model the ranker re-types them (their mirror twins are drawn doors, no label stands beside them): the reading has
-    the truth's 8 doors, each ranker door is unverified with decided_by in its evidence, the gap log and the decision
-    records say so with the margin, and the records file is written per level. (The committed model has seen this
-    project's labels; the held-out number is in the model's metrics.)"""
+@pytest.fixture(scope="module")
+def s12_reading(tmp_path_factory):
+    """synthetic-12 read once with the committed models (the ranker on)."""
     from wenart.ingest import pipeline as PL
 
-    out = tmp_path / "s12"
+    out = tmp_path_factory.mktemp("s12")
     building, _ = PL.run_project(REPO / "projects" / "synthetic-12-mirrored-halves", out, no_ai=True)
+    return building, out
+
+
+@pytest.mark.skipif(not RK.model_path(DEC.KIND_GAP).is_file(), reason="no committed gap_kind model")
+def test_synthetic_12_bare_door_gaps_are_numbered_places_with_the_rankers_answer(s12_reading):
+    """synthetic-12 (mirrored halves, UL276): the unlabelled flat's four door gaps are drawn without swings; the
+    cascade calls them doorless (0.5). On the merged reader the committed model scores them door (their mirror twins
+    are drawn doors) but changes nothing: doorless->door is no trusted transition and one gap's margin is weak. Each of
+    the four is a low-confidence place with the ranker's answer and the reason, numbered by RC7, and the building stays
+    valid (status ok: the schema knows undecided_gap)."""
+    building, out = s12_reading
+    assert building["status"] == "ok"
+    records = json.loads((out / "reading_check" / "decisions_L0.json").read_text(encoding="utf-8"))
+    bare = [r for r in records["records"] if r["kind"] == DEC.KIND_GAP and r["rule"] == "doorless"
+            and r["place"][0] > 7.0]
+    assert len(bare) == 4
+    for r in bare:
+        assert r["decided_by"] == "rule" and r["features"]["twin_door"] is True and r["scores"]["door"] > 0.5
+        assert r["low_confidence"] and r["final_answer"] in ("opening", "window")
+    assert sum(1 for r in bare if r.get("ranker_untrusted") == "door") == 3
+    places = [p for lv in building["levels"] for p in lv.get("reading_places") or []]
+    assert sorted((round(p["at"][0], 1), round(p["at"][1], 1)) for p in places if p["kind"] == "undecided_gap") == \
+        [(9.0, 6.0), (10.0, 4.6), (10.0, 8.9), (11.0, 6.0)]
+    rc = json.loads((out / "reading_check" / "reading_check.json").read_text(encoding="utf-8"))
+    assert sum(1 for f in rc["findings"] if f.get("check") == "RC7" and f.get("kind") == "undecided_gap") == 4
+    assert records["summary"]["gap_kind"]["low_confidence"] == 4
+
+
+@pytest.mark.xfail(strict=True, reason="failure class mirrored_halves (UL276): the ranker v1 does not re-type the "
+                                       "unlabelled flat's bare door gaps (doorless->door untrusted on the merged reader)")
+def test_synthetic_12_bare_door_gaps_become_doors(s12_reading):
+    building, _out = s12_reading
     doors = [o for o in building["openings"] if o["type"] == "door"]
     assert len(doors) == 8 and not [o for o in building["openings"] if o["type"] == "opening"]
-    by_ranker = [o for o in doors if any(e.get("decided_by") == "ranker" for e in o["evidence"])]
-    assert len(by_ranker) == 4
-    for o in by_ranker:
-        ev = next(e for e in o["evidence"] if e.get("decided_by") == "ranker")
-        assert o["status"] == "unverified" and ev["method"] == "inferred" and ev["rule"] == "ranker"
-        assert RK.MARGIN_MIN <= ev["margin"] and ev["confidence"] <= O.CONF_DOORLESS
-        assert o["center"][0] > 7.0                           # the right (unlabelled) flat
-    records = json.loads((out / "reading_check" / "decisions_L0.json").read_text(encoding="utf-8"))
-    ranked = [r for r in records["records"] if r["kind"] == DEC.KIND_GAP and r["decided_by"] == "ranker"]
-    assert len(ranked) == 4 and all(r["ranker_answer"] == "door" and r["margin"] >= RK.MARGIN_MIN for r in ranked)
-    assert all(r["features"]["twin_door"] is True and r["rule"] == "doorless" for r in ranked)
-    assert records["summary"]["gap_kind"]["decided_by"]["ranker"] == 4
-    report = (out / "report.md").read_text(encoding="utf-8")
-    assert report.count("the ranker decided door") == 4        # never silent: one page note per ranker decision
 
 
 # ------------------------------------------------------------------------------------------- the transition trust

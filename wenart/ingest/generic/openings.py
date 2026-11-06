@@ -827,9 +827,16 @@ def _apply_ranker(g: Gap, rec: dict) -> None:
         rec["ranker_answer"] = answer
     elif scores and rec["rule_confidence"] < RK.RULE_TRUST and len(allowed) > 1 and \
             (margin < RK.MARGIN_MIN or rec.get("ranker_untrusted")):
-        why = (f"the ranker's margin {margin:.2f} is weak" if margin < RK.MARGIN_MIN else
-               f"the ranker's {rec['ranker_untrusted']} (margin {margin:.2f}) is a change it has not been shown to get "
-               f"right on other projects")
+        other = max((c for c in scores if c not in allowed), key=lambda c: scores[c], default=None)
+        if margin < 0 and other is not None:
+            # the best allowed answer trails a class the ranker may not give (closed or open: a wall made or removed)
+            why = (f"the ranker rates it {other} ({scores[other]:.2f}), an answer that stays with the rules, above any "
+                   f"opening type")
+        elif margin < RK.MARGIN_MIN:
+            why = f"the ranker's margin {margin:.2f} is weak"
+        else:
+            why = (f"the ranker's {rec['ranker_untrusted']} (margin {margin:.2f}) is a change it has not been shown "
+                   f"to get right on other projects")
         rec["low_confidence"] = (f"rule {rec['rule']} at {rec['rule_confidence']:.2f} and {why}: "
                                  f"{rec['rule_answer']} kept")
 

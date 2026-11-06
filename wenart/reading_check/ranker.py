@@ -86,7 +86,10 @@ TRUST_NOTE = ("The integration (ranker.decide) applies a ranker change only when
               "ranker was right on 2 of its 8 changes on real projects; on real10 L0-L6 its window at the 1.50 m "
               "bedroom window gaps (the type is right: C0032) came before the later furniture rule that types the same "
               "window, which then left an extra opening beside it on seven floors. "
-              "With the trust check: 5 changes (synthetic-12's four bare door gaps, one real07 gap). The "
+              "With the trust check: 5 changes (synthetic-12's four bare door gaps, one real07 gap). On the merged "
+              "reader with the derived truth (6 Nov 2026) the margin is taken against every class (top_and_margin: "
+              "real10's doorless mirror-axis gap had door 0.43, closed 0.29) and no transition is trusted, so the "
+              "model changes no decision; it records its scores, its untrusted answers and the undecided places. The "
               "wall_or_notation model only advises (ranker_advice on the pair's record): held out it beats the rules "
               "by 0.004 and its integrated changes were right on 123 of 277; moving a pair into or out of the wall "
               "network is geometry.")
