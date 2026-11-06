@@ -3,7 +3,9 @@
 What: one hit and one clean case per rule on hand-made building dicts; the four known errors of the current readings
 on small fixtures shaped like them (a 16 m2 lift; a fire-lobby label in a 99 m2 face with a car park label; frame
 walls on a region box with a paper room; a level with 8 labels and 3 walls); the trust file lowering a rule; the wiring
-into ``wenart.reading_check.check`` as advisory findings.
+into ``wenart.reading_check.check`` as advisory findings. Round 2 (6 Nov 2026): the float edge of a door's reach, the
+untyped hall of two flats, and one hit and one clean case for each rule made from the user's past corrections
+(facade_recess, false_stair, stair_stacking, mirror_twins, wall_across_passage, wall_mass).
 Why: the user (4 Nov 2026): "some AI or something else to give the feedbacks by itself instead of me at some point";
 these are the faults an architect sees at a glance.
 """
@@ -187,8 +189,11 @@ def test_a_level_no_stair_reaches_is_major_and_stacked_stairs_are_clean():
     f = SN.stair_links(_two_levels(None))
     assert len(f) == 1 and f[0]["severity"] == "major" and f[0]["level_id"] == "L1"
     assert "no stair is read on L1" in f[0]["message"]
-    far = SN.stair_links(_two_levels((12.0, 2.0)))
-    assert len(far) == 1 and "apart in plan" in far[0]["message"]
+    # 6 Nov 2026, round 2: one core stair on each floor is the stacking rule's question, not the link rule's
+    far = _two_levels((12.0, 2.0))
+    assert SN.stair_links(far) == []
+    stack = SN.stair_stacking(far)
+    assert len(stack) == 1 and stack[0]["offset_m"] == pytest.approx(10.0) and stack[0]["severity"] == "major"
 
 
 def test_a_room_with_no_door_is_minor_and_a_room_with_one_is_clean():
@@ -265,7 +270,8 @@ def test_a_rule_below_the_threshold_writes_info_and_one_above_keeps_its_severity
     rta = tr["rules"]["room_type_area"]
     assert {k: rta[k] for k in ("findings", "judged_right", "precision", "trusted")} == \
         {"findings": 2, "judged_right": 1, "precision": 0.5, "trusted": False}
-    assert rta["by_status"] == {"accepted": {"findings": 1, "judged_right": 1}, "open": {"findings": 1, "judged_right": 0}}
+    assert rta["by_status"] == {"accepted": {"findings": 1, "judged_right": 1},
+                                "open": {"findings": 1, "judged_right": 0}}
     assert rta["small_sample"] is True
     assert tr["rules"]["circulation"]["trusted"] is True and tr["rules"]["unread_walls"]["precision"] is None
 
@@ -278,6 +284,191 @@ def test_the_trust_file_names_every_rule_with_its_judgements():
         js = [j for j in tr["judgements"] if j["rule"] == rule]
         assert len(js) == v["findings"] and sum(j["right"] for j in js) == v["judged_right"]
         assert all(j.get("reason") for j in js)
+
+
+# ------------------------------------------------------------------------- round 2 (6 Nov 2026): the user's past fixes
+def test_a_door_on_the_float_edge_of_its_reach_still_opens_into_the_room():
+    # real16 L1 d_L1_001: the face 0.15000000000000036 m from the door, the reach 0.05 + 0.10 = 0.15000000000000002
+    d = 0.15000000000000036
+    walls = [wall("w1", (0.0, -1.0), (0.0, 1.0), t=0.1), wall("w2", (-4.0, -1.0), (-4.0, 1.0), t=0.1)]
+    rooms = [room("r_a", "Antre", "hall", rect(-3.9, -0.9, -0.05, 0.9)), room("r_b", "Oda", "unknown",
+                                                                            rect(d, -0.9, 3.0, 0.9))]
+    door = {"id": "d1", "level_id": "L0", "type": "door", "wall_id": "w1", "center": [0.0, 0.0], "width": 0.9}
+    access, links, _outer, _loose = SN.room_access(building(rooms=rooms, walls=walls, openings=[door]), "L0")
+    assert access["r_b"] == ["d1"] and ("r_a", "r_b") in links
+
+
+def test_a_flat_whose_hall_is_an_untyped_room_names_that_room():
+    levels = [{"id": "L1", "label": "1. Kat", "order": 1, "elevation": 3.0}]
+    walls = [wall(w["id"], w["start"], w["end"], "L1")
+             for w in box_walls(0, 0, 4, 4) + box_walls(4, 0, 8, 4, prefix="v") + box_walls(8, 0, 12, 4, prefix="h")
+             + box_walls(12, 0, 16, 4, prefix="k")]
+    # two flats (two living rooms) joined through an unnamed room: that room is named as their likely hall (real16 L1)
+    rooms = [room("r_a", "Salon", "living", rect(0.1, 0.1, 3.9, 3.9), "L1"),
+             room("r_c", "Oda", "unknown", rect(4.1, 0.1, 7.9, 3.9), "L1"),
+             room("r_b", "Salon", "living", rect(8.1, 0.1, 11.9, 3.9), "L1"),
+             room("r_x", "Kat Holü", "hall", rect(12.1, 0.1, 15.9, 3.9), "L1")]
+    doors = [{"id": "d1", "level_id": "L1", "type": "door", "wall_id": "w2", "center": [4.0, 2.0], "width": 0.9},
+             {"id": "d2", "level_id": "L1", "type": "door", "wall_id": "v2", "center": [8.0, 2.0], "width": 0.9},
+             {"id": "d3", "level_id": "L1", "type": "door", "wall_id": "k2", "center": [16.0, 2.0], "width": 0.9}]
+    b = building(rooms=rooms, walls=walls, openings=doors, levels=levels)
+    flats = [f for f in SN.circulation(b) if f.get("part") == "flat"]
+    assert len(flats) == 1 and flats[0]["element_ids"] == ["r_a", "r_b", "r_c"]
+    assert "untyped room r_c 'Oda'" in flats[0]["message"] and "did not close" not in flats[0]["message"]
+    # one flat with an unnamed room: that room is a room of the flat, its entrance door is what is missing
+    b["rooms"][2] = room("r_b", "Mutfak", "kitchen", rect(8.1, 0.1, 11.9, 3.9), "L1")
+    flats = [f for f in SN.circulation(b) if f.get("part") == "flat"]
+    assert len(flats) == 1 and "entrance door is not read" in flats[0]["message"]
+
+
+def _recess(label="", door=False):
+    """A named salon with a window onto a small recess closed by a wall with a gap in the facade (real10 C0023)."""
+    walls = [wall("w1", (0, 0), (5, 0), exterior=True), wall("w2", (5, 0), (5, 4)),
+             wall("w3", (5, 4), (0, 4), exterior=True), wall("w4", (0, 4), (0, 0), exterior=True),
+             wall("w5", (5, 1), (6.5, 1), exterior=True), wall("w6", (6.5, 1), (6.5, 3), exterior=True),
+             wall("w7", (6.5, 3), (5, 3), exterior=True)]
+    rooms = [room("r_salon", "Salon", "living", rect(0.1, 0.1, 4.9, 3.9)),
+             room("r_x", label, "hall", rect(5.1, 1.1, 6.4, 2.9))]
+    ops = [{"id": "win1", "level_id": "L0", "type": "window", "wall_id": "w2", "center": [5.0, 2.0], "width": 1.2},
+           {"id": "o1", "level_id": "L0", "type": "door" if door else "opening", "wall_id": "w6",
+            "center": [6.5, 2.0], "width": 1.2}]
+    return building(rooms=rooms, walls=walls, openings=ops)
+
+
+def test_a_facade_recess_closed_into_a_small_unnamed_room_is_major():
+    f = SN.facade_recess(_recess("Oda"))
+    assert len(f) == 1 and f[0]["severity"] == "major" and f[0]["element_ids"][0] == "r_x"
+    assert "win1" in f[0]["message"] and "'Salon'" in f[0]["message"]
+
+
+@pytest.mark.parametrize("label,door", [("WC", False), ("Oda", True)])
+def test_a_named_small_room_or_one_with_a_door_is_no_recess(label, door):
+    assert SN.facade_recess(_recess(label, door)) == []
+
+
+def _stair(sid, centre, size, lines=12, level="L0"):
+    return {"id": sid, "level_id": level, "type": "stair", "footprint": {"center": list(centre), "size": list(size)},
+            "stair": {"flights": [{"lines": lines}]}}
+
+
+def test_a_stair_in_a_bathroom_or_too_small_is_false_and_a_core_stair_is_clean():
+    rooms = [room("r_b", "Banyo", "bathroom", rect(0, 0, 2, 2)), room("r_h", "Hol", "hall", rect(3, 0, 8, 4))]
+    furn = [_stair("f1", (1, 1), (1.2, 1.4), lines=5), _stair("f2", (4, 1), (1.0, 1.2)),
+            _stair("f3", (6.5, 2), (1.2, 3.0), lines=14)]
+    furn.append({"id": "f4", "level_id": "L0", "type": "stair", "footprint": {"center": [5, 3.4], "size": [1.7, 1.2]},
+                 "stair": {"flights": [{"lines": 5}, {"lines": 5}, {"lines": 5}]}})     # real09's kitchen tiles
+    found, ids = SN.false_stairs(building(rooms=rooms, furniture=furn))
+    assert ids == {"f1", "f2", "f4"} and all(f["severity"] == "major" for f in found)
+    by = {f["element_ids"][0]: f for f in found}
+    assert "bathroom r_b 'Banyo'" in by["f1"]["message"] and "5 tread lines" in by["f1"]["message"]
+    assert "1.20 m2" in by["f2"]["message"] and "3 flights in 2.04 m2" in by["f4"]["message"]
+
+
+def test_false_stairs_join_no_level():
+    levels = [{"id": "L0", "label": "Zemin Kat", "order": 0, "elevation": 0.0},
+              {"id": "L1", "label": "1. Kat", "order": 1, "elevation": 3.0}]
+    rooms = [room("r_b", "Banyo", "bathroom", rect(0, 0, 2, 2), "L1")]
+    furn = [_stair("f0", (1, 1), (1.2, 3.0)), _stair("f1", (1, 1), (1.2, 1.4), lines=5, level="L1")]
+    b = building(rooms=rooms, furniture=furn, levels=levels)
+    found = SN.run(b, {}, trust=NO_TRUST)
+    links = [f for f in found if f["rule"] == "circulation" and f.get("part") == "levels"]
+    assert len(links) == 1 and "no stair is read on L1" in links[0]["message"]
+    assert [f["element_ids"][0] for f in found if f["rule"] == "false_stair"] == ["f1"]
+
+
+def test_stairs_half_a_metre_apart_stack():
+    assert SN.stair_stacking(_two_levels((2.4, 2.3))) == []
+
+
+def _twins(b_doors=1, b_label="Mutfak", b_type="kitchen", b_size=3.0):
+    walls = box_walls(0, 0, 3, 4) + box_walls(5, 0, 5 + b_size, 4, prefix="v")
+    rooms = [room("r_a", "Mutfak", "kitchen", rect(0.1, 0.1, 2.9, 3.9)),
+             room("r_b", b_label, b_type, rect(5.1, 0.1, 5 + b_size - 0.1, 3.9), twin_of="r_a",
+                  twin_transform=[-1, 0, 8, 0, 1, 0])]
+    ops = [{"id": "d1", "level_id": "L0", "type": "door", "wall_id": "w1", "center": [1.5, 0.0], "width": 0.9}]
+    if b_doors:
+        ops.append({"id": "d2", "level_id": "L0", "type": "door", "wall_id": "v1", "center": [6.5, 0.0], "width": 0.9})
+    return building(rooms=rooms, walls=walls, openings=ops)
+
+
+def test_a_twin_with_no_door_is_major_one_of_another_type_minor_and_alike_twins_clean():
+    assert SN.mirror_twins(_twins()) == []
+    f = SN.mirror_twins(_twins(b_doors=0))
+    assert len(f) == 1 and f[0]["severity"] == "major" and "ways in 1 / 0" in f[0]["message"]
+    f = SN.mirror_twins(_twins(b_label="Oda", b_type="unknown", b_size=4.2))
+    assert len(f) == 1 and f[0]["severity"] == "minor" and "type kitchen / untyped" in f[0]["message"]
+    assert "area" in f[0]["message"]
+
+
+def _mirrored_plan(right_last=("Oda", "unknown"), reader_twins=True):
+    """Two flats mirrored about x = 5, three rooms a side; the reading paired the bedrooms (``twin_of`` with its
+    transform) and nothing else; the right-hand twin of 'Banyo' is ``right_last``."""
+    xs = (1.5, 3.0, 4.9, 5.1, 7.0, 8.5)
+    walls = box_walls(0, 0, 10, 4) + [wall(f"i{k}", (x, 0), (x, 4)) for k, x in enumerate(xs)]
+    twin = {"twin_of": "r_l2", "twin_transform": [-1.0, 0.0, 10.0, 0.0, 1.0, 0.0]} if reader_twins else {}
+    rooms = [room("r_l1", "Banyo", "bathroom", rect(0.1, 0.1, 1.4, 3.9)),
+             room("r_l2", "Yatak Odası", "bedroom", rect(1.6, 0.1, 2.9, 3.9)),
+             room("r_l3", "Salon", "living", rect(3.1, 0.1, 4.8, 3.9)),
+             room("r_r3", "Salon", "living", rect(5.2, 0.1, 6.9, 3.9)),
+             room("r_r2", "Yatak Odası", "bedroom", rect(7.1, 0.1, 8.4, 3.9), **twin),
+             room("r_r1", right_last[0], right_last[1], rect(8.6, 0.1, 9.9, 3.9))]
+    return building(rooms=rooms, walls=walls)
+
+
+def test_twins_found_about_the_readings_own_mirror_axis():
+    pairs, axis = SN.mirror_pairs(_mirrored_plan(), "L0")
+    assert axis == ("x", 5.0)
+    assert sorted(tuple(sorted((a["id"], b["id"]))) for a, b, _ in pairs) == \
+        [("r_l1", "r_r1"), ("r_l2", "r_r2"), ("r_l3", "r_r3")]
+    f = SN.mirror_twins(_mirrored_plan())
+    assert len(f) == 1 and sorted(f[0]["element_ids"]) == ["r_l1", "r_r1"]
+    assert "type bathroom / untyped" in f[0]["message"]
+    assert SN.mirror_twins(_mirrored_plan(("Banyo", "bathroom"))) == []
+
+
+def test_no_axis_of_the_reading_no_mirror_pairs():
+    # 6 Nov 2026 calibration: an axis searched from the walls alone paired rooms of plans that do not mirror
+    assert SN.mirror_pairs(_mirrored_plan(reader_twins=False), "L0") == ([], None)
+
+
+def test_a_mirror_whose_rooms_mostly_disagree_is_left_alone():
+    b = _mirrored_plan(("Mutfak", "kitchen"))
+    b["rooms"][3] = room("r_r3", "Oda", "unknown", rect(5.2, 0.1, 6.9, 3.9))
+    pairs, axis = SN.mirror_pairs(b, "L0")
+    assert axis is None and [(x["id"], y["id"]) for x, y, _ in pairs] == [("r_l2", "r_r2")]
+
+
+def _passage(kind="opening", width=1.2, arc=False):
+    walls = box_walls(0, 0, 3, 4) + box_walls(3, 0, 8, 4, prefix="v")
+    rooms = [room("r_h", "Hol", "hall", rect(0.1, 0.1, 2.9, 3.9)), room("r_s", "Salon", "living",
+                                                                       rect(3.1, 0.1, 7.9, 3.9))]
+    ops = [{"id": "o1", "level_id": "L0", "type": kind, "wall_id": "w2", "center": [3.0, 2.0], "width": width}]
+    b = building(rooms=rooms, walls=walls, openings=ops)
+    b["walls"] = [dict(w, exterior=False) if w["id"] in ("w2", "v4") else w for w in b["walls"]]
+    if arc:
+        b["symbols"] = [{"id": "sy1", "kind": "door_arc", "level_id": "L0", "footprint": {"center": [3.3, 2.3]}}]
+    return b
+
+
+def test_a_gap_between_a_hall_and_a_room_with_no_door_symbol_is_minor():
+    f = SN.wall_across_passage(_passage())
+    assert len(f) == 1 and f[0]["severity"] == "minor" and f[0]["element_ids"][:2] == ["w2", "o1"]
+
+
+@pytest.mark.parametrize("kind,width,arc", [("door", 1.2, False), ("opening", 3.0, False), ("opening", 1.2, True)])
+def test_a_door_a_wide_opening_or_a_gap_with_its_door_symbol_is_no_walled_passage(kind, width, arc):
+    assert SN.wall_across_passage(_passage(kind, width, arc)) == []
+
+
+def test_a_sliver_typed_hall_is_wall_mass_reported_once():
+    b = building(rooms=[room("r_s", "Oda", "hall", rect(0, 0, 0.6, 0.6)),             # 0.36 m2 (real10 r_L0_oda_18)
+                        room("r_t", "Oda", "hall", rect(2, 0, 2.9, 1.0))])            # 0.9 m2
+    found = SN.run(b, {}, trust=NO_TRUST)
+    by = {}
+    for f in found:
+        if f["rule"] in ("wall_mass", "room_type_area"):
+            by.setdefault(f["element_ids"][0], []).append(f["rule"])
+    assert by == {"r_s": ["wall_mass"], "r_t": ["room_type_area"]}
 
 
 # ----------------------------------------------------------------------------------------------- wiring into check
