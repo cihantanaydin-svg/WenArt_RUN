@@ -276,7 +276,7 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
         ex.notes.append(f"{where}: outdoor space '{a.get('label')}': " + (
             rec["reason"] + (f"; {rec['steps']['reason']}" if rec.get("steps") else "") if rec is not None else
             "no drawn outline closes around the label (the level inference infers one)"))
-    axis = _halves(ex, walls) if walls else None
+    axis = _halves(ex, walls, by="outdoor outlines") if walls else None      # no labels here: label rule skipped
     if axis is None:
         return
     anchors = [tuple(a["anchor"]) for a in site.get("areas") or [] if a.get("anchor")]
@@ -1876,7 +1876,7 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
     guard = outline.buffer(CLOSURE_OUTLINE_TOL_M, join_style=2) if outline is not None else None
     if outline is not None:                           # the debug image and the report show what guarded the bridges
         report["outline"] = [[round(x, 3), round(y, 3)] for x, y in outline.simplify(0.05).exterior.coords]
-    og = outdoor_guard(blocks, walls2, _halves(ex, walls2, openings, blocks, level_id))   # balconies, mirrors, areas
+    og = outdoor_guard(blocks, walls2, _halves(ex, walls2, openings, blocks, level_id, "outline closure"))
     indoor = [Point(b.anchor) for b in blocks if not getattr(b, "exterior", False) and not TP._outdoor_label(b)]
     if og["axis"] is not None:
         report["mirror_axis"] = [og["axis"][0], round(og["axis"][1], 3)]
@@ -2293,7 +2293,7 @@ def _open_recesses(ex, where: str, walls2: list, openings: list, blocks: list, l
     anchors = [Point(b.anchor) for b in blocks]
     # 3 Nov 2026 (real10, user: "this section is still wrong should be similar as the mirror"): on a plan of two
     # mirrored halves, the recess's twin decides when its own window could not be read
-    axis = _halves(ex, walls2, openings, blocks, level_id)
+    axis = _halves(ex, walls2, openings, blocks, level_id, "recess twins")
     splits, pending, opened = [], [], []
     for k, o in enumerate(openings):
         if not _empty_gap(o):
@@ -2537,26 +2537,38 @@ MIRROR_MAX_NEW_WALLS = 3        # mirror twins differ by at most this many walls
 CORE_KEEP_OUT_M = 3.0           # no mirror fix within this of a lift label (the core: lift and stair, not mirrored)
 
 
-def _halves(ex, walls: list, openings: list = (), blocks: list = (), level_id=None) -> Optional[tuple]:
-    """The level's one decision whether its plan is two mirrored halves (``mirror.halves``), made once on the first
-    rule that asks and kept on the extraction (``ex.report["mirror"]``); every mirror rule of the level uses it
-    (outdoor outlines and guard, recess twins, mirror seeds, the mirror fixes, the separators). Returns the axis or
-    None. 5 Nov 2026 (review: the other mirror users kept the shell-only gate)."""
+def _halves(ex, walls: list, openings: list = (), blocks: list = (), level_id=None, by: str = "") -> Optional[tuple]:
+    """Whether the plan is two mirrored halves (``mirror.halves``, the one decision every mirror rule uses: outdoor
+    outlines and guard, recess twins, mirror seeds, the mirror fixes, the separators), made on the walls the asking
+    rule applies it to, with the openings and labels it has. 5 Nov 2026 (review: a decision made on the first rule's
+    walls, before the facade closure, the recesses and the outline closure, was stale at the mirror step): the cache is
+    per identical wall set (the walls' entities, ends and thicknesses) and whether labels were given; every decision
+    is listed in ``ex.report["mirror"]``. Without labels (a raster page's outdoor outlines) the label rule is skipped,
+    and the note says so. Returns the axis or None."""
+    import hashlib
+
     from wenart.ingest.generic import mirror as MR
 
-    rep = ex.report.get("mirror")
-    if rep is None:
+    key = hashlib.sha1(repr((bool(blocks), [(str(w.entity), round(float(w.start[0]), 3), round(float(w.start[1]), 3),
+                                              round(float(w.end[0]), 3), round(float(w.end[1]), 3),
+                                              round(float(w.thickness), 3)) for w in walls])).encode()).hexdigest()
+    cache = ex.report.setdefault("mirror_cache", {})
+    if key not in cache:
         h = MR.halves(walls, list(openings or []), list(blocks or []), level_id) if walls else {"axis": None,
                                                                                                 "note": None}
-        rep = dict(h, axis=list(h["axis"]) if h["axis"] else None)
-        ex.report["mirror"] = rep
+        cache[key] = list(h["axis"]) if h.get("axis") else None
+        row = dict(h, axis=cache[key], by=by, walls=len(walls))
+        if not blocks:
+            row["labels"] = "not given: the label rule was skipped"
+        ex.report.setdefault("mirror", []).append(row)
         if h.get("note"):
-            ex.notes.append(f"mirror check: {h['note']}; no mirror rule on this level")
-    return tuple(rep["axis"]) if rep.get("axis") else None
+            ex.notes.append(f"mirror check ({by or 'a rule'}, {len(walls)} walls"
+                            + ("" if blocks else ", no labels: the label rule skipped") + f"): {h['note']}")
+    return tuple(cache[key]) if cache[key] else None
 
 
 def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
-                        problem: Optional[str]):
+                        problem: Optional[str], strokes: Optional[list] = None):
     """The mirror fixes of a plan of two mirrored halves (``mirror.consistency``), step by step (thickness, inferred
     walls, missing walls, openings): a step that changes a drawn wall (thickness, an inferred wall onto its twin's
     line) is kept when more rooms pair as mirror images, one that copies a missing wall or an opening of the twin when
@@ -2565,8 +2577,9 @@ def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: li
     thick on one half, a missing wall and seven openings; together they paired one room fewer and none was kept)."""
     from wenart.ingest.generic import mirror as MR
 
-    # 5 Nov 2026: the level's one mirror decision (``_halves``: the layout inside the shell is mirrored too)
-    axis = _halves(ex, walls2, openings, blocks, level_id)
+    # 5 Nov 2026: the mirror decision on the walls the fixes apply to (``_halves``: the layout inside the shell is
+    # mirrored too); ``strokes`` (the page's lines) let the openings step see drawn solid wall
+    axis = _halves(ex, walls2, openings, blocks, level_id, "mirror fixes")
     if axis is None:
         return None
     before = MR.mirrored_face_pairs(walls2, openings, axis)
@@ -2578,10 +2591,15 @@ def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: li
     best = None
     notes = []
     for step in MR.STEPS:
-        res = MR.consistency(walls2, openings, axis, steps=tuple(kept_steps + [step]), keep_out=keep_out)
+        res = MR.consistency(walls2, openings, axis, steps=tuple(kept_steps + [step]), keep_out=keep_out,
+                             strokes=strokes)
         if res is None:
             continue
         w5, o5, log = res
+        refused = [e for e in log if str(e).startswith("refused")]
+        if len(refused) == len(log):                     # only refusals: nothing to keep, the reasons are noted
+            notes.extend(r for r in refused if r not in notes)
+            continue
         # 3 Nov 2026 (the regression set: real03, a block of different flat types (1+1 A1, A2, B, 2+1) in a symmetric
         # shell, got 16 walls and 7 doors copied from one flat type into the other): mirror twins differ by a few
         # slips (real09: at most one wall); halves that need more walls copied are different layouts
@@ -2649,14 +2667,14 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
                 and getattr(b, "room_type", None) != "balcony"]
     seeds = FC.mirror_seeds(walls2, labelled, lambda q: hull.contains(Point(q))
                             and not any(f.contains(Point(q)) for f in faces_now),
-                            axis=_halves(ex, walls2, openings, blocks, level_id))
+                            axis=_halves(ex, walls2, openings, blocks, level_id, "mirror seeds"))
     faces, links = FC.close_rooms(walls2, strokes, anchors + seeds)
     if not faces:
         return None
     # 5 Nov 2026 (real11 L0: the left kitchen's face ran along the balcony's railing and took the 'BALKON 10.00 m2'
     # in): a face holding an outdoor-space label, the mirror image of one, or matching an outdoor area text is no
     # room; it is not closed here (the outline closure may close the room along its facade, under the same guard)
-    guard = outdoor_guard(blocks, walls2, _halves(ex, walls2, openings, blocks, level_id))
+    guard = outdoor_guard(blocks, walls2, _halves(ex, walls2, openings, blocks, level_id, "glazed facades"))
     kept_faces = {}
     for k, face in faces.items():
         why = outdoor_enclosure(face, guard)
@@ -2906,7 +2924,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     if not is_raster:
         # 3 Nov 2026 (user: "Most of these drawings are mirrored it can help to fix the issues"): the two mirrored
         # halves of a plan check each other (``mirror``)
-        mirrored = _mirror_consistency(ex, where, walls2, openings, blocks, level_id, site_warnings, problem)
+        mirrored = _mirror_consistency(ex, where, walls2, openings, blocks, level_id, site_warnings, problem, strokes_m)
         if mirrored is not None:
             walls2, openings, bwalls, site, site_warnings, b_openings, problem = mirrored
     if not is_raster:

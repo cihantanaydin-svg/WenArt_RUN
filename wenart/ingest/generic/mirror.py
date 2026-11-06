@@ -40,6 +40,9 @@ THICK_DIFF_M = 0.15
 THICK_RATIO = 1.8
 MISSING_MIN_M = 0.6
 OPENING_TOL_M = 0.25            # an opening's twin: its centre within this of the mirrored centre
+SPAN_OVERLAP_M = 0.05           # a copied opening may overlap an opening of its host wall by at most this
+FACE_TOL_M = 0.03               # a drawn line on a wall face: within this (or 15 % of the thickness) of the face line
+FACE_COVER = 0.9                # a face drawn along this share of a copy's span is solid wall there
 AXIS_CLEAR_M = 0.3              # walls on the axis (the party wall) are their own twins
 INNER_CLEAR_M = 0.05            # a wall this close to the building's outline is the shell, not the halves' layout
 CORE_KEEP_OUT_M = 3.0           # no mirror fix within this of a lift label (core.CORE_KEEP_OUT_M, the same value)
@@ -335,10 +338,78 @@ def halves_axis(walls: list, min_share: Optional[float] = None, openings: Option
 STEPS = ("thickness", "inferred", "missing", "openings")
 
 
-def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=None) -> Optional[tuple[list, list, list]]:
+def _span(host, center, width) -> tuple[float, float]:
+    a, b = _seg(host)
+    u = _dir(a, b)
+    c = (center[0] - a[0]) * u[0] + (center[1] - a[1]) * u[1]
+    return c - width / 2.0, c + width / 2.0
+
+
+def _own_lines(host, strokes: list) -> list:
+    """The strokes the host wall was read from (its evidence entity: ``LINE:1A,LINE:1B``, ranges ``path:3-5``)."""
+    import re
+
+    ids = set()
+    for part in str(host.entity or "").split(","):
+        head, _, tail = part.partition(":")
+        m = re.fullmatch(r"(\d+)-(\d+)", tail)
+        if m:
+            ids.update(f"{head}:{k}" for k in range(int(m.group(1)), int(m.group(2)) + 1))
+        elif part:
+            ids.add(part)
+    return [st for st in strokes or [] if str(getattr(st, "id", "")) in ids
+            or any(str(getattr(st, "id", "")).startswith(i + sep) for i in ids for sep in ("/", "#"))]
+
+
+def solid_span(host, center, width, strokes: list) -> bool:
+    """True when the drawing has solid wall over the span of an opening of ``width`` at ``center`` on ``host``: the
+    lines the wall was read from (``_own_lines``: its drawn face lines, not frames, furniture or hatch of other things)
+    run parallel along both of its faces (``FACE_TOL_M``) over ``FACE_COVER`` of the span. A real gap breaks the face
+    lines at its jambs; an inferred wall has no drawn lines and is never solid (5 Nov 2026, real11 L-1: a 1.5 m
+    opening copied onto the outer wall where the drawing has solid wall)."""
+    strokes = _own_lines(host, strokes)
+    if not strokes:
+        return False
+    a, b = _seg(host)
+    u = _dir(a, b)
+    n = (-u[1], u[0])
+    lo, hi = _span(host, center, width)
+    t = float(host.thickness)
+    tol = max(FACE_TOL_M, 0.15 * t)
+    for side in (-1.0, 1.0):
+        off = side * t / 2.0
+        spans = []
+        for st in strokes or []:
+            pts = getattr(st, "pts", None) or []
+            for p, q in zip(pts, pts[1:]):
+                d = _dir(p, q)
+                if abs(u[0] * d[1] - u[1] * d[0]) > PAIR_ANGLE:
+                    continue
+                if any(abs((r[0] - a[0]) * n[0] + (r[1] - a[1]) * n[1] - off) > tol for r in (p, q)):
+                    continue
+                s0, s1 = sorted(((r[0] - a[0]) * u[0] + (r[1] - a[1]) * u[1]) for r in (p, q))
+                if min(s1, hi) > max(s0, lo):
+                    spans.append((max(s0, lo), min(s1, hi)))
+        covered, cur = 0.0, None
+        for s0, s1 in sorted(spans):
+            if cur is None or s0 > cur[1]:
+                covered += (cur[1] - cur[0]) if cur else 0.0
+                cur = [s0, s1]
+            else:
+                cur[1] = max(cur[1], s1)
+        covered += (cur[1] - cur[0]) if cur else 0.0
+        if covered < FACE_COVER * (hi - lo):
+            return False
+    return True
+
+
+def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=None,
+                strokes: Optional[list] = None) -> Optional[tuple[list, list, list]]:
     """``(walls, openings, log)`` with the mirror fixes (the module docstring) of the given ``steps`` (``STEPS``), or
     None (no mirror axis or nothing to fix). ``keep_out``: a shapely geometry no copied wall or opening may touch (the
-    building's core: its lift and stair are not mirrored). The inputs are not changed."""
+    building's core: its lift and stair are not mirrored). ``strokes``: the page's lines; a copied opening never lands
+    on drawn solid wall (``solid_span``) nor on a span of its host wall that already holds an opening; each refusal is
+    a log line starting with ``refused``. The inputs are not changed."""
     from wenart.ingest.generic import facade as FC
     from wenart.ingest.model import OpeningItem, WallItem
 
@@ -458,6 +529,28 @@ def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=No
             continue                                        # the twin is drawn: nothing to fix
         if any(openings[k].kind == o.kind for k in here):
             continue                                        # an inferred twin of the same kind
+        # 5 Nov 2026 (real11 L-1: a 1.5 m copy over the drawn window of the outer wall and over drawn solid wall)
+        lo, hi = _span(host, mc, o.width)
+
+        def overlaps(p):
+            plo, phi = _span(host, p.center, p.width)
+            return _on_wall(p, host) and min(hi, phi) - max(lo, plo) > SPAN_OVERLAP_M
+
+        # a drawn opening of the host wall over the span refuses the copy; an inferred one there is replaced, as at
+        # the centre (real09: the right kitchen's balcony door over the window the facade rule guessed)
+        over = [k for k, p in enumerate(openings) if k not in here and p is not o and overlaps(p)]
+        clash = next((openings[k] for k in over if _drawn(openings[k])), None)
+        clash = clash or next((p for p in new_open if overlaps(p)), None)
+        if clash is None:
+            here = list(here) + over
+        if clash is not None:
+            log.append(f"refused: the mirror of {o.kind} {o.entity} ({o.width:.2f} m) would overlap {clash.kind} "
+                       f"{clash.entity} ({clash.width:.2f} m) on its wall {host.entity}")
+            continue
+        if strokes and solid_span(host, mc, o.width, strokes):
+            log.append(f"refused: the mirror of {o.kind} {o.entity} ({o.width:.2f} m) would land on drawn solid wall "
+                       f"({host.entity}: both faces drawn along the span)")
+            continue
         replace.update(here)
         ev = dict(o.evidence or {})
         ev.update(method="inferred", confidence=0.6, rule=RULE,
