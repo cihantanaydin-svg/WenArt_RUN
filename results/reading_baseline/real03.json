@@ -27,5 +27,6 @@
  "accepted_by_user": true,
  "accepted_on": "2026-11-02",
  "accepted_scope": "all",
- "accepted_note": "user, 2 Nov 2026: the reading regression set ('go ahead with all 4', 'can we keep improving this regression set?'); its first baselines are the readings the user had reviewed on the comparison sheets (docs/progress.md, Reading self-check and regression set)"
+ "accepted_note": "user, 2 Nov 2026: the reading regression set ('go ahead with all 4', 'can we keep improving this regression set?'); its first baselines are the readings the user had reviewed on the comparison sheets (docs/progress.md, Reading self-check and regression set)",
+ "accepted_seen": "the comparison sheets of the user's review (2 Nov 2026; docs/progress.md, Reading self-check and regression set)"
 }

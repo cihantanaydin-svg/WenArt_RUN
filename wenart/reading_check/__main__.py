@@ -25,7 +25,9 @@ from pathlib import Path
 DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("wenart.reading_check.stability", "main"),
              "crossdoc": ("wenart.reading_check.crossdoc", "_main"),
              "raster": ("wenart.reading_check.raster_opinion", "main"),
-             "sense": ("wenart.reading_check.sense", "main")}
+             "sense": ("wenart.reading_check.sense", "main"),
+             # 6 Nov 2026 (Milestone 14 R6): the vision critic RC15 (``critic prepare|ask|calibrate|store|questions``)
+             "critic": ("wenart.reading_check.critic", "main")}
 
 
 def main(argv=None) -> int:
