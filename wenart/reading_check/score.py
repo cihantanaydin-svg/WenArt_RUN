@@ -323,6 +323,33 @@ def wall_cover(entry: dict, read: list) -> float:
     return round(covered / ls, 4)
 
 
+def solid_pieces(wall: dict, gaps: list) -> list:
+    """The solid pieces of a reading wall (pure): the wall less its doorless openings (``gaps``: the reading's
+    ``openings`` on it, each its centre and width along the wall). The reader keeps a wall whole through a passage and
+    puts the passage on it as an opening, so "no wall here" is checked on what stands, not on the wall's line; a door
+    or a window stands in a wall and cuts nothing."""
+    s, e = wall["start"], wall["end"]
+    lw = _dist(s, e)
+    if lw < 1e-6:
+        return []
+    ux, uy = (float(e[0]) - float(s[0])) / lw, (float(e[1]) - float(s[1])) / lw
+    cuts = []
+    for g in gaps:
+        if not g.get("center") or not g.get("width"):
+            continue
+        a = (float(g["center"][0]) - float(s[0])) * ux + (float(g["center"][1]) - float(s[1])) * uy
+        cuts.append((max(0.0, a - float(g["width"]) / 2.0), min(lw, a + float(g["width"]) / 2.0)))
+    pieces, at = [], 0.0
+    for lo, hi in sorted(c for c in cuts if c[1] > c[0]):
+        if lo > at:
+            pieces.append((at, lo))
+        at = max(at, hi)
+    if lw > at:
+        pieces.append((at, lw))
+    return [dict(wall, start=[float(s[0]) + ux * a, float(s[1]) + uy * a],
+                 end=[float(s[0]) + ux * b, float(s[1]) + uy * b]) for a, b in pieces if b - a > 1e-6]
+
+
 def _type_of(room: dict) -> str:
     return " ".join(str(room.get("room_type") or "").lower().split())
 
@@ -346,7 +373,8 @@ def check_assertion(a: dict, read: dict, building: Optional[dict] = None) -> tup
     if what == "level_count":
         return len(levels) == a["value"], f"{len(levels)} levels"
     if what == "storey_heights":
-        el = sorted({round(float(lv["elevation"]), 2) for lv in levels if isinstance(lv.get("elevation"), (int, float))})
+        el = sorted({round(float(lv["elevation"]), 2) for lv in levels
+                     if isinstance(lv.get("elevation"), (int, float))})
         rel = [round(x - el[0], 2) for x in el] if el else []
         ok = len(rel) == len(a["values"]) and all(abs(x - v) <= a["tolerance"] + 1e-9 for x, v in zip(rel, a["values"]))
         return ok, f"storeys at {rel}"
@@ -371,8 +399,9 @@ def match_sparse(truth: dict, read: dict, building: Optional[dict] = None) -> di
       the entry's room type when it gives one); a wall when the reading's walls on its line cover at least
       ``WALL_OVERLAP_SHARE`` of its span (``wall_cover``);
     - absent: no element of that kind matches (the elements matched to a present entry of the level excepted, as in
-      ``match``); a wall when no reading wall matches the span by ``wall_overlap``, whatever its thickness ("no wall
-      here");
+      ``match``); a wall when no solid piece of a reading wall (``solid_pieces``: the wall less the doorless openings
+      the reader put on it; a piece shorter than its thickness or ``truth.WALL_PIECE_MIN_M`` is a joint) matches the
+      span by ``wall_overlap``;
     - an entry on a level the reading does not have is not satisfied (an absent one cannot be confirmed either);
     - an asserted level: the reading has it, with the label, elevation (within ``truth.ASSERT_TOL_M``) and order
       given; a project-level assertion: ``check_assertion``.
@@ -412,9 +441,18 @@ def match_sparse(truth: dict, read: dict, building: Optional[dict] = None) -> di
                 for e in pres:
                     c = wall_cover(e, rr)
                     note(e, lid, t, c >= WALL_OVERLAP_SHARE, f"covered {c:.2f} of the span")
+                if absn:
+                    gaps: dict = {}
+                    for o in rl.get("openings") or []:
+                        if o.get("wall_id"):
+                            gaps.setdefault(o["wall_id"], []).append(o)
+                    # a piece shorter than its own thickness (or ``truth.WALL_PIECE_MIN_M``) is a joint, as in the
+                    # truth's own cut: a jamb stub at the end of a passage is no wall across it
+                    solid = [(r, piece) for r in rr for piece in solid_pieces(r, gaps.get(r.get("id"), []))
+                             if _dist(piece["start"], piece["end"]) >= max(TR.WALL_PIECE_MIN_M,
+                                                                          float(piece.get("thickness") or 0.0))]
                 for e in absn:
-                    probe = dict(e, thickness=None)
-                    hit = next((r for r in rr if wall_overlap(probe, r) is not None), None)
+                    hit = next((r for r, piece in solid if wall_overlap(e, piece) is not None), None)
                     note(e, lid, t, hit is None, f"read: {hit.get('id') if hit else ''}")
                 continue
             if t == "rooms":

@@ -77,7 +77,8 @@ def test_a_retype_by_remove_and_add_keeps_both_assertions():
     """real07 C0045's kind: "no window here" (remove window) and "a garage door here" (add door) at one place are two
     assertions: a door at the place and no window there."""
     t = TR.build_sparse("p", [_rec("C0045", {"op": "remove", "kind": "window", "level": "L0", "center": [2.03, 0.24]},
-                                   {"op": "add", "kind": "door", "level": "L0", "center": [2.03, 0.24], "width": 3.41})])
+                                   {"op": "add", "kind": "door", "level": "L0", "center": [2.03, 0.24],
+                                    "width": 3.41})])
     assert [e.get("absent") for e in _entries(t, "L0", "windows")] == [True]
     assert [(e.get("absent"), e["width"]) for e in _entries(t, "L0", "doors")] == [(None, 3.41)]
     door = _read(L0_doors=[{"id": "d", "center": [2.0, 0.24]}])
@@ -207,10 +208,24 @@ def test_present_and_absent_walls():
     w = lambda s, e, th=0.2: {"id": f"w{s}{e}", "start": s, "end": e, "thickness": th}   # noqa: E731
     pieces = _read(L0_walls=[w([0, 0], [4, 0]), w([4, 0], [10, 0.02])])                # a long wall read in pieces
     stub = _read(L0_walls=[w([0, 0], [1, 0])])                                          # 10 % of the span
-    thick = _read(L0_walls=[w([0, 0], [10, 0]), w([-1, 5], [5, 5], 0.4)])              # the negated span read thick
+    across = _read(L0_walls=[w([0, 0], [10, 0]), w([-1, 5], [5, 5], 0.22)])            # a wall through the span
     assert SC.match(t, pieces)["total"] == 100.0
     assert SC.match(t, stub)["unsatisfied"] == ["u_C0001_1"]
-    assert SC.match(t, thick)["unsatisfied"] == ["u_C0001_2"]                          # "no wall here": any thickness
+    assert SC.match(t, across)["unsatisfied"] == ["u_C0001_2"]
+    # real07 C0051's kind: the reader keeps the wall whole and puts the passage on it as a doorless opening; what
+    # stands over the span is checked, so the passage satisfies "no wall here" and a door there does not
+    gap = {"id": "o1", "type": "opening", "center": [1.0, 5.0], "width": 2.2, "wall_id": "w[-1, 5][5, 5]"}
+    door = dict(gap, id="d1", type="door")
+    passage = dict(across, per_level={"L0": dict(across["per_level"]["L0"], openings=[gap])})
+    doorway = dict(across, per_level={"L0": dict(across["per_level"]["L0"], doors=[door])})
+    assert SC.match(t, passage)["total"] == 100.0
+    assert SC.match(t, doorway)["unsatisfied"] == ["u_C0001_2"]
+    # real07 C0053's kind: a 4 cm jamb stub, 14 cm thick, at the end of the negated span is a joint, not a wall
+    jamb = _read(L0_walls=[w([0, 0], [10, 0]), w([1.96, 5.02], [2.0, 5.02], 0.18)])
+    assert SC.match(t, jamb)["total"] == 100.0
+    pieces_of = SC.solid_pieces({"start": [0, 0], "end": [10, 0]}, [{"center": [3.0, 0.0], "width": 2.0},
+                                                                    {"center": [3.5, 0.0], "width": 1.0}])
+    assert [(p["start"], p["end"]) for p in pieces_of] == [([0.0, 0.0], [2.0, 0.0]), ([4.0, 0.0], [10.0, 0.0])]
 
 
 def test_room_types_and_a_level_the_reading_lacks():
@@ -231,7 +246,8 @@ def test_project_level_assertions():
     t = TR.build_sparse("p", [_rec("C0001", element_kind="level", truth_assert=[
         {"what": "level_count", "value": 3}, {"what": "storey_heights", "values": [0, 2.5, 5.5]},
         {"what": "level_elevation", "level": "L0", "value": 0.0}, {"what": "ground_z", "value": -3.0}])])
-    read = {"levels": [{"id": "L-1", "elevation": -2.5}, {"id": "L0", "elevation": 0.0}, {"id": "L1", "elevation": 3.04}],
+    read = {"levels": [{"id": "L-1", "elevation": -2.5}, {"id": "L0", "elevation": 0.0},
+                       {"id": "L1", "elevation": 3.04}],
             "per_level": {}}
     b = {"site": {"ground": {"levels": [{"side": "all", "z": {"value": -3.02}}]}}}
     res = SC.match(t, read, b)
