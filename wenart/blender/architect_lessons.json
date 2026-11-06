@@ -3910,6 +3910,16 @@
    "request": "An acceptance of a reading is recorded only when the user's words accept a reading they looked at (a structure run, comparison sheets or drawings, named in accepted_seen); words about something else (splitting two buildings, naming the plan levels, one correction) are no acceptance. User, 6 Nov 2026: 'I have never reviewed real21 with my eyes' (real21's and real19's truths had been built from such words and were withdrawn).",
    "lesson": "An acceptance of a reading is recorded only when the user's words accept a reading they looked at (a structure run, comparison sheets or drawings, named in accepted_seen); words about something else (splitting two buildings, naming the plan levels, one correction) are no acceptance. User, 6 Nov 2026: 'I have never reviewed real21 with my eyes' (real21's and real19's truths had been built from such words and were withdrawn).",
    "question": null
+  },
+  {
+   "id": "UL331",
+   "date": "2026-11-06",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "A drawing that draws no windows (an area or licence plan: rooms with their areas, walls, doors, parcel lines) still gets windows: a habitable room on an outer wall with no drawn window gets an inferred window, and a room onto a balcony an inferred balcony door, marked inferred with the reason; a building that reads no window at all is a finding the machine raises before the user looks. Found on real21's structure run of 6 Nov 2026 (0 windows: the drawing draws none).",
+   "lesson": "A drawing that draws no windows (an area or licence plan: rooms with their areas, walls, doors, parcel lines) still gets windows: a habitable room on an outer wall with no drawn window gets an inferred window, and a room onto a balcony an inferred balcony door, marked inferred with the reason; a building that reads no window at all is a finding the machine raises before the user looks. Found on real21's structure run of 6 Nov 2026 (0 windows: the drawing draws none).",
+   "question": null
   }
  ]
 }
