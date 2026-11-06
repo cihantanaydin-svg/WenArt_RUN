@@ -284,27 +284,37 @@ def _e(eid, ok, *recs):
 def test_the_gate_falls_on_a_lost_record_even_when_the_share_rises():
     last = SC.latest([_stored(50.0, [_e("u_C0001_1", True, "C0001"), _e("u_C0002_1", False, "C0002")])])
     assert last["truth_kind"] == SC.TRUTH_KIND and last["projects"]["real"]["sparse"] is True
+    assert last["overall"] == 70.0 and last["overall_synthetic"] == 90.0
     new = {"truth_kind": SC.TRUTH_KIND, "projects": {
         "real": {"total": 66.67, "sparse": True, "assertions": [],
                  "entries": [_e("u_C0001_1", False, "C0001"), _e("u_C0002_1", True, "C0002"),
                              _e("u_C0003_1", True, "C0003")]},
         "syn": {"total": 90.0}}}
     assert SC.falls(last, new) == ["real: no longer satisfied: C0001 (u_C0001_1)"]
-    held = {"truth_kind": SC.TRUTH_KIND, "projects": {
-        "real": {"total": 33.33, "sparse": True, "assertions": [],   # the share falls: a new record, not yet met
-                 "entries": [_e("u_C0001_1", True, "C0001"), _e("u_C0002_1", False, "C0002"),
-                             _e("u_C0004_1", False, "C0004")]},
-        "syn": {"total": 90.0}}}
-    # no record of the project fell; the overall keeps today's rule (the mean of the totals over the projects both
-    # entries have), so a new record the reader does not meet yet lowers it like any other fall of a total
-    assert SC.falls(last, held) == ["overall: 70.00 -> 61.66"]
     gone = {"truth_kind": SC.TRUTH_KIND, "projects": {                  # the entry left the truth: not compared
         "real": {"total": 0.0, "sparse": True, "assertions": [], "entries": [_e("u_C0002_1", False, "C0002")]},
         "syn": {"total": 90.0}}}
-    assert [x for x in SC.falls(last, gone) if not x.startswith("overall")] == []
+    assert SC.falls(last, gone) == []
     failed = {"truth_kind": SC.TRUTH_KIND, "projects": {"real": {"total": 0.0, "error": "no DXF"},
                                                         "syn": {"total": 90.0}}}
-    assert SC.falls(last, failed) == ["overall: 70.00 -> 45.00", "real: 50.00 -> 0.00 (reading failed: no DXF)"]
+    assert SC.falls(last, failed) == ["real: 50.00 -> 0.00 (reading failed: no DXF)"]
+
+
+def test_a_new_unmet_user_record_does_not_fail_the_gate():
+    """The coordinator's decision of 6 Nov 2026: a sparse project's total is reported, never gated; a new entry or a
+    new record not in the stored numbers never falls. The overall of all projects, which mixes satisfied shares with
+    F1, is information; the gate's overall is the synthetic projects' (``synthetic_overall``)."""
+    last = SC.latest([_stored(50.0, [_e("u_C0001_1", True, "C0001"), _e("u_C0002_1", False, "C0002")])])
+    held = {"truth_kind": SC.TRUTH_KIND, "projects": {
+        "real": {"total": 25.0, "sparse": True, "assertions": [],      # the share falls 50 -> 25: two new records
+                 "entries": [_e("u_C0001_1", True, "C0001"), _e("u_C0002_1", False, "C0002"),
+                             _e("u_C0004_1", False, "C0004"), _e("u_C0005_1", False, "C0005")]},
+        "syn": {"total": 90.0}}}
+    assert SC.overall(held["projects"]) < last["overall"] - SC.GATE_OVERALL_DROP    # the mixed overall falls ...
+    assert SC.falls(last, held) == []                                                 # ... and is not gated
+    syn_fell = dict(held, projects=dict(held["projects"], syn={"total": 89.0}))
+    assert SC.falls(last, syn_fell) == ["synthetic overall: 90.00 -> 89.00"]          # the synthetic one is
+    assert SC.synthetic_overall(syn_fell["projects"]) == 89.0
 
 
 def test_old_kind_entries_are_never_compared():

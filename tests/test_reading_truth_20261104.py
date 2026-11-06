@@ -378,13 +378,14 @@ def test_the_gate_falls_and_holds():
     held = {"truth_kind": k, "overall": 90.1, "projects": {"p1": {"total": 94.5}, "p2": {"total": 85.7}}}
     assert SC.falls(last, held) == []
     fell = {"truth_kind": k, "overall": 89.9, "projects": {"p1": {"total": 93.9}, "p2": {"total": 85.9}}}
-    assert SC.falls(last, fell) == ["overall: 90.50 -> 89.90", "p1: 96.00 -> 93.90"]
+    assert SC.falls(last, fell) == ["synthetic overall: 90.50 -> 89.90", "p1: 96.00 -> 93.90"]
     subset = {"truth_kind": k, "overall": 95.5, "projects": {"p1": {"total": 95.5}, "p9": {"total": 10.0}}}
     assert SC.falls(last, subset) == []                                                      # a subset run
     assert SC.falls(last, subset, full=True) == ["p2: 85.00 -> not scored"]                  # a full run
     failed = {"truth_kind": k, "overall": 96.0,
               "projects": {"p1": {"total": 96.0}, "p2": {"total": 0.0, "error": "no DXF"}}}
-    assert SC.falls(last, failed) == ["overall: 90.50 -> 48.00", "p2: 85.00 -> 0.00 (reading failed: no DXF)"]
+    assert SC.falls(last, failed) == ["synthetic overall: 90.50 -> 48.00",
+                                  "p2: 85.00 -> 0.00 (reading failed: no DXF)"]
     assert SC.overall({"p1": {"total": 95.0}, "p2": {"total": 85.0}, "p3": {"total": 0.0, "error": "x"}}) == 90.0
 
 

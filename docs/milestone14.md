@@ -56,8 +56,10 @@ how the user's feedback compounds and how the user is replaced step by step.
   project each entry of its sparse truth satisfied or not (no precision over what it does not list), 100 x the
   weighted satisfied share; `results/reading_scores.json` per commit, the series since 6 Nov 2026 marked
   `truth_kind: user_corrections_v1` (the older entries are history, never compared). Gate: a change is accepted when
-  the overall does not fall, no synthetic project falls by more than the tolerance and no record of the user that was
-  satisfied is lost.
+  the synthetic projects' mean does not fall by more than the tolerance, no synthetic project falls by more than its
+  tolerance and no entry of a user record that was satisfied is lost (named by its record ids); a real project's
+  percentage is reported, never gated, so a new record the reader does not meet yet never fails the gate; the overall
+  of all projects (satisfied shares and F1 mixed) is information only (decided 6 Nov 2026).
 
 ### R2 The candidate reader (never silent, never leaves a level out)
 - The decisions above return `[(candidate, score)]` with the winning margin; every element carries `confidence` =

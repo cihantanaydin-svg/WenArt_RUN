@@ -32,14 +32,16 @@ The stored entry keeps every entry's result with its record ids, and the gate fa
 satisfied before is no longer satisfied, whatever the total, naming the records. The stored entries carry
 ``truth_kind`` (``TRUTH_KIND``); ``latest`` and ``falls`` compare only within one kind, so the entries made against the
 withdrawn accepted readings (no ``truth_kind``) stay as history. The synthetic projects keep F1 against their exact
-truth and the overall keeps its rule (the mean of the totals over the projects both entries have).
+truth; the gate's overall is theirs alone (``synthetic_overall``), while the overall of all projects, which mixes
+satisfied shares with F1, is printed and stored as information. A sparse project's total is reported, never gated.
 
 ``results/reading_scores.json`` holds ``{"note", "entries": [{commit, date, projects: {p: {<type>: {truth, read,
 matched, absent_hits, recall, precision, f1}, total, truth_status, truth_commit, read_commit}}, overall}]}``;
 ``--update`` appends the new entry, never one with a failed reading (an ``error`` entry is printed and the command
 exits 1); ``--gate`` compares the new numbers with the newest stored number of each project (``latest``, errored
-entries skipped) and exits 1 when the overall falls by more than ``GATE_OVERALL_DROP`` or any project by more than
-``GATE_PROJECT_DROP``; a full run (no ``--projects``) also fails when a stored project is not scored. With ``--update``
+entries skipped) and exits 1 when the synthetic overall falls by more than ``GATE_OVERALL_DROP``, a synthetic project
+by more than ``GATE_PROJECT_DROP`` or a sparse project loses a satisfied entry (``falls``); a full run (no
+``--projects``) also fails when a stored project is not scored. With ``--update``
 the entry is appended only when the gate holds. Each reading's folder gets ``reading_check/score.json``.
 
 Why: the regression set (``regress.py``) stops a reading from changing its counts; it cannot say how far a reading is
@@ -69,9 +71,10 @@ SCORES_NOTE = ("Reading score per commit against results/reading_truth/ (python 
                "screenshot I have given into previous projects others I have not seen\") a real project's truth is "
                "sparse: the user's correction records only, each entry present or absent; its total is 100 x the "
                "weighted share of the satisfied entries, stored per entry with its record ids, and it falls when an "
-               "entry satisfied before is no longer satisfied (named by record). The synthetic projects are scored "
-               "with F1 against their exact truth (projects/<p>/truth); a failure class below 100 is expected until "
-               "the reader handles it. The entries without truth_kind were made against the accepted readings "
+               "entry satisfied before is no longer satisfied (named by record); its total is reported, never "
+               "gated. The synthetic projects are scored with F1 against their exact truth (projects/<p>/truth); a "
+               "failure class below 100 is expected until the reader handles it; the gate's overall is theirs "
+               "(overall_synthetic), the overall of all projects is information. The entries without truth_kind were made against the accepted readings "
                "(withdrawn on 6 Nov 2026): history only, never compared. Entries with a failed reading are never "
                "stored.")
 ROOM_CENTROID_M = 1.0
@@ -530,9 +533,17 @@ def satisfied_ids(result: dict) -> dict:
 
 
 def overall(projects: dict) -> float:
-    """The mean total of the projects (a failed reading and a truth that asserts nothing yet left out)."""
+    """The mean total of the projects (a failed reading and a truth that asserts nothing yet left out): information
+    since 6 Nov 2026 (it mixes the sparse projects' satisfied shares with the synthetic projects' F1); the gate uses
+    ``synthetic_overall``."""
     totals = [float(v["total"]) for v in projects.values() if not v.get("error") and v.get("total") is not None]
     return round(sum(totals) / len(totals), 2) if totals else 0.0
+
+
+def synthetic_overall(projects: dict) -> float:
+    """The mean total of the projects with an F1 truth (the synthetic ones; no sparse truth, no failed reading): the
+    overall the gate compares (``falls``)."""
+    return overall({p: v for p, v in projects.items() if not v.get("sparse")})
 
 
 # --- the gate and the files -----------------------------------------------------------------------------------------
@@ -550,7 +561,8 @@ def latest(stored: list, truth_kind: Optional[str] = TRUTH_KIND) -> Optional[dic
         for p, v in (entry.get("projects") or {}).items():
             if p not in projects and not v.get("error"):
                 projects[p] = dict(v, commit=entry.get("commit"), truth_kind=entry.get("truth_kind"))
-    return {"projects": projects, "overall": overall(projects), "truth_kind": truth_kind} if projects else None
+    return {"projects": projects, "overall": overall(projects), "overall_synthetic": synthetic_overall(projects),
+            "truth_kind": truth_kind} if projects else None
 
 
 def _lost(was: dict, now: dict) -> list[str]:
@@ -568,14 +580,21 @@ def _lost(was: dict, now: dict) -> list[str]:
 
 
 def falls(last: Optional[dict], new: dict, full: bool = False, withdrawn=()) -> list[str]:
-    """What fell against the stored numbers (pure; ``last`` is ``latest(stored)``): over the projects both have,
-    the overall by more than ``GATE_OVERALL_DROP``; a project with an F1 truth (synthetic) by more than
-    ``GATE_PROJECT_DROP``; a project with a sparse truth (a real project's: the user's corrections) when any entry
-    satisfied in the stored numbers is no longer satisfied, whatever its total, named by its record ids. Numbers of
-    another truth kind are never compared (``latest`` folds one kind; an entry or a project of another kind is left
-    out here too). A project whose reading failed stands at 0 with its error and falls; a project scored for the
-    first time is not compared; in a ``full`` run (no ``--projects``) a stored project that was not scored falls too,
-    unless it left the truth (``withdrawn``: the user's acceptance was withdrawn, or no applicable record is left)."""
+    """What fell against the stored numbers (pure; ``last`` is ``latest(stored)``), over the projects both have:
+
+    - the synthetic overall (``synthetic_overall``: the mean total of the projects with an F1 truth, the synthetic
+      ones) by more than ``GATE_OVERALL_DROP``, and such a project by more than ``GATE_PROJECT_DROP``;
+    - a project with a sparse truth (a real project's: the user's corrections) only when an entry satisfied in the
+      stored numbers is no longer satisfied, named by its record ids. Its total is reported, never gated: a new entry
+      or a new record not in the stored numbers never falls (6 Nov 2026, the coordinator's decision: the overall of
+      all projects mixes satisfied shares with F1 and fell whenever a new record of the user was not met yet; it is
+      printed as information only).
+
+    Numbers of another truth kind are never compared (``latest`` folds one kind; an entry or a project of another kind
+    is left out here too). A project whose reading failed stands at 0 with its error and falls; a project scored for
+    the first time is not compared; in a ``full`` run (no ``--projects``) a stored project that was not scored falls
+    too, unless it left the truth (``withdrawn``: the user's acceptance was withdrawn, or no applicable record is
+    left)."""
     if not last or last.get("truth_kind") != new.get("truth_kind"):
         return []
     was_all, now_all = last.get("projects") or {}, new.get("projects") or {}
@@ -589,15 +608,15 @@ def falls(last: Optional[dict], new: dict, full: bool = False, withdrawn=()) -> 
 
     common = [p for p in now_all if p in was_all and comparable(p)]
     out = []
-    numeric = [p for p in common if was_all[p].get("total") is not None
-               and (now_all[p].get("total") is not None or now_all[p].get("error"))]
-    if numeric:
+    f1 = [p for p in common if not was_all[p].get("sparse") and was_all[p].get("total") is not None]
+    if f1:
         def _mean(projects):                             # a failed reading counts as 0 here (it is a fall)
-            return round(sum(float(projects[p].get("total") or 0) for p in numeric) / len(numeric), 2)
+            return round(sum(float(projects[p].get("total") or 0) for p in f1) / len(f1), 2)
         w_over, n_over = _mean(was_all), _mean(now_all)
+        n_f1 = sum(1 for v in was_all.values() if not v.get("sparse"))
         if n_over < w_over - GATE_OVERALL_DROP:
-            out.append(f"overall: {w_over:.2f} -> {n_over:.2f}" + (f" ({len(numeric)} projects)" if len(numeric)
-                                                                      < len(was_all) else ""))
+            out.append(f"synthetic overall: {w_over:.2f} -> {n_over:.2f}" + (f" ({len(f1)} projects)"
+                                                                            if len(f1) < n_f1 else ""))
     for p in common:
         err = now_all[p].get("error")
         if err:
@@ -657,7 +676,11 @@ def table(entry: dict) -> str:
                     + [_cell(v, t) for t in TYPES]
                     + [f"{v.get('truth_source') or '?'} {v.get('truth_status') or ''}".strip()
                        + (" (nothing measurable yet)" if v.get("measurable") is False else "")])
-    rows.append(["overall", f"{float(entry.get('overall') or 0):.1f}"] + [""] * (len(TYPES) + 1))
+    rows.append(["overall (information)", f"{float(entry.get('overall') or 0):.1f}"] + [""] * (len(TYPES) + 1))
+    syn = entry.get("overall_synthetic")
+    if syn is None:
+        syn = synthetic_overall(entry.get("projects") or {})
+    rows.append(["synthetic overall (gated)", f"{float(syn):.1f}"] + [""] * (len(TYPES) + 1))
     widths = [max(len(r[i]) for r in rows) for i in range(len(cols))]
     return "\n".join("  ".join(c.ljust(widths[i]) if i in (0, len(cols) - 1) else c.rjust(widths[i])
                                for i, c in enumerate(r)) for r in rows)
@@ -706,6 +729,7 @@ def main(args) -> int:
             print(f"{p}: not scored: {exc}")
             entry["projects"][p] = {"total": 0.0, "error": str(exc)}
     entry["overall"] = overall(entry["projects"])
+    entry["overall_synthetic"] = synthetic_overall(entry["projects"])
     print(table(entry))
     for p, v in sorted(entry["projects"].items()):
         if v.get("sparse") and v.get("unsatisfied"):
