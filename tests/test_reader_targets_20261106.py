@@ -252,7 +252,9 @@ def test_notation_phrases_are_split_off_a_label_line():
     assert LB.split_notation("TESİSAT DUVARI H: 1.20 Cm")[0] == ""
     assert LB.split_notation("Bına Taban Hattı Yatak Odası")[0] == "Yatak Odası"
     assert LB.split_notation("BİNA TABAN HATTI")[0] == ""
-    assert LB.split_notation("SAÇAK İZDÜŞÜMÜ")[0] == ""
+    assert LB.split_notation("SAÇAK İZDÜŞÜMÜ")[0] == "" and LB.split_notation("SAÇAK")[0] == ""
+    assert LB.split_notation("GİRİŞ SAÇAK")[0] == "GİRİŞ SAÇAK"          # a canopy, an outdoor space (real11)
+    assert LB.split_notation("SAÇAK ALTI")[0] == "SAÇAK ALTI"
     assert LB.split_notation("-3.00 KOTU OTOPARK")[0] == "OTOPARK"
     assert LB.split_notation("TESİSAT ODASI") == ("TESİSAT ODASI", [])            # a services room is a room
     assert not LB._is_name_text("TESİSAT DUVARI", False) and LB._is_name_text("Tesisat", False)

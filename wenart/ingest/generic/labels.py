@@ -235,7 +235,9 @@ def is_floor_name(text: str) -> bool:
 NOTATION_PHRASES = (
     (r"\b(?:BINA\s+)?TABAN\s+HATTI\b", "the building's footprint line"),
     (r"\bTESISAT\s+DUVARI\b", "a services wall note"),
-    (r"\bSACAK(?:\s+IZDUSUMU)?\b", "the eaves (projection line)"),
+    # the eaves line ('SAÇAK İZDÜŞÜMÜ', 'SAÇAK HATTI', or 'SAÇAK' written alone on it); 'GİRİŞ SAÇAK' and 'SAÇAK ALTI'
+    # name a canopy, an outdoor space (levels.outdoor), and keep the word
+    (r"\bSACAK\s+(?:IZDUSUMU|HATTI|CIZGISI)\b|^\s*SACAK\s*$", "the eaves (projection line)"),
     (r"\bIZDUSUM\w*\b", "a projection line of the floor above"),
     (r"\bKOTU?\b", "a level mark"),
     (r"\bAKS(?:I|LARI)?\b", "an axis"),
