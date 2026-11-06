@@ -58,11 +58,18 @@ import argparse
 import datetime as _dt
 import json
 import math
+import os
 import sys
 from pathlib import Path
 from typing import Optional
 
-import numpy as np
+# 6 Nov 2026: one BLAS thread when this module brings numpy in (the command line). On the shared 4-core machine a
+# threaded BLAS made one 1,562-row fit take 9.2 s instead of 0.13 s, and the leave-one-group-out runs (hundreds of small
+# fits) did not finish in 50 minutes; one thread is also the deterministic choice. A value the user set is kept.
+for _var in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS"):
+    os.environ.setdefault(_var, "1")
+
+import numpy as np  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 MODELS_DIR = REPO / "wenart" / "reading_check" / "models"
