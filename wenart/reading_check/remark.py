@@ -115,12 +115,14 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
                  reader_answer: str = "", right_answer: str = "", lesson: str | None = None, note: str | None = None,
                  truth_action: dict | None = None, building: dict | None = None,
                  projects: Iterable[str] | None = None, lesson_ids: Iterable[str] | None = None,
-                 date: str | None = None, place_note: str | None = None) -> dict:
+                 date: str | None = None, place_note: str | None = None, truth: dict | None = None) -> dict:
     """One correction record (pure). Raises ValueError with the reason when something is wrong. 5 Nov 2026 (review):
     a remark about a placeable element (``PLACEABLE_KINDS``: wall, door, window, opening, room, stair) is refused
     without a place (``--place``, or ``--element`` whose place is taken) or a ``place_note`` saying why it has none,
     so every remark joins the truth and the ranker's labels at capture (``truth.correction_errors`` checks the
-    same)."""
+    same). 5 Nov 2026 (the truth identifies its elements by place): with the project's ``truth``, an element the
+    truth holds at the reading element's place is named by its truth id in ``element_ids``; the others keep the
+    reader's id there as a hint; ``reader_ids`` keep the reader's ids as given."""
     if projects is not None and project not in set(projects):
         raise ValueError(f"project {project!r} not in projects/")
     if kind not in ELEMENT_KINDS:
@@ -154,7 +156,8 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
     if note_place:
         rec["place_note"] = note_place
     if ids:
-        rec["element_ids"] = ids
+        rec["element_ids"] = truth_ids(truth, building, ids, level) if truth and building is not None else ids
+        rec["reader_ids"] = ids
     if truth_action is not None:
         rec["truth_action"] = truth_action
     if note or lesson is None:
@@ -162,12 +165,51 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
     return rec
 
 
+def truth_ids(truth: dict, building: dict, ids: list[str], level: str | None) -> list[str]:
+    """The truth ids of the elements the reader's ``ids`` name in ``building``, found in ``truth`` by place
+    (``truth.same_place_pairs``; doors, windows and openings as one class); an id with no truth element there stays
+    as it is (a hint)."""
+    from wenart.reading_check import truth as TR
+
+    out = []
+    for eid in ids:
+        found = TR.reading_element(building, eid, level)
+        tid = None
+        if found is not None:
+            t, el = found
+            lv = (truth.get("per_level") or {}).get(level or "") or {}
+            group = TR.OPENING_TYPES if t in TR.OPENING_TYPES else (t,)
+            cands = [e for k in group for e in TR.positives(lv.get(k))]
+            pairs = TR.same_place_pairs("openings" if t in TR.OPENING_TYPES else t, cands, [el])
+            tid = cands[pairs[0][0]]["id"] if pairs else None
+        out.append(tid or eid)
+    return out
+
+
+def _truth_of(project: str) -> dict | None:
+    from wenart.reading_check import truth as TR
+    return TR.load_truth(project)
+
+
+def truth_marks(rec: dict, truth: dict | None) -> list:
+    """``[(type, element)]`` of the truth elements a record names by truth id (their places are the marks)."""
+    from wenart.reading_check import truth as TR
+
+    names = {i for i in rec.get("element_ids") or [] if TR.is_truth_id(i)}
+    if not truth or not names:
+        return []
+    return [(t, e) for lv in (truth.get("per_level") or {}).values() for t in TR.ELEMENT_TYPES
+            for e in lv.get(t) or [] if e.get("id") in names]
+
+
 def draw_crop(building: dict, level_id: str | None, place: dict | None, element_ids: list[str], path: Path,
-              lines: list | None = None) -> Path:
+              lines: list | None = None, marks: list | None = None) -> Path:
     """Draw the crop (matplotlib, headless): walls grey, doors green, windows blue, room labels, the named
     elements red, the place a red cross, a 1 m scale bar. 6 x 6 m around the place, else the whole level.
     ``lines`` (``drawing_lines``): the drawing's own strokes in building metres, drawn thin black over the model,
-    so the user sees the jambs, swings and frames the place was taken from."""
+    so the user sees the jambs, swings and frames the place was taken from. ``marks`` (``truth_marks``): the record's
+    truth elements drawn red at their own places (5 Nov 2026: a reader's id may name another element after a
+    renumbering, a place does not)."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -217,6 +259,17 @@ def draw_crop(building: dict, level_id: str | None, place: dict | None, element_
                     color=COLOURS["mark"] if r.get("id") in named else COLOURS["room"], zorder=5, clip_on=True)
     for (ax0, ay0), (ax1, ay1) in lines or []:
         ax.plot([ax0, ax1], [ay0, ay1], color="black", lw=0.6, zorder=5.5)
+    for t, e in marks or []:
+        if t == "walls" and e.get("start") and e.get("end"):
+            ax.plot([e["start"][0], e["end"][0]], [e["start"][1], e["end"][1]], color=COLOURS["mark"],
+                    lw=lw(e.get("thickness") or 0.2), alpha=0.6, zorder=6)
+        elif t == "rooms" and len(e.get("polygon") or []) >= 3:
+            xs = [q[0] for q in e["polygon"]] + [e["polygon"][0][0]]
+            ys = [q[1] for q in e["polygon"]] + [e["polygon"][0][1]]
+            ax.plot(xs, ys, color=COLOURS["mark"], lw=2, zorder=6)
+        elif e.get("center"):
+            ax.plot([e["center"][0]], [e["center"][1]], marker="o", ms=14, mfc="none", mew=2.5,
+                    color=COLOURS["mark"], zorder=6)
     if place:
         ax.plot([place["x"]], [place["y"]], marker="+", ms=26, mew=5, color="white", zorder=6)   # shows on red
         ax.plot([place["x"]], [place["y"]], marker="+", ms=22, mew=2, color=COLOURS["mark"], zorder=7)
@@ -318,13 +371,15 @@ def add(args, corrections: Path = CORRECTIONS_PATH, crop_dir: Path = CROP_DIR):
                        place=parse_place(args.place) if args.place else None, element_ids=args.element or [],
                        kind=args.kind, reader_answer=args.reader_answer, right_answer=args.right_answer,
                        lesson=args.lesson, note=getattr(args, "note", None), truth_action=action, building=building, projects=project_names(),
-                       lesson_ids=lesson_ids(), place_note=getattr(args, "place_note", None))
+                       lesson_ids=lesson_ids(), place_note=getattr(args, "place_note", None),
+                       truth=_truth_of(args.project))
     crop = None
     if building is not None:
         lines = (drawing_lines(args.out, building, rec["level"], rec["place"])
                  if getattr(args, "drawing", False) else None)
-        crop = draw_crop(building, rec["level"], rec["place"], rec.get("reader_ids") or rec.get("element_ids", []),
-                         Path(crop_dir) / f"{rec['id']}.png", lines=lines)
+        from wenart.reading_check import truth as TR
+        crop = draw_crop(building, rec["level"], rec["place"], [], Path(crop_dir) / f"{rec['id']}.png", lines=lines,
+                         marks=truth_marks(rec, TR.load_truth(rec["project"])))
     save(corrections, records + [rec])
     return rec, crop
 
@@ -339,9 +394,10 @@ def redo(rid: str, place: dict, corrections: Path = CORRECTIONS_PATH, crop_dir: 
     rec["place"] = place
     crop = None
     if building is not None:
-        # the reading's ids (``reader_ids``, 5 Nov 2026) name its elements; ``element_ids`` may be the truth's ids
-        crop = draw_crop(building, rec.get("level"), place, rec.get("reader_ids") or rec.get("element_ids", []),
-                         Path(crop_dir) / f"{rid}.png", lines=lines)
+        # marked by the places of the record's truth elements, never by a reader's id (5 Nov 2026)
+        from wenart.reading_check import truth as TR
+        crop = draw_crop(building, rec.get("level"), place, [], Path(crop_dir) / f"{rid}.png", lines=lines,
+                         marks=truth_marks(rec, TR.load_truth(rec.get("project"))))
     save(corrections, records)
     return rec, crop
 

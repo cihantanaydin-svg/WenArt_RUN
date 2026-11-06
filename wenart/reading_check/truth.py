@@ -471,13 +471,121 @@ def truth_of(project: str, building: dict, baseline: Optional[dict], *, numbers:
     return truth, msgs
 
 
+OPENING_TYPES = ("doors", "windows", "openings")
+ABSENT_WALL_COVER = 0.8         # a negated wall span suppresses a reading wall it covers this much of
+
+
+def _absent_wall_pairs(absent: list, walls: list) -> list:
+    """``(i, j)`` pairs of negated wall spans and reading walls (5 Nov 2026, review: a short negated span must not
+    remove a long wall): the span lies within the reading wall's line (``score.WALL_LATERAL_M``) and covers at least
+    ``ABSENT_WALL_COVER`` of the reading wall's length and of its own; one to one, best cover first."""
+    from wenart.reading_check import score as SC
+
+    pairs = []
+    for i, n in enumerate(absent):
+        for j, w in enumerate(walls):
+            ln, lw = _dist(n["start"], n["end"]), _dist(w["start"], w["end"])
+            if ln < 1e-6 or lw < 1e-6:
+                continue
+            ox, oy = float(w["start"][0]), float(w["start"][1])
+            ux, uy = (float(w["end"][0]) - ox) / lw, (float(w["end"][1]) - oy) / lw
+            along, lateral = [], 0.0
+            for q in (n["start"], n["end"]):
+                dx, dy = float(q[0]) - ox, float(q[1]) - oy
+                along.append(dx * ux + dy * uy)
+                lateral = max(lateral, abs(dx * uy - dy * ux))
+            if lateral > SC.WALL_LATERAL_M:
+                continue
+            overlap = min(lw, max(along)) - max(0.0, min(along))
+            if overlap >= ABSENT_WALL_COVER * lw and overlap >= ABSENT_WALL_COVER * ln:
+                pairs.append((-overlap / lw, i, j))
+    return SC._greedy(pairs)
+
+
+def assign_points(a: list, b: list, tol: float, key: str = "center") -> list:
+    """``(i, j)`` pairs of elements of ``a`` and ``b`` whose points (``key``) lie within ``tol``, one to one, with the
+    least total displacement (the Hungarian method; pure). The score's greedy choice takes the nearest pair first, so
+    a reading shifted a few centimetres can swap two elements that stand close together (review of round 3: real10's
+    L0 lift openings o_L0_007, o_L0_009, o_L0_010); the merge keeps every element's truth id with this."""
+    ia = [i for i, e in enumerate(a) if e.get(key)]
+    jb = [j for j, e in enumerate(b) if e.get(key)]
+    na, nb = len(ia), len(jb)
+    if not na or not nb:
+        return []
+    n = na + nb
+    inf = 1e9
+    cost = [[0.0] * n for _ in range(n)]
+    for r in range(n):
+        for c in range(n):
+            if r < na and c < nb:
+                d = _dist(a[ia[r]][key], b[jb[c]][key])
+                cost[r][c] = d if d <= tol else inf
+            elif r < na or c < nb:
+                cost[r][c] = tol                         # left unmatched
+    # the Hungarian method (potentials, O(n^3)), 1-based
+    u, v, p, way = [0.0] * (n + 1), [0.0] * (n + 1), [0] * (n + 1), [0] * (n + 1)
+    for i in range(1, n + 1):
+        p[0], j0 = i, 0
+        minv, used = [inf * 10] * (n + 1), [False] * (n + 1)
+        while True:
+            used[j0] = True
+            i0, delta, j1 = p[j0], inf * 10, 0
+            for j in range(1, n + 1):
+                if not used[j]:
+                    cur = cost[i0 - 1][j - 1] - u[i0] - v[j]
+                    if cur < minv[j]:
+                        minv[j], way[j] = cur, j0
+                    if minv[j] < delta:
+                        delta, j1 = minv[j], j
+            for j in range(n + 1):
+                if used[j]:
+                    u[p[j]] += delta
+                    v[j] -= delta
+                else:
+                    minv[j] -= delta
+            j0 = j1
+            if p[j0] == 0:
+                break
+        while True:
+            j1 = way[j0]
+            p[j0] = p[j1]
+            j0 = j1
+            if j0 == 0:
+                break
+    out = []
+    for j in range(1, n + 1):
+        r, c = p[j] - 1, j - 1
+        if r < na and c < nb and cost[r][c] < inf:
+            out.append((ia[r], jb[c]))
+    return sorted(out)
+
+
+def _group_pairs(t: str, a: list, b: list) -> list:
+    """The merge's same-place pairs: points (doors, windows, openings, stairs) by the least total displacement
+    (``assign_points``) within the score's tolerances, rooms and walls by the score's rules (``same_place_pairs``);
+    ``t == "openings*"``: doors, windows and openings matched across their lists, as the user's correction holds its
+    place whatever list the reader put the element in."""
+    from wenart.reading_check import score as SC
+
+    if t in ("openings*",) + OPENING_TYPES:
+        return assign_points(a, b, SC.OPENING_CENTER_M)
+    if t == "stairs":
+        return assign_points(a, b, SC.STAIR_CENTER_M)
+    return same_place_pairs(t, a, b)
+
+
 def merge(existing: Optional[dict], new: dict) -> dict:
     """``new`` (a reading's truth, ``extract``: the reader's ids) with every protected element of ``existing`` kept
     (pure): elements and levels whose ``source`` is ``user_correction`` or ``synthetic`` (when the new truth is not
-    synthetic), and every ``absent`` negation. Identity is place, never the reader's id (``same_place_pairs``): a new
-    element gives way to a protected one only when they stand at the same place; a new element at the place of an
-    earlier accepted element takes that element's truth id; the others get new truth ids. Every element keeps the
-    reader's id as ``reader_id``. The applied correction ids and the truth id counter are kept too."""
+    synthetic), and every ``absent`` negation. Identity is place, never the reader's id. In the score's order (5 Nov
+    2026, review: a negation took a reading element before the accepted element at its place could keep it):
+    (a) the protected positives take the reading elements at their places (the opening class across its lists: a
+    user's door wins its place whatever list the reader put it in), and those reading elements give way;
+    (b) the earlier accepted elements take the reading elements at their places (own list), which keep their truth
+    ids; (c) only then do the negations take what is left at their places (own list; a negated wall span only a
+    reading wall it covers, ``_absent_wall_pairs``), and those give way. Every other reading element gets a new truth
+    id; every element keeps the reader's id as ``reader_id``. The applied correction ids and the truth id counter are
+    kept too."""
     out = json.loads(json.dumps(new))
     for lv in (out.get("per_level") or {}).values():
         for t in ELEMENT_TYPES:
@@ -494,27 +602,51 @@ def merge(existing: Optional[dict], new: dict) -> dict:
     kept = 0
     per = out.setdefault("per_level", {})
     for lid, lv in (old.get("per_level") or {}).items():
-        target = per.get(lid)
+        olds = {t: lv.get(t) or [] for t in ELEMENT_TYPES}
+        prot = {t: [e for e in olds[t] if e.get("absent") or e.get("source") in protect] for t in ELEMENT_TYPES}
+        if lid not in per and not any(prot.values()):
+            continue
+        target = per.setdefault(lid, {k: [] for k in ELEMENT_TYPES})
+        news = {t: list(target.get(t) or []) for t in ELEMENT_TYPES}
+        gone = {t: set() for t in ELEMENT_TYPES}
+
+        def free(t):
+            return [(j, e) for j, e in enumerate(news[t]) if j not in gone[t]]
+
+        # (a) the protected positives keep their reading elements: first in their own list, then (the opening
+        # class) the ones still without an element take one of another opening list at their place
+        held = set()
         for t in ELEMENT_TYPES:
-            olds = lv.get(t) or []
-            prot = [e for e in olds if e.get("absent") or e.get("source") in protect]
-            rest = [e for e in olds if not (e.get("absent") or e.get("source") in protect)]
-            if target is None and not prot:
-                continue
-            if target is None:
-                target = per.setdefault(lid, {k: [] for k in ELEMENT_TYPES})
-            news = target.get(t) or []
-            gone = {j for _i, j in same_place_pairs(t, prot, news)}      # a new element gives way to a protected one
-            news = [e for j, e in enumerate(news) if j not in gone]
-            for i, j in same_place_pairs(t, rest, news):                  # the same element keeps its truth id
-                news[j]["id"] = rest[i]["id"]
-            target[t] = news + prot
-            kept += len(prot)
+            pos = [e for e in prot[t] if not e.get("absent")]
+            cand = free(t)
+            for i, k in _group_pairs(t, pos, [e for _j, e in cand]):
+                gone[t].add(cand[k][0])
+                held.add(id(pos[i]))
+        pos = [e for t in OPENING_TYPES for e in prot[t] if not e.get("absent") and id(e) not in held]
+        cand = [(t, j, e) for t in OPENING_TYPES for j, e in free(t)]
+        for _i, k in _group_pairs("openings*", pos, [e for _t, _j, e in cand]):
+            gone[cand[k][0]].add(cand[k][1])
+        for t in ELEMENT_TYPES:
+            # (b) the accepted elements keep theirs and their truth ids
+            rest = [e for e in olds[t] if not (e.get("absent") or e.get("source") in protect)]
+            cand = free(t)
+            taken = set()
+            for i, k in _group_pairs(t, rest, [e for _j, e in cand]):
+                news[t][cand[k][0]]["id"] = rest[i]["id"]
+                taken.add(cand[k][0])
+            # (c) the negations take what is left
+            neg = [e for e in prot[t] if e.get("absent")]
+            left = [(j, e) for j, e in free(t) if j not in taken]
+            pairs = (_absent_wall_pairs(neg, [e for _j, e in left]) if t == "walls"
+                     else _group_pairs(t, neg, [e for _j, e in left]))
+            for _i, k in pairs:
+                gone[t].add(left[k][0])
+            target[t] = [e for j, e in enumerate(news[t]) if j not in gone[t]] + prot[t]
+            kept += len(prot[t])
         if lid not in {l["id"] for l in out.get("levels") or []}:
             src_level = next((l for l in old.get("levels") or [] if l["id"] == lid), None)
             if src_level and (src_level.get("source") in protect or lid in per):
                 out["levels"].append(src_level)
-                per.setdefault(lid, {k: [] for k in ELEMENT_TYPES})
     ensure_truth_ids(out)
     corrections = sorted(set(old.get("corrections") or []) | set(out.get("corrections") or []))
     if corrections:
@@ -685,9 +817,11 @@ def reading_element(building: dict, element_id: str, level: Optional[str] = None
 
 
 def find_element(truth: dict, t: str, level: str, fields: dict, reading: Optional[dict] = None) -> Optional[dict]:
-    """The truth element ``fields`` names on ``level``: by its truth id; else, the reader's id resolved to its place
-    in ``reading`` (the reading the id was taken from) and found there by place (``same_place_pairs``); else, without
-    a reading, the element whose ``reader_id`` hint is that id (the positive one first). None when nothing matches."""
+    """The truth element ``fields`` names on ``level``: by its truth id; else the reader's id resolved to its place in
+    ``reading`` (the reading the id was taken from) and found there by place (``same_place_pairs``). None when the
+    truth holds nothing there. 5 Nov 2026 (review: a stale ``reader_id`` hint named another element after a
+    renumbering): a reader's id without its reading, an id the reading lacks, a truth id the file lacks, or an id the
+    reading holds as another type, is refused (ValueError naming the truth id to use where the hint finds one)."""
     bucket = ((truth.get("per_level") or {}).get(level) or {}).get(t) or []
     rid = fields.get("id")
     if not rid:
@@ -695,12 +829,19 @@ def find_element(truth: dict, t: str, level: str, fields: dict, reading: Optiona
     hit = next((e for e in bucket if e.get("id") == rid), None)
     if hit is not None:
         return hit
-    found = reading_element(reading, rid, level) if reading else None
-    if found is not None and found[0] == t:
-        pairs = same_place_pairs(t, bucket, [found[1]])
-        return bucket[pairs[0][0]] if pairs else None
-    hints = [e for e in bucket if e.get("reader_id") == rid]
-    return next((e for e in hints if not e.get("absent")), hints[0] if hints else None)
+    if is_truth_id(rid):
+        raise ValueError(f"{rid}: no such truth id on {level} ({t})")
+    hints = [e["id"] for e in bucket if e.get("reader_id") == rid]
+    use = f" (the truth id there may be {', '.join(hints)}; check it and give that)" if hints else ""
+    if not reading:
+        raise ValueError(f"{rid} is a reader's id: give the reading it was taken from (--reading) or a truth id{use}")
+    found = reading_element(reading, rid, level)
+    if found is None:
+        raise ValueError(f"{rid}: the given reading has no such element on {level}{use}")
+    if found[0] != t:
+        raise ValueError(f"{rid}: the given reading holds it as {found[0]}, not {t}{use}")
+    pairs = same_place_pairs(t, bucket, [found[1]])
+    return bucket[pairs[0][0]] if pairs else None
 
 
 def _ensure_level(truth: dict, level: str, *, source: str, label: Optional[str] = None,
