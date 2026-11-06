@@ -31,33 +31,46 @@ The truth is DERIVED, never merged and never edited by hand::
   by level, kind, then x and y rounded to 1 cm), then the operations in record order, by place with the score's
   tolerances (``score.OPENING_CENTER_M``, ``STAIR_CENTER_M``, the room rule, the wall rules):
 
+  - every operation is checked first (``parse_op``: the place as finite numbers, sizes positive, no wall of no
+    length, no room of no area); a refused or unmatched operation changes nothing (its level is put back).
   - ``add`` (door, window, opening, stair): the element of the class (door, window and opening are one class) nearest
     the place, within the tolerance, is replaced: the user's type, width, place (a stair's size and turn) win; with
     none there, or with a negation nearer than every element (the record removed the element at its place first: a
-    retype), the element is added (``u_<record>_<n>``). A room: the room at the place (the score's room rule; a room
-    given by its centre alone: the room holding the centre) takes the user's label and type and keeps its drawn
-    polygon; else a room with a polygon is added. A wall: the wall at the place (the score's wall rule) is confirmed
-    as drawn; else the wall is added. An add drops a negation of its own kind at its place (the newer record wins).
+    retype), the element is added (``u_<record>_<n>``). A room: with a polygon the overlap decides (the room of the
+    largest IoU, at least ``score.ROOM_IOU_MIN``; a neighbour with the same label is never the room at a polygon); by
+    its centre alone, the room holding the centre; the room takes the user's label, type and polygon; else a room
+    with a polygon is added. A wall: a wall on the user's line that overlaps the span (centre lines within
+    ``WALL_SAME_LINE_M``, or within the score's lateral tolerance with a matching thickness) is the user's wall: it is
+    extended over the whole span, the walls of the line it then reaches beyond its drawn extent join it, the user's
+    thickness wins (a wall inside its drawn extent stays as drawn); else the wall is added. An add drops a negation of
+    its own kind at its place (the newer record wins) and carries the negation's records.
   - ``confirm``: the element of the record's kind at the place keeps its geometry and becomes ``user_correction``;
     with none there the operation is listed ``unmatched`` in the build report, and nothing is invented.
   - ``retype`` (a room, an opening): the element at the place changes its type (label) and keeps its geometry.
   - ``remove``: the element of the record's kind nearest the place (and its double reads within ``DUPLICATE_M``) is
     removed and an absent entry is written at the record's place, so a reading that builds it again counts as an
     absent hit. A wall span (start, end) cuts the walls on its line: the pieces outside the span stay, the part inside
-    is removed (a piece shorter than its own thickness is a joint and goes too), and an absent span is written. A long
-    wall is never removed whole for a short span.
-  - several records on one element compose in record order; the element's ``corrections`` lists them all.
-  - an operation on a level the truth lacks (left out, not accepted) is ``unmatched``: no level comes back through a
-    correction; a room given by its centre with no room there is ``unmatched`` (it could never match a reading).
+    is removed (a piece shorter than its own thickness is a joint and goes too), and an absent span is written; a span
+    that overlaps or touches an earlier negated span on its line makes one negation of their union. A long wall is
+    never removed whole for a short span.
+  - several records on one element compose in record order; the element's ``corrections`` lists them all (a remove
+    and a later add on one element included).
+  - no correction creates a level: an operation on a level the accepted reading lacks (left out, not accepted) is
+    ``unmatched``; a room given by its centre with no room there is ``unmatched`` (it could never match a reading).
 
   The result is a snapshot: ``built_from`` names the accepted reading, its commit and the replayed record ids;
-  ``build_report`` lists every operation's result (``applied``), the ``unmatched`` ones with the reason, and the
-  project's records that were not replayed with the reason (``not_replayed``).
+  ``build_report`` lists every operation's result by record, operation number and place (``applied``), the
+  ``unmatched`` ones with the reason, and the project's records that were not replayed with the reason
+  (``not_replayed``); never an element id, which a later record may remove. Every build sets each record's
+  ``truth_applied`` from it (``sync_store``), so the store says what the build did.
 - ``truth add`` / ``truth remove`` append a record (with the user's words, ``--text``) or add the operation to the
   record named by ``--correction`` (accepted, the user's words, the same project), then rebuild; they never edit the
-  truth file. A place on an existing element means replace or confirm, never a duplicate. A reader's id needs the
-  reading it was taken from (``--reading``) and becomes that element's place; a truth id (informational) names the
-  place of that element in the current truth file.
+  truth file, and write nothing when the record would fail the store's checks (``correction_errors``) or the new
+  operation is unmatched. A place on an existing element means replace or confirm, never a duplicate. A reader's id
+  needs the reading it was taken from (``--reading``) and becomes that element's place; a truth id (informational)
+  names the place of that element in the current truth file.
+- ``truth accept`` stores a reading only when the baseline's ``accepted_on`` is not older than the reading's commit,
+  or with the user's own words (``--user-said``, kept in the file); the stored one moves to ``previous/`` first.
 
 Ids are informational only: the score, the ranker's labels and the remark crops all work by place.
 
@@ -122,6 +135,9 @@ NEAR_EPS_M = 0.01            # a negation must be this much nearer than every el
 WALL_ANGLE_DEG = 2.0         # a negated wall span cuts walls this parallel to it ...
 WALL_PIECE_MIN_M = 0.10      # ... and a piece left shorter than this (or than its own thickness) is a joint
 PLACE_CONFIDENCE_MIN = 0.6   # a record the machine located with less confidence waits for the user
+WALL_MIN_M = 0.01            # a wall operation shorter than this is refused; walls on a line overlapping by more join
+ROOM_MIN_AREA_M2 = 0.01      # a room operation with a polygon of less area is refused
+WALL_SAME_LINE_M = 0.05      # a user's wall and a drawn wall whose centre lines lie this close are one wall
 
 
 # --- small pure helpers ---------------------------------------------------------------------------------------------
@@ -598,8 +614,116 @@ def _record_key(rid) -> tuple:
     return (len(s), s)
 
 
+def _number(value, name: str, *, positive: bool = False) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{name} {value!r} is not a number")
+    v = float(value)
+    if not math.isfinite(v) or (positive and v <= 0):
+        raise ValueError(f"{name} {value!r} is not a {'positive ' if positive else ''}finite number")
+    return round(v, ROUND)
+
+
+def _xy(value, name: str, *, positive: bool = False) -> list:
+    if not isinstance(value, (list, tuple)) or len(value) != 2:
+        raise ValueError(f"{name} {value!r} is not two numbers")
+    return [_number(value[0], name, positive=positive), _number(value[1], name, positive=positive)]
+
+
+def _area(poly: list) -> float:
+    return abs(sum(x0 * y1 - x1 * y0 for (x0, y0), (x1, y1) in zip(poly, poly[1:] + poly[:1]))) / 2.0
+
+
+def parse_op(op: dict) -> dict:
+    """An element operation checked and in its typed form (pure), before anything is applied: ``op`` one of ``OPS``,
+    ``kind`` a kind of the truth (or ``level``), the place as numbers (``center``, ``start``, ``end``: two finite
+    numbers; ``polygon``: three or more points of positive area), the sizes as positive numbers (``width``,
+    ``thickness``, ``size``, ``area``), the texts as texts. A wall shorter than 1 cm or a room of no area is refused.
+    Raises ValueError with the reason; a refused operation is ``unmatched`` and changes nothing."""
+    if not isinstance(op, dict):
+        raise ValueError(f"operation {op!r} is no object")
+    what, kind = op.get("op"), op.get("kind")
+    if what not in OPS:
+        raise ValueError(f"operation {what!r}: one of {', '.join(OPS)}")
+    if kind not in tuple(KIND_TO_TYPE) + ("level",):
+        raise ValueError(f"kind {kind!r} is no element type of the truth")
+    if not isinstance(op.get("level"), str) or not op["level"]:
+        raise ValueError(f"level {op.get('level')!r} is no level id")
+    out = {"op": what, "kind": kind, "level": op["level"]}
+    for k in ("center", "start", "end"):
+        if op.get(k) is not None:
+            out[k] = _xy(op[k], k)
+    if op.get("size") is not None:
+        out["size"] = _xy(op["size"], "size", positive=True)
+    for k in ("width", "thickness"):
+        if op.get(k) is not None:
+            out[k] = _number(op[k], k, positive=True)
+    for k in ("area", "elevation"):
+        if op.get(k) is not None:
+            out[k] = _number(op[k], k)
+    if op.get("order") is not None:
+        if isinstance(op["order"], bool) or not isinstance(op["order"], int):
+            raise ValueError(f"order {op['order']!r} is not a whole number")
+        out["order"] = op["order"]
+    if op.get("polygon") is not None:
+        poly = op["polygon"]
+        if not isinstance(poly, (list, tuple)) or len(poly) < 3:
+            raise ValueError("polygon: three or more points are needed")
+        out["polygon"] = [_xy(p, "polygon point") for p in poly]
+        if _area(out["polygon"]) < ROOM_MIN_AREA_M2:
+            raise ValueError(f"polygon of area {_area(out['polygon']):.4f} m2: a room of no area is refused")
+    for k in ("label", "room_type", "turn", "wall_id", "note", "id"):
+        if op.get(k) is not None:
+            if not isinstance(op[k], str):
+                raise ValueError(f"{k} {op[k]!r} is not a text")
+            out[k] = op[k]
+    if op.get("evidence") is not None:
+        if not isinstance(op["evidence"], list):
+            raise ValueError("evidence is not a list")
+        out["evidence"] = copy.deepcopy(op["evidence"])
+    t = KIND_TO_TYPE.get(kind)
+    if t in OPENING_TYPES or t == "stairs":
+        if "center" not in out:
+            raise ValueError(f"a {kind} needs its centre")
+    elif t == "walls":
+        if "start" not in out or "end" not in out:
+            raise ValueError("a wall needs its start and end")
+        if _dist(out["start"], out["end"]) < WALL_MIN_M:
+            raise ValueError("a wall of no length (start and end within 1 cm) is refused")
+    elif t == "rooms":
+        if "polygon" not in out and "center" not in out:
+            raise ValueError("a room needs its polygon or its centre")
+    return out
+
+
+def _line(w: dict, start, end, lateral: float) -> Optional[tuple]:
+    """``(a0, a1)``: where wall ``w`` lies along the span ``start``-``end`` (metres from ``start``), when it is on
+    the span's line (parallel within ``WALL_ANGLE_DEG``, both its ends within ``lateral`` of the line); else None."""
+    ls, lw = _dist(start, end), _dist(w["start"], w["end"])
+    if ls < 1e-9 or lw < 1e-9:
+        return None
+    ux, uy = (float(end[0]) - float(start[0])) / ls, (float(end[1]) - float(start[1])) / ls
+    vx, vy = (float(w["end"][0]) - float(w["start"][0])) / lw, (float(w["end"][1]) - float(w["start"][1])) / lw
+    if abs(ux * vy - uy * vx) > math.sin(math.radians(WALL_ANGLE_DEG)):
+        return None
+    along = []
+    for q in (w["start"], w["end"]):
+        dx, dy = float(q[0]) - float(start[0]), float(q[1]) - float(start[1])
+        if abs(dx * uy - dy * ux) > lateral:
+            return None
+        along.append(dx * ux + dy * uy)
+    return min(along), max(along)
+
+
+def _corrections_of(*elements) -> list:
+    """The record ids of the elements' ``corrections``, in record order, each once."""
+    ids = {c for e in elements for c in (e.get("corrections") or [])}
+    return sorted(ids, key=_record_key)
+
+
 class _Replay:
-    """The replay of one record's operations on a truth (in place); ``report`` collects one entry per operation."""
+    """The replay of the records' operations on a truth (in place). Every operation is checked first
+    (``parse_op``); it is applied to its level and, when it does not apply, the level is put back as it was: an
+    ``unmatched`` operation changes nothing."""
 
     def __init__(self, truth: dict):
         self.truth = truth
@@ -610,9 +734,9 @@ class _Replay:
         self.count[rid] = self.count.get(rid, 0) + 1
         return f"{USER_ID_PREFIX}{rid}_{self.count[rid]}"
 
-    def _touch(self, el: dict, rec: dict, op: dict, changed=(), when: str = "confirmed_on") -> dict:
+    def _touch(self, el: dict, rec: dict, op: dict, changed=(), when: str = "confirmed_on", inherit=()) -> dict:
         rid = rec["id"]
-        ids = list(el.get("corrections") or [])
+        ids = _corrections_of(el, *inherit)
         if rid not in ids:
             ids.append(rid)
         el["corrections"] = ids
@@ -629,7 +753,8 @@ class _Replay:
         el[when] = rec.get("date")
         return el
 
-    def _new(self, rec: dict, op: dict, kind: str, absent: bool = False, base: Optional[dict] = None) -> dict:
+    def _new(self, rec: dict, op: dict, kind: str, absent: bool = False, base: Optional[dict] = None,
+             inherit=()) -> dict:
         if base is not None:                          # a negated element keeps what the reading said of it
             el = copy.deepcopy(base)
         else:
@@ -643,70 +768,69 @@ class _Replay:
         if absent:
             el["absent"] = True
             el.pop("added_on", None)
-            return self._touch(el, rec, op, when="removed_on")
-        return self._touch(el, rec, op, when="added_on")
+            return self._touch(el, rec, op, when="removed_on", inherit=inherit)
+        return self._touch(el, rec, op, when="added_on", inherit=inherit)
 
     # -- one operation
-    def apply(self, rec: dict, op: dict) -> dict:
-        what, kind, lid = op.get("op"), op.get("kind"), op.get("level")
-        entry = {"record": rec["id"], "op": what, "kind": kind, "level": lid}
-        place = op.get("center") or op.get("start") or (centroid(op.get("polygon")) if op.get("polygon") else None)
-        if place is not None:
-            try:
-                entry["place"] = _parse_xy(place)
-            except (TypeError, ValueError):
-                entry["place"] = None
+    def apply(self, rec: dict, raw: dict, n: int) -> dict:
+        entry = {"record": rec["id"], "n": n, "op": raw.get("op"), "kind": raw.get("kind"), "level": raw.get("level")}
 
         def unmatched(why):
             return dict(entry, state="unmatched", why=why)
 
-        if what not in OPS:
-            return unmatched(f"operation {what!r}: one of {', '.join(OPS)}")
+        try:
+            op = parse_op(raw)
+        except ValueError as exc:
+            return unmatched(f"the operation is refused: {exc}")
+        place = op.get("center") or op.get("start") or (centroid(op["polygon"]) if op.get("polygon") else None)
+        if place is not None:
+            entry["place"] = place
+        kind, lid = op["kind"], op["level"]
         if kind == "level":
             return self._level(rec, op, entry, unmatched)
-        if kind not in KIND_TO_TYPE:
-            return unmatched(f"kind {kind!r} is no element type of the truth")
-        lv = (self.truth.get("per_level") or {}).get(lid)
+        per = self.truth.get("per_level") or {}
+        lv = per.get(lid)
         if lv is None:
             return unmatched(f"level {lid!r} is not in the truth (left out, not accepted, or unknown): no level comes "
                              f"back through a correction")
         for t in ELEMENT_TYPES:
             lv.setdefault(t, [])
+        saved, count = copy.deepcopy(lv), dict(self.count)
         t = KIND_TO_TYPE[kind]
         try:
             if t in OPENING_TYPES or t == "stairs":
-                return self._point(rec, op, entry, unmatched, lv, kind, t)
-            if t == "rooms":
-                return self._room(rec, op, entry, unmatched, lv, kind)
-            return self._wall(rec, op, entry, unmatched, lv, kind)
-        except (TypeError, ValueError) as exc:
-            return unmatched(f"the operation's place cannot be read: {exc}")
+                res = self._point(rec, op, entry, unmatched, lv, kind, t)
+            elif t == "rooms":
+                res = self._room(rec, op, entry, unmatched, lv, kind)
+            else:
+                res = self._wall(rec, op, entry, unmatched, lv, kind)
+        except (TypeError, ValueError, KeyError, ZeroDivisionError) as exc:
+            res = unmatched(f"the operation could not be applied: {exc}")
+        if res.get("state") == "unmatched":                       # nothing of it stays
+            per[lid] = saved
+            self.count = count
+        return res
 
     def _level(self, rec, op, entry, unmatched):
-        if op.get("op") != "add":
-            return unmatched("a level can only be added (a level the user negates is no element of the truth)")
-        lid = op.get("level")
-        levels = self.truth.setdefault("levels", [])
-        lv = next((x for x in levels if x["id"] == lid), None)
+        lid = op["level"]
+        lv = next((x for x in self.truth.get("levels") or [] if x["id"] == lid), None)
         if lv is None:
-            lv = {"id": lid, "label": op.get("label"),
-                  "elevation": float(op["elevation"]) if op.get("elevation") is not None else None,
-                  "order": int(op["order"]) if op.get("order") is not None else None, "source": SOURCE_USER}
-            levels.append(lv)
-            self.truth.setdefault("per_level", {})[lid] = {t: [] for t in ELEMENT_TYPES}
-            state = "added"
-        else:
-            state = "confirmed"
+            return unmatched(f"the level {lid!r} is not in the accepted reading: accept the reading first (no "
+                             f"correction creates a level)")
+        if op["op"] == "remove":
+            return unmatched("a level cannot be negated by a correction: leave it out in the baseline")
+        state = "confirmed"
+        if op["op"] in ("add", "retype"):
             for k in ("label", "elevation", "order"):
                 if op.get(k) is not None and lv.get(k) != op[k]:
                     lv[k] = op[k]
                     state = "changed"
-            lv["source"] = SOURCE_USER
-        ids = list(lv.get("corrections") or [])
+        lv["source"] = SOURCE_USER
+        ids = _corrections_of(lv)
         if rec["id"] not in ids:
             ids.append(rec["id"])
         lv["corrections"], lv["correction"] = ids, rec["id"]
-        return dict(entry, state=state, ids=[lid])
+        return dict(entry, state=state)
 
     @staticmethod
     def _near(lv, lists, center, tol, absent=False) -> list:
@@ -723,10 +847,7 @@ class _Replay:
     def _point(self, rec, op, entry, unmatched, lv, kind, t):
         from wenart.reading_check import score as SC
 
-        what = op["op"]
-        center = _parse_xy(op.get("center"))
-        if not center:
-            return unmatched(f"a {kind} needs its centre")
+        what, center = op["op"], op["center"]
         tol = SC.STAIR_CENTER_M if t == "stairs" else SC.OPENING_CENTER_M
         klass = ("stairs",) if t == "stairs" else OPENING_TYPES
         if what == "remove":
@@ -740,36 +861,34 @@ class _Replay:
                         removed.append(e)
             old = self._near(lv, (t,), center, tol, absent=True)
             if old:                                              # a negation already there: the records compose
-                el = self._touch(old[0][2], rec, op, when="removed_on")
+                self._touch(old[0][2], rec, op, when="removed_on", inherit=removed)
                 state = "negated again"
             else:
                 base = None
                 if removed:
                     base = dict(removed[0], center=center)
                     if op.get("width") is not None and t != "stairs":
-                        base["width"] = round(float(op["width"]), ROUND)
-                    if op.get("size") and t == "stairs":
-                        base["size"] = _parse_xy(op["size"])
-                el = self._new(rec, op, kind, absent=True, base=base)
-                lv[t].append(el)
+                        base["width"] = op["width"]
+                    if op.get("size") is not None and t == "stairs":
+                        base["size"] = op["size"]
+                lv[t].append(self._new(rec, op, kind, absent=True, base=base, inherit=removed[1:]))
                 state = "removed" if removed else "negated"
-            out = dict(entry, state=state, ids=[el["id"]])
+            out = dict(entry, state=state)
             if removed:
-                out["removed"] = [e["id"] for e in removed]
-                el["removed_elements"] = sorted(set(el.get("removed_elements") or []) | set(out["removed"]))
+                out["removed"] = len(removed)
             return out
         if what == "confirm":
             near = self._near(lv, (t,), center, tol)
             if not near:
                 return unmatched(f"no {kind} at the place to confirm: nothing invented")
-            el = self._touch(near[0][2], rec, op)
-            return dict(entry, state="confirmed", ids=[el["id"]])
+            self._touch(near[0][2], rec, op)
+            return dict(entry, state="confirmed")
         if what == "retype":
             if t == "stairs":
                 return unmatched("a stair has no type to change")
             near = self._near(lv, klass, center, tol)
             if not near:
-                return unmatched(f"nothing of the opening class at the place to retype: nothing invented")
+                return unmatched("nothing of the opening class at the place to retype: nothing invented")
             _d, src, el = near[0]
             changed = []
             if src != t:
@@ -778,7 +897,7 @@ class _Replay:
                 changed.append("type")
             el["type"] = kind
             self._touch(el, rec, op, changed)
-            return dict(entry, state="retyped" if changed else "confirmed", ids=[el["id"]])
+            return dict(entry, state="retyped" if changed else "confirmed")
         # add
         near = self._near(lv, klass, center, tol)
         neg = self._near(lv, klass, center, tol, absent=True)
@@ -791,46 +910,53 @@ class _Replay:
                 changed.append("type")
             if t != "stairs":
                 el["type"] = kind
-                keys = (("center", center), ("width", round(float(op["width"]), ROUND)
-                                             if op.get("width") is not None else None))
+                keys = (("center", center), ("width", op.get("width")))
             else:
-                keys = (("center", center), ("size", _parse_xy(op.get("size")) if op.get("size") else None),
-                        ("turn", op.get("turn")))
+                keys = (("center", center), ("size", op.get("size")), ("turn", op.get("turn")))
             for key, value in keys:
                 if value is not None and el.get(key) != value:
                     el[key] = value
                     changed.append(key)
-            self._touch(el, rec, op, changed)
+            dropped = [e for _d, _t, e in self._near(lv, (t,), center, tol, absent=True)]
+            self._touch(el, rec, op, changed, inherit=dropped)
             state = "replaced" if changed else "confirmed"
         else:
-            el = self._new(rec, op, kind)
+            # a new element; at a negated place (the record or an earlier one removed the element there) it
+            # carries the negation's records too: one element, every record that touched it
+            dropped = [e for _d, _t, e in self._near(lv, (t,), center, tol, absent=True)]
+            inherit = dropped + ([neg[0][2]] if neg and neg[0][2] not in dropped else [])
+            el = self._new(rec, op, kind, inherit=inherit)
             lv[t].append(el)
-            state = "added"
-        out = dict(entry, state=state, ids=[el["id"]])
-        if state == "replaced":
-            out["changed"] = sorted(set(changed))
-        dropped = [e for _d, _t, e in self._near(lv, (t,), el["center"], tol, absent=True)]
+            state, changed = "added", []
         for e in dropped:                                        # the newer record wins over its own kind's negation
             lv[t].remove(e)
+        out = dict(entry, state=state)
+        if state == "replaced":
+            out["changed"] = sorted(set(changed))
         if dropped:
-            out["dropped_negations"] = [e["id"] for e in dropped]
+            out["dropped_negations"] = len(dropped)
         return out
 
     @staticmethod
     def _room_probe(op) -> dict:
-        poly = _parse_poly(op.get("polygon"))
+        poly = op.get("polygon") or []
         return {"label": op.get("label"), "polygon": poly,
-                "centroid": centroid(poly) if len(poly) >= 3 else _parse_xy(op.get("center"))}
+                "centroid": centroid(poly) if len(poly) >= 3 else op.get("center")}
 
     @staticmethod
     def _room_at(cands: list, probe: dict) -> Optional[dict]:
-        """The room of ``cands`` at the probe's place: the score's room rule when the probe has a polygon; else the
-        room holding the probe's centre (the same label first), or the same label within the room rule's distance."""
+        """The room of ``cands`` at the probe's place. With a polygon the overlap decides: the room of the largest
+        IoU, at least ``score.ROOM_IOU_MIN`` (a neighbour with the same label is never the room at a polygon).
+        Without one: the room holding the probe's centre (the same label first), or the same label within the room
+        rule's distance."""
         from wenart.reading_check import score as SC
 
         if len(probe["polygon"]) >= 3:
-            pairs = SC.match_rooms([probe], cands)
-            return cands[pairs[0][1]] if pairs else None
+            best = sorted(((-SC.polygon_iou(probe["polygon"], e.get("polygon")), str(e.get("id"))), i)
+                          for i, e in enumerate(cands))
+            if best and -best[0][0][0] >= SC.ROOM_IOU_MIN:
+                return cands[best[0][1]]
+            return None
         c = probe.get("centroid")
         if not c:
             return None
@@ -840,19 +966,24 @@ class _Replay:
         if same or holding:
             return (same or holding)[0]
         if lbl:
-            near = sorted((_dist(e["centroid"], c), str(e.get("id")), e) for e in cands
+            near = sorted((_dist(e["centroid"], c), str(e.get("id")), i) for i, e in enumerate(cands)
                           if e.get("centroid") and norm_label(e.get("label")) == lbl
                           and _dist(e["centroid"], c) <= SC.ROOM_CENTROID_M)
-            return near[0][2] if near else None
+            return cands[near[0][2]] if near else None
         return None
+
+    def _room_negations(self, lv, el) -> list:
+        """The negated rooms at a room's place (the overlap decides, as for a probe with a polygon)."""
+        from wenart.reading_check import score as SC
+
+        return [e for e in lv["rooms"] if e.get("absent") and e is not el
+                and SC.polygon_iou(e.get("polygon"), el.get("polygon")) >= SC.ROOM_IOU_MIN]
 
     def _room(self, rec, op, entry, unmatched, lv, kind):
         from wenart.reading_check import score as SC
 
         what = op["op"]
         probe = self._room_probe(op)
-        if not probe["centroid"]:
-            return unmatched("a room needs its polygon or its centre")
         has_poly = len(probe["polygon"]) >= 3
         pos = positives(lv["rooms"])
         hit = self._room_at(pos, probe)
@@ -866,11 +997,11 @@ class _Replay:
             elif not has_poly:
                 return unmatched("a room given by its centre alone, with no room there, could never match a reading: "
                                  "give its polygon")
-            old = self._room_at([e for e in lv["rooms"] if e.get("absent")],
-                                probe if has_poly else dict(probe, polygon=removed[0].get("polygon") or []))
+            shape = probe["polygon"] if has_poly else (removed[0].get("polygon") or [])
+            old = self._room_at([e for e in lv["rooms"] if e.get("absent")], dict(probe, polygon=shape))
             if old is not None:
-                el = self._touch(old, rec, op, when="removed_on")
-                out = dict(entry, state="negated again", ids=[el["id"]])
+                self._touch(old, rec, op, when="removed_on", inherit=removed)
+                out = dict(entry, state="negated again")
             else:
                 base = None
                 if removed:
@@ -880,12 +1011,10 @@ class _Replay:
                     for k in ("label", "room_type"):
                         if op.get(k) is not None:
                             base[k] = op[k]
-                el = self._new(rec, op, kind, absent=True, base=base)
-                lv["rooms"].append(el)
-                out = dict(entry, state="removed" if removed else "negated", ids=[el["id"]])
+                lv["rooms"].append(self._new(rec, op, kind, absent=True, base=base, inherit=removed[1:]))
+                out = dict(entry, state="removed" if removed else "negated")
             if removed:
-                out["removed"] = [e["id"] for e in removed]
-                el["removed_elements"] = sorted(set(el.get("removed_elements") or []) | set(out["removed"]))
+                out["removed"] = len(removed)
             return out
         if hit is None:
             if what in ("confirm", "retype"):
@@ -894,8 +1023,11 @@ class _Replay:
                 return unmatched("a room given by its centre alone, with no room there, could never match a reading: "
                                  "give its polygon")
             el = self._new(rec, op, kind)
+            dropped = self._room_negations(lv, el)
+            if dropped:
+                self._touch(el, rec, op, when="added_on", inherit=dropped)
             lv["rooms"].append(el)
-            out = dict(entry, state="added", ids=[el["id"]])
+            out = dict(entry, state="added")
         else:
             changed = []
             if what != "confirm":
@@ -903,32 +1035,33 @@ class _Replay:
                     if op.get(k) is not None and hit.get(k) != op[k]:
                         hit[k] = op[k]
                         changed.append(k)
-            el = self._touch(hit, rec, op, changed)
-            out = dict(entry, state=("retyped" if what == "retype" else "replaced") if changed else "confirmed",
-                       ids=[el["id"]])
+            if what == "add" and has_poly and hit.get("polygon") != probe["polygon"]:
+                # the user's room: its polygon (and its area) win, as an opening's place does
+                hit.update(polygon=probe["polygon"], centroid=probe["centroid"],
+                           area=op["area"] if op.get("area") is not None else round(_area(probe["polygon"]), ROUND))
+                changed.append("polygon")
+            el = hit
+            dropped = self._room_negations(lv, el)
+            self._touch(el, rec, op, changed, inherit=dropped)
+            out = dict(entry, state=("retyped" if what == "retype" else "replaced") if changed else "confirmed")
             if changed:
                 out["changed"] = changed
-        negs = [e for e in lv["rooms"] if e.get("absent")]
-        gone = [negs[i] for i, _j in SC.match_rooms(negs, [el])] if negs else []
-        for e in gone:
+        for e in dropped:
             lv["rooms"].remove(e)
-        if gone:
-            out["dropped_negations"] = [e["id"] for e in gone]
+        if dropped:
+            out["dropped_negations"] = len(dropped)
         return out
 
     def _wall(self, rec, op, entry, unmatched, lv, kind):
         from wenart.reading_check import score as SC
 
         what = op["op"]
-        s, e = _parse_xy(op.get("start")), _parse_xy(op.get("end"))
-        if not s or not e:
-            return unmatched("a wall needs its start and end")
-        probe = {"start": s, "end": e, "thickness": round(float(op["thickness"]), ROUND)
-                 if op.get("thickness") is not None else None}
+        s, e = op["start"], op["end"]
+        span = _dist(s, e)
         if what == "retype":
             return unmatched("a wall has no type to change")
         if what == "remove":
-            cut, kept = [], []
+            cut = 0
             for w in list(lv["walls"]):
                 if w.get("absent"):
                     continue
@@ -937,40 +1070,120 @@ class _Replay:
                     continue
                 at = lv["walls"].index(w)
                 lv["walls"].remove(w)
-                cut.append(w["id"])
-                for n, (ps, pe) in enumerate(pieces, 1):
-                    piece = dict(copy.deepcopy(w), id=f"{w['id']}.{n}", start=ps, end=pe)
+                cut += 1
+                for k, (ps, pe) in enumerate(pieces, 1):
+                    piece = dict(copy.deepcopy(w), id=f"{w['id']}.{k}", start=ps, end=pe)
                     piece["cut_by"] = list(w.get("cut_by") or []) + [rec["id"]]
-                    lv["walls"].insert(at + n - 1, piece)
-                    kept.append(piece["id"])
-            old = [x for x in lv["walls"] if x.get("absent") and SC.wall_overlap(x, probe) is not None]
+                    lv["walls"].insert(at + k - 1, piece)
+            # an earlier negated span on the line that overlaps or touches this one: one negation, their union
+            old = []
+            for x in lv["walls"]:
+                if x.get("absent"):
+                    pos_ = _line(x, s, e, SC.WALL_LATERAL_M)
+                    if pos_ is not None and pos_[1] >= -WALL_MIN_M and pos_[0] <= span + WALL_MIN_M:
+                        old.append((x, pos_))
             if old:
-                el = self._touch(old[0], rec, op, when="removed_on")
-                out = dict(entry, state="negated again", ids=[el["id"]])
+                x, (a0, a1) = old[0]
+                lo, hi = min(0.0, a0), max(span, a1)
+                ux, uy = (e[0] - s[0]) / span, (e[1] - s[1]) / span
+                new_s, new_e = _pt((s[0] + ux * lo, s[1] + uy * lo)), _pt((s[0] + ux * hi, s[1] + uy * hi))
+                if [x["start"], x["end"]] not in ([new_s, new_e], [new_e, new_s]):
+                    x["start"], x["end"] = new_s, new_e
+                for y, _p in old[1:]:                               # spans the new one bridges join it too
+                    lv["walls"].remove(y)
+                self._touch(x, rec, op, when="removed_on", inherit=[y for y, _p in old[1:]])
+                out = dict(entry, state="negated again")
             else:
-                el = self._new(rec, op, kind, absent=True)
-                lv["walls"].append(el)
-                out = dict(entry, state="cut" if cut else "negated", ids=[el["id"]])
+                lv["walls"].append(self._new(rec, op, kind, absent=True))
+                out = dict(entry, state="cut" if cut else "negated")
             if cut:
-                out["cut"], out["pieces"] = cut, kept
-                el["cut_walls"] = sorted(set(el.get("cut_walls") or []) | set(cut))
+                out["cut"] = cut
             return out
-        pos = positives(lv["walls"])
-        pairs = SC.match_walls([probe], pos)
-        if pairs:
-            el = self._touch(pos[pairs[0][1]], rec, op)
-            out = dict(entry, state="confirmed", ids=[el["id"]])
-        elif what == "confirm":
-            return unmatched("no wall at the place to confirm: nothing invented")
-        else:
+        # add or confirm: a wall on the span's line that overlaps it is the user's wall (its centre line within
+        # WALL_SAME_LINE_M, or within the score's lateral tolerance with a thickness the score would match)
+        user_t = op.get("thickness")
+        on = []
+        for w in positives(lv["walls"]):
+            pos_ = _line(w, s, e, SC.WALL_LATERAL_M)
+            if pos_ is None or min(span, pos_[1]) - max(0.0, pos_[0]) <= WALL_MIN_M:
+                continue
+            same_line = _line(w, s, e, WALL_SAME_LINE_M) is not None
+            same_size = user_t is None or w.get("thickness") is None or \
+                abs(float(w["thickness"]) - user_t) <= SC.WALL_THICKNESS_M
+            if same_line or same_size:
+                on.append((w, pos_))
+        if not on:
+            if what == "confirm":
+                return unmatched("no wall at the place to confirm: nothing invented")
             el = self._new(rec, op, kind)
             lv["walls"].append(el)
-            out = dict(entry, state="added", ids=[el["id"]])
-        gone = [x for x in lv["walls"] if x.get("absent") and SC.wall_overlap(x, el) is not None]
-        for x in gone:
+            out, dropped = dict(entry, state="added"), self._wall_negations(lv, el)
+            if dropped:
+                self._touch(el, rec, op, when="added_on", inherit=dropped)
+        else:
+            on.sort(key=lambda wp: (-_dist(wp[0]["start"], wp[0]["end"]), _sort_key("walls", wp[0])))
+            host, (h0, h1) = on[0]
+            changed, joined = [], []
+            if what == "add":
+                # the user's span is covered: the host is extended over it, and the walls of the line it then
+                # reaches beyond its own drawn extent join it; a wall inside the host's drawn extent stays as drawn
+                lo, hi = min(0.0, h0), max(span, h1)
+                for w, (a0, a1) in on[1:]:
+                    if a0 >= h0 - WALL_MIN_M and a1 <= h1 + WALL_MIN_M:
+                        continue
+                    joined.append(w)
+                    lo, hi = min(lo, a0), max(hi, a1)
+                hs, he = host["start"], host["end"]
+                hl = _dist(hs, he)
+                hx, hy = (he[0] - hs[0]) / hl, (he[1] - hs[1]) / hl
+                ux, uy = (e[0] - s[0]) / span, (e[1] - s[1]) / span
+                ends = [(s[0] + ux * a, s[1] + uy * a) for a in (lo, hi)]
+                along = sorted((q[0] - hs[0]) * hx + (q[1] - hs[1]) * hy for q in ends)
+                new_s = _pt((hs[0] + hx * along[0], hs[1] + hy * along[0]))
+                new_e = _pt((hs[0] + hx * along[1], hs[1] + hy * along[1]))
+                if _dist(new_s, hs) > WALL_MIN_M or _dist(new_e, he) > WALL_MIN_M:
+                    host["start"], host["end"] = new_s, new_e
+                    changed += ["start", "end"]
+                if user_t is not None and host.get("thickness") != user_t:
+                    host["thickness"] = user_t
+                    changed.append("thickness")
+                for w in joined:
+                    lv["walls"].remove(w)
+                if joined:
+                    changed.append("joined")
+            el = host
+            dropped = self._wall_negations(lv, el)
+            self._touch(el, rec, op, changed, inherit=joined + dropped)
+            state = "confirmed"
+            if joined:
+                state = "joined"
+            elif "start" in changed:
+                state = "extended"
+            elif changed:
+                state = "replaced"
+            out = dict(entry, state=state)
+            if changed:
+                out["changed"] = sorted(set(changed))
+            if joined:
+                out["joined"] = len(joined)
+        for x in dropped:
             lv["walls"].remove(x)
-        if gone:
-            out["dropped_negations"] = [x["id"] for x in gone]
+        if dropped:
+            out["dropped_negations"] = len(dropped)
+        return out
+
+    @staticmethod
+    def _wall_negations(lv, el) -> list:
+        """The negated spans on a wall's line that overlap it (a user's wall there wins over them)."""
+        from wenart.reading_check import score as SC
+
+        span = _dist(el["start"], el["end"])
+        out = []
+        for x in lv["walls"]:
+            if x.get("absent") and x is not el:
+                pos_ = _line(x, el["start"], el["end"], SC.WALL_LATERAL_M)
+                if pos_ is not None and min(span, pos_[1]) - max(0.0, pos_[0]) > WALL_MIN_M:
+                    out.append(x)
         return out
 
 
@@ -978,7 +1191,8 @@ def build_truth(project: str, accepted: dict, records: Iterable[dict]) -> dict:
     """The truth of a project (pure): the accepted reading's entries (``accepted_entries``) and the replay of the
     project's applicable records in id order (the module docstring). Every list is in the deterministic order
     (``_sort_key``); the snapshot names what it was built from (``built_from``) and what each operation did
-    (``build_report``). The same inputs give the same bytes."""
+    (``build_report``: by record, operation number and place, never by an element id). The same inputs give the
+    same bytes."""
     truth = accepted_entries(accepted)
     replay = _Replay(truth)
     applied, unmatched, not_replayed, replayed = [], [], [], []
@@ -991,8 +1205,8 @@ def build_truth(project: str, accepted: dict, records: Iterable[dict]) -> dict:
             not_replayed.append({"record": rec.get("id"), "why": why})
             continue
         replayed.append(rec["id"])
-        for op in record_ops(rec):
-            res = replay.apply(rec, op)
+        for n, op in enumerate(record_ops(rec), 1):
+            res = replay.apply(rec, op, n)
             (unmatched if res.get("state") == "unmatched" else applied).append(res)
     for lid, lv in (truth.get("per_level") or {}).items():
         for t in ELEMENT_TYPES:
@@ -1006,6 +1220,35 @@ def build_truth(project: str, accepted: dict, records: Iterable[dict]) -> dict:
     truth.pop("stored_as", None)
     truth["build_report"] = {"applied": applied, "unmatched": unmatched, "not_replayed": not_replayed}
     return truth
+
+
+def applied_of(rec: dict, truth: Optional[dict], why_no_truth: Optional[str] = None) -> dict:
+    """A record's ``truth_applied`` as its project's build says (pure): ``replayed`` with each operation's result (by
+    operation number and place), or ``not_replayed`` with the reason."""
+    if truth is None:
+        return {"status": "not_replayed", "why": why_no_truth or f"no truth of {rec.get('project')}"}
+    rep = truth.get("build_report") or {}
+    rid = rec.get("id")
+    if rid in ((truth.get("built_from") or {}).get("records") or []):
+        res = sorted((x for x in (rep.get("applied") or []) + (rep.get("unmatched") or []) if x.get("record") == rid),
+                     key=lambda x: x.get("n") or 0)
+        return {"status": "replayed", "results": [{k: x[k] for k in ("n", "op", "kind", "level", "place", "state",
+                                                                     "why") if x.get(k) is not None} for x in res]}
+    why = next((x["why"] for x in rep.get("not_replayed") or [] if x.get("record") == rid), "not in the build")
+    return {"status": "not_replayed", "why": why}
+
+
+def sync_applied(records: list[dict], truths: dict, why_no_truth=None) -> int:
+    """Set every record's ``truth_applied`` from its project's truth (``truths``: ``{project: truth}``; a project
+    without one gets ``why_no_truth(project)``) (in place); returns how many records changed."""
+    changed = 0
+    for rec in records:
+        p = rec.get("project")
+        new = applied_of(rec, truths.get(p), why_no_truth(p) if why_no_truth and p not in truths else None)
+        if rec.get("truth_applied") != new:
+            rec["truth_applied"] = new
+            changed += 1
+    return changed
 
 
 # --- files ----------------------------------------------------------------------------------------------------------
@@ -1078,11 +1321,28 @@ def accepted_of(project: str, *, accepted_dir: Path = ACCEPTED_DIR, baseline_dir
     return acc, None
 
 
+def why_no_truth(project: str, *, accepted_dir: Path = ACCEPTED_DIR, baseline_dir: Path = BASELINE_DIR,
+                 projects_dir: Path = PROJECTS_DIR) -> str:
+    """Why a project has no truth: its accepted reading is missing or not accepted, or it was not built yet."""
+    acc, why = accepted_of(project, accepted_dir=accepted_dir, baseline_dir=baseline_dir, projects_dir=projects_dir)
+    return why or f"{project}: no truth built yet (`truth build --projects {project}`)"
+
+
+def sync_store(records: list[dict], *, truth_dir: Path = TRUTH_DIR, accepted_dir: Path = ACCEPTED_DIR,
+               baseline_dir: Path = BASELINE_DIR, projects_dir: Path = PROJECTS_DIR) -> int:
+    """Every record's ``truth_applied`` from the truth files on disk (``sync_applied``; in place); returns how many
+    records changed. Run after every build, so the store always says what the build did."""
+    truths = {p: load_truth(p, truth_dir) for p in truth_projects(truth_dir)}
+    return sync_applied(records, truths, lambda p: why_no_truth(p, accepted_dir=accepted_dir,
+                                                                baseline_dir=baseline_dir, projects_dir=projects_dir))
+
+
 def build(projects: list[str], *, truth_dir: Path = TRUTH_DIR, accepted_dir: Path = ACCEPTED_DIR,
           baseline_dir: Path = BASELINE_DIR, projects_dir: Path = PROJECTS_DIR,
           corrections: Path = CORRECTIONS_PATH) -> dict:
-    """Derive and write the truth of each project (``build_truth`` from ``accepted_of`` and the correction store);
-    returns ``{project: truth}`` of the ones written; a project without an accepted reading is printed and skipped."""
+    """Derive and write the truth of each project (``build_truth`` from ``accepted_of`` and the correction store),
+    then set every record's ``truth_applied`` from the truths (``sync_store``); returns ``{project: truth}`` of the
+    ones written; a project without an accepted reading is printed and skipped."""
     records = load_corrections(corrections)
     out = {}
     for p in projects:
@@ -1101,15 +1361,57 @@ def build(projects: list[str], *, truth_dir: Path = TRUTH_DIR, accepted_dir: Pat
         for u in rep["unmatched"]:
             print(f"  unmatched {u['record']} {u['op']} {u['kind']} {u['level']}: {u['why']}")
         out[p] = truth
+    if records and sync_store(records, truth_dir=truth_dir, accepted_dir=accepted_dir, baseline_dir=baseline_dir,
+                              projects_dir=projects_dir):
+        save_corrections(records, corrections)
+        print("the correction store's truth_applied follows the build")
     return out
 
 
+def commit_date(commit: Optional[str], repo: Path = REPO) -> Optional[str]:
+    """The date (YYYY-MM-DD) of a commit, None when it is unknown."""
+    if not commit or commit == UNKNOWN_COMMIT:
+        return None
+    try:
+        res = subprocess.run(["git", "show", "-s", "--format=%cs", commit], cwd=str(repo), capture_output=True,
+                             text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    text = res.stdout.strip()
+    return text if res.returncode == 0 and len(text) == 10 else None
+
+
+def archive_accepted(project: str, accepted_dir: Path = ACCEPTED_DIR) -> Optional[Path]:
+    """Move the stored accepted reading of a project to ``previous/<project>.<date>.json`` (never overwritten: a
+    second one of the same date gets ``.2``, ``.3`` ...); None when there was none."""
+    path = Path(accepted_dir) / f"{project}.json"
+    if not path.is_file():
+        return None
+    old = json.loads(path.read_text(encoding="utf-8"))
+    day = str(old.get("date") or today())
+    folder = Path(accepted_dir) / "previous"
+    folder.mkdir(parents=True, exist_ok=True)
+    target, k = folder / f"{project}.{day}.json", 1
+    while target.exists():
+        k += 1
+        target = folder / f"{project}.{day}.{k}.json"
+    target.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+    path.unlink()
+    return target
+
+
 def accept(projects: list[str], work: Path, *, fresh: bool = False, allow_drift: bool = False,
-           accepted_dir: Path = ACCEPTED_DIR, baseline_dir: Path = BASELINE_DIR,
-           projects_dir: Path = PROJECTS_DIR) -> dict:
+           user_said: Optional[str] = None, accepted_dir: Path = ACCEPTED_DIR, baseline_dir: Path = BASELINE_DIR,
+           projects_dir: Path = PROJECTS_DIR, date_of=None) -> dict:
     """Store the accepted reading of each real project (``truth_of`` on a CPU reading: the user's acceptance in the
     baseline, the drift check, the commit the reading was made at); returns ``{project: accepted}``. A drifted reading
-    is stored only with ``allow_drift`` (status ``drifted``). Run ``build`` afterwards."""
+    is stored only with ``allow_drift`` (status ``drifted``). Run ``build`` afterwards.
+
+    6 Nov 2026 (review): the reading must be the one the user saw. The baseline's ``accepted_on`` must not be older
+    than the reading's commit date (``date_of``, default ``commit_date``); otherwise only the user's own words
+    (``user_said``, stored in the file with the date) let it in. A stored accepted reading is never overwritten: it
+    moves to ``previous/<project>.<date>.json`` first."""
+    date_of = date_of or commit_date
     out = {}
     for p in projects:
         if synthetic_truth_file(p, projects_dir) is not None:
@@ -1133,6 +1435,18 @@ def accept(projects: list[str], work: Path, *, fresh: bool = False, allow_drift:
         if acc["status"] == "drifted" and not allow_drift:
             print(f"{p}: not stored (--allow-drift stores it with status drifted)")
             continue
+        said = str(user_said or "").strip()
+        read_on, ok_on = date_of(acc.get("commit")), (acc.get("accepted") or {}).get("on")
+        if not said and not (read_on and ok_on and str(ok_on) >= read_on):
+            print(f"{p}: not stored: the user's acceptance ({ok_on or 'no date'}) is older than this reading (commit "
+                  f"{str(acc.get('commit'))[:12]} of {read_on or 'an unknown date'}): show the user the reading, then "
+                  f"accept it with --user-said \"<the user's words>\"")
+            continue
+        if said:
+            acc["user_said"] = {"words": said, "date": today()}
+        moved = archive_accepted(p, accepted_dir)
+        if moved is not None:
+            print(f"{p}: the previous accepted reading is kept as {moved.parent.name}/{moved.name}")
         path = write_accepted(p, acc, accepted_dir)
         print(f"{p}: accepted reading stored ({acc['status']}, commit {acc['commit'][:12]}) -> {path.name}; "
               f"run `truth build --projects {p}`")
@@ -1177,8 +1491,12 @@ def correction_applicable(rec: Optional[dict]) -> Optional[str]:
     if hold:
         return "held: " + str(hold.get("why") if isinstance(hold, dict) else hold)
     conf = rec.get("place_confidence")
-    if rec.get("place_source") == "located_by_machine" and conf is not None and float(conf) < PLACE_CONFIDENCE_MIN:
-        return f"place confidence {float(conf):.2f} under {PLACE_CONFIDENCE_MIN}: waits for the user to check the place"
+    if rec.get("place_source") == "located_by_machine" and conf is not None:
+        if isinstance(conf, bool) or not isinstance(conf, (int, float)) or not math.isfinite(float(conf)):
+            return f"place confidence {conf!r} is no number: waits for the user to check the place"
+        if float(conf) < PLACE_CONFIDENCE_MIN:
+            return (f"place confidence {float(conf):.2f} under {PLACE_CONFIDENCE_MIN}: waits for the user to check "
+                    f"the place (`remark confirm {rec.get('id')}`)")
     return None
 
 
@@ -1227,13 +1545,29 @@ def correction_errors(records: list[dict], lesson_ids: Iterable[str], projects: 
         why = correction_applicable(rec)
         if (rec.get("truth_applied") or {}).get("status") in ("applied", "replayed") and why:
             out.append(f"{rid}: applied to the truth but {why}")
+        if not _is_date(rec.get("date")):
+            out.append(f"{rid}: date {rec.get('date')!r} is not YYYY-MM-DD")
+        conf = rec.get("place_confidence")
+        if conf is not None and (isinstance(conf, bool) or not isinstance(conf, (int, float))
+                                 or not 0.0 <= float(conf) <= 1.0):
+            out.append(f"{rid}: place_confidence {conf!r} is no number from 0 to 1")
         if rec.get("truth_action") is not None:
-            for op in record_ops(rec) or [None]:
-                if op is None or op.get("op") not in OPS or op.get("kind") not in tuple(KIND_TO_TYPE) + ("level",):
-                    out.append(f"{rid}: truth_action operation {op!r} is not one of {', '.join(OPS)} on a kind of "
-                               f"the truth")
-                    break
+            ops = record_ops(rec)
+            if not ops:
+                out.append(f"{rid}: truth_action holds no operation")
+            for n, op in enumerate(ops, 1):
+                try:
+                    parse_op(op)
+                except ValueError as exc:
+                    out.append(f"{rid}: truth_action operation {n}: {exc}")
     return out
+
+
+def _is_date(value) -> bool:
+    try:
+        return isinstance(value, str) and len(value) == 10 and _dt.date.fromisoformat(value).isoformat() == value
+    except ValueError:
+        return False
 
 
 # --- the command line -----------------------------------------------------------------------------------------------
@@ -1397,14 +1731,18 @@ def _correct(args, *, corrections, truth_dir, accepted_dir, baseline_dir, projec
         fields = dict(given, **{k: v for k, v in fields.items() if v not in (None, "")})
         hint = None if is_truth_id(g("id")) else g("id")
     op = op_from_args(action, kind, level, fields, confirm=bool(g("confirm")), retype=bool(g("retype")), hint=hint)
+    parse_op(op)                                          # a refused operation is refused here, before any record
     date = g("date") or today()
+    if not _is_date(date):
+        return 2, f"--date {date!r}: give the date as YYYY-MM-DD"
     new_records = copy.deepcopy(records)
     if rec is not None:
         target = next(r for r in new_records if r.get("id") == rec["id"])
         act = target.get("truth_action")
         ops = record_ops(target)
-        if any({k: v for k, v in o.items() if k != "note"} == op for o in ops):
-            pass                                          # the record holds the operation already: rebuild only
+        same = [n for n, o in enumerate(ops, 1) if {k: v for k, v in o.items() if k != "note"} == op]
+        if same:
+            number = same[0]                              # the record holds the operation already: rebuild only
         else:
             if not isinstance(act, dict):
                 target["truth_action"] = {"op": op["op"], "kind": kind, "elements": [op]}
@@ -1412,11 +1750,15 @@ def _correct(args, *, corrections, truth_dir, accepted_dir, baseline_dir, projec
                 act["elements"].append(op)
             else:
                 target["truth_action"] = {"op": act.get("op"), "kind": act.get("kind"), "elements": [act, op]}
+            number = len(ops) + 1
             target.setdefault("history", []).append({"date": date, "truth_op_added": op, "by": "truth " + action})
             if target.get("place") is None and kind != "level":
                 p = op.get("center") or op.get("start") or centroid(op.get("polygon") or [])
-                if p:
-                    target["place"] = {"x": p[0], "y": p[1]}
+                if p:                                     # the user gave the place now
+                    target.update(place={"x": p[0], "y": p[1]}, place_source="given_by_user", place_confidence=1.0)
+                    if target.get("level") is None:
+                        target["level"] = level
+                    target.setdefault("place_note", f"given with `truth {action}`")
     else:
         p = None if kind == "level" else (op.get("center") or op.get("start") or centroid(op.get("polygon") or []))
         target = {"id": _next_record_id(new_records), "date": date, "project": project, "level": level,
@@ -1435,20 +1777,40 @@ def _correct(args, *, corrections, truth_dir, accepted_dir, baseline_dir, projec
             target["note"] = "no lesson yet: the general rule for this correction is still to be written"
         target["truth_action"] = {"op": op["op"], "kind": kind, "elements": [op]}
         new_records.append(target)
+        number = 1
+    lessons = _lesson_ids()
+    errors = correction_errors([target], lessons if lessons is not None else [target.get("lesson")],
+                               [x.name for x in projects_dir.iterdir() if x.is_dir()] if projects_dir.is_dir()
+                               else [project])
+    if errors:
+        return 2, "nothing written: the record would break the store's checks: " + "; ".join(errors)
     truth = build_truth(project, acc, new_records)
-    mine = [r for r in truth["build_report"]["applied"] + truth["build_report"]["unmatched"]
-            if r["record"] == target["id"]]
-    last = mine[-1] if mine else {"state": "unmatched", "why": "not replayed"}
-    if last.get("state") == "unmatched":
+    rep = truth["build_report"]
+    last = next((x for x in rep["applied"] + rep["unmatched"] if x["record"] == target["id"] and x["n"] == number),
+                {"state": "unmatched", "why": "not replayed"})
+    if last.get("state") == "unmatched":                 # only this operation decides; the record's others may wait
         return 2, f"nothing written: the operation is unmatched: {last.get('why')}"
-    save_corrections(new_records, corrections)
     path = write_truth(project, truth, truth_dir)
+    sync_store(new_records, truth_dir=truth_dir, accepted_dir=accepted_dir, baseline_dir=baseline_dir,
+               projects_dir=projects_dir)
+    save_corrections(new_records, corrections)
     try:
         shown = path.relative_to(REPO)
     except ValueError:
         shown = path
-    return 0, (f"{project}: {last['op']} {kind} on {level}: {last['state']} ({', '.join(last.get('ids') or [])}), "
-               f"record {target['id']}; truth rebuilt -> {shown}")
+    return 0, (f"{project}: {last['op']} {kind} on {level}: {last['state']}, record {target['id']} operation "
+               f"{number}; truth rebuilt -> {shown}")
+
+
+LESSONS_PATH = REPO / "wenart" / "blender" / "architect_lessons.json"
+
+
+def _lesson_ids(path: Path = LESSONS_PATH) -> Optional[list]:
+    """The lesson ids of the lessons file, None when it cannot be read."""
+    try:
+        return [x["id"] for x in json.loads(Path(path).read_text(encoding="utf-8")).get("lessons", [])]
+    except (OSError, ValueError, AttributeError, KeyError, TypeError):
+        return None
 
 
 def _named(args) -> list[str]:
@@ -1475,7 +1837,8 @@ def main(args) -> int:
         import tempfile
         work = Path(args.work) if getattr(args, "work", None) else Path(tempfile.mkdtemp(prefix="reading_accept_"))
         done = accept(projects, work, fresh=bool(getattr(args, "fresh", False)),
-                      allow_drift=bool(getattr(args, "allow_drift", False)))
+                      allow_drift=bool(getattr(args, "allow_drift", False)),
+                      user_said=getattr(args, "user_said", None))
         return 0 if len(done) == len(projects) else 1
     if action in ("add", "remove"):
         code, msg = correct(args)

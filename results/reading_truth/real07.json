@@ -687,10 +687,7 @@
      ],
      "correction": "C0047",
      "note": "a double read of the Kat Kal door: the 80/210 size tag placed a second door 0.38 m west of the drawn gap (5.34 to 6.14), half inside the wall",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L0_door_0006"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L0_door_0007",
@@ -3732,10 +3729,7 @@
      "corrections": [
       "C0051"
      ],
-     "removed_on": "2026-11-04",
-     "cut_walls": [
-      "t_L1_wall_0021"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L1_wall_0021.1",
@@ -4017,13 +4011,7 @@
      "corrections": [
       "C0053"
      ],
-     "removed_on": "2026-11-04",
-     "cut_walls": [
-      "t_L1_wall_0031",
-      "t_L1_wall_0037",
-      "t_L1_wall_0049",
-      "t_L1_wall_0052"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L1_wall_0036",
@@ -4775,6 +4763,7 @@
   "applied": [
    {
     "record": "C0044",
+    "n": 1,
     "op": "add",
     "kind": "room",
     "level": "L0",
@@ -4782,13 +4771,11 @@
      1.993,
      3.47
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_room_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0045",
+    "n": 1,
     "op": "remove",
     "kind": "window",
     "level": "L0",
@@ -4796,13 +4783,11 @@
      2.03,
      0.24
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0045_1"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0045",
+    "n": 2,
     "op": "add",
     "kind": "door",
     "level": "L0",
@@ -4810,13 +4795,11 @@
      2.03,
      0.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_door_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0046",
+    "n": 1,
     "op": "add",
     "kind": "room",
     "level": "L0",
@@ -4824,13 +4807,11 @@
      5.09,
      1.207
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_room_0004"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0047",
+    "n": 1,
     "op": "add",
     "kind": "door",
     "level": "L0",
@@ -4839,9 +4820,6 @@
      2.19
     ],
     "state": "replaced",
-    "ids": [
-     "t_L0_door_0007"
-    ],
     "changed": [
      "center",
      "width"
@@ -4849,6 +4827,7 @@
    },
    {
     "record": "C0047",
+    "n": 2,
     "op": "remove",
     "kind": "door",
     "level": "L0",
@@ -4857,15 +4836,11 @@
      2.19
     ],
     "state": "removed",
-    "ids": [
-     "u_C0047_1"
-    ],
-    "removed": [
-     "t_L0_door_0006"
-    ]
+    "removed": 1
    },
    {
     "record": "C0051",
+    "n": 1,
     "op": "add",
     "kind": "opening",
     "level": "L1",
@@ -4873,13 +4848,11 @@
      7.542,
      8.14
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L1_opening_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0051",
+    "n": 2,
     "op": "remove",
     "kind": "wall",
     "level": "L1",
@@ -4888,18 +4861,11 @@
      7.78
     ],
     "state": "cut",
-    "ids": [
-     "u_C0051_1"
-    ],
-    "cut": [
-     "t_L1_wall_0021"
-    ],
-    "pieces": [
-     "t_L1_wall_0021.1"
-    ]
+    "cut": 1
    },
    {
     "record": "C0052",
+    "n": 1,
     "op": "add",
     "kind": "room",
     "level": "L1",
@@ -4908,15 +4874,13 @@
      9.634
     ],
     "state": "replaced",
-    "ids": [
-     "t_L1_room_0001"
-    ],
     "changed": [
      "room_type"
     ]
    },
    {
     "record": "C0053",
+    "n": 1,
     "op": "remove",
     "kind": "wall",
     "level": "L1",
@@ -4925,22 +4889,11 @@
      5.69
     ],
     "state": "cut",
-    "ids": [
-     "u_C0053_1"
-    ],
-    "cut": [
-     "t_L1_wall_0031",
-     "t_L1_wall_0037",
-     "t_L1_wall_0049",
-     "t_L1_wall_0052"
-    ],
-    "pieces": [
-     "t_L1_wall_0037.1",
-     "t_L1_wall_0037.2"
-    ]
+    "cut": 4
    },
    {
     "record": "C0054",
+    "n": 1,
     "op": "add",
     "kind": "stair",
     "level": "L0",
@@ -4948,10 +4901,7 @@
      8.668,
      4.541
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_stair_0001"
-    ]
+    "state": "confirmed"
    }
   ],
   "unmatched": [],

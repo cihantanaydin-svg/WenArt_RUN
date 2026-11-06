@@ -230,7 +230,7 @@ def test_the_truth_is_the_accepted_reading_and_the_replay_of_the_records():
     assert [(d["id"], d["source"]) for d in l0["doors"]] == [("t_L0_door_0001", "accepted_reading"),
                                                              ("u_C0012_1", "user_correction")]
     assert [(w["id"], w.get("absent")) for w in l0["windows"]] == [("u_C0013_1", True)]
-    assert l0["windows"][0]["removed_elements"] == ["t_L0_window_0001"]
+    assert l0["windows"][0]["reader_id"] == "win_L0_001"        # the negated element keeps what the reading said
     assert [lv["id"] for lv in t["levels"]] == ["L0", "L1"]                 # C0014's L2 never comes in
     assert t["corrections"] == ["C0012", "C0013"] and t["built_from"]["records"] == ["C0012", "C0013", "C0014"]
     assert [u["record"] for u in t["build_report"]["unmatched"]] == ["C0014"]
@@ -250,6 +250,7 @@ def test_the_replayed_operations_put_a_user_correction_into_the_truth():
            {"op": "add", "kind": "wall", "level": "L0", "start": [0, 9], "end": [6, 9], "thickness": 0.25},
            {"op": "add", "kind": "stair", "level": "L1", "center": [1.5, 2], "size": [2.6, 2.2], "turn": "U"},
            {"op": "add", "kind": "level", "level": "L2", "label": "2. Normal Kat", "elevation": 6.0, "order": 2},
+           {"op": "add", "kind": "level", "level": "L1", "label": "1. Normal Kat"},
            {"op": "add", "kind": "window", "level": "L0", "width": 1.2},                         # no place
            {"op": "add", "kind": "sofa", "level": "L0", "center": [1, 1]}]                      # no truth kind
     t = TR.build_truth("tiny", acc, [_record("C0012", *ops)])
@@ -257,13 +258,19 @@ def test_the_replayed_operations_put_a_user_correction_into_the_truth():
     assert d["center"] == [4.2, 3.6] and d["width"] == 0.9 and d["method"] == "user"
     assert d["source"] == "user_correction" and d["corrections"] == ["C0012"] and d["added_on"] == "2026-11-05"
     r = t["per_level"]["L1"]["rooms"]
-    assert [(x["label"], x["room_type"], x["polygon"]) for x in r] == [("Merdiven", "stair",
-                                                                        [[0, 0], [10, 0], [10, 4], [0, 4]])]
-    assert r[0]["changed"] == ["label", "room_type"]          # the room at the place takes the label, keeps its plan
-    assert t["levels"][2] == {"id": "L2", "label": "2. Normal Kat", "elevation": 6.0, "order": 2,
-                              "source": "user_correction", "corrections": ["C0012"], "correction": "C0012"}
-    assert [u["why"][:20] for u in t["build_report"]["unmatched"]] == ["a window needs its c", "kind 'sofa' is no el"]
-    assert TR.counts(t) == {"levels": 3, "rooms": 3, "doors": 2, "windows": 1, "openings": 1, "walls": 5, "stairs": 2}
+    assert [(x["label"], x["room_type"], x["polygon"], x["area"]) for x in r] == [
+        ("Merdiven", "stair", [[0.0, 0.0], [8.0, 0.0], [8.0, 4.0], [0.0, 4.0]], 32.0)]
+    assert r[0]["changed"] == ["label", "polygon", "room_type"]   # the room at the place takes the user's room
+    # no correction creates a level (6 Nov 2026, review); a level the accepted reading has takes the user's label
+    assert [lv["id"] for lv in t["levels"]] == ["L0", "L1"] and list(t["per_level"]) == ["L0", "L1"]
+    assert t["levels"][1] == {"id": "L1", "label": "1. Normal Kat", "elevation": 3.0, "order": 1,
+                              "source": "user_correction", "label_source": "assumed", "corrections": ["C0012"],
+                              "correction": "C0012"}
+    assert [u["why"] for u in t["build_report"]["unmatched"]] == [
+        "the level 'L2' is not in the accepted reading: accept the reading first (no correction creates a level)",
+        "the operation is refused: a window needs its centre",
+        "the operation is refused: kind 'sofa' is no element type of the truth"]
+    assert TR.counts(t) == {"levels": 2, "rooms": 3, "doors": 2, "windows": 1, "openings": 1, "walls": 5, "stairs": 2}
     # remove: the element at the place (within the tolerance) goes and a negation is written; nothing there: a
     # negation at the record's place
     rm = [{"op": "remove", "kind": "door", "level": "L0", "center": [6.1, 2.0]},
@@ -477,7 +484,7 @@ def test_every_correction_record_is_placed_or_says_why_and_the_replayed_ones_are
     assert all(r.get("place_note") for r in records if r["placeable"])
     assert len(placed) >= 30
     for r in placed:
-        assert r["level"] and r["place_source"] in ("located_by_machine", "given_by_user"), r["id"]
+        assert r["level"] and r["place_source"] in ("located_by_machine", "given_by_user", "user_confirmed"), r["id"]
         assert r.get("reader_ids") or r["place_source"] == "given_by_user", r["id"]
         assert 0.0 <= float(r["place_confidence"]) <= 1.0, r["id"]
         assert RM.validate_truth_action(r["truth_action"]) is None, r["id"]

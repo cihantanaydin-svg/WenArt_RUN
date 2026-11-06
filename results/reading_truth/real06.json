@@ -2330,10 +2330,7 @@
       "C0064"
      ],
      "correction": "C0064",
-     "removed_on": "2026-10-29",
-     "removed_elements": [
-      "t_L1_window_0011"
-     ]
+     "removed_on": "2026-10-29"
     },
     {
      "id": "t_L1_window_0012",
@@ -2399,10 +2396,7 @@
       "C0064"
      ],
      "correction": "C0064",
-     "removed_on": "2026-10-29",
-     "removed_elements": [
-      "t_L1_window_0015"
-     ]
+     "removed_on": "2026-10-29"
     },
     {
      "id": "t_L1_window_0016",
@@ -3285,6 +3279,7 @@
   "applied": [
    {
     "record": "C0063",
+    "n": 1,
     "op": "add",
     "kind": "stair",
     "level": "L0",
@@ -3292,13 +3287,11 @@
      4.676,
      12.938
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_stair_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0064",
+    "n": 1,
     "op": "remove",
     "kind": "window",
     "level": "L1",
@@ -3307,15 +3300,11 @@
      9.275
     ],
     "state": "removed",
-    "ids": [
-     "u_C0064_1"
-    ],
-    "removed": [
-     "t_L1_window_0011"
-    ]
+    "removed": 1
    },
    {
     "record": "C0064",
+    "n": 2,
     "op": "remove",
     "kind": "window",
     "level": "L1",
@@ -3324,15 +3313,11 @@
      9.275
     ],
     "state": "removed",
-    "ids": [
-     "u_C0064_2"
-    ],
-    "removed": [
-     "t_L1_window_0015"
-    ]
+    "removed": 1
    },
    {
     "record": "C0065",
+    "n": 1,
     "op": "add",
     "kind": "wall",
     "level": "L0",
@@ -3340,13 +3325,11 @@
      0.451,
      9.2
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_wall_0011"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0065",
+    "n": 2,
     "op": "add",
     "kind": "opening",
     "level": "L0",
@@ -3354,10 +3337,7 @@
      2.4,
      9.2
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_opening_0001"
-    ]
+    "state": "confirmed"
    }
   ],
   "unmatched": [],

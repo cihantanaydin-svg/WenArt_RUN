@@ -3867,6 +3867,7 @@
   "applied": [
    {
     "record": "C0059",
+    "n": 1,
     "op": "remove",
     "kind": "window",
     "level": "L0",
@@ -3874,13 +3875,11 @@
      2.335,
      7.094
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0059_1"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0059",
+    "n": 2,
     "op": "remove",
     "kind": "window",
     "level": "L0",
@@ -3888,10 +3887,7 @@
      14.838,
      7.094
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0059_2"
-    ]
+    "state": "negated"
    }
   ],
   "unmatched": [],

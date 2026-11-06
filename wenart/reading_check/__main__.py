@@ -60,6 +60,9 @@ def main(argv=None) -> int:
     t.add_argument("--fresh", action="store_true", help="accept: read again even when --work holds a reading")
     t.add_argument("--allow-drift", action="store_true",
                    help="accept: store a reading that drifted from the accepted baseline, marked status drifted")
+    t.add_argument("--user-said", dest="user_said", default=None,
+                   help="accept: the user's own words accepting this reading (needed when the baseline's accepted_on "
+                        "is older than the reading's commit; stored in the accepted file)")
     t.add_argument("--project", default=None, help="add/remove: the project")
     t.add_argument("--level", default=None, help="add/remove: the level id (L0, L-1 ...)")
     t.add_argument("--kind", default=None, choices=["room", "door", "window", "opening", "wall", "stair", "level"],

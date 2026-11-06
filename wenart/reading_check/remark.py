@@ -1,6 +1,6 @@
 """Capture of the user's review remarks as correction records, each with a small crop image of the place.
 
-What: ``python -m wenart.reading_check.remark add|list|show|redo``. ``add`` appends one record to
+What: ``python -m wenart.reading_check.remark add|list|show|redo|confirm``. ``add`` appends one record to
 ``results/reading_corrections.jsonl`` (the format of ``truth.py`` is kept; only the optional fields
 ``reader_ids``, ``truth_action``, ``place_note`` and ``history`` are new) and, when the reading folder is given,
 draws a crop ``results/reading_corrections/crops/<id>.png`` of the place from ``building.json`` (``--drawing``: with
@@ -394,6 +394,26 @@ def redo(rid: str, place: dict, corrections: Path = CORRECTIONS_PATH, crop_dir: 
     return rec, crop
 
 
+def confirm(rid: str, corrections: Path = CORRECTIONS_PATH, date: str | None = None) -> dict:
+    """The user confirms a record's place (6 Nov 2026, review: a record the machine placed below the confidence the
+    truth needs could never be released): ``place_source`` becomes ``user_confirmed``, the old source and confidence
+    go to the record's history, and the record no longer waits (``truth.correction_applicable``). Run ``truth build``
+    afterwards."""
+    records = load(corrections)
+    rec = next((r for r in records if r.get("id") == rid), None)
+    if rec is None:
+        raise ValueError(f"no record {rid}")
+    if rec.get("place") is None:
+        raise ValueError(f"{rid} has no place to confirm (give one with `remark redo {rid} --place x,y` first)")
+    if rec.get("place_source") != "user_confirmed":
+        rec.setdefault("history", []).append({"date": date or today(), "old_place_source": rec.get("place_source"),
+                                              "old_place_confidence": rec.get("place_confidence"),
+                                              "reason": "the user confirmed the place (remark confirm)"})
+        rec["place_source"] = "user_confirmed"
+        save(corrections, records)
+    return rec
+
+
 def select(records: list[dict], project: str | None = None, since: str | None = None) -> list[dict]:
     return [r for r in records
             if (not project or r.get("project") == project) and (not since or r.get("date", "") >= since)]
@@ -429,6 +449,8 @@ def main(argv=None) -> int:
     ls.add_argument("--since")
     sh = sub.add_parser("show")
     sh.add_argument("id")
+    cf = sub.add_parser("confirm", help="the user confirms the record's place (it no longer waits for the user)")
+    cf.add_argument("id")
     rd = sub.add_parser("redo")
     rd.add_argument("id")
     rd.add_argument("--place", required=True)
@@ -440,6 +462,10 @@ def main(argv=None) -> int:
             rec, crop = add(args)
             print(json.dumps(rec, ensure_ascii=False))
             print(f"crop: {crop}" if crop else "crop: none (no --out)")
+        elif args.action == "confirm":
+            rec = confirm(args.id)
+            print(f"{rec['id']}: place {rec.get('place')} confirmed by the user; run `truth build --projects "
+                  f"{rec.get('project')}`")
         elif args.action == "list":
             print(table(select(load(CORRECTIONS_PATH), args.project, args.since)))
         elif args.action == "show":

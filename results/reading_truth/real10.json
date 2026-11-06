@@ -11483,10 +11483,7 @@
        "what": "the core stair's winders starting at x 10.746"
       }
      ],
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L0_door_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "u_C0035_2",
@@ -12131,10 +12128,7 @@
       "C0034"
      ],
      "correction": "C0034",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L0_opening_0009"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L0_opening_0010",
@@ -12246,10 +12240,7 @@
       "C0035"
      ],
      "correction": "C0035",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L0_opening_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L0_opening_0017",
@@ -19248,10 +19239,7 @@
        "what": "the core stair's winders starting at x 10.746"
       }
      ],
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L1_door_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "u_C0035_4",
@@ -19896,10 +19884,7 @@
       "C0034"
      ],
      "correction": "C0034",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L1_opening_0009"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L1_opening_0010",
@@ -20011,10 +19996,7 @@
       "C0035"
      ],
      "correction": "C0035",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L1_opening_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L1_opening_0017",
@@ -27008,10 +26990,7 @@
        "what": "the core stair's winders starting at x 10.746"
       }
      ],
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L2_door_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "u_C0035_6",
@@ -27656,10 +27635,7 @@
       "C0034"
      ],
      "correction": "C0034",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L2_opening_0009"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L2_opening_0010",
@@ -27771,10 +27747,7 @@
       "C0035"
      ],
      "correction": "C0035",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L2_opening_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L2_opening_0017",
@@ -34768,10 +34741,7 @@
        "what": "the core stair's winders starting at x 10.746"
       }
      ],
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L3_door_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "u_C0035_8",
@@ -35416,10 +35386,7 @@
       "C0034"
      ],
      "correction": "C0034",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L3_opening_0009"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L3_opening_0010",
@@ -35531,10 +35498,7 @@
       "C0035"
      ],
      "correction": "C0035",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L3_opening_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L3_opening_0017",
@@ -42528,10 +42492,7 @@
        "what": "the core stair's winders starting at x 10.746"
       }
      ],
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L4_door_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "u_C0035_10",
@@ -43176,10 +43137,7 @@
       "C0034"
      ],
      "correction": "C0034",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L4_opening_0009"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L4_opening_0010",
@@ -43291,10 +43249,7 @@
       "C0035"
      ],
      "correction": "C0035",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L4_opening_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L4_opening_0017",
@@ -50288,10 +50243,7 @@
        "what": "the core stair's winders starting at x 10.746"
       }
      ],
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L5_door_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "u_C0035_12",
@@ -50936,10 +50888,7 @@
       "C0034"
      ],
      "correction": "C0034",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L5_opening_0009"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L5_opening_0010",
@@ -51051,10 +51000,7 @@
       "C0035"
      ],
      "correction": "C0035",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L5_opening_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L5_opening_0017",
@@ -58048,10 +57994,7 @@
        "what": "the core stair's winders starting at x 10.746"
       }
      ],
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L6_door_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "u_C0035_14",
@@ -58696,10 +58639,7 @@
       "C0034"
      ],
      "correction": "C0034",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L6_opening_0009"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L6_opening_0010",
@@ -58811,10 +58751,7 @@
       "C0035"
      ],
      "correction": "C0035",
-     "removed_on": "2026-11-04",
-     "removed_elements": [
-      "t_L6_opening_0016"
-     ]
+     "removed_on": "2026-11-04"
     },
     {
      "id": "t_L6_opening_0017",
@@ -65916,6 +65853,7 @@
   "applied": [
    {
     "record": "C0016",
+    "n": 1,
     "op": "add",
     "kind": "stair",
     "level": "L0",
@@ -65923,13 +65861,11 @@
      12.112,
      9.008
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_stair_0002"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0017",
+    "n": 1,
     "op": "add",
     "kind": "room",
     "level": "L0",
@@ -65937,13 +65873,11 @@
      10.954,
      7.416
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_room_0012"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0017",
+    "n": 2,
     "op": "add",
     "kind": "room",
     "level": "L0",
@@ -65951,13 +65885,11 @@
      12.204,
      8.991
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_room_0015"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0017",
+    "n": 3,
     "op": "add",
     "kind": "room",
     "level": "L-1",
@@ -65965,13 +65897,11 @@
      11.128,
      5.127
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-1_room_0011"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0017",
+    "n": 4,
     "op": "add",
     "kind": "room",
     "level": "L-1",
@@ -65979,13 +65909,11 @@
      12.159,
      8.994
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-1_room_0013"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0019",
+    "n": 1,
     "op": "add",
     "kind": "door",
     "level": "L-1",
@@ -65993,13 +65921,11 @@
      11.19,
      1.915
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-1_door_0021"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0020",
+    "n": 1,
     "op": "add",
     "kind": "room",
     "level": "L0",
@@ -66007,13 +65933,11 @@
      8.319,
      9.995
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_room_0007"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0020",
+    "n": 2,
     "op": "add",
     "kind": "room",
     "level": "L0",
@@ -66021,13 +65945,11 @@
      14.053,
      9.99
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_room_0019"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0023",
+    "n": 1,
     "op": "remove",
     "kind": "room",
     "level": "L0",
@@ -66035,13 +65957,11 @@
      1.205,
      7.865
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0023_1"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0027",
+    "n": 1,
     "op": "add",
     "kind": "room",
     "level": "L-1",
@@ -66049,13 +65969,11 @@
      11.128,
      5.127
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-1_room_0011"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0027",
+    "n": 2,
     "op": "add",
     "kind": "door",
     "level": "L-1",
@@ -66063,13 +65981,11 @@
      13.641,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-1_door_0023"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0028",
+    "n": 1,
     "op": "add",
     "kind": "door",
     "level": "L-1",
@@ -66077,13 +65993,11 @@
      15.314,
      6.49
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-1_door_0030"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0028",
+    "n": 2,
     "op": "add",
     "kind": "room",
     "level": "L-1",
@@ -66091,13 +66005,11 @@
      14.755,
      4.228
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-1_room_0018"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0028",
+    "n": 3,
     "op": "add",
     "kind": "room",
     "level": "L-1",
@@ -66105,13 +66017,11 @@
      15.639,
      9.468
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-1_room_0019"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0032",
+    "n": 1,
     "op": "add",
     "kind": "window",
     "level": "L0",
@@ -66119,13 +66029,11 @@
      20.23,
      14.74
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_window_0012"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0032",
+    "n": 2,
     "op": "add",
     "kind": "window",
     "level": "L1",
@@ -66133,13 +66041,11 @@
      20.23,
      14.74
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L1_window_0012"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0032",
+    "n": 3,
     "op": "add",
     "kind": "window",
     "level": "L2",
@@ -66147,13 +66053,11 @@
      20.23,
      14.74
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L2_window_0012"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0032",
+    "n": 4,
     "op": "add",
     "kind": "window",
     "level": "L3",
@@ -66161,13 +66065,11 @@
      20.23,
      14.74
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L3_window_0012"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0032",
+    "n": 5,
     "op": "add",
     "kind": "window",
     "level": "L4",
@@ -66175,13 +66077,11 @@
      20.23,
      14.74
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L4_window_0012"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0032",
+    "n": 6,
     "op": "add",
     "kind": "window",
     "level": "L5",
@@ -66189,13 +66089,11 @@
      20.23,
      14.74
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L5_window_0012"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0032",
+    "n": 7,
     "op": "add",
     "kind": "window",
     "level": "L6",
@@ -66203,13 +66101,11 @@
      20.23,
      14.74
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L6_window_0012"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0034",
+    "n": 1,
     "op": "remove",
     "kind": "opening",
     "level": "L0",
@@ -66218,15 +66114,11 @@
      8.45
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_1"
-    ],
-    "removed": [
-     "t_L0_opening_0009"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 2,
     "op": "add",
     "kind": "door",
     "level": "L0",
@@ -66234,13 +66126,11 @@
      9.666,
      8.45
     ],
-    "state": "added",
-    "ids": [
-     "u_C0034_2"
-    ]
+    "state": "added"
    },
    {
     "record": "C0034",
+    "n": 3,
     "op": "remove",
     "kind": "door",
     "level": "L0",
@@ -66249,15 +66139,11 @@
      9.085
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_3"
-    ],
-    "removed": [
-     "t_L0_door_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 4,
     "op": "remove",
     "kind": "opening",
     "level": "L1",
@@ -66266,15 +66152,11 @@
      8.45
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_4"
-    ],
-    "removed": [
-     "t_L1_opening_0009"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 5,
     "op": "add",
     "kind": "door",
     "level": "L1",
@@ -66282,13 +66164,11 @@
      9.666,
      8.45
     ],
-    "state": "added",
-    "ids": [
-     "u_C0034_5"
-    ]
+    "state": "added"
    },
    {
     "record": "C0034",
+    "n": 6,
     "op": "remove",
     "kind": "door",
     "level": "L1",
@@ -66297,15 +66177,11 @@
      9.085
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_6"
-    ],
-    "removed": [
-     "t_L1_door_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 7,
     "op": "remove",
     "kind": "opening",
     "level": "L2",
@@ -66314,15 +66190,11 @@
      8.45
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_7"
-    ],
-    "removed": [
-     "t_L2_opening_0009"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 8,
     "op": "add",
     "kind": "door",
     "level": "L2",
@@ -66330,13 +66202,11 @@
      9.666,
      8.45
     ],
-    "state": "added",
-    "ids": [
-     "u_C0034_8"
-    ]
+    "state": "added"
    },
    {
     "record": "C0034",
+    "n": 9,
     "op": "remove",
     "kind": "door",
     "level": "L2",
@@ -66345,15 +66215,11 @@
      9.085
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_9"
-    ],
-    "removed": [
-     "t_L2_door_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 10,
     "op": "remove",
     "kind": "opening",
     "level": "L3",
@@ -66362,15 +66228,11 @@
      8.45
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_10"
-    ],
-    "removed": [
-     "t_L3_opening_0009"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 11,
     "op": "add",
     "kind": "door",
     "level": "L3",
@@ -66378,13 +66240,11 @@
      9.666,
      8.45
     ],
-    "state": "added",
-    "ids": [
-     "u_C0034_11"
-    ]
+    "state": "added"
    },
    {
     "record": "C0034",
+    "n": 12,
     "op": "remove",
     "kind": "door",
     "level": "L3",
@@ -66393,15 +66253,11 @@
      9.085
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_12"
-    ],
-    "removed": [
-     "t_L3_door_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 13,
     "op": "remove",
     "kind": "opening",
     "level": "L4",
@@ -66410,15 +66266,11 @@
      8.45
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_13"
-    ],
-    "removed": [
-     "t_L4_opening_0009"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 14,
     "op": "add",
     "kind": "door",
     "level": "L4",
@@ -66426,13 +66278,11 @@
      9.666,
      8.45
     ],
-    "state": "added",
-    "ids": [
-     "u_C0034_14"
-    ]
+    "state": "added"
    },
    {
     "record": "C0034",
+    "n": 15,
     "op": "remove",
     "kind": "door",
     "level": "L4",
@@ -66441,15 +66291,11 @@
      9.085
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_15"
-    ],
-    "removed": [
-     "t_L4_door_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 16,
     "op": "remove",
     "kind": "opening",
     "level": "L5",
@@ -66458,15 +66304,11 @@
      8.45
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_16"
-    ],
-    "removed": [
-     "t_L5_opening_0009"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 17,
     "op": "add",
     "kind": "door",
     "level": "L5",
@@ -66474,13 +66316,11 @@
      9.666,
      8.45
     ],
-    "state": "added",
-    "ids": [
-     "u_C0034_17"
-    ]
+    "state": "added"
    },
    {
     "record": "C0034",
+    "n": 18,
     "op": "remove",
     "kind": "door",
     "level": "L5",
@@ -66489,15 +66329,11 @@
      9.085
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_18"
-    ],
-    "removed": [
-     "t_L5_door_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 19,
     "op": "remove",
     "kind": "opening",
     "level": "L6",
@@ -66506,15 +66342,11 @@
      8.45
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_19"
-    ],
-    "removed": [
-     "t_L6_opening_0009"
-    ]
+    "removed": 1
    },
    {
     "record": "C0034",
+    "n": 20,
     "op": "add",
     "kind": "door",
     "level": "L6",
@@ -66522,13 +66354,11 @@
      9.666,
      8.45
     ],
-    "state": "added",
-    "ids": [
-     "u_C0034_20"
-    ]
+    "state": "added"
    },
    {
     "record": "C0034",
+    "n": 21,
     "op": "remove",
     "kind": "door",
     "level": "L6",
@@ -66537,15 +66367,11 @@
      9.085
     ],
     "state": "removed",
-    "ids": [
-     "u_C0034_21"
-    ],
-    "removed": [
-     "t_L6_door_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0035",
+    "n": 1,
     "op": "add",
     "kind": "stair",
     "level": "L0",
@@ -66553,13 +66379,11 @@
      11.194,
      4.654
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_stair_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0035",
+    "n": 2,
     "op": "add",
     "kind": "room",
     "level": "L0",
@@ -66568,15 +66392,13 @@
      5.485
     ],
     "state": "replaced",
-    "ids": [
-     "t_L0_room_0014"
-    ],
     "changed": [
      "room_type"
     ]
    },
    {
     "record": "C0035",
+    "n": 3,
     "op": "remove",
     "kind": "opening",
     "level": "L0",
@@ -66585,15 +66407,11 @@
      6.29
     ],
     "state": "removed",
-    "ids": [
-     "u_C0035_1"
-    ],
-    "removed": [
-     "t_L0_opening_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0035",
+    "n": 4,
     "op": "add",
     "kind": "door",
     "level": "L0",
@@ -66601,13 +66419,11 @@
      11.19,
      6.29
     ],
-    "state": "added",
-    "ids": [
-     "u_C0035_2"
-    ]
+    "state": "added"
    },
    {
     "record": "C0035",
+    "n": 5,
     "op": "add",
     "kind": "stair",
     "level": "L1",
@@ -66615,13 +66431,11 @@
      11.194,
      4.654
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L1_stair_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0035",
+    "n": 6,
     "op": "add",
     "kind": "room",
     "level": "L1",
@@ -66630,15 +66444,13 @@
      5.485
     ],
     "state": "replaced",
-    "ids": [
-     "t_L1_room_0014"
-    ],
     "changed": [
      "room_type"
     ]
    },
    {
     "record": "C0035",
+    "n": 7,
     "op": "remove",
     "kind": "opening",
     "level": "L1",
@@ -66647,15 +66459,11 @@
      6.29
     ],
     "state": "removed",
-    "ids": [
-     "u_C0035_3"
-    ],
-    "removed": [
-     "t_L1_opening_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0035",
+    "n": 8,
     "op": "add",
     "kind": "door",
     "level": "L1",
@@ -66663,13 +66471,11 @@
      11.19,
      6.29
     ],
-    "state": "added",
-    "ids": [
-     "u_C0035_4"
-    ]
+    "state": "added"
    },
    {
     "record": "C0035",
+    "n": 9,
     "op": "add",
     "kind": "stair",
     "level": "L2",
@@ -66677,13 +66483,11 @@
      11.194,
      4.654
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L2_stair_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0035",
+    "n": 10,
     "op": "add",
     "kind": "room",
     "level": "L2",
@@ -66692,15 +66496,13 @@
      5.485
     ],
     "state": "replaced",
-    "ids": [
-     "t_L2_room_0014"
-    ],
     "changed": [
      "room_type"
     ]
    },
    {
     "record": "C0035",
+    "n": 11,
     "op": "remove",
     "kind": "opening",
     "level": "L2",
@@ -66709,15 +66511,11 @@
      6.29
     ],
     "state": "removed",
-    "ids": [
-     "u_C0035_5"
-    ],
-    "removed": [
-     "t_L2_opening_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0035",
+    "n": 12,
     "op": "add",
     "kind": "door",
     "level": "L2",
@@ -66725,13 +66523,11 @@
      11.19,
      6.29
     ],
-    "state": "added",
-    "ids": [
-     "u_C0035_6"
-    ]
+    "state": "added"
    },
    {
     "record": "C0035",
+    "n": 13,
     "op": "add",
     "kind": "stair",
     "level": "L3",
@@ -66739,13 +66535,11 @@
      11.194,
      4.654
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L3_stair_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0035",
+    "n": 14,
     "op": "add",
     "kind": "room",
     "level": "L3",
@@ -66754,15 +66548,13 @@
      5.485
     ],
     "state": "replaced",
-    "ids": [
-     "t_L3_room_0014"
-    ],
     "changed": [
      "room_type"
     ]
    },
    {
     "record": "C0035",
+    "n": 15,
     "op": "remove",
     "kind": "opening",
     "level": "L3",
@@ -66771,15 +66563,11 @@
      6.29
     ],
     "state": "removed",
-    "ids": [
-     "u_C0035_7"
-    ],
-    "removed": [
-     "t_L3_opening_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0035",
+    "n": 16,
     "op": "add",
     "kind": "door",
     "level": "L3",
@@ -66787,13 +66575,11 @@
      11.19,
      6.29
     ],
-    "state": "added",
-    "ids": [
-     "u_C0035_8"
-    ]
+    "state": "added"
    },
    {
     "record": "C0035",
+    "n": 17,
     "op": "add",
     "kind": "stair",
     "level": "L4",
@@ -66801,13 +66587,11 @@
      11.194,
      4.654
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L4_stair_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0035",
+    "n": 18,
     "op": "add",
     "kind": "room",
     "level": "L4",
@@ -66816,15 +66600,13 @@
      5.485
     ],
     "state": "replaced",
-    "ids": [
-     "t_L4_room_0014"
-    ],
     "changed": [
      "room_type"
     ]
    },
    {
     "record": "C0035",
+    "n": 19,
     "op": "remove",
     "kind": "opening",
     "level": "L4",
@@ -66833,15 +66615,11 @@
      6.29
     ],
     "state": "removed",
-    "ids": [
-     "u_C0035_9"
-    ],
-    "removed": [
-     "t_L4_opening_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0035",
+    "n": 20,
     "op": "add",
     "kind": "door",
     "level": "L4",
@@ -66849,13 +66627,11 @@
      11.19,
      6.29
     ],
-    "state": "added",
-    "ids": [
-     "u_C0035_10"
-    ]
+    "state": "added"
    },
    {
     "record": "C0035",
+    "n": 21,
     "op": "add",
     "kind": "stair",
     "level": "L5",
@@ -66863,13 +66639,11 @@
      11.194,
      4.654
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L5_stair_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0035",
+    "n": 22,
     "op": "add",
     "kind": "room",
     "level": "L5",
@@ -66878,15 +66652,13 @@
      5.485
     ],
     "state": "replaced",
-    "ids": [
-     "t_L5_room_0014"
-    ],
     "changed": [
      "room_type"
     ]
    },
    {
     "record": "C0035",
+    "n": 23,
     "op": "remove",
     "kind": "opening",
     "level": "L5",
@@ -66895,15 +66667,11 @@
      6.29
     ],
     "state": "removed",
-    "ids": [
-     "u_C0035_11"
-    ],
-    "removed": [
-     "t_L5_opening_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0035",
+    "n": 24,
     "op": "add",
     "kind": "door",
     "level": "L5",
@@ -66911,13 +66679,11 @@
      11.19,
      6.29
     ],
-    "state": "added",
-    "ids": [
-     "u_C0035_12"
-    ]
+    "state": "added"
    },
    {
     "record": "C0035",
+    "n": 25,
     "op": "add",
     "kind": "stair",
     "level": "L6",
@@ -66925,13 +66691,11 @@
      11.194,
      4.654
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L6_stair_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0035",
+    "n": 26,
     "op": "add",
     "kind": "room",
     "level": "L6",
@@ -66940,15 +66704,13 @@
      5.485
     ],
     "state": "replaced",
-    "ids": [
-     "t_L6_room_0014"
-    ],
     "changed": [
      "room_type"
     ]
    },
    {
     "record": "C0035",
+    "n": 27,
     "op": "remove",
     "kind": "opening",
     "level": "L6",
@@ -66957,15 +66719,11 @@
      6.29
     ],
     "state": "removed",
-    "ids": [
-     "u_C0035_13"
-    ],
-    "removed": [
-     "t_L6_opening_0016"
-    ]
+    "removed": 1
    },
    {
     "record": "C0035",
+    "n": 28,
     "op": "add",
     "kind": "door",
     "level": "L6",
@@ -66973,13 +66731,11 @@
      11.19,
      6.29
     ],
-    "state": "added",
-    "ids": [
-     "u_C0035_14"
-    ]
+    "state": "added"
    },
    {
     "record": "C0037",
+    "n": 1,
     "op": "remove",
     "kind": "room",
     "level": "L0",
@@ -66987,13 +66743,11 @@
      11.19,
      13.28
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_1"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 2,
     "op": "remove",
     "kind": "room",
     "level": "L0",
@@ -67001,13 +66755,11 @@
      11.19,
      15.825
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_2"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 3,
     "op": "remove",
     "kind": "room",
     "level": "L1",
@@ -67015,13 +66767,11 @@
      11.19,
      13.28
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_3"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 4,
     "op": "remove",
     "kind": "room",
     "level": "L1",
@@ -67029,13 +66779,11 @@
      11.19,
      15.825
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_4"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 5,
     "op": "remove",
     "kind": "room",
     "level": "L2",
@@ -67043,13 +66791,11 @@
      11.19,
      13.28
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_5"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 6,
     "op": "remove",
     "kind": "room",
     "level": "L2",
@@ -67057,13 +66803,11 @@
      11.19,
      15.825
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_6"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 7,
     "op": "remove",
     "kind": "room",
     "level": "L3",
@@ -67071,13 +66815,11 @@
      11.19,
      13.28
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_7"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 8,
     "op": "remove",
     "kind": "room",
     "level": "L3",
@@ -67085,13 +66827,11 @@
      11.19,
      15.825
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_8"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 9,
     "op": "remove",
     "kind": "room",
     "level": "L4",
@@ -67099,13 +66839,11 @@
      11.19,
      13.28
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_9"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 10,
     "op": "remove",
     "kind": "room",
     "level": "L4",
@@ -67113,13 +66851,11 @@
      11.19,
      15.825
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_10"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 11,
     "op": "remove",
     "kind": "room",
     "level": "L5",
@@ -67127,13 +66863,11 @@
      11.19,
      13.28
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_11"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 12,
     "op": "remove",
     "kind": "room",
     "level": "L5",
@@ -67141,13 +66875,11 @@
      11.19,
      15.825
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_12"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 13,
     "op": "remove",
     "kind": "room",
     "level": "L6",
@@ -67155,13 +66887,11 @@
      11.19,
      13.28
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_13"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0037",
+    "n": 14,
     "op": "remove",
     "kind": "room",
     "level": "L6",
@@ -67169,13 +66899,11 @@
      11.19,
      15.825
     ],
-    "state": "negated",
-    "ids": [
-     "u_C0037_14"
-    ]
+    "state": "negated"
    },
    {
     "record": "C0040",
+    "n": 1,
     "op": "add",
     "kind": "door",
     "level": "L-1",
@@ -67183,13 +66911,11 @@
      8.741,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-1_door_0018"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 2,
     "op": "add",
     "kind": "door",
     "level": "L-1",
@@ -67197,13 +66923,11 @@
      13.641,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-1_door_0023"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 3,
     "op": "add",
     "kind": "door",
     "level": "L0",
@@ -67211,13 +66935,11 @@
      8.741,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_door_0014"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 4,
     "op": "add",
     "kind": "door",
     "level": "L0",
@@ -67225,13 +66947,11 @@
      13.641,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_door_0017"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 5,
     "op": "add",
     "kind": "door",
     "level": "L1",
@@ -67239,13 +66959,11 @@
      8.741,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L1_door_0014"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 6,
     "op": "add",
     "kind": "door",
     "level": "L1",
@@ -67253,13 +66971,11 @@
      13.641,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L1_door_0017"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 7,
     "op": "add",
     "kind": "door",
     "level": "L2",
@@ -67267,13 +66983,11 @@
      8.741,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L2_door_0014"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 8,
     "op": "add",
     "kind": "door",
     "level": "L2",
@@ -67281,13 +66995,11 @@
      13.641,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L2_door_0017"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 9,
     "op": "add",
     "kind": "door",
     "level": "L3",
@@ -67295,13 +67007,11 @@
      8.741,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L3_door_0014"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 10,
     "op": "add",
     "kind": "door",
     "level": "L3",
@@ -67309,13 +67019,11 @@
      13.641,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L3_door_0017"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 11,
     "op": "add",
     "kind": "door",
     "level": "L4",
@@ -67323,13 +67031,11 @@
      8.741,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L4_door_0014"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 12,
     "op": "add",
     "kind": "door",
     "level": "L4",
@@ -67337,13 +67043,11 @@
      13.641,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L4_door_0017"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 13,
     "op": "add",
     "kind": "door",
     "level": "L5",
@@ -67351,13 +67055,11 @@
      8.741,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L5_door_0014"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 14,
     "op": "add",
     "kind": "door",
     "level": "L5",
@@ -67365,13 +67067,11 @@
      13.641,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L5_door_0017"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 15,
     "op": "add",
     "kind": "door",
     "level": "L6",
@@ -67379,13 +67079,11 @@
      8.741,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L6_door_0014"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0040",
+    "n": 16,
     "op": "add",
     "kind": "door",
     "level": "L6",
@@ -67393,13 +67091,11 @@
      13.641,
      7.24
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L6_door_0017"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 1,
     "op": "add",
     "kind": "door",
     "level": "L0",
@@ -67407,13 +67103,11 @@
      6.275,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_door_0006"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 2,
     "op": "add",
     "kind": "door",
     "level": "L0",
@@ -67421,13 +67115,11 @@
      16.105,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L0_door_0026"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 3,
     "op": "add",
     "kind": "door",
     "level": "L1",
@@ -67435,13 +67127,11 @@
      6.275,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L1_door_0006"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 4,
     "op": "add",
     "kind": "door",
     "level": "L1",
@@ -67449,13 +67139,11 @@
      16.105,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L1_door_0026"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 5,
     "op": "add",
     "kind": "door",
     "level": "L2",
@@ -67463,13 +67151,11 @@
      6.275,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L2_door_0006"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 6,
     "op": "add",
     "kind": "door",
     "level": "L2",
@@ -67477,13 +67163,11 @@
      16.105,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L2_door_0026"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 7,
     "op": "add",
     "kind": "door",
     "level": "L3",
@@ -67491,13 +67175,11 @@
      6.275,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L3_door_0006"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 8,
     "op": "add",
     "kind": "door",
     "level": "L3",
@@ -67505,13 +67187,11 @@
      16.105,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L3_door_0026"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 9,
     "op": "add",
     "kind": "door",
     "level": "L4",
@@ -67519,13 +67199,11 @@
      6.275,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L4_door_0006"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 10,
     "op": "add",
     "kind": "door",
     "level": "L4",
@@ -67533,13 +67211,11 @@
      16.105,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L4_door_0026"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 11,
     "op": "add",
     "kind": "door",
     "level": "L5",
@@ -67547,13 +67223,11 @@
      6.275,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L5_door_0006"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 12,
     "op": "add",
     "kind": "door",
     "level": "L5",
@@ -67561,13 +67235,11 @@
      16.105,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L5_door_0026"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 13,
     "op": "add",
     "kind": "door",
     "level": "L6",
@@ -67575,13 +67247,11 @@
      6.275,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L6_door_0006"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0043",
+    "n": 14,
     "op": "add",
     "kind": "door",
     "level": "L6",
@@ -67589,13 +67259,11 @@
      16.105,
      7.025
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L6_door_0026"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0068",
+    "n": 1,
     "op": "add",
     "kind": "wall",
     "level": "L-2",
@@ -67603,13 +67271,11 @@
      1.871,
      1.91
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-2_wall_0018"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0068",
+    "n": 2,
     "op": "add",
     "kind": "wall",
     "level": "L-2",
@@ -67617,13 +67283,11 @@
      12.741,
      1.91
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-2_wall_0081"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0068",
+    "n": 3,
     "op": "add",
     "kind": "wall",
     "level": "L-2",
@@ -67631,13 +67295,11 @@
      9.641,
      2.03
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-2_wall_0049"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0068",
+    "n": 4,
     "op": "add",
     "kind": "wall",
     "level": "L-2",
@@ -67645,13 +67307,11 @@
      2.831,
      16.57
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-2_wall_0051"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0068",
+    "n": 5,
     "op": "add",
     "kind": "wall",
     "level": "L-2",
@@ -67659,13 +67319,11 @@
      1.711,
      2.07
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-2_wall_0001"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0068",
+    "n": 6,
     "op": "add",
     "kind": "wall",
     "level": "L-2",
@@ -67673,13 +67331,11 @@
      2.161,
      12.84
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-2_wall_0008"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0068",
+    "n": 7,
     "op": "add",
     "kind": "wall",
     "level": "L-2",
@@ -67687,13 +67343,11 @@
      20.221,
      13.12
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-2_wall_0089"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0068",
+    "n": 8,
     "op": "add",
     "kind": "wall",
     "level": "L-2",
@@ -67701,13 +67355,11 @@
      20.665,
      9.04
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-2_wall_0093"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0068",
+    "n": 9,
     "op": "add",
     "kind": "wall",
     "level": "L-2",
@@ -67715,13 +67367,11 @@
      20.671,
      2.07
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-2_wall_0095"
-    ]
+    "state": "confirmed"
    },
    {
     "record": "C0069",
+    "n": 1,
     "op": "add",
     "kind": "wall",
     "level": "L-2",
@@ -67729,10 +67379,7 @@
      20.665,
      9.04
     ],
-    "state": "confirmed",
-    "ids": [
-     "t_L-2_wall_0097"
-    ]
+    "state": "confirmed"
    }
   ],
   "unmatched": [],
@@ -67743,7 +67390,7 @@
    },
    {
     "record": "C0021",
-    "why": "place confidence 0.50 under 0.6: waits for the user to check the place"
+    "why": "place confidence 0.50 under 0.6: waits for the user to check the place (`remark confirm C0021`)"
    },
    {
     "record": "C0024",

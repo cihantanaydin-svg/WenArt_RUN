@@ -3666,3 +3666,17 @@ Fresh readings scored against the derived truth (the accepted reading against it
 Tests: `tests/test_truth_derived_20261106.py` (the 18 breaks, each as a build and a score; every truth file is its
 own build; records join by place), the truth, place-identity, remark, mirror-halves (fixture re-read), failure-class,
 wiring and sense tests: 334 passed, 26 xfailed (the failure classes' targets).
+
+Review of the derived truth (6 Nov 2026, later): 7,596 property cases and 64 command-line and data cases found 18
+edge cases (16 items, several latent: no record of the store triggers them). All are fixed, each with a test
+(`tests/test_truth_derived_review_20261106.py`): every operation is checked before it is applied and an unmatched one
+changes nothing; no correction creates a level; a room by polygon is the room it covers (IoU), never a neighbour of
+the same label; a user's wall covers its whole span (the drawn wall on its line is extended, walls it reaches join,
+the user's thickness wins; a piece inside it or a column beside it stays as drawn); overlapping negated spans make one
+negation; a remove and a later add on one element name both records; walls of no length and rooms of no area are
+refused; the build report names records and places, never element ids; every build sets each record's
+`truth_applied`; `truth add/remove` write only records the store's checks accept and decide on the new operation only;
+`truth accept` needs the user's acceptance of that reading (or `--user-said`) and keeps the old one under
+`results/reading_accepted/previous/`; `remark confirm` releases a record that waits on the machine's place; the
+score's matching no longer depends on the order of the lists. The truths are unchanged for the current records (only
+the report's form and the records' `truth_applied`); fresh readings score as before (real06 99.63, real07 99.01).
