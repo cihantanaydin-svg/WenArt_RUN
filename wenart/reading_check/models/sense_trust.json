@@ -1,0 +1,1476 @@
+{
+ "note": "Precision of the architectural-sense checks (RC14) per rule, judged one finding at a time (a finding is right when it points at a real error of the reading, false when the reading follows its drawing); a rule below the threshold, or never judged, writes its findings with severity info. The tables were tuned on the same readings: in-sample.",
+ "commit": "bbbff6c0 + the RC14 working tree",
+ "date": "2026-11-06",
+ "threshold": 0.7,
+ "projects": [
+  "real03",
+  "real07",
+  "real09",
+  "real10",
+  "real11",
+  "real13",
+  "real14",
+  "real15",
+  "real16",
+  "real17",
+  "real18",
+  "real19",
+  "real20",
+  "real21",
+  "synthetic-01",
+  "synthetic-03",
+  "synthetic-12-mirrored-halves"
+ ],
+ "rules": {
+  "room_type_area": {
+   "findings": 40,
+   "judged_right": 38,
+   "precision": 0.95,
+   "trusted": true,
+   "small_sample": false,
+   "by_status": {
+    "accepted": {
+     "findings": 3,
+     "judged_right": 3
+    },
+    "partial": {
+     "findings": 6,
+     "judged_right": 6
+    },
+    "open": {
+     "findings": 31,
+     "judged_right": 29
+    }
+   }
+  },
+  "label_names_larger_face": {
+   "findings": 2,
+   "judged_right": 2,
+   "precision": 1.0,
+   "trusted": true,
+   "small_sample": true,
+   "by_status": {
+    "open": {
+     "findings": 2,
+     "judged_right": 2
+    }
+   }
+  },
+  "frame_walls_and_paper_rooms": {
+   "findings": 7,
+   "judged_right": 7,
+   "precision": 1.0,
+   "trusted": true,
+   "small_sample": false,
+   "by_status": {
+    "accepted": {
+     "findings": 2,
+     "judged_right": 2
+    },
+    "open": {
+     "findings": 5,
+     "judged_right": 5
+    }
+   }
+  },
+  "unread_walls": {
+   "findings": 11,
+   "judged_right": 11,
+   "precision": 1.0,
+   "trusted": true,
+   "small_sample": false,
+   "by_status": {
+    "open": {
+     "findings": 11,
+     "judged_right": 11
+    }
+   }
+  },
+  "circulation": {
+   "findings": 30,
+   "judged_right": 28,
+   "precision": 0.9333,
+   "trusted": true,
+   "small_sample": false,
+   "by_status": {
+    "accepted": {
+     "findings": 10,
+     "judged_right": 8
+    },
+    "partial": {
+     "findings": 5,
+     "judged_right": 5
+    },
+    "open": {
+     "findings": 15,
+     "judged_right": 15
+    }
+   }
+  },
+  "label_vocabulary": {
+   "findings": 28,
+   "judged_right": 28,
+   "precision": 1.0,
+   "trusted": true,
+   "small_sample": false,
+   "by_status": {
+    "open": {
+     "findings": 28,
+     "judged_right": 28
+    }
+   }
+  }
+ },
+ "readings": "the merged-tree readings of real01-real21 (no real05) and synthetic-01, 03-07 (regress_merged, 5 Nov 2026), and fresh CPU readings of synthetic-08 to synthetic-22 at this commit's parent; 41 readings, 118 findings judged",
+ "project_status": "accepted = results/reading_truth/ status accepted (real01-04, 06, 10, 15, 21 and every synthetic project); open = real09, 11, 13, 14, 16, 18, 19, 20; partial = real07 (drifted), real17 (L-1 accepted), real08, real12",
+ "first_pass": {
+  "note": "the first run of the rules as specified, before any tuning, on the accepted projects only; judged the same way",
+  "rules": {
+   "room_type_area": {
+    "findings": 7,
+    "judged_right": 3,
+    "false": "synthetic-03's two 14 m2 KİLER (a basement store), synthetic-07's 43.5 m2 bedroom with its 43.5 m2 text, real10's 13.3 m2 lift machine room on the roof terrace"
+   },
+   "frame_walls_and_paper_rooms": {
+    "findings": 26,
+    "judged_right": 2,
+    "false": "24: tight region boxes put real outer walls on the box edges (real02, real04, synthetic-07, -08, -13, -18, -21) and a roof terrace filling its box"
+   },
+   "circulation": {
+    "findings": 27,
+    "judged_right": 10,
+    "false": "17: real03's seven 0.24-0.35 m2 slivers, real21's four AYDINLIK light wells, synthetic floors that are one flat with no stair drawn"
+   },
+   "label_names_larger_face": {
+    "findings": 0,
+    "judged_right": 0
+   },
+   "unread_walls": {
+    "findings": 0,
+    "judged_right": 0
+   },
+   "label_vocabulary": {
+    "findings": 0,
+    "judged_right": 0
+   }
+  }
+ },
+ "tuning": [
+  "frame walls need no opening and at most 2 other walls ending on them (a building's outer walls carry openings and inner walls end on them)",
+  "a room covering most of the region box is paper only with 2 or more other rooms' labels in it",
+  "a drawn area text within 10 % of the face exempts a room from the type-area ranges (the drawing gives it that size)",
+  "KİLER is judged as a storage room; light wells from 0.5 m2; bathrooms from 1.0 m2 (real14 draws 1.31 m2 en-suites); kitchens from 3.0 m2",
+  "a lift's room on a roof terrace floor is its machine room",
+  "a small room's face over 2.0 times its maximum goes to rule 2 (real18's fire lobby is 99.4 m2, 2.48 times 40)",
+  "the door rule asks only rooms people use every day (dwelling rooms, baths, halls, stairs, a lift, a garage), never faces under 1 m2, never a room with a stair standing in it",
+  "a group of rooms holding every entered room of its floor is the whole floor (the stair rule's question)",
+  "with 3 walls per label or more only the labels inside the walls' hull count as outside every room (site notes outside the building)"
+ ],
+ "known_errors": {
+  "real20 L0 16.2 m2 'Asansör'": "caught: label_names_larger_face, major, with the stair f_L0_001 standing in the face",
+  "real18 L-2 99 m2 'Yangın Holü'": "caught: label_names_larger_face, major, with the parking bays OTO 1-4 in the face; the OTOPARK and A:102.52M2 texts are model-space ATTDEF tags, which ingest.dxf_generic skips as block templates, so no check sees them (a reader gap)",
+  "real19 L3 frame walls and 440 m2 'Normal'": "caught: frame_walls_and_paper_rooms (the four frame walls, 99 % of the box, no opening, no wall ending on them; the paper room covering 96 % of the box holding 20 other labels) and label_vocabulary ('Normal' is a floor's name); the same on L1 (an accepted level) and the frame on L2",
+  "real13 and real18 unread hatch-drawn walls": "caught on real13 L-2, L0, L1, L2, L3, L4 and real18 L1, L2, L3; not on real13 L-3 and L-1 (3 and 4 labels, under the 6-label minimum) nor real18 L-1 and L0 (their room names are ATTDEF tags the reader drops: no label to count)"
+ },
+ "judgements": [
+  {
+   "key": "real03|L0|room_type_area|-|r_L0_giris_holu_3",
+   "project": "real03",
+   "project_status": "accepted",
+   "level": "L0",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is 0.85 m2 where the drawing writes 2.16 m2: a separator cut the entrance hall",
+   "message": "r_L0_giris_holu_3 'Giriş Holü' (type hall) is 0.85 m2 (drawn area text 2.16 m2), under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real03|L0|circulation|room|r_L0_ebeveyn_odasi",
+   "project": "real03",
+   "project_status": "accepted",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "a bedroom of a flat with no door in the model; its door swing is drawn beside it",
+   "message": "r_L0_ebeveyn_odasi 'Ebeveyn Odası' (10.1 m2, type bedroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real03|L0|circulation|room|r_L0_ebeveyn_odasi_m_k_a",
+   "project": "real03",
+   "project_status": "accepted",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "a bedroom of a flat with no door in the model; its door swing is drawn beside it",
+   "message": "r_L0_ebeveyn_odasi_m_k_a 'Ebeveyn Odası (m.k.a.)' (10.1 m2, type bedroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real03|L0|circulation|room|r_L0_ebeveyn_odasi_m_k_a_2",
+   "project": "real03",
+   "project_status": "accepted",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "a bedroom of a flat with no door in the model; its door swing is drawn beside it",
+   "message": "r_L0_ebeveyn_odasi_m_k_a_2 'Ebeveyn Odası (m.k.a.)' (10.2 m2, type bedroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real03|L0|circulation|flat|r_L0_banyo_4,r_L0_ebeveyn_odasi_2,r_L0_giris_holu_3,r_L0_hol,r_L0_oda_01,r_L0_yasama_4",
+   "project": "real03",
+   "project_status": "accepted",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the flat's entrance door from the Kat Holü (swing drawn in the Giriş Holü) is not in the model",
+   "message": "L0: a group of 6 rooms joined by doors ('Ebeveyn Odası', 'Oda-01', 'Hol', 'Yaşama', 'Banyo', 'Giriş Holü'; 48 m2) has no door to a stair, a lift, the floor's shared hall or the outside: its entrance door is not read"
+  },
+  {
+   "key": "real07|L0|room_type_area|-|r_L0_oda",
+   "project": "real07",
+   "project_status": "partial",
+   "level": "L0",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.6 m2 door recess between the garage and the hall closed as a room 'Oda' (hall)",
+   "message": "r_L0_oda 'Oda' (type hall) is 0.59 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real07|L1|circulation|levels|f_L0_012",
+   "project": "real07",
+   "project_status": "partial",
+   "level": "L1",
+   "rule": "circulation",
+   "severity": "major",
+   "right": true,
+   "reason": "the villa's stair is drawn on L1 (treads 1-18) but the model has no stair there",
+   "message": "L1 1. Kat cannot be reached from L0 Zemin Kat by a stair: no stair is read on L1"
+  },
+  {
+   "key": "real09|L-1|room_type_area|-|r_L-1_yatak_o",
+   "project": "real09",
+   "project_status": "open",
+   "level": "L-1",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": false,
+   "reason": "the drawing itself labels this 2.15 x 1.80 m room YATAK O.: the reading follows its drawing",
+   "message": "r_L-1_yatak_o 'Yatak O.' (type bedroom) is 3.61 m2, under the 6.00 m2 a bedroom has at least (a bedroom holds a bed with access around it: about 6 to 40 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real09|L-1|room_type_area|-|r_L-1_oda_2",
+   "project": "real09",
+   "project_status": "open",
+   "level": "L-1",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": false,
+   "reason": "the drawing itself labels this 2.15 x 1.80 m room YATAK O.: the reading follows its drawing",
+   "message": "r_L-1_oda_2 'Yatak O.' (type bedroom) is 3.63 m2, under the 6.00 m2 a bedroom has at least (a bedroom holds a bed with access around it: about 6 to 40 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real10|L7|circulation|levels|r_L6_oda,r_L6_oda_5,f_L6_023,f_L6_024",
+   "project": "real10",
+   "project_status": "accepted",
+   "level": "L7",
+   "rule": "circulation",
+   "severity": "major",
+   "right": true,
+   "reason": "the stair is drawn on the roof terrace floor (treads 1-17); the model has no stair piece there",
+   "message": "L7 Teras Katı cannot be reached from L6 6. Normal Kat by a stair: no stair is read on L7"
+  },
+  {
+   "key": "real11|L-1|room_type_area|-|r_L-1_asansor",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L-1",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the stair hall around the main stair, named after the lift beside it",
+   "message": "r_L-1_asansor 'Asansor' (type shaft) is 15.0 m2, over the 8.00 m2 a lift has at most (a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m); the stair f_L-1_001 stands in it (the stair core is named after the l"
+  },
+  {
+   "key": "real11|L0|room_type_area|-|r_L0_asansor",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the stair hall around the main stair, named after the lift beside it",
+   "message": "r_L0_asansor 'Asansor' (type shaft) is 14.9 m2, over the 8.00 m2 a lift has at most (a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m); the stair f_L0_010 stands in it (the stair core is named after the lif"
+  },
+  {
+   "key": "real11|L0|room_type_area|-|r_L0_oda_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L0_oda_2 'Oda' (type hall) is 0.50 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L0|room_type_area|-|r_L0_dus_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower face is 7.25 m2 where the drawing writes DUŞ 3.00 M2: it took in the niche beside it",
+   "message": "r_L0_dus_2 'Dus' (type bathroom) is 7.25 m2 (drawn area text 3 m2), over the 5.00 m2 a shower has at most (a shower room is a 0.8 x 1.0 m cubicle to about 2 x 2.5 m): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L0|room_type_area|-|r_L0_oda_3",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L0_oda_3 'Oda' (type hall) is 0.50 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L1|room_type_area|-|r_L1_asansor",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the stair hall around the main stair, named after the lift beside it",
+   "message": "r_L1_asansor 'Asansor' (type shaft) is 14.9 m2, over the 8.00 m2 a lift has at most (a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m); the stair f_L1_010 stands in it (the stair core is named after the lif"
+  },
+  {
+   "key": "real11|L1|room_type_area|-|r_L1_oda_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L1_oda_2 'Oda' (type hall) is 0.50 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L1|room_type_area|-|r_L1_dus_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower face is 7.25 m2 where the drawing writes DUŞ 3.00 M2: it took in the niche beside it",
+   "message": "r_L1_dus_2 'Dus' (type bathroom) is 7.25 m2 (drawn area text 3 m2), over the 5.00 m2 a shower has at most (a shower room is a 0.8 x 1.0 m cubicle to about 2 x 2.5 m): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L1|room_type_area|-|r_L1_oda_3",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L1_oda_3 'Oda' (type hall) is 0.50 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L2|room_type_area|-|r_L2_asansor",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the stair hall around the main stair, named after the lift beside it",
+   "message": "r_L2_asansor 'Asansor' (type shaft) is 14.9 m2, over the 8.00 m2 a lift has at most (a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m); the stair f_L2_010 stands in it (the stair core is named after the lif"
+  },
+  {
+   "key": "real11|L2|room_type_area|-|r_L2_oda_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L2_oda_2 'Oda' (type hall) is 0.50 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L2|room_type_area|-|r_L2_dus_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower face is 7.25 m2 where the drawing writes DUŞ 3.00 M2: it took in the niche beside it",
+   "message": "r_L2_dus_2 'Dus' (type bathroom) is 7.25 m2 (drawn area text 3 m2), over the 5.00 m2 a shower has at most (a shower room is a 0.8 x 1.0 m cubicle to about 2 x 2.5 m): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L2|room_type_area|-|r_L2_oda_3",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L2_oda_3 'Oda' (type hall) is 0.50 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L3|room_type_area|-|r_L3_asansor",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the stair hall around the main stair, named after the lift beside it",
+   "message": "r_L3_asansor 'Asansor' (type shaft) is 14.9 m2, over the 8.00 m2 a lift has at most (a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m); the stair f_L3_010 stands in it (the stair core is named after the lif"
+  },
+  {
+   "key": "real11|L3|room_type_area|-|r_L3_oda_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L3_oda_2 'Oda' (type hall) is 0.50 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L3|room_type_area|-|r_L3_dus_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower face is 7.25 m2 where the drawing writes DUŞ 3.00 M2: it took in the niche beside it",
+   "message": "r_L3_dus_2 'Dus' (type bathroom) is 7.25 m2 (drawn area text 3 m2), over the 5.00 m2 a shower has at most (a shower room is a 0.8 x 1.0 m cubicle to about 2 x 2.5 m): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L3|room_type_area|-|r_L3_oda_3",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L3_oda_3 'Oda' (type hall) is 0.50 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L4|room_type_area|-|r_L4_asansor",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L4",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the stair hall around the main stair, named after the lift beside it",
+   "message": "r_L4_asansor 'Asansor' (type shaft) is 14.9 m2, over the 8.00 m2 a lift has at most (a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m); the stair f_L4_010 stands in it (the stair core is named after the lif"
+  },
+  {
+   "key": "real11|L4|room_type_area|-|r_L4_oda_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L4",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L4_oda_2 'Oda' (type hall) is 0.50 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L4|room_type_area|-|r_L4_dus_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L4",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower face is 7.25 m2 where the drawing writes DUŞ 3.00 M2: it took in the niche beside it",
+   "message": "r_L4_dus_2 'Dus' (type bathroom) is 7.25 m2 (drawn area text 3 m2), over the 5.00 m2 a shower has at most (a shower room is a 0.8 x 1.0 m cubicle to about 2 x 2.5 m): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L4|room_type_area|-|r_L4_oda_3",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L4",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L4_oda_3 'Oda' (type hall) is 0.50 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L5|room_type_area|-|r_L5_asansor",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L5",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the stair hall around the main stair, named after the lift beside it",
+   "message": "r_L5_asansor 'Asansor' (type shaft) is 14.9 m2, over the 8.00 m2 a lift has at most (a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m); the stair f_L5_010 stands in it (the stair core is named after the lif"
+  },
+  {
+   "key": "real11|L6|room_type_area|-|r_L6_oda_4",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L6",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L6_oda_4 'Oda' (type hall) is 0.59 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L6|room_type_area|-|r_L6_oda_5",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L6",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "a 0.5 m2 sliver between walls closed as a room 'Oda' typed hall",
+   "message": "r_L6_oda_5 'Oda' (type hall) is 0.59 m2, under the 1.00 m2 a hall has at least (an entrance, a corridor or a floor hall is about 1 to 60 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real11|L6|room_type_area|-|r_L6_asansor",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L6",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the stair hall around the main stair, named after the lift beside it",
+   "message": "r_L6_asansor 'Asansor' (type shaft) is 14.9 m2, over the 8.00 m2 a lift has at most (a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m); the stair f_L6_009 stands in it (the stair core is named after the lif"
+  },
+  {
+   "key": "real11|L0|label_vocabulary|-|r_L0_tesisat_duvari_h_1_20_cm",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L0_tesisat_duvari_h_1_20_cm 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L0|label_vocabulary|-|r_L0_depo",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L0_depo 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L0|label_vocabulary|-|r_L0_bina_taban_hatti_yatak_odasi",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L0_bina_taban_hatti_yatak_odasi 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L0|label_vocabulary|-|r_L0_bina_taban_hatti_yatak_odasi_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L0_bina_taban_hatti_yatak_odasi_2 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L1|label_vocabulary|-|r_L1_tesisat_duvari_h_1_20_cm",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L1_tesisat_duvari_h_1_20_cm 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L1|label_vocabulary|-|r_L1_depo",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L1_depo 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L1|label_vocabulary|-|r_L1_bina_taban_hatti_yatak_odasi",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L1_bina_taban_hatti_yatak_odasi 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L1|label_vocabulary|-|r_L1_bina_taban_hatti_yatak_odasi_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L1_bina_taban_hatti_yatak_odasi_2 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L2|label_vocabulary|-|r_L2_tesisat_duvari_h_1_20_cm",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L2_tesisat_duvari_h_1_20_cm 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L2|label_vocabulary|-|r_L2_depo",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L2_depo 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L2|label_vocabulary|-|r_L2_bina_taban_hatti_yatak_odasi",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L2_bina_taban_hatti_yatak_odasi 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L2|label_vocabulary|-|r_L2_bina_taban_hatti_yatak_odasi_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L2_bina_taban_hatti_yatak_odasi_2 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L3|label_vocabulary|-|r_L3_tesisat_duvari_h_1_20_cm",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L3_tesisat_duvari_h_1_20_cm 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L3|label_vocabulary|-|r_L3_depo",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L3_depo 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L3|label_vocabulary|-|r_L3_bina_taban_hatti_yatak_odasi",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L3_bina_taban_hatti_yatak_odasi 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L3|label_vocabulary|-|r_L3_bina_taban_hatti_yatak_odasi_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L3_bina_taban_hatti_yatak_odasi_2 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L4|label_vocabulary|-|r_L4_tesisat_duvari_h_1_20_cm",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L4",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L4_tesisat_duvari_h_1_20_cm 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L4|label_vocabulary|-|r_L4_depo",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L4",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L4_depo 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L4|label_vocabulary|-|r_L4_bina_taban_hatti_yatak_odasi",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L4",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L4_bina_taban_hatti_yatak_odasi 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L4|label_vocabulary|-|r_L4_bina_taban_hatti_yatak_odasi_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L4",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L4_bina_taban_hatti_yatak_odasi_2 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L5|label_vocabulary|-|r_L5_tesisat_duvari_h_1_20_cm",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L5",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L5_tesisat_duvari_h_1_20_cm 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L5|label_vocabulary|-|r_L5_depo",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L5",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L5_depo 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L5|label_vocabulary|-|r_L5_bina_taban_hatti_yatak_odasi",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L5",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L5_bina_taban_hatti_yatak_odasi 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L5|label_vocabulary|-|r_L5_bina_taban_hatti_yatak_odasi_2",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L5",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L5_bina_taban_hatti_yatak_odasi_2 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L6|label_vocabulary|-|r_L6_tesisat_duvari_h_1_20_cm",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L6",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L6_tesisat_duvari_h_1_20_cm 'Tesısat Duvarı H: 1.20 Cm': a services wall note, a height note, a number with a unit glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real11|L6|label_vocabulary|-|r_L6_bina_taban_hatti_yatak_odasi",
+   "project": "real11",
+   "project_status": "open",
+   "level": "L6",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "a notation text (the footprint line, the services wall and its height) glued to the room name",
+   "message": "r_L6_bina_taban_hatti_yatak_odasi 'Bına Taban Hattı Yatak Odası': the building's footprint line glued to the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real13|L-2|unread_walls|-|-",
+   "project": "real13",
+   "project_status": "open",
+   "level": "L-2",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "hatch-drawn walls: 2 to 9 walls read for 7 to 19 room labels, the labels in no room",
+   "message": "L-2 2. Bodrum Kat: 2 walls for 7 room labels; 7 of 7 labels (100 %) outside every room (0 rooms closed), e.g. 'ASANSÖR', 'DEPO', 'OTOPARK', 'SU DEPOSU', 'WC': the walls of this floor are mostly not read (hatch-drawn or on an unread layer)"
+  },
+  {
+   "key": "real13|L0|unread_walls|-|-",
+   "project": "real13",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "hatch-drawn walls: 2 to 9 walls read for 7 to 19 room labels, the labels in no room",
+   "message": "L0 Zemin Kat: 7 walls for 19 room labels; 16 of 19 labels (84 %) outside every room (1 rooms closed), e.g. 'ANTRE', 'BALKON', 'BANYO', 'EB.YATAK ODASI', 'GİRİŞ SAÇAĞI', 'MUTFAK', 'SALON', 'TERAS': the walls of this floor are mostly not read"
+  },
+  {
+   "key": "real13|L1|unread_walls|-|-",
+   "project": "real13",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "hatch-drawn walls: 2 to 9 walls read for 7 to 19 room labels, the labels in no room",
+   "message": "L1 1. Kat: 7 walls for 19 room labels; 16 of 19 labels (84 %) outside every room (1 rooms closed), e.g. 'ANTRE', 'BALKON', 'BANYO', 'EB.YATAK ODASI', 'GİRİŞ SAÇAĞI', 'MUTFAK', 'SALON', 'TERAS': the walls of this floor are mostly not read (h"
+  },
+  {
+   "key": "real13|L2|unread_walls|-|-",
+   "project": "real13",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "hatch-drawn walls: 2 to 9 walls read for 7 to 19 room labels, the labels in no room",
+   "message": "L2 2. Kat: 7 walls for 19 room labels; 16 of 19 labels (84 %) outside every room (1 rooms closed), e.g. 'ANTRE', 'BALKON', 'BANYO', 'EB.YATAK ODASI', 'GİRİŞ SAÇAĞI', 'MUTFAK', 'SALON', 'TERAS': the walls of this floor are mostly not read (h"
+  },
+  {
+   "key": "real13|L3|unread_walls|-|-",
+   "project": "real13",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "hatch-drawn walls: 2 to 9 walls read for 7 to 19 room labels, the labels in no room",
+   "message": "L3 3. Kat: 9 walls for 19 room labels; 19 of 19 labels (100 %) outside every room (0 rooms closed), e.g. 'ASANSÖR', 'BALKON', 'BANYO', 'EB.YATAK ODASI', 'GİRİŞ SAÇAĞI', 'HOL', 'MUTFAK', 'SALON': the walls of this floor are mostly not read ("
+  },
+  {
+   "key": "real13|L4|unread_walls|-|-",
+   "project": "real13",
+   "project_status": "open",
+   "level": "L4",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "hatch-drawn walls: 2 to 9 walls read for 7 to 19 room labels, the labels in no room",
+   "message": "L4 Teras Katı: 6 walls for 12 room labels; 9 of 12 labels (75 %) outside every room (0 rooms closed), e.g. 'ASANSÖR', 'BALKON', 'BANYO', 'ORTAK TERAS', 'SALON', 'TERAS', 'YATAK ODASI': the walls of this floor are mostly not read (hatch-draw"
+  },
+  {
+   "key": "real13|L-1|circulation|levels|f_L-2_001",
+   "project": "real13",
+   "project_status": "open",
+   "level": "L-1",
+   "rule": "circulation",
+   "severity": "major",
+   "right": true,
+   "reason": "two stairs are drawn on L-1 (MER 18 (16.6x25)); the model has none there",
+   "message": "L-1 1. Bodrum Kat cannot be reached from L-2 2. Bodrum Kat by a stair: no stair is read on L-1"
+  },
+  {
+   "key": "real13|L0|circulation|levels|f_L0_001",
+   "project": "real13",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "major",
+   "right": true,
+   "reason": "two stairs are drawn on L-1 (MER 18 (16.6x25)); the model has none there",
+   "message": "L0 Zemin Kat cannot be reached from L-1 1. Bodrum Kat by a stair: no stair is read on L-1"
+  },
+  {
+   "key": "real14|L4|room_type_area|-|r_L4_elek_soh_asansor",
+   "project": "real14",
+   "project_status": "open",
+   "level": "L4",
+   "rule": "room_type_area",
+   "severity": "major",
+   "right": true,
+   "reason": "a 0.30 m2 electrical shaft carries the lift's name; the drawing writes 3.23 m2 for the lift",
+   "message": "r_L4_elek_soh_asansor 'Elek.şoh. Asansör' (type shaft) is 0.30 m2 (drawn area text 3.23 m2), under the 1.00 m2 a lift has at least (a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m): the face or the name is"
+  },
+  {
+   "key": "real14|L7b|room_type_area|-|r_L7b_merdiven",
+   "project": "real14",
+   "project_status": "open",
+   "level": "L7b",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the roof over the stair core (MERDİVEN ÜSTÜ on a roof plan read as a floor variant)",
+   "message": "r_L7b_merdiven 'Merdiven' (type stair) is 47.7 m2, over the 40.0 m2 a stair has at most (a stair core (one or two flights with their landings) is about 2 to 40 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real14|L7d|room_type_area|-|r_L7d_merdiven",
+   "project": "real14",
+   "project_status": "open",
+   "level": "L7d",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the roof over the stair core (MERDİVEN ÜSTÜ on a roof plan read as a floor variant)",
+   "message": "r_L7d_merdiven 'Merdiven' (type stair) is 47.5 m2, over the 40.0 m2 a stair has at most (a stair core (one or two flights with their landings) is about 2 to 40 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real15|L0|room_type_area|-|r_L0_mutfak",
+   "project": "real15",
+   "project_status": "accepted",
+   "level": "L0",
+   "rule": "room_type_area",
+   "severity": "major",
+   "right": true,
+   "reason": "the whole sheet (frame on layer Z_antet) closed as one room holding every label of the plan",
+   "message": "r_L0_mutfak 'Mutfak' (type kitchen) is 1256.8 m2 (drawn area text 27 m2), over the 40.0 m2 a kitchen has at most (a kitchen is a 1.8 x 1.8 m kitchenette to about 5 x 8 m): the face or the name is wrong"
+  },
+  {
+   "key": "real15|L1|room_type_area|-|r_L1_yatak_od",
+   "project": "real15",
+   "project_status": "accepted",
+   "level": "L1",
+   "rule": "room_type_area",
+   "severity": "major",
+   "right": true,
+   "reason": "the whole sheet (frame on layer Z_antet) closed as one room holding every label of the plan",
+   "message": "r_L1_yatak_od 'Yatak Od.' (type bedroom) is 1256.8 m2 (drawn area text 24.3 m2), over the 40.0 m2 a bedroom has at most (a bedroom holds a bed with access around it: about 6 to 40 m2): the face or the name is wrong"
+  },
+  {
+   "key": "real15|L0|frame_walls_and_paper_rooms|-|r_L0_mutfak",
+   "project": "real15",
+   "project_status": "accepted",
+   "level": "L0",
+   "rule": "frame_walls_and_paper_rooms",
+   "severity": "major",
+   "right": true,
+   "reason": "the whole sheet (frame on layer Z_antet) closed as one room holding every label of the plan",
+   "message": "r_L0_mutfak 'Mutfak' (1257 m2, drawn area text 27 m2) covers 85 % of the region box (1472 m2) and holds 16 other rooms' labels ('GARAJ', 'SALON', 'ÇALIŞMA OD.', 'YATAK OD.', 'BANYO' ...): a room of paper (the sheet or its frame closed as a "
+  },
+  {
+   "key": "real15|L1|frame_walls_and_paper_rooms|-|r_L1_yatak_od",
+   "project": "real15",
+   "project_status": "accepted",
+   "level": "L1",
+   "rule": "frame_walls_and_paper_rooms",
+   "severity": "major",
+   "right": true,
+   "reason": "the whole sheet (frame on layer Z_antet) closed as one room holding every label of the plan",
+   "message": "r_L1_yatak_od 'Yatak Od.' (1257 m2, drawn area text 24.3 m2) covers 93 % of the region box (1346 m2) and holds 13 other rooms' labels ('BANYO', 'BANYO', 'BANYO', 'BANYO', 'BANYO' ...): a room of paper (the sheet or its frame closed as a roo"
+  },
+  {
+   "key": "real16|L0|unread_walls|-|-",
+   "project": "real16",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "366 walls read and no room closed; 118 of 122 labels stand in no room",
+   "message": "L0 Zemin Kat: 118 of 122 labels (97 %) outside every room (0 rooms closed), e.g. 'ANTRE', 'ASANSÖR', 'BALKON', 'BANYO', 'BANYO WC', 'EBV.BANYO', 'GİRİŞİ', 'MUTFAK': its walls are read but do not close around the rooms (gaps, a frame or open"
+  },
+  {
+   "key": "real16|-|circulation|levels|-",
+   "project": "real16",
+   "project_status": "open",
+   "level": null,
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "a three-storey block of flats; its stairs are drawn (stacked flights in the core), none is read",
+   "message": "no stair is read on any of the 3 levels (L-1, L0, L1): the stairs are unread or not drawn"
+  },
+  {
+   "key": "real16|L1|circulation|room|r_L1_dus",
+   "project": "real16",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower's 80/220 door (swing drawn) is read as a window",
+   "message": "r_L1_dus 'Duş' (2.97 m2, type bathroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real16|L1|circulation|room|r_L1_dus_2",
+   "project": "real16",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower's 80/220 door (swing drawn) is read as a window",
+   "message": "r_L1_dus_2 'Duş' (2.97 m2, type bathroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real16|L1|circulation|room|r_L1_dus_3",
+   "project": "real16",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower's 80/220 door (swing drawn) is read as a window",
+   "message": "r_L1_dus_3 'Duş' (2.97 m2, type bathroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real16|L1|circulation|room|r_L1_dus_4",
+   "project": "real16",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower's 80/220 door (swing drawn) is read as a window",
+   "message": "r_L1_dus_4 'Duş' (2.97 m2, type bathroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real16|L1|circulation|flat|r_L1_antre,r_L1_banyo_wc,r_L1_mutfak,r_L1_oda,r_L1_oda_3,r_L1_salon_2",
+   "project": "real16",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the core between the flats is not read as a stair or a hall (an untyped 37.7 m2 face)",
+   "message": "L1: a group of 6 rooms joined by doors ('Mutfak', 'Salon', 'Antre', 'Banyo-wc', 'Y.oda', 'Y.oda'; 71 m2) has no door to a stair, a lift, the floor's shared hall: its door d_L1_001 leads into space the reading did not close (the hall or the "
+  },
+  {
+   "key": "real16|L1|circulation|flat|r_L1_antre_2,r_L1_banyo_wc_2,r_L1_mutfak_2,r_L1_oda_2,r_L1_oda_4,r_L1_salon",
+   "project": "real16",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the core between the flats is not read as a stair or a hall (an untyped 37.7 m2 face)",
+   "message": "L1: a group of 6 rooms joined by doors ('Mutfak', 'Salon', 'Banyo-wc', 'Y.oda', 'Antre', 'Y.oda'; 71 m2) has no door to a stair, a lift, the floor's shared hall: its door d_L1_002 leads into space the reading did not close (the hall or the "
+  },
+  {
+   "key": "real16|L1|circulation|flat|r_L1_antre_4,r_L1_banyo_wc_4,r_L1_mutfak_4,r_L1_salon_4,r_L1_y_oda,r_L1_y_oda_4",
+   "project": "real16",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the core between the flats is not read as a stair or a hall (an untyped 37.7 m2 face)",
+   "message": "L1: a group of 6 rooms joined by doors ('Y.oda', 'Antre', 'Y.oda', 'Banyo-wc', 'Salon', 'Mutfak'; 71 m2) has no door to a stair, a lift, the floor's shared hall: its entrance door is not read"
+  },
+  {
+   "key": "real16|L1|circulation|flat|r_L1_antre_3,r_L1_banyo_wc_3,r_L1_mutfak_3,r_L1_salon_3,r_L1_y_oda_2,r_L1_y_oda_3",
+   "project": "real16",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the core between the flats is not read as a stair or a hall (an untyped 37.7 m2 face)",
+   "message": "L1: a group of 6 rooms joined by doors ('Y.oda', 'Antre', 'Y.oda', 'Banyo-wc', 'Salon', 'Mutfak'; 71 m2) has no door to a stair, a lift, the floor's shared hall: its entrance door is not read"
+  },
+  {
+   "key": "real17|L-1|room_type_area|-|r_L-1_depo",
+   "project": "real17",
+   "project_status": "partial",
+   "level": "L-1",
+   "rule": "room_type_area",
+   "severity": "major",
+   "right": true,
+   "reason": "the face is the whole basement (152 m2) where the drawing writes 71 m2 and 70 m2 for two stores",
+   "message": "r_L-1_depo 'Depo' (type storage) is 152.0 m2 (drawn area text 71 m2), over the 60.0 m2 a storage has at most (a storage room (depo) is a cupboard in a flat to a store room of a shop or a basement): the face or the name is wrong"
+  },
+  {
+   "key": "real17|L0|room_type_area|-|r_L0_saft",
+   "project": "real17",
+   "project_status": "partial",
+   "level": "L0",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the stair core with its unread stair, named after the small shaft in its corner",
+   "message": "r_L0_saft 'Şaft' (type shaft) is 15.2 m2, over the 8.00 m2 a shaft has at most (an installation shaft is from a 30 x 40 cm riser to a few m2; a larger face named shaft has taken in a room beside it): the face or the name is wrong"
+  },
+  {
+   "key": "real17|L1|room_type_area|-|r_L1_isiklik",
+   "project": "real17",
+   "project_status": "partial",
+   "level": "L1",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the 0.25 m2 face is the 50 x 50 ventilation shaft (H.B 50X50), named a light well",
+   "message": "r_L1_isiklik 'Işıklık' (type shaft) is 0.25 m2, under the 0.50 m2 a light well has at least (a light or air well (ışıklık) is from a 0.7 x 0.7 m air shaft to about 5 x 6 m): the face or the name is wrong"
+  },
+  {
+   "key": "real17|L2|room_type_area|-|r_L2_isiklik",
+   "project": "real17",
+   "project_status": "partial",
+   "level": "L2",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the 0.25 m2 face is the 50 x 50 ventilation shaft (H.B 50X50), named a light well",
+   "message": "r_L2_isiklik 'Işıklık' (type shaft) is 0.25 m2, under the 0.50 m2 a light well has at least (a light or air well (ışıklık) is from a 0.7 x 0.7 m air shaft to about 5 x 6 m): the face or the name is wrong"
+  },
+  {
+   "key": "real17|L3|room_type_area|-|r_L3_isiklik",
+   "project": "real17",
+   "project_status": "partial",
+   "level": "L3",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the 0.25 m2 face is the 50 x 50 ventilation shaft (H.B 50X50), named a light well",
+   "message": "r_L3_isiklik 'Işıklık' (type shaft) is 0.25 m2, under the 0.50 m2 a light well has at least (a light or air well (ışıklık) is from a 0.7 x 0.7 m air shaft to about 5 x 6 m): the face or the name is wrong"
+  },
+  {
+   "key": "real17|L0|circulation|room|r_L0_asansor",
+   "project": "real17",
+   "project_status": "partial",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the lift has no door in the model (the user placed real10's lift door, C0034)",
+   "message": "r_L0_asansor 'Asansör' (3.60 m2, type shaft) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real17|L1|circulation|room|r_L1_dus",
+   "project": "real17",
+   "project_status": "partial",
+   "level": "L1",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower's sliding door (SÜRGÜ KAPI) is not read",
+   "message": "r_L1_dus 'Duş' (1.65 m2, type bathroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real17|L2|circulation|room|r_L2_dus",
+   "project": "real17",
+   "project_status": "partial",
+   "level": "L2",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower's sliding door (SÜRGÜ KAPI) is not read",
+   "message": "r_L2_dus 'Duş' (1.65 m2, type bathroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real17|L3|circulation|room|r_L3_dus",
+   "project": "real17",
+   "project_status": "partial",
+   "level": "L3",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the shower's sliding door (SÜRGÜ KAPI) is not read",
+   "message": "r_L3_dus 'Duş' (1.65 m2, type bathroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real18|L-2|label_names_larger_face|-|r_L-2_yangin_holu",
+   "project": "real18",
+   "project_status": "open",
+   "level": "L-2",
+   "rule": "label_names_larger_face",
+   "severity": "major",
+   "right": true,
+   "reason": "known error: the car park (OTOPARK, bays OTO 1-4) named by the fire lobby's label",
+   "message": "r_L-2_yangin_holu 'Yangin Holü' names a fire lobby (at most 40.0 m2) but its face is 99.4 m2, 2.5 times that; inside the same face stand 'OTO 3' (car park), 'OTO 1' (car park), 'OTO 2' (car park), 'OTO 4' (car park): the face is that space "
+  },
+  {
+   "key": "real18|L1|unread_walls|-|-",
+   "project": "real18",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "known error class: hatch-drawn walls, 14 walls and no room on a floor of three flats",
+   "message": "L1 1. Normal Kat: 6 of 8 labels (75 %) outside every room (0 rooms closed), e.g. 'BALKON', 'WC': the walls of this floor are mostly not read (hatch-drawn or on an unread layer)"
+  },
+  {
+   "key": "real18|L2|unread_walls|-|-",
+   "project": "real18",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "known error class: hatch-drawn walls, 14 walls and no room on a floor of three flats",
+   "message": "L2 2. Normal Kat: 6 of 8 labels (75 %) outside every room (0 rooms closed), e.g. 'BALKON', 'WC': the walls of this floor are mostly not read (hatch-drawn or on an unread layer)"
+  },
+  {
+   "key": "real18|L3|unread_walls|-|-",
+   "project": "real18",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "known error class: hatch-drawn walls, 14 walls and no room on a floor of three flats",
+   "message": "L3 3. Normal Kat: 6 of 8 labels (75 %) outside every room (0 rooms closed), e.g. 'BALKON', 'WC': the walls of this floor are mostly not read (hatch-drawn or on an unread layer)"
+  },
+  {
+   "key": "real18|L3|circulation|levels|f_L2_001",
+   "project": "real18",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "circulation",
+   "severity": "major",
+   "right": true,
+   "reason": "the stair is drawn on L3 (treads 1-16); the model has none there",
+   "message": "L3 3. Normal Kat cannot be reached from L2 2. Normal Kat by a stair: no stair is read on L3"
+  },
+  {
+   "key": "real19|L0|room_type_area|-|r_L0_saft",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "room_type_area",
+   "severity": "minor",
+   "right": true,
+   "reason": "the face is the stair hall around the stair f_L0_001, named after the small shaft in its corner",
+   "message": "r_L0_saft 'Şaft' (type shaft) is 15.9 m2, over the 8.00 m2 a shaft has at most (an installation shaft is from a 30 x 40 cm riser to a few m2; a larger face named shaft has taken in a room beside it); the stair f_L0_004 stands in it (the sta"
+  },
+  {
+   "key": "real19|L1|frame_walls_and_paper_rooms|-|w_L1_001,w_L1_038,w_L1_039,w_L1_085",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "frame_walls_and_paper_rooms",
+   "severity": "major",
+   "right": true,
+   "reason": "known error: the sheet frame read as four walls (no opening, nothing ends on them)",
+   "message": "L1: 4 walls (21.96, 21.96, 20.43, 20.43 m ...) lie on the edges of the drawing's region box and cover 99 % of its perimeter, with no opening and 0 other wall(s) ending on them: the sheet frame is read as walls"
+  },
+  {
+   "key": "real19|L1|frame_walls_and_paper_rooms|-|r_L1_normal",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "frame_walls_and_paper_rooms",
+   "severity": "major",
+   "right": true,
+   "reason": "known error: a 441 m2 room 'Normal' made of the frame, named from NORMAL 253 M2",
+   "message": "r_L1_normal 'Normal' (441 m2, drawn area text 253 m2) covers 96 % of the region box (458 m2) and holds 14 other rooms' labels ('ASANSÖR', 'ŞAFT', 'SALON', 'ANTRE', 'BANYO WC' ...): a room of paper (the sheet or its frame closed as a room, n"
+  },
+  {
+   "key": "real19|L2|frame_walls_and_paper_rooms|-|w_L2_001,w_L2_036,w_L2_037,w_L2_080",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "frame_walls_and_paper_rooms",
+   "severity": "major",
+   "right": true,
+   "reason": "known error: the sheet frame read as four walls (no opening, nothing ends on them)",
+   "message": "L2: 4 walls (23.21, 23.21, 20.43, 20.43 m ...) lie on the edges of the drawing's region box and cover 99 % of its perimeter, with no opening and 1 other wall(s) ending on them: the sheet frame is read as walls"
+  },
+  {
+   "key": "real19|L3|frame_walls_and_paper_rooms|-|w_L3_001,w_L3_039,w_L3_040,w_L3_086",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "frame_walls_and_paper_rooms",
+   "severity": "major",
+   "right": true,
+   "reason": "known error: the sheet frame read as four walls (no opening, nothing ends on them)",
+   "message": "L3: 4 walls (21.96, 21.96, 20.43, 20.43 m ...) lie on the edges of the drawing's region box and cover 99 % of its perimeter, with no opening and 0 other wall(s) ending on them: the sheet frame is read as walls"
+  },
+  {
+   "key": "real19|L3|frame_walls_and_paper_rooms|-|r_L3_normal",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "frame_walls_and_paper_rooms",
+   "severity": "major",
+   "right": true,
+   "reason": "known error: a 441 m2 room 'Normal' made of the frame, named from NORMAL 253 M2",
+   "message": "r_L3_normal 'Normal' (441 m2, drawn area text 253 m2) covers 96 % of the region box (458 m2) and holds 20 other rooms' labels ('ASANSÖR', 'ŞAFT', 'SALON', 'ANTRE', 'BANYO WC' ...): a room of paper (the sheet or its frame closed as a room, n"
+  },
+  {
+   "key": "real19|L2|unread_walls|-|-",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L2",
+   "rule": "unread_walls",
+   "severity": "major",
+   "right": true,
+   "reason": "83 walls read inside the frame, no room closed: 21 labels stand in no room",
+   "message": "L2 2. Kat: 21 of 21 labels (100 %) outside every room (0 rooms closed), e.g. 'ANTRE', 'ASANSÖR', 'BALKON', 'BANYO WC', 'MUTFAK', 'SALON', 'WC DUŞ', 'ŞAFT': its walls are read but do not close around the rooms (gaps, a frame or open joints)"
+  },
+  {
+   "key": "real19|L0|circulation|room|r_L0_oda_6",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "a room of the mirrored flat built without its door (the copy kept the rooms, not the doors)",
+   "message": "r_L0_oda_6 'Mutfak' (12.2 m2, type kitchen) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real19|L0|circulation|room|r_L0_oda_10",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "a room of the mirrored flat built without its door (the copy kept the rooms, not the doors)",
+   "message": "r_L0_oda_10 'Oda' (12.2 m2, type bedroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real19|L0|circulation|room|r_L0_oda_11",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "a room of the mirrored flat built without its door (the copy kept the rooms, not the doors)",
+   "message": "r_L0_oda_11 'Oda' (14.4 m2, type bedroom) has no door, opening or open side read: it cannot be entered"
+  },
+  {
+   "key": "real19|L1|label_vocabulary|-|r_L1_normal",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L1",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "'Normal' is the floor's name (NORMAL 253 M2, the floor's area text) read as a room name",
+   "message": "r_L1_normal 'Normal': a floor's name read as the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real19|L3|label_vocabulary|-|r_L3_normal",
+   "project": "real19",
+   "project_status": "open",
+   "level": "L3",
+   "rule": "label_vocabulary",
+   "severity": "minor",
+   "right": true,
+   "reason": "'Normal' is the floor's name (NORMAL 253 M2, the floor's area text) read as a room name",
+   "message": "r_L3_normal 'Normal': a floor's name read as the room's name: a notation text of the drawing, not part of the room's name"
+  },
+  {
+   "key": "real20|L0|label_names_larger_face|-|r_L0_asansor",
+   "project": "real20",
+   "project_status": "open",
+   "level": "L0",
+   "rule": "label_names_larger_face",
+   "severity": "major",
+   "right": true,
+   "reason": "known error: a 16.2 m2 'Asansör' face holding the stair core",
+   "message": "r_L0_asansor 'Asansör' names a lift (at most 8.00 m2) but its face is 16.2 m2, 2.0 times that; inside the same face stand the stair f_L0_001: the face is that space and the label names a small room in it; the walls between them are not read"
+  },
+  {
+   "key": "real21|L0|circulation|flat|r_L0_oda,r_L0_oda_2",
+   "project": "real21",
+   "project_status": "accepted",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the bedroom's door (90/210 or 80/210, swing drawn) is read as a window, cutting it off",
+   "message": "L0: a group of 2 rooms joined by doors ('Oda', 'Oda'; 15 m2) has no door to a stair, a lift, the floor's shared hall or the outside: its entrance door is not read"
+  },
+  {
+   "key": "real21|L0|circulation|flat|r_L0_oda_15,r_L0_oda_18,r_L0_oda_19",
+   "project": "real21",
+   "project_status": "accepted",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the bedroom's door (90/210 or 80/210, swing drawn) is read as a window, cutting it off",
+   "message": "L0: a group of 3 rooms joined by doors ('Oda', 'Oda', 'Oda'; 24 m2) has no door to a stair, a lift, the floor's shared hall or the outside: its entrance door is not read"
+  },
+  {
+   "key": "synthetic-01|-|circulation|levels|-",
+   "project": "synthetic-01",
+   "project_status": "accepted",
+   "level": null,
+   "rule": "circulation",
+   "severity": "minor",
+   "right": false,
+   "reason": "the synthetic drawing has no stair (its truth has none): the reading is right",
+   "message": "no stair is read on any of the 2 levels (L0, L1): the stairs are unread or not drawn"
+  },
+  {
+   "key": "synthetic-03|-|circulation|levels|-",
+   "project": "synthetic-03",
+   "project_status": "accepted",
+   "level": null,
+   "rule": "circulation",
+   "severity": "minor",
+   "right": false,
+   "reason": "the synthetic drawing has no stair (its truth has none): the reading is right",
+   "message": "no stair is read on any of the 3 levels (L-1, L0, L1): the stairs are unread or not drawn"
+  },
+  {
+   "key": "synthetic-12-mirrored-halves|L0|circulation|flat|r_L0_oda,r_L0_oda_2,r_L0_oda_3,r_L0_oda_4",
+   "project": "synthetic-12-mirrored-halves",
+   "project_status": "accepted",
+   "level": "L0",
+   "rule": "circulation",
+   "severity": "minor",
+   "right": true,
+   "reason": "the mirrored half's entrance door (truth: a door at 10.0, 8.875) is read as a window",
+   "message": "L0: a group of 4 rooms joined by doors ('Oda', 'Oda', 'Oda', 'Oda'; 54 m2) has no door to a stair, a lift, the floor's shared hall or the outside: its entrance door is not read"
+  }
+ ]
+}

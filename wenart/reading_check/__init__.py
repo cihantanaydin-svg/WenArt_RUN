@@ -22,6 +22,9 @@ CAD document) and returns the findings, each with its check, severity, level and
 
 - RC8 to RC12 (5 Nov 2026, Milestone 14 R5, ``wenart.reading_check.crossdoc``): the cross-document checks, advisory
   (reported, counted under ``counts["advisory"]``, never in the verdict until they earn it).
+- RC14 (6 Nov 2026, Milestone 14 R6, ``wenart.reading_check.sense``): the architectural-sense checks (a room type
+  implausible for its area, a small room's label naming a larger face, the sheet frame read as walls, unread walls,
+  circulation, notation in room names), advisory like RC8-RC12; a rule below its judged precision writes info.
 
 ``verdict``: ``ready`` without a critical finding, else ``fix before a pod run``. ``write(out_dir, result)`` writes
 ``reading_check/reading_check.json`` and ``.md``; ``wenart.reading_check.sheets`` draws the comparison sheets (the
@@ -582,9 +585,26 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     for f in cross:
         f["advisory"] = True
     findings += cross
+    # 6 Nov 2026 (Milestone 14 R6; user, 4 Nov 2026: "some AI or something else to give the feedbacks by itself instead
+    # of me at some point"): the architectural-sense checks RC14 (a room type implausible for its area, a small room's
+    # label naming a larger face, the sheet frame read as walls, unread walls, levels, rooms and flats that cannot be
+    # reached, notation in room names) join as ADVISORY findings like RC8-RC12: counted under counts["advisory"],
+    # never in the verdict; a rule below its judged precision (models/sense_trust.json) writes info. A failure of the
+    # module is one info finding.
+    try:
+        from wenart.reading_check import sense as SN
+        sense = SN.findings(out_dir)
+    except Exception as exc:  # noqa: BLE001 - an advisory check never stops the reading check
+        sense = [{"check": "RC14", "name": "architectural sense", "rule": None, "severity": "info", "level_id": None,
+                  "message": f"the architectural-sense checks did not run: {type(exc).__name__}: {str(exc)[:200]}",
+                  "place": None, "element_ids": []}]
+    for f in sense:
+        f["advisory"] = True
+    findings += sense
+    advisory = cross + sense
     counts = {s: sum(1 for f in findings if f["severity"] == s and not f.get("advisory"))
               for s in ("critical", "major", "minor")}
-    counts["advisory"] = {s: sum(1 for f in cross if f["severity"] == s) for s in ("major", "minor", "info")}
+    counts["advisory"] = {s: sum(1 for f in advisory if f["severity"] == s) for s in ("major", "minor", "info")}
     return {"project": (building.get("project") or {}).get("id"), "levels_checked": checked, "reference": ref,
             "conventions": conv,
             "findings": findings, "counts": counts, "notes": notes,
@@ -627,8 +647,8 @@ def write(out_dir, result: dict) -> Path:
     d.mkdir(parents=True, exist_ok=True)
     (d / "reading_check.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     adv = (result.get("counts") or {}).get("advisory") or {}
-    adv_text = (f" Cross-document checks RC8-RC12, advisory: {adv.get('major', 0)} major, {adv.get('minor', 0)} "
-                f"minor, {adv.get('info', 0)} info (not in the verdict)." if adv else "")
+    adv_text = (f" Cross-document checks RC8-RC12 and architectural-sense checks RC14, advisory: {adv.get('major', 0)} "
+                f"major, {adv.get('minor', 0)} minor, {adv.get('info', 0)} info (not in the verdict)." if adv else "")
     lines = [f"# Reading check: {result.get('project')}", "",
              f"Verdict: **{result['verdict']}** ({result['counts']['critical']} critical, {result['counts']['major']} "
              f"major, {result['counts']['minor']} minor). Levels checked against the drawing: "
