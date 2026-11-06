@@ -3680,3 +3680,39 @@ refused; the build report names records and places, never element ids; every bui
 `results/reading_accepted/previous/`; `remark confirm` releases a record that waits on the machine's place; the
 score's matching no longer depends on the order of the lists. The truths are unchanged for the current records (only
 the report's form and the records' `truth_applied`); fresh readings score as before with the old and the new score (real06 99.63, real07 99.01, real10 99.31).
+
+## Milestone 14, day 3 (6 Nov 2026): the derived truth, the mirror fix, the machine reviewers measured
+
+Merged since day 2 (each after an adversarial review whose confirmed findings went back for another round): R4 the
+raster second opinion as an advisory, untrusted tool (bbbff6c0: every finding kind under 0.5 precision; it surfaced four
+real reading errors); RC14 the architectural-sense checks, two rounds (065dd0ae, 89fe7c73); the backfill of every
+structural correction of the user (c5d8856f: 101 lessons sorted, 20 reading, 77 build, 4 process; the store at 84
+records, 65 accepted with the user's words); `source_dxf` for DXF projects (503cc8c1); the mirror-twin fix and the
+DERIVED truth (3be36055).
+
+The truth design changed. Four rounds of merging new readings into the truth (by id, then by place) still left 18
+confirmed breaks in a 1,096-case adversarial test, each one a way to undo or blur a user correction. Now the truth is
+derived, never merged: the stored accepted reading (`results/reading_accepted/<p>.json`, `truth accept`) plus a
+deterministic replay of the user's applicable correction records in id order, by place (add, confirm, remove, retype; a
+negated wall span cuts the walls on its line). The correction store is the memory; ids are informational; a second
+adversarial test of 7,660 cases found only edge cases, all fixed with tests. Scores against the derived truth: real06
+99.63 (the reader still reads C0064's two windows beside the shower door), real07 99.01 (it still builds C0053's wall
+over the stair edge), real10 99.31 (the lift and fire-stair doors still read as openings); every accepted reading scores
+100 against a truth built from it with no records.
+
+The machine reviewers, measured independently (blind judges who did not see the author's verdicts; replays on readings
+made before the user's corrections):
+
+| reviewer | precision | recall of the user's past corrections | out of sample |
+|---|---|---|---|
+| RC14 architectural sense, 12 rules | 0.92-1.00 per rule (blind) | 15 of 24 (62 %, in sample: the rules were built from these corrections) | 1 of 11 synthetic failure classes caught, 0 false alarms |
+| RC8-RC12 cross-document | not yet calibrated | real10's kitchen windows (first machine-found error) | - |
+| RC13 raster second opinion | at most 0.11 | - | - |
+
+So the machine already raises with high precision the errors the user taught it, but does not yet generalise to kinds
+nobody has shown it. Next: the reader targets (the open items above, RC14's findings on accepted projects: real15's
+1257 m2 sheet room, real03's missing bedroom doors, real21's door read as a window, real19's sheet frame, real20's 16 m2
+lift room, real18's room labels in ATTDEFs and hatch walls), the ranker's retrain with user-correction labels (27
+records now replayed into the truth), the running out-of-sample recall (every new user remark records whether a machine
+check raised it first), and the vision critic R6 (one short pod, waiting for the user's OK: "Don't run any more pods for
+now", 4 Nov). CPU suite on main: the key reading files 601 passed, 26 xfailed (the reader's synthetic targets).
