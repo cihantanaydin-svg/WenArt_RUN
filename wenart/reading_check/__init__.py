@@ -25,6 +25,10 @@ CAD document) and returns the findings, each with its check, severity, level and
 - RC14 (6 Nov 2026, Milestone 14 R6, ``wenart.reading_check.sense``): the architectural-sense checks (a room type
   implausible for its area, a small room's label naming a larger face, the sheet frame read as walls, unread walls,
   circulation, notation in room names), advisory like RC8-RC12; a rule below its judged precision writes info.
+- RC15 (6 Nov 2026, Milestone 14 R6, ``wenart.reading_check.critic``): the vision critic (the agent model compares the
+  drawing with the model on the comparison sheet's two panels and answers the reading lessons' question bank, on a
+  pod); its stored findings (``reading_check/critic.json``) join as advisory findings, a kind below its judged
+  precision (``models/critic_trust.json``) as info.
 
 ``verdict``: ``ready`` without a critical finding, else ``fix before a pod run``. ``write(out_dir, result)`` writes
 ``reading_check/reading_check.json`` and ``.md``; ``wenart.reading_check.sheets`` draws the comparison sheets (the
@@ -620,7 +624,21 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     for f in sense:
         f["advisory"] = True
     findings += sense
-    advisory = cross + sense
+    # 6 Nov 2026 (Milestone 14 R6): the vision critic RC15 (``wenart.reading_check.critic``) runs on a pod and stores
+    # its findings in the reading (``reading_check/critic.json``, ``critic store``); here they join as ADVISORY
+    # findings like RC8-RC12 and RC14, a kind below its judged precision (models/critic_trust.json) as info; no stored
+    # output, no findings. A failure of the module is one info finding.
+    try:
+        from wenart.reading_check import critic as CR
+        vision = CR.findings(out_dir)
+    except Exception as exc:  # noqa: BLE001 - an advisory check never stops the reading check
+        vision = [{"check": "RC15", "name": "vision critic", "kind": None, "severity": "info", "level_id": None,
+                   "message": f"the vision critic's stored findings could not be read: {type(exc).__name__}: "
+                              f"{str(exc)[:200]}", "place": None, "element_ids": []}]
+    for f in vision:
+        f["advisory"] = True
+    findings += vision
+    advisory = cross + sense + vision
     counts = {s: sum(1 for f in findings if f["severity"] == s and not f.get("advisory"))
               for s in ("critical", "major", "minor")}
     counts["advisory"] = {s: sum(1 for f in advisory if f["severity"] == s) for s in ("major", "minor", "info")}
@@ -666,8 +684,9 @@ def write(out_dir, result: dict) -> Path:
     d.mkdir(parents=True, exist_ok=True)
     (d / "reading_check.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     adv = (result.get("counts") or {}).get("advisory") or {}
-    adv_text = (f" Cross-document checks RC8-RC12 and architectural-sense checks RC14, advisory: {adv.get('major', 0)} "
-                f"major, {adv.get('minor', 0)} minor, {adv.get('info', 0)} info (not in the verdict)." if adv else "")
+    adv_text = (f" Cross-document checks RC8-RC12, architectural-sense checks RC14 and the vision critic RC15, "
+                f"advisory: {adv.get('major', 0)} major, {adv.get('minor', 0)} minor, {adv.get('info', 0)} info (not "
+                f"in the verdict)." if adv else "")
     lines = [f"# Reading check: {result.get('project')}", "",
              f"Verdict: **{result['verdict']}** ({result['counts']['critical']} critical, {result['counts']['major']} "
              f"major, {result['counts']['minor']} minor). Levels checked against the drawing: "
