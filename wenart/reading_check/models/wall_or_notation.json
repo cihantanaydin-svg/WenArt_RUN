@@ -38,78 +38,78 @@
   "width"
  ],
  "mean": [
-  5.2432151167,
-  5.8228333333,
+  5.168741,
+  5.7856666667,
   0.0,
-  0.0328333333,
-  0.2408333333,
-  0.2538333333,
-  0.2782355833,
-  0.9858333333,
-  5.9018333333,
-  0.5012488333,
-  32.3648333333,
-  1.2143333333,
-  0.7719370833,
-  1.4566968333,
-  0.8353900833,
+  0.0318333333,
+  0.2365,
+  0.2563333333,
+  0.27866325,
+  0.9778333333,
+  5.8255,
+  0.5001241667,
+  32.184,
+  1.205,
+  0.7759171167,
+  1.4768526,
+  0.8359204333,
   0.0056666667,
-  0.508,
+  0.5103333333,
   0.0,
-  0.0581666667,
-  0.0401666667,
-  0.0071666667,
-  0.1585,
+  0.0608333333,
+  0.0405,
+  0.007,
+  0.1553333333,
   0.0078333333,
-  0.1223333333,
-  0.1338333333,
-  0.0086666667,
-  0.0563333333,
-  0.065,
-  0.0253333333,
+  0.1236666667,
+  0.1308333333,
+  0.0085,
+  0.0576666667,
+  0.0645,
+  0.0283333333,
   0.0063333333,
-  0.1736666667,
-  0.1366666667,
-  0.1491731667,
-  0.2523333333,
-  0.2207635167
+  0.1728333333,
+  0.1358333333,
+  0.1611970667,
+  0.2501666667,
+  0.21913055
  ],
  "std": [
-  10.5462591775,
-  8.7832100418,
+  10.2317955766,
+  8.6927207798,
   1.0,
-  0.1782001839,
-  0.4275893344,
-  0.4352033688,
-  0.3945201973,
-  0.1181777146,
-  13.3908873233,
-  0.4114871491,
-  39.4548779828,
-  2.71975389,
-  1.4531840882,
-  2.4921446268,
-  1.4676916285,
+  0.1755561797,
+  0.4249326417,
+  0.4366080113,
+  0.3944832301,
+  0.1472253564,
+  13.309697583,
+  0.4126191817,
+  39.245489898,
+  2.6962891165,
+  1.3810839294,
+  2.4600356752,
+  1.3817454222,
   0.0750636767,
-  0.4999359959,
+  0.4998932108,
   1.0,
-  0.2340583379,
-  0.1963499569,
-  0.0843522706,
-  0.3652091866,
+  0.2390243479,
+  0.197128765,
+  0.0833726574,
+  0.3622221541,
   0.0881587898,
-  0.3276703967,
-  0.3404731593,
-  0.0926906444,
-  0.2305642836,
-  0.2465258607,
-  0.1571354688,
+  0.3292008843,
+  0.3372179892,
+  0.0918027777,
+  0.2331120379,
+  0.2456415071,
+  0.1659233424,
   0.0793298319,
-  0.3788225911,
-  0.3434951075,
-  0.5604627131,
-  0.5916033769,
-  0.1452672129
+  0.3781031238,
+  0.3426114985,
+  0.6311999027,
+  0.5830237035,
+  0.1438603851
  ],
  "classes": [
   "wall",
@@ -117,89 +117,89 @@
  ],
  "coef": [
   [
-   -0.2824393283,
-   0.07845173,
+   -0.1843420352,
+   -0.0816013375,
    0.0,
-   -0.1575130181,
-   -0.4361083779,
-   1.0360659032,
-   -0.1011330228,
-   0.0431531977,
-   -0.1237388249,
-   0.6374290207,
-   -0.6907528131,
-   -0.4627014529,
-   -0.0119359496,
-   -0.0111050304,
-   0.3305030868,
-   -0.2716480059,
-   0.342854805,
+   -0.3115855662,
+   -0.4596723524,
+   0.8210331277,
+   0.0514611337,
+   -0.4016561473,
+   -0.087450236,
+   0.720853734,
+   -0.7869099191,
+   -0.4336105029,
+   -0.4394576123,
+   0.0502664981,
+   0.6383245949,
+   -0.2233977746,
+   0.2896143632,
    0.0,
-   0.0376129457,
-   0.2315044452,
-   -0.2906057849,
-   -0.707101571,
-   0.1143512984,
-   -0.341703582,
-   0.1454369612,
-   -0.0947823252,
-   0.5006049644,
-   -0.9645139817,
-   0.3920488802,
-   0.0965684766,
-   0.4833690282,
-   0.4647117908,
-   0.2384887244,
-   0.0811112652,
-   -1.240283604
+   0.0678088193,
+   0.1977036864,
+   -0.2214548708,
+   -0.7998696973,
+   0.0957998238,
+   0.0351430499,
+   0.0608439536,
+   -0.2932648068,
+   0.5204165183,
+   -1.0432070209,
+   0.3652663643,
+   0.0919119749,
+   0.4975894657,
+   0.3453029839,
+   0.2412952156,
+   0.3080258176,
+   -1.3615916607
   ],
   [
-   0.2824393283,
-   -0.07845173,
+   0.1894213209,
+   0.0737611266,
    0.0,
-   0.1575130181,
-   0.4361083779,
-   -1.0360659032,
-   0.1011330228,
-   -0.0431531977,
-   0.1237388249,
-   -0.6374290207,
-   0.6907528131,
-   0.4627014529,
-   0.0119359496,
-   0.0111050304,
-   -0.3305030868,
-   0.2716480059,
-   -0.342854805,
+   0.224873478,
+   0.5218094107,
+   -0.8472589273,
+   0.0347962281,
+   0.4058693964,
+   0.1109449694,
+   -0.6417214654,
+   0.8105367287,
+   0.4333938558,
+   0.4347706022,
+   -0.0247952029,
+   -0.6335426518,
+   0.2315397692,
+   -0.2884441247,
    0.0,
-   -0.0376129457,
-   -0.2315044452,
-   0.2906057849,
-   0.707101571,
-   -0.1143512984,
-   0.341703582,
-   -0.1454369612,
-   0.0947823252,
-   -0.5006049644,
-   0.9645139817,
-   -0.3920488802,
-   -0.0965684766,
-   -0.4833690282,
-   -0.4647117908,
-   -0.2384887244,
-   -0.0811112652,
-   1.240283604
+   -0.0243218711,
+   -0.1832050081,
+   0.2240717391,
+   0.8086214848,
+   -0.0889467209,
+   0.031751753,
+   -0.1301766534,
+   0.2996254475,
+   -0.5534147535,
+   1.0698972122,
+   -0.3345336487,
+   -0.0849768254,
+   -0.5585059293,
+   -0.3393229157,
+   -0.2545469403,
+   -0.2678960644,
+   1.3829649552
   ]
  ],
  "intercept": [
-  -0.6853883967,
-  0.6853883967
+  -0.5546700911,
+  0.53760616
  ],
  "l2": 10.0,
  "iterations": 25,
  "trained_on": {
-  "commit": "1f705237e29a3c8d4cbf968ee034247d465883cf",
-  "date": "2026-11-05",
+  "commit": "35ce73e4894f87aa216edff1e27f2833d1b90c24",
+  "date": "2026-11-06",
   "projects": [
    "real02",
    "real03",
@@ -231,7 +231,8 @@
   "rows": 6000,
   "labelled_rows": 21024,
   "counts_per_source": {
-   "accepted_reading": 19207,
+   "accepted_reading": 19078,
+   "user_correction": 129,
    "synthetic": 1817
   },
   "label_weights": {
@@ -240,8 +241,8 @@
    "accepted_reading": 1.0
   },
   "labels": {
-   "notation": 13636,
-   "wall": 7388
+   "notation": 13638,
+   "wall": 7375
   }
  },
  "metrics": {
@@ -249,110 +250,119 @@
    "real02": {
     "n": 1498,
     "rules_acc": 0.9466,
-    "ranker_acc": 0.9499,
+    "ranker_acc": 0.9486,
     "integrated_acc": 0.9479,
     "corrections": {
      "n": 0,
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.9466
    },
    "real03": {
     "n": 1776,
     "rules_acc": 0.7973,
-    "ranker_acc": 0.7376,
-    "integrated_acc": 0.7967,
+    "ranker_acc": 0.7393,
+    "integrated_acc": 0.7956,
     "corrections": {
      "n": 0,
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.7973
    },
    "real04": {
     "n": 1498,
     "rules_acc": 0.9466,
     "ranker_acc": 0.9499,
-    "integrated_acc": 0.9479,
+    "integrated_acc": 0.9499,
     "corrections": {
      "n": 0,
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.9466
    },
    "real06": {
     "n": 2849,
     "rules_acc": 0.7294,
-    "ranker_acc": 0.6936,
+    "ranker_acc": 0.61,
     "integrated_acc": 0.7294,
     "corrections": {
-     "n": 0,
-     "rules": 0,
-     "ranker": 0,
-     "integrated": 0
-    }
+     "n": 54,
+     "rules": 5,
+     "ranker": 16,
+     "integrated": 5
+    },
+    "trusted_acc": 0.7294
    },
    "real07": {
-    "n": 3897,
-    "rules_acc": 0.7814,
-    "ranker_acc": 0.7698,
-    "integrated_acc": 0.7814,
+    "n": 3886,
+    "rules_acc": 0.7831,
+    "ranker_acc": 0.6616,
+    "integrated_acc": 0.7831,
     "corrections": {
      "n": 0,
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.7831
    },
    "real10": {
     "n": 4421,
     "rules_acc": 0.7354,
-    "ranker_acc": 0.6998,
-    "integrated_acc": 0.7268,
+    "ranker_acc": 0.705,
+    "integrated_acc": 0.7331,
     "corrections": {
-     "n": 0,
-     "rules": 0,
-     "ranker": 0,
-     "integrated": 0
-    }
+     "n": 64,
+     "rules": 38,
+     "ranker": 38,
+     "integrated": 38
+    },
+    "trusted_acc": 0.7354
    },
    "real15": {
     "n": 2133,
     "rules_acc": 0.8481,
-    "ranker_acc": 0.7848,
-    "integrated_acc": 0.8467,
+    "ranker_acc": 0.7393,
+    "integrated_acc": 0.8429,
     "corrections": {
      "n": 0,
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.8481
    },
    "real19": {
     "n": 529,
     "rules_acc": 0.7202,
-    "ranker_acc": 0.7864,
+    "ranker_acc": 0.7278,
     "integrated_acc": 0.7202,
     "corrections": {
      "n": 0,
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.7202
    },
    "real21": {
     "n": 606,
     "rules_acc": 0.6089,
-    "ranker_acc": 0.6568,
-    "integrated_acc": 0.5891,
+    "ranker_acc": 0.5693,
+    "integrated_acc": 0.5908,
     "corrections": {
      "n": 0,
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6089
    },
    "synthetic-06": {
     "n": 65,
@@ -364,7 +374,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.7538
    },
    "synthetic-07": {
     "n": 269,
@@ -376,7 +387,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6803
    },
    "synthetic-08-spaced-labels": {
     "n": 62,
@@ -388,7 +400,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.5484
    },
    "synthetic-09-jamb-stubs": {
     "n": 73,
@@ -400,7 +413,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.5479
    },
    "synthetic-10-glazed-facade": {
     "n": 69,
@@ -412,7 +426,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.4928
    },
    "synthetic-11-dimension-chains": {
     "n": 93,
@@ -424,7 +439,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6989
    },
    "synthetic-12-mirrored-halves": {
     "n": 80,
@@ -436,7 +452,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.525
    },
    "synthetic-13-typical-floor": {
     "n": 165,
@@ -448,7 +465,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6424
    },
    "synthetic-14-elevation-title": {
     "n": 165,
@@ -460,7 +478,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6
    },
    "synthetic-15-winder-stair": {
     "n": 75,
@@ -472,7 +491,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6267
    },
    "synthetic-16-open-recess": {
     "n": 73,
@@ -484,7 +504,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.5479
    },
    "synthetic-17-garage-lift": {
     "n": 65,
@@ -496,7 +517,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6462
    },
    "synthetic-18-sheet-frame": {
     "n": 165,
@@ -508,7 +530,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6424
    },
    "synthetic-19-symmetric-house": {
     "n": 61,
@@ -520,19 +543,21 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.541
    },
    "synthetic-20-glazed-corner": {
     "n": 74,
     "rules_acc": 0.4324,
-    "ranker_acc": 0.9459,
-    "integrated_acc": 0.4459,
+    "ranker_acc": 0.9189,
+    "integrated_acc": 0.4324,
     "corrections": {
      "n": 0,
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.4324
    },
    "synthetic-21-parapet": {
     "n": 201,
@@ -544,7 +569,8 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.6766
    },
    "synthetic-22-curved-stair": {
     "n": 62,
@@ -556,20 +582,22 @@
      "rules": 0,
      "ranker": 0,
      "integrated": 0
-    }
+    },
+    "trusted_acc": 0.5484
    }
   },
   "overall": {
-   "n": 21024,
-   "rules_acc": 0.7756,
-   "ranker_acc": 0.7802,
-   "integrated_acc": 0.7742,
+   "n": 21013,
+   "rules_acc": 0.7759,
+   "ranker_acc": 0.7413,
+   "integrated_acc": 0.7755,
    "corrections": {
-    "n": 0,
-    "rules": 0,
-    "ranker": 0,
-    "integrated": 0
-   }
+    "n": 118,
+    "rules": 43,
+    "ranker": 54,
+    "integrated": 43
+   },
+   "trusted_acc": 0.7759
   },
   "changed_in_lopo": [
    {
@@ -579,11 +607,14 @@
      10.627,
      5.8936
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8466,
-    "right": true
+    "margin": 0.8748,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real02",
@@ -592,11 +623,14 @@
      4.546,
      5.8936
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8466,
-    "right": true
+    "margin": 0.8748,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real03",
@@ -605,11 +639,14 @@
      0.153,
      6.7005
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8874,
-    "right": true
+    "margin": 0.9398,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real03",
@@ -618,11 +655,14 @@
      33.053,
      6.7005
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8874,
-    "right": false
+    "margin": 0.9398,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real03",
@@ -631,11 +671,30 @@
      26.178,
      5.8255
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.642,
-    "right": false
+    "margin": 0.7674,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real03",
+    "level_id": "L0",
+    "place": [
+     26.253,
+     7.5505
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3032,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real03",
@@ -644,11 +703,14 @@
      16.603,
      14.0505
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8886,
-    "right": true
+    "margin": 0.9378,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real03",
@@ -657,11 +719,46 @@
      7.028,
      5.8255
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.642,
-    "right": false
+    "margin": 0.7674,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real03",
+    "level_id": "L0",
+    "place": [
+     6.953,
+     7.5505
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3032,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real04",
+    "level_id": "L-1b",
+    "place": [
+     10.505,
+     11.6021
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.3186,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real04",
@@ -670,11 +767,14 @@
      10.627,
      5.8936
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.86,
-    "right": true
+    "margin": 0.8914,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real04",
@@ -683,11 +783,46 @@
      4.546,
      5.8936
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.86,
-    "right": true
+    "margin": 0.8914,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real04",
+    "level_id": "L1",
+    "place": [
+     4.668,
+     11.6021
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4004,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real04",
+    "level_id": "L1",
+    "place": [
+     10.505,
+     11.6021
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.4004,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -696,11 +831,14 @@
      8.7406,
      8.0495
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8946,
-    "right": true
+    "margin": 0.8388,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -709,50 +847,14 @@
      13.6405,
      8.0495
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8946,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L-1",
-    "place": [
-     6.8905,
-     12.5645
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3068,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L-1",
-    "place": [
-     13.1628,
-     9.8367
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.6842,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L-1",
-    "place": [
-     19.1006,
-     1.9144
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.5738,
-    "right": true
+    "margin": 0.8388,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -761,11 +863,14 @@
      18.5406,
      16.5895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.872,
-    "right": true
+    "margin": 0.7994,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -774,11 +879,14 @@
      16.9705,
      9.2394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.6654,
-    "right": true
+    "margin": 0.4924,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -787,50 +895,14 @@
      16.3056,
      1.9144
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.5646,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L-1",
-    "place": [
-     12.2155,
-     12.4894
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3012,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L-1",
-    "place": [
-     10.2756,
-     8.4395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3556,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L-1",
-    "place": [
-     10.1656,
-     12.4894
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3028,
-    "right": false
+    "margin": 0.3524,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -839,11 +911,14 @@
      9.8155,
      2.0144
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.6836,
-    "right": true
+    "margin": 0.5182,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -852,11 +927,14 @@
      6.0755,
      1.9144
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.5646,
-    "right": true
+    "margin": 0.3524,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -865,11 +943,14 @@
      5.4106,
      9.2394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.6654,
-    "right": true
+    "margin": 0.4924,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -878,24 +959,14 @@
      3.8405,
      16.5895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.872,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L-1",
-    "place": [
-     11.0684,
-     9.8367
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.6842,
-    "right": true
+    "margin": 0.7994,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -904,11 +975,14 @@
      18.5455,
      16.6694
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.656,
-    "right": true
+    "margin": 0.5548,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -917,11 +991,14 @@
      18.5406,
      16.5094
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.6246,
-    "right": true
+    "margin": 0.5166,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -930,11 +1007,14 @@
      3.8405,
      16.5094
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.6256,
-    "right": true
+    "margin": 0.5118,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -943,11 +1023,14 @@
      3.8356,
      16.6694
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.657,
-    "right": true
+    "margin": 0.5504,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -956,11 +1039,14 @@
      20.3655,
      7.8395
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.5338,
-    "right": false
+    "margin": 0.3376,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -969,11 +1055,14 @@
      11.6972,
      15.7632
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.7492,
-    "right": false
+    "margin": 0.9498,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -982,11 +1071,14 @@
      11.6206,
      15.7757
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.6826,
-    "right": false
+    "margin": 0.931,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -995,11 +1087,14 @@
      10.8655,
      15.9395
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.9834,
-    "right": false
+    "margin": 0.9936,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1008,11 +1103,14 @@
      10.5506,
      15.9645
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "wall",
-    "margin": 0.9102,
-    "right": true
+    "margin": 0.9076,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1021,11 +1119,14 @@
      11.1806,
      15.9645
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.9102,
-    "right": false
+    "margin": 0.9076,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1034,11 +1135,14 @@
      11.9555,
      15.9644
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.9666,
-    "right": false
+    "margin": 0.9894,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1047,11 +1151,14 @@
      13.1703,
      9.8442
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.3538,
-    "right": false
+    "margin": 0.7182,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1060,11 +1167,14 @@
      13.1438,
      9.8177
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.5984,
-    "right": false
+    "margin": 0.8452,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1073,11 +1183,14 @@
      16.1359,
      9.2635
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.969,
-    "right": false
+    "margin": 0.9778,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1086,11 +1199,14 @@
      13.936,
      9.2153
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.971,
-    "right": false
+    "margin": 0.9798,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1099,11 +1215,14 @@
      13.0156,
      15.2819
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.9828,
-    "right": false
+    "margin": 0.9934,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1112,11 +1231,14 @@
      13.3135,
      9.6834
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.9092,
-    "right": false
+    "margin": 0.9118,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1125,11 +1247,14 @@
      13.0095,
      9.9874
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.9662,
-    "right": false
+    "margin": 0.99,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1138,11 +1263,14 @@
      11.2199,
      9.9326
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.945,
-    "right": false
+    "margin": 0.9712,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1151,11 +1279,14 @@
      11.0608,
      9.8442
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.3538,
-    "right": false
+    "margin": 0.7182,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1164,11 +1295,14 @@
      11.0873,
      9.8177
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.5984,
-    "right": false
+    "margin": 0.8452,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1177,24 +1311,14 @@
      10.9724,
      9.6851
     ],
+    "rule": "layer_not_chosen_undecided",
     "rule_answer": "notation",
     "ranker_answer": "wall",
     "label": "notation",
-    "margin": 0.9666,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     6.6506,
-     0.5394
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5884,
-    "right": false
+    "margin": 0.9904,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1203,11 +1327,14 @@
      6.9556,
      0.5844
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.9342,
-    "right": false
+    "margin": 0.8858,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1216,11 +1343,14 @@
      6.7956,
      0.5895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.9382,
-    "right": false
+    "margin": 0.8908,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1229,11 +1359,14 @@
      10.0055,
      0.5394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.843,
-    "right": false
+    "margin": 0.7356,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1242,24 +1375,14 @@
      12.3756,
      0.5394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.843,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     15.7306,
-     0.5394
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3978,
-    "right": false
+    "margin": 0.7356,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1268,89 +1391,14 @@
      15.4256,
      0.5844
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.9342,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     15.5855,
-     0.5895
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.838,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.4617,
-     6.2594
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3564,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     11.9193,
-     6.2594
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3564,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     0.2006,
-     9.8395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3762,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     22.1805,
-     9.8395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3762,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     0.2006,
-     12.2394
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5714,
-    "right": false
+    "margin": 0.8858,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1359,24 +1407,14 @@
      0.0506,
      12.2894
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8234,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     22.1805,
-     12.2394
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5714,
-    "right": false
+    "margin": 0.669,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1385,154 +1423,14 @@
      22.3306,
      12.2894
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8234,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.3756,
-     12.5695
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3074,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.948,
-     12.5695
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3434,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     12.0055,
-     12.5695
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3074,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.3456,
-     13.5893
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.6908,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     12.0355,
-     13.5893
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.5338,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.0606,
-     13.5895
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.4802,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     12.3205,
-     13.5895
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.4802,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.2481,
-     13.5895
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3912,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     12.133,
-     13.5895
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3912,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     1.7006,
-     13.8395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.419,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     20.6805,
-     13.8395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.419,
-    "right": false
+    "margin": 0.669,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1541,11 +1439,14 @@
      1.7006,
      15.6395
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.6048,
-    "right": false
+    "margin": 0.3584,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1554,11 +1455,14 @@
      1.5355,
      15.6895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8226,
-    "right": true
+    "margin": 0.6666,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1567,24 +1471,14 @@
      20.6805,
      15.6395
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.6048,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     20.8455,
-     15.6895
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.7214,
-    "right": true
+    "margin": 0.3584,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1593,24 +1487,14 @@
      1.5855,
      15.7094
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.7512,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     20.7956,
-     15.7094
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.6178,
-    "right": true
+    "margin": 0.5642,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1619,11 +1503,14 @@
      9.8455,
      17.8944
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8128,
-    "right": false
+    "margin": 0.6688,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1632,37 +1519,14 @@
      12.5355,
      17.8944
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8128,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     13.125,
-     9.7989
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.4886,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     21.8455,
-     9.4594
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3666,
-    "right": false
+    "margin": 0.6688,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1671,37 +1535,14 @@
      21.8455,
      12.6195
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8166,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     20.3456,
-     7.1694
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5808,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     16.8368,
-     9.3044
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.631,
-    "right": false
+    "margin": 0.6544,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1710,11 +1551,14 @@
      15.0906,
      0.1495
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8474,
-    "right": true
+    "margin": 0.715,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1723,50 +1567,14 @@
      14.7405,
      18.3795
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8246,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     14.6906,
-     18.2294
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5738,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     13.0406,
-     0.1495
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.6276,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     12.8906,
-     18.2294
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3806,
-    "right": false
+    "margin": 0.662,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1775,115 +1583,14 @@
      12.8406,
      18.3795
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8246,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.6406,
-     12.4594
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.485,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.2592,
-     9.9997
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.4674,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.1779,
-     8.6095
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3352,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     9.8279,
-     8.5145
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3938,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     9.5029,
-     8.5145
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3974,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     9.0719,
-     9.9997
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.4674,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     8.7405,
-     6.7544
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3154,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     7.6906,
-     18.2294
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5738,
-    "right": false
+    "margin": 0.662,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1892,11 +1599,14 @@
      7.6405,
      18.3795
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8246,
-    "right": true
+    "margin": 0.662,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1905,11 +1615,14 @@
      7.2906,
      0.1495
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8474,
-    "right": true
+    "margin": 0.715,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1918,50 +1631,14 @@
      5.5443,
      9.3044
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7604,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     2.0356,
-     7.1694
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5808,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     0.5356,
-     9.4594
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5638,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     11.1061,
-     9.7989
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.4886,
-    "right": true
+    "margin": 0.579,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1970,11 +1647,14 @@
      9.9655,
      0.5394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.939,
-    "right": false
+    "margin": 0.8724,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1983,11 +1663,14 @@
      12.4155,
      0.5394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.939,
-    "right": false
+    "margin": 0.8724,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -1996,11 +1679,14 @@
      6.9405,
      1.9144
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8508,
-    "right": true
+    "margin": 0.6866,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2009,11 +1695,14 @@
      15.4405,
      1.9144
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8508,
-    "right": true
+    "margin": 0.6866,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2022,11 +1711,14 @@
      6.0756,
      1.9144
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7322,
-    "right": false
+    "margin": 0.469,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2035,11 +1727,14 @@
      16.3055,
      1.9144
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7322,
-    "right": false
+    "margin": 0.469,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2048,11 +1743,14 @@
      9.9105,
      6.2345
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.9012,
-    "right": false
+    "margin": 0.7806,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2061,11 +1759,14 @@
      12.4705,
      6.2345
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9012,
-    "right": true
+    "margin": 0.7806,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2074,11 +1775,14 @@
      10.4405,
      6.2644
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7346,
-    "right": false
+    "margin": 0.459,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2087,11 +1791,14 @@
      11.9405,
      6.2644
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7346,
-    "right": false
+    "margin": 0.459,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2100,11 +1807,14 @@
      9.843,
      6.5645
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7252,
-    "right": false
+    "margin": 0.5054,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2113,89 +1823,14 @@
      12.538,
      6.5645
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7252,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     0.7156,
-     6.5895
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.576,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     1.7156,
-     6.5895
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5766,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     20.6655,
-     6.5895
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5766,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     21.6655,
-     6.5895
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.576,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     2.1555,
-     7.1544
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.487,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     20.2255,
-     7.1544
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.487,
-    "right": true
+    "margin": 0.5054,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2204,11 +1839,14 @@
      8.7406,
      8.0495
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9834,
-    "right": true
+    "margin": 0.9636,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2217,115 +1855,14 @@
      13.6406,
      8.0495
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9834,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     9.0555,
-     8.4395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.3942,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.2755,
-     8.4395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5854,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     0.7156,
-     9.1394
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5782,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     1.7156,
-     9.1394
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.489,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     20.6655,
-     9.1394
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.489,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     21.6655,
-     9.1394
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5782,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     0.2406,
-     9.8395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.7374,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     22.1406,
-     9.8395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.7374,
-    "right": true
+    "margin": 0.9636,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2334,11 +1871,14 @@
      0.2406,
      12.2394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8334,
-    "right": false
+    "margin": 0.65,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2347,11 +1887,14 @@
      22.1406,
      12.2394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8334,
-    "right": false
+    "margin": 0.65,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2360,11 +1903,14 @@
      10.3556,
      12.5645
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7316,
-    "right": false
+    "margin": 0.4974,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2373,24 +1919,14 @@
      10.978,
      12.5645
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.723,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     11.4031,
-     12.5645
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5782,
-    "right": false
+    "margin": 0.4816,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2399,63 +1935,14 @@
      12.0256,
      12.5645
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7316,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     0.7156,
-     12.9395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.576,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     1.7156,
-     12.9395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5768,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     20.6655,
-     12.9395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5768,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     21.6655,
-     12.9395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.576,
-    "right": false
+    "margin": 0.4974,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2464,11 +1951,14 @@
      10.1655,
      13.5895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9444,
-    "right": true
+    "margin": 0.6108,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2477,37 +1967,14 @@
      12.2156,
      13.5895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9444,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     1.7406,
-     13.8395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.7374,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     20.6406,
-     13.8395
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.7374,
-    "right": false
+    "margin": 0.6108,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2516,11 +1983,14 @@
      1.7406,
      15.6394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8334,
-    "right": false
+    "margin": 0.65,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2529,11 +1999,14 @@
      20.6406,
      15.6394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8334,
-    "right": false
+    "margin": 0.65,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2542,11 +2015,14 @@
      5.6905,
      16.4394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.9106,
-    "right": false
+    "margin": 0.803,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2555,37 +2031,14 @@
      16.6905,
      16.4394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.9106,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     2.8556,
-     16.4894
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5812,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     19.5255,
-     16.4894
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5812,
-    "right": false
+    "margin": 0.803,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2594,11 +2047,14 @@
      13.1627,
      9.8367
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9454,
-    "right": true
+    "margin": 0.6118,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2607,11 +2063,14 @@
      20.5805,
      12.9395
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9472,
-    "right": true
+    "margin": 0.8776,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2620,50 +2079,14 @@
      16.9706,
      9.2394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9416,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     16.7405,
-     16.6544
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5812,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     16.7405,
-     17.7145
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5748,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     16.7405,
-     18.1144
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.556,
-    "right": true
+    "margin": 0.8648,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2672,37 +2095,14 @@
      16.3055,
      1.9144
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.92,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     15.4905,
-     0.7894
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5456,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     15.4905,
-     1.7245
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5852,
-    "right": false
+    "margin": 0.8148,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2711,11 +2111,14 @@
      15.4656,
      6.4894
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7364,
-    "right": false
+    "margin": 0.4618,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2724,11 +2127,14 @@
      15.0906,
      0.1895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9402,
-    "right": true
+    "margin": 0.8624,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2737,24 +2143,14 @@
      14.6906,
      18.1894
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8348,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     13.6406,
-     9.562
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.7618,
-    "right": false
+    "margin": 0.6388,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2763,11 +2159,14 @@
      13.6406,
      10.3895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8502,
-    "right": true
+    "margin": 0.6858,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2776,24 +2175,14 @@
      13.6406,
      6.7544
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7366,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     12.4706,
-     6.2345
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5866,
-    "right": false
+    "margin": 0.4632,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2802,24 +2191,14 @@
      12.2156,
      12.4894
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8506,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     12.2156,
-     13.3045
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.4014,
-    "right": false
+    "margin": 0.6824,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2828,11 +2207,14 @@
      12.2156,
      13.8895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.6946,
-    "right": false
+    "margin": 0.4402,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2841,11 +2223,14 @@
      10.2755,
      8.4395
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.867,
-    "right": true
+    "margin": 0.7,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2854,24 +2239,14 @@
      10.1655,
      12.4894
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8506,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     10.1655,
-     13.3045
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5912,
-    "right": false
+    "margin": 0.6824,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2880,24 +2255,14 @@
      10.1655,
      13.8895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.6946,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     9.9106,
-     6.2345
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.5866,
-    "right": true
+    "margin": 0.4402,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2906,11 +2271,14 @@
      9.4905,
      18.1894
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8338,
-    "right": false
+    "margin": 0.6462,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2919,11 +2287,14 @@
      9.3406,
      0.1895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9024,
-    "right": true
+    "margin": 0.6166,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2932,11 +2303,14 @@
      8.7405,
      6.7544
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7366,
-    "right": false
+    "margin": 0.4632,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2945,11 +2319,14 @@
      7.6906,
      18.1894
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.8348,
-    "right": false
+    "margin": 0.6388,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2958,37 +2335,14 @@
      7.2905,
      0.1895
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9402,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     6.9406,
-     6.4894
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.5864,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     6.8905,
-     0.7894
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5466,
-    "right": false
+    "margin": 0.8624,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -2997,24 +2351,14 @@
      6.7905,
      0.6394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.9328,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     6.8905,
-     1.7245
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5864,
-    "right": false
+    "margin": 0.838,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -3023,50 +2367,14 @@
      6.0756,
      1.9144
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.92,
-    "right": true
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     5.6406,
-     16.6544
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5812,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     5.6406,
-     17.7145
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.5748,
-    "right": false
-   },
-   {
-    "project": "real10",
-    "level_id": "L0",
-    "place": [
-     5.6406,
-     18.1144
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.556,
-    "right": true
+    "margin": 0.8148,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -3075,11 +2383,14 @@
      5.4106,
      9.2394
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9416,
-    "right": true
+    "margin": 0.8648,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -3088,11 +2399,14 @@
      1.8005,
      12.9395
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9472,
-    "right": true
+    "margin": 0.8776,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real10",
@@ -3101,11 +2415,14 @@
      11.0683,
      9.8367
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.9454,
-    "right": true
+    "margin": 0.6118,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3114,11 +2431,14 @@
      12.0756,
      23.9879
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4362,
-    "right": false
+    "margin": 0.7286,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3127,11 +2447,14 @@
      21.5254,
      31.587
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.307,
-    "right": true
+    "margin": 0.5578,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3140,11 +2463,14 @@
      21.5254,
      31.862
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.3602,
-    "right": true
+    "margin": 0.604,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3153,11 +2479,14 @@
      21.5254,
      31.7245
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.6586,
-    "right": true
+    "margin": 0.7924,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3166,11 +2495,14 @@
      21.5254,
      31.7245
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.5788,
-    "right": true
+    "margin": 0.649,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3179,11 +2511,14 @@
      16.3151,
      11.3195
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.918,
-    "right": true
+    "margin": 0.9572,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3192,11 +2527,14 @@
      7.2651,
      23.8445
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4396,
-    "right": false
+    "margin": 0.6526,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3205,11 +2543,14 @@
      8.6275,
      23.8445
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4488,
-    "right": false
+    "margin": 0.693,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3218,11 +2559,14 @@
      12.4151,
      23.8445
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.3118,
-    "right": false
+    "margin": 0.449,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3231,11 +2575,14 @@
      15.2051,
      23.8445
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4426,
-    "right": false
+    "margin": 0.6664,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3244,11 +2591,14 @@
      16.6679,
      23.8445
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.308,
-    "right": false
+    "margin": 0.4348,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3257,11 +2607,14 @@
      22.0151,
      25.7195
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.622,
-    "right": false
+    "margin": 0.7592,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3270,11 +2623,14 @@
      6.8901,
      27.2571
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.823,
-    "right": true
+    "margin": 0.8824,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3283,11 +2639,14 @@
      6.7526,
      27.2696
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.5694,
-    "right": true
+    "margin": 0.7062,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3296,11 +2655,14 @@
      7.0276,
      27.2696
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.5694,
-    "right": false
+    "margin": 0.7062,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3309,11 +2671,14 @@
      17.2651,
      31.0945
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4782,
-    "right": false
+    "margin": 0.619,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3322,11 +2687,30 @@
      12.3901,
      31.6945
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.431,
-    "right": false
+    "margin": 0.687,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     14.2401,
+     31.6945
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.447,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3335,11 +2719,14 @@
      17.8901,
      31.6945
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4288,
-    "right": false
+    "margin": 0.6746,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3348,11 +2735,14 @@
      25.1901,
      31.6945
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4286,
-    "right": false
+    "margin": 0.6736,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3361,11 +2751,14 @@
      26.1401,
      12.7695
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.3104,
-    "right": false
+    "margin": 0.4318,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3374,11 +2767,14 @@
      26.1401,
      18.0445
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4434,
-    "right": false
+    "margin": 0.668,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3387,11 +2783,14 @@
      21.2401,
      31.3695
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.744,
-    "right": true
+    "margin": 0.8562,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3400,11 +2799,14 @@
      18.5151,
      15.2445
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4506,
-    "right": true
+    "margin": 0.6458,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3413,11 +2815,14 @@
      18.5151,
      23.6445
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.452,
-    "right": false
+    "margin": 0.6492,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3426,11 +2831,14 @@
      16.5901,
      12.6945
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4618,
-    "right": false
+    "margin": 0.6476,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3439,11 +2847,14 @@
      6.8901,
      27.1445
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4666,
-    "right": true
+    "margin": 0.639,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3452,11 +2863,62 @@
      6.8901,
      27.3946
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4666,
-    "right": true
+    "margin": 0.639,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     7.2401,
+     23.8445
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3818,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     15.1874,
+     23.8445
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4034,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     17.8401,
+     23.8445
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.411,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3465,11 +2927,14 @@
      6.8901,
      27.2696
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4956,
-    "right": true
+    "margin": 0.5176,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3478,11 +2943,78 @@
      17.2901,
      31.0945
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.3228,
-    "right": false
+    "margin": 0.3196,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     12.3651,
+     31.6945
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.421,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     17.8651,
+     31.6945
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.4008,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     25.2151,
+     31.6945
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3994,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     26.1401,
+     18.0695
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.392,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3491,11 +3023,14 @@
      25.3651,
      31.6945
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7442,
-    "right": false
+    "margin": 0.8032,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3504,11 +3039,46 @@
      21.0151,
      15.0695
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.7432,
-    "right": true
+    "margin": 0.7918,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     18.5151,
+     15.2195
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "notation",
+    "margin": 0.352,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
+   },
+   {
+    "project": "real15",
+    "level_id": "L1",
+    "place": [
+     18.5151,
+     23.6695
+    ],
+    "rule": "secondary_pair",
+    "rule_answer": "wall",
+    "ranker_answer": "notation",
+    "label": "wall",
+    "margin": 0.3574,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3517,11 +3087,14 @@
      17.6651,
      31.6945
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.8834,
-    "right": true
+    "margin": 0.9106,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3530,11 +3103,14 @@
      16.5901,
      12.6695
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.3172,
-    "right": false
+    "margin": 0.3718,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3543,11 +3119,14 @@
      6.8901,
      27.1695
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.309,
-    "right": true
+    "margin": 0.347,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real15",
@@ -3556,37 +3135,14 @@
      6.8901,
      27.3696
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.309,
-    "right": true
-   },
-   {
-    "project": "real21",
-    "level_id": "L0",
-    "place": [
-     3.5206,
-     5.0961
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.482,
-    "right": false
-   },
-   {
-    "project": "real21",
-    "level_id": "L0",
-    "place": [
-     11.977,
-     5.0961
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.482,
-    "right": false
+    "margin": 0.347,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3595,11 +3151,14 @@
      3.5202,
      9.4666
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.6334,
-    "right": true
+    "margin": 0.5262,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3608,37 +3167,14 @@
      11.9773,
      9.4666
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.6334,
-    "right": true
-   },
-   {
-    "project": "real21",
-    "level_id": "L0",
-    "place": [
-     3.5202,
-     9.6794
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3472,
-    "right": true
-   },
-   {
-    "project": "real21",
-    "level_id": "L0",
-    "place": [
-     11.9774,
-     9.6794
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3472,
-    "right": true
+    "margin": 0.5262,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3647,11 +3183,14 @@
      10.7703,
      12.0961
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4786,
-    "right": false
+    "margin": 0.3058,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3660,11 +3199,14 @@
      10.6238,
      16.6711
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.9244,
-    "right": false
+    "margin": 0.9016,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3673,50 +3215,14 @@
      4.7273,
      16.7461
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.784,
-    "right": false
-   },
-   {
-    "project": "real21",
-    "level_id": "L0",
-    "place": [
-     10.7703,
-     16.7461
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.419,
-    "right": false
-   },
-   {
-    "project": "real21",
-    "level_id": "L0",
-    "place": [
-     3.5202,
-     19.1627
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3478,
-    "right": true
-   },
-   {
-    "project": "real21",
-    "level_id": "L0",
-    "place": [
-     11.9774,
-     19.1627
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3472,
-    "right": true
+    "margin": 0.7192,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3725,11 +3231,14 @@
      3.5202,
      19.3756
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.6338,
-    "right": true
+    "margin": 0.526,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3738,37 +3247,14 @@
      11.9773,
      19.3756
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.6334,
-    "right": true
-   },
-   {
-    "project": "real21",
-    "level_id": "L0",
-    "place": [
-     3.5206,
-     23.7461
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.482,
-    "right": false
-   },
-   {
-    "project": "real21",
-    "level_id": "L0",
-    "place": [
-     11.977,
-     23.7461
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "wall",
-    "margin": 0.482,
-    "right": false
+    "margin": 0.5262,
+    "right": true,
+    "rule_right": false,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3777,11 +3263,14 @@
      11.977,
      5.0961
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4782,
-    "right": false
+    "margin": 0.3134,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3790,11 +3279,14 @@
      11.9773,
      9.5499
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4828,
-    "right": false
+    "margin": 0.3414,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3803,11 +3295,14 @@
      11.9773,
      19.2922
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4828,
-    "right": false
+    "margin": 0.3414,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3816,11 +3311,14 @@
      11.977,
      23.7461
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4782,
-    "right": false
+    "margin": 0.3134,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3829,11 +3327,14 @@
      10.7696,
      12.0961
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7748,
-    "right": false
+    "margin": 0.7038,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3842,11 +3343,14 @@
      10.771,
      16.7461
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.77,
-    "right": false
+    "margin": 0.6974,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3855,11 +3359,14 @@
      4.7259,
      12.0961
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.7616,
-    "right": false
+    "margin": 0.6916,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3868,11 +3375,14 @@
      4.7286,
      16.746
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.771,
-    "right": false
+    "margin": 0.704,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3881,11 +3391,14 @@
      3.5206,
      5.0961
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4782,
-    "right": false
+    "margin": 0.3134,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3894,11 +3407,14 @@
      3.5203,
      9.5499
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4828,
-    "right": false
+    "margin": 0.3414,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3907,11 +3423,14 @@
      3.5203,
      19.2922
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4828,
-    "right": false
+    "margin": 0.3414,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "real21",
@@ -3920,11 +3439,14 @@
      3.5206,
      23.7461
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "wall",
-    "margin": 0.4782,
-    "right": false
+    "margin": 0.3134,
+    "right": false,
+    "rule_right": true,
+    "source": "accepted_reading"
    },
    {
     "project": "synthetic-08-spaced-labels",
@@ -3933,11 +3455,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4758,
-    "right": true
+    "margin": 0.5488,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-09-jamb-stubs",
@@ -3946,11 +3471,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.527,
-    "right": true
+    "margin": 0.4466,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-10-glazed-facade",
@@ -3959,11 +3487,14 @@
      5.25,
      8.885
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4728,
-    "right": true
+    "margin": 0.4976,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-11-dimension-chains",
@@ -3972,11 +3503,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4886,
-    "right": true
+    "margin": 0.5368,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-12-mirrored-halves",
@@ -3985,11 +3519,14 @@
      8.0,
      8.8771
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.3684,
-    "right": true
+    "margin": 0.5298,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-12-mirrored-halves",
@@ -3998,11 +3535,14 @@
      6.0,
      8.8771
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.3684,
-    "right": true
+    "margin": 0.5298,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-13-typical-floor",
@@ -4011,11 +3551,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.5012,
-    "right": true
+    "margin": 0.4182,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-13-typical-floor",
@@ -4024,11 +3567,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.5012,
-    "right": true
+    "margin": 0.4182,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-14-elevation-title",
@@ -4037,11 +3583,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.482,
-    "right": true
+    "margin": 0.4912,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-14-elevation-title",
@@ -4050,11 +3599,14 @@
      5.25,
      24.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.482,
-    "right": true
+    "margin": 0.4912,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-15-winder-stair",
@@ -4063,11 +3615,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.468,
-    "right": true
+    "margin": 0.5122,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-17-garage-lift",
@@ -4076,11 +3631,14 @@
      5.25,
      8.8767
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4714,
-    "right": true
+    "margin": 0.558,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-18-sheet-frame",
@@ -4089,11 +3647,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.5012,
-    "right": true
+    "margin": 0.4182,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-18-sheet-frame",
@@ -4102,11 +3663,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.5012,
-    "right": true
+    "margin": 0.4182,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-19-symmetric-house",
@@ -4115,24 +3679,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.455,
-    "right": true
-   },
-   {
-    "project": "synthetic-20-glazed-corner",
-    "level_id": "L0",
-    "place": [
-     5.25,
-     8.875
-    ],
-    "rule_answer": "wall",
-    "ranker_answer": "notation",
-    "label": "notation",
-    "margin": 0.3848,
-    "right": true
+    "margin": 0.4742,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-21-parapet",
@@ -4141,11 +3695,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4998,
-    "right": true
+    "margin": 0.4764,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-21-parapet",
@@ -4154,11 +3711,14 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4998,
-    "right": true
+    "margin": 0.4764,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    },
    {
     "project": "synthetic-22-curved-stair",
@@ -4167,15 +3727,32 @@
      5.25,
      8.876
     ],
+    "rule": "secondary_pair",
     "rule_answer": "wall",
     "ranker_answer": "notation",
     "label": "notation",
-    "margin": 0.4758,
-    "right": true
+    "margin": 0.5488,
+    "right": true,
+    "rule_right": false,
+    "source": "synthetic"
    }
   ],
   "rule_trust": 0.6,
-  "margin_min": 0.3
+  "margin_min": 0.3,
+  "transition_min": 3,
+  "transition_precision": 0.6
  },
- "note": "The integration (ranker.decide) applies a ranker change only when the rule's confidence is under rule_trust, the ranker's margin is at least margin_min, the answer is allowed by the hard constraints (a swing arc is a door, a gap wider than its run is never a door, an end gap makes no element, closed and open are never the ranker's) and its transition (the weak rule -> the ranker's answer) is trusted in 'transitions': right on at least transition_precision of at least transition_min held-out changes of the leave-one-project-out run. Why (5 Nov 2026, the first model, before the trust check): the gates alone changed 26 decisions on the 28 readings, 21 of them on accepted real projects, and held out the ranker was right on 2 of its 8 changes on real projects; real10's two kitchen pass-throughs (a counter drawn in a 1.5 m gap of an inner wall) became windows on seven floors and their counters vanished. With the trust check: 5 changes (synthetic-12's four bare door gaps, one real07 gap). The wall_or_notation model only advises (ranker_advice on the pair's record): held out it beats the rules by 0.004 and its integrated changes were right on 123 of 277; moving a pair into or out of the wall network is geometry."
+ "transitions": {
+  "layer_not_chosen_undecided->wall": {
+   "right": 1,
+   "wrong": 17,
+   "trusted": false
+  },
+  "secondary_pair->notation": {
+   "right": 92,
+   "wrong": 86,
+   "trusted": false
+  }
+ },
+ "note": "The integration (ranker.decide) applies a ranker change only when the rule's confidence is under rule_trust, the ranker's margin is at least margin_min, the answer is allowed by the hard constraints (a swing arc is a door, a gap wider than its run is never a door, an end gap makes no element, closed and open are never the ranker's) and its transition (the weak rule -> the ranker's answer) is trusted in 'transitions': right on at least transition_precision of at least transition_min held-out changes of the leave-one-project-out run. Why (5 Nov 2026, the first model, before the trust check): the gates alone changed 26 decisions on the 28 readings, 21 of them on accepted real projects, and held out the ranker was right on 2 of its 8 changes on real projects; on real10 L0-L6 its window at the 1.50 m bedroom window gaps (the type is right: C0032) came before the later furniture rule that types the same window, which then left an extra opening beside it on seven floors. With the trust check: 5 changes (synthetic-12's four bare door gaps, one real07 gap). The wall_or_notation model only advises (ranker_advice on the pair's record): held out it beats the rules by 0.004 and its integrated changes were right on 123 of 277; moving a pair into or out of the wall network is geometry."
 }
