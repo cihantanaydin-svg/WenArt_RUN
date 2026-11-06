@@ -10,7 +10,8 @@ score against the truth, ``score``; Milestone 14 R1, 4 Nov 2026). ``--fresh`` re
 correction record with a crop), ``stability`` (the reading under mirror, rotation, unit and layer changes) and
 ``crossdoc`` (the cross-document checks RC8-RC12) are reachable here as well, each with its own parser
 (``python -m wenart.reading_check crossdoc --help``); and ``raster`` (5 Nov 2026, Milestone 14 R4: the raster second
-opinion RC13, ``raster check|calibrate|projects``)."""
+opinion RC13, ``raster check|calibrate|projects``); ``sense`` (6 Nov 2026, Milestone 14 R6: the architectural-sense
+checks RC14, ``sense check|trust``)."""
 from __future__ import annotations
 
 import argparse
@@ -22,7 +23,8 @@ from pathlib import Path
 # (``python -m wenart.reading_check remark add ...``); each keeps its own parser.
 DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("wenart.reading_check.stability", "main"),
              "crossdoc": ("wenart.reading_check.crossdoc", "_main"),
-             "raster": ("wenart.reading_check.raster_opinion", "main")}
+             "raster": ("wenart.reading_check.raster_opinion", "main"),
+             "sense": ("wenart.reading_check.sense", "main")}
 
 
 def main(argv=None) -> int:
