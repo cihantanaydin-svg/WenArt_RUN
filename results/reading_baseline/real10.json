@@ -108,5 +108,6 @@
  "accepted_by_user": true,
  "accepted_on": "2026-11-04",
  "accepted_scope": "all",
- "accepted_note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done)"
+ "accepted_note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done)",
+ "accepted_seen": "structure run 20261104-050839-full: top-downs of all floors, exteriors and the drawings zip with the reading over each plan (4 Nov 2026)"
 }

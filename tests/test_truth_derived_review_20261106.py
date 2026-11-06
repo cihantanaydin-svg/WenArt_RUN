@@ -239,7 +239,8 @@ def test_09_accept_needs_the_users_acceptance_of_this_reading_and_keeps_the_old_
     (folder / "reading_check" / "commit.txt").write_text("bbb222\n")
     base = tmp_path / "base"
     base.mkdir()
-    (base / "tiny.json").write_text(json.dumps(dict(numbers_of(b), accepted_by_user=True, accepted_on="2026-11-04")))
+    (base / "tiny.json").write_text(json.dumps(dict(numbers_of(b), accepted_by_user=True, accepted_on="2026-11-04",
+                                                                     accepted_seen="the sheets")))
     monkeypatch.setattr(RG, "numbers", lambda folder: numbers_of(b))
     acc_dir = tmp_path / "acc"
     TR.write_accepted("tiny", {"project": "tiny", "commit": "aaa111", "date": "2026-11-04", "per_level": {}},

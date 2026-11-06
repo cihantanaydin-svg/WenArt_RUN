@@ -161,7 +161,8 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   still comes only from the drawings (AI never draws a wall). A level is never left out while it has a scale, a
   transform and walls: it is built with `reading_confidence: low` and its reasons (`failed_levels: build_marked`, the
   default). Every correction of the user becomes a record in `results/reading_corrections.jsonl` and a truth entry in
-  `results/reading_truth/`; the reading score (`python -m wenart.reading_check score`) is measured per commit on all
+  `results/reading_truth/`; an acceptance counts only for a reading the user looked at (`accepted_seen`; user, 6 Nov
+  2026: "I have never reviewed real21 with my eyes"); the reading score (`python -m wenart.reading_check score`) is measured per commit on all
   projects and a change ships only when it rises and no project falls. The user keeps giving detailed reviews as long as
   the user wants (accept or reject is only for the machine's own findings).
 

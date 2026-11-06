@@ -17,7 +17,7 @@ from wenart.reading_check import truth as TR
 
 REPO = Path(__file__).resolve().parents[1]
 ACCEPTED = {"accepted_by_user": True, "accepted_on": "2026-11-04", "accepted_scope": "all",
-            "accepted_note": "user: 'yes accept the baselines'"}
+            "accepted_note": "user: 'yes accept the baselines'", "accepted_seen": "the structure run"}
 
 
 def building() -> dict:
@@ -124,7 +124,8 @@ def test_the_truth_needs_the_users_explicit_acceptance_not_the_pipelines_ok():
     truth, msgs = TR.truth_of("tiny", b, base, numbers=numbers_of(b), commit="c1")
     assert truth is None and "not accepted by the user" in msgs[0]
     acc = TR.acceptance(dict(base, **ACCEPTED))
-    assert acc == {"scope": "all", "levels": None, "on": "2026-11-04", "note": "user: 'yes accept the baselines'"}
+    assert acc == {"scope": "all", "levels": None, "on": "2026-11-04", "note": "user: 'yes accept the baselines'",
+                   "seen": "the structure run"}
     truth, msgs = TR.truth_of("tiny", b, dict(base, **ACCEPTED), numbers=numbers_of(b), commit="c1")
     assert msgs == [] and truth["status"] == "accepted" and truth["commit"] == "c1"
     assert truth["accepted"]["on"] == "2026-11-04" and "drift" not in truth

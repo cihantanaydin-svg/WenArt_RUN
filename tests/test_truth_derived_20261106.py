@@ -208,7 +208,8 @@ def cli(tmp_path):
         d.mkdir()
     for name in ("p", "q"):
         (dirs["projects"] / name).mkdir()
-    (dirs["baseline"] / "p.json").write_text(json.dumps({"accepted_by_user": True, "levels": ["L0"]}))
+    (dirs["baseline"] / "p.json").write_text(json.dumps({"accepted_by_user": True, "accepted_seen": "the sheets",
+                                                         "levels": ["L0"]}))
     acc = _acc({"L0": {"walls": [{"id": "w_L0_001", "start": [7.542, 7.68], "end": [7.542, 11.6],
                                   "thickness": 0.18}],
                        "doors": [{"id": "d_L0_001", "center": [4.0, 0.0], "width": 0.9}],

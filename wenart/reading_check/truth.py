@@ -119,7 +119,8 @@ ELEMENT_KINDS = ("wall", "opening", "door", "window", "room", "stair", "level", 
                  "other")
 CORRECTION_FIELDS = ("id", "date", "project", "level", "place", "element_kind", "reader_answer", "right_answer",
                      "user_words", "lesson", "source", "status")
-ACCEPT_FIELDS = ("accepted_by_user", "accepted_on", "accepted_scope", "accepted_levels", "accepted_note")
+ACCEPT_FIELDS = ("accepted_by_user", "accepted_on", "accepted_scope", "accepted_levels", "accepted_note",
+                 "accepted_seen", "acceptance_withdrawn")
 KEEP_FIELDS = ("status", "inferred", "lift_door", "parapet", "virtual", "label_source")   # kept where present
 SYNTHETIC_TRUTH_FILES = ("truth/reading_truth.json", "truth/building.json")
 COMMIT_FILE = "reading_check/commit.txt"
@@ -323,14 +324,23 @@ def counts(truth: dict) -> dict:
 # --- acceptance, drift, commit --------------------------------------------------------------------------------------
 
 def acceptance(baseline: Optional[dict]) -> Optional[dict]:
-    """``{"scope", "levels", "on", "note"}`` when the baseline says ``accepted_by_user: true`` (the user's explicit
-    acceptance), else None. The pipeline's own ``status: ok`` is not an acceptance."""
-    if not baseline or baseline.get("accepted_by_user") is not True:
+    """``{"scope", "levels", "on", "note", "seen"}`` when the baseline says ``accepted_by_user: true`` (the user's
+    explicit acceptance) and names what the user looked at (``accepted_seen``: the structure run, the comparison
+    sheets, the drawings), else None. The pipeline's own ``status: ok`` is not an acceptance.
+
+    6 Nov 2026 (user: "I have never reviewed real21 with my eyes"): real21's and real19's truths had been built from
+    the user's words about something else (splitting two buildings, naming the plan levels). Words are an acceptance
+    only when they accept a reading the user saw; ``accepted_seen`` records which, and a withdrawn acceptance
+    (``acceptance_withdrawn``) is none."""
+    if not baseline or baseline.get("accepted_by_user") is not True or baseline.get("acceptance_withdrawn"):
+        return None
+    if not str(baseline.get("accepted_seen") or "").strip():
         return None
     scope = baseline.get("accepted_scope") or "all"
     return {"scope": "partial" if scope == "partial" else "all",
             "levels": list(baseline.get("accepted_levels") or []) if scope == "partial" else None,
-            "on": baseline.get("accepted_on"), "note": baseline.get("accepted_note")}
+            "on": baseline.get("accepted_on"), "note": baseline.get("accepted_note"),
+            "seen": baseline.get("accepted_seen")}
 
 
 def accepted_projects(baseline_dir: Path = BASELINE_DIR) -> list[str]:
@@ -430,8 +440,9 @@ def truth_of(project: str, building: dict, baseline: Optional[dict], *, numbers:
     ``levels_left_out``. ``truth accept`` stores it; ``build_truth`` derives the truth from it."""
     acc = acceptance(baseline)
     if acc is None:
-        return None, [f"{project}: not accepted by the user: the baseline has no accepted_by_user: true "
-                      f"(after the user accepts: regress --update, set the acceptance fields, then truth accept)"]
+        return None, [f"{project}: not accepted by the user: the baseline has no accepted_by_user: true with "
+                      f"accepted_seen (what the user looked at) (after the user accepts a reading they saw: regress "
+                      f"--update, set the acceptance fields, then truth accept)"]
     diffs = drift(baseline, numbers) if numbers is not None else []
     leave_out = (baseline or {}).get("levels_left_out") or []
     truth = extract(building, project=project, commit=commit or UNKNOWN_COMMIT, date=date, leave_out=leave_out)
@@ -1307,8 +1318,8 @@ def accepted_of(project: str, *, accepted_dir: Path = ACCEPTED_DIR, baseline_dir
         acc["date"] = None                               # no clock in a derived file
         return acc, None
     if acceptance(load_baseline(project, baseline_dir)) is None:
-        return None, (f"{project}: the baseline has no accepted_by_user: true: the truth waits for the user's "
-                      f"acceptance")
+        return None, (f"{project}: the baseline has no accepted_by_user: true with accepted_seen: the truth waits "
+                      f"for the user's acceptance of a reading they saw")
     acc = load_accepted(project, accepted_dir)
     if acc is None:
         return None, (f"{project}: no stored accepted reading ({Path(accepted_dir).name}/{project}.json): run "

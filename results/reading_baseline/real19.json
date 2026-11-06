@@ -38,12 +38,27 @@
    "L1": 2.819
   }
  },
- "accepted_by_user": true,
+ "accepted_by_user": false,
  "accepted_on": "2026-11-03",
  "accepted_scope": "partial",
  "accepted_levels": [
   "L0",
   "L1"
  ],
- "accepted_note": "user, 3 Nov 2026: 'r3 ground, r4-r6 upper' (the plan levels; L0 and L1 read, L2 walls open); the reading itself was not accepted as a baseline"
+ "accepted_note": "user, 3 Nov 2026: 'r3 ground, r4-r6 upper' (the plan levels; L0 and L1 read, L2 walls open); the reading itself was not accepted as a baseline",
+ "acceptance_withdrawn": {
+  "on": "2026-11-06",
+  "user_said": null,
+  "reason": "the 3 Nov words 'r3 ground, r4-r6 upper' named the plan levels; they were no review of the reading (the old note said so: 'the reading itself was not accepted as a baseline'); withdrawn with real21 after the user's words of 6 Nov 2026 'I have never reviewed real21 with my eyes'",
+  "was": {
+   "accepted_by_user": true,
+   "accepted_on": "2026-11-03",
+   "accepted_scope": "partial",
+   "accepted_levels": [
+    "L0",
+    "L1"
+   ],
+   "accepted_note": "user, 3 Nov 2026: 'r3 ground, r4-r6 upper' (the plan levels; L0 and L1 read, L2 walls open); the reading itself was not accepted as a baseline"
+  }
+ }
 }

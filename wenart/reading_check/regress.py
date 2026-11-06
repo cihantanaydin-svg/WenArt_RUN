@@ -35,7 +35,8 @@ COUNT_MIN = 2
 AREA_TOL = 0.03
 STACK_TOL_M = 0.05
 PER_LEVEL = ("rooms", "walls", "doors", "windows", "openings")
-ACCEPT_FIELDS = ("accepted_by_user", "accepted_on", "accepted_scope", "accepted_levels", "accepted_note")
+ACCEPT_FIELDS = ("accepted_by_user", "accepted_on", "accepted_scope", "accepted_levels", "accepted_note",
+                 "accepted_seen", "acceptance_withdrawn")
 
 
 def numbers(out_dir: Path) -> dict:
