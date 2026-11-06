@@ -1,5 +1,5 @@
 {
- "note": "Reading score per commit against results/reading_truth/ (python -m wenart.reading_check score). A real project's truth is its accepted reading, so the first entry made right after `truth build` equals the truth by construction (100) for those projects; the synthetic projects are scored against their exact truth (projects/<p>/truth), so their first numbers are real and a failure class below 100 is expected until the reader handles it. Entries with a failed reading are never stored.",
+ "note": "Reading score per commit against results/reading_truth/ (python -m wenart.reading_check score). Since 6 Nov 2026 (truth_kind user_corrections_v1; user: \"Only consider my revision with the screenshot I have given into previous projects others I have not seen\") a real project's truth is sparse: the user's correction records only, each entry present or absent; its total is 100 x the weighted share of the satisfied entries, stored per entry with its record ids, and it falls when an entry satisfied before is no longer satisfied (named by record). The synthetic projects are scored with F1 against their exact truth (projects/<p>/truth); a failure class below 100 is expected until the reader handles it. The entries without truth_kind were made against the accepted readings (withdrawn on 6 Nov 2026): history only, never compared. Entries with a failed reading are never stored.",
  "entries": [
   {
    "commit": "b999d1cc96de755a62d06744c752363330550b67",
@@ -2247,6 +2247,3897 @@
     }
    },
    "overall": 95.73
+  },
+  {
+   "commit": "b5df98a0075eac910682d89f456f254b46fd1e3f",
+   "date": "2026-11-06",
+   "truth_kind": "user_corrections_v1",
+   "projects": {
+    "real04": {
+     "entries": [
+      {
+       "id": "u_C0059_1",
+       "level": "L0",
+       "type": "windows",
+       "absent": true,
+       "records": [
+        "C0059"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0059_2",
+       "level": "L0",
+       "type": "windows",
+       "absent": true,
+       "records": [
+        "C0059"
+       ],
+       "satisfied": true
+      }
+     ],
+     "assertions": [],
+     "records": {
+      "C0059": [
+       2,
+       2
+      ]
+     },
+     "unsatisfied": [],
+     "total": 100.0,
+     "levels": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "rooms": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "stairs": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "doors": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "windows": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 2,
+      "absent_ok": 2
+     },
+     "openings": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "walls": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "sparse": true,
+     "truth_status": "sparse",
+     "truth_source": "user_corrections",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "real06": {
+     "entries": [
+      {
+       "id": "u_C0065_2",
+       "level": "L0",
+       "type": "openings",
+       "absent": false,
+       "records": [
+        "C0065"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0063_1",
+       "level": "L0",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0063"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0065_1",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0065"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0064_1",
+       "level": "L1",
+       "type": "windows",
+       "absent": true,
+       "records": [
+        "C0064"
+       ],
+       "satisfied": false,
+       "why": "read: win_L1_004"
+      },
+      {
+       "id": "u_C0064_2",
+       "level": "L1",
+       "type": "windows",
+       "absent": true,
+       "records": [
+        "C0064"
+       ],
+       "satisfied": false,
+       "why": "read: win_L1_005"
+      }
+     ],
+     "assertions": [],
+     "records": {
+      "C0063": [
+       1,
+       1
+      ],
+      "C0064": [
+       0,
+       2
+      ],
+      "C0065": [
+       2,
+       2
+      ]
+     },
+     "unsatisfied": [
+      "u_C0064_1",
+      "u_C0064_2"
+     ],
+     "total": 55.56,
+     "levels": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "rooms": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "stairs": {
+      "present": 1,
+      "present_ok": 1,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "doors": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "windows": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 2,
+      "absent_ok": 0
+     },
+     "openings": {
+      "present": 1,
+      "present_ok": 1,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "walls": {
+      "present": 1,
+      "present_ok": 1,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "sparse": true,
+     "truth_status": "sparse",
+     "truth_source": "user_corrections",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "real07": {
+     "entries": [
+      {
+       "id": "u_C0045_2",
+       "level": "L0",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0045"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0047_1",
+       "level": "L0",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0047"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0047_2",
+       "level": "L0",
+       "type": "doors",
+       "absent": true,
+       "records": [
+        "C0047"
+       ],
+       "satisfied": false,
+       "why": "read: d_L0_001"
+      },
+      {
+       "id": "u_C0044_1",
+       "level": "L0",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0044"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0046_1",
+       "level": "L0",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0046"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0054_1",
+       "level": "L0",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0054"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0045_1",
+       "level": "L0",
+       "type": "windows",
+       "absent": true,
+       "records": [
+        "C0045"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0051_1",
+       "level": "L1",
+       "type": "openings",
+       "absent": false,
+       "records": [
+        "C0051"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0052_1",
+       "level": "L1",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0052"
+       ],
+       "satisfied": false,
+       "why": "no room of its type at its place"
+      },
+      {
+       "id": "u_C0051_2",
+       "level": "L1",
+       "type": "walls",
+       "absent": true,
+       "records": [
+        "C0051"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0053_1",
+       "level": "L1",
+       "type": "walls",
+       "absent": true,
+       "records": [
+        "C0053"
+       ],
+       "satisfied": true
+      }
+     ],
+     "assertions": [],
+     "records": {
+      "C0044": [
+       1,
+       1
+      ],
+      "C0045": [
+       2,
+       2
+      ],
+      "C0046": [
+       1,
+       1
+      ],
+      "C0047": [
+       1,
+       2
+      ],
+      "C0051": [
+       2,
+       2
+      ],
+      "C0052": [
+       0,
+       1
+      ],
+      "C0053": [
+       1,
+       1
+      ],
+      "C0054": [
+       1,
+       1
+      ]
+     },
+     "unsatisfied": [
+      "u_C0047_2",
+      "u_C0052_1"
+     ],
+     "total": 78.26,
+     "levels": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "rooms": {
+      "present": 3,
+      "present_ok": 2,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "stairs": {
+      "present": 1,
+      "present_ok": 1,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "doors": {
+      "present": 2,
+      "present_ok": 2,
+      "absent": 1,
+      "absent_ok": 0
+     },
+     "windows": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 1,
+      "absent_ok": 1
+     },
+     "openings": {
+      "present": 1,
+      "present_ok": 1,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "walls": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 2,
+      "absent_ok": 2
+     },
+     "sparse": true,
+     "truth_status": "sparse",
+     "truth_source": "user_corrections",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "real09": {
+     "entries": [
+      {
+       "id": "u_C0006_1",
+       "level": "L-1",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0006"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0003_2",
+       "level": "L0",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0003"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0006_2",
+       "level": "L0",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0006"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0008_1",
+       "level": "L0",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0008"
+       ],
+       "satisfied": false,
+       "why": "no room of its type at its place"
+      },
+      {
+       "id": "u_C0001_1",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_10",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_11",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_12",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_13",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_14",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_2",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_3",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_4",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_5",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_6",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_7",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_8",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0001_9",
+       "level": "L0",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0001"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0003_1",
+       "level": "L0",
+       "type": "walls",
+       "absent": true,
+       "records": [
+        "C0003"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0006_3",
+       "level": "L1",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0006"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0006_4",
+       "level": "L2",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0006"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0013_1",
+       "level": "L2",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0013"
+       ],
+       "satisfied": false,
+       "why": "no stair within 1.0 m"
+      },
+      {
+       "id": "u_C0013_2",
+       "level": "L2",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0013"
+       ],
+       "satisfied": false,
+       "why": "no stair within 1.0 m"
+      },
+      {
+       "id": "u_C0006_5",
+       "level": "L3",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0006"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0013_3",
+       "level": "L3",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0013"
+       ],
+       "satisfied": false,
+       "why": "no stair within 1.0 m"
+      },
+      {
+       "id": "u_C0013_4",
+       "level": "L3",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0013"
+       ],
+       "satisfied": false,
+       "why": "no stair within 1.0 m"
+      }
+     ],
+     "assertions": [
+      {
+       "id": "a_C0005_1",
+       "what": "level_count",
+       "records": [
+        "C0005"
+       ],
+       "satisfied": true,
+       "read": "5 levels"
+      },
+      {
+       "id": "a_C0005_2",
+       "what": "storey_heights",
+       "records": [
+        "C0005"
+       ],
+       "satisfied": true,
+       "read": "storeys at [0.0, 2.5, 5.5, 8.5, 11.5]"
+      }
+     ],
+     "records": {
+      "C0001": [
+       14,
+       14
+      ],
+      "C0003": [
+       2,
+       2
+      ],
+      "C0005": [
+       2,
+       2
+      ],
+      "C0006": [
+       5,
+       5
+      ],
+      "C0008": [
+       0,
+       1
+      ],
+      "C0013": [
+       0,
+       4
+      ]
+     },
+     "unsatisfied": [
+      "u_C0008_1",
+      "u_C0013_1",
+      "u_C0013_2",
+      "u_C0013_3",
+      "u_C0013_4"
+     ],
+     "total": 74.14,
+     "levels": {
+      "present": 2,
+      "present_ok": 2,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "rooms": {
+      "present": 6,
+      "present_ok": 5,
+      "absent": 1,
+      "absent_ok": 1
+     },
+     "stairs": {
+      "present": 4,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "doors": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "windows": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "openings": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "walls": {
+      "present": 14,
+      "present_ok": 14,
+      "absent": 1,
+      "absent_ok": 1
+     },
+     "sparse": true,
+     "truth_status": "sparse",
+     "truth_source": "user_corrections",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "real10": {
+     "entries": [
+      {
+       "id": "u_C0068_1",
+       "level": "L-2",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0068"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0068_2",
+       "level": "L-2",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0068"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0068_3",
+       "level": "L-2",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0068"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0068_4",
+       "level": "L-2",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0068"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0068_5",
+       "level": "L-2",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0068"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0068_6",
+       "level": "L-2",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0068"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0068_7",
+       "level": "L-2",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0068"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0068_8",
+       "level": "L-2",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0068"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0068_9",
+       "level": "L-2",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0068"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0069_1",
+       "level": "L-2",
+       "type": "walls",
+       "absent": false,
+       "records": [
+        "C0069"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0019_1",
+       "level": "L-1",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0019"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0028_1",
+       "level": "L-1",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0028"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0040_1",
+       "level": "L-1",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0040_2",
+       "level": "L-1",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0027",
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0017_4",
+       "level": "L-1",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0017"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0027_1",
+       "level": "L-1",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0017",
+        "C0027"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0028_2",
+       "level": "L-1",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0028"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0028_3",
+       "level": "L-1",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0028"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_2",
+       "level": "L0",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0034_3",
+       "level": "L0",
+       "type": "doors",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L0_019"
+      },
+      {
+       "id": "u_C0035_4",
+       "level": "L0",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0040_3",
+       "level": "L0",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0040_4",
+       "level": "L0",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_1",
+       "level": "L0",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_2",
+       "level": "L0",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_1",
+       "level": "L0",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L0_006"
+      },
+      {
+       "id": "u_C0035_3",
+       "level": "L0",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "read: o_L0_002"
+      },
+      {
+       "id": "u_C0017_1",
+       "level": "L0",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0017"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0017_2",
+       "level": "L0",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0017"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0020_1",
+       "level": "L0",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0020"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0020_2",
+       "level": "L0",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0020"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0023_1",
+       "level": "L0",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0023"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0035_2",
+       "level": "L0",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no room of its type at its place"
+      },
+      {
+       "id": "u_C0037_1",
+       "level": "L0",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0037_2",
+       "level": "L0",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0016_1",
+       "level": "L0",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0016"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0035_1",
+       "level": "L0",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0032_1",
+       "level": "L0",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0032"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_5",
+       "level": "L1",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0034_6",
+       "level": "L1",
+       "type": "doors",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L1_019"
+      },
+      {
+       "id": "u_C0035_8",
+       "level": "L1",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0040_5",
+       "level": "L1",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0040_6",
+       "level": "L1",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_3",
+       "level": "L1",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_4",
+       "level": "L1",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_4",
+       "level": "L1",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L1_006"
+      },
+      {
+       "id": "u_C0035_7",
+       "level": "L1",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "read: o_L1_002"
+      },
+      {
+       "id": "u_C0035_6",
+       "level": "L1",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no room of its type at its place"
+      },
+      {
+       "id": "u_C0037_3",
+       "level": "L1",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0037_4",
+       "level": "L1",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0035_5",
+       "level": "L1",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0032_2",
+       "level": "L1",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0032"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_8",
+       "level": "L2",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0034_9",
+       "level": "L2",
+       "type": "doors",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L2_019"
+      },
+      {
+       "id": "u_C0035_12",
+       "level": "L2",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0040_7",
+       "level": "L2",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0040_8",
+       "level": "L2",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_5",
+       "level": "L2",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_6",
+       "level": "L2",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_7",
+       "level": "L2",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L2_006"
+      },
+      {
+       "id": "u_C0035_11",
+       "level": "L2",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "read: o_L2_002"
+      },
+      {
+       "id": "u_C0035_10",
+       "level": "L2",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no room of its type at its place"
+      },
+      {
+       "id": "u_C0037_5",
+       "level": "L2",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0037_6",
+       "level": "L2",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0035_9",
+       "level": "L2",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0032_3",
+       "level": "L2",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0032"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_11",
+       "level": "L3",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0034_12",
+       "level": "L3",
+       "type": "doors",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L3_019"
+      },
+      {
+       "id": "u_C0035_16",
+       "level": "L3",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0040_10",
+       "level": "L3",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0040_9",
+       "level": "L3",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_7",
+       "level": "L3",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_8",
+       "level": "L3",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_10",
+       "level": "L3",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L3_006"
+      },
+      {
+       "id": "u_C0035_15",
+       "level": "L3",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "read: o_L3_002"
+      },
+      {
+       "id": "u_C0035_14",
+       "level": "L3",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no room of its type at its place"
+      },
+      {
+       "id": "u_C0037_7",
+       "level": "L3",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0037_8",
+       "level": "L3",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0035_13",
+       "level": "L3",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0032_4",
+       "level": "L3",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0032"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_14",
+       "level": "L4",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0034_15",
+       "level": "L4",
+       "type": "doors",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L4_019"
+      },
+      {
+       "id": "u_C0035_20",
+       "level": "L4",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0040_11",
+       "level": "L4",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0040_12",
+       "level": "L4",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_10",
+       "level": "L4",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_9",
+       "level": "L4",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_13",
+       "level": "L4",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L4_006"
+      },
+      {
+       "id": "u_C0035_19",
+       "level": "L4",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "read: o_L4_002"
+      },
+      {
+       "id": "u_C0035_18",
+       "level": "L4",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no room of its type at its place"
+      },
+      {
+       "id": "u_C0037_10",
+       "level": "L4",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0037_9",
+       "level": "L4",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0035_17",
+       "level": "L4",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0032_5",
+       "level": "L4",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0032"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_17",
+       "level": "L5",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0034_18",
+       "level": "L5",
+       "type": "doors",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L5_019"
+      },
+      {
+       "id": "u_C0035_24",
+       "level": "L5",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0040_13",
+       "level": "L5",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0040_14",
+       "level": "L5",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_11",
+       "level": "L5",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_12",
+       "level": "L5",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_16",
+       "level": "L5",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L5_006"
+      },
+      {
+       "id": "u_C0035_23",
+       "level": "L5",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "read: o_L5_002"
+      },
+      {
+       "id": "u_C0035_22",
+       "level": "L5",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no room of its type at its place"
+      },
+      {
+       "id": "u_C0037_11",
+       "level": "L5",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0037_12",
+       "level": "L5",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0035_21",
+       "level": "L5",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0032_6",
+       "level": "L5",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0032"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_20",
+       "level": "L6",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0034_21",
+       "level": "L6",
+       "type": "doors",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L6_019"
+      },
+      {
+       "id": "u_C0035_28",
+       "level": "L6",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no door within 0.3 m"
+      },
+      {
+       "id": "u_C0040_15",
+       "level": "L6",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0040_16",
+       "level": "L6",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0040"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_13",
+       "level": "L6",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0043_14",
+       "level": "L6",
+       "type": "doors",
+       "absent": false,
+       "records": [
+        "C0043"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0034_19",
+       "level": "L6",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0034"
+       ],
+       "satisfied": false,
+       "why": "read: o_L6_006"
+      },
+      {
+       "id": "u_C0035_27",
+       "level": "L6",
+       "type": "openings",
+       "absent": true,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "read: o_L6_002"
+      },
+      {
+       "id": "u_C0035_26",
+       "level": "L6",
+       "type": "rooms",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": false,
+       "why": "no room of its type at its place"
+      },
+      {
+       "id": "u_C0037_13",
+       "level": "L6",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0037_14",
+       "level": "L6",
+       "type": "rooms",
+       "absent": true,
+       "records": [
+        "C0037"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0035_25",
+       "level": "L6",
+       "type": "stairs",
+       "absent": false,
+       "records": [
+        "C0035"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0032_7",
+       "level": "L6",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0032"
+       ],
+       "satisfied": true
+      }
+     ],
+     "assertions": [
+      {
+       "id": "a_C0031_1",
+       "what": "ground_z",
+       "records": [
+        "C0031"
+       ],
+       "satisfied": true,
+       "read": "ground at [-3.0]"
+      }
+     ],
+     "records": {
+      "C0016": [
+       1,
+       1
+      ],
+      "C0017": [
+       4,
+       4
+      ],
+      "C0019": [
+       1,
+       1
+      ],
+      "C0020": [
+       2,
+       2
+      ],
+      "C0023": [
+       1,
+       1
+      ],
+      "C0027": [
+       2,
+       2
+      ],
+      "C0028": [
+       3,
+       3
+      ],
+      "C0031": [
+       1,
+       1
+      ],
+      "C0032": [
+       7,
+       7
+      ],
+      "C0034": [
+       0,
+       21
+      ],
+      "C0035": [
+       7,
+       28
+      ],
+      "C0037": [
+       14,
+       14
+      ],
+      "C0040": [
+       16,
+       16
+      ],
+      "C0043": [
+       14,
+       14
+      ],
+      "C0068": [
+       9,
+       9
+      ],
+      "C0069": [
+       1,
+       1
+      ]
+     },
+     "unsatisfied": [
+      "u_C0034_1",
+      "u_C0034_10",
+      "u_C0034_11",
+      "u_C0034_12",
+      "u_C0034_13",
+      "u_C0034_14",
+      "u_C0034_15",
+      "u_C0034_16",
+      "u_C0034_17",
+      "u_C0034_18",
+      "u_C0034_19",
+      "u_C0034_2",
+      "u_C0034_20",
+      "u_C0034_21",
+      "u_C0034_3",
+      "u_C0034_4",
+      "u_C0034_5",
+      "u_C0034_6",
+      "u_C0034_7",
+      "u_C0034_8",
+      "u_C0034_9",
+      "u_C0035_10",
+      "u_C0035_11",
+      "u_C0035_12",
+      "u_C0035_14",
+      "u_C0035_15",
+      "u_C0035_16",
+      "u_C0035_18",
+      "u_C0035_19",
+      "u_C0035_2",
+      "u_C0035_20",
+      "u_C0035_22",
+      "u_C0035_23",
+      "u_C0035_24",
+      "u_C0035_26",
+      "u_C0035_27",
+      "u_C0035_28",
+      "u_C0035_3",
+      "u_C0035_4",
+      "u_C0035_6",
+      "u_C0035_7",
+      "u_C0035_8"
+     ],
+     "total": 70.72,
+     "levels": {
+      "present": 1,
+      "present_ok": 1,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "rooms": {
+      "present": 15,
+      "present_ok": 8,
+      "absent": 15,
+      "absent_ok": 15
+     },
+     "stairs": {
+      "present": 8,
+      "present_ok": 8,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "doors": {
+      "present": 46,
+      "present_ok": 32,
+      "absent": 7,
+      "absent_ok": 0
+     },
+     "windows": {
+      "present": 7,
+      "present_ok": 7,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "openings": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 14,
+      "absent_ok": 0
+     },
+     "walls": {
+      "present": 10,
+      "present_ok": 10,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "sparse": true,
+     "truth_status": "sparse",
+     "truth_source": "user_corrections",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "real17": {
+     "entries": [
+      {
+       "id": "u_C0038_1",
+       "level": "L0",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0038"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0038_2",
+       "level": "L0",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0038"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0038_3",
+       "level": "L0",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0038"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0038_4",
+       "level": "L0",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0038"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0038_5",
+       "level": "L0",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0038"
+       ],
+       "satisfied": true
+      },
+      {
+       "id": "u_C0038_6",
+       "level": "L0",
+       "type": "windows",
+       "absent": false,
+       "records": [
+        "C0038"
+       ],
+       "satisfied": true
+      }
+     ],
+     "assertions": [],
+     "records": {
+      "C0038": [
+       6,
+       6
+      ]
+     },
+     "unsatisfied": [],
+     "total": 100.0,
+     "levels": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "rooms": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "stairs": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "doors": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "windows": {
+      "present": 6,
+      "present_ok": 6,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "openings": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "walls": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "sparse": true,
+     "truth_status": "sparse",
+     "truth_source": "user_corrections",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "real19": {
+     "entries": [],
+     "assertions": [
+      {
+       "id": "a_C0025_1",
+       "what": "level_count",
+       "records": [
+        "C0025"
+       ],
+       "satisfied": true,
+       "read": "4 levels"
+      }
+     ],
+     "records": {
+      "C0025": [
+       1,
+       1
+      ]
+     },
+     "unsatisfied": [],
+     "total": 100.0,
+     "levels": {
+      "present": 1,
+      "present_ok": 1,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "rooms": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "stairs": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "doors": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "windows": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "openings": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "walls": {
+      "present": 0,
+      "present_ok": 0,
+      "absent": 0,
+      "absent_ok": 0
+     },
+     "sparse": true,
+     "truth_status": "sparse",
+     "truth_source": "user_corrections",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "real20": {
+     "total": null,
+     "measurable": false,
+     "sparse": true,
+     "truth_status": "sparse",
+     "truth_source": "user_corrections",
+     "truth_commit": null,
+     "not_measurable": [
+      "C0026"
+     ]
+    },
+    "synthetic-01": {
+     "levels": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 16,
+      "read": 16,
+      "matched": 16,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-03": {
+     "levels": {
+      "truth": 3,
+      "read": 3,
+      "matched": 3,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 19,
+      "read": 19,
+      "matched": 19,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 17,
+      "read": 17,
+      "matched": 17,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 16,
+      "read": 16,
+      "matched": 16,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 28,
+      "read": 28,
+      "matched": 28,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-04": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 5,
+      "read": 5,
+      "matched": 5,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 5,
+      "read": 5,
+      "matched": 5,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-05": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 14,
+      "read": 14,
+      "matched": 14,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-06": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 5,
+      "read": 5,
+      "matched": 5,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 8,
+      "read": 8,
+      "matched": 8,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-07": {
+     "levels": {
+      "truth": 4,
+      "read": 4,
+      "matched": 4,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 11,
+      "read": 11,
+      "matched": 11,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 22,
+      "read": 22,
+      "matched": 22,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 24,
+      "read": 24,
+      "matched": 24,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 4,
+      "read": 4,
+      "matched": 4,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-08-spaced-labels": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-09-jamb-stubs": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 15,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.6667,
+      "f1": 0.8
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 98.46,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-10-glazed-facade": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 7,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 0.8571,
+      "precision": 1.0,
+      "f1": 0.9231
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 0.7778,
+      "precision": 0.7778,
+      "f1": 0.7778
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 11,
+      "read": 12,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 0.9091,
+      "precision": 0.8333,
+      "f1": 0.8696
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 94.4,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-11-dimension-chains": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-12-mirrored-halves": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 8,
+      "read": 8,
+      "matched": 8,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 8,
+      "read": 4,
+      "matched": 4,
+      "absent_hits": 0,
+      "recall": 0.5,
+      "precision": 1.0,
+      "f1": 0.6667
+     },
+     "windows": {
+      "truth": 12,
+      "read": 13,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.9231,
+      "f1": 0.96
+     },
+     "openings": {
+      "truth": 0,
+      "read": 3,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.0,
+      "f1": 0.0
+     },
+     "walls": {
+      "truth": 11,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 0.9091,
+      "precision": 1.0,
+      "f1": 0.9524
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 87.18,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-13-typical-floor": {
+     "levels": {
+      "truth": 7,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 42,
+      "read": 42,
+      "matched": 42,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 36,
+      "read": 36,
+      "matched": 36,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 69,
+      "read": 69,
+      "matched": 69,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 70,
+      "read": 70,
+      "matched": 70,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 7,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-14-elevation-title": {
+     "levels": {
+      "truth": 2,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 0.5,
+      "precision": 1.0,
+      "f1": 0.6667
+     },
+     "rooms": {
+      "truth": 12,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "f1": 0.0
+     },
+     "doors": {
+      "truth": 11,
+      "read": 11,
+      "matched": 5,
+      "absent_hits": 0,
+      "recall": 0.4545,
+      "precision": 0.4545,
+      "f1": 0.4545
+     },
+     "windows": {
+      "truth": 19,
+      "read": 19,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 0.4737,
+      "precision": 0.4737,
+      "f1": 0.4737
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 20,
+      "read": 20,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "f1": 0.5
+     },
+     "stairs": {
+      "truth": 2,
+      "read": 2,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "f1": 0.5
+     },
+     "total": 44.94,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-15-winder-stair": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-16-open-recess": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 11,
+      "read": 11,
+      "matched": 11,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 1,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.0,
+      "f1": 0.0
+     },
+     "walls": {
+      "truth": 13,
+      "read": 13,
+      "matched": 13,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 92.86,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-17-garage-lift": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 7,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 8,
+      "read": 7,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 0.875,
+      "precision": 1.0,
+      "f1": 0.9333
+     },
+     "windows": {
+      "truth": 7,
+      "read": 8,
+      "matched": 7,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.875,
+      "f1": 0.9333
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 12,
+      "read": 14,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 0.8571,
+      "f1": 0.9231
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 97.36,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-18-sheet-frame": {
+     "levels": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 11,
+      "read": 11,
+      "matched": 11,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 19,
+      "read": 19,
+      "matched": 19,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 20,
+      "read": 20,
+      "matched": 20,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 2,
+      "read": 2,
+      "matched": 2,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-19-symmetric-house": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-20-glazed-corner": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 7,
+      "read": 7,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 0.8571,
+      "precision": 0.8571,
+      "f1": 0.8571
+     },
+     "windows": {
+      "truth": 10,
+      "read": 7,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 0.6,
+      "precision": 0.8571,
+      "f1": 0.7059
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 12,
+      "read": 12,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 0.8333,
+      "precision": 0.8333,
+      "f1": 0.8333
+     },
+     "stairs": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 91.99,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-21-parapet": {
+     "levels": {
+      "truth": 3,
+      "read": 3,
+      "matched": 3,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 14,
+      "read": 14,
+      "matched": 14,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 12,
+      "read": 12,
+      "matched": 12,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 21,
+      "read": 21,
+      "matched": 21,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 28,
+      "read": 28,
+      "matched": 28,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 3,
+      "read": 3,
+      "matched": 3,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "total": 100.0,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    },
+    "synthetic-22-curved-stair": {
+     "levels": {
+      "truth": 1,
+      "read": 1,
+      "matched": 1,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "rooms": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "doors": {
+      "truth": 6,
+      "read": 6,
+      "matched": 6,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "windows": {
+      "truth": 9,
+      "read": 9,
+      "matched": 9,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "openings": {
+      "truth": 0,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "walls": {
+      "truth": 10,
+      "read": 10,
+      "matched": 10,
+      "absent_hits": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0
+     },
+     "stairs": {
+      "truth": 1,
+      "read": 0,
+      "matched": 0,
+      "absent_hits": 0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "f1": 0.0
+     },
+     "total": 81.25,
+     "truth_status": "accepted",
+     "truth_source": "synthetic",
+     "truth_commit": null,
+     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+    }
+   },
+   "overall": 91.68
   }
  ]
 }
