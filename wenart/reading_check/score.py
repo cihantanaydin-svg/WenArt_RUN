@@ -282,11 +282,12 @@ def latest(stored: list) -> Optional[dict]:
     return {"projects": projects, "overall": overall(projects)} if projects else None
 
 
-def falls(last: Optional[dict], new: dict, full: bool = False) -> list[str]:
+def falls(last: Optional[dict], new: dict, full: bool = False, withdrawn=()) -> list[str]:
     """What fell against the stored numbers (pure; ``last`` is ``latest(stored)``): over the projects both have,
     the overall by more than ``GATE_OVERALL_DROP`` or a project by more than ``GATE_PROJECT_DROP``. A project whose
     reading failed stands at 0 with its error and falls; a project scored for the first time is not compared; in a
-    ``full`` run (no ``--projects``) a stored project that was not scored falls too."""
+    ``full`` run (no ``--projects``) a stored project that was not scored falls too, unless the user's acceptance of
+    it was withdrawn (``withdrawn``: its baseline says ``acceptance_withdrawn``; 6 Nov 2026, real21 and real19)."""
     if not last:
         return []
     was_all, now_all = last.get("projects") or {}, new.get("projects") or {}
@@ -306,7 +307,7 @@ def falls(last: Optional[dict], new: dict, full: bool = False) -> list[str]:
                 out.append(f"{p}: {w:.2f} -> {n:.2f}" + (f" (reading failed: {err})" if err else ""))
     if full:
         for p in was_all:
-            if p not in now_all:
+            if p not in now_all and p not in set(withdrawn):
                 out.append(f"{p}: {float(was_all[p].get('total') or 0):.2f} -> not scored")
     return out
 
@@ -385,7 +386,13 @@ def main(args) -> int:
     errors = sorted(p for p, v in entry["projects"].items() if v.get("error"))
     stored = load_scores()
     last = latest(stored)
-    fell = falls(last, entry, full=not named) if args.gate else []
+    withdrawn = [p for p in (last or {}).get("projects", {}) if p not in entry["projects"]
+                 and ((TR.load_baseline(p) or {}).get("acceptance_withdrawn"))]
+    for p in withdrawn:
+        why = (TR.load_baseline(p) or {}).get("acceptance_withdrawn") or {}
+        print(f"{p}: left the truth (the user's acceptance was withdrawn on {why.get('on') or '?'}: "
+              f"{why.get('reason') or '?'})")
+    fell = falls(last, entry, full=not named, withdrawn=withdrawn) if args.gate else []
     if args.gate:
         against = sorted({(v.get("commit") or "?")[:12] for p, v in (last or {}).get("projects", {}).items()
                           if p in entry["projects"]})

@@ -36,5 +36,6 @@
  "accepted_by_user": true,
  "accepted_on": "2026-11-04",
  "accepted_scope": "all",
- "accepted_note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done)"
+ "accepted_note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done)",
+ "accepted_seen": "only the regression numbers of the 4 Nov 2026 message (window blocks read: L0 windows 3 -> 12, L1 4 -> 15); no picture of the reading is recorded: the user should confirm it"
 }

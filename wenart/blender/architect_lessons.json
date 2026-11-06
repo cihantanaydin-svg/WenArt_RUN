@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-04",
+ "updated": "2026-11-06",
  "lessons": [
   {
    "id": "UL01",
@@ -3899,6 +3899,36 @@
    "checks": [],
    "request": "4 Nov 2026 (user OK on Milestone 14): the reading's ranker and the vision model may decide between code-built candidates where the code is undecided (gap kind, wall or notation, inside or outside, stair or grid, region class), logged with decided_by and the margin; geometry still comes only from the drawings (AI never draws a wall); every such decision is reviewed by the independent reviewers and carries its confidence.",
    "lesson": "4 Nov 2026 (user OK on Milestone 14): the reading's ranker and the vision model may decide between code-built candidates where the code is undecided (gap kind, wall or notation, inside or outside, stair or grid, region class), logged with decided_by and the margin; geometry still comes only from the drawings (AI never draws a wall); every such decision is reviewed by the independent reviewers and carries its confidence.",
+   "question": null
+  },
+  {
+   "id": "UL330",
+   "date": "2026-11-06",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "An acceptance of a reading is recorded only when the user's words accept a reading they looked at (a structure run, comparison sheets or drawings, named in accepted_seen); words about something else (splitting two buildings, naming the plan levels, one correction) are no acceptance. User, 6 Nov 2026: 'I have never reviewed real21 with my eyes' (real21's and real19's truths had been built from such words and were withdrawn).",
+   "lesson": "An acceptance of a reading is recorded only when the user's words accept a reading they looked at (a structure run, comparison sheets or drawings, named in accepted_seen); words about something else (splitting two buildings, naming the plan levels, one correction) are no acceptance. User, 6 Nov 2026: 'I have never reviewed real21 with my eyes' (real21's and real19's truths had been built from such words and were withdrawn).",
+   "question": null
+  },
+  {
+   "id": "UL331",
+   "date": "2026-11-06",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "A drawing that draws no windows (an area or licence plan: rooms with their areas, walls, doors, parcel lines) still gets windows: a habitable room on an outer wall with no drawn window gets an inferred window, and a room onto a balcony an inferred balcony door, marked inferred with the reason; a building that reads no window at all is a finding the machine raises before the user looks. Found on real21's structure run of 6 Nov 2026 (0 windows: the drawing draws none).",
+   "lesson": "A drawing that draws no windows (an area or licence plan: rooms with their areas, walls, doors, parcel lines) still gets windows: a habitable room on an outer wall with no drawn window gets an inferred window, and a room onto a balcony an inferred balcony door, marked inferred with the reason; a building that reads no window at all is a finding the machine raises before the user looks. Found on real21's structure run of 6 Nov 2026 (0 windows: the drawing draws none).",
+   "question": null
+  },
+  {
+   "id": "UL332",
+   "date": "2026-11-06",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "A drawing that draws fewer storeys than the building has (one typical plan, a block with lifts and a common core, a 'normal' area text) is built with all its storeys: the count from sections, elevations, level marks, floor-listing titles, area tables and zoning texts, else a default by building type marked as a guess the user can correct; the typical plan repeats, the ground floor follows the footprint evidence, a roof on top. User, 6 Nov 2026: 'real21 only 1 floor seems to be built you need to extrapolate what needs to be done. all floors needs to be done'.",
+   "lesson": "A drawing that draws fewer storeys than the building has (one typical plan, a block with lifts and a common core, a 'normal' area text) is built with all its storeys: the count from sections, elevations, level marks, floor-listing titles, area tables and zoning texts, else a default by building type marked as a guess the user can correct; the typical plan repeats, the ground floor follows the footprint evidence, a roof on top. User, 6 Nov 2026: 'real21 only 1 floor seems to be built you need to extrapolate what needs to be done. all floors needs to be done'.",
    "question": null
   }
  ]
