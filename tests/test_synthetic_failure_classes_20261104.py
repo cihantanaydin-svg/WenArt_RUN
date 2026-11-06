@@ -56,9 +56,9 @@ XFAIL_COUNTS = {
     "synthetic-16-open-recess": _xfail("open_recess", "UL313", "an opening doubles the corridor-end door"),
     "synthetic-17-garage-lift": _xfail("garage_lift", "UL320", "the 3.4 m garage opening is read as a window"),
     "synthetic-20-glazed-corner": _xfail("glazed_corner", "UL274", "the L of frames is one window and one door"),
-    "synthetic-22-curved-stair": _xfail("curved_stair", "open:real07", "the curved stair is not read at all"),
 }
-# every drawn room and opening of synthetic-16 and -22 is read; the counts fail on what is extra or missing
+# every drawn room and opening of synthetic-16 and -22 is read; the counts fail on what is extra or missing (synthetic-22's
+# counts hold since 6 Nov 2026: its curved stair is read, stair_numbers.curved_stair_of)
 # (synthetic-19, the symmetric single house, reads right since 5 Nov 2026: mirror.halves_axis)
 XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items()
                   if k not in ("synthetic-16-open-recess", "synthetic-22-curved-stair")}
@@ -435,9 +435,9 @@ def _stair(b: dict) -> dict:
     return stairs[0].get("stair") or {}
 
 
-@_xfail("winder_stair", "UL286", "the turn is read as a flat landing by the stair rule; the numbered-tread reader "
-                                 "(steps_drawn, winders) does not take this stair")
 def test_15_winders_and_seventeen_treads(generated, read):
+    # 6 Nov 2026: the stair rule's piece takes what the numbers say (stair_numbers.enrich; the first winder is not the
+    # arm's last tread, stair_numbers._trim_arm)
     t = truth_of(generated, "synthetic-15-winder-stair")
     truth = t["per_level"]["L0"]["stairs"][0]
     assert truth["risers"] == 17
@@ -556,7 +556,7 @@ def test_21_terrace_edge_walls_are_parapets_of_the_section_height(generated, rea
 
 # --- synthetic-22-curved-stair -------------------------------------------------------------------------------------
 
-@_xfail("curved_stair", "open:real07", "no stair reader takes a curved stair (real07: 'Stairs are missing')")
 def test_22_curved_stair_with_its_eighteen_treads(generated, read):
+    # 6 Nov 2026: numbers on a circle are a curved stair (stair_numbers.curved_stair_of)
     st = _stair(read("synthetic-22-curved-stair"))
     assert st.get("steps_drawn") == 18

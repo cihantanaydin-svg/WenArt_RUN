@@ -251,6 +251,9 @@ def _shift_piece(f: FurnitureItem, sh: _Shift) -> None:
         landing = stair.get("landing")
         if landing and landing.get("polygon"):
             landing["polygon"] = sh.pts(landing["polygon"])
+        curved = stair.get("curved")                 # 6 Nov 2026: a curved stair's centre (stair_numbers)
+        if curved and curved.get("centre") is not None:
+            curved["centre"] = list(sh.p(curved["centre"]))
 
 
 def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls: Optional[list] = None,
