@@ -3679,4 +3679,4 @@ refused; the build report names records and places, never element ids; every bui
 `truth accept` needs the user's acceptance of that reading (or `--user-said`) and keeps the old one under
 `results/reading_accepted/previous/`; `remark confirm` releases a record that waits on the machine's place; the
 score's matching no longer depends on the order of the lists. The truths are unchanged for the current records (only
-the report's form and the records' `truth_applied`); fresh readings score as before (real06 99.63, real07 99.01).
+the report's form and the records' `truth_applied`); fresh readings score as before with the old and the new score (real06 99.63, real07 99.01, real10 99.31).
