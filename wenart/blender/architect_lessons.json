@@ -3930,6 +3930,16 @@
    "request": "A drawing that draws fewer storeys than the building has (one typical plan, a block with lifts and a common core, a 'normal' area text) is built with all its storeys: the count from sections, elevations, level marks, floor-listing titles, area tables and zoning texts, else a default by building type marked as a guess the user can correct; the typical plan repeats, the ground floor follows the footprint evidence, a roof on top. User, 6 Nov 2026: 'real21 only 1 floor seems to be built you need to extrapolate what needs to be done. all floors needs to be done'.",
    "lesson": "A drawing that draws fewer storeys than the building has (one typical plan, a block with lifts and a common core, a 'normal' area text) is built with all its storeys: the count from sections, elevations, level marks, floor-listing titles, area tables and zoning texts, else a default by building type marked as a guess the user can correct; the typical plan repeats, the ground floor follows the footprint evidence, a roof on top. User, 6 Nov 2026: 'real21 only 1 floor seems to be built you need to extrapolate what needs to be done. all floors needs to be done'.",
    "question": null
+  },
+  {
+   "id": "UL333",
+   "date": "2026-11-06",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Underground floors get no windows: no inferred window or balcony door on a level below ground (a basement, or any level whose floor and ceiling are under the ground), and no 'room without window' finding there. User, 6 Nov 2026: 'underground floors will have no window'.",
+   "lesson": "Underground floors get no windows: no inferred window or balcony door on a level below ground (a basement, or any level whose floor and ceiling are under the ground), and no 'room without window' finding there. User, 6 Nov 2026: 'underground floors will have no window'.",
+   "question": null
   }
  ]
 }
