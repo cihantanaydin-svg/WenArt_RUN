@@ -306,6 +306,20 @@ def test_a_door_high_tag_on_a_text_layer_leaves_a_drawn_window_alone():
     assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [win], [_tag("120/210", 2.0, 0.3, "TEXT")], 1.0) is None
 
 
+def test_a_tag_beside_its_own_door_is_used_up_by_it():
+    """real10 (found by the regression set): an '80/210' beside its 0.80 m door went on to the next opening within
+    reach, a 0.70 m gap window 1.2 m away, and made it a door; the tag belongs to the door it stands by."""
+    from wenart.ingest.generic import core as C
+    from wenart.ingest.model import OpeningItem
+
+    door = OpeningItem(kind="door", width=0.8, center=(8.74, 13.99), rotation_deg=90.0, box=[0, 0, 1, 1], entity="d",
+                       evidence={})
+    gap_win = OpeningItem(kind="window", width=0.7, center=(10.17, 13.72), rotation_deg=0.0, box=[0, 0, 1, 1],
+                          entity="g", evidence={}, type_raw="unclassified gap content")
+    tag = _tag("80/210", 9.02, 13.58, "TEXT")
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [door, gap_win], [tag], 1.0) is None
+
+
 def test_a_door_high_tag_on_a_door_layer_decides_door_over_a_drawn_window_of_its_width():
     """real16 L1: the shower rooms' '80/220' (layer kapi-yazi) beside a 0.68 m 'window' (the closed leaf's lines in the
     wall); a 1.50 m window beside the same tag keeps its kind."""

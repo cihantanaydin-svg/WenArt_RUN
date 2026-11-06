@@ -2243,8 +2243,6 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
             if o.kind == "window" and "gap" not in str(o.type_raw or "") \
                     and not (over and abs(float(o.width) - width) <= DOOR_TAG_WINDOW_WIDTH_M):
                 continue                                       # a drawn window keeps its kind
-            if o.kind == "door" and abs(float(o.width) - width) <= 0.05:
-                continue                                       # already the tagged door
             d = math.dist(c, tuple(o.center))
             if d <= DOOR_TAG_REACH_M and (best is None or d < best[0]):
                 best = (d, j)
@@ -2252,6 +2250,11 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
             continue
         j = best[1]
         o = out[j]
+        if o.kind == "door" and abs(float(o.width) - width) <= 0.05:
+            # already the tagged door. 6 Nov 2026 (real10: an '80/210' beside its 0.80 m door went on to the next
+            # opening within reach, a 0.70 m window 1.2 m away, and made it a door): the tag is used up by its door
+            taken.add(j)
+            continue
         ev = dict(t.evidence[0]) if t.evidence else {}
         ev.update(method="vector", confidence=0.9, rule="size_tag",
                   reason=f"the door size tag '{t.text.strip()}' (width/height in cm) beside the gap")
