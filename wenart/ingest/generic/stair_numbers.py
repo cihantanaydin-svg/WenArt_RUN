@@ -31,6 +31,7 @@ NUMBER_RE = re.compile(r"^\s*(\d{1,2})\s*$")
 NUMBER_H_MAX_M = 0.30           # tread numbers are small texts
 STEP_M = (0.08, 0.60)           # the next number this far away (a tread's going, a winder's)
 TURN_JUMP_M = 3.0               # 4 Nov 2026: across a half landing to the next arm at most this far (it must lead on)
+TURN_NEAR_RATIO = 2.0           # 6 Nov 2026: a number on the landing this many times nearer wins (``chains``)
 MIN_STEPS = 6                   # a chain of at least this many numbers, the last at least this
 ARM_TURN_DEG = 25.0             # numbers in one arm: their steps within this of the arm's first step
 ARM_MIN_POINTS = 3              # an arm holds at least this many numbers
@@ -85,6 +86,17 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
                     # its real step 10 lies across the landing)
                     on = [c for c in cands if leads(c[1], v + skip)]
                     nxt = min(on or cands)[1]
+                    # 6 Nov 2026 (real13 L-1: the near stair's 7 ends its arm, its 8 stands on the landing 1.1 m on,
+                    # and the other stair's 7 led on, 2.5 m away): a near number that runs on the arm (the last
+                    # step's direction within ARM_TURN_DEG, at most twice its length) is the next tread
+                    if not on and len(chain) >= 2 and skip == 1:
+                        q0, q1 = nums[chain[-2]][1], p
+                        last = math.dist(q0, q1)
+                        d0 = _unit(q0, q1)
+                        d1 = _unit(q1, nums[nxt][1])
+                        if last > 0 and math.dist(q1, nums[nxt][1]) <= 2.0 * last \
+                                and abs(_angle(d0, d1)) <= ARM_TURN_DEG:
+                            on = [c for c in cands if c[1] == nxt]
                     if not on:
                         far = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + 1, [])
                                if k not in chain and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M
@@ -98,6 +110,15 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
                        if k not in chain and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M and leads(k, v + 1)]
                 if far:
                     nxt = min(far)[1]
+                # 6 Nov 2026 (real13 L-1: two stairs side by side; the near stair's 8 stands on its landing, 1.1 m from
+                # 7 and from 9, and the other stair's 8 led on, 2.8 m away): a nearer number on the landing that the
+                # next one follows across it (within TURN_JUMP_M) wins over one more than twice as far
+                near = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + 1, [])
+                        if k not in chain and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M
+                        and any(STEP_M[0] <= math.dist(nums[k][1], nums[j][1]) <= TURN_JUMP_M
+                                for j in by_value.get(v + 2, []) if j not in chain and j != k)]
+                if near and (not far or min(near)[0] * TURN_NEAR_RATIO < min(far)[0]):
+                    nxt = min(near)[1]
             if nxt is None:
                 break
             chain.append(nxt)
@@ -223,15 +244,47 @@ def stair_of(chain: list, strokes: list) -> Optional[dict]:
         curved = curved_stair_of(chain, strokes)
         if curved is not None and not curved.get("skip"):
             return curved
+        # 6 Nov 2026 (real13 L-1, "numbered treads always give a stair"): a stair of more arms, each straight run of
+        # numbers a flight (``_runs``), when the runs hold at least half the numbers
+        pts = [c[1] for c in chain]
+        runs = _runs(pts)
+        if len(runs) >= 2 and sum(len(r) for r in runs) >= RUNS_SHARE * len(pts):
+            multi = _straight_stair_of(chain, strokes, arms=runs)
+            if multi is not None and not multi.get("skip"):
+                return multi
         if curved is not None and out is not None:
             out = dict(out, skip=f"{out['skip']}; not a curved stair either ({curved['skip']})")
     return out
 
 
-def _straight_stair_of(chain: list, strokes: list) -> Optional[dict]:
+RUNS_SHARE = 0.5                # 6 Nov 2026: the straight runs of a stair of many arms hold this share of its numbers
+
+
+def _runs(points: list) -> list[list[int]]:
+    """The straight runs of a chain's numbers in order (pure): each the longest run from its first number whose steps
+    stay within ``ARM_TURN_DEG`` of its first step, at least ``ARM_MIN_POINTS`` numbers, its ends trimmed of the
+    numbers a different step away (``_trim_arm``, the winders at its turns)."""
+    out, i, n = [], 0, len(points)
+    while i < n - 1:
+        run = [i, i + 1]
+        ref = _unit(points[i], points[i + 1])
+        j = i + 2
+        while j < n and abs(_angle(ref, _unit(points[j - 1], points[j]))) <= ARM_TURN_DEG:
+            run.append(j)
+            j += 1
+        if len(run) >= ARM_MIN_POINTS:
+            run = _trim_arm(points, _trim_arm(points, run, at_end=True), at_end=False)
+            out.append(run)
+            i = run[-1] + 1
+        else:
+            i += 1
+    return out
+
+
+def _straight_stair_of(chain: list, strokes: list, arms: Optional[list] = None) -> Optional[dict]:
     pts = [c[1] for c in chain]
     values = [c[0] for c in chain]
-    arms = _arms(pts)
+    arms = _arms(pts) if arms is None else arms
     if not arms or (len(arms) == 1 and len(arms[0]) < len(pts)):
         return {"skip": f"no two straight arms of {ARM_MIN_POINTS} numbers at the ends of {values[0]}-{values[-1]}"}
     segs = _near_segs(pts, strokes)
@@ -324,11 +377,17 @@ def _straight_stair_of(chain: list, strokes: list) -> Optional[dict]:
                     landing = {"polygon": [[round(x, 4), round(y, 4)] for x, y in lc[:-1]],
                                "depth": round(min(math.dist(lc[0], lc[1]), math.dist(lc[1], lc[2])), 4)}
         winders = len(turn_pts)
+    elif len(arms) > 2:
+        # 6 Nov 2026 (real13 L-1: a stair of four arms round a well, 1-18): every straight run a flight, the numbers
+        # between them winders, the turn "other"
+        turn = "other"
+        winders = len(turn_pts)
     first = flights[0]
     d = _unit(first["start"], first["end"])
     reason = (f"the treads are numbered {values[0]}-{values[-1]} ({len(values)} numbers): "
               f"{len(arms)} straight arm(s) of {', '.join(str(f['lines']) for f in flights)} treads"
               + (f", a {turn} turn with {winders} winder(s)" if len(arms) == 2 else "")
+              + (f", {len(arms) - 1} turns with {winders} winder(s)" if len(arms) > 2 else "")
               + f"; it rises from {values[0]} to {values[-1]} (drawn)")
     return {"flights": flights, "landing": landing, "winders": winders, "turn": turn,
             "direction": [round(d[0], 4), round(d[1], 4)], "polygon": poly, "steps": values[-1],

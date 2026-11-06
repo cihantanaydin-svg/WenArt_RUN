@@ -130,6 +130,37 @@ def test_numbered_treads_that_fit_no_shape_still_give_the_treads_drawn():
     assert piece.details["stair"]["steps_drawn"] == 11 and piece.details["stair"]["direction_assumed"] is True
 
 
+_REAL13_A = {1: (3.91, 0.89), 2: (3.68, 0.88), 3: (3.41, 0.88), 4: (2.46, 1.37), 5: (2.45, 1.62), 6: (2.45, 1.90),
+             7: (2.58, 2.42), 8: (2.91, 2.75), 9: (3.31, 2.87), 10: (3.64, 2.87), 11: (3.89, 2.87), 12: (4.14, 2.87),
+             13: (4.39, 2.87), 14: (4.64, 2.87), 15: (4.89, 2.87), 16: (5.42, 2.75), 17: (5.75, 2.28), 18: (5.77, 1.93)}
+_REAL13_B = {1: (0.11, 0.86), 2: (0.11, 1.11), 3: (0.11, 1.36), 4: (0.11, 1.61), 5: (0.11, 1.86), 6: (0.11, 2.17),
+             7: (0.11, 2.60), 8: (-0.91, 2.96), 9: (-1.72, 2.22), 10: (-1.72, 1.86), 11: (-1.72, 1.66),
+             12: (-1.72, 1.40), 13: (-1.72, 1.11), 14: (-1.72, 0.86), 15: (-1.72, 0.61)}
+
+
+def test_two_numbered_stairs_side_by_side_keep_their_own_numbers():
+    """real13 L-1 (the two stairs of the basement, 'MER 18'): the near U stair's 7 ends its arm and its 8 stands on the
+    landing 1.1 m on, the other stair's 7 and 8 lead on 2.5-2.8 m away: each stair keeps its own numbers."""
+    texts = [_t(v, x, y) for v, (x, y) in _REAL13_B.items()] + [_t(v, x, y) for v, (x, y) in _REAL13_A.items()]
+    for t in texts[:len(_REAL13_B)]:
+        t.id = "B" + t.id
+    got = sorted([t.id for _v, _p, t in c] for c in SN.chains(texts))
+    assert got == sorted([["T%d" % v for v in range(1, 19)], ["BT%d" % v for v in range(1, 16)]])
+    b = next(c for c in SN.chains(texts) if c[0][2].id.startswith("B"))
+    st = SN.stair_of(b, [])
+    assert st["turn"] == "U" and st["steps"] == 15
+
+
+def test_a_stair_of_many_arms_is_still_a_stair():
+    """real13 L-1's other stair, 1-18 round a well (three straight runs, winders between): numbered treads always give
+    a stair, its runs the flights, the turn 'other'."""
+    chain = SN.chains([_t(v, x, y) for v, (x, y) in _REAL13_A.items()])[0]
+    st = SN.stair_of(chain, [])
+    assert not st.get("skip"), st
+    assert st["turn"] == "other" and st["steps"] == 18 and len(st["flights"]) == 3
+    assert st["winders"] == 18 - sum(f["lines"] for f in st["flights"])
+
+
 # --------------------------------------------------------------------------
 # A door across a continuous wall at a wall corner
 # --------------------------------------------------------------------------
