@@ -18,6 +18,18 @@ dict (and the level texts where it needs them):
 6. ``label_vocabulary``: a room label holding a notation phrase (a footprint line, a services wall, a level mark, an
    axis, a number with a unit, a drawing title, a floor's name).
 
+Round 2 (6 Nov 2026; the classes of the user's 3-4 Nov corrections the first six rules missed, measured on the readings
+made before those corrections; every distance compared with a reach gets ``EPS`` of slack):
+
+7. ``facade_recess`` (C0003, C0023, C0037): small unnamed rooms with no door, reached only through unclassified gaps,
+   one of them the mouth in the facade, with a named room's window looking in or the mouth as wide as the room;
+8. ``false_stair`` (C0007): a stair in a wet room or a kitchen, too small, or with many flights in a small box;
+9. ``stair_stacking`` (C0009, C0010): the one core stair of two neighbouring floors more than a metre apart;
+10. ``mirror_twins`` (C0004, C0018): twin rooms about the reading's own mirror axis that differ in type, in area, or
+    of which one cannot be entered;
+11. ``wall_across_passage`` (C0051, C0053): an unclassified gap between a hall and a room with no door symbol;
+12. ``wall_mass`` (C0020): a face under 0.6 m2 typed hall or unknown.
+
 Every finding is advisory: ``wenart.reading_check.check`` counts it under ``counts["advisory"]``, never in the
 verdict. Each rule's precision was judged one finding at a time on the readings of the 20 real and 21 synthetic
 projects (``models/sense_trust.json``, with every judgement and its reason); a rule below ``TRUST_MIN`` writes its
@@ -63,9 +75,19 @@ RULES = {
     "unread_walls": "a level whose walls are mostly unread",
     "circulation": "a level, a room or a flat that cannot be reached",
     "label_vocabulary": "a notation phrase in a room name",
+    # 6 Nov 2026, round 2
+    "facade_recess": "a facade recess closed into rooms",
+    "false_stair": "a stair where no stair can be",
+    "stair_stacking": "the core stairs of two floors off each other",
+    "mirror_twins": "the two halves of a mirrored plan read differently",
+    "wall_across_passage": "a wall across a drawn passage",
+    "wall_mass": "a face of wall mass read as a room",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
+# 6 Nov 2026, round 2 (the calibration found a door 0.15000000000000036 m from its room miss a reach of
+# 0.15000000000000002): every distance compared with a reach or a tolerance gets this much slack
+EPS = 1e-6
 SMALL_SAMPLE = 5               # a rule judged on fewer findings is marked small_sample in the trust file (reported)
 
 # ------------------------------------------------------------------------------------------- 1. room type and area
@@ -168,6 +190,7 @@ DOOR_TYPES = ("living", "bedroom", "kitchen", "bathroom", "shower", "wc", "hall"
 NO_DOOR_AREA_M2 = 1.0         # no face under this needs a door (a riser, a column casing, a sliver between two walls)
 ENTRANCE_LEVEL_M = 1.6        # an outer door on a level this close to the ground (0.0) is an entrance
 STAIR_PIECE_REACH_M = 0.5     # a stair piece this close to a room belongs to it (the flat's own stair)
+UNTYPED_CORE_M2 = 6.0         # an untyped room this large in a group with no way in is named as its likely hall
 
 # ---------------------------------------------------------------------------------------------- 6. label vocabulary
 # 6 Nov 2026: the notation phrases a reading glued to room names. No table of these exists in the reader (the title
@@ -188,6 +211,49 @@ NOTATION_PHRASES = (
     (r"\b\d+(?:[.,]\d+)?\s*(?:CM|MM|M2|M²|M)(?![A-Z0-9])", "a number with a unit"),
 )
 _NOTATION_RE = [(re.compile(p), what) for p, what in NOTATION_PHRASES]
+
+# ------------------------------------------------------------------------- round 2 (6 Nov 2026): the user's past fixes
+# The classes of the user's 3-4 Nov corrections the first six rules missed (the independent recall measure: 7 of 24).
+# 7. facade_recess (C0003, C0023, C0037): a recess of the facade closed into small unnamed rooms by a wall drawn across
+#    its mouth; open air the model makes a room
+RECESS_AREA_M2 = 7.0          # a recess room is smaller than this (real10's two recess rooms: 6.23 and 2.03 m2)
+RECESS_MIN_AREA_M2 = 1.0      # ... and larger than this (a smaller face is wall mass, rule 12)
+RECESS_MOUTH_SHARE = 0.6      # a gap in the outer wall this wide against the room's side there is the recess's mouth
+RECESS_FACADE_M = 1.0         # a mouth opening onto no room this close to the level's outline opens onto the facade
+                              # (calibration: real10 draws its facade with a second line 0.5 m out; a gap of the core
+                              # onto unread space deep inside the plan is no mouth)
+                              # (the user, C0037: "reached only through a facade gap as wide as itself")
+# 8. false_stair (C0007): a tile grid read as a stair in a bathroom or a kitchen
+FALSE_STAIR_ROOMS = ("bathroom", "wc", "shower", "kitchen")   # no stair stands in a wet room or a kitchen
+STAIR_MIN_AREA_M2 = 1.8       # the smallest stair (a spiral of 1.3 m across, a straight flight 0.7 x 2.6 m)
+STAIR_MIN_TREADS = 8          # a storey needs 14 to 20 risers; under this many tread lines, with another sign, no stair
+GRID_FLIGHTS_MIN = 3          # a stair read with this many flights or more ...
+FLIGHT_MIN_AREA_M2 = 2.0      # ... and less footprint than this per flight is a grid of lines (real09's kitchen tiles:
+                              # 8 'flights' of 5 lines in 2.67 m2; no stair of the current readings has 3 flights)
+# 9. stair_stacking (C0009, C0010): the core stair of one floor off the one below
+STACK_OFFSET_M = 1.0          # one core stair on each of two neighbouring floors further apart than this in plan
+                              # (the gap between their footprints: calibration, 6 Nov 2026: real13 and real19 read a
+                              # different flight of the same U stair on each floor, centres 1.7 to 3.6 m apart, the
+                              # footprints overlapping)
+# 10. mirror_twins (C0004, C0018): the two halves of a mirrored plan read differently
+TWIN_AREA_SHARE = 0.25        # twin rooms differing in area by more than this share of the larger one
+TWIN_IOU_MIN = 0.5            # a room and the mirror image of another overlapping this much are twins
+TWIN_MIN_AREA_M2 = 1.0        # rooms smaller than this are not paired about an axis (slivers, risers)
+TWIN_IMAGE_READ_SHARE = 0.8   # a room's mirror image this much covered by other rooms: the other half is read there
+TWIN_REGION_GROW_M = 1.0      # about the reading's own axis, only rooms within its twins' box (this much wider)
+CORE_TYPES = ("lift", "stair", "shaft", "fire_lobby", "light_well", "technical")   # the user, C0027: "the core stays
+                              # out of every mirror fix": a building's one lift or stair has no twin
+# 6 Nov 2026 (calibration): an axis searched from the walls' own symmetry (as the round-2 request allowed) paired a
+# salon with a bedroom in single houses, real14's one flat about its corridor and real03's different flat types (A1,
+# A3, B): no right finding. Only the reading's own axis (its twins' transform, a label mirrored) is used, and its pairs
+# count only when most of them have one type
+TWIN_TYPE_AGREE_MIN = 0.6     # share of the pairs (the reading's own included) with one type
+# 11. wall_across_passage (C0051, C0053): a drawn open passage walled with a gap left in it
+PASSAGE_GAP_M = (0.7, 2.5)    # an unclassified gap this wide between a hall and a room
+DOOR_SYMBOL_REACH_M = 1.0     # a door symbol this close to the gap makes it a door, not a passage
+PASSAGE_OPEN_TYPES = ("stair", "lift", "shaft", "light_well")   # gaps onto these are no walled passage
+# 12. wall_mass (C0020): a face of wall mass (or a closet the walls swallowed) typed as a hall or left untyped
+WALL_MASS_FACE_M2 = 0.6       # a face under this typed hall or unknown is no room
 
 
 def _finding(rule: str, severity: str, level: Optional[str], message: str, place=None,
@@ -246,6 +312,12 @@ def _walls_of(building: dict, lid: str) -> list:
 
 def _wall_len(w: dict) -> float:
     return math.dist(w["start"][:2], w["end"][:2])
+
+
+def _untyped(room: dict) -> bool:
+    """A room the reading could not type: no label, a generic one ('Oda', 'Room') or the type unknown or other."""
+    label = _label(room)
+    return not label or B.generic_room_label(label) or room.get("room_type") in ("unknown", "other", None)
 
 
 def _fmt(a: float) -> str:
@@ -372,7 +444,7 @@ def _is_area_text(text: str) -> bool:
 
 
 def _texts_in(poly: Polygon, texts: list, own: set) -> list:
-    inner = poly.buffer(-TEXT_IN_FACE_M) if poly.area > 1.0 else poly
+    inner = poly.buffer(-TEXT_IN_FACE_M + EPS) if poly.area > 1.0 else poly.buffer(EPS)
     return [t for t in texts if t.get("entity") not in own and inner.contains(Point(t["x"], t["y"]))]
 
 
@@ -466,7 +538,7 @@ def frame_evidence(walls: list, ids: list, openings: list) -> tuple[int, int]:
     for w in walls:
         if w.get("id") in ids:
             continue
-        if any(ln.distance(Point(e[:2])) <= JOIN_REACH_M for e in (w["start"], w["end"]) for ln in lines):
+        if any(ln.distance(Point(e[:2])) <= JOIN_REACH_M + EPS for e in (w["start"], w["end"]) for ln in lines):
             joins += 1
     return n_open, joins
 
@@ -486,7 +558,7 @@ def frame_walls(walls: list, box: Polygon) -> tuple[list, float]:
         for w in walls:
             reach = FRAME_TOL_M + float(w.get("thickness") or 0.0) / 2.0
             p, q = Point(w["start"][:2]), Point(w["end"][:2])
-            if edge.distance(p) > reach or edge.distance(q) > reach or p.distance(q) < 0.3:
+            if edge.distance(p) > reach + EPS or edge.distance(q) > reach + EPS or p.distance(q) < 0.3:
                 continue
             # the line through the edge, not only the segment: a wall a little longer than the box still lies on it
             s, t = sorted((edge.project(p), edge.project(q)))
@@ -550,7 +622,8 @@ def frame_walls_and_paper_rooms(building: dict, texts_by_level: Optional[dict] =
                 for t in _texts_in(poly, texts, _own_entities(r)):
                     name = str(t.get("text") or "").strip()
                     if _is_room_label(name) and _fold(name).upper() not in own \
-                            and not any(math.dist((t["x"], t["y"]), (q[1], q[2])) < LABEL_MERGE_M for q in inner):
+                            and not any(math.dist((t["x"], t["y"]), (q[1], q[2])) < LABEL_MERGE_M + EPS
+                                        for q in inner):
                         inner.append((name, t["x"], t["y"]))
             papered = cover > PAPER_ROOM_SHARE and len(inner) >= PAPER_LABELS_MIN
             if not papered and along < PAPER_ENCLOSED_SHARE:
@@ -594,7 +667,7 @@ def level_labels(building: dict, lid: str, texts: Optional[list] = None) -> list
                 if p.get("at") and p.get("kind", "unplaced_label") == "unplaced_label"]
     out: list = []
     for t, x, y in raw:
-        if any(math.dist((x, y), (q[1], q[2])) < LABEL_MERGE_M for q in out):
+        if any(math.dist((x, y), (q[1], q[2])) < LABEL_MERGE_M + EPS for q in out):
             continue
         out.append((t, x, y))
     return out
@@ -676,15 +749,33 @@ def _el(lv: dict) -> float:
     return float(v) if isinstance(v, (int, float)) else float(lv.get("order") or 0) * 3.0
 
 
-def stair_links(building: dict) -> list:
-    """Rule 5a (pure): the base levels (``base_level_id`` null) by elevation; for each two neighbours a stair on both
-    within ``STAIR_REACH_M`` in plan. A level with no stair meeting its neighbour's is unreachable (major); no stair
-    on any level is one minor finding (the stairs unread or not drawn)."""
-    levels = sorted((lv for lv in building.get("levels") or [] if not lv.get("base_level_id")),
-                    key=lambda lv: (_el(lv), lv.get("order") or 0))
+def base_levels_by_height(building: dict) -> list:
+    """The base levels (``base_level_id`` null) by elevation (pure)."""
+    return sorted((lv for lv in building.get("levels") or [] if not lv.get("base_level_id")),
+                  key=lambda lv: (_el(lv), lv.get("order") or 0))
+
+
+def core_stairs(building: dict, lid: str, false_ids: Optional[set] = None) -> list:
+    """``[(id, Polygon)]`` (pure): the level's stair pieces that are no false stair (``false_ids``, rule 8); the stair
+    rooms when the level has no such piece (a stair read as a room only)."""
+    pieces = [(f.get("id"), p) for f in building.get("furniture") or []
+              if f.get("level_id") == lid and f.get("type") == "stair" and f.get("id") not in (false_ids or set())
+              for p in [_footprint(f)] if p is not None]
+    if pieces:
+        return pieces
+    return [(r.get("id"), p) for r in _rooms_of(building, lid) if sense_type(r) == "stair"
+            for p in [_poly(r.get("polygon"))] if p is not None]
+
+
+def stair_links(building: dict, false_ids: Optional[set] = None) -> list:
+    """Rule 5a (pure): the base levels by elevation; for each two neighbours a stair on both within
+    ``STAIR_REACH_M`` in plan (false stairs, ``false_ids``, left out: a tile grid read as a stair joins nothing). A
+    level with no stair meeting its neighbour's is unreachable (major); no stair on any level is one minor finding (the
+    stairs unread or not drawn). Two neighbours with exactly one core stair each are left to ``stair_stacking``."""
+    levels = base_levels_by_height(building)
     if len(levels) < 2:
         return []
-    stairs = {lv["id"]: stairs_of(building, lv["id"]) for lv in levels}
+    stairs = {lv["id"]: core_stairs(building, lv["id"], false_ids) for lv in levels}
     if not any(stairs.values()):
         names = ", ".join(lv["id"] for lv in levels)
         return [_finding("circulation", "minor", None, f"no stair is read on any of the {len(levels)} levels "
@@ -694,8 +785,10 @@ def stair_links(building: dict) -> list:
         if abs(_el(hi) - _el(lo)) < 0.5:
             continue
         a, b = stairs[lo["id"]], stairs[hi["id"]]
+        if len(a) == 1 and len(b) == 1:
+            continue                                                          # stair_stacking's question
         best = min((pa.distance(pb), ia, ib) for ia, pa in a for ib, pb in b) if a and b else None
-        if best is not None and best[0] <= STAIR_REACH_M:
+        if best is not None and best[0] <= STAIR_REACH_M + EPS:
             continue
         if not a or not b:
             missing = [lv["id"] for lv, s in ((lo, a), (hi, b)) if not s]
@@ -717,17 +810,13 @@ def stair_links(building: dict) -> list:
     return out
 
 
-def room_access(building: dict, lid: str) -> tuple[dict, list, dict, dict]:
-    """``(access, links, outer, loose)`` of a level's rooms (pure): ``access[room] = [opening ids]`` (doors, openings
-    and the virtual separators that touch the room: the opening's wall within half its thickness plus ``ROOM_REACH_M``
-    of the polygon, a separator's line within ``ROOM_REACH_M``), ``links`` the pairs of rooms an opening joins,
-    ``outer[room]`` the doors and openings on an exterior wall that touch only that room and ``loose[room]`` those on
-    an inner wall that touch only that room (they lead into space no room closes)."""
-    rooms = [r for r in _rooms_of(building, lid) if _poly(r.get("polygon")) is not None]
-    polys = {r["id"]: _poly(r["polygon"]) for r in rooms}
+def opening_rooms(building: dict, lid: str) -> list:
+    """``[(opening, wall, [room ids])]`` of a level (pure): every opening (doors, windows, openings, the virtual
+    separators) with the rooms it touches: the opening's centre and its wall within half the wall's thickness plus
+    ``ROOM_REACH_M`` of the room polygon, a separator's line within ``ROOM_REACH_M``."""
+    polys = {r["id"]: p for r in _rooms_of(building, lid) for p in [_poly(r.get("polygon"))] if p is not None}
     walls = {w["id"]: w for w in _walls_of(building, lid)}
-    access = {r["id"]: [] for r in rooms}
-    links, outer, loose = [], {}, {}
+    out = []
     for o in building.get("openings") or []:
         if o.get("level_id") != lid:
             continue
@@ -736,20 +825,30 @@ def room_access(building: dict, lid: str) -> tuple[dict, list, dict, dict]:
                 continue
             shape, reach, wall = LineString([tuple(p[:2]) for p in o["line"]]), ROOM_REACH_M, None
         else:
-            if o.get("type") not in ("door", "opening") or not o.get("center"):
-                continue
             wall = walls.get(o.get("wall_id"))
-            if wall is None:
+            if wall is None or not o.get("center"):
                 continue
             reach = float(wall.get("thickness") or 0.1) / 2.0 + ROOM_REACH_M
             shape = Point(tuple(o["center"][:2]))
-        touched = []
-        for rid, poly in polys.items():
-            if poly.distance(shape) > reach:
-                continue
-            if wall is not None and poly.distance(LineString([wall["start"][:2], wall["end"][:2]])) > reach:
-                continue
-            touched.append(rid)
+        line = LineString([wall["start"][:2], wall["end"][:2]]) if wall is not None else None
+        touched = [rid for rid, poly in polys.items() if poly.distance(shape) <= reach + EPS
+                   and (line is None or poly.distance(line) <= reach + EPS)]
+        out.append((o, wall, touched))
+    return out
+
+
+def room_access(building: dict, lid: str) -> tuple[dict, list, dict, dict]:
+    """``(access, links, outer, loose)`` of a level's rooms (pure): ``access[room] = [opening ids]`` (doors, openings
+    and the virtual separators that touch the room: the opening's wall within half its thickness plus ``ROOM_REACH_M``
+    of the polygon, a separator's line within ``ROOM_REACH_M``), ``links`` the pairs of rooms an opening joins,
+    ``outer[room]`` the doors and openings on an exterior wall that touch only that room and ``loose[room]`` those on
+    an inner wall that touch only that room (they lead into space no room closes)."""
+    rooms = [r for r in _rooms_of(building, lid) if _poly(r.get("polygon")) is not None]
+    access = {r["id"]: [] for r in rooms}
+    links, outer, loose = [], {}, {}
+    for o, wall, touched in opening_rooms(building, lid):
+        if not o.get("virtual") and o.get("type") not in ("door", "opening"):
+            continue
         for rid in touched:
             access[rid].append(o.get("id"))
         for i in range(len(touched)):
@@ -762,13 +861,13 @@ def room_access(building: dict, lid: str) -> tuple[dict, list, dict, dict]:
     return access, links, outer, loose
 
 
-def circulation(building: dict) -> list:
+def circulation(building: dict, false_ids: Optional[set] = None) -> list:
     """Rule 5 (pure): the levels a stair joins (``stair_links``, major per unreachable level); per level every room
     of a type people use every day (``DOOR_TYPES``) with no door, opening or separator and no stair standing in it
     (minor; faces under ``NO_DOOR_AREA_M2`` and voids left out); every group of rooms joined by doors (a flat, two
     rooms or more, not the whole floor) with no door to a stair, a lift, a hall shared by the floor or, on a level near
     the ground (``ENTRANCE_LEVEL_M``), the outside (minor; its doors into unclosed space are named)."""
-    out = stair_links(building)
+    out = stair_links(building, false_ids)
     for lv in building.get("levels") or []:
         lid = lv["id"]
         rooms = {r["id"]: r for r in _rooms_of(building, lid) if _poly(r.get("polygon")) is not None}
@@ -782,7 +881,7 @@ def circulation(building: dict) -> list:
                 continue
             a = _area(r) or 0.0
             poly = _poly(r["polygon"])
-            if a < NO_DOOR_AREA_M2 or any(poly.distance(sp) <= STAIR_PIECE_REACH_M for sp in stair_polys):
+            if a < NO_DOOR_AREA_M2 or any(poly.distance(sp) <= STAIR_PIECE_REACH_M + EPS for sp in stair_polys):
                 continue                                         # a stair standing in a room is its way in
             out.append(_finding("circulation", "minor", lid, f"{rid} '{_label(r)}' ({_fmt(a)} m2, type "
                                 f"{r.get('room_type')}) has no door, opening or open side read: it cannot be "
@@ -801,7 +900,7 @@ def circulation(building: dict) -> list:
         groups: dict = {}
         for rid in rooms:
             groups.setdefault(find(rid), []).append(rid)
-        near_ground = abs(_el(lv)) <= ENTRANCE_LEVEL_M
+        near_ground = abs(_el(lv)) <= ENTRANCE_LEVEL_M + EPS
         entered = [rid for rid in rooms if access.get(rid)]
         for members in groups.values():
             # a group holding every room with a door is the whole floor: its way in is the stair rule's question
@@ -814,7 +913,7 @@ def circulation(building: dict) -> list:
                 poly = _poly(r["polygon"])
                 if st in ("stair", "lift", "fire_lobby") or (near_ground and outer.get(rid)):
                     reached = True
-                elif any(poly.distance(sp) <= STAIR_PIECE_REACH_M for sp in stair_polys):
+                elif any(poly.distance(sp) <= STAIR_PIECE_REACH_M + EPS for sp in stair_polys):
                     reached = True
                 elif st == "hall" and re.search(r"(?<![a-z])(?:kat\s*hol|ortak|floor\s*hall|common|lobby|"
                                                 r"apartman\s*hol|bina\s*giris)", _fold(_label(r))):
@@ -829,9 +928,22 @@ def circulation(building: dict) -> list:
             names = ", ".join(f"'{_label(rooms[m])}'" for m in members[:8])
             doors_out = sorted({o for m in members for o in loose.get(m) or []})
             plural = len(doors_out) > 1
-            why = (f"its door{'s' if plural else ''} {', '.join(doors_out[:4])} lead{'' if plural else 's'} into space "
-                   f"the reading did not close (the hall or the stair behind is unread)" if doors_out
-                   else "its entrance door is not read")
+            # 6 Nov 2026, round 2 (calibration: real16's flats reach the floor's corridor and core, read as one untyped
+            # 37.7 m2 'Oda'): an untyped room of the group is named as the likely hall or core
+            # ... only when the group joins two flats or more (two kitchens or two living rooms): then the unnamed room
+            # between them is their hall; in one flat an unnamed 'Oda' is a room of that flat
+            kinds = [sense_type(rooms[m]) for m in members]
+            flats = max(kinds.count("kitchen"), kinds.count("living"))
+            untyped = [m for m in members if not _named(rooms[m]) and (_area(rooms[m]) or 0.0) >= UNTYPED_CORE_M2]
+            if untyped and flats >= 2:
+                big = max(untyped, key=lambda m: _area(rooms[m]) or 0.0)
+                why = (f"the floor's hall or core seems to be the untyped room {big} '{_label(rooms[big])}' "
+                       f"({_fmt(_area(rooms[big]) or 0.0)} m2): no stair, lift or hall is read in it")
+            elif doors_out:
+                why = (f"its door{'s' if plural else ''} {', '.join(doors_out[:4])} lead{'' if plural else 's'} into "
+                       f"space no room closes (the hall or the stair behind is unread)")
+            else:
+                why = "its entrance door is not read"
             out.append(_finding("circulation", "minor", lid,
                                 f"{lid}: a group of {len(members)} rooms joined by doors ({names}"
                                 f"{' ...' if len(members) > 8 else ''}; {u.area:.0f} m2) has no door to a stair, a "
@@ -883,16 +995,407 @@ def label_vocabulary(building: dict) -> list:
     return out
 
 
+
+# ------------------------------------------------------------------------- round 2 (6 Nov 2026): the user's past fixes
+def _is_gap(o: dict) -> bool:
+    """An opening the reading could not class (type opening, or a virtual separator): no door, no window."""
+    return bool(o.get("virtual")) or o.get("type") == "opening"
+
+
+def _named(room: dict) -> bool:
+    """A room with a label of its own (not empty, not a generic 'Oda' / 'Room')."""
+    label = _label(room)
+    return bool(label) and not B.generic_room_label(label)
+
+
+def _side_length(poly: Polygon, wall: dict) -> float:
+    """The length of a room's outline along a wall (within half its thickness plus ``ROOM_REACH_M``)."""
+    band = LineString([wall["start"][:2], wall["end"][:2]]).buffer(
+        float(wall.get("thickness") or 0.1) / 2.0 + ROOM_REACH_M + EPS, cap_style=2)
+    return poly.exterior.intersection(band).length / 2.0 if poly.exterior.intersects(band) else 0.0
+
+
+def _level_outline(building: dict, lid: str):
+    """The level's filled outer outline from its walls and openings (``crossdoc.level_outline``), or None."""
+    from wenart.reading_check.crossdoc import level_outline
+
+    try:
+        return level_outline(_walls_of(building, lid), [o for o in building.get("openings") or []
+                                                        if o.get("level_id") == lid])
+    except Exception:  # noqa: BLE001 - no outline: only exterior walls count as the facade
+        return None
+
+
+def _beyond_outside(o: dict, w: dict, polys: list, outline, rooms_union=None) -> bool:
+    """True when the point just beyond an opening, on the side away from the rooms it opens from, lies outside the
+    level's outline or in no room (open air, or space the facade's second line closes: real10's recesses behind a
+    double facade line)."""
+    if not polys or not o.get("center"):
+        return False
+    (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
+    length = math.hypot(x1 - x0, y1 - y0)
+    if length <= 0:
+        return False
+    nx, ny = -(y1 - y0) / length, (x1 - x0) / length
+    cx, cy = o["center"][:2]
+    c = unary_union(polys).centroid
+    if (c.x - cx) * nx + (c.y - cy) * ny > 0:
+        nx, ny = -nx, -ny
+    reach = float(w.get("thickness") or 0.1) / 2.0 + 0.25
+    q = Point(cx + nx * reach, cy + ny * reach)
+    if outline is None:
+        return False
+    if not outline.buffer(-EPS).contains(q):
+        return True
+    # in no room and close to the outline: the strip between the two lines of a double facade
+    return (rooms_union is not None and not rooms_union.buffer(EPS).contains(q)
+            and outline.exterior.distance(q) <= RECESS_FACADE_M + EPS)
+
+
+def facade_recess(building: dict) -> list:
+    """Rule 7 (pure; C0003, C0023, C0037): a group of small unnamed rooms (each under ``RECESS_AREA_M2``, no label or a
+    generic one; joined to each other by gaps) with no door, whose openings are unclassified gaps (type opening or a
+    virtual separator) and windows of named rooms, with a mouth (a gap touching only the group in an exterior wall,
+    with open air beyond the level's outline, or with no room beyond it within ``RECESS_FACADE_M`` of the outline), and
+    either a window of a named room looking into it or the mouth as wide as the room's side (``RECESS_MOUTH_SHARE``): a
+    recess of the facade closed by a wall drawn across its mouth, open air (major; one finding per group)."""
+    out = []
+    for lv in building.get("levels") or []:
+        lid = lv["id"]
+        rooms = {r["id"]: r for r in _rooms_of(building, lid) if _poly(r.get("polygon")) is not None}
+        cands = {rid for rid, r in rooms.items() if not _named(r) and not B.is_void_label(_label(r))
+                 and RECESS_MIN_AREA_M2 <= (_area(r) or 0.0) < RECESS_AREA_M2}
+        if not cands:
+            continue
+        ops = opening_rooms(building, lid)
+        outline = _level_outline(building, lid)
+        all_rooms = unary_union([_poly(r["polygon"]) for r in rooms.values()])
+        parent = {rid: rid for rid in cands}
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+        for o, _w, t in ops:
+            if _is_gap(o):
+                inside = [x for x in t if x in cands]
+                for x in inside[1:]:
+                    parent[find(x)] = find(inside[0])
+        groups: dict = {}
+        for rid in cands:
+            groups.setdefault(find(rid), []).append(rid)
+        for members in groups.values():
+            group = set(members)
+            mine = [(o, w, t) for o, w, t in ops if group & set(t)]
+            if not mine or any(o.get("type") == "door" for o, _, _ in mine):
+                continue
+            if any(o.get("type") == "window" and not any(x not in group and _named(rooms[x]) for x in t)
+                   for o, _, t in mine):
+                continue                                          # a window of its own: a room, not a recess
+            # the mouth: a gap touching only the group, in an outer wall or with open air beyond it (a wall drawn
+            # across a recess is often not marked exterior: the reading took the recess for a room)
+            mouths = [(o, w, t) for o, w, t in mine if _is_gap(o) and w is not None and set(t) <= group
+                      and (w.get("exterior") or _beyond_outside(o, w, [_poly(rooms[x]["polygon"]) for x in t],
+                                                                 outline, all_rooms))]
+            if not mouths:
+                continue
+            looks = sorted({o.get("id") for o, _, t in mine if o.get("type") == "window"})
+            wide = []
+            for o, w, t in mouths:
+                side = max((_side_length(_poly(rooms[x]["polygon"]), w) for x in t), default=0.0)
+                if side > 0 and float(o.get("width") or 0.0) >= RECESS_MOUTH_SHARE * side - EPS:
+                    wide.append(o.get("id"))
+            if not looks and not wide:
+                continue
+            members = sorted(members)
+            area = sum(_area(rooms[x]) or 0.0 for x in members)
+            named = sorted({f"{x} '{_label(rooms[x])}'" for o, _, t in mine if o.get("type") == "window"
+                            for x in t if x not in group})
+            signs = []
+            if wide:
+                signs.append(f"its mouth {', '.join(wide)} in the outer wall is as wide as the room")
+            if looks:
+                signs.append(f"the window(s) {', '.join(looks)} of {', '.join(named)} look into it")
+            u = unary_union([_poly(rooms[x]["polygon"]) for x in members]).representative_point()
+            out.append(_finding("facade_recess", "major", lid,
+                                f"{', '.join(members)} ({_fmt(area)} m2, no name of their own, no door) "
+                                f"{'is' if len(members) == 1 else 'are'} reached only through unclassified gaps, one "
+                                f"in an outer wall ({', '.join(o.get('id') for o, _, _ in mouths)}); "
+                                + "; ".join(signs) + ": a recess of the facade closed by a wall across its mouth, "
+                                "likely open air", (u.x, u.y), members + looks,
+                                mouths=[o.get("id") for o, _, _ in mouths]))
+    return out
+
+
+def false_stairs(building: dict) -> tuple[list, set]:
+    """Rule 8 (pure; C0007): ``(findings, ids)``: a stair piece standing in a wet room or a kitchen
+    (``FALSE_STAIR_ROOMS``) whose own area is in its range (a real bathroom, not a merged face), a stair with a
+    footprint under ``STAIR_MIN_AREA_M2``, with ``GRID_FLIGHTS_MIN`` flights or more in less than ``FLIGHT_MIN_AREA_M2``
+    each; fewer than ``STAIR_MIN_TREADS`` tread lines are named with another sign: a tile grid read as a stair
+    (major). ``ids`` are left out of the stair rules (they join nothing)."""
+    out, ids = [], set()
+    roofs = {lv["id"] for lv in building.get("levels") or [] if _is_roof(lv)}
+    for f in building.get("furniture") or []:
+        if f.get("type") != "stair":
+            continue
+        fp = _footprint(f)
+        if fp is None:
+            continue
+        lid = f.get("level_id")
+        reasons = []
+        host = None
+        for r in _rooms_of(building, lid):
+            poly = _poly(r.get("polygon"))
+            if poly is not None and poly.buffer(EPS).contains(fp.centroid):
+                host = r
+                break
+        if host is not None:
+            st = sense_type(host, roof=lid in roofs)
+            a = _area(host) or 0.0
+            if st in FALSE_STAIR_ROOMS and a <= AREA_RANGES[st][1] + EPS:
+                reasons.append(f"it stands in the {st} {host.get('id')} '{_label(host)}' ({_fmt(a)} m2)")
+        if fp.area < STAIR_MIN_AREA_M2 - EPS:
+            reasons.append(f"its footprint is {fp.area:.2f} m2 (a stair needs {STAIR_MIN_AREA_M2:g} m2)")
+        flights = (f.get("stair") or {}).get("flights") or []
+        if len(flights) >= GRID_FLIGHTS_MIN and fp.area / len(flights) < FLIGHT_MIN_AREA_M2 - EPS:
+            reasons.append(f"it has {len(flights)} flights in {fp.area:.2f} m2 (a flight needs about "
+                           f"{FLIGHT_MIN_AREA_M2:g} m2: a grid of lines, not flights)")
+        treads = sum(int(fl.get("lines") or 0) for fl in flights)
+        if reasons and 0 < treads < STAIR_MIN_TREADS:
+            reasons.append(f"it has {treads} tread lines")
+        if not reasons:
+            continue
+        ids.add(f.get("id"))
+        out.append(_finding("false_stair", "major", lid, f"stair {f.get('id')}: " + "; ".join(reasons)
+                            + ": no stair can be there (a tile grid or a pattern read as treads)",
+                            (fp.centroid.x, fp.centroid.y), [f.get("id")] + ([host.get("id")] if host else []),
+                            area_m2=round(fp.area, 3), treads=treads))
+    return out, ids
+
+
+def stair_stacking(building: dict, false_ids: Optional[set] = None) -> list:
+    """Rule 9 (pure; C0009, C0010): two neighbouring base levels with exactly one core stair each (``core_stairs``:
+    false stairs left out) whose footprints are more than ``STACK_OFFSET_M`` apart in plan: the stair of one floor
+    does not stand on the one below (a misplaced floor or a stair read elsewhere); the offset of their centres is
+    reported (major)."""
+    out = []
+    levels = base_levels_by_height(building)
+    for lo, hi in zip(levels, levels[1:]):
+        if abs(_el(hi) - _el(lo)) < 0.5:
+            continue
+        a, b = core_stairs(building, lo["id"], false_ids), core_stairs(building, hi["id"], false_ids)
+        if len(a) != 1 or len(b) != 1:
+            continue
+        ca, cb = a[0][1].centroid, b[0][1].centroid
+        dx, dy = cb.x - ca.x, cb.y - ca.y
+        off = math.hypot(dx, dy)
+        gap = a[0][1].distance(b[0][1])
+        if gap <= STACK_OFFSET_M + EPS:
+            continue
+        out.append(_finding("stair_stacking", "major", hi["id"],
+                            f"the core stair {b[0][0]} of {hi['id']} {hi.get('label') or ''} stands {off:.2f} m off "
+                            f"the core stair {a[0][0]} of {lo['id']} {lo.get('label') or ''} (dx {dx:+.2f} m, dy "
+                            f"{dy:+.2f} m; {gap:.2f} m between them): the floors do not stack, or one stair is read "
+                            f"in the wrong place", (cb.x, cb.y), [a[0][0], b[0][0]], offset_m=round(off, 3),
+                            dx=round(dx, 3), dy=round(dy, 3), levels=[lo["id"], hi["id"]]))
+    return out
+
+
+def _reflect(points, axis: tuple) -> list:
+    kind, c = axis
+    return [((2 * c - x), y) if kind == "x" else (x, (2 * c - y)) for x, y in points]
+
+
+def _twin_type(room: dict) -> Optional[str]:
+    return None if _untyped(room) else (sense_type(room) or room.get("room_type"))
+
+
+def _reader_axis(rooms: dict) -> Optional[tuple]:
+    """The mirror axis the reading itself used on a level: a twin's ``twin_transform`` (x' = -x + 2c: axis x = c) or a
+    label inferred by mirror (``axis``), or None."""
+    for r in rooms.values():
+        tf = r.get("twin_transform")
+        if isinstance(tf, list) and len(tf) == 6:
+            if tf[0] < 0 and abs(tf[4] - 1.0) < 1e-3:
+                return ("x", round(tf[2] / 2.0, 4))
+            if tf[4] < 0 and abs(tf[0] - 1.0) < 1e-3:
+                return ("y", round(tf[5] / 2.0, 4))
+        li = r.get("label_inferred") or {}
+        if li.get("method") == "mirror" and isinstance(li.get("axis"), list) and len(li["axis"]) == 2:
+            return (str(li["axis"][0]), float(li["axis"][1]))
+    return None
+
+
+def mirror_pairs(building: dict, lid: str) -> tuple[list, Optional[tuple]]:
+    """``([(room a, room b, how)], axis)`` (pure): the twin rooms of a level. First the reading's own pairs
+    (``twin_of``, a label inferred by mirror); then, about the reading's own axis (``_reader_axis``), every other room
+    of ``TWIN_MIN_AREA_M2`` or more within its twins' box (not the core, ``CORE_TYPES``) and the room its mirror image
+    overlaps by ``TWIN_IOU_MIN`` (an image overlapping no room, though other rooms cover ``TWIN_IMAGE_READ_SHARE`` of
+    it, is a pair with None: the other half read differently). The axis pairs count only when
+    ``TWIN_TYPE_AGREE_MIN`` of all the pairs have one type."""
+    rooms = {r["id"]: r for r in _rooms_of(building, lid) if _poly(r.get("polygon")) is not None}
+    pairs, seen = [], set()
+    for r in rooms.values():
+        other = r.get("twin_of") or ((r.get("label_inferred") or {}).get("of")
+                                     if (r.get("label_inferred") or {}).get("method") == "mirror" else None)
+        if other in rooms and frozenset((r["id"], other)) not in seen:
+            seen.add(frozenset((r["id"], other)))
+            how = "twin_of" if r.get("twin_of") else "label mirrored"
+            pairs.append((rooms[other], r, how))
+    axis = _reader_axis(rooms)
+    if axis is None:
+        return pairs, None
+    paired = {x for k in seen for x in k}
+    # the reading's axis holds where its own twins stand (a block of two mirrored flats over a single one: real14)
+    region = (unary_union([_poly(rooms[x]["polygon"]) for x in paired]).envelope.buffer(TWIN_REGION_GROW_M)
+              if paired else None)
+    polys = {rid: _poly(r["polygon"]) for rid, r in rooms.items()}
+    all_rooms = unary_union(list(polys.values())) if polys else None
+    found = []
+    for rid, r in sorted(rooms.items()):
+        if rid in paired or (_area(r) or 0.0) < TWIN_MIN_AREA_M2 or B.is_void_label(_label(r)) \
+                or sense_type(r) in CORE_TYPES or (region is not None and not region.contains(polys[rid].centroid)):
+            continue                                      # the core (a lift, a stair, a shaft) stays out of the mirror
+        img = Polygon(_reflect(list(polys[rid].exterior.coords), axis)).buffer(0)
+        if img.is_empty or img.intersection(polys[rid]).area > 0.5 * img.area:
+            continue                                                          # the room stands on the axis
+        best = max(((img.intersection(q).area / max(img.union(q).area, EPS), oid) for oid, q in polys.items()
+                    if oid != rid), default=(0.0, None))
+        how = "the reading's mirror axis"
+        if best[1] is not None and best[0] >= TWIN_IOU_MIN - EPS:
+            key = frozenset((rid, best[1]))
+            if key in seen:
+                continue
+            seen.add(key)
+            found.append((r, rooms[best[1]], how))
+        elif (_named(r) or (_area(r) or 0.0) >= UNTYPED_CORE_M2) and all_rooms is not None \
+                and img.intersection(all_rooms).area >= TWIN_IMAGE_READ_SHARE * img.area - EPS:
+            found.append((r, None, how))                  # the other half is read there, as other rooms
+    allp = [(x, y) for x, y, _ in pairs + found]
+    agree = sum(1 for x, y in allp if y is not None and _twin_type(x) == _twin_type(y))
+    if not any(y is not None for _, y in allp) or agree < TWIN_TYPE_AGREE_MIN * len(allp) - EPS:
+        return pairs, None                                # the rooms do not mirror about it: no mirrored plan
+    return pairs + found, axis
+
+
+def mirror_twins(building: dict) -> list:
+    """Rule 10 (pure; C0004, C0018, real19's twin flat): twin rooms (``mirror_pairs``) that differ in type, in area by
+    more than ``TWIN_AREA_SHARE``, or of which one has a way in (a door, an opening, a separator) and the other none;
+    a named room whose mirror image holds no room. Minor; major when one twin cannot be entered."""
+    out = []
+    for lv in building.get("levels") or []:
+        lid = lv["id"]
+        pairs, axis = mirror_pairs(building, lid)
+        if not pairs:
+            continue
+        access = room_access(building, lid)[0]
+        where = f" about {axis[0]} = {axis[1]:.2f} m" if axis else ""
+        for a, b, how in pairs:
+            if b is None:
+                out.append(_finding("mirror_twins", "minor", lid,
+                                    f"{a['id']} '{_label(a)}' ({_fmt(_area(a) or 0.0)} m2) has no twin: its mirror "
+                                    f"image{where} overlaps no room (the other half is read differently)",
+                                    _centre(a), [a["id"]], part="missing", how=how))
+                continue
+            diffs = []
+            ta, tb = _twin_type(a), _twin_type(b)
+            if ta != tb:
+                diffs.append(f"type {ta or 'untyped'} / {tb or 'untyped'}")
+            aa, ab = _area(a) or 0.0, _area(b) or 0.0
+            if max(aa, ab) > 0 and abs(aa - ab) > TWIN_AREA_SHARE * max(aa, ab) + EPS:
+                diffs.append(f"area {_fmt(aa)} / {_fmt(ab)} m2")
+            na, nb = len(access.get(a["id"]) or []), len(access.get(b["id"]) or [])
+            # 6 Nov 2026 (calibration): only a twin with no way in against one with a way in; the counts differ
+            # between two well-read halves (an open kitchen's separator, a door read as an opening), and the reading's
+            # own twin_of pairs have their counts compared by crossdoc's RC12
+            if (na == 0) != (nb == 0):
+                diffs.append(f"ways in {na} / {nb}")
+            if not diffs:
+                continue
+            sev = "major" if (na == 0) != (nb == 0) else "minor"
+            out.append(_finding("mirror_twins", sev, lid,
+                                f"{a['id']} '{_label(a)}' and its twin {b['id']} '{_label(b)}' ({how}{where}) "
+                                f"differ: " + ", ".join(diffs) + (": one of them cannot be entered" if sev == "major"
+                                                                  else ""),
+                                _centre(b), [a["id"], b["id"]], part="pair", how=how))
+    return out
+
+
+def wall_across_passage(building: dict) -> list:
+    """Rule 11 (pure; C0051, C0053): an unclassified gap (type opening, not virtual) ``PASSAGE_GAP_M`` wide in an
+    inner wall between a hall (or a corridor) and another room, with no door symbol within ``DOOR_SYMBOL_REACH_M``:
+    the reading may have walled a drawn open passage (minor: it is often a real door with its symbol missing)."""
+    out = []
+    lo, hi = PASSAGE_GAP_M
+    for lv in building.get("levels") or []:
+        lid = lv["id"]
+        rooms = {r["id"]: r for r in _rooms_of(building, lid)}
+        arcs = [Point(tuple(sy["footprint"]["center"][:2])) for sy in building.get("symbols") or []
+                if sy.get("level_id") == lid and sy.get("kind") == "door_arc" and (sy.get("footprint") or {})
+                .get("center")]
+        for o, w, touched in opening_rooms(building, lid):
+            if o.get("virtual") or o.get("type") != "opening" or w is None or w.get("exterior"):
+                continue
+            width = float(o.get("width") or 0.0)
+            if not (lo - EPS <= width <= hi + EPS) or len(touched) != 2:
+                continue
+            halls = [x for x in touched if sense_type(rooms[x]) in ("hall", "fire_lobby")]
+            if not halls:
+                continue
+            # 6 Nov 2026 (calibration): a gap onto a stair, a lift or a shaft is the open stair or the lift's door, and
+            # one between two named halls is a corridor going on; neither is a walled passage
+            if any(sense_type(rooms[x]) in PASSAGE_OPEN_TYPES for x in touched):
+                continue
+            if all(sense_type(rooms[x]) in ("hall", "fire_lobby") and _named(rooms[x]) for x in touched):
+                continue
+            c = Point(tuple(o["center"][:2]))
+            if any(c.distance(q) <= DOOR_SYMBOL_REACH_M + EPS for q in arcs):
+                continue
+            other = next(x for x in touched if x != halls[0])
+            out.append(_finding("wall_across_passage", "minor", lid,
+                                f"wall {w.get('id')} has an unclassified gap {o.get('id')} {width:.2f} m wide between "
+                                f"the hall {halls[0]} '{_label(rooms[halls[0]])}' and {other} '{_label(rooms[other])}' "
+                                f"with no door symbol: an open passage walled by the reading, or a door drawn without "
+                                f"its symbol", (c.x, c.y), [w.get("id"), o.get("id"), halls[0], other], width_m=width))
+    return out
+
+
+def wall_mass(building: dict) -> list:
+    """Rule 12 (pure; C0020): a face under ``WALL_MASS_FACE_M2`` typed hall or unknown: wall mass, a column casing or
+    a closet the walls swallowed, closed as a room (minor; ``room_type_area`` leaves these faces to this rule)."""
+    out = []
+    for r in building.get("rooms") or []:
+        a = _area(r)
+        if a is None or a >= WALL_MASS_FACE_M2 - EPS or r.get("room_type") not in ("hall", "unknown"):
+            continue
+        if B.is_void_label(_label(r)):
+            continue
+        out.append(_finding("wall_mass", "minor", r.get("level_id"),
+                            f"{r.get('id')} '{_label(r) or '-'}' (type {r.get('room_type')}) is a {_fmt(a)} m2 face: "
+                            f"wall mass, a column casing or a closet between walls, not a room one enters",
+                            _centre(r), [r.get("id")], area_m2=round(a, 3)))
+    return out
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
     """Every rule on a building (pure); the trust file applied (``apply_trust``) unless ``apply`` is False."""
     larger = label_names_larger_face(building, texts_by_level)
-    out = larger + room_type_area(building, skip={i for f in larger for i in f["element_ids"]})
+    mass = wall_mass(building)
+    out = larger + room_type_area(building, skip={i for f in larger + mass for i in f["element_ids"]})
     out += frame_walls_and_paper_rooms(building, texts_by_level)
     out += unread_walls(building, texts_by_level)
-    out += circulation(building)
+    fake, false_ids = false_stairs(building)
+    out += circulation(building, false_ids)
     out += label_vocabulary(building)
+    # 6 Nov 2026, round 2
+    out += facade_recess(building)
+    out += fake
+    out += stair_stacking(building, false_ids)
+    out += mirror_twins(building)
+    out += wall_across_passage(building)
+    out += mass
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 
