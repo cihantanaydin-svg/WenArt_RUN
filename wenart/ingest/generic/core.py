@@ -253,7 +253,8 @@ def _shift_piece(f: FurnitureItem, sh: _Shift) -> None:
             landing["polygon"] = sh.pts(landing["polygon"])
 
 
-def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls: Optional[list] = None) -> None:
+def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls: Optional[list] = None,
+                      blocks: Optional[list] = None) -> None:
     """The outline of every labelled outdoor space without a closed face, closed from the drawn strokes around its
     label (page metres; ``wenart.levels.outdoor.read_outline``), as ``outline_inferred`` on its site area; never
     silent (a note per space). 3 Nov 2026 (real09, user: "are you showing the balkons here?"; the drafter named the
@@ -276,7 +277,7 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
         ex.notes.append(f"{where}: outdoor space '{a.get('label')}': " + (
             rec["reason"] + (f"; {rec['steps']['reason']}" if rec.get("steps") else "") if rec is not None else
             "no drawn outline closes around the label (the level inference infers one)"))
-    axis = _halves(ex, walls, by="outdoor outlines") if walls else None      # no labels here: label rule skipped
+    axis = _halves(ex, walls, blocks=blocks or (), by="outdoor outlines") if walls else None
     if axis is None:
         return
     anchors = [tuple(a["anchor"]) for a in site.get("areas") or [] if a.get("anchor")]
@@ -2542,16 +2543,20 @@ def _halves(ex, walls: list, openings: list = (), blocks: list = (), level_id=No
     outlines and guard, recess twins, mirror seeds, the mirror fixes, the separators), made on the walls the asking
     rule applies it to, with the openings and labels it has. 5 Nov 2026 (review: a decision made on the first rule's
     walls, before the facade closure, the recesses and the outline closure, was stale at the mirror step): the cache is
-    per identical wall set (the walls' entities, ends and thicknesses) and whether labels were given; every decision
-    is listed in ``ex.report["mirror"]``. Without labels (a raster page's outdoor outlines) the label rule is skipped,
-    and the note says so. Returns the axis or None."""
+    per identical input (the walls' entities, ends and thicknesses, the labels' texts and points, the openings' kinds,
+    centres and widths); every decision is listed in ``ex.report["mirror"]``. Without labels the label rule is
+    skipped, and the note says so. Returns the axis or None."""
     import hashlib
 
     from wenart.ingest.generic import mirror as MR
 
-    key = hashlib.sha1(repr((bool(blocks), [(str(w.entity), round(float(w.start[0]), 3), round(float(w.start[1]), 3),
-                                              round(float(w.end[0]), 3), round(float(w.end[1]), 3),
-                                              round(float(w.thickness), 3)) for w in walls])).encode()).hexdigest()
+    key = hashlib.sha1(repr((
+        [(str(w.entity), round(float(w.start[0]), 3), round(float(w.start[1]), 3), round(float(w.end[0]), 3),
+          round(float(w.end[1]), 3), round(float(w.thickness), 3)) for w in walls],
+        sorted((str(getattr(b, "name", "")), round(float(b.anchor[0]), 3), round(float(b.anchor[1]), 3))
+               for b in blocks or ()),
+        sorted((str(o.kind), round(float(o.center[0]), 3), round(float(o.center[1]), 3), round(float(o.width), 3))
+               for o in openings or ()))).encode()).hexdigest()
     cache = ex.report.setdefault("mirror_cache", {})
     if key not in cache:
         h = MR.halves(walls, list(openings or []), list(blocks or []), level_id) if walls else {"axis": None,
@@ -2596,8 +2601,10 @@ def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: li
         if res is None:
             continue
         w5, o5, log = res
-        refused = [e for e in log if str(e).startswith("refused")]
-        if len(refused) == len(log):                     # only refusals: nothing to keep, the reasons are noted
+        # this step's own lines (the log holds the kept steps' lines too): only refusals keep nothing
+        own = [e for e in log if e not in (best[7] if best else [])]
+        refused = [e for e in own if str(e).startswith("refused")]
+        if len(refused) == len(own):
             notes.extend(r for r in refused if r not in notes)
             continue
         # 3 Nov 2026 (the regression set: real03, a block of different flat types (1+1 A1, A2, B, 2+1) in a symmetric
@@ -2974,7 +2981,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     outline = TP.building_outline(bwalls, b_openings)
     # 26 Oct 2026 (real06's VERANDA and BALKON: no walls around them, nothing built): a labelled outdoor space without
     # a closed face is closed from the drawn strokes around its label (wenart.levels.outdoor.read_outline)
-    _outdoor_outlines(ex, where, site, non_wall, outline, bwalls)
+    _outdoor_outlines(ex, where, site, non_wall, outline, bwalls, blocks)
     # 3 Nov 2026 (real09, user: "each duplex flat has its inner stair and a 'galeri' void over the floor below"): the
     # voids the plan labels (galeri, boşluk, void, open to below ...) with their drawn outlines (generic.voids)
     from wenart.ingest.generic import voids as VD

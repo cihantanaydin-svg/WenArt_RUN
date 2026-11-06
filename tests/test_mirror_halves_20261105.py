@@ -251,3 +251,62 @@ def test_the_audit_finds_mirror_copy_ids():
     text = "doors d_L0_m001 and d_L0_012, opening o_L-1_m002, window win_L1b_003"
     for rx in (CA.OPENING_RE, CO.OPENING_RE):
         assert rx.findall(text) == ["d_L0_m001", "d_L0_012", "o_L-1_m002", "win_L1b_003"]
+
+
+def test_an_inferred_wall_is_never_drawn_solid_wall():
+    """Review of round 3: a wall inferred from room outlines names drawn strokes as its entity; it is no drawn wall,
+    so its 'faces' never make a copy's span solid."""
+    from types import SimpleNamespace
+
+    walls = _walls(SHELL + PARTY + FLAT_L + FLAT_R)
+    walls[0].inferred, walls[0].evidence = True, {"method": "inferred", "rule": "room_outlines"}
+    faces = [SimpleNamespace(id="LINE:0", pts=[(16.0, y), (19.0, y)]) for y in (-0.15, 0.15)]
+    assert not MR.solid_span(walls[0], (17.5, 0.0), 1.0, faces)
+    res = MR.consistency(walls, [_window(2.5)], ("x", 10.0), steps=("openings",), strokes=faces)
+    assert [o.center for o in res[1] if "mirror_twin" in o.entity] == [(17.5, 0.0)]
+
+
+def test_the_mirror_decision_cache_sees_labels_and_openings():
+    """Review of round 3: the same walls with other labels or other openings are another decision."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import core as C
+
+    ex = SimpleNamespace(report={}, notes=[])
+    walls = _walls(SHELL + PARTY + FLAT_L + FLAT_R)
+    same = _blocks(LABELS)
+    other = _blocks([("BANYO", 2.0, 3.0), ("YATAK ODASI", 18.0, 3.0), ("MUTFAK", 7.0, 3.0),
+                     ("YATAK ODASI", 13.0, 3.0)])
+    assert C._halves(ex, walls, [], same, "L0", "a") == ("x", pytest.approx(10.0))
+    assert C._halves(ex, walls, [], other, "L0", "b") is None                  # two different-room pairs refuse
+    assert C._halves(ex, walls, [_window(2.5)], same, "L0", "c") == ("x", pytest.approx(10.0))
+    assert len(ex.report["mirror"]) == 3 and [r["by"] for r in ex.report["mirror"]] == ["a", "b", "c"]
+    C._halves(ex, walls, [], same, "L0", "d")                                  # the same input: the cached decision
+    assert len(ex.report["mirror"]) == 3
+
+
+def test_a_step_with_only_refusals_is_not_kept_after_a_kept_step(monkeypatch):
+    """Review of round 3: the log of a step holds the kept steps' lines too; a step whose own lines are all refusals
+    keeps nothing (its refusals are noted)."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import core as C
+
+    walls = _walls(SHELL + PARTY + FLAT_L + FLAT_R)
+    calls = []
+
+    def fake(w, o, axis, steps=MR.STEPS, keep_out=None, strokes=None):
+        calls.append(steps)
+        log = ["wall inferred:mirror_twin:1 inferred: the mirror of LINE:x (1.00 m)"] if "missing" in steps else []
+        if "openings" in steps:
+            log.append("refused: the mirror of door LINE:d (0.90 m) would land on drawn solid wall (LINE:0)")
+        return (list(w), list(o), log) if log else None
+
+    monkeypatch.setattr(MR, "consistency", fake)
+    monkeypatch.setattr(MR, "mirrored_face_pairs", lambda w, o, axis: len(w))   # the copied wall pairs one more
+    ex = SimpleNamespace(report={}, notes=[])
+    res = C._mirror_consistency(ex, "p", walls, [], _blocks(LABELS), "L0", [], None)
+    note = next(n for n in ex.notes if "mirror check about" in n)
+    assert "steps kept missing;" in note and "refused: the mirror of door" in note and "openings" not in \
+        note.split("steps kept")[1].split(";")[0]
+    assert res is not None

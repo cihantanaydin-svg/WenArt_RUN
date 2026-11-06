@@ -367,6 +367,8 @@ def solid_span(host, center, width, strokes: list) -> bool:
     run parallel along both of its faces (``FACE_TOL_M``) over ``FACE_COVER`` of the span. A real gap breaks the face
     lines at its jambs; an inferred wall has no drawn lines and is never solid (5 Nov 2026, real11 L-1: a 1.5 m
     opening copied onto the outer wall where the drawing has solid wall)."""
+    if _inferred(host):                     # an inferred wall (room outlines name drawn strokes as its entity)
+        return False
     strokes = _own_lines(host, strokes)
     if not strokes:
         return False
