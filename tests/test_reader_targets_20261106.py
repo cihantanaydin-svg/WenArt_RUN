@@ -72,7 +72,7 @@ def test_numbers_on_a_circle_are_a_curved_stair():
     assert max(xs) - min(xs) == pytest.approx(1.3, abs=0.03) and max(ys) - min(ys) == pytest.approx(2.6, abs=0.03)
     # the chord flights run along the walking line, one after the other, every tread counted once
     fl = st["flights"]
-    assert sum(f["lines"] for f in fl) == 18
+    assert sum(f["lines"] for f in fl) == 18 and len(fl) == 2           # two chords of 90 degrees (RC14: 3+ is a grid)
     assert all(math.dist(a["end"], b["start"]) < 1e-6 for a, b in zip(fl, fl[1:]))
 
 

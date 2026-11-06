@@ -431,7 +431,8 @@ CURVE_STEP_DEG = (2.0, 45.0)    # one tread turns this far about the centre ...
 CURVE_STEP_SPREAD = 0.35        # ... every step within this share of the median step (per number)
 CURVE_SWEEP_MIN_DEG = 40.0      # a curved stair turns at least this far (less is a straight arm)
 CURVE_RADIAL_DEG = 15.0         # a tread line of a curved stair runs within this of the radius through it
-CURVE_FLIGHT_DEG = 30.0         # the curve is written as chord flights of at most this sweep
+CURVE_FLIGHT_DEG = 90.0         # the curve is written as chord flights of at most this sweep (3 or more flights in a small
+                                # footprint read as a tile grid, RC14 false_stair)
 
 
 def _circle(pts: list) -> Optional[tuple[tuple[float, float], float, float]]:
@@ -557,7 +558,7 @@ def curved_stair_of(chain: list, strokes: list) -> Optional[dict]:
     poly = best[1]
     # chord flights along the walking line, contiguous, each <= CURVE_FLIGHT_DEG
     rw = (r_in + r_out) / 2.0
-    n_fl = max(1, int(math.ceil(abs(total) / CURVE_FLIGHT_DEG)))
+    n_fl = max(1, int(math.ceil(abs(total) / CURVE_FLIGHT_DEG - 0.05)))
     treads = values[-1] - values[0] + 1
     flights = []
     for k in range(n_fl):
