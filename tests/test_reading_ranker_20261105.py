@@ -157,6 +157,26 @@ def test_label_join_hit_width_miss_absent_negative_and_weights():
     assert counts[DEC.KIND_GAP]["negatives"] == 1
 
 
+def test_a_sparse_truth_labels_only_what_its_entries_cover():
+    """6 Nov 2026 (the user: "Only consider my revision with the screenshot I have given into previous projects others
+    I have not seen"): a real project's truth holds only the user's records; nothing there means "not seen", so a gap
+    or a pair no entry covers gets no label, an entry gives its class, and a negated wall across a gap is a negative of
+    closed."""
+    truth = _truth(doors=[{"id": "u1", "center": [2.45, 0.0], "width": 0.9, "source": "user_correction"}],
+                   absent=[("walls", {"id": "u2", "start": [10.0, 0.0], "end": [14.0, 0.0], "thickness": 0.2})])
+    truth.update(source="user_corrections", sparse=True)
+    recs = [_gap_record((2.5, 0.05), 0.9), _gap_record((12.0, 0.0), 0.8), _gap_record((20.0, 0.0), 1.0)]
+    pair = {"kind": DEC.KIND_WALL, "level_id": "L0", "place": [30.0, 0.0], "line": [[29.0, 0.0], [31.0, 0.0]],
+            "features": {}, "rule": "layer_not_chosen", "rule_answer": "notation", "rule_confidence": 0.7,
+            "final_answer": "notation", "decided_by": "rule"}
+    got = RK.label(recs + [pair], truth)
+    assert [(g.get("label"), g.get("negative_of"), g["weight"]) for g in got] == \
+        [("door", None, 10.0), (None, "closed", 10.0)]
+    # the same truth, complete: nothing there is open air, an uncovered pair notation
+    truth["sparse"] = False
+    assert [g.get("label") for g in RK.label(recs + [pair], truth)] == ["door", None, "open", "notation"]
+
+
 def test_label_join_of_a_pair_with_a_truth_wall():
     truth = _truth(walls=[{"id": "wa", "start": [0.0, 0.0], "end": [5.0, 0.0], "thickness": 0.2}])
     rec = {"kind": DEC.KIND_WALL, "level_id": "L0", "place": [2.0, 0.05], "line": [[1.0, 0.05], [3.0, 0.05]],

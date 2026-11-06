@@ -98,7 +98,8 @@ TRUST_NOTE = ("The integration (ranker.decide) applies a ranker change only when
               "wall_or_notation model only advises (ranker_advice on the pair's record): held out it beats the rules "
               "by 0.004 and its integrated changes were right on 123 of 277; moving a pair into or out of the wall "
               "network is geometry.")
-LABEL_WEIGHTS = {"user_correction": 10.0, "synthetic": 3.0, "accepted_reading": 1.0}   # docs/milestone14.md R3 (3)
+LABEL_WEIGHTS = {"user_correction": 10.0, "synthetic": 3.0, "accepted_reading": 1.0,   # docs/milestone14.md R3 (3)
+                 "user_corrections": 10.0}      # 6 Nov 2026: the sparse truth's file-level source (the user's records)
 PLACE_TOL_M = 0.5                # a truth opening this close to a gap's place ...
 WIDTH_TOL_M = 0.3                # ... and this close in width labels the gap
 WALL_LATERAL_M = 0.15            # a truth wall covers a place or a pair within this of its centre line
@@ -199,10 +200,15 @@ def _in_box(box, p) -> bool:
     return box[0] <= float(p[0]) <= box[2] and box[1] <= float(p[1]) <= box[3]
 
 
-def label_gap(rec: dict, level_truth: dict, truth_source: str, walls: Optional[list] = None) -> Optional[dict]:
+def label_gap(rec: dict, level_truth: dict, truth_source: str, walls: Optional[list] = None,
+              sparse: bool = False) -> Optional[dict]:
     """The label of a ``gap_kind`` record from one level's truth (pure): ``{"label", "weight", "source"}``; a negated
-    truth element gives ``{"negative_of": class, ...}``; None for a record without a place. ``walls`` is
-    ``_truth_walls(level_truth)`` when the caller has it already."""
+    truth element gives ``{"negative_of": class, ...}`` (a negated wall across the gap: ``negative_of closed``); None
+    for a record without a place. ``walls`` is ``_truth_walls(level_truth)`` when the caller has it already.
+
+    ``sparse`` (6 Nov 2026, the user: "Only consider my revision with the screenshot I have given into previous
+    projects others I have not seen"): a real project's truth holds only what the user's records assert at their
+    places, so a gap no entry covers gets no label (nothing in such a truth means "not seen", never "open air")."""
     place = rec.get("place")
     if not place:
         return None
@@ -223,12 +229,22 @@ def label_gap(rec: dict, level_truth: dict, truth_source: str, walls: Optional[l
     if covered is not None:
         src = covered.get("source") or truth_source
         return {"label": "closed", "weight": LABEL_WEIGHTS.get(src, 1.0), "source": src, "element": covered.get("id")}
+    negated = next((w for box, w in walls if w.get("absent") and _in_box(box, place)
+                    and _wall_covers_point(w, place)), None)
+    if negated is not None:
+        src = negated.get("source") or truth_source
+        return {"negative_of": "closed", "weight": LABEL_WEIGHTS.get(src, 1.0), "source": src,
+                "element": negated.get("id")}
+    if sparse:
+        return None
     return {"label": "open", "weight": LABEL_WEIGHTS.get(truth_source, 1.0), "source": truth_source, "element": None}
 
 
-def label_wall(rec: dict, level_truth: dict, truth_source: str, walls: Optional[list] = None) -> Optional[dict]:
+def label_wall(rec: dict, level_truth: dict, truth_source: str, walls: Optional[list] = None,
+               sparse: bool = False) -> Optional[dict]:
     """The label of a ``wall_or_notation`` record (pure): ``wall`` when a truth wall covers the pair's centre line,
-    else ``notation``; a negated truth wall covering it is a negative of ``wall``."""
+    else ``notation``; a negated truth wall covering it is a negative of ``wall``. In a ``sparse`` truth a pair no
+    entry covers gets no label (see ``label_gap``)."""
     line = rec.get("line")
     if not line:
         return None
@@ -243,6 +259,8 @@ def label_wall(rec: dict, level_truth: dict, truth_source: str, walls: Optional[
             else:
                 out["label"] = "wall"
             return out
+    if sparse:
+        return None
     return {"label": "notation", "weight": LABEL_WEIGHTS.get(truth_source, 1.0), "source": truth_source,
             "element": None}
 
@@ -250,17 +268,19 @@ def label_wall(rec: dict, level_truth: dict, truth_source: str, walls: Optional[
 def label(decisions: list[dict], truth: dict) -> list[dict]:
     """Every decision record joined with the truth (pure): the record with ``label`` (or ``negative_of``), ``weight``
     and ``source`` added; records on levels the truth does not know, or without a place, are left out. A ``partial``
-    truth labels only its levels."""
+    truth labels only its levels; a ``sparse`` truth (the user's records only) labels only the decisions an entry
+    covers. The weight is the element's own ``source`` (``LABEL_WEIGHTS``), the truth's when the element has none."""
     per = truth.get("per_level") or {}
     src = truth.get("source") or "accepted_reading"
+    sparse = bool(truth.get("sparse"))
     walls_of = {lid: _truth_walls(lv) for lid, lv in per.items()}
     out = []
     for rec in decisions:
         lv = per.get(rec.get("level_id"))
         if lv is None or rec.get("final_answer") == "dropped":     # a candidate the reader discarded is no decision
             continue
-        lab = label_gap(rec, lv, src, walls_of[rec["level_id"]]) if rec.get("kind") == KIND_GAP \
-            else label_wall(rec, lv, src, walls_of[rec["level_id"]])
+        lab = label_gap(rec, lv, src, walls_of[rec["level_id"]], sparse) if rec.get("kind") == KIND_GAP \
+            else label_wall(rec, lv, src, walls_of[rec["level_id"]], sparse)
         if lab is None:
             continue
         out.append(dict(rec, **lab))
