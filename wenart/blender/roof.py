@@ -1492,6 +1492,9 @@ def terrace_decisions(roof: dict, building: dict, mode: str = "auto") -> tuple[d
     kept, decisions, warnings = [], [], []
     prof = roof.get("profile") if isinstance(roof.get("profile"), dict) else None
     for o in roof.get("openings") or []:
+        if o.get("kind") == "light_well":
+            kept.append(o)            # 6 Nov 2026: the roof is open over a light well; it is no terrace to decide
+            continue
         room = rooms.get(o.get("room_id"))
         doors = []
         if room is not None and len(room.get("polygon") or []) >= 3:

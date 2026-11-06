@@ -166,6 +166,9 @@ VALUE_RULES = {
     # ``reading_confidence: low``; ``leave_out`` and ``stop`` stay for briefs that ask for them
     "failed_levels": _one_of("build_marked", "leave_out", "stop"),
     "plan_levels": _plan_levels_problem,
+    # 6 Nov 2026 (real21): the user's storey count (wenart/sheets/storeys.py); null = counted from the documents
+    "storeys": lambda v: None if v is None or (isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= 60) else
+    f"expected null or a storey count from 1 to 60, got {v!r}",
     "site": _one_of("full", "ground"),
     "render.twin_rooms": _one_of("one", "all"),
     # Milestone 11 (docs/milestone11.md §17: D5, D6)

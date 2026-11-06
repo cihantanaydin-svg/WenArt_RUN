@@ -106,6 +106,9 @@ brief:
                                    # listed, the levels above it too) | stop (the project ends needs_review)
   plan_levels: []                  # 3 Nov 2026: the user's level of plans the drawing gives no level title: a list of
                                    # {box: [x0, y0, x1, y1] (drawing units, the plan's region), level: 'Zemin Kat' | '1. Kat' | ignore}
+  storeys: null                    # 6 Nov 2026 (real21): the user's storey count at and above the ground floor; null = counted
+                                   # from the documents (sections, floor lists, area table, zoning texts, else a type default:
+                                   # wenart/sheets/storeys.py); the top drawn plan stands for the storeys not drawn
   site: full                       # full = plot, paving, grass, plot wall, parking as drawn | ground = a neutral ground plane
   exterior:                        # words for the outside; "" = style words where they fit, else style.exterior_fallback (assumed)
     facade: ""

@@ -642,8 +642,14 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     counts = {s: sum(1 for f in findings if f["severity"] == s and not f.get("advisory"))
               for s in ("critical", "major", "minor")}
     counts["advisory"] = {s: sum(1 for f in advisory if f["severity"] == s) for s in ("major", "minor", "info")}
+    # 6 Nov 2026 (real21, UL331): what the reading inferred where the documents are silent (the storeys, the windows)
+    try:
+        from wenart.ingest import completion as CP
+        inferred = CP.summary(building)
+    except Exception as exc:  # noqa: BLE001 - the list never stops the reading check
+        inferred = {"error": f"{type(exc).__name__}: {str(exc)[:200]}"}
     return {"project": (building.get("project") or {}).get("id"), "levels_checked": checked, "reference": ref,
-            "conventions": conv,
+            "conventions": conv, "inferred": inferred,
             "findings": findings, "counts": counts, "notes": notes,
             "verdict": "ready" if not counts["critical"] else "fix before a pod run",
             "levels": [lv["id"] for lv in building.get("levels") or []],
@@ -678,6 +684,59 @@ def _note_conventions(conv: dict, lid: str, page, anchors: dict, sheets: dict, p
                            "placement_note": (reg.get("registration") or {}).get("note"), "underground": under}
 
 
+def inferred_lines(inf: dict) -> list:
+    """The report's section on what the reading inferred where the documents are silent (6 Nov 2026, real21): the
+    inferred storeys with the evidence ladder and the count's rule (a guess said so), the ground floor's changes, the
+    inferred windows and doors per level and the party walls (pure)."""
+    st = inf.get("storeys") or {}
+    ops = inf.get("openings") or {}
+    wells = inf.get("light_wells") or {}
+    if not st.get("inferred") and not ops and not wells:
+        return []
+    lines = ["", "## What the reading inferred (the documents are silent)", ""]
+    if st.get("inferred"):
+        lines.append(f"Storeys: {st.get('count')} from **{str(st.get('rule')).replace('_', ' ')}** (confidence "
+                     f"{st.get('confidence')})" + (" - **a guess**: " + str(st.get("guess_note")) if st.get("guess")
+                                                   else "") + ".")
+        lines += ["", "| inferred storey | label | reason |", "|---|---|---|"]
+        for i in st["inferred"]:
+            lines.append(f"| {i['level_id']} | {i['label']} | {str(i['reason']).replace('|', '/')}"
+                         + ("" if i.get("built", True) else " (not built)") + " |")
+        lines += ["", "| evidence rung | count | what it found |", "|---|---|---|"]
+        for r in st.get("ladder") or []:
+            lines.append(f"| {r['rung']} | {r['count'] if r['count'] else '-'} | {str(r['note']).replace('|', '/')} |")
+        gf = st.get("ground_floor") or {}
+        if gf.get("dropped"):
+            lines.append(f"\nGround floor: cantilevered balconies left out ({', '.join(d['id'] for d in gf['dropped'])}):"
+                         f" {gf['dropped'][0]['reason']}.")
+        if gf.get("entrance"):
+            lines.append(f"\nEntrance: {gf['entrance']['reason']}.")
+        if st.get("roof"):
+            lines.append(f"\nRoof: {st['roof']} (inferred).")
+        if st.get("open_point"):
+            op = st["open_point"]
+            lines.append(f"\nOpen point {op['key']} ({op['severity']}): {op['question']}; default {op['default']}, "
+                         f"choices {op['options']} (brief `storeys: N`).")
+    if ops:
+        lines += ["", f"Windows and doors inferred (the plans draw none; sizes: {inf.get('window_sizes') or '-'}):", "",
+                  "| level | windows | doors | party walls (no window) |", "|---|---|---|---|"]
+        for lid in sorted(ops, key=lambda k: (len(k), k)):
+            lines.append(f"| {lid} | {ops[lid]['windows']} | {ops[lid]['doors']} | "
+                         f"{', '.join((inf.get('party_walls') or {}).get(lid) or []) or '-'} |")
+    if inf.get("below_ground"):
+        lines.append(f"\nBelow ground (no window inferred): {', '.join(inf['below_ground'])}.")
+    if wells:
+        lines.append(f"\nLight wells (open-air voids through the storeys, never rooms): "
+                     + ", ".join(f"{lid}: {len(ids)}" for lid, ids in sorted((wells.get('rooms') or {}).items()))
+                     + f"; {len(wells.get('slab_voids') or [])} slab void(s), {len(wells.get('roof_openings') or [])} "
+                       f"roof opening(s).")
+    core = inf.get("core") or {}
+    for key in ("stair_head", "lift_overrun"):
+        if core.get(key):
+            lines.append(f"\nCore, {key.replace('_', ' ')}: {core[key]}.")
+    return lines
+
+
 def write(out_dir, result: dict) -> Path:
     """``reading_check/reading_check.json`` and ``.md`` in the pipeline output."""
     d = Path(out_dir) / "reading_check"
@@ -701,6 +760,7 @@ def write(out_dir, result: dict) -> Path:
                      f"{f.get('level_id') or '-'} | {f['message'].replace('|', '/')} |")
     if result.get("notes"):
         lines += ["", "Notes:"] + [f"- {n}" for n in result["notes"]]
+    lines += inferred_lines(result.get("inferred") or {})
     conv = result.get("conventions") or {}
     if conv.get("levels"):
         lines += ["", "## What the reading understood about the drawing", "",

@@ -1715,6 +1715,8 @@ def review(building: dict, prep: dict) -> dict:
         applied = AA.apply_answers(building, answers)
     a3, _recs = review_outside_doors(building)
     questions = [a3]
+    from wenart.blender import architect_storeys as ASTO   # 6 Nov 2026 (real21): the inferred storey count (N1)
+    questions += [q for q in [ASTO.review(building)] if q]
     sides = opening_sides(building)
     questions.append(review_circulation(building, sides))
     questions.append(review_kitchen(building, sides))

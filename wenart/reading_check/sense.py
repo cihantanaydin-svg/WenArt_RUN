@@ -82,6 +82,15 @@ RULES = {
     "mirror_twins": "the two halves of a mirrored plan read differently",
     "wall_across_passage": "a wall across a drawn passage",
     "wall_mass": "a face of wall mass read as a room",
+    # 6 Nov 2026 (real21, lesson UL331; user: "all floors needs to be done"): what a drawing leaves out
+    "no_windows": "a building with no window, or none of its windows drawn, or drawn windows not read",
+    "room_without_window": "a habitable room on an outer wall or a light well with no window",
+    "storeys_missing": "a single-storey reading of a building whose evidence says more storeys",
+    # 6 Nov 2026 (user: "Make sense of the building"): one coherence check over the whole building
+    "light_well_room": "a light well read as a room",
+    "party_wall_openings": "a facade marked attached (a party wall) that carries windows or doors",
+    "core_continuity": "a lift core that does not continue through the storeys",
+    "no_entrance": "a building without an entrance from outside",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -1377,6 +1386,261 @@ def wall_mass(building: dict) -> list:
                             _centre(r), [r.get("id")], area_m2=round(a, 3)))
     return out
 
+# ------------------------------------------------------------- 13-15. what a drawing leaves out (6 Nov 2026, UL331)
+WINDOW_ROOMS = ("bedroom", "living", "kitchen", "office", "study", "dining")
+WINDOW_MAJOR = ("bedroom", "living")   # a bedroom or living room without a window is major, the others minor
+FACE_MIN_M = 0.8                       # a room's free face to the outside or a light well at least this long
+TYPICAL_TEXT_RE = re.compile(r"(?<![a-z])(?:normal\s+kat|tip\s+kat|typical\s+floor|regelgeschoss)(?![a-z])"
+                             r"|(?<![a-z])normal\s*(?:kat\s*)?(?:alani\s*)?[:=]?\s*\d{2,5}(?:[.,]\d+)?(?![\d])")
+
+
+def _base_storeys(building: dict) -> list:
+    """The levels that are storeys of the base variant (alternatives left out, typical copies kept), by order."""
+    return sorted((lv for lv in building.get("levels") or [] if not lv.get("base_level_id")),
+                  key=lambda lv: (lv.get("order") or 0, lv["id"]))
+
+
+def no_windows(building: dict) -> list:
+    """Rule 13 (pure; UL331, real21): a building that reads no window at all (major); a level whose drawing draws
+    windows (``level_inference.windows``: window-layer geometry, blocks or tags) of which none was read (major: a reading
+    miss, never hidden by inference); a building whose every window is inferred (minor: the drawing draws none)."""
+    rooms = [r for r in building.get("rooms") or [] if _poly(r.get("polygon")) is not None]
+    if not rooms:
+        return []
+    out = []
+    wins = [o for o in building.get("openings") or [] if o.get("type") == "window"]
+    rec = ((building.get("level_inference") or {}).get("windows") or {}).get("levels") or {}
+    copies = {lv["id"] for lv in building.get("levels") or [] if lv.get("typical_of")}
+    for lid, e in rec.items():
+        d = e.get("drawing") or {}
+        if lid in copies or not d.get("draws_windows") or e.get("windows_read"):
+            continue
+        out.append(_finding("no_windows", "major", lid,
+                            f"{lid} reads no window although its plan draws windows ({d.get('layer_entities', 0)} "
+                            f"window-layer entities, {d.get('blocks', 0)} window blocks, {d.get('tags', 0)} window "
+                            f"tags): a reading miss; no window is inferred over it", part="not_read"))
+    levels = _base_storeys(building)
+    if not wins:
+        drawn = any((e.get("drawing") or {}).get("draws_windows") for e in rec.values())
+        out.append(_finding("no_windows", "major", None,
+                            f"the building reads no window at all ({len(levels)} level(s), {len(rooms)} rooms)"
+                            + (": its drawing draws windows that were not read" if drawn else
+                               ": the drawing draws none and none was inferred (UL331: a habitable room on an outer "
+                               "wall needs one)"), part="none"))
+    elif all(o.get("inferred") for o in wins):
+        src = ((building.get("level_inference") or {}).get("windows") or {}).get("size_source") or "defaults"
+        out.append(_finding("no_windows", "minor", None,
+                            f"the drawing draws no window: all {len(wins)} windows are inferred (one per habitable room "
+                            f"facing out or onto a light well; sizes from {src}): check their places and sizes",
+                            part="all_inferred", element_ids=[]))
+    return out
+
+
+def room_without_window(building: dict, texts_by_level: Optional[dict] = None) -> list:
+    """Rule 14 (pure; UL331): a habitable room (``WINDOW_ROOMS``) with a free face of ``FACE_MIN_M`` to the outside, a
+    balcony or a light well on a wall that is no party wall (``level_inference.windows.party_walls``) and no window or
+    door on any such face, drawn or inferred. A typical floor's copies and the levels below ground are left out."""
+    from wenart.ingest import completion as CP
+
+    party_all = ((building.get("level_inference") or {}).get("windows") or {}).get("party_walls") or {}
+    out = []
+    for lv in building.get("levels") or []:
+        # 6 Nov 2026 (user: "underground floors will have no window"): no finding below ground
+        if lv.get("typical_of") or CP.below_ground(building, lv):
+            continue
+        lid = lv["id"]
+        texts = [{"text": t["text"], "x": t["x"], "y": t["y"]} for t in (texts_by_level or {}).get(lid) or []]
+        level = CP.Level(building, lid, texts)
+        if level.outline is None:
+            continue
+        party = set(party_all.get(lid) or {})
+        for room in level.rooms:
+            rtype = str(room.get("room_type") or "")
+            if rtype not in WINDOW_ROOMS or room["id"] in level.wells:
+                continue
+            faces = [f for f in level.faces(room) if f["wall_id"] not in party
+                     and f["t1"] - f["t0"] >= FACE_MIN_M - EPS]
+            if not faces:
+                continue
+            lit = False
+            for f in faces:
+                w = level.walls[f["wall_id"]]
+                a, u, _ = CP._axis(w)
+                for o in level.openings:
+                    if o.get("type") not in ("window", "door") or o.get("virtual") or not o.get("center"):
+                        continue
+                    w2 = level.walls.get(o.get("wall_id"))
+                    if w2 is None:
+                        continue
+                    c = o["center"]
+                    if w2["id"] != w["id"] and abs((c[0] - a[0]) * -u[1] + (c[1] - a[1]) * u[0]) > \
+                            0.35 + float(w.get("thickness") or 0.2):
+                        continue
+                    t = (c[0] - a[0]) * u[0] + (c[1] - a[1]) * u[1]
+                    if f["t0"] - 0.2 <= t <= f["t1"] + 0.2:
+                        lit = True
+                        break
+                if lit:
+                    break
+            if lit:
+                continue
+            kinds = sorted({f["kind"] for f in faces})
+            length = sum(f["t1"] - f["t0"] for f in faces)
+            out.append(_finding("room_without_window", "major" if rtype in WINDOW_MAJOR else "minor", lid,
+                                f"{room['id']} '{_label(room) or '-'}' ({rtype}) faces {' and '.join(kinds)} "
+                                f"({length:.1f} m of wall, no party wall) and has no window or door there, drawn or "
+                                f"inferred", _centre(room), [room["id"]] + sorted({f['wall_id'] for f in faces})))
+    return out
+
+
+def storeys_missing(building: dict, texts_by_level: Optional[dict] = None, false_ids: Optional[set] = None) -> list:
+    """Rule 15 (pure; real21): a reading with one storey at or above the ground while the drawing says the building has
+    more (lifts, a typical-floor word or area, a stair inside going up), and, on a reading of several storeys, a core
+    stair on the top drawn storey (not an attic or a roof terrace) that no stair of the storey below meets: it goes up
+    to a storey not read."""
+    from wenart.ingest import completion as CP
+
+    st = (building.get("level_inference") or {}).get("storeys") or {}
+    storeys = [lv for lv in _base_storeys(building) if (lv.get("order") or 0) >= 0 and lv.get("kind") != "basement"]
+    if not storeys:
+        return []
+    out = []
+    if len(storeys) == 1:
+        lv = storeys[0]
+        lid = lv["id"]
+        rooms = _rooms_of(building, lid)
+        lifts = [r["id"] for r in rooms if CP.is_lift(r) or sense_type(r) == "lift"]
+        texts = (texts_by_level or {}).get(lid) or []
+        typical = [t["text"] for t in texts if TYPICAL_TEXT_RE.search(_fold(t["text"]).lower())]
+        if TYPICAL_TEXT_RE.search(_fold(lv.get("label")).lower()):
+            typical.insert(0, str(lv.get("label")))
+        stairs = [] if _is_roof(lv) or lv.get("kind") == "attic" else [i for i, _p in core_stairs(building, lid,
+                                                                                                    false_ids)]
+        stairs += [r["id"] for r in rooms if r.get("room_type") == "stair" and not stairs]
+        why = []
+        if lifts:
+            why.append(f"{len(lifts)} lift(s) ({', '.join(lifts[:3])})")
+        if typical:
+            why.append(f"a typical-floor word or area ('{typical[0]}')")
+        if stairs:
+            why.append(f"a stair going up from the only storey ({', '.join(stairs[:2])})")
+        if why:
+            note = f"; the storey count: {st.get('note')}" if st.get("note") else ""
+            out.append(_finding("storeys_missing", "major", lid,
+                                f"a single-storey reading ({lid} '{lv.get('label')}') of a building whose drawing says "
+                                f"more storeys: {'; '.join(why)}{note}", None, lifts + stairs, part="single"))
+        return out
+    top = storeys[-1]
+    if _is_roof(top) or top.get("kind") == "attic":
+        return out
+    below = storeys[-2]
+    up = core_stairs(building, top["id"], false_ids)
+    down = core_stairs(building, below["id"], false_ids)
+    loose = [i for i, p in up if not any(p.distance(q) <= STAIR_REACH_M + EPS for _j, q in down)]
+    if up and loose and len(loose) == len(up):
+        out.append(_finding("storeys_missing", "major", top["id"],
+                            f"the top drawn storey {top['id']} '{top.get('label')}' has a stair ({', '.join(loose[:2])}) "
+                            f"that no stair of {below['id']} meets: it goes up to a storey that is not read",
+                            None, loose, part="stair_up"))
+    return out
+
+
+LIFT_IOU_MIN = 0.3            # a lift on the storey above or below overlapping this much continues the shaft
+
+
+def light_well_room(building: dict, texts_by_level: Optional[dict] = None) -> list:
+    """Rule 16 (pure; real21): a face labelled or holding a light-well word (AYDINLIK, IŞIKLIK, light well ...) that is
+    read as a room (not ``room_subtype`` light_well, not a shaft): a light well is an open-air void through the
+    storeys, never a room. A typical floor's copies are left out."""
+    from wenart.ingest import completion as CP
+
+    out = []
+    for lv in building.get("levels") or []:
+        if lv.get("typical_of"):
+            continue
+        lid = lv["id"]
+        texts = [{"text": t["text"], "x": t["x"], "y": t["y"]} for t in (texts_by_level or {}).get(lid) or []]
+        for r in _rooms_of(building, lid):
+            if r.get("room_subtype") == "light_well" or r.get("room_type") == "shaft":
+                continue
+            p = _poly(r.get("polygon"))
+            word = CP.light_well_word(r, texts) if p is not None and p.area <= CP.LIGHT_WELL_MAX_M2 else None
+            if word:
+                out.append(_finding("light_well_room", "major", lid,
+                                    f"{r.get('id')} '{_label(r) or '-'}' ({r.get('room_type')}) holds '{word['text']}': "
+                                    f"a light well read as a room (an open-air void through the storeys, never "
+                                    f"furnished)", _centre(r), [r.get("id")]))
+    return out
+
+
+def party_wall_openings(building: dict) -> list:
+    """Rule 17 (pure): a wall marked as a party wall (``party_wall``, or ``level_inference.windows.party_walls``: a
+    'bitişik' / 'komşu' / 'attached' text on that side) carrying a window or a door: the neighbour's building touches
+    it."""
+    party = {w["id"] for w in building.get("walls") or [] if w.get("party_wall")}
+    for lid, ids in (((building.get("level_inference") or {}).get("windows") or {}).get("party_walls") or {}).items():
+        party |= set(ids)
+    if not party:
+        return []
+    copies = {lv["id"] for lv in building.get("levels") or [] if lv.get("typical_of")}
+    out = []
+    for o in building.get("openings") or []:
+        if o.get("wall_id") in party and o.get("type") in ("window", "door") and o.get("level_id") not in copies:
+            out.append(_finding("party_wall_openings", "major", o.get("level_id"),
+                                f"{o['id']} ({o['type']}{', inferred' if o.get('inferred') else ''}) is on the party "
+                                f"wall {o['wall_id']}: the facade is marked attached, the neighbour's building touches "
+                                f"it", o.get("center"), [o["id"], o["wall_id"]]))
+    return out
+
+
+def core_continuity(building: dict) -> list:
+    """Rule 18 (pure): a lift (a room named or typed lift) on a storey that the storey above or below (both storeys of
+    the base variant, a roof terrace and an attic left out above) has no lift overlapping by ``LIFT_IOU_MIN``: a lift
+    shaft runs through every storey it serves. The stairs are rule 5's (``stair_links``)."""
+    from wenart.ingest import completion as CP
+
+    storeys = [lv for lv in _base_storeys(building) if not _is_roof(lv) and lv.get("kind") != "attic"]
+    lifts = {lv["id"]: [(r, _poly(r.get("polygon"))) for r in _rooms_of(building, lv["id"])
+                        if (CP.is_lift(r) or sense_type(r) == "lift") and _poly(r.get("polygon")) is not None]
+             for lv in storeys}
+    if sum(1 for v in lifts.values() if v) == 0 or len(storeys) < 2:
+        return []
+    out = []
+    for i, lv in enumerate(storeys):
+        for r, p in lifts[lv["id"]]:
+            for j in (i - 1, i + 1):
+                if not 0 <= j < len(storeys):
+                    continue
+                other = lifts[storeys[j]["id"]]
+                if any(p.intersection(q).area >= LIFT_IOU_MIN * min(p.area, q.area) for _r, q in other):
+                    continue
+                where = "above" if j > i else "below"
+                out.append(_finding("core_continuity", "major", lv["id"],
+                                    f"the lift {r['id']} '{_label(r) or '-'}' on {lv['id']} has no lift {where} it on "
+                                    f"{storeys[j]['id']}: the core does not continue through the storeys",
+                                    _centre(r), [r["id"]]))
+    return out
+
+
+def no_entrance(building: dict) -> list:
+    """Rule 19 (pure): no storey at the ground (``ENTRANCE_LEVEL_M``; the base variant) has a door from a room to the
+    outside (``completion.outer_doors``: the far side outside the level's outline, not a balcony): the building has no
+    entrance."""
+    from wenart.ingest import completion as CP
+
+    storeys = [lv for lv in _base_storeys(building) if abs(_el(lv)) <= ENTRANCE_LEVEL_M + EPS]
+    if not storeys or not any(_rooms_of(building, lv["id"]) for lv in storeys):
+        return []
+    found = {lv["id"]: CP.outer_doors(building, lv["id"]) for lv in storeys}
+    if any(found.values()):
+        return []
+    st = ((building.get("level_inference") or {}).get("storeys") or {}).get("ground_floor") or {}
+    note = f"; {st['entrance']['reason']}" if (st.get("entrance") or {}).get("open") else ""
+    return [_finding("no_entrance", "major", storeys[0]["id"],
+                     f"no door leads from the outside into the building on {', '.join(found)} (the storeys at the "
+                     f"ground): the building has no entrance{note}", None, [])]
+
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
@@ -1396,6 +1660,15 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += mirror_twins(building)
     out += wall_across_passage(building)
     out += mass
+    # 6 Nov 2026 (real21, UL331): what a drawing leaves out
+    out += no_windows(building)
+    out += room_without_window(building, texts_by_level)
+    out += storeys_missing(building, texts_by_level, false_ids)
+    # 6 Nov 2026 (user: "Make sense of the building"): the coherence of the whole building
+    out += light_well_room(building, texts_by_level)
+    out += party_wall_openings(building)
+    out += core_continuity(building)
+    out += no_entrance(building)
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

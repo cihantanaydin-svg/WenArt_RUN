@@ -226,6 +226,62 @@
      "judged_right": 14
     }
    }
+  },
+  "no_windows": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "room_without_window": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "storeys_missing": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "light_well_room": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "party_wall_openings": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "core_continuity": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "no_entrance": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
   }
  },
  "readings": "round 2 (6 Nov 2026): the readings of main's tree in regress_merged (real01-real21, synthetic-01, 03-07) and fresh CPU readings of synthetic-08 to synthetic-22: every finding judged; and, for the six round-2 rules, the old readings made before the user's corrections (real10 and real07 at 23f5df3d, real09 at a0b208a4, real17 at 0e9b4ee0), where the corrected errors still stand: facade_recess, false_stair and stair_stacking fire on none of the 41 current readings, so their precision is judged there (project_status old_reading)",

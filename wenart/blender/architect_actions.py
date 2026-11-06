@@ -135,6 +135,9 @@ ACTIONS = {
     # 29 Oct 2026 (user: "this dressing could be a see through dressing room in the both sides"; UL125): D8
     "wardrobe_fronts": "the fronts of a walk-in dressing room's wardrobes (params: kind): slatted or smoked-glass "
                        "sliding doors, open runs (all with real contents and a light inside), or closed fronts",
+    # 6 Nov 2026 (real21): the storey count the reading inferred (wenart/blender/architect_storeys.py, N1)
+    "storey_count": "the building has another number of storeys (params: count): recorded; the storeys are read, so "
+                    "the next reading builds that many",
 }
 # The rules whose answers are carried out first (a door that becomes a window is not widened as a door)
 FIRST_RULES = ("E1", "O2", "D4")
@@ -2453,7 +2456,10 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
             placed = _window_places(plan)
             guard = walk_snapshot(building) if rec["by"] != "user" else None
             try:
-                if opt == "move_window_to_outer_wall":
+                if opt == "storey_count":                   # 6 Nov 2026 (real21): N1, recorded for the reading
+                    from wenart.blender import architect_storeys as ASTO
+                    ok, text = ASTO.act_storey_count(building, key, ans, params.get("count"))
+                elif opt == "move_window_to_outer_wall":
                     ok, text = act_move_window(plan, key, ans, params.get("window_id") or target,
                                                params.get("room_id") or (target if target in plan.room else None))
                 elif opt == "enlarge_windows":

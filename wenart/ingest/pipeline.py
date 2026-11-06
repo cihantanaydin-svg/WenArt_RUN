@@ -3143,7 +3143,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     _add_named_pieces(build)          # 26 Oct 2026: a furniture name text with no drawn piece adds the piece it names
     RD.resolve_named_conflicts(build)  # 26 Oct 2026: the disputed pieces a name text, a zone label or the AI typed
     _gaps_behind_furniture(build)      # 27 Oct 2026: a gap the drawing puts furniture in front of is a window
-    masters = [sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
+    from wenart.ingest import completion as CP   # 6 Nov 2026 (real21, UL331): the storeys and windows a drawing leaves out
+    CP.complete(build, sheets, by_level, _to_building)
+    masters =[sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
     if any(w.extraction.source_kind is not None for w in masters):
         # The generic core's unit system; an evidence-only raster page beside a DXF/PDF level does not count.
         systems = [w.extraction.units_system or "metric" for w in masters]
