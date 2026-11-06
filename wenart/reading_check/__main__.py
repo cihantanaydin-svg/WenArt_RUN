@@ -27,6 +27,8 @@ DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("w
              "crossdoc": ("wenart.reading_check.crossdoc", "_main"),
              "raster": ("wenart.reading_check.raster_opinion", "main"),
              "sense": ("wenart.reading_check.sense", "main"),
+             # 6 Nov 2026 (Milestone 14 R6): the vision critic RC15 (``critic prepare|ask|calibrate|store|questions``)
+             "critic": ("wenart.reading_check.critic", "main"),
              # 5 Nov 2026 (Milestone 14 R3): the ranker of the reader's decisions (retrain, train, evaluate, explain,
              # label; ``evaluate`` because the sandbox refuses the word eval)
              "ranker": ("wenart.reading_check.ranker", "main")}
