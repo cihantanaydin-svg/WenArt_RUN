@@ -5668,42 +5668,6 @@
      "method": "vector",
      "status": "verified",
      "reader_id": "d_L-1_036"
-    },
-    {
-     "id": "t_L-1_door_0180",
-     "type": "door",
-     "width": 2.4,
-     "center": [
-      11.19,
-      1.915
-     ],
-     "wall_id": "w_L-1_003",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "absent": true,
-     "removed_on": "2026-11-05",
-     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)",
-     "reader_id": "d_L-1_037"
-    },
-    {
-     "id": "t_L-1_door_0181",
-     "type": "door",
-     "width": 1.8,
-     "center": [
-      11.19,
-      16.595
-     ],
-     "wall_id": "w_L-1_076",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "absent": true,
-     "removed_on": "2026-11-05",
-     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)",
-     "reader_id": "d_L-1_038"
     }
    ],
    "windows": [
@@ -12300,24 +12264,6 @@
      "method": "derived",
      "status": "unverified",
      "reader_id": "o_L0_027"
-    },
-    {
-     "id": "t_L0_opening_0465",
-     "type": "opening",
-     "width": 2.55,
-     "center": [
-      11.204,
-      0.455
-     ],
-     "wall_id": "w_L0_007",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "absent": true,
-     "removed_on": "2026-11-05",
-     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)",
-     "reader_id": "o_L0_029"
     },
     {
      "id": "t_L0_opening_0466",
@@ -20080,24 +20026,6 @@
      "reader_id": "o_L1_027"
     },
     {
-     "id": "t_L1_opening_0817",
-     "type": "opening",
-     "width": 2.55,
-     "center": [
-      11.204,
-      0.455
-     ],
-     "wall_id": "w_L1_007",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "absent": true,
-     "removed_on": "2026-11-05",
-     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)",
-     "reader_id": "o_L1_029"
-    },
-    {
      "id": "t_L1_opening_0818",
      "type": "opening",
      "width": 1.71,
@@ -27851,24 +27779,6 @@
      "method": "derived",
      "status": "unverified",
      "reader_id": "o_L2_027"
-    },
-    {
-     "id": "t_L2_opening_1169",
-     "type": "opening",
-     "width": 2.55,
-     "center": [
-      11.204,
-      0.455
-     ],
-     "wall_id": "w_L2_007",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "absent": true,
-     "removed_on": "2026-11-05",
-     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)",
-     "reader_id": "o_L2_029"
     },
     {
      "id": "t_L2_opening_1170",
@@ -35626,24 +35536,6 @@
      "reader_id": "o_L3_027"
     },
     {
-     "id": "t_L3_opening_1521",
-     "type": "opening",
-     "width": 2.55,
-     "center": [
-      11.204,
-      0.455
-     ],
-     "wall_id": "w_L3_007",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "absent": true,
-     "removed_on": "2026-11-05",
-     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)",
-     "reader_id": "o_L3_029"
-    },
-    {
      "id": "t_L3_opening_1522",
      "type": "opening",
      "width": 1.71,
@@ -43397,24 +43289,6 @@
      "method": "derived",
      "status": "unverified",
      "reader_id": "o_L4_027"
-    },
-    {
-     "id": "t_L4_opening_1873",
-     "type": "opening",
-     "width": 2.55,
-     "center": [
-      11.204,
-      0.455
-     ],
-     "wall_id": "w_L4_007",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "absent": true,
-     "removed_on": "2026-11-05",
-     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)",
-     "reader_id": "o_L4_029"
     },
     {
      "id": "t_L4_opening_1874",
@@ -51172,24 +51046,6 @@
      "reader_id": "o_L5_027"
     },
     {
-     "id": "t_L5_opening_2225",
-     "type": "opening",
-     "width": 2.55,
-     "center": [
-      11.204,
-      0.455
-     ],
-     "wall_id": "w_L5_007",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "absent": true,
-     "removed_on": "2026-11-05",
-     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)",
-     "reader_id": "o_L5_029"
-    },
-    {
      "id": "t_L5_opening_2226",
      "type": "opening",
      "width": 1.71,
@@ -58943,24 +58799,6 @@
      "method": "derived",
      "status": "unverified",
      "reader_id": "o_L6_027"
-    },
-    {
-     "id": "t_L6_opening_2577",
-     "type": "opening",
-     "width": 2.55,
-     "center": [
-      11.204,
-      0.455
-     ],
-     "wall_id": "w_L6_007",
-     "source": "accepted_reading",
-     "confidence": 0.6,
-     "method": "inferred",
-     "status": "unverified",
-     "absent": true,
-     "removed_on": "2026-11-05",
-     "note": "a mirror copy of an opening onto itself (removed 5 Nov 2026)",
-     "reader_id": "o_L6_029"
     },
     {
      "id": "t_L6_opening_2578",
