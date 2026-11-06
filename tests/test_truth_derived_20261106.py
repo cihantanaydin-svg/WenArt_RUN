@@ -411,3 +411,43 @@ def test_every_applicable_record_is_replayed_or_reported():
             for x in rep["applied"]:
                 if x["record"] == rid and x["kind"] != "level" and x["state"] not in ("cut",):
                     assert set(x["ids"]) <= tagged or x.get("dropped_negations"), (project, rid, x)
+
+
+def test_build_names_its_project_either_way(monkeypatch):
+    seen = []
+    monkeypatch.setattr(TR, "build", lambda projects, **kw: seen.append(projects) or {p: {} for p in projects})
+    assert TR.main(argparse.Namespace(action="build", project="real06", projects=None)) == 0
+    assert TR.main(argparse.Namespace(action="build", project=None, projects="real06,real07")) == 0
+    assert seen == [["real06"], ["real06", "real07"]]
+
+
+def test_accept_stores_the_accepted_reading_with_its_drift_check(tmp_path, monkeypatch):
+    """``truth accept``: the user's acceptance in the baseline, the drift check against it, the commit stamp; a
+    drifted reading is stored only with ``allow_drift``; a project without acceptance is not stored."""
+    from tests.test_reading_truth_20261104 import building, numbers_of
+
+    b = building()
+    folder = tmp_path / "work" / "tiny"
+    (folder / "reading_check").mkdir(parents=True)
+    (folder / "building.json").write_text(json.dumps(b))
+    (folder / "reading_check" / "commit.txt").write_text("abc123\n")
+    base = tmp_path / "base"
+    base.mkdir()
+    (base / "tiny.json").write_text(json.dumps(dict(numbers_of(b), accepted_by_user=True, accepted_on="2026-11-06")))
+    (base / "nope.json").write_text(json.dumps(numbers_of(b)))
+    from wenart.reading_check import regress as RG
+    monkeypatch.setattr(RG, "numbers", lambda folder: numbers_of(b))
+    out = TR.accept(["tiny", "nope"], tmp_path / "work", accepted_dir=tmp_path / "acc", baseline_dir=base,
+                    projects_dir=tmp_path)
+    assert list(out) == ["tiny"] and not (tmp_path / "acc" / "nope.json").exists()
+    acc = TR.load_accepted("tiny", tmp_path / "acc")
+    assert acc["commit"] == "abc123" and acc["status"] == "accepted" and acc["accepted"]["on"] == "2026-11-06"
+    assert TR.counts(acc) == TR.counts(TR.extract(b))
+    more = dict(numbers_of(b), per_level=dict(numbers_of(b)["per_level"], L0=dict(numbers_of(b)["per_level"]["L0"],
+                                                                                    doors=9)))
+    monkeypatch.setattr(RG, "numbers", lambda folder: more)
+    assert TR.accept(["tiny"], tmp_path / "work", accepted_dir=tmp_path / "acc2", baseline_dir=base,
+                     projects_dir=tmp_path) == {}
+    got = TR.accept(["tiny"], tmp_path / "work", allow_drift=True, accepted_dir=tmp_path / "acc2",
+                    baseline_dir=base, projects_dir=tmp_path)
+    assert got["tiny"]["status"] == "drifted" and got["tiny"]["drift"]

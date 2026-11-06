@@ -1451,11 +1451,16 @@ def _correct(args, *, corrections, truth_dir, accepted_dir, baseline_dir, projec
                f"record {target['id']}; truth rebuilt -> {shown}")
 
 
+def _named(args) -> list[str]:
+    """The projects ``--projects a,b`` (or ``--project p``) names."""
+    text = getattr(args, "projects", None) or getattr(args, "project", None) or ""
+    return [p.strip() for p in str(text).split(",") if p.strip()]
+
+
 def main(args) -> int:
     action = getattr(args, "action", None)
     if action == "build":
-        projects = [p.strip() for p in (getattr(args, "projects", None) or "").split(",") if p.strip()] \
-            or default_projects()
+        projects = _named(args) or default_projects()
         if not projects:
             print("reading truth: no accepted baseline (accepted_by_user: true) in results/reading_baseline/, no "
                   "synthetic project with a truth and no --projects")
@@ -1463,7 +1468,7 @@ def main(args) -> int:
         done = build(projects)
         return 0 if len(done) == len(projects) else 1
     if action == "accept":
-        projects = [p.strip() for p in (getattr(args, "projects", None) or "").split(",") if p.strip()]
+        projects = _named(args)
         if not projects:
             print("reading truth accept: name the projects the user accepted (--projects a,b)")
             return 2
