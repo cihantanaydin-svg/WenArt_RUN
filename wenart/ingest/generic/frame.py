@@ -105,3 +105,93 @@ def frame_blocks(page: GenericPage) -> list[dict]:
                     "stroke_ids": [strokes[k].id for k in idx], "frame_box": [round(v, 3) for v in frame],
                     "strokes": len(idx)})
     return out
+
+
+# --------------------------------------------------------------------------
+# The sheet frame read as walls (6 Nov 2026, Milestone 14 reader target 2)
+# --------------------------------------------------------------------------
+# real19 L1-L3: four walls on the drawing's region box covering 99 % of its perimeter (and a 441 m2 room named from the
+# sheet text); the frame was drawn as plain lines, not as a block. Moved here from RC14 (``wenart.reading_check.sense``,
+# rule 3, which imports them), so the reader and the checker find the frame by one rule: walls whose outer face lies
+# on the region box (within FRAME_TOL_M) covering FRAME_SHARE_MIN of its perimeter, with at most FRAME_OPENINGS_MAX
+# openings and FRAME_JOINS_MAX other walls ending on them (a region box cut tight around a building puts its real outer
+# walls on the box too, but those carry windows and doors and the inner walls end on them).
+FRAME_TOL_M = 0.10            # a wall's outer face this close to the region box's edge lies on it
+FRAME_SHARE_MIN = 0.60        # frame walls covering this share of the box perimeter: the sheet frame read as walls
+FRAME_OPENINGS_MAX = 0        # openings on the edge walls of a frame
+FRAME_JOINS_MAX = 2           # other walls with an end on the edge walls of a frame
+JOIN_REACH_M = 0.30           # a wall end this close to an edge wall's centre line ends on it
+FRAME_MIN_WALL_M = 0.3        # shorter walls are not looked at
+EPS = 1e-6
+
+
+def frame_walls(walls: list, box) -> tuple[list, float]:
+    """``(wall ids, share)`` (pure): the walls (dicts ``{id, start, end, thickness}``) whose outer face lies on an edge
+    of the box (a shapely polygon) within ``FRAME_TOL_M`` (both ends; the face is the centre line moved out by half the
+    thickness) and the share of the box perimeter their projections cover."""
+    from shapely.geometry import LineString, Point
+
+    pts = list(box.exterior.coords)[:-1]
+    ids, covered = [], 0.0
+    for i in range(len(pts)):
+        a, b = pts[i], pts[(i + 1) % len(pts)]
+        edge = LineString([a, b])
+        if edge.length <= 0:
+            continue
+        spans = []
+        for w in walls:
+            reach = FRAME_TOL_M + float(w.get("thickness") or 0.0) / 2.0
+            p, q = Point(w["start"][:2]), Point(w["end"][:2])
+            if edge.distance(p) > reach + EPS or edge.distance(q) > reach + EPS or p.distance(q) < FRAME_MIN_WALL_M:
+                continue
+            # the line through the edge, not only the segment: a wall a little longer than the box still lies on it
+            s, t = sorted((edge.project(p), edge.project(q)))
+            spans.append((max(0.0, s), min(edge.length, t)))
+            if w.get("id") not in ids:
+                ids.append(w.get("id"))
+        spans.sort()
+        run_end = -1.0
+        for s, t in spans:
+            if t <= run_end:
+                continue
+            covered += t - max(s, run_end)
+            run_end = t
+    return ids, (covered / box.length if box.length > 0 else 0.0)
+
+
+def frame_joins(walls: list, ids) -> int:
+    """How many other walls (dicts) have an end within ``JOIN_REACH_M`` of the walls ``ids`` (pure)."""
+    from shapely.geometry import LineString, Point
+
+    ids = set(ids)
+    lines = [LineString([w["start"][:2], w["end"][:2]]) for w in walls if w.get("id") in ids]
+    joins = 0
+    for w in walls:
+        if w.get("id") in ids:
+            continue
+        if any(ln.distance(Point(e[:2])) <= JOIN_REACH_M + EPS for e in (w["start"], w["end"]) for ln in lines):
+            joins += 1
+    return joins
+
+
+def sheet_frame_walls(walls: list, openings: list, box) -> Optional[dict]:
+    """The reader's side (page or building metres alike): ``{"ids", "share", "openings", "joins", "frame"}`` for the
+    walls (``WallItem``-like: ``start``, ``end``, ``thickness``) on the region box (a shapely polygon) when they cover
+    ``FRAME_SHARE_MIN`` of its perimeter, ``frame`` True when they carry no more openings and joins than a frame; None
+    when they cover less. An opening (``center``, not ``virtual``) counts on an edge wall when its centre lies within
+    half the wall's thickness plus 5 cm of the wall's centre line."""
+    from shapely.geometry import LineString, Point
+
+    if box is None or box.area <= 0 or not walls:
+        return None
+    dicts = [{"id": k, "start": tuple(w.start), "end": tuple(w.end), "thickness": float(w.thickness)}
+             for k, w in enumerate(walls)]
+    ids, share = frame_walls(dicts, box)
+    if share < FRAME_SHARE_MIN:
+        return None
+    edge = [(LineString([dicts[k]["start"], dicts[k]["end"]]), dicts[k]["thickness"]) for k in ids]
+    n_open = sum(1 for o in openings if not getattr(o, "virtual", False) and getattr(o, "center", None) is not None
+                 and any(ln.distance(Point(o.center)) <= t / 2.0 + 0.05 for ln, t in edge))
+    joins = frame_joins(dicts, ids)
+    return {"ids": ids, "share": round(share, 3), "openings": n_open, "joins": joins,
+            "frame": n_open <= FRAME_OPENINGS_MAX and joins <= FRAME_JOINS_MAX}

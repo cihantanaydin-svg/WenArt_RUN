@@ -189,8 +189,18 @@ def is_annotation(text: str) -> bool:
         return False
     flat = any(w in _FLAT_WORDS for w in long_words)
     summary = any(w in _AREA_NOUNS for w in long_words) and any(w in _SUMMARY_WORDS for w in long_words)
+    # 6 Nov 2026 (real19 L1-L3, once the sheet frame was no room: 'BRÜT' / 'OTURUM' over their areas in the sheet's
+    # area summary stood as room labels outside the walls): summary words alone (BRÜT, NET, OTURUM, TOPLAM) name no room
+    summary = summary or all(w in _SUMMARY_WORDS for w in long_words)
     return flat or summary or all(w in _AREA_NOUNS for w in long_words)
 
+
+def is_floor_name(text: str) -> bool:
+    """A floor's name alone (``NORMAL``, ``ZEMİN``, ``BODRUM``, ``ÇATI``, ``TİP``: ``wenart.sheets.titles.level_of`` of the
+    text with the word KAT), with no room word and no number: the name of a storey in an area summary or a title, never
+    a room's (6 Nov 2026; real19's 'NORMAL 253 M2' named a 441 m2 room of paper). The reader skips it; RC14
+    ``label_vocabulary`` names it 'a floor's name'."""
+    from wenart.sheets import titles as T
 
     text = collapse_spaced(text or "").strip()
     if not text or re.search(r"\d", text) or B.generic_room_label(text):
@@ -419,6 +429,8 @@ def _classify(run: TextRun, default_system: str) -> _Line:
         text = " ".join(x for x in (rest, size_text, area_text) if x)
     if is_annotation(text):
         return _Line(run, "skip", "", frame_box=box)       # real03: "Net Alan =", "1+1 A1 Daire Tipi" are no rooms
+    if is_floor_name(head):
+        return _Line(run, "skip", "", frame_box=box)       # 6 Nov 2026 (real19): "NORMAL" over "253 M2" is no room
     if _is_name_text(text, indoor_only=False):
         kind = "name"
     elif re.search(r"[^\W\d_]{2,}", head) and len(head.split()) <= MAX_NAME_WORDS:

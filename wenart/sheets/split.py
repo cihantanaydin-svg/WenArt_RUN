@@ -71,6 +71,33 @@ TITLE_CUT_CLEAR = 0.02     # ... a cut band crosses <= 2 % of the peak coverage 
 TITLE_CUT_MIN = 3          # ... or <= 3 entities (a ground line running under two elevations)
 TITLE_PART_MIN = 20        # ... and leaves >= 20 entities on each side
 
+# 6 Nov 2026 (Milestone 14 reader target 2; real15 L0/L1: the sheet frame on layer 'Z_antet' closed the whole sheet as
+# one 1257 m2 room): the layer names that mean the sheet frame or the title block. Their lines are drawing furniture of
+# the sheet, never walls of a plan (``wenart.ingest.generic.core`` drops them before the walls are read). The words are
+# matched on the ASCII-folded upper layer name split at every non-letter: Turkish ANTET (title block), PAFTA (sheet),
+# ÇERÇEVE (frame) also inflected (prefix); English FRAME, BORDER, TITLE, TITLEBLOCK; French CARTOUCHE; German
+# SCHRIFTFELD, PLANKOPF. A name with a door, window, glazing, wall or structure word is never a sheet layer (a window
+# frame, ``A-GLAZ-FRAME``, ``PENCERE ÇERÇEVESİ``; structural FRAMING is another word).
+FRAME_LAYER_PREFIXES = ("ANTET", "PAFTA", "CERCEVE")
+FRAME_LAYER_WORDS = ("FRAME", "BORDER", "TITLE", "TITLEBLOCK", "TITLEBLK", "TBLOCK", "CARTOUCHE", "SCHRIFTFELD",
+                     "PLANKOPF")
+FRAME_LAYER_NOT = ("DOOR", "DOORS", "WINDOW", "WINDOWS", "WIND", "WIN", "GLAZ", "GLAZING", "GLASS", "KAPI", "PENCERE",
+                   "DOGRAMA", "KASA", "CAM", "FENETRE", "PORTE", "TUR", "FENSTER", "MULLION", "CURTAIN", "WALL",
+                   "WALLS", "DUVAR", "STRUCT", "STRUCTURE", "COLUMN", "KOLON", "BEAM", "KIRIS", "ROOF", "CATI")
+
+
+def is_frame_layer(name: Optional[str]) -> bool:
+    """Whether a layer name means the sheet frame or the title block (``FRAME_LAYER_PREFIXES`` / ``_WORDS``, never with a
+    ``FRAME_LAYER_NOT`` word): ``Z_antet``, ``A_Cerceve``, ``PAFTA``, ``A-ANNO-TTLB-FRAME``, ``Schriftfeld``."""
+    if not name:
+        return False
+    import re
+
+    tokens = [t for t in re.split(r"[^A-Z]+", T.fold(name)) if t]
+    if any(t in FRAME_LAYER_NOT for t in tokens):
+        return False
+    return any(t in FRAME_LAYER_WORDS or t.startswith(FRAME_LAYER_PREFIXES) for t in tokens)
+
 
 @dataclass
 class Cluster:

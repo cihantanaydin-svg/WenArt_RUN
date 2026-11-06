@@ -88,3 +88,6 @@ class GenericPage:
     to_original: Optional[list[list[float]]] = None   # 3x3 page units -> original image pixels (photos)
     dpi: Optional[float] = None               # raster pages: pixels per inch of the (rectified) image, if known
     warnings: list[str] = field(default_factory=list)
+    # 6 Nov 2026 (Milestone 14 reader target 2): the drawing region the page was clipped to (``dxf_generic.clip_page``,
+    # page units; None = the whole page): the core finds the sheet frame on it
+    region_box: Optional[tuple[float, float, float, float]] = None
