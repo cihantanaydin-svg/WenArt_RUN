@@ -363,13 +363,18 @@ def fit(table: dict, *, l2: float = L2, iterations: int = NEWTON_ITERATIONS) -> 
     """The one-vs-rest model of a committed table (pure, deterministic): standardisation from the table, one binary
     classifier per class (a record that negates a class is a 0 of that class only), the numbers rounded to
     ``ROUND`` decimals. ``trained_on`` and ``metrics`` are added by ``train``."""
-    kind = table["kind"]
-    classes = list(CLASSES[kind])
     names = list(table["features"])
     X = np.array(table["rows"], dtype=np.float64).reshape(len(table["rows"]), len(names))
     labels = list(table["labels"])
     negs = list(table.get("negative_of") or [None] * len(labels))      # (6 Nov 2026, review: read labels first)
     weights = np.array(table["weights"], dtype=np.float64)
+    return _fit_arrays(table["kind"], names, X, labels, negs, weights, l2=l2, iterations=iterations)
+
+
+def _fit_arrays(kind: str, names: list, X: np.ndarray, labels: list, negs: list, weights: np.ndarray, *,
+                l2: float = L2, iterations: int = NEWTON_ITERATIONS) -> dict:
+    """``fit`` on arrays (the leave-one-group-out runs fit hundreds of models on row subsets of one design matrix)."""
+    classes = list(CLASSES[kind])
     if len(X):
         mean = X.mean(axis=0)
         std = X.std(axis=0)
@@ -574,13 +579,31 @@ def lopo(labelled: list[dict], kind: str, l2: float = L2, groups=None, nested: b
     rows = [r for r in labelled if r.get("kind") == kind]
     gkey = {id(r): group_of(r.get("project"), groups) for r in rows}
     group_names = sorted(set(gkey.values()))
+    # one design matrix for every fit of this run (rounded as the committed tables are); a fit takes a row subset,
+    # thinned by the table's own rule (``thin``)
+    names = feature_names(rows)
+    X_all = np.array([[round(float(v), 6) for v in row] for row in design(rows, names).tolist()],
+                     dtype=np.float64).reshape(len(rows), len(names))
+    labels_all = [r.get("label") for r in rows]
+    negs_all = [r.get("negative_of") for r in rows]
+    weights_all = np.array([float(r.get("weight") or 1.0) for r in rows], dtype=np.float64)
+    group_all = [gkey[id(r)] for r in rows]
+
+    def fit_without(*left_out) -> Optional[dict]:
+        idx = [i for i, g in enumerate(group_all) if g not in left_out]
+        if not idx:
+            return None
+        kept = {id(r) for r in thin([rows[i] for i in idx])}
+        idx = [i for i in idx if id(rows[i]) in kept]
+        return _fit_arrays(kind, names, X_all[idx], [labels_all[i] for i in idx], [negs_all[i] for i in idx],
+                           weights_all[idx], l2=l2)
+
     per = {}
     pooled_n = pooled_rules = pooled_rank = pooled_integ = 0
     pooled_corr = {"n": 0, "rules": 0, "ranker": 0, "integrated": 0, "negatives": 0, "changed_into_negation": 0}
     changed = []
     for g in group_names:
-        train_rows = [r for r in rows if gkey[id(r)] != g]
-        model = fit(table_of(train_rows, kind), l2=l2) if train_rows else None
+        model = fit_without(g)
         for p in sorted({r.get("project") for r in rows if gkey[id(r)] == g}):
             m = _accuracy([r for r in rows if r.get("project") == p], model)
             per[p] = {k: v for k, v in m.items() if k != "changed"}
@@ -603,10 +626,9 @@ def lopo(labelled: list[dict], kind: str, l2: float = L2, groups=None, nested: b
             for h in group_names:
                 if h == g:
                     continue
-                inner_train = [r for r in rows if gkey[id(r)] not in (g, h)]
-                if not inner_train:
+                inner_model = fit_without(g, h)
+                if inner_model is None:
                     continue
-                inner_model = fit(table_of(inner_train, kind), l2=l2)
                 inner.extend(_accuracy([r for r in rows if gkey[id(r)] == h], inner_model)["changed"])
             trust = transition_trust(inner)
             for k, t in trust.items():
