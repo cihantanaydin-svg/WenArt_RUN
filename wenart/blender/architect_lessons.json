@@ -3940,6 +3940,16 @@
    "request": "Underground floors get no windows: no inferred window or balcony door on a level below ground (a basement, or any level whose floor and ceiling are under the ground), and no 'room without window' finding there. User, 6 Nov 2026: 'underground floors will have no window'.",
    "lesson": "Underground floors get no windows: no inferred window or balcony door on a level below ground (a basement, or any level whose floor and ceiling are under the ground), and no 'room without window' finding there. User, 6 Nov 2026: 'underground floors will have no window'.",
    "question": null
+  },
+  {
+   "id": "UL334",
+   "date": "2026-11-06",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Make sense of the building: the reading is completed into a building an architect would accept, by general rules with evidence. Light wells (AYDINLIK, IŞIKLIK, light well, air shaft) are open-air voids through every storey, never rooms, and the rooms around them get their windows onto them; facades marked attached ('bitişik') are blank party walls; the stair and lifts run through every storey to a stair head and lift overrun on the roof; the ground floor has the entrance from the street and follows the footprint; underground floors have no windows. A check raises any of these before the user looks. User, 6 Nov 2026: 'Make sense of the building' (real21).",
+   "lesson": "Make sense of the building: the reading is completed into a building an architect would accept, by general rules with evidence. Light wells (AYDINLIK, IŞIKLIK, light well, air shaft) are open-air voids through every storey, never rooms, and the rooms around them get their windows onto them; facades marked attached ('bitişik') are blank party walls; the stair and lifts run through every storey to a stair head and lift overrun on the roof; the ground floor has the entrance from the street and follows the footprint; underground floors have no windows. A check raises any of these before the user looks. User, 6 Nov 2026: 'Make sense of the building' (real21).",
+   "question": null
   }
  ]
 }
