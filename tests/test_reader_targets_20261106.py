@@ -282,6 +282,17 @@ def test_a_floor_name_or_a_lone_summary_word_over_an_area_is_no_label():
     assert [b.name for b in blocks] == ["SALON"] and blocks[0].area_m2 == pytest.approx(24.0)
 
 
+def test_a_finish_note_is_no_label():
+    """real15: 'SERAMIK 33X33' of the finishes table beside the plan stood as a room label outside the walls; a finish
+    line under a room's name never joins the name either."""
+    from wenart.ingest.generic import labels as LB
+
+    assert LB.is_finish_note("SERAMIK  33X33") and LB.is_finish_note("AHŞAP PARKE") and LB.is_finish_note("K:MARLEY")
+    assert not LB.is_finish_note("SALON") and not LB.is_finish_note("ASMA KAT") and not LB.is_finish_note("33X33")
+    runs = [_run("SERAMIK 33X33", 5, 5.0, k=1), _run("SALON", 15, 5.3, k=2), _run("PARKE", 15, 5.0, k=3)]
+    assert [b.name for b in LB.merge_label_blocks(runs, "p.dxf")] == ["SALON"]
+
+
 def test_the_reader_and_the_checker_share_one_notation_table():
     from wenart.ingest.generic import labels as LB
     from wenart.reading_check import sense as SE

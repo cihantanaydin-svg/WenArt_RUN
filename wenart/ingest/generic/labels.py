@@ -195,6 +195,25 @@ def is_annotation(text: str) -> bool:
     return flat or summary or all(w in _AREA_NOUNS for w in long_words)
 
 
+def is_finish_note(text: str) -> bool:
+    """A line naming only a finish (``SERAMİK 33X33``, ``AHŞAP PARKE``, ``K:MARLEY``, ``ALÇI SIVA``): the floor, wall or
+    ceiling material of a room or of a finishes table, never a room's name (6 Nov 2026; real15's finishes table beside
+    its plans left 'SERAMIK 33X33' as a room label outside the walls). The words are the finish role of
+    ``layer_names`` and the materials of a Turkish finishes schedule; numbers, sizes and one-letter codes may stand
+    with them."""
+    from wenart.ingest.generic import layer_names as LN
+
+    words = [w for w in re.findall(r"[A-Z]+", B.fold_ascii(collapse_spaced(text or "")).upper()) if len(w) > 1]
+    vocab = set(LN.ROLES["finish"]) | FINISH_WORDS
+    return bool(words) and all(w in vocab for w in words)
+
+
+# 6 Nov 2026: materials of a finishes schedule beside the finish role's words (ASCII-folded upper case)
+FINISH_WORDS = frozenset({"AHSAP", "GRANIT", "MARLEY", "SAP", "EPOKSI", "EPOXY", "HALI", "BOYA", "SATEN", "ALCI",
+                          "SIVA", "PLASTIK", "PVC", "VINIL", "VINYL", "MOZAIK", "TRAVERTEN", "LAMINE", "SERAMIGI",
+                          "PARKESI", "MERMERI", "KAPLAMASI", "ASMA", "TAVAN"})
+
+
 def is_floor_name(text: str) -> bool:
     """A floor's name alone (``NORMAL``, ``ZEMİN``, ``BODRUM``, ``ÇATI``, ``TİP``: ``wenart.sheets.titles.level_of`` of the
     text with the word KAT), with no room word and no number: the name of a storey in an area summary or a title, never
@@ -431,6 +450,8 @@ def _classify(run: TextRun, default_system: str) -> _Line:
         return _Line(run, "skip", "", frame_box=box)       # real03: "Net Alan =", "1+1 A1 Daire Tipi" are no rooms
     if is_floor_name(head):
         return _Line(run, "skip", "", frame_box=box)       # 6 Nov 2026 (real19): "NORMAL" over "253 M2" is no room
+    if is_finish_note(head):
+        return _Line(run, "skip", "", frame_box=box)       # 6 Nov 2026 (real15): "SERAMIK 33X33" is a finish note
     if _is_name_text(text, indoor_only=False):
         kind = "name"
     elif re.search(r"[^\W\d_]{2,}", head) and len(head.split()) <= MAX_NAME_WORDS:
