@@ -2228,13 +2228,13 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
             # in the wall taken for glass): a door-high tag on a door layer decides door over a drawn window of about
             # its width (``DOOR_TAG_WINDOW_WIDTH_M``)
             over = role == "door" and h_cm >= DOOR_TAG_MIN_H_CM
-            tags.append((t, w_cm / 100.0, h_cm / 100.0, over))
+            tags.append((t, w_cm / 100.0, h_cm / 100.0, over, role in DOOR_TAG_TEXT_ROLES))
     if not tags:
         return None
     out = list(openings)
     taken: set = set()
     done = []
-    for t, width, height, over in tags:
+    for t, width, height, over, plain in tags:
         c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
         best = None
         for j, o in enumerate(out):
@@ -2243,6 +2243,8 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
             if o.kind == "window" and "gap" not in str(o.type_raw or "") \
                     and not (over and abs(float(o.width) - width) <= DOOR_TAG_WINDOW_WIDTH_M):
                 continue                                       # a drawn window keeps its kind
+            if not plain and o.kind == "door" and abs(float(o.width) - width) <= 0.05:
+                continue                                       # already the tagged door
             d = math.dist(c, tuple(o.center))
             if d <= DOOR_TAG_REACH_M and (best is None or d < best[0]):
                 best = (d, j)
@@ -2251,8 +2253,10 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
         j = best[1]
         o = out[j]
         if o.kind == "door" and abs(float(o.width) - width) <= 0.05:
-            # already the tagged door. 6 Nov 2026 (real10: an '80/210' beside its 0.80 m door went on to the next
-            # opening within reach, a 0.70 m window 1.2 m away, and made it a door): the tag is used up by its door
+            # a tag on a plain text layer is used up by the door of its width it stands nearest. 6 Nov 2026 (real10:
+            # an '80/210' on the layer TEXT beside its 0.80 m door went on to the next opening within reach, a 0.70 m
+            # window 1.2 m away, and made it a door). A tag on a door or joinery layer goes on past such a door to its
+            # own gap, as before (real07: a '90/210' nearer the next door than its own gap)
             taken.add(j)
             continue
         ev = dict(t.evidence[0]) if t.evidence else {}

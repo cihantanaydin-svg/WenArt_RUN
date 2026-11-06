@@ -348,6 +348,20 @@ def test_a_tag_beside_its_own_door_is_used_up_by_it():
     assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [door, gap_win], [tag], 1.0) is None
 
 
+def test_a_door_layer_tag_goes_past_a_neighbour_door_of_its_width_to_its_own_gap():
+    """real07 (the regression set): a '90/210' on the joinery layer stands nearer the next door, already 0.90 m, than
+    its own 1.10 m gap; the gap is its door, as before."""
+    from wenart.ingest.generic import core as C
+    from wenart.ingest.model import OpeningItem
+
+    door = OpeningItem(kind="door", width=0.9, center=(3.0, 3.3), rotation_deg=0.0, box=[0, 0, 1, 1], entity="d",
+                       evidence={})
+    gap = OpeningItem(kind="opening", width=1.1, center=(3.79, 2.79), rotation_deg=90.0, box=[0, 0, 1, 1],
+                      entity="g", evidence={}, type_raw="unclassified gap content")
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [door, gap], [_tag("90/210", 3.3, 2.9, "kapi-yazi")], 1.0)
+    assert got[1].kind == "door" and got[1].width == pytest.approx(0.9)
+
+
 def test_a_door_high_tag_on_a_door_layer_decides_door_over_a_drawn_window_of_its_width():
     """real16 L1: the shower rooms' '80/220' (layer kapi-yazi) beside a 0.68 m 'window' (the closed leaf's lines in the
     wall); a 1.50 m window beside the same tag keeps its kind."""
