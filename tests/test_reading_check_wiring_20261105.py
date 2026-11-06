@@ -26,3 +26,16 @@ def test_write_renders_advisory_info_findings_and_keeps_the_verdict(tmp_path):
     assert "| RC8 elevation openings against the plan (advisory) | info |" in md
     assert md.index("| RC3 ") < md.index("| RC8 elevation openings against the plan (advisory) | major |")
     assert json.loads((d / "reading_check.json").read_text(encoding="utf-8"))["counts"]["advisory"]["info"] == 1
+
+
+def test_source_dxf_finds_the_projects_own_dxf(tmp_path):
+    """6 Nov 2026: a DXF project has no converted/ copy; the project's own DXF is the drawing."""
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "building.json").write_text(json.dumps({"project": {"id": "synthetic-16-open-recess"}}), encoding="utf-8")
+    from pathlib import Path
+    dxfs = sorted(Path(RC.__file__).resolve().parents[2].joinpath("projects", "synthetic-16-open-recess").glob("*.dxf"))
+    assert dxfs, "synthetic-16 ships a DXF"
+    assert RC.source_dxf(out, dxfs[0].name) == dxfs[0]
+    assert RC.source_dxf(out, "missing.dxf") is None
+    assert RC.source_dxf(out, "plan.dwg") is None

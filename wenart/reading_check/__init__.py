@@ -91,13 +91,32 @@ def level_pages(building: dict) -> dict:
 
 
 def source_dxf(out_dir: Path, file_rel: Optional[str]) -> Optional[Path]:
-    """The converted DXF of a CAD document in the pipeline output (``converted/<stem>.dxf``), else the DXF itself."""
+    """The converted DXF of a CAD document in the pipeline output (``converted/<stem>.dxf``), else the DXF itself.
+
+    6 Nov 2026 (found by the out-of-sample calibration of RC14): a project drawn in DXF has no ``converted/`` copy, and
+    this returned None for it, so every check that reads the drawing (RC2 stacking, RC4/RC5 walls, RC14's text rules)
+    was silent on DXF projects. Now the project's own DXF is used: ``file_rel`` is relative to the project folder,
+    found from ``building.json``'s project id under ``projects/`` (or ``file_rel`` itself when it exists)."""
     if not file_rel:
         return None
     stem = Path(file_rel).stem
     cand = Path(out_dir) / "converted" / f"{stem}.dxf"
     if cand.is_file():
         return cand
+    if Path(file_rel).suffix.lower() != ".dxf":
+        return None
+    own = Path(file_rel)
+    if own.is_absolute() and own.is_file():
+        return own
+    try:
+        building = json.loads((Path(out_dir) / "building.json").read_text(encoding="utf-8"))
+        project = (building.get("project") or {}).get("id")
+    except (OSError, ValueError):
+        project = None
+    if project:
+        cand = Path(__file__).resolve().parents[2] / "projects" / project / file_rel
+        if cand.is_file():
+            return cand
     return None
 
 
