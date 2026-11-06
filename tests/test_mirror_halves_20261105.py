@@ -2,8 +2,8 @@
 other side): a plan is two mirrored halves only when the layout inside the building's shell is mirrored, not only the
 shell. Review of 5 Nov 2026: a garden wall all round the house or a terrace parapet must not make a single house look
 mirrored, walls on the axis (their own mirror) are no proof, one wall read too thick or one wall missing must not
-refuse two mirrored flats, the core is left out, labels of the same room family agree, and a mirror copy that the
-reader no longer makes never shifts another element's id. CPU only: hand-made walls, and the synthetic-19 house read
+refuse two mirrored flats, the core is left out, labels of the same room family agree, and the user's corrections
+stand on the reading's elements by place. CPU only: hand-made walls, and the synthetic-19 house read
 through the pipeline with a garden wall or a parapet added (the reviewers' variants)."""
 from __future__ import annotations
 
@@ -112,6 +112,46 @@ def test_an_opening_is_never_copied_onto_itself():
     assert res is None                                   # nothing to copy
 
 
+def _window(x, w=1.0, ent="LINE:w"):
+    return OpeningItem(kind="window", width=w, center=(x, 0.0), rotation_deg=0.0, box=[], entity=ent,
+                       evidence={"method": "vector"})
+
+
+def test_a_copy_never_lands_on_an_opening_of_its_wall_nor_on_drawn_solid_wall():
+    """Review of 5 Nov 2026 (real11 L-1: a 1.5 m opening copied onto the outer wall over its drawn window, where the
+    drawing has solid wall): the openings step refuses a copy whose span overlaps an opening of the host wall, and a
+    copy whose span has the wall's two faces drawn continuous; each refusal is a log line."""
+    from types import SimpleNamespace
+
+    walls = _walls(SHELL + PARTY + FLAT_L + FLAT_R)
+    # the left window at 2.5 m; its mirror at 17.5 m
+    w5, o5, log = MR.consistency(walls, [_window(2.5)], ("x", 10.0), steps=("openings",))
+    assert [o.center for o in o5 if "mirror_twin" in o.entity] == [(17.5, 0.0)]
+    # a drawn 1.4 m window at 18.4 m already holds part of that span (centre 0.9 m off: no twin by the centre rule)
+    res = MR.consistency(walls, [_window(2.5), _window(18.4, 1.4, "LINE:x")], ("x", 10.0), steps=("openings",))
+    assert res is not None and res[2] and all(e.startswith("refused") and "overlap" in e for e in res[2])
+    assert not any("mirror_twin" in o.entity for o in res[1])
+    # an inferred (guessed) window there is replaced by the copy, as at the centre (real09's balcony door)
+    guess = _window(18.4, 1.4, "LINE:g")
+    guess.evidence, guess.inferred = {"method": "inferred"}, True
+    res = MR.consistency(walls, [_window(2.5), guess], ("x", 10.0), steps=("openings",))
+    assert [o.entity for o in res[1]] == ["LINE:w", "inferred:mirror_twin:LINE:w"]
+    # the drawing has solid wall there: the bottom wall's own lines (LINE:0) run along both faces over 16-19 m
+    faces = [SimpleNamespace(id="LINE:0", pts=[(16.0, y), (19.0, y)]) for y in (-0.15, 0.15)]
+    res = MR.consistency(walls, [_window(2.5)], ("x", 10.0), steps=("openings",), strokes=faces)
+    assert res is not None and any("solid wall" in e for e in res[2])
+    assert not any("mirror_twin" in o.entity for o in res[1])
+    # lines that are not the wall's own (a window frame drawn along the faces) say nothing: the copy is made
+    frames = [SimpleNamespace(id="LINE:frame", pts=[(16.0, y), (19.0, y)]) for y in (-0.15, 0.15)]
+    res = MR.consistency(walls, [_window(2.5)], ("x", 10.0), steps=("openings",), strokes=frames)
+    assert [o.center for o in res[1] if "mirror_twin" in o.entity] == [(17.5, 0.0)]
+    # a real gap: the wall's face lines stop at the jambs (17.0 and 18.0): the copy is made
+    jambs = [SimpleNamespace(id="LINE:0", pts=[(14.0, y), (17.0, y)]) for y in (-0.15, 0.15)] + \
+        [SimpleNamespace(id="LINE:0", pts=[(18.0, y), (19.0, y)]) for y in (-0.15, 0.15)]
+    res = MR.consistency(walls, [_window(2.5)], ("x", 10.0), steps=("openings",), strokes=jambs)
+    assert [o.center for o in res[1] if "mirror_twin" in o.entity] == [(17.5, 0.0)]
+
+
 @pytest.fixture(scope="module")
 def variants(tmp_path_factory):
     """The reviewers' synthetic-19 variants (gen19.py): a garden wall all round, and a front terrace parapet with a
@@ -151,7 +191,7 @@ def test_the_reviewers_variants_get_nothing_mirrored(variants, name):
                    for o in ops for q in ops)
 
 
-# --- the user's corrections keep naming their elements (stable mirror-copy ids, 5 Nov 2026) ------------------------
+# --- the user's corrections stand on the reading's elements by place (5 Nov 2026) ---------------------------------
 
 ID_FIXTURE = ROOT / "tests" / "fixtures" / "reading_ids.json"
 CORRECTED = ("real06", "real07", "real10")
@@ -163,46 +203,51 @@ def _named(project: str) -> list[tuple]:
             for e in v if e.get("source") == "user_correction" and not e.get("absent")]
 
 
-def _near(kind: str, truth_el: dict, read_el: dict) -> bool:
-    from wenart.reading_check import score as SC
-    if kind == "walls":
-        return all(min(math.dist(truth_el[a], read_el[b]) for b in ("start", "end")) <= SC.WALL_LATERAL_M
-                   for a in ("start", "end"))
-    tol = {"rooms": SC.ROOM_CENTROID_M, "stairs": SC.STAIR_CENTER_M}.get(kind, SC.OPENING_CENTER_M)
-    f = "centroid" if kind == "rooms" else "center"
-    return math.dist(truth_el[f], read_el[f]) <= tol
-
-
-def _check(project: str, read: dict) -> list:
-    """The user_correction elements of the truth with no reading element of the same id within the score's
-    tolerance of its place (``read``: ``{(level, id): element}``)."""
+def _unplaced(project: str, read: dict) -> list:
+    """The user_correction elements of the truth with no reading element at their place (the score's rules,
+    ``truth.same_place_pairs``; doors, windows and openings as one class; ``read``: ``{(level, type): [elements]}``)."""
+    from wenart.reading_check import truth as TR
+    ops = ("doors", "windows", "openings")
     bad = []
     for lid, kind, e in _named(project):
-        r = read.get((lid, e["id"]))
-        if r is None or not _near(kind, e, r):
-            bad.append((lid, kind, e["id"], e.get("correction")))
+        # a retype (the reader's opening is the user's door) stands on the reading's element of another opening class
+        cands = [c for k in ops for c in read.get((lid, k)) or []] if kind in ops else read.get((lid, kind)) or []
+        if not TR.same_place_pairs("openings" if kind in ops else kind, [e], cands):
+            bad.append((lid, kind, e["id"], e.get("reader_id"), e.get("correction")))
     return bad
 
 
 @pytest.mark.parametrize("project", CORRECTED)
-def test_every_user_corrected_element_keeps_its_id(project):
-    """Every user_correction element of the truth names an element of the branch's reading (the fixture: its ids and
-    places, ``tests/fixtures/reading_ids.json``) at its place, within the score's tolerance: a change of the reader's
-    numbering never leaves a correction on an empty or a different element (real10 C0043 moved from o_Lk_033/034 to
-    o_Lk_030/031 with the stable mirror-copy ids; scripts/migrate_reading_ids.py renamed them)."""
+def test_every_user_corrected_element_stands_on_a_reading_element(project):
+    """Every user_correction element of the truth has an element of the branch's reading of its class at its place
+    (the fixture ``tests/fixtures/reading_ids.json``: the reading's elements at those places). The truth's identity is
+    the place (``truth.same_place_pairs``), so a renumbering of the reader's ids never leaves a correction on an empty
+    or a different element; the reader's id is only a hint (``reader_id``)."""
     rows = json.loads(ID_FIXTURE.read_text(encoding="utf-8"))["projects"][project]
-    read = {(r["level"], r["id"]): r for r in rows}
-    assert _check(project, read) == []
+    read: dict = {}
+    for r in rows:
+        read.setdefault((r["level"], r["kind"]), []).append(r)
+    assert _unplaced(project, read) == []
 
 
 @pytest.mark.slow
 @pytest.mark.parametrize("project", CORRECTED)
-def test_user_corrected_ids_on_a_fresh_reading(project, tmp_path):
+def test_user_corrected_elements_on_a_fresh_reading(project, tmp_path):
     """The same on a fresh CPU reading of the project (minutes; real10 about 15)."""
     from wenart.ingest import pipeline as PL
     from wenart.reading_check import truth as TR
 
     b = PL.run_project(ROOT / "projects" / project, tmp_path / project, no_ai=True)[0]
-    read = {(lid, e["id"]): e for lid, lv in TR.extract(b)["per_level"].items() for v in lv.values()
-            if isinstance(v, list) for e in v}
-    assert _check(project, read) == []
+    read = {(lid, t): els for lid, lv in TR.extract(b)["per_level"].items() for t, els in lv.items()
+            if isinstance(els, list)}
+    assert _unplaced(project, read) == []
+
+
+def test_the_audit_finds_mirror_copy_ids():
+    """The audit's opening ids include the mirror copies' own numbers (d_L0_m001, o_L-1_m002)."""
+    from wenart.audit import calls as CA
+    from wenart.audit import consistency as CO
+
+    text = "doors d_L0_m001 and d_L0_012, opening o_L-1_m002, window win_L1b_003"
+    for rx in (CA.OPENING_RE, CO.OPENING_RE):
+        assert rx.findall(text) == ["d_L0_m001", "d_L0_012", "o_L-1_m002", "win_L1b_003"]

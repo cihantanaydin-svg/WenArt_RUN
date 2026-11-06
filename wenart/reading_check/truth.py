@@ -84,9 +84,99 @@ COMMIT_FILE = "reading_check/commit.txt"
 UNKNOWN_COMMIT = "unknown"
 ROUND = 3                                   # millimetres: enough for the matching tolerances, keeps the files small
 REMOVE_TOL_M = {"rooms": 1.0, "doors": 0.30, "windows": 0.30, "openings": 0.30, "stairs": 1.0, "walls": 0.30}
+# 5 Nov 2026 (review: every reader improvement renumbers the reader's ids; an absent entry o_Lk_029 then negated the
+# real opening that inherited that id, and the file held one id for two elements): a truth element's identity is its
+# place, as in the score; its ``id`` is a truth id of its own (``t_L0_door_0012``), unique in the file, assigned once
+# and never reused (``next_truth_id``); the reader's id stays as a ``reader_id`` hint only.
+TRUTH_ID_PREFIX = "t_"
+TYPE_KIND = {"rooms": "room", "doors": "door", "windows": "window", "openings": "opening", "walls": "wall",
+             "stairs": "stair"}
 
 
 # --- small pure helpers ---------------------------------------------------------------------------------------------
+
+def is_truth_id(value) -> bool:
+    return isinstance(value, str) and value.startswith(TRUTH_ID_PREFIX)
+
+
+def _truth_id_number(value) -> int:
+    try:
+        return int(str(value).rsplit("_", 1)[1])
+    except (IndexError, ValueError):
+        return 0
+
+
+def next_truth_id(truth: dict, level: str, t: str) -> str:
+    """A new truth id for an element of type ``t`` on ``level`` (never one the file used before)."""
+    n = max(int(truth.get("next_truth_id") or 1), 1 + max(
+        (_truth_id_number(e.get("id")) for lv in (truth.get("per_level") or {}).values()
+         for els in lv.values() if isinstance(els, list) for e in els if is_truth_id(e.get("id"))), default=0))
+    truth["next_truth_id"] = n + 1
+    return f"{TRUTH_ID_PREFIX}{level}_{TYPE_KIND[t]}_{n:04d}"
+
+
+def ensure_truth_ids(truth: dict) -> dict:
+    """``truth`` with a truth id on every element (the elements of an older file keep their id as ``reader_id``, or
+    as ``old_id`` when it was an id the truth itself made, ``uc_...``); returns the same dict."""
+    for lid, lv in (truth.get("per_level") or {}).items():
+        for t in ELEMENT_TYPES:
+            for e in lv.get(t) or []:
+                if not is_truth_id(e.get("id")):
+                    old = e.get("id")
+                    if old and str(old).startswith("uc_"):
+                        e.setdefault("old_id", old)
+                    elif old and not e.get("reader_id"):
+                        e["reader_id"] = old
+                    e["id"] = next_truth_id(truth, lid, t)
+    return truth
+
+
+def records_to_truth_ids(truth: dict, records: list[dict], project: str, *, date: Optional[str] = None,
+                         reason: str = "truth ids by place, 5 Nov 2026") -> list[str]:
+    """The project's correction records moved to the truth's own ids (in place; the one-time move of 5 Nov 2026):
+    ``element_ids`` name the truth elements (a reader's id that names one becomes its truth id, the others stay as
+    they were), ``reader_ids`` keep the reader's ids as hints, ``truth_applied`` results name truth ids; a changed
+    record gets a ``history`` entry. A reader's id that names several truth elements (a retype: the negated opening
+    and the door) names those that carry the record's correction. Returns one line per change."""
+    elems = [(lid, t, e) for lid, lv in (truth.get("per_level") or {}).items() for t in ELEMENT_TYPES
+             for e in lv.get(t) or []]
+
+    def named(old_id, rid, level=None, t=None):
+        hits = [(lid, tt, e) for lid, tt, e in elems if old_id in (e.get("reader_id"), e.get("old_id"))
+                and (level is None or lid == level) and (t is None or tt == t)]
+        mine = [h for h in hits if rid in (h[2].get("corrections") or [])]
+        return mine or hits
+
+    lines = []
+    for rec in records:
+        if rec.get("project") != project or not rec.get("element_ids") or rec.get("reader_ids") is not None:
+            continue
+        old_ids = list(rec["element_ids"])
+        new_ids = []
+        for x in old_ids:
+            hits = named(x, rec.get("id"))
+            new_ids.extend(h[2]["id"] for h in hits if h[2]["id"] not in new_ids) if hits else new_ids.append(x)
+        applied = rec.get("truth_applied") or {}
+        for res in applied.get("results") or []:
+            hits = named(res.get("id"), rec.get("id"), res.get("level"), res.get("type"))
+            if hits:
+                res.setdefault("reader_id", res["id"])
+                res["id"] = hits[0][2]["id"]
+        rec["element_ids"], rec["reader_ids"] = new_ids, old_ids
+        rec.setdefault("history", []).append({"date": date or today(), "old_element_ids": old_ids, "reason": reason})
+        lines.append(f"{rec['id']}: {len(old_ids)} element ids -> {len(new_ids)} ids, "
+                     f"{sum(1 for i in new_ids if is_truth_id(i))} of them truth ids")
+    return lines
+
+
+def same_place_pairs(t: str, a: list, b: list) -> list:
+    """The ``(i, j)`` pairs of elements of ``a`` and ``b`` (one level, one type) that are the same element by place:
+    the score's own rules (``score.match_kind``: openings of one class by centre within ``OPENING_CENTER_M``, rooms by
+    label and centroid or polygon IoU, walls by centre-line overlap, stairs by centre), one to one."""
+    from wenart.reading_check import score as SC
+
+    return SC.match_kind(t, a, b)
+
 
 def norm_label(label: Optional[str]) -> str:
     """A room or level label normalised for matching: upper case, Turkish diacritics folded, letter-spaced words
@@ -382,30 +472,51 @@ def truth_of(project: str, building: dict, baseline: Optional[dict], *, numbers:
 
 
 def merge(existing: Optional[dict], new: dict) -> dict:
-    """``new`` with every protected element of ``existing`` kept (pure): elements and levels whose ``source`` is
-    ``user_correction`` or ``synthetic`` (when the new truth is not synthetic), and every ``absent`` negation; a new
-    element with a protected element's id gives way. The applied correction ids are kept too."""
-    if not existing:
-        return new
+    """``new`` (a reading's truth, ``extract``: the reader's ids) with every protected element of ``existing`` kept
+    (pure): elements and levels whose ``source`` is ``user_correction`` or ``synthetic`` (when the new truth is not
+    synthetic), and every ``absent`` negation. Identity is place, never the reader's id (``same_place_pairs``): a new
+    element gives way to a protected one only when they stand at the same place; a new element at the place of an
+    earlier accepted element takes that element's truth id; the others get new truth ids. Every element keeps the
+    reader's id as ``reader_id``. The applied correction ids and the truth id counter are kept too."""
     out = json.loads(json.dumps(new))
+    for lv in (out.get("per_level") or {}).values():
+        for t in ELEMENT_TYPES:
+            for e in lv.get(t) or []:
+                if not is_truth_id(e.get("id")):
+                    e["reader_id"] = e.get("reader_id") or e.get("id")
+                    e["id"] = None
+    if not existing:
+        out.pop("next_truth_id", None)
+        return ensure_truth_ids(out)
+    old = ensure_truth_ids(json.loads(json.dumps(existing)))
+    out["next_truth_id"] = int(old.get("next_truth_id") or 1)
     protect = tuple(s for s in PROTECTED_SOURCES if s != out.get("source"))
     kept = 0
     per = out.setdefault("per_level", {})
-    for lid, lv in (existing.get("per_level") or {}).items():
+    for lid, lv in (old.get("per_level") or {}).items():
+        target = per.get(lid)
         for t in ELEMENT_TYPES:
-            prot = [e for e in lv.get(t) or [] if e.get("absent") or e.get("source") in protect]
-            if not prot:
+            olds = lv.get(t) or []
+            prot = [e for e in olds if e.get("absent") or e.get("source") in protect]
+            rest = [e for e in olds if not (e.get("absent") or e.get("source") in protect)]
+            if target is None and not prot:
                 continue
-            target = per.setdefault(lid, {k: [] for k in ELEMENT_TYPES})
-            ids = {e.get("id") for e in prot if e.get("id")}
-            target[t] = [e for e in target.get(t) or [] if e.get("id") not in ids] + prot
+            if target is None:
+                target = per.setdefault(lid, {k: [] for k in ELEMENT_TYPES})
+            news = target.get(t) or []
+            gone = {j for _i, j in same_place_pairs(t, prot, news)}      # a new element gives way to a protected one
+            news = [e for j, e in enumerate(news) if j not in gone]
+            for i, j in same_place_pairs(t, rest, news):                  # the same element keeps its truth id
+                news[j]["id"] = rest[i]["id"]
+            target[t] = news + prot
             kept += len(prot)
         if lid not in {l["id"] for l in out.get("levels") or []}:
-            src_level = next((l for l in existing.get("levels") or [] if l["id"] == lid), None)
+            src_level = next((l for l in old.get("levels") or [] if l["id"] == lid), None)
             if src_level and (src_level.get("source") in protect or lid in per):
                 out["levels"].append(src_level)
                 per.setdefault(lid, {k: [] for k in ELEMENT_TYPES})
-    corrections = sorted(set(existing.get("corrections") or []) | set(out.get("corrections") or []))
+    ensure_truth_ids(out)
+    corrections = sorted(set(old.get("corrections") or []) | set(out.get("corrections") or []))
     if corrections:
         out["corrections"] = corrections
     if kept:
@@ -557,6 +668,41 @@ def element_from_fields(kind: str, fields: dict, *, source: str, correction: Opt
     return el
 
 
+def reading_element(building: dict, element_id: str, level: Optional[str] = None) -> Optional[tuple]:
+    """``(type, truth-shaped element)`` of the reading's element ``element_id`` (``extract``'s shape: its place and
+    kind), or None."""
+    if not building or not element_id:
+        return None
+    tr = extract(building)
+    for lid, lv in tr["per_level"].items():
+        if level is not None and lid != level:
+            continue
+        for t in ELEMENT_TYPES:
+            for e in lv.get(t) or []:
+                if e.get("id") == element_id:
+                    return t, e
+    return None
+
+
+def find_element(truth: dict, t: str, level: str, fields: dict, reading: Optional[dict] = None) -> Optional[dict]:
+    """The truth element ``fields`` names on ``level``: by its truth id; else, the reader's id resolved to its place
+    in ``reading`` (the reading the id was taken from) and found there by place (``same_place_pairs``); else, without
+    a reading, the element whose ``reader_id`` hint is that id (the positive one first). None when nothing matches."""
+    bucket = ((truth.get("per_level") or {}).get(level) or {}).get(t) or []
+    rid = fields.get("id")
+    if not rid:
+        return None
+    hit = next((e for e in bucket if e.get("id") == rid), None)
+    if hit is not None:
+        return hit
+    found = reading_element(reading, rid, level) if reading else None
+    if found is not None and found[0] == t:
+        pairs = same_place_pairs(t, bucket, [found[1]])
+        return bucket[pairs[0][0]] if pairs else None
+    hints = [e for e in bucket if e.get("reader_id") == rid]
+    return next((e for e in hints if not e.get("absent")), hints[0] if hints else None)
+
+
 def _ensure_level(truth: dict, level: str, *, source: str, label: Optional[str] = None,
                   elevation: Optional[float] = None, order: Optional[int] = None) -> dict:
     """The level entry of ``level`` in ``truth``, created with ``source`` when the truth has none."""
@@ -639,11 +785,12 @@ def confirm_element(kind: str, existing: dict, fields: dict, *, source: str = SO
 
 
 def add_element(truth: dict, kind: str, level: str, fields: dict, *, source: str = SOURCE_USER,
-                correction: Optional[str] = None, date: Optional[str] = None) -> dict:
+                correction: Optional[str] = None, date: Optional[str] = None, reading: Optional[dict] = None) -> dict:
     """``truth`` with an element (or, ``kind == "level"``, a level) added by the user (pure in the sense that it
     returns the changed dict it was given); the element is returned in ``truth["last_added"]``. When the truth
-    already holds an element of that kind with the given ``id`` (the reading's own element), it is confirmed
-    (``confirm_element``): kept exactly, only its source and correction ids change, unless a given field differs."""
+    already holds the element the given ``id`` names (``find_element``: a truth id, or the reader's id resolved to
+    its place in ``reading``), it is confirmed (``confirm_element``): kept exactly, only its source and correction ids
+    change, unless a given field differs. A new element gets a truth id; a reader's id stays as ``reader_id``."""
     if kind == "level":
         lv = _ensure_level(truth, level, source=source, label=fields.get("label"),
                            elevation=float(fields["elevation"]) if fields.get("elevation") is not None else None,
@@ -656,14 +803,26 @@ def add_element(truth: dict, kind: str, level: str, fields: dict, *, source: str
         t = KIND_TO_TYPE[kind]
         _ensure_level(truth, level, source=source)
         bucket = truth["per_level"].setdefault(level, {k: [] for k in ELEMENT_TYPES}).setdefault(t, [])
-        existing = next((i for i, e in enumerate(bucket) if fields.get("id") and e.get("id") == fields["id"]), None)
+        hit = find_element(truth, t, level, fields, reading)
+        existing = next((i for i, e in enumerate(bucket) if e is hit), None)
         if existing is not None:                 # a confirm (or a retype) of the reading's own element: kept exactly
-            el = confirm_element(kind, bucket[existing], fields, source=source, correction=correction, date=date)
+            el = confirm_element(kind, bucket[existing], {k: v for k, v in fields.items() if k != "id"},
+                                 source=source, correction=correction, date=date)
             bucket[existing] = el
         else:
-            el = element_from_fields(kind, fields, source=source, correction=correction, date=date)
-            if not el.get("id"):
-                el["id"] = f"uc_{level}_{kind}_{sum(1 for e in bucket if e.get('source') == SOURCE_USER) + 1:03d}"
+            given = dict(fields)
+            found = reading_element(reading, fields.get("id"), level) if reading and fields.get("id") else None
+            if found is not None and found[0] == t:          # the reading's element: its place and size
+                src = found[1]
+                for key in ("center", "width", "wall_id", "start", "end", "thickness", "label", "room_type", "area",
+                            "polygon"):
+                    slot = "centroid" if key == "center" and t == "rooms" else key
+                    if given.get(key) in (None, "") and src.get(slot) is not None:
+                        given[key] = src[slot]
+            el = element_from_fields(kind, given, source=source, correction=correction, date=date)
+            if fields.get("id") and not is_truth_id(fields["id"]):
+                el["reader_id"] = fields["id"]
+            el["id"] = next_truth_id(truth, level, t)
             _with_correction(el, correction)
             _annotate(el, fields)
             bucket.append(el)
@@ -674,10 +833,11 @@ def add_element(truth: dict, kind: str, level: str, fields: dict, *, source: str
 
 
 def remove_element(truth: dict, kind: str, level: str, fields: dict, *, source: str = SOURCE_USER,
-                   correction: Optional[str] = None, date: Optional[str] = None) -> dict:
-    """``truth`` with an element negated: the element named by ``id`` or found within ``REMOVE_TOL_M`` of the given
-    place is marked ``absent: true`` (its geometry kept, so a reading that has it is penalised); when the truth has
-    none there, a new absent entry is made from the fields. Returned in ``truth["last_removed"]``."""
+                   correction: Optional[str] = None, date: Optional[str] = None, reading: Optional[dict] = None) -> dict:
+    """``truth`` with an element negated: the element ``id`` names (``find_element``: a truth id, or the reader's id
+    resolved to its place in ``reading``) or the one found within ``REMOVE_TOL_M`` of the given place is marked
+    ``absent: true`` (its geometry kept, so a reading that has it is penalised); when the truth has none there, a new
+    absent entry with a truth id is made from the fields. Returned in ``truth["last_removed"]``."""
     if kind not in KIND_TO_TYPE:
         raise ValueError(f"kind {kind!r}: one of {', '.join(KIND_TO_TYPE)}")
     t = KIND_TO_TYPE[kind]
@@ -685,7 +845,7 @@ def remove_element(truth: dict, kind: str, level: str, fields: dict, *, source: 
     bucket = truth["per_level"].setdefault(level, {k: [] for k in ELEMENT_TYPES}).setdefault(t, [])
     target = None
     if fields.get("id"):
-        target = next((e for e in bucket if e.get("id") == fields["id"]), None)
+        target = find_element(truth, t, level, fields, reading)
     else:
         probe = element_from_fields(kind, fields, source=source, correction=correction, date=date)
         anchor = _anchor(t, probe)
@@ -693,9 +853,7 @@ def remove_element(truth: dict, kind: str, level: str, fields: dict, *, source: 
                 if _anchor(t, e) and (d := _dist(_anchor(t, e), anchor)) <= REMOVE_TOL_M[t]]
         target = min(near, key=lambda de: de[0])[1] if near else None
         if target is None:
-            prefix = f"uc_{level}_{kind}_absent_"
-            n = sum(1 for e in bucket if str(e.get("id") or "").startswith(prefix)) + 1
-            target = dict(probe, id=probe.get("id") or f"{prefix}{n:03d}")
+            target = dict(probe, id=next_truth_id(truth, level, t))
             bucket.append(target)
     if target is None:
         raise ValueError(f"no {kind} {fields.get('id')} on {level} in the truth")
@@ -812,15 +970,21 @@ def main(args) -> int:
                                                       "width", "wall_id", "start", "end", "thickness", "size",
                                                       "turn", "elevation", "order")}
         fn = add_element if args.action == "add" else remove_element
+        reading_b = None
+        if getattr(args, "reading", None):
+            rp = Path(args.reading)
+            rp = rp / "building.json" if rp.is_dir() else rp
+            reading_b = json.loads(rp.read_text(encoding="utf-8"))
         try:
             truth = fn(truth, args.kind, args.level, fields, source=args.source or SOURCE_USER,
-                       correction=args.correction, date=args.date)
+                       correction=args.correction, date=args.date, reading=reading_b)
         except (ValueError, KeyError) as exc:
             print(f"reading truth {args.action}: {exc}")
             return 2
         el = truth.pop("last_added", None) or truth.pop("last_removed", None)
         path = write_truth(args.project, truth)
-        print(f"{args.project}: {args.kind} {el.get('id')} {'negated (absent)' if args.action == 'remove' else 'added'}"
+        print(f"{args.project}: {args.kind} {el.get('id')} (reader id {el.get('reader_id') or '-'}) "
+              f"{'negated (absent)' if args.action == 'remove' else 'added'}"
               f" on {args.level} ({el.get('source')}, correction {args.correction or '-'}) -> {path.relative_to(REPO)}")
         return 0
     print(f"reading truth: unknown action {args.action}")

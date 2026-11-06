@@ -215,19 +215,25 @@ def test_a_build_never_overwrites_a_user_correction_or_a_synthetic_element():
     existing["corrections"] = ["C0012", "C0013"]
     merged = TR.merge(existing, new)
     l0 = merged["per_level"]["L0"]
-    assert [d["id"] for d in l0["doors"]] == ["d_L0_001", "uc_L0_door_001"]
+    # 5 Nov 2026: every element has a truth id of its own; the reader's id (or the old uc_ id) stays as a hint
+    assert [d.get("reader_id") or d.get("old_id") for d in l0["doors"]] == ["d_L0_001", "uc_L0_door_001"]
+    assert all(TR.is_truth_id(e["id"]) for lv in merged["per_level"].values() for els in lv.values() for e in els)
     assert l0["windows"][0]["absent"] is True and len(l0["windows"]) == 1          # the negation wins over the new
     assert [lv["id"] for lv in merged["levels"]] == ["L0", "L1", "L2"] and merged["per_level"]["L2"]["rooms"]
     assert merged["corrections"] == ["C0012", "C0013"] and merged["kept_from_previous"] == 3
-    assert TR.merge(None, new) is new
-    # a synthetic element is protected against an accepted-reading build (the same id: the synthetic one wins),
+    first = TR.merge(None, new)
+    assert all(TR.is_truth_id(d["id"]) for d in first["per_level"]["L0"]["doors"]) and \
+        [d["reader_id"] for d in first["per_level"]["L0"]["doors"]] == ["d_L0_001"]
+    # a synthetic element is protected against an accepted-reading build (the same place: the synthetic one wins),
     # not against a synthetic one
     syn = TR.extract(building(), project="tiny", source="synthetic")
     walls = TR.merge(syn, new)["per_level"]["L0"]["walls"]
     assert len(walls) == 3 and {w["source"] for w in walls} == {"synthetic"}
     new_only = copy.deepcopy(new)
-    new_only["per_level"]["L0"]["walls"][0]["id"] = "w_L0_new"
-    assert len(TR.merge(syn, new_only)["per_level"]["L0"]["walls"]) == 4     # 1 new id + 3 protected synthetic
+    new_only["per_level"]["L0"]["walls"][0]["id"] = "w_L0_new"              # another id, the same place: the same wall
+    assert len(TR.merge(syn, new_only)["per_level"]["L0"]["walls"]) == 3
+    new_only["per_level"]["L0"]["walls"][0].update(start=[0, 9], end=[10, 9])  # another place: a new wall
+    assert len(TR.merge(syn, new_only)["per_level"]["L0"]["walls"]) == 4     # 1 new + 3 protected synthetic
     assert len(TR.merge(syn, syn)["per_level"]["L0"]["walls"]) == 3 and "kept_from_previous" not in TR.merge(syn, syn)
 
 
@@ -237,14 +243,14 @@ def test_add_and_remove_put_a_user_correction_into_the_truth():
     TR.add_element(t, "door", "L0", {"center": "4.2,3.6", "width": "0.9", "wall_id": "w_L0_007"},
                    correction="C0012", date="2026-11-05")
     d = t["last_added"]
-    assert d["id"] == "uc_L0_door_001" and d["center"] == [4.2, 3.6] and d["width"] == 0.9
+    assert d["id"] == "t_L0_door_0001" and d["center"] == [4.2, 3.6] and d["width"] == 0.9
     assert d["source"] == "user_correction" and d["correction"] == "C0012" and d["method"] == "user"
     assert [lv["id"] for lv in t["levels"]] == ["L0"] and t["levels"][0]["source"] == "user_correction"
     assert t["corrections"] == ["C0012"]
     TR.add_element(t, "room", "L0", {"label": "Merdiven", "room_type": "stair", "polygon": "0,0;3,0;3,4;0,4"},
                    correction="C0006")
     r = t["last_added"]
-    assert r["centroid"] == [1.5, 2.0] and r["polygon"][2] == [3.0, 4.0] and r["id"] == "uc_L0_room_001"
+    assert r["centroid"] == [1.5, 2.0] and r["polygon"][2] == [3.0, 4.0] and r["id"] == "t_L0_room_0002"
     TR.add_element(t, "wall", "L0", {"start": "0,0", "end": "6,0", "thickness": "0.25"})
     TR.add_element(t, "stair", "L0", {"center": "1.5,2", "size": "2.6,2.2", "turn": "U"})
     TR.add_element(t, "level", "L1", {"label": "1. Normal Kat", "elevation": "3.0", "order": "1"}, correction="C0005")
@@ -256,14 +262,14 @@ def test_add_and_remove_put_a_user_correction_into_the_truth():
     with pytest.raises(ValueError):
         TR.add_element(t, "sofa", "L0", {"center": "1,1"})
     # remove: by id, by place (within the tolerance), or a new absent entry
-    TR.remove_element(t, "door", "L0", {"id": "uc_L0_door_001"}, correction="C0020")
+    TR.remove_element(t, "door", "L0", {"id": "t_L0_door_0001"}, correction="C0020")
     assert t["last_removed"]["absent"] is True and t["last_removed"]["correction"] == "C0020"
     assert TR.counts(t)["doors"] == 0 and len(t["per_level"]["L0"]["doors"]) == 1
     TR.add_element(t, "window", "L0", {"center": "3,0", "width": "1.5"})
     TR.remove_element(t, "window", "L0", {"center": "3.2,0.1"})                   # 0.22 m: the same window
     assert len(t["per_level"]["L0"]["windows"]) == 1 and t["per_level"]["L0"]["windows"][0]["absent"] is True
     TR.remove_element(t, "window", "L0", {"center": "9,0"}, correction="C0021")   # nothing there: a new negation
-    assert len(t["per_level"]["L0"]["windows"]) == 2 and t["last_removed"]["id"] == "uc_L0_window_absent_001"
+    assert len(t["per_level"]["L0"]["windows"]) == 2 and TR.is_truth_id(t["last_removed"]["id"])
     assert t["corrections"] == ["C0005", "C0006", "C0012", "C0020", "C0021"]
     # the score penalises a reading that has the negated door and misses nothing else
     read = {"levels": [{"id": "L0"}, {"id": "L1"}],
@@ -495,15 +501,15 @@ def test_every_correction_record_is_placed_or_says_why_and_the_applied_ones_are_
     assert not real06.get("corrections") and all(
         e["source"] == TR.SOURCE_ACCEPTED for lv in real06["per_level"].values() for els in lv.values() for e in els)
     # C0047: one door at the drawn centre (the DXF jambs 5.34 and 6.14), the size tag's second door a double read
-    doors = {e["id"]: e for e in TR.load_truth("real07")["per_level"]["L0"]["doors"]}
+    doors = {e.get("reader_id"): e for e in TR.load_truth("real07")["per_level"]["L0"]["doors"]}
     assert doors["d_L0_002"]["center"] == [5.74, 2.19] and doors["d_L0_002"]["width"] == 0.8
     assert doors["d_L0_002"]["evidence"] and not doors["d_L0_002"].get("absent")
     assert doors["d_L0_001"]["absent"] is True and "double read" in doors["d_L0_001"]["note"]
     # C0034: one lift door per floor, the south one; the reading's east one negated with the drawing's evidence
     real10 = TR.load_truth("real10")
     for lv in ("L0", "L1", "L2", "L3", "L4", "L5", "L6"):
-        lift = [e for e in real10["per_level"][lv]["doors"] if e["id"] in (f"o_{lv}_006", f"o_{lv}_019")]
-        assert sorted((e["id"], bool(e.get("absent"))) for e in lift) == [(f"o_{lv}_006", False),
+        lift = [e for e in real10["per_level"][lv]["doors"] if e.get("reader_id") in (f"o_{lv}_006", f"o_{lv}_019")]
+        assert sorted((e["reader_id"], bool(e.get("absent"))) for e in lift) == [(f"o_{lv}_006", False),
                                                                          (f"o_{lv}_019", True)]
         assert any(ev["layer"] == "kolon" for ev in next(e for e in lift if e.get("absent"))["evidence"])
 

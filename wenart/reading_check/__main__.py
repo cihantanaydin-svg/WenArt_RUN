@@ -62,7 +62,9 @@ def main(argv=None) -> int:
                    help="add/remove: the element's source (default user_correction)")
     t.add_argument("--correction", default=None, help="add/remove: the correction record id (C0012)")
     t.add_argument("--date", default=None, help="add/remove: the date of the correction (default today)")
-    t.add_argument("--id", default=None, help="add/remove: the element id (remove: the element to negate)")
+    t.add_argument("--id", default=None, help="add/remove: the element: a truth id (t_L0_door_0012), or the reader's "
+                                             "id in --reading (resolved to its place; kept as reader_id)")
+    t.add_argument("--reading", default=None, help="add/remove: the reading (folder or building.json) --id is from")
     t.add_argument("--center", default=None, help="x,y in building metres (door, window, opening, stair, room)")
     t.add_argument("--width", default=None, help="door / window / opening width in metres")
     t.add_argument("--wall-id", dest="wall_id", default=None)

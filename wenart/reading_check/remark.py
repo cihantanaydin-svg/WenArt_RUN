@@ -323,7 +323,7 @@ def add(args, corrections: Path = CORRECTIONS_PATH, crop_dir: Path = CROP_DIR):
     if building is not None:
         lines = (drawing_lines(args.out, building, rec["level"], rec["place"])
                  if getattr(args, "drawing", False) else None)
-        crop = draw_crop(building, rec["level"], rec["place"], rec.get("element_ids", []),
+        crop = draw_crop(building, rec["level"], rec["place"], rec.get("reader_ids") or rec.get("element_ids", []),
                          Path(crop_dir) / f"{rec['id']}.png", lines=lines)
     save(corrections, records + [rec])
     return rec, crop
@@ -339,8 +339,9 @@ def redo(rid: str, place: dict, corrections: Path = CORRECTIONS_PATH, crop_dir: 
     rec["place"] = place
     crop = None
     if building is not None:
-        crop = draw_crop(building, rec.get("level"), place, rec.get("element_ids", []), Path(crop_dir) / f"{rid}.png",
-                         lines=lines)
+        # the reading's ids (``reader_ids``, 5 Nov 2026) name its elements; ``element_ids`` may be the truth's ids
+        crop = draw_crop(building, rec.get("level"), place, rec.get("reader_ids") or rec.get("element_ids", []),
+                         Path(crop_dir) / f"{rid}.png", lines=lines)
     save(corrections, records)
     return rec, crop
 

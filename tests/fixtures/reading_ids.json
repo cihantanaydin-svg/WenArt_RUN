@@ -1,48 +1,122 @@
 {
- "note": "The reading's elements (id, kind, place) that the user_correction entries of results/reading_truth/ name (real06, real07, real10; the CPU reading of 5 Nov 2026 with stable mirror-copy ids). Rebuilt by tests/test_mirror_halves_20261105.py::test_user_corrected_ids_on_a_fresh_reading (slow).",
+ "note": "The branch reading's elements (truth-shaped: kind, place, label, reader id) at the places of the user_correction entries of results/reading_truth/ (real06, real07, real10; the CPU reading of 6 Nov 2026). Rebuilt from a fresh reading by tests/test_mirror_halves_20261105.py::test_user_corrected_elements_on_a_fresh_reading (slow).",
  "projects": {
   "real06": [],
   "real07": [
    {
     "level": "L0",
     "kind": "doors",
-    "id": "d_L0_002",
+    "reader_id": "d_L0_002",
     "center": [
      5.815,
      2.19
-    ]
+    ],
+    "width": 0.85,
+    "type": "door"
    },
    {
     "level": "L0",
     "kind": "doors",
-    "id": "o_L0_014",
+    "reader_id": "o_L0_014",
     "center": [
      2.03,
      0.24
-    ]
+    ],
+    "width": 3.41,
+    "type": "door"
    },
    {
     "level": "L0",
     "kind": "rooms",
-    "id": "r_L0_garaj",
+    "reader_id": "r_L0_garaj",
+    "label": "Garaj",
     "centroid": [
      1.993,
      3.47
+    ],
+    "polygon": [
+     [
+      0.28,
+      0.78
+     ],
+     [
+      0.33,
+      0.78
+     ],
+     [
+      0.33,
+      0.34
+     ],
+     [
+      3.7,
+      0.34
+     ],
+     [
+      3.7,
+      6.599
+     ],
+     [
+      0.33,
+      6.599
+     ],
+     [
+      0.33,
+      6.2
+     ],
+     [
+      0.28,
+      6.2
+     ]
     ]
    },
    {
     "level": "L0",
     "kind": "rooms",
-    "id": "r_L0_kat_kal",
+    "reader_id": "r_L0_kat_kal",
+    "label": "Kat Kal.",
     "centroid": [
      5.09,
      1.207
+    ],
+    "polygon": [
+     [
+      3.88,
+      0.38
+     ],
+     [
+      6.2,
+      0.38
+     ],
+     [
+      6.2,
+      2.1
+     ],
+     [
+      4.58,
+      2.1
+     ],
+     [
+      4.58,
+      2.14
+     ],
+     [
+      4.34,
+      2.14
+     ],
+     [
+      4.34,
+      1.64
+     ],
+     [
+      3.88,
+      1.64
+     ]
     ]
    },
    {
     "level": "L0",
     "kind": "stairs",
-    "id": "f_L0_012",
+    "reader_id": "f_L0_012",
     "center": [
      8.668,
      4.541
@@ -51,19 +125,48 @@
    {
     "level": "L1",
     "kind": "openings",
-    "id": "o_L1_005",
+    "reader_id": "o_L1_005",
     "center": [
      7.542,
      8.14
-    ]
+    ],
+    "width": 0.72,
+    "type": "opening"
    },
    {
     "level": "L1",
     "kind": "rooms",
-    "id": "r_L1_giyinme_soyunma",
+    "reader_id": "r_L1_giyinme_soyunma",
+    "label": "Giyinme-soyunma",
     "centroid": [
      6.695,
      9.634
+    ],
+    "polygon": [
+     [
+      5.932,
+      7.68
+     ],
+     [
+      7.452,
+      7.68
+     ],
+     [
+      7.452,
+      11.6
+     ],
+     [
+      5.982,
+      11.6
+     ],
+     [
+      5.982,
+      11.2
+     ],
+     [
+      5.932,
+      11.2
+     ]
     ]
    }
   ],
@@ -71,178 +174,857 @@
    {
     "level": "L-1",
     "kind": "doors",
-    "id": "d_L-1_001",
+    "reader_id": "d_L-1_001",
     "center": [
      11.19,
      1.915
-    ]
+    ],
+    "width": 2.4,
+    "type": "door"
    },
    {
     "level": "L-1",
     "kind": "doors",
-    "id": "d_L-1_022",
+    "reader_id": "d_L-1_022",
     "center": [
      15.314,
      6.49
-    ]
+    ],
+    "width": 0.973,
+    "type": "door"
    },
    {
     "level": "L-1",
     "kind": "doors",
-    "id": "d_L-1_023",
+    "reader_id": "d_L-1_023",
     "center": [
      8.741,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L-1",
     "kind": "doors",
-    "id": "d_L-1_024",
+    "reader_id": "d_L-1_024",
     "center": [
      13.641,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L-1",
     "kind": "rooms",
-    "id": "r_L-1_oda",
+    "reader_id": "r_L-1_oda",
+    "label": "Mutfak",
     "centroid": [
      14.755,
      4.228
+    ],
+    "polygon": [
+     [
+      13.39,
+      2.07
+     ],
+     [
+      16.11,
+      2.07
+     ],
+     [
+      16.11,
+      6.064
+     ],
+     [
+      16.061,
+      6.064
+     ],
+     [
+      16.061,
+      6.129
+     ],
+     [
+      16.0,
+      6.129
+     ],
+     [
+      16.0,
+      6.189
+     ],
+     [
+      15.941,
+      6.189
+     ],
+     [
+      15.941,
+      6.249
+     ],
+     [
+      15.921,
+      6.249
+     ],
+     [
+      15.921,
+      6.279
+     ],
+     [
+      15.831,
+      6.279
+     ],
+     [
+      15.831,
+      6.37
+     ],
+     [
+      15.8,
+      6.37
+     ],
+     [
+      15.8,
+      6.41
+     ],
+     [
+      13.76,
+      6.41
+     ],
+     [
+      13.76,
+      6.44
+     ],
+     [
+      13.42,
+      6.44
+     ],
+     [
+      13.42,
+      2.59
+     ],
+     [
+      13.39,
+      2.59
+     ]
     ]
    },
    {
     "level": "L-1",
     "kind": "rooms",
-    "id": "r_L-1_oda_3",
+    "reader_id": "r_L-1_oda_3",
+    "label": "Antre",
     "centroid": [
      15.639,
-     9.468
+     9.467
+    ],
+    "polygon": [
+     [
+      13.76,
+      6.57
+     ],
+     [
+      15.801,
+      6.57
+     ],
+     [
+      15.801,
+      6.509
+     ],
+     [
+      15.861,
+      6.509
+     ],
+     [
+      16.59,
+      7.223
+     ],
+     [
+      16.59,
+      7.34
+     ],
+     [
+      16.61,
+      7.34
+     ],
+     [
+      16.61,
+      12.81
+     ],
+     [
+      16.64,
+      12.81
+     ],
+     [
+      16.64,
+      12.971
+     ],
+     [
+      16.64,
+      13.905
+     ],
+     [
+      15.569,
+      13.905
+     ],
+     [
+      15.569,
+      8.67
+     ],
+     [
+      15.819,
+      8.67
+     ],
+     [
+      15.819,
+      8.51
+     ],
+     [
+      13.796,
+      8.51
+     ],
+     [
+      13.796,
+      6.69
+     ],
+     [
+      13.76,
+      6.69
+     ]
     ]
    },
    {
     "level": "L-1",
     "kind": "rooms",
-    "id": "r_L-1_oda_4",
+    "reader_id": "r_L-1_oda_4",
+    "label": "Merdiven",
     "centroid": [
      12.159,
      8.994
+    ],
+    "polygon": [
+     [
+      13.486,
+      8.591
+     ],
+     [
+      13.486,
+      7.732
+     ],
+     [
+      10.752,
+      7.732
+     ],
+     [
+      10.752,
+      7.94
+     ],
+     [
+      11.316,
+      7.94
+     ],
+     [
+      11.316,
+      8.79
+     ],
+     [
+      10.752,
+      8.79
+     ],
+     [
+      10.715,
+      8.79
+     ],
+     [
+      10.715,
+      9.829
+     ],
+     [
+      10.716,
+      9.829
+     ],
+     [
+      10.716,
+      10.19
+     ],
+     [
+      11.504,
+      10.19
+     ],
+     [
+      11.504,
+      10.16
+     ],
+     [
+      12.74,
+      10.16
+     ],
+     [
+      12.74,
+      10.19
+     ],
+     [
+      13.389,
+      10.19
+     ],
+     [
+      13.389,
+      10.159
+     ],
+     [
+      13.389,
+      8.591
+     ]
     ]
    },
    {
     "level": "L-1",
     "kind": "rooms",
-    "id": "r_L-1_oda_4_hall",
+    "reader_id": "r_L-1_oda_4_hall",
+    "label": "Kat Holü",
     "centroid": [
      11.127,
      5.127
+    ],
+    "polygon": [
+     [
+      13.486,
+      8.591
+     ],
+     [
+      13.486,
+      6.69
+     ],
+     [
+      13.11,
+      6.69
+     ],
+     [
+      13.11,
+      6.72
+     ],
+     [
+      12.736,
+      6.72
+     ],
+     [
+      12.736,
+      6.41
+     ],
+     [
+      13.11,
+      6.41
+     ],
+     [
+      13.11,
+      2.59
+     ],
+     [
+      13.14,
+      2.59
+     ],
+     [
+      13.14,
+      2.04
+     ],
+     [
+      12.74,
+      2.04
+     ],
+     [
+      12.74,
+      2.59
+     ],
+     [
+      12.39,
+      2.59
+     ],
+     [
+      12.39,
+      2.04
+     ],
+     [
+      9.99,
+      2.04
+     ],
+     [
+      9.99,
+      2.59
+     ],
+     [
+      9.64,
+      2.59
+     ],
+     [
+      9.64,
+      2.04
+     ],
+     [
+      9.24,
+      2.04
+     ],
+     [
+      9.24,
+      2.59
+     ],
+     [
+      9.27,
+      2.59
+     ],
+     [
+      9.27,
+      6.41
+     ],
+     [
+      9.646,
+      6.41
+     ],
+     [
+      9.646,
+      6.72
+     ],
+     [
+      9.27,
+      6.72
+     ],
+     [
+      9.27,
+      6.69
+     ],
+     [
+      8.896,
+      6.69
+     ],
+     [
+      8.896,
+      7.79
+     ],
+     [
+      8.894,
+      7.79
+     ],
+     [
+      8.894,
+      8.304
+     ],
+     [
+      9.001,
+      8.304
+     ],
+     [
+      9.001,
+      8.31
+     ],
+     [
+      10.47,
+      8.31
+     ],
+     [
+      10.47,
+      8.34
+     ],
+     [
+      10.596,
+      8.34
+     ],
+     [
+      10.596,
+      8.04
+     ],
+     [
+      10.746,
+      8.04
+     ],
+     [
+      10.746,
+      7.94
+     ],
+     [
+      10.752,
+      7.94
+     ],
+     [
+      10.752,
+      7.732
+     ],
+     [
+      13.486,
+      7.732
+     ],
+     [
+      13.486,
+      8.591
+     ]
     ]
    },
    {
     "level": "L0",
     "kind": "doors",
-    "id": "d_L0_017",
+    "reader_id": "d_L0_017",
     "center": [
      8.741,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L0",
     "kind": "doors",
-    "id": "d_L0_018",
+    "reader_id": "d_L0_018",
     "center": [
      13.641,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L0",
     "kind": "doors",
-    "id": "o_L0_030",
+    "reader_id": "o_L0_030",
     "center": [
      6.275,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L0",
     "kind": "doors",
-    "id": "o_L0_031",
+    "reader_id": "o_L0_031",
     "center": [
      16.105,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L0",
     "kind": "openings",
-    "id": "o_L0_003",
+    "reader_id": "o_L0_003",
     "center": [
      11.19,
      6.29
-    ]
+    ],
+    "width": 1.4,
+    "type": "opening"
    },
    {
     "level": "L0",
     "kind": "openings",
-    "id": "o_L0_006",
+    "reader_id": "o_L0_006",
     "center": [
      9.666,
      8.45
-    ]
+    ],
+    "width": 0.9,
+    "type": "opening"
    },
    {
     "level": "L0",
     "kind": "rooms",
-    "id": "r_L0_depo",
+    "reader_id": "r_L0_depo",
+    "label": "Depo",
     "centroid": [
      14.053,
      9.99
+    ],
+    "polygon": [
+     [
+      13.766,
+      9.672
+     ],
+     [
+      14.34,
+      9.672
+     ],
+     [
+      14.34,
+      10.308
+     ],
+     [
+      13.766,
+      10.308
+     ]
     ]
    },
    {
     "level": "L0",
     "kind": "rooms",
-    "id": "r_L0_depo_2",
+    "reader_id": "r_L0_depo_2",
+    "label": "Depo",
     "centroid": [
      8.319,
      9.995
+    ],
+    "polygon": [
+     [
+      8.04,
+      9.672
+     ],
+     [
+      8.585,
+      9.672
+     ],
+     [
+      8.585,
+      9.829
+     ],
+     [
+      8.586,
+      9.829
+     ],
+     [
+      8.586,
+      10.16
+     ],
+     [
+      8.617,
+      10.16
+     ],
+     [
+      8.617,
+      10.19
+     ],
+     [
+      8.636,
+      10.19
+     ],
+     [
+      8.636,
+      10.308
+     ],
+     [
+      8.04,
+      10.308
+     ]
     ]
    },
    {
     "level": "L0",
     "kind": "rooms",
-    "id": "r_L0_merdiven",
+    "reader_id": "r_L0_merdiven",
+    "label": "Merdiven",
     "centroid": [
      11.19,
      5.485
+    ],
+    "polygon": [
+     [
+      10.33,
+      4.939
+     ],
+     [
+      12.05,
+      4.939
+     ],
+     [
+      12.05,
+      6.03
+     ],
+     [
+      10.33,
+      6.03
+     ]
     ]
    },
    {
     "level": "L0",
     "kind": "rooms",
-    "id": "r_L0_oda_5",
+    "reader_id": "r_L0_oda_5",
+    "label": "Merdiven",
     "centroid": [
      12.203,
      8.991
+    ],
+    "polygon": [
+     [
+      11.316,
+      7.94
+     ],
+     [
+      11.316,
+      8.79
+     ],
+     [
+      10.753,
+      8.79
+     ],
+     [
+      10.753,
+      10.159
+     ],
+     [
+      13.486,
+      10.159
+     ],
+     [
+      13.486,
+      7.732
+     ],
+     [
+      10.753,
+      7.732
+     ],
+     [
+      10.753,
+      7.94
+     ]
     ]
    },
    {
     "level": "L0",
     "kind": "rooms",
-    "id": "r_L0_oda_5_hall",
+    "reader_id": "r_L0_oda_5_hall",
+    "label": "Kat Holü",
     "centroid": [
      10.954,
      7.415
+    ],
+    "polygon": [
+     [
+      10.745,
+      8.79
+     ],
+     [
+      10.745,
+      9.4
+     ],
+     [
+      10.716,
+      9.4
+     ],
+     [
+      10.716,
+      10.19
+     ],
+     [
+      11.504,
+      10.19
+     ],
+     [
+      11.504,
+      10.16
+     ],
+     [
+      12.74,
+      10.16
+     ],
+     [
+      12.74,
+      10.19
+     ],
+     [
+      13.516,
+      10.19
+     ],
+     [
+      13.516,
+      9.51
+     ],
+     [
+      13.488,
+      9.51
+     ],
+     [
+      13.488,
+      9.4
+     ],
+     [
+      13.486,
+      9.4
+     ],
+     [
+      13.486,
+      6.72
+     ],
+     [
+      8.896,
+      6.72
+     ],
+     [
+      8.896,
+      7.79
+     ],
+     [
+      8.895,
+      7.79
+     ],
+     [
+      8.895,
+      8.304
+     ],
+     [
+      9.001,
+      8.304
+     ],
+     [
+      9.001,
+      8.31
+     ],
+     [
+      10.47,
+      8.31
+     ],
+     [
+      10.47,
+      8.34
+     ],
+     [
+      10.601,
+      8.34
+     ],
+     [
+      10.601,
+      8.04
+     ],
+     [
+      10.721,
+      8.04
+     ],
+     [
+      10.721,
+      8.04
+     ],
+     [
+      10.746,
+      8.04
+     ],
+     [
+      10.746,
+      7.94
+     ],
+     [
+      10.753,
+      7.94
+     ],
+     [
+      10.753,
+      7.732
+     ],
+     [
+      13.486,
+      7.732
+     ],
+     [
+      13.486,
+      10.159
+     ],
+     [
+      10.753,
+      10.159
+     ],
+     [
+      10.753,
+      8.79
+     ]
     ]
    },
    {
     "level": "L0",
     "kind": "stairs",
-    "id": "f_L0_023",
+    "reader_id": "f_L0_023",
     "center": [
      12.112,
      9.008
@@ -251,7 +1033,7 @@
    {
     "level": "L0",
     "kind": "stairs",
-    "id": "f_L0_024",
+    "reader_id": "f_L0_024",
     "center": [
      11.194,
      4.654
@@ -260,79 +1042,112 @@
    {
     "level": "L0",
     "kind": "windows",
-    "id": "o_L0_022",
+    "reader_id": "o_L0_022",
     "center": [
      20.23,
      14.74
-    ]
+    ],
+    "width": 1.5,
+    "type": "window"
    },
    {
     "level": "L1",
     "kind": "doors",
-    "id": "d_L1_017",
+    "reader_id": "d_L1_017",
     "center": [
      8.741,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L1",
     "kind": "doors",
-    "id": "d_L1_018",
+    "reader_id": "d_L1_018",
     "center": [
      13.641,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L1",
     "kind": "doors",
-    "id": "o_L1_030",
+    "reader_id": "o_L1_030",
     "center": [
      6.275,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L1",
     "kind": "doors",
-    "id": "o_L1_031",
+    "reader_id": "o_L1_031",
     "center": [
      16.105,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L1",
     "kind": "openings",
-    "id": "o_L1_003",
+    "reader_id": "o_L1_003",
     "center": [
      11.19,
      6.29
-    ]
+    ],
+    "width": 1.4,
+    "type": "opening"
    },
    {
     "level": "L1",
     "kind": "openings",
-    "id": "o_L1_006",
+    "reader_id": "o_L1_006",
     "center": [
      9.666,
      8.45
-    ]
+    ],
+    "width": 0.9,
+    "type": "opening"
    },
    {
     "level": "L1",
     "kind": "rooms",
-    "id": "r_L1_merdiven",
+    "reader_id": "r_L1_merdiven",
+    "label": "Merdiven",
     "centroid": [
      11.19,
      5.485
+    ],
+    "polygon": [
+     [
+      10.33,
+      4.939
+     ],
+     [
+      12.05,
+      4.939
+     ],
+     [
+      12.05,
+      6.03
+     ],
+     [
+      10.33,
+      6.03
+     ]
     ]
    },
    {
     "level": "L1",
     "kind": "stairs",
-    "id": "f_L1_024",
+    "reader_id": "f_L1_024",
     "center": [
      11.194,
      4.654
@@ -341,79 +1156,112 @@
    {
     "level": "L1",
     "kind": "windows",
-    "id": "o_L1_022",
+    "reader_id": "o_L1_022",
     "center": [
      20.23,
      14.74
-    ]
+    ],
+    "width": 1.5,
+    "type": "window"
    },
    {
     "level": "L2",
     "kind": "doors",
-    "id": "d_L2_017",
+    "reader_id": "d_L2_017",
     "center": [
      8.741,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L2",
     "kind": "doors",
-    "id": "d_L2_018",
+    "reader_id": "d_L2_018",
     "center": [
      13.641,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L2",
     "kind": "doors",
-    "id": "o_L2_030",
+    "reader_id": "o_L2_030",
     "center": [
      6.275,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L2",
     "kind": "doors",
-    "id": "o_L2_031",
+    "reader_id": "o_L2_031",
     "center": [
      16.105,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L2",
     "kind": "openings",
-    "id": "o_L2_003",
+    "reader_id": "o_L2_003",
     "center": [
      11.19,
      6.29
-    ]
+    ],
+    "width": 1.4,
+    "type": "opening"
    },
    {
     "level": "L2",
     "kind": "openings",
-    "id": "o_L2_006",
+    "reader_id": "o_L2_006",
     "center": [
      9.666,
      8.45
-    ]
+    ],
+    "width": 0.9,
+    "type": "opening"
    },
    {
     "level": "L2",
     "kind": "rooms",
-    "id": "r_L2_merdiven",
+    "reader_id": "r_L2_merdiven",
+    "label": "Merdiven",
     "centroid": [
      11.19,
      5.485
+    ],
+    "polygon": [
+     [
+      10.33,
+      4.939
+     ],
+     [
+      12.05,
+      4.939
+     ],
+     [
+      12.05,
+      6.03
+     ],
+     [
+      10.33,
+      6.03
+     ]
     ]
    },
    {
     "level": "L2",
     "kind": "stairs",
-    "id": "f_L2_024",
+    "reader_id": "f_L2_024",
     "center": [
      11.194,
      4.654
@@ -422,79 +1270,112 @@
    {
     "level": "L2",
     "kind": "windows",
-    "id": "o_L2_022",
+    "reader_id": "o_L2_022",
     "center": [
      20.23,
      14.74
-    ]
+    ],
+    "width": 1.5,
+    "type": "window"
    },
    {
     "level": "L3",
     "kind": "doors",
-    "id": "d_L3_017",
+    "reader_id": "d_L3_017",
     "center": [
      8.741,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L3",
     "kind": "doors",
-    "id": "d_L3_018",
+    "reader_id": "d_L3_018",
     "center": [
      13.641,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L3",
     "kind": "doors",
-    "id": "o_L3_030",
+    "reader_id": "o_L3_030",
     "center": [
      6.275,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L3",
     "kind": "doors",
-    "id": "o_L3_031",
+    "reader_id": "o_L3_031",
     "center": [
      16.105,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L3",
     "kind": "openings",
-    "id": "o_L3_003",
+    "reader_id": "o_L3_003",
     "center": [
      11.19,
      6.29
-    ]
+    ],
+    "width": 1.4,
+    "type": "opening"
    },
    {
     "level": "L3",
     "kind": "openings",
-    "id": "o_L3_006",
+    "reader_id": "o_L3_006",
     "center": [
      9.666,
      8.45
-    ]
+    ],
+    "width": 0.9,
+    "type": "opening"
    },
    {
     "level": "L3",
     "kind": "rooms",
-    "id": "r_L3_merdiven",
+    "reader_id": "r_L3_merdiven",
+    "label": "Merdiven",
     "centroid": [
      11.19,
      5.485
+    ],
+    "polygon": [
+     [
+      10.33,
+      4.939
+     ],
+     [
+      12.05,
+      4.939
+     ],
+     [
+      12.05,
+      6.03
+     ],
+     [
+      10.33,
+      6.03
+     ]
     ]
    },
    {
     "level": "L3",
     "kind": "stairs",
-    "id": "f_L3_024",
+    "reader_id": "f_L3_024",
     "center": [
      11.194,
      4.654
@@ -503,79 +1384,112 @@
    {
     "level": "L3",
     "kind": "windows",
-    "id": "o_L3_022",
+    "reader_id": "o_L3_022",
     "center": [
      20.23,
      14.74
-    ]
+    ],
+    "width": 1.5,
+    "type": "window"
    },
    {
     "level": "L4",
     "kind": "doors",
-    "id": "d_L4_017",
+    "reader_id": "d_L4_017",
     "center": [
      8.741,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L4",
     "kind": "doors",
-    "id": "d_L4_018",
+    "reader_id": "d_L4_018",
     "center": [
      13.641,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L4",
     "kind": "doors",
-    "id": "o_L4_030",
+    "reader_id": "o_L4_030",
     "center": [
      6.275,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L4",
     "kind": "doors",
-    "id": "o_L4_031",
+    "reader_id": "o_L4_031",
     "center": [
      16.105,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L4",
     "kind": "openings",
-    "id": "o_L4_003",
+    "reader_id": "o_L4_003",
     "center": [
      11.19,
      6.29
-    ]
+    ],
+    "width": 1.4,
+    "type": "opening"
    },
    {
     "level": "L4",
     "kind": "openings",
-    "id": "o_L4_006",
+    "reader_id": "o_L4_006",
     "center": [
      9.666,
      8.45
-    ]
+    ],
+    "width": 0.9,
+    "type": "opening"
    },
    {
     "level": "L4",
     "kind": "rooms",
-    "id": "r_L4_merdiven",
+    "reader_id": "r_L4_merdiven",
+    "label": "Merdiven",
     "centroid": [
      11.19,
      5.485
+    ],
+    "polygon": [
+     [
+      10.33,
+      4.939
+     ],
+     [
+      12.05,
+      4.939
+     ],
+     [
+      12.05,
+      6.03
+     ],
+     [
+      10.33,
+      6.03
+     ]
     ]
    },
    {
     "level": "L4",
     "kind": "stairs",
-    "id": "f_L4_024",
+    "reader_id": "f_L4_024",
     "center": [
      11.194,
      4.654
@@ -584,79 +1498,112 @@
    {
     "level": "L4",
     "kind": "windows",
-    "id": "o_L4_022",
+    "reader_id": "o_L4_022",
     "center": [
      20.23,
      14.74
-    ]
+    ],
+    "width": 1.5,
+    "type": "window"
    },
    {
     "level": "L5",
     "kind": "doors",
-    "id": "d_L5_017",
+    "reader_id": "d_L5_017",
     "center": [
      8.741,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L5",
     "kind": "doors",
-    "id": "d_L5_018",
+    "reader_id": "d_L5_018",
     "center": [
      13.641,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L5",
     "kind": "doors",
-    "id": "o_L5_030",
+    "reader_id": "o_L5_030",
     "center": [
      6.275,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L5",
     "kind": "doors",
-    "id": "o_L5_031",
+    "reader_id": "o_L5_031",
     "center": [
      16.105,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L5",
     "kind": "openings",
-    "id": "o_L5_003",
+    "reader_id": "o_L5_003",
     "center": [
      11.19,
      6.29
-    ]
+    ],
+    "width": 1.4,
+    "type": "opening"
    },
    {
     "level": "L5",
     "kind": "openings",
-    "id": "o_L5_006",
+    "reader_id": "o_L5_006",
     "center": [
      9.666,
      8.45
-    ]
+    ],
+    "width": 0.9,
+    "type": "opening"
    },
    {
     "level": "L5",
     "kind": "rooms",
-    "id": "r_L5_merdiven",
+    "reader_id": "r_L5_merdiven",
+    "label": "Merdiven",
     "centroid": [
      11.19,
      5.485
+    ],
+    "polygon": [
+     [
+      10.33,
+      4.939
+     ],
+     [
+      12.05,
+      4.939
+     ],
+     [
+      12.05,
+      6.03
+     ],
+     [
+      10.33,
+      6.03
+     ]
     ]
    },
    {
     "level": "L5",
     "kind": "stairs",
-    "id": "f_L5_024",
+    "reader_id": "f_L5_024",
     "center": [
      11.194,
      4.654
@@ -665,79 +1612,112 @@
    {
     "level": "L5",
     "kind": "windows",
-    "id": "o_L5_022",
+    "reader_id": "o_L5_022",
     "center": [
      20.23,
      14.74
-    ]
+    ],
+    "width": 1.5,
+    "type": "window"
    },
    {
     "level": "L6",
     "kind": "doors",
-    "id": "d_L6_017",
+    "reader_id": "d_L6_017",
     "center": [
      8.741,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L6",
     "kind": "doors",
-    "id": "d_L6_018",
+    "reader_id": "d_L6_018",
     "center": [
      13.641,
      7.24
-    ]
+    ],
+    "width": 1.1,
+    "type": "door"
    },
    {
     "level": "L6",
     "kind": "doors",
-    "id": "o_L6_030",
+    "reader_id": "o_L6_030",
     "center": [
      6.275,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L6",
     "kind": "doors",
-    "id": "o_L6_031",
+    "reader_id": "o_L6_031",
     "center": [
      16.105,
      7.025
-    ]
+    ],
+    "width": 1.615,
+    "type": "door"
    },
    {
     "level": "L6",
     "kind": "openings",
-    "id": "o_L6_003",
+    "reader_id": "o_L6_003",
     "center": [
      11.19,
      6.29
-    ]
+    ],
+    "width": 1.4,
+    "type": "opening"
    },
    {
     "level": "L6",
     "kind": "openings",
-    "id": "o_L6_006",
+    "reader_id": "o_L6_006",
     "center": [
      9.666,
      8.45
-    ]
+    ],
+    "width": 0.9,
+    "type": "opening"
    },
    {
     "level": "L6",
     "kind": "rooms",
-    "id": "r_L6_merdiven",
+    "reader_id": "r_L6_merdiven",
+    "label": "Merdiven",
     "centroid": [
      11.19,
      5.485
+    ],
+    "polygon": [
+     [
+      10.33,
+      4.939
+     ],
+     [
+      12.05,
+      4.939
+     ],
+     [
+      12.05,
+      6.03
+     ],
+     [
+      10.33,
+      6.03
+     ]
     ]
    },
    {
     "level": "L6",
     "kind": "stairs",
-    "id": "f_L6_024",
+    "reader_id": "f_L6_024",
     "center": [
      11.194,
      4.654
@@ -746,11 +1726,13 @@
    {
     "level": "L6",
     "kind": "windows",
-    "id": "o_L6_022",
+    "reader_id": "o_L6_022",
     "center": [
      20.23,
      14.74
-    ]
+    ],
+    "width": 1.5,
+    "type": "window"
    }
   ]
  }
