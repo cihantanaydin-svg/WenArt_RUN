@@ -421,25 +421,35 @@ def decide(kind: str, features: dict, rule_answer: str, rule_confidence: float, 
         return rule_answer, DECIDED_RULE, 0.0, {}
     scores = scores_of(model, features)
     allowed = list(allowed) if allowed else list(scores)
-    ranked = sorted(((scores.get(a, 0.0), a) for a in allowed), key=lambda t: (-t[0], t[1]))
-    margin = round(ranked[0][0] - (ranked[1][0] if len(ranked) > 1 else 0.0), 4)
-    top = ranked[0][1]
-    if rule_confidence < RULE_TRUST and len(ranked) > 1 and margin >= MARGIN_MIN and top != rule_answer:
+    top, margin = top_and_margin(scores, allowed)
+    if rule_confidence < RULE_TRUST and len(allowed) > 1 and margin >= MARGIN_MIN and top != rule_answer:
         trust = model.get("transitions")
         if trust is None or (trust.get(transition_key(rule, top)) or {}).get("trusted"):
             return top, DECIDED_RANKER, margin, scores
     return rule_answer, DECIDED_RULE, margin, scores
 
 
+def top_and_margin(scores: dict, allowed) -> tuple[str, float]:
+    """The best allowed answer and its margin (pure): its share minus the best share of any OTHER class, allowed or
+    not. 6 Nov 2026 (measured on the merged reader): the margin taken among the allowed answers only let the ranker type
+    real10's 1.8 m doorless gap on the mirror axis a door (door 0.43 against opening's few percent, margin 0.31) while the
+    model gave closed 0.29 there: a ranker unsure whether a gap is an opening at all must not decide its type. The
+    door re-ran the later passes differently (32 walls merged, 14 rooms and 28 openings more on L0-L6); the truth has
+    nothing there."""
+    ranked_allowed = sorted(((scores.get(a, 0.0), a) for a in allowed), key=lambda t: (-t[0], t[1]))
+    top_share, top = ranked_allowed[0]
+    second = max((v for c, v in scores.items() if c != top), default=0.0)
+    return top, round(top_share - second, 4)
+
+
 def untrusted_change(model: Optional[dict], rule: Optional[str], rule_answer: str, rule_confidence: float,
                      scores: dict, margin: float, allowed) -> Optional[str]:
     """The answer the ranker would have given if its transition were trusted (for the record; pure), else None."""
     if not model or not scores or model.get("transitions") is None or rule_confidence >= RULE_TRUST \
-            or margin < MARGIN_MIN:
+            or margin < MARGIN_MIN or len(list(allowed)) < 2:
         return None
-    ranked = sorted(((scores.get(a, 0.0), a) for a in allowed), key=lambda t: (-t[0], t[1]))
-    top = ranked[0][1] if ranked else rule_answer
-    return top if top != rule_answer and len(ranked) > 1 else None
+    top, _margin = top_and_margin(scores, allowed)
+    return top if top != rule_answer else None
 
 
 def model_path(kind: str, models_dir: Path = MODELS_DIR) -> Path:

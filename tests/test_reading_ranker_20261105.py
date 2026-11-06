@@ -404,6 +404,18 @@ def test_decide_applies_only_a_trusted_transition_and_an_agreeing_ranker_decides
         ("door", "rule")
 
 
+def test_the_margin_counts_every_class_not_only_the_allowed_answers():
+    """real10's 1.8 m doorless gap on the mirror axis (6 Nov 2026): door 0.43, closed 0.29 (not allowed), opening a
+    few percent. Among the allowed answers alone the margin was 0.31; against every class it is 0.14: no decision."""
+    scores = {"door": 0.4281, "window": 0.1203, "opening": 0.0339, "closed": 0.285, "open": 0.1327}
+    top, margin = RK.top_and_margin(scores, ["door", "window", "opening"])
+    assert top == "door" and margin == pytest.approx(0.1431, abs=1e-4)
+    assert RK.top_and_margin({"door": 0.74, "closed": 0.17, "window": 0.09}, ["door", "window", "opening"]) == \
+        ("door", 0.57)
+    # the best allowed answer below a disallowed class gives a negative margin
+    assert RK.top_and_margin({"closed": 0.7, "door": 0.2, "window": 0.1}, ["door", "window"])[1] < 0
+
+
 def test_an_untrusted_change_is_recorded_and_becomes_a_low_confidence_place(monkeypatch):
     model = _model_saying(DEC.KIND_GAP, "door")
     model["transitions"] = {}
