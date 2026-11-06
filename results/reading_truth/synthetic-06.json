@@ -3,7 +3,7 @@
  "source": "synthetic",
  "status": "accepted",
  "commit": null,
- "date": "2026-11-05",
+ "date": null,
  "levels": [
   {
    "id": "L0",
@@ -15,75 +15,12 @@
   }
  ],
  "levels_left_out": [],
+ "truth_file": "projects/synthetic-06/truth/building.json",
  "per_level": {
   "L0": {
    "rooms": [
     {
-     "id": "r_L0_kitchen",
-     "label": "Kitchen",
-     "room_type": "kitchen",
-     "area": 8.919,
-     "centroid": [
-      1.448,
-      2.057
-     ],
-     "polygon": [
-      [
-       0.229,
-       0.229
-      ],
-      [
-       2.667,
-       0.229
-      ],
-      [
-       2.667,
-       3.886
-      ],
-      [
-       0.229,
-       3.886
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_living_room",
-     "label": "Living Room",
-     "room_type": "living",
-     "area": 15.608,
-     "centroid": [
-      4.953,
-      2.057
-     ],
-     "polygon": [
-      [
-       2.819,
-       0.229
-      ],
-      [
-       7.087,
-       0.229
-      ],
-      [
-       7.087,
-       3.886
-      ],
-      [
-       2.819,
-       3.886
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_bath",
+     "id": "t_L0_room_0001",
      "label": "Bath",
      "room_type": "bathroom",
      "area": 3.252,
@@ -112,42 +49,44 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L0_bath"
     },
     {
-     "id": "r_L0_lobby",
-     "label": "Lobby",
-     "room_type": "hall",
-     "area": 6.968,
+     "id": "t_L0_room_0002",
+     "label": "Kitchen",
+     "room_type": "kitchen",
+     "area": 8.919,
      "centroid": [
-      4.801,
-      4.801
+      1.448,
+      2.057
      ],
      "polygon": [
       [
-       2.515,
-       4.039
+       0.229,
+       0.229
       ],
       [
-       7.087,
-       4.039
+       2.667,
+       0.229
       ],
       [
-       7.087,
-       5.563
+       2.667,
+       3.886
       ],
       [
-       2.515,
-       5.563
+       0.229,
+       3.886
       ]
      ],
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L0_kitchen"
     },
     {
-     "id": "r_L0_bed_room",
+     "id": "t_L0_room_0003",
      "label": "Bed Room",
      "room_type": "bedroom",
      "area": 10.73,
@@ -176,10 +115,77 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L0_bed_room"
     },
     {
-     "id": "r_L0_master_bed_room",
+     "id": "t_L0_room_0004",
+     "label": "Lobby",
+     "room_type": "hall",
+     "area": 6.968,
+     "centroid": [
+      4.801,
+      4.801
+     ],
+     "polygon": [
+      [
+       2.515,
+       4.039
+      ],
+      [
+       7.087,
+       4.039
+      ],
+      [
+       7.087,
+       5.563
+      ],
+      [
+       2.515,
+       5.563
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_lobby"
+    },
+    {
+     "id": "t_L0_room_0005",
+     "label": "Living Room",
+     "room_type": "living",
+     "area": 15.608,
+     "centroid": [
+      4.953,
+      2.057
+     ],
+     "polygon": [
+      [
+       2.819,
+       0.229
+      ],
+      [
+       7.087,
+       0.229
+      ],
+      [
+       7.087,
+       3.886
+      ],
+      [
+       2.819,
+       3.886
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_living_room"
+    },
+    {
+     "id": "t_L0_room_0006",
      "label": "Master Bed Room",
      "room_type": "bedroom",
      "area": 11.752,
@@ -208,26 +214,13 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L0_master_bed_room"
     }
    ],
    "doors": [
     {
-     "id": "d_L0_001",
-     "type": "door",
-     "width": 0.914,
-     "center": [
-      7.201,
-      4.801
-     ],
-     "wall_id": "w_L0_002",
-     "source": "synthetic",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_002",
+     "id": "t_L0_door_0001",
      "type": "door",
      "width": 0.762,
      "center": [
@@ -238,10 +231,11 @@
      "source": "synthetic",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L0_002"
     },
     {
-     "id": "d_L0_003",
+     "id": "t_L0_door_0002",
      "type": "door",
      "width": 0.813,
      "center": [
@@ -252,10 +246,11 @@
      "source": "synthetic",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L0_003"
     },
     {
-     "id": "d_L0_004",
+     "id": "t_L0_door_0003",
      "type": "door",
      "width": 0.813,
      "center": [
@@ -266,10 +261,11 @@
      "source": "synthetic",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L0_004"
     },
     {
-     "id": "d_L0_005",
+     "id": "t_L0_door_0004",
      "type": "door",
      "width": 0.813,
      "center": [
@@ -280,54 +276,28 @@
      "source": "synthetic",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L0_005"
+    },
+    {
+     "id": "t_L0_door_0005",
+     "type": "door",
+     "width": 0.914,
+     "center": [
+      7.201,
+      4.801
+     ],
+     "wall_id": "w_L0_002",
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_001"
     }
    ],
    "windows": [
     {
-     "id": "win_L0_001",
-     "type": "window",
-     "width": 1.219,
-     "center": [
-      1.448,
-      0.114
-     ],
-     "wall_id": "w_L0_003",
-     "source": "synthetic",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_002",
-     "type": "window",
-     "width": 1.829,
-     "center": [
-      4.953,
-      0.114
-     ],
-     "wall_id": "w_L0_003",
-     "source": "synthetic",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_003",
-     "type": "window",
-     "width": 1.219,
-     "center": [
-      7.201,
-      2.057
-     ],
-     "wall_id": "w_L0_002",
-     "source": "synthetic",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_004",
+     "id": "t_L0_window_0001",
      "type": "window",
      "width": 0.61,
      "center": [
@@ -338,52 +308,11 @@
      "source": "synthetic",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L0_004"
     },
     {
-     "id": "win_L0_005",
-     "type": "window",
-     "width": 1.524,
-     "center": [
-      1.829,
-      9.182
-     ],
-     "wall_id": "w_L0_004",
-     "source": "synthetic",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_006",
-     "type": "window",
-     "width": 1.524,
-     "center": [
-      5.334,
-      9.182
-     ],
-     "wall_id": "w_L0_004",
-     "source": "synthetic",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_007",
-     "type": "window",
-     "width": 1.219,
-     "center": [
-      7.201,
-      7.391
-     ],
-     "wall_id": "w_L0_002",
-     "source": "synthetic",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_008",
+     "id": "t_L0_window_0002",
      "type": "window",
      "width": 1.219,
      "center": [
@@ -394,12 +323,103 @@
      "source": "synthetic",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L0_008"
+    },
+    {
+     "id": "t_L0_window_0003",
+     "type": "window",
+     "width": 1.219,
+     "center": [
+      1.448,
+      0.114
+     ],
+     "wall_id": "w_L0_003",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_001"
+    },
+    {
+     "id": "t_L0_window_0004",
+     "type": "window",
+     "width": 1.524,
+     "center": [
+      1.829,
+      9.182
+     ],
+     "wall_id": "w_L0_004",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_005"
+    },
+    {
+     "id": "t_L0_window_0005",
+     "type": "window",
+     "width": 1.829,
+     "center": [
+      4.953,
+      0.114
+     ],
+     "wall_id": "w_L0_003",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_002"
+    },
+    {
+     "id": "t_L0_window_0006",
+     "type": "window",
+     "width": 1.524,
+     "center": [
+      5.334,
+      9.182
+     ],
+     "wall_id": "w_L0_004",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_006"
+    },
+    {
+     "id": "t_L0_window_0007",
+     "type": "window",
+     "width": 1.219,
+     "center": [
+      7.201,
+      2.057
+     ],
+     "wall_id": "w_L0_002",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_003"
+    },
+    {
+     "id": "t_L0_window_0008",
+     "type": "window",
+     "width": 1.219,
+     "center": [
+      7.201,
+      7.391
+     ],
+     "wall_id": "w_L0_002",
+     "source": "synthetic",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_007"
     }
    ],
    "openings": [
     {
-     "id": "o_L0_001",
+     "id": "t_L0_opening_0001",
      "type": "opening",
      "width": 1.829,
      "center": [
@@ -411,12 +431,13 @@
      "confidence": 1.0,
      "method": "derived",
      "status": "verified",
-     "virtual": true
+     "virtual": true,
+     "reader_id": "o_L0_001"
     }
    ],
    "walls": [
     {
-     "id": "w_L0_001",
+     "id": "t_L0_wall_0001",
      "start": [
       0.114,
       0.0
@@ -429,106 +450,11 @@
      "source": "synthetic",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_001"
     },
     {
-     "id": "w_L0_002",
-     "start": [
-      7.201,
-      0.0
-     ],
-     "end": [
-      7.201,
-      9.296
-     ],
-     "thickness": 0.229,
-     "source": "synthetic",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_003",
-     "start": [
-      0.229,
-      0.114
-     ],
-     "end": [
-      7.087,
-      0.114
-     ],
-     "thickness": 0.229,
-     "source": "synthetic",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_004",
-     "start": [
-      0.229,
-      9.182
-     ],
-     "end": [
-      7.087,
-      9.182
-     ],
-     "thickness": 0.229,
-     "source": "synthetic",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_005",
-     "start": [
-      0.229,
-      3.962
-     ],
-     "end": [
-      7.087,
-      3.962
-     ],
-     "thickness": 0.152,
-     "source": "synthetic",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_006",
-     "start": [
-      0.229,
-      5.639
-     ],
-     "end": [
-      7.087,
-      5.639
-     ],
-     "thickness": 0.152,
-     "source": "synthetic",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_007",
-     "start": [
-      2.743,
-      2.057
-     ],
-     "end": [
-      2.743,
-      3.886
-     ],
-     "thickness": 0.152,
-     "source": "synthetic",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_008",
+     "id": "t_L0_wall_0002",
      "start": [
       2.438,
       4.039
@@ -541,10 +467,28 @@
      "source": "synthetic",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_008"
     },
     {
-     "id": "w_L0_009",
+     "id": "t_L0_wall_0003",
+     "start": [
+      2.743,
+      2.057
+     ],
+     "end": [
+      2.743,
+      3.886
+     ],
+     "thickness": 0.152,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_007"
+    },
+    {
+     "id": "t_L0_wall_0004",
      "start": [
       3.505,
       5.715
@@ -557,11 +501,106 @@
      "source": "synthetic",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_009"
+    },
+    {
+     "id": "t_L0_wall_0005",
+     "start": [
+      0.229,
+      0.114
+     ],
+     "end": [
+      7.087,
+      0.114
+     ],
+     "thickness": 0.229,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_003"
+    },
+    {
+     "id": "t_L0_wall_0006",
+     "start": [
+      0.229,
+      3.962
+     ],
+     "end": [
+      7.087,
+      3.962
+     ],
+     "thickness": 0.152,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_005"
+    },
+    {
+     "id": "t_L0_wall_0007",
+     "start": [
+      0.229,
+      5.639
+     ],
+     "end": [
+      7.087,
+      5.639
+     ],
+     "thickness": 0.152,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_006"
+    },
+    {
+     "id": "t_L0_wall_0008",
+     "start": [
+      0.229,
+      9.182
+     ],
+     "end": [
+      7.087,
+      9.182
+     ],
+     "thickness": 0.229,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_004"
+    },
+    {
+     "id": "t_L0_wall_0009",
+     "start": [
+      7.201,
+      0.0
+     ],
+     "end": [
+      7.201,
+      9.296
+     ],
+     "thickness": 0.229,
+     "source": "synthetic",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_002"
     }
    ],
    "stairs": []
   }
  },
- "truth_file": "projects/synthetic-06/truth/building.json"
+ "built_from": {
+  "reading": "projects/synthetic-06/truth/building.json",
+  "reading_commit": null,
+  "records": []
+ },
+ "build_report": {
+  "applied": [],
+  "unmatched": [],
+  "not_replayed": []
+ }
 }

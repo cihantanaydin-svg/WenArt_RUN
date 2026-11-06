@@ -2,7 +2,7 @@
 
 What: ``python -m wenart.reading_check.remark add|list|show|redo``. ``add`` appends one record to
 ``results/reading_corrections.jsonl`` (the format of ``truth.py`` is kept; only the optional fields
-``element_ids``, ``truth_action``, ``place_note`` and ``history`` are new) and, when the reading folder is given,
+``reader_ids``, ``truth_action``, ``place_note`` and ``history`` are new) and, when the reading folder is given,
 draws a crop ``results/reading_corrections/crops/<id>.png`` of the place from ``building.json`` (``--drawing``: with
 the drawing's own strokes over it). A wall, door, window, opening, room or stair remark needs ``--place``,
 ``--element`` or ``--place-note`` (review of 5 Nov 2026).
@@ -35,7 +35,7 @@ NO_LESSON_NOTE = "no lesson yet: the general rule for this remark is still to be
 ELEMENT_KINDS = ("wall", "opening", "door", "window", "room", "stair", "level", "label", "region", "roof", "site",
                  "other")
 PLACEABLE_KINDS = ("wall", "door", "window", "opening", "room", "stair")   # as truth.PLACEABLE_KINDS
-TRUTH_OPS = ("add", "remove", "retype", "move")
+TRUTH_OPS = ("add", "remove", "retype", "confirm", "move")   # the replay knows add, remove, confirm, retype
 ELEMENT_LISTS = ("walls", "openings", "rooms", "furniture")
 CROP_SIZE_M = 6.0                 # side of the window around the place, building metres
 CROP_PX = 600
@@ -115,14 +115,14 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
                  reader_answer: str = "", right_answer: str = "", lesson: str | None = None, note: str | None = None,
                  truth_action: dict | None = None, building: dict | None = None,
                  projects: Iterable[str] | None = None, lesson_ids: Iterable[str] | None = None,
-                 date: str | None = None, place_note: str | None = None, truth: dict | None = None) -> dict:
+                 date: str | None = None, place_note: str | None = None) -> dict:
     """One correction record (pure). Raises ValueError with the reason when something is wrong. 5 Nov 2026 (review):
     a remark about a placeable element (``PLACEABLE_KINDS``: wall, door, window, opening, room, stair) is refused
     without a place (``--place``, or ``--element`` whose place is taken) or a ``place_note`` saying why it has none,
     so every remark joins the truth and the ranker's labels at capture (``truth.correction_errors`` checks the
-    same). 5 Nov 2026 (the truth identifies its elements by place): with the project's ``truth``, an element the
-    truth holds at the reading element's place is named by its truth id in ``element_ids``; the others keep the
-    reader's id there as a hint; ``reader_ids`` keep the reader's ids as given."""
+    same). 6 Nov 2026 (the derived truth): a record names a place; the reader's ids given with ``--element`` are kept
+    as hints in ``reader_ids`` (the one name of the id hints), never as truth ids: the truth's ids change with every
+    build and nothing joins on them."""
     if projects is not None and project not in set(projects):
         raise ValueError(f"project {project!r} not in projects/")
     if kind not in ELEMENT_KINDS:
@@ -156,7 +156,6 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
     if note_place:
         rec["place_note"] = note_place
     if ids:
-        rec["element_ids"] = truth_ids(truth, building, ids, level) if truth and building is not None else ids
         rec["reader_ids"] = ids
     if truth_action is not None:
         rec["truth_action"] = truth_action
@@ -165,41 +164,35 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
     return rec
 
 
-def truth_ids(truth: dict, building: dict, ids: list[str], level: str | None) -> list[str]:
-    """The truth ids of the elements the reader's ``ids`` name in ``building``, found in ``truth`` by place
-    (``truth.same_place_pairs``; doors, windows and openings as one class); an id with no truth element there stays
-    as it is (a hint)."""
-    from wenart.reading_check import truth as TR
-
-    out = []
-    for eid in ids:
-        found = TR.reading_element(building, eid, level)
-        tid = None
-        if found is not None:
-            t, el = found
-            lv = (truth.get("per_level") or {}).get(level or "") or {}
-            group = TR.OPENING_TYPES if t in TR.OPENING_TYPES else (t,)
-            cands = [e for k in group for e in TR.positives(lv.get(k))]
-            pairs = TR.same_place_pairs("openings" if t in TR.OPENING_TYPES else t, cands, [el])
-            tid = cands[pairs[0][0]]["id"] if pairs else None
-        out.append(tid or eid)
-    return out
-
-
 def _truth_of(project: str) -> dict | None:
     from wenart.reading_check import truth as TR
     return TR.load_truth(project)
 
 
 def truth_marks(rec: dict, truth: dict | None) -> list:
-    """``[(type, element)]`` of the truth elements a record names by truth id (their places are the marks)."""
+    """``[(type, element)]`` to mark on a record's crop, by place (6 Nov 2026, the derived truth): the truth elements
+    the build put the record's operations on (their ``corrections`` hold the record's id); for a record the truth does
+    not hold yet, the places its ``truth_action`` names (a centre, a polygon, a wall's ends). Never a reader's id."""
     from wenart.reading_check import truth as TR
 
-    names = {i for i in rec.get("element_ids") or [] if TR.is_truth_id(i)}
-    if not truth or not names:
-        return []
-    return [(t, e) for lv in (truth.get("per_level") or {}).values() for t in TR.ELEMENT_TYPES
-            for e in lv.get(t) or [] if e.get("id") in names]
+    rid = rec.get("id")
+    lid = rec.get("level")
+    marks = []
+    if truth and rid:
+        marks = [(t, e) for lvl, lv in (truth.get("per_level") or {}).items() for t in TR.ELEMENT_TYPES
+                 for e in lv.get(t) or [] if rid in (e.get("corrections") or []) and (lid is None or lvl == lid)]
+    if marks:
+        return marks
+    for op in TR.record_ops(rec):
+        t = TR.KIND_TO_TYPE.get(op.get("kind"))
+        if t is None or (lid is not None and op.get("level") not in (None, lid)):
+            continue
+        try:
+            el = TR.element_from_fields(op["kind"], op, source=TR.SOURCE_USER, correction=rid, date=rec.get("date"))
+        except (ValueError, TypeError):
+            continue
+        marks.append((t, el))
+    return marks
 
 
 def draw_crop(building: dict, level_id: str | None, place: dict | None, element_ids: list[str], path: Path,
@@ -371,8 +364,7 @@ def add(args, corrections: Path = CORRECTIONS_PATH, crop_dir: Path = CROP_DIR):
                        place=parse_place(args.place) if args.place else None, element_ids=args.element or [],
                        kind=args.kind, reader_answer=args.reader_answer, right_answer=args.right_answer,
                        lesson=args.lesson, note=getattr(args, "note", None), truth_action=action, building=building, projects=project_names(),
-                       lesson_ids=lesson_ids(), place_note=getattr(args, "place_note", None),
-                       truth=_truth_of(args.project))
+                       lesson_ids=lesson_ids(), place_note=getattr(args, "place_note", None))
     crop = None
     if building is not None:
         lines = (drawing_lines(args.out, building, rec["level"], rec["place"])

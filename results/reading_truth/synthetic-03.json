@@ -3,7 +3,7 @@
  "source": "synthetic",
  "status": "accepted",
  "commit": null,
- "date": "2026-11-05",
+ "date": null,
  "levels": [
   {
    "id": "L-1",
@@ -28,11 +28,12 @@
   }
  ],
  "levels_left_out": [],
+ "truth_file": "projects/synthetic-03/truth/building.json",
  "per_level": {
   "L-1": {
    "rooms": [
     {
-     "id": "r_L-1_kiler",
+     "id": "t_L-1_room_0001",
      "label": "Kiler",
      "room_type": "storage",
      "area": 14.0,
@@ -61,74 +62,11 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L-1_kiler"
     },
     {
-     "id": "r_L-1_hol",
-     "label": "Hol",
-     "room_type": "hall",
-     "area": 11.68,
-     "centroid": [
-      5.15,
-      3.9
-     ],
-     "polygon": [
-      [
-       4.35,
-       0.25
-      ],
-      [
-       5.95,
-       0.25
-      ],
-      [
-       5.95,
-       7.55
-      ],
-      [
-       4.35,
-       7.55
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L-1_yatak_odasi",
-     "label": "Yatak Odası",
-     "room_type": "bedroom",
-     "area": 20.28,
-     "centroid": [
-      8.0,
-      2.85
-     ],
-     "polygon": [
-      [
-       6.05,
-       0.25
-      ],
-      [
-       9.95,
-       0.25
-      ],
-      [
-       9.95,
-       5.45
-      ],
-      [
-       6.05,
-       5.45
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L-1_kiler_2",
+     "id": "t_L-1_room_0002",
      "label": "Kiler",
      "room_type": "storage",
      "area": 14.8,
@@ -157,952 +95,11 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L-1_kiler_2"
     },
     {
-     "id": "r_L-1_wc",
-     "label": "WC",
-     "room_type": "wc",
-     "area": 3.8,
-     "centroid": [
-      7.0,
-      6.55
-     ],
-     "polygon": [
-      [
-       6.05,
-       5.55
-      ],
-      [
-       7.95,
-       5.55
-      ],
-      [
-       7.95,
-       7.55
-      ],
-      [
-       6.05,
-       7.55
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L-1_banyo",
-     "label": "Banyo",
-     "room_type": "bathroom",
-     "area": 3.8,
-     "centroid": [
-      9.0,
-      6.55
-     ],
-     "polygon": [
-      [
-       8.05,
-       5.55
-      ],
-      [
-       9.95,
-       5.55
-      ],
-      [
-       9.95,
-       7.55
-      ],
-      [
-       8.05,
-       7.55
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    }
-   ],
-   "doors": [
-    {
-     "id": "d_L-1_001",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      4.3,
-      2.0
-     ],
-     "wall_id": "w_L-1_005",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L-1_002",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      4.3,
-      5.7
-     ],
-     "wall_id": "w_L-1_005",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L-1_003",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      6.0,
-      2.85
-     ],
-     "wall_id": "w_L-1_006",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L-1_004",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      6.0,
-      6.55
-     ],
-     "wall_id": "w_L-1_006",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L-1_005",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      9.0,
-      5.5
-     ],
-     "wall_id": "w_L-1_008",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    }
-   ],
-   "windows": [
-    {
-     "id": "win_L-1_001",
-     "type": "window",
-     "width": 0.6,
-     "center": [
-      8.0,
-      0.125
-     ],
-     "wall_id": "w_L-1_001",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L-1_002",
-     "type": "window",
-     "width": 0.6,
-     "center": [
-      0.125,
-      2.0
-     ],
-     "wall_id": "w_L-1_004",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L-1_003",
-     "type": "window",
-     "width": 0.6,
-     "center": [
-      0.125,
-      5.7
-     ],
-     "wall_id": "w_L-1_004",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    }
-   ],
-   "openings": [],
-   "walls": [
-    {
-     "id": "w_L-1_001",
-     "start": [
-      0.0,
-      0.125
-     ],
-     "end": [
-      10.2,
-      0.125
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_002",
-     "start": [
-      10.075,
-      0.0
-     ],
-     "end": [
-      10.075,
-      7.8
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_003",
-     "start": [
-      0.0,
-      7.675
-     ],
-     "end": [
-      10.2,
-      7.675
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_004",
-     "start": [
-      0.125,
-      0.0
-     ],
-     "end": [
-      0.125,
-      7.8
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_005",
-     "start": [
-      4.3,
-      0.25
-     ],
-     "end": [
-      4.3,
-      7.55
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_006",
-     "start": [
-      6.0,
-      0.25
-     ],
-     "end": [
-      6.0,
-      7.55
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_007",
-     "start": [
-      0.25,
-      3.8
-     ],
-     "end": [
-      4.25,
-      3.8
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_008",
-     "start": [
-      6.05,
-      5.5
-     ],
-     "end": [
-      9.95,
-      5.5
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_009",
-     "start": [
-      8.0,
-      5.55
-     ],
-     "end": [
-      8.0,
-      7.55
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    }
-   ],
-   "stairs": []
-  },
-  "L0": {
-   "rooms": [
-    {
-     "id": "r_L0_salon",
-     "label": "Salon",
-     "room_type": "living",
-     "area": 23.5,
-     "centroid": [
-      2.75,
-      2.6
-     ],
-     "polygon": [
-      [
-       0.25,
-       0.25
-      ],
-      [
-       5.25,
-       0.25
-      ],
-      [
-       5.25,
-       4.95
-      ],
-      [
-       0.25,
-       4.95
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_hol",
-     "label": "Hol",
-     "room_type": "hall",
-     "area": 11.68,
-     "centroid": [
-      6.15,
-      3.9
-     ],
-     "polygon": [
-      [
-       5.35,
-       0.25
-      ],
-      [
-       6.95,
-       0.25
-      ],
-      [
-       6.95,
-       7.55
-      ],
-      [
-       5.35,
-       7.55
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_yatak_odasi",
-     "label": "Yatak Odası",
-     "room_type": "bedroom",
-     "area": 15.08,
-     "centroid": [
-      8.5,
-      2.85
-     ],
-     "polygon": [
-      [
-       7.05,
-       0.25
-      ],
-      [
-       9.95,
-       0.25
-      ],
-      [
-       9.95,
-       5.45
-      ],
-      [
-       7.05,
-       5.45
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_mutfak",
-     "label": "Mutfak",
-     "room_type": "kitchen",
-     "area": 8.25,
-     "centroid": [
-      1.9,
-      6.3
-     ],
-     "polygon": [
-      [
-       0.25,
-       5.05
-      ],
-      [
-       3.55,
-       5.05
-      ],
-      [
-       3.55,
-       7.55
-      ],
-      [
-       0.25,
-       7.55
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_antre",
-     "label": "Antre",
-     "room_type": "hall",
-     "area": 4.0,
-     "centroid": [
-      4.45,
-      6.3
-     ],
-     "polygon": [
-      [
-       3.65,
-       5.05
-      ],
-      [
-       5.25,
-       5.05
-      ],
-      [
-       5.25,
-       7.55
-      ],
-      [
-       3.65,
-       7.55
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_wc",
-     "label": "WC",
-     "room_type": "wc",
-     "area": 2.8,
-     "centroid": [
-      7.75,
-      6.55
-     ],
-     "polygon": [
-      [
-       7.05,
-       5.55
-      ],
-      [
-       8.45,
-       5.55
-      ],
-      [
-       8.45,
-       7.55
-      ],
-      [
-       7.05,
-       7.55
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_kiler",
-     "label": "Kiler",
-     "room_type": "storage",
-     "area": 2.8,
-     "centroid": [
-      9.25,
-      6.55
-     ],
-     "polygon": [
-      [
-       8.55,
-       5.55
-      ],
-      [
-       9.95,
-       5.55
-      ],
-      [
-       9.95,
-       7.55
-      ],
-      [
-       8.55,
-       7.55
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    }
-   ],
-   "doors": [
-    {
-     "id": "d_L0_001",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      4.45,
-      7.675
-     ],
-     "wall_id": "w_L0_003",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_002",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      5.3,
-      6.3
-     ],
-     "wall_id": "w_L0_005",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_003",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      3.6,
-      6.3
-     ],
-     "wall_id": "w_L0_008",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_004",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      5.3,
-      2.6
-     ],
-     "wall_id": "w_L0_005",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_005",
-     "type": "door",
-     "width": 0.9,
-     "center": [
-      7.0,
-      2.85
-     ],
-     "wall_id": "w_L0_006",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_006",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      7.0,
-      6.55
-     ],
-     "wall_id": "w_L0_006",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_007",
-     "type": "door",
-     "width": 0.8,
-     "center": [
-      8.5,
-      6.55
-     ],
-     "wall_id": "w_L0_010",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    }
-   ],
-   "windows": [
-    {
-     "id": "win_L0_001",
-     "type": "window",
-     "width": 1.8,
-     "center": [
-      2.75,
-      0.125
-     ],
-     "wall_id": "w_L0_001",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_002",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      9.3,
-      0.125
-     ],
-     "wall_id": "w_L0_001",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_003",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      0.125,
-      2.6
-     ],
-     "wall_id": "w_L0_004",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_004",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      1.9,
-      7.675
-     ],
-     "wall_id": "w_L0_003",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_005",
-     "type": "window",
-     "width": 0.6,
-     "center": [
-      9.25,
-      7.675
-     ],
-     "wall_id": "w_L0_003",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L0_006",
-     "type": "window",
-     "width": 1.2,
-     "center": [
-      10.075,
-      2.85
-     ],
-     "wall_id": "w_L0_002",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    }
-   ],
-   "openings": [],
-   "walls": [
-    {
-     "id": "w_L0_001",
-     "start": [
-      0.0,
-      0.125
-     ],
-     "end": [
-      10.2,
-      0.125
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_002",
-     "start": [
-      10.075,
-      0.0
-     ],
-     "end": [
-      10.075,
-      7.8
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_003",
-     "start": [
-      0.0,
-      7.675
-     ],
-     "end": [
-      10.2,
-      7.675
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_004",
-     "start": [
-      0.125,
-      0.0
-     ],
-     "end": [
-      0.125,
-      7.8
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_005",
-     "start": [
-      5.3,
-      0.25
-     ],
-     "end": [
-      5.3,
-      7.55
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_006",
-     "start": [
-      7.0,
-      0.25
-     ],
-     "end": [
-      7.0,
-      7.55
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_007",
-     "start": [
-      0.25,
-      5.0
-     ],
-     "end": [
-      5.25,
-      5.0
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_008",
-     "start": [
-      3.6,
-      5.05
-     ],
-     "end": [
-      3.6,
-      7.55
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_009",
-     "start": [
-      7.05,
-      5.5
-     ],
-     "end": [
-      9.95,
-      5.5
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_010",
-     "start": [
-      8.5,
-      5.55
-     ],
-     "end": [
-      8.5,
-      7.55
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    }
-   ],
-   "stairs": []
-  },
-  "L1": {
-   "rooms": [
-    {
-     "id": "r_L1_ebeveyn_yatak_odasi",
-     "label": "Ebeveyn Yatak Odası",
-     "room_type": "bedroom",
-     "area": 15.6,
-     "centroid": [
-      2.25,
-      2.2
-     ],
-     "polygon": [
-      [
-       0.25,
-       0.25
-      ],
-      [
-       4.25,
-       0.25
-      ],
-      [
-       4.25,
-       4.15
-      ],
-      [
-       0.25,
-       4.15
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L1_hol",
+     "id": "t_L-1_room_0003",
      "label": "Hol",
      "room_type": "hall",
      "area": 11.68,
@@ -1131,16 +128,50 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L-1_hol"
     },
     {
-     "id": "r_L1_yatak_odasi",
+     "id": "t_L-1_room_0004",
+     "label": "WC",
+     "room_type": "wc",
+     "area": 3.8,
+     "centroid": [
+      7.0,
+      6.55
+     ],
+     "polygon": [
+      [
+       6.05,
+       5.55
+      ],
+      [
+       7.95,
+       5.55
+      ],
+      [
+       7.95,
+       7.55
+      ],
+      [
+       6.05,
+       7.55
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L-1_wc"
+    },
+    {
+     "id": "t_L-1_room_0005",
      "label": "Yatak Odası",
      "room_type": "bedroom",
-     "area": 15.21,
+     "area": 20.28,
      "centroid": [
       8.0,
-      2.2
+      2.85
      ],
      "polygon": [
       [
@@ -1153,20 +184,980 @@
       ],
       [
        9.95,
-       4.15
+       5.45
       ],
       [
        6.05,
+       5.45
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L-1_yatak_odasi"
+    },
+    {
+     "id": "t_L-1_room_0006",
+     "label": "Banyo",
+     "room_type": "bathroom",
+     "area": 3.8,
+     "centroid": [
+      9.0,
+      6.55
+     ],
+     "polygon": [
+      [
+       8.05,
+       5.55
+      ],
+      [
+       9.95,
+       5.55
+      ],
+      [
+       9.95,
+       7.55
+      ],
+      [
+       8.05,
+       7.55
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L-1_banyo"
+    }
+   ],
+   "doors": [
+    {
+     "id": "t_L-1_door_0001",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      4.3,
+      2.0
+     ],
+     "wall_id": "w_L-1_005",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L-1_001"
+    },
+    {
+     "id": "t_L-1_door_0002",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      4.3,
+      5.7
+     ],
+     "wall_id": "w_L-1_005",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L-1_002"
+    },
+    {
+     "id": "t_L-1_door_0003",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      6.0,
+      2.85
+     ],
+     "wall_id": "w_L-1_006",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L-1_003"
+    },
+    {
+     "id": "t_L-1_door_0004",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      6.0,
+      6.55
+     ],
+     "wall_id": "w_L-1_006",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L-1_004"
+    },
+    {
+     "id": "t_L-1_door_0005",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      9.0,
+      5.5
+     ],
+     "wall_id": "w_L-1_008",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L-1_005"
+    }
+   ],
+   "windows": [
+    {
+     "id": "t_L-1_window_0001",
+     "type": "window",
+     "width": 0.6,
+     "center": [
+      0.125,
+      2.0
+     ],
+     "wall_id": "w_L-1_004",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L-1_002"
+    },
+    {
+     "id": "t_L-1_window_0002",
+     "type": "window",
+     "width": 0.6,
+     "center": [
+      0.125,
+      5.7
+     ],
+     "wall_id": "w_L-1_004",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L-1_003"
+    },
+    {
+     "id": "t_L-1_window_0003",
+     "type": "window",
+     "width": 0.6,
+     "center": [
+      8.0,
+      0.125
+     ],
+     "wall_id": "w_L-1_001",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L-1_001"
+    }
+   ],
+   "openings": [],
+   "walls": [
+    {
+     "id": "t_L-1_wall_0001",
+     "start": [
+      0.125,
+      0.0
+     ],
+     "end": [
+      0.125,
+      7.8
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_004"
+    },
+    {
+     "id": "t_L-1_wall_0002",
+     "start": [
+      0.25,
+      3.8
+     ],
+     "end": [
+      4.25,
+      3.8
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_007"
+    },
+    {
+     "id": "t_L-1_wall_0003",
+     "start": [
+      4.3,
+      0.25
+     ],
+     "end": [
+      4.3,
+      7.55
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_005"
+    },
+    {
+     "id": "t_L-1_wall_0004",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      10.2,
+      0.125
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_001"
+    },
+    {
+     "id": "t_L-1_wall_0005",
+     "start": [
+      0.0,
+      7.675
+     ],
+     "end": [
+      10.2,
+      7.675
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_003"
+    },
+    {
+     "id": "t_L-1_wall_0006",
+     "start": [
+      6.0,
+      0.25
+     ],
+     "end": [
+      6.0,
+      7.55
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_006"
+    },
+    {
+     "id": "t_L-1_wall_0007",
+     "start": [
+      6.05,
+      5.5
+     ],
+     "end": [
+      9.95,
+      5.5
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_008"
+    },
+    {
+     "id": "t_L-1_wall_0008",
+     "start": [
+      8.0,
+      5.55
+     ],
+     "end": [
+      8.0,
+      7.55
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_009"
+    },
+    {
+     "id": "t_L-1_wall_0009",
+     "start": [
+      10.075,
+      0.0
+     ],
+     "end": [
+      10.075,
+      7.8
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_002"
+    }
+   ],
+   "stairs": []
+  },
+  "L0": {
+   "rooms": [
+    {
+     "id": "t_L0_room_0001",
+     "label": "Mutfak",
+     "room_type": "kitchen",
+     "area": 8.25,
+     "centroid": [
+      1.9,
+      6.3
+     ],
+     "polygon": [
+      [
+       0.25,
+       5.05
+      ],
+      [
+       3.55,
+       5.05
+      ],
+      [
+       3.55,
+       7.55
+      ],
+      [
+       0.25,
+       7.55
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_mutfak"
+    },
+    {
+     "id": "t_L0_room_0002",
+     "label": "Salon",
+     "room_type": "living",
+     "area": 23.5,
+     "centroid": [
+      2.75,
+      2.6
+     ],
+     "polygon": [
+      [
+       0.25,
+       0.25
+      ],
+      [
+       5.25,
+       0.25
+      ],
+      [
+       5.25,
+       4.95
+      ],
+      [
+       0.25,
+       4.95
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_salon"
+    },
+    {
+     "id": "t_L0_room_0003",
+     "label": "Antre",
+     "room_type": "hall",
+     "area": 4.0,
+     "centroid": [
+      4.45,
+      6.3
+     ],
+     "polygon": [
+      [
+       3.65,
+       5.05
+      ],
+      [
+       5.25,
+       5.05
+      ],
+      [
+       5.25,
+       7.55
+      ],
+      [
+       3.65,
+       7.55
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_antre"
+    },
+    {
+     "id": "t_L0_room_0004",
+     "label": "Hol",
+     "room_type": "hall",
+     "area": 11.68,
+     "centroid": [
+      6.15,
+      3.9
+     ],
+     "polygon": [
+      [
+       5.35,
+       0.25
+      ],
+      [
+       6.95,
+       0.25
+      ],
+      [
+       6.95,
+       7.55
+      ],
+      [
+       5.35,
+       7.55
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_hol"
+    },
+    {
+     "id": "t_L0_room_0005",
+     "label": "WC",
+     "room_type": "wc",
+     "area": 2.8,
+     "centroid": [
+      7.75,
+      6.55
+     ],
+     "polygon": [
+      [
+       7.05,
+       5.55
+      ],
+      [
+       8.45,
+       5.55
+      ],
+      [
+       8.45,
+       7.55
+      ],
+      [
+       7.05,
+       7.55
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_wc"
+    },
+    {
+     "id": "t_L0_room_0006",
+     "label": "Yatak Odası",
+     "room_type": "bedroom",
+     "area": 15.08,
+     "centroid": [
+      8.5,
+      2.85
+     ],
+     "polygon": [
+      [
+       7.05,
+       0.25
+      ],
+      [
+       9.95,
+       0.25
+      ],
+      [
+       9.95,
+       5.45
+      ],
+      [
+       7.05,
+       5.45
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_yatak_odasi"
+    },
+    {
+     "id": "t_L0_room_0007",
+     "label": "Kiler",
+     "room_type": "storage",
+     "area": 2.8,
+     "centroid": [
+      9.25,
+      6.55
+     ],
+     "polygon": [
+      [
+       8.55,
+       5.55
+      ],
+      [
+       9.95,
+       5.55
+      ],
+      [
+       9.95,
+       7.55
+      ],
+      [
+       8.55,
+       7.55
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_kiler"
+    }
+   ],
+   "doors": [
+    {
+     "id": "t_L0_door_0001",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      3.6,
+      6.3
+     ],
+     "wall_id": "w_L0_008",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_003"
+    },
+    {
+     "id": "t_L0_door_0002",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      4.45,
+      7.675
+     ],
+     "wall_id": "w_L0_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_001"
+    },
+    {
+     "id": "t_L0_door_0003",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      5.3,
+      2.6
+     ],
+     "wall_id": "w_L0_005",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_004"
+    },
+    {
+     "id": "t_L0_door_0004",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      5.3,
+      6.3
+     ],
+     "wall_id": "w_L0_005",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_002"
+    },
+    {
+     "id": "t_L0_door_0005",
+     "type": "door",
+     "width": 0.9,
+     "center": [
+      7.0,
+      2.85
+     ],
+     "wall_id": "w_L0_006",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_005"
+    },
+    {
+     "id": "t_L0_door_0006",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      7.0,
+      6.55
+     ],
+     "wall_id": "w_L0_006",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_006"
+    },
+    {
+     "id": "t_L0_door_0007",
+     "type": "door",
+     "width": 0.8,
+     "center": [
+      8.5,
+      6.55
+     ],
+     "wall_id": "w_L0_010",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_007"
+    }
+   ],
+   "windows": [
+    {
+     "id": "t_L0_window_0001",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      0.125,
+      2.6
+     ],
+     "wall_id": "w_L0_004",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_003"
+    },
+    {
+     "id": "t_L0_window_0002",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      1.9,
+      7.675
+     ],
+     "wall_id": "w_L0_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_004"
+    },
+    {
+     "id": "t_L0_window_0003",
+     "type": "window",
+     "width": 1.8,
+     "center": [
+      2.75,
+      0.125
+     ],
+     "wall_id": "w_L0_001",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_001"
+    },
+    {
+     "id": "t_L0_window_0004",
+     "type": "window",
+     "width": 0.6,
+     "center": [
+      9.25,
+      7.675
+     ],
+     "wall_id": "w_L0_003",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_005"
+    },
+    {
+     "id": "t_L0_window_0005",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      9.3,
+      0.125
+     ],
+     "wall_id": "w_L0_001",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_002"
+    },
+    {
+     "id": "t_L0_window_0006",
+     "type": "window",
+     "width": 1.2,
+     "center": [
+      10.075,
+      2.85
+     ],
+     "wall_id": "w_L0_002",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_006"
+    }
+   ],
+   "openings": [],
+   "walls": [
+    {
+     "id": "t_L0_wall_0001",
+     "start": [
+      0.125,
+      0.0
+     ],
+     "end": [
+      0.125,
+      7.8
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_004"
+    },
+    {
+     "id": "t_L0_wall_0002",
+     "start": [
+      0.25,
+      5.0
+     ],
+     "end": [
+      5.25,
+      5.0
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_007"
+    },
+    {
+     "id": "t_L0_wall_0003",
+     "start": [
+      3.6,
+      5.05
+     ],
+     "end": [
+      3.6,
+      7.55
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_008"
+    },
+    {
+     "id": "t_L0_wall_0004",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      10.2,
+      0.125
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_001"
+    },
+    {
+     "id": "t_L0_wall_0005",
+     "start": [
+      0.0,
+      7.675
+     ],
+     "end": [
+      10.2,
+      7.675
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_003"
+    },
+    {
+     "id": "t_L0_wall_0006",
+     "start": [
+      5.3,
+      0.25
+     ],
+     "end": [
+      5.3,
+      7.55
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_005"
+    },
+    {
+     "id": "t_L0_wall_0007",
+     "start": [
+      7.0,
+      0.25
+     ],
+     "end": [
+      7.0,
+      7.55
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_006"
+    },
+    {
+     "id": "t_L0_wall_0008",
+     "start": [
+      7.05,
+      5.5
+     ],
+     "end": [
+      9.95,
+      5.5
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_009"
+    },
+    {
+     "id": "t_L0_wall_0009",
+     "start": [
+      8.5,
+      5.55
+     ],
+     "end": [
+      8.5,
+      7.55
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_010"
+    },
+    {
+     "id": "t_L0_wall_0010",
+     "start": [
+      10.075,
+      0.0
+     ],
+     "end": [
+      10.075,
+      7.8
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_002"
+    }
+   ],
+   "stairs": []
+  },
+  "L1": {
+   "rooms": [
+    {
+     "id": "t_L1_room_0001",
+     "label": "Ebeveyn Yatak Odası",
+     "room_type": "bedroom",
+     "area": 15.6,
+     "centroid": [
+      2.25,
+      2.2
+     ],
+     "polygon": [
+      [
+       0.25,
+       0.25
+      ],
+      [
+       4.25,
+       0.25
+      ],
+      [
+       4.25,
+       4.15
+      ],
+      [
+       0.25,
        4.15
       ]
      ],
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L1_ebeveyn_yatak_odasi"
     },
     {
-     "id": "r_L1_cocuk_odasi",
+     "id": "t_L1_room_0002",
      "label": "Çocuk Odası",
      "room_type": "bedroom",
      "area": 13.2,
@@ -1195,10 +1186,44 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L1_cocuk_odasi"
     },
     {
-     "id": "r_L1_banyo",
+     "id": "t_L1_room_0003",
+     "label": "Hol",
+     "room_type": "hall",
+     "area": 11.68,
+     "centroid": [
+      5.15,
+      3.9
+     ],
+     "polygon": [
+      [
+       4.35,
+       0.25
+      ],
+      [
+       5.95,
+       0.25
+      ],
+      [
+       5.95,
+       7.55
+      ],
+      [
+       4.35,
+       7.55
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L1_hol"
+    },
+    {
+     "id": "t_L1_room_0004",
      "label": "Banyo",
      "room_type": "bathroom",
      "area": 6.27,
@@ -1227,10 +1252,44 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L1_banyo"
     },
     {
-     "id": "r_L1_balkon",
+     "id": "t_L1_room_0005",
+     "label": "Yatak Odası",
+     "room_type": "bedroom",
+     "area": 15.21,
+     "centroid": [
+      8.0,
+      2.2
+     ],
+     "polygon": [
+      [
+       6.05,
+       0.25
+      ],
+      [
+       9.95,
+       0.25
+      ],
+      [
+       9.95,
+       4.15
+      ],
+      [
+       6.05,
+       4.15
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L1_yatak_odasi"
+    },
+    {
+     "id": "t_L1_room_0006",
      "label": "Balkon",
      "room_type": "balcony",
      "area": 6.27,
@@ -1259,12 +1318,13 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L1_balkon"
     }
    ],
    "doors": [
     {
-     "id": "d_L1_001",
+     "id": "t_L1_door_0001",
      "type": "door",
      "width": 0.9,
      "center": [
@@ -1275,10 +1335,11 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_001"
     },
     {
-     "id": "d_L1_002",
+     "id": "t_L1_door_0002",
      "type": "door",
      "width": 0.8,
      "center": [
@@ -1289,10 +1350,11 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_002"
     },
     {
-     "id": "d_L1_003",
+     "id": "t_L1_door_0003",
      "type": "door",
      "width": 0.9,
      "center": [
@@ -1303,10 +1365,11 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_003"
     },
     {
-     "id": "d_L1_004",
+     "id": "t_L1_door_0004",
      "type": "door",
      "width": 0.8,
      "center": [
@@ -1317,10 +1380,11 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_004"
     },
     {
-     "id": "d_L1_005",
+     "id": "t_L1_door_0005",
      "type": "door",
      "width": 0.8,
      "center": [
@@ -1331,40 +1395,13 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_005"
     }
    ],
    "windows": [
     {
-     "id": "win_L1_001",
-     "type": "window",
-     "width": 1.8,
-     "center": [
-      2.25,
-      0.125
-     ],
-     "wall_id": "w_L1_001",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L1_002",
-     "type": "window",
-     "width": 1.8,
-     "center": [
-      8.0,
-      0.125
-     ],
-     "wall_id": "w_L1_001",
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L1_003",
+     "id": "t_L1_window_0001",
      "type": "window",
      "width": 1.2,
      "center": [
@@ -1375,10 +1412,11 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_003"
     },
     {
-     "id": "win_L1_004",
+     "id": "t_L1_window_0002",
      "type": "window",
      "width": 1.2,
      "center": [
@@ -1389,10 +1427,26 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_004"
     },
     {
-     "id": "win_L1_005",
+     "id": "t_L1_window_0003",
+     "type": "window",
+     "width": 1.8,
+     "center": [
+      2.25,
+      0.125
+     ],
+     "wall_id": "w_L1_001",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_001"
+    },
+    {
+     "id": "t_L1_window_0004",
      "type": "window",
      "width": 1.2,
      "center": [
@@ -1403,10 +1457,11 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_005"
     },
     {
-     "id": "win_L1_006",
+     "id": "t_L1_window_0005",
      "type": "window",
      "width": 0.6,
      "center": [
@@ -1417,10 +1472,26 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_006"
     },
     {
-     "id": "win_L1_007",
+     "id": "t_L1_window_0006",
+     "type": "window",
+     "width": 1.8,
+     "center": [
+      8.0,
+      0.125
+     ],
+     "wall_id": "w_L1_001",
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_002"
+    },
+    {
+     "id": "t_L1_window_0007",
      "type": "window",
      "width": 1.8,
      "center": [
@@ -1431,61 +1502,14 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_007"
     }
    ],
    "openings": [],
    "walls": [
     {
-     "id": "w_L1_001",
-     "start": [
-      0.0,
-      0.125
-     ],
-     "end": [
-      10.2,
-      0.125
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_002",
-     "start": [
-      10.075,
-      0.0
-     ],
-     "end": [
-      10.075,
-      7.8
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_003",
-     "start": [
-      0.0,
-      7.675
-     ],
-     "end": [
-      10.2,
-      7.675
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_004",
+     "id": "t_L1_wall_0001",
      "start": [
       0.125,
       0.0
@@ -1498,42 +1522,11 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_004"
     },
     {
-     "id": "w_L1_005",
-     "start": [
-      4.3,
-      0.25
-     ],
-     "end": [
-      4.3,
-      7.55
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_006",
-     "start": [
-      6.0,
-      0.25
-     ],
-     "end": [
-      6.0,
-      7.55
-     ],
-     "thickness": 0.1,
-     "source": "synthetic",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_007",
+     "id": "t_L1_wall_0002",
      "start": [
       0.25,
       4.2
@@ -1546,10 +1539,79 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_007"
     },
     {
-     "id": "w_L1_008",
+     "id": "t_L1_wall_0003",
+     "start": [
+      4.3,
+      0.25
+     ],
+     "end": [
+      4.3,
+      7.55
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_005"
+    },
+    {
+     "id": "t_L1_wall_0004",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      10.2,
+      0.125
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_001"
+    },
+    {
+     "id": "t_L1_wall_0005",
+     "start": [
+      0.0,
+      7.675
+     ],
+     "end": [
+      10.2,
+      7.675
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_003"
+    },
+    {
+     "id": "t_L1_wall_0006",
+     "start": [
+      6.0,
+      0.25
+     ],
+     "end": [
+      6.0,
+      7.55
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_006"
+    },
+    {
+     "id": "t_L1_wall_0007",
      "start": [
       6.05,
       4.2
@@ -1562,10 +1624,11 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_008"
     },
     {
-     "id": "w_L1_009",
+     "id": "t_L1_wall_0008",
      "start": [
       8.0,
       4.25
@@ -1578,11 +1641,38 @@
      "source": "synthetic",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_009"
+    },
+    {
+     "id": "t_L1_wall_0009",
+     "start": [
+      10.075,
+      0.0
+     ],
+     "end": [
+      10.075,
+      7.8
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_002"
     }
    ],
    "stairs": []
   }
  },
- "truth_file": "projects/synthetic-03/truth/building.json"
+ "built_from": {
+  "reading": "projects/synthetic-03/truth/building.json",
+  "reading_commit": null,
+  "records": []
+ },
+ "build_report": {
+  "applied": [],
+  "unmatched": [],
+  "not_replayed": []
+ }
 }

@@ -39,11 +39,58 @@
   }
  ],
  "levels_left_out": [],
+ "accepted": {
+  "on": "2026-11-02",
+  "scope": "all",
+  "levels": null,
+  "note": "user, 2 Nov 2026: the reading regression set ('go ahead with all 4', 'can we keep improving this regression set?'); its first baselines are the readings the user had reviewed on the comparison sheets (docs/progress.md, Reading self-check and regression set)"
+ },
  "per_level": {
   "L-1": {
    "rooms": [
     {
-     "id": "r_L-1_salon",
+     "id": "t_L-1_room_0001",
+     "label": "Mutfak",
+     "room_type": "kitchen",
+     "area": 13.633,
+     "centroid": [
+      1.663,
+      9.469
+     ],
+     "polygon": [
+      [
+       0.2,
+       7.143
+      ],
+      [
+       3.142,
+       7.143
+      ],
+      [
+       3.142,
+       8.145
+      ],
+      [
+       3.123,
+       8.145
+      ],
+      [
+       3.123,
+       11.801
+      ],
+      [
+       0.2,
+       11.801
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L-1_mutfak"
+    },
+    {
+     "id": "t_L-1_room_0002",
      "label": "Salon",
      "room_type": "living",
      "area": 50.858,
@@ -88,194 +135,11 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L-1_salon"
     },
     {
-     "id": "r_L-1_salon_2",
-     "label": "Salon",
-     "room_type": "living",
-     "area": 50.858,
-     "centroid": [
-      11.332,
-      3.743
-     ],
-     "polygon": [
-      [
-       7.786,
-       0.201
-      ],
-      [
-       14.972,
-       0.201
-      ],
-      [
-       14.972,
-       7.043
-      ],
-      [
-       11.93,
-       7.043
-      ],
-      [
-       11.93,
-       7.508
-      ],
-      [
-       10.554,
-       7.508
-      ],
-      [
-       10.554,
-       7.423
-      ],
-      [
-       7.786,
-       7.423
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L-1_mutfak",
-     "label": "Mutfak",
-     "room_type": "kitchen",
-     "area": 13.633,
-     "centroid": [
-      1.663,
-      9.469
-     ],
-     "polygon": [
-      [
-       0.2,
-       7.143
-      ],
-      [
-       3.142,
-       7.143
-      ],
-      [
-       3.142,
-       8.145
-      ],
-      [
-       3.123,
-       8.145
-      ],
-      [
-       3.123,
-       11.801
-      ],
-      [
-       0.2,
-       11.801
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L-1_mutfak_2",
-     "label": "Mutfak",
-     "room_type": "kitchen",
-     "area": 13.616,
-     "centroid": [
-      13.511,
-      9.469
-     ],
-     "polygon": [
-      [
-       12.03,
-       7.143
-      ],
-      [
-       14.972,
-       7.143
-      ],
-      [
-       14.972,
-       11.801
-      ],
-      [
-       12.054,
-       11.801
-      ],
-      [
-       12.054,
-       8.145
-      ],
-      [
-       12.03,
-       8.145
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L-1_koridor",
-     "label": "Koridor",
-     "room_type": "hall",
-     "area": 11.924,
-     "centroid": [
-      10.217,
-      9.164
-     ],
-     "polygon": [
-      [
-       7.786,
-       7.593
-      ],
-      [
-       10.554,
-       7.593
-      ],
-      [
-       10.554,
-       7.508
-      ],
-      [
-       11.93,
-       7.508
-      ],
-      [
-       11.93,
-       8.145
-      ],
-      [
-       11.954,
-       8.145
-      ],
-      [
-       11.954,
-       11.801
-      ],
-      [
-       10.554,
-       11.801
-      ],
-      [
-       10.554,
-       9.735
-      ],
-      [
-       7.786,
-       9.735
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L-1_koridor_2",
+     "id": "t_L-1_room_0003",
      "label": "Koridor",
      "room_type": "hall",
      "area": 11.926,
@@ -328,10 +192,11 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L-1_koridor_2"
     },
     {
-     "id": "r_L-1_banyo",
+     "id": "t_L-1_room_0004",
      "label": "Banyo",
      "room_type": "bathroom",
      "area": 4.978,
@@ -360,10 +225,11 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L-1_banyo"
     },
     {
-     "id": "r_L-1_banyo_2",
+     "id": "t_L-1_room_0005",
      "label": "Banyo",
      "room_type": "bathroom",
      "area": 4.978,
@@ -392,40 +258,160 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L-1_banyo_2"
+    },
+    {
+     "id": "t_L-1_room_0006",
+     "label": "Koridor",
+     "room_type": "hall",
+     "area": 11.924,
+     "centroid": [
+      10.217,
+      9.164
+     ],
+     "polygon": [
+      [
+       7.786,
+       7.593
+      ],
+      [
+       10.554,
+       7.593
+      ],
+      [
+       10.554,
+       7.508
+      ],
+      [
+       11.93,
+       7.508
+      ],
+      [
+       11.93,
+       8.145
+      ],
+      [
+       11.954,
+       8.145
+      ],
+      [
+       11.954,
+       11.801
+      ],
+      [
+       10.554,
+       11.801
+      ],
+      [
+       10.554,
+       9.735
+      ],
+      [
+       7.786,
+       9.735
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "r_L-1_koridor"
+    },
+    {
+     "id": "t_L-1_room_0007",
+     "label": "Salon",
+     "room_type": "living",
+     "area": 50.858,
+     "centroid": [
+      11.332,
+      3.743
+     ],
+     "polygon": [
+      [
+       7.786,
+       0.201
+      ],
+      [
+       14.972,
+       0.201
+      ],
+      [
+       14.972,
+       7.043
+      ],
+      [
+       11.93,
+       7.043
+      ],
+      [
+       11.93,
+       7.508
+      ],
+      [
+       10.554,
+       7.508
+      ],
+      [
+       10.554,
+       7.423
+      ],
+      [
+       7.786,
+       7.423
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L-1_salon_2"
+    },
+    {
+     "id": "t_L-1_room_0008",
+     "label": "Mutfak",
+     "room_type": "kitchen",
+     "area": 13.616,
+     "centroid": [
+      13.511,
+      9.469
+     ],
+     "polygon": [
+      [
+       12.03,
+       7.143
+      ],
+      [
+       14.972,
+       7.143
+      ],
+      [
+       14.972,
+       11.801
+      ],
+      [
+       12.054,
+       11.801
+      ],
+      [
+       12.054,
+       8.145
+      ],
+      [
+       12.03,
+       8.145
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L-1_mutfak_2"
     }
    ],
    "doors": [
     {
-     "id": "d_L-1_001",
-     "type": "door",
-     "width": 0.824,
-     "center": [
-      4.668,
-      10.991
-     ],
-     "wall_id": "w_L-1_010",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L-1_002",
-     "type": "door",
-     "width": 0.824,
-     "center": [
-      10.504,
-      10.991
-     ],
-     "wall_id": "w_L-1_012",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L-1_003",
+     "id": "t_L-1_door_0001",
      "type": "door",
      "width": 0.812,
      "center": [
@@ -436,10 +422,41 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L-1_003"
     },
     {
-     "id": "d_L-1_004",
+     "id": "t_L-1_door_0002",
+     "type": "door",
+     "width": 0.824,
+     "center": [
+      4.668,
+      10.991
+     ],
+     "wall_id": "w_L-1_010",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L-1_001"
+    },
+    {
+     "id": "t_L-1_door_0003",
+     "type": "door",
+     "width": 0.824,
+     "center": [
+      10.504,
+      10.991
+     ],
+     "wall_id": "w_L-1_012",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L-1_002"
+    },
+    {
+     "id": "t_L-1_door_0004",
      "type": "door",
      "width": 0.812,
      "center": [
@@ -450,40 +467,13 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L-1_004"
     }
    ],
    "windows": [
     {
-     "id": "win_L-1_001",
-     "type": "window",
-     "width": 7.186,
-     "center": [
-      3.793,
-      0.101
-     ],
-     "wall_id": "w_L-1_001",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L-1_002",
-     "type": "window",
-     "width": 7.186,
-     "center": [
-      11.38,
-      0.101
-     ],
-     "wall_id": "w_L-1_001",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "win_L-1_003",
+     "id": "t_L-1_window_0001",
      "type": "window",
      "width": 4.157,
      "center": [
@@ -494,10 +484,41 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L-1_003"
     },
     {
-     "id": "win_L-1_004",
+     "id": "t_L-1_window_0002",
+     "type": "window",
+     "width": 7.186,
+     "center": [
+      3.793,
+      0.101
+     ],
+     "wall_id": "w_L-1_001",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L-1_001"
+    },
+    {
+     "id": "t_L-1_window_0003",
+     "type": "window",
+     "width": 7.186,
+     "center": [
+      11.38,
+      0.101
+     ],
+     "wall_id": "w_L-1_001",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L-1_002"
+    },
+    {
+     "id": "t_L-1_window_0004",
      "type": "window",
      "width": 4.157,
      "center": [
@@ -508,12 +529,13 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L-1_004"
     }
    ],
    "openings": [
     {
-     "id": "o_L-1_001",
+     "id": "t_L-1_opening_0001",
      "type": "opening",
      "width": 1.376,
      "center": [
@@ -525,10 +547,11 @@
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "virtual": true
+     "virtual": true,
+     "reader_id": "o_L-1_001"
     },
     {
-     "id": "o_L-1_002",
+     "id": "t_L-1_opening_0002",
      "type": "opening",
      "width": 1.376,
      "center": [
@@ -540,28 +563,30 @@
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "virtual": true
+     "virtual": true,
+     "reader_id": "o_L-1_002"
     }
    ],
    "walls": [
     {
-     "id": "w_L-1_001",
+     "id": "t_L-1_wall_0001",
      "start": [
-      0.0,
-      0.101
+      0.1,
+      0.201
      ],
      "end": [
-      15.172,
-      0.101
+      0.1,
+      11.801
      ],
      "thickness": 0.2,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_007"
     },
     {
-     "id": "w_L-1_002",
+     "id": "t_L-1_wall_0002",
      "start": [
       0.2,
       7.093
@@ -574,90 +599,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_002"
     },
     {
-     "id": "w_L-1_003",
-     "start": [
-      11.93,
-      7.093
-     ],
-     "end": [
-      14.972,
-      7.093
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_004",
-     "start": [
-      4.618,
-      7.508
-     ],
-     "end": [
-      10.554,
-      7.508
-     ],
-     "thickness": 0.17,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_005",
-     "start": [
-      4.618,
-      9.835
-     ],
-     "end": [
-      10.554,
-      9.835
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_006",
-     "start": [
-      0.0,
-      11.901
-     ],
-     "end": [
-      15.172,
-      11.901
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_007",
-     "start": [
-      0.1,
-      0.201
-     ],
-     "end": [
-      0.1,
-      11.801
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_008",
+     "id": "t_L-1_wall_0003",
      "start": [
       3.17,
       8.145
@@ -670,10 +616,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_008"
     },
     {
-     "id": "w_L-1_009",
+     "id": "t_L-1_wall_0004",
      "start": [
       3.192,
       7.143
@@ -686,10 +633,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_009"
     },
     {
-     "id": "w_L-1_010",
+     "id": "t_L-1_wall_0005",
      "start": [
       4.668,
       9.935
@@ -702,10 +650,28 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_010"
     },
     {
-     "id": "w_L-1_011",
+     "id": "t_L-1_wall_0006",
+     "start": [
+      0.0,
+      0.101
+     ],
+     "end": [
+      15.172,
+      0.101
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_001"
+    },
+    {
+     "id": "t_L-1_wall_0007",
      "start": [
       7.586,
       0.201
@@ -718,10 +684,62 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_011"
     },
     {
-     "id": "w_L-1_012",
+     "id": "t_L-1_wall_0008",
+     "start": [
+      4.618,
+      7.508
+     ],
+     "end": [
+      10.554,
+      7.508
+     ],
+     "thickness": 0.17,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_004"
+    },
+    {
+     "id": "t_L-1_wall_0009",
+     "start": [
+      4.618,
+      9.835
+     ],
+     "end": [
+      10.554,
+      9.835
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_005"
+    },
+    {
+     "id": "t_L-1_wall_0010",
+     "start": [
+      0.0,
+      11.901
+     ],
+     "end": [
+      15.172,
+      11.901
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_006"
+    },
+    {
+     "id": "t_L-1_wall_0011",
      "start": [
       10.504,
       9.935
@@ -734,10 +752,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_012"
     },
     {
-     "id": "w_L-1_013",
+     "id": "t_L-1_wall_0012",
      "start": [
       11.98,
       7.143
@@ -750,10 +769,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_013"
     },
     {
-     "id": "w_L-1_014",
+     "id": "t_L-1_wall_0013",
      "start": [
       12.004,
       8.145
@@ -766,10 +786,28 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_014"
     },
     {
-     "id": "w_L-1_015",
+     "id": "t_L-1_wall_0014",
+     "start": [
+      11.93,
+      7.093
+     ],
+     "end": [
+      14.972,
+      7.093
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_003"
+    },
+    {
+     "id": "t_L-1_wall_0015",
      "start": [
       15.072,
       0.201
@@ -782,12 +820,13 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_015"
     }
    ],
    "stairs": [
     {
-     "id": "f_L-1_019",
+     "id": "t_L-1_stair_0001",
      "center": [
       6.061,
       8.644
@@ -828,10 +867,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "f_L-1_019"
     },
     {
-     "id": "f_L-1_020",
+     "id": "t_L-1_stair_0002",
      "center": [
       9.087,
       8.644
@@ -872,14 +912,48 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "f_L-1_020"
     }
    ]
   },
   "L-1b": {
    "rooms": [
     {
-     "id": "r_L-1b_salon",
+     "id": "t_L-1b_room_0001",
+     "label": "Oda",
+     "room_type": "bedroom",
+     "area": 13.144,
+     "centroid": [
+      1.709,
+      9.622
+     ],
+     "polygon": [
+      [
+       0.201,
+       7.443
+      ],
+      [
+       3.217,
+       7.443
+      ],
+      [
+       3.217,
+       11.801
+      ],
+      [
+       0.201,
+       11.801
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L-1b_oda"
+    },
+    {
+     "id": "t_L-1b_room_0002",
      "label": "Salon",
      "room_type": "living",
      "area": 51.827,
@@ -928,10 +1002,211 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L-1b_salon"
     },
     {
-     "id": "r_L-1b_salon_2",
+     "id": "t_L-1b_room_0003",
+     "label": "Koridor",
+     "room_type": "hall",
+     "area": 5.563,
+     "centroid": [
+      3.967,
+      9.66
+     ],
+     "polygon": [
+      [
+       3.317,
+       7.518
+      ],
+      [
+       4.615,
+       7.518
+      ],
+      [
+       4.617,
+       11.801
+      ],
+      [
+       3.317,
+       11.801
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "r_L-1b_koridor"
+    },
+    {
+     "id": "t_L-1b_room_0004",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 5.933,
+     "centroid": [
+      6.002,
+      8.664
+     ],
+     "polygon": [
+      [
+       4.617,
+       7.593
+      ],
+      [
+       7.387,
+       7.593
+      ],
+      [
+       7.387,
+       9.735
+      ],
+      [
+       4.617,
+       9.735
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "inferred": true,
+     "reader_id": "r_L-1b_merdiven"
+    },
+    {
+     "id": "t_L-1b_room_0005",
+     "label": "Banyo",
+     "room_type": "bathroom",
+     "area": 4.982,
+     "centroid": [
+      6.052,
+      10.868
+     ],
+     "polygon": [
+      [
+       4.717,
+       9.935
+      ],
+      [
+       7.387,
+       9.935
+      ],
+      [
+       7.387,
+       11.801
+      ],
+      [
+       4.717,
+       11.801
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L-1b_banyo"
+    },
+    {
+     "id": "t_L-1b_room_0006",
+     "label": "Banyo",
+     "room_type": "bathroom",
+     "area": 4.978,
+     "centroid": [
+      9.121,
+      10.868
+     ],
+     "polygon": [
+      [
+       7.787,
+       9.935
+      ],
+      [
+       10.455,
+       9.935
+      ],
+      [
+       10.455,
+       11.801
+      ],
+      [
+       7.787,
+       11.801
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L-1b_banyo_2"
+    },
+    {
+     "id": "t_L-1b_room_0007",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 5.929,
+     "centroid": [
+      9.171,
+      8.664
+     ],
+     "polygon": [
+      [
+       7.787,
+       7.593
+      ],
+      [
+       10.555,
+       7.593
+      ],
+      [
+       10.555,
+       9.735
+      ],
+      [
+       7.787,
+       9.735
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "inferred": true,
+     "reader_id": "r_L-1b_merdiven_2"
+    },
+    {
+     "id": "t_L-1b_room_0008",
+     "label": "Koridor",
+     "room_type": "hall",
+     "area": 5.564,
+     "centroid": [
+      11.206,
+      9.66
+     ],
+     "polygon": [
+      [
+       10.555,
+       11.801
+      ],
+      [
+       10.557,
+       7.518
+      ],
+      [
+       11.855,
+       7.518
+      ],
+      [
+       11.855,
+       11.801
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "r_L-1b_koridor_2"
+    },
+    {
+     "id": "t_L-1b_room_0009",
      "label": "Salon",
      "room_type": "living",
      "area": 51.827,
@@ -976,42 +1251,11 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L-1b_salon_2"
     },
     {
-     "id": "r_L-1b_oda",
-     "label": "Oda",
-     "room_type": "bedroom",
-     "area": 13.144,
-     "centroid": [
-      1.709,
-      9.622
-     ],
-     "polygon": [
-      [
-       0.201,
-       7.443
-      ],
-      [
-       3.217,
-       7.443
-      ],
-      [
-       3.217,
-       11.801
-      ],
-      [
-       0.201,
-       11.801
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L-1b_oda_2",
+     "id": "t_L-1b_room_0010",
      "label": "Oda",
      "room_type": "bedroom",
      "area": 13.152,
@@ -1040,206 +1284,13 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L-1b_koridor",
-     "label": "Koridor",
-     "room_type": "hall",
-     "area": 5.563,
-     "centroid": [
-      3.967,
-      9.66
-     ],
-     "polygon": [
-      [
-       3.317,
-       7.518
-      ],
-      [
-       4.615,
-       7.518
-      ],
-      [
-       4.617,
-       11.801
-      ],
-      [
-       3.317,
-       11.801
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L-1b_merdiven",
-     "label": "Merdiven",
-     "room_type": "stair",
-     "area": 5.933,
-     "centroid": [
-      6.002,
-      8.664
-     ],
-     "polygon": [
-      [
-       4.617,
-       7.593
-      ],
-      [
-       7.387,
-       7.593
-      ],
-      [
-       7.387,
-       9.735
-      ],
-      [
-       4.617,
-       9.735
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "inferred": true
-    },
-    {
-     "id": "r_L-1b_merdiven_2",
-     "label": "Merdiven",
-     "room_type": "stair",
-     "area": 5.929,
-     "centroid": [
-      9.171,
-      8.664
-     ],
-     "polygon": [
-      [
-       7.787,
-       7.593
-      ],
-      [
-       10.555,
-       7.593
-      ],
-      [
-       10.555,
-       9.735
-      ],
-      [
-       7.787,
-       9.735
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "inferred": true
-    },
-    {
-     "id": "r_L-1b_banyo",
-     "label": "Banyo",
-     "room_type": "bathroom",
-     "area": 4.982,
-     "centroid": [
-      6.052,
-      10.868
-     ],
-     "polygon": [
-      [
-       4.717,
-       9.935
-      ],
-      [
-       7.387,
-       9.935
-      ],
-      [
-       7.387,
-       11.801
-      ],
-      [
-       4.717,
-       11.801
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L-1b_banyo_2",
-     "label": "Banyo",
-     "room_type": "bathroom",
-     "area": 4.978,
-     "centroid": [
-      9.121,
-      10.868
-     ],
-     "polygon": [
-      [
-       7.787,
-       9.935
-      ],
-      [
-       10.455,
-       9.935
-      ],
-      [
-       10.455,
-       11.801
-      ],
-      [
-       7.787,
-       11.801
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L-1b_koridor_2",
-     "label": "Koridor",
-     "room_type": "hall",
-     "area": 5.564,
-     "centroid": [
-      11.206,
-      9.66
-     ],
-     "polygon": [
-      [
-       10.555,
-       11.801
-      ],
-      [
-       10.557,
-       7.518
-      ],
-      [
-       11.855,
-       7.518
-      ],
-      [
-       11.855,
-       11.801
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "unverified"
+     "status": "verified",
+     "reader_id": "r_L-1b_oda_2"
     }
    ],
    "doors": [
     {
-     "id": "d_L-1b_001",
+     "id": "t_L-1b_door_0001",
      "type": "door",
      "width": 0.824,
      "center": [
@@ -1250,10 +1301,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L-1b_001"
     },
     {
-     "id": "d_L-1b_002",
+     "id": "t_L-1b_door_0002",
      "type": "door",
      "width": 0.824,
      "center": [
@@ -1264,10 +1316,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L-1b_002"
     },
     {
-     "id": "d_L-1b_003",
+     "id": "t_L-1b_door_0003",
      "type": "door",
      "width": 0.824,
      "center": [
@@ -1278,10 +1331,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L-1b_003"
     },
     {
-     "id": "d_L-1b_004",
+     "id": "t_L-1b_door_0004",
      "type": "door",
      "width": 0.824,
      "center": [
@@ -1292,12 +1346,13 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L-1b_004"
     }
    ],
    "windows": [
     {
-     "id": "win_L-1b_001",
+     "id": "t_L-1b_window_0001",
      "type": "window",
      "width": 7.186,
      "center": [
@@ -1308,10 +1363,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L-1b_001"
     },
     {
-     "id": "win_L-1b_002",
+     "id": "t_L-1b_window_0002",
      "type": "window",
      "width": 7.186,
      "center": [
@@ -1322,12 +1378,13 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L-1b_002"
     }
    ],
    "openings": [
     {
-     "id": "o_L-1b_001",
+     "id": "t_L-1b_opening_0001",
      "type": "opening",
      "width": 1.299,
      "center": [
@@ -1339,25 +1396,11 @@
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "virtual": true
+     "virtual": true,
+     "reader_id": "o_L-1b_001"
     },
     {
-     "id": "o_L-1b_002",
-     "type": "opening",
-     "width": 1.3,
-     "center": [
-      11.205,
-      7.518
-     ],
-     "wall_id": null,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified",
-     "virtual": true
-    },
-    {
-     "id": "o_L-1b_003",
+     "id": "t_L-1b_opening_0002",
      "type": "opening",
      "width": 2.217,
      "center": [
@@ -1369,10 +1412,11 @@
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "virtual": true
+     "virtual": true,
+     "reader_id": "o_L-1b_003"
     },
     {
-     "id": "o_L-1b_004",
+     "id": "t_L-1b_opening_0003",
      "type": "opening",
      "width": 2.217,
      "center": [
@@ -1384,28 +1428,46 @@
      "confidence": 0.8,
      "method": "derived",
      "status": "verified",
-     "virtual": true
+     "virtual": true,
+     "reader_id": "o_L-1b_004"
+    },
+    {
+     "id": "t_L-1b_opening_0004",
+     "type": "opening",
+     "width": 1.3,
+     "center": [
+      11.205,
+      7.518
+     ],
+     "wall_id": null,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
+     "virtual": true,
+     "reader_id": "o_L-1b_002"
     }
    ],
    "walls": [
     {
-     "id": "w_L-1b_001",
+     "id": "t_L-1b_wall_0001",
      "start": [
-      0.001,
-      0.101
+      0.101,
+      0.201
      ],
      "end": [
-      15.173,
-      0.101
+      0.101,
+      11.801
      ],
      "thickness": 0.2,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1b_007"
     },
     {
-     "id": "w_L-1b_002",
+     "id": "t_L-1b_wall_0002",
      "start": [
       0.201,
       7.393
@@ -1418,90 +1480,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1b_002"
     },
     {
-     "id": "w_L-1b_003",
-     "start": [
-      11.855,
-      7.393
-     ],
-     "end": [
-      14.973,
-      7.393
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1b_004",
-     "start": [
-      4.617,
-      7.518
-     ],
-     "end": [
-      10.555,
-      7.518
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1b_005",
-     "start": [
-      4.617,
-      9.835
-     ],
-     "end": [
-      10.555,
-      9.835
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1b_006",
-     "start": [
-      0.001,
-      11.901
-     ],
-     "end": [
-      15.173,
-      11.901
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1b_007",
-     "start": [
-      0.101,
-      0.201
-     ],
-     "end": [
-      0.101,
-      11.801
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1b_008",
+     "id": "t_L-1b_wall_0003",
      "start": [
       3.267,
       7.443
@@ -1514,10 +1497,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1b_008"
     },
     {
-     "id": "w_L-1b_009",
+     "id": "t_L-1b_wall_0004",
      "start": [
       4.667,
       9.935
@@ -1530,10 +1514,28 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1b_009"
     },
     {
-     "id": "w_L-1b_010",
+     "id": "t_L-1b_wall_0005",
+     "start": [
+      0.001,
+      0.101
+     ],
+     "end": [
+      15.173,
+      0.101
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1b_001"
+    },
+    {
+     "id": "t_L-1b_wall_0006",
      "start": [
       7.587,
       0.201
@@ -1546,10 +1548,62 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1b_010"
     },
     {
-     "id": "w_L-1b_011",
+     "id": "t_L-1b_wall_0007",
+     "start": [
+      4.617,
+      7.518
+     ],
+     "end": [
+      10.555,
+      7.518
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1b_004"
+    },
+    {
+     "id": "t_L-1b_wall_0008",
+     "start": [
+      4.617,
+      9.835
+     ],
+     "end": [
+      10.555,
+      9.835
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1b_005"
+    },
+    {
+     "id": "t_L-1b_wall_0009",
+     "start": [
+      0.001,
+      11.901
+     ],
+     "end": [
+      15.173,
+      11.901
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1b_006"
+    },
+    {
+     "id": "t_L-1b_wall_0010",
      "start": [
       10.505,
       9.935
@@ -1562,10 +1616,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1b_011"
     },
     {
-     "id": "w_L-1b_012",
+     "id": "t_L-1b_wall_0011",
      "start": [
       11.905,
       7.443
@@ -1578,10 +1633,28 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1b_012"
     },
     {
-     "id": "w_L-1b_013",
+     "id": "t_L-1b_wall_0012",
+     "start": [
+      11.855,
+      7.393
+     ],
+     "end": [
+      14.973,
+      7.393
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1b_003"
+    },
+    {
+     "id": "t_L-1b_wall_0013",
      "start": [
       15.073,
       0.201
@@ -1594,56 +1667,13 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1b_013"
     }
    ],
    "stairs": [
     {
-     "id": "f_L-1b_015",
-     "center": [
-      9.087,
-      8.644
-     ],
-     "size": [
-      2.6,
-      2.1
-     ],
-     "rotation_deg": 0.0,
-     "room_id": "r_L-1b_merdiven_2",
-     "turn": "U",
-     "flights": [
-      {
-       "start": [
-        8.977,
-        8.069
-       ],
-       "end": [
-        10.377,
-        8.069
-       ],
-       "width": 0.95,
-       "lines": 6
-      },
-      {
-       "start": [
-        8.987,
-        9.219
-       ],
-       "end": [
-        10.387,
-        9.219
-       ],
-       "width": 0.95,
-       "lines": 6
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "f_L-1b_016",
+     "id": "t_L-1b_stair_0001",
      "center": [
       6.061,
       8.644
@@ -1684,14 +1714,60 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "f_L-1b_016"
+    },
+    {
+     "id": "t_L-1b_stair_0002",
+     "center": [
+      9.087,
+      8.644
+     ],
+     "size": [
+      2.6,
+      2.1
+     ],
+     "rotation_deg": 0.0,
+     "room_id": "r_L-1b_merdiven_2",
+     "turn": "U",
+     "flights": [
+      {
+       "start": [
+        8.977,
+        8.069
+       ],
+       "end": [
+        10.377,
+        8.069
+       ],
+       "width": 0.95,
+       "lines": 6
+      },
+      {
+       "start": [
+        8.987,
+        9.219
+       ],
+       "end": [
+        10.387,
+        9.219
+       ],
+       "width": 0.95,
+       "lines": 6
+      }
+     ],
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "f_L-1b_015"
     }
    ]
   },
   "L0": {
    "rooms": [
     {
-     "id": "r_L0_yatak_odasi",
+     "id": "t_L0_room_0001",
      "label": "Yatak Odası",
      "room_type": "bedroom",
      "area": 16.128,
@@ -1720,106 +1796,44 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L0_yatak_odasi"
     },
     {
-     "id": "r_L0_e_yatak_odasi",
-     "label": "E.yatak Odası",
-     "room_type": "bedroom",
-     "area": 16.858,
-     "centroid": [
-      5.352,
-      3.772
-     ],
-     "polygon": [
-      [
-       3.318,
-       1.7
-      ],
-      [
-       7.386,
-       1.7
-      ],
-      [
-       7.386,
-       5.844
-      ],
-      [
-       3.318,
-       5.844
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_e_yatak_odasi_2",
-     "label": "E.yatak Odası",
-     "room_type": "bedroom",
-     "area": 16.866,
-     "centroid": [
-      9.821,
-      3.772
-     ],
-     "polygon": [
-      [
-       7.786,
-       1.7
-      ],
-      [
-       11.856,
-       1.7
-      ],
-      [
-       11.856,
-       5.844
-      ],
-      [
-       7.786,
-       5.844
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_yatak_odasi_2",
+     "id": "t_L0_room_0002",
      "label": "Yatak Odası",
      "room_type": "bedroom",
-     "area": 16.118,
+     "area": 14.052,
      "centroid": [
-      13.464,
-      4.372
+      1.709,
+      9.472
      ],
      "polygon": [
       [
-       11.956,
-       1.7
+       0.2,
+       7.144
       ],
       [
-       14.972,
-       1.7
+       3.218,
+       7.144
       ],
       [
-       14.972,
-       7.044
+       3.218,
+       11.8
       ],
       [
-       11.956,
-       7.044
+       0.2,
+       11.8
       ]
      ],
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "unverified",
+     "reader_id": "r_L0_yatak_odasi_3"
     },
     {
-     "id": "r_L0_koridor",
+     "id": "t_L0_room_0003",
      "label": "Koridor",
      "room_type": "hall",
      "area": 7.613,
@@ -1848,10 +1862,111 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L0_koridor"
     },
     {
-     "id": "r_L0_e_banyo",
+     "id": "t_L0_room_0004",
+     "label": "E.yatak Odası",
+     "room_type": "bedroom",
+     "area": 16.858,
+     "centroid": [
+      5.352,
+      3.772
+     ],
+     "polygon": [
+      [
+       3.318,
+       1.7
+      ],
+      [
+       7.386,
+       1.7
+      ],
+      [
+       7.386,
+       5.844
+      ],
+      [
+       3.318,
+       5.844
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_e_yatak_odasi"
+    },
+    {
+     "id": "t_L0_room_0005",
+     "label": "Merdiven",
+     "room_type": "stair",
+     "area": 5.715,
+     "centroid": [
+      6.052,
+      8.665
+     ],
+     "polygon": [
+      [
+       4.718,
+       7.594
+      ],
+      [
+       7.386,
+       7.594
+      ],
+      [
+       7.386,
+       9.736
+      ],
+      [
+       4.718,
+       9.736
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "inferred": true,
+     "reader_id": "r_L0_merdiven"
+    },
+    {
+     "id": "t_L0_room_0006",
+     "label": "Banyo",
+     "room_type": "bathroom",
+     "area": 4.973,
+     "centroid": [
+      6.052,
+      10.868
+     ],
+     "polygon": [
+      [
+       4.718,
+       9.936
+      ],
+      [
+       7.386,
+       9.936
+      ],
+      [
+       7.386,
+       11.8
+      ],
+      [
+       4.718,
+       11.8
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_banyo"
+    },
+    {
+     "id": "t_L0_room_0007",
      "label": "E.banyo",
      "room_type": "bathroom",
      "area": 3.882,
@@ -1888,10 +2003,11 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L0_e_banyo"
     },
     {
-     "id": "r_L0_e_banyo_2",
+     "id": "t_L0_room_0008",
      "label": "E.banyo",
      "room_type": "bathroom",
      "area": 3.885,
@@ -1928,139 +2044,11 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L0_e_banyo_2"
     },
     {
-     "id": "r_L0_koridor_2",
-     "label": "Koridor",
-     "room_type": "hall",
-     "area": 7.613,
-     "centroid": [
-      11.206,
-      8.872
-     ],
-     "polygon": [
-      [
-       10.556,
-       5.944
-      ],
-      [
-       11.856,
-       5.944
-      ],
-      [
-       11.856,
-       11.8
-      ],
-      [
-       10.556,
-       11.8
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L0_yatak_odasi_3",
-     "label": "Yatak Odası",
-     "room_type": "bedroom",
-     "area": 14.052,
-     "centroid": [
-      1.709,
-      9.472
-     ],
-     "polygon": [
-      [
-       0.2,
-       7.144
-      ],
-      [
-       3.218,
-       7.144
-      ],
-      [
-       3.218,
-       11.8
-      ],
-      [
-       0.2,
-       11.8
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L0_yatak_odasi_4",
-     "label": "Yatak Odası",
-     "room_type": "bedroom",
-     "area": 14.042,
-     "centroid": [
-      13.464,
-      9.472
-     ],
-     "polygon": [
-      [
-       11.956,
-       7.144
-      ],
-      [
-       14.972,
-       7.144
-      ],
-      [
-       14.972,
-       11.8
-      ],
-      [
-       11.956,
-       11.8
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "unverified"
-    },
-    {
-     "id": "r_L0_merdiven",
-     "label": "Merdiven",
-     "room_type": "stair",
-     "area": 5.715,
-     "centroid": [
-      6.052,
-      8.665
-     ],
-     "polygon": [
-      [
-       4.718,
-       7.594
-      ],
-      [
-       7.386,
-       7.594
-      ],
-      [
-       7.386,
-       9.736
-      ],
-      [
-       4.718,
-       9.736
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "inferred": true
-    },
-    {
-     "id": "r_L0_merdiven_2",
+     "id": "t_L0_room_0009",
      "label": "Merdiven",
      "room_type": "stair",
      "area": 5.719,
@@ -2090,42 +2078,11 @@
      "confidence": 1.0,
      "method": "derived",
      "status": "unverified",
-     "inferred": true
+     "inferred": true,
+     "reader_id": "r_L0_merdiven_2"
     },
     {
-     "id": "r_L0_banyo",
-     "label": "Banyo",
-     "room_type": "bathroom",
-     "area": 4.973,
-     "centroid": [
-      6.052,
-      10.868
-     ],
-     "polygon": [
-      [
-       4.718,
-       9.936
-      ],
-      [
-       7.386,
-       9.936
-      ],
-      [
-       7.386,
-       11.8
-      ],
-      [
-       4.718,
-       11.8
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L0_banyo_2",
+     "id": "t_L0_room_0010",
      "label": "Banyo",
      "room_type": "bathroom",
      "area": 4.977,
@@ -2154,12 +2111,175 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L0_banyo_2"
+    },
+    {
+     "id": "t_L0_room_0011",
+     "label": "E.yatak Odası",
+     "room_type": "bedroom",
+     "area": 16.866,
+     "centroid": [
+      9.821,
+      3.772
+     ],
+     "polygon": [
+      [
+       7.786,
+       1.7
+      ],
+      [
+       11.856,
+       1.7
+      ],
+      [
+       11.856,
+       5.844
+      ],
+      [
+       7.786,
+       5.844
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_e_yatak_odasi_2"
+    },
+    {
+     "id": "t_L0_room_0012",
+     "label": "Koridor",
+     "room_type": "hall",
+     "area": 7.613,
+     "centroid": [
+      11.206,
+      8.872
+     ],
+     "polygon": [
+      [
+       10.556,
+       5.944
+      ],
+      [
+       11.856,
+       5.944
+      ],
+      [
+       11.856,
+       11.8
+      ],
+      [
+       10.556,
+       11.8
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "r_L0_koridor_2"
+    },
+    {
+     "id": "t_L0_room_0013",
+     "label": "Yatak Odası",
+     "room_type": "bedroom",
+     "area": 16.118,
+     "centroid": [
+      13.464,
+      4.372
+     ],
+     "polygon": [
+      [
+       11.956,
+       1.7
+      ],
+      [
+       14.972,
+       1.7
+      ],
+      [
+       14.972,
+       7.044
+      ],
+      [
+       11.956,
+       7.044
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_yatak_odasi_2"
+    },
+    {
+     "id": "t_L0_room_0014",
+     "label": "Yatak Odası",
+     "room_type": "bedroom",
+     "area": 14.042,
+     "centroid": [
+      13.464,
+      9.472
+     ],
+     "polygon": [
+      [
+       11.956,
+       7.144
+      ],
+      [
+       14.972,
+       7.144
+      ],
+      [
+       14.972,
+       11.8
+      ],
+      [
+       11.956,
+       11.8
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "unverified",
+     "reader_id": "r_L0_yatak_odasi_4"
     }
    ],
    "doors": [
     {
-     "id": "d_L0_001",
+     "id": "t_L0_door_0001",
+     "type": "door",
+     "width": 0.824,
+     "center": [
+      3.268,
+      6.51
+     ],
+     "wall_id": "w_L0_010",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_005"
+    },
+    {
+     "id": "t_L0_door_0002",
+     "type": "door",
+     "width": 0.778,
+     "center": [
+      3.268,
+      7.687
+     ],
+     "wall_id": "w_L0_010",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_006"
+    },
+    {
+     "id": "t_L0_door_0003",
      "type": "door",
      "width": 0.824,
      "center": [
@@ -2170,136 +2290,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L0_001"
     },
     {
-     "id": "d_L0_002",
-     "type": "door",
-     "width": 0.824,
-     "center": [
-      5.226,
-      5.894
-     ],
-     "wall_id": "w_L0_002",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_003",
-     "type": "door",
-     "width": 0.824,
-     "center": [
-      9.946,
-      5.894
-     ],
-     "wall_id": "w_L0_002",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_004",
-     "type": "door",
-     "width": 0.824,
-     "center": [
-      11.308,
-      5.894
-     ],
-     "wall_id": "w_L0_002",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_005",
-     "type": "door",
-     "width": 0.824,
-     "center": [
-      3.268,
-      6.51
-     ],
-     "wall_id": "w_L0_010",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_006",
-     "type": "door",
-     "width": 0.778,
-     "center": [
-      3.268,
-      7.687
-     ],
-     "wall_id": "w_L0_010",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_007",
-     "type": "door",
-     "width": 0.824,
-     "center": [
-      4.668,
-      10.992
-     ],
-     "wall_id": "w_L0_011",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_008",
-     "type": "door",
-     "width": 0.824,
-     "center": [
-      10.506,
-      10.992
-     ],
-     "wall_id": "w_L0_016",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_009",
-     "type": "door",
-     "width": 0.824,
-     "center": [
-      11.906,
-      6.51
-     ],
-     "wall_id": "w_L0_017",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_010",
-     "type": "door",
-     "width": 0.778,
-     "center": [
-      11.906,
-      7.687
-     ],
-     "wall_id": "w_L0_017",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L0_011",
+     "id": "t_L0_door_0004",
      "type": "door",
      "width": 0.818,
      "center": [
@@ -2310,10 +2305,71 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L0_011"
     },
     {
-     "id": "d_L0_012",
+     "id": "t_L0_door_0005",
+     "type": "door",
+     "width": 0.824,
+     "center": [
+      4.668,
+      10.992
+     ],
+     "wall_id": "w_L0_011",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_007"
+    },
+    {
+     "id": "t_L0_door_0006",
+     "type": "door",
+     "width": 0.824,
+     "center": [
+      5.226,
+      5.894
+     ],
+     "wall_id": "w_L0_002",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_002"
+    },
+    {
+     "id": "t_L0_door_0007",
+     "type": "door",
+     "width": 0.824,
+     "center": [
+      9.946,
+      5.894
+     ],
+     "wall_id": "w_L0_002",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_003"
+    },
+    {
+     "id": "t_L0_door_0008",
+     "type": "door",
+     "width": 0.824,
+     "center": [
+      10.506,
+      10.992
+     ],
+     "wall_id": "w_L0_016",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_008"
+    },
+    {
+     "id": "t_L0_door_0009",
      "type": "door",
      "width": 0.818,
      "center": [
@@ -2324,12 +2380,58 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L0_012"
+    },
+    {
+     "id": "t_L0_door_0010",
+     "type": "door",
+     "width": 0.824,
+     "center": [
+      11.308,
+      5.894
+     ],
+     "wall_id": "w_L0_002",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_004"
+    },
+    {
+     "id": "t_L0_door_0011",
+     "type": "door",
+     "width": 0.824,
+     "center": [
+      11.906,
+      6.51
+     ],
+     "wall_id": "w_L0_017",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_009"
+    },
+    {
+     "id": "t_L0_door_0012",
+     "type": "door",
+     "width": 0.778,
+     "center": [
+      11.906,
+      7.687
+     ],
+     "wall_id": "w_L0_017",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_010"
     }
    ],
    "windows": [
     {
-     "id": "win_L0_001",
+     "id": "t_L0_window_0001",
      "type": "window",
      "width": 2.683,
      "center": [
@@ -2340,10 +2442,31 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L0_001"
     },
     {
-     "id": "win_L0_002",
+     "id": "u_C0059_1",
+     "type": "window",
+     "width": null,
+     "center": [
+      2.335,
+      7.094
+     ],
+     "wall_id": "w_L0_003",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0059",
+     "absent": true,
+     "corrections": [
+      "C0059"
+     ],
+     "note": "no window between two bedrooms (25 Oct 2026 answer)",
+     "removed_on": "2026-10-25"
+    },
+    {
+     "id": "t_L0_window_0002",
      "type": "window",
      "width": 2.168,
      "center": [
@@ -2354,10 +2477,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L0_002"
     },
     {
-     "id": "win_L0_003",
+     "id": "t_L0_window_0003",
      "type": "window",
      "width": 2.168,
      "center": [
@@ -2368,10 +2492,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L0_003"
     },
     {
-     "id": "win_L0_004",
+     "id": "t_L0_window_0004",
      "type": "window",
      "width": 2.683,
      "center": [
@@ -2382,12 +2507,33 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L0_004"
+    },
+    {
+     "id": "u_C0059_2",
+     "type": "window",
+     "width": null,
+     "center": [
+      14.838,
+      7.094
+     ],
+     "wall_id": "w_L0_004",
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0059",
+     "absent": true,
+     "corrections": [
+      "C0059"
+     ],
+     "note": "the mirror twin",
+     "removed_on": "2026-10-25"
     }
    ],
    "openings": [
     {
-     "id": "o_L0_001",
+     "id": "t_L0_opening_0001",
      "type": "opening",
      "width": 2.142,
      "center": [
@@ -2398,10 +2544,11 @@
      "source": "accepted_reading",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "o_L0_001"
     },
     {
-     "id": "o_L0_002",
+     "id": "t_L0_opening_0002",
      "type": "opening",
      "width": 2.142,
      "center": [
@@ -2412,44 +2559,47 @@
      "source": "accepted_reading",
      "confidence": 0.5,
      "method": "derived",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "o_L0_002"
     }
    ],
    "walls": [
     {
-     "id": "w_L0_001",
+     "id": "t_L0_wall_0001",
      "start": [
-      0.0,
-      1.6
+      0.05,
+      0.0
      ],
      "end": [
-      15.172,
-      1.6
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_002",
-     "start": [
-      3.318,
-      5.894
-     ],
-     "end": [
-      11.856,
-      5.894
+      0.05,
+      1.5
      ],
      "thickness": 0.1,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_008"
     },
     {
-     "id": "w_L0_003",
+     "id": "t_L0_wall_0002",
+     "start": [
+      0.1,
+      1.7
+     ],
+     "end": [
+      0.1,
+      11.8
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_009"
+    },
+    {
+     "id": "t_L0_wall_0003",
      "start": [
       0.2,
       7.094
@@ -2462,26 +2612,130 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_003"
     },
     {
-     "id": "w_L0_004",
+     "id": "t_L0_wall_0004",
      "start": [
-      11.956,
-      7.094
+      3.268,
+      0.0
      ],
      "end": [
-      14.972,
-      7.094
+      3.268,
+      11.8
      ],
      "thickness": 0.1,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_010"
     },
     {
-     "id": "w_L0_005",
+     "id": "t_L0_wall_0005",
+     "start": [
+      4.668,
+      5.944
+     ],
+     "end": [
+      4.668,
+      11.8
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_011"
+    },
+    {
+     "id": "t_L0_wall_0006",
+     "start": [
+      4.818,
+      7.044
+     ],
+     "end": [
+      4.818,
+      7.444
+     ],
+     "thickness": 0.4,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_012"
+    },
+    {
+     "id": "t_L0_wall_0007",
+     "start": [
+      7.586,
+      0.0
+     ],
+     "end": [
+      7.586,
+      1.5
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_013"
+    },
+    {
+     "id": "t_L0_wall_0008",
+     "start": [
+      0.0,
+      1.6
+     ],
+     "end": [
+      15.172,
+      1.6
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_001"
+    },
+    {
+     "id": "t_L0_wall_0009",
+     "start": [
+      3.318,
+      5.894
+     ],
+     "end": [
+      11.856,
+      5.894
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_002"
+    },
+    {
+     "id": "t_L0_wall_0010",
+     "start": [
+      7.586,
+      1.7
+     ],
+     "end": [
+      7.586,
+      11.8
+     ],
+     "thickness": 0.4,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_014"
+    },
+    {
+     "id": "t_L0_wall_0011",
      "start": [
       4.718,
       7.519
@@ -2494,10 +2748,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_005"
     },
     {
-     "id": "w_L0_006",
+     "id": "t_L0_wall_0012",
      "start": [
       4.718,
       9.836
@@ -2510,10 +2765,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_006"
     },
     {
-     "id": "w_L0_007",
+     "id": "t_L0_wall_0013",
      "start": [
       0.0,
       11.9
@@ -2526,122 +2782,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_007"
     },
     {
-     "id": "w_L0_008",
-     "start": [
-      0.05,
-      0.0
-     ],
-     "end": [
-      0.05,
-      1.5
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_009",
-     "start": [
-      0.1,
-      1.7
-     ],
-     "end": [
-      0.1,
-      11.8
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_010",
-     "start": [
-      3.268,
-      0.0
-     ],
-     "end": [
-      3.268,
-      11.8
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_011",
-     "start": [
-      4.668,
-      5.944
-     ],
-     "end": [
-      4.668,
-      11.8
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_012",
-     "start": [
-      4.818,
-      7.044
-     ],
-     "end": [
-      4.818,
-      7.444
-     ],
-     "thickness": 0.4,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_013",
-     "start": [
-      7.586,
-      0.0
-     ],
-     "end": [
-      7.586,
-      1.5
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_014",
-     "start": [
-      7.586,
-      1.7
-     ],
-     "end": [
-      7.586,
-      11.8
-     ],
-     "thickness": 0.4,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L0_015",
+     "id": "t_L0_wall_0014",
      "start": [
       10.356,
       7.044
@@ -2654,10 +2799,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_015"
     },
     {
-     "id": "w_L0_016",
+     "id": "t_L0_wall_0015",
      "start": [
       10.506,
       5.944
@@ -2670,10 +2816,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_016"
     },
     {
-     "id": "w_L0_017",
+     "id": "t_L0_wall_0016",
      "start": [
       11.906,
       0.0
@@ -2686,10 +2833,28 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_017"
     },
     {
-     "id": "w_L0_018",
+     "id": "t_L0_wall_0017",
+     "start": [
+      11.956,
+      7.094
+     ],
+     "end": [
+      14.972,
+      7.094
+     ],
+     "thickness": 0.1,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_004"
+    },
+    {
+     "id": "t_L0_wall_0018",
      "start": [
       15.072,
       1.7
@@ -2702,10 +2867,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_018"
     },
     {
-     "id": "w_L0_019",
+     "id": "t_L0_wall_0019",
      "start": [
       15.122,
       0.0
@@ -2718,12 +2884,13 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L0_019"
     }
    ],
    "stairs": [
     {
-     "id": "f_L0_001",
+     "id": "t_L0_stair_0001",
      "center": [
       6.066,
       8.644
@@ -2764,10 +2931,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "f_L0_001"
     },
     {
-     "id": "f_L0_002",
+     "id": "t_L0_stair_0002",
      "center": [
       9.087,
       8.644
@@ -2808,14 +2976,15 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "f_L0_002"
     }
    ]
   },
   "L1": {
    "rooms": [
     {
-     "id": "r_L1_teras",
+     "id": "t_L1_room_0001",
      "label": "Teras",
      "room_type": "balcony",
      "area": 19.677,
@@ -2852,90 +3021,11 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L1_teras"
     },
     {
-     "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
-     "label": "Oyun Aktivite Ve Dinlenme Odası",
-     "room_type": "other",
-     "area": 40.374,
-     "centroid": [
-      4.588,
-      3.815
-     ],
-     "polygon": [
-      [
-       1.8,
-       0.201
-      ],
-      [
-       7.386,
-       0.201
-      ],
-      [
-       7.386,
-       7.043
-      ],
-      [
-       7.186,
-       7.043
-      ],
-      [
-       7.186,
-       7.443
-      ],
-      [
-       1.8,
-       7.443
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
-     "label": "Oyun Aktivite Ve Dinlenme Odası",
-     "room_type": "other",
-     "area": 40.374,
-     "centroid": [
-      10.585,
-      3.815
-     ],
-     "polygon": [
-      [
-       7.787,
-       0.201
-      ],
-      [
-       13.373,
-       0.201
-      ],
-      [
-       13.373,
-       7.443
-      ],
-      [
-       7.987,
-       7.443
-      ],
-      [
-       7.987,
-       7.043
-      ],
-      [
-       7.787,
-       7.043
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L1_koridor",
+     "id": "t_L1_room_0002",
      "label": "Koridor",
      "room_type": "hall",
      "area": 15.343,
@@ -2980,10 +3070,159 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L1_koridor"
     },
     {
-     "id": "r_L1_koridor_2",
+     "id": "t_L1_room_0003",
+     "label": "Oyun Aktivite Ve Dinlenme Odası",
+     "room_type": "other",
+     "area": 40.374,
+     "centroid": [
+      4.588,
+      3.815
+     ],
+     "polygon": [
+      [
+       1.8,
+       0.201
+      ],
+      [
+       7.386,
+       0.201
+      ],
+      [
+       7.386,
+       7.043
+      ],
+      [
+       7.186,
+       7.043
+      ],
+      [
+       7.186,
+       7.443
+      ],
+      [
+       1.8,
+       7.443
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi"
+    },
+    {
+     "id": "t_L1_room_0004",
+     "label": "Banyo",
+     "room_type": "bathroom",
+     "area": 4.978,
+     "centroid": [
+      6.052,
+      10.868
+     ],
+     "polygon": [
+      [
+       4.718,
+       9.935
+      ],
+      [
+       7.386,
+       9.935
+      ],
+      [
+       7.386,
+       11.801
+      ],
+      [
+       4.718,
+       11.801
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L1_banyo"
+    },
+    {
+     "id": "t_L1_room_0005",
+     "label": "Banyo",
+     "room_type": "bathroom",
+     "area": 4.978,
+     "centroid": [
+      9.12,
+      10.868
+     ],
+     "polygon": [
+      [
+       7.787,
+       9.935
+      ],
+      [
+       10.454,
+       9.935
+      ],
+      [
+       10.454,
+       11.801
+      ],
+      [
+       7.787,
+       11.801
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L1_banyo_2"
+    },
+    {
+     "id": "t_L1_room_0006",
+     "label": "Oyun Aktivite Ve Dinlenme Odası",
+     "room_type": "other",
+     "area": 40.374,
+     "centroid": [
+      10.585,
+      3.815
+     ],
+     "polygon": [
+      [
+       7.787,
+       0.201
+      ],
+      [
+       13.373,
+       0.201
+      ],
+      [
+       13.373,
+       7.443
+      ],
+      [
+       7.987,
+       7.443
+      ],
+      [
+       7.987,
+       7.043
+      ],
+      [
+       7.787,
+       7.043
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2"
+    },
+    {
+     "id": "t_L1_room_0007",
      "label": "Koridor",
      "room_type": "hall",
      "area": 15.343,
@@ -3028,74 +3267,11 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "r_L1_koridor_2"
     },
     {
-     "id": "r_L1_banyo",
-     "label": "Banyo",
-     "room_type": "bathroom",
-     "area": 4.978,
-     "centroid": [
-      6.052,
-      10.868
-     ],
-     "polygon": [
-      [
-       4.718,
-       9.935
-      ],
-      [
-       7.386,
-       9.935
-      ],
-      [
-       7.386,
-       11.801
-      ],
-      [
-       4.718,
-       11.801
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L1_banyo_2",
-     "label": "Banyo",
-     "room_type": "bathroom",
-     "area": 4.978,
-     "centroid": [
-      9.12,
-      10.868
-     ],
-     "polygon": [
-      [
-       7.787,
-       9.935
-      ],
-      [
-       10.454,
-       9.935
-      ],
-      [
-       10.454,
-       11.801
-      ],
-      [
-       7.787,
-       11.801
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "r_L1_teras_2",
+     "id": "t_L1_room_0008",
      "label": "Teras",
      "room_type": "balcony",
      "area": 19.677,
@@ -3132,12 +3308,28 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L1_teras_2"
     }
    ],
    "doors": [
     {
-     "id": "d_L1_001",
+     "id": "t_L1_door_0001",
+     "type": "door",
+     "width": 0.824,
+     "center": [
+      1.75,
+      8.439
+     ],
+     "wall_id": "w_L1_010",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_003"
+    },
+    {
+     "id": "t_L1_door_0002",
      "type": "door",
      "width": 0.822,
      "center": [
@@ -3148,38 +3340,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_001"
     },
     {
-     "id": "d_L1_002",
-     "type": "door",
-     "width": 0.822,
-     "center": [
-      12.79,
-      7.518
-     ],
-     "wall_id": "w_L1_003",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L1_003",
-     "type": "door",
-     "width": 0.824,
-     "center": [
-      1.75,
-      8.439
-     ],
-     "wall_id": "w_L1_010",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "d_L1_004",
+     "id": "t_L1_door_0003",
      "type": "door",
      "width": 0.824,
      "center": [
@@ -3190,10 +3355,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_004"
     },
     {
-     "id": "d_L1_005",
+     "id": "t_L1_door_0004",
      "type": "door",
      "width": 0.824,
      "center": [
@@ -3204,10 +3370,26 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_005"
     },
     {
-     "id": "d_L1_006",
+     "id": "t_L1_door_0005",
+     "type": "door",
+     "width": 0.822,
+     "center": [
+      12.79,
+      7.518
+     ],
+     "wall_id": "w_L1_003",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_002"
+    },
+    {
+     "id": "t_L1_door_0006",
      "type": "door",
      "width": 0.824,
      "center": [
@@ -3218,12 +3400,13 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "d_L1_006"
     }
    ],
    "windows": [
     {
-     "id": "win_L1_001",
+     "id": "t_L1_window_0001",
      "type": "window",
      "width": 2.0,
      "center": [
@@ -3234,10 +3417,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_001"
     },
     {
-     "id": "win_L1_002",
+     "id": "t_L1_window_0002",
      "type": "window",
      "width": 2.0,
      "center": [
@@ -3248,26 +3432,13 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L1_002"
     }
    ],
    "openings": [
     {
-     "id": "o_L1_001",
-     "type": "opening",
-     "width": 0.81,
-     "center": [
-      7.596,
-      7.518
-     ],
-     "wall_id": "w_L1_003",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified"
-    },
-    {
-     "id": "o_L1_002",
+     "id": "t_L1_opening_0001",
      "type": "opening",
      "width": 0.81,
      "center": [
@@ -3278,92 +3449,62 @@
      "source": "accepted_reading",
      "confidence": 0.6,
      "method": "inferred",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "o_L1_002"
+    },
+    {
+     "id": "t_L1_opening_0002",
+     "type": "opening",
+     "width": 0.81,
+     "center": [
+      7.596,
+      7.518
+     ],
+     "wall_id": "w_L1_003",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L1_001"
     }
    ],
    "walls": [
     {
-     "id": "w_L1_001",
+     "id": "t_L1_wall_0001",
      "start": [
-      0.001,
-      0.101
+      0.101,
+      0.201
      ],
      "end": [
-      15.172,
-      0.101
+      0.101,
+      11.801
      ],
      "thickness": 0.2,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_009"
     },
     {
-     "id": "w_L1_002",
+     "id": "t_L1_wall_0002",
      "start": [
-      7.186,
-      7.318
+      1.75,
+      0.201
      ],
      "end": [
-      7.987,
-      7.318
+      1.75,
+      10.201
      ],
-     "thickness": 0.55,
+     "thickness": 0.1,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_010"
     },
     {
-     "id": "w_L1_003",
-     "start": [
-      1.8,
-      7.518
-     ],
-     "end": [
-      13.373,
-      7.518
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_004",
-     "start": [
-      7.386,
-      7.567
-     ],
-     "end": [
-      7.787,
-      7.567
-     ],
-     "thickness": 0.05,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_005",
-     "start": [
-      4.619,
-      9.835
-     ],
-     "end": [
-      10.555,
-      9.835
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_006",
+     "id": "t_L1_wall_0003",
      "start": [
       1.7,
       10.246
@@ -3376,74 +3517,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_006"
     },
     {
-     "id": "w_L1_007",
-     "start": [
-      11.954,
-      10.246
-     ],
-     "end": [
-      13.473,
-      10.246
-     ],
-     "thickness": 0.11,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_008",
-     "start": [
-      0.001,
-      11.901
-     ],
-     "end": [
-      15.172,
-      11.901
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_009",
-     "start": [
-      0.101,
-      0.201
-     ],
-     "end": [
-      0.101,
-      11.801
-     ],
-     "thickness": 0.2,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_010",
-     "start": [
-      1.75,
-      0.201
-     ],
-     "end": [
-      1.75,
-      10.201
-     ],
-     "thickness": 0.1,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L1_011",
+     "id": "t_L1_wall_0004",
      "start": [
       3.268,
       10.191
@@ -3456,10 +3534,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_011"
     },
     {
-     "id": "w_L1_012",
+     "id": "t_L1_wall_0005",
      "start": [
       4.668,
       9.935
@@ -3472,10 +3551,28 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_012"
     },
     {
-     "id": "w_L1_013",
+     "id": "t_L1_wall_0006",
+     "start": [
+      0.001,
+      0.101
+     ],
+     "end": [
+      15.172,
+      0.101
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_001"
+    },
+    {
+     "id": "t_L1_wall_0007",
      "start": [
       7.587,
       0.201
@@ -3488,10 +3585,96 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_013"
     },
     {
-     "id": "w_L1_014",
+     "id": "t_L1_wall_0008",
+     "start": [
+      7.186,
+      7.318
+     ],
+     "end": [
+      7.987,
+      7.318
+     ],
+     "thickness": 0.55,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_002"
+    },
+    {
+     "id": "t_L1_wall_0009",
+     "start": [
+      1.8,
+      7.518
+     ],
+     "end": [
+      13.373,
+      7.518
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_003"
+    },
+    {
+     "id": "t_L1_wall_0010",
+     "start": [
+      7.386,
+      7.567
+     ],
+     "end": [
+      7.787,
+      7.567
+     ],
+     "thickness": 0.05,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_004"
+    },
+    {
+     "id": "t_L1_wall_0011",
+     "start": [
+      4.619,
+      9.835
+     ],
+     "end": [
+      10.555,
+      9.835
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_005"
+    },
+    {
+     "id": "t_L1_wall_0012",
+     "start": [
+      0.001,
+      11.901
+     ],
+     "end": [
+      15.172,
+      11.901
+     ],
+     "thickness": 0.2,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_008"
+    },
+    {
+     "id": "t_L1_wall_0013",
      "start": [
       10.505,
       9.935
@@ -3504,10 +3687,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_014"
     },
     {
-     "id": "w_L1_015",
+     "id": "t_L1_wall_0014",
      "start": [
       11.905,
       10.191
@@ -3520,10 +3704,28 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_015"
     },
     {
-     "id": "w_L1_016",
+     "id": "t_L1_wall_0015",
+     "start": [
+      11.954,
+      10.246
+     ],
+     "end": [
+      13.473,
+      10.246
+     ],
+     "thickness": 0.11,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_007"
+    },
+    {
+     "id": "t_L1_wall_0016",
      "start": [
       13.422,
       0.201
@@ -3536,10 +3738,11 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_016"
     },
     {
-     "id": "w_L1_017",
+     "id": "t_L1_wall_0017",
      "start": [
       15.072,
       0.201
@@ -3552,56 +3755,13 @@
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L1_017"
     }
    ],
    "stairs": [
     {
-     "id": "f_L1_001",
-     "center": [
-      9.114,
-      8.644
-     ],
-     "size": [
-      2.714,
-      2.1
-     ],
-     "rotation_deg": 0.0,
-     "room_id": "r_L1_koridor_2",
-     "turn": "U",
-     "flights": [
-      {
-       "start": [
-        8.977,
-        8.069
-       ],
-       "end": [
-        10.377,
-        8.069
-       ],
-       "width": 0.95,
-       "lines": 6
-      },
-      {
-       "start": [
-        8.987,
-        9.219
-       ],
-       "end": [
-        10.387,
-        9.219
-       ],
-       "width": 0.95,
-       "lines": 6
-      }
-     ],
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "f_L1_002",
+     "id": "t_L1_stair_0001",
      "center": [
       6.059,
       8.644
@@ -3642,15 +3802,104 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "f_L1_002"
+    },
+    {
+     "id": "t_L1_stair_0002",
+     "center": [
+      9.114,
+      8.644
+     ],
+     "size": [
+      2.714,
+      2.1
+     ],
+     "rotation_deg": 0.0,
+     "room_id": "r_L1_koridor_2",
+     "turn": "U",
+     "flights": [
+      {
+       "start": [
+        8.977,
+        8.069
+       ],
+       "end": [
+        10.377,
+        8.069
+       ],
+       "width": 0.95,
+       "lines": 6
+      },
+      {
+       "start": [
+        8.987,
+        9.219
+       ],
+       "end": [
+        10.387,
+        9.219
+       ],
+       "width": 0.95,
+       "lines": 6
+      }
+     ],
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "f_L1_001"
     }
    ]
   }
  },
- "accepted": {
-  "on": "2026-11-02",
-  "scope": "all",
-  "levels": null,
-  "note": "user, 2 Nov 2026: the reading regression set ('go ahead with all 4', 'can we keep improving this regression set?'); its first baselines are the readings the user had reviewed on the comparison sheets (docs/progress.md, Reading self-check and regression set)"
+ "corrections": [
+  "C0059"
+ ],
+ "built_from": {
+  "reading": "results/reading_accepted/real04.json",
+  "reading_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+  "records": [
+   "C0059"
+  ]
+ },
+ "build_report": {
+  "applied": [
+   {
+    "record": "C0059",
+    "op": "remove",
+    "kind": "window",
+    "level": "L0",
+    "place": [
+     2.335,
+     7.094
+    ],
+    "state": "negated",
+    "ids": [
+     "u_C0059_1"
+    ]
+   },
+   {
+    "record": "C0059",
+    "op": "remove",
+    "kind": "window",
+    "level": "L0",
+    "place": [
+     14.838,
+     7.094
+    ],
+    "state": "negated",
+    "ids": [
+     "u_C0059_2"
+    ]
+   }
+  ],
+  "unmatched": [],
+  "not_replayed": [
+   {
+    "record": "C0060",
+    "why": "status 'proposed': waits for the user's confirmation"
+   }
+  ]
  }
 }

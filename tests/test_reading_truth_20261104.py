@@ -1,6 +1,7 @@
 """4 Nov 2026, Milestone 14 track R1 (user: "I want structure recognition to be cumulatively better with the feedbacks
 I am giving"; review findings of 5 Nov 2026): the truth corpus from a building dict, the user's explicit acceptance,
-the drift check, the synthetic truth, the merge that protects user corrections, add / remove, the matching rules of
+the drift check, the synthetic truth, the derived truth (the accepted reading plus the replay of the records, 6 Nov
+2026), the replayed operations, the matching rules of
 the reading score (a hit, a near miss over the tolerance, a label fold), the weighted total, the gate, and the
 correction store's records. CPU only, pure parts, no LibreDWG (one DXF reading of a synthetic project at the end)."""
 from __future__ import annotations
@@ -200,88 +201,84 @@ def test_a_synthetic_projects_exact_truth_is_the_truth(tmp_path):
     assert ts["per_level"]["L0"]["rooms"][0]["centroid"] == [2.0, 2.0] and ts["levels"][0]["source"] == "synthetic"
 
 
-def test_a_build_never_overwrites_a_user_correction_or_a_synthetic_element():
-    new = TR.extract(building(), project="tiny")
-    existing = copy.deepcopy(new)
-    existing["per_level"]["L0"]["doors"].append({"id": "uc_L0_door_001", "type": "door", "center": [8.0, 4.0],
-                                                 "width": 0.9, "source": "user_correction", "correction": "C0012"})
-    existing["per_level"]["L0"]["windows"][0] = dict(existing["per_level"]["L0"]["windows"][0], absent=True,
-                                                      source="user_correction", correction="C0013")
-    existing["per_level"]["L2"] = {k: [] for k in TR.ELEMENT_TYPES}
-    existing["per_level"]["L2"]["rooms"].append({"id": "uc_L2_room_001", "label": "Oda", "centroid": [1, 1],
-                                                 "polygon": [], "source": "user_correction"})
-    existing["levels"].append({"id": "L2", "label": None, "elevation": None, "order": None,
-                               "source": "user_correction"})
-    existing["corrections"] = ["C0012", "C0013"]
-    merged = TR.merge(existing, new)
-    l0 = merged["per_level"]["L0"]
-    # 5 Nov 2026: every element has a truth id of its own; the reader's id (or the old uc_ id) stays as a hint
-    assert [d.get("reader_id") or d.get("old_id") for d in l0["doors"]] == ["d_L0_001", "uc_L0_door_001"]
-    assert all(TR.is_truth_id(e["id"]) for lv in merged["per_level"].values() for els in lv.values() for e in els)
-    assert l0["windows"][0]["absent"] is True and len(l0["windows"]) == 1          # the negation wins over the new
-    assert [lv["id"] for lv in merged["levels"]] == ["L0", "L1", "L2"] and merged["per_level"]["L2"]["rooms"]
-    assert merged["corrections"] == ["C0012", "C0013"] and merged["kept_from_previous"] == 3
-    first = TR.merge(None, new)
-    assert all(TR.is_truth_id(d["id"]) for d in first["per_level"]["L0"]["doors"]) and \
-        [d["reader_id"] for d in first["per_level"]["L0"]["doors"]] == ["d_L0_001"]
-    # a synthetic element is protected against an accepted-reading build (the same place: the synthetic one wins),
-    # not against a synthetic one
-    syn = TR.extract(building(), project="tiny", source="synthetic")
-    walls = TR.merge(syn, new)["per_level"]["L0"]["walls"]
-    assert len(walls) == 3 and {w["source"] for w in walls} == {"synthetic"}
-    new_only = copy.deepcopy(new)
-    new_only["per_level"]["L0"]["walls"][0]["id"] = "w_L0_new"              # another id, the same place: the same wall
-    assert len(TR.merge(syn, new_only)["per_level"]["L0"]["walls"]) == 3
-    new_only["per_level"]["L0"]["walls"][0].update(start=[0, 9], end=[10, 9])  # another place: a new wall
-    assert len(TR.merge(syn, new_only)["per_level"]["L0"]["walls"]) == 4     # 1 new + 3 protected synthetic
-    assert len(TR.merge(syn, syn)["per_level"]["L0"]["walls"]) == 3 and "kept_from_previous" not in TR.merge(syn, syn)
+def _record(rid: str, *ops: dict, **kw) -> dict:
+    r = {"id": rid, "date": "2026-11-05", "project": "tiny", "level": "L0", "place": None, "element_kind": "door",
+         "reader_answer": "", "right_answer": "", "user_words": "the user's words", "lesson": None, "note": "test",
+         "source": "user_review", "status": "accepted", "truth_action": {"op": ops[0]["op"], "elements": list(ops)}}
+    r.update(kw)
+    return r
 
 
-def test_add_and_remove_put_a_user_correction_into_the_truth():
-    t = TR.new_truth("real09")
-    assert t["status"] == "partial" and t["levels"] == []
-    TR.add_element(t, "door", "L0", {"center": "4.2,3.6", "width": "0.9", "wall_id": "w_L0_007"},
-                   correction="C0012", date="2026-11-05")
-    d = t["last_added"]
-    assert d["id"] == "t_L0_door_0001" and d["center"] == [4.2, 3.6] and d["width"] == 0.9
-    assert d["source"] == "user_correction" and d["correction"] == "C0012" and d["method"] == "user"
-    assert [lv["id"] for lv in t["levels"]] == ["L0"] and t["levels"][0]["source"] == "user_correction"
-    assert t["corrections"] == ["C0012"]
-    TR.add_element(t, "room", "L0", {"label": "Merdiven", "room_type": "stair", "polygon": "0,0;3,0;3,4;0,4"},
-                   correction="C0006")
-    r = t["last_added"]
-    assert r["centroid"] == [1.5, 2.0] and r["polygon"][2] == [3.0, 4.0] and r["id"] == "t_L0_room_0002"
-    TR.add_element(t, "wall", "L0", {"start": "0,0", "end": "6,0", "thickness": "0.25"})
-    TR.add_element(t, "stair", "L0", {"center": "1.5,2", "size": "2.6,2.2", "turn": "U"})
-    TR.add_element(t, "level", "L1", {"label": "1. Normal Kat", "elevation": "3.0", "order": "1"}, correction="C0005")
-    assert t["levels"][1] == {"id": "L1", "label": "1. Normal Kat", "elevation": 3.0, "order": 1,
-                              "source": "user_correction", "correction": "C0005"}
-    assert TR.counts(t) == {"levels": 2, "rooms": 1, "doors": 1, "windows": 0, "openings": 0, "walls": 1, "stairs": 1}
-    with pytest.raises(ValueError):
-        TR.add_element(t, "window", "L0", {"width": "1.2"})                       # no place
-    with pytest.raises(ValueError):
-        TR.add_element(t, "sofa", "L0", {"center": "1,1"})
-    # remove: by id, by place (within the tolerance), or a new absent entry
-    TR.remove_element(t, "door", "L0", {"id": "t_L0_door_0001"}, correction="C0020")
-    assert t["last_removed"]["absent"] is True and t["last_removed"]["correction"] == "C0020"
-    assert TR.counts(t)["doors"] == 0 and len(t["per_level"]["L0"]["doors"]) == 1
-    TR.add_element(t, "window", "L0", {"center": "3,0", "width": "1.5"})
-    TR.remove_element(t, "window", "L0", {"center": "3.2,0.1"})                   # 0.22 m: the same window
-    assert len(t["per_level"]["L0"]["windows"]) == 1 and t["per_level"]["L0"]["windows"][0]["absent"] is True
-    TR.remove_element(t, "window", "L0", {"center": "9,0"}, correction="C0021")   # nothing there: a new negation
-    assert len(t["per_level"]["L0"]["windows"]) == 2 and TR.is_truth_id(t["last_removed"]["id"])
-    assert t["corrections"] == ["C0005", "C0006", "C0012", "C0020", "C0021"]
+def test_the_truth_is_the_accepted_reading_and_the_replay_of_the_records():
+    """6 Nov 2026 (the derived truth): no merge; the accepted entries get truth ids from a deterministic order, the
+    records are replayed by place, a synthetic project's exact truth is its accepted reading."""
+    acc = TR.extract(building(), project="tiny", commit="c1", date="2026-11-04")
+    t = TR.build_truth("tiny", acc, [])
+    assert TR.counts(t) == TR.counts(acc) and t["built_from"] == {"reading": None, "reading_commit": "c1",
+                                                                   "records": []}
+    l0 = t["per_level"]["L0"]
+    assert [d["id"] for d in l0["doors"]] == ["t_L0_door_0001"] and l0["doors"][0]["reader_id"] == "d_L0_001"
+    assert [w["id"] for w in l0["walls"]] == ["t_L0_wall_0001", "t_L0_wall_0002", "t_L0_wall_0003"]
+    assert all(e["source"] == TR.SOURCE_ACCEPTED for lv in t["per_level"].values() for els in lv.values() for e in els)
+    recs = [_record("C0012", {"op": "add", "kind": "door", "level": "L0", "center": [8.0, 4.0], "width": 0.9}),
+            _record("C0013", {"op": "remove", "kind": "window", "level": "L0", "center": [3.0, 0.0]}),
+            _record("C0014", {"op": "add", "kind": "door", "level": "L2", "center": [1.0, 1.0]}),
+            _record("C0015", {"op": "add", "kind": "door", "level": "L0", "center": [1.0, 1.0]}, status="proposed"),
+            dict(_record("C0016", {"op": "add", "kind": "door", "level": "L0", "center": [1.0, 1.0]}), project="x")]
+    t = TR.build_truth("tiny", acc, recs)
+    l0 = t["per_level"]["L0"]
+    assert [(d["id"], d["source"]) for d in l0["doors"]] == [("t_L0_door_0001", "accepted_reading"),
+                                                             ("u_C0012_1", "user_correction")]
+    assert [(w["id"], w.get("absent")) for w in l0["windows"]] == [("u_C0013_1", True)]
+    assert l0["windows"][0]["removed_elements"] == ["t_L0_window_0001"]
+    assert [lv["id"] for lv in t["levels"]] == ["L0", "L1"]                 # C0014's L2 never comes in
+    assert t["corrections"] == ["C0012", "C0013"] and t["built_from"]["records"] == ["C0012", "C0013", "C0014"]
+    assert [u["record"] for u in t["build_report"]["unmatched"]] == ["C0014"]
+    assert [n["record"] for n in t["build_report"]["not_replayed"]] == ["C0015"]   # C0016 is another project's
+    assert TR.dumps(TR.build_truth("tiny", acc, recs)) == TR.dumps(t)      # the same inputs, the same bytes
+    syn = TR.synthetic_truth("synthetic-06", TR.synthetic_truth_file("synthetic-06"))
+    st = TR.build_truth("synthetic-06", syn, [])
+    assert st["source"] == "synthetic" and TR.counts(st) == TR.counts(syn)
+    assert st["built_from"]["reading"] == "projects/synthetic-06/truth/building.json"
+
+
+def test_the_replayed_operations_put_a_user_correction_into_the_truth():
+    acc = TR.extract(building(), project="tiny")
+    ops = [{"op": "add", "kind": "door", "level": "L0", "center": [4.2, 3.6], "width": 0.9, "wall_id": "w_L0_007"},
+           {"op": "add", "kind": "room", "level": "L1", "label": "Merdiven", "room_type": "stair",
+            "polygon": [[0, 0], [8, 0], [8, 4], [0, 4]]},                                  # IoU 0.8 with r_L1_oda
+           {"op": "add", "kind": "wall", "level": "L0", "start": [0, 9], "end": [6, 9], "thickness": 0.25},
+           {"op": "add", "kind": "stair", "level": "L1", "center": [1.5, 2], "size": [2.6, 2.2], "turn": "U"},
+           {"op": "add", "kind": "level", "level": "L2", "label": "2. Normal Kat", "elevation": 6.0, "order": 2},
+           {"op": "add", "kind": "window", "level": "L0", "width": 1.2},                         # no place
+           {"op": "add", "kind": "sofa", "level": "L0", "center": [1, 1]}]                      # no truth kind
+    t = TR.build_truth("tiny", acc, [_record("C0012", *ops)])
+    d = next(e for e in t["per_level"]["L0"]["doors"] if e["id"] == "u_C0012_1")
+    assert d["center"] == [4.2, 3.6] and d["width"] == 0.9 and d["method"] == "user"
+    assert d["source"] == "user_correction" and d["corrections"] == ["C0012"] and d["added_on"] == "2026-11-05"
+    r = t["per_level"]["L1"]["rooms"]
+    assert [(x["label"], x["room_type"], x["polygon"]) for x in r] == [("Merdiven", "stair",
+                                                                        [[0, 0], [10, 0], [10, 4], [0, 4]])]
+    assert r[0]["changed"] == ["label", "room_type"]          # the room at the place takes the label, keeps its plan
+    assert t["levels"][2] == {"id": "L2", "label": "2. Normal Kat", "elevation": 6.0, "order": 2,
+                              "source": "user_correction", "corrections": ["C0012"], "correction": "C0012"}
+    assert [u["why"][:20] for u in t["build_report"]["unmatched"]] == ["a window needs its c", "kind 'sofa' is no el"]
+    assert TR.counts(t) == {"levels": 3, "rooms": 3, "doors": 2, "windows": 1, "openings": 1, "walls": 5, "stairs": 2}
+    # remove: the element at the place (within the tolerance) goes and a negation is written; nothing there: a
+    # negation at the record's place
+    rm = [{"op": "remove", "kind": "door", "level": "L0", "center": [6.1, 2.0]},
+          {"op": "remove", "kind": "window", "level": "L0", "center": [3.2, 0.1]},             # 0.22 m: the window
+          {"op": "remove", "kind": "window", "level": "L0", "center": [9.0, 0.0]}]
+    t = TR.build_truth("tiny", acc, [_record("C0020", *rm)])
+    l0 = t["per_level"]["L0"]
+    assert TR.counts(t)["doors"] == 0 and [e["center"] for e in l0["doors"]] == [[6.1, 2.0]]
+    assert l0["doors"][0]["absent"] is True and l0["doors"][0]["width"] == 0.9            # what the reading said
+    assert [(w["center"], w["absent"]) for w in l0["windows"]] == [([3.2, 0.1], True), ([9.0, 0.0], True)]
     # the score penalises a reading that has the negated door and misses nothing else
-    read = {"levels": [{"id": "L0"}, {"id": "L1"}],
-            "per_level": {"L0": {"rooms": [dict(r)], "doors": [{"center": [4.25, 3.6]}], "windows": [],
-                                 "openings": [], "walls": [t["per_level"]["L0"]["walls"][0]],
-                                 "stairs": [t["per_level"]["L0"]["stairs"][0]]},
-                          "L1": {k: [] for k in TR.ELEMENT_TYPES}}}
-    res = SC.match(t, read)
+    res = SC.match(t, TR.extract(building()))
     assert res["doors"] == {"truth": 0, "read": 1, "matched": 0, "absent_hits": 1, "recall": 1.0, "precision": 0.0,
                             "f1": 0.0}
-    assert res["rooms"]["f1"] == 1.0 and res["walls"]["f1"] == 1.0 and res["stairs"]["f1"] == 1.0
-    assert res["total"] == pytest.approx(100 * 12 / 14, abs=0.01)             # doors weigh 2 of 14 with F1 0
+    assert res["windows"]["absent_hits"] == 1 and res["rooms"]["f1"] == 1.0 and res["walls"]["f1"] == 1.0
 
 
 # --- the matching rules ---------------------------------------------------------------------------------------------
@@ -465,11 +462,12 @@ def test_a_placeable_remark_of_the_users_review_needs_a_place_or_a_place_note():
                                          why="a level elevation")], [], ["real10"]) == []
 
 
-def test_every_correction_record_is_placed_or_says_why_and_the_applied_ones_are_in_the_truth():
-    """5 Nov 2026: the 58 records of 3-5 Nov located on the current readings: each says whether it is placeable;
-    a placed one carries its level, element ids, source, confidence and note, and a truth action in the vocabulary
-    of `truth add|remove` (retype as remove + add); an applied action is in its project's truth file under its
-    correction id; the machine's proposals are never applied."""
+def test_every_correction_record_is_placed_or_says_why_and_the_replayed_ones_are_in_the_truth():
+    """5 Nov 2026: the records located on the current readings say whether they are placeable; a placed one carries
+    its level, the reader's ids as hints (``reader_ids``, the one name since 6 Nov 2026: records name places), source,
+    confidence and note, and a truth action of the replay's operations. 6 Nov 2026 (the derived truth): every record
+    the replay may use is in its project's truth (``built_from.records``) and its operations in the build report; the
+    machine's proposals, the session's own notes and the held records never are."""
     from wenart.reading_check import remark as RM
 
     records = TR.load_corrections()
@@ -479,73 +477,70 @@ def test_every_correction_record_is_placed_or_says_why_and_the_applied_ones_are_
     assert all(r.get("place_note") for r in records if r["placeable"])
     assert len(placed) >= 30
     for r in placed:
-        assert r["level"] and r["element_ids"] and r["place_source"] == "located_by_machine", r["id"]
+        assert r["level"] and r["place_source"] in ("located_by_machine", "given_by_user"), r["id"]
+        assert r.get("reader_ids") or r["place_source"] == "given_by_user", r["id"]
         assert 0.0 <= float(r["place_confidence"]) <= 1.0, r["id"]
         assert RM.validate_truth_action(r["truth_action"]) is None, r["id"]
-        for el in r["truth_action"].get("elements") or [r["truth_action"]]:
-            assert el["op"] in ("add", "remove") and el["kind"] in TR.KIND_TO_TYPE and el["level"], r["id"]
+        for el in TR.record_ops(r):
+            assert el["op"] in TR.OPS and el["kind"] in TR.KIND_TO_TYPE and el["level"], r["id"]
     for r in records:
         if r["status"] == "proposed" or r["source"] == "machine_review":
-            assert (r.get("truth_applied") or {}).get("status") != "applied", r["id"]
-    applied = [r for r in records if (r.get("truth_applied") or {}).get("status") == "applied"]
-    assert len(applied) >= 20
-    for r in applied:
-        assert TR.correction_applicable(r) is None, r["id"]          # accepted, with the user's words
-        assert float(r["place_confidence"]) >= 0.6, r["id"]
-        truth = TR.load_truth(r["project"])
-        assert r["id"] in (truth.get("corrections") or []), r["id"]
-        # review of 5 Nov 2026: every listed result is in the truth as listed, and nothing else carries the id
-        tagged = {(lid, typ, e["id"]): e for lid, lv in truth["per_level"].items() for typ, els in lv.items()
-                  for e in els if r["id"] in (e.get("corrections") or [])}
-        listed = {(x["level"], x["type"], x["id"]): x["state"] for x in r["truth_applied"]["results"]}
-        assert listed and set(listed) == set(tagged), r["id"]
-        assert r["truth_applied"]["elements"] == len(listed), r["id"]
-        for key, state in listed.items():
-            e = tagged[key]
-            assert e["source"] == TR.SOURCE_USER and r["id"] in e["corrections"], (r["id"], key)
-            assert (state == "absent") == bool(e.get("absent")), (r["id"], key)
-            assert state.startswith("changed") == bool(e.get("changed")), (r["id"], key)
-    # the session's own notes (no user words) and the machine's proposals never reach the truth
-    not_applied = {r["id"]: r for r in records if (r.get("truth_applied") or {}).get("status") == "not_applied"}
-    assert "no user words" in not_applied["C0022"]["truth_applied"]["why"]
-    assert "UL287" in not_applied["C0018"]["truth_applied"]["why"]
+            assert (r.get("truth_applied") or {}).get("status") not in ("applied", "replayed"), r["id"]
+    for project in TR.truth_projects():
+        truth = TR.load_truth(project)
+        for r in records:
+            if r["project"] != project:
+                continue
+            replay = TR.correction_applicable(r) is None and bool(TR.record_ops(r))
+            assert (r["id"] in truth["built_from"]["records"]) == replay, (project, r["id"])
+    by_id = {r["id"]: r for r in records}
+    assert "no user words" in TR.correction_applicable(by_id["C0022"])
+    assert "UL287" in TR.correction_applicable(by_id["C0018"])               # held by the review of 5 Nov 2026
+    assert "under 0.6" in TR.correction_applicable(by_id["C0021"])           # a low-confidence place waits
     real06 = TR.load_truth("real06")
-    assert not real06.get("corrections") and all(
-        e["source"] == TR.SOURCE_ACCEPTED for lv in real06["per_level"].values() for els in lv.values() for e in els)
+    assert real06["corrections"] == ["C0063", "C0064", "C0065"]
     # C0047: one door at the drawn centre (the DXF jambs 5.34 and 6.14), the size tag's second door a double read
-    doors = {e.get("reader_id"): e for e in TR.load_truth("real07")["per_level"]["L0"]["doors"]}
-    assert doors["d_L0_002"]["center"] == [5.74, 2.19] and doors["d_L0_002"]["width"] == 0.8
-    assert doors["d_L0_002"]["evidence"] and not doors["d_L0_002"].get("absent")
-    assert doors["d_L0_001"]["absent"] is True and "double read" in doors["d_L0_001"]["note"]
+    doors = TR.load_truth("real07")["per_level"]["L0"]["doors"]
+    kat = [e for e in doors if e["center"] == [5.74, 2.19]]
+    assert len(kat) == 1 and kat[0]["width"] == 0.8 and kat[0]["evidence"] and not kat[0].get("absent")
+    neg = [e for e in doors if e["center"] == [5.36, 2.19]]
+    assert len(neg) == 1 and neg[0]["absent"] is True and "double read" in neg[0]["note"]
     # C0034: one lift door per floor, the south one; the reading's east one negated with the drawing's evidence
     real10 = TR.load_truth("real10")
     for lv in ("L0", "L1", "L2", "L3", "L4", "L5", "L6"):
-        lift = [e for e in real10["per_level"][lv]["doors"] if e.get("reader_id") in (f"o_{lv}_006", f"o_{lv}_019")]
-        assert sorted((e["reader_id"], bool(e.get("absent"))) for e in lift) == [(f"o_{lv}_006", False),
-                                                                         (f"o_{lv}_019", True)]
+        lift = [e for e in real10["per_level"][lv]["doors"] if e["center"] in ([9.666, 8.45], [10.658, 9.085])]
+        assert sorted((e["center"], bool(e.get("absent"))) for e in lift) == [([9.666, 8.45], False),
+                                                                              ([10.658, 9.085], True)]
         assert any(ev["layer"] == "kolon" for ev in next(e for e in lift if e.get("absent"))["evidence"])
 
 
 def test_a_confirm_keeps_the_readings_element_and_collects_every_correction_id():
-    """Review of 5 Nov 2026: a confirm changes only the source and the correction ids (a stair keeps its rotation,
-    room and flights); a field that differs is a change, listed; an element touched twice keeps both ids."""
-    t = TR.extract(building(), project="tiny")
-    stair = copy.deepcopy(t["per_level"]["L0"]["stairs"][0])
-    TR.add_element(t, "stair", "L0", {"id": stair["id"], "turn": stair["turn"]}, correction="C0016", date="2026-11-05")
+    """Review of 5 Nov 2026, kept by the replay: a confirm changes only the source and the correction ids (a stair
+    keeps its rotation, room and flights); an add on an element replaces what the user gives (listed in
+    ``changed``); an element touched by several records keeps all their ids, in record order."""
+    acc = TR.extract(building(), project="tiny")
+    stair = TR.build_truth("tiny", acc, [])["per_level"]["L0"]["stairs"][0]
+    recs = [_record("C0016", {"op": "confirm", "kind": "stair", "level": "L0", "center": [1.6, 2.1]}),
+            _record("C0027", {"op": "add", "kind": "door", "level": "L0", "center": [6.0, 2.0]}),
+            _record("C0040", {"op": "add", "kind": "door", "level": "L0", "center": [6.05, 2.0], "width": 0.8}),
+            _record("C0047", {"op": "remove", "kind": "door", "level": "L0", "center": [6.05, 2.0],
+                              "note": "a double read"})]
+    t = TR.build_truth("tiny", acc, recs[:1])
     got = t["per_level"]["L0"]["stairs"][0]
     assert {k: v for k, v in got.items() if k not in ("source", "correction", "corrections", "confirmed_on")} == \
         {k: v for k, v in stair.items() if k != "source"}
     assert got["source"] == TR.SOURCE_USER and got["corrections"] == ["C0016"] and "changed" not in got
-    assert got["rotation_deg"] == stair["rotation_deg"] and got["flights"] == stair["flights"]
-    door = t["per_level"]["L0"]["doors"][0]
-    TR.add_element(t, "door", "L0", {"id": door["id"]}, correction="C0027")
-    TR.add_element(t, "door", "L0", {"id": door["id"], "center": "1.5,0", "width": "0.8"}, correction="C0040")
-    got = next(e for e in t["per_level"]["L0"]["doors"] if e["id"] == door["id"])
-    assert got["corrections"] == ["C0027", "C0040"] and got["correction"] == "C0040"
-    assert got["changed"] == ["center", "width"] and got["method"] == "user" and got["center"] == [1.5, 0.0]
-    TR.remove_element(t, "door", "L0", {"id": door["id"], "note": "a double read"}, correction="C0047")
-    assert got["absent"] is True and got["corrections"] == ["C0027", "C0040", "C0047"] and got["note"] == "a double read"
-    assert len(t["per_level"]["L0"]["doors"]) == 1                     # confirmed in place, never appended twice
+    t = TR.build_truth("tiny", acc, recs[1:3])
+    doors = t["per_level"]["L0"]["doors"]
+    assert len(doors) == 1 and doors[0]["corrections"] == ["C0027", "C0040"] and doors[0]["correction"] == "C0040"
+    assert doors[0]["changed"] == ["center", "width"] and doors[0]["method"] == "user"
+    assert doors[0]["center"] == [6.05, 2.0] and doors[0]["id"] == "t_L0_door_0001"
+    t = TR.build_truth("tiny", acc, recs[1:])
+    doors = t["per_level"]["L0"]["doors"]
+    assert len(doors) == 1 and doors[0]["absent"] is True and doors[0]["note"] == "a double read"
+    assert doors[0]["corrections"] == ["C0027", "C0040", "C0047"]          # the negated element keeps every id
+    assert TR.build_truth("tiny", acc, [_record("C0050", {"op": "confirm", "kind": "door", "level": "L0",
+                                                          "center": [9.0, 9.0]})])["build_report"]["unmatched"]
 
 
 def test_only_accepted_records_with_the_users_words_reach_the_truth(tmp_path, monkeypatch, capsys):
@@ -557,6 +552,10 @@ def test_only_accepted_records_with_the_users_words_reach_the_truth(tmp_path, mo
     assert TR.correction_applicable(dict(base, user_words=None, source="user_review")) is None
     assert "waits" in TR.correction_applicable(dict(base, status="proposed"))
     assert TR.correction_applicable(None) == "no such record in the correction store"
+    assert "held: the hall" in TR.correction_applicable(dict(base, hold={"why": "the hall must mirror"}))
+    low = dict(base, place_source="located_by_machine", place_confidence=0.5)
+    assert "under 0.6" in TR.correction_applicable(low)
+    assert TR.correction_applicable(dict(low, place_confidence=0.6)) is None
     err = TR.correction_errors([dict(base, user_words=None, truth_applied={"status": "applied"})], [], ["real10"])
     assert len(err) == 1 and "applied to the truth but no user words" in err[0]
     # the command line refuses it before touching the truth

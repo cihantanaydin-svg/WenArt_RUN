@@ -3633,3 +3633,36 @@ Open: the mirror-twin fix (single houses no longer get mirror copies; 11 old tes
 mirrored plans keep their copies, duplicates removed) is under review; R4 (raster second opinion) and R6 (the vision
 critic, one short pod) are next; the stability map's targets (scale without dimension texts, labels on any layer, the
 unit under rotation) are queued as reader work.
+
+## Milestone 14, day 3 (6 Nov 2026): the truth is derived, no more merging
+
+Four rounds of fixing a merge of new readings into the truth (by id, then by place) still left 18 confirmed breaks
+(an adversarial test of 1,096 cases); in each, a merge undid or blurred a user correction. The session organizer
+decided: stop merging. truth(project) = the stored accepted reading + a replay of the project's applicable correction
+records in record order, each operation applied by place (`wenart/reading_check/truth.py`, `build_truth`).
+
+| part | what |
+|---|---|
+| accepted reading | `results/reading_accepted/<p>.json` for the 11 accepted real projects: the readings of commit 3c8cb8f8 as the truth build of 5 Nov wrote them (git 92b27b7e, before any correction); real10 without the 9 self-mirror copies deleted on 6 Nov (2046edc4, listed under `removed`). `truth accept` replaces one only after the user accepts a new reading |
+| replay | add (the element of the class at the place is replaced, the user's type, width and place win; else added), confirm, retype, remove (the element at the place goes, a negation is written; a negated wall span cuts the walls on its line, never a long wall whole); an operation on a level the truth lacks is `unmatched`; ids: `t_<level>_<kind>_n` by place, `u_<record>_n` for a record's entries; nothing joins on an id |
+| records | `reader_ids` is the one name of the id hints (the old `element_ids` moved there or to the history); a record waits while `hold` is set (C0018) or the machine placed it under 0.6 (C0021); the six records that waited for this (C0059, C0063-C0065, C0068, C0069) are replayed |
+| command line | `truth build` is pure (seconds, byte-identical); `truth add` / `truth remove` append a record with the user's words (`--text`) or extend the one named (`--correction`: accepted, the user's words, the same project) and rebuild; a reader's id needs its reading and becomes its place; refusals are answers, not tracebacks |
+
+Rebuilt from the accepted readings and the records, the truth equals the merged one of 5-6 Nov except for what the
+new records and the span rule change: real04 +2 negated windows (C0059); real06 2 windows negated (C0064), the stair
+(C0063), the kitchen wall and its opening (C0065) confirmed; real10 10 L-2 walls confirmed (C0068, C0069); real07
+two long walls cut at the negated spans instead of kept whole (C0051, C0053) and three wall stubs inside C0053's span
+gone. Every other element of the 32 truths is the same. Unmatched: real17 C0038 (L0 is not in real17's accepted
+truth; it waits for the user's acceptance of that level).
+
+Fresh readings scored against the derived truth (the accepted reading against its own truth: 100 for all 11):
+
+| project | derived truth | the merged truth before | why |
+|---|---|---|---|
+| real06 | 99.63 | 100.0 | the reading still reads C0064's two windows beside the shower door |
+| real07 | 99.01 | 99.09 | the reading still builds C0053's wall over the stair's edge (one cut piece unmatched) |
+| real10 | 99.31 | 99.31 | |
+
+Tests: `tests/test_truth_derived_20261106.py` (the 18 breaks, each as a build and a score; every truth file is its
+own build; records join by place), the truth, place-identity, remark, mirror-halves (fixture re-read), failure-class,
+wiring and sense tests: 334 passed, 26 xfailed (the failure classes' targets).

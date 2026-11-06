@@ -23,11 +23,74 @@
   }
  ],
  "levels_left_out": [],
+ "accepted": {
+  "on": "2026-11-02",
+  "scope": "all",
+  "levels": null,
+  "note": "user, 2 Nov 2026: the reading regression set ('go ahead with all 4', 'can we keep improving this regression set?'); its first baselines are the readings the user had reviewed on the comparison sheets (docs/progress.md, Reading self-check and regression set)"
+ },
  "per_level": {
   "L0": {
    "rooms": [
     {
      "id": "t_L0_room_0001",
+     "label": "Mutfak",
+     "room_type": "kitchen",
+     "area": 11.571,
+     "centroid": [
+      1.924,
+      11.284
+     ],
+     "polygon": [
+      [
+       0.451,
+       9.35
+      ],
+      [
+       3.475,
+       9.35
+      ],
+      [
+       3.475,
+       11.3
+      ],
+      [
+       3.35,
+       11.3
+      ],
+      [
+       3.35,
+       13.05
+      ],
+      [
+       2.95,
+       13.05
+      ],
+      [
+       2.95,
+       13.3
+      ],
+      [
+       0.95,
+       13.3
+      ],
+      [
+       0.95,
+       13.25
+      ],
+      [
+       0.451,
+       13.25
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L0_mutfak"
+    },
+    {
+     "id": "t_L0_room_0002",
      "label": "Salon",
      "room_type": "living",
      "area": 55.586,
@@ -164,63 +227,6 @@
      "reader_id": "r_L0_salon"
     },
     {
-     "id": "t_L0_room_0002",
-     "label": "Mutfak",
-     "room_type": "kitchen",
-     "area": 11.571,
-     "centroid": [
-      1.924,
-      11.284
-     ],
-     "polygon": [
-      [
-       0.451,
-       9.35
-      ],
-      [
-       3.475,
-       9.35
-      ],
-      [
-       3.475,
-       11.3
-      ],
-      [
-       3.35,
-       11.3
-      ],
-      [
-       3.35,
-       13.05
-      ],
-      [
-       2.95,
-       13.05
-      ],
-      [
-       2.95,
-       13.3
-      ],
-      [
-       0.95,
-       13.3
-      ],
-      [
-       0.95,
-       13.25
-      ],
-      [
-       0.451,
-       13.25
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "r_L0_mutfak"
-    },
-    {
      "id": "t_L0_room_0003",
      "label": "Antre M²",
      "room_type": "hall",
@@ -311,39 +317,6 @@
     },
     {
      "id": "t_L0_room_0004",
-     "label": "Oda",
-     "room_type": "hall",
-     "area": 2.129,
-     "centroid": [
-      7.825,
-      10.275
-     ],
-     "polygon": [
-      [
-       7.25,
-       9.35
-      ],
-      [
-       8.401,
-       9.35
-      ],
-      [
-       8.401,
-       11.2
-      ],
-      [
-       7.25,
-       11.2
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "reader_id": "r_L0_oda"
-    },
-    {
-     "id": "t_L0_room_0005",
      "label": "Banyo",
      "room_type": "bathroom",
      "area": 6.675,
@@ -406,41 +379,59 @@
      "method": "vector",
      "status": "verified",
      "reader_id": "r_L0_banyo"
+    },
+    {
+     "id": "t_L0_room_0005",
+     "label": "Oda",
+     "room_type": "hall",
+     "area": 2.129,
+     "centroid": [
+      7.825,
+      10.275
+     ],
+     "polygon": [
+      [
+       7.25,
+       9.35
+      ],
+      [
+       8.401,
+       9.35
+      ],
+      [
+       8.401,
+       11.2
+      ],
+      [
+       7.25,
+       11.2
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "r_L0_oda"
     }
    ],
    "doors": [
     {
-     "id": "t_L0_door_0006",
+     "id": "t_L0_door_0001",
      "type": "door",
-     "width": 2.15,
+     "width": 2.95,
      "center": [
-      6.325,
-      0.325
+      1.975,
+      3.425
      ],
-     "wall_id": "w_L0_001",
+     "wall_id": "w_L0_004",
      "source": "accepted_reading",
      "confidence": 0.85,
      "method": "vector",
      "status": "verified",
-     "reader_id": "d_L0_001"
+     "reader_id": "d_L0_007"
     },
     {
-     "id": "t_L0_door_0007",
-     "type": "door",
-     "width": 0.75,
-     "center": [
-      6.475,
-      11.373
-     ],
-     "wall_id": "w_L0_015",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "d_L0_003"
-    },
-    {
-     "id": "t_L0_door_0008",
+     "id": "t_L0_door_0002",
      "type": "door",
      "width": 0.75,
      "center": [
@@ -455,7 +446,37 @@
      "reader_id": "d_L0_005"
     },
     {
-     "id": "t_L0_door_0009",
+     "id": "t_L0_door_0003",
+     "type": "door",
+     "width": 2.15,
+     "center": [
+      6.325,
+      0.325
+     ],
+     "wall_id": "w_L0_001",
+     "source": "accepted_reading",
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_001"
+    },
+    {
+     "id": "t_L0_door_0004",
+     "type": "door",
+     "width": 0.75,
+     "center": [
+      6.475,
+      11.373
+     ],
+     "wall_id": "w_L0_015",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_003"
+    },
+    {
+     "id": "t_L0_door_0005",
      "type": "door",
      "width": 0.95,
      "center": [
@@ -468,71 +489,11 @@
      "method": "vector",
      "status": "verified",
      "reader_id": "d_L0_006"
-    },
-    {
-     "id": "t_L0_door_0010",
-     "type": "door",
-     "width": 2.95,
-     "center": [
-      1.975,
-      3.425
-     ],
-     "wall_id": "w_L0_004",
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "d_L0_007"
     }
    ],
    "windows": [
     {
-     "id": "t_L0_window_0011",
-     "type": "window",
-     "width": 1.95,
-     "center": [
-      5.625,
-      9.275
-     ],
-     "wall_id": "w_L0_012",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L0_001"
-    },
-    {
-     "id": "t_L0_window_0012",
-     "type": "window",
-     "width": 0.65,
-     "center": [
-      4.675,
-      14.425
-     ],
-     "wall_id": "w_L0_022",
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "d_L0_004"
-    },
-    {
-     "id": "t_L0_window_0013",
-     "type": "window",
-     "width": 0.825,
-     "center": [
-      6.388,
-      14.425
-     ],
-     "wall_id": "w_L0_022",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified",
-     "reader_id": "o_L0_002"
-    },
-    {
-     "id": "t_L0_window_0014",
+     "id": "t_L0_window_0001",
      "type": "window",
      "width": 2.15,
      "center": [
@@ -547,7 +508,7 @@
      "reader_id": "o_L0_003"
     },
     {
-     "id": "t_L0_window_0015",
+     "id": "t_L0_window_0002",
      "type": "window",
      "width": 1.45,
      "center": [
@@ -562,97 +523,7 @@
      "reader_id": "o_L0_004"
     },
     {
-     "id": "t_L0_window_0016",
-     "type": "window",
-     "width": 1.55,
-     "center": [
-      8.526,
-      2.325
-     ],
-     "wall_id": "w_L0_045",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified",
-     "reader_id": "o_L0_005"
-    },
-    {
-     "id": "t_L0_window_0017",
-     "type": "window",
-     "width": 1.55,
-     "center": [
-      8.526,
-      4.725
-     ],
-     "wall_id": "w_L0_045",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified",
-     "reader_id": "o_L0_006"
-    },
-    {
-     "id": "t_L0_window_0018",
-     "type": "window",
-     "width": 1.876,
-     "center": [
-      8.526,
-      10.288
-     ],
-     "wall_id": "w_L0_045",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified",
-     "reader_id": "o_L0_007"
-    },
-    {
-     "id": "t_L0_window_0019",
-     "type": "window",
-     "width": 0.665,
-     "center": [
-      3.993,
-      14.425
-     ],
-     "wall_id": "w_L0_022",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L0_002"
-    },
-    {
-     "id": "t_L0_window_0020",
-     "type": "window",
-     "width": 0.7,
-     "center": [
-      5.376,
-      14.425
-     ],
-     "wall_id": "w_L0_022",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L0_003"
-    },
-    {
-     "id": "t_L0_window_0021",
-     "type": "window",
-     "width": 1.55,
-     "center": [
-      7.601,
-      14.425
-     ],
-     "wall_id": "w_L0_022",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L0_004"
-    },
-    {
-     "id": "t_L0_window_0022",
+     "id": "t_L0_window_0003",
      "type": "window",
      "width": 0.7,
      "center": [
@@ -667,7 +538,7 @@
      "reader_id": "win_L0_005"
     },
     {
-     "id": "t_L0_window_0023",
+     "id": "t_L0_window_0004",
      "type": "window",
      "width": 1.1,
      "center": [
@@ -682,7 +553,82 @@
      "reader_id": "win_L0_006"
     },
     {
-     "id": "t_L0_window_0024",
+     "id": "t_L0_window_0005",
+     "type": "window",
+     "width": 0.665,
+     "center": [
+      3.993,
+      14.425
+     ],
+     "wall_id": "w_L0_022",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_002"
+    },
+    {
+     "id": "t_L0_window_0006",
+     "type": "window",
+     "width": 0.65,
+     "center": [
+      4.675,
+      14.425
+     ],
+     "wall_id": "w_L0_022",
+     "source": "accepted_reading",
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L0_004"
+    },
+    {
+     "id": "t_L0_window_0007",
+     "type": "window",
+     "width": 0.7,
+     "center": [
+      5.376,
+      14.425
+     ],
+     "wall_id": "w_L0_022",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_003"
+    },
+    {
+     "id": "t_L0_window_0008",
+     "type": "window",
+     "width": 1.95,
+     "center": [
+      5.625,
+      9.275
+     ],
+     "wall_id": "w_L0_012",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_001"
+    },
+    {
+     "id": "t_L0_window_0009",
+     "type": "window",
+     "width": 0.825,
+     "center": [
+      6.388,
+      14.425
+     ],
+     "wall_id": "w_L0_022",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_002"
+    },
+    {
+     "id": "t_L0_window_0010",
      "type": "window",
      "width": 0.775,
      "center": [
@@ -695,11 +641,71 @@
      "method": "vector",
      "status": "verified",
      "reader_id": "win_L0_007"
+    },
+    {
+     "id": "t_L0_window_0011",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      7.601,
+      14.425
+     ],
+     "wall_id": "w_L0_022",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L0_004"
+    },
+    {
+     "id": "t_L0_window_0012",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      2.325
+     ],
+     "wall_id": "w_L0_045",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_005"
+    },
+    {
+     "id": "t_L0_window_0013",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      4.725
+     ],
+     "wall_id": "w_L0_045",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_006"
+    },
+    {
+     "id": "t_L0_window_0014",
+     "type": "window",
+     "width": 1.876,
+     "center": [
+      8.526,
+      10.288
+     ],
+     "wall_id": "w_L0_045",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L0_007"
     }
    ],
    "openings": [
     {
-     "id": "t_L0_opening_0025",
+     "id": "t_L0_opening_0001",
      "type": "opening",
      "width": 2.9,
      "center": [
@@ -707,14 +713,19 @@
       9.2
      ],
      "wall_id": "w_L0_009",
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.5,
      "method": "derived",
      "status": "unverified",
-     "reader_id": "o_L0_001"
+     "reader_id": "o_L0_001",
+     "corrections": [
+      "C0065"
+     ],
+     "correction": "C0065",
+     "confirmed_on": "2026-10-29"
     },
     {
-     "id": "t_L0_opening_0026",
+     "id": "t_L0_opening_0002",
      "type": "opening",
      "width": 1.95,
      "center": [
@@ -732,92 +743,7 @@
    ],
    "walls": [
     {
-     "id": "t_L0_wall_0027",
-     "start": [
-      4.35,
-      0.325
-     ],
-     "end": [
-      8.38,
-      0.325
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_001"
-    },
-    {
-     "id": "t_L0_wall_0028",
-     "start": [
-      8.651,
-      1.425
-     ],
-     "end": [
-      8.85,
-      1.425
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_002"
-    },
-    {
-     "id": "t_L0_wall_0029",
-     "start": [
-      8.661,
-      3.225
-     ],
-     "end": [
-      8.85,
-      3.225
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_003"
-    },
-    {
-     "id": "t_L0_wall_0030",
-     "start": [
-      0.5,
-      3.425
-     ],
-     "end": [
-      4.33,
-      3.425
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "derived",
-     "status": "verified",
-     "reader_id": "w_L0_004"
-    },
-    {
-     "id": "t_L0_wall_0031",
-     "start": [
-      8.661,
-      3.825
-     ],
-     "end": [
-      8.85,
-      3.825
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_005"
-    },
-    {
-     "id": "t_L0_wall_0032",
+     "id": "t_L0_wall_0001",
      "start": [
       0.0,
       5.525
@@ -834,24 +760,7 @@
      "reader_id": "w_L0_006"
     },
     {
-     "id": "t_L0_wall_0033",
-     "start": [
-      8.661,
-      5.625
-     ],
-     "end": [
-      8.85,
-      5.625
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_007"
-    },
-    {
-     "id": "t_L0_wall_0034",
+     "id": "t_L0_wall_0002",
      "start": [
       0.0,
       7.925
@@ -868,58 +777,7 @@
      "reader_id": "w_L0_008"
     },
     {
-     "id": "t_L0_wall_0035",
-     "start": [
-      0.451,
-      9.2
-     ],
-     "end": [
-      4.6,
-      9.2
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_009"
-    },
-    {
-     "id": "t_L0_wall_0036",
-     "start": [
-      7.0,
-      9.225
-     ],
-     "end": [
-      8.4,
-      9.225
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_011"
-    },
-    {
-     "id": "t_L0_wall_0037",
-     "start": [
-      4.6,
-      9.275
-     ],
-     "end": [
-      7.0,
-      9.275
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_012"
-    },
-    {
-     "id": "t_L0_wall_0038",
+     "id": "t_L0_wall_0003",
      "start": [
       0.0,
       10.475
@@ -936,41 +794,7 @@
      "reader_id": "w_L0_013"
     },
     {
-     "id": "t_L0_wall_0039",
-     "start": [
-      7.026,
-      11.35
-     ],
-     "end": [
-      8.4,
-      11.35
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_014"
-    },
-    {
-     "id": "t_L0_wall_0040",
-     "start": [
-      6.0,
-      11.373
-     ],
-     "end": [
-      7.03,
-      11.373
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_015"
-    },
-    {
-     "id": "t_L0_wall_0041",
+     "id": "t_L0_wall_0004",
      "start": [
       0.0,
       12.175
@@ -987,109 +811,7 @@
      "reader_id": "w_L0_016"
     },
     {
-     "id": "t_L0_wall_0042",
-     "start": [
-      2.95,
-      13.3
-     ],
-     "end": [
-      3.376,
-      13.3
-     ],
-     "thickness": 0.5,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_017"
-    },
-    {
-     "id": "t_L0_wall_0043",
-     "start": [
-      0.45,
-      13.4
-     ],
-     "end": [
-      0.95,
-      13.4
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_018"
-    },
-    {
-     "id": "t_L0_wall_0044",
-     "start": [
-      0.226,
-      13.403
-     ],
-     "end": [
-      0.45,
-      13.403
-     ],
-     "thickness": 0.245,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_019"
-    },
-    {
-     "id": "t_L0_wall_0045",
-     "start": [
-      0.95,
-      13.425
-     ],
-     "end": [
-      2.95,
-      13.425
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_020"
-    },
-    {
-     "id": "t_L0_wall_0046",
-     "start": [
-      5.99,
-      14.1
-     ],
-     "end": [
-      6.19,
-      14.1
-     ],
-     "thickness": 0.4,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_021"
-    },
-    {
-     "id": "t_L0_wall_0047",
-     "start": [
-      3.661,
-      14.425
-     ],
-     "end": [
-      8.38,
-      14.425
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_022"
-    },
-    {
-     "id": "t_L0_wall_0048",
+     "id": "t_L0_wall_0005",
      "start": [
       0.326,
       4.05
@@ -1106,7 +828,24 @@
      "reader_id": "w_L0_023"
     },
     {
-     "id": "t_L0_wall_0049",
+     "id": "t_L0_wall_0006",
+     "start": [
+      0.226,
+      13.403
+     ],
+     "end": [
+      0.45,
+      13.403
+     ],
+     "thickness": 0.245,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_019"
+    },
+    {
+     "id": "t_L0_wall_0007",
      "start": [
       0.35,
       3.3
@@ -1123,7 +862,97 @@
      "reader_id": "w_L0_024"
     },
     {
-     "id": "t_L0_wall_0050",
+     "id": "t_L0_wall_0008",
+     "start": [
+      0.45,
+      13.4
+     ],
+     "end": [
+      0.95,
+      13.4
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_018"
+    },
+    {
+     "id": "t_L0_wall_0009",
+     "start": [
+      0.95,
+      13.425
+     ],
+     "end": [
+      2.95,
+      13.425
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_020"
+    },
+    {
+     "id": "t_L0_wall_0010",
+     "start": [
+      0.5,
+      3.425
+     ],
+     "end": [
+      4.33,
+      3.425
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "derived",
+     "status": "verified",
+     "reader_id": "w_L0_004"
+    },
+    {
+     "id": "t_L0_wall_0011",
+     "start": [
+      0.451,
+      9.2
+     ],
+     "end": [
+      4.6,
+      9.2
+     ],
+     "thickness": 0.3,
+     "source": "user_correction",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_009",
+     "corrections": [
+      "C0065"
+     ],
+     "correction": "C0065",
+     "confirmed_on": "2026-10-29"
+    },
+    {
+     "id": "t_L0_wall_0012",
+     "start": [
+      2.95,
+      13.3
+     ],
+     "end": [
+      3.376,
+      13.3
+     ],
+     "thickness": 0.5,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_017"
+    },
+    {
+     "id": "t_L0_wall_0013",
      "start": [
       3.475,
       11.3
@@ -1140,24 +969,7 @@
      "reader_id": "w_L0_025"
     },
     {
-     "id": "t_L0_wall_0051",
-     "start": [
-      3.504,
-      13.55
-     ],
-     "end": [
-      3.504,
-      14.526
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_026"
-    },
-    {
-     "id": "t_L0_wall_0052",
+     "id": "t_L0_wall_0014",
      "start": [
       3.501,
       13.3
@@ -1174,7 +986,7 @@
      "reader_id": "w_L0_027"
     },
     {
-     "id": "t_L0_wall_0053",
+     "id": "t_L0_wall_0015",
      "start": [
       3.501,
       13.52
@@ -1191,7 +1003,24 @@
      "reader_id": "w_L0_028"
     },
     {
-     "id": "t_L0_wall_0054",
+     "id": "t_L0_wall_0016",
+     "start": [
+      3.504,
+      13.55
+     ],
+     "end": [
+      3.504,
+      14.526
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_026"
+    },
+    {
+     "id": "t_L0_wall_0017",
      "start": [
       3.575,
       3.55
@@ -1208,7 +1037,7 @@
      "reader_id": "w_L0_029"
     },
     {
-     "id": "t_L0_wall_0055",
+     "id": "t_L0_wall_0018",
      "start": [
       3.575,
       8.3
@@ -1225,7 +1054,7 @@
      "reader_id": "w_L0_030"
     },
     {
-     "id": "t_L0_wall_0056",
+     "id": "t_L0_wall_0019",
      "start": [
       4.45,
       2.8
@@ -1242,7 +1071,7 @@
      "reader_id": "w_L0_031"
     },
     {
-     "id": "t_L0_wall_0057",
+     "id": "t_L0_wall_0020",
      "start": [
       4.453,
       3.3
@@ -1259,7 +1088,7 @@
      "reader_id": "w_L0_032"
     },
     {
-     "id": "t_L0_wall_0058",
+     "id": "t_L0_wall_0021",
      "start": [
       4.475,
       0.45
@@ -1276,7 +1105,7 @@
      "reader_id": "w_L0_033"
     },
     {
-     "id": "t_L0_wall_0059",
+     "id": "t_L0_wall_0022",
      "start": [
       5.125,
       0.0
@@ -1293,7 +1122,24 @@
      "reader_id": "w_L0_034"
     },
     {
-     "id": "t_L0_wall_0060",
+     "id": "t_L0_wall_0023",
+     "start": [
+      4.6,
+      9.275
+     ],
+     "end": [
+      7.0,
+      9.275
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_012"
+    },
+    {
+     "id": "t_L0_wall_0024",
      "start": [
       5.845,
       13.8
@@ -1310,7 +1156,7 @@
      "reader_id": "w_L0_035"
     },
     {
-     "id": "t_L0_wall_0061",
+     "id": "t_L0_wall_0025",
      "start": [
       5.853,
       14.3
@@ -1327,7 +1173,7 @@
      "reader_id": "w_L0_036"
     },
     {
-     "id": "t_L0_wall_0062",
+     "id": "t_L0_wall_0026",
      "start": [
       5.875,
       11.3
@@ -1344,7 +1190,75 @@
      "reader_id": "w_L0_037"
     },
     {
-     "id": "t_L0_wall_0063",
+     "id": "t_L0_wall_0027",
+     "start": [
+      3.661,
+      14.425
+     ],
+     "end": [
+      8.38,
+      14.425
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_022"
+    },
+    {
+     "id": "t_L0_wall_0028",
+     "start": [
+      5.99,
+      14.1
+     ],
+     "end": [
+      6.19,
+      14.1
+     ],
+     "thickness": 0.4,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_021"
+    },
+    {
+     "id": "t_L0_wall_0029",
+     "start": [
+      4.35,
+      0.325
+     ],
+     "end": [
+      8.38,
+      0.325
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_001"
+    },
+    {
+     "id": "t_L0_wall_0030",
+     "start": [
+      6.0,
+      11.373
+     ],
+     "end": [
+      7.03,
+      11.373
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_015"
+    },
+    {
+     "id": "t_L0_wall_0031",
      "start": [
       7.125,
       9.35
@@ -1361,7 +1275,7 @@
      "reader_id": "w_L0_038"
     },
     {
-     "id": "t_L0_wall_0064",
+     "id": "t_L0_wall_0032",
      "start": [
       7.525,
       0.0
@@ -1378,58 +1292,41 @@
      "reader_id": "w_L0_039"
     },
     {
-     "id": "t_L0_wall_0065",
+     "id": "t_L0_wall_0033",
      "start": [
-      8.5,
-      0.45
+      7.0,
+      9.225
      ],
      "end": [
-      8.5,
-      0.95
+      8.4,
+      9.225
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_011"
+    },
+    {
+     "id": "t_L0_wall_0034",
+     "start": [
+      7.026,
+      11.35
+     ],
+     "end": [
+      8.4,
+      11.35
      ],
      "thickness": 0.3,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
      "status": "verified",
-     "reader_id": "w_L0_040"
+     "reader_id": "w_L0_014"
     },
     {
-     "id": "t_L0_wall_0066",
-     "start": [
-      8.5,
-      6.0
-     ],
-     "end": [
-      8.5,
-      6.75
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_041"
-    },
-    {
-     "id": "t_L0_wall_0067",
-     "start": [
-      8.5,
-      13.8
-     ],
-     "end": [
-      8.5,
-      14.3
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L0_042"
-    },
-    {
-     "id": "t_L0_wall_0068",
+     "id": "t_L0_wall_0035",
      "start": [
       8.503,
       0.226
@@ -1446,7 +1343,58 @@
      "reader_id": "w_L0_043"
     },
     {
-     "id": "t_L0_wall_0069",
+     "id": "t_L0_wall_0036",
+     "start": [
+      8.5,
+      0.45
+     ],
+     "end": [
+      8.5,
+      0.95
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_040"
+    },
+    {
+     "id": "t_L0_wall_0037",
+     "start": [
+      8.5,
+      6.0
+     ],
+     "end": [
+      8.5,
+      6.75
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_041"
+    },
+    {
+     "id": "t_L0_wall_0038",
+     "start": [
+      8.5,
+      13.8
+     ],
+     "end": [
+      8.5,
+      14.3
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_042"
+    },
+    {
+     "id": "t_L0_wall_0039",
      "start": [
       8.503,
       14.3
@@ -1463,7 +1411,7 @@
      "reader_id": "w_L0_044"
     },
     {
-     "id": "t_L0_wall_0070",
+     "id": "t_L0_wall_0040",
      "start": [
       8.526,
       0.95
@@ -1478,11 +1426,79 @@
      "method": "vector",
      "status": "verified",
      "reader_id": "w_L0_045"
+    },
+    {
+     "id": "t_L0_wall_0041",
+     "start": [
+      8.651,
+      1.425
+     ],
+     "end": [
+      8.85,
+      1.425
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_002"
+    },
+    {
+     "id": "t_L0_wall_0042",
+     "start": [
+      8.661,
+      3.225
+     ],
+     "end": [
+      8.85,
+      3.225
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_003"
+    },
+    {
+     "id": "t_L0_wall_0043",
+     "start": [
+      8.661,
+      3.825
+     ],
+     "end": [
+      8.85,
+      3.825
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_005"
+    },
+    {
+     "id": "t_L0_wall_0044",
+     "start": [
+      8.661,
+      5.625
+     ],
+     "end": [
+      8.85,
+      5.625
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L0_007"
     }
    ],
    "stairs": [
     {
-     "id": "t_L0_stair_0071",
+     "id": "t_L0_stair_0001",
      "center": [
       4.676,
       12.938
@@ -1520,83 +1536,88 @@
        "lines": 7
       }
      ],
-     "source": "accepted_reading",
+     "source": "user_correction",
      "confidence": 0.9,
      "method": "vector",
      "status": "verified",
-     "reader_id": "f_L0_001"
+     "reader_id": "f_L0_001",
+     "corrections": [
+      "C0063"
+     ],
+     "correction": "C0063",
+     "confirmed_on": "2026-10-27"
     }
    ]
   },
   "L1": {
    "rooms": [
     {
-     "id": "t_L1_room_0072",
-     "label": "Ebeveyn Y.odası",
+     "id": "t_L1_room_0001",
+     "label": "Oda",
      "room_type": "bedroom",
-     "area": 23.317,
+     "area": 11.338,
      "centroid": [
-      6.496,
-      3.524
+      1.893,
+      11.307
      ],
      "polygon": [
       [
-       4.6,
-       2.8
+       0.451,
+       9.351
       ],
       [
-       4.6,
-       2.8
+       0.95,
+       9.351
       ],
       [
-       4.6,
-       0.45
+       0.95,
+       9.35
       ],
       [
-       8.35,
-       0.45
+       3.349,
+       9.35
       ],
       [
-       8.35,
-       0.95
+       3.349,
+       11.3
       ],
       [
-       8.401,
-       0.95
+       3.35,
+       11.3
       ],
       [
-       8.401,
-       6.0
+       3.35,
+       13.05
       ],
       [
-       8.35,
-       6.0
+       3.0,
+       13.05
       ],
       [
-       8.35,
-       6.6
+       3.0,
+       13.3
       ],
       [
-       4.6,
-       6.6
+       0.95,
+       13.3
       ],
       [
-       4.6,
-       3.55
+       0.95,
+       13.25
       ],
       [
-       4.6,
-       3.55
+       0.451,
+       13.25
       ]
      ],
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
      "status": "verified",
-     "reader_id": "r_L1_ebeveyn_y_odasi"
+     "reader_id": "r_L1_oda_2"
     },
     {
-     "id": "t_L1_room_0073",
+     "id": "t_L1_room_0002",
      "label": "Çocuk Odası",
      "room_type": "bedroom",
      "area": 22.392,
@@ -1653,81 +1674,7 @@
      "reader_id": "r_L1_cocuk_odasi"
     },
     {
-     "id": "t_L1_room_0074",
-     "label": "Soyunma Odası",
-     "room_type": "other",
-     "area": 5.882,
-     "centroid": [
-      7.201,
-      7.975
-     ],
-     "polygon": [
-      [
-       6.0,
-       6.75
-      ],
-      [
-       8.401,
-       6.75
-      ],
-      [
-       8.401,
-       9.2
-      ],
-      [
-       6.0,
-       9.2
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "r_L1_soyunma_odasi"
-    },
-    {
-     "id": "t_L1_room_0075",
-     "label": "Oda",
-     "room_type": "hall",
-     "area": 3.062,
-     "centroid": [
-      5.225,
-      7.975
-     ],
-     "polygon": [
-      [
-       4.6,
-       9.05
-      ],
-      [
-       4.6,
-       9.05
-      ],
-      [
-       4.6,
-       6.75
-      ],
-      [
-       5.85,
-       6.75
-      ],
-      [
-       5.85,
-       9.2
-      ],
-      [
-       4.6,
-       9.2
-      ]
-     ],
-     "source": "accepted_reading",
-     "confidence": 1.0,
-     "method": "derived",
-     "status": "unverified",
-     "reader_id": "r_L1_oda"
-    },
-    {
-     "id": "t_L1_room_0076",
+     "id": "t_L1_room_0003",
      "label": "Hol",
      "room_type": "hall",
      "area": 11.033,
@@ -1816,7 +1763,113 @@
      "reader_id": "r_L1_hol"
     },
     {
-     "id": "t_L1_room_0077",
+     "id": "t_L1_room_0004",
+     "label": "Oda",
+     "room_type": "hall",
+     "area": 3.062,
+     "centroid": [
+      5.225,
+      7.975
+     ],
+     "polygon": [
+      [
+       4.6,
+       9.05
+      ],
+      [
+       4.6,
+       9.05
+      ],
+      [
+       4.6,
+       6.75
+      ],
+      [
+       5.85,
+       6.75
+      ],
+      [
+       5.85,
+       9.2
+      ],
+      [
+       4.6,
+       9.2
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "r_L1_oda"
+    },
+    {
+     "id": "t_L1_room_0005",
+     "label": "Ebeveyn Y.odası",
+     "room_type": "bedroom",
+     "area": 23.317,
+     "centroid": [
+      6.496,
+      3.524
+     ],
+     "polygon": [
+      [
+       4.6,
+       2.8
+      ],
+      [
+       4.6,
+       2.8
+      ],
+      [
+       4.6,
+       0.45
+      ],
+      [
+       8.35,
+       0.45
+      ],
+      [
+       8.35,
+       0.95
+      ],
+      [
+       8.401,
+       0.95
+      ],
+      [
+       8.401,
+       6.0
+      ],
+      [
+       8.35,
+       6.0
+      ],
+      [
+       8.35,
+       6.6
+      ],
+      [
+       4.6,
+       6.6
+      ],
+      [
+       4.6,
+       3.55
+      ],
+      [
+       4.6,
+       3.55
+      ]
+     ],
+     "source": "accepted_reading",
+     "confidence": 1.0,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "r_L1_ebeveyn_y_odasi"
+    },
+    {
+     "id": "t_L1_room_0006",
      "label": "Duş",
      "room_type": "bathroom",
      "area": 4.529,
@@ -1857,72 +1910,40 @@
      "reader_id": "r_L1_dus"
     },
     {
-     "id": "t_L1_room_0078",
-     "label": "Oda",
-     "room_type": "bedroom",
-     "area": 11.338,
+     "id": "t_L1_room_0007",
+     "label": "Soyunma Odası",
+     "room_type": "other",
+     "area": 5.882,
      "centroid": [
-      1.893,
-      11.307
+      7.201,
+      7.975
      ],
      "polygon": [
       [
-       0.451,
-       9.351
+       6.0,
+       6.75
       ],
       [
-       0.95,
-       9.351
+       8.401,
+       6.75
       ],
       [
-       0.95,
-       9.35
+       8.401,
+       9.2
       ],
       [
-       3.349,
-       9.35
-      ],
-      [
-       3.349,
-       11.3
-      ],
-      [
-       3.35,
-       11.3
-      ],
-      [
-       3.35,
-       13.05
-      ],
-      [
-       3.0,
-       13.05
-      ],
-      [
-       3.0,
-       13.3
-      ],
-      [
-       0.95,
-       13.3
-      ],
-      [
-       0.95,
-       13.25
-      ],
-      [
-       0.451,
-       13.25
+       6.0,
+       9.2
       ]
      ],
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
      "status": "verified",
-     "reader_id": "r_L1_oda_2"
+     "reader_id": "r_L1_soyunma_odasi"
     },
     {
-     "id": "t_L1_room_0079",
+     "id": "t_L1_room_0008",
      "label": "Banyo",
      "room_type": "bathroom",
      "area": 6.671,
@@ -1989,52 +2010,7 @@
    ],
    "doors": [
     {
-     "id": "t_L1_door_0080",
-     "type": "door",
-     "width": 2.15,
-     "center": [
-      6.325,
-      0.325
-     ],
-     "wall_id": "w_L1_001",
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "d_L1_001"
-    },
-    {
-     "id": "t_L1_door_0081",
-     "type": "door",
-     "width": 0.85,
-     "center": [
-      5.125,
-      6.675
-     ],
-     "wall_id": "w_L1_008",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "d_L1_002"
-    },
-    {
-     "id": "t_L1_door_0082",
-     "type": "door",
-     "width": 0.75,
-     "center": [
-      7.175,
-      9.275
-     ],
-     "wall_id": "w_L1_012",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "d_L1_003"
-    },
-    {
-     "id": "t_L1_door_0083",
+     "id": "t_L1_door_0001",
      "type": "door",
      "width": 0.85,
      "center": [
@@ -2049,7 +2025,22 @@
      "reader_id": "d_L1_006"
     },
     {
-     "id": "t_L1_door_0084",
+     "id": "t_L1_door_0002",
+     "type": "door",
+     "width": 0.7,
+     "center": [
+      3.776,
+      3.425
+     ],
+     "wall_id": "w_L1_004",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_012"
+    },
+    {
+     "id": "t_L1_door_0003",
      "type": "door",
      "width": 0.75,
      "center": [
@@ -2064,7 +2055,7 @@
      "reader_id": "d_L1_007"
     },
     {
-     "id": "t_L1_door_0085",
+     "id": "t_L1_door_0004",
      "type": "door",
      "width": 0.85,
      "center": [
@@ -2079,7 +2070,22 @@
      "reader_id": "d_L1_008"
     },
     {
-     "id": "t_L1_door_0086",
+     "id": "t_L1_door_0005",
+     "type": "door",
+     "width": 0.85,
+     "center": [
+      5.125,
+      6.675
+     ],
+     "wall_id": "w_L1_008",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_002"
+    },
+    {
+     "id": "t_L1_door_0006",
      "type": "door",
      "width": 0.5,
      "center": [
@@ -2094,7 +2100,7 @@
      "reader_id": "d_L1_009"
     },
     {
-     "id": "t_L1_door_0087",
+     "id": "t_L1_door_0007",
      "type": "door",
      "width": 0.75,
      "center": [
@@ -2109,7 +2115,37 @@
      "reader_id": "d_L1_010"
     },
     {
-     "id": "t_L1_door_0088",
+     "id": "t_L1_door_0008",
+     "type": "door",
+     "width": 2.15,
+     "center": [
+      6.325,
+      0.325
+     ],
+     "wall_id": "w_L1_001",
+     "source": "accepted_reading",
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_001"
+    },
+    {
+     "id": "t_L1_door_0009",
+     "type": "door",
+     "width": 0.75,
+     "center": [
+      7.175,
+      9.275
+     ],
+     "wall_id": "w_L1_012",
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_003"
+    },
+    {
+     "id": "t_L1_door_0010",
      "type": "door",
      "width": 0.45,
      "center": [
@@ -2122,86 +2158,11 @@
      "method": "vector",
      "status": "verified",
      "reader_id": "d_L1_011"
-    },
-    {
-     "id": "t_L1_door_0089",
-     "type": "door",
-     "width": 0.7,
-     "center": [
-      3.776,
-      3.425
-     ],
-     "wall_id": "w_L1_004",
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "d_L1_012"
     }
    ],
    "windows": [
     {
-     "id": "t_L1_window_0090",
-     "type": "window",
-     "width": 0.95,
-     "center": [
-      7.125,
-      6.675
-     ],
-     "wall_id": "w_L1_008",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L1_001"
-    },
-    {
-     "id": "t_L1_window_0091",
-     "type": "window",
-     "width": 1.95,
-     "center": [
-      1.975,
-      13.425
-     ],
-     "wall_id": "w_L1_019",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified",
-     "reader_id": "o_L1_003"
-    },
-    {
-     "id": "t_L1_window_0092",
-     "type": "window",
-     "width": 0.65,
-     "center": [
-      4.675,
-      14.425
-     ],
-     "wall_id": "w_L1_021",
-     "source": "accepted_reading",
-     "confidence": 0.85,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "d_L1_004"
-    },
-    {
-     "id": "t_L1_window_0093",
-     "type": "window",
-     "width": 0.824,
-     "center": [
-      6.388,
-      14.425
-     ],
-     "wall_id": "w_L1_021",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified",
-     "reader_id": "o_L1_004"
-    },
-    {
-     "id": "t_L1_window_0094",
+     "id": "t_L1_window_0001",
      "type": "window",
      "width": 1.55,
      "center": [
@@ -2216,7 +2177,7 @@
      "reader_id": "d_L1_005"
     },
     {
-     "id": "t_L1_window_0095",
+     "id": "t_L1_window_0002",
      "type": "window",
      "width": 1.45,
      "center": [
@@ -2231,37 +2192,7 @@
      "reader_id": "o_L1_005"
     },
     {
-     "id": "t_L1_window_0096",
-     "type": "window",
-     "width": 1.55,
-     "center": [
-      8.526,
-      2.325
-     ],
-     "wall_id": "w_L1_043",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified",
-     "reader_id": "o_L1_006"
-    },
-    {
-     "id": "t_L1_window_0097",
-     "type": "window",
-     "width": 1.55,
-     "center": [
-      8.526,
-      4.725
-     ],
-     "wall_id": "w_L1_043",
-     "source": "accepted_reading",
-     "confidence": 0.5,
-     "method": "derived",
-     "status": "unverified",
-     "reader_id": "o_L1_007"
-    },
-    {
-     "id": "t_L1_window_0098",
+     "id": "t_L1_window_0003",
      "type": "window",
      "width": 1.7,
      "center": [
@@ -2276,97 +2207,22 @@
      "reader_id": "win_L1_002"
     },
     {
-     "id": "t_L1_window_0099",
+     "id": "t_L1_window_0004",
      "type": "window",
-     "width": 0.75,
+     "width": 1.95,
      "center": [
-      8.001,
-      6.675
+      1.975,
+      13.425
      ],
-     "wall_id": "w_L1_008",
+     "wall_id": "w_L1_019",
      "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L1_003"
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L1_003"
     },
     {
-     "id": "t_L1_window_0100",
-     "type": "window",
-     "width": 0.8,
-     "center": [
-      6.376,
-      9.275
-     ],
-     "wall_id": "w_L1_012",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L1_004"
-    },
-    {
-     "id": "t_L1_window_0101",
-     "type": "window",
-     "width": 0.824,
-     "center": [
-      7.988,
-      9.275
-     ],
-     "wall_id": "w_L1_012",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L1_005"
-    },
-    {
-     "id": "t_L1_window_0102",
-     "type": "window",
-     "width": 0.665,
-     "center": [
-      3.994,
-      14.425
-     ],
-     "wall_id": "w_L1_021",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L1_006"
-    },
-    {
-     "id": "t_L1_window_0103",
-     "type": "window",
-     "width": 0.65,
-     "center": [
-      5.351,
-      14.425
-     ],
-     "wall_id": "w_L1_021",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L1_007"
-    },
-    {
-     "id": "t_L1_window_0104",
-     "type": "window",
-     "width": 1.55,
-     "center": [
-      7.601,
-      14.425
-     ],
-     "wall_id": "w_L1_021",
-     "source": "accepted_reading",
-     "confidence": 0.9,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "win_L1_008"
-    },
-    {
-     "id": "t_L1_window_0105",
+     "id": "t_L1_window_0005",
      "type": "window",
      "width": 0.975,
      "center": [
@@ -2381,7 +2237,22 @@
      "reader_id": "win_L1_009"
     },
     {
-     "id": "t_L1_window_0106",
+     "id": "t_L1_window_0006",
+     "type": "window",
+     "width": 0.665,
+     "center": [
+      3.994,
+      14.425
+     ],
+     "wall_id": "w_L1_021",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_006"
+    },
+    {
+     "id": "t_L1_window_0007",
      "type": "window",
      "width": 0.75,
      "center": [
@@ -2396,7 +2267,37 @@
      "reader_id": "win_L1_010"
     },
     {
-     "id": "t_L1_window_0107",
+     "id": "t_L1_window_0008",
+     "type": "window",
+     "width": 0.65,
+     "center": [
+      4.675,
+      14.425
+     ],
+     "wall_id": "w_L1_021",
+     "source": "accepted_reading",
+     "confidence": 0.85,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "d_L1_004"
+    },
+    {
+     "id": "t_L1_window_0009",
+     "type": "window",
+     "width": 0.65,
+     "center": [
+      5.351,
+      14.425
+     ],
+     "wall_id": "w_L1_021",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_007"
+    },
+    {
+     "id": "t_L1_window_0010",
      "type": "window",
      "width": 1.425,
      "center": [
@@ -2411,7 +2312,145 @@
      "reader_id": "win_L1_011"
     },
     {
-     "id": "t_L1_window_0108",
+     "id": "u_C0064_1",
+     "type": "window",
+     "width": 0.8,
+     "center": [
+      6.376,
+      9.275
+     ],
+     "wall_id": "w_L1_012",
+     "source": "user_correction",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_004",
+     "absent": true,
+     "corrections": [
+      "C0064"
+     ],
+     "correction": "C0064",
+     "removed_on": "2026-10-29",
+     "removed_elements": [
+      "t_L1_window_0011"
+     ]
+    },
+    {
+     "id": "t_L1_window_0012",
+     "type": "window",
+     "width": 0.824,
+     "center": [
+      6.388,
+      14.425
+     ],
+     "wall_id": "w_L1_021",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L1_004"
+    },
+    {
+     "id": "t_L1_window_0013",
+     "type": "window",
+     "width": 0.95,
+     "center": [
+      7.125,
+      6.675
+     ],
+     "wall_id": "w_L1_008",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_001"
+    },
+    {
+     "id": "t_L1_window_0014",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      7.601,
+      14.425
+     ],
+     "wall_id": "w_L1_021",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_008"
+    },
+    {
+     "id": "u_C0064_2",
+     "type": "window",
+     "width": 0.824,
+     "center": [
+      7.988,
+      9.275
+     ],
+     "wall_id": "w_L1_012",
+     "source": "user_correction",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_005",
+     "absent": true,
+     "corrections": [
+      "C0064"
+     ],
+     "correction": "C0064",
+     "removed_on": "2026-10-29",
+     "removed_elements": [
+      "t_L1_window_0015"
+     ]
+    },
+    {
+     "id": "t_L1_window_0016",
+     "type": "window",
+     "width": 0.75,
+     "center": [
+      8.001,
+      6.675
+     ],
+     "wall_id": "w_L1_008",
+     "source": "accepted_reading",
+     "confidence": 0.9,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "win_L1_003"
+    },
+    {
+     "id": "t_L1_window_0017",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      2.325
+     ],
+     "wall_id": "w_L1_043",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L1_006"
+    },
+    {
+     "id": "t_L1_window_0018",
+     "type": "window",
+     "width": 1.55,
+     "center": [
+      8.526,
+      4.725
+     ],
+     "wall_id": "w_L1_043",
+     "source": "accepted_reading",
+     "confidence": 0.5,
+     "method": "derived",
+     "status": "unverified",
+     "reader_id": "o_L1_007"
+    },
+    {
+     "id": "t_L1_window_0019",
      "type": "window",
      "width": 1.2,
      "center": [
@@ -2428,7 +2467,7 @@
    ],
    "openings": [
     {
-     "id": "t_L1_opening_0109",
+     "id": "t_L1_opening_0001",
      "type": "opening",
      "width": 1.95,
      "center": [
@@ -2443,7 +2482,7 @@
      "reader_id": "o_L1_001"
     },
     {
-     "id": "t_L1_opening_0110",
+     "id": "t_L1_opening_0002",
      "type": "opening",
      "width": 2.0,
      "center": [
@@ -2460,92 +2499,7 @@
    ],
    "walls": [
     {
-     "id": "t_L1_wall_0111",
-     "start": [
-      4.35,
-      0.325
-     ],
-     "end": [
-      8.381,
-      0.325
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_001"
-    },
-    {
-     "id": "t_L1_wall_0112",
-     "start": [
-      8.651,
-      1.425
-     ],
-     "end": [
-      8.85,
-      1.425
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_002"
-    },
-    {
-     "id": "t_L1_wall_0113",
-     "start": [
-      8.661,
-      3.225
-     ],
-     "end": [
-      8.85,
-      3.225
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_003"
-    },
-    {
-     "id": "t_L1_wall_0114",
-     "start": [
-      0.47,
-      3.425
-     ],
-     "end": [
-      4.301,
-      3.425
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_004"
-    },
-    {
-     "id": "t_L1_wall_0115",
-     "start": [
-      8.661,
-      3.825
-     ],
-     "end": [
-      8.85,
-      3.825
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_005"
-    },
-    {
-     "id": "t_L1_wall_0116",
+     "id": "t_L1_wall_0001",
      "start": [
       0.0,
       5.475
@@ -2562,41 +2516,7 @@
      "reader_id": "w_L1_006"
     },
     {
-     "id": "t_L1_wall_0117",
-     "start": [
-      8.661,
-      5.625
-     ],
-     "end": [
-      8.85,
-      5.625
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_007"
-    },
-    {
-     "id": "t_L1_wall_0118",
-     "start": [
-      4.6,
-      6.675
-     ],
-     "end": [
-      8.4,
-      6.675
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_008"
-    },
-    {
-     "id": "t_L1_wall_0119",
+     "id": "t_L1_wall_0002",
      "start": [
       0.0,
       7.275
@@ -2613,58 +2533,7 @@
      "reader_id": "w_L1_009"
     },
     {
-     "id": "t_L1_wall_0120",
-     "start": [
-      0.451,
-      9.191
-     ],
-     "end": [
-      0.95,
-      9.191
-     ],
-     "thickness": 0.32,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_010"
-    },
-    {
-     "id": "t_L1_wall_0121",
-     "start": [
-      3.85,
-      9.2
-     ],
-     "end": [
-      4.6,
-      9.2
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_011"
-    },
-    {
-     "id": "t_L1_wall_0122",
-     "start": [
-      0.451,
-      9.275
-     ],
-     "end": [
-      8.4,
-      9.275
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_012"
-    },
-    {
-     "id": "t_L1_wall_0123",
+     "id": "t_L1_wall_0003",
      "start": [
       0.0,
       10.475
@@ -2681,41 +2550,7 @@
      "reader_id": "w_L1_013"
     },
     {
-     "id": "t_L1_wall_0124",
-     "start": [
-      7.0,
-      11.346
-     ],
-     "end": [
-      8.4,
-      11.346
-     ],
-     "thickness": 0.31,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_014"
-    },
-    {
-     "id": "t_L1_wall_0125",
-     "start": [
-      6.0,
-      11.375
-     ],
-     "end": [
-      7.0,
-      11.375
-     ],
-     "thickness": 0.15,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_015"
-    },
-    {
-     "id": "t_L1_wall_0126",
+     "id": "t_L1_wall_0004",
      "start": [
       0.0,
       12.175
@@ -2732,92 +2567,7 @@
      "reader_id": "w_L1_016"
     },
     {
-     "id": "t_L1_wall_0127",
-     "start": [
-      3.0,
-      13.175
-     ],
-     "end": [
-      3.35,
-      13.175
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_017"
-    },
-    {
-     "id": "t_L1_wall_0128",
-     "start": [
-      0.45,
-      13.4
-     ],
-     "end": [
-      0.95,
-      13.4
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_018"
-    },
-    {
-     "id": "t_L1_wall_0129",
-     "start": [
-      0.95,
-      13.425
-     ],
-     "end": [
-      3.0,
-      13.425
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_019"
-    },
-    {
-     "id": "t_L1_wall_0130",
-     "start": [
-      5.998,
-      14.1
-     ],
-     "end": [
-      6.19,
-      14.1
-     ],
-     "thickness": 0.4,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_020"
-    },
-    {
-     "id": "t_L1_wall_0131",
-     "start": [
-      3.661,
-      14.425
-     ],
-     "end": [
-      8.381,
-      14.425
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_021"
-    },
-    {
-     "id": "t_L1_wall_0132",
+     "id": "t_L1_wall_0005",
      "start": [
       0.326,
       4.05
@@ -2834,7 +2584,7 @@
      "reader_id": "w_L1_022"
     },
     {
-     "id": "t_L1_wall_0133",
+     "id": "t_L1_wall_0006",
      "start": [
       0.348,
       3.3
@@ -2851,7 +2601,7 @@
      "reader_id": "w_L1_023"
     },
     {
-     "id": "t_L1_wall_0134",
+     "id": "t_L1_wall_0007",
      "start": [
       0.355,
       3.55
@@ -2868,7 +2618,92 @@
      "reader_id": "w_L1_024"
     },
     {
-     "id": "t_L1_wall_0135",
+     "id": "t_L1_wall_0008",
+     "start": [
+      0.451,
+      9.191
+     ],
+     "end": [
+      0.95,
+      9.191
+     ],
+     "thickness": 0.32,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_010"
+    },
+    {
+     "id": "t_L1_wall_0009",
+     "start": [
+      0.45,
+      13.4
+     ],
+     "end": [
+      0.95,
+      13.4
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_018"
+    },
+    {
+     "id": "t_L1_wall_0010",
+     "start": [
+      0.95,
+      13.425
+     ],
+     "end": [
+      3.0,
+      13.425
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_019"
+    },
+    {
+     "id": "t_L1_wall_0011",
+     "start": [
+      0.47,
+      3.425
+     ],
+     "end": [
+      4.301,
+      3.425
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_004"
+    },
+    {
+     "id": "t_L1_wall_0012",
+     "start": [
+      3.0,
+      13.175
+     ],
+     "end": [
+      3.35,
+      13.175
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_017"
+    },
+    {
+     "id": "t_L1_wall_0013",
      "start": [
       3.175,
       13.3
@@ -2885,7 +2720,7 @@
      "reader_id": "w_L1_025"
     },
     {
-     "id": "t_L1_wall_0136",
+     "id": "t_L1_wall_0014",
      "start": [
       3.427,
       9.35
@@ -2902,7 +2737,7 @@
      "reader_id": "w_L1_026"
     },
     {
-     "id": "t_L1_wall_0137",
+     "id": "t_L1_wall_0015",
      "start": [
       3.475,
       11.3
@@ -2919,24 +2754,7 @@
      "reader_id": "w_L1_027"
     },
     {
-     "id": "t_L1_wall_0138",
-     "start": [
-      3.504,
-      13.52
-     ],
-     "end": [
-      3.504,
-      14.526
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_028"
-    },
-    {
-     "id": "t_L1_wall_0139",
+     "id": "t_L1_wall_0016",
      "start": [
       3.501,
       13.3
@@ -2953,7 +2771,58 @@
      "reader_id": "w_L1_029"
     },
     {
-     "id": "t_L1_wall_0140",
+     "id": "t_L1_wall_0017",
+     "start": [
+      3.504,
+      13.52
+     ],
+     "end": [
+      3.504,
+      14.526
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_028"
+    },
+    {
+     "id": "t_L1_wall_0018",
+     "start": [
+      3.85,
+      9.2
+     ],
+     "end": [
+      4.6,
+      9.2
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_011"
+    },
+    {
+     "id": "t_L1_wall_0019",
+     "start": [
+      0.451,
+      9.275
+     ],
+     "end": [
+      8.4,
+      9.275
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_012"
+    },
+    {
+     "id": "t_L1_wall_0020",
      "start": [
       4.45,
       2.8
@@ -2970,7 +2839,7 @@
      "reader_id": "w_L1_030"
     },
     {
-     "id": "t_L1_wall_0141",
+     "id": "t_L1_wall_0021",
      "start": [
       4.475,
       0.45
@@ -2987,7 +2856,7 @@
      "reader_id": "w_L1_031"
     },
     {
-     "id": "t_L1_wall_0142",
+     "id": "t_L1_wall_0022",
      "start": [
       4.525,
       3.55
@@ -3004,7 +2873,7 @@
      "reader_id": "w_L1_032"
     },
     {
-     "id": "t_L1_wall_0143",
+     "id": "t_L1_wall_0023",
      "start": [
       5.125,
       0.0
@@ -3021,7 +2890,7 @@
      "reader_id": "w_L1_033"
     },
     {
-     "id": "t_L1_wall_0144",
+     "id": "t_L1_wall_0024",
      "start": [
       5.82,
       13.8
@@ -3038,7 +2907,7 @@
      "reader_id": "w_L1_034"
     },
     {
-     "id": "t_L1_wall_0145",
+     "id": "t_L1_wall_0025",
      "start": [
       5.873,
       12.4
@@ -3055,7 +2924,7 @@
      "reader_id": "w_L1_035"
     },
     {
-     "id": "t_L1_wall_0146",
+     "id": "t_L1_wall_0026",
      "start": [
       5.925,
       6.75
@@ -3072,7 +2941,92 @@
      "reader_id": "w_L1_036"
     },
     {
-     "id": "t_L1_wall_0147",
+     "id": "t_L1_wall_0027",
+     "start": [
+      3.661,
+      14.425
+     ],
+     "end": [
+      8.381,
+      14.425
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_021"
+    },
+    {
+     "id": "t_L1_wall_0028",
+     "start": [
+      5.998,
+      14.1
+     ],
+     "end": [
+      6.19,
+      14.1
+     ],
+     "thickness": 0.4,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_020"
+    },
+    {
+     "id": "t_L1_wall_0029",
+     "start": [
+      4.35,
+      0.325
+     ],
+     "end": [
+      8.381,
+      0.325
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_001"
+    },
+    {
+     "id": "t_L1_wall_0030",
+     "start": [
+      4.6,
+      6.675
+     ],
+     "end": [
+      8.4,
+      6.675
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_008"
+    },
+    {
+     "id": "t_L1_wall_0031",
+     "start": [
+      6.0,
+      11.375
+     ],
+     "end": [
+      7.0,
+      11.375
+     ],
+     "thickness": 0.15,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_015"
+    },
+    {
+     "id": "t_L1_wall_0032",
      "start": [
       7.525,
       0.0
@@ -3089,58 +3043,24 @@
      "reader_id": "w_L1_037"
     },
     {
-     "id": "t_L1_wall_0148",
+     "id": "t_L1_wall_0033",
      "start": [
-      8.5,
-      0.45
+      7.0,
+      11.346
      ],
      "end": [
-      8.5,
-      0.95
+      8.4,
+      11.346
      ],
-     "thickness": 0.3,
+     "thickness": 0.31,
      "source": "accepted_reading",
      "confidence": 0.8,
      "method": "vector",
      "status": "verified",
-     "reader_id": "w_L1_038"
+     "reader_id": "w_L1_014"
     },
     {
-     "id": "t_L1_wall_0149",
-     "start": [
-      8.5,
-      6.0
-     ],
-     "end": [
-      8.5,
-      6.6
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_039"
-    },
-    {
-     "id": "t_L1_wall_0150",
-     "start": [
-      8.5,
-      13.8
-     ],
-     "end": [
-      8.5,
-      14.3
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.8,
-     "method": "vector",
-     "status": "verified",
-     "reader_id": "w_L1_040"
-    },
-    {
-     "id": "t_L1_wall_0151",
+     "id": "t_L1_wall_0034",
      "start": [
       8.503,
       0.226
@@ -3157,7 +3077,58 @@
      "reader_id": "w_L1_041"
     },
     {
-     "id": "t_L1_wall_0152",
+     "id": "t_L1_wall_0035",
+     "start": [
+      8.5,
+      0.45
+     ],
+     "end": [
+      8.5,
+      0.95
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_038"
+    },
+    {
+     "id": "t_L1_wall_0036",
+     "start": [
+      8.5,
+      6.0
+     ],
+     "end": [
+      8.5,
+      6.6
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_039"
+    },
+    {
+     "id": "t_L1_wall_0037",
+     "start": [
+      8.5,
+      13.8
+     ],
+     "end": [
+      8.5,
+      14.3
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_040"
+    },
+    {
+     "id": "t_L1_wall_0038",
      "start": [
       8.503,
       14.3
@@ -3174,7 +3145,7 @@
      "reader_id": "w_L1_042"
     },
     {
-     "id": "t_L1_wall_0153",
+     "id": "t_L1_wall_0039",
      "start": [
       8.526,
       0.95
@@ -3189,11 +3160,79 @@
      "method": "vector",
      "status": "verified",
      "reader_id": "w_L1_043"
+    },
+    {
+     "id": "t_L1_wall_0040",
+     "start": [
+      8.651,
+      1.425
+     ],
+     "end": [
+      8.85,
+      1.425
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_002"
+    },
+    {
+     "id": "t_L1_wall_0041",
+     "start": [
+      8.661,
+      3.225
+     ],
+     "end": [
+      8.85,
+      3.225
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_003"
+    },
+    {
+     "id": "t_L1_wall_0042",
+     "start": [
+      8.661,
+      3.825
+     ],
+     "end": [
+      8.85,
+      3.825
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_005"
+    },
+    {
+     "id": "t_L1_wall_0043",
+     "start": [
+      8.661,
+      5.625
+     ],
+     "end": [
+      8.85,
+      5.625
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.8,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L1_007"
     }
    ],
    "stairs": [
     {
-     "id": "t_L1_stair_0154",
+     "id": "t_L1_stair_0001",
      "center": [
       4.67,
       12.819
@@ -3228,11 +3267,113 @@
    ]
   }
  },
- "accepted": {
-  "on": "2026-11-02",
-  "scope": "all",
-  "levels": null,
-  "note": "user, 2 Nov 2026: the reading regression set ('go ahead with all 4', 'can we keep improving this regression set?'); its first baselines are the readings the user had reviewed on the comparison sheets (docs/progress.md, Reading self-check and regression set)"
+ "corrections": [
+  "C0063",
+  "C0064",
+  "C0065"
+ ],
+ "built_from": {
+  "reading": "results/reading_accepted/real06.json",
+  "reading_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+  "records": [
+   "C0063",
+   "C0064",
+   "C0065"
+  ]
  },
- "next_truth_id": 155
+ "build_report": {
+  "applied": [
+   {
+    "record": "C0063",
+    "op": "add",
+    "kind": "stair",
+    "level": "L0",
+    "place": [
+     4.676,
+     12.938
+    ],
+    "state": "confirmed",
+    "ids": [
+     "t_L0_stair_0001"
+    ]
+   },
+   {
+    "record": "C0064",
+    "op": "remove",
+    "kind": "window",
+    "level": "L1",
+    "place": [
+     6.376,
+     9.275
+    ],
+    "state": "removed",
+    "ids": [
+     "u_C0064_1"
+    ],
+    "removed": [
+     "t_L1_window_0011"
+    ]
+   },
+   {
+    "record": "C0064",
+    "op": "remove",
+    "kind": "window",
+    "level": "L1",
+    "place": [
+     7.988,
+     9.275
+    ],
+    "state": "removed",
+    "ids": [
+     "u_C0064_2"
+    ],
+    "removed": [
+     "t_L1_window_0015"
+    ]
+   },
+   {
+    "record": "C0065",
+    "op": "add",
+    "kind": "wall",
+    "level": "L0",
+    "place": [
+     0.451,
+     9.2
+    ],
+    "state": "confirmed",
+    "ids": [
+     "t_L0_wall_0011"
+    ]
+   },
+   {
+    "record": "C0065",
+    "op": "add",
+    "kind": "opening",
+    "level": "L0",
+    "place": [
+     2.4,
+     9.2
+    ],
+    "state": "confirmed",
+    "ids": [
+     "t_L0_opening_0001"
+    ]
+   }
+  ],
+  "unmatched": [],
+  "not_replayed": [
+   {
+    "record": "C0022",
+    "why": "no user words: the record states the session's own note, not the user's"
+   },
+   {
+    "record": "C0061",
+    "why": "no truth action (nothing placeable to replay)"
+   },
+   {
+    "record": "C0062",
+    "why": "no truth action (nothing placeable to replay)"
+   }
+  ]
+ }
 }

@@ -1,7 +1,42 @@
 {
- "note": "The branch reading's elements (truth-shaped: kind, place, label, reader id) at the places of the user_correction entries of results/reading_truth/ (real06, real07, real10; the CPU reading of 6 Nov 2026). Rebuilt from a fresh reading by tests/test_mirror_halves_20261105.py::test_user_corrected_elements_on_a_fresh_reading (slow).",
+ "note": "The branch reading's elements (truth-shaped: kind, place, label, reader id) at the places of the user_correction entries of results/reading_truth/ (real06, real07, real10; the CPU reading of 6 Nov 2026 against the derived truth). Rebuilt from a fresh reading by tests/test_mirror_halves_20261105.py::test_user_corrected_elements_on_a_fresh_reading (slow).",
  "projects": {
-  "real06": [],
+  "real06": [
+   {
+    "level": "L0",
+    "kind": "openings",
+    "reader_id": "o_L0_001",
+    "center": [
+     2.4,
+     9.2
+    ],
+    "width": 2.9,
+    "type": "opening"
+   },
+   {
+    "level": "L0",
+    "kind": "stairs",
+    "reader_id": "f_L0_001",
+    "center": [
+     4.676,
+     12.938
+    ]
+   },
+   {
+    "level": "L0",
+    "kind": "walls",
+    "reader_id": "w_L0_009",
+    "start": [
+     0.451,
+     9.2
+    ],
+    "end": [
+     4.6,
+     9.2
+    ],
+    "thickness": 0.3
+   }
+  ],
   "real07": [
    {
     "level": "L0",
@@ -654,6 +689,146 @@
       8.591
      ]
     ]
+   },
+   {
+    "level": "L-2",
+    "kind": "walls",
+    "reader_id": "w_L-2_001",
+    "start": [
+     1.871,
+     1.91
+    ],
+    "end": [
+     9.641,
+     1.91
+    ],
+    "thickness": 0.32
+   },
+   {
+    "level": "L-2",
+    "kind": "walls",
+    "reader_id": "w_L-2_002",
+    "start": [
+     12.741,
+     1.91
+    ],
+    "end": [
+     20.511,
+     1.91
+    ],
+    "thickness": 0.32
+   },
+   {
+    "level": "L-2",
+    "kind": "walls",
+    "reader_id": "w_L-2_005",
+    "start": [
+     9.641,
+     2.03
+    ],
+    "end": [
+     12.741,
+     2.03
+    ],
+    "thickness": 0.48
+   },
+   {
+    "level": "L-2",
+    "kind": "walls",
+    "reader_id": "w_L-2_053",
+    "start": [
+     2.831,
+     16.57
+    ],
+    "end": [
+     19.551,
+     16.57
+    ],
+    "thickness": 0.32
+   },
+   {
+    "level": "L-2",
+    "kind": "walls",
+    "reader_id": "w_L-2_054",
+    "start": [
+     1.711,
+     2.07
+    ],
+    "end": [
+     1.711,
+     12.84
+    ],
+    "thickness": 0.32
+   },
+   {
+    "level": "L-2",
+    "kind": "walls",
+    "reader_id": "w_L-2_058",
+    "start": [
+     2.161,
+     12.84
+    ],
+    "end": [
+     2.161,
+     16.395
+    ],
+    "thickness": 0.32
+   },
+   {
+    "level": "L-2",
+    "kind": "walls",
+    "reader_id": "w_L-2_095",
+    "start": [
+     20.221,
+     13.12
+    ],
+    "end": [
+     20.221,
+     16.395
+    ],
+    "thickness": 0.32
+   },
+   {
+    "level": "L-2",
+    "kind": "walls",
+    "reader_id": "w_L-2_096",
+    "start": [
+     20.665,
+     9.04
+    ],
+    "end": [
+     20.665,
+     12.81
+    ],
+    "thickness": 0.31
+   },
+   {
+    "level": "L-2",
+    "kind": "walls",
+    "reader_id": "w_L-2_099",
+    "start": [
+     20.671,
+     2.07
+    ],
+    "end": [
+     20.671,
+     6.45
+    ],
+    "thickness": 0.32
+   },
+   {
+    "level": "L-2",
+    "kind": "walls",
+    "reader_id": "w_L-2_100",
+    "start": [
+     20.665,
+     9.04
+    ],
+    "end": [
+     20.791,
+     6.586
+    ],
+    "thickness": 0.26
    },
    {
     "level": "L0",

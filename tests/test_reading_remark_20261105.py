@@ -51,7 +51,8 @@ def test_validation():
 
 def test_place_and_level_from_element_and_unknown_refused():
     r = rec(element_ids=["w_L0_002"], building=B)
-    assert r["place"] == {"x": 4.0, "y": 1.5} and r["level"] == "L0" and r["element_ids"] == ["w_L0_002"]
+    assert r["place"] == {"x": 4.0, "y": 1.5} and r["level"] == "L0" and r["reader_ids"] == ["w_L0_002"]
+    assert "element_ids" not in r                    # 6 Nov 2026: reader_ids is the one name of the id hints
     assert rec(element_ids=["o_L0_002"], building=B)["place"] == {"x": 4.0, "y": 1.5}
     assert rec(element_ids=["r_L0_a"], building=B)["place"] == {"x": 2.0, "y": 1.5}
     with pytest.raises(ValueError, match="nearest"):

@@ -1,7 +1,9 @@
 """The truth does not depend on the reader's ids (5 Nov 2026, review of the stable mirror-copy ids: every reader
-improvement renumbers its ids; an absent entry o_Lk_029 then negated the real opening that inherited the id, and the
-file held one id for two elements). ``reading_check.truth``: identity is place (the score's rules), every element has
-a truth id of its own (``t_L0_door_0012``), the reader's id is a ``reader_id`` hint. CPU, pure."""
+improvement renumbers its ids; an absent entry o_Lk_029 then negated the real opening that inherited the id). Since
+6 Nov 2026 the truth is derived (``truth.build_truth``: the accepted reading plus a replay of the correction records
+by place), so identity is place by construction: the accepted entries are numbered by place (``t_<level>_<kind>_n``),
+the entries of a record by the record (``u_<record>_<n>``), the reader's id is a ``reader_id`` hint, and nothing
+joins on an id. CPU, pure."""
 from __future__ import annotations
 
 import copy
@@ -18,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _reading():
-    """A small reading: three doors, a window, two openings, a wall, a room (the reader's ids)."""
+    """A small accepted reading: three doors, a window, two openings, a wall, a room (the reader's ids)."""
     lv = {"rooms": [{"id": "r_L0_salon", "label": "Salon", "centroid": [2.0, 2.0],
                      "polygon": [[0, 0], [4, 0], [4, 4], [0, 4]]}],
           "doors": [{"id": f"d_L0_00{k}", "type": "door", "center": [float(k), 0.0], "width": 0.9} for k in (1, 3, 5)],
@@ -30,8 +32,8 @@ def _reading():
     for els in lv.values():
         for e in els:
             e["source"] = TR.SOURCE_ACCEPTED
-    return {"project": "p", "source": TR.SOURCE_ACCEPTED, "status": "accepted", "levels": [{"id": "L0"}],
-            "per_level": {"L0": lv}}
+    return {"project": "p", "source": TR.SOURCE_ACCEPTED, "status": "accepted", "commit": "c", "date": "d",
+            "levels": [{"id": "L0"}], "levels_left_out": [], "per_level": {"L0": lv}}
 
 
 def _renumbered(reading):
@@ -44,80 +46,75 @@ def _renumbered(reading):
     return r
 
 
-def _truth_with_corrections():
-    t = TR.merge(None, _reading())
-    building = {"levels": [{"id": "L0"}], "openings": [dict(e, level_id="L0") for k in ("doors", "openings")
-                                                       for e in _reading()["per_level"]["L0"][k]]}
-    # the user confirms a door and negates an opening, by the reader's ids of the reading they looked at
-    TR.add_element(t, "door", "L0", {"id": "d_L0_003"}, correction="C0001", reading=building)
-    TR.remove_element(t, "opening", "L0", {"id": "o_L0_001"}, correction="C0002", reading=building)
-    t.pop("last_added", None)
-    t.pop("last_removed", None)
-    return t
+def _rec(rid, *ops):
+    return {"id": rid, "date": "2026-11-06", "project": "p", "level": "L0", "place": None, "element_kind": "door",
+            "reader_answer": "", "right_answer": "", "user_words": "words", "lesson": None, "note": "test",
+            "source": "user_review", "status": "accepted", "truth_action": {"op": ops[0]["op"], "elements": list(ops)}}
+
+
+# the user confirms the door at 3 and negates the opening at (2, 4); the operations carry the reader's ids of the
+# reading the user looked at as hints only
+CORRECTIONS = [_rec("C0001", {"op": "confirm", "kind": "door", "level": "L0", "center": [3.0, 0.0], "id": "d_L0_003"}),
+               _rec("C0002", {"op": "remove", "kind": "opening", "level": "L0", "center": [2.0, 4.0],
+                              "id": "o_L0_001"})]
 
 
 def _shape(truth):
     """Every element as (level, type, place, source, absent, truth id)."""
-    out = []
-    for lid, lv in truth["per_level"].items():
-        for t, els in lv.items():
-            for e in els:
-                out.append((lid, t, json.dumps(TR._anchor(t, e)), e.get("source"), bool(e.get("absent")), e["id"]))
-    return sorted(out)
+    return sorted((lid, t, json.dumps(TR._anchor(t, e)), e.get("source"), bool(e.get("absent")), e["id"])
+                  for lid, lv in truth["per_level"].items() for t, els in lv.items() for e in els)
 
 
-def test_a_reading_that_renumbers_every_id_changes_nothing():
-    truth = _truth_with_corrections()
-    a = TR.merge(truth, _reading())
-    b = TR.merge(truth, _renumbered(_reading()))
+def test_an_accepted_reading_that_renumbers_every_id_builds_the_same_truth():
+    a = TR.build_truth("p", _reading(), CORRECTIONS)
+    b = TR.build_truth("p", _renumbered(_reading()), CORRECTIONS)
     assert _shape(a) == _shape(b)                                   # the same elements, the same truth ids
-    assert SC.match(truth, _reading())["total"] == SC.match(truth, _renumbered(_reading()))["total"]
     door = [e for e in b["per_level"]["L0"]["doors"] if e["source"] == TR.SOURCE_USER]
-    assert len(door) == 1 and door[0]["center"] == [3.0, 0.0] and door[0]["reader_id"] == "d_L0_003"
+    assert len(door) == 1 and door[0]["center"] == [3.0, 0.0] and door[0]["id"] == "t_L0_door_0002"
     assert len(b["per_level"]["L0"]["doors"]) == 3                  # the confirmed door is not held twice
 
 
-def test_an_absent_entry_never_removes_a_real_element_that_inherited_its_old_id():
-    truth = _truth_with_corrections()                               # o_L0_001 at (2, 4) negated
+def test_a_negation_never_removes_a_real_element_that_inherited_its_old_id():
     shifted = _renumbered(_reading())                               # now o_L0_001 names the opening at (6, 4)
     assert next(e for e in shifted["per_level"]["L0"]["openings"] if e["id"] == "o_L0_001")["center"] == [6.0, 4.0]
-    merged = TR.merge(truth, shifted)
-    ops = merged["per_level"]["L0"]["openings"]
+    ops = TR.build_truth("p", shifted, CORRECTIONS)["per_level"]["L0"]["openings"]
     assert sorted((e["center"], bool(e.get("absent"))) for e in ops) == [([2.0, 4.0], True), ([6.0, 4.0], False)]
 
 
-def test_add_by_a_readers_id_is_stored_by_place():
-    truth = TR.merge(None, _reading())
+def test_an_id_given_on_the_command_line_becomes_its_place():
     shifted = _renumbered(_reading())
-    # in the shifted reading 'd_L0_003' is the door at (1, 0) (in the truth, d_L0_003 was the door at 3): resolved to
-    # its place in the reading it was taken from, it names the truth's door at 1
-    TR.add_element(truth, "door", "L0", {"id": "d_L0_003"}, correction="C0003", reading={
-        "levels": [{"id": "L0"}], "openings": [dict(e, level_id="L0") for e in shifted["per_level"]["L0"]["doors"]]})
-    got = truth["last_added"]
-    assert got["center"] == [1.0, 0.0] and TR.is_truth_id(got["id"]) and got["corrections"] == ["C0003"]
-    assert got["reader_id"] == "d_L0_001" and len(truth["per_level"]["L0"]["doors"]) == 3
+    # in the shifted reading 'd_L0_003' is the door at (1, 0): resolved to its place in the reading it was taken from
+    building = {"levels": [{"id": "L0"}],
+                "openings": [dict(e, level_id="L0") for e in shifted["per_level"]["L0"]["doors"]]}
+    assert TR.resolve_id("d_L0_003", "door", "L0", "add", truth=None, building=building)["center"] == [1.0, 0.0]
+    truth = TR.build_truth("p", _reading(), [])
+    tid = next(e["id"] for e in truth["per_level"]["L0"]["doors"] if e["center"] == [5.0, 0.0])
+    assert TR.resolve_id(tid, "door", "L0", "remove", truth=truth, building=None)["center"] == [5.0, 0.0]
+    with pytest.raises(ValueError, match="reader's id"):
+        TR.resolve_id("d_L0_003", "door", "L0", "add", truth=truth, building=None)
+    with pytest.raises(ValueError, match="no such element"):
+        TR.resolve_id("d_L0_999", "door", "L0", "add", truth=None, building=building)
+    with pytest.raises(ValueError, match="is a door in the given reading"):
+        TR.resolve_id("d_L0_003", "wall", "L0", "add", truth=None, building=building)
+    with pytest.raises(ValueError, match="no such truth id"):
+        TR.resolve_id("t_L0_door_9999", "door", "L0", "remove", truth=truth, building=None)
 
 
 @pytest.mark.parametrize("path", sorted((ROOT / "results" / "reading_truth").glob("*.json")), ids=lambda p: p.stem)
 def test_no_truth_file_holds_one_truth_id_twice(path):
     t = json.loads(path.read_text(encoding="utf-8"))
     ids = Counter(e["id"] for lv in t["per_level"].values() for els in lv.values() if isinstance(els, list)
-                  for e in els if TR.is_truth_id(e.get("id")))
+                  for e in els)
     assert [i for i, n in ids.items() if n > 1] == []
-    if path.stem in ("real06", "real07", "real10"):                  # moved to truth ids on 5 Nov 2026
-        assert all(TR.is_truth_id(e["id"]) for lv in t["per_level"].values() for els in lv.values()
-                   if isinstance(els, list) for e in els)
-        assert int(t["next_truth_id"]) > max(int(i.rsplit("_", 1)[1]) for i in ids)
+    assert all(TR.is_truth_id(i) for i in ids) and "next_truth_id" not in t     # no counter: ids are derived
 
-
-# --- the review of round 3 (the verifiers' cases rebuilt as tests) ---------------------------------------------------
 
 REAL = ("real06", "real07", "real10")
 
 
 def _own_reading(truth, shift=None):
-    """A reading made of the truth's own positives, under the reader's ids (the review's identity case); ``shift``:
-    ``{level: (dx, dy)}`` moves that level's doors, windows and openings."""
+    """A reading made of the truth's own positives, under the reader's ids; ``shift``: ``{level: (dx, dy)}`` moves
+    that level's doors, windows and openings."""
     lv_out = {}
     for lid, lv in truth["per_level"].items():
         lv_out[lid] = {}
@@ -125,108 +122,73 @@ def _own_reading(truth, shift=None):
             els = []
             for e in TR.positives(lv.get(t)):
                 r = copy.deepcopy(e)
-                r["id"] = e.get("reader_id") or e.get("old_id") or e["id"]
-                r.pop("reader_id", None)
-                r["source"] = TR.SOURCE_ACCEPTED
+                r["id"] = e.get("reader_id") or e["id"]
                 if shift and lid in shift and t in TR.OPENING_TYPES:
                     dx, dy = shift[lid]
                     r["center"] = [round(r["center"][0] + dx, 3), round(r["center"][1] + dy, 3)]
                 els.append(r)
             lv_out[lid][t] = els
-    return {"project": truth.get("project"), "source": TR.SOURCE_ACCEPTED, "status": "accepted",
-            "levels": copy.deepcopy(truth["levels"]), "per_level": lv_out}
-
-
-def _elements(truth):
-    return sorted((lid, t, json.dumps(TR._anchor(t, e)), e["id"], bool(e.get("absent")))
-                  for lid, lv in truth["per_level"].items() for t in TR.ELEMENT_TYPES for e in lv.get(t) or [])
+    return {"levels": copy.deepcopy(truth["levels"]), "per_level": lv_out}
 
 
 @pytest.mark.parametrize("project", REAL)
-def test_merging_a_reading_of_the_truths_own_positives_changes_nothing(project):
-    """Review of round 3: a negation took a reading element before the accepted element at that place could keep it
-    (real10 100 -> 99.75, real07 100 -> 99.96 after one merge). In the score's order the merge is the identity: the
-    same elements with the same truth ids, and the reading scores 100 before and after."""
+def test_a_reading_of_the_truths_own_positives_scores_100(project):
     truth = TR.load_truth(project)
-    reading = _own_reading(truth)
-    assert SC.match(truth, reading)["total"] == 100.0
-    merged = TR.merge(truth, reading)
-    assert _elements(merged) == _elements(truth)
-    assert SC.match(merged, reading)["total"] == 100.0
+    assert SC.match(truth, _own_reading(truth))["total"] == 100.0
 
 
 @pytest.mark.parametrize("shift", [(0.0, 0.06), (0.0, -0.06), (0.10, 0.05)])
-def test_a_shifted_reading_loses_no_opening_and_swaps_no_truth_id(shift):
-    """The review's L0 lift case (real10: o_L0_007, o_L0_009 and o_L0_010 stand close together): the reading's L0
-    openings moved by a few centimetres keep every opening and every accepted opening's truth id."""
+def test_a_shifted_reading_changes_nothing_in_the_truth(shift):
+    """The review's L0 lift case (real10: the stacked gaps beside the lift stand 4 to 15 cm apart): the truth does not
+    see any later reading, and the score matches the shifted openings by place."""
     truth = TR.load_truth("real10")
-    merged = TR.merge(truth, _own_reading(truth, {"L0": shift}))
-    lv, mv = truth["per_level"]["L0"], merged["per_level"]["L0"]
+    res = SC.match(truth, _own_reading(truth, {"L0": shift}))
     for t in TR.OPENING_TYPES:
-        assert len(TR.positives(mv[t])) == len(TR.positives(lv[t])), t
-        by_id = {e["id"]: e for e in mv[t]}
-        for e in TR.positives(lv[t]):
-            if e["source"] != TR.SOURCE_ACCEPTED:
-                continue
-            got = by_id.get(e["id"])
-            assert got is not None and got["center"] == [round(e["center"][0] + shift[0], 3),
-                                                       round(e["center"][1] + shift[1], 3)], (t, e["id"])
-    lift = {e.get("reader_id"): e["id"] for t in TR.OPENING_TYPES for e in mv[t]
-            if e.get("reader_id") in ("o_L0_007", "o_L0_009", "o_L0_010")}
-    assert lift == {e.get("reader_id"): e["id"] for t in TR.OPENING_TYPES for e in lv[t]
-                    if e.get("reader_id") in ("o_L0_007", "o_L0_009", "o_L0_010") and not e.get("absent")}
+        assert res[t]["matched"] == res[t]["truth"], t
+    acc, _ = TR.accepted_of("real10")
+    assert TR.dumps(TR.build_truth("real10", acc, TR.load_corrections())) == TR.dumps(truth)
 
 
-def test_a_negated_short_span_does_not_remove_a_long_wall():
-    """real07 C0053's kind: a negated 2.23 m span (the user: no wall there) inside a 6 m reading wall leaves the wall
-    (it is no negation of the whole wall); a reading wall that is that span is suppressed."""
-    truth = TR.merge(None, _reading())
-    TR.remove_element(truth, "wall", "L0", {"start": "9.752,5.69", "end": "11.982,5.69", "thickness": "0.25"},
-                      correction="C0053")
-    reading = _reading()
-    reading["per_level"]["L0"]["walls"].append({"id": "w_L0_009", "start": [7.0, 5.69], "end": [13.0, 5.69],
-                                                "thickness": 0.25, "source": TR.SOURCE_ACCEPTED})
-    walls = TR.merge(truth, reading)["per_level"]["L0"]["walls"]
-    assert any(w.get("reader_id") == "w_L0_009" and not w.get("absent") for w in walls)
-    reading["per_level"]["L0"]["walls"][-1].update(start=[9.75, 5.69], end=[11.98, 5.69])
-    walls = TR.merge(truth, reading)["per_level"]["L0"]["walls"]
-    assert not any(w.get("reader_id") == "w_L0_009" for w in walls)
+def test_a_negated_short_span_cuts_a_long_wall_and_never_removes_it_whole():
+    """real07 C0053's kind: a negated 2.23 m span (the user: no wall there) inside a 6 m wall cuts it; the pieces
+    outside the span stay accepted walls."""
+    acc = _reading()
+    acc["per_level"]["L0"]["walls"].append({"id": "w_L0_009", "start": [7.0, 5.69], "end": [13.0, 5.69],
+                                            "thickness": 0.25, "source": TR.SOURCE_ACCEPTED})
+    t = TR.build_truth("p", acc, [_rec("C0053", {"op": "remove", "kind": "wall", "level": "L0",
+                                                 "start": [9.752, 5.69], "end": [11.982, 5.69], "thickness": 0.25})])
+    walls = [(w["start"], w["end"], bool(w.get("absent")), w["source"]) for w in t["per_level"]["L0"]["walls"]
+             if w["start"][1] == 5.69]
+    assert walls == [([7.0, 5.69], [9.752, 5.69], False, TR.SOURCE_ACCEPTED),
+                     ([9.752, 5.69], [11.982, 5.69], True, TR.SOURCE_USER),
+                     ([11.982, 5.69], [13.0, 5.69], False, TR.SOURCE_ACCEPTED)]
+    read = _own_reading(TR.build_truth("p", acc, []))               # a reading with the whole 6 m wall
+    res = SC.match(t, read)
+    assert res["walls"]["truth"] == 3 and res["walls"]["matched"] == 2 and res["walls"]["absent_hits"] == 0
 
 
 def test_a_users_door_wins_its_place_whatever_list_the_reader_put_it_in():
-    truth = TR.merge(None, _reading())
-    TR.add_element(truth, "door", "L0", {"center": "6,4", "width": "1.0"}, correction="C0004")   # o_L0_002's place
-    lv = TR.merge(truth, _reading())["per_level"]["L0"]                 # the reader still reads an opening there
+    t = TR.build_truth("p", _reading(), [_rec("C0004", {"op": "add", "kind": "door", "level": "L0",
+                                                        "center": [6.0, 4.0], "width": 1.0})])
+    lv = t["per_level"]["L0"]
     assert [e["center"] for e in lv["openings"]] == [[2.0, 4.0]]
-    assert [e["center"] for e in lv["doors"] if e["source"] == TR.SOURCE_USER] == [[6.0, 4.0]]
+    door = [e for e in lv["doors"] if e["source"] == TR.SOURCE_USER]
+    assert [(e["center"], e["changed"], e["reader_id"]) for e in door] == [([6.0, 4.0], ["type"], "o_L0_002")]
+    res = SC.match(t, _own_reading(TR.build_truth("p", _reading(), [])))   # the reader still reads an opening there
+    assert res["doors"]["matched"] == 3 and res["doors"]["truth"] == 4 and res["openings"]["read"] == 2
 
 
-def test_a_readers_id_needs_its_reading():
-    truth = TR.merge(None, _reading())
-    with pytest.raises(ValueError, match="reader's id"):
-        TR.add_element(truth, "door", "L0", {"id": "d_L0_003"}, correction="C0005")
-    building = {"levels": [{"id": "L0"}],
-                "openings": [dict(e, level_id="L0") for e in _reading()["per_level"]["L0"]["doors"]]}
-    with pytest.raises(ValueError, match="no such element"):
-        TR.add_element(truth, "door", "L0", {"id": "d_L0_999"}, correction="C0005", reading=building)
-    with pytest.raises(ValueError, match="holds it as doors"):
-        TR.add_element(truth, "window", "L0", {"id": "d_L0_003"}, correction="C0005", reading=building)
-    with pytest.raises(ValueError, match="no such truth id"):
-        TR.remove_element(truth, "door", "L0", {"id": "t_L0_door_9999"})
-
-
-def test_remarks_name_truth_ids_and_mark_by_place(tmp_path):
-    """A new record names the truth element at the reading element's place (a reader's id stays a hint); its crop
-    marks the truth elements at their own places, never by a reader's id."""
+def test_remarks_mark_by_place(tmp_path):
+    """A record's crop marks the truth elements the build put its operations on, or, before a build, the places its
+    truth action names; never a reader's id."""
     from wenart.reading_check import remark as RM
 
-    truth = TR.merge(None, _reading())
-    door3 = next(e for e in truth["per_level"]["L0"]["doors"] if e["center"] == [3.0, 0.0])
-    shifted = _renumbered(_reading())                      # here d_L0_005 is the door at (3, 0)
+    t = TR.build_truth("p", _reading(), CORRECTIONS)
+    marks = RM.truth_marks(CORRECTIONS[0], t)
+    assert [(k, e["center"]) for k, e in marks] == [("doors", [3.0, 0.0])]
+    fresh = _rec("C0009", {"op": "remove", "kind": "window", "level": "L0", "center": [8.0, 0.0], "id": "d_L0_001"})
+    assert [(k, e["center"]) for k, e in RM.truth_marks(fresh, t)] == [("windows", [8.0, 0.0])]
     building = {"levels": [{"id": "L0"}], "project": {"id": "p"},
-                "openings": [dict(e, level_id="L0") for e in shifted["per_level"]["L0"]["doors"]]}
-    assert RM.truth_ids(truth, building, ["d_L0_005", "d_L0_404"], "L0") == [door3["id"], "d_L0_404"]
-    rec = {"element_ids": [door3["id"]]}
-    assert RM.truth_marks(rec, truth) == [("doors", door3)]
-    out = RM.draw_crop(building, "L0", {"x": 3.0, "y": 0.0}, [], tmp_path / "c.png", marks=RM.truth_marks(rec, truth))
+                "openings": [dict(e, level_id="L0") for e in _renumbered(_reading())["per_level"]["L0"]["doors"]]}
+    out = RM.draw_crop(building, "L0", {"x": 3.0, "y": 0.0}, [], tmp_path / "c.png", marks=marks)
     assert out.is_file()
