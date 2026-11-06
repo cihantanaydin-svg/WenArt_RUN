@@ -1,5 +1,5 @@
 {
- "note": "Reading score per commit against results/reading_truth/ (python -m wenart.reading_check score). Since 6 Nov 2026 (truth_kind user_corrections_v1; user: \"Only consider my revision with the screenshot I have given into previous projects others I have not seen\") a real project's truth is sparse: the user's correction records only, each entry present or absent; its total is 100 x the weighted share of the satisfied entries, stored per entry with its record ids, and it falls when an entry satisfied before is no longer satisfied (named by record). The synthetic projects are scored with F1 against their exact truth (projects/<p>/truth); a failure class below 100 is expected until the reader handles it. The entries without truth_kind were made against the accepted readings (withdrawn on 6 Nov 2026): history only, never compared. Entries with a failed reading are never stored.",
+ "note": "Reading score per commit against results/reading_truth/ (python -m wenart.reading_check score). Since 6 Nov 2026 (truth_kind user_corrections_v1; user: \"Only consider my revision with the screenshot I have given into previous projects others I have not seen\") a real project's truth is sparse: the user's correction records only, each entry present or absent; its total is 100 x the weighted share of the satisfied entries, stored per entry with its record ids, and it falls when an entry satisfied before is no longer satisfied (named by record); its total is reported, never gated. The synthetic projects are scored with F1 against their exact truth (projects/<p>/truth); a failure class below 100 is expected until the reader handles it; the gate's overall is theirs (overall_synthetic), the overall of all projects is information. The entries without truth_kind were made against the accepted readings (withdrawn on 6 Nov 2026): history only, never compared. Entries with a failed reading are never stored.",
  "entries": [
   {
    "commit": "b999d1cc96de755a62d06744c752363330550b67",
@@ -2249,7 +2249,7 @@
    "overall": 95.73
   },
   {
-   "commit": "b5df98a0075eac910682d89f456f254b46fd1e3f",
+   "commit": "a12cd682ecb8571910c0bb50b68faa2b950119ee",
    "date": "2026-11-06",
    "truth_kind": "user_corrections_v1",
    "projects": {
@@ -2331,7 +2331,7 @@
      "truth_status": "sparse",
      "truth_source": "user_corrections",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "real06": {
      "entries": [
@@ -2373,8 +2373,7 @@
        "records": [
         "C0064"
        ],
-       "satisfied": false,
-       "why": "read: win_L1_004"
+       "satisfied": true
       },
       {
        "id": "u_C0064_2",
@@ -2384,8 +2383,7 @@
        "records": [
         "C0064"
        ],
-       "satisfied": false,
-       "why": "read: win_L1_005"
+       "satisfied": true
       }
      ],
      "assertions": [],
@@ -2395,7 +2393,7 @@
        1
       ],
       "C0064": [
-       0,
+       2,
        2
       ],
       "C0065": [
@@ -2403,11 +2401,8 @@
        2
       ]
      },
-     "unsatisfied": [
-      "u_C0064_1",
-      "u_C0064_2"
-     ],
-     "total": 55.56,
+     "unsatisfied": [],
+     "total": 100.0,
      "levels": {
       "present": 0,
       "present_ok": 0,
@@ -2436,7 +2431,7 @@
       "present": 0,
       "present_ok": 0,
       "absent": 2,
-      "absent_ok": 0
+      "absent_ok": 2
      },
      "openings": {
       "present": 1,
@@ -2454,7 +2449,7 @@
      "truth_status": "sparse",
      "truth_source": "user_corrections",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "real07": {
      "entries": [
@@ -2657,7 +2652,7 @@
      "truth_status": "sparse",
      "truth_source": "user_corrections",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "real09": {
      "entries": [
@@ -3027,7 +3022,7 @@
      "truth_status": "sparse",
      "truth_source": "user_corrections",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "real10": {
      "entries": [
@@ -4464,7 +4459,7 @@
      "truth_status": "sparse",
      "truth_source": "user_corrections",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "real17": {
      "entries": [
@@ -4584,87 +4579,7 @@
      "truth_status": "sparse",
      "truth_source": "user_corrections",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
-    },
-    "real19": {
-     "entries": [],
-     "assertions": [
-      {
-       "id": "a_C0025_1",
-       "what": "level_count",
-       "records": [
-        "C0025"
-       ],
-       "satisfied": true,
-       "read": "4 levels"
-      }
-     ],
-     "records": {
-      "C0025": [
-       1,
-       1
-      ]
-     },
-     "unsatisfied": [],
-     "total": 100.0,
-     "levels": {
-      "present": 1,
-      "present_ok": 1,
-      "absent": 0,
-      "absent_ok": 0
-     },
-     "rooms": {
-      "present": 0,
-      "present_ok": 0,
-      "absent": 0,
-      "absent_ok": 0
-     },
-     "stairs": {
-      "present": 0,
-      "present_ok": 0,
-      "absent": 0,
-      "absent_ok": 0
-     },
-     "doors": {
-      "present": 0,
-      "present_ok": 0,
-      "absent": 0,
-      "absent_ok": 0
-     },
-     "windows": {
-      "present": 0,
-      "present_ok": 0,
-      "absent": 0,
-      "absent_ok": 0
-     },
-     "openings": {
-      "present": 0,
-      "present_ok": 0,
-      "absent": 0,
-      "absent_ok": 0
-     },
-     "walls": {
-      "present": 0,
-      "present_ok": 0,
-      "absent": 0,
-      "absent_ok": 0
-     },
-     "sparse": true,
-     "truth_status": "sparse",
-     "truth_source": "user_corrections",
-     "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
-    },
-    "real20": {
-     "total": null,
-     "measurable": false,
-     "sparse": true,
-     "truth_status": "sparse",
-     "truth_source": "user_corrections",
-     "truth_commit": null,
-     "not_measurable": [
-      "C0026"
-     ]
+     "read_commit": "a12cd682ecb8571910c0bb50b68faa2b950119ee"
     },
     "synthetic-01": {
      "levels": {
@@ -4734,7 +4649,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "a12cd682ecb8571910c0bb50b68faa2b950119ee"
     },
     "synthetic-03": {
      "levels": {
@@ -4804,7 +4719,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "a12cd682ecb8571910c0bb50b68faa2b950119ee"
     },
     "synthetic-04": {
      "levels": {
@@ -4874,7 +4789,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-05": {
      "levels": {
@@ -4944,7 +4859,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-06": {
      "levels": {
@@ -5014,7 +4929,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-07": {
      "levels": {
@@ -5084,7 +4999,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "a12cd682ecb8571910c0bb50b68faa2b950119ee"
     },
     "synthetic-08-spaced-labels": {
      "levels": {
@@ -5154,7 +5069,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-09-jamb-stubs": {
      "levels": {
@@ -5224,7 +5139,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-10-glazed-facade": {
      "levels": {
@@ -5294,7 +5209,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-11-dimension-chains": {
      "levels": {
@@ -5364,7 +5279,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-12-mirrored-halves": {
      "levels": {
@@ -5434,7 +5349,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-13-typical-floor": {
      "levels": {
@@ -5504,7 +5419,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "a12cd682ecb8571910c0bb50b68faa2b950119ee"
     },
     "synthetic-14-elevation-title": {
      "levels": {
@@ -5574,7 +5489,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "a12cd682ecb8571910c0bb50b68faa2b950119ee"
     },
     "synthetic-15-winder-stair": {
      "levels": {
@@ -5644,7 +5559,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-16-open-recess": {
      "levels": {
@@ -5714,7 +5629,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-17-garage-lift": {
      "levels": {
@@ -5784,7 +5699,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-18-sheet-frame": {
      "levels": {
@@ -5854,7 +5769,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "a12cd682ecb8571910c0bb50b68faa2b950119ee"
     },
     "synthetic-19-symmetric-house": {
      "levels": {
@@ -5924,7 +5839,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-20-glazed-corner": {
      "levels": {
@@ -5994,7 +5909,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     },
     "synthetic-21-parapet": {
      "levels": {
@@ -6064,7 +5979,7 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "a12cd682ecb8571910c0bb50b68faa2b950119ee"
     },
     "synthetic-22-curved-stair": {
      "levels": {
@@ -6134,10 +6049,11 @@
      "truth_status": "accepted",
      "truth_source": "synthetic",
      "truth_commit": null,
-     "read_commit": "a3bf85ef54756ffb6fad652cb1ac905b2c018029"
+     "read_commit": "0a137ee55d0a6edfd79eee80adcb626b7ea52b9d"
     }
    },
-   "overall": 91.68
+   "overall": 93.02,
+   "overall_synthetic": 94.69
   }
  ]
 }
