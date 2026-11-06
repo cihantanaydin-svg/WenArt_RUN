@@ -1865,7 +1865,8 @@ def test_p4b_flat_cut_parapet_and_slab_edge_take_the_facade_look():
     edge (roof slot 2, ``roof.SLOT_FASCIA``) the roof covering (concrete_tiles), so the band read as a tiled
     mansard. ``build.roof_slot_looks`` gives a flat_cut roof's fascia slot the facade look and an assumed entry with
     the reason; pitched (real02) and mansard (real04) roofs keep the roof look on both slots; the build uses it.
-    Fails on HEAD 11949a9 (no roof_slot_looks; the build passed looks["roof"] to slot 2)."""
+    Fails on HEAD 11949a9 (no roof_slot_looks; the build passed looks["roof"] to slot 2). Since 4 Nov 2026 (lesson
+    UL326, the flat-roof rule of UL320-UL326) a roof of type ``flat`` takes gravel and a metal fascia on purpose."""
     import inspect
 
     from wenart.blender import build as BB
@@ -1882,7 +1883,14 @@ def test_p4b_flat_cut_parapet_and_slab_edge_take_the_facade_look():
     # 24 Oct 2026: a pitched roof type gets the fascia board (the gutter's look) on slot 2
     _c, board, why = BB.roof_slot_looks({"type": "mansard"}, looks)
     assert board["material"] == "aluminium_anthracite" and why["field"] == "fascia_material"
-    assert BB.roof_slot_looks({"type": "flat"}, looks) == (looks["roof"], looks["roof"], None)
+    # 4 Nov 2026 (lessons UL320-UL326, UL326: "give some more modern details"): a flat roof type no longer keeps the
+    # style's tiles on both slots: gravel on the membrane (the style's covering when it is a flat one) and a slim
+    # anthracite metal fascia on its edge, both assumed with the reason
+    flat_cover, flat_fascia, flat_note = BB.roof_slot_looks({"type": "flat"}, looks)
+    assert flat_cover["material"] == "gravel" and flat_cover["assumed"] and flat_cover["reason"] == BB.FLAT_ROOF_REASON
+    assert flat_fascia["material"] == "aluminium_anthracite" and flat_note["field"] == "fascia_material"
+    flat_style = dict(looks, roof={"material": "green_roof", "colour": "green"})
+    assert BB.roof_slot_looks({"type": "flat"}, flat_style)[0] is flat_style["roof"]
     src = inspect.getsource(BB.main)
     assert "roof_slot_looks(roof, looks)" in src and "shell.look_material(library, fascia)" in src
     # the parapet ring and the slab edge are the faces of slot 2

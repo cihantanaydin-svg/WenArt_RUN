@@ -83,8 +83,9 @@ TRUST_NOTE = ("The integration (ranker.decide) applies a ranker change only when
               "'transitions': right on at least transition_precision of at least transition_min held-out changes of "
               "the leave-one-project-out run. Why (5 Nov 2026, the first model, before the trust check): the gates "
               "alone changed 26 decisions on the 28 readings, 21 of them on accepted real projects, and held out the "
-              "ranker was right on 2 of its 8 changes on real projects; real10's two kitchen pass-throughs (a counter "
-              "drawn in a 1.5 m gap of an inner wall) became windows on seven floors and their counters vanished. "
+              "ranker was right on 2 of its 8 changes on real projects; on real10 L0-L6 its window at the 1.50 m "
+              "bedroom window gaps (the type is right: C0032) came before the later furniture rule that types the same "
+              "window, which then left an extra opening beside it on seven floors. "
               "With the trust check: 5 changes (synthetic-12's four bare door gaps, one real07 gap). The "
               "wall_or_notation model only advises (ranker_advice on the pair's record): held out it beats the rules "
               "by 0.004 and its integrated changes were right on 123 of 277; moving a pair into or out of the wall "
@@ -409,8 +410,9 @@ def decide(kind: str, features: dict, rule_answer: str, rule_confidence: float, 
 
     Why the transition must be trusted (5 Nov 2026, decided with the coordinator): with ``RULE_TRUST`` and
     ``MARGIN_MIN`` alone the first committed gap model changed 26 decisions on the 28 readings, 21 of them on accepted
-    real projects, and on held-out real projects it was right on 2 of its 8 changes; real10's two kitchen pass-throughs
-    (a counter drawn in a 1.5 m gap of an inner wall) became windows on seven floors and their counters vanished. A
+    real projects, and on held-out real projects it was right on 2 of its 8 changes; on real10 L0-L6 its window at the
+    1.50 m bedroom window gaps (the type is right, the user's C0032) came before the later furniture rule that types the
+    same window, which then left an extra opening beside it on seven floors. A
     change the ranker has not been shown to get right on other projects (at least ``TRANSITION_PRECISION`` of at least
     ``TRANSITION_MIN`` held-out changes) is recorded, never applied; with the check the same model changed 5 decisions.
     The model JSON says the same in its ``note`` (``TRUST_NOTE``)."""

@@ -20,11 +20,17 @@
   "3. Normal Kat",
   "Zemin Kat"
  ],
+ "accepted": {
+  "on": "2026-11-04",
+  "scope": "all",
+  "levels": null,
+  "note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done); L-1 only, the other levels were left out then"
+ },
  "per_level": {
   "L-1": {
    "rooms": [
     {
-     "id": "r_L-1_depo",
+     "id": "t_L-1_room_0001",
      "label": "Depo",
      "room_type": "storage",
      "area": 151.992,
@@ -293,13 +299,14 @@
      "source": "accepted_reading",
      "confidence": 1.0,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "r_L-1_depo"
     }
    ],
    "doors": [],
    "windows": [
     {
-     "id": "win_L-1_001",
+     "id": "t_L-1_window_0001",
      "type": "window",
      "width": 0.5,
      "center": [
@@ -310,10 +317,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L-1_001"
     },
     {
-     "id": "win_L-1_002",
+     "id": "t_L-1_window_0002",
      "type": "window",
      "width": 0.5,
      "center": [
@@ -324,333 +332,14 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "win_L-1_002"
     }
    ],
    "openings": [],
    "walls": [
     {
-     "id": "w_L-1_001",
-     "start": [
-      15.58,
-      9.418
-     ],
-     "end": [
-      19.28,
-      9.418
-     ],
-     "thickness": 0.26,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_002",
-     "start": [
-      15.27,
-      9.433
-     ],
-     "end": [
-      15.58,
-      9.433
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_003",
-     "start": [
-      14.18,
-      9.461
-     ],
-     "end": [
-      15.27,
-      9.461
-     ],
-     "thickness": 0.28,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_004",
-     "start": [
-      11.972,
-      9.48
-     ],
-     "end": [
-      14.18,
-      9.48
-     ],
-     "thickness": 0.24,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_005",
-     "start": [
-      6.196,
-      9.494
-     ],
-     "end": [
-      6.44,
-      9.494
-     ],
-     "thickness": 0.115,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_006",
-     "start": [
-      11.672,
-      9.5
-     ],
-     "end": [
-      11.972,
-      9.5
-     ],
-     "thickness": 0.285,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_007",
-     "start": [
-      6.79,
-      9.522
-     ],
-     "end": [
-      11.672,
-      9.522
-     ],
-     "thickness": 0.26,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_008",
-     "start": [
-      6.696,
-      9.552
-     ],
-     "end": [
-      6.79,
-      9.552
-     ],
-     "thickness": 0.26,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_009",
-     "start": [
-      6.44,
-      9.688
-     ],
-     "end": [
-      6.696,
-      9.688
-     ],
-     "thickness": 0.505,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_010",
-     "start": [
-      18.562,
-      12.996
-     ],
-     "end": [
-      18.92,
-      12.996
-     ],
-     "thickness": 0.38,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_011",
-     "start": [
-      6.441,
-      15.056
-     ],
-     "end": [
-      6.784,
-      15.056
-     ],
-     "thickness": 0.4,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_012",
-     "start": [
-      11.93,
-      15.731
-     ],
-     "end": [
-      14.172,
-      15.731
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_013",
-     "start": [
-      18.416,
-      17.476
-     ],
-     "end": [
-      18.73,
-      17.476
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_014",
-     "start": [
-      11.93,
-      17.781
-     ],
-     "end": [
-      14.172,
-      17.781
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_015",
-     "start": [
-      6.441,
-      19.106
-     ],
-     "end": [
-      6.776,
-      19.106
-     ],
-     "thickness": 0.4,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_016",
-     "start": [
-      6.44,
-      22.022
-     ],
-     "end": [
-      6.77,
-      22.022
-     ],
-     "thickness": 0.4,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_017",
-     "start": [
-      18.256,
-      22.022
-     ],
-     "end": [
-      18.87,
-      22.022
-     ],
-     "thickness": 0.4,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_018",
-     "start": [
-      11.672,
-      22.072
-     ],
-     "end": [
-      12.272,
-      22.072
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_019",
-     "start": [
-      14.972,
-      22.072
-     ],
-     "end": [
-      15.572,
-      22.072
-     ],
-     "thickness": 0.3,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_020",
-     "start": [
-      6.77,
-      22.097
-     ],
-     "end": [
-      18.256,
-      22.097
-     ],
-     "thickness": 0.25,
-     "source": "accepted_reading",
-     "confidence": 0.95,
-     "method": "vector",
-     "status": "verified"
-    },
-    {
-     "id": "w_L-1_021",
+     "id": "t_L-1_wall_0001",
      "start": [
       6.311,
       9.552
@@ -663,10 +352,130 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_021"
     },
     {
-     "id": "w_L-1_022",
+     "id": "t_L-1_wall_0002",
+     "start": [
+      6.196,
+      9.494
+     ],
+     "end": [
+      6.44,
+      9.494
+     ],
+     "thickness": 0.115,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_005"
+    },
+    {
+     "id": "t_L-1_wall_0003",
+     "start": [
+      6.44,
+      9.688
+     ],
+     "end": [
+      6.696,
+      9.688
+     ],
+     "thickness": 0.505,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_009"
+    },
+    {
+     "id": "t_L-1_wall_0004",
+     "start": [
+      6.441,
+      15.056
+     ],
+     "end": [
+      6.784,
+      15.056
+     ],
+     "thickness": 0.4,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_011"
+    },
+    {
+     "id": "t_L-1_wall_0005",
+     "start": [
+      6.441,
+      19.106
+     ],
+     "end": [
+      6.776,
+      19.106
+     ],
+     "thickness": 0.4,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_015"
+    },
+    {
+     "id": "t_L-1_wall_0006",
+     "start": [
+      6.44,
+      22.022
+     ],
+     "end": [
+      6.77,
+      22.022
+     ],
+     "thickness": 0.4,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_016"
+    },
+    {
+     "id": "t_L-1_wall_0007",
+     "start": [
+      6.696,
+      9.552
+     ],
+     "end": [
+      6.79,
+      9.552
+     ],
+     "thickness": 0.26,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_008"
+    },
+    {
+     "id": "t_L-1_wall_0008",
+     "start": [
+      6.79,
+      9.522
+     ],
+     "end": [
+      11.672,
+      9.522
+     ],
+     "thickness": 0.26,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_007"
+    },
+    {
+     "id": "t_L-1_wall_0009",
      "start": [
       11.797,
       14.906
@@ -679,10 +488,28 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_022"
     },
     {
-     "id": "w_L-1_023",
+     "id": "t_L-1_wall_0010",
+     "start": [
+      11.672,
+      9.5
+     ],
+     "end": [
+      11.972,
+      9.5
+     ],
+     "thickness": 0.285,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_006"
+    },
+    {
+     "id": "t_L-1_wall_0011",
      "start": [
       11.822,
       9.642
@@ -695,10 +522,113 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_023"
     },
     {
-     "id": "w_L-1_024",
+     "id": "t_L-1_wall_0012",
+     "start": [
+      11.672,
+      22.072
+     ],
+     "end": [
+      12.272,
+      22.072
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_018"
+    },
+    {
+     "id": "t_L-1_wall_0013",
+     "start": [
+      6.77,
+      22.097
+     ],
+     "end": [
+      18.256,
+      22.097
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_020"
+    },
+    {
+     "id": "t_L-1_wall_0014",
+     "start": [
+      11.93,
+      15.731
+     ],
+     "end": [
+      14.172,
+      15.731
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_012"
+    },
+    {
+     "id": "t_L-1_wall_0015",
+     "start": [
+      11.93,
+      17.781
+     ],
+     "end": [
+      14.172,
+      17.781
+     ],
+     "thickness": 0.25,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_014"
+    },
+    {
+     "id": "t_L-1_wall_0016",
+     "start": [
+      11.972,
+      9.48
+     ],
+     "end": [
+      14.18,
+      9.48
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_004"
+    },
+    {
+     "id": "t_L-1_wall_0017",
+     "start": [
+      14.18,
+      9.461
+     ],
+     "end": [
+      15.27,
+      9.461
+     ],
+     "thickness": 0.28,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_003"
+    },
+    {
+     "id": "t_L-1_wall_0018",
      "start": [
       15.172,
       9.582
@@ -711,10 +641,113 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_024"
     },
     {
-     "id": "w_L-1_025",
+     "id": "t_L-1_wall_0019",
+     "start": [
+      14.972,
+      22.072
+     ],
+     "end": [
+      15.572,
+      22.072
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_019"
+    },
+    {
+     "id": "t_L-1_wall_0020",
+     "start": [
+      15.27,
+      9.433
+     ],
+     "end": [
+      15.58,
+      9.433
+     ],
+     "thickness": 0.24,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_002"
+    },
+    {
+     "id": "t_L-1_wall_0021",
+     "start": [
+      15.58,
+      9.418
+     ],
+     "end": [
+      19.28,
+      9.418
+     ],
+     "thickness": 0.26,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_001"
+    },
+    {
+     "id": "t_L-1_wall_0022",
+     "start": [
+      18.256,
+      22.022
+     ],
+     "end": [
+      18.87,
+      22.022
+     ],
+     "thickness": 0.4,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_017"
+    },
+    {
+     "id": "t_L-1_wall_0023",
+     "start": [
+      18.416,
+      17.476
+     ],
+     "end": [
+      18.73,
+      17.476
+     ],
+     "thickness": 0.3,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_013"
+    },
+    {
+     "id": "t_L-1_wall_0024",
+     "start": [
+      18.562,
+      12.996
+     ],
+     "end": [
+      18.92,
+      12.996
+     ],
+     "thickness": 0.38,
+     "source": "accepted_reading",
+     "confidence": 0.95,
+     "method": "vector",
+     "status": "verified",
+     "reader_id": "w_L-1_010"
+    },
+    {
+     "id": "t_L-1_wall_0025",
      "start": [
       18.75,
       21.611
@@ -727,10 +760,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_025"
     },
     {
-     "id": "w_L-1_026",
+     "id": "t_L-1_wall_0026",
      "start": [
       18.8,
       19.302
@@ -743,10 +777,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_026"
     },
     {
-     "id": "w_L-1_027",
+     "id": "t_L-1_wall_0027",
      "start": [
       18.854,
       17.901
@@ -759,10 +794,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_027"
     },
     {
-     "id": "w_L-1_028",
+     "id": "t_L-1_wall_0028",
      "start": [
       18.875,
       17.326
@@ -775,10 +811,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_028"
     },
     {
-     "id": "w_L-1_029",
+     "id": "t_L-1_wall_0029",
      "start": [
       18.92,
       15.851
@@ -791,10 +828,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_029"
     },
     {
-     "id": "w_L-1_030",
+     "id": "t_L-1_wall_0030",
      "start": [
       18.962,
       14.841
@@ -807,10 +845,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_030"
     },
     {
-     "id": "w_L-1_031",
+     "id": "t_L-1_wall_0031",
      "start": [
       19.0,
       13.402
@@ -823,10 +862,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_031"
     },
     {
-     "id": "w_L-1_032",
+     "id": "t_L-1_wall_0032",
      "start": [
       19.026,
       9.552
@@ -839,10 +879,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_032"
     },
     {
-     "id": "w_L-1_033",
+     "id": "t_L-1_wall_0033",
      "start": [
       19.037,
       12.806
@@ -855,10 +896,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_033"
     },
     {
-     "id": "w_L-1_034",
+     "id": "t_L-1_wall_0034",
      "start": [
       19.085,
       10.541
@@ -871,10 +913,11 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "vector",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_034"
     },
     {
-     "id": "w_L-1_035",
+     "id": "t_L-1_wall_0035",
      "start": [
       19.14,
       9.776
@@ -887,12 +930,13 @@
      "source": "accepted_reading",
      "confidence": 0.95,
      "method": "derived",
-     "status": "verified"
+     "status": "verified",
+     "reader_id": "w_L-1_035"
     }
    ],
    "stairs": [
     {
-     "id": "f_L-1_001",
+     "id": "t_L-1_stair_0001",
      "center": [
       16.994,
       18.08
@@ -921,10 +965,11 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "f_L-1_001"
     },
     {
-     "id": "f_L-1_002",
+     "id": "t_L-1_stair_0002",
      "center": [
       17.696,
       14.855
@@ -965,15 +1010,114 @@
      "source": "accepted_reading",
      "confidence": 0.9,
      "method": "vector",
-     "status": "unverified"
+     "status": "unverified",
+     "reader_id": "f_L-1_002"
     }
    ]
   }
  },
- "accepted": {
-  "on": "2026-11-04",
-  "scope": "all",
-  "levels": null,
-  "note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done); L-1 only, the other levels were left out then"
+ "built_from": {
+  "reading": "results/reading_accepted/real17.json",
+  "reading_commit": "3c8cb8f8014b433dbb20e88f9a9f0eb0cedd1e07",
+  "records": [
+   "C0038"
+  ]
+ },
+ "build_report": {
+  "applied": [],
+  "unmatched": [
+   {
+    "record": "C0038",
+    "n": 1,
+    "op": "add",
+    "kind": "window",
+    "level": "L0",
+    "place": [
+     9.152,
+     9.505
+    ],
+    "state": "unmatched",
+    "why": "level 'L0' is not in the truth (left out, not accepted, or unknown): no level comes back through a correction"
+   },
+   {
+    "record": "C0038",
+    "n": 2,
+    "op": "add",
+    "kind": "window",
+    "level": "L0",
+    "place": [
+     6.282,
+     13.791
+    ],
+    "state": "unmatched",
+    "why": "level 'L0' is not in the truth (left out, not accepted, or unknown): no level comes back through a correction"
+   },
+   {
+    "record": "C0038",
+    "n": 3,
+    "op": "add",
+    "kind": "window",
+    "level": "L0",
+    "place": [
+     6.282,
+     15.601
+    ],
+    "state": "unmatched",
+    "why": "level 'L0' is not in the truth (left out, not accepted, or unknown): no level comes back through a correction"
+   },
+   {
+    "record": "C0038",
+    "n": 4,
+    "op": "add",
+    "kind": "window",
+    "level": "L0",
+    "place": [
+     6.282,
+     10.854
+    ],
+    "state": "unmatched",
+    "why": "level 'L0' is not in the truth (left out, not accepted, or unknown): no level comes back through a correction"
+   },
+   {
+    "record": "C0038",
+    "n": 5,
+    "op": "add",
+    "kind": "window",
+    "level": "L0",
+    "place": [
+     6.282,
+     20.555
+    ],
+    "state": "unmatched",
+    "why": "level 'L0' is not in the truth (left out, not accepted, or unknown): no level comes back through a correction"
+   },
+   {
+    "record": "C0038",
+    "n": 6,
+    "op": "add",
+    "kind": "window",
+    "level": "L0",
+    "place": [
+     6.282,
+     18.055
+    ],
+    "state": "unmatched",
+    "why": "level 'L0' is not in the truth (left out, not accepted, or unknown): no level comes back through a correction"
+   }
+  ],
+  "not_replayed": [
+   {
+    "record": "C0029",
+    "why": "no truth action (nothing placeable to replay)"
+   },
+   {
+    "record": "C0030",
+    "why": "no truth action (nothing placeable to replay)"
+   },
+   {
+    "record": "C0039",
+    "why": "no truth action (nothing placeable to replay)"
+   }
+  ]
  }
 }

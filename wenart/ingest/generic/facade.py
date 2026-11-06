@@ -429,12 +429,15 @@ def mirror_axis(walls: list, min_share: float = MIRROR_SHARE) -> Optional[tuple[
     return (best[1], best[2]) if best else None
 
 
-def mirror_seeds(walls: list, labelled: list, open_test) -> list:
+def mirror_seeds(walls: list, labelled: list, open_test, axis="halves") -> list:
     """3 Nov 2026 (real09: the drafter named the rooms of one flat only; the other flat's living room, its facade
     of frames like its twin's, stayed open and out of the model): the mirrors of the labelled rooms' anchors about the
     plan's mirror axis (``mirror_axis``) that stand in an open area (``open_test``) with no label near them; the
-    closed faces become rooms the mirror-label rule names after their twins (``twins.mirror_labels``)."""
-    axis = mirror_axis(walls, MIRROR_FIX_SHARE)
+    closed faces become rooms the mirror-label rule names after their twins (``twins.mirror_labels``). ``axis``: the
+    level's mirror decision (``core._halves``), by default ``mirror.halves_axis`` of ``walls``."""
+    if axis == "halves":
+        from wenart.ingest.generic import mirror as MR
+        axis = MR.halves_axis(walls)[0]
     if axis is None:
         return []
     out = []

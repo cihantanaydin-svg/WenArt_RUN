@@ -3,7 +3,7 @@
  "source": "synthetic",
  "status": "accepted",
  "commit": null,
- "date": "2026-11-05",
+ "date": null,
  "levels": [
   {
    "id": "L0",
@@ -14,101 +14,15 @@
   }
  ],
  "levels_left_out": [],
+ "failure_class": "mirrored_halves",
+ "lesson": "UL276",
+ "summary": "two mirrored flats about a party wall; only the left flat carries labels and door swings",
+ "truth_file": "projects/synthetic-12-mirrored-halves/truth/reading_truth.json",
  "per_level": {
   "L0": {
    "rooms": [
     {
-     "id": "r_L0_001",
-     "label": "SALON",
-     "room_type": "living",
-     "area": 28.3219,
-     "centroid": [
-      3.5625,
-      2.3875
-     ],
-     "polygon": [
-      [
-       0.25,
-       0.25
-      ],
-      [
-       6.875,
-       0.25
-      ],
-      [
-       6.875,
-       4.525
-      ],
-      [
-       0.25,
-       4.525
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "r_L0_002",
-     "label": "SALON",
-     "room_type": "living",
-     "area": 28.3219,
-     "centroid": [
-      10.4375,
-      2.3875
-     ],
-     "polygon": [
-      [
-       7.125,
-       0.25
-      ],
-      [
-       13.75,
-       0.25
-      ],
-      [
-       13.75,
-       4.525
-      ],
-      [
-       7.125,
-       4.525
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "r_L0_003",
-     "label": "YATAK ODASI",
-     "room_type": "bedroom",
-     "area": 10.9006,
-     "centroid": [
-      12.4125,
-      6.7125
-     ],
-     "polygon": [
-      [
-       11.075,
-       4.675
-      ],
-      [
-       13.75,
-       4.675
-      ],
-      [
-       13.75,
-       8.75
-      ],
-      [
-       11.075,
-       8.75
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "r_L0_004",
+     "id": "t_L0_room_0001",
      "label": "YATAK ODASI",
      "room_type": "bedroom",
      "area": 10.9006,
@@ -135,10 +49,42 @@
       ]
      ],
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "r_L0_004"
     },
     {
-     "id": "r_L0_005",
+     "id": "t_L0_room_0002",
+     "label": "SALON",
+     "room_type": "living",
+     "area": 28.3219,
+     "centroid": [
+      3.5625,
+      2.3875
+     ],
+     "polygon": [
+      [
+       0.25,
+       0.25
+      ],
+      [
+       6.875,
+       0.25
+      ],
+      [
+       6.875,
+       4.525
+      ],
+      [
+       0.25,
+       4.525
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_001"
+    },
+    {
+     "id": "t_L0_room_0003",
      "label": "HOL",
      "room_type": "hall",
      "area": 7.5387,
@@ -165,10 +111,11 @@
       ]
      ],
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "r_L0_005"
     },
     {
-     "id": "r_L0_006",
+     "id": "t_L0_room_0004",
      "label": "BANYO",
      "room_type": "bathroom",
      "area": 7.335,
@@ -195,10 +142,11 @@
       ]
      ],
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "r_L0_006"
     },
     {
-     "id": "r_L0_007",
+     "id": "t_L0_room_0005",
      "label": "BANYO",
      "room_type": "bathroom",
      "area": 7.335,
@@ -225,10 +173,11 @@
       ]
      ],
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "r_L0_007"
     },
     {
-     "id": "r_L0_008",
+     "id": "t_L0_room_0006",
      "label": "HOL",
      "room_type": "hall",
      "area": 7.5388,
@@ -255,34 +204,75 @@
       ]
      ],
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "r_L0_008"
+    },
+    {
+     "id": "t_L0_room_0007",
+     "label": "SALON",
+     "room_type": "living",
+     "area": 28.3219,
+     "centroid": [
+      10.4375,
+      2.3875
+     ],
+     "polygon": [
+      [
+       7.125,
+       0.25
+      ],
+      [
+       13.75,
+       0.25
+      ],
+      [
+       13.75,
+       4.525
+      ],
+      [
+       7.125,
+       4.525
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_002"
+    },
+    {
+     "id": "t_L0_room_0008",
+     "label": "YATAK ODASI",
+     "room_type": "bedroom",
+     "area": 10.9006,
+     "centroid": [
+      12.4125,
+      6.7125
+     ],
+     "polygon": [
+      [
+       11.075,
+       4.675
+      ],
+      [
+       13.75,
+       4.675
+      ],
+      [
+       13.75,
+       8.75
+      ],
+      [
+       11.075,
+       8.75
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_003"
     }
    ],
    "doors": [
     {
-     "id": "d_L0_001",
-     "width": 1.0,
-     "center": [
-      4.0,
-      8.875
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L0_002",
-     "width": 0.9,
-     "center": [
-      4.0,
-      4.6
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L0_003",
+     "id": "t_L0_door_0001",
      "width": 0.9,
      "center": [
       3.0,
@@ -290,10 +280,35 @@
      ],
      "type": "door",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "d_L0_003"
     },
     {
-     "id": "d_L0_004",
+     "id": "t_L0_door_0002",
+     "width": 0.9,
+     "center": [
+      4.0,
+      4.6
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_002"
+    },
+    {
+     "id": "t_L0_door_0003",
+     "width": 1.0,
+     "center": [
+      4.0,
+      8.875
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_001"
+    },
+    {
+     "id": "t_L0_door_0004",
      "width": 0.8,
      "center": [
       5.0,
@@ -301,43 +316,11 @@
      ],
      "type": "door",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "d_L0_004"
     },
     {
-     "id": "d_L0_005",
-     "width": 1.0,
-     "center": [
-      10.0,
-      8.875
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L0_006",
-     "width": 0.9,
-     "center": [
-      10.0,
-      4.6
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L0_007",
-     "width": 0.9,
-     "center": [
-      11.0,
-      6.0
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L0_008",
+     "id": "t_L0_door_0005",
      "width": 0.8,
      "center": [
       9.0,
@@ -345,34 +328,49 @@
      ],
      "type": "door",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "d_L0_008"
+    },
+    {
+     "id": "t_L0_door_0006",
+     "width": 0.9,
+     "center": [
+      10.0,
+      4.6
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_006"
+    },
+    {
+     "id": "t_L0_door_0007",
+     "width": 1.0,
+     "center": [
+      10.0,
+      8.875
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_005"
+    },
+    {
+     "id": "t_L0_door_0008",
+     "width": 0.9,
+     "center": [
+      11.0,
+      6.0
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_007"
     }
    ],
    "windows": [
     {
-     "id": "win_L0_001",
-     "width": 1.6,
-     "center": [
-      2.0,
-      0.125
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_002",
-     "width": 1.6,
-     "center": [
-      5.0,
-      0.125
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_003",
+     "id": "t_L0_window_0001",
      "width": 1.2,
      "center": [
       0.125,
@@ -380,10 +378,11 @@
      ],
      "type": "window",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "win_L0_003"
     },
     {
-     "id": "win_L0_004",
+     "id": "t_L0_window_0002",
      "width": 1.2,
      "center": [
       0.125,
@@ -391,10 +390,11 @@
      ],
      "type": "window",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "win_L0_004"
     },
     {
-     "id": "win_L0_005",
+     "id": "t_L0_window_0003",
      "width": 1.2,
      "center": [
       1.5,
@@ -402,10 +402,35 @@
      ],
      "type": "window",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "win_L0_005"
     },
     {
-     "id": "win_L0_006",
+     "id": "t_L0_window_0004",
+     "width": 1.6,
+     "center": [
+      2.0,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_001"
+    },
+    {
+     "id": "t_L0_window_0005",
+     "width": 1.6,
+     "center": [
+      5.0,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_002"
+    },
+    {
+     "id": "t_L0_window_0006",
      "width": 0.6,
      "center": [
       6.0,
@@ -413,65 +438,11 @@
      ],
      "type": "window",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "win_L0_006"
     },
     {
-     "id": "win_L0_007",
-     "width": 1.6,
-     "center": [
-      12.0,
-      0.125
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_008",
-     "width": 1.6,
-     "center": [
-      9.0,
-      0.125
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_009",
-     "width": 1.2,
-     "center": [
-      13.875,
-      2.3
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_010",
-     "width": 1.2,
-     "center": [
-      13.875,
-      6.8
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_011",
-     "width": 1.2,
-     "center": [
-      12.5,
-      8.875
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_012",
+     "id": "t_L0_window_0007",
      "width": 0.6,
      "center": [
       8.0,
@@ -479,55 +450,74 @@
      ],
      "type": "window",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "win_L0_012"
+    },
+    {
+     "id": "t_L0_window_0008",
+     "width": 1.6,
+     "center": [
+      9.0,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_008"
+    },
+    {
+     "id": "t_L0_window_0009",
+     "width": 1.6,
+     "center": [
+      12.0,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_007"
+    },
+    {
+     "id": "t_L0_window_0010",
+     "width": 1.2,
+     "center": [
+      12.5,
+      8.875
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_011"
+    },
+    {
+     "id": "t_L0_window_0011",
+     "width": 1.2,
+     "center": [
+      13.875,
+      2.3
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_009"
+    },
+    {
+     "id": "t_L0_window_0012",
+     "width": 1.2,
+     "center": [
+      13.875,
+      6.8
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_010"
     }
    ],
    "openings": [],
    "walls": [
     {
-     "id": "w_L0_001",
-     "start": [
-      0.0,
-      0.125
-     ],
-     "end": [
-      14.0,
-      0.125
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_002",
-     "start": [
-      13.875,
-      0.0
-     ],
-     "end": [
-      13.875,
-      9.0
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_003",
-     "start": [
-      14.0,
-      8.875
-     ],
-     "end": [
-      0.0,
-      8.875
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_004",
+     "id": "t_L0_wall_0001",
      "start": [
       0.125,
       9.0
@@ -538,24 +528,26 @@
      ],
      "thickness": 0.25,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_004"
     },
     {
-     "id": "w_L0_005",
+     "id": "t_L0_wall_0002",
      "start": [
-      7.0,
-      0.0
+      3.0,
+      4.6
      ],
      "end": [
-      7.0,
+      3.0,
       9.0
      ],
-     "thickness": 0.25,
+     "thickness": 0.15,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_007"
     },
     {
-     "id": "w_L0_006",
+     "id": "t_L0_wall_0003",
      "start": [
       0.0,
       4.6
@@ -566,24 +558,11 @@
      ],
      "thickness": 0.15,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_006"
     },
     {
-     "id": "w_L0_007",
-     "start": [
-      3.0,
-      4.6
-     ],
-     "end": [
-      3.0,
-      9.0
-     ],
-     "thickness": 0.15,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_008",
+     "id": "t_L0_wall_0004",
      "start": [
       5.0,
       4.6
@@ -594,10 +573,71 @@
      ],
      "thickness": 0.15,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_008"
     },
     {
-     "id": "w_L0_009",
+     "id": "t_L0_wall_0005",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      14.0,
+      0.125
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_001"
+    },
+    {
+     "id": "t_L0_wall_0006",
+     "start": [
+      7.0,
+      0.0
+     ],
+     "end": [
+      7.0,
+      9.0
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_005"
+    },
+    {
+     "id": "t_L0_wall_0007",
+     "start": [
+      14.0,
+      8.875
+     ],
+     "end": [
+      0.0,
+      8.875
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_003"
+    },
+    {
+     "id": "t_L0_wall_0008",
+     "start": [
+      9.0,
+      4.6
+     ],
+     "end": [
+      9.0,
+      9.0
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_011"
+    },
+    {
+     "id": "t_L0_wall_0009",
      "start": [
       14.0,
       4.6
@@ -608,10 +648,11 @@
      ],
      "thickness": 0.15,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_009"
     },
     {
-     "id": "w_L0_010",
+     "id": "t_L0_wall_0010",
      "start": [
       11.0,
       4.6
@@ -622,28 +663,36 @@
      ],
      "thickness": 0.15,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_010"
     },
     {
-     "id": "w_L0_011",
+     "id": "t_L0_wall_0011",
      "start": [
-      9.0,
-      4.6
+      13.875,
+      0.0
      ],
      "end": [
-      9.0,
+      13.875,
       9.0
      ],
-     "thickness": 0.15,
+     "thickness": 0.25,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_002"
     }
    ],
    "stairs": []
   }
  },
- "failure_class": "mirrored_halves",
- "lesson": "UL276",
- "summary": "two mirrored flats about a party wall; only the left flat carries labels and door swings",
- "truth_file": "projects/synthetic-12-mirrored-halves/truth/reading_truth.json"
+ "built_from": {
+  "reading": "projects/synthetic-12-mirrored-halves/truth/reading_truth.json",
+  "reading_commit": null,
+  "records": []
+ },
+ "build_report": {
+  "applied": [],
+  "unmatched": [],
+  "not_replayed": []
+ }
 }

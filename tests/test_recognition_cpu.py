@@ -1087,9 +1087,21 @@ def test_dwg_roundtrip_bookkeeping_with_stand_in_converters(tmp_path):
     copier = 'out=""; for a in "$@"; do [ "$prev" = "-o" ] && out="$a"; prev="$a"; done; cp "${@: -1}" "$out"\n'
     _write_tool(bin_dir / "dxf2dwg", 'if [ "$1" = "--version" ]; then echo "dxf2dwg stand-in 0.0"; exit 0; fi\n' + copier)
     _write_tool(bin_dir / "dwg2dxf", 'if [ "$1" = "--version" ]; then echo "dwg2dxf stand-in 0.0"; exit 0; fi\n' + copier)
+    from wenart.synthetic import failure_classes as FC
+    from wenart.synthetic.failure_projects import failure_projects
+
     dxfs = sorted(PROJECTS.glob("*/*.dxf"))
+    # The project DXFs the bookkeeping must carry, each named on its own: the hand-made synthetic plans (synthetic-07
+    # (M10): sheet.dxf) and one plan per generated failure class (synthetic-08 ..., 4 Nov 2026). A DXF missing from
+    # projects/ or from the report, or one the report adds, fails the test.
+    expected = {PROJECTS / rel for rel in ("synthetic-01/zemin_kat.dxf", "synthetic-03/mobilya_plani.dxf",
+                                           "synthetic-04/3_kat_plani.dxf", "synthetic-05/zemin_kat.dxf",
+                                           "synthetic-05/zemin_kat_mobilya.dxf", "synthetic-07/sheet.dxf")}
+    expected |= {PROJECTS / p.name / FC.DXF_FILE for p in failure_projects()}
+    assert set(dxfs) == expected
     report = bakeoff.dwg_roundtrip(dxfs, tmp_path / "dwg_roundtrip.json", bin_dir, tmp_path / "work")
-    assert report["all_ok"] and len(report["files"]) == len(dxfs) == 6        # synthetic-07 (M10): sheet.dxf
+    reported = [Path(f["dxf"]) for f in report["files"]]
+    assert report["all_ok"] and len(reported) == len(set(reported)) and set(reported) == expected
     first = report["files"][0]
     assert first["counts_in"] == first["counts_back"] and "LWPOLYLINE@DUVAR" in first["counts_in"]
     assert first["dwg_bytes"] > 0 and first["missing"] == {} and first["extra"] == {}

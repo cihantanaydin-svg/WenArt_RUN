@@ -5,8 +5,8 @@ of the four plan regions, the generic core per region, mirror twins, same_as and
 What the plans draw, per dwelling (two mirrored dwellings on every plan, the 0.40 m party wall between them):
 
 - L0 (ground floor): Yatak Odası x 2, E.Yatak Odası, E.Banyo, Banyo, Koridor, and the stair face (unlabelled: M11 M8
-  names it "Merdiven", a hall: the M7 rule gives a stair its own face when it would share a labelled one). 14 rooms,
-  7 twin pairs (Milestone 11: unlabelled faces pair too).
+  names it "Merdiven", type stair since UL279 of 3 Nov 2026: the M7 rule gives a stair its own face when it would
+  share a labelled one). 14 rooms, 7 twin pairs (Milestone 11: unlabelled faces pair too).
 - L1 (attic): Teras, Banyo, Koridor, Oyun Aktivite ve Dinlenme Odası. 8 rooms, 4 twin pairs.
 - L-1 (basement): Banyo, Mutfak, Koridor (with the stair), Salon. 8 rooms, 4 twin pairs; 4 doors, 4 windows (two
   7.19 m on the south wall, one 4.16 m in each kitchen's side wall), 2 doorless openings (kitchen to Salon).
@@ -94,10 +94,13 @@ def test_status_levels_and_variants(building):
 
 
 def test_ground_floor_rooms_and_twins(building):
+    """The stair face is 'Merdiven'; since 3 Nov 2026 (lesson UL279, twins.stair_cores) a room holding the stair that
+    stands at the same spot on three or more levels (real02: all four plans) is the stair core, type stair."""
     rooms = _rooms(building, "L0")
     assert Counter(r["label"] for r in rooms) == {"Yatak Odası": 4, "E.yatak Odası": 2, "E.banyo": 2, "Banyo": 2,
                                                   "Koridor": 2, "Merdiven": 2}
-    assert all(r.get("label_raw") is None and r["room_type"] == "hall" for r in rooms if r["label"] == "Merdiven")
+    assert all(r.get("label_raw") is None and r["room_type"] == "stair"
+               and r["label_inferred"]["method"] == "stair_core" for r in rooms if r["label"] == "Merdiven")
     assert _twins(building, "L0") == {"Yatak Odası": 2, "E.yatak Odası": 1, "E.banyo": 1, "Banyo": 1, "Koridor": 1,
                                       "Merdiven": 1}
 

@@ -135,6 +135,21 @@ def _greedy(pairs: list) -> list:
     return out
 
 
+def _at(e: dict, *keys) -> tuple:
+    """An element's place as a sortable tuple (the tie-break of equal pairs, so the matching never depends on the
+    order of the lists; 6 Nov 2026)."""
+    out = []
+    for k in keys:
+        v = e.get(k)
+        if isinstance(v, (list, tuple)) and v and isinstance(v[0], (list, tuple)):
+            out.append(tuple(sorted((round(float(q[0]), 6), round(float(q[1]), 6)) for q in v)))
+        elif isinstance(v, (list, tuple)):
+            out.append(tuple(round(float(q), 6) for q in v))
+        else:
+            out.append((float(v),) if isinstance(v, (int, float)) else ())
+    return tuple(out)
+
+
 def match_rooms(truth: list, read: list) -> list:
     """The matched ``(truth index, read index)`` pairs of one level's rooms (the module docstring's rules)."""
     pairs = []
@@ -142,12 +157,13 @@ def match_rooms(truth: list, read: list) -> list:
         tl, tc = TR.norm_label(t.get("label")), t.get("centroid")
         for j, r in enumerate(read):
             rl, rc = TR.norm_label(r.get("label")), r.get("centroid")
+            tie = (_at(t, "centroid", "polygon"), _at(r, "centroid", "polygon"))
             if tl and tl == rl and tc and rc and _dist(tc, rc) <= ROOM_CENTROID_M:
-                pairs.append(((0, _dist(tc, rc)), i, j))
+                pairs.append(((0, round(_dist(tc, rc), 9)) + tie, i, j))
                 continue
             iou = polygon_iou(t.get("polygon"), r.get("polygon"))
             if iou >= ROOM_IOU_MIN:
-                pairs.append(((1, 1.0 - iou), i, j))
+                pairs.append(((1, round(1.0 - iou, 9)) + tie, i, j))
     return _greedy(pairs)
 
 
@@ -159,17 +175,23 @@ def match_points(truth: list, read: list, tol: float, key: str = "center") -> li
             continue
         for j, r in enumerate(read):
             if r.get(key) and _dist(t[key], r[key]) <= tol:
-                pairs.append((_dist(t[key], r[key]), i, j))
+                pairs.append(((round(_dist(t[key], r[key]), 9), _at(t, key, "width"), _at(r, key, "width")), i, j))
     return _greedy(pairs)
 
 
 def match_walls(truth: list, read: list) -> list:
+    """The matched pairs of one level's walls: the largest overlap share of the shorter wall first, then (6 Nov 2026,
+    review: a long wall took a short wall it contains and left the short truth wall alone, depending on the order of
+    the reading) the largest share of the longer wall, the smaller lateral offset, then the places; never the order."""
     pairs = []
     for i, t in enumerate(truth):
         for j, r in enumerate(read):
             ov = wall_overlap(t, r)
             if ov is not None:
-                pairs.append(((-ov[0], ov[1]), i, j))
+                lt, lr = _dist(t["start"], t["end"]), _dist(r["start"], r["end"])
+                long_share = round(ov[0] * min(lt, lr) / max(lt, lr), 4)
+                pairs.append(((-ov[0], -long_share, ov[1], _at(t, "start", "end", "thickness"),
+                               _at(r, "start", "end", "thickness")), i, j))
     return _greedy(pairs)
 
 

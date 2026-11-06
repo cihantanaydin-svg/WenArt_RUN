@@ -24,6 +24,9 @@ CAD document) and returns the findings, each with its check, severity, level and
 
 - RC8 to RC12 (5 Nov 2026, Milestone 14 R5, ``wenart.reading_check.crossdoc``): the cross-document checks, advisory
   (reported, counted under ``counts["advisory"]``, never in the verdict until they earn it).
+- RC14 (6 Nov 2026, Milestone 14 R6, ``wenart.reading_check.sense``): the architectural-sense checks (a room type
+  implausible for its area, a small room's label naming a larger face, the sheet frame read as walls, unread walls,
+  circulation, notation in room names), advisory like RC8-RC12; a rule below its judged precision writes info.
 
 ``verdict``: ``ready`` without a critical finding, else ``fix before a pod run``. ``write(out_dir, result)`` writes
 ``reading_check/reading_check.json`` and ``.md``; ``wenart.reading_check.sheets`` draws the comparison sheets (the
@@ -90,13 +93,32 @@ def level_pages(building: dict) -> dict:
 
 
 def source_dxf(out_dir: Path, file_rel: Optional[str]) -> Optional[Path]:
-    """The converted DXF of a CAD document in the pipeline output (``converted/<stem>.dxf``), else the DXF itself."""
+    """The converted DXF of a CAD document in the pipeline output (``converted/<stem>.dxf``), else the DXF itself.
+
+    6 Nov 2026 (found by the out-of-sample calibration of RC14): a project drawn in DXF has no ``converted/`` copy, and
+    this returned None for it, so every check that reads the drawing (RC2 stacking, RC4/RC5 walls, RC14's text rules)
+    was silent on DXF projects. Now the project's own DXF is used: ``file_rel`` is relative to the project folder,
+    found from ``building.json``'s project id under ``projects/`` (or ``file_rel`` itself when it exists)."""
     if not file_rel:
         return None
     stem = Path(file_rel).stem
     cand = Path(out_dir) / "converted" / f"{stem}.dxf"
     if cand.is_file():
         return cand
+    if Path(file_rel).suffix.lower() != ".dxf":
+        return None
+    own = Path(file_rel)
+    if own.is_absolute() and own.is_file():
+        return own
+    try:
+        building = json.loads((Path(out_dir) / "building.json").read_text(encoding="utf-8"))
+        project = (building.get("project") or {}).get("id")
+    except (OSError, ValueError):
+        project = None
+    if project:
+        cand = Path(__file__).resolve().parents[2] / "projects" / project / file_rel
+        if cand.is_file():
+            return cand
     return None
 
 
@@ -589,9 +611,26 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     for f in cross:
         f["advisory"] = True
     findings += cross
+    # 6 Nov 2026 (Milestone 14 R6; user, 4 Nov 2026: "some AI or something else to give the feedbacks by itself instead
+    # of me at some point"): the architectural-sense checks RC14 (a room type implausible for its area, a small room's
+    # label naming a larger face, the sheet frame read as walls, unread walls, levels, rooms and flats that cannot be
+    # reached, notation in room names) join as ADVISORY findings like RC8-RC12: counted under counts["advisory"],
+    # never in the verdict; a rule below its judged precision (models/sense_trust.json) writes info. A failure of the
+    # module is one info finding.
+    try:
+        from wenart.reading_check import sense as SN
+        sense = SN.findings(out_dir)
+    except Exception as exc:  # noqa: BLE001 - an advisory check never stops the reading check
+        sense = [{"check": "RC14", "name": "architectural sense", "rule": None, "severity": "info", "level_id": None,
+                  "message": f"the architectural-sense checks did not run: {type(exc).__name__}: {str(exc)[:200]}",
+                  "place": None, "element_ids": []}]
+    for f in sense:
+        f["advisory"] = True
+    findings += sense
+    advisory = cross + sense
     counts = {s: sum(1 for f in findings if f["severity"] == s and not f.get("advisory"))
               for s in ("critical", "major", "minor")}
-    counts["advisory"] = {s: sum(1 for f in cross if f["severity"] == s) for s in ("major", "minor", "info")}
+    counts["advisory"] = {s: sum(1 for f in advisory if f["severity"] == s) for s in ("major", "minor", "info")}
     return {"project": (building.get("project") or {}).get("id"), "levels_checked": checked, "reference": ref,
             "conventions": conv,
             "findings": findings, "counts": counts, "notes": notes,
@@ -634,8 +673,8 @@ def write(out_dir, result: dict) -> Path:
     d.mkdir(parents=True, exist_ok=True)
     (d / "reading_check.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     adv = (result.get("counts") or {}).get("advisory") or {}
-    adv_text = (f" Cross-document checks RC8-RC12, advisory: {adv.get('major', 0)} major, {adv.get('minor', 0)} "
-                f"minor, {adv.get('info', 0)} info (not in the verdict)." if adv else "")
+    adv_text = (f" Cross-document checks RC8-RC12 and architectural-sense checks RC14, advisory: {adv.get('major', 0)} "
+                f"major, {adv.get('minor', 0)} minor, {adv.get('info', 0)} info (not in the verdict)." if adv else "")
     lines = [f"# Reading check: {result.get('project')}", "",
              f"Verdict: **{result['verdict']}** ({result['counts']['critical']} critical, {result['counts']['major']} "
              f"major, {result['counts']['minor']} minor). Levels checked against the drawing: "

@@ -3,7 +3,7 @@
  "source": "synthetic",
  "status": "accepted",
  "commit": null,
- "date": "2026-11-05",
+ "date": null,
  "levels": [
   {
    "id": "L0",
@@ -21,147 +21,15 @@
   }
  ],
  "levels_left_out": [],
+ "failure_class": "elevation_title",
+ "lesson": "UL271",
+ "summary": "a plan titled only by its elevation under a titled ground floor plan",
+ "truth_file": "projects/synthetic-14-elevation-title/truth/reading_truth.json",
  "per_level": {
   "L0": {
    "rooms": [
     {
-     "id": "r_L0_001",
-     "label": "SALON",
-     "room_type": "living",
-     "area": 27.2006,
-     "centroid": [
-      3.5875,
-      2.2875
-     ],
-     "polygon": [
-      [
-       0.25,
-       0.25
-      ],
-      [
-       6.925,
-       0.25
-      ],
-      [
-       6.925,
-       4.325
-      ],
-      [
-       0.25,
-       4.325
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "r_L0_002",
-     "label": "YATAK ODASI",
-     "room_type": "bedroom",
-     "area": 19.0506,
-     "centroid": [
-      9.4125,
-      2.2875
-     ],
-     "polygon": [
-      [
-       7.075,
-       0.25
-      ],
-      [
-       11.75,
-       0.25
-      ],
-      [
-       11.75,
-       4.325
-      ],
-      [
-       7.075,
-       4.325
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "r_L0_003",
-     "label": "HOL",
-     "room_type": "hall",
-     "area": 10.2187,
-     "centroid": [
-      4.3375,
-      5.1
-     ],
-     "polygon": [
-      [
-       0.25,
-       4.475
-      ],
-      [
-       8.425,
-       4.475
-      ],
-      [
-       8.425,
-       5.725
-      ],
-      [
-       0.25,
-       5.725
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "r_L0_004",
-     "label": "MERDİVEN",
-     "room_type": "stair",
-     "area": 19.3231,
-     "centroid": [
-      9.392535,
-      6.8208
-     ],
-     "polygon": [
-      [
-       8.575,
-       4.475
-      ],
-      [
-       11.75,
-       4.475
-      ],
-      [
-       11.75,
-       8.75
-      ],
-      [
-       6.575,
-       8.75
-      ],
-      [
-       6.575,
-       5.875
-      ],
-      [
-       8.425,
-       5.875
-      ],
-      [
-       8.5,
-       5.875
-      ],
-      [
-       8.575,
-       5.875
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "r_L0_005",
+     "id": "t_L0_room_0001",
      "label": "MUTFAK",
      "room_type": "kitchen",
      "area": 10.5656,
@@ -188,431 +56,13 @@
       ]
      ],
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "r_L0_005"
     },
     {
-     "id": "r_L0_006",
-     "label": "BANYO",
-     "room_type": "bathroom",
-     "area": 6.7562,
-     "centroid": [
-      5.25,
-      7.3125
-     ],
-     "polygon": [
-      [
-       4.075,
-       5.875
-      ],
-      [
-       6.425,
-       5.875
-      ],
-      [
-       6.425,
-       8.75
-      ],
-      [
-       4.075,
-       8.75
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
-    }
-   ],
-   "doors": [
-    {
-     "id": "d_L0_001",
-     "width": 1.0,
-     "center": [
-      0.125,
-      5.1
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L0_002",
-     "width": 0.9,
-     "center": [
-      3.0,
-      4.4
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L0_003",
-     "width": 0.9,
-     "center": [
-      7.8,
-      4.4
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L0_004",
-     "width": 0.9,
-     "center": [
-      2.0,
-      5.8
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L0_005",
-     "width": 0.8,
-     "center": [
-      5.2,
-      5.8
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L0_006",
-     "width": 0.9,
-     "center": [
-      7.5,
-      5.8
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    }
-   ],
-   "windows": [
-    {
-     "id": "win_L0_001",
-     "width": 1.6,
-     "center": [
-      2.0,
-      0.125
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_002",
-     "width": 1.6,
-     "center": [
-      5.0,
-      0.125
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_003",
-     "width": 1.4,
-     "center": [
-      0.125,
-      2.2
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_004",
-     "width": 1.4,
-     "center": [
-      9.5,
-      0.125
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_005",
-     "width": 1.2,
-     "center": [
-      11.875,
-      2.2
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_006",
-     "width": 1.2,
-     "center": [
-      2.0,
-      8.875
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_007",
-     "width": 0.6,
-     "center": [
-      5.25,
-      8.875
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_008",
-     "width": 1.4,
-     "center": [
-      9.2,
-      8.875
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L0_009",
-     "width": 1.0,
-     "center": [
-      11.875,
-      6.6
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    }
-   ],
-   "openings": [],
-   "walls": [
-    {
-     "id": "w_L0_001",
-     "start": [
-      0.0,
-      0.125
-     ],
-     "end": [
-      12.0,
-      0.125
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_002",
-     "start": [
-      11.875,
-      0.0
-     ],
-     "end": [
-      11.875,
-      9.0
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_003",
-     "start": [
-      12.0,
-      8.875
-     ],
-     "end": [
-      0.0,
-      8.875
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_004",
-     "start": [
-      0.125,
-      9.0
-     ],
-     "end": [
-      0.125,
-      0.0
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_005",
-     "start": [
-      0.0,
-      4.4
-     ],
-     "end": [
-      12.0,
-      4.4
-     ],
-     "thickness": 0.15,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_006",
-     "start": [
-      0.0,
-      5.8
-     ],
-     "end": [
-      8.5,
-      5.8
-     ],
-     "thickness": 0.15,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_007",
-     "start": [
-      7.0,
-      0.0
-     ],
-     "end": [
-      7.0,
-      4.4
-     ],
-     "thickness": 0.15,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_008",
-     "start": [
-      4.0,
-      5.8
-     ],
-     "end": [
-      4.0,
-      9.0
-     ],
-     "thickness": 0.15,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_009",
-     "start": [
-      6.5,
-      5.8
-     ],
-     "end": [
-      6.5,
-      9.0
-     ],
-     "thickness": 0.15,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L0_010",
-     "start": [
-      8.5,
-      4.4
-     ],
-     "end": [
-      8.5,
-      5.875
-     ],
-     "thickness": 0.15,
-     "source": "synthetic",
-     "confidence": null
-    }
-   ],
-   "stairs": [
-    {
-     "id": "s_L0_001",
-     "kind": "u_landing",
-     "center": [
-      10.2,
-      7.325
-     ],
-     "risers": 19,
-     "treads": 18,
-     "arms": [
-      {
-       "kind": "straight",
-       "treads": [
-        1,
-        9
-       ],
-       "box": [
-        [
-         8.7,
-         5.95
-        ],
-        [
-         10.95,
-         7.225
-        ]
-       ]
-      },
-      {
-       "kind": "landing",
-       "box": [
-        [
-         10.95,
-         5.95
-        ],
-        [
-         11.7,
-         8.7
-        ]
-       ]
-      },
-      {
-       "kind": "straight",
-       "treads": [
-        10,
-        18
-       ],
-       "box": [
-        [
-         8.7,
-         7.425
-        ],
-        [
-         10.95,
-         8.7
-        ]
-       ]
-      }
-     ],
-     "box": [
-      [
-       8.7,
-       5.95
-      ],
-      [
-       11.7,
-       8.7
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
-    }
-   ]
-  },
-  "L1": {
-   "rooms": [
-    {
-     "id": "r_L1_001",
-     "label": "EBEVEYN YATAK ODASI",
-     "room_type": "bedroom",
+     "id": "t_L0_room_0002",
+     "label": "SALON",
+     "room_type": "living",
      "area": 27.2006,
      "centroid": [
       3.5875,
@@ -637,40 +87,11 @@
       ]
      ],
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "r_L0_001"
     },
     {
-     "id": "r_L1_002",
-     "label": "YATAK ODASI",
-     "room_type": "bedroom",
-     "area": 19.0506,
-     "centroid": [
-      9.4125,
-      2.2875
-     ],
-     "polygon": [
-      [
-       7.075,
-       0.25
-      ],
-      [
-       11.75,
-       0.25
-      ],
-      [
-       11.75,
-       4.325
-      ],
-      [
-       7.075,
-       4.325
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "r_L1_003",
+     "id": "t_L0_room_0003",
      "label": "HOL",
      "room_type": "hall",
      "area": 10.2187,
@@ -697,10 +118,42 @@
       ]
      ],
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "r_L0_003"
     },
     {
-     "id": "r_L1_004",
+     "id": "t_L0_room_0004",
+     "label": "BANYO",
+     "room_type": "bathroom",
+     "area": 6.7562,
+     "centroid": [
+      5.25,
+      7.3125
+     ],
+     "polygon": [
+      [
+       4.075,
+       5.875
+      ],
+      [
+       6.425,
+       5.875
+      ],
+      [
+       6.425,
+       8.75
+      ],
+      [
+       4.075,
+       8.75
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_006"
+    },
+    {
+     "id": "t_L0_room_0005",
      "label": "MERDİVEN",
      "room_type": "stair",
      "area": 19.3231,
@@ -743,72 +196,68 @@
       ]
      ],
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "r_L0_004"
     },
     {
-     "id": "r_L1_005",
-     "label": "ÇALIŞMA ODASI",
-     "room_type": "other",
-     "area": 10.5656,
+     "id": "t_L0_room_0006",
+     "label": "YATAK ODASI",
+     "room_type": "bedroom",
+     "area": 19.0506,
      "centroid": [
-      2.0875,
-      7.3125
+      9.4125,
+      2.2875
      ],
      "polygon": [
       [
-       0.25,
-       5.875
+       7.075,
+       0.25
       ],
       [
-       3.925,
-       5.875
+       11.75,
+       0.25
       ],
       [
-       3.925,
-       8.75
+       11.75,
+       4.325
       ],
       [
-       0.25,
-       8.75
+       7.075,
+       4.325
       ]
      ],
      "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "r_L1_006",
-     "label": "BANYO",
-     "room_type": "bathroom",
-     "area": 6.7562,
-     "centroid": [
-      5.25,
-      7.3125
-     ],
-     "polygon": [
-      [
-       4.075,
-       5.875
-      ],
-      [
-       6.425,
-       5.875
-      ],
-      [
-       6.425,
-       8.75
-      ],
-      [
-       4.075,
-       8.75
-      ]
-     ],
-     "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "r_L0_002"
     }
    ],
    "doors": [
     {
-     "id": "d_L1_001",
+     "id": "t_L0_door_0001",
+     "width": 1.0,
+     "center": [
+      0.125,
+      5.1
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_001"
+    },
+    {
+     "id": "t_L0_door_0002",
+     "width": 0.9,
+     "center": [
+      2.0,
+      5.8
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_004"
+    },
+    {
+     "id": "t_L0_door_0003",
      "width": 0.9,
      "center": [
       3.0,
@@ -816,32 +265,11 @@
      ],
      "type": "door",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "d_L0_002"
     },
     {
-     "id": "d_L1_002",
-     "width": 0.9,
-     "center": [
-      7.8,
-      4.4
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L1_003",
-     "width": 0.9,
-     "center": [
-      2.0,
-      5.8
-     ],
-     "type": "door",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "d_L1_004",
+     "id": "t_L0_door_0004",
      "width": 0.8,
      "center": [
       5.2,
@@ -849,10 +277,11 @@
      ],
      "type": "door",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "d_L0_005"
     },
     {
-     "id": "d_L1_005",
+     "id": "t_L0_door_0005",
      "width": 0.9,
      "center": [
       7.5,
@@ -860,12 +289,37 @@
      ],
      "type": "door",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "d_L0_006"
+    },
+    {
+     "id": "t_L0_door_0006",
+     "width": 0.9,
+     "center": [
+      7.8,
+      4.4
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_003"
     }
    ],
    "windows": [
     {
-     "id": "win_L1_001",
+     "id": "t_L0_window_0001",
+     "width": 1.4,
+     "center": [
+      0.125,
+      2.2
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_003"
+    },
+    {
+     "id": "t_L0_window_0002",
      "width": 1.6,
      "center": [
       2.0,
@@ -873,10 +327,23 @@
      ],
      "type": "window",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "win_L0_001"
     },
     {
-     "id": "win_L1_002",
+     "id": "t_L0_window_0003",
+     "width": 1.2,
+     "center": [
+      2.0,
+      8.875
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_006"
+    },
+    {
+     "id": "t_L0_window_0004",
      "width": 1.6,
      "center": [
       5.0,
@@ -884,54 +351,11 @@
      ],
      "type": "window",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "win_L0_002"
     },
     {
-     "id": "win_L1_003",
-     "width": 1.4,
-     "center": [
-      0.125,
-      2.2
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L1_004",
-     "width": 1.4,
-     "center": [
-      9.5,
-      0.125
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L1_005",
-     "width": 1.2,
-     "center": [
-      11.875,
-      2.2
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L1_006",
-     "width": 1.2,
-     "center": [
-      2.0,
-      8.875
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L1_007",
+     "id": "t_L0_window_0005",
      "width": 0.6,
      "center": [
       5.25,
@@ -939,10 +363,11 @@
      ],
      "type": "window",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "win_L0_007"
     },
     {
-     "id": "win_L1_008",
+     "id": "t_L0_window_0006",
      "width": 1.4,
      "center": [
       9.2,
@@ -950,10 +375,35 @@
      ],
      "type": "window",
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "win_L0_008"
     },
     {
-     "id": "win_L1_009",
+     "id": "t_L0_window_0007",
+     "width": 1.4,
+     "center": [
+      9.5,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_004"
+    },
+    {
+     "id": "t_L0_window_0008",
+     "width": 1.2,
+     "center": [
+      11.875,
+      2.2
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_005"
+    },
+    {
+     "id": "t_L0_window_0009",
      "width": 1.0,
      "center": [
       11.875,
@@ -961,66 +411,14 @@
      ],
      "type": "window",
      "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "win_L1_010",
-     "width": 1.0,
-     "center": [
-      0.125,
-      5.1
-     ],
-     "type": "window",
-     "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "win_L0_009"
     }
    ],
    "openings": [],
    "walls": [
     {
-     "id": "w_L1_001",
-     "start": [
-      0.0,
-      0.125
-     ],
-     "end": [
-      12.0,
-      0.125
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L1_002",
-     "start": [
-      11.875,
-      0.0
-     ],
-     "end": [
-      11.875,
-      9.0
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L1_003",
-     "start": [
-      12.0,
-      8.875
-     ],
-     "end": [
-      0.0,
-      8.875
-     ],
-     "thickness": 0.25,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L1_004",
+     "id": "t_L0_wall_0001",
      "start": [
       0.125,
       9.0
@@ -1031,24 +429,26 @@
      ],
      "thickness": 0.25,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_004"
     },
     {
-     "id": "w_L1_005",
+     "id": "t_L0_wall_0002",
      "start": [
-      0.0,
-      4.4
+      4.0,
+      5.8
      ],
      "end": [
-      12.0,
-      4.4
+      4.0,
+      9.0
      ],
      "thickness": 0.15,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_008"
     },
     {
-     "id": "w_L1_006",
+     "id": "t_L0_wall_0003",
      "start": [
       0.0,
       5.8
@@ -1059,10 +459,71 @@
      ],
      "thickness": 0.15,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_006"
     },
     {
-     "id": "w_L1_007",
+     "id": "t_L0_wall_0004",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      12.0,
+      0.125
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_001"
+    },
+    {
+     "id": "t_L0_wall_0005",
+     "start": [
+      0.0,
+      4.4
+     ],
+     "end": [
+      12.0,
+      4.4
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_005"
+    },
+    {
+     "id": "t_L0_wall_0006",
+     "start": [
+      12.0,
+      8.875
+     ],
+     "end": [
+      0.0,
+      8.875
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_003"
+    },
+    {
+     "id": "t_L0_wall_0007",
+     "start": [
+      6.5,
+      5.8
+     ],
+     "end": [
+      6.5,
+      9.0
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_009"
+    },
+    {
+     "id": "t_L0_wall_0008",
      "start": [
       7.0,
       0.0
@@ -1073,38 +534,11 @@
      ],
      "thickness": 0.15,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_007"
     },
     {
-     "id": "w_L1_008",
-     "start": [
-      4.0,
-      5.8
-     ],
-     "end": [
-      4.0,
-      9.0
-     ],
-     "thickness": 0.15,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L1_009",
-     "start": [
-      6.5,
-      5.8
-     ],
-     "end": [
-      6.5,
-      9.0
-     ],
-     "thickness": 0.15,
-     "source": "synthetic",
-     "confidence": null
-    },
-    {
-     "id": "w_L1_010",
+     "id": "t_L0_wall_0009",
      "start": [
       8.5,
       4.4
@@ -1115,12 +549,28 @@
      ],
      "thickness": 0.15,
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "w_L0_010"
+    },
+    {
+     "id": "t_L0_wall_0010",
+     "start": [
+      11.875,
+      0.0
+     ],
+     "end": [
+      11.875,
+      9.0
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_002"
     }
    ],
    "stairs": [
     {
-     "id": "s_L1_001",
+     "id": "t_L0_stair_0001",
      "kind": "u_landing",
      "center": [
       10.2,
@@ -1188,13 +638,637 @@
       ]
      ],
      "source": "synthetic",
-     "confidence": null
+     "confidence": null,
+     "reader_id": "s_L0_001"
+    }
+   ]
+  },
+  "L1": {
+   "rooms": [
+    {
+     "id": "t_L1_room_0001",
+     "label": "ÇALIŞMA ODASI",
+     "room_type": "other",
+     "area": 10.5656,
+     "centroid": [
+      2.0875,
+      7.3125
+     ],
+     "polygon": [
+      [
+       0.25,
+       5.875
+      ],
+      [
+       3.925,
+       5.875
+      ],
+      [
+       3.925,
+       8.75
+      ],
+      [
+       0.25,
+       8.75
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L1_005"
+    },
+    {
+     "id": "t_L1_room_0002",
+     "label": "EBEVEYN YATAK ODASI",
+     "room_type": "bedroom",
+     "area": 27.2006,
+     "centroid": [
+      3.5875,
+      2.2875
+     ],
+     "polygon": [
+      [
+       0.25,
+       0.25
+      ],
+      [
+       6.925,
+       0.25
+      ],
+      [
+       6.925,
+       4.325
+      ],
+      [
+       0.25,
+       4.325
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L1_001"
+    },
+    {
+     "id": "t_L1_room_0003",
+     "label": "HOL",
+     "room_type": "hall",
+     "area": 10.2187,
+     "centroid": [
+      4.3375,
+      5.1
+     ],
+     "polygon": [
+      [
+       0.25,
+       4.475
+      ],
+      [
+       8.425,
+       4.475
+      ],
+      [
+       8.425,
+       5.725
+      ],
+      [
+       0.25,
+       5.725
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L1_003"
+    },
+    {
+     "id": "t_L1_room_0004",
+     "label": "BANYO",
+     "room_type": "bathroom",
+     "area": 6.7562,
+     "centroid": [
+      5.25,
+      7.3125
+     ],
+     "polygon": [
+      [
+       4.075,
+       5.875
+      ],
+      [
+       6.425,
+       5.875
+      ],
+      [
+       6.425,
+       8.75
+      ],
+      [
+       4.075,
+       8.75
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L1_006"
+    },
+    {
+     "id": "t_L1_room_0005",
+     "label": "MERDİVEN",
+     "room_type": "stair",
+     "area": 19.3231,
+     "centroid": [
+      9.392535,
+      6.8208
+     ],
+     "polygon": [
+      [
+       8.575,
+       4.475
+      ],
+      [
+       11.75,
+       4.475
+      ],
+      [
+       11.75,
+       8.75
+      ],
+      [
+       6.575,
+       8.75
+      ],
+      [
+       6.575,
+       5.875
+      ],
+      [
+       8.425,
+       5.875
+      ],
+      [
+       8.5,
+       5.875
+      ],
+      [
+       8.575,
+       5.875
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L1_004"
+    },
+    {
+     "id": "t_L1_room_0006",
+     "label": "YATAK ODASI",
+     "room_type": "bedroom",
+     "area": 19.0506,
+     "centroid": [
+      9.4125,
+      2.2875
+     ],
+     "polygon": [
+      [
+       7.075,
+       0.25
+      ],
+      [
+       11.75,
+       0.25
+      ],
+      [
+       11.75,
+       4.325
+      ],
+      [
+       7.075,
+       4.325
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L1_002"
+    }
+   ],
+   "doors": [
+    {
+     "id": "t_L1_door_0001",
+     "width": 0.9,
+     "center": [
+      2.0,
+      5.8
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L1_003"
+    },
+    {
+     "id": "t_L1_door_0002",
+     "width": 0.9,
+     "center": [
+      3.0,
+      4.4
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L1_001"
+    },
+    {
+     "id": "t_L1_door_0003",
+     "width": 0.8,
+     "center": [
+      5.2,
+      5.8
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L1_004"
+    },
+    {
+     "id": "t_L1_door_0004",
+     "width": 0.9,
+     "center": [
+      7.5,
+      5.8
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L1_005"
+    },
+    {
+     "id": "t_L1_door_0005",
+     "width": 0.9,
+     "center": [
+      7.8,
+      4.4
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L1_002"
+    }
+   ],
+   "windows": [
+    {
+     "id": "t_L1_window_0001",
+     "width": 1.4,
+     "center": [
+      0.125,
+      2.2
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L1_003"
+    },
+    {
+     "id": "t_L1_window_0002",
+     "width": 1.0,
+     "center": [
+      0.125,
+      5.1
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L1_010"
+    },
+    {
+     "id": "t_L1_window_0003",
+     "width": 1.6,
+     "center": [
+      2.0,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L1_001"
+    },
+    {
+     "id": "t_L1_window_0004",
+     "width": 1.2,
+     "center": [
+      2.0,
+      8.875
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L1_006"
+    },
+    {
+     "id": "t_L1_window_0005",
+     "width": 1.6,
+     "center": [
+      5.0,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L1_002"
+    },
+    {
+     "id": "t_L1_window_0006",
+     "width": 0.6,
+     "center": [
+      5.25,
+      8.875
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L1_007"
+    },
+    {
+     "id": "t_L1_window_0007",
+     "width": 1.4,
+     "center": [
+      9.2,
+      8.875
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L1_008"
+    },
+    {
+     "id": "t_L1_window_0008",
+     "width": 1.4,
+     "center": [
+      9.5,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L1_004"
+    },
+    {
+     "id": "t_L1_window_0009",
+     "width": 1.2,
+     "center": [
+      11.875,
+      2.2
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L1_005"
+    },
+    {
+     "id": "t_L1_window_0010",
+     "width": 1.0,
+     "center": [
+      11.875,
+      6.6
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L1_009"
+    }
+   ],
+   "openings": [],
+   "walls": [
+    {
+     "id": "t_L1_wall_0001",
+     "start": [
+      0.125,
+      9.0
+     ],
+     "end": [
+      0.125,
+      0.0
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L1_004"
+    },
+    {
+     "id": "t_L1_wall_0002",
+     "start": [
+      4.0,
+      5.8
+     ],
+     "end": [
+      4.0,
+      9.0
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L1_008"
+    },
+    {
+     "id": "t_L1_wall_0003",
+     "start": [
+      0.0,
+      5.8
+     ],
+     "end": [
+      8.5,
+      5.8
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L1_006"
+    },
+    {
+     "id": "t_L1_wall_0004",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      12.0,
+      0.125
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L1_001"
+    },
+    {
+     "id": "t_L1_wall_0005",
+     "start": [
+      0.0,
+      4.4
+     ],
+     "end": [
+      12.0,
+      4.4
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L1_005"
+    },
+    {
+     "id": "t_L1_wall_0006",
+     "start": [
+      12.0,
+      8.875
+     ],
+     "end": [
+      0.0,
+      8.875
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L1_003"
+    },
+    {
+     "id": "t_L1_wall_0007",
+     "start": [
+      6.5,
+      5.8
+     ],
+     "end": [
+      6.5,
+      9.0
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L1_009"
+    },
+    {
+     "id": "t_L1_wall_0008",
+     "start": [
+      7.0,
+      0.0
+     ],
+     "end": [
+      7.0,
+      4.4
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L1_007"
+    },
+    {
+     "id": "t_L1_wall_0009",
+     "start": [
+      8.5,
+      4.4
+     ],
+     "end": [
+      8.5,
+      5.875
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L1_010"
+    },
+    {
+     "id": "t_L1_wall_0010",
+     "start": [
+      11.875,
+      0.0
+     ],
+     "end": [
+      11.875,
+      9.0
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L1_002"
+    }
+   ],
+   "stairs": [
+    {
+     "id": "t_L1_stair_0001",
+     "kind": "u_landing",
+     "center": [
+      10.2,
+      7.325
+     ],
+     "risers": 19,
+     "treads": 18,
+     "arms": [
+      {
+       "kind": "straight",
+       "treads": [
+        1,
+        9
+       ],
+       "box": [
+        [
+         8.7,
+         5.95
+        ],
+        [
+         10.95,
+         7.225
+        ]
+       ]
+      },
+      {
+       "kind": "landing",
+       "box": [
+        [
+         10.95,
+         5.95
+        ],
+        [
+         11.7,
+         8.7
+        ]
+       ]
+      },
+      {
+       "kind": "straight",
+       "treads": [
+        10,
+        18
+       ],
+       "box": [
+        [
+         8.7,
+         7.425
+        ],
+        [
+         10.95,
+         8.7
+        ]
+       ]
+      }
+     ],
+     "box": [
+      [
+       8.7,
+       5.95
+      ],
+      [
+       11.7,
+       8.7
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "s_L1_001"
     }
    ]
   }
  },
- "failure_class": "elevation_title",
- "lesson": "UL271",
- "summary": "a plan titled only by its elevation under a titled ground floor plan",
- "truth_file": "projects/synthetic-14-elevation-title/truth/reading_truth.json"
+ "built_from": {
+  "reading": "projects/synthetic-14-elevation-title/truth/reading_truth.json",
+  "reading_commit": null,
+  "records": []
+ },
+ "build_report": {
+  "applied": [],
+  "unmatched": [],
+  "not_replayed": []
+ }
 }

@@ -39,7 +39,7 @@ SHOW_DEFAULT = 2               # the room's main pieces a view shows when the fi
 REPAIR_MAX = 40                # invalid calls put to the one repair call
 REPAIR_TOKENS = 4096
 PIECE_RE = re.compile(r"\b(f_L-?\d+[a-z]?_\d+[a-z0-9_]*)\b")
-OPENING_RE = re.compile(r"\b((?:d|o|win|w)_L-?\d+[a-z]?_\d+)\b")
+OPENING_RE = re.compile(r"\b((?:d|o|win|w)_L-?\d+[a-z]?_m?\d+)\b")     # 5 Nov 2026: mirror copies d_L0_m001
 # a group word the model uses -> the program's group (place_group's enum)
 GROUP_WORDS = {"living": "seating", "lounge": "seating", "sofa": "seating", "sitting": "seating",
                "bed": "sleeping_double", "bedroom": "sleeping_double", "double_bed": "sleeping_double",

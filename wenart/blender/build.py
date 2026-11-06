@@ -258,7 +258,9 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry
                     # backs and basin walls (pure)
                     "wenart/furniture/fixture_use.py",
                     # 30 Oct 2026 (UL131, UL140): the soft seats' fabric slots read the material-name rules
-                    "wenart/assets/material_names.py")
+                    "wenart/assets/material_names.py",
+                    # 4 Nov 2026 (UL305, UL316): the shell's and the looks' common areas (shared hall, fire stair)
+                    "wenart/common_areas.py")
 # Asset-manifest keys that change on every fetch without changing the asset.
 FINGERPRINT_VOLATILE_KEYS = ("fetched_utc",)
 STYLE_ASSET_SLOTS = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame",

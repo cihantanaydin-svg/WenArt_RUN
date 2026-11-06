@@ -34,6 +34,12 @@ how the user's feedback compounds and how the user is replaced step by step.
 - `results/reading_corrections.jsonl`: one record per correction: project, level, place (building metres and the
   drawing's box), element id, the reader's answer, the right answer, the user's words, the lesson id, the date. The
   3 and 4 Nov corrections (UL274 to UL328) are backfilled from the progress file first.
+- The truth is **derived**, never merged (decided 6 Nov 2026 after four rounds of merge fixes left 18 verified breaks):
+  truth = the stored accepted reading (`results/reading_accepted/<project>.json`, `truth accept`) + a replay of the
+  project's applicable correction records in record order, each operation applied by place (add replaces or adds,
+  confirm, retype, remove writes a negation; a negated wall span cuts the walls on its line). `truth build` is pure and
+  byte-identical from the same inputs; `truth add` / `truth remove` append a record (or extend the one named) and
+  rebuild. Records name places; `reader_ids` are hints and nothing joins on an id.
 - A reading **score** per project: recall and precision per element type against the truth, weighted
   (levels 5, rooms 3, stairs 3, doors 2, windows 2, walls 1), one number; `results/reading_scores.json` per commit.
   Gate: a change is accepted when the total rises and no project falls by more than the tolerance.

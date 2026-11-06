@@ -26,7 +26,7 @@ from wenart.audit import kinds as K
 CONCERN = {"F7": ("F2", "F3"), "G12": ("F3",), "F9": ("F5",), "G9": ("S4",), "G10": ("S4",), "G11": ("C1",),
            "X3": ("E1",), "F6": ("F4",)}
 OPENING_CHECKS = ("F7", "G12", "X3")
-OPENING_RE = re.compile(r"\b((?:d|o|win|w)_L-?\d+[a-z]?_\d+)\b")
+OPENING_RE = re.compile(r"\b((?:d|o|win|w)_L-?\d+[a-z]?_m?\d+)\b")     # 5 Nov 2026: mirror copies d_L0_m001
 
 
 def _answers(architect: Optional[dict]) -> dict:
