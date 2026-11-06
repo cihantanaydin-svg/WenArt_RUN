@@ -1,0 +1,39 @@
+{
+ "note": "Trust of the vision critic (RC15) per finding kind. NOT CALIBRATED YET (6 Nov 2026): the pod job scripts/jobs/critic.sh has not run (its branch was not pushed, and the pod clones from GitHub), so every kind is unjudged and findings(out_dir) writes every stored critic finding as info. After the pod: python -m wenart.reading_check critic calibrate --answers runs/<job>/results/critic/agent/answers.json --readings-root <sets a and c readings> --rc14 results/critic/rc14_recall.json --write replaces this file with the precision per kind on set a, the recall of the user's records on set b next to RC14's, and the out-of-sample table on set c.",
+ "check": "RC15",
+ "calibrated": false,
+ "model_key": "agent",
+ "date": "2026-11-06",
+ "threshold": 0.5,
+ "match_m": 1.5,
+ "input_set": {
+  "index": "results/critic/inputs/index.json",
+  "levels": {"a": 26, "b": 13, "c": 19},
+  "a": "the current readings of the accepted projects with a CAD page (real02, 03, 04, 06, 10, 15, 21, synthetic-01, 04, 05, 06, 07; real01 and synthetic-03 are PDF projects without one)",
+  "b": "real10 and real07 at 23f5df3d, real09 at a0b208a4, real17 at 0e9b4ee0: the readings made before the user's corrections",
+  "c": "synthetic-08 to synthetic-22; 9 of the 15 read with an error against their exact truth (08, 09, 10, 12, 14, 16, 17, 20, 22), 6 read clean (11, 13, 15, 18, 19, 21)"
+ },
+ "baseline_rc14": {
+  "recall": "15 of 24 records (results/critic/rc14_recall.json)",
+  "out_of_sample": "1 of 11 synthetic failure classes caught, 0 false alarms (docs/progress.md, day 3)"
+ },
+ "kinds": {
+  "missing_wall": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "extra_wall": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "closed_open_air": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "merged_rooms": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "split_room": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "door_as_window": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "window_as_door": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "missing_opening": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "extra_opening": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "missing_stair": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "false_stair": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "wrong_label": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "other": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
+  "question": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true}
+ },
+ "recall": null,
+ "out_of_sample": null,
+ "judgements": []
+}
