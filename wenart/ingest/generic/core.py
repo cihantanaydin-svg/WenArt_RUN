@@ -2879,8 +2879,19 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     ex.report["mask"] = mask
     ex.report["units_to_m"] = s
 
-    # 4. Label blocks, plot and building.
-    blocks = LB.merge_label_blocks(texts_m, file_rel, page_no)
+    # 4. Label blocks, plot and building. 6 Nov 2026 (target 4, real14): a room schedule (a list of room words under a
+    # header such as MAHAL, or outside every wall's hull) is no label (``labels.schedules``); never silent.
+    hull = unary_union([TP.wall_polygon(w) for w in walls2]).convex_hull if walls2 else None
+    found_schedules: list = []
+    blocks = LB.merge_label_blocks(texts_m, file_rel, page_no, hull=hull, schedules_out=found_schedules)
+    for sc_ in found_schedules:
+        ex.notes.append(f"{where}: a room schedule ({sc_['axis']}, {len(sc_['room_words'])} room words: "
+                        f"{', '.join(sc_['room_words'][:6])}{' ...' if len(sc_['room_words']) > 6 else ''}; "
+                        f"{sc_['why']}) is a list, not room labels")
+    if found_schedules:
+        ex.report["schedules"] = [{k: v for k, v in sc_.items() if k != "box"} | {"box_m": [round(v, 3) for v in
+                                                                                          sc_["box"]]}
+                                  for sc_ in found_schedules]
     bwalls, site, site_warnings = TP.split_plot(walls2, openings, blocks, level_id=level_id)
     site_idx = {o["index"] for o in site["openings"]}
     b_openings = [o for k, o in enumerate(openings) if k not in site_idx]

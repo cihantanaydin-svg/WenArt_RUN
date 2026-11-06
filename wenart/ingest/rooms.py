@@ -76,6 +76,8 @@ class RoomResult:
     # (room id, label_size dict).
     multi_labels: list[tuple[str, str, list[str]]] = field(default_factory=list)
     label_size_conflicts: list[tuple[str, dict]] = field(default_factory=list)
+    # 6 Nov 2026 (reader target 5): small labels that named only their own sub-space of a larger face
+    sub_space_labels: list[dict] = field(default_factory=list)
 
 
 def wall_polygons(walls: list[WallItem]) -> list[Polygon]:
@@ -225,10 +227,45 @@ def _face_size(face: Polygon) -> tuple[float, float]:
 
 CAVITY_WIDTH_M = 0.24     # real10: an unlabelled face no 24 cm strip fits into is no room (a wall cavity)
 
+
+def _sub_space(labels: list, indices: list, shp: Polygon, stairs) -> Optional[dict]:
+    """6 Nov 2026 (reader target 5): when the label naming a face is of a small type (a lift, a shaft, a WC, a closet:
+    ``labels.SUB_SPACE_TYPES``), the face is at least ``labels.SUB_SPACE_FACTOR`` times that type's largest area
+    (``labels.AREA_RANGES``) and it also holds a stair or the label of another kind of room, the small label names
+    only its own sub-space (its walls are not read): ``{"small", "max_m2", "label", "keep", "stair"}`` with ``keep``
+    the label indices that name the face instead (another kind's label first), [] when the face stays unnamed; None
+    when the rule does not apply."""
+    from wenart.ingest.generic import labels as LB
+
+    if not indices or getattr(labels[indices[0]], "block", None) is None:
+        return None
+    face_area, aspect = _face_size(shp)
+    first = labels[indices[0]].block
+    small = LB.sub_space_type(first.name, LB.room_type_for(first.name, face_area, aspect)[0])
+    if small is None:
+        return None
+    hi = LB.AREA_RANGES[small][1]
+    if face_area < LB.SUB_SPACE_FACTOR * hi:
+        return None
+
+    def kind(k: int) -> Optional[str]:
+        blk = getattr(labels[k], "block", None)
+        name = blk.name if blk is not None else labels[k].text
+        return LB.sub_space_type(name, LB.room_type_for(name, face_area, aspect)[0])
+
+    others = [k for k in indices[1:] if kind(k) is None]
+    different = others or [k for k in indices[1:] if kind(k) != small]
+    stair = any(shp.contains(ShapelyPoint(s.center if hasattr(s, "center") else s["center"])) for s in stairs or ())
+    if not different and not stair:
+        return None
+    keep = [others[0]] + [k for k in indices if k != others[0]] if others else []
+    return {"small": small, "max_m2": hi, "label": first.name, "keep": keep, "stair": stair}
+
+
 def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], label_points: list[tuple[float, float]],
                  label_fallback_points: Optional[list[tuple[float, float]]] = None,
                  file_rel: str = "", ids: Optional[B.IdCounter] = None, union=None, separators=(),
-                 unlabelled_label: str = UNLABELLED_LABEL, face_type=None) -> RoomResult:
+                 unlabelled_label: str = UNLABELLED_LABEL, face_type=None, stairs=()) -> RoomResult:
     """Rooms of one level.
 
     ``label_points[i]`` is the anchor of ``labels[i]`` in building metres (the
@@ -240,6 +277,9 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
     ``unlabelled_label``, ``face_type(polygon) -> (room_type, reason[, label])`` (Milestone 11: a label for the
     unlabelled face, e.g. "Merdiven" for a stair core) and
     labels with a ``block`` (see the module docstring).
+
+    6 Nov 2026 (Milestone 14 reader target 5): ``stairs`` (pieces with a ``center`` in building metres) let a small
+    room's label give up a much larger face (``_sub_space``).
     """
     result = RoomResult()
     ids = ids or B.IdCounter()
@@ -335,6 +375,37 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
             if not indoor:
                 continue              # named only by exterior labels: a site area, not a room (§2.5)
             indices = indoor + [k for k in indices if k not in generic]
+        if len(indices) > 1 and getattr(labels[indices[0]], "block", None) is not None:
+            # Several names in one face (an entrance hall open to the living room, real03): the name of the
+            # largest printed net area names the face; without printed areas the first one stays.
+            def printed(k: int) -> float:
+                blk = getattr(labels[k], "block", None)
+                return blk.area_m2 if blk is not None and blk.area_m2 is not None else -1.0
+            best = max(indices, key=printed)
+            if printed(best) > 0:
+                indices = [best] + [k for k in indices if k != best]
+            else:
+                # real10 (1 Nov 2026): no printed areas: an entrance hall open to the living room (ANTRE and SALON
+                # in one face) is the living room
+                from wenart.ingest.generic.labels import room_type_for as _rtf
+                kinds = {k: _rtf(labels[k].block.name)[0] if getattr(labels[k], "block", None) else None
+                         for k in indices}
+                living = [k for k in indices if kinds[k] == "living"]
+                if living and all(kinds[k] in ("living", "hall") for k in indices):
+                    indices = [living[0]] + [k for k in indices if k != living[0]]
+        sub = _sub_space(labels, indices, shp, stairs)
+        if sub is not None:
+            # 6 Nov 2026 (reader target 5): a small room's label names only its own sub-space of a much larger face
+            other = (f"the label '{labels[sub['keep'][0]].text}' names the face" if sub["keep"] else
+                     "the face is left unnamed for the architect")
+            result.sub_space_labels.append({"label": sub["label"], "type": sub["small"], "face_m2": area,
+                                            "max_m2": sub["max_m2"], "stair": sub["stair"],
+                                            "kept": labels[sub["keep"][0]].text if sub["keep"] else None})
+            result.warnings.append(f"{level_id}: '{sub['label']}' names a {sub['small']} (at most {sub['max_m2']:g} "
+                                   f"m²) inside a {area:.1f} m² face that also holds "
+                                   + ("the stair" if sub["stair"] else "another room's label")
+                                   + f": it names only its own sub-space (walls not read); {other}")
+            indices = sub["keep"]
         status = "verified"
         evidence = []
         label_size = None
@@ -353,24 +424,6 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
                 result.warnings.append(f"{level_id}: room at {face[0]} ({area:.2f} m²) has no label")
             status = "unverified"
         elif getattr(labels[indices[0]], "block", None) is not None:
-            if len(indices) > 1:
-                # Several names in one face (an entrance hall open to the living room, real03): the name of the
-                # largest printed net area names the face; without printed areas the first one stays.
-                def printed(k: int) -> float:
-                    blk = getattr(labels[k], "block", None)
-                    return blk.area_m2 if blk is not None and blk.area_m2 is not None else -1.0
-                best = max(indices, key=printed)
-                if printed(best) > 0:
-                    indices = [best] + [k for k in indices if k != best]
-                else:
-                    # real10 (1 Nov 2026): no printed areas: an entrance hall open to the living room (ANTRE and SALON
-                    # in one face) is the living room
-                    from wenart.ingest.generic.labels import room_type_for as _rtf
-                    kinds = {k: _rtf(labels[k].block.name)[0] if getattr(labels[k], "block", None) else None
-                             for k in indices}
-                    living = [k for k in indices if kinds[k] == "living"]
-                    if living and all(kinds[k] in ("living", "hall") for k in indices):
-                        indices = [living[0]] + [k for k in indices if k != living[0]]
             first = labels[indices[0]]
             block = first.block
             label, _, _ = B.normalise_room_label(block.name, turkish=first.turkish)

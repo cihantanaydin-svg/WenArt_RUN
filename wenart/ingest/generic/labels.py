@@ -192,9 +192,141 @@ def is_annotation(text: str) -> bool:
     return flat or summary or all(w in _AREA_NOUNS for w in long_words)
 
 
+    text = collapse_spaced(text or "").strip()
+    if not text or re.search(r"\d", text) or B.generic_room_label(text):
+        return False
+    turkish, english = B.room_keyword_hits(text)
+    return not turkish and not english and T.level_of(f"{text} KAT") is not None
+
+
+# 6 Nov 2026 (Milestone 14 reader target 3; real11: 'Bına Taban Hattı Yatak Odası' and 'Tesisat Duvarı H: 1.20 Cm' read
+# as room names): the notation phrases of a plan, never part of a room's name. One table for the reader (a label line
+# loses them before naming, ``split_notation``) and the checker (RC14 ``label_vocabulary`` in
+# ``wenart.reading_check.sense`` imports it). (pattern on ASCII-folded upper text, what it is)
+NOTATION_PHRASES = (
+    (r"\b(?:BINA\s+)?TABAN\s+HATTI\b", "the building's footprint line"),
+    (r"\bTESISAT\s+DUVARI\b", "a services wall note"),
+    (r"\bSACAK(?:\s+IZDUSUMU)?\b", "the eaves (projection line)"),
+    (r"\bIZDUSUM\w*\b", "a projection line of the floor above"),
+    (r"\bKOTU?\b", "a level mark"),
+    (r"\bAKS(?:I|LARI)?\b", "an axis"),
+    (r"\bSUBASMAN\b", "the plinth line"),
+    (r"\bDILATASYON\b", "an expansion joint"),
+    (r"\bPARAPET\b", "a parapet"),
+    (r"\bH\s*[:=]\s*\d", "a height note"),
+    (r"(?:^|\s)[+\-±]\s*\d+[.,]\d{2}\b", "a level value"),
+    (r"\b\d+(?:[.,]\d+)?\s*(?:CM|MM|M2|M²|M)(?![A-Z0-9])", "a number with a unit"),
+)
+NOTATION_RE = [(re.compile(p), what) for p, what in NOTATION_PHRASES]
+
+
+# 6 Nov 2026 (moved from ``wenart.reading_check.sense``, RC14; reader target 5): what is built, by room type: a
+# reading outside these ranges has almost always closed the wrong face or named it from the wrong text. The reader
+# (``wenart.ingest.rooms``: a small room's label never names a face several times its type's largest area) and the
+# checker (RC14 ``room_type_area``, ``label_names_larger_face``) share them.
+AREA_RANGES = {
+    "lift": (1.0, 8.0, "a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m"),
+    "shaft": (0.1, 8.0, "an installation shaft is from a 30 x 40 cm riser to a few m2; a larger face named shaft has "
+                        "taken in a room beside it"),
+    "light_well": (0.5, 30.0, "a light or air well (ışıklık) is from a 0.7 x 0.7 m air shaft to about 5 x 6 m"),
+    "wc": (0.8, 6.0, "a WC with a basin is from 0.8 x 1.0 m to about 2 x 3 m"),
+    "bathroom": (1.0, 15.0, "a bathroom holds a shower or a bath, a basin and a WC: from a 1.0 x 1.1 m en-suite to "
+                            "about 15 m2"),
+    "shower": (0.8, 5.0, "a shower room is a 0.8 x 1.0 m cubicle to about 2 x 2.5 m"),
+    "closet": (0.3, 12.0, "a closet, pantry or dressing room is from a 0.5 x 0.6 m cupboard to about 3 x 4 m"),
+    "storage": (0.3, 60.0, "a storage room (depo) is a cupboard in a flat to a store room of a shop or a basement"),
+    "fire_lobby": (2.0, 40.0, "a fire or safety lobby in front of a stair or a lift is about 2 to 40 m2"),
+    "stair": (2.0, 40.0, "a stair core (one or two flights with their landings) is about 2 to 40 m2"),
+    "kitchen": (3.0, 40.0, "a kitchen is a 1.8 x 1.8 m kitchenette to about 5 x 8 m"),
+    "bedroom": (6.0, 40.0, "a bedroom holds a bed with access around it: about 6 to 40 m2"),
+    "living": (8.0, 120.0, "a living room is about 8 to 120 m2"),
+    "hall": (1.0, 60.0, "an entrance, a corridor or a floor hall is about 1 to 60 m2"),
+    "garage": (12.0, 100.0, "a private garage holds one to four cars: about 12 to 100 m2"),
+    "car_park": (12.0, 5000.0, "a car park (otopark) holds from one car to a whole basement of cars"),
+    "technical": (1.0, 40.0, "a boiler, pump, electrical or lift machine room is about 1 to 40 m2"),
+}
+# The words that refine the schema's coarse room types (ASCII-folded lower case, ``B.fold_ascii``), the first match
+# wins. Turkish words match at the start of a word (inflected forms count), the English ones as whole words.
+SENSE_WORDS = (
+    ("technical", r"(?<![a-z])(?:asansor\s*mak|makin?a?e?\s*dair|machine\s*room|motor\s*room|su\s*depo|water\s*tank"
+                  r"|hidrofor|hidrafor|kazan|kalorifer|kat\s*kal|jenerator|trafo|elektrik\s*oda|teknik)"),
+    ("light_well", r"(?<![a-z])(?:isiklik|aydinlik|aydinlatma|light\s*well|lightwell)"),
+    ("lift", r"(?<![a-z])asansor|(?<![a-z])(?:lift|elevator)s?(?![a-z])"),
+    ("fire_lobby", r"(?<![a-z])(?:yangin|guvenlik|duman)\s*(?:kacis\s*)?hol|(?<![a-z])(?:fire|smoke|safety)\s*lobby"),
+    ("shelter", r"(?<![a-z])(?:siginak|shelter)"),
+    ("car_park", r"(?<![a-z])(?:otopark|parking|car\s*park)"),
+    ("shaft", r"(?<![a-z])(?:saft|saht|soh|baca|shaft|riser)"),
+    # 6 Nov 2026 (calibration): a KİLER is a pantry in a flat and a cellar store in a basement (synthetic-03's 14 m2
+    # ones): it is judged as a storage room, not as a closet
+    ("closet", r"(?<![a-z])(?:vestiyer|gardirop|giyinme|soyunma|closet|wardrobe|dressing)"),
+    ("shower", r"(?<![a-z])(?:dus|shower)(?![a-z])"),
+)
+SENSE_RE = [(t, re.compile(p)) for t, p in SENSE_WORDS]
+_BATH_RE = re.compile(r"(?<![a-z])(?:banyo|bath)")
+# 6 Nov 2026 (reader target 5; real20 L0: 'Asansör' over a 16.2 m2 face holding the stair, real11 L-1 to L6: an
+# 'Asansor' face of 14.9 m2 that is the stair hall): the small room types whose label names only its own sub-space when
+# the face is ``SUB_SPACE_FACTOR`` times the type's largest area (``AREA_RANGES``) and holds a stair or another label
+SUB_SPACE_TYPES = ("lift", "shaft", "wc", "closet")
+SUB_SPACE_FACTOR = 1.5
+
+
+def sense_word(text: str) -> Optional[str]:
+    """The first ``SENSE_WORDS`` type a text's words say (``asansör`` -> lift, ``vestiyer`` -> closet), or None."""
+    folded = " ".join(B.fold_ascii(str(text or "")).split())
+    return next((t for t, rx in SENSE_RE if rx.search(folded)), None)
+
+
+def sub_space_type(name: str, room_type: Optional[str]) -> Optional[str]:
+    """The small type (``SUB_SPACE_TYPES``) a room name with its schema type says: a lift, an installation shaft, a WC
+    (not a bath) or a closet; None for any other name (a machine room, a light well, a pantry ...)."""
+    word = sense_word(name)
+    if word == "lift":
+        return "lift"
+    if room_type == "shaft":
+        return None if word in ("light_well", "technical") else "shaft"
+    if room_type == "wc":
+        return None if _BATH_RE.search(" ".join(B.fold_ascii(str(name or "")).split())) else "wc"
+    return "closet" if word == "closet" else None
+
+
+def notation_phrases(text: str) -> list[str]:
+    """What notation a text holds (pure): ``[what]`` of the ``NOTATION_PHRASES`` found in it."""
+    folded = " ".join(B.fold_ascii(str(text or "")).split()).upper()
+    return [what for rx, what in NOTATION_RE if rx.search(folded)]
+
+
+def split_notation(text: str) -> tuple[str, list[str]]:
+    """``(rest, [what])`` (pure): the text without the words a notation phrase covers (``TESİSAT DUVARI H: 1.20 Cm``
+    -> ``''``; ``BİNA TABAN HATTI YATAK ODASI`` -> ``YATAK ODASI``) and what was taken out. Words are matched folded
+    (``B.fold_ascii``, upper case) and dropped whole, so the rest keeps the drawing's own spelling."""
+    words = str(text or "").split()
+    if not words:
+        return "", []
+    spans, pos, folded_words = [], 0, []
+    for w in words:
+        f = B.fold_ascii(w).upper() or w
+        spans.append((pos, pos + len(f)))
+        folded_words.append(f)
+        pos += len(f) + 1
+    folded = " ".join(folded_words)
+    cut, found = set(), []
+    for rx, what in NOTATION_RE:
+        for m in rx.finditer(folded):
+            a, b = m.span()
+            hit = {k for k, (s, e) in enumerate(spans) if s < b and e > a and folded[a:b].strip()}
+            if hit:
+                cut |= hit
+                found.append(what)
+    if not cut:
+        return text, []
+    rest = " ".join(w for k, w in enumerate(words) if k not in cut).strip(" ,;:-/")
+    return rest, list(dict.fromkeys(found))
+
+
 def _is_name_text(text: str, indoor_only: bool) -> bool:
     text = collapse_spaced(text)
     head, _, _ = _strip_suffixes(text)
+    head = split_notation(head)[0]           # 6 Nov 2026 (target 3): TESİSAT DUVARI names no room ("tesisat" alone does)
     if not head or len(head.split()) > MAX_NAME_WORDS:
         return False
     if units.parse_length(head) is not None or units.parse_size_pair(head) is not None:
@@ -277,6 +409,14 @@ def _classify(run: TextRun, default_system: str) -> _Line:
     head, size_text, area_text = _strip_suffixes(text)
     if area_text and AREA_PREFIX_RE.match(B.fold_ascii(head).upper()):
         return _Line(run, "area", "", area_text=area_text, frame_box=box)    # "A = 24,50 m²", "NF: 18,2 m²"
+    rest, notation = split_notation(head)
+    if notation:
+        # 6 Nov 2026 (target 3, real11): a notation phrase is split off the line before naming; a line that is only
+        # notation (BİNA TABAN HATTI, TESİSAT DUVARI H: 1.20 Cm) never joins a label block
+        if not re.search(r"[^\W\d_]{2,}", rest):
+            return _Line(run, "skip", "", frame_box=box)
+        head = rest
+        text = " ".join(x for x in (rest, size_text, area_text) if x)
     if is_annotation(text):
         return _Line(run, "skip", "", frame_box=box)       # real03: "Net Alan =", "1+1 A1 Daire Tipi" are no rooms
     if _is_name_text(text, indoor_only=False):
@@ -419,12 +559,234 @@ def join_spaced_letters(texts: list) -> list:
     return [t for t in texts if id(t) not in used] + words
 
 
+# 6 Nov 2026 (Milestone 14 reader target 4; real14, all 18 levels: the finishes table '+ x,xx kotu / MAHAL / SALON /
+# MUTFAK / YATAK ODASI / WC / BANYO / ANTRE' beside every plan was read as room labels outside the walls): a room
+# schedule is a list, never labels. A list is a column (or a row) of texts of one height and rotation, aligned left,
+# centred or right, each the next within ``SCHEDULE_PITCH`` line heights (centre to centre; a row: edge gaps within
+# ``SCHEDULE_ROW_GAP``); room labels on a plan stand rooms apart (5 to 20 line heights). A list with at least
+# ``SCHEDULE_MIN_WORDS`` room words is a schedule when a header word stands at its head (``SCHEDULE_HEADER_RE``; its
+# rows may then stand up to ``SCHEDULE_PITCH_HEADED`` apart: real15's MAHAL LİSTESİ, 4.2 line heights) or, given the
+# walls' hull, when all its room words stand outside it.
+SCHEDULE_MIN_WORDS = 4
+SCHEDULE_PITCH = 3.5          # centre-to-centre distance of two entries of a column, x the line height
+SCHEDULE_PITCH_HEADED = 5.0   # ... of a column under a header word
+SCHEDULE_ROW_GAP = 3.0        # edge gap of two entries of a row, x the line height
+SCHEDULE_ALIGN = 1.0          # entries of a column share their left, centre or right within this x the line height
+SCHEDULE_HEIGHT_TOL = 0.3     # entries of one list differ in height by at most this share
+SCHEDULE_HEADER_GAP = 3.0     # a header stands within this x the entry height before the first entry
+SCHEDULE_HEADER_RE = re.compile(
+    r"^(?:MAHAL(?:\s+(?:LISTESI|ADI|ADLARI|NO|CIZELGESI|TABLOSU))?|MEKAN(?:\s+(?:ADI|LISTESI))?|ROOMS?(?:\s+(?:NAMES?|"
+    r"SCHEDULE|LIST|DATA))?|SPACES?(?:\s+(?:NAMES?|SCHEDULE|LIST))?|ALAN(?:\s+(?:LISTESI|TABLOSU|CIZELGESI))?|"
+    r"(?:\w+\s+)?SCHEDULE|RAUM(?:BEZEICHNUNG|LISTE|BUCH)?|PIECES?|LOCAL|LOCAUX|NOMENCLATURE)\s*[:.]?$")
+
+
+def is_schedule_header(text: str) -> bool:
+    """A schedule's header cell (``MAHAL``, ``MAHAL LİSTESİ``, ``ROOM``, ``SPACE``, ``ALAN``, ``... SCHEDULE``)."""
+    return bool(SCHEDULE_HEADER_RE.match(" ".join(B.fold_ascii(str(text or "")).split()).upper()))
+
+
+def schedules(texts: list, hull=None, tf: Optional[list] = None) -> list[dict]:
+    """The room schedules among a page's texts (pure; the comment above ``SCHEDULE_MIN_WORDS``): ``[{"axis": column |
+    row, "run_ids", "room_words", "header", "header_id", "why", "box"}]``. ``hull`` (a shapely geometry in the texts'
+    frame, or in the frame ``tf`` maps the texts to: ``[a, b, c, d, e, f]``, x' = a x + b y + c, y' = d x + e y + f; the
+    walls' convex hull) adds the rule "all room words outside the walls". ``_runs`` holds the runs
+    themselves (the caller drops them by identity and pops the key before writing the schedule anywhere)."""
+    from shapely.geometry import Point, box as _box
+    from shapely.strtree import STRtree
+
+    runs = [t for t in texts if (t.text or "").strip()]
+    if len(runs) < SCHEDULE_MIN_WORDS:
+        return []
+    fbs = [_frame_box(t) for t in runs]
+    hs = [_line_height(t) for t in runs]
+    word = [_is_name_text(t.text, indoor_only=True) for t in runs]
+    if sum(word) < SCHEDULE_MIN_WORDS:
+        return []
+    tree = STRtree([_box(*fb) for fb in fbs])
+    headers = [k for k, t in enumerate(runs) if is_schedule_header(t.text)]
+    out: list[dict] = []
+    for axis in ("column", "row"):
+        nxt: dict[int, tuple[float, int]] = {}
+        for i, fb in enumerate(fbs):
+            h = hs[i]
+            cx, cy = (fb[0] + fb[2]) / 2.0, (fb[1] + fb[3]) / 2.0
+            if axis == "column":
+                q = (fb[0] - SCHEDULE_ALIGN * h, cy - SCHEDULE_PITCH_HEADED * h * (1 + SCHEDULE_HEIGHT_TOL),
+                     fb[2] + SCHEDULE_ALIGN * h, cy)
+            else:
+                q = (fb[2], cy - 0.5 * h, fb[2] + SCHEDULE_ROW_GAP * h * (1 + SCHEDULE_HEIGHT_TOL), cy + 0.5 * h)
+            best = None
+            for j in tree.query(_box(*q)):
+                j = int(j)
+                if j == i or not _same_rotation(runs[i], runs[j]):
+                    continue
+                hj = hs[j]
+                hm = max(h, hj)
+                if abs(h - hj) > SCHEDULE_HEIGHT_TOL * hm:
+                    continue
+                g = fbs[j]
+                gx, gy = (g[0] + g[2]) / 2.0, (g[1] + g[3]) / 2.0
+                if axis == "column":
+                    d = cy - gy
+                    if d <= 0.5 * hm or d > SCHEDULE_PITCH_HEADED * hm:
+                        continue
+                    if min(abs(cx - gx), abs(fb[0] - g[0]), abs(fb[2] - g[2])) > SCHEDULE_ALIGN * hm:
+                        continue
+                else:
+                    d = g[0] - fb[2]
+                    if d < -0.2 * hm or d > SCHEDULE_ROW_GAP * hm or abs(cy - gy) > 0.5 * hm:
+                        continue
+                if best is None or d < best[0]:
+                    best = (d, j, d / hm)
+            if best is not None:
+                nxt[i] = best
+        pred: dict[int, tuple[float, int]] = {}
+        for i, (d, j, _rel) in nxt.items():
+            if j not in pred or d < pred[j][0]:
+                pred[j] = (d, i)
+        follow = {i: j for j, (_d, i) in pred.items()}
+        seen: set = set()
+        lists = []
+        for head in sorted(set(range(len(runs))) - set(pred)):
+            chain, k = [], head
+            while k is not None and k not in seen:
+                seen.add(k)
+                chain.append(k)
+                k = follow.get(k)
+            if sum(1 for k in chain if word[k]) < SCHEDULE_MIN_WORDS:
+                continue
+            if _schedule_header(chain, axis, runs, fbs, hs, headers) is not None:
+                lists.append(chain)
+                continue
+            # without a header, a column's entries stand within SCHEDULE_PITCH of each other: the chain is cut at
+            # the wider links (the walk to a header below may still find one for each part)
+            part = [chain[0]]
+            for a, b in zip(chain, chain[1:]):
+                if axis == "column" and nxt[a][2] > SCHEDULE_PITCH:
+                    lists.append(part)
+                    part = []
+                part.append(b)
+            lists.append(part)
+        for chain in lists:
+            words = [k for k in chain if word[k]]
+            if len(words) < SCHEDULE_MIN_WORDS:
+                continue
+            header = _schedule_header(chain, axis, runs, fbs, hs, headers)
+            if header is None and axis == "column":
+                # a column with an empty cell (real14 L5: no MUTFAK and ODA rows): walk up through the entries of the
+                # same column, gaps up to SCHEDULE_BRIDGE pitches; the walk counts only when it ends at a header
+                walked, k = [], chain[0]
+                while header is None:
+                    up = _column_above(k, runs, fbs, hs, tree, set(chain) | set(walked))
+                    if up is None:
+                        break
+                    walked.append(up)
+                    header = _schedule_header([up] + chain, axis, runs, fbs, hs, headers)
+                    k = up
+                if header is not None:
+                    chain = list(reversed(walked)) + chain
+                    words = [k for k in chain if word[k]]
+            outside = hull is not None and not hull.is_empty and all(
+                not hull.contains(Point(_mapped(((runs[k].box[0] + runs[k].box[2]) / 2.0,
+                                                 (runs[k].box[1] + runs[k].box[3]) / 2.0), tf))) for k in words)
+            if header is None and not outside:
+                continue
+            ids = [runs[k].id for k in chain] + ([runs[header].id] if header is not None else [])
+            bx = [runs[k].box for k in chain]
+            out.append({"axis": axis, "run_ids": ids, "room_words": [runs[k].text for k in words],
+                        "header": runs[header].text if header is not None else None,
+                        "header_id": runs[header].id if header is not None else None,
+                        "why": (f"header '{runs[header].text}'" if header is not None else "")
+                               + (" and " if header is not None and outside else "")
+                               + ("outside every wall's hull" if outside else ""),
+                        "box": [min(b[0] for b in bx), min(b[1] for b in bx), max(b[2] for b in bx),
+                                max(b[3] for b in bx)],
+                        "_runs": [runs[k] for k in chain] + ([runs[header]] if header is not None else [])})
+    return out
+
+
+def _mapped(p, tf: Optional[list]) -> tuple:
+    if not tf:
+        return p
+    return (tf[0] * p[0] + tf[1] * p[1] + tf[2], tf[3] * p[0] + tf[4] * p[1] + tf[5])
+
+
+SCHEDULE_BRIDGE = 3.0         # an empty cell: a column's entries this many pitches apart, when a header tops them
+
+
+def _box_in_frame(box, rotation_deg: float) -> tuple[float, float, float, float]:
+    """A page box rotated into the reading frame of a text of ``rotation_deg`` (``_frame_box`` for another run)."""
+    a = math.radians(-rotation_deg)
+    c, si = math.cos(a), math.sin(a)
+    x0, y0, x1, y1 = box
+    pts = [(x * c - y * si, x * si + y * c) for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]
+    return min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts)
+
+
+def _schedule_header(chain: list, axis: str, runs: list, fbs: list, hs: list, headers: list) -> Optional[int]:
+    """The index of the header cell (among ``headers``, the indices of the header texts) standing at the head of a list
+    (above a column, above or left of a row), in the list's reading frame (a header may be turned: real15's upright
+    MAHAL LİSTESİ over a horizontal list)."""
+    first = fbs[chain[0]]
+    h0 = hs[chain[0]]
+    rot = runs[chain[0]].rotation_deg
+    x0, x1 = min(fbs[k][0] for k in chain), max(fbs[k][2] for k in chain)
+    for j in headers:
+        if j in chain:
+            continue
+        g = _box_in_frame(runs[j].box, rot)
+        gap = SCHEDULE_HEADER_GAP * max(h0, hs[j])          # a larger header stands further
+        above = g[1] >= first[3] - 0.5 * h0 and g[1] - first[3] <= gap and min(g[2], x1) - max(g[0], x0) > -h0
+        left = axis == "row" and g[2] <= first[0] + 0.2 * h0 and first[0] - g[2] <= gap \
+            and abs((g[1] + g[3]) / 2.0 - (first[1] + first[3]) / 2.0) <= 0.5 * max(h0, hs[j])
+        if above or left:
+            return j
+    return None
+
+
+def _column_above(k: int, runs: list, fbs: list, hs: list, tree, used: set) -> Optional[int]:
+    """The nearest entry above run ``k`` in its column (same rotation and height, aligned), at most
+    ``SCHEDULE_BRIDGE`` pitches away; None when there is none."""
+    from shapely.geometry import box as _box
+
+    fb, h = fbs[k], hs[k]
+    cx, cy = (fb[0] + fb[2]) / 2.0, (fb[1] + fb[3]) / 2.0
+    reach = SCHEDULE_BRIDGE * SCHEDULE_PITCH * h * (1 + SCHEDULE_HEIGHT_TOL)
+    best = None
+    for j in tree.query(_box(fb[0] - SCHEDULE_ALIGN * h, cy, fb[2] + SCHEDULE_ALIGN * h, cy + reach)):
+        j = int(j)
+        if j == k or j in used or not _same_rotation(runs[k], runs[j]):
+            continue
+        hm = max(h, hs[j])
+        if abs(h - hs[j]) > SCHEDULE_HEIGHT_TOL * hm:
+            continue
+        g = fbs[j]
+        gx, gy = (g[0] + g[2]) / 2.0, (g[1] + g[3]) / 2.0
+        d = gy - cy
+        if d <= 0.5 * hm or d > SCHEDULE_BRIDGE * SCHEDULE_PITCH * hm:
+            continue
+        if min(abs(cx - gx), abs(fb[0] - g[0]), abs(fb[2] - g[2])) > SCHEDULE_ALIGN * hm:
+            continue
+        if best is None or d < best[0]:
+            best = (d, j)
+    return best[1] if best is not None else None
+
+
 def merge_label_blocks(texts_m: list[TextRun], file_rel: Optional[str] = None,
-                       page: Optional[int] = None) -> list[LabelBlock]:
+                       page: Optional[int] = None, hull=None,
+                       schedules_out: Optional[list] = None) -> list[LabelBlock]:
     """Text runs of one page -> room/site label blocks (§2.7.2), in reading order (top to bottom, left to right).
 
-    ``file_rel``/``page`` build the evidence of runs that carry none (vector runs: confidence 1.0).
+    ``file_rel``/``page`` build the evidence of runs that carry none (vector runs: confidence 1.0). 6 Nov 2026 (target
+    4): the runs of a room schedule (``schedules``; ``hull``: the walls' convex hull in the runs' frame) are no labels;
+    the schedules found are appended to ``schedules_out`` when given.
     """
+    found = schedules(texts_m, hull)
+    if found:
+        drop = {id(t) for s in found for t in s.pop("_runs")}
+        texts_m = [t for t in texts_m if id(t) not in drop]
+        if schedules_out is not None:
+            schedules_out.extend(found)
     texts_m = join_spaced_letters([t for t in texts_m if not _services_text(t)])
     system = page_unit_system(texts_m)
     lines = [_classify(t, system) for t in texts_m if t.text and t.text.strip()]
