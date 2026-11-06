@@ -293,6 +293,24 @@ def test_calibrate_gives_precision_recall_and_the_out_of_sample_table(tmp_path):
     o = tr["out_of_sample"]
     assert o["projects"] == 1 and o["rows"][0]["verdict"] == "caught" and o["rows"][0]["errors"] >= 1
     assert "missing_wall" in CR.trust_summary(tr)
+    # the chance baseline runs on the critic's own counts and kinds, and the density is reported
+    assert tr["chance"]["draws"] == 30 and 0.0 <= tr["chance"]["precision"] <= 1.0
+    assert tr["density"] == {"levels": 3, "findings": 6, "per_level": 2.0}
+    # 6 Nov 2026: a judgement from the drawing replaces the truth's for that finding, and a record's recall by meaning
+    for f in found:
+        f["rank"] = 0
+    found[1]["rank"] = 1
+    eye = {"findings": {"a/p/L0#1": {"right": True, "reason": "the drawing has that wall"}},
+           "recall": {"C1": {"raised": False, "reason": "the finding names another problem"},
+                      "C2": {"raised": True, "reason": "names the tiles"}}}
+    tr2 = CR.calibrate(index, found, readings={"a/p": building, "c/s": building},
+                       truths={"p": truth, "s": s_truth}, records=records, rc14=rc14, by_eye=eye)
+    assert tr2["kinds"]["missing_wall"]["judged_right"] == 2 and tr2["kinds_by_truth_only"]["missing_wall"]["judged_right"] == 1
+    j = next(x for x in tr2["judgements"] if x["kind"] == "missing_wall" and x["at"] == [3.0, 0.2])
+    assert j["right"] and j["right_by_truth"] is False and j["by_eye"]
+    r2 = tr2["recall"]
+    assert r2["critic_raised"] == 2 and r2["critic_raised_by_meaning"] == 1 and r2["judged_by_meaning"] == 2
+    assert r2["only_critic_by_meaning"] == [] and "by meaning" in CR.trust_summary(tr2)
 
 
 def test_out_of_sample_verdicts_cover_all_four_cases():

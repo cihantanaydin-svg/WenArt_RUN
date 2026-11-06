@@ -349,13 +349,19 @@ def differences_prompt(entry: dict) -> str:
             f"the same frame: rooms yellow with their labels, balconies and terraces green, walls black (inferred walls "
             f"orange, dashed orange where the computer closed an outline), doors green, windows blue, other openings "
             f"purple, stairs dark blue with arrows, floor voids hatched blue.\n"
+            f"Read the legend of image 2 before anything else: a GREEN bar on a wall IS a door (the drawing's swing arc "
+            f"is not redrawn), a BLUE bar IS a window, a purple bar is another opening; so a door or window is missing "
+            f"only where the wall of image 2 shows no bar at all at that place. The model writes labels in its own "
+            f"spelling with the type in brackets ('Salon (living)' for 'salon'): that is the same label, not a "
+            f"difference; a label is wrong only when it names another room than the drawing does at that place.\n"
             f"List every place where the model (image 2) differs from the drawing (image 1), as an architect checking a "
             f"junior's work would. Use these kinds:\n{kinds}\n"
             f"For each difference give the point in image 1 as x and y in 0-1000 (0,0 the top-left corner, 1000,1000 the "
             f"bottom-right corner), one short sentence, and your confidence in 0-100. Do not list differences of "
-            f"colour, line weight, furniture, text size or dimensions. An orange wall is only a difference when the "
-            f"drawing has no wall line there. Leave the list empty when the model follows the drawing. Up to "
-            f"{MAX_FINDINGS} differences, the surest first.")
+            f"colour, line weight, furniture, text size, spelling or dimensions. An orange wall is only a difference "
+            f"when the drawing has no wall line there. Most levels have between zero and three real differences: "
+            f"leave the list empty when the model follows the drawing, and never list a difference you are not sure "
+            f"of. Up to {MAX_FINDINGS} differences, the surest first.")
 
 
 def questions_prompt(entry: dict, questions: list) -> str:
@@ -825,6 +831,70 @@ def out_of_sample_row(project: str, failure_class: Optional[str], dis: dict, fou
             "error_classes": sorted({f"{d['class']}:{d['side']}" for d in errors})}
 
 
+def level_bounds_m(entry: dict) -> tuple:
+    """``(xmin, ymin, xmax, ymax)`` in building metres of an entry's frame (the box's corners through its page
+    transform)."""
+    b, tf = entry["box"], entry["tf"]
+    pts = [(tf[0] * x + tf[1] * y + tf[2], tf[3] * x + tf[4] * y + tf[5])
+           for x, y in ((b[0], b[1]), (b[2], b[1]), (b[2], b[3]), (b[0], b[3]))]
+    return (min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts))
+
+
+def random_findings(index: dict, found: list, seed: int) -> list:
+    """The findings with their points replaced by uniform random points in their level's frame (the same number and
+    kinds per level): what the critic would score if it pointed anywhere (pure given ``seed``)."""
+    import random
+
+    rnd = random.Random(seed)
+    entries = _entries_by_id(index)
+    out = []
+    for f in found:
+        e = entries.get(f.get("entry"))
+        if e is None:
+            out.append(dict(f))
+            continue
+        x0, y0, x1, y1 = level_bounds_m(e)
+        out.append(dict(f, at=[round(rnd.uniform(x0, x1), 3), round(rnd.uniform(y0, y1), 3)]))
+    return out
+
+
+def chance_baseline(index: dict, found: list, *, dis_by_folder: dict, records: list, rc14: Optional[dict],
+                    match_m: float = MATCH_M, draws: int = 30, seed: int = 0) -> dict:
+    """Precision, recall and out-of-sample catches of random points with the critic's own counts and kinds per level,
+    averaged over ``draws`` draws (6 Nov 2026: at ten findings a level a match within 1.5 m is likely by chance; the
+    critic earns trust only above this)."""
+    entries = _entries_by_id(index)
+    rc14_ids = set(rc14 or {})
+    sums = {"precision": 0.0, "recall": 0.0, "oos_caught": 0.0, "oos_classes_caught": 0.0}
+    for k in range(draws):
+        rf = random_findings(index, found, seed + k)
+        judged = []
+        for f in rf:
+            e = entries.get(f.get("entry"))
+            if e is None or e.get("set") != "a" or e["folder"] not in dis_by_folder:
+                continue
+            judged.append(judge(f, dis_by_folder[e["folder"]].get(f["level_id"]) or [], match_m)["right"])
+        sums["precision"] += (sum(judged) / len(judged)) if judged else 0.0
+        b_found = [f for f in rf if f.get("set") == "b"]
+        rec = [record_raised(r, b_found, match_m)["raised"] for r in records if r.get("id") in rc14_ids]
+        sums["recall"] += sum(rec)
+        caught = classes = 0
+        for folder, e in {e["folder"]: e for e in entries.values()}.items():
+            if e.get("set") != "c" or folder not in dis_by_folder:
+                continue
+            row = out_of_sample_row(e["project"], e.get("failure_class"), dis_by_folder[folder], rf, match_m)
+            if row["errors"]:
+                classes += 1
+                caught += 1 if row["verdict"] == "caught" else 0
+        sums["oos_caught"] += caught
+        sums["oos_classes_caught"] += classes
+    n = float(draws)
+    return {"draws": draws, "precision": round(sums["precision"] / n, 4), "recall_of_rc14_records": round(sums["recall"] / n, 2),
+            "rc14_records": len([r for r in records if r.get("id") in rc14_ids]),
+            "out_of_sample_caught": round(sums["oos_caught"] / n, 2),
+            "out_of_sample_classes": int(sums["oos_classes_caught"] / n) if draws else 0}
+
+
 def _reading_dict(building: dict, project: str, truth: dict) -> dict:
     from wenart.reading_check import truth as TR
 
@@ -832,11 +902,18 @@ def _reading_dict(building: dict, project: str, truth: dict) -> dict:
 
 
 def calibrate(index: dict, found: list, *, readings: dict, truths: Optional[dict] = None, records: Optional[list] = None,
-              rc14: Optional[dict] = None, match_m: float = MATCH_M, model_key: str = "") -> dict:
+              rc14: Optional[dict] = None, match_m: float = MATCH_M, model_key: str = "",
+              by_eye: Optional[dict] = None) -> dict:
     """The trust file's content (pure given its inputs): ``readings`` = ``{entry folder: building dict}`` of the
     readings the images were made from (sets a and c; b is judged by the records), ``truths`` =
     ``{project: truth dict}`` (default ``results/reading_truth/``), ``records`` the correction store, ``rc14`` =
-    ``{record id: RC14's answer}`` for the side-by-side."""
+    ``{record id: RC14's answer}`` for the side-by-side. ``by_eye`` (6 Nov 2026: "judge the doubtful ones from the
+    drawing") = ``{"findings": {"<entry>#<rank>": {"right": bool, "reason"}}, "recall": {"<record id>": {"raised":
+    bool, "reason"}}}``: a judgement from the drawing replaces the truth's for that finding (the accepted truth can
+    carry a reading's own error), and a record's ``raised_by_meaning`` says whether the nearest finding names the
+    record's problem, not only lies near its place."""
+    by_eye = by_eye or {}
+    eye_f, eye_r = by_eye.get("findings") or {}, by_eye.get("recall") or {}
     from wenart.reading_check import truth as TR
 
     truths = truths if truths is not None else {}
@@ -862,10 +939,14 @@ def calibrate(index: dict, found: list, *, readings: dict, truths: Optional[dict
         if e is None or e.get("set") != "a" or e["folder"] not in dis_by_folder:
             continue
         j = judge(f, dis_by_folder[e["folder"]].get(f["level_id"]) or [], match_m)
+        eye = eye_f.get(f"{f['entry']}#{f.get('rank')}")
+        if eye is not None:
+            j.update(right_by_truth=j["right"], right=bool(eye.get("right")), by_eye=str(eye.get("reason") or ""))
         judged.append(dict({"entry": f["entry"], "project": f["project"], "level": f["level_id"], "kind": f["kind"],
                             "at": f["at"], "description": f.get("description"), "confidence": f.get("confidence"),
                             "lesson": f.get("lesson")}, **j))
     kinds = precision_table(judged)
+    kinds_by_truth = precision_table([dict(j, right=j.get("right_by_truth", j["right"])) for j in judged])
     # recall on set b
     rec_rows = []
     if records:
@@ -875,16 +956,23 @@ def calibrate(index: dict, found: list, *, readings: dict, truths: Optional[dict
             if not any(rec.get("project") == p for p, _t in b_projects):
                 continue
             row = record_raised(rec, b_found, match_m)
+            eye = eye_r.get(rec["id"])
             row.update(project=rec.get("project"), level=rec.get("level"), element_kind=rec.get("element_kind"),
                        status=rec.get("status"), right_answer=(rec.get("right_answer") or "")[:120],
                        in_rc14_set=bool(rc14 and rec["id"] in rc14),
-                       rc14=(rc14 or {}).get(rec["id"]))
+                       rc14=(rc14 or {}).get(rec["id"]),
+                       raised_by_meaning=bool(eye.get("raised")) if eye is not None else None,
+                       by_eye=str(eye.get("reason") or "") if eye is not None else None)
             rec_rows.append(row)
     in_set = [r for r in rec_rows if r["in_rc14_set"]]
     placed = [r for r in rec_rows if not r["in_rc14_set"] and r.get("level")]
     rc14_yes = sum(1 for r in in_set if str(r.get("rc14") or "").startswith("yes"))
     recall = {"rc14_records": len(in_set), "critic_raised": sum(1 for r in in_set if r["raised"]), "rc14_raised": rc14_yes,
+              "critic_raised_by_meaning": sum(1 for r in in_set if r.get("raised_by_meaning")),
+              "judged_by_meaning": sum(1 for r in in_set if r.get("raised_by_meaning") is not None),
               "only_critic": [r["id"] for r in in_set if r["raised"] and not str(r.get("rc14") or "").startswith("yes")],
+              "only_critic_by_meaning": [r["id"] for r in in_set if r.get("raised_by_meaning")
+                                         and not str(r.get("rc14") or "").startswith("yes")],
               "only_rc14": [r["id"] for r in in_set if not r["raised"] and str(r.get("rc14") or "").startswith("yes")],
               "other_placed_records": len(placed), "other_placed_raised": sum(1 for r in placed if r["raised"]),
               "records": rec_rows}
@@ -900,14 +988,23 @@ def calibrate(index: dict, found: list, *, readings: dict, truths: Optional[dict
                    "missed": sum(1 for r in with_errors if r["verdict"] == "missed"),
                    "false_alarm": sum(1 for r in oos if r["verdict"] == "false_alarm"),
                    "clean": sum(1 for r in oos if r["verdict"] == "clean"), "rows": oos}
+    chance = chance_baseline(index, found, dis_by_folder=dis_by_folder, records=records or [], rc14=rc14,
+                             match_m=match_m) if found else None
+    per_level = {}
+    for f in found:
+        if f.get("kind") != "question":
+            per_level[f["entry"]] = per_level.get(f["entry"], 0) + 1
+    density = {"levels": len(per_level), "findings": sum(per_level.values()),
+               "per_level": round(sum(per_level.values()) / len(per_level), 2) if per_level else 0.0}
     return {"note": ("Trust of the vision critic (RC15) per finding kind: precision on the accepted projects' current "
                      "readings (a finding is right when the truth disagrees with the reading within 1.5 m in the way "
                      "the kind says), recall of the user's past correction records on the readings made before them, "
                      "and the out-of-sample table on the synthetic failure classes. A kind under the threshold, or "
                      "never judged, writes its findings as info."),
             "check": CHECK, "model_key": model_key, "date": _dt.date.today().isoformat(), "threshold": TRUST_MIN,
-            "match_m": match_m, "kinds": kinds, "recall": recall, "out_of_sample": oos_summary,
-            "judgements": judged}
+            "match_m": match_m, "kinds": kinds, "kinds_by_truth_only": kinds_by_truth, "recall": recall,
+            "out_of_sample": oos_summary, "chance": chance, "density": density,
+            "by_eye": {"findings": len(eye_f), "recall": len(eye_r)}, "judgements": judged}
 
 
 def save_trust(trust: dict, path: Path = TRUST_PATH) -> Path:
@@ -925,10 +1022,14 @@ def trust_summary(trust: dict) -> str:
                      f"{'-' if p is None else f'{p:.2f}'} | {v.get('trusted', '-')} |")
     r = trust.get("recall") or {}
     lines.append("")
-    lines.append(f"recall: critic {r.get('critic_raised', 0)} of {r.get('rc14_records', 0)} records (RC14 "
+    lines.append(f"recall: critic {r.get('critic_raised', 0)} of {r.get('rc14_records', 0)} records by place (RC14 "
                  f"{r.get('rc14_raised', 0)}); only the critic: {', '.join(r.get('only_critic') or []) or '-'}; only "
                  f"RC14: {', '.join(r.get('only_rc14') or []) or '-'}; other placed records "
                  f"{r.get('other_placed_raised', 0)} of {r.get('other_placed_records', 0)}")
+    if r.get("judged_by_meaning"):
+        lines.append(f"recall by meaning (the nearest finding names the record's problem, judged by eye on "
+                     f"{r['judged_by_meaning']} records): {r.get('critic_raised_by_meaning', 0)}; only the critic: "
+                     f"{', '.join(r.get('only_critic_by_meaning') or []) or '-'}")
     o = trust.get("out_of_sample") or {}
     lines.append(f"out of sample: {o.get('caught', 0)} caught, {o.get('missed', 0)} missed of "
                  f"{o.get('with_reading_errors', 0)} classes with reading errors; {o.get('false_alarm', 0)} false alarm(s), "
@@ -936,6 +1037,12 @@ def trust_summary(trust: dict) -> str:
     for row in o.get("rows") or []:
         lines.append(f"  {row['project']}: {row['verdict']} ({row['errors']} errors, {row['findings']} findings, "
                      f"{row['errors_caught']} caught)")
+    c, d = trust.get("chance") or {}, trust.get("density") or {}
+    if c:
+        lines.append(f"chance (random points, the critic's own {d.get('per_level', 0)} findings a level, {c.get('draws')} "
+                     f"draws): precision {c.get('precision')}, recall {c.get('recall_of_rc14_records')} of "
+                     f"{c.get('rc14_records')}, out of sample {c.get('out_of_sample_caught')} of "
+                     f"{c.get('out_of_sample_classes')} caught")
     return "\n".join(lines)
 
 
@@ -1077,7 +1184,9 @@ def _cmd_calibrate(args) -> int:
                 readings[e["folder"]] = json.loads(bp.read_text(encoding="utf-8"))
     records = TR.load_corrections() if not args.no_records else []
     rc14 = json.loads(Path(args.rc14).read_text(encoding="utf-8")) if args.rc14 else None
-    trust = calibrate(index, found, readings=readings, records=records, rc14=rc14, model_key=args.key or "")
+    by_eye = json.loads(Path(args.by_eye).read_text(encoding="utf-8")) if args.by_eye else None
+    trust = calibrate(index, found, readings=readings, records=records, rc14=rc14, model_key=args.key or "",
+                      by_eye=by_eye)
     trust["questions"] = question_table(answers)
     trust["answers"] = str(args.answers)
     trust["findings_total"] = len(found)
@@ -1127,6 +1236,9 @@ def main(argv: Optional[list] = None) -> int:
     c.add_argument("--readings-root", dest="readings_root", default=None,
                    help="a folder holding readings as <set>/<name>/building.json")
     c.add_argument("--rc14", default=None, help="JSON {record id: RC14's answer} for the side-by-side")
+    c.add_argument("--by-eye", dest="by_eye", default=None,
+                   help="JSON of judgements from the drawing: {findings: {'<entry>#<rank>': {right, reason}}, "
+                        "recall: {'<record>': {raised, reason}}}")
     c.add_argument("--no-records", dest="no_records", action="store_true")
     c.add_argument("--json", default=None, help="write the full table here")
     c.add_argument("--write", action="store_true", help=f"write {TRUST_PATH.name}")

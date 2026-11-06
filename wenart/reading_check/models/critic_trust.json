@@ -1,39 +1,7029 @@
 {
- "note": "Trust of the vision critic (RC15) per finding kind. NOT CALIBRATED YET (6 Nov 2026): the pod job scripts/jobs/critic.sh has not run (its branch was not pushed, and the pod clones from GitHub), so every kind is unjudged and findings(out_dir) writes every stored critic finding as info. After the pod: python -m wenart.reading_check critic calibrate --answers runs/<job>/results/critic/agent/answers.json --readings-root <sets a and c readings> --rc14 results/critic/rc14_recall.json --write replaces this file with the precision per kind on set a, the recall of the user's records on set b next to RC14's, and the out-of-sample table on set c.",
+ "note": "Trust of the vision critic (RC15) per finding kind: precision on the accepted projects' current readings (a finding is right when the truth disagrees with the reading within 1.5 m in the way the kind says), recall of the user's past correction records on the readings made before them, and the out-of-sample table on the synthetic failure classes. A kind under the threshold, or never judged, writes its findings as info.",
  "check": "RC15",
- "calibrated": false,
  "model_key": "agent",
  "date": "2026-11-06",
  "threshold": 0.5,
  "match_m": 1.5,
- "input_set": {
-  "index": "results/critic/inputs/index.json",
-  "levels": {"a": 26, "b": 13, "c": 19},
-  "a": "the current readings of the accepted projects with a CAD page (real02, 03, 04, 06, 10, 15, 21, synthetic-01, 04, 05, 06, 07; real01 and synthetic-03 are PDF projects without one)",
-  "b": "real10 and real07 at 23f5df3d, real09 at a0b208a4, real17 at 0e9b4ee0: the readings made before the user's corrections",
-  "c": "synthetic-08 to synthetic-22; 9 of the 15 read with an error against their exact truth (08, 09, 10, 12, 14, 16, 17, 20, 22), 6 read clean (11, 13, 15, 18, 19, 21)"
- },
- "baseline_rc14": {
-  "recall": "15 of 24 records (results/critic/rc14_recall.json)",
-  "out_of_sample": "1 of 11 synthetic failure classes caught, 0 false alarms (docs/progress.md, day 3)"
- },
  "kinds": {
-  "missing_wall": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "extra_wall": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "closed_open_air": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "merged_rooms": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "split_room": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "door_as_window": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "window_as_door": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "missing_opening": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "extra_opening": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "missing_stair": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "false_stair": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "wrong_label": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "other": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true},
-  "question": {"findings": 0, "judged_right": 0, "precision": null, "trusted": false, "small_sample": true}
+  "missing_wall": {
+   "findings": 29,
+   "judged_right": 6,
+   "precision": 0.2069,
+   "trusted": false,
+   "small_sample": false
+  },
+  "extra_wall": {
+   "findings": 4,
+   "judged_right": 2,
+   "precision": 0.5,
+   "trusted": true,
+   "small_sample": true
+  },
+  "closed_open_air": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true
+  },
+  "merged_rooms": {
+   "findings": 1,
+   "judged_right": 1,
+   "precision": 1.0,
+   "trusted": true,
+   "small_sample": true
+  },
+  "split_room": {
+   "findings": 5,
+   "judged_right": 3,
+   "precision": 0.6,
+   "trusted": true,
+   "small_sample": false
+  },
+  "door_as_window": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true
+  },
+  "window_as_door": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true
+  },
+  "missing_opening": {
+   "findings": 165,
+   "judged_right": 0,
+   "precision": 0.0,
+   "trusted": false,
+   "small_sample": false
+  },
+  "extra_opening": {
+   "findings": 12,
+   "judged_right": 3,
+   "precision": 0.25,
+   "trusted": false,
+   "small_sample": false
+  },
+  "missing_stair": {
+   "findings": 6,
+   "judged_right": 0,
+   "precision": 0.0,
+   "trusted": false,
+   "small_sample": false
+  },
+  "false_stair": {
+   "findings": 4,
+   "judged_right": 0,
+   "precision": 0.0,
+   "trusted": false,
+   "small_sample": true
+  },
+  "wrong_label": {
+   "findings": 45,
+   "judged_right": 6,
+   "precision": 0.1333,
+   "trusted": false,
+   "small_sample": false
+  },
+  "other": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true
+  },
+  "question": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true
+  },
+  "all": {
+   "findings": 271,
+   "judged_right": 21,
+   "precision": 0.0775
+  }
  },
- "recall": null,
- "out_of_sample": null,
- "judgements": []
+ "kinds_by_truth_only": {
+  "missing_wall": {
+   "findings": 29,
+   "judged_right": 0,
+   "precision": 0.0,
+   "trusted": false,
+   "small_sample": false
+  },
+  "extra_wall": {
+   "findings": 4,
+   "judged_right": 2,
+   "precision": 0.5,
+   "trusted": true,
+   "small_sample": true
+  },
+  "closed_open_air": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true
+  },
+  "merged_rooms": {
+   "findings": 1,
+   "judged_right": 0,
+   "precision": 0.0,
+   "trusted": false,
+   "small_sample": true
+  },
+  "split_room": {
+   "findings": 5,
+   "judged_right": 3,
+   "precision": 0.6,
+   "trusted": true,
+   "small_sample": false
+  },
+  "door_as_window": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true
+  },
+  "window_as_door": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true
+  },
+  "missing_opening": {
+   "findings": 165,
+   "judged_right": 0,
+   "precision": 0.0,
+   "trusted": false,
+   "small_sample": false
+  },
+  "extra_opening": {
+   "findings": 12,
+   "judged_right": 3,
+   "precision": 0.25,
+   "trusted": false,
+   "small_sample": false
+  },
+  "missing_stair": {
+   "findings": 6,
+   "judged_right": 0,
+   "precision": 0.0,
+   "trusted": false,
+   "small_sample": false
+  },
+  "false_stair": {
+   "findings": 4,
+   "judged_right": 0,
+   "precision": 0.0,
+   "trusted": false,
+   "small_sample": true
+  },
+  "wrong_label": {
+   "findings": 45,
+   "judged_right": 0,
+   "precision": 0.0,
+   "trusted": false,
+   "small_sample": false
+  },
+  "other": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true
+  },
+  "question": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true
+  },
+  "all": {
+   "findings": 271,
+   "judged_right": 8,
+   "precision": 0.0295
+  }
+ },
+ "recall": {
+  "rc14_records": 24,
+  "critic_raised": 11,
+  "rc14_raised": 15,
+  "critic_raised_by_meaning": 2,
+  "judged_by_meaning": 24,
+  "only_critic": [
+   "C0001",
+   "C0017",
+   "C0020"
+  ],
+  "only_critic_by_meaning": [],
+  "only_rc14": [
+   "C0009",
+   "C0018",
+   "C0023",
+   "C0027",
+   "C0028",
+   "C0037",
+   "C0038"
+  ],
+  "other_placed_records": 21,
+  "other_placed_raised": 7,
+  "records": [
+   {
+    "id": "C0001",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 1.43,
+     "kind": "missing_opening",
+     "level": "L0",
+     "description": "The model is missing the door swing arc shown on the bottom wall of the 'MUTFAK' area."
+    },
+    "project": "real09",
+    "level": "L0",
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "the facade is closed along the drawn frames: inferred walls where the frames stand, carrying the drawn windows and doors",
+    "in_rc14_set": true,
+    "rc14": "no (real09@23f5df3d builds no level; at a0b208a4 the facade is already closed)",
+    "raised_by_meaning": false,
+    "by_eye": "nearest: a missing door swing on the kitchen's bottom wall; nothing about the glazed facade"
+   },
+   {
+    "id": "C0002",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real07",
+    "level": null,
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "no walls outside the facade; the facade closed along its drawn frames",
+    "in_rc14_set": true,
+    "rc14": "no (walls outside the facade: no rule)",
+    "raised_by_meaning": false,
+    "by_eye": "nothing on walls outside the facade"
+   },
+   {
+    "id": "C0003",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 0.48,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The small room in the top-left corner is labeled 'Banyo (bathroom)' in the model, but the drawing labels it 'c.m.' (closet)."
+    },
+    "project": "real09",
+    "level": "L0",
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "no wall there: the gap is the mouth of a facade recess, open air; the bathroom and WC windows face outside",
+    "in_rc14_set": true,
+    "rc14": "yes, new: facade_recess r_L0_oda_8 (3.25 m2) at real09@a0b208a4, its mouth o_L0_003 at the record's place",
+    "raised_by_meaning": false,
+    "by_eye": "nearest: 'Banyo' label 0.48 m away; the recess mouth is not named"
+   },
+   {
+    "id": "C0004",
+    "raised": true,
+    "how": "kind",
+    "nearest": {
+     "distance": null,
+     "kind": "wrong_label",
+     "level": "L4",
+     "description": "The model labels the left gallery space as a hall instead of 'galeri'."
+    },
+    "project": "real09",
+    "level": null,
+    "element_kind": "room",
+    "status": "accepted",
+    "right_answer": "both halves alike: each wall, opening and room checked against its mirror twin; the unlabelled half's rooms take their t",
+    "in_rc14_set": true,
+    "rc14": "yes, new: mirror_twins at real09@a0b208a4 L0: Mutfak 4.84 m2 against its twin read as an untyped 'Oda' 6.59 m2",
+    "raised_by_meaning": false,
+    "by_eye": "a label finding on the gallery; nothing about the two halves"
+   },
+   {
+    "id": "C0005",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real09",
+    "level": null,
+    "element_kind": "level",
+    "status": "accepted",
+    "right_answer": "5 storeys at the section B-B's floor marks: 1.BODRUM KAT 0.00, ZEMİN KAT +2.50, 1.NORMAL KAT +5.50, 2.NORMAL KAT +8.50, ",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0006",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 2.68,
+     "kind": "missing_opening",
+     "level": "L0",
+     "description": "The model is missing the door swing arc shown on the wall to the right of the stairs, leading to the 'ANTRE'."
+    },
+    "project": "real09",
+    "level": "L0",
+    "element_kind": "room",
+    "status": "accepted",
+    "right_answer": "the stair core 'Merdiven' (type stair), stair and landing together, L-1 to L3",
+    "in_rc14_set": true,
+    "rc14": "no (the core 'Oda' hall holding the core stair is in range)",
+    "raised_by_meaning": false,
+    "by_eye": "nothing on the stair core"
+   },
+   {
+    "id": "C0007",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 1.23,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The room with the tiled floor and 'karbon' label is identified as 'Oda (Hall)' in the model, which is a misclassification."
+    },
+    "project": "real09",
+    "level": "L0",
+    "element_kind": "stair",
+    "status": "accepted",
+    "right_answer": "floor finish (tile grids), no stair",
+    "in_rc14_set": true,
+    "rc14": "yes, new: false_stair f_L0_003 (3 flights in 2.95 m2, 1.1 m from the place) and the tile-grid stairs f_L0_004, 005, 006, 008, 009 at real09@a0b208a4",
+    "raised_by_meaning": false,
+    "by_eye": "the tiled room is named for its label, not for the false stair"
+   },
+   {
+    "id": "C0008",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 1.16,
+     "kind": "missing_opening",
+     "level": "L0",
+     "description": "The model is missing the door swing arc (K:80/240) shown in the bottom-left corner area."
+    },
+    "project": "real09",
+    "level": "L0",
+    "element_kind": "room",
+    "status": "accepted",
+    "right_answer": "both flats' balconies (the unlabelled half's from its mirror twin), shown green on the sheets",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0009",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real09",
+    "level": null,
+    "element_kind": "level",
+    "status": "accepted",
+    "right_answer": "the attic sits over its stair core (placed by its stair-layer lines on the level below)",
+    "in_rc14_set": true,
+    "rc14": "yes, new: stair_stacking at real09@a0b208a4: the attic's core stair f_L4_001 3.70 m off f_L3_001 (2.50 m between them)",
+    "raised_by_meaning": false,
+    "by_eye": "nothing on the attic's stair offset"
+   },
+   {
+    "id": "C0010",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real07",
+    "level": null,
+    "element_kind": "level",
+    "status": "accepted",
+    "right_answer": "fixtures (tefriş, vitrifiye) are no stacking anchors; the stair lines are",
+    "in_rc14_set": true,
+    "rc14": "no (real07@23f5df3d reads no stair, so the stacking cannot be measured from stairs)",
+    "raised_by_meaning": false,
+    "by_eye": "nothing on the floors' registration"
+   },
+   {
+    "id": "C0011",
+    "raised": true,
+    "how": "kind",
+    "nearest": {
+     "distance": null,
+     "kind": "split_room",
+     "level": "L3",
+     "description": "The single large room labeled 'YATAK O.' in the drawing is incorrectly split into two separate rooms in the model."
+    },
+    "project": "real09",
+    "level": null,
+    "element_kind": "region",
+    "status": "accepted",
+    "right_answer": "a galeri / boşluk label is an opening in that level's floor: the drawn box is cut out of the floor and the ceiling below",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0012",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real07",
+    "level": null,
+    "element_kind": "region",
+    "status": "accepted",
+    "right_answer": "the GALERİ is a void in the floor",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0013",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 1.08,
+     "kind": "missing_wall",
+     "level": "L-1",
+     "description": "The model is missing the wall that separates the top-left room from the top-center bathroom."
+    },
+    "project": "real09",
+    "level": "L2",
+    "element_kind": "stair",
+    "status": "accepted",
+    "right_answer": "four U stairs with 6-7 winders, read from their numbered treads (two arms, the turn a landing with winders)",
+    "in_rc14_set": true,
+    "rc14": "no (the duplex stairs are not read; other stairs stand on the level)",
+    "raised_by_meaning": false,
+    "by_eye": "a missing wall named 1.08 m away; the duplex stairs are not named"
+   },
+   {
+    "id": "C0014",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 4.19,
+     "kind": "missing_opening",
+     "level": "L3",
+     "description": "The door leading from the left 'ANTRE' into the lower-left room is missing in the model."
+    },
+    "project": "real09",
+    "level": "L3",
+    "element_kind": "room",
+    "status": "accepted",
+    "right_answer": "3 terraces: a balcony line touching the facade by a hair closes",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0015",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real09",
+    "level": null,
+    "element_kind": "roof",
+    "status": "accepted",
+    "right_answer": "gable ends: the facade wall rises under the roof slope as a triangle; no attic-height wall and no parapet",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0016",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 1.07,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the hall as 'Oda (hall)', but the drawing shows it as 'antre' (hall)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "no wall: the stair and the landing are one open space; the core stair is read as drawn (a U stair with winders around it",
+    "in_rc14_set": true,
+    "rc14": "yes, partial (circulation: no stair on L0)",
+    "raised_by_meaning": false,
+    "by_eye": "nearest: an Oda/antre label; the wall between stair and landing is not named"
+   },
+   {
+    "id": "C0017",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 0.41,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the hall as 'Oda (hall)', but the drawing shows it as 'antre' (hall)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "room",
+    "status": "accepted",
+    "right_answer": "Merdiven (5.6 m2) + Kat Holü (5.1 m2) on every floor: the room holding most of the stair is the stair core, the landing ",
+    "in_rc14_set": true,
+    "rc14": "no",
+    "raised_by_meaning": false,
+    "by_eye": "'the hall labelled Oda (hall), the drawing says antre' 0.41 m away: a label remark, not the core room's merge"
+   },
+   {
+    "id": "C0018",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 3.19,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the daily room as 'Günlük Oda (living)', but the drawing shows it as 'günlük oda' (daily room)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "room",
+    "status": "accepted",
+    "right_answer": "the inside hall (the corridor from the entrance past the bathrooms) is a room of its own; the mirrored half gets the sam",
+    "in_rc14_set": true,
+    "rc14": "yes, new: mirror_twins at real10@23f5df3d L0: r_L0_oda_4 (the right flat's inside hall and salon, 46 m2, untyped) against its twin Salon; the record's place lies in r_L0_oda_4",
+    "raised_by_meaning": false,
+    "by_eye": "nothing on the inside hall"
+   },
+   {
+    "id": "C0019",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 7.18,
+     "kind": "missing_stair",
+     "level": "L-1",
+     "description": "The model fails to identify the curved staircase in the center of the plan."
+    },
+    "project": "real10",
+    "level": "L-1",
+    "element_kind": "door",
+    "status": "accepted",
+    "right_answer": "the 2.40 m double front door on L-1 (d_L-1_001), reached from the core through the shared hall, is the main entrance",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0020",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 1.42,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the central bathroom as two separate rooms, while the drawing shows it as a single 'banyo' space."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "room",
+    "status": "accepted",
+    "right_answer": "'Depo': a small unnamed room (0.3-3.5 m2) with one door and no window is a storage closet",
+    "in_rc14_set": true,
+    "rc14": "no (the closets are wall mass in thick walls, 0.80 m, not small faces: a thick-wall rule would be needed)",
+    "raised_by_meaning": false,
+    "by_eye": "nearest: the central bathroom split; the closets are not named"
+   },
+   {
+    "id": "C0021",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 0.43,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the hall as 'Oda (hall)', but the drawing shows it as 'antre' (hall)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "opening",
+    "status": "accepted",
+    "right_answer": "a door where the gap opens onto a drawn balcony or terrace, a window where the ground lies under it: 10 windows on every",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0023",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 3.33,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the daily room as 'Günlük Oda (living)', but the drawing shows it as 'günlük oda' (daily room)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "region",
+    "status": "accepted",
+    "right_answer": "the recess is open air, like its mirror; dimension and text-layer lines and their tick circles and slashes are never wal",
+    "in_rc14_set": true,
+    "rc14": "yes, new: facade_recess r_L0_oda_6 at real10@23f5df3d",
+    "raised_by_meaning": false,
+    "by_eye": "nothing on the recess"
+   },
+   {
+    "id": "C0024",
+    "raised": true,
+    "how": "kind",
+    "nearest": {
+     "distance": null,
+     "kind": "missing_opening",
+     "level": "L-2",
+     "description": "The main entrance door marked 'GİRİŞ' on the right wall is missing from the model."
+    },
+    "project": "real10",
+    "level": null,
+    "element_kind": "window",
+    "status": "accepted",
+    "right_answer": "no windows: dimension lines are notation",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0027",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 2.39,
+     "kind": "missing_stair",
+     "level": "L-1",
+     "description": "The model fails to identify the curved staircase in the center of the plan."
+    },
+    "project": "real10",
+    "level": "L-1",
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "the central hall 23.2 m2 and the right flat apart; the core stays out of every mirror fix; lift, stair and Kat Holü as o",
+    "in_rc14_set": true,
+    "rc14": "yes (room_type_area, the 72.7 m2 hall)",
+    "raised_by_meaning": false,
+    "by_eye": "a missing curved stair 2.4 m away; the 72 m2 hall is not named"
+   },
+   {
+    "id": "C0028",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 3.41,
+     "kind": "wrong_label",
+     "level": "L-1",
+     "description": "The room on the lower right is labeled as a room in the model, but the drawing leaves it unlabeled."
+    },
+    "project": "real10",
+    "level": "L-1",
+    "element_kind": "door",
+    "status": "accepted",
+    "right_answer": "the kitchen door in its gap: Mutfak 11.6 m2 and Antre 10.8 m2, as the left flat's",
+    "in_rc14_set": true,
+    "rc14": "yes (room_type_area, the same face)",
+    "raised_by_meaning": false,
+    "by_eye": "nothing on the kitchen door"
+   },
+   {
+    "id": "C0029",
+    "raised": true,
+    "how": "kind",
+    "nearest": {
+     "distance": null,
+     "kind": "missing_wall",
+     "level": "L0",
+     "description": "The entire perimeter wall of the building is missing from the model."
+    },
+    "project": "real17",
+    "level": null,
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "the drawing is right: a hatch's text island is no hole; a window block turned with a slanted wall follows its angle and ",
+    "in_rc14_set": true,
+    "rc14": "yes (frame_walls_and_paper_rooms)",
+    "raised_by_meaning": true,
+    "by_eye": "'the entire perimeter wall of the building is missing from the model' on real17@0e9b4ee0 L0: the same symptom (the facade walls unread) the record corrects"
+   },
+   {
+    "id": "C0030",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real17",
+    "level": null,
+    "element_kind": "level",
+    "status": "accepted",
+    "right_answer": "a title listing floors stands for those floors (1. and 2. Normal Kat)",
+    "in_rc14_set": true,
+    "rc14": "no",
+    "raised_by_meaning": false,
+    "by_eye": "nothing on the level titles"
+   },
+   {
+    "id": "C0031",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real10",
+    "level": null,
+    "element_kind": "site",
+    "status": "accepted",
+    "right_answer": "the ground at -3.00 m, the 1st basement's floor: the section's ground line with its '-0.50' mark in the storeys' frame",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0032",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 2.12,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the children's bedroom as 'Çocuk Yatak Od. (Bedroom)', but the drawing shows it as 'çocuk yatak od.' (children's bedroom)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "window",
+    "status": "accepted",
+    "right_answer": "the typical plan's window is on every floor the plan draws (L0-L6)",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0033",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real10",
+    "level": null,
+    "element_kind": "roof",
+    "status": "accepted",
+    "right_answer": "a parapet along the roof terrace's open edge (the section's 0.90 m, else 1.10 m)",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0034",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 1.09,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the central elevator shaft as 'Asansör (hall)', but the drawing clearly identifies it as 'asansör' (elevator)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "door",
+    "status": "accepted",
+    "right_answer": "a sliding lift door on each floor onto the shared hall",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0035",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 0.46,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the hall as 'Oda (hall)', but the drawing shows it as 'antre' (hall)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "stair",
+    "status": "accepted",
+    "right_answer": "the building's fire escape stair (U, 1-16) in its own enclosure off the shared hall, reached by the 140/230 door from th",
+    "in_rc14_set": true,
+    "rc14": "yes (circulation: no stair on L0)",
+    "raised_by_meaning": false,
+    "by_eye": "nothing on the fire stair (all 20 findings of that level are label remarks)"
+   },
+   {
+    "id": "C0036",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "site",
+    "status": "accepted",
+    "right_answer": "a balcony is a cantilevered slab with a guard, high over the ground; no retaining walls or planted steps",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0037",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 1.85,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the hall as 'Oda (hall)', but the drawing shows it as 'antre' (hall)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "region",
+    "status": "accepted",
+    "right_answer": "open air: a doorless, unlabelled space reached only through a facade gap as wide as itself is a facade recess; its windo",
+    "in_rc14_set": true,
+    "rc14": "yes, new: facade_recess r_L0_oda_14 + r_L0_oda_16 at real10@23f5df3d",
+    "raised_by_meaning": false,
+    "by_eye": "nothing on the recess"
+   },
+   {
+    "id": "C0038",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 2.82,
+     "kind": "missing_opening",
+     "level": "L0",
+     "description": "The windows along the bottom wall are missing."
+    },
+    "project": "real17",
+    "level": "L0",
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "the drawn walls joined at their corner columns (short joins, crack joints <= 0.15 m); the shopfront and the five shop wi",
+    "in_rc14_set": true,
+    "rc14": "yes (the paper room)",
+    "raised_by_meaning": false,
+    "by_eye": "nearest: windows missing along the bottom wall 2.8 m away; the corner-column joins are not named"
+   },
+   {
+    "id": "C0039",
+    "raised": true,
+    "how": "kind",
+    "nearest": {
+     "distance": null,
+     "kind": "missing_wall",
+     "level": "L0",
+     "description": "The entire perimeter wall of the building is missing from the model."
+    },
+    "project": "real17",
+    "level": "L0",
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "no wall: only drawn walls are built, never a wall across an opening the drawing leaves open",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0040",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 2.44,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the hall as 'Oda (hall)', but the drawing shows it as 'antre' (hall)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "door",
+    "status": "accepted",
+    "right_answer": "each door from a common area into a flat's room is that flat's entrance door (2 a floor, L-1 to L6)",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0041",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real10",
+    "level": null,
+    "element_kind": "roof",
+    "status": "accepted",
+    "right_answer": "a 0.5 m low wall with a handrail on it to 1.10 m (or the section's mark); a wall outside the roof keeps its own height",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0042",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real10",
+    "level": null,
+    "element_kind": "site",
+    "status": "accepted",
+    "right_answer": "part of that floor's facade; nothing drawn outside an upper floor is built on the ground",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0043",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 2.89,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the kitchen as 'Mutfak (kitchen)', but the drawing shows it as 'mutfak' (kitchen) with a different layout."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "door",
+    "status": "accepted",
+    "right_answer": "a glazed double door in its frame along the chamfer, angled with it, the same in the mirrored flat (L0-L6)",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0044",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 2.4,
+     "kind": "missing_opening",
+     "level": "L0",
+     "description": "The door swing arc shown in the drawing near the garage is not represented in the model."
+    },
+    "project": "real07",
+    "level": "L0",
+    "element_kind": "room",
+    "status": "accepted",
+    "right_answer": "a garage (room type garage)",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0045",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 3.64,
+     "kind": "missing_opening",
+     "level": "L0",
+     "description": "The door swing arc shown in the drawing near the garage is not represented in the model."
+    },
+    "project": "real07",
+    "level": "L0",
+    "element_kind": "door",
+    "status": "accepted",
+    "right_answer": "a sectional garage door a car can pass (the garage's widest outer opening), with a drive to the street",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0046",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 1.97,
+     "kind": "missing_opening",
+     "level": "L0",
+     "description": "The door swing arc shown in the drawing near the garage is not represented in the model."
+    },
+    "project": "real07",
+    "level": "L0",
+    "element_kind": "room",
+    "status": "accepted",
+    "right_answer": "a technical room (a boiler / heating room: KAT KALORİFERİ)",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0047",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 1.44,
+     "kind": "missing_opening",
+     "level": "L0",
+     "description": "The door swing arc shown in the drawing for the bathroom is not represented in the model."
+    },
+    "project": "real07",
+    "level": "L0",
+    "element_kind": "door",
+    "status": "accepted",
+    "right_answer": "a door of 80/210 (the swing and the size tag W/H on the door text layer)",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0048",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real07",
+    "level": null,
+    "element_kind": "roof",
+    "status": "accepted",
+    "right_answer": "the roof from every drawing that shows it: the roof plan's eaves, hips and valleys over all parts (upper floor, lower wi",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0049",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real07",
+    "level": null,
+    "element_kind": "label",
+    "status": "accepted",
+    "right_answer": "'HAVUZ': the drawn pool (outline, water hatch, level mark) with its coping and water",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0050",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real07",
+    "level": null,
+    "element_kind": "site",
+    "status": "accepted",
+    "right_answer": "two villas on the plot as the site plan draws them (copies of the house, turned and mirrored), with the plot, the roads,",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0051",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 1.68,
+     "kind": "missing_opening",
+     "level": "L1",
+     "description": "The model lacks the window on the left wall of the central bathroom."
+    },
+    "project": "real07",
+    "level": "L1",
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "no wall: an open passage from floor to ceiling where the drawn partition simply ends",
+    "in_rc14_set": true,
+    "rc14": "no (the 0.72 m gap is between a bedroom and the dressing room, no hall)",
+    "raised_by_meaning": false,
+    "by_eye": "nearest: a bathroom window; the open passage is not named"
+   },
+   {
+    "id": "C0052",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 0.75,
+     "kind": "missing_opening",
+     "level": "L1",
+     "description": "The model lacks the window on the left wall of the gym room."
+    },
+    "project": "real07",
+    "level": "L1",
+    "element_kind": "room",
+    "status": "accepted",
+    "right_answer": "'Giyinme-Soyunma': a dressing room (wardrobes), part of the bedroom it opens into",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0053",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 0.79,
+     "kind": "missing_opening",
+     "level": "L1",
+     "description": "The model lacks the window on the top wall of the central hall."
+    },
+    "project": "real07",
+    "level": "L1",
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "no wall: the stair's edge",
+    "in_rc14_set": true,
+    "rc14": "yes, new: wall_across_passage w_L1_023 / o_L1_001 (2.23 m) between the Hol and r_L1_oda at real07@23f5df3d",
+    "raised_by_meaning": false,
+    "by_eye": "nearest: a hall window 0.79 m away; the wall over the stair's edge is not named"
+   },
+   {
+    "id": "C0054",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 0.45,
+     "kind": "missing_stair",
+     "level": "L0",
+     "description": "The central staircase drawn in the source plan is completely missing from the model."
+    },
+    "project": "real07",
+    "level": "L0",
+    "element_kind": "stair",
+    "status": "accepted",
+    "right_answer": "the curved stair 1-18 is the house's stair from L0 to L1 (read since as the U-stair across its half landing)",
+    "in_rc14_set": true,
+    "rc14": "yes (circulation: no stair on any level)",
+    "raised_by_meaning": true,
+    "by_eye": "'the central staircase drawn in the source plan is completely missing from the model' at 0.45 m: exactly the record"
+   },
+   {
+    "id": "C0055",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 2.89,
+     "kind": "wrong_label",
+     "level": "L0",
+     "description": "The model labels the hall as 'Oda (hall)', but the drawing shows it as 'antre' (hall)."
+    },
+    "project": "real10",
+    "level": "L0",
+    "element_kind": "window",
+    "status": "proposed",
+    "right_answer": "a 1.65 x 2.10 m window in the south wall of each kitchen on every floor, as the south elevation draws it on L0 to L7",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0066",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real10",
+    "level": null,
+    "element_kind": "level",
+    "status": "accepted",
+    "right_answer": "each level placed by its lift core (the shaft, its lobby, the stair walls) on the reference level's, the shared axis gri",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0067",
+    "raised": true,
+    "how": "kind",
+    "nearest": {
+     "distance": null,
+     "kind": "extra_wall",
+     "level": "L7",
+     "description": "A horizontal wall is drawn in the model separating the two right-hand rooms, which does not exist in the source drawing."
+    },
+    "project": "real10",
+    "level": null,
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "axis lines are never walls, rooms or outline: a line on a grid layer, in a centre or dash-dot linetype, or ending in a n",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0068",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 8.29,
+     "kind": "missing_opening",
+     "level": "L-2",
+     "description": "The door to the small room on the left of the central block is missing."
+    },
+    "project": "real10",
+    "level": "L-2",
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "column / concrete (kolon), plaster (SIVA) and wall (DUVAR) layers all draw the building's walls; the 2nd basement's oute",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0069",
+    "raised": true,
+    "how": "place",
+    "nearest": {
+     "distance": 0.59,
+     "kind": "missing_opening",
+     "level": "L-2",
+     "description": "The main entrance door marked 'GİRİŞ' on the right wall is missing from the model."
+    },
+    "project": "real10",
+    "level": "L-2",
+    "element_kind": "wall",
+    "status": "accepted",
+    "right_answer": "a fully underground level, walled all round: the gap at GİRİŞ closed by a wall, no opening to the soil; it is entered fr",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0070",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real10",
+    "level": "L7",
+    "element_kind": "level",
+    "status": "accepted",
+    "right_answer": "levels placed by the core's stair first (the same concentric arcs of the spiral stair's eye on both plans), then the sha",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0075",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real09",
+    "level": null,
+    "element_kind": "level",
+    "status": "proposed",
+    "right_answer": "an entity outside every frame joins the drawing of the nearest frame: the plan with its title",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0080",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real07",
+    "level": "L1",
+    "element_kind": "level",
+    "status": "proposed",
+    "right_answer": "a Roman numeral is a floor number: 'I.KAT PLANI' is the 1st floor (L1 '1. Kat' in the current reading)",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0081",
+    "raised": false,
+    "how": null,
+    "nearest": null,
+    "project": "real09",
+    "level": null,
+    "element_kind": "level",
+    "status": "proposed",
+    "right_answer": "a title written as several texts on one line is one title; a plan without a level word takes the storey its title elevat",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   },
+   {
+    "id": "C0083",
+    "raised": false,
+    "how": null,
+    "nearest": {
+     "distance": 6.94,
+     "kind": "missing_stair",
+     "level": "L0",
+     "description": "The central staircase drawn in the source plan is completely missing from the model."
+    },
+    "project": "real07",
+    "level": "L0",
+    "element_kind": "opening",
+    "status": "proposed",
+    "right_answer": "a wide gap (0.5-6 m) from a free wall end to the next wall along its axis, on the building's outline, is an inferred wal",
+    "in_rc14_set": false,
+    "rc14": null,
+    "raised_by_meaning": null,
+    "by_eye": null
+   }
+  ]
+ },
+ "out_of_sample": {
+  "projects": 15,
+  "with_reading_errors": 9,
+  "caught": 6,
+  "missed": 3,
+  "false_alarm": 6,
+  "clean": 0,
+  "rows": [
+   {
+    "project": "synthetic-08-spaced-labels",
+    "failure_class": "spaced_labels",
+    "errors": 2,
+    "findings": 6,
+    "errors_caught": 0,
+    "verdict": "missed",
+    "caught": [],
+    "error_classes": [
+     "rooms:label"
+    ]
+   },
+   {
+    "project": "synthetic-09-jamb-stubs",
+    "failure_class": "jamb_stubs",
+    "errors": 5,
+    "findings": 6,
+    "errors_caught": 5,
+    "verdict": "caught",
+    "caught": [
+     {
+      "class": "walls",
+      "side": "read_only",
+      "id": "w_L0_002",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "walls",
+      "side": "read_only",
+      "id": "w_L0_003",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "walls",
+      "side": "read_only",
+      "id": "w_L0_005",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "walls",
+      "side": "read_only",
+      "id": "w_L0_006",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "walls",
+      "side": "read_only",
+      "id": "w_L0_007",
+      "by": [
+       "missing_opening"
+      ]
+     }
+    ],
+    "error_classes": [
+     "walls:read_only"
+    ]
+   },
+   {
+    "project": "synthetic-10-glazed-facade",
+    "failure_class": "glazed_facade",
+    "errors": 8,
+    "findings": 6,
+    "errors_caught": 0,
+    "verdict": "missed",
+    "caught": [],
+    "error_classes": [
+     "doors:truth_only",
+     "walls:read_only",
+     "walls:truth_only",
+     "windows:read_only",
+     "windows:truth_only"
+    ]
+   },
+   {
+    "project": "synthetic-11-dimension-chains",
+    "failure_class": "dimension_chains",
+    "errors": 0,
+    "findings": 6,
+    "errors_caught": 0,
+    "verdict": "false_alarm",
+    "caught": [],
+    "error_classes": []
+   },
+   {
+    "project": "synthetic-12-mirrored-halves",
+    "failure_class": "mirrored_halves",
+    "errors": 13,
+    "findings": 10,
+    "errors_caught": 7,
+    "verdict": "caught",
+    "caught": [
+     {
+      "class": "rooms",
+      "side": "label",
+      "id": "r_L0_oda_2",
+      "by": [
+       "extra_wall",
+       "wrong_label"
+      ]
+     },
+     {
+      "class": "rooms",
+      "side": "label",
+      "id": "r_L0_oda_3",
+      "by": [
+       "split_room",
+       "extra_wall",
+       "extra_wall"
+      ]
+     },
+     {
+      "class": "rooms",
+      "side": "label",
+      "id": "r_L0_oda_4",
+      "by": [
+       "split_room",
+       "extra_wall",
+       "wrong_label"
+      ]
+     },
+     {
+      "class": "doors",
+      "side": "truth_only",
+      "id": "t_L0_door_0005",
+      "by": [
+       "extra_wall",
+       "wrong_label",
+       "wrong_label"
+      ]
+     },
+     {
+      "class": "doors",
+      "side": "truth_only",
+      "id": "t_L0_door_0008",
+      "by": [
+       "split_room",
+       "extra_wall",
+       "wrong_label"
+      ]
+     },
+     {
+      "class": "openings",
+      "side": "read_only",
+      "id": "o_L0_003",
+      "by": [
+       "extra_wall",
+       "wrong_label",
+       "wrong_label"
+      ]
+     },
+     {
+      "class": "openings",
+      "side": "read_only",
+      "id": "o_L0_004",
+      "by": [
+       "split_room",
+       "extra_wall",
+       "wrong_label"
+      ]
+     }
+    ],
+    "error_classes": [
+     "doors:truth_only",
+     "openings:read_only",
+     "rooms:label",
+     "walls:truth_only",
+     "windows:read_only"
+    ]
+   },
+   {
+    "project": "synthetic-13-typical-floor",
+    "failure_class": "typical_floor",
+    "errors": 0,
+    "findings": 21,
+    "errors_caught": 0,
+    "verdict": "false_alarm",
+    "caught": [],
+    "error_classes": []
+   },
+   {
+    "project": "synthetic-14-elevation-title",
+    "failure_class": "elevation_title",
+    "errors": 66,
+    "findings": 6,
+    "errors_caught": 13,
+    "verdict": "caught",
+    "caught": [
+     {
+      "class": "doors",
+      "side": "read_only",
+      "id": "d_L0_006",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "doors",
+      "side": "read_only",
+      "id": "d_L0_007",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "doors",
+      "side": "read_only",
+      "id": "d_L0_008",
+      "by": [
+       "missing_opening",
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "doors",
+      "side": "read_only",
+      "id": "d_L0_009",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "doors",
+      "side": "read_only",
+      "id": "d_L0_010",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "doors",
+      "side": "read_only",
+      "id": "d_L0_011",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "walls",
+      "side": "read_only",
+      "id": "w_L0_006",
+      "by": [
+       "missing_opening",
+       "missing_opening",
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "walls",
+      "side": "read_only",
+      "id": "w_L0_007",
+      "by": [
+       "missing_opening",
+       "missing_opening",
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "walls",
+      "side": "read_only",
+      "id": "w_L0_010",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "walls",
+      "side": "read_only",
+      "id": "w_L0_012",
+      "by": [
+       "missing_opening"
+      ]
+     }
+    ],
+    "error_classes": [
+     "doors:read_only",
+     "doors:truth_only",
+     "rooms:truth_only",
+     "stairs:read_only",
+     "stairs:truth_only",
+     "walls:read_only",
+     "walls:truth_only",
+     "windows:read_only",
+     "windows:truth_only"
+    ]
+   },
+   {
+    "project": "synthetic-15-winder-stair",
+    "failure_class": "winder_stair",
+    "errors": 0,
+    "findings": 8,
+    "errors_caught": 0,
+    "verdict": "false_alarm",
+    "caught": [],
+    "error_classes": []
+   },
+   {
+    "project": "synthetic-16-open-recess",
+    "failure_class": "open_recess",
+    "errors": 1,
+    "findings": 6,
+    "errors_caught": 1,
+    "verdict": "caught",
+    "caught": [
+     {
+      "class": "openings",
+      "side": "read_only",
+      "id": "o_L0_001",
+      "by": [
+       "missing_opening",
+       "missing_opening"
+      ]
+     }
+    ],
+    "error_classes": [
+     "openings:read_only"
+    ]
+   },
+   {
+    "project": "synthetic-17-garage-lift",
+    "failure_class": "garage_lift",
+    "errors": 4,
+    "findings": 6,
+    "errors_caught": 0,
+    "verdict": "missed",
+    "caught": [],
+    "error_classes": [
+     "doors:truth_only",
+     "walls:read_only",
+     "windows:read_only"
+    ]
+   },
+   {
+    "project": "synthetic-18-sheet-frame",
+    "failure_class": "sheet_frame",
+    "errors": 0,
+    "findings": 17,
+    "errors_caught": 0,
+    "verdict": "false_alarm",
+    "caught": [],
+    "error_classes": []
+   },
+   {
+    "project": "synthetic-19-symmetric-house",
+    "failure_class": "symmetric_single_flat",
+    "errors": 0,
+    "findings": 6,
+    "errors_caught": 0,
+    "verdict": "false_alarm",
+    "caught": [],
+    "error_classes": []
+   },
+   {
+    "project": "synthetic-20-glazed-corner",
+    "failure_class": "glazed_corner",
+    "errors": 11,
+    "findings": 7,
+    "errors_caught": 2,
+    "verdict": "caught",
+    "caught": [
+     {
+      "class": "walls",
+      "side": "truth_only",
+      "id": "t_L0_wall_0001",
+      "by": [
+       "missing_opening"
+      ]
+     },
+     {
+      "class": "walls",
+      "side": "read_only",
+      "id": "w_L0_012",
+      "by": [
+       "missing_opening"
+      ]
+     }
+    ],
+    "error_classes": [
+     "doors:read_only",
+     "doors:truth_only",
+     "walls:read_only",
+     "walls:truth_only",
+     "windows:read_only",
+     "windows:truth_only"
+    ]
+   },
+   {
+    "project": "synthetic-21-parapet",
+    "failure_class": "roof_terrace_parapet",
+    "errors": 0,
+    "findings": 28,
+    "errors_caught": 0,
+    "verdict": "false_alarm",
+    "caught": [],
+    "error_classes": []
+   },
+   {
+    "project": "synthetic-22-curved-stair",
+    "failure_class": "curved_stair",
+    "errors": 1,
+    "findings": 7,
+    "errors_caught": 1,
+    "verdict": "caught",
+    "caught": [
+     {
+      "class": "stairs",
+      "side": "truth_only",
+      "id": "t_L0_stair_0001",
+      "by": [
+       "missing_stair"
+      ]
+     }
+    ],
+    "error_classes": [
+     "stairs:truth_only"
+    ]
+   }
+  ]
+ },
+ "chance": {
+  "draws": 30,
+  "precision": 0.0079,
+  "recall_of_rc14_records": 5.0,
+  "rc14_records": 24,
+  "out_of_sample_caught": 5.57,
+  "out_of_sample_classes": 9
+ },
+ "density": {
+  "levels": 58,
+  "findings": 570,
+  "per_level": 9.83
+ },
+ "by_eye": {
+  "findings": 13,
+  "recall": 24
+ },
+ "judgements": [
+  {
+   "entry": "a/real02/L0",
+   "project": "real02",
+   "level": "L0",
+   "kind": "false_stair",
+   "at": [
+    6.069,
+    8.761
+   ],
+   "description": "The model reads the central staircase as two separate stair flights with arrows, while the drawing shows a single continuous stair.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L0",
+   "project": "real02",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    2.883,
+    7.441
+   ],
+   "description": "The model lacks the door opening on the left wall of the top-left bedroom that is clearly drawn in the source plan.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L0",
+   "project": "real02",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    12.29,
+    7.441
+   ],
+   "description": "The model lacks the door opening on the right wall of the top-right bedroom that is clearly drawn in the source plan.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L0",
+   "project": "real02",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    2.883,
+    7.081
+   ],
+   "description": "The model lacks the door opening on the left wall of the bottom-left bedroom that is clearly drawn in the source plan.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L0",
+   "project": "real02",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    12.29,
+    7.081
+   ],
+   "description": "The model lacks the door opening on the right wall of the bottom-right bedroom that is clearly drawn in the source plan.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L0",
+   "project": "real04",
+   "level": "L0",
+   "kind": "false_stair",
+   "at": [
+    6.069,
+    8.761
+   ],
+   "description": "The model reads the central staircase as two separate stair flights with arrows, while the drawing shows a single continuous stair.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L0",
+   "project": "real04",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    2.883,
+    7.441
+   ],
+   "description": "The model lacks the door opening on the left wall of the top-left bedroom that is clearly drawn in the source plan.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L0",
+   "project": "real04",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    12.29,
+    7.441
+   ],
+   "description": "The model lacks the door opening on the right wall of the top-right bedroom that is clearly drawn in the source plan.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L0",
+   "project": "real04",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    2.883,
+    7.081
+   ],
+   "description": "The model lacks the door opening on the left wall of the bottom-left bedroom that is clearly drawn in the source plan.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L0",
+   "project": "real04",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    12.29,
+    7.081
+   ],
+   "description": "The model lacks the door opening on the right wall of the bottom-right bedroom that is clearly drawn in the source plan.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1",
+   "project": "real02",
+   "level": "L-1",
+   "kind": "missing_stair",
+   "at": [
+    5.993,
+    8.641
+   ],
+   "description": "The model shows a hallway with arrows where the drawing clearly depicts a staircase.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1",
+   "project": "real02",
+   "level": "L-1",
+   "kind": "missing_stair",
+   "at": [
+    9.18,
+    8.641
+   ],
+   "description": "The model shows a hallway with arrows where the drawing clearly depicts a staircase.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1",
+   "project": "real02",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    2.731,
+    7.441
+   ],
+   "description": "The model lacks the door opening shown in the kitchen wall.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1",
+   "project": "real02",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    12.442,
+    7.441
+   ],
+   "description": "The model lacks the door opening shown in the kitchen wall.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1",
+   "project": "real02",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    5.311,
+    10.801
+   ],
+   "description": "The model lacks the door opening shown in the bathroom wall.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1",
+   "project": "real02",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    9.862,
+    10.801
+   ],
+   "description": "The model lacks the door opening shown in the bathroom wall.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1",
+   "project": "real04",
+   "level": "L-1",
+   "kind": "missing_stair",
+   "at": [
+    5.993,
+    8.641
+   ],
+   "description": "The model shows a hallway with arrows where the drawing clearly depicts a staircase.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1",
+   "project": "real04",
+   "level": "L-1",
+   "kind": "missing_stair",
+   "at": [
+    9.18,
+    8.641
+   ],
+   "description": "The model shows a hallway with arrows where the drawing clearly depicts a staircase.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1",
+   "project": "real04",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    2.731,
+    7.441
+   ],
+   "description": "The model lacks the door opening shown in the kitchen wall.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1",
+   "project": "real04",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    12.442,
+    7.441
+   ],
+   "description": "The model lacks the door opening shown in the kitchen wall.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1",
+   "project": "real04",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    5.159,
+    10.801
+   ],
+   "description": "The model lacks the door opening shown in the bathroom wall.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1",
+   "project": "real04",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    10.014,
+    10.801
+   ],
+   "description": "The model lacks the door opening shown in the bathroom wall.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L1",
+   "project": "real02",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    2.169,
+    8.471
+   ],
+   "description": "The model lacks the door opening on the left wall of the corridor that the drawing shows.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L1",
+   "project": "real02",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    13.004,
+    8.471
+   ],
+   "description": "The model lacks the door opening on the right wall of the corridor that the drawing shows.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L1",
+   "project": "real02",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    2.169,
+    7.171
+   ],
+   "description": "The model lacks the door opening on the left wall of the activity room that the drawing shows.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L1",
+   "project": "real02",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    13.004,
+    7.171
+   ],
+   "description": "The model lacks the door opening on the right wall of the activity room that the drawing shows.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L1",
+   "project": "real02",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    4.837,
+    1.711
+   ],
+   "description": "The model lacks the door opening on the bottom wall of the left activity room.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L1",
+   "project": "real02",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    10.336,
+    1.711
+   ],
+   "description": "The model lacks the door opening on the bottom wall of the right activity room.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L1",
+   "project": "real02",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    4.999,
+    11.201
+   ],
+   "description": "The model lacks the door opening on the left wall of the left bathroom.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L1",
+   "project": "real02",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    10.174,
+    11.201
+   ],
+   "description": "The model lacks the door opening on the right wall of the right bathroom.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L1",
+   "project": "real02",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    2.573,
+    10.031
+   ],
+   "description": "The model lacks the window opening on the left wall of the left terrace.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L1",
+   "project": "real02",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    12.6,
+    10.031
+   ],
+   "description": "The model lacks the window opening on the right wall of the right terrace.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real03/L0",
+   "project": "real03",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    16.412,
+    9.022
+   ],
+   "description": "The central top room is labelled 'Oda (bedroom)' in the model, but the drawing labels it 'BANYO'.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real03/L0",
+   "project": "real03",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    13.729,
+    8.229
+   ],
+   "description": "The small room to the left of the central top room is labelled 'Oda (bedroom)' in the model, but the drawing labels it 'BANYO'.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real03/L0",
+   "project": "real03",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    19.479,
+    8.229
+   ],
+   "description": "The small room to the right of the central top room is labelled 'Oda (bedroom)' in the model, but the drawing labels it 'BANYO'.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real03/L0",
+   "project": "real03",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    5.678,
+    5.654
+   ],
+   "description": "The small room in the lower-left quadrant is labelled 'Oda (bedroom)' in the model, but the drawing labels it 'BANYO'.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real03/L0",
+   "project": "real03",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    11.812,
+    5.654
+   ],
+   "description": "The small room in the lower-middle-left is labelled 'Oda (bedroom)' in the model, but the drawing labels it 'BANYO'.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real03/L0",
+   "project": "real03",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    19.479,
+    5.059
+   ],
+   "description": "The small room in the lower-middle-right is labelled 'Oda (bedroom)' in the model, but the drawing labels it 'BANYO'.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real03/L0",
+   "project": "real03",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    25.23,
+    5.654
+   ],
+   "description": "The small room in the lower-right quadrant is labelled 'Oda (bedroom)' in the model, but the drawing labels it 'BANYO'.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real03/L0",
+   "project": "real03",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    3.761,
+    8.229
+   ],
+   "description": "The small room in the upper-left quadrant is labelled 'Oda (bedroom)' in the model, but the drawing labels it 'BANYO'.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real03/L0",
+   "project": "real03",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    27.531,
+    8.229
+   ],
+   "description": "The small room in the upper-right quadrant is labelled 'Oda (bedroom)' in the model, but the drawing labels it 'BANYO'.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real03/L0",
+   "project": "real03",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    15.262,
+    4.267
+   ],
+   "description": "The large room in the lower-middle is labelled 'Rüzgarlık (hall)' in the model, but the drawing labels it 'RÜZGARLIK' (which is a windcatcher/ventilation shaft, not a hall).",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L1",
+   "project": "real06",
+   "level": "L1",
+   "kind": "wrong_label",
+   "at": [
+    5.159,
+    8.136
+   ],
+   "description": "The model labels the storage room as a hall, but the drawing clearly marks it as 'SOYUNMA ODASI' (changing room).",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 1.67,
+    "class": "windows",
+    "side": "read_only",
+    "id": "win_L1_004"
+   }
+  },
+  {
+   "entry": "a/real06/L1",
+   "project": "real06",
+   "level": "L1",
+   "kind": "false_stair",
+   "at": [
+    4.545,
+    12.954
+   ],
+   "description": "The model interprets the staircase in the central hall as a floor void or open area, indicated by the blue hatching.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 4.11,
+    "class": "windows",
+    "side": "read_only",
+    "id": "win_L1_004"
+   }
+  },
+  {
+   "entry": "a/real06/L1",
+   "project": "real06",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    3.624,
+    3.756
+   ],
+   "description": "The model is missing the door opening on the wall between the children's room and the central hall.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 6.17,
+    "class": "windows",
+    "side": "read_only",
+    "id": "win_L1_004"
+   }
+  },
+  {
+   "entry": "a/real06/L1",
+   "project": "real06",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    4.852,
+    3.756
+   ],
+   "description": "The model is missing the door opening on the wall between the parents' room and the central hall.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 5.73,
+    "class": "windows",
+    "side": "read_only",
+    "id": "win_L1_004"
+   }
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    2.853,
+    8.255
+   ],
+   "description": "The door from the left corridor into the bedroom is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    12.32,
+    8.255
+   ],
+   "description": "The door from the right corridor into the bedroom is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    5.053,
+    10.5
+   ],
+   "description": "The door from the left corridor into the bathroom is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    10.12,
+    10.5
+   ],
+   "description": "The door from the right corridor into the bathroom is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    2.853,
+    7.055
+   ],
+   "description": "The door from the left corridor into the open kitchen is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    12.32,
+    7.055
+   ],
+   "description": "The door from the right corridor into the open kitchen is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    5.553,
+    11.521
+   ],
+   "description": "The window on the top wall of the left bathroom is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    9.604,
+    11.521
+   ],
+   "description": "The window on the top wall of the right bathroom is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    3.794,
+    11.881
+   ],
+   "description": "The window on the top wall of the left corridor is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    11.38,
+    11.881
+   ],
+   "description": "The window on the top wall of the right corridor is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    0.152,
+    9.756
+   ],
+   "description": "The window on the left wall of the top-left bedroom is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    15.021,
+    9.756
+   ],
+   "description": "The window on the right wall of the top-right bedroom is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    0.152,
+    1.797
+   ],
+   "description": "The window on the left wall of the bottom-left living area is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    15.021,
+    1.797
+   ],
+   "description": "The window on the right wall of the bottom-right living area is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    3.794,
+    0.116
+   ],
+   "description": "The window on the bottom wall of the left living area is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L-1b",
+   "project": "real04",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    11.38,
+    0.116
+   ],
+   "description": "The window on the bottom wall of the right living area is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    2.853,
+    8.255
+   ],
+   "description": "The door from the left corridor into the bedroom is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    12.32,
+    8.255
+   ],
+   "description": "The door from the right corridor into the bedroom is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    5.053,
+    10.5
+   ],
+   "description": "The door from the left corridor into the bathroom is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    10.12,
+    10.5
+   ],
+   "description": "The door from the right corridor into the bathroom is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    2.853,
+    7.055
+   ],
+   "description": "The door from the left corridor into the open kitchen is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    12.32,
+    7.055
+   ],
+   "description": "The door from the right corridor into the open kitchen is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    5.553,
+    11.521
+   ],
+   "description": "The window on the top wall of the left bathroom is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    9.604,
+    11.521
+   ],
+   "description": "The window on the top wall of the right bathroom is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    3.794,
+    11.881
+   ],
+   "description": "The window on the top wall of the left corridor is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    11.38,
+    11.881
+   ],
+   "description": "The window on the top wall of the right corridor is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    0.152,
+    9.756
+   ],
+   "description": "The window on the left wall of the top-left bedroom is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    15.021,
+    9.756
+   ],
+   "description": "The window on the right wall of the top-right bedroom is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    0.152,
+    1.797
+   ],
+   "description": "The window on the left wall of the bottom-left living area is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    15.021,
+    1.797
+   ],
+   "description": "The window on the right wall of the bottom-right living area is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    3.794,
+    0.116
+   ],
+   "description": "The window on the bottom wall of the left living area is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real02/L-1b",
+   "project": "real02",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    11.38,
+    0.116
+   ],
+   "description": "The window on the bottom wall of the right living area is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L1",
+   "project": "real04",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    2.169,
+    8.471
+   ],
+   "description": "The model lacks the door opening on the left wall of the corridor that the drawing shows.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L1",
+   "project": "real04",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    13.004,
+    8.471
+   ],
+   "description": "The model lacks the door opening on the right wall of the corridor that the drawing shows.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L1",
+   "project": "real04",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    2.169,
+    7.171
+   ],
+   "description": "The model lacks the door opening on the left wall of the activity room that the drawing shows.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L1",
+   "project": "real04",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    13.004,
+    7.171
+   ],
+   "description": "The model lacks the door opening on the right wall of the activity room that the drawing shows.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L1",
+   "project": "real04",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    4.837,
+    1.711
+   ],
+   "description": "The model lacks the door opening on the bottom wall of the left activity room.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L1",
+   "project": "real04",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    10.336,
+    1.711
+   ],
+   "description": "The model lacks the door opening on the bottom wall of the right activity room.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L1",
+   "project": "real04",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    4.999,
+    10.941
+   ],
+   "description": "The model lacks the door opening on the left wall of the left bathroom.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L1",
+   "project": "real04",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    10.174,
+    10.941
+   ],
+   "description": "The model lacks the door opening on the right wall of the right bathroom.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L1",
+   "project": "real04",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    2.573,
+    10.031
+   ],
+   "description": "The model lacks the window opening on the left wall of the left terrace.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real04/L1",
+   "project": "real04",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    12.6,
+    10.031
+   ],
+   "description": "The model lacks the window opening on the right wall of the right terrace.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "wrong_label",
+   "at": [
+    11.571,
+    14.475
+   ],
+   "description": "The central stairwell is mislabeled as a hall instead of a stair.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.15,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_038"
+   }
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "wrong_label",
+   "at": [
+    11.571,
+    4.595
+   ],
+   "description": "The central entrance hall is mislabeled as a hall instead of an entrance.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.71,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_037"
+   }
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "split_room",
+   "at": [
+    11.571,
+    11.264
+   ],
+   "description": "The single bathroom area is incorrectly split into two separate rooms.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 5.34,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_038"
+   }
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "extra_opening",
+   "at": [
+    11.571,
+    16.451
+   ],
+   "description": "A window is modeled on the top wall of the central stairwell where the drawing shows a solid wall.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": true,
+   "distance": 0.41,
+   "matched": {
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_038",
+    "label": null
+   },
+   "nearest": {
+    "distance": 0.41,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_038"
+   }
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "extra_opening",
+   "at": [
+    11.571,
+    12.746
+   ],
+   "description": "A window is modeled on the bottom wall of the central stairwell where the drawing shows a solid wall.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": 3.87,
+   "matched": null,
+   "nearest": {
+    "distance": 3.87,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_038"
+   }
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "extra_opening",
+   "at": [
+    2.052,
+    4.595
+   ],
+   "description": "A window is modeled on the left wall of the salon where the drawing shows a solid wall.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": 9.52,
+   "matched": null,
+   "nearest": {
+    "distance": 9.52,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_037"
+   }
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "extra_opening",
+   "at": [
+    21.09,
+    4.595
+   ],
+   "description": "A window is modeled on the right wall of the salon where the drawing shows a solid wall.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": 10.26,
+   "matched": null,
+   "nearest": {
+    "distance": 10.26,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_037"
+   }
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "extra_opening",
+   "at": [
+    2.052,
+    11.264
+   ],
+   "description": "A window is modeled on the left wall of the living room where the drawing shows a solid wall.",
+   "confidence": 0.75,
+   "lesson": null,
+   "right": false,
+   "distance": 10.58,
+   "matched": null,
+   "nearest": {
+    "distance": 10.58,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_038"
+   }
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "extra_opening",
+   "at": [
+    21.09,
+    11.264
+   ],
+   "description": "A window is modeled on the right wall of the living room where the drawing shows a solid wall.",
+   "confidence": 0.75,
+   "lesson": null,
+   "right": false,
+   "distance": 11.24,
+   "matched": null,
+   "nearest": {
+    "distance": 11.24,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_038"
+   }
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "extra_opening",
+   "at": [
+    2.052,
+    15.216
+   ],
+   "description": "A window is modeled on the left wall of the children's bedroom where the drawing shows a solid wall.",
+   "confidence": 0.7,
+   "lesson": null,
+   "right": false,
+   "distance": 9.24,
+   "matched": null,
+   "nearest": {
+    "distance": 9.24,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_038"
+   }
+  },
+  {
+   "entry": "a/real10/L-1",
+   "project": "real10",
+   "level": "L-1",
+   "kind": "extra_opening",
+   "at": [
+    21.09,
+    15.216
+   ],
+   "description": "A window is modeled on the right wall of the children's bedroom where the drawing shows a solid wall.",
+   "confidence": 0.7,
+   "lesson": null,
+   "right": false,
+   "distance": 10.0,
+   "matched": null,
+   "nearest": {
+    "distance": 10.0,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_038"
+   }
+  },
+  {
+   "entry": "a/real10/L7",
+   "project": "real10",
+   "level": "L7",
+   "kind": "missing_stair",
+   "at": [
+    12.086,
+    9.15
+   ],
+   "description": "The large curved staircase drawn in the center of the plan is completely missing from the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L7",
+   "project": "real10",
+   "level": "L7",
+   "kind": "split_room",
+   "at": [
+    12.086,
+    9.15
+   ],
+   "description": "The single open hall containing the stairs is incorrectly split into two separate rooms in the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L7",
+   "project": "real10",
+   "level": "L7",
+   "kind": "extra_wall",
+   "at": [
+    10.526,
+    9.15
+   ],
+   "description": "A vertical wall is drawn in the model to separate the elevator room from the stair area, which is not present in the source drawing.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L7",
+   "project": "real10",
+   "level": "L7",
+   "kind": "missing_opening",
+   "at": [
+    11.046,
+    6.99
+   ],
+   "description": "The door swing arc on the bottom wall of the central hall is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L7",
+   "project": "real10",
+   "level": "L7",
+   "kind": "missing_opening",
+   "at": [
+    13.906,
+    7.23
+   ],
+   "description": "The door swing arc on the right side of the central hall is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L7",
+   "project": "real10",
+   "level": "L7",
+   "kind": "missing_opening",
+   "at": [
+    8.056,
+    11.43
+   ],
+   "description": "The window or door opening on the top wall of the elevator room is not represented in the model.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L7",
+   "project": "real10",
+   "level": "L7",
+   "kind": "missing_opening",
+   "at": [
+    8.056,
+    6.75
+   ],
+   "description": "The window or door opening on the bottom wall of the elevator room is not represented in the model.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L7",
+   "project": "real10",
+   "level": "L7",
+   "kind": "extra_opening",
+   "at": [
+    10.526,
+    10.11
+   ],
+   "description": "A purple opening is shown in the model on the new partition wall where the drawing shows a solid wall.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-2",
+   "project": "real10",
+   "level": "L-2",
+   "kind": "wrong_label",
+   "at": [
+    14.87,
+    11.592
+   ],
+   "description": "The model labels the electrical panel room as a generic 'Oda' instead of the drawn 'ELK. PANO ODASI'.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-2",
+   "project": "real10",
+   "level": "L-2",
+   "kind": "wrong_label",
+   "at": [
+    18.032,
+    11.829
+   ],
+   "description": "The model labels the large open area as 'Sığınak (Storage)' while the drawing identifies it as 'SİĞINAK' (Shelter).",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-2",
+   "project": "real10",
+   "level": "L-2",
+   "kind": "missing_opening",
+   "at": [
+    20.309,
+    6.852
+   ],
+   "description": "The model is missing the door opening shown in the drawing at the bottom right of the central block.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-2",
+   "project": "real10",
+   "level": "L-2",
+   "kind": "missing_opening",
+   "at": [
+    2.22,
+    6.852
+   ],
+   "description": "The model is missing the door opening shown in the drawing on the left wall of the lower section.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-2",
+   "project": "real10",
+   "level": "L-2",
+   "kind": "missing_opening",
+   "at": [
+    2.22,
+    13.014
+   ],
+   "description": "The model is missing the door opening shown in the drawing on the left wall of the upper section.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-2",
+   "project": "real10",
+   "level": "L-2",
+   "kind": "missing_opening",
+   "at": [
+    20.309,
+    13.014
+   ],
+   "description": "The model is missing the door opening shown in the drawing on the right wall of the upper section.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-2",
+   "project": "real10",
+   "level": "L-2",
+   "kind": "missing_opening",
+   "at": [
+    9.81,
+    2.112
+   ],
+   "description": "The model is missing the door opening shown in the drawing on the bottom wall.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-2",
+   "project": "real10",
+   "level": "L-2",
+   "kind": "missing_opening",
+   "at": [
+    12.593,
+    2.112
+   ],
+   "description": "The model is missing the door opening shown in the drawing on the bottom wall.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-2",
+   "project": "real10",
+   "level": "L-2",
+   "kind": "missing_opening",
+   "at": [
+    14.996,
+    9.222
+   ],
+   "description": "The model is missing the door opening shown in the drawing on the left side of the electrical room.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L-2",
+   "project": "real10",
+   "level": "L-2",
+   "kind": "missing_opening",
+   "at": [
+    16.514,
+    9.222
+   ],
+   "description": "The model is missing the door opening shown in the drawing on the right side of the electrical room.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real21/L0",
+   "project": "real21",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    8.97,
+    22.748
+   ],
+   "description": "The model labels the upper central 'Aydınlık' (light well) as a bedroom.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "AYDINLIK (light well) read as a bedroom; the truth carries the same error (RC14 flags real21's light wells too)"
+  },
+  {
+   "entry": "a/real21/L0",
+   "project": "real21",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    8.97,
+    6.091
+   ],
+   "description": "The model labels the lower central 'Aydınlık' (light well) as a bedroom.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "AYDINLIK read as a bedroom (lower central)"
+  },
+  {
+   "entry": "a/real21/L0",
+   "project": "real21",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    0.889,
+    18.073
+   ],
+   "description": "The model labels the upper left 'Aydınlık' (light well) as an unknown room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "AYDINLIK read as an unknown room (upper left)"
+  },
+  {
+   "entry": "a/real21/L0",
+   "project": "real21",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    14.357,
+    18.073
+   ],
+   "description": "The model labels the upper right 'Aydınlık' (light well) as an unknown room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "AYDINLIK read as an unknown room (upper right)"
+  },
+  {
+   "entry": "a/real21/L0",
+   "project": "real21",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    0.889,
+    10.767
+   ],
+   "description": "The model labels the lower left 'Aydınlık' (light well) as an unknown room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "AYDINLIK read as an unknown room (lower left)"
+  },
+  {
+   "entry": "a/real21/L0",
+   "project": "real21",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    14.357,
+    10.767
+   ],
+   "description": "The model labels the lower right 'Aydınlık' (light well) as an unknown room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "AYDINLIK read as an unknown room (lower right)"
+  },
+  {
+   "entry": "a/real21/L0",
+   "project": "real21",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    7.544,
+    17.488
+   ],
+   "description": "The model labels the central 'Daire Girişi' (apartment entrance) as a hall.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real21/L0",
+   "project": "real21",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    7.544,
+    11.351
+   ],
+   "description": "The model labels the lower central 'Daire Girişi' (apartment entrance) as a hall.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "merged_rooms",
+   "at": [
+    2.109,
+    6.822
+   ],
+   "description": "The model merges the dining room and the living room into a single large space, ignoring the wall and door that separate them in the drawing.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "the drawing separates YEMEK BOLUMU from the SALON by a wall with an opening; the model has one room (the accepted truth carries the merge)"
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    3.674,
+    6.822
+   ],
+   "description": "The wall separating the dining room from the living room is missing in the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "the same wall, named as missing"
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    3.674,
+    3.756
+   ],
+   "description": "The door connecting the dining room and the living room is missing in the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    2.109,
+    9.231
+   ],
+   "description": "The window on the wall between the dining room and the kitchen is missing in the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    6.412,
+    9.231
+   ],
+   "description": "The window on the wall between the living room and the hall is missing in the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    0.309,
+    6.822
+   ],
+   "description": "The window on the left wall of the dining room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    8.447,
+    6.822
+   ],
+   "description": "The window on the right wall of the living room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    0.309,
+    12.516
+   ],
+   "description": "The window on the left wall of the kitchen is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    8.447,
+    13.392
+   ],
+   "description": "The window on the right wall of the bathroom is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    4.535,
+    14.487
+   ],
+   "description": "The window on the top wall of the hall is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    6.412,
+    14.487
+   ],
+   "description": "The window on the top wall of the bathroom is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    2.109,
+    14.487
+   ],
+   "description": "The window on the top wall of the kitchen is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    0.309,
+    3.756
+   ],
+   "description": "The window on the left wall of the living room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    8.447,
+    3.756
+   ],
+   "description": "The window on the right wall of the living room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    2.109,
+    0.909
+   ],
+   "description": "The window on the bottom wall of the living room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    6.412,
+    0.909
+   ],
+   "description": "The window on the bottom wall of the living room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    0.309,
+    0.909
+   ],
+   "description": "The window on the left wall of the veranda is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    2.109,
+    -1.938
+   ],
+   "description": "The window on the bottom wall of the veranda is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    0.309,
+    -1.938
+   ],
+   "description": "The window on the left wall of the veranda is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real06/L0",
+   "project": "real06",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    2.109,
+    3.756
+   ],
+   "description": "The window on the wall between the veranda and the living room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    4.911,
+    6.133
+   ],
+   "description": "The door from the kitchen to the hall is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    4.911,
+    4.561
+   ],
+   "description": "The door from the living room to the hall is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    6.025,
+    6.658
+   ],
+   "description": "The entrance door at the top of the hall is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    7.361,
+    5.435
+   ],
+   "description": "The door from the hall to the bathroom is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    6.025,
+    3.425
+   ],
+   "description": "The door from the hall to the bedroom is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    2.684,
+    7.094
+   ],
+   "description": "The window on the top wall of the kitchen is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    8.141,
+    7.094
+   ],
+   "description": "The window on the top wall of the bathroom is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    1.459,
+    0.106
+   ],
+   "description": "The window on the bottom wall of the living room is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    3.798,
+    0.106
+   ],
+   "description": "The second window on the bottom wall of the living room is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    7.361,
+    0.106
+   ],
+   "description": "The window on the bottom wall of the bedroom is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-01/L0",
+   "project": "synthetic-01",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    0.123,
+    2.726
+   ],
+   "description": "The window on the left wall of the living room is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-05/L0",
+   "project": "synthetic-05",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    3.148,
+    4.723
+   ],
+   "description": "The door from the kitchen into the hall is not shown in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-05/L0",
+   "project": "synthetic-05",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    4.323,
+    4.946
+   ],
+   "description": "The door from the hall into the entry (Antre) is not shown in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-05/L0",
+   "project": "synthetic-05",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    4.323,
+    3.719
+   ],
+   "description": "The door from the hall into the living room (Salon) is not shown in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-05/L0",
+   "project": "synthetic-05",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    6.202,
+    3.719
+   ],
+   "description": "The door from the hall into the master bedroom is not shown in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-05/L0",
+   "project": "synthetic-05",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    10.665,
+    4.723
+   ],
+   "description": "The door from the hall into the study (Çalışma Odası) is not shown in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-05/L0",
+   "project": "synthetic-05",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    10.665,
+    3.384
+   ],
+   "description": "The door from the hall into the master bathroom is not shown in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-05/L0",
+   "project": "synthetic-05",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    6.202,
+    5.839
+   ],
+   "description": "The door from the hall into the bathroom (Banyo) is not shown in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-05/L0",
+   "project": "synthetic-05",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    8.003,
+    5.839
+   ],
+   "description": "The door from the hall into the bedroom (Yatak Odası) is not shown in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-05/L0",
+   "project": "synthetic-05",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    4.323,
+    8.406
+   ],
+   "description": "The door from the entry (Antre) to the outside is not shown in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    10.759,
+    9.535
+   ],
+   "description": "The central lift shaft is mislabeled as a stair in the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 0.46,
+    "class": "doors",
+    "side": "read_only",
+    "id": "o_L0_019"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    12.149,
+    9.535
+   ],
+   "description": "The main staircase is mislabeled as a stair in the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 1.56,
+    "class": "doors",
+    "side": "read_only",
+    "id": "o_L0_019"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    10.759,
+    4.595
+   ],
+   "description": "The lower staircase is mislabeled as a stair in the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 1.75,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0035_2"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    12.149,
+    4.595
+   ],
+   "description": "The lower staircase is mislabeled as a stair in the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 1.95,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0035_2"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    7.701,
+    15.216
+   ],
+   "description": "The master bedroom is mislabeled as a bedroom in the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 6.81,
+    "class": "doors",
+    "side": "read_only",
+    "id": "o_L0_019"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    13.539,
+    15.216
+   ],
+   "description": "The master bedroom is mislabeled as a bedroom in the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 6.77,
+    "class": "doors",
+    "side": "read_only",
+    "id": "o_L0_019"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    3.948,
+    14.722
+   ],
+   "description": "The children's bedroom is mislabeled as a bedroom in the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 8.49,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0034_2"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    18.404,
+    14.722
+   ],
+   "description": "The children's bedroom is mislabeled as a bedroom in the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 9.58,
+    "class": "doors",
+    "side": "read_only",
+    "id": "o_L0_019"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    3.392,
+    10.77
+   ],
+   "description": "The daily room is mislabeled as a living room in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 6.69,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0034_2"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    18.96,
+    10.77
+   ],
+   "description": "The daily room is mislabeled as a living room in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 8.47,
+    "class": "doors",
+    "side": "read_only",
+    "id": "o_L0_019"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    3.948,
+    4.595
+   ],
+   "description": "The salon is mislabeled as a living room in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 6.9,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0034_2"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    18.404,
+    4.595
+   ],
+   "description": "The salon is mislabeled as a living room in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 7.41,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0035_2"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    7.84,
+    4.595
+   ],
+   "description": "The kitchen is mislabeled as a kitchen in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 3.75,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0035_2"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    13.4,
+    4.595
+   ],
+   "description": "The kitchen is mislabeled as a kitchen in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.79,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0035_2"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    8.952,
+    13.24
+   ],
+   "description": "The bathroom is mislabeled as a bathroom in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 4.49,
+    "class": "doors",
+    "side": "read_only",
+    "id": "o_L0_019"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    13.4,
+    13.24
+   ],
+   "description": "The bathroom is mislabeled as a bathroom in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 4.98,
+    "class": "doors",
+    "side": "read_only",
+    "id": "o_L0_019"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    7.84,
+    9.535
+   ],
+   "description": "The washroom is mislabeled as a washroom in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.12,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0034_2"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    14.512,
+    9.535
+   ],
+   "description": "The washroom is mislabeled as a washroom in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 3.88,
+    "class": "doors",
+    "side": "read_only",
+    "id": "o_L0_019"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    7.84,
+    8.3
+   ],
+   "description": "The entrance hall is mislabeled as a hall in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 1.83,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0034_2"
+   }
+  },
+  {
+   "entry": "a/real10/L0",
+   "project": "real10",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    14.512,
+    8.3
+   ],
+   "description": "The entrance hall is mislabeled as a hall in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 3.88,
+    "class": "doors",
+    "side": "truth_only",
+    "id": "u_C0035_2"
+   }
+  },
+  {
+   "entry": "a/synthetic-06/L0",
+   "project": "synthetic-06",
+   "level": "L0",
+   "kind": "split_room",
+   "at": [
+    4.945,
+    4.865
+   ],
+   "description": "The single lobby space in the drawing is split into two separate rooms in the model by an added wall.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": 0.16,
+   "matched": {
+    "class": "rooms",
+    "side": "truth_only",
+    "id": "t_L0_room_0004",
+    "label": "Lobby"
+   },
+   "nearest": {
+    "distance": 0.07,
+    "class": "walls",
+    "side": "read_only",
+    "id": "w_L0_010"
+   }
+  },
+  {
+   "entry": "a/synthetic-06/L0",
+   "project": "synthetic-06",
+   "level": "L0",
+   "kind": "split_room",
+   "at": [
+    3.659,
+    1.953
+   ],
+   "description": "The single living room in the drawing is split into two separate rooms in the model by an added wall.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": 0.07,
+   "matched": {
+    "class": "rooms",
+    "side": "read_only",
+    "id": "r_L0_light_well",
+    "label": "Light well"
+   },
+   "nearest": {
+    "distance": 0.07,
+    "class": "rooms",
+    "side": "read_only",
+    "id": "r_L0_light_well"
+   }
+  },
+  {
+   "entry": "a/synthetic-06/L0",
+   "project": "synthetic-06",
+   "level": "L0",
+   "kind": "extra_wall",
+   "at": [
+    4.859,
+    4.865
+   ],
+   "description": "A vertical wall is drawn in the model separating the lobby from the right-hand room, which is not present in the source drawing.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": 0.02,
+   "matched": {
+    "class": "walls",
+    "side": "read_only",
+    "id": "w_L0_010",
+    "label": null
+   },
+   "nearest": {
+    "distance": 0.02,
+    "class": "walls",
+    "side": "read_only",
+    "id": "w_L0_010"
+   }
+  },
+  {
+   "entry": "a/synthetic-06/L0",
+   "project": "synthetic-06",
+   "level": "L0",
+   "kind": "extra_wall",
+   "at": [
+    4.516,
+    1.953
+   ],
+   "description": "A vertical wall is drawn in the model separating the living room from the central room, which is not present in the source drawing.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": true,
+   "distance": 0.12,
+   "matched": {
+    "class": "walls",
+    "side": "read_only",
+    "id": "w_L0_011",
+    "label": null
+   },
+   "nearest": {
+    "distance": 0.12,
+    "class": "walls",
+    "side": "read_only",
+    "id": "w_L0_011"
+   }
+  },
+  {
+   "entry": "a/synthetic-06/L0",
+   "project": "synthetic-06",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    6.016,
+    4.865
+   ],
+   "description": "The room on the right is labeled 'Room' in the model, but the drawing shows it as part of the 'LOBBY'.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 0.07,
+    "class": "rooms",
+    "side": "read_only",
+    "id": "r_L0_room"
+   }
+  },
+  {
+   "entry": "a/synthetic-06/L0",
+   "project": "synthetic-06",
+   "level": "L0",
+   "kind": "wrong_label",
+   "at": [
+    3.659,
+    1.953
+   ],
+   "description": "The central room is labeled 'Light well' in the model, but the drawing shows it as part of the 'LIVING' room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 0.07,
+    "class": "rooms",
+    "side": "read_only",
+    "id": "r_L0_light_well"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L0",
+   "project": "synthetic-07",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    4.5,
+    0.572
+   ],
+   "description": "The door at the bottom of the bedroom is missing from the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.14,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L0_006"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L0",
+   "project": "synthetic-07",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    5.6,
+    6.084
+   ],
+   "description": "The door connecting the bedroom and the hall is missing from the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.89,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L0_005"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L0",
+   "project": "synthetic-07",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    7.6,
+    3.692
+   ],
+   "description": "The door to the bathroom is missing from the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 0.31,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L0_005"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L0",
+   "project": "synthetic-07",
+   "level": "L0",
+   "kind": "missing_opening",
+   "at": [
+    8.0,
+    7.54
+   ],
+   "description": "The door at the top of the hall is missing from the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 3.16,
+    "class": "windows",
+    "side": "read_only",
+    "id": "win_L0_008"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1b",
+   "project": "synthetic-07",
+   "level": "L-1b",
+   "kind": "split_room",
+   "at": [
+    8.0,
+    2.0
+   ],
+   "description": "The model splits the single open hall area into two separate rooms with a wall between them.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": true,
+   "distance": 0.11,
+   "matched": {
+    "class": "rooms",
+    "side": "read_only",
+    "id": "r_L-1b_oda",
+    "label": "Hol"
+   },
+   "nearest": {
+    "distance": 0.11,
+    "class": "rooms",
+    "side": "read_only",
+    "id": "r_L-1b_oda"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1b",
+   "project": "synthetic-07",
+   "level": "L-1b",
+   "kind": "extra_wall",
+   "at": [
+    8.0,
+    4.0
+   ],
+   "description": "The model draws a horizontal wall across the hall that is not present in the source drawing.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": 1.9,
+   "matched": null,
+   "nearest": {
+    "distance": 0.4,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1b_004"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1b",
+   "project": "synthetic-07",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    7.6,
+    3.6
+   ],
+   "description": "The model lacks the door swing arc shown in the drawing at the bottom of the hall.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 0.4,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1b_004"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1b",
+   "project": "synthetic-07",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    8.0,
+    7.36
+   ],
+   "description": "The model lacks the door swing arc shown in the drawing at the top right of the hall.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 3.38,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1b_004"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1b",
+   "project": "synthetic-07",
+   "level": "L-1b",
+   "kind": "missing_opening",
+   "at": [
+    6.0,
+    6.24
+   ],
+   "description": "The model lacks the door opening shown in the drawing between the salon and the hall.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.19,
+    "class": "walls",
+    "side": "read_only",
+    "id": "w_L-1b_007"
+   }
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    8.316,
+    21.013
+   ],
+   "description": "The long vertical wall separating the left terrace from the central hall is missing in the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "the drawn wall between the left terrace and the house stands on no model wall (real15's walls are mostly unread: RC14's 1257 m2 sheet room)"
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    8.316,
+    12.527
+   ],
+   "description": "The vertical wall segment on the left side of the lower living area is missing in the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    8.316,
+    8.285
+   ],
+   "description": "The bottom-left corner wall of the main living space is missing in the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "the salon's bottom-left corner wall is drawn, the model has only a stub"
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    14.215,
+    8.285
+   ],
+   "description": "The horizontal wall at the bottom of the central living area is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    17.685,
+    8.285
+   ],
+   "description": "The bottom wall segment near the study room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    24.625,
+    8.285
+   ],
+   "description": "The bottom wall of the bedroom area is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    24.625,
+    31.619
+   ],
+   "description": "The top wall of the garage area is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    24.625,
+    27.377
+   ],
+   "description": "The horizontal wall below the garage is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    24.625,
+    23.134
+   ],
+   "description": "The wall separating the garage from the entrance hall is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    24.625,
+    18.891
+   ],
+   "description": "The vertical wall on the right side of the gym room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    24.625,
+    14.649
+   ],
+   "description": "The wall segment on the right side of the bathroom is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    24.625,
+    10.406
+   ],
+   "description": "The vertical wall on the right side of the bedroom is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    8.316,
+    31.619
+   ],
+   "description": "The top-left corner wall of the living room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "the top-left corner of the left block is drawn, the model has nothing there"
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    8.316,
+    27.377
+   ],
+   "description": "The vertical wall on the left side of the upper living room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "the left block's left wall is drawn, the model has nothing there"
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    8.316,
+    23.134
+   ],
+   "description": "The horizontal wall below the upper living room is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": true,
+   "distance": null,
+   "matched": null,
+   "nearest": null,
+   "right_by_truth": false,
+   "by_eye": "the wall below the left block is drawn, the model has nothing there"
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    14.215,
+    31.619
+   ],
+   "description": "The top wall of the kitchen area is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    14.215,
+    27.377
+   ],
+   "description": "The vertical wall on the right side of the kitchen is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    14.215,
+    23.134
+   ],
+   "description": "The horizontal wall below the kitchen is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    17.685,
+    31.619
+   ],
+   "description": "The top wall of the entrance hall is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L0",
+   "project": "real15",
+   "level": "L0",
+   "kind": "missing_wall",
+   "at": [
+    17.685,
+    27.377
+   ],
+   "description": "The vertical wall on the right side of the entrance hall is missing in the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_wall",
+   "at": [
+    8.331,
+    19.558
+   ],
+   "description": "The model is missing the long wall that encloses the left side of the large terrace area.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_wall",
+   "at": [
+    11.801,
+    9.47
+   ],
+   "description": "The model is missing the wall that encloses the bottom of the large terrace area.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_wall",
+   "at": [
+    14.23,
+    15.29
+   ],
+   "description": "The model is missing the wall that separates the terrace from the central stairwell.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_stair",
+   "at": [
+    15.271,
+    24.99
+   ],
+   "description": "The model is missing the central spiral staircase shown in the drawing.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "false_stair",
+   "at": [
+    19.088,
+    19.946
+   ],
+   "description": "The model shows a straight staircase in the center of the plan where the drawing shows an open void.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_wall",
+   "at": [
+    5.555,
+    27.706
+   ],
+   "description": "The model is missing the wall for the balcony on the far left side.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_wall",
+   "at": [
+    26.028,
+    28.482
+   ],
+   "description": "The model is missing the wall for the balcony on the far right side.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_wall",
+   "at": [
+    15.965,
+    32.362
+   ],
+   "description": "The model is missing the wall for the balcony at the top center.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_wall",
+   "at": [
+    18.741,
+    5.978
+   ],
+   "description": "The model is missing the wall for the balcony at the bottom center.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_wall",
+   "at": [
+    23.599,
+    5.978
+   ],
+   "description": "The model is missing the wall for the balcony at the bottom right.",
+   "confidence": 0.85,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    9.025,
+    30.81
+   ],
+   "description": "The model is missing the window on the top wall of the top-left bedroom.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    22.905,
+    30.81
+   ],
+   "description": "The model is missing the window on the top wall of the top-right bedroom.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    18.741,
+    30.81
+   ],
+   "description": "The model is missing the window on the top wall of the central bedroom.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    7.29,
+    26.93
+   ],
+   "description": "The model is missing the window on the left wall of the middle-left bedroom.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    24.64,
+    24.99
+   ],
+   "description": "The model is missing the window on the right wall of the middle-right bedroom.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    24.64,
+    19.946
+   ],
+   "description": "The model is missing the window on the right wall of the lower-right bedroom.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    17.7,
+    8.306
+   ],
+   "description": "The model is missing the window on the left wall of the bottom-left bedroom.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    24.64,
+    8.306
+   ],
+   "description": "The model is missing the window on the right wall of the bottom-right bedroom.",
+   "confidence": 0.8,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    13.189,
+    30.034
+   ],
+   "description": "The model is missing the window on the top wall of the top-center bathroom.",
+   "confidence": 0.75,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/real15/L1",
+   "project": "real15",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    19.435,
+    24.99
+   ],
+   "description": "The model is missing the window on the right wall of the central bathroom.",
+   "confidence": 0.75,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    1.476,
+    7.869
+   ],
+   "description": "The model lacks the window on the top wall of the kitchen area.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    3.077,
+    7.869
+   ],
+   "description": "The model lacks the window on the top wall of the kitchen area.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    6.626,
+    7.869
+   ],
+   "description": "The model lacks the window on the top wall of the bathroom.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    9.898,
+    7.869
+   ],
+   "description": "The model lacks the window on the top wall of the child's room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    0.154,
+    6.182
+   ],
+   "description": "The model lacks the window on the left wall of the living room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    0.154,
+    2.314
+   ],
+   "description": "The model lacks the window on the left wall of the living room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    2.033,
+    0.131
+   ],
+   "description": "The model lacks the window on the bottom wall of the living room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    5.026,
+    0.131
+   ],
+   "description": "The model lacks the window on the bottom wall of the living room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    9.41,
+    0.131
+   ],
+   "description": "The model lacks the window on the bottom wall of the bedroom.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    11.916,
+    6.182
+   ],
+   "description": "The model lacks the window on the right wall of the child's room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    11.916,
+    2.314
+   ],
+   "description": "The model lacks the window on the right wall of the bedroom.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    4.33,
+    7.472
+   ],
+   "description": "The model lacks the door from the hall to the living room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    5.582,
+    6.976
+   ],
+   "description": "The model lacks the door to the bathroom.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    8.366,
+    5.29
+   ],
+   "description": "The model lacks the door to the child's room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    4.33,
+    4.198
+   ],
+   "description": "The model lacks the door from the hall to the living room.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-04/L3",
+   "project": "synthetic-04",
+   "level": "L3",
+   "kind": "missing_opening",
+   "at": [
+    7.531,
+    4.198
+   ],
+   "description": "The model lacks the door to the bedroom.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": null
+  },
+  {
+   "entry": "a/synthetic-07/L-1",
+   "project": "synthetic-07",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    1.0,
+    4.0
+   ],
+   "description": "The window on the left wall of the salon is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 0.88,
+    "class": "windows",
+    "side": "read_only",
+    "id": "win_L-1_008"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1",
+   "project": "synthetic-07",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    1.5,
+    7.88
+   ],
+   "description": "The window on the top wall of the salon is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 4.12,
+    "class": "windows",
+    "side": "read_only",
+    "id": "win_L-1_008"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1",
+   "project": "synthetic-07",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    4.5,
+    7.88
+   ],
+   "description": "The window on the top wall of the salon is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 4.97,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_004"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1",
+   "project": "synthetic-07",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    1.5,
+    0.12
+   ],
+   "description": "The window on the bottom wall of the salon is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 4.12,
+    "class": "windows",
+    "side": "read_only",
+    "id": "win_L-1_008"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1",
+   "project": "synthetic-07",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    4.5,
+    0.12
+   ],
+   "description": "The window on the bottom wall of the salon is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.47,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_005"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1",
+   "project": "synthetic-07",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    8.0,
+    0.12
+   ],
+   "description": "The window on the bottom wall of the kitchen is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.66,
+    "class": "windows",
+    "side": "read_only",
+    "id": "win_L-1_009"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1",
+   "project": "synthetic-07",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    9.85,
+    2.0
+   ],
+   "description": "The window on the right wall of the kitchen is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 0.03,
+    "class": "windows",
+    "side": "read_only",
+    "id": "win_L-1_009"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1",
+   "project": "synthetic-07",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    9.85,
+    6.0
+   ],
+   "description": "The window on the right wall of the hall is missing from the model.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 3.01,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_004"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1",
+   "project": "synthetic-07",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    6.0,
+    6.24
+   ],
+   "description": "The door between the salon and the hall is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.75,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_004"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L-1",
+   "project": "synthetic-07",
+   "level": "L-1",
+   "kind": "missing_opening",
+   "at": [
+    7.5,
+    3.6
+   ],
+   "description": "The door between the hall and the kitchen is missing from the model.",
+   "confidence": 0.9,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 0.41,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L-1_004"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L1",
+   "project": "synthetic-07",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    5.66,
+    6.07
+   ],
+   "description": "The door swing arc in the wall between the game room and the hall is missing from the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 2.84,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L1_003"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L1",
+   "project": "synthetic-07",
+   "level": "L1",
+   "kind": "missing_opening",
+   "at": [
+    7.53,
+    3.64
+   ],
+   "description": "The door swing arc in the wall between the hall and the terrace is missing from the model.",
+   "confidence": 1.0,
+   "lesson": null,
+   "right": false,
+   "distance": null,
+   "matched": null,
+   "nearest": {
+    "distance": 0.37,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L1_003"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L1",
+   "project": "synthetic-07",
+   "level": "L1",
+   "kind": "extra_opening",
+   "at": [
+    6.1,
+    6.07
+   ],
+   "description": "The model shows a green door symbol on the wall between the game room and the hall where the drawing shows a solid wall.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": false,
+   "distance": 2.56,
+   "matched": null,
+   "nearest": {
+    "distance": 2.56,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L1_003"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L1",
+   "project": "synthetic-07",
+   "level": "L1",
+   "kind": "extra_opening",
+   "at": [
+    6.1,
+    2.02
+   ],
+   "description": "The model shows a green door symbol on the wall between the game room and the terrace where the drawing shows a solid wall.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": true,
+   "distance": 0.02,
+   "matched": {
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L1_004",
+    "label": null
+   },
+   "nearest": {
+    "distance": 0.02,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L1_004"
+   }
+  },
+  {
+   "entry": "a/synthetic-07/L1",
+   "project": "synthetic-07",
+   "level": "L1",
+   "kind": "extra_opening",
+   "at": [
+    6.98,
+    4.0
+   ],
+   "description": "The model shows a green door symbol on the wall between the hall and the terrace where the drawing shows a solid wall.",
+   "confidence": 0.95,
+   "lesson": null,
+   "right": true,
+   "distance": 0.62,
+   "matched": {
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L1_003",
+    "label": null
+   },
+   "nearest": {
+    "distance": 0.62,
+    "class": "doors",
+    "side": "read_only",
+    "id": "d_L1_003"
+   }
+  }
+ ],
+ "questions": {
+  "UL13": {
+   "ok": 27,
+   "problem": 0,
+   "cannot_see": 6
+  },
+  "UL97": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL260": {
+   "ok": 19,
+   "problem": 0,
+   "cannot_see": 14
+  },
+  "UL261": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL262": {
+   "ok": 23,
+   "problem": 0,
+   "cannot_see": 10
+  },
+  "UL263": {
+   "ok": 29,
+   "problem": 0,
+   "cannot_see": 4
+  },
+  "UL264": {
+   "ok": 19,
+   "problem": 0,
+   "cannot_see": 14
+  },
+  "UL265": {
+   "ok": 21,
+   "problem": 0,
+   "cannot_see": 12
+  },
+  "UL266": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL267": {
+   "ok": 20,
+   "problem": 0,
+   "cannot_see": 13
+  },
+  "UL268": {
+   "ok": 26,
+   "problem": 0,
+   "cannot_see": 7
+  },
+  "UL269": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL270": {
+   "ok": 29,
+   "problem": 0,
+   "cannot_see": 4
+  },
+  "UL271": {
+   "ok": 26,
+   "problem": 0,
+   "cannot_see": 7
+  },
+  "UL272": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL273": {
+   "ok": 28,
+   "problem": 0,
+   "cannot_see": 5
+  },
+  "UL274": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL275": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL276": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL278": {
+   "ok": 18,
+   "problem": 0,
+   "cannot_see": 15
+  },
+  "UL279": {
+   "ok": 29,
+   "problem": 0,
+   "cannot_see": 4
+  },
+  "UL280": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL281": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL282": {
+   "ok": 19,
+   "problem": 0,
+   "cannot_see": 14
+  },
+  "UL283": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL286": {
+   "ok": 19,
+   "problem": 0,
+   "cannot_see": 14
+  },
+  "UL287": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL288": {
+   "ok": 26,
+   "problem": 0,
+   "cannot_see": 7
+  },
+  "UL289": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL295": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL296": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL300": {
+   "ok": 24,
+   "problem": 0,
+   "cannot_see": 9
+  },
+  "UL301": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL308": {
+   "ok": 18,
+   "problem": 0,
+   "cannot_see": 15
+  },
+  "UL309": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL313": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL315": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL316": {
+   "ok": 18,
+   "problem": 0,
+   "cannot_see": 15
+  },
+  "UL320": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL321": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL325": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  },
+  "UL328": {
+   "ok": 33,
+   "problem": 0,
+   "cannot_see": 0
+  }
+ },
+ "answers": "/home/user/WenArt_RUN/runs/20261106-104159-critic/results/critic/agent/answers.json",
+ "findings_total": 570
 }
