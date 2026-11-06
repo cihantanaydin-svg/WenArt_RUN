@@ -395,8 +395,20 @@ def test_the_correction_records_parse_and_point_at_real_lessons_and_projects():
     # 5 Nov 2026: the store grows (the user's remarks through `remark add`, the machine's proposals); the backfill
     # records keep their shape, every record has a known source and status, the ids stay sequential
     backfill = [r for r in records if r["source"] == "backfill_progress"]
-    assert len(backfill) >= 40 and all(r["status"] == "accepted" for r in backfill)
-    assert all(r["date"] in ("2026-11-03", "2026-11-04") for r in backfill)
+    first = [r for r in backfill if r["lesson"] is None or 274 <= int(r["lesson"][2:]) <= 328]
+    assert len(first) >= 40 and all(r["status"] == "accepted" for r in first)
+    assert all(r["date"] in ("2026-11-03", "2026-11-04") for r in first)
+    # 6 Nov 2026 ("there were more than 24 corrections, right?"): the reading lessons outside that window are
+    # backfilled too (results/reading_corrections_sources.json sorts the 101 structural ones); each record carries its
+    # lesson's date, and one without the user's own words about the place is a proposal with a note saying why
+    dates = {l["id"]: l["date"] for l in lessons["lessons"]}
+    classes = {row["lesson"]: row["class"] for row in json.loads(
+        (REPO / "results" / "reading_corrections_sources.json").read_text(encoding="utf-8"))["lessons"]}
+    later = [r for r in backfill if r not in first]
+    assert later and all(r["date"] == dates[r["lesson"]] for r in later)
+    assert all(classes.get(r["lesson"]) == "reading" for r in later)
+    assert all(r["status"] == "accepted" or (r["status"] == "proposed" and r.get("note")) for r in later)
+    assert {l for l, c in classes.items() if c == "reading"} <= {r["lesson"] for r in later}
     assert all(r["source"] in ("backfill_progress", "user_review", "machine_review") for r in records)
     assert all(r["status"] in ("accepted", "proposed", "rejected") for r in records)
     assert all(r["id"] == f"C{i + 1:04d}" for i, r in enumerate(records))
