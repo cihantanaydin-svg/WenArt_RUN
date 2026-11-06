@@ -1118,6 +1118,571 @@
    "label": "Zemin Kat",
    "title": "ZEMİN KAT PLANI",
    "box": [
+    3907.932,
+    -3054.42,
+    3908.4,
+    -3053.696
+   ],
+   "tf": [
+    50.0,
+    0.0,
+    -195400.3185,
+    0.0,
+    50.0,
+    152714.0815
+   ],
+   "size": [
+    1034,
+    1600
+   ],
+   "drawing": "L0_drawing.jpg",
+   "model": "L0_model.jpg",
+   "copies": [],
+   "rooms": 9,
+   "walls": 71,
+   "labels": [
+    "Antre",
+    "Duş+wc",
+    "Garaj",
+    "Kat Kal.",
+    "Mutfak",
+    "Oda",
+    "Yaşam Alanı",
+    "Yemek Bölümü",
+    "Ütü Od."
+   ],
+   "id": "b/real07@23f5df3d/L0",
+   "set": "b",
+   "project": "real07",
+   "tag": "23f5df3d",
+   "folder": "b/real07@23f5df3d",
+   "reading_commit": "23f5df3d",
+   "failure_class": null
+  },
+  {
+   "level": "L1",
+   "label": "1. Kat",
+   "title": "I.KAT PLANI",
+   "box": [
+    3908.404,
+    -3054.42,
+    3908.873,
+    -3053.696
+   ],
+   "tf": [
+    50.0,
+    0.0,
+    -195423.942131,
+    0.0,
+    50.0,
+    152714.0815
+   ],
+   "size": [
+    1036,
+    1600
+   ],
+   "drawing": "L1_drawing.jpg",
+   "model": "L1_model.jpg",
+   "copies": [],
+   "rooms": 9,
+   "walls": 87,
+   "labels": [
+    "Banyo",
+    "Giyinme-soyunma",
+    "Hol",
+    "Oda",
+    "Yatak Od."
+   ],
+   "id": "b/real07@23f5df3d/L1",
+   "set": "b",
+   "project": "real07",
+   "tag": "23f5df3d",
+   "folder": "b/real07@23f5df3d",
+   "reading_commit": "23f5df3d",
+   "failure_class": null
+  },
+  {
+   "level": "L-1",
+   "label": "1. Bodrum Kat",
+   "title": "1.BODRUM KAT PLANI Ö:1/50",
+   "box": [
+    9537.438,
+    -1431.693,
+    9538.026,
+    -1431.399
+   ],
+   "tf": [
+    50.0,
+    0.0,
+    -476875.9839,
+    0.0,
+    50.0,
+    71580.62400000001
+   ],
+   "size": [
+    1600,
+    800
+   ],
+   "drawing": "L-1_drawing.jpg",
+   "model": "L-1_model.jpg",
+   "copies": [],
+   "rooms": 13,
+   "walls": 76,
+   "labels": [
+    "Banyo",
+    "Oda",
+    "Salon",
+    "Yatak O."
+   ],
+   "id": "b/real09@a0b208a4/L-1",
+   "set": "b",
+   "project": "real09",
+   "tag": "a0b208a4",
+   "folder": "b/real09@a0b208a4",
+   "reading_commit": "a0b208a4",
+   "failure_class": null
+  },
+  {
+   "level": "L0",
+   "label": "Zemin Kat",
+   "title": "NORMAL KAT PLANI",
+   "box": [
+    9538.075,
+    -1431.693,
+    9538.663,
+    -1431.399
+   ],
+   "tf": [
+    50.0,
+    0.0,
+    -476907.806,
+    0.0,
+    50.0,
+    71580.62400000001
+   ],
+   "size": [
+    1600,
+    800
+   ],
+   "drawing": "L0_drawing.jpg",
+   "model": "L0_model.jpg",
+   "copies": [
+    "L1",
+    "L2"
+   ],
+   "rooms": 16,
+   "walls": 100,
+   "labels": [
+    "Antre",
+    "Banyo",
+    "Mutfak",
+    "Oda",
+    "Salon",
+    "W.c.",
+    "Yatak O."
+   ],
+   "id": "b/real09@a0b208a4/L0",
+   "set": "b",
+   "project": "real09",
+   "tag": "a0b208a4",
+   "folder": "b/real09@a0b208a4",
+   "reading_commit": "a0b208a4",
+   "failure_class": null
+  },
+  {
+   "level": "L3",
+   "label": "Dubleks Kat",
+   "title": "DUBLEKS KAT PLANI Ö:1/50",
+   "box": [
+    9538.711,
+    -1431.693,
+    9539.299,
+    -1431.399
+   ],
+   "tf": [
+    50.0,
+    0.0,
+    -476939.62810000003,
+    0.0,
+    50.0,
+    71580.62400000001
+   ],
+   "size": [
+    1600,
+    800
+   ],
+   "drawing": "L3_drawing.jpg",
+   "model": "L3_model.jpg",
+   "copies": [],
+   "rooms": 13,
+   "walls": 85,
+   "labels": [
+    "Antre",
+    "Banyo",
+    "Mutfak",
+    "Oda",
+    "Salon",
+    "Yatak O."
+   ],
+   "id": "b/real09@a0b208a4/L3",
+   "set": "b",
+   "project": "real09",
+   "tag": "a0b208a4",
+   "folder": "b/real09@a0b208a4",
+   "reading_commit": "a0b208a4",
+   "failure_class": null
+  },
+  {
+   "level": "L4",
+   "label": "Çatı Katı",
+   "title": "ÇATI KAT PLANI Ö:1/50",
+   "box": [
+    9539.352,
+    -1431.778,
+    9539.96,
+    -1431.376
+   ],
+   "tf": [
+    50.0,
+    0.0,
+    -476971.450151,
+    0.0,
+    50.0,
+    71576.920578
+   ],
+   "size": [
+    1600,
+    1058
+   ],
+   "drawing": "L4_drawing.jpg",
+   "model": "L4_model.jpg",
+   "copies": [],
+   "rooms": 10,
+   "walls": 48,
+   "labels": [
+    "Depo",
+    "Oda",
+    "Oturma O."
+   ],
+   "id": "b/real09@a0b208a4/L4",
+   "set": "b",
+   "project": "real09",
+   "tag": "a0b208a4",
+   "folder": "b/real09@a0b208a4",
+   "reading_commit": "a0b208a4",
+   "failure_class": null
+  },
+  {
+   "level": "L-1",
+   "label": "1. Bodrum Kat",
+   "title": "1.BODRUM KAT PLANI",
+   "box": [
+    2017.125,
+    13721.923,
+    2017.626,
+    13722.417
+   ],
+   "tf": [
+    50.0,
+    0.0,
+    -100857.20435,
+    0.0,
+    50.0,
+    -686100.2000000001
+   ],
+   "size": [
+    1600,
+    1578
+   ],
+   "drawing": "L-1_drawing.jpg",
+   "model": "L-1_model.jpg",
+   "copies": [],
+   "rooms": 17,
+   "walls": 164,
+   "labels": [
+    "Asansör",
+    "Banyo",
+    "E. Yatak Od.",
+    "Günlük Oda",
+    "Lav.-w.c",
+    "Merdiven",
+    "Mutfak",
+    "Oda",
+    "Salon",
+    "Çocuk Yatak Od."
+   ],
+   "id": "b/real10@23f5df3d/L-1",
+   "set": "b",
+   "project": "real10",
+   "tag": "23f5df3d",
+   "folder": "b/real10@23f5df3d",
+   "reading_commit": "23f5df3d",
+   "failure_class": null
+  },
+  {
+   "level": "L-2",
+   "label": "2. Bodrum Kat",
+   "title": "2.BODRUM KAT PLANI",
+   "box": [
+    2016.561,
+    13721.923,
+    2017.067,
+    13722.397
+   ],
+   "tf": [
+    50.0,
+    0.0,
+    -100828.9929,
+    0.0,
+    50.0,
+    -686100.2000000001
+   ],
+   "size": [
+    1600,
+    1499
+   ],
+   "drawing": "L-2_drawing.jpg",
+   "model": "L-2_model.jpg",
+   "copies": [],
+   "rooms": 7,
+   "walls": 98,
+   "labels": [
+    "Oda",
+    "Sığınak",
+    "W.c"
+   ],
+   "id": "b/real10@23f5df3d/L-2",
+   "set": "b",
+   "project": "real10",
+   "tag": "23f5df3d",
+   "folder": "b/real10@23f5df3d",
+   "reading_commit": "23f5df3d",
+   "failure_class": null
+  },
+  {
+   "level": "L0",
+   "label": "Zemin Kat",
+   "title": "NORMAL KAT PLANI",
+   "box": [
+    2017.667,
+    13721.923,
+    2018.223,
+    13722.417
+   ],
+   "tf": [
+    50.0,
+    0.0,
+    -100886.074,
+    0.0,
+    50.0,
+    -686100.2
+   ],
+   "size": [
+    1600,
+    1422
+   ],
+   "drawing": "L0_drawing.jpg",
+   "model": "L0_model.jpg",
+   "copies": [
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "rooms": 28,
+   "walls": 239,
+   "labels": [
+    "Asansör",
+    "Banyo",
+    "Duş",
+    "E. Yatak Od.",
+    "Günlük Oda",
+    "Lav.-w.c",
+    "Mutfak",
+    "Oda",
+    "Salon",
+    "Çocuk Yatak Od."
+   ],
+   "id": "b/real10@23f5df3d/L0",
+   "set": "b",
+   "project": "real10",
+   "tag": "23f5df3d",
+   "folder": "b/real10@23f5df3d",
+   "reading_commit": "23f5df3d",
+   "failure_class": null
+  },
+  {
+   "level": "L7",
+   "label": "Teras Katı",
+   "title": "TERAS KAT PLANI",
+   "box": [
+    2018.285,
+    13721.923,
+    2018.805,
+    13722.403
+   ],
+   "tf": [
+    50.0,
+    0.0,
+    -100916.07400000001,
+    0.0,
+    50.0,
+    -686100.2000000001
+   ],
+   "size": [
+    1600,
+    1477
+   ],
+   "drawing": "L7_drawing.jpg",
+   "model": "L7_model.jpg",
+   "copies": [],
+   "rooms": 3,
+   "walls": 37,
+   "labels": [
+    "Asansör Mahali",
+    "Oda"
+   ],
+   "id": "b/real10@23f5df3d/L7",
+   "set": "b",
+   "project": "real10",
+   "tag": "23f5df3d",
+   "folder": "b/real10@23f5df3d",
+   "reading_commit": "23f5df3d",
+   "failure_class": null
+  },
+  {
+   "level": "L0",
+   "label": "Zemin Kat",
+   "title": "ZEMİN KAT PLANI",
+   "box": [
+    390768.231,
+    4539405.231,
+    393307.44,
+    4542295.7
+   ],
+   "tf": [
+    0.01,
+    0.0,
+    -3907.6820000000002,
+    0.0,
+    0.01,
+    -45394.052
+   ],
+   "size": [
+    1406,
+    1600
+   ],
+   "drawing": "L0_drawing.jpg",
+   "model": "L0_model.jpg",
+   "copies": [],
+   "rooms": 1,
+   "walls": 7,
+   "labels": [
+    "Dükkan"
+   ],
+   "id": "b/real17@0e9b4ee0/L0",
+   "set": "b",
+   "project": "real17",
+   "tag": "0e9b4ee0",
+   "folder": "b/real17@0e9b4ee0",
+   "reading_commit": "0e9b4ee0",
+   "failure_class": null
+  },
+  {
+   "level": "L1",
+   "label": "Level 1",
+   "title": "PLAN 1:20",
+   "box": [
+    414231.928,
+    4539405.231,
+    416081.074,
+    4542295.7
+   ],
+   "tf": [
+    0.01,
+    0.0,
+    -4142.318962,
+    0.0,
+    0.01,
+    -45394.062604
+   ],
+   "size": [
+    1024,
+    1600
+   ],
+   "drawing": "L1_drawing.jpg",
+   "model": "L1_model.jpg",
+   "copies": [],
+   "rooms": 4,
+   "walls": 7,
+   "labels": [
+    "Lama",
+    "Oda",
+    "Salon"
+   ],
+   "id": "b/real17@0e9b4ee0/L1",
+   "set": "b",
+   "project": "real17",
+   "tag": "0e9b4ee0",
+   "folder": "b/real17@0e9b4ee0",
+   "reading_commit": "0e9b4ee0",
+   "failure_class": null
+  },
+  {
+   "level": "L2",
+   "label": "2. Normal Kat",
+   "title": "1.2. NORMAL KAT PLANI",
+   "box": [
+    393307.44,
+    4539405.231,
+    395846.649,
+    4542295.7
+   ],
+   "tf": [
+    0.01,
+    0.0,
+    -3933.0740920000003,
+    0.0,
+    0.01,
+    -45394.051999999996
+   ],
+   "size": [
+    1406,
+    1600
+   ],
+   "drawing": "L2_drawing.jpg",
+   "model": "L2_model.jpg",
+   "copies": [],
+   "rooms": 23,
+   "walls": 85,
+   "labels": [
+    "Antre",
+    "Asansör",
+    "Balkon",
+    "Banyo",
+    "Duş",
+    "Işıklık",
+    "Mutfak",
+    "Oda",
+    "S.odası",
+    "Salon",
+    "WC"
+   ],
+   "id": "b/real17@0e9b4ee0/L2",
+   "set": "b",
+   "project": "real17",
+   "tag": "0e9b4ee0",
+   "folder": "b/real17@0e9b4ee0",
+   "reading_commit": "0e9b4ee0",
+   "failure_class": null
+  },
+  {
+   "level": "L0",
+   "label": "Zemin Kat",
+   "title": "ZEMİN KAT PLANI",
+   "box": [
     1000.0,
     1000.0,
     2200.0,
