@@ -165,7 +165,8 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   sparse: what they assert present or absent, nothing else), never a whole stored reading (user, 6 Nov 2026: "I have
   never reviewed real21 with my eyes", "Only consider my revision with the screenshot I have given into previous
   projects others I have not seen"; every real acceptance is withdrawn, an acceptance would count only for a reading
-  the user looked at, `accepted_seen`); the reading score (`python -m wenart.reading_check score`) is measured per
+  the user looked at, `accepted_seen`); the user's answers to the pipeline's own questions (which plan is which floor,
+  a project split) are brief inputs (`truth_role: brief_input`), never truth; the reading score (`python -m wenart.reading_check score`) is measured per
   commit on all projects and a change ships only when the synthetic projects do not fall and no satisfied record of
   the user is lost (a real project's percentage is reported, never gated). The user keeps giving detailed reviews as long as
   the user wants (accept or reject is only for the machine's own findings).

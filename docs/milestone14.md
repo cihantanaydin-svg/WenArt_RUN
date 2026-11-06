@@ -48,8 +48,11 @@ how the user's feedback compounds and how the user is replaced step by step.
   truth of a real project is **sparse**: it starts empty and the applicable records are replayed in record order by
   place (add, confirm, retype: a present entry; remove or a negated wall span: an absent entry; a later record wins at
   the same place); a record without a place that states a level count, storey heights, a level's floor height or the
-  ground height gives a project-level assertion (`truth_assert`), any other is listed "not measurable yet". The
-  synthetic projects keep their exact truth; `truth accept` and the stored readings (`results/reading_accepted/`) stay
+  ground height gives a project-level assertion (`truth_assert`), any other is listed "not measurable yet". A record
+  that answers the pipeline's own question (which untitled plan is which floor, two buildings on one sheet, brief data
+  such as `plan_levels`) is a brief input (`truth_role: brief_input`), never truth (user, 6 Nov 2026: "I do not
+  remember seeing the real renders of and giving feedback with the screenshots for real19"; real19 and real20 have no
+  truth). The synthetic projects keep their exact truth; `truth accept` and the stored readings (`results/reading_accepted/`) stay
   only for a future explicit acceptance of a level the user looked at.
 - A reading **score** per project: for a synthetic project recall and precision per element type against its exact
   truth, weighted (levels 5, rooms 3, stairs 3, doors 2, windows 2, openings 1, walls 1), one number; for a real

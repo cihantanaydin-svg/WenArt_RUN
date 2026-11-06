@@ -8,7 +8,9 @@ acceptance is withdrawn (the baselines keep the old fields under ``acceptance_wi
 is SPARSE: the user's correction records only (``build_sparse``; the section "the sparse truth" below): an empty base,
 each applicable record's operations as present or absent entries by place, a later record overriding an earlier one at
 the same place, project-level assertions (``truth_assert``) for the records that state a level count, storey heights,
-a level's floor height or the ground height, and the other unplaced records listed ``not_measurable``. The score judges
+a level's floor height or the ground height, and the other unplaced records listed ``not_measurable``. A record that
+answers the pipeline's own question (which untitled plan is which floor, a project split, brief data such as
+``plan_levels``) is a brief input (``truth_role: brief_input``) and stays out of every truth. The score judges
 each entry satisfied or not (``score.match_sparse``). What follows (the accepted reading plus the replay) stays the
 truth of the synthetic projects (their exact truth is their accepted reading) and of a real project only after the
 user explicitly accepts a reading they looked at (``accepted_seen``, ``truth accept``); there is none now.
@@ -157,6 +159,7 @@ ASSERT_KINDS = ("level_count", "storey_heights", "level_elevation", "ground_z")
 ASSERT_TOL_M = 0.10                       # a height assertion's default tolerance
 USER_SAID_20261106 = ("Only consider my revision with the screenshot I have given into previous projects others I "
                       "have not seen")
+TRUTH_ROLE_BRIEF = "brief_input"          # a record answering the pipeline's own question: brief data, never truth
 
 
 # --- small pure helpers ---------------------------------------------------------------------------------------------
@@ -1820,8 +1823,9 @@ def why_no_truth(project: str, *, accepted_dir: Path = ACCEPTED_DIR, baseline_di
     if synthetic_truth_file(project, projects_dir) is None:
         if project in sparse_projects(records, projects_dir):
             return f"{project}: no truth built yet (`truth build --projects {project}`)"
-        return (f"{project}: no applicable correction record of the user (accepted, the user's words, not held, place "
-                f"confidence >= {PLACE_CONFIDENCE_MIN}) and no acceptance of a reading the user saw: no truth")
+        return (f"{project}: no applicable correction record of the user (accepted, the user's words, no brief "
+                f"input, not held, place confidence >= {PLACE_CONFIDENCE_MIN}) and no acceptance of a reading the user "
+                f"saw: no truth")
     return why or f"{project}: no truth built yet (`truth build --projects {project}`)"
 
 
@@ -1999,9 +2003,15 @@ def correction_applicable(rec: Optional[dict]) -> Optional[str]:
     (review of 5 Nov 2026): a record goes in only when it is ``accepted`` (a machine proposal waits for the user) and
     carries the user's words (``user_words``; a remark of the user's review, ``source: user_review``, is the user's
     words itself). 6 Nov 2026 (derived truth): a record a review ``hold``s waits, and a place the machine located
-    below ``PLACE_CONFIDENCE_MIN`` waits for the user to check its crop."""
+    below ``PLACE_CONFIDENCE_MIN`` waits for the user to check its crop. 6 Nov 2026 (user: "I do not remember seeing
+    the real renders of and giving feedback with the screenshots for real19"): a record that answers the pipeline's
+    own question (which untitled plan is which floor, two buildings on one sheet, data that goes into the brief such
+    as ``plan_levels``) is a brief input (``truth_role: brief_input`` with its ``truth_role_reason``), never truth."""
     if rec is None:
         return "no such record in the correction store"
+    if rec.get("truth_role") == TRUTH_ROLE_BRIEF:
+        return (f"a brief input, not a revision of a reading the user looked at: "
+                f"{rec.get('truth_role_reason') or 'the answer to a question of the pipeline'}")
     if rec.get("status") != "accepted":
         return f"status {rec.get('status')!r}: waits for the user's confirmation"
     if rec.get("source") != SOURCE_REVIEW and not str(rec.get("user_words") or "").strip():
@@ -2064,6 +2074,14 @@ def correction_errors(records: list[dict], lesson_ids: Iterable[str], projects: 
         why = correction_applicable(rec)
         if (rec.get("truth_applied") or {}).get("status") in ("applied", "replayed", "asserted") and why:
             out.append(f"{rid}: applied to the truth but {why}")
+        role = rec.get("truth_role")
+        if role is not None and role != TRUTH_ROLE_BRIEF:
+            out.append(f"{rid}: truth_role {role!r}: only {TRUTH_ROLE_BRIEF!r} (a revision has none)")
+        if role == TRUTH_ROLE_BRIEF:
+            if not str(rec.get("truth_role_reason") or "").strip():
+                out.append(f"{rid}: a brief input needs its truth_role_reason")
+            if rec.get("truth_action") is not None or rec.get("truth_assert") is not None:
+                out.append(f"{rid}: a brief input carries no truth_action or truth_assert (it is never truth)")
         if rec.get("truth_assert") is not None:
             if not isinstance(rec["truth_assert"], list) or not rec["truth_assert"]:
                 out.append(f"{rid}: truth_assert is no list of assertions")

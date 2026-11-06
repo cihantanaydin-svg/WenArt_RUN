@@ -3930,6 +3930,16 @@
    "request": "A real project's reading truth is the user's own screenshot revisions only (the correction records: what they assert present or absent at their places, plus a project-level check a record states explicitly), never a whole stored reading the user did not look at; the score judges only those assertions and the gate falls when a record of the user that was satisfied is lost. User, 6 Nov 2026: 'Only consider my revision with the screenshot I have given into previous projects others I have not seen' (every real acceptance withdrawn).",
    "lesson": "A real project's reading truth is the user's own screenshot revisions only (the correction records: what they assert present or absent at their places, plus a project-level check a record states explicitly), never a whole stored reading the user did not look at; the score judges only those assertions and the gate falls when a record of the user that was satisfied is lost. User, 6 Nov 2026: 'Only consider my revision with the screenshot I have given into previous projects others I have not seen' (every real acceptance withdrawn).",
    "question": null
+  },
+  {
+   "id": "UL333",
+   "date": "2026-11-06",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "The user's answers to the pipeline's questions (which untitled plan is which floor, two buildings on one sheet) are brief inputs, not revisions of a reading; the truth holds only the user's revisions given with screenshots of a reading they looked at (user, 6 Nov 2026: 'I do not remember seeing the real renders of and giving feedback with the screenshots for real19').",
+   "lesson": "The user's answers to the pipeline's questions (which untitled plan is which floor, two buildings on one sheet) are brief inputs, not revisions of a reading; the truth holds only the user's revisions given with screenshots of a reading they looked at (user, 6 Nov 2026: 'I do not remember seeing the real renders of and giving feedback with the screenshots for real19').",
+   "question": null
   }
  ]
 }

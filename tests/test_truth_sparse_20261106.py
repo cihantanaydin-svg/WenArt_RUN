@@ -163,14 +163,36 @@ def test_the_store_checks_the_assertions():
 
 def test_the_repository_records_with_a_project_level_check():
     """The records that state a project-level check explicitly carry it (real09's five storeys and their heights,
-    real19's four plans, real10's ground at -3.00 m); the other unplaced records are listed not measurable."""
+    real10's ground at -3.00 m); the other unplaced records are listed not measurable."""
     by_id = {r["id"]: r for r in TR.load_corrections()}
     assert {a["what"] for a in TR.record_asserts(by_id["C0005"])} == {"level_count", "storey_heights"}
-    assert TR.record_asserts(by_id["C0025"]) == [dict(TR.record_asserts(by_id["C0025"])[0], what="level_count",
-                                                      value=4)]
     assert TR.record_asserts(by_id["C0031"])[0]["value"] == -3.0
-    t = TR.load_truth("real20")
-    assert TR.entry_count(t) == 0 and [x["record"] for x in t["not_measurable"]] == ["C0026"]
+    assert [a["what"] for a in TR.load_truth("real10")["project_assertions"]] == ["ground_z"]
+
+
+def test_a_brief_input_is_never_truth(tmp_path):
+    """User, 6 Nov 2026: "I do not remember seeing the real renders of and giving feedback with the screenshots for
+    real19". The user's answer to the pipeline's own question (which untitled plan is which floor, two buildings on
+    one sheet: UL299, asked with the sheet image) goes into the brief (plan_levels); it is no revision of a reading,
+    so it stays out of every truth, sparse or derived."""
+    brief = _rec("C0001", element_kind="level", truth_role="brief_input",
+                 truth_role_reason="which untitled plan is which floor (plan_levels)")
+    assert "a brief input" in TR.correction_applicable(brief)
+    assert TR.sparse_projects([brief]) == [] and TR.build_sparse("p", [brief])["not_measurable"] == []
+    door = _rec("C0002", {"op": "add", "kind": "door", "level": "L0", "center": [1, 0]})
+    assert TR.correction_applicable(dict(door, truth_role="brief_input", truth_role_reason="x")) is not None
+    errs = TR.correction_errors([dict(brief, truth_role_reason=" "),
+                                 dict(door, id="C0003", place_note="test", truth_role="brief_input",
+                                      truth_role_reason="x"),
+                                 dict(brief, id="C0004", truth_role="truth")], [], ["p"])
+    assert len(errs) == 3 and "truth_role_reason" in errs[0] and "never truth" in errs[1] and "'truth'" in errs[2]
+    # the repository: real19's and real20's answers are brief inputs, so neither project has a truth
+    by_id = {r["id"]: r for r in TR.load_corrections()}
+    for rid, p in (("C0025", "real19"), ("C0026", "real20")):
+        r = by_id[rid]
+        assert r["truth_role"] == "brief_input" and r["truth_role_reason"] and "truth_assert" not in r
+        assert r["truth_applied"]["status"] == "not_replayed" and "brief input" in r["truth_applied"]["why"]
+        assert TR.load_truth(p) is None and p not in TR.sparse_projects(list(by_id.values()))
 
 
 # --- the score ------------------------------------------------------------------------------------------------------
