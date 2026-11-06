@@ -365,20 +365,25 @@ def test_the_weighted_total_counts_invented_types_and_the_partial_truth():
 
 
 def test_the_gate_falls_and_holds():
-    stored = [{"commit": "a", "overall": 90.0, "projects": {"p1": {"total": 95.0}, "p2": {"total": 85.0}}},
-              {"commit": "b", "overall": 96.0, "projects": {"p1": {"total": 96.0}}},       # a subset run after
-              {"commit": "c", "overall": 0.0, "projects": {"p1": {"total": 0.0, "error": "no DXF"}}}]  # never a base
+    k = SC.TRUTH_KIND                                    # 6 Nov 2026: the gate compares numbers of one truth kind
+    stored = [{"commit": "a", "truth_kind": k, "overall": 90.0,
+               "projects": {"p1": {"total": 95.0}, "p2": {"total": 85.0}}},
+              {"commit": "b", "truth_kind": k, "overall": 96.0, "projects": {"p1": {"total": 96.0}}},  # a subset run
+              {"commit": "c", "truth_kind": k, "overall": 0.0,
+               "projects": {"p1": {"total": 0.0, "error": "no DXF"}}}]                              # never a base
     last = SC.latest(stored)
-    assert last["projects"]["p1"] == {"total": 96.0, "commit": "b"} and last["projects"]["p2"]["commit"] == "a"
+    assert last["projects"]["p1"] == {"total": 96.0, "commit": "b", "truth_kind": k}
+    assert last["projects"]["p2"]["commit"] == "a"
     assert last["overall"] == 90.5 and SC.latest([]) is None and SC.falls(None, last) == []
-    held = {"overall": 90.1, "projects": {"p1": {"total": 94.5}, "p2": {"total": 85.7}}}
+    held = {"truth_kind": k, "overall": 90.1, "projects": {"p1": {"total": 94.5}, "p2": {"total": 85.7}}}
     assert SC.falls(last, held) == []
-    fell = {"overall": 89.9, "projects": {"p1": {"total": 93.9}, "p2": {"total": 85.9}}}
+    fell = {"truth_kind": k, "overall": 89.9, "projects": {"p1": {"total": 93.9}, "p2": {"total": 85.9}}}
     assert SC.falls(last, fell) == ["overall: 90.50 -> 89.90", "p1: 96.00 -> 93.90"]
-    subset = {"overall": 95.5, "projects": {"p1": {"total": 95.5}, "p9": {"total": 10.0}}}  # p9 scored first time
+    subset = {"truth_kind": k, "overall": 95.5, "projects": {"p1": {"total": 95.5}, "p9": {"total": 10.0}}}
     assert SC.falls(last, subset) == []                                                      # a subset run
     assert SC.falls(last, subset, full=True) == ["p2: 85.00 -> not scored"]                  # a full run
-    failed = {"overall": 96.0, "projects": {"p1": {"total": 96.0}, "p2": {"total": 0.0, "error": "no DXF"}}}
+    failed = {"truth_kind": k, "overall": 96.0,
+              "projects": {"p1": {"total": 96.0}, "p2": {"total": 0.0, "error": "no DXF"}}}
     assert SC.falls(last, failed) == ["overall: 90.50 -> 48.00", "p2: 85.00 -> 0.00 (reading failed: no DXF)"]
     assert SC.overall({"p1": {"total": 95.0}, "p2": {"total": 85.0}, "p3": {"total": 0.0, "error": "x"}}) == 90.0
 
@@ -390,8 +395,8 @@ def test_the_scores_file_keeps_a_note_and_reads_the_first_versions_list(tmp_path
     assert SC.load_scores(path) == [{"commit": "a", "projects": {}}]
     SC.save_scores([{"commit": "b", "projects": {}}], path)
     data = json.loads(path.read_text(encoding="utf-8"))
-    assert "equals the truth by construction" in data["note"] and SC.load_scores(path) == [{"commit": "b",
-                                                                                               "projects": {}}]
+    assert "user_corrections_v1" in data["note"] and "never compared" in data["note"]
+    assert SC.load_scores(path) == [{"commit": "b", "projects": {}}]
 
 
 # --- the correction store -------------------------------------------------------------------------------------------

@@ -928,7 +928,9 @@ def calibrate(index: dict, found: list, *, readings: dict, truths: Optional[dict
         if e is None:
             continue
         truth = truths.get(e["project"]) if e["project"] in truths else TR.load_truth(e["project"])
-        if truth is None:
+        if truth is None or TR.is_sparse(truth):
+            # 6 Nov 2026: a sparse truth (a real project's: the user's corrections only) lists what the user said, not
+            # everything there is; it cannot judge a finding where it lists nothing (set b is judged by the records)
             continue
         truths[e["project"]] = truth
         dis_by_folder[folder] = level_disagreements(truth, _reading_dict(b, e["project"], truth))

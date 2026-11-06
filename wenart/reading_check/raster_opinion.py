@@ -1361,6 +1361,11 @@ def calibrate(projects: list, work: Path, fresh: bool = False, log: Callable = p
             truth = TR.load_truth(p)
             if truth is None:
                 raise FileNotFoundError(f"no truth file for {p}")
+            if TR.is_sparse(truth):
+                # 6 Nov 2026: a real project's truth holds only the user's corrections; a finding where it lists
+                # nothing would be judged against an absence that means "not reviewed", not "not there"
+                raise ValueError(f"{p}: a sparse truth (the user's corrections only) cannot judge the findings of a "
+                                 f"whole reading")
             folder = TR.reading(p, Path(work), fresh)
             b = json.loads((folder / "building.json").read_text(encoding="utf-8"))
             vscore = SC.match(truth, TR.extract(b, project=p, leave_out=truth.get("levels_left_out") or []))["total"]
@@ -1431,7 +1436,8 @@ def main(argv=None) -> int:
             print(f"raster opinion {res.get('project')}: {res['counts']} (trust {res['trust']['commit']})")
         return 0
     if args.cmd == "calibrate":
-        projects = [x.strip() for x in (args.projects or "").split(",") if x.strip()] or TR.truth_projects()
+        projects = [x.strip() for x in (args.projects or "").split(",") if x.strip()] or \
+            [q for q in TR.truth_projects() if not TR.is_sparse(TR.load_truth(q))]   # a complete truth only
         per = calibrate(projects, Path(args.work), fresh=args.fresh, log=log)
         print(calibration_table(per))
         if args.json:

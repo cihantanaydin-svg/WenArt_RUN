@@ -22,6 +22,18 @@ and its weight (invented elements count); with both 0 it stays out. The matching
 - a ``partial`` truth (the user accepted some levels, not the whole building) scores only the levels it has: a level
   the reading adds is neither right nor wrong there.
 
+6 Nov 2026 (user: "Only consider my revision with the screenshot I have given into previous projects others I have
+not seen"): a real project's truth is SPARSE (``truth.build_sparse``: the user's correction records only) and is judged
+entry by entry (``match_sparse``): a present entry is satisfied when the reading has an element of its kind on its
+level within the kind's tolerance (and of its type where it gives one; a wall when the reading's walls on its line
+cover ``WALL_OVERLAP_SHARE`` of its span), an absent entry when nothing matches; the project's total is 100 x the
+weighted share of the satisfied entries (``WEIGHTS``; no precision term: what the truth does not list is not judged).
+The stored entry keeps every entry's result with its record ids, and the gate falls for a sparse project when an entry
+satisfied before is no longer satisfied, whatever the total, naming the records. The stored entries carry
+``truth_kind`` (``TRUTH_KIND``); ``latest`` and ``falls`` compare only within one kind, so the entries made against the
+withdrawn accepted readings (no ``truth_kind``) stay as history. The synthetic projects keep F1 against their exact
+truth and the overall keeps its rule (the mean of the totals over the projects both entries have).
+
 ``results/reading_scores.json`` holds ``{"note", "entries": [{commit, date, projects: {p: {<type>: {truth, read,
 matched, absent_hits, recall, precision, f1}, total, truth_status, truth_commit, read_commit}}, overall}]}``;
 ``--update`` appends the new entry, never one with a failed reading (an ``error`` entry is printed and the command
@@ -51,11 +63,17 @@ from wenart.reading_check import truth as TR
 
 REPO = Path(__file__).resolve().parents[2]
 SCORES_PATH = REPO / "results" / "reading_scores.json"
+TRUTH_KIND = "user_corrections_v1"        # the series of the stored entries since 6 Nov 2026
 SCORES_NOTE = ("Reading score per commit against results/reading_truth/ (python -m wenart.reading_check score). "
-               "A real project's truth is its accepted reading, so the first entry made right after `truth build` "
-               "equals the truth by construction (100) for those projects; the synthetic projects are scored against "
-               "their exact truth (projects/<p>/truth), so their first numbers are real and a failure class below "
-               "100 is expected until the reader handles it. Entries with a failed reading are never stored.")
+               "Since 6 Nov 2026 (truth_kind user_corrections_v1; user: \"Only consider my revision with the "
+               "screenshot I have given into previous projects others I have not seen\") a real project's truth is "
+               "sparse: the user's correction records only, each entry present or absent; its total is 100 x the "
+               "weighted share of the satisfied entries, stored per entry with its record ids, and it falls when an "
+               "entry satisfied before is no longer satisfied (named by record). The synthetic projects are scored "
+               "with F1 against their exact truth (projects/<p>/truth); a failure class below 100 is expected until "
+               "the reader handles it. The entries without truth_kind were made against the accepted readings "
+               "(withdrawn on 6 Nov 2026): history only, never compared. Entries with a failed reading are never "
+               "stored.")
 ROOM_CENTROID_M = 1.0
 ROOM_IOU_MIN = 0.5
 OPENING_CENTER_M = 0.30
@@ -213,9 +231,12 @@ def _stats(n_truth: int, n_read: int, matched: int, absent_hits: int = 0) -> dic
             "recall": round(recall, 4), "precision": round(precision, 4), "f1": round(f1, 4)}
 
 
-def match(truth: dict, read: dict) -> dict:
+def match(truth: dict, read: dict, building: Optional[dict] = None) -> dict:
     """The per-type numbers and the total of a reading (a truth-shaped dict, ``truth.extract``) against a truth
-    (pure): ``{<type>: {truth, read, matched, absent_hits, recall, precision, f1}, "total": 0-100}``."""
+    (pure): ``{<type>: {truth, read, matched, absent_hits, recall, precision, f1}, "total": 0-100}``. A sparse truth
+    (a real project's: the user's corrections only) is judged entry by entry instead (``match_sparse``)."""
+    if TR.is_sparse(truth):
+        return match_sparse(truth, read, building)
     partial = truth.get("status") == "partial"
     t_levels = [lv["id"] for lv in truth.get("levels") or []]
     r_levels = [lv["id"] for lv in read.get("levels") or []]
@@ -263,52 +284,300 @@ def total(per_type: dict) -> float:
     return round(100.0 * num / den, 2) if den else 0.0
 
 
+# --- the sparse truth (a real project's: the user's corrections only, 6 Nov 2026) -----------------------------------
+
+def wall_cover(entry: dict, read: list) -> float:
+    """The share of a truth wall span covered by the reading's walls on its line (pure): the union, along the span,
+    of the reading walls that match it by the pair rule's lateral offset and thickness (``wall_overlap`` without its
+    share test), over the span's length. A long wall read in pieces covers its span as one wall does."""
+    s, e = entry["start"], entry["end"]
+    ls = _dist(s, e)
+    if ls < 1e-6:
+        return 0.0
+    ux, uy = (float(e[0]) - float(s[0])) / ls, (float(e[1]) - float(s[1])) / ls
+    spans = []
+    for r in read:
+        lr = _dist(r["start"], r["end"])
+        if lr < 1e-6:
+            continue
+        long_, short, ll = (entry, r, ls) if ls >= lr else (r, entry, lr)
+        ox, oy = float(long_["start"][0]), float(long_["start"][1])
+        vx, vy = (float(long_["end"][0]) - ox) / ll, (float(long_["end"][1]) - oy) / ll
+        if max(abs((float(p[0]) - ox) * vy - (float(p[1]) - oy) * vx) for p in (short["start"], short["end"])) \
+                > WALL_LATERAL_M:
+            continue
+        ta, tb = entry.get("thickness"), r.get("thickness")
+        if ta is not None and tb is not None and abs(float(ta) - float(tb)) > WALL_THICKNESS_M:
+            continue
+        along = sorted((float(p[0]) - float(s[0])) * ux + (float(p[1]) - float(s[1])) * uy
+                       for p in (r["start"], r["end"]))
+        lo, hi = max(0.0, along[0]), min(ls, along[1])
+        if hi > lo:
+            spans.append((lo, hi))
+    covered, end = 0.0, 0.0
+    for lo, hi in sorted(spans):
+        lo = max(lo, end)
+        if hi > lo:
+            covered += hi - lo
+            end = hi
+    return round(covered / ls, 4)
+
+
+def _type_of(room: dict) -> str:
+    return " ".join(str(room.get("room_type") or "").lower().split())
+
+
+def ground_heights(building: Optional[dict]) -> list:
+    """The ground heights a reading drew (``site.ground.levels[].z.value``), sorted; empty without any."""
+    ground = ((building or {}).get("site") or {}).get("ground")
+    out = []
+    for g in (ground.get("levels") or []) if isinstance(ground, dict) else []:
+        z = g.get("z") if isinstance(g, dict) else None
+        v = z.get("value") if isinstance(z, dict) else None
+        if isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(float(v)):
+            out.append(round(float(v), 3))
+    return sorted(out)
+
+
+def check_assertion(a: dict, read: dict, building: Optional[dict] = None) -> tuple[bool, str]:
+    """``(satisfied, what the reading has)`` of a project-level assertion (``truth.parse_assert``'s form; pure)."""
+    levels = read.get("levels") or []
+    what = a["what"]
+    if what == "level_count":
+        return len(levels) == a["value"], f"{len(levels)} levels"
+    if what == "storey_heights":
+        el = sorted({round(float(lv["elevation"]), 2) for lv in levels if isinstance(lv.get("elevation"), (int, float))})
+        rel = [round(x - el[0], 2) for x in el] if el else []
+        ok = len(rel) == len(a["values"]) and all(abs(x - v) <= a["tolerance"] + 1e-9 for x, v in zip(rel, a["values"]))
+        return ok, f"storeys at {rel}"
+    if what == "level_elevation":
+        lv = next((x for x in levels if x.get("id") == a["level"]), None)
+        if lv is None or not isinstance(lv.get("elevation"), (int, float)):
+            return False, f"no level {a['level']}" if lv is None else f"{a['level']} without an elevation"
+        return abs(float(lv["elevation"]) - a["value"]) <= a["tolerance"] + 1e-9, f"{a['level']} at {lv['elevation']}"
+    if what == "ground_z":
+        g = ground_heights(building)
+        if not g:
+            return False, "no ground height read"
+        return all(abs(x - a["value"]) <= a["tolerance"] + 1e-9 for x in g), f"ground at {g}"
+    return False, f"unknown assertion {what}"
+
+
+def match_sparse(truth: dict, read: dict, building: Optional[dict] = None) -> dict:
+    """A reading against a sparse truth (pure): every entry satisfied or not, nothing else judged.
+
+    - present: an element of that kind on that level within the kind's tolerance (the score's own one-to-one matching:
+      ``match_points`` for doors, windows, openings and stairs, ``match_rooms`` for rooms among the reading's rooms of
+      the entry's room type when it gives one); a wall when the reading's walls on its line cover at least
+      ``WALL_OVERLAP_SHARE`` of its span (``wall_cover``);
+    - absent: no element of that kind matches (the elements matched to a present entry of the level excepted, as in
+      ``match``); a wall when no reading wall matches the span by ``wall_overlap``, whatever its thickness ("no wall
+      here");
+    - an entry on a level the reading does not have is not satisfied (an absent one cannot be confirmed either);
+    - an asserted level: the reading has it, with the label, elevation (within ``truth.ASSERT_TOL_M``) and order
+      given; a project-level assertion: ``check_assertion``.
+
+    Returns ``{"entries": [{id, level, type, absent, records, satisfied}], "assertions": [...], <type>: {present,
+    present_ok, absent, absent_ok}, "records": {record id: [satisfied, entries]}, "unsatisfied": [entry ids],
+    "total"}``: the total is 100 x the weighted share of the satisfied entries (``WEIGHTS`` by type; an asserted level
+    and a project-level assertion weigh as ``levels``), None when the truth asserts nothing."""
+    out_entries, assertions = [], []
+    per_type = {t: {"present": 0, "present_ok": 0, "absent": 0, "absent_ok": 0} for t in TYPES}
+    r_levels = {lv["id"]: lv for lv in read.get("levels") or []}
+    rper = read.get("per_level") or {}
+
+    def note(e, lid, t, ok, why=None):
+        row = {"id": e.get("id"), "level": lid, "type": t, "absent": bool(e.get("absent")),
+               "records": list(e.get("corrections") or []), "satisfied": bool(ok)}
+        if why and not ok:
+            row["why"] = why
+        out_entries.append(row)
+        k = "absent" if e.get("absent") else "present"
+        per_type[t][k] += 1
+        per_type[t][k + "_ok"] += int(bool(ok))
+
+    for lid, lv in (truth.get("per_level") or {}).items():
+        have = lid in r_levels
+        rl = rper.get(lid) or {}
+        for t in TR.ELEMENT_TYPES:
+            ents = lv.get(t) or []
+            pres, absn = TR.positives(ents), [e for e in ents if e.get("absent")]
+            rr = rl.get(t) or [] if have else []
+            if not have:
+                for e in ents:
+                    note(e, lid, t, False, f"the reading has no level {lid}")
+                continue
+            used: set = set()
+            if t == "walls":
+                for e in pres:
+                    c = wall_cover(e, rr)
+                    note(e, lid, t, c >= WALL_OVERLAP_SHARE, f"covered {c:.2f} of the span")
+                for e in absn:
+                    probe = dict(e, thickness=None)
+                    hit = next((r for r in rr if wall_overlap(probe, r) is not None), None)
+                    note(e, lid, t, hit is None, f"read: {hit.get('id') if hit else ''}")
+                continue
+            if t == "rooms":
+                groups: dict = {}
+                for i, e in enumerate(pres):
+                    groups.setdefault(_type_of(e), []).append(i)
+                ok_idx = set()
+                for ty, idx in sorted(groups.items()):
+                    cand = [j for j, r in enumerate(rr) if not ty or _type_of(r) == ty]
+                    for i, j in match_rooms([pres[i] for i in idx], [rr[j] for j in cand]):
+                        ok_idx.add(idx[i])
+                        used.add(cand[j])
+                for i, e in enumerate(pres):
+                    note(e, lid, t, i in ok_idx, "no room of its type at its place" if _type_of(e) else
+                         "no room at its place")
+                left = [r for j, r in enumerate(rr) if j not in used]
+                for e in absn:
+                    hit = match_rooms([e], left)
+                    note(e, lid, t, not hit, f"read: {left[hit[0][1]].get('id')}" if hit else None)
+                continue
+            tol = STAIR_CENTER_M if t == "stairs" else OPENING_CENTER_M
+            pairs = match_points(pres, rr, tol)
+            ok_idx = {i for i, _j in pairs}
+            used = {j for _i, j in pairs}
+            for i, e in enumerate(pres):
+                note(e, lid, t, i in ok_idx, f"no {TR.TYPE_KIND[t]} within {tol} m")
+            left = [r for j, r in enumerate(rr) if j not in used]
+            for e in absn:
+                hit = next((r for r in left if r.get("center") and e.get("center")
+                            and _dist(r["center"], e["center"]) <= tol), None)
+                note(e, lid, t, hit is None, f"read: {hit.get('id')}" if hit else None)
+    for lv in truth.get("levels") or []:
+        if not lv.get("asserted"):
+            continue
+        r = r_levels.get(lv["id"])
+        ok = r is not None
+        if ok and lv.get("label") is not None:
+            ok = TR.norm_label(lv["label"]) == TR.norm_label(r.get("label"))
+        if ok and lv.get("elevation") is not None:
+            ok = isinstance(r.get("elevation"), (int, float)) and \
+                abs(float(r["elevation"]) - float(lv["elevation"])) <= TR.ASSERT_TOL_M + 1e-9
+        if ok and lv.get("order") is not None:
+            ok = r.get("order") == lv["order"]
+        note({"id": f"level_{lv['id']}", "corrections": lv.get("corrections")}, lv["id"], "levels", ok,
+             "the reading's level differs" if r is not None else f"the reading has no level {lv['id']}")
+    for a in truth.get("project_assertions") or []:
+        ok, has = check_assertion(a, read, building)
+        assertions.append({"id": a["id"], "what": a["what"], "records": list(a.get("corrections") or []),
+                           "satisfied": bool(ok), "read": has})
+        per_type["levels"]["present"] += 1
+        per_type["levels"]["present_ok"] += int(bool(ok))
+    num = den = 0.0
+    records: dict = {}
+    for row in out_entries + assertions:
+        w = WEIGHTS[row.get("type") or "levels"]
+        den += w
+        num += w * int(row["satisfied"])
+        for rid in row["records"]:
+            got = records.setdefault(rid, [0, 0])
+            got[0] += int(row["satisfied"])
+            got[1] += 1
+    out = {"entries": sorted(out_entries, key=lambda x: (TR._level_key(x["level"]), x["type"], str(x["id"]))),
+           "assertions": assertions, "records": {k: records[k] for k in sorted(records, key=TR._record_key)},
+           "unsatisfied": [x["id"] for x in sorted(out_entries + assertions, key=lambda x: str(x["id"]))
+                           if not x["satisfied"]],
+           "total": round(100.0 * num / den, 2) if den else None}
+    out.update(per_type)
+    return out
+
+
+def satisfied_ids(result: dict) -> dict:
+    """``{entry or assertion id: (satisfied, records)}`` of a stored sparse result (pure)."""
+    return {x["id"]: (bool(x.get("satisfied")), list(x.get("records") or []))
+            for x in (result.get("entries") or []) + (result.get("assertions") or []) if x.get("id")}
+
+
 def overall(projects: dict) -> float:
-    totals = [float(v.get("total") or 0.0) for v in projects.values() if not v.get("error")]
+    """The mean total of the projects (a failed reading and a truth that asserts nothing yet left out)."""
+    totals = [float(v["total"]) for v in projects.values() if not v.get("error") and v.get("total") is not None]
     return round(sum(totals) / len(totals), 2) if totals else 0.0
 
 
 # --- the gate and the files -----------------------------------------------------------------------------------------
 
-def latest(stored: list) -> Optional[dict]:
-    """The newest stored numbers per project folded into one entry (pure): ``{"projects": {p: {..., "commit"}},
-    "overall"}``; None when nothing is stored. A subset run (``--projects``) stores only what it scored, so the
-    gate compares each project with the last entry that has it; a project entry with an ``error`` is skipped."""
+def latest(stored: list, truth_kind: Optional[str] = TRUTH_KIND) -> Optional[dict]:
+    """The newest stored numbers per project folded into one entry (pure): ``{"projects": {p: {..., "commit",
+    "truth_kind"}}, "overall", "truth_kind"}``; None when nothing is stored. Only the entries of ``truth_kind`` count
+    (6 Nov 2026: the entries made against the withdrawn accepted readings carry none and are never compared with the
+    series of the user's corrections). A subset run (``--projects``) stores only what it scored, so the gate compares
+    each project with the last entry that has it; a project entry with an ``error`` is skipped."""
     projects: dict = {}
     for entry in reversed(stored or []):
+        if entry.get("truth_kind") != truth_kind:
+            continue
         for p, v in (entry.get("projects") or {}).items():
             if p not in projects and not v.get("error"):
-                projects[p] = dict(v, commit=entry.get("commit"))
-    return {"projects": projects, "overall": overall(projects)} if projects else None
+                projects[p] = dict(v, commit=entry.get("commit"), truth_kind=entry.get("truth_kind"))
+    return {"projects": projects, "overall": overall(projects), "truth_kind": truth_kind} if projects else None
+
+
+def _lost(was: dict, now: dict) -> list[str]:
+    """The record ids of a sparse project whose entries were satisfied in ``was`` and are not in ``now`` (pure), each
+    with those entries: ``["C0034 (u_C0034_2, u_C0034_5)", ...]``. An entry the new truth no longer has (the truth
+    changed) is not compared."""
+    before, after = satisfied_ids(was), satisfied_ids(now)
+    by_record: dict = {}
+    for eid, (ok, recs) in before.items():
+        if ok and eid in after and not after[eid][0]:
+            for rid in sorted(set(recs) | set(after[eid][1]), key=TR._record_key):
+                by_record.setdefault(rid, []).append(eid)
+    return [f"{rid} ({', '.join(sorted(ids))})" for rid, ids in sorted(by_record.items(),
+                                                                       key=lambda kv: TR._record_key(kv[0]))]
 
 
 def falls(last: Optional[dict], new: dict, full: bool = False, withdrawn=()) -> list[str]:
     """What fell against the stored numbers (pure; ``last`` is ``latest(stored)``): over the projects both have,
-    the overall by more than ``GATE_OVERALL_DROP`` or a project by more than ``GATE_PROJECT_DROP``. A project whose
-    reading failed stands at 0 with its error and falls; a project scored for the first time is not compared; in a
-    ``full`` run (no ``--projects``) a stored project that was not scored falls too, unless the user's acceptance of
-    it was withdrawn (``withdrawn``: its baseline says ``acceptance_withdrawn``; 6 Nov 2026, real21 and real19)."""
-    if not last:
+    the overall by more than ``GATE_OVERALL_DROP``; a project with an F1 truth (synthetic) by more than
+    ``GATE_PROJECT_DROP``; a project with a sparse truth (a real project's: the user's corrections) when any entry
+    satisfied in the stored numbers is no longer satisfied, whatever its total, named by its record ids. Numbers of
+    another truth kind are never compared (``latest`` folds one kind; an entry or a project of another kind is left
+    out here too). A project whose reading failed stands at 0 with its error and falls; a project scored for the
+    first time is not compared; in a ``full`` run (no ``--projects``) a stored project that was not scored falls too,
+    unless it left the truth (``withdrawn``: the user's acceptance was withdrawn, or no applicable record is left)."""
+    if not last or last.get("truth_kind") != new.get("truth_kind"):
         return []
     was_all, now_all = last.get("projects") or {}, new.get("projects") or {}
-    common = [p for p in now_all if p in was_all]
+    kind = new.get("truth_kind")
+
+    def comparable(p) -> bool:                           # one truth kind, and both sparse or both F1
+        w, n = was_all[p], now_all[p]
+        if w.get("truth_kind", kind) != kind:
+            return False
+        return bool(n.get("error")) or bool(w.get("sparse")) == bool(n.get("sparse"))
+
+    common = [p for p in now_all if p in was_all and comparable(p)]
     out = []
-    if common:
+    numeric = [p for p in common if was_all[p].get("total") is not None
+               and (now_all[p].get("total") is not None or now_all[p].get("error"))]
+    if numeric:
         def _mean(projects):                             # a failed reading counts as 0 here (it is a fall)
-            return round(sum(float(projects[p].get("total") or 0) for p in common) / len(common), 2)
+            return round(sum(float(projects[p].get("total") or 0) for p in numeric) / len(numeric), 2)
         w_over, n_over = _mean(was_all), _mean(now_all)
         if n_over < w_over - GATE_OVERALL_DROP:
-            out.append(f"overall: {w_over:.2f} -> {n_over:.2f}" + (f" ({len(common)} projects)" if len(common)
+            out.append(f"overall: {w_over:.2f} -> {n_over:.2f}" + (f" ({len(numeric)} projects)" if len(numeric)
                                                                       < len(was_all) else ""))
-        for p in common:
-            w, n = float(was_all[p].get("total") or 0), float(now_all[p].get("total") or 0)
-            if n < w - GATE_PROJECT_DROP:
-                err = now_all[p].get("error")
-                out.append(f"{p}: {w:.2f} -> {n:.2f}" + (f" (reading failed: {err})" if err else ""))
+    for p in common:
+        err = now_all[p].get("error")
+        if err:
+            out.append(f"{p}: {float(was_all[p].get('total') or 0):.2f} -> 0.00 (reading failed: {err})")
+            continue
+        if was_all[p].get("sparse"):
+            lost = _lost(was_all[p], now_all[p])
+            if lost:
+                out.append(f"{p}: no longer satisfied: " + "; ".join(lost))
+            continue
+        w, n = float(was_all[p].get("total") or 0), float(now_all[p].get("total") or 0)
+        if n < w - GATE_PROJECT_DROP:
+            out.append(f"{p}: {w:.2f} -> {n:.2f}")
     if full:
         for p in was_all:
             if p not in now_all and p not in set(withdrawn):
-                out.append(f"{p}: {float(was_all[p].get('total') or 0):.2f} -> not scored")
+                t = was_all[p].get("total")
+                out.append(f"{p}: {float(t):.2f} -> not scored" if t is not None else f"{p}: not scored")
     return out
 
 
@@ -329,18 +598,27 @@ def save_scores(entries: list, path: Path = SCORES_PATH) -> Path:
     return path
 
 
+def _cell(v: dict, t: str) -> str:
+    st = v.get(t) or {}
+    if v.get("sparse"):
+        n = int(st.get("present") or 0) + int(st.get("absent") or 0)
+        return f"{int(st.get('present_ok') or 0) + int(st.get('absent_ok') or 0)}/{n}" if n else "-"
+    return f"{st['f1']:.2f}" if st and (st.get("truth") or st.get("read")) else "-"
+
+
 def table(entry: dict) -> str:
-    """The score table (project, total, F1 per type, the truth's status and source) as text."""
+    """The score table as text: project, total, per type the F1 (an F1 truth) or the satisfied entries over the
+    entries (a sparse truth), the truth's source and status."""
     cols = ["project", "total"] + list(TYPES) + ["truth"]
     rows = [cols]
     for p, v in sorted((entry.get("projects") or {}).items()):
         if v.get("error"):
             rows.append([p, "error"] + ["-"] * len(TYPES) + [str(v["error"])[:40]])
             continue
-        rows.append([p, f"{float(v.get('total') or 0):.1f}"]
-                    + [f"{v[t]['f1']:.2f}" if v.get(t) and (v[t].get("truth") or v[t].get("read")) else "-"
-                       for t in TYPES]
-                    + [f"{v.get('truth_source') or '?'} {v.get('truth_status') or ''}".strip()])
+        rows.append([p, f"{float(v['total']):.1f}" if v.get("total") is not None else "-"]
+                    + [_cell(v, t) for t in TYPES]
+                    + [f"{v.get('truth_source') or '?'} {v.get('truth_status') or ''}".strip()
+                       + (" (nothing measurable yet)" if v.get("measurable") is False else "")])
     rows.append(["overall", f"{float(entry.get('overall') or 0):.1f}"] + [""] * (len(TYPES) + 1))
     widths = [max(len(r[i]) for r in rows) for i in range(len(cols))]
     return "\n".join("  ".join(c.ljust(widths[i]) if i in (0, len(cols) - 1) else c.rjust(widths[i])
@@ -353,10 +631,17 @@ def score_project(project: str, work: Path, *, fresh: bool = False, truth_dir: P
     truth = TR.load_truth(project, truth_dir)
     if truth is None:
         raise FileNotFoundError(f"no truth file for {project} in {truth_dir}")
+    sparse = TR.is_sparse(truth)
+    if sparse and not TR.entry_count(truth):            # nothing to check: no reading needed
+        return {"total": None, "measurable": False, "sparse": True, "truth_status": truth.get("status"),
+                "truth_source": truth.get("source"), "truth_commit": None,
+                "not_measurable": [x.get("record") for x in truth.get("not_measurable") or []]}
     folder = TR.reading(project, work, fresh)
     b = json.loads((folder / "building.json").read_text(encoding="utf-8"))
     read = TR.extract(b, project=project, leave_out=truth.get("levels_left_out") or [])
-    res = match(truth, read)
+    res = match(truth, read, b)
+    if sparse:
+        res["sparse"] = True
     res.update(truth_status=truth.get("status"), truth_source=truth.get("source"), truth_commit=truth.get("commit"),
                read_commit=TR.read_commit(folder))
     rc = folder / "reading_check"
@@ -374,7 +659,8 @@ def main(args) -> int:
         print("reading score: no truth file in results/reading_truth/ (run `truth build` first) and no --projects")
         return 2
     work = Path(args.work) if args.work else Path(tempfile.mkdtemp(prefix="reading_score_"))
-    entry = {"commit": TR.git_head(), "date": _dt.date.today().isoformat(), "projects": {}, "overall": 0.0}
+    entry = {"commit": TR.git_head(), "date": _dt.date.today().isoformat(), "truth_kind": TRUTH_KIND,
+             "projects": {}, "overall": 0.0}
     for p in projects:
         try:
             entry["projects"][p] = score_project(p, work, fresh=bool(getattr(args, "fresh", False)))
@@ -383,15 +669,29 @@ def main(args) -> int:
             entry["projects"][p] = {"total": 0.0, "error": str(exc)}
     entry["overall"] = overall(entry["projects"])
     print(table(entry))
+    for p, v in sorted(entry["projects"].items()):
+        if v.get("sparse") and v.get("unsatisfied"):
+            print(f"{p}: not satisfied: " + ", ".join(v["unsatisfied"]))
     errors = sorted(p for p, v in entry["projects"].items() if v.get("error"))
     stored = load_scores()
-    last = latest(stored)
-    withdrawn = [p for p in (last or {}).get("projects", {}) if p not in entry["projects"]
-                 and ((TR.load_baseline(p) or {}).get("acceptance_withdrawn"))]
-    for p in withdrawn:
-        why = (TR.load_baseline(p) or {}).get("acceptance_withdrawn") or {}
-        print(f"{p}: left the truth (the user's acceptance was withdrawn on {why.get('on') or '?'}: "
-              f"{why.get('reason') or '?'})")
+    last = latest(stored, TRUTH_KIND)
+    if last is None and any(e.get("truth_kind") != TRUTH_KIND for e in stored):
+        print(f"gate: no stored entry of truth kind {TRUTH_KIND} yet (the older entries were made against another "
+              f"truth and are never compared)")
+    records = TR.load_corrections()
+    withdrawn = []
+    for p in (last or {}).get("projects", {}):
+        if p in entry["projects"]:
+            continue
+        why = (TR.load_baseline(p) or {}).get("acceptance_withdrawn")
+        if why:
+            print(f"{p}: left the truth (the user's acceptance was withdrawn on {why.get('on') or '?'}: "
+                  f"{why.get('reason') or '?'})")
+            withdrawn.append(p)
+        elif TR.load_truth(p) is None and TR.synthetic_truth_file(p) is None \
+                and p not in TR.sparse_projects(records):
+            print(f"{p}: left the truth (no applicable correction record of the user is left)")
+            withdrawn.append(p)
     fell = falls(last, entry, full=not named, withdrawn=withdrawn) if args.gate else []
     if args.gate:
         against = sorted({(v.get("commit") or "?")[:12] for p, v in (last or {}).get("projects", {}).items()

@@ -40,9 +40,24 @@ how the user's feedback compounds and how the user is replaced step by step.
   confirm, retype, remove writes a negation; a negated wall span cuts the walls on its line). `truth build` is pure and
   byte-identical from the same inputs; `truth add` / `truth remove` append a record (or extend the one named) and
   rebuild. Records name places; `reader_ids` are hints and nothing joins on an id.
-- A reading **score** per project: recall and precision per element type against the truth, weighted
-  (levels 5, rooms 3, stairs 3, doors 2, windows 2, walls 1), one number; `results/reading_scores.json` per commit.
-  Gate: a change is accepted when the total rises and no project falls by more than the tolerance.
+- **A real project's truth is the user's corrections only** (6 Nov 2026; user: "I have never reviewed real21 with my
+  eyes", "Only consider my revision with the screenshot I have given into previous projects others I have not seen").
+  Why: the user reviewed the projects by looking at structure renders and sending screenshots with remarks; those
+  remarks are the correction records, while no whole reading was ever looked at, so every real acceptance was
+  withdrawn (the baselines keep the old fields under `acceptance_withdrawn`; `regress` stays a change detector). The
+  truth of a real project is **sparse**: it starts empty and the applicable records are replayed in record order by
+  place (add, confirm, retype: a present entry; remove or a negated wall span: an absent entry; a later record wins at
+  the same place); a record without a place that states a level count, storey heights, a level's floor height or the
+  ground height gives a project-level assertion (`truth_assert`), any other is listed "not measurable yet". The
+  synthetic projects keep their exact truth; `truth accept` and the stored readings (`results/reading_accepted/`) stay
+  only for a future explicit acceptance of a level the user looked at.
+- A reading **score** per project: for a synthetic project recall and precision per element type against its exact
+  truth, weighted (levels 5, rooms 3, stairs 3, doors 2, windows 2, openings 1, walls 1), one number; for a real
+  project each entry of its sparse truth satisfied or not (no precision over what it does not list), 100 x the
+  weighted satisfied share; `results/reading_scores.json` per commit, the series since 6 Nov 2026 marked
+  `truth_kind: user_corrections_v1` (the older entries are history, never compared). Gate: a change is accepted when
+  the overall does not fall, no synthetic project falls by more than the tolerance and no record of the user that was
+  satisfied is lost.
 
 ### R2 The candidate reader (never silent, never leaves a level out)
 - The decisions above return `[(candidate, score)]` with the winning margin; every element carries `confidence` =

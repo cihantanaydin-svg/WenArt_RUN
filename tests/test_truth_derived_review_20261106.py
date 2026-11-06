@@ -24,8 +24,11 @@ def _sq(x0, y0, x1, y1):
 
 
 def _real(project):
-    acc, why = TR.accepted_of(project)
-    assert acc is not None, why
+    """A stored accepted reading as fixture data for the replay of an explicitly accepted reading (no real acceptance
+    stands since 6 Nov 2026: no real truth is built from it)."""
+    acc = TR.load_accepted(project)
+    assert acc is not None, project
+    acc["stored_as"] = f"results/reading_accepted/{project}.json"
     return acc
 
 
@@ -329,12 +332,16 @@ def test_12_points_at_equal_distances_match_in_every_order():
 
 
 @pytest.mark.parametrize("project", ["real06", "real07", "real10"])
-def test_12_a_reversed_reading_of_the_truth_scores_100(project):
+def test_12_a_reversed_reading_of_the_truth_satisfies_every_entry(project):
+    """A reading made of the truth's present entries satisfies every entry of the sparse truth, in either order (the
+    project-level assertions need a building and are left out here)."""
     truth = TR.load_truth(project)
     read = _own(truth)
     rev = {"levels": read["levels"], "per_level": {lid: {t: list(reversed(els)) for t, els in lv.items()}
                                                    for lid, lv in read["per_level"].items()}}
-    assert SC.match(truth, read)["total"] == 100.0 and SC.match(truth, rev)["total"] == 100.0
+    for r in (read, rev):
+        res = SC.match(truth, r)
+        assert res["entries"] and all(e["satisfied"] for e in res["entries"]), project
 
 
 # --- 13. the user releases a record that waits on the machine's place -----------------------------------------------

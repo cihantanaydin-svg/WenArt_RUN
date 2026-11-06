@@ -132,21 +132,24 @@ def _own_reading(truth, shift=None):
 
 
 @pytest.mark.parametrize("project", REAL)
-def test_a_reading_of_the_truths_own_positives_scores_100(project):
+def test_a_reading_of_the_truths_own_positives_satisfies_every_entry(project):
+    """A real project's truth is sparse since 6 Nov 2026 (the user's corrections only): a reading made of its present
+    entries satisfies every entry (the project-level assertions need a building and are left out here)."""
     truth = TR.load_truth(project)
-    assert SC.match(truth, _own_reading(truth))["total"] == 100.0
+    res = SC.match(truth, _own_reading(truth))
+    assert res["entries"] and all(e["satisfied"] for e in res["entries"])
 
 
 @pytest.mark.parametrize("shift", [(0.0, 0.06), (0.0, -0.06), (0.10, 0.05)])
 def test_a_shifted_reading_changes_nothing_in_the_truth(shift):
     """The review's L0 lift case (real10: the stacked gaps beside the lift stand 4 to 15 cm apart): the truth does not
-    see any later reading, and the score matches the shifted openings by place."""
+    see any reading, and the score finds the shifted doors, windows and openings by place."""
     truth = TR.load_truth("real10")
     res = SC.match(truth, _own_reading(truth, {"L0": shift}))
     for t in TR.OPENING_TYPES:
-        assert res[t]["matched"] == res[t]["truth"], t
-    acc, _ = TR.accepted_of("real10")
-    assert TR.dumps(TR.build_truth("real10", acc, TR.load_corrections())) == TR.dumps(truth)
+        assert res[t]["present_ok"] == res[t]["present"] and res[t]["absent_ok"] == res[t]["absent"], t
+    built, _ = TR.derive("real10", TR.load_corrections())
+    assert TR.dumps(built) == TR.dumps(truth)
 
 
 def test_a_negated_short_span_cuts_a_long_wall_and_never_removes_it_whole():

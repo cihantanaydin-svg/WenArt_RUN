@@ -2,6 +2,17 @@
 2026: "I want structure recognition to be cumulatively better with the feedbacks I am giving"; derived truth of 6 Nov
 2026, decided by the session organizer after four rounds of review).
 
+6 Nov 2026, later (user: "I have never reviewed real21 with my eyes"; "Only consider my revision with the screenshot I
+have given into previous projects others I have not seen"): no real reading was reviewed as a whole, so every real
+acceptance is withdrawn (the baselines keep the old fields under ``acceptance_withdrawn``) and a REAL project's truth
+is SPARSE: the user's correction records only (``build_sparse``; the section "the sparse truth" below): an empty base,
+each applicable record's operations as present or absent entries by place, a later record overriding an earlier one at
+the same place, project-level assertions (``truth_assert``) for the records that state a level count, storey heights,
+a level's floor height or the ground height, and the other unplaced records listed ``not_measurable``. The score judges
+each entry satisfied or not (``score.match_sparse``). What follows (the accepted reading plus the replay) stays the
+truth of the synthetic projects (their exact truth is their accepted reading) and of a real project only after the
+user explicitly accepts a reading they looked at (``accepted_seen``, ``truth accept``); there is none now.
+
 What: ``results/reading_truth/<project>.json`` holds, per project, the elements the truth knows in building metres:
 the levels (id, label, elevation, order) and, per level, the rooms (label, type, area, centroid, polygon), the doors,
 the windows, the other openings (width, centre, wall), the walls (centre line, thickness) and the stairs (centre,
@@ -139,6 +150,13 @@ PLACE_CONFIDENCE_MIN = 0.6   # a record the machine located with less confidence
 WALL_MIN_M = 0.01            # a wall operation shorter than this is refused; walls on a line overlapping by more join
 ROOM_MIN_AREA_M2 = 0.01      # a room operation with a polygon of less area is refused
 WALL_SAME_LINE_M = 0.05      # a user's wall and a drawn wall whose centre lines lie this close are one wall
+SOURCE_CORRECTIONS = "user_corrections"   # a real project's sparse truth: the user's correction records only
+SPARSE_STATUS = "sparse"
+ASSERT_PREFIX = "a_"                      # a project-level assertion's id: a_<record>_<n>
+ASSERT_KINDS = ("level_count", "storey_heights", "level_elevation", "ground_z")
+ASSERT_TOL_M = 0.10                       # a height assertion's default tolerance
+USER_SAID_20261106 = ("Only consider my revision with the screenshot I have given into previous projects others I "
+                      "have not seen")
 
 
 # --- small pure helpers ---------------------------------------------------------------------------------------------
@@ -505,13 +523,14 @@ def _inside(pt, polygon) -> bool:
     return inside
 
 
-def _cut(wall: dict, start, end) -> Optional[list]:
+def _cut(wall: dict, start, end, lateral: Optional[float] = None) -> Optional[list]:
     """The pieces ``[(start, end)]`` of ``wall`` left outside the span ``start``-``end`` (pure), None when the span is
-    not on the wall's line (parallel within ``WALL_ANGLE_DEG``, both span ends within ``score.WALL_LATERAL_M`` of the
-    line) or does not overlap it. A piece shorter than ``WALL_PIECE_MIN_M`` or than the wall's thickness is a joint
-    and is dropped."""
+    not on the wall's line (parallel within ``WALL_ANGLE_DEG``, both span ends within ``lateral``, default
+    ``score.WALL_LATERAL_M``, of the line) or does not overlap it. A piece shorter than ``WALL_PIECE_MIN_M`` or than the
+    wall's thickness is a joint and is dropped."""
     from wenart.reading_check import score as SC
 
+    lateral = SC.WALL_LATERAL_M if lateral is None else lateral
     ws, we = wall.get("start"), wall.get("end")
     lw, ls = _dist(ws, we), _dist(start, end)
     if lw < 1e-6 or ls < 1e-6:
@@ -523,7 +542,7 @@ def _cut(wall: dict, start, end) -> Optional[list]:
     along = []
     for q in (start, end):
         dx, dy = float(q[0]) - float(ws[0]), float(q[1]) - float(ws[1])
-        if abs(dx * uy - dy * ux) > SC.WALL_LATERAL_M:
+        if abs(dx * uy - dy * ux) > lateral:
             return None
         along.append(dx * ux + dy * uy)
     lo, hi = max(0.0, min(along)), min(lw, max(along))
@@ -1233,20 +1252,459 @@ def build_truth(project: str, accepted: dict, records: Iterable[dict]) -> dict:
     return truth
 
 
+# --- the sparse truth of a real project: the user's corrections only (6 Nov 2026) ----------------------------------
+#
+# User, 6 Nov 2026: "I have never reviewed real21 with my eyes"; "Only consider my revision with the screenshot I have
+# given into previous projects others I have not seen". No real reading was ever reviewed as a whole: what the user
+# saw are the places of the screenshots, recorded as correction records. A real project's truth is therefore SPARSE:
+# it starts empty and holds only what the applicable records assert, replayed in record order by place so a later
+# record overrides an earlier one at the same place:
+#
+# - add / confirm / retype -> a present entry (kind, level, place; the type and the width, a room's label and type, a
+#   wall's thickness, a stair's size when the record gives them; what the newer operation leaves out is taken from the
+#   entry it replaces);
+# - remove, or a negated wall span -> an absent entry (a wall span cuts the entries on its line);
+# - a record with no place that explicitly gives something checkable for the project (``truth_assert``: the level
+#   count, the storey heights, a level's floor height, the ground height) -> a project-level assertion with its
+#   tolerance; any other record without a truth action is listed ``not_measurable`` with the reason.
+#
+# "The same place": doors, windows and openings are one class within ``score.OPENING_CENTER_M`` (a newer add of any of
+# the three replaces the present entry of the class; a remove touches its own type only, so "no window here" and "a
+# door here" stand side by side), stairs within ``score.STAIR_CENTER_M``, rooms by polygon IoU >=
+# ``score.ROOM_IOU_MIN`` (or the room holding a centre), walls on one line (``_cut``), assertions by what they assert
+# (and the level). The score judges each entry satisfied or not on a reading (``score.match_sparse``); nothing the
+# truth does not list is judged.
+
+def is_sparse(truth: Optional[dict]) -> bool:
+    """True for a sparse truth (the user's corrections only; ``score.match_sparse`` judges it)."""
+    return bool(truth) and truth.get("sparse") is True
+
+
+def record_asserts(rec: dict) -> list[dict]:
+    """The project-level assertions of a record (its ``truth_assert`` list; pure)."""
+    a = rec.get("truth_assert")
+    return [x for x in a if isinstance(x, dict)] if isinstance(a, list) else []
+
+
+def parse_assert(a: dict) -> dict:
+    """A project-level assertion checked and in its typed form (pure): ``what`` one of ``ASSERT_KINDS``;
+    ``level_count`` a whole ``value`` >= 1; ``storey_heights`` the storeys' floor heights over the lowest one
+    (``values``, ascending, the first 0); ``level_elevation`` a ``level`` id and its ``value``; ``ground_z`` the ground
+    height ``value``; heights with a positive ``tolerance`` (default ``ASSERT_TOL_M``). Raises ValueError."""
+    if not isinstance(a, dict):
+        raise ValueError(f"assertion {a!r} is no object")
+    what = a.get("what")
+    if what not in ASSERT_KINDS:
+        raise ValueError(f"assertion {what!r}: one of {', '.join(ASSERT_KINDS)}")
+    out: dict = {"what": what}
+    if what == "level_count":
+        v = a.get("value")
+        if isinstance(v, bool) or not isinstance(v, int) or v < 1:
+            raise ValueError(f"level_count {v!r} is no whole number >= 1")
+        out["value"] = v
+    else:
+        out["tolerance"] = _number(a.get("tolerance", ASSERT_TOL_M), "tolerance", positive=True)
+        if what == "storey_heights":
+            vals = a.get("values")
+            if not isinstance(vals, list) or not vals:
+                raise ValueError("storey_heights needs its values")
+            out["values"] = [_number(v, "storey height") for v in vals]
+            if out["values"][0] != 0.0 or out["values"] != sorted(out["values"]):
+                raise ValueError("storey_heights: ascending heights over the lowest storey (the first 0)")
+        else:
+            out["value"] = _number(a.get("value"), what)
+        if what == "level_elevation":
+            if not isinstance(a.get("level"), str) or not a["level"]:
+                raise ValueError(f"level_elevation: level {a.get('level')!r} is no level id")
+            out["level"] = a["level"]
+    for k in ("note", "source"):
+        if a.get(k) is not None:
+            if not isinstance(a[k], str):
+                raise ValueError(f"{k} {a[k]!r} is not a text")
+            out[k] = a[k]
+    return out
+
+
+def not_measurable_why(rec: dict) -> str:
+    """Why an applicable record gives the sparse truth nothing to check (pure): its own ``why`` (no element) or
+    ``place_note`` (no place), else the bare fact."""
+    for k in ("why", "place_note"):
+        if str(rec.get(k) or "").strip():
+            return f"not measurable yet: {rec[k]}"
+    return "not measurable yet: no truth action (no place) and no project-level assertion"
+
+
+def _level_key(lid: str) -> tuple:
+    """Levels in storey order by their id (``L-2`` < ``L-1`` < ``L-1b`` < ``L0`` < ``L1``), others after."""
+    s = str(lid)
+    if s[:1] == "L":
+        num, i = "", 1
+        if s[i:i + 1] == "-":
+            num, i = "-", 2
+        while i < len(s) and s[i].isdigit():
+            num += s[i]
+            i += 1
+        if num not in ("", "-"):
+            return (0, int(num), s[i:])
+    return (1, 0, s)
+
+
+_INHERIT = ("width", "wall_id", "label", "room_type", "area", "polygon", "centroid", "thickness", "size", "turn")
+
+
+class _Sparse:
+    """The replay of the records' operations on an empty truth (in place): every entry is an assertion of a record.
+    Every operation is checked first (``parse_op``); an operation that does not apply changes nothing."""
+
+    def __init__(self, truth: dict):
+        self.truth = truth
+
+    @staticmethod
+    def _ids(*entries) -> list:
+        return _corrections_of(*entries)
+
+    def _entry(self, rec: dict, op: dict, n: int, kind: str, *, absent: bool = False, inherit=(),
+               base: Optional[dict] = None) -> dict:
+        el = element_from_fields(kind, op, source=SOURCE_USER, correction=rec["id"], date=rec.get("date"))
+        for e in ([base] if base else []):                 # what the newer operation leaves out, from the replaced one
+            for k in _INHERIT:
+                if el.get(k) in (None, [], "") and e.get(k) not in (None, [], ""):
+                    el[k] = copy.deepcopy(e[k])
+        if kind == "room" and not el.get("centroid") and el.get("polygon"):
+            el["centroid"] = centroid(el["polygon"])
+        el["id"] = f"{USER_ID_PREFIX}{rec['id']}_{n}"
+        hint = op.get("id")
+        if hint and not is_truth_id(hint):
+            el["reader_id"] = hint
+        ids = self._ids(*inherit)
+        if rec["id"] not in ids:
+            ids.append(rec["id"])
+        el["corrections"], el["correction"] = ids, rec["id"]
+        if op.get("note"):
+            el["note"] = str(op["note"])
+        if op.get("evidence"):
+            el["evidence"] = list(op["evidence"])
+        if absent:
+            el["absent"] = True
+            el.pop("added_on", None)
+            el["removed_on"] = rec.get("date")
+        return el
+
+    @staticmethod
+    def _touch(el: dict, rec: dict, op: dict, inherit=()) -> None:
+        ids = _corrections_of(el, *inherit)
+        if rec["id"] not in ids:
+            ids.append(rec["id"])
+        el["corrections"], el["correction"] = ids, rec["id"]
+        if op.get("note"):
+            el["note"] = str(op["note"])
+
+    def apply(self, rec: dict, raw: dict, n: int) -> dict:
+        entry = {"record": rec["id"], "n": n, "op": raw.get("op"), "kind": raw.get("kind"), "level": raw.get("level")}
+
+        def unmatched(why):
+            return dict(entry, state="unmatched", why=why)
+
+        try:
+            op = parse_op(raw)
+        except ValueError as exc:
+            return unmatched(f"the operation is refused: {exc}")
+        place = op.get("center") or op.get("start") or (centroid(op["polygon"]) if op.get("polygon") else None)
+        if place is not None:
+            entry["place"] = place
+        kind, lid = op["kind"], op["level"]
+        if kind == "level":
+            return self._level(rec, op, entry, unmatched)
+        per = self.truth.setdefault("per_level", {})
+        had = lid in per
+        saved = copy.deepcopy(per.get(lid))
+        lv = per.setdefault(lid, {t: [] for t in ELEMENT_TYPES})
+        for t in ELEMENT_TYPES:
+            lv.setdefault(t, [])
+        t = KIND_TO_TYPE[kind]
+        try:
+            if t in OPENING_TYPES or t == "stairs":
+                res = self._point(rec, op, n, entry, unmatched, lv, kind, t)
+            elif t == "rooms":
+                res = self._room(rec, op, n, entry, unmatched, lv, kind)
+            else:
+                res = self._wall(rec, op, n, entry, unmatched, lv, kind)
+        except (TypeError, ValueError, KeyError, ZeroDivisionError) as exc:
+            res = unmatched(f"the operation could not be applied: {exc}")
+        if res.get("state") == "unmatched":                       # nothing of it stays
+            if had:
+                per[lid] = saved
+            else:
+                per.pop(lid, None)
+        return res
+
+    def _level(self, rec, op, entry, unmatched):
+        if op["op"] == "remove":
+            return unmatched("a level cannot be negated by a correction")
+        levels = self.truth.setdefault("levels", [])
+        lv = next((x for x in levels if x["id"] == op["level"]), None)
+        state = "changed" if lv is not None else "asserted"
+        if lv is None:
+            lv = {"id": op["level"], "source": SOURCE_USER}
+            levels.append(lv)
+        for k in ("label", "elevation", "order"):
+            if op.get(k) is not None:
+                lv[k] = op[k]
+        lv["asserted"] = True
+        ids = _corrections_of(lv)
+        if rec["id"] not in ids:
+            ids.append(rec["id"])
+        lv["corrections"], lv["correction"] = ids, rec["id"]
+        return dict(entry, state=state)
+
+    def _point(self, rec, op, n, entry, unmatched, lv, kind, t):
+        from wenart.reading_check import score as SC
+
+        what, center = op["op"], op["center"]
+        tol = SC.STAIR_CENTER_M if t == "stairs" else SC.OPENING_CENTER_M
+        klass = ("stairs",) if t == "stairs" else OPENING_TYPES
+        if what == "retype" and t == "stairs":
+            return unmatched("a stair has no type to change")
+        if what == "remove":
+            near = _Replay._near(lv, (t,), center, tol)
+            removed = []
+            if near:
+                first = near[0][2]
+                removed = [e for _d, _t, e in near if e is first or _dist(e["center"], first["center"]) <= DUPLICATE_M]
+                for e in removed:
+                    lv[t].remove(e)
+            old = _Replay._near(lv, (t,), center, tol, absent=True)
+            if old:                                              # a negation already there: the records compose
+                self._touch(old[0][2], rec, op, inherit=removed)
+                return dict(entry, state="negated again")
+            lv[t].append(self._entry(rec, op, n, kind, absent=True, inherit=removed,
+                                     base=removed[0] if removed else None))
+            return dict(entry, state="removed" if removed else "negated")
+        # add, confirm, retype: a present entry; the newer record replaces the present entry of the class at the place
+        # and cancels the negation of its own type there
+        near = _Replay._near(lv, klass, center, tol)
+        replaced = [near[0]] if near else []
+        for _d, src, e in replaced:
+            lv[src].remove(e)
+        negs = [e for _d, _t, e in _Replay._near(lv, (t,), center, tol, absent=True)]
+        for e in negs:
+            lv[t].remove(e)
+        el = self._entry(rec, op, n, kind, inherit=[e for _d, _s, e in replaced] + negs,
+                         base=replaced[0][2] if replaced else None)
+        lv[t].append(el)
+        out = dict(entry, state="replaced" if replaced else ("replaced a negation" if negs else "asserted"))
+        if negs:
+            out["dropped_negations"] = len(negs)
+        return out
+
+    def _room(self, rec, op, n, entry, unmatched, lv, kind):
+        from wenart.reading_check import score as SC
+
+        what = op["op"]
+        probe = _Replay._room_probe(op)
+        has_poly = len(probe["polygon"]) >= 3
+        pos = positives(lv["rooms"])
+        hit = _Replay._room_at(pos, probe)
+        if hit is None and not has_poly:
+            return unmatched("a room given by its centre alone, with no room entry there, could never be checked: "
+                             "give its polygon")
+        shape = probe["polygon"] if has_poly else (hit.get("polygon") or [])
+        if what == "remove":
+            removed = []
+            if hit is not None:
+                removed = [hit] + [e for e in pos if e is not hit
+                                   and SC.polygon_iou(e.get("polygon"), hit.get("polygon")) >= ROOM_DUPLICATE_IOU]
+                for e in removed:
+                    lv["rooms"].remove(e)
+            old = _Replay._room_at([e for e in lv["rooms"] if e.get("absent")], dict(probe, polygon=shape))
+            if old is not None:
+                self._touch(old, rec, op, inherit=removed)
+                return dict(entry, state="negated again")
+            op2 = dict(op, polygon=shape)
+            lv["rooms"].append(self._entry(rec, op2, n, kind, absent=True, inherit=removed,
+                                           base=removed[0] if removed else None))
+            return dict(entry, state="removed" if removed else "negated")
+        if hit is not None:
+            lv["rooms"].remove(hit)
+        negs = [e for e in lv["rooms"] if e.get("absent")
+                and SC.polygon_iou(e.get("polygon"), shape) >= SC.ROOM_IOU_MIN]
+        for e in negs:
+            lv["rooms"].remove(e)
+        op2 = dict(op, polygon=shape) if shape else op
+        lv["rooms"].append(self._entry(rec, op2, n, kind, inherit=([hit] if hit is not None else []) + negs,
+                                       base=hit))
+        out = dict(entry, state="replaced" if hit is not None else ("replaced a negation" if negs else "asserted"))
+        if negs:
+            out["dropped_negations"] = len(negs)
+        return out
+
+    def _wall(self, rec, op, n, entry, unmatched, lv, kind):
+        from wenart.reading_check import score as SC
+
+        what = op["op"]
+        if what == "retype":
+            return unmatched("a wall has no type to change")
+        s, e = op["start"], op["end"]
+        span = _dist(s, e)
+        gone, cut_any = [], []
+        for w in list(lv["walls"]):
+            if what == "remove" and w.get("absent"):
+                continue                                         # negations on the line join below
+            lateral = SC.WALL_LATERAL_M if (w.get("absent") or what == "remove") else WALL_SAME_LINE_M
+            pieces = _cut(w, s, e, lateral)
+            if pieces is None:
+                continue
+            at = lv["walls"].index(w)
+            lv["walls"].remove(w)
+            cut_any.append(w)
+            if not pieces:
+                gone.append(w)
+            for k, (ps, pe) in enumerate(pieces, 1):
+                piece = dict(copy.deepcopy(w), id=f"{w['id']}.{k}", start=ps, end=pe)
+                piece["cut_by"] = list(w.get("cut_by") or []) + [rec["id"]]
+                lv["walls"].insert(at + k - 1, piece)
+        if what == "remove":
+            old = []
+            for x in lv["walls"]:
+                if x.get("absent"):
+                    pos_ = _line(x, s, e, SC.WALL_LATERAL_M)
+                    if pos_ is not None and pos_[1] >= -WALL_MIN_M and pos_[0] <= span + WALL_MIN_M:
+                        old.append((x, pos_))
+            if old:                                              # one negation: the union of the spans it touches
+                x, (a0, a1) = old[0]
+                lo, hi = min([0.0, a0] + [p[0] for _y, p in old[1:]]), max([span, a1] + [p[1] for _y, p in old[1:]])
+                ux, uy = (e[0] - s[0]) / span, (e[1] - s[1]) / span
+                x["start"], x["end"] = _pt((s[0] + ux * lo, s[1] + uy * lo)), _pt((s[0] + ux * hi, s[1] + uy * hi))
+                for y, _p in old[1:]:
+                    lv["walls"].remove(y)
+                self._touch(x, rec, op, inherit=gone + [y for y, _p in old[1:]])
+                out = dict(entry, state="negated again")
+            else:
+                lv["walls"].append(self._entry(rec, op, n, kind, absent=True, inherit=gone))
+                out = dict(entry, state="cut" if cut_any else "negated")
+        else:
+            base = next((w for w in cut_any if not w.get("absent")), None)
+            lv["walls"].append(self._entry(rec, op, n, kind, inherit=cut_any, base=base))
+            out = dict(entry, state="replaced" if base is not None else (
+                "replaced a negation" if cut_any else "asserted"))
+        if cut_any:
+            out["cut"] = len(cut_any)
+        return out
+
+
+def build_sparse(project: str, records: Iterable[dict]) -> dict:
+    """The sparse truth of a real project (pure; the section above): an empty base, the project's applicable records
+    replayed in id order (``_Sparse``), their project-level assertions (``truth_assert``), and the records that give
+    nothing to check listed ``not_measurable``. ``built_from`` names the replayed and the asserting records,
+    ``build_report`` every operation's result by record and number (``applied``, ``unmatched``, ``asserted``) and the
+    records not replayed with the reason. The same inputs give the same bytes."""
+    truth: dict = {"project": project, "source": SOURCE_CORRECTIONS, "sparse": True, "status": SPARSE_STATUS,
+                   "commit": None, "date": None,
+                   "note": ("The user's screenshot revisions only (user, 6 Nov 2026: \"" + USER_SAID_20261106 + "\"): "
+                            "every entry is an assertion of a correction record, present (the reading must have it) "
+                            "or absent (it must not); nothing the truth does not list is judged."),
+                   "levels": [], "levels_left_out": [], "per_level": {}, "project_assertions": []}
+    replay = _Sparse(truth)
+    applied, unmatched, not_replayed, replayed, asserting, asserted, not_measurable = [], [], [], [], [], [], []
+    mine = sorted((r for r in records if r.get("project") == project), key=lambda r: _record_key(r.get("id")))
+    for rec in mine:
+        why = correction_applicable(rec)
+        if why:
+            not_replayed.append({"record": rec.get("id"), "why": why})
+            continue
+        ops, asserts = record_ops(rec), record_asserts(rec)
+        if not ops and not asserts:
+            why = not_measurable_why(rec)
+            not_replayed.append({"record": rec["id"], "why": why})
+            not_measurable.append({"record": rec["id"], "element_kind": rec.get("element_kind"),
+                                   "user_words": rec.get("user_words"), "why": why})
+            continue
+        if ops:
+            replayed.append(rec["id"])
+            for n, op in enumerate(ops, 1):
+                res = replay.apply(rec, op, n)
+                (unmatched if res.get("state") == "unmatched" else applied).append(res)
+        if asserts:
+            asserting.append(rec["id"])
+            for n, raw in enumerate(asserts, 1):
+                res = {"record": rec["id"], "n": n, "op": "assert", "kind": raw.get("what")}
+                try:
+                    a = parse_assert(raw)
+                except ValueError as exc:
+                    unmatched.append(dict(res, state="unmatched", why=f"the assertion is refused: {exc}"))
+                    continue
+                same = [x for x in truth["project_assertions"] if x["what"] == a["what"]
+                        and x.get("level") == a.get("level")]
+                for x in same:                                   # a newer record's assertion of the same thing wins
+                    truth["project_assertions"].remove(x)
+                ids = _corrections_of(*same)
+                if rec["id"] not in ids:
+                    ids.append(rec["id"])
+                truth["project_assertions"].append(dict(a, id=f"{ASSERT_PREFIX}{rec['id']}_{n}", corrections=ids,
+                                                        correction=rec["id"]))
+                asserted.append(dict(res, state="replaced" if same else "asserted"))
+    per = truth["per_level"]
+    for lid, lv in per.items():
+        for t in ELEMENT_TYPES:
+            lv[t] = sorted(lv.get(t) or [], key=lambda e: _sort_key(t, e))
+    truth["per_level"] = {lid: per[lid] for lid in sorted(per, key=_level_key)}
+    known = {lv["id"] for lv in truth["levels"]}
+    truth["levels"] += [{"id": lid, "source": SOURCE_USER} for lid in truth["per_level"] if lid not in known]
+    truth["levels"] = sorted(truth["levels"], key=lambda lv: _level_key(lv["id"]))
+    truth["project_assertions"] = sorted(truth["project_assertions"], key=lambda a: (a["what"], a.get("level") or "",
+                                                                                     _record_key(a["correction"])))
+    touched = sorted({res["record"] for res in applied + asserted}, key=_record_key)
+    if touched:
+        truth["corrections"] = touched
+    truth["not_measurable"] = not_measurable
+    truth["built_from"] = {"reading": None, "reading_commit": None, "records": replayed, "asserted": asserting}
+    truth["build_report"] = {"applied": applied, "unmatched": unmatched, "asserted": asserted,
+                             "not_replayed": not_replayed}
+    return truth
+
+
+def sparse_projects(records: Iterable[dict], projects_dir: Path = PROJECTS_DIR) -> list[str]:
+    """The real projects with at least one applicable correction record (their truth is sparse unless the user
+    explicitly accepts a reading of theirs they saw)."""
+    return sorted({r.get("project") for r in records if correction_applicable(r) is None and r.get("project")
+                   and synthetic_truth_file(r["project"], projects_dir) is None})
+
+
+def entry_count(truth: dict) -> int:
+    """How many things a truth asserts: its entries (present and absent), its asserted levels and its project-level
+    assertions."""
+    n = sum(len(lv.get(t) or []) for lv in (truth.get("per_level") or {}).values() for t in ELEMENT_TYPES)
+    return n + sum(1 for lv in truth.get("levels") or [] if lv.get("asserted")) + \
+        len(truth.get("project_assertions") or [])
+
+
 def applied_of(rec: dict, truth: Optional[dict], why_no_truth: Optional[str] = None) -> dict:
     """A record's ``truth_applied`` as its project's build says (pure): ``replayed`` with each operation's result (by
-    operation number and place), or ``not_replayed`` with the reason."""
-    if truth is None:
-        return {"status": "not_replayed", "why": why_no_truth or f"no truth of {rec.get('project')}"}
+    operation number and place), ``asserted`` with its project-level assertions (a sparse truth), or ``not_replayed``
+    with the reason."""
+    if truth is None:                         # the record's own reason first (a proposal waits), then the project's
+        return {"status": "not_replayed",
+                "why": correction_applicable(rec) or why_no_truth or f"no truth of {rec.get('project')}"}
     rep = truth.get("build_report") or {}
     rid = rec.get("id")
+    keys = ("n", "op", "kind", "level", "place", "state", "why")
     if rid in ((truth.get("built_from") or {}).get("records") or []):
-        res = sorted((x for x in (rep.get("applied") or []) + (rep.get("unmatched") or []) if x.get("record") == rid),
-                     key=lambda x: x.get("n") or 0)
-        return {"status": "replayed", "results": [{k: x[k] for k in ("n", "op", "kind", "level", "place", "state",
-                                                                     "why") if x.get(k) is not None} for x in res]}
+        res = sorted((x for x in (rep.get("applied") or []) + (rep.get("unmatched") or []) if x.get("record") == rid
+                      and x.get("op") != "assert"), key=lambda x: x.get("n") or 0)
+        out = {"status": "replayed", "results": [{k: x[k] for k in keys if x.get(k) is not None} for x in res]}
+        if rid in ((truth.get("built_from") or {}).get("asserted") or []):
+            out["asserted"] = _assert_results(rep, rid, keys)
+        return out
+    if rid in ((truth.get("built_from") or {}).get("asserted") or []):
+        return {"status": "asserted", "results": _assert_results(rep, rid, keys)}
     why = next((x["why"] for x in rep.get("not_replayed") or [] if x.get("record") == rid), "not in the build")
     return {"status": "not_replayed", "why": why}
+
+
+def _assert_results(rep: dict, rid: str, keys) -> list:
+    res = sorted((x for x in (rep.get("asserted") or []) + (rep.get("unmatched") or []) if x.get("record") == rid
+                  and x.get("op") == "assert"), key=lambda x: x.get("n") or 0)
+    return [{k: x[k] for k in keys if x.get(k) is not None} for x in res]
 
 
 def sync_applied(records: list[dict], truths: dict, why_no_truth=None) -> int:
@@ -1303,9 +1761,13 @@ def truth_projects(truth_dir: Path = TRUTH_DIR) -> list[str]:
     return sorted(p.stem for p in Path(truth_dir).glob("*.json"))
 
 
-def default_projects(baseline_dir: Path = BASELINE_DIR, projects_dir: Path = PROJECTS_DIR) -> list[str]:
-    """What ``truth build`` builds without ``--projects``: the accepted projects and the synthetic ones."""
-    return sorted(set(accepted_projects(baseline_dir)) | set(synthetic_projects(projects_dir)))
+def default_projects(baseline_dir: Path = BASELINE_DIR, projects_dir: Path = PROJECTS_DIR,
+                     records: Optional[list] = None) -> list[str]:
+    """What ``truth build`` builds without ``--projects``: the synthetic projects, the real projects with an applicable
+    correction record (a sparse truth) and any real project the user explicitly accepted (none since 6 Nov 2026)."""
+    records = load_corrections() if records is None else records
+    return sorted(set(accepted_projects(baseline_dir)) | set(synthetic_projects(projects_dir))
+                  | set(sparse_projects(records, projects_dir)))
 
 
 def accepted_of(project: str, *, accepted_dir: Path = ACCEPTED_DIR, baseline_dir: Path = BASELINE_DIR,
@@ -1332,10 +1794,34 @@ def accepted_of(project: str, *, accepted_dir: Path = ACCEPTED_DIR, baseline_dir
     return acc, None
 
 
-def why_no_truth(project: str, *, accepted_dir: Path = ACCEPTED_DIR, baseline_dir: Path = BASELINE_DIR,
-                 projects_dir: Path = PROJECTS_DIR) -> str:
-    """Why a project has no truth: its accepted reading is missing or not accepted, or it was not built yet."""
+def derive(project: str, records: list[dict], *, accepted_dir: Path = ACCEPTED_DIR, baseline_dir: Path = BASELINE_DIR,
+           projects_dir: Path = PROJECTS_DIR) -> tuple[Optional[dict], Optional[str]]:
+    """``(truth, None)`` of a project, or ``(None, why)`` (pure over the stored inputs): a synthetic project's exact
+    truth plus the replay (``build_truth``); a real project the user explicitly accepted (a reading they saw,
+    ``accepted_seen``, and its stored accepted reading) the same way; any other real project with an applicable
+    correction record its sparse truth (``build_sparse``: the user's corrections only, 6 Nov 2026)."""
     acc, why = accepted_of(project, accepted_dir=accepted_dir, baseline_dir=baseline_dir, projects_dir=projects_dir)
+    if acc is not None:
+        return build_truth(project, acc, records), None
+    if synthetic_truth_file(project, projects_dir) is None and project in sparse_projects(records, projects_dir):
+        return build_sparse(project, records), None
+    return None, why_no_truth(project, accepted_dir=accepted_dir, baseline_dir=baseline_dir,
+                              projects_dir=projects_dir, records=records)
+
+
+def why_no_truth(project: str, *, accepted_dir: Path = ACCEPTED_DIR, baseline_dir: Path = BASELINE_DIR,
+                 projects_dir: Path = PROJECTS_DIR, records: Optional[list] = None) -> str:
+    """Why a project has no truth: a real project has no applicable correction record of the user (and no explicit
+    acceptance of a reading the user saw); a synthetic one was not built yet."""
+    acc, why = accepted_of(project, accepted_dir=accepted_dir, baseline_dir=baseline_dir, projects_dir=projects_dir)
+    if acc is not None:
+        return f"{project}: no truth built yet (`truth build --projects {project}`)"
+    records = load_corrections() if records is None else records
+    if synthetic_truth_file(project, projects_dir) is None:
+        if project in sparse_projects(records, projects_dir):
+            return f"{project}: no truth built yet (`truth build --projects {project}`)"
+        return (f"{project}: no applicable correction record of the user (accepted, the user's words, not held, place "
+                f"confidence >= {PLACE_CONFIDENCE_MIN}) and no acceptance of a reading the user saw: no truth")
     return why or f"{project}: no truth built yet (`truth build --projects {project}`)"
 
 
@@ -1345,33 +1831,55 @@ def sync_store(records: list[dict], *, truth_dir: Path = TRUTH_DIR, accepted_dir
     records changed. Run after every build, so the store always says what the build did."""
     truths = {p: load_truth(p, truth_dir) for p in truth_projects(truth_dir)}
     return sync_applied(records, truths, lambda p: why_no_truth(p, accepted_dir=accepted_dir,
-                                                                baseline_dir=baseline_dir, projects_dir=projects_dir))
+                                                                baseline_dir=baseline_dir, projects_dir=projects_dir,
+                                                                records=records))
 
 
 def build(projects: list[str], *, truth_dir: Path = TRUTH_DIR, accepted_dir: Path = ACCEPTED_DIR,
           baseline_dir: Path = BASELINE_DIR, projects_dir: Path = PROJECTS_DIR,
-          corrections: Path = CORRECTIONS_PATH) -> dict:
-    """Derive and write the truth of each project (``build_truth`` from ``accepted_of`` and the correction store),
-    then set every record's ``truth_applied`` from the truths (``sync_store``); returns ``{project: truth}`` of the
-    ones written; a project without an accepted reading is printed and skipped."""
+          corrections: Path = CORRECTIONS_PATH, prune: bool = False) -> dict:
+    """Derive and write the truth of each project (``derive``: synthetic and explicitly accepted projects from their
+    accepted reading and the replay, the other real projects with an applicable record sparse), then set every
+    record's ``truth_applied`` from the truths (``sync_store``); returns ``{project: truth}`` of the ones written; a
+    project without a truth is printed and skipped. ``prune`` (the full build): a real project's truth file whose
+    project has no truth any more (no applicable record, no acceptance) is removed, with the reason printed."""
     records = load_corrections(corrections)
     out = {}
     for p in projects:
-        acc, why = accepted_of(p, accepted_dir=accepted_dir, baseline_dir=baseline_dir, projects_dir=projects_dir)
-        if acc is None:
+        truth, why = derive(p, records, accepted_dir=accepted_dir, baseline_dir=baseline_dir,
+                            projects_dir=projects_dir)
+        if truth is None:
             print(why)
             continue
-        truth = build_truth(p, acc, records)
         write_truth(p, truth, truth_dir)
-        c = counts(truth)
         rep = truth["build_report"]
-        print(f"{p}: truth written ({truth['source']}, {truth['status']}, reading commit "
-              f"{(truth.get('commit') or '-')[:12]}; " + ", ".join(f"{k} {v}" for k, v in c.items())
-              + f"; records replayed {len(truth['built_from']['records'])}, operations applied {len(rep['applied'])}"
-              + f", unmatched {len(rep['unmatched'])})")
+        if is_sparse(truth):
+            c = counts(truth)
+            n_abs = sum(1 for lv in truth["per_level"].values() for t in ELEMENT_TYPES for e in lv.get(t) or []
+                        if e.get("absent"))
+            print(f"{p}: sparse truth written (the user's corrections only; entries present "
+                  f"{sum(c[t] for t in ELEMENT_TYPES)}, absent {n_abs}, project assertions "
+                  f"{len(truth['project_assertions'])}; records replayed {len(truth['built_from']['records'])}, "
+                  f"asserting {len(truth['built_from']['asserted'])}, not measurable {len(truth['not_measurable'])}, "
+                  f"unmatched {len(rep['unmatched'])})")
+        else:
+            c = counts(truth)
+            print(f"{p}: truth written ({truth['source']}, {truth['status']}, reading commit "
+                  f"{(truth.get('commit') or '-')[:12]}; " + ", ".join(f"{k} {v}" for k, v in c.items())
+                  + f"; records replayed {len(truth['built_from']['records'])}, operations applied "
+                  + f"{len(rep['applied'])}, unmatched {len(rep['unmatched'])})")
         for u in rep["unmatched"]:
-            print(f"  unmatched {u['record']} {u['op']} {u['kind']} {u['level']}: {u['why']}")
+            print(f"  unmatched {u['record']} {u['op']} {u['kind']} {u.get('level')}: {u['why']}")
         out[p] = truth
+    if prune:
+        for p in truth_projects(truth_dir):
+            if p in out or synthetic_truth_file(p, projects_dir) is not None:
+                continue
+            truth, why = derive(p, records, accepted_dir=accepted_dir, baseline_dir=baseline_dir,
+                                projects_dir=projects_dir)
+            if truth is None:
+                (Path(truth_dir) / f"{p}.json").unlink()
+                print(f"{p}: truth file removed: {why}")
     if records and sync_store(records, truth_dir=truth_dir, accepted_dir=accepted_dir, baseline_dir=baseline_dir,
                               projects_dir=projects_dir):
         save_corrections(records, corrections)
@@ -1554,8 +2062,16 @@ def correction_errors(records: list[dict], lesson_ids: Iterable[str], projects: 
         if rec.get("placeable") is False and not str(rec.get("why") or "").strip():
             out.append(f"{rid}: placeable false without a why")
         why = correction_applicable(rec)
-        if (rec.get("truth_applied") or {}).get("status") in ("applied", "replayed") and why:
+        if (rec.get("truth_applied") or {}).get("status") in ("applied", "replayed", "asserted") and why:
             out.append(f"{rid}: applied to the truth but {why}")
+        if rec.get("truth_assert") is not None:
+            if not isinstance(rec["truth_assert"], list) or not rec["truth_assert"]:
+                out.append(f"{rid}: truth_assert is no list of assertions")
+            for n, a in enumerate(rec["truth_assert"] if isinstance(rec["truth_assert"], list) else [], 1):
+                try:
+                    parse_assert(a)
+                except ValueError as exc:
+                    out.append(f"{rid}: truth_assert {n}: {exc}")
         if not _is_date(rec.get("date")):
             out.append(f"{rid}: date {rec.get('date')!r} is not YYYY-MM-DD")
         conf = rec.get("place_confidence")
@@ -1726,8 +2242,11 @@ def _correct(args, *, corrections, truth_dir, accepted_dir, baseline_dir, projec
     elif not str(g("text") or "").strip():
         return 2, "a correction needs the user's words: --text \"...\" (a new record) or --correction <record id>"
     acc, why = accepted_of(project, accepted_dir=accepted_dir, baseline_dir=baseline_dir, projects_dir=projects_dir)
-    if acc is None:
+    if acc is None and synthetic_truth_file(project, projects_dir) is not None:
         return 2, why
+    # 6 Nov 2026: a real project without an explicit acceptance has a sparse truth (the user's corrections only)
+    rebuild = (lambda recs: build_truth(project, acc, recs)) if acc is not None else \
+        (lambda recs: build_sparse(project, recs))
     fields = {k: g(k) for k in FIELD_ARGS}
     hint = None
     if g("id") and kind != "level":
@@ -1795,10 +2314,10 @@ def _correct(args, *, corrections, truth_dir, accepted_dir, baseline_dir, projec
                                else [project])
     if errors:
         return 2, "nothing written: the record would break the store's checks: " + "; ".join(errors)
-    truth = build_truth(project, acc, new_records)
+    truth = rebuild(new_records)
     rep = truth["build_report"]
-    last = next((x for x in rep["applied"] + rep["unmatched"] if x["record"] == target["id"] and x["n"] == number),
-                {"state": "unmatched", "why": "not replayed"})
+    last = next((x for x in rep["applied"] + rep["unmatched"] if x["record"] == target["id"] and x["n"] == number
+                 and x.get("op") != "assert"), {"state": "unmatched", "why": "not replayed"})
     if last.get("state") == "unmatched":                 # only this operation decides; the record's others may wait
         return 2, f"nothing written: the operation is unmatched: {last.get('why')}"
     path = write_truth(project, truth, truth_dir)
@@ -1833,12 +2352,13 @@ def _named(args) -> list[str]:
 def main(args) -> int:
     action = getattr(args, "action", None)
     if action == "build":
-        projects = _named(args) or default_projects()
+        named = _named(args)
+        projects = named or default_projects()
         if not projects:
-            print("reading truth: no accepted baseline (accepted_by_user: true) in results/reading_baseline/, no "
-                  "synthetic project with a truth and no --projects")
+            print("reading truth: no synthetic project with a truth, no applicable correction record, no accepted "
+                  "baseline and no --projects")
             return 2
-        done = build(projects)
+        done = build(projects, prune=not named)
         return 0 if len(done) == len(projects) else 1
     if action == "accept":
         projects = _named(args)
