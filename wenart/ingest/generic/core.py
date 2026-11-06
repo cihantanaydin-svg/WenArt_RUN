@@ -2179,11 +2179,18 @@ DOOR_TAG_REACH_M = 1.2          # 4 Nov 2026 (UL321): a door size tag stands thi
 DOOR_TAG_KINDS = ("opening", "window", "door")
 
 
-def _door_like_tag(t, w_cm: int, h_cm: int, openings: list) -> bool:
+DOOR_TAG_MIN_H_CM = 200        # 6 Nov 2026: a size tag this high is a door's ...
+DOOR_TAG_TEXT_MAX_W_CM = 150   # ... on a plain text layer when at most this wide (a double door; 165/210 is a window)
+DOOR_TAG_TEXT_ROLES = (None, "text")
+DOOR_TAG_WINDOW_WIDTH_M = 0.25   # 6 Nov 2026: a door-layer door tag takes a drawn window this close to its width
+
+
+def _door_like_tag(t, w_cm: int, h_cm: int, openings: list, max_w_cm: int = 120) -> bool:
     """4 Nov 2026 (real07: every size tag, doors' and windows', on the joinery layer DOĞRAMA): a tag on a window or joinery
     layer is a door's when it is door-high (>= 200 cm) and door-wide (<= 120 cm) and the nearest opening within
-    ``DOOR_TAG_REACH_M`` is a door or a gap, not a window."""
-    if h_cm < 200 or w_cm > 120:
+    ``DOOR_TAG_REACH_M`` is a door or a gap, not a window. 6 Nov 2026: ``max_w_cm`` for a tag on a plain text layer
+    (``DOOR_TAG_TEXT_MAX_W_CM``)."""
+    if h_cm < DOOR_TAG_MIN_H_CM or w_cm > max_w_cm:
         return False
     c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
     near = [(math.dist(c, tuple(o.center)), o) for o in openings if not o.virtual]
@@ -2208,21 +2215,33 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
     for t in texts_m:
         m = SIZE_TAG_RE.match(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
-        if m and (LN.layer_role(layer) == "door" or (LN.layer_role(layer) == "window"
-                                                     and _door_like_tag(t, int(m.group(1)), int(m.group(2)), openings))):
-            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+        if not m:
+            continue
+        role = LN.layer_role(layer)
+        w_cm, h_cm = int(m.group(1)), int(m.group(2))
+        # 6 Nov 2026 (real10 C0035, user: "a door to reach there via Hall": the fire stair's '140/230' and the flats'
+        # door tags stand on the plain layer TEXT): a door-high tag (>= DOOR_TAG_MIN_H_CM) on a plain text layer is a
+        # door's when it is door-wide (<= DOOR_TAG_TEXT_MAX_W_CM) and the nearest opening is a door or a gap
+        if role == "door" or (role == "window" and _door_like_tag(t, w_cm, h_cm, openings)) \
+                or (role in DOOR_TAG_TEXT_ROLES and _door_like_tag(t, w_cm, h_cm, openings, DOOR_TAG_TEXT_MAX_W_CM)):
+            # 6 Nov 2026 (real16 L1: the four shower rooms' '80/220' doors read as 0.68 m windows, their leaves' lines
+            # in the wall taken for glass): a door-high tag on a door layer decides door over a drawn window of about
+            # its width (``DOOR_TAG_WINDOW_WIDTH_M``)
+            over = role == "door" and h_cm >= DOOR_TAG_MIN_H_CM
+            tags.append((t, w_cm / 100.0, h_cm / 100.0, over))
     if not tags:
         return None
     out = list(openings)
     taken: set = set()
     done = []
-    for t, width, height in tags:
+    for t, width, height, over in tags:
         c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
         best = None
         for j, o in enumerate(out):
             if j in taken or o.virtual or o.kind not in DOOR_TAG_KINDS:
                 continue
-            if o.kind == "window" and "gap" not in str(o.type_raw or ""):
+            if o.kind == "window" and "gap" not in str(o.type_raw or "") \
+                    and not (over and abs(float(o.width) - width) <= DOOR_TAG_WINDOW_WIDTH_M):
                 continue                                       # a drawn window keeps its kind
             if o.kind == "door" and abs(float(o.width) - width) <= 0.05:
                 continue                                       # already the tagged door

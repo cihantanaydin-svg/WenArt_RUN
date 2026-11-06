@@ -130,3 +130,59 @@ def test_numbered_treads_that_fit_no_shape_still_give_the_treads_drawn():
     assert piece.details["stair"]["steps_drawn"] == 11 and piece.details["stair"]["direction_assumed"] is True
 
 
+# --------------------------------------------------------------------------
+# A door-high size tag on a plain text layer
+# --------------------------------------------------------------------------
+
+def _tag(text, x, y, layer):
+    from wenart.ingest.generic.model import TextRun
+    return TextRun(id="T" + text, text=text, box=(x - 0.2, y - 0.05, x + 0.2, y + 0.05), height=0.1,
+                   rotation_deg=0.0, evidence=[{"layer": layer}])
+
+
+def test_a_door_high_tag_on_a_text_layer_makes_its_gap_a_door():
+    """real10 (C0035): the fire stair's '140/230' on the layer TEXT over the 1.40 m gap from the shared hall."""
+    from wenart.ingest.generic import core as C
+    from wenart.ingest.model import OpeningItem
+
+    gap = OpeningItem(kind="opening", width=1.4, center=(11.19, 6.29), rotation_deg=0.0, box=[0, 0, 1, 1], entity="g",
+                      evidence={}, type_raw="unclassified gap content")
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [gap], [_tag("140/230", 10.91, 6.35, "TEXT")], 1.0)
+    assert got[0].kind == "door" and got[0].width == pytest.approx(1.4) and got[0].height == pytest.approx(2.3)
+
+
+def test_a_wide_or_low_tag_on_a_text_layer_is_no_door():
+    """A '165/210' (real10's kitchen windows, C0055) or a '120/120' on a plain text layer says no door."""
+    from wenart.ingest.generic import core as C
+    from wenart.ingest.model import OpeningItem
+
+    gap = OpeningItem(kind="opening", width=1.65, center=(2.0, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="g",
+                      evidence={}, type_raw="unclassified gap content")
+    for text in ("165/210", "120/120"):
+        assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [gap], [_tag(text, 2.0, 0.3, "TEXT")], 1.0) is None
+
+
+def test_a_door_high_tag_on_a_text_layer_leaves_a_drawn_window_alone():
+    from wenart.ingest.generic import core as C
+    from wenart.ingest.model import OpeningItem
+
+    win = OpeningItem(kind="window", width=1.2, center=(2.0, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="w",
+                      evidence={})
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [win], [_tag("120/210", 2.0, 0.3, "TEXT")], 1.0) is None
+
+
+def test_a_door_high_tag_on_a_door_layer_decides_door_over_a_drawn_window_of_its_width():
+    """real16 L1: the shower rooms' '80/220' (layer kapi-yazi) beside a 0.68 m 'window' (the closed leaf's lines in the
+    wall); a 1.50 m window beside the same tag keeps its kind."""
+    from wenart.ingest.generic import core as C
+    from wenart.ingest.model import OpeningItem
+
+    def win(w):
+        return OpeningItem(kind="window", width=w, center=(4.2, 13.18), rotation_deg=0.0, box=[0, 0, 1, 1], entity="w",
+                           evidence={})
+    tag = _tag("80/220", 4.2, 12.96, "kapi-yazi")
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [win(0.68)], [tag], 1.0)
+    assert got[0].kind == "door" and got[0].width == pytest.approx(0.8) and got[0].height == pytest.approx(2.2)
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [win(1.5)], [tag], 1.0) is None
+
+
