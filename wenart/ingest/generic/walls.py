@@ -1011,9 +1011,12 @@ def _runs_through(pair: _Pair, column: Polygon) -> bool:
             max(s_cut) - min(s_cut) >= COLUMN_BAND_SHARE * (max(s_col) - min(s_col)))
 
 
-def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_Element]:
+def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]],
+             accepted_out: Optional[set] = None) -> list[_Element]:
     """The wall network of one layer: primary pairs, the columns they end on, secondary pairs touching the network
-    and the joins where a face of a primary pair runs on to wall material (see the section comment).
+    and the joins where a face of a primary pair runs on to wall material (see the section comment). ``accepted_out``
+    (6 Nov 2026, Milestone 14 R3 review): filled with the ids of the input pairs the network takes as wall pieces (the
+    decision records state the network's answer, not a guess).
 
     A column joins the network only inside the bands of the wall pieces that end on it, run on through it (the
     corner, T or cross it makes), or that run through it; what stands out of the walls into a room (real02: 40 cm
@@ -1027,6 +1030,7 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
     def piece(p: _Pair) -> bool:                  # a primary pair or a short piece at least as long as it is thick
         return p.primary or p.hi - p.lo >= p.width - 1e-9
 
+    originals = list(pairs)
     pairs = [_to_material(p, material, tree0) if piece(p) else p for p in pairs]
     prim_pairs = [p for p in pairs if p.primary]
     elems = [_Element("face_pair", p.polygon(), p.ids()) for p in prim_pairs]
@@ -1048,6 +1052,9 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
         elems.extend(_Element("face_pair", p.polygon(), p.ids()) for p in keep)
         rest = [p for p in rest if p not in keep]
     accepted = prim_pairs + [p for p in pairs if not p.primary and p.hi - p.lo >= p.width - 1e-9 and p not in rest]
+    if accepted_out is not None:
+        taken = {id(p) for p in accepted}
+        accepted_out.update(id(o) for o, p in zip(originals, pairs) if id(p) in taken)
     # Joins first, against the whole columns (a face hidden behind a wardrobe runs on to a column's side) ...
     work = elems + [_Element("column", poly, [sid]) for poly, sid in cols]
     seen: set = set()
@@ -1467,7 +1474,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     if kept is not None:
         # (the layer draws the filled walls again: its pairs are walls, the filled material builds them)
         _record_pair_decisions(decisions, page, s, cands, rows, {win["layer"]}, decided=decided,
-                               dimension_ids=dimension_ids)
+                               dimension_ids=dimension_ids, columns=columns)
         choice["reason"] = (f"the plan's filled wall material covers {kept[0]:.0%} of layer '{win['layer']}''s walls "
                             f"and is {kept[1]:.1f} times their area: the layer draws the same walls again; the filled "
                             f"walls are kept")
@@ -1570,7 +1577,8 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         for p in face:
             p.note += f"; {len(prims) - len(kept)} other wall primitives off that layer left out"
         choice["note"] = face[0].note if face else note
-    _record_pair_decisions(decisions, page, s, cands, rows, set(layers), decided=decided, dimension_ids=dimension_ids)
+    _record_pair_decisions(decisions, page, s, cands, rows, set(layers), decided=decided, dimension_ids=dimension_ids,
+                           columns=columns)
     return kept + face, choice
 
 
@@ -1595,7 +1603,8 @@ def _candidate_pairs(layer: str, pieces: list, notation: bool) -> dict:
 
 
 def _record_pair_decisions(decisions, page: GenericPage, s: float, cands: list[dict], rows: list[dict],
-                           chosen: set, decided: bool, dimension_ids: frozenset = frozenset()) -> None:
+                           chosen: set, decided: bool, dimension_ids: frozenset = frozenset(),
+                           columns: Optional[list] = None) -> None:
     """One ``wall_or_notation`` record per pair considered (5 Nov 2026, Milestone 14 R3; user: "I want structure
     recognition to be cumulatively better with the feedbacks I am giving"): the pair's length, width, layer role,
     neighbours and surroundings as features, the rule that kept or dropped it with the table's confidence
@@ -1607,6 +1616,12 @@ def _record_pair_decisions(decisions, page: GenericPage, s: float, cands: list[d
 
     n_labels = max(1, len(_labels_m(page, s)))
     row_of = {r["layer"]: r for r in rows}
+    # 6 Nov 2026 (review): a short pair on a chosen layer is a wall only when the chosen layers' network takes it (at
+    # least as long as it is thick and touching a wall piece, ``_network``); the record states that answer
+    taken: set = set()
+    chosen_pairs = [pr for r in rows if r["layer"] in chosen for pr in r["_pairs"]]
+    if chosen_pairs:
+        _network(chosen_pairs, columns or [], accepted_out=taken)
     stroke_of = {st.id: st for st in page.strokes}
     texts = [(((t.box[0] + t.box[2]) / 2.0) * s, ((t.box[1] + t.box[3]) / 2.0) * s) for t in page.texts
              if (t.text or "").strip()]
@@ -1629,8 +1644,10 @@ def _record_pair_decisions(decisions, page: GenericPage, s: float, cands: list[d
                 rule = cand["dropped"][id(p)]
             elif grid:
                 rule = "axis_grid"
+            elif layer in chosen and p.primary:
+                rule = "wall_chosen_layer" if decided else "wall_document_layer"
             elif layer in chosen:
-                rule = ("wall_chosen_layer" if decided else "wall_document_layer") if p.primary else "secondary_pair"
+                rule = "secondary_pair" if id(p) in taken else "secondary_cap"
             else:
                 rule = "layer_not_chosen" if decided else "layer_not_chosen_undecided"
             ruled.setdefault(rule, []).append(p)

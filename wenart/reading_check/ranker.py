@@ -44,8 +44,13 @@ Why: a correction used to become one hand-written rule and nothing measured whet
 The ranker makes the corrections compound: every accept, reject or remark of the user is a labelled example, the
 model is retrained in seconds on CPU, the regression set is re-scored, and the gate (``score --gate``) decides.
 
-How: pure functions over lists of dicts and numpy arrays; the geometry of the join is the truth matcher's
-(``score.py`` tolerances); the model file is plain JSON; the integration is one call in ``openings.classify_gap``.
+How: pure functions over lists of dicts and numpy arrays; the model file is plain JSON; the integration is one call in
+``openings.gaps_and_openings``. The join's opening tolerances are R3's own (docs/milestone14.md R3 step 2: 0.5 m and
+0.3 m of width), not the score's 0.30 m centre rule: a gap's place is the middle of the drawn gap, and the element a
+later pass builds for it can stand off that middle (a tagged window moves up to 0.35 m to clear a column); the width
+check keeps a wide gap from taking a narrow element beside it. A truth element without a width (a user negation that
+names only its place) joins by the score's own rule, the centre within ``score.OPENING_CENTER_M``. The wall join uses
+the score's numbers (0.15 m lateral, half the length overlapping).
 """
 from __future__ import annotations
 
@@ -105,6 +110,12 @@ L2 = 10.0                        # ridge on the standardised coefficients (the i
 NEWTON_ITERATIONS = 25           # Newton steps; the weighted logistic loss with a ridge is convex and converges well before
 NO_POSITIVES_INTERCEPT = -10.0   # a class without a positive example scores about 0 everywhere
 ROUND = 10                       # the stored numbers' decimals (enough for bit-for-bit reproduction after rounding)
+# 6 Nov 2026 (review): projects that draw one building are one hold-out group in the leave-one-group-out run, or holding
+# one out still trains on its near copy. real02 (one_building.dwg) and real04 (deneme1.dwg) are two DWGs of one house
+# (projects/real04/brief.yaml: "the real02 twin villa on its plot"; their truths have the same walls, doors and
+# openings on L-1, L-1b, L0 and L1, and 37 of real04's 43 gap rows equal a real02 row). The synthetic projects share a
+# base house but each draws its own failure class; they stay apart.
+PROJECT_GROUPS: tuple = (("real02", "real04"),)
 OTHER_ADAPTER = ("synthetic-01", "synthetic-02", "synthetic-03", "synthetic-04", "synthetic-05")
                                  # read by the synthetic adapter, not the generic core: no decision records (retrain
                                  # keeps their reading for the score and does not read them again for want of records)
@@ -152,14 +163,21 @@ def _wall_covers_segment(w: dict, a, b) -> bool:
 
 def _nearest_opening(place, width: float, level_truth: dict) -> Optional[tuple]:
     """``(element, kind, distance)`` of the nearest truth opening within the tolerances (absent entries included: the
-    caller reads ``absent``), else None."""
+    caller reads ``absent``), else None. An element without a width joins by its centre within the score's
+    ``OPENING_CENTER_M`` (6 Nov 2026, review: real04's two width-less user negations were dropped)."""
+    from wenart.reading_check import score as SC
+
     best = None
     for key, kind in (("doors", "door"), ("windows", "window"), ("openings", "opening")):
         for e in level_truth.get(key) or []:
-            if not e.get("center") or e.get("width") is None:
+            if not e.get("center"):
                 continue
             d = _dist(e["center"], place)
-            if d <= PLACE_TOL_M and abs(float(e["width"]) - width) <= WIDTH_TOL_M and (best is None or d < best[2]):
+            if e.get("width") is None:
+                ok = d <= SC.OPENING_CENTER_M
+            else:
+                ok = d <= PLACE_TOL_M and abs(float(e["width"]) - width) <= WIDTH_TOL_M
+            if ok and (best is None or d < best[2]):
                 best = (e, kind, d)
     return best
 
@@ -349,7 +367,8 @@ def fit(table: dict, *, l2: float = L2, iterations: int = NEWTON_ITERATIONS) -> 
     classes = list(CLASSES[kind])
     names = list(table["features"])
     X = np.array(table["rows"], dtype=np.float64).reshape(len(table["rows"]), len(names))
-    labels, negs = table["labels"], table.get("negative_of") or [None] * len(labels)
+    labels = list(table["labels"])
+    negs = list(table.get("negative_of") or [None] * len(labels))      # (6 Nov 2026, review: read labels first)
     weights = np.array(table["weights"], dtype=np.float64)
     if len(X):
         mean = X.mean(axis=0)
@@ -493,26 +512,38 @@ def reset_models() -> None:
 # --- evaluation ------------------------------------------------------------------------------------------------------
 
 def _accuracy(rows: list[dict], model: Optional[dict]) -> dict:
-    """Rules, ranker (argmax) and integrated accuracy over labelled rows (negatives are skipped), with the counts."""
+    """Rules, ranker (argmax) and integrated accuracy over labelled rows, with the counts and the changes the
+    integrated ranker made. 6 Nov 2026 (review): a row that negates a class (a user's ``absent`` entry) is in no
+    accuracy (its right class is unknown), but a change INTO the negated class is a wrong change (``negative: true``):
+    it counts in ``changed`` and so in ``transition_trust``."""
     n = rules = rank = integ = 0
-    corrections = {"n": 0, "rules": 0, "ranker": 0, "integrated": 0}
+    corrections = {"n": 0, "rules": 0, "ranker": 0, "integrated": 0, "negatives": 0, "changed_into_negation": 0}
     changed = []
     for r in rows:
         lab = r.get("label")
+        answer, by, margin, scores = decide(r["kind"], r["features"], r["rule_answer"], r["rule_confidence"],
+                                            allowed=allowed_answers(r), model=model, rule=r.get("rule"))
+        base = {"project": r.get("project"), "level_id": r.get("level_id"), "place": r.get("place"),
+                "rule": r.get("rule"), "rule_answer": r["rule_answer"], "ranker_answer": answer, "margin": margin,
+                "source": r.get("source")}
         if lab is None:
+            neg = r.get("negative_of")
+            if neg is None:
+                continue
+            if r.get("source") == "user_correction":
+                corrections["negatives"] += 1
+            if by == DECIDED_RANKER and answer != r["rule_answer"] and answer == neg:
+                changed.append(dict(base, label=None, negated=neg, right=False, rule_right=None, negative=True))
+                if r.get("source") == "user_correction":
+                    corrections["changed_into_negation"] += 1
             continue
         n += 1
         rules += r["rule_answer"] == lab
-        answer, by, margin, scores = decide(r["kind"], r["features"], r["rule_answer"], r["rule_confidence"],
-                                            allowed=allowed_answers(r), model=model, rule=r.get("rule"))
         top = max(scores, key=lambda c: (scores[c], c)) if scores else r["rule_answer"]
         rank += top == lab
         integ += answer == lab
         if by == DECIDED_RANKER and answer != r["rule_answer"]:
-            changed.append({"project": r.get("project"), "level_id": r.get("level_id"), "place": r.get("place"),
-                            "rule": r.get("rule"), "rule_answer": r["rule_answer"], "ranker_answer": answer,
-                            "label": lab, "margin": margin, "right": answer == lab,
-                            "rule_right": r["rule_answer"] == lab, "source": r.get("source")})
+            changed.append(dict(base, label=lab, right=answer == lab, rule_right=r["rule_answer"] == lab))
         if r.get("source") == "user_correction":
             corrections["n"] += 1
             corrections["rules"] += r["rule_answer"] == lab
@@ -522,44 +553,76 @@ def _accuracy(rows: list[dict], model: Optional[dict]) -> dict:
             "integrated_acc": round(integ / n, 4) if n else None, "corrections": corrections, "changed": changed}
 
 
-def lopo(labelled: list[dict], kind: str, l2: float = L2) -> dict:
-    """Leave-one-project-out (pure): for each project with labelled records of ``kind``, a model trained on the other
-    projects' records scores it. ``{"per_project": {p: metrics}, "overall": metrics}``."""
+def group_of(project: Optional[str], groups=None) -> str:
+    """The hold-out group of a project: the joined names of its group in ``PROJECT_GROUPS``, else the project."""
+    for g in (PROJECT_GROUPS if groups is None else groups):
+        if project in g:
+            return "+".join(g)
+    return str(project)
+
+
+def lopo(labelled: list[dict], kind: str, l2: float = L2, groups=None, nested: bool = True) -> dict:
+    """Leave-one-group-out (pure): for each hold-out group (a project, or the projects of one building together,
+    ``PROJECT_GROUPS``), a model trained on the other groups' records scores the group's projects. Per project the
+    rules', the ranker's and the integrated accuracy; ``changed`` holds every held-out change (the trust of the
+    committed model is measured on them, ``train``).
+
+    ``trusted_acc`` (``nested``, 6 Nov 2026 review): the integrated accuracy when a change counts only through a
+    transition trusted WITHOUT the group: for each group G the trust comes from a second level of models, each trained
+    without G and without one other group H and scoring H, so G's labels shape neither its own changes nor the changes
+    that earn their trust. ``{"per_project", "overall", "changed", "groups"}``."""
     rows = [r for r in labelled if r.get("kind") == kind]
-    projects = sorted({r.get("project") for r in rows})
+    gkey = {id(r): group_of(r.get("project"), groups) for r in rows}
+    group_names = sorted(set(gkey.values()))
     per = {}
     pooled_n = pooled_rules = pooled_rank = pooled_integ = 0
-    pooled_corr = {"n": 0, "rules": 0, "ranker": 0, "integrated": 0}
+    pooled_corr = {"n": 0, "rules": 0, "ranker": 0, "integrated": 0, "negatives": 0, "changed_into_negation": 0}
     changed = []
-    for p in projects:
-        train_rows = [r for r in rows if r.get("project") != p]
-        test_rows = [r for r in rows if r.get("project") == p]
+    for g in group_names:
+        train_rows = [r for r in rows if gkey[id(r)] != g]
         model = fit(table_of(train_rows, kind), l2=l2) if train_rows else None
-        m = _accuracy(test_rows, model)
-        per[p] = {k: v for k, v in m.items() if k != "changed"}
-        changed.extend(m["changed"])
-        pooled_n += m["n"]
-        pooled_rules += round((m["rules_acc"] or 0) * m["n"])
-        pooled_rank += round((m["ranker_acc"] or 0) * m["n"])
-        pooled_integ += round((m["integrated_acc"] or 0) * m["n"])
-        for k in pooled_corr:
-            pooled_corr[k] += m["corrections"][k]
+        for p in sorted({r.get("project") for r in rows if gkey[id(r)] == g}):
+            m = _accuracy([r for r in rows if r.get("project") == p], model)
+            per[p] = {k: v for k, v in m.items() if k != "changed"}
+            per[p]["group"] = g
+            changed.extend(m["changed"])
+            pooled_n += m["n"]
+            pooled_rules += round((m["rules_acc"] or 0) * m["n"])
+            pooled_rank += round((m["ranker_acc"] or 0) * m["n"])
+            pooled_integ += round((m["integrated_acc"] or 0) * m["n"])
+            for k in pooled_corr:
+                pooled_corr[k] += m["corrections"][k]
     overall = {"n": pooled_n, "rules_acc": round(pooled_rules / pooled_n, 4) if pooled_n else None,
                "ranker_acc": round(pooled_rank / pooled_n, 4) if pooled_n else None,
                "integrated_acc": round(pooled_integ / pooled_n, 4) if pooled_n else None, "corrections": pooled_corr}
-    # the transition trust, nested: a project's changes count only when the OTHER projects' held-out changes trust
-    # their transition (so a project never earns its own trust in this number)
-    pooled_trusted = 0
-    for p in projects:
-        m = per[p]
-        trust = transition_trust([c for c in changed if c["project"] != p])
-        delta = sum(int(c["right"]) - int(c["rule_right"]) for c in changed
-                    if c["project"] == p and trust.get(transition_key(c["rule"], c["ranker_answer"]), {}).get("trusted"))
-        right = round((m["rules_acc"] or 0) * m["n"]) + delta
-        m["trusted_acc"] = round(right / m["n"], 4) if m["n"] else None
-        pooled_trusted += right
-    overall["trusted_acc"] = round(pooled_trusted / pooled_n, 4) if pooled_n else None
-    return {"per_project": per, "overall": overall, "changed": changed}
+    if nested:
+        pooled_trusted = 0
+        trusted_in: dict = {}
+        for g in group_names:
+            inner = []
+            for h in group_names:
+                if h == g:
+                    continue
+                inner_train = [r for r in rows if gkey[id(r)] not in (g, h)]
+                if not inner_train:
+                    continue
+                inner_model = fit(table_of(inner_train, kind), l2=l2)
+                inner.extend(_accuracy([r for r in rows if gkey[id(r)] == h], inner_model)["changed"])
+            trust = transition_trust(inner)
+            for k, t in trust.items():
+                if t["trusted"]:
+                    trusted_in.setdefault(k, []).append(g)
+            for p in sorted({r.get("project") for r in rows if gkey[id(r)] == g}):
+                m = per[p]
+                delta = sum(int(c["right"]) - int(bool(c["rule_right"])) for c in changed
+                            if c["project"] == p and not c.get("negative")
+                            and (trust.get(transition_key(c["rule"], c["ranker_answer"])) or {}).get("trusted"))
+                right = round((m["rules_acc"] or 0) * m["n"]) + delta
+                m["trusted_acc"] = round(right / m["n"], 4) if m["n"] else None
+                pooled_trusted += right
+        overall["trusted_acc"] = round(pooled_trusted / pooled_n, 4) if pooled_n else None
+        overall["nested_trusted_in_groups"] = {k: len(v) for k, v in sorted(trusted_in.items())}
+    return {"per_project": per, "overall": overall, "changed": changed, "groups": group_names}
 
 
 def transition_key(rule: Optional[str], answer: str) -> str:
@@ -711,6 +774,9 @@ def retrain(work: Path, projects: Optional[list[str]] = None, *, fresh: bool = F
             log(f"{p}: reading (rules alone)")
             try:
                 RG.read_project(p, work)
+                # 6 Nov 2026 (review): stamped like the score's own readings (truth.reading), so a score made on these
+                # readings knows their commit
+                (folder / TR.COMMIT_FILE).write_text((TR.git_head() or TR.UNKNOWN_COMMIT) + "\n", encoding="utf-8")
             except Exception as exc:                           # one failed reading must not hide the others
                 log(f"{p}: reading failed: {type(exc).__name__}: {str(exc)[:200]}")
     finally:

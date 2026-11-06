@@ -67,7 +67,10 @@ RULE_CONFIDENCE: dict[str, float] = {
     "flight": 0.80,                # a band crossed by three or more treads at an even pitch: a stair flight
     "wall_chosen_layer": 0.80,     # a primary pair on the layer the labels chose (walls.PAIR_CONFIDENCE)
     "wall_document_layer": 0.50,   # a primary pair on a layer taken from the document's other plans (too few labels)
-    "secondary_pair": 0.40,        # a pair under PAIR_OVERLAP_M on a chosen layer: a wall only when it touches one
+    "secondary_pair": 0.40,        # a pair under PAIR_OVERLAP_M on a chosen layer that the network takes (as long as it
+                                   # is thick and touching a wall piece, walls._network): a short wall piece
+    "secondary_cap": 0.70,         # 6 Nov 2026 (review): a short pair on a chosen layer the network does not take
+                                   # (shorter than it is thick, or touching no wall piece): a wall end's cap line
     "layer_not_chosen": 0.70,      # a pair on a layer that lost the label contest to the chosen one
     "layer_not_chosen_undecided": 0.50,   # ... when no layer closed in enough labels to decide
 }
@@ -341,15 +344,51 @@ class DecisionLog:
             out.append(rec)
         return out
 
-    def places(self) -> list[dict]:
-        """The low-confidence places (rule under the ranker's trust and the ranker's margin under its minimum) for the
-        level's ``reading_places`` (RC7 numbers them on a low-confidence level)."""
-        out = []
-        for rec, _g in self.gap_records:
-            if rec.get("low_confidence") and rec.get("place"):
-                out.append({"kind": "undecided_gap", "text": rec["rule_answer"], "at": list(rec["place"]),
-                            "note": rec["low_confidence"]})
-        return out
+
+
+# --- the end of the pipeline (6 Nov 2026, review): the answers and the places from the built level --------------------
+
+def final_answers_from_building(records: list[dict], walls: list[dict], openings: list[dict]) -> int:
+    """Every record's ``final_answer`` read again from the FINAL building (pure apart from the records it updates):
+    ``walls`` and ``openings`` are the level's building dicts after every pipeline pass (underground closing, twin
+    walls, facade gaps, lift doors, gaps behind furniture ...). The core's provisional answer is kept as
+    ``core_final_answer`` where it differs; a dropped candidate stays dropped. Returns how many answers changed."""
+    segs = [((float(w["start"][0]), float(w["start"][1])), (float(w["end"][0]), float(w["end"][1])),
+             float(w.get("thickness") or 0.0)) for w in walls if w.get("start") and w.get("end")]
+    ops = [(tuple(o["center"]), float(o["width"]), o.get("type")) for o in openings
+           if not o.get("virtual") and o.get("center") and o.get("width") is not None]
+    changed = 0
+    for rec in records:
+        if rec.get("final_answer") == DROPPED or not rec.get("place"):
+            continue
+        if rec.get("kind") == KIND_GAP:
+            new = _final_gap_answer(rec["place"], float(rec["features"].get("width") or 0.0), ops, segs)
+        elif rec.get("line"):
+            a, b = rec["line"]
+            new = "wall" if any(covers_segment(a, b, s) for s in segs) else "notation"
+        else:
+            continue
+        if new != rec.get("final_answer"):
+            rec["core_final_answer"] = rec.get("final_answer")
+            rec["final_answer"] = new
+            changed += 1
+    return changed
+
+
+def places_from_records(records: list[dict]) -> list[dict]:
+    """The undecided gaps of a level as ``reading_places`` (pure; 6 Nov 2026, review): a gap whose rule is weak while
+    the ranker is weak or untrusted there, and only while the built level still holds that weak decision's own outcome
+    (``final_answer`` equal to the rule's answer). A gap a later pass resolved (a facade gap's window, an opening to the
+    soil removed, a recess opened, a tagged window, a mirrored door) is no place. The text is what the level holds."""
+    out = []
+    for rec in records:
+        if rec.get("kind") != KIND_GAP or not rec.get("low_confidence") or not rec.get("place"):
+            continue
+        if rec.get("final_answer") != rec.get("rule_answer"):
+            continue
+        out.append({"kind": "undecided_gap", "text": rec["final_answer"], "at": list(rec["place"]),
+                    "note": rec["low_confidence"]})
+    return out
 
 
 def _answer_of_class(cls: str) -> str:

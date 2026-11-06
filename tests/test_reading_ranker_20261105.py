@@ -441,15 +441,41 @@ def test_an_untrusted_change_is_recorded_and_becomes_a_low_confidence_place(monk
     rec = [r for r in records if r["kind"] == DEC.KIND_GAP][0]
     assert rec["decided_by"] == "rule" and rec["ranker_untrusted"] == "door"
     assert "not been shown" in rec["low_confidence"]
-    places = log.places()
+    places = DEC.places_from_records(records)
     assert len(places) == 1 and places[0]["kind"] == "undecided_gap" and places[0]["at"] == pytest.approx([2.45, 0.0])
+    assert places[0]["text"] == "opening"
+
+
+def test_places_and_final_answers_come_from_the_built_level():
+    """6 Nov 2026 (review): a later pass that types the gap (a facade gap's window) or removes it (an opening to the
+    soil) resolves it: no place; the final answer is what the final building holds; a dropped candidate stays."""
+    rec = {"kind": DEC.KIND_GAP, "place": [2.45, 0.0], "features": {"width": 0.9}, "rule": "unclassified",
+           "rule_answer": "opening", "rule_confidence": 0.2, "final_answer": "opening", "low_confidence": "weak"}
+    dropped = dict(rec, place=[8.0, 0.0], final_answer=DEC.DROPPED)
+    wall = {"kind": DEC.KIND_WALL, "place": [5.0, 0.0], "line": [[4.0, 0.0], [6.0, 0.0]], "features": {},
+            "rule": "layer_not_chosen", "rule_answer": "notation", "final_answer": "notation"}
+    walls = [{"start": [0.0, 0.0], "end": [10.0, 0.0], "thickness": 0.2}]
+    # the facade-gap pass made it a window
+    records = [dict(rec), dict(dropped), dict(wall)]
+    n = DEC.final_answers_from_building(records, walls, [{"type": "window", "center": [2.45, 0.0], "width": 0.9}])
+    assert n == 2 and records[0]["final_answer"] == "window" and records[0]["core_final_answer"] == "opening"
+    assert records[1]["final_answer"] == DEC.DROPPED and records[2]["final_answer"] == "wall"
+    assert DEC.places_from_records(records) == []
+    # the underground pass removed it and closed the wall: closed, no place
+    records = [dict(rec)]
+    DEC.final_answers_from_building(records, walls, [])
+    assert records[0]["final_answer"] == "closed" and DEC.places_from_records(records) == []
+    # still the weak opening: a place that says so
+    records = [dict(rec)]
+    DEC.final_answers_from_building(records, walls, [{"type": "opening", "center": [2.45, 0.0], "width": 0.9}])
+    assert DEC.places_from_records(records)[0]["text"] == "opening"
 
 
 def test_lopo_reports_the_nested_trusted_accuracy():
-    """Two projects whose bare gaps are doors where a twin says so: held out, each project's changes count only when
-    the other project's held-out changes trust their transition."""
+    """Three projects whose bare gaps are doors where a twin says so: held out, each project's changes count only when
+    a transition is trusted by models trained without it (two levels: without it and without the scored project)."""
     rows = []
-    for p in ("a", "b"):
+    for p in ("a", "b", "c"):
         for k in range(6):
             twin = k % 2 == 0
             rows.append({"kind": DEC.KIND_GAP, "project": p, "level_id": "L0", "place": [k, 0.0], "gap": "run",
@@ -457,12 +483,16 @@ def test_lopo_reports_the_nested_trusted_accuracy():
                          "rule": "doorless", "rule_answer": "opening", "rule_confidence": 0.5,
                          "label": "door" if twin else "opening", "weight": 3.0, "source": "synthetic"})
     res = RK.lopo(rows, DEC.KIND_GAP, l2=1.0)
-    for p in ("a", "b"):
+    for p in ("a", "b", "c"):
         m = res["per_project"][p]
         assert m["rules_acc"] == 0.5 and m["integrated_acc"] == 1.0          # the ranker learns the twin
-        assert m["trusted_acc"] == 1.0                                         # 3 of 3 held-out changes of the other
+        assert m["trusted_acc"] == 1.0                                         # 3 of 3 changes of an inner model
     assert all(c["rule"] == "doorless" and c["right"] for c in res["changed"])
     assert RK.transition_trust(res["changed"])["doorless->door"]["trusted"] is True
+    assert res["overall"]["nested_trusted_in_groups"] == {"doorless->door": 3}
+    # with two projects only, nothing is left to earn a held-out trust at the second level
+    two = RK.lopo([r for r in rows if r["project"] != "c"], DEC.KIND_GAP, l2=1.0)
+    assert all(two["per_project"][p]["trusted_acc"] == 0.5 for p in ("a", "b"))
 
 
 def test_the_ranker_is_a_subcommand_and_the_models_say_why_a_change_needs_trust(capsys):
@@ -484,6 +514,71 @@ def test_no_typical_floor_feature_is_recorded():
     walls = [R.wall((0, 0), (2, 0)), R.wall((2.9, 0), (5, 0))]
     out_walls, openings, gap_log, records = _read(walls, [])
     assert not any(k.startswith("typical") for r in records for k in r["features"])
+
+
+def _row(project, k, door, *, label=None, negative_of=None, f=None):
+    feats = {"f": 1.0 if door else 0.0, "width": 0.9, "run_length": 9.0} if f is None else f
+    return {"kind": DEC.KIND_GAP, "project": project, "level_id": "L0", "place": [float(k), 0.0], "gap": "run",
+            "features": feats, "rule": "unclassified", "rule_answer": "opening", "rule_confidence": 0.2,
+            "label": label if label is not None or negative_of else ("door" if door else "opening"),
+            "negative_of": negative_of, "weight": 3.0, "source": "synthetic"}
+
+
+def test_fit_takes_an_empty_table_and_one_without_negative_of():
+    """6 Nov 2026 (review): ``labels`` was read before it was bound."""
+    m = RK.fit({"kind": DEC.KIND_GAP, "features": ["width"], "rows": [[0.9], [2.0]], "labels": ["door", "opening"],
+                "weights": [1.0, 1.0]})
+    assert m["classes"] == list(RK.CLASSES[DEC.KIND_GAP])
+    empty = RK.fit({"kind": DEC.KIND_GAP, "features": ["width"], "rows": [], "labels": [], "negative_of": [],
+                    "weights": []})
+    assert empty["mean"] == [0.0] and empty["std"] == [1.0]
+    assert all(b == RK.NO_POSITIVES_INTERCEPT for b in empty["intercept"])
+
+
+def test_a_width_less_user_negation_joins_by_its_centre():
+    """real04's two user negations (C0059) name only a place: they join by the score's centre rule."""
+    truth = _truth(absent=[("windows", {"id": "w-no", "center": [2.335, 7.094], "width": None})])
+    got = RK.label([_gap_record((2.4, 7.1), 1.2)], truth)
+    assert got[0].get("negative_of") == "window" and got[0]["weight"] == 10.0
+    far = RK.label([_gap_record((2.8, 7.1), 1.2)], truth)                 # 0.47 m off: beyond OPENING_CENTER_M
+    assert far[0].get("negative_of") is None
+
+
+def test_real02_and_real04_are_held_out_together():
+    assert RK.group_of("real02") == RK.group_of("real04") == "real02+real04"
+    assert RK.group_of("real06") == "real06"
+    rows = [_row(p, k, k % 2 == 0) for p in ("real02", "real04", "a", "b") for k in range(6)]
+    res = RK.lopo(rows, DEC.KIND_GAP, l2=1.0, nested=False)
+    assert res["per_project"]["real02"]["group"] == res["per_project"]["real04"]["group"] == "real02+real04"
+    assert res["groups"] == ["a", "b", "real02+real04"]
+
+
+def test_a_change_into_a_negated_class_is_a_wrong_change():
+    """6 Nov 2026 (review): a user's negation has no class of its own, but a held-out change INTO the negated class is
+    wrong, in the changes and in the trust."""
+    model = _model_saying(DEC.KIND_GAP, "door")
+    rows = [_row("p", 0, True, negative_of="door", label=None)]
+    rows[0]["source"] = "user_correction"
+    m = RK._accuracy(rows, model)
+    assert m["n"] == 0 and m["corrections"]["negatives"] == 1 and m["corrections"]["changed_into_negation"] == 1
+    assert len(m["changed"]) == 1 and m["changed"][0]["right"] is False and m["changed"][0]["negative"] is True
+    assert RK.transition_trust(m["changed"])["unclassified->door"] == {"right": 0, "wrong": 1, "trusted": False}
+
+
+def test_the_nested_trust_is_held_out_at_two_levels():
+    """Only projects A and B draw the door rows. Held out at one level, A's trust would come from B's changes, made by a
+    model trained on A's rows (right, trusted). At two levels the models that earn A's trust are trained without A:
+    with B held out too, nothing teaches door, no change, no trust, and A's trusted accuracy stays the rules'."""
+    rows = [_row(p, k, True) for p in ("A", "B") for k in range(4)]
+    rows += [_row(p, k, False) for p in ("C", "D") for k in range(4)]
+    res = RK.lopo(rows, DEC.KIND_GAP, l2=1.0)
+    a = res["per_project"]["A"]
+    assert a["rules_acc"] == 0.0 and a["integrated_acc"] == 1.0          # the held-out ranker gets A right ...
+    assert a["trusted_acc"] == 0.0                                         # ... but no trust is earned without A
+    one_level = RK.transition_trust([c for c in res["changed"] if c["project"] != "A"])
+    assert one_level["unclassified->door"]["trusted"] is True             # the old, one-level estimate trusted it
+    # only C and D (no door rows of their own) find the transition trusted, from models trained on A and B
+    assert res["overall"]["nested_trusted_in_groups"] == {"unclassified->door": 2}
 
 
 def test_rc7_numbers_an_undecided_gap_with_its_own_words():

@@ -3176,17 +3176,17 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         sym["center"] = [round(sym["center"][0] - ox, ROUND), round(sym["center"][1] - oy, ROUND)]
         sym["level_id"] = level_id
     ex.report["symbols"] = symbols
-    # 5 Nov 2026 (Milestone 14 R3): the decision records in building metres with their final answers read off the
-    # built level; every ranker decision is a page note and every place too weak on both sides a reading place
+    # 5 Nov 2026 (Milestone 14 R3): the decision records in building metres with a provisional final answer read off
+    # this level; every ranker decision is a page note. 6 Nov 2026 (review): the final answers and the undecided places
+    # are made again from the built level at the end of the pipeline (``pipeline._finish_decisions``), after the passes
+    # that still change openings and walls
     ex.report["decisions"] = decisions.finalize((ox, oy), bwalls, b_openings)
     ex.report["decisions_summary"] = decisions.summary()
     for rec in ex.report["decisions"]:
         if rec.get("decided_by") == DEC.DECIDED_RANKER and rec.get("ranker_answer"):
             ex.notes.append(f"{where}: gap at ({rec['place'][0]:.2f}, {rec['place'][1]:.2f}) m: the ranker decided "
                             f"{rec['ranker_answer']} (margin {rec.get('margin', 0):.2f}) over the rule's "
-                            f"{rec['rule_answer']} ({rec['rule']} {rec['rule_confidence']:.2f}); final "
-                            f"{rec['final_answer']}")
-    ex.reading_places.extend(decisions.places())
+                            f"{rec['rule_answer']} ({rec['rule']} {rec['rule_confidence']:.2f})")
     for row in sep_log:
         if row.get("line"):
             row["line_building"] = [list(sh.p(q)) for q in row["line"]]

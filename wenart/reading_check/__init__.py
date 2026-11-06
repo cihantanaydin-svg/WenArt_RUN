@@ -700,10 +700,17 @@ def write(out_dir, result: dict) -> Path:
              f"{', '.join(result['levels_checked']) or 'none'}; reference {result.get('reference')}.{adv_text}", "",
              "| check | severity | level | finding |", "|---|---|---|---|"]
     order = {"critical": 0, "major": 1, "minor": 2, "info": 3}
-    # 4 Nov 2026: RC7's low-confidence places first (the user checks them on the sheets), then by severity
+    # 4 Nov 2026: RC7's low-confidence places first (the user checks them on the sheets), then by severity; 6 Nov 2026
+    # (review): the places sort as numbers (place 5 before place 10)
+    def _place(f) -> float:
+        try:
+            return float(f.get("place") or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
     for f in sorted(result["findings"], key=lambda f: (0 if f["check"] == "RC7" else 1, order.get(f["severity"], 3),
                                                        1 if f.get("advisory") else 0, f["check"],
-                                                       str(f.get("level_id")), str(f.get("place") or 0))):
+                                                       str(f.get("level_id")), _place(f))):
         lines.append(f"| {f['check']} {f['name']}{' (advisory)' if f.get('advisory') else ''} | {f['severity']} | "
                      f"{f.get('level_id') or '-'} | {f['message'].replace('|', '/')} |")
     if result.get("notes"):
