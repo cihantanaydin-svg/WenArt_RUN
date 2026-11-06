@@ -361,9 +361,9 @@ def s12_reading(tmp_path_factory):
 def test_synthetic_12_bare_door_gaps_are_numbered_places_with_the_rankers_answer(s12_reading):
     """synthetic-12 (mirrored halves, UL276): the unlabelled flat's four door gaps are drawn without swings; the
     cascade calls them doorless (0.5). On the merged reader the committed model scores them door (their mirror twins
-    are drawn doors) but changes nothing: doorless->door is no trusted transition and one gap's margin is weak. Each of
-    the four is a low-confidence place with the ranker's answer and the reason, numbered by RC7, and the building stays
-    valid (status ok: the schema knows undecided_gap)."""
+    are drawn doors) but changes nothing: doorless->door is no trusted transition and one gap's margin is weak. The
+    three the built level still holds as openings are low-confidence places with the ranker's answer and the reason,
+    numbered by RC7, and the building stays valid (status ok: the schema knows undecided_gap)."""
     building, out = s12_reading
     assert building["status"] == "ok"
     records = json.loads((out / "reading_check" / "decisions_L0.json").read_text(encoding="utf-8"))
@@ -374,12 +374,18 @@ def test_synthetic_12_bare_door_gaps_are_numbered_places_with_the_rankers_answer
         assert r["decided_by"] == "rule" and r["features"]["twin_door"] is True and r["scores"]["door"] > 0.5
         assert r["low_confidence"] and r["final_answer"] in ("opening", "window")
     assert sum(1 for r in bare if r.get("ranker_untrusted") == "door") == 3
+    # 6 Nov 2026 (review): the places come from the built level; the gap at (10.00, 8.88) is a window there (a later
+    # pass typed it), so it is resolved and no place; its final answer says so, the core's stays beside it
+    resolved = [r for r in bare if r["final_answer"] == "window"]
+    assert [tuple(round(v, 1) for v in r["place"]) for r in resolved] == [(10.0, 8.9)]
+    assert resolved[0]["core_final_answer"] == "opening"
     places = [p for lv in building["levels"] for p in lv.get("reading_places") or []]
     assert sorted((round(p["at"][0], 1), round(p["at"][1], 1)) for p in places if p["kind"] == "undecided_gap") == \
-        [(9.0, 6.0), (10.0, 4.6), (10.0, 8.9), (11.0, 6.0)]
+        [(9.0, 6.0), (10.0, 4.6), (11.0, 6.0)]
+    assert all(p["text"] == "opening" for p in places)
     rc = json.loads((out / "reading_check" / "reading_check.json").read_text(encoding="utf-8"))
-    assert sum(1 for f in rc["findings"] if f.get("check") == "RC7" and f.get("kind") == "undecided_gap") == 4
-    assert records["summary"]["gap_kind"]["low_confidence"] == 4
+    assert sum(1 for f in rc["findings"] if f.get("check") == "RC7" and f.get("kind") == "undecided_gap") == 3
+    assert records["summary"]["gap_kind"]["low_confidence"] == 4 and records["summary"]["final_changed_after_core"] >= 1
 
 
 @pytest.mark.xfail(strict=True, reason="failure class mirrored_halves (UL276): the ranker v1 does not re-type the "
