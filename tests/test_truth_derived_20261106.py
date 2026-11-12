@@ -148,7 +148,8 @@ def test_04_an_accepted_element_missing_from_a_reading_does_not_change_the_truth
     kept = _at(truth, "L6", "openings", [9.666, 8.487], absent=False)       # the accepted stacked gap beside the lift
     assert len(kept) == 1 and kept[0]["source"] == TR.SOURCE_ACCEPTED
     assert len(_at(truth, "L6", "openings", [9.666, 8.45], absent=True)) == 1
-    assert len(_at(truth, "L6", "doors", [10.658, 9.085], absent=True)) == 1
+    # the east lift-door negation was the machine's judgement and left C0034 (review of 6 Nov 2026, F7)
+    assert not _at(truth, "L6", "doors", [10.658, 9.085], absent=True)
     read = _reading(truth, {("L6", "openings"): [{"id": "o_re", "type": "opening", "center": [9.666, 8.45],
                                                   "width": 0.9}]}, drop={("L6", "openings", (9.666, 8.487))})
     res = SC.match(truth, read)

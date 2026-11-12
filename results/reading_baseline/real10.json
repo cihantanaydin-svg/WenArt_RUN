@@ -106,10 +106,6 @@
   "stacking": {}
  },
  "accepted_by_user": false,
- "accepted_on": "2026-11-04",
- "accepted_scope": "all",
- "accepted_note": "user, 4 Nov 2026: 'yes accept the baselines, then fix the open items' (docs/progress.md, Open items done)",
- "accepted_seen": "structure run 20261104-050839-full: top-downs of all floors, exteriors and the drawings zip with the reading over each plan (4 Nov 2026)",
  "acceptance_withdrawn": {
   "on": "2026-11-06",
   "user_said": "Only consider my revision with the screenshot I have given into previous projects others I have not seen",

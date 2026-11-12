@@ -632,7 +632,9 @@ def severity_of(f: dict) -> str:
 def apply_trust(found: list, trust: Optional[dict]) -> list:
     """Each finding gets ``trust`` ``{precision, findings, threshold}`` of its kind; a kind below the threshold, or
     never judged, is written with severity ``info`` (``base_severity`` kept) and says so (in place)."""
-    kinds = (trust or {}).get("kinds") or {}
+    # 12 Nov 2026 (review F8): a trust file measured against the withdrawn accepted readings is marked ``stale``; its
+    # kinds count as not calibrated (every finding info) until it is measured again on the synthetic and sparse truths
+    kinds = {} if (trust or {}).get("stale") else ((trust or {}).get("kinds") or {})
     threshold = float((trust or {}).get("threshold") or TRUST_MIN)
     for f in found:
         if f.get("check") != CHECK:

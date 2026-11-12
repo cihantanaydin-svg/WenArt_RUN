@@ -160,16 +160,20 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   wall or notation, inside or outside, stair or grid, region class), logged with `decided_by` and the margin; geometry
   still comes only from the drawings (AI never draws a wall). A level is never left out while it has a scale, a
   transform and walls: it is built with `reading_confidence: low` and its reasons (`failed_levels: build_marked`, the
-  default). Every correction of the user becomes a record in `results/reading_corrections.jsonl` and a truth entry in
-  `results/reading_truth/`; a real project's truth is the user's screenshot revisions only (those correction records,
-  sparse: what they assert present or absent, nothing else), never a whole stored reading (user, 6 Nov 2026: "I have
-  never reviewed real21 with my eyes", "Only consider my revision with the screenshot I have given into previous
-  projects others I have not seen"; every real acceptance is withdrawn, an acceptance would count only for a reading
-  the user looked at, `accepted_seen`); the user's answers to the pipeline's own questions (which plan is which floor,
-  a project split) are brief inputs (`truth_role: brief_input`), never truth; the reading score (`python -m wenart.reading_check score`) is measured per
-  commit on all projects and a change ships only when the synthetic projects do not fall and no satisfied record of
-  the user is lost (a real project's percentage is reported, never gated). The user keeps giving detailed reviews as long as
-  the user wants (accept or reject is only for the machine's own findings).
+  default). Every correction of the user becomes a record in `results/reading_corrections.jsonl`, and each applicable
+  revision a truth entry in `results/reading_truth/`; a real project's truth is the user's screenshot revisions only
+  (those records, sparse: what they assert present or absent, nothing else), never a whole stored reading (user, 6 Nov
+  2026: "I have never reviewed real21 with my eyes", "Only consider my revision with the screenshot I have given into
+  previous projects others I have not seen"; every real acceptance is withdrawn, an acceptance would count only for a
+  fresh reading the user looked at, `accepted_seen`); the user's answers to the pipeline's own questions (which plan is
+  which floor, a project split, an architect question) are brief inputs (`truth_role: brief_input`), never truth; the
+  reading score (`python -m wenart.reading_check score`) is measured per commit on all projects and a change ships only
+  when it rises and no project falls (`score --gate` checks the falls; the rise is read from its table). Falls means
+  (12 Nov 2026): a correction of the user that held in the stored
+  entry, checked against the truth of that entry's commit and the current one, no longer holds on the new reading;
+  or the mean of the synthetic projects (the gated overall) or one of them drops past its tolerance. A real project's
+  percentage is reported, not gated; `score --update` stores an entry only after this gate holds. The user keeps
+  giving detailed reviews as long as the user wants (accept or reject is only for the machine's own findings).
 
 ## Engineering conventions
 - Open-weight models and open-source tools only; library models of any licence by default (`licence_mode: relaxed`,

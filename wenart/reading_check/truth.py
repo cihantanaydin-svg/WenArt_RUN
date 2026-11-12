@@ -121,6 +121,7 @@ ACCEPTED_DIR = REPO / "results" / "reading_accepted"
 BASELINE_DIR = REPO / "results" / "reading_baseline"
 PROJECTS_DIR = REPO / "projects"
 CORRECTIONS_PATH = REPO / "results" / "reading_corrections.jsonl"
+LEVEL_ANCHORS_PATH = REPO / "results" / "reading_level_anchors.json"
 SOURCE_ACCEPTED = "accepted_reading"
 SOURCE_SYNTHETIC = "synthetic"
 SOURCE_USER = "user_correction"
@@ -133,7 +134,7 @@ ELEMENT_KINDS = ("wall", "opening", "door", "window", "room", "stair", "level", 
 CORRECTION_FIELDS = ("id", "date", "project", "level", "place", "element_kind", "reader_answer", "right_answer",
                      "user_words", "lesson", "source", "status")
 ACCEPT_FIELDS = ("accepted_by_user", "accepted_on", "accepted_scope", "accepted_levels", "accepted_note",
-                 "accepted_seen", "acceptance_withdrawn")
+                 "accepted_seen", "acceptance_withdrawn", "acceptance_history")
 KEEP_FIELDS = ("status", "inferred", "lift_door", "parapet", "virtual", "label_source")   # kept where present
 SYNTHETIC_TRUTH_FILES = ("truth/reading_truth.json", "truth/building.json")
 COMMIT_FILE = "reading_check/commit.txt"
@@ -160,6 +161,12 @@ ASSERT_TOL_M = 0.10                       # a height assertion's default toleran
 USER_SAID_20261106 = ("Only consider my revision with the screenshot I have given into previous projects others I "
                       "have not seen")
 TRUTH_ROLE_BRIEF = "brief_input"          # a record answering the pipeline's own question: brief data, never truth
+SPARSE_KINDS = ("outdoor",)               # kinds only a sparse truth holds: a balcony or terrace (site.outdoor_spaces)
+# the attributes a record may assert of an element (``attrs``), and only what the user said (review G4, 6 Nov 2026):
+# a door's role or kind, a lift door, a door frame along a chamfer, the main entrance, a stair's turn, the end its
+# half landing is at (a direction from the stair's centre in building metres)
+ATTR_KEYS = ("flat_entrance", "door_type", "lift_door", "chamfer_frame", "main_entrance", "turn", "landing_toward",
+             "outdoor_kind")
 
 
 # --- small pure helpers ---------------------------------------------------------------------------------------------
@@ -299,11 +306,48 @@ def stairs_of(building: dict) -> list:
     return [f for f in building.get("furniture") or [] if f.get("type") == "stair"]
 
 
+SPARSE_OPENING_FIELDS = ("height", "open_passage", "door_style", "flat_entrance", "door_type", "lift_door",
+                         "chamfer_frame")
+
+
+def _sparse_fields(building: dict, per: dict) -> None:
+    """The fields a sparse truth's checks read, added in place (``extract(attrs=True)``): an opening's height and
+    open passage (no wall over a floor-to-ceiling gap) and the attributes a record may assert (``ATTR_KEYS``), a wall's
+    height, a stair's half landing centre, and the level's outdoor spaces (``site.outdoor_spaces``: balconies,
+    terraces) under ``outdoor``."""
+    by_id = {o.get("id"): o for o in building.get("openings") or []}
+    walls = {w.get("id"): w for w in building.get("walls") or []}
+    stairs = {f.get("id"): f for f in stairs_of(building)}
+    for lid, lv in per.items():
+        for t in OPENING_TYPES:
+            for e in lv[t]:
+                src = by_id.get(e.get("id")) or {}
+                for k in SPARSE_OPENING_FIELDS:
+                    if src.get(k) not in (None, False):
+                        e[k] = src[k]
+        for e in lv["walls"]:
+            h = (walls.get(e.get("id")) or {}).get("height")
+            if isinstance(h, (int, float)):
+                e["height"] = float(h)
+        for e in lv["stairs"]:
+            land = ((stairs.get(e.get("id")) or {}).get("stair") or {}).get("landing")
+            poly = land.get("polygon") if isinstance(land, dict) else None
+            if isinstance(poly, list) and len(poly) >= 3:
+                e["landing_center"] = centroid(poly)
+        lv["outdoor"] = []
+    for o in (building.get("site") or {}).get("outdoor_spaces") or []:
+        if o.get("level_id") in per and len(o.get("polygon") or []) >= 3:
+            per[o["level_id"]]["outdoor"].append({"id": o.get("id"), "label": o.get("label"),
+                                                  "outdoor_kind": o.get("kind") or o.get("type"),
+                                                  "polygon": _poly(o["polygon"]), "centroid": centroid(o["polygon"])})
+
+
 def extract(building: dict, *, project: Optional[str] = None, status: str = "accepted", commit: Optional[str] = None,
-            date: Optional[str] = None, leave_out: Iterable[str] = (), source: str = SOURCE_ACCEPTED) -> dict:
+            date: Optional[str] = None, leave_out: Iterable[str] = (), source: str = SOURCE_ACCEPTED,
+            attrs: bool = False) -> dict:
     """The truth-shaped dict of a building dict (pure; the reader's ids stay as ``id``). ``leave_out`` names the
     levels (by label) that stay out, as the baseline's ``levels_left_out`` lists them; ``source`` is stamped on every
-    element."""
+    element. ``attrs``: also the fields a sparse truth's checks read (``_sparse_fields``)."""
     skip = {norm_label(lbl) for lbl in leave_out}
     levels = [lv for lv in building.get("levels") or [] if norm_label(lv.get("label")) not in skip]
     ids = [lv["id"] for lv in levels]
@@ -322,6 +366,8 @@ def extract(building: dict, *, project: Optional[str] = None, status: str = "acc
     for f in stairs_of(building):
         if f.get("level_id") in per:
             per[f["level_id"]]["stairs"].append(_stair(f, source))
+    if attrs:
+        _sparse_fields(building, per)
     return {"project": project or (building.get("project") or {}).get("id"), "source": source,
             "status": status, "commit": commit, "date": date or today(),
             "levels": [_keep(lv, {"id": lv["id"], "label": lv.get("label"), "elevation": lv.get("elevation"),
@@ -507,7 +553,7 @@ def _dist(a, b) -> float:
 
 def _anchor(kind: str, element: dict) -> Optional[list]:
     """The point an element is found by: a room's centroid, an opening's or stair's centre, a wall's mid point."""
-    if kind == "rooms":
+    if kind in ("rooms",) + SPARSE_KINDS:
         return element.get("centroid") or centroid(element.get("polygon") or [])
     if kind == "walls":
         s, e = element.get("start"), element.get("end")
@@ -677,7 +723,7 @@ def parse_op(op: dict) -> dict:
     what, kind = op.get("op"), op.get("kind")
     if what not in OPS:
         raise ValueError(f"operation {what!r}: one of {', '.join(OPS)}")
-    if kind not in tuple(KIND_TO_TYPE) + ("level",):
+    if kind not in tuple(KIND_TO_TYPE) + ("level",) + SPARSE_KINDS:
         raise ValueError(f"kind {kind!r} is no element type of the truth")
     if not isinstance(op.get("level"), str) or not op["level"]:
         raise ValueError(f"level {op.get('level')!r} is no level id")
@@ -704,11 +750,27 @@ def parse_op(op: dict) -> dict:
         out["polygon"] = [_xy(p, "polygon point") for p in poly]
         if _area(out["polygon"]) < ROOM_MIN_AREA_M2:
             raise ValueError(f"polygon of area {_area(out['polygon']):.4f} m2: a room of no area is refused")
-    for k in ("label", "room_type", "turn", "wall_id", "note", "id"):
+    for k in ("label", "room_type", "turn", "wall_id", "note", "id", "outdoor_kind"):
         if op.get(k) is not None:
             if not isinstance(op[k], str):
                 raise ValueError(f"{k} {op[k]!r} is not a text")
             out[k] = op[k]
+    if op.get("attrs") is not None:                  # what the user asserted of the element (6 Nov 2026, review G4)
+        a = op["attrs"]
+        if not isinstance(a, dict) or not a:
+            raise ValueError("attrs is no object of asserted attributes")
+        for k, v in a.items():
+            if k not in ATTR_KEYS:
+                raise ValueError(f"attrs: {k!r} is no attribute the score can check ({', '.join(ATTR_KEYS)})")
+            if k == "landing_toward":
+                v = _xy(v, "landing_toward")
+                if math.hypot(*v) < 1e-6:
+                    raise ValueError("attrs: landing_toward is no direction")
+            elif not isinstance(v, (str, bool)):
+                raise ValueError(f"attrs: {k} {v!r} is no text or true/false")
+            out.setdefault("attrs", {})[k] = v
+    if op.get("frame") is not None:                  # the place in the drawing's own frame (review, origin shifts)
+        out["frame"] = parse_frame(op["frame"])
     if op.get("evidence") is not None:
         if not isinstance(op["evidence"], list):
             raise ValueError("evidence is not a list")
@@ -725,7 +787,123 @@ def parse_op(op: dict) -> dict:
     elif t == "rooms":
         if "polygon" not in out and "center" not in out:
             raise ValueError("a room needs its polygon or its centre")
+    elif kind in SPARSE_KINDS and "polygon" not in out:
+        raise ValueError(f"an {kind} space needs its polygon")
     return out
+
+
+FRAME_POINT_KEYS = ("center", "start", "end")
+
+
+def parse_frame(frame) -> dict:
+    """A place in the drawing's own frame, checked (pure; review of 6 Nov 2026: a record's metre place moves when the
+    reader's origin shifts, real15 by 6.7 / 6.5 m): ``file`` (the document), ``page`` (its page number), ``region``
+    (the plan region on the page, or None) and the place in page units, as the reading's
+    ``documents[].pages[].transform_to_building`` maps them: ``center``, ``start`` and ``end``, or ``polygon``."""
+    if not isinstance(frame, dict):
+        raise ValueError(f"frame {frame!r} is no object")
+    if not isinstance(frame.get("file"), str) or not frame["file"]:
+        raise ValueError("frame: the document file is missing")
+    if isinstance(frame.get("page"), bool) or not isinstance(frame.get("page"), int):
+        raise ValueError(f"frame: page {frame.get('page')!r} is no page number")
+    out = {"file": frame["file"], "page": frame["page"], "region": frame.get("region")}
+    if out["region"] is not None and not isinstance(out["region"], str):
+        raise ValueError(f"frame: region {out['region']!r} is no region id")
+    for k in FRAME_POINT_KEYS:
+        if frame.get(k) is not None:
+            out[k] = [_fnum(v, f"frame {k}") for v in _xy_raw(frame[k], f"frame {k}")]
+    if frame.get("polygon") is not None:
+        if not isinstance(frame["polygon"], (list, tuple)) or len(frame["polygon"]) < 3:
+            raise ValueError("frame polygon: three or more points are needed")
+        out["polygon"] = [[_fnum(v, "frame polygon") for v in _xy_raw(q, "frame polygon")] for q in frame["polygon"]]
+    if not any(k in out for k in FRAME_POINT_KEYS + ("polygon",)):
+        raise ValueError("frame: no place given")
+    return out
+
+
+def _fnum(value, name: str) -> float:
+    """A frame coordinate: a finite number kept to 1e-6 page units (a page unit can be 50 m: millimetre rounding of
+    building metres would move the place by centimetres)."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(float(value)):
+        raise ValueError(f"{name} {value!r} is not a finite number")
+    return round(float(value), 6)
+
+
+def _xy_raw(value, name: str) -> list:
+    if not isinstance(value, (list, tuple)) or len(value) != 2:
+        raise ValueError(f"{name} {value!r} is not two numbers")
+    return list(value)
+
+
+def frame_transform(building: Optional[dict], frame: dict, level_id: Optional[str] = None) -> Optional[list]:
+    """The reading's map from the frame's page (and region) to building metres: the ``transform_to_building``
+    ``[a, b, c, d, e, f]`` of that page entry (x = a*u + b*v + c, y = d*u + e*v + f), the base variant first; None when
+    the reading has no such page."""
+    for doc in (building or {}).get("documents") or []:
+        if doc.get("file") != frame.get("file"):
+            continue
+        pages = [pg for pg in doc.get("pages") or [] if pg.get("page") == frame.get("page")
+                 and pg.get("region_id") == frame.get("region") and pg.get("transform_to_building")]
+        # one drawn region may serve several levels, each registered with its own shift: the level's own entry first
+        pages.sort(key=lambda pg: (level_id is not None and pg.get("level_id") != level_id,
+                                   pg.get("variant") not in (None, "base")))
+        if pages:
+            return list(pages[0]["transform_to_building"])
+    return None
+
+
+def _apply(t: list, q) -> list:
+    return _pt((t[0] * q[0] + t[1] * q[1] + t[2], t[3] * q[0] + t[4] * q[1] + t[5]))
+
+
+def _invert(t: list, q) -> list:
+    det = t[0] * t[4] - t[1] * t[3]
+    x, y = q[0] - t[2], q[1] - t[5]
+    return [round((t[4] * x - t[1] * y) / det, 6), round((-t[3] * x + t[0] * y) / det, 6)]
+
+
+def place_from_frame(entry: dict, building: Optional[dict],
+                     level_id: Optional[str] = None) -> tuple[dict, Optional[str]]:
+    """``(entry, note)``: an entry with a drawing-frame place gets its metre place from the reading's own transform
+    (a copy; the centroid of a polygon follows); without a frame, or when the reading has no such page, the entry
+    keeps its metre place and the note says why."""
+    frame = entry.get("frame")
+    if not frame:
+        return entry, None
+    t = frame_transform(building, frame, level_id)
+    if t is None:
+        return entry, f"the reading has no page {frame.get('file')} p{frame.get('page')} {frame.get('region')}"
+    out = dict(entry)
+    for k in FRAME_POINT_KEYS:
+        if frame.get(k) is not None:
+            out[k] = _apply(t, frame[k])
+    if frame.get("polygon"):
+        out["polygon"] = [_apply(t, q) for q in frame["polygon"]]
+        out["centroid"] = centroid(out["polygon"])
+    return out, None
+
+
+def frame_of(place: dict, building: dict, level_id: str) -> Optional[dict]:
+    """The drawing-frame place of a metre place on a level of a reading (the inverse of the level's page transform),
+    for the backfill of the records; None when the level's page has no transform."""
+    lv = next((x for x in building.get("levels") or [] if x.get("id") == level_id), None)
+    if lv is None:
+        return None
+    for doc in building.get("documents") or []:
+        for pg in doc.get("pages") or []:
+            if pg.get("level_id") != level_id or pg.get("region_id") != lv.get("region_id"):
+                continue
+            t = pg.get("transform_to_building")
+            if not t or pg.get("variant") not in (None, "base") or abs(t[0] * t[4] - t[1] * t[3]) < 1e-12:
+                continue
+            out = {"file": doc.get("file"), "page": pg.get("page"), "region": pg.get("region_id")}
+            for k in FRAME_POINT_KEYS:
+                if place.get(k) is not None:
+                    out[k] = _invert(t, place[k])
+            if place.get("polygon"):
+                out["polygon"] = [_invert(t, q) for q in place["polygon"]]
+            return out
+    return None
 
 
 def _line(w: dict, start, end, lateral: float) -> Optional[tuple]:
@@ -821,6 +999,8 @@ class _Replay:
         kind, lid = op["kind"], op["level"]
         if kind == "level":
             return self._level(rec, op, entry, unmatched)
+        if kind not in KIND_TO_TYPE:
+            return unmatched(f"an accepted reading holds no {kind} spaces (a sparse truth's kind only)")
         per = self.truth.get("per_level") or {}
         lv = per.get(lid)
         if lv is None:
@@ -1331,7 +1511,7 @@ def parse_assert(a: dict) -> dict:
 def not_measurable_why(rec: dict) -> str:
     """Why an applicable record gives the sparse truth nothing to check (pure): its own ``why`` (no element) or
     ``place_note`` (no place), else the bare fact."""
-    for k in ("why", "place_note"):
+    for k in ("truth_note", "why", "place_note"):
         if str(rec.get(k) or "").strip():
             return f"not measurable yet: {rec[k]}"
     return "not measurable yet: no truth action (no place) and no project-level assertion"
@@ -1352,7 +1532,8 @@ def _level_key(lid: str) -> tuple:
     return (1, 0, s)
 
 
-_INHERIT = ("width", "wall_id", "label", "room_type", "area", "polygon", "centroid", "thickness", "size", "turn")
+_INHERIT = ("label", "room_type", "polygon", "centroid", "size", "turn", "attrs", "frame", "outdoor_kind")
+MACHINE_COPIES = ("width", "thickness", "wall_id", "area")   # never asserted by the user: kept out of sparse entries
 
 
 class _Sparse:
@@ -1368,11 +1549,25 @@ class _Sparse:
 
     def _entry(self, rec: dict, op: dict, n: int, kind: str, *, absent: bool = False, inherit=(),
                base: Optional[dict] = None) -> dict:
-        el = element_from_fields(kind, op, source=SOURCE_USER, correction=rec["id"], date=rec.get("date"))
+        if kind in SPARSE_KINDS:
+            poly = _poly(op.get("polygon"))
+            el = {"id": None, "label": op.get("label"), "outdoor_kind": op.get("outdoor_kind"), "polygon": poly,
+                  "centroid": centroid(poly), "source": SOURCE_USER, "confidence": None, "method": "user",
+                  "correction": rec["id"], "added_on": rec.get("date")}
+        else:
+            el = element_from_fields(kind, op, source=SOURCE_USER, correction=rec["id"], date=rec.get("date"))
         for e in ([base] if base else []):                 # what the newer operation leaves out, from the replaced one
             for k in _INHERIT:
                 if el.get(k) in (None, [], "") and e.get(k) not in (None, [], ""):
                     el[k] = copy.deepcopy(e[k])
+        # review of 6 Nov 2026 (F3, F5): the truth asserts only what the user said; a width, a wall thickness, an area
+        # or the reader's wall id copied from the reading the record was located on is no assertion of the user's
+        for k in MACHINE_COPIES:
+            el.pop(k, None)
+        if op.get("attrs"):
+            el["attrs"] = dict(op["attrs"])
+        if op.get("frame"):
+            el["frame"] = copy.deepcopy(op["frame"])
         if kind == "room" and not el.get("centroid") and el.get("polygon"):
             el["centroid"] = centroid(el["polygon"])
         el["id"] = f"{USER_ID_PREFIX}{rec['id']}_{n}"
@@ -1424,12 +1619,14 @@ class _Sparse:
         lv = per.setdefault(lid, {t: [] for t in ELEMENT_TYPES})
         for t in ELEMENT_TYPES:
             lv.setdefault(t, [])
-        t = KIND_TO_TYPE[kind]
+        t = KIND_TO_TYPE.get(kind) or kind
+        if kind in SPARSE_KINDS:
+            lv.setdefault(kind, [])
         try:
             if t in OPENING_TYPES or t == "stairs":
                 res = self._point(rec, op, n, entry, unmatched, lv, kind, t)
-            elif t == "rooms":
-                res = self._room(rec, op, n, entry, unmatched, lv, kind)
+            elif t == "rooms" or kind in SPARSE_KINDS:
+                res = self._room(rec, op, n, entry, unmatched, lv, kind, key=t)
             else:
                 res = self._wall(rec, op, n, entry, unmatched, lv, kind)
         except (TypeError, ValueError, KeyError, ZeroDivisionError) as exc:
@@ -1500,13 +1697,13 @@ class _Sparse:
             out["dropped_negations"] = len(negs)
         return out
 
-    def _room(self, rec, op, n, entry, unmatched, lv, kind):
+    def _room(self, rec, op, n, entry, unmatched, lv, kind, key="rooms"):
         from wenart.reading_check import score as SC
 
         what = op["op"]
         probe = _Replay._room_probe(op)
         has_poly = len(probe["polygon"]) >= 3
-        pos = positives(lv["rooms"])
+        pos = positives(lv[key])
         hit = _Replay._room_at(pos, probe)
         if hit is None and not has_poly:
             return unmatched("a room given by its centre alone, with no room entry there, could never be checked: "
@@ -1518,23 +1715,23 @@ class _Sparse:
                 removed = [hit] + [e for e in pos if e is not hit
                                    and SC.polygon_iou(e.get("polygon"), hit.get("polygon")) >= ROOM_DUPLICATE_IOU]
                 for e in removed:
-                    lv["rooms"].remove(e)
-            old = _Replay._room_at([e for e in lv["rooms"] if e.get("absent")], dict(probe, polygon=shape))
+                    lv[key].remove(e)
+            old = _Replay._room_at([e for e in lv[key] if e.get("absent")], dict(probe, polygon=shape))
             if old is not None:
                 self._touch(old, rec, op, inherit=removed)
                 return dict(entry, state="negated again")
             op2 = dict(op, polygon=shape)
-            lv["rooms"].append(self._entry(rec, op2, n, kind, absent=True, inherit=removed,
+            lv[key].append(self._entry(rec, op2, n, kind, absent=True, inherit=removed,
                                            base=removed[0] if removed else None))
             return dict(entry, state="removed" if removed else "negated")
         if hit is not None:
-            lv["rooms"].remove(hit)
-        negs = [e for e in lv["rooms"] if e.get("absent")
+            lv[key].remove(hit)
+        negs = [e for e in lv[key] if e.get("absent")
                 and SC.polygon_iou(e.get("polygon"), shape) >= SC.ROOM_IOU_MIN]
         for e in negs:
-            lv["rooms"].remove(e)
+            lv[key].remove(e)
         op2 = dict(op, polygon=shape) if shape else op
-        lv["rooms"].append(self._entry(rec, op2, n, kind, inherit=([hit] if hit is not None else []) + negs,
+        lv[key].append(self._entry(rec, op2, n, kind, inherit=([hit] if hit is not None else []) + negs,
                                        base=hit))
         out = dict(entry, state="replaced" if hit is not None else ("replaced a negation" if negs else "asserted"))
         if negs:
@@ -1595,7 +1792,79 @@ class _Sparse:
         return out
 
 
-def build_sparse(project: str, records: Iterable[dict]) -> dict:
+def wall_runs(ops: list) -> tuple[dict, dict]:
+    """The present walls of one record as the user's lines (pure; review of 6 Nov 2026, F5): the record's add or
+    confirm wall operations of one level that lie on one line (parallel within ``WALL_ANGLE_DEG``, within
+    ``WALL_SAME_LINE_M`` of each other) and touch or overlap (gaps up to ``WALL_SAME_LINE_M``) are one run, from the
+    first one's start along its line to the union's far end; a run shorter than ``WALL_PIECE_MIN_M`` is a joint, no
+    wall the user could have meant. Returns ``({op number: the run's operation}, {op number: state})``: a run takes the
+    number of its first piece, the other pieces and the joints are reported by state only."""
+    walls = [(n, op) for n, op in enumerate(ops, 1) if isinstance(op, dict) and op.get("kind") == "wall"
+             and op.get("op") in ("add", "confirm")]
+    runs, folded, used = {}, {}, set()
+    for n, op in walls:
+        if n in used:
+            continue
+        try:
+            q = parse_op(op)
+        except ValueError:
+            continue
+        s, e = q["start"], q["end"]
+        lo, hi, members = 0.0, _dist(s, e), [n]
+        grew = True
+        while grew:
+            grew = False
+            for m, other in walls:
+                if m in used or m in members or other.get("level") != op.get("level"):
+                    continue
+                try:
+                    o = parse_op(other)
+                except ValueError:
+                    continue
+                pos = _line(o, s, e, WALL_SAME_LINE_M + 1e-6)
+                if pos is None or pos[0] > hi + WALL_SAME_LINE_M or pos[1] < lo - WALL_SAME_LINE_M:
+                    continue
+                lo, hi, grew = min(lo, pos[0]), max(hi, pos[1]), True
+                members.append(m)
+        used.update(members)
+        span = _dist(s, e)
+        ux, uy = (e[0] - s[0]) / span, (e[1] - s[1]) / span
+        run = dict(op, start=_pt((s[0] + ux * lo, s[1] + uy * lo)), end=_pt((s[0] + ux * hi, s[1] + uy * hi)))
+        for k in ("thickness", "id"):
+            run.pop(k, None)
+        fr = q.get("frame")
+        if fr and fr.get("start") and fr.get("end"):     # the run's ends along the first piece's frame line (affine)
+            fs, fe = fr["start"], fr["end"]
+            at = lambda a: [round(fs[0] + (fe[0] - fs[0]) * a / span, 6),           # noqa: E731
+                            round(fs[1] + (fe[1] - fs[1]) * a / span, 6)]
+            run["frame"] = dict(fr, start=at(lo), end=at(hi))
+        elif fr:
+            run.pop("frame", None)
+        if len(members) > 1:
+            run["pieces"] = len(members)
+        if hi - lo < WALL_PIECE_MIN_M:
+            for m in members:
+                folded[m] = f"dropped: a joint ({hi - lo:.2f} m), no wall the user could have meant"
+            continue
+        runs[n] = run
+        for m in members[1:]:
+            folded[m] = f"merged into the wall run of operation {n}"
+    return runs, folded
+
+
+def load_level_anchors(path: Optional[Path] = None) -> dict:
+    """``{project: {level id: {label, elevation, order, source}}}``: the floors the records of each real project were
+    made on (``results/reading_level_anchors.json``), so a sparse truth's level is found by its label, order and
+    elevation, not by the reader's id alone (review of 6 Nov 2026, G5: an inserted storey renumbers the ids)."""
+    path = Path(path or LEVEL_ANCHORS_PATH)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return {k: v for k, v in data.items() if isinstance(v, dict) and not k.startswith("_")}
+
+
+def build_sparse(project: str, records: Iterable[dict], anchors: Optional[dict] = None) -> dict:
     """The sparse truth of a real project (pure; the section above): an empty base, the project's applicable records
     replayed in id order (``_Sparse``), their project-level assertions (``truth_assert``), and the records that give
     nothing to check listed ``not_measurable``. ``built_from`` names the replayed and the asserting records,
@@ -1624,8 +1893,13 @@ def build_sparse(project: str, records: Iterable[dict]) -> dict:
             continue
         if ops:
             replayed.append(rec["id"])
+            runs, folded = wall_runs(ops)
             for n, op in enumerate(ops, 1):
-                res = replay.apply(rec, op, n)
+                if n in folded:                              # a piece of a wall run, or a joint: reported, not replayed
+                    applied.append({"record": rec["id"], "n": n, "op": op.get("op"), "kind": op.get("kind"),
+                                    "level": op.get("level"), "state": folded[n]})
+                    continue
+                res = replay.apply(rec, runs.get(n, op), n)
                 (unmatched if res.get("state") == "unmatched" else applied).append(res)
         if asserts:
             asserting.append(rec["id"])
@@ -1648,11 +1922,18 @@ def build_sparse(project: str, records: Iterable[dict]) -> dict:
                 asserted.append(dict(res, state="replaced" if same else "asserted"))
     per = truth["per_level"]
     for lid, lv in per.items():
-        for t in ELEMENT_TYPES:
+        for t in ELEMENT_TYPES + tuple(k for k in SPARSE_KINDS if k in lv):
             lv[t] = sorted(lv.get(t) or [], key=lambda e: _sort_key(t, e))
     truth["per_level"] = {lid: per[lid] for lid in sorted(per, key=_level_key)}
     known = {lv["id"] for lv in truth["levels"]}
     truth["levels"] += [{"id": lid, "source": SOURCE_USER} for lid in truth["per_level"] if lid not in known]
+    for lv in truth["levels"]:                       # the level's anchor: the floor the records were made on
+        a = (anchors or {}).get(lv["id"])
+        if isinstance(a, dict):
+            for k in ("label", "elevation", "order"):
+                if a.get(k) is not None and lv.get(k) is None:
+                    lv[k] = a[k]
+            lv["anchor_source"] = a.get("source")
     truth["levels"] = sorted(truth["levels"], key=lambda lv: _level_key(lv["id"]))
     truth["project_assertions"] = sorted(truth["project_assertions"], key=lambda a: (a["what"], a.get("level") or "",
                                                                                      _record_key(a["correction"])))
@@ -1676,7 +1957,8 @@ def sparse_projects(records: Iterable[dict], projects_dir: Path = PROJECTS_DIR) 
 def entry_count(truth: dict) -> int:
     """How many things a truth asserts: its entries (present and absent), its asserted levels and its project-level
     assertions."""
-    n = sum(len(lv.get(t) or []) for lv in (truth.get("per_level") or {}).values() for t in ELEMENT_TYPES)
+    n = sum(len(lv.get(t) or []) for lv in (truth.get("per_level") or {}).values()
+            for t in ELEMENT_TYPES + SPARSE_KINDS)
     return n + sum(1 for lv in truth.get("levels") or [] if lv.get("asserted")) + \
         len(truth.get("project_assertions") or [])
 
@@ -1789,6 +2071,9 @@ def accepted_of(project: str, *, accepted_dir: Path = ACCEPTED_DIR, baseline_dir
     if acc is None:
         return None, (f"{project}: no stored accepted reading ({Path(accepted_dir).name}/{project}.json): run "
                       f"`truth accept --projects {project}` after the user accepted the reading")
+    stale = reacceptance_problem(load_baseline(project, baseline_dir), acc)
+    if stale:
+        return None, f"{project}: {stale}"
     try:
         rel = str((Path(accepted_dir) / f"{project}.json").resolve().relative_to(REPO))
     except ValueError:
@@ -1807,9 +2092,31 @@ def derive(project: str, records: list[dict], *, accepted_dir: Path = ACCEPTED_D
     if acc is not None:
         return build_truth(project, acc, records), None
     if synthetic_truth_file(project, projects_dir) is None and project in sparse_projects(records, projects_dir):
-        return build_sparse(project, records), None
+        return build_sparse(project, records, load_level_anchors().get(project)), None
     return None, why_no_truth(project, accepted_dir=accepted_dir, baseline_dir=baseline_dir,
                               projects_dir=projects_dir, records=records)
+
+
+def reacceptance_problem(baseline: Optional[dict], acc: dict) -> Optional[str]:
+    """Why a stored accepted reading may not serve a re-acceptance, None when it may (pure; review of 6 Nov 2026,
+    F7). An acceptance withdrawn once is kept in ``acceptance_history`` when the user accepts again; the new acceptance
+    must be newer than every withdrawal, name another reading than the withdrawn ones (``accepted_seen``), and the
+    stored reading must be the one stored for it (``truth accept`` after the new acceptance: its ``accepted.on`` is the
+    new ``accepted_on``), never the withdrawn reading still in ``results/reading_accepted/``."""
+    history = [h for h in (baseline or {}).get("acceptance_history") or [] if isinstance(h, dict)]
+    if not history:
+        return None
+    on = str((baseline or {}).get("accepted_on") or "")
+    last = max(str(h.get("on") or "") for h in history)
+    if not on or on <= last:
+        return f"the acceptance ({on or 'no date'}) is not newer than its withdrawal of {last}"
+    seen = str((baseline or {}).get("accepted_seen") or "").strip()
+    if seen in {str((h.get("was") or {}).get("accepted_seen") or "").strip() for h in history}:
+        return "a re-acceptance names the reading whose acceptance was withdrawn (accepted_seen): show a fresh one"
+    if str((acc.get("accepted") or {}).get("on") or "") != on:
+        return ("the stored accepted reading is not the one stored for this acceptance: run `truth accept` with a "
+                "fresh reading")
+    return None
 
 
 def why_no_truth(project: str, *, accepted_dir: Path = ACCEPTED_DIR, baseline_dir: Path = BASELINE_DIR,
@@ -1943,6 +2250,10 @@ def accept(projects: list[str], work: Path, *, fresh: bool = False, allow_drift:
         base = load_baseline(p, baseline_dir)
         if acceptance(base) is None:
             print(truth_of(p, {}, base)[1][0])
+            continue
+        problem = reacceptance_problem(base, {"accepted": {"on": base.get("accepted_on")}})
+        if problem:
+            print(f"{p}: not stored: {problem}")
             continue
         try:
             folder = reading(p, work, fresh)
@@ -2264,7 +2575,7 @@ def _correct(args, *, corrections, truth_dir, accepted_dir, baseline_dir, projec
         return 2, why
     # 6 Nov 2026: a real project without an explicit acceptance has a sparse truth (the user's corrections only)
     rebuild = (lambda recs: build_truth(project, acc, recs)) if acc is not None else \
-        (lambda recs: build_sparse(project, recs))
+        (lambda recs: build_sparse(project, recs, load_level_anchors().get(project)))
     fields = {k: g(k) for k in FIELD_ARGS}
     hint = None
     if g("id") and kind != "level":

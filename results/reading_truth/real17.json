@@ -9,7 +9,11 @@
  "levels": [
   {
    "id": "L0",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "Zemin Kat",
+   "elevation": 0.0,
+   "order": 0,
+   "anchor_source": "the CPU reading at 77deee6775be (the stored reading left L0 out)"
   }
  ],
  "levels_left_out": [],
@@ -21,12 +25,10 @@
     {
      "id": "u_C0038_4",
      "type": "window",
-     "width": 1.8,
      "center": [
       6.282,
       10.854
      ],
-     "wall_id": "w_L0_025",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
@@ -40,12 +42,10 @@
     {
      "id": "u_C0038_2",
      "type": "window",
-     "width": 2.0,
      "center": [
       6.282,
       13.791
      ],
-     "wall_id": "w_L0_025",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
@@ -59,12 +59,10 @@
     {
      "id": "u_C0038_3",
      "type": "window",
-     "width": 0.7,
      "center": [
       6.282,
       15.601
      ],
-     "wall_id": "w_L0_025",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
@@ -78,12 +76,10 @@
     {
      "id": "u_C0038_6",
      "type": "window",
-     "width": 1.7,
      "center": [
       6.282,
       18.055
      ],
-     "wall_id": "w_L0_025",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
@@ -97,12 +93,10 @@
     {
      "id": "u_C0038_5",
      "type": "window",
-     "width": 2.5,
      "center": [
       6.282,
       20.555
      ],
-     "wall_id": "w_L0_025",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
@@ -116,12 +110,10 @@
     {
      "id": "u_C0038_1",
      "type": "window",
-     "width": 4.7,
      "center": [
       9.152,
       9.505
      ],
-     "wall_id": "w_L0_005",
      "source": "user_correction",
      "confidence": null,
      "method": "user",

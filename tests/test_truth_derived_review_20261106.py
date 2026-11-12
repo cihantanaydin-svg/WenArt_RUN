@@ -301,7 +301,11 @@ def test_11_degenerate_operations_are_refused(op):
 
 
 def _own(truth):
-    return {"levels": truth["levels"], "per_level": {lid: {t: TR.positives(lv.get(t)) for t in TR.ELEMENT_TYPES}
+    from tests.test_truth_place_identity_20261105 import lift_attrs
+    return {"levels": truth["levels"], "per_level": {lid: {t: [lift_attrs(dict(copy.deepcopy(e),
+                                                                          id=e.get("reader_id") or e["id"]))
+                                                               for e in TR.positives(lv.get(t))]
+                                                           for t in TR.ELEMENT_TYPES}
                                                      for lid, lv in truth["per_level"].items()}}
 
 
@@ -339,8 +343,10 @@ def test_12_a_reversed_reading_of_the_truth_satisfies_every_entry(project):
     read = _own(truth)
     rev = {"levels": read["levels"], "per_level": {lid: {t: list(reversed(els)) for t, els in lv.items()}
                                                    for lid, lv in read["per_level"].items()}}
+    from tests.test_truth_place_identity_20261105 import own_building
+    main = own_building(truth)["_main_entrance"]
     for r in (read, rev):
-        res = SC.match(truth, r)
+        res = SC.match(truth, r, {"_main_entrance": main})
         assert res["entries"] and all(e["satisfied"] for e in res["entries"]), project
 
 

@@ -551,7 +551,9 @@ def load_trust(path: Path = TRUST_PATH) -> Optional[dict]:
 def apply_trust(findings: list, trust: Optional[dict]) -> list:
     """Each finding gets ``trust`` ``{precision, findings}`` of its kind; a kind below ``TRUST_MIN`` precision, or
     not calibrated, is written with severity ``info`` and its message says so (in place; returns the list)."""
-    kinds = (trust or {}).get("kinds") or {}
+    # 12 Nov 2026 (review F8): a trust file measured against the withdrawn accepted readings is marked ``stale``; its
+    # kinds count as not calibrated (every finding info) until it is measured again on the synthetic and sparse truths
+    kinds = {} if (trust or {}).get("stale") else ((trust or {}).get("kinds") or {})
     threshold = float((trust or {}).get("threshold") or TRUST_MIN)
     for f in findings:
         if f["kind"] not in KINDS:                  # a level's note (no reading, a weak reading): info by itself

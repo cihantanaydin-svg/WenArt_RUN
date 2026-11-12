@@ -9,39 +9,75 @@
  "levels": [
   {
    "id": "L-2",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "2. Bodrum Kat",
+   "elevation": -6.0,
+   "order": -2,
+   "anchor_source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
   },
   {
    "id": "L-1",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "1. Bodrum Kat",
+   "elevation": -3.0,
+   "order": -1,
+   "anchor_source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
   },
   {
    "id": "L0",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "Zemin Kat",
+   "elevation": 0.0,
+   "order": 0,
+   "anchor_source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
   },
   {
    "id": "L1",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "1. Normal Kat",
+   "elevation": 3.0,
+   "order": 1,
+   "anchor_source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
   },
   {
    "id": "L2",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "2. Normal Kat",
+   "elevation": 6.0,
+   "order": 2,
+   "anchor_source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
   },
   {
    "id": "L3",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "3. Normal Kat",
+   "elevation": 9.0,
+   "order": 3,
+   "anchor_source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
   },
   {
    "id": "L4",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "4. Normal Kat",
+   "elevation": 12.0,
+   "order": 4,
+   "anchor_source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
   },
   {
    "id": "L5",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "5. Normal Kat",
+   "elevation": 15.0,
+   "order": 5,
+   "anchor_source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
   },
   {
    "id": "L6",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "6. Normal Kat",
+   "elevation": 18.0,
+   "order": 6,
+   "anchor_source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
   }
  ],
  "levels_left_out": [],
@@ -62,13 +98,24 @@
       1.711,
       12.84
      ],
-     "thickness": 0.32,
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0068",
      "added_on": "2026-11-02",
-     "reader_id": "w_L-2_054",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r10",
+      "start": [
+       2016.61408,
+       13722.0454
+      ],
+      "end": [
+       2016.61408,
+       13722.2608
+      ]
+     },
      "corrections": [
       "C0068"
      ]
@@ -83,13 +130,24 @@
       2.161,
       16.395
      ],
-     "thickness": 0.32,
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0068",
      "added_on": "2026-11-02",
-     "reader_id": "w_L-2_058",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r10",
+      "start": [
+       2016.62308,
+       13722.2608
+      ],
+      "end": [
+       2016.62308,
+       13722.33189
+      ]
+     },
      "corrections": [
       "C0068"
      ]
@@ -104,13 +162,24 @@
       9.641,
       1.91
      ],
-     "thickness": 0.32,
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0068",
      "added_on": "2026-11-02",
-     "reader_id": "w_L-2_001",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r10",
+      "start": [
+       2016.61728,
+       13722.0422
+      ],
+      "end": [
+       2016.77268,
+       13722.0422
+      ]
+     },
      "corrections": [
       "C0068"
      ]
@@ -125,13 +194,24 @@
       12.741,
       2.03
      ],
-     "thickness": 0.48,
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0068",
      "added_on": "2026-11-02",
-     "reader_id": "w_L-2_005",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r10",
+      "start": [
+       2016.77268,
+       13722.044594
+      ],
+      "end": [
+       2016.83468,
+       13722.044594
+      ]
+     },
      "corrections": [
       "C0068"
      ]
@@ -146,13 +226,24 @@
       19.551,
       16.57
      ],
-     "thickness": 0.32,
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0068",
      "added_on": "2026-11-02",
-     "reader_id": "w_L-2_053",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r10",
+      "start": [
+       2016.63648,
+       13722.3354
+      ],
+      "end": [
+       2016.97088,
+       13722.3354
+      ]
+     },
      "corrections": [
       "C0068"
      ]
@@ -167,13 +258,24 @@
       20.511,
       1.91
      ],
-     "thickness": 0.32,
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0068",
      "added_on": "2026-11-02",
-     "reader_id": "w_L-2_002",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r10",
+      "start": [
+       2016.83468,
+       13722.0422
+      ],
+      "end": [
+       2016.99008,
+       13722.0422
+      ]
+     },
      "corrections": [
       "C0068"
      ]
@@ -188,13 +290,24 @@
       20.221,
       16.395
      ],
-     "thickness": 0.32,
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0068",
      "added_on": "2026-11-02",
-     "reader_id": "w_L-2_095",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r10",
+      "start": [
+       2016.98428,
+       13722.2664
+      ],
+      "end": [
+       2016.98428,
+       13722.33189
+      ]
+     },
      "corrections": [
       "C0068"
      ]
@@ -209,13 +322,24 @@
       20.665,
       12.81
      ],
-     "thickness": 0.31,
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0068",
      "added_on": "2026-11-02",
-     "reader_id": "w_L-2_096",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r10",
+      "start": [
+       2016.99316,
+       13722.1848
+      ],
+      "end": [
+       2016.99316,
+       13722.2602
+      ]
+     },
      "corrections": [
       "C0068"
      ]
@@ -230,13 +354,24 @@
       20.671,
       6.45
      ],
-     "thickness": 0.32,
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0068",
      "added_on": "2026-11-02",
-     "reader_id": "w_L-2_099",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r10",
+      "start": [
+       2016.99328,
+       13722.0454
+      ],
+      "end": [
+       2016.99328,
+       13722.132994
+      ]
+     },
      "corrections": [
       "C0068"
      ]
@@ -251,13 +386,24 @@
       20.791,
       6.586
      ],
-     "thickness": 0.26,
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0069",
      "added_on": "2026-11-02",
-     "reader_id": "w_L-2_100",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r10",
+      "start": [
+       2016.99316,
+       13722.1848
+      ],
+      "end": [
+       2016.99568,
+       13722.135716
+      ]
+     },
      "corrections": [
       "C0069"
      ]
@@ -271,7 +417,6 @@
      "id": "u_C0027_1",
      "label": "Kat Holü",
      "room_type": "hall",
-     "area": 23.09,
      "centroid": [
       11.128,
       5.127
@@ -451,6 +596,181 @@
      "method": "user",
      "correction": "C0027",
      "added_on": "2026-11-03",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r7",
+      "polygon": [
+       [
+        2017.413807,
+        13722.17582
+       ],
+       [
+        2017.413807,
+        13722.1378
+       ],
+       [
+        2017.406287,
+        13722.1378
+       ],
+       [
+        2017.406287,
+        13722.1384
+       ],
+       [
+        2017.398807,
+        13722.1384
+       ],
+       [
+        2017.398807,
+        13722.1322
+       ],
+       [
+        2017.406287,
+        13722.1322
+       ],
+       [
+        2017.406287,
+        13722.0558
+       ],
+       [
+        2017.406887,
+        13722.0558
+       ],
+       [
+        2017.406887,
+        13722.0448
+       ],
+       [
+        2017.398887,
+        13722.0448
+       ],
+       [
+        2017.398887,
+        13722.0558
+       ],
+       [
+        2017.391887,
+        13722.0558
+       ],
+       [
+        2017.391887,
+        13722.0448
+       ],
+       [
+        2017.343887,
+        13722.0448
+       ],
+       [
+        2017.343887,
+        13722.0558
+       ],
+       [
+        2017.336887,
+        13722.0558
+       ],
+       [
+        2017.336887,
+        13722.0448
+       ],
+       [
+        2017.328887,
+        13722.0448
+       ],
+       [
+        2017.328887,
+        13722.0558
+       ],
+       [
+        2017.329487,
+        13722.0558
+       ],
+       [
+        2017.329487,
+        13722.1322
+       ],
+       [
+        2017.337007,
+        13722.1322
+       ],
+       [
+        2017.337007,
+        13722.1384
+       ],
+       [
+        2017.329487,
+        13722.1384
+       ],
+       [
+        2017.329487,
+        13722.1378
+       ],
+       [
+        2017.322007,
+        13722.1378
+       ],
+       [
+        2017.322007,
+        13722.1598
+       ],
+       [
+        2017.321967,
+        13722.1598
+       ],
+       [
+        2017.321967,
+        13722.17008
+       ],
+       [
+        2017.324107,
+        13722.17008
+       ],
+       [
+        2017.324107,
+        13722.1702
+       ],
+       [
+        2017.353487,
+        13722.1702
+       ],
+       [
+        2017.353487,
+        13722.1708
+       ],
+       [
+        2017.356007,
+        13722.1708
+       ],
+       [
+        2017.356007,
+        13722.1648
+       ],
+       [
+        2017.359007,
+        13722.1648
+       ],
+       [
+        2017.359007,
+        13722.1628
+       ],
+       [
+        2017.359127,
+        13722.1628
+       ],
+       [
+        2017.359127,
+        13722.15864
+       ],
+       [
+        2017.413807,
+        13722.15864
+       ],
+       [
+        2017.413807,
+        13722.17582
+       ]
+      ]
+     },
      "reader_id": "r_L-1_oda_4_hall",
      "corrections": [
       "C0017",
@@ -461,7 +781,6 @@
      "id": "u_C0017_4",
      "label": "Merdiven",
      "room_type": "stair",
-     "area": 6.1,
      "centroid": [
       12.159,
       8.994
@@ -545,6 +864,85 @@
      "method": "user",
      "correction": "C0017",
      "added_on": "2026-11-03",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r7",
+      "polygon": [
+       [
+        2017.413807,
+        13722.17582
+       ],
+       [
+        2017.413807,
+        13722.15864
+       ],
+       [
+        2017.359127,
+        13722.15864
+       ],
+       [
+        2017.359127,
+        13722.1628
+       ],
+       [
+        2017.370407,
+        13722.1628
+       ],
+       [
+        2017.370407,
+        13722.1798
+       ],
+       [
+        2017.359127,
+        13722.1798
+       ],
+       [
+        2017.358387,
+        13722.1798
+       ],
+       [
+        2017.358387,
+        13722.20058
+       ],
+       [
+        2017.358407,
+        13722.20058
+       ],
+       [
+        2017.358407,
+        13722.2078
+       ],
+       [
+        2017.374167,
+        13722.2078
+       ],
+       [
+        2017.374167,
+        13722.2072
+       ],
+       [
+        2017.398887,
+        13722.2072
+       ],
+       [
+        2017.398887,
+        13722.2078
+       ],
+       [
+        2017.411867,
+        13722.2078
+       ],
+       [
+        2017.411867,
+        13722.20718
+       ],
+       [
+        2017.411867,
+        13722.17582
+       ]
+      ]
+     },
      "reader_id": "r_L-1_oda_4",
      "corrections": [
       "C0017"
@@ -554,7 +952,6 @@
      "id": "u_C0028_2",
      "label": "Mutfak",
      "room_type": "kitchen",
-     "area": 11.637,
      "centroid": [
       14.755,
       4.228
@@ -646,6 +1043,93 @@
      "method": "user",
      "correction": "C0028",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r7",
+      "polygon": [
+       [
+        2017.411887,
+        13722.0454
+       ],
+       [
+        2017.466287,
+        13722.0454
+       ],
+       [
+        2017.466287,
+        13722.12528
+       ],
+       [
+        2017.465307,
+        13722.12528
+       ],
+       [
+        2017.465307,
+        13722.12658
+       ],
+       [
+        2017.464087,
+        13722.12658
+       ],
+       [
+        2017.464087,
+        13722.12778
+       ],
+       [
+        2017.462907,
+        13722.12778
+       ],
+       [
+        2017.462907,
+        13722.12898
+       ],
+       [
+        2017.462507,
+        13722.12898
+       ],
+       [
+        2017.462507,
+        13722.12958
+       ],
+       [
+        2017.460707,
+        13722.12958
+       ],
+       [
+        2017.460707,
+        13722.1314
+       ],
+       [
+        2017.460087,
+        13722.1314
+       ],
+       [
+        2017.460087,
+        13722.1322
+       ],
+       [
+        2017.419287,
+        13722.1322
+       ],
+       [
+        2017.419287,
+        13722.1328
+       ],
+       [
+        2017.412487,
+        13722.1328
+       ],
+       [
+        2017.412487,
+        13722.0558
+       ],
+       [
+        2017.411887,
+        13722.0558
+       ]
+      ]
+     },
      "reader_id": "r_L-1_oda",
      "corrections": [
       "C0028"
@@ -655,7 +1139,6 @@
      "id": "u_C0028_3",
      "label": "Antre",
      "room_type": "hall",
-     "area": 10.842,
      "centroid": [
       15.639,
       9.468
@@ -747,6 +1230,93 @@
      "method": "user",
      "correction": "C0028",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r7",
+      "polygon": [
+       [
+        2017.419287,
+        13722.1354
+       ],
+       [
+        2017.460107,
+        13722.1354
+       ],
+       [
+        2017.460107,
+        13722.13418
+       ],
+       [
+        2017.461307,
+        13722.13418
+       ],
+       [
+        2017.475887,
+        13722.14846
+       ],
+       [
+        2017.475887,
+        13722.1508
+       ],
+       [
+        2017.476287,
+        13722.1508
+       ],
+       [
+        2017.476287,
+        13722.2602
+       ],
+       [
+        2017.476887,
+        13722.2602
+       ],
+       [
+        2017.476887,
+        13722.26342
+       ],
+       [
+        2017.476887,
+        13722.2821
+       ],
+       [
+        2017.455467,
+        13722.2821
+       ],
+       [
+        2017.455467,
+        13722.1774
+       ],
+       [
+        2017.460467,
+        13722.1774
+       ],
+       [
+        2017.460467,
+        13722.1742
+       ],
+       [
+        2017.420027,
+        13722.1742
+       ],
+       [
+        2017.420027,
+        13722.17008
+       ],
+       [
+        2017.420007,
+        13722.17008
+       ],
+       [
+        2017.420007,
+        13722.1378
+       ],
+       [
+        2017.419287,
+        13722.1378
+       ]
+      ]
+     },
      "reader_id": "r_L-1_oda_3",
      "corrections": [
       "C0028"
@@ -757,17 +1327,27 @@
     {
      "id": "u_C0040_1",
      "type": "door",
-     "width": 1.1,
      "center": [
       8.741,
       7.24
      ],
-     "wall_id": "w_L-1_108",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r7",
+      "center": [
+       2017.318907,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L-1_023",
      "corrections": [
       "C0040"
@@ -776,17 +1356,27 @@
     {
      "id": "u_C0019_1",
      "type": "door",
-     "width": 2.4,
      "center": [
       11.19,
       1.915
      ],
-     "wall_id": "w_L-1_003",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0019",
      "added_on": "2026-11-03",
+     "attrs": {
+      "main_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r7",
+      "center": [
+       2017.367887,
+       13722.0423
+      ]
+     },
      "reader_id": "d_L-1_001",
      "corrections": [
       "C0019"
@@ -795,17 +1385,27 @@
     {
      "id": "u_C0040_2",
      "type": "door",
-     "width": 1.1,
      "center": [
       13.641,
       7.24
      ],
-     "wall_id": "w_L-1_138",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r7",
+      "center": [
+       2017.416907,
+       13722.1488
+      ]
+     },
+     "attrs": {
+      "flat_entrance": true
+     },
      "reader_id": "d_L-1_024",
      "corrections": [
       "C0027",
@@ -815,17 +1415,24 @@
     {
      "id": "u_C0028_1",
      "type": "door",
-     "width": 0.973,
      "center": [
       15.314,
       6.49
      ],
-     "wall_id": "w_L-1_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0028",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r7",
+      "center": [
+       2017.450367,
+       13722.1338
+      ]
+     },
      "reader_id": "d_L-1_022",
      "corrections": [
       "C0028"
@@ -843,7 +1450,6 @@
      "id": "u_C0023_1",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       1.205,
       7.865
@@ -880,7 +1486,6 @@
      "id": "u_C0020_1",
      "label": "Depo",
      "room_type": "storage",
-     "area": 0.354,
      "centroid": [
       8.319,
       9.995
@@ -932,6 +1537,53 @@
      "method": "user",
      "correction": "C0020",
      "added_on": "2026-11-03",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.88228,
+        13722.19744
+       ],
+       [
+        2017.89318,
+        13722.19744
+       ],
+       [
+        2017.89318,
+        13722.20058
+       ],
+       [
+        2017.8932,
+        13722.20058
+       ],
+       [
+        2017.8932,
+        13722.2072
+       ],
+       [
+        2017.89382,
+        13722.2072
+       ],
+       [
+        2017.89382,
+        13722.2078
+       ],
+       [
+        2017.8942,
+        13722.2078
+       ],
+       [
+        2017.8942,
+        13722.21016
+       ],
+       [
+        2017.88228,
+        13722.21016
+       ]
+      ]
+     },
      "reader_id": "r_L0_depo_2",
      "corrections": [
       "C0020"
@@ -941,7 +1593,6 @@
      "id": "u_C0017_1",
      "label": "Kat Holü",
      "room_type": "hall",
-     "area": 5.78,
      "centroid": [
       10.954,
       7.416
@@ -1089,6 +1740,149 @@
      "method": "user",
      "correction": "C0017",
      "added_on": "2026-11-03",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.93638,
+        13722.1798
+       ],
+       [
+        2017.93638,
+        13722.192
+       ],
+       [
+        2017.9358,
+        13722.192
+       ],
+       [
+        2017.9358,
+        13722.2078
+       ],
+       [
+        2017.95156,
+        13722.2078
+       ],
+       [
+        2017.95156,
+        13722.2072
+       ],
+       [
+        2017.97628,
+        13722.2072
+       ],
+       [
+        2017.97628,
+        13722.2078
+       ],
+       [
+        2017.9918,
+        13722.2078
+       ],
+       [
+        2017.9918,
+        13722.1942
+       ],
+       [
+        2017.99124,
+        13722.1942
+       ],
+       [
+        2017.99124,
+        13722.192
+       ],
+       [
+        2017.9912,
+        13722.192
+       ],
+       [
+        2017.9912,
+        13722.1384
+       ],
+       [
+        2017.8994,
+        13722.1384
+       ],
+       [
+        2017.8994,
+        13722.1598
+       ],
+       [
+        2017.89938,
+        13722.1598
+       ],
+       [
+        2017.89938,
+        13722.17008
+       ],
+       [
+        2017.9015,
+        13722.17008
+       ],
+       [
+        2017.9015,
+        13722.1702
+       ],
+       [
+        2017.93088,
+        13722.1702
+       ],
+       [
+        2017.93088,
+        13722.1708
+       ],
+       [
+        2017.9335,
+        13722.1708
+       ],
+       [
+        2017.9335,
+        13722.1648
+       ],
+       [
+        2017.9359,
+        13722.1648
+       ],
+       [
+        2017.9359,
+        13722.1648
+       ],
+       [
+        2017.9364,
+        13722.1648
+       ],
+       [
+        2017.9364,
+        13722.1628
+       ],
+       [
+        2017.93654,
+        13722.1628
+       ],
+       [
+        2017.93654,
+        13722.15864
+       ],
+       [
+        2017.9912,
+        13722.15864
+       ],
+       [
+        2017.9912,
+        13722.20718
+       ],
+       [
+        2017.93654,
+        13722.20718
+       ],
+       [
+        2017.93654,
+        13722.1798
+       ]
+      ]
+     },
      "reader_id": "r_L0_oda_5_hall",
      "corrections": [
       "C0017"
@@ -1098,7 +1892,6 @@
      "id": "u_C0035_2",
      "label": "Merdiven",
      "room_type": "stair",
-     "area": 1.877,
      "centroid": [
       11.19,
       5.485
@@ -1126,6 +1919,29 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.92808,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.1246
+       ],
+       [
+        2017.92808,
+        13722.1246
+       ]
+      ]
+     },
      "reader_id": "r_L0_merdiven",
      "corrections": [
       "C0035"
@@ -1135,7 +1951,6 @@
      "id": "u_C0037_1",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       13.28
@@ -1172,7 +1987,6 @@
      "id": "u_C0037_2",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       15.825
@@ -1209,7 +2023,6 @@
      "id": "u_C0017_2",
      "label": "Merdiven",
      "room_type": "stair",
-     "area": 6.16,
      "centroid": [
       12.204,
       8.991
@@ -1253,6 +2066,45 @@
      "method": "user",
      "correction": "C0017",
      "added_on": "2026-11-03",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.9478,
+        13722.1628
+       ],
+       [
+        2017.9478,
+        13722.1798
+       ],
+       [
+        2017.93654,
+        13722.1798
+       ],
+       [
+        2017.93654,
+        13722.20718
+       ],
+       [
+        2017.9912,
+        13722.20718
+       ],
+       [
+        2017.9912,
+        13722.15864
+       ],
+       [
+        2017.93654,
+        13722.15864
+       ],
+       [
+        2017.93654,
+        13722.1628
+       ]
+      ]
+     },
      "reader_id": "r_L0_oda_5",
      "corrections": [
       "C0017"
@@ -1262,7 +2114,6 @@
      "id": "u_C0020_2",
      "label": "Depo",
      "room_type": "storage",
-     "area": 0.365,
      "centroid": [
       14.053,
       9.99
@@ -1290,6 +2141,29 @@
      "method": "user",
      "correction": "C0020",
      "added_on": "2026-11-03",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.9968,
+        13722.19744
+       ],
+       [
+        2018.00828,
+        13722.19744
+       ],
+       [
+        2018.00828,
+        13722.21016
+       ],
+       [
+        2017.9968,
+        13722.21016
+       ]
+      ]
+     },
      "reader_id": "r_L0_depo",
      "corrections": [
       "C0020"
@@ -1300,17 +2174,27 @@
     {
      "id": "u_C0043_1",
      "type": "door",
-     "width": 1.615,
      "center": [
       6.275,
       7.025
      ],
-     "wall_id": "w_L0_chamfer_01",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.84698,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L0_030",
      "corrections": [
       "C0043"
@@ -1319,17 +2203,27 @@
     {
      "id": "u_C0040_3",
      "type": "door",
-     "width": 1.1,
      "center": [
       8.741,
       7.24
      ],
-     "wall_id": "w_L0_152",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.8963,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L0_017",
      "corrections": [
       "C0040"
@@ -1338,17 +2232,27 @@
     {
      "id": "u_C0034_2",
      "type": "door",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L0_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
      "added_on": "2026-11-04",
+     "attrs": {
+      "lift_door": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L0_006",
      "corrections": [
       "C0034"
@@ -1372,56 +2276,26 @@
      ]
     },
     {
-     "id": "u_C0034_3",
-     "type": "door",
-     "width": 1.49,
-     "center": [
-      10.658,
-      9.085
-     ],
-     "wall_id": "w_L0_176",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0034",
-     "reader_id": "o_L0_019",
-     "corrections": [
-      "C0034"
-     ],
-     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)",
-     "evidence": [
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "kolon",
-       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
-       "what": "column outline x 10.466 to 10.716"
-      },
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "SIVA",
-       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
-       "what": "the core stair's winders starting at x 10.746"
-      }
-     ],
-     "absent": true,
-     "removed_on": "2026-11-04"
-    },
-    {
      "id": "u_C0035_4",
      "type": "door",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L0_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L0_003",
      "corrections": [
       "C0035"
@@ -1430,17 +2304,27 @@
     {
      "id": "u_C0040_4",
      "type": "door",
-     "width": 1.1,
      "center": [
       13.641,
       7.24
      ],
-     "wall_id": "w_L0_194",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9943,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L0_018",
      "corrections": [
       "C0040"
@@ -1449,17 +2333,27 @@
     {
      "id": "u_C0043_2",
      "type": "door",
-     "width": 1.615,
      "center": [
       16.105,
       7.025
      ],
-     "wall_id": "w_L0_chamfer_02",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.04358,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L0_031",
      "corrections": [
       "C0043"
@@ -1470,17 +2364,24 @@
     {
      "id": "u_C0032_1",
      "type": "window",
-     "width": 1.5,
      "center": [
       20.23,
       14.74
      ],
-     "wall_id": "w_L0_220",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0032",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.12608,
+       13722.2988
+      ]
+     },
      "reader_id": "o_L0_022",
      "corrections": [
       "C0032"
@@ -1491,16 +2392,23 @@
     {
      "id": "u_C0034_1",
      "type": "opening",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L0_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L0_006",
      "corrections": [
       "C0034"
@@ -1511,16 +2419,23 @@
     {
      "id": "u_C0035_3",
      "type": "opening",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L0_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L0_003",
      "corrections": [
       "C0035"
@@ -1550,6 +2465,15 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94536,
+       13722.09708
+      ]
+     },
      "reader_id": "f_L0_024",
      "corrections": [
       "C0035"
@@ -1574,6 +2498,15 @@
      "method": "user",
      "correction": "C0016",
      "added_on": "2026-11-03",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.96372,
+       13722.18416
+      ]
+     },
      "reader_id": "f_L0_023",
      "corrections": [
       "C0016"
@@ -1587,7 +2520,6 @@
      "id": "u_C0035_6",
      "label": "Merdiven",
      "room_type": "stair",
-     "area": 1.877,
      "centroid": [
       11.19,
       5.485
@@ -1615,6 +2547,29 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.92808,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.1246
+       ],
+       [
+        2017.92808,
+        13722.1246
+       ]
+      ]
+     },
      "reader_id": "r_L1_merdiven",
      "corrections": [
       "C0035"
@@ -1624,7 +2579,6 @@
      "id": "u_C0037_3",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       13.28
@@ -1661,7 +2615,6 @@
      "id": "u_C0037_4",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       15.825
@@ -1699,17 +2652,27 @@
     {
      "id": "u_C0043_3",
      "type": "door",
-     "width": 1.615,
      "center": [
       6.275,
       7.025
      ],
-     "wall_id": "w_L1_chamfer_03",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.84698,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L1_030",
      "corrections": [
       "C0043"
@@ -1718,36 +2681,56 @@
     {
      "id": "u_C0040_5",
      "type": "door",
-     "width": 1.1,
      "center": [
       8.741,
       7.24
      ],
-     "wall_id": "w_L1_152",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.8963,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L1_017",
      "corrections": [
       "C0040"
      ]
     },
     {
-     "id": "u_C0034_5",
+     "id": "u_C0034_4",
      "type": "door",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L1_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
      "added_on": "2026-11-04",
+     "attrs": {
+      "lift_door": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L1_006",
      "corrections": [
       "C0034"
@@ -1771,56 +2754,26 @@
      ]
     },
     {
-     "id": "u_C0034_6",
-     "type": "door",
-     "width": 1.49,
-     "center": [
-      10.658,
-      9.085
-     ],
-     "wall_id": "w_L1_176",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0034",
-     "reader_id": "o_L1_019",
-     "corrections": [
-      "C0034"
-     ],
-     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)",
-     "evidence": [
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "kolon",
-       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
-       "what": "column outline x 10.466 to 10.716"
-      },
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "SIVA",
-       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
-       "what": "the core stair's winders starting at x 10.746"
-      }
-     ],
-     "absent": true,
-     "removed_on": "2026-11-04"
-    },
-    {
      "id": "u_C0035_8",
      "type": "door",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L1_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L1_003",
      "corrections": [
       "C0035"
@@ -1829,17 +2782,27 @@
     {
      "id": "u_C0040_6",
      "type": "door",
-     "width": 1.1,
      "center": [
       13.641,
       7.24
      ],
-     "wall_id": "w_L1_194",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9943,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L1_018",
      "corrections": [
       "C0040"
@@ -1848,17 +2811,27 @@
     {
      "id": "u_C0043_4",
      "type": "door",
-     "width": 1.615,
      "center": [
       16.105,
       7.025
      ],
-     "wall_id": "w_L1_chamfer_04",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.04358,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L1_031",
      "corrections": [
       "C0043"
@@ -1869,17 +2842,24 @@
     {
      "id": "u_C0032_2",
      "type": "window",
-     "width": 1.5,
      "center": [
       20.23,
       14.74
      ],
-     "wall_id": "w_L1_220",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0032",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.12608,
+       13722.2988
+      ]
+     },
      "reader_id": "o_L1_022",
      "corrections": [
       "C0032"
@@ -1888,18 +2868,25 @@
    ],
    "openings": [
     {
-     "id": "u_C0034_4",
+     "id": "u_C0034_3",
      "type": "opening",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L1_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L1_006",
      "corrections": [
       "C0034"
@@ -1910,16 +2897,23 @@
     {
      "id": "u_C0035_7",
      "type": "opening",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L1_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L1_003",
      "corrections": [
       "C0035"
@@ -1949,6 +2943,15 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94536,
+       13722.09708
+      ]
+     },
      "reader_id": "f_L1_024",
      "corrections": [
       "C0035"
@@ -1962,7 +2965,6 @@
      "id": "u_C0035_10",
      "label": "Merdiven",
      "room_type": "stair",
-     "area": 1.877,
      "centroid": [
       11.19,
       5.485
@@ -1990,6 +2992,29 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.92808,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.1246
+       ],
+       [
+        2017.92808,
+        13722.1246
+       ]
+      ]
+     },
      "reader_id": "r_L2_merdiven",
      "corrections": [
       "C0035"
@@ -1999,7 +3024,6 @@
      "id": "u_C0037_5",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       13.28
@@ -2036,7 +3060,6 @@
      "id": "u_C0037_6",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       15.825
@@ -2074,17 +3097,27 @@
     {
      "id": "u_C0043_5",
      "type": "door",
-     "width": 1.615,
      "center": [
       6.275,
       7.025
      ],
-     "wall_id": "w_L2_chamfer_05",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.84698,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L2_030",
      "corrections": [
       "C0043"
@@ -2093,36 +3126,56 @@
     {
      "id": "u_C0040_7",
      "type": "door",
-     "width": 1.1,
      "center": [
       8.741,
       7.24
      ],
-     "wall_id": "w_L2_152",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.8963,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L2_017",
      "corrections": [
       "C0040"
      ]
     },
     {
-     "id": "u_C0034_8",
+     "id": "u_C0034_6",
      "type": "door",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L2_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
      "added_on": "2026-11-04",
+     "attrs": {
+      "lift_door": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L2_006",
      "corrections": [
       "C0034"
@@ -2146,56 +3199,26 @@
      ]
     },
     {
-     "id": "u_C0034_9",
-     "type": "door",
-     "width": 1.49,
-     "center": [
-      10.658,
-      9.085
-     ],
-     "wall_id": "w_L2_176",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0034",
-     "reader_id": "o_L2_019",
-     "corrections": [
-      "C0034"
-     ],
-     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)",
-     "evidence": [
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "kolon",
-       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
-       "what": "column outline x 10.466 to 10.716"
-      },
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "SIVA",
-       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
-       "what": "the core stair's winders starting at x 10.746"
-      }
-     ],
-     "absent": true,
-     "removed_on": "2026-11-04"
-    },
-    {
      "id": "u_C0035_12",
      "type": "door",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L2_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L2_003",
      "corrections": [
       "C0035"
@@ -2204,17 +3227,27 @@
     {
      "id": "u_C0040_8",
      "type": "door",
-     "width": 1.1,
      "center": [
       13.641,
       7.24
      ],
-     "wall_id": "w_L2_194",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9943,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L2_018",
      "corrections": [
       "C0040"
@@ -2223,17 +3256,27 @@
     {
      "id": "u_C0043_6",
      "type": "door",
-     "width": 1.615,
      "center": [
       16.105,
       7.025
      ],
-     "wall_id": "w_L2_chamfer_06",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.04358,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L2_031",
      "corrections": [
       "C0043"
@@ -2244,17 +3287,24 @@
     {
      "id": "u_C0032_3",
      "type": "window",
-     "width": 1.5,
      "center": [
       20.23,
       14.74
      ],
-     "wall_id": "w_L2_220",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0032",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.12608,
+       13722.2988
+      ]
+     },
      "reader_id": "o_L2_022",
      "corrections": [
       "C0032"
@@ -2263,18 +3313,25 @@
    ],
    "openings": [
     {
-     "id": "u_C0034_7",
+     "id": "u_C0034_5",
      "type": "opening",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L2_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L2_006",
      "corrections": [
       "C0034"
@@ -2285,16 +3342,23 @@
     {
      "id": "u_C0035_11",
      "type": "opening",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L2_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L2_003",
      "corrections": [
       "C0035"
@@ -2324,6 +3388,15 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94536,
+       13722.09708
+      ]
+     },
      "reader_id": "f_L2_024",
      "corrections": [
       "C0035"
@@ -2337,7 +3410,6 @@
      "id": "u_C0035_14",
      "label": "Merdiven",
      "room_type": "stair",
-     "area": 1.877,
      "centroid": [
       11.19,
       5.485
@@ -2365,6 +3437,29 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.92808,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.1246
+       ],
+       [
+        2017.92808,
+        13722.1246
+       ]
+      ]
+     },
      "reader_id": "r_L3_merdiven",
      "corrections": [
       "C0035"
@@ -2374,7 +3469,6 @@
      "id": "u_C0037_7",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       13.28
@@ -2411,7 +3505,6 @@
      "id": "u_C0037_8",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       15.825
@@ -2449,17 +3542,27 @@
     {
      "id": "u_C0043_7",
      "type": "door",
-     "width": 1.615,
      "center": [
       6.275,
       7.025
      ],
-     "wall_id": "w_L3_chamfer_07",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.84698,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L3_030",
      "corrections": [
       "C0043"
@@ -2468,36 +3571,56 @@
     {
      "id": "u_C0040_9",
      "type": "door",
-     "width": 1.1,
      "center": [
       8.741,
       7.24
      ],
-     "wall_id": "w_L3_152",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.8963,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L3_017",
      "corrections": [
       "C0040"
      ]
     },
     {
-     "id": "u_C0034_11",
+     "id": "u_C0034_8",
      "type": "door",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L3_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
      "added_on": "2026-11-04",
+     "attrs": {
+      "lift_door": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L3_006",
      "corrections": [
       "C0034"
@@ -2521,56 +3644,26 @@
      ]
     },
     {
-     "id": "u_C0034_12",
-     "type": "door",
-     "width": 1.49,
-     "center": [
-      10.658,
-      9.085
-     ],
-     "wall_id": "w_L3_176",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0034",
-     "reader_id": "o_L3_019",
-     "corrections": [
-      "C0034"
-     ],
-     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)",
-     "evidence": [
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "kolon",
-       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
-       "what": "column outline x 10.466 to 10.716"
-      },
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "SIVA",
-       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
-       "what": "the core stair's winders starting at x 10.746"
-      }
-     ],
-     "absent": true,
-     "removed_on": "2026-11-04"
-    },
-    {
      "id": "u_C0035_16",
      "type": "door",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L3_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L3_003",
      "corrections": [
       "C0035"
@@ -2579,17 +3672,27 @@
     {
      "id": "u_C0040_10",
      "type": "door",
-     "width": 1.1,
      "center": [
       13.641,
       7.24
      ],
-     "wall_id": "w_L3_194",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9943,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L3_018",
      "corrections": [
       "C0040"
@@ -2598,17 +3701,27 @@
     {
      "id": "u_C0043_8",
      "type": "door",
-     "width": 1.615,
      "center": [
       16.105,
       7.025
      ],
-     "wall_id": "w_L3_chamfer_08",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.04358,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L3_031",
      "corrections": [
       "C0043"
@@ -2619,17 +3732,24 @@
     {
      "id": "u_C0032_4",
      "type": "window",
-     "width": 1.5,
      "center": [
       20.23,
       14.74
      ],
-     "wall_id": "w_L3_220",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0032",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.12608,
+       13722.2988
+      ]
+     },
      "reader_id": "o_L3_022",
      "corrections": [
       "C0032"
@@ -2638,18 +3758,25 @@
    ],
    "openings": [
     {
-     "id": "u_C0034_10",
+     "id": "u_C0034_7",
      "type": "opening",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L3_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L3_006",
      "corrections": [
       "C0034"
@@ -2660,16 +3787,23 @@
     {
      "id": "u_C0035_15",
      "type": "opening",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L3_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L3_003",
      "corrections": [
       "C0035"
@@ -2699,6 +3833,15 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94536,
+       13722.09708
+      ]
+     },
      "reader_id": "f_L3_024",
      "corrections": [
       "C0035"
@@ -2712,7 +3855,6 @@
      "id": "u_C0035_18",
      "label": "Merdiven",
      "room_type": "stair",
-     "area": 1.877,
      "centroid": [
       11.19,
       5.485
@@ -2740,6 +3882,29 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.92808,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.1246
+       ],
+       [
+        2017.92808,
+        13722.1246
+       ]
+      ]
+     },
      "reader_id": "r_L4_merdiven",
      "corrections": [
       "C0035"
@@ -2749,7 +3914,6 @@
      "id": "u_C0037_9",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       13.28
@@ -2786,7 +3950,6 @@
      "id": "u_C0037_10",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       15.825
@@ -2824,17 +3987,27 @@
     {
      "id": "u_C0043_9",
      "type": "door",
-     "width": 1.615,
      "center": [
       6.275,
       7.025
      ],
-     "wall_id": "w_L4_chamfer_09",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.84698,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L4_030",
      "corrections": [
       "C0043"
@@ -2843,36 +4016,56 @@
     {
      "id": "u_C0040_11",
      "type": "door",
-     "width": 1.1,
      "center": [
       8.741,
       7.24
      ],
-     "wall_id": "w_L4_152",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.8963,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L4_017",
      "corrections": [
       "C0040"
      ]
     },
     {
-     "id": "u_C0034_14",
+     "id": "u_C0034_10",
      "type": "door",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L4_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
      "added_on": "2026-11-04",
+     "attrs": {
+      "lift_door": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L4_006",
      "corrections": [
       "C0034"
@@ -2896,56 +4089,26 @@
      ]
     },
     {
-     "id": "u_C0034_15",
-     "type": "door",
-     "width": 1.49,
-     "center": [
-      10.658,
-      9.085
-     ],
-     "wall_id": "w_L4_176",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0034",
-     "reader_id": "o_L4_019",
-     "corrections": [
-      "C0034"
-     ],
-     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)",
-     "evidence": [
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "kolon",
-       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
-       "what": "column outline x 10.466 to 10.716"
-      },
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "SIVA",
-       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
-       "what": "the core stair's winders starting at x 10.746"
-      }
-     ],
-     "absent": true,
-     "removed_on": "2026-11-04"
-    },
-    {
      "id": "u_C0035_20",
      "type": "door",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L4_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L4_003",
      "corrections": [
       "C0035"
@@ -2954,17 +4117,27 @@
     {
      "id": "u_C0040_12",
      "type": "door",
-     "width": 1.1,
      "center": [
       13.641,
       7.24
      ],
-     "wall_id": "w_L4_194",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9943,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L4_018",
      "corrections": [
       "C0040"
@@ -2973,17 +4146,27 @@
     {
      "id": "u_C0043_10",
      "type": "door",
-     "width": 1.615,
      "center": [
       16.105,
       7.025
      ],
-     "wall_id": "w_L4_chamfer_10",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.04358,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L4_031",
      "corrections": [
       "C0043"
@@ -2994,17 +4177,24 @@
     {
      "id": "u_C0032_5",
      "type": "window",
-     "width": 1.5,
      "center": [
       20.23,
       14.74
      ],
-     "wall_id": "w_L4_220",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0032",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.12608,
+       13722.2988
+      ]
+     },
      "reader_id": "o_L4_022",
      "corrections": [
       "C0032"
@@ -3013,18 +4203,25 @@
    ],
    "openings": [
     {
-     "id": "u_C0034_13",
+     "id": "u_C0034_9",
      "type": "opening",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L4_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L4_006",
      "corrections": [
       "C0034"
@@ -3035,16 +4232,23 @@
     {
      "id": "u_C0035_19",
      "type": "opening",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L4_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L4_003",
      "corrections": [
       "C0035"
@@ -3074,6 +4278,15 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94536,
+       13722.09708
+      ]
+     },
      "reader_id": "f_L4_024",
      "corrections": [
       "C0035"
@@ -3087,7 +4300,6 @@
      "id": "u_C0035_22",
      "label": "Merdiven",
      "room_type": "stair",
-     "area": 1.877,
      "centroid": [
       11.19,
       5.485
@@ -3115,6 +4327,29 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.92808,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.1246
+       ],
+       [
+        2017.92808,
+        13722.1246
+       ]
+      ]
+     },
      "reader_id": "r_L5_merdiven",
      "corrections": [
       "C0035"
@@ -3124,7 +4359,6 @@
      "id": "u_C0037_11",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       13.28
@@ -3161,7 +4395,6 @@
      "id": "u_C0037_12",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       15.825
@@ -3199,17 +4432,27 @@
     {
      "id": "u_C0043_11",
      "type": "door",
-     "width": 1.615,
      "center": [
       6.275,
       7.025
      ],
-     "wall_id": "w_L5_chamfer_11",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.84698,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L5_030",
      "corrections": [
       "C0043"
@@ -3218,36 +4461,56 @@
     {
      "id": "u_C0040_13",
      "type": "door",
-     "width": 1.1,
      "center": [
       8.741,
       7.24
      ],
-     "wall_id": "w_L5_152",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.8963,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L5_017",
      "corrections": [
       "C0040"
      ]
     },
     {
-     "id": "u_C0034_17",
+     "id": "u_C0034_12",
      "type": "door",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L5_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
      "added_on": "2026-11-04",
+     "attrs": {
+      "lift_door": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L5_006",
      "corrections": [
       "C0034"
@@ -3271,56 +4534,26 @@
      ]
     },
     {
-     "id": "u_C0034_18",
-     "type": "door",
-     "width": 1.49,
-     "center": [
-      10.658,
-      9.085
-     ],
-     "wall_id": "w_L5_176",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0034",
-     "reader_id": "o_L5_019",
-     "corrections": [
-      "C0034"
-     ],
-     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)",
-     "evidence": [
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "kolon",
-       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
-       "what": "column outline x 10.466 to 10.716"
-      },
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "SIVA",
-       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
-       "what": "the core stair's winders starting at x 10.746"
-      }
-     ],
-     "absent": true,
-     "removed_on": "2026-11-04"
-    },
-    {
      "id": "u_C0035_24",
      "type": "door",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L5_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L5_003",
      "corrections": [
       "C0035"
@@ -3329,17 +4562,27 @@
     {
      "id": "u_C0040_14",
      "type": "door",
-     "width": 1.1,
      "center": [
       13.641,
       7.24
      ],
-     "wall_id": "w_L5_194",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9943,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L5_018",
      "corrections": [
       "C0040"
@@ -3348,17 +4591,27 @@
     {
      "id": "u_C0043_12",
      "type": "door",
-     "width": 1.615,
      "center": [
       16.105,
       7.025
      ],
-     "wall_id": "w_L5_chamfer_12",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.04358,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L5_031",
      "corrections": [
       "C0043"
@@ -3369,17 +4622,24 @@
     {
      "id": "u_C0032_6",
      "type": "window",
-     "width": 1.5,
      "center": [
       20.23,
       14.74
      ],
-     "wall_id": "w_L5_220",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0032",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.12608,
+       13722.2988
+      ]
+     },
      "reader_id": "o_L5_022",
      "corrections": [
       "C0032"
@@ -3388,18 +4648,25 @@
    ],
    "openings": [
     {
-     "id": "u_C0034_16",
+     "id": "u_C0034_11",
      "type": "opening",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L5_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L5_006",
      "corrections": [
       "C0034"
@@ -3410,16 +4677,23 @@
     {
      "id": "u_C0035_23",
      "type": "opening",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L5_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L5_003",
      "corrections": [
       "C0035"
@@ -3449,6 +4723,15 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94536,
+       13722.09708
+      ]
+     },
      "reader_id": "f_L5_024",
      "corrections": [
       "C0035"
@@ -3462,7 +4745,6 @@
      "id": "u_C0035_26",
      "label": "Merdiven",
      "room_type": "stair",
-     "area": 1.877,
      "centroid": [
       11.19,
       5.485
@@ -3490,6 +4772,29 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "polygon": [
+       [
+        2017.92808,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.10278
+       ],
+       [
+        2017.96248,
+        13722.1246
+       ],
+       [
+        2017.92808,
+        13722.1246
+       ]
+      ]
+     },
      "reader_id": "r_L6_merdiven",
      "corrections": [
       "C0035"
@@ -3499,7 +4804,6 @@
      "id": "u_C0037_13",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       13.28
@@ -3536,7 +4840,6 @@
      "id": "u_C0037_14",
      "label": "Oda",
      "room_type": null,
-     "area": null,
      "centroid": [
       11.19,
       15.825
@@ -3574,17 +4877,27 @@
     {
      "id": "u_C0043_13",
      "type": "door",
-     "width": 1.615,
      "center": [
       6.275,
       7.025
      ],
-     "wall_id": "w_L6_chamfer_13",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.84698,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L6_030",
      "corrections": [
       "C0043"
@@ -3593,36 +4906,56 @@
     {
      "id": "u_C0040_15",
      "type": "door",
-     "width": 1.1,
      "center": [
       8.741,
       7.24
      ],
-     "wall_id": "w_L6_152",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.8963,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L6_017",
      "corrections": [
       "C0040"
      ]
     },
     {
-     "id": "u_C0034_20",
+     "id": "u_C0034_14",
      "type": "door",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L6_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
      "added_on": "2026-11-04",
+     "attrs": {
+      "lift_door": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L6_006",
      "corrections": [
       "C0034"
@@ -3646,56 +4979,26 @@
      ]
     },
     {
-     "id": "u_C0034_21",
-     "type": "door",
-     "width": 1.49,
-     "center": [
-      10.658,
-      9.085
-     ],
-     "wall_id": "w_L6_176",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0034",
-     "reader_id": "o_L6_019",
-     "corrections": [
-      "C0034"
-     ],
-     "note": "no lift door on the shaft's east side: a solid column band (layer kolon, x 10.466 to 10.716, y 8.339 to 10.189) with the core stair's winders starting at x 10.746 (plan r8)",
-     "evidence": [
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "kolon",
-       "entity": "LINE:41DBB4,LINE:41DBB5,LINE:41DBB6",
-       "what": "column outline x 10.466 to 10.716"
-      },
-      {
-       "file": "real10.dwg",
-       "method": "vector",
-       "layer": "SIVA",
-       "entity": "LINE:14F547,LINE:14F548,LINE:14F549",
-       "what": "the core stair's winders starting at x 10.746"
-      }
-     ],
-     "absent": true,
-     "removed_on": "2026-11-04"
-    },
-    {
      "id": "u_C0035_28",
      "type": "door",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L6_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L6_003",
      "corrections": [
       "C0035"
@@ -3704,17 +5007,27 @@
     {
      "id": "u_C0040_16",
      "type": "door",
-     "width": 1.1,
      "center": [
       13.641,
       7.24
      ],
-     "wall_id": "w_L6_194",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0040",
      "added_on": "2026-11-04",
+     "attrs": {
+      "flat_entrance": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9943,
+       13722.1488
+      ]
+     },
      "reader_id": "d_L6_018",
      "corrections": [
       "C0040"
@@ -3723,17 +5036,27 @@
     {
      "id": "u_C0043_14",
      "type": "door",
-     "width": 1.615,
      "center": [
       16.105,
       7.025
      ],
-     "wall_id": "w_L6_chamfer_14",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0043",
      "added_on": "2026-11-04",
+     "attrs": {
+      "chamfer_frame": true
+     },
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.04358,
+       13722.1445
+      ]
+     },
      "reader_id": "o_L6_031",
      "corrections": [
       "C0043"
@@ -3744,17 +5067,24 @@
     {
      "id": "u_C0032_7",
      "type": "window",
-     "width": 1.5,
      "center": [
       20.23,
       14.74
      ],
-     "wall_id": "w_L6_220",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0032",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2018.12608,
+       13722.2988
+      ]
+     },
      "reader_id": "o_L6_022",
      "corrections": [
       "C0032"
@@ -3763,18 +5093,25 @@
    ],
    "openings": [
     {
-     "id": "u_C0034_19",
+     "id": "u_C0034_13",
      "type": "opening",
-     "width": 0.9,
      "center": [
       9.666,
       8.45
      ],
-     "wall_id": "w_L6_031",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0034",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.9148,
+       13722.173
+      ]
+     },
      "reader_id": "o_L6_006",
      "corrections": [
       "C0034"
@@ -3785,16 +5122,23 @@
     {
      "id": "u_C0035_27",
      "type": "opening",
-     "width": 1.4,
      "center": [
       11.19,
       6.29
      ],
-     "wall_id": "w_L6_016",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
      "correction": "C0035",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94528,
+       13722.1298
+      ]
+     },
      "reader_id": "o_L6_003",
      "corrections": [
       "C0035"
@@ -3824,6 +5168,15 @@
      "method": "user",
      "correction": "C0035",
      "added_on": "2026-11-04",
+     "frame": {
+      "file": "real10.dwg",
+      "page": 1,
+      "region": "r8",
+      "center": [
+       2017.94536,
+       13722.09708
+      ]
+     },
      "reader_id": "f_L6_024",
      "corrections": [
       "C0035"
@@ -3832,19 +5185,7 @@
    ]
   }
  },
- "project_assertions": [
-  {
-   "what": "ground_z",
-   "tolerance": 0.1,
-   "value": -3.0,
-   "source": "right_answer: 'the ground at -3.00 m, the 1st basement's floor'",
-   "id": "a_C0031_1",
-   "corrections": [
-    "C0031"
-   ],
-   "correction": "C0031"
-  }
- ],
+ "project_assertions": [],
  "corrections": [
   "C0016",
   "C0017",
@@ -3853,7 +5194,6 @@
   "C0023",
   "C0027",
   "C0028",
-  "C0031",
   "C0032",
   "C0034",
   "C0035",
@@ -3864,6 +5204,12 @@
   "C0069"
  ],
  "not_measurable": [
+  {
+   "record": "C0031",
+   "element_kind": "site",
+   "user_words": "is there a reason for the elevations in real10?",
+   "why": "not measurable yet: the user's words are a question ('is there a reason for the elevations in real10?'); the ground at -3.00 m is the session's answer, which the user did not confirm"
+  },
   {
    "record": "C0033",
    "element_kind": "roof",
@@ -3927,9 +5273,7 @@
    "C0068",
    "C0069"
   ],
-  "asserted": [
-   "C0031"
-  ]
+  "asserted": []
  },
  "build_report": {
   "applied": [
@@ -4213,18 +5557,6 @@
     "record": "C0034",
     "n": 3,
     "op": "remove",
-    "kind": "door",
-    "level": "L0",
-    "place": [
-     10.658,
-     9.085
-    ],
-    "state": "negated"
-   },
-   {
-    "record": "C0034",
-    "n": 4,
-    "op": "remove",
     "kind": "opening",
     "level": "L1",
     "place": [
@@ -4235,7 +5567,7 @@
    },
    {
     "record": "C0034",
-    "n": 5,
+    "n": 4,
     "op": "add",
     "kind": "door",
     "level": "L1",
@@ -4247,22 +5579,34 @@
    },
    {
     "record": "C0034",
-    "n": 6,
+    "n": 5,
     "op": "remove",
-    "kind": "door",
-    "level": "L1",
+    "kind": "opening",
+    "level": "L2",
     "place": [
-     10.658,
-     9.085
+     9.666,
+     8.45
     ],
     "state": "negated"
+   },
+   {
+    "record": "C0034",
+    "n": 6,
+    "op": "add",
+    "kind": "door",
+    "level": "L2",
+    "place": [
+     9.666,
+     8.45
+    ],
+    "state": "asserted"
    },
    {
     "record": "C0034",
     "n": 7,
     "op": "remove",
     "kind": "opening",
-    "level": "L2",
+    "level": "L3",
     "place": [
      9.666,
      8.45
@@ -4274,7 +5618,7 @@
     "n": 8,
     "op": "add",
     "kind": "door",
-    "level": "L2",
+    "level": "L3",
     "place": [
      9.666,
      8.45
@@ -4285,20 +5629,8 @@
     "record": "C0034",
     "n": 9,
     "op": "remove",
-    "kind": "door",
-    "level": "L2",
-    "place": [
-     10.658,
-     9.085
-    ],
-    "state": "negated"
-   },
-   {
-    "record": "C0034",
-    "n": 10,
-    "op": "remove",
     "kind": "opening",
-    "level": "L3",
+    "level": "L4",
     "place": [
      9.666,
      8.45
@@ -4307,10 +5639,10 @@
    },
    {
     "record": "C0034",
-    "n": 11,
+    "n": 10,
     "op": "add",
     "kind": "door",
-    "level": "L3",
+    "level": "L4",
     "place": [
      9.666,
      8.45
@@ -4319,22 +5651,34 @@
    },
    {
     "record": "C0034",
-    "n": 12,
+    "n": 11,
     "op": "remove",
-    "kind": "door",
-    "level": "L3",
+    "kind": "opening",
+    "level": "L5",
     "place": [
-     10.658,
-     9.085
+     9.666,
+     8.45
     ],
     "state": "negated"
+   },
+   {
+    "record": "C0034",
+    "n": 12,
+    "op": "add",
+    "kind": "door",
+    "level": "L5",
+    "place": [
+     9.666,
+     8.45
+    ],
+    "state": "asserted"
    },
    {
     "record": "C0034",
     "n": 13,
     "op": "remove",
     "kind": "opening",
-    "level": "L4",
+    "level": "L6",
     "place": [
      9.666,
      8.45
@@ -4346,96 +5690,12 @@
     "n": 14,
     "op": "add",
     "kind": "door",
-    "level": "L4",
-    "place": [
-     9.666,
-     8.45
-    ],
-    "state": "asserted"
-   },
-   {
-    "record": "C0034",
-    "n": 15,
-    "op": "remove",
-    "kind": "door",
-    "level": "L4",
-    "place": [
-     10.658,
-     9.085
-    ],
-    "state": "negated"
-   },
-   {
-    "record": "C0034",
-    "n": 16,
-    "op": "remove",
-    "kind": "opening",
-    "level": "L5",
-    "place": [
-     9.666,
-     8.45
-    ],
-    "state": "negated"
-   },
-   {
-    "record": "C0034",
-    "n": 17,
-    "op": "add",
-    "kind": "door",
-    "level": "L5",
-    "place": [
-     9.666,
-     8.45
-    ],
-    "state": "asserted"
-   },
-   {
-    "record": "C0034",
-    "n": 18,
-    "op": "remove",
-    "kind": "door",
-    "level": "L5",
-    "place": [
-     10.658,
-     9.085
-    ],
-    "state": "negated"
-   },
-   {
-    "record": "C0034",
-    "n": 19,
-    "op": "remove",
-    "kind": "opening",
-    "level": "L6",
-    "place": [
-     9.666,
-     8.45
-    ],
-    "state": "negated"
-   },
-   {
-    "record": "C0034",
-    "n": 20,
-    "op": "add",
-    "kind": "door",
     "level": "L6",
     "place": [
      9.666,
      8.45
     ],
     "state": "asserted"
-   },
-   {
-    "record": "C0034",
-    "n": 21,
-    "op": "remove",
-    "kind": "door",
-    "level": "L6",
-    "place": [
-     10.658,
-     9.085
-    ],
-    "state": "negated"
    },
    {
     "record": "C0035",
@@ -5423,15 +6683,7 @@
    }
   ],
   "unmatched": [],
-  "asserted": [
-   {
-    "record": "C0031",
-    "n": 1,
-    "op": "assert",
-    "kind": "ground_z",
-    "state": "asserted"
-   }
-  ],
+  "asserted": [],
   "not_replayed": [
    {
     "record": "C0018",
@@ -5444,6 +6696,10 @@
    {
     "record": "C0024",
     "why": "no user words: the record states the session's own note, not the user's"
+   },
+   {
+    "record": "C0031",
+    "why": "not measurable yet: the user's words are a question ('is there a reason for the elevations in real10?'); the ground at -3.00 m is the session's answer, which the user did not confirm"
    },
    {
     "record": "C0033",

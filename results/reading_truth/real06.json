@@ -9,11 +9,19 @@
  "levels": [
   {
    "id": "L0",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "Ground floor",
+   "elevation": 0.0,
+   "order": 0,
+   "anchor_source": "results/reading_accepted/real06.json (reading commit 3c8cb8f8014b)"
   },
   {
    "id": "L1",
-   "source": "user_correction"
+   "source": "user_correction",
+   "label": "Level 1",
+   "elevation": 3.0,
+   "order": 1,
+   "anchor_source": "results/reading_accepted/real06.json (reading commit 3c8cb8f8014b)"
   }
  ],
  "levels_left_out": [],
@@ -22,50 +30,8 @@
    "rooms": [],
    "doors": [],
    "windows": [],
-   "openings": [
-    {
-     "id": "u_C0065_2",
-     "type": "opening",
-     "width": 2.9,
-     "center": [
-      2.4,
-      9.2
-     ],
-     "wall_id": "w_L0_009",
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0065",
-     "added_on": "2026-10-29",
-     "reader_id": "o_L0_001",
-     "corrections": [
-      "C0065"
-     ]
-    }
-   ],
-   "walls": [
-    {
-     "id": "u_C0065_1",
-     "start": [
-      0.451,
-      9.2
-     ],
-     "end": [
-      4.6,
-      9.2
-     ],
-     "thickness": 0.3,
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0065",
-     "added_on": "2026-10-29",
-     "reader_id": "w_L0_009",
-     "corrections": [
-      "C0065"
-     ]
-    }
-   ],
+   "openings": [],
+   "walls": [],
    "stairs": [
     {
      "id": "u_C0063_1",
@@ -86,6 +52,21 @@
      "method": "user",
      "correction": "C0063",
      "added_on": "2026-10-27",
+     "attrs": {
+      "landing_toward": [
+       0.0,
+       1.0
+      ]
+     },
+     "frame": {
+      "file": "real06.dwg",
+      "page": 1,
+      "region": "r3",
+      "center": [
+       182769.348718,
+       101812.10807
+      ]
+     },
      "reader_id": "f_L0_001",
      "corrections": [
       "C0063"
@@ -100,12 +81,10 @@
     {
      "id": "u_C0064_1",
      "type": "window",
-     "width": 0.8,
      "center": [
       6.376,
       9.275
      ],
-     "wall_id": "w_L1_012",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
@@ -120,12 +99,10 @@
     {
      "id": "u_C0064_2",
      "type": "window",
-     "width": 0.824,
      "center": [
       7.988,
       9.275
      ],
-     "wall_id": "w_L1_012",
      "source": "user_correction",
      "confidence": null,
      "method": "user",
@@ -146,8 +123,7 @@
  "project_assertions": [],
  "corrections": [
   "C0063",
-  "C0064",
-  "C0065"
+  "C0064"
  ],
  "not_measurable": [
   {
@@ -161,6 +137,12 @@
    "element_kind": "roof",
    "user_words": "In the plan roof is covering this balcony also and there is a small roof on top of the rest of the veranda",
    "why": "not measurable yet: the roof's outline from the roof plan: a roof, which the truth's element types (rooms, doors, windows, openings, walls, stairs) do not hold"
+  },
+  {
+   "record": "C0065",
+   "element_kind": "wall",
+   "user_words": "I am not understanding this scene is there a door behind it?",
+   "why": "not measurable yet: the user's words are a question ('is there a door behind it?'); the answer (one wall, the copy not built) and the opening's kind are the session's; a doubled wall 2.5 cm off its twin is no place the truth can check"
   }
  ],
  "built_from": {
@@ -168,8 +150,7 @@
   "reading_commit": null,
   "records": [
    "C0063",
-   "C0064",
-   "C0065"
+   "C0064"
   ],
   "asserted": []
  },
@@ -210,30 +191,6 @@
      9.275
     ],
     "state": "negated"
-   },
-   {
-    "record": "C0065",
-    "n": 1,
-    "op": "add",
-    "kind": "wall",
-    "level": "L0",
-    "place": [
-     0.451,
-     9.2
-    ],
-    "state": "asserted"
-   },
-   {
-    "record": "C0065",
-    "n": 2,
-    "op": "add",
-    "kind": "opening",
-    "level": "L0",
-    "place": [
-     2.4,
-     9.2
-    ],
-    "state": "asserted"
    }
   ],
   "unmatched": [],
@@ -250,6 +207,10 @@
    {
     "record": "C0062",
     "why": "not measurable yet: the roof's outline from the roof plan: a roof, which the truth's element types (rooms, doors, windows, openings, walls, stairs) do not hold"
+   },
+   {
+    "record": "C0065",
+    "why": "not measurable yet: the user's words are a question ('is there a door behind it?'); the answer (one wall, the copy not built) and the opening's kind are the session's; a doubled wall 2.5 cm off its twin is no place the truth can check"
    }
   ]
  }

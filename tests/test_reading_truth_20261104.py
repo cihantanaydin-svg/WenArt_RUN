@@ -494,9 +494,13 @@ def test_every_correction_record_is_placed_or_says_why_and_the_replayed_ones_are
         assert r["level"] and r["place_source"] in ("located_by_machine", "given_by_user", "user_confirmed"), r["id"]
         assert r.get("reader_ids") or r["place_source"] == "given_by_user", r["id"]
         assert 0.0 <= float(r["place_confidence"]) <= 1.0, r["id"]
+        if r.get("truth_note") or r.get("truth_role"):   # 12 Nov 2026: a question or a brief input asserts nothing
+            assert "truth_action" not in r and r.get("history_truth_action"), r["id"]
+            continue
         assert RM.validate_truth_action(r["truth_action"]) is None, r["id"]
         for el in TR.record_ops(r):
-            assert el["op"] in TR.OPS and el["kind"] in TR.KIND_TO_TYPE and el["level"], r["id"]
+            assert el["op"] in TR.OPS and el["level"], r["id"]
+            assert el["kind"] in tuple(TR.KIND_TO_TYPE) + TR.SPARSE_KINDS, r["id"]
     for r in records:
         if r["status"] == "proposed" or r["source"] == "machine_review":
             assert (r.get("truth_applied") or {}).get("status") not in ("applied", "replayed"), r["id"]
@@ -511,21 +515,22 @@ def test_every_correction_record_is_placed_or_says_why_and_the_replayed_ones_are
     assert "no user words" in TR.correction_applicable(by_id["C0022"])
     assert "UL287" in TR.correction_applicable(by_id["C0018"])               # held by the review of 5 Nov 2026
     assert "under 0.6" in TR.correction_applicable(by_id["C0021"])           # a low-confidence place waits
-    real06 = TR.load_truth("real06")
-    assert real06["corrections"] == ["C0063", "C0064", "C0065"]
-    # C0047: one door at the drawn centre (the DXF jambs 5.34 and 6.14), the size tag's second door a double read
+    real06 = TR.load_truth("real06")                    # C0065 is a question of the user's: not measurable (12 Nov)
+    assert real06["corrections"] == ["C0063", "C0064"]
+    # C0047: one door at the drawn centre (the DXF jambs 5.34 and 6.14), the size tag's second door a double read; the
+    # sparse truth keeps no width the user did not state
     doors = TR.load_truth("real07")["per_level"]["L0"]["doors"]
     kat = [e for e in doors if e["center"] == [5.74, 2.19]]
-    assert len(kat) == 1 and kat[0]["width"] == 0.8 and kat[0]["evidence"] and not kat[0].get("absent")
+    assert len(kat) == 1 and "width" not in kat[0] and kat[0]["evidence"] and not kat[0].get("absent")
     neg = [e for e in doors if e["center"] == [5.36, 2.19]]
     assert len(neg) == 1 and neg[0]["absent"] is True and "double read" in neg[0]["note"]
-    # C0034: one lift door per floor, the south one; the reading's east one negated with the drawing's evidence
+    # C0034: the user's sliding lift door, the south one, on every floor; the east negation was the machine's (review
+    # of 6 Nov 2026, F7) and is no entry any more
     real10 = TR.load_truth("real10")
     for lv in ("L0", "L1", "L2", "L3", "L4", "L5", "L6"):
         lift = [e for e in real10["per_level"][lv]["doors"] if e["center"] in ([9.666, 8.45], [10.658, 9.085])]
-        assert sorted((e["center"], bool(e.get("absent"))) for e in lift) == [([9.666, 8.45], False),
-                                                                              ([10.658, 9.085], True)]
-        assert any(ev["layer"] == "kolon" for ev in next(e for e in lift if e.get("absent"))["evidence"])
+        assert [(e["center"], bool(e.get("absent")), e["attrs"]) for e in lift] == [
+            ([9.666, 8.45], False, {"lift_door": True})]
 
 
 def test_a_confirm_keeps_the_readings_element_and_collects_every_correction_id():

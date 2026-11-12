@@ -62,7 +62,16 @@ how the user's feedback compounds and how the user is replaced step by step.
   the synthetic projects' mean does not fall by more than the tolerance, no synthetic project falls by more than its
   tolerance and no entry of a user record that was satisfied is lost (named by its record ids); a real project's
   percentage is reported, never gated, so a new record the reader does not meet yet never fails the gate; the overall
-  of all projects (satisfied shares and F1 mixed) is information only (decided 6 Nov 2026).
+  of all projects (satisfied shares and F1 mixed) is information only (decided 6 Nov 2026). Review of 12 Nov 2026 (the
+  gate must not be foolable): a wall is judged on what stands (a doorless gap clears it only when it reaches the
+  wall's height), thickness never decides, a user's wall needs 80 % of its span; a negated room swallowed by a
+  neighbour is read; an asserted attribute (a flat's entrance door, a lift door, a landing end, the main entrance) must
+  match; a level is found by its anchor (label, order, elevation: `results/reading_level_anchors.json`); a record may
+  carry its place in the drawing's frame (an origin shift no longer moves it); the gate re-scores the new reading
+  against the truth of the stored entry's commit too, so an edit of the truth in the same commit cannot hide a lost
+  correction; a missing truth file falls in a full run; `--update` stores only after the gate holds; the records assert
+  only what the user said (no copied width or thickness; questions and answers to the pipeline's questions assert
+  nothing).
 
 ### R2 The candidate reader (never silent, never leaves a level out)
 - The decisions above return `[(candidate, score)]` with the winning margin; every element carries `confidence` =
@@ -187,11 +196,11 @@ dollars.
 | measure | now | target |
 |---|---|---|
 | real projects read with every level | 10 of 21 | 21 of 21 (low-confidence marked) |
-| reading score against truth | not measured | per commit, rising, no project falling |
+| reading score against truth | not measured | per commit: synthetic mean not falling, no satisfied correction of the user lost |
 | user corrections per project before "ready" | 10 to 20 | under 3 |
 | reviewer recall of the user's past corrections | not measured | over 80 % on held-out projects |
 | reviewer precision (accept rate) | not measured | over 70 %, per reviewer in the ledger |
-| readings that change under mirror, rotation, layer renaming | not measured | 0 on accepted projects |
+| readings that change under mirror, rotation, layer renaming | not measured | 0 on the scored projects |
 
 ## 6. Rules this touches (user OK of 4 Nov 2026: "yes")
 

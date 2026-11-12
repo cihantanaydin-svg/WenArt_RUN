@@ -1471,5 +1471,9 @@
   "real02 and real04 give identical numbers: the same building in two DWG files; both are counted.",
   "On a real project the truth is the accepted reading, so a finding is right only where the user's corrections changed the truth; no listed real finding was right. The 29 right findings are synthetic: openings and walls the vector reader invents on synthetic-06, -07, -10, -12, -17, -19, -20 that the raster reading does not have.",
   "Vector-only differences on a level where the raster walls cover under 30 % of the vector wall length are folded (raster_weak) and not judged."
- ]
+ ],
+ "stale": {
+  "on": "2026-11-12",
+  "reason": "measured against the truths of the accepted readings of real projects, which were withdrawn on 6 Nov 2026 (user: 'Only consider my revision with the screenshot I have given into previous projects others I have not seen'); its kinds count as not calibrated (every finding info) until the file is measured again on the synthetic and the sparse truths (a sparse truth can judge a finding only where it has an entry)"
+ }
 }
