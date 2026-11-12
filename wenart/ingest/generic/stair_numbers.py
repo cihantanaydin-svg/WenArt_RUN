@@ -336,14 +336,18 @@ def stair_of(chain: list, strokes: list) -> Optional[dict]:
     """The stair one chain of numbers describes (the module docstring): ``{"flights", "landing", "winders",
     "turn_winders", "turn", "direction", "polygon", "steps", "entities", "reason"}`` (page metres; the flights in
     climbing order, each rising from its start to its end; ``turn_winders`` the winders in each turn) or ``{"skip":
-    reason}`` (pure). 6 Nov 2026: numbers on a circle (a curved stair) give a curved stair (``curved_stair_of``);
-    12 Nov 2026 (review S3 / B2 FC-08: its end arms read as a U once their radial treads are winders) the whole chain
-    on one circle with even turns is tried first."""
-    curved = curved_stair_of(chain, strokes)
-    if curved is not None and not curved.get("skip"):
-        return curved
+    reason}`` (pure). 6 Nov 2026: numbers on a circle (a curved stair) give a curved stair (``curved_stair_of``)
+    where the straight arms give none, or (12 Nov 2026, review S3 / B2 FC-08: a curved stair's end numbers read as two
+    arms of three once their radial treads are winders) where the arms are no longer than ``ARM_MIN_POINTS`` numbers
+    (a U stair with winders keeps its longer arms)."""
     out = _straight_stair_of(chain, strokes)
+    curved = curved_stair_of(chain, strokes)
+    if curved is not None and not curved.get("skip") and out is not None and not out.get("skip") \
+            and max(int(f["lines"]) for f in out["flights"]) <= ARM_MIN_POINTS:
+        return curved
     if out is None or out.get("skip"):
+        if curved is not None and not curved.get("skip"):
+            return curved
         # 6 Nov 2026 (real13 L-1, "numbered treads always give a stair"): a stair of more arms, each straight run of
         # numbers a flight (``_runs``), when the runs hold at least half the numbers
         pts = [c[1] for c in chain]
