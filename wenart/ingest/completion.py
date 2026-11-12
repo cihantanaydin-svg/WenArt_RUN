@@ -476,6 +476,9 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     core = core_record(b)
     if core:
         b["level_inference"]["core"] = core
+    # 12 Nov 2026 (the architect's audit, second series): shafts, stairs over nothing, balcony doors, exterior flags
+    from wenart.ingest import sense_rules as SR
+    b["level_inference"]["sense_rules"] = SR.apply(build, texts_by_level)
 
 
 LIGHT_WELL_NAMES = {"aydinlik": "Aydınlık", "isiklik": "Işıklık"}
