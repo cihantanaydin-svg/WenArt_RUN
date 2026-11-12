@@ -15,13 +15,14 @@ the building in place and returns the record written to ``level_inference.sense_
 3. **Shafts are voids** (``shafts``): a face named or holding a shaft word (``SHAFT_RE``: ŞAFT, Ş., TESİSAT, BACA,
    HAVALANDIRMA, duct, riser) that no door reaches and at most ``SHAFT_MAX_M2`` is a shaft (room type ``shaft``, never
    furnished), with its void in the slab of every storey above where the storey below has the shaft too.
-4. **Balconies have a door** (``balconies``): a balcony (outdoor space) that no door opens onto gets one: the widest
-   window between it and a habitable room becomes its door (``adjusted_by_ai``), else a door is inferred on the wall
-   between them (``completion`` balcony door).
+4. **Balconies have a door** (``balconies``): a balcony (outdoor space) deeper than ``SERVICE_DEPTH_M`` that no door
+   opens onto gets one: the widest window between it and a habitable room becomes its door (``adjusted_by_ai``), else a
+   door is inferred on the wall between them (``completion`` balcony door). A shallower one is a service balcony (an AC
+   ledge reached through its window): its window stays (audit real03-14).
 
 Why: the audit's real21-4 and real20-9 (interior walls flagged exterior, where inferred windows would go), real10-5 (a
 stair copied onto the top normal floor rising onto the open roof), real20-11, real03-4 and real06-10 (shafts read as
-rooms or lost), real03-14 and real20-10 (balconies reached only through a window). Each is a general rule.
+rooms or lost), real20-10 (balconies with no door). Each is a general rule.
 
 How: pure geometry on the building dict (``completion.Level`` probes); no AI.
 """
@@ -41,6 +42,7 @@ STAIR_COVER = 0.3
 SHAFT_RE = re.compile(r"(?<![a-z])(?:saft|s\.|tesisat|baca|havalandirma|hava\s+bacasi|duct|riser|vent\s+shaft)"
                       r"(?![a-z])")
 SHAFT_MAX_M2 = 3.0
+SERVICE_DEPTH_M = 1.0           # a balcony this shallow or less is a service balcony (an AC ledge): its window stays
 HABITABLE = ("bedroom", "living", "kitchen", "office", "study", "dining")
 
 
@@ -224,6 +226,16 @@ def balcony_doors(b: dict, next_id) -> list:
                 if best_face is None or f["t1"] - f["t0"] > best_face[0]["t1"] - best_face[0]["t0"]:
                     best_face = (f, room)
         if has_door or (best_win is None and best_face is None):
+            continue
+        mrr = p.minimum_rotated_rectangle
+        edges = sorted({round(G.distance(a, c), 3) for a, c in zip(list(mrr.exterior.coords)[:-1],
+                                                                    list(mrr.exterior.coords)[1:])})
+        depth = edges[0] if edges else 0.0
+        if depth <= SERVICE_DEPTH_M:
+            # a service balcony (an AC ledge) reached through its window keeps the window: no door (audit real03-14)
+            out.append({"space": s["id"], "opening": None, "how": "service balcony",
+                        "reason": f"the balcony {s['id']} is {depth:.2f} m deep: a service balcony, its window stays "
+                                  f"(a guard on upper floors, no door)"})
             continue
         if best_win is not None:
             o, room = best_win

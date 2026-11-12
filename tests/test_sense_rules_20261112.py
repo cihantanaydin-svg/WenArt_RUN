@@ -108,6 +108,16 @@ def test_a_balcony_reached_only_through_a_window_gets_that_window_as_its_door():
     assert win["sill_height"] is None and win["height"] >= 2.1
 
 
+def test_a_service_balcony_reached_through_its_window_keeps_the_window():
+    b = building(flat(), site={"outdoor_spaces": [{"id": "os_ac", "kind": "balcony", "level_id": "L0",
+                                                   "polygon": rect(5.2, 6.1, 9.8, 7.0)}]})          # 0.9 m deep
+    b["openings"].append({"id": "win_1", "type": "window", "level_id": "L0", "wall_id": "w_L0_3",
+                          "center": [7.5, 6.0], "width": 1.6, "height": 1.4, "sill_height": 0.9})
+    rec = SR.balcony_doors(b, B.IdCounter().next)
+    assert rec[0]["how"] == "service balcony" and rec[0]["opening"] is None
+    assert next(o for o in b["openings"] if o["id"] == "win_1")["type"] == "window"
+
+
 def test_a_balcony_with_no_opening_gets_an_inferred_door_and_one_with_a_door_none():
     b = building(flat(), site=balcony_site())
     rec = SR.balcony_doors(b, B.IdCounter().next)

@@ -1703,6 +1703,8 @@ def lift_doors(building: dict) -> list:
     from wenart.ingest import core_rules as CR
 
     out = []
+    if not CR.several_flats(building):
+        return out                         # a house's own lift opens where its plan says
     for lv in building.get("levels") or []:
         if lv.get("typical_of"):
             continue
@@ -1744,6 +1746,8 @@ def core_gap(building: dict) -> list:
     from wenart.ingest import core_rules as CR
 
     out = []
+    if not CR.several_flats(building):
+        return out                         # a house's stair hall may be open to its rooms
     for lv in building.get("levels") or []:
         if lv.get("typical_of"):
             continue
