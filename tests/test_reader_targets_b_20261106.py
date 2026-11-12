@@ -1241,3 +1241,27 @@ def test_a_u_stair_with_close_arms_keeps_its_first_number_after_the_turn():
         assert [v for v, _p, _t in chain] == list(range(1, 17)), gap_m
         st = SN.stair_of(chain, [])
         assert [f["lines"] for f in st["flights"]] == [8, 8] and st["turn_winders"] == [0], gap_m
+
+
+def test_the_build_path_knows_the_turns_of_ordered_flights():
+    """review B2-ST4 (synthetic-22: the balustrade broke at every chord turn, the turns stood outside the stair's area
+    and its floor opening): each side path runs on across every turn, the turns are in the stair's area and, where
+    they lack headroom, in the opening; the surface over a turn is the turn's."""
+    from shapely.geometry import Polygon
+    from wenart.blender import stair_access as SA
+    from wenart.blender import stair_rails as SR
+    texts, strokes = _curved()
+    _data, plan = _built(texts, strokes)
+    turns = plan["turns"]
+    for side in SR.side_paths(plan):
+        legs = side["legs"]
+        assert sum(1 for g in legs if g["what"] == "landing") >= len(turns)
+        assert all(math.dist(a["b"], b["a"]) < 1e-6 for a, b in zip(legs, legs[1:]))
+    area = SA.stair_area(plan)
+    assert all(area.buffer(1e-6).contains(Polygon(t["polygon"]).representative_point()) for t in turns)
+    hole = Polygon(SA.opening_polygon(plan, 2.8))
+    high = [t for t in turns if 2.8 - t["z"] < SA.HEADROOM_M]
+    assert high and all(hole.buffer(1e-6).contains(Polygon(t["polygon"]).representative_point()) for t in high)
+    t = turns[0]
+    c = Polygon(t["polygon"]).representative_point()
+    assert SR.surface_z(plan, (c.x, c.y)) == pytest.approx(t["z"])

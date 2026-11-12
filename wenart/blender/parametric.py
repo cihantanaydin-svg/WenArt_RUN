@@ -1836,6 +1836,7 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
                 continue
             turn = turn_treads(planned[i], planned[i + 1], planned[i]["top_z"], riser, turn_w[i], walls)
             if turn is not None:
+                turn["after"] = i                          # the turn between planned flights i and i + 1
                 turns.append(turn)
 
     # The ceiling opening: the last flight and the landing (in the frame of flight 1).
