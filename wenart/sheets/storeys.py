@@ -58,6 +58,9 @@ COUNT_MAX = 60
 TYPE_DEFAULTS = {"apartment_block_lift": 5, "apartment_block": 3, "house_stair": 2}
 TYPE_NAMES = {"apartment_block_lift": "an apartment block with a lift", "apartment_block": "an apartment block without "
               "a lift", "house_stair": "a house with a stair inside"}
+# The type defaults recorded and asked, never built (a house's upper floor is no copy of its ground floor; the synthetic
+# houses' truths have one storey: the reading score's gate)
+UNBUILT_DEFAULTS = ("house_stair",)
 STAIR_LINES_MIN = 11                  # stair-layer entities of a stair that climbs a storey (its tread lines)
 CONFIDENCE = {"user": 1.0, "architect": 0.9, "section": 0.9, "section_bands": 0.6, "title": 0.85, "area_table": 0.7,
               "zoning_count": 0.8, "zoning_height": 0.5, "zoning_far": 0.4, "type_default": 0.25}
@@ -510,6 +513,17 @@ def infer(plans: list, regions: list, docs: list, values: dict, warnings: list, 
                         + ", ".join(f"{k} {v}" for k, v in counts.items()) + f"); {chosen['rung']} wins (trust order)")
     if chosen is not None and chosen["rung"] == "type_default" and not single:
         chosen = None                         # a guess never adds to a building whose storeys are drawn
+    if chosen is not None and chosen["rung"] == "type_default" and chosen.get("kind") in UNBUILT_DEFAULTS:
+        # a house's upper floor guessed from a stair alone is not built: its plan would be the ground floor's, which a
+        # house's upper floor never is; the count is the architect's open point and RC14 raises it (storeys_missing)
+        rec.update(count=int(chosen["count"]), rule="type_default", confidence=CONFIDENCE["type_default"], guess=True,
+                   built=False, rule_note=chosen.get("note"),
+                   note=f"{TYPE_NAMES.get(chosen.get('kind'))}: its upper floor is not drawn; {chosen['count']} storeys "
+                        f"is a guess and is not built (give the real number in the brief: storeys: N)")
+        rec["open_point"] = {"key": OPEN_POINT_KEY, "default": len(drawn), "options": [len(drawn), chosen["count"]],
+                             "severity": "major", "question": "How many storeys does the house have? Its plan has a "
+                                                              "stair going up, no upper floor is drawn"}
+        return rec
     ground = [0] if is_typical and 0 not in drawn else []
     if chosen is None:
         if not ground:

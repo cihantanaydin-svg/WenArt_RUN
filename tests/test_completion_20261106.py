@@ -467,3 +467,11 @@ def test_a_building_without_a_door_from_outside_is_a_finding():
     b["openings"].append({"id": "d_L0_002", "type": "door", "level_id": "L0", "wall_id": "w_L0_1",
                           "center": [7.5, 0.0], "width": 1.0})
     assert SN.no_entrance(b) == []
+
+
+def test_a_houses_upper_floor_guessed_from_its_stair_is_asked_never_built():
+    r = plan_region(texts=[txt("SALON"), txt("MUTFAK"), txt("MERDİVEN")], gross=120.0)
+    rec, _w, _c = infer(r)
+    assert rec["rule"] == "type_default" and rec["count"] == 2 and rec["built"] is False
+    assert rec["inferred"] == [] and "typical" not in r.level
+    assert rec["open_point"]["severity"] == "major" and "storeys: N" in rec["note"]

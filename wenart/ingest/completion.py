@@ -453,7 +453,7 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         party = party_walls(Level(b, lid, texts_by_level[lid]), side)
         if party:
             party_by_level[lid] = party
-    if rec and rec.get("inferred"):
+    if rec and (rec.get("inferred") or rec.get("open_point")):
         _storeys(build, rec, texts_by_level, party_by_level)
     wells = _light_wells(build, texts_by_level)
     if wells:

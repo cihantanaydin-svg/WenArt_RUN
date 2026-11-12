@@ -30,7 +30,7 @@ def review(building: dict) -> Optional[dict]:
     """The N1 question record (the module docstring), or None without inferred storeys."""
     st = (building.get("level_inference") or {}).get("storeys") or {}
     op = st.get("open_point") or {}
-    if not st.get("inferred") or not op:
+    if not op or not (st.get("inferred") or st.get("built") is False):
         return None
     q = dict(QUESTION, severity=op.get("severity") or "minor", answers=[], status="ok")
     count = int(op.get("default") or st.get("count") or 0)
@@ -56,8 +56,8 @@ def review(building: dict) -> Optional[dict]:
 def act_storey_count(building: dict, key: str, ans: dict, count) -> tuple[bool, str]:
     """An answer's count recorded on the building (the module docstring); False with the reason for a bad count."""
     st = (building.get("level_inference") or {}).get("storeys")
-    if not isinstance(st, dict) or not st.get("inferred"):
-        return False, "no inferred storeys to answer"
+    if not isinstance(st, dict) or not st.get("open_point"):
+        return False, "no storey count to answer"
     try:
         n = int(count)
     except (TypeError, ValueError):
