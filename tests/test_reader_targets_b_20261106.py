@@ -70,10 +70,14 @@ def test_numbers_on_a_circle_are_a_curved_stair():
     xs = [x for x, _ in st["polygon"].exterior.coords]
     ys = [y for _, y in st["polygon"].exterior.coords]
     assert max(xs) - min(xs) == pytest.approx(1.3, abs=0.03) and max(ys) - min(ys) == pytest.approx(2.6, abs=0.03)
-    # the chord flights run along the walking line, one after the other, every tread counted once
+    # the chord flights run along the walking line, one after the other, every tread counted once (review B S2: chords
+    # of 30 degrees at most, 2 lines each at least; one tread, the turn, between a chord's last line and the next one's
+    # first)
     fl = st["flights"]
-    assert sum(f["lines"] for f in fl) == 18 and len(fl) == 2           # two chords of 90 degrees (RC14: 3+ is a grid)
-    assert all(math.dist(a["end"], b["start"]) < 1e-6 for a, b in zip(fl, fl[1:]))
+    assert sum(f["lines"] for f in fl) == 18 and len(fl) == 6 and all(f["lines"] >= 2 for f in fl)
+    tread = 2 * 0.8 * math.sin(math.radians(5.0))                         # 10 degrees a tread on the 0.8 m walking line
+    assert all(math.dist(a["end"], b["start"]) == pytest.approx(tread, abs=0.01) for a, b in zip(fl, fl[1:]))
+    assert st["turn_winders"] == [0] * 5
 
 
 def test_numbers_on_a_straight_line_are_no_curved_stair():
@@ -83,38 +87,64 @@ def test_numbers_on_a_straight_line_are_no_curved_stair():
     assert st["turn"] == "straight"
 
 
+_S15_PTS = ([(8.835 + 0.27 * k, 6.5735) for k in range(6)]
+            + [(10.5749, 6.5264), (10.9874, 6.8261), (11.145, 7.311), (10.9874, 7.7959), (10.5749, 8.0956)]
+            + [(10.185 - 0.27 * k, 8.0485) for k in range(6)])
+
+
+def _s15_lines(winder_lines=True):
+    """synthetic-15's tread lines as its generator draws them (``synthetic.failure_classes.u_stair``): square to the
+    arms at every tread's edge; radial from the well's end (10.32, 7.325) at the winders' edges, every 36 degrees (or,
+    ``winder_lines`` False, none there)."""
+    lines = [_line((8.7 + 0.27 * k, 5.95), (8.7 + 0.27 * k, 7.225), "MERDIVEN") for k in range(7)]
+    lines += [_line((8.7 + 0.27 * k, 7.425), (8.7 + 0.27 * k, 8.7), "MERDIVEN") for k in range(7)]
+    if winder_lines:
+        pv = (10.32, 7.325)
+        for k in range(1, 5):
+            a = math.radians(-90 + 36 * k)
+            t = min((11.7 - pv[0]) / math.cos(a), 1.375 / abs(math.sin(a)))
+            lines.append(_line(pv, (pv[0] + t * math.cos(a), pv[1] + t * math.sin(a)), "MERDIVEN"))
+    return lines
+
+
 def test_the_first_winder_is_not_the_arms_last_tread():
     """synthetic-15 (UL286): 1-6 on the lower arm (0.27 m apart), 7-11 round the turn (0.39-0.51 m apart, 7 only 7
-    degrees off the arm's line), 12-17 back on the upper arm: five winders, not three."""
-    pts = [(8.835 + 0.27 * k, 6.5735) for k in range(6)]
-    pts += [(10.5749, 6.5264), (10.9874, 6.8261), (11.145, 7.311), (10.9874, 7.7959), (10.5749, 8.0956)]
-    pts += [(10.185 - 0.27 * k, 8.0485) for k in range(6)]
-    texts = [_t(k + 1, x, y) for k, (x, y) in enumerate(pts)]
+    degrees off the arm's line), 12-17 back on the upper arm: five winders, not three. Review B S10: the radial line
+    each winder number stands on decides, not the label's offset angle."""
+    texts = [_t(k + 1, x, y) for k, (x, y) in enumerate(_S15_PTS)]
     chain = SN.chains(texts)[0]
     assert [v for v, _p, _t in chain] == list(range(1, 18))
-    arms = SN._arms([c[1] for c in chain])
+    segs = SN._near_segs([c[1] for c in chain], _s15_lines())
+    arms = SN._arms([c[1] for c in chain], segs)
     assert [len(a) for a in arms] == [6, 6]
-    st = SN.stair_of(chain, [])
-    assert st["winders"] == 5 and st["turn"] == "U"
+    st = SN.stair_of(chain, _s15_lines())
+    assert st["winders"] == 5 and st["turn"] == "U" and st["turn_winders"] == [5]
+    assert [f["lines"] for f in st["flights"]] == [6, 6]
+    # no line drawn in the turn: nothing says the 7 and the 11 turn, they stay their arms' last and first treads
+    st = SN.stair_of(chain, _s15_lines(winder_lines=False))
+    assert [f["lines"] for f in st["flights"]] == [7, 7] and st["turn_winders"] == [3]
 
 
-def test_a_deeper_tread_on_the_arms_line_is_no_winder():
+def test_a_deeper_tread_on_a_square_line_is_no_winder_and_on_a_diagonal_line_is_one():
     """real18 (the regression set): a U stair with a half landing numbers its 8 and 9 by the landing, 0.41 and 0.36 m
-    on but on the arms' lines; they stay the arms' treads (no winders)."""
+    on, standing on tread lines square to the arms: they stay the arms' treads (no winders). Review B S10: the same
+    numbers standing on diagonal lines are winders, at both ends of the U alike."""
     pts = [(7.0 + 0.26 * k, 8.75) for k in range(7)] + [(8.96, 8.75), (8.61, 6.67)]
     pts += [(8.25 - 0.25 * k, 6.67) for k in range(7)]
     chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
-    st = SN.stair_of(chain, [])
+    assert [f["lines"] for f in SN.stair_of(chain, [])["flights"]] == [8, 8]            # no line drawn: no turn
+    square = [_line((8.96, 8.2), (8.96, 9.3), "MERDIVEN"), _line((8.61, 6.12), (8.61, 7.22), "MERDIVEN")]
+    st = SN.stair_of(chain, square)
     assert [f["lines"] for f in st["flights"]] == [8, 8] and st["winders"] == 0
+    diagonal = [_line((8.66, 8.25), (9.26, 9.25), "MERDIVEN"), _line((8.31, 7.17), (8.91, 6.17), "MERDIVEN")]
+    st = SN.stair_of(chain, diagonal)
+    assert [f["lines"] for f in st["flights"]] == [7, 7] and st["winders"] == 2 and st["turn_winders"] == [2]
 
 
 def test_a_stair_piece_holding_a_chain_takes_what_the_numbers_say():
     """The stair rule's piece keeps its footprint and flights; the numbers give the treads drawn, the winders, the rise
     direction (drawn, so the architect never flips it) and the flights' order (the flight by number 1 first)."""
-    pts = [(8.835 + 0.27 * k, 6.5735) for k in range(6)]
-    pts += [(10.5749, 6.5264), (10.9874, 6.8261), (11.145, 7.311), (10.9874, 7.7959), (10.5749, 8.0956)]
-    pts += [(10.185 - 0.27 * k, 8.0485) for k in range(6)]
-    texts = [_t(k + 1, x, y) for k, (x, y) in enumerate(pts)]
+    texts = [_t(k + 1, x, y) for k, (x, y) in enumerate(_S15_PTS)]
     chain = SN.chains(texts)[0]
     # the stair rule read the upper flight first, both running +x, with a flat landing and an assumed direction
     stair = {"flights": [{"start": [8.97, 8.06], "end": [10.05, 8.06], "width": 1.2, "lines": 5, "spacing": 0.27},
@@ -122,10 +152,13 @@ def test_a_stair_piece_holding_a_chain_takes_what_the_numbers_say():
              "landing": {"polygon": [[10.05, 5.95], [11.7, 5.95], [11.7, 8.7], [10.05, 8.7]], "depth": 1.65},
              "direction": [1.0, 0.0], "direction_assumed": True, "turn": "U", "turn_assumed": True, "reason": "rule"}
     piece = SimpleNamespace(details={"stair": stair}, evidence={"note": "stair rule"})
-    said = SN.enrich(piece, chain, SN.stair_of(chain, []))
+    said = SN.enrich(piece, chain, SN.stair_of(chain, _s15_lines()))
     assert "17 treads drawn" in said and "5 winder(s)" in said
     assert stair["steps_drawn"] == 17 and stair["winders"] == 5
     assert stair["direction_assumed"] is False and stair["turn_assumed"] is False
+    # review B S1/S8: built in the numbers' order, with their treads (6 + 6) and the 5 winders of the turn
+    assert stair["flights_ordered"] is True and stair["turn_winders"] == [5]
+    assert [f["lines"] for f in stair["flights"]] == [6, 6]
     # the lower flight (number 1 at x 8.84) first, rising +x; the upper flight turned round, rising -x
     assert stair["flights"][0]["start"] == [8.97, 6.59] and stair["flights"][0]["end"] == [10.05, 6.59]
     assert stair["flights"][1]["start"] == [10.05, 8.06] and stair["flights"][1]["end"] == [8.97, 8.06]
@@ -144,16 +177,33 @@ def test_a_stair_piece_of_other_flights_keeps_its_turn():
              "turn_assumed": True, "reason": "rule"}
     piece = SimpleNamespace(details={"stair": stair}, evidence={})
     said = SN.enrich(piece, chain, SN.stair_of(chain, []))
-    assert stair["steps_drawn"] == 17 and "winders" not in stair and stair["turn"] == "straight"
-    assert "the rule's flights kept" in said
+    # review B S8: the 17 treads would reach no built stair (the rule's one flight of 5 lines is built): not claimed
+    assert "steps_drawn" not in stair and "winders" not in stair and stair["turn"] == "straight"
+    assert "flights_ordered" not in stair and "the rule's flights kept as drawn" in said
 
 
-def test_numbered_treads_that_fit_no_shape_still_give_the_treads_drawn():
+def test_numbered_treads_that_fit_no_shape_change_nothing():
+    """review B S8: a chain that fits no shape claims no tread count the build would not follow."""
     texts = [_t(k, 1.0 + 0.27 * k, 2.0) for k in range(1, 12)]
     chain = SN.chains(texts)[0]
     piece = SimpleNamespace(details={"stair": {"flights": [], "direction_assumed": True}}, evidence={})
-    assert SN.enrich(piece, chain, {"skip": "no shape"}) == "11 treads drawn"
-    assert piece.details["stair"]["steps_drawn"] == 11 and piece.details["stair"]["direction_assumed"] is True
+    assert SN.enrich(piece, chain, {"skip": "no shape"}) == ""
+    assert "steps_drawn" not in piece.details["stair"] and piece.details["stair"]["direction_assumed"] is True
+
+
+def test_each_number_goes_to_its_nearest_flight():
+    """review B S9: a U stair with no eye (1-8 rising +x at y 0.50, 9-16 rising -x at y 1.45, flights 0.95 m wide)
+    listed by the stair rule upper flight first: number 1 is within one width of the upper flight too, but belongs to
+    the lower one; the upper flight rises -x."""
+    texts = [_t(k + 1, 0.2 + 0.27 * k, 0.50) for k in range(8)] + [_t(9 + k, 2.09 - 0.27 * k, 1.45) for k in range(8)]
+    chain = SN.chains(texts)[0]
+    stair = {"flights": [{"start": [0.2, 1.45], "end": [2.09, 1.45], "width": 0.95, "lines": 8, "spacing": 0.27},
+                         {"start": [0.2, 0.50], "end": [2.09, 0.50], "width": 0.95, "lines": 8, "spacing": 0.27}],
+             "landing": None, "direction": [1.0, 0.0], "direction_assumed": True, "turn": "U", "turn_assumed": True,
+             "reason": "rule"}
+    SN.enrich(SimpleNamespace(details={"stair": stair}, evidence={}), chain, SN.stair_of(chain, []))
+    assert stair["flights"][0]["start"] == [0.2, 0.50] and stair["flights"][0]["end"] == [2.09, 0.50]
+    assert stair["flights"][1]["start"] == [2.09, 1.45] and stair["flights"][1]["end"] == [0.2, 1.45]
 
 
 _REAL13_A = {1: (3.91, 0.89), 2: (3.68, 0.88), 3: (3.41, 0.88), 4: (2.46, 1.37), 5: (2.45, 1.62), 6: (2.45, 1.90),
@@ -175,6 +225,19 @@ def test_two_numbered_stairs_side_by_side_keep_their_own_numbers():
     b = next(c for c in SN.chains(texts) if c[0][2].id.startswith("B"))
     st = SN.stair_of(b, [])
     assert st["turn"] == "U" and st["steps"] == 15
+
+
+def test_a_chain_may_start_at_two_when_no_one_stands_by_it():
+    """review B-X1: the top floor's plan numbers the arriving stair 2-17 (its first tread under the plan's cut, real10
+    L7, real07 L1): a 2 with no 1 within a step starts a chain. A 2 with its 1 one step away is that chain's second
+    tread, never a chain of its own."""
+    top = [_t(v, 1.0 + 0.27 * (v - 2), 2.0) for v in range(2, 12)]
+    assert [[v for v, _p, _t in c] for c in SN.chains(top)] == [list(range(2, 12))]
+    full = [_t(v, 1.0 + 0.27 * (v - 1), 2.0) for v in range(1, 12)]
+    assert [[v for v, _p, _t in c] for c in SN.chains(full)] == [list(range(1, 12))]
+    # a 2 far from any 1 but with no 3 after it within a step is no chain
+    lone = [_t(2, 5.0, 5.0), _t(3, 7.0, 5.0)] + full
+    assert [[v for v, _p, _t in c] for c in SN.chains(lone)] == [list(range(1, 12))]
 
 
 def test_a_row_of_grid_numbers_is_no_stair():
@@ -211,8 +274,87 @@ def test_a_stair_of_many_arms_is_still_a_stair():
     chain = SN.chains([_t(v, x, y) for v, (x, y) in _REAL13_A.items()])[0]
     st = SN.stair_of(chain, [])
     assert not st.get("skip"), st
-    assert st["turn"] == "other" and st["steps"] == 18 and len(st["flights"]) == 3
-    assert st["winders"] == 18 - sum(f["lines"] for f in st["flights"])
+    assert st["turn"] == "other" and st["steps"] == 18 and len(st["flights"]) >= 3
+    # review B S8: every number a tread line of a flight or a winder of a turn (16-18 turning away after the last run:
+    # a short flight of their own)
+    assert st["winders"] == 18 - sum(f["lines"] for f in st["flights"]) == sum(st["turn_winders"])
+
+
+# --------------------------------------------------------------------------
+# The numbered stairs as the builder climbs them (review B S1, S4, S8, S12)
+# --------------------------------------------------------------------------
+
+def _built(texts, strokes):
+    """The numbered stair read from ``texts`` (``stair_numbers.apply``) as ``parametric.stair_plan`` builds it."""
+    from wenart.blender import parametric as P
+    notes = []
+    pieces, _c, _p = SN.apply([], [], texts, strokes, 1.0, "t.dxf", 1, notes)
+    (piece,) = [p for p in pieces if p.type == "stair"]
+    data = piece.details["stair"]
+    fp = {"center": list(piece.center), "size": list(piece.size), "rotation_deg": piece.rotation_deg}
+    plan = P.stair_plan({"footprint": fp, "stair": data}, 3.0)
+    return data, plan
+
+
+def _climbs(data, plan, first, last, treads):
+    """The built stair: the flights in the numbers' order, each starting by where the one before ends (across one
+    turn), the floor rising all the way, a riser for every tread drawn, number 1 at its foot and the last at its top."""
+    fl = plan["flights"]
+    assert [f["index"] for f in fl] == list(range(len(data["flights"])))
+    assert plan["risers"] == treads
+    zs = [z for f in fl for z in (f["base_z"], f["top_z"])]
+    assert zs == sorted(zs) and fl[-1]["top_z"] == pytest.approx(3.0)
+    turns = plan.get("turns") or []
+    for i, (a, b) in enumerate(zip(fl, fl[1:])):
+        k = data["turn_winders"][i]
+        assert b["base_z"] == pytest.approx(a["top_z"] + k * plan["riser_m"])
+        assert math.dist(a["nosings"][-1], b["nosings"][0]) <= 2.5 * max(a["width"], b["width"])
+    assert math.dist(fl[0]["nosings"][0], first) <= fl[0]["width"]
+    assert math.dist(fl[-1]["nosings"][-1], last) <= fl[-1]["width"]
+    return turns
+
+
+def test_a_numbered_curved_stair_is_built_climbing_round_its_curve():
+    texts, strokes = _curved()
+    data, plan = _built(texts, strokes)
+    turns = _climbs(data, plan, (texts[0].box[0] + 0.05, texts[0].box[1] + 0.05),
+                    (texts[-1].box[0] + 0.05, texts[-1].box[1] + 0.05), 18)
+    assert len(turns) == 5 and all(t["role"] == "flat" for t in turns)
+    # every chord flight on the drawn ring (its treads between the radii, the walking line through them)
+    for f in plan["flights"]:
+        for q in f["nosings"]:
+            assert 0.3 - 0.05 <= math.dist(q, (10.2, 7.35)) <= 1.3
+
+
+def test_a_numbered_stair_of_many_arms_is_built_in_the_numbers_order():
+    texts = [_t(v, x, y) for v, (x, y) in _REAL13_A.items()]
+    data, plan = _built(texts, [])
+    turns = _climbs(data, plan, _REAL13_A[1], _REAL13_A[18], 18)
+    assert sum(len(t["winders"]) for t in turns) == sum(k + 1 for k in data["turn_winders"] if k)
+
+
+def test_a_numbered_l_stair_has_its_landing_at_the_junction_and_climbs_from_number_one():
+    """review B S4: 1-3 running -y, 4-15 running -x (real18 L3's flat stairs without their fan): the landing is the
+    square where the arms meet, never a strip along the long flight, and the stair climbs from number 1."""
+    pts = [(8.5, 6.6 - 0.25 * k) for k in range(3)] + [(7.9 - 0.25 * k, 5.95) for k in range(12)]
+    texts = [_t(k + 1, x, y) for k, (x, y) in enumerate(pts)]
+    data, plan = _built(texts, [])
+    land = data["landing"]
+    if land is not None:
+        xs, ys = [q[0] for q in land["polygon"]], [q[1] for q in land["polygon"]]
+        assert min(xs) >= 7.9 - 0.05 and max(ys) <= 6.6 + 0.05     # beyond the long arm's first line, by the corner
+    _climbs(data, plan, pts[0], pts[-1], 15)
+
+
+def test_a_numbered_u_stair_with_winders_builds_them_all():
+    """review B S8/S12: synthetic-15, 6 + 5 winders + 6: 17 risers, the winders in the turn."""
+    texts = [_t(k + 1, x, y) for k, (x, y) in enumerate(_S15_PTS)]
+    data, plan = _built(texts, _s15_lines())
+    turns = _climbs(data, plan, _S15_PTS[0], _S15_PTS[-1], 17)
+    land = plan["landing"]
+    built = len(land["winders"]) if land is not None and land["role"] == "winders" else \
+        sum(len(t["winders"]) for t in turns)
+    assert built == 6                                                   # 5 winder risers: 6 treads in the turn
 
 
 # --------------------------------------------------------------------------

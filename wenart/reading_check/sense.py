@@ -1158,7 +1158,9 @@ def false_stairs(building: dict) -> tuple[list, set]:
         if fp.area < STAIR_MIN_AREA_M2 - EPS:
             reasons.append(f"its footprint is {fp.area:.2f} m2 (a stair needs {STAIR_MIN_AREA_M2:g} m2)")
         flights = (f.get("stair") or {}).get("flights") or []
-        if len(flights) >= GRID_FLIGHTS_MIN and fp.area / len(flights) < FLIGHT_MIN_AREA_M2 - EPS:
+        # 12 Nov 2026 (review B S2): a curved stair's chord flights are one curved flight, not a grid of lines
+        n_flights = 1 if (f.get("stair") or {}).get("curved") else len(flights)
+        if n_flights >= GRID_FLIGHTS_MIN and fp.area / n_flights < FLIGHT_MIN_AREA_M2 - EPS:
             reasons.append(f"it has {len(flights)} flights in {fp.area:.2f} m2 (a flight needs about "
                            f"{FLIGHT_MIN_AREA_M2:g} m2: a grid of lines, not flights)")
         treads = sum(int(fl.get("lines") or 0) for fl in flights)

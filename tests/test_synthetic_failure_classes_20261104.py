@@ -57,11 +57,10 @@ XFAIL_COUNTS = {
     "synthetic-17-garage-lift": _xfail("garage_lift", "UL320", "the 3.4 m garage opening is read as a window"),
     "synthetic-20-glazed-corner": _xfail("glazed_corner", "UL274", "the L of frames is one window and one door"),
 }
-# every drawn room and opening of synthetic-16 and -22 is read; the counts fail on what is extra or missing (synthetic-22's
-# counts hold since 6 Nov 2026: its curved stair is read, stair_numbers.curved_stair_of)
+# every drawn room and opening of synthetic-16 is read; the counts fail on what is extra or missing (synthetic-22 reads
+# right since 6 Nov 2026: its curved stair is read, stair_numbers.curved_stair_of; review B-X1: no entry for it here)
 # (synthetic-19, the symmetric single house, reads right since 5 Nov 2026: mirror.halves_axis)
-XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items()
-                  if k not in ("synthetic-16-open-recess", "synthetic-22-curved-stair")}
+XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items() if k != "synthetic-16-open-recess"}
 
 
 def _params(names, marks: dict):
@@ -435,6 +434,17 @@ def _stair(b: dict) -> dict:
     return stairs[0].get("stair") or {}
 
 
+def _built_stair(b: dict) -> dict:
+    """12 Nov 2026 (review B S12): the stair as ``parametric.stair_plan`` builds it for a 3 m storey; its flights climb
+    one after the other and the floor rises all the way."""
+    from wenart.blender import parametric as P
+    (piece,) = [f for f in b["furniture"] if f.get("type") == "stair"]
+    plan = P.stair_plan(piece, 3.0)
+    zs = [z for f in plan["flights"] for z in (f["base_z"], f["top_z"])]
+    assert zs == sorted(zs) and plan["flights"][-1]["top_z"] == pytest.approx(3.0)
+    return plan
+
+
 def test_15_winders_and_seventeen_treads(generated, read):
     # 6 Nov 2026: the stair rule's piece takes what the numbers say (stair_numbers.enrich; the first winder is not the
     # arm's last tread, stair_numbers._trim_arm)
@@ -446,6 +456,9 @@ def test_15_winders_and_seventeen_treads(generated, read):
     # what wenart.ingest.generic.stair_numbers writes for a stair read from its numbers (1-17, winders at the turn)
     assert st.get("steps_drawn") == 17
     assert st.get("winders") == winders["treads"][1] - winders["treads"][0] + 1
+    # review B S8/S12: the built stair has the 17 risers and the winders in its turn
+    plan = _built_stair(read("synthetic-15-winder-stair"))
+    assert plan["risers"] == 17
 
 
 # --- synthetic-16-open-recess --------------------------------------------------------------------------------------
@@ -560,3 +573,12 @@ def test_22_curved_stair_with_its_eighteen_treads(generated, read):
     # 6 Nov 2026: numbers on a circle are a curved stair (stair_numbers.curved_stair_of)
     st = _stair(read("synthetic-22-curved-stair"))
     assert st.get("steps_drawn") == 18
+    # review B S1/S12: built climbing round the curve, every tread a riser, each chord starting where the one before
+    # ends (one tread on)
+    cv = st["curved"]                       # review B-X1: the curve against the generator's (centre, radii, sweep)
+    assert cv["centre"] == pytest.approx([10.2, 7.35], abs=0.03) and abs(cv["sweep_deg"]) == pytest.approx(180, abs=2)
+    assert cv["radius_inner"] == pytest.approx(0.3, abs=0.03) and cv["radius_outer"] == pytest.approx(1.3, abs=0.03)
+    plan = _built_stair(read("synthetic-22-curved-stair"))
+    assert plan["risers"] == 18 and len(plan["flights"]) == len(st["flights"])
+    for a, b in zip(plan["flights"], plan["flights"][1:]):
+        assert math.dist(a["nosings"][-1], b["nosings"][0]) <= 0.6

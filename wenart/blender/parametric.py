@@ -1668,6 +1668,14 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
         flights.append({"index": k, "start": s, "end": e, "lines": n, "width": width,
                         "axis": _unit2(_v(s, e)), "going": length / (n - 1)})
     generic = not flights
+    # 12 Nov 2026 (review B S1: the numbered curved and many-arm stairs climbed every flight after the first turn
+    # backwards and lost their winders): ``flights_ordered`` (the tread numbers' reading) lists the flights in climbing
+    # order, each rising from its start to its end, with ``turn_winders`` (the winders drawn in each turn); they are
+    # built in that order, each turn holding its winders (or a flat turn tread)
+    ordered = bool(data.get("flights_ordered") is True and flights and len(flights) == len(raw))
+    tw = data.get("turn_winders") if ordered else None
+    turn_w = [int(x) for x in tw] if isinstance(tw, (list, tuple)) and len(tw) == len(flights) - 1 \
+        and all(str(x).isdigit() for x in tw) else ([0] * (len(flights) - 1) if ordered else None)
     if generic:
         n = max(2, int(round(rise / STAIR_GENERIC_RISER_M)))
         s = _local_to_world2((0.0, -fd / 2.0), center, rot)
@@ -1700,9 +1708,9 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
             notes.append("neither the recorded direction nor +local Y runs along the flights: "
                          "first to last drawn line used")
         d_src = d_src or "recorded direction not along the flights"
-    r0 = a0 if dot0 >= 0 else (-a0[0], -a0[1])
-    rdirs = [r0]
-    for f in flights[1:]:
+    r0 = a0 if dot0 >= 0 or ordered else (-a0[0], -a0[1])
+    rdirs = [r0] if not ordered else [f["axis"] for f in flights]
+    for f in (flights[1:] if not ordered else []):
         a, prev = f["axis"], rdirs[-1]
         if abs(_d2(a, prev)) >= 0.9:                        # side by side: a U-turn rises the other way
             rdirs.append(a if _d2(a, prev) < 0 else (-a[0], -a[1]))
@@ -1724,7 +1732,9 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
     landing_poly = [(float(p[0]), float(p[1])) for p in poly] if isinstance(poly, (list, tuple)) and len(poly) >= 3 \
         else None
     order = list(range(len(flights)))
-    if landing_poly is not None and len(flights) >= 2:
+    if ordered:
+        pass                                              # the drawn numbers' order
+    elif landing_poly is not None and len(flights) >= 2:
         c = G.polygon_centroid(landing_poly)
         mid0 = G.segment_midpoint(flights[0]["start"], flights[0]["end"])
         if _d2(_v(mid0, c), rdirs[0]) <= 0:
@@ -1746,7 +1756,12 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
                                       f"{extra} tread(s) of its drawn going, so its risers are comfortable"})
     winders = 0
     want = data.get("winders")
-    if want and len(flights) == 2 and landing_poly is not None:
+    if ordered:
+        total += sum(turn_w)
+        winders = turn_w[0] if landing_poly is not None and turn_w else 0
+        if sum(turn_w):
+            notes.append(f"the winders drawn in the turns ({', '.join(str(k) for k in turn_w)}) are built as drawn")
+    elif want and len(flights) == 2 and landing_poly is not None:
         quarter = abs(_d2(flights[0]["axis"], flights[1]["axis"])) < 0.5          # an L stair's quarter landing
         winders = int(want) if str(want).isdigit() else \
             max(0, int(math.ceil(rise / STAIR_WINDER_TARGET_RISER - 1e-9)) - total)
@@ -1786,7 +1801,10 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
             f.update(lines=n, extra_treads=extra)
         f.update({"rise_dir": r, "base_z": z, "top_z": z + n * riser,
                   "nosings": [(first[0] + r[0] * g * i, first[1] + r[1] * g * i) for i in range(n)]})
-        z = f["top_z"] + (winders * riser if winders and not planned else 0.0)
+        if ordered:
+            z = f["top_z"] + (turn_w[len(planned)] * riser if len(planned) < len(turn_w) else 0.0)
+        else:
+            z = f["top_z"] + (winders * riser if winders and not planned else 0.0)
         planned.append(f)
 
     landing = None
@@ -1805,6 +1823,14 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
             # 28 Oct 2026 (``WINDER_TREADS_NOTE``): ``winders`` risers in the turn need winders + 1 treads, the
             # first at the landing's level
             landing.update(role="winders", winders=winder_treads(landing_poly, planned, z_l, riser, winders + 1))
+    # 12 Nov 2026 (S1): the other turns of ordered flights (every turn when no landing is drawn): the turn between a
+    # flight's last line and the next one's first line, with its drawn winders (``turn_treads``)
+    turns = []
+    if ordered:
+        for i in range(len(planned) - 1):
+            if i == 0 and landing is not None:
+                continue
+            turns.append(turn_treads(planned[i], planned[i + 1], planned[i]["top_z"], riser, turn_w[i]))
 
     # The ceiling opening: the last flight and the landing (in the frame of flight 1).
     void, void_raw = [], []
@@ -1885,7 +1911,7 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
     if top_limit is not None:
         notes.append(f"the last riser stops at {top_limit:.3f} m, under the shaft cap ({cap:.3f} m)")
     return {"flights": planned, "risers": total, "riser_m": riser, "riser_source": riser_source, "rise_m": rise,
-            "winders": winders,
+            "winders": winders, "turns": turns,
             "landing": landing, "void": void, "void_raw": void_raw, "ceiling_z": ceiling, "cap_z": cap,
             "top_limit": top_limit, "rails": rails, "direction": [round(r0[0], 4), round(r0[1], 4)], "turn": turn,
             "generic": generic, "assumed": assumed, "warnings": warnings, "notes": notes,
@@ -1897,6 +1923,39 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
 # rises to the landing's level, so the turn holds winders + 1 treads, the first at that level and the last at the
 # second flight's foot. Before, the turn held ``winders`` treads, the first one riser over the landing's level: the
 # first flight's last riser and the first winder made one double step (real04 L-1: 1.059 m, then 1.235 m).
+
+
+def turn_polygon(a: dict, b: dict) -> list[tuple[float, float]]:
+    """12 Nov 2026 (review B S1): the turn between planned flight ``a``'s last line and flight ``b``'s first line (pure):
+    the rectangle in ``a``'s frame holding both lines across their widths; when the two lines stand side by side (a U
+    turn with no landing drawn) it is as deep as the wider flight, beyond ``a``'s last line."""
+    u = a["rise_dir"]
+    v = (-u[1], u[0])
+    pa, pb = a["nosings"][-1], b["nosings"][0]
+    rb = b["rise_dir"]
+    vb = (-rb[1], rb[0])
+    ha, hb = a["width"] / 2.0, b["width"] / 2.0
+    pts = [(pa[0] + v[0] * s * ha, pa[1] + v[1] * s * ha) for s in (-1.0, 1.0)] + \
+        [(pb[0] + vb[0] * s * hb, pb[1] + vb[1] * s * hb) for s in (-1.0, 1.0)]
+    us, vs = [_d2(q, u) for q in pts], [_d2(q, v) for q in pts]
+    u0, u1, v0, v1 = min(us), max(us), min(vs), max(vs)
+    if u1 - u0 < 0.05:
+        u1 = u0 + max(a["width"], b["width"])
+    return [(u[0] * x + v[0] * y, u[1] * x + v[1] * y) for x, y in ((u0, v0), (u1, v0), (u1, v1), (u0, v1))]
+
+
+def turn_treads(a: dict, b: dict, z0: float, riser: float, k: int) -> dict:
+    """12 Nov 2026 (S1): one turn of ordered flights (pure): ``{"polygon", "z", "role", "thickness", "winders"}``; with
+    ``k`` drawn winders the turn holds k + 1 winder treads (``winder_treads``, ``WINDER_TREADS_NOTE``), else it is one
+    flat tread at ``a``'s top (``role`` "flat")."""
+    poly = turn_polygon(a, b)
+    out = {"polygon": [(round(x, 5), round(y, 5)) for x, y in poly], "z": z0, "role": "flat",
+           "thickness": STAIR_WAIST_M, "winders": []}
+    if k > 0:
+        treads = winder_treads(poly, [a, b], z0, riser, k + 1)
+        if treads:
+            out.update(role="winders", winders=treads)
+    return out
 
 
 def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k: int) -> list[dict]:
@@ -2170,6 +2229,17 @@ def stair_parts(plan: dict) -> list[Part]:
             poly = landing_with_joints(poly, moves)
         parts.append(_part(geom2d.prism(poly, z_top - landing["thickness"], z_top),
                            "worktop", "landing", flight=None, rise_dir=None))
+    for turn in plan.get("turns") or []:                     # 12 Nov 2026 (S1): the other turns of ordered flights
+        z_bottom = turn["z"] - turn["thickness"]
+        if turn["role"] == "winders":
+            for j, w in enumerate(turn["winders"]):
+                top = w["top"] if limit is None else min(w["top"], limit)
+                parts.append(_part(geom2d.prism(w["polygon"], z_bottom, top), "worktop", "winder", flight=None,
+                                   rise_dir=None, winder=j))
+        else:
+            top = turn["z"] if limit is None else min(turn["z"], limit)
+            parts.append(_part(geom2d.prism(turn["polygon"], z_bottom, top), "worktop", "landing", flight=None,
+                               rise_dir=None))
     parts.extend(_apron_part(plan))                          # 26 Oct 2026: the floor's edge meets the top step
     parts.extend(_under_parts(plan))                         # 27 Oct 2026: the space under the stair, its posts
     guards = plan.get("guards") or SR.plan_guards(plan, plan.get("ceiling_voids"), plan.get("upper_guards") or ())
