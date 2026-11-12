@@ -690,3 +690,78 @@ def test_finish_word_rooms_stay_labels_and_field_like_names_give_no_label():
         assert [b.name for b in blocks] == [name], name
     for name in ("ODA_ADI", "ROOM_NAME", "NAME"):
         assert LB.merge_label_blocks([_run(name, 0.0, 0.0, k=1)], "p.dxf") == [], name
+
+
+# --------------------------------------------------------------------------
+# Review of 12 Nov 2026, item 4 (real15 F1, F2): a solid wall is no gap, a door block in a gap is a door
+# --------------------------------------------------------------------------
+
+def _gap(center, width, note="unclassified gap content: X"):
+    from wenart.ingest.model import OpeningItem
+
+    return OpeningItem("opening", width, center, 90.0, [0, 0, 0, 0], "gap:LINE:1,LINE:2",
+                       {"method": "derived", "note": note}, status="unverified", type_raw="unclassified gap content")
+
+
+def _ex2():
+    from wenart.ingest.model import LevelExtraction
+
+    ex = LevelExtraction(file="p.dxf", page=1, level_id="L0", units="dxf", page_size=[10.0, 10.0])
+    ex.report = {}
+    return ex
+
+
+def test_a_gap_whose_wall_face_lines_run_through_it_is_a_wall():
+    from wenart.ingest.generic import core as GC
+
+    wall = _wall((5.5, 0.0), (5.5, 4.0), t=0.15, entity="w1")              # the wall run through the gap
+    gap = _gap((5.5, 2.0), 2.0)
+    faces = [_line((5.425, 0.0), (5.425, 4.0), 1, layer="Z_sıva"), _line((5.575, 4.0), (5.575, 0.0), 2, layer="Z_sıva")]
+    ex = _ex2()
+    walls, openings = GC._faces_through_gaps(ex, "p", [wall], [gap], faces)
+    assert openings == [] and len(walls) == 2 and abs(walls[1].start[1] - 1.0) < 1e-6 and abs(walls[1].end[1] - 3.0) < 1e-6
+    assert "a wall, not an opening" in ex.notes[-1]
+    # one face broken at the gap (a real opening), or the lines on a furniture layer: the gap stays
+    broken = [faces[0], _line((5.575, 0.0), (5.575, 1.0), 3, layer="Z_sıva"), _line((5.575, 3.0), (5.575, 4.0), 4,
+                                                                                   layer="Z_sıva")]
+    assert GC._faces_through_gaps(_ex2(), "p", [wall], [gap], broken)[1] == [gap]
+    furn = [_line(a.pts[0], a.pts[1], 10 + k, layer="Z_tefriş") for k, a in enumerate(faces)]
+    assert GC._faces_through_gaps(_ex2(), "p", [wall], [gap], furn)[1] == [gap]
+
+
+def test_a_door_leafs_swing_in_an_unclassified_gap_makes_it_a_door():
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic.model import Stroke
+
+    wall = _wall((0.0, 3.0), (6.0, 3.0), t=0.25, entity="w1")
+    gap = _gap((3.0, 3.0), 1.32)
+    gap.rotation_deg = 0.0
+    arc = Stroke(id="INSERT:9/23", kind="arc", pts=[(2.4, 3.0), (2.4, 2.3)], layer="KAPI", block="wererte",
+                 arc={"center": (2.4, 3.0), "radius": 0.7, "start_deg": 270.0, "end_deg": 360.0})
+    ex = _ex2()
+    got = GC._door_blocks_in_gaps(ex, "p", [wall], [gap], [arc])
+    assert got[0].kind == "door" and abs(got[0].width - 0.75) < 1e-6 and got[0].status == "verified"
+    assert "door leaf's swing" in ex.notes[-1]
+    # a sanitary arc (a basin) or a swing hinged far from the gap is no door
+    basin = Stroke(id="ARC:5", kind="arc", pts=[(2.4, 3.0), (2.4, 2.3)], layer="Z_tefriş",
+                   arc={"center": (2.4, 3.0), "radius": 0.7, "start_deg": 270.0, "end_deg": 360.0})
+    assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap], [basin])[0].kind == "opening"
+    far = Stroke(id="INSERT:9/24", kind="arc", pts=[(2.4, 1.0)], layer="KAPI",
+                 arc={"center": (2.4, 1.5), "radius": 0.7, "start_deg": 270.0, "end_deg": 360.0})
+    assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap], [far])[0].kind == "opening"
+
+
+def test_a_door_block_or_a_strip_never_makes_a_window_onto_an_open_recess():
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic.model import Stroke
+
+    door = _gap((3.0, 3.0), 1.3, note="unclassified gap content: INSERT:9/1,INSERT:9/2")
+    by_id = {"INSERT:9/1": Stroke(id="INSERT:9/1", kind="line", pts=[(2.5, 3.0), (2.5, 2.4)], layer="KAPI",
+                                  block="wererte"),
+             "INSERT:9/2": Stroke(id="INSERT:9/2", kind="line", pts=[(2.6, 3.0), (2.6, 2.4)], layer="0")}
+    assert GC._gap_fixture(door, by_id).startswith("a door piece")
+    sink = _gap((3.0, 3.0), 1.3, note="unclassified gap content: ARC:7")
+    assert GC._gap_fixture(sink, {}).startswith("a swing arc")
+    lines = _gap((3.0, 3.0), 1.3, note="unclassified gap content: LINE:8,LINE:9")
+    assert GC._gap_fixture(lines, {"LINE:8": Stroke(id="LINE:8", kind="line", pts=[(0, 0), (1, 0)], layer="PENCERE")}) \
+        is None

@@ -2246,6 +2246,141 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
 
 
 RECESS_MAX_M2 = 15.0
+FACE_THROUGH_TOL_M = 0.03       # 12 Nov 2026: a wall-layer line this close to a gap's wall face runs along that face ...
+FACE_THROUGH_ANGLE = 0.02       # ... parallel to the wall (sine of the angle) ...
+FACE_THROUGH_END_M = 0.02       # ... and covering the gap to this much of its ends, on both faces: the gap is a wall
+
+
+DOOR_ARC_R_M = (0.5, 1.3)       # 12 Nov 2026: a door leaf's swing radius ...
+DOOR_ARC_REACH_M = 0.15         # ... its centre (the hinge) this close to the gap's wall band and span
+
+
+def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m: list) -> list:
+    """12 Nov 2026 (review of the reader targets, real15 F1: the kitchen door block INSERT:19D81B, its leaf and swing on
+    layer KAPI, read as unclassified gap content and then as windows): an unclassified gap holding a door leaf's swing
+    (an arc of ``DOOR_ARC_R_M`` on a door layer or in a door block, ``layer_names`` role door, hinged within
+    ``DOOR_ARC_REACH_M`` of the gap) is that door, the swing's radius wide at most (the rest of a wider gap stays as
+    read: ``_door_tags`` does the same). Never silent."""
+    from wenart.ingest.generic import layer_names as LN
+
+    arcs = []
+    for st in strokes_m:
+        a = st.arc
+        if not a or not (DOOR_ARC_R_M[0] <= float(a.get("radius") or 0.0) <= DOOR_ARC_R_M[1]):
+            continue
+        names = [st.layer] + (str(st.block).split("/") if st.block else [])
+        if any(LN.layer_role(n) == "door" for n in names):
+            arcs.append((tuple(a["center"][:2]), float(a["radius"]), st.id))
+    if not arcs:
+        return openings
+    out = []
+    for o in openings:
+        if o.kind != "opening" or getattr(o, "virtual", False) or getattr(o, "type_raw", None) != UNCLASSIFIED:
+            out.append(o)
+            continue
+        hk = TP.host_wall(o, walls2)
+        if hk is None:
+            out.append(o)
+            continue
+        w = walls2[hk]
+        (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+        L = math.hypot(x1 - x0, y1 - y0)
+        if L <= 0:
+            out.append(o)
+            continue
+        ux, uy = (x1 - x0) / L, (y1 - y0) / L
+        c = (o.center[0] - x0) * ux + (o.center[1] - y0) * uy
+        half, h = float(o.width) / 2.0, float(w.thickness) / 2.0
+        hit = None
+        for (cx, cy), r, sid in arcs:
+            s_ = (cx - x0) * ux + (cy - y0) * uy
+            d = abs(-(cx - x0) * uy + (cy - y0) * ux)
+            if d <= h + DOOR_ARC_REACH_M and c - half - DOOR_ARC_REACH_M <= s_ <= c + half + DOOR_ARC_REACH_M \
+                    and r <= 2.0 * half + DOOR_ARC_REACH_M:
+                hit = (r, sid)
+                break
+        if hit is None:
+            out.append(o)
+            continue
+        r, sid = hit
+        width = round(min(float(o.width), r + 0.05), 3)
+        ev = dict(o.evidence) if isinstance(o.evidence, dict) else {}
+        ev.update(rule="door_block_in_gap", confidence=0.8,
+                  reason=f"a door leaf's swing ({sid}, radius {r:.2f} m) on a door layer stands in the gap")
+        out.append(dataclasses.replace(o, kind="door", width=width, evidence=ev, status="verified",
+                                       type_raw=f"door block in gap ({sid})"))
+        ex.notes.append(f"{where}: gap {o.entity[:80]} ({float(o.width):.2f} m) holds a door leaf's swing {sid} "
+                        f"(radius {r:.2f} m): a {width:.2f} m door")
+    return out
+
+
+def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m: list) -> tuple[list, list]:
+    """12 Nov 2026 (review of the reader targets, real15 F2: the solid wall between the living room and the bathroom,
+    drawn as two unbroken lines on its masonry and its plaster layer, became a 2.0 m gap holding the bath's block): an
+    unclassified or empty gap (no door, no window, not inferred) across which straight lines of a wall, plaster or
+    column layer (``layer_names.draws_walls``) run along both faces of its wall (``FACE_THROUGH_TOL_M``) and cover it
+    end to end is no gap: a wall piece of its host's thickness fills it. Never silent."""
+    from wenart.ingest.generic import layer_names as LN
+
+    segs = []
+    for st in strokes_m:
+        if st.arc is not None or len(st.pts) < 2 or not LN.draws_walls(st.layer):
+            continue
+        pts = list(st.pts) + ([st.pts[0]] if st.closed else [])
+        segs += [(a, b) for a, b in zip(pts, pts[1:]) if math.dist(a, b) > 0.05]
+    if not segs:
+        return walls2, openings
+    filled, keep = [], []
+    for o in openings:
+        ev = o.evidence if isinstance(o.evidence, dict) else {}
+        if o.kind != "opening" or getattr(o, "virtual", False) or ev.get("method") == "inferred" or \
+                ev.get("rule") in ("wide_gap", "glazed_run", "glazed_facade", "mirror_twin", "no_glass"):
+            keep.append(o)
+            continue
+        hk = TP.host_wall(o, walls2)
+        if hk is None:
+            keep.append(o)
+            continue
+        w = walls2[hk]
+        (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+        L = math.hypot(x1 - x0, y1 - y0)
+        if L <= 0:
+            keep.append(o)
+            continue
+        ux, uy = (x1 - x0) / L, (y1 - y0) / L
+        nx, ny = -uy, ux
+        c = (o.center[0] - x0) * ux + (o.center[1] - y0) * uy
+        g0, g1 = c - float(o.width) / 2.0 + FACE_THROUGH_END_M, c + float(o.width) / 2.0 - FACE_THROUGH_END_M
+        h = float(w.thickness) / 2.0
+        covered = {}
+        for side in (1.0, -1.0):
+            spans = []
+            for a, b in segs:
+                da = (a[0] - x0) * nx + (a[1] - y0) * ny
+                db = (b[0] - x0) * nx + (b[1] - y0) * ny
+                lab = math.dist(a, b)
+                cross = abs(((b[0] - a[0]) * nx + (b[1] - a[1]) * ny) / lab)
+                if cross > FACE_THROUGH_ANGLE or abs(side * h - (da + db) / 2.0) > FACE_THROUGH_TOL_M:
+                    continue
+                sa = (a[0] - x0) * ux + (a[1] - y0) * uy
+                sb = (b[0] - x0) * ux + (b[1] - y0) * uy
+                spans.append((min(sa, sb), max(sa, sb)))
+            at = g0
+            for s0, s1 in sorted(spans):
+                if s0 <= at + 0.005:
+                    at = max(at, s1)
+            covered[side] = at >= g1
+        if all(covered.values()) and g1 > g0:
+            ca, cb = c - float(o.width) / 2.0, c + float(o.width) / 2.0
+            filled.append(dataclasses.replace(w, start=(round(x0 + ux * ca, 4), round(y0 + uy * ca, 4)),
+                                              end=(round(x0 + ux * cb, 4), round(y0 + uy * cb, 4))))
+            ex.notes.append(f"{where}: gap {o.entity[:80]} ({float(o.width):.2f} m) has its wall's face lines running "
+                            f"through it on both faces (wall layers): a wall, not an opening (corrected_by_ai)")
+            continue
+        keep.append(o)
+    return walls2 + filled, keep
+
+
 
 
 def _empty_gap(o) -> bool:
@@ -2901,6 +3036,8 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     # (the dimension finder's strokes are not passed: its "two parallel lines around a number" also takes a window's
     # frame lines beside its size tag; the notation is read from the layers, UL296)
     walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s)
+    walls2, openings = _faces_through_gaps(ex, where, walls2, openings, strokes_m)
+    openings = _door_blocks_in_gaps(ex, where, walls2, openings, strokes_m)
     for e in gap_log:
         if e.get("kind") == "wall_piece":
             # A door leaf fused to a wall face (the run's faces kept; also in the wall's evidence note) or a frame or
