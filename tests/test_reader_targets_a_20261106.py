@@ -1274,3 +1274,43 @@ def test_the_building_frame_shift_moves_every_correction_record_of_a_wall():
     C._shift_wall(w, C._Shift(10.0, 5.0))
     assert tuple(w.start) == (0.0, 0.0) and w.corrected_by_ai["before"]["center"] == [2.0, 0.0]
     assert w.corrected_by_ai["also"][0]["before"]["end"] == [1.0, 0.0]
+
+
+def test_a_lift_landing_door_opens_to_the_hall_never_into_the_stair():
+    from wenart.ingest import twins as TW
+
+    def room(rid, label, rtype, poly):
+        return {"id": rid, "level_id": "L1", "label": label, "room_type": rtype, "polygon": poly}
+
+    shaft = room("r_L1_asansor", "Asansör", "shaft", [[0, 0], [1.6, 0], [1.6, 1.8], [0, 1.8]])
+    hall = room("r_L1_hall", "Kat Holü", "hall", [[0, 2.0], [4, 2.0], [4, 4], [0, 4]])
+    stair = room("r_L1_stair", "Merdiven", "stair", [[1.85, 0], [4, 0], [4, 1.8], [1.85, 1.8]])
+    walls = [{"id": "w1", "level_id": "L1", "start": [-0.1, 1.9], "end": [4.1, 1.9], "thickness": 0.2},
+             {"id": "w2", "level_id": "L1", "start": [1.725, 0], "end": [1.725, 1.8], "thickness": 0.25}]
+    # a wider gap read in the shear wall towards the stair, the drawn landing opening towards the hall
+    drawn = [{"id": "o_shear", "level_id": "L1", "type": "opening", "center": [1.725, 0.9], "width": 1.26},
+             {"id": "o_hall", "level_id": "L1", "type": "opening", "center": [0.8, 1.9], "width": 1.09}]
+    notes = TW.lift_doors([shaft, hall, stair], drawn, walls)
+    got = {o["id"]: o for o in drawn}
+    assert got["o_hall"]["type"] == "door" and got["o_hall"]["operation"] == "sliding"
+    assert got["o_shear"]["type"] == "opening" and "operation" not in got["o_shear"]
+    assert any("opens into the stair" in n for n in notes)
+    # only a gap towards the stair: a landing door is inferred towards the hall instead
+    only = [{"id": "o_shear", "level_id": "L1", "type": "opening", "center": [1.725, 0.9], "width": 1.26}]
+    TW.lift_doors([shaft, hall, stair], only, walls)
+    assert only[0]["type"] == "opening" and [o["id"] for o in only if o.get("lift_door")] == ["d_r_L1_asansor_lift"]
+
+
+def test_two_exact_copies_of_a_line_are_one_line_and_no_sliding_leaf():
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import openings as OP
+
+    g = OP.Gap(kind="run", axis="h", c=0.0, t=0.2, a=0.0, b=0.8, pieces=[])
+
+    def item(y, x0=0.0, x1=0.8):
+        return SimpleNamespace(pts=[(x0, y), (x1, y)], st=SimpleNamespace(arc=None))
+
+    assert OP._line_leaves(g, [item(0.05), item(0.05)]) == []               # one face line drawn twice
+    got = OP._line_leaves(g, [item(0.0), item(0.025), item(0.05)])          # three leaf lines 25 mm apart
+    assert len(got) == 1 and len(got[0][0]) == 3

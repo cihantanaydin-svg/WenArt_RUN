@@ -844,13 +844,32 @@ LIFT_WALL_REACH_M = 0.60         # a room, an opening or a wall this close to th
 MACHINE_RE_WORDS = ("MAHAL", "MAKINE", "MACHINE", "MOTOR", "MASCHINEN")   # a lift's machine room is no shaft
 
 
+def _room_beyond(opening: dict, shaft: dict, rooms: list[dict]) -> Optional[dict]:
+    """12 Nov 2026 (round-2 review, F2): the room on the other side of an opening in a shaft's wall: the nearest room of
+    its level, no shaft, within ``LIFT_WALL_REACH_M`` of its centre (None when there is none)."""
+    c = Point(opening["center"])
+    best = None
+    for r in rooms:
+        if r is shaft or r.get("level_id") != shaft.get("level_id") or r.get("room_type") == "shaft" \
+                or len(r.get("polygon") or []) < 3:
+            continue
+        d = _poly(r).distance(c)
+        if d <= LIFT_WALL_REACH_M and (best is None or d < best[0]):
+            best = (d, r)
+    return best[1] if best else None
+
+
 def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> list[str]:
     """4 Nov 2026 (lesson UL306, user on real10: "here is for the elevator (asansor) there should be a door for the
     elevator like sliding door again this is a general rule"): every lift shaft (a ``shaft`` room labelled lift,
     asansör ...; not its machine room) has its landing door on each floor: a door or opening drawn in its wall is that
     door, made sliding; else a sliding door ``LIFT_DOOR_W_M`` wide is inferred in the wall towards the room beside it
     (a common area first, then a hall or corridor, the longest common edge). Mutates ``openings``; returns one line
-    per shaft."""
+    per shaft.
+
+    12 Nov 2026 (round-2 review, F2: real10's basement lift took a 1.26 m gap in the shear wall towards the stair as
+    its landing door): of the drawn openings the one towards a common area first, then a hall or corridor, then the
+    widest; never one whose room beyond is a stair (the landing is reached from the hall, not from a flight)."""
     from shapely.geometry import LineString
 
     from wenart import common_areas as CA
@@ -866,8 +885,19 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> li
         sp, lv = _poly(s), s["level_id"]
         drawn = [o for o in openings if o.get("level_id") == lv and not o.get("virtual") and o.get("center")
                  and o.get("type") in ("door", "opening") and sp.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M]
+        ranked = []
+        for o in drawn:
+            beyond = _room_beyond(o, s, rooms)
+            if beyond is not None and beyond.get("room_type") == "stair":
+                notes.append(f"{lv}: {o['id']} in the wall of lift shaft {s['id']} opens into the stair {beyond['id']}: "
+                             f"not its landing door")
+                continue
+            ranked.append(((beyond is not None and CA.is_common_room(beyond),
+                            beyond is not None and str(beyond.get("room_type") or "") in ("hall", "corridor"),
+                            float(o.get("width") or 0)), o))
+        drawn = [o for _r, o in sorted(ranked, key=lambda t: t[0], reverse=True)]
         if drawn:
-            o = max(drawn, key=lambda o: float(o.get("width") or 0))
+            o = drawn[0]
             if o.get("operation") != "sliding" or o.get("type") != "door":
                 o["type"], o["operation"], o["operation_source"], o["lift_door"] = "door", "sliding", "assumed", True
                 o["swing_side"] = None
