@@ -2295,14 +2295,18 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
                 continue                                       # a drawn window keeps its kind
             d = c.distance(_span(o))
             if d <= DOOR_TAG_REACH_M:
-                pairs.append((round(d, 6), ti, j))
+                # 12 Nov 2026 (real07 C0047, the user's correction: the '80/210' stood as near the Kat Kal. door's
+                # span as the 1.56 m gap read over it, and the gap won by its place in the list): equally near (to the
+                # centimetre), a drawn door before a gap before a drawn window, then the nearer width
+                rank = 0 if o.kind == "door" else (1 if gap else 2)
+                pairs.append((round(d, 2), rank, round(abs(w - width), 4), round(d, 6), ti, j))
     pairs.sort()
     out = list(openings)
     used_tags: set = set()
     taken: set = set()
     spots: list = []
     done, clashes = [], []
-    for d, ti, j in pairs:
+    for *_key, ti, j in pairs:
         if ti in used_tags or j in taken:
             continue
         t, width, height, over, plain = tags[ti]
@@ -2316,7 +2320,7 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
         used_tags.add(ti)
         taken.add(j)
         spots.append((tuple(o.center), t.text.strip()))
-        if o.kind == "door" and abs(float(o.width) - width) <= DOOR_TAG_SAME_M:
+        if o.kind == "door" and abs(float(o.width) - width) <= DOOR_TAG_SAME_M + 1e-6:
             continue                                           # the tag's own door: used up
         ev = dict(t.evidence[0]) if t.evidence else {}
         ev.update(method="vector", confidence=0.9, rule="size_tag",

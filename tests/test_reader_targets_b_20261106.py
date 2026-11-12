@@ -584,6 +584,16 @@ def test_tags_are_matched_nearest_pairs_first_not_in_text_order():
     assert got[1].height == pytest.approx(2.25)
 
 
+def test_a_tag_as_near_a_drawn_door_as_a_gap_is_the_doors():
+    """real07 C0047 (the user's correction: 'the entrance to the room is wrong door'): the '80/210' stands as near the
+    Kat Kal. door's span (0.85 m, drawn) as the 1.56 m gap read over it; the drawn door takes it, no second door."""
+    from wenart.ingest.generic import core as C
+    gap = _gap(1.56, (5.36, 2.19))
+    door = _op("door", 0.85, (5.815, 2.19))
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [gap, door], [_tag("80/210", 5.63, 1.74, "DOGRAMA")],
+                        1.0) is None
+
+
 def test_two_tags_never_resize_doors_on_one_spot():
     """review B-r10-tag-greedy (real10: two copies of one door and another door on one spot took the '90/210' and the
     '110/230'): a spot takes one tag; the second is logged as two door symbols on one spot."""
