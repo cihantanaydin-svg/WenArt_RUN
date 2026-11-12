@@ -436,7 +436,9 @@ def attdef_field_name(tag: str, prompt: str = "") -> Optional[str]:
     if not re.search(r"[A-Z]", folded):
         return None                                        # a value: '+2.00', '10000'
     words = [w for w in re.split(r"[^A-Z0-9]+", B.fold_ascii(prompt).upper()) if w]
-    if folded and any(w == folded or (len(folded) >= 3 and w.startswith(folded)) for w in words):
+    room_word = bool(B.room_keyword_hits(tag)[0] or B.room_keyword_hits(tag)[1])
+    if folded and not room_word and any(w == folded or (len(folded) >= 3 and w.startswith(folded)) for w in words):
+        # (12 Nov 2026, round-2 review CODE-A8: a room word is a room's name even when its prompt repeats it)
         return f"its prompt '{prompt}' names it"
     if " " not in folded and ATTDEF_FIELD_RE.match(folded) and not B.room_keyword_hits(tag)[0] \
             and not B.room_keyword_hits(tag)[1]:

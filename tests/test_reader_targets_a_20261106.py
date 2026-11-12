@@ -784,7 +784,9 @@ def test_a_gap_whose_wall_face_lines_run_through_it_is_a_wall():
     faces = [_line((5.425, 0.0), (5.425, 4.0), 1, layer="Z_sıva"), _line((5.575, 4.0), (5.575, 0.0), 2, layer="Z_sıva")]
     ex = _ex2()
     walls, openings = GC._faces_through_gaps(ex, "p", [wall], [gap], faces)
-    assert openings == [] and len(walls) == 2 and abs(walls[1].start[1] - 1.0) < 1e-6 and abs(walls[1].end[1] - 3.0) < 1e-6
+    assert openings == [] and len(walls) == 1                 # the run already spans the gap: no second piece
+    lab = walls[0].corrected_by_ai
+    assert lab["rule"] == "faces_through_gap" and lab["before"]["width"] == 2.0 and len(lab["evidence"]) == 2
     assert "a wall, not an opening" in ex.notes[-1]
     # one face broken at the gap (a real opening), or the lines on a furniture layer: the gap stays
     broken = [faces[0], _line((5.575, 0.0), (5.575, 1.0), 3, layer="Z_sıva"), _line((5.575, 3.0), (5.575, 4.0), 4,
@@ -1076,3 +1078,14 @@ def test_a_hall_mosaic_grid_broken_around_its_label_is_no_stair():
             lines.append(_line((a, y), (b, y), k))
             k += 1
     assert _stair_of(lines) is None
+
+
+def test_room_word_tags_vent_sizes_and_room_like_floor_words():
+    from wenart.ingest.dxf_generic import attdef_field_name as F
+    from wenart.ingest.generic import core as GC
+    from wenart.reading_check import sense as SE
+
+    assert F("SALON", "SALON") is None and F("WC", "WC") is None and F("BANYO", "Banyo adini girin") is None
+    assert F("MAHAL", "MAHAL-ADI") and F("KOT", "Kotu girin")               # field names still skipped
+    assert GC.DOOR_TAG_MIN_H_CM == 180                                       # '75/45' or '50/50' is no door size
+    assert SE.notation_in("LOFT") == [] and SE.notation_in("Attic") == [] and SE.notation_in("Normal")

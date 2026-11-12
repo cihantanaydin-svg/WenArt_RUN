@@ -941,7 +941,9 @@ def notation_in(label: str) -> list:
     if not turkish and not english:
         if LB.is_annotation(label):
             found.append("an area or flat note")
-        elif LB.is_floor_name(label):         # 6 Nov 2026: the reader's rule (it skips a floor's name as a label)
+        elif LB.is_floor_name(label) and not LB.room_like_floor_word(label):
+            # 12 Nov 2026 (round-2 review, CODE-A10): LOFT, ATTIC, BASEMENT name rooms of English plans inside the walls
+            # (the reader keeps them there); NORMAL, ZEMİN, BODRUM name no room
             found.append("a floor's name")
     return list(dict.fromkeys(found))
 

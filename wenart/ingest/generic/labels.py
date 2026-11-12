@@ -214,6 +214,16 @@ FINISH_WORDS = frozenset({"AHSAP", "GRANIT", "MARLEY", "SAP", "EPOKSI", "EPOXY",
                           "PARKESI", "MERMERI", "KAPLAMASI", "ASMA", "TAVAN"})
 
 
+ROOM_LIKE_FLOOR_WORDS = frozenset({"LOFT", "ATTIC", "BASEMENT", "CELLAR", "MEZZANINE", "GARRET", "DACHBODEN",
+                                   "KELLER", "GRENIER"})
+
+
+def room_like_floor_word(text: str) -> bool:
+    """12 Nov 2026 (round-2 review, CODE-A10): a floor's name that also names a room (LOFT, ATTIC, BASEMENT ...)."""
+    words = [w for w in re.findall(r"[A-Z]+", B.fold_ascii(collapse_spaced(text or "")).upper()) if len(w) > 1]
+    return bool(words) and all(w in ROOM_LIKE_FLOOR_WORDS for w in words)
+
+
 def is_floor_name(text: str) -> bool:
     """A floor's name alone (``NORMAL``, ``ZEMİN``, ``BODRUM``, ``ÇATI``, ``TİP``: ``wenart.sheets.titles.level_of`` of the
     text with the word KAT), with no room word and no number: the name of a storey in an area summary or a title, never

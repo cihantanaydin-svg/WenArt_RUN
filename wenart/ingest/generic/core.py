@@ -2172,6 +2172,7 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
     return out if done else None
 
 
+DOOR_TAG_MIN_H_CM = 180        # 12 Nov 2026: a door size tag is at least this high (a lower one is a window or vent)
 DOOR_TAG_REACH_M = 1.2          # 4 Nov 2026 (UL321): a door size tag stands this close to its door's gap
 DOOR_TAG_KINDS = ("opening", "window", "door")
 
@@ -2205,7 +2206,10 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
     for t in texts_m:
         m = SIZE_TAG_RE.match(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
-        if m and (LN.layer_role(layer) == "door" or (LN.layer_role(layer) == "window"
+        # 12 Nov 2026 (round-2 review, F6: real11's vent size '75/45' on a door layer made a 0.45 m high door): a
+        # size under a door's height (DOOR_TAG_MIN_H_CM) is a window's or a vent's, never a door's
+        if m and int(m.group(2)) >= DOOR_TAG_MIN_H_CM and (LN.layer_role(layer) == "door" or (
+                LN.layer_role(layer) == "window"
                                                      and _door_like_tag(t, int(m.group(1)), int(m.group(2)), openings))):
             tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
     if not tags:
@@ -2438,7 +2442,7 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
                 or not _solid_linetype(getattr(st, "linetype", None)):
             continue
         pts = list(st.pts) + ([st.pts[0]] if st.closed else [])
-        segs += [(a, b) for a, b in zip(pts, pts[1:]) if math.dist(a, b) > 0.05]
+        segs += [(a, b, st) for a, b in zip(pts, pts[1:]) if math.dist(a, b) > 0.05]
     if not segs:
         return walls2, openings
     filled, keep = [], []
@@ -2463,10 +2467,10 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
         c = (o.center[0] - x0) * ux + (o.center[1] - y0) * uy
         g0, g1 = c - float(o.width) / 2.0 + FACE_THROUGH_END_M, c + float(o.width) / 2.0 - FACE_THROUGH_END_M
         h = float(w.thickness) / 2.0
-        covered = {}
+        covered, face_ids = {}, []
         for side in (1.0, -1.0):
             spans = []
-            for a, b in segs:
+            for a, b, st in segs:
                 da = (a[0] - x0) * nx + (a[1] - y0) * ny
                 db = (b[0] - x0) * nx + (b[1] - y0) * ny
                 lab = math.dist(a, b)
@@ -2476,6 +2480,8 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
                 sa = (a[0] - x0) * ux + (a[1] - y0) * uy
                 sb = (b[0] - x0) * ux + (b[1] - y0) * uy
                 spans.append((min(sa, sb), max(sa, sb)))
+                if min(sa, sb) < g1 and max(sa, sb) > g0:
+                    face_ids.append(f"{st.id} ({st.layer})")
             at = g0
             for s0, s1 in sorted(spans):
                 if s0 <= at + 0.005:
@@ -2483,10 +2489,26 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
             covered[side] = at >= g1
         if all(covered.values()) and g1 > g0:
             ca, cb = c - float(o.width) / 2.0, c + float(o.width) / 2.0
-            filled.append(dataclasses.replace(w, start=(round(x0 + ux * ca, 4), round(y0 + uy * ca, 4)),
-                                              end=(round(x0 + ux * cb, 4), round(y0 + uy * cb, 4))))
-            ex.notes.append(f"{where}: gap {o.entity[:80]} ({float(o.width):.2f} m) has its wall's face lines running "
-                            f"through it on both faces (wall layers): a wall, not an opening (corrected_by_ai)")
+            spans_gap = ca >= -1e-6 and cb <= L + 1e-6          # the host's run already covers the gap
+            if not spans_gap:
+                filled.append(dataclasses.replace(w, start=(round(x0 + ux * ca, 4), round(y0 + uy * ca, 4)),
+                                                  end=(round(x0 + ux * cb, 4), round(y0 + uy * cb, 4))))
+            # 12 Nov 2026 (round-2 review, F5 / G7): the wall carries the correction: the rule, the reason, the face lines
+            # and the gap it closed (the run's wall already spans the gap: no second piece over it)
+            label = {"by": "code", "stage": "reading", "rule": "faces_through_gap",
+                     "reason": "the wall's solid masonry and plaster face lines run through the gap on both faces: a "
+                               "wall, not an opening",
+                     "evidence": sorted(set(face_ids))[:12],
+                     "before": {"opening": o.entity, "center": [round(v, 4) for v in o.center],
+                                "width": round(float(o.width), 3)}}
+            prev = getattr(w, "corrected_by_ai", None)
+            if isinstance(prev, dict):
+                label = dict(prev, also=list(prev.get("also") or []) + [label])
+            w.corrected_by_ai = label
+            ex.notes.append(f"{where}: gap {o.entity[:80]} ({float(o.width):.2f} m) at "
+                            f"({o.center[0]:.2f}, {o.center[1]:.2f}) has its wall's face lines running through it on "
+                            f"both faces ({', '.join(sorted(set(face_ids))[:4])}): a wall, not an opening "
+                            f"(corrected_by_ai, faces_through_gap)")
             continue
         keep.append(o)
     return walls2 + filled, keep
