@@ -2270,7 +2270,6 @@ DOOR_ARC_REACH_M = 0.15         # ... its hinge (the arc's centre) this close to
 DOOR_CHORD_TOL_M = 0.05         # ... and its chord (hinge to the closed leaf's tip, along the wall) inside the gap
 DOOR_WINDOW_SWEEP = (80.0, 100.0)   # on a door-and-window layer only a swing of about 90 degrees is a door's ...
 DOOR_WINDOW_MIN_R = 0.6         # ... of a door's size (a 35-degree sash of 0.5 m is a casement window)
-DOOR_COVERS_GAP = 0.5           # a door already read covering this share of an unclassified gap is that gap's opening
 WINDOW_WORDS = ("PENCERE", "PENC", "WINDOW", "FENSTER", "FENETRE", "DOGRAMA", "VENTANA", "FINESTRA")
 WINDOW_TAG_RE = re.compile(r"^\s*[PW]\s*\d{0,2}\s*[:\-]?\s*\d{2,3}\s*/\s*\d{2,3}\s*$", re.IGNORECASE)
 
@@ -2309,7 +2308,8 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
     unclassified gap content, then as windows; round 2: borrowed swings made false doors on real21, real06, real09,
     real11): a door from a door leaf's swing in an unclassified gap, only when
 
-    - no door already read covers the gap (one covering ``DOOR_COVERS_GAP`` of it is the gap's opening: the gap goes);
+    - no door already read stands in the gap (the gap stays as it is: the later steps decide between the two; real06's
+      kitchen pass-through, its counter lines read as a sliding door, stays an opening);
     - the arc (``DOOR_ARC_R_M``, on a door layer or in a door block: ``layer_names`` role door) belongs to no opening
       already read (``owned``) and serves one gap only;
     - on a door-and-window layer it sweeps about 90 degrees with a door's radius (a sash is a window);
@@ -2371,10 +2371,6 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
                 a0, a1 = along(d.center) - float(d.width) / 2.0, along(d.center) + float(d.width) / 2.0
                 cover += max(0.0, min(a1, g1) - max(a0, g0))
         if cover > 0:
-            if cover >= DOOR_COVERS_GAP * (g1 - g0):
-                ex.notes.append(f"{where}: gap {o.entity[:80]} ({float(o.width):.2f} m) is the opening of the door "
-                                f"already read in it ({cover:.2f} m of it): no second opening")
-                continue
             out.append(o)                               # a door already read in it: never a second door
             continue
         if any(math.dist(q, o.center) <= 1.2 for q in tags):

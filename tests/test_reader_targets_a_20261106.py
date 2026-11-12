@@ -852,7 +852,7 @@ def test_borrowed_swings_sashes_tags_and_doors_already_read_make_no_new_door():
     assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(2.5, 1.5)], [hinge], owned={"A:2"})[0].kind == "opening"
     door = OpeningItem("door", 0.9, (2.2, 3.0), 0.0, [0, 0, 0, 0], "d", {})
     got = GC._door_blocks_in_gaps(_ex2(), "p", [wall], [door, gap(2.4, 1.3)], [hinge])
-    assert [o.kind for o in got] == ["door"]                        # the gap goes, no second door
+    assert [o.kind for o in got] == ["door", "opening"]             # the gap stays as it is, no second door
     got = GC._door_blocks_in_gaps(_ex2(), "p", [wall], [door, gap(3.2, 2.8)], [hinge])
     assert [o.kind for o in got] == ["door", "opening"]            # a wider gap stays as read
 
