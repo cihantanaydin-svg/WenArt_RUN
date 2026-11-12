@@ -478,8 +478,8 @@ def signature(t: str, e: dict) -> list:
     if (place.get("polygon") or []) and not any(place.get(k) for k in ("center", "start", "end")):
         c = centroid_of(place["polygon"])
         key.append([round(c[0], 2), round(c[1], 2)])
-    if e.get("attrs"):
-        key.append(sorted((k, str(v)) for k, v in e["attrs"].items()))
+    if e.get("attrs"):                      # lists, never tuples: a stored (JSON) signature must compare equal
+        key.append([[k, str(v)] for k, v in sorted(e["attrs"].items())])
     return key
 
 

@@ -163,6 +163,22 @@ def test_a_truth_edited_in_the_same_commit_cannot_hide_a_lost_correction():
     assert SC.changed(last, new) == ["real: the truth changed at u_C0001_1 (still held against the stored truth)"]
 
 
+def test_a_lost_attribute_falls_after_the_stored_entry_was_written_as_json():
+    """An entry with asserted attributes keeps its identity through the stored file (its signature holds lists, as
+    JSON does): losing the attribute is a fall, and the unchanged reading is no change."""
+    t = TR.build_sparse("p", [_rec("C0040", {"op": "add", "kind": "door", "level": "L0", "center": [1, 0],
+                                             "attrs": {"flat_entrance": True}})])
+    good = SC.match(t, _read(L0_doors=[{"id": "d", "center": [1, 0], "flat_entrance": True}]))
+    bad = SC.match(t, _read(L0_doors=[{"id": "d", "center": [1, 0]}]))
+    stored = json.loads(json.dumps({"commit": "a", "truth_kind": SC.TRUTH_KIND,
+                                    "projects": {"real": dict(good, sparse=True)}}))
+    last = SC.latest([stored])
+    new = {"truth_kind": SC.TRUTH_KIND, "projects": {"real": dict(bad, sparse=True)}}
+    assert SC.falls(last, new) == ["real: no longer satisfied: C0040 (u_C0040_1)"]
+    same = {"truth_kind": SC.TRUTH_KIND, "projects": {"real": dict(good, sparse=True)}}
+    assert SC.falls(last, same) == [] and SC.changed(last, same) == []
+
+
 def test_the_stored_truth_is_loaded_at_the_entrys_commit(tmp_path):
     """The gate reads the truth file of the stored entry's commit; a file whose hash is not the stored one is not the
     truth the numbers were made of."""
