@@ -30,7 +30,9 @@ CLAUDE.md: where the documents are silent the AI infers and completes, marks eve
 How: pure geometry on the building dict (shapely): a room's faces are found by probing both sides of each wall near it
 (``faces``): the far side lies outside the level's filled outline (``crossdoc.level_outline``), in a light well (a room
 named or holding a light-well word, ``LIGHT_WELL_RE``), on a balcony (an outdoor space or an open-air room), or in
-another room. No AI.
+another room. No AI. Every change passes ``rule_guards.blocked`` first (rule keys ``party_wall``, ``party_balcony``,
+``light_well``, ``below_ground``, ``window_inferred``, ``balcony_door_inferred``): a guard or a rule switched off stops
+it, logged in ``level_inference.guarded``.
 """
 from __future__ import annotations
 
@@ -127,6 +129,15 @@ def below_ground(building: dict, level: dict) -> Optional[str]:
     basement (kind ``basement`` or an order under the ground floor's), a level the reading closed as fully below ground
     (soil outside its walls: ``generic.underground``, the reading check's "fully below ground"), or a level whose floor
     and ceiling both lie under the lowest ground around the building."""
+    from wenart.ingest import rule_guards as RG
+
+    why = _below_ground(building, level)
+    if why and RG.blocked("below_ground", building, {"level_id": level.get("id"), "why": why}):
+        return None
+    return why
+
+
+def _below_ground(building: dict, level: dict) -> Optional[str]:
     lid = level.get("id")
     if level.get("kind") == "basement" or (level.get("order") or 0) < 0:
         return f"{lid} is a basement (under the ground floor)"
@@ -351,6 +362,8 @@ def _new_opening(kind: str, oid: str, level: Level, wall_id: str, t: float, widt
 def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source: str, next_id: Callable,
                 texts: Optional[list] = None, ev_file: str = "", region: Optional[str] = None) -> list:
     """The inferred openings of one level (pure but for ``next_id(kind, level)``): see the module docstring."""
+    from wenart.ingest import rule_guards as RG
+
     level = Level(building, lid, texts)
     if level.outline is None:
         return []
@@ -369,6 +382,9 @@ def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source:
                 if not pieces or pieces[0][1] - pieces[0][0] < BALCONY_DOOR[0]:
                     continue
                 p0, p1 = pieces[0]
+                if RG.blocked("balcony_door_inferred", building, {"level_id": lid, "room": room["id"],
+                                                                  "wall": f["wall_id"]}):
+                    continue
                 # a living room's balcony door is a wide glazed pair where the wall allows
                 dw = BALCONY_DOOR_LIVING[0] if rtype == "living" and p1 - p0 >= BALCONY_DOOR_LIVING[0] else \
                     BALCONY_DOOR[0]
@@ -396,6 +412,9 @@ def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source:
             continue
         cands.sort(key=lambda c: (c[0], c[1]))
         _, _, f, p0, p1 = cands[0]
+        if RG.blocked("window_inferred", building, {"level_id": lid, "room": room["id"], "wall": f["wall_id"],
+                                                    "facing": f["kind"]}):
+            continue
         span = p1 - p0
         width = min(w, span)
         sill = max(0.6, HEAD_M - h) if not wet else HEAD_M - h
@@ -433,6 +452,8 @@ def _region_for(sheets: Optional[dict], record) -> Optional[dict]:
 
 def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callable) -> None:
     """The pipeline hook (the module docstring): storeys, the inferred ground floor, the roof, the windows."""
+    from wenart.ingest import rule_guards as RG
+
     b = build.building
     if not isinstance(b.get("level_inference"), dict):
         b["level_inference"] = {}
@@ -450,7 +471,8 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         region_by_level[lid] = reg
         info = regions.get((reg or {}).get("id")) if reg else None
         side = [dict(s, at=list(to_building(ex, tuple(s["point"])))) for s in (info or {}).get("side_texts") or []]
-        party = party_walls(Level(b, lid, texts_by_level[lid]), side)
+        party = {w: ev for w, ev in party_walls(Level(b, lid, texts_by_level[lid]), side).items()
+                 if not RG.blocked("party_wall", b, {"level_id": lid, "wall": w, "why": ev.get("text")})}
         if party:
             party_by_level[lid] = party
     if rec and (rec.get("inferred") or rec.get("open_point")):
@@ -515,6 +537,8 @@ def _light_wells(build, texts_by_level: dict) -> dict:
     open to the sky through every storey: an opening of kind void in the floor slab of every storey above the ground
     floor where the storey below has the well too, and an opening of kind light_well in the roof over the top storey's
     well. Returns the record (``level_inference.light_wells``); {} without light wells."""
+    from wenart.ingest import rule_guards as RG
+
     b = build.building
     by_level: dict = {}
     for lv in b.get("levels") or []:
@@ -528,6 +552,8 @@ def _light_wells(build, texts_by_level: dict) -> dict:
             p = _poly(r.get("polygon"))
             word = light_well_word(r, texts) if p is not None and p.area <= LIGHT_WELL_MAX_M2 else None
             if word is None or any(p.distance(Point(o["center"][:2])) <= 0.25 for o in doors):
+                continue
+            if RG.blocked("light_well", b, {"level_id": lid, "room": r["id"], "why": word["text"]}):
                 continue
             name = LIGHT_WELL_NAMES.get(_fold(word["text"]), str(word["text"]).strip().capitalize())
             if r.get("room_type") != "shaft" or r.get("room_subtype") != "light_well":
@@ -623,6 +649,7 @@ def _clip_at_party(p: Polygon, party_walls: list, inside) -> Optional[Polygon]:
 def party_balconies(b: dict, party_by_level: dict) -> list:
     """The balconies (outdoor spaces of kind balcony) that lean only on party walls: removed (in place) and returned
     with the reason. A balcony on a facade that ends at the party line leans on that facade too and stays."""
+    from wenart.ingest import rule_guards as RG
     from wenart.reading_check.crossdoc import wall_polygon
 
     site = b.get("site") or {}
@@ -631,7 +658,8 @@ def party_balconies(b: dict, party_by_level: dict) -> list:
     for s in site.get("outdoor_spaces") or []:
         party = party_by_level.get(s.get("level_id")) or {}
         p = _poly(s.get("polygon"))
-        if not party or p is None or str(s.get("kind")) != "balcony":
+        if not party or p is None or str(s.get("kind")) != "balcony" or RG.blocked(
+                "party_balcony", b, {"level_id": s.get("level_id"), "space": s.get("id")}):
             keep.append(s)
             continue
         touching = []

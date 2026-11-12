@@ -5,9 +5,12 @@ What: ``apply(build, texts_by_level)`` runs in ``completion.complete`` after the
 the building in place and returns the record written to ``level_inference.sense_rules``:
 
 1. **Exterior flags from the outline** (``exterior``): a wall is exterior where a room lies on one side and the outside
-   (beyond the level's filled outline) or an open-air space on the other, along at least half of the stretches where
-   rooms meet it; interior where rooms (or a light well) lie on both sides. Walls with no room on either side keep their
-   flag. Each change keeps ``drawn_exterior`` (``adjusted_by_ai`` by code).
+   (beyond the level's filled outline, or a balcony out there) on the other, interior where rooms lie on both sides (a
+   light well, and an open-air room such as a terrace inside the outline, count as rooms: R14, the union of the
+   level's rooms). The flag changes only when one of the two holds along at least ``CLEAR_SHARE`` of the stations
+   where rooms meet the wall; a wall partly on the outline and partly between rooms keeps its drawn flag (stretches
+   are not split yet). Walls with no room on either side keep their flag. Each change keeps ``drawn_exterior``
+   (``adjusted_by_ai`` by code).
 2. **A stair rises only into a storey over it** (``stairs``): a stair whose storey above exists and covers less than
    ``STAIR_COVER`` of its footprint (outside the storey's outline: an open roof) is the arriving flight drawn on its
    storey: it is not built upward (``build: false``) and its void in the slab above is removed. The top storey's
@@ -24,7 +27,9 @@ Why: the audit's real21-4 and real20-9 (interior walls flagged exterior, where i
 stair copied onto the top normal floor rising onto the open roof), real20-11, real03-4 and real06-10 (shafts read as
 rooms or lost), real20-10 (balconies with no door). Each is a general rule.
 
-How: pure geometry on the building dict (``completion.Level`` probes); no AI.
+How: pure geometry on the building dict (``completion.Level`` probes); no AI. Every change passes
+``rule_guards.blocked`` first (rule keys ``exterior_flag``, ``stair_over_nothing``, ``shaft``, ``balcony_door``): a
+guard or a rule switched off stops it, logged in ``level_inference.guarded``.
 """
 from __future__ import annotations
 
@@ -35,9 +40,10 @@ from shapely.geometry import Point
 
 from wenart import geometry as G
 from wenart.ingest import completion as CP
+from wenart.ingest import rule_guards as RG
 
 STATION_M = 0.25
-EXTERIOR_SHARE = 0.5
+CLEAR_SHARE = 0.75              # the share of a wall's stations one side must hold before its flag changes
 STAIR_COVER = 0.3
 SHAFT_RE = re.compile(r"(?<![a-z])(?:saft|s\.|tesisat|baca|havalandirma|hava\s+bacasi|duct|riser|vent\s+shaft)"
                       r"(?![a-z])")
@@ -69,7 +75,11 @@ def exterior_flags(b: dict) -> list:
             for k in range(steps + 1):
                 t = length * (k + 0.5) / (steps + 1)
                 c = (a[0] + u[0] * t, a[1] + u[1] * t)
-                kinds = [level.kind_at((c[0] + s * n[0] * reach, c[1] + s * n[1] * reach), "") for s in (1, -1)]
+                qs = [(c[0] + s * n[0] * reach, c[1] + s * n[1] * reach) for s in (1, -1)]
+                kinds = [level.kind_at(q, "") for q in qs]
+                # an open-air room inside the outline (a terrace, a loggia) is one of the level's rooms (R14)
+                kinds = ["room" if k == "balcony" and level._inside is not None and level._inside.contains(Point(q))
+                         else k for k, q in zip(kinds, qs)]
                 inside = [x in ("room", "light_well") for x in kinds]
                 outside = [x in ("outside", "balcony") for x in kinds]
                 if any(inside) and any(outside):
@@ -78,8 +88,13 @@ def exterior_flags(b: dict) -> list:
                     inner += 1
             if ext + inner < 3:
                 continue
-            flag = ext / (ext + inner) >= EXTERIOR_SHARE
-            if bool(w.get("exterior")) == flag:
+            share = ext / (ext + inner)
+            if CLEAR_SHARE > share > 1.0 - CLEAR_SHARE:
+                continue                                    # partly on the outline: the drawn flag stays
+            flag = share >= CLEAR_SHARE
+            if bool(w.get("exterior")) == flag or RG.blocked(
+                    "exterior_flag", b, {"level_id": lv["id"], "wall": w["id"], "exterior": flag,
+                                         "stations": [ext, inner]}):
                 continue
             reason = (f"{w['id']}: {'the outside' if flag else 'rooms'} on {'one side' if flag else 'both sides'} along "
                       f"{max(ext, inner)} of {ext + inner} stations: {'exterior' if flag else 'interior'} by the "
@@ -117,7 +132,8 @@ def stairs_over_nothing(b: dict) -> list:
         fp = f["footprint"]
         from shapely.geometry import Polygon
         poly = Polygon(G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"]))
-        if poly.area <= 0 or outline.intersection(poly).area >= STAIR_COVER * poly.area:
+        if poly.area <= 0 or outline.intersection(poly).area >= STAIR_COVER * poly.area or RG.blocked(
+                "stair_over_nothing", b, {"level_id": f["level_id"], "stair": f["id"], "above": above}):
             continue
         reason = (f"the stair {f['id']} of {f['level_id']} has no storey over it ({above} covers "
                   f"{outline.intersection(poly).area / poly.area * 100:.0f} % of it): the arriving flight drawn on "
@@ -160,6 +176,9 @@ def shafts(b: dict, texts_by_level: dict) -> list:
                 continue
             word = shaft_word(r, texts_by_level.get(lid))
             if word is None or any(p.distance(Point(o["center"][:2])) <= 0.25 for o in doors):
+                continue
+            if r.get("room_type") != "shaft" and RG.blocked("shaft", b, {"level_id": lid, "room": r["id"],
+                                                                          "why": word}):
                 continue
             by_level.setdefault(lid, []).append(r)
             if r.get("room_type") == "shaft":
@@ -236,6 +255,9 @@ def balcony_doors(b: dict, next_id) -> list:
             out.append({"space": s["id"], "opening": None, "how": "service balcony",
                         "reason": f"the balcony {s['id']} is {depth:.2f} m deep: a service balcony, its window stays "
                                   f"(a guard on upper floors, no door)"})
+            continue
+        if RG.blocked("balcony_door", b, {"level_id": lid, "space": s["id"],
+                                          "opening": best_win[0]["id"] if best_win is not None else None}):
             continue
         if best_win is not None:
             o, room = best_win

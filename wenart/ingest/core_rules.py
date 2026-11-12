@@ -29,7 +29,9 @@ Why: real21's core held two lifts and a stair box the reader set aside as a dime
 bedrooms, a bedroom opened onto the stair hall, and no door led in from the street. real20's six "entrances" were inner
 doors of rooms the reading lost; real10's lift opened into a WC and onto its stair. Every one is a general rule.
 
-How: pure geometry on the building dict (``completion.Level`` probes, shapely); no AI.
+How: pure geometry on the building dict (``completion.Level`` probes, shapely); no AI. Every change passes
+``rule_guards.blocked`` first (rule keys ``stair_*``, ``lift_door_*``, ``core_gap``, ``entrance_*``): a guard or a rule
+switched off stops it, logged in ``level_inference.guarded``.
 """
 from __future__ import annotations
 
@@ -40,6 +42,7 @@ from shapely.geometry import Point, Polygon
 
 from wenart import geometry as G
 from wenart.ingest import completion as CP
+from wenart.ingest import rule_guards as RG
 
 # a flat's rooms (a storage room, a shelter or a laundry may be the building's own, reached from the core)
 PRIVATE = ("bedroom", "living", "kitchen", "bathroom", "wc", "shower", "toilet", "dining", "office", "study")
@@ -210,6 +213,11 @@ def infer_stairs(b: dict, next_id, texts_by_level: dict) -> list:
                        f"inferred in the core hall {hall['id']}")
         if fp is None:
             continue
+        kind = ("stair_typical_copy" if box is not None and box["symbol"].get("kind") == "typical copy" else
+                "stair_box" if box is not None else "stair_dogleg")
+        if RG.blocked(kind, b, {"level_id": lid, "symbol": (box or {}).get("symbol", {}).get("id"),
+                                "room": (room or {}).get("id"), "why": how}):
+            continue
         reason = how + " (inferred; needs review)"
         piece = {"id": next_id("furniture", lid), "level_id": lid, "room_id": (room or {}).get("id"), "type": "stair",
                  "type_raw": None,
@@ -340,6 +348,9 @@ def fix_lift_doors(b: dict, next_id) -> dict:
                 why = f"{o['id']} opens the lift {lift['id']} onto a stair flight: a lift opens onto the common hall"
             elif o.get("type") == "window":
                 why = f"{o['id']} is a window in the lift shaft {lift['id']}"
+            if why and RG.blocked("lift_door_remove", b, {"level_id": lid, "opening": o["id"], "lift": lift["id"],
+                                                         "room": (other or {}).get("id"), "why": why}):
+                why = None
             if why:
                 drop.add(o["id"])
                 rec["removed"].append({"opening": o["id"], "level_id": lid, "reason": why + " (adjusted_by_ai)"})
@@ -379,7 +390,8 @@ def fix_lift_doors(b: dict, next_id) -> dict:
 
             f, p0, p1 = max(faces, key=score)
             width = min(LIFT_DOOR_M[0], p1 - p0)
-            if width < LIFT_DOOR_MIN_M:
+            if width < LIFT_DOOR_MIN_M or RG.blocked("lift_door_add", b, {"level_id": lid, "lift": lift["id"],
+                                                                           "wall": f["wall_id"], "room": f["hall"]}):
                 continue
             reason = (f"the lift {lift['id']} has no landing door onto the common hall: one inferred on {f['wall_id']} "
                       f"facing {f['hall']}")
@@ -469,7 +481,9 @@ def close_core_gaps(b: dict) -> list:
             if (a["id"] in core) == (c["id"] in core):
                 continue
             flat = c if a["id"] in core else a
-            if flat.get("room_type") not in PRIVATE:
+            if flat.get("room_type") not in PRIVATE or RG.blocked(
+                    "core_gap", b, {"level_id": lv["id"], "opening": o["id"], "room": flat["id"],
+                                    "core_room": (a if flat is c else c)["id"]}):
                 continue
             drop.append(o["id"])
             out.append({"opening": o["id"], "level_id": lv["id"],
@@ -506,6 +520,9 @@ def fix_entrances(b: dict, next_id, party_by_level: dict) -> dict:
             # a garden or terrace door of a ground-floor flat stays an outer door; a bathroom is never a way in
             why = (f"{e.get('door_id')} opens from {room.get('id')} '{room.get('label')}' ({room.get('room_type')}): a "
                    f"wet room is never a way into the building")
+        if why and RG.blocked("entrance_refuse", b, {"level_id": e.get("level_id"), "opening": e.get("door_id"),
+                                                    "room": e.get("room_id"), "why": why}):
+            why = None
         if why:
             rec["refused"].append({"door": e.get("door_id"), "level_id": e.get("level_id"),
                                    "reason": why + " (adjusted_by_ai: no entrance, no steps)"})
@@ -538,6 +555,9 @@ def fix_entrances(b: dict, next_id, party_by_level: dict) -> dict:
             for p0, p1 in level.free(f):
                 if p1 - p0 >= ENTRANCE_DOOR_M[0] and (best is None or p1 - p0 > best[3] - best[2]):
                     best = (hall, f, p0, p1)
+    if best is not None and RG.blocked("entrance_add", b, {"level_id": ground["id"], "room": best[0]["id"],
+                                                           "wall": best[1]["wall_id"]}):
+        return rec
     if best is not None:
         hall, f, p0, p1 = best
         reason = (f"the building entrance: the common hall {hall['id']} '{hall.get('label')}' reaches the facade on "

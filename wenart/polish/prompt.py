@@ -327,7 +327,8 @@ DECOR_WORDS: dict[str, str] = {
 # rooms[].room_subtype words (Milestone 10: a child's room holds cribs and bunk beds; 4 Nov 2026, UL305 / UL316: a
 # common area of a building with several dwellings, a shared hall or a fire stair, with its own lobby finishes).
 # ``{room}`` is the room type's words.
-SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom", "common": "communal {room} of an apartment building"}
+SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom", "common": "communal {room} of an apartment building",
+                                  "light_well": "open-air light well"}   # 6 Nov 2026 (UL334): never furnished
 # The room types a subtype applies to (a subtype not listed applies to every room type).
 SUBTYPE_ROOM_TYPES: dict[str, tuple] = {"child": ("bedroom",)}
 

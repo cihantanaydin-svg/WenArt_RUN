@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-06",
+ "updated": "2026-11-12",
  "lessons": [
   {
    "id": "UL01",
@@ -3915,8 +3915,10 @@
    "id": "UL331",
    "date": "2026-11-06",
    "area": "other",
-   "status": "open",
-   "checks": [],
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "A drawing that draws no windows (an area or licence plan: rooms with their areas, walls, doors, parcel lines) still gets windows: a habitable room on an outer wall with no drawn window gets an inferred window, and a room onto a balcony an inferred balcony door, marked inferred with the reason; a building that reads no window at all is a finding the machine raises before the user looks. Found on real21's structure run of 6 Nov 2026 (0 windows: the drawing draws none).",
    "lesson": "A drawing that draws no windows (an area or licence plan: rooms with their areas, walls, doors, parcel lines) still gets windows: a habitable room on an outer wall with no drawn window gets an inferred window, and a room onto a balcony an inferred balcony door, marked inferred with the reason; a building that reads no window at all is a finding the machine raises before the user looks. Found on real21's structure run of 6 Nov 2026 (0 windows: the drawing draws none).",
    "question": null
@@ -3925,8 +3927,10 @@
    "id": "UL332",
    "date": "2026-11-06",
    "area": "other",
-   "status": "open",
-   "checks": [],
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "A drawing that draws fewer storeys than the building has (one typical plan, a block with lifts and a common core, a 'normal' area text) is built with all its storeys: the count from sections, elevations, level marks, floor-listing titles, area tables and zoning texts, else a default by building type marked as a guess the user can correct; the typical plan repeats, the ground floor follows the footprint evidence, a roof on top. User, 6 Nov 2026: 'real21 only 1 floor seems to be built you need to extrapolate what needs to be done. all floors needs to be done'.",
    "lesson": "A drawing that draws fewer storeys than the building has (one typical plan, a block with lifts and a common core, a 'normal' area text) is built with all its storeys: the count from sections, elevations, level marks, floor-listing titles, area tables and zoning texts, else a default by building type marked as a guess the user can correct; the typical plan repeats, the ground floor follows the footprint evidence, a roof on top. User, 6 Nov 2026: 'real21 only 1 floor seems to be built you need to extrapolate what needs to be done. all floors needs to be done'.",
    "question": null
@@ -3935,8 +3939,10 @@
    "id": "UL333",
    "date": "2026-11-06",
    "area": "other",
-   "status": "open",
-   "checks": [],
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "Underground floors get no windows: no inferred window or balcony door on a level below ground (a basement, or any level whose floor and ceiling are under the ground), and no 'room without window' finding there. User, 6 Nov 2026: 'underground floors will have no window'.",
    "lesson": "Underground floors get no windows: no inferred window or balcony door on a level below ground (a basement, or any level whose floor and ceiling are under the ground), and no 'room without window' finding there. User, 6 Nov 2026: 'underground floors will have no window'.",
    "question": null
@@ -3946,7 +3952,9 @@
    "date": "2026-11-06",
    "area": "other",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "Make sense of the building: the reading is completed into a building an architect would accept, by general rules with evidence. Light wells (AYDINLIK, IŞIKLIK, light well, air shaft) are open-air voids through every storey, never rooms, and the rooms around them get their windows onto them; facades marked attached ('bitişik') are blank party walls; the stair and lifts run through every storey to a stair head and lift overrun on the roof; the ground floor has the entrance from the street and follows the footprint; underground floors have no windows. A check raises any of these before the user looks. User, 6 Nov 2026: 'Make sense of the building' (real21).",
    "lesson": "Make sense of the building: the reading is completed into a building an architect would accept, by general rules with evidence. Light wells (AYDINLIK, IŞIKLIK, light well, air shaft) are open-air voids through every storey, never rooms, and the rooms around them get their windows onto them; facades marked attached ('bitişik') are blank party walls; the stair and lifts run through every storey to a stair head and lift overrun on the roof; the ground floor has the entrance from the street and follows the footprint; underground floors have no windows. A check raises any of these before the user looks. User, 6 Nov 2026: 'Make sense of the building' (real21).",
    "question": null
