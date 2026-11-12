@@ -239,7 +239,7 @@ NOTATION_PHRASES = (
     # real11's 'GİRİŞ' over 'SAÇAK', 'SAÇAK ALTI'), and keeps the word
     (r"\bSACAK\s+(?:IZDUSUMU|HATTI|CIZGISI)\b", "the eaves (projection line)"),
     (r"\bIZDUSUM\w*\b", "a projection line of the floor above"),
-    (r"\bKOTU?\b", "a level mark"),
+    (r"\bKOT(?:U|UNDA|UNA|LU|TA|TAKI)?\b", "a level mark"),          # 12 Nov 2026: inflected (KOTUNDA TERAS, A-L6)
     (r"\bAKS(?:I|LARI)?\b", "an axis"),
     (r"\bSUBASMAN\b", "the plinth line"),
     (r"\bDILATASYON\b", "an expansion joint"),
@@ -435,7 +435,27 @@ def _line_height(run: TextRun) -> float:
 AREA_PREFIX_RE = re.compile(r"^(?:[A-Z]{1,3}|NET|BRUT|ALAN|ALANI|AREA|FLACHE|SURFACE|NET ALAN|NETTO)\s*[=:]$")
 
 
-def _classify(run: TextRun, default_system: str) -> _Line:
+def _in_hull(run: TextRun, hull) -> bool:
+    """Whether a run's centre lies inside ``hull`` (a shapely polygon in the runs' frame); False without one."""
+    if hull is None or getattr(hull, "is_empty", True):
+        return False
+    from shapely.geometry import Point
+
+    return bool(hull.contains(Point((run.box[0] + run.box[2]) / 2.0, (run.box[1] + run.box[3]) / 2.0)))
+
+
+# 12 Nov 2026 (review of the reader targets, A7: 'SALON' over 'NET 24.50 M2' lost its area once a lone summary word was
+# no label): the words that say a room's own area; a line of only these words and an area is the room's area line
+ROOM_AREA_WORDS = frozenset({"NET", "BRUT", "NETTO", "BRUTTO", "GROSS", "KULLANIM"}) | frozenset(_AREA_NOUNS)
+
+
+def _room_area_words(head: str) -> bool:
+    """Whether a line's words before its area are only words of a room's own area (``ROOM_AREA_WORDS``)."""
+    words = [w for w in re.findall(r"[A-Z]+", B.fold_ascii(head or "").upper()) if len(w) > 1]
+    return bool(words) and all(w in ROOM_AREA_WORDS for w in words)
+
+
+def _classify(run: TextRun, default_system: str, hull=None) -> _Line:
     """Kind of one run: ``area``, ``size``, ``name`` (keyword), ``other`` (words that may continue a
     name), or ``skip`` (a single length, a bare number, a long note: never part of a block)."""
     text = collapse_spaced(run.text.strip())
@@ -449,8 +469,8 @@ def _classify(run: TextRun, default_system: str) -> _Line:
     if units.parse_length(text, default_system) is not None:
         return _Line(run, "skip", "", frame_box=box)
     head, size_text, area_text = _strip_suffixes(text)
-    if area_text and AREA_PREFIX_RE.match(B.fold_ascii(head).upper()):
-        return _Line(run, "area", "", area_text=area_text, frame_box=box)    # "A = 24,50 m²", "NF: 18,2 m²"
+    if area_text and (AREA_PREFIX_RE.match(B.fold_ascii(head).upper()) or _room_area_words(head)):
+        return _Line(run, "area", "", area_text=area_text, frame_box=box)    # "A = 24,50 m²", "NF: 18,2 m²", "NET 24.50 M2"
     rest, notation = split_notation(head)
     if notation:
         # 6 Nov 2026 (target 3, real11): a notation phrase is split off the line before naming; a line that is only
@@ -461,8 +481,10 @@ def _classify(run: TextRun, default_system: str) -> _Line:
         text = " ".join(x for x in (rest, size_text, area_text) if x)
     if is_annotation(text):
         return _Line(run, "skip", "", frame_box=box)       # real03: "Net Alan =", "1+1 A1 Daire Tipi" are no rooms
-    if is_floor_name(head):
-        return _Line(run, "skip", "", frame_box=box)       # 6 Nov 2026 (real19): "NORMAL" over "253 M2" is no room
+    if is_floor_name(head) and not _in_hull(run, hull):
+        # 6 Nov 2026 (real19): "NORMAL" over "253 M2" is no room. 12 Nov 2026 (review, A-T7): only outside the walls'
+        # hull (when known): inside it a LOFT, an ATTIC or a BASEMENT with its area is an English plan's room
+        return _Line(run, "skip", "", frame_box=box)
     if is_finish_note(head):
         return _Line(run, "skip", "", frame_box=box)       # 6 Nov 2026 (real15): "SERAMIK 33X33" is a finish note
     if _is_name_text(text, indoor_only=False):
@@ -737,6 +759,8 @@ def schedules(texts: list, hull=None, tf: Optional[list] = None) -> list[dict]:
                                                  (runs[k].box[1] + runs[k].box[3]) / 2.0), tf))) for k in words)
             if header is None and not outside:
                 continue
+            if header is not None and header in chain:
+                chain = [k for k in chain if k != header]
             ids = [runs[k].id for k in chain] + ([runs[header].id] if header is not None else [])
             bx = [runs[k].box for k in chain]
             out.append({"axis": axis, "run_ids": ids, "room_words": [runs[k].text for k in words],
@@ -758,6 +782,8 @@ def _mapped(p, tf: Optional[list]) -> tuple:
 
 
 SCHEDULE_BRIDGE = 3.0         # an empty cell: a column's entries this many pitches apart, when a header tops them
+SCHEDULE_TITLE_REACH = 25.0   # 12 Nov 2026: a centred table title starts at most this x the entry height right of the column
+SCHEDULE_TITLE_RE = re.compile(r"\b(?:LISTESI|CIZELGESI|TABLOSU|SCHEDULE|LIST|LISTE|RAUMBUCH|NOMENCLATURE)\b")
 
 
 def _box_in_frame(box, rotation_deg: float) -> tuple[float, float, float, float]:
@@ -773,6 +799,10 @@ def _schedule_header(chain: list, axis: str, runs: list, fbs: list, hs: list, he
     """The index of the header cell (among ``headers``, the indices of the header texts) standing at the head of a list
     (above a column, above or left of a row), in the list's reading frame (a header may be turned: real15's upright
     MAHAL LİSTESİ over a horizontal list)."""
+    if chain and chain[0] in headers:
+        # 12 Nov 2026 (review, A-T4: real13's 'MAHAL ADI' cell has the entries' height and pitch, so it heads the
+        # chain): the chain's own head is the header cell
+        return chain[0]
     first = fbs[chain[0]]
     h0 = hs[chain[0]]
     rot = runs[chain[0]].rotation_deg
@@ -782,7 +812,12 @@ def _schedule_header(chain: list, axis: str, runs: list, fbs: list, hs: list, he
             continue
         g = _box_in_frame(runs[j].box, rot)
         gap = SCHEDULE_HEADER_GAP * max(h0, hs[j])          # a larger header stands further
-        above = g[1] >= first[3] - 0.5 * h0 and g[1] - first[3] <= gap and min(g[2], x1) - max(g[0], x0) > -h0
+        # 12 Nov 2026 (review, A-T4): a table's title centred over all its columns stands over the table, not over the
+        # room column: it may start up to SCHEDULE_TITLE_REACH entry heights right of the column
+        over = min(g[2], x1) - max(g[0], x0) > -h0 or (g[2] > x0 and g[0] - x1 <= SCHEDULE_TITLE_REACH * h0)
+        if SCHEDULE_TITLE_RE.search(" ".join(B.fold_ascii(str(runs[j].text or "")).split()).upper()):
+            gap = max(gap, 2.0 * SCHEDULE_PITCH * max(h0, hs[j]))     # a title over a row of column headers
+        above = g[1] >= first[3] - 0.5 * h0 and g[1] - first[3] <= gap and over
         left = axis == "row" and g[2] <= first[0] + 0.2 * h0 and first[0] - g[2] <= gap \
             and abs((g[1] + g[3]) / 2.0 - (first[1] + first[3]) / 2.0) <= 0.5 * max(h0, hs[j])
         if above or left:
@@ -835,7 +870,7 @@ def merge_label_blocks(texts_m: list[TextRun], file_rel: Optional[str] = None,
             schedules_out.extend(found)
     texts_m = join_spaced_letters([t for t in texts_m if not _services_text(t)])
     system = page_unit_system(texts_m)
-    lines = [_classify(t, system) for t in texts_m if t.text and t.text.strip()]
+    lines = [_classify(t, system, hull) for t in texts_m if t.text and t.text.strip()]
     candidates = [ln for ln in lines if ln.kind != "skip"]
 
     # Each line links to the line that continues it (the nearest one below; for a connector run also a

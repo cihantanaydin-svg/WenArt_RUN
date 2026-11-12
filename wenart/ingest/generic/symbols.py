@@ -1202,6 +1202,29 @@ def _straight(segs: list[Seg], to_f) -> list[tuple[str, float, float, float, Seg
 
 FINISH_SHARE = 0.5          # 3 Nov 2026: tread lines mostly on a floor-finish layer (tiles) are no stair
 GRID_CUTS = 4               # ... nor treads cut by this many evenly spaced cross lines (a tile grid)
+GRID_CROSS_MIN = 2          # 12 Nov 2026: a cross line counts for the grid when it crosses this many treads ...
+GRID_PITCH_M = (0.08, 0.80)  # ... and the cross lines' pitch is a tile's (mosaic to large tiles)
+GRID_PITCH_RATIO = 2.5      # ... within this ratio of the treads' pitch (tiles: alike both ways)
+GRID_ON_PITCH = 0.75        # ... with this share of the steps on the pitch (the rest whole multiples: text gaps)
+
+
+def _tile_grid(cross: list, pitch: float) -> bool:
+    """12 Nov 2026 (review of the reader targets, real18: kitchen tile hatches and the halls' mosaic grids, their cross
+    lines cut by the texts' gaps, read as five stairs): the offsets of the cross lines over a run of tread lines are a
+    tile grid when at least ``GRID_CUTS`` of them are spaced at a tile's pitch (``GRID_PITCH_M``) like the treads'
+    (``GRID_PITCH_RATIO``), ``GRID_ON_PITCH`` of the steps on it and every other step a whole multiple of it (a line
+    lost under a text). A stair has one to three cross lines (a stringer, the dividing wall, a rail, an arrow)."""
+    v = sorted(set(round(c, 3) for c in cross))
+    steps = [b - a for a, b in zip(v, v[1:]) if b - a > 0.01]
+    if len(v) < GRID_CUTS or not steps or pitch <= 0:
+        return False
+    med = sorted(steps)[len(steps) // 2]
+    if not (GRID_PITCH_M[0] <= med <= GRID_PITCH_M[1]) or not (1.0 / GRID_PITCH_RATIO <= med / pitch <= GRID_PITCH_RATIO):
+        return False
+    tol = max(STAIR_STEP_TOL * med, 0.02)
+    on = sum(1 for st in steps if abs(st - med) <= tol)
+    whole = all(abs(st - med * round(st / med)) <= tol for st in steps)
+    return whole and on >= GRID_ON_PITCH * len(steps)
 
 
 def _finish_share(segs: list) -> float:
@@ -1255,6 +1278,15 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
         if len(cuts) >= GRID_CUTS and _even(cuts, STAIR_STEP_M[0] * (1 - STAIR_STEP_TOL),
                                            STAIR_STEP_M[1] * (1 + STAIR_STEP_TOL) * 2.0):
             continue                                    # a grid of tiles, not treads
+        # 12 Nov 2026 (real18): the cross lines cut by the texts' gaps cross fewer treads each: every cross line over
+        # at least GRID_CROSS_MIN treads counts for the grid test
+        offs = sorted(t[0] for t in treads)
+        tread_pitch = sorted(b - a for a, b in zip(offs, offs[1:]))[(len(offs) - 1) // 2] if len(offs) > 1 else 0.0
+        cross = [o[1] for o in others
+                 if sum(1 for t in treads if t[1] + 0.01 < o[1] < t[2] - 0.01 and o[2] - 0.005 <= t[0] <= o[3] + 0.005)
+                 >= GRID_CROSS_MIN]
+        if _tile_grid(cross, tread_pitch):
+            continue                                    # a tile grid (its cross lines cut by text gaps), not treads
         pieces = []
         for off, lo, hi, members in treads:
             bounds = [lo] + [c for c in cuts if lo + 0.01 < c < hi - 0.01] + [hi]

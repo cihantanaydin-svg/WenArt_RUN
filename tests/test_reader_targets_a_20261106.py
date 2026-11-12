@@ -553,3 +553,140 @@ def test_turkish_room_word_abbreviations_compounds_and_odasi_names():
     assert B.room_type_for("ODA") == "bedroom" and B.generic_room_label("ODA")       # ODA alone stays generic
     blocks = LB.merge_label_blocks([_run("SPOR ODASI", 0.0, 0.0, k=1), _run("43.00 m²", 0.0, -0.35, k=2)], "p.dxf")
     assert [(b.name, b.area_m2) for b in blocks] == [("SPOR ODASI", 43.0)]
+
+
+# --------------------------------------------------------------------------
+# Review of 12 Nov 2026, item 6 (real18): a tile grid is no stair; a hall's own stair does not cut the hall
+# --------------------------------------------------------------------------
+
+def _line(a, b, k, layer="0"):
+    from wenart.ingest.generic.model import Stroke
+
+    return Stroke(id=f"LINE:{k}", kind="line", pts=[a, b], layer=layer)
+
+
+def _stair_of(strokes):
+    from wenart.ingest.generic import symbols as SY
+
+    return SY.stair_rule(SY.Cluster(SY._segments(strokes, set())), 0.0)
+
+
+def test_a_tile_grid_cut_by_text_gaps_is_no_stair_and_a_real_stair_stays_one():
+    rows = [_line((0.0, 0.3 * k), (2.4, 0.3 * k), k) for k in range(9)]             # tile joints every 0.30 m
+    cols = []
+    for j in range(9):                                                               # the cross joints, cut by texts
+        x = 0.3 * j
+        spans = [(0.0, 0.9), (1.2, 2.4)] if j % 2 else [(0.0, 0.6), (1.5, 2.4)]
+        cols += [_line((x, a), (x, b), 100 + 10 * j + n) for n, (a, b) in enumerate(spans)]
+    assert _stair_of(rows + cols) is None
+    # a stair: 8 treads, two stringers, the dividing line and an arrow line keep it a stair
+    treads = [_line((1.0, 1.0 + 0.27 * k), (2.6, 1.0 + 0.27 * k), 300 + k) for k in range(8)]
+    sides = [_line((1.0, 1.0), (1.0, 2.89), 400), _line((2.6, 1.0), (2.6, 2.89), 401),
+             _line((1.8, 1.0), (1.8, 3.5), 402), _line((1.4, 1.1), (1.4, 2.8), 403)]
+    st = _stair_of(treads + sides)
+    assert st is not None and sum(f["lines"] for f in st["flights"]) >= 8
+    from wenart.ingest.generic import symbols as SY
+    assert SY._tile_grid([0.0, 0.3, 0.6, 1.2, 1.5], 0.3) and not SY._tile_grid([0.0, 0.4, 1.6], 0.27)
+    assert not SY._tile_grid([0.0, 0.8, 1.6, 2.4, 3.2], 0.27)                      # far wider than the treads
+
+
+def test_a_stair_separator_is_refused_when_the_halls_printed_area_holds_the_stair():
+    from types import SimpleNamespace
+
+    from shapely.geometry import box
+
+    from wenart.ingest.generic import topology as TP
+
+    before = [box(0, 0, 3.2, 2.0)]                                                  # 6.4 m2: the Antre with its stair
+    after = [box(0, 0, 1.0, 2.0), box(1.0, 0, 3.2, 2.0)]
+    antre = SimpleNamespace(name="ANTRE", anchor=(0.5, 1.0), area_m2=6.42)
+    assert TP._area_text_holds(before, after, [antre]) == "ANTRE"
+    no_area = SimpleNamespace(name="ANTRE", anchor=(0.5, 1.0), area_m2=None)
+    assert TP._area_text_holds(before, after, [no_area]) is None
+    small = SimpleNamespace(name="ANTRE", anchor=(0.5, 1.0), area_m2=2.0)          # the drawing says: without the stair
+    assert TP._area_text_holds(before, after, [small]) is None
+
+
+# --------------------------------------------------------------------------
+# Review of 12 Nov 2026, items 7 and 8: area lines, field-name tags, schedule headers, KOTUNDA, negative cases
+# --------------------------------------------------------------------------
+
+def test_a_room_area_line_written_with_net_or_brut_keeps_the_rooms_area():
+    from wenart.ingest.generic import labels as LB
+
+    for line, area in (("NET 24.50 M2", 24.5), ("BRÜT 30.00 M2", 30.0), ("NET: 24,50 m²", 24.5)):
+        blocks = LB.merge_label_blocks([_run("SALON", 0.0, 0.0, k=1), _run(line, 0.0, -0.35, k=2)], "p.dxf")
+        assert [(b.name, b.area_m2) for b in blocks] == [("SALON", area)], line
+    # a building summary line is no room's area; a lone summary word stays no label
+    blocks = LB.merge_label_blocks([_run("SALON", 0.0, 0.0, k=1), _run("OTURUM 108 M2", 0.0, -0.35, k=2)], "p.dxf")
+    assert [(b.name, b.area_m2) for b in blocks] == [("SALON", None)]
+    assert LB.merge_label_blocks([_run("BRÜT", 0.0, 0.0, k=1), _run("253 M2", 0.0, -0.35, k=2)], "p.dxf") == []
+
+
+def test_attdef_field_names_are_no_texts_and_special_codes_are_decoded(tmp_path):
+    from wenart.ingest.dxf_generic import attdef_field_name as F
+
+    doc = _doc()
+    msp = doc.modelspace()
+    for k, (tag, prompt, default) in enumerate((("MAHAL", "MAHAL-ADI", ""), ("BITMISKOT", "", ""),
+                                                ("ASNAME", "", ""), ("ODA_ADI", "", ""), ("%%P0.00", "Kotu girin", "x"),
+                                                ("SALON", "Mahal adi giriniz", ""), ("SUDEPOSU", "", ""))):
+        a = msp.add_attdef(tag, (k * 5.0, 0.0), dxfattribs={"height": 0.25, "layer": "YAZI"})
+        a.dxf.prompt = prompt
+        a.dxf.text = default
+    page = DG.read_page(_save(doc, tmp_path), "plan.dxf")
+    assert sorted(t.text for t in page.texts) == ["SALON", "SUDEPOSU", "±0.00"]
+    assert F("KOT", "Kotu girin") and F("ÇİZİMADI") and not F("+2.00", "Kotu girin") and not F("10000", "MAHAL-NO")
+    assert not F("OTOPARK") and not F("A:102.52M2") and not F("Y.odası") and not F("YATAK_ODASI")
+
+
+def _headed_schedule(header_h=0.2, title=None, cols=1):
+    runs = [_run("MAHAL ADI", 50.0, 10.5, h=header_h, k=899)] if header_h else []
+    if title:
+        runs.append(_run(title, 50.0 + 4.5, 11.0, h=0.2, k=898))             # centred over four columns
+    for k, name in enumerate(SCHEDULE):
+        runs.append(_run(name, 50.0, 10.0 - 0.5 * k, k=k + 100))
+        for c in range(1, cols):
+            runs.append(_run("PARKE", 50.0 + 3.0 * c, 10.0 - 0.5 * k, k=k + 200 + 20 * c))
+    return runs
+
+
+def test_a_header_cell_of_the_entries_height_or_a_centred_title_heads_a_schedule():
+    from shapely.geometry import box
+
+    from wenart.ingest.generic import labels as LB
+
+    for kw in ({}, {"hull": box(40, 0, 60, 20)}):                    # no walls known; a hull covering the list
+        found = LB.schedules(_headed_schedule(), **kw)
+        assert len(found) == 1 and found[0]["header"] == "MAHAL ADI", kw
+        assert found[0]["run_ids"].count("TEXT:899") == 1
+        found = LB.schedules(_headed_schedule(header_h=0, title="MAHAL LİSTESİ", cols=4), **kw)
+        assert len(found) == 1 and found[0]["header"] == "MAHAL LİSTESİ", kw
+    # the same rooms without a header inside the walls stay labels
+    assert LB.schedules(_headed_schedule(header_h=0), hull=box(40, 0, 60, 20)) == []
+
+
+def test_inflected_level_mark_words_are_notation_and_floor_names_inside_the_walls_are_rooms():
+    from shapely.geometry import box
+
+    from wenart.ingest.generic import labels as LB
+
+    assert LB.split_notation("-0.50 KOTUNDA TERAS")[0] == "TERAS" and LB.split_notation("TERAS KOTUNDA")[0] == "TERAS"
+    assert LB.split_notation("KOTA")[0] == "KOTA"
+    runs = [_run("LOFT", 5.0, 5.0, k=1), _run("24.50 m²", 5.0, 4.65, k=2)]
+    assert LB.merge_label_blocks(runs, "p.dxf") == []                    # no walls known: a floor's name
+    inside = LB.merge_label_blocks(runs, "p.dxf", hull=box(0, 0, 10, 10))
+    assert [(b.name, b.area_m2) for b in inside] == [("LOFT", 24.5)]
+    outside = LB.merge_label_blocks([_run("NORMAL", 50.0, 5.0, k=1), _run("253 M2", 50.0, 4.65, k=2)], "p.dxf",
+                                    hull=box(0, 0, 10, 10))
+    assert outside == []
+
+
+def test_finish_word_rooms_stay_labels_and_field_like_names_give_no_label():
+    from wenart.ingest.generic import labels as LB
+
+    for name in ("PARKE DEPOSU", "ÇALIŞMA ALANI"):
+        blocks = LB.merge_label_blocks([_run(name, 0.0, 0.0, k=1)], "p.dxf")
+        assert [b.name for b in blocks] == [name], name
+    for name in ("ODA_ADI", "ROOM_NAME", "NAME"):
+        assert LB.merge_label_blocks([_run(name, 0.0, 0.0, k=1)], "p.dxf") == [], name

@@ -422,6 +422,28 @@ class _Ref:
     clip: Optional[Polygon] = None         # XCLIP boundary of this INSERT and its parents, page units (None = none)
 
 
+# 12 Nov 2026 (review of the reader targets, A9: real12's 1384 model-space ATTDEFs 'MAHAL' (prompt 'MAHAL-ADI'), 'KOT',
+# 'BITMISKOT', 'ÇİZİMADI', real09's 'ASNAME', 'ASCATNO': exploded attribute blocks left unedited show the field's name):
+# a tag that is a field's name, never a text of the drawing: the prompt names it (the folded tag is a word of the
+# folded prompt: MAHAL / 'MAHAL-ADI', KOT / 'Kotu girin'), or it ends in a field word (ADI, NAME, NO, TAG, CODE ...)
+ATTDEF_FIELD_RE = re.compile(r"^[A-Z0-9_\-.]*?(?:ADI|ISMI|ISIM|NAME|NO|NR|NUM|NUMBER|TAG|KOD|KODU|CODE|COLOR|COLOUR|"
+                             r"RENK|CATNO|TYPE|TIPI|KOT|KOTU)$")
+
+
+def attdef_field_name(tag: str, prompt: str = "") -> Optional[str]:
+    """Why a model-space ATTDEF's tag is a field's name (see above), or None when it is a text the drawing shows."""
+    folded = B.fold_ascii(tag).upper().strip()
+    if not re.search(r"[A-Z]", folded):
+        return None                                        # a value: '+2.00', '10000'
+    words = [w for w in re.split(r"[^A-Z0-9]+", B.fold_ascii(prompt).upper()) if w]
+    if folded and any(w == folded or (len(folded) >= 3 and w.startswith(folded)) for w in words):
+        return f"its prompt '{prompt}' names it"
+    if " " not in folded and ATTDEF_FIELD_RE.match(folded) and not B.room_keyword_hits(tag)[0] \
+            and not B.room_keyword_hits(tag)[1]:
+        return "a field word"
+    return None
+
+
 class _Reader:
     def __init__(self, doc, file_rel: Optional[str], u2m: Optional[float], texts_only: bool = False) -> None:
         self.doc = doc
@@ -818,8 +840,16 @@ class _Reader:
         the drawing: CAD shows its tag there (the default value appears only in an INSERT of a block holding it), so
         the tag is read as the text, placed like a TEXT; the default value and the prompt go into its evidence. An
         invisible definition is data, not a drawn text (as an invisible ATTRIB)."""
-        tag = str(entity.dxf.get("tag") or "").strip()
+        from ezdxf.entities.text import plain_text as _plain
+
+        raw = str(entity.dxf.get("tag") or "").strip()
+        tag = _plain(raw).strip()                          # 12 Nov 2026 (review, A9): '%%P0.00' is '±0.00'
         if not tag or entity.is_invisible:
+            return
+        why = attdef_field_name(tag, str(entity.dxf.get("prompt") or ""))
+        if why:
+            # an unedited attribute definition (an exploded block left as drawn) shows its field's name, not a value
+            self.skipped[f"ATTDEF field name ({why})"] += 1
             return
         before = len(self.texts)
         self._text(entity, eid, layer, None, text=tag)

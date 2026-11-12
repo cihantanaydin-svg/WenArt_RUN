@@ -486,12 +486,20 @@ def _consider(cand: dict, walls: list, openings: list, kept: list, names: list, 
         entry.update(kept=False, reason=f"longer than {SEPARATOR_MAX_M} m")
         log.append(entry)
         return score
-    new = _score(faces(walls, openings, [c["line"] for c in kept] + [cand["line"]]), names, stairs)
+    after_faces = faces(walls, openings, [c["line"] for c in kept] + [cand["line"]])
+    new = _score(after_faces, names, stairs)
     reasons = []
     if new["excess"] < score["excess"]:
         reasons.append("two room names shared one face")
     if new["stair_mixed"] < score["stair_mixed"]:
-        reasons.append("separates the stair from a labelled face")
+        held = None if new["excess"] < score["excess"] else \
+            _area_text_holds(faces(walls, openings, [c["line"] for c in kept]), after_faces, names)
+        if held is None:
+            reasons.append("separates the stair from a labelled face")
+        else:
+            entry.update(kept=False, reason=f"the drawing's area text of '{held}' holds the stair: the face stays whole")
+            log.append(entry)
+            return score
     if names_only and not new["excess"] < score["excess"]:
         reasons = []
     if reasons:
@@ -503,6 +511,26 @@ def _consider(cand: dict, walls: list, openings: list, kept: list, names: list, 
     entry.update(kept=False, reason="considered, not needed")
     log.append(entry)
     return score
+
+
+AREA_TEXT_AGREE = 0.15          # 12 Nov 2026: a printed area within this share of a face is that face's
+
+
+def _area_text_holds(before: list, after: list, names: list) -> Optional[str]:
+    """12 Nov 2026 (review of the reader targets, real18 L3: the Antre's own stair cut the 6.42 m2 Antre into 'Antre
+    1.84' and 'Kat Holü 4.58'): the name of a label whose printed area agrees with its face before a separator
+    (``AREA_TEXT_AGREE``) and not after: the drawing says the room holds what the separator would cut off; else None."""
+    for b in names:
+        a = getattr(b, "area_m2", None)
+        if not a or a <= 0:
+            continue
+        f0 = next((f for f in before if _label_in(f, b)), None)
+        f1 = next((f for f in after if _label_in(f, b)), None)
+        if f0 is None or f1 is None:
+            continue
+        if abs(f0.area - a) <= AREA_TEXT_AGREE * a < abs(f1.area - a):
+            return str(getattr(b, "name", "") or "")
+    return None
 
 
 def _face_candidates(walls: list[WallItem], gap_log: list[dict], openings: list) -> list[dict]:
