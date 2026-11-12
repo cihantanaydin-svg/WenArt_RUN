@@ -50,14 +50,17 @@ def main(argv=None) -> int:
     z.add_argument("--results", required=True, help="the run's collected results folder (runs/<job>/results)")
     z.add_argument("--project", required=True)
     z.add_argument("--dest", required=True, help="the zip to write")
-    t = sub.add_parser("truth", help="the truth: `truth accept` stores the reading the user accepted "
-                                     "(results/reading_accepted/); `truth build` derives "
-                                     "results/reading_truth/<project>.json from it and the correction records (a replay "
-                                     "by place; the synthetic projects from their exact truth); `truth add` / `truth "
-                                     "remove` record a user correction and rebuild")
+    t = sub.add_parser("truth", help="the truth: `truth build` derives results/reading_truth/<project>.json: a real "
+                                     "project's from the user's correction records only (sparse, 6 Nov 2026), a "
+                                     "synthetic project's from its exact truth and the records (a replay by place); "
+                                     "`truth accept` stores a reading the user explicitly accepted after looking at it "
+                                     "(results/reading_accepted/; none now); `truth add` / `truth remove` record a "
+                                     "user correction and rebuild")
     t.add_argument("action", choices=["accept", "build", "add", "remove"])
-    t.add_argument("--projects", default=None, help="accept/build: comma separated (build's default: every accepted "
-                                                    "baseline and every synthetic project with a truth)")
+    t.add_argument("--projects", default=None, help="accept/build: comma separated (build's default: every synthetic "
+                                                    "project with a truth, every real project with an applicable "
+                                                    "correction record; the full build also removes a real truth "
+                                                    "whose records are gone)")
     t.add_argument("--work", default=None, help="accept: work folder for the readings (a reading there is used again)")
     t.add_argument("--fresh", action="store_true", help="accept: read again even when --work holds a reading")
     t.add_argument("--allow-drift", action="store_true",
