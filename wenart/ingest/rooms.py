@@ -76,9 +76,7 @@ class RoomResult:
     # (room id, label_size dict).
     multi_labels: list[tuple[str, str, list[str]]] = field(default_factory=list)
     label_size_conflicts: list[tuple[str, dict]] = field(default_factory=list)
-    # 6 Nov 2026 (reader targets 2 and 5): faces that were the sheet (no room) and small labels that named only their
-    # own sub-space of a larger face
-    paper_faces: list[dict] = field(default_factory=list)
+    # 6 Nov 2026 (reader target 5): small labels that named only their own sub-space of a larger face
     sub_space_labels: list[dict] = field(default_factory=list)
 
 
@@ -228,21 +226,6 @@ def _face_size(face: Polygon) -> tuple[float, float]:
 
 
 CAVITY_WIDTH_M = 0.24     # real10: an unlabelled face no 24 cm strip fits into is no room (a wall cavity)
-# 6 Nov 2026 (reader target 2; real15 L0/L1: the whole sheet closed as one 1257 m2 room holding every label, real19 L1:
-# a 441 m2 'Normal' room named from the sheet text 'NORMAL 253 M2'): a face covering more than PAPER_FACE_SHARE of the
-# drawing's region box and holding the labels of at least PAPER_OTHER_LABELS other rooms is the sheet, no room
-PAPER_FACE_SHARE = 0.70
-PAPER_OTHER_LABELS = 2
-LABEL_MERGE_M = 0.8       # label anchors closer than this are one label (a name written on two lines)
-
-
-def _distinct_labels(points: list) -> int:
-    """How many labels the anchors are, those closer than ``LABEL_MERGE_M`` counted once."""
-    kept: list = []
-    for p in points:
-        if p is not None and not any(G.distance(p, q) < LABEL_MERGE_M for q in kept):
-            kept.append(p)
-    return len(kept)
 
 
 def _sub_space(labels: list, indices: list, shp: Polygon, stairs) -> Optional[dict]:
@@ -282,8 +265,7 @@ def _sub_space(labels: list, indices: list, shp: Polygon, stairs) -> Optional[di
 def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], label_points: list[tuple[float, float]],
                  label_fallback_points: Optional[list[tuple[float, float]]] = None,
                  file_rel: str = "", ids: Optional[B.IdCounter] = None, union=None, separators=(),
-                 unlabelled_label: str = UNLABELLED_LABEL, face_type=None, stairs=(),
-                 region_box: Optional[list] = None) -> RoomResult:
+                 unlabelled_label: str = UNLABELLED_LABEL, face_type=None, stairs=()) -> RoomResult:
     """Rooms of one level.
 
     ``label_points[i]`` is the anchor of ``labels[i]`` in building metres (the
@@ -296,10 +278,8 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
     unlabelled face, e.g. "Merdiven" for a stair core) and
     labels with a ``block`` (see the module docstring).
 
-    6 Nov 2026 (Milestone 14 reader targets): ``region_box`` (``[x0, y0, x1, y1]`` building metres, the drawing's
-    region) drops a face covering more than ``PAPER_FACE_SHARE`` of it with the labels of at least
-    ``PAPER_OTHER_LABELS`` other rooms (the sheet closed as a room: its labels are labels in no room); ``stairs``
-    (pieces with a ``center`` in building metres) let a small room's label give up a much larger face (``_sub_space``).
+    6 Nov 2026 (Milestone 14 reader target 5): ``stairs`` (pieces with a ``center`` in building metres) let a small
+    room's label give up a much larger face (``_sub_space``).
     """
     result = RoomResult()
     ids = ids or B.IdCounter()
@@ -385,10 +365,6 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
             continue
         label_faces.setdefault(j, []).append(i)
 
-    box_area = 0.0
-    if region_box is not None and len(region_box) == 4:
-        box_area = max(0.0, float(region_box[2]) - float(region_box[0])) * max(0.0, float(region_box[3])
-                                                                                 - float(region_box[1]))
     for j, face in enumerate(faces):
         shp = Polygon(face)
         area = round(shp.area, 3)
@@ -399,22 +375,6 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
             if not indoor:
                 continue              # named only by exterior labels: a site area, not a room (§2.5)
             indices = indoor + [k for k in indices if k not in generic]
-        if box_area > 0 and generic and shp.area > PAPER_FACE_SHARE * box_area \
-                and _distinct_labels([label_points[k] for k in indices]) >= PAPER_OTHER_LABELS + 1:
-            # 6 Nov 2026 (reader target 2): the sheet or its frame closed as one face holding many rooms' labels is no
-            # room; its labels stand in no closed room (the walls around those rooms do not close)
-            names = [labels[k].text for k in indices]
-            result.paper_faces.append({"area_m2": area, "box_share": round(shp.area / box_area, 3),
-                                       "labels": names})
-            result.warnings.append(f"{level_id}: a face of {area:.0f} m² covers {100 * shp.area / box_area:.0f} % of "
-                                   f"the drawing's region box and holds {len(names)} room labels ("
-                                   + ", ".join(repr(n) for n in names[:6]) + (" ..." if len(names) > 6 else "")
-                                   + "): the sheet or its frame closed as a room, not a room")
-            for k in indices:
-                result.unplaced_labels.append(labels[k])
-                result.warnings.append(f"{level_id}: label '{labels[k].text}' ({labels[k].entity}) is outside every "
-                                       f"room (it stood in the sheet's face)")
-            continue
         if len(indices) > 1 and getattr(labels[indices[0]], "block", None) is not None:
             # Several names in one face (an entrance hall open to the living room, real03): the name of the
             # largest printed net area names the face; without printed areas the first one stays.

@@ -253,8 +253,7 @@ def clip_page(page: GenericPage, box) -> GenericPage:
         size = (_r(max(xs) - min(xs)), _r(max(ys) - min(ys)))
     layers = sorted({st.layer for st in strokes if st.layer and is_wall_hint_layer(st.layer)})
     return dataclasses.replace(page, size=size, strokes=strokes, texts=texts, dimensions=dims,
-                               wall_hint_layers=tuple(layers), warnings=list(page.warnings),
-                               region_box=(x0, y0, x1, y1))
+                               wall_hint_layers=tuple(layers), warnings=list(page.warnings))
 
 
 def collect_texts(doc, file_rel: Optional[str] = None) -> list[TextRun]:

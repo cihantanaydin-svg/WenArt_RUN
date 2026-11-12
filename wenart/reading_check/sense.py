@@ -96,7 +96,7 @@ SMALL_SAMPLE = 5               # a rule judged on fewer findings is marked small
 # (``wenart.ingest.generic.labels``; reader target 5: a small room's label never names a much larger face), imported
 # here so the reader and the checker judge a room by one table. A room under half the minimum or over twice the
 # maximum is a major finding, between that and the range a minor one.
-from wenart.ingest.generic.labels import AREA_RANGES, SENSE_WORDS, SENSE_RE as _SENSE_RE  # noqa: E402
+from wenart.ingest.generic.labels import AREA_RANGES, SENSE_WORDS, SENSE_RE as _SENSE_RE  # noqa: E402, F401
 MAJOR_FACTOR = 2.0            # over this times the maximum, or under the minimum divided by it: major
 AREA_TEXT_AGREES = 0.10       # a drawn area text within this share of the face: the drawing itself gives that room
                               # that size, so the reading follows its drawing (6 Nov 2026 calibration: a 43.5 m2
@@ -116,11 +116,8 @@ TEXT_IN_FACE_M = 0.05         # a text this far inside the face still counts as 
 PARKING_BAY_RE = re.compile(r"^\s*(?:oto|park|p)\s*[-.]?\s*\d{1,3}\s*$")
 
 # ------------------------------------------------------------------------------------- 3. frame walls, paper rooms
-# 6 Nov 2026 (reader target 2): the frame rule's constants and geometry are the reader's
-# (``wenart.ingest.generic.frame``: FRAME_TOL_M 0.10, FRAME_SHARE_MIN 0.60, FRAME_OPENINGS_MAX 0, FRAME_JOINS_MAX 2,
-# JOIN_REACH_M 0.30), imported so the reader and the checker find the sheet frame by one rule
-from wenart.ingest.generic.frame import (FRAME_JOINS_MAX, FRAME_OPENINGS_MAX, FRAME_SHARE_MIN,  # noqa: E402
-                                         FRAME_TOL_M, JOIN_REACH_M, frame_joins, frame_walls)
+FRAME_TOL_M = 0.10            # a wall's outer face this close to the region box's edge lies on it
+FRAME_SHARE_MIN = 0.60        # frame walls covering this share of the box perimeter: the sheet frame read as walls
 PAPER_ROOM_SHARE = 0.70       # a room covering more than this share of the region box is the sheet, not a room
 PAPER_ENCLOSED_SHARE = 0.60   # a room with this share of its outline on frame walls is enclosed by the frame
 FRAME_REACH_M = 0.15          # a room's outline this far beyond a frame wall's half thickness runs along it
@@ -128,6 +125,9 @@ FRAME_REACH_M = 0.15          # a room's outline this far beyond a frame wall's 
 # box edges too (real02, the synthetic plans: 99 % of the perimeter). Real outer walls carry windows and doors and
 # the inner walls end on them; a sheet frame has no opening and no wall ends on it (real19: 0 openings, 0 or 1 of 80
 # walls). So the edge walls are a frame only with at most FRAME_OPENINGS_MAX openings and FRAME_JOINS_MAX joins.
+FRAME_OPENINGS_MAX = 0        # openings on the edge walls of a frame
+FRAME_JOINS_MAX = 2           # other walls with an end on the edge walls of a frame
+JOIN_REACH_M = 0.30           # a wall end this close to an edge wall's centre line ends on it
 # 6 Nov 2026 (calibration: synthetic-21's 83 m2 roof terrace fills 77 % of a tight box): a room covering most of
 # the box is paper only when the labels of other rooms stand in it (real15: 24 labels in one 1257 m2 'Mutfak')
 PAPER_LABELS_MIN = 2          # other room labels inside a room covering most of the box
@@ -162,7 +162,7 @@ UNTYPED_CORE_M2 = 6.0         # an untyped room this large in a group with no wa
 # (``wenart.ingest.generic.labels.NOTATION_PHRASES``, reader target 3 of 6 Nov 2026: the reader splits them off a label
 # line before naming), imported here so the reader and the checker share one table; the title words are
 # ``wenart.sheets.titles``, the area and flat notes ``labels.is_annotation``, the level words ``wenart.sheets.levels``.
-from wenart.ingest.generic.labels import NOTATION_PHRASES, NOTATION_RE as _NOTATION_RE  # noqa: E402
+from wenart.ingest.generic.labels import NOTATION_PHRASES, NOTATION_RE as _NOTATION_RE  # noqa: E402, F401
 
 # ------------------------------------------------------------------------- round 2 (6 Nov 2026): the user's past fixes
 # The classes of the user's 3-4 Nov corrections the first six rules missed (the independent recall measure: 7 of 24).
@@ -482,12 +482,49 @@ def region_boxes(building: dict) -> dict:
 
 def frame_evidence(walls: list, ids: list, openings: list) -> tuple[int, int]:
     """``(openings, joins)`` (pure): the openings (not virtual) on the walls ``ids`` and the other walls with an end
-    within ``JOIN_REACH_M`` of them (``frame.frame_joins``): a building's outer walls have both, a sheet frame neither.
-    ``frame_walls`` (the walls on the box edges and their share of its perimeter) is the reader's
-    (``wenart.ingest.generic.frame``, imported above)."""
+    within ``JOIN_REACH_M`` of them: a building's outer walls have both, a sheet frame neither."""
     ids = set(ids)
+    lines = [LineString([w["start"][:2], w["end"][:2]]) for w in walls if w.get("id") in ids]
     n_open = sum(1 for o in openings if o.get("wall_id") in ids and not o.get("virtual"))
-    return n_open, frame_joins(walls, ids)
+    joins = 0
+    for w in walls:
+        if w.get("id") in ids:
+            continue
+        if any(ln.distance(Point(e[:2])) <= JOIN_REACH_M + EPS for e in (w["start"], w["end"]) for ln in lines):
+            joins += 1
+    return n_open, joins
+
+
+def frame_walls(walls: list, box: Polygon) -> tuple[list, float]:
+    """``(wall ids, share)`` (pure): the walls whose outer face lies on an edge of the box within ``FRAME_TOL_M``
+    (both ends; the face is the centre line moved out by half the thickness) and the share of the box perimeter their
+    projections cover."""
+    pts = list(box.exterior.coords)[:-1]
+    ids, covered = [], 0.0
+    for i in range(len(pts)):
+        a, b = pts[i], pts[(i + 1) % len(pts)]
+        edge = LineString([a, b])
+        if edge.length <= 0:
+            continue
+        spans = []
+        for w in walls:
+            reach = FRAME_TOL_M + float(w.get("thickness") or 0.0) / 2.0
+            p, q = Point(w["start"][:2]), Point(w["end"][:2])
+            if edge.distance(p) > reach + EPS or edge.distance(q) > reach + EPS or p.distance(q) < 0.3:
+                continue
+            # the line through the edge, not only the segment: a wall a little longer than the box still lies on it
+            s, t = sorted((edge.project(p), edge.project(q)))
+            spans.append((max(0.0, s), min(edge.length, t)))
+            if w.get("id") not in ids:
+                ids.append(w.get("id"))
+        spans.sort()
+        run_end = -1.0
+        for s, t in spans:
+            if t <= run_end:
+                continue
+            covered += t - max(s, run_end)
+            run_end = t
+    return ids, (covered / box.length if box.length > 0 else 0.0)
 
 
 def frame_walls_and_paper_rooms(building: dict, texts_by_level: Optional[dict] = None) -> list:

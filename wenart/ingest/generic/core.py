@@ -2790,89 +2790,6 @@ def _size_label_rows(rows: list[dict]) -> list[dict]:
 # Entry point
 # --------------------------------------------------------------------------
 
-FRAME_LAYER_MAX_SHARE = 0.25   # walls of frame or title-block layers beyond this share of the walls: the plan's own
-
-
-def _frame_layer_walls(page: GenericPage, walls2: list, openings: list) -> tuple[set, list]:
-    """``(wall indices, layers)``: the walls drawn only by strokes of a layer whose name means the sheet frame or the
-    title block (``sheets.split.is_frame_layer``; the wall's evidence layer, else every stroke its entity names) that
-    carry no opening (a wall with a door or a window is a wall, whatever its layer)."""
-    from shapely.geometry import LineString
-
-    from wenart.sheets import split as SP
-
-    frame_ents = {FR.top_entity(st.id): st.layer for st in page.strokes if st.layer and SP.is_frame_layer(st.layer)}
-    out, layers = set(), set()
-    for k, w in enumerate(walls2):
-        ev = w.evidence if isinstance(w.evidence, dict) else {}
-        lay = ev.get("layer")
-        ents = [FR.top_entity(e) for e in str(w.entity or "").split(",") if e]
-        if lay:
-            hit = SP.is_frame_layer(lay)
-            names = [lay] if hit else []
-        else:
-            hit = bool(ents) and all(e in frame_ents for e in ents)
-            names = [frame_ents[e] for e in ents] if hit else []
-        if not hit:
-            continue
-        line = LineString([w.start, w.end])
-        if any(not getattr(o, "virtual", False) and line.distance(Point(o.center)) <= w.thickness / 2.0 + 0.05
-               for o in openings if getattr(o, "center", None) is not None):
-            continue
-        out.add(k)
-        layers.update(names)
-    return out, sorted(layers)
-
-
-def _drop_frame_walls(ex: LevelExtraction, where: str, page: GenericPage, walls2: list, openings: list,
-                      s: float) -> list:
-    """6 Nov 2026 (Milestone 14 reader target 2): the sheet frame is notation, never walls; noted.
-
-    - real15 L0/L1 (the frame and title block on layer 'Z_antet', closed as one 1257 m2 room): the walls drawn only on
-      a frame or title-block layer, with no opening (``_frame_layer_walls``), go. They go after the walls are read: the
-      wall layers are chosen by evidence as before (real15's walls on 'Z_ duvar' and 'Z_sıva' join that choice), only
-      the frame's own walls leave the plan. When such walls are more than ``FRAME_LAYER_MAX_SHARE`` of the walls, the
-      plan itself is drawn on that layer: they stay (noted).
-    - real19 L1-L3 (four walls on the region box covering 99 % of its perimeter): the walls on the drawing region's
-      box that are the sheet frame (``frame.sheet_frame_walls``: covering 60 % of its perimeter, no opening, at most 2
-      walls ending on them) go. Edge walls that carry openings or joins are a building's outer walls in a tight box:
-      kept (noted)."""
-    if not walls2:
-        return walls2
-    by_layer, layers = _frame_layer_walls(page, walls2, openings)
-    if by_layer and len(by_layer) > FRAME_LAYER_MAX_SHARE * len(walls2):
-        ex.notes.append(f"{where}: {len(by_layer)} of {len(walls2)} walls are drawn on frame or title-block layers "
-                        f"({', '.join(layers)}): too many for a sheet frame, kept as the plan's walls")
-        by_layer = set()
-    if by_layer:
-        ex.notes.append(f"{where}: {len(by_layer)} walls drawn only on the sheet's frame or title-block layers "
-                        f"({', '.join(layers)}) are notation, not walls")
-        ex.report["frame_layers"] = {"layers": layers, "walls": len(by_layer),
-                                     "entities": [walls2[k].entity for k in sorted(by_layer)]}
-        walls2 = [w for k, w in enumerate(walls2) if k not in by_layer]
-    rb = getattr(page, "region_box", None)
-    if rb is None or not walls2:
-        return walls2
-    x0, y0, x1, y1 = (float(v) * s for v in rb)
-    box = Polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
-    fr = FR.sheet_frame_walls(walls2, openings, box)
-    if fr is None:
-        return walls2
-    if not fr["frame"]:
-        ex.notes.append(f"{where}: {len(fr['ids'])} walls lie on the region box ({100 * fr['share']:.0f} % of its "
-                        f"perimeter) but carry {fr['openings']} opening(s) and {fr['joins']} joining wall(s): the "
-                        f"building's outer walls, kept")
-        return walls2
-    gone = set(fr["ids"])
-    lens = sorted((math.dist(walls2[k].start, walls2[k].end) for k in gone), reverse=True)
-    ex.notes.append(f"{where}: {len(gone)} walls ({', '.join(f'{v:.2f}' for v in lens[:4])} m ...) on the drawing's "
-                    f"region box cover {100 * fr['share']:.0f} % of its perimeter with no opening and {fr['joins']} "
-                    f"joining wall(s): the sheet frame, notation, not walls")
-    ex.report["frame_walls"] = {"walls": len(gone), "share": fr["share"], "joins": fr["joins"],
-                                "entities": [walls2[k].entity for k in sorted(gone)]}
-    return [w for k, w in enumerate(walls2) if k not in gone]
-
-
 def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai: bool = False,
             rec_dir: Optional[str | Path] = None, raster=None, evidence_only: bool = False,
             origin: Optional[tuple[float, float]] = None) -> LevelExtraction:
@@ -2948,7 +2865,6 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     # (the dimension finder's strokes are not passed: its "two parallel lines around a number" also takes a window's
     # frame lines beside its size tag; the notation is read from the layers, UL296)
     walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s)
-    walls2 = _drop_frame_walls(ex, where, page, walls2, openings, s)
     for e in gap_log:
         if e.get("kind") == "wall_piece":
             # A door leaf fused to a wall face (the run's faces kept; also in the wall's evidence note) or a frame or
@@ -3233,12 +3149,6 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         ox, oy = 0.0, 0.0
     sh = _Shift(ox, oy)
     ex.transform_to_building = [s, 0.0, -ox, 0.0, s, -oy]
-    rb = getattr(page, "region_box", None)
-    if rb is not None:
-        # 6 Nov 2026 (target 2): the drawing's region in building metres (``rooms.derive_rooms``: a face that is the
-        # sheet is no room)
-        ex.report["region_box_m"] = [round(float(rb[0]) * s - ox, ROUND), round(float(rb[1]) * s - oy, ROUND),
-                                     round(float(rb[2]) * s - ox, ROUND), round(float(rb[3]) * s - oy, ROUND)]
     # 5 Nov 2026 (review): every room label inside the building's hull but in no closed face is a place to check
     # (``reading_places``, building metres): the pipeline carries it on a low-confidence level, RC7 numbers it
     if bwalls:
