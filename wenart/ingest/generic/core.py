@@ -2314,17 +2314,26 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
     return out
 
 
+def _solid_linetype(name: Optional[str]) -> bool:
+    """A stroke drawn solid: no linetype read (PDF, raster), or CONTINUOUS / BYLAYER / BYBLOCK / an empty name."""
+    return not name or str(name).strip().upper() in ("CONTINUOUS", "BYLAYER", "BYBLOCK", "SOLID", "STANDARD")
+
+
 def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m: list) -> tuple[list, list]:
     """12 Nov 2026 (review of the reader targets, real15 F2: the solid wall between the living room and the bathroom,
     drawn as two unbroken lines on its masonry and its plaster layer, became a 2.0 m gap holding the bath's block): an
-    unclassified or empty gap (no door, no window, not inferred) across which straight lines of a wall, plaster or
-    column layer (``layer_names.draws_walls``) run along both faces of its wall (``FACE_THROUGH_TOL_M``) and cover it
-    end to end is no gap: a wall piece of its host's thickness fills it. Never silent."""
+    unclassified or empty gap (no door, no window, not inferred) across which solid straight lines of a wall or
+    plaster layer (``layer_names.layer_role``; not a structure layer, whose beam lines may cross an opening) run along
+    both faces of its wall (``FACE_THROUGH_TOL_M``) and cover it end to end is no gap: a wall piece of its host's
+    thickness fills it (real10 L0: the fire stair's lines touching the hall wall cut it). Never silent."""
     from wenart.ingest.generic import layer_names as LN
 
     segs = []
     for st in strokes_m:
-        if st.arc is not None or len(st.pts) < 2 or not LN.draws_walls(st.layer):
+        # the masonry and plaster face lines, drawn solid (a beam or lintel over an opening is drawn on a structure
+        # layer or dashed: never a reason to close the opening)
+        if st.arc is not None or len(st.pts) < 2 or LN.layer_role(st.layer) not in ("wall", "plaster") \
+                or not _solid_linetype(getattr(st, "linetype", None)):
             continue
         pts = list(st.pts) + ([st.pts[0]] if st.closed else [])
         segs += [(a, b) for a, b in zip(pts, pts[1:]) if math.dist(a, b) > 0.05]
@@ -2507,32 +2516,37 @@ RECESS_STACK_M = 0.05           # gaps of walls stacked this close (a slit the w
 RECESS_CONTENT_MIN_M = 0.2      # a drawn line this long inside a face is content ...
 RECESS_CONTENT_MAX = 4          # ... and this many of them make a face no recess ...
 RECESS_CONTENT_INSET_M = 0.25   # ... counted this far in from its edge (fixtures and treads stand in it, frames at it)
-RECESS_MIN_WIDTH_M = 0.5        # 12 Nov 2026: a face narrower than this is a strip between wall lines, no recess
-RECESS_FIXTURE_ROLES = ("door", "sanitary", "furniture")   # content on these layers (or blocks) is no window's
 
 
 def _gap_fixture(p, by_id: dict) -> Optional[str]:
     """12 Nov 2026 (review of the reader targets, real15 F1 / F2: a door block's leaf and swing, and a bath's block,
-    in two gaps were made 'windows onto the open recess'): why an unclassified gap's content is no window: a swing
-    arc, or strokes of a door, sanitary or furniture layer or block (``layer_names.layer_role``); None when it may be
-    a window's lines (the content ids are the ones its note lists)."""
+    in two gaps were made 'windows onto the open recess'): why an unclassified gap's content is no window: a piece of a
+    door layer or block (its leaf, its swing), or only fixtures (sanitary or furniture pieces, or an arc) with no
+    window or glass line among them (``layer_names.layer_role``; real10's slot windows hold a counter's edge beside
+    their frame lines and stay windows); None when it may be a window's lines (the ids its note lists)."""
     from wenart.ingest.generic import layer_names as LN
 
     note = str((p.evidence if isinstance(p.evidence, dict) else {}).get("note") or "")
     if not note.startswith(UNCLASSIFIED):
         return None
     ids = [t.strip() for t in note[len(UNCLASSIFIED) + 1:].split("(")[0].replace(" ...", "").split(",") if t.strip()]
+    fixture, glazed = None, False
     for i in ids:
         st = by_id.get(i)
-        if (st is not None and st.arc is not None) or (st is None and i.startswith("ARC:")):
-            return f"a swing arc ({i})"
         if st is None:
+            if i.startswith("ARC:"):
+                fixture = fixture or f"an arc ({i})"
             continue
-        names = [st.layer] + (str(st.block).split("/") if st.block else [])
-        role = next((LN.layer_role(n) for n in names if LN.layer_role(n) in RECESS_FIXTURE_ROLES), None)
-        if role is not None:
-            return f"a {role} piece ({i})"
-    return None
+        roles = {LN.layer_role(n) for n in [st.layer] + (str(st.block).split("/") if st.block else [])}
+        if "door" in roles:
+            return f"a door piece ({i})"
+        if roles & {"window", "glass"}:
+            glazed = True
+        elif roles & {"sanitary", "furniture"}:
+            fixture = fixture or f"a {sorted(roles & {'sanitary', 'furniture'})[0]} piece ({i})"
+        elif st.arc is not None:
+            fixture = fixture or f"an arc ({i})"
+    return None if glazed else fixture
 
 
 def _gap_faces(o, walls2: list, faces: list):
@@ -2592,10 +2606,6 @@ def _open_recess_chains(ex, where: str, walls2: list, openings: list, blocks: li
         c = list(r.exterior.coords)
         return min(math.dist(c[0], c[1]), math.dist(c[1], c[2])) <= RECESS_MAX_WIDTH_M
 
-    def strip(f) -> bool:
-        # 12 Nov 2026 (real15 F1): a face no wider than a wall's plaster or cavity strip is no open-air recess
-        return f.buffer(-RECESS_MIN_WIDTH_M / 2.0).is_empty
-
     by_id = {st.id: st for st in strokes or []}
 
     polys = {}
@@ -2628,9 +2638,6 @@ def _open_recess_chains(ex, where: str, walls2: list, openings: list, blocks: li
                             gaps.discard(x)
                             continue
                         ok, why = False, f"room {f.area:.2f} gap {x} {openings[x].kind} {getattr(openings[x], 'type_raw', None)} w {openings[x].width:.2f}"
-                        break
-                    if strip(f):
-                        ok, why = False, f"face {f.area:.2f} narrower than {RECESS_MIN_WIDTH_M} m (a strip)"
                         break
                     if not narrow(f):
                         ok, why = False, f"face {f.area:.2f} narrow {narrow(f)} drawn {drawn_in(f)} at {[round(v, 2) for v in f.bounds]} n {sum(1 for m in marks if f.buffer(-0.05).contains(m))}"

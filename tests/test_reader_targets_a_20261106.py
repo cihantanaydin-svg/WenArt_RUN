@@ -759,7 +759,7 @@ def test_a_door_leafs_swing_in_an_unclassified_gap_makes_it_a_door():
     assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap], [far])[0].kind == "opening"
 
 
-def test_a_door_block_or_a_strip_never_makes_a_window_onto_an_open_recess():
+def test_a_door_block_or_lone_fixtures_never_make_a_window_onto_an_open_recess():
     from wenart.ingest.generic import core as GC
     from wenart.ingest.generic.model import Stroke
 
@@ -769,7 +769,12 @@ def test_a_door_block_or_a_strip_never_makes_a_window_onto_an_open_recess():
              "INSERT:9/2": Stroke(id="INSERT:9/2", kind="line", pts=[(2.6, 3.0), (2.6, 2.4)], layer="0")}
     assert GC._gap_fixture(door, by_id).startswith("a door piece")
     sink = _gap((3.0, 3.0), 1.3, note="unclassified gap content: ARC:7")
-    assert GC._gap_fixture(sink, {}).startswith("a swing arc")
+    assert GC._gap_fixture(sink, {}).startswith("an arc")
     lines = _gap((3.0, 3.0), 1.3, note="unclassified gap content: LINE:8,LINE:9")
     assert GC._gap_fixture(lines, {"LINE:8": Stroke(id="LINE:8", kind="line", pts=[(0, 0), (1, 0)], layer="PENCERE")}) \
         is None
+    # real10: a counter's edge beside the window's frame lines keeps the window; the counter alone is a fixture
+    both = {"LINE:8": Stroke(id="LINE:8", kind="line", pts=[(0, 0), (1, 0)], layer="PENCERE"),
+            "LINE:9": Stroke(id="LINE:9", kind="line", pts=[(0, 0.1), (1, 0.1)], layer="TEFRİŞ")}
+    assert GC._gap_fixture(lines, both) is None
+    assert GC._gap_fixture(lines, {"LINE:9": both["LINE:9"]}).startswith("a furniture piece")
