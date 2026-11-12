@@ -997,6 +997,9 @@ def test_technical_odasi_rooms_wc_odasi_and_one_letter_abbreviations_need_eviden
     assert B.room_type_for("YATAK ODASI", 4.0, 1.2) == "bedroom"   # the written word needs no evidence
     # a label named only by the generic '<word> ODASI' names its room but does not vote for the wall layers
     assert B.generic_odasi_only("SPOR ODASI") and not B.generic_odasi_only("YATAK ODASI")
+    # nor does a plant room named by its plant-room word alone (the basement keeps the document's wall layers)
+    assert B.generic_odasi_only("ELK. PANO ODASI") and B.generic_odasi_only("TRAFO ODASI")
+    assert not B.generic_odasi_only("KAZAN DAIRESI DEPO") and not B.generic_odasi_only("WC")
 
 
 

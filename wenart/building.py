@@ -371,14 +371,20 @@ def _plain_keyword_hits(label: str) -> tuple[list, list]:
     return turkish, english
 
 
+# 12 Nov 2026 (round-2 review, A2-FC7 / F2): the room words that only type a room (the generic '<word> ODASI' and the
+# plant-room words): a label named by these alone is no evidence for the wall-layer choice
+NO_VOTE_WORDS = frozenset({"odasi", "pano", "elektrik", "jenerator", "trafo", "pompa", "makine", "makina"})
+
+
 def generic_odasi_only(label: Optional[str]) -> bool:
     """12 Nov 2026 (round-2 review, A2-FC7: 'ELK. PANO ODASI' became a fourth label of real10's basement and flipped its
-    wall layers): a label named only by the generic '<word> ODASI' (no other room word, no technical word) names a room,
-    but is no evidence for the wall-layer choice (``walls._labels_m``)."""
+    wall layers; coordinator, round 3: "label words must never vote in the wall-layer choice"): a label named only by
+    the generic '<word> ODASI' or a plant-room word (``NO_VOTE_WORDS``; no other room word) names a room, but is no
+    evidence for the wall-layer choice (``walls._labels_m``)."""
     if not label:
         return False
     turkish, english = room_keyword_hits(label)
-    return bool(turkish) and not english and {k for k, _ in turkish} == {"odasi"}
+    return bool(turkish) and not english and {k for k, _ in turkish} <= NO_VOTE_WORDS
 
 
 def room_keyword_hits(label: str) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
