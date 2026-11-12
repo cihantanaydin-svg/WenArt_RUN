@@ -632,7 +632,9 @@ def severity_of(f: dict) -> str:
 def apply_trust(found: list, trust: Optional[dict]) -> list:
     """Each finding gets ``trust`` ``{precision, findings, threshold}`` of its kind; a kind below the threshold, or
     never judged, is written with severity ``info`` (``base_severity`` kept) and says so (in place)."""
-    kinds = (trust or {}).get("kinds") or {}
+    # 12 Nov 2026 (review F8): a trust file measured against the withdrawn accepted readings is marked ``stale``; its
+    # kinds count as not calibrated (every finding info) until it is measured again on the synthetic and sparse truths
+    kinds = {} if (trust or {}).get("stale") else ((trust or {}).get("kinds") or {})
     threshold = float((trust or {}).get("threshold") or TRUST_MIN)
     for f in found:
         if f.get("check") != CHECK:
@@ -928,7 +930,9 @@ def calibrate(index: dict, found: list, *, readings: dict, truths: Optional[dict
         if e is None:
             continue
         truth = truths.get(e["project"]) if e["project"] in truths else TR.load_truth(e["project"])
-        if truth is None:
+        if truth is None or TR.is_sparse(truth):
+            # 6 Nov 2026: a sparse truth (a real project's: the user's corrections only) lists what the user said, not
+            # everything there is; it cannot judge a finding where it lists nothing (set b is judged by the records)
             continue
         truths[e["project"]] = truth
         dis_by_folder[folder] = level_disagreements(truth, _reading_dict(b, e["project"], truth))

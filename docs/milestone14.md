@@ -40,9 +40,38 @@ how the user's feedback compounds and how the user is replaced step by step.
   confirm, retype, remove writes a negation; a negated wall span cuts the walls on its line). `truth build` is pure and
   byte-identical from the same inputs; `truth add` / `truth remove` append a record (or extend the one named) and
   rebuild. Records name places; `reader_ids` are hints and nothing joins on an id.
-- A reading **score** per project: recall and precision per element type against the truth, weighted
-  (levels 5, rooms 3, stairs 3, doors 2, windows 2, walls 1), one number; `results/reading_scores.json` per commit.
-  Gate: a change is accepted when the total rises and no project falls by more than the tolerance.
+- **A real project's truth is the user's corrections only** (6 Nov 2026; user: "I have never reviewed real21 with my
+  eyes", "Only consider my revision with the screenshot I have given into previous projects others I have not seen").
+  Why: the user reviewed the projects by looking at structure renders and sending screenshots with remarks; those
+  remarks are the correction records, while no whole reading was ever looked at, so every real acceptance was
+  withdrawn (the baselines keep the old fields under `acceptance_withdrawn`; `regress` stays a change detector). The
+  truth of a real project is **sparse**: it starts empty and the applicable records are replayed in record order by
+  place (add, confirm, retype: a present entry; remove or a negated wall span: an absent entry; a later record wins at
+  the same place); a record without a place that states a level count, storey heights, a level's floor height or the
+  ground height gives a project-level assertion (`truth_assert`), any other is listed "not measurable yet". A record
+  that answers the pipeline's own question (which untitled plan is which floor, two buildings on one sheet, brief data
+  such as `plan_levels`) is a brief input (`truth_role: brief_input`), never truth (user, 6 Nov 2026: "I do not
+  remember seeing the real renders of and giving feedback with the screenshots for real19"; real19 and real20 have no
+  truth). The synthetic projects keep their exact truth; `truth accept` and the stored readings (`results/reading_accepted/`) stay
+  only for a future explicit acceptance of a level the user looked at.
+- A reading **score** per project: for a synthetic project recall and precision per element type against its exact
+  truth, weighted (levels 5, rooms 3, stairs 3, doors 2, windows 2, openings 1, walls 1), one number; for a real
+  project each entry of its sparse truth satisfied or not (no precision over what it does not list), 100 x the
+  weighted satisfied share; `results/reading_scores.json` per commit, the series since 6 Nov 2026 marked
+  `truth_kind: user_corrections_v1` (the older entries are history, never compared). Gate: a change is accepted when
+  the synthetic projects' mean does not fall by more than the tolerance, no synthetic project falls by more than its
+  tolerance and no entry of a user record that was satisfied is lost (named by its record ids); a real project's
+  percentage is reported, never gated, so a new record the reader does not meet yet never fails the gate; the overall
+  of all projects (satisfied shares and F1 mixed) is information only (decided 6 Nov 2026). Review of 12 Nov 2026 (the
+  gate must not be foolable): a wall is judged on what stands (a doorless gap clears it only when it reaches the
+  wall's height), thickness never decides, a user's wall needs 80 % of its span; a negated room swallowed by a
+  neighbour is read; an asserted attribute (a flat's entrance door, a lift door, a landing end, the main entrance) must
+  match; a level is found by its anchor (label, order, elevation: `results/reading_level_anchors.json`); a record may
+  carry its place in the drawing's frame (an origin shift no longer moves it); the gate re-scores the new reading
+  against the truth of the stored entry's commit too, so an edit of the truth in the same commit cannot hide a lost
+  correction; a missing truth file falls in a full run; `--update` stores only after the gate holds; the records assert
+  only what the user said (no copied width or thickness; questions and answers to the pipeline's questions assert
+  nothing).
 
 ### R2 The candidate reader (never silent, never leaves a level out)
 - The decisions above return `[(candidate, score)]` with the winning margin; every element carries `confidence` =
@@ -167,11 +196,11 @@ dollars.
 | measure | now | target |
 |---|---|---|
 | real projects read with every level | 10 of 21 | 21 of 21 (low-confidence marked) |
-| reading score against truth | not measured | per commit, rising, no project falling |
+| reading score against truth | not measured | per commit: synthetic mean not falling, no satisfied correction of the user lost |
 | user corrections per project before "ready" | 10 to 20 | under 3 |
 | reviewer recall of the user's past corrections | not measured | over 80 % on held-out projects |
 | reviewer precision (accept rate) | not measured | over 70 %, per reviewer in the ledger |
-| readings that change under mirror, rotation, layer renaming | not measured | 0 on accepted projects |
+| readings that change under mirror, rotation, layer renaming | not measured | 0 on the scored projects |
 
 ## 6. Rules this touches (user OK of 4 Nov 2026: "yes")
 

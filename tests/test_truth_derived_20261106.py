@@ -67,8 +67,14 @@ def _at(truth, lid, t, center, absent=None):
 
 
 def _real(project, *rids):
-    acc, why = TR.accepted_of(project)
-    assert acc is not None, why
+    """A stored accepted reading (``results/reading_accepted/``) as fixture data for the replay of an explicitly
+    accepted reading, with the named records. Since 6 Nov 2026 no real acceptance stands (the user: "Only consider my
+    revision with the screenshot I have given into previous projects others I have not seen"): no real truth is built
+    from these files (``test_acceptance_seen_20261106``), they stay for a future explicit acceptance and as realistic
+    readings for the replay's tests."""
+    acc = TR.load_accepted(project)
+    assert acc is not None, project
+    acc["stored_as"] = f"results/reading_accepted/{project}.json"
     return acc, [RECORDS[r] for r in rids]
 
 
@@ -142,7 +148,8 @@ def test_04_an_accepted_element_missing_from_a_reading_does_not_change_the_truth
     kept = _at(truth, "L6", "openings", [9.666, 8.487], absent=False)       # the accepted stacked gap beside the lift
     assert len(kept) == 1 and kept[0]["source"] == TR.SOURCE_ACCEPTED
     assert len(_at(truth, "L6", "openings", [9.666, 8.45], absent=True)) == 1
-    assert len(_at(truth, "L6", "doors", [10.658, 9.085], absent=True)) == 1
+    # the east lift-door negation was the machine's judgement and left C0034 (review of 6 Nov 2026, F7)
+    assert not _at(truth, "L6", "doors", [10.658, 9.085], absent=True)
     read = _reading(truth, {("L6", "openings"): [{"id": "o_re", "type": "opening", "center": [9.666, 8.45],
                                                   "width": 0.9}]}, drop={("L6", "openings", (9.666, 8.487))})
     res = SC.match(truth, read)
@@ -275,8 +282,11 @@ def test_11_a_level_left_out_never_comes_back_through_a_correction():
     assert [lv["id"] for lv in truth["levels"]] == ["L0"] and list(truth["per_level"]) == ["L0"]
     assert truth["build_report"]["unmatched"][0]["record"] == "C0011"
     assert "not in the truth" in truth["build_report"]["unmatched"][0]["why"]
-    real17 = TR.load_truth("real17")                       # C0038 names L0, a level real17's acceptance leaves out
-    assert "L0" not in real17["per_level"] and {u["record"] for u in real17["build_report"]["unmatched"]} == {"C0038"}
+    # real17's truth is sparse since 6 Nov 2026 (the user's corrections only): no acceptance limits its levels, so
+    # C0038's six shop windows on L0 are entries there
+    real17 = TR.load_truth("real17")
+    assert TR.is_sparse(real17) and not real17["build_report"]["unmatched"]
+    assert sorted(e["corrections"][0] for e in real17["per_level"]["L0"]["windows"]) == ["C0038"] * 6
 
 
 def test_12_a_readers_id_needs_its_reading(cli):
@@ -367,17 +377,17 @@ def test_18_the_command_line_answers_instead_of_raising(cli, capsys, tmp_path):
 
 @pytest.mark.parametrize("project", TR.truth_projects())
 def test_every_truth_file_is_its_build(project):
-    """A truth file is the build of its stored inputs (the accepted reading, the correction store), byte for byte."""
-    acc, why = TR.accepted_of(project)
-    assert acc is not None, why
-    built = TR.build_truth(project, acc, TR.load_corrections())
+    """A truth file is the build of its stored inputs, byte for byte: a synthetic project's exact truth and the
+    replay; a real project's sparse truth from the correction store alone (6 Nov 2026)."""
+    built, why = TR.derive(project, TR.load_corrections())
+    assert built is not None, why
     assert (ROOT / "results" / "reading_truth" / f"{project}.json").read_text(encoding="utf-8") == TR.dumps(built)
+    assert TR.is_sparse(built) == (TR.synthetic_truth_file(project) is None)
 
 
 @pytest.mark.parametrize("project", sorted(p.stem for p in (ROOT / "results" / "reading_accepted").glob("*.json")))
 def test_the_accepted_reading_scores_100_against_its_own_truth(project):
-    acc, why = TR.accepted_of(project)
-    assert acc is not None, why
+    acc, _ = _real(project)
     assert SC.match(TR.build_truth(project, acc, []), acc)["total"] == 100.0
 
 
@@ -395,6 +405,7 @@ def test_records_join_by_place_never_by_id():
                                         for k, els in lv.items()} for lid, lv in t["per_level"].items()},
                                  sort_keys=True)
     assert strip(TR.build_truth("real10", acc, recs)) == strip(TR.build_truth("real10", acc, scrambled))
+    assert strip(TR.build_sparse("real10", recs)) == strip(TR.build_sparse("real10", scrambled))   # the sparse truth
 
 
 def test_every_applicable_record_is_replayed_or_reported():
