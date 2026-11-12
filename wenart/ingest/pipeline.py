@@ -2592,11 +2592,21 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     for line in TW.stair_cores(b["rooms"], b["furniture"]):
         build.warn(f"stair core: {line}")
     # 3 Nov 2026 (real10): a stair core room that holds the open landing in front of its stair is two rooms
-    for line in TW.split_core_landings(b["rooms"], b["openings"], b["furniture"]):
+    for line in TW.split_core_landings(b["rooms"], b["openings"], b["furniture"], b["walls"]):
         build.warn(f"core landing: {line}")
     # 3 Nov 2026 (real10, user: "green marking is outside shared hall"): the room the stair core opens into
     for line in TW.shared_halls(b["rooms"], b["openings"]):
         build.warn(f"shared hall: {line}")
+    # 12 Nov 2026 (review, real20): a pending small room whose label stands on an untyped drawn outline of its size
+    for line in TW.carve_sub_spaces(b["rooms"], b["furniture"], b["walls"]):
+        build.warn(f"sub-space: {line}")
+    for room in b["rooms"]:
+        for sp in room.get("sub_spaces") or []:
+            # 12 Nov 2026 (review, A-L2): a small room's label that gave up the larger face and found no part of its
+            # own is never silent (RC14 label_names_larger_face names it too)
+            build.warn(f"sub-space not read: {room['level_id']}: '{sp['label']}' ({sp['type']}, at most "
+                       f"{sp['max_m2']:g} m2) stands in {room['id']} '{room.get('label')}' ({room.get('area_computed')} "
+                       f"m2): its walls are not read, the {sp['type']} is not built")
     for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"]):     # 4 Nov 2026 (UL306)
         build.warn(f"lift door: {line}")
     for line in TW.fire_stairs(b["rooms"], b["openings"], b["furniture"]):   # 4 Nov 2026 (UL307, UL312)

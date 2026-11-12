@@ -446,6 +446,141 @@ def stair_cores(rooms: list[dict], furniture: list[dict]) -> list[str]:
     return notes
 
 
+SUB_SPACE_REACH_M = 0.30         # 12 Nov 2026: a pending sub-space's label anchor this close to a part stands in it
+STACK_IOU = 0.5                  # a part overlapping a lift of another level this much stacks on it (the same shaft)
+
+
+def _lift_label(room: dict) -> bool:
+    from wenart.sheets import register as RG
+    from wenart.sheets import titles as TI
+
+    return room.get("room_type") == "shaft" and bool(RG.LIFT_RE.search(TI.fold(str(room.get("label_raw") or
+                                                                                    room.get("label") or ""))))
+
+
+def sub_space_of(part: Polygon, room: dict, rooms: list[dict]) -> Optional[dict]:
+    """12 Nov 2026 (review of the reader targets, real11 A2 / A-L1 / F5: the lift shaft beside the core stair became
+    'Kat Holü' on 8 levels): what a part split off a room (or an unnamed room) is when it is a small room of its own:
+    the room's pending sub-space (``rooms.derive_rooms`` ``sub_spaces``: a lift, shaft, WC or closet label that gave up
+    the larger face) whose anchor stands in the part (within ``SUB_SPACE_REACH_M``) and whose type's area range
+    (``labels.AREA_RANGES``) the part fits; else a lift of another level the part stacks on (``STACK_IOU``) when it fits
+    a lift's range. ``{"label", "label_raw", "type", "how", "sub"}`` or None."""
+    from wenart.ingest.generic import labels as LB
+
+    a = part.area
+    for sp in room.get("sub_spaces") or []:
+        at = sp.get("anchor")
+        lo, hi = float(sp.get("min_m2") or 0.0), float(sp.get("max_m2") or 0.0)
+        if at and part.distance(Point(at[:2])) <= SUB_SPACE_REACH_M and lo <= a <= hi:
+            return {"label_raw": sp["label"], "type": sp["type"], "how": f"its label '{sp['label']}' stands in it",
+                    "sub": sp}
+    lo, hi = LB.AREA_RANGES["lift"][:2]
+    if lo <= a <= hi:
+        for x in rooms:
+            if x.get("level_id") != room.get("level_id") and _lift_label(x) and len(x.get("polygon") or []) >= 3 \
+                    and _iou(part, _poly(x)) >= STACK_IOU:
+                return {"label_raw": x.get("label_raw") or x.get("label"), "type": "lift",
+                        "how": f"it stacks on the lift {x['id']} of {x['level_id']}", "sub": None}
+    return None
+
+
+def _as_sub_space(room: dict, what: dict) -> None:
+    """Names a room the small room ``what`` says (``sub_space_of``; mutated): the label from its text, type ``shaft``
+    for a lift or a shaft (the schema's type), ``label_inferred`` method ``sub_space``."""
+    from wenart import building as B
+
+    label, rtype, _ = B.normalise_room_label(str(what["label_raw"]))
+    room["label"] = label
+    room["label_raw"] = what["label_raw"]
+    room["room_type"] = "shaft" if what["type"] in ("lift", "shaft") else rtype
+    room["inferred"] = True
+    room["has_documented_furniture"] = False
+    room["label_inferred"] = {"method": "sub_space", "reason": what["how"]}
+    room.pop("sub_spaces", None)
+
+
+def straight_runs(line) -> list:
+    """The straight runs (shapely lines) of a line or a multi-line: one wall each (a common edge turns at a shaft's
+    corners); runs under 0.3 m are left out."""
+    from shapely.geometry import LineString
+
+    if line is None or line.is_empty:
+        return []
+    out = []
+    for g in getattr(line, "geoms", [line]):
+        if g.geom_type != "LineString":
+            continue
+        pts = list(g.simplify(1e-4).coords)
+        out += [LineString([a, b]) for a, b in zip(pts, pts[1:]) if math.dist(a, b) >= 0.3]
+    return out
+
+
+SUB_SPACE_INSIDE = 0.8           # an untyped drawn piece this much inside a room can be its pending small room
+
+
+def carve_sub_spaces(rooms: list[dict], furniture: list[dict], walls: Optional[list] = None) -> list[str]:
+    """12 Nov 2026 (review of the reader targets, real20 A-L2: the lift's label gave up the 16 m2 core and the lift was
+    never built; its shaft outline was read as the untyped piece f_L0_002, 1.73 x 1.70 m): a room's pending sub-space
+    (``sub_spaces``) whose label anchor stands on an untyped drawn piece (``SUB_SPACE_INSIDE`` of it in the room) of
+    that type's area range is that small room: the piece's rectangle becomes a room of its own (``sub_space_of``
+    naming), the room keeps the rest (one polygon of at least 1 m2), the piece is not furniture (not built) and the
+    side of the shaft towards the rest gets an inferred wall where none was read. Mutates; returns one line each."""
+    from shapely.ops import unary_union
+
+    from wenart.ingest.generic import labels as LB
+
+    notes = []
+    for r in list(rooms):
+        pend = [s for s in r.get("sub_spaces") or [] if s.get("anchor")]
+        if not pend or len(r.get("polygon") or []) < 3:
+            continue
+        poly = _poly(r)
+        for sp in pend:
+            at = Point(sp["anchor"][:2])
+            lo, hi = LB.AREA_RANGES[sp["type"]][:2]
+            for f in furniture:
+                if f.get("level_id") != r["level_id"] or f.get("type") not in (None, "unknown") \
+                        or not (f.get("footprint") or {}).get("size"):
+                    continue
+                box = _stair_box(f)
+                if not (lo <= box.area <= hi) or box.distance(at) > SUB_SPACE_REACH_M \
+                        or poly.intersection(box).area < SUB_SPACE_INSIDE * box.area:
+                    continue
+                part = poly.intersection(box)
+                rest = poly.difference(box).buffer(0)
+                if part.geom_type != "Polygon" or rest.geom_type != "Polygon" or rest.area < 1.0:
+                    continue
+                new = dict(r, id=f"{r['id']}_{'lift' if sp['type'] == 'lift' else 'sub'}",
+                           polygon=[[round(x, 4), round(y, 4)] for x, y in list(part.exterior.coords)[:-1]],
+                           area_computed=round(part.area, 2))
+                new.pop("sub_spaces", None)
+                _as_sub_space(new, {"label_raw": sp["label"], "type": sp["type"],
+                                    "how": f"its label '{sp['label']}' stands on the drawn outline {f.get('id')}"})
+                rooms.append(new)
+                r["polygon"] = [[round(x, 4), round(y, 4)] for x, y in list(rest.exterior.coords)[:-1]]
+                r["area_computed"] = round(rest.area, 2)
+                r["sub_spaces"] = [s for s in r.get("sub_spaces") or [] if s is not sp]
+                if not r["sub_spaces"]:
+                    r.pop("sub_spaces")
+                f["build"] = False
+                f.setdefault("details", {})["not_furniture"] = {
+                    "as": sp["type"], "by": "sub_space", "room_id": new["id"],
+                    "reason": f"the outline of {new['id']} '{new['label']}' (its label stands on it)"}
+                edge = part.boundary.intersection(rest.boundary)
+                lines = [g for g in getattr(edge, "geoms", [edge]) if g.geom_type == "LineString"]
+                from shapely.ops import linemerge
+                merged = linemerge(unary_union(lines)) if lines else None
+                for k, ln in enumerate(straight_runs(merged)):
+                    shaft_wall(new, ln, walls, f"the side of {new['id']} '{new['label']}' towards {r['id']}: not read, "
+                                               f"inferred", wall_id=f"w_{new['id']}_{k + 1}")
+                notes.append(f"{r['level_id']}: {new['id']} '{new['label']}' ({part.area:.1f} m2) carved out of "
+                             f"{r['id']} on the drawn outline {f.get('id')} its label '{sp['label']}' stands on "
+                             f"(inferred; {f.get('id')} is not furniture)")
+                poly = rest
+                break
+    return notes
+
+
 SHARED_HALL_REACH_M = 0.55       # an opening joins two rooms when its centre lies this close to both (core walls run 0.4-0.8 m thick)
 LANDING_MIN_M2 = 2.0             # 3 Nov 2026: a stair core room this much larger than its stair holds the shared hall ...
 LANDING_MIN_WIDTH_M = 0.9        # ... when the rest is this wide (a walkable hall, not a strip beside the flight)
@@ -461,7 +596,27 @@ def _stair_box(f: dict) -> Polygon:
                     for x, y in ((-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2))])
 
 
-def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list[dict]) -> list[str]:
+SHAFT_WALL_T_M = 0.10            # 12 Nov 2026: the inferred shaft wall between a stair and its lift (a thin core wall)
+
+
+def shaft_wall(room: dict, line, walls: Optional[list], why: str, wall_id: Optional[str] = None) -> Optional[dict]:
+    """An inferred wall along ``line`` (a shapely line) closing a small room split off a face where no wall was read
+    (a lift's shaft wall): ``SHAFT_WALL_T_M`` thick, ``inferred``, unverified, appended to ``walls`` (when given)."""
+    if walls is None or line is None or line.length < 0.3:
+        return None
+    (ax, ay), (bx, by) = line.coords[0], line.coords[-1]
+    ev = (room.get("evidence") or [{}])[0]
+    w = {"id": wall_id or f"w_{room['id']}", "level_id": room["level_id"], "start": [round(ax, 4), round(ay, 4)],
+         "end": [round(bx, 4), round(by, 4)], "thickness": SHAFT_WALL_T_M, "height": None, "exterior": False,
+         "status": "unverified", "inferred": True,
+         "evidence": [{"file": ev.get("file"), "method": "inferred", "confidence": 0.6, "entity": f"split:{room['id']}",
+                       "rule": "sub_space_wall", "note": why, "region_id": ev.get("region_id")}]}
+    walls.append(w)
+    return w
+
+
+def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list[dict],
+                        walls: Optional[list] = None) -> list[str]:
     """3 Nov 2026 (real10, user: "Understanding the building starts with the stairs in the shaft", "green marking is
     outside shared hall"; the plan draws no wall between the core stair and the landing in front of it and the lifts,
     so once the stair's middle wall and rails were no longer read as a wall across the stair, stair and landing were one
@@ -478,7 +633,8 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
 
     stairs = [f for f in furniture if f.get("type") == "stair" and (f.get("footprint") or {}).get("size")]
     notes = []
-    for r in list(rooms):
+    # 12 Nov 2026: the cores holding a pending small room first, so the lift they give is there for the others to stack on
+    for r in sorted(rooms, key=lambda x: not x.get("sub_spaces")):
         if (r.get("label_inferred") or {}).get("method") != "stair_core" or len(r.get("polygon") or []) < 3:
             continue
         poly = _poly(r)
@@ -496,9 +652,10 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
                 or hall.buffer(-LANDING_MIN_WIDTH_M / 2.0).is_empty:
             # (a hole: a stair standing free inside the room, no landing in front of a core stair)
             continue
+        small = sub_space_of(hall, r, rooms)
         lifts = [_poly(x) for x in rooms if x.get("level_id") == r["level_id"] and x.get("room_type") == "shaft"
                  and RG.LIFT_RE.search(TI.fold(str(x.get("label_raw") or x.get("label") or "")))]
-        if lifts and not any(hall.distance(lp) <= SHARED_HALL_REACH_M for lp in lifts):
+        if small is None and lifts and not any(hall.distance(lp) <= SHARED_HALL_REACH_M for lp in lifts):
             continue
         # the stair keeps the footprint's part and the small leftovers (strips beside the flights)
         stair_poly = unary_union([stair_part] + parts[1:]).buffer(0)
@@ -516,10 +673,29 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
         hall_id = f"{r['id']}_hall"
         r["polygon"] = [[round(x, 4), round(y, 4)] for x, y in list(stair_poly.exterior.coords)[:-1]]
         r["area_computed"] = round(stair_poly.area, 2)
-        rooms.append(dict(r, id=hall_id, label="Kat Holü" if turkish else "Landing", room_type="hall",
-                          polygon=[[round(x, 4), round(y, 4)] for x, y in list(hall.exterior.coords)[:-1]],
-                          area_computed=round(hall.area, 2), has_documented_furniture=False,
-                          label_inferred={"method": "shared_hall", "core": r["id"], "split_from": r["id"]}))
+        part = dict(r, id=hall_id, label="Kat Holü" if turkish else "Landing", room_type="hall",
+                    polygon=[[round(x, 4), round(y, 4)] for x, y in list(hall.exterior.coords)[:-1]],
+                    area_computed=round(hall.area, 2), has_documented_furniture=False,
+                    label_inferred={"method": "shared_hall", "core": r["id"], "split_from": r["id"]})
+        part.pop("sub_spaces", None)
+        rooms.append(part)
+        if small is not None:
+            # 12 Nov 2026 (review, real11): the part is the small room its label (or the lift below) says, behind its
+            # drawn shaft wall: no open joint, never a hall (``lift_doors`` gives a lift its landing door)
+            _as_sub_space(part, small)
+            part["id"] = f"{r['id']}_{'lift' if small['type'] == 'lift' else 'sub'}"
+            part["label_inferred"].update(split_from=r["id"])
+            for k, run in enumerate(straight_runs(merged)):
+                shaft_wall(part, run, walls, f"the wall of {part['id']} '{part['label']}' towards the stair: not read "
+                                             f"({small['how']}), inferred", wall_id=f"w_{part['id']}_{k + 1}")
+            if small.get("sub") is not None:
+                r["sub_spaces"] = [s for s in r.get("sub_spaces") or [] if s is not small["sub"]]
+                if not r["sub_spaces"]:
+                    r.pop("sub_spaces")
+            notes.append(f"{r['level_id']}: the stair core {r['id']} ({poly.area:.1f} m2) holds its stair "
+                         f"({stair_poly.area:.1f} m2) and {part['id']} '{part['label']}' ({hall.area:.1f} m2): "
+                         f"{small['how']} (inferred); no open joint")
+            continue
         (ax, ay), (bx, by) = cut.coords[0], cut.coords[-1]
         openings.append({"id": f"o_{hall_id}", "type": "opening", "level_id": r["level_id"], "wall_id": None,
                          "virtual": True, "line": [[round(ax, 4), round(ay, 4)], [round(bx, 4), round(by, 4)]],
@@ -570,6 +746,14 @@ def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
                 if r is core or r.get("label_raw") or str(r.get("label") or "").strip().lower() not in GENERIC_LABELS:
                     continue
                 rp = _poly(r)
+                small = sub_space_of(rp, r, rooms)
+                if small is not None:
+                    # 12 Nov 2026 (review, real11 / real10 L-2: a lift shaft named 'Kat Holü'): it is that small room
+                    old = r.get("label")
+                    _as_sub_space(r, small)
+                    notes.append(f"{lid}: room {r['id']} ('{old}') beside the stair core {core['id']} is "
+                                 f"'{r['label']}' ({rp.area:.1f} m2): {small['how']} (inferred), not the shared hall")
+                    continue
                 joined = [o for o in level_openings if cp.distance(Point(o["center"][:2])) <= SHARED_HALL_REACH_M
                           and rp.distance(Point(o["center"][:2])) <= SHARED_HALL_REACH_M]
                 if not joined:

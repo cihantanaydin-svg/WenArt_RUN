@@ -458,6 +458,20 @@ def label_names_larger_face(building: dict, texts_by_level: Optional[dict] = Non
                             f"its face is {_fmt(a)} m2, {a / hi:.1f} times that{other_txt}; the walls between them "
                             f"are not read", _centre(r), [r.get("id")], sense_type=st, area_m2=round(a, 3),
                             other_labels=[t for t, _ in others][:12]))
+    for r in building.get("rooms") or []:
+        # 12 Nov 2026 (review of the reader targets, A-L2): a small room's label the reader set aside because it stood
+        # in a much larger face (``rooms.derive_rooms`` ``sub_spaces``) and that found no part of its own: the small
+        # room is not built, so this rule still names it (its evidence is kept, not removed)
+        for sp in r.get("sub_spaces") or []:
+            kind = str(sp.get("type") or "small room").replace("_", " ")
+            at = sp.get("anchor") or _centre(r)
+            a = float(_area(r) or 0.0)
+            out.append(_finding("label_names_larger_face", "major", r.get("level_id"),
+                                f"'{sp.get('label')}' names a {kind} (at most {_fmt(float(sp.get('max_m2') or 0))} m2) "
+                                f"inside {r.get('id')} '{_label(r)}' ({_fmt(a)} m2): the reader left the face to the "
+                                f"larger space and found no part of it for the {kind}; its walls are not read and the "
+                                f"{kind} is not built", at, [r.get("id")], sense_type=sp.get("type"),
+                                area_m2=round(a, 3), sub_space=sp.get("label")))
     return out
 
 

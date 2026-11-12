@@ -259,7 +259,14 @@ def _sub_space(labels: list, indices: list, shp: Polygon, stairs) -> Optional[di
     if not different and not stair:
         return None
     keep = [others[0]] + [k for k in indices if k != others[0]] if others else []
-    return {"small": small, "max_m2": hi, "label": first.name, "keep": keep, "stair": stair}
+    return {"small": small, "max_m2": hi, "label": first.name, "keep": keep, "stair": stair, "index": indices[0]}
+
+
+def _area_min(kind: str) -> float:
+    """The smallest area of a small type (``labels.AREA_RANGES``)."""
+    from wenart.ingest.generic import labels as LB
+
+    return float(LB.AREA_RANGES[kind][0])
 
 
 def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], label_points: list[tuple[float, float]],
@@ -398,8 +405,18 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
             # 6 Nov 2026 (reader target 5): a small room's label names only its own sub-space of a much larger face
             other = (f"the label '{labels[sub['keep'][0]].text}' names the face" if sub["keep"] else
                      "the face is left unnamed for the architect")
+            k0 = sub["index"]
+            anchor = label_points[k0] if k0 < len(label_points) and label_points[k0] is not None else None
+            # 12 Nov 2026 (review, real11 A2 / A-L1): the small label is kept on the face as a sub-space still to read
+            # (``sub_spaces``: its text, type and anchor); a later split gives it its own part (``twins``), else RC14
+            # names it (the small room is not built)
+            pending = {"label": sub["label"], "type": sub["small"], "max_m2": sub["max_m2"],
+                       "min_m2": _area_min(sub["small"]),
+                       "anchor": [round(float(anchor[0]), 4), round(float(anchor[1]), 4)] if anchor else None,
+                       "entity": labels[k0].entity, "face_m2": area}
             result.sub_space_labels.append({"label": sub["label"], "type": sub["small"], "face_m2": area,
                                             "max_m2": sub["max_m2"], "stair": sub["stair"],
+                                            "anchor": pending["anchor"],
                                             "kept": labels[sub["keep"][0]].text if sub["keep"] else None})
             result.warnings.append(f"{level_id}: '{sub['label']}' names a {sub['small']} (at most {sub['max_m2']:g} "
                                    f"m²) inside a {area:.1f} m² face that also holds "
@@ -474,6 +491,9 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         }
         if label_size is not None:
             room["label_size"] = label_size
+        if sub is not None:
+            room["sub_spaces"] = [pending]
+            result.sub_space_labels[-1]["room_id"] = room_id
         result.rooms.append(room)
     return result
 

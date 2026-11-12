@@ -443,3 +443,113 @@ def _ent_solution(b):
     from wenart.levels import model as M
 
     return next(x for x in M.infer_levels(b)["site"]["entrances"] if x["door_id"] == "d_front")["solution"]
+
+
+# --------------------------------------------------------------------------
+# Review of 12 Nov 2026, item 3 (real11, real20): a lift keeps its shaft and its label
+# --------------------------------------------------------------------------
+
+def _core_levels(lift_label_on=("L0",), levels=("L0", "L1", "L2")):
+    """A stair core of 5.0 x 3.0 m inside (15 m2) on three levels: the stair (3.3 x 3.0 m) on the left, the lift
+    (1.7 x 3.0 m) on the right with no wall read between them; the lift's label 'Asansör' on ``lift_label_on``. The
+    rooms of ``derive_rooms`` (the face unnamed: the lift's label gives it up) and the stairs as building pieces."""
+    from wenart.ingest import rooms as R
+
+    walls = _box_walls(0, 0, 5.2, 3.2)
+    rooms, furniture = [], []
+    for lid in levels:
+        labels, points = _labels(("Asansör", (4.25, 1.6)),) if lid in lift_label_on else ([], [])
+        res = R.derive_rooms(lid, walls, labels, points, None, "p.dxf", stairs=[_stair(1.75, 1.6)],
+                             unlabelled_label="Oda", face_type=lambda poly: ("hall", "unlabelled face, the stair"))
+        rooms += res.rooms
+        furniture.append({"id": f"f_{lid}_stair", "type": "stair", "level_id": lid,
+                          "footprint": {"center": [1.75, 1.6], "size": [3.3, 3.0], "rotation_deg": 0.0}})
+    return rooms, furniture
+
+
+def test_a_lift_label_set_aside_by_the_stair_core_names_its_own_part_after_the_core_split():
+    from wenart.ingest import twins as TW
+
+    rooms, furniture = _core_levels()
+    l0 = next(r for r in rooms if r["level_id"] == "L0")
+    assert l0["label"] == "Oda" and l0["sub_spaces"][0]["type"] == "lift"
+    assert abs(l0["sub_spaces"][0]["anchor"][0] - 4.25) < 0.1 and abs(l0["sub_spaces"][0]["anchor"][1] - 1.6) < 0.1
+    openings, walls = [], []
+    TW.stair_cores(rooms, furniture)
+    notes = TW.split_core_landings(rooms, openings, furniture, walls)
+    for lid in ("L0", "L1", "L2"):
+        got = sorted((r["label"], r["room_type"]) for r in rooms if r["level_id"] == lid)
+        assert got == [("Asansör", "shaft"), ("Merdiven", "stair")], (lid, got)
+    lifts = [r for r in rooms if r["label"] == "Asansör"]
+    assert all(r["label_inferred"]["method"] == "sub_space" and not r.get("sub_spaces") for r in lifts)
+    assert any("stacks on the lift" in r["label_inferred"]["reason"] for r in lifts)        # L1, L2: no label there
+    assert not any(r.get("sub_spaces") for r in rooms) and openings == []                  # no open joint
+    assert len(walls) == 3 and all(w["inferred"] and w["thickness"] == 0.1 for w in walls)  # the shaft wall
+    assert all(abs(w["start"][0] - 3.4) < 1e-6 and abs(w["end"][0] - 3.4) < 1e-6 for w in walls)
+    assert not any("Kat Holü" in n for n in notes)
+
+
+def test_without_a_lift_the_core_landing_stays_the_shared_hall():
+    from wenart.ingest import twins as TW
+
+    rooms, furniture = _core_levels(lift_label_on=())
+    openings = []
+    TW.stair_cores(rooms, furniture)
+    TW.split_core_landings(rooms, openings, furniture, [])
+    assert sorted(r["label"] for r in rooms if r["level_id"] == "L0") == ["Kat Holü", "Merdiven"]
+    assert len(openings) == 3
+
+
+def test_an_unresolved_sub_space_is_an_rc14_finding_and_a_lift_carved_on_its_drawn_outline():
+    from wenart.ingest import rooms as R
+    from wenart.ingest import twins as TW
+    from wenart.reading_check import sense as SE
+
+    walls = _box_walls(0, 0, 4.2, 4.2)                     # a 14.4 m2 core: lift, stair and landing, no wall read
+    labels, points = _labels(("Asansör", (1.0, 1.0)),)
+    res = R.derive_rooms("L0", walls, labels, points, None, "p.dxf", stairs=[_stair(3.0, 2.5)],
+                         unlabelled_label="Oda", face_type=lambda poly: ("hall", "unlabelled face holding the stair"))
+    building = {"rooms": res.rooms, "levels": [{"id": "L0"}], "walls": [], "openings": [], "furniture": []}
+    got = [f for f in SE.label_names_larger_face(building) if f.get("sub_space") == "Asansör"]
+    assert got and got[0]["severity"] == "major" and abs(got[0]["place"][0] - 1.0) < 0.1 and "not built" in got[0]["message"]
+    # the lift's shaft outline drawn as an untyped piece of a lift's size under the label: carved out as the lift
+    piece = {"id": "f_L0_002", "type": "unknown", "level_id": "L0",
+             "footprint": {"center": [1.0, 1.0], "size": [1.7, 1.7], "rotation_deg": 0.0}}
+    new_walls = []
+    notes = TW.carve_sub_spaces(res.rooms, [piece], new_walls)
+    lift = next(r for r in res.rooms if r["label"] == "Asansör")
+    assert lift["room_type"] == "shaft" and abs(lift["area_computed"] - 1.65 * 1.65) < 0.05
+    rest = next(r for r in res.rooms if r is not lift)
+    assert abs(rest["area_computed"] - (3.8 * 3.8 - 1.65 * 1.65)) < 0.05 and not rest.get("sub_spaces")
+    assert piece["build"] is False and piece["details"]["not_furniture"]["room_id"] == lift["id"]
+    assert len(new_walls) == 2 and notes                     # the shaft's two sides towards the landing
+    assert not [f for f in SE.label_names_larger_face(building) if f.get("sub_space")]
+
+
+def test_lift_lobbies_voids_and_stair_halls_keep_their_names_with_a_stair_in_them():
+    from wenart import building as B
+    from wenart.ingest import rooms as R
+    from wenart.ingest.generic import labels as LB
+
+    walls = _box_walls(0, 0, 5.4, 4.4)                     # 5.2 x 4.2 m = 21.8 m2 with the stair
+    for name, rtype in (("Asansör Holü", "hall"), ("ASANSÖR ÖNÜ", "hall"), ("Lift Lobby", "hall"),
+                        ("Asansör ve Merdiven Holü", "stair"), ("GALERİ", "shaft"), ("GALERİ BOŞLUĞU", "shaft"),
+                        ("BOŞLUK", "shaft"), ("VOID", "shaft")):
+        labels, points = _labels((name, (1.0, 1.0)),)
+        res = R.derive_rooms("L0", walls, labels, points, None, "p.dxf", stairs=[_stair(3.5, 2.5)])
+        assert [r["label_raw"] for r in res.rooms] == [name] and not res.sub_space_labels, name
+        assert res.rooms[0]["room_type"] == rtype and LB.sub_space_type(name, B.room_type_for(name)) is None, name
+
+
+def test_turkish_room_word_abbreviations_compounds_and_odasi_names():
+    from wenart import building as B
+    from wenart.ingest.generic import labels as LB
+
+    assert B.room_type_for("Y.ODASI") == B.room_type_for("Y.odası") == "bedroom"
+    assert B.room_type_for("Ç.ODASI") == "bedroom" and B.room_type_for("E.YAT.OD.") == "bedroom"
+    assert B.room_type_for("SUDEPOSU") == B.room_type_for("SU DEPOSU") == "storage"
+    assert B.room_type_for("YANGINMERDIVENI") == "stair" and B.room_type_for("SUTUN") == "other"
+    assert B.room_type_for("SPOR ODASI") == "other" and B.room_type_for("YATAK ODASI") == "bedroom"
+    assert B.room_type_for("ODA") == "bedroom" and B.generic_room_label("ODA")       # ODA alone stays generic
+    blocks = LB.merge_label_blocks([_run("SPOR ODASI", 0.0, 0.0, k=1), _run("43.00 m²", 0.0, -0.35, k=2)], "p.dxf")
+    assert [(b.name, b.area_m2) for b in blocks] == [("SPOR ODASI", 43.0)]

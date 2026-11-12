@@ -92,6 +92,10 @@ _TURKISH_ROOM_KEYWORDS = [
     ("tesisat", "technical"),
     ("hidrofor", "technical"),
     ("calisma", "other"),
+    # 12 Nov 2026 (review of the reader targets, real15 F6: 'SPOR ODASI' 43.00 m2 was no label): '<word> ODASI' is
+    # Turkish for 'the room of <word>', a room name of its own (SPOR, OYUN, HOBİ ODASI); a known word before it decides
+    # the type (YATAK ODASI a bedroom), else it is other (last in ROOM_TYPE_PRIORITY). ODA alone stays generic.
+    ("odasi", "other"),
 ]
 # English room names (docs/milestone7.md §2.7.2). An English keyword is a whole word (an
 # optional plural ``s``/``es`` allowed); the words of a two-word keyword may be written
