@@ -9,8 +9,8 @@ thicker than the kept wall: a short, thicker block in a wall is a column or a pi
 ``building["walls_merged"]`` with the
 reason (``corrected_by_ai`` by code, CLAUDE.md: "a duplicated wall" is a clear error); its openings move onto the kept
 wall, projected on its centre line, unless an opening of the kept wall already covers at least ``SAME_OPENING_SHARE``
-of them (one opening read twice: it goes to ``building["openings_merged"]``); every other ``wall_id`` that names it
-names the kept wall.
+of them (one opening read twice: it goes to ``building["openings_merged"]``; 12 Nov 2026: a door on the copy outranks a
+plain gap of the kept wall when it is drawn (``_drawn``), the gap is merged into it); every other ``wall_id`` that names it names the kept wall.
 
 Why: real06's 2.9 m gap between the kitchen and the living room was read on both walls; the architect then made one
 copy a serving hatch over the counter and the other a 1.95 m double door "of the room no door reached": a wooden double
@@ -28,6 +28,14 @@ SAME_OPENING_SHARE = 0.5
 MIN_COPY_M = 1.0          # a shorter piece in a wall is a pier or a column (real06: 0.1-0.75 m KOLON blocks)
 THICKER_TOL_M = 0.01
 RULE = "reading.twin_walls"
+
+
+def _drawn(o: dict) -> bool:
+    """The opening is read from its drawn symbol (an evidence of method vector or raster), not inferred."""
+    ev = o.get("evidence") or []
+    ev = ev if isinstance(ev, list) else [ev]
+    return any(isinstance(e, dict) and e.get("method") in ("vector", "raster") for e in ev) and \
+        not any(isinstance(e, dict) and e.get("method") == "inferred" for e in ev)
 
 
 def _axis(w: dict) -> Optional[tuple]:
@@ -120,6 +128,18 @@ def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> 
                 if cover >= SAME_OPENING_SHARE * max(min(2 * half, 2 * hp), 1e-6):
                     same = p
                     break
+            if same is not None and o.get("type") == "door" and same.get("type") == "opening" \
+                    and not same.get("virtual") and _drawn(o):
+                # 12 Nov 2026 (real07 C0047, the user's correction: the Kat Kal. door read on the copy, a 1.56 m gap read
+                # over it on the kept wall; the door was merged into the gap and lost): a drawn door outranks a gap
+                # read over it, the gap is merged into the door
+                b["openings"] = [x for x in b["openings"] if x is not same]
+                ops = [x for x in ops if x is not same]
+                b.setdefault("openings_merged", []).append(dict(copy.deepcopy(same), merged_into=o["id"], corrected_by_ai={
+                    "by": "code", "rule": RULE, "reason": f"{same['id']} of {keep_id} is the door {o['id']} on {dup_id} "
+                                                           f"read twice, the door drawn ({reason})"}))
+                merged.append(f"{same['id']} -> {o['id']}")
+                same = None
             if same is not None:
                 b["openings"] = [x for x in b["openings"] if x is not o]
                 ops = [x for x in ops if x is not o]

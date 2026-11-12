@@ -2326,7 +2326,19 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
         ev.update(method="vector", confidence=0.9, rule="size_tag",
                   reason=f"the door size tag '{t.text.strip()}' (width/height in cm) beside the gap")
         new_w = float(o.width) if keep_width and float(o.width) > width else width
-        out[j] = dataclasses.replace(o, kind="door", width=round(new_w, 3), height=height, evidence=ev,
+        centre = tuple(o.center)
+        if o.kind != "door" and float(o.width) - new_w > DOOR_TAG_SAME_M:
+            # 12 Nov 2026 (real07 C0047, the user's correction: the 80/210 door of Kat Kal. was put in the middle of
+            # the 1.56 m gap read over it, 0.38 m off its jambs): a door in a gap wider than itself is hung at a jamb,
+            # the one nearer its tag
+            a, b = list(_span(o).coords)
+            tc = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
+            end, other = (a, b) if math.dist(tc, a) <= math.dist(tc, b) else (b, a)
+            f = new_w / 2.0 / max(math.dist(end, other), 1e-9)
+            centre = (round(end[0] + (other[0] - end[0]) * f, 4), round(end[1] + (other[1] - end[1]) * f, 4))
+            ev["note"] = (f"hung at the jamb of the {float(o.width):.2f} m gap nearer the tag (the rest of the gap "
+                          f"is wall)")
+        out[j] = dataclasses.replace(o, kind="door", width=round(new_w, 3), height=height, evidence=ev, center=centre,
                                      type_raw=f"door size tag {t.text.strip()}",
                                      assumed=[a for a in (o.assumed or []) if a != "height"])
         done.append(f"{t.text.strip()} ({o.kind} {float(o.width):.2f} m -> door {new_w:.2f} m)")
