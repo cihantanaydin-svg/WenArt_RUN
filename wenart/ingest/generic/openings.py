@@ -33,10 +33,10 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
 - Continuous-wall symbols (the synthetic convention and raster double-line walls) keep working: an arc + leaf
   hinged inside a wall band or within 0.08 m of a face (the end-point rule of ``pdf_extract._door_from_arc``: the leaf
   runs from the hinge to one arc end, the other arc end lies one radius from the hinge; a leaf drawn as a thin
-  rectangle passes the classifier's leaf rule instead), radius 0.6-1.2 m, is a door cut into that wall; >= 3
-  parallel strokes inside a wall band (one strictly inside it) over >= 0.4 m are a window, and so are >= 2 strictly
-  inside it (walls drawn as face lines: the faces are the wall primitive, not strokes here; docs/milestone10.md
-  §3.1 item 11).
+  rectangle passes the classifier's leaf rule instead), radius 0.6-1.2 m (from 0.45 m on a door layer), is a door cut
+  into that wall; >= 3 parallel strokes inside a wall band (one strictly inside it) over >= 0.4 m are a window, and so
+  are >= 2 strictly inside it (walls drawn as face lines: the faces are the wall primitive, not strokes here;
+  docs/milestone10.md §3.1 item 11).
 - ``operation`` (Milestone 10, §1.6b row 17; set as attributes by ``set_operation``, copied by the pipeline): a block
   name that says it (``OPERATION_WORDS``: sliding / sürme, pocket, folding / katlanır, double / çift kanat, fixed /
   sabit) wins (``block_name``); else the drawing (``geometry``): one swing arc = swing, two half arcs = double, and a
@@ -137,7 +137,8 @@ LEAF_LENGTH = (0.85, 1.05)
 WINDOW_COVER = 0.8
 WINDOW_ANGLE_DEG = 1.0
 OWN_MARGIN_M = 0.10
-CONTINUOUS_RADIUS_M = (0.6, 1.2)
+CONTINUOUS_RADIUS_M = (0.45, 1.2)   # 6 Nov 2026 (real16: a shower room's 0.54 m swing with its leaf): on a door layer
+CONTINUOUS_RADIUS_ANY_M = 0.6       # ... on any other layer from this (a corner basin or shelf is no door)
 CONTINUOUS_WINDOW_M = 0.4
 END_POINT_TOL_M = 0.02
 AXIS_TOL_DEG = 3.0
@@ -1379,7 +1380,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
         log.append(entry)
 
     # Continuous-wall symbols (synthetic convention, raster double-line walls).
-    cont_doors, cont_windows = _continuous_symbols(out_walls, index, owned, theta, ctx, openings)
+    cont_doors, cont_windows = _continuous_symbols(out_walls, index, owned, theta, ctx, openings, exterior)
     openings.extend(cont_doors)
     openings.extend(cont_windows)
     for o in cont_doors + cont_windows:
@@ -2049,24 +2050,29 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
 # --------------------------------------------------------------------------
 
 def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, theta: float, ctx: _Ctx,
-                        existing: list[OpeningItem]) -> tuple[list[OpeningItem], list[OpeningItem]]:
+                        existing: list[OpeningItem], exterior=None) -> tuple[list[OpeningItem], list[OpeningItem]]:
     pieces, _ = pieces_of(walls, theta)
     doors: list[OpeningItem] = []
     # Doors: arc + leaf with the end-point rule, hinged in a wall band.
     arcs = [(it, arc) for it, arc in _arcs_in(index.items) if it.st.id not in owned
-            and CONTINUOUS_RADIUS_M[0] <= arc["radius"] <= CONTINUOUS_RADIUS_M[1]
-            and SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]]
+            and (CONTINUOUS_RADIUS_M[0] if _on_door_layer(it.st) else CONTINUOUS_RADIUS_ANY_M) <= arc["radius"]
+            <= CONTINUOUS_RADIUS_M[1] and SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]]
     for it, arc in arcs:
         hinge = arc["center"]
-        host = None
+        hosts = []
         for p in pieces:
             x0, y0, x1, y1 = p.rect()
             if x0 - HINGE_M <= hinge[0] <= x1 + HINGE_M and y0 - HINGE_M <= hinge[1] <= y1 + HINGE_M:
-                host = p
-                break
-        if host is None:
+                hosts.append(p)
+        if not hosts:
             continue
+        host = hosts[0]
         found = None
+        # 6 Nov 2026 (real21: a door block's closed leaf, a line in the wall 2 cm short of the arc's end, was taken for
+        # the open leaf drawn from the hinge to the arc's other end, so the door turned onto the perpendicular wall):
+        # of the lines that pass the end-point rule, the one that fits it best (its hinge end nearest the arc's centre,
+        # its far end nearest the arc's end, its length nearest the radius) is the open leaf
+        best_err = None
         for tip, other in ((arc["end"], arc["start"]), (arc["start"], arc["end"])):
             near = index.query((tip[0] - END_POINT_TOL_M, tip[1] - END_POINT_TOL_M, tip[0] + END_POINT_TOL_M,
                                 tip[1] + END_POINT_TOL_M))
@@ -2079,18 +2085,23 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
                     w = math.dist(b, a)
                     if w <= 0 or abs(math.dist(b, other) - w) > 2 * END_POINT_TOL_M:
                         continue
-                    found = (leaf, b, a, other)
-                    break
-                if found:
-                    break
-            if found:
-                break
+                    err = math.dist(b, hinge) + math.dist(a, tip) + abs(math.dist(b, other) - w)
+                    if best_err is None or err < best_err - 1e-9:
+                        best_err, found = err, (leaf, b, a, other)
         leaf_ids = None
         if not found:
             found, leaf_ids = _shape_leaf(it, arc, index, owned)
         if not found:
             continue
         leaf, hinge_pt, tip, closed_end = found
+        # 6 Nov 2026 (real21: six bedroom doors hinged at a wall corner were put on the perpendicular wall, their swing
+        # read as that wall's door, the door's own wall kept whole and its closed leaf read as a window): the door lies
+        # along its wall, so the host is the wall the closed leaf runs along (hinge to the arc's other end), the first
+        # such wall holding the hinge; the first wall holding it when none runs that way
+        along = [p for p in hosts if _parallel(hinge_pt, closed_end, p.axis, 0.0)
+                 or _leaf_along(hinge_pt, closed_end, p.axis)]
+        if along:
+            host = along[0]
         w = math.dist(hinge_pt, closed_end)
         mid = ((hinge_pt[0] + closed_end[0]) / 2.0, (hinge_pt[1] + closed_end[1]) / 2.0)
         # Onto the host's centre line.
@@ -2113,8 +2124,42 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
                                  rotation_deg=round(rotation % 360, 3), box=bx, entity=ids[0], evidence=ev,
                                  swing_point=_r(probe), height=DOOR_HEIGHT_M, assumed=["height"]))
         _door_operation(doors[-1], [it.st, leaf.st], False)
-    windows = _continuous_windows(pieces, index, owned, theta, ctx, existing + doors)
+    windows = _continuous_windows(pieces, index, owned, theta, ctx, existing + doors, exterior)
     return doors, windows
+
+
+WINDOW_LAYER_WORDS = ("PENCERE", "WINDOW", "GLAZ", "GLASS", "CAM", "FENETRE", "VENTANA", "FENSTER")
+
+
+def wall_face_layer(layer: Optional[str]) -> bool:
+    """6 Nov 2026: a layer that draws walls (``dxf_generic.is_wall_hint_layer``: DUVAR, WALL, plaster, concrete) and
+    names no window or glass (``WINDOW_LAYER_WORDS``: 'DUVAR-PENCERE' or 'A-WALL-GLAZ' draw windows): its lines are a
+    wall's faces."""
+    from wenart.ingest.dxf_generic import is_wall_hint_layer
+
+    if not layer or not is_wall_hint_layer(layer):
+        return False
+    folded = layer.translate(_FOLD).upper()
+    return not any(w in folded for w in WINDOW_LAYER_WORDS)
+
+
+def _on_door_layer(st: Stroke) -> bool:
+    """A stroke drawn on a door layer (``layer_names.layer_role`` "door") or inside a block named for a door."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if LN.layer_role(st.layer) == "door":
+        return True
+    return any(any(w in n.translate(_FOLD).upper() for w in DOOR_WORDS) for n in (st.block or "").split("/") if n)
+
+
+def _leaf_along(p, q, axis: str) -> bool:
+    """The closed position of a door leaf (hinge ``p`` to the arc's other end ``q``) runs along a wall of ``axis``
+    (within 10 degrees: a swing arc drawn a few degrees short or long)."""
+    dx, dy = q[0] - p[0], q[1] - p[1]
+    n = math.hypot(dx, dy)
+    if n <= 0:
+        return False
+    return (abs(dx) if axis == "h" else abs(dy)) / n >= math.cos(math.radians(10.0))
 
 
 def _shape_leaf(it: _S, arc: dict, index: StrokeIndex, owned: set):
@@ -2133,7 +2178,7 @@ def _shape_leaf(it: _S, arc: dict, index: StrokeIndex, owned: set):
 
 
 def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, theta: float, ctx: _Ctx,
-                        existing: list[OpeningItem]) -> list[OpeningItem]:
+                        existing: list[OpeningItem], exterior=None) -> list[OpeningItem]:
     """>= 3 distinct parallel stroke offsets inside a wall band, one strictly inside it, or >= 2 strictly inside it,
     over >= 0.4 m."""
     out = []
@@ -2182,24 +2227,46 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
                 continue
             # Fix round after P6b: the window's own lines (``_confined``) with glass among them, not only outlines
             # inside a thick wall.
-            framed = {s[2] for s in segs if s[6] and _confined(s[4], s[5], u, v)
-                      and min(s[1], v) - max(s[0], u) >= WINDOW_COVER * (v - u)}
+            own = [s for s in segs if s[6] and _confined(s[4], s[5], u, v)
+                   and min(s[1], v) - max(s[0], u) >= WINDOW_COVER * (v - u)]
+            framed = {s[2] for s in own}
             glass = {o for o in framed if abs(o) < p.t / 2 - GLASS_INSET_M}
             used = [s[3] for s in segs if s[0] < v and s[1] > u and abs(s[2]) < p.t / 2 - BAND_SLACK_M]
             ids = sorted({it.st.id for it in used})
             owned.update(ids)                        # no window without glass, but the lines stay out of furniture
-            if not _framed_glass(framed, glass) and not ctx.raster:
+            corners_f = [(u, p.c - p.t / 2), (v, p.c + p.t / 2)] if p.axis == "h" else \
+                [(p.c - p.t / 2, u), (p.c + p.t / 2, v)]
+            inner_wall = None
+            if exterior is not None and not ctx.raster and _framed_glass(framed, glass):
+                # 6 Nov 2026 (real06 L1, C0064, user: "these windows are not making sense"): real06 draws a wall's
+                # structure on DUVAR and its plaster on SIVA, so the DUVAR pair lies strictly between the faces; on the
+                # short stretches beside the shower room's door, between its frame and a cross wall, that pair ends
+                # at both ends like a window's glass. An inner wall (its stretch touches no outer face of the walls)
+                # gets a window only from a symbol of its own: glass on a line off the wall layers (``wall_face_layer``)
+                fx0, fy0 = corners_f[0]
+                fx1, fy1 = corners_f[1]
+                rect_page = [_rot(q, theta) for q in ((fx0, fy0), (fx1, fy0), (fx1, fy1), (fx0, fy1))]
+                if not exterior(rect_page):
+                    own_glass = {o for o in glass if any(s[2] == o and not wall_face_layer(s[3].st.layer)
+                                                         for s in own)}
+                    if not own_glass:
+                        layers = sorted({str(s[3].st.layer) for s in own if s[2] in glass})
+                        inner_wall = (f"an inner wall: its {len(glass)} 'glass' line(s) along the {v - u:.2f} m stretch "
+                                      f"are the wall's own face lines (layer {', '.join(layers)}), no window symbol of "
+                                      f"its own")
+            if (not _framed_glass(framed, glass) or inner_wall) and not ctx.raster:
                 # Review of the fix round: logged (the core's page notes), never dropped silently.
                 ends = [(u, p.c), (v, p.c)] if p.axis == "h" else [(p.c, u), (p.c, v)]
                 ctx.dropped.append({"kind": "continuous", "class": "none", "rule": "no_glass", "width": round(v - u, 4),
                                     "p0": _out(ends[0], theta), "p1": _out(ends[1], theta),
                                     "thickness": round(p.t, 4), "strokes": ids,
-                                    "note": f"{len(framed)} line(s) of their own along the {v - u:.2f} m stretch, "
-                                            f"{len(glass)} glass between the faces (>= {WINDOW_LINES_MIN} and >= "
-                                            f"{GLASS_MIN_LINES} needed): no window"})
+                                    "note": (f"{inner_wall}: no window" if inner_wall else
+                                             f"{len(framed)} line(s) of their own along the {v - u:.2f} m stretch, "
+                                             f"{len(glass)} glass between the faces (>= {WINDOW_LINES_MIN} and >= "
+                                             f"{GLASS_MIN_LINES} needed): no window")})
+                if inner_wall:
+                    ctx.dropped[-1]["rule"] = "inner_wall_faces"
                 continue
-            corners_f = [(u, p.c - p.t / 2), (v, p.c + p.t / 2)] if p.axis == "h" else \
-                [(p.c - p.t / 2, u), (p.c + p.t / 2, v)]
             bx = ctx.box([_rot(q, theta) for q in corners_f])
             axis_deg = ((0.0 if p.axis == "h" else 90.0) + theta) % 180.0
             out.append(OpeningItem(kind="window", width=round(v - u, 4), center=_r(_rot(centre_f, theta)),
