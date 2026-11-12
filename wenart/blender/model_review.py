@@ -900,6 +900,8 @@ def entrances_make_sense(built: dict, inferred: Optional[dict]) -> tuple[list[di
                     out.append(_v("M8", "major", door, f"the ramp of {', '.join(doors(st))} passes in front of "
                                   f"{door}", room_of.get(door), ramp_of=doors(st)))
         for door in sorted(garages):
+            if door in own and st.get("solution") == "drive":
+                continue                    # 12 Nov 2026: its drive (levels.rules.drive_for), no steps
             if door in own:
                 out.append(_v("M8", "major", door, f"{door} leads into a garage or carport, and steps and a landing "
                               f"stand in front of it: a car cannot drive in", room_of.get(door), steps_of=doors(st)))

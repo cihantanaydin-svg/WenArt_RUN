@@ -28,7 +28,7 @@ BUILTIN_PARAMS = {
     "tread_min": 0.28, "step_rule": [0.58, 0.66], "landing_depth": 1.20, "landing_extra_width": 0.60,
     "landing_every_risers": 12, "handrail_from": 0.45, "cheek_wall_from": 0.45,
     "ramp_slopes": [[0.15, 0.0833], [0.50, 0.0714], [1.00, 0.0625], [99.0, 0.05]], "ramp_handrail_from": 0.15,
-    "ramp_width": 1.20, "door_into_air": 1.50, "door_ground_reach": 5.0, "door_mark_reach": 1.5, "ground_reach": 25.0,
+    "ramp_width": 1.20, "drive_slope": 0.12, "drive_extra_width": 0.60, "door_into_air": 1.50, "door_ground_reach": 5.0, "door_mark_reach": 1.5, "ground_reach": 25.0,
     "ground_outlier": 3.0, "room_offset_max": 1.0, "plane_residual": 0.10, "terrain_blend": 20.0, "plinth_min": 0.15,
     "mark_tol": 0.02, "parapet": 0.30,
 }
@@ -101,6 +101,18 @@ def steps_for(rise: float, width: float, params: dict, outdoor: bool = True) -> 
             "width": _r(width), "handrails": rise > float(params["handrail_from"]),
             "cheek_walls": rise > float(params["cheek_wall_from"]),
             "run": _r((n - len(flights)) * tread + (len(flights) - 1) * float(params["landing_depth"]))}
+
+
+def drive_for(rise: float, width: float, params: dict) -> Optional[dict]:
+    """12 Nov 2026 (real07, user correction C0045: "a car should be able to enter and exit"): the drive of a garage
+    door ``rise`` above the ground: a ramp straight out from the door, the door's ``width`` + ``drive_extra_width``
+    wide, at ``drive_slope``; no landing, no handrails. None for a flush rise."""
+    if rise <= float(params["flush_max"]):
+        return None
+    slope = float(params["drive_slope"])
+    return {"slope": _r(slope, 4), "ratio": f"1:{round(1.0 / slope):d}", "length": _r(rise / slope),
+            "width": _r(width + float(params["drive_extra_width"])), "handrails": False, "along": "straight_out",
+            "drive": True}
 
 
 def ramp_for(rise: float, params: dict) -> Optional[dict]:

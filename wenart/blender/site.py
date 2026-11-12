@@ -1553,6 +1553,19 @@ def record_steps(e: dict, face, keep_out: Sequence = (), building: Sequence = ()
     def at(s: float, d: float, z: float) -> tuple[float, float, float]:
         return (face[0] + u[0] * s + o[0] * d, face[1] + u[1] * s + o[1] * d, z)
 
+    if rec.get("solution") == "drive" and ramp:
+        # 12 Nov 2026 (real07, user correction C0045 "a car should be able to enter and exit"): a garage door's drive
+        # runs straight out from the door face, centred on it, from the door's floor down to the ground; no landing,
+        # no handrails (``levels.rules.drive_for``)
+        hw2, length = float(ramp["width"]) / 2.0, float(ramp["length"])
+        # ramp_solid's order: the first and the last corner at the door (z_start), the middle two at the far end
+        poly = [at(s, dd, 0.0)[:2] for s, dd in ((-hw2, 0.0), (-hw2, length), (hw2, length), (hw2, 0.0))]
+        out["ramp"] = {"polygon": poly, "z_start": top, "z_end": ground, "s": [-hw2, hw2], "d": [0.0, length],
+                       "length": length, "slope": ramp.get("slope"), "placement": "straight out from the door (a drive)",
+                       "reason": "", "clear": True, "drive": True}
+        out.update(end=length, solution="drive")
+        return out
+
     def side_cheeks(d0: float, d1: float, z_top: float) -> None:
         if st and st.get("cheek_walls"):
             for s0, s1 in ((half_w, half_w + CHEEK["thickness"]), (-half_w - CHEEK["thickness"], -half_w)):
@@ -2833,7 +2846,7 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
     # one flight, a ramp keeps clear of the other doors (entrance_layout)
     layout = entrance_layout(ents, outline)
     steps = layout["steps"]
-    out["steps"] = [s for s in steps.values() if s["blocks"]]
+    out["steps"] = [s for s in steps.values() if s["blocks"] or s.get("solution") == "drive"]   # a drive: a ramp only
     out["entrance_groups"] = layout["groups"]
     for s in out["steps"]:
         if s.get("step_up") or s.get("level_threshold"):

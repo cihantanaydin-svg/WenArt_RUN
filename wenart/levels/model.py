@@ -62,7 +62,7 @@ from wenart.levels import terrain as T
 
 # 28 Oct 2026: the pure rules live in wenart.levels.rules (the build reads them without the sheet pipeline)
 from wenart.levels.rules import (BUILTIN_PARAMS, _brief_values, _default_params,  # noqa: F401
-                                 level_params, ramp_for, steps_for)
+                                 drive_for, level_params, ramp_for, steps_for)
 
 GROUND_KINDS = ("ground_natural", "ground_finished", "slope_top")
 FLOOR_KINDS = ("floor", "entrance")
@@ -316,16 +316,45 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
             continue
         old = float(lv.get("elevation") or 0.0)
         if abs(best - old) > tol:
+            # 12 Nov 2026 (review of the reader targets, real07: a stair-landing mark taken as the datum moved both
+            # floors 1.5 m down while their slabs stayed): a level keeps its place among the storeys, so marks that
+            # would put it on or under the level below (or on or over the level above) are no floor marks of it
+            below, above = _neighbour_elevations(b, lv)
+            if (below is not None and best <= below + tol) or (above is not None and best >= above - tol):
+                warnings.append(f"level {lv['id']}: its floor marks read {best:+.2f} m, out of the storeys' order "
+                                f"(level below {'none' if below is None else f'{below:+.2f}'}, above "
+                                f"{'none' if above is None else f'{above:+.2f}'}): the elevation {old:+.2f} m is kept")
+                continue
             warnings.append(f"level {lv['id']}: elevation {old:+.2f} m (assumed) -> {best:+.2f} m from "
                             f"{counts[best]} floor mark(s)")
             inferred.append({"item": f"level {lv['id']} elevation", "value": best,
                              "reason": f"{counts[best]} of {len(zs)} floor marks in its rooms read {best:+.2f}"})
+            # the slab under the level moves with it: the slab is built at its top and the floors at the level
+            # (blender.shell.slab_plan), so a level moved without its slab gets walls up to a slab in its rooms
+            for sl in b.get("slabs") or []:
+                if isinstance(sl, dict) and sl.get("above_level_id") == lv["id"] and sl.get("z_top") is not None \
+                        and abs(float(sl["z_top"]) - best) > tol:
+                    warnings.append(f"slab {sl.get('id')}: z_top {float(sl['z_top']):+.2f} m -> {best:+.2f} m with "
+                                    f"level {lv['id']}")
+                    sl["z_top"] = _r(best)
         lv["elevation"] = _r(best)
         lv["elevation_source"] = "level_mark"
         for m in marks:
             if m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms and m.get("z") is not None \
                     and abs(m["z"] - best) <= tol:
                 _use(m, f"level_elevation:{lv['id']}")
+
+
+def _neighbour_elevations(b: dict, lv: dict) -> tuple[Optional[float], Optional[float]]:
+    """The elevations of the base levels right below and right above ``lv`` (by ``order``), None where there is none."""
+    order = lv.get("order")
+    if order is None:
+        return None, None
+    others = [(int(o["order"]), float(o.get("elevation") or 0.0)) for o in base_levels(b)
+              if o is not lv and o.get("order") is not None and o.get("elevation") is not None]
+    below = [e for o, e in others if o < int(order)]
+    above = [e for o, e in others if o > int(order)]
+    return (max(below) if below else None), (min(above) if above else None)
 
 
 def _room_floors(b: dict, marks: list, params: dict, conflicts: list, warnings: list) -> None:
@@ -755,6 +784,16 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                              f"stair or no entrance, to decide" +
                              ("; on an upper floor: a French balcony or a balcony not drawn" if rec["upper_floor"]
                               else ""))
+        elif is_garage_door(o, room):
+            # 12 Nov 2026 (real07, user correction C0045 "a car should be able to enter and exit"; the levels gave its
+            # sectional door steps 0.50 m high): a garage door's entrance is a drive down to the ground, never steps
+            rec["ramp"] = drive_for(rise, width, params)
+            rec["solution"] = "drive"
+            rec["reason"] = (f"{rise:.2f} m above the ground ({gsrc}): a garage door: a drive {rec['ramp']['ratio']} "
+                             f"{rec['ramp']['length']:.2f} m straight out, {rec['ramp']['width']:.2f} m wide (inferred)")
+            if o["id"] in ramp_doors:
+                rec["drawn"] = True
+                rec["reason"] += "; a drawn ramp in front of the door"
         else:
             st = steps_for(rise, width + float(params["landing_extra_width"]), params)
             rec["steps"] = st
@@ -780,7 +819,8 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                               f"{float(space['z']):+.2f} m: the {space['kind']} is its landing ({how}); no steps of "
                               f"its own (inferred)")
         agent = overrides.get(o["id"])
-        if isinstance(agent, dict) and not rec["into_air"] and not rec["below_ground"] and space is None:
+        if isinstance(agent, dict) and not rec["into_air"] and not rec["below_ground"] and space is None \
+                and rec["solution"] != "drive":
             _apply_entrance_override(rec, agent, max(rise, 0.0), top, width, params)
         rec["evidence"].append(_evidence(file, "entrance", rec["reason"]))
         out.append(rec)
@@ -790,7 +830,7 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
         main, why = main_entrance(b, usable, marks)
         main["main"] = True
         main["main_reason"] = why
-        if brief_ramp and main["solution"] == "steps":
+        if brief_ramp and main["solution"] == "steps":   # (a drive is no steps)
             rise = main["rise"]
             main["ramp"] = ramp_for(rise, params)
             main["solution"] = "steps_and_ramp"
@@ -917,6 +957,19 @@ def main_entrance(b: dict, usable: Sequence[dict], marks: Sequence[dict]) -> tup
         why += f"; {len(ranked) - 1} other outside door(s): " + ", ".join(
             f"{e['door_id']} (tier {k[0]})" for k, e, _w in ranked[1:])
     return main, why
+
+
+GARAGE_DOOR_TYPES = ("garage_sectional", "garage", "garage_door", "sectional", "roller", "up_and_over")
+
+
+def is_garage_door(o: dict, room: Optional[dict]) -> bool:
+    """Whether an outside door is a garage door (pure; 12 Nov 2026): its ``door_type`` is a garage door's, or it leads
+    into a garage room (``blender.site.room_role``) and is wide enough for a car (at least 2.0 m)."""
+    from wenart.blender import site as S
+
+    if str(o.get("door_type") or "").lower() in GARAGE_DOOR_TYPES:
+        return True
+    return S.room_role(room) == "garage" and float(o.get("width") or 0.0) >= 2.0
 
 
 def _apply_entrance_override(rec: dict, agent: dict, rise: float, top: float, width: float, params: dict) -> None:

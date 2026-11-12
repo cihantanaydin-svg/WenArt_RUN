@@ -425,3 +425,138 @@ def test_the_reader_and_the_checker_share_the_area_table():
     assert LB.sub_space_type("Asansör Makina Dairesi", "shaft") is None
     assert LB.sub_space_type("WC", "wc") == "wc" and LB.sub_space_type("Banyo-wc", "wc") is None
     assert LB.sub_space_type("Vestiyer", "other") == "closet" and LB.sub_space_type("Salon", "living") is None
+
+
+# --------------------------------------------------------------------------
+# Review of 12 Nov 2026, item 1 (real07): storey marks on their floor lines, slabs follow, a garage door's drive
+# --------------------------------------------------------------------------
+
+def _mark_section(landing: bool = True):
+    """A section 12 m wide (units: cm): the storey marks ±0.00 (ground), +0.50 (ZEMİN KAT) and +3.50 (I.KAT) in both
+    columns beside the cut on their floor and slab lines, the eaves +6.50; a stair-landing mark +2.00 inside the cut
+    on a 1.2 m landing line; the storey names in the middle of their storeys."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic.model import Stroke
+    from wenart.sheets.model import Txt
+
+    h = 15.0
+    strokes, texts = [], []
+
+    def line(x0, x1, y):
+        strokes.append(Stroke(id=f"L{len(strokes)}", kind="line", pts=[(x0, y), (x1, y)]))
+
+    def mark(x, y, text):
+        # the mark's triangle: two short sloped strokes meeting at their lowest point (the apex) on the line
+        strokes.append(Stroke(id=f"T{len(strokes)}", kind="line", pts=[(x, y), (x - 10.0, y + 12.0)]))
+        strokes.append(Stroke(id=f"T{len(strokes)}", kind="line", pts=[(x, y), (x + 10.0, y + 12.0)]))
+        texts.append(Txt(id=f"m{len(texts)}", text=text, box=(x - 25.0, y + 14.0, x + 25.0, y + 14.0 + h), height=h))
+
+    line(-300.0, 1500.0, 0.0)                              # the ground line
+    line(0.0, 1200.0, 50.0)                                # the ground floor's slab
+    line(0.0, 1200.0, 350.0)                               # the 1st floor's slab
+    line(0.0, 1200.0, 650.0)                               # the roof
+    for x in (-150.0, 1350.0):                             # the two mark columns beside the cut
+        line(x - 60.0, x + 60.0, 0.0)
+        for y, t in ((0.0, "±0.00"), (50.0, "+0.50"), (350.0, "+3.50"), (650.0, "+6.50")):
+            mark(x, y, t)
+    if landing:
+        line(500.0, 620.0, 200.0)                          # the half landing (1.2 m)
+        mark(560.0, 200.0, "+2.00")
+    texts.append(Txt(id="n0", text="ZEMİN KAT", box=(300.0, 210.0, 420.0, 225.0), height=h))
+    texts.append(Txt(id="n1", text="I.KAT", box=(300.0, 500.0, 380.0, 515.0), height=h))
+    return SimpleNamespace(id="r5", texts=texts, use="heights", cls="section", strokes=lambda: list(strokes))
+
+
+def test_a_section_names_its_storeys_by_the_marks_on_their_floor_lines_never_a_landing_mark():
+    from wenart.sheets import levels as LV
+
+    got = LV.storey_elevations([_mark_section()])
+    assert got[0] == 0.5 and got[1] == 3.5                 # not the landing's +2.00 under 'ZEMİN KAT'
+    sec = _mark_section()
+    assert sorted(set(LV.floor_marks(sec, __import__("wenart.sheets.units_check", fromlist=["x"]).mark_texts(
+        sec.texts), 0.0, 0.01))) == [0.0, 0.5, 3.5, 6.5]
+    # without strokes (an old sheets reading) every mark counts, as before
+    from types import SimpleNamespace
+    assert LV.floor_marks(SimpleNamespace(texts=sec.texts), [], 0.0, 0.01) == []
+
+
+def test_the_datum_from_the_storey_marks_is_the_ground_floors_floor_mark():
+    from wenart.sheets import heights as HT
+    from wenart.sheets import levels as LV
+
+    storey_el = LV.storey_elevations([_mark_section()])
+    levels = [{"id": "L0", "order": 0, "kind": "floor"}, {"id": "L1", "order": 1, "kind": "floor"}]
+    out = {"levels": [], "slabs": [{"between": [None, "L0"]}, {"between": ["L0", "L1"]}]}
+    HT.apply_storey_marks(out, levels, storey_el, 0.2, "x.dwg", "r5")
+    assert out["datum"]["relative"] == 0.5
+    assert {e["level_id"]: e["floor_z"]["value"] for e in out["levels"]} == {"L0": 0.0, "L1": 3.0}
+    assert [s["z_top"]["value"] for s in out["slabs"]] == [0.0, 3.0]
+
+
+def test_a_level_moved_by_its_floor_marks_takes_its_slab_and_keeps_its_place_among_the_storeys():
+    from tests import _levels_fixture as F
+    from wenart.levels import model as M
+
+    b = F.building(label="1. Kat", order=1, elevation=3.0)
+    b["levels"].insert(0, dict(b["levels"][0], id="L00", order=0, elevation=0.0, label="Zemin Kat"))
+    b["slabs"] = [{"id": "sl_L00", "below_level_id": None, "above_level_id": "L00", "z_top": 0.0},
+                  {"id": "sl_L0", "below_level_id": "L00", "above_level_id": "L0", "z_top": 3.0}]
+    b["level_marks"] = [F.mark("lm_001", 3.20, kind="floor", point=(3.0, 4.0), room_id="r_living"),
+                        F.mark("lm_002", 3.20, kind="floor", point=(8.0, 4.0), room_id="r_hall")]
+    n = M.infer_levels(b)
+    assert next(x for x in n["levels"] if x["id"] == "L0")["elevation"] == 3.2
+    assert {s["id"]: s["z_top"] for s in n["slabs"]} == {"sl_L00": 0.0, "sl_L0": 3.2}
+    assert any("slab sl_L0" in w for w in n["level_inference"]["warnings"])
+    # marks that would put the 1st floor on or under the ground floor are no floor marks of it
+    for m in b["level_marks"]:
+        m["value"] = m["z"] = -0.5
+    n = M.infer_levels(b)
+    assert next(x for x in n["levels"] if x["id"] == "L0")["elevation"] == 3.0
+    assert {s["id"]: s["z_top"] for s in n["slabs"]} == {"sl_L00": 0.0, "sl_L0": 3.0}
+    assert any("out of the storeys' order" in w for w in n["level_inference"]["warnings"])
+
+
+def _garage_building(rise: float = 0.5, width: float = 2.5, rtype: str = "garage", label: str = "Garaj"):
+    from tests import _levels_fixture as F
+
+    b = F.building()
+    b["project"]["brief"] = {"levels": {"ground_rise": rise}}
+    b["rooms"][1].update(room_type=rtype, label=label, label_raw=label.upper())
+    b["openings"][0]["width"] = width
+    return b
+
+
+def test_a_garage_door_gets_a_drive_down_to_the_ground_never_steps():
+    from wenart.blender import site as S
+    from wenart.levels import checks as LC
+    from wenart.levels import model as M
+
+    b = M.infer_levels(_garage_building())
+    e = next(x for x in b["site"]["entrances"] if x["door_id"] == "d_front")
+    assert e["solution"] == "drive" and e["steps"] is None and e["landing"] is None
+    assert e["ramp"]["drive"] is True and e["ramp"]["slope"] == 0.12 and e["ramp"]["width"] == 3.1
+    assert e["ramp"]["length"] == pytest.approx(0.5 / 0.12, abs=1e-3) and e["ramp"]["handrails"] is False
+    assert not [v for v in LC.check_levels(b) if v.get("target") == "d_front" or v.get("element_id") == "d_front"]
+    # the site builds it straight out from the door, centred, from the floor down to the ground; no landing
+    ent = {"opening_id": "d_front", "centre": [8.0, 0.0], "outward": [0.0, -1.0], "half_t": 0.1, "width": 2.5,
+           "bottom": 0.0, "ground_z": -0.5, "rise": 0.5, "record": e}
+    st = S.entrance_steps(ent)
+    assert st["solution"] == "drive" and st["blocks"] == [] and st["rails"] == []
+    poly = st["ramp"]["polygon"]
+    assert st["ramp"]["z_start"] == 0.0 and st["ramp"]["z_end"] == -0.5
+    ys = sorted({round(p[1], 3) for p in poly})
+    xs = sorted({round(p[0], 3) for p in poly})
+    assert ys == [round(-0.1 - 0.5 / 0.12, 3), -0.1] and xs == [6.45, 9.55]
+    assert round(poly[0][1], 3) == -0.1 and round(poly[-1][1], 3) == -0.1     # ramp_solid: z_start at the door
+    # a narrow door into a garage (a person's door) keeps its steps; a garage door type always drives
+    assert _ent_solution(_garage_building(width=0.9)) == "steps"
+    b2 = _garage_building(width=0.9, rtype="storage", label="Depo")
+    b2["openings"][0]["door_type"] = "garage_sectional"
+    assert _ent_solution(b2) == "drive"
+
+
+def _ent_solution(b):
+    from wenart.levels import model as M
+
+    return next(x for x in M.infer_levels(b)["site"]["entrances"] if x["door_id"] == "d_front")["solution"]
