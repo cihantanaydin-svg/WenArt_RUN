@@ -404,7 +404,8 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         if sub is not None:
             # 6 Nov 2026 (reader target 5): a small room's label names only its own sub-space of a much larger face
             other = (f"the label '{labels[sub['keep'][0]].text}' names the face" if sub["keep"] else
-                     "the face is left unnamed for the architect")
+                     "the face is left unnamed")
+            other += " (the small room is kept as a sub-space to read: twins, else RC14)"
             k0 = sub["index"]
             anchor = label_points[k0] if k0 < len(label_points) and label_points[k0] is not None else None
             # 12 Nov 2026 (review, real11 A2 / A-L1): the small label is kept on the face as a sub-space still to read

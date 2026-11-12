@@ -290,9 +290,21 @@ def whole_single_level(building: dict, params: dict, brief: Optional[dict], infe
 # The steps of infer_levels
 # --------------------------------------------------------------------------
 
+STOREY_MIN_M = 2.0             # 12 Nov 2026: two storeys stand at least this far apart (a floor of rooms and its slab)
+
+
 def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnings: list) -> None:
-    """Step 2: an assumed level elevation from the most common floor mark in its rooms."""
+    """Step 2: an assumed level elevation from the most common floor mark in its rooms.
+
+    12 Nov 2026 (review of the reader targets; real07: a stair-landing mark taken as the datum moved both floors 1.5 m
+    down while their slabs stayed; real11: L6's '+0.00' would put the 7th storey on the ground, L-1's '-0.50' half a
+    metre under the ground floor): the moves are proposed first and kept only while every storey stays at least
+    ``STOREY_MIN_M`` above the one below it (by ``order``, with the other levels' kept or proposed elevations); a
+    refused move is a warning. A level that moves takes the slab under it along (the slab is built at its top, the
+    floors at the level: ``blender.shell.slab_plan``)."""
     tol = float(params["mark_tol"])
+    gl = ground_level(b)
+    proposed: dict = {}
     for lv in base_levels(b):
         if lv.get("elevation_source") not in (None, "assumed_default"):
             continue
@@ -307,54 +319,60 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
             counts[round(z, 2)] = counts.get(round(z, 2), 0) + 1
         best = max(counts, key=lambda z: (counts[z], -abs(z - float(lv.get("elevation") or 0.0))))
         old = float(lv.get("elevation") or 0.0)
-        gl = ground_level(b)
         if gl is not None and lv["id"] == gl["id"] and abs(best - old) > tol and \
                 (counts[best] < 2 or counts[best] * 2 < len(zs)):
             # the ground floor (building z 0 by convention) moves only when most of its floor marks agree
             listed = ", ".join(f"{z:+.2f}" for z in sorted(counts))
             warnings.append(f"level {lv['id']}: its floor marks disagree ({listed}); the elevation {old:+.2f} m is kept")
             continue
-        old = float(lv.get("elevation") or 0.0)
-        if abs(best - old) > tol:
-            # 12 Nov 2026 (review of the reader targets, real07: a stair-landing mark taken as the datum moved both
-            # floors 1.5 m down while their slabs stayed): a level keeps its place among the storeys, so marks that
-            # would put it on or under the level below (or on or over the level above) are no floor marks of it
-            below, above = _neighbour_elevations(b, lv)
-            if (below is not None and best <= below + tol) or (above is not None and best >= above - tol):
-                warnings.append(f"level {lv['id']}: its floor marks read {best:+.2f} m, out of the storeys' order "
-                                f"(level below {'none' if below is None else f'{below:+.2f}'}, above "
-                                f"{'none' if above is None else f'{above:+.2f}'}): the elevation {old:+.2f} m is kept")
+        proposed[lv["id"]] = (lv, best, counts, zs, rooms)
+    # the storeys' order: a move that brings a storey nearer than STOREY_MIN_M to its neighbour is refused, again
+    # until no refusal changes the others
+    ordered = sorted((lv for lv in base_levels(b) if lv.get("order") is not None), key=lambda x: int(x["order"]))
+    refused: dict = {}
+    changed = True
+    while changed:
+        changed = False
+        z_of = {lv["id"]: (proposed[lv["id"]][1] if lv["id"] in proposed and lv["id"] not in refused
+                           else float(lv.get("elevation") or 0.0)) for lv in ordered}
+        for k, lv in enumerate(ordered):
+            if lv["id"] not in proposed or lv["id"] in refused:
                 continue
-            warnings.append(f"level {lv['id']}: elevation {old:+.2f} m (assumed) -> {best:+.2f} m from "
+            z = z_of[lv["id"]]
+            below = z_of[ordered[k - 1]["id"]] if k > 0 else None
+            above = z_of[ordered[k + 1]["id"]] if k + 1 < len(ordered) else None
+            if abs(z - float(lv.get("elevation") or 0.0)) <= tol:
+                continue
+            if (below is not None and z < below + STOREY_MIN_M - tol) or \
+                    (above is not None and z > above - STOREY_MIN_M + tol):
+                refused[lv["id"]] = (below, above)
+                changed = True
+                break
+    for lid, (lv, best, counts, zs, rooms) in proposed.items():
+        old = float(lv.get("elevation") or 0.0)
+        if lid in refused:
+            below, above = refused[lid]
+            warnings.append(f"level {lid}: its floor marks read {best:+.2f} m, out of the storeys' order (at least "
+                            f"{STOREY_MIN_M:.1f} m between storeys; level below {'none' if below is None else f'{below:+.2f}'}"
+                            f", above {'none' if above is None else f'{above:+.2f}'}): the elevation {old:+.2f} m is kept")
+            continue
+        if abs(best - old) > tol:
+            warnings.append(f"level {lid}: elevation {old:+.2f} m (assumed) -> {best:+.2f} m from "
                             f"{counts[best]} floor mark(s)")
-            inferred.append({"item": f"level {lv['id']} elevation", "value": best,
+            inferred.append({"item": f"level {lid} elevation", "value": best,
                              "reason": f"{counts[best]} of {len(zs)} floor marks in its rooms read {best:+.2f}"})
-            # the slab under the level moves with it: the slab is built at its top and the floors at the level
-            # (blender.shell.slab_plan), so a level moved without its slab gets walls up to a slab in its rooms
             for sl in b.get("slabs") or []:
-                if isinstance(sl, dict) and sl.get("above_level_id") == lv["id"] and sl.get("z_top") is not None \
+                if isinstance(sl, dict) and sl.get("above_level_id") == lid and sl.get("z_top") is not None \
                         and abs(float(sl["z_top"]) - best) > tol:
                     warnings.append(f"slab {sl.get('id')}: z_top {float(sl['z_top']):+.2f} m -> {best:+.2f} m with "
-                                    f"level {lv['id']}")
+                                    f"level {lid}")
                     sl["z_top"] = _r(best)
         lv["elevation"] = _r(best)
         lv["elevation_source"] = "level_mark"
         for m in marks:
             if m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms and m.get("z") is not None \
                     and abs(m["z"] - best) <= tol:
-                _use(m, f"level_elevation:{lv['id']}")
-
-
-def _neighbour_elevations(b: dict, lv: dict) -> tuple[Optional[float], Optional[float]]:
-    """The elevations of the base levels right below and right above ``lv`` (by ``order``), None where there is none."""
-    order = lv.get("order")
-    if order is None:
-        return None, None
-    others = [(int(o["order"]), float(o.get("elevation") or 0.0)) for o in base_levels(b)
-              if o is not lv and o.get("order") is not None and o.get("elevation") is not None]
-    below = [e for o, e in others if o < int(order)]
-    above = [e for o, e in others if o > int(order)]
-    return (max(below) if below else None), (min(above) if above else None)
+                _use(m, f"level_elevation:{lid}")
 
 
 def _room_floors(b: dict, marks: list, params: dict, conflicts: list, warnings: list) -> None:
