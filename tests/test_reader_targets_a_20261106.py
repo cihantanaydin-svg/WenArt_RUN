@@ -1116,3 +1116,22 @@ def test_one_garage_door_predicate_a_drive_path_as_wide_as_the_drive_and_no_over
     bb = _garage_building(width=2.5, rtype="storage", label="Depo")
     bb["openings"][0]["door_type"] = "garage_sectional"
     assert S.entrance_threshold(flush, bb)["kind"] == "keep"
+
+
+def test_every_small_label_of_a_face_is_its_own_sub_space_whatever_the_reading_order():
+    from wenart.ingest import rooms as R
+
+    walls = _box_walls(0, 0, 4.2, 4.2)                     # 14.4 m2 holding a stair
+    for items in ((("Merdiven Holü", (2.5, 3.6)), ("Asansör", (1.0, 1.0))),
+                  (("Asansör", (1.0, 1.0)), ("Merdiven Holü", (2.5, 3.6)))):
+        labels, points = _labels(*items)
+        res = R.derive_rooms("L0", walls, labels, points, None, "p.dxf", stairs=[_stair(2.5, 2.5)])
+        assert [r["label"] for r in res.rooms] == ["Merdiven Holü"]
+        assert [s["label"] for s in res.rooms[0]["sub_spaces"]] == ["Asansör"]
+    labels, points = _labels(("Asansör", (1.0, 1.0)), ("Asansör", (3.2, 1.0)), ("WC", (1.0, 3.2)))
+    res = R.derive_rooms("L0", walls, labels, points, None, "p.dxf", stairs=[_stair(2.5, 2.5)],
+                         unlabelled_label="Oda", face_type=lambda poly: ("hall", "unlabelled"))
+    subs = res.rooms[0]["sub_spaces"]
+    assert sorted(s["type"] for s in subs) == ["lift", "lift", "wc"] and len(res.sub_space_labels) == 3
+    assert sum("names only its own sub-space" in w for w in res.warnings) == 3
+

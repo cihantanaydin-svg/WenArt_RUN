@@ -229,37 +229,40 @@ CAVITY_WIDTH_M = 0.24     # real10: an unlabelled face no 24 cm strip fits into 
 
 
 def _sub_space(labels: list, indices: list, shp: Polygon, stairs) -> Optional[dict]:
-    """6 Nov 2026 (reader target 5): when the label naming a face is of a small type (a lift, a shaft, a WC, a closet:
-    ``labels.SUB_SPACE_TYPES``), the face is at least ``labels.SUB_SPACE_FACTOR`` times that type's largest area
-    (``labels.AREA_RANGES``) and it also holds a stair or the label of another kind of room, the small label names
-    only its own sub-space (its walls are not read): ``{"small", "max_m2", "label", "keep", "stair"}`` with ``keep``
-    the label indices that name the face instead (another kind's label first), [] when the face stays unnamed; None
-    when the rule does not apply."""
+    """6 Nov 2026 (reader target 5): a label of a small type (a lift, a shaft, a WC, a closet: ``labels.SUB_SPACE_TYPES``)
+    in a face at least ``labels.SUB_SPACE_FACTOR`` times that type's largest area (``labels.AREA_RANGES``) that also
+    holds a stair or the label of another kind of room names only its own sub-space (its walls are not read).
+    12 Nov 2026 (round-2 review, CODE-A3): every such small label of the face counts, whatever the reading order (two
+    lifts, a lift and a WC), each its own sub-space; the face is named by its first label of another kind.
+    ``{"subs": [{"small", "max_m2", "label", "index"}], "keep", "stair"}`` with ``keep`` the label indices that name the
+    face ([] when it stays unnamed); None when the rule does not apply."""
     from wenart.ingest.generic import labels as LB
 
-    if not indices or getattr(labels[indices[0]], "block", None) is None:
+    if not indices or any(getattr(labels[k], "block", None) is None for k in indices[:1]):
         return None
     face_area, aspect = _face_size(shp)
-    first = labels[indices[0]].block
-    small = LB.sub_space_type(first.name, LB.room_type_for(first.name, face_area, aspect)[0])
-    if small is None:
-        return None
-    hi = LB.AREA_RANGES[small][1]
-    if face_area < LB.SUB_SPACE_FACTOR * hi:
-        return None
 
     def kind(k: int) -> Optional[str]:
         blk = getattr(labels[k], "block", None)
         name = blk.name if blk is not None else labels[k].text
         return LB.sub_space_type(name, LB.room_type_for(name, face_area, aspect)[0])
 
-    others = [k for k in indices[1:] if kind(k) is None]
-    different = others or [k for k in indices[1:] if kind(k) != small]
-    stair = any(shp.contains(ShapelyPoint(s.center if hasattr(s, "center") else s["center"])) for s in stairs or ())
-    if not different and not stair:
+    kinds = {k: kind(k) for k in indices}
+    subs = [k for k in indices if kinds[k] is not None and face_area >= LB.SUB_SPACE_FACTOR * LB.AREA_RANGES[kinds[k]][1]]
+    if not subs:
         return None
-    keep = [others[0]] + [k for k in indices if k != others[0]] if others else []
-    return {"small": small, "max_m2": hi, "label": first.name, "keep": keep, "stair": stair, "index": indices[0]}
+    others = [k for k in indices if kinds[k] is None]
+    stair = any(shp.contains(ShapelyPoint(s.center if hasattr(s, "center") else s["center"])) for s in stairs or ())
+    if not others and not stair and len({kinds[k] for k in subs}) < 2:
+        return None
+    keep = [others[0]] + [k for k in others[1:]] if others else []
+    keep += [k for k in indices if kinds[k] is not None and k not in subs]   # small labels the face may still be
+    out = []
+    for k in subs:
+        blk = getattr(labels[k], "block", None)
+        out.append({"small": kinds[k], "max_m2": LB.AREA_RANGES[kinds[k]][1],
+                    "label": blk.name if blk is not None else labels[k].text, "index": k})
+    return {"subs": out, "keep": keep, "stair": stair}
 
 
 def _area_min(kind: str) -> float:
@@ -401,28 +404,31 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
                 if living and all(kinds[k] in ("living", "hall") for k in indices):
                     indices = [living[0]] + [k for k in indices if k != living[0]]
         sub = _sub_space(labels, indices, shp, stairs)
+        pendings = []
         if sub is not None:
             # 6 Nov 2026 (reader target 5): a small room's label names only its own sub-space of a much larger face
             other = (f"the label '{labels[sub['keep'][0]].text}' names the face" if sub["keep"] else
                      "the face is left unnamed")
             other += " (the small room is kept as a sub-space to read: twins, else RC14)"
-            k0 = sub["index"]
-            anchor = label_points[k0] if k0 < len(label_points) and label_points[k0] is not None else None
-            # 12 Nov 2026 (review, real11 A2 / A-L1): the small label is kept on the face as a sub-space still to read
-            # (``sub_spaces``: its text, type and anchor); a later split gives it its own part (``twins``), else RC14
-            # names it (the small room is not built)
-            pending = {"label": sub["label"], "type": sub["small"], "max_m2": sub["max_m2"],
-                       "min_m2": _area_min(sub["small"]),
-                       "anchor": [round(float(anchor[0]), 4), round(float(anchor[1]), 4)] if anchor else None,
-                       "entity": labels[k0].entity, "face_m2": area}
-            result.sub_space_labels.append({"label": sub["label"], "type": sub["small"], "face_m2": area,
-                                            "max_m2": sub["max_m2"], "stair": sub["stair"],
-                                            "anchor": pending["anchor"],
-                                            "kept": labels[sub["keep"][0]].text if sub["keep"] else None})
-            result.warnings.append(f"{level_id}: '{sub['label']}' names a {sub['small']} (at most {sub['max_m2']:g} "
-                                   f"m²) inside a {area:.1f} m² face that also holds "
-                                   + ("the stair" if sub["stair"] else "another room's label")
-                                   + f": it names only its own sub-space (walls not read); {other}")
+            for sp in sub["subs"]:
+                k0 = sp["index"]
+                anchor = label_points[k0] if k0 < len(label_points) and label_points[k0] is not None else None
+                # 12 Nov 2026 (review, real11 A2 / A-L1): the small label is kept on the face as a sub-space still to
+                # read (``sub_spaces``: its text, type and anchor); a later split gives it its own part (``twins``),
+                # else RC14 names it (the small room is not built)
+                pending = {"label": sp["label"], "type": sp["small"], "max_m2": sp["max_m2"],
+                           "min_m2": _area_min(sp["small"]),
+                           "anchor": [round(float(anchor[0]), 4), round(float(anchor[1]), 4)] if anchor else None,
+                           "entity": labels[k0].entity, "face_m2": area}
+                pendings.append(pending)
+                result.sub_space_labels.append({"label": sp["label"], "type": sp["small"], "face_m2": area,
+                                                "max_m2": sp["max_m2"], "stair": sub["stair"],
+                                                "anchor": pending["anchor"],
+                                                "kept": labels[sub["keep"][0]].text if sub["keep"] else None})
+                result.warnings.append(f"{level_id}: '{sp['label']}' names a {sp['small']} (at most "
+                                       f"{sp['max_m2']:g} m²) inside a {area:.1f} m² face that also holds "
+                                       + ("the stair" if sub["stair"] else "another room's label")
+                                       + f": it names only its own sub-space (walls not read); {other}")
             indices = sub["keep"]
         status = "verified"
         evidence = []
@@ -492,9 +498,10 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         }
         if label_size is not None:
             room["label_size"] = label_size
-        if sub is not None:
-            room["sub_spaces"] = [pending]
-            result.sub_space_labels[-1]["room_id"] = room_id
+        if pendings:
+            room["sub_spaces"] = pendings
+            for rec in result.sub_space_labels[-len(pendings):]:
+                rec["room_id"] = room_id
         result.rooms.append(room)
     return result
 
