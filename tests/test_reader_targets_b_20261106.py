@@ -314,23 +314,56 @@ def test_a_door_high_tag_on_a_text_layer_makes_its_gap_a_door():
     assert got[0].kind == "door" and got[0].width == pytest.approx(1.4) and got[0].height == pytest.approx(2.3)
 
 
-def test_a_wide_or_low_tag_on_a_text_layer_is_no_door():
-    """A '165/210' (real10's kitchen windows, C0055) or a '120/120' on a plain text layer says no door."""
-    from wenart.ingest.generic import core as C
+def _op(kind, w, c, rot=0.0, rule=None, type_raw=None):
     from wenart.ingest.model import OpeningItem
+    ev = {"rule": rule} if rule else {}
+    return OpeningItem(kind=kind, width=w, center=c, rotation_deg=rot, box=[0, 0, 1, 1], entity=f"{kind}{c}",
+                       evidence=ev, type_raw=type_raw)
 
-    gap = OpeningItem(kind="opening", width=1.65, center=(2.0, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="g",
-                      evidence={}, type_raw="unclassified gap content")
-    for text in ("165/210", "120/120"):
-        assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [gap], [_tag(text, 2.0, 0.3, "TEXT")], 1.0) is None
+
+def _gap(w, c, rot=0.0, rule=None):
+    return _op("opening", w, c, rot, rule, "unclassified gap content")
+
+
+def _box(x0, y0, x1, y1):
+    from shapely.geometry import box
+    return box(x0, y0, x1, y1)
+
+
+def test_a_low_tag_on_a_text_layer_is_no_door():
+    from wenart.ingest.generic import core as C
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [_gap(1.2, (2.0, 0.0))],
+                        [_tag("120/120", 2.0, 0.3, "TEXT")], 1.0) is None
+
+
+def test_a_wide_door_high_tag_on_a_text_layer_decides_by_the_wall_not_by_its_width():
+    """review B-OPN-08 (the 150 cm cap fitted between real10's 140/230 door and its 165/210 kitchen windows): a door-high
+    plain tag makes an inner wall's gap a door at any door width (a 170 double door), never a gap in an outer wall
+    (a door-high opening there may be a window)."""
+    from wenart.ingest.generic import core as C
+    outline = _box(0.0, -6.0, 10.0, 0.0)                         # the building lies south of y = 0
+    inner = _gap(1.7, (2.0, -3.0))
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [inner], [_tag("170/210", 2.0, -2.7, "TEXT")], 1.0,
+                       outline=outline)
+    assert got[0].kind == "door" and got[0].width == pytest.approx(1.7)
+    facade = _gap(1.65, (2.0, 0.0))
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [facade], [_tag("165/210", 2.0, -0.3, "TEXT")], 1.0,
+                        outline=outline) is None
+
+
+def test_a_text_layer_tag_leaves_a_gap_with_window_frame_lines_or_far_wider_than_itself():
+    """review B-OPN-01 (real18 L1-L3: the '80/210' of a door the reader missed made the 2.75 m gap of a facade window
+    a 0.80 m door): a gap holding lines along it (a window's frame) or wider than two such doors is not the tag's."""
+    from wenart.ingest.generic import core as C
+    framed = _gap(1.1, (2.0, -3.0), rule="no_glass")
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [framed], [_tag("80/210", 2.4, -2.6, "TEXT")], 1.0) is None
+    wide = _gap(2.75, (2.0, -3.0))
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [wide], [_tag("80/210", 2.4, -2.6, "TEXT")], 1.0) is None
 
 
 def test_a_door_high_tag_on_a_text_layer_leaves_a_drawn_window_alone():
     from wenart.ingest.generic import core as C
-    from wenart.ingest.model import OpeningItem
-
-    win = OpeningItem(kind="window", width=1.2, center=(2.0, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="w",
-                      evidence={})
+    win = _op("window", 1.2, (2.0, 0.0))
     assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [win], [_tag("120/210", 2.0, 0.3, "TEXT")], 1.0) is None
 
 
@@ -338,28 +371,70 @@ def test_a_tag_beside_its_own_door_is_used_up_by_it():
     """real10 (found by the regression set): an '80/210' beside its 0.80 m door went on to the next opening within
     reach, a 0.70 m gap window 1.2 m away, and made it a door; the tag belongs to the door it stands by."""
     from wenart.ingest.generic import core as C
-    from wenart.ingest.model import OpeningItem
-
-    door = OpeningItem(kind="door", width=0.8, center=(8.74, 13.99), rotation_deg=90.0, box=[0, 0, 1, 1], entity="d",
-                       evidence={})
-    gap_win = OpeningItem(kind="window", width=0.7, center=(10.17, 13.72), rotation_deg=0.0, box=[0, 0, 1, 1],
-                          entity="g", evidence={}, type_raw="unclassified gap content")
+    door = _op("door", 0.8, (8.74, 13.99), rot=90.0)
+    gap_win = _op("window", 0.7, (10.17, 13.72), type_raw="unclassified gap content")
     tag = _tag("80/210", 9.02, 13.58, "TEXT")
     assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [door, gap_win], [tag], 1.0) is None
 
 
-def test_a_door_layer_tag_goes_past_a_neighbour_door_of_its_width_to_its_own_gap():
-    """real07 (the regression set): a '90/210' on the joinery layer stands nearer the next door, already 0.90 m, than
-    its own 1.10 m gap; the gap is its door, as before."""
+def test_a_tag_never_resizes_a_door_of_another_width_nearer_than_its_own():
+    """review B-r10-tag (real10 L-1..L6: the flat doors' '90/210' made two crossed shaft boxes, read as 0.43 m doors,
+    0.90 m doors, 16 times): a door further than DOOR_TAG_DOOR_W_M off the tag's width is another door."""
     from wenart.ingest.generic import core as C
-    from wenart.ingest.model import OpeningItem
+    box = _op("door", 0.43, (5.39, 9.19), rot=0.0)
+    own = _op("door", 0.90, (5.69, 9.89), rot=90.0)
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [box, own], [_tag("90/210", 5.19, 9.55, "TEXT")],
+                        1.0) is None
 
-    door = OpeningItem(kind="door", width=0.9, center=(3.0, 3.3), rotation_deg=0.0, box=[0, 0, 1, 1], entity="d",
-                       evidence={})
-    gap = OpeningItem(kind="opening", width=1.1, center=(3.79, 2.79), rotation_deg=90.0, box=[0, 0, 1, 1],
-                      entity="g", evidence={}, type_raw="unclassified gap content")
-    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [door, gap], [_tag("90/210", 3.3, 2.9, "kapi-yazi")], 1.0)
-    assert got[1].kind == "door" and got[1].width == pytest.approx(0.9)
+
+def test_tags_are_matched_nearest_pairs_first_not_in_text_order():
+    """review B-r10-tag-greedy (real10's typical floors): the '100/225' read first stood 0.764 m from the door of the
+    '90/210' and 0.765 m from its own; the '90/210' stands 0.58 m from its door. Nearest pairs first: each tag its own
+    door."""
+    from wenart.ingest.generic import core as C
+    d14 = _op("door", 0.90, (14.96, 6.48), rot=90.0)
+    d19 = _op("door", 1.10, (13.64, 7.24), rot=0.0)
+    tags = [_tag("100/225", 14.343, 6.899, "TEXT"), _tag("90/210", 15.225, 5.968, "TEXT")]
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [d14, d19], tags, 1.0)
+    assert got[0].width == pytest.approx(0.90) and got[1].width == pytest.approx(1.00)
+    assert got[1].height == pytest.approx(2.25)
+
+
+def test_two_tags_never_resize_doors_on_one_spot():
+    """review B-r10-tag-greedy (real10: two copies of one door and another door on one spot took the '90/210' and the
+    '110/230'): a spot takes one tag; the second is logged as two door symbols on one spot."""
+    from wenart.ingest.generic import core as C
+    stack = [_op("door", 0.80, (6.94, 6.387), rot=90.0), _op("door", 1.0, (6.94, 6.387), rot=90.0)]
+    ex = SimpleNamespace(notes=[])
+    got = C._door_tags(ex, "x", [], stack, [_tag("90/210", 7.181, 5.968, "TEXT"), _tag("110/230", 6.712, 5.866, "TEXT")],
+                       1.0)
+    assert sum(1 for o in got if o.type_raw and "size tag" in o.type_raw) == 1
+    assert any("one spot" in n for n in ex.notes)
+
+
+def test_a_door_layer_tag_beside_its_own_door_leaves_a_window_alone():
+    """review B-OPN-02 / B-T1: a door-layer '80/220' beside its 0.80 m balcony door left the door and made the drawn
+    0.90 m window beside it a second door. Its own door is nearer: the tag is used up."""
+    from wenart.ingest.generic import core as C
+    door = _op("door", 0.80, (2.0, 0.0))
+    win = _op("window", 0.90, (3.0, 0.0))
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [door, win], [_tag("80/220", 2.2, 0.3, "kapi-yazi")],
+                        1.0) is None
+    wc_win = _op("window", 0.60, (2.0, 0.0))
+    door2 = _op("door", 0.80, (1.0, 0.0))
+    assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [door2, wc_win], [_tag("80/210", 1.2, 0.25, "kapi-yazi")],
+                        1.0) is None
+
+
+def test_each_door_layer_tag_finds_its_own_gap_beside_a_neighbour_door():
+    """real07 (the regression set): a '90/210' on the joinery layer stands near the next door, already 0.90 m and
+    labelled by its own tag, and near its own 1.10 m gap: the neighbour keeps its tag, the gap takes this one."""
+    from wenart.ingest.generic import core as C
+    door = _op("door", 0.9, (3.0, 3.3))
+    gap = _gap(1.1, (3.79, 2.79), rot=90.0)
+    tags = [_tag("90/210", 3.0, 3.55, "kapi-yazi"), _tag("90/210", 3.5, 2.8, "kapi-yazi")]
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [door, gap], tags, 1.0)
+    assert got[0].width == pytest.approx(0.9) and got[1].kind == "door" and got[1].width == pytest.approx(0.9)
 
 
 def test_a_door_high_tag_on_a_door_layer_decides_door_over_a_drawn_window_of_its_width():
