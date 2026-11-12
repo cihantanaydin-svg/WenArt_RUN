@@ -166,19 +166,46 @@ def test_a_stair_piece_holding_a_chain_takes_what_the_numbers_say():
     assert stair["direction"] == [1.0, 0.0]
 
 
-def test_a_stair_piece_of_other_flights_keeps_its_turn():
-    """real09 (found by the regression set): the stair rule read one straight flight of a U stair numbered 1-17; the
-    numbers give the treads drawn, but no U turn and no winders on one flight."""
-    pts = [(8.835 + 0.27 * k, 6.5735) for k in range(6)]
-    pts += [(10.5749, 6.5264), (10.9874, 6.8261), (11.145, 7.311), (10.9874, 7.7959), (10.5749, 8.0956)]
-    pts += [(10.185 - 0.27 * k, 8.0485) for k in range(6)]
-    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+def _held_plan(stair, chain, strokes=()):
+    """``stair_numbers.enrich`` on a stair-rule piece holding ``chain``, then ``parametric.stair_plan`` at a 3.0 m rise."""
+    from wenart.blender import parametric as P
+    piece = SimpleNamespace(details={"stair": stair}, evidence={}, center=(9.5, 7.3), size=(1.2, 2.5), rotation_deg=0.0)
+    said = SN.enrich(piece, chain, SN.stair_of(chain, list(strokes)))
+    fp = {"center": list(piece.center), "size": list(piece.size), "rotation_deg": piece.rotation_deg}
+    return said, P.stair_plan({"footprint": fp, "stair": stair}, 3.0)
+
+
+def test_a_stair_piece_of_other_flights_takes_the_numbers_when_its_risers_are_too_high():
+    """review B2 FC-03 / B2-ST5 (real09's core stair on four floors, real18 L-2: the stair rule read the straight middle
+    run of a numbered U as one flight of 5-6 lines, built as risers of 0.50 m): the numbers' reading (its flights in
+    order, the winders of its turn, its footprint) replaces the rule's, which is kept as drawn_stair."""
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(_S15_PTS)])[0]
     stair = {"flights": [{"start": [8.97, 6.59], "end": [10.05, 6.59], "width": 1.2, "lines": 5, "spacing": 0.27}],
              "landing": None, "direction": [1.0, 0.0], "direction_assumed": True, "turn": "straight",
              "turn_assumed": True, "reason": "rule"}
-    piece = SimpleNamespace(details={"stair": stair}, evidence={})
+    said, plan = _held_plan(stair, chain, _s15_lines())
+    assert "replace the rule" in said and stair["flights_ordered"] is True
+    assert stair["drawn_stair"]["flights"][0]["lines"] == 5 and stair["adjusted_by_ai"]["by"] == "code"
+    assert plan["risers"] == 17 and plan["riser_m"] <= 0.20
+    # a 6-line rule flight holding a numbered U of 16 (real18 L-2)
+    pts = [(7.0 + 0.26 * k, 8.75) for k in range(8)] + [(8.82 - 0.26 * k, 6.67) for k in range(8)]
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+    stair = {"flights": [{"start": [8.11, 7.075], "end": [6.88, 7.075], "width": 1.0, "lines": 6, "spacing": 0.25}],
+             "landing": None, "direction": [-1.0, 0.0], "direction_assumed": True, "turn": "straight",
+             "turn_assumed": True, "reason": "rule"}
+    _said, plan = _held_plan(stair, chain)
+    assert plan["risers"] == 16 and plan["riser_m"] <= 0.20
+
+
+def test_a_stair_piece_of_other_flights_keeps_them_when_they_climb():
+    """real09 (found by the regression set): a rule piece whose flights give a stair one climbs keeps them; the
+    numbers' other count is noted, not claimed (review B S8)."""
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(_S15_PTS)])[0]
+    stair = {"flights": [{"start": [8.97, 6.59], "end": [12.97, 6.59], "width": 1.2, "lines": 17, "spacing": 0.25}],
+             "landing": None, "direction": [1.0, 0.0], "direction_assumed": True, "turn": "straight",
+             "turn_assumed": True, "reason": "rule"}
+    piece = SimpleNamespace(details={"stair": stair}, evidence={}, center=(9.5, 7.3), size=(1.2, 4.2), rotation_deg=0.0)
     said = SN.enrich(piece, chain, SN.stair_of(chain, []))
-    # review B S8: the 17 treads would reach no built stair (the rule's one flight of 5 lines is built): not claimed
     assert "steps_drawn" not in stair and "winders" not in stair and stair["turn"] == "straight"
     assert "flights_ordered" not in stair and "the rule's flights kept as drawn" in said
 
@@ -862,3 +889,351 @@ def test_a_drawn_door_read_on_a_wall_copy_outranks_the_gap_read_over_it():
     leaves = b([{"method": "vector", "note": "6 leaf/leaves drawn parallel to the wall without a swing arc"}], "sliding")
     TWW.merge_twin_walls(leaves)
     assert [o["id"] for o in leaves["openings"]] == ["o_2"]
+
+
+# --------------------------------------------------------------------------
+# Turns between ordered flights (review B2 CB-1, B2-ST1, B2-ST2, B2-ST3)
+# --------------------------------------------------------------------------
+
+def _treads_covered(plan):
+    """The largest share of a tread's depth any turn covers (a tread: between two nosings across the flight)."""
+    from shapely.geometry import Polygon
+    from wenart.blender import parametric as P
+    worst = 0.0
+    for t in plan.get("turns") or []:
+        tp = Polygon(t["polygon"])
+        for f in plan["flights"]:
+            for n0, n1 in zip(f["nosings"], f["nosings"][1:]):
+                depth = math.dist(n0, n1)
+                tread = P._band(n0, f["rise_dir"], f["width"], 0.0, depth)
+                worst = max(worst, tp.intersection(tread).area / max(f["width"], 1e-9))
+    return worst
+
+
+def _ordered(flights, landing=None, winders=None):
+    from wenart.blender import parametric as P
+    stair = {"flights": flights, "landing": landing, "direction": None, "direction_assumed": False,
+             "flights_ordered": True, "turn_winders": winders or [0] * (len(flights) - 1), "turn_assumed": False}
+    return P.stair_plan({"footprint": {"center": [8.5, 4.5], "size": [3.0, 2.5], "rotation_deg": 0.0},
+                         "stair": stair}, 3.0)
+
+
+def test_a_staggered_u_turn_lies_beyond_the_first_flights_end():
+    """review B2 CB-1 (real07 L0, the stair the user corrected: flight 2 starts one tread behind flight 1's end; the
+    turn was the strip between the two rows, over flight 1's last tread, a 0.30 m step): the half landing lies beyond
+    flight 1's last nosing, the stair's width deep, and covers no tread."""
+    plan = _ordered([{"start": [9.6697, 3.96], "end": [7.4697, 3.96], "width": 0.96, "lines": 9},
+                     {"start": [7.7447, 5.12], "end": [9.8704, 5.12], "width": 0.96, "lines": 9}])
+    (turn,) = plan["turns"]
+    xs = [q[0] for q in turn["polygon"]]
+    assert max(xs) <= 7.7447 + 1e-6 and min(xs) <= 7.4697 - 0.9            # beyond flight 1's end, a width deep
+    assert _treads_covered(plan) <= 0.03
+    f1, f2 = plan["flights"]
+    assert turn["z"] == pytest.approx(f1["top_z"]) and f2["base_z"] == pytest.approx(f1["top_z"])
+
+
+def test_a_u_turn_with_offset_rows_is_a_full_half_landing():
+    """review B2-ST2: arms offset by +-0.10 m: the turn is the stair's width deep beyond both arms, never a strip."""
+    for off in (-0.10, 0.0, 0.10):
+        plan = _ordered([{"start": [0.5, 0.0], "end": [0.5, 1.96], "width": 1.0, "lines": 8},
+                         {"start": [1.6, 1.96 + off], "end": [1.6, 0.0], "width": 1.0, "lines": 8}])
+        (turn,) = plan["turns"]
+        ys = [q[1] for q in turn["polygon"]]
+        assert max(ys) - max(1.96, 1.96 + off) >= 1.0 - 1e-6, off
+        assert _treads_covered(plan) <= 0.03, off
+
+
+def test_a_turn_stops_at_the_wall_beyond_it():
+    """review B2 CB-1: the half landing stops at the first wall (real07: the stair hall's wall 1.05 m past flight 1)."""
+    from wenart.blender import parametric as P
+    stair = {"flights": [{"start": [9.6697, 3.96], "end": [7.4697, 3.96], "width": 0.96, "lines": 9},
+                         {"start": [7.7447, 5.12], "end": [9.8704, 5.12], "width": 0.96, "lines": 9}],
+             "landing": None, "direction": None, "direction_assumed": False, "flights_ordered": True,
+             "turn_winders": [0], "turn_assumed": False}
+    walls = [{"start": [6.52, 3.0], "end": [6.52, 6.0], "thickness": 0.33}]
+    plan = P.stair_plan({"footprint": {"center": [8.5, 4.5], "size": [3.0, 2.5], "rotation_deg": 0.0},
+                         "stair": stair}, 3.0, walls=walls)
+    xs = [q[0] for q in plan["turns"][0]["polygon"]]
+    assert min(xs) == pytest.approx(6.52 + 0.165, abs=1e-3)
+
+
+def test_a_curved_stairs_turns_cover_no_tread():
+    """review B2-ST1 (synthetic-22: each chord's flat turn covered 70 % of the chord's last tread, 4.9 cm left): the
+    tread between two chords lies between their lines."""
+    texts, strokes = _curved()
+    _data, plan = _built(texts, strokes)
+    assert len(plan["turns"]) == 5 and _treads_covered(plan) <= 0.03
+
+
+def test_overlapping_flights_are_named_and_their_turn_stays_off_their_treads():
+    """review B2-ST3 (real18 L3's side stairs: the 3-line arm and the 12-line arm overlap in plan)."""
+    plan = _ordered([{"start": [8.2685, 5.6173], "end": [8.2685, 6.0175], "width": 0.71, "lines": 3},
+                     {"start": [8.3957, 5.9996], "end": [6.2288, 5.9996], "width": 0.70, "lines": 12}])
+    assert any("overlap in plan" in w for w in plan["warnings"])
+    assert _treads_covered(plan) <= 0.03
+
+
+# --------------------------------------------------------------------------
+# Review B2: openings
+# --------------------------------------------------------------------------
+
+def test_a_room_whose_entrance_gap_holds_a_stray_line_keeps_the_inner_wall_guard():
+    """review B2-GEN-01 (real03's living rooms, real07's dining room: their entrances read as 'unclassified gap
+    content' made them light wells): a gap of a door's width is a room's way in, whatever lies in it."""
+    walls = _box_with_inner_wall()
+    stray = _line((4.3, 1.98), (4.6, 2.02), "KAPI")
+    _w, openings, log, _o = O.gaps_and_openings(walls, _wall_lines("DUVAR") + [stray], "t.dxf", 1)
+    assert not [o for o in openings if o.kind == "window"]
+    assert [e for e in log if e.get("rule") == "inner_wall_faces"]
+
+
+def test_a_closed_room_with_a_room_label_is_never_open_to_the_sky():
+    """review B2-GEN-01: no door read into the north room, but its label says it is a room one lives in."""
+    walls = [w for w in _box_with_inner_wall() if w.entity not in ("I1", "I2")]
+    walls.append(R.wall((0.125, 2.0), (5.875, 2.0), t=0.15, entity="I"))
+    _w, openings, log, _o = O.gaps_and_openings(walls, _wall_lines("DUVAR"), "t.dxf", 1, room_points=[(3.0, 3.0)])
+    assert not [o for o in openings if o.kind == "window"]
+    _w, openings, log, _o = O.gaps_and_openings(walls, _wall_lines("DUVAR"), "t.dxf", 1)
+    assert [round(o.width, 2) for o in openings if o.kind == "window"] == [0.8]          # no label: a light well
+
+
+def _framed(walls):
+    """``walls`` inside a frame loop 20 x 20 m (a sheet frame read as walls), well clear of them."""
+    return walls + [R.wall((-7, -7), (13, -7), t=0.1, entity="F1"), R.wall((13, -7), (13, 13), t=0.1, entity="F2"),
+                    R.wall((13, 13), (-7, 13), t=0.1, entity="F3"), R.wall((-7, 13), (-7, -7), t=0.1, entity="F4")]
+
+
+def test_a_frame_loop_round_the_building_makes_no_inner_wall_outer_and_no_outer_wall_inner():
+    """review B2 FC-02 (real15: the sheet frame read as walls, its hole holding the balconies' labels, switched the
+    inner-wall rule off for whole levels): faces, not holes; the ground between the frame and the building is outside."""
+    walls = _framed(_box_with_inner_wall())
+    _w, openings, log, _o = O.gaps_and_openings(walls, _wall_lines("DUVAR"), "t.dxf", 1, outdoor_points=[(9.0, 2.0)])
+    assert not [o for o in openings if o.kind == "window"]
+    assert [e for e in log if e.get("rule") == "inner_wall_faces"]
+    lines = _wall_lines("DUVAR", x0=1.0, x1=2.5, y=4.0)
+    _w, openings, _l, _o = O.gaps_and_openings(walls, lines, "t.dxf", 1)
+    assert [round(o.width, 2) for o in openings if o.kind == "window"] == [1.5]
+
+
+def test_on_a_page_that_draws_its_windows_wall_face_lines_alone_are_no_window():
+    """review B2 FC-04 (real06: its windows are PENCERE frames with DENIZLIK sills; three solid piers per floor were
+    read as windows from the DUVAR pair between the plaster faces): on such a page, an outer-wall stretch whose only
+    'glass' is wall-face lines is no window; a window drawn on the window layer stays."""
+    walls = _box_with_inner_wall()
+    pier = _wall_lines("DUVAR", x0=1.0, x1=2.5, y=4.0)
+    window = _wall_lines("PENCERE", x0=3.0, x1=4.0, y=4.0)
+    _w, openings, log, _o = O.gaps_and_openings(walls, pier + window, "t.dxf", 1)
+    assert [round(o.width, 2) for o in openings if o.kind == "window"] == [1.0]
+    assert [e for e in log if e.get("rule") == "wall_faces_only"]
+    assert O.window_symbols(window) and not O.window_symbols(pier)
+
+
+def _rest_index(strokes):
+    return O.StrokeIndex(strokes, 0.0)
+
+
+def test_the_rest_of_a_gap_beside_a_door_is_read_again_window_and_pier():
+    """review B2 FC-01 / REG-1 (real06 L1: the 1.95 m balcony gap holds a 0.90 m window, PENCERE glass and DENIZLIK
+    sills, a 0.30 m DUVAR pier and the drawn 0.70 m door; the rest beside the door was typed a 1.23 m balcony door):
+    the rest is a window, the pier is wall."""
+    from wenart.ingest.model import OpeningItem
+    host = SimpleNamespace(axis="h", c=0.0, t=0.25)
+    strokes = [_line((2.18, -0.03), (3.08, -0.03), "PENCERE"), _line((2.18, 0.03), (3.08, 0.03), "PENCERE"),
+               _line((2.18, -0.12), (3.08, -0.12), "DENIZLIK"), _line((2.18, 0.12), (3.08, 0.12), "DENIZLIK"),
+               _line((3.08, -0.10), (3.38, -0.10), "DUVAR"), _line((3.08, 0.10), (3.38, 0.10), "DUVAR")]
+    gap = OpeningItem(kind="opening", width=1.95, center=(3.175, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="g",
+                      evidence={"note": "unclassified gap content"}, type_raw="unclassified gap content")
+    existing = [gap]
+    ctx = SimpleNamespace(box=lambda pts: [0, 0, 1, 1], evidence=lambda m, c, e, box_units=None: {"method": m})
+    assert O._door_in_gap(existing, host, 3.776, 0.70, 0.0, ctx, {}, index=_rest_index(strokes)) is None
+    (rest,) = existing
+    assert rest.kind == "window" and rest.width == pytest.approx(3.08 - 2.20, abs=0.01)
+    assert rest.evidence["rule"] == "gap_rest_window"
+
+
+def test_the_rest_of_a_gap_over_a_column_is_wall_and_an_open_rest_is_the_doors_leftover():
+    """review B2 REG-4 (real07 L1: a 0.40 m rest kept through a column and a jamb nub): a rest under wall-drawing faces
+    is wall; with no open part left the gap is the door's. An open rest is marked the door's leftover (rest_of), which
+    the facade-gap and unsure-passage rules leave alone."""
+    from wenart.blender import architect_actions as AA
+    from wenart.ingest.model import OpeningItem
+    host = SimpleNamespace(axis="v", c=11.74, t=0.25)
+    column = _line((11.692, 5.191), (11.692, 5.891), "KOLON"), _line((11.792, 5.191), (11.792, 5.891), "KOLON")
+    gap = OpeningItem(kind="opening", width=1.54, center=(11.74, 6.12), rotation_deg=90.0, box=[0, 0, 1, 1], entity="g",
+                      evidence={}, type_raw="unclassified gap content")
+    ctx = SimpleNamespace(box=lambda pts: [0, 0, 1, 1])
+    existing = [gap]
+    assert O._door_in_gap(existing, host, 6.44, 0.90, 0.0, ctx, {}, index=_rest_index(list(column))) == 0
+    open_gap = OpeningItem(kind="opening", width=1.54, center=(11.74, 6.12), rotation_deg=90.0, box=[0, 0, 1, 1],
+                           entity="g", evidence={}, type_raw="unclassified gap content")
+    existing = [open_gap]
+    assert O._door_in_gap(existing, host, 6.44, 0.90, 0.0, ctx, {}, index=_rest_index([]), door_name="d") is None
+    assert existing[0].evidence["rest_of"] == "d" and existing[0].width == pytest.approx(0.64, abs=0.01)
+    as_dict = {"type": "opening", "type_raw": "unclassified gap content", "evidence": [existing[0].evidence]}
+    assert not AA.unsure_passage(as_dict)
+
+
+def test_any_drawn_door_in_a_gap_of_its_wall_takes_its_part_and_drawn_stubs_stay_wall():
+    """review B2 FC-06 / REG-3 (real07 L1: a 1.72 m gap over the 0.90 m door made by the gap classifier and its tag,
+    across 0.30 m and 0.60 m DUVAR stubs): one 0.90 m door, no opening."""
+    from wenart.ingest.model import OpeningItem
+    walls = [R.wall((9.0, 7.09), (12.5, 7.09), t=0.18, entity="W")]
+    gap = OpeningItem(kind="opening", width=1.72, center=(10.7924, 7.09), rotation_deg=0.0, box=[0, 0, 1, 1],
+                      entity="g", evidence={}, type_raw="unclassified gap content")
+    door = OpeningItem(kind="door", width=0.90, center=(10.6474, 7.09), rotation_deg=0.0, box=[0, 0, 1, 1], entity="d",
+                       evidence={"method": "vector"})
+    stubs = [_line((9.892, 7.04), (10.192, 7.04), "DUVAR"), _line((9.892, 7.14), (10.192, 7.14), "DUVAR"),
+             _line((11.092, 7.04), (11.692, 7.04), "DUVAR"), _line((11.092, 7.14), (11.692, 7.14), "DUVAR")]
+    got = O.doors_in_gaps(walls, [gap, door], stubs, "t.dxf", 1, 1.0)
+    assert [(o.kind, round(o.width, 2)) for o in got] == [("door", 0.9)]
+    assert "takes its part of the gap" in got[0].evidence["note"]
+
+
+def test_window_and_glass_words_of_wall_layers():
+    """review B2 FC-09: 'A-WALL-CURT' (AIA), 'DUVAR_CAMLI' and 'DUVARCAM' name glass on a wall layer."""
+    for name in ("A-WALL-CURT", "DUVAR_CAMLI", "DUVARCAM"):
+        assert not O.wall_face_layer(name), name
+    assert O.wall_face_layer("DUVARLAR") and O.wall_face_layer("DUVAR-CAMBAZ")
+
+
+def test_a_drawn_double_door_on_a_wall_copy_outranks_the_gap_over_it():
+    """review B2 CB-3: the C0047 rule for double doors (two swings drawn)."""
+    from wenart.ingest.generic import twin_walls as TWW
+
+    def wall(wid, a, b, t):
+        return {"id": wid, "level_id": "L0", "start": list(a), "end": list(b), "thickness": t, "evidence": []}
+    b = {"walls": [wall("w_12", (3.0, 2.19), (9.0, 2.19), 0.2), wall("w_11", (3.5, 2.19), (8.0, 2.19), 0.2)],
+         "openings": [{"id": "o_2", "type": "opening", "level_id": "L0", "wall_id": "w_12", "center": [5.5, 2.19],
+                       "width": 1.9, "evidence": [{"method": "derived", "note": "unclassified gap content"}]},
+                      {"id": "d_1", "type": "door", "level_id": "L0", "wall_id": "w_11", "center": [5.5, 2.19],
+                       "width": 1.6, "operation": "double", "evidence": [{"method": "vector", "entity": "ARC:1,ARC:2"}]}]}
+    TWW.merge_twin_walls(b)
+    assert [o["id"] for o in b["openings"]] == ["d_1"] and b["openings_merged"][0]["id"] == "o_2"
+
+
+# --------------------------------------------------------------------------
+# Review B2: size tags and lift doors
+# --------------------------------------------------------------------------
+
+def test_tags_go_to_the_doors_whose_leaves_they_are_written_along():
+    """review B2 FC-05 (real10 L0-L6, right half: '90/210' along door A's leaf, '110/230' along B's, '100/225' along
+    C's, but the 100/225 nearer A's span): each tag goes to the door whose drawn leaf it stands by."""
+    from wenart.ingest.generic import core as C
+    from wenart.ingest.model import OpeningItem
+
+    def door(w, c, rot, ent):
+        return OpeningItem(kind="door", width=w, center=c, rotation_deg=rot, box=[0, 0, 1, 1], entity=ent,
+                           evidence={"entity": ent})
+    a, b, c = door(1.05, (14.96, 6.48), 0.0, "LA"), door(1.03, (16.07, 6.48), 0.0, "LB"), door(1.10, (13.64, 7.24),
+                                                                                                90.0, "LC")
+    leaves = [_line((15.31, 5.63), (15.31, 6.48), "KAPI", sid="LA"), _line((15.615, 5.48), (15.615, 6.48), "KAPI",
+                                                                          sid="LB"),
+              _line((13.82, 6.815), (14.71, 6.815), "KAPI", sid="LC")]
+    tags = [_tag("100/225", 14.343, 6.899, "TEXT"), _tag("90/210", 15.225, 5.968, "TEXT"),
+            _tag("110/230", 15.744, 5.866, "TEXT")]
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [a, b, c], tags, 1.0, strokes=leaves)
+    assert [round(o.width, 2) for o in got] == [0.9, 1.1, 1.0]
+
+
+def test_a_tag_by_a_drawn_door_and_a_gap_5mm_nearer_stays_the_doors_whatever_the_rounding():
+    """review B2 CB-6: equally near is within 1 cm of the tag's nearest pair, not a centimetre bucket."""
+    from wenart.ingest.generic import core as C
+    for y in (1.7451, 1.7400, 1.7399, 1.7351):
+        gap = _gap(1.56, (5.36, 2.19))
+        door = _op("door", 0.85, (5.815, 2.195))
+        assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [gap, door], [_tag("80/210", 5.63, y, "DOGRAMA")],
+                            1.0) is None, y
+
+
+def test_a_door_drawn_twice_does_not_use_up_its_neighbours_tag():
+    """review B2 CB-4: a spot clash skips the pair, the tag may still reach its own gap."""
+    from wenart.ingest.generic import core as C
+    stack = [_op("door", 0.80, (0.0, 0.0)), _op("door", 0.80, (0.0, 0.0)), _gap(0.80, (1.3, 0.0))]
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], stack,
+                       [_tag("80/210", 0.0, 0.3, "TEXT"), _tag("80/210", 0.62, 0.3, "TEXT")], 1.0)
+    assert got is not None and got[2].kind == "door"
+
+
+def test_a_mattress_size_is_no_door_tag_on_a_plain_layer():
+    """review B2-GEN-02: '160/200' (a bed's size) on YAZI or '0' beside a 0.90 m gap changes nothing; a plain tag never
+    widens a gap past its jambs; on a door layer a 200 cm tag still sets its door."""
+    from wenart.ingest.generic import core as C
+    for layer in ("YAZI", "0"):
+        assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [_gap(0.90, (2.0, -3.0))],
+                            [_tag("160/200", 2.0, -2.7, layer)], 1.0) is None, layer
+        assert C._door_tags(SimpleNamespace(notes=[]), "x", [], [_gap(0.90, (2.0, -3.0))],
+                            [_tag("160/210", 2.0, -2.7, layer)], 1.0) is None, layer
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [_gap(0.80, (2.0, -3.0))], [_tag("80/200", 2.0, -2.7, "KAPI")],
+                       1.0)
+    assert got[0].kind == "door" and got[0].height == pytest.approx(2.0)
+
+
+def test_a_door_hung_at_a_jamb_is_marked_inferred():
+    """review B2-GEN-04: a size-tag door moved to the jamb nearer its tag is an inference (method inferred, position
+    assumed); a tag over the gap's middle third leaves it in the middle, the place still inferred."""
+    from wenart.ingest.generic import core as C
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [_gap(1.56, (5.36, -3.0))], [_tag("80/210", 5.9, -2.7, "TEXT")],
+                       1.0)
+    door = got[0]
+    assert door.center[0] == pytest.approx(6.14 - 0.40) and door.evidence["method"] == "inferred"
+    assert door.evidence["rule"] == "size_tag_jamb" and "position" in door.assumed
+    got = C._door_tags(SimpleNamespace(notes=[]), "x", [], [_gap(1.56, (5.36, -3.0))],
+                       [_tag("80/210", 5.40, -2.7, "TEXT")], 1.0)
+    assert got[0].center[0] == pytest.approx(5.36) and got[0].evidence["method"] == "inferred"
+
+
+def test_a_lift_door_is_on_the_landing_side_and_no_wider_than_a_lift_door():
+    """review B2 FC-07 (real21: the second shaft took a 2.22 m gap towards a flat's bedroom; real10 C0034, the user: 'a
+    sliding lift door on each floor onto the shared hall'): a gap wider than a lift door, or one into a flat's room
+    only, is no landing door; the door is inferred towards the hall."""
+    from wenart.ingest import twins as TW
+
+    def room(rid, label, rtype, poly):
+        return {"id": rid, "level_id": "L1", "label": label, "room_type": rtype, "polygon": poly}
+    shaft = room("r_L1_asansor", "Asansör", "shaft", [[0, 0], [1.6, 0], [1.6, 1.8], [0, 1.8]])
+    hall = room("r_L1_hall", "Kat Holü", "hall", [[0, 2.0], [4, 2.0], [4, 4], [0, 4]])
+    bed = room("r_L1_oda", "Oda", "bedroom", [[1.8, 0], [4, 0], [4, 1.8], [1.8, 1.8]])
+    walls = [{"id": "w1", "level_id": "L1", "start": [-0.1, 1.9], "end": [4.1, 1.9], "thickness": 0.2}]
+    for width in (2.2, 0.9):
+        gap = {"id": "o1", "level_id": "L1", "type": "opening", "center": [1.7, 0.9], "width": width}
+        openings = [gap]
+        TW.lift_doors([shaft, hall, bed], openings, walls)
+        assert gap["type"] == "opening", width
+        assert openings[-1]["id"] == "d_r_L1_asansor_lift" and abs(openings[-1]["center"][1] - 1.9) < 1e-6
+    good = {"id": "o2", "level_id": "L1", "type": "opening", "center": [0.8, 1.9], "width": 0.9}
+    far = {"id": "o3", "level_id": "L1", "type": "opening", "center": [1.7, 0.9], "width": 1.2}
+    TW.lift_doors([shaft, hall, bed], [far, good], walls)
+    assert good["type"] == "door" and good.get("lift_door") and far["type"] == "opening"
+
+
+# --------------------------------------------------------------------------
+# Review B2: tread numbers
+# --------------------------------------------------------------------------
+
+def test_a_dimension_text_and_an_unconfirmed_skip_join_no_stair():
+    """review B2 REG-2 (real07 L0, the user-corrected stair: the wall dimension '20' on OLÇÜ 0.18 m past the '18' made
+    the upper arm 11 treads, 0.65 m into the Antre): a number on a dimension layer joins no chain of numbers on another
+    layer, a skip needs the next number to confirm it, and a number past the last drawn tread line adds no tread."""
+    pts = [(9.67 - 0.275 * k, 3.96) for k in range(9)] + [(7.74 + 0.266 * k, 5.12) for k in range(9)]
+    texts = [_t(k + 1, x, y) for k, (x, y) in enumerate(pts)]
+    dim = _t(20, 9.90, 5.30)
+    dim.evidence = [{"layer": "OLÇÜ"}]
+    chain = SN.chains(texts + [dim])[0]
+    assert [v for v, _p, _t in chain] == list(range(1, 19))
+    plain20 = _t(20, 9.90, 5.30)
+    assert [v for v, _p, _t in SN.chains(texts + [plain20])[0]] == list(range(1, 19))     # 19 missing: no bridge
+    # a trailing number past the last drawn riser line is the arrival, no tread (the drawn lines decide)
+    riser_lines = [_line((7.74 + 0.266 * k - 0.133, 4.64), (7.74 + 0.266 * k - 0.133, 5.60), "MB") for k in range(9)]
+    riser_lines += [_line((9.67 - 0.275 * k + 0.1375, 3.48), (9.67 - 0.275 * k + 0.1375, 4.44), "MB") for k in range(9)]
+    st = SN.stair_of(chain, riser_lines)
+    assert [f["lines"] for f in st["flights"]] == [9, 9]
+
+
+def test_a_u_stair_with_close_arms_keeps_its_first_number_after_the_turn():
+    """review B2 CB-2: arms 0.9-1.1 m apart: the 9 across the turn was skipped for the 10 and turned into a winder."""
+    for gap_m in (0.9, 1.0, 1.1, 1.3):
+        pts = [(0.5, 0.2 + 0.27 * k) for k in range(8)] + [(0.5 + gap_m, 0.2 + 0.27 * (7 - k)) for k in range(8)]
+        chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+        assert [v for v, _p, _t in chain] == list(range(1, 17)), gap_m
+        st = SN.stair_of(chain, [])
+        assert [f["lines"] for f in st["flights"]] == [8, 8] and st["turn_winders"] == [0], gap_m

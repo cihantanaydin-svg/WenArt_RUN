@@ -54,10 +54,23 @@ def _numbers(texts: list) -> list[tuple[int, tuple[float, float], object]]:
     return out
 
 
+def _dimension_text(t) -> bool:
+    """12 Nov 2026 (review B2 REG-2, real07 L0: the wall dimension '20' on OLÇÜ, 0.18 m past the tread number 18, made
+    the user-corrected stair 1-20): a text on a dimension layer (``layer_names.layer_roles``)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    ev = getattr(t, "evidence", None) or []
+    layer = ev[0].get("layer") if ev and isinstance(ev[0], dict) else getattr(t, "layer", None)
+    return "dimension" in LN.layer_roles(layer)
+
+
 def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
     """The runs of tread numbers (the module docstring), longest first (of equal ones the most regular); each number
-    in one run only, a run built again without the numbers a longer one took (pure)."""
+    in one run only, a run built again without the numbers a longer one took (pure). 12 Nov 2026 (review B2 REG-2): a
+    number on a dimension layer joins only a chain started on one; a skipped number is bridged only when the next
+    number confirms it (CB-2: and the number across a turn is tried before a skip that leaves the arm)."""
     nums = _numbers(texts)
+    dims = [_dimension_text(t) for _v, _p, t in nums]
     by_value: dict[int, list[int]] = {}
     for k, (v, _p, _t) in enumerate(nums):
         by_value.setdefault(v, []).append(k)
@@ -70,7 +83,7 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
     def build(start: int, banned: set) -> list[int]:
         """The chain from ``start``, never through a number of ``banned`` (another stair's)."""
         chain = [start]
-        held = set(banned) | {start}
+        held = set(banned) | {start} | ({k for k in range(len(nums)) if dims[k]} if not dims[start] else set())
         while True:
             v, p, _t = nums[chain[-1]]
             nxt = None
@@ -88,7 +101,22 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
                     # a candidate that leads on wins (the U-stair's step 9 had the wall-thickness text '10' beside it;
                     # its real step 10 lies across the landing)
                     on = [c for c in cands if leads(c[1], v + skip)]
+                    if skip == 2 and not on:
+                        break                    # a bridge needs the next number to confirm it (review B2 REG-2)
                     nxt = min(on or cands)[1]
+                    if skip == 2:
+                        # review B2 CB-2 (a U stair's arms 0.9-1.1 m apart: the 9 across the turn was skipped for the 10):
+                        # the next number across the turn, leading on, before a skip that leaves the arm or is farther
+                        across = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + 1, [])
+                                  if k not in held and STEP_M[1] < math.dist(p, nums[k][1]) <= TURN_JUMP_M
+                                  and leads(k, v + 1)]
+                        if across:
+                            d2 = math.dist(p, nums[nxt][1])
+                            leaves = len(chain) >= 2 and abs(_angle(_unit(nums[chain[-2]][1], p),
+                                                                    _unit(p, nums[nxt][1]))) > ARM_TURN_DEG
+                            if leaves or min(across)[0] < d2:
+                                nxt = min(across)[1]
+                                break
                     # 6 Nov 2026 (real13 L-1: the near stair's 7 ends its arm, its 8 stands on the landing 1.1 m on,
                     # and the other stair's 7 led on, 2.5 m away): a near number that runs on the arm (the last
                     # step's direction within ARM_TURN_DEG, at most twice its length) is the next tread
@@ -248,7 +276,7 @@ def _trim_arm(points: list, arm: list[int], at_end: bool, segs: Optional[list] =
         steps = [math.dist(points[a], points[b]) for a, b in zip(out, out[1:])]
         med = sorted(steps)[len(steps) // 2]
         edge = steps[-1] if at_end else steps[0]
-        if med <= 0 or abs(edge - med) <= ARM_STEP_SPREAD * med:
+        if med <= 0:
             break
         rest = out[:-1] if at_end else out[1:]
         axis = _unit(points[rest[0]], points[rest[-1]])
@@ -256,6 +284,12 @@ def _trim_arm(points: list, arm: list[int], at_end: bool, segs: Optional[list] =
         ahead = axis if at_end else (-axis[0], -axis[1])
         c = _tread_edge(points[tip], ahead, axis, EDGE_REACH * edge, segs)
         if c is None or c <= TREAD_PERP:
+            break
+        # 12 Nov 2026 (review B2 FC-08, real13 L3: the fan of winders 11-14, steps within the spread of a tread's): a
+        # radial edge marks a winder even at a tread's step when the line behind the number (towards the arm) turns
+        # too; otherwise only a number a different step away
+        behind = _tread_edge(points[tip], (-ahead[0], -ahead[1]), axis, EDGE_REACH * edge, segs)
+        if abs(edge - med) <= ARM_STEP_SPREAD * med and (behind is None or behind <= TREAD_PERP):
             break
         out = rest
     return out
@@ -297,13 +331,14 @@ def stair_of(chain: list, strokes: list) -> Optional[dict]:
     """The stair one chain of numbers describes (the module docstring): ``{"flights", "landing", "winders",
     "turn_winders", "turn", "direction", "polygon", "steps", "entities", "reason"}`` (page metres; the flights in
     climbing order, each rising from its start to its end; ``turn_winders`` the winders in each turn) or ``{"skip":
-    reason}`` (pure). 6 Nov 2026: numbers on a circle (a curved stair) give a curved stair (``curved_stair_of``) where
-    the straight arms give none."""
+    reason}`` (pure). 6 Nov 2026: numbers on a circle (a curved stair) give a curved stair (``curved_stair_of``);
+    12 Nov 2026 (review S3 / B2 FC-08: its end arms read as a U once their radial treads are winders) the whole chain
+    on one circle with even turns is tried first."""
+    curved = curved_stair_of(chain, strokes)
+    if curved is not None and not curved.get("skip"):
+        return curved
     out = _straight_stair_of(chain, strokes)
     if out is None or out.get("skip"):
-        curved = curved_stair_of(chain, strokes)
-        if curved is not None and not curved.get("skip"):
-            return curved
         # 6 Nov 2026 (real13 L-1, "numbered treads always give a stair"): a stair of more arms, each straight run of
         # numbers a flight (``_runs``), when the runs hold at least half the numbers
         pts = [c[1] for c in chain]
@@ -365,7 +400,10 @@ def _straight_stair_of(chain: list, strokes: list, arms: Optional[list] = None) 
     if len(head) >= 2 and not _along(pts, arms[0], head[0]):
         arms = [head] + arms
     lead, trail = values[arms[0][0]] - values[0], values[-1] - values[arms[-1][-1]]
-    turn_winders = [values[b[0]] - values[a[-1]] - 1 for a, b in zip(arms, arms[1:])]
+    # 12 Nov 2026 (review B2 CB-2): a turn's winders are the chain's own numbers between two arms; a value the chain
+    # skipped at an arm's boundary is the next arm's first tread
+    turn_winders = [b[0] - a[-1] - 1 for a, b in zip(arms, arms[1:])]
+    skipped = [0] + [values[b[0]] - values[a[-1]] - 1 - (b[0] - a[-1] - 1) for a, b in zip(arms, arms[1:])]
     for ai, arm in enumerate(arms):
         apts = [pts[i] for i in arm]
         axis = _snap(_unit(apts[0], apts[-1]), main)
@@ -387,12 +425,17 @@ def _straight_stair_of(chain: list, strokes: list, arms: Optional[list] = None) 
         e = (cx + axis[0] * proj[-1], cy + axis[1] * proj[-1])
         n_lines = values[arm[-1]] - values[arm[0]] + 1
         going = math.dist(s, e) / max(n_lines - 1, 1)
-        if ai == 0 and lead:
-            s = (s[0] - axis[0] * going * lead, s[1] - axis[1] * going * lead)
-            n_lines += lead
-        if ai == len(arms) - 1 and trail:
-            e = (e[0] + axis[0] * going * trail, e[1] + axis[1] * going * trail)
-            n_lines += trail
+        # 12 Nov 2026 (review B2 REG-2): a number before the first arm or past the last makes its flight longer only by
+        # treads that are drawn (a tread line ahead for each); the others are the floor or the arrival
+        back = (skipped[ai] if ai else 0) + (_drawn_ahead(apts[0], (-axis[0], -axis[1]), axis, width, going, lead,
+                                                         segs) if ai == 0 and lead else 0)
+        if back:
+            s = (s[0] - axis[0] * going * back, s[1] - axis[1] * going * back)
+            n_lines += back
+        more = _drawn_ahead(apts[-1], axis, axis, width, going, trail, segs) if ai == len(arms) - 1 and trail else 0
+        if more:
+            e = (e[0] + axis[0] * going * more, e[1] + axis[1] * going * more)
+            n_lines += more
         ids |= {sid for _, _, sid in treads}
         flights.append({"start": [round(s[0], 4), round(s[1], 4)], "end": [round(e[0], 4), round(e[1], 4)],
                         "width": round(width, 4), "lines": n_lines, "spacing": round(going, 4)})
@@ -464,6 +507,31 @@ def _straight_stair_of(chain: list, strokes: list, arms: Optional[list] = None) 
     return {"flights": flights, "landing": landing, "winders": winders, "turn_winders": turn_winders, "turn": turn,
             "direction": [round(d[0], 4), round(d[1], 4)], "polygon": poly, "steps": values[-1],
             "entities": sorted({str(c[2].id) for c in chain}) + sorted(ids), "reason": reason}
+
+
+def _drawn_ahead(p, ahead, axis, width: float, going: float, most: int, segs: list) -> int:
+    """How many tread lines are drawn ahead of number ``p`` along ``ahead`` (at most ``most``, within ``most`` + 1/2
+    goings): lines across the arm (``|cos|`` to ``axis`` under ``TREAD_PERP``), about as long as the arm is wide and
+    crossing its centre line, counted once per place (pure). 12 Nov 2026 (review B2 REG-2)."""
+    if most <= 0 or going <= 0:
+        return 0
+    reach = (most + 0.5) * going
+    ray = LineString([p, (p[0] + ahead[0] * reach, p[1] + ahead[1] * reach)])
+    places = set()
+    for a, b, _sid in segs or []:
+        u = _unit(a, b)
+        if abs(u[0] * axis[0] + u[1] * axis[1]) > TREAD_PERP:
+            continue
+        if not 0.5 * width <= math.dist(a, b) <= 1.5 * width + 0.3:
+            continue
+        seg = LineString([a, b])
+        hit = seg.intersection(ray)
+        if hit.is_empty or seg.distance(ray) > 1e-6:
+            continue
+        d = Point(p).distance(hit if hit.geom_type == "Point" else hit.centroid)
+        if d > 0.05 * going:
+            places.add(round(d / max(going * 0.5, 1e-6)))
+    return min(most, len(places))
 
 
 def _along(points: list, arm: list[int], k: int) -> bool:
@@ -794,6 +862,11 @@ def enrich(piece, chain: list, st: Optional[dict]) -> str:
     # the turn and the winders only where the stair rule read the same flights as the numbers' arms (real09: the rule
     # read one straight flight of a U stair numbered 1-17; a U turn on one flight would be no stair the build knows)
     same = len(data.get("flights") or []) == len(st.get("flights") or [])
+    if not same and _steep(data) and not _steep(st):
+        # 12 Nov 2026 (review B2 FC-03 / B2-ST5, real09's core stair: the rule read the straight middle run of a U
+        # numbered 1-17 as one flight of 6 lines, built as 6 risers of 0.50 m; real18 L-2 the same): the numbers'
+        # reading replaces the rule's flights, footprint and turn; the rule's reading is kept as drawn_stair
+        return _take_numbers(piece, data, chain, st)
     if not same:
         # 12 Nov 2026 (review B S8): the treads the numbers count are written only where they reach the built stair
         said.append(f"the numbers make {len(st.get('flights') or [])} flight(s) ({st.get('turn')}) of "
@@ -865,6 +938,51 @@ def enrich(piece, chain: list, st: Optional[dict]) -> str:
         if ev is not None:
             ev["note"] = (str(ev.get("note") or "") + f"; numbered treads {values[0]}-{values[-1]}").lstrip("; ")
     return "; ".join(said)
+
+
+STOREY_M = 3.0                  # 12 Nov 2026: a typical storey's rise, to tell a stair one climbs at reading time ...
+RISER_MAX_M = 0.22              # ... no riser of a stair one climbs is higher (STAIR_RISER_RANGE tops at 0.20 m)
+
+
+def _steep(stair: dict) -> bool:
+    """A stair reading whose risers over a typical storey (``STOREY_M``) would exceed ``RISER_MAX_M``: its drawn lines
+    and winders are too few for the storey (pure)."""
+    risers = sum(int(f.get("lines") or 0) for f in stair.get("flights") or []) + int(stair.get("winders") or 0)
+    return risers <= 0 or STOREY_M / risers > RISER_MAX_M
+
+
+def _take_numbers(piece, data: dict, chain: list, st: dict) -> str:
+    """The numbers' reading ``st`` (``stair_of``) as the piece's stair, in place: its flights in climbing order with
+    each turn's winders, its landing, turn, direction and footprint; the rule's reading kept as ``drawn_stair``
+    (flights, landing, footprint) and the change labelled ``adjusted_by_ai`` (by code) with the reason. Returns the
+    note."""
+    values = [c[0] for c in chain]
+    old = {k: data.get(k) for k in ("flights", "landing", "turn", "direction", "direction_assumed")}
+    old["footprint"] = {"center": list(piece.center), "size": list(piece.size), "rotation_deg": piece.rotation_deg}
+    rule_risers = sum(int(f.get("lines") or 0) for f in data.get("flights") or [])
+    reason = (f"the stair rule read {len(data.get('flights') or [])} flight(s) of {rule_risers} line(s), risers of "
+              f"{STOREY_M / max(rule_risers, 1):.2f} m over a {STOREY_M:.1f} m storey; the treads are numbered "
+              f"{values[0]}-{values[-1]}: {st['reason']}")
+    data.update(flights=st["flights"], landing=st["landing"], direction=st["direction"], direction_assumed=False,
+                direction_source="numbered treads", turn="U" if st["turn"] == "U" else
+                ("straight" if st["turn"] == "straight" else "other"), turn_assumed=False, flights_ordered=True,
+                turn_winders=list(st.get("turn_winders") or []), steps_drawn=st["steps"], drawn_stair=old,
+                adjusted_by_ai={"by": "code", "rule": "numbered_treads", "reason": reason})
+    data.pop("winders", None)
+    if st.get("winders"):
+        data["winders"] = int(st["winders"])
+    if st.get("curved"):
+        data["curved"] = st["curved"]
+    if st["landing"] is None and len(st["flights"]) >= 2 and not st.get("curved"):
+        data["landing_assumed"] = True
+    centre, size, rot = _footprint(st["polygon"], st["direction"])
+    piece.center, piece.size, piece.rotation_deg = centre, size, rot
+    data["reason"] = (str(data.get("reason") or "") + f"; adjusted by the numbered treads: {reason}").lstrip("; ")
+    ev = piece.evidence if isinstance(piece.evidence, dict) else None
+    if ev is not None:
+        ev["note"] = (str(ev.get("note") or "") + f"; numbered treads {values[0]}-{values[-1]} replace the rule's "
+                      f"flights").lstrip("; ")
+    return f"the numbered treads replace the rule's steep reading ({reason})"
 
 
 def _piece_poly(p) -> Optional[Polygon]:

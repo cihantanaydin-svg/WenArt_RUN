@@ -690,7 +690,8 @@ def unsure_passage(o: dict) -> bool:
     without a swing arc (``operation`` sliding from geometry, no block name: a window's frame and glass lines draw
     the same)."""
     if o.get("type") == "opening" and str(o.get("type_raw") or "") == "unclassified gap content":
-        return True
+        # 12 Nov 2026 (review B2 FC-01): the rest a drawn door left of its gap (evidence ``rest_of``) is no passage
+        return not any(isinstance(e, dict) and e.get("rest_of") for e in o.get("evidence") or [])
     if o.get("type") != "door" or o.get("operation") != "sliding" or o.get("operation_source") != "geometry":
         return False
     notes = " ".join(str(e.get("note") or "") for e in o.get("evidence") or [] if isinstance(e, dict))

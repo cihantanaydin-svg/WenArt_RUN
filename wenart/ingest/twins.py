@@ -599,7 +599,9 @@ LIFT_DOOR_W_M = 0.90             # 4 Nov 2026 (UL306): a lift's landing door (a 
 LIFT_DOOR_H_M = 2.10             # ... this high, sliding
 LIFT_WALL_REACH_M = 0.60         # a room, an opening or a wall this close to the shaft is beside it (core walls 0.2-0.5 m)
 LIFT_DOOR_MIN_W_M = 0.60         # 12 Nov 2026 (review B-r21-lift: real21's 0.25 m gap between two shafts was taken): a
-#                                  drawn opening is the landing door only when it is door-wide
+#                                  drawn opening is the landing door only when it is door-wide ...
+LIFT_DOOR_MAX_W_M = 1.40         # ... and no wider than a lift door product (a single panel about 1.1 m, a wide automatic
+#                                  door 1.4 m; review B2 FC-07: real21's second shaft took a 2.22 m gap)
 MACHINE_RE_WORDS = ("MAHAL", "MAKINE", "MACHINE", "MOTOR", "MASCHINEN")   # a lift's machine room is no shaft
 
 
@@ -625,9 +627,23 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> li
         sp, lv = _poly(s), s["level_id"]
         drawn = [o for o in openings if o.get("level_id") == lv and not o.get("virtual") and o.get("center")
                  and o.get("type") in ("door", "opening") and sp.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M
-                 and float(o.get("width") or 0) >= LIFT_DOOR_MIN_W_M]
+                 and LIFT_DOOR_MIN_W_M <= float(o.get("width") or 0) <= LIFT_DOOR_MAX_W_M]
+        # 12 Nov 2026 (review B2 FC-07, real21: the second shaft took a gap towards a flat's bedroom; real10 C0034, the
+        # user: "a sliding lift door on each floor onto the shared hall"): a drawn opening is the landing door only
+        # towards the landing: the room beyond it a common area, a hall or a corridor, never only a flat's room; the
+        # landing side first, then the width nearest a lift door's
+        ranked = []
+        for o in drawn:
+            beyond = [r for r in rooms if r is not s and r.get("level_id") == lv and r.get("room_type") != "shaft"
+                      and len(r.get("polygon") or []) >= 3
+                      and _poly(r).distance(Point(o["center"])) <= LIFT_WALL_REACH_M]
+            landing = any(CA.is_common_room(r) or str(r.get("room_type") or "") in ("hall", "corridor") for r in beyond)
+            if beyond and not landing and all(str(r.get("room_type") or "") in FLAT_ROOM_TYPES for r in beyond):
+                continue                     # it opens into a flat's room only: no landing door
+            ranked.append(((landing, -abs(float(o.get("width") or 0) - LIFT_DOOR_W_M)), o))
+        drawn = [o for _r, o in sorted(ranked, key=lambda x: x[0], reverse=True)]
         if drawn:
-            o = max(drawn, key=lambda o: float(o.get("width") or 0))
+            o = drawn[0]
             if o.get("operation") != "sliding" or o.get("type") != "door":
                 o["type"], o["operation"], o["operation_source"], o["lift_door"] = "door", "sliding", "assumed", True
                 o["swing_side"] = None

@@ -1828,9 +1828,15 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
     turns = []
     if ordered:
         for i in range(len(planned) - 1):
+            shared = flights_overlap(planned[i], planned[i + 1])
+            if shared > STAIR_NOSING_M * min(planned[i]["width"], planned[i + 1]["width"]):
+                warnings.append(f"flights {planned[i]['index'] + 1} and {planned[i + 1]['index'] + 1} overlap in plan "
+                                f"by {shared:.2f} m2: built as read, their turn kept off both flights' treads")
             if i == 0 and landing is not None:
                 continue
-            turns.append(turn_treads(planned[i], planned[i + 1], planned[i]["top_z"], riser, turn_w[i]))
+            turn = turn_treads(planned[i], planned[i + 1], planned[i]["top_z"], riser, turn_w[i], walls)
+            if turn is not None:
+                turns.append(turn)
 
     # The ceiling opening: the last flight and the landing (in the frame of flight 1).
     void, void_raw = [], []
@@ -1925,37 +1931,121 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
 # first flight's last riser and the first winder made one double step (real04 L-1: 1.059 m, then 1.235 m).
 
 
-def turn_polygon(a: dict, b: dict) -> list[tuple[float, float]]:
-    """12 Nov 2026 (review B S1): the turn between planned flight ``a``'s last line and flight ``b``'s first line (pure):
-    the rectangle in ``a``'s frame holding both lines across their widths; when the two lines stand side by side (a U
-    turn with no landing drawn) it is as deep as the wider flight, beyond ``a``'s last line."""
-    u = a["rise_dir"]
-    v = (-u[1], u[0])
+TURN_BODY_M = 50.0                 # 12 Nov 2026: a flight's body reaches this far behind its last line (a half-plane)
+
+
+def _band(p, r, w: float, s0: float, s1: float):
+    """The rectangle of a flight's band: from ``p`` + ``s0``..``s1`` along unit ``r``, ``w`` wide across it."""
+    from shapely.geometry import Polygon as _P
+
+    n = (-r[1], r[0])
+    h = w / 2.0
+    return _P([(p[0] + r[0] * a + n[0] * b, p[1] + r[1] * a + n[1] * b)
+               for a, b in ((s0, -h), (s1, -h), (s1, h), (s0, h))])
+
+
+def turn_polygon(a: dict, b: dict, walls: Sequence[dict] = (), convex: bool = False) -> list[tuple[float, float]] | None:
+    """12 Nov 2026 (review B S1; review B2 CB-1, B2-ST1, B2-ST2, B2-ST3): the turn between planned flight ``a``'s last
+    line and flight ``b``'s first line (pure), never over either flight's treads (``a``'s band behind its last line,
+    ``b``'s band beyond its first line are cut out):
+
+    - a U turn (the flights run back side by side): the half landing beyond both lines, from each flight's own line
+      to the further one plus the wider flight's width, the strip between the two bands included (real07's staggered
+      U: flight 2 starts one tread behind flight 1's end, the landing lies beyond flight 1's end, up to the wall);
+    - flights in line: the strip between the two lines;
+    - any other turn (an L, a curved stair's chords): ``a``'s band ahead of its last line up to ``b``'s line, and
+      ``b``'s band behind its first line back to ``a``'s line (the tread between two chords, not a rectangle reaching
+      back over the last tread).
+
+    ``walls`` (dicts with start, end, thickness) are cut out (the landing stops at the first wall); ``convex`` gives
+    the turn's box in ``a``'s frame for winders. None when no turn is left."""
+    from shapely.geometry import Polygon as _P
+    from shapely.ops import unary_union as _union
+
+    ra, rb = a["rise_dir"], b["rise_dir"]
     pa, pb = a["nosings"][-1], b["nosings"][0]
-    rb = b["rise_dir"]
-    vb = (-rb[1], rb[0])
-    ha, hb = a["width"] / 2.0, b["width"] / 2.0
-    pts = [(pa[0] + v[0] * s * ha, pa[1] + v[1] * s * ha) for s in (-1.0, 1.0)] + \
-        [(pb[0] + vb[0] * s * hb, pb[1] + vb[1] * s * hb) for s in (-1.0, 1.0)]
-    us, vs = [_d2(q, u) for q in pts], [_d2(q, v) for q in pts]
-    u0, u1, v0, v1 = min(us), max(us), min(vs), max(vs)
-    if u1 - u0 < 0.05:
-        u1 = u0 + max(a["width"], b["width"])
-    return [(u[0] * x + v[0] * y, u[1] * x + v[1] * y) for x, y in ((u0, v0), (u1, v0), (u1, v1), (u0, v1))]
+    wa, wb = float(a["width"]), float(b["width"])
+    dot = _d2(ra, rb)
+    na = (-ra[1], ra[0])
+    if dot <= -0.9:
+        ua, ub = _d2(pa, ra), _d2(pb, ra)
+        top = max(ua, ub)
+        far = top + max(wa, wb)
+        va, vb = _d2(pa, na), _d2(pb, na)
+        lo_, hi_ = sorted((va, vb))
+        parts = [_band(pa, ra, wa, 0.0, far - ua), _band(pb, ra, wb, 0.0, far - ub)]
+        mid = ((lo_ + hi_) / 2.0, max(hi_ - lo_ - 0.0, 0.0))
+        if mid[1] > 1e-6:
+            c = (ra[0] * top + na[0] * mid[0], ra[1] * top + na[1] * mid[0])
+            parts.append(_band(c, ra, mid[1], 0.0, far - top))
+        if convex:
+            v0 = min(va - wa / 2.0, vb - wb / 2.0)
+            v1 = max(va + wa / 2.0, vb + wb / 2.0)
+            parts = [_P([(ra[0] * x + na[0] * y, ra[1] * x + na[1] * y)
+                         for x, y in ((top, v0), (far, v0), (far, v1), (top, v1))])]
+    elif dot >= 0.9:
+        gap = _d2(_v(pa, pb), ra)
+        if gap <= 0.02:
+            return None
+        parts = [_band(pa, ra, wa, 0.0, gap)]
+    else:
+        nb = (-rb[1], rb[0])
+        ends_b = [(pb[0] + nb[0] * t, pb[1] + nb[1] * t) for t in (-wb / 2.0, wb / 2.0)]
+        ends_a = [(pa[0] + na[0] * t, pa[1] + na[1] * t) for t in (-wa / 2.0, wa / 2.0)]
+        la = max(0.0, max(_d2(_v(pa, q), ra) for q in ends_b))
+        lb = max(0.0, max(_d2(_v(q, pb), rb) for q in ends_a))
+        parts = [g for g in (_band(pa, ra, wa, 0.0, la) if la > 1e-6 else None,
+                             _band(pb, rb, wb, -lb, 0.0) if lb > 1e-6 else None) if g is not None]
+        if convex and parts:
+            u_all = [_d2(q, ra) for g in parts for q in g.exterior.coords]
+            v_all = [_d2(q, na) for g in parts for q in g.exterior.coords]
+            x0, x1, y0, y1 = max(min(u_all), _d2(pa, ra)), max(u_all), min(v_all), max(v_all)
+            parts = [_P([(ra[0] * x + na[0] * y, ra[1] * x + na[1] * y)
+                         for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))])]
+    if not parts:
+        return None
+    poly = _union(parts)
+    poly = poly.difference(_band(pa, ra, wa, -TURN_BODY_M, 0.0)).difference(_band(pb, rb, wb, 0.0, TURN_BODY_M))
+    for w in walls or ():
+        try:
+            if G.distance(w["start"], w["end"]) > 1e-9:
+                poly = poly.difference(_P(G.centerline_to_rectangle(w["start"], w["end"], float(w["thickness"]))))
+        except (KeyError, TypeError, ValueError):
+            continue
+    geoms = [g for g in getattr(poly, "geoms", [poly]) if g.geom_type == "Polygon" and g.area > 1e-4]
+    if not geoms:
+        return None
+    best = max(geoms, key=lambda g: g.area)
+    if best.area < 0.01:
+        return None
+    return [(float(x), float(y)) for x, y in list(best.exterior.coords)[:-1]]
 
 
-def turn_treads(a: dict, b: dict, z0: float, riser: float, k: int) -> dict:
+def turn_treads(a: dict, b: dict, z0: float, riser: float, k: int, walls: Sequence[dict] = ()) -> dict | None:
     """12 Nov 2026 (S1): one turn of ordered flights (pure): ``{"polygon", "z", "role", "thickness", "winders"}``; with
-    ``k`` drawn winders the turn holds k + 1 winder treads (``winder_treads``, ``WINDER_TREADS_NOTE``), else it is one
-    flat tread at ``a``'s top (``role`` "flat")."""
-    poly = turn_polygon(a, b)
+    ``k`` drawn winders the turn holds k + 1 winder treads (``winder_treads``, ``WINDER_TREADS_NOTE``) on the turn's
+    box, else it is one flat tread at ``a``'s top (``role`` "flat"; ``turn_polygon``). None when no turn is left."""
+    poly = turn_polygon(a, b, walls)
+    if poly is None:
+        return None
     out = {"polygon": [(round(x, 5), round(y, 5)) for x, y in poly], "z": z0, "role": "flat",
            "thickness": STAIR_WAIST_M, "winders": []}
     if k > 0:
-        treads = winder_treads(poly, [a, b], z0, riser, k + 1)
+        box = turn_polygon(a, b, walls, convex=True) or poly
+        treads = winder_treads(box, [a, b], z0, riser, k + 1)
         if treads:
             out.update(role="winders", winders=treads)
     return out
+
+
+def flights_overlap(a: dict, b: dict) -> float:
+    """12 Nov 2026 (review B2-ST3): the plan area two consecutive flights' bands share (first to last nosing, a nosing
+    deep at each end), in m2 (pure)."""
+    def body(f):
+        n0, n1 = f["nosings"][0], f["nosings"][-1]
+        length = G.distance(n0, n1)
+        return _band(n0, f["rise_dir"], float(f["width"]), -STAIR_NOSING_M, length + STAIR_NOSING_M)
+    return body(a).intersection(body(b)).area
 
 
 def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k: int) -> list[dict]:
