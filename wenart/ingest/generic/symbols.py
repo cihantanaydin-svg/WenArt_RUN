@@ -1211,6 +1211,7 @@ GRID_ON_PITCH = 0.75        # ... with this share of the steps on the pitch (the
 # GRID_FLIGHTS_MIN flights or more and less than FLIGHT_MIN_AREA_M2 of its footprint per flight is a grid of lines
 GRID_FLIGHTS_MIN = 3
 FLIGHT_MIN_AREA_M2 = 2.0
+FLIGHT_MIN_WIDTH_M = 0.6    # the narrowest walkable flight (stair_numbers' width range starts there)
 
 
 def _tile_grid(cross: list, pitch: float) -> bool:
@@ -1267,6 +1268,7 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
     to_f, from_f = _frame(theta)
     axis_segs = _straight(cl.segs, to_f)
     best = None
+    grid_axis = False
     for axis in ("h", "v"):
         treads = _merge_collinear([x for x in axis_segs if x[0] == axis])
         if len(treads) < STAIR_MIN_TREADS:
@@ -1282,15 +1284,18 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
         cuts = sorted(set(round(c, 3) for c in cuts))
         if len(cuts) >= GRID_CUTS and _even(cuts, STAIR_STEP_M[0] * (1 - STAIR_STEP_TOL),
                                            STAIR_STEP_M[1] * (1 + STAIR_STEP_TOL) * 2.0):
+            grid_axis = True
             continue                                    # a grid of tiles, not treads
         # 12 Nov 2026 (real18): the cross lines cut by the texts' gaps cross fewer treads each: every cross line over
         # at least GRID_CROSS_MIN treads counts for the grid test
-        offs = sorted(t[0] for t in treads)
+        # the distinct offsets (pieces of one broken line share an offset: a pitch of 0 otherwise)
+        offs = sorted(set(round(t[0], 3) for t in treads))
         tread_pitch = sorted(b - a for a, b in zip(offs, offs[1:]))[(len(offs) - 1) // 2] if len(offs) > 1 else 0.0
         cross = [o[1] for o in others
                  if sum(1 for t in treads if t[1] + 0.01 < o[1] < t[2] - 0.01 and o[2] - 0.005 <= t[0] <= o[3] + 0.005)
                  >= GRID_CROSS_MIN]
         if _tile_grid(cross, tread_pitch):
+            grid_axis = True
             continue                                    # a tile grid (its cross lines cut by text gaps), not treads
         pieces = []
         for off, lo, hi, members in treads:
@@ -1308,7 +1313,9 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
                 flights.append(flight)
         if flights and (best is None or sum(f["lines"] for f in flights) > sum(f["lines"] for f in best[1])):
             best = (axis, flights, cuts)
-    if best is None:
+    if best is None and not grid_axis:
+        # 12 Nov 2026 (round-2 review, A2-FC5: real18's hall mosaic, its lines broken around the label, came back as a
+        # one-flight 'stair' from the loose rule right after the grid test had rejected it): never after a grid
         best = _loose_flights(axis_segs)
     if best is None:
         return None
@@ -1319,9 +1326,14 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
     xs = [p[0] for s in cl.segs for p in map(to_f, s.pts)]
     ys = [p[1] for s in cl.segs for p in map(to_f, s.pts)]
     bbox = (min(xs), min(ys), max(xs), max(ys))
-    if len(flights) >= GRID_FLIGHTS_MIN and \
-            (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) / len(flights) < FLIGHT_MIN_AREA_M2:
-        return None                                     # many 'flights' in a small footprint: a tile grid
+    # 12 Nov 2026 (round-2 review, CODE-A5 / G3): only walkable flights count (a strip between a rail or walk line and
+    # the stringer, or a well drawn as two lines, is no flight): many walkable 'flights' in a small footprint, or none
+    # walkable at all, are a tile grid; the strips leave the flights
+    walkable = [f for f in flights if f["v"] - f["u"] >= FLIGHT_MIN_WIDTH_M]
+    if not walkable or (len(walkable) >= GRID_FLIGHTS_MIN and
+                        (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) / len(walkable) < FLIGHT_MIN_AREA_M2):
+        return None                                     # a tile grid, not a stair
+    flights = walkable
     lo_off = min(f["offsets"][0] for f in flights)
     hi_off = max(f["offsets"][-1] for f in flights)
     lo_end, hi_end = (bbox[1], bbox[3]) if axis == "h" else (bbox[0], bbox[2])

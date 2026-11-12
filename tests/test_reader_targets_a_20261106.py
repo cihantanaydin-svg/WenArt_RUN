@@ -893,8 +893,9 @@ def test_many_flights_in_a_small_footprint_are_a_tile_grid_for_the_reader_and_th
     from wenart.reading_check import sense as SE
 
     treads = [_line((0.0, 0.27 * k), (2.0, 0.27 * k), 500 + k) for k in range(8)]
-    cuts = [_line((x, -0.05), (x, 2.0), 600 + j) for j, x in enumerate((0.45, 1.0, 1.6))]      # uneven dividers
-    assert _stair_of(treads + cuts) is None                       # 4 'flights' in 3.8 m2: no stair
+    cuts = [_line((x, -0.05), (x, 2.0), 600 + j) for j, x in enumerate(
+        (0.07, 0.15, 0.26, 0.31, 0.43, 0.5, 0.62, 0.71, 0.85, 0.93, 1.05, 1.12, 1.26, 1.33, 1.47, 1.55, 1.68, 1.75, 1.88, 1.95))]
+    assert _stair_of(treads + cuts) is None                       # strips of tiles, no walkable flight: no stair
     assert SE.GRID_FLIGHTS_MIN is SY.GRID_FLIGHTS_MIN and SE.FLIGHT_MIN_AREA_M2 is SY.FLIGHT_MIN_AREA_M2
     wide = [_line((0.0, 0.27 * k), (2.4, 0.27 * k), 700 + k) for k in range(12)]
     assert _stair_of(wide + [_line((1.2, -0.05), (1.2, 3.5), 800)]) is not None   # a U stair: 2 flights in 8 m2
@@ -1036,3 +1037,42 @@ def test_a_free_standing_shaft_is_cut_out_of_its_room_with_no_overlap():
     lift = next(r for r in res.rooms if r["label"] == "Asansör")
     hp, lp = Polygon(host["polygon"]), Polygon(lift["polygon"])
     assert abs(hp.area - host["area_computed"]) < 0.02 and hp.intersection(lp).area < 0.01
+
+
+
+def test_rails_walk_lines_and_a_two_line_well_keep_a_drawn_stair():
+    # a straight flight, 18 treads 1.2 m wide, with rail lines 5 cm inside each side (single, then double lines)
+    treads = [_line((0.0, 0.28 * k), (1.2, 0.28 * k), 900 + k) for k in range(18)]
+    end = 0.28 * 17
+    sides = [_line((0.0, 0.0), (0.0, end), 950), _line((1.2, 0.0), (1.2, end), 951)]
+    single = [_line((x, -0.02), (x, end + 0.02), 960 + j) for j, x in enumerate((0.05, 1.15))]
+    double = single + [_line((x, -0.02), (x, end + 0.02), 970 + j) for j, x in enumerate((0.1, 1.1))]
+    for rails in (single, double):
+        st = _stair_of(treads + sides + rails)
+        assert st is not None and max(f["width"] for f in st["flights"]) >= 1.0
+    # a walk line and one rail
+    st = _stair_of(treads + sides + [_line((0.6, -0.02), (0.6, end + 0.02), 980), single[0]])
+    assert st is not None and all(f["width"] >= 0.5 for f in st["flights"])
+    # a compact U stair: two 1.0 m flights either side of a 0.3 m well drawn as two lines
+    u = [_line((0.0, 0.28 * k), (2.3, 0.28 * k), 1000 + k) for k in range(10)]
+    well = [_line((x, -0.02), (x, 0.28 * 9 + 0.02), 1100 + j) for j, x in enumerate((1.0, 1.3))]
+    st = _stair_of(u + well)
+    assert st is not None and sorted(round(f["width"], 2) for f in st["flights"]) == [1.0, 1.0]
+
+
+def test_a_hall_mosaic_grid_broken_around_its_label_is_no_stair():
+    lines, k = [], 2000
+    pitch = 0.21875
+    for i in range(int(3.0 / pitch) + 1):                       # 300 x 180 cm, lines broken around a label block
+        x = i * pitch
+        spans = [(0.0, 0.6), (1.2, 1.8)] if 1.0 < x < 2.0 else [(0.0, 1.8)]
+        for a, b in spans:
+            lines.append(_line((x, a), (x, b), k))
+            k += 1
+    for j in range(int(1.8 / pitch) + 1):
+        y = j * pitch
+        spans = [(0.0, 1.0), (2.0, 3.0)] if 0.6 < y < 1.2 else [(0.0, 3.0)]
+        for a, b in spans:
+            lines.append(_line((a, y), (b, y), k))
+            k += 1
+    assert _stair_of(lines) is None
