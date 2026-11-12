@@ -1123,7 +1123,7 @@ def _inside_rect_part(it: _S, rect) -> bool:
 # --------------------------------------------------------------------------
 
 def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: int,
-                      units_to_m: Optional[float] = None, dimension_ids=frozenset(), wall_strokes=()
+                      units_to_m: Optional[float] = None, dimension_ids=frozenset(), wall_strokes=(), outdoor_points=()
                       ) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
     """Merge wall runs, find and classify gaps, extend free-end walls that host a drawn door or window.
 
@@ -1131,7 +1131,9 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     Returns ``(walls, openings, gap_log, owned)``: the merged/extended walls (page metres), the openings on them
     (page metres; ``box`` in page units when ``units_to_m`` is given), one log dict per gap and free end, and the
     ids of the strokes the openings own. 6 Nov 2026: ``wall_strokes`` (the wall primitives' strokes, page metres)
-    let a door leaf read as a thin wall go back to the door (``leaf_walls``).
+    let a door leaf read as a thin wall go back to the door (``leaf_walls``). 12 Nov 2026: ``outdoor_points`` (page
+    metres: the outdoor-space labels, balcony, terrace, courtyard ...) mark closed spaces open to the sky
+    (``_outside_test``).
     """
     leaf_log: list[dict] = []
     leaves = leaf_walls(walls, wall_strokes)
@@ -1393,7 +1395,8 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
         log.append(entry)
 
     # Continuous-wall symbols (synthetic convention, raster double-line walls).
-    cont_doors, cont_windows = _continuous_symbols(out_walls, index, owned, theta, ctx, openings, exterior)
+    cont_doors, cont_windows = _continuous_symbols(out_walls, index, owned, theta, ctx, openings, inner_check=True,
+                                                   outdoor=outdoor_points)
     openings.extend(cont_doors)
     openings.extend(cont_windows)
     for o in cont_doors + cont_windows:
@@ -1965,6 +1968,47 @@ def _exterior_test(walls: list[WallItem]):
     return touches
 
 
+OUTSIDE_CLOSE_MAX_M = 3.0      # 12 Nov 2026: openings up to this wide (GAP_MAX_M) close the building's outline ...
+OUTSIDE_PROBE_M = 0.30         # ... and a point this far past a wall face tells which space the face looks into
+OUTSIDE_PROBE_AT = (0.25, 0.5, 0.75)   # probes along the stretch (a cross wall or a column may stand at one of them)
+
+
+def _entrance(o: OpeningItem) -> bool:
+    """A door or a doorless opening (an empty gap: no type_raw), not a gap holding a window's lines."""
+    return o.kind == "door" or (o.kind == "opening" and not o.type_raw)
+
+
+def _outside_test(walls: list[WallItem], openings: list[OpeningItem], outdoor=()):
+    """12 Nov 2026 (review B-OPN-03, L2, L5): a function telling whether page-metre probe points past a wall's faces
+    look outside. The building's outline is closed at its doors and windows (openings up to ``OUTSIDE_CLOSE_MAX_M``:
+    an open door gap no longer lets the outside into the rooms behind it, real06's pier between two doors). Outside is
+    what lies past that outline, and every space it encloses that is open to the sky: a closed space no door or
+    doorless opening enters (a light well, a shaft) or one holding an outdoor-space label (``outdoor``: balcony,
+    terrace, courtyard ... points, ``levels.outdoor.space_kind``)."""
+    from wenart.ingest.generic import topology as TP
+
+    closing = [o for o in openings if not o.virtual and float(o.width) <= OUTSIDE_CLOSE_MAX_M]
+    parts = TP._parts(TP.bridged_union(walls, closing)) if walls else []
+    if not parts:
+        return lambda points: False
+    filled = unary_union([Polygon(q.exterior) for q in parts])
+    doors = [d.buffer(0.01) for d in (TP.opening_polygon(o, walls) for o in closing if _entrance(o)) if d is not None]
+    sky = []
+    for part in parts:
+        for ring in part.interiors:
+            h = Polygon(ring)
+            if any(h.contains(Point(q)) for q in outdoor) or not any(d.intersects(h) for d in doors):
+                sky.append(h)
+
+    def outside(points) -> bool:
+        for q in points:
+            pt = Point(q)
+            if not filled.contains(pt) or any(h.contains(pt) for h in sky):
+                return True
+        return False
+    return outside
+
+
 def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
     theta = ctx.theta
     mid = (g.a + g.b) / 2.0
@@ -2089,7 +2133,8 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
 # --------------------------------------------------------------------------
 
 def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, theta: float, ctx: _Ctx,
-                        existing: list[OpeningItem], exterior=None) -> tuple[list[OpeningItem], list[OpeningItem]]:
+                        existing: list[OpeningItem], inner_check: bool = False, outdoor=()
+                        ) -> tuple[list[OpeningItem], list[OpeningItem]]:
     pieces, _ = pieces_of(walls, theta)
     doors: list[OpeningItem] = []
     # Doors: arc + leaf with the end-point rule, hinged in a wall band.
@@ -2163,23 +2208,33 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
                                  rotation_deg=round(rotation % 360, 3), box=bx, entity=ids[0], evidence=ev,
                                  swing_point=_r(probe), height=DOOR_HEIGHT_M, assumed=["height"]))
         _door_operation(doors[-1], [it.st, leaf.st], False)
-    windows = _continuous_windows(pieces, index, owned, theta, ctx, existing + doors, exterior)
+    outside = _outside_test(walls, existing + doors, outdoor) if inner_check and not ctx.raster else None
+    windows = _continuous_windows(pieces, index, owned, theta, ctx, existing + doors, outside)
     return doors, windows
 
 
-WINDOW_LAYER_WORDS = ("PENCERE", "WINDOW", "GLAZ", "GLASS", "CAM", "FENETRE", "VENTANA", "FENSTER")
+GLAZING_ROLES = frozenset({"window", "glass"})
 
 
 def wall_face_layer(layer: Optional[str]) -> bool:
     """6 Nov 2026: a layer that draws walls (``dxf_generic.is_wall_hint_layer``: DUVAR, WALL, plaster, concrete) and
-    names no window or glass (``WINDOW_LAYER_WORDS``: 'DUVAR-PENCERE' or 'A-WALL-GLAZ' draw windows): its lines are a
-    wall's faces."""
+    names no window or glass (12 Nov 2026, review B-OPN-09: any word of the shared layer table's window and glass roles,
+    ``layer_names.layer_roles``, word by word: 'DUVAR-PENC', 'MUR-VERRE' or 'A-WALL-GLAZ' draw windows): its lines are
+    a wall's faces."""
     from wenart.ingest.dxf_generic import is_wall_hint_layer
+    from wenart.ingest.generic import layer_names as LN
 
     if not layer or not is_wall_hint_layer(layer):
         return False
-    folded = layer.translate(_FOLD).upper()
-    return not any(w in folded for w in WINDOW_LAYER_WORDS)
+    return not (LN.layer_roles(layer) & GLAZING_ROLES)
+
+
+def _window_block(st: Stroke) -> bool:
+    """12 Nov 2026 (review L5): a stroke inside a block named for a window or glass (its layer may be the wall layer
+    it was inserted on: block entities on layer 0 take the INSERT's layer)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    return any(LN.layer_roles(n) & GLAZING_ROLES for n in (st.block or "").split("/") if n)
 
 
 def _on_door_layer(st: Stroke) -> bool:
@@ -2217,7 +2272,7 @@ def _shape_leaf(it: _S, arc: dict, index: StrokeIndex, owned: set):
 
 
 def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, theta: float, ctx: _Ctx,
-                        existing: list[OpeningItem], exterior=None) -> list[OpeningItem]:
+                        existing: list[OpeningItem], outside=None) -> list[OpeningItem]:
     """>= 3 distinct parallel stroke offsets inside a wall band, one strictly inside it, or >= 2 strictly inside it,
     over >= 0.4 m."""
     out = []
@@ -2276,18 +2331,20 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
             corners_f = [(u, p.c - p.t / 2), (v, p.c + p.t / 2)] if p.axis == "h" else \
                 [(p.c - p.t / 2, u), (p.c + p.t / 2, v)]
             inner_wall = None
-            if exterior is not None and not ctx.raster and _framed_glass(framed, glass):
+            if outside is not None and not ctx.raster and _framed_glass(framed, glass):
                 # 6 Nov 2026 (real06 L1, C0064, user: "these windows are not making sense"): real06 draws a wall's
                 # structure on DUVAR and its plaster on SIVA, so the DUVAR pair lies strictly between the faces; on the
                 # short stretches beside the shower room's door, between its frame and a cross wall, that pair ends
                 # at both ends like a window's glass. An inner wall (its stretch touches no outer face of the walls)
                 # gets a window only from a symbol of its own: glass on a line off the wall layers (``wall_face_layer``)
-                fx0, fy0 = corners_f[0]
-                fx1, fy1 = corners_f[1]
-                rect_page = [_rot(q, theta) for q in ((fx0, fy0), (fx1, fy0), (fx1, fy1), (fx0, fy1))]
-                if not exterior(rect_page):
-                    own_glass = {o for o in glass if any(s[2] == o and not wall_face_layer(s[3].st.layer)
-                                                         for s in own)}
+                # (12 Nov 2026, review B-OPN-03/L2/L5: a stretch is inner when no probe past either face looks outside,
+                # ``_outside_test``; a line of a window block inserted on a wall layer is the window's own)
+                off = p.t / 2 + OUTSIDE_PROBE_M
+                probes = [_rot((u + f * (v - u), p.c + sg * off) if p.axis == "h" else (p.c + sg * off, u + f * (v - u)),
+                               theta) for f in OUTSIDE_PROBE_AT for sg in (-1.0, 1.0)]
+                if not outside(probes):
+                    own_glass = {o for o in glass if any(s[2] == o and (not wall_face_layer(s[3].st.layer)
+                                                                        or _window_block(s[3].st)) for s in own)}
                     if not own_glass:
                         layers = sorted({str(s[3].st.layer) for s in own if s[2] in glass})
                         inner_wall = (f"an inner wall: its {len(glass)} 'glass' line(s) along the {v - u:.2f} m stretch "

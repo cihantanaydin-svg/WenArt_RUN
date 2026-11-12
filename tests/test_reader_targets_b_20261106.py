@@ -258,39 +258,80 @@ def test_a_small_swing_with_its_leaf_on_a_door_layer_is_a_door():
 # No window in an inner wall from the wall's own face lines
 # --------------------------------------------------------------------------
 
-def _box_with_inner_wall():
-    walls = [R.wall((0, 0), (6, 0), t=0.25, entity="S"), R.wall((6, 0), (6, 4), t=0.25, entity="E"),
-             R.wall((6, 4), (0, 4), t=0.25, entity="N"), R.wall((0, 4), (0, 0), t=0.25, entity="W"),
-             R.wall((0.125, 2.0), (5.875, 2.0), t=0.15, entity="I")]
-    return walls
+def _box_with_inner_wall(entrances=True):
+    """Two rooms (south, north) of a 6 x 4 m box split by an inner wall at y = 2; with ``entrances`` the south room's
+    door gap in the outer wall (x 4.0-4.9) and a door gap in the inner wall (x 4.0-4.9)."""
+    south = ([R.wall((0, 0), (4.0, 0), t=0.25, entity="S1"), R.wall((4.9, 0), (6, 0), t=0.25, entity="S2")]
+             if entrances else [R.wall((0, 0), (6, 0), t=0.25, entity="S")])
+    inner = ([R.wall((0.125, 2.0), (4.0, 2.0), t=0.15, entity="I1"), R.wall((4.9, 2.0), (5.875, 2.0), t=0.15, entity="I2")]
+             if entrances else [R.wall((0.125, 2.0), (5.875, 2.0), t=0.15, entity="I")])
+    return south + [R.wall((6, 0), (6, 4), t=0.25, entity="E"), R.wall((6, 4), (0, 4), t=0.25, entity="N"),
+                    R.wall((0, 4), (0, 0), t=0.25, entity="W")] + inner
+
+
+def _wall_lines(layer, block=None, x0=1.0, x1=1.8, y=2.0):
+    lines = [_line((x0, y - 0.05), (x1, y - 0.05), layer), _line((x0, y + 0.05), (x1, y + 0.05), layer)]
+    for st in lines:
+        st.block = block
+    return lines
 
 
 def test_an_inner_wall_stretch_drawn_with_two_pairs_of_lines_is_no_window():
-    """real06 L1 (C0064): the DUVAR pair 5 cm inside the plaster faces between a door's frame and a cross wall."""
-    lines = [_line((1.0, 1.95), (1.8, 1.95), "DUVAR"), _line((1.0, 2.05), (1.8, 2.05), "DUVAR")]
-    _walls, openings, log, _owned = O.gaps_and_openings(_box_with_inner_wall(), lines, "t.dxf", 1)
-    assert not [o for o in openings if o.kind == "window"]
+    """real06 L1 (C0064): the DUVAR pair 5 cm inside the plaster faces between a door's frame and a cross wall. Review
+    L2 (real06 L0's pier between two doors): the south room's door gap to the outside no longer makes its walls outer
+    ones (the outline is closed at its doors)."""
+    _walls, openings, log, _owned = O.gaps_and_openings(_box_with_inner_wall(), _wall_lines("DUVAR"), "t.dxf", 1)
+    assert [o.kind for o in openings] == ["opening", "opening"]
     dropped = [e for e in log if e.get("rule") == "inner_wall_faces"]
     assert dropped and "inner wall" in dropped[0]["note"] and "DUVAR" in dropped[0]["note"]
 
 
 def test_an_inner_wall_window_drawn_on_a_window_layer_stays():
-    lines = [_line((1.0, 1.95), (1.8, 1.95), "PENCERE"), _line((1.0, 2.05), (1.8, 2.05), "PENCERE")]
+    _walls, openings, _log, _owned = O.gaps_and_openings(_box_with_inner_wall(), _wall_lines("PENCERE"), "t.dxf", 1)
+    assert [round(o.width, 2) for o in openings if o.kind == "window"] == [0.8]
+
+
+def test_an_inner_wall_window_block_inserted_on_a_wall_layer_stays():
+    """review L5: a window block's lines take the wall layer it was inserted on; the block's name says window."""
+    lines = _wall_lines("DUVAR", block="PENCERE_80")
     _walls, openings, _log, _owned = O.gaps_and_openings(_box_with_inner_wall(), lines, "t.dxf", 1)
+    assert [round(o.width, 2) for o in openings if o.kind == "window"] == [0.8]
+
+
+def test_a_window_towards_a_closed_space_no_door_enters_stays():
+    """review B-OPN-03 / L5: the north part is a light well (no door or doorless opening enters it): the wall towards
+    it is an outer wall, its window drawn with wall-layer lines stays."""
+    walls = _box_with_inner_wall()
+    walls = [w for w in walls if w.entity != "I1" and w.entity != "I2"] + [R.wall((0.125, 2.0), (5.875, 2.0), t=0.15,
+                                                                                   entity="I")]
+    _walls, openings, log, _owned = O.gaps_and_openings(walls, _wall_lines("DUVAR"), "t.dxf", 1)
+    assert [round(o.width, 2) for o in openings if o.kind == "window"] == [0.8]
+    assert not [e for e in log if e.get("rule") == "inner_wall_faces"]
+
+
+def test_a_window_towards_a_labelled_outdoor_space_stays():
+    """review B-OPN-03: a courtyard or balcony a door opens onto is a closed face, but its label says it is outside."""
+    lines = _wall_lines("DUVAR")
+    _walls, openings, _log, _owned = O.gaps_and_openings(_box_with_inner_wall(), lines, "t.dxf", 1,
+                                                         outdoor_points=[(3.0, 3.0)])
     assert [round(o.width, 2) for o in openings if o.kind == "window"] == [0.8]
 
 
 def test_an_outer_wall_window_drawn_with_wall_layer_lines_stays():
     """real06's facade windows: the same two DUVAR lines in an outer wall are its window, as before."""
-    lines = [_line((2.0, -0.05), (3.5, -0.05), "DUVAR"), _line((2.0, 0.05), (3.5, 0.05), "DUVAR")]
+    lines = _wall_lines("DUVAR", x0=1.0, x1=2.5, y=4.0)
     _walls, openings, _log, _owned = O.gaps_and_openings(_box_with_inner_wall(), lines, "t.dxf", 1)
     assert [round(o.width, 2) for o in openings if o.kind == "window"] == [1.5]
 
 
 def test_wall_face_layers():
+    """review B-OPN-09: the shared layer table's window and glass words, word by word."""
     assert O.wall_face_layer("DUVAR") and O.wall_face_layer("SIVA") and O.wall_face_layer("A-WALL")
     assert not O.wall_face_layer("PENCERE") and not O.wall_face_layer("DUVAR-PENCERE")
     assert not O.wall_face_layer("A-WALL-GLAZ") and not O.wall_face_layer("0") and not O.wall_face_layer(None)
+    for name in ("DUVAR-PENC", "DUVAR DOGRAMA", "MUR-VERRE", "A-WALL-CURTAIN", "WALL-FINESTRA"):
+        assert not O.wall_face_layer(name), name
+    assert O.wall_face_layer("DUVAR-CAMBAZ")                 # a word that only starts like CAM is no glass word
 
 
 # --------------------------------------------------------------------------

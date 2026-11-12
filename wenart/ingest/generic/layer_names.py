@@ -36,7 +36,7 @@ ROLES.update({
              "PORTA", "PORTE-FENETRE"),
     # 4 Nov 2026 (real17: the window size tags on 'penc-yazi'): PENC, the short form of PENCERE
     "window": ("PENCERE", "PENCERELER", "PENC", "WINDOW", "WINDOWS", "FENSTER", "FENETRE", "FENETRES", "VENTANA",
-               "VENTANAS", "FINESTRA", "FINESTRE", "DOGRAMA", "GLAZING"),
+               "VENTANAS", "FINESTRA", "FINESTRE", "DOGRAMA", "GLAZING", "GLAZ"),     # GLAZ: the AIA layer A-GLAZ
     # 2 Nov 2026 (real03: the windbreak's glass screen on 'MYD - CAM-PER', its sliding doors on 'MYD - CAM')
     "glass": ("CAM", "CAMLAR", "GLASS", "GLAS", "VERRE", "VETRO", "VIDRIO", "CURTAIN", "GIYDIRME", "VITRIN", "CAMEKAN",
               "STOREFRONT"),
@@ -62,16 +62,29 @@ WALL_ROLES: tuple[str, ...] = ("wall", "plaster", "structure")
 _WORD_RE = re.compile(r"[A-Z]+(?:-[A-Z]+)?")
 
 
+def _words(name: str) -> set[str]:
+    folded = B.fold_ascii(str(name)).upper().replace("_", " ").replace(".", " ")
+    return set(_WORD_RE.findall(folded)) | set(w for part in _WORD_RE.findall(folded) for w in part.split("-"))
+
+
 def layer_role(name: Optional[str]) -> Optional[str]:
     """The meaning of a layer name (the module docstring), None when no word of it is known."""
     if not name:
         return None
-    folded = B.fold_ascii(str(name)).upper().replace("_", " ").replace(".", " ")
-    words = set(_WORD_RE.findall(folded)) | set(w for part in _WORD_RE.findall(folded) for w in part.split("-"))
+    words = _words(name)
     for role, vocab in ROLES.items():
         if words & set(vocab):
             return role
     return None
+
+
+def layer_roles(name: Optional[str]) -> set[str]:
+    """12 Nov 2026 (review B-OPN-09): every role a word of the name has ('DUVAR-PENC': wall and window), where
+    ``layer_role`` gives the first only."""
+    if not name:
+        return set()
+    words = _words(name)
+    return {role for role, vocab in ROLES.items() if words & set(vocab)}
 
 
 def draws_walls(name: Optional[str]) -> bool:

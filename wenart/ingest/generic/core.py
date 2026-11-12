@@ -2955,9 +2955,15 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     # frame lines beside its size tag; the notation is read from the layers, UL296)
     # 6 Nov 2026: the wall primitives' strokes go along, so a door leaf the wall mask read as a thin wall goes back to
     # its door (``openings.leaf_walls``)
+    # 12 Nov 2026 (review B-OPN-03): the outdoor-space labels (balcony, terrace, courtyard) mark the closed spaces open
+    # to the sky, so a window on their walls is no inner wall's
+    from wenart.levels import outdoor as OD
+    outdoor_points = [((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0) for t in texts_m
+                      if t.text and OD.space_kind(t.text)]
     walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s,
                                                            wall_strokes=[st for st in strokes_m
-                                                                         if st.id in wall_strokes])
+                                                                         if st.id in wall_strokes],
+                                                           outdoor_points=outdoor_points)
     for e in gap_log:
         if e.get("kind") == "wall_piece":
             # A door leaf fused to a wall face (the run's faces kept; also in the wall's evidence note) or a frame or
