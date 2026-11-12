@@ -732,6 +732,41 @@ LIGHT_WELL_MAX_M2 = 12.0           # 3 Nov 2026: a doorless face up to this size
 LIGHT_WELL_LABELS = ("Işıklık", "Light well")
 
 
+def _wall_view(w) -> dict:
+    s, e, t = (w["start"], w["end"], w["thickness"]) if isinstance(w, dict) else (w.start, w.end, w.thickness)
+    return {"id": "", "level_id": None, "start": list(s), "end": list(e), "thickness": float(t or 0.0)}
+
+
+def twin_band_window(opening: OpeningItem, walls: list, openings: list) -> bool:
+    """12 Nov 2026 (round-2 review, F6: real11's light well became an unknown room by a gap read on a second wall in
+    the band of the wall that holds its window; the twin merge after the rooms dropped it, the room type stayed):
+    whether a door or opening lies on a wall read inside another wall's band (``twin_walls.twin_of``) where a window of
+    that other wall covers at least ``twin_walls.SAME_OPENING_SHARE`` of it: one opening read twice, the window."""
+    from wenart.ingest.generic import twin_walls as TW
+
+    k = host_wall(opening, walls)
+    if k is None:
+        return False
+    mine = _wall_view(walls[k])
+    rot = math.radians(opening.rotation_deg)
+    ux, uy = math.cos(rot), math.sin(rot)
+    lo = -float(opening.width) / 2.0
+    for j, w in enumerate(walls):
+        if j == k:
+            continue
+        other = _wall_view(w)
+        if not (TW.twin_of(mine, other) or TW.twin_of(other, mine)):
+            continue
+        for o in openings:
+            if o is opening or o.kind != "window" or host_wall(o, walls) != j:
+                continue
+            c = (o.center[0] - opening.center[0]) * ux + (o.center[1] - opening.center[1]) * uy
+            cover = min(-lo, c + float(o.width) / 2.0) - max(lo, c - float(o.width) / 2.0)
+            if cover >= TW.SAME_OPENING_SHARE * float(opening.width) - 1e-6:
+                return True
+    return False
+
+
 def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), others: Optional[list] = None
                          ) -> tuple[str, str]:
     """``("hall", reason)`` when an unlabelled face holds a stair or touches >= 2 doors/openings, else
@@ -746,7 +781,7 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
         c = s.center if hasattr(s, "center") else s["center"]
         if poly.contains(Point(c)):
             return "hall", "unlabelled face holding the stair"
-    touching = glassless = 0
+    touching = glassless = twins = 0
     for o in openings:
         if o.kind == "window":
             continue
@@ -755,9 +790,14 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
             continue
         if (o.evidence or {}).get("rule") == "no_glass":
             glassless += 1
+        elif twin_band_window(o, walls, openings):
+            twins += 1                   # 12 Nov 2026 (round-2 review, F6): the window of the wall it lies in
         else:
             touching += 1
     left_out = f" ({glassless} gap(s) without glass not counted as doors)" if glassless else ""
+    if twins:
+        left_out += (f" ({twins} gap(s) on a wall read inside another wall's band, where that wall's window is, not "
+                     f"counted as doors)")
     # 3 Nov 2026 (real09, user: the space beside the bathroom is "a light well (ışıklık)"): a small face no door
     # reaches that the windows of other rooms open onto is a light well (open to the sky, no room)
     if touching == 0 and poly.area <= LIGHT_WELL_MAX_M2:

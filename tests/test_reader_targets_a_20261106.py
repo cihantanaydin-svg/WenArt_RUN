@@ -1219,3 +1219,30 @@ def test_a_drive_is_paved_as_the_drive_and_steps_stay_in_the_steps_stone():
     assert S.step_floor_use(drive, {"kind": "site_ramp"}) == "drive"
     assert S.step_floor_use({"solution": "steps_and_ramp", "ramp": {"slope": 0.06}}, {"kind": "site_ramp"}) == "steps"
     assert S.step_floor_use(drive, {"kind": "site_step"}) == "steps"
+
+
+def test_a_gap_on_a_wall_read_inside_the_band_of_the_wall_with_the_window_leaves_a_light_well_a_light_well():
+    from shapely.geometry import box
+
+    from wenart.ingest.generic import topology as TP
+    from wenart.ingest.model import OpeningItem, WallItem
+
+    def wall(x, y0, y1, t):
+        return WallItem(start=(x, y0), end=(x, y1), thickness=t, box=[0, 0, 0, 0], entity="ent:W", evidence={})
+
+    def gap(kind, x, y, width):
+        return OpeningItem(kind=kind, width=width, center=(x, y), rotation_deg=90.0, box=[0, 0, 0, 0], entity="ent:O",
+                           evidence={})
+
+    walls = [wall(0.0, -2.0, 4.0, 0.26), wall(0.021, 0.5, 2.0, 0.24)]       # one wall, read twice in its band
+    well, room = box(0.141, 0.6, 0.8, 1.6), box(-3.0, -2.0, -0.13, 4.0)
+    window, vent = gap("window", 0.0, 1.1, 0.9), gap("opening", 0.021, 1.1, 0.98)
+    kind, reason = TP.unlabelled_face_type(well, walls, [window, vent], others=[well, room])
+    assert kind == "shaft" and reason.startswith("light well")
+    assert TP.twin_band_window(vent, walls, [window, vent]) is True
+    # with no window in the other wall's band the gap is a door of the face, as before
+    assert TP.twin_band_window(vent, walls, [vent]) is False
+    assert TP.unlabelled_face_type(well, walls, [vent], others=[well, room])[0] != "shaft"
+    # a gap beside the window (covering under half of it) is its own opening
+    side = gap("opening", 0.021, 1.75, 0.5)
+    assert TP.twin_band_window(side, walls, [window, side]) is False
