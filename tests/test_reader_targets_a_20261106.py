@@ -1246,3 +1246,16 @@ def test_a_gap_on_a_wall_read_inside_the_band_of_the_wall_with_the_window_leaves
     # a gap beside the window (covering under half of it) is its own opening
     side = gap("opening", 0.021, 1.75, 0.5)
     assert TP.twin_band_window(side, walls, [window, side]) is False
+
+
+def test_a_stored_entrance_override_a_drive_cannot_take_is_said_not_applied():
+    from wenart.levels import model as M
+
+    b = _garage_building()
+    b["site"] = {"boundary_walls": [], "areas": [], "decor": [], "openings": [],
+                 "entrance_overrides": {"d_front": {"solution": "steps", "reason": "an older edit"}}}
+    out = M.infer_levels(b)
+    e = next(x for x in out["site"]["entrances"] if x["door_id"] == "d_front")
+    assert e["solution"] == "drive"
+    assert any("override of d_front (steps) not applied" in w and "drive" in w
+               for w in out["level_inference"]["warnings"])

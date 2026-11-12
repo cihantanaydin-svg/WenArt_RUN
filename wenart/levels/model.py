@@ -933,6 +933,12 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
         if isinstance(agent, dict) and not rec["into_air"] and not rec["below_ground"] and space is None \
                 and rec["solution"] != "drive":
             _apply_entrance_override(rec, agent, max(rise, 0.0), top, width, params)
+        elif isinstance(agent, dict):
+            # 12 Nov 2026 (round-2 review, BP7: a stored override met a door that cannot take one, e.g. a door that
+            # became a garage door's drive after a later edit; nothing changes silently)
+            why = ("a garage door's drive" if rec["solution"] == "drive" else "a door into the air" if rec["into_air"]
+                   else "below the ground" if rec["below_ground"] else f"opens onto {space['id']}")
+            warnings.append(f"entrance override of {o['id']} ({agent.get('solution')}) not applied: the door is {why}")
         rec["evidence"].append(_evidence(file, "entrance", rec["reason"]))
         out.append(rec)
     # The main entrance (26 Oct 2026, main_entrance): the door a visitor uses, not the widest garden door.
