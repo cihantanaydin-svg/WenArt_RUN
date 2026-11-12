@@ -1259,3 +1259,15 @@ def test_a_stored_entrance_override_a_drive_cannot_take_is_said_not_applied():
     assert e["solution"] == "drive"
     assert any("override of d_front (steps) not applied" in w and "drive" in w
                for w in out["level_inference"]["warnings"])
+
+
+def test_the_building_frame_shift_moves_every_correction_record_of_a_wall():
+    from wenart.ingest.generic import core as C
+    from wenart.ingest.model import WallItem
+
+    w = WallItem(start=(10.0, 5.0), end=(14.0, 5.0), thickness=0.2, box=[0, 0, 0, 0], entity="ent:W", evidence={})
+    w.corrected_by_ai = {"rule": "faces_through_gap", "before": {"opening": "gap", "center": [12.0, 5.0], "width": 0.3},
+                         "also": [{"rule": "lined_gap", "before": {"start": [10.0, 5.0], "end": [11.0, 5.0]}}]}
+    C._shift_wall(w, C._Shift(10.0, 5.0))
+    assert tuple(w.start) == (0.0, 0.0) and w.corrected_by_ai["before"]["center"] == [2.0, 0.0]
+    assert w.corrected_by_ai["also"][0]["before"]["end"] == [1.0, 0.0]

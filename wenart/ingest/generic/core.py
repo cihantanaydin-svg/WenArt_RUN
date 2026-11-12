@@ -195,10 +195,17 @@ class _Shift:
 
 def _shift_wall(w: WallItem, sh: _Shift) -> None:
     w.start, w.end = sh.p(w.start), sh.p(w.end)
-    before = (getattr(w, "corrected_by_ai", None) or {}).get("before")
-    if before:
-        # Fix round after P6b (23 Oct 2026): the wall a lined gap split (``openings._mark_lined``) as it was before.
-        before["start"], before["end"] = list(sh.p(before["start"])), list(sh.p(before["end"]))
+    label = getattr(w, "corrected_by_ai", None) or {}
+    for rec in [label] + list(label.get("also") or []):
+        before = rec.get("before") if isinstance(rec, dict) else None
+        if not before:
+            continue
+        if "start" in before and "end" in before:
+            # Fix round after P6b (23 Oct 2026): the wall a lined gap split (``openings._mark_lined``) as it was before.
+            before["start"], before["end"] = list(sh.p(before["start"])), list(sh.p(before["end"]))
+        if "center" in before:
+            # 12 Nov 2026 (round-2 review, F5 / G7): the gap a wall's face lines run through, as it was before
+            before["center"] = list(sh.p(before["center"]))
 
 
 GAP_RULE_TEXT = {"lined_gap": "lined by a thinner wall along one face: open, the thick pieces are walls of their own",
