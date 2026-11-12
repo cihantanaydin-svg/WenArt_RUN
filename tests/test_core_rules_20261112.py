@@ -40,18 +40,20 @@ def storey(lid, order):
     w = [wall(f"w_{lid}_s", (0, 0), (12, 0), lid), wall(f"w_{lid}_e", (12, 0), (12, 8), lid),
          wall(f"w_{lid}_n", (12, 8), (0, 8), lid), wall(f"w_{lid}_w", (0, 8), (0, 0), lid),
          wall(f"w_{lid}_4", (4, 0), (4, 8), lid), wall(f"w_{lid}_8", (8, 0), (8, 8), lid),
-         wall(f"w_{lid}_l1", (6.4, 6.0), (8, 6.0), lid), wall(f"w_{lid}_l2", (6.4, 6.0), (6.4, 8), lid)]
-    rooms = [room(f"r_{lid}_west", "Oda", "bedroom", rect(0.1, 0.1, 3.9, 7.9), lid),
+         wall(f"w_{lid}_l1", (6.4, 6.0), (8, 6.0), lid), wall(f"w_{lid}_l2", (6.4, 6.0), (6.4, 8), lid),
+         wall(f"w_{lid}_k", (8, 4.0), (12, 4.0), lid)]
+    rooms = [room(f"r_{lid}_west", "Mutfak", "kitchen", rect(0.1, 0.1, 3.9, 7.9), lid),
              room(f"r_{lid}_hall", "Hol", "hall", HALL, lid),
              room(f"r_{lid}_lift", "Asansör", "shaft", rect(6.5, 6.1, 7.9, 7.9), lid),
-             room(f"r_{lid}_east", "Oda", "bedroom", rect(8.1, 0.1, 11.9, 7.9), lid)]
+             room(f"r_{lid}_east", "Oda", "bedroom", rect(8.1, 0.1, 11.9, 3.9), lid),
+             room(f"r_{lid}_ek", "Mutfak", "kitchen", rect(8.1, 4.1, 11.9, 7.9), lid)]
     ops = [{"id": f"d_{lid}_lift", "type": "door", "level_id": lid, "wall_id": f"w_{lid}_8", "center": [8.0, 7.0],
             "width": 1.0},
            {"id": f"o_{lid}_gap", "type": "opening", "level_id": lid, "wall_id": f"w_{lid}_4", "center": [4.0, 3.0],
             "width": 1.2},
            {"id": f"d_{lid}_flat", "type": "door", "level_id": lid, "wall_id": f"w_{lid}_8", "center": [8.0, 2.0],
             "width": 0.9},
-           {"id": f"d_{lid}_out", "type": "door", "level_id": lid, "wall_id": f"w_{lid}_e", "center": [12.0, 4.0],
+           {"id": f"d_{lid}_out", "type": "door", "level_id": lid, "wall_id": f"w_{lid}_e", "center": [12.0, 2.0],
             "width": 0.9}]
     lv = {"id": lid, "label": f"{order}. Kat", "order": order, "elevation": 3.0 * order, "ceiling_height": 2.7}
     sym = {"id": f"sy_{lid}_001", "kind": "dimension_outline", "level_id": lid, "room_id": f"r_{lid}_hall",
@@ -62,7 +64,7 @@ def storey(lid, order):
 def block(storeys=2, symbol=True):
     b = {"levels": [], "walls": [], "rooms": [], "openings": [], "furniture": [], "symbols": [], "warnings": [],
          "slabs": [], "site": {"entrances": [{"door_id": "d_L0_out", "level_id": "L0", "room_id": "r_L0_east",
-                                              "face": [12.1, 4.0], "outward": [1.0, 0.0]}]},
+                                              "face": [12.1, 2.0], "outward": [1.0, 0.0]}]},
          "level_inference": {}}
     for k in range(storeys):
         lv, w, rooms, ops, sym = storey(f"L{k}", k)
@@ -124,7 +126,7 @@ def test_without_a_box_a_dog_leg_is_inferred_in_a_core_hall_that_holds_one():
 
 def test_a_one_storey_house_needs_no_stair():
     b = block(storeys=1)
-    b["rooms"] = [r for r in b["rooms"] if r["room_type"] != "shaft"]
+    b["rooms"] = [r for r in b["rooms"] if r["room_type"] != "shaft" and r["id"] != "r_L0_ek"]
     assert not CR.needs_stair(b)
     assert run(b)["stairs"] == []
 
@@ -192,7 +194,7 @@ def test_a_door_from_a_flats_room_is_no_entrance_and_the_core_gets_one():
 def test_an_entrance_whose_far_side_holds_a_lost_room_label_is_refused():
     b = block(storeys=1)
     b["rooms"] = [r for r in b["rooms"] if r["room_type"] != "shaft"]
-    b["levels"][0]["reading_places"] = [{"kind": "unplaced_label", "text": "SALON", "at": [12.8, 4.2]}]
+    b["levels"][0]["reading_places"] = [{"kind": "unplaced_label", "text": "SALON", "at": [12.8, 2.2]}]
     rec = run(b)
     assert [r["door"] for r in rec["entrances"]["refused"]] == ["d_L0_out"]
     assert "SALON" in rec["entrances"]["refused"][0]["reason"]

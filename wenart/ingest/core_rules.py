@@ -9,14 +9,16 @@ wells and before the windows; it changes the building in place and returns the r
    several storeys has a stair rising from every storey with a storey above. When a storey has none, a stroke box the
    reading set aside as notation (``symbols`` of kind ``dimension_outline`` or ``unknown``, at least ``STAIR_BOX_M``)
    standing in a hall or a stair room, or touching a lift, is that stair (``from_documents``, typed by this rule);
-   else, in a building with a lift or several flats, a dog-leg stair is inferred in the core hall when it has room for
-   one (``added_by_ai``). Each stair gets its void in the slab above.
+   else, in a building of several flats (two kitchens on a storey: ``several_flats``), a dog-leg stair is inferred in
+   the core hall when it has room for one (``added_by_ai``). Each stair gets its void in the slab above.
 2. **Lift landing doors** (``lift_doors``): a lift's openings onto a flat's room, onto a stair flight or narrower than
    ``LIFT_DOOR_MIN_M`` are removed; a lift left without an opening onto the common hall gets one inferred landing door
-   on the face to the hall.
+   on the face to the hall, away from a drawn counterweight. Only in a building of several flats (a house's own lift
+   opens where its plan says).
 3. **Between a flat and the core** (``core_gaps``): an unclassified gap (type ``opening``) between a flat's room and
    the common core (the lifts, the stairs and the halls joined to them by doorless openings) is closed: the only way
-   from a flat into the core is its entrance door.
+   from a flat into the core is its entrance door. Only in a building of several flats (a house's stair hall may be
+   open to its rooms).
 4. **Entrances** (``entrances``): an entrance (``site.entrances``) whose far side holds a room label the reading lost
    is no entrance (the room behind it is missing); in a building of several flats an entrance from a flat's room or
    hall is refused (the building's entrance leads into the common hall); a building of several flats without an
@@ -68,9 +70,7 @@ def _storeys(b: dict) -> list:
 
 
 def several_flats(b: dict) -> bool:
-    """A building of several flats (pure): a lift, or two kitchens on one storey."""
-    if any(CP.is_lift(r) for r in b.get("rooms") or []):
-        return True
+    """A building of several flats (pure): two kitchens on one storey (a lift alone may be a house's own lift)."""
     for lv in _storeys(b):
         if sum(1 for r in b.get("rooms") or [] if r.get("level_id") == lv["id"] and r.get("room_type") == "kitchen") >= 2:
             return True
@@ -78,8 +78,8 @@ def several_flats(b: dict) -> bool:
 
 
 def needs_stair(b: dict) -> bool:
-    """A building that needs a stair (pure): several flats (``several_flats``) or several storeys."""
-    return several_flats(b) or len(_storeys(b)) >= 2
+    """A building that needs a stair (pure): a lift, several flats (``several_flats``) or several storeys."""
+    return any(CP.is_lift(r) for r in b.get("rooms") or []) or several_flats(b) or len(_storeys(b)) >= 2
 
 
 def stairs_on(b: dict, lid: str) -> list:
@@ -563,8 +563,10 @@ def apply(build, texts_by_level: dict, party_by_level: dict) -> dict:
     """The four rules in order (the module docstring); the record for ``level_inference.core_rules``."""
     b = build.building
     rec = {"stairs": infer_stairs(b, build.ids.next, texts_by_level)}
-    rec["lift_doors"] = fix_lift_doors(b, build.ids.next)
-    rec["core_gaps"] = close_core_gaps(b)
+    # the common core is a building of several flats' (a house's own stair hall or lift opens where its plan says)
+    flats = several_flats(b)
+    rec["lift_doors"] = fix_lift_doors(b, build.ids.next) if flats else {"removed": [], "added": []}
+    rec["core_gaps"] = close_core_gaps(b) if flats else []
     rec["entrances"] = fix_entrances(b, build.ids.next, party_by_level)
     for s in rec["stairs"]:
         build.warn(f"stair: {s['reason']}")
