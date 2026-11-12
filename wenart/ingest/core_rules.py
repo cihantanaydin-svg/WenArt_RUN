@@ -12,9 +12,13 @@ wells and before the windows; it changes the building in place and returns the r
    ``STAIR_BOX_MIN_M2``) standing in a hall or a stair room, or touching a lift, is that stair only with stair strokes
    inside it (``stair_evidence``: a run of tread lines from the sheets stage, a tread-number run 1..N with N at least
    ``NUMBER_RUN_MIN``, or a riser tag; G3), never a box over a lift or holding a lift, shaft, void or light-well word
-   (``from_documents``, typed by this rule, inferred and needs review). With no such box no geometry is made: the
-   storey is listed (``stairs_open``) with the box found without strokes, and the building gets a ``needs_review``
-   item (G2). Each stair gets its void in the slab above.
+   (``from_documents``, typed by this rule, inferred and needs review). Else (the coordinator's decision of 12 Nov
+   2026: a building of two or more storeys has a stair) a box the reader set aside, of stair size (``STAIR_SIZE_M``,
+   about 2.0-3.2 by 3.5-6.5 m) beside the lift, the core or a hall, with a stair sign drawn in it (``stair_signs``: a
+   well line along its long axis makes a U stair, a break diagonal a straight flight) is an inferred stair whose
+   risers follow the storey height; it is listed in ``needs_review`` with the evidence strokes. With no such box no
+   geometry is made: the storey is listed (``stairs_open``) with the box found without strokes, and the building gets a
+   ``needs_review`` item (G2). Each stair gets its void in the slab above.
 2. **Lift landing doors** (``lift_doors``, R19 with its guards; a lift is ``completion.is_lift``: a lift word, no
    machine-room, lobby or car-lift word, at most 8 m2 a car): the pieces of one landing door read in stacked parallel
    walls (``STACK_M`` apart, spans overlapping by half) are merged first, the widest (or the drawn one) kept; then a
@@ -78,6 +82,15 @@ FRONT_ZONE_M = 1.20             # the zone in front of a lift door ...
 FRONT_FLIGHT_M2 = 0.50          # ... a stair flight covering this much of it: the opening is onto the flight
 ENTRANCE_DOOR_M = (1.20, 2.20)
 TREAD_M = 0.27
+TREAD_RANGE_M = (0.26, 0.30)    # an inferred stair's tread ...
+RISER_RANGE_M = (0.15, 0.19)    # ... and riser, the risers from the storey height
+STOREY_H_M = 3.0                # the storey height when the levels give none
+# a box of stair size: about 2.0-3.2 m by 3.5-6.5 m (the coordinator), 10 % either way
+STAIR_SIZE_M = ((1.8, 3.15), (3.5, 7.15))
+WELL_ANGLE_DEG = 5.0            # a well line runs along the box's long axis within this angle ...
+WELL_SHARE = 0.5                # ... over at least this share of its length, near its middle
+DIAG_DEG = (25.0, 65.0)         # a break diagonal: this angle to the long axis ...
+DIAG_SHARE = 0.4                # ... at least this share of the box's width long
 # an opening a rule made: a reader-derived gap, or one inferred by a rule (R16 G6)
 DERIVED_RULES = ("lift_door", "mirror_twin", "gap_behind_furniture", "inferred_door", "inferred_window",
                  "inferred_entrance", "balcony_door")
@@ -144,9 +157,19 @@ def stairs_on(b: dict, lid: str) -> list:
 
 
 # ------------------------------------------------------------------------------------------------------- 1. stairs
-def stair_dict(fp: dict, reason: str) -> dict:
-    """A dog-leg (U) stair in the footprint ``fp`` (pure): two flights side by side along its long side, a half
-    landing at the far end; the direction and the turn assumed (the shape the stair rule writes)."""
+def risers_for(rise: float) -> int:
+    """The riser count of a stair climbing ``rise`` metres: risers in ``RISER_RANGE_M`` (pure)."""
+    n = max(2, math.ceil(rise / RISER_RANGE_M[1] - 1e-9))
+    return n - 1 if n > 2 and rise / n < RISER_RANGE_M[0] else n
+
+
+def stair_dict(fp: dict, reason: str, turn: str = "U", rise: Optional[float] = None) -> dict:
+    """A stair in the footprint ``fp`` (pure): a dog-leg (U) with two flights side by side along its long side and a
+    half landing at the far end, or (``turn`` straight) one flight along the long side. With ``rise`` (the storey
+    height) the flights carry the riser count of ``risers_for`` (one riser a tread line) at a tread in
+    ``TREAD_RANGE_M`` where the footprint allows; else the lines fill the footprint at ``TREAD_M``."""
+    if turn == "straight":
+        return _straight_stair(fp, reason, rise)
     (cx, cy), (w, d), rot = fp["center"], fp["size"], math.radians(fp["rotation_deg"])
     # the long side along the footprint's own axis
     if d >= w:
@@ -156,21 +179,53 @@ def stair_dict(fp: dict, reason: str) -> dict:
     fw = width / 2.0
     ld = max(min(fw, 1.4), 1.0)
     lines = max(3, min(10, int((length - ld - 0.3) / TREAD_M)))
-    fl = lines * TREAD_M
+    per, spacing = [lines, lines], TREAD_M
+    if rise:
+        nr = risers_for(rise)
+        per = [math.ceil(nr / 2), nr - math.ceil(nr / 2)]
+        spacing = max(TREAD_RANGE_M[0], min(TREAD_RANGE_M[1], (length - ld - 0.3) / per[0]))
+    fl = per[0] * spacing
 
     def at(s, t):
         return [round(cx + u[0] * s + n[0] * t, 4), round(cy + u[1] * s + n[1] * t, 4)]
 
     s0 = -length / 2.0 + 0.3
-    flights = [{"start": at(s0, -fw / 2.0), "end": at(s0 + fl, -fw / 2.0), "width": round(fw, 3), "lines": lines,
-                "spacing": TREAD_M},
-               {"start": at(length / 2.0 - ld, fw / 2.0), "end": at(length / 2.0 - ld - fl, fw / 2.0),
-                "width": round(fw, 3), "lines": lines, "spacing": TREAD_M}]
+    flights = [{"start": at(s0, -fw / 2.0), "end": at(s0 + fl, -fw / 2.0), "width": round(fw, 3), "lines": per[0],
+                "spacing": round(spacing, 3)},
+               {"start": at(length / 2.0 - ld, fw / 2.0), "end": at(length / 2.0 - ld - per[1] * spacing, fw / 2.0),
+                "width": round(fw, 3), "lines": per[1], "spacing": round(spacing, 3)}]
     landing = [at(length / 2.0 - ld, -width / 2.0), at(length / 2.0, -width / 2.0), at(length / 2.0, width / 2.0),
                at(length / 2.0 - ld, width / 2.0)]
     return {"flights": flights, "landing": {"polygon": landing, "depth": round(ld, 3)},
             "direction": [round(u[0], 4), round(u[1], 4)], "direction_assumed": True, "turn": "U",
-            "turn_assumed": True, "void_assumed": True, "riser_m": None, "riser_source": None, "reason": reason}
+            "turn_assumed": True, "void_assumed": True, "riser_m": None, "riser_source": None,
+            "risers": sum(per) if rise else None, "reason": reason}
+
+
+def _long_axis(fp: dict) -> tuple:
+    """``(u, n, length, width)`` of a footprint: its long axis, the normal, the long and the short side (pure)."""
+    (w, d), rot = fp["size"], math.radians(fp["rotation_deg"])
+    if d >= w:
+        return (-math.sin(rot), math.cos(rot)), (math.cos(rot), math.sin(rot)), d, w
+    return (math.cos(rot), math.sin(rot)), (-math.sin(rot), math.cos(rot)), w, d
+
+
+def _straight_stair(fp: dict, reason: str, rise: Optional[float]) -> dict:
+    """One straight flight along the footprint's long side (pure; ``stair_dict``)."""
+    (cx, cy) = fp["center"]
+    u, n, length, width = _long_axis(fp)
+    lines = risers_for(rise) if rise else max(3, int((length - 0.6) / TREAD_M))
+    spacing = max(TREAD_RANGE_M[0], min(TREAD_RANGE_M[1], (length - 0.6) / lines)) if rise else TREAD_M
+    s0 = -length / 2.0 + 0.3
+
+    def at(s, t):
+        return [round(cx + u[0] * s + n[0] * t, 4), round(cy + u[1] * s + n[1] * t, 4)]
+
+    return {"flights": [{"start": at(s0, 0.0), "end": at(s0 + lines * spacing, 0.0), "width": round(width, 3),
+                         "lines": lines, "spacing": round(spacing, 3)}],
+            "landing": None, "direction": [round(u[0], 4), round(u[1], 4)], "direction_assumed": True,
+            "turn": "straight", "turn_assumed": True, "void_assumed": True, "riser_m": None, "riser_source": None,
+            "risers": lines if rise else None, "reason": reason}
 
 
 def derived(o: dict) -> bool:
@@ -208,6 +263,87 @@ def stair_evidence(p: Polygon, strokes: list, texts: list) -> Optional[str]:
     return f"the tread numbers 1-{run}" if run >= NUMBER_RUN_MIN else None
 
 
+def stair_signs(fp: dict, segments: list) -> tuple:
+    """``(turn, signs)`` (pure; the coordinator's decision of 12 Nov 2026): a well line (a segment along the box's long
+    axis, at least ``WELL_SHARE`` of its length, within a third of its width of the middle and clear of its sides)
+    makes a U stair; else a break diagonal (``DIAG_DEG`` to the long axis, at least ``DIAG_SHARE`` of the width) makes a
+    straight flight; two diagonals crossing each other (an X: a lift or a void) are no sign. ``(None, [])`` without a
+    sign."""
+    u, n, length, width = _long_axis(fp)
+    c = fp["center"]
+    well, diag = [], []
+    for sg in segments:
+        a, b2 = sg["a"], sg["b"]
+        v = (b2[0] - a[0], b2[1] - a[1])
+        ln = math.hypot(*v)
+        if ln < 0.3:
+            continue
+        cos = abs(v[0] * u[0] + v[1] * u[1]) / ln
+        mid = ((a[0] + b2[0]) / 2.0, (a[1] + b2[1]) / 2.0)
+        off = abs((mid[0] - c[0]) * n[0] + (mid[1] - c[1]) * n[1])
+        if cos >= math.cos(math.radians(WELL_ANGLE_DEG)):
+            if ln >= WELL_SHARE * length and off <= width / 3.0 and width / 2.0 - off >= 0.15:
+                well.append(sg)
+        elif math.cos(math.radians(DIAG_DEG[1])) <= cos <= math.cos(math.radians(DIAG_DEG[0])) and \
+                ln >= DIAG_SHARE * width:
+            diag.append(sg)
+    from shapely.geometry import LineString
+    crossing = {i for i, x in enumerate(diag) for j, y in enumerate(diag) if i < j
+                and LineString([x["a"], x["b"]]).intersects(LineString([y["a"], y["b"]]))
+                and LineString([x["a"], x["b"]]).intersection(LineString([y["a"], y["b"]])).distance(
+                    Point((x["a"][0] + x["b"][0]) / 2.0, (x["a"][1] + x["b"][1]) / 2.0)) <= 0.25 * x["length"]}
+    crossing |= {j for i, x in enumerate(diag) for j, y in enumerate(diag) if i in crossing and i != j
+                 and LineString([x["a"], x["b"]]).intersects(LineString([y["a"], y["b"]]))}
+    diag = [d for k, d in enumerate(diag) if k not in crossing]
+    if well:
+        return "U", well[:1] + diag[:2]
+    if diag:
+        return "straight", diag[:2]
+    return None, []
+
+
+def _sign_box(b: dict, level: "CP.Level", drawn, texts: list) -> Optional[dict]:
+    """A box the reader set aside, of stair size (``STAIR_SIZE_M``) beside the lift, the core or a hall, with a stair
+    sign drawn in it (``stair_signs``), or None (pure but for the drawing's query)."""
+    if drawn is None:
+        return None
+    lifts = [level.polys[r["id"]] for r in level.rooms if CP.is_lift(r)]
+    core = core_rooms(b, level)
+    for s in b.get("symbols") or []:
+        fp = s.get("footprint") or {}
+        kind = str(s.get("kind"))
+        if s.get("level_id") != level.lid or not fp.get("size") or \
+                (kind not in STAIR_SYMBOL_KINDS and "stair" not in kind):
+            continue
+        small, long_ = sorted(float(v) for v in fp["size"])
+        if not (STAIR_SIZE_M[0][0] <= small <= STAIR_SIZE_M[0][1] and STAIR_SIZE_M[1][0] <= long_ <= STAIR_SIZE_M[1][1]):
+            continue
+        p = _rect(fp)
+        if any(p.intersection(q).area > 0.3 * p.area for q in lifts) or any(
+                p.buffer(-0.05).contains(Point(t["x"], t["y"])) and NOT_STAIR_RE.search(CP._fold(t["text"]))
+                for t in texts or []):
+            continue
+        room = level.room_at((p.centroid.x, p.centroid.y))
+        beside = (room is not None and (room.get("room_type") in ("hall", "stair") or room["id"] in core)) or \
+            any(p.distance(q) <= 0.4 for q in lifts) or \
+            any(p.distance(level.polys[i]) <= 0.3 for i in core if i in level.polys)
+        if not beside:
+            continue
+        turn, signs = stair_signs(fp, drawn.segments(p.buffer(0.05)))
+        if turn:
+            return {"symbol": s, "footprint": fp, "room": room, "turn": turn, "signs": signs}
+    return None
+
+
+def _rise(b: dict, lid: str, above: str) -> float:
+    """The storey height from ``lid`` to ``above`` (their elevations), else ``STOREY_H_M`` (pure)."""
+    lv = {x["id"]: x for x in b.get("levels") or []}
+    e0, e1 = (lv.get(lid) or {}).get("elevation"), (lv.get(above) or {}).get("elevation")
+    if isinstance(e0, (int, float)) and isinstance(e1, (int, float)) and 2.2 <= e1 - e0 <= 6.0:
+        return float(e1 - e0)
+    return STOREY_H_M
+
+
 def _stair_box(b: dict, level: "CP.Level", strokes: list, texts: list) -> tuple:
     """``(box, candidate)`` (pure): the stroke box of a storey that holds its stair with stair strokes inside it (R08
     G3), and the first box in the core without them (a question, no geometry; G2)."""
@@ -241,7 +377,8 @@ def _stair_box(b: dict, level: "CP.Level", strokes: list, texts: list) -> tuple:
     return None, candidate
 
 
-def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optional[dict] = None) -> tuple:
+def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optional[dict] = None,
+                 drawn_by_level: Optional[dict] = None) -> tuple:
     """Rule 1 (the module docstring); returns ``(stairs, open)``: the records ``[{level_id, stair, how, reason}]`` of the
     stairs added, and ``[{level_id, candidate, reason}]`` of the storeys left without one (no geometry: a question)."""
     out, open_ = [], []
@@ -268,6 +405,18 @@ def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optio
                    f"'{box['symbol'].get('kind')}') in {room['id'] if room else 'the core'} holds {box['evidence']}: "
                    f"the building needs a stair and the reading has none on {lid}")
             evidence, source = box["symbol"].get("evidence") or [], "from_documents"
+        elif (sign := _sign_box(b, level, (drawn_by_level or {}).get(lid), texts_by_level.get(lid) or [])) is not None:
+            mode, fp, room, turn = "stair signs", sign["footprint"], sign["room"], sign["turn"]
+            ids = sorted({sg["id"] for sg in sign["signs"]})
+            what = "a well line along its long axis (a U stair)" if turn == "U" else "a break diagonal (a straight flight)"
+            how = (f"the box {sign['symbol']['id']} ({fp['size'][0]:.2f} x {fp['size'][1]:.2f} m, set aside as "
+                   f"'{sign['symbol'].get('kind')}') in {room['id'] if room else 'the core'} holds {what} "
+                   f"({', '.join(ids)}): a building of {len(storeys)} storeys has a stair, and none is drawn otherwise on "
+                   f"{lid}; its risers follow the storey height")
+            evidence = list(sign["symbol"].get("evidence") or [])[:1] + [
+                {"file": CP._ev_file(b, lid), "method": "vector", "entity": ",".join(ids), "rule": "stair_signs",
+                 "confidence": 0.5}]
+            source = "from_documents"
         else:
             cand = (candidate or {}).get("symbol") or {}
             croom = (candidate or {}).get("room") or {}
@@ -277,7 +426,7 @@ def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optio
                       + " (a question: no stair is built without drawn evidence, R08)")
             open_.append({"level_id": lid, "candidate": cand.get("id"), "reason": reason})
             continue
-        kind = {"typical copy": "stair_typical_copy", "stroke box": "stair_box"}[mode]
+        kind = {"typical copy": "stair_typical_copy", "stroke box": "stair_box", "stair signs": "stair_signs"}[mode]
         if RG.blocked(kind, b, {"level_id": lid, "symbol": (box or {}).get("symbol", {}).get("id"),
                                 "room": (room or {}).get("id"), "why": how}):
             continue
@@ -289,8 +438,11 @@ def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optio
                  "front_deg": None, "height": None, "asset": None, "status": "unverified", "type_method": "inferred",
                  "type_candidates": [], "build": True, "inferred": True,
                  "adjusted_by_ai": {"by": "code", "rule": "stair_missing", "reason": reason},
-                 "stair": stair_dict(fp, reason),
-                 "evidence": (list(evidence)[:1] + [{"file": CP._ev_file(b, lid), "method": "inferred",
+                 "stair": (stair_dict(fp, reason, sign["turn"], _rise(b, lid, storeys[k + 1]["id"]))
+                           if mode == "stair signs" else
+                           dict(base[0]["stair"], reason=reason) if mode == "typical copy" and base[0].get("stair")
+                           else stair_dict(fp, reason)),
+                 "evidence": (list(evidence)[:2] + [{"file": CP._ev_file(b, lid), "method": "inferred",
                                                      "confidence": 0.4, "rule": "stair_missing", "text": reason}])}
         b.setdefault("furniture", []).append(piece)
         above = storeys[k + 1]["id"]
@@ -302,6 +454,10 @@ def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optio
                      "polygon": [[round(x, 4), round(y, 4)] for x, y in G.rotated_rectangle(
                          fp["center"], fp["size"], fp["rotation_deg"])], "source": "derived"})
         out.append({"level_id": lid, "stair": piece["id"], "reason": reason, "how": mode})
+        if mode == "stair signs":
+            b.setdefault("needs_review", []).append(
+                {"id": piece["id"], "kind": "stair_inferred", "reason": reason, "crop": None,
+                 "room_id": piece["room_id"], "level_id": lid})
     return out, open_
 
 
@@ -787,10 +943,11 @@ def fix_entrances(b: dict, next_id, party_by_level: dict) -> dict:
     return rec
 
 
-def apply(build, texts_by_level: dict, party_by_level: dict, strokes_by_level: Optional[dict] = None) -> dict:
+def apply(build, texts_by_level: dict, party_by_level: dict, strokes_by_level: Optional[dict] = None,
+          drawn_by_level: Optional[dict] = None) -> dict:
     """The four rules in order (the module docstring); the record for ``level_inference.core_rules``."""
     b = build.building
-    stairs, open_ = infer_stairs(b, build.ids.next, texts_by_level, strokes_by_level)
+    stairs, open_ = infer_stairs(b, build.ids.next, texts_by_level, strokes_by_level, drawn_by_level)
     rec = {"stairs": stairs, "stairs_open": open_}
     # the common core is a building of several flats' with a common core (a house's, or a house pair's, own stair hall
     # or lift opens where its plan says)

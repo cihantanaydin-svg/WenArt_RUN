@@ -504,12 +504,17 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         b["level_inference"] = {}
     rec = (sheets or {}).get("storeys") if sheets else None
     regions = ((sheets or {}).get("completion") or {}).get("regions") or {}
-    texts_by_level, region_by_level, party_by_level, strokes_by_level = {}, {}, {}, {}
+    from wenart.ingest.drawn_strokes import Drawn
+
+    texts_by_level, region_by_level, party_by_level, strokes_by_level, drawn_by_level = {}, {}, {}, {}, {}
     for lid, works in by_level.items():
         w = sorted(works, key=lambda w: w.rank)[0]
         ex = w.extraction
         if ex.transform_to_building is None:
             continue
+        drawn = Drawn.of(ex)
+        if drawn is not None:
+            drawn_by_level[lid] = drawn
         texts_by_level[lid] = [{"text": t.text, "x": p[0], "y": p[1], "entity": t.entity}
                                for t in ex.texts for p in [to_building(ex, G_centre(t))]]
         reg = _region_for(sheets, w.record)
@@ -550,7 +555,9 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
             texts_by_level.setdefault(copy["id"], texts_by_level[lid])
             if lid in strokes_by_level:
                 strokes_by_level.setdefault(copy["id"], strokes_by_level[lid])
-    rules = CR.apply(build, texts_by_level, party_by_level, strokes_by_level)
+            if lid in drawn_by_level:
+                drawn_by_level.setdefault(copy["id"], drawn_by_level[lid])
+    rules = CR.apply(build, texts_by_level, party_by_level, strokes_by_level, drawn_by_level)
     b["level_inference"]["core_rules"] = rules
     gf = (b["level_inference"].get("storeys") or {}).get("ground_floor")
     if isinstance(gf, dict):
@@ -563,7 +570,7 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         b["level_inference"]["core"] = core
     # 12 Nov 2026 (the architect's audit, second series): shafts, stairs over nothing, balcony doors, exterior flags
     from wenart.ingest import sense_rules as SR
-    b["level_inference"]["sense_rules"] = SR.apply(build, texts_by_level)
+    b["level_inference"]["sense_rules"] = SR.apply(build, texts_by_level, drawn_by_level)
 
 
 LIGHT_WELL_NAMES = {"aydinlik": "Aydınlık", "isiklik": "Işıklık"}
@@ -694,7 +701,10 @@ def party_vetoes(b: dict, party_by_level: dict) -> list:
     out = []
     levels = {lv["id"]: lv for lv in b.get("levels") or []}
     for lid in list(party_by_level):
-        if (levels.get(lid) or {}).get("reading_confidence") == "low":
+        lv = levels.get(lid) or {}
+        # a copy of a typical floor is read as its floor (a storey counted by a guess is still that floor's plan)
+        base = levels.get(lv.get("typical_of")) if lv.get("typical_of") else None
+        if (base or lv).get("reading_confidence") == "low":
             out.append({"level_id": lid, "walls": sorted(party_by_level.pop(lid)),
                         "reason": f"{lid} is read with low confidence: no party wall is marked on it"})
     walls = [w for w in b.get("walls") or [] if w.get("start") and w.get("end")]
@@ -888,6 +898,12 @@ def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict) -> No
         item["built"] = True
         lv["storey_inference"] = {"inferred": True, "rule": item["rule"], "confidence": item["confidence"],
                                   "guess": item["guess"], "reason": item["reason"]}
+        if item.get("guess") and (lv.get("order") or 0) > 0:
+            # the coordinator's decision of 12 Nov 2026: a storey only a guess (the type default) counts is inferred
+            # with low reading confidence until a document or the user gives the count (the architect's N1)
+            lv["reading_confidence"] = "low"
+            lv["reading_review"] = list(lv.get("reading_review") or []) + [
+                f"storey counted by a guess ({item['rule']}): no document gives the storey count"]
     built = [i["level_id"] for i in rec.get("inferred") or [] if i.get("built")]
     if built:
         build.warn(f"storeys: {len(built)} storey(s) the documents do not draw inferred ({', '.join(built)}; "

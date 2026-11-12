@@ -515,6 +515,31 @@ def test_the_inferred_storey_count_is_an_open_point_of_the_architect_with_its_de
     assert ASTO.review({"level_inference": {}}) is None
 
 
+def test_a_guessed_storey_count_names_the_missing_evidence_and_reads_with_low_confidence():
+    """The coordinator's decision of 12 Nov 2026 (real20, real21): the type default's storeys are inferred with low
+    reading confidence; the question names what the documents miss, and a drawn lift's 4 storeys only as assumed."""
+    from wenart.blender import architect_storeys as ASTO
+
+    ladder = [{"rung": "section", "count": None}, {"rung": "title", "count": None},
+              {"rung": "area_table", "count": None}, {"rung": "zoning", "count": None},
+              {"rung": "type_default", "count": 5}]
+    st = {"count": 5, "rule": "type_default", "confidence": 0.25, "guess": True, "guess_note": "a type default",
+          "signals": {"lifts": 2}, "ladder": ladder, "inferred": [{"level_id": "L2"}],
+          "open_point": {"key": ST.OPEN_POINT_KEY, "default": 5, "options": [4, 5, 6], "severity": "major",
+                         "question": "How many storeys?"}}
+    found = ASTO.review({"level_inference": {"storeys": st}})["answers"][0]["found"]
+    assert "a section or elevation" in found and "a zoning text" in found and "low confidence" in found
+    assert "at least 4 storeys (assumed" in found
+    # completion: a storey above the ground that only the guess counts is read with low confidence
+    b = building(flat(), flat("L1", 1, 3.0), flat("L2", 2, 6.0))
+    rec = dict(st, inferred=[{"level_id": "L2", "rule": "type_default", "confidence": 0.25, "guess": True,
+                              "reason": "storey 3 of 5"}])
+    CP._storeys(SimpleNamespace(building=b, warn=lambda *_: None), rec, {}, {})
+    lv = {x["id"]: x for x in b["levels"]}
+    assert lv["L2"]["reading_confidence"] == "low" and "guess" in lv["L2"]["reading_review"][0]
+    assert lv["L1"].get("reading_confidence") is None
+
+
 def test_a_building_without_a_door_from_outside_is_a_finding():
     b = building(flat())
     assert SN.no_entrance(b)

@@ -9,7 +9,9 @@ opening gets an inferred door, one with a door is left alone.
 """
 from __future__ import annotations
 
-from shapely.geometry import Polygon
+from types import SimpleNamespace
+
+from shapely.geometry import Point, Polygon
 
 from wenart import building as B
 from wenart.ingest import sense_rules as SR
@@ -117,14 +119,33 @@ def balcony_site():
     return {"outdoor_spaces": [{"id": "os_1", "kind": "balcony", "level_id": "L0", "polygon": rect(5.2, 6.1, 9.8, 7.4)}]}
 
 
-def test_a_balcony_reached_only_through_a_window_gets_that_window_as_its_door():
+def drawn(*arcs):
+    """A drawing that holds only these arcs (``drawn_strokes.Drawn``'s query)."""
+    return SimpleNamespace(arcs=lambda poly: [a for a in arcs if poly.contains(Point(a["center"]))],
+                           segments=lambda poly: [])
+
+
+def test_a_balcony_window_with_a_door_swing_drawn_at_its_jamb_is_the_balcony_door():
     b = building(flat(), site=balcony_site())
     b["openings"].append({"id": "win_1", "type": "window", "level_id": "L0", "wall_id": "w_L0_3",
                           "center": [7.5, 6.0], "width": 1.6, "height": 1.4, "sill_height": 0.9})
-    rec = SR.balcony_doors(b, B.IdCounter().next)
+    swing = {"center": (6.7, 6.0), "radius": 0.8, "id": "ARC:1", "layer": "kapi"}       # a pair of leaves
+    rec = SR.balcony_doors(b, B.IdCounter().next, {"L0": drawn(swing)})
     win = next(o for o in b["openings"] if o["id"] == "win_1")
     assert rec[0]["how"] == "window to door" and win["type"] == "door" and win["drawn_type"] == "window"
-    assert win["sill_height"] is None and win["height"] >= 2.1
+    assert win["sill_height"] is None and win["height"] >= 2.1 and "ARC:1" in rec[0]["reason"]
+
+
+def test_a_balcony_window_without_a_drawn_swing_stays_a_window():
+    """The coordinator's decision (real06, real09): a window drawn with sills or glass stays a window; the balcony gets
+    an inferred door on a free stretch instead."""
+    b = building(flat(), site=balcony_site())
+    b["openings"].append({"id": "win_1", "type": "window", "level_id": "L0", "wall_id": "w_L0_3",
+                          "center": [7.5, 6.0], "width": 1.6, "height": 1.4, "sill_height": 0.9})
+    far = {"center": (2.0, 6.0), "radius": 0.9, "id": "ARC:2", "layer": "kapi"}         # another opening's swing
+    rec = SR.balcony_doors(b, B.IdCounter().next, {"L0": drawn(far)})
+    assert next(o for o in b["openings"] if o["id"] == "win_1")["type"] == "window"
+    assert rec[0]["how"] == "inferred door"
 
 
 def test_a_service_balcony_reached_through_its_window_keeps_the_window():

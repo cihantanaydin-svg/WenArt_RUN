@@ -14,9 +14,10 @@ lift door onto the hall stays; a box over the lifts is never the stair; a pit le
 """
 from __future__ import annotations
 
+import math
 from types import SimpleNamespace
 
-from shapely.geometry import Polygon
+from shapely.geometry import Point, Polygon
 
 from wenart import building as B
 from wenart.ingest import completion as CP
@@ -141,6 +142,45 @@ def test_without_stair_strokes_no_stair_is_built_and_a_question_is_asked():
     assert "sy_L0_001" in item["reason"] and "no stair is built" in item["reason"]
     rec = run(block(symbol=False), texts={})
     assert rec["stairs"] == [] and rec["stairs_open"][0]["candidate"] is None
+
+
+def sign_drawing(*segments):
+    """A drawing that holds only these segments (``drawn_strokes.Drawn``'s query)."""
+    segs = [{"a": a, "b": b2, "length": math.dist(a, b2), "id": f"LINE:{k}", "layer": "DIM"}
+            for k, (a, b2) in enumerate(segments)]
+    return SimpleNamespace(segments=lambda poly: [s for s in segs if poly.contains(
+        Point((s["a"][0] + s["b"][0]) / 2.0, (s["a"][1] + s["b"][1]) / 2.0))], arcs=lambda poly: [])
+
+
+def sign_block(*segments):
+    b = block()
+    for s in b["symbols"]:
+        s["footprint"] = {"center": [5.2, 3.0], "size": [2.0, 4.6], "rotation_deg": 0.0}   # stair size, in the hall
+    rec = CR.apply(SimpleNamespace(building=b, ids=B.IdCounter(), warn=lambda *_: None), {}, {}, None,
+                   {"L0": sign_drawing(*segments)})
+    return b, rec
+
+
+def test_a_stair_size_box_with_a_well_line_is_an_inferred_u_stair():
+    """The coordinator's decision of 12 Nov 2026 (real21): a building of two or more storeys has a stair; a stair-size
+    box beside the core with a well line along its long axis is an inferred U stair, its risers from the storey height,
+    listed for review with the evidence strokes."""
+    b, rec = sign_block(((5.0, 1.0), (5.0, 5.0)))                       # the well line, 0.2 m off the middle
+    assert [s["how"] for s in rec["stairs"]] == ["stair signs"]
+    piece = next(f for f in b["furniture"] if f["type"] == "stair")
+    st = piece["stair"]
+    assert st["turn"] == "U" and st["risers"] == CR.risers_for(3.0) == 16 and [f["lines"] for f in st["flights"]] == [8, 8]
+    assert piece["inferred"] and any("LINE:0" in str(e.get("entity")) for e in piece["evidence"])
+    assert next(n for n in b["needs_review"] if n["kind"] == "stair_inferred")["id"] == piece["id"]
+
+
+def test_a_break_diagonal_makes_a_straight_flight_and_an_x_no_stair():
+    b, rec = sign_block(((4.4, 1.0), (6.0, 2.6)))                       # one break diagonal
+    assert next(f for f in b["furniture"] if f["type"] == "stair")["stair"]["turn"] == "straight"
+    b, rec = sign_block(((4.4, 1.0), (6.0, 2.6)), ((4.4, 2.6), (6.0, 1.0)))   # an X: a lift or a void
+    assert rec["stairs"] == [] and rec["stairs_open"]
+    b, rec = sign_block()                                               # the box alone: a question, no stair
+    assert rec["stairs"] == [] and rec["stairs_open"][0]["candidate"] == "sy_L0_001"
 
 
 def test_tread_lines_of_the_sheets_stage_make_the_box_the_stair():

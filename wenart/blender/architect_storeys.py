@@ -12,6 +12,13 @@ Why: CLAUDE.md: the architect carries out the safe default of every open point a
 default; the storey count of a building whose documents do not give it is such a decision, and the user must be able
 to give the real number.
 
+A count that is only a guess (the type default) names the evidence the documents miss (the ladder's empty rungs: a
+section or elevation, a title listing the floors, an area table's total, a zoning text) and, when a lift is drawn,
+that a lift suggests at least ``LIFT_STOREYS_MIN`` storeys: assumed (Turkish zoning rules are said to make a lift
+mandatory from 4 storeys, Planlı Alanlar İmar Yönetmeliği art. 34 per a search summary; not verified from the
+regulation's text in this session). The storeys it counts are read with ``reading_confidence: low``
+(``completion._storeys``; the coordinator's decision of 12 Nov 2026).
+
 How: pure; the severity is the record's (major for a type default's guess, minor for a count from the documents).
 """
 from __future__ import annotations
@@ -19,6 +26,15 @@ from __future__ import annotations
 from typing import Optional
 
 from wenart.blender import architect_actions as AA
+
+LIFT_STOREYS_MIN = 4            # a drawn lift suggests at least this many storeys (assumed; the module docstring)
+MISSING = {"section": "a section or elevation naming the storeys", "title": "a title listing the floors",
+           "area_table": "an area table with the total floor area", "zoning": "a zoning text (KAT ADEDİ, Hmax, emsal)"}
+
+
+def missing_evidence(st: dict) -> list:
+    """What the documents miss for the storey count (pure): the ladder's document rungs that gave no count."""
+    return [MISSING[r["rung"]] for r in st.get("ladder") or [] if r.get("rung") in MISSING and r.get("count") is None]
 
 QUESTION = {"id": "N1", "topic": "storeys",
             "question": "How many storeys does the building have? The documents draw fewer than the evidence says; the "
@@ -39,6 +55,11 @@ def review(building: dict) -> Optional[dict]:
     found = (f"{count} storeys from {str(st.get('rule')).replace('_', ' ')} (confidence {st.get('confidence')})"
              + (f", a guess: {st.get('guess_note')}" if st.get("guess") else "")
              + f"; inferred: {', '.join(built) or 'none'}")
+    if st.get("guess"):
+        miss = missing_evidence(st)
+        found += (f"; read with low confidence. The documents miss: {'; '.join(miss) or 'no count anywhere'}"
+                  + (f". A lift is drawn: a lift suggests at least {LIFT_STOREYS_MIN} storeys (assumed: Turkish "
+                     f"zoning rules, not verified)" if int((st.get("signals") or {}).get("lifts") or 0) > 0 else ""))
     if answer:
         q["answers"].append({"element": "storeys", "found": found, "change": f"answered: {answer['count']} storeys "
                              f"({answer.get('by')}); the next reading builds them", "open": False})

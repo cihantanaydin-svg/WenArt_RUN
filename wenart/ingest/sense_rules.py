@@ -19,9 +19,11 @@ the building in place and returns the record written to ``level_inference.sense_
    HAVALANDIRMA, duct, riser) that no door reaches and at most ``SHAFT_MAX_M2`` is a shaft (room type ``shaft``, never
    furnished), with its void in the slab of every storey above where the storey below has the shaft too.
 4. **Balconies have a door** (``balconies``): a balcony (outdoor space) deeper than ``SERVICE_DEPTH_M`` that no door
-   opens onto gets one: the widest window between it and a habitable room becomes its door (``adjusted_by_ai``), else a
-   door is inferred on the wall between them (``completion`` balcony door). A shallower one is a service balcony (an AC
-   ledge reached through its window): its window stays (audit real03-14).
+   opens onto gets one: the widest window between it and a habitable room becomes its door (``adjusted_by_ai``) only
+   when a door's swing is drawn at it (an arc of about its width at one of its jambs: the coordinator's decision of 12
+   Nov 2026, a window drawn with sills or glass stays a window), else a door is inferred on a free stretch of the wall
+   between them (``completion`` balcony door). A shallower one is a service balcony (an AC ledge reached through its
+   window): its window stays (audit real03-14).
 
 Why: the audit's real21-4 and real20-9 (interior walls flagged exterior, where inferred windows would go), real10-5 (a
 stair copied onto the top normal floor rising onto the open roof), real20-11, real03-4 and real06-10 (shafts read as
@@ -48,6 +50,8 @@ STAIR_COVER = 0.3
 SHAFT_RE = re.compile(r"(?<![a-z])(?:saft|s\.|tesisat|baca|havalandirma|hava\s+bacasi|duct|riser|vent\s+shaft)"
                       r"(?![a-z])")
 SHAFT_MAX_M2 = 3.0
+SWING_RADIUS = (0.3, 1.3)       # a door's swing: an arc whose radius is this share of the opening's width ...
+SWING_REACH_M = 0.30            # ... with its centre or one of its ends this close to one of its jambs
 SERVICE_DEPTH_M = 1.0           # a balcony this shallow or less is a service balcony (an AC ledge): its window stays
 HABITABLE = ("bedroom", "living", "kitchen", "office", "study", "dining")
 
@@ -209,7 +213,27 @@ def shafts(b: dict, texts_by_level: dict) -> list:
 
 
 # --------------------------------------------------------------------------------------------------- 4. balconies
-def balcony_doors(b: dict, next_id) -> list:
+def swing_at(o: dict, wall: dict, drawn) -> Optional[dict]:
+    """The door swing drawn at an opening (pure but for the drawing's query): an arc whose radius is ``SWING_RADIUS``
+    of the opening's width (a leaf, or one of a pair of leaves), with its centre or one of its ends within
+    ``SWING_REACH_M`` of one of its jambs (real09 draws the swing from its jamb); None without one or without the
+    drawing. Dimension dots and tick arcs are far smaller."""
+    if drawn is None or not o.get("center"):
+        return None
+    from shapely.geometry import Point as P
+    a, u, _ = CP._axis(wall)
+    width = float(o.get("width") or 0.0)
+    c = o["center"][:2]
+    jambs = [(c[0] + u[0] * k * width / 2.0, c[1] + u[1] * k * width / 2.0) for k in (-1, 1)]
+    for arc in drawn.arcs(P(c).buffer(width / 2.0 + SWING_REACH_M + 0.05)):
+        if not SWING_RADIUS[0] * width <= arc["radius"] <= SWING_RADIUS[1] * width:
+            continue
+        if min(G.distance(q, j) for q in [arc["center"]] + list(arc.get("ends") or []) for j in jambs) <= SWING_REACH_M:
+            return arc
+    return None
+
+
+def balcony_doors(b: dict, next_id, drawn_by_level: Optional[dict] = None) -> list:
     """Rule 4 (the module docstring); returns the records ``[{space, opening, how, reason}]``."""
     out = []
     spaces = [s for s in (b.get("site") or {}).get("outdoor_spaces") or [] if str(s.get("kind")) == "balcony"]
@@ -259,18 +283,31 @@ def balcony_doors(b: dict, next_id) -> list:
         if RG.blocked("balcony_door", b, {"level_id": lid, "space": s["id"],
                                           "opening": best_win[0]["id"] if best_win is not None else None}):
             continue
+        swing = swing_at(best_win[0], level.walls[best_win[0]["wall_id"]], (drawn_by_level or {}).get(lid)) \
+            if best_win is not None and best_win[0].get("wall_id") in level.walls else None
+        kept = None
+        if best_win is not None and swing is None:
+            kept = best_win[0]["id"]          # no swing drawn at it: a window with sills or glass stays a window
+            best_win = None
         if best_win is not None:
             o, room = best_win
             reason = (f"the balcony {s['id']} has no door: the window {o['id']} of {room['id']} '{room.get('label')}' "
-                      f"onto it becomes its door (adjusted_by_ai)")
+                      f"onto it has a door's swing drawn at its jamb ({swing['id']}, {swing['radius']:.2f} m): it is "
+                      f"the balcony door (adjusted_by_ai)")
             o.update(drawn_type="window", type="door", sill_height=None, height=max(float(o.get("height") or 0), 2.1),
                      operation="double" if float(o["width"]) >= 1.2 else "swing", operation_source="assumed",
                      adjusted_by_ai={"by": "code", "rule": "balcony_door", "reason": reason})
             out.append({"space": s["id"], "opening": o["id"], "how": "window to door", "reason": reason})
             continue
+        if best_face is None:
+            continue
         f, room = best_face
         pieces = sorted(level.free(f), key=lambda x: -(x[1] - x[0]))
         if not pieces or pieces[0][1] - pieces[0][0] < CP.BALCONY_DOOR[0]:
+            if kept:
+                out.append({"space": s["id"], "opening": None, "how": "review",
+                            "reason": f"the balcony {s['id']} has no door, and its window {kept} has no door's swing "
+                                      f"drawn: the window stays and no free wall takes a door (review)"})
             continue
         p0, p1 = pieces[0]
         reason = (f"the balcony {s['id']} has no door and no window onto it: a door inferred from {room['id']} "
@@ -283,11 +320,11 @@ def balcony_doors(b: dict, next_id) -> list:
     return out
 
 
-def apply(build, texts_by_level: dict) -> dict:
+def apply(build, texts_by_level: dict, drawn_by_level: Optional[dict] = None) -> dict:
     """The four rules (the module docstring); the record for ``level_inference.sense_rules``."""
     b = build.building
     rec = {"shafts": shafts(b, texts_by_level), "stairs": stairs_over_nothing(b),
-           "balconies": balcony_doors(b, build.ids.next), "exterior": exterior_flags(b)}
+           "balconies": balcony_doors(b, build.ids.next, drawn_by_level), "exterior": exterior_flags(b)}
     for k, word in (("shafts", "shaft"), ("stairs", "stair"), ("balconies", "balcony")):
         for x in rec[k]:
             build.warn(f"{word}: {x['reason']}")
