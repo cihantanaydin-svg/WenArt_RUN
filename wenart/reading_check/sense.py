@@ -91,6 +91,10 @@ RULES = {
     "party_wall_openings": "a facade marked attached (a party wall) that carries windows or doors",
     "core_continuity": "a lift core that does not continue through the storeys",
     "no_entrance": "a building without an entrance from outside",
+    # 12 Nov 2026 (the architect's audit of 8 buildings): the common core
+    "stair_missing": "a storey of a building of several flats or storeys with no stair rising from it",
+    "lift_doors": "a lift with no landing door onto the common hall, or an opening into a flat's room",
+    "core_gap": "an unclassified gap between a flat's room and the common core",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -776,6 +780,13 @@ def core_stairs(building: dict, lid: str, false_ids: Optional[set] = None) -> li
             for p in [_poly(r.get("polygon"))] if p is not None]
 
 
+def _arrives(building: dict, lo: str, hi: str, stair_ids: set) -> bool:
+    """True when the slab between ``lo`` and ``hi`` has a stair void over one of ``lo``'s stairs (pure)."""
+    return any(o.get("kind") == "stair_void" and o.get("furniture_id") in stair_ids
+               for s in building.get("slabs") or [] if s.get("below_level_id") == lo and s.get("above_level_id") == hi
+               for o in s.get("openings") or [])
+
+
 def stair_links(building: dict, false_ids: Optional[set] = None) -> list:
     """Rule 5a (pure): the base levels by elevation; for each two neighbours a stair on both within
     ``STAIR_REACH_M`` in plan (false stairs, ``false_ids``, left out: a tile grid read as a stair joins nothing). A
@@ -798,6 +809,10 @@ def stair_links(building: dict, false_ids: Optional[set] = None) -> list:
             continue                                                          # stair_stacking's question
         best = min((pa.distance(pb), ia, ib) for ia, pa in a for ib, pb in b) if a and b else None
         if best is not None and best[0] <= STAIR_REACH_M + EPS:
+            continue
+        # 12 Nov 2026: the stair of the storey below arrives through its void in the slab above (no flight is drawn on
+        # the top storey, so none rises into the roof): the upper storey is reached
+        if a and not b and _arrives(building, lo["id"], hi["id"], {i for i, _p in a}):
             continue
         if not a or not b:
             missing = [lv["id"] for lv, s in ((lo, a), (hi, b)) if not s]
@@ -1662,6 +1677,95 @@ def no_entrance(building: dict) -> list:
                      f"ground): the building has no entrance{note}", None, [])]
 
 
+def stair_missing(building: dict) -> list:
+    """Rule 20 (pure; audit real21-1): a building of several flats or storeys (``core_rules.needs_stair``) with a storey
+    below the top one that has no stair (no stair piece, no stair room)."""
+    from wenart.ingest import core_rules as CR
+
+    if not CR.needs_stair(building):
+        return []
+    storeys = CR._storeys(building)
+    out = []
+    for lv in storeys[:-1]:
+        if CR.stairs_on(building, lv["id"]) or not _rooms_of(building, lv["id"]):
+            continue
+        out.append(_finding("stair_missing", "major", lv["id"],
+                            f"no stair rises from {lv['id']} '{lv.get('label')}' of a building of "
+                            f"{'several flats' if CR.several_flats(building) else 'several storeys'}: the stair is "
+                            f"unread or not drawn", None, []))
+    return out
+
+
+def lift_doors(building: dict) -> list:
+    """Rule 21 (pure; audit real21-2, real10-1/2/3, real20-3): a lift (a typical floor's copies left out) with no door or
+    opening onto the common core or a hall, or with an opening into a flat's room (``core_rules.PRIVATE``)."""
+    from wenart.ingest import completion as CP
+    from wenart.ingest import core_rules as CR
+
+    out = []
+    for lv in building.get("levels") or []:
+        if lv.get("typical_of"):
+            continue
+        level = CP.Level(building, lv["id"])
+        lifts = [r for r in level.rooms if CP.is_lift(r)]
+        if not lifts or level.outline is None:
+            continue
+        core = CR.core_rooms(building, level)
+        for lift in lifts:
+            served, private = False, []
+            for o in level.openings:
+                if o.get("type") not in ("door", "opening"):
+                    continue
+                sides = CR._sides(level, o)
+                ids = [s[1]["id"] if s[1] is not None else None for s in sides]
+                if lift["id"] not in ids:
+                    continue
+                other = sides[1 - ids.index(lift["id"])][1]
+                if other is not None and (other["id"] in core or other.get("room_type") == "hall"):
+                    served = True
+                if other is not None and other.get("room_type") in CR.PRIVATE and other["id"] not in core:
+                    private.append((o["id"], other))
+            for oid, other in private:
+                out.append(_finding("lift_doors", "major", lv["id"],
+                                    f"{oid} opens the lift {lift['id']} into {other['id']} '{_label(other) or '-'}' "
+                                    f"({other.get('room_type')}): a lift opens only onto the common hall",
+                                    _centre(lift), [lift["id"], oid]))
+            if not served:
+                out.append(_finding("lift_doors", "major", lv["id"],
+                                    f"the lift {lift['id']} has no landing door onto the common hall", _centre(lift),
+                                    [lift["id"]]))
+    return out
+
+
+def core_gap(building: dict) -> list:
+    """Rule 22 (pure; audit real21-3, real10-1): an unclassified gap (type opening) between a flat's room and the common
+    core (``core_rules.core_rooms``); a typical floor's copies left out."""
+    from wenart.ingest import completion as CP
+    from wenart.ingest import core_rules as CR
+
+    out = []
+    for lv in building.get("levels") or []:
+        if lv.get("typical_of"):
+            continue
+        level = CP.Level(building, lv["id"])
+        core = CR.core_rooms(building, level)
+        if not core:
+            continue
+        for o in level.openings:
+            if o.get("type") != "opening" or o.get("virtual"):
+                continue
+            rooms = [s[1] for s in CR._sides(level, o) if s[1] is not None]
+            if len(rooms) != 2 or (rooms[0]["id"] in core) == (rooms[1]["id"] in core):
+                continue
+            flat = rooms[1] if rooms[0]["id"] in core else rooms[0]
+            if flat.get("room_type") in CR.PRIVATE:
+                out.append(_finding("core_gap", "major", lv["id"],
+                                    f"the unclassified gap {o['id']} joins {flat['id']} '{_label(flat) or '-'}' "
+                                    f"({flat.get('room_type')}) to the common core: a flat meets the core only "
+                                    f"through its entrance door", o.get("center"), [o["id"], flat["id"]]))
+    return out
+
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
@@ -1690,6 +1794,10 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += party_wall_openings(building)
     out += core_continuity(building)
     out += no_entrance(building)
+    # 12 Nov 2026 (the architect's audit): the common core
+    out += stair_missing(building)
+    out += lift_doors(building)
+    out += core_gap(building)
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

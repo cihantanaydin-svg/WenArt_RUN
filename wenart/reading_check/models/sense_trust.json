@@ -1,7 +1,7 @@
 {
  "note": "Precision of the architectural-sense checks (RC14) per rule, judged one finding at a time (a finding is right when it points at a real error of the reading, false when the reading follows its drawing); a rule below the threshold, or never judged, writes its findings with severity info. The tables were tuned on the same readings: in-sample.",
  "commit": "065dd0ae + the RC14 round-2 working tree",
- "date": "2026-11-06",
+ "date": "2026-11-12",
  "threshold": 0.7,
  "projects": [
   "real01",
@@ -276,6 +276,30 @@
    "by_status": {}
   },
   "no_entrance": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "stair_missing": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "lift_doors": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "core_gap": {
    "findings": 0,
    "judged_right": 0,
    "precision": null,

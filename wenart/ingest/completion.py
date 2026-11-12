@@ -64,7 +64,6 @@ DEFAULT_SIZES = {"living": (1.80, 1.40), "dining": (1.50, 1.40), "bedroom": (1.4
                  "study": (1.40, 1.40), "kitchen": (1.20, 1.20), "wet": (0.60, 0.60)}
 BALCONY_DOOR = (0.90, 2.20)     # an inferred balcony door: width, height
 BALCONY_DOOR_LIVING = (1.60, 2.20)  # ... of a living room: a glazed pair where the wall allows
-ENTRANCE_DOOR = (1.20, 2.20)    # an inferred building entrance at the core
 CONFIDENCE = 0.5                # an inferred window's evidence confidence (the room and the facade are read; the
                                 # window's place and size are not drawn)
 
@@ -464,6 +463,15 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         b["level_inference"]["party_balconies"] = dropped
         build.warn(f"party walls: {len(dropped)} balcony(ies) on an attached side left out "
                    f"({', '.join(d['id'] for d in dropped)}): {dropped[0]['reason']}")
+    # 12 Nov 2026 (the architect's audit): the common core (a missed stair, lift doors, flat-core gaps) and entrances
+    from wenart.ingest import core_rules as CR
+    rules = CR.apply(build, texts_by_level, party_by_level)
+    b["level_inference"]["core_rules"] = rules
+    gf = (b["level_inference"].get("storeys") or {}).get("ground_floor")
+    if isinstance(gf, dict):
+        ent = rules["entrances"]
+        gf["entrance"] = ({"door": ent["added"][0]["door"], "reason": ent["added"][0]["reason"]} if ent["added"] else
+                          {"door": None, "open": True, "reason": ent["open"]} if ent["open"] else gf.get("entrance"))
     _windows(build, sheets, texts_by_level, region_by_level, party_by_level)
     core = core_record(b)
     if core:
@@ -713,8 +721,8 @@ def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict) -> No
 
 def _ground_floor(build, ground: dict, rec: dict, texts: Optional[list], party: dict) -> dict:
     """The inferred ground floor read from the typical plan: no cantilevered balconies when the footprint is smaller
-    than the typical floor; the building entrance at the core (an inferred door where a core hall reaches a facade
-    that is no party wall, else an open point)."""
+    than the typical floor. Its entrance comes from the general entrance rule (``core_rules.fix_entrances``), written
+    into ``entrance`` by ``complete``."""
     b = build.building
     lid = ground["id"]
     level = Level(b, lid, texts)
@@ -748,39 +756,7 @@ def _ground_floor(build, ground: dict, rec: dict, texts: Optional[list], party: 
                     a["space"] = dict(a["space"], built=False, reason=rec["cantilevers"]["reason"])
             build.warn(f"{lid}: {len(gone)} cantilevered balcony(ies) left out on the inferred ground floor "
                        f"({', '.join(sorted(gone))}): {rec['cantilevers']['reason']}")
-    # the entrance at the core
-    lifts = [r for r in level.rooms if is_lift(r)]
-    stairs = [r for r in level.rooms if r.get("room_type") == "stair"]
-    core = lifts + stairs
-    halls = []
-    for r in level.rooms:
-        if r.get("room_type") != "hall" or r in core:
-            continue
-        p = level.polys[r["id"]].buffer(0.4)
-        if any(p.intersects(level.polys[c["id"]]) for c in core):
-            halls.append(r)
-    for hall in halls + stairs:
-        faces = [f for f in level.faces(hall) if f["kind"] == "outside" and f["wall_id"] not in party]
-        pieces = sorted(((p1 - p0, f, p0, p1) for f in faces for p0, p1 in level.free(f)), key=lambda x: -x[0])
-        if pieces and pieces[0][0] >= ENTRANCE_DOOR[0]:
-            _, f, p0, p1 = pieces[0]
-            reason = (f"the building entrance: the core hall {hall['id']} '{hall.get('label')}' reaches the facade on "
-                      f"{f['wall_id']} of the inferred ground floor; no entrance is drawn (inferred)")
-            o = _new_opening("door", build.ids.next("door", lid), level, f["wall_id"], (p0 + p1) / 2.0,
-                             ENTRANCE_DOOR[0], ENTRANCE_DOOR[1], None, reason, hall, f, _ev_file(b, lid), None,
-                             "default entrance door")
-            o["inference"]["rule"] = "inferred_entrance"
-            b["openings"].append(o)
-            done["entrance"] = {"door": o["id"], "room": hall["id"], "reason": reason}
-            build.warn(f"{lid}: {reason}")
-            break
-    if done["entrance"] is None:
-        names = ", ".join(f"{r['id']} '{r.get('label')}'" for r in (halls + core)[:4]) or "none read"
-        done["entrance"] = {"door": None, "open": True,
-                            "reason": f"the core ({names}) does not reach a facade on the inferred ground floor: the "
-                                      f"building entrance from the street to the core is not drawn; the ground floor "
-                                      f"copies the typical plan (open point)"}
-        build.warn(f"{lid}: {done['entrance']['reason']}")
+    # the entrance at the core: the general entrance rule (core_rules.fix_entrances) after the core is complete
     return done
 
 
@@ -867,4 +843,21 @@ def summary(building: dict) -> dict:
             "below_ground": sorted(lid for lid, e in (wins.get("levels") or {}).items() if e.get("below_ground")),
             "light_wells": li.get("light_wells") or None,
             "core": {k: (v.get("reason") if isinstance(v, dict) else v) for k, v in (li.get("core") or {}).items()
-                     if k in ("stair_head", "lift_overrun", "lifts_through")} or None}
+                     if k in ("stair_head", "lift_overrun", "lifts_through")} or None,
+            "core_rules": _rules_summary(li.get("core_rules") or {})}
+
+
+def _rules_summary(cr: dict) -> Optional[dict]:
+    """The core rules' changes in short (pure): ``{kind: [reason, ...]}`` without the empty kinds."""
+    if not cr:
+        return None
+    lift, ent = cr.get("lift_doors") or {}, cr.get("entrances") or {}
+    out = {"stairs": [s["reason"] for s in cr.get("stairs") or []],
+           "lift doors removed": [x["reason"] for x in lift.get("removed") or []],
+           "lift doors added": [x["reason"] for x in lift.get("added") or []],
+           "gaps closed": [x["reason"] for x in cr.get("core_gaps") or []],
+           "entrances refused": [x["reason"] for x in ent.get("refused") or []],
+           "entrances added": [x["reason"] for x in ent.get("added") or []],
+           "entrance open point": [ent["open"]] if ent.get("open") else []}
+    out = {k: v for k, v in out.items() if v}
+    return out or None

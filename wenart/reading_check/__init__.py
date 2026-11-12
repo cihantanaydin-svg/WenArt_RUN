@@ -691,7 +691,7 @@ def inferred_lines(inf: dict) -> list:
     st = inf.get("storeys") or {}
     ops = inf.get("openings") or {}
     wells = inf.get("light_wells") or {}
-    if not st.get("inferred") and not ops and not wells:
+    if not st.get("inferred") and not ops and not wells and not inf.get("core_rules"):
         return []
     lines = ["", "## What the reading inferred (the documents are silent)", ""]
     if st.get("inferred"):
@@ -726,7 +726,7 @@ def inferred_lines(inf: dict) -> list:
     if inf.get("below_ground"):
         lines.append(f"\nBelow ground (no window inferred): {', '.join(inf['below_ground'])}.")
     if wells:
-        lines.append(f"\nLight wells (open-air voids through the storeys, never rooms): "
+        lines.append("\nLight wells (open-air voids through the storeys, never rooms): "
                      + ", ".join(f"{lid}: {len(ids)}" for lid, ids in sorted((wells.get('rooms') or {}).items()))
                      + f"; {len(wells.get('slab_voids') or [])} slab void(s), {len(wells.get('roof_openings') or [])} "
                        f"roof opening(s).")
@@ -734,6 +734,11 @@ def inferred_lines(inf: dict) -> list:
     for key in ("stair_head", "lift_overrun"):
         if core.get(key):
             lines.append(f"\nCore, {key.replace('_', ' ')}: {core[key]}.")
+    rules = inf.get("core_rules") or {}
+    if rules:
+        lines += ["", "| core rule | count | first reason |", "|---|---|---|"]
+        for k, v in rules.items():
+            lines.append(f"| {k} | {len(v)} | {str(v[0]).replace('|', '/')[:220]} |")
     return lines
 
 
