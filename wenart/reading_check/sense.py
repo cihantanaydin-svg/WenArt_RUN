@@ -179,9 +179,10 @@ RECESS_FACADE_M = 1.0         # a mouth opening onto no room this close to the l
 FALSE_STAIR_ROOMS = ("bathroom", "wc", "shower", "kitchen")   # no stair stands in a wet room or a kitchen
 STAIR_MIN_AREA_M2 = 1.8       # the smallest stair (a spiral of 1.3 m across, a straight flight 0.7 x 2.6 m)
 STAIR_MIN_TREADS = 8          # a storey needs 14 to 20 risers; under this many tread lines, with another sign, no stair
-GRID_FLIGHTS_MIN = 3          # a stair read with this many flights or more ...
-FLIGHT_MIN_AREA_M2 = 2.0      # ... and less footprint than this per flight is a grid of lines (real09's kitchen tiles:
-                              # 8 'flights' of 5 lines in 2.67 m2; no stair of the current readings has 3 flights)
+# a stair read with GRID_FLIGHTS_MIN flights or more and less footprint than FLIGHT_MIN_AREA_M2 per flight is a grid of
+# lines (real09's kitchen tiles: 8 'flights' of 5 lines in 2.67 m2; no stair of the current readings has 3 flights);
+# the reader's rule since 12 Nov 2026 (``wenart.ingest.generic.symbols``), imported so both judge by one rule
+from wenart.ingest.generic.symbols import FLIGHT_MIN_AREA_M2, GRID_FLIGHTS_MIN  # noqa: E402
 # 9. stair_stacking (C0009, C0010): the core stair of one floor off the one below
 STACK_OFFSET_M = 1.0          # one core stair on each of two neighbouring floors further apart than this in plan
                               # (the gap between their footprints: calibration, 6 Nov 2026: real13 and real19 read a

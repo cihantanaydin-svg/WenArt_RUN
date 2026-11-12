@@ -1206,6 +1206,11 @@ GRID_CROSS_MIN = 2          # 12 Nov 2026: a cross line counts for the grid when
 GRID_PITCH_M = (0.08, 0.80)  # ... and the cross lines' pitch is a tile's (mosaic to large tiles)
 GRID_PITCH_RATIO = 2.5      # ... within this ratio of the treads' pitch (tiles: alike both ways)
 GRID_ON_PITCH = 0.75        # ... with this share of the steps on the pitch (the rest whole multiples: text gaps)
+# 12 Nov 2026 (review of the reader targets, real18's kitchens: 6 to 10 'flights' in 5.3-5.7 m2 of tile hatch): RC14's
+# false_stair rule as a rule of the reader (``wenart.reading_check.sense`` imports these): a stair read with
+# GRID_FLIGHTS_MIN flights or more and less than FLIGHT_MIN_AREA_M2 of its footprint per flight is a grid of lines
+GRID_FLIGHTS_MIN = 3
+FLIGHT_MIN_AREA_M2 = 2.0
 
 
 def _tile_grid(cross: list, pitch: float) -> bool:
@@ -1314,6 +1319,9 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
     xs = [p[0] for s in cl.segs for p in map(to_f, s.pts)]
     ys = [p[1] for s in cl.segs for p in map(to_f, s.pts)]
     bbox = (min(xs), min(ys), max(xs), max(ys))
+    if len(flights) >= GRID_FLIGHTS_MIN and \
+            (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) / len(flights) < FLIGHT_MIN_AREA_M2:
+        return None                                     # many 'flights' in a small footprint: a tile grid
     lo_off = min(f["offsets"][0] for f in flights)
     hi_off = max(f["offsets"][-1] for f in flights)
     lo_end, hi_end = (bbox[1], bbox[3]) if axis == "h" else (bbox[0], bbox[2])

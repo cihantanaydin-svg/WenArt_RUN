@@ -778,3 +778,15 @@ def test_a_door_block_or_lone_fixtures_never_make_a_window_onto_an_open_recess()
             "LINE:9": Stroke(id="LINE:9", kind="line", pts=[(0, 0.1), (1, 0.1)], layer="TEFRİŞ")}
     assert GC._gap_fixture(lines, both) is None
     assert GC._gap_fixture(lines, {"LINE:9": both["LINE:9"]}).startswith("a furniture piece")
+
+
+def test_many_flights_in_a_small_footprint_are_a_tile_grid_for_the_reader_and_the_checker():
+    from wenart.ingest.generic import symbols as SY
+    from wenart.reading_check import sense as SE
+
+    treads = [_line((0.0, 0.27 * k), (2.0, 0.27 * k), 500 + k) for k in range(8)]
+    cuts = [_line((x, -0.05), (x, 2.0), 600 + j) for j, x in enumerate((0.45, 1.0, 1.6))]      # uneven dividers
+    assert _stair_of(treads + cuts) is None                       # 4 'flights' in 3.8 m2: no stair
+    assert SE.GRID_FLIGHTS_MIN is SY.GRID_FLIGHTS_MIN and SE.FLIGHT_MIN_AREA_M2 is SY.FLIGHT_MIN_AREA_M2
+    wide = [_line((0.0, 0.27 * k), (2.4, 0.27 * k), 700 + k) for k in range(12)]
+    assert _stair_of(wide + [_line((1.2, -0.05), (1.2, 3.5), 800)]) is not None   # a U stair: 2 flights in 8 m2
