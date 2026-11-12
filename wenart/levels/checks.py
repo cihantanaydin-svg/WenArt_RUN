@@ -123,8 +123,12 @@ def _l1_l2_l5(building: dict, params: dict, out: list) -> None:
         ramp = e.get("ramp")
         if ramp and ramp.get("drive"):          # 12 Nov 2026: a garage door's drive, for cars (levels.rules.drive_for)
             if float(ramp.get("slope") or 1.0) > float(params["drive_slope"]) + 1e-4:
+                # 12 Nov 2026 (round-2 review, A2-FC9): a drawn drive keeps its drawn slope: steeper than the usual
+                # garage limit is a finding to read, not an error of the reading
                 out.append(_v("L5", did, f"drive of {did}: slope {float(ramp['slope']):.3f} steeper than "
-                                         f"{float(params['drive_slope']):.2f}", slope=float(ramp["slope"]),
+                                         f"{float(params['drive_slope']):.2f}" +
+                              (" (as drawn: the drawing's slope is kept)" if ramp.get("drawn") else ""),
+                              severity="minor" if ramp.get("drawn") else None, slope=float(ramp["slope"]),
                               max_slope=float(params["drive_slope"])))
         elif ramp:
             want = M.ramp_for(max(rise, 0.0), params)

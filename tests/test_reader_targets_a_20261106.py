@@ -1149,3 +1149,73 @@ def test_the_regression_compares_heights_datum_slabs_and_entrances_when_the_base
     assert any(d.startswith("slab sl_L4") for d in got) and "entrance d1: steps -> drive" in got
     assert not [d for d in RG.compare({"levels": ["L0", "L4"]}, new) if "elevation" in d]   # old baselines: not compared
     assert RG.notes({"levels": []}, {"levels": ["L0"]})[0].startswith("the baseline holds no level")
+
+
+class _St:
+    def __init__(self, sid, pts, layer="MB", closed=False):
+        self.id, self.pts, self.layer, self.closed, self.arc, self.source = sid, pts, layer, closed, None, "vector"
+
+
+def _ramp_symbol(ax=7.86, ay=-0.1, length=2.8, width=3.7, sides=True, base=True):
+    x0, x1, yf = ax - width / 2.0, ax + width / 2.0, ay - length
+    st = [_St("ent:D1", [(x0, yf), (ax, ay)]), _St("ent:D2", [(x1, yf), (ax, ay)])]
+    if base:
+        st.append(_St("ent:B", [(x0, yf), (x1, yf)]))
+    if sides:
+        st += [_St("ent:S1", [(x0, yf), (x0, ay)]), _St("ent:S2", [(x1, ay), (x1, yf)])]
+    return st
+
+
+def test_a_drawn_ramp_symbol_in_front_of_a_garage_door_gives_the_drive_its_size_and_place():
+    from shapely.geometry import box
+
+    from wenart.blender import site as S
+    from wenart.levels import checks as LC
+    from wenart.levels import model as M
+    from wenart.levels import read as RD
+
+    house = box(0.0, -0.1, 16.0, 10.0)
+    got = RD.ramp_outlines(_ramp_symbol(), house)
+    assert len(got) == 1 and got[0]["length"] == 2.8 and got[0]["width"] == 3.7 and got[0]["apex"] == [7.86, -0.1]
+    assert got[0]["entities"] == ["ent:B", "ent:D1", "ent:D2", "ent:S1", "ent:S2"]
+    # the same symbol drawn as one closed outline and two diagonals is read too
+    x0, x1 = 7.86 - 1.85, 7.86 + 1.85
+    closed = [_St("ent:R", [(x0, -0.1), (x0, -2.9), (x1, -2.9), (x1, -0.1)], closed=True)] + _ramp_symbol()[:2]
+    assert [r["length"] for r in RD.ramp_outlines(closed, house)] == [2.8]
+    # no side lines (a gable or an arrow head), no far edge, or the symbol inside the building: no ramp
+    assert RD.ramp_outlines(_ramp_symbol(sides=False), house) == []
+    assert RD.ramp_outlines(_ramp_symbol(base=False), house) == []
+    assert RD.ramp_outlines(_ramp_symbol(ay=5.0), house) == []
+    # the levels: the door's drive takes the drawn outline (length, width, place across the door, its own slope)
+    b = _garage_building()
+    b["site"] = {"boundary_walls": [], "areas": [], "decor": [], "openings": []}
+    b["site"]["drawn_ramps"] = RD.drawn_ramps([], b, M.level_params(M._brief_of(b, None)),
+                                              [dict(got[0], level_id="L0", file="p.dxf")])
+    assert [r["door_id"] for r in b["site"]["drawn_ramps"]] == ["d_front"]
+    out = M.infer_levels(b)
+    e = next(x for x in out["site"]["entrances"] if x["door_id"] == "d_front")
+    assert e["solution"] == "drive" and e["drawn"] is True and e["ramp"]["drawn"] is True
+    assert e["ramp"]["length"] == 2.8 and e["ramp"]["width"] == 3.7 and e["ramp"]["shift"] == -0.14
+    assert e["ramp"]["slope"] == pytest.approx(0.5 / 2.8, abs=1e-3) and "drawn ramp" in e["reason"]
+    assert any("ent:D1" in (ev.get("entity") or "") for ev in e["evidence"])
+    found = [v for v in LC.check_levels(out) if v.get("target") == "d_front" and v["check"] == "L5"]
+    assert found and all(v["severity"] == "minor" and "as drawn" in v["message"] for v in found)
+    ent = {"opening_id": "d_front", "centre": [8.0, 0.0], "outward": [0.0, -1.0], "half_t": 0.1, "width": 2.5,
+           "bottom": 0.0, "ground_z": -0.5, "rise": 0.5, "record": e}
+    st = S.entrance_steps(ent)
+    xs = sorted({round(p[0], 3) for p in st["ramp"]["polygon"]})
+    ys = sorted({round(p[1], 3) for p in st["ramp"]["polygon"]})
+    assert xs == [6.01, 9.71] and ys == [-2.9, -0.1] and "(drawn)" in st["reason"]
+    # a symbol beside the door (its apex off the door's width) is not that door's ramp
+    far = RD.ramp_outlines(_ramp_symbol(ax=12.0), house)
+    assert far and RD.drawn_ramps([], b, M.level_params(M._brief_of(b, None)),
+                                  [dict(far[0], level_id="L0", file="p.dxf")]) == []
+
+
+def test_a_drive_is_paved_as_the_drive_and_steps_stay_in_the_steps_stone():
+    from wenart.blender import site as S
+
+    drive = {"solution": "drive", "ramp": {"drive": True}}
+    assert S.step_floor_use(drive, {"kind": "site_ramp"}) == "drive"
+    assert S.step_floor_use({"solution": "steps_and_ramp", "ramp": {"slope": 0.06}}, {"kind": "site_ramp"}) == "steps"
+    assert S.step_floor_use(drive, {"kind": "site_step"}) == "steps"

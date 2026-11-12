@@ -802,6 +802,8 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
     ids = {lv["id"] for lv in levels}
     lowered = {i for ch in tm.get("changes") or [] for i in ch.get("opening_ids") or []}
     ramp_doors = {r.get("door_id") for r in (b.get("site") or {}).get("drawn_ramps") or [] if isinstance(r, dict)}
+    ramp_shapes = {r.get("door_id"): r for r in (b.get("site") or {}).get("drawn_ramps") or []
+                   if isinstance(r, dict) and r.get("length") and r.get("width")}
     overrides = (b.get("site") or {}).get("entrance_overrides") or {}       # the agent's set_entrance (edits.py)
     brief_ramp = bool(params.get("accessible_entrance"))
     out = []
@@ -884,7 +886,23 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
             rec["solution"] = "drive"
             rec["reason"] = (f"{rise:.2f} m above the ground ({gsrc}): a garage door: a drive {rec['ramp']['ratio']} "
                              f"{rec['ramp']['length']:.2f} m straight out, {rec['ramp']['width']:.2f} m wide (inferred)")
-            if o["id"] in ramp_doors:
+            shape = ramp_shapes.get(o["id"])
+            if shape is not None and rec["ramp"] is not None:
+                # 12 Nov 2026 (round-2 review, A2-FC9; CLAUDE.md: ramps are inferred only where not drawn): a drawn
+                # ramp outline in front of the door gives the drive its length, width and place (its own slope)
+                ln, wd = float(shape["length"]), float(shape["width"])
+                ax, ay = shape["apex"]
+                shift = (ax - face[0]) * -outward[1] + (ay - face[1]) * outward[0]
+                slope = max(rise, 0.0) / ln
+                rec["ramp"].update(slope=_r(slope, 4), ratio=f"1:{max(1, round(1.0 / slope)):d}" if slope > 0 else "flat",
+                                   length=_r(ln), width=_r(wd), shift=_r(shift, 4), drawn=True,
+                                   outline=[list(p) for p in shape["polygon"]])
+                rec["drawn"] = True
+                rec["inferred"] = False
+                rec["evidence"] += [dict(e) for e in shape.get("outline_evidence") or shape.get("evidence") or []][:1]
+                rec["reason"] = (f"{rise:.2f} m above the ground ({gsrc}): a garage door: the drawn ramp in front of it, "
+                                 f"{ln:.2f} m long and {wd:.2f} m wide (slope {slope:.2f})")
+            elif o["id"] in ramp_doors:
                 rec["drawn"] = True
                 rec["reason"] += "; a drawn ramp in front of the door"
         else:

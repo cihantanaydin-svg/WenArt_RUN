@@ -119,7 +119,13 @@ def apply_levels(build, works: dict) -> None:
                 if mk["id"] in m["mark_ids"] and "symbol" not in mk["used_for"]:
                     mk["used_for"].append("symbol")
             warnings.append(f"{m['piece_id']} moved to symbols ({m['symbol']['id']}): {m['symbol']['reason']}")
-    ramps = RD.drawn_ramps(texts, b, params)
+    # 12 Nov 2026 (round-2 review, A2-FC9): the pages' drawn ramp symbols (building frame) with their level and file
+    outlines = []
+    for key in sorted(works, key=lambda k: str(k)):
+        ex = works[key].extraction
+        for r in ((ex.site or {}).get("ramp_outlines") or []) if ex is not None else ():
+            outlines.append(dict(r, level_id=works[key].record.level_id, file=ex.file))
+    ramps = RD.drawn_ramps(texts, b, params, outlines)
     if ramps:
         site = b.get("site") if isinstance(b.get("site"), dict) else None
         if site is None:

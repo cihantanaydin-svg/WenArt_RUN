@@ -332,6 +332,9 @@ def _shift_site(site: dict, sh: _Shift) -> None:
         d["center"] = list(sh.p(d["center"]))
     for o in site.get("openings", []):
         o["center"] = list(sh.p(o["center"]))
+    for r in site.get("ramp_outlines") or []:           # 12 Nov 2026 (A2-FC9): the drawn ramp symbols
+        r["polygon"] = [[round(x, 4), round(y, 4)] for x, y in sh.pts(r["polygon"])]
+        r["apex"] = [round(v, 4) for v in sh.p(r["apex"])]
 
 
 # --------------------------------------------------------------------------
@@ -3301,6 +3304,15 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     # voids the plan labels (galeri, boşluk, void, open to below ...) with their drawn outlines (generic.voids)
     from wenart.ingest.generic import voids as VD
     site["voids"] = VD.read_voids(texts_m, strokes_m)
+    # 12 Nov 2026 (round-2 review, A2-FC9: a garage drive inferred in front of a drawn ramp): the drawn ramp symbols
+    # outside the building (``levels.read.ramp_outlines``); the levels give an outside door the one at its face
+    if not is_raster:
+        from wenart.levels import read as LRD
+
+        site["ramp_outlines"] = LRD.ramp_outlines(strokes_m, outline)
+        for r in site["ramp_outlines"]:
+            ex.notes.append(f"{where}: a drawn ramp symbol {r['length']:.2f} x {r['width']:.2f} m outside the building "
+                            f"({', '.join(r['entities'][:5])})")
     for v in site["voids"]:
         ex.notes.append(f"{where}: void '{v['label']}': {v['reason']}")
     if site["voids"]:

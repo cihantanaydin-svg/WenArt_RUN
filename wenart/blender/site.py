@@ -1562,15 +1562,20 @@ def record_steps(e: dict, face, keep_out: Sequence = (), building: Sequence = ()
         # runs straight out from the door face, centred on it, from the door's floor down to the ground; no landing,
         # no handrails (``levels.rules.drive_for``)
         hw2, length = float(ramp["width"]) / 2.0, float(ramp["length"])
+        # 12 Nov 2026 (round-2 review, A2-FC9): a drawn drive keeps its place across the door (``shift`` along ``u``,
+        # the outward turned left, as ``levels.model`` measures it)
+        sh0 = float(ramp.get("shift") or 0.0)
         # ramp_solid's order: the first and the last corner at the door (z_start), the middle two at the far end
-        poly = [at(s, dd, 0.0)[:2] for s, dd in ((-hw2, 0.0), (-hw2, length), (hw2, length), (hw2, 0.0))]
-        out["ramp"] = {"polygon": poly, "z_start": top, "z_end": ground, "s": [-hw2, hw2], "d": [0.0, length],
-                       "length": length, "slope": ramp.get("slope"), "placement": "straight out from the door (a drive)",
-                       "reason": "", "clear": True, "drive": True}
+        poly = [at(sh0 + s, dd, 0.0)[:2] for s, dd in ((-hw2, 0.0), (-hw2, length), (hw2, length), (hw2, 0.0))]
+        out["ramp"] = {"polygon": poly, "z_start": top, "z_end": ground, "s": [sh0 - hw2, sh0 + hw2], "d": [0.0, length],
+                       "length": length, "slope": ramp.get("slope"),
+                       "placement": "the drawn ramp (a drive)" if ramp.get("drawn") else
+                       "straight out from the door (a drive)", "reason": "", "clear": True, "drive": True}
         # 12 Nov 2026 (round-2 review, CODE-A9 / BP6): the drive's own rise and reason (no landing, no steps)
         out.update(end=length, solution="drive", drive_rise=round(top - ground, 4),
                    reason=f"garage door {top - ground:.2f} m above the ground: a drive {2 * hw2:.2f} m wide, "
-                          f"{length:.2f} m straight out at {float(ramp.get('slope') or 0):.2f}, no steps (inferred)")
+                          f"{length:.2f} m straight out at {float(ramp.get('slope') or 0):.2f}, no steps "
+                          + ("(drawn)" if ramp.get("drawn") else "(inferred)"))
         return out
 
     def side_cheeks(d0: float, d1: float, z_top: float) -> None:
@@ -2136,6 +2141,14 @@ def ramp_solid(ramp: dict, z_bottom: float) -> tuple[list, list]:
     if G.polygon_signed_area(poly) < 0:
         faces = [list(reversed(f)) for f in faces]
     return verts, faces
+
+
+def step_floor_use(st: dict, mesh: dict) -> str:
+    """12 Nov 2026 (round-2 review, BP6: real07's drive was dressed in the steps stone): the floor use
+    (``grading.FLOOR_USES``) of an entrance mesh: a garage door's drive is paved as the drive ('a stronger paver for the
+    cars'), every other landing, flight and ramp in the steps stone."""
+    drive = st.get("solution") == "drive" or bool((st.get("ramp") or {}).get("drive"))
+    return "drive" if drive and mesh.get("kind") == "site_ramp" else "steps"
 
 
 def entrance_meshes(st: dict, terrain: dict) -> list[dict]:
@@ -7964,11 +7977,17 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         grate_mat = make_material({"material": "aluminium_anthracite", "colour": None, "source": "build",
                                    "reason": "a drain grate at a level threshold (UL203; inferred)"}) \
             if any(st.get("drains") for st in inferred["steps"]) else None
+        drive_mat = None
         for st in inferred["steps"]:
             # Milestone 12: landing, flights, cheek walls, a ramp and handrails (entrance_meshes); one object each.
             for mesh in entrance_meshes(st, terrain):
                 wid = mesh["name"]
                 mat = rail_mat if mesh["kind"] == "site_handrail" else grate_mat if mesh.get("grate") else step_mat
+                if mat is step_mat and step_floor_use(st, mesh) == "drive":
+                    # 12 Nov 2026 (round-2 review, BP6): a garage door's drive in the drive paving
+                    drive_mat = drive_mat or make_material(floors["drive"])
+                    built_floors.setdefault("drive", floors["drive"].get("material"))
+                    mat = drive_mat
                 ob = common.new_mesh_object(wid, mesh["verts"], mesh["faces"], collection=collection, wenart_id=wid,
                                             kind=mesh["kind"], status="assumed", materials=[mat])
                 entry(ob.name, wid, mesh["kind"], mat, "assumed",
