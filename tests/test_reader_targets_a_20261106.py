@@ -792,26 +792,77 @@ def test_a_gap_whose_wall_face_lines_run_through_it_is_a_wall():
     assert GC._faces_through_gaps(_ex2(), "p", [wall], [gap], furn)[1] == [gap]
 
 
-def test_a_door_leafs_swing_in_an_unclassified_gap_makes_it_a_door():
-    from wenart.ingest.generic import core as GC
+def _arc(sid, center, r, a0, a1, layer="KAPI", block=None):
     from wenart.ingest.generic.model import Stroke
+
+    import math
+    pts = [(center[0] + r * math.cos(math.radians(a)), center[1] + r * math.sin(math.radians(a))) for a in (a0, a1)]
+    return Stroke(id=sid, kind="arc", pts=pts, layer=layer, block=block,
+                  arc={"center": center, "radius": r, "start_deg": a0, "end_deg": a1})
+
+
+def test_a_door_leafs_swing_in_an_unclassified_gap_makes_a_door_on_the_leafs_chord():
+    from wenart.ingest.generic import core as GC
 
     wall = _wall((0.0, 3.0), (6.0, 3.0), t=0.25, entity="w1")
     gap = _gap((3.0, 3.0), 1.32)
     gap.rotation_deg = 0.0
-    arc = Stroke(id="INSERT:9/23", kind="arc", pts=[(2.4, 3.0), (2.4, 2.3)], layer="KAPI", block="wererte",
-                 arc={"center": (2.4, 3.0), "radius": 0.7, "start_deg": 270.0, "end_deg": 360.0})
     ex = _ex2()
-    got = GC._door_blocks_in_gaps(ex, "p", [wall], [gap], [arc])
-    assert got[0].kind == "door" and abs(got[0].width - 0.75) < 1e-6 and got[0].status == "verified"
-    assert "door leaf's swing" in ex.notes[-1]
-    # a sanitary arc (a basin) or a swing hinged far from the gap is no door
-    basin = Stroke(id="ARC:5", kind="arc", pts=[(2.4, 3.0), (2.4, 2.3)], layer="Z_tefriş",
-                   arc={"center": (2.4, 3.0), "radius": 0.7, "start_deg": 270.0, "end_deg": 360.0})
+    got = GC._door_blocks_in_gaps(ex, "p", [wall], [gap], [_arc("INSERT:9/23", (2.4, 3.0), 0.7, 270.0, 360.0)])
+    assert len(got) == 1 and got[0].kind == "door" and abs(got[0].width - 0.7) < 1e-6
+    assert abs(got[0].center[0] - 2.75) < 1e-6 and got[0].status == "verified"        # on the leaf, not the gap centre
+    assert "chord" in ex.notes[-1] and "rest of the gap is wall" in ex.notes[-1]
+    # a basin's arc, or a swing hinged off the wall, is no door
+    basin = _arc("ARC:5", (2.4, 3.0), 0.7, 270.0, 360.0, layer="Z_tefriş")
     assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap], [basin])[0].kind == "opening"
-    far = Stroke(id="INSERT:9/24", kind="arc", pts=[(2.4, 1.0)], layer="KAPI",
-                 arc={"center": (2.4, 1.5), "radius": 0.7, "start_deg": 270.0, "end_deg": 360.0})
+    far = _arc("INSERT:9/24", (2.4, 1.5), 0.7, 270.0, 360.0)
     assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap], [far])[0].kind == "opening"
+
+
+def test_borrowed_swings_sashes_tags_and_doors_already_read_make_no_new_door():
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.model import OpeningItem
+
+    wall = _wall((0.0, 3.0), (8.0, 3.0), t=0.25, entity="w1")
+
+    def gap(cx, w):
+        g = _gap((cx, 3.0), w)
+        g.rotation_deg = 0.0
+        return g
+
+    # the neighbour's swing hinged 0.08 m past the gap's end, its leaf away from the gap (real21)
+    neighbour = _arc("LW:1", (4.08, 3.0), 0.84, 0.0, 90.0)
+    assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(2.865, 2.27)], [neighbour])[0].kind == "opening"
+    # one arc between two gaps serves one of them at most
+    arc = _arc("A:1", (4.0, 3.0), 0.7, 180.0, 270.0)
+    got = GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(3.5, 1.2), gap(4.6, 1.2)], [arc])
+    assert sum(1 for o in got if o.kind == "door") <= 1
+    # a casement sash of 0.52 m sweeping 35 degrees on a door-and-window layer is a window's
+    sash = _arc("ARC:735", (2.0, 3.0), 0.52, 0.0, 35.0, layer="kapı-pencere")
+    assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(2.5, 1.5)], [sash])[0].kind == "opening"
+    # a window size tag beside the gap keeps it a window's
+    tag = _run("P:150/150", 2.5, 3.6, k=7)
+    hinge = _arc("A:2", (1.8, 3.0), 0.8, 270.0, 360.0)
+    assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(2.5, 1.5)], [hinge], texts_m=[tag])[0].kind == "opening"
+    # an arc an opening already owns is not borrowed; a door already read in the gap is its opening
+    assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(2.5, 1.5)], [hinge], owned={"A:2"})[0].kind == "opening"
+    door = OpeningItem("door", 0.9, (2.2, 3.0), 0.0, [0, 0, 0, 0], "d", {})
+    got = GC._door_blocks_in_gaps(_ex2(), "p", [wall], [door, gap(2.4, 1.3)], [hinge])
+    assert [o.kind for o in got] == ["door"]                        # the gap goes, no second door
+    got = GC._door_blocks_in_gaps(_ex2(), "p", [wall], [door, gap(3.2, 2.8)], [hinge])
+    assert [o.kind for o in got] == ["door", "opening"]            # a wider gap stays as read
+
+
+def test_two_leaves_meeting_in_a_gap_make_one_double_door():
+    from wenart.ingest.generic import core as GC
+
+    wall = _wall((0.0, 3.0), (6.0, 3.0), t=0.25, entity="w1")
+    g = _gap((3.0, 3.0), 1.25)
+    g.rotation_deg = 0.0
+    leaves = [_arc("A:1", (2.4, 3.0), 0.6, 270.0, 360.0), _arc("A:2", (3.6, 3.0), 0.6, 180.0, 270.0)]
+    got = GC._door_blocks_in_gaps(_ex2(), "p", [wall], [g], leaves)
+    assert len(got) == 1 and got[0].kind == "door" and abs(got[0].width - 1.2) < 1e-6
+    assert got[0].operation == "double"
 
 
 def test_a_door_block_or_lone_fixtures_never_make_a_window_onto_an_open_recess():

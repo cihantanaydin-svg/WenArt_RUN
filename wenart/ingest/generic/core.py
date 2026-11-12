@@ -2252,27 +2252,79 @@ FACE_THROUGH_END_M = 0.02       # ... and covering the gap to this much of its e
 
 
 DOOR_ARC_R_M = (0.5, 1.3)       # 12 Nov 2026: a door leaf's swing radius ...
-DOOR_ARC_REACH_M = 0.15         # ... its centre (the hinge) this close to the gap's wall band and span
+DOOR_ARC_REACH_M = 0.15         # ... its hinge (the arc's centre) this close to the gap's wall band ...
+DOOR_CHORD_TOL_M = 0.05         # ... and its chord (hinge to the closed leaf's tip, along the wall) inside the gap
+DOOR_WINDOW_SWEEP = (80.0, 100.0)   # on a door-and-window layer only a swing of about 90 degrees is a door's ...
+DOOR_WINDOW_MIN_R = 0.6         # ... of a door's size (a 35-degree sash of 0.5 m is a casement window)
+DOOR_COVERS_GAP = 0.5           # a door already read covering this share of an unclassified gap is that gap's opening
+WINDOW_WORDS = ("PENCERE", "PENC", "WINDOW", "FENSTER", "FENETRE", "DOGRAMA", "VENTANA", "FINESTRA")
+WINDOW_TAG_RE = re.compile(r"^\s*[PW]\s*\d{0,2}\s*[:\-]?\s*\d{2,3}\s*/\s*\d{2,3}\s*$", re.IGNORECASE)
 
 
-def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m: list) -> list:
-    """12 Nov 2026 (review of the reader targets, real15 F1: the kitchen door block INSERT:19D81B, its leaf and swing on
-    layer KAPI, read as unclassified gap content and then as windows): an unclassified gap holding a door leaf's swing
-    (an arc of ``DOOR_ARC_R_M`` on a door layer or in a door block, ``layer_names`` role door, hinged within
-    ``DOOR_ARC_REACH_M`` of the gap) is that door, the swing's radius wide at most (the rest of a wider gap stays as
-    read: ``_door_tags`` does the same). Never silent."""
+def _door_window_name(names) -> bool:
+    """A layer or block named for doors and windows together ('kapı-pencere', 'DOOR_WINDOW')."""
+    folded = " ".join(B.fold_ascii(str(n or "")).upper() for n in names)
+    return any(w in folded for w in WINDOW_WORDS)
+
+
+def _swing(st, x0, y0, ux, uy, h):
+    """``(s_hinge, s_tip)`` along a wall (origin x0, y0, direction ux, uy, half thickness h) of a door swing: the arc's
+    centre and the end of the arc that lies on the wall (the closed leaf's tip); None when either is off the wall."""
+    a = st.arc
+    cx, cy = a["center"][:2]
+    r = float(a["radius"])
+    if abs(-(cx - x0) * uy + (cy - y0) * ux) > h + DOOR_ARC_REACH_M:
+        return None
+    ends = []
+    for deg in (a.get("start_deg"), a.get("end_deg")):
+        if deg is None:
+            continue
+        ex_, ey_ = cx + r * math.cos(math.radians(float(deg))), cy + r * math.sin(math.radians(float(deg)))
+        ends.append((abs(-(ex_ - x0) * uy + (ey_ - y0) * ux), (ex_ - x0) * ux + (ey_ - y0) * uy))
+    ends = [e for e in ends if e[0] <= h + DOOR_ARC_REACH_M]
+    if not ends:
+        return None
+    s_h = (cx - x0) * ux + (cy - y0) * uy
+    s_t = min(ends)[1]
+    return (s_h, s_t) if abs(abs(s_t - s_h) - r) <= 0.2 * r else None
+
+
+def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m: list, owned=(),
+                         texts_m=()) -> list:
+    """12 Nov 2026 (reviews of the reader targets; real15 F1: the kitchen door block's leaf and swing read as
+    unclassified gap content, then as windows; round 2: borrowed swings made false doors on real21, real06, real09,
+    real11): a door from a door leaf's swing in an unclassified gap, only when
+
+    - no door already read covers the gap (one covering ``DOOR_COVERS_GAP`` of it is the gap's opening: the gap goes);
+    - the arc (``DOOR_ARC_R_M``, on a door layer or in a door block: ``layer_names`` role door) belongs to no opening
+      already read (``owned``) and serves one gap only;
+    - on a door-and-window layer it sweeps about 90 degrees with a door's radius (a sash is a window);
+    - no window size tag (P / W and W/H) stands by the gap;
+    - its chord, from the hinge to the closed leaf's tip along the wall, lies inside the gap.
+
+    The door is put on that chord (two chords meeting in the gap make one double door); the rest of the gap stays an
+    unclassified opening when window or glass lines stand in it, else it is wall. Never silent."""
     from wenart.ingest.generic import layer_names as LN
 
     arcs = []
     for st in strokes_m:
         a = st.arc
-        if not a or not (DOOR_ARC_R_M[0] <= float(a.get("radius") or 0.0) <= DOOR_ARC_R_M[1]):
+        if not a or not (DOOR_ARC_R_M[0] <= float(a.get("radius") or 0.0) <= DOOR_ARC_R_M[1]) or st.id in owned:
             continue
         names = [st.layer] + (str(st.block).split("/") if st.block else [])
-        if any(LN.layer_role(n) == "door" for n in names):
-            arcs.append((tuple(a["center"][:2]), float(a["radius"]), st.id))
-    if not arcs:
-        return openings
+        if not any(LN.layer_role(n) == "door" for n in names):
+            continue
+        if _door_window_name(names):
+            sweep = abs(float(a.get("end_deg") or 0.0) - float(a.get("start_deg") or 0.0)) % 360.0
+            if float(a["radius"]) < DOOR_WINDOW_MIN_R or not (DOOR_WINDOW_SWEEP[0] <= sweep <= DOOR_WINDOW_SWEEP[1]):
+                continue
+        arcs.append(st)
+    glass = [st for st in strokes_m if st.arc is None and len(st.pts) >= 2
+             and LN.layer_role(st.layer) in ("window", "glass")]
+    tags = [((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0) for t in texts_m
+            if WINDOW_TAG_RE.match(str(getattr(t, "text", "") or ""))]
+    doors = [o for o in openings if o.kind == "door" and not getattr(o, "virtual", False)]
+    used: set = set()
     out = []
     for o in openings:
         if o.kind != "opening" or getattr(o, "virtual", False) or getattr(o, "type_raw", None) != UNCLASSIFIED:
@@ -2289,28 +2341,78 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
             out.append(o)
             continue
         ux, uy = (x1 - x0) / L, (y1 - y0) / L
+        h = float(w.thickness) / 2.0
         c = (o.center[0] - x0) * ux + (o.center[1] - y0) * uy
-        half, h = float(o.width) / 2.0, float(w.thickness) / 2.0
-        hit = None
-        for (cx, cy), r, sid in arcs:
-            s_ = (cx - x0) * ux + (cy - y0) * uy
-            d = abs(-(cx - x0) * uy + (cy - y0) * ux)
-            if d <= h + DOOR_ARC_REACH_M and c - half - DOOR_ARC_REACH_M <= s_ <= c + half + DOOR_ARC_REACH_M \
-                    and r <= 2.0 * half + DOOR_ARC_REACH_M:
-                hit = (r, sid)
-                break
-        if hit is None:
+        g0, g1 = c - float(o.width) / 2.0, c + float(o.width) / 2.0
+
+        def along(q):
+            return (q[0] - x0) * ux + (q[1] - y0) * uy
+
+        def on_wall(q):
+            return abs(-(q[0] - x0) * uy + (q[1] - y0) * ux) <= h + 0.05
+
+        cover = 0.0
+        for d in doors:
+            if on_wall(d.center):
+                a0, a1 = along(d.center) - float(d.width) / 2.0, along(d.center) + float(d.width) / 2.0
+                cover += max(0.0, min(a1, g1) - max(a0, g0))
+        if cover > 0:
+            if cover >= DOOR_COVERS_GAP * (g1 - g0):
+                ex.notes.append(f"{where}: gap {o.entity[:80]} ({float(o.width):.2f} m) is the opening of the door "
+                                f"already read in it ({cover:.2f} m of it): no second opening")
+                continue
+            out.append(o)                               # a door already read in it: never a second door
+            continue
+        if any(math.dist(q, o.center) <= 1.2 for q in tags):
+            out.append(o)                               # a window size tag beside it: a window, not a door
+            continue
+        chords = []
+        for st in arcs:
+            if st.id in used:
+                continue
+            sw = _swing(st, x0, y0, ux, uy, h)
+            if sw is None:
+                continue
+            a0, a1 = min(sw), max(sw)
+            if a0 >= g0 - DOOR_CHORD_TOL_M and a1 <= g1 + DOOR_CHORD_TOL_M:
+                chords.append((a0, a1, st))
+        if not chords:
             out.append(o)
             continue
-        r, sid = hit
-        width = round(min(float(o.width), r + 0.05), 3)
+        chords.sort(key=lambda t: t[0])
+        pick = [chords[0]]
+        for ch in chords[1:]:                           # two leaves meeting in the gap: one double door
+            if abs(ch[0] - pick[-1][1]) <= 0.15 and len(pick) < 2:
+                pick.append(ch)
+        d0, d1 = max(g0, pick[0][0]), min(g1, pick[-1][1])
+        for _a0, _a1, st in pick:
+            used.add(st.id)
+        mid = (d0 + d1) / 2.0
+        ids = ", ".join(st.id for _a, _b, st in pick)
         ev = dict(o.evidence) if isinstance(o.evidence, dict) else {}
         ev.update(rule="door_block_in_gap", confidence=0.8,
-                  reason=f"a door leaf's swing ({sid}, radius {r:.2f} m) on a door layer stands in the gap")
-        out.append(dataclasses.replace(o, kind="door", width=width, evidence=ev, status="verified",
-                                       type_raw=f"door block in gap ({sid})"))
-        ex.notes.append(f"{where}: gap {o.entity[:80]} ({float(o.width):.2f} m) holds a door leaf's swing {sid} "
-                        f"(radius {r:.2f} m): a {width:.2f} m door")
+                  reason=f"door leaf swing(s) {ids} on a door layer, hinged in the gap: the door on the leaf's chord")
+        door = dataclasses.replace(o, kind="door", width=round(d1 - d0, 3),
+                                   center=(round(x0 + ux * mid, 4), round(y0 + uy * mid, 4)), evidence=ev,
+                                   status="verified", type_raw=f"door block in gap ({ids})")
+        if len(pick) == 2:
+            door.operation, door.operation_source = "double", "geometry"
+        out.append(door)
+        rest = []
+        for r0, r1 in ((g0, d0), (d1, g1)):
+            if r1 - r0 < 0.3:
+                continue
+            if any(on_wall(((q0[0] + q1[0]) / 2.0, (q0[1] + q1[1]) / 2.0)) and r0 <= along(
+                    ((q0[0] + q1[0]) / 2.0, (q0[1] + q1[1]) / 2.0)) <= r1 for st in glass
+                    for q0, q1 in zip(st.pts, st.pts[1:])):
+                rm = (r0 + r1) / 2.0
+                rest.append(dataclasses.replace(o, width=round(r1 - r0, 3),
+                                                center=(round(x0 + ux * rm, 4), round(y0 + uy * rm, 4))))
+        out += rest
+        ex.notes.append(f"{where}: gap {o.entity[:80]} ({float(o.width):.2f} m) holds the swing(s) {ids} hinged in it:"
+                        f" a {d1 - d0:.2f} m {'double ' if len(pick) == 2 else ''}door on the leaf's chord"
+                        + (f"; {len(rest)} glazed part(s) of the gap stay openings" if rest else
+                           "; the rest of the gap is wall"))
     return out
 
 
@@ -3044,7 +3146,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     # frame lines beside its size tag; the notation is read from the layers, UL296)
     walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s)
     walls2, openings = _faces_through_gaps(ex, where, walls2, openings, strokes_m)
-    openings = _door_blocks_in_gaps(ex, where, walls2, openings, strokes_m)
+    openings = _door_blocks_in_gaps(ex, where, walls2, openings, strokes_m, owned, texts_m)
     for e in gap_log:
         if e.get("kind") == "wall_piece":
             # A door leaf fused to a wall face (the run's faces kept; also in the wall's evidence note) or a frame or
