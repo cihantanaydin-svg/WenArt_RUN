@@ -180,8 +180,16 @@ def test_a_flat_meets_the_core_only_through_its_door():
     assert not rules(b, "core_gap")
 
 
-def test_a_door_from_a_flats_room_is_no_entrance_and_the_core_gets_one():
+def test_a_flats_garden_door_stays_and_the_core_still_gets_the_entrance():
     b = block()
+    rec = run(b)
+    assert rec["entrances"]["refused"] == [] and [e["door_id"] for e in b["site"]["entrances"]] == ["d_L0_out"]
+    assert len(rec["entrances"]["added"]) == 1
+
+
+def test_a_door_from_a_wet_room_is_no_entrance_and_the_core_gets_one():
+    b = block()
+    next(r for r in b["rooms"] if r["id"] == "r_L0_east")["room_type"] = "bathroom"
     rec = run(b)
     assert [r["door"] for r in rec["entrances"]["refused"]] == ["d_L0_out"]
     assert b["site"]["entrances"] == []

@@ -20,8 +20,8 @@ wells and before the windows; it changes the building in place and returns the r
    from a flat into the core is its entrance door. Only in a building of several flats (a house's stair hall may be
    open to its rooms).
 4. **Entrances** (``entrances``): an entrance (``site.entrances``) whose far side holds a room label the reading lost
-   is no entrance (the room behind it is missing); in a building of several flats an entrance from a flat's room or
-   hall is refused (the building's entrance leads into the common hall); a building of several flats without an
+   is no entrance (the room behind it is missing); in a building of several flats an entrance from a wet room is
+   refused (a flat's garden or terrace door stays an outer door); a building of several flats without an
    entrance into the core gets an inferred one where the core hall reaches a facade that is no party wall, else an open
    point (the passage from the street to the core is not drawn).
 
@@ -41,8 +41,8 @@ from shapely.geometry import Point, Polygon
 from wenart import geometry as G
 from wenart.ingest import completion as CP
 
-PRIVATE = ("bedroom", "living", "kitchen", "bathroom", "wc", "shower", "toilet", "storage", "dining", "office",
-           "study", "laundry")
+# a flat's rooms (a storage room, a shelter or a laundry may be the building's own, reached from the core)
+PRIVATE = ("bedroom", "living", "kitchen", "bathroom", "wc", "shower", "toilet", "dining", "office", "study")
 WET = ("bathroom", "wc", "shower", "toilet")
 STAIR_BOX_M = (1.0, 2.5)        # a stroke box at least this small side by this long side can hold a stair
 STAIR_SYMBOL_KINDS = ("dimension_outline", "unknown", "untyped", "outline")
@@ -502,13 +502,10 @@ def fix_entrances(b: dict, next_id, party_by_level: dict) -> dict:
                 why = (f"the far side of {e.get('door_id')} holds the room label '{near[0].get('text')}' the reading "
                        f"lost: a room behind it, not the outside")
         room = rooms.get(e.get("room_id")) or {}
-        if why is None and flats and e.get("level_id"):
-            level = CP.Level(b, e["level_id"])
-            core = core_rooms(b, level)
-            if room.get("room_type") in PRIVATE or (room.get("room_type") == "hall" and room.get("id") not in core
-                                                   and core):
-                why = (f"{e.get('door_id')} opens from {room.get('id')} '{room.get('label')}' ({room.get('room_type')}): "
-                       f"a building of several flats is entered into its common hall")
+        if why is None and flats and room.get("room_type") in WET:
+            # a garden or terrace door of a ground-floor flat stays an outer door; a bathroom is never a way in
+            why = (f"{e.get('door_id')} opens from {room.get('id')} '{room.get('label')}' ({room.get('room_type')}): a "
+                   f"wet room is never a way into the building")
         if why:
             rec["refused"].append({"door": e.get("door_id"), "level_id": e.get("level_id"),
                                    "reason": why + " (adjusted_by_ai: no entrance, no steps)"})
