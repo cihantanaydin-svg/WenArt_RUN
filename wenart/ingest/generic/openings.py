@@ -1136,7 +1136,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     (``_outside_test``).
     """
     leaf_log: list[dict] = []
-    leaves = leaf_walls(walls, wall_strokes)
+    leaves = leaf_walls(walls, wall_strokes, strokes_m)
     if leaves:
         by_id = {st.id: st for st in wall_strokes}
         for k in sorted(leaves):
@@ -1411,23 +1411,62 @@ LEAF_WALL_MAX_M = LEAF_WIDTH_M + 0.02    # 6 Nov 2026: a door leaf read as a wal
 LEAF_WALL_MIN_LEN_M = 0.4                # ... and at least this long (a leaf, not a frame or a jamb block)
 
 
-def leaf_walls(walls: list[WallItem], wall_strokes) -> dict[int, list[str]]:
+LEAF_WALL_MAX_LEN_M = CONTINUOUS_RADIUS_M[1] * LEAF_LENGTH[1]   # 12 Nov 2026: ... and at most a door leaf long
+
+
+def _stroke_len(st: Stroke) -> float:
+    return sum(math.dist(a, b) for a, b in zip(st.pts, st.pts[1:]))
+
+
+def leaf_walls(walls: list[WallItem], wall_strokes, strokes_m=()) -> dict[int, list[str]]:
     """6 Nov 2026 (real03: the bedrooms' door blocks draw the open leaf as a 0.80 x 0.05 m rectangle on the door
     layer; the wall mask read it as a thin wall, so the swing had no leaf and three bedrooms and a flat's entrance had
-    no door): ``{wall index: its stroke ids}`` of the walls drawn only by strokes on a door layer
-    (``layer_names.layer_role`` "door"), at most ``LEAF_WALL_MAX_M`` thick and at least ``LEAF_WALL_MIN_LEN_M`` long.
-    A door layer never draws a wall."""
+    no door): ``{wall index: its stroke ids}`` of the walls that are door leaves: at most ``LEAF_WALL_MAX_M`` thick and
+    ``LEAF_WALL_MAX_LEN_M`` long, none of their strokes on a layer that draws walls, and their strokes on a door layer
+    or in a block named for a door (``_on_door_layer``) running ``LEAF_WALL_MIN_LEN_M`` at least along the piece (12 Nov
+    2026, review B-r03-leaf-incomplete: real03's fire-stair and safety-lobby leaves carry a longer background-view
+    line); (review B-OPN-10: a WC partition or a sliding screen on the door layer is no leaf) a door swing among
+    ``strokes_m`` is hinged at one end of that run, its radius the run's length (``LEAF_LENGTH``) and its sweep a
+    door's (``SWEEP_DEG``)."""
     from wenart.ingest.generic import layer_names as LN
 
     if not wall_strokes:
         return {}
     by_id = {st.id: st for st in wall_strokes}
-    out = {}
+    cands = {}
     for k, w in enumerate(walls):
-        if float(w.thickness) > LEAF_WALL_MAX_M or math.dist(w.start, w.end) < LEAF_WALL_MIN_LEN_M:
+        length = math.dist(w.start, w.end)
+        if float(w.thickness) > LEAF_WALL_MAX_M or not 0 < length <= LEAF_WALL_MAX_LEN_M:
             continue
         ids = [e.strip() for e in str(w.entity or "").split(",") if e.strip()]
-        if ids and all(i in by_id and LN.layer_role(by_id[i].layer) == "door" for i in ids):
+        sts = [by_id.get(i) for i in ids]
+        if not ids or any(st is None for st in sts) or any(LN.draws_walls(st.layer) for st in sts):
+            continue
+        door = [q for st in sts if _on_door_layer(st) for q in st.pts]
+        if not door:
+            continue
+        ux, uy = (w.end[0] - w.start[0]) / length, (w.end[1] - w.start[1]) / length
+        proj = [(q[0] - w.start[0]) * ux + (q[1] - w.start[1]) * uy for q in door]
+        lo, hi = max(min(proj), 0.0), min(max(proj), length)
+        if hi - lo >= LEAF_WALL_MIN_LEN_M:
+            cands[k] = (ids, [(w.start[0] + ux * t, w.start[1] + uy * t) for t in (lo, hi)])
+    if not cands:
+        return {}
+    swings = []
+    for st in strokes_m:
+        if st.kind not in ("arc", "curve", "polyline", "circle") or len(st.pts) < 4:
+            continue
+        if st.arc is None and st.kind == "polyline" and len(st.pts) < 8:
+            continue
+        arc = arc_of(st.pts)
+        if arc is not None and SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]:
+            swings.append(arc)
+    out = {}
+    for k, (ids, ends) in cands.items():
+        run = math.dist(*ends)
+        reach = HINGE_M + float(walls[k].thickness)
+        if any(LEAF_LENGTH[0] * a["radius"] <= run <= LEAF_LENGTH[1] * a["radius"]
+               and min(math.dist(a["center"], e) for e in ends) <= reach for a in swings):
             out[k] = ids
     return out
 

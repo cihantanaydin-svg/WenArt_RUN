@@ -3110,8 +3110,12 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                                                    for q in sn_polys)]
     stairs = [p for p in pieces if p.type == "stair"]
     from wenart.ingest.generic import facade as FC_
+    # 12 Nov 2026 (review B-r03-hol): the labelled rooms' own outlines (their printed area matched) separate the names
+    # the walls leave in one face
     seps, sep_log = TP.separators(bwalls, b_openings, gap_log, blocks, stairs, units_to_m=s,
-                                  axis=_halves(ex, bwalls, b_openings, blocks, level_id))
+                                  axis=_halves(ex, bwalls, b_openings, blocks, level_id),
+                                  outlines=lambda: [o.polygon for o in OL.labelled_outlines(non_wall, blocks)
+                                                    if o.area_off is not None])
     rows = face_table(TP.faces(bwalls, b_openings, seps), blocks, bwalls, b_openings, stairs)
     SY.apply_room_checks(pieces, cands + extras, [{"polygon": r["polygon"], "room_type": r["room_type"],
                                                    "label": r["label"]} for r in rows], ex.notes)

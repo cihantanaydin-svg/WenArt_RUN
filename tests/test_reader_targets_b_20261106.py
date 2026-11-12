@@ -21,6 +21,7 @@ import math
 from types import SimpleNamespace
 
 import pytest
+from shapely.geometry import Point
 
 import _real01_page as R
 from wenart.ingest.generic import openings as O
@@ -659,12 +660,65 @@ def test_a_door_leaf_read_as_a_thin_wall_goes_back_to_its_door():
     assert any(e.get("kind") == "wall_piece" and "door leaf" in e["note"] for e in log)
 
 
-def test_a_thin_wall_on_a_wall_layer_stays_a_wall():
-    piece = R.stroke([(0, 0), (2, 0), (2, 0.05), (0, 0.05)], closed=True)
-    piece.layer = "DUVAR"
-    w = R.wall((0, 0.025), (2, 0.025), t=0.05, entity=piece.id)
-    assert O.leaf_walls([w], [piece]) == {}
-    piece.layer = "KAPI"
-    assert O.leaf_walls([w], [piece]) == {0: [piece.id]}
-    short = R.wall((0, 0.025), (0.2, 0.025), t=0.05, entity=piece.id)          # a frame or a jamb block, no leaf
-    assert O.leaf_walls([short], [piece]) == {}
+def _leaf_piece(length, layer):
+    piece = R.stroke([(0, 0), (length, 0), (length, 0.05), (0, 0.05)], closed=True)
+    piece.layer = layer
+    return piece, R.wall((0, 0.025), (length, 0.025), t=0.05, entity=piece.id)
+
+
+def test_a_thin_wall_is_a_leaf_only_with_its_swing_and_its_size():
+    """review B-OPN-10: a thin piece on the door layer is a door leaf only when a door swing hinged at one of its ends
+    has its length for a radius; a WC partition or a sliding screen on the door layer stays a wall, and so does a
+    piece longer than any leaf, a frame or a jamb block (too short) and anything on a wall layer."""
+    swing = R.arc((0.0, 0.0), 0.8, 0.0, 90.0)
+    piece, w = _leaf_piece(0.8, "KAPI")
+    assert O.leaf_walls([w], [piece], [swing]) == {0: [piece.id]}
+    assert O.leaf_walls([w], [piece], []) == {}                                 # no swing: a partition
+    far = R.arc((3.0, 2.0), 0.8, 0.0, 90.0)
+    assert O.leaf_walls([w], [piece], [far]) == {}                              # a swing of another door
+    big = R.arc((0.0, 0.0), 1.5, 0.0, 90.0)
+    assert O.leaf_walls([w], [piece], [big]) == {}                              # its radius is no leaf of 0.8 m
+    piece, w = _leaf_piece(0.8, "DUVAR")
+    assert O.leaf_walls([w], [piece], [swing]) == {}
+    piece, long_ = _leaf_piece(3.6, "KAPI")
+    assert O.leaf_walls([long_], [piece], [R.arc((0.0, 0.0), 3.6, 0.0, 90.0)]) == {}
+    piece, short = _leaf_piece(0.2, "KAPI")
+    assert O.leaf_walls([short], [piece], [R.arc((0.0, 0.0), 0.2, 0.0, 90.0)]) == {}
+
+
+def test_a_leaf_with_a_background_line_on_it_is_still_a_leaf():
+    """review B-r03-leaf-incomplete (real03's fire-stair and safety-lobby doors): the leaf is a line of the door block
+    plus a background-view line on 'MYD - GOR-ARKA'; its longest stroke is the door's, none is on a wall layer."""
+    leaf = R.stroke([(0, 0), (0.9, 0)])
+    leaf.layer, leaf.block = "0", "D BLOK_MERDIVEN_NK$0$KAPI - 100"
+    view = R.stroke([(0.05, 0.05), (0.85, 0.05)])
+    view.layer = "MYD - GOR-ARKA"
+    w = R.wall((0, 0.025), (0.9, 0.025), t=0.06, entity=f"{leaf.id},{view.id}")
+    swing = R.arc((0.0, 0.0), 0.9, 0.0, 90.0)
+    assert O.leaf_walls([w], [leaf, view], [swing]) == {0: [leaf.id, view.id]}
+    view.layer = "DUVAR"
+    assert O.leaf_walls([w], [leaf, view], [swing]) == {}
+
+
+# --------------------------------------------------------------------------
+# A labelled room the walls leave open keeps its drawn outline
+# --------------------------------------------------------------------------
+
+def test_a_room_the_walls_leave_open_is_cut_off_along_its_drawn_outline():
+    """review B-OPN-06 / B-R1 / B-r03-hol (real03: 'HOL 3.85 m2' lies open to the living room, no wall, no door, but its
+    net-area outline is drawn): the run of the labelled outline inside the face two names share separates them, so
+    the hall keeps its drawn area; without the outline the names share the face as before."""
+    from shapely.geometry import Polygon
+    from wenart.ingest.generic import topology as TP
+    walls = [R.wall((0, 0), (6, 0), t=0.2, entity="S"), R.wall((6, 0), (6, 4), t=0.2, entity="E"),
+             R.wall((6, 4), (0, 4), t=0.2, entity="N"), R.wall((0, 4), (0, 0), t=0.2, entity="W")]
+    hol = SimpleNamespace(name="HOL", anchor=(1.5, 0.6), exterior=False, area_m2=3.0)
+    living = SimpleNamespace(name="YASAMA", anchor=(3.0, 2.8), exterior=False, area_m2=None)
+    outline = Polygon([(0.1, 0.1), (3.1, 0.1), (3.1, 1.1), (0.1, 1.1)])
+    seps, log = TP.separators(walls, [], [], [hol, living], [], outlines=lambda: [outline])
+    assert len(seps) == 2 and all("outline of 'HOL'" in o.evidence["note"] for o in seps)
+    faces = TP.faces(walls, [], seps)
+    hall = next(f for f in faces if f.contains(Point(1.5, 0.6)))
+    assert hall.area == pytest.approx(3.0, abs=0.05)
+    seps, _log = TP.separators(walls, [], [], [hol, living], [])
+    assert seps == []
