@@ -1,13 +1,16 @@
 """12 Nov 2026 (the architect's audit of 8 buildings; user: "Make sense of the building", "This is for all the
 projects"): the common core completed by general rules (``wenart.ingest.core_rules``) and checked (RC14).
 
-What: a 12 x 8 m storey of a building with a lift: a west flat's bedroom, the core hall with a stroke box the reading
-set aside as notation and a lift, an east flat's bedroom. The reading has no stair, the lift opens into the east
-bedroom, the west bedroom opens onto the core hall through an unclassified gap, and the only "entrance" is a door from
-the east bedroom. The rules: the box becomes the stair (with its slab void), the lift loses its door into the bedroom
-and gets a landing door onto the hall, the gap closes, the bedroom door is no entrance and the core hall gets the
-building entrance on the facade it reaches. Negatives: a house of one storey needs no stair; a lift door onto the hall
-stays; a gap between two rooms of a flat stays.
+What: a 12 x 8 m storey of a building with a lift: a west flat's kitchen, the core hall with a stroke box the reading
+set aside as notation and a lift, an east flat's bedroom and kitchen. The reading has no stair, a derived lift door
+opens into the east bedroom, the west kitchen opens onto the core hall through an unclassified gap, and the only
+"entrance" is a door from the east bedroom. The rules: the box becomes the stair (with its slab void) when stair
+strokes stand in it (tread numbers or tread lines; the misfire hunters' guard G3), else no stair is built and a question
+is asked (G2); the lift loses its derived door into the bedroom and gets a landing door onto the hall, while a drawn
+door is kept for review (R16 G6); the pieces of one landing door are merged and made a sliding door (R19, C0034); the
+kitchen's gap closes when the kitchen has its own door to the core and stays as an open-plan flat's only link (G4);
+the core hall gets the building entrance on the facade it reaches. Negatives: a house of one storey needs no stair; a
+lift door onto the hall stays; a box over the lifts is never the stair; a pit level gets no landing door.
 """
 from __future__ import annotations
 
@@ -16,7 +19,7 @@ from types import SimpleNamespace
 from shapely.geometry import Polygon
 
 from wenart import building as B
-from wenart import geometry as G
+from wenart.ingest import completion as CP
 from wenart.ingest import core_rules as CR
 from wenart.reading_check import sense as SN
 
@@ -48,7 +51,7 @@ def storey(lid, order):
              room(f"r_{lid}_east", "Oda", "bedroom", rect(8.1, 0.1, 11.9, 3.9), lid),
              room(f"r_{lid}_ek", "Mutfak", "kitchen", rect(8.1, 4.1, 11.9, 7.9), lid)]
     ops = [{"id": f"d_{lid}_lift", "type": "door", "level_id": lid, "wall_id": f"w_{lid}_8", "center": [8.0, 7.0],
-            "width": 1.0},
+            "width": 1.0, "evidence": [{"method": "derived", "rule": "lift_door"}]},
            {"id": f"o_{lid}_gap", "type": "opening", "level_id": lid, "wall_id": f"w_{lid}_4", "center": [4.0, 3.0],
             "width": 1.2},
            {"id": f"d_{lid}_flat", "type": "door", "level_id": lid, "wall_id": f"w_{lid}_8", "center": [8.0, 2.0],
@@ -80,9 +83,24 @@ def block(storeys=2, symbol=True):
     return b
 
 
-def run(b):
+def treads(b):
+    """The tread numbers 1-16 drawn in every storey's stroke box (stair strokes, R08 G3)."""
+    return {s["level_id"]: [{"text": str(i), "x": 5.2, "y": 1.0 + 0.25 * i} for i in range(1, 17)]
+            for s in b["symbols"]}
+
+
+def run(b, texts=None, strokes=None):
     build = SimpleNamespace(building=b, ids=B.IdCounter(), warn=lambda *_: None)
-    return CR.apply(build, {}, {})
+    return CR.apply(build, treads(b) if texts is None else texts, {}, strokes)
+
+
+def flat_door(b):
+    """The west kitchen's own (drawn) entrance door onto the core hall on every storey."""
+    for lv in b["levels"]:
+        b["openings"].append({"id": f"d_{lv['id']}_west", "type": "door", "level_id": lv["id"],
+                              "wall_id": f"w_{lv['id']}_4", "center": [4.0, 6.5], "width": 0.9,
+                              "evidence": [{"method": "vector", "entity": "ARC:1"}]})
+    return b
 
 
 NO_TRUST = {"threshold": 0.7, "rules": {r: {"findings": 10, "judged_right": 10, "precision": 1.0, "trusted": True}
@@ -94,7 +112,7 @@ def rules(b, *names):
 
 
 def test_the_checks_see_what_the_reading_left_out():
-    b = block()
+    b = flat_door(block())
     assert [f["level_id"] for f in rules(b, "stair_missing")] == ["L0"]
     assert {f["element_ids"][-1] for f in rules(b, "lift_doors")} >= {"d_L0_lift"}
     assert {f["element_ids"][0] for f in rules(b, "core_gap")} == {"o_L0_gap", "o_L1_gap"}
@@ -113,15 +131,35 @@ def test_a_stroke_box_in_the_core_is_the_missed_stair_with_its_slab_void():
     assert not [f for f in rules(b, "circulation") if "cannot be reached" in f["message"]]
 
 
-def test_without_a_box_a_dog_leg_is_inferred_in_a_core_hall_that_holds_one():
-    b = block(symbol=False)
-    rec = run(b)
-    assert rec["stairs"] and rec["stairs"][0]["how"] == "dog-leg"
-    piece = next(f for f in b["furniture"] if f["type"] == "stair")
-    assert piece["source"] == "added_by_ai"
-    fp = piece["footprint"]
-    assert Polygon(HALL).buffer(0.05).contains(Polygon(G.rotated_rectangle(fp["center"], fp["size"],
-                                                                           fp["rotation_deg"])))
+def test_without_stair_strokes_no_stair_is_built_and_a_question_is_asked():
+    """G2: geometry only from drawn strokes. The box without strokes is named in the question."""
+    b = block()
+    rec = run(b, texts={})
+    assert rec["stairs"] == [] and not [f for f in b["furniture"] if f["type"] == "stair"]
+    assert [(x["level_id"], x["candidate"]) for x in rec["stairs_open"]] == [("L0", "sy_L0_001")]
+    item = next(n for n in b["needs_review"] if n["kind"] == "stair_not_drawn")
+    assert "sy_L0_001" in item["reason"] and "no stair is built" in item["reason"]
+    rec = run(block(symbol=False), texts={})
+    assert rec["stairs"] == [] and rec["stairs_open"][0]["candidate"] is None
+
+
+def test_tread_lines_of_the_sheets_stage_make_the_box_the_stair():
+    b = block()
+    run_poly = Polygon([[4.6, 1.0], [5.8, 1.0], [5.8, 2.4], [4.6, 2.4]])
+    rec = run(b, texts={}, strokes={"L0": [{"polygon": run_poly, "lines": 6, "pitch_m": 0.27}]})
+    assert [s["how"] for s in rec["stairs"]] == ["stroke box"] and "6 tread lines" in rec["stairs"][0]["reason"]
+
+
+def test_a_box_over_the_lifts_or_holding_a_lift_word_is_never_the_stair():
+    b = block(storeys=2)
+    for s in b["symbols"]:
+        s["footprint"] = {"center": [7.2, 7.0], "size": [1.4, 2.5], "rotation_deg": 0.0}   # over the lift box
+    texts = {s["level_id"]: [{"text": str(i), "x": 7.2, "y": 5.9 + 0.1 * i} for i in range(1, 17)] for s in b["symbols"]}
+    assert run(b, texts=texts)["stairs"] == []
+    b = block(storeys=2)
+    texts = treads(b)
+    texts["L0"].append({"text": "ŞAFT", "x": 5.2, "y": 3.0})
+    assert run(b, texts=texts)["stairs"] == []
 
 
 def test_a_one_storey_house_needs_no_stair():
@@ -134,10 +172,11 @@ def test_a_one_storey_house_needs_no_stair():
 def test_the_lift_opens_only_onto_the_common_hall():
     b = block()
     rec = run(b)
+    assert all(r["level_id"] for r in rec["lift_doors"]["removed"])
     gone = {r["opening"] for r in rec["lift_doors"]["removed"]}
     assert {"d_L0_lift", "d_L1_lift"} <= gone
     added = [o for o in b["openings"] if o.get("inference", {}).get("rule") == "lift_door"]
-    assert {o["level_id"] for o in added} == {"L0", "L1"}
+    assert {o["level_id"] for o in added} == {"L0", "L1"} and all(o["lift_door"] is True for o in added)
     assert all(o["wall_id"].endswith("_l2") or o["wall_id"].endswith("_l1") for o in added)
     assert not rules(b, "lift_doors")
 
@@ -163,6 +202,61 @@ def test_a_copy_of_a_typical_floor_takes_its_floors_stair_and_the_top_storey_non
     assert all(s["openings"] for s in b["slabs"])
 
 
+def test_a_drawn_lift_door_into_a_flats_room_is_kept_for_review():
+    """R16 G6: a drawn door symbol is never removed; it raises a review record."""
+    b = block(storeys=1)
+    b["rooms"].append(room("r_L0_ek2", "Mutfak", "kitchen", rect(0.1, 0.1, 1.0, 1.0), "L0"))
+    next(o for o in b["openings"] if o["id"] == "d_L0_lift")["evidence"] = [{"method": "vector", "entity": "ARC:9"}]
+    rec = run(b)
+    assert "d_L0_lift" in {o["id"] for o in b["openings"]}
+    assert [r["opening"] for r in rec["lift_doors"]["review"]] == ["d_L0_lift"]
+
+
+def test_a_landing_door_read_in_pieces_is_merged_and_made_a_sliding_door():
+    """R19 (the user on real10, C0034): pieces in stacked walls are one door; the doorless opening onto the hall is the
+    lift's sliding landing door, at the drawn place."""
+    b = block(storeys=1)
+    b["rooms"].append(room("r_L0_ek2", "Mutfak", "kitchen", rect(0.1, 0.1, 1.0, 1.0), "L0"))
+    b["walls"].append(wall("w_L0_l1b", (6.4, 6.08), (8.0, 6.08), "L0"))
+    b["openings"] += [{"id": "o_L0_p1", "type": "opening", "level_id": "L0", "wall_id": "w_L0_l1", "center": [7.2, 6.0],
+                       "width": 0.9},
+                      {"id": "o_L0_p2", "type": "opening", "level_id": "L0", "wall_id": "w_L0_l1b",
+                       "center": [7.18, 6.08], "width": 0.8}]
+    rec = run(b)
+    assert [m["opening"] for m in rec["lift_doors"]["merged"]] == ["o_L0_p2"]
+    door = next(o for o in b["openings"] if o["id"] == "o_L0_p1")
+    assert door["type"] == "door" and door["operation"] == "sliding" and door["drawn_type"] == "opening"
+    assert door["lift_door"] is True                     # the user's truth asserts the lift door (C0034)
+    assert [r["opening"] for r in rec["lift_doors"]["retyped"]] == ["o_L0_p1"] and rec["lift_doors"]["added"] == []
+
+
+def test_a_lift_door_mark_outside_the_shaft_wall_is_undone():
+    """R19/R16: an opening marked the lift's door (by the older reach test) that lies in no shaft wall loses the mark; a
+    derived gap is an opening again (real10 o_L0_019)."""
+    b = block(storeys=1)
+    b["rooms"].append(room("r_L0_ek2", "Mutfak", "kitchen", rect(0.1, 0.1, 1.0, 1.0), "L0"))
+    b["openings"].append({"id": "o_L0_far", "type": "door", "level_id": "L0", "wall_id": "w_L0_k", "center": [10.0, 4.0],
+                          "width": 1.0, "operation": "sliding", "lift_door": True,
+                          "evidence": [{"method": "derived"}, {"method": "inferred", "rule": "lift_door"}]})
+    rec = run(b)
+    o = next(x for x in b["openings"] if x["id"] == "o_L0_far")
+    assert [u["opening"] for u in rec["lift_doors"]["unmarked"]] == ["o_L0_far"]
+    assert o["lift_door"] is False and o["type"] == "opening" and o["adjusted_by_ai"]["rule"] == "lift_door_unmark"
+
+
+def test_a_pit_level_gets_no_landing_door_and_a_machine_room_is_no_lift():
+    b = block(storeys=1)
+    b["rooms"].append(room("r_L0_ek2", "Mutfak", "kitchen", rect(0.1, 0.1, 1.0, 1.0), "L0"))
+    next(r for r in b["rooms"] if r["id"] == "r_L0_lift")["label"] = "Asansör Kuyusu"
+    assert run(b)["lift_doors"]["added"] == []
+    lift = {"label": "Asansör", "polygon": rect(0, 0, 1.6, 1.8)}
+    assert CP.is_lift(lift) and CP.is_lift(dict(lift, label="Makine Dairesiz Asansör"))
+    for label in ("Asansör Makn.dairesi", "Asansör Holü", "Araç Asansörü", "ASANSÖR ÖNÜ"):
+        assert not CP.is_lift(dict(lift, label=label)), label
+    assert not CP.is_lift(dict(lift, polygon=rect(0, 0, 4.0, 4.0)))          # a 16 m2 face: the whole core
+    assert not CP.is_lift(dict(lift, label="Elek.şoh. Asansör", polygon=rect(0, 0, 0.5, 0.6)))
+
+
 def test_a_lift_door_onto_the_hall_stays():
     b = block()
     b["openings"].append({"id": "d_L0_land", "type": "door", "level_id": "L0", "wall_id": "w_L0_l2",
@@ -173,11 +267,45 @@ def test_a_lift_door_onto_the_hall_stays():
 
 
 def test_a_flat_meets_the_core_only_through_its_door():
-    b = block()
+    b = flat_door(block())
     rec = run(b)
     assert {g["opening"] for g in rec["core_gaps"]} == {"o_L0_gap", "o_L1_gap"}
     assert "d_L0_flat" in {o["id"] for o in b["openings"]}
     assert not rules(b, "core_gap")
+
+
+def test_an_open_plan_flats_only_link_stays_and_a_bedroom_gap_never():
+    """G4: a kitchen or living room may be a flat's only, open-plan, entrance; a bedroom never opens onto the core."""
+    b = block()
+    b["openings"].append({"id": "o_L0_bed", "type": "opening", "level_id": "L0", "wall_id": "w_L0_8",
+                          "center": [8.0, 3.3], "width": 0.8})
+    rec = run(b)
+    assert {g["opening"] for g in rec["core_gaps"]} == {"o_L0_bed"}
+    assert {"o_L0_gap", "o_L1_gap"} <= {o["id"] for o in b["openings"]}
+    assert not [f for f in rules(b, "core_gap") if "o_L0_gap" in f["element_ids"]]
+
+
+def test_a_house_pair_with_no_lift_and_no_common_hall_has_no_common_core():
+    """R16 G1/G2: two kitchens alone make no common core (real02/real04, twin villas with a stair each); a drawn
+    common-hall word or a lift does."""
+    b = block()
+    b["rooms"] = [r for r in b["rooms"] if r["room_type"] != "shaft"]
+    assert CR.several_flats(b) and CR.common_core(b) is None and not CR.flat_core(b)
+    rec = run(flat_door(b))
+    assert rec["core_gaps"] == [] and not rules(b, "core_door", "core_gap")
+    next(r for r in b["rooms"] if r["id"] == "r_L0_hall").update(label="Kat Holü", label_raw="KAT HOLÜ")
+    assert CR.common_core(b) and CR.flat_core(b)
+    inferred = dict(next(r for r in b["rooms"] if r["id"] == "r_L0_hall"), label_raw=None,
+                    label_inferred={"method": "shared_hall"})
+    assert CR.common_core({"rooms": [inferred]}) is None              # an inferred common label is no evidence
+
+
+def test_a_drawn_door_from_a_bedroom_into_the_core_is_a_finding():
+    """RC14 core_door (R16): the east bedroom's drawn door opens straight into the core hall."""
+    b = block()
+    assert [f["element_ids"][0] for f in rules(b, "core_door") if f["level_id"] == "L0"] == ["d_L0_flat"]
+    next(r for r in b["rooms"] if r["id"] == "r_L0_east")["room_type"] = "hall"          # an antre: the flat's own hall
+    assert not [f for f in rules(b, "core_door") if f["level_id"] == "L0"]
 
 
 def test_a_flats_garden_door_stays_and_the_core_still_gets_the_entrance():

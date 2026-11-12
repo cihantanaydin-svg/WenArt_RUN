@@ -16,8 +16,9 @@ walls, openings, the outdoor spaces of ``wenart.levels``) and before the conflic
    (``HABITABLE``) facing the outside on a wall that is no party wall, or a light well, one window (two on a long
    wall, ``LONG_FACE_M``); a room onto a balcony a balcony door; a wet room (``WET``) facing out or onto a light well a
    small high window. Sizes come from the project's own window tags (other plans of the documents), else
-   ``DEFAULT_SIZES``. Party walls come only from a party text on that side (``bitişik``, ``komşu``, ``attached``:
-   ``party_walls``), never from the plan's shape. A plan that draws windows never gets inferred ones: a habitable room
+   ``DEFAULT_SIZES``. Party walls come only from a whole-label party text facing that side (``bitişik``, ``attached``, a
+   joint note; never a bare ``komşu``: ``party_walls``, R46), never from the plan's shape, and never on a side with a
+   drawn opening or on a low-confidence level (``party_vetoes``). A plan that draws windows never gets inferred ones: a habitable room
    there without a window is a finding (RC14), and a drawing whose windows were not read is a reading miss (RC14), never
    hidden by inference.
 
@@ -53,6 +54,16 @@ OPEN_AIR = ("balcony", "terrace", "roof_terrace", "loggia", "veranda", "patio", 
 LIGHT_WELL_RE = re.compile(r"(?<![a-z])(?:aydinlik|isiklik|aydinlatma\s+boslugu|light\s*well|lightwell|lichthof"
                            r"|lichtschacht|courette|patio\s+de\s+luces)")
 LIFT_RE = re.compile(r"(?<![a-z])(?:asansor|lift|elevator|aufzug|ascenseur)")
+# R19 guards (the misfire hunters, 12 Nov 2026): a machine room (MAK./MAKN./MAKİNA/MAKİNE with DAİR or MAHAL, MOTOR;
+# never a bare MAK., a washing machine; DAİRESİZ is a lift with no machine room), a lift lobby (HOL, HOLÜ, ÖNÜ, LOBİ)
+# and a car lift (ARAÇ, OTO) are no passenger lift; a pit or void (KUYU, BOŞLUK) is a shaft level with no door
+LIFT_MACHINE_RE = re.compile(r"(?<![a-z])(?:mak|makn|makina|makine)\.?\s*(?:dair(?!esiz)|mahal)"
+                             r"|(?<![a-z])motor(?![a-z])")
+LIFT_LOBBY_RE = re.compile(r"(?<![a-z])(?:hol|holu|onu|lobi|lobby|lobisi)(?![a-z])")
+LIFT_CAR_RE = re.compile(r"(?<![a-z])(?:arac|oto|car|vehicle|otopark)(?![a-z])")
+LIFT_PIT_RE = re.compile(r"(?<![a-z])(?:kuyu|kuyusu|bosluk|boslugu|pit)(?![a-z])")
+LIFT_MAX_M2 = 8.0               # a lift-named face larger than this a car is the whole core (a common hall: R16 G2)
+LIFT_MIN_SIDE_M = 1.0           # ... and one under this a side is a duct named after the lift ('Elek.şoh. Asansör')
 SAMPLE_M = 0.10                 # a wall is probed every this many metres
 PROBE_M = 0.25                  # ... this far beyond each face
 EDGE_M = 0.30                   # a window keeps this far from a corner and from another opening
@@ -60,7 +71,8 @@ MIN_FACE_M = 0.80               # a face shorter than this takes no window
 LONG_FACE_M = 5.0               # a habitable room's free face this long takes two windows
 PIER_M = 0.90                   # ... with this much wall between them
 HEAD_M = 2.20                   # an inferred window's head over its floor (the doors' head)
-PARTY_REACH_M = 6.0             # a party text this far from the level's outline names its nearest side
+PARTY_REACH_M = 3.0             # a party text this far from a facade's outer line names that facade (R46)
+PARTY_ALONG_M = 0.30            # ... when its foot falls within that facade's extent (this much beyond its ends)
 PARTY_FACE_TOL_M = 0.35         # a wall's outer face this close to that side's line lies on it
 PARALLEL_SIN = 0.10
 DEFAULT_SIZES = {"living": (1.80, 1.40), "dining": (1.50, 1.40), "bedroom": (1.40, 1.40), "office": (1.40, 1.40),
@@ -110,7 +122,24 @@ def is_light_well(room: dict, texts: Optional[list] = None) -> bool:
 
 
 def is_lift(room: dict) -> bool:
-    return bool(LIFT_RE.search(_fold(room.get("label") or room.get("label_raw"))))
+    """A passenger lift's shaft (pure; R19 and R16 G2 guards): a lift word in its label and no machine-room, lobby or
+    car-lift word, at most ``LIFT_MAX_M2`` per lift word and at least ``LIFT_MIN_SIDE_M`` a side."""
+    label = _fold(room.get("label") or room.get("label_raw"))
+    words = len(LIFT_RE.findall(label))
+    if not words or LIFT_MACHINE_RE.search(label) or LIFT_LOBBY_RE.search(label) or LIFT_CAR_RE.search(label):
+        return False
+    p = _poly(room.get("polygon"))
+    if p is None:
+        return True
+    mrr = p.minimum_rotated_rectangle
+    pts = list(mrr.exterior.coords)[:3] if mrr.geom_type == "Polygon" else []
+    short = min(math.dist(pts[0], pts[1]), math.dist(pts[1], pts[2])) if len(pts) == 3 else 0.0
+    return p.area <= LIFT_MAX_M2 * words and short >= LIFT_MIN_SIDE_M
+
+
+def is_pit(room: dict) -> bool:
+    """A lift's pit or pass-through void (KUYU, BOŞLUK): a shaft level with no landing door (pure)."""
+    return is_lift(room) and bool(LIFT_PIT_RE.search(_fold(room.get("label") or room.get("label_raw"))))
 
 
 def _ground_min(building: dict) -> Optional[float]:
@@ -287,22 +316,38 @@ class Level:
 
 # ------------------------------------------------------------------------------------------------------ party walls
 def party_walls(level: Level, side_points: list) -> dict:
-    """``{wall_id: evidence}``: the walls on the side of the level's outline a party text names (pure). A text
-    (``bitişik``, ``komşu``, ``attached`` ...) at most ``PARTY_REACH_M`` from the outline names its nearest outline
-    edge; every wall parallel to that edge whose outer face lies on its line (``PARTY_FACE_TOL_M``) is a party wall."""
+    """``{wall_id: evidence}``: the walls on the side of the level's outline a party text names (pure; R46). A
+    whole-label text (``bitişik``, ``attached``, a joint note) outside the outline, at most ``PARTY_REACH_M`` from
+    a facade's outer line with its foot within that facade, names the nearest such facade, unless a street text
+    faces it; every wall parallel to it whose outer face lies on its line (``PARTY_FACE_TOL_M``) is a party wall."""
     out: dict = {}
     if level.outline is None:
         return out
     ring = list(level.outline.exterior.coords)
     edges = [(ring[i], ring[i + 1]) for i in range(len(ring) - 1) if math.dist(ring[i], ring[i + 1]) > 0.5]
+
+    def facade(sp):
+        """The outline edge a text faces (R46: outside the outline, at most PARTY_REACH_M from the edge, its foot
+        within the edge's extent, the nearest such edge), or None."""
+        q = Point(sp["at"])
+        if level.outline.buffer(-1e-6).contains(q):
+            return None
+        best = None
+        for e in edges:
+            (x0, y0), (x1, y1) = e
+            el = math.hypot(x1 - x0, y1 - y0)
+            t = ((q.x - x0) * (x1 - x0) + (q.y - y0) * (y1 - y0)) / el
+            d = LineString(e).distance(q)
+            if -PARTY_ALONG_M <= t <= el + PARTY_ALONG_M and d <= PARTY_REACH_M and (best is None or d < best[0]):
+                best = (d, e)
+        return best[1] if best else None
+
+    streets = {facade(sp) for sp in side_points if sp.get("kind") == "street"} - {None}
     for sp in side_points:
         if sp.get("kind") != "party":
             continue
-        q = Point(sp["at"])
-        if level.outline.exterior.distance(q) > PARTY_REACH_M:
-            continue
-        e = min(edges, key=lambda e: LineString(e).distance(q), default=None)
-        if e is None:
+        e = facade(sp)
+        if e is None or e in streets:          # a side a street text faces is never a party wall (R46 veto)
             continue
         (ex0, ey0), (ex1, ey1) = e
         el = math.hypot(ex1 - ex0, ey1 - ey0)
@@ -459,7 +504,7 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         b["level_inference"] = {}
     rec = (sheets or {}).get("storeys") if sheets else None
     regions = ((sheets or {}).get("completion") or {}).get("regions") or {}
-    texts_by_level, region_by_level, party_by_level = {}, {}, {}
+    texts_by_level, region_by_level, party_by_level, strokes_by_level = {}, {}, {}, {}
     for lid, works in by_level.items():
         w = sorted(works, key=lambda w: w.rank)[0]
         ex = w.extraction
@@ -475,6 +520,16 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
                  if not RG.blocked("party_wall", b, {"level_id": lid, "wall": w, "why": ev.get("text")})}
         if party:
             party_by_level[lid] = party
+        runs = []
+        for run in (info or {}).get("stair_strokes") or []:
+            poly = _poly([list(to_building(ex, tuple(c))) for c in run.get("corners") or []])
+            if poly is not None:
+                runs.append(dict(run, polygon=poly))
+        if runs:
+            strokes_by_level[lid] = runs
+    vetoed = party_vetoes(b, party_by_level)
+    if vetoed:
+        b["level_inference"]["party_vetoes"] = vetoed
     if rec and (rec.get("inferred") or rec.get("open_point")):
         _storeys(build, rec, texts_by_level, party_by_level)
     wells = _light_wells(build, texts_by_level)
@@ -488,7 +543,14 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
                    f"({', '.join(d['id'] for d in dropped)}): {dropped[0]['reason']}")
     # 12 Nov 2026 (the architect's audit): the common core (a missed stair, lift doors, flat-core gaps) and entrances
     from wenart.ingest import core_rules as CR
-    rules = CR.apply(build, texts_by_level, party_by_level)
+    for lid in list(texts_by_level):
+        lv = next((x for x in b.get("levels") or [] if x["id"] == lid), None)
+        for copy in [x for x in b.get("levels") or [] if lv is not None and x.get("typical_of") == lid]:
+            # a copy of a typical floor reads its floor's texts and strokes (the same plan)
+            texts_by_level.setdefault(copy["id"], texts_by_level[lid])
+            if lid in strokes_by_level:
+                strokes_by_level.setdefault(copy["id"], strokes_by_level[lid])
+    rules = CR.apply(build, texts_by_level, party_by_level, strokes_by_level)
     b["level_inference"]["core_rules"] = rules
     gf = (b["level_inference"].get("storeys") or {}).get("ground_floor")
     if isinstance(gf, dict):
@@ -603,6 +665,60 @@ def _light_wells(build, texts_by_level: dict) -> dict:
                f"({', '.join(f'{k} {len(v)}' for k, v in sorted(by_level.items()))}); {len(rec['slab_voids'])} slab "
                f"void(s), {len(rec['roof_openings'])} roof opening(s) (inferred)")
     return rec
+
+
+def _on_side(w: dict, side) -> bool:
+    """True when wall ``w`` lies along the outline side ``side`` (parallel, its outer face on the side's line, within
+    the side's extent; pure)."""
+    a, u, length = _axis(w)
+    (ex0, ey0), (ex1, ey1) = side
+    el = math.hypot(ex1 - ex0, ey1 - ey0)
+    if length < 0.3 or el < 1e-6:
+        return False
+    eu = ((ex1 - ex0) / el, (ey1 - ey0) / el)
+    if abs(u[0] * eu[1] - u[1] * eu[0]) > PARALLEL_SIN:
+        return False
+    off = (a[0] - ex0) * -eu[1] + (a[1] - ey0) * eu[0]
+    if abs(abs(off) - float(w.get("thickness") or 0.15) / 2.0) > PARTY_FACE_TOL_M and abs(off) > PARTY_FACE_TOL_M:
+        return False
+    ts = sorted(((p[0] - ex0) * eu[0] + (p[1] - ey0) * eu[1]) for p in (w["start"], w["end"]))
+    return ts[1] > 0.1 and ts[0] < el - 0.1
+
+
+def party_vetoes(b: dict, party_by_level: dict) -> list:
+    """R46's vetoes (in place on ``party_by_level``; the records returned): no party wall on a level read with low
+    confidence, and none on a side that carries a drawn door, entrance or window on any storey (a drawn opening shows
+    the side is free; inferred and derived openings do not count)."""
+    from wenart.ingest import core_rules as CR
+
+    out = []
+    levels = {lv["id"]: lv for lv in b.get("levels") or []}
+    for lid in list(party_by_level):
+        if (levels.get(lid) or {}).get("reading_confidence") == "low":
+            out.append({"level_id": lid, "walls": sorted(party_by_level.pop(lid)),
+                        "reason": f"{lid} is read with low confidence: no party wall is marked on it"})
+    walls = [w for w in b.get("walls") or [] if w.get("start") and w.get("end")]
+    drawn = {}
+    for o in b.get("openings") or []:
+        if o.get("type") in ("door", "window") and not o.get("virtual") and not CR.derived(o):
+            drawn.setdefault(o.get("wall_id"), []).append(o)
+    for lid, party in list(party_by_level.items()):
+        sides = {}
+        for wid, ev in party.items():
+            sides.setdefault(tuple(map(tuple, ev.get("side") or [])), []).append(wid)
+        for side, wids in sides.items():
+            if len(side) != 2:
+                continue
+            hit = [o for w in walls if _on_side(w, side) for o in drawn.get(w["id"]) or []]
+            if hit:
+                for wid in wids:
+                    party.pop(wid, None)
+                out.append({"level_id": lid, "walls": sorted(wids),
+                            "reason": f"the side holds the drawn {hit[0]['type']} {hit[0]['id']} on "
+                                      f"{hit[0].get('level_id')}: a facade with a drawn opening is no party wall"})
+        if not party:
+            party_by_level.pop(lid)
+    return out
 
 
 def _mark_party(b: dict, party_by_level: dict) -> None:
@@ -925,7 +1041,12 @@ def _rules_summary(cr: dict) -> Optional[dict]:
         return None
     lift, ent = cr.get("lift_doors") or {}, cr.get("entrances") or {}
     out = {"stairs": [s["reason"] for s in cr.get("stairs") or []],
+           "stairs not drawn (a question)": [s["reason"] for s in cr.get("stairs_open") or []],
+           "lift door marks undone": [x["reason"] for x in lift.get("unmarked") or []],
+           "lift door pieces merged": [x["reason"] for x in lift.get("merged") or []],
            "lift doors removed": [x["reason"] for x in lift.get("removed") or []],
+           "lift openings to review (drawn)": [x["reason"] for x in lift.get("review") or []],
+           "lift openings made doors": [x["reason"] for x in lift.get("retyped") or []],
            "lift doors added": [x["reason"] for x in lift.get("added") or []],
            "gaps closed": [x["reason"] for x in cr.get("core_gaps") or []],
            "entrances refused": [x["reason"] for x in ent.get("refused") or []],

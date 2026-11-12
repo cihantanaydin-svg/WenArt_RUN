@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from test_core_rules_20261112 import block, run
+from test_core_rules_20261112 import block, flat_door, run
 from test_sense_rules_20261112 import balcony_site, building, flat
 
 from wenart import building as B
@@ -37,7 +37,7 @@ def clean(monkeypatch):
 def test_every_rule_key_is_asked_by_its_rule():
     src = "".join((ROOT / f).read_text(encoding="utf-8") for f in ("completion.py", "core_rules.py", "sense_rules.py"))
     asked = set(re.findall(r'RG\.blocked\(\s*"([a-z_]+)"', src))
-    asked |= {"stair_box", "stair_typical_copy", "stair_dogleg"} if 'RG.blocked(kind, b' in src else set()
+    asked |= {"stair_box", "stair_typical_copy"} if 'RG.blocked(kind, b' in src else set()
     assert asked == set(RULES := RG.RULES), sorted(set(RULES) ^ asked)
     assert all(ids and all(re.fullmatch(r"R\d\d", i) for i in ids) and what for ids, what in RULES.values())
 
@@ -55,7 +55,7 @@ def test_a_guard_stops_one_change_and_says_why():
 
 def test_a_rule_switched_off_by_its_audit_id_makes_no_change(monkeypatch):
     monkeypatch.setenv("WENART_RULES_OFF", "R16, stair_box")
-    b = block()
+    b = flat_door(block())
     rec = run(b)
     assert rec["core_gaps"] == [] and rec["stairs"] == []
     assert {o["id"] for o in b["openings"]} >= {"o_L0_gap", "o_L1_gap"}
@@ -83,7 +83,7 @@ def test_a_guard_can_keep_a_level_above_ground():
 
 
 def test_without_guards_the_rules_work_as_before():
-    b = block()
+    b = flat_door(block())
     rec = run(b)
     assert rec["stairs"] and rec["core_gaps"] and rec["lift_doors"]["added"]
     assert "guarded" not in b["level_inference"]

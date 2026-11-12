@@ -299,6 +299,14 @@
    "small_sample": true,
    "by_status": {}
   },
+  "core_door": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
   "core_gap": {
    "findings": 0,
    "judged_right": 0,

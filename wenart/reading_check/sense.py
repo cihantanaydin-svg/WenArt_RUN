@@ -95,6 +95,7 @@ RULES = {
     "stair_missing": "a storey of a building of several flats or storeys with no stair rising from it",
     "lift_doors": "a lift with no landing door onto the common hall, or an opening into a flat's room",
     "core_gap": "an unclassified gap between a flat's room and the common core",
+    "core_door": "a door from a flat's wet room or bedroom straight into the common core",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -1703,7 +1704,7 @@ def lift_doors(building: dict) -> list:
     from wenart.ingest import core_rules as CR
 
     out = []
-    if not CR.several_flats(building):
+    if not CR.flat_core(building):
         return out                         # a house's own lift opens where its plan says
     for lv in building.get("levels") or []:
         if lv.get("typical_of"):
@@ -1740,14 +1741,16 @@ def lift_doors(building: dict) -> list:
 
 
 def core_gap(building: dict) -> list:
-    """Rule 22 (pure; audit real21-3, real10-1): an unclassified gap (type opening) between a flat's room and the common
-    core (``core_rules.core_rooms``); a typical floor's copies left out."""
+    """Rule 22 (pure; audit real21-3, real10-1, R16 with its guard G4): an unclassified gap (type opening) between the
+    common core (``core_rules.core_rooms``) and a flat's bathroom, WC, shower or bedroom, or a kitchen or living room
+    that reaches the core another way too (a kitchen or living room's only link is an open-plan flat's entrance); a
+    typical floor's copies left out."""
     from wenart.ingest import completion as CP
     from wenart.ingest import core_rules as CR
 
     out = []
-    if not CR.several_flats(building):
-        return out                         # a house's stair hall may be open to its rooms
+    if not CR.flat_core(building):
+        return out                         # a house's (or a house pair's) stair hall may be open to its rooms
     for lv in building.get("levels") or []:
         if lv.get("typical_of"):
             continue
@@ -1762,11 +1765,47 @@ def core_gap(building: dict) -> list:
             if len(rooms) != 2 or (rooms[0]["id"] in core) == (rooms[1]["id"] in core):
                 continue
             flat = rooms[1] if rooms[0]["id"] in core else rooms[0]
-            if flat.get("room_type") in CR.PRIVATE:
+            rtype = flat.get("room_type")
+            if rtype in CR.WET + ("bedroom",) or (rtype in CR.PRIVATE and CR._reaches(level, core, flat["id"], o["id"])):
                 out.append(_finding("core_gap", "major", lv["id"],
                                     f"the unclassified gap {o['id']} joins {flat['id']} '{_label(flat) or '-'}' "
                                     f"({flat.get('room_type')}) to the common core: a flat meets the core only "
                                     f"through its entrance door", o.get("center"), [o["id"], flat["id"]]))
+    return out
+
+
+def core_door(building: dict) -> list:
+    """Rule 23 (pure; R16, audit real11: bathroom doors onto the stair hall): a door from a flat's wet room or bedroom
+    straight into the common core (``core_rules.core_rooms``): a flat meets the core through its entrance door into its
+    own hall. Advisory only: the door is drawn, so it is asked about, never removed (R16 G6); a typical floor's copies
+    left out."""
+    from wenart.ingest import completion as CP
+    from wenart.ingest import core_rules as CR
+
+    out = []
+    if not CR.flat_core(building):
+        return out
+    for lv in building.get("levels") or []:
+        if lv.get("typical_of"):
+            continue
+        level = CP.Level(building, lv["id"])
+        core = CR.core_rooms(building, level)
+        if not core:
+            continue
+        for o in level.openings:
+            if o.get("type") != "door" or o.get("virtual"):
+                continue
+            rooms = [x[1] for x in CR._sides(level, o) if x[1] is not None]
+            if len(rooms) != 2 or (rooms[0]["id"] in core) == (rooms[1]["id"] in core):
+                continue
+            flat = rooms[1] if rooms[0]["id"] in core else rooms[0]
+            if flat.get("room_type") in CR.WET + ("bedroom",):
+                out.append(_finding("core_door", "minor", lv["id"],
+                                    f"the door {o['id']} opens {flat['id']} '{_label(flat) or '-'}' "
+                                    f"({flat.get('room_type')}) straight into the common core: a flat meets the core "
+                                    f"through its entrance door into its own hall (the door is drawn and kept: a room "
+                                    f"type is wrong, or the core hall merges a flat's antre and is to be split)",
+                                    o.get("center"), [o["id"], flat["id"]]))
     return out
 
 
@@ -1802,6 +1841,7 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += stair_missing(building)
     out += lift_doors(building)
     out += core_gap(building)
+    out += core_door(building)
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

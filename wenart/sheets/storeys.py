@@ -101,9 +101,11 @@ KITCHEN_RE = re.compile(r"\bMUTFAK\b|\bKITCHEN\b|\bKUCHE\b|\bCUISINE\b|\bCOCINA\
 STAIR_RE = re.compile(r"\bMERDIVEN\b|\bSTAIRS?\b|\bSTAIRCASE\b|\bTREPPE\b|\bESCALIER\b|\bESCALERA\b")
 # The side texts (``side_texts``): a party wall on that side, or the street
 # (a neighbouring plot, 'komşu parsel', is no attached building: only the building or its wall is)
-PARTY_RE = re.compile(r"\bBITISIK\b|\bKOMSU\b(?!\s+(?:PARSEL|ARSA|ADA|PLOT))|\bATTACHED\b|\bPARTY\s+WALL\b"
-                      r"|\bADJOINING\s+BUILDING\b|\bMITOYEN(?:NE)?\b|\bBRANDWAND\b|\bGRENZBEBAUUNG\b"
-                      r"|\bNACHBARGEBAUDE\b")
+# R46 (the misfire hunters, 12 Nov 2026): a whole-label party word or joint note; never a bare KOMŞU, never a phrase
+PARTY_RE = re.compile(r"\bBITISIK\b|\bATTACHED\b|\bPARTY\s+WALL\b|\bADJOINING\s+BUILDING\b|\bMITOYEN(?:NE)?\b"
+                      r"|\bBRANDWAND\b|\bGRENZBEBAUUNG\b|\bNACHBARGEBAUDE\b"
+                      r"|\bDEPREM\s+DERZI\b|\bDILATASYON\b|^\d+\s*CM\s+DERZ$|^DERZ$")
+PARTY_LABEL_WORDS = 4                 # a party label has at most this many words (a phrase never counts)
 STREET_RE = re.compile(r"\bSOKA[GK]I?\b|\bSOK\b|\bCADDESI\b|\bCADDE\b|\bCAD\b|\bBULVARI?\b|\bYOLU\b|\bSTREET\b"
                        r"|\bROAD\b|\bAVENUE\b|\bSTRASSE\b|\bRUE\b|\bCALLE\b|\bAVENIDA\b")
 
@@ -613,8 +615,9 @@ def side_texts(region, texts: list) -> list:
     for t, f in texts:
         if f != region.file:
             continue
-        folded = _fold(t.text)
-        kind = "party" if PARTY_RE.search(folded) else "street" if STREET_RE.search(folded) else None
+        folded = " ".join(_fold(t.text).split())
+        kind = ("party" if PARTY_RE.search(folded) and len(folded.split()) <= PARTY_LABEL_WORDS else
+                "street" if STREET_RE.search(folded) else None)
         if kind is None or point_box_distance(t.point, region.box) > reach:
             continue
         ev = getattr(t, "evidence", None) or {}
@@ -679,6 +682,89 @@ def window_sizes(regions: list) -> list:
     return out
 
 
+TREAD_PITCH_M = (0.22, 0.35)          # the tread lines of a flight: this far apart (R08 G3) ...
+TREAD_LEN_M = (0.75, 3.0)             # ... each this long ...
+TREAD_RUN_MIN = 5                     # ... at least this many in a run
+TREAD_ANGLE_DEG = 2.0                 # lines within this angle are parallel
+
+
+def stair_strokes(region) -> list:
+    """``[{corners (source units), lines, pitch_m, length_m}]`` (pure): runs of at least ``TREAD_RUN_MIN`` parallel line
+    segments of ``TREAD_LEN_M`` at a pitch of ``TREAD_PITCH_M``, each overlapping the one before along its length by at
+    least half the shorter: the tread lines of a flight (R08 guard G3), on any layer and inside nested blocks (DIM
+    included). Hatch patterns never count, and two crossing runs in one place are a tile grid, not a stair."""
+    import bisect
+    import math
+
+    mpu = getattr(region, "metres_per_unit", None)
+    if not mpu:
+        return []
+    by_angle: dict = {}
+    for e in getattr(region, "ents", None) or []:
+        if e.kind == "HATCH":
+            continue
+        for st in e.strokes:
+            if st.arc or len(st.pts) < 2:
+                continue
+            for p, q in zip(st.pts, st.pts[1:]):
+                length = math.dist(p, q) * mpu
+                if not TREAD_LEN_M[0] <= length <= TREAD_LEN_M[1]:
+                    continue
+                ang = math.degrees(math.atan2(q[1] - p[1], q[0] - p[0])) % 180.0
+                by_angle.setdefault(int(round(ang / TREAD_ANGLE_DEG)) % int(180 / TREAD_ANGLE_DEG), []).append((p, q))
+    runs = []
+    for key, segs in by_angle.items():
+        ang = math.radians(key * TREAD_ANGLE_DEG)
+        u, n = (math.cos(ang), math.sin(ang)), (-math.sin(ang), math.cos(ang))
+        items = []
+        for p, q in segs:
+            a0, a1 = sorted(((p[0] * u[0] + p[1] * u[1]) * mpu, (q[0] * u[0] + q[1] * u[1]) * mpu))
+            off = ((p[0] + q[0]) / 2.0 * n[0] + (p[1] + q[1]) / 2.0 * n[1]) * mpu
+            items.append((off, a0, a1))
+        items.sort()
+        offs = [it[0] for it in items]
+        chain = [1] * len(items)
+        prev = [-1] * len(items)
+        for i, (off, a0, a1) in enumerate(items):
+            lo = bisect.bisect_left(offs, off - TREAD_PITCH_M[1])
+            hi = bisect.bisect_right(offs, off - TREAD_PITCH_M[0])
+            for j in range(lo, hi):
+                _, b0, b1 = items[j]
+                if min(a1, b1) - max(a0, b0) >= 0.5 * min(a1 - a0, b1 - b0) and chain[j] + 1 > chain[i]:
+                    chain[i], prev[i] = chain[j] + 1, j
+        used = set()
+        for i in sorted(range(len(items)), key=lambda k: -chain[k]):
+            if chain[i] < TREAD_RUN_MIN or i in used:
+                continue
+            members, k = [], i
+            while k >= 0 and k not in used:
+                members.append(items[k])
+                used.add(k)
+                k = prev[k]
+            if len(members) < TREAD_RUN_MIN:
+                continue
+            o0, o1 = min(m[0] for m in members), max(m[0] for m in members)
+            s0, s1 = min(m[1] for m in members), max(m[2] for m in members)
+            corners = [[(s * u[0] + o * n[0]) / mpu, (s * u[1] + o * n[1]) / mpu]
+                       for s, o in ((s0, o0), (s1, o0), (s1, o1), (s0, o1))]
+            pitches = sorted(members[k][0] - members[k + 1][0] for k in range(len(members) - 1))
+            runs.append({"corners": [[round(x, 4), round(y, 4)] for x, y in corners], "lines": len(members),
+                         "pitch_m": round(pitches[len(pitches) // 2], 3),
+                         "length_m": round(sorted(m[2] - m[1] for m in members)[len(members) // 2], 3),
+                         "angle": key})
+    # a tile grid: two runs crossing each other at right angles in one place
+    from shapely.geometry import Polygon
+    polys = [Polygon(r["corners"]).buffer(0) for r in runs]
+    grid = set()
+    for i, a in enumerate(runs):
+        for j in range(i + 1, len(runs)):
+            turn = abs(a["angle"] - runs[j]["angle"]) * TREAD_ANGLE_DEG % 180.0
+            if abs(turn - 90.0) <= 2 * TREAD_ANGLE_DEG and polys[i].intersects(polys[j]) and \
+                    polys[i].intersection(polys[j]).area >= 0.5 * min(polys[i].area, polys[j].area):
+                grid |= {i, j}
+    return [dict((k, v) for k, v in r.items() if k != "angle") for i, r in enumerate(runs) if i not in grid]
+
+
 def completion_record(regions: list, docs: list) -> dict:
     """``sheets.json`` ``completion``: per plan region its window evidence and side texts, and the documents' window
     size tags (``wenart.ingest.completion`` reads them)."""
@@ -690,5 +776,5 @@ def completion_record(regions: list, docs: list) -> dict:
         if texts is None:
             texts = [(t, doc.file) for doc in docs for s in getattr(doc, "sheets", None) or []
                      for t in getattr(s, "texts", None) or []]
-        per[r.id] = {"windows": windows_drawn(r), "side_texts": side_texts(r, texts)}
+        per[r.id] = {"windows": windows_drawn(r), "side_texts": side_texts(r, texts), "stair_strokes": stair_strokes(r)}
     return {"regions": per, "window_sizes": window_sizes(regions)}

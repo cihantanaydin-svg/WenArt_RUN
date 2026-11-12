@@ -200,6 +200,22 @@ def test_the_window_evidence_of_a_plan():
     assert ST.window_tag("90/210", None) is None and ST.window_tag("1500/1400", None) == (1.5, 1.4)
 
 
+def strokes_region(*segments):
+    ents = [SimpleNamespace(kind="LINE", strokes=[SimpleNamespace(pts=[a, b], arc=None)]) for a, b in segments]
+    return SimpleNamespace(metres_per_unit=1.0, ents=ents)
+
+
+def test_tread_lines_are_found_and_a_tile_grid_or_an_x_never():
+    """R08 G3: at least 5 parallel lines 0.22-0.35 m apart, each 0.75 m or longer, overlapping along their length."""
+    flight = [((0.0, 0.27 * k), (1.1, 0.27 * k)) for k in range(7)]
+    runs = ST.stair_strokes(strokes_region(*flight))
+    assert len(runs) == 1 and runs[0]["lines"] == 7 and abs(runs[0]["pitch_m"] - 0.27) < 1e-6
+    grid = flight + [((0.27 * k, -0.1), (0.27 * k, 1.7)) for k in range(5)]
+    assert ST.stair_strokes(strokes_region(*grid)) == []
+    assert ST.stair_strokes(strokes_region(((0, 0), (1.8, 4.2)), ((0, 4.2), (1.8, 0)))) == []
+    assert ST.stair_strokes(strokes_region(*flight[:4])) == []                     # four lines are no flight
+
+
 # --------------------------------------------------------------------------------------------- a small building
 def rect(x0, y0, x1, y1):
     return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
@@ -276,6 +292,44 @@ def test_a_party_wall_named_by_an_attached_text_gets_no_window():
     assert new and all(o["wall_id"] != "w_L0_4" for o in new)
     # the plan's shape alone never makes a party wall
     assert CP.party_walls(level, []) == {}
+
+
+def test_only_a_whole_party_label_counts_never_a_bare_komsu_or_a_phrase():
+    """R46 (the misfire hunters, 12 Nov 2026): 'bitişik', a joint note; never a bare KOMŞU, never a phrase."""
+    region = plan_region()
+    texts = [(txt(t, 5.0, 21.0, tid=f"TEXT:{k}"), "a.dxf") for k, t in enumerate(
+        ("BİTİŞİK", "DEPREM DERZİ", "KOMŞU", "ısıtılmayan alana bitişik duvarlarda yalıtım", "Kalem Sokağı"))]
+    kinds = {s["text"]: s["kind"] for s in ST.side_texts(region, texts)}
+    assert kinds == {"BİTİŞİK": "party", "DEPREM DERZİ": "party", "Kalem Sokağı": "street"}
+
+
+def test_a_party_text_names_only_the_facade_it_faces_within_3_m():
+    b = building(flat())
+    level = CP.Level(b, "L0")
+    assert set(CP.party_walls(level, [{"kind": "party", "text": "bitişik", "at": [-2.5, 3.0]}])) == {"w_L0_4"}
+    assert CP.party_walls(level, [{"kind": "party", "text": "bitişik", "at": [-4.0, 3.0]}]) == {}      # 4 m away
+    assert CP.party_walls(level, [{"kind": "party", "text": "bitişik", "at": [-1.5, 9.0]}]) == {}      # past its end
+    # a street text facing the same side: never a party wall
+    assert CP.party_walls(level, [{"kind": "party", "text": "bitişik", "at": [-1.5, 3.0]},
+                                  {"kind": "street", "text": "Kalem Sokağı", "at": [-0.8, 2.0]}]) == {}
+
+
+def test_a_side_with_a_drawn_opening_or_a_low_confidence_level_is_no_party_wall():
+    side = [[0.0, 6.0], [0.0, 0.0]]
+    b = building(flat(), flat("L1", 1, 3.0))
+    party = {"L0": {"w_L0_4": {"text": "bitişik", "side": side}}, "L1": {"w_L1_4": {"text": "bitişik", "side": side}}}
+    assert CP.party_vetoes(b, {k: dict(v) for k, v in party.items()}) == []
+    b["openings"].append({"id": "win_L1_009", "type": "window", "level_id": "L1", "wall_id": "w_L1_4",
+                          "center": [0.0, 3.0], "width": 1.2, "evidence": [{"method": "vector", "entity": "LINE:9"}]})
+    left = {k: dict(v) for k, v in party.items()}
+    out = CP.party_vetoes(b, left)
+    assert left == {} and {x["level_id"] for x in out} == {"L0", "L1"} and "win_L1_009" in out[0]["reason"]
+    # an inferred window is no evidence that the side is free
+    b["openings"][-1].update(inferred=True, evidence=[{"method": "inferred"}])
+    assert CP.party_vetoes(b, {k: dict(v) for k, v in party.items()}) == []
+    b["levels"][1]["reading_confidence"] = "low"
+    left = {k: dict(v) for k, v in party.items()}
+    assert [x["level_id"] for x in CP.party_vetoes(b, left)] == ["L1"] and set(left) == {"L0"}
 
 
 def test_a_balcony_on_a_party_wall_is_left_out_and_one_on_a_facade_stays():

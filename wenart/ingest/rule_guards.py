@@ -31,11 +31,15 @@ from typing import Callable, Optional
 
 # rule key -> (audit rule ids, what the rule changes)
 RULES = {
-    "stair_box": (("R08",), "a stroke box the reading set aside as notation becomes the missed stair"),
+    "stair_box": (("R08",), "a stroke box the reading set aside as notation, with stair strokes inside, becomes the "
+                            "missed stair"),
     "stair_typical_copy": (("R08",), "a copy of a typical floor takes its floor's stair"),
-    "stair_dogleg": (("R08",), "a dog-leg stair is inferred in the core hall of a building of several flats"),
-    "lift_door_remove": (("R19", "R16"), "a lift's opening into a flat's room, onto a stair flight, a sliver or a "
-                                         "window in the shaft is removed"),
+    "lift_door_unmark": (("R19", "R16"), "a lift-door mark on an opening in no lift's shaft wall is undone"),
+    "lift_door_merge": (("R19",), "the pieces of one landing door read in stacked parallel walls are merged"),
+    "lift_door_remove": (("R19", "R16"), "a derived or inferred lift opening into a flat's room, onto a stair flight, "
+                                         "a sliver or a window in the shaft is removed"),
+    "lift_door_retype": (("R19",), "a doorless opening between a lift and the common hall becomes its sliding "
+                                   "landing door (C0034)"),
     "lift_door_add": (("R19",), "a lift with no opening onto the common hall gets an inferred landing door"),
     "core_gap": (("R16",), "an unclassified gap between a flat's room and the common core is closed"),
     "entrance_refuse": (("R09",), "an entrance with a lost room label behind it, or from a wet room, is refused"),
