@@ -421,6 +421,14 @@ def test_a_garage_door_gets_a_drive_down_to_the_ground_never_steps():
     assert e["ramp"]["drive"] is True and e["ramp"]["slope"] == 0.12 and e["ramp"]["width"] == 3.1
     assert e["ramp"]["length"] == pytest.approx(0.5 / 0.12, abs=1e-3) and e["ramp"]["handrails"] is False
     assert not [v for v in LC.check_levels(b) if v.get("target") == "d_front" or v.get("element_id") == "d_front"]
+    import json
+
+    import jsonschema
+    schema = json.loads((Path(__file__).resolve().parents[1] / "wenart" / "schema" / "building.schema.json")
+                        .read_text(encoding="utf-8"))
+    entrances = schema["properties"]["site"]
+    assert "drive" in json.dumps(entrances) and not [
+        e for e in jsonschema.Draft202012Validator(schema).iter_errors(b) if "entrances" in list(e.absolute_path)]
     # the site builds it straight out from the door, centred, from the floor down to the ground; no landing
     ent = {"opening_id": "d_front", "centre": [8.0, 0.0], "outward": [0.0, -1.0], "half_t": 0.1, "width": 2.5,
            "bottom": 0.0, "ground_z": -0.5, "rise": 0.5, "record": e}
