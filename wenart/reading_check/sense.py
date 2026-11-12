@@ -467,7 +467,10 @@ def label_names_larger_face(building: dict, texts_by_level: Optional[dict] = Non
             kind = str(sp.get("type") or "small room").replace("_", " ")
             at = sp.get("anchor") or _centre(r)
             a = float(_area(r) or 0.0)
-            out.append(_finding("label_names_larger_face", "major", r.get("level_id"),
+            # a lift not built is major (no way up); an installation shaft, a WC or a closet left in the face minor
+            # (real19's 'ŞAFT' on the winder treads of its stair hall, no shaft walls drawn)
+            out.append(_finding("label_names_larger_face", "major" if sp.get("type") == "lift" else "minor",
+                                r.get("level_id"),
                                 f"'{sp.get('label')}' names a {kind} (at most {_fmt(float(sp.get('max_m2') or 0))} m2) "
                                 f"inside {r.get('id')} '{_label(r)}' ({_fmt(a)} m2): the reader left the face to the "
                                 f"larger space and found no part of it for the {kind}; its walls are not read and the "
