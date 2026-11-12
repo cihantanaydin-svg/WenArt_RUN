@@ -1296,7 +1296,11 @@ def _labels_m(page: GenericPage, s: float) -> list:
 
     texts = [TextRun(id=t.id, text=t.text, box=tuple(v * s for v in t.box), height=t.height * s,
                      rotation_deg=t.rotation_deg, source=t.source) for t in page.texts]
-    return [b for b in LB.merge_label_blocks(texts) if not b.exterior]
+    # 12 Nov 2026 (round-2 review, A2-FC7): a label named only by the generic '<word> ODASI' does not vote here (the
+    # label vocabulary names rooms; it must not flip a plan's wall layers)
+    from wenart import building as B
+
+    return [b for b in LB.merge_label_blocks(texts) if not b.exterior and not B.generic_odasi_only(b.name)]
 
 
 def closed_in(anchors: list[tuple[float, float]], geoms: list) -> list[bool]:
@@ -1414,6 +1418,13 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
                              -r["pairs"], r["layer"]))
     choice["layers"] = [{k: v for k, v in r.items() if k != "_elems"} for r in rows]
     decided = bool(rows) and labels and not rows[0]["grid"] and rows[0]["closed_in"] >= need
+    if decided and document and rows[0]["layer"] not in document \
+            and rows[0]["closed_in"] - 1 < LAYER_EXPLAINS * (len(labels) - 1):
+        # 12 Nov 2026 (round-2 review, A2-FC7: one more label, 'ELK. PANO ODASI', let real10's basement decide on its
+        # own 3 of 4 and drop the document's masonry layer, whose lines then read as two windows): a plan whose own best
+        # layer would no longer decide with one of its closed-in labels fewer keeps the document's layers
+        choice["fragile"] = {"layer": rows[0]["layer"], "closed_in": rows[0]["closed_in"], "labels": len(labels)}
+        decided = False
     picked = [r for r in rows if r["layer"] in document and not r["grid"]] if document and not decided else []
     # 2 Nov 2026 (real10's 2nd basement, user: "2nd basement is fully underground and fully walled around"; its
     # reinforced-concrete outer walls are drawn on the column layer 'kolon', which ranked first on the plan's own

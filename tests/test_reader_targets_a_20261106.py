@@ -979,3 +979,16 @@ def test_a_variants_slab_stays_with_its_alternative_and_a_moved_slab_carries_its
     assert sl["sl_L1"]["z_top"] == 3.5 and sl["sl_L1"]["z_top_before"] == 3.0
     assert sl["sl_L1"]["evidence"][-1]["rule"] == "level_elevation" and sl["sl_L1"]["evidence"][-1]["method"] == "inferred"
     assert sl["sl_L1__v1b"]["z_top"] == 3.0                               # the alternative's slab did not move
+
+
+def test_technical_odasi_rooms_wc_odasi_and_one_letter_abbreviations_need_evidence():
+    from wenart import building as B
+    from wenart.furniture import program as PR
+
+    assert B.room_type_for("ELK. PANO ODASI", 6.8, 1.3) == "technical" and B.room_type_for("TRAFO ODASI") == "technical"
+    assert "technical" in PR.NOT_FURNISHED                     # a plant room is never furnished
+    assert B.room_type_for("W.C. ODASI") == "wc" and B.room_type_for("W.C.ODASI") == "wc"
+    assert B.room_type_for("Y.ODASI", 9.0, 1.2) == "bedroom" and B.room_type_for("Y.ODASI", 4.0, 1.2) == "other"
+    assert B.room_type_for("YATAK ODASI", 4.0, 1.2) == "bedroom"   # the written word needs no evidence
+    # a label named only by the generic '<word> ODASI' names its room but does not vote for the wall layers
+    assert B.generic_odasi_only("SPOR ODASI") and not B.generic_odasi_only("YATAK ODASI")

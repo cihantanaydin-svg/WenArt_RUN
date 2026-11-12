@@ -96,6 +96,15 @@ _TURKISH_ROOM_KEYWORDS = [
     # Turkish for 'the room of <word>', a room name of its own (SPOR, OYUN, HOBİ ODASI); a known word before it decides
     # the type (YATAK ODASI a bedroom), else it is other (last in ROOM_TYPE_PRIORITY). ODA alone stays generic.
     ("odasi", "other"),
+    # 12 Nov 2026 (round-2 review, G1: 'ELK. PANO ODASI' was furnished with a corner sofa): the plant and service
+    # rooms' words; '<one of them> ODASI' is a technical room (never furnished), see TECHNICAL_ODASI_WORDS
+    ("pano", "technical"),
+    ("elektrik", "technical"),
+    ("jenerator", "technical"),
+    ("trafo", "technical"),
+    ("pompa", "technical"),
+    ("makine", "technical"),
+    ("makina", "technical"),
 ]
 # English room names (docs/milestone7.md §2.7.2). An English keyword is a whole word (an
 # optional plural ``s``/``es`` allowed); the words of a two-word keyword may be written
@@ -160,6 +169,10 @@ _TURKISH_LETTERS = set("çğıöşüÇĞİÖŞÜ")
 ROOM_TYPE_PRIORITY = ("wc", "bathroom", "storage", "balcony", "stair", "shaft", "garage", "technical", "bedroom", "living",
                       "kitchen", "dining", "prayer", "hall", "other")
 LIFT_KEYWORDS = {"asansor", "lift", "elevator"}
+# 12 Nov 2026 (round-2 review, G1): '<word> ODASI' with one of these words is a technical room, never furnished
+TECHNICAL_ODASI_WORDS = ("pano", "elk", "elektrik", "kazan", "jenerator", "trafo", "pompa", "siginak", "tesisat",
+                         "makine", "makina", "arsiv", "depo", "hidrofor", "kalorifer", "ups", "server")
+BEDROOM_MIN_M2 = 6.0          # a room an abbreviation alone calls a bedroom (Y. / Ç. ODASI) is one only from this size
 # ``hall`` alone names a living room when its face is at least this large and this compact (§2.7.2).
 HALL_AS_LIVING_MIN_AREA = 9.0
 HALL_AS_LIVING_MAX_ASPECT = 2.5
@@ -322,10 +335,10 @@ def parse_area_label(text: str) -> tuple[str, Optional[float]]:
 # 12 Nov 2026 (review of the reader targets, real18: 'Y.ODASI' rooms typed other, 'SUDEPOSU' no room word): the
 # abbreviations of the Turkish room words before ODA / ODASI / OD. (a letter and a dot; ``Y.ODASI`` yatak odası, ``Ç.ODASI``
 # çocuk odası, ``O.ODASI`` oturma odası, ``E.YAT.OD.`` ebeveyn yatak odası, ``YAT.OD.`` yatak odası) ...
-_TURKISH_ABBREVIATIONS = ((re.compile(r"(?<![a-z])y\s*\.\s*(?=od)"), "yatak "),
-                          (re.compile(r"(?<![a-z])c\s*\.\s*(?=od)"), "cocuk "),
-                          (re.compile(r"(?<![a-z])o\s*\.\s*(?=od)"), "oturma "),
-                          (re.compile(r"(?<![a-z])e\s*\.\s*(?=yat)"), "ebeveyn "),
+_TURKISH_ABBREVIATIONS = ((re.compile(r"(?<![a-z.])y\s*\.\s*(?=od)"), "yatak "),
+                          (re.compile(r"(?<![a-z.])c\s*\.\s*(?=od)"), "cocuk "),
+                          (re.compile(r"(?<![a-z.])o\s*\.\s*(?=od)"), "oturma "),
+                          (re.compile(r"(?<![a-z.])e\s*\.\s*(?=yat)"), "ebeveyn "),
                           (re.compile(r"(?<![a-z])yat\s*\.\s*(?=od)"), "yatak "))
 # ... and a two-word room name written as one word (``SUDEPOSU`` su deposu, ``YANGINMERDIVENI``): a word starting with
 # one of these modifiers whose rest starts with a Turkish room keyword is read as the two words
@@ -347,6 +360,25 @@ def _room_words(folded: str) -> str:
                 break
         words.append(w)
     return " ".join(words)
+
+
+def _plain_keyword_hits(label: str) -> tuple[list, list]:
+    """``room_keyword_hits`` without the abbreviations and compounds written out."""
+    folded = fold_ascii(label)
+    turkish = [(keyword, room_type) for keyword, room_type in _TURKISH_ROOM_KEYWORDS
+               if re.search(rf"(^|[^a-z]){keyword}", folded)]
+    english = [(keyword, room_type) for pattern, keyword, room_type in _ENGLISH_PATTERNS if pattern.search(folded)]
+    return turkish, english
+
+
+def generic_odasi_only(label: Optional[str]) -> bool:
+    """12 Nov 2026 (round-2 review, A2-FC7: 'ELK. PANO ODASI' became a fourth label of real10's basement and flipped its
+    wall layers): a label named only by the generic '<word> ODASI' (no other room word, no technical word) names a room,
+    but is no evidence for the wall-layer choice (``walls._labels_m``)."""
+    if not label:
+        return False
+    turkish, english = room_keyword_hits(label)
+    return bool(turkish) and not english and {k for k, _ in turkish} == {"odasi"}
 
 
 def room_keyword_hits(label: str) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
@@ -379,6 +411,15 @@ def room_type_for(label: str, face_area_m2: Optional[float] = None, face_aspect:
             return "living"
     matched = {room_type for _, room_type in turkish + english}
     words = {keyword for keyword, _ in turkish + english}
+    if "odasi" in words and re.search(r"(?<![a-z])(?:" + "|".join(TECHNICAL_ODASI_WORDS) + r")",
+                                      fold_ascii(label).lower()):
+        return "technical"                         # 12 Nov 2026: a plant or service room (ELK. PANO ODASI)
+    if "bedroom" in matched and face_area_m2 is not None and face_area_m2 < BEDROOM_MIN_M2:
+        plain_t, plain_e = _plain_keyword_hits(label)
+        if "bedroom" not in {t for _, t in plain_t + plain_e}:
+            # 12 Nov 2026 (round-2 review, G8): a one-letter abbreviation (Y. yatak or yemek, Ç. çocuk, çalışma or
+            # çamaşır) names a bedroom only in a face a bed fits
+            matched.discard("bedroom")
     if words & LIFT_KEYWORDS and "stair" not in matched and (
             matched & {"hall"} or re.search(r"(?<![a-z])onu(?![a-z])", fold_ascii(label))):
         # 12 Nov 2026 (review of the reader targets, A3): a lift lobby (ASANSÖR HOLÜ, ASANSÖR ÖNÜ, LIFT LOBBY) is a hall
