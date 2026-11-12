@@ -2267,6 +2267,25 @@ def _rest_parts(index: StrokeIndex, host, lo: float, hi: float, owned=frozenset(
     return out
 
 
+def _covered(existing: list, k: int, host, lo: float, hi: float, theta: float) -> bool:
+    """Another opening of ``host``'s line than ``existing[k]`` holds half of ``lo``-``hi`` or more (a gap read twice on
+    two runs: its rest is read already)."""
+    for j, o in enumerate(existing):
+        if j == k or o.virtual:
+            continue
+        oc = _rot(o.center, -theta)
+        if abs((oc[1] if host.axis == "h" else oc[0]) - host.c) > host.t / 2.0 + BAND_SLACK_M:
+            continue
+        a_deg = (0.0 if host.axis == "h" else 90.0) + theta
+        if abs((float(o.rotation_deg) - a_deg + 90.0) % 180.0 - 90.0) > 10.0:
+            continue
+        oa = oc[0] if host.axis == "h" else oc[1]
+        cover = min(hi, oa + float(o.width) / 2.0) - max(lo, oa - float(o.width) / 2.0)
+        if o.kind in ("window", "door") and cover >= 0.5 * (hi - lo):
+            return True
+    return False
+
+
 def _door_in_gap(existing: list, host, m_along: float, w: float, theta: float, ctx, ev: dict,
                  index: Optional[StrokeIndex] = None, owned=frozenset(), door_name: str = "") -> Optional[int]:
     """A gap opening of ``host`` (an unclassified or empty gap, along its line) that holds the door's span
@@ -2299,9 +2318,10 @@ def _door_in_gap(existing: list, host, m_along: float, w: float, theta: float, c
                 parts.append((a, b, "open"))
             else:
                 parts += _rest_parts(index, host, a, b, owned)
-        keep = [q for q in parts if q[2] != "wall" and q[1] - q[0] >= GAP_MIN_M]
+        keep = [q for q in parts if q[2] != "wall" and q[1] - q[0] >= GAP_MIN_M
+                and not _covered(existing, k, host, q[0], q[1], theta)]
         if not keep:
-            return k                         # the gap is the door's
+            return k                         # the gap is the door's (its rest wall, or read already)
         p0, p1, kind = max(keep, key=lambda q: (q[2] == "window", q[1] - q[0]))
         c = ((p0 + p1) / 2.0, host.c) if host.axis == "h" else (host.c, (p0 + p1) / 2.0)
         corners = [(p0, host.c - host.t / 2), (p1, host.c + host.t / 2)] if host.axis == "h" else \

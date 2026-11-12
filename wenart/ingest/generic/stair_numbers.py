@@ -282,14 +282,13 @@ def _trim_arm(points: list, arm: list[int], at_end: bool, segs: Optional[list] =
         axis = _unit(points[rest[0]], points[rest[-1]])
         tip = out[-1] if at_end else out[0]
         ahead = axis if at_end else (-axis[0], -axis[1])
-        c = _tread_edge(points[tip], ahead, axis, EDGE_REACH * edge, segs)
-        if c is None or c <= TREAD_PERP:
-            break
-        # 12 Nov 2026 (review B2 FC-08, real13 L3: the fan of winders 11-14, steps within the spread of a tread's): a
-        # radial edge marks a winder even at a tread's step when the line behind the number (towards the arm) turns
-        # too; otherwise only a number a different step away
-        behind = _tread_edge(points[tip], (-ahead[0], -ahead[1]), axis, EDGE_REACH * edge, segs)
-        if abs(edge - med) <= ARM_STEP_SPREAD * med and (behind is None or behind <= TREAD_PERP):
+        # 12 Nov 2026 (review B2 FC-08 / REG-5: real13 L3's fan of winders at a tread's step; real18's U, the 7 and the
+        # 9 wedges between a riser and a radial, the 8 the turn tread beyond the radials): a number whose tread a
+        # radial or diagonal line bounds, ahead of it into the turn or behind it towards the arm, is a winder, at
+        # either end of a U alike, whatever its step
+        ahead_c = _tread_edge(points[tip], ahead, axis, EDGE_REACH * edge, segs)
+        behind_c = _tread_edge(points[tip], (-ahead[0], -ahead[1]), axis, EDGE_REACH * edge, segs)
+        if not any(c is not None and c > TREAD_PERP for c in (ahead_c, behind_c)):
             break
         out = rest
     return out
@@ -313,15 +312,21 @@ def _treads(points: list, axis, segs: list) -> list[tuple]:
     return out
 
 
-def _near_segs(pts: list, strokes: list) -> list:
-    """The straight segments (0.3 m to a wide arm's width long, arcs left out) of ``strokes`` near the numbers."""
+def _near_segs(pts: list, strokes: list, walls: bool = False) -> list:
+    """The straight segments (0.3 m to a wide arm's width long, arcs left out) of ``strokes`` near the numbers: the
+    stair's own lines, never one on a layer that draws walls (12 Nov 2026, review B2 REG-5: real18's end wall and
+    columns were taken into the U landing's band); ``walls`` True gives those wall lines instead."""
+    from wenart.ingest.generic import layer_names as LN
+
     segs = []
     for st in strokes or []:
         if getattr(st, "arc", None):
             continue
+        if LN.draws_walls(getattr(st, "layer", None)) != walls:
+            continue
         p = [tuple(q) for q in getattr(st, "pts", []) or []]
         for a, b in zip(p[:-1], p[1:]):
-            if 0.3 <= math.dist(a, b) <= WIDTH_M[1] + 0.3:
+            if 0.3 <= math.dist(a, b) <= (WIDTH_M[1] + 0.3 if not walls else float("inf")):
                 segs.append((a, b, st.id))
     near = MultiPoint(pts).convex_hull.buffer(WIDTH_M[1])
     return [s for s in segs if near.intersects(LineString([s[0], s[1]]))]
@@ -484,6 +489,18 @@ def _straight_stair_of(chain: list, strokes: list, arms: Optional[list] = None) 
             far = max(x * a1[0] + y * a1[1] for x, y in corners)
             lo = min(x * n1[0] + y * n1[1] for x, y in corners)
             hi = max(x * n1[0] + y * n1[1] for x, y in corners)
+            # (review B2 REG-5: the band stops at the inside face of the first wall line across the arms beyond them)
+            stop = [min(x * a1[0] + y * a1[1] for x, y in (a, b)) for a, b, _sid in _near_segs(pts, strokes, walls=True)
+                    if abs(_unit(a, b)[0] * a1[0] + _unit(a, b)[1] * a1[1]) <= TREAD_PERP
+                    and min(x * a1[0] + y * a1[1] for x, y in (a, b)) > top - 0.01
+                    and max(x * n1[0] + y * n1[1] for x, y in (a, b)) > lo
+                    and min(x * n1[0] + y * n1[1] for x, y in (a, b)) < hi]
+            if stop and min(stop) < far:
+                far = min(stop)
+                cut = Polygon([(a1[0] * u + n1[0] * v, a1[1] * u + n1[1] * v)
+                               for u, v in ((top - 100.0, lo - 100.0), (far, lo - 100.0), (far, hi + 100.0),
+                                            (top - 100.0, hi + 100.0))])
+                poly = poly.intersection(cut).minimum_rotated_rectangle
             if far - top >= 0.2:
                 land = Polygon([(a1[0] * u + n1[0] * v, a1[1] * u + n1[1] * v)
                                 for u, v in ((top, lo), (far, lo), (far, hi), (top, hi))])

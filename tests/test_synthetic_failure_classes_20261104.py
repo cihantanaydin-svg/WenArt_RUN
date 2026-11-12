@@ -99,6 +99,7 @@ EXPECTED_NAMES = [
     "synthetic-20-glazed-corner",
     "synthetic-21-parapet",
     "synthetic-22-curved-stair",
+    "synthetic-23-size-tags",
 ]
 
 

@@ -644,6 +644,21 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> li
         drawn = [o for _r, o in sorted(ranked, key=lambda x: x[0], reverse=True)]
         if drawn:
             o = drawn[0]
+            # (12 Nov 2026, real10 C0034: the shaft's landing gap was read four times on stacked wall runs, 0.68-0.90 m;
+            # one became the door and the others stayed openings in its place): a gap whose centre lies in the landing
+            # door's span is the same opening read again, merged into the door
+            again = [x for x in openings if x is not o and x.get("level_id") == lv and x.get("type") == "opening"
+                     and not x.get("virtual") and x.get("center")
+                     and Point(x["center"]).distance(Point(o["center"])) <= float(o.get("width") or 0) / 2.0]
+            for x in again:
+                openings.remove(x)
+            if again:
+                o.setdefault("evidence", []).append({"file": (s.get("evidence") or [{}])[0].get("file") or "building.json",
+                                                     "method": "derived", "confidence": 0.8, "rule": "lift_door",
+                                                     "note": "the same landing gap read again on stacked wall runs, "
+                                                             "merged into it: " + ", ".join(x["id"] for x in again)})
+                notes.append(f"{lv}: {', '.join(x['id'] for x in again)} merged into the landing door {o['id']} (the "
+                             f"same gap read again)")
             if o.get("operation") != "sliding" or o.get("type") != "door":
                 o["type"], o["operation"], o["operation_source"], o["lift_door"] = "door", "sliding", "assumed", True
                 o["swing_side"] = None

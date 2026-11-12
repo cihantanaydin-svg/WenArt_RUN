@@ -138,7 +138,8 @@ def test_a_deeper_tread_on_a_square_line_is_no_winder_and_on_a_diagonal_line_is_
     square = [_line((8.96, 8.2), (8.96, 9.3), "MERDIVEN"), _line((8.61, 6.12), (8.61, 7.22), "MERDIVEN")]
     st = SN.stair_of(chain, square)
     assert [f["lines"] for f in st["flights"]] == [8, 8] and st["winders"] == 0
-    diagonal = [_line((8.66, 8.25), (9.26, 9.25), "MERDIVEN"), _line((8.31, 7.17), (8.91, 6.17), "MERDIVEN")]
+    diagonal = [_line((8.66, 8.25), (9.26, 9.25), "MERDIVEN"), _line((8.31, 7.17), (8.91, 6.17), "MERDIVEN"),
+                _line((8.70, 8.2), (8.70, 9.3), "MERDIVEN"), _line((8.43, 6.12), (8.43, 7.22), "MERDIVEN")]  # the risers
     st = SN.stair_of(chain, diagonal)
     assert [f["lines"] for f in st["flights"]] == [7, 7] and st["winders"] == 2 and st["turn_winders"] == [2]
 
@@ -1265,3 +1266,49 @@ def test_the_build_path_knows_the_turns_of_ordered_flights():
     t = turns[0]
     c = Polygon(t["polygon"]).representative_point()
     assert SR.surface_z(plan, (c.x, c.y)) == pytest.approx(t["z"])
+
+
+def _r18_u():
+    pts = [(7.0 + 0.26 * k, 8.75) for k in range(6)] + [(8.50, 8.709), (8.908, 8.706), (8.558, 6.621)]
+    pts += [(8.25 - 0.25 * k, 6.67) for k in range(7)]
+    lines = [_line((7.0 + 0.26 * k + 0.13, 8.25), (7.0 + 0.26 * k + 0.13, 9.25), "MERD") for k in range(-1, 5)]
+    lines += [_line((8.377, 8.25), (8.377, 9.25), "MERD"), _line((8.377, 6.17), (8.377, 7.17), "MERD")]
+    lines += [_line((8.125 - 0.25 * k, 6.17), (8.125 - 0.25 * k, 7.17), "MERD") for k in range(7)]
+    walls = [_line((9.377, 6.55), (9.377, 8.95), "DUVAR"), _line((9.527, 6.55), (9.527, 8.95), "DUVAR")]
+    return pts, lines, walls
+
+
+def test_both_ends_of_a_u_turn_are_judged_alike():
+    """review B2 REG-5 (real18's U stairs: the 7 and the 9 are wedges between a riser and a radial from the newel, the
+    8 the turn tread beyond the radials; only the 9 was read as a winder): a number whose tread a radial bounds, ahead
+    of it or behind it, is a winder at either end."""
+    pts, lines, walls = _r18_u()
+    radials = [_line((8.377, 7.85), (8.855, 8.95), "MERD"), _line((8.377, 7.65), (8.855, 6.55), "MERD")]
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+    st = SN.stair_of(chain, lines + radials + walls)
+    assert [f["lines"] for f in st["flights"]] == [6, 7] and st["turn_winders"] == [3]
+
+
+def test_a_u_landing_stops_at_the_end_wall():
+    """review B2 REG-5: the half landing's band is built from the stair's own lines and stops at the inside face of the
+    first wall line across the arms beyond them (real18: it ran through the 0.15 m end wall)."""
+    pts, lines, walls = _r18_u()
+    pts[6:9] = [(8.75, 8.45), (9.0, 7.95), (9.0, 7.4)]                # the turn's numbers, no line drawn at them
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+    st = SN.stair_of(chain, lines + walls)
+    assert st["landing"] is not None and max(q[0] for q in st["landing"]["polygon"]) <= 9.377 + 1e-6
+    assert max(x for x, _y in st["polygon"].exterior.coords) <= 9.377 + 1e-6
+
+
+def test_a_fan_of_winders_at_a_treads_step_is_read_as_winders():
+    """review B2 FC-08 (real13 L3: 1-10 straight, 11-14 between radial lines from the inner corner, then 15): the
+    radial edges mark winders even where their steps look like a tread's (as many as an arm of three numbers leaves)."""
+    p13 = [(6.42 - 0.2 * k, -0.29) for k in range(10)] + [(4.27, -0.31), (3.83, -0.31), (3.73, -0.63), (3.73, -0.90),
+                                                           (3.71, -1.19)]
+    l13 = [_line((6.42 - 0.2 * k + 0.1, -0.75), (6.42 - 0.2 * k + 0.1, 0.15), "MERD") for k in range(10)]
+    l13 += [_line((4.4, -1.03), (4.09, -0.13), "MERD"), _line((4.4, -1.03), (3.41, -0.13), "MERD"),
+            _line((4.4, -1.03), (3.41, -0.66), "MERD"), _line((4.56, -0.75), (4.56, 0.15), "MERD"),
+            _line((3.3, -1.08), (4.3, -1.08), "MERD")]
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(p13)])[0]
+    st = SN.stair_of(chain, l13)
+    assert [f["lines"] for f in st["flights"]][0] == 10 and st["turn_winders"][0] >= 2
