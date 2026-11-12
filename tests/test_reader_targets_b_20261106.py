@@ -843,16 +843,22 @@ def test_a_drawn_door_read_on_a_wall_copy_outranks_the_gap_read_over_it():
     def wall(wid, a, b, t):
         return {"id": wid, "level_id": "L0", "start": list(a), "end": list(b), "thickness": t, "evidence": []}
 
-    def b(door_ev):
+    def b(door_ev, operation="swing"):
         return {"walls": [wall("w_12", (3.0, 2.19), (9.0, 2.19), 0.2), wall("w_11", (3.5, 2.19), (8.0, 2.19), 0.2)],
                 "openings": [{"id": "o_2", "type": "opening", "level_id": "L0", "wall_id": "w_12", "center": [5.36, 2.19],
                               "width": 1.56, "evidence": [{"method": "derived", "note": "unclassified gap content"}]},
                              {"id": "d_1", "type": "door", "level_id": "L0", "wall_id": "w_11", "center": [5.815, 2.19],
-                              "width": 0.85, "evidence": door_ev}]}
-    drawn = b([{"method": "vector", "entity": "ARC:4434A", "note": "swing arc without a drawn leaf"}])
+                              "width": 0.85, "evidence": door_ev, "operation": operation}]}
+    swing = [{"method": "vector", "entity": "ARC:4434A", "note": "swing arc without a drawn leaf"}]
+    drawn = b(swing)
     TWW.merge_twin_walls(drawn)
     assert [o["id"] for o in drawn["openings"]] == ["d_1"] and drawn["openings"][0]["wall_id"] == "w_12"
     assert drawn["openings_merged"][0]["id"] == "o_2" and drawn["openings_merged"][0]["merged_into"] == "d_1"
     inferred = b([])
     TWW.merge_twin_walls(inferred)
     assert [o["id"] for o in inferred["openings"]] == ["o_2"]
+    # real06 (user, 29 Oct 2026: "is there a door behind it?"): a 'sliding door' of leaf lines without a swing is no
+    # drawn door; the gap stays
+    leaves = b([{"method": "vector", "note": "6 leaf/leaves drawn parallel to the wall without a swing arc"}], "sliding")
+    TWW.merge_twin_walls(leaves)
+    assert [o["id"] for o in leaves["openings"]] == ["o_2"]

@@ -31,10 +31,13 @@ RULE = "reading.twin_walls"
 
 
 def _drawn(o: dict) -> bool:
-    """The opening is read from its drawn symbol (an evidence of method vector or raster), not inferred."""
+    """The door is read from its drawn swing (operation swing, an evidence of method vector or raster), not inferred
+    and not from leaf lines alone (real06: the 1.95 m 'sliding door' of six parallel lines in the kitchen's 2.9 m gap,
+    user, 29 Oct 2026: "is there a door behind it?")."""
     ev = o.get("evidence") or []
     ev = ev if isinstance(ev, list) else [ev]
-    return any(isinstance(e, dict) and e.get("method") in ("vector", "raster") for e in ev) and \
+    return o.get("operation") == "swing" and \
+        any(isinstance(e, dict) and e.get("method") in ("vector", "raster") for e in ev) and \
         not any(isinstance(e, dict) and e.get("method") == "inferred" for e in ev)
 
 
