@@ -210,11 +210,15 @@ ARM_STEP_SPREAD = 0.25          # 6 Nov 2026: a tread's step within this share o
 ALONG_COS = 0.9                 # 12 Nov 2026: a line this near the arm's direction runs along it (a string, a wall)
 
 
-def _tread_edge(p, q, axis, segs: list):
-    """The far edge of the tread number ``p`` stands on, towards the next number ``q`` (pure): the drawn line crossing
-    the step from ``p`` to ``q`` nearest to ``p``, not running along the arm (``ALONG_COS``), as ``|cos|`` of its angle
-    to the arm's axis; None when no line is drawn there."""
-    step = LineString([p, q])
+EDGE_REACH = 1.5                # 12 Nov 2026: a tread's far edge lies within this many of its own steps ahead of its number
+
+
+def _tread_edge(p, ahead, axis, reach: float, segs: list):
+    """The far edge of the tread number ``p`` stands on (pure): the drawn line nearest to ``p`` that the ray from ``p``
+    along ``ahead`` (the arm's direction into the turn) crosses within ``reach``, not running along the arm
+    (``ALONG_COS``), as ``|cos|`` of its angle to the arm's ``axis``; None when no line is drawn there. (Not the step to
+    the next number: across a U stair's half landing that runs along the landing's edge.)"""
+    ray = LineString([p, (p[0] + ahead[0] * reach, p[1] + ahead[1] * reach)])
     best = None
     for a, b, _sid in segs or []:
         u = _unit(a, b)
@@ -222,7 +226,7 @@ def _tread_edge(p, q, axis, segs: list):
         if c >= ALONG_COS:
             continue
         seg = LineString([a, b])
-        if not seg.intersects(step):
+        if seg.distance(ray) > 1e-6:
             continue
         d = seg.distance(Point(p))
         if best is None or d < best[0]:
@@ -234,11 +238,11 @@ def _trim_arm(points: list, arm: list[int], at_end: bool, segs: Optional[list] =
     """``arm`` without the numbers at its turn end (its end for the first arm, its start for the last) that are winders;
     at least ``ARM_MIN_POINTS`` numbers are kept (pure). A number there is a winder when its step from its neighbour in
     the arm differs from the arm's median step by more than ``ARM_STEP_SPREAD`` and (12 Nov 2026, review B S10: the
-    5-degree offset of the label was tuned between two drawings) the line it stands on turns from the arm's tread lines
-    (a radial or diagonal line, ``|cos|`` to the arm over ``TREAD_PERP``); a deeper tread on a line square to the arm
-    stays the arm's (real18: the 8 and the 9 by the half landing, 0.41 and 0.36 m on), and so does a number with no
-    line drawn there (nothing drawn says the stair turns there). The line is the tread's far edge, crossing the step
-    to the next number of the chain (``_tread_edge``). Both ends of a U are judged alike."""
+    5-degree offset of the label was tuned between two drawings) its tread's far edge turns from the arm's tread lines
+    (a radial or diagonal line, ``|cos|`` to the arm over ``TREAD_PERP``; ``_tread_edge``, ahead of the number into the
+    turn within ``EDGE_REACH`` of its step); a deeper tread whose edge is square to the arm stays the arm's (real18: the
+    8 and the 9 by the half landing, 0.41 and 0.36 m on), and so does a number with no line drawn there (nothing drawn
+    says the stair turns there). Both ends of a U are judged alike."""
     out = list(arm)
     while len(out) > ARM_MIN_POINTS:
         steps = [math.dist(points[a], points[b]) for a, b in zip(out, out[1:])]
@@ -249,8 +253,8 @@ def _trim_arm(points: list, arm: list[int], at_end: bool, segs: Optional[list] =
         rest = out[:-1] if at_end else out[1:]
         axis = _unit(points[rest[0]], points[rest[-1]])
         tip = out[-1] if at_end else out[0]
-        nxt = tip + 1 if at_end else tip - 1
-        c = _tread_edge(points[tip], points[nxt], axis, segs) if 0 <= nxt < len(points) else None
+        ahead = axis if at_end else (-axis[0], -axis[1])
+        c = _tread_edge(points[tip], ahead, axis, EDGE_REACH * edge, segs)
         if c is None or c <= TREAD_PERP:
             break
         out = rest
