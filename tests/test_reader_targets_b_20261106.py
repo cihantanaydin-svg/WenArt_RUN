@@ -17,6 +17,7 @@ each with the project that showed it as its test case only (user rule of 26 Oct 
 CPU only."""
 from __future__ import annotations
 
+import dataclasses
 import math
 from types import SimpleNamespace
 
@@ -1081,12 +1082,15 @@ def test_any_drawn_door_in_a_gap_of_its_wall_takes_its_part_and_drawn_stubs_stay
     gap = OpeningItem(kind="opening", width=1.72, center=(10.7924, 7.09), rotation_deg=0.0, box=[0, 0, 1, 1],
                       entity="g", evidence={}, type_raw="unclassified gap content")
     door = OpeningItem(kind="door", width=0.90, center=(10.6474, 7.09), rotation_deg=0.0, box=[0, 0, 1, 1], entity="d",
-                       evidence={"method": "vector"})
+                       evidence={"method": "vector"}, operation="swing")
     stubs = [_line((9.892, 7.04), (10.192, 7.04), "DUVAR"), _line((9.892, 7.14), (10.192, 7.14), "DUVAR"),
              _line((11.092, 7.04), (11.692, 7.04), "DUVAR"), _line((11.092, 7.14), (11.692, 7.14), "DUVAR")]
     got = O.doors_in_gaps(walls, [gap, door], stubs, "t.dxf", 1, 1.0)
     assert [(o.kind, round(o.width, 2)) for o in got] == [("door", 0.9)]
     assert "takes its part of the gap" in got[0].evidence["note"]
+    # a 'door' of parallel leaf lines alone (real06's kitchen gap) takes no gap
+    slide = dataclasses.replace(door, operation="sliding")
+    assert O.doors_in_gaps(walls, [gap, slide], stubs, "t.dxf", 1, 1.0) is None
 
 
 def test_window_and_glass_words_of_wall_layers():

@@ -1173,6 +1173,8 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
         for q in run:
             q.run = i
     ctx = _Ctx(file_rel, page_no, units_to_m, theta, raster, window_symbols=window_symbols(strokes_m))
+    if wall_strokes:
+        ctx.rest_index = StrokeIndex([st for st in strokes_m if st.id not in notation] + list(wall_strokes), theta)
     owned: set[str] = set()
     gaps: list[Gap] = []
     merge_after: dict[int, set[int]] = {}        # run -> positions i where pieces i and i+1 join
@@ -1499,6 +1501,8 @@ class _Ctx:
     dropped: list = field(default_factory=list)
     # 12 Nov 2026 (review B2 FC-04): the page draws its windows with symbols of their own (``window_symbols``)
     window_symbols: bool = False
+    # 12 Nov 2026 (review B2 FC-06): the strokes a gap's rest is read from, the wall primitives' among them
+    rest_index: object = None
 
     def evidence(self, method: str, confidence: float, entity: str, note: Optional[str] = None,
                  box_units: Optional[list] = None) -> dict:
@@ -2328,7 +2332,10 @@ def doors_in_gaps(walls: list[WallItem], openings: list[OpeningItem], strokes_m:
     the size tag made): every drawn door, whatever reader made it, lying in a gap of its own wall takes its part of the
     gap (``_door_in_gap``, the rest read from the drawing). Returns the new openings, or None when nothing changed."""
     gaps = [o for o in openings if not o.virtual and o.kind == "opening"]
-    doors = [o for o in openings if not o.virtual and o.kind == "door"]
+    # (a door read from its swing or set by its size tag; never one read from parallel leaf lines alone: real06's
+    # kitchen gap, user 29 Oct 2026: "is there a door behind it?")
+    doors = [o for o in openings if not o.virtual and o.kind == "door"
+             and (o.operation in ("swing", "double") or str(o.type_raw or "").startswith("door size tag"))]
     if not gaps or not doors or not walls:
         return None
     theta = dominant_angle(walls)
@@ -2494,7 +2501,7 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
         # 12 Nov 2026 (review B-dup / B-R2: real09's door inside the 1.73 m gap opening of its wall, real10 L-1's in the
         # 1.57 m one): a door drawn in a gap opening of its own wall takes its part of the gap
         m_along = mid[0] if host.axis == "h" else mid[1]
-        in_gap = _door_in_gap(existing, host, m_along, w, theta, ctx, ev, index=index)
+        in_gap = _door_in_gap(existing, host, m_along, w, theta, ctx, ev, index=ctx.rest_index or index)
         doors.append(OpeningItem(kind="door", width=round(w, 4), center=_r(center),
                                  rotation_deg=round(rotation % 360, 3), box=bx, entity=ids[0], evidence=ev,
                                  swing_point=_r(probe), height=DOOR_HEIGHT_M, assumed=["height"]))

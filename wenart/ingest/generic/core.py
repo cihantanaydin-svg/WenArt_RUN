@@ -3122,7 +3122,8 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                             + ("" if keep_width else ": they keep their gaps' widths"))
         # 12 Nov 2026 (review B2 FC-06 / REG-3): every drawn door in a gap of its own wall takes its part of the gap, the
         # rest read from the drawing (``openings.doors_in_gaps``)
-        trimmed = O.doors_in_gaps(walls2, openings, non_wall, file_rel, page_no, units_to_m=s)
+        trimmed = O.doors_in_gaps(walls2, openings, non_wall + [st for st in strokes_m if st.id in wall_strokes],
+                                  file_rel, page_no, units_to_m=s)
         if trimmed is not None:
             bw_g, site_g, sw_g = TP.split_plot(walls2, trimmed, blocks, level_id=level_id)
             idx = {o["index"] for o in site_g["openings"]}
