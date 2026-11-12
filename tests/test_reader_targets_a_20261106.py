@@ -537,7 +537,9 @@ def test_a_lift_label_set_aside_by_the_stair_core_names_its_own_part_after_the_c
     l0 = next(r for r in rooms if r["level_id"] == "L0")
     assert l0["label"] == "Oda" and l0["sub_spaces"][0]["type"] == "lift"
     assert abs(l0["sub_spaces"][0]["anchor"][0] - 4.25) < 0.1 and abs(l0["sub_spaces"][0]["anchor"][1] - 1.6) < 0.1
-    openings, walls = [], []
+    openings = [{"id": f"o_{lid}_in", "type": "opening", "level_id": lid, "center": [1.75, 0.1], "width": 1.0}
+                for lid in ("L0", "L1", "L2")]                  # the stair's way in from the floor
+    walls = []
     TW.stair_cores(rooms, furniture)
     notes = TW.split_core_landings(rooms, openings, furniture, walls)
     for lid in ("L0", "L1", "L2"):
@@ -546,7 +548,7 @@ def test_a_lift_label_set_aside_by_the_stair_core_names_its_own_part_after_the_c
     lifts = [r for r in rooms if r["label"] == "Asansör"]
     assert all(r["label_inferred"]["method"] == "sub_space" and not r.get("sub_spaces") for r in lifts)
     assert any("stacks on the lift" in r["label_inferred"]["reason"] for r in lifts)        # L1, L2: no label there
-    assert not any(r.get("sub_spaces") for r in rooms) and openings == []                  # no open joint
+    assert not any(r.get("sub_spaces") for r in rooms) and len(openings) == 3            # no open joint
     assert len(walls) == 3 and all(w["inferred"] and w["thickness"] == 0.1 for w in walls)  # the shaft wall
     assert all(abs(w["start"][0] - 3.4) < 1e-6 and abs(w["end"][0] - 3.4) < 1e-6 for w in walls)
     assert not any("Kat Holü" in n for n in notes)
@@ -992,3 +994,45 @@ def test_technical_odasi_rooms_wc_odasi_and_one_letter_abbreviations_need_eviden
     assert B.room_type_for("YATAK ODASI", 4.0, 1.2) == "bedroom"   # the written word needs no evidence
     # a label named only by the generic '<word> ODASI' names its room but does not vote for the wall layers
     assert B.generic_odasi_only("SPOR ODASI") and not B.generic_odasi_only("YATAK ODASI")
+
+
+
+def test_a_core_part_holding_the_landing_stays_the_hall_and_the_lift_is_carved_on_its_outline():
+    from wenart.ingest import twins as TW
+
+    rooms, furniture = _core_levels()
+    # the right-hand part (1.7 x 3.0 m) holds the lift label and both flats' doors: it is the landing, not the lift
+    openings = []
+    for lid in ("L0", "L1", "L2"):
+        openings += [{"id": f"o_{lid}_in", "type": "opening", "level_id": lid, "center": [1.75, 0.1], "width": 1.0},
+                     {"id": f"d_{lid}_a", "type": "door", "level_id": lid, "center": [5.1, 0.8], "width": 0.9},
+                     {"id": f"d_{lid}_b", "type": "door", "level_id": lid, "center": [5.1, 2.4], "width": 0.9}]
+    TW.stair_cores(rooms, furniture)
+    TW.split_core_landings(rooms, openings, furniture, [])
+    l0 = sorted(r["label"] for r in rooms if r["level_id"] == "L0")
+    assert l0 == ["Kat Holü", "Merdiven"]
+    hall = next(r for r in rooms if r["level_id"] == "L0" and r["label"] == "Kat Holü")
+    assert hall["sub_spaces"][0]["type"] == "lift"              # the label goes with the hall part, still pending
+    piece = {"id": "f_L0_9", "type": "unknown", "level_id": "L0",
+             "footprint": {"center": [4.25, 2.3], "size": [1.6, 1.4], "rotation_deg": 0.0}}
+    TW.carve_sub_spaces(rooms, [piece], [])
+    assert sorted(r["label"] for r in rooms if r["level_id"] == "L0") == ["Asansör", "Kat Holü", "Merdiven"]
+
+
+def test_a_free_standing_shaft_is_cut_out_of_its_room_with_no_overlap():
+    from shapely.geometry import Polygon
+
+    from wenart.ingest import rooms as R
+    from wenart.ingest import twins as TW
+
+    walls = _box_walls(0, 0, 5.4, 4.4)                         # 5.0 x 4.0 m inside
+    labels, points = _labels(("Asansör", (2.6, 2.2)),)
+    res = R.derive_rooms("L0", walls, labels, points, None, "p.dxf", stairs=[_stair(4.5, 1.0)],
+                         unlabelled_label="Oda", face_type=lambda poly: ("hall", "unlabelled face holding the stair"))
+    piece = {"id": "f_L0_2", "type": "unknown", "level_id": "L0",
+             "footprint": {"center": [2.6, 2.2], "size": [1.7, 1.7], "rotation_deg": 0.0}}
+    TW.carve_sub_spaces(res.rooms, [piece], [])
+    host = next(r for r in res.rooms if r["label"] != "Asansör")
+    lift = next(r for r in res.rooms if r["label"] == "Asansör")
+    hp, lp = Polygon(host["polygon"]), Polygon(lift["polygon"])
+    assert abs(hp.area - host["area_computed"]) < 0.02 and hp.intersection(lp).area < 0.01

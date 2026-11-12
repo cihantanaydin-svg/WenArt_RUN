@@ -458,7 +458,30 @@ def _lift_label(room: dict) -> bool:
                                                                                     room.get("label") or ""))))
 
 
-def sub_space_of(part: Polygon, room: dict, rooms: list[dict]) -> Optional[dict]:
+LIFT_SIDE_M = (0.9, 2.6)        # 12 Nov 2026: a lift shaft's sides (labels.AREA_RANGES 'lift': up to a 2.6 x 3.0 m car) ...
+LIFT_LONG_MAX_M = 3.0           # ... its long side at most this
+SMALL_ROOM_DOORS_MAX = 1        # a lift, shaft, WC or closet has one door at most (a landing has the flats' doors)
+
+
+def fits_small_room(part: Polygon, kind: str, openings: Optional[list] = None) -> bool:
+    """12 Nov 2026 (round-2 review, CODE-A2 / G5: a stair-core remainder holding the lift and the landing became one
+    6 m2 'Asansör' and sealed the stair off): whether a part can be the small room ``kind``: a lift's oriented box fits a
+    shaft (``LIFT_SIDE_M``, ``LIFT_LONG_MAX_M``), and no small room has more than ``SMALL_ROOM_DOORS_MAX`` drawn door
+    on its edges (``openings``: the level's, dicts)."""
+    if kind == "lift":
+        box = part.minimum_rotated_rectangle
+        if box.geom_type != "Polygon":
+            return False
+        c = list(box.exterior.coords)
+        sides = sorted((math.dist(c[0], c[1]), math.dist(c[1], c[2])))
+        if sides[0] < LIFT_SIDE_M[0] or sides[0] > LIFT_SIDE_M[1] or sides[1] > LIFT_LONG_MAX_M:
+            return False
+    doors = [o for o in openings or [] if o.get("type") == "door" and not o.get("virtual") and o.get("center")
+             and part.exterior.distance(Point(o["center"][:2])) <= 0.3]
+    return len(doors) <= SMALL_ROOM_DOORS_MAX
+
+
+def sub_space_of(part: Polygon, room: dict, rooms: list[dict], openings: Optional[list] = None) -> Optional[dict]:
     """12 Nov 2026 (review of the reader targets, real11 A2 / A-L1 / F5: the lift shaft beside the core stair became
     'Kat Holü' on 8 levels): what a part split off a room (or an unnamed room) is when it is a small room of its own:
     the room's pending sub-space (``rooms.derive_rooms`` ``sub_spaces``: a lift, shaft, WC or closet label that gave up
@@ -471,11 +494,12 @@ def sub_space_of(part: Polygon, room: dict, rooms: list[dict]) -> Optional[dict]
     for sp in room.get("sub_spaces") or []:
         at = sp.get("anchor")
         lo, hi = float(sp.get("min_m2") or 0.0), float(sp.get("max_m2") or 0.0)
-        if at and part.distance(Point(at[:2])) <= SUB_SPACE_REACH_M and lo <= a <= hi:
+        if at and part.distance(Point(at[:2])) <= SUB_SPACE_REACH_M and lo <= a <= hi \
+                and fits_small_room(part, sp["type"], openings):
             return {"label_raw": sp["label"], "type": sp["type"], "how": f"its label '{sp['label']}' stands in it",
                     "sub": sp}
     lo, hi = LB.AREA_RANGES["lift"][:2]
-    if lo <= a <= hi:
+    if lo <= a <= hi and fits_small_room(part, "lift", openings):
         for x in rooms:
             if x.get("level_id") != room.get("level_id") and _lift_label(x) and len(x.get("polygon") or []) >= 3 \
                     and _iou(part, _poly(x)) >= STACK_IOU:
@@ -515,6 +539,28 @@ def straight_runs(line) -> list:
     return out
 
 
+CARVE_SLIT_M = 0.002            # the slit that opens a room around a free-standing shaft to its edge
+
+
+def _open_hole(poly: Polygon) -> Optional[Polygon]:
+    """A polygon with holes cut open to its outer ring along the shortest line from each hole (a ``CARVE_SLIT_M``
+    slit): one simple polygon, or None when that fails."""
+    from shapely.geometry import LineString
+    from shapely.ops import nearest_points
+
+    out = poly
+    for ring in list(poly.interiors):
+        hole = Polygon(ring)
+        a, b = nearest_points(hole.exterior, Polygon(out.exterior).exterior)
+        if a.distance(b) <= 0:
+            continue
+        slit = LineString([(a.x, a.y), (b.x, b.y)]).buffer(CARVE_SLIT_M / 2.0, cap_style=2)
+        out = out.difference(slit).buffer(0)
+        if out.geom_type != "Polygon":
+            out = max(getattr(out, "geoms", [out]), key=lambda g: g.area)
+    return out if out.geom_type == "Polygon" and not out.interiors else None
+
+
 SUB_SPACE_INSIDE = 0.8           # an untyped drawn piece this much inside a room can be its pending small room
 
 
@@ -550,6 +596,13 @@ def carve_sub_spaces(rooms: list[dict], furniture: list[dict], walls: Optional[l
                 rest = poly.difference(box).buffer(0)
                 if part.geom_type != "Polygon" or rest.geom_type != "Polygon" or rest.area < 1.0:
                     continue
+                if rest.interiors:
+                    # 12 Nov 2026 (round-2 review, A2-FC6 / CODE-A1: real20's lift stood free inside the hall, which
+                    # kept its whole polygon over it): the rest is cut open along the shortest line from the shaft to
+                    # the room's edge (a CARVE_SLIT_M slit), so it is one simple polygon whose area is its own
+                    rest = _open_hole(rest)
+                    if rest is None:
+                        continue
                 new = dict(r, id=f"{r['id']}_{'lift' if sp['type'] == 'lift' else 'sub'}",
                            polygon=[[round(x, 4), round(y, 4)] for x, y in list(part.exterior.coords)[:-1]],
                            area_computed=round(part.area, 2))
@@ -652,7 +705,12 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
                 or hall.buffer(-LANDING_MIN_WIDTH_M / 2.0).is_empty:
             # (a hole: a stair standing free inside the room, no landing in front of a core stair)
             continue
-        small = sub_space_of(hall, r, rooms)
+        lvl_open = [o for o in openings if o.get("level_id") == r["level_id"]]
+        small = sub_space_of(hall, r, rooms, lvl_open)
+        if small is not None and not any(
+                o.get("center") and not o.get("virtual") and stair_part.exterior.distance(Point(o["center"][:2])) <= 0.3
+                and hall.exterior.distance(Point(o["center"][:2])) > 0.3 for o in lvl_open):
+            small = None            # sealing the part off would leave the stair with no way to the floor
         lifts = [_poly(x) for x in rooms if x.get("level_id") == r["level_id"] and x.get("room_type") == "shaft"
                  and RG.LIFT_RE.search(TI.fold(str(x.get("label_raw") or x.get("label") or "")))]
         if small is None and lifts and not any(hall.distance(lp) <= SHARED_HALL_REACH_M for lp in lifts):
@@ -678,6 +736,16 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
                     area_computed=round(hall.area, 2), has_documented_furniture=False,
                     label_inferred={"method": "shared_hall", "core": r["id"], "split_from": r["id"]})
         part.pop("sub_spaces", None)
+        # 12 Nov 2026 (round-2 review, CODE-A2): a pending sub-space whose label stands in the hall part goes with it,
+        # so carve_sub_spaces can find its drawn outline (else RC14 names it)
+        moved = [sp for sp in r.get("sub_spaces") or [] if sp.get("anchor")
+                 and hall.distance(Point(sp["anchor"][:2])) <= SUB_SPACE_REACH_M
+                 and (small is None or sp is not small.get("sub"))]
+        if moved:
+            part["sub_spaces"] = moved
+            r["sub_spaces"] = [sp for sp in r.get("sub_spaces") or [] if all(sp is not m for m in moved)]
+            if not r["sub_spaces"]:
+                r.pop("sub_spaces")
         rooms.append(part)
         if small is not None:
             # 12 Nov 2026 (review, real11): the part is the small room its label (or the lift below) says, behind its
@@ -746,7 +814,7 @@ def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
                 if r is core or r.get("label_raw") or str(r.get("label") or "").strip().lower() not in GENERIC_LABELS:
                     continue
                 rp = _poly(r)
-                small = sub_space_of(rp, r, rooms)
+                small = sub_space_of(rp, r, rooms, level_openings)
                 if small is not None:
                     # 12 Nov 2026 (review, real11 / real10 L-2: a lift shaft named 'Kat Holü'): it is that small room
                     old = r.get("label")
