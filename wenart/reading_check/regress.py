@@ -14,7 +14,8 @@ A difference is printed per project and number; the command exits 1 when any pro
 the new numbers as the baseline (after a change the user accepted: the set keeps improving, one project at a time);
 the user's acceptance fields of the old baseline (``ACCEPT_FIELDS``: ``accepted_by_user``, ``accepted_on``,
 ``accepted_scope``, ``accepted_levels``, ``accepted_note``; 5 Nov 2026, Milestone 14 R1) are carried over, because
-an update follows the user's acceptance and the truth corpus (``truth.py``) builds only from accepted baselines.
+an update follows the user's acceptance. Since 6 Nov 2026 no real acceptance stands: a real project's truth is the
+user's correction records only (``truth.build_sparse``), and the baselines are a change detector.
 
 Why: real10's reading fixes of 2 Nov 2026 broke 18 tests of real02, real06 and the wall rules before anyone saw it; a
 rule for one project must never quietly change another.
@@ -36,7 +37,7 @@ AREA_TOL = 0.03
 STACK_TOL_M = 0.05
 PER_LEVEL = ("rooms", "walls", "doors", "windows", "openings")
 ACCEPT_FIELDS = ("accepted_by_user", "accepted_on", "accepted_scope", "accepted_levels", "accepted_note",
-                 "accepted_seen", "acceptance_withdrawn")
+                 "accepted_seen", "acceptance_withdrawn", "acceptance_history")
 
 
 def numbers(out_dir: Path) -> dict:

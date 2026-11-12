@@ -1,0 +1,127 @@
+{
+ "_note": "The floors the user's correction records of each real project were made on: per level id the label, order and elevation of the reading of the records' days (the stored accepted reading of 2-4 Nov 2026 where one is kept, else the reading named in source). A sparse truth's level is found by this anchor (score.level_map), so an inserted storey that renumbers the reader's ids never moves a check onto another floor (review of 6 Nov 2026, G5).",
+ "real06": {
+  "L0": {
+   "label": "Ground floor",
+   "order": 0,
+   "elevation": 0.0,
+   "source": "results/reading_accepted/real06.json (reading commit 3c8cb8f8014b)"
+  },
+  "L1": {
+   "label": "Level 1",
+   "order": 1,
+   "elevation": 3.0,
+   "source": "results/reading_accepted/real06.json (reading commit 3c8cb8f8014b)"
+  }
+ },
+ "real07": {
+  "L0": {
+   "label": "Zemin Kat",
+   "order": 0,
+   "elevation": 0.0,
+   "source": "results/reading_accepted/real07.json (reading commit 3c8cb8f8014b)"
+  },
+  "L1": {
+   "label": "1. Kat",
+   "order": 1,
+   "elevation": 3.0,
+   "source": "results/reading_accepted/real07.json (reading commit 3c8cb8f8014b)"
+  }
+ },
+ "real09": {
+  "L-1": {
+   "label": "1. Bodrum Kat",
+   "order": -1,
+   "elevation": -2.5,
+   "source": "the CPU reading at 77deee6775be (no reading of the records' days is kept)"
+  },
+  "L0": {
+   "label": "Zemin Kat",
+   "order": 0,
+   "elevation": 0.0,
+   "source": "the CPU reading at 77deee6775be (no reading of the records' days is kept)"
+  },
+  "L1": {
+   "label": "1. Normal Kat",
+   "order": 1,
+   "elevation": 3.0,
+   "source": "the CPU reading at 77deee6775be (no reading of the records' days is kept)"
+  },
+  "L2": {
+   "label": "2. Normal Kat",
+   "order": 2,
+   "elevation": 6.0,
+   "source": "the CPU reading at 77deee6775be (no reading of the records' days is kept)"
+  },
+  "L3": {
+   "label": "Çatı Katı",
+   "order": 3,
+   "elevation": 9.0,
+   "source": "the CPU reading at 77deee6775be (no reading of the records' days is kept)"
+  }
+ },
+ "real10": {
+  "L-2": {
+   "label": "2. Bodrum Kat",
+   "order": -2,
+   "elevation": -6.0,
+   "source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
+  },
+  "L-1": {
+   "label": "1. Bodrum Kat",
+   "order": -1,
+   "elevation": -3.0,
+   "source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
+  },
+  "L0": {
+   "label": "Zemin Kat",
+   "order": 0,
+   "elevation": 0.0,
+   "source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
+  },
+  "L1": {
+   "label": "1. Normal Kat",
+   "order": 1,
+   "elevation": 3.0,
+   "source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
+  },
+  "L2": {
+   "label": "2. Normal Kat",
+   "order": 2,
+   "elevation": 6.0,
+   "source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
+  },
+  "L3": {
+   "label": "3. Normal Kat",
+   "order": 3,
+   "elevation": 9.0,
+   "source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
+  },
+  "L4": {
+   "label": "4. Normal Kat",
+   "order": 4,
+   "elevation": 12.0,
+   "source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
+  },
+  "L5": {
+   "label": "5. Normal Kat",
+   "order": 5,
+   "elevation": 15.0,
+   "source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
+  },
+  "L6": {
+   "label": "6. Normal Kat",
+   "order": 6,
+   "elevation": 18.0,
+   "source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
+  }
+ },
+ "real17": {
+  "L0": {
+   "label": "Zemin Kat",
+   "order": 0,
+   "elevation": 0.0,
+   "source": "the CPU reading at 77deee6775be (the stored reading left L0 out)"
+  }
+ }
+}

@@ -121,7 +121,7 @@ def _own_reading(truth, shift=None):
         for t in TR.ELEMENT_TYPES:
             els = []
             for e in TR.positives(lv.get(t)):
-                r = copy.deepcopy(e)
+                r = lift_attrs(copy.deepcopy(e))
                 r["id"] = e.get("reader_id") or e["id"]
                 if shift and lid in shift and t in TR.OPENING_TYPES:
                     dx, dy = shift[lid]
@@ -131,22 +131,43 @@ def _own_reading(truth, shift=None):
     return {"levels": copy.deepcopy(truth["levels"]), "per_level": lv_out}
 
 
+def lift_attrs(r: dict) -> dict:
+    """A reading element made from a truth entry carries the entry's asserted attributes as its own fields (its half
+    landing a metre toward ``landing_toward``)."""
+    for k, v in (r.get("attrs") or {}).items():
+        if k == "landing_toward":
+            r["landing_center"] = [r["center"][0] + v[0], r["center"][1] + v[1]]
+        elif k != "main_entrance":
+            r[k] = v
+    return r
+
+
+def own_building(truth) -> dict:
+    """The building stub of an own reading: the architect's main entrance is the entry that asserts it."""
+    main = [e.get("reader_id") or e["id"] for lv in truth["per_level"].values() for els in lv.values() for e in els
+            if (e.get("attrs") or {}).get("main_entrance")]
+    return {"_main_entrance": main[0] if main else None}
+
+
 @pytest.mark.parametrize("project", REAL)
-def test_a_reading_of_the_truths_own_positives_scores_100(project):
+def test_a_reading_of_the_truths_own_positives_satisfies_every_entry(project):
+    """A real project's truth is sparse since 6 Nov 2026 (the user's corrections only): a reading made of its present
+    entries satisfies every entry (the project-level assertions need a building and are left out here)."""
     truth = TR.load_truth(project)
-    assert SC.match(truth, _own_reading(truth))["total"] == 100.0
+    res = SC.match(truth, _own_reading(truth), own_building(truth))
+    assert res["entries"] and all(e["satisfied"] for e in res["entries"])
 
 
 @pytest.mark.parametrize("shift", [(0.0, 0.06), (0.0, -0.06), (0.10, 0.05)])
 def test_a_shifted_reading_changes_nothing_in_the_truth(shift):
     """The review's L0 lift case (real10: the stacked gaps beside the lift stand 4 to 15 cm apart): the truth does not
-    see any later reading, and the score matches the shifted openings by place."""
+    see any reading, and the score finds the shifted doors, windows and openings by place."""
     truth = TR.load_truth("real10")
-    res = SC.match(truth, _own_reading(truth, {"L0": shift}))
+    res = SC.match(truth, _own_reading(truth, {"L0": shift}), own_building(truth))
     for t in TR.OPENING_TYPES:
-        assert res[t]["matched"] == res[t]["truth"], t
-    acc, _ = TR.accepted_of("real10")
-    assert TR.dumps(TR.build_truth("real10", acc, TR.load_corrections())) == TR.dumps(truth)
+        assert res[t]["present_ok"] == res[t]["present"] and res[t]["absent_ok"] == res[t]["absent"], t
+    built, _ = TR.derive("real10", TR.load_corrections())
+    assert TR.dumps(built) == TR.dumps(truth)
 
 
 def test_a_negated_short_span_cuts_a_long_wall_and_never_removes_it_whole():
