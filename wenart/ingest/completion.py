@@ -40,6 +40,7 @@ import statistics
 from typing import Callable, Optional
 
 from shapely.geometry import LineString, Point, Polygon
+from shapely.ops import unary_union
 from shapely.prepared import prep
 
 from wenart import building as B
@@ -593,6 +594,32 @@ def _mark_party(b: dict, party_by_level: dict) -> None:
 BALCONY_TOUCH_M = 0.30          # a balcony this close to a wall's outer face leans on it
 
 
+def _clip_at_party(p: Polygon, party_walls: list, inside) -> Optional[Polygon]:
+    """``p`` without what lies beyond the outer face line of each party wall (on the side away from ``inside``, a point
+    of the building's rooms: the half-plane the neighbour stands in), or None when nothing is cut (pure)."""
+    out, cut = p, False
+    for w in party_walls:
+        a, u, length = _axis(w)
+        if length < 1.0:
+            continue
+        n = (-u[1], u[0])
+        # the neighbour's side: away from the building's rooms, from the wall's outer face on
+        side = 1.0 if (inside[0] - a[0]) * n[0] + (inside[1] - a[1]) * n[1] < 0 else -1.0
+        off = float(w.get("thickness") or 0.15) / 2.0
+        big = 1000.0
+        o0 = (a[0] + side * n[0] * off, a[1] + side * n[1] * off)
+        far = [(o0[0] - u[0] * big, o0[1] - u[1] * big), (o0[0] + u[0] * big, o0[1] + u[1] * big)]
+        half = Polygon([far[0], far[1], (far[1][0] + side * n[0] * big, far[1][1] + side * n[1] * big),
+                        (far[0][0] + side * n[0] * big, far[0][1] + side * n[1] * big)])
+        if out.intersects(half) and out.intersection(half).area > 0.05:
+            rest = out.difference(half)
+            if rest.is_empty:
+                continue
+            out = max(rest.geoms, key=lambda g: g.area) if rest.geom_type == "MultiPolygon" else rest
+            cut = True
+    return out if cut else None
+
+
 def party_balconies(b: dict, party_by_level: dict) -> list:
     """The balconies (outdoor spaces of kind balcony) that lean only on party walls: removed (in place) and returned
     with the reason. A balcony on a facade that ends at the party line leans on that facade too and stays."""
@@ -618,6 +645,20 @@ def party_balconies(b: dict, party_by_level: dict) -> list:
                                   f"('{party[touching[0]['id']].get('text')}': the neighbour's building is attached "
                                   f"there): no balcony on a party wall (inferred)"})
             continue
+        # a balcony on a facade never runs past the attached side: the part beyond a party wall's line is cut off
+        own = [r for r in b.get("rooms") or [] if r.get("level_id") == s.get("level_id") and _poly(r.get("polygon"))]
+        inside = unary_union([_poly(r["polygon"]) for r in own]).centroid.coords[0] if own else None
+        clipped = _clip_at_party(p, [walls[i] for i in party if i in walls and walls[i].get("level_id") ==
+                                     s.get("level_id")], inside) if inside is not None else None
+        if clipped is not None and clipped.area < p.area - 0.05:
+            s["drawn_polygon"] = s.get("polygon")
+            s["polygon"] = [[round(x, 4), round(y, 4)] for x, y in list(clipped.exterior.coords)[:-1]]
+            s["area_m2"] = round(clipped.area, 3)
+            s["adjusted_by_ai"] = {"by": "code", "rule": "balcony_party_line",
+                                   "reason": f"the balcony ran {p.area - clipped.area:.2f} m2 past the attached side "
+                                             f"(a party wall's line): cut there"}
+            out.append({"id": s["id"], "level_id": s.get("level_id"), "clipped_m2": round(p.area - clipped.area, 3),
+                        "reason": s["adjusted_by_ai"]["reason"] + " (inferred)"})
         keep.append(s)
     if out:
         site["outdoor_spaces"] = keep

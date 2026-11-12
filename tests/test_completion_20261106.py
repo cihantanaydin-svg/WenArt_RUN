@@ -288,6 +288,15 @@ def test_a_balcony_on_a_party_wall_is_left_out_and_one_on_a_facade_stays():
     assert [s["id"] for s in b["site"]["outdoor_spaces"]] == ["os_street"]
 
 
+def test_a_balcony_running_past_the_attached_side_is_cut_at_the_party_line():
+    b = building(flat(), site={"outdoor_spaces": [
+        {"id": "os_over", "kind": "balcony", "level_id": "L0", "polygon": rect(-1.6, 6.1, 4.0, 7.3)}]})
+    out = CP.party_balconies(b, {"L0": {"w_L0_4": {"text": "bitişik"}}})
+    s = b["site"]["outdoor_spaces"][0]
+    assert out and out[0]["id"] == "os_over" and s["drawn_polygon"]
+    assert abs(min(x for x, _y in s["polygon"]) - (-0.1)) < 1e-6
+
+
 def test_a_plan_that_draws_windows_gets_none_inferred():
     b = building(flat())
     lv = b["levels"][0]
