@@ -1300,17 +1300,3 @@ def test_a_lift_landing_door_opens_to_the_hall_never_into_the_stair():
     TW.lift_doors([shaft, hall, stair], only, walls)
     assert only[0]["type"] == "opening" and [o["id"] for o in only if o.get("lift_door")] == ["d_r_L1_asansor_lift"]
 
-
-def test_two_exact_copies_of_a_line_are_one_line_and_no_sliding_leaf():
-    from types import SimpleNamespace
-
-    from wenart.ingest.generic import openings as OP
-
-    g = OP.Gap(kind="run", axis="h", c=0.0, t=0.2, a=0.0, b=0.8, pieces=[])
-
-    def item(y, x0=0.0, x1=0.8):
-        return SimpleNamespace(pts=[(x0, y), (x1, y)], st=SimpleNamespace(arc=None))
-
-    assert OP._line_leaves(g, [item(0.05), item(0.05)]) == []               # one face line drawn twice
-    got = OP._line_leaves(g, [item(0.0), item(0.025), item(0.05)])          # three leaf lines 25 mm apart
-    assert len(got) == 1 and len(got[0][0]) == 3

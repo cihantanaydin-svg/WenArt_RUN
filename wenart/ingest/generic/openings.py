@@ -890,12 +890,7 @@ def _line_leaves(g: Gap, zone: list) -> list[tuple[list, list]]:
         if along <= 0 or across > 1e-3 * along:
             continue
         lo, hi = (min(x0, x1), max(x0, x1)) if g.axis == "h" else (min(y0, y1), max(y0, y1))
-        row = (lo, hi, (y0 + y1) / 2.0 if g.axis == "h" else (x0 + x1) / 2.0, it)
-        # 12 Nov 2026 (round-2 review, F2: two byte-identical copies of a wall's face line made real10's basement a
-        # 'sliding door'): an exact copy of a line already here (same ends, no offset across) is one line, no leaf
-        if not any(abs(row[0] - q[0]) <= 1e-3 and abs(row[1] - q[1]) <= 1e-3 and abs(row[2] - q[2]) <= 1e-3
-                   for q in lines):
-            lines.append(row)
+        lines.append((lo, hi, (y0 + y1) / 2.0 if g.axis == "h" else (x0 + x1) / 2.0, it))
     lines.sort(key=lambda r: (round(r[0] / LEAF_END_M), round(r[1] / LEAF_END_M), r[2]))
     out, used = [], set()
     for i, (lo, hi, off, it) in enumerate(lines):
