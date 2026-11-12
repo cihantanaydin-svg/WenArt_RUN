@@ -155,6 +155,7 @@ _TURKISH_LETTERS = set("çğıöşüÇĞİÖŞÜ")
 # documented kitchen pieces stay kitchen pieces), ``Kitchen & Dining`` a kitchen.
 ROOM_TYPE_PRIORITY = ("wc", "bathroom", "storage", "balcony", "stair", "shaft", "garage", "technical", "bedroom", "living",
                       "kitchen", "dining", "prayer", "hall", "other")
+LIFT_KEYWORDS = {"asansor", "lift", "elevator"}
 # ``hall`` alone names a living room when its face is at least this large and this compact (§2.7.2).
 HALL_AS_LIVING_MIN_AREA = 9.0
 HALL_AS_LIVING_MAX_ASPECT = 2.5
@@ -314,9 +315,39 @@ def parse_area_label(text: str) -> tuple[str, Optional[float]]:
     return head, m2
 
 
+# 12 Nov 2026 (review of the reader targets, real18: 'Y.ODASI' rooms typed other, 'SUDEPOSU' no room word): the
+# abbreviations of the Turkish room words before ODA / ODASI / OD. (a letter and a dot; ``Y.ODASI`` yatak odası, ``Ç.ODASI``
+# çocuk odası, ``O.ODASI`` oturma odası, ``E.YAT.OD.`` ebeveyn yatak odası, ``YAT.OD.`` yatak odası) ...
+_TURKISH_ABBREVIATIONS = ((re.compile(r"(?<![a-z])y\s*\.\s*(?=od)"), "yatak "),
+                          (re.compile(r"(?<![a-z])c\s*\.\s*(?=od)"), "cocuk "),
+                          (re.compile(r"(?<![a-z])o\s*\.\s*(?=od)"), "oturma "),
+                          (re.compile(r"(?<![a-z])e\s*\.\s*(?=yat)"), "ebeveyn "),
+                          (re.compile(r"(?<![a-z])yat\s*\.\s*(?=od)"), "yatak "))
+# ... and a two-word room name written as one word (``SUDEPOSU`` su deposu, ``YANGINMERDIVENI``): a word starting with
+# one of these modifiers whose rest starts with a Turkish room keyword is read as the two words
+_TURKISH_COMPOUND_HEADS = ("su", "yangin", "kat", "cop", "asansor", "elektrik", "yakit", "isi", "hava", "servis",
+                           "ana", "giris", "dis", "ic")
+
+
+def _room_words(folded: str) -> str:
+    """The folded label with the Turkish abbreviations written out and compound room names split (see above)."""
+    for rx, word in _TURKISH_ABBREVIATIONS:
+        folded = rx.sub(word, folded)
+    words = []
+    for w in folded.split(" "):
+        for head in _TURKISH_COMPOUND_HEADS:
+            rest = w[len(head):]
+            if w.startswith(head) and len(rest) >= 3 and any(rest.startswith(k) for k, _ in _TURKISH_ROOM_KEYWORDS
+                                                              if len(k) >= 3 and " " not in k):
+                w = f"{head} {rest}"
+                break
+        words.append(w)
+    return " ".join(words)
+
+
 def room_keyword_hits(label: str) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
     """(Turkish hits, English hits) as (keyword, room_type) pairs found in a label."""
-    folded = fold_ascii(label)
+    folded = _room_words(fold_ascii(label))
     turkish = [(keyword, room_type) for keyword, room_type in _TURKISH_ROOM_KEYWORDS
                if re.search(rf"(^|[^a-z]){keyword}", folded)]
     english = [(keyword, room_type) for pattern, keyword, room_type in _ENGLISH_PATTERNS if pattern.search(folded)]
@@ -343,6 +374,11 @@ def room_type_for(label: str, face_area_m2: Optional[float] = None, face_aspect:
         if face_area_m2 >= HALL_AS_LIVING_MIN_AREA and face_aspect <= HALL_AS_LIVING_MAX_ASPECT:
             return "living"
     matched = {room_type for _, room_type in turkish + english}
+    words = {keyword for keyword, _ in turkish + english}
+    if words & LIFT_KEYWORDS and "stair" not in matched and (
+            matched & {"hall"} or re.search(r"(?<![a-z])onu(?![a-z])", fold_ascii(label))):
+        # 12 Nov 2026 (review of the reader targets, A3): a lift lobby (ASANSÖR HOLÜ, ASANSÖR ÖNÜ, LIFT LOBBY) is a hall
+        return "hall"
     for room_type in ROOM_TYPE_PRIORITY:
         if room_type in matched:
             return room_type

@@ -299,6 +299,11 @@ _BATH_RE = re.compile(r"(?<![a-z])(?:banyo|bath)")
 # the face is ``SUB_SPACE_FACTOR`` times the type's largest area (``AREA_RANGES``) and holds a stair or another label
 SUB_SPACE_TYPES = ("lift", "shaft", "wc", "closet")
 SUB_SPACE_FACTOR = 1.5
+# 12 Nov 2026: the hall, lobby and stair words that make a small type's name the name of a hall (ASANSÖR HOLÜ, LIFT
+# LOBBY) or a stair hall (ASANSÖR VE MERDİVEN HOLÜ); folded lower case, Turkish at the start of a word (inflected),
+# English whole words
+_HALL_WORDS_RE = re.compile(r"(?<![a-z])(?:hol|onu|lobi|koridor|antre|merdiven|sahanlik)|(?<![a-z])(?:lobby|hall|"
+                            r"corridor|landing|stair|stairs|foyer|vestibule)(?![a-z])")
 
 
 def sense_word(text: str) -> Optional[str]:
@@ -309,7 +314,13 @@ def sense_word(text: str) -> Optional[str]:
 
 def sub_space_type(name: str, room_type: Optional[str]) -> Optional[str]:
     """The small type (``SUB_SPACE_TYPES``) a room name with its schema type says: a lift, an installation shaft, a WC
-    (not a bath) or a closet; None for any other name (a machine room, a light well, a pantry ...)."""
+    (not a bath) or a closet; None for any other name (a machine room, a light well, a pantry ...).
+
+    12 Nov 2026 (review of the reader targets, A3 / A-L4 / A-T6): a void (GALERİ, BOŞLUK, VOID: ``B.is_void_label``)
+    is no installation shaft, and a name with a hall, lobby or stair word beside the small type's word (ASANSÖR HOLÜ,
+    ASANSÖR ÖNÜ, LIFT LOBBY, ASANSÖR VE MERDİVEN HOLÜ, VESTİYER HOLÜ) names that hall, not the small room: None."""
+    if B.is_void_label(name) or _HALL_WORDS_RE.search(" ".join(B.fold_ascii(str(name or "")).lower().split())):
+        return None
     word = sense_word(name)
     if word == "lift":
         return "lift"
