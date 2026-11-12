@@ -490,6 +490,13 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
         rest = poly.difference(box)
         if stair_part.is_empty or rest.is_empty:
             continue
+        # 12 Nov 2026 (review B-r10-L7-hall: real10's hall ran round the stair box in 3-6 cm slivers, its opening
+        # 10 m 'wide' on a 0.15 m line): the parts of the room beside the stair thinner than ``HALL_SLIVER_M`` are the
+        # stair's
+        opened = rest.buffer(-HALL_SLIVER_M / 2.0, join_style=2).buffer(HALL_SLIVER_M / 2.0, join_style=2)
+        opened = opened.intersection(rest)
+        if not opened.is_empty:
+            rest = opened
         parts = sorted(getattr(rest, "geoms", [rest]), key=lambda g: -g.area)
         hall = parts[0]
         if hall.geom_type != "Polygon" or hall.interiors or hall.area < LANDING_MIN_M2 \
@@ -500,8 +507,8 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
                  and RG.LIFT_RE.search(TI.fold(str(x.get("label_raw") or x.get("label") or "")))]
         if lifts and not any(hall.distance(lp) <= SHARED_HALL_REACH_M for lp in lifts):
             continue
-        # the stair keeps the footprint's part and the small leftovers (strips beside the flights)
-        stair_poly = unary_union([stair_part] + parts[1:]).buffer(0)
+        # the stair keeps the footprint's part and the small leftovers (strips beside the flights, slivers)
+        stair_poly = poly.difference(hall).buffer(0)
         if stair_poly.geom_type != "Polygon":
             stair_poly = max(stair_poly.geoms, key=lambda g: g.area)
         edge = stair_poly.boundary.intersection(hall.boundary)
@@ -523,7 +530,8 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
         (ax, ay), (bx, by) = cut.coords[0], cut.coords[-1]
         openings.append({"id": f"o_{hall_id}", "type": "opening", "level_id": r["level_id"], "wall_id": None,
                          "virtual": True, "line": [[round(ax, 4), round(ay, 4)], [round(bx, 4), round(by, 4)]],
-                         "center": [round((ax + bx) / 2, 4), round((ay + by) / 2, 4)], "width": round(cut.length, 4),
+                         "center": [round((ax + bx) / 2, 4), round((ay + by) / 2, 4)],
+                         "width": round(math.dist((ax, ay), (bx, by)), 4),           # the line's length (review)
                          "height": None, "sill_height": None, "swing_side": None, "status": "verified",
                          "evidence": [{"file": (r.get("evidence") or [{}])[0].get("file"), "method": "inferred",
                                        "confidence": 0.8, "entity": f"split:{r['id']}",
@@ -586,9 +594,12 @@ def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
     return notes
 
 
+HALL_SLIVER_M = 0.10             # 12 Nov 2026: a part of a stair core this thin beside the stair is the stair's
 LIFT_DOOR_W_M = 0.90             # 4 Nov 2026 (UL306): a lift's landing door (a car door of 0.80-0.90 m) ...
 LIFT_DOOR_H_M = 2.10             # ... this high, sliding
 LIFT_WALL_REACH_M = 0.60         # a room, an opening or a wall this close to the shaft is beside it (core walls 0.2-0.5 m)
+LIFT_DOOR_MIN_W_M = 0.60         # 12 Nov 2026 (review B-r21-lift: real21's 0.25 m gap between two shafts was taken): a
+#                                  drawn opening is the landing door only when it is door-wide
 MACHINE_RE_WORDS = ("MAHAL", "MAKINE", "MACHINE", "MOTOR", "MASCHINEN")   # a lift's machine room is no shaft
 
 
@@ -613,7 +624,8 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> li
             continue
         sp, lv = _poly(s), s["level_id"]
         drawn = [o for o in openings if o.get("level_id") == lv and not o.get("virtual") and o.get("center")
-                 and o.get("type") in ("door", "opening") and sp.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M]
+                 and o.get("type") in ("door", "opening") and sp.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M
+                 and float(o.get("width") or 0) >= LIFT_DOOR_MIN_W_M]
         if drawn:
             o = max(drawn, key=lambda o: float(o.get("width") or 0))
             if o.get("operation") != "sliding" or o.get("type") != "door":

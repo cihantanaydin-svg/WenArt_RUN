@@ -782,3 +782,42 @@ def test_two_leaves_closing_onto_one_point_are_one_double_door():
     apart = _swing((1.0, 0.0), 0.8, 90.0, 0.0) + _swing((4.0, 0.0), 0.8, 90.0, 0.0)
     _w, openings, _l, _o = O.gaps_and_openings(walls, apart, "t.dxf", 1)
     assert sorted(round(o.width, 2) for o in openings if o.kind == "door") == [0.8, 0.8]
+
+
+def test_a_narrow_gap_by_a_lift_shaft_is_not_its_landing_door():
+    """review B-OPN-05 / B-r21-lift (real21: the 0.25 m gap at the partition between two lift shafts became a sliding
+    'lift door'): a drawn opening is the landing door only when it is door-wide; else the door is inferred towards the
+    hall as before. (Which wall of the shaft faces the hall is the building-sense branch's rule.)"""
+    from wenart.ingest import twins as TW
+
+    def room(rid, label, rtype, poly):
+        return {"id": rid, "level_id": "L1", "label": label, "room_type": rtype, "polygon": poly}
+
+    shaft = room("r_L1_asansor", "Asansör", "shaft", [[0, 0], [1.6, 0], [1.6, 1.8], [0, 1.8]])
+    hall = room("r_L1_hall", "Kat Holü", "hall", [[0, 2.0], [4, 2.0], [4, 4], [0, 4]])
+    walls = [{"id": "w1", "level_id": "L1", "start": [-0.1, 1.9], "end": [4.1, 1.9], "thickness": 0.2}]
+    slit = {"id": "o1", "level_id": "L1", "type": "opening", "center": [1.7, 0.9], "width": 0.25}
+    openings = [slit]
+    TW.lift_doors([shaft, hall], openings, walls)
+    assert slit["type"] == "opening" and "operation" not in slit
+    assert len(openings) == 2 and openings[1]["type"] == "door" and openings[1]["operation"] == "sliding"
+
+
+def test_a_core_hall_takes_no_slivers_round_the_stair():
+    """review B-r10-L7-hall (real10 L7: the hall ran round the stair box in 3-6 cm slivers, its opening '10 m' wide on a
+    0.15 m line): the slivers beside the stair are the stair's; the hall is the landing strip, joined along its
+    straight edge, the opening as wide as its line."""
+    from shapely.geometry import Polygon
+    from wenart.ingest import twins as TW
+    core = {"id": "core", "level_id": "L7", "label": "Merdiven", "label_raw": None, "room_type": "stair",
+            "label_inferred": {"method": "stair_core"}, "evidence": [{"file": "a.dwg"}],
+            "polygon": [[10.748, 6.67], [13.516, 6.67], [13.516, 10.19], [10.748, 10.19]]}
+    stairs = [{"type": "stair", "level_id": "L7", "footprint": {"center": [12.147, 8.946], "size": [2.677, 2.428],
+                                                                "rotation_deg": 0}}]
+    rooms, openings = [core], []
+    assert len(TW.split_core_landings(rooms, openings, stairs)) == 1
+    hall = Polygon(rooms[1]["polygon"])
+    assert hall.bounds[3] == pytest.approx(7.732, abs=0.01)             # the landing strip only
+    (ax, ay), (bx, by) = openings[0]["line"]
+    assert openings[0]["width"] == pytest.approx(math.dist((ax, ay), (bx, by)), abs=1e-3)
+    assert openings[0]["width"] == pytest.approx(2.68, abs=0.1)
