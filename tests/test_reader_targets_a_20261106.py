@@ -1135,3 +1135,17 @@ def test_every_small_label_of_a_face_is_its_own_sub_space_whatever_the_reading_o
     assert sorted(s["type"] for s in subs) == ["lift", "lift", "wc"] and len(res.sub_space_labels) == 3
     assert sum("names only its own sub-space" in w for w in res.warnings) == 3
 
+
+
+def test_the_regression_compares_heights_datum_slabs_and_entrances_when_the_baseline_has_them():
+    from wenart.reading_check import regress as RG
+
+    base = {"levels": ["L0", "L4"], "heights": {"L4": {"elevation": 12.0, "source": "assumed_default"}}, "datum": 3.7,
+            "slabs": {"sl_L4": 12.0}, "entrances": {"d1": "steps"}}
+    new = {"levels": ["L0", "L4"], "heights": {"L4": {"elevation": 16.0, "source": "level_mark"}}, "datum": None,
+           "slabs": {"sl_L4": 16.0}, "entrances": {"d1": "drive"}}
+    got = RG.compare(base, new)
+    assert any(d.startswith("L4 elevation") for d in got) and "datum: 3.7 -> None" in got
+    assert any(d.startswith("slab sl_L4") for d in got) and "entrance d1: steps -> drive" in got
+    assert not [d for d in RG.compare({"levels": ["L0", "L4"]}, new) if "elevation" in d]   # old baselines: not compared
+    assert RG.notes({"levels": []}, {"levels": ["L0"]})[0].startswith("the baseline holds no level")

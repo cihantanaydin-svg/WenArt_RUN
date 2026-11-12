@@ -40,6 +40,9 @@ ACCEPT_FIELDS = ("accepted_by_user", "accepted_on", "accepted_scope", "accepted_
                  "accepted_seen", "acceptance_withdrawn", "acceptance_history")
 
 
+HEIGHT_TOL_M = 0.05           # 12 Nov 2026: a level, the datum or a slab moved more than this
+
+
 def numbers(out_dir: Path) -> dict:
     """The key numbers of a pipeline output (the module docstring)."""
     from wenart import reading_check as RC
@@ -61,7 +64,17 @@ def numbers(out_dir: Path) -> dict:
     # 5 Nov 2026 (review): the levels built with reading_confidence low and their reasons are compared numbers too
     low = {lv["id"]: list(lv.get("reading_review") or []) for lv in b.get("levels") or []
            if lv.get("reading_confidence") == "low"}
+    # 12 Nov 2026 (round-2 review, A2-FC10 / G9: a 7 m storey and a lost datum passed as '0 diffs'): the heights,
+    # the datum, the slabs and the entrance solutions are compared numbers too
+    heights = {lv["id"]: {"elevation": lv.get("elevation"), "source": lv.get("elevation_source")}
+               for lv in b.get("levels") or []}
+    datum = (b.get("project") or {}).get("datum")
+    slabs = {s.get("id"): s.get("z_top") for s in b.get("slabs") or [] if isinstance(s, dict)}
+    entrances = {e.get("door_id"): e.get("solution") for e in (b.get("site") or {}).get("entrances") or []
+                 if isinstance(e, dict)}
     return {"project": (b.get("project") or {}).get("id"), "status": b.get("status"),
+            "heights": heights, "datum": datum.get("relative", datum.get("value")) if isinstance(datum, dict) else None,
+            "slabs": slabs, "entrances": entrances,
             "levels": [lv["id"] for lv in b.get("levels") or []],
             "levels_left_out": sorted(str(lo.get("label")) for lo in b.get("levels_left_out") or []),
             "low_confidence": low,
@@ -74,6 +87,8 @@ def notes(base: dict, new: dict) -> list[str]:
     level that newly goes low-confidence or stacks badly is never silent."""
     out = []
     old_levels = set(base.get("levels") or [])
+    if not old_levels:
+        out.append("the baseline holds no level: its per-level numbers cannot be compared")
     low = new.get("low_confidence") or {}
     stack = (new.get("check") or {}).get("stacking") or {}
     for lid in new.get("levels") or []:
@@ -124,6 +139,25 @@ def compare(base: dict, new: dict) -> list[str]:
     for lid, reasons in (new.get("low_confidence") or {}).items():
         if lid in (base.get("levels") or []) and lid not in old_low:
             out.append(f"{lid} newly low confidence: {'; '.join(reasons)[:200]}")
+    # 12 Nov 2026 (round-2 review, A2-FC10): heights, datum, slabs and entrance solutions, when the baseline has them
+    if "heights" in base:
+        for lid, h in (base.get("heights") or {}).items():
+            n = (new.get("heights") or {}).get(lid)
+            if n is not None and h.get("elevation") is not None and n.get("elevation") is not None \
+                    and abs(float(n["elevation"]) - float(h["elevation"])) > HEIGHT_TOL_M:
+                out.append(f"{lid} elevation: {h['elevation']} ({h.get('source')}) -> {n['elevation']} ({n.get('source')})")
+        if (base.get("datum") is None) != (new.get("datum") is None) or (
+                base.get("datum") is not None and new.get("datum") is not None
+                and abs(float(base["datum"]) - float(new["datum"])) > HEIGHT_TOL_M):
+            out.append(f"datum: {base.get('datum')} -> {new.get('datum')}")
+        for sid, z in (base.get("slabs") or {}).items():
+            nz = (new.get("slabs") or {}).get(sid)
+            if z is not None and nz is not None and abs(float(nz) - float(z)) > HEIGHT_TOL_M:
+                out.append(f"slab {sid} z_top: {z} -> {nz}")
+        for did, sol in (base.get("entrances") or {}).items():
+            ns = (new.get("entrances") or {}).get(did)
+            if ns is not None and ns != sol:
+                out.append(f"entrance {did}: {sol} -> {ns}")
     for lid, b in (base.get("per_level") or {}).items():
         n = (new.get("per_level") or {}).get(lid)
         if n is None:
