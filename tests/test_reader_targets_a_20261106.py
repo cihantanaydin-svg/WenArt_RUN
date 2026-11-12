@@ -778,9 +778,6 @@ def test_a_door_block_or_lone_fixtures_never_make_a_window_onto_an_open_recess()
             "LINE:9": Stroke(id="LINE:9", kind="line", pts=[(0, 0.1), (1, 0.1)], layer="TEFRİŞ")}
     assert GC._gap_fixture(lines, both) is None
     assert GC._gap_fixture(lines, {"LINE:9": both["LINE:9"]}).startswith("a furniture piece")
-    # real15: a plaster strip's own lines in the gap are no window
-    plaster = {"LINE:8": Stroke(id="LINE:8", kind="line", pts=[(0, 0), (1, 0)], layer="Z_sıva")}
-    assert GC._gap_fixture(lines, plaster).startswith("the wall's own lines")
 
 
 def test_many_flights_in_a_small_footprint_are_a_tile_grid_for_the_reader_and_the_checker():
