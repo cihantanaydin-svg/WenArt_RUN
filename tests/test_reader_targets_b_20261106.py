@@ -722,3 +722,63 @@ def test_a_room_the_walls_leave_open_is_cut_off_along_its_drawn_outline():
     assert hall.area == pytest.approx(3.0, abs=0.05)
     seps, _log = TP.separators(walls, [], [], [hol, living], [])
     assert seps == []
+
+
+# --------------------------------------------------------------------------
+# Duplicates, doors in gaps, double doors (review B-dup, B-R2, B-r10-dups, B-OPN-07, B-r16-double)
+# --------------------------------------------------------------------------
+
+def _swing(hinge, r, a0, a1, layer="kapi"):
+    """A door swing and its open leaf (from the hinge to the arc's start)."""
+    arc = R.arc(hinge, r, a0, a1)
+    arc.layer = layer
+    tip = (hinge[0] + r * math.cos(math.radians(a0)), hinge[1] + r * math.sin(math.radians(a0)))
+    return [arc, _line(hinge, tip, layer)]
+
+
+def test_a_door_drawn_twice_is_one_door():
+    """review B-r10-dups (real10 L-1: two identical swings on one layer): the copy of a swing already read is no second
+    door, and it is logged."""
+    walls = [R.wall((0.0, 0.0), (6.0, 0.0), t=0.2, entity="H")]
+    door = _swing((2.0, 0.0), 0.8, 90.0, 0.0)                     # open +y, closing onto (2.8, 0)
+    copy = _swing((2.0, 0.0), 0.8, 90.0, 0.0)
+    _w, openings, log, _o = O.gaps_and_openings(walls, door + copy, "t.dxf", 1)
+    assert [(o.kind, round(o.width, 2)) for o in openings] == [("door", 0.8)]
+    assert any(e.get("rule") == "duplicate_symbol" for e in log)
+
+
+def test_a_door_in_a_gap_opening_of_its_wall_takes_its_part_of_the_gap():
+    """review B-dup (real09: a 0.80 m door inside the 1.73 m gap opening of its wall): the gap keeps the rest beside the
+    door; a gap no wider than the door is the door's."""
+    from wenart.ingest.model import OpeningItem
+    host = SimpleNamespace(axis="h", c=0.0, t=0.2)
+    gap = OpeningItem(kind="opening", width=1.73, center=(4.22, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="g",
+                      evidence={"note": "unclassified gap content"}, type_raw="unclassified gap content")
+    existing = [gap]
+    ctx = SimpleNamespace(box=lambda pts: [0, 0, 1, 1])
+    ev = {}
+    assert O._door_in_gap(existing, host, 4.64, 0.80, 0.0, ctx, ev) is None
+    rest = existing[0]
+    assert rest.width == pytest.approx(4.24 - 3.355, abs=0.01) and rest.center[0] == pytest.approx(3.7975, abs=0.01)
+    assert "takes its part of the gap" in ev["note"]
+    own = OpeningItem(kind="opening", width=0.85, center=(4.64, 0.0), rotation_deg=0.0, box=[0, 0, 1, 1], entity="g2",
+                      evidence={})
+    assert O._door_in_gap([own], host, 4.64, 0.80, 0.0, ctx, {}) == 0
+    other_wall = OpeningItem(kind="opening", width=1.73, center=(4.22, 1.0), rotation_deg=0.0, box=[0, 0, 1, 1],
+                             entity="g3", evidence={})
+    assert O._door_in_gap([other_wall], host, 4.64, 0.80, 0.0, ctx, {}) is None and other_wall.width == 1.73
+
+
+def test_two_leaves_closing_onto_one_point_are_one_double_door():
+    """review B-OPN-07 / B-r16-double (real16's '170/210' entrance): two swings hinged 1.6 m apart in a continuous wall,
+    both closing onto its middle, are one 1.6 m double door; two doors side by side that close apart stay two."""
+    walls = [R.wall((0.0, 0.0), (6.0, 0.0), t=0.2, entity="H")]
+    left = _swing((1.0, 0.0), 0.8, 90.0, 0.0)                     # closes onto (1.8, 0)
+    right = _swing((2.6, 0.0), 0.8, 90.0, 180.0)                  # closes onto (1.8, 0)
+    _w, openings, _l, _o = O.gaps_and_openings(walls, left + right, "t.dxf", 1)
+    doors = [o for o in openings if o.kind == "door"]
+    assert len(doors) == 1 and doors[0].width == pytest.approx(1.6, abs=0.01)
+    assert doors[0].center == pytest.approx((1.8, 0.0), abs=0.01) and doors[0].operation == "double"
+    apart = _swing((1.0, 0.0), 0.8, 90.0, 0.0) + _swing((4.0, 0.0), 0.8, 90.0, 0.0)
+    _w, openings, _l, _o = O.gaps_and_openings(walls, apart, "t.dxf", 1)
+    assert sorted(round(o.width, 2) for o in openings if o.kind == "door") == [0.8, 0.8]

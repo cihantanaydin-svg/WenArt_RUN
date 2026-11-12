@@ -2171,6 +2171,96 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
 # Continuous-wall symbols
 # --------------------------------------------------------------------------
 
+COPY_TOL_M = 0.01               # 12 Nov 2026: a stroke this close (its end points) on the same layer is a copy
+
+
+def _copy_key(st: Stroke) -> tuple:
+    """The layer and the end points (in either order, to ``COPY_TOL_M``) of a stroke: copies share it."""
+    a, b = st.pts[0], st.pts[-1]
+    q = lambda p: (round(p[0] / COPY_TOL_M), round(p[1] / COPY_TOL_M))
+    return (str(st.layer), tuple(sorted((q(a), q(b)))), len(st.pts) > 2)
+
+
+def _door_in_gap(existing: list, host, m_along: float, w: float, theta: float, ctx, ev: dict) -> Optional[int]:
+    """A gap opening of ``host`` (an unclassified or empty gap, along its line) that holds the door's span
+    (``m_along`` +- ``w``/2, the frame) keeps the longer part beside the door, in place in ``existing`` (12 Nov 2026,
+    review B-dup); with no part of ``GAP_MIN_M`` the gap is the door's: its index is returned, the door takes its place
+    in ``existing``. Noted in both evidences."""
+    lo, hi = m_along - w / 2.0, m_along + w / 2.0
+    for k, o in enumerate(existing):
+        if o.virtual or o.kind != "opening":
+            continue
+        oc = _rot(o.center, -theta)
+        across = (oc[1] if host.axis == "h" else oc[0]) - host.c
+        if abs(across) > host.t / 2.0 + BAND_SLACK_M:
+            continue
+        a_deg = (0.0 if host.axis == "h" else 90.0) + theta
+        if abs((float(o.rotation_deg) - a_deg + 90.0) % 180.0 - 90.0) > 10.0:
+            continue
+        oa = oc[0] if host.axis == "h" else oc[1]
+        g0, g1 = oa - float(o.width) / 2.0, oa + float(o.width) / 2.0
+        if not (g0 <= lo + 0.05 and hi - 0.05 <= g1):
+            continue
+        parts = [(g0, lo), (hi, g1)]
+        p0, p1 = max(parts, key=lambda t: t[1] - t[0])
+        note = f"a door ({w:.2f} m) drawn in the {float(o.width):.2f} m gap of its wall"
+        ev["note"] = (str(ev.get("note") or "") + f"; {note}: it takes its part of the gap").lstrip("; ")
+        if p1 - p0 < GAP_MIN_M:
+            return k                         # the gap is the door's
+        c = ((p0 + p1) / 2.0, host.c) if host.axis == "h" else (host.c, (p0 + p1) / 2.0)
+        corners = [(p0, host.c - host.t / 2), (p1, host.c + host.t / 2)] if host.axis == "h" else \
+            [(host.c - host.t / 2, p0), (host.c + host.t / 2, p1)]
+        oev = dict(o.evidence) if isinstance(o.evidence, dict) else {}
+        oev["note"] = (str(oev.get("note") or "") + f"; {note}: the rest of the gap, {p1 - p0:.2f} m").lstrip("; ")
+        existing[k] = dataclasses.replace(o, width=round(p1 - p0, 4), center=_r(_rot(c, theta)),
+                                          box=ctx.box([_rot(q, theta) for q in corners]), evidence=oev)
+        return None
+    return None
+
+
+def _double_doors(doors: list, leaves: list, theta: float, ctx) -> list:
+    """12 Nov 2026 (review B-OPN-07 / B-r16-double: real16's '170/210' entrance, two leaves hinged at the jambs meeting
+    in the middle, read as two doors, one then widened by the tag past the wall's end): two continuous-wall doors on
+    one wall whose leaves close onto one point (their arcs' closed ends within ``END_POINT_TOL_M``) are one double door
+    from hinge to hinge, opening to the side of the first."""
+    out, used = [], set()
+    for i in range(len(doors)):
+        if i in used:
+            continue
+        hi, ci, host_i, side_i, sts_i = leaves[i]
+        pair = None
+        for j in range(i + 1, len(doors)):
+            hj, cj, host_j, _sj, sts_j = leaves[j]
+            if j in used or host_j is not host_i or math.dist(ci, cj) > END_POINT_TOL_M:
+                continue
+            pair = j
+            break
+        if pair is None:
+            out.append(doors[i])
+            continue
+        used.add(pair)
+        hj, cj, _h, _s, sts_j = leaves[pair]
+        a, b = doors[i], doors[pair]
+        w = math.dist(hi, hj)
+        mid = ((hi[0] + hj[0]) / 2.0, (hi[1] + hj[1]) / 2.0)
+        mid = (mid[0], host_i.c) if host_i.axis == "h" else (host_i.c, mid[1])
+        center = _rot(mid, theta)
+        ids = [e for o in (a, b) for e in str(o.evidence.get("entity") or o.entity).split(",") if e]
+        ev = ctx.evidence("vector", CONF_DOOR_LEAF, ",".join(ids), box_units=None)
+        ev["note"] = (f"a double door: two leaves of {a.width:.2f} and {b.width:.2f} m hinged {w:.2f} m apart, closing "
+                      f"onto one point")
+        side_page = _rot(side_i, theta)
+        probe = (center[0] + side_page[0] * DOOR_SWING_PROBE, center[1] + side_page[1] * DOOR_SWING_PROBE)
+        axis_deg = (0.0 if host_i.axis == "h" else 90.0) + theta
+        box = [min(a.box[0], b.box[0]), min(a.box[1], b.box[1]), max(a.box[2], b.box[2]), max(a.box[3], b.box[3])]
+        item = OpeningItem(kind="door", width=round(w, 4), center=_r(center),
+                           rotation_deg=round(_door_rotation(axis_deg, side_page) % 360, 3), box=box, entity=ids[0],
+                           evidence=ev, swing_point=_r(probe), height=DOOR_HEIGHT_M, assumed=["height"])
+        _door_operation(item, sts_i + sts_j, True)
+        out.append(item)
+    return out
+
+
 def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, theta: float, ctx: _Ctx,
                         existing: list[OpeningItem], inner_check: bool = False, outdoor=()
                         ) -> tuple[list[OpeningItem], list[OpeningItem]]:
@@ -2180,7 +2270,22 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
     arcs = [(it, arc) for it, arc in _arcs_in(index.items) if it.st.id not in owned
             and (CONTINUOUS_RADIUS_M[0] if _on_door_layer(it.st) else CONTINUOUS_RADIUS_ANY_M) <= arc["radius"]
             <= CONTINUOUS_RADIUS_M[1] and SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]]
+    # 12 Nov 2026 (review B-r10-dups: real10 L-1 draws two doors twice, identical arcs on one layer; the gap took one
+    # copy, the other became a second door on the same gap): an exact copy of a swing already used is no door
+    leaves: list = []                                    # per door of ``doors``: hinge, closed end, host, strokes
+    copies = {}
+    for it2, _a in _arcs_in(index.items):
+        copies.setdefault(_copy_key(it2.st), []).append(it2.st.id)
     for it, arc in arcs:
+        twins = [i for i in copies.get(_copy_key(it.st), []) if i != it.st.id and i in owned]
+        if twins:
+            owned.add(it.st.id)
+            ctx.dropped.append({"kind": "continuous", "class": "none", "rule": "duplicate_symbol",
+                                "center": list(_out(arc["center"], theta)), "width": round(arc["radius"], 4),
+                                "strokes": [it.st.id],
+                                "note": f"an exact copy of the door swing {twins[0]} (layer {it.st.layer}, the same end "
+                                        f"points within {COPY_TOL_M * 100:.0f} cm) drawn twice: one door"})
+            continue
         hinge = arc["center"]
         hosts = []
         for p in pieces:
@@ -2243,10 +2348,19 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
         ids = [it.st.id] + (leaf_ids or [leaf.st.id])
         owned.update(ids)
         ev = ctx.evidence("vector", CONF_DOOR_LEAF, ",".join(ids), box_units=bx)
+        # 12 Nov 2026 (review B-dup / B-R2: real09's door inside the 1.73 m gap opening of its wall, real10 L-1's in the
+        # 1.57 m one): a door drawn in a gap opening of its own wall takes its part of the gap
+        m_along = mid[0] if host.axis == "h" else mid[1]
+        in_gap = _door_in_gap(existing, host, m_along, w, theta, ctx, ev)
         doors.append(OpeningItem(kind="door", width=round(w, 4), center=_r(center),
                                  rotation_deg=round(rotation % 360, 3), box=bx, entity=ids[0], evidence=ev,
                                  swing_point=_r(probe), height=DOOR_HEIGHT_M, assumed=["height"]))
         _door_operation(doors[-1], [it.st, leaf.st], False)
+        if in_gap is not None:
+            existing[in_gap] = doors.pop()               # the gap's place in the openings: the door
+        else:
+            leaves.append((hinge_pt, closed_end, host, side, [it.st, leaf.st]))
+    doors = _double_doors(doors, leaves, theta, ctx)
     outside = _outside_test(walls, existing + doors, outdoor) if inner_check and not ctx.raster else None
     windows = _continuous_windows(pieces, index, owned, theta, ctx, existing + doors, outside)
     return doors, windows
