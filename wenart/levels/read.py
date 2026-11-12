@@ -48,6 +48,7 @@ RAMP_LEN_M = (1.0, 15.0)          # the outline's length (near edge to far edge)
 RAMP_WIDTH_M = (1.0, 15.0)        # the outline's width (the far edge)
 RAMP_SIDE_MIN = 0.8               # each side line covers at least this share of the length
 RAMP_APEX_REACH_M = 0.30          # the apex lies this close to the building's outline (and later to the door face)
+RAMP_APEX_MAX_ENDS = 16           # more line ends at one point is a hatch or a star of lines, no ramp's apex
 
 
 def insert_path(entity: Optional[str]) -> Optional[str]:
@@ -376,13 +377,16 @@ def ramp_outlines(strokes: Sequence, outline=None) -> list[dict]:
         for a, b in zip(pts, pts[1:]):
             if 0.5 <= math.dist(a, b) <= 1.2 * RAMP_LEN_M[1] + RAMP_WIDTH_M[1]:
                 segs.append((a, b, st.id, getattr(st, "layer", None)))
-    if outline is not None and not outline.is_empty:
-        from shapely.geometry import Point
+    if outline is not None and not outline.is_empty and segs:
+        import numpy as np
+        import shapely
 
-        edge = outline.boundary
-        reach = RAMP_LEN_M[1] + RAMP_WIDTH_M[1]
-        segs = [s for s in segs if edge.distance(Point(s[0])) <= reach and
-                not outline.contains(Point((s[0][0] + s[1][0]) / 2.0, (s[0][1] + s[1][1]) / 2.0))]
+        # one vectorised pass (a drawing holds tens of thousands of segments): near the outline, not inside it
+        a = np.array([s[0] for s in segs], dtype=float)
+        mid = (a + np.array([s[1] for s in segs], dtype=float)) / 2.0
+        near = shapely.distance(outline.boundary, shapely.points(a)) <= RAMP_LEN_M[1] + RAMP_WIDTH_M[1]
+        inside = shapely.contains_xy(outline, mid[:, 0], mid[:, 1])
+        segs = [s for s, n, i in zip(segs, near, inside) if n and not i]
     cell = RAMP_END_TOL_M
     grid: dict = {}
     for k, (a, b, _, _) in enumerate(segs):
@@ -403,7 +407,7 @@ def ramp_outlines(strokes: Sequence, outline=None) -> list[dict]:
     out: list[dict] = []
     seen: set = set()
     for key, here in grid.items():
-        if len(here) < 2:
+        if not 2 <= len(here) <= RAMP_APEX_MAX_ENDS:
             continue
         for i in range(len(here)):
             for j in range(i + 1, len(here)):
