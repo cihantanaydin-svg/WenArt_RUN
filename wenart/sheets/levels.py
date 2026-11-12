@@ -208,41 +208,75 @@ def storey_words(regions: list) -> dict[int, str]:
 STOREY_MARK_TOL_M = 0.4            # a storey name sits on its floor: the floor mark at most this far above its level
 
 
-FLOOR_LINE_MIN_M = 2.5              # a storey's floor or slab line in a section runs at least a room's width
-FLOOR_LINE_TOL_M = 0.05             # ... at the mark's height within this
+FLOOR_LINE_MIN_M = 2.5              # a storey's floor or slab line in a section runs at least a room's width ...
+FLOOR_LINE_TOL_M = 0.05             # ... at the mark's height within this ...
 
 
-def floor_marks(region, marks: list, alpha: float, beta: float) -> list:
-    """12 Nov 2026 (review of the reader targets, real07: once its model-space ATTDEF marks were read, the A-A
-    section's stair-landing mark '+2.00' stood under the storey name 'ZEMİN KAT', written mid-storey, and became the
-    ground floor's mark; the whole building dropped 1.5 m): the values of the section marks that stand on a storey's
-    floor or slab line, a horizontal line of the section at least ``FLOOR_LINE_MIN_M`` long at the mark's height (its
-    symbol's apex, ``units_check.mark_point``; else where the marks' straight fit ``value = alpha + beta * y`` puts
-    it). A landing, a window's sill or head, a step have only short lines there; a wide opening's lintel can be long,
-    so when the section repeats its storey marks in two columns (both sides of the cut) only the values it repeats
-    count. [] when the region has no strokes or no mark stands on such a line (the caller then keeps every mark)."""
+FLOOR_LINE_JOIN_M = 0.3             # ... its pieces (cut at the walls) joined across gaps up to this
+SECTION_STOREY_MIN_M = 1.5          # storeys a section names rise at least this much (heights.STOREY_MIN_M)
+
+
+def mark_evidence(region, marks: list, alpha: float, beta: float) -> dict:
+    """``{value: {"on_line": bool, "repeated": bool}}`` of a section's level marks (pure; 12 Nov 2026, review of the
+    reader targets): ``on_line`` when the mark stands on a storey's floor or slab line, a horizontal line of the section
+    at least ``FLOOR_LINE_MIN_M`` long (its pieces joined across ``FLOOR_LINE_JOIN_M``) that reaches the mark, at its
+    symbol's apex (``units_check.mark_point``; else where the straight fit ``value = alpha + beta * y`` puts it);
+    ``repeated`` when the section prints the value in two columns at least three text heights apart (both sides of
+    the cut, the storey marks of a section). {} when the region has no strokes (the caller then trusts every mark)."""
     from wenart.sheets import units_check as UC
 
     strokes = getattr(region, "strokes", None)
     segs = UC.segments(strokes()) if callable(strokes) else []
     if not segs or beta <= 0:
-        return []
-    min_len = FLOOR_LINE_MIN_M / beta
+        return {}
     tol = FLOOR_LINE_TOL_M / beta
-    flat = [(min(a[0], b[0]), max(a[0], b[0]), (a[1] + b[1]) / 2.0) for a, b, _ in segs
-            if abs(a[1] - b[1]) <= tol and abs(b[0] - a[0]) >= min_len]
-    on_line = []
+    gap = FLOOR_LINE_JOIN_M / beta
+    pieces = sorted(((a[1] + b[1]) / 2.0, min(a[0], b[0]), max(a[0], b[0])) for a, b, _ in segs
+                    if abs(a[1] - b[1]) <= tol and abs(b[0] - a[0]) > 0)
+    lines: list = []
+    for y, x0, x1 in pieces:                           # join the pieces of one line (cut at its walls)
+        for ln in lines:
+            if abs(ln[0] - y) <= tol and x0 <= ln[2] + gap and x1 >= ln[1] - gap:
+                ln[1], ln[2] = min(ln[1], x0), max(ln[2], x1)
+                break
+        else:
+            lines.append([y, x0, x1])
+    flat = [ln for ln in lines if ln[2] - ln[1] >= FLOOR_LINE_MIN_M / beta]
+    out: dict = {}
+    seen: dict = {}
     for t, v in marks:
         mp = UC.mark_point(t, segs)
-        y = mp[1] if mp is not None else (v - alpha) / beta
-        if any(abs(fy - y) <= tol for _x0, _x1, fy in flat):
-            on_line.append((round(v, 2), t.point[0], max(getattr(t, "height", 0.0) or 0.0, 1e-9)))
-    # a wide opening's head line can be long too (real07 A-A: +4.25 on a 2.8 m lintel): when the section repeats its
-    # storey marks in two columns (both sides of the cut), only the values it repeats count
-    repeated = {v for v, x, h in on_line if any(v2 == v and abs(x2 - x) > 3.0 * max(h, h2) for v2, x2, h2 in on_line)}
-    if len(repeated) >= 2:
-        return [v for v, _x, _h in on_line if v in repeated]
-    return [v for v, _x, _h in on_line]
+        x, y = (mp[0], mp[1]) if mp is not None else (t.point[0], (v - alpha) / beta)
+        h = max(getattr(t, "height", 0.0) or 0.0, 1e-9)
+        key = round(v, 2)
+        rec = out.setdefault(key, {"on_line": False, "repeated": False})
+        if any(abs(fy - y) <= tol and fx0 - gap <= x <= fx1 + gap for fy, fx0, fx1 in flat):
+            rec["on_line"] = True
+        if any(abs(x2 - t.point[0]) > 3.0 * max(h, h2) for x2, h2 in seen.get(key, [])):
+            rec["repeated"] = True
+        seen.setdefault(key, []).append((t.point[0], h))
+    return out
+
+
+def _storey_mark(raw: float, ev: dict, vals: list, floor_below: Optional[float]) -> float:
+    """The mark a storey name takes (12 Nov 2026): the highest mark at or just above its floor (``raw``) unless that
+    mark is a lone mark inside the storey (a landing, a sill: printed once and on no floor line, ``mark_evidence``);
+    then the highest mark below it that the section prints as a storey mark (repeated or on a floor line) and that
+    stands above the storey below's mark. A storey mark is never replaced."""
+    e = ev.get(round(raw, 2))
+    if not ev or e is None or e["on_line"] or e["repeated"]:
+        return raw
+    cands = [v for v in vals if v < raw - 1e-6 and (floor_below is None or v > floor_below + 1e-6)
+             and ((ev.get(round(v, 2)) or {}).get("on_line") or (ev.get(round(v, 2)) or {}).get("repeated"))]
+    return max(cands) if cands else raw
+
+
+def _rises_ok(found: dict) -> bool:
+    """The storeys a section names rise by at least ``SECTION_STOREY_MIN_M`` a storey."""
+    seq = sorted((k, v) for k, v in found.items() if k != "top")
+    if "top" in found and seq:
+        seq.append((seq[-1][0] + 1, found["top"]))
+    return all(b[1] - a[1] >= SECTION_STOREY_MIN_M * (b[0] - a[0]) for a, b in zip(seq, seq[1:]))
 
 
 def storey_elevations(regions: list) -> dict:
@@ -250,8 +284,14 @@ def storey_elevations(regions: list) -> dict:
     B-B KESİTİ names 1.BODRUM KAT 0.00, ZEMİN KAT +2.50, 1.NORMAL KAT +5.50, 2.NORMAL KAT +8.50, ÇATI KAT +11.50):
     ``{order or "top": floor elevation}`` from the sections: the level marks' values against their height on the
     section (a straight fit), and each storey name the highest mark at most ``STOREY_MARK_TOL_M`` above its own
-    height (the floor it stands on). The first section that names a storey wins. 12 Nov 2026: only the marks on a
-    storey's floor or slab line count (``floor_marks``), never a landing, a window or a step mark."""
+    height (the floor it stands on). The first section that names a storey wins.
+
+    12 Nov 2026 (reviews of the reader targets; real07: the stair-landing mark '+2.00' under 'ZEMİN KAT', written
+    mid-storey, became the ground floor's mark; real13: storey marks printed in four columns with no long line at
+    their apex, the slab marks 0.3 m lower on long lines; real09: the roof storey's '+11.50' on a 2.2 m line): the
+    floor-line test only drops a lone mark inside a storey (``_storey_mark``), storey by storey from the bottom; a
+    storey name never takes the storey below's mark, and when the result fails the storey check
+    (``SECTION_STOREY_MIN_M``) the section's plain reading (every mark) is used."""
     from wenart.sheets import units_check as UC
 
     out: dict = {}
@@ -270,17 +310,31 @@ def storey_elevations(regions: list) -> dict:
         if beta <= 0:
             continue                                   # marks rise with the section's height
         alpha = mv - beta * my
-        floor_vals = sorted(set(round(v, 2) for v in floor_marks(r, UC.mark_texts(texts), alpha, beta) or vs))
+        vals = sorted(set(round(v, 2) for v in vs))
+        ev = mark_evidence(r, UC.mark_texts(texts), alpha, beta)
+        names = []
         for t in texts:
             lw = level_of(t.text)
             if lw is None or lw.typical:
                 continue
-            here = alpha + beta * t.point[1]
-            below = [v for v in floor_vals if v <= here + STOREY_MARK_TOL_M]
-            if not below:
+            names.append((alpha + beta * t.point[1], "top" if lw.order is None else lw.order))
+        plain: dict = {}
+        found: dict = {}
+        floor_below = None
+        for here, key in sorted(names, key=lambda n: n[0]):
+            below = [v for v in vals if v <= here + STOREY_MARK_TOL_M]
+            if not below or key in found:
                 continue
-            key = "top" if lw.order is None else lw.order
-            out.setdefault(key, max(below))
+            raw = max(below)
+            plain.setdefault(key, raw)
+            got = _storey_mark(raw, ev, vals, floor_below)
+            if floor_below is not None and got <= floor_below + 1e-6:
+                continue                               # the storey below's mark: no mark from this section
+            found[key] = got
+            floor_below = got
+        use = found if _rises_ok(found) or not _rises_ok(plain) else plain
+        for key, v in use.items():
+            out.setdefault(key, v)
     return out
 
 

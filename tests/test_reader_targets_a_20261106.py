@@ -352,16 +352,71 @@ def _mark_section(landing: bool = True):
 
 
 def test_a_section_names_its_storeys_by_the_marks_on_their_floor_lines_never_a_landing_mark():
+    from types import SimpleNamespace
+
     from wenart.sheets import levels as LV
+    from wenart.sheets import units_check as UC
 
     got = LV.storey_elevations([_mark_section()])
     assert got[0] == 0.5 and got[1] == 3.5                 # not the landing's +2.00 under 'ZEMİN KAT'
     sec = _mark_section()
-    assert sorted(set(LV.floor_marks(sec, __import__("wenart.sheets.units_check", fromlist=["x"]).mark_texts(
-        sec.texts), 0.0, 0.01))) == [0.0, 0.5, 3.5, 6.5]
+    ev = LV.mark_evidence(sec, UC.mark_texts(sec.texts), 0.0, 0.01)
+    assert ev[0.5]["repeated"] and ev[2.0] == {"on_line": False, "repeated": False}     # the landing: lone, short line
     # without strokes (an old sheets reading) every mark counts, as before
+    assert LV.mark_evidence(SimpleNamespace(texts=sec.texts), [], 0.0, 0.01) == {}
+
+
+def _columns_section(storeys, slabs=(), names=(), lone=(), line_len=1200.0, split=False):
+    """A section (units cm, 1 unit = 1 cm): ``storeys`` (value m) printed in two columns beside the cut with no long
+    line at their apex; ``slabs`` (value m) printed once on a long line; ``lone`` (value m) printed once on a short
+    line; ``names`` (text, value m of the floor it stands on)."""
+    from wenart.ingest.generic.model import Stroke
+    from wenart.sheets.model import Txt
+
+    strokes, texts = [], []
+
+    def mark(x, v, text=None):
+        y = v * 100.0
+        strokes.append(Stroke(id=f"T{len(strokes)}", kind="line", pts=[(x, y), (x - 10.0, y + 12.0)]))
+        strokes.append(Stroke(id=f"T{len(strokes)}", kind="line", pts=[(x, y), (x + 10.0, y + 12.0)]))
+        texts.append(Txt(id=f"m{len(texts)}", text=text or f"{v:+.2f}", box=(x - 25, y + 14, x + 25, y + 29), height=15.0))
+
+    for v in storeys:
+        for x in (-150.0, 1350.0):
+            strokes.append(Stroke(id=f"S{len(strokes)}", kind="line", pts=[(x - 40, v * 100), (x + 40, v * 100)]))
+            mark(x, v)
+    for v in slabs:
+        if split:                                          # the slab line cut at the walls into 2 m pieces
+            for x0 in range(0, int(line_len), 200):
+                strokes.append(Stroke(id=f"L{len(strokes)}", kind="line", pts=[(x0, v * 100), (x0 + 200, v * 100)]))
+        else:
+            strokes.append(Stroke(id=f"L{len(strokes)}", kind="line", pts=[(0.0, v * 100), (line_len, v * 100)]))
+        mark(600.0, v)
+    for v in lone:
+        strokes.append(Stroke(id=f"W{len(strokes)}", kind="line", pts=[(500.0, v * 100), (720.0, v * 100)]))
+        mark(610.0, v)
+    for k, (text, v) in enumerate(names):
+        texts.append(Txt(id=f"n{k}", text=text, box=(300.0, v * 100 + 120, 420.0, v * 100 + 135), height=15.0))
     from types import SimpleNamespace
-    assert LV.floor_marks(SimpleNamespace(texts=sec.texts), [], 0.0, 0.01) == []
+    return SimpleNamespace(id="rX", texts=texts, cls="section", strokes=lambda: list(strokes))
+
+
+def test_storey_marks_in_columns_win_over_slab_marks_on_long_lines_and_a_short_roof_line_keeps_its_mark():
+    from wenart.sheets import levels as LV
+
+    # real13: storey marks (four columns, no long line) 0.3 m above slab marks on long lines
+    sec = _columns_section([3.7, 6.4, 9.1, 11.8], slabs=[3.4, 6.1, 7.9, 10.6],
+                           names=[("ZEMİN KAT", 3.7), ("1.KAT", 6.4), ("2.KAT", 9.1), ("3.KAT", 11.8)])
+    assert LV.storey_elevations([sec]) == {0: 3.7, 1: 6.4, 2: 9.1, 3: 11.8}
+    # real09: the roof storey's mark printed once on a short line keeps its value, never the storey below's
+    roof = _columns_section([0.0, 2.5, 5.5, 8.5], lone=[11.5],
+                            names=[("1.BODRUM KAT", 0.0), ("ZEMİN KAT", 2.5), ("1.NORMAL KAT", 5.5),
+                                   ("2.NORMAL KAT", 8.5), ("ÇATI KAT", 11.5)])
+    assert LV.storey_elevations([roof])["top"] == 11.5
+    # a slab line cut at its walls into 2 m pieces is one floor line; a value printed in one column stays
+    split = _columns_section([0.0, 3.0], slabs=[6.0], split=True,
+                             names=[("ZEMİN KAT", 0.0), ("1.KAT", 3.0), ("2.KAT", 6.0)])
+    assert LV.storey_elevations([split]) == {0: 0.0, 1: 3.0, 2: 6.0}
 
 
 def test_the_datum_from_the_storey_marks_is_the_ground_floors_floor_mark():
@@ -790,3 +845,86 @@ def test_many_flights_in_a_small_footprint_are_a_tile_grid_for_the_reader_and_th
     assert SE.GRID_FLIGHTS_MIN is SY.GRID_FLIGHTS_MIN and SE.FLIGHT_MIN_AREA_M2 is SY.FLIGHT_MIN_AREA_M2
     wide = [_line((0.0, 0.27 * k), (2.4, 0.27 * k), 700 + k) for k in range(12)]
     assert _stair_of(wide + [_line((1.2, -0.05), (1.2, 3.5), 800)]) is not None   # a U stair: 2 flights in 8 m2
+
+
+# --------------------------------------------------------------------------
+# Review of 12 Nov 2026, round 3: level elevations from floor marks
+# --------------------------------------------------------------------------
+
+def _stack(n=4, start=0):
+    """A building of levels L{start}..L{start+n-1} (orders, assumed 3 m apart), each with the fixture's two rooms."""
+    import copy
+
+    from tests import _levels_fixture as F
+
+    b = F.building()
+    base_lv, base_rooms = b["levels"][0], b["rooms"]
+    b["levels"], b["rooms"] = [], []
+    for k in range(start, start + n):
+        lid = f"L{k}"
+        b["levels"].append(dict(copy.deepcopy(base_lv), id=lid, order=k, elevation=3.0 * k,
+                                elevation_source="assumed_default", label=f"{k}. Kat"))
+        for r in base_rooms:
+            b["rooms"].append(dict(copy.deepcopy(r), id=f"{r['id']}_{lid}", level_id=lid))
+    return b
+
+
+def _marks(b, values: dict, kind="floor"):
+    from tests import _levels_fixture as F
+
+    out = []
+    for lid, vals in values.items():
+        for k, v in enumerate(vals if isinstance(vals, (list, tuple)) else [vals]):
+            out.append(F.mark(f"lm_{lid}_{k}", v, kind=kind, point=(3.0, 4.0), room_id=f"r_living_{lid}", level=lid))
+    b["level_marks"] = (b.get("level_marks") or []) + out
+    return b
+
+
+def _elev(b):
+    from wenart.levels import model as M
+
+    n = M.infer_levels(b)
+    return {lv["id"]: lv["elevation"] for lv in n["levels"]}, n
+
+
+def test_a_wrong_top_mark_is_refused_and_the_right_marks_below_it_are_kept():
+    got, n = _elev(_marks(_stack(), {"L1": [3.2, 3.2], "L2": [6.4, 6.4], "L3": [0.0, 0.0]}))
+    assert got == {"L0": 0.0, "L1": 3.2, "L2": 6.4, "L3": 9.4}            # L3 follows L2's move, its '0.00' refused
+    assert any("level L3" in w and "out of the storeys' order" in w for w in n["level_inference"]["warnings"])
+
+
+def test_a_tall_ground_storey_moves_the_assumed_levels_above_it_and_a_7_m_storey_is_refused():
+    got, _n = _elev(_marks(_stack(3), {"L1": [4.5, 4.5]}))
+    assert got == {"L0": 0.0, "L1": 4.5, "L2": 7.5}                       # L2 assumed: it follows L1
+    got, n = _elev(_marks(_stack(5), {"L4": [16.0, 16.0, 16.0]}))       # real13: a roof mark over an assumed L3
+    assert got["L4"] == 12.0 and got["L3"] == 9.0
+    assert any("level L4" in w and "out of the storeys' order" in w for w in n["level_inference"]["warnings"])
+
+
+def test_the_plans_height_frame_comes_from_the_ground_floors_own_marks():
+    from tests import _levels_fixture as F
+
+    b = _stack(3, start=-1)                                              # L-1, L0, L1
+    b["rooms"].append(dict(b["rooms"][1], id="r_stair_L0", room_type="stair", level_id="L0"))
+    b["level_marks"] = [F.mark("lm_a", 2.5, kind="floor", point=(8.0, 4.0), room_id="r_stair_L0", level="L0"),
+                        F.mark("lm_b", 2.5, kind="threshold", point=(8.0, 0.0), level="L0"),
+                        F.mark("lm_c", -0.5, kind="floor", point=(3.0, 4.0), room_id="r_living_L-1", level="L-1"),
+                        F.mark("lm_d", -0.5, kind="ground", point=(3.0, -2.0), level="L-1")]
+    got, n = _elev(b)
+    assert got == {"L-1": -3.0, "L0": 0.0, "L1": 3.0}
+    marks = {m["id"]: m for m in n["level_marks"]}
+    assert marks["lm_d"]["z"] == -3.0 and marks["lm_c"]["frame_shift"] == 2.5
+    assert any(i["item"] == "plan height frame" for i in n["level_inference"]["inferred"])
+
+
+def test_a_variants_slab_stays_with_its_alternative_and_a_moved_slab_carries_its_evidence():
+    b = _marks(_stack(2), {"L1": [3.5, 3.5]})
+    b["slabs"] = [{"id": "sl_L1", "below_level_id": "L0", "above_level_id": "L1", "z_top": 3.0, "variants": [],
+                   "evidence": []},
+                  {"id": "sl_L1__v1b", "below_level_id": "L0", "above_level_id": "L1", "z_top": 3.0,
+                   "variants": ["l1b-v1b"], "evidence": []}]
+    _got, n = _elev(b)
+    sl = {s["id"]: s for s in n["slabs"]}
+    assert sl["sl_L1"]["z_top"] == 3.5 and sl["sl_L1"]["z_top_before"] == 3.0
+    assert sl["sl_L1"]["evidence"][-1]["rule"] == "level_elevation" and sl["sl_L1"]["evidence"][-1]["method"] == "inferred"
+    assert sl["sl_L1__v1b"]["z_top"] == 3.0                               # the alternative's slab did not move
