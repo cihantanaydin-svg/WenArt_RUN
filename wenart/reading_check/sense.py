@@ -1493,6 +1493,28 @@ def room_without_window(building: dict, texts_by_level: Optional[dict] = None) -
     return out
 
 
+STOREY_TREADS_MIN = 11        # a stair that climbs a storey (2.4 m and more at risers of at most 0.2 m) has this many
+                              # tread lines at least; fewer are steps (an entrance, a terrace, a split level)
+
+
+def storey_stairs(building: dict, lid: str, false_ids: Optional[set] = None) -> list:
+    """``[(id, Polygon)]`` (pure): the level's stairs that climb a storey: core stairs (``core_stairs``) standing inside
+    the level's outline whose flights hold ``STOREY_TREADS_MIN`` tread lines (a stair room counts as such a stair)."""
+    outline = _level_outline(building, lid)
+    pieces = {f.get("id"): f for f in building.get("furniture") or [] if f.get("level_id") == lid}
+    out = []
+    for i, p in core_stairs(building, lid, false_ids):
+        if outline is not None and not outline.buffer(EPS).contains(p.representative_point()):
+            continue
+        f = pieces.get(i)
+        if f is not None:
+            lines = sum(int(fl.get("lines") or 0) for fl in ((f.get("stair") or {}).get("flights") or []))
+            if lines < STOREY_TREADS_MIN:
+                continue
+        out.append((i, p))
+    return out
+
+
 def storeys_missing(building: dict, texts_by_level: Optional[dict] = None, false_ids: Optional[set] = None) -> list:
     """Rule 15 (pure; real21): a reading with one storey at or above the ground while the drawing says the building has
     more (lifts, a typical-floor word or area, a stair inside going up), and, on a reading of several storeys, a core
@@ -1514,9 +1536,8 @@ def storeys_missing(building: dict, texts_by_level: Optional[dict] = None, false
         typical = [t["text"] for t in texts if TYPICAL_TEXT_RE.search(_fold(t["text"]).lower())]
         if TYPICAL_TEXT_RE.search(_fold(lv.get("label")).lower()):
             typical.insert(0, str(lv.get("label")))
-        stairs = [] if _is_roof(lv) or lv.get("kind") == "attic" else [i for i, _p in core_stairs(building, lid,
-                                                                                                    false_ids)]
-        stairs += [r["id"] for r in rooms if r.get("room_type") == "stair" and not stairs]
+        stairs = [] if _is_roof(lv) or lv.get("kind") == "attic" else [i for i, _p in storey_stairs(building, lid,
+                                                                                                      false_ids)]
         why = []
         if lifts:
             why.append(f"{len(lifts)} lift(s) ({', '.join(lifts[:3])})")
@@ -1534,7 +1555,7 @@ def storeys_missing(building: dict, texts_by_level: Optional[dict] = None, false
     if _is_roof(top) or top.get("kind") == "attic":
         return out
     below = storeys[-2]
-    up = core_stairs(building, top["id"], false_ids)
+    up = storey_stairs(building, top["id"], false_ids)
     down = core_stairs(building, below["id"], false_ids)
     loose = [i for i, p in up if not any(p.distance(q) <= STAIR_REACH_M + EPS for _j, q in down)]
     if up and loose and len(loose) == len(up):

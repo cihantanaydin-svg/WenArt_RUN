@@ -14,7 +14,8 @@ architect may change.
 The evidence ladder (the first rung with a count wins; every rung is recorded, a disagreement is a warning):
 
 1. ``user``: the brief's ``storeys`` (the user's number, it always wins);
-2. ``section``: the storeys the sections and elevations name (``levels.storey_words``), else their slab bands;
+2. ``section``: the storeys the sections and elevations name (``levels.storey_words``); their slab bands are listed,
+   never counted (sills, parapets and landings read as bands: real15's two-storey section has nine);
 3. ``title``: a text listing the floors (``1.-4. NORMAL KAT``, ``Z+4``, ``B+Z+4``, ``G+4``, ``5 KATLI``);
 4. ``area_table``: a total area and a typical floor area (``TOPLAM``, ``NORMAL``, ``OTURUM``);
 5. ``zoning``: ``KAT ADEDİ``, a height limit (``H=``, ``Hmax``, ``Yençok``) over the storey height, ``EMSAL`` times the
@@ -41,7 +42,6 @@ count is an open point of the architect (``open_point``: the default and the cou
 from __future__ import annotations
 
 import json
-import math
 import re
 from pathlib import Path
 from typing import Callable, Optional
@@ -58,6 +58,7 @@ COUNT_MAX = 60
 TYPE_DEFAULTS = {"apartment_block_lift": 5, "apartment_block": 3, "house_stair": 2}
 TYPE_NAMES = {"apartment_block_lift": "an apartment block with a lift", "apartment_block": "an apartment block without "
               "a lift", "house_stair": "a house with a stair inside"}
+STAIR_LINES_MIN = 11                  # stair-layer entities of a stair that climbs a storey (its tread lines)
 CONFIDENCE = {"user": 1.0, "architect": 0.9, "section": 0.9, "section_bands": 0.6, "title": 0.85, "area_table": 0.7,
               "zoning_count": 0.8, "zoning_height": 0.5, "zoning_far": 0.4, "type_default": 0.25}
 AREA_MATCH = 0.12                     # a plan's gross area within this share of an area text is that floor
@@ -87,15 +88,19 @@ ZONING_COUNT = re.compile(r"\bKAT\s+(?:ADEDI|SAYISI)\s*[:=]?\s*(\d{1,2})\b|\b(\d
 ZONING_HEIGHT = re.compile(r"\b(?:HMAX|H\s+MAX|YENCOK|YEN\s+COK|BINA\s+YUKSEKLIGI|SACAK\s+KOTU|H)\s*[:=]\s*"
                            r"(\d{1,2}[.,]\d{1,2})\s*(?:M)?\b")
 ZONING_FAR = re.compile(r"\b(?:EMSAL|KAKS|FAR|E)\s*[:=]\s*(\d[.,]\d{1,2})\b")
-TITLE_ZPLUS = re.compile(r"(?<![A-Z0-9])(?:B\d?\s*\+\s*)?(?:Z|ZK|ZEMIN)\s*\+\s*(\d{1,2})(?:\s*(?:N|NK|NORMAL)\b)?"
-                         r"|(?<![A-Z0-9])G\s*\+\s*(\d{1,2})\b")
+TITLE_ZPLUS = re.compile(r"(?<![A-Z0-9])(?:B\d?\s*\+\s*)?(?:Z|ZK|ZEMIN)\s*\+\s*(\d{1,2})(?![.,\-/]\s*\d)"
+                         r"(?:\s*(?:N|NK|NORMAL)\b)?|(?<![A-Z0-9])G\s*\+\s*(\d{1,2})\b")
+# a floor list before KAT, KATLAR or KATLARI ('ZEMİN+1.2.3.4.5. NORMAL KATLAR': floors 1 to 5 above the ground)
+FLOOR_LIST = re.compile(r"(?<![\d.,])(\d{1,2}(?:\s*[.,\-/]+\s*\d{1,2})+)\s*\.?\s*(?:NORMAL\s+|TIP\s+)?KAT(?:LAR|LARI)?\b")
 LIFT_RE = re.compile(r"\bASANSOR\b|\bLIFTS?\b|\bELEVATORS?\b|\bAUFZUG\b|\bASCENSEUR\b|\bASCENSOR\b")
 FLAT_RE = re.compile(r"\bDAIRE\b|\bAPARTMENT\b|\bFLAT\s*\d|\bWOHNUNG\b|\bAPPARTEMENT\b")
 KITCHEN_RE = re.compile(r"\bMUTFAK\b|\bKITCHEN\b|\bKUCHE\b|\bCUISINE\b|\bCOCINA\b|\bKITCHENETTE\b")
 STAIR_RE = re.compile(r"\bMERDIVEN\b|\bSTAIRS?\b|\bSTAIRCASE\b|\bTREPPE\b|\bESCALIER\b|\bESCALERA\b")
 # The side texts (``side_texts``): a party wall on that side, or the street
-PARTY_RE = re.compile(r"\bBITISIK\b|\bKOMSU\b|\bKOMSU\s+PARSEL\b|\bATTACHED\b|\bPARTY\s+WALL\b|\bADJOINING\b"
-                      r"|\bMITOYEN(?:NE)?\b|\bBRANDWAND\b|\bGRENZBEBAUUNG\b|\bNACHBAR\b")
+# (a neighbouring plot, 'komşu parsel', is no attached building: only the building or its wall is)
+PARTY_RE = re.compile(r"\bBITISIK\b|\bKOMSU\b(?!\s+(?:PARSEL|ARSA|ADA|PLOT))|\bATTACHED\b|\bPARTY\s+WALL\b"
+                      r"|\bADJOINING\s+BUILDING\b|\bMITOYEN(?:NE)?\b|\bBRANDWAND\b|\bGRENZBEBAUUNG\b"
+                      r"|\bNACHBARGEBAUDE\b")
 STREET_RE = re.compile(r"\bSOKA[GK]I?\b|\bSOK\b|\bCADDESI\b|\bCADDE\b|\bCAD\b|\bBULVARI?\b|\bYOLU\b|\bSTREET\b"
                        r"|\bROAD\b|\bAVENUE\b|\bSTRASSE\b|\bRUE\b|\bCALLE\b|\bAVENIDA\b")
 
@@ -178,14 +183,23 @@ def area_items(texts: list) -> list:
                 n, nf, value = min(row, key=lambda x: x[0].box[0])
                 src = n
             out.append({"kind": kind, "value": round(float(value), 2), "text": t.text.strip(),
+                        "point": t.point, "file": f,
                         "evidence": [_ev(t, f, "area_table")] + ([_ev(src, f, "area_table")] if src is not None
                                                                  else [])})
             break
     return out
 
 
-def _first(items: list, kind: str) -> Optional[dict]:
-    return next((i for i in items if i["kind"] == kind), None)
+def _first(items: list, kind: str, near=None) -> Optional[dict]:
+    """The item of ``kind`` nearest the plan (``near``: ``(file, box)``; a sheet holding two buildings has two area
+    tables), else the first one."""
+    cands = [i for i in items if i["kind"] == kind]
+    if not cands or near is None:
+        return cands[0] if cands else None
+    from wenart.sheets.model import point_box_distance
+
+    file, box = near
+    return min(cands, key=lambda i: (i.get("file") != file, point_box_distance(i.get("point") or (0.0, 0.0), box)))
 
 
 def title_counts(texts: list) -> list:
@@ -197,6 +211,9 @@ def title_counts(texts: list) -> list:
     for t, f in texts:
         folded = _fold(t.text)
         listed = LV._listed_floors(folded)
+        if listed is None:
+            m = FLOOR_LIST.search(folded)
+            listed = LV._listed_floors(f"{m.group(1)} KAT") if m else None
         if listed is not None:
             orders, _word = listed
             out.append({"count": max(orders) + 1, "text": t.text.strip(), "how": f"floors {orders} listed",
@@ -273,7 +290,9 @@ def building_type(signals: dict, typical_area_matches: bool) -> Optional[str]:
     flat words or two kitchens) or a typical floor area matching the plan: an apartment block with a lift; several flats
     with a stair: a low apartment block; one flat at most, no lift and a stair: a house with an upper floor."""
     several = signals["flat_words"] >= 2 or signals["kitchens"] >= 2
-    stair = signals["stairs"] > 0 or signals["stair_words"] > 0
+    # a stair that climbs a storey: a label naming it, or a storey's tread lines on a stair layer (a few entrance or
+    # terrace steps are no upper floor)
+    stair = signals["stairs"] >= STAIR_LINES_MIN or signals["stair_words"] > 0
     if signals["lifts"] >= 1 and (several or typical_area_matches):
         return "apartment_block_lift"
     if several and stair:
@@ -308,7 +327,7 @@ def floor_role(gross: Optional[float], ground: Optional[float], typical: Optiona
 # --------------------------------------------------------------------------------------------------- the ladder
 def ladder(values: dict, section_storeys: dict, sections: list, texts: list, gross: Optional[float],
            signals: dict, drawn_count: int, answers: Optional[dict] = None,
-           drawn_all: Optional[int] = None) -> tuple[list, dict]:
+           drawn_all: Optional[int] = None, near=None) -> tuple[list, dict]:
     """``(rungs, areas)`` (pure): every rung of the evidence ladder with what it found, ``{"rung", "count" | None,
     "confidence", "evidence", "note"}``, in trust order (``drawn_count``: the drawn storeys at and above the ground,
     ``drawn_all`` with the basements); ``areas`` the area table's ground, typical, total and parcel
@@ -331,28 +350,23 @@ def ladder(values: dict, section_storeys: dict, sections: list, texts: list, gro
                       "evidence": [{"rule": "storey_words", "text": section_storeys[o]} for o in above],
                       "note": f"the sections name {len(above)} storeys at and above the ground floor"})
     else:
-        # The slab bands (one per floor, one more for a flat roof: ``heights``) count the storeys only when a section
-        # draws more bands than the drawn levels and a roof slab can hold; the basements' bands are taken off
-        bands = []
-        for s in sections:
-            geom = getattr(s, "_section", None)
-            if geom is not None and getattr(geom, "bands", None) and s.cls == "section":
-                bands.append((len(geom.bands), s.id))
+        # The slab bands are listed, never counted: a section's sills, parapets and landings read as bands too (a
+        # two-storey house's section with 9 bands), so only the storeys a section names count
+        bands = [(len(geom.bands), s.id) for s in sections for geom in [getattr(s, "_section", None)]
+                 if geom is not None and getattr(geom, "bands", None) and s.cls == "section"]
         best = max(bands, default=None)
-        count = None
-        if best and best[0] > drawn_all + 1:
-            count = best[0] - 1 - (drawn_all - drawn_count)
-        best = (count, best[1], best[0]) if best else None
-        rungs.append({"rung": "section", "count": count, "confidence": CONFIDENCE["section_bands"],
-                      "evidence": [{"rule": "slab_bands", "region_id": best[1], "text": f"{best[2]} slab bands"}]
-                      if best else [], "note": (f"section {best[1]}: {best[2]} slab bands" if best else
-                                                "no section or elevation names or draws the storeys")})
+        rungs.append({"rung": "section", "count": None, "confidence": CONFIDENCE["section_bands"],
+                      "evidence": [{"rule": "slab_bands", "region_id": best[1], "text": f"{best[0]} slab bands"}]
+                      if best else [],
+                      "note": (f"section {best[1]} names no storey; its {best[0]} slab bands are no storey count "
+                               f"({drawn_all} level(s) drawn)" if best else
+                               "no section or elevation names the storeys")})
     titles = title_counts(texts)
     rungs.append({"rung": "title", "count": max((t["count"] for t in titles), default=None),
                   "confidence": CONFIDENCE["title"], "evidence": [e for t in titles for e in t["evidence"]][:6],
                   "note": "; ".join(f"'{t['text']}': {t['how']}" for t in titles[:4]) or "no text lists the floors"})
     items = area_items(texts)
-    areas = {k: _first(items, k) for k in ("ground", "typical", "total", "parcel")}
+    areas = {k: _first(items, k, near) for k in ("ground", "typical", "total", "parcel")}
     count, note = None, "no total and typical floor area"
     g, ty, tot = (areas[k]["value"] if areas[k] else None for k in ("ground", "typical", "total"))
     if tot and ty:
@@ -457,7 +471,7 @@ def infer(plans: list, regions: list, docs: list, values: dict, warnings: list, 
     pre_drawn = sorted({o for r in read for o in _own_orders(r) if o >= 0})
     every = {o for r in read for o in _own_orders(r)}
     rungs, areas = ladder(values, names, sections, texts, gross, signals, len(pre_drawn),
-                          _project_answers(project_dir), drawn_all=len(every))
+                          _project_answers(project_dir), drawn_all=len(every), near=(base.file, base.box))
     g = areas["ground"]["value"] if areas["ground"] else None
     ty = areas["typical"]["value"] if areas["typical"] else None
     role = floor_role(gross, g, ty)

@@ -385,19 +385,18 @@ def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source:
         w, h = sizes["wet"] if wet else sizes.get(rtype, DEFAULT_SIZES.get(rtype, DEFAULT_SIZES["bedroom"]))
         cands = []
         rank = {"outside": 0, "balcony": 1, "light_well": 2} if not wet else {"outside": 0, "light_well": 1}
+        minimum = 0.4 if wet else 0.6
         for f in faces:
             if f["kind"] not in rank:
                 continue
             for p0, p1 in level.free(f):
-                cands.append((rank[f["kind"]], -(p1 - p0), f, p0, p1))
+                if p1 - p0 >= minimum:
+                    cands.append((rank[f["kind"]], -(p1 - p0), f, p0, p1))
         if not cands:
             continue
         cands.sort(key=lambda c: (c[0], c[1]))
         _, _, f, p0, p1 = cands[0]
         span = p1 - p0
-        minimum = 0.4 if wet else 0.6
-        if span < minimum:
-            continue
         width = min(w, span)
         sill = max(0.6, HEAD_M - h) if not wet else HEAD_M - h
         count = 2 if (not wet and span >= 2 * width + PIER_M and f["t1"] - f["t0"] >= LONG_FACE_M) else 1
@@ -460,6 +459,11 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     if wells:
         b["level_inference"]["light_wells"] = wells
     _mark_party(b, party_by_level)
+    dropped = party_balconies(b, party_by_level)
+    if dropped:
+        b["level_inference"]["party_balconies"] = dropped
+        build.warn(f"party walls: {len(dropped)} balcony(ies) on an attached side left out "
+                   f"({', '.join(d['id'] for d in dropped)}): {dropped[0]['reason']}")
     _windows(build, sheets, texts_by_level, region_by_level, party_by_level)
     core = core_record(b)
     if core:
@@ -526,7 +530,6 @@ def _light_wells(build, texts_by_level: dict) -> dict:
     if not by_level:
         return {}
     rec = {"rooms": {lid: [r["id"] for r in rs] for lid, rs in by_level.items()}, "slab_voids": [], "roof_openings": []}
-    levels = {lv["id"]: lv for lv in b.get("levels") or []}
     for s in b.get("slabs") or []:
         above, below = s.get("above_level_id"), s.get("below_level_id")
         if not above or not below or above not in by_level or below not in by_level:
@@ -561,7 +564,6 @@ def _light_wells(build, texts_by_level: dict) -> dict:
     build.warn(f"light wells: {n} face(s) labelled as light wells are open-air voids through the storeys "
                f"({', '.join(f'{k} {len(v)}' for k, v in sorted(by_level.items()))}); {len(rec['slab_voids'])} slab "
                f"void(s), {len(rec['roof_openings'])} roof opening(s) (inferred)")
-    _ = levels
     return rec
 
 
@@ -575,6 +577,40 @@ def _mark_party(b: dict, party_by_level: dict) -> None:
                 walls[wid]["party_wall"] = {"inferred": True, "text": ev.get("text"), "entity": ev.get("entity"),
                                             "reason": f"'{ev.get('text')}' on this side: the neighbour's building is "
                                                       f"attached here (a blank party wall: no window, no balcony)"}
+
+
+BALCONY_TOUCH_M = 0.30          # a balcony this close to a wall's outer face leans on it
+
+
+def party_balconies(b: dict, party_by_level: dict) -> list:
+    """The balconies (outdoor spaces of kind balcony) that lean only on party walls: removed (in place) and returned
+    with the reason. A balcony on a facade that ends at the party line leans on that facade too and stays."""
+    from wenart.reading_check.crossdoc import wall_polygon
+
+    site = b.get("site") or {}
+    keep, out = [], []
+    walls = {w["id"]: w for w in b.get("walls") or []}
+    for s in site.get("outdoor_spaces") or []:
+        party = party_by_level.get(s.get("level_id")) or {}
+        p = _poly(s.get("polygon"))
+        if not party or p is None or str(s.get("kind")) != "balcony":
+            keep.append(s)
+            continue
+        touching = []
+        for w in walls.values():
+            wp = wall_polygon(w) if w.get("level_id") == s.get("level_id") else None
+            if wp is not None and p.exterior.intersection(wp.buffer(BALCONY_TOUCH_M)).length >= 0.5:
+                touching.append(w)
+        if touching and all(w["id"] in party for w in touching):
+            out.append({"id": s["id"], "level_id": s.get("level_id"), "walls": sorted(w["id"] for w in touching),
+                        "reason": f"it leans only on the party wall(s) {', '.join(sorted(w['id'] for w in touching))} "
+                                  f"('{party[touching[0]['id']].get('text')}': the neighbour's building is attached "
+                                  f"there): no balcony on a party wall (inferred)"})
+            continue
+        keep.append(s)
+    if out:
+        site["outdoor_spaces"] = keep
+    return out
 
 
 def outer_doors(building: dict, lid: str) -> list:

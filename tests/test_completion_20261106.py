@@ -69,6 +69,9 @@ def test_a_title_listing_its_floors_and_ground_plus_texts_count_the_storeys():
     texts = [(txt("1.-4. NORMAL KAT PLANI"), "a.dxf"), (txt("Z+4"), "a.dxf"), (txt("B+Z+6"), "a.dxf")]
     counts = [c["count"] for c in ST.title_counts(texts)]
     assert counts == [5, 5, 7]
+    # a ground floor and a list of normal floors (KATLAR, plural): the list counts, never 'ground + 1'
+    note = [(txt("1. BODRUM OTOPARK - ZEMİN+1.2.3.4.5. NORMAL KATLAR DAİRE OLARAK İSKAN EDİLECEK"), "a.dxf")]
+    assert [c["count"] for c in ST.title_counts(note)] == [6]
     assert ST.zoning_items([(txt("5 KATLI KONUT"), "a.dxf")])["count"][0]["value"] == 5
 
 
@@ -78,6 +81,13 @@ def test_the_area_table_counts_the_storeys_from_total_footprint_and_typical_floo
     area = next(r for r in rungs if r["rung"] == "area_table")
     assert (areas["ground"]["value"], areas["typical"]["value"], areas["total"]["value"]) == (390.0, 436.0, 2134.0)
     assert area["count"] == 5                                     # 390 + 4 x 436 = 2134
+
+
+def test_of_two_area_tables_on_one_sheet_the_plans_own_counts():
+    texts = [(txt("oturum 390", -100, 0), "a.dxf"), (txt("normal 436", -100, -2), "a.dxf"),
+             (txt("oturum 108 m2", 31, 18), "a.dxf"), (txt("normal 140 m2", 31, 16), "a.dxf")]
+    _, areas = ST.ladder({}, {}, [], texts, 150.0, ST.plan_signals(plan_region()), 1, near=("a.dxf", (0, 0, 30, 20)))
+    assert (areas["ground"]["value"], areas["typical"]["value"]) == (108.0, 140.0)
 
 
 def test_a_scale_is_no_area_and_a_number_on_the_row_is():
@@ -95,17 +105,14 @@ def test_the_zoning_texts_count_the_storeys():
     assert ST.zoning_items([(txt("H=2.70"), "a.dxf")])["height"] == []            # a ceiling height is no limit
 
 
-def test_section_slab_bands_count_only_beyond_the_drawn_levels_and_a_roof_slab():
-    sec = SimpleNamespace(id="r9", cls="section", _section=SimpleNamespace(bands=[0, 1, 2, 3]))
+def test_section_slab_bands_never_count_the_storeys_but_the_storeys_it_names_do():
+    # a two-storey house's section reads sills, parapets and landings as 9 slab bands: no storey count
+    sec = SimpleNamespace(id="r9", cls="section", _section=SimpleNamespace(bands=list(range(9))))
     signals = ST.plan_signals(plan_region())
-    # a basement, a ground floor and a first floor drawn, 4 bands (3 floors and the roof slab): nothing more
-    rungs, _ = ST.ladder({}, {}, [sec], [], 100.0, signals, 2, drawn_all=3)
-    assert next(r for r in rungs if r["rung"] == "section")["count"] is None
-    # one ground floor drawn, 6 bands: 5 storeys and the roof slab
-    sec._section.bands = [0, 1, 2, 3, 4, 5]
-    rungs, _ = ST.ladder({}, {}, [sec], [], 100.0, signals, 1, drawn_all=1)
-    assert next(r for r in rungs if r["rung"] == "section")["count"] == 5
-    # the storeys the sections name win over their bands
+    rungs, _ = ST.ladder({}, {}, [sec], [], 100.0, signals, 2, drawn_all=2)
+    rung = next(r for r in rungs if r["rung"] == "section")
+    assert rung["count"] is None and "9 slab bands" in rung["note"]
+    # the storeys the sections name count
     rungs, _ = ST.ladder({}, {0: "Zemin Kat", 1: "1. Normal Kat", 2: "2. Normal Kat"}, [sec], [], 100.0, signals, 1)
     assert next(r for r in rungs if r["rung"] == "section")["count"] == 3
 
@@ -271,6 +278,16 @@ def test_a_party_wall_named_by_an_attached_text_gets_no_window():
     assert CP.party_walls(level, []) == {}
 
 
+def test_a_balcony_on_a_party_wall_is_left_out_and_one_on_a_facade_stays():
+    b = building(flat(), site={"outdoor_spaces": [
+        {"id": "os_party", "kind": "balcony", "level_id": "L0", "polygon": rect(-1.3, 1.0, -0.1, 4.0)},
+        {"id": "os_street", "kind": "balcony", "level_id": "L0", "polygon": rect(-0.1, 6.1, 4.0, 7.3)}]})
+    party = {"w_L0_4": {"text": "bitişik"}}
+    out = CP.party_balconies(b, {"L0": party})
+    assert [d["id"] for d in out] == ["os_party"]
+    assert [s["id"] for s in b["site"]["outdoor_spaces"]] == ["os_street"]
+
+
 def test_a_plan_that_draws_windows_gets_none_inferred():
     b = building(flat())
     lv = b["levels"][0]
@@ -337,12 +354,54 @@ def test_a_building_with_no_window_and_one_with_every_window_inferred():
     assert [(f["severity"], f["part"]) for f in found] == [("minor", "all_inferred")]
 
 
-def test_a_habitable_room_facing_out_without_a_window_is_a_finding_but_not_on_a_party_wall():
+def test_drawn_windows_that_were_not_read_are_a_reading_miss_never_covered():
+    b = building(flat(), li={"windows": {"levels": {"L0": {"windows_read": 0, "inferred": [],
+                                                           "drawing": {"draws_windows": True, "layer_entities": 6,
+                                                                       "blocks": 0, "tags": 2}}}}})
+    found = SN.no_windows(b)
+    assert {f["part"] for f in found} == {"not_read", "none"}
+    assert all(f["severity"] == "major" for f in found)
+
+
+def test_a_stair_on_the_top_storey_that_no_stair_below_meets_goes_up_to_an_unread_storey():
+    l0, l1 = flat("L0", 0, 0.0), flat("L1", 1, 3.0)
+    stair = {"id": "f_L1_001", "level_id": "L1", "type": "stair",
+             "footprint": {"center": [3.0, 3.0], "size": [1.0, 2.5], "rotation_deg": 0.0},
+             "stair": {"flights": [{"lines": 8}, {"lines": 8}]}}
+    b = building(l0, l1)
+    b["furniture"] = [stair]
+    found = SN.storeys_missing(b)
+    assert found and found[0]["part"] == "stair_up"
+    b["furniture"].append(dict(stair, id="f_L0_001", level_id="L0"))
+    assert SN.storeys_missing(b) == []
+    # a few steps (an entrance, a split level) climb no storey: a one-storey house with them is no finding
+    steps = dict(stair, id="f_L0_009", level_id="L0", stair={"flights": [{"lines": 4}]})
+    one = building(flat())
+    one["furniture"] = [steps]
+    assert SN.storeys_missing(one) == []
+    one["furniture"] = [dict(stair, id="f_L0_009", level_id="L0")]
+    assert SN.storeys_missing(one)[0]["part"] == "single"
+
+
+def test_a_habitable_room_facing_out_without_a_window_is_a_finding_until_it_has_one():
     b = building(flat())
     found = SN.room_without_window(b)
     assert {f["element_ids"][0] for f in found} == {"r_L0_oda", "r_L0_living"}
     b["openings"] += infer_windows(b)
     assert SN.room_without_window(b) == []
+
+
+def test_a_room_whose_only_outer_face_is_a_party_wall_is_no_finding():
+    lv, w, rooms, doors = flat()
+    # a 2 m deep slice along the west wall: the bedroom faces out only through the party wall w_L0_4 ...
+    rooms[1]["polygon"] = rect(0.1, 2.0, 4.9, 4.0)
+    w += [wall("w_L0_8", (0, 1.9), (5, 1.9)), wall("w_L0_9", (0, 4.1), (5, 4.1))]
+    rooms += [room("r_L0_s", "Depo", "storage", rect(0.1, 0.1, 4.9, 1.8)),
+              room("r_L0_n", "Depo", "storage", rect(0.1, 4.2, 4.9, 5.9))]
+    b = building((lv, w, rooms, doors))
+    assert "r_L0_oda" in {f["element_ids"][0] for f in SN.room_without_window(b)}
+    b["level_inference"] = {"windows": {"party_walls": {"L0": {"w_L0_4": {"text": "bitişik"}}}}}
+    assert "r_L0_oda" not in {f["element_ids"][0] for f in SN.room_without_window(b)}
 
 
 def test_a_single_storey_reading_of_a_block_with_a_lift_is_a_finding():
