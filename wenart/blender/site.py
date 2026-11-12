@@ -1412,7 +1412,11 @@ def entrance_threshold(e: dict, building: dict, rules: Optional[dict] = None) ->
     if rec.get("onto"):
         return {"kind": "keep", "riser": 0.0, "reason": f"{did} opens onto {rec['onto']}: the space is its landing"}
     room = next((r for r in building.get("rooms") or [] if r.get("id") == rec.get("room_id")), None)
-    if room_role(room) == "garage":
+    opening = next((o for o in building.get("openings") or [] if o.get("id") == did), None) or {}
+    from wenart.levels import model as LM
+
+    if LM.is_garage_door(dict(opening, width=opening.get("width") or e.get("width")), room):
+        # 12 Nov 2026 (round-2 review, BP4): the levels' one garage-door predicate, whatever the room's type
         return {"kind": "keep", "riser": 0.0, "reason": f"{did} is a garage door: the cars drive in level"}
     face = (e["centre"][0] + e["outward"][0] * e["half_t"], e["centre"][1] + e["outward"][1] * e["half_t"])
     reach = float(rules.get("door_mark_reach", 1.5)) + float(e.get("width") or 0.9) / 2.0
@@ -1563,7 +1567,10 @@ def record_steps(e: dict, face, keep_out: Sequence = (), building: Sequence = ()
         out["ramp"] = {"polygon": poly, "z_start": top, "z_end": ground, "s": [-hw2, hw2], "d": [0.0, length],
                        "length": length, "slope": ramp.get("slope"), "placement": "straight out from the door (a drive)",
                        "reason": "", "clear": True, "drive": True}
-        out.update(end=length, solution="drive")
+        # 12 Nov 2026 (round-2 review, CODE-A9 / BP6): the drive's own rise and reason (no landing, no steps)
+        out.update(end=length, solution="drive", drive_rise=round(top - ground, 4),
+                   reason=f"garage door {top - ground:.2f} m above the ground: a drive {2 * hw2:.2f} m wide, "
+                          f"{length:.2f} m straight out at {float(ramp.get('slope') or 0):.2f}, no steps (inferred)")
         return out
 
     def side_cheeks(d0: float, d1: float, z_top: float) -> None:
@@ -2213,6 +2220,12 @@ def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence, stops: Seq
         if reach is None or reach <= st["end"] + 0.2:
             continue
         half = INFERRED["path_width"] / 2.0
+        drive = st.get("solution") == "drive"
+        if drive:
+            # 12 Nov 2026 (round-2 review, BP3: a car met a 1.2 m footpath and a 1.6 m hedge gap after the drive): a
+            # garage door's way on to the plot's edge is as wide as its drive (the boundary's gate gap follows it)
+            sp = (st.get("ramp") or {}).get("s") or [-half, half]
+            half = max(half, (float(sp[1]) - float(sp[0])) / 2.0)
         end, stop = path_stop(face, out_dir, st["end"], reach + 0.05, half, stops)
         if stop is not None and end - st["end"] < PATH_STOP["min_m"]:
             if dropped is not None:
@@ -2221,7 +2234,7 @@ def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence, stops: Seq
                                           f" m out from the door's steps (lesson UL129; inferred)"})
             continue
         raw.append({"opening_ids": list(st.get("doors") or [e["opening_id"]]), "outward": out_dir, "face": face,
-                    "start": st["end"], "end": end, "half": half,
+                    "start": st["end"], "end": end, "half": half, "drive": drive,
                     "ends_at": ({"kind": stop["kind"], "id": stop["id"]} if stop is not None else None)})
     merged: list[dict] = []
     for p in raw:
@@ -2247,6 +2260,7 @@ def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence, stops: Seq
         out.append({"opening_ids": m["opening_ids"], "outward": list(m["outward"]),
                     "polygon": _rect_along(origin, m["outward"], m["start"], m["end"], m["half"]),
                     "length": round(m["end"] - m["start"], 3), "width": round(2 * m["half"], 3),
+                    **({"kind": "drive"} if m.get("drive") else {}),
                     **({"ends_at": m["ends_at"]} if m.get("ends_at") else {})})
     return out
 
@@ -2849,6 +2863,15 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
     out["steps"] = [s for s in steps.values() if s["blocks"] or s.get("solution") == "drive"]   # a drive: a ramp only
     out["entrance_groups"] = layout["groups"]
     for s in out["steps"]:
+        if s.get("solution") == "drive":
+            # 12 Nov 2026 (round-2 review, CODE-A9 / BP6): a drive is listed as a drive, never as 'a landing and steps'
+            rp = s.get("ramp") or {}
+            out["assumed"].append({"field": f"drive:{s['opening_id']}",
+                                   "value": {"rise": s.get("drive_rise"), "length": rp.get("length"),
+                                             "slope": rp.get("slope"), "width": round(float((rp.get("s") or [0, 0])[1])
+                                                                                      * 2.0, 3)},
+                                   "reason": s.get("reason") or "a garage door's drive (inferred)"})
+            continue
         if s.get("step_up") or s.get("level_threshold"):
             out["assumed"].append({"field": f"threshold:{s['opening_id']}",
                                    "value": "step_up" if s.get("step_up") else "level_threshold",

@@ -868,7 +868,14 @@ def entrances_make_sense(built: dict, inferred: Optional[dict]) -> tuple[list[di
     zones = {e["opening_id"]: S.door_approach(e) for e in ents}
     rail_zones = {e["opening_id"]: S.door_approach(e, shrink=0.01) for e in ents}
     tol = S.ENTRANCE_GROUP["overlap_tol_m"]
-    garages = {i for i, rid in room_of.items() if S.room_role(rooms.get(rid)) == "garage"}
+    # 12 Nov 2026 (round-2 review, BP4): the garage doors by the levels' one predicate (a person's door into a
+    # garage keeps its steps and is no 'car cannot drive in' finding)
+    from wenart.levels import model as LM
+    openings_by = {o.get("id"): o for o in built.get("openings") or [] if isinstance(o, dict)}
+    garages = {i for i, rid in room_of.items()
+               if LM.is_garage_door(openings_by.get(i) or {"width": next((e.get("width") for e in ents
+                                                                          if e["opening_id"] == i), 0.0)},
+                                    rooms.get(rid))}
 
     def doors(st):
         return [st["opening_id"]] + [m for m in st.get("members") or [] if m != st["opening_id"]]

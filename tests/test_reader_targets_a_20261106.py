@@ -1089,3 +1089,30 @@ def test_room_word_tags_vent_sizes_and_room_like_floor_words():
     assert F("MAHAL", "MAHAL-ADI") and F("KOT", "Kotu girin")               # field names still skipped
     assert GC.DOOR_TAG_MIN_H_CM == 180                                       # '75/45' or '50/50' is no door size
     assert SE.notation_in("LOFT") == [] and SE.notation_in("Attic") == [] and SE.notation_in("Normal")
+
+
+def test_one_garage_door_predicate_a_drive_path_as_wide_as_the_drive_and_no_override_on_a_drive():
+    from wenart.blender import site as S
+    from wenart.levels import edits as ED
+    from wenart.levels import model as M
+
+    b2 = _garage_building(width=2.1)                                 # under the reader's 2.2 m: a person's door
+    assert _ent_solution(b2) == "steps"
+    b = M.infer_levels(_garage_building())
+    e = next(x for x in b["site"]["entrances"] if x["door_id"] == "d_front")
+    try:
+        ED._set_entrance(b, {"door_id": "d_front", "solution": "steps", "reason": "x"}, {})
+        raise AssertionError("a drive took an override")
+    except ED.Rejected as exc:
+        assert "garage door" in str(exc)
+    ent = {"opening_id": "d_front", "centre": [8.0, 0.0], "outward": [0.0, -1.0], "half_t": 0.1, "width": 2.5,
+           "bottom": 0.0, "ground_z": -0.5, "rise": 0.5, "record": e}
+    st = S.entrance_steps(ent)
+    assert st["drive_rise"] == 0.5 and "a drive" in st["reason"]
+    paths = S.entrance_paths([ent], {"d_front": st}, [(-5, -20), (20, -20), (20, 20), (-5, 20)])
+    assert paths and paths[0]["width"] >= 3.0 and paths[0].get("kind") == "drive"
+    # a flush sectional door into a storage room is kept level, never a step up
+    flush = dict(ent, rise=0.0, ground_z=0.0, record=dict(e, solution="none", ramp=None, room_id="r_hall"))
+    bb = _garage_building(width=2.5, rtype="storage", label="Depo")
+    bb["openings"][0]["door_type"] = "garage_sectional"
+    assert S.entrance_threshold(flush, bb)["kind"] == "keep"

@@ -1057,12 +1057,14 @@ GARAGE_DOOR_TYPES = ("garage_sectional", "garage", "garage_door", "sectional", "
 
 def is_garage_door(o: dict, room: Optional[dict]) -> bool:
     """Whether an outside door is a garage door (pure; 12 Nov 2026): its ``door_type`` is a garage door's, or it leads
-    into a garage room (``blender.site.room_role``) and is wide enough for a car (at least 2.0 m)."""
+    into a garage room (``blender.site.room_role``) and a car passes it (``twins.GARAGE_DOOR_MIN_M``, the reader's and the
+    architect's one width; round-2 review BP5). The one predicate of the levels, the site and the model review."""
     from wenart.blender import site as S
+    from wenart.ingest.twins import GARAGE_DOOR_MIN_M
 
     if str(o.get("door_type") or "").lower() in GARAGE_DOOR_TYPES:
         return True
-    return S.room_role(room) == "garage" and float(o.get("width") or 0.0) >= 2.0
+    return S.room_role(room) == "garage" and float(o.get("width") or 0.0) >= GARAGE_DOOR_MIN_M - 1e-6
 
 
 def _apply_entrance_override(rec: dict, agent: dict, rise: float, top: float, width: float, params: dict) -> None:
