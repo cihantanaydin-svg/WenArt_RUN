@@ -2521,9 +2521,10 @@ RECESS_CONTENT_INSET_M = 0.25   # ... counted this far in from its edge (fixture
 def _gap_fixture(p, by_id: dict) -> Optional[str]:
     """12 Nov 2026 (review of the reader targets, real15 F1 / F2: a door block's leaf and swing, and a bath's block,
     in two gaps were made 'windows onto the open recess'): why an unclassified gap's content is no window: a piece of a
-    door layer or block (its leaf, its swing), or only fixtures (sanitary or furniture pieces, or an arc) with no
-    window or glass line among them (``layer_names.layer_role``; real10's slot windows hold a counter's edge beside
-    their frame lines and stay windows); None when it may be a window's lines (the ids its note lists)."""
+    door layer or block (its leaf, its swing), or only fixtures or the wall's own lines (sanitary or furniture pieces,
+    an arc, lines of a wall, plaster or column layer: real15's plaster strip) with no window or glass line among them
+    (``layer_names.layer_role``; real10's slot windows hold a counter's edge beside their frame lines and stay
+    windows); None when it may be a window's lines (the ids its note lists)."""
     from wenart.ingest.generic import layer_names as LN
 
     note = str((p.evidence if isinstance(p.evidence, dict) else {}).get("note") or "")
@@ -2542,6 +2543,8 @@ def _gap_fixture(p, by_id: dict) -> Optional[str]:
             return f"a door piece ({i})"
         if roles & {"window", "glass"}:
             glazed = True
+        elif roles & {"wall", "plaster", "structure"}:
+            fixture = fixture or f"the wall's own lines ({i})"
         elif roles & {"sanitary", "furniture"}:
             fixture = fixture or f"a {sorted(roles & {'sanitary', 'furniture'})[0]} piece ({i})"
         elif st.arc is not None:
