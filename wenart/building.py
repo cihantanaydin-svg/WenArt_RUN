@@ -96,15 +96,9 @@ _TURKISH_ROOM_KEYWORDS = [
     # Turkish for 'the room of <word>', a room name of its own (SPOR, OYUN, HOBİ ODASI); a known word before it decides
     # the type (YATAK ODASI a bedroom), else it is other (last in ROOM_TYPE_PRIORITY). ODA alone stays generic.
     ("odasi", "other"),
-    # 12 Nov 2026 (round-2 review, G1: 'ELK. PANO ODASI' was furnished with a corner sofa): the plant and service
-    # rooms' words; '<one of them> ODASI' is a technical room (never furnished), see TECHNICAL_ODASI_WORDS
-    ("pano", "technical"),
-    ("elektrik", "technical"),
-    ("jenerator", "technical"),
-    ("trafo", "technical"),
-    ("pompa", "technical"),
-    ("makine", "technical"),
-    ("makina", "technical"),
+    # 12 Nov 2026 (round-2 review, G1: 'ELK. PANO ODASI' was furnished with a corner sofa): '<a plant or service
+    # word> ODASI' is a technical room, never furnished (``TECHNICAL_ODASI_WORDS`` in ``room_type_for``); the plant
+    # words alone are no room words (a 'PANO' or 'POMPA' note names no room)
 ]
 # English room names (docs/milestone7.md §2.7.2). An English keyword is a whole word (an
 # optional plural ``s``/``es`` allowed); the words of a two-word keyword may be written
@@ -371,8 +365,9 @@ def _plain_keyword_hits(label: str) -> tuple[list, list]:
     return turkish, english
 
 
-# 12 Nov 2026 (round-2 review, A2-FC7 / F2): the room words that only type a room (the generic '<word> ODASI' and the
-# plant-room words): a label named by these alone is no evidence for the wall-layer choice
+# 12 Nov 2026 (round-2 review, A2-FC7 / F2): the room words that only type a room (the generic '<word> ODASI'; the
+# plant-room words, should they ever become room words): a label named by these alone is no evidence for the wall-layer
+# choice
 NO_VOTE_WORDS = frozenset({"odasi", "pano", "elektrik", "jenerator", "trafo", "pompa", "makine", "makina"})
 
 
