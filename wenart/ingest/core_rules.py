@@ -565,8 +565,8 @@ def _common_evidence(hall: dict, rooms: dict, links: list, core: set) -> bool:
     from wenart import common_areas as CA
 
     words = " " + " ".join(B.fold_ascii(_label(hall)).upper().split()) + " "
-    if any(f" {w} " in words for w in CA.COMMON_ROOM_WORDS):
-        return True
+    if any(f" {w} " in words for w in CA.COMMON_ROOM_WORDS) or hall.get("entrance_hall"):
+        return True                     # (an entrance hall the ground-floor rule made: R43, ground_floor.py)
     entrances = {c if a == hall["id"] else a for a, c, o in links if hall["id"] in (a, c) and o.get("type") == "door"
                  and not o.get("virtual") and not o.get("lift_door")}
     entrances = {x for x in entrances if x not in core and (rooms.get(x) or {}).get("room_type") not in
@@ -1405,6 +1405,21 @@ def _entrance_record(b: dict, o: dict, level: "CP.Level", lv: dict, hall: dict, 
                           "rule": "inferred_entrance", "text": reason}]}
 
 
+def lost_behind(lv: dict, e: dict) -> Optional[str]:
+    """Why an entrance record is no way in (pure): the far side of its door holds a room label the reading lost (a
+    room behind it, not the outside); None otherwise."""
+    lost = [p for p in lv.get("reading_places") or [] if p.get("kind") == "unplaced_label" and p.get("at")]
+    face, out_ = e.get("face") or e.get("centre"), e.get("outward") or [0.0, 0.0]
+    if not face or not lost:
+        return None
+    q = (face[0] + out_[0] * 0.6, face[1] + out_[1] * 0.6)
+    near = [p for p in lost if math.dist(q, p["at"][:2]) <= LABEL_REACH_M + 1.0]
+    if not near:
+        return None
+    return (f"the far side of {e.get('door_id')} holds the room label '{near[0].get('text')}' the reading lost: a room "
+            f"behind it, not the outside")
+
+
 def _leads_to_core(b: dict, e: dict, core: set) -> bool:
     """An entrance into the core, or into a wind lobby, an entrance hall or a corridor that reaches the core through
     rooms that are not a flat's (review S1-03b: real03's drawn door into its Rüzgarlık; pure)."""
@@ -1452,16 +1467,7 @@ def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Option
     levels = {lv["id"]: lv for lv in b.get("levels") or []}
     keep = []
     for e in site.get("entrances") or []:
-        why = None
-        lv = levels.get(e.get("level_id")) or {}
-        lost = [p for p in lv.get("reading_places") or [] if p.get("kind") == "unplaced_label" and p.get("at")]
-        face, out_ = e.get("face") or e.get("centre"), e.get("outward") or [0.0, 0.0]
-        if face and lost:
-            q = (face[0] + out_[0] * 0.6, face[1] + out_[1] * 0.6)
-            near = [p for p in lost if math.dist(q, p["at"][:2]) <= LABEL_REACH_M + 1.0]
-            if near:
-                why = (f"the far side of {e.get('door_id')} holds the room label '{near[0].get('text')}' the reading "
-                       f"lost: a room behind it, not the outside")
+        why = lost_behind(levels.get(e.get("level_id")) or {}, e)
         room = rooms.get(e.get("room_id")) or {}
         if why is None and (flats or common) and room.get("room_type") in WET:
             # a garden or terrace door of a ground-floor flat stays an outer door; a bathroom is never a way in

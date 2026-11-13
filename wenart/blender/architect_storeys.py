@@ -70,8 +70,18 @@ def review(building: dict) -> Optional[dict]:
                          "options": opts, "default": "keep",
                          "ask": f"{op.get('question')}. Give the real number in the brief (storeys: N) or answer "
                                 f"{op.get('key')}."})
+    _ground_answers(q, st)
     q["status"] = "open"
     return q
+
+
+def _ground_answers(q: dict, st: dict) -> None:
+    """13 Nov 2026 (R10 (4), R43): the inferred ground floor's own questions (``ground_floor.questions``: the cut to
+    the footprint, the entrance hall), each an answer of N1 whose safe default keeps the inference."""
+    for gq in ((st.get("ground_floor") or {}).get("questions") or []):
+        q["answers"].append({"element": gq["element"], "found": gq["found"], "change": None, "open": True,
+                             "where": None, "options": [AA.option("keep", gq["keep"])], "default": "keep",
+                             "ask": gq["ask"]})
 
 
 def act_storey_count(building: dict, key: str, ans: dict, count) -> tuple[bool, str]:

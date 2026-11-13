@@ -305,11 +305,49 @@ def gross_area(r) -> Optional[float]:
     if not hasattr(r, "_gross_m2"):
         from wenart.sheets import register as RG
         try:
-            poly = RG.outline(r, mpu, set(RG.enclosing_outlines(r, mpu)) | RG.cut_line_entities(r))
+            poly = RG.outline(r, mpu, frames(r, mpu) | RG.cut_line_entities(r))
         except Exception:  # noqa: BLE001 - a plan without an outline has no gross area
             poly = None
         r._gross_m2 = round(poly.area * mpu * mpu, 1) if poly is not None and not poly.is_empty else None
     return r._gross_m2
+
+
+FRAME_PAIR_M = 0.6                    # the inner line of a double frame lies this close inside the outer one
+
+
+def frames(r, mpu: float) -> set:
+    """The entity ids of the frames around a plan, never its outline (13 Nov 2026, review S1-20b, POD-02 (c); pure):
+    the closed outlines enclosing every other stroke (``register.enclosing_outlines``), the inner line of a double
+    frame (a rectangle within ``FRAME_PAIR_M`` inside such a frame on every side), and a rectangle that encloses every
+    other stroke and the area texts (OTURUM, NORMAL ...)."""
+    from wenart.sheets import register as RG
+    from wenart.sheets.model import box_union
+
+    out = set(RG.enclosing_outlines(r, mpu))
+    ents = list(getattr(r, "ents", None) or [])
+    texts = [t for t in getattr(r, "texts", None) or [] if any(rx.search(_fold(t.text)) for rx in AREA_WORDS.values())]
+    pair = FRAME_PAIR_M / mpu if mpu else 0.0
+    for _ in range(3):
+        rest = [e for e in ents if e.id not in out]
+        found = None
+        for e in rest:
+            if getattr(e, "rect", None) is None:
+                continue
+            b = e.box
+            others = [o.box for o in rest if o is not e and o.box != b and not RG._ends_on(o, b)]
+            ob = box_union(others) if others else None
+            if ob is None or not all(m > 0 for m in (ob[0] - b[0], ob[1] - b[1], b[2] - ob[2], b[3] - ob[3])):
+                continue
+            inner_of_frame = any(0 < m <= pair for f in ents if f.id in out
+                                 for m in [min(b[0] - f.box[0], b[1] - f.box[1], f.box[2] - b[2], f.box[3] - b[3])])
+            holds_areas = any(b[0] <= t.point[0] <= b[2] and b[1] <= t.point[1] <= b[3] for t in texts)
+            if inner_of_frame or holds_areas:
+                found = e.id
+                break
+        if found is None:
+            break
+        out.add(found)
+    return out
 
 
 def plan_signals(r) -> dict:
@@ -616,8 +654,7 @@ def infer(plans: list, regions: list, docs: list, values: dict, warnings: list, 
         rec["cantilevers"] = {"ground_m2": g, "typical_m2": ty,
                               "reason": f"the footprint ({areas['ground']['text']}: {g:.0f} m2) is smaller than the "
                                         f"typical floor ({areas['typical']['text']}: {ty:.0f} m2): the typical "
-                                        f"floor's balconies are left off the inferred ground floor (its outline is "
-                                        f"the typical floor's, not cut to the footprint)"}
+                                        f"floor's balconies are left off the inferred ground floor"}
     lv_text = ", ".join(f"{i['level_id']} {i['label']}" for i in rec["inferred"])
     warnings.append(f"storeys: {count} storeys from {chosen['rung'].replace('_', ' ')} ({chosen.get('note')}); "
                     f"{base.id} stands for the storeys the documents do not draw: {lv_text} (inferred"
@@ -640,7 +677,7 @@ def _outline_m(r):
     poly = None
     if mpu and getattr(r, "ents", None):
         try:
-            poly = RG.outline(r, mpu, set(RG.enclosing_outlines(r, mpu)) | RG.cut_line_entities(r))
+            poly = RG.outline(r, mpu, frames(r, mpu) | RG.cut_line_entities(r))
         except Exception:  # noqa: BLE001 - a plan without an outline cannot be compared
             poly = None
         if poly is not None and not poly.is_empty and poly.geom_type == "Polygon":

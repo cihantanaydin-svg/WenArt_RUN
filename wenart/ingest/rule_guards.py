@@ -64,6 +64,9 @@ RULES = {
                                         "inferred balcony door (UL331)"),
     "cantilever_drop": (("R10",), "a ground floor read from a typical floor leaves out the typical floor's balconies"),
     "storey_roof": (("R18",), "storeys added by the storey count get a flat roof over the new top storey"),
+    "ground_cut": (("R10",), "a ground floor read from the typical plan is cut to the drawn footprint"),
+    "entrance_hall": (("R43",), "an inferred ground floor whose core reaches no street gets an entrance hall from the "
+                                "street facade into the core"),
     # staged rules (``STAGED``): written and tested, off until their review (the coordinator, 13 Nov 2026)
     "exterior_spans": (("R14",), "the exterior flag is read per stretch of a wall before the windows; a level or a "
                                  "stretch that does not qualify takes no inferred window"),

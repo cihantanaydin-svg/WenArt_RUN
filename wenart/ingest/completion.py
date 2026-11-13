@@ -617,7 +617,7 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     if vetoed:
         b["level_inference"]["party_vetoes"] = vetoed
     if rec and (rec.get("inferred") or rec.get("open_point")):
-        _storeys(build, rec, texts_by_level, party_by_level)
+        _storeys(build, rec, texts_by_level, party_by_level, drawn_by_level, side_by_level)
     wells = _light_wells(build, texts_by_level)
     if wells:
         b["level_inference"]["light_wells"] = wells
@@ -1106,7 +1106,8 @@ def _ev_file(b: dict, lid: str) -> str:
     return next((e.get("file") for e in lv.get("evidence") or [] if e.get("file")), "") or ""
 
 
-def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict) -> None:
+def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict, drawn_by_level: Optional[dict] = None,
+             side_by_level: Optional[dict] = None) -> None:
     from wenart.ingest import rule_guards as RG
 
     b = build.building
@@ -1135,7 +1136,8 @@ def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict) -> No
                    + ")")
     ground = levels.get("L0") if rec.get("ground_from_typical") else None
     if ground is not None and "L0" in built:
-        out["ground_floor"] = _ground_floor(build, ground, rec, texts_by_level.get("L0"), party_by_level.get("L0") or {})
+        out["ground_floor"] = _ground_floor(build, ground, rec, texts_by_level.get("L0"), party_by_level.get("L0") or {},
+                                            (drawn_by_level or {}).get("L0"), (side_by_level or {}).get("L0"))
     rebased = _rebase_roof(build, b, set(built))
     if rebased:
         out["roof_rebased"] = rebased
@@ -1204,10 +1206,12 @@ def _rebase_roof(build, b: dict, built: set) -> Optional[str]:
     return reason
 
 
-def _ground_floor(build, ground: dict, rec: dict, texts: Optional[list], party: dict) -> dict:
+def _ground_floor(build, ground: dict, rec: dict, texts: Optional[list], party: dict, drawn=None,
+                  side: Optional[list] = None) -> dict:
     """The inferred ground floor read from the typical plan: no cantilevered balconies when the footprint is smaller
-    than the typical floor. Its entrance comes from the general entrance rule (``core_rules.fix_entrances``), written
-    into ``entrance`` by ``complete``."""
+    than the typical floor; cut to the drawn footprint, with an entrance hall from the street into the core
+    (``ground_floor.apply``, 13 Nov 2026). Its entrance otherwise comes from the general entrance rule
+    (``core_rules.fix_entrances``), written into ``entrance`` by ``complete``."""
     from wenart.ingest import rule_guards as RG
 
     b = build.building
@@ -1245,10 +1249,13 @@ def _ground_floor(build, ground: dict, rec: dict, texts: Optional[list], party: 
                     a["space"] = dict(a["space"], built=False, reason=rec["cantilevers"]["reason"])
             build.warn(f"{lid}: {len(gone)} cantilevered balcony(ies) left out on the inferred ground floor "
                        f"({', '.join(sorted(gone))}): {rec['cantilevers']['reason']}")
-    # the footprint (S1-21a, S1-20b): the ground floor is the typical floor's outline; when the area table's footprint
-    # is smaller, that is a conflict until a drawn footprint outline cuts it (not built yet: listed, never claimed)
+    # 13 Nov 2026 (S1-21a, S1-20b, R10 (4), R43): the ground floor keeps to the drawn footprint and gets an entrance
+    # hall from the street into the core (wenart/ingest/ground_floor.py)
+    from wenart.ingest import ground_floor as GF
+    done.update(GF.apply(build, ground, rec, texts, drawn, side))
+    # without a drawn footprint the ground floor is the typical floor's outline: a conflict, never claimed handled
     cant = rec.get("cantilevers") or {}
-    if cant and level.outline is not None and cant.get("ground_m2"):
+    if cant and level.outline is not None and cant.get("ground_m2") and not done.get("footprint"):
         built = float(level.outline.area)
         if built > float(cant["ground_m2"]) * 1.05:
             text = (f"{lid}, the ground floor read from the typical plan, keeps the typical floor's outline "
