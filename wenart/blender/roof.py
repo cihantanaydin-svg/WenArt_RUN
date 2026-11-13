@@ -818,6 +818,9 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
             wall_line, closed = geom2d.close_jogs(wall_line, EAVES_JOG_MAX_M,
                                                   inward_max=max(0.0, overhang - EAVES_MIN_COVER_M))
         outline = geom2d.ccw(geom2d.offset_polygon(wall_line, -overhang) if overhang > 0 else wall_line)
+        from wenart.blender import party_eaves as PE   # 12 Nov 2026 (R46): no eaves over a party side
+        outline, cut_notes = PE.clip(outline, building, level["id"] if level else None)
+        notes.extend(cut_notes)
         assumed.append({"field": "outline", "value": [[round(x, 4), round(y, 4)] for x, y in outline],
                         "reason": f"no roof outline drawn: the walls' outline ({method}) grown by the "
                                   f"{'assumed ' if overhang_assumed else ''}overhang {overhang:.2f} m"

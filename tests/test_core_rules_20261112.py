@@ -144,20 +144,26 @@ def test_without_stair_strokes_no_stair_is_built_and_a_question_is_asked():
     assert rec["stairs"] == [] and rec["stairs_open"][0]["candidate"] is None
 
 
-def sign_drawing(*segments):
-    """A drawing that holds only these segments (``drawn_strokes.Drawn``'s query)."""
+def sign_drawing(*segments, rects=()):
+    """A drawing that holds only these segments and closed rectangles (``drawn_strokes.Drawn``'s query)."""
     segs = [{"a": a, "b": b2, "length": math.dist(a, b2), "id": f"LINE:{k}", "layer": "DIM"}
             for k, (a, b2) in enumerate(segments)]
     return SimpleNamespace(segments=lambda poly: [s for s in segs if poly.contains(
-        Point((s["a"][0] + s["b"][0]) / 2.0, (s["a"][1] + s["b"][1]) / 2.0))], arcs=lambda poly: [])
+        Point((s["a"][0] + s["b"][0]) / 2.0, (s["a"][1] + s["b"][1]) / 2.0))], arcs=lambda poly: [],
+        rectangles=lambda poly: [r for r in rects if poly.contains(Point(r["center"]))])
 
 
-def sign_block(*segments):
+def sign_block(*segments, rects=(), strong=True, width=2.0, extra_box=False):
     b = block()
     for s in b["symbols"]:
-        s["footprint"] = {"center": [5.2, 3.0], "size": [2.0, 4.6], "rotation_deg": 0.0}   # stair size, in the hall
+        s["footprint"] = {"center": [5.2, 3.0], "size": [width, 4.6], "rotation_deg": 0.0}  # stair size, in the hall
+    if extra_box:
+        b["symbols"].append({"id": "sy_L0_009", "kind": "dimension_outline", "level_id": "L0", "room_id": "r_L0_hall",
+                             "footprint": {"center": [7.0, 3.0], "size": [1.8, 4.0], "rotation_deg": 0.0}})
+    if strong:                    # the verified R08 tier b: a passenger lift and a typical floor (the area table's)
+        b["level_inference"]["storeys"] = {"areas": {"typical": {"value": 96.0, "text": "normal 96"}}}
     rec = CR.apply(SimpleNamespace(building=b, ids=B.IdCounter(), warn=lambda *_: None), {}, {}, None,
-                   {"L0": sign_drawing(*segments)})
+                   {"L0": sign_drawing(*segments, rects=rects)})
     return b, rec
 
 
@@ -181,6 +187,17 @@ def test_a_break_diagonal_makes_a_straight_flight_and_an_x_no_stair():
     assert rec["stairs"] == [] and rec["stairs_open"]
     b, rec = sign_block()                                               # the box alone: a question, no stair
     assert rec["stairs"] == [] and rec["stairs_open"][0]["candidate"] == "sy_L0_001"
+
+
+def test_tier_b_needs_strong_storey_evidence_one_box_and_no_lift_car():
+    """The verified R08 tier b (synthetic-01, -03 and -17 have no such evidence: they never get a stair this way)."""
+    well = ((5.0, 1.0), (5.0, 5.0))
+    assert sign_block(well, strong=False)[1]["stairs"] == []
+    b, rec = sign_block(well, ((6.2, 1.5), (7.8, 3.1)), extra_box=True)   # a well here, a diagonal in the other box
+    assert rec["stairs"] == [] and "which is the stair" in rec["stairs_open"][0]["reason"]
+    car = {"center": (5.2, 3.0), "size": (1.1, 1.4), "id": "LWPOLYLINE:1", "layer": "ASANSOR"}
+    assert sign_block(((4.4, 1.0), (6.0, 2.6)), rects=(car,))[1]["stairs"] == []   # a car and one diagonal: a lift
+
 
 
 def test_tread_lines_of_the_sheets_stage_make_the_box_the_stair():
@@ -374,3 +391,15 @@ def test_an_entrance_whose_far_side_holds_a_lost_room_label_is_refused():
     rec = run(b)
     assert [r["door"] for r in rec["entrances"]["refused"]] == ["d_L0_out"]
     assert "SALON" in rec["entrances"]["refused"][0]["reason"]
+
+
+def test_the_same_box_read_twice_is_one_box():
+    """real21 reads its stair box five times (sy_L0_001 to 005 at one place): one box, so tier b still holds."""
+    b = block()
+    for s in b["symbols"]:
+        s["footprint"] = {"center": [5.2, 3.0], "size": [2.0, 4.6], "rotation_deg": 0.0}
+    b["symbols"].append(dict(b["symbols"][0], id="sy_L0_002"))
+    b["level_inference"]["storeys"] = {"areas": {"typical": {"value": 96.0}}}
+    rec = CR.apply(SimpleNamespace(building=b, ids=B.IdCounter(), warn=lambda *_: None), {}, {}, None,
+                   {"L0": sign_drawing(((5.0, 1.0), (5.0, 5.0)))})
+    assert [s["how"] for s in rec["stairs"]] == ["stair signs"]

@@ -66,6 +66,29 @@ class Drawn:
                     out.append({"a": a, "b": b, "length": math.dist(a, b), "id": st.id, "layer": st.layer})
         return out
 
+    def rectangles(self, poly: Polygon) -> list:
+        """``[{center, size: (short, long), id, layer}]`` (metres): the closed four-cornered strokes (rectangles) whose
+        middle lies in ``poly``: a lift car, a counterweight."""
+        out = []
+        for st in self._candidates(poly):
+            pts = [G.apply_affine(self.m6, p) for p in st.pts]
+            if len(pts) >= 2 and math.dist(pts[0], pts[-1]) < 1e-6:
+                pts = pts[:-1]
+            if len(pts) != 4 or not (getattr(st, "closed", False) or len(st.pts) == 5):
+                continue
+            sides = [math.dist(pts[k], pts[(k + 1) % 4]) for k in range(4)]
+            if min(sides) < 1e-6:
+                continue
+            ux, uy = pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]
+            vx, vy = pts[2][0] - pts[1][0], pts[2][1] - pts[1][1]
+            if abs(ux * vx + uy * vy) > 0.05 * sides[0] * sides[1]:
+                continue                                  # not square-cornered
+            c = (sum(p[0] for p in pts) / 4.0, sum(p[1] for p in pts) / 4.0)
+            if poly.contains(Point(c)):
+                a, b = sorted((sides[0], sides[1]))
+                out.append({"center": c, "size": (a, b), "id": st.id, "layer": st.layer})
+        return out
+
     def arcs(self, poly: Polygon) -> list:
         """``[{center, radius, ends, id, layer}]`` (metres): the arcs whose centre or one of whose ends lies in
         ``poly``."""

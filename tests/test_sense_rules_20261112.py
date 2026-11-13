@@ -1,8 +1,7 @@
 """12 Nov 2026 (the architect's audit of 8 buildings, second series; user: "Make sense of the building", "This is for all
 the projects"): ``wenart.ingest.sense_rules`` on small hand-made buildings (no project data).
 
-What: the exterior flag follows the building outline (a partition flagged exterior becomes interior, an outer wall
-flagged interior becomes exterior, a free-standing wall keeps its flag); a stair whose storey above does not cover it
+What (the exterior flags moved to ``wenart.ingest.exterior``, tests/test_exterior_facades_20261112.py): a stair whose storey above does not cover it
 is not built upward and loses its void, one under the storey above stays; a small face holding a shaft word is a shaft
 with its void through the storeys; a balcony reached only through a window gets that window as its door, one with no
 opening gets an inferred door, one with a door is left alone.
@@ -52,35 +51,6 @@ def building(*parts, site=None):
         b["rooms"] += rooms
         b["openings"] += ops
     return b
-
-
-def test_the_exterior_flag_follows_the_building_outline():
-    b = building(flat())
-    b["walls"].append(wall("w_L0_free", (12, 0), (12, 6)))            # a free-standing wall keeps its flag
-    changes = {c["wall"]: c["exterior"] for c in SR.exterior_flags(b)}
-    assert changes == {"w_L0_3": True, "w_L0_5": False}
-    w5 = next(w for w in b["walls"] if w["id"] == "w_L0_5")
-    assert w5["exterior"] is False and w5["drawn_exterior"] is True and w5["adjusted_by_ai"]["rule"]
-    assert next(w for w in b["walls"] if w["id"] == "w_L0_free")["exterior"] is True
-
-
-def test_a_wall_onto_a_terrace_inside_the_outline_stays_interior():
-    """R14: a terrace (an open-air room) inside the level's outline is one of its rooms (synthetic-07's attic)."""
-    b = building(flat())
-    b["walls"] += [wall("w_L0_t1", (10, 6), (10, 9)), wall("w_L0_t2", (10, 9), (0, 9)), wall("w_L0_t3", (0, 9), (0, 6))]
-    b["rooms"].append(room("r_L0_teras", "Teras", "balcony", rect(0.1, 6.1, 9.9, 8.9)))
-    changes = {c["wall"]: c["exterior"] for c in SR.exterior_flags(b)}
-    assert "w_L0_3" not in changes and changes.get("w_L0_5") is False
-
-
-def test_a_wall_partly_on_the_outline_keeps_its_drawn_flag():
-    """The north wall meets a room over its west half and the outside over its east half: no clear side, the drawn
-    flag stays (its stretches are not split yet)."""
-    b = building(flat())
-    b["walls"] += [wall("w_L0_n1", (0, 6), (0, 9)), wall("w_L0_n2", (0, 9), (5, 9)), wall("w_L0_n3", (5, 9), (5, 6))]
-    b["rooms"].append(room("r_L0_oda2", "Oda", "bedroom", rect(0.1, 6.1, 4.9, 8.9)))
-    changes = {c["wall"]: c["exterior"] for c in SR.exterior_flags(b)}
-    assert "w_L0_3" not in changes and next(w for w in b["walls"] if w["id"] == "w_L0_3")["exterior"] is False
 
 
 def test_a_stair_with_no_storey_over_it_is_not_built_upward():

@@ -91,6 +91,8 @@ WELL_ANGLE_DEG = 5.0            # a well line runs along the box's long axis wit
 WELL_SHARE = 0.5                # ... over at least this share of its length, near its middle
 DIAG_DEG = (25.0, 65.0)         # a break diagonal: this angle to the long axis ...
 DIAG_SHARE = 0.4                # ... at least this share of the box's width long
+U_FLIGHT_M = 0.9                # a U stair needs two flights this wide side by side (the verified R08 tier b)
+CAR_M = ((0.9, 2.2), (1.1, 2.8))  # a lift car: a closed rectangle this size (R19 b); it makes a box a lift, never a stair
 # an opening a rule made: a reader-derived gap, or one inferred by a rule (R16 G6)
 DERIVED_RULES = ("lift_door", "mirror_twin", "gap_behind_furniture", "inferred_door", "inferred_window",
                  "inferred_entrance", "balcony_door")
@@ -302,19 +304,38 @@ def stair_signs(fp: dict, segments: list) -> tuple:
     return None, []
 
 
+def strong_storeys(b: dict) -> Optional[str]:
+    """The strong storey evidence tier b needs (the verified R08; pure): a passenger lift and a typical floor (a copy of
+    a typical floor, or the area table's typical floor); else None."""
+    lift = next((r for r in b.get("rooms") or [] if CP.is_lift(r)), None)
+    if lift is None:
+        return None
+    st = (b.get("level_inference") or {}).get("storeys") or {}
+    typical = any(lv.get("typical_of") for lv in b.get("levels") or []) or \
+        bool(((st.get("areas") or {}).get("typical") or {}).get("value"))
+    return f"the lift {lift['id']} and a typical floor" if typical else None
+
+
 def _sign_box(b: dict, level: "CP.Level", drawn, texts: list) -> Optional[dict]:
-    """A box the reader set aside, of stair size (``STAIR_SIZE_M``) beside the lift, the core or a hall, with a stair
-    sign drawn in it (``stair_signs``), or None (pure but for the drawing's query)."""
-    if drawn is None:
+    """The one box the reader set aside, of stair size (``STAIR_SIZE_M``) beside the lift, the core or a hall, with a
+    stair sign drawn in it (``stair_signs``) and no lift car in it (``CAR_M``), in a building with strong storey
+    evidence (``strong_storeys``); None without one, and ``{"several": [...]}`` when more than one box qualifies (the
+    verified R08 tier b: exactly one walled core box)."""
+    if drawn is None or strong_storeys(b) is None:
         return None
     lifts = [level.polys[r["id"]] for r in level.rooms if CP.is_lift(r)]
     core = core_rooms(b, level)
+    found, seen = [], set()
     for s in b.get("symbols") or []:
         fp = s.get("footprint") or {}
         kind = str(s.get("kind"))
         if s.get("level_id") != level.lid or not fp.get("size") or \
                 (kind not in STAIR_SYMBOL_KINDS and "stair" not in kind):
             continue
+        key = (round(fp["center"][0], 2), round(fp["center"][1], 2))
+        if key in seen:
+            continue                                   # the same box read more than once is one box
+        seen.add(key)
         small, long_ = sorted(float(v) for v in fp["size"])
         if not (STAIR_SIZE_M[0][0] <= small <= STAIR_SIZE_M[0][1] and STAIR_SIZE_M[1][0] <= long_ <= STAIR_SIZE_M[1][1]):
             continue
@@ -329,10 +350,18 @@ def _sign_box(b: dict, level: "CP.Level", drawn, texts: list) -> Optional[dict]:
             any(p.distance(level.polys[i]) <= 0.3 for i in core if i in level.polys)
         if not beside:
             continue
+        cars = [r for r in drawn.rectangles(p.buffer(0.05)) if CAR_M[0][0] <= r["size"][0] <= CAR_M[0][1]
+                and CAR_M[1][0] <= r["size"][1] <= CAR_M[1][1]]
+        if cars:
+            continue                                   # a lift car drawn in it: a lift, not a stair
         turn, signs = stair_signs(fp, drawn.segments(p.buffer(0.05)))
+        if turn == "U" and small < 2 * U_FLIGHT_M - 1e-6:
+            turn = "straight"                          # two flights do not fit: one flight along the band
         if turn:
-            return {"symbol": s, "footprint": fp, "room": room, "turn": turn, "signs": signs}
-    return None
+            found.append({"symbol": s, "footprint": fp, "room": room, "turn": turn, "signs": signs})
+    if len(found) > 1:
+        return {"several": [f["symbol"]["id"] for f in found]}
+    return found[0] if found else None
 
 
 def _rise(b: dict, lid: str, above: str) -> float:
@@ -405,7 +434,8 @@ def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optio
                    f"'{box['symbol'].get('kind')}') in {room['id'] if room else 'the core'} holds {box['evidence']}: "
                    f"the building needs a stair and the reading has none on {lid}")
             evidence, source = box["symbol"].get("evidence") or [], "from_documents"
-        elif (sign := _sign_box(b, level, (drawn_by_level or {}).get(lid), texts_by_level.get(lid) or [])) is not None:
+        elif (sign := _sign_box(b, level, (drawn_by_level or {}).get(lid), texts_by_level.get(lid) or [])) is not None \
+                and "several" not in sign:
             mode, fp, room, turn = "stair signs", sign["footprint"], sign["room"], sign["turn"]
             ids = sorted({sg["id"] for sg in sign["signs"]})
             what = "a well line along its long axis (a U stair)" if turn == "U" else "a break diagonal (a straight flight)"
@@ -420,8 +450,10 @@ def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optio
         else:
             cand = (candidate or {}).get("symbol") or {}
             croom = (candidate or {}).get("room") or {}
+            several = (sign or {}).get("several") if isinstance(sign, dict) else None
             reason = (f"no stair is drawn or read on {lid}, and the building needs one to reach {storeys[k + 1]['id']}"
-                      + (f"; the box {cand.get('id')} in {croom.get('id') or 'the core'} has no stair strokes (no tread "
+                      + (f"; the boxes {', '.join(several)} each hold a stair sign: which is the stair?" if several else
+                         f"; the box {cand.get('id')} in {croom.get('id') or 'the core'} has no stair strokes (no tread "
                          f"lines, tread numbers or riser tag): is it the stair?" if cand else "")
                       + " (a question: no stair is built without drawn evidence, R08)")
             open_.append({"level_id": lid, "candidate": cand.get("id"), "reason": reason})

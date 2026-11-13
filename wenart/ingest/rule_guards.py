@@ -53,7 +53,8 @@ RULES = {
     "light_well": (("R52",), "a face named by a light-well word is an open-air void through the storeys (UL334)"),
     "party_wall": (("R46", "R45"), "a wall on the side a party text names is a blank party wall"),
     "party_balcony": (("R46",), "a balcony on an attached side is cut at the party line or left out"),
-    "below_ground": (("R24",), "a level below ground takes no inferred window or balcony door (UL333)"),
+    "below_ground": (("R24",), "a level, or a facade buried by soil labels or terrain, takes no inferred window or "
+                              "balcony door (UL333)"),
     "window_inferred": (("R14", "R24", "R46"), "a habitable or wet room facing the outside on a plan that draws no "
                                                 "window gets an inferred window (UL331)"),
     "balcony_door_inferred": (("R27",), "a habitable room onto a balcony on a plan that draws no window gets an "

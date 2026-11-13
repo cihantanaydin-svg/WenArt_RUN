@@ -96,6 +96,8 @@ RULES = {
     "lift_doors": "a lift with no landing door onto the common hall, or an opening into a flat's room",
     "core_gap": "an unclassified gap between a flat's room and the common core",
     "core_door": "a door from a flat's wet room or bedroom straight into the common core",
+    "window_on_interior": "a window on a stretch of wall with rooms on both sides (R14 D3)",
+    "exterior_between_rooms": "a wall flagged exterior whose faces show rooms on both sides (R14 D1)",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -1455,27 +1457,34 @@ def no_windows(building: dict) -> list:
 def room_without_window(building: dict, texts_by_level: Optional[dict] = None) -> list:
     """Rule 14 (pure; UL331): a habitable room (``WINDOW_ROOMS``) with a free face of ``FACE_MIN_M`` to the outside, a
     balcony or a light well on a wall that is no party wall (``level_inference.windows.party_walls``) and no window or
-    door on any such face, drawn or inferred. A typical floor's copies and the levels below ground are left out."""
+    door on any such face, drawn or inferred. A typical floor's copies, the faces on buried facades (R24,
+    ``level_inference.facades``; a level without that record: below ground as a whole), the stretches that are not
+    exterior (R14 ``exterior_spans``) and the levels that do not qualify (R14) are left out."""
     from wenart.ingest import completion as CP
+    from wenart.ingest import exterior as EX
 
     party_all = ((building.get("level_inference") or {}).get("windows") or {}).get("party_walls") or {}
+    facades = (building.get("level_inference") or {}).get("facades")
     out = []
     for lv in building.get("levels") or []:
         # 6 Nov 2026 (user: "underground floors will have no window"): no finding below ground
-        if lv.get("typical_of") or CP.below_ground(building, lv):
+        if lv.get("typical_of") or not EX.level_ok(building, lv["id"])[0]:
+            continue
+        if (facades is None or lv["id"] not in facades) and CP.below_ground(building, lv):
             continue
         lid = lv["id"]
         texts = [{"text": t["text"], "x": t["x"], "y": t["y"]} for t in (texts_by_level or {}).get(lid) or []]
         level = CP.Level(building, lid, texts)
         if level.outline is None:
             continue
-        party = set(party_all.get(lid) or {})
+        party = set(party_all.get(lid) or {}) | CP.buried_walls(building, lid)
         for room in level.rooms:
             rtype = str(room.get("room_type") or "")
             if rtype not in WINDOW_ROOMS or room["id"] in level.wells:
                 continue
             faces = [f for f in level.faces(room) if f["wall_id"] not in party
-                     and f["t1"] - f["t0"] >= FACE_MIN_M - EPS]
+                     and f["t1"] - f["t0"] >= FACE_MIN_M - EPS
+                     and EX.allows(level.walls[f["wall_id"]], f["t0"], f["t1"])]
             if not faces:
                 continue
             lit = False
@@ -1809,6 +1818,85 @@ def core_door(building: dict) -> list:
     return out
 
 
+def exterior_between_rooms(building: dict) -> list:
+    """Rule 25 (pure; R14 D1): a wall flagged exterior with no exterior stretch and an interior stretch of at least
+    1 m by its faces (``exterior_spans``; the flag kept on a level that does not qualify, or a drawn flag the reading
+    could not judge); a typical floor's copies left out."""
+    out = []
+    copies = {lv["id"] for lv in building.get("levels") or [] if lv.get("typical_of")}
+    for w in building.get("walls") or []:
+        spans = w.get("exterior_spans")
+        if not w.get("exterior") or not spans or w.get("level_id") in copies:
+            continue
+        if any(s["kind"] in ("exterior", "light_well") for s in spans):
+            continue
+        inner = sum(s["t1"] - s["t0"] for s in spans if s["kind"] == "interior")
+        if inner >= 1.0 - EPS:
+            out.append(_finding("exterior_between_rooms", "minor", w.get("level_id"),
+                                f"{w['id']} is flagged exterior but rooms lie on both its faces along {inner:.1f} m "
+                                f"(R14: the flag stays only where the level does not qualify)", None, [w["id"]]))
+    return out
+
+
+def window_on_interior(building: dict) -> list:
+    """Rule 24 (pure; R14 D3 with the hunters' guard 8): a window on a stretch of wall that is interior by its faces
+    (``exterior_spans``: rooms on both sides), a light well (drawn or inferred) or an outdoor room on either side left
+    out; a typical floor's copies left out; a level that does not qualify (R14: paper rooms, lost labels) gives one
+    level finding instead of one per window. A window drawn on a window layer or block is source geometry: the finding
+    asks, it never deletes."""
+    from wenart.ingest import completion as CP
+    from wenart.ingest import exterior as EX
+
+    out = []
+    walls = {w["id"]: w for w in building.get("walls") or []}
+    copies = {lv["id"] for lv in building.get("levels") or [] if lv.get("typical_of")}
+    levels: dict = {}
+    per_level: dict = {}
+    for o in building.get("openings") or []:
+        lid = o.get("level_id")
+        if o.get("type") != "window" or o.get("virtual") or lid in copies or not o.get("center"):
+            continue
+        w = walls.get(o.get("wall_id"))
+        spans = (w or {}).get("exterior_spans")
+        if not spans:
+            continue
+        (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length <= 0:
+            continue
+        t = ((o["center"][0] - x0) * (x1 - x0) + (o["center"][1] - y0) * (y1 - y0)) / length
+        span = next((s for s in spans if s["t0"] - 0.05 <= t <= s["t1"] + 0.05), None)
+        if span is None or span["kind"] != "interior":
+            continue
+        if lid not in levels:
+            levels[lid] = CP.Level(building, lid)
+        level = levels[lid]
+        u = ((x1 - x0) / length, (y1 - y0) / length)
+        reach = float(w.get("thickness") or 0.15) / 2.0 + 0.25
+        sides = [level.room_at((o["center"][0] - u[1] * k * reach, o["center"][1] + u[0] * k * reach)) for k in (1, -1)]
+        if any(r is not None and (r.get("room_subtype") == "light_well" or r.get("room_type") in ("shaft", "balcony")
+                                  or CP.is_light_well(r)) for r in sides):
+            continue                                         # onto a light well or an outdoor room
+        per_level.setdefault(lid, []).append((o, w, span))
+    for lid, rows in per_level.items():
+        ok, why = EX.level_ok(building, lid)
+        if not ok:
+            out.append(_finding("window_on_interior", "minor", lid,
+                                f"{len(rows)} window(s) on {lid} stand where rooms lie on both sides, on a level that "
+                                f"does not qualify ({'; '.join(why)}): the rooms, not the windows, are in question",
+                                None, [o["id"] for o, _w, _s in rows]))
+            continue
+        for o, w, span in rows:
+            drawn = not o.get("inferred")
+            out.append(_finding("window_on_interior", "minor" if drawn else "major", lid,
+                                f"the window {o['id']} stands on {w['id']} where rooms lie on both sides "
+                                f"({span['t0']:.2f}-{span['t1']:.2f} m): "
+                                + ("a drawn window: is a room missing or a glazed screen drawn? (asked, never deleted)"
+                                   if drawn else "an inferred window on an interior stretch"),
+                                o.get("center"), [o["id"], w["id"]]))
+    return out
+
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
@@ -1842,6 +1930,8 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += lift_doors(building)
     out += core_gap(building)
     out += core_door(building)
+    out += window_on_interior(building)
+    out += exterior_between_rooms(building)
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

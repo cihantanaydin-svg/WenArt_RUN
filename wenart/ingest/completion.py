@@ -417,7 +417,9 @@ def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source:
         rtype = str(room.get("room_type") or "")
         if room["id"] in level.wells or (rtype not in HABITABLE and rtype not in WET):
             continue
-        faces = [f for f in level.faces(room) if f["wall_id"] not in party]
+        from wenart.ingest import exterior as EX
+        faces = [f for f in level.faces(room) if f["wall_id"] not in party
+                 and EX.allows(level.walls[f["wall_id"]], f["t0"], f["t1"])]
         label = room.get("label") or room["id"]
         # a balcony door where the room opens onto a balcony
         if rtype in HABITABLE:
@@ -507,6 +509,7 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     from wenart.ingest.drawn_strokes import Drawn
 
     texts_by_level, region_by_level, party_by_level, strokes_by_level, drawn_by_level = {}, {}, {}, {}, {}
+    side_by_level = {}
     for lid, works in by_level.items():
         w = sorted(works, key=lambda w: w.rank)[0]
         ex = w.extraction
@@ -521,6 +524,7 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         region_by_level[lid] = reg
         info = regions.get((reg or {}).get("id")) if reg else None
         side = [dict(s, at=list(to_building(ex, tuple(s["point"])))) for s in (info or {}).get("side_texts") or []]
+        side_by_level[lid] = side
         party = {w: ev for w, ev in party_walls(Level(b, lid, texts_by_level[lid]), side).items()
                  if not RG.blocked("party_wall", b, {"level_id": lid, "wall": w, "why": ev.get("text")})}
         if party:
@@ -532,6 +536,16 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
                 runs.append(dict(run, polygon=poly))
         if runs:
             strokes_by_level[lid] = runs
+    from wenart.ingest import facades as FC
+    every_text = [t for ts in texts_by_level.values() for t in ts]
+    for lid in list(texts_by_level):
+        level = Level(b, lid, texts_by_level[lid])
+        edges = FC.edges_of(level)
+        for i, ev in FC.plot_party(b, level, edges, every_text).items():
+            for w in level.walls.values():
+                if _on_side(w, edges[i]) and not RG.blocked("party_wall", b, {"level_id": lid, "wall": w["id"],
+                                                                              "why": ev["text"]}):
+                    party_by_level.setdefault(lid, {}).setdefault(w["id"], ev)
     vetoed = party_vetoes(b, party_by_level)
     if vetoed:
         b["level_inference"]["party_vetoes"] = vetoed
@@ -541,6 +555,11 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     if wells:
         b["level_inference"]["light_wells"] = wells
     _mark_party(b, party_by_level)
+    refused = party_openings(b)
+    if refused:
+        b["level_inference"]["party_refused"] = refused
+        build.warn(f"party walls: {len(refused)} derived or inferred opening(s) on a party wall refused "
+                   f"({', '.join(x['opening'] for x in refused[:6])})")
     dropped = party_balconies(b, party_by_level)
     if dropped:
         b["level_inference"]["party_balconies"] = dropped
@@ -564,6 +583,21 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         ent = rules["entrances"]
         gf["entrance"] = ({"door": ent["added"][0]["door"], "reason": ent["added"][0]["reason"]} if ent["added"] else
                           {"door": None, "open": True, "reason": ent["open"]} if ent["open"] else gf.get("entrance"))
+    # 12 Nov 2026 (stage 2): exterior per stretch (R14) before the windows, then the facades (R45, R24) and the
+    # internal party walls (R46)
+    from wenart.ingest import exterior as EX
+    b["level_inference"]["exterior"] = EX.apply(build, texts_by_level)
+    b["level_inference"]["facades"] = _facades(b, texts_by_level, side_by_level, party_by_level)
+    internal = FC.internal_party(b)
+    if internal:
+        walls = {w["id"]: w for w in b.get("walls") or []}
+        for x in internal:
+            for wid in x["walls"]:
+                if wid in walls and not RG.blocked("party_wall", b, {"level_id": walls[wid]["level_id"], "wall": wid,
+                                                                     "why": "internal"}):
+                    walls[wid]["party_wall"] = {"inferred": True, "internal": True, "reason": x["reason"]}
+        b["level_inference"]["internal_party_walls"] = internal
+        build.warn(f"party walls: {len(internal)} internal party wall(s): {internal[0]['reason']}")
     _windows(build, sheets, texts_by_level, region_by_level, party_by_level)
     core = core_record(b)
     if core:
@@ -741,6 +775,28 @@ def _mark_party(b: dict, party_by_level: dict) -> None:
                 walls[wid]["party_wall"] = {"inferred": True, "text": ev.get("text"), "entity": ev.get("entity"),
                                             "reason": f"'{ev.get('text')}' on this side: the neighbour's building is "
                                                       f"attached here (a blank party wall: no window, no balcony)"}
+
+
+def party_openings(b: dict) -> list:
+    """R46: a derived or inferred opening on an external party wall is refused (removed, the record returned); a drawn
+    one stays (RC14 party_wall_openings asks about it)."""
+    from wenart.ingest import core_rules as CR
+    from wenart.ingest import rule_guards as RG
+
+    party = {w["id"] for w in b.get("walls") or [] if isinstance(w.get("party_wall"), dict)
+             and not w["party_wall"].get("internal")}
+    out, keep = [], []
+    for o in b.get("openings") or []:
+        if o.get("wall_id") in party and not o.get("virtual") and CR.derived(o) and not RG.blocked(
+                "party_wall", b, {"level_id": o.get("level_id"), "opening": o["id"], "why": "opening on a party wall"}):
+            out.append({"opening": o["id"], "level_id": o.get("level_id"), "wall": o["wall_id"],
+                        "reason": f"{o['id']} ({o.get('type')}, derived or inferred) stands on the party wall "
+                                  f"{o['wall_id']}: refused (R46)"})
+            continue
+        keep.append(o)
+    if out:
+        b["openings"] = keep
+    return out
 
 
 BALCONY_TOUCH_M = 0.30          # a balcony this close to a wall's outer face leans on it
@@ -976,10 +1032,58 @@ def window_decision(building: dict, level: dict, read: int, drawing: Optional[di
     if drawing.get("draws_windows"):
         return False, ("the plan draws windows that were not read: none inferred (a reading miss, never covered by "
                        "inference)")
+    from wenart.ingest import exterior as EX
+    ok, why = EX.level_ok(building, level.get("id"))
+    if not ok:
+        return False, f"the level does not qualify for inferred windows (R14: {'; '.join(why)})"
+    rows = ((building.get("level_inference") or {}).get("facades") or {}).get(level.get("id"))
     under = below_ground(building, level)
-    if under:
+    if rows is not None and rows and all(r.get("buried") in (True, "partly", "unknown") for r in rows):
+        return False, (f"every facade is buried ({rows[0].get('ground_why')}): no window is inferred (user, 6 Nov 2026: "
+                       f"underground floors have no window)")
+    if rows is None and under:
         return False, f"{under}: no window is inferred (user, 6 Nov 2026: underground floors have no window)"
-    return True, "the plan draws no window"
+    return True, "the plan draws no window" + (" (windows only on its exposed facades, R24)" if under else "")
+
+
+def _facades(b: dict, texts_by_level: dict, side_by_level: dict, party_by_level: dict) -> dict:
+    """Per level its facades (``facades.read``: the margin notes of R45, buried or exposed of R24); the record for
+    ``level_inference.facades`` (pure but for the record)."""
+    from wenart.ingest import facades as FC
+    from wenart.ingest import rule_guards as RG
+
+    out = {}
+    entrance = FC.entrance_storey(b, texts_by_level)
+    for lv in b.get("levels") or []:
+        lid = lv["id"]
+        texts = texts_by_level.get(lid)
+        level = Level(b, lid, texts)
+        edges = FC.edges_of(level)
+        if not edges:
+            continue
+        notes = FC.notes(level, edges, texts, side_by_level.get(lid))
+        grounds = FC.ground(b, level, lv, edges, texts, notes, entrance)
+        rows = []
+        for (p, q), note, g in zip(edges, notes, grounds):
+            walls = sorted(w["id"] for w in level.walls.values() if _on_side(w, (p, q)))
+            if g["buried"] is True and RG.blocked("below_ground", b, {"level_id": lid, "walls": walls, "why": g["why"]}):
+                g = dict(g, buried=False)
+            rows.append(dict({"edge": [[round(p[0], 2), round(p[1], 2)], [round(q[0], 2), round(q[1], 2)]],
+                              "walls": walls, "buried": g["buried"], "ground": g["rung"], "ground_why": g["why"]},
+                             **note))
+        if sum(1 for r in rows if r.get("street")) >= 2:
+            for r in rows:
+                r["corner_plot"] = True                 # two street fronts: a corner plot (R45)
+        out[lid] = rows
+    if entrance:
+        out["_entrance_storey"] = entrance
+    return out
+
+
+def buried_walls(b: dict, lid: str) -> set:
+    """The walls of a level on its buried facades (R24; pure on the record)."""
+    rows = ((b.get("level_inference") or {}).get("facades") or {}).get(lid) or []
+    return {w for r in rows if r.get("buried") in (True, "partly", "unknown") for w in r.get("walls") or []}
 
 
 def _windows(build, sheets: Optional[dict], texts_by_level: dict, region_by_level: dict, party_by_level: dict) -> None:
@@ -1009,8 +1113,9 @@ def _windows(build, sheets: Optional[dict], texts_by_level: dict, region_by_leve
             if "below ground" in why or "under the ground" in why or "basement" in why:
                 entry["below_ground"] = True
             continue
-        new = infer_level(b, lid, party, sizes, size_source, build.ids.next, texts_by_level.get(lid),
-                          _ev_file(b, lid), (reg or {}).get("id"))
+        blocked = set(party) | buried_walls(b, lid)
+        new = infer_level(b, lid, {w: party.get(w, {"buried": True}) for w in blocked}, sizes, size_source,
+                          build.ids.next, texts_by_level.get(lid), _ev_file(b, lid), (reg or {}).get("id"))
         b["openings"].extend(new)
         entry["inferred"] = [o["id"] for o in new]
         entry["note"] = (f"the plan draws no window (no window-layer geometry, no window block, no window tag): "

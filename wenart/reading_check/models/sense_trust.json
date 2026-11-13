@@ -307,6 +307,22 @@
    "small_sample": true,
    "by_status": {}
   },
+  "window_on_interior": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "exterior_between_rooms": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
   "core_gap": {
    "findings": 0,
    "judged_right": 0,

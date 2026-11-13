@@ -35,7 +35,8 @@ def clean(monkeypatch):
 
 
 def test_every_rule_key_is_asked_by_its_rule():
-    src = "".join((ROOT / f).read_text(encoding="utf-8") for f in ("completion.py", "core_rules.py", "sense_rules.py"))
+    src = "".join((ROOT / f).read_text(encoding="utf-8") for f in ("completion.py", "core_rules.py", "sense_rules.py",
+                                                                  "exterior.py", "facades.py"))
     asked = set(re.findall(r'RG\.blocked\(\s*"([a-z_]+)"', src))
     asked |= {"stair_box", "stair_typical_copy", "stair_signs"} if "RG.blocked(kind, b" in src else set()
     assert asked == set(RULES := RG.RULES), sorted(set(RULES) ^ asked)

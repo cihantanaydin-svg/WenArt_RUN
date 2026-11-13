@@ -604,9 +604,10 @@ def _extend(base, own: list, new_up: list, ground: list, is_typical: bool, keep_
 
 
 # ---------------------------------------------------------------------------------- side texts and window evidence
-def side_texts(region, texts: list) -> list:
+def side_texts(region, texts: list, others: tuple = ()) -> list:
     """``[{kind: party | street, text, point (source units), entity, layer}]`` (pure): the party-wall and street texts
-    near a plan (inside its box or up to ``SIDE_REACH_M`` outside it)."""
+    near a plan (inside its box or up to ``SIDE_REACH_M`` outside it), never one inside another drawing's region box
+    (``others``: R45, R46) nor a road level mark or an escape route (YOL KOTU, KAÇIŞ YOLU)."""
     from wenart.sheets.model import point_box_distance
 
     mpu = getattr(region, "metres_per_unit", None) or 0.0
@@ -617,9 +618,12 @@ def side_texts(region, texts: list) -> list:
             continue
         folded = " ".join(_fold(t.text).split())
         kind = ("party" if PARTY_RE.search(folded) and len(folded.split()) <= PARTY_LABEL_WORDS else
-                "street" if STREET_RE.search(folded) else None)
+                "street" if STREET_RE.search(folded) and not re.search(r"\bYOL\s+KOTU\b|\bKACIS\s+YOLU\b", folded)
+                else None)
         if kind is None or point_box_distance(t.point, region.box) > reach:
             continue
+        if point_box_distance(t.point, region.box) > 0 and any(point_box_distance(t.point, o) <= 0 for o in others):
+            continue                                   # inside another drawing's region box
         ev = getattr(t, "evidence", None) or {}
         out.append({"kind": kind, "text": t.text.strip(), "point": [round(t.point[0], 4), round(t.point[1], 4)],
                     "entity": ev.get("entity") or t.id, "layer": ev.get("layer") or t.layer})
@@ -776,5 +780,8 @@ def completion_record(regions: list, docs: list) -> dict:
         if texts is None:
             texts = [(t, doc.file) for doc in docs for s in getattr(doc, "sheets", None) or []
                      for t in getattr(s, "texts", None) or []]
-        per[r.id] = {"windows": windows_drawn(r), "side_texts": side_texts(r, texts), "stair_strokes": stair_strokes(r)}
+        others = tuple(o.box for o in regions if o is not r and getattr(o, "file", None) == r.file
+                       and getattr(o, "kind", "drawing") == "drawing" and getattr(o, "box", None) is not None)
+        per[r.id] = {"windows": windows_drawn(r), "side_texts": side_texts(r, texts, others),
+                     "stair_strokes": stair_strokes(r)}
     return {"regions": per, "window_sizes": window_sizes(regions)}

@@ -4,13 +4,7 @@ the building", "This is for all the projects").
 What: ``apply(build, texts_by_level)`` runs in ``completion.complete`` after the core rules and the windows; it changes
 the building in place and returns the record written to ``level_inference.sense_rules``:
 
-1. **Exterior flags from the outline** (``exterior``): a wall is exterior where a room lies on one side and the outside
-   (beyond the level's filled outline, or a balcony out there) on the other, interior where rooms lie on both sides (a
-   light well, and an open-air room such as a terrace inside the outline, count as rooms: R14, the union of the
-   level's rooms). The flag changes only when one of the two holds along at least ``CLEAR_SHARE`` of the stations
-   where rooms meet the wall; a wall partly on the outline and partly between rooms keeps its drawn flag (stretches
-   are not split yet). Walls with no room on either side keep their flag. Each change keeps ``drawn_exterior``
-   (``adjusted_by_ai`` by code).
+1. **Exterior flags**: moved to ``wenart.ingest.exterior`` (R14 per stretch, before the windows; 12 Nov 2026).
 2. **A stair rises only into a storey over it** (``stairs``): a stair whose storey above exists and covers less than
    ``STAIR_COVER`` of its footprint (outside the storey's outline: an open roof) is the arriving flight drawn on its
    storey: it is not built upward (``build: false``) and its void in the slab above is removed. The top storey's
@@ -30,7 +24,7 @@ stair copied onto the top normal floor rising onto the open roof), real20-11, re
 rooms or lost), real20-10 (balconies with no door). Each is a general rule.
 
 How: pure geometry on the building dict (``completion.Level`` probes); no AI. Every change passes
-``rule_guards.blocked`` first (rule keys ``exterior_flag``, ``stair_over_nothing``, ``shaft``, ``balcony_door``): a
+``rule_guards.blocked`` first (rule keys ``stair_over_nothing``, ``shaft``, ``balcony_door``): a
 guard or a rule switched off stops it, logged in ``level_inference.guarded``.
 """
 from __future__ import annotations
@@ -44,8 +38,6 @@ from wenart import geometry as G
 from wenart.ingest import completion as CP
 from wenart.ingest import rule_guards as RG
 
-STATION_M = 0.25
-CLEAR_SHARE = 0.75              # the share of a wall's stations one side must hold before its flag changes
 STAIR_COVER = 0.3
 SHAFT_RE = re.compile(r"(?<![a-z])(?:saft|s\.|tesisat|baca|havalandirma|hava\s+bacasi|duct|riser|vent\s+shaft)"
                       r"(?![a-z])")
@@ -61,58 +53,6 @@ def _fold(t) -> str:
 
 
 # --------------------------------------------------------------------------------------------- 1. exterior flags
-def exterior_flags(b: dict) -> list:
-    """Rule 1 (the module docstring); returns the changes ``[{wall, level_id, exterior, reason}]``."""
-    out = []
-    for lv in b.get("levels") or []:
-        level = CP.Level(b, lv["id"])
-        if level.outline is None:
-            continue
-        for w in level.walls.values():
-            a, u, length = CP._axis(w)
-            if length < 0.3:
-                continue
-            n = (-u[1], u[0])
-            reach = float(w.get("thickness") or 0.15) / 2.0 + CP.PROBE_M
-            ext = inner = 0
-            steps = max(1, int(length / STATION_M))
-            for k in range(steps + 1):
-                t = length * (k + 0.5) / (steps + 1)
-                c = (a[0] + u[0] * t, a[1] + u[1] * t)
-                qs = [(c[0] + s * n[0] * reach, c[1] + s * n[1] * reach) for s in (1, -1)]
-                kinds = [level.kind_at(q, "") for q in qs]
-                # an open-air room inside the outline (a terrace, a loggia) is one of the level's rooms (R14)
-                kinds = ["room" if k == "balcony" and level._inside is not None and level._inside.contains(Point(q))
-                         else k for k, q in zip(kinds, qs)]
-                inside = [x in ("room", "light_well") for x in kinds]
-                outside = [x in ("outside", "balcony") for x in kinds]
-                if any(inside) and any(outside):
-                    ext += 1
-                elif all(inside):
-                    inner += 1
-            if ext + inner < 3:
-                continue
-            share = ext / (ext + inner)
-            if CLEAR_SHARE > share > 1.0 - CLEAR_SHARE:
-                continue                                    # partly on the outline: the drawn flag stays
-            flag = share >= CLEAR_SHARE
-            if bool(w.get("exterior")) == flag or RG.blocked(
-                    "exterior_flag", b, {"level_id": lv["id"], "wall": w["id"], "exterior": flag,
-                                         "stations": [ext, inner]}):
-                continue
-            reason = (f"{w['id']}: {'the outside' if flag else 'rooms'} on {'one side' if flag else 'both sides'} along "
-                      f"{max(ext, inner)} of {ext + inner} stations: {'exterior' if flag else 'interior'} by the "
-                      f"building outline (drawn flag {bool(w.get('exterior'))})")
-            for ww in b.get("walls") or []:
-                if ww["id"] == w["id"]:
-                    ww["drawn_exterior"] = bool(ww.get("exterior"))
-                    ww["exterior"] = flag
-                    ww["adjusted_by_ai"] = {"by": "code", "rule": "exterior_from_outline", "reason": reason,
-                                            "changed": {"exterior": ww["drawn_exterior"]}}
-            out.append({"wall": w["id"], "level_id": lv["id"], "exterior": flag, "reason": reason})
-    return out
-
-
 # ------------------------------------------------------------------------------------------------------ 2. stairs
 def stairs_over_nothing(b: dict) -> list:
     """Rule 2 (the module docstring); returns the records ``[{stair, level_id, reason}]``."""
@@ -324,7 +264,8 @@ def apply(build, texts_by_level: dict, drawn_by_level: Optional[dict] = None) ->
     """The four rules (the module docstring); the record for ``level_inference.sense_rules``."""
     b = build.building
     rec = {"shafts": shafts(b, texts_by_level), "stairs": stairs_over_nothing(b),
-           "balconies": balcony_doors(b, build.ids.next, drawn_by_level), "exterior": exterior_flags(b)}
+           "balconies": balcony_doors(b, build.ids.next, drawn_by_level), "exterior": []}
+    # 12 Nov 2026 (stage 2): the exterior flags are set per stretch before the windows (``exterior.apply``, R14)
     for k, word in (("shafts", "shaft"), ("stairs", "stair"), ("balconies", "balcony")):
         for x in rec[k]:
             build.warn(f"{word}: {x['reason']}")
