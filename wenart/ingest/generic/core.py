@@ -254,6 +254,20 @@ def _shift_piece(f: FurnitureItem, sh: _Shift) -> None:
         curved = stair.get("curved")                 # 6 Nov 2026: a curved stair's centre (stair_numbers)
         if curved and curved.get("centre") is not None:
             curved["centre"] = list(sh.p(curved["centre"]))
+        # 13 Nov 2026 (review B3-FC03-DRAWN / B3-REG-03: the stair rule's reading kept as drawn_stair stayed in page
+        # metres while the piece moved to the building frame): the kept drawn values move with the piece
+        drawn = stair.get("drawn_stair")
+        if isinstance(drawn, dict):
+            for flight in drawn.get("flights") or []:
+                for key in ("start", "end"):
+                    if flight.get(key) is not None:
+                        flight[key] = list(sh.p(flight[key]))
+            dl = drawn.get("landing")
+            if isinstance(dl, dict) and dl.get("polygon"):
+                dl["polygon"] = sh.pts(dl["polygon"])
+            fp = drawn.get("footprint")
+            if isinstance(fp, dict) and fp.get("center") is not None:
+                fp["center"] = list(sh.p(fp["center"]))
 
 
 def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls: Optional[list] = None,
@@ -2302,13 +2316,19 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
             w = float(o.width)
             gap = o.kind == "opening" or (o.kind == "window" and "gap" in str(o.type_raw or ""))
             if o.kind == "door":
-                if abs(w - width) > DOOR_TAG_DOOR_W_M:
+                # 13 Nov 2026 (review REGX-1: real16's two '100/220' doors, read from their leaf lines alone as 1.78
+                # and 1.67 m sliding doors, could no longer take their tags): a door narrower than the tag by more than
+                # DOOR_TAG_DOOR_W_M is another door (real10's 0.43 m shaft boxes); a wider one only when it was read
+                # from leaf lines without a swing (its width is the leaves', not the jambs')
+                if w < width - DOOR_TAG_DOOR_W_M or (w > width + DOOR_TAG_DOOR_W_M and not _leaf_line_door(o)):
                     continue                                   # another door, not this tag's
             elif gap:
                 if w > DOOR_TAG_GAP_SHARE * width:
                     continue                                   # it holds more than one such door
-                if plain and w < width - DOOR_TAG_DOOR_W_M:
-                    continue                                   # review B2-GEN-02: a plain tag widens no gap past its jambs
+                if plain and w < width - DOOR_TAG_SAME_M:
+                    # review B2-GEN-02 / B3C-06 (13 Nov 2026: up to 0.30 m was still let through): a plain tag widens
+                    # no gap past its jambs, beyond a measuring tolerance
+                    continue
                 if plain and (_window_content(o) or _outer_opening(o, outline)):
                     continue                                   # the drawing may say window there
             elif not (over and abs(w - width) <= DOOR_TAG_WINDOW_WIDTH_M):
@@ -2360,7 +2380,7 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
         ev = dict(t.evidence[0]) if t.evidence else {}
         ev.update(method="vector", confidence=0.9, rule="size_tag",
                   reason=f"the door size tag '{t.text.strip()}' (width/height in cm) beside the gap")
-        new_w = float(o.width) if keep_width and float(o.width) > width else width
+        new_w = float(o.width) if keep_width and float(o.width) > width and not _leaf_line_door(o) else width
         centre = tuple(o.center)
         assumed = [a for a in (o.assumed or []) if a != "height"]
         if o.kind != "door" and float(o.width) - new_w > DOOR_TAG_SAME_M:
@@ -2383,6 +2403,11 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
                       note=f"{where_}: the drawing does not show where in the {float(o.width):.2f} m gap the "
                            f"{new_w:.2f} m door hangs (the rest of the gap is wall)")
             assumed = assumed + ["position"]
+        if o.kind == "door" and _leaf_line_door(o) and float(o.width) - new_w > DOOR_TAG_DOOR_W_M:
+            ev.update(method="inferred", confidence=0.6, rule="size_tag_leaf_door",
+                      note=f"read {float(o.width):.2f} m wide from its leaf lines; the tag gives {new_w:.2f} m, the "
+                           f"door left at the middle of its leaves (the rest is wall)")
+            assumed = assumed + ["position"]
         out[j] = dataclasses.replace(o, kind="door", width=round(new_w, 3), height=height, evidence=ev, center=centre,
                                      type_raw=f"door size tag {t.text.strip()}", assumed=assumed)
         done.append(f"{t.text.strip()} ({o.kind} {float(o.width):.2f} m -> door {new_w:.2f} m)")
@@ -2392,6 +2417,13 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
         ex.notes.append(f"{where}: {len(done)} door(s) set by their size tags: " + ", ".join(done[:12]))
         return out
     return None
+
+
+def _leaf_line_door(o) -> bool:
+    """A door read from leaf lines drawn parallel to its wall without a swing arc (a sliding door by its geometry)."""
+    note = str((o.evidence or {}).get("note") or "") if isinstance(o.evidence, dict) else ""
+    return o.kind == "door" and o.operation == "sliding" and ("without a swing" in note
+                                                              or o.operation_source == "geometry")
 
 
 RECESS_MAX_M2 = 15.0
@@ -3145,6 +3177,17 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                 openings, bwalls, site, site_warnings, b_openings, problem = tagged, bw_t, site_t, sw_t, b_open_t, prob_t
             else:
                 ex.notes.append(f"{where}: the windows of the size tags left out: they would open the walls")
+        # 13 Nov 2026 (review S1-03c: real03's 2.90 m window was built over its double entrance doors): a door keeps its
+        # stretch of a window read over it on the same wall line (``openings.windows_off_doors``)
+        cut, cut_notes = O.windows_off_doors(openings)
+        if cut_notes:
+            bw_w, site_w, sw_w = TP.split_plot(walls2, cut, blocks, level_id=level_id)
+            idx = {o["index"] for o in site_w["openings"]}
+            b_open_w = [o for j, o in enumerate(cut) if j not in idx]
+            prob_w = TP.outer_loop_problem(bw_w, b_open_w)
+            if _unclosed(sw_w) <= _unclosed(site_warnings) and (prob_w is None or problem is not None):
+                openings, bwalls, site, site_warnings, b_openings, problem = cut, bw_w, site_w, sw_w, b_open_w, prob_w
+                ex.notes.append(f"{where}: " + "; ".join(cut_notes))
     if (problem is not None or _unclosed(site_warnings)) and not is_raster:
         # 4 Nov 2026 (Milestone 14 R2, "never leave a level out; carry confidence instead"): the last pass bridges the
         # gaps of the outer ring along the outline at confidence 0.3 (``_outline_closure``); what stays open marks the

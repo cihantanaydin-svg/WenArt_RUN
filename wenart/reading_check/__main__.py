@@ -27,7 +27,9 @@ DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("w
              "raster": ("wenart.reading_check.raster_opinion", "main"),
              "sense": ("wenart.reading_check.sense", "main"),
              # 6 Nov 2026 (Milestone 14 R6): the vision critic RC15 (``critic prepare|ask|calibrate|store|questions``)
-             "critic": ("wenart.reading_check.critic", "main")}
+             "critic": ("wenart.reading_check.critic", "main"),
+             # 13 Nov 2026: the stair integrity check RC16 (``stairs --out DIR``)
+             "stairs": ("wenart.reading_check.stairs", "main")}
 
 
 def main(argv=None) -> int:

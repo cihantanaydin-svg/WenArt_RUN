@@ -94,6 +94,72 @@ def _rename(node, old: str, new: str) -> None:
             _rename(v, old, new)
 
 
+STAIR_WALL_EMBED_M = 0.03       # 13 Nov 2026: a wall face this deep inside a stair's flight is a reading error ...
+STAIR_WALL_MIN_T_M = 0.05       # ... the wall keeps at least this thickness once its face is moved to the flight's side
+STAIR_WALL_DEEP = 0.25          # ... and only a face reaching a quarter of the flight in (the walking line runs half way in;
+#                                 a flight read a little too wide is no reason to move a wall)
+
+
+def stair_side_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> list[str]:
+    """13 Nov 2026 (review BLD-05: real10's stairwell plaster faces were paired with the stairs' walking lines, drawn on
+    the same layer, into walls 0.57-0.71 m thick standing across half of each flight): a wall running along a stair's
+    flight whose face lies more than ``STAIR_WALL_EMBED_M`` inside the flight while its other face lies outside it has
+    that face moved to the flight's side (its thickness and centre line follow); the wall is labelled
+    ``corrected_by_ai`` (by code) with its drawn line and thickness. Walls across a flight, or wholly inside it, are left
+    as read. Mutates ``b["walls"]``; returns one line per wall."""
+    notes = []
+    walls = b.get("walls") or []
+    for f in b.get("furniture") or []:
+        st = f.get("stair") or {}
+        if f.get("type") != "stair" or not st.get("flights"):
+            continue
+        for fl in st["flights"]:
+            try:
+                s0, e0, fw = tuple(fl["start"][:2]), tuple(fl["end"][:2]), float(fl["width"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            length = math.dist(s0, e0)
+            if length < 0.3 or fw <= 0:
+                continue
+            u = ((e0[0] - s0[0]) / length, (e0[1] - s0[1]) / length)
+            n = (-u[1], u[0])
+            for w in walls:
+                if w.get("level_id") != f.get("level_id") or w.get("start") == w.get("end"):
+                    continue
+                a, c = tuple(w["start"][:2]), tuple(w["end"][:2])
+                wl = math.dist(a, c)
+                wu = ((c[0] - a[0]) / wl, (c[1] - a[1]) / wl)
+                if abs(u[0] * wu[1] - u[1] * wu[0]) > 0.05:
+                    continue                                         # not along the flight
+                ta = sorted(((q[0] - s0[0]) * u[0] + (q[1] - s0[1]) * u[1]) for q in (a, c))
+                if min(ta[1], length) - max(ta[0], 0.0) < min(0.3, length / 2.0):
+                    continue
+                off = (a[0] - s0[0]) * n[0] + (a[1] - s0[1]) * n[1]
+                t = float(w.get("thickness") or 0.0) / 2.0
+                lo, hi = off - t, off + t
+                deep = max(STAIR_WALL_EMBED_M, STAIR_WALL_DEEP * fw)
+                if off >= 0 and lo < fw / 2.0 - deep and hi > fw / 2.0 + 0.02:
+                    nlo, nhi = fw / 2.0, hi
+                elif off < 0 and hi > -fw / 2.0 + deep and lo < -fw / 2.0 - 0.02:
+                    nlo, nhi = lo, -fw / 2.0
+                else:
+                    continue
+                if nhi - nlo < STAIR_WALL_MIN_T_M:
+                    continue
+                shift = (nlo + nhi) / 2.0 - off
+                before = {"start": list(w["start"]), "end": list(w["end"]), "thickness": w.get("thickness")}
+                w["start"] = [round(a[0] + n[0] * shift, 4), round(a[1] + n[1] * shift, 4)]
+                w["end"] = [round(c[0] + n[0] * shift, 4), round(c[1] + n[1] * shift, 4)]
+                w["thickness"] = round(nhi - nlo, 4)
+                reason = (f"its face stood {abs((lo if off >= 0 else hi) - (fw / 2.0 if off >= 0 else -fw / 2.0)):.2f} m "
+                          f"inside the flight of stair {f.get('id')} (a stair line paired with the stairwell's face): "
+                          f"the face moved to the flight's side")
+                w["corrected_by_ai"] = {"by": "code", "rule": "stair_side_wall", "reason": reason, "before": before}
+                notes.append(f"{w.get('id')}: {before['thickness']} -> {w['thickness']} m thick, {reason}")
+                warn(f"stair side wall: {notes[-1]}")
+    return notes
+
+
 def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> list[str]:
     """Drop every wall read twice (mutates ``b``; module docstring). Returns the dropped wall ids."""
     walls = [w for w in b.get("walls") or [] if isinstance(w, dict) and w.get("id")]

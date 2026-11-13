@@ -48,7 +48,7 @@ ROLES.update({
     "dimension": ("DIM", "DIMS", "DIMH", "DIMV", "DH", "DV", "OLCU", "OLCULER", "COTA", "COTAS", "BEMASSUNG",
                   "MASSE", "COTE", "COTES", "QUOTA", "QUOTE", "DIMENSION", "DIMENSIONS"),
     "axis": ("AKS", "AKSLAR", "AXIS", "AXES", "GRID", "GRIDS", "ACHSE", "ACHSEN", "RASTER", "EKSEN", "ASSE", "EJE"),
-    "stair": ("MERDIVEN", "STAIR", "STAIRS", "TREPPE", "ESCALIER", "ESCALERA", "SCALA", "BASAMAK"),
+    "stair": ("MERDIVEN", "MERD", "STAIR", "STAIRS", "TREPPE", "ESCALIER", "ESCALERA", "SCALA", "BASAMAK"),
     "section": ("KESIT", "SECTION", "SCHNITT", "COUPE", "CORTE", "SEZIONE"),
     "text": ("TEXT", "TEXTS", "YAZI", "YAZILAR", "TEXTE", "TEXTO", "TESTO", "NOTE", "NOTES", "ANNO"),
     "hatch": ("HATCH", "TARAMA", "SCHRAFFUR", "HACHURE", "RAYADO", "TRATTEGGIO"),

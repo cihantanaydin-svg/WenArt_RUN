@@ -120,11 +120,14 @@ def test_the_first_winder_is_not_the_arms_last_tread():
     arms = SN._arms([c[1] for c in chain], segs)
     assert [len(a) for a in arms] == [6, 6]
     st = SN.stair_of(chain, _s15_lines())
-    assert st["winders"] == 5 and st["turn"] == "U" and st["turn_winders"] == [5]
-    assert [f["lines"] for f in st["flights"]] == [6, 6]
+    # 13 Nov 2026 (review B3-REG-02): flights run from riser line to riser line; the lower arm's last line is the
+    # riser onto the first winder, so the turn adds 4 risers for its 5 numbered winders
+    assert st["turn_numbers"] == [5] and st["turn"] == "U" and st["turn_winders"] == [4] and st["winders"] == 4
+    assert [f["lines"] for f in st["flights"]] == [7, 6]
+    assert st["flights"][0]["start"] == [8.7, 6.5875] and st["flights"][0]["end"] == [10.32, 6.5875]   # drawn lines
     # no line drawn in the turn: nothing says the 7 and the 11 turn, they stay their arms' last and first treads
     st = SN.stair_of(chain, _s15_lines(winder_lines=False))
-    assert [f["lines"] for f in st["flights"]] == [7, 7] and st["turn_winders"] == [3]
+    assert [f["lines"] for f in st["flights"]] == [8, 7] and st["turn_numbers"] == [3] and st["turn_winders"] == [2]
 
 
 def test_a_deeper_tread_on_a_square_line_is_no_winder_and_on_a_diagonal_line_is_one():
@@ -141,7 +144,7 @@ def test_a_deeper_tread_on_a_square_line_is_no_winder_and_on_a_diagonal_line_is_
     diagonal = [_line((8.66, 8.25), (9.26, 9.25), "MERDIVEN"), _line((8.31, 7.17), (8.91, 6.17), "MERDIVEN"),
                 _line((8.70, 8.2), (8.70, 9.3), "MERDIVEN"), _line((8.43, 6.12), (8.43, 7.22), "MERDIVEN")]  # the risers
     st = SN.stair_of(chain, diagonal)
-    assert [f["lines"] for f in st["flights"]] == [7, 7] and st["winders"] == 2 and st["turn_winders"] == [2]
+    assert [f["lines"] for f in st["flights"]] == [8, 7] and st["turn_numbers"] == [2] and st["turn_winders"] == [1]
 
 
 def test_a_stair_piece_holding_a_chain_takes_what_the_numbers_say():
@@ -157,14 +160,16 @@ def test_a_stair_piece_holding_a_chain_takes_what_the_numbers_say():
     piece = SimpleNamespace(details={"stair": stair}, evidence={"note": "stair rule"})
     said = SN.enrich(piece, chain, SN.stair_of(chain, _s15_lines()))
     assert "17 treads drawn" in said and "5 winder(s)" in said
-    assert stair["steps_drawn"] == 17 and stair["winders"] == 5
+    assert stair["steps_drawn"] == 17 and stair["winders"] == 4
     assert stair["direction_assumed"] is False and stair["turn_assumed"] is False
-    # review B S1/S8: built in the numbers' order, with their treads (6 + 6) and the 5 winders of the turn
-    assert stair["flights_ordered"] is True and stair["turn_winders"] == [5]
-    assert [f["lines"] for f in stair["flights"]] == [6, 6]
+    # review B S1/S8: built in the numbers' order, with their riser lines (7 + 6) and the 4 risers of the turn's 5
+    # winders; review BLD-07: the flights take the numbers' riser lines with their count, the rule's kept as drawn
+    assert stair["flights_ordered"] is True and stair["turn_winders"] == [4]
+    assert [f["lines"] for f in stair["flights"]] == [7, 6]
     # the lower flight (number 1 at x 8.84) first, rising +x; the upper flight turned round, rising -x
-    assert stair["flights"][0]["start"] == [8.97, 6.59] and stair["flights"][0]["end"] == [10.05, 6.59]
-    assert stair["flights"][1]["start"] == [10.05, 8.06] and stair["flights"][1]["end"] == [8.97, 8.06]
+    assert stair["flights"][0]["start"] == [8.7, 6.5875] and stair["flights"][0]["end"] == [10.32, 6.5875]
+    assert stair["flights"][1]["start"] == [10.32, 8.0625] and stair["flights"][1]["end"] == [8.97, 8.0625]
+    assert [f["start"] for f in stair["drawn_stair"]["flights"]] == [[8.97, 6.59], [10.05, 8.06]]
     assert stair["direction"] == [1.0, 0.0]
 
 
@@ -232,8 +237,9 @@ def test_each_number_goes_to_its_nearest_flight():
              "landing": None, "direction": [1.0, 0.0], "direction_assumed": True, "turn": "U", "turn_assumed": True,
              "reason": "rule"}
     SN.enrich(SimpleNamespace(details={"stair": stair}, evidence={}), chain, SN.stair_of(chain, []))
-    assert stair["flights"][0]["start"] == [0.2, 0.50] and stair["flights"][0]["end"] == [2.09, 0.50]
-    assert stair["flights"][1]["start"] == [2.09, 1.45] and stair["flights"][1]["end"] == [0.2, 1.45]
+    (a, b) = stair["flights"]
+    assert a["start"][1] == b["end"][1] - 0.95 == 0.50 and a["end"][0] > a["start"][0]       # the lower one, rising +x
+    assert b["start"][1] == 1.45 and b["end"][0] < b["start"][0]                             # the upper one, rising -x
 
 
 _REAL13_A = {1: (3.91, 0.89), 2: (3.68, 0.88), 3: (3.41, 0.88), 4: (2.46, 1.37), 5: (2.45, 1.62), 6: (2.45, 1.90),
@@ -384,7 +390,7 @@ def test_a_numbered_u_stair_with_winders_builds_them_all():
     land = plan["landing"]
     built = len(land["winders"]) if land is not None and land["role"] == "winders" else \
         sum(len(t["winders"]) for t in turns)
-    assert built == 6                                                   # 5 winder risers: 6 treads in the turn
+    assert built == 5                                                   # the 5 winders drawn (4 risers in the turn)
 
 
 # --------------------------------------------------------------------------
@@ -837,9 +843,11 @@ def test_a_narrow_gap_by_a_lift_shaft_is_not_its_landing_door():
     walls = [{"id": "w1", "level_id": "L1", "start": [-0.1, 1.9], "end": [4.1, 1.9], "thickness": 0.2}]
     slit = {"id": "o1", "level_id": "L1", "type": "opening", "center": [1.7, 0.9], "width": 0.25}
     openings = [slit]
-    TW.lift_doors([shaft, hall], openings, walls)
+    notes = TW.lift_doors([shaft, hall], openings, walls)
     assert slit["type"] == "opening" and "operation" not in slit
-    assert len(openings) == 2 and openings[1]["type"] == "door" and openings[1]["operation"] == "sliding"
+    # 13 Nov 2026 (review B3C-02): the slit the rule does not take is closed, not left as a hole into the shaft
+    assert slit not in openings and any("o1" in n and "closed" in n for n in notes)
+    assert len(openings) == 1 and openings[0]["type"] == "door" and openings[0]["operation"] == "sliding"
 
 
 def test_a_core_hall_takes_no_slivers_round_the_stair():
@@ -1286,7 +1294,7 @@ def test_both_ends_of_a_u_turn_are_judged_alike():
     radials = [_line((8.377, 7.85), (8.855, 8.95), "MERD"), _line((8.377, 7.65), (8.855, 6.55), "MERD")]
     chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
     st = SN.stair_of(chain, lines + radials + walls)
-    assert [f["lines"] for f in st["flights"]] == [6, 7] and st["turn_winders"] == [3]
+    assert [f["lines"] for f in st["flights"]] == [7, 7] and st["turn_numbers"] == [3] and st["turn_winders"] == [2]
 
 
 def test_a_u_landing_stops_at_the_end_wall():
@@ -1311,7 +1319,7 @@ def test_a_fan_of_winders_at_a_treads_step_is_read_as_winders():
             _line((3.3, -1.08), (4.3, -1.08), "MERD")]
     chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(p13)])[0]
     st = SN.stair_of(chain, l13)
-    assert [f["lines"] for f in st["flights"]][0] == 10 and st["turn_winders"][0] >= 2
+    assert [f["lines"] for f in st["flights"]][0] == 11 and st["turn_numbers"][0] >= 2
 
 
 # --------------------------------------------------------------------------
@@ -1332,7 +1340,8 @@ def test_the_last_number_on_the_floor_beyond_the_last_riser_ends_the_stair_there
     """real09 (the core stair's 17 stood 0.15 m past its last riser line on the arrival floor and the footprint, half a
     going beyond the number, took 0.28 m of the hall in front of the stair): the numbers count the risers, so the last
     number past the last drawn tread line is on the floor; the flight's last riser is that line and the footprint ends
-    there. A line drawn past the last number keeps the half going beyond it."""
+    there. 13 Nov 2026 (review B3-REG-01): a line drawn past the last number changes nothing, the numbers count the
+    risers."""
     pts, lines = _straight_numbers()
     chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
     st = SN.stair_of(chain, lines)
@@ -1346,8 +1355,8 @@ def test_the_last_number_on_the_floor_beyond_the_last_riser_ends_the_stair_there
     pts, lines = _straight_numbers(ahead_line=True)
     chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
     st = SN.stair_of(chain, lines)
-    assert st["flights"][0]["end"][0] == pytest.approx(pts[-1][0], abs=0.01)
-    assert max(x for x, _y in st["polygon"].exterior.coords) == pytest.approx(pts[-1][0] + 0.135, abs=0.01)
+    assert st["flights"][0]["lines"] == 9 and st["flights"][0]["end"][0] == pytest.approx(pts[-1][0] - 0.135, abs=0.01)
+    assert max(x for x, _y in st["polygon"].exterior.coords) == pytest.approx(pts[-1][0] - 0.135, abs=0.01)
 
 
 def test_a_walking_line_past_the_stairs_ends_does_not_hold_its_footprint():
@@ -1361,7 +1370,7 @@ def test_a_walking_line_past_the_stairs_ends_does_not_hold_its_footprint():
     walk = _line((2.40, 3.0), (2.40, 0.95), "MERD")
     chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
     st = SN.stair_of(chain, lines + [walk])
-    assert [f["lines"] for f in st["flights"]] == [6, 6] and st["turn"] == "U"
+    assert [f["lines"] for f in st["flights"]] == [7, 6] and st["turn"] == "U"
     assert st["flights"][1]["end"][1] == pytest.approx(1.335, abs=0.01)        # the 15 on the floor
     assert min(y for _x, y in st["polygon"].exterior.coords) == pytest.approx(1.065, abs=0.01)
 
@@ -1418,3 +1427,294 @@ def test_a_room_opening_onto_the_split_landing_is_still_the_cores_shared_hall():
     assert len(TW.split_core_landings(rooms, openings, stairs)) == 1
     assert len(TW.shared_halls(rooms, openings)) == 1
     assert vest["label"] == "Landing" and vest["label_inferred"] == {"method": "shared_hall", "core": "core"}
+
+
+# --------------------------------------------------------------------------
+# 13 Nov 2026 (review B3): the stair integrity check, and the stairs it holds to it
+# --------------------------------------------------------------------------
+
+_R09_CORE = [(9.29, 5.40), (9.26, 5.69), (9.25, 6.05), (9.40, 6.22), (9.755, 6.222), (9.991, 6.222), (10.227, 6.215),
+             (10.464, 6.221), (10.724, 6.221), (10.995, 6.223), (11.243, 6.223), (11.516, 6.219), (11.833, 6.189),
+             (12.033, 6.013), (12.05, 5.665), (12.051, 5.406), (12.055, 5.139)]
+
+
+def _r09_lines():
+    """real09's core stair as drawn: the arms' tread lines at y 5.29 and 5.54, the top flight's risers along x, the
+    winders fanned from the arms' inner corners."""
+    lines = [_line((8.81, y), (9.88, y), "merdiven") for y in (5.2896, 5.5396)]
+    lines += [_line((11.38, y), (12.45, y), "merdiven") for y in (5.2896, 5.5396)]
+    lines += [_line((x, 5.5396), (x, 6.6096), "merdiven") for x in (9.8795, 10.1295, 10.3795, 10.6295, 10.8795,
+                                                                       11.1295, 11.3795)]
+    lines += [_line((9.8795, 5.5396), q, "merdiven") for q in ((8.81, 6.6096), (8.81, 6.024), (9.456, 6.6096))]
+    lines += [_line((11.3795, 5.5396), q, "merdiven") for q in ((12.45, 6.6096), (12.45, 6.024), (11.803, 6.6096))]
+    return lines
+
+
+def test_numbered_stairs_are_built_without_a_hole_overlap_or_double_step():
+    """review B3-ST-LAND / B3-REG-02 / BLD-03 (real09's core: 0.16 m and 0.55 m open between the flights and the
+    winders; real20's U: full-width slots; synthetic-15: 0.135 m on both sides): every numbered stair shape passes the
+    integrity check: continuous walking line, no overlap, one riser at a time summing to the storey, the ceiling
+    opening over every step without headroom."""
+    cases = [([_t(k + 1, x, y) for k, (x, y) in enumerate(_S15_PTS)], _s15_lines()),
+             ([_t(k + 1, x, y) for k, (x, y) in enumerate(_R09_CORE)], _r09_lines())]
+    pts, lines, walls = _r18_u()
+    radials = [_line((8.377, 7.85), (8.855, 8.95), "MERD"), _line((8.377, 7.65), (8.855, 6.55), "MERD")]
+    cases.append(([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)], lines + radials))
+    pts, lines = _straight_numbers()
+    cases.append(([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)], lines))
+    for texts, strokes in cases:
+        data, plan = _built(texts, strokes)
+        assert plan["integrity"] == [], (data["reason"], plan["integrity"])
+        assert plan["risers"] == len(texts)
+
+
+def test_a_winder_turn_with_a_staggered_arm_leaves_no_slot():
+    """review B3-ST-WIND (real10's fire stair: 0.108 m open between the last winder and flight 2 on four floors): a turn
+    of winders between rows offset by +0.10 or +0.25 m (the second row's first line short of the turn) reaches both
+    flights' lines. (A first row short of the turn, a negative offset, still leaves a gap between the two newel fans:
+    the integrity check names it.)"""
+    for off in (0.0, 0.10, 0.25):
+        for k in (2, 4, 6):
+            plan = _ordered([{"start": [10.72, 4.84], "end": [10.72, 3.86], "width": 0.71, "lines": 6},
+                             {"start": [11.67, 3.86 + off], "end": [11.67, 4.77 + off], "width": 0.71, "lines": 5}],
+                            winders=[k])
+            bad = [v for v in plan["integrity"] if v["check"] in ("continuous", "overlap", "risers")]
+            assert bad == [], (off, k, bad)
+
+
+def test_the_ceiling_opening_holds_the_turns_and_every_step_without_headroom():
+    """review BLD-02 (real10's fire stair turned under a solid slab with 0.8 m of headroom on six floors): the stair's
+    ceiling opening holds its turns; review BLD-01: the floor opening of the slab above keeps every part, not only the
+    largest loop."""
+    from shapely.geometry import Polygon
+    from wenart.blender import parametric as P
+    from wenart.blender import stair_access as SA
+
+    def P_band(f):                                     # the flight's last tread
+        n, g = f["lines"], f["going"]
+        return list(P._band(f["nosings"][0], f["rise_dir"], f["width"], (n - 2) * g, (n - 1) * g).exterior.coords)
+    plan = _ordered([{"start": [10.72, 4.84], "end": [10.72, 3.86], "width": 0.71, "lines": 6},
+                     {"start": [11.67, 3.86], "end": [11.67, 4.77], "width": 0.71, "lines": 5}], winders=[4])
+    assert not [v for v in plan["integrity"] if v["check"] == "opening"]
+    (turn,) = plan["turns"]
+    void = Polygon(plan["void_raw"][0])
+    assert Polygon(turn["polygon"]).difference(void).area < 0.01
+    # a last flight standing 0.5 m apart from the turn's box: one opening holds both
+    far = dict(plan, turns=[dict(turn, polygon=[(x, y - 0.5) for x, y in turn["polygon"]],
+                                 winders=[dict(w, polygon=[(x, y - 0.5) for x, y in w["polygon"]])
+                                          for w in turn["winders"]])])
+    ring = Polygon(SA.opening_polygon(far, plan["ceiling_z"]))
+    moved = Polygon(far["turns"][0]["polygon"])
+    last = plan["flights"][-1]
+    top_tread = Polygon(P_band(last))
+    assert ring.intersection(moved).area >= 0.95 * moved.area and ring.intersection(top_tread).area > 0.0
+
+
+def test_the_integrity_check_names_a_hole_an_overlap_and_a_tread_in_a_wall():
+    """The check itself: a landing moved off its flights is a hole; one moved over a flight overlaps it; a wall
+    across a flight is a tread in a wall."""
+    from wenart.blender import parametric as P
+    plan = _ordered([{"start": [9.6697, 3.96], "end": [7.4697, 3.96], "width": 0.96, "lines": 9},
+                     {"start": [7.4697, 5.12], "end": [9.6697, 5.12], "width": 0.96, "lines": 9}])
+    assert plan["integrity"] == []
+    (turn,) = plan["turns"]
+    holed = dict(plan, turns=[dict(turn, polygon=[(x - 0.3, y) for x, y in turn["polygon"]])])
+    assert any(v["check"] == "continuous" for v in P.stair_integrity(holed))
+    over = dict(plan, turns=[dict(turn, polygon=[(x + 0.3, y) for x, y in turn["polygon"]])])
+    assert any(v["check"] == "overlap" for v in P.stair_integrity(over))
+    wall = {"id": "w1", "start": [8.5, 3.0], "end": [8.5, 6.0], "thickness": 0.2}
+    assert any(v["check"] == "walls" and "w1" in v["message"] for v in P.stair_integrity(plan, [wall]))
+
+
+def test_a_non_convex_prism_is_wound_outwards_and_a_one_ulp_hull_keeps_its_corner():
+    """review B3C-03 (a staggered U's turn is not convex; one side face was wound inwards) and BLD-06 (two x values one
+    ULP apart dropped a hull corner and gave false 'outside the envelope' findings)."""
+    from shapely.geometry import MultiPoint
+    from wenart.blender import geom2d
+    ring = [(0.0, 0.0), (2.0, 0.0), (2.0, 2.0), (1.0, 2.0), (1.0, 1.0), (0.0, 1.0)]
+    for poly in (ring, ring[::-1]):
+        verts, faces = geom2d.prism(poly, 0.0, 1.0)
+        for f in faces[2:]:
+            nrm = geom2d.face_normal(verts, f)
+            c = geom2d.face_center(verts, f)
+            probe = (c[0] + nrm[0] * 1e-3, c[1] + nrm[1] * 1e-3)
+            from shapely.geometry import Point, Polygon
+            assert not Polygon(ring).contains(Point(probe))
+    pts = [(7.103, 13.2355), (7.103, 13.8205), (7.103000000000001, 10.1855), (7.103000000000001, 13.2555),
+           (8.303, 10.1855), (9.703, 10.2155), (9.703, 13.8205)]
+    from shapely.geometry import Polygon
+    assert Polygon(geom2d.convex_hull(pts)).area == pytest.approx(MultiPoint(pts).convex_hull.area, abs=1e-6)
+
+
+def _lift_rooms():
+    def room(rid, label, rtype, poly):
+        return {"id": rid, "level_id": "L1", "label": label, "room_type": rtype, "polygon": poly}
+    shaft = room("r_L1_asansor", "Asansör", "shaft", [[0, 0], [1.6, 0], [1.6, 1.8], [0, 1.8]])
+    hall = room("r_L1_hall", "Kat Holü", "hall", [[0, 2.0], [4, 2.0], [4, 4], [0, 4]])
+    bed = room("r_L1_oda", "Oda", "bedroom", [[1.8, 0], [4, 0], [4, 1.8], [1.8, 1.8]])
+    walls = [{"id": "w1", "level_id": "L1", "start": [-0.1, 1.9], "end": [4.1, 1.9], "thickness": 0.2},
+             {"id": "w2", "level_id": "L1", "start": [1.7, -0.1], "end": [1.7, 1.9], "thickness": 0.2}]
+    return shaft, hall, bed, walls
+
+
+def test_a_lift_shaft_is_entered_by_one_landing_door_only():
+    """review B3C-02 (real21: a 2.22 m gap from a bedroom into the second shaft stayed an open hole, built as a 2.22 m
+    door; a 1.45 m landing gap got a second, inferred door on the same spot): a gap too wide for a lift door holds the
+    inferred door (narrowed to it); a gap into a flat's room is closed; never two openings on one spot."""
+    from wenart.ingest import twins as TW
+    shaft, hall, bed, walls = _lift_rooms()
+    wide = {"id": "o1", "level_id": "L1", "type": "opening", "center": [0.8, 1.9], "width": 1.45, "wall_id": "w1"}
+    into_bed = {"id": "o2", "level_id": "L1", "type": "opening", "center": [1.7, 0.9], "width": 1.2, "wall_id": "w2"}
+    openings = [wide, into_bed]
+    notes = TW.lift_doors([shaft, hall, bed], openings, walls)
+    assert [o["id"] for o in openings] == ["d_r_L1_asansor_lift"]
+    (door,) = openings
+    assert door["center"] == [0.8, 1.9] and door["width"] == 0.9 and door["operation"] == "sliding"
+    assert any("o1" in n and "narrowed" in n for n in notes) and any("o2" in n and "closed" in n for n in notes)
+
+
+def test_shafts_side_by_side_open_onto_the_room_with_the_stair():
+    """review B3-FC07-SIDE / B3-REG-04 / BLD-08 (real21: shaft 2's door went to the corridor by 5 cm of edge length,
+    both drawn door frames face the stair hall): an inferred landing door faces the room holding the stair before a
+    room with a few cm more edge."""
+    from wenart.ingest import twins as TW
+
+    def room(rid, label, rtype, poly):
+        return {"id": rid, "level_id": "L0", "label": label, "room_type": rtype, "polygon": poly}
+    s1 = room("r_L0_asansor", "Asansör", "shaft", [[8.3, 12.3], [10.6, 12.3], [10.6, 14.3], [8.3, 14.3]])
+    s2 = room("r_L0_asansor_2", "Asansör", "shaft", [[8.3, 14.55], [10.6, 14.55], [10.6, 16.55], [8.3, 16.55]])
+    stair_hall = room("r_L0_oda_10", "Oda", "hall", [[5.0, 12.3], [8.1, 12.3], [8.1, 16.55], [5.0, 16.55]])
+    corridor = room("r_L0_girisi_2", "Girişi", "hall", [[5.0, 16.75], [12.0, 16.75], [12.0, 18.0], [5.0, 18.0]])
+    walls = [{"id": "ww", "level_id": "L0", "start": [8.2, 12.2], "end": [8.2, 16.65], "thickness": 0.2},
+             {"id": "wn", "level_id": "L0", "start": [8.2, 16.65], "end": [10.7, 16.65], "thickness": 0.2}]
+    stair = {"id": "f_L0_001", "type": "stair", "level_id": "L0", "footprint": {"center": [6.5, 14.4]}}
+    openings = []
+    TW.lift_doors([s1, s2, stair_hall, corridor], openings, walls, [stair])
+    assert [o["wall_id"] for o in openings] == ["ww", "ww"]
+
+
+def test_a_stair_drawn_on_a_plaster_layer_keeps_its_treads_and_a_wardrobe_stays_out():
+    """review B3-REG-01 (real10 draws its stairs on SIVA, plaster: the wall-layer filter dropped every tread line, the
+    flights fell to the 0.9 m default and the fire stair lost its landing) and REGX-3 (a wardrobe outline on the
+    furniture layer was taken into real13's stair): a stair with no stair-layer line is read from wall or plaster lines
+    inside its numbers' box that do not run along the steps; furniture, text, dimension and hatch lines never count."""
+    pts = [(1.0 + 0.27 * k, 5.0) for k in range(9)]
+    texts = [_t(k + 1, x, y) for k, (x, y) in enumerate(pts)]
+    plaster = [_line((x - 0.135, 4.4), (x - 0.135, 5.6), "SIVA") for x, _y in pts]
+    chain = SN.chains(texts)[0]
+    st = SN.stair_of(chain, plaster)
+    assert st["flights"][0]["width"] == pytest.approx(1.2, abs=0.01)
+    wardrobe = [_line((3.2, 4.3), (3.2, 5.7), "TEFRIS"), _line((3.2, 5.7), (3.8, 5.7), "TEFRIS")]
+    st = SN.stair_of(chain, plaster + wardrobe)
+    assert max(x for x, _y in st["polygon"].exterior.coords) < 3.2
+
+
+def test_a_stair_keeps_its_room_and_no_stair_turns_a_passage_into_a_window():
+    """review BLD-04 (real10 L0-L6: the fire stair's footprint centre fell on the wall between two rooms, it lost its
+    room, and the architect made its hall's door gap a window with a 0.9 m sill in front of the 1.40 m fire door): a
+    stair's room is the one holding most of its flights, and a gap with a door beside it (its second read) never
+    becomes a window."""
+    from wenart.ingest import pipeline as PL
+    rooms = [{"id": "r_a", "polygon": [[0, 0], [3, 0], [3, 4.73], [0, 4.73]]},
+             {"id": "r_b", "polygon": [[0, 4.94], [3, 4.94], [3, 6.03], [0, 6.03]]}]
+    stair = {"flights": [{"start": [0.7, 3.24], "end": [0.7, 4.6], "width": 0.8},
+                         {"start": [1.7, 4.6], "end": [1.7, 3.24], "width": 0.8}]}
+    assert PL._stair_room(rooms, stair)["id"] == "r_a"
+    from wenart.blender import architect_actions as AA
+    gap = {"id": "g", "level_id": "L0", "center": [1.5, 6.03], "width": 1.72, "wall_id": "w"}
+    door = {"id": "d", "type": "door", "level_id": "L0", "center": [1.5, 6.255], "width": 1.4}
+    walls = [{"id": "w", "start": [0.0, 6.03], "end": [3.0, 6.03]}]
+    assert AA._door_beside({"openings": [gap, door], "walls": walls}, gap)              # the door's second read
+    beside = dict(door, center=[1.5 + 0.86 + 0.7, 6.03])                                 # a door next to it on the wall
+    assert not AA._door_beside({"openings": [gap, beside], "walls": walls}, gap)
+
+
+def test_a_door_keeps_its_stretch_of_a_window_read_over_it():
+    """review S1-03c (real03: a 2.90 m window was built over the two 0.90 m entrance doors of its glazed screen): the
+    doors keep their stretch, the window's parts beside them at least 0.30 m wide stay side lights."""
+    win = _op("window", 2.9, (15.2, 0.2253))
+    d1, d2 = _op("door", 0.9, (14.7, 0.2253)), _op("door", 0.9, (15.6, 0.2253))
+    out, notes = O.windows_off_doors([win, d1, d2])
+    lights = sorted((round(o.center[0], 3), o.width) for o in out if o.kind == "window")
+    assert lights == [(14.0, 0.5), (16.35, 0.6)] and len(notes) == 1
+    assert all(o.evidence["rule"] == "door_over_window" for o in out if o.kind == "window")
+    alone, _ = O.windows_off_doors([_op("window", 1.0, (5.0, 0.2253)), d1])
+    assert [o.width for o in alone if o.kind == "window"] == [1.0]            # a window beside a door stays whole
+
+
+def test_a_mirror_twin_beside_a_drawn_wall_is_that_wall():
+    """review S1-21b / S1-POD-04 (real21: both end facades slope the same way, so each one's mirror landed 0.2 m off
+    the other's drawn facade and stood as a second wall in front of its windows): no twin is added beside a drawn
+    parallel wall."""
+    from wenart.ingest.generic import mirror as MR
+    drawn = SimpleNamespace(start=(8.38, 28.515), end=(10.47, 28.515), thickness=0.16, evidence={"method": "vector"},
+                            entity="LINE:13E1", inferred=False)
+    twin = SimpleNamespace(start=(8.38, 28.319), end=(10.47, 28.319), thickness=0.16, evidence={}, entity="x",
+                           inferred=True)
+    assert MR._beside_drawn(twin, [drawn]) == pytest.approx(1.0)
+    far = SimpleNamespace(start=(8.38, 27.5), end=(10.47, 27.5), thickness=0.16, evidence={}, entity="y", inferred=True)
+    assert MR._beside_drawn(far, [drawn]) == 0.0
+
+
+def test_a_wall_face_on_a_stairs_walking_line_moves_to_the_flights_side():
+    """review BLD-05 (real10: the stairwell's plaster face paired with the walking line drawn on the same layer made
+    0.57-0.71 m walls across half of each flight): the face inside the flight moves to the flight's side; a wall the
+    flight only grazes stays as drawn."""
+    from wenart.ingest.generic import twin_walls as TWW
+    stair = {"id": "f1", "type": "stair", "level_id": "L0",
+             "stair": {"flights": [{"start": [10.716, 3.3], "end": [10.716, 4.8], "width": 0.81}]}}
+    thick = {"id": "w171", "level_id": "L0", "start": [10.3635, 3.2], "end": [10.3635, 4.9], "thickness": 0.705}
+    graze = {"id": "w2", "level_id": "L0", "start": [11.18, 3.2], "end": [11.18, 4.9], "thickness": 0.12}
+    b = {"walls": [thick, graze], "furniture": [stair]}
+    notes = TWW.stair_side_walls(b)
+    assert len(notes) == 1 and thick["corrected_by_ai"]["before"]["thickness"] == 0.705
+    assert thick["thickness"] == pytest.approx(10.3105 - 10.011, abs=1e-3)
+    assert thick["start"][0] + thick["thickness"] / 2.0 == pytest.approx(10.3105, abs=1e-3)
+    assert graze["thickness"] == 0.12 and "corrected_by_ai" not in graze
+
+
+def test_a_leaf_line_door_wider_than_its_tag_takes_the_tag_and_a_plain_tag_widens_no_gap():
+    """review REGX-1 (real16: two '100/220' doors read from their leaf lines alone as 1.78 and 1.67 m sliding doors
+    lost their tags to the 0.30 m cut) and B3C-06 (a plain tag still widened a gap by up to 0.30 m)."""
+    from wenart.ingest.generic import core as C
+    wide = dataclasses.replace(_op("door", 1.776, (5.61, 10.53)), operation="sliding", operation_source="geometry",
+                               evidence={"note": "2 leaf/leaves drawn parallel to the wall without a swing arc"})
+    out = C._door_tags(SimpleNamespace(notes=[]), "L1", [], [wide], [_tag("100/220", 5.6, 10.8, "kapi-yazi")], 1.0)
+    assert out is not None and out[0].width == pytest.approx(1.0) and "position" in out[0].assumed
+    box = dataclasses.replace(_op("door", 0.43, (5.61, 10.53)), operation="swing")
+    assert C._door_tags(SimpleNamespace(notes=[]), "L1", [], [box], [_tag("90/210", 5.6, 10.8, "kapi-yazi")], 1.0) \
+        is None                                                                # real10's shaft boxes stay
+    gap = _gap(0.80, (3.0, 2.0))
+    assert C._door_tags(SimpleNamespace(notes=[]), "L1", [], [gap], [_tag("100/210", 3.0, 2.3, "YAZI")], 1.0) is None
+
+
+def test_doors_in_gaps_leaves_the_input_doors_evidence_alone():
+    """review B3C-07: the door's evidence note was written in place, and stayed when core threw the result away."""
+    import copy
+    from wenart.ingest.generic import openings as OP
+    assert "dict(d.evidence)" in __import__("inspect").getsource(OP.doors_in_gaps)
+    assert copy is not None
+
+
+def test_a_break_line_across_a_tread_makes_no_winder():
+    """review REGX-2 (real18 L-2: tread 10 stands between the two parallel diagonals of the upper plan's break line,
+    and was trimmed as a winder): the U still reads [7, 7] riser lines with its 3 winders."""
+    pts, lines, walls = _r18_u()
+    radials = [_line((8.377, 7.85), (8.855, 8.95), "MERD"), _line((8.377, 7.65), (8.855, 6.55), "MERD")]
+    pts[9] = (8.254, 6.669)
+    brk = [_line((8.377, 6.5), (7.752, 7.65), "MERD"), _line((8.286, 6.5), (7.661, 7.65), "MERD")]
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+    st = SN.stair_of(chain, lines + radials + walls + brk)
+    assert st["turn_numbers"] == [3] and [f["lines"] for f in st["flights"]] == [7, 7]
+
+
+def test_a_free_standing_core_inside_a_room_makes_no_inner_wall_outer():
+    """review B3C-01 / B3-FC02-CORE (a free-standing shaft or core ring inside a room turned the room into sky, and its
+    inner wall's face lines into a window): the ground round a building inside a loop is entered by none of the loop's
+    own doors; a room round a core ring is entered through its own doors, so its inner wall stays inner."""
+    ring = [R.wall((2.0, 2.8), (2.6, 2.8), t=0.1, entity="C1"), R.wall((2.6, 2.8), (2.6, 3.4), t=0.1, entity="C2"),
+            R.wall((2.6, 3.4), (2.0, 3.4), t=0.1, entity="C3"), R.wall((2.0, 3.4), (2.0, 2.8), t=0.1, entity="C4")]
+    walls = _box_with_inner_wall() + ring
+    _w, openings, log, _o = O.gaps_and_openings(walls, _wall_lines("DUVAR"), "t.dxf", 1)
+    assert not [o for o in openings if o.kind == "window"]
+    assert [e for e in log if e.get("rule") == "inner_wall_faces"]

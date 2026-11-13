@@ -48,6 +48,7 @@ INNER_CLEAR_M = 0.05            # a wall this close to the building's outline is
 CORE_KEEP_OUT_M = 3.0           # no mirror fix within this of a lift label (core.CORE_KEEP_OUT_M, the same value)
 MIRROR_MAX_NEW_WALLS = 3        # core.MIRROR_MAX_NEW_WALLS (the same value): the halves differ by at most this many walls
 RULE = "mirror_twin"
+TWIN_BESIDE_M = 0.25            # 13 Nov 2026: a mirrored wall this close (between faces) to a parallel drawn wall is it
 
 
 def _mirror(p, axis):
@@ -78,6 +79,40 @@ def _overlap(a1, b1, a2, b2) -> float:
     inter = min(s1[1], s2[1]) - max(s1[0], s2[0])
     shorter = min(s1[1] - s1[0], s2[1] - s2[0])
     return max(0.0, inter) / max(shorter, 1e-9)
+
+
+def _beside_drawn(m, walls: list) -> float:
+    """The share of wall ``m``'s centre line that runs beside a parallel drawn wall of ``walls``, their faces within
+    ``TWIN_BESIDE_M`` of each other (pure)."""
+    a, b = _seg(m)
+    L = math.dist(a, b)
+    if L <= 1e-9:
+        return 0.0
+    u = _dir(a, b)
+    spans = []
+    for v in walls:
+        if v is m or not _drawn(v):
+            continue
+        c, d = _seg(v)
+        uv = _dir(c, d)
+        if abs(u[0] * uv[1] - u[1] * uv[0]) > PAIR_ANGLE:
+            continue
+        tol = (float(m.thickness) + float(v.thickness)) / 2.0 + TWIN_BESIDE_M
+        if any(abs(-(p[0] - a[0]) * u[1] + (p[1] - a[1]) * u[0]) > tol for p in (c, d)):
+            continue
+        t0, t1 = sorted(((p[0] - a[0]) * u[0] + (p[1] - a[1]) * u[1]) for p in (c, d))
+        lo, hi = max(t0, 0.0), min(t1, L)
+        if hi > lo:
+            spans.append((lo, hi))
+    covered, cur = 0.0, None
+    for lo, hi in sorted(spans):
+        if cur is None or lo > cur[1]:
+            covered += (cur[1] - cur[0]) if cur else 0.0
+            cur = [lo, hi]
+        else:
+            cur[1] = max(cur[1], hi)
+    covered += (cur[1] - cur[0]) if cur else 0.0
+    return covered / L
 
 
 def pair_walls(walls: list, axis) -> dict:
@@ -500,6 +535,12 @@ def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=No
             continue                                        # the core (lift and stair) is not mirrored
         if mp.intersection(polys).area >= 0.5 * mp.area:
             continue                                        # it lies in walls already (read in pieces)
+        if _beside_drawn(m, walls) >= 0.5:
+            # 13 Nov 2026 (review S1-21b / S1-POD-04: real21's two end facades slope the same way, so each one's mirror
+            # landed 0.2 m off the other's drawn facade and stood as a second wall in front of its windows): a drawn
+            # wall running beside it already is it
+            log.append(f"no twin of {w.entity}: its mirror runs beside a drawn wall (within {TWIN_BESIDE_M} m)")
+            continue
         if any(TP.opening_polygon(o, walls) is not None and TP.opening_polygon(o, walls).intersects(mp)
                for o in openings):
             continue                                        # it would close a drawn opening

@@ -2062,7 +2062,12 @@ def _outside_test(walls: list[WallItem], openings: list[OpeningItem], outdoor=()
             face = h.difference(unary_union([outlines[j] for j in nested])) if nested else h
             if face.is_empty:
                 continue
-            if any(parts[j].interiors for j in nested):
+            # 13 Nov 2026 (review B3C-01 / B3-FC02-CORE: a free-standing core, shaft or column ring inside a room made
+            # the room sky): the ground round a building inside a loop is entered by none of the loop's own doors; a
+            # hall round a core is entered through its part's own doors
+            inner = part.buffer(-0.02)
+            if any(parts[j].interiors for j in nested) \
+                    and not any(d.intersects(face) and d.intersects(inner) for d in doors):
                 sky.append(face)                 # the ground between a loop and the building inside it
                 mine = mine.difference(face)
                 continue
@@ -2346,6 +2351,64 @@ def _door_in_gap(existing: list, host, m_along: float, w: float, theta: float, c
     return None
 
 
+SIDELIGHT_MIN_M = 0.30          # 13 Nov 2026: a window's part beside a door this wide stays a side light
+DOOR_OVER_WINDOW_M = 0.05       # ... a door overlapping a window on its wall line by more than this keeps its stretch
+SAME_LINE_M = 0.20              # ... both on one wall line: their centre lines this close
+
+
+def windows_off_doors(openings: list) -> tuple[list, list[str]]:
+    """13 Nov 2026 (review S1-03c: real03's 2.90 m entrance screen read as one window over its two 0.90 m doors): a
+    window and a door on one wall line (parallel, centre lines within ``SAME_LINE_M``) whose spans overlap by more than
+    ``DOOR_OVER_WINDOW_M``: the door keeps its stretch, the window is cut back to its parts beside the doors, each at
+    least ``SIDELIGHT_MIN_M`` wide kept as a side light, none left: the window goes. ``(openings, notes)``; the cut
+    windows keep their drawn span in their evidence (pure)."""
+    doors = [o for o in openings if o.kind == "door" and not getattr(o, "virtual", False)]
+    out, notes = [], []
+    for w in openings:
+        if w.kind != "window" or getattr(w, "virtual", False) or not doors:
+            out.append(w)
+            continue
+        a = math.radians(float(w.rotation_deg))
+        ax = (math.cos(a), math.sin(a))
+        half = float(w.width) / 2.0
+        cuts = []
+        for d in doors:
+            if abs((float(d.rotation_deg) - float(w.rotation_deg) + 90.0) % 180.0 - 90.0) > 10.0:
+                continue
+            dv = (d.center[0] - w.center[0], d.center[1] - w.center[1])
+            if abs(dv[0] * ax[1] - dv[1] * ax[0]) > SAME_LINE_M:
+                continue
+            t = dv[0] * ax[0] + dv[1] * ax[1]
+            lo, hi = t - float(d.width) / 2.0, t + float(d.width) / 2.0
+            if min(hi, half) - max(lo, -half) > DOOR_OVER_WINDOW_M:
+                cuts.append((lo, hi))
+        if not cuts:
+            out.append(w)
+            continue
+        parts, cur = [], -half
+        for lo, hi in sorted(cuts):
+            if lo > cur:
+                parts.append((cur, min(lo, half)))
+            cur = max(cur, hi)
+        if cur < half:
+            parts.append((cur, half))
+        keep = [(lo, hi) for lo, hi in parts if hi - lo >= SIDELIGHT_MIN_M]
+        drawn = f"{float(w.width):.2f} m at ({w.center[0]:.2f}, {w.center[1]:.2f})"
+        for lo, hi in keep:
+            mid = (lo + hi) / 2.0
+            ev = dict(w.evidence or {})
+            ev.update(rule="door_over_window", drawn_width=round(float(w.width), 3),
+                      drawn_center=[round(c, 4) for c in w.center],
+                      note=(str(ev.get("note") or "") + f"; the side light of the window {drawn} beside the door(s) "
+                            f"read over it (adjusted by code: the doors keep their stretch)").lstrip("; "))
+            out.append(dataclasses.replace(w, width=round(hi - lo, 3), evidence=ev,
+                                           center=(round(w.center[0] + ax[0] * mid, 4),
+                                                   round(w.center[1] + ax[1] * mid, 4))))
+        notes.append(f"the window {drawn} over {len(cuts)} door(s) on its wall line: "
+                     + (f"{len(keep)} side light(s) kept" if keep else "dropped, the doors keep the stretch"))
+    return out, notes
+
+
 def doors_in_gaps(walls: list[WallItem], openings: list[OpeningItem], strokes_m: list[Stroke], file_rel: str,
                   page_no: int, units_to_m: Optional[float] = None) -> Optional[list[OpeningItem]]:
     """12 Nov 2026 (review B2 FC-06 / REG-3, real07 L1: a 1.72 m gap read over the 0.90 m door the gap classifier and
@@ -2376,7 +2439,9 @@ def doors_in_gaps(walls: list[WallItem], openings: list[OpeningItem], strokes_m:
             continue
         host = min(hosts, key=lambda p: abs((c[1] if p.axis == "h" else c[0]) - p.c))
         along = c[0] if host.axis == "h" else c[1]
-        ev = d.evidence if isinstance(d.evidence, dict) else {}
+        # 13 Nov 2026 (review B3C-07: the door's evidence was written in place, and kept its note when core threw the
+        # result away): the note travels on a copy, with the door, in the result only
+        ev = dict(d.evidence) if isinstance(d.evidence, dict) else {}
         before = list(out)
         k = _door_in_gap(out, host, along, float(d.width), theta, ctx, ev, index=index,
                          door_name=f"the {float(d.width):.2f} m door at ({d.center[0]:.2f}, {d.center[1]:.2f})")
@@ -2385,6 +2450,11 @@ def doors_in_gaps(walls: list[WallItem], openings: list[OpeningItem], strokes_m:
             changed = True
         elif out != before:
             changed = True
+        else:
+            continue
+        i = next((n for n, x in enumerate(out) if x is d), None)
+        if i is not None:
+            out[i] = dataclasses.replace(d, evidence=ev)
     return out if changed else None
 
 
