@@ -1300,3 +1300,15 @@ def test_a_lift_landing_door_opens_to_the_hall_never_into_the_stair():
     TW.lift_doors([shaft, hall, stair], only, walls)
     assert only[0]["type"] == "opening" and [o["id"] for o in only if o.get("lift_door")] == ["d_r_L1_asansor_lift"]
 
+
+
+def test_basements_moved_by_their_marks_never_carry_the_ground_floor_the_marks_take_its_frame():
+    # real11: the basement plans print -0.50 and -3.30 in a frame where the ground floor stands at +2.50
+    b = _marks(_stack(4, start=-2), {"L-1": [-0.5], "L-2": [-3.3]})
+    got, n = _elev(b)
+    assert got == {"L-2": -5.8, "L-1": -3.0, "L0": 0.0, "L1": 3.0}
+    rec = n["level_inference"]
+    assert any("frame with the ground floor at +2.50" in w for w in rec["warnings"])
+    assert any(i.get("item") == "plan height frame" and i.get("value") == 2.5 for i in rec.get("inferred") or [])
+    zs = {m["id"]: (m["z"], m.get("frame_shift")) for m in n["level_marks"]}
+    assert zs["lm_L-1_0"] == (-3.0, 2.5) and zs["lm_L-2_0"] == (-5.8, 2.5)

@@ -404,6 +404,31 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
         worst = max(blame, key=lambda k: (len(blame[k]), abs(proposed[k][1] - float(proposed[k][0].get("elevation") or 0.0))))
         refused[worst] = blame[worst]
     z = final_z()
+    if gl is not None and gl["id"] in z and (gl["id"] not in proposed or gl["id"] in refused) \
+            and not isinstance((b.get("project") or {}).get("datum"), dict):
+        s = z[gl["id"]] - float(gl.get("elevation") or 0.0)
+        if abs(s) > tol:
+            # 13 Nov 2026 (round-2 review, A2-FC4 / F3: real11's basements moved by their marks carried the assumed
+            # ground floor 2.50 m up): the ground floor stays at its height (building z 0 by convention); a ground floor
+            # that would only follow the levels below by s shows the plans' marks in a frame where it stands at s: every
+            # relative mark is read as mark - s (the one-frame rule of C0061), the levels with it
+            z = {k: _r(v - s) for k, v in z.items()}
+            for k in list(proposed):
+                lvp, best, counts, zs, rooms = proposed[k]
+                proposed[k] = (lvp, round(best - s, 2), {round(c - s, 2): n for c, n in counts.items()},
+                               [_r(x - s) for x in zs], rooms)
+            n = 0
+            for m in marks:
+                if m.get("z") is not None and m.get("relative", True) is not False:
+                    m["z"] = _r(float(m["z"]) - s)
+                    m["frame_shift"] = _r(float(m.get("frame_shift") or 0.0) + s)
+                    n += 1
+            warnings.append(f"levels: the levels below the ground floor {gl['id']} moved by their floor marks would carry "
+                            f"it {s:+.2f} m: the plans' marks stand in a frame with the ground floor at {s:+.2f} m; every "
+                            f"plan mark ({n}) is read as mark - {s:.2f} (no section datum)")
+            inferred.append({"item": "plan height frame", "value": _r(s),
+                             "reason": f"the ground floor would follow the levels below by {s:+.2f} m (one height frame, "
+                                       f"C0061)"})
     file = _file_of(b)
     for lv in ordered:
         lid = lv["id"]
