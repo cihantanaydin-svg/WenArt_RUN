@@ -78,6 +78,8 @@ from wenart.ingest import rule_guards as RG
 
 # a flat's rooms (a storage room, a shelter or a laundry may be the building's own, reached from the core)
 PRIVATE = ("bedroom", "living", "kitchen", "bathroom", "wc", "shower", "toilet", "dining", "office", "study")
+# 13 Nov 2026 (FC-01): rooms that are never the common core whatever stands in them
+NOT_CORE_TYPES = ("balcony", "terrace", "loggia", "garage", "dressing", "laundry", "storage", "utility")
 WET = ("bathroom", "wc", "shower", "toilet")
 STAIR_BOX_M = (0.8, 2.0)        # a stroke box at least this small side by this long side ... (R08 G10)
 STAIR_BOX_MIN_M2 = 1.8          # ... and this large can hold a stair
@@ -122,7 +124,8 @@ GAP_WINDOW_HEAD_M = 2.10        # ... its head, and its height without a tag (a 
 GAP_WINDOW_H_M = 0.60
 DOOR_TAG_H_M = 1.80             # a W/H tag this high or higher is a door's (100/210), lower a window's (150/50)
 STACK_MATCH_M = 0.05            # a lift door on the storey above or below this close to a face is at the same place
-JAMB_REACH_M = 0.80             # a lift door's drawn jambs: wall ends this far from its centre, on its wall line
+JAMB_REACH_M = 0.80             # a lift door's drawn jambs: wall ends this far from its centre, on its wall line ...
+JAMB_MIN_M = 0.10               # ... of a wall at least this long (a shorter stub is a panel or plaster stroke: FC-03)
 ENTRANCE_LEVEL_M = 0.60         # an entrance storey's floor lies this close to the ground (R24: about one entrance flight)
 ENTRANCE_WORD_RE = re.compile(r"(?<![a-z])(?:bina\s+girisi|bina\s+giris|giris\s+holu|apartman\s+girisi|main\s+entrance|"
                               r"entrance\s+hall|entrance\s+lobby|hauseingang|entree)(?![a-z])")
@@ -582,22 +585,24 @@ def _common_evidence(hall: dict, rooms: dict, links: list, core: set) -> bool:
     return len(entrances) >= 2
 
 
-def _core_stair_room(r: dict, level: "CP.Level", near: list) -> bool:
+def _core_stair_room(r: dict, level: "CP.Level", near: list, common: bool = False) -> bool:
     """A room holding a stair is the core's only when the stair is the core's (pure; MF3, MF4, REG-01): a stair room, a
-    hall or a drawn common room, or an unlabelled face beside a lift or its lobby (``near``); never a flat's room
-    (``PRIVATE``) nor a unit's own use (a shop, a store, an office: their stair is the unit's own)."""
+    hall or a drawn common room, or a face beside a lift or its lobby (``near``), or one two or more flats' entrance
+    doors start in (``common``: ``_common_evidence``), whatever its label or type (13 Nov 2026, review FC-01: real19's
+    stair hall took the label of a small shaft drawn in its corner, 'Şaft', and the core collapsed to the lift); never a
+    flat's room (``PRIVATE``, an antre) nor a unit's own use (a shop, a store, an office: their stair is the unit's
+    own)."""
     from wenart import common_areas as CA
 
     rtype = r.get("room_type")
     if rtype == "stair":
         return True
-    if rtype in PRIVATE or UNIT_USE_RE.search(_label(r)):
+    if rtype in PRIVATE + NOT_CORE_TYPES or UNIT_USE_RE.search(_label(r)) or FLAT_HALL_RE.search(_label(r)):
         return False
-    if rtype == "hall" or CA.is_common_room(r):
+    if rtype == "hall" or CA.is_common_room(r) or common:
         return True
     p = level.polys.get(r["id"])
-    return not _label(r) and rtype in (None, "", "other", "unknown") and p is not None and \
-        any(p.distance(q) <= 0.4 for q in near)
+    return p is not None and any(p.distance(q) <= 0.4 for q in near)
 
 
 def core_rooms(b: dict, level: "CP.Level") -> set:
@@ -622,6 +627,19 @@ def core_rooms(b: dict, level: "CP.Level") -> set:
             lobby = max(touch, key=lambda t: t[0])[1]
             core.add(lobby["id"])
             lobbies.append(level.polys[lobby["id"]])
+    # 13 Nov 2026 (review FC-02): the room a lift's drawn landing door, or the one put on the face its storey above or
+    # below uses (``landing_stacked``), opens into is its lobby, whatever its label or type (real17: the BİNA GİRİŞİ
+    # hall read as a shaft); never a flat's room, an antre or a unit's own use
+    lift_ids = {r["id"] for r in lifts}
+    for a, c, o in links:
+        if not o.get("lift_door") or (derived(o) and not o.get("landing_stacked")):
+            continue
+        for x, y in ((a, c), (c, a)):
+            hall = rooms.get(y) or {}
+            if x in lift_ids and hall and y not in lift_ids and hall.get("room_type") not in PRIVATE + NOT_CORE_TYPES \
+                    and not UNIT_USE_RE.search(_label(hall)) and not FLAT_HALL_RE.search(_label(hall)):
+                core.add(y)
+                lobbies.append(level.polys[y])
     near = [level.polys[r["id"]] for r in lifts] + lobbies
     below = _storey_below(b, level.lid)
     for f in b.get("furniture") or []:
@@ -630,7 +648,8 @@ def core_rooms(b: dict, level: "CP.Level") -> set:
             r = level.room_at(tuple(f["footprint"]["center"]))
             if r is None:
                 continue
-            if f.get("level_id") == level.lid and _core_stair_room(r, level, near):
+            if f.get("level_id") == level.lid and _core_stair_room(r, level, near,
+                                                                   _common_evidence(r, rooms, links, core)):
                 core.add(r["id"])
             elif f.get("level_id") != level.lid and r.get("room_type") == "hall" and not _flat_hall(r, rooms, links):
                 core.add(r["id"])
@@ -724,6 +743,10 @@ def _jambs(level: "CP.Level", o: dict) -> Optional[tuple]:
             continue
         b2, u2, l2 = CP._axis(w2)
         t2 = float(w2.get("thickness") or 0.15) / 2.0
+        # 13 Nov 2026 (review FC-03: real10's 3.5 cm plaster stub, read from the door's own panel strokes, was taken
+        # for a jamb): a stub shorter than ``JAMB_MIN_M`` or a plaster or panel line (under 6 cm thick) is no jamb
+        if l2 < JAMB_MIN_M or 2.0 * t2 < 0.06:
+            continue
         if abs(u[0] * u2[1] - u[1] * u2[0]) <= CP.PARALLEL_SIN:
             # a wall on the same line ending at the gap: its end is a jamb
             off = (b2[0] - a[0]) * n[0] + (b2[1] - a[1]) * n[1]
@@ -867,7 +890,14 @@ def fix_lift_doors(b: dict, next_id, flats: bool = True) -> dict:
                         merged.append(o)
                         rec["merged"].append({"opening": o["id"], "kept": kept["id"], "level_id": lid,
                                               "reason": why + " (adjusted_by_ai: merged)"})
-                jambs = _jambs(level, kept) if merged else None
+                # (FC-03) a kept piece where the storey above or below has the same door is not re-spanned
+                ka, ku, _kl = CP._axis(level.walls[kept["wall_id"]])
+                same = any(abs((y["center"][0] - kept["center"][0]) * ku[0] + (y["center"][1] - kept["center"][1]) * ku[1])
+                           <= 0.03 and abs((y["center"][0] - kept["center"][0]) * -ku[1]
+                                           + (y["center"][1] - kept["center"][1]) * ku[0]) <= STACK_M
+                           and abs(float(kept.get("width") or 0) - float(y.get("width") or 0)) <= 0.03
+                           for y in neighbours)
+                jambs = _jambs(level, kept) if merged and not same else None
                 if jambs is not None and derived(kept):
                     w = level.walls[kept["wall_id"]]
                     a, u, _l = CP._axis(w)
@@ -934,11 +964,22 @@ def fix_lift_doors(b: dict, next_id, flats: bool = True) -> dict:
         rec["retyped"] += _landing_doors(b, level, served_lifts, core)
         for lift in served_lifts:
             if _core_door(level, lift, core) is None:
+                n_added = len(rec["added"])
                 _add_landing_door(b, level, lv, lift, core, neighbours, next_id, rec)
+                if len(rec["added"]) > n_added:
+                    core = core_rooms(b, level)          # the room the stacked door opens into is the lobby (FC-02)
             # 4. once the lift opens onto the core, its other derived or inferred openings into a room that is not
             # the core nor a hall (an unread room, the outside) go; drawn ones are review records (a through-car)
             door = _core_door(level, lift, core)
             if door is None:
+                # 13 Nov 2026 (review FC-01, FC-02): a served lift is never left without a landing door unasked
+                if not any(_lift_of(level, o, [lift])[0] is lift for o in level.openings
+                           if o.get("type") in ("door", "opening") and not o.get("virtual")):
+                    b.setdefault("needs_review", []).append({
+                        "id": f"lift:{lid}:{lift['id']}", "kind": "lift_no_landing_door", "crop": None,
+                        "room_id": lift["id"], "level_id": lid,
+                        "reason": f"the lift {lift['id']} on {lid} has no landing door and no face the rules may "
+                                  f"put one on (the landing hall not read?): to review"})
                 continue
             gone = set()
             seen = {r["opening"] for r in rec["review"] if r.get("level_id") == lid}
@@ -988,11 +1029,6 @@ def _add_landing_door(b: dict, level: "CP.Level", lv: dict, lift: dict, core: se
     record, no geometry (REG-01, MF3)."""
     lid = level.lid
     faces = list(_hall_faces(level, lift, core))
-    if not faces:
-        rec["review"].append({"opening": None, "level_id": lid, "lift": lift["id"],
-                              "reason": f"the lift {lift['id']} has no landing door and no face onto a common hall or "
-                                        f"stair room (the landing hall not read?): no door inferred, to review"})
-        return
     lc = level.polys[lift["id"]].centroid
 
     def stacked(x):
@@ -1009,14 +1045,31 @@ def _add_landing_door(b: dict, level: "CP.Level", lv: dict, lift: dict, core: se
                 return t
         return None
 
-    found = [(x, stacked(x)) for x in faces]
+    # 13 Nov 2026 (review FC-02): the face the storey above or below uses comes first, whatever the room behind it is
+    # read as (real17: the entrance hall read as a shaft), never a flat's room or a unit's own use
+    found = [(x, stacked(x)) for x in faces + [x for x in _hall_faces(level, lift, core, any_room=True)
+                                               if x not in faces]]
     found = [(x, t) for x, t in found if t is not None]
     how = None
+    if not found and not faces:
+        rec["review"].append({"opening": None, "level_id": lid, "lift": lift["id"],
+                              "reason": f"the lift {lift['id']} has no landing door, no face onto the common core and "
+                                        f"no face where the storey above or below has its door (the landing hall not "
+                                        f"read?): no door inferred, to review"})
+        return
+    stacked_face = False
     if found:
         (f, p0, p1), t = found[0]
         width = min(LIFT_DOOR_M[0], p1 - p0)
         t = max(p0 + width / 2.0, min(p1 - width / 2.0, t))
         how = "where the storey above or below has the lift's door"
+        stacked_face = True
+        if f["hall"] not in core:
+            r = next((x for x in level.rooms if x["id"] == f["hall"]), {})
+            rec["review"].append({"opening": None, "level_id": lid, "lift": lift["id"], "room": f["hall"],
+                                  "reason": f"the lift {lift['id']}'s landing door is put on the face its storey above "
+                                            f"or below uses, onto {f['hall']} '{r.get('label')}' ({r.get('room_type')}), "
+                                            f"a room not read as the common hall: review its type"})
     else:
         cw = _counterweight(b, level, lift)
         if cw is not None:
@@ -1047,6 +1100,8 @@ def _add_landing_door(b: dict, level: "CP.Level", lv: dict, lift: dict, core: se
                         {"kind": "hall"}, CP._ev_file(b, lid), lv.get("region_id"), "default lift door")
     o["operation"], o["lift_door"] = "sliding", True
     o["inference"]["rule"] = "lift_door"
+    if stacked_face:
+        o["landing_stacked"] = True
     b["openings"].append(o)
     level.openings.append(o)
     rec["added"].append({"opening": o["id"], "level_id": lid, "reason": reason + " (inferred)"})
@@ -1094,17 +1149,17 @@ def _counterweight(b: dict, level: "CP.Level", lift: dict) -> Optional[tuple]:
     return None
 
 
-def _hall_faces(level: "CP.Level", lift: dict, core: set) -> list:
-    """``[(face, t0, t1)]``: the stretches of the lift's walls with a common hall, a stair room or a common room of the
-    core on the other side (never a room with a unit's or a flat's use: REG-01, MF4), free of openings."""
-    from wenart import common_areas as CA
-
+def _hall_faces(level: "CP.Level", lift: dict, core: set, any_room: bool = False) -> list:
+    """``[(face, t0, t1)]``: the stretches of the lift's walls with a room of the core on the other side (a common hall,
+    a stair room, a common room, the room holding the core stair whatever its label: FC-01), free of openings; never a
+    room with a unit's or a flat's use (REG-01, MF4). ``any_room``: any room but those, core or not (FC-02: the face the
+    storey above or below uses, whatever the room behind is read as)."""
     p = level.polys[lift["id"]]
     x0, y0, x1, y1 = p.bounds
 
     def landing(r) -> bool:
-        return r["id"] in core and not CP.is_lift(r) and not UNIT_USE_RE.search(_label(r)) and \
-            r.get("room_type") not in PRIVATE and (r.get("room_type") in ("hall", "stair") or CA.is_common_room(r))
+        return (any_room or r["id"] in core) and not CP.is_lift(r) and not UNIT_USE_RE.search(_label(r)) and \
+            r.get("room_type") not in PRIVATE + NOT_CORE_TYPES and not FLAT_HALL_RE.search(_label(r))
     out = []
     for w in level.walls.values():
         xs, ys = (w["start"][0], w["end"][0]), (w["start"][1], w["end"][1])
