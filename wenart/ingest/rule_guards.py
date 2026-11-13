@@ -69,6 +69,8 @@ RULES = {
     "ground_cut": (("R10",), "a ground floor read from the typical plan is cut to the drawn footprint"),
     "entrance_hall": (("R43",), "an inferred ground floor whose core reaches no street gets an entrance hall from the "
                                 "street facade into the core"),
+    "copy_door_window": (("R10",), "a door of a copied storey from a room to the true outside becomes a window of its "
+                                   "width; one with the outside on both sides is removed (its wall a facade remnant)"),
     "ground_doors": (("R04", "R03"), "a section ground that buries a storey with drawn outer doors is refused; the drawn "
                                      "line beside the doors at grade, or an assumed ground with a question, replaces it"),
     # staged rules (``STAGED``): written and tested, off until their review (the coordinator, 13 Nov 2026)

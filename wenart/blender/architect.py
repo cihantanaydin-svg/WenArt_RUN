@@ -1608,7 +1608,11 @@ def review_arrival(building: dict, prep: dict) -> tuple[dict, dict]:
     site = prep.get("site") or {}
     paths = [a for a in site.get("areas") or [] if a.get("kind") == "path"]
     ents = [e for e in (building.get("site") or {}).get("entrances") or [] if isinstance(e, dict)]
-    main = next((e for e in ents if e.get("main")), ents[0] if ents else None)
+    # (13 Nov 2026, review S1F-POD-P05) a room's door onto a balcony or a terrace is never taken for the main entrance
+    spaces = {x.get("id"): x.get("kind") for x in (building.get("site") or {}).get("outdoor_spaces") or []
+              if isinstance(x, dict)}
+    ways = [e for e in ents if spaces.get(e.get("onto")) not in ("balcony", "loggia", "terrace", "deck")]
+    main = next((e for e in ents if e.get("main")), ways[0] if ways else None)
     if main is None:
         b1["answers"].append({"element": "entrance", "found": "no entrance door is known", "change": None,
                               "open": True, "ask": "Which door is the main entrance?"})

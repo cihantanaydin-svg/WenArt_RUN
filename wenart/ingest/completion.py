@@ -674,8 +674,11 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     copies = copy_doors(b)
     if copies:
         b["level_inference"]["copy_doors"] = copies
-        build.warn(f"storeys: {len(copies)} door(s) of the copied storeys open onto nothing there: windows "
-                   f"({', '.join(x['opening'] for x in copies[:6])}; adjusted_by_ai)")
+        made = [x for x in copies if x.get("action") != "kept"]
+        if made:
+            build.warn(f"storeys: {len(made)} door(s) of the copied storeys open onto nothing there: windows, or "
+                       f"removed where the outside lies on both sides ({', '.join(x['opening'] for x in made[:6])}; "
+                       f"adjusted_by_ai)")
     core = core_record(b, texts_by_level)
     if core:
         b["level_inference"]["core"] = core
@@ -1034,42 +1037,94 @@ def outer_doors(building: dict, lid: str) -> list:
 
 def copy_doors(b: dict) -> list:
     """The doors of a copied storey (a storey counted, not drawn: ``typical_of`` and ``storey_inference``, above the
-    ground floor) that open onto nothing there: the outside (no balcony, no terrace) or a room label the reading lost.
-    Each becomes a window of the same width with its head at the door's (``adjusted_by_ai``, the drawn door kept in
-    ``drawn_type``; review POD-02: a copy is never a door into the air). Returns the records (pure but for the
-    openings)."""
+    ground floor, not at the ground) that open onto nothing there (review POD-02: a copy is never a door into the air;
+    rule key ``copy_door_window``):
+
+    - a door from a room to the true outside (no balcony, no terrace, no room label the reading lost beyond it)
+      becomes a window of the same width with its head at the door's (``adjusted_by_ai``, ``drawn_type`` door);
+    - a door with the outside on both sides (a door in a wall piece standing in the air, or off its wall) is removed
+      from the copy; its wall is flagged ``facade_remnant`` for review (13 Nov 2026, review S1F-POD-P02);
+    - a door from a room onto a room label the reading lost stays the drawn door: the room exists in the drawing (13 Nov 2026,
+      review S1F-POD-R01, FC-05: real20's right flat lost its front door, a bedroom's and a bathroom's on 4 storeys);
+      one ``needs_review`` item per copy names the doors and the lost labels;
+    - never the building's entrance: a copied storey within ``ENTRANCE_LEVEL_M`` of a ground height is skipped, and so
+      is a door the entrance rule inferred or a main entrance record names (review CODE-02).
+
+    Returns the records (pure but for the openings, the walls' flags and ``needs_review``)."""
     from wenart.ingest import core_rules as CR
+    from wenart.ingest import rule_guards as RG
 
     out = []
+    ground = CR.ground_zs(b)
+    entrance_doors = {e.get("door_id") for e in (b.get("site") or {}).get("entrances") or [] if e.get("main")}
     for lv in b.get("levels") or []:
         if not lv.get("typical_of") or not lv.get("storey_inference") or (lv.get("order") or 0) <= 0:
             continue
+        if isinstance(lv.get("elevation"), (int, float)) and \
+                any(abs(float(lv["elevation"]) - g) <= CR.ENTRANCE_LEVEL_M for g in ground):
+            continue                          # a storey at the ground: its doors are no doors into the air
         level = Level(b, lv["id"])
         if level.outline is None:
             continue
         lost = [p for p in lv.get("reading_places") or [] if p.get("kind") == "unplaced_label" and p.get("at")]
+        kept, drop = [], set()
         for o in level.openings:
-            if o.get("type") != "door" or o.get("virtual") or o.get("lift_door"):
+            if o.get("type") != "door" or o.get("virtual") or o.get("lift_door") or o["id"] in entrance_doors or \
+                    (o.get("inference") or {}).get("rule") == "inferred_entrance":
                 continue
             sides = CR._sides(level, o)
             kinds = [s[0] for s in sides]
-            if "outside" not in kinds or not any(s[1] is not None for s in sides):
+            if "outside" not in kinds:
                 continue
             q = next(s[2] for s in sides if s[0] == "outside")
-            near = [p for p in lost if math.dist(q, p["at"][:2]) <= CR.LABEL_REACH_M + 1.0]
-            what = (f"the room label '{near[0].get('text')}' the reading lost" if near else
-                    "the outside (no balcony or terrace on this storey)")
+            near = sorted(((math.dist(q, p["at"][:2]), k, p) for k, p in enumerate(lost)
+                           if math.dist(q, p["at"][:2]) <= CR.LABEL_REACH_M + 1.0), key=lambda x: x[:2])
+            both_outside = all(k == "outside" for k in kinds)
+            if near and not both_outside:
+                kept.append((o, near[0][2]))
+                out.append({"opening": o["id"], "level_id": lv["id"], "action": "kept",
+                            "reason": f"{o['id']} on {lv['id']} opens onto the room label '{near[0][2].get('text')}' "
+                                      f"the reading lost: the drawn door stays (the room exists in the drawing)"})
+                continue
+            if not both_outside and not any(s[1] is not None for s in sides):
+                continue                      # a door onto a balcony or a terrace
+            what = ("the outside on both sides (a wall piece standing in the air"
+                    + (f"; the reading lost the room label '{near[0][2].get('text')}' beside it" if near else "") + ")"
+                    if both_outside else "the outside (no balcony or terrace on this storey)")
+            if RG.blocked("copy_door_window", b, {"level_id": lv["id"], "opening": o["id"], "why": what}):
+                continue
             head = float(o.get("height") or 2.1)
+            if both_outside:
+                reason = (f"{o['id']} on {lv['id']}, a storey copied from {lv['typical_of']} (counted, not drawn), has "
+                          f"{what}: removed from the copy; its wall {o.get('wall_id')} is a facade remnant to review")
+                drop.add(o["id"])
+                w = level.walls.get(o.get("wall_id"))
+                if w is not None:
+                    w["facade_remnant"] = {"by": "code", "rule": "copy_door_window", "reason": reason}
+                out.append({"opening": o["id"], "level_id": lv["id"], "action": "removed",
+                            "reason": reason + " (adjusted_by_ai)"})
+                continue
             sill = 0.9
             reason = (f"{o['id']} on {lv['id']}, a storey copied from {lv['typical_of']} (counted, not drawn), opens "
-                      f"onto {what}: a window of its width there (the drawn door kept)")
+                      f"onto {what}: a window of its width there" + ("" if CR.derived(o) else " (the drawn door kept)"))
             o.update(drawn_type="door", type="window", sill_height=sill, height=round(max(0.6, head - sill), 3),
                      operation=None, operation_source=None, swing_side=None,
                      adjusted_by_ai={"by": "code", "rule": "copy_door_window", "reason": reason,
                                      "changed": {"type": "door", "height": head}})
-            out.append({"opening": o["id"], "level_id": lv["id"], "reason": reason + " (adjusted_by_ai)"})
-    if out and isinstance(b.get("site"), dict) and b["site"].get("entrances"):
-        gone = {x["opening"] for x in out}
+            out.append({"opening": o["id"], "level_id": lv["id"], "action": "window",
+                        "reason": reason + " (adjusted_by_ai)"})
+        if drop:
+            b["openings"] = [o for o in b["openings"] if o["id"] not in drop]
+        if kept:
+            labels = sorted({str(p.get("text")) for _o, p in kept})
+            b.setdefault("needs_review", []).append({
+                "id": f"copy_doors:{lv['id']}", "kind": "copy_door_lost_room", "crop": None, "room_id": None,
+                "level_id": lv["id"],
+                "reason": f"{lv['id']} (copied from {lv['typical_of']}): {len(kept)} drawn door(s) open onto room "
+                          f"label(s) the reading lost ({', '.join(labels)}): the doors stay "
+                          f"({', '.join(o['id'] for o, _p in kept[:8])}); the rooms are to recover"})
+    gone = {x["opening"] for x in out if x.get("action") in ("window", "removed")}
+    if gone and isinstance(b.get("site"), dict) and b["site"].get("entrances"):
         b["site"]["entrances"] = [e for e in b["site"]["entrances"] if e.get("door_id") not in gone]
     return out
 

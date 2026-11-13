@@ -233,3 +233,73 @@ def test_plaster_stubs_are_no_jambs():
             "evidence": [{"method": "derived"}]}
     b["openings"] = [gapo]
     assert CR._jambs(CP.Level(b, "L0"), gapo) is None
+
+
+# --------------------------------------------------------------------------- S1F-POD-R01, FC-05, P02, R03, CODE-02
+def _copy_building(elevation=3.0):
+    b = _bld(("L0", "L1"))
+    b["levels"][1].update(typical_of="L0", storey_inference={"rule": "type_default"}, elevation=elevation,
+                          reading_places=[{"kind": "unplaced_label", "text": "ANTRE", "at": [2.0, -1.0]}])
+    for lid in ("L0", "L1"):
+        b["walls"] += _box(0, 0, 10, 6, lid, f"w{lid}") + [_wall(f"{lid}_m", (5, 0), (5, 6), lid),
+                                                           _wall(f"{lid}_f", (12, 0), (12, 3), lid, 0.2, True)]
+        b["rooms"] += [_room(f"{lid}_bed", "Yatak Odası", "bedroom", _rect(0.1, 0.1, 4.9, 5.9), lid),
+                       _room(f"{lid}_liv", "Salon", "living", _rect(5.1, 0.1, 9.9, 5.9), lid)]
+        b["openings"] += [
+            {"id": f"d_{lid}_lost", "type": "door", "level_id": lid, "wall_id": f"w{lid}_s", "center": [2.0, 0.0],
+             "width": 0.9, "height": 2.1, "evidence": [{"method": "vector"}]},
+            {"id": f"d_{lid}_out", "type": "door", "level_id": lid, "wall_id": f"w{lid}_e", "center": [10.0, 3.0],
+             "width": 0.9, "height": 2.1, "evidence": [{"method": "vector"}]},
+            {"id": f"d_{lid}_air", "type": "door", "level_id": lid, "wall_id": f"{lid}_f", "center": [12.0, 1.5],
+             "width": 0.9, "height": 2.1, "evidence": [{"method": "vector"}]}]
+    return b
+
+
+def test_copied_storey_doors_keep_lost_rooms_lose_doors_into_the_air():
+    b = _copy_building()
+    rec = CP.copy_doors(b)
+    by = {o["id"]: o for o in b["openings"]}
+    acts = {x["opening"]: x["action"] for x in rec}
+    assert acts == {"d_L1_lost": "kept", "d_L1_out": "window", "d_L1_air": "removed"}
+    assert by["d_L1_lost"]["type"] == "door" and by["d_L1_out"]["type"] == "window" and "d_L1_air" not in by
+    assert next(w for w in b["walls"] if w["id"] == "L1_f")["facade_remnant"]["rule"] == "copy_door_window"
+    assert [x["kind"] for x in b["needs_review"]] == ["copy_door_lost_room"]
+    assert {o["id"] for o in b["openings"] if o["level_id"] == "L0" and o["type"] == "door"} == \
+        {"d_L0_lost", "d_L0_out", "d_L0_air"}                                     # the drawn storey is never touched
+
+
+def test_copied_doors_can_be_switched_off(monkeypatch):
+    monkeypatch.setenv("WENART_RULES_OFF", "copy_door_window")
+    b = _copy_building()
+    rec = CP.copy_doors(b)
+    assert {x["opening"]: x["action"] for x in rec} == {"d_L1_lost": "kept"}
+    assert all(o["type"] == "door" for o in b["openings"])
+    assert any(g["rule"] == "copy_door_window" for g in b["level_inference"]["guarded"])
+
+
+def test_a_copied_storey_at_the_ground_or_the_main_entrance_is_never_made_a_window():
+    b = _copy_building()
+    b["site"]["ground"] = {"levels": [{"side": "all", "z": {"value": 2.9, "method": "vector"}}]}
+    assert CP.copy_doors(b) == []                                             # L1 stands at the street
+    b = _copy_building()
+    b["site"]["entrances"] = [{"door_id": "d_L1_out", "level_id": "L1", "main": True}]
+    rec = CP.copy_doors(b)
+    assert "d_L1_out" not in {x["opening"] for x in rec}
+    assert next(o for o in b["openings"] if o["id"] == "d_L1_out")["type"] == "door"
+    assert b["site"]["entrances"][0]["door_id"] == "d_L1_out"
+
+
+# --------------------------------------------------------------------------- S1F-POD-P05: balcony doors
+def test_a_door_onto_a_balcony_is_no_way_into_the_building():
+    from wenart.reading_check import sense as SN
+
+    b = _bld(("L0",))
+    b["walls"] = _box(0, 0, 10, 6, "L0", "w")
+    b["rooms"] = [_room("r_liv", "Salon", "living", _rect(0.1, 0.1, 9.9, 5.9))]
+    b["site"]["outdoor_spaces"] = [{"id": "os_L0_balkon", "kind": "balcony"}]
+    b["site"]["entrances"] = [{"door_id": "d1", "level_id": "L0", "rise": 0.15, "onto": "os_L0_balkon",
+                               "main": False}]
+    found = SN.no_entrance(b)
+    assert [f["rule"] for f in found] == ["no_entrance"] and found[0]["severity"] == "major"
+    b["site"]["outdoor_spaces"][0]["kind"] = "porch"                            # a porch is an entrance's landing
+    assert SN.no_entrance(b) == []

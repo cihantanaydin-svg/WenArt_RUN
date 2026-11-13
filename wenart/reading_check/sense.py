@@ -1692,6 +1692,18 @@ def core_continuity(building: dict) -> list:
     return out
 
 
+def _onto_outdoor_space(building: dict, e: dict) -> bool:
+    """Whether a ``site.entrances`` record's door leads onto a balcony, a loggia, a terrace or a deck (its ``onto``:
+    an outdoor space of ``site.outdoor_spaces``); a porch, a veranda or a courtyard may be an entrance's landing."""
+    onto = e.get("onto")
+    if not onto:
+        return False
+    space = next((x for x in (building.get("site") or {}).get("outdoor_spaces") or [] if x.get("id") == onto), None)
+    if space is not None:
+        return space.get("kind") in ("balcony", "loggia", "terrace", "deck")
+    return any(w in str(onto).lower() for w in ("balcon", "balkon", "loggia", "terrace", "teras"))
+
+
 def no_entrance(building: dict) -> list:
     """Rule 19 (pure): no storey at the ground has a door from a room to the outside (``completion.outer_doors``: the
     far side outside the level's outline, not a balcony, not refused as an entrance) and no ``site.entrances`` record
@@ -1706,8 +1718,11 @@ def no_entrance(building: dict) -> list:
                if any(abs(_el(lv) - z) <= ENTRANCE_LEVEL_M + EPS for z in (zs or [0.0]))]
     if not storeys or not any(_rooms_of(building, lv["id"]) for lv in storeys):
         return []
+    # (13 Nov 2026, review S1F-POD-P05: real20's salon door onto its ground-level balcony silenced the rule) a record
+    # whose door leads onto a balcony or a terrace is no way into the building
     ents = [e for e in (building.get("site") or {}).get("entrances") or []
-            if not e.get("into_air") and not e.get("below_ground") and float(e.get("rise") or 0.0) <= ENTRANCE_LEVEL_M + EPS]
+            if not e.get("into_air") and not e.get("below_ground") and float(e.get("rise") or 0.0) <= ENTRANCE_LEVEL_M + EPS
+            and not _onto_outdoor_space(building, e)]
     if ents:
         return []
     found = {lv["id"]: CP.outer_doors(building, lv["id"]) for lv in storeys}
