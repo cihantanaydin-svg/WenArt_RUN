@@ -1201,11 +1201,15 @@ def _straight(segs: list[Seg], to_f) -> list[tuple[str, float, float, float, Seg
 
 
 FINISH_SHARE = 0.5          # 3 Nov 2026: tread lines mostly on a floor-finish layer (tiles) are no stair
+# 13 Nov 2026 (real10 L-1: a 0.64 m band of lines 0.10 m apart on the furniture layer TEFRIS, a grille at the end of a
+# room, was read as a 7-riser 'stair' of 0.43 m risers along the outer wall): nor on a furniture or sanitary layer
+NO_STAIR_ROLES = ("finish", "furniture", "sanitary")
 GRID_CUTS = 4               # ... nor treads cut by this many evenly spaced cross lines (a tile grid)
 
 
 def _finish_share(segs: list) -> float:
-    """The share of the straight lines' length on a floor-finish layer (``layer_names``: karo, tile, Fliesen ...)."""
+    """The share of the straight lines' length on a layer that draws no stair (``NO_STAIR_ROLES``: a floor finish,
+    furniture or sanitary ware; ``layer_names``: karo, tefris, vitrifiye ...)."""
     from wenart.ingest.generic import layer_names as LN
 
     total = finish = 0.0
@@ -1214,7 +1218,7 @@ def _finish_share(segs: list) -> float:
             continue
         L = s.length
         total += L
-        if LN.layer_role(getattr(s.stroke, "layer", None)) == "finish":
+        if LN.layer_role(getattr(s.stroke, "layer", None)) in NO_STAIR_ROLES:
             finish += L
     return finish / total if total > 0 else 0.0
 

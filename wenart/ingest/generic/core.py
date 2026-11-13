@@ -2419,6 +2419,116 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
     return None
 
 
+STAIR_LINE_WALL_SHARE = 0.5      # 13 Nov 2026: a wall this much inside a stair's walking area is the stair's drawing ...
+STAIR_LINE_WALL_SLACK_M = 0.10   # ... when it is no longer than the stair's footprint (plus this)
+INTEGRITY_ENTER_M = 0.03         # ... and a wall along its treads entering it deeper than this loses that part
+
+
+def _stair_walk_area(f):
+    """The walking area of a stair piece (page metres): its flights' bands from first to last riser line, the flight's
+    width wide, and its landing; None without flights (pure)."""
+    from shapely.geometry import LineString as _L
+    from shapely.geometry import Polygon as _P
+    st = (f.details or {}).get("stair") or {}
+    parts = []
+    for fl in st.get("flights") or []:
+        try:
+            line = _L([tuple(fl["start"][:2]), tuple(fl["end"][:2])])
+            if line.length > 1e-6:
+                parts.append(line.buffer(float(fl["width"]) / 2.0, cap_style=2))
+        except (KeyError, TypeError, ValueError):
+            continue
+    land = st.get("landing")
+    poly = land.get("polygon") if isinstance(land, dict) else land
+    if isinstance(poly, (list, tuple)) and len(poly) >= 3:
+        try:
+            parts.append(_P([tuple(q[:2]) for q in poly]).buffer(0))
+        except (TypeError, ValueError):
+            pass
+    return unary_union(parts) if parts else None
+
+
+def _stair_line_walls(walls: list, stairs: list, openings: list, notes: list, where: str) -> list:
+    """``walls`` without those a stair's drawing made (13 Nov 2026, coordinator after review B3: on real10 the tread,
+    flight-side and well lines of the stairs, drawn on the plaster layer, were paired into walls standing in the
+    flights): a wall at least ``STAIR_LINE_WALL_SHARE`` of whose rectangle lies in a stair's walking area
+    (``_stair_walk_area``), no longer than the stair's footprint plus ``STAIR_LINE_WALL_SLACK_M``, holding no opening and
+    no exterior wall, is dropped, one note each. A drawn wall cannot stand in a walking surface."""
+    areas = []
+    for f in stairs:
+        a = _stair_walk_area(f)
+        if a is not None and not a.is_empty:
+            areas.append((f, a, max(float(v) for v in f.size[:2]) + STAIR_LINE_WALL_SLACK_M))
+    if not areas:
+        return walls
+    out, dropped, cut = [], [], []
+    for w in walls:
+        length = math.dist(w.start, w.end)
+        keep = True
+        if length > 1e-6 and not getattr(w, "exterior", False):
+            rect = TP.wall_polygon(w)
+            for f, area, longest in areas:
+                if length > longest or rect.area <= 0:
+                    continue
+                if rect.intersection(area).area < STAIR_LINE_WALL_SHARE * rect.area:
+                    # a wall running along a flight's treads into the flight: the part in the stair is its tread lines
+                    rest = _along_treads_rest(w, f, area)
+                    if rest is not None:
+                        cut.append(f"{w.entity} ({length:.2f} -> {math.dist(*rest):.2f} m)")
+                        w.start, w.end = rest
+                    continue
+                if any(TP.wall_polygon(w).buffer(0.02).contains(Point(o.center)) for o in openings
+                       if not getattr(o, "virtual", False)):
+                    continue
+                keep = False
+                dropped.append(f"{w.entity} ({length:.2f} m, {float(w.thickness):.2f} m thick)")
+                break
+        if keep:
+            out.append(w)
+    if dropped:
+        notes.append(f"{where}: {len(dropped)} wall(s) made of a stair's own lines (treads, flight sides, well) "
+                     f"dropped: " + ", ".join(dropped[:12]))
+    if cut:
+        notes.append(f"{where}: {len(cut)} wall(s) running along a stair's treads into its flight shortened to the "
+                     f"stair's edge: " + ", ".join(cut[:12]))
+    return out
+
+
+def _along_treads_rest(w, f, area):
+    """The wall ``w``'s centre line without its part inside the stair's walking ``area``, as ``(start, end)``, when
+    the wall runs along one of the stair's treads (square to a flight, within 10 degrees) and enters the area deeper
+    than ``INTEGRITY_ENTER_M``; None otherwise (pure)."""
+    from shapely.geometry import LineString as _L
+    st = (f.details or {}).get("stair") or {}
+    u = (w.end[0] - w.start[0], w.end[1] - w.start[1])
+    n = math.hypot(*u)
+    if n < 1e-6:
+        return None
+    u = (u[0] / n, u[1] / n)
+    square = False
+    for fl in st.get("flights") or []:
+        try:
+            a = (fl["end"][0] - fl["start"][0], fl["end"][1] - fl["start"][1])
+        except (KeyError, TypeError):
+            continue
+        m = math.hypot(*a)
+        if m > 1e-6 and abs(u[0] * a[0] / m + u[1] * a[1] / m) <= math.sin(math.radians(10.0)):
+            square = True
+    if not square:
+        return None
+    line = _L([tuple(w.start), tuple(w.end)])
+    inside = line.intersection(area).length
+    if inside <= INTEGRITY_ENTER_M:
+        return None
+    rest = line.difference(area)
+    pieces = [g for g in getattr(rest, "geoms", [rest]) if g.geom_type == "LineString" and g.length >= 0.1]
+    if not pieces:
+        return None
+    best = max(pieces, key=lambda g: g.length)
+    (ax, ay), (bx, by) = best.coords[0], best.coords[-1]
+    return (round(ax, 4), round(ay, 4)), (round(bx, 4), round(by, 4))
+
+
 def _leaf_line_door(o) -> bool:
     """A door read from leaf lines drawn parallel to its wall without a swing arc (a sliding door by its geometry)."""
     note = str((o.evidence or {}).get("note") or "") if isinstance(o.evidence, dict) else ""
@@ -3237,6 +3347,10 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
             extras = [e for e in extras if not any(q.buffer(-0.05).contains(Point(e["footprint"]["center"]))
                                                    for q in sn_polys)]
     stairs = [p for p in pieces if p.type == "stair"]
+    # 13 Nov 2026 (coordinator after review B3 / RC16 on real10: walls the reader built from a stair's tread, side and
+    # well lines stood in its flights on every floor): a wall lying mostly in a stair's walking area is the stair's
+    # drawing, not a wall (``_stair_line_walls``)
+    bwalls = _stair_line_walls(bwalls, stairs, b_openings, ex.notes, where)
     from wenart.ingest.generic import facade as FC_
     # 12 Nov 2026 (review B-r03-hol): the labelled rooms' own outlines (their printed area matched) separate the names
     # the walls leave in one face

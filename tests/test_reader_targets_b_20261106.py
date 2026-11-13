@@ -1724,3 +1724,37 @@ def test_a_free_standing_core_inside_a_room_makes_no_inner_wall_outer():
     _w, openings, log, _o = O.gaps_and_openings(walls, _wall_lines("DUVAR"), "t.dxf", 1)
     assert not [o for o in openings if o.kind == "window"]
     assert [e for e in log if e.get("rule") == "inner_wall_faces"]
+
+
+# --------------------------------------------------------------------------
+# 13 Nov 2026 (coordinator after review B3, RC16 on real10): no wall in a stair, no stair of furniture lines
+# --------------------------------------------------------------------------
+
+def test_walls_made_of_a_stairs_own_lines_are_dropped_or_cut_back():
+    """real10 (the tread, flight-side and well lines of its stairs, drawn on the plaster layer, were paired into walls
+    standing in the flights on every floor): a wall lying mostly in a stair's walking area is dropped; one running along
+    the treads into a flight loses the part inside; a wall beside the stair stays."""
+    from wenart.ingest.generic import core as C
+    stair = SimpleNamespace(size=(2.37, 2.27), details={"stair": {"flights": [
+        {"start": [11.369, 7.886], "end": [11.369, 9.13], "width": 0.9},
+        {"start": [12.835, 8.983], "end": [12.835, 7.982], "width": 0.9}]}})
+    tread_pair = R.wall((10.95, 8.675), (11.80, 8.675), t=0.23, entity="W041")
+    into = R.wall((12.915, 8.48), (13.795, 8.48), t=0.34, entity="W016")
+    beside = R.wall((10.0, 7.5), (10.0, 9.5), t=0.2, entity="WB")
+    notes = []
+    kept = C._stair_line_walls([tread_pair, into, beside], [stair], [], notes, "L0")
+    assert [w.entity for w in kept] == ["W016", "WB"] and len(notes) == 2
+    assert min(into.start[0], into.end[0]) == pytest.approx(13.285, abs=0.01)
+    assert tuple(beside.start) == (10.0, 7.5)
+
+
+def test_lines_on_a_furniture_layer_make_no_stair():
+    """real10 L-1 (a 0.64 m band of lines 0.10 m apart on the furniture layer TEFRIS, a grille, was read as a 7-riser
+    stair of 0.43 m risers along the outer wall): the stair rule takes no stair from furniture, sanitary or finish
+    lines."""
+    from wenart.ingest.generic import symbols as SY
+    segs = [SimpleNamespace(curve=False, dot=False, length=0.64, stroke=SimpleNamespace(layer="TEFRİŞ"))
+            for _ in range(7)]
+    assert SY._finish_share(segs) >= SY.FINISH_SHARE
+    segs = [SimpleNamespace(curve=False, dot=False, length=0.9, stroke=SimpleNamespace(layer="SIVA")) for _ in range(7)]
+    assert SY._finish_share(segs) == 0.0
