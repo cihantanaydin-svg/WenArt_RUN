@@ -1355,3 +1355,79 @@ def test_a_door_read_in_a_twin_wall_gives_its_class_to_the_unclassified_gap_it_i
                         "width": 1.95, "status": "verified", "operation": "sliding", "operation_source": "geometry"}]}
     TW.merge_twin_walls(b3)
     assert [(x["id"], x["type"], x["width"]) for x in b3["openings"]] == [("o_pass", "opening", 2.9)]
+
+
+def _rule_stair(width=0.8, length=2.6, center=(2.0, 1.0)):
+    from wenart.ingest.model import FurnitureItem
+
+    return FurnitureItem(type="stair", type_raw=None, center=center, size=(length, width), rotation_deg=0.0,
+                         front_deg=None, box=[0, 0, 0, 0], entity="LINE:1", type_method="rule",
+                         evidence={"note": "stair rule: 1 flight(s), 9 tread lines"},
+                         details={"stair": {"flights": [{"width": width, "lines": 9}], "direction": [1.0, 0.0]}})
+
+
+def _lines(segs):
+    from wenart.ingest.generic.model import Stroke
+
+    return [Stroke(id=f"LINE:{k}", kind="line", pts=[a, b], layer="0") for k, (a, b) in enumerate(segs)]
+
+
+def test_a_narrow_rule_flight_needs_numbers_an_arrow_or_a_riser_tag_and_a_tile_grid_in_a_tiled_room_is_no_stair():
+    from shapely.geometry import box
+
+    from wenart.ingest.generic import symbols as SY
+
+    notes: list = []
+    room = box(0.0, 0.0, 4.0, 3.0)
+    # a 0.8 m 'flight' with nothing of a stair beside it goes; numbered treads, a riser tag or an arrow keep it
+    assert SY.check_rule_stairs([_rule_stair()], [], [], [room], notes) == [] and "no stair" in notes[-1]
+    numbers = [_run(str(k + 1), 1.0 + 0.27 * k, 1.0, h=0.12, k=k) for k in range(5)]
+    assert len(SY.check_rule_stairs([_rule_stair()], numbers, [], [room], [])) == 1
+    assert len(SY.check_rule_stairs([_rule_stair()], [_run("17x17", 2.0, 1.0, k=9)], [], [room], [])) == 1
+    head = _lines([((3.0, 1.0), (2.85, 1.08)), ((3.0, 1.0), (2.85, 0.92))])
+    assert len(SY.check_rule_stairs([_rule_stair()], [], head, [room], [])) == 1
+    # a wide flight needs no mark
+    assert len(SY.check_rule_stairs([_rule_stair(width=1.2)], [], [], [room], [])) == 1
+    # in a room whose finish is mosaic, lines crossing like a tile grid are no stair (unless the treads are numbered)
+    treads = [((0.8 + 0.25 * k, 0.4), (0.8 + 0.25 * k, 1.6)) for k in range(10)]
+    cross = [((0.8, y), (3.05, y)) for y in (0.6, 0.85, 1.1, 1.35)]
+    grid = _lines(treads + cross)
+    finish = [_run("ANTRE A:6.42M2 K:K.MOZAİK", 2.0, 2.4, k=20)]
+    wide = _rule_stair(width=1.2)
+    assert SY.check_rule_stairs([wide], finish, grid, [room], notes) == [] and "tile grid" in notes[-1]
+    assert len(SY.check_rule_stairs([_rule_stair(width=1.2)], finish + numbers, grid, [room], [])) == 1
+    assert len(SY.check_rule_stairs([_rule_stair(width=1.2)], [], grid, [room], [])) == 1   # no finish word
+
+
+def test_a_doors_own_plan_gives_its_ground_first_its_threshold_mark_when_it_prints_no_ground_mark():
+    from tests import _levels_fixture as F
+    from wenart.levels import model as M
+
+    def entrance(marks):
+        b = F.building()
+        b["level_marks"] = marks
+        return next(x for x in M.infer_levels(b)["site"]["entrances"] if x["door_id"] == "d_front")
+
+    # an upper floor's plan prints the ground beside the building 3.00 m higher; the door's own plan its threshold
+    other = F.mark("lm_up", 3.0, kind="ground_finished", point=(8.0, -1.0), level="L1")
+    sill = F.mark("lm_sill", 0.0, kind="threshold", point=(8.0, -0.4), level="L0")
+    e = entrance([other, sill])
+    assert e["below_ground"] is False and e["ground_z"] == 0.0 and "threshold mark lm_sill" in e["ground_source"]
+    # a ground mark of the door's own plan comes before the other plan's nearer one
+    own = F.mark("lm_own", -0.45, kind="ground_finished", point=(8.0, -2.5), level="L0")
+    e = entrance([other, own])
+    assert e["ground_source"] == "ground mark lm_own" and e["ground_z"] == -0.45
+    # with only the other plan's mark, that mark is used as before
+    assert entrance([other])["ground_source"] == "ground mark lm_up"
+
+
+def test_the_plans_title_elevations_set_the_floors_and_the_datum():
+    from wenart.sheets import heights as HT
+
+    levels = [{"id": f"L{k}", "order": k, "kind": "floor"} for k in (-1, 0, 1, 2)]
+    out = {"levels": [], "slabs": [{"between": ["L0", "L1"]}], "datum": None}
+    lines = HT.apply_storey_marks(out, levels, {-1: -0.5, 0: 2.5, 1: 5.2, 2: 7.9}, 0.2, "p.dxf", "r8",
+                                  rule="plan_title_marks", source="the floor elevations the plans' titles print")
+    z = {e["level_id"]: e["floor_z"]["value"] for e in out["levels"]}
+    assert z == {"L-1": -3.0, "L0": 0.0, "L1": 2.7, "L2": 5.4} and out["datum"]["relative"] == 2.5
+    assert out["datum"]["evidence"][0]["rule"] == "plan_title_marks" and "title mark" in lines[0]

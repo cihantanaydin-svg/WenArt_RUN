@@ -849,14 +849,6 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
         probe = (cx + outward[0] * (ht + 0.3), cy + outward[1] * (ht + 0.3))
         threshold = float(o.get("threshold_z") if o.get("threshold_z") is not None else
                           (room_floor_z(b, room) if room else lv["elevation"]))
-        near = [m for m in ground_points if G.distance(probe, m["point"]) <= float(params["door_ground_reach"])]
-        if near and o["id"] not in lowered:
-            m = min(near, key=lambda m: G.distance(probe, m["point"]))
-            gz, gsrc = float(m["z"]), f"ground mark {m['id']}"
-            _use(m, f"entrance:{o['id']}")
-        else:
-            gz, gsrc = S.ground_z(tm, *probe), ("terrain lowered to the door (basement door)" if o["id"] in lowered
-                                               else f"terrain ({tm['kind']})")
         landing_mark = None
         for m in marks:
             # 26 Oct 2026: a landing mark of another level's plan is not this door's (real06: the upper floor's
@@ -867,6 +859,22 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                     and G.distance(face, m["point"]) <= float(params["door_mark_reach"]) + float(o.get("width") or 0):
                 if landing_mark is None or G.distance(face, m["point"]) < G.distance(face, landing_mark["point"]):
                     landing_mark = m
+        near = [m for m in ground_points if G.distance(probe, m["point"]) <= float(params["door_ground_reach"])]
+        # 13 Nov 2026 (coordinator, real13: "a building's entrance never disappears"; the 1st basement's entrance door,
+        # its plan printing '-0.50' at its threshold, read 3.00 m below a '+2.50' ground mark of an upper floor's plan):
+        # the door's own plan speaks first: its ground marks, else the threshold mark it prints at the door (the
+        # outside landing there), and only then the marks of the other plans
+        own = [m for m in near if m.get("level_id") in (None, lv["id"])]
+        if near and o["id"] not in lowered and not own and landing_mark is not None and landing_mark.get("kind") == "threshold":
+            gz, gsrc = float(landing_mark["z"]), (f"the threshold mark {landing_mark['id']} its own plan prints at the "
+                                                 f"door (no ground mark of that plan within reach)")
+        elif near and o["id"] not in lowered:
+            m = min(own or near, key=lambda m: G.distance(probe, m["point"]))
+            gz, gsrc = float(m["z"]), f"ground mark {m['id']}"
+            _use(m, f"entrance:{o['id']}")
+        else:
+            gz, gsrc = S.ground_z(tm, *probe), ("terrain lowered to the door (basement door)" if o["id"] in lowered
+                                               else f"terrain ({tm['kind']})")
         top = threshold
         if landing_mark is not None:
             top = float(landing_mark["z"])

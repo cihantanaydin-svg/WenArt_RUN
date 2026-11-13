@@ -329,6 +329,33 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
                            float(values.get("slab_thickness", 0.20)), f"the section's heights are no storeys ({bad})")
         hw.append(f"the section's heights are no storeys ({bad}): the floors take the assumed heights")
         warnings.append(f"the section's heights are no storeys ({bad}): the floors take the assumed heights")
+    # 13 Nov 2026 (coordinator, real13: "a building's entrance never disappears"; its plans print each storey's floor in
+    # the title, 'ZEMİN (+2.50 KOTU)', '1.(+5.20 KOTU)' ... '3.BODRUM (-5.50 KOTU)', and the ground floor's own floor mark
+    # agrees, while the section's storey marks were no storeys and their datum +3.70 stood 1.20 m off every plan): when
+    # the floors take the assumed heights and the plans' titles print one floor elevation each for the ground floor and
+    # at least one other storey, those are the floors (vector, the plans' own statement), the ground floor's is building
+    # z 0 and the datum of the plans' relative marks (it replaces a datum of the storey marks that were no storeys)
+    title_el, title_rid = {}, {}
+    for lv in levels_json:
+        rr = next((p for p in read_plans if p.id == lv.get("base_region")), None)
+        el = LV.region_elevations(rr) if rr is not None else None
+        if el is not None and abs(el[1] - el[0]) < 0.005 and lv.get("order") is not None:
+            title_el[lv["order"]], title_rid[lv["order"]] = float(el[0]), rr.id
+    floors_assumed = not any((e.get("floor_z") or {}).get("method") == "vector" for e in heights_json.get("levels") or [])
+    if floors_assumed and 0 in title_el and len(title_el) >= 2:
+        old_datum = heights_json.get("datum")
+        heights_json["datum"] = None
+        lines = HT.apply_storey_marks(heights_json, base_levels, title_el, float(values.get("slab_thickness", 0.20)),
+                                      read_plans[0].file if read_plans else None, title_rid[0],
+                                      rule="plan_title_marks", source="the floor elevations the plans' titles print")
+        if any(ln.startswith("heights from") for ln in lines):
+            if isinstance(old_datum, dict) and heights_json.get("datum") is not None:
+                lines.append(f"datum {float(old_datum.get('value') or 0.0):+.2f} (the storey marks that were no storeys) "
+                             f"replaced by the ground floor's title {title_el[0]:+.2f}")
+        else:
+            heights_json["datum"] = old_datum
+        hw += lines
+        warnings.extend(lines)
     # real10 (1 Nov 2026): a roof terrace floor on top: its parapet and stair house heights from the section's marks.
     if any(lv.get("roof_terrace") for lv in levels_json) and sections:
         rt = LV.roof_terrace_heights(sections)
