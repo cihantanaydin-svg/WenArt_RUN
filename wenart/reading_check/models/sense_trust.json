@@ -227,6 +227,14 @@
     }
    }
   },
+  "narrow_landing": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
   "no_windows": {
    "findings": 0,
    "judged_right": 0,

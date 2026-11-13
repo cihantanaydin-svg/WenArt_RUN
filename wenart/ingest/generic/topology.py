@@ -405,13 +405,15 @@ def _free_extent(anchor, wall_polys: list[Polygon], hulls: list[Polygon], reach:
 
 def separators(walls: list[WallItem], openings: list[OpeningItem], gap_log: list[dict], label_blocks: list,
                stairs: list, units_to_m: Optional[float] = None,
-               axis: Optional[tuple] = None) -> tuple[list[OpeningItem], list[dict]]:
+               axis: Optional[tuple] = None, outlines=None) -> tuple[list[OpeningItem], list[dict]]:
     """Virtual separators that keep two room names (or a stair and a room name) out of one face.
 
     ``walls``: the building walls; ``gap_log``: the log of ``openings.gaps_and_openings`` (its wall indices refer to
     the walls before the plot split, so the walls a separator touches are found by geometry); ``stairs``:
     FurnitureItems (or anything with ``center``). Returns the kept separators (``box`` in page units when
-    ``units_to_m`` is given) and one log dict per candidate.
+    ``units_to_m`` is given) and one log dict per candidate. 12 Nov 2026: ``outlines`` (a function giving the closed
+    outlines that hold one room label and match its printed area, page metres) gives drawn separators
+    (``_outline_candidates``) while two names still share a face.
     """
     names = [b for b in label_blocks if not getattr(b, "exterior", False)]
     log: list[dict] = []
@@ -424,6 +426,15 @@ def separators(walls: list[WallItem], openings: list[OpeningItem], gap_log: list
         # candidates separate keep their logs).
         for cand in sorted(_face_candidates(walls, gap_log, openings), key=lambda c: c["length"]):
             score = _consider(cand, walls, openings, kept, names, stairs, log, score)
+    if score["excess"] > 0 and outlines is not None:
+        # 12 Nov 2026 (review B-OPN-06/B-R1/B-r03-hol, real03: the drawing leaves HOL open to the living room, no wall,
+        # no door, but draws its net-area outline 'HOL 3.85 m2'): the edges of a labelled room's own outline that run
+        # inside the shared face, before any inferred line (drawn evidence first)
+        polys = list(outlines() or [])
+        if polys:
+            cands = _outline_candidates(walls, openings, [c["line"] for c in kept], names, polys)
+            for chain in sorted(cands, key=lambda c: c["length"]):
+                score = _consider_chain(chain, walls, openings, kept, names, stairs, log, score)
     if score["excess"] > 0:
         # 3 Nov 2026 (real10, user: "Red markings showing the inside hall": the flat's hall and its salon shared one
         # face; the hall's wall stub ends 0.65 m short of the kitchen wall's corner, offset, so no aligned candidate
@@ -498,6 +509,78 @@ def _consider(cand: dict, walls: list, openings: list, kept: list, names: list, 
         cand["reason"] = "; ".join(reasons)
         kept.append(cand)
         entry.update(kept=True, reason=cand["reason"])
+        log.append(entry)
+        return new
+    entry.update(kept=False, reason="considered, not needed")
+    log.append(entry)
+    return score
+
+
+OUTLINE_EDGE_MIN_M = 0.3       # an outline's run this long inside a shared face may separate it ...
+OUTLINE_REACH_M = 0.3          # ... its ends carried on to the face's edge this far (a net outline drawn off the plaster)
+OUTLINE_INSIDE_M = 0.01        # a run along the face's edge (an outline drawn on the wall face) separates nothing
+
+
+def _reach(p, q, face) -> tuple[float, float]:
+    """``p`` carried on away from ``q`` to the face's edge within ``OUTLINE_REACH_M`` (``p`` itself when none)."""
+    n = math.dist(p, q)
+    if n <= 0:
+        return (round(p[0], 4), round(p[1], 4))
+    u = ((p[0] - q[0]) / n, (p[1] - q[1]) / n)
+    ray = LineString([p, (p[0] + u[0] * OUTLINE_REACH_M, p[1] + u[1] * OUTLINE_REACH_M)])
+    hit = ray.intersection(face.exterior)
+    d = min((Point(p).distance(h) for h in getattr(hit, "geoms", [hit]) if not h.is_empty), default=0.0)
+    return (round(p[0] + u[0] * d, 4), round(p[1] + u[1] * d, 4))
+
+
+def _outline_candidates(walls: list, openings: list, lines: list, names: list, outlines: list) -> list[dict]:
+    """12 Nov 2026 (review B-r03-hol): the runs of the labelled rooms' own outlines (``outlines.labelled_outlines``:
+    one room label inside, its printed area matched) inside a face two or more room names share, each at least
+    ``OUTLINE_EDGE_MIN_M`` long, its two ends carried on to the face's edge (``OUTLINE_REACH_M``): the drawn boundary of
+    a room the walls leave open, as ``{"kind": "outline_edge", "segments", "length", "outline"}`` (pure)."""
+    from shapely.ops import linemerge
+
+    shared = [f for f in faces(walls, openings, lines) if sum(1 for b in names if _label_in(f, b)) >= 2]
+    out = []
+    for poly in outlines:
+        ring = LineString(list(poly.exterior.coords))
+        name = next((b.name for b in names if _label_in(poly, b)), "")
+        for f in shared:
+            inter = ring.intersection(f.buffer(-OUTLINE_INSIDE_M))     # not along the face's own edge
+            parts = [g for g in getattr(inter, "geoms", [inter]) if g.geom_type == "LineString"]
+            if len(parts) > 1:
+                merged = linemerge(parts)
+                parts = [g for g in getattr(merged, "geoms", [merged]) if g.geom_type == "LineString"]
+            for g in parts:
+                if g.length < OUTLINE_EDGE_MIN_M:
+                    continue
+                pts = [tuple(q) for q in g.coords]
+                pts[0] = _reach(pts[0], pts[1], f)
+                pts[-1] = _reach(pts[-1], pts[-2], f)
+                segs = [[pts[k], pts[k + 1]] for k in range(len(pts) - 1) if math.dist(pts[k], pts[k + 1]) > 1e-4]
+                if segs:
+                    out.append({"kind": "outline_edge", "segments": segs,
+                                "length": round(sum(math.dist(*sg) for sg in segs), 4),
+                                "outline": f"the drawn outline of '{name}' ({poly.area:.2f} m2, its printed area)"})
+    return out
+
+
+def _consider_chain(chain: dict, walls: list, openings: list, kept: list, names: list, stairs: list, log: list,
+                    score: dict) -> dict:
+    """Keep the segments of an outline run (``_outline_candidates``) as separators when together they lower the count
+    of room names sharing a face (a drawn line: at any length); one log entry either way."""
+    lines = [c["line"] for c in kept] + [sg for sg in chain["segments"]]
+    new = _score(faces(walls, openings, lines), names, stairs)
+    entry = {"kind": chain["kind"], "line": chain["segments"][0], "segments": chain["segments"],
+             "length": chain["length"], "walls": [], "outline": chain["outline"]}
+    if new["excess"] < score["excess"]:
+        for sg in chain["segments"]:
+            if any(max(min(math.dist(sg[0], c["line"][0]), math.dist(sg[0], c["line"][1])),
+                       min(math.dist(sg[1], c["line"][0]), math.dist(sg[1], c["line"][1]))) <= 0.01 for c in kept):
+                continue                                   # the edge two outlines share: one separator
+            kept.append({"kind": "outline_edge", "line": sg, "length": round(math.dist(*sg), 4), "walls": [],
+                         "reason": "two room names shared one face", "outline": chain["outline"]})
+        entry.update(kept=True, reason="two room names shared one face")
         log.append(entry)
         return new
     entry.update(kept=False, reason="considered, not needed")
@@ -651,7 +734,8 @@ def _separator_item(cand: dict, walls: list[WallItem], units_to_m: Optional[floa
     page = ref.evidence.get("page") if ref else None
     entity = "separator:" + "|".join(w.entity for w in touching)
     ev = B.evidence(file_rel, "derived", SEPARATOR_CONFIDENCE, page=page, entity=entity)
-    ev["note"] = f"virtual separator ({cand['kind'].replace('_', '-')}, {cand['length']:.2f} m): {cand['reason']}"
+    ev["note"] = f"virtual separator ({cand['kind'].replace('_', '-')}, {cand['length']:.2f} m): {cand['reason']}" \
+        + (f"; {cand['outline']}" if cand.get("outline") else "")
     angle = math.degrees(math.atan2(y1 - y0, x1 - x0)) % 180.0
     box = [min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)]
     if units_to_m:

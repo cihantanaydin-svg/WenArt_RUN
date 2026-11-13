@@ -56,12 +56,11 @@ XFAIL_COUNTS = {
     "synthetic-16-open-recess": _xfail("open_recess", "UL313", "an opening doubles the corridor-end door"),
     "synthetic-17-garage-lift": _xfail("garage_lift", "UL320", "the 3.4 m garage opening is read as a window"),
     "synthetic-20-glazed-corner": _xfail("glazed_corner", "UL274", "the L of frames is one window and one door"),
-    "synthetic-22-curved-stair": _xfail("curved_stair", "open:real07", "the curved stair is not read at all"),
 }
-# every drawn room and opening of synthetic-16 and -22 is read; the counts fail on what is extra or missing
+# every drawn room and opening of synthetic-16 is read; the counts fail on what is extra or missing (synthetic-22 reads
+# right since 6 Nov 2026: its curved stair is read, stair_numbers.curved_stair_of; review B-X1: no entry for it here)
 # (synthetic-19, the symmetric single house, reads right since 5 Nov 2026: mirror.halves_axis)
-XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items()
-                  if k not in ("synthetic-16-open-recess", "synthetic-22-curved-stair")}
+XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items() if k != "synthetic-16-open-recess"}
 
 
 def _params(names, marks: dict):
@@ -100,6 +99,7 @@ EXPECTED_NAMES = [
     "synthetic-20-glazed-corner",
     "synthetic-21-parapet",
     "synthetic-22-curved-stair",
+    "synthetic-23-size-tags",
 ]
 
 
@@ -435,9 +435,32 @@ def _stair(b: dict) -> dict:
     return stairs[0].get("stair") or {}
 
 
-@_xfail("winder_stair", "UL286", "the turn is read as a flat landing by the stair rule; the numbered-tread reader "
-                                 "(steps_drawn, winders) does not take this stair")
+def _built_stair(b: dict) -> dict:
+    """12 Nov 2026 (review B S12): the stair as ``parametric.stair_plan`` builds it for a 3 m storey; its flights climb
+    one after the other and the floor rises all the way."""
+    from wenart.blender import parametric as P
+    (piece,) = [f for f in b["furniture"] if f.get("type") == "stair"]
+    plan = P.stair_plan(piece, 3.0)
+    zs = [z for f in plan["flights"] for z in (f["base_z"], f["top_z"])]
+    assert zs == sorted(zs) and plan["flights"][-1]["top_z"] == pytest.approx(3.0)
+    return plan
+
+
+@pytest.mark.parametrize("name", NAMES)
+def test_every_read_stair_passes_the_integrity_check(generated, read, name):
+    """13 Nov 2026 (coordinator after review B3: "The user should never have to point at a hole in a stair"): every
+    stair a synthetic project reads is built (``parametric.stair_plan`` on its level's storey and walls) with a
+    continuous walking line, no overlap, one riser at a time summing to the storey, the ceiling opening over every
+    step without headroom and no tread in a wall (``wenart.reading_check.stairs``, RC16)."""
+    from wenart.reading_check import stairs as ST
+    recs = ST.stairs(read(name))
+    bad = [(r["level_id"], r["id"], r["error"] or r["violations"]) for r in recs if r["error"] or r["violations"]]
+    assert bad == []
+
+
 def test_15_winders_and_seventeen_treads(generated, read):
+    # 6 Nov 2026: the stair rule's piece takes what the numbers say (stair_numbers.enrich; the first winder is not the
+    # arm's last tread, stair_numbers._trim_arm)
     t = truth_of(generated, "synthetic-15-winder-stair")
     truth = t["per_level"]["L0"]["stairs"][0]
     assert truth["risers"] == 17
@@ -445,7 +468,12 @@ def test_15_winders_and_seventeen_treads(generated, read):
     st = _stair(read("synthetic-15-winder-stair"))
     # what wenart.ingest.generic.stair_numbers writes for a stair read from its numbers (1-17, winders at the turn)
     assert st.get("steps_drawn") == 17
-    assert st.get("winders") == winders["treads"][1] - winders["treads"][0] + 1
+    # (13 Nov 2026, review B3-REG-02: the lower arm's last riser line leads onto the first winder, so the turn adds one
+    # riser less than it holds winders)
+    assert st.get("winders") == winders["treads"][1] - winders["treads"][0]
+    # review B S8/S12: the built stair has the 17 risers and the winders in its turn
+    plan = _built_stair(read("synthetic-15-winder-stair"))
+    assert plan["risers"] == 17
 
 
 # --- synthetic-16-open-recess --------------------------------------------------------------------------------------
@@ -556,7 +584,16 @@ def test_21_terrace_edge_walls_are_parapets_of_the_section_height(generated, rea
 
 # --- synthetic-22-curved-stair -------------------------------------------------------------------------------------
 
-@_xfail("curved_stair", "open:real07", "no stair reader takes a curved stair (real07: 'Stairs are missing')")
 def test_22_curved_stair_with_its_eighteen_treads(generated, read):
+    # 6 Nov 2026: numbers on a circle are a curved stair (stair_numbers.curved_stair_of)
     st = _stair(read("synthetic-22-curved-stair"))
     assert st.get("steps_drawn") == 18
+    # review B S1/S12: built climbing round the curve, every tread a riser, each chord starting where the one before
+    # ends (one tread on)
+    cv = st["curved"]                       # review B-X1: the curve against the generator's (centre, radii, sweep)
+    assert cv["centre"] == pytest.approx([10.2, 7.35], abs=0.03) and abs(cv["sweep_deg"]) == pytest.approx(180, abs=2)
+    assert cv["radius_inner"] == pytest.approx(0.3, abs=0.03) and cv["radius_outer"] == pytest.approx(1.3, abs=0.03)
+    plan = _built_stair(read("synthetic-22-curved-stair"))
+    assert plan["risers"] == 18 and len(plan["flights"]) == len(st["flights"])
+    for a, b in zip(plan["flights"], plan["flights"][1:]):
+        assert math.dist(a["nosings"][-1], b["nosings"][0]) <= 0.6

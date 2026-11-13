@@ -3689,6 +3689,18 @@ def slab_plan(building: dict, levels: list[dict], brief_thickness: float = 0.20,
                     rec["voids"].extend(geom2d.ccw(loop) for loop in own)
                     rec["assumed"].append(f"opening for stair {pid} added (the stair's own opening)")
                     warnings.append(f"{rec['id']}: no opening over stair {pid}; the stair's opening is cut (assumed)")
+                elif own:
+                    # 13 Nov 2026 (review BLD-01: the slab's opening covered the stair's turn only, and its last flight
+                    # came up under the slab): an opening that covers only part of the stair's own void is widened
+                    # to it
+                    from wenart.blender import stair_access as SA
+                    ring = SA.opening_polygon(item["plan"], float(item["plan"].get("ceiling_z") or 0.0))
+                    grown = _grow_voids(rec["voids"], [ring] if ring else own)
+                    if grown:
+                        rec["assumed"].append(f"the opening over stair {pid} widened by {grown:.2f} m2 to the stair's "
+                                              f"own opening (assumed)")
+                        warnings.append(f"{rec['id']}: the opening over stair {pid} missed {grown:.2f} m2 of the "
+                                        f"stair's own opening; widened (assumed)")
                 for msg in stair_arrivals(item["plan"], rec["voids"]):
                     warnings.append(f"{pid}: {msg} of slab {rec['id']}")
         for note in rec["assumed"]:
@@ -3698,6 +3710,34 @@ def slab_plan(building: dict, levels: list[dict], brief_thickness: float = 0.20,
         if below is not None:
             by_level[below["id"]]["above"] = rec
     return {"slabs": records, "by_level": by_level, "assumed": assumed, "warnings": warnings}
+
+
+VOID_GROW_MIN_M2 = 0.02          # 13 Nov 2026: a stair's own opening this much larger than the slab's widens it
+
+
+def _grow_voids(voids: list, own: list) -> float:
+    """Widen the slab ``voids`` (in place) that overlap the stair's own opening loops ``own`` to cover them: each loop
+    joins the voids it overlaps into one ring (counter-clockwise), when that adds at least ``VOID_GROW_MIN_M2``.
+    Returns the area added (pure but for ``voids``)."""
+    from shapely.geometry import Polygon as _P
+    from shapely.ops import unary_union as _union
+
+    added = 0.0
+    for loop in own:
+        lp = _P(loop).buffer(0)
+        hit = [i for i, v in enumerate(voids) if _overlap(loop, v)]
+        if not hit or lp.is_empty:
+            continue
+        old = _union([_P(voids[i]).buffer(0) for i in hit])
+        u = _union([old, lp])
+        gain = u.area - old.area
+        if gain < VOID_GROW_MIN_M2 or u.geom_type != "Polygon":
+            continue
+        for i in sorted(hit, reverse=True):
+            voids.pop(i)
+        voids.append(geom2d.ccw([(float(x), float(y)) for x, y in list(u.exterior.coords)[:-1]]))
+        added += gain
+    return added
 
 
 def _overlap(a, b) -> bool:

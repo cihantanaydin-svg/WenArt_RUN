@@ -210,17 +210,28 @@ def extrude_profile(profile: Sequence[Sequence[float]], origin: Sequence[float],
 
 
 def prism(polygon: Sequence[Sequence[float]], z0: float, z1: float) -> tuple[list[Vec3], list[list[int]]]:
-    """Vertical prism of a convex 2D polygon from ``z0`` to ``z1``, wound outwards."""
+    """Vertical prism of a simple 2D polygon from ``z0`` to ``z1``, wound outwards. 13 Nov 2026 (review B3C-03: the
+    turns of a stair are often not convex, and the centroid test of ``convex_solid`` wound a side face of a staggered
+    U's turn inwards): the faces are wound from the ring's own orientation, which holds for any simple polygon (and
+    gives the same faces as ``convex_solid`` for a convex one)."""
     pts = [tuple(p[:2]) for p in polygon]
     if len(pts) > 1 and G.distance(pts[0], pts[-1]) < 1e-9:
         pts = pts[:-1]
     k = len(pts)
     verts = [(float(x), float(y), float(z0)) for x, y in pts] + [(float(x), float(y), float(z1)) for x, y in pts]
-    faces = [list(range(k)), list(range(k, 2 * k))]
+    if k < 3 or abs(G.polygon_signed_area(pts)) < 1e-15:
+        faces = [list(range(k)), list(range(k, 2 * k))]
+        for j in range(k):
+            a, b = j, (j + 1) % k
+            faces.append([a, b, k + b, k + a])
+        return convex_solid(verts, faces)
+    ccw_ring = G.polygon_signed_area(pts) > 0
+    faces = [list(reversed(range(k))), list(range(k, 2 * k))] if ccw_ring else \
+        [list(range(k)), list(reversed(range(k, 2 * k)))]
     for j in range(k):
         a, b = j, (j + 1) % k
-        faces.append([a, b, k + b, k + a])
-    return convex_solid(verts, faces)
+        faces.append([a, b, k + b, k + a] if ccw_ring else [b, a, k + a, k + b])
+    return verts, faces
 
 
 def rect_union_outline(rects: Sequence[Sequence[float]], tol: float = 1e-7) -> list[list[tuple[float, float]]]:
@@ -620,8 +631,10 @@ def ccw(polygon: Sequence[Sequence[float]]) -> list[tuple[float, float]]:
 
 
 def convex_hull(points: Iterable[Sequence[float]]) -> list[tuple[float, float]]:
-    """Counter-clockwise convex hull (Andrew's monotone chain), collinear points dropped."""
-    pts = sorted({(float(p[0]), float(p[1])) for p in points})
+    """Counter-clockwise convex hull (Andrew's monotone chain), collinear points dropped. 13 Nov 2026 (review BLD-06:
+    two x values one ULP apart broke the sort order and a true corner was popped): the points are snapped to 1e-9 m
+    first."""
+    pts = sorted({(round(float(p[0]), 9), round(float(p[1]), 9)) for p in points})
     if len(pts) <= 2:
         return pts
 
