@@ -1431,3 +1431,39 @@ def test_the_plans_title_elevations_set_the_floors_and_the_datum():
     z = {e["level_id"]: e["floor_z"]["value"] for e in out["levels"]}
     assert z == {"L-1": -3.0, "L0": 0.0, "L1": 2.7, "L2": 5.4} and out["datum"]["relative"] == 2.5
     assert out["datum"]["evidence"][0]["rule"] == "plan_title_marks" and "title mark" in lines[0]
+
+
+def test_a_lift_shaft_keeps_its_landing_door_and_no_gap_window_or_sliver_read_from_its_walls_lines():
+    from wenart.ingest import twins as TW
+
+    def room(rid, label, rtype, poly):
+        return {"id": rid, "level_id": "L1", "label": label, "room_type": rtype, "polygon": poly}
+
+    shaft = room("r_L1_asansor", "Asansör", "shaft", [[0, 0], [1.6, 0], [1.6, 1.8], [0, 1.8]])
+    hall = room("r_L1_hall", "Kat Holü", "hall", [[0, 2.0], [4, 2.0], [4, 4], [0, 4]])
+    stair = room("r_L1_stair", "Merdiven", "stair", [[1.85, 0], [4, 0], [4, 1.8], [1.85, 1.8]])
+    walls = [{"id": "w1", "level_id": "L1", "start": [-0.1, 1.9], "end": [4.1, 1.9], "thickness": 0.2},
+             {"id": "w2", "level_id": "L1", "start": [1.725, -0.1], "end": [1.725, 1.8], "thickness": 0.25}]
+    derived = [{"file": "p.dxf", "method": "derived", "confidence": 0.5}]
+    ops = [{"id": "o_land", "level_id": "L1", "type": "opening", "wall_id": "w1", "center": [0.8, 1.9], "width": 1.09,
+            "evidence": derived},
+           {"id": "o_gap", "level_id": "L1", "type": "opening", "wall_id": "w2", "center": [1.725, 0.9], "width": 1.26,
+            "status": "unverified", "type_raw": "unclassified gap content", "evidence": derived},
+           {"id": "win_x", "level_id": "L1", "type": "window", "wall_id": "w2", "center": [1.725, 0.5], "width": 0.6,
+            "evidence": [{"file": "p.dxf", "method": "derived", "rule": "gap_behind_furniture"}]},
+           {"id": "d_sliver", "level_id": "L1", "type": "door", "wall_id": "w1", "center": [1.2, 1.9], "width": 0.33,
+            "evidence": derived},
+           {"id": "d_flat", "level_id": "L1", "type": "door", "wall_id": "w1", "center": [3.0, 1.9], "width": 0.9,
+            "evidence": [{"file": "p.dxf", "method": "vector"}]}]
+    TW.lift_doors([shaft, hall, stair], ops, walls)
+    notes, closed = TW.close_lift_shaft_gaps([shaft, hall, stair], ops, walls)
+    assert sorted(o["id"] for o in ops) == ["d_flat", "o_land"] and ops[0]["lift_door"] is True
+    assert sorted(c["id"] for c in closed) == ["d_sliver", "o_gap", "win_x"] and len(notes) == 3
+    assert next(c for c in closed if c["id"] == "d_sliver")["merged_into"] == "o_land"
+    # a door drawn as a door (a block, a swing) in the shaft's wall stays
+    ops2 = [dict(ops[0]), {"id": "d_drawn", "level_id": "L1", "type": "door", "wall_id": "w2", "center": [1.725, 0.9],
+                           "width": 0.9, "evidence": [{"file": "p.dxf", "method": "vector"}]}]
+    ops2[0].pop("lift_door", None)
+    TW.lift_doors([shaft, hall, stair], ops2, walls)
+    TW.close_lift_shaft_gaps([shaft, hall, stair], ops2, walls)
+    assert sorted(o["id"] for o in ops2) == ["d_drawn", "o_land"]

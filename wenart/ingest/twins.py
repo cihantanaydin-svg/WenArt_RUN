@@ -951,6 +951,74 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> li
     return notes
 
 
+SHAFT_SLIVER_M = 0.50            # 13 Nov 2026: a 'door' this narrow overlapping a lift's landing door is part of it
+
+
+def close_lift_shaft_gaps(rooms: list[dict], openings: list[dict], walls: list[dict]) -> tuple[list[str], list[dict]]:
+    """13 Nov 2026 (building-sense review S1-10b, real10's 2nd basement: its lift shaft kept a 1.60 m gap to the
+    shelter, a 1.26 m 'window' to the stair on a buried storey and a 0.33 m sliver beside its landing door; the drawing
+    runs the shaft's concrete walls on unbroken): a lift shaft has its landing door(s) (``lift_doors``) and no other
+    opening. In each lift shaft's walls (an opening lying along the shaft, both ends within ``LIFT_WALL_REACH_M`` of
+    it), a gap or window read from the gap's lines (derived or unverified, or an unclassified gap) is closed: the wall
+    runs on; a door narrower than ``SHAFT_SLIVER_M`` overlapping the landing door is part of it. A door read from its
+    own drawing (a block, a leaf, a swing) stays. Mutates ``openings``; returns (one line per closed opening, the
+    closed openings with the reason, for ``openings_merged``)."""
+    from shapely.geometry import LineString
+
+    from wenart.sheets import register as RG
+    from wenart.sheets import titles as TI
+
+    wall_by = {w.get("id"): w for w in walls or []}
+    notes, closed = [], []
+    for s in rooms:
+        label = TI.fold(str(s.get("label_raw") or s.get("label") or ""))
+        if s.get("room_type") != "shaft" or not RG.LIFT_RE.search(label) or any(w in label for w in MACHINE_RE_WORDS) \
+                or len(s.get("polygon") or []) < 3:
+            continue
+        sp, lv = _poly(s), s["level_id"]
+        landing = [o for o in openings if o.get("level_id") == lv and o.get("lift_door") and o.get("center")
+                   and sp.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M]
+        if not landing:
+            continue
+
+        def span(o):
+            w = wall_by.get(o.get("wall_id"))
+            if w is None or w.get("start") == w.get("end"):
+                return None
+            (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
+            L = math.hypot(x1 - x0, y1 - y0)
+            ux, uy = (x1 - x0) / L, (y1 - y0) / L
+            h = float(o.get("width") or 0.0) / 2.0
+            c = o["center"]
+            return (c[0] - ux * h, c[1] - uy * h), (c[0] + ux * h, c[1] + uy * h)
+
+        for o in list(openings):
+            if o.get("level_id") != lv or o in landing or o.get("virtual") or not o.get("center"):
+                continue
+            ends = span(o)
+            if ends is None or max(sp.exterior.distance(Point(p)) for p in ends) > LIFT_WALL_REACH_M:
+                continue
+            ev = o.get("evidence") or []
+            derived = o.get("status") == "unverified" or o.get("type_raw") == "unclassified gap content" or any(
+                isinstance(e, dict) and (e.get("method") in ("derived", "inferred") or e.get("rule") in (
+                    "gap_behind_furniture", "no_glass")) for e in ev)
+            seg = LineString(ends)
+            sliver = o.get("type") == "door" and float(o.get("width") or 0.0) < SHAFT_SLIVER_M and any(
+                (sl := span(d)) is not None and LineString(sl).distance(seg) <= 0.05 for d in landing)
+            if not ((o.get("type") in ("opening", "window") and derived) or sliver):
+                continue
+            openings.remove(o)
+            why = ("a sliver beside the landing door: part of it" if sliver else
+                   f"a {o.get('type')} read from the gap's lines in the lift shaft's wall: a lift shaft has its landing "
+                   f"door and no other opening, the wall runs on")
+            closed.append(dict(o, merged_into=landing[0]["id"] if sliver else None,
+                               corrected_by_ai={"by": "code", "rule": "lift_shaft_gaps", "reason": why,
+                                                "evidence": [s["id"]]}))
+            notes.append(f"{lv}: {o['id']} ({o.get('type')} {float(o.get('width') or 0):.2f} m) in the wall of lift shaft "
+                         f"{s['id']} closed: {why}")
+    return notes, closed
+
+
 FIRE_WORDS = ("YANGIN", "FIRE ESCAPE", "FIRE STAIR", "KACIS", "ACIL CIKIS", "EMERGENCY", "NOTTREPPE", "FLUCHT",
               "SECOURS")
 FLAT_ROOM_TYPES = ("bedroom", "living", "kitchen", "dining", "bathroom", "wc", "study", "dressing")

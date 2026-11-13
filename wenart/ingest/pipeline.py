@@ -2609,6 +2609,11 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
                        f"m2): its walls are not read, the {sp['type']} is not built")
     for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"]):     # 4 Nov 2026 (UL306)
         build.warn(f"lift door: {line}")
+    shaft_notes, shaft_closed = TW.close_lift_shaft_gaps(b["rooms"], b["openings"], b["walls"])   # 13 Nov 2026 (S1-10b)
+    for line in shaft_notes:
+        build.warn(f"lift shaft: {line}")
+    if shaft_closed:
+        b.setdefault("openings_merged", []).extend(shaft_closed)
     for line in TW.fire_stairs(b["rooms"], b["openings"], b["furniture"]):   # 4 Nov 2026 (UL307, UL312)
         build.warn(f"fire stair: {line}")
     for line in TW.flat_entrance_doors(b["rooms"], b["openings"]):          # 4 Nov 2026 (UL316)
