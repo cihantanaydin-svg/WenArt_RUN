@@ -1591,6 +1591,12 @@ def test_shafts_side_by_side_open_onto_the_room_with_the_stair():
     openings = []
     TW.lift_doors([s1, s2, stair_hall, corridor], openings, walls, [stair])
     assert [o["wall_id"] for o in openings] == ["ww", "ww"]
+    # no stair read in the hall (real21): the room beside both shafts, the lobby they share, still wins
+    corridor_s = room("r_L0_girisi", "Girişi", "hall", [[5.0, 11.0], [12.0, 11.0], [12.0, 12.1], [5.0, 12.1]])
+    walls.append({"id": "ws", "level_id": "L0", "start": [8.2, 12.2], "end": [10.7, 12.2], "thickness": 0.2})
+    openings = []
+    TW.lift_doors([s1, s2, stair_hall, corridor, corridor_s], openings, walls, [])
+    assert [o["wall_id"] for o in openings] == ["ww", "ww"]
 
 
 def test_a_stair_drawn_on_a_plaster_layer_keeps_its_treads_and_a_wardrobe_stays_out():

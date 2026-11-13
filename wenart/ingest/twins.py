@@ -655,8 +655,9 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
     13 Nov 2026 (review B3C-02, B3-FC07-SIDE / B3-REG-04 / BLD-08: real21's second shaft got its door on the corridor
     side by 5 cm of edge length while both drawn door frames face the stair hall; a gap the rule does not take stayed
     an open hole into the shaft, and a gap wider than a lift door got a second, inferred door on the same spot): the
-    inferred door goes to the room that holds the stair (or that a neighbouring shaft's door faces) before a longer
-    edge, edges within ``LIFT_EDGE_TIE_M`` count as equal; it stands in a drawn gap towards that room when there is
+    inferred door goes to the room that holds the stair (or that a neighbouring shaft's door faces), then to the room
+    beside the most lift shafts (the lobby the lifts share), before a longer edge, edges within ``LIFT_EDGE_TIE_M``
+    count as equal; it stands in a drawn gap towards that room when there is
     one (the gap narrowed to the door, the rest closed); every other drawn gap into the shaft is closed (the shaft is
     entered by its landing door only), each with a note."""
     from shapely.geometry import LineString
@@ -670,6 +671,14 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
     stair_rooms = {r["id"] for r in rooms if len(r.get("polygon") or []) >= 3 and any(
         f.get("type") == "stair" and f.get("level_id") == r.get("level_id") and (f.get("footprint") or {}).get("center")
         and _poly(r).contains(Point(f["footprint"]["center"][:2])) for f in furniture or ())}
+    # the rooms beside several lift shafts: the lobby the core's lifts share (real21: both shafts' drawn door frames face
+    # the stair hall west of them, each shaft also touching one flat-entrance strip)
+    shafts = [x for x in rooms if x.get("room_type") == "shaft" and len(x.get("polygon") or []) >= 3
+              and RG.LIFT_RE.search(TI.fold(str(x.get("label_raw") or x.get("label") or "")))
+              and not any(w in TI.fold(str(x.get("label_raw") or x.get("label") or "")) for w in MACHINE_RE_WORDS)]
+    served = {r["id"]: sum(1 for x in shafts if x.get("level_id") == r.get("level_id")
+                           and _poly(x).distance(_poly(r)) <= LIFT_WALL_REACH_M)
+              for r in rooms if r.get("room_type") != "shaft" and len(r.get("polygon") or []) >= 3}
     for s in rooms:
         label = TI.fold(str(s.get("label_raw") or s.get("label") or ""))
         if s.get("room_type") != "shaft" or not RG.LIFT_RE.search(label) or any(w in label for w in MACHINE_RE_WORDS) \
@@ -734,7 +743,8 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
             if piece.length < LIFT_DOOR_W_M + 0.1:
                 continue
             rank = (CA.is_common_room(r), str(r.get("room_type") or "") in ("hall", "corridor"),
-                    r["id"] in stair_rooms or r["id"] in faced.get(lv, ()), round(piece.length / LIFT_EDGE_TIE_M))
+                    r["id"] in stair_rooms or r["id"] in faced.get(lv, ()), served.get(r["id"], 0),
+                    round(piece.length / LIFT_EDGE_TIE_M))
             cands.append((rank, r, piece))
         if not cands:
             notes.append(f"{lv}: lift shaft {s['id']}: no hall beside it, no landing door inferred")
