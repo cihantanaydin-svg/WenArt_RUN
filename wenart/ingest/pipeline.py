@@ -2567,6 +2567,37 @@ def _tag_regions(build: ProjectBuild) -> None:
                    f"{', '.join(sorted(regions_of[(level_id, file, page)]))}; left without a region_id")
 
 
+def _lift_rules(build: ProjectBuild) -> None:
+    """The lift shafts' rules (13 Nov 2026, building-sense review S1-03b: real03's single drawing never reached the
+    multi-region steps, so its twin lifts and their landing doors were never read): the drawn lift cars, the landing
+    doors (UL306) and the shaft's other gaps, for every building, whatever its sheets."""
+    from wenart.ingest import twins as TW
+
+    b = build.building
+    # 13 Nov 2026 (S1-03b): the pages' symbols are the reading's until ``reading.read_furniture`` moves them into the
+    # building, after this step: the drawn lift cars are looked for among them too
+    page_syms = []
+    for w in build.furniture_works:
+        for sym in (w.extraction.report or {}).get("symbols") or []:
+            if sym.get("center") is None or sym.get("size") is None:
+                continue
+            ent = str(((sym.get("evidence") or [{}])[0] or {}).get("entity") or "")
+            page_syms.append({"id": ent.split(",")[0] or f"symbol at {sym['center']}", "kind": sym.get("kind"),
+                              "level_id": w.extraction.level_id,
+                              "footprint": {"center": list(sym["center"]), "size": list(sym["size"]),
+                                            "rotation_deg": sym.get("rotation_deg") or 0.0}})
+    for line in TW.lift_cars(b["rooms"], (b.get("symbols") or []) + page_syms, b["furniture"], b["openings"],
+                             b["walls"]):
+        build.warn(f"lift car: {line}")                                     # 13 Nov 2026 (S1-03b)
+    for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"]):     # 4 Nov 2026 (UL306)
+        build.warn(f"lift door: {line}")
+    shaft_notes, shaft_closed = TW.close_lift_shaft_gaps(b["rooms"], b["openings"], b["walls"])   # 13 Nov 2026 (S1-10b)
+    for line in shaft_notes:
+        build.warn(f"lift shaft: {line}")
+    if shaft_closed:
+        b.setdefault("openings_merged", []).extend(shaft_closed)
+
+
 def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     """The M10 blocks of a multi-region project: rooms (child subtype, mirror twins, same_as), variants, slabs, roof,
     facade and the site additions."""
@@ -2607,15 +2638,7 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
             build.warn(f"sub-space not read: {room['level_id']}: '{sp['label']}' ({sp['type']}, at most "
                        f"{sp['max_m2']:g} m2) stands in {room['id']} '{room.get('label')}' ({room.get('area_computed')} "
                        f"m2): its walls are not read, the {sp['type']} is not built")
-    for line in TW.lift_cars(b["rooms"], b.get("symbols") or [], b["furniture"], b["openings"], b["walls"]):
-        build.warn(f"lift car: {line}")                                     # 13 Nov 2026 (S1-03b)
-    for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"]):     # 4 Nov 2026 (UL306)
-        build.warn(f"lift door: {line}")
-    shaft_notes, shaft_closed = TW.close_lift_shaft_gaps(b["rooms"], b["openings"], b["walls"])   # 13 Nov 2026 (S1-10b)
-    for line in shaft_notes:
-        build.warn(f"lift shaft: {line}")
-    if shaft_closed:
-        b.setdefault("openings_merged", []).extend(shaft_closed)
+    _lift_rules(build)
     for line in TW.fire_stairs(b["rooms"], b["openings"], b["furniture"]):   # 4 Nov 2026 (UL307, UL312)
         build.warn(f"fire stair: {line}")
     for line in TW.flat_entrance_doors(b["rooms"], b["openings"]):          # 4 Nov 2026 (UL316)
@@ -3151,6 +3174,8 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     _check_outlines(build)
     if build.sheets is not None:
         _building_m10(build, project_dir)
+    else:
+        _lift_rules(build)           # 13 Nov 2026 (S1-03b): a single drawing's lifts too
     # Milestone 12 (docs/milestone12.md §3, §4.1, contract §13.2): the level marks (track L), then the furniture
     # reading (track R), before the type inference.
     from wenart.ingest.generic import levels as LV, reading as RD, twin_walls as TW
