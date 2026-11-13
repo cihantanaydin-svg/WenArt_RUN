@@ -352,6 +352,12 @@ def surface_z(plan: dict, p, frames: Optional[list] = None) -> Optional[float]:
             return float(w["top"])
     if land.get("role") in ("mid", "top") and G.point_in_polygon(p, land["polygon"]):
         return float(land["z"])
+    for t in plan.get("turns") or []:                        # 12 Nov 2026 (review B2-ST4): the other turns
+        for w in t.get("winders") or []:
+            if G.point_in_polygon(p, w["polygon"]):
+                return float(w["top"])
+        if t.get("role") == "flat" and G.point_in_polygon(p, t["polygon"]):
+            return float(t["z"])
     for fr in frames:
         s, q = _s_of(fr, p), _q_of(fr, p)
         if abs(q) <= fr["hw"] + 1e-3 and -0.03 <= s <= fr["L"] + 1e-6:
@@ -419,6 +425,15 @@ def turn_sign(plan: dict) -> float:
     return 1.0 if d > 0 else -1.0
 
 
+def _turn_sign_frames(a: dict, b: dict) -> float:
+    """+1 when the stair turns left from flight frame ``a`` to ``b``, -1 right (``turn_sign`` for any pair)."""
+    c1 = _add(a["o"], a["r"], a["L"])
+    d = _dot(a["pl"], _sub(b["o"], c1))
+    if abs(d) < 1e-6:
+        d = _cross(a["r"], b["r"])
+    return 1.0 if d > 0 else -1.0
+
+
 def side_paths(plan: dict, wall_rects: Sequence = ()) -> list[dict]:
     """The two climbing sides of a planned stair (module docstring): ``[{"side": "left" | "right", "sign": +1 | -1,
     "inner": True on the well side of a turning stair, "legs": [{"what": "flight" | "landing" | "winders" | "apron" |
@@ -441,6 +456,19 @@ def side_paths(plan: dict, wall_rects: Sequence = ()) -> list[dict]:
             a, b = _edge_point(fr, 0.0, sign), _edge_point(fr, fr["L"], sign)
             legs.append({"what": "flight", "flight": fr["index"], "a": a, "b": b,
                          "out": (fr["pl"][0] * sign, fr["pl"][1] * sign)})
+            other = next((t for t in plan.get("turns") or [] if t.get("after") == i), None)
+            if other is not None and i + 1 < len(frames) and len(other.get("polygon") or []) >= 3:
+                # 12 Nov 2026 (review B2-ST4): the edge of every other turn of ordered flights, as a landing's
+                tp = geom2d.ccw([(float(q[0]), float(q[1])) for q in other["polygon"]])
+                nxt = _edge_point(frames[i + 1], 0.0, sign)
+                local = _turn_sign_frames(fr, frames[i + 1])
+                pts = boundary_arc(tp, b, nxt, short=(sign == local))
+                pts[0], pts[-1] = b, nxt
+                for u, w in zip(pts, pts[1:]):
+                    if G.distance(u, w) > 1e-4:
+                        legs.append({"what": "winders" if other.get("role") == "winders" else "landing",
+                                     "flight": None, "a": u, "b": w, "out": _edge_normal(tp, u, w),
+                                     "z": float(other["z"])})
             if i == 0 and turn is not None:
                 what = "winders" if land["role"] == "winders" else "landing"
                 nxt = _edge_point(frames[1], 0.0, sign)
@@ -1388,6 +1416,7 @@ def _hull(plan: dict, frames: list) -> list:
                 pts.append(_add(_add(fr["o"], fr["r"], s), fr["pl"], q * fr["hw"]))
     land = plan.get("landing") or {}
     pts += [tuple(p) for p in land.get("polygon") or []]
+    pts += [tuple(p) for t in plan.get("turns") or [] for p in t.get("polygon") or []]     # review B2-ST4
     apron = float(plan.get("top_apron") or 0.0)
     if apron > 0 and frames:
         fr = frames[-1]

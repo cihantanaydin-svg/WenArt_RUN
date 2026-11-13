@@ -258,6 +258,9 @@ def _shift_piece(f: FurnitureItem, sh: _Shift) -> None:
         landing = stair.get("landing")
         if landing and landing.get("polygon"):
             landing["polygon"] = sh.pts(landing["polygon"])
+        curved = stair.get("curved")                 # 6 Nov 2026: a curved stair's centre (stair_numbers)
+        if curved and curved.get("centre") is not None:
+            curved["centre"] = list(sh.p(curved["centre"]))
 
 
 def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls: Optional[list] = None,
@@ -2182,16 +2185,33 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
     return out if done else None
 
 
-DOOR_TAG_MIN_H_CM = 180        # 12 Nov 2026: a door size tag is at least this high (a lower one is a window or vent)
+DOOR_TAG_LOW_H_CM = 180        # 12 Nov 2026: a door size tag is at least this high (a lower one is a window or vent)
 DOOR_TAG_REACH_M = 1.2          # 4 Nov 2026 (UL321): a door size tag stands this close to its door's gap
 DOOR_TAG_KINDS = ("opening", "window", "door")
 
 
-def _door_like_tag(t, w_cm: int, h_cm: int, openings: list) -> bool:
+NOT_LIVED_IN_TYPES = ("other", "shaft", "balcony", "terrace")   # 12 Nov 2026: room types no label of a lived-in room has
+DOOR_TAG_MIN_H_CM = 200        # 6 Nov 2026: a size tag this high is a door's (on a plain text layer: ``_door_tags``)
+DOOR_TAG_MAX_W_CM = 300        # 12 Nov 2026: ... and no wider than a door product (a garage door; review B-OPN-08)
+DOOR_TAG_TEXT_ROLES = (None, "text")
+DOOR_TAG_WINDOW_WIDTH_M = 0.25   # 6 Nov 2026: a door-layer door tag takes a drawn window this close to its width
+DOOR_TAG_SAME_M = 0.05           # 12 Nov 2026: a door this close to the tag's width is the tag's door (used up) ...
+DOOR_TAG_DOOR_W_M = 0.30         # ... a drawn door within this of it may take its size (a leaf drawn without frames,
+#                                  openings.DOOR_FRAME_M + 5 cm); a door further off is another door, never resized
+DOOR_TAG_GAP_SHARE = 2.0         # a gap wider than this many tag widths holds more than one such door: not the tag's
+DOOR_TAG_COINCIDENT_M = 0.05     # doors this close (centres) are one spot: it takes one tag at most
+DOOR_TAG_SIDE_M = 0.30           # an opening is in an outer wall when a point this far past its face lies outside
+DOOR_TAG_LEAF_M = 0.15           # 12 Nov 2026 (review B2 FC-05): a tag this near a door's drawn leaf or swing is its
+DOOR_TAG_TIE_M = 0.01            # ... pairs this near the tag's nearest are equally near (one edge read on two copies)
+DOOR_TAG_PLAIN_MIN_H_CM = 205    # review B2-GEN-02: 200 is a mattress's length ('160/200'); every plain-layer door tag of
+#                                  the drawings read is 210 or more
+
+
+def _door_like_tag(t, w_cm: int, h_cm: int, openings: list, max_w_cm: int = 120) -> bool:
     """4 Nov 2026 (real07: every size tag, doors' and windows', on the joinery layer DOĞRAMA): a tag on a window or joinery
     layer is a door's when it is door-high (>= 200 cm) and door-wide (<= 120 cm) and the nearest opening within
     ``DOOR_TAG_REACH_M`` is a door or a gap, not a window."""
-    if h_cm < 200 or w_cm > 120:
+    if h_cm < DOOR_TAG_MIN_H_CM or w_cm > max_w_cm:
         return False
     c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
     near = [(math.dist(c, tuple(o.center)), o) for o in openings if not o.virtual]
@@ -2202,57 +2222,187 @@ def _door_like_tag(t, w_cm: int, h_cm: int, openings: list) -> bool:
     return o.kind in ("door", "opening") or "gap" in str(o.type_raw or "")
 
 
+def _span(o) -> LineString:
+    """The opening's span along its wall (its centre +- half its width at its rotation)."""
+    r = math.radians(float(o.rotation_deg or 0.0))
+    dx, dy = math.cos(r) * float(o.width) / 2.0, math.sin(r) * float(o.width) / 2.0
+    cx, cy = float(o.center[0]), float(o.center[1])
+    return LineString([(cx - dx, cy - dy), (cx + dx, cy + dy)])
+
+
+def _outer_opening(o, outline) -> bool:
+    """The opening stands in an outer wall: a point ``DOOR_TAG_SIDE_M`` past either face (0.3 m off the centre line
+    plus half a thick wall) lies outside the building's filled outline."""
+    if outline is None or outline.is_empty:
+        return False
+    r = math.radians(float(o.rotation_deg or 0.0))
+    nx, ny = -math.sin(r), math.cos(r)
+    off = 0.25 + DOOR_TAG_SIDE_M
+    cx, cy = float(o.center[0]), float(o.center[1])
+    return any(not outline.contains(Point(cx + sg * nx * off, cy + sg * ny * off)) for sg in (-1.0, 1.0))
+
+
+def _window_content(o) -> bool:
+    """A gap holding lines along it (its unclassified content noted 'no_glass': two or more lines spanning it, a
+    window's frame drawn without glass the reader could confirm)."""
+    ev = o.evidence if isinstance(o.evidence, dict) else {}
+    return ev.get("rule") == "no_glass"
+
+
+def _leaf_distance(c, o, strokes: dict) -> float:
+    """The distance from point ``c`` to the drawn strokes of door ``o`` (its swing and leaf, its evidence's entities),
+    inf when none is known."""
+    ev = o.evidence if isinstance(o.evidence, dict) else {}
+    best = float("inf")
+    for e in str(ev.get("entity") or o.entity or "").split(","):
+        st = strokes.get(e.strip())
+        if st is not None and len(st.pts) >= 2:
+            best = min(best, LineString(st.pts).distance(c))
+    return best
+
+
 def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float,
-               keep_width: bool = False):
+               keep_width: bool = False, outline=None, strokes=()):
     """4 Nov 2026 (real07, user: "the entrance to the room is wrong door not recognized properly", "where is the
-    entrance to the bus wc you missed the door"; lesson UL321): a door size tag ("80/210", width/height in cm, on a door
-    text layer; written along the leaf, so at any angle) is the door of the nearest unclassified gap, window-typed gap
-    or door within ``DOOR_TAG_REACH_M``: a door of that width and height, centred where the gap is; a gap read wider
-    than the door keeps the rest as wall. Returns the new openings or None."""
+    entrance to the bus wc you missed the door"; lesson UL321): a door size tag ("80/210", width/height in cm; written
+    along the leaf, so at any angle) is the door of the opening it labels within ``DOOR_TAG_REACH_M``: a door of that
+    width and height, centred where the gap is; a gap read wider than the door keeps the rest as wall.
+
+    Which tags: one on a door layer; one on a window or joinery layer that is door-like (``_door_like_tag``); and
+    (6 Nov 2026, real10 C0035: the fire stair's '140/230' on the plain layer TEXT) a door-high one (>=
+    ``DOOR_TAG_MIN_H_CM``, at most ``DOOR_TAG_MAX_W_CM`` wide) on a plain text layer.
+
+    Which openings (12 Nov 2026, review B-OPN-01/02/04/08, B-r10-tag*, B-T1): the tags of a level are matched to the
+    openings all at once, nearest pairs first (the distance from the tag to the opening's span), never in text order;
+    one opening per tag and one tag per spot (doors within ``DOOR_TAG_COINCIDENT_M`` are one spot: two symbols there
+    are logged, not both resized). A door of the tag's width uses the tag up; a door within ``DOOR_TAG_DOOR_W_M`` of it
+    takes its size; a door further off is another door (real10's 0.43 m shaft boxes beside a '90/210'). A gap takes the
+    tag unless it holds more than one such door (wider than ``DOOR_TAG_GAP_SHARE`` tag widths; a gap read narrower
+    than its door keeps the tag: real07's 0.52 m gap of an '80/210'). A tag on a plain text layer decides door only where the drawing does not say window: never a gap holding
+    a window's frame lines (``_window_content``) and never a gap in an outer wall (``_outer_opening``, the building's
+    filled ``outline``: real18's 2.75 m facade window beside an '80/210', real10's '165/210' kitchen windows), where a
+    door-high opening may be a window; the width alone decides nothing. A door-high tag on a door layer may take a
+    drawn window of about its width (real16's shower doors read as windows), but only as the best match: the tag's own
+    door, when read, is nearer. Returns the new openings or None."""
     from wenart.ingest.generic import layer_names as LN
-    from wenart.ingest.model import OpeningItem
 
     tags = []
     for t in texts_m:
         m = SIZE_TAG_RE.match(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
-        # 12 Nov 2026 (round-2 review, F6: real11's vent size '75/45' on a door layer made a 0.45 m high door): a
-        # size under a door's height (DOOR_TAG_MIN_H_CM) is a window's or a vent's, never a door's
-        if m and int(m.group(2)) >= DOOR_TAG_MIN_H_CM and (LN.layer_role(layer) == "door" or (
-                LN.layer_role(layer) == "window"
-                                                     and _door_like_tag(t, int(m.group(1)), int(m.group(2)), openings))):
-            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+        if not m:
+            continue
+        role = LN.layer_role(layer)
+        w_cm, h_cm = int(m.group(1)), int(m.group(2))
+        if h_cm < DOOR_TAG_LOW_H_CM:
+            # 12 Nov 2026 (round-2 review, F6: real11's vent size '75/45' on a door layer made a 0.45 m high door): a
+            # size under a door's height is a window's or a vent's, never a door's
+            continue
+        plain = role in DOOR_TAG_TEXT_ROLES
+        if role == "door" or (role == "window" and _door_like_tag(t, w_cm, h_cm, openings)) \
+                or (plain and h_cm >= DOOR_TAG_PLAIN_MIN_H_CM and w_cm <= DOOR_TAG_MAX_W_CM):
+            # 6 Nov 2026 (real16 L1: the four shower rooms' '80/220' doors read as 0.68 m windows, their leaves' lines
+            # in the wall taken for glass): a door-high tag on a door layer may take a drawn window of about its width
+            over = role == "door" and h_cm >= DOOR_TAG_MIN_H_CM
+            tags.append((t, w_cm / 100.0, h_cm / 100.0, over, plain))
     if not tags:
         return None
-    out = list(openings)
-    taken: set = set()
-    done = []
-    for t, width, height in tags:
-        c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
-        best = None
-        for j, o in enumerate(out):
-            if j in taken or o.virtual or o.kind not in DOOR_TAG_KINDS:
+    by_id = {st.id: st for st in strokes or ()}
+    pairs = []
+    for ti, (t, width, height, over, plain) in enumerate(tags):
+        c = Point((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
+        for j, o in enumerate(openings):
+            if o.virtual or o.kind not in DOOR_TAG_KINDS:
                 continue
-            if o.kind == "window" and "gap" not in str(o.type_raw or ""):
+            w = float(o.width)
+            gap = o.kind == "opening" or (o.kind == "window" and "gap" in str(o.type_raw or ""))
+            if o.kind == "door":
+                if abs(w - width) > DOOR_TAG_DOOR_W_M:
+                    continue                                   # another door, not this tag's
+            elif gap:
+                if w > DOOR_TAG_GAP_SHARE * width:
+                    continue                                   # it holds more than one such door
+                if plain and w < width - DOOR_TAG_DOOR_W_M:
+                    continue                                   # review B2-GEN-02: a plain tag widens no gap past its jambs
+                if plain and (_window_content(o) or _outer_opening(o, outline)):
+                    continue                                   # the drawing may say window there
+            elif not (over and abs(w - width) <= DOOR_TAG_WINDOW_WIDTH_M):
                 continue                                       # a drawn window keeps its kind
-            if o.kind == "door" and abs(float(o.width) - width) <= 0.05:
-                continue                                       # already the tagged door
-            d = math.dist(c, tuple(o.center))
-            if d <= DOOR_TAG_REACH_M and (best is None or d < best[0]):
-                best = (d, j)
-        if best is None:
+            d = c.distance(_span(o))
+            if d <= DOOR_TAG_REACH_M:
+                # 12 Nov 2026 (real07 C0047, the user's correction: the '80/210' stood as near the Kat Kal. door's
+                # span as the 1.56 m gap read over it, and the gap won by its place in the list): equally near, a
+                # drawn door before a gap before a drawn window, then the nearer width. Review B2 FC-05 (real10's right
+                # half: each tag written along its own door's leaf, nearer another door's span): a tag by a door's
+                # drawn leaf or swing belongs to that door first
+                rank = 0 if o.kind == "door" else (1 if gap else 2)
+                leaf = _leaf_distance(c, o, by_id) if o.kind == "door" and by_id else float("inf")
+                pairs.append([leaf <= DOOR_TAG_LEAF_M, leaf, d, rank, round(abs(w - width), 4), ti, j])
+    # review B2 CB-6: 'equally near' is within DOOR_TAG_TIE_M of the tag's nearest pair, not a rounding bucket
+    best: dict = {}
+    for pr in pairs:
+        if not pr[0]:
+            best[pr[5]] = min(best.get(pr[5], float("inf")), pr[2])
+    keyed = []
+    for by_leaf, leaf, d, rank, wdiff, ti, j in pairs:
+        if by_leaf:
+            keyed.append((0, leaf, 0, wdiff, d, ti, j))
+        else:
+            near = best[ti] if d <= best[ti] + DOOR_TAG_TIE_M else d
+            keyed.append((1, near, rank, wdiff, d, ti, j))
+    pairs = sorted(keyed)
+    out = list(openings)
+    used_tags: set = set()
+    taken: set = set()
+    spots: list = []
+    done, clashes = [], []
+    for *_key, ti, j in pairs:
+        if ti in used_tags or j in taken:
             continue
-        j = best[1]
-        o = out[j]
+        t, width, height, over, plain = tags[ti]
+        o = openings[j]
+        spot = next((sp for sp in spots if math.dist(sp[0], tuple(o.center)) <= DOOR_TAG_COINCIDENT_M), None)
+        if spot is not None:
+            # (review B2 CB-4: a door symbol drawn twice does not use up the tag; it may still reach its own opening)
+            clashes.append(f"{t.text.strip()} at the spot of {spot[1]} ({o.center[0]:.2f}, {o.center[1]:.2f}): "
+                           f"two door symbols on one spot")
+            continue
+        used_tags.add(ti)
+        taken.add(j)
+        spots.append((tuple(o.center), t.text.strip()))
+        if o.kind == "door" and abs(float(o.width) - width) <= DOOR_TAG_SAME_M + 1e-6:
+            continue                                           # the tag's own door: used up
         ev = dict(t.evidence[0]) if t.evidence else {}
         ev.update(method="vector", confidence=0.9, rule="size_tag",
                   reason=f"the door size tag '{t.text.strip()}' (width/height in cm) beside the gap")
         new_w = float(o.width) if keep_width and float(o.width) > width else width
-        out[j] = dataclasses.replace(o, kind="door", width=round(new_w, 3), height=height, evidence=ev,
-                                     type_raw=f"door size tag {t.text.strip()}",
-                                     assumed=[a for a in (o.assumed or []) if a != "height"])
-        taken.add(j)
+        centre = tuple(o.center)
+        assumed = [a for a in (o.assumed or []) if a != "height"]
+        if o.kind != "door" and float(o.width) - new_w > DOOR_TAG_SAME_M:
+            # 12 Nov 2026 (real07 C0047, the user's correction: the 80/210 door of Kat Kal. was put in the middle of
+            # the 1.56 m gap read over it, 0.38 m off its jambs): a door in a gap wider than itself is hung at a jamb,
+            # the one nearer its tag; with the tag over the gap's middle third it stays in the middle. The drawing
+            # does not say where: the place is inferred (review B2-GEN-04)
+            a, b = list(_span(o).coords)
+            tc = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
+            length = max(math.dist(a, b), 1e-9)
+            along = ((tc[0] - a[0]) * (b[0] - a[0]) + (tc[1] - a[1]) * (b[1] - a[1])) / length / length
+            if not 1.0 / 3.0 <= along <= 2.0 / 3.0:
+                end, other = (a, b) if along < 0.5 else (b, a)
+                f = new_w / 2.0 / length
+                centre = (round(end[0] + (other[0] - end[0]) * f, 4), round(end[1] + (other[1] - end[1]) * f, 4))
+                where_ = "hung at the jamb nearer the tag"
+            else:
+                where_ = "left in the middle (the tag stands over the gap's middle)"
+            ev.update(method="inferred", confidence=0.6, rule="size_tag_jamb",
+                      note=f"{where_}: the drawing does not show where in the {float(o.width):.2f} m gap the "
+                           f"{new_w:.2f} m door hangs (the rest of the gap is wall)")
+            assumed = assumed + ["position"]
+        out[j] = dataclasses.replace(o, kind="door", width=round(new_w, 3), height=height, evidence=ev, center=centre,
+                                     type_raw=f"door size tag {t.text.strip()}", assumed=assumed)
         done.append(f"{t.text.strip()} ({o.kind} {float(o.width):.2f} m -> door {new_w:.2f} m)")
+    if clashes:
+        ex.notes.append(f"{where}: door size tags on a spot that already took a tag: " + "; ".join(clashes[:8]))
     if done:
         ex.notes.append(f"{where}: {len(done)} door(s) set by their size tags: " + ", ".join(done[:12]))
         return out
@@ -2303,7 +2453,7 @@ def _swing(st, x0, y0, ux, uy, h):
 
 
 def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m: list, owned=(),
-                         texts_m=()) -> list:
+                         texts_m=(), file_rel: str = "", page_no=None, units_to_m: Optional[float] = None) -> list:
     """12 Nov 2026 (reviews of the reader targets; real15 F1: the kitchen door block's leaf and swing read as
     unclassified gap content, then as windows; round 2: borrowed swings made false doors on real21, real06, real09,
     real11): a door from a door leaf's swing in an unclassified gap, only when
@@ -2316,8 +2466,8 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
     - no window size tag (P / W and W/H) of its own stands by the gap (a tag speaks for its nearest opening);
     - its chord, from the hinge to the closed leaf's tip along the wall, lies inside the gap.
 
-    The door is put on that chord (two chords meeting in the gap make one double door); the rest of the gap stays an
-    unclassified opening when window or glass lines stand in it, else it is wall. Never silent."""
+    The door is put on that chord (two chords meeting in the gap make one double door); the rest of the gap is read
+    again from its lines (``openings.doors_in_gaps``: wall, window or an open rest). Never silent."""
     from wenart.ingest.generic import layer_names as LN
 
     arcs = []
@@ -2333,8 +2483,6 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
             if float(a["radius"]) < DOOR_WINDOW_MIN_R or not (DOOR_WINDOW_SWEEP[0] <= sweep <= DOOR_WINDOW_SWEEP[1]):
                 continue
         arcs.append(st)
-    glass = [st for st in strokes_m if st.arc is None and len(st.pts) >= 2
-             and LN.layer_role(st.layer) in ("window", "glass")]
     tags = [((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0) for t in texts_m
             if WINDOW_TAG_RE.match(str(getattr(t, "text", "") or ""))]
     doors = [o for o in openings if o.kind == "door" and not getattr(o, "virtual", False)]
@@ -2417,24 +2565,18 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
         door = dataclasses.replace(o, kind="door", width=round(d1 - d0, 3),
                                    center=(round(x0 + ux * mid, 4), round(y0 + uy * mid, 4)), evidence=ev,
                                    status="verified", type_raw=f"door block in gap ({ids})")
-        if len(pick) == 2:
-            door.operation, door.operation_source = "double", "geometry"
-        out.append(door)
-        rest = []
-        for r0, r1 in ((g0, d0), (d1, g1)):
-            if r1 - r0 < 0.3:
-                continue
-            if any(on_wall(((q0[0] + q1[0]) / 2.0, (q0[1] + q1[1]) / 2.0)) and r0 <= along(
-                    ((q0[0] + q1[0]) / 2.0, (q0[1] + q1[1]) / 2.0)) <= r1 for st in glass
-                    for q0, q1 in zip(st.pts, st.pts[1:])):
-                rm = (r0 + r1) / 2.0
-                rest.append(dataclasses.replace(o, width=round(r1 - r0, 3),
-                                                center=(round(x0 + ux * rm, 4), round(y0 + uy * rm, 4))))
-        out += rest
+        door.operation, door.operation_source = ("double" if len(pick) == 2 else "swing"), "geometry"
+        # 13 Nov 2026 (merge with reader B, the coordinator: one gap mechanism): the door takes its part of the gap and
+        # the rest is read again from the lines over it (``openings.doors_in_gaps``: wall faces make wall, glass or a
+        # sill a window, else an open rest marked ``rest_of``)
+        pair = O.doors_in_gaps(walls2, [door, o], strokes_m, file_rel, page_no, units_to_m=units_to_m)
+        got = pair if pair is not None else [door]
+        out += got
+        rest = [x for x in got if x is not door]
         ex.notes.append(f"{where}: gap {o.entity[:80]} ({float(o.width):.2f} m) holds the swing(s) {ids} hinged in it:"
-                        f" a {d1 - d0:.2f} m {'double ' if len(pick) == 2 else ''}door on the leaf's chord"
-                        + (f"; {len(rest)} glazed part(s) of the gap stay openings" if rest else
-                           "; the rest of the gap is wall"))
+                        f" a {d1 - d0:.2f} m {'double ' if len(pick) == 2 else ''}door on the leaf's chord; the rest of "
+                        f"the gap read again from its lines: "
+                        + (", ".join(f"{x.kind} {float(x.width):.2f} m" for x in rest) if rest else "wall"))
     return out
 
 
@@ -3184,9 +3326,28 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     non_wall = [st for st in strokes_m if st.id not in wall_strokes]
     # (the dimension finder's strokes are not passed: its "two parallel lines around a number" also takes a window's
     # frame lines beside its size tag; the notation is read from the layers, UL296)
-    walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s)
+    # 6 Nov 2026: the wall primitives' strokes go along, so a door leaf the wall mask read as a thin wall goes back to
+    # its door (``openings.leaf_walls``)
+    # 12 Nov 2026 (review B-OPN-03): the outdoor-space labels (balcony, terrace, courtyard) mark the closed spaces open
+    # to the sky, so a window on their walls is no inner wall's
+    # 12 Nov 2026 (review B2-GEN-01): the labels of rooms one lives in mark closed spaces that are never open to the sky
+    # (a living room whose entrance gap the reading left unclassified is no light well)
+    from wenart.levels import outdoor as OD
+    outdoor_points, room_points = [], []
+    for t in texts_m:
+        if not t.text:
+            continue
+        at = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
+        if OD.space_kind(t.text):
+            outdoor_points.append(at)
+        elif B.room_type_for(t.text) not in NOT_LIVED_IN_TYPES:
+            room_points.append(at)
+    walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s,
+                                                           wall_strokes=[st for st in strokes_m
+                                                                         if st.id in wall_strokes],
+                                                           outdoor_points=outdoor_points, room_points=room_points)
     walls2, openings = _faces_through_gaps(ex, where, walls2, openings, strokes_m)
-    openings = _door_blocks_in_gaps(ex, where, walls2, openings, strokes_m, owned, texts_m)
+    openings = _door_blocks_in_gaps(ex, where, walls2, openings, strokes_m, owned, texts_m, file_rel, page_no, s)
     for e in gap_log:
         if e.get("kind") == "wall_piece":
             # A door leaf fused to a wall face (the run's faces kept; also in the wall's evidence note) or a frame or
@@ -3270,8 +3431,10 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     if not is_raster:
         # 4 Nov 2026 (real17, user: "these sections could be full windows glass, check it"): a window size tag sets its
         # window (``_window_tags``)
+        tag_outline = TP.building_outline(bwalls, b_openings) if bwalls else None
         for keep_width in (False, True):
-            doored = _door_tags(ex, where, walls2, openings, texts_m, s, keep_width=keep_width)
+            doored = _door_tags(ex, where, walls2, openings, texts_m, s, keep_width=keep_width, outline=tag_outline,
+                                strokes=non_wall)
             if doored is None:
                 break
             bw_d, site_d, sw_d = TP.split_plot(walls2, doored, blocks, level_id=level_id)
@@ -3283,6 +3446,21 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                 break
             ex.notes.append(f"{where}: the doors of the size tags at their own widths would open the walls"
                             + ("" if keep_width else ": they keep their gaps' widths"))
+        # 12 Nov 2026 (review B2 FC-06 / REG-3): every drawn door in a gap of its own wall takes its part of the gap, the
+        # rest read from the drawing (``openings.doors_in_gaps``)
+        trimmed = O.doors_in_gaps(walls2, openings, non_wall + [st for st in strokes_m if st.id in wall_strokes],
+                                  file_rel, page_no, units_to_m=s)
+        if trimmed is not None:
+            bw_g, site_g, sw_g = TP.split_plot(walls2, trimmed, blocks, level_id=level_id)
+            idx = {o["index"] for o in site_g["openings"]}
+            b_open_g = [o for j, o in enumerate(trimmed) if j not in idx]
+            prob_g = TP.outer_loop_problem(bw_g, b_open_g)
+            if _unclosed(sw_g) <= _unclosed(site_warnings) and (prob_g is None or problem is not None):
+                openings, bwalls, site, site_warnings, b_openings, problem = trimmed, bw_g, site_g, sw_g, b_open_g, \
+                    prob_g
+            else:
+                ex.notes.append(f"{where}: the doors' parts of the gaps they stand in left as read: the rests would "
+                                f"open the walls")
         tagged = _window_tags(ex, where, walls2, openings, texts_m, s)
         if tagged is not None:
             bw_t, site_t, sw_t = TP.split_plot(walls2, tagged, blocks, level_id=level_id)
@@ -3354,8 +3532,12 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                                                    for q in sn_polys)]
     stairs = [p for p in pieces if p.type == "stair"]
     from wenart.ingest.generic import facade as FC_
+    # 12 Nov 2026 (review B-r03-hol): the labelled rooms' own outlines (their printed area matched) separate the names
+    # the walls leave in one face
     seps, sep_log = TP.separators(bwalls, b_openings, gap_log, blocks, stairs, units_to_m=s,
-                                  axis=_halves(ex, bwalls, b_openings, blocks, level_id))
+                                  axis=_halves(ex, bwalls, b_openings, blocks, level_id),
+                                  outlines=lambda: [o.polygon for o in OL.labelled_outlines(non_wall, blocks)
+                                                    if o.area_off is not None])
     rows = face_table(TP.faces(bwalls, b_openings, seps), blocks, bwalls, b_openings, stairs)
     SY.apply_room_checks(pieces, cands + extras, [{"polygon": r["polygon"], "room_type": r["room_type"],
                                                    "label": r["label"]} for r in rows], ex.notes)

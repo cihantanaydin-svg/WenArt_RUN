@@ -813,9 +813,12 @@ def test_a_door_leafs_swing_in_an_unclassified_gap_makes_a_door_on_the_leafs_cho
     gap.rotation_deg = 0.0
     ex = _ex2()
     got = GC._door_blocks_in_gaps(ex, "p", [wall], [gap], [_arc("INSERT:9/23", (2.4, 3.0), 0.7, 270.0, 360.0)])
-    assert len(got) == 1 and got[0].kind == "door" and abs(got[0].width - 0.7) < 1e-6
+    assert [o.kind for o in got] == ["door", "opening"] and abs(got[0].width - 0.7) < 1e-6
     assert abs(got[0].center[0] - 2.75) < 1e-6 and got[0].status == "verified"        # on the leaf, not the gap centre
-    assert "chord" in ex.notes[-1] and "rest of the gap is wall" in ex.notes[-1]
+    assert got[0].operation == "swing"
+    # the rest of the gap is read again from its lines (openings.doors_in_gaps): nothing drawn there, an open rest
+    assert abs(got[1].width - 0.56) < 1e-3 and got[1].evidence.get("rest_of")
+    assert "chord" in ex.notes[-1] and "rest of the gap read again" in ex.notes[-1]
     # a basin's arc, or a swing hinged off the wall, is no door
     basin = _arc("ARC:5", (2.4, 3.0), 0.7, 270.0, 360.0, layer="Z_tefriş")
     assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap], [basin])[0].kind == "opening"
@@ -852,7 +855,7 @@ def test_borrowed_swings_sashes_tags_and_doors_already_read_make_no_new_door():
     window = OpeningItem("window", 1.5, (4.2, 3.0), 0.0, [0, 0, 0, 0], "win", {})
     near_window = _run("P:150/150", 3.5, 3.6, k=8)                 # 1.17 m from the gap's centre, nearer the window
     got = GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(2.5, 1.5), window], [hinge], texts_m=[near_window])
-    assert [o.kind for o in got] == ["door", "window"]
+    assert [o.kind for o in got] == ["door", "opening", "window"]           # the door, its gap's open rest, the window
     # an arc an opening already owns is not borrowed; a door already read in the gap is its opening
     assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(2.5, 1.5)], [hinge], owned={"A:2"})[0].kind == "opening"
     door = OpeningItem("door", 0.9, (2.2, 3.0), 0.0, [0, 0, 0, 0], "d", {})
@@ -1095,7 +1098,7 @@ def test_room_word_tags_vent_sizes_and_room_like_floor_words():
 
     assert F("SALON", "SALON") is None and F("WC", "WC") is None and F("BANYO", "Banyo adini girin") is None
     assert F("MAHAL", "MAHAL-ADI") and F("KOT", "Kotu girin")               # field names still skipped
-    assert GC.DOOR_TAG_MIN_H_CM == 180                                       # '75/45' or '50/50' is no door size
+    assert GC.DOOR_TAG_LOW_H_CM == 180                                       # '75/45' or '50/50' is no door size
     assert SE.notation_in("LOFT") == [] and SE.notation_in("Attic") == [] and SE.notation_in("Normal")
 
 
@@ -1319,7 +1322,7 @@ def test_basements_moved_by_their_marks_never_carry_the_ground_floor_the_marks_t
     assert zs["lm_L-1_0"] == (-3.0, 2.5) and zs["lm_L-2_0"] == (-5.8, 2.5)
 
 
-def test_a_door_read_in_a_twin_wall_gives_its_class_to_the_unclassified_gap_it_is_read_twice_as():
+def test_a_door_read_in_a_twin_wall_outranks_the_unclassified_gap_it_is_read_twice_as():
     from wenart.ingest.generic import twin_walls as TW
 
     b = {"walls": [{"id": "w_keep", "level_id": "L0", "start": [0.0, 0.0], "end": [6.0, 0.0], "thickness": 0.25},
@@ -1332,11 +1335,9 @@ def test_a_door_read_in_a_twin_wall_gives_its_class_to_the_unclassified_gap_it_i
                        "swing_side": [2.785, 0.8],
                        "evidence": [{"file": "p.dxf", "method": "vector", "confidence": 0.95, "entity": "INSERT:1/23"}]}]}
     assert TW.merge_twin_walls(b) == ["w_dup"]
-    (o,) = b["openings"]
-    assert o["id"] == "o_gap" and o["type"] == "door" and o["width"] == 0.9 and o["center"] == [2.785, 0.0]
-    assert o["status"] == "verified" and "type_raw" not in o and o["operation"] == "swing"
-    assert o["evidence"][0]["entity"] == "INSERT:1/23" and o["corrected_by_ai"]["before"]["type"] == "opening"
-    assert b["openings_merged"][0]["merged_into"] == "o_gap"
+    (o,) = b["openings"]                                 # (one mechanism since the merge with reader B: ``_drawn``)
+    assert o["id"] == "d_door" and o["type"] == "door" and o["width"] == 0.9 and o["wall_id"] == "w_keep"
+    assert b["openings_merged"][0]["id"] == "o_gap" and b["openings_merged"][0]["merged_into"] == "d_door"
     # a classified opening of the kept wall stays as it was (the copy is merged into it)
     b2 = {"walls": [dict(w) for w in b["walls"][:1]] + [{"id": "w_dup", "level_id": "L0", "start": [1.0, 0.02],
                                                          "end": [5.0, 0.02], "thickness": 0.2}],

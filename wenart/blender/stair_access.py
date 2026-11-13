@@ -254,6 +254,8 @@ def stair_area(plan: dict):
     land = plan.get("landing")
     if isinstance(land, dict) and land.get("role") in ("mid", "winders"):
         parts.append(_poly(land.get("polygon") or []))
+    # 12 Nov 2026 (review B2-ST4): the other turns of ordered flights (``parametric.turn_treads``)
+    parts += [_poly(t.get("polygon") or []) for t in plan.get("turns") or [] if len(t.get("polygon") or []) >= 3]
     return _union(parts)
 
 
@@ -523,6 +525,11 @@ def opening_polygon(plan: dict, soffit: float) -> Optional[list]:
     land = plan.get("landing")
     if isinstance(land, dict) and land.get("role") in ("mid", "winders", "top") and len(land.get("polygon") or []) >= 3:
         boxes.append(box(land["polygon"]))
+    # 12 Nov 2026 (review B2-ST4): a turn of ordered flights without its headroom under the floor above
+    for t in plan.get("turns") or []:
+        tops = [float(w.get("top") or 0.0) for w in t.get("winders") or []] or [float(t.get("z") or 0.0)]
+        if len(t.get("polygon") or []) >= 3 and soffit - max(tops) < HEADROOM_M - 1e-9:
+            boxes.append(box(t["polygon"]))
     if not boxes:
         return None
     from wenart.blender import parametric as P

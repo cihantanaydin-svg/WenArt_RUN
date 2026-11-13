@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-06",
+ "updated": "2026-11-12",
  "lessons": [
   {
    "id": "UL01",
@@ -3969,6 +3969,16 @@
    "checks": [],
    "request": "The user's answers to the pipeline's questions (which untitled plan is which floor, two buildings on one sheet) are brief inputs, not revisions of a reading; the truth holds only the user's revisions given with screenshots of a reading they looked at (user, 6 Nov 2026: 'I do not remember seeing the real renders of and giving feedback with the screenshots for real19').",
    "lesson": "The user's answers to the pipeline's questions (which untitled plan is which floor, two buildings on one sheet) are brief inputs, not revisions of a reading; the truth holds only the user's revisions given with screenshots of a reading they looked at (user, 6 Nov 2026: 'I do not remember seeing the real renders of and giving feedback with the screenshots for real19').",
+   "question": null
+  },
+  {
+   "id": "UL337",
+   "date": "2026-11-12",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "After every pod job the user gets one zip file per project holding all its drawings (the reading's plan sheets: drawing, model plan, model walls over the drawing, every level) and all its renders; a multi-project pod gives one zip per project, delivered when the job finishes. User, 12 Nov 2026: 'after job finishes I want the drawings and renders all in zip file per project' (pod approved for real21, real20, real09, real10, real03 after the reader A, B and building-sense merges).",
+   "lesson": "After every pod job the user gets one zip file per project holding all its drawings (the reading's plan sheets: drawing, model plan, model walls over the drawing, every level) and all its renders; a multi-project pod gives one zip per project, delivered when the job finishes. User, 12 Nov 2026: 'after job finishes I want the drawings and renders all in zip file per project' (pod approved for real21, real20, real09, real10, real03 after the reader A, B and building-sense merges).",
    "question": null
   }
  ]
