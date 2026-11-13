@@ -96,6 +96,7 @@ def _rename(node, old: str, new: str) -> None:
 
 STAIR_WALL_EMBED_M = 0.03       # 13 Nov 2026: a wall face this deep inside a stair's flight is a reading error ...
 STAIR_WALL_MIN_T_M = 0.05       # ... the wall keeps at least this thickness once its face is moved to the flight's side
+STAIR_WALL_ALONG_M = 0.10       # ... running at least this far along the flight (real10's 0.14-0.29 m pairing stubs)
 STAIR_WALL_DEEP = 0.25          # ... and only a face reaching a quarter of the flight in (the walking line runs half way in;
 #                                 a flight read a little too wide is no reason to move a wall)
 
@@ -132,7 +133,7 @@ def stair_side_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> 
                 if abs(u[0] * wu[1] - u[1] * wu[0]) > 0.05:
                     continue                                         # not along the flight
                 ta = sorted(((q[0] - s0[0]) * u[0] + (q[1] - s0[1]) * u[1]) for q in (a, c))
-                if min(ta[1], length) - max(ta[0], 0.0) < min(0.3, length / 2.0):
+                if min(ta[1], length) - max(ta[0], 0.0) < min(STAIR_WALL_ALONG_M, length / 2.0):
                     continue
                 off = (a[0] - s0[0]) * n[0] + (a[1] - s0[1]) * n[1]
                 t = float(w.get("thickness") or 0.0) / 2.0
