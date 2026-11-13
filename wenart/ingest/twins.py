@@ -641,7 +641,7 @@ LIFT_DOOR_MIN_W_M = 0.60         # 12 Nov 2026 (review B-r21-lift: real21's 0.25
 #                                  drawn opening is the landing door only when it is door-wide ...
 LIFT_DOOR_MAX_W_M = 1.40         # ... and no wider than a lift door product (a single panel about 1.1 m, a wide automatic
 #                                  door 1.4 m; review B2 FC-07: real21's second shaft took a 2.22 m gap)
-MACHINE_RE_WORDS = ("MAHAL", "MAKINE", "MAKINA", "MAKN", "MACHINE", "MOTOR", "MASCHINEN")   # a machine room is no shaft
+# a machine room is no shaft: ``wenart.ingest.lift_words.machine_room`` (one test everywhere; review CODE-05)
 
 
 def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furniture: list[dict] = ()) -> list[str]:
@@ -663,6 +663,7 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
     from shapely.geometry import LineString
 
     from wenart import common_areas as CA
+    from wenart.ingest import lift_words as LW     # 13 Nov 2026 (CODE-05): one machine-room test everywhere
     from wenart.sheets import register as RG
     from wenart.sheets import titles as TI
 
@@ -675,13 +676,13 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
     # the stair hall west of them, each shaft also touching one flat-entrance strip)
     shafts = [x for x in rooms if x.get("room_type") == "shaft" and len(x.get("polygon") or []) >= 3
               and RG.LIFT_RE.search(TI.fold(str(x.get("label_raw") or x.get("label") or "")))
-              and not any(w in TI.fold(str(x.get("label_raw") or x.get("label") or "")) for w in MACHINE_RE_WORDS)]
+              and not LW.machine_room(x.get("label_raw") or x.get("label"))]
     served = {r["id"]: sum(1 for x in shafts if x.get("level_id") == r.get("level_id")
                            and _poly(x).distance(_poly(r)) <= LIFT_WALL_REACH_M)
               for r in rooms if r.get("room_type") != "shaft" and len(r.get("polygon") or []) >= 3}
     for s in rooms:
         label = TI.fold(str(s.get("label_raw") or s.get("label") or ""))
-        if s.get("room_type") != "shaft" or not RG.LIFT_RE.search(label) or any(w in label for w in MACHINE_RE_WORDS) \
+        if s.get("room_type") != "shaft" or not RG.LIFT_RE.search(label) or LW.machine_room(label) \
                 or len(s.get("polygon") or []) < 3:
             continue
         sp, lv = _poly(s), s["level_id"]

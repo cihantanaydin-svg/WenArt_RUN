@@ -118,7 +118,7 @@ UNIT_USE_RE = re.compile(r"(?<![a-z])(?:dukkan|dukkani|magaza|magazasi|depo|depo
 # ... and a flat's own hall (an antre): never the common core
 FLAT_HALL_RE = re.compile(r"(?<![a-z])(?:antre|antresi|vestiyer|vestibule|diele|daire\s+girisi)(?![a-z])")
 WINDOW_LAYER_RE = re.compile(r"pencere|penc|window|glass|glazing|(?<![a-z])cam(?![a-z])|fenster|fenetre|ventana")
-WINDOW_TAG_RE = re.compile(r"^\s*p?\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")
+WINDOW_TAG_RE = re.compile(r"^\s*(?:[a-z]\s*[:.]?)?\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.I)   # P150/50, K 100/210 (CODE-06)
 GAP_WINDOW_MIN_M = 0.30         # a window drawn in a gap at least this wide is kept as a window when the gap closes
 GAP_WINDOW_HEAD_M = 2.10        # ... its head, and its height without a tag (a high window between a wet room and the core)
 GAP_WINDOW_H_M = 0.60
@@ -1284,6 +1284,29 @@ def _gap_window(level: "CP.Level", o: dict, drawn, texts: list) -> Optional[dict
             "strokes": sorted({s["id"] for s in lines})[:6]}
 
 
+def _gap_to_window(level: "CP.Level", o: dict, win: dict, flat: dict, why: str, out: dict, lid: str) -> None:
+    """The gap ``o`` between a flat's room and the core becomes the window drawn in it (``_gap_window``), the rest of
+    the gap closed (``adjusted_by_ai``, its drawn type, width and centre kept); a record in ``out["windows"]``."""
+    width = float(o.get("width") or 0)
+    text = (f"the unclassified gap {o['id']} ({width:.2f} m) joins {flat['id']} '{flat.get('label')}' "
+            f"({flat.get('room_type')}) to the common core: {why}; a flat meets the core only through its entrance door")
+    t0, t1, h = win["t0"], win["t1"], float(win["height"])
+    sill = max(0.0, GAP_WINDOW_HEAD_M - h)
+    what = (f"the window tag '{win['tag']}'" if win["tag"] else "") + \
+        (" and " if win["tag"] and win["strokes"] else "") + \
+        (f"window strokes {', '.join(win['strokes'])}" if win["strokes"] else "")
+    o.update(drawn_type="opening", drawn_width=width, drawn_center=list(o["center"]), type="window",
+             width=round(t1 - t0, 3), center=level.at(o["wall_id"], (t0 + t1) / 2.0),
+             sill_height=round(sill, 3), height=round(h, 3), operation=None, operation_source=None,
+             adjusted_by_ai={"by": "code", "rule": "core_gap_window",
+                             "reason": text + f"; {what} drawn in it: the window stays ({t1 - t0:.2f} m), the rest "
+                                              f"of the gap is closed",
+                             "changed": {"type": "opening", "width": width}})
+    out["windows"].append({"opening": o["id"], "level_id": lid,
+                           "reason": text + f"; {what} drawn in it: kept as a {t1 - t0:.2f} m window, the rest closed "
+                                            f"(adjusted_by_ai)"})
+
+
 def close_core_gaps(b: dict, drawn_by_level: Optional[dict] = None, texts_by_level: Optional[dict] = None) -> dict:
     """Rule 3 (the module docstring); returns ``{"closed", "windows", "review"}``. Each gap is judged against the
     openings still left (MF5, CS1-01, CL-03); a bedroom's or wet room's gap that is its only link is a review record
@@ -1313,6 +1336,23 @@ def close_core_gaps(b: dict, drawn_by_level: Optional[dict] = None, texts_by_lev
                 continue
             flat = c if a["id"] in core else a
             rtype = flat.get("room_type")
+            # (13 Nov 2026, review FC-07: real14's bathroom gap held its drawn P150/50 window and stayed a 1.90 m hole
+            # because it was the flat's only read link) a window drawn in the gap is that window, first; when the room
+            # then reaches the core no more, the flat's entrance is asked for
+            win = _gap_window(level, o, drawn, texts) if rtype in PRIVATE else None
+            if win is not None and not win.get("door_tag") and not RG.blocked(
+                    "core_gap", b, {"level_id": lid, "opening": o["id"], "room": flat["id"],
+                                    "core_room": (a if flat is c else c)["id"]}):
+                cut = not _reaches(level, core, flat["id"], set(drop) | {o["id"]})
+                _gap_to_window(level, o, win, flat, "a flat's room meets the core only through its entrance door",
+                               out, lid)
+                if cut:
+                    out["review"].append({"opening": o["id"], "level_id": lid, "room": flat["id"],
+                                          "reason": f"the gap {o['id']} held a drawn window and is that window now: "
+                                                    f"{flat['id']} '{flat.get('label')}' and its flat reach the core "
+                                                    f"through no read door (the flat's entrance door is not read?): "
+                                                    f"to review"})
+                continue
             if rtype in WET + ("bedroom",):
                 if not any(flat["id"] in (x, y) and oo["id"] != o["id"] for x, y, oo in links):
                     out["review"].append({"opening": o["id"], "level_id": lid, "room": flat["id"],
@@ -1363,21 +1403,7 @@ def close_core_gaps(b: dict, drawn_by_level: Optional[dict] = None, texts_by_lev
                     f"({flat.get('room_type')}) to the common core: {why}; a flat meets the core only through its "
                     f"entrance door")
             if win is not None:
-                t0, t1, h = win["t0"], win["t1"], float(win["height"])
-                sill = max(0.0, GAP_WINDOW_HEAD_M - h)
-                what = (f"the window tag '{win['tag']}'" if win["tag"] else "") + \
-                    (" and " if win["tag"] and win["strokes"] else "") + \
-                    (f"window strokes {', '.join(win['strokes'])}" if win["strokes"] else "")
-                o.update(drawn_type="opening", drawn_width=width, drawn_center=list(o["center"]), type="window",
-                         width=round(t1 - t0, 3), center=level.at(o["wall_id"], (t0 + t1) / 2.0),
-                         sill_height=round(sill, 3), height=round(h, 3), operation=None, operation_source=None,
-                         adjusted_by_ai={"by": "code", "rule": "core_gap_window",
-                                         "reason": text + f"; {what} drawn in it: the window stays "
-                                                          f"({t1 - t0:.2f} m), the rest of the gap is closed",
-                                         "changed": {"type": "opening", "width": width}})
-                out["windows"].append({"opening": oid, "level_id": lid,
-                                       "reason": text + f"; {what} drawn in it: kept as a {t1 - t0:.2f} m window, the "
-                                                        f"rest closed (adjusted_by_ai)"})
+                _gap_to_window(level, o, win, flat, why, out, lid)
                 continue
             gone.add(oid)
             out["closed"].append({"opening": oid, "level_id": lid, "reason": text + " (adjusted_by_ai: closed)"})
@@ -1578,15 +1604,41 @@ def lost_behind(lv: dict, e: dict) -> Optional[str]:
             f"behind it, not the outside")
 
 
+def _real_door(b: dict, e: dict) -> bool:
+    """Whether a ``site.entrances`` record's door is an existing door that is no lift door (pure; review CODE-04: a
+    record left by a removed opening, or a lift's landing door, silenced the entrance rule)."""
+    o = next((x for x in b.get("openings") or [] if x.get("id") == e.get("door_id")), None)
+    return o is not None and o.get("type") == "door" and not o.get("lift_door")
+
+
+ENTRANCE_WORD_REACH_M = 2.0     # an entrance word this close to a drawn outer door names it the building entrance
+
+
+def _entrance_word_near(texts: list, p) -> Optional[str]:
+    """The entrance word (``ENTRANCE_WORD_RE``) the texts within ``ENTRANCE_WORD_REACH_M`` of point ``p`` spell, one
+    text or the stacked ones read top to bottom ('BİNA' over 'GİRİŞİ'), or None (pure; review FC-06)."""
+    near = sorted((t for t in texts or [] if t.get("x") is not None
+                   and math.hypot(t["x"] - p[0], t["y"] - p[1]) <= ENTRANCE_WORD_REACH_M),
+                  key=lambda t: (-round(float(t["y"]), 1), float(t["x"])))
+    for t in near:
+        if ENTRANCE_WORD_RE.search(CP._fold(t.get("text"))):
+            return str(t.get("text"))
+    joined = " ".join(CP._fold(t.get("text")) for t in near)
+    m = ENTRANCE_WORD_RE.search(joined)
+    return m.group(0) if m else None
+
+
 def _leads_to_core(b: dict, e: dict, core: set) -> bool:
     """An entrance into the core, or into a wind lobby, an entrance hall or a corridor that reaches the core through
     rooms that are not a flat's (review S1-03b: real03's drawn door into its Rüzgarlık; pure)."""
     rid = e.get("room_id")
-    if not rid or not core:
+    if not rid or not core or not _real_door(b, e):
         return False
+    level = CP.Level(b, e.get("level_id"))
+    if any(x["id"] == rid and CP.is_lift(x) for x in level.rooms):
+        return False            # (CODE-04) a lift is never the room a building is entered by
     if rid in core:
         return True
-    level = CP.Level(b, e.get("level_id"))
     r = next((x for x in level.rooms if x["id"] == rid), None)
     if r is not None and ENTRANCE_ROOM_RE.search(_label(r)) and not FLAT_HALL_RE.search(_label(r)):
         return True             # a wind lobby or an entrance hall: the building's way in (real03's Rüzgarlık)
@@ -1656,7 +1708,11 @@ def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Option
     flats = several_flats(b)
     common = common_core(b)
     levels = {lv["id"]: lv for lv in b.get("levels") or []}
+    # (CODE-04) a record whose door is gone (removed by a core rule) or is a lift's landing door is no entrance
+    if site.get("entrances"):
+        site["entrances"] = [e for e in site["entrances"] if _real_door(b, e)]
     keep = []
+    refused_main = None
     for e in site.get("entrances") or []:
         why = lost_behind(levels.get(e.get("level_id")) or {}, e)
         room = rooms.get(e.get("room_id")) or {}
@@ -1673,6 +1729,8 @@ def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Option
             for o in b.get("openings") or []:
                 if o["id"] == e.get("door_id"):
                     o["entrance_refused"] = why
+            if e.get("main"):
+                refused_main = e
             continue
         keep.append(e)
     if rec["refused"]:
@@ -1696,6 +1754,25 @@ def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Option
         return r.get("room_type") in NOT_MAIN_TYPES or (common is not None and r.get("room_type") in PRIVATE
                                                         and r.get("id") not in core_of(e.get("level_id")))
     main = next((e for e in keep if e.get("main")), None)
+    if main is None and refused_main is not None:
+        # (CODE-07) the main entrance was refused: the best usable way in is the main one, else it is asked
+        best = sorted((e for e in usable if not bad(e)),
+                      key=lambda e: (not _leads_to_core(b, e, core_of(e.get("level_id"))),
+                                     (rooms.get(e.get("room_id")) or {}).get("room_type") not in ("hall", "stair"),
+                                     float(e.get("rise") or 0.0), str(e.get("door_id"))))
+        if best:
+            best[0]["main"] = True
+            best[0]["main_reason"] = (f"the main entrance {refused_main.get('door_id')} was refused: "
+                                      f"{best[0].get('door_id')} into {best[0].get('room_id')} is the main entrance "
+                                      f"instead (inferred)")
+            main = best[0]
+        rec["main"] = {"was": refused_main.get("door_id"), "now": best[0].get("door_id") if best else None,
+                       "reason": (best[0]["main_reason"] if best else
+                                  f"the main entrance {refused_main.get('door_id')} was refused and no other outer door "
+                                  f"is a way in") + " (adjusted_by_ai)"}
+        if not best:
+            rec["open"] = (f"the main entrance {refused_main.get('door_id')} was refused and no other outer door leads "
+                           f"into a hall or the core: which door is the main entrance? (open point)")
     if main is None and (rec["windows"] or rec["tagged"]):
         # the main entrance was a window (R37) or a drawn entrance was found: the best way in is the main one
         best = sorted((e for e in usable if not bad(e)),
@@ -1737,6 +1814,22 @@ def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Option
         return rec
     if any(o.get("inference", {}).get("rule") == "inferred_entrance" for o in b.get("openings") or []):
         return rec
+    # (13 Nov 2026, review FC-06: real17's drawn BİNA GİRİŞİ door on L0 stood under a misread ground) a drawn outer door
+    # with an entrance word beside it, or one into the core through common rooms, is the building's entrance whatever
+    # the ground says: no question (a ground conflict, if any, is the ground's)
+    ops = {o["id"]: o for o in b.get("openings") or []}
+    for e in keep:
+        o = ops.get(e.get("door_id")) or {}
+        if derived(o) or not o.get("center") or e.get("upper_floor"):
+            continue
+        word = _entrance_word_near((texts_by_level or {}).get(e.get("level_id")) or [], o["center"])
+        if word or (not e.get("into_air") and _leads_to_core(b, e, core_of(e.get("level_id")))):
+            if not any(x.get("main") for x in keep):
+                e["main"] = True
+                e["main_reason"] = (f"the drawn door {e.get('door_id')} " + (f"named '{word}'" if word else
+                                    "into the common core") + " is the building entrance (inferred)")
+                rec["main"] = {"was": None, "now": e.get("door_id"), "reason": e["main_reason"] + " (adjusted_by_ai)"}
+            return rec
     cands = [(lv, why, True) for lv, why in entrance_storeys(b, texts_by_level)]
     if not cands:
         # no storey lies at the ground: the ground floor is asked about, never given a door metres over the ground

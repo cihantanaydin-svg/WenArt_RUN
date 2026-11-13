@@ -296,6 +296,8 @@ def test_a_door_onto_a_balcony_is_no_way_into_the_building():
     b = _bld(("L0",))
     b["walls"] = _box(0, 0, 10, 6, "L0", "w")
     b["rooms"] = [_room("r_liv", "Salon", "living", _rect(0.1, 0.1, 9.9, 5.9))]
+    b["openings"] = [{"id": "d1", "type": "door", "level_id": "L0", "wall_id": "w_s", "center": [5.0, 0.0],
+                      "width": 0.9, "evidence": [{"method": "vector"}], "entrance_refused": "x"}]
     b["site"]["outdoor_spaces"] = [{"id": "os_L0_balkon", "kind": "balcony"}]
     b["site"]["entrances"] = [{"door_id": "d1", "level_id": "L0", "rise": 0.15, "onto": "os_L0_balkon",
                                "main": False}]
@@ -303,6 +305,16 @@ def test_a_door_onto_a_balcony_is_no_way_into_the_building():
     assert [f["rule"] for f in found] == ["no_entrance"] and found[0]["severity"] == "major"
     b["site"]["outdoor_spaces"][0]["kind"] = "porch"                            # a porch is an entrance's landing
     assert SN.no_entrance(b) == []
+
+
+# --------------------------------------------------------------------------- FC-04: thin partitions flagged exterior
+def test_a_thin_partition_flagged_exterior_takes_no_inferred_window():
+    b = _bld(("L0",))
+    b["walls"] = [dict(w, thickness=0.25) for w in _box(0, 0, 10, 6, "L0", "w")] + \
+        [_wall("thin", (5, 0), (5, 6), t=0.10, exterior=True)]            # the leaking outline's flag
+    b["rooms"] = [_room("r_bed", "Oda", "bedroom", _rect(0.15, 0.15, 4.95, 5.85))]
+    new = CP.infer_level(b, "L0", {}, dict(CP.DEFAULT_SIZES), "defaults", B.IdCounter().next)
+    assert new and all(o["wall_id"] != "thin" for o in new)
 
 
 # --------------------------------------------------------------------------- CODE-01: the levels model's rebuild
@@ -326,3 +338,104 @@ def test_a_rebuild_of_the_entrances_keeps_the_completions_decisions():
     b["site"]["entrances"] = [_ent("d3", True)]
     CR.reapply_entrances(b, [_ent("d3")])                                       # the completion left no main
     assert not b["site"]["entrances"][0]["main"]
+
+
+# --------------------------------------------------------------------------- FC-07, CODE-06, CODE-04, CODE-07, FC-06
+def _rf():
+    from tests import test_review_fixes_20261113 as RF
+    return RF
+
+
+def test_a_window_drawn_in_a_flats_only_link_is_that_window_and_the_entrance_is_asked():
+    """FC-07: the flat's entrance door is not read; its bathroom's 1.6 m gap to the core holds a drawn 0.5 m window:
+    the gap is that window, and the flat's missing entrance is a review record."""
+    RF = _rf()
+    b = RF.core_building(("L0",))
+    b["openings"] = [o for o in b["openings"] if o["id"] != "L0_ea"]           # the east flat's entrance not read
+    b["openings"].append(RF.gap("g_bath", "L0_8", (8.0, 5.0), 1.6))
+    b["rooms"] = [r for r in b["rooms"] if r["id"] != "L0_bed"] + [RF.room("L0_bath2", "Banyo", "bathroom",
+                                                                           RF.rect(8.1, 4.1, 10.9, 7.9))]
+    out = CR.close_core_gaps(b, {}, {"L0": [{"text": "P150/50", "x": 8.0, "y": 5.1}]})    # an upper-case tag
+    win = next(o for o in b["openings"] if o["id"] == "g_bath")
+    assert out["windows"] and win["type"] == "window" and win["drawn_type"] == "opening"
+    assert any(r["opening"] == "g_bath" and "entrance door" in r["reason"] for r in out["review"])
+
+
+def test_a_record_of_a_removed_door_or_a_lift_door_is_no_entrance():
+    """CODE-04: the record's door is gone (a core rule removed it) or is the lift's landing door: the entrance rule
+    still infers the building's entrance."""
+    RF = _rf()
+    b = RF.entrance_building()
+    b["site"]["entrances"] = [{"door_id": "gone", "level_id": "L-1", "room_id": "L-1_hall", "rise": 0.0,
+                               "main": True},
+                              {"door_id": "L-1_ld", "level_id": "L-1", "room_id": "L-1_lift", "rise": 0.0}]
+    rec = CR.fix_entrances(b, B.IdCounter().next, {})
+    assert [a["level_id"] for a in rec["added"]] == ["L-1"]
+    assert {e["door_id"] for e in b["site"]["entrances"]} == {rec["added"][0]["door"]}
+
+
+def test_a_refused_main_entrance_hands_main_to_the_best_way_in():
+    """CODE-07: the main entrance is a bathroom's door (refused): the core hall's door becomes the main one."""
+    RF = _rf()
+    b = RF.entrance_building()
+    b["openings"] += [RF.op("d_bath", "door", "wL-1_n", (12.5, 8.0), 0.8, "L-1"),
+                      RF.op("d_hall", "door", "wL-1_s", (6.0, 0.0), 1.2, "L-1")]
+    b["site"]["entrances"] = [
+        {"door_id": "d_bath", "level_id": "L-1", "room_id": "L-1_bath", "rise": 0.0, "main": True},
+        {"door_id": "d_hall", "level_id": "L-1", "room_id": "L-1_hall", "rise": 0.1, "main": False}]
+    rec = CR.fix_entrances(b, B.IdCounter().next, {})
+    assert rec["main"]["was"] == "d_bath" and rec["main"]["now"] == "d_hall"
+    assert [e["door_id"] for e in b["site"]["entrances"] if e["main"]] == ["d_hall"]
+
+
+def test_a_drawn_door_named_bina_girisi_is_the_entrance_whatever_the_ground_says():
+    """FC-06 (real17): the ground is misread metres up; the drawn door beside the stacked texts 'BİNA' 'GİRİŞİ' is
+    the building's entrance: no question, no inferred door."""
+    RF = _rf()
+    b = RF.core_building(("L0", "L1"))
+    b["site"] = {"ground": {"levels": [{"z": {"value": 3.4}}]}, "entrances": []}
+    b["openings"].append(RF.op("d_front", "door", "wL0_s", (6.0, 0.0), 1.5))
+    b["site"]["entrances"] = [{"door_id": "d_front", "level_id": "L0", "room_id": "L0_shaft", "rise": 0.0,
+                               "below_ground": True}]
+    texts = {"L0": [{"text": "BİNA", "x": 6.2, "y": -0.6}, {"text": "GİRİŞİ", "x": 6.2, "y": -0.9}]}
+    rec = CR.fix_entrances(b, B.IdCounter().next, {}, texts)
+    assert rec["open"] is None and rec["added"] == [] and rec["main"]["now"] == "d_front"
+
+
+# --------------------------------------------------------------------------- CODE-05: one machine-room test
+LIFTS = ("MAKİNESİZ ASANSÖR", "Makinasız Asansör", "Makine Dairesiz Asansör", "ASANSÖR (MAKİNE DAİRESİZ)",
+         "MRL Asansör", "Asansör")
+MACHINES = ("Asansör Makine Dairesi", "Asansör Makina Dairesi", "Asansör Makine Odası", "Lift machine room",
+            "Asansör Mahali", "ASANSÖR MAKİNA HİDROLİK")
+
+
+@pytest.mark.parametrize("label", LIFTS + MACHINES)
+def test_one_machine_room_test_in_the_reader_the_storeys_and_the_completion(label):
+    from wenart.ingest import twins as TW
+    from wenart.sheets import storeys as ST
+
+    lift = label in LIFTS
+    sq = _rect(0, 0, 1.6, 1.6)
+    assert CP.is_lift({"label": label, "polygon": sq}) is lift
+    assert ST.plan_signals(SimpleNamespace(texts=[SimpleNamespace(text=label)], features={}))["lifts"] == int(lift)
+    rooms = [{"id": "s", "level_id": "L0", "label": label, "room_type": "shaft", "polygon": sq},
+             {"id": "h", "level_id": "L0", "label": "Kat Holü", "room_type": "hall", "polygon": _rect(1.7, 0, 5, 3)}]
+    walls = [{"id": "w", "level_id": "L0", "start": [1.65, 0.0], "end": [1.65, 3.0], "thickness": 0.1}]
+    openings = []
+    TW.lift_doors(rooms, openings, walls, [])
+    assert bool(openings) is lift
+
+
+# --------------------------------------------------------------------------- FC-09: a section roof of another datum
+def test_a_roof_from_a_section_of_another_datum_keeps_its_own_rise_on_the_added_top_storey():
+    b = _bld(("L0", "L1", "L2", "L3", "L4", "L5"))
+    b["warnings"] = ["the section's heights are no storeys (L-1 ceiling 14.05 m): the floors take the assumed heights"]
+    b["roof"] = {"type": "gambrel", "over_level_id": "L1",
+                 "eaves_height": {"value": 13.622, "note": "3.27 m above the top floor"},
+                 "ridge_height": {"value": 15.744, "note": "5.39 m above the top floor"},
+                 "planes": [{"id": "p1", "points": [[0, 0, 13.622], [1, 1, 15.744]]}]}
+    build = SimpleNamespace(building=b, warn=lambda m: None)
+    why = CP._rebase_roof(build, b, {"L2", "L3", "L4", "L5"})
+    assert why and "datum" in why and b["roof"]["over_level_id"] == "L5"
+    assert abs(b["roof"]["eaves_height"]["value"] - 18.27) < 0.01
+    assert abs(b["roof"]["ridge_height"]["value"] - (18.27 + 2.122)) < 0.01

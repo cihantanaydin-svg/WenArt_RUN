@@ -433,6 +433,8 @@ def test_no_door_is_inferred_metres_over_the_ground_only_a_question():
 def test_a_main_entrance_never_opens_into_a_bedroom():
     """S1-09b: the levels model chose a bedroom's door as the main entrance; the core hall's door is the main one."""
     b = entrance_building()
+    b["openings"] += [op("d_bed", "door", "wL-1_n", (9.5, 8.0), 0.9, "L-1"),      # a record needs its door (CODE-04)
+                      op("d_hall", "door", "wL-1_s", (6.0, 0.0), 1.2, "L-1")]
     b["site"]["entrances"] = [
         {"door_id": "d_bed", "level_id": "L-1", "room_id": "L-1_bed", "rise": 0.0, "main": True},
         {"door_id": "d_hall", "level_id": "L-1", "room_id": "L-1_hall", "rise": 0.2, "main": False}]
@@ -443,6 +445,7 @@ def test_a_main_entrance_never_opens_into_a_bedroom():
     h = building(("L0",))
     h["walls"] = box_walls(0, 0, 8, 6)
     h["rooms"] = [room("r_bed", "Yatak Odası", "bedroom", rect(0.1, 0.1, 7.9, 5.9))]
+    h["openings"] = [op("d_b", "door", "w_s", (4.0, 0.0), 0.9)]
     h["site"]["entrances"] = [{"door_id": "d_b", "level_id": "L0", "room_id": "r_bed", "rise": 0.0, "main": True}]
     rec = CR.fix_entrances(h, B.IdCounter().next, {})
     assert rec["main"]["now"] is None and rec["open"] and not h["site"]["entrances"][0]["main"]

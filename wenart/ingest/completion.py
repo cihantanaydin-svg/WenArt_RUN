@@ -54,14 +54,10 @@ OPEN_AIR = ("balcony", "terrace", "roof_terrace", "loggia", "veranda", "patio", 
 LIGHT_WELL_RE = re.compile(r"(?<![a-z])(?:aydinlik|isiklik|aydinlatma\s+boslugu|light\s*well|lightwell|lichthof"
                            r"|lichtschacht|courette|patio\s+de\s+luces)")
 LIFT_RE = re.compile(r"(?<![a-z])(?:asansor|lift|elevator|aufzug|ascenseur)")
-# R19 guards (the misfire hunters, 12 Nov 2026): a machine room (MAK./MAKN./MAKİNA/MAKİNE with DAİR or MAHAL, MOTOR;
-# never a bare MAK., a washing machine; DAİRESİZ is a lift with no machine room), a lift lobby (HOL, HOLÜ, ÖNÜ, LOBİ)
-# and a car lift (ARAÇ, OTO) are no passenger lift; a pit or void (KUYU, BOŞLUK) is a shaft level with no door
-LIFT_MACHINE_RE = re.compile(r"(?<![a-z])(?:mak|makn|makina|makine)\.?\s*(?:dair(?!esiz)|mahal)"
-                             r"|(?<![a-z])motor(?![a-z])")
-# ... and (13 Nov 2026, review MF13) a lift word with MAKİNA / MAKİNE (or MAKİNESİ ...), machine room, Maschinenraum,
-# machinerie: a machine room, unless DAİRESİZ (a lift with no machine room); never the bare MAK. (a washing machine)
-MACHINE_WORD_RE = re.compile(r"(?<![a-z])makin[ae]\w*|machine\s*room|maschinen\w*|machinerie|motor\s*room")
+# R19 guards (the misfire hunters, 12 Nov 2026): a machine room (``wenart.ingest.lift_words.machine_room``, one test
+# for the reader, the storey signals and this module: review MF13, CODE-05; makinesiz, makine dairesiz and MRL are a
+# lift with no machine room), a lift lobby (HOL, HOLÜ, ÖNÜ, LOBİ) and a car lift (ARAÇ, OTO) are no passenger lift; a
+# pit or void (KUYU, BOŞLUK) is a shaft level with no door
 LIFT_LOBBY_RE = re.compile(r"(?<![a-z])(?:hol|holu|onu|lobi|lobby|lobisi)(?![a-z])")
 LIFT_CAR_RE = re.compile(r"(?<![a-z])(?:arac|oto|car|vehicle|otopark)(?![a-z])")
 LIFT_PIT_RE = re.compile(r"(?<![a-z])(?:kuyu|kuyusu|bosluk|boslugu|pit)(?![a-z])")
@@ -133,9 +129,9 @@ def is_lift(room: dict) -> bool:
     car-lift word, at most ``LIFT_MAX_M2`` per lift word and at least ``LIFT_MIN_SIDE_M`` a side."""
     label = _fold(room.get("label") or room.get("label_raw"))
     words = len(LIFT_RE.findall(label))
-    if not words or LIFT_MACHINE_RE.search(label) or LIFT_LOBBY_RE.search(label) or LIFT_CAR_RE.search(label):
-        return False
-    if MACHINE_WORD_RE.search(label) and "dairesiz" not in label:
+    from wenart.ingest import lift_words as LW       # 13 Nov 2026 (CODE-05): one machine-room test everywhere
+
+    if not words or LW.machine_room(label) or LIFT_LOBBY_RE.search(label) or LIFT_CAR_RE.search(label):
         return False
     p = _poly(room.get("polygon"))
     if p is None:
@@ -443,9 +439,11 @@ def sizes_from_tags(tags: list) -> tuple[dict, str]:
 
 # ------------------------------------------------------------------------------------------------- the inference
 def _thin_inner(level: Level, w: dict, outer_t: float) -> bool:
-    """A wall clearly thinner than the level's drawn outer walls (``THIN_WALL_M`` against ``OUTER_WALL_M``): a
-    partition, never a facade, whatever the probes say (an unread room behind it reads as the outside; REG-02)."""
-    return outer_t >= OUTER_WALL_M and 0.0 < float(w.get("thickness") or 0.0) <= THIN_WALL_M and not w.get("exterior")
+    """A wall clearly thinner than the level's drawn outer walls (``THIN_WALL_M`` against ``OUTER_WALL_M``, the median
+    of the walls flagged exterior): a partition, never a facade, whatever the probes say (an unread room behind it reads
+    as the outside; REG-02) and whatever its exterior flag says (13 Nov 2026, review FC-04: real19's leaking outline
+    flags the very partitions in front of the unread salon exterior)."""
+    return outer_t >= OUTER_WALL_M and 0.0 < float(w.get("thickness") or 0.0) <= THIN_WALL_M
 
 
 def _new_opening(kind: str, oid: str, level: Level, wall_id: str, t: float, width: float, height: float,
@@ -1275,6 +1273,17 @@ def _val(v) -> Optional[float]:
     return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
 
+STOREY_OFFSET_M = 3.0           # a section's eaves this far over the drawn top ceiling come from another datum (FC-09)
+KNEE_M = 0.30                   # ... with no rise read, the eaves sit this far over the new top ceiling (assumed)
+RISE_NOTE_RE = re.compile(r"(-?\d+(?:\.\d+)?) m above the top floor")
+
+
+def _rise_above_top(v) -> Optional[float]:
+    """The section's own rise of a roof height above its top floor (``wenart.sheets.heights``' note), or None."""
+    m = RISE_NOTE_RE.search(str((v or {}).get("note") or "")) if isinstance(v, dict) else None
+    return float(m.group(1)) if m else None
+
+
 def _rebase_roof(build, b: dict, built: set) -> Optional[str]:
     """A roof read from a section (absolute eaves and ridge) over storeys the storey rule added on top (review REG-05):
     when its eaves lie under the new top storey's ceiling, the roof keeps its drawn rise above the highest drawn storey
@@ -1298,6 +1307,22 @@ def _rebase_roof(build, b: dict, built: set) -> Optional[str]:
     if eaves >= ceiling - 0.05:
         return None
     dz = float(top["elevation"]) - float(old["elevation"])
+    # 13 Nov 2026 (review FC-09: real16's section r9 has another datum; its eaves stood 7.9 m over the drawn top
+    # ceiling and the shift carried that up): when the section's storey heights were rejected or its eaves stand more
+    # than a storey over the drawn top ceiling, the roof keeps the section's own rise above its top floor (the eaves
+    # note), else it sits on an assumed knee wall over the new top ceiling
+    old_ceiling = float(old["elevation"]) + float(old.get("ceiling_height") or 2.7)
+    rejected = any("the section's heights are no storeys" in str(w) for w in b.get("warnings") or [])
+    datum = ""
+    if rejected or eaves - old_ceiling > STOREY_OFFSET_M:
+        rise = _rise_above_top(roof.get("eaves_height"))
+        target = float(top["elevation"]) + rise if rise is not None else ceiling + KNEE_M
+        dz = target - eaves
+        why = "its storey heights were rejected" if rejected else \
+            f"its eaves stood {eaves - old_ceiling:.2f} m over the drawn top ceiling"
+        datum = (f"; the section's datum is not the plans' ({why}): "
+                 + (f"the eaves keep the section's own rise of {rise:.2f} m above its top floor" if rise is not None
+                    else f"the eaves sit on an assumed {KNEE_M:.2f} m knee wall over the top ceiling"))
     for key in ("eaves_height", "ridge_height"):
         v = roof.get(key)
         if isinstance(v, dict) and _val(v) is not None:
@@ -1310,8 +1335,9 @@ def _rebase_roof(build, b: dict, built: set) -> Optional[str]:
     if isinstance(prof, dict) and prof.get("points"):
         prof["points"] = [[p[0], round(float(p[1]) + dz, 4)] for p in prof["points"]]
     reason = (f"the roof read from the section had its eaves at {eaves:+.2f} m, under the ceiling of the top storey "
-              f"{top['id']} the storey rule added ({ceiling:+.2f} m): it keeps its drawn rise above {old['id']} and "
-              f"stands {dz:.2f} m higher, on {top['id']} (assumed)")
+              f"{top['id']} the storey rule added ({ceiling:+.2f} m): " +
+              (f"it keeps its drawn rise above {old['id']} and stands {dz:.2f} m higher, on {top['id']} (assumed)"
+               if not datum else f"it stands {dz:+.2f} m off, on {top['id']}{datum} (assumed)"))
     roof["over_level_id"] = top["id"]
     if isinstance(roof.get("assumed", []), list):
         roof.setdefault("assumed", []).append(reason)

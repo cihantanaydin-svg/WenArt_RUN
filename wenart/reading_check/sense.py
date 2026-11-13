@@ -1722,7 +1722,7 @@ def no_entrance(building: dict) -> list:
     # whose door leads onto a balcony or a terrace is no way into the building
     ents = [e for e in (building.get("site") or {}).get("entrances") or []
             if not e.get("into_air") and not e.get("below_ground") and float(e.get("rise") or 0.0) <= ENTRANCE_LEVEL_M + EPS
-            and not _onto_outdoor_space(building, e)]
+            and not _onto_outdoor_space(building, e) and CR._real_door(building, e)]
     if ents:
         return []
     found = {lv["id"]: CP.outer_doors(building, lv["id"]) for lv in storeys}

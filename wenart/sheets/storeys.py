@@ -48,6 +48,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from wenart import building as B
+from wenart.ingest import lift_words as LW
 
 OPEN_POINT_KEY = "N1:storeys"         # the architect's open point (wenart/blender/architect.py, rule N1)
 STOREY_M = 3.0                        # the storey height a height limit is divided by (the reading's default pitch)
@@ -98,7 +99,6 @@ TITLE_ZPLUS = re.compile(r"(?<![A-Z0-9])(?:B\d?\s*\+\s*)?(?:Z|ZK|ZEMIN)\s*\+\s*(
 FLOOR_LIST = re.compile(r"(?<![\d.,])(\d{1,2}(?:\s*[.,\-/]+\s*\d{1,2})+)\s*\.?\s*(?:NORMAL\s+|TIP\s+)?KAT(?:LAR|LARI)?\b")
 # 13 Nov 2026 (review S1-03a, POD-03): the stems take their suffixes (MERDİVENİ, MUTFAĞI, ASANSÖRLER ...)
 LIFT_RE = re.compile(r"\bASANSOR\w*|\bLIFTS?\b|\bELEVATORS?\b|\bAUFZUG\w*|\bASCENSEURS?\b|\bASCENSOR\w*")
-LIFT_MACHINE_RE = re.compile(r"\bMAKIN[AE]\w*|\bMAK\.?\s*DAIR|\bMAKN\b|\bMACHINE\s+ROOM\b|\bMASCHINEN\w*|\bMOTOR\b")
 FLAT_RE = re.compile(r"\bDAIRE\w*|\bAPARTMENTS?\b|\bFLAT\s*\d|\bWOHNUNG\w*|\bAPPARTEMENTS?\b")
 KITCHEN_RE = re.compile(r"\bMUTFA[KG]\w*|\bKITCHENS?\b|\bKUCHE\w*|\bCUISINES?\b|\bCOCINAS?\b|\bKITCHENETTES?\b")
 STAIR_RE = re.compile(r"\bMERDIVEN\w*|\bSTAIRS?\b|\bSTAIRCASES?\b|\bTREPPE\w*|\bESCALIERS?\b|\bESCALERAS?\b")
@@ -356,7 +356,7 @@ def plan_signals(r) -> dict:
     lifts = flats = kitchens = stair_words = fire = 0
     for t in getattr(r, "texts", None) or []:
         folded = _fold(t.text)
-        lifts += 1 if LIFT_RE.search(folded) and not LIFT_MACHINE_RE.search(folded) else 0
+        lifts += 1 if LIFT_RE.search(folded) and not LW.machine_room(folded) else 0     # CODE-05
         flats += 1 if FLAT_RE.search(folded) else 0
         kitchens += 1 if KITCHEN_RE.search(folded) else 0
         stair_words += 1 if STAIR_RE.search(folded) else 0
