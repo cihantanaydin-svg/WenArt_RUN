@@ -1317,3 +1317,41 @@ def test_basements_moved_by_their_marks_never_carry_the_ground_floor_the_marks_t
     assert any(i.get("item") == "plan height frame" and i.get("value") == 2.5 for i in rec.get("inferred") or [])
     zs = {m["id"]: (m["z"], m.get("frame_shift")) for m in n["level_marks"]}
     assert zs["lm_L-1_0"] == (-3.0, 2.5) and zs["lm_L-2_0"] == (-5.8, 2.5)
+
+
+def test_a_door_read_in_a_twin_wall_gives_its_class_to_the_unclassified_gap_it_is_read_twice_as():
+    from wenart.ingest.generic import twin_walls as TW
+
+    b = {"walls": [{"id": "w_keep", "level_id": "L0", "start": [0.0, 0.0], "end": [6.0, 0.0], "thickness": 0.25},
+                   {"id": "w_dup", "level_id": "L0", "start": [1.0, 0.02], "end": [5.0, 0.02], "thickness": 0.2}],
+         "openings": [{"id": "o_gap", "level_id": "L0", "type": "opening", "wall_id": "w_keep", "center": [2.95, 0.0],
+                       "width": 1.32, "status": "unverified", "type_raw": "unclassified gap content",
+                       "evidence": [{"file": "p.dxf", "method": "derived", "confidence": 0.5}]},
+                      {"id": "d_door", "level_id": "L0", "type": "door", "wall_id": "w_dup", "center": [2.785, 0.02],
+                       "width": 0.9, "status": "verified", "operation": "swing", "operation_source": "geometry",
+                       "swing_side": [2.785, 0.8],
+                       "evidence": [{"file": "p.dxf", "method": "vector", "confidence": 0.95, "entity": "INSERT:1/23"}]}]}
+    assert TW.merge_twin_walls(b) == ["w_dup"]
+    (o,) = b["openings"]
+    assert o["id"] == "o_gap" and o["type"] == "door" and o["width"] == 0.9 and o["center"] == [2.785, 0.0]
+    assert o["status"] == "verified" and "type_raw" not in o and o["operation"] == "swing"
+    assert o["evidence"][0]["entity"] == "INSERT:1/23" and o["corrected_by_ai"]["before"]["type"] == "opening"
+    assert b["openings_merged"][0]["merged_into"] == "o_gap"
+    # a classified opening of the kept wall stays as it was (the copy is merged into it)
+    b2 = {"walls": [dict(w) for w in b["walls"][:1]] + [{"id": "w_dup", "level_id": "L0", "start": [1.0, 0.02],
+                                                         "end": [5.0, 0.02], "thickness": 0.2}],
+          "openings": [{"id": "win", "level_id": "L0", "type": "window", "wall_id": "w_keep", "center": [2.95, 0.0],
+                        "width": 1.3},
+                       {"id": "d2", "level_id": "L0", "type": "door", "wall_id": "w_dup", "center": [2.8, 0.02],
+                        "width": 0.9}]}
+    TW.merge_twin_walls(b2)
+    assert [(x["id"], x["type"]) for x in b2["openings"]] == [("win", "window")]
+    # a 'sliding door' read from parallel lines without an arc gives no class (real06's kitchen pass-through)
+    b3 = {"walls": [{"id": "w_keep", "level_id": "L0", "start": [0.0, 0.0], "end": [6.0, 0.0], "thickness": 0.25},
+                    {"id": "w_dup", "level_id": "L0", "start": [1.0, 0.02], "end": [5.0, 0.02], "thickness": 0.2}],
+          "openings": [{"id": "o_pass", "level_id": "L0", "type": "opening", "wall_id": "w_keep", "center": [2.4, 0.0],
+                        "width": 2.9, "status": "unverified", "type_raw": "unclassified gap content"},
+                       {"id": "d_lines", "level_id": "L0", "type": "door", "wall_id": "w_dup", "center": [2.27, 0.02],
+                        "width": 1.95, "status": "verified", "operation": "sliding", "operation_source": "geometry"}]}
+    TW.merge_twin_walls(b3)
+    assert [(x["id"], x["type"], x["width"]) for x in b3["openings"]] == [("o_pass", "opening", 2.9)]

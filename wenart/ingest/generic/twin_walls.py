@@ -83,6 +83,38 @@ def _rename(node, old: str, new: str) -> None:
             _rename(v, old, new)
 
 
+UNCLASSIFIED = "unclassified gap content"
+
+
+def _unclassified(o: dict) -> bool:
+    return o.get("type") == "opening" and (o.get("type_raw") == UNCLASSIFIED or o.get("status") == "unverified")
+
+
+def _drawn_swing(o: dict) -> bool:
+    return o.get("type") == "door" and o.get("operation") in ("swing", "double") \
+        and o.get("operation_source") in ("geometry", "block_name") and o.get("status") != "unverified"
+
+
+def _take_class(keep_op: dict, other: dict, ax: tuple) -> None:
+    """``keep_op`` (an unclassified gap of the kept wall) becomes the door or window ``other`` read in the twin wall:
+    its class, width, place (projected on the kept wall), operation and evidence; its id and wall stay."""
+    before = {k: keep_op.get(k) for k in ("type", "width", "center", "type_raw", "status")}
+    for k, v in other.items():
+        if k in ("id", "wall_id", "center", "drawn_center", "corrected_by_ai", "evidence"):
+            continue
+        keep_op[k] = copy.deepcopy(v)
+    if "type_raw" not in other:
+        keep_op.pop("type_raw", None)
+    (x0, y0), (ux, uy), _ = ax
+    t = _t(ax, other["center"])
+    keep_op["center"] = [round(x0 + ux * t, 4), round(y0 + uy * t, 4)]
+    keep_op["evidence"] = [dict(e) for e in other.get("evidence") or []] + [dict(e) for e in keep_op.get("evidence") or []]
+    keep_op["corrected_by_ai"] = {"by": "code", "rule": RULE, "before": before,
+                                  "reason": f"an unclassified gap read again as {other.get('type')} {other.get('id')} in "
+                                            f"the twin wall: one opening read twice, it takes that {other.get('type')}'s "
+                                            f"class, width and place"}
+
+
 def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> list[str]:
     """Drop every wall read twice (mutates ``b``; module docstring). Returns the dropped wall ids."""
     walls = [w for w in b.get("walls") or [] if isinstance(w, dict) and w.get("id")]
@@ -121,6 +153,13 @@ def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> 
                     same = p
                     break
             if same is not None:
+                if _unclassified(same) and _drawn_swing(o):
+                    # 13 Nov 2026 (round 3, real15: the kitchen door read in the twin wall was merged into the 1.32 m
+                    # unclassified gap of the kept wall, and the door was lost): one opening read twice keeps the
+                    # reading that says what it is when that is a door with its drawn swing; the kept wall's opening
+                    # takes the door's class (a 'sliding door' read from lines without an arc does not: real06's
+                    # kitchen pass-through, its counter lines, stays the opening)
+                    _take_class(same, o, ax)
                 b["openings"] = [x for x in b["openings"] if x is not o]
                 ops = [x for x in ops if x is not o]
                 b.setdefault("openings_merged", []).append(dict(copy.deepcopy(o), merged_into=same["id"], corrected_by_ai={
