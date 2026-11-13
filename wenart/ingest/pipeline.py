@@ -374,11 +374,43 @@ def _opening_dict(level_id: str, opening: OpeningItem, opening_id: str, walls: l
     return out
 
 
+def _stair_room(rooms: list[dict], stair: dict) -> Optional[dict]:
+    """The room holding the largest share of a stair's flights (their bands from start to end, the flight's width
+    wide), or None when no room holds any of them (pure)."""
+    from shapely.geometry import LineString, Polygon
+
+    bands = []
+    for f in stair.get("flights") or []:
+        try:
+            line = LineString([tuple(f["start"][:2]), tuple(f["end"][:2])])
+            if line.length > 1e-6:
+                bands.append(line.buffer(float(f["width"]) / 2.0, cap_style=2))
+        except (KeyError, TypeError, ValueError):
+            continue
+    if not bands:
+        return None
+    best, area = None, 0.0
+    for r in rooms:
+        try:
+            poly = Polygon(r["polygon"]).buffer(0)
+        except (KeyError, TypeError, ValueError):
+            continue
+        a = sum(poly.intersection(b).area for b in bands)
+        if a > area + 1e-9:
+            best, area = r, a
+    return best
+
+
 def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: list[dict], build: ProjectBuild,
                     walls: Optional[list[dict]] = None) -> dict:
     piece.element_id = piece_id
     status = piece.status
     room = R.room_containing(rooms, piece.center)
+    if piece.details.get("stair"):
+        # 13 Nov 2026 (review BLD-04: real10's fire stair, its footprint centre on the wall between two rooms, lost its
+        # room, and the architect then walled its hall's door gap): a stair's room is the one holding most of its
+        # flights
+        room = _stair_room(rooms, piece.details["stair"]) or room
     if room is None:
         status = "unverified"
         build.warn(f"{piece_id}: centre {piece.center} lies in no room of {level_id}")
@@ -398,6 +430,15 @@ def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: l
             out["assumed"] = ["front_deg"]          # drawn front kept although both passes answered 'none' (review ingest-6)
         if piece.details.get("stair"):
             out["stair"] = piece.details["stair"]
+            # 13 Nov 2026 (review B3-REG-03: a stair the numbered treads re-read kept its label inside the stair dict
+            # only, so the report and the top-down view listed none): the piece carries adjusted_by_ai and the drawn
+            # footprint at its top level, as the other code fixes do
+            adj = out["stair"].get("adjusted_by_ai")
+            if isinstance(adj, dict) and "adjusted_by_ai" not in out:
+                out["adjusted_by_ai"] = dict(adj)
+                dfp = (out["stair"].get("drawn_stair") or {}).get("footprint")
+                if isinstance(dfp, dict) and dfp.get("center") is not None:
+                    out["drawn_footprint"] = dict(dfp)
         if piece.details.get("shape"):
             # A round outline (§6.4: a round side table); Blender reads shape / circle_fit.
             out["shape"] = piece.details["shape"]
@@ -2589,13 +2630,9 @@ def _lift_rules(build: ProjectBuild) -> None:
     for line in TW.lift_cars(b["rooms"], (b.get("symbols") or []) + page_syms, b["furniture"], b["openings"],
                              b["walls"]):
         build.warn(f"lift car: {line}")                                     # 13 Nov 2026 (S1-03b)
-    for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"]):     # 4 Nov 2026 (UL306)
+    # (the shaft's other openings are closed by ``lift_doors``: a shaft is entered by its landing door only)
+    for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"], b["furniture"]):     # 4 Nov 2026 (UL306)
         build.warn(f"lift door: {line}")
-    shaft_notes, shaft_closed = TW.close_lift_shaft_gaps(b["rooms"], b["openings"], b["walls"])   # 13 Nov 2026 (S1-10b)
-    for line in shaft_notes:
-        build.warn(f"lift shaft: {line}")
-    if shaft_closed:
-        b.setdefault("openings_merged", []).extend(shaft_closed)
 
 
 def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
@@ -3180,6 +3217,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     # reading (track R), before the type inference.
     from wenart.ingest.generic import levels as LV, reading as RD, twin_walls as TW
     TW.merge_twin_walls(building, build.warn)   # 29 Oct 2026: one wall read twice is one wall, its openings on it
+    TW.stair_side_walls(building, build.warn)   # 13 Nov 2026 (review BLD-05): no wall face inside a stair's flight
     LV.apply_levels(build, works)
     RD.read_furniture(build, works)
     _infer_types(build)

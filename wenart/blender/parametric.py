@@ -1834,10 +1834,44 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
                                 f"by {shared:.2f} m2: built as read, their turn kept off both flights' treads")
             if i == 0 and landing is not None:
                 continue
-            turn = turn_treads(planned[i], planned[i + 1], planned[i]["top_z"], riser, turn_w[i], walls)
-            if turn is not None:
-                turn["after"] = i                          # the turn between planned flights i and i + 1
-                turns.append(turn)
+            tt = turn_treads(planned[i], planned[i + 1], planned[i]["top_z"], riser, turn_w[i], walls)
+            if tt is not None:                             # (13 Nov 2026: no longer named ``turn``, the stair's turn)
+                tt["after"] = i                            # the turn between planned flights i and i + 1
+                turns.append(tt)
+    # 13 Nov 2026 (review B3-ST-LAND / B3-ST-WIND / BLD-03: a turn or landing that starts past a flight's own end line
+    # left a slot in the walking line): each flight's lane between its own end line and the turn joins the turn's
+    # surface next to it (``turn_lanes``)
+    if landing is not None and landing["role"] in ("mid", "winders") and len(planned) >= 2:
+        if landing["role"] == "winders" and landing.get("winders"):
+            ws = landing["winders"]
+            before = (ws[0]["polygon"], ws[-1]["polygon"])
+            ws[0]["polygon"], ws[-1]["polygon"] = turn_lanes(planned[0], planned[1], [w["polygon"] for w in ws], walls)
+            if (ws[0]["polygon"], ws[-1]["polygon"]) != before:
+                landing["polygon"] = _union_ring([landing["polygon"]] + [w["polygon"] for w in ws]) or landing["polygon"]
+                landing_poly = landing["polygon"]
+        else:
+            landing["polygon"] = turn_lanes(planned[0], planned[1], [landing["polygon"]], walls)[0]
+            landing_poly = landing["polygon"]
+    for tt in turns:
+        a_, b_ = planned[tt["after"]], planned[tt["after"] + 1]
+        if tt["role"] == "winders" and tt["winders"]:
+            ws = tt["winders"]
+            before = (ws[0]["polygon"], ws[-1]["polygon"])
+            ws[0]["polygon"], ws[-1]["polygon"] = turn_lanes(a_, b_, [w["polygon"] for w in ws], walls)
+            if (ws[0]["polygon"], ws[-1]["polygon"]) != before:
+                tt["polygon"] = _union_ring([tt["polygon"]] + [w["polygon"] for w in ws]) or tt["polygon"]
+        else:
+            tt["polygon"] = turn_lanes(a_, b_, [tt["polygon"]], walls)[0]
+    # 13 Nov 2026 (review BLD-05: real09's side stairs built their winders through the two posts of the stairwell's
+    # chamfered corner): a landing and its winders stop at the walls
+    if landing is not None and landing["role"] in ("mid", "top", "winders"):
+        for w_ in landing.get("winders") or []:
+            w_["polygon"] = _minus_walls(w_["polygon"], walls)
+        landing["polygon"] = _minus_walls(landing["polygon"], walls)
+        landing_poly = landing["polygon"]
+    for tt in turns:
+        for w_ in tt.get("winders") or []:
+            w_["polygon"] = _minus_walls(w_["polygon"], walls)
 
     # The ceiling opening: the last flight and the landing (in the frame of flight 1).
     void, void_raw = [], []
@@ -1868,13 +1902,23 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
         void = [[from_f(p) for p in loop]
                 for loop in geom2d.rect_union_outline([(b[0] - g, b[1] - g, b[2] + g, b[3] + g) for b in rects])]
         what = "the last flight" + (" and the landing" if len(rects) > 1 else "")
+        # 13 Nov 2026 (review BLD-02: the turns of ordered flights were left out of the ceiling opening, and real10's
+        # fire stair turned under a solid slab with 0.8 m of headroom): the opening also holds every step, turn and
+        # landing with less than its headroom under the ceiling (``stair_access.opening_polygon``, the rule the floor
+        # opening of the slab above follows)
+        from wenart.blender import stair_access as SA
+        ring = SA.opening_polygon({"flights": planned, "riser_m": riser, "landing": landing, "turns": turns}, ceiling)
+        if ring:
+            void_raw = _union_loops(void_raw + [ring]) or void_raw
+            void = _union_loops(void_raw, grow=g) or void
+            what += ", every step, turn and landing without its headroom"
         reason = "nothing drawn above the stair; the opening is assumed" if data.get("void_assumed", True) \
             is not False else "drawn"
         assumed.append({"field": "void", "kind": "stair_void",
                         "value": f"ceiling opening over {what}, closed by a neutral shaft cap "
                                  f"{cap - ceiling:.2f} m above the ceiling",
                         "reason": f"{reason}; the floor above is not modelled, so the cap hides the shaft"})
-        for f in planned[:-1]:
+        for f in (planned[:-1] if not ring else []):
             headroom = ceiling - f["top_z"]
             if headroom < STAIR_HEADROOM_M:
                 warnings.append(f"flight {f['index'] + 1}: {headroom:.2f} m under the ceiling at its top "
@@ -1917,12 +1961,17 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
     top_limit = cap - STAIR_CAP_CLEARANCE / 3.0 if rise > cap - STAIR_CAP_CLEARANCE / 3.0 else None
     if top_limit is not None:
         notes.append(f"the last riser stops at {top_limit:.3f} m, under the shaft cap ({cap:.3f} m)")
-    return {"flights": planned, "risers": total, "riser_m": riser, "riser_source": riser_source, "rise_m": rise,
-            "winders": winders, "turns": turns,
-            "landing": landing, "void": void, "void_raw": void_raw, "ceiling_z": ceiling, "cap_z": cap,
-            "top_limit": top_limit, "rails": rails, "direction": [round(r0[0], 4), round(r0[1], 4)], "turn": turn,
-            "generic": generic, "assumed": assumed, "warnings": warnings, "notes": notes,
-            "sides": sides, "wall_rects": wall_rects_kept}
+    out = {"flights": planned, "risers": total, "riser_m": riser, "riser_source": riser_source, "rise_m": rise,
+           "winders": winders, "turns": turns,
+           "landing": landing, "void": void, "void_raw": void_raw, "ceiling_z": ceiling, "cap_z": cap,
+           "top_limit": top_limit, "rails": rails, "direction": [round(r0[0], 4), round(r0[1], 4)], "turn": turn,
+           "generic": generic, "assumed": assumed, "warnings": warnings, "notes": notes,
+           "sides": sides, "wall_rects": wall_rects_kept}
+    # 13 Nov 2026 (coordinator after review B3: "The user should never have to point at a hole in a stair"): every
+    # stair is checked as planned (``stair_integrity``); each violation is a warning the reading check lists
+    out["integrity"] = stair_integrity(out, walls)
+    warnings.extend(f"integrity ({v['check']}): {v['message']}" for v in out["integrity"])
+    return out
 
 
 # 28 Oct 2026, WINDER_TREADS_NOTE (the review of real04's stairs after the user's "There should have been better
@@ -2013,10 +2062,23 @@ def turn_polygon(a: dict, b: dict, walls: Sequence[dict] = (), convex: bool = Fa
                 poly = poly.difference(_P(G.centerline_to_rectangle(w["start"], w["end"], float(w["thickness"]))))
         except (KeyError, TypeError, ValueError):
             continue
-    geoms = [g for g in getattr(poly, "geoms", [poly]) if g.geom_type == "Polygon" and g.area > 1e-4]
+    # 13 Nov 2026 (review B3C-03: a 5e-16 sliver at a wall corner rounded into a spike; B3C-04: the largest piece
+    # after the wall cut could be the room beyond an end wall, touching neither flight): the cleaned piece that meets
+    # flight a's last line (and b's first, where one does), never one beyond a wall
+    poly = _clean(poly)
+    if poly is None:
+        return None
+    from shapely.geometry import LineString as _L
+    edge_a = _L([(pa[0] - na[0] * wa / 2.0, pa[1] - na[1] * wa / 2.0),
+                 (pa[0] + na[0] * wa / 2.0, pa[1] + na[1] * wa / 2.0)])
+    nb_ = (-rb[1], rb[0])
+    edge_b = _L([(pb[0] - nb_[0] * wb / 2.0, pb[1] - nb_[1] * wb / 2.0),
+                 (pb[0] + nb_[0] * wb / 2.0, pb[1] + nb_[1] * wb / 2.0)])
+    geoms = [g for g in getattr(poly, "geoms", [poly]) if g.geom_type == "Polygon" and g.area > 1e-4
+             and g.distance(edge_a) <= INTEGRITY_GAP_M]
     if not geoms:
         return None
-    best = max(geoms, key=lambda g: g.area)
+    best = max(geoms, key=lambda g: (g.distance(edge_b) <= INTEGRITY_GAP_M, g.area))
     if best.area < 0.01:
         return None
     return [(float(x), float(y)) for x, y in list(best.exterior.coords)[:-1]]
@@ -2047,6 +2109,260 @@ def flights_overlap(a: dict, b: dict) -> float:
         length = G.distance(n0, n1)
         return _band(n0, f["rise_dir"], float(f["width"]), -STAIR_NOSING_M, length + STAIR_NOSING_M)
     return body(a).intersection(body(b)).area
+
+
+SLIVER_M = 0.004                    # 13 Nov 2026: parts of a turn's surface thinner than this are rounding, not a tread
+
+
+def _clean(geom):
+    """A shapely polygon without slivers, spikes and repeated points (rounded to 0.01 mm), or None (pure). 13 Nov
+    2026 (review B3C-03: a 5e-16 sliver at a wall corner became a self-intersecting spike once rounded)."""
+    from shapely.geometry import MultiPolygon as _MP
+    from shapely.geometry import Polygon as _P
+    if geom is None or geom.is_empty:
+        return None
+    g = geom.buffer(0).buffer(-SLIVER_M / 2.0, join_style=2).buffer(SLIVER_M / 2.0, join_style=2)
+    g = g.intersection(geom.buffer(1e-9)) if not g.is_empty else g
+    parts = [q for q in getattr(g, "geoms", [g]) if q.geom_type == "Polygon" and q.area > 1e-6]
+    if not parts:
+        return None
+    out = []
+    for q in parts:
+        ring = [(round(x, 5), round(y, 5)) for x, y in list(q.exterior.coords)[:-1]]
+        ring = [p for i, p in enumerate(ring) if p != ring[i - 1]]
+        if len(ring) >= 3:
+            pq = _P(ring).buffer(0)
+            if not pq.is_empty and pq.area > 1e-6:
+                out.extend(x for x in getattr(pq, "geoms", [pq]) if x.geom_type == "Polygon")
+    if not out:
+        return None
+    return out[0] if len(out) == 1 else _MP(out)
+
+
+def _minus_walls(points, walls: Sequence[dict]) -> list:
+    """A walking surface (point list) without the wall rectangles it runs into: its largest cleaned piece, or the
+    surface as it was when the walls leave nothing of it or touch it no deeper than ``INTEGRITY_OVERLAP_M`` (pure)."""
+    from shapely.geometry import Polygon as _P
+    poly = _P(points).buffer(0)
+    if poly.is_empty:
+        return points
+    cut = poly
+    for w in walls or ():
+        try:
+            if G.distance(w["start"], w["end"]) <= 1e-9:
+                continue
+            rect = _P(G.centerline_to_rectangle(w["start"], w["end"], float(w["thickness"])))
+        except (KeyError, TypeError, ValueError):
+            continue
+        inter = cut.intersection(rect)
+        if inter.is_empty or inter.buffer(-INTEGRITY_OVERLAP_M / 2.0, join_style=2).is_empty:
+            continue
+        cut = cut.difference(rect)
+    if cut is poly:
+        return points
+    cut = _clean(cut)
+    if cut is None:
+        return points
+    best = max(getattr(cut, "geoms", [cut]), key=lambda g: g.area)
+    return [(round(x, 5), round(y, 5)) for x, y in _ring_of(best)] if best.area > 0.5 * poly.area else points
+
+
+def _ring_of(poly) -> list[tuple[float, float]]:
+    return [(float(x), float(y)) for x, y in list(poly.exterior.coords)[:-1]]
+
+
+def _union_ring(polys) -> list[tuple[float, float]] | None:
+    """The outline of the union of polygons (point lists) when it is one polygon, else None (pure)."""
+    from shapely.geometry import Polygon as _P
+    from shapely.ops import unary_union as _union
+    try:
+        u = _clean(_union([_P(p).buffer(0) for p in polys if len(p) >= 3]))
+    except (ValueError, TypeError):
+        return None
+    return _ring_of(u) if u is not None and u.geom_type == "Polygon" else None
+
+
+def _union_loops(loops, grow: float = 0.0) -> list[list[tuple[float, float]]]:
+    """The outer loops (counter-clockwise) of the union of point-list loops, grown by ``grow`` with mitred corners
+    (pure)."""
+    from shapely.geometry import Polygon as _P
+    from shapely.ops import unary_union as _union
+    polys = [_P(lp).buffer(0) for lp in loops if len(lp) >= 3]
+    if not polys:
+        return []
+    u = _union(polys)
+    if grow:
+        u = u.buffer(grow, join_style=2)
+    return [geom2d.ccw(_ring_of(q)) for q in getattr(u, "geoms", [u]) if q.geom_type == "Polygon" and q.area > 1e-6]
+
+
+def turn_lanes(a: dict, b: dict, surfaces: list, walls: Sequence[dict] = ()) -> tuple[list, list]:
+    """13 Nov 2026 (review B3-ST-LAND / B3-ST-WIND / B3-REG-02 / BLD-03: a landing or a fan of winders that starts
+    past a flight's own end line left an open slot across the stair): ``(first, last)``, the turn's first and last
+    walking surfaces (point lists; ``surfaces`` in walking order, one or more) with flight ``a``'s lane from its last
+    nosing up to the turn joined to the first, and flight ``b``'s lane from the turn back to its first nosing joined to
+    the last; the flights' own bodies and the walls stay out. A surface is left as it is when its lane piece does not
+    meet it (pure)."""
+    from shapely.geometry import LineString as _L
+    from shapely.geometry import Polygon as _P
+    from shapely.ops import unary_union as _union
+
+    polys = [_P(p).buffer(0) for p in surfaces]
+    whole = _union(polys)
+    if whole.is_empty:
+        return surfaces[0], surfaces[-1]
+    ra, rb = a["rise_dir"], b["rise_dir"]
+    pa, pb = a["nosings"][-1], b["nosings"][0]
+    wa, wb = float(a["width"]), float(b["width"])
+    bodies = _union([_band(pa, ra, wa, -TURN_BODY_M, 0.0), _band(pb, rb, wb, 0.0, TURN_BODY_M)])
+    cuts = [bodies, whole]
+    for w in walls or ():
+        try:
+            if G.distance(w["start"], w["end"]) > 1e-9:
+                cuts.append(_P(G.centerline_to_rectangle(w["start"], w["end"], float(w["thickness"]))))
+        except (KeyError, TypeError, ValueError):
+            continue
+    cut = _union(cuts)
+
+    def lane(p, r, w, sign):
+        reach = max([sign * _d2(_v(p, q), r) for q in whole.exterior.coords] if whole.geom_type == "Polygon" else
+                    [sign * _d2(_v(p, q), r) for g in whole.geoms for q in g.exterior.coords])
+        if reach <= 0.005:
+            return None
+        band = _band(p, r, w, 0.0, reach) if sign > 0 else _band(p, r, w, -reach, 0.0)
+        n = (-r[1], r[0])
+        edge = _L([(p[0] - n[0] * w / 2.0, p[1] - n[1] * w / 2.0), (p[0] + n[0] * w / 2.0, p[1] + n[1] * w / 2.0)])
+        if whole.distance(edge) <= INTEGRITY_GAP_M:
+            return None                                    # the turn already starts at the flight's line
+        rest = band.difference(cut)
+        pieces = [g for g in getattr(rest, "geoms", [rest]) if g.geom_type == "Polygon" and g.area > 1e-5
+                  and g.distance(edge) < 0.01 and g.distance(whole) < 0.03]
+        return max(pieces, key=lambda g: g.area) if pieces else None
+
+    fa, fb = lane(pa, ra, wa, 1.0), lane(pb, rb, wb, -1.0)
+    out = list(polys)
+    changed = set()
+    for k, piece in ((0, fa), (len(out) - 1, fb)):
+        if piece is None or piece.distance(out[k]) > 0.03:
+            continue
+        u = _clean(_union([out[k], piece, piece.buffer(0.001).intersection(out[k].buffer(0.03))]))
+        if u is not None and u.geom_type == "Polygon":
+            out[k] = u
+            changed.add(k)
+    first = _ring_of(out[0]) if 0 in changed else surfaces[0]
+    last = _ring_of(out[-1]) if len(out) - 1 in changed else surfaces[-1]
+    return first, last
+
+
+INTEGRITY_GAP_M = 0.03              # 13 Nov 2026: two walking surfaces one after the other touch within this ...
+INTEGRITY_OVERLAP_M = 0.03          # ... and no two overlap, nor a tread and a wall, deeper than this
+INTEGRITY_COVER = 0.95              # ... a surface without its headroom lies this much inside the ceiling opening
+INTEGRITY_WEDGE = 0.15              # ... surfaces at most two apart may share this share of the smaller (a wedge)
+
+
+def walking_surfaces(plan: dict) -> list[tuple[str, object, float]]:
+    """The walking surfaces of a planned stair in walking order (pure): ``[(name, shapely polygon, top z)]``, every
+    tread of every flight between two nosings, the landing or its winders after the first flight, each turn (or its
+    winders) after its flight."""
+    from shapely.geometry import Polygon as _P
+    out = []
+    riser = float(plan["riser_m"])
+    landing = plan.get("landing")
+    turns = {t.get("after"): t for t in plan.get("turns") or []}
+    fl = plan.get("flights") or []
+    for i, f in enumerate(fl):
+        n, g, r, w, base = int(f["lines"]), float(f["going"]), f["rise_dir"], float(f["width"]), float(f["base_z"])
+        for k in range(1, n):
+            out.append((f"flight {f['index'] + 1} tread {k}", _band(f["nosings"][0], r, w, (k - 1) * g, k * g),
+                        base + k * riser))
+        if i == len(fl) - 1:
+            continue
+        if i == 0 and landing is not None and landing.get("role") in ("mid", "winders"):
+            if landing["role"] == "winders" and landing.get("winders"):
+                out += [(f"landing winder {j + 1}", _P(t["polygon"]).buffer(0), float(t["top"]))
+                        for j, t in enumerate(landing["winders"])]
+            else:
+                out.append(("landing", _P(landing["polygon"]).buffer(0), float(landing["z"])))
+            continue
+        t = turns.get(i)
+        if t is None:
+            continue
+        if t.get("role") == "winders" and t.get("winders"):
+            out += [(f"turn {i + 1} winder {j + 1}", _P(w_["polygon"]).buffer(0), float(w_["top"]))
+                    for j, w_ in enumerate(t["winders"])]
+        else:
+            out.append((f"turn {i + 1}", _P(t["polygon"]).buffer(0), float(t["z"])))
+    return out
+
+
+def stair_integrity(plan: dict, walls: Sequence[dict] = ()) -> list[dict]:
+    """13 Nov 2026 (coordinator after review B3: "The user should never have to point at a hole in a stair"): the
+    integrity of a planned stair (pure), ``[{"check", "message"}]`` for every violation of
+    (a) ``continuous``: every walking surface touches the one before it within ``INTEGRITY_GAP_M``;
+    (b) ``overlap``: no two walking surfaces overlap deeper than ``INTEGRITY_OVERLAP_M``;
+    (c) ``risers``: the surfaces rise one riser at a time and the risers sum to the floor-to-floor height within one
+        riser;
+    (d) ``opening``: every surface without ``STAIR_HEADROOM_M`` under the ceiling lies inside the ceiling opening
+        (``plan["void_raw"]``, every loop);
+    (e) ``walls``: no walking surface runs into a wall deeper than ``INTEGRITY_OVERLAP_M``.
+    A generic stair (no drawn flights) is checked for (c) only."""
+    from shapely.geometry import Polygon as _P
+    from shapely.ops import unary_union as _union
+
+    out = []
+    try:
+        walk = walking_surfaces(plan)
+    except (KeyError, TypeError, ValueError, IndexError) as exc:
+        return [{"check": "continuous", "message": f"the walking surfaces cannot be listed: {exc}"}]
+    riser, rise = float(plan["riser_m"]), float(plan["rise_m"])
+    deep = INTEGRITY_OVERLAP_M / 2.0
+    if not plan.get("generic"):
+        for (na, ga, _za), (nb, gb, _zb) in zip(walk, walk[1:]):
+            d = ga.distance(gb)
+            if d > INTEGRITY_GAP_M:
+                out.append({"check": "continuous", "message": f"{d:.3f} m open between {na} and {nb}"})
+        for i in range(len(walk)):
+            for j in range(i + 1, len(walk)):
+                inter = walk[i][1].intersection(walk[j][1])
+                if j <= i + 2 and inter.area <= INTEGRITY_WEDGE * min(walk[i][1].area, walk[j][1].area):
+                    continue                    # a wedge where two chord flights of a curved stair meet (a turn between)
+                if not inter.is_empty and inter.area > 1e-6 and not inter.buffer(-deep, join_style=2).is_empty:
+                    out.append({"check": "overlap", "message": f"{walk[i][0]} and {walk[j][0]} overlap "
+                                                               f"({inter.area:.3f} m2)"})
+    tops = [0.0] + [z for _n, _g, z in walk]
+    for (na, za), (nb, zb) in zip([("the floor", 0.0)] + [(n, z) for n, _g, z in walk], [(n, z) for n, _g, z in walk]):
+        if zb - za <= 1e-6 or abs((zb - za) - riser) > 0.25 * riser:
+            out.append({"check": "risers", "message": f"{nb} rises {zb - za:.3f} m from {na} (riser {riser:.3f} m)"})
+    if plan.get("top_limit") is None:
+        if abs(int(plan["risers"]) * riser - rise) >= riser - 1e-9 or abs(tops[-1] + riser - rise) >= riser - 1e-9:
+            out.append({"check": "risers", "message": f"{plan['risers']} risers of {riser:.3f} m arrive at "
+                                                      f"{tops[-1] + riser:.3f} m, the floor above is {rise:.3f} m"})
+    ceiling = float(plan.get("ceiling_z") or rise)
+    loops = [_P(lp).buffer(0) for lp in plan.get("void_raw") or [] if len(lp) >= 3]
+    if rise > ceiling + 1e-6 and walk:
+        hole = _union(loops) if loops else None
+        for n, g, z in walk:
+            if ceiling - z >= STAIR_HEADROOM_M - 1e-9 or g.area < 1e-6:
+                continue
+            inside = g.intersection(hole).area / g.area if hole is not None else 0.0
+            if inside < INTEGRITY_COVER:
+                out.append({"check": "opening", "message": f"{n} has {ceiling - z:.2f} m under the ceiling and "
+                                                           f"{inside:.0%} of it in the opening"})
+    if not plan.get("generic"):
+        rects = []
+        for w in walls or ():
+            try:
+                if G.distance(w["start"], w["end"]) > 1e-9:
+                    rects.append((w.get("id"), _P(G.centerline_to_rectangle(w["start"], w["end"],
+                                                                            float(w["thickness"])))))
+            except (KeyError, TypeError, ValueError):
+                continue
+        for n, g, _z in walk:
+            for wid, rect in rects:
+                inter = g.intersection(rect)
+                if not inter.is_empty and inter.area > 1e-6 and not inter.buffer(-deep, join_style=2).is_empty:
+                    out.append({"check": "walls", "message": f"{n} runs into wall {wid} ({inter.area:.3f} m2)"})
+    return out
 
 
 def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k: int) -> list[dict]:

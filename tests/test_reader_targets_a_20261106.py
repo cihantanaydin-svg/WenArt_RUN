@@ -1301,12 +1301,11 @@ def test_a_lift_landing_door_opens_to_the_hall_never_into_the_stair():
     notes = TW.lift_doors([shaft, hall, stair], drawn, walls)
     got = {o["id"]: o for o in drawn}
     assert got["o_hall"]["type"] == "door" and got["o_hall"]["operation"] == "sliding"
-    assert got["o_shear"]["type"] == "opening" and "operation" not in got["o_shear"]
-    assert any("opens into the stair" in n for n in notes)
-    # only a gap towards the stair: a landing door is inferred towards the hall instead
+    assert "o_shear" not in got and any("opens into the stair" in n for n in notes)   # never its door: closed
+    # only a gap towards the stair: a landing door is inferred towards the hall instead, the gap closed
     only = [{"id": "o_shear", "level_id": "L1", "type": "opening", "center": [1.725, 0.9], "width": 1.26}]
     TW.lift_doors([shaft, hall, stair], only, walls)
-    assert only[0]["type"] == "opening" and [o["id"] for o in only if o.get("lift_door")] == ["d_r_L1_asansor_lift"]
+    assert [o["id"] for o in only] == ["d_r_L1_asansor_lift"] and only[0]["lift_door"] is True
 
 
 
@@ -1456,17 +1455,15 @@ def test_a_lift_shaft_keeps_its_landing_door_and_no_gap_window_or_sliver_read_fr
             "evidence": derived},
            {"id": "d_flat", "level_id": "L1", "type": "door", "wall_id": "w1", "center": [3.0, 1.9], "width": 0.9,
             "evidence": [{"file": "p.dxf", "method": "vector"}]}]
-    TW.lift_doors([shaft, hall, stair], ops, walls)
-    notes, closed = TW.close_lift_shaft_gaps([shaft, hall, stair], ops, walls)
+    notes = TW.lift_doors([shaft, hall, stair], ops, walls)      # (one mechanism since the merge with reader B)
     assert sorted(o["id"] for o in ops) == ["d_flat", "o_land"] and ops[0]["lift_door"] is True
-    assert sorted(c["id"] for c in closed) == ["d_sliver", "o_gap", "win_x"] and len(notes) == 3
-    assert next(c for c in closed if c["id"] == "d_sliver")["merged_into"] == "o_land"
+    assert sum(1 for n in notes if "into lift shaft" in n) == 3
     # a door drawn as a door (a block, a swing) in the shaft's wall stays
-    ops2 = [dict(ops[0]), {"id": "d_drawn", "level_id": "L1", "type": "door", "wall_id": "w2", "center": [1.725, 0.9],
-                           "width": 0.9, "evidence": [{"file": "p.dxf", "method": "vector"}]}]
-    ops2[0].pop("lift_door", None)
+    ops2 = [{"id": "o_land", "level_id": "L1", "type": "opening", "wall_id": "w1", "center": [0.8, 1.9], "width": 1.09,
+             "evidence": derived},
+            {"id": "d_drawn", "level_id": "L1", "type": "door", "wall_id": "w2", "center": [1.725, 0.9],
+             "width": 0.9, "evidence": [{"file": "p.dxf", "method": "vector"}]}]
     TW.lift_doors([shaft, hall, stair], ops2, walls)
-    TW.close_lift_shaft_gaps([shaft, hall, stair], ops2, walls)
     assert sorted(o["id"] for o in ops2) == ["d_drawn", "o_land"]
 
 

@@ -691,28 +691,31 @@ def test_single_flight_landing_at_the_top_or_at_the_foot():
              "stair": {"flights": [flight], "landing": {"polygon": landing}, "direction": [0.0, 1.0]}}
     plan = P.stair_plan(piece, 2.85, 2.70)
     assert plan["landing"]["role"] == "top" and plan["landing"]["z"] == pytest.approx(2.85)
-    assert Polygon(plan["void_raw"][0]).area == pytest.approx(1.0 * 3.4)        # the flight and the landing
+    # the flight and the landing (13 Nov 2026, review BLD-02: and every step without its headroom, a margin before it)
+    assert 1.0 * 3.4 - 1e-6 <= Polygon(plan["void_raw"][0]).area <= 1.0 * 3.4 * 1.02
     piece["stair"]["direction"] = [0.0, -1.0]                                    # rising away from the landing
     plan = P.stair_plan(piece, 2.85, 2.70)
     assert plan["landing"]["role"] == "floor" and plan["landing"]["z"] == 0.0
     assert not [p for p in P.stair_parts(plan) if p["role"] == "landing"]      # the floor is the landing
-    assert Polygon(plan["void_raw"][0]).area == pytest.approx(1.0 * 2.5)        # the flight only
+    assert 1.0 * 2.5 - 1e-6 <= Polygon(plan["void_raw"][0]).area <= 1.0 * 2.5 * 1.02        # the flight only
 
 
-def test_stair_void_covers_the_last_flight_and_the_landing_only():
+def test_stair_void_covers_the_last_flight_the_landing_and_every_step_without_headroom():
     plan = _real01_plan()
     void = Polygon(plan["void_raw"][0])
     flight_b = shapely_box(13.751 * FT, 15.257 * FT, 16.26 * FT, 21.085 * FT)
     landing = shapely_box(11.252 * FT, 21.085 * FT, 16.26 * FT, 23.257 * FT)
-    assert len(plan["void_raw"]) == 1 and void.symmetric_difference(unary_union([flight_b, landing])).area < 1e-6
-    assert not void.contains(Point(12.5 * FT, 18.0 * FT))                       # flight A stays under the ceiling
+    assert len(plan["void_raw"]) == 1 and unary_union([flight_b, landing]).difference(void).area < 1e-6
+    # 13 Nov 2026 (review BLD-02; the stair integrity check): flight A's top left 1.28 m of headroom under a solid
+    # ceiling; the opening now holds every step without its 2.0 m (the rule of stair_access.opening_polygon)
+    assert void.contains(Point(12.5 * FT, 20.5 * FT)) and not void.contains(Point(12.5 * FT, 15.6 * FT))
+    assert not [w for w in plan["warnings"] if w.startswith("flight 1: 1.28 m under the ceiling")]
+    assert not [v for v in plan["integrity"] if v["check"] == "opening"]
     grown = Polygon(plan["void"][0])
     assert grown.symmetric_difference(void.buffer(P.STAIR_SHAFT_GAP, join_style=2)).area < 1e-7
     assert plan["ceiling_z"] == 2.70 and plan["cap_z"] == pytest.approx(2.70 + P.STAIR_SHAFT_CAP_M)
     void_entry = next(e for e in plan["assumed"] if e["kind"] == "stair_void")
     assert "last flight and the landing" in void_entry["value"] and "0.50 m above the ceiling" in void_entry["value"]
-    # Flight A under the ceiling: its top leaves 1.28 m of headroom, reported, nothing moved.
-    assert [w for w in plan["warnings"] if w.startswith("flight 1: 1.28 m under the ceiling")]
 
 
 def test_stair_handrails_on_free_sides_under_the_cap():

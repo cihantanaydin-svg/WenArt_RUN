@@ -63,6 +63,7 @@ PARALLEL_SIN = math.sin(math.radians(2.0))
 HEADROOM_M = 2.00               # clear height over a step under the slab above; less needs the floor opening
 HEADROOM_MARGIN_M = 0.30        # the opening starts this far (about one going) before the first step that needs it
 OPENING_GAP_M = 0.002           # the opening stands this far outside the steps (parametric.STAIR_SHAFT_GAP)
+OPENING_JOIN_M = 1.0            # 13 Nov 2026: parts of one stair's opening this close are one opening (a turn and a flight)
 WELL_MAX_M = 0.60               # two flights side by side this close share the well between them in the opening
 DOOR_APPROACH_M = 0.60          # a door's approach: this deep in front of its wall face, its width less 5 cm a side
 TOUCH_M2 = 0.02                 # an approach or an end area shares at least this much with a walkable part
@@ -538,6 +539,16 @@ def opening_polygon(plan: dict, soffit: float) -> Optional[list]:
     loops = geom2d.rect_union_outline([(b[0] - gp, b[1] - gp, b[2] + gp, b[3] + gp) for b in boxes])
     if not loops:
         return None
+    # 13 Nov 2026 (review BLD-01: the largest loop alone was kept, and a last flight standing apart from the turn's box
+    # came up under the slab): every part of the stair that needs the opening stays in it. Loops apart are joined
+    # across their gap (``OPENING_JOIN_M``), else the opening is their hull in the stair's frame (within the stair)
+    outer = [lp for lp in loops if G.polygon_signed_area(lp) > 0]
+    if len(outer) > 1:
+        boxes = P.close_box_gaps(boxes, OPENING_JOIN_M)
+        loops = geom2d.rect_union_outline([(b[0] - gp, b[1] - gp, b[2] + gp, b[3] + gp) for b in boxes])
+        outer = [lp for lp in loops if G.polygon_signed_area(lp) > 0]
+        if len(outer) > 1:
+            loops = [geom2d.convex_hull([q for lp in outer for q in lp])]
     best = max(loops, key=lambda lp: abs(G.polygon_signed_area(lp)))
     pts = [from_f(q) for q in best]
     poly = _poly(pts)
@@ -743,6 +754,12 @@ def upper_match(building: dict, piece: dict) -> Optional[dict]:
     if up is None:
         return None
     ours = _flights(data)
+    # 13 Nov 2026 (real06: once the numbered treads put the flights on their riser lines, the stair rule's flights on
+    # the plan above no longer matched them within 5 cm and the landing the upper plan draws was lost): the flights as
+    # the drawing's lines give them (the rule's reading kept as drawn_stair) are compared with the other plan's
+    drawn = _flights((data.get("drawn_stair") or {})) if isinstance(data.get("drawn_stair"), dict) else []
+    if len(drawn) == len(ours) and drawn:
+        ours = drawn
     fr = _frame(ours)
     for t in building.get("furniture") or []:
         if t is piece or t.get("type") != "stair" or t.get("level_id") != up["id"]:

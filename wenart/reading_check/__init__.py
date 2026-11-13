@@ -638,6 +638,19 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     for f in vision:
         f["advisory"] = True
     findings += vision
+    # 13 Nov 2026 (coordinator after review B3: "The user should never have to point at a hole in a stair"): the stair
+    # integrity check RC16 (``wenart.reading_check.stairs``) joins as ADVISORY findings: every drawn stair built as
+    # planned, its holes, overlaps, double steps, missing openings and treads in walls listed
+    try:
+        from wenart.reading_check import stairs as ST
+        integrity = ST.findings(out_dir)
+    except Exception as exc:  # noqa: BLE001 - an advisory check never stops the reading check
+        integrity = [{"check": "RC16", "name": "stair integrity", "rule": None, "severity": "info", "level_id": None,
+                      "message": f"the stair integrity check did not run: {type(exc).__name__}: {str(exc)[:200]}",
+                      "element_ids": []}]
+    for f in integrity:
+        f["advisory"] = True
+    findings += integrity
     advisory = cross + sense + vision
     counts = {s: sum(1 for f in findings if f["severity"] == s and not f.get("advisory"))
               for s in ("critical", "major", "minor")}

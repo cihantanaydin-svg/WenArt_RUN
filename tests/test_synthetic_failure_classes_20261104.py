@@ -446,6 +446,18 @@ def _built_stair(b: dict) -> dict:
     return plan
 
 
+@pytest.mark.parametrize("name", NAMES)
+def test_every_read_stair_passes_the_integrity_check(generated, read, name):
+    """13 Nov 2026 (coordinator after review B3: "The user should never have to point at a hole in a stair"): every
+    stair a synthetic project reads is built (``parametric.stair_plan`` on its level's storey and walls) with a
+    continuous walking line, no overlap, one riser at a time summing to the storey, the ceiling opening over every
+    step without headroom and no tread in a wall (``wenart.reading_check.stairs``, RC16)."""
+    from wenart.reading_check import stairs as ST
+    recs = ST.stairs(read(name))
+    bad = [(r["level_id"], r["id"], r["error"] or r["violations"]) for r in recs if r["error"] or r["violations"]]
+    assert bad == []
+
+
 def test_15_winders_and_seventeen_treads(generated, read):
     # 6 Nov 2026: the stair rule's piece takes what the numbers say (stair_numbers.enrich; the first winder is not the
     # arm's last tread, stair_numbers._trim_arm)
@@ -456,7 +468,9 @@ def test_15_winders_and_seventeen_treads(generated, read):
     st = _stair(read("synthetic-15-winder-stair"))
     # what wenart.ingest.generic.stair_numbers writes for a stair read from its numbers (1-17, winders at the turn)
     assert st.get("steps_drawn") == 17
-    assert st.get("winders") == winders["treads"][1] - winders["treads"][0] + 1
+    # (13 Nov 2026, review B3-REG-02: the lower arm's last riser line leads onto the first winder, so the turn adds one
+    # riser less than it holds winders)
+    assert st.get("winders") == winders["treads"][1] - winders["treads"][0]
     # review B S8/S12: the built stair has the 17 risers and the winders in its turn
     plan = _built_stair(read("synthetic-15-winder-stair"))
     assert plan["risers"] == 17
