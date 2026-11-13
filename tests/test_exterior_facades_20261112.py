@@ -304,3 +304,35 @@ def test_a_window_between_two_rooms_is_asked_about_and_a_paper_level_gives_one_f
     b["level_inference"]["exterior"]["not_qualified"] = {"L0": ["a paper room or frame walls (RC14)"]}
     found = SN.window_on_interior(b)
     assert len(found) == 1 and found[0]["element_ids"] == ["win_mid"] and "does not qualify" in found[0]["message"]
+
+
+def test_stacked_margin_lines_are_one_note_before_their_words_count():
+    """R45, R46 (staged margin_join): a 'BİTİŞİK' line that heads a phrase is the phrase (never a party label); a
+    street name split over two lines is the street."""
+    from wenart.sheets import storeys as ST
+    from wenart.sheets.model import Txt
+
+    def txt(tid, text, y):
+        return Txt(id=tid, text=text, box=(20.0, y, 23.0, y + 0.3), height=0.3)
+    region = SimpleNamespace(file="a.dxf", box=(0.0, 0.0, 10.0, 6.0), metres_per_unit=1.0)
+    phrase = [(txt("T1", "BİTİŞİK", 3.0), "a.dxf"), (txt("T2", "NİZAM YAPILACAKTIR VE CEPHE", 2.6), "a.dxf")]
+    assert ST.side_texts(region, phrase) == []
+    street = [(txt("T3", "KALEM", -2.0), "a.dxf"), (txt("T4", "SOKAĞI", -2.4), "a.dxf")]
+    region = SimpleNamespace(file="a.dxf", box=(18.0, 0.0, 25.0, 6.0), metres_per_unit=1.0)
+    assert {s["kind"] for s in ST.side_texts(region, street)} == {"street"}
+
+
+def test_a_side_not_fully_built_is_no_party_wall_and_an_opening_across_its_line_is_refused():
+    """R46 (staged party_guards)."""
+    b = building(flat())
+    side = [[0.0, -0.125], [10.0, -0.125]]
+    party = {"L0": {"w_L0_1": {"text": "bitişik", "side": side}}}
+    b["walls"][0]["end"] = [4.0, 0.0]                    # the south wall built over 4 of its 10 m only
+    vetoed = CP.party_vetoes(b, party)
+    assert party == {} and "not fully built" in vetoed[0]["reason"]
+    b = building(flat())
+    b["walls"][0]["party_wall"] = {"inferred": True}
+    b["openings"].append({"id": "win_x", "type": "window", "level_id": "L0", "wall_id": "w_L0_4", "center": [0.0, 0.5],
+                          "width": 1.0, "inferred": True, "evidence": [{"method": "inferred"}]})
+    refused = CP.party_openings(b)
+    assert [r["opening"] for r in refused] == ["win_x"] and "across the party line" in refused[0]["reason"]

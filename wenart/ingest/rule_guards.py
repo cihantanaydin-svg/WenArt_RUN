@@ -78,10 +78,14 @@ RULES = {
     "party_internal": (("R46",), "a wall between two blocks of one building is an internal party wall"),
     "party_refuse": (("R46",), "a derived or inferred opening on a party wall is refused"),
     "party_eaves": (("R46",), "a roof has no eaves over a party side"),
+    "margin_join": (("R45", "R46"), "the stacked lines of a margin note are read as one text before its words count"),
+    "party_guards": (("R46",), "a side the reading did not fully build is no party wall; a derived or inferred opening "
+                               "whose span crosses a party line is refused"),
 }
 
 # the staged rules: off unless switched on (stage 2, not reviewed yet; the coordinator, 13 Nov 2026)
-STAGED = {"exterior_spans", "facade_ground", "party_plot", "party_internal", "party_refuse", "party_eaves"}
+STAGED = {"exterior_spans", "facade_ground", "party_plot", "party_internal", "party_refuse", "party_eaves",
+          "margin_join", "party_guards"}
 
 GUARDS: dict = {key: [] for key in RULES}
 OFF: set = set()

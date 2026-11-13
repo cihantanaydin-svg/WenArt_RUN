@@ -758,13 +758,17 @@ def side_texts(region, texts: list, others: tuple = ()) -> list:
     (``others``: R45, R46) nor a road level mark or an escape route (YOL KOTU, KAÇIŞ YOLU)."""
     from wenart.sheets.model import point_box_distance
 
+    from wenart.ingest import rule_guards as RGU
+
     mpu = getattr(region, "metres_per_unit", None) or 0.0
     reach = SIDE_REACH_M / mpu if mpu else 0.0
     out = []
-    for t, f in texts:
+    near = [(t, f) for t, f in texts if f == region.file and point_box_distance(t.point, region.box) <= reach]
+    joined = stacked_lines([t for t, _f in near]) if RGU.active("margin_join") else {}
+    for t, f in near:
         if f != region.file:
             continue
-        folded = " ".join(_fold(t.text).split())
+        folded = " ".join(_fold(joined.get(t.id, t.text)).split())
         kind = ("party" if PARTY_RE.search(folded) and len(folded.split()) <= PARTY_LABEL_WORDS else
                 "street" if STREET_RE.search(folded) and not re.search(r"\bYOL\s+KOTU\b|\bKACIS\s+YOLU\b", folded)
                 else None)
@@ -775,6 +779,42 @@ def side_texts(region, texts: list, others: tuple = ()) -> list:
         ev = getattr(t, "evidence", None) or {}
         out.append({"kind": kind, "text": t.text.strip(), "point": [round(t.point[0], 4), round(t.point[1], 4)],
                     "entity": ev.get("entity") or t.id, "layer": ev.get("layer") or t.layer})
+    return out
+
+
+def stacked_lines(texts: list) -> dict:
+    """``{text id: the joined text}`` (pure; R45, R46: "join stacked text lines first"): texts of about one height and
+    rotation, overlapping across by half the narrower and one under the other within one text height, are one note,
+    read top to bottom (a 'BİTİŞİK' line of a phrase is the phrase; 'KALEM' over 'SOKAĞI' is the street)."""
+    items = [t for t in texts if getattr(t, "height", 0) and getattr(t, "box", None)]
+    parent = {t.id: t.id for t in items}
+
+    def root(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+    for i, a in enumerate(items):
+        for c in items[i + 1:]:
+            h = max(a.height, c.height)
+            if abs(a.height - c.height) > 0.3 * h or abs((a.rotation_deg or 0.0) - (c.rotation_deg or 0.0)) > 2.0:
+                continue
+            across = min(a.box[2], c.box[2]) - max(a.box[0], c.box[0])
+            if across < 0.5 * min(a.box[2] - a.box[0], c.box[2] - c.box[0]):
+                continue
+            gap = max(a.box[1], c.box[1]) - min(a.box[3], c.box[3])
+            if gap <= 1.0 * h:
+                parent[root(a.id)] = root(c.id)
+    groups: dict = {}
+    for t in items:
+        groups.setdefault(root(t.id), []).append(t)
+    out = {}
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        text = " ".join(m.text.strip() for m in sorted(members, key=lambda m: -m.box[3]))
+        for m in members:
+            out[m.id] = text
     return out
 
 

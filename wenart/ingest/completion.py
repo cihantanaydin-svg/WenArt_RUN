@@ -801,11 +801,34 @@ def _on_side(w: dict, side) -> bool:
     return ts[1] > 0.1 and ts[0] < el - 0.1
 
 
+PARTY_BUILT_SHARE = 0.8         # a party side's walls cover at least this share of it (R46: a side fully built)
+
+
+def _built_share(walls: list, side, lid: str) -> float:
+    """The share of an outline side its level's walls along it cover (pure)."""
+    (ex0, ey0), (ex1, ey1) = side
+    el = math.hypot(ex1 - ex0, ey1 - ey0)
+    if el < 1e-6:
+        return 1.0
+    eu = ((ex1 - ex0) / el, (ey1 - ey0) / el)
+    ivals = sorted(tuple(sorted(max(0.0, min(el, (p[0] - ex0) * eu[0] + (p[1] - ey0) * eu[1]))
+                                for p in (w["start"], w["end"])))
+                   for w in walls if w.get("level_id") == lid and _on_side(w, side))
+    covered, t = 0.0, 0.0
+    for a, c in ivals:
+        a = max(a, t)
+        if c > a:
+            covered += c - a
+            t = c
+    return covered / el
+
+
 def party_vetoes(b: dict, party_by_level: dict) -> list:
     """R46's vetoes (in place on ``party_by_level``; the records returned): no party wall on a level read with low
     confidence, and none on a side that carries a drawn door, entrance or window on any storey (a drawn opening shows
     the side is free; inferred and derived openings do not count)."""
     from wenart.ingest import core_rules as CR
+    from wenart.ingest import rule_guards as RG
 
     out = []
     levels = {lv["id"]: lv for lv in b.get("levels") or []}
@@ -827,6 +850,14 @@ def party_vetoes(b: dict, party_by_level: dict) -> list:
             sides.setdefault(tuple(map(tuple, ev.get("side") or [])), []).append(wid)
         for side, wids in sides.items():
             if len(side) != 2:
+                continue
+            short = _built_share(walls, side, lid) if RG.active("party_guards", b) else 1.0
+            if short < PARTY_BUILT_SHARE:
+                for wid in wids:
+                    party.pop(wid, None)
+                out.append({"level_id": lid, "walls": sorted(wids),
+                            "reason": f"the reading built only {short * 100:.0f} % of the side: a side not fully built "
+                                      f"is no party wall (R46)"})
                 continue
             hit = [o for w in walls if _on_side(w, side) for o in drawn.get(w["id"]) or []]
             if hit:
@@ -860,18 +891,46 @@ def party_openings(b: dict) -> list:
 
     party = {w["id"] for w in b.get("walls") or [] if isinstance(w.get("party_wall"), dict)
              and not w["party_wall"].get("internal")}
+    walls = {w["id"]: w for w in b.get("walls") or [] if w.get("start") and w.get("end")}
+    crossing = RG.active("party_guards", b)
     out, keep = [], []
     for o in b.get("openings") or []:
-        if o.get("wall_id") in party and not o.get("virtual") and CR.derived(o) and not RG.blocked(
+        across = _crosses_party(o, walls, party) if crossing and o.get("wall_id") not in party else None
+        if (o.get("wall_id") in party or across) and not o.get("virtual") and CR.derived(o) and not RG.blocked(
                 "party_wall", b, {"level_id": o.get("level_id"), "opening": o["id"], "why": "opening on a party wall"}):
+            where = f"stands on the party wall {o['wall_id']}" if not across else \
+                f"reaches across the party line of {across}"
             out.append({"opening": o["id"], "level_id": o.get("level_id"), "wall": o["wall_id"],
-                        "reason": f"{o['id']} ({o.get('type')}, derived or inferred) stands on the party wall "
-                                  f"{o['wall_id']}: refused (R46)"})
+                        "reason": f"{o['id']} ({o.get('type')}, derived or inferred) {where}: refused (R46)"})
             continue
         keep.append(o)
     if out:
         b["openings"] = keep
     return out
+
+
+def _crosses_party(o: dict, walls: dict, party: set) -> Optional[str]:
+    """The party wall whose line an opening's span reaches across (its end within the party wall's half thickness of
+    that wall's axis, on a wall of the same level that meets it), or None (pure; R46's crossing-span check)."""
+    w = walls.get(o.get("wall_id"))
+    if w is None or not o.get("center"):
+        return None
+    a, u, _l = _axis(w)
+    half = float(o.get("width") or 0.0) / 2.0
+    c = o["center"]
+    ends = [(c[0] + u[0] * s * half, c[1] + u[1] * s * half) for s in (-1, 1)]
+    for pid in party:
+        pw = walls.get(pid)
+        if pw is None or pw.get("level_id") != o.get("level_id"):
+            continue
+        pa, pu, pl = _axis(pw)
+        if abs(u[0] * pu[1] - u[1] * pu[0]) < 0.5:
+            continue                                    # parallel to it: not across its line
+        reach = float(pw.get("thickness") or 0.15) / 2.0
+        line = LineString([pw["start"], pw["end"]])
+        if any(line.distance(Point(e)) <= reach for e in ends):
+            return pid
+    return None
 
 
 BALCONY_TOUCH_M = 0.30          # a balcony this close to a wall's outer face leans on it
