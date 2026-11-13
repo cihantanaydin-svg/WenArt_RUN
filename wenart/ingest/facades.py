@@ -53,6 +53,7 @@ SILL_M = 0.9
 SOIL_RE = re.compile(r"(?<![a-z])(?:sikistirilmis\s+)?toprak(?!\s+temasli)(?![a-z])|(?<![a-z])(?:soil|earth|backfill)"
                      r"(?![a-z])")
 ENTRANCE_REACH_M = 3.0
+TERRAIN_REACH_M = 6.0            # a ground point this far beyond a facade is that facade's ground (R24 (c))
 ENTRANCE_RE = re.compile(r"(?<![a-z])(?:(?:bina|apt\.?|apartman)\s+giris\w*|giris\s+holu|(?:dukkan|magaza)\s+giris\w*|"
                          r"entrance)(?![a-z])")
 GIRIS_RE = re.compile(r"(?<![a-z])giris(?![a-z])")
@@ -154,7 +155,7 @@ def ground(b: dict, level, lv: dict, edges: list, texts: Optional[list], notes_:
     from wenart.ingest import core_rules as CR
     from wenart.levels import marks as LM
 
-    soil, entrance_label, marks = ({} for _ in range(3))
+    soil, entrance_label, marks, zeros = ({} for _ in range(4))
     for t in texts or []:
         i = facing(level, edges, (t["x"], t["y"]))
         if i is None:
@@ -166,7 +167,16 @@ def ground(b: dict, level, lv: dict, edges: list, texts: Optional[list], notes_:
             entrance_label.setdefault(i, t["text"])
         m = LM.read_mark(str(t["text"]))
         if m is not None and isinstance(m.get("value"), (int, float)):
-            marks.setdefault(i, []).append((float(m["value"]), t["text"], (t["x"], t["y"])))
+            zeros.setdefault(i, []).append((float(m["value"]), t["text"], (t["x"], t["y"])))
+    # the terrain (R24 (c), after R04): the ground points the levels model read (site.ground.points), never a bare
+    # level mark beside the facade (a terrace's or a landing's floor mark is no ground: real11)
+    for gp in ((b.get("site") or {}).get("ground") or {}).get("points") or []:
+        if not isinstance(gp, dict) or not isinstance(gp.get("z"), (int, float)):
+            continue
+        i = facing(level, edges, (float(gp["x"]), float(gp["y"])), TERRAIN_REACH_M)
+        if i is not None:
+            marks.setdefault(i, []).append((float(gp["z"]), f"ground point {float(gp['z']):+.2f}",
+                                            (float(gp["x"]), float(gp["y"]))))
     outer = set(CP.outer_doors(b, level.lid))
     doors, glass = {}, {}
     for o in b.get("openings") or []:
@@ -191,7 +201,7 @@ def ground(b: dict, level, lv: dict, edges: list, texts: Optional[list], notes_:
         outside = [o for w in walls for o in doors.get(w["id"]) or []]
         el = math.dist(edge[0], edge[1])
         glazed = sum(float(o.get("width") or 0.0) for w in walls for o in glass.get(w["id"]) or [])
-        zero = [m for m in marks.get(i) or [] if abs(m[0]) < 1e-6 and any(
+        zero = [m for m in zeros.get(i) or [] if abs(m[0]) < 1e-6 and any(
             math.dist(m[2], (o.get("center") or [1e9, 1e9])[:2]) <= 1.5 for o in outside)]
         if i in soil:
             out.append({"buried": True, "rung": "soil", "why": f"the soil label '{soil[i]}' beyond it"})

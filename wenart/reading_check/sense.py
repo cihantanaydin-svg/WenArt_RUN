@@ -1917,10 +1917,13 @@ def window_on_interior(building: dict) -> list:
         level = levels[lid]
         u = ((x1 - x0) / length, (y1 - y0) / length)
         reach = float(w.get("thickness") or 0.15) / 2.0 + 0.25
-        sides = [level.room_at((o["center"][0] - u[1] * k * reach, o["center"][1] + u[0] * k * reach)) for k in (1, -1)]
+        qs = [(o["center"][0] - u[1] * k * reach, o["center"][1] + u[0] * k * reach) for k in (1, -1)]
+        sides = [level.room_at(q) for q in qs]
         if any(r is not None and (r.get("room_subtype") == "light_well" or r.get("room_type") in ("shaft", "balcony")
-                                  or CP.is_light_well(r)) for r in sides):
-            continue                                         # onto a light well or an outdoor room
+                                  or str(r.get("room_type") or "") in CP.OPEN_AIR or CP.is_light_well(r)
+                                  or EX.OUTDOOR_WORDS.search(CP._fold(r.get("label") or r.get("label_raw"))))
+               for r in sides) or any(level.kind_at(q, "") in ("balcony", "light_well") for q in qs):
+            continue                                         # onto a light well or an outdoor room (an enclosed loggia)
         per_level.setdefault(lid, []).append((o, w, span))
     for lid, rows in per_level.items():
         ok, why = EX.level_ok(building, lid)

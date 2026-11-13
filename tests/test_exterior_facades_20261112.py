@@ -157,6 +157,12 @@ def grounds(b, lid="L0", texts=None):
     return edges, notes, FC.ground(b, level, lv, edges, texts, notes)
 
 
+def ground_point(b, z, x, y):
+    """A ground point of the terrain the levels model read (``site.ground.points``: R24 (c) after R04)."""
+    b.setdefault("site", {}).setdefault("ground", {}).setdefault("points", []).append({"x": x, "y": y, "z": z})
+    return b
+
+
 def side(edges, rows, at):
     """The row of the facade nearest the point ``at`` (the outline runs on the walls' outer faces)."""
     from shapely.geometry import LineString, Point
@@ -170,7 +176,8 @@ def test_a_basement_facade_is_buried_by_soil_freed_by_an_outside_door_and_by_a_l
     b = building(flat("L-1", -1, -3.0), flat("L0", 0, 0.0))
     b["openings"].append({"id": "d_L-1_out", "type": "door", "level_id": "L-1", "wall_id": "w_L-1_2",
                           "center": [10.0, 3.0], "width": 0.9, "evidence": [{"method": "vector", "entity": "ARC:1"}]})
-    texts = facade_texts(("TOPRAK", 5.0, -1.5), ("-2.80", 5.0, 7.5))
+    texts = facade_texts(("TOPRAK", 5.0, -1.5), ("+0.40", 5.0, 7.0))       # a bare mark beside it: no ground
+    ground_point(b, -2.80, 5.0, 7.5)
     edges, _, rows = grounds(b, "L-1", texts)
     south, east, north, west = (side(edges, rows, at) for at in ((5, 0), (10, 3), (5, 6), (0, 3)))
     assert south["buried"] is True and south["rung"] == "soil"
@@ -190,10 +197,11 @@ def test_a_drawn_window_or_a_bare_dolgu_decides_nothing_and_toprak_temasli_is_no
 
 def test_the_terrain_never_buries_the_entrance_storey_nor_two_storeys():
     b = building(flat("L-1", -1, -3.0), flat("L0", 0, 0.0), flat("L1", 1, 3.0))
-    edges, _, rows = grounds(b, "L0", facade_texts(("+2.90", 5.0, 7.5)))
+    ground_point(b, 2.90, 5.0, 7.5)
+    edges, _, rows = grounds(b, "L0", [])
     north = side(edges, rows, (5, 6))
     assert north["buried"] is False and north["rung"] == "terrain_rejected"
-    edges, _, rows = grounds(b, "L-1", facade_texts(("+2.90", 5.0, 7.5)))     # would bury L-1 and L0
+    edges, _, rows = grounds(b, "L-1", [])                                     # would bury L-1 and L0
     assert side(edges, rows, (5, 6))["buried"] == "unknown"
 
 
@@ -205,10 +213,14 @@ def test_the_entrance_storey_is_the_lowest_with_a_building_entrance_phrase():
 
 
 def test_a_ground_within_0_3_m_of_the_next_floor_counts_as_above_the_ceiling():
-    b = building(flat("L-1", -1, -3.0), flat("L0", 0, 0.0))
-    edges, _, rows = grounds(b, "L-1", facade_texts(("-0.25", 5.0, 7.5)))
+    b = ground_point(building(flat("L-1", -1, -3.0), flat("L0", 0, 0.0)), -0.25, 5.0, 7.5)
+    edges, _, rows = grounds(b, "L-1", [])
     north = side(edges, rows, (5, 6))
     assert north["buried"] is True and north["rung"] == "terrain"
+    # a level mark beside the facade is no ground (a terrace's or a landing's floor: real11)
+    b = building(flat("L-1", -1, -3.0), flat("L0", 0, 0.0))
+    edges, _, rows = grounds(b, "L-1", facade_texts(("-0.25", 5.0, 7.5)))
+    assert side(edges, rows, (5, 6))["rung"] == "level"
 
 
 def test_margin_notes_belong_to_the_facade_they_face():
