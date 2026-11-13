@@ -7,12 +7,35 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import pytest
 from shapely.geometry import Polygon
 
 from wenart.blender import party_eaves as PE
 from wenart.ingest import completion as CP
 from wenart.ingest import exterior as EX
 from wenart.ingest import facades as FC
+from wenart.ingest import rule_guards as RG
+
+
+@pytest.fixture(autouse=True)
+def _staged_rules_on(monkeypatch):
+    """The stage-2 rules are staged (off until their review, 13 Nov 2026): these tests switch them on."""
+    monkeypatch.setenv("WENART_RULES_ON", ",".join(sorted(RG.STAGED)))
+
+
+def test_the_staged_rules_are_off_unless_switched_on(monkeypatch):
+    monkeypatch.delenv("WENART_RULES_ON", raising=False)
+    b = {"level_inference": {}}
+    assert all(not RG.active(k, b) for k in RG.STAGED)
+    assert "staged" in RG.switched_off("party_eaves", b)
+    assert RG.active("party_eaves", {"project": {"brief": {"rules_on": ["party_eaves"]}}})
+    assert RG.active("party_refuse", {"level_inference": {"rules_on": "party_refuse"}})
+    assert not RG.active("core_gap", {"project": {"brief": {"rules_off": "R16"}}})
+    # the build follows the reading's record (it imports no reading code)
+    ring = [[0, 0], [10, 0], [10, 6], [0, 6]]
+    b = {"walls": [{"id": "w", "level_id": "L0", "start": [10, 0], "end": [10, 6], "thickness": 0.2,
+                    "party_wall": {"inferred": True}}], "level_inference": {"rules_staged": {"party_eaves": False}}}
+    assert PE.clip(ring, b, "L0") == (ring, [])
 
 
 def rect(x0, y0, x1, y1):
@@ -240,6 +263,7 @@ def test_the_full_depth_wall_of_a_house_pair_is_an_internal_party_wall():
 
 def test_the_eaves_stop_at_a_party_walls_outer_face():
     b = building(flat())
+    b["level_inference"]["rules_staged"] = {"party_eaves": True}                 # the reading switched it on
     b["walls"][3]["party_wall"] = {"inferred": True, "text": "bitişik"}            # the west wall
     outline = [(-0.5, -0.5), (10.5, -0.5), (10.5, 6.5), (-0.5, 6.5)]
     cut, notes = PE.clip(outline, b, "L0")

@@ -589,7 +589,7 @@ def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
 LIFT_DOOR_W_M = 0.90             # 4 Nov 2026 (UL306): a lift's landing door (a car door of 0.80-0.90 m) ...
 LIFT_DOOR_H_M = 2.10             # ... this high, sliding
 LIFT_WALL_REACH_M = 0.60         # a room, an opening or a wall this close to the shaft is beside it (core walls 0.2-0.5 m)
-MACHINE_RE_WORDS = ("MAHAL", "MAKINE", "MACHINE", "MOTOR", "MASCHINEN")   # a lift's machine room is no shaft
+MACHINE_RE_WORDS = ("MAHAL", "MAKINE", "MAKINA", "MAKN", "MACHINE", "MOTOR", "MASCHINEN")   # a machine room is no shaft
 
 
 def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> list[str]:
@@ -617,6 +617,11 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> li
         if drawn:
             o = max(drawn, key=lambda o: float(o.get("width") or 0))
             if o.get("operation") != "sliding" or o.get("type") != "door":
+                if o.get("type") == "door":
+                    # 13 Nov 2026 (review MF6, S1-20a): the drawn operation is kept, so a mark undone gives it back
+                    o.setdefault("drawn_operation", o.get("operation"))
+                    o.setdefault("drawn_operation_source", o.get("operation_source"))
+                    o.setdefault("drawn_swing_side", o.get("swing_side"))
                 o["type"], o["operation"], o["operation_source"], o["lift_door"] = "door", "sliding", "assumed", True
                 o["swing_side"] = None
                 o.setdefault("evidence", []).append({"file": (s.get("evidence") or [{}])[0].get("file") or "building.json",

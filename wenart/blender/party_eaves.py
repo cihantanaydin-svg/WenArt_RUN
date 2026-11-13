@@ -19,8 +19,11 @@ from shapely.geometry import Polygon
 
 
 def clip(outline: Sequence, building: dict, level_id) -> tuple:
-    """The module docstring."""
-    if not outline or len(outline) < 3 or not level_id:
+    """The module docstring. A staged rule (13 Nov 2026): it runs only when the reading switched it on
+    (``level_inference.rules_staged.party_eaves``, written by ``completion.complete``; the build imports no reading
+    code)."""
+    staged = ((building.get("level_inference") or {}).get("rules_staged") or {}) if isinstance(building, dict) else {}
+    if not outline or len(outline) < 3 or not level_id or not staged.get("party_eaves"):
         return list(outline or []), []
     poly = Polygon([tuple(p[:2]) for p in outline]).buffer(0)
     if poly.is_empty:

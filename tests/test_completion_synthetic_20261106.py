@@ -53,7 +53,11 @@ def test_a_floor_list_on_the_sheet_builds_the_storeys_the_drawing_does_not_draw(
 def test_a_plan_without_windows_gets_inferred_windows_but_none_on_the_attached_side(readings):
     b = readings[False]
     wins = [o for o in b["openings"] if o["type"] == "window"]
-    assert wins and all(o.get("inferred") for o in wins)
+    # 13 Nov 2026 (review POD-02): the copies' doors onto the outside are windows there (adjusted_by_ai, drawn kept)
+    copied = [o for o in wins if (o.get("adjusted_by_ai") or {}).get("rule") == "copy_door_window"]
+    assert copied and all(o["drawn_type"] == "door" and o["level_id"] in ("L1", "L2") for o in copied)
+    assert b["level_inference"]["copy_doors"]
+    assert wins and all(o.get("inferred") or o in copied for o in wins)
     assert {o["level_id"] for o in wins} == {"L0", "L1", "L2"}
     party = {w["id"] for w in b["walls"] if w.get("party_wall")}
     assert party, "the 'bitişik' text names the east wall as a party wall"

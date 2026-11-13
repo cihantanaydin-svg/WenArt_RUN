@@ -188,20 +188,30 @@ def opening_polygon(o: dict, wall: Optional[dict]):
     return line.buffer(max(float(wall.get("thickness") or 0.1), 0.02) / 2.0, cap_style=2, join_style=2)
 
 
-def level_outline(walls: list[dict], openings: list[dict]):
-    """The filled outer outline of a level: the walls and the openings in them united, slits closed (the equivalent of
-    ``wenart.ingest.generic.topology.bridged_union`` on the building's dicts), its largest part's exterior."""
+def _wall_parts(walls: list[dict], openings: list[dict]) -> list:
     by_id = {w["id"]: w for w in walls}
     polys = [p for p in (wall_polygon(w) for w in walls) if p is not None]
     polys += [p for p in (opening_polygon(o, by_id.get(o.get("wall_id"))) for o in openings
                           if not o.get("virtual")) if p is not None]
     if not polys:
-        return None
+        return []
     u = unary_union(polys).buffer(SLIT_CLOSE_M, join_style=2).buffer(-SLIT_CLOSE_M, join_style=2)
-    parts = [g for g in getattr(u, "geoms", [u]) if g.geom_type == "Polygon" and not g.is_empty]
+    return [g for g in getattr(u, "geoms", [u]) if g.geom_type == "Polygon" and not g.is_empty]
+
+
+def level_outline(walls: list[dict], openings: list[dict]):
+    """The filled outer outline of a level: the walls and the openings in them united, slits closed (the equivalent of
+    ``wenart.ingest.generic.topology.bridged_union`` on the building's dicts), its largest part's exterior."""
+    parts = _wall_parts(walls, openings)
     if not parts:
         return None
     return Polygon(max(parts, key=lambda g: g.area).exterior)
+
+
+def level_parts(walls: list[dict], openings: list[dict]) -> list:
+    """Every filled part of a level (13 Nov 2026, review CS1-10: a storey of two blocks): each part's exterior as a
+    polygon, holes filled."""
+    return [Polygon(g.exterior) for g in _wall_parts(walls, openings)]
 
 
 def outward_deg(wall: dict, filled) -> Optional[float]:
@@ -1091,9 +1101,31 @@ def rc12(building: dict) -> list[dict]:
     out: list[dict] = []
     levels = {lv["id"]: lv for lv in building.get("levels") or []}
     copies = [lv for lv in levels.values() if lv.get("typical_of") and lv.get("typical_of") != lv["id"]]
+    # 13 Nov 2026 (review S1-21d): a ground floor inferred from the typical plan differs from it as planned (its
+    # balconies left off): the copies are compared with the drawn storey, the ground floor with it as info only
+    st = (building.get("level_inference") or {}).get("storeys") or {}
+    guessed = {i.get("level_id") for i in st.get("inferred") or []}
+    ref_for = {}
+    if st.get("ground_from_typical"):
+        for base in {lv["typical_of"] for lv in copies}:
+            if base in guessed:
+                group = sorted((lv for lv in copies if lv["typical_of"] == base),
+                               key=lambda lv: (lv.get("order") or 0, lv["id"]))
+                drawn = [lv for lv in group if lv["id"] not in guessed] or group
+                ref_for[base] = drawn[0]["id"]
+    for base, ref in ref_for.items():
+        a, b = _counts(building, ref), _counts(building, base)
+        diff = {k: (a[k], b[k]) for k in a if a[k] != b[k]}
+        dropped = [d.get("id") for d in ((st.get("ground_floor") or {}).get("dropped") or [])]
+        if diff:
+            out.append(_finding("RC12", "info", base, f"{base}, the ground floor inferred from the typical plan, differs "
+                                f"from the drawn storey {ref} as planned (its balconies left off: "
+                                f"{', '.join(dropped) or 'none'}): " + ", ".join(
+                                    f"{k} {x} on {ref} / {y} on {base}" for k, (x, y) in diff.items()),
+                                [f"typical floor {ref}", f"inferred ground floor {base}"]))
     for lv in copies:
-        base = lv["typical_of"]
-        if base not in levels:
+        base = ref_for.get(lv["typical_of"], lv["typical_of"])
+        if base not in levels or base == lv["id"]:
             continue
         a, b = _counts(building, base), _counts(building, lv["id"])
         if not b["rooms"] and not b["walls"]:

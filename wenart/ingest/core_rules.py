@@ -28,19 +28,29 @@ wells and before the windows; it changes the building in place and returns the r
    drawn door is never removed); a doorless opening between a lift and the common hall is the lift's landing door: a
    sliding door (the user on real10, C0034: "there should be a door for the elevator like sliding door ... a general
    rule"; ``adjusted_by_ai``, ``drawn_type`` kept); a lift left without an opening onto the common hall gets one
-   inferred landing door on the face to the hall, away from a drawn counterweight. A pit level (KUYU, BOŞLUK) gets no
-   landing door. Only in a building of several flats (a house's own lift opens where its plan says).
-3. **Between a flat and the core** (``core_gaps``, R16 with its guards): an unclassified gap (type ``opening``, a
-   derived opening) between the common core (the lifts, the stairs and the halls joined to them by doorless openings)
-   and a flat's bathroom, WC, shower or bedroom is closed; one to a kitchen, living or dining room is closed only when
-   that room still reaches the core without it (it is not the flat's only, open-plan, entrance: G4). Drawn doors are
-   never removed (the RC14 check ``core_door`` asks about them). Only in a building of several flats (a house's stair
-   hall may be open to its rooms).
-4. **Entrances** (``entrances``): an entrance (``site.entrances``) whose far side holds a room label the reading lost
-   is no entrance (the room behind it is missing); in a building of several flats an entrance from a wet room is
-   refused (a flat's garden or terrace door stays an outer door); a building of several flats without an
-   entrance into the core gets an inferred one where the core hall reaches a facade that is no party wall, else an open
-   point (the passage from the street to the core is not drawn).
+   inferred landing door on a face onto a hall, stair or common room of the core (never a shop's or a flat's room):
+   where the storey above or below has its lift door, else away from a drawn counterweight; with no such face a review
+   record and no geometry. Once a lift opens onto the core, its other derived openings into a room that is not the
+   core go (drawn ones are review records: a through-car). Stacked landing pieces take the drawn jambs. A pit level
+   (KUYU, BOŞLUK) gets no landing door. Only in a building of several flats (a house's own lift opens where its plan
+   says), but a lift-door mark in no passenger lift's shaft wall is undone in every building (a flat's hinged door gets
+   its drawn operation back; review MF6, S1-20a).
+3. **Between a flat and the core** (``core_gaps``, R16 with its guards): the core is the lifts, the stair rooms, the
+   lift's lobby, the rooms holding a core stair (never a shop's or a flat's room: their stair is their own) and the
+   halls joined to them by virtual separators or, with common evidence, by doorless openings (never a flat's antre).
+   An unclassified gap (type ``opening``, a derived opening) between the core and a flat's bathroom, WC, shower or
+   bedroom is closed, unless it is the room's only link (a review record); one to a kitchen, living or dining room is
+   closed only when that room still reaches the core without it and the gaps already closed (G4). A window drawn in a
+   gap stays as that window; a closing that would cut a flat off the core is undone (review). Drawn doors are never
+   removed (the RC14 check ``core_door`` asks about them). Only in a building of several flats.
+4. **Entrances** (``entrances``, R09 brought forward on 13 Nov 2026): an entrance (``site.entrances``) whose far side
+   holds a room label the reading lost is no entrance; in a building of several flats or with a common core an entrance
+   from a wet room is refused; the main entrance never opens into a bedroom, a wet room or a kitchen (nor a flat's room
+   with a common core). A building with a common core whose entrances reach no core room on any storey gets an
+   inferred one on an entrance storey (an entrance word in its core, else a floor within ``ENTRANCE_LEVEL_M`` of the
+   ground the reading knows, else the ground floor), where the core hall reaches a facade that is no party wall, with
+   its ``site.entrances`` record (threshold, rise, steps); else an open point and a ``needs_review`` item. No core read:
+   no question.
 
 Why: real21's core held two lifts and a stair box the reader set aside as a dimension outline; its lifts opened into
 bedrooms, a bedroom opened onto the stair hall, and no door led in from the street. real20's six "entrances" were inner
@@ -97,6 +107,25 @@ CAR_M = ((0.9, 2.2), (1.1, 2.8))  # a lift car: a closed rectangle this size (R1
 DERIVED_RULES = ("lift_door", "mirror_twin", "gap_behind_furniture", "inferred_door", "inferred_window",
                  "inferred_entrance", "balcony_door")
 LABEL_REACH_M = 1.5             # a lost room label this close beyond an entrance is the room behind it
+# 13 Nov 2026 (the stage-1 review): a unit's own use (its stair is the unit's: a shop's stair down to its store) ...
+UNIT_USE_RE = re.compile(r"(?<![a-z])(?:dukkan|dukkani|magaza|magazasi|depo|deposu|ofis|buro|isyeri|atolye|shop|store|"
+                         r"storage|office|boutique|laden|lager)(?![a-z])")
+# ... and a flat's own hall (an antre): never the common core
+FLAT_HALL_RE = re.compile(r"(?<![a-z])(?:antre|antresi|vestiyer|vestibule|diele|daire\s+girisi)(?![a-z])")
+WINDOW_LAYER_RE = re.compile(r"pencere|penc|window|glass|glazing|(?<![a-z])cam(?![a-z])|fenster|fenetre|ventana")
+WINDOW_TAG_RE = re.compile(r"^\s*p?\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")
+GAP_WINDOW_MIN_M = 0.30         # a window drawn in a gap at least this wide is kept as a window when the gap closes
+GAP_WINDOW_HEAD_M = 2.10        # ... its head, and its height without a tag (a high window between a wet room and the core)
+GAP_WINDOW_H_M = 0.60
+DOOR_TAG_H_M = 1.80             # a W/H tag this high or higher is a door's (100/210), lower a window's (150/50)
+STACK_MATCH_M = 0.05            # a lift door on the storey above or below this close to a face is at the same place
+JAMB_REACH_M = 0.80             # a lift door's drawn jambs: wall ends this far from its centre, on its wall line
+ENTRANCE_LEVEL_M = 0.60         # an entrance storey's floor lies this close to the ground (R24: about one entrance flight)
+ENTRANCE_WORD_RE = re.compile(r"(?<![a-z])(?:bina\s+girisi|bina\s+giris|giris\s+holu|apartman\s+girisi|main\s+entrance|"
+                              r"entrance\s+hall|entrance\s+lobby|hauseingang|entree)(?![a-z])")
+NOT_MAIN_TYPES = ("bedroom", "kitchen") + WET   # a main entrance never opens into one of these (R09)
+ENTRANCE_ROOM_RE = re.compile(r"(?<![a-z])(?:ruzgarlik|ruzgarligi|bina\s+girisi|giris\s+holu|apartman\s+girisi|"
+                              r"windfang|entrance\s+(?:hall|lobby)|lobby|lobi|sas\s+d.entree)(?![a-z])")
 
 
 def _storey_below(b: dict, lid: str) -> Optional[str]:
@@ -255,7 +284,7 @@ def stair_evidence(p: Polygon, strokes: list, texts: list) -> Optional[str]:
         if not box.contains(Point(t["x"], t["y"])):
             continue
         txt = str(t["text"]).strip()
-        if txt.isdigit() and 1 <= int(txt) <= 40:
+        if re.fullmatch(r"[0-9]{1,2}", txt) and 1 <= int(txt) <= 40:      # never a superscript or circled digit
             nums.add(int(txt))
         elif RISER_TAG_RE.search(CP._fold(txt)):
             return f"the riser tag '{txt}'"
@@ -510,52 +539,108 @@ def _sides(level: "CP.Level", o: dict) -> list:
     return out
 
 
+def _label(r: dict) -> str:
+    return CP._fold(r.get("label_raw") or ("" if r.get("label_inferred") else r.get("label")))
+
+
+def _flat_hall(hall: dict, rooms: dict, links: list) -> bool:
+    """A flat's own hall (pure; CS1-02), never grown into the core: its label names an antre, or it holds the doors of
+    two or more bedrooms or wet rooms, or the only link of one."""
+    if FLAT_HALL_RE.search(_label(hall)):
+        return True
+    doors = set()
+    for a, c, o in links:
+        if hall["id"] in (a, c) and o.get("type") == "door" and not o.get("lift_door") and not o.get("virtual"):
+            other = c if a == hall["id"] else a
+            if (rooms.get(other) or {}).get("room_type") in ("bedroom",) + WET:
+                doors.add(other)
+    if len(doors) >= 2:
+        return True
+    return any(sum(1 for a, c, _o in links if rid in (a, c)) == 1 for rid in doors)
+
+
+def _common_evidence(hall: dict, rooms: dict, links: list, core: set) -> bool:
+    """A hall with common evidence (pure; R16 G2): a drawn common-hall word, or two or more flat entrance doors start in
+    it (doors to rooms out of the core that are not a flat's bedroom, kitchen or wet room)."""
+    from wenart import common_areas as CA
+
+    words = " " + " ".join(B.fold_ascii(_label(hall)).upper().split()) + " "
+    if any(f" {w} " in words for w in CA.COMMON_ROOM_WORDS):
+        return True
+    entrances = {c if a == hall["id"] else a for a, c, o in links if hall["id"] in (a, c) and o.get("type") == "door"
+                 and not o.get("virtual") and not o.get("lift_door")}
+    entrances = {x for x in entrances if x not in core and (rooms.get(x) or {}).get("room_type") not in
+                 ("bedroom", "kitchen") + WET and not CP.is_lift(rooms.get(x) or {})}
+    return len(entrances) >= 2
+
+
+def _core_stair_room(r: dict, level: "CP.Level", near: list) -> bool:
+    """A room holding a stair is the core's only when the stair is the core's (pure; MF3, MF4, REG-01): a stair room, a
+    hall or a drawn common room, or an unlabelled face beside a lift or its lobby (``near``); never a flat's room
+    (``PRIVATE``) nor a unit's own use (a shop, a store, an office: their stair is the unit's own)."""
+    from wenart import common_areas as CA
+
+    rtype = r.get("room_type")
+    if rtype == "stair":
+        return True
+    if rtype in PRIVATE or UNIT_USE_RE.search(_label(r)):
+        return False
+    if rtype == "hall" or CA.is_common_room(r):
+        return True
+    p = level.polys.get(r["id"])
+    return not _label(r) and rtype in (None, "", "other", "unknown") and p is not None and \
+        any(p.distance(q) <= 0.4 for q in near)
+
+
 def core_rooms(b: dict, level: "CP.Level") -> set:
-    """The common core of a storey (pure): its lifts, its stair rooms and the rooms holding a stair, and the halls joined
-    to them by doorless openings or virtual separators (a landing in front of the lifts; never a flat's hall behind its
-    door)."""
+    """The common core of a storey (pure): its lifts and stair rooms, the hall a lift touches (its lobby, never a
+    flat's antre), the rooms holding a core stair (``_core_stair_room``), and the halls joined to them by virtual
+    separators, or by doorless openings when the hall shows common evidence (``_common_evidence``); never a flat's
+    own hall (``_flat_hall``)."""
+    rooms = {r["id"]: r for r in level.rooms}
+    links = _links(level)
     core = {r["id"] for r in level.rooms if CP.is_lift(r) or r.get("room_type") == "stair"
             or (CP.LIFT_RE.search(CP._fold(r.get("label") or r.get("label_raw")))
                 and level.polys[r["id"]].area > CP.LIFT_MAX_M2)}
-    below = _storey_below(b, level.lid)
-    for f in b.get("furniture") or []:
-        # the room holding a stair, and the room a stair of the storey below arrives in
-        if f.get("level_id") in (level.lid, below) and f.get("type") == "stair" and f.get("footprint"):
-            r = level.room_at(tuple(f["footprint"]["center"]))
-            if r is not None and (f.get("level_id") == level.lid or r.get("room_type") == "hall"):
-                core.add(r["id"])
-    # a lift's lobby: the hall the lift touches along the longest stretch
-    for lift in [r for r in level.rooms if CP.is_lift(r)]:
+    lifts = [r for r in level.rooms if CP.is_lift(r)]
+    lobbies = []
+    # a lift's lobby: the hall the lift touches along the longest stretch, never a flat's antre
+    for lift in lifts:
         lp = level.polys[lift["id"]].buffer(0.4)
         touch = [(lp.intersection(level.polys[r["id"]].exterior.buffer(0.05)).area, r) for r in level.rooms
-                 if r.get("room_type") == "hall" and r["id"] != lift["id"]]
+                 if r.get("room_type") == "hall" and r["id"] != lift["id"] and not FLAT_HALL_RE.search(_label(r))]
         touch = [t for t in touch if t[0] > 0.05]
         if touch:
-            core.add(max(touch, key=lambda t: t[0])[1]["id"])
-    rooms = {r["id"]: r for r in level.rooms}
-    links = []
-    for o in level.openings:
-        if o.get("type") != "opening" and not o.get("virtual"):
-            continue
-        if o.get("virtual"):
-            line = o.get("line") or []
-            if len(line) != 2:
+            lobby = max(touch, key=lambda t: t[0])[1]
+            core.add(lobby["id"])
+            lobbies.append(level.polys[lobby["id"]])
+    near = [level.polys[r["id"]] for r in lifts] + lobbies
+    below = _storey_below(b, level.lid)
+    for f in b.get("furniture") or []:
+        # the room holding a core stair, and the hall a stair of the storey below arrives in
+        if f.get("level_id") in (level.lid, below) and f.get("type") == "stair" and f.get("footprint"):
+            r = level.room_at(tuple(f["footprint"]["center"]))
+            if r is None:
                 continue
-            mid = ((line[0][0] + line[1][0]) / 2.0, (line[0][1] + line[1][1]) / 2.0)
-            near = [r["id"] for r in level.rooms if level.polys[r["id"]].distance(Point(mid)) <= 0.15]
-        else:
-            near = [s[1]["id"] for s in _sides(level, o) if s[1] is not None]
-        if len(near) == 2:
-            links.append(tuple(near))
+            if f.get("level_id") == level.lid and _core_stair_room(r, level, near):
+                core.add(r["id"])
+            elif f.get("level_id") != level.lid and r.get("room_type") == "hall" and not _flat_hall(r, rooms, links):
+                core.add(r["id"])
     grew = True
     while grew:
         grew = False
-        for a, c in links:
+        for a, c, o in links:
+            if o.get("type") == "door" and not o.get("virtual"):
+                continue                                    # a door is where a flat starts
             for x, y in ((a, c), (c, a)):
-                if x in core and y not in core and rooms.get(y, {}).get("room_type") == "hall":
+                hall = rooms.get(y) or {}
+                if x in core and y not in core and hall.get("room_type") == "hall" and \
+                        not _flat_hall(hall, rooms, links) and \
+                        (o.get("virtual") or _common_evidence(hall, rooms, links, core)):
                     core.add(y)
                     grew = True
     return core
+
 
 
 def _lift_of(level: "CP.Level", o: dict, lifts: list) -> tuple:
@@ -570,10 +655,11 @@ def _lift_of(level: "CP.Level", o: dict, lifts: list) -> tuple:
     return lift, other, q
 
 
-def _stacked(level: "CP.Level", pieces: list) -> list:
+def _stacked(level: "CP.Level", pieces: list, above: Optional[list] = None) -> list:
     """``[(kept, [others])]`` (pure): openings in stacked parallel walls (centres at most ``STACK_M`` apart across the
-    walls, spans overlapping by at least half the shorter): one door read in pieces. The drawn one is kept, else the
-    widest."""
+    walls, spans overlapping by at least half the shorter): one door read in pieces. The piece matching a lift door on
+    the storey above or below (``above``: its openings, centres within ``STACK_MATCH_M`` across and a quarter of a width
+    along) is kept, else the drawn one, else the widest (CL-05)."""
     out, used = [], set()
     for i, o in enumerate(pieces):
         wo = level.walls.get(o.get("wall_id"))
@@ -598,10 +684,65 @@ def _stacked(level: "CP.Level", pieces: list) -> list:
             if overlap >= 0.5 * min(wa, wb) > 0:
                 grp.append(q)
         if len(grp) > 1:
-            kept = next((x for x in grp if not derived(x)), None) or max(grp, key=lambda x: float(x.get("width") or 0))
+            def matches(x):
+                for y in above or []:
+                    d = (x["center"][0] - y["center"][0], x["center"][1] - y["center"][1])
+                    if abs(d[0] * n[0] + d[1] * n[1]) <= STACK_MATCH_M + STACK_M and \
+                            abs(d[0] * u[0] + d[1] * u[1]) <= 0.25 * float(y.get("width") or 0.9) and \
+                            abs(float(x.get("width") or 0) - float(y.get("width") or 0)) <= 0.1:
+                        return True
+                return False
+            kept = next((x for x in grp if matches(x)), None) or next((x for x in grp if not derived(x)), None) or \
+                max(grp, key=lambda x: float(x.get("width") or 0))
             used |= {x["id"] for x in grp}
             out.append((kept, [x for x in grp if x is not kept]))
     return out
+
+
+def _jambs(level: "CP.Level", o: dict) -> Optional[tuple]:
+    """``(t0, t1)`` along the opening's wall: the drawn jambs around it (the nearest faces of the walls and piers that
+    cross or end on its wall line within ``JAMB_REACH_M`` of its centre), or None (pure; CL-05)."""
+    w = level.walls.get(o.get("wall_id"))
+    if w is None or not o.get("center"):
+        return None
+    a, u, _l = CP._axis(w)
+    n = (-u[1], u[0])
+    c = o["center"]
+    tc = (c[0] - a[0]) * u[0] + (c[1] - a[1]) * u[1]
+    half = float(w.get("thickness") or 0.15) / 2.0 + 0.05
+    left, right = None, None
+    for w2 in level.walls.values():
+        if w2["id"] == w["id"]:
+            continue
+        b2, u2, l2 = CP._axis(w2)
+        t2 = float(w2.get("thickness") or 0.15) / 2.0
+        if abs(u[0] * u2[1] - u[1] * u2[0]) <= CP.PARALLEL_SIN:
+            # a wall on the same line ending at the gap: its end is a jamb
+            off = (b2[0] - a[0]) * n[0] + (b2[1] - a[1]) * n[1]
+            if abs(off) > half:
+                continue
+            ends = sorted(((p[0] - a[0]) * u[0] + (p[1] - a[1]) * u[1]) for p in (w2["start"], w2["end"]))
+            faces = [ends[1]] if ends[1] <= tc else [ends[0]] if ends[0] >= tc else []
+        else:
+            # a pier or a cross wall touching the wall line: its two faces
+            pts = [(w2["start"][0], w2["start"][1]), (w2["end"][0], w2["end"][1])]
+            offs = [(p[0] - a[0]) * n[0] + (p[1] - a[1]) * n[1] for p in pts]
+            if min(offs) > half or max(offs) < -half:
+                continue
+            k = 0.0 if abs(offs[1] - offs[0]) < 1e-9 else max(0.0, min(1.0, -offs[0] / (offs[1] - offs[0])))
+            px = pts[0][0] + (pts[1][0] - pts[0][0]) * k
+            py = pts[0][1] + (pts[1][1] - pts[0][1]) * k
+            t = (px - a[0]) * u[0] + (py - a[1]) * u[1]
+            faces = [t + t2] if t <= tc else [t - t2]
+        for f in faces:
+            if f <= tc and tc - f <= JAMB_REACH_M and (left is None or f > left):
+                left = f
+            elif f > tc and f - tc <= JAMB_REACH_M and (right is None or f < right):
+                right = f
+    if left is None or right is None or right - left < LIFT_DOOR_MIN_M:
+        return None
+    return left, right
+
 
 
 def _front_zone(level: "CP.Level", o: dict, q) -> Optional[Polygon]:
@@ -618,49 +759,128 @@ def _front_zone(level: "CP.Level", o: dict, q) -> Optional[Polygon]:
     return Polygon(pts)
 
 
-def fix_lift_doors(b: dict, next_id) -> dict:
-    """Rule 2 (the module docstring); returns ``{"merged", "removed", "review", "retyped", "added"}``."""
+def _unmark(b: dict, level: "CP.Level", lifts: list, rec: dict) -> None:
+    """Step 0 of rule 2 on one level (every level, every building: an error correction; MF6, S1-20a): a lift-door mark
+    on an opening in no passenger lift's shaft wall is undone. A derived gap is an opening again; a drawn door gets its
+    drawn operation back (a hinged flat door is never a lift door); a lift door a rule inferred into a flat's room is
+    removed. On a lift-named face larger than a car (the whole core) only a drawn door whose far side is a flat's room
+    or antre is unmarked (a flat's entrance); the others are review records (a real landing door in a merged face)."""
+    lid = level.lid
+    drop = set()
+    for o in level.openings:
+        if not o.get("lift_door") or o.get("virtual") or _lift_of(level, o, lifts)[0] is not None:
+            continue
+        sides = [s[1] for s in _sides(level, o)]
+        named = next((r for r in sides if r is not None and CP.LIFT_RE.search(CP._fold(r.get("label")
+                                                                                     or r.get("label_raw")))), None)
+        far = next((r for r in sides if r is not None and r is not named), None)
+        flat_side = far is not None and (far.get("room_type") in PRIVATE or FLAT_HALL_RE.search(_label(far)) is not None)
+        first = (o.get("evidence") or [{}])[0] or {}
+        made = first.get("method") == "inferred" or bool(o.get("inferred"))
+        if made and flat_side and far.get("room_type") in PRIVATE:
+            why = (f"{o['id']} is a lift door a rule inferred into {far['id']} '{far.get('label')}' "
+                   f"({far.get('room_type')}), a flat's room, and lies in no passenger lift's shaft wall: removed")
+            if not RG.blocked("lift_door_remove", b, {"level_id": lid, "opening": o["id"], "room": far["id"],
+                                                     "why": why}):
+                drop.add(o["id"])
+                rec["removed"].append({"opening": o["id"], "level_id": lid, "reason": why + " (adjusted_by_ai)"})
+            continue
+        if named is not None and level.polys[named["id"]].area > CP.LIFT_MAX_M2 and CP.is_lift(dict(named, polygon=None)) \
+                and not (flat_side and not made):
+            rec["review"].append({"opening": o["id"], "level_id": lid,
+                                  "reason": f"{o['id']} is marked the landing door of the lift-named face {named['id']} "
+                                            f"({level.polys[named['id']].area:.1f} m2, larger than a car: the whole "
+                                            f"core?): kept; review whether it is the lift's door"})
+            continue
+        if RG.blocked("lift_door_unmark", b, {"level_id": lid, "opening": o["id"]}):
+            continue
+        reason = (f"{o['id']} is marked a lift's landing door but lies in no passenger lift's shaft wall: the mark is "
+                  f"undone" + (" (a derived gap again)" if first.get("method") == "derived" else
+                               " (its drawn operation back)" if not derived(o) else ""))
+        changed = {"lift_door": True, "operation": o.get("operation")}
+        o["lift_door"] = False
+        if first.get("method") == "derived":
+            o.update(type="opening", operation=None, operation_source=None)
+        elif not derived(o) and o.get("type") == "door":
+            # a drawn door: its drawn operation (kept by the rule that made it sliding), else a swing (null)
+            o["operation"] = o.pop("drawn_operation", None)
+            o["operation_source"] = o.pop("drawn_operation_source", None)
+            if "drawn_swing_side" in o:
+                o["swing_side"] = o.pop("drawn_swing_side")
+            if flat_side:
+                o["flat_entrance"] = True
+        o["adjusted_by_ai"] = {"by": "code", "rule": "lift_door_unmark", "reason": reason, "changed": changed}
+        rec["unmarked"].append({"opening": o["id"], "level_id": lid, "reason": reason + " (adjusted_by_ai)"})
+    if drop:
+        b["openings"] = [o for o in b["openings"] if o["id"] not in drop]
+        level.openings = [o for o in level.openings if o["id"] not in drop]
+
+
+def _neighbour_lift_doors(b: dict, lid: str) -> list:
+    """The lift doors (``lift_door``) of the storeys right above and below ``lid`` (pure)."""
+    ids = [lv["id"] for lv in _storeys(b)]
+    k = ids.index(lid) if lid in ids else -1
+    near = {ids[j] for j in (k - 1, k + 1) if 0 <= j < len(ids)} if k >= 0 else set()
+    return [o for o in b.get("openings") or [] if o.get("level_id") in near and o.get("lift_door") and o.get("center")]
+
+
+def fix_lift_doors(b: dict, next_id, flats: bool = True) -> dict:
+    """Rule 2 (the module docstring); returns ``{"unmarked", "merged", "removed", "review", "retyped", "added"}``.
+    Step 0 (``_unmark``) runs on every level of every building; the others only in a building of several flats with a
+    common core (``flats``)."""
     rec = {"unmarked": [], "merged": [], "removed": [], "review": [], "retyped": [], "added": []}
     for lv in b.get("levels") or []:
         lid = lv["id"]
         level = CP.Level(b, lid)
         lifts = [r for r in level.rooms if CP.is_lift(r)]
-        if not lifts or level.outline is None:
+        _unmark(b, level, lifts, rec)
+        if not flats or not lifts or level.outline is None:
             continue
-        # 0. a lift-door mark on an opening that is not in a lift's shaft wall is undone (R19: a landing door lies on
-        # the shaft edge; R16: an opening marked lift_door outside the shaft wall is wrong): a derived gap is an
-        # opening again, a drawn door keeps its type
-        for o in level.openings:
-            if not o.get("lift_door") or o.get("virtual") or _lift_of(level, o, lifts)[0] is not None:
-                continue
-            if RG.blocked("lift_door_unmark", b, {"level_id": lid, "opening": o["id"]}):
-                continue
-            first = (o.get("evidence") or [{}])[0] or {}
-            reason = (f"{o['id']} is marked a lift's landing door but lies in no lift's shaft wall: the mark is undone"
-                      + (" (a derived gap again)" if first.get("method") == "derived" else ""))
-            o["lift_door"] = False
-            if first.get("method") == "derived":
-                o.update(type="opening", operation=None, operation_source=None)
-            o["adjusted_by_ai"] = {"by": "code", "rule": "lift_door_unmark", "reason": reason}
-            rec["unmarked"].append({"opening": o["id"], "level_id": lid, "reason": reason + " (adjusted_by_ai)"})
+        level = CP.Level(b, lid)
         core = core_rooms(b, level)
         stairs = [_rect(f["footprint"]) for f in b.get("furniture") or []
                   if f.get("level_id") == lid and f.get("type") == "stair" and f.get("footprint")
                   and f.get("build") is not False]
+        neighbours = _neighbour_lift_doors(b, lid)
         drop = set()
-        # 1. one landing door read in pieces in stacked parallel walls: merged first (R19)
+        # 1. one landing door read in pieces in stacked parallel walls: merged first (R19); the kept piece takes the
+        # span of the drawn jambs (CL-05)
         for lift in lifts:
             pieces = [o for o in level.openings if o.get("type") in ("door", "opening") and not o.get("virtual")
                       and _lift_of(level, o, lifts)[0] is lift]
-            for kept, others in _stacked(level, pieces):
+            for kept, others in _stacked(level, pieces, neighbours):
+                merged = []
                 for o in others:
                     why = (f"{o['id']} ({float(o.get('width') or 0):.2f} m) is a piece of the landing door {kept['id']} "
                            f"of the lift {lift['id']}, read in a stacked wall")
                     if derived(o) and not RG.blocked("lift_door_merge", b, {"level_id": lid, "opening": o["id"],
                                                                           "kept": kept["id"], "lift": lift["id"]}):
                         drop.add(o["id"])
+                        merged.append(o)
                         rec["merged"].append({"opening": o["id"], "kept": kept["id"], "level_id": lid,
                                               "reason": why + " (adjusted_by_ai: merged)"})
+                jambs = _jambs(level, kept) if merged else None
+                if jambs is not None and derived(kept):
+                    w = level.walls[kept["wall_id"]]
+                    a, u, _l = CP._axis(w)
+                    t0, t1 = jambs
+                    ext = [((x["center"][0] - a[0]) * u[0] + (x["center"][1] - a[1]) * u[1]) + s * float(x.get("width")
+                                                                                                   or 0) / 2.0
+                           for x in [kept] + merged for s in (-1, 1)]
+                    if t1 - t0 > LIFT_DOOR_WIDE_M or t0 < min(ext) - 0.1 or t1 > max(ext) + 0.1:
+                        continue                # the shaft's own walls, not the door's jambs
+
+                    old = float(kept.get("width") or 0.0)
+                    if abs((t1 - t0) - old) > 0.02 or abs(((t0 + t1) / 2.0) - ((kept["center"][0] - a[0]) * u[0]
+                                                                                + (kept["center"][1] - a[1]) * u[1])) > 0.02:
+                        kept.setdefault("drawn_width", old)
+                        kept.setdefault("drawn_center", list(kept["center"]))
+                        kept["width"] = round(t1 - t0, 3)
+                        kept["center"] = level.at(kept["wall_id"], (t0 + t1) / 2.0)
+                        rec["merged"].append({"opening": kept["id"], "kept": kept["id"], "level_id": lid,
+                                              "reason": f"{kept['id']} spans the drawn jambs of the lift {lift['id']}'s "
+                                                        f"landing door ({t1 - t0:.2f} m, read {old:.2f} m; "
+                                                        f"adjusted_by_ai)"})
         # 2. what a lift never opens onto: rejected when derived or inferred, a review record when drawn (R16 G6)
         for o in level.openings:
             if o["id"] in drop or o.get("virtual") or o.get("type") not in ("door", "opening", "window"):
@@ -705,51 +925,124 @@ def fix_lift_doors(b: dict, next_id) -> dict:
         served_lifts = [r for r in lifts if not CP.is_pit(r)]       # a pit level gets no landing door
         rec["retyped"] += _landing_doors(b, level, served_lifts, core)
         for lift in served_lifts:
-            served = False
+            if _core_door(level, lift, core) is None:
+                _add_landing_door(b, level, lv, lift, core, neighbours, next_id, rec)
+            # 4. once the lift opens onto the core, its other derived or inferred openings into a room that is not
+            # the core nor a hall (an unread room, the outside) go; drawn ones are review records (a through-car)
+            door = _core_door(level, lift, core)
+            if door is None:
+                continue
+            gone = set()
+            seen = {r["opening"] for r in rec["review"] if r.get("level_id") == lid}
             for o in level.openings:
-                sides = _sides(level, o) if o.get("type") in ("door", "opening") else []
-                ids = [x[1]["id"] if x[1] is not None else None for x in sides]
-                if lift["id"] in ids:
-                    other = sides[1 - ids.index(lift["id"])][1]
-                    if other is not None and (other["id"] in core or other.get("room_type") == "hall"):
-                        served = True
-                        break
-            if served:
-                continue
-            faces = [f for f in _hall_faces(level, lift, core)]
-            if not faces:
-                continue
-            # the landing door faces away from the counterweight when the drawing shows one (a narrow piece in the
-            # shaft beside the car), else the longest stretch onto the hall
-            cw = _counterweight(b, level, lift)
-            lc = level.polys[lift["id"]].centroid
+                if o is door or o.get("virtual") or o.get("type") not in ("door", "opening") or o["id"] in seen:
+                    continue
+                lift2, other, _q = _lift_of(level, o, [lift])
+                if lift2 is None or (other is not None and (other["id"] in core or other.get("room_type") == "hall"
+                                                            or CP.is_lift(other))):
+                    continue
+                where = (f"{other['id']} '{other.get('label')}' ({other.get('room_type')})" if other is not None else
+                         "no room (the outside or an unread room)")
+                why = (f"the lift {lift['id']} opens onto the common hall through {door['id']}; {o['id']} opens it into "
+                       f"{where}, not the core: a second landing door")
+                if not derived(o):
+                    rec["review"].append({"opening": o["id"], "level_id": lid,
+                                          "reason": why + " (a drawn symbol: kept; a through-car or a misread room?)"})
+                    continue
+                if RG.blocked("lift_door_remove", b, {"level_id": lid, "opening": o["id"], "lift": lift["id"],
+                                                     "room": (other or {}).get("id"), "why": why}):
+                    continue
+                gone.add(o["id"])
+                rec["removed"].append({"opening": o["id"], "level_id": lid, "reason": why + " (adjusted_by_ai)"})
+            if gone:
+                b["openings"] = [o for o in b["openings"] if o["id"] not in gone]
+                level.openings = [o for o in level.openings if o["id"] not in gone]
+    return rec
 
-            def score(x, cw=cw, lc=lc):
+
+def _core_door(level: "CP.Level", lift: dict, core: set) -> Optional[dict]:
+    """The lift's door or opening onto the core or a hall, or None (pure)."""
+    for o in level.openings:
+        sides = _sides(level, o) if o.get("type") in ("door", "opening") and not o.get("virtual") else []
+        ids = [x[1]["id"] if x[1] is not None else None for x in sides]
+        if lift["id"] in ids:
+            other = sides[1 - ids.index(lift["id"])][1]
+            if other is not None and not CP.is_lift(other) and (other["id"] in core or other.get("room_type") == "hall"):
+                return o
+    return None
+
+
+def _add_landing_door(b: dict, level: "CP.Level", lv: dict, lift: dict, core: set, neighbours: list, next_id,
+                      rec: dict) -> None:
+    """Step 3 of rule 2: a lift with no opening onto the common hall gets one inferred landing door, on the face where
+    the storey above or below has its lift door (``STACK_MATCH_M``), else on the face away from a drawn counterweight,
+    else on the longest face onto a common hall or stair room; no face (or none away from the counterweight): a review
+    record, no geometry (REG-01, MF3)."""
+    lid = level.lid
+    faces = list(_hall_faces(level, lift, core))
+    if not faces:
+        rec["review"].append({"opening": None, "level_id": lid, "lift": lift["id"],
+                              "reason": f"the lift {lift['id']} has no landing door and no face onto a common hall or "
+                                        f"stair room (the landing hall not read?): no door inferred, to review"})
+        return
+    lc = level.polys[lift["id"]].centroid
+
+    def stacked(x):
+        """The along-wall position of a lift door above or below on this face, or None."""
+        f, p0, p1 = x
+        w = level.walls[f["wall_id"]]
+        a, u, _l = CP._axis(w)
+        half = float(w.get("thickness") or 0.15) / 2.0
+        for o in neighbours:
+            c = o["center"]
+            off = abs((c[0] - a[0]) * -u[1] + (c[1] - a[1]) * u[0])
+            t = (c[0] - a[0]) * u[0] + (c[1] - a[1]) * u[1]
+            if off <= half + STACK_MATCH_M and p0 - STACK_MATCH_M <= t <= p1 + STACK_MATCH_M:
+                return t
+        return None
+
+    found = [(x, stacked(x)) for x in faces]
+    found = [(x, t) for x, t in found if t is not None]
+    how = None
+    if found:
+        (f, p0, p1), t = found[0]
+        width = min(LIFT_DOOR_M[0], p1 - p0)
+        t = max(p0 + width / 2.0, min(p1 - width / 2.0, t))
+        how = "where the storey above or below has the lift's door"
+    else:
+        cw = _counterweight(b, level, lift)
+        if cw is not None:
+            def away(x):
                 f, p0, p1 = x
                 mid = level.at(f["wall_id"], (p0 + p1) / 2.0)
-                if cw is None:
-                    return (False, p1 - p0)
                 v1, v2 = (mid[0] - lc.x, mid[1] - lc.y), (cw[0] - lc.x, cw[1] - lc.y)
                 n1, n2 = math.hypot(*v1), math.hypot(*v2)
-                cos = (v1[0] * v2[0] + v1[1] * v2[1]) / (n1 * n2) if n1 > 1e-9 and n2 > 1e-9 else 0.0
-                return (cos < -0.5, p1 - p0)            # clearly on the far side from the counterweight
+                return (v1[0] * v2[0] + v1[1] * v2[1]) / (n1 * n2) < -0.5 if n1 > 1e-9 and n2 > 1e-9 else False
+            faces = [x for x in faces if away(x)]
+            if not faces:
+                rec["review"].append({"opening": None, "level_id": lid, "lift": lift["id"],
+                                      "reason": f"the lift {lift['id']} has no landing door and no face onto the common "
+                                                f"hall opposite its drawn counterweight: no door inferred, to review "
+                                                f"(the landing hall not read?)"})
+                return
+            how = "on the face away from the drawn counterweight"
+        f, p0, p1 = max(faces, key=lambda x: x[2] - x[1])
+        width = min(LIFT_DOOR_M[0], p1 - p0)
+        t = (p0 + p1) / 2.0
+        how = how or "on the longest face onto the common hall"
+    if width < LIFT_DOOR_MIN_M or RG.blocked("lift_door_add", b, {"level_id": lid, "lift": lift["id"],
+                                                                   "wall": f["wall_id"], "room": f["hall"]}):
+        return
+    reason = (f"the lift {lift['id']} has no landing door onto the common hall: one inferred on {f['wall_id']} facing "
+              f"{f['hall']}, {how}")
+    o = CP._new_opening("door", next_id("door", lid), level, f["wall_id"], t, width, LIFT_DOOR_M[1], None, reason, lift,
+                        {"kind": "hall"}, CP._ev_file(b, lid), lv.get("region_id"), "default lift door")
+    o["operation"], o["lift_door"] = "sliding", True
+    o["inference"]["rule"] = "lift_door"
+    b["openings"].append(o)
+    level.openings.append(o)
+    rec["added"].append({"opening": o["id"], "level_id": lid, "reason": reason + " (inferred)"})
 
-            f, p0, p1 = max(faces, key=score)
-            width = min(LIFT_DOOR_M[0], p1 - p0)
-            if width < LIFT_DOOR_MIN_M or RG.blocked("lift_door_add", b, {"level_id": lid, "lift": lift["id"],
-                                                                           "wall": f["wall_id"], "room": f["hall"]}):
-                continue
-            reason = (f"the lift {lift['id']} has no landing door onto the common hall: one inferred on {f['wall_id']} "
-                      f"facing {f['hall']}")
-            o = CP._new_opening("door", next_id("door", lid), level, f["wall_id"], (p0 + p1) / 2.0, width,
-                                LIFT_DOOR_M[1], None, reason, lift, {"kind": "hall"}, CP._ev_file(b, lid),
-                                lv.get("region_id"), "default lift door")
-            o["operation"], o["lift_door"] = "sliding", True
-            o["inference"]["rule"] = "lift_door"
-            b["openings"].append(o)
-            level.openings.append(o)
-            rec["added"].append({"opening": o["id"], "level_id": lid, "reason": reason + " (inferred)"})
-    return rec
 
 
 def _landing_doors(b: dict, level: "CP.Level", lifts: list, core: set) -> list:
@@ -794,9 +1087,16 @@ def _counterweight(b: dict, level: "CP.Level", lift: dict) -> Optional[tuple]:
 
 
 def _hall_faces(level: "CP.Level", lift: dict, core: set) -> list:
-    """``[(face, t0, t1)]``: the stretches of the lift's walls with a common hall on the other side, free of openings."""
+    """``[(face, t0, t1)]``: the stretches of the lift's walls with a common hall, a stair room or a common room of the
+    core on the other side (never a room with a unit's or a flat's use: REG-01, MF4), free of openings."""
+    from wenart import common_areas as CA
+
     p = level.polys[lift["id"]]
     x0, y0, x1, y1 = p.bounds
+
+    def landing(r) -> bool:
+        return r["id"] in core and not CP.is_lift(r) and not UNIT_USE_RE.search(_label(r)) and \
+            r.get("room_type") not in PRIVATE and (r.get("room_type") in ("hall", "stair") or CA.is_common_room(r))
     out = []
     for w in level.walls.values():
         xs, ys = (w["start"][0], w["end"][0]), (w["start"][1], w["end"][1])
@@ -817,7 +1117,7 @@ def _hall_faces(level: "CP.Level", lift: dict, core: set) -> list:
             hall = None
             if lift["id"] in ids:
                 other = sides[1 - ids.index(lift["id"])]
-                if other is not None and other["id"] != lift["id"] and (other["id"] in core and not CP.is_lift(other)):
+                if other is not None and other["id"] != lift["id"] and landing(other):
                     hall = other["id"]
             if hall and cur is not None and cur["hall"] == hall:
                 cur["t1"] = t
@@ -835,72 +1135,320 @@ def _hall_faces(level: "CP.Level", lift: dict, core: set) -> list:
     return res
 
 
-def _reaches(level: "CP.Level", start: set, target: str, skip: str) -> bool:
-    """True when room ``target`` is reached from the rooms ``start`` through the level's doors and openings without the
-    opening ``skip`` (pure)."""
-    links: dict = {}
+
+def _links(level: "CP.Level", skip=()) -> list:
+    """``[(room a, room b, opening)]`` (pure): the rooms each door, opening or virtual separator joins (a separator: the
+    two rooms within 0.15 m of its line's midpoint), without the openings in ``skip``."""
+    out = []
     for o in level.openings:
-        if o["id"] == skip or o.get("type") not in ("door", "opening"):
+        if o["id"] in skip:
             continue
-        near = [x[1]["id"] for x in _sides(level, o) if x[1] is not None] if not o.get("virtual") else []
-        if len(near) == 2:
-            links.setdefault(near[0], set()).add(near[1])
-            links.setdefault(near[1], set()).add(near[0])
+        if o.get("virtual"):
+            line = o.get("line") or []
+            if len(line) != 2:
+                continue
+            mid = Point((line[0][0] + line[1][0]) / 2.0, (line[0][1] + line[1][1]) / 2.0)
+            near = [r["id"] for r in level.rooms if level.polys[r["id"]].distance(mid) <= 0.15]
+        elif o.get("type") in ("door", "opening"):
+            near = [s[1]["id"] for s in _sides(level, o) if s[1] is not None]
+        else:
+            continue
+        if len(near) == 2 and near[0] != near[1]:
+            out.append((near[0], near[1], o))
+    return out
+
+
+def _reaches(level: "CP.Level", start: set, target: str, skip=()) -> bool:
+    """True when room ``target`` is reached from the rooms ``start`` through the level's doors, openings and virtual
+    separators without the openings ``skip`` (an id or a set of ids; pure)."""
+    skip = {skip} if isinstance(skip, str) else set(skip or ())
+    adj: dict = {}
+    for a, c, _o in _links(level, skip):
+        adj.setdefault(a, set()).add(c)
+        adj.setdefault(c, set()).add(a)
     seen, todo = set(start), list(start)
     while todo:
-        for y in links.get(todo.pop(), ()):
+        for y in adj.get(todo.pop(), ()):
             if y not in seen:
                 seen.add(y)
                 todo.append(y)
     return target in seen
 
 
-def close_core_gaps(b: dict) -> list:
-    """Rule 3 (the module docstring); returns the records of the closed gaps."""
-    out = []
+
+def _gap_window(level: "CP.Level", o: dict, drawn, texts: list) -> Optional[dict]:
+    """A window drawn in a gap (pure but for the drawing's query; CL-01, MF9): two or more strokes on a window layer
+    along the wall inside the gap, or a window size tag (``P150/50``, ``150/50``) in it; ``{t0, t1, height, strokes,
+    tag}`` along the wall, or None."""
+    w = level.walls.get(o.get("wall_id"))
+    if w is None or not o.get("center"):
+        return None
+    a, u, _l = CP._axis(w)
+    n = (-u[1], u[0])
+    c = o["center"]
+    tc = (c[0] - a[0]) * u[0] + (c[1] - a[1]) * u[1]
+    half, th = float(o.get("width") or 0.0) / 2.0, float(w.get("thickness") or 0.15) / 2.0 + 0.1
+
+    def pt(t, s):
+        return (a[0] + u[0] * t + n[0] * s, a[1] + u[1] * t + n[1] * s)
+    box = Polygon([pt(tc - half, -th), pt(tc + half, -th), pt(tc + half, th), pt(tc - half, th)])
+    lines = []
+    if drawn is not None:
+        for s in drawn.segments(box):
+            if not WINDOW_LAYER_RE.search(B.fold_ascii(str(s.get("layer") or "")).lower()):
+                continue
+            d = (s["b"][0] - s["a"][0], s["b"][1] - s["a"][1])
+            if s["length"] > 0.05 and abs(d[0] * n[0] + d[1] * n[1]) <= 0.1 * s["length"]:
+                lines.append(s)
+    tag = None
+    for t in texts or []:
+        m = WINDOW_TAG_RE.match(str(t.get("text") or ""))
+        if m and box.buffer(0.6).contains(Point(t["x"], t["y"])):
+            tag = (int(m.group(1)) / 100.0, int(m.group(2)) / 100.0, str(t["text"]).strip())
+            break
+    if tag is not None and tag[1] >= DOOR_TAG_H_M:
+        return {"door_tag": tag[2]}         # a door's size tag (100/210): a door the reading did not read
+    if len(lines) >= 2:
+        ts = [((p[0] - a[0]) * u[0] + (p[1] - a[1]) * u[1]) for s in lines for p in (s["a"], s["b"])]
+        t0, t1 = max(min(ts), tc - half), min(max(ts), tc + half)
+    elif tag is not None and tag[0] < 2 * half:
+        t0, t1 = tc - tag[0] / 2.0, tc + tag[0] / 2.0
+    else:
+        return None
+    if t1 - t0 < GAP_WINDOW_MIN_M:
+        return None
+    return {"t0": t0, "t1": t1, "height": tag[1] if tag else GAP_WINDOW_H_M, "tag": tag[2] if tag else None,
+            "strokes": sorted({s["id"] for s in lines})[:6]}
+
+
+def close_core_gaps(b: dict, drawn_by_level: Optional[dict] = None, texts_by_level: Optional[dict] = None) -> dict:
+    """Rule 3 (the module docstring); returns ``{"closed", "windows", "review"}``. Each gap is judged against the
+    openings still left (MF5, CS1-01, CL-03); a bedroom's or wet room's gap that is its only link is a review record
+    (CS1-02); a window drawn in a gap stays as that window, the rest of the gap closed (CL-01, MF9); a closing that
+    would leave a room that reached the core unreached is undone and listed for review (CL-06)."""
+    out = {"closed": [], "windows": [], "review": []}
     for lv in b.get("levels") or []:
-        level = CP.Level(b, lv["id"])
+        lid = lv["id"]
+        level = CP.Level(b, lid)
         core = core_rooms(b, level)
         if not core:
             continue
-        drop = []
+        before = {r["id"] for r in level.rooms if r.get("room_type") in PRIVATE and r["id"] not in core
+                  and _reaches(level, core, r["id"])}
+        links = _links(level)
+        drawn = (drawn_by_level or {}).get(lid)
+        texts = (texts_by_level or {}).get(lid) or []
+        drop, cand = [], {}
         for o in level.openings:
             if o.get("type") != "opening" or o.get("virtual"):
                 continue
-            rooms = [x[1] for x in _sides(level, o) if x[1] is not None]
-            if len(rooms) != 2:
+            pair = [x[1] for x in _sides(level, o) if x[1] is not None]
+            if len(pair) != 2:
                 continue
-            a, c = rooms
+            a, c = pair
             if (a["id"] in core) == (c["id"] in core):
                 continue
             flat = c if a["id"] in core else a
             rtype = flat.get("room_type")
             if rtype in WET + ("bedroom",):
+                if not any(flat["id"] in (x, y) and oo["id"] != o["id"] for x, y, oo in links):
+                    out["review"].append({"opening": o["id"], "level_id": lid, "room": flat["id"],
+                                          "reason": f"the unclassified gap {o['id']} joins {flat['id']} "
+                                                    f"'{flat.get('label')}' ({rtype}) to the common core and is the "
+                                                    f"room's only link: kept, to review (a misread room or door?)"})
+                    continue
                 why = "a bathroom, WC, shower or bedroom never opens onto the common core"
-            elif rtype in PRIVATE and _reaches(level, core, flat["id"], o["id"]):
+            elif rtype in PRIVATE and _reaches(level, core, flat["id"], set(drop) | {o["id"]}):
                 why = "the room reaches the core through its flat's entrance as well: this gap is a second link"
             else:
                 continue                        # a kitchen or living room's only link: an open-plan flat's entrance
-            if RG.blocked("core_gap", b, {"level_id": lv["id"], "opening": o["id"], "room": flat["id"],
+            tagged = (_gap_window(level, o, drawn, texts) or {}).get("door_tag")
+            if tagged:
+                out["review"].append({"opening": o["id"], "level_id": lid, "room": flat["id"],
+                                      "reason": f"the unclassified gap {o['id']} joins {flat['id']} "
+                                                f"'{flat.get('label')}' ({rtype}) to the common core, but the door's "
+                                                f"size tag '{tagged}' is drawn in it: a door the reading did not read "
+                                                f"(a flat's entrance?): kept, to review"})
+                continue
+            if RG.blocked("core_gap", b, {"level_id": lid, "opening": o["id"], "room": flat["id"],
                                           "core_room": (a if flat is c else c)["id"]}):
                 continue
             drop.append(o["id"])
-            out.append({"opening": o["id"], "level_id": lv["id"],
-                        "reason": f"the unclassified gap {o['id']} ({float(o.get('width') or 0):.2f} m) joins "
-                                  f"{flat['id']} '{flat.get('label')}' ({rtype}) to the common core: {why}; a flat "
-                                  f"meets the core only through its entrance door (adjusted_by_ai: closed)"})
-        if drop:
-            b["openings"] = [o for o in b["openings"] if o["id"] not in drop]
+            cand[o["id"]] = (o, flat, why)
+        # never cut a room off the core (CL-06): a closing that leaves a room unreached is undone, last first
+        lost = {rid for rid in before if not _reaches(level, core, rid, set(drop))}
+        for oid in list(reversed(drop)):
+            if not lost:
+                break
+            trial = [x for x in drop if x != oid]
+            now = {rid for rid in before if not _reaches(level, core, rid, set(trial))}
+            if len(now) < len(lost):
+                drop, lost = trial, now
+                o, flat, _why = cand[oid]
+                out["review"].append({"opening": oid, "level_id": lid, "room": flat["id"],
+                                      "reason": f"closing the gap {oid} would cut {flat['id']} '{flat.get('label')}' "
+                                                f"and its flat off the core (no other way in is read): kept, to review "
+                                                f"(the flat's entrance door is not read?)"})
+        if not drop:
+            continue
+        gone = set()
+        for oid in drop:
+            o, flat, why = cand[oid]
+            width = float(o.get("width") or 0)
+            win = _gap_window(level, o, drawn, texts)
+            text = (f"the unclassified gap {oid} ({width:.2f} m) joins {flat['id']} '{flat.get('label')}' "
+                    f"({flat.get('room_type')}) to the common core: {why}; a flat meets the core only through its "
+                    f"entrance door")
+            if win is not None:
+                t0, t1, h = win["t0"], win["t1"], float(win["height"])
+                sill = max(0.0, GAP_WINDOW_HEAD_M - h)
+                what = (f"the window tag '{win['tag']}'" if win["tag"] else "") + \
+                    (" and " if win["tag"] and win["strokes"] else "") + \
+                    (f"window strokes {', '.join(win['strokes'])}" if win["strokes"] else "")
+                o.update(drawn_type="opening", drawn_width=width, drawn_center=list(o["center"]), type="window",
+                         width=round(t1 - t0, 3), center=level.at(o["wall_id"], (t0 + t1) / 2.0),
+                         sill_height=round(sill, 3), height=round(h, 3), operation=None, operation_source=None,
+                         adjusted_by_ai={"by": "code", "rule": "core_gap_window",
+                                         "reason": text + f"; {what} drawn in it: the window stays "
+                                                          f"({t1 - t0:.2f} m), the rest of the gap is closed",
+                                         "changed": {"type": "opening", "width": width}})
+                out["windows"].append({"opening": oid, "level_id": lid,
+                                       "reason": text + f"; {what} drawn in it: kept as a {t1 - t0:.2f} m window, the "
+                                                        f"rest closed (adjusted_by_ai)"})
+                continue
+            gone.add(oid)
+            out["closed"].append({"opening": oid, "level_id": lid, "reason": text + " (adjusted_by_ai: closed)"})
+        if gone:
+            b["openings"] = [o for o in b["openings"] if o["id"] not in gone]
     return out
 
 
+
 # --------------------------------------------------------------------------------------------------- 4. entrances
-def fix_entrances(b: dict, next_id, party_by_level: dict) -> dict:
-    """Rule 4 (the module docstring); returns ``{"refused": [...], "added": [...], "open": ...}``."""
-    rec = {"refused": [], "added": [], "open": None}
-    site = b.get("site") or {}
+def ground_zs(b: dict) -> list:
+    """The ground heights the reading knows around the building (``site.ground``: its level marks and its flat surface;
+    pure)."""
+    g = (b.get("site") or {}).get("ground") or {}
+    zs = [float((x.get("z") or {}).get("value")) for x in g.get("levels") or []
+          if isinstance(x, dict) and isinstance((x.get("z") or {}).get("value"), (int, float))]
+    flat = (g.get("surface") or {}).get("flat_z")
+    if isinstance(flat, (int, float)):
+        zs.append(float(flat))
+    return zs
+
+
+def entrance_storeys(b: dict, texts_by_level: Optional[dict] = None) -> list:
+    """``[(level, why)]``: the storeys a building entrance may be on (pure; R09, R24 item 4): a storey with an entrance
+    word in its core first, then the base storeys whose floor lies within ``ENTRANCE_LEVEL_M`` of a ground height the
+    reading knows; the order-0 storey only when no ground is read."""
+    storeys = _storeys(b)
+    out, seen = [], set()
+    for lv in storeys:
+        for t in (texts_by_level or {}).get(lv["id"]) or []:
+            if ENTRANCE_WORD_RE.search(CP._fold(t.get("text"))):
+                level = CP.Level(b, lv["id"])
+                r = level.room_at((t["x"], t["y"]))
+                if r is not None and r["id"] in core_rooms(b, level) and lv["id"] not in seen:
+                    out.append((lv, f"the entrance word '{t['text']}' in its core"))
+                    seen.add(lv["id"])
+    zs = ground_zs(b)
+    for lv in storeys:
+        if lv["id"] in seen or not isinstance(lv.get("elevation"), (int, float)):
+            continue
+        near = [z for z in zs if abs(float(lv["elevation"]) - z) <= ENTRANCE_LEVEL_M]
+        if near:
+            out.append((lv, f"its floor {float(lv['elevation']):+.2f} m lies within {ENTRANCE_LEVEL_M} m of the ground "
+                            f"{min(near, key=lambda z: abs(float(lv['elevation']) - z)):+.2f} m"))
+            seen.add(lv["id"])
+    if not zs:
+        ground = next((lv for lv in storeys if (lv.get("order") or 0) == 0), None)
+        if ground is not None and ground["id"] not in seen:
+            out.append((ground, "the ground floor (no ground height read)"))
+    return out
+
+
+def _entrance_record(b: dict, o: dict, level: "CP.Level", lv: dict, hall: dict, face: dict, reason: str) -> dict:
+    """The ``site.entrances`` record of an inferred building entrance (CS1-05), with the levels model's step rules: the
+    hall's floor, the ground the reading knows (else at the floor), the rise, the steps and landing."""
+    from wenart.blender import site as S
+    from wenart.levels import model as LM
+    from wenart.levels.rules import level_params, steps_for
+
+    params = level_params((b.get("project") or {}).get("brief"))
+    w = level.walls[face["wall_id"]]
+    _a, u, _l = CP._axis(w)
+    n = (-u[1], u[0])
+    side = 1.0 if face.get("side", 1) >= 0 else -1.0
+    outward = (-n[0] * side, -n[1] * side)
+    ht = float(w.get("thickness") or 0.15) / 2.0
+    cx, cy = o["center"][:2]
+    threshold = LM.room_floor_z(b, hall)
+    zs = ground_zs(b)
+    gz = min(zs, key=lambda z: abs(threshold - z)) if zs else threshold
+    rise = max(threshold - gz, 0.0)
+    width = float(o.get("width") or ENTRANCE_DOOR_M[0])
+    steps = steps_for(rise, width + float(params["landing_extra_width"]), params)
+    north, known = LM._north(b)
+    o["threshold_z"] = round(threshold, 3)
+    return {"door_id": o["id"], "level_id": lv["id"], "room_id": hall["id"], "threshold_z": round(threshold, 3),
+            "ground_z": round(gz, 3), "rise": round(rise, 3),
+            "ground_source": "the ground the reading knows" if zs else "no ground read: at the floor (assumed)",
+            "centre": [round(cx, 4), round(cy, 4)], "outward": [round(outward[0], 6), round(outward[1], 6)],
+            "face": [round(cx + outward[0] * ht, 4), round(cy + outward[1] * ht, 4)], "width": round(width, 3),
+            "half_t": round(ht, 4), "side": S.side_of(outward, north, known),
+            "solution": "steps" if steps else "none", "steps": steps, "ramp": None,
+            "landing": ({"width": round(width + float(params["landing_extra_width"]), 3),
+                         "depth": round(float(params["landing_depth"]), 3), "z": round(threshold, 3)} if steps else None),
+            "main": False, "drawn": False, "inferred": True, "into_air": False, "upper_floor": False,
+            "below_ground": False, "terrain_lowered": False, "reason": reason + " (inferred)",
+            "evidence": [{"file": CP._ev_file(b, lv["id"]), "method": "inferred", "confidence": 0.4,
+                          "rule": "inferred_entrance", "text": reason}]}
+
+
+def _leads_to_core(b: dict, e: dict, core: set) -> bool:
+    """An entrance into the core, or into a wind lobby, an entrance hall or a corridor that reaches the core through
+    rooms that are not a flat's (review S1-03b: real03's drawn door into its Rüzgarlık; pure)."""
+    rid = e.get("room_id")
+    if not rid or not core:
+        return False
+    if rid in core:
+        return True
+    level = CP.Level(b, e.get("level_id"))
+    r = next((x for x in level.rooms if x["id"] == rid), None)
+    if r is not None and ENTRANCE_ROOM_RE.search(_label(r)) and not FLAT_HALL_RE.search(_label(r)):
+        return True             # a wind lobby or an entrance hall: the building's way in (real03's Rüzgarlık)
+    rooms = {r["id"]: r for r in level.rooms}
+
+    def common_way(r: dict) -> bool:
+        return r.get("room_type") not in PRIVATE and not FLAT_HALL_RE.search(_label(r)) and not CP.is_lift(r)
+    if rid not in rooms or not common_way(rooms[rid]):
+        return False
+    adj: dict = {}
+    for a, c, _o in _links(level):
+        adj.setdefault(a, set()).add(c)
+        adj.setdefault(c, set()).add(a)
+    seen, todo = {rid}, [rid]
+    while todo:
+        for y in adj.get(todo.pop(), ()):
+            if y in core:
+                return True
+            if y not in seen and y in rooms and common_way(rooms[y]):
+                seen.add(y)
+                todo.append(y)
+    return False
+
+
+def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Optional[dict] = None) -> dict:
+    """Rule 4 (the module docstring); returns ``{"refused", "added", "main", "open"}`` (R09 brought forward, 13 Nov
+    2026): one main entrance, never into a bedroom, a wet room or a kitchen (nor a flat's room in a building with a
+    common core); an entrance into the core on any storey answers the building's entrance; an inferred one only on an
+    entrance storey (``entrance_storeys``), into its core hall on a facade that is no party wall, with its
+    ``site.entrances`` record; no core read: no question (a core-reading finding)."""
+    rec = {"refused": [], "added": [], "main": None, "open": None}
+    site = b.get("site") if isinstance(b.get("site"), dict) else {}
     rooms = {r["id"]: r for r in b.get("rooms") or []}
     flats = several_flats(b)
+    common = common_core(b)
     levels = {lv["id"]: lv for lv in b.get("levels") or []}
     keep = []
     for e in site.get("entrances") or []:
@@ -915,7 +1463,7 @@ def fix_entrances(b: dict, next_id, party_by_level: dict) -> dict:
                 why = (f"the far side of {e.get('door_id')} holds the room label '{near[0].get('text')}' the reading "
                        f"lost: a room behind it, not the outside")
         room = rooms.get(e.get("room_id")) or {}
-        if why is None and flats and room.get("room_type") in WET:
+        if why is None and (flats or common) and room.get("room_type") in WET:
             # a garden or terrace door of a ground-floor flat stays an outer door; a bathroom is never a way in
             why = (f"{e.get('door_id')} opens from {room.get('id')} '{room.get('label')}' ({room.get('room_type')}): a "
                    f"wet room is never a way into the building")
@@ -932,47 +1480,101 @@ def fix_entrances(b: dict, next_id, party_by_level: dict) -> dict:
         keep.append(e)
     if rec["refused"]:
         site["entrances"] = keep
-    if not flats or common_core(b) is None:
+    cores = {}
+
+    def core_of(lid):
+        if lid not in cores:
+            cores[lid] = core_rooms(b, CP.Level(b, lid)) if lid in levels else set()
+        return cores[lid]
+    # one main entrance, never into a bedroom, a wet room or a kitchen (nor a flat's room with a common core)
+    usable = [e for e in keep if not e.get("into_air") and not e.get("below_ground") and not e.get("upper_floor")]
+
+    def bad(e):
+        r = rooms.get(e.get("room_id")) or {}
+        return r.get("room_type") in NOT_MAIN_TYPES or (common is not None and r.get("room_type") in PRIVATE
+                                                        and r.get("id") not in core_of(e.get("level_id")))
+    main = next((e for e in keep if e.get("main")), None)
+    if main is not None and bad(main) and not RG.blocked("entrance_refuse", b, {"level_id": main.get("level_id"),
+                                                                                "opening": main.get("door_id"),
+                                                                                "why": "main into a flat's room"}):
+        r = rooms.get(main.get("room_id")) or {}
+        main["main"] = False
+        better = sorted((e for e in usable if not bad(e)),
+                        key=lambda e: (e.get("room_id") not in core_of(e.get("level_id")),
+                                       (rooms.get(e.get("room_id")) or {}).get("room_type") not in ("hall", "stair"),
+                                       float(e.get("rise") or 0.0), str(e.get("door_id"))))
+        why = (f"{main.get('door_id')} opens into {r.get('id')} '{r.get('label')}' ({r.get('room_type')}): a main "
+               f"entrance never opens into a bedroom, a wet room or a kitchen" +
+               (" (nor a flat's room in a building with a common core)" if common is not None else ""))
+        if better:
+            better[0]["main"] = True
+            better[0]["main_reason"] = why + f"; {better[0].get('door_id')} is the main entrance instead (inferred)"
+        rec["main"] = {"was": main.get("door_id"), "now": better[0].get("door_id") if better else None,
+                       "reason": why + (f": {better[0].get('door_id')} instead" if better else ": no other door")
+                       + " (adjusted_by_ai)"}
+        if not better:
+            rec["open"] = (why + ", and no other outer door leads into a hall or the core: which door is the main "
+                                 "entrance? (open point)")
+    if common is None:
         return rec
-    storeys = _storeys(b)
-    ground = next((lv for lv in storeys if (lv.get("order") or 0) == 0), None)
-    if ground is None:
-        return rec
-    level = CP.Level(b, ground["id"])
-    core = core_rooms(b, level)
-    if any(e.get("level_id") == ground["id"] and (e.get("room_id") in core) for e in keep):
+    # an entrance into the core on any storey answers the building's entrance (real10: the main door on the 1st
+    # basement at the street's level)
+    if any(_leads_to_core(b, e, core_of(e.get("level_id"))) for e in usable):
         return rec
     if any(o.get("inference", {}).get("rule") == "inferred_entrance" for o in b.get("openings") or []):
         return rec
-    party = party_by_level.get(ground["id"]) or {}
-    halls = [rooms[i] for i in core if rooms.get(i, {}).get("room_type") in ("hall", "stair")]
-    best = None
-    for hall in halls:
-        for f in level.faces(hall):
-            if f["kind"] != "outside" or f["wall_id"] in party:
-                continue
-            for p0, p1 in level.free(f):
-                if p1 - p0 >= ENTRANCE_DOOR_M[0] and (best is None or p1 - p0 > best[3] - best[2]):
-                    best = (hall, f, p0, p1)
-    if best is not None and RG.blocked("entrance_add", b, {"level_id": ground["id"], "room": best[0]["id"],
-                                                           "wall": best[1]["wall_id"]}):
-        return rec
-    if best is not None:
+    cands = [(lv, why, True) for lv, why in entrance_storeys(b, texts_by_level)]
+    if not cands:
+        # no storey lies at the ground: the ground floor is asked about, never given a door metres over the ground
+        ground = next((lv for lv in _storeys(b) if (lv.get("order") or 0) == 0), None)
+        cands = [(ground, "the ground floor, over the ground the reading knows", False)] if ground is not None else []
+    any_core = False
+    for lv, why_storey, may_add in cands:
+        level = CP.Level(b, lv["id"])
+        core = core_of(lv["id"])
+        if not core or level.outline is None:
+            continue
+        any_core = True
+        if not may_add:
+            continue
+        party = party_by_level.get(lv["id"]) or {}
+        halls = [rooms[i] for i in core if rooms.get(i, {}).get("room_type") in ("hall", "stair")]
+        best = None
+        for hall in halls:
+            for f in level.faces(hall):
+                if f["kind"] != "outside" or f["wall_id"] in party or \
+                        isinstance(level.walls[f["wall_id"]].get("party_wall"), dict):
+                    continue
+                for p0, p1 in level.free(f):
+                    if p1 - p0 >= ENTRANCE_DOOR_M[0] and (best is None or p1 - p0 > best[3] - best[2]):
+                        best = (hall, f, p0, p1)
+        if best is None:
+            continue
+        if RG.blocked("entrance_add", b, {"level_id": lv["id"], "room": best[0]["id"], "wall": best[1]["wall_id"]}):
+            return rec
         hall, f, p0, p1 = best
-        reason = (f"the building entrance: the common hall {hall['id']} '{hall.get('label')}' reaches the facade on "
-                  f"{f['wall_id']}; no entrance into the core is drawn or read")
-        o = CP._new_opening("door", next_id("door", ground["id"]), level, f["wall_id"], (p0 + p1) / 2.0,
-                            ENTRANCE_DOOR_M[0], ENTRANCE_DOOR_M[1], None, reason, hall, f, CP._ev_file(b, ground["id"]),
-                            ground.get("region_id"), "default entrance door")
+        reason = (f"the building entrance: the common hall {hall['id']} '{hall.get('label')}' on {lv['id']} ({why_storey}) "
+                  f"reaches the facade on {f['wall_id']}; no entrance into the core is drawn or read")
+        o = CP._new_opening("door", next_id("door", lv["id"]), level, f["wall_id"], (p0 + p1) / 2.0,
+                            ENTRANCE_DOOR_M[0], ENTRANCE_DOOR_M[1], None, reason, hall, f, CP._ev_file(b, lv["id"]),
+                            lv.get("region_id"), "default entrance door")
         o["inference"]["rule"] = "inferred_entrance"
         b["openings"].append(o)
-        rec["added"].append({"door": o["id"], "level_id": ground["id"], "reason": reason + " (inferred)"})
-    else:
-        names = ", ".join(sorted(core)) or "no core read"
-        rec["open"] = (f"the common core ({names}) reaches no facade of {ground['id']}: the passage from the street to "
-                       f"the core is not drawn (open point: a corridor through the street-side flat is a design "
-                       f"decision)")
+        ent = _entrance_record(b, o, level, lv, hall, f, reason)
+        if not any(e.get("main") for e in site.get("entrances") or []):
+            ent["main"], ent["main_reason"] = True, "the only entrance into the common core (inferred)"
+            rec["open"] = None
+        if isinstance(b.get("site"), dict):
+            b["site"].setdefault("entrances", []).append(ent)
+        rec["added"].append({"door": o["id"], "level_id": lv["id"], "reason": reason + " (inferred)"})
+        return rec
+    if any_core:
+        names = ", ".join(f"{lv['id']}" for lv, _w, _a in cands) or "-"
+        rec["open"] = (f"the common core reaches no free facade on the entrance storey(s) ({names}): the passage from "
+                       f"the street to the core is not drawn (open point: a corridor through the street-side flat is a "
+                       f"design decision)")
     return rec
+
 
 
 def apply(build, texts_by_level: dict, party_by_level: dict, strokes_by_level: Optional[dict] = None,
@@ -982,30 +1584,41 @@ def apply(build, texts_by_level: dict, party_by_level: dict, strokes_by_level: O
     stairs, open_ = infer_stairs(b, build.ids.next, texts_by_level, strokes_by_level, drawn_by_level)
     rec = {"stairs": stairs, "stairs_open": open_}
     # the common core is a building of several flats' with a common core (a house's, or a house pair's, own stair hall
-    # or lift opens where its plan says)
+    # or lift opens where its plan says); the lift-door marks in no lift's shaft are undone in every building
     flats = flat_core(b)
-    rec["lift_doors"] = fix_lift_doors(b, build.ids.next) if flats else \
-        {"unmarked": [], "merged": [], "removed": [], "review": [], "retyped": [], "added": []}
-    rec["core_gaps"] = close_core_gaps(b) if flats else []
-    rec["entrances"] = fix_entrances(b, build.ids.next, party_by_level)
+    rec["lift_doors"] = fix_lift_doors(b, build.ids.next, flats)
+    gaps = close_core_gaps(b, drawn_by_level, texts_by_level) if flats else {"closed": [], "windows": [], "review": []}
+    rec["core_gaps"], rec["core_gap_windows"], rec["core_gap_review"] = gaps["closed"], gaps["windows"], gaps["review"]
+    rec["entrances"] = fix_entrances(b, build.ids.next, party_by_level, texts_by_level)
     if open_:
         b.setdefault("needs_review", []).append(
             {"id": "stair:" + ",".join(x["level_id"] for x in open_), "kind": "stair_not_drawn",
              "reason": open_[0]["reason"] + (f" (also on {', '.join(x['level_id'] for x in open_[1:])})"
                                              if len(open_) > 1 else ""),
              "crop": None, "room_id": None, "level_id": open_[0]["level_id"]})
+    if rec["entrances"]["open"]:
+        b.setdefault("needs_review", []).append(
+            {"id": "entrance:building", "kind": "entrance_not_drawn", "reason": rec["entrances"]["open"], "crop": None,
+             "room_id": None, "level_id": None})
+    for x in gaps["review"]:
+        b.setdefault("needs_review", []).append(
+            {"id": f"core_gap:{x['opening']}", "kind": "core_gap", "reason": x["reason"], "crop": None,
+             "room_id": x.get("room"), "level_id": x["level_id"]})
     for s in rec["stairs"]:
         build.warn(f"stair: {s['reason']}")
     for s in open_:
         build.warn(f"stair: {s['reason']}")
     lift = rec["lift_doors"]
     for x in (lift["unmarked"] + lift["merged"] + lift["removed"] + lift["review"] + lift["retyped"] + lift["added"]
-              + rec["core_gaps"]):
+              + gaps["closed"] + gaps["windows"] + gaps["review"]):
         build.warn(f"core: {x['reason']}")
     for x in rec["entrances"]["refused"] + rec["entrances"]["added"]:
         build.warn(f"entrance: {x['reason']}")
+    if rec["entrances"]["main"]:
+        build.warn(f"entrance: {rec['entrances']['main']['reason']}")
     if rec["entrances"]["open"]:
         build.warn(f"entrance: {rec['entrances']['open']}")
     return rec
+
 
 

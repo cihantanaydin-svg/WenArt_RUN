@@ -368,8 +368,12 @@ def test_a_drawn_door_from_a_bedroom_into_the_core_is_a_finding():
 def test_a_flats_garden_door_stays_and_the_core_still_gets_the_entrance():
     b = block()
     rec = run(b)
-    assert rec["entrances"]["refused"] == [] and [e["door_id"] for e in b["site"]["entrances"]] == ["d_L0_out"]
-    assert len(rec["entrances"]["added"]) == 1
+    added = rec["entrances"]["added"]
+    assert rec["entrances"]["refused"] == [] and len(added) == 1
+    # 13 Nov 2026 (review CS1-05): the inferred entrance enters site.entrances with its threshold and steps
+    assert [e["door_id"] for e in b["site"]["entrances"]] == ["d_L0_out", added[0]["door"]]
+    ent = b["site"]["entrances"][-1]
+    assert ent["inferred"] and ent["room_id"] == "r_L0_hall" and ent["rise"] == 0.0 and ent["main"]
 
 
 def test_a_door_from_a_wet_room_is_no_entrance_and_the_core_gets_one():
@@ -377,8 +381,8 @@ def test_a_door_from_a_wet_room_is_no_entrance_and_the_core_gets_one():
     next(r for r in b["rooms"] if r["id"] == "r_L0_east")["room_type"] = "bathroom"
     rec = run(b)
     assert [r["door"] for r in rec["entrances"]["refused"]] == ["d_L0_out"]
-    assert b["site"]["entrances"] == []
     added = rec["entrances"]["added"]
+    assert [e["door_id"] for e in b["site"]["entrances"]] == [added[0]["door"]]
     assert len(added) == 1 and added[0]["level_id"] == "L0"
     door = next(o for o in b["openings"] if o["id"] == added[0]["door"])
     assert door["wall_id"] == "w_L0_s" and door["inference"]["rule"] == "inferred_entrance"

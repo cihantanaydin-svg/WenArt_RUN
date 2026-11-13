@@ -59,6 +59,9 @@ LIFT_RE = re.compile(r"(?<![a-z])(?:asansor|lift|elevator|aufzug|ascenseur)")
 # and a car lift (ARAÇ, OTO) are no passenger lift; a pit or void (KUYU, BOŞLUK) is a shaft level with no door
 LIFT_MACHINE_RE = re.compile(r"(?<![a-z])(?:mak|makn|makina|makine)\.?\s*(?:dair(?!esiz)|mahal)"
                              r"|(?<![a-z])motor(?![a-z])")
+# ... and (13 Nov 2026, review MF13) a lift word with MAKİNA / MAKİNE (or MAKİNESİ ...), machine room, Maschinenraum,
+# machinerie: a machine room, unless DAİRESİZ (a lift with no machine room); never the bare MAK. (a washing machine)
+MACHINE_WORD_RE = re.compile(r"(?<![a-z])makin[ae]\w*|machine\s*room|maschinen\w*|machinerie|motor\s*room")
 LIFT_LOBBY_RE = re.compile(r"(?<![a-z])(?:hol|holu|onu|lobi|lobby|lobisi)(?![a-z])")
 LIFT_CAR_RE = re.compile(r"(?<![a-z])(?:arac|oto|car|vehicle|otopark)(?![a-z])")
 LIFT_PIT_RE = re.compile(r"(?<![a-z])(?:kuyu|kuyusu|bosluk|boslugu|pit)(?![a-z])")
@@ -75,6 +78,10 @@ PARTY_REACH_M = 3.0             # a party text this far from a facade's outer li
 PARTY_ALONG_M = 0.30            # ... when its foot falls within that facade's extent (this much beyond its ends)
 PARTY_FACE_TOL_M = 0.35         # a wall's outer face this close to that side's line lies on it
 PARALLEL_SIN = 0.10
+RUN_GAP_M = 0.40                # outline edges on one line with gaps this narrow are one facade (CS1-06) ...
+RUN_JOG_M = 0.015               # ... jogs this small along it are CAD rounding (MF12)
+THIN_WALL_M = 0.12              # an inner wall this thin, on a level whose outer walls are ...
+OUTER_WALL_M = 0.20             # ... at least this thick, never takes an inferred window (review REG-02)
 DEFAULT_SIZES = {"living": (1.80, 1.40), "dining": (1.50, 1.40), "bedroom": (1.40, 1.40), "office": (1.40, 1.40),
                  "study": (1.40, 1.40), "kitchen": (1.20, 1.20), "wet": (0.60, 0.60)}
 BALCONY_DOOR = (0.90, 2.20)     # an inferred balcony door: width, height
@@ -127,6 +134,8 @@ def is_lift(room: dict) -> bool:
     label = _fold(room.get("label") or room.get("label_raw"))
     words = len(LIFT_RE.findall(label))
     if not words or LIFT_MACHINE_RE.search(label) or LIFT_LOBBY_RE.search(label) or LIFT_CAR_RE.search(label):
+        return False
+    if MACHINE_WORD_RE.search(label) and "dairesiz" not in label:
         return False
     p = _poly(room.get("polygon"))
     if p is None:
@@ -184,7 +193,7 @@ class Level:
     """A level's rooms, walls, openings, outline, light wells and open-air polygons, with the probes (pure)."""
 
     def __init__(self, building: dict, lid: str, texts: Optional[list] = None):
-        from wenart.reading_check.crossdoc import level_outline
+        from wenart.reading_check.crossdoc import level_outline, level_parts
 
         self.lid = lid
         self.rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == lid and _poly(r.get("polygon"))]
@@ -194,8 +203,10 @@ class Level:
         self.openings = [o for o in building.get("openings") or [] if o.get("level_id") == lid]
         try:
             self.outline = level_outline(list(self.walls.values()), self.openings)
+            # every filled part (a storey of two blocks): a probe in any of them, in no room, is void (CS1-10)
+            parts = level_parts(list(self.walls.values()), self.openings)
         except Exception:  # noqa: BLE001 - no outline: nothing faces the outside
-            self.outline = None
+            self.outline, parts = None, []
         self.wells = {r["id"] for r in self.rooms if is_light_well(r, texts)}
         air = [_poly(s.get("polygon")) for s in (building.get("site") or {}).get("outdoor_spaces") or []
                if s.get("level_id") == lid and str(s.get("kind") or "") in OPEN_AIR]
@@ -204,7 +215,8 @@ class Level:
         self.open_air = air
         self._air = [(p.bounds, prep(p.buffer(1e-6))) for p in air]
         self._rooms = [(self.polys[r["id"]].bounds, prep(self.polys[r["id"]].buffer(1e-6)), r) for r in self.rooms]
-        self._inside = prep(self.outline.buffer(-1e-6)) if self.outline is not None else None
+        filled = unary_union(parts) if len(parts) > 1 else self.outline
+        self._inside = prep(filled.buffer(-1e-6)) if filled is not None else None
 
     def room_at(self, q) -> Optional[dict]:
         x, y = q
@@ -315,16 +327,60 @@ class Level:
 
 
 # ------------------------------------------------------------------------------------------------------ party walls
+def _run(ring: list, e) -> tuple:
+    """The facade an outline edge belongs to (pure; CS1-06, MF12): the outline edges on its line (jogs under
+    ``RUN_JOG_M``) end to end with gaps no wider than ``RUN_GAP_M`` (a wall's thickness), as ``(start, end)``."""
+    (ex0, ey0), (ex1, ey1) = e
+    el = math.hypot(ex1 - ex0, ey1 - ey0)
+    eu = ((ex1 - ex0) / el, (ey1 - ey0) / el)
+    ivals = []
+    for p, q in ring:
+        if math.dist(p, q) < 1e-6:
+            continue
+        offs = [abs((pt[0] - ex0) * -eu[1] + (pt[1] - ey0) * eu[0]) for pt in (p, q)]
+        if max(offs) > RUN_JOG_M:
+            continue
+        ivals.append(tuple(sorted(((pt[0] - ex0) * eu[0] + (pt[1] - ey0) * eu[1]) for pt in (p, q))))
+    t0, t1 = 0.0, el
+    grew = True
+    while grew:
+        grew = False
+        for a, c in ivals:
+            if a <= t1 + RUN_GAP_M and c >= t0 - RUN_GAP_M and (a < t0 - 1e-9 or c > t1 + 1e-9):
+                t0, t1 = min(t0, a), max(t1, c)
+                grew = True
+    return ((ex0 + eu[0] * t0, ey0 + eu[1] * t0), (ex0 + eu[0] * t1, ey0 + eu[1] * t1))
+
+
+def _outer_on(level: Level, w: dict, side) -> bool:
+    """True when wall ``w`` is a facade wall of ``side``: beyond its outer face, at its middle within the side's
+    extent, lies the outside (pure; an interior partition on the facade's line is never a party wall)."""
+    (ex0, ey0), (ex1, ey1) = side
+    el = math.hypot(ex1 - ex0, ey1 - ey0)
+    eu = ((ex1 - ex0) / el, (ey1 - ey0) / el)
+    n = (-eu[1], eu[0])
+    inside = level.outline.buffer(-1e-6)
+    mid = ((ex0 + ex1) / 2.0, (ey0 + ey1) / 2.0)
+    out = n if not inside.contains(Point(mid[0] + n[0] * 0.3, mid[1] + n[1] * 0.3)) else (-n[0], -n[1])
+    ts = sorted(((p[0] - ex0) * eu[0] + (p[1] - ey0) * eu[1]) for p in (w["start"], w["end"]))
+    t = (max(ts[0], 0.0) + min(ts[1], el)) / 2.0
+    q = (ex0 + eu[0] * t + out[0] * 0.15, ey0 + eu[1] * t + out[1] * 0.15)
+    return not inside.contains(Point(q))
+
+
 def party_walls(level: Level, side_points: list) -> dict:
-    """``{wall_id: evidence}``: the walls on the side of the level's outline a party text names (pure; R46). A
+    """``{wall_id: evidence}``: the facade walls of the side of the level's outline a party text names (pure; R46). A
     whole-label text (``bitişik``, ``attached``, a joint note) outside the outline, at most ``PARTY_REACH_M`` from
     a facade's outer line with its foot within that facade, names the nearest such facade, unless a street text
-    faces it; every wall parallel to it whose outer face lies on its line (``PARTY_FACE_TOL_M``) is a party wall."""
+    faces it; the facade is the run of outline edges on that line (``_run``), and every wall along it within its
+    extent whose outer face lies on it, with the outside beyond (``_on_side``, ``_outer_on``), is a party wall; the
+    run is the evidence's ``side`` (the veto checks the same walls: CS1-06, MF12)."""
     out: dict = {}
     if level.outline is None:
         return out
-    ring = list(level.outline.exterior.coords)
-    edges = [(ring[i], ring[i + 1]) for i in range(len(ring) - 1) if math.dist(ring[i], ring[i + 1]) > 0.5]
+    ring_all = list(level.outline.exterior.coords)
+    ring = [(ring_all[i], ring_all[i + 1]) for i in range(len(ring_all) - 1)]
+    edges = [e for e in ring if math.dist(e[0], e[1]) > 0.5]
 
     def facade(sp):
         """The outline edge a text faces (R46: outside the outline, at most PARTY_REACH_M from the edge, its foot
@@ -343,26 +399,25 @@ def party_walls(level: Level, side_points: list) -> dict:
         return best[1] if best else None
 
     streets = {facade(sp) for sp in side_points if sp.get("kind") == "street"} - {None}
+    street_runs = [_run(ring, e) for e in streets]
     for sp in side_points:
         if sp.get("kind") != "party":
             continue
         e = facade(sp)
         if e is None or e in streets:          # a side a street text faces is never a party wall (R46 veto)
             continue
-        (ex0, ey0), (ex1, ey1) = e
-        el = math.hypot(ex1 - ex0, ey1 - ey0)
-        eu = ((ex1 - ex0) / el, (ey1 - ey0) / el)
+        side = _run(ring, e)
+        if any(math.dist(side[0], s[0]) < 0.05 and math.dist(side[1], s[1]) < 0.05 for s in street_runs):
+            continue
         for w in level.walls.values():
-            a, u, length = _axis(w)
-            if length < 0.3 or abs(u[0] * eu[1] - u[1] * eu[0]) > PARALLEL_SIN:
-                continue
-            off = (a[0] - ex0) * -eu[1] + (a[1] - ey0) * eu[0]          # signed distance of the wall axis to the line
-            if abs(abs(off) - float(w.get("thickness") or 0.15) / 2.0) > PARTY_FACE_TOL_M and abs(off) > PARTY_FACE_TOL_M:
+            if not _on_side(w, side) or not _outer_on(level, w, side):
                 continue
             out.setdefault(w["id"], {"text": sp["text"], "entity": sp.get("entity"), "layer": sp.get("layer"),
                                      "at": [round(sp["at"][0], 2), round(sp["at"][1], 2)],
-                                     "side": [[round(ex0, 2), round(ey0, 2)], [round(ex1, 2), round(ey1, 2)]]})
+                                     "side": [[round(side[0][0], 3), round(side[0][1], 3)],
+                                              [round(side[1][0], 3), round(side[1][1], 3)]]})
     return out
+
 
 
 # ------------------------------------------------------------------------------------------------------ the sizes
@@ -387,6 +442,12 @@ def sizes_from_tags(tags: list) -> tuple[dict, str]:
 
 
 # ------------------------------------------------------------------------------------------------- the inference
+def _thin_inner(level: Level, w: dict, outer_t: float) -> bool:
+    """A wall clearly thinner than the level's drawn outer walls (``THIN_WALL_M`` against ``OUTER_WALL_M``): a
+    partition, never a facade, whatever the probes say (an unread room behind it reads as the outside; REG-02)."""
+    return outer_t >= OUTER_WALL_M and 0.0 < float(w.get("thickness") or 0.0) <= THIN_WALL_M and not w.get("exterior")
+
+
 def _new_opening(kind: str, oid: str, level: Level, wall_id: str, t: float, width: float, height: float,
                  sill: Optional[float], reason: str, room: dict, face: dict, ev_file: str, region: Optional[str],
                  size_source: str) -> dict:
@@ -413,13 +474,17 @@ def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source:
     if level.outline is None:
         return []
     new = []
+    outer = [float(w.get("thickness") or 0.0) for w in level.walls.values() if w.get("exterior")]
+    outer_t = statistics.median(outer) if outer else 0.0
     for room in sorted(level.rooms, key=lambda r: r["id"]):
         rtype = str(room.get("room_type") or "")
         if room["id"] in level.wells or (rtype not in HABITABLE and rtype not in WET):
             continue
         from wenart.ingest import exterior as EX
+        spans = RG.active("exterior_spans", building)
         faces = [f for f in level.faces(room) if f["wall_id"] not in party
-                 and EX.allows(level.walls[f["wall_id"]], f["t0"], f["t1"])]
+                 and (not spans or EX.allows(level.walls[f["wall_id"]], f["t0"], f["t1"]))
+                 and not _thin_inner(level, level.walls[f["wall_id"]], outer_t)]
         label = room.get("label") or room["id"]
         # a balcony door where the room opens onto a balcony
         if rtype in HABITABLE:
@@ -504,6 +569,8 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     b = build.building
     if not isinstance(b.get("level_inference"), dict):
         b["level_inference"] = {}
+    # the staged rules as this reading ran them (13 Nov 2026): the build reads party_eaves from here
+    b["level_inference"]["rules_staged"] = {k: RG.active(k, b) for k in sorted(RG.STAGED)}
     rec = (sheets or {}).get("storeys") if sheets else None
     regions = ((sheets or {}).get("completion") or {}).get("regions") or {}
     from wenart.ingest.drawn_strokes import Drawn
@@ -538,7 +605,7 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
             strokes_by_level[lid] = runs
     from wenart.ingest import facades as FC
     every_text = [t for ts in texts_by_level.values() for t in ts]
-    for lid in list(texts_by_level):
+    for lid in list(texts_by_level) if RG.active("party_plot", b) else []:
         level = Level(b, lid, texts_by_level[lid])
         edges = FC.edges_of(level)
         for i, ev in FC.plot_party(b, level, edges, every_text).items():
@@ -555,7 +622,7 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     if wells:
         b["level_inference"]["light_wells"] = wells
     _mark_party(b, party_by_level)
-    refused = party_openings(b)
+    refused = party_openings(b) if RG.active("party_refuse", b) else []
     if refused:
         b["level_inference"]["party_refused"] = refused
         build.warn(f"party walls: {len(refused)} derived or inferred opening(s) on a party wall refused "
@@ -585,10 +652,13 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
                           {"door": None, "open": True, "reason": ent["open"]} if ent["open"] else gf.get("entrance"))
     # 12 Nov 2026 (stage 2): exterior per stretch (R14) before the windows, then the facades (R45, R24) and the
     # internal party walls (R46)
+    # (staged: off until their review, rule keys exterior_spans, facade_ground, party_internal; 13 Nov 2026)
     from wenart.ingest import exterior as EX
-    b["level_inference"]["exterior"] = EX.apply(build, texts_by_level)
-    b["level_inference"]["facades"] = _facades(b, texts_by_level, side_by_level, party_by_level)
-    internal = FC.internal_party(b)
+    if RG.active("exterior_spans", b):
+        b["level_inference"]["exterior"] = EX.apply(build, texts_by_level)
+    if RG.active("facade_ground", b):
+        b["level_inference"]["facades"] = _facades(b, texts_by_level, side_by_level, party_by_level)
+    internal = FC.internal_party(b) if RG.active("party_internal", b) else []
     if internal:
         walls = {w["id"]: w for w in b.get("walls") or []}
         for x in internal:
@@ -599,7 +669,12 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         b["level_inference"]["internal_party_walls"] = internal
         build.warn(f"party walls: {len(internal)} internal party wall(s): {internal[0]['reason']}")
     _windows(build, sheets, texts_by_level, region_by_level, party_by_level)
-    core = core_record(b)
+    copies = copy_doors(b)
+    if copies:
+        b["level_inference"]["copy_doors"] = copies
+        build.warn(f"storeys: {len(copies)} door(s) of the copied storeys open onto nothing there: windows "
+                   f"({', '.join(x['opening'] for x in copies[:6])}; adjusted_by_ai)")
+    core = core_record(b, texts_by_level)
     if core:
         b["level_inference"]["core"] = core
     # 12 Nov 2026 (the architect's audit, second series): shafts, stairs over nothing, balcony doors, exterior flags
@@ -884,8 +959,8 @@ def outer_doors(building: dict, lid: str) -> list:
     out = []
     for o in level.openings:
         w = level.walls.get(o.get("wall_id"))
-        if o.get("type") != "door" or w is None or not o.get("center"):
-            continue
+        if o.get("type") != "door" or w is None or not o.get("center") or o.get("entrance_refused"):
+            continue                # a door refused as an entrance (a lost room behind it) is no way in (S1-20c)
         a, u, _ = _axis(w)
         n = (-u[1], u[0])
         reach = float(w.get("thickness") or 0.15) / 2.0 + PROBE_M
@@ -896,11 +971,60 @@ def outer_doors(building: dict, lid: str) -> list:
     return out
 
 
-def core_record(b: dict) -> dict:
+def copy_doors(b: dict) -> list:
+    """The doors of a copied storey (a storey counted, not drawn: ``typical_of`` and ``storey_inference``, above the
+    ground floor) that open onto nothing there: the outside (no balcony, no terrace) or a room label the reading lost.
+    Each becomes a window of the same width with its head at the door's (``adjusted_by_ai``, the drawn door kept in
+    ``drawn_type``; review POD-02: a copy is never a door into the air). Returns the records (pure but for the
+    openings)."""
+    from wenart.ingest import core_rules as CR
+
+    out = []
+    for lv in b.get("levels") or []:
+        if not lv.get("typical_of") or not lv.get("storey_inference") or (lv.get("order") or 0) <= 0:
+            continue
+        level = Level(b, lv["id"])
+        if level.outline is None:
+            continue
+        lost = [p for p in lv.get("reading_places") or [] if p.get("kind") == "unplaced_label" and p.get("at")]
+        for o in level.openings:
+            if o.get("type") != "door" or o.get("virtual") or o.get("lift_door"):
+                continue
+            sides = CR._sides(level, o)
+            kinds = [s[0] for s in sides]
+            if "outside" not in kinds or not any(s[1] is not None for s in sides):
+                continue
+            q = next(s[2] for s in sides if s[0] == "outside")
+            near = [p for p in lost if math.dist(q, p["at"][:2]) <= CR.LABEL_REACH_M + 1.0]
+            what = (f"the room label '{near[0].get('text')}' the reading lost" if near else
+                    "the outside (no balcony or terrace on this storey)")
+            head = float(o.get("height") or 2.1)
+            sill = 0.9
+            reason = (f"{o['id']} on {lv['id']}, a storey copied from {lv['typical_of']} (counted, not drawn), opens "
+                      f"onto {what}: a window of its width there (the drawn door kept)")
+            o.update(drawn_type="door", type="window", sill_height=sill, height=round(max(0.6, head - sill), 3),
+                     operation=None, operation_source=None, swing_side=None,
+                     adjusted_by_ai={"by": "code", "rule": "copy_door_window", "reason": reason,
+                                     "changed": {"type": "door", "height": head}})
+            out.append({"opening": o["id"], "level_id": lv["id"], "reason": reason + " (adjusted_by_ai)"})
+    if out and isinstance(b.get("site"), dict) and b["site"].get("entrances"):
+        gone = {x["opening"] for x in out}
+        b["site"]["entrances"] = [e for e in b["site"]["entrances"] if e.get("door_id") not in gone]
+    return out
+
+
+ROOF_ACCESS_RE = re.compile(r"(?<![a-z])(?:catiya\s+cikis|cati\s+cikisi|cati\s+kapagi|cati\s+kapak|roof\s+hatch|"
+                            r"roof\s+access|dachluke|trappe\s+de\s+toit)")
+PITCHED = ("hip", "gable", "shed", "mansard", "gambrel", "pitched", "gable_hip", "butterfly", "saltbox", "dome")
+
+
+def core_record(b: dict, texts_by_level: Optional[dict] = None) -> dict:
     """The building's core (pure): the lifts and stairs per storey of the base variant, whether each lift continues
-    through every storey, and what the core needs on the roof: a stair head over a stair that reaches the top storey of
-    a building with several storeys, and a lift overrun over every lift shaft there (inferred; ``built`` False: the
-    builder has no stair head or overrun yet, listed so they are not forgotten)."""
+    through every storey, and what the core needs on the roof (R18; review REG-08, S1-all-a): a stair head only over
+    a flat roof that is used (a roof terrace or an open space on the top storey) or over a stair that rises from the
+    top storey (not the arrival of the flight below, not a copy of the storey below's stair); never under a pitched
+    roof or over an attic; a roof-access text on the top plan (çatıya çıkış, çatı kapağı) is a ceiling hatch; a lift
+    overrun over every lift shaft there (inferred; ``built`` False: the builder has no stair head or overrun yet)."""
     storeys = sorted((lv for lv in b.get("levels") or [] if not lv.get("base_level_id")),
                      key=lambda lv: (lv.get("order") or 0, lv["id"]))
     if len(storeys) < 2:
@@ -914,25 +1038,67 @@ def core_record(b: dict) -> dict:
                           and r.get("room_type") == "stair"])
     if not any(lifts.values()) and not any(stairs.values()):
         return {}
-    top = storeys[-1]["id"]
+    top_lv = storeys[-1]
+    top, below = top_lv["id"], storeys[-2]["id"]
     rec = {"lifts": lifts, "stairs": stairs,
            "lifts_through": all(len(lifts[lv["id"]]) == len(lifts[storeys[0]["id"]]) for lv in storeys),
            "stair_head": None, "lift_overrun": None}
-    if stairs.get(top):
-        rec["stair_head"] = {"needed": True, "built": False, "over": stairs[top],
-                             "reason": f"the core stair reaches the top storey {top}: a stair head over it gives the "
-                                       f"roof its access (inferred; the builder does not build a stair head yet)"}
-    elif any(stairs.values()):
-        rec["stair_head"] = {"needed": None, "built": False, "over": [],
-                             "reason": f"no stair is read on the top storey {top}: the stair head cannot be placed"}
+    roof = b.get("roof") if isinstance(b.get("roof"), dict) else {}
+    rtype = str(roof.get("type") or "")
+    pitched = rtype in PITCHED or (rtype not in ("", "flat") and rtype != "flat_cut")
+    below_fps = [f["footprint"] for f in b.get("furniture") or [] if f.get("level_id") == below
+                 and f.get("type") == "stair" and f.get("footprint")]
+
+    def rising(f):
+        """A stair on the top storey that rises from it: built upward, not the copy of the storey below's."""
+        if f.get("build") is False or f.get("rule") == "stair_upper_plan" or top_lv.get("typical_of"):
+            return False
+        fp = f.get("footprint") or {}
+        if not fp.get("center"):
+            return False
+        return not any(math.dist(fp["center"][:2], g["center"][:2]) <= 0.5 for g in below_fps)
+    top_stairs = [f for f in b.get("furniture") or [] if f.get("level_id") == top and f.get("type") == "stair"]
+    up = [f["id"] for f in top_stairs if rising(f)]
+    used = [r["id"] for r in b.get("rooms") or [] if r.get("level_id") == top
+            and str(r.get("room_type") or "") in ("roof_terrace", "terrace")] + \
+        [s["id"] for s in (b.get("site") or {}).get("outdoor_spaces") or []
+         if s.get("level_id") == top and str(s.get("kind") or "") in ("roof_terrace", "terrace")]
+    hatch = next((t for t in (texts_by_level or {}).get(top) or [] if ROOF_ACCESS_RE.search(_fold(t.get("text")))),
+                 None)
+    if hatch is not None:
+        rec["roof_access"] = {"kind": "ceiling_hatch_ladder", "inferred": True, "level_id": top,
+                              "evidence": {"text": hatch.get("text"), "entity": hatch.get("entity"),
+                                           "at": [round(hatch["x"], 2), round(hatch["y"], 2)]},
+                              "reason": f"'{hatch.get('text')}' on the top plan: the roof is reached by a ceiling hatch "
+                                        f"(inferred)"}
+    if not stairs.get(top) and not used:
+        why = (f"no stair is read on the top storey {top}: the stair head cannot be placed" if any(stairs.values()) else
+               "no stair is read on any storey: the core stair and its stair head are missing")
+        rec["stair_head"] = {"needed": None, "built": False, "over": [], "reason": why}
+    elif pitched or top_lv.get("kind") == "attic":
+        what = f"a pitched roof ({rtype}, from {roof.get('type_source') or 'the reading'})" if pitched else "an attic"
+        rec["stair_head"] = {"needed": False, "built": False, "over": [],
+                             "reason": f"the top storey's stair is the arrival under {what}: no stair head (R18)"}
+    elif hatch is not None:
+        rec["stair_head"] = {"needed": False, "built": False, "over": [],
+                             "reason": "the roof is reached by a ceiling hatch (the top plan says so): no stair head"}
+    elif up or used:
+        rec["stair_head"] = {"needed": True, "built": False, "over": up or stairs.get(top) or [],
+                             "reason": (f"the stair {', '.join(up)} rises from the top storey {top}" if up else
+                                        f"the flat roof is used ({', '.join(used)} on {top})")
+                             + ": a stair head over it gives the roof its access (inferred; the builder does not build "
+                               "a stair head yet)"}
     else:
-        rec["stair_head"] = {"needed": None, "built": False, "over": [],
-                             "reason": "no stair is read on any storey: the core stair and its stair head are missing"}
+        rec["stair_head"] = {"needed": False, "built": False, "over": [],
+                             "reason": f"the stair on the top storey {top} is the arrival of the flight below and the "
+                                       f"roof is not used: no stair head (R18; a roof terrace or a stair drawn rising "
+                                       f"would need one)"}
     if lifts.get(top):
         rec["lift_overrun"] = {"needed": True, "built": False, "over": lifts[top],
                                "reason": f"{len(lifts[top])} lift shaft(s) reach the top storey {top}: each has an "
                                          f"overrun over the roof (inferred; the builder does not build it yet)"}
     return rec
+
 
 
 def _ev_file(b: dict, lid: str) -> str:
@@ -941,6 +1107,8 @@ def _ev_file(b: dict, lid: str) -> str:
 
 
 def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict) -> None:
+    from wenart.ingest import rule_guards as RG
+
     b = build.building
     out = {k: v for k, v in rec.items() if k != "ladder"}
     out["ladder"] = [{k: v for k, v in r.items() if k != "evidence"} | {"evidence": (r.get("evidence") or [])[:3]}
@@ -968,7 +1136,11 @@ def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict) -> No
     ground = levels.get("L0") if rec.get("ground_from_typical") else None
     if ground is not None and "L0" in built:
         out["ground_floor"] = _ground_floor(build, ground, rec, texts_by_level.get("L0"), party_by_level.get("L0") or {})
-    if b.get("roof") is None and built:
+    rebased = _rebase_roof(build, b, set(built))
+    if rebased:
+        out["roof_rebased"] = rebased
+    if b.get("roof") is None and built and not RG.blocked("storey_roof", b, {"level_id": built[-1],
+                                                                            "why": "storeys added: a flat roof"}):
         top = max((lv for lv in b.get("levels") or [] if not lv.get("base_level_id")),
                   key=lambda lv: lv.get("order") or 0)
         reason = (f"no roof is drawn and the storeys above the drawn plan are inferred: a flat roof over the top "
@@ -979,10 +1151,65 @@ def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict) -> No
     b["level_inference"]["storeys"] = out
 
 
+def _val(v) -> Optional[float]:
+    if isinstance(v, dict):
+        v = v.get("value")
+    return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
+def _rebase_roof(build, b: dict, built: set) -> Optional[str]:
+    """A roof read from a section (absolute eaves and ridge) over storeys the storey rule added on top (review REG-05):
+    when its eaves lie under the new top storey's ceiling, the roof keeps its drawn rise above the highest drawn storey
+    and stands on the new top storey (heights, planes and profile shifted, marked assumed with the reason; a
+    conflict). Returns the reason, or None."""
+    roof = b.get("roof")
+    if not isinstance(roof, dict) or roof.get("inferred") or not built:
+        return None
+    storeys = sorted((lv for lv in b.get("levels") or [] if not lv.get("base_level_id")),
+                     key=lambda lv: (lv.get("order") or 0, lv["id"]))
+    top = storeys[-1] if storeys else None
+    drawn = [lv for lv in storeys if lv["id"] not in built]
+    if top is None or top["id"] not in built or not drawn or roof.get("over_level_id") not in (None, drawn[-1]["id"]):
+        return None
+    old = drawn[-1]
+    eaves = _val(roof.get("eaves_height"))
+    if eaves is None or not isinstance(top.get("elevation"), (int, float)) or \
+            not isinstance(old.get("elevation"), (int, float)):
+        return None
+    ceiling = float(top["elevation"]) + float(top.get("ceiling_height") or 2.7)
+    if eaves >= ceiling - 0.05:
+        return None
+    dz = float(top["elevation"]) - float(old["elevation"])
+    for key in ("eaves_height", "ridge_height"):
+        v = roof.get(key)
+        if isinstance(v, dict) and _val(v) is not None:
+            roof[key] = dict(v, value=round(_val(v) + dz, 3))
+        elif _val(v) is not None:
+            roof[key] = round(_val(v) + dz, 3)
+    for pl in roof.get("planes") or []:
+        pl["points"] = [[p[0], p[1], round(float(p[2]) + dz, 4)] for p in pl.get("points") or []]
+    prof = roof.get("profile")
+    if isinstance(prof, dict) and prof.get("points"):
+        prof["points"] = [[p[0], round(float(p[1]) + dz, 4)] for p in prof["points"]]
+    reason = (f"the roof read from the section had its eaves at {eaves:+.2f} m, under the ceiling of the top storey "
+              f"{top['id']} the storey rule added ({ceiling:+.2f} m): it keeps its drawn rise above {old['id']} and "
+              f"stands {dz:.2f} m higher, on {top['id']} (assumed)")
+    roof["over_level_id"] = top["id"]
+    if isinstance(roof.get("assumed", []), list):
+        roof.setdefault("assumed", []).append(reason)
+    roof["rebased"] = {"dz": round(dz, 3), "from_level": old["id"], "to_level": top["id"], "reason": reason}
+    if callable(getattr(build, "conflict", None)):
+        build.conflict("other", [old["id"], top["id"]], reason, "the roof rebased on the top storey (assumed)")
+    build.warn(f"roof: {reason}")
+    return reason
+
+
 def _ground_floor(build, ground: dict, rec: dict, texts: Optional[list], party: dict) -> dict:
     """The inferred ground floor read from the typical plan: no cantilevered balconies when the footprint is smaller
     than the typical floor. Its entrance comes from the general entrance rule (``core_rules.fix_entrances``), written
     into ``entrance`` by ``complete``."""
+    from wenart.ingest import rule_guards as RG
+
     b = build.building
     lid = ground["id"]
     level = Level(b, lid, texts)
@@ -993,7 +1220,9 @@ def _ground_floor(build, ground: dict, rec: dict, texts: Optional[list], party: 
         for s in site.get("outdoor_spaces") or []:
             p = _poly(s.get("polygon"))
             if s.get("level_id") == lid and str(s.get("kind")) == "balcony" and p is not None and \
-                    p.difference(level.outline).area >= 0.5 * p.area:
+                    p.difference(level.outline).area >= 0.5 * p.area and \
+                    not RG.blocked("cantilever_drop", b, {"level_id": lid, "space": s["id"],
+                                                          "why": rec["cantilevers"]["reason"]}):
                 done["dropped"].append({"id": s["id"], "label": s.get("label"), "area_m2": s.get("area_m2"),
                                         "reason": rec["cantilevers"]["reason"]})
                 continue
@@ -1016,6 +1245,20 @@ def _ground_floor(build, ground: dict, rec: dict, texts: Optional[list], party: 
                     a["space"] = dict(a["space"], built=False, reason=rec["cantilevers"]["reason"])
             build.warn(f"{lid}: {len(gone)} cantilevered balcony(ies) left out on the inferred ground floor "
                        f"({', '.join(sorted(gone))}): {rec['cantilevers']['reason']}")
+    # the footprint (S1-21a, S1-20b): the ground floor is the typical floor's outline; when the area table's footprint
+    # is smaller, that is a conflict until a drawn footprint outline cuts it (not built yet: listed, never claimed)
+    cant = rec.get("cantilevers") or {}
+    if cant and level.outline is not None and cant.get("ground_m2"):
+        built = float(level.outline.area)
+        if built > float(cant["ground_m2"]) * 1.05:
+            text = (f"{lid}, the ground floor read from the typical plan, keeps the typical floor's outline "
+                    f"({built:.0f} m2) though the footprint is {float(cant['ground_m2']):.0f} m2: no drawn footprint "
+                    f"outline cuts it (the parts past the footprint stand on the ground; to review)")
+            done["footprint_conflict"] = text
+            if callable(getattr(build, "conflict", None)):
+                build.conflict("other", [lid], text, "the typical outline kept; the footprint not drawn on the plan")
+            b.setdefault("needs_review", []).append({"id": f"ground_floor:{lid}", "kind": "ground_floor_footprint",
+                                                     "reason": text, "crop": None, "room_id": None, "level_id": lid})
     # the entrance at the core: the general entrance rule (core_rules.fix_entrances) after the core is complete
     return done
 
@@ -1033,7 +1276,8 @@ def window_decision(building: dict, level: dict, read: int, drawing: Optional[di
         return False, ("the plan draws windows that were not read: none inferred (a reading miss, never covered by "
                        "inference)")
     from wenart.ingest import exterior as EX
-    ok, why = EX.level_ok(building, level.get("id"))
+    from wenart.ingest import rule_guards as RG
+    ok, why = EX.level_ok(building, level.get("id")) if RG.active("exterior_spans", building) else (True, [])
     if not ok:
         return False, f"the level does not qualify for inferred windows (R14: {'; '.join(why)})"
     rows = ((building.get("level_inference") or {}).get("facades") or {}).get(level.get("id"))
@@ -1170,7 +1414,10 @@ def _rules_summary(cr: dict) -> Optional[dict]:
            "lift openings made doors": [x["reason"] for x in lift.get("retyped") or []],
            "lift doors added": [x["reason"] for x in lift.get("added") or []],
            "gaps closed": [x["reason"] for x in cr.get("core_gaps") or []],
+           "gaps kept as their drawn window": [x["reason"] for x in cr.get("core_gap_windows") or []],
+           "gaps to review": [x["reason"] for x in cr.get("core_gap_review") or []],
            "entrances refused": [x["reason"] for x in ent.get("refused") or []],
+           "main entrance changed": [ent["main"]["reason"]] if ent.get("main") else [],
            "entrances added": [x["reason"] for x in ent.get("added") or []],
            "entrance open point": [ent["open"]] if ent.get("open") else []}
     out = {k: v for k, v in out.items() if v}

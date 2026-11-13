@@ -8,8 +8,11 @@ changes. A change is stopped, and logged in ``building["level_inference"]["guard
 the item and the reason, when
 
 - the rule is switched off: ``OFF`` (code), the environment variable ``WENART_RULES_OFF`` (a comma list of rule keys
-  or audit ids, e.g. ``R19,core_gap``: a misfire hunt reads a project with a rule off), or the building's
-  ``level_inference.rules_off`` (a list, same form);
+  or audit ids, e.g. ``R19,core_gap``: a misfire hunt reads a project with a rule off), the brief's ``rules_off``
+  (``building.project.brief``) or the building's ``level_inference.rules_off`` (a list, same form);
+- the rule is a staged one (``STAGED``: written, not reviewed yet) and nothing switches it on: ``ON`` (code), the
+  environment variable ``WENART_RULES_ON``, the brief's ``rules_on`` or ``level_inference.rules_on``. Code that
+  branches on a staged rule asks ``active(rule, building)``;
 - a guard in ``GUARDS[rule]`` returns a reason: ``def guard(building, item) -> Optional[str]``, registered with
   ``@guard("lift_door_add")`` or appended to ``GUARDS[key]``.
 
@@ -59,10 +62,25 @@ RULES = {
                                                 "window gets an inferred window (UL331)"),
     "balcony_door_inferred": (("R27",), "a habitable room onto a balcony on a plan that draws no window gets an "
                                         "inferred balcony door (UL331)"),
+    "cantilever_drop": (("R10",), "a ground floor read from a typical floor leaves out the typical floor's balconies"),
+    "storey_roof": (("R18",), "storeys added by the storey count get a flat roof over the new top storey"),
+    # staged rules (``STAGED``): written and tested, off until their review (the coordinator, 13 Nov 2026)
+    "exterior_spans": (("R14",), "the exterior flag is read per stretch of a wall before the windows; a level or a "
+                                 "stretch that does not qualify takes no inferred window"),
+    "facade_ground": (("R24", "R45"), "each facade is read buried or exposed (soil labels, exposure, terrain) with its "
+                                      "margin notes; a buried facade takes no inferred window"),
+    "party_plot": (("R46",), "a wall on a plot line a party text names is a blank party wall"),
+    "party_internal": (("R46",), "a wall between two blocks of one building is an internal party wall"),
+    "party_refuse": (("R46",), "a derived or inferred opening on a party wall is refused"),
+    "party_eaves": (("R46",), "a roof has no eaves over a party side"),
 }
+
+# the staged rules: off unless switched on (stage 2, not reviewed yet; the coordinator, 13 Nov 2026)
+STAGED = {"exterior_spans", "facade_ground", "party_plot", "party_internal", "party_refuse", "party_eaves"}
 
 GUARDS: dict = {key: [] for key in RULES}
 OFF: set = set()
+ON: set = set()
 
 
 def guard(rule: str) -> Callable:
@@ -82,17 +100,35 @@ def _names(raw) -> set:
     return {str(x).strip() for x in raw or [] if str(x).strip()}
 
 
+def _sources(building: Optional[dict], which: str) -> list:
+    """``[(where, names)]``: the places that switch rules off (``which`` = "off") or on ("on")."""
+    li = building.get("level_inference") if isinstance(building, dict) else None
+    project = building.get("project") if isinstance(building, dict) else None
+    brief = project.get("brief") if isinstance(project, dict) else None
+    key = f"rules_{which}"
+    return [("code", OFF if which == "off" else ON),
+            (f"WENART_RULES_{which.upper()}", _names(os.environ.get(f"WENART_RULES_{which.upper()}"))),
+            (f"brief {key}", _names(brief.get(key) if isinstance(brief, dict) else None)),
+            (f"level_inference.{key}", _names(li.get(key) if isinstance(li, dict) else None))]
+
+
 def switched_off(rule: str, building: Optional[dict] = None) -> Optional[str]:
-    """Why ``rule`` is off (by its key or one of its audit ids), or None."""
+    """Why ``rule`` is off (by its key or one of its audit ids), or None; a staged rule (``STAGED``) is off unless
+    something switches it on by its key."""
     ids = {rule, *RULES.get(rule, ((), ""))[0]}
-    li = (building or {}).get("level_inference") if isinstance(building, dict) else None
-    for where, names in (("code", OFF), ("WENART_RULES_OFF", _names(os.environ.get("WENART_RULES_OFF"))),
-                         ("level_inference.rules_off", _names((li or {}).get("rules_off")
-                                                              if isinstance(li, dict) else None))):
+    for where, names in _sources(building, "off"):
         hit = ids & set(names)
         if hit:
             return f"the rule is switched off ({where}: {', '.join(sorted(hit))})"
+    if rule in STAGED and not any(rule in names for _, names in _sources(building, "on")):
+        return "a staged rule, not reviewed yet: off unless switched on (rules_on)"
     return None
+
+
+def active(rule: str, building: Optional[dict] = None) -> bool:
+    """Whether ``rule`` runs at all (not switched off; a staged rule switched on): for code that branches on a rule
+    rather than stopping one change (nothing logged)."""
+    return switched_off(rule, building) is None
 
 
 def blocked(rule: str, building: Optional[dict], item: dict) -> Optional[str]:

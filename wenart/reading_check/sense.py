@@ -784,7 +784,23 @@ def core_stairs(building: dict, lid: str, false_ids: Optional[set] = None) -> li
 
 
 def _arrives(building: dict, lo: str, hi: str, stair_ids: set) -> bool:
-    """True when the slab between ``lo`` and ``hi`` has a stair void over one of ``lo``'s stairs (pure)."""
+    """True when the slab between ``lo`` and ``hi`` has a stair void over one of ``lo``'s stairs, or ``hi`` is a roof
+    terrace storey whose enclosed room (a stair head) stands over at least half of one of them that is built upward
+    (13 Nov 2026, S1-10c: the builder cuts a built stair's own opening, ``shell.slab_plan``) (pure)."""
+    lv = next((x for x in building.get("levels") or [] if x.get("id") == hi), {})
+    if lv.get("roof_terrace"):
+        from wenart import geometry as G
+        from wenart.ingest import completion as CP
+
+        heads = [CP._poly(r.get("polygon")) for r in building.get("rooms") or [] if r.get("level_id") == hi
+                 and str(r.get("room_type") or "") not in CP.OPEN_AIR]
+        for f in building.get("furniture") or []:
+            fp = f.get("footprint") or {}
+            if f.get("id") not in stair_ids or f.get("level_id") != lo or f.get("build") is False or not fp.get("size"):
+                continue
+            p = Polygon(G.rotated_rectangle(fp["center"], fp["size"], fp.get("rotation_deg") or 0.0))
+            if p.area > 0 and any(h is not None and h.intersection(p).area >= 0.5 * p.area for h in heads):
+                return True
     return any(o.get("kind") == "stair_void" and o.get("furniture_id") in stair_ids
                for s in building.get("slabs") or [] if s.get("below_level_id") == lo and s.get("above_level_id") == hi
                for o in s.get("openings") or [])
@@ -1669,22 +1685,38 @@ def core_continuity(building: dict) -> list:
 
 
 def no_entrance(building: dict) -> list:
-    """Rule 19 (pure): no storey at the ground (``ENTRANCE_LEVEL_M``; the base variant) has a door from a room to the
-    outside (``completion.outer_doors``: the far side outside the level's outline, not a balcony): the building has no
-    entrance."""
+    """Rule 19 (pure): no storey at the ground has a door from a room to the outside (``completion.outer_doors``: the
+    far side outside the level's outline, not a balcony, not refused as an entrance) and no ``site.entrances`` record
+    rises at most ``ENTRANCE_LEVEL_M`` (review POD-05: the storeys at the ground are those within that of a ground
+    height the reading knows, the 0.0 datum only without one; real10's main door is on its 1st basement at the street).
+    With no entrance record and no outer door at all it is a structural impossibility: never demoted to info."""
     from wenart.ingest import completion as CP
+    from wenart.ingest import core_rules as CR
 
-    storeys = [lv for lv in _base_storeys(building) if abs(_el(lv)) <= ENTRANCE_LEVEL_M + EPS]
+    zs = CR.ground_zs(building)
+    storeys = [lv for lv in _base_storeys(building)
+               if any(abs(_el(lv) - z) <= ENTRANCE_LEVEL_M + EPS for z in (zs or [0.0]))]
     if not storeys or not any(_rooms_of(building, lv["id"]) for lv in storeys):
+        return []
+    ents = [e for e in (building.get("site") or {}).get("entrances") or []
+            if not e.get("into_air") and not e.get("below_ground") and float(e.get("rise") or 0.0) <= ENTRANCE_LEVEL_M + EPS]
+    if ents:
         return []
     found = {lv["id"]: CP.outer_doors(building, lv["id"]) for lv in storeys}
     if any(found.values()):
         return []
     st = ((building.get("level_inference") or {}).get("storeys") or {}).get("ground_floor") or {}
     note = f"; {st['entrance']['reason']}" if (st.get("entrance") or {}).get("open") else ""
-    return [_finding("no_entrance", "major", storeys[0]["id"],
-                     f"no door leads from the outside into the building on {', '.join(found)} (the storeys at the "
-                     f"ground): the building has no entrance{note}", None, [])]
+    refused = [o["id"] for o in building.get("openings") or [] if o.get("entrance_refused")]
+    if refused:
+        note += f"; refused as entrances: {', '.join(refused[:6])}"
+    f = _finding("no_entrance", "major", storeys[0]["id"],
+                 f"no door leads from the outside into the building on {', '.join(found)} (the storeys at the "
+                 f"ground): the building has no entrance{note}", None, [])
+    if not (building.get("site") or {}).get("entrances"):
+        f["structural"] = True
+    return [f]
+
 
 
 def stair_missing(building: dict) -> list:
@@ -1708,7 +1740,9 @@ def stair_missing(building: dict) -> list:
 
 def lift_doors(building: dict) -> list:
     """Rule 21 (pure; audit real21-2, real10-1/2/3, real20-3): a lift (a typical floor's copies left out) with no door or
-    opening onto the common core or a hall, or with an opening into a flat's room (``core_rules.PRIVATE``)."""
+    opening onto the common core or a hall, with an opening into a flat's room (``core_rules.PRIVATE``), or with more
+    than one landing opening on a storey and no drawn through-car (review REG-03, MF7: one landing door a car a
+    storey)."""
     from wenart.ingest import completion as CP
     from wenart.ingest import core_rules as CR
 
@@ -1724,15 +1758,18 @@ def lift_doors(building: dict) -> list:
             continue
         core = CR.core_rooms(building, level)
         for lift in lifts:
-            served, private = False, []
+            served, private, landing = False, [], []
             for o in level.openings:
-                if o.get("type") not in ("door", "opening"):
+                if o.get("type") not in ("door", "opening") or o.get("virtual"):
                     continue
                 sides = CR._sides(level, o)
                 ids = [s[1]["id"] if s[1] is not None else None for s in sides]
                 if lift["id"] not in ids:
                     continue
                 other = sides[1 - ids.index(lift["id"])][1]
+                if other is not None and CP.is_lift(other):
+                    continue
+                landing.append(o)
                 if other is not None and (other["id"] in core or other.get("room_type") == "hall"):
                     served = True
                 if other is not None and other.get("room_type") in CR.PRIVATE and other["id"] not in core:
@@ -1746,7 +1783,14 @@ def lift_doors(building: dict) -> list:
                 out.append(_finding("lift_doors", "major", lv["id"],
                                     f"the lift {lift['id']} has no landing door onto the common hall", _centre(lift),
                                     [lift["id"]]))
+            drawn = [o for o in landing if not CR.derived(o)]
+            if len(landing) > 1 and len(drawn) < 2:
+                out.append(_finding("lift_doors", "major", lv["id"],
+                                    f"the lift {lift['id']} has {len(landing)} landing openings on {lv['id']} "
+                                    f"({', '.join(o['id'] for o in landing)}) and no drawn through-car: one landing "
+                                    f"door a car a storey", _centre(lift), [lift["id"]] + [o["id"] for o in landing]))
     return out
+
 
 
 def core_gap(building: dict) -> list:
@@ -1983,7 +2027,10 @@ def apply_trust(found: list, trust: Optional[dict]) -> list:
         n, prec = int(k.get("findings") or 0), k.get("precision")
         f["trust"] = {"precision": prec, "findings": n, "threshold": threshold}
         f["severity"] = f["base_severity"]
-        if prec is None or n == 0:
+        if f.get("structural"):
+            # a structural impossibility (no way into the building at all): never demoted (review S1-21c)
+            f["message"] = f["base_message"] + " [a structural impossibility: not demoted]"
+        elif prec is None or n == 0:
             f["severity"] = "info"
             f["message"] = f["base_message"] + " [info only: this rule is not calibrated yet]"
         elif float(prec) < threshold:

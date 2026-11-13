@@ -42,6 +42,7 @@ count is an open point of the architect (``open_point``: the default and the cou
 from __future__ import annotations
 
 import json
+import math
 import re
 from pathlib import Path
 from typing import Callable, Optional
@@ -95,10 +96,21 @@ TITLE_ZPLUS = re.compile(r"(?<![A-Z0-9])(?:B\d?\s*\+\s*)?(?:Z|ZK|ZEMIN)\s*\+\s*(
                          r"(?:\s*(?:N|NK|NORMAL)\b)?|(?<![A-Z0-9])G\s*\+\s*(\d{1,2})\b")
 # a floor list before KAT, KATLAR or KATLARI ('ZEMİN+1.2.3.4.5. NORMAL KATLAR': floors 1 to 5 above the ground)
 FLOOR_LIST = re.compile(r"(?<![\d.,])(\d{1,2}(?:\s*[.,\-/]+\s*\d{1,2})+)\s*\.?\s*(?:NORMAL\s+|TIP\s+)?KAT(?:LAR|LARI)?\b")
-LIFT_RE = re.compile(r"\bASANSOR\b|\bLIFTS?\b|\bELEVATORS?\b|\bAUFZUG\b|\bASCENSEUR\b|\bASCENSOR\b")
-FLAT_RE = re.compile(r"\bDAIRE\b|\bAPARTMENT\b|\bFLAT\s*\d|\bWOHNUNG\b|\bAPPARTEMENT\b")
-KITCHEN_RE = re.compile(r"\bMUTFAK\b|\bKITCHEN\b|\bKUCHE\b|\bCUISINE\b|\bCOCINA\b|\bKITCHENETTE\b")
-STAIR_RE = re.compile(r"\bMERDIVEN\b|\bSTAIRS?\b|\bSTAIRCASE\b|\bTREPPE\b|\bESCALIER\b|\bESCALERA\b")
+# 13 Nov 2026 (review S1-03a, POD-03): the stems take their suffixes (MERDİVENİ, MUTFAĞI, ASANSÖRLER ...)
+LIFT_RE = re.compile(r"\bASANSOR\w*|\bLIFTS?\b|\bELEVATORS?\b|\bAUFZUG\w*|\bASCENSEURS?\b|\bASCENSOR\w*")
+LIFT_MACHINE_RE = re.compile(r"\bMAKIN[AE]\w*|\bMAK\.?\s*DAIR|\bMAKN\b|\bMACHINE\s+ROOM\b|\bMASCHINEN\w*|\bMOTOR\b")
+FLAT_RE = re.compile(r"\bDAIRE\w*|\bAPARTMENTS?\b|\bFLAT\s*\d|\bWOHNUNG\w*|\bAPPARTEMENTS?\b")
+KITCHEN_RE = re.compile(r"\bMUTFA[KG]\w*|\bKITCHENS?\b|\bKUCHE\w*|\bCUISINES?\b|\bCOCINAS?\b|\bKITCHENETTES?\b")
+STAIR_RE = re.compile(r"\bMERDIVEN\w*|\bSTAIRS?\b|\bSTAIRCASES?\b|\bTREPPE\w*|\bESCALIERS?\b|\bESCALERAS?\b")
+# a fire lobby or a fire stair: a building of several storeys (R33)
+FIRE_RE = re.compile(r"\bGUVENLIK\s+HOL\w*|\bYANGIN\s+MERDIVEN\w*|\bYANGIN\s+HOL\w*|\bFIRE\s+(?:LOBBY|STAIRS?|ESCAPE)\b"
+                     r"|\bSICHERHEITSTREPPE\w*|\bESCALIER\s+DE\s+SECOURS\b")
+# what is no floor list (review MF10): a scale, a level mark, an area expression
+_SCALE_FORMS_RE = re.compile(r"(?:\b(?:O|OLCEK|SCALE|MASSTAB|ECHELLE)\s*[:=.]?\s*)?\b1\s*[/:]\s*\d{2,4}\b")
+_LEVEL_MARK_RE = re.compile(r"(?:[+\-±]\s*)\d{1,3}[.,]\d{2}\b")
+_AREA_EXPR_RE = re.compile(r"\d+(?:[.,]\d+)?\s*(?:M2|M²|M\^2|SQM)\b|/\s*\d{1,2}\s*KAT\s*=|=\s*\d+(?:[.,]\d+)?")
+# a stair note (review MF11): a riser or tread number
+_STAIR_NOTE_RE = re.compile(r"\b[RB]\s*[:=]\s*\d")
 # The side texts (``side_texts``): a party wall on that side, or the street
 # (a neighbouring plot, 'komşu parsel', is no attached building: only the building or its wall is)
 # R46 (the misfire hunters, 12 Nov 2026): a whole-label party word or joint note; never a bare KOMŞU, never a phrase
@@ -215,12 +227,16 @@ def title_counts(texts: list) -> list:
     out = []
     for t, f in texts:
         folded = _fold(t.text)
+        # never a scale (1/50, Ö: 1/100), a level mark (+3.50) or an area expression (2197 m2 /6KAT=366.20M2)
+        folded = " ".join(_AREA_EXPR_RE.sub(" ", _LEVEL_MARK_RE.sub(" ", _SCALE_FORMS_RE.sub(" ", folded))).split())
         listed = LV._listed_floors(folded)
         if listed is None:
             m = FLOOR_LIST.search(folded)
             listed = LV._listed_floors(f"{m.group(1)} KAT") if m else None
         if listed is not None:
             orders, _word = listed
+            if orders[0] > 1 or orders != list(range(orders[0], orders[-1] + 1)) or orders[-1] + 1 > COUNT_MAX:
+                continue                    # floors listed from the first, one after another, at most COUNT_MAX
             out.append({"count": max(orders) + 1, "text": t.text.strip(), "how": f"floors {orders} listed",
                         "evidence": [_ev(t, f, "title_floor_list")]})
             continue
@@ -237,6 +253,7 @@ def zoning_items(texts: list) -> dict:
     """``{"count": [...], "height": [...], "far": [...]}`` (pure): the zoning texts (``KAT ADEDİ 5``, ``Hmax=15.50``,
     ``EMSAL=2.00``)."""
     out = {"count": [], "height": [], "far": []}
+    notes = [t for t, _f in texts if _STAIR_NOTE_RE.search(_fold(t.text))]
     for t, f in texts:
         folded = _fold(t.text)
         m = ZONING_COUNT.search(folded)
@@ -245,6 +262,8 @@ def zoning_items(texts: list) -> dict:
             if 1 <= n <= COUNT_MAX:
                 out["count"].append({"value": n, "text": t.text.strip(), "evidence": [_ev(t, f, "zoning_count")]})
         m = ZONING_HEIGHT.search(folded)
+        if m and re.match(r"H\s*[:=]", m.group(0)) and _bare_h_is_stair(t, folded, _num(m.group(1)), notes):
+            m = None                        # a riser height at a stair (H:17.6), never a height limit (review MF11)
         if m:
             v = _num(m.group(1))
             if v is not None and HEIGHT_MIN_M <= v <= 200.0:
@@ -255,6 +274,23 @@ def zoning_items(texts: list) -> dict:
             if v is not None and 0.1 <= v <= 12.0:
                 out["far"].append({"value": v, "text": t.text.strip(), "evidence": [_ev(t, f, "zoning_far")]})
     return out
+
+
+def _bare_h_is_stair(t, folded: str, value: Optional[float], notes: list) -> bool:
+    """A bare ``H:`` that is a stair's riser, not a height limit (pure; review MF11): a stair note (R: or B:) in it or
+    within a few text heights of it, on a stair, door or window layer, in cm, or a value of 14-22 (a riser in cm)
+    with a stair note anywhere."""
+    if _STAIR_NOTE_RE.search(folded) or re.search(r"\bCM\b", folded):
+        return True
+    layer = _fold(getattr(t, "layer", "") or "")
+    if any(w in layer for w in ("MERD", "STAIR", "KAPI", "DOOR", "PENC", "WINDOW")):
+        return True
+    h = float(getattr(t, "height", 0.0) or 0.0)
+    p = getattr(t, "point", None)
+    if h > 0 and p is not None and any(getattr(o, "point", None) is not None and o is not t
+                                       and math.dist(p, o.point) <= 6.0 * h for o in notes):
+        return True
+    return value is not None and 14.0 <= value <= 22.0 and bool(notes)
 
 
 # ------------------------------------------------------------------------------------------------- the plan facts
@@ -279,15 +315,17 @@ def gross_area(r) -> Optional[float]:
 def plan_signals(r) -> dict:
     """What a plan shows about its building (pure on the region's texts and features): lifts, flats (flat entrances or
     kitchens), stairs (stair blocks or layers, stair words)."""
-    lifts = flats = kitchens = stair_words = 0
+    lifts = flats = kitchens = stair_words = fire = 0
     for t in getattr(r, "texts", None) or []:
         folded = _fold(t.text)
-        lifts += 1 if LIFT_RE.search(folded) else 0
+        lifts += 1 if LIFT_RE.search(folded) and not LIFT_MACHINE_RE.search(folded) else 0
         flats += 1 if FLAT_RE.search(folded) else 0
         kitchens += 1 if KITCHEN_RE.search(folded) else 0
         stair_words += 1 if STAIR_RE.search(folded) else 0
+        fire += 1 if FIRE_RE.search(folded) else 0
     stairs = int((getattr(r, "features", None) or {}).get("stairs") or 0)
-    return {"lifts": lifts, "flat_words": flats, "kitchens": kitchens, "stairs": stairs, "stair_words": stair_words}
+    return {"lifts": lifts, "flat_words": flats, "kitchens": kitchens, "stairs": stairs, "stair_words": stair_words,
+            "fire": fire}
 
 
 def building_type(signals: dict, typical_area_matches: bool) -> Optional[str]:
@@ -300,7 +338,7 @@ def building_type(signals: dict, typical_area_matches: bool) -> Optional[str]:
     stair = signals["stairs"] >= STAIR_LINES_MIN or signals["stair_words"] > 0
     if signals["lifts"] >= 1 and (several or typical_area_matches):
         return "apartment_block_lift"
-    if several and stair:
+    if several and (stair or signals.get("fire")):
         return "apartment_block"
     if signals["lifts"] == 0 and signals["kitchens"] <= 1 and signals["flat_words"] <= 1 and stair:
         return "house_stair"
@@ -548,6 +586,25 @@ def infer(plans: list, regions: list, docs: list, values: dict, warnings: list, 
     if not new_up and not ground:
         rec["note"] = f"{chosen['rung'].replace('_', ' ')} counts {count} storeys: every one is drawn"
         return rec
+    if new_up:
+        below = _plan_below(read, base, own)
+        reg = stacks(base, below) if below is not None else None
+        if reg is not None:
+            rec["registration"] = reg
+        if reg is not None and not reg["ok"]:
+            # review REG-04: a plan that does not stack on the storey below (another design alternative, a misread
+            # plan) is no typical floor of this building: no copies, the count is a question (as R08 for stairs)
+            text = (f"storeys: {chosen['rung'].replace('_', ' ')} counts {count} storeys, but {base.id} does not stack "
+                    f"on {below.id} ({reg['reason']}): no storey is copied from it")
+            warnings.append(text)
+            conflict("other", [base.id, below.id], text, "the drawn storeys kept; the storey count is a question")
+            rec.update(built=False, note=text)
+            rec["open_point"] = {"key": OPEN_POINT_KEY, "default": len(drawn), "options": [len(drawn), count],
+                                 "severity": "major",
+                                 "question": f"How many storeys does the building have? {count} counted from "
+                                             f"{chosen['rung'].replace('_', ' ')}, but the top plan {base.id} does not "
+                                             f"stack on {below.id} ({reg['reason']}): which plan is the typical floor?"}
+            return rec
     _extend(base, own, new_up, ground, is_typical, not shifted, names, rec, chosen)
     rec["open_point"] = {"key": OPEN_POINT_KEY, "default": count,
                          "options": sorted({max(count - 2, 1), max(count - 1, 1), count, count + 1, count + 2}),
@@ -558,13 +615,67 @@ def infer(plans: list, regions: list, docs: list, values: dict, warnings: list, 
     if ground and g and ty and g < ty * (1.0 - CANTILEVER_SHARE):
         rec["cantilevers"] = {"ground_m2": g, "typical_m2": ty,
                               "reason": f"the footprint ({areas['ground']['text']}: {g:.0f} m2) is smaller than the "
-                                        f"typical floor ({areas['typical']['text']}: {ty:.0f} m2): the ground floor "
-                                        f"has no cantilevered balconies"}
+                                        f"typical floor ({areas['typical']['text']}: {ty:.0f} m2): the typical "
+                                        f"floor's balconies are left off the inferred ground floor (its outline is "
+                                        f"the typical floor's, not cut to the footprint)"}
     lv_text = ", ".join(f"{i['level_id']} {i['label']}" for i in rec["inferred"])
     warnings.append(f"storeys: {count} storeys from {chosen['rung'].replace('_', ' ')} ({chosen.get('note')}); "
                     f"{base.id} stands for the storeys the documents do not draw: {lv_text} (inferred"
                     + (", a guess" if rec["guess"] else "") + ")")
     return rec
+
+
+STACK_RMS_M = 0.5                     # a plan stacks on the storey below: its outline within this RMS (R12) ...
+STACK_INSIDE = 0.8                    # ... and this share of its footprint over the storey below
+
+
+def _outline_m(r):
+    """A plan's outline in metres (its own frame), as ``gross_area`` measures it, or None (cached)."""
+    if hasattr(r, "_outline_metres"):
+        return r._outline_metres
+    from shapely import affinity
+    from wenart.sheets import register as RG
+
+    mpu = getattr(r, "metres_per_unit", None)
+    poly = None
+    if mpu and getattr(r, "ents", None):
+        try:
+            poly = RG.outline(r, mpu, set(RG.enclosing_outlines(r, mpu)) | RG.cut_line_entities(r))
+        except Exception:  # noqa: BLE001 - a plan without an outline cannot be compared
+            poly = None
+        if poly is not None and not poly.is_empty and poly.geom_type == "Polygon":
+            poly = affinity.scale(poly, mpu, mpu, origin=(0.0, 0.0))
+        else:
+            poly = None
+    r._outline_metres = poly
+    return poly
+
+
+def _plan_below(read: list, base, own: list):
+    """The read plan of the storey right below ``base``'s lowest own storey, or None."""
+    lowest = min(own)
+    cands = [r for r in read if r is not base and r.level and max(_own_orders(r)) < lowest
+             and not getattr(r, "base_level_id", None)]
+    return max(cands, key=lambda r: max(_own_orders(r)), default=None)
+
+
+def stacks(top, below) -> Optional[dict]:
+    """``{ok, rms_m, inside, reason}``: whether plan ``top`` stacks on plan ``below`` (pure; review REG-04): its outline
+    fits the one below (``register.fit_ring``) within ``STACK_RMS_M`` and at least ``STACK_INSIDE`` of its footprint
+    stands over it; None when either has no outline."""
+    from shapely import affinity
+    from wenart.sheets import register as RG
+
+    a, b = _outline_m(top), _outline_m(below)
+    if a is None or b is None or a.area <= 0 or b.area <= 0:
+        return None
+    fit = RG.fit_ring(a, b)
+    moved = affinity.translate(affinity.rotate(a, fit["rotation_deg"], origin=(0.0, 0.0)), *fit["shift"])
+    inside = moved.intersection(b).area / moved.area
+    ok = fit["rms_m"] <= STACK_RMS_M and inside >= STACK_INSIDE
+    return {"ok": ok, "below_region": below.id, "rms_m": fit["rms_m"], "inside": round(inside, 3),
+            "reason": f"outline RMS {fit['rms_m']:.2f} m, {inside * 100:.0f} % of its footprint over {below.id}"
+                      + ("" if ok else f" (needs at most {STACK_RMS_M} m and {STACK_INSIDE * 100:.0f} %)")}
 
 
 def _extend(base, own: list, new_up: list, ground: list, is_typical: bool, keep_labels: bool, names: dict, rec: dict,
@@ -696,14 +807,18 @@ def stair_strokes(region) -> list:
     """``[{corners (source units), lines, pitch_m, length_m}]`` (pure): runs of at least ``TREAD_RUN_MIN`` parallel line
     segments of ``TREAD_LEN_M`` at a pitch of ``TREAD_PITCH_M``, each overlapping the one before along its length by at
     least half the shorter: the tread lines of a flight (R08 guard G3), on any layer and inside nested blocks (DIM
-    included). Hatch patterns never count, and two crossing runs in one place are a tile grid, not a stair."""
+    included). Hatch patterns never count, and two crossing runs in one place are a tile grid, not a stair. A segment
+    sits in its angle bin and the next one over (a flight drawn at an odd whole degree lies on a bin edge: review
+    CS1-07); a run found twice is kept once."""
     import bisect
     import math
 
     mpu = getattr(region, "metres_per_unit", None)
     if not mpu:
         return []
+    bins = int(180 / TREAD_ANGLE_DEG)
     by_angle: dict = {}
+    segs_all = []
     for e in getattr(region, "ents", None) or []:
         if e.kind == "HATCH":
             continue
@@ -715,25 +830,32 @@ def stair_strokes(region) -> list:
                 if not TREAD_LEN_M[0] <= length <= TREAD_LEN_M[1]:
                     continue
                 ang = math.degrees(math.atan2(q[1] - p[1], q[0] - p[0])) % 180.0
-                by_angle.setdefault(int(round(ang / TREAD_ANGLE_DEG)) % int(180 / TREAD_ANGLE_DEG), []).append((p, q))
-    runs = []
-    for key, segs in by_angle.items():
+                x = ang / TREAD_ANGLE_DEG
+                near = round(x)
+                k0, k1 = int(near) % bins, (int(near) + (1 if x >= near else -1)) % bins
+                idx = len(segs_all)
+                segs_all.append((p, q))
+                for k in {k0, k1}:
+                    by_angle.setdefault(k, []).append(idx)
+    runs, seen = [], []
+    for key, idxs in sorted(by_angle.items()):
         ang = math.radians(key * TREAD_ANGLE_DEG)
         u, n = (math.cos(ang), math.sin(ang)), (-math.sin(ang), math.cos(ang))
         items = []
-        for p, q in segs:
+        for i in idxs:
+            p, q = segs_all[i]
             a0, a1 = sorted(((p[0] * u[0] + p[1] * u[1]) * mpu, (q[0] * u[0] + q[1] * u[1]) * mpu))
             off = ((p[0] + q[0]) / 2.0 * n[0] + (p[1] + q[1]) / 2.0 * n[1]) * mpu
-            items.append((off, a0, a1))
+            items.append((off, a0, a1, i))
         items.sort()
         offs = [it[0] for it in items]
         chain = [1] * len(items)
         prev = [-1] * len(items)
-        for i, (off, a0, a1) in enumerate(items):
+        for i, (off, a0, a1, _i) in enumerate(items):
             lo = bisect.bisect_left(offs, off - TREAD_PITCH_M[1])
             hi = bisect.bisect_right(offs, off - TREAD_PITCH_M[0])
             for j in range(lo, hi):
-                _, b0, b1 = items[j]
+                _, b0, b1, _j = items[j]
                 if min(a1, b1) - max(a0, b0) >= 0.5 * min(a1 - a0, b1 - b0) and chain[j] + 1 > chain[i]:
                     chain[i], prev[i] = chain[j] + 1, j
         used = set()
@@ -747,6 +869,14 @@ def stair_strokes(region) -> list:
                 k = prev[k]
             if len(members) < TREAD_RUN_MIN:
                 continue
+            ids = frozenset(m[3] for m in members)
+            if any(ids <= s for s in seen):
+                continue                    # the same run found in the next bin over
+            gone = [j for j, s in enumerate(seen) if s < ids]
+            for j in reversed(gone):
+                seen.pop(j)
+                runs.pop(j)
+            seen.append(ids)
             o0, o1 = min(m[0] for m in members), max(m[0] for m in members)
             s0, s1 = min(m[1] for m in members), max(m[2] for m in members)
             corners = [[(s * u[0] + o * n[0]) / mpu, (s * u[1] + o * n[1]) / mpu]
@@ -767,6 +897,7 @@ def stair_strokes(region) -> list:
                     polys[i].intersection(polys[j]).area >= 0.5 * min(polys[i].area, polys[j].area):
                 grid |= {i, j}
     return [dict((k, v) for k, v in r.items() if k != "angle") for i, r in enumerate(runs) if i not in grid]
+
 
 
 def completion_record(regions: list, docs: list) -> dict:

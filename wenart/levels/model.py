@@ -65,6 +65,9 @@ from wenart.levels.rules import (BUILTIN_PARAMS, _brief_values, _default_params,
                                  level_params, ramp_for, steps_for)
 
 GROUND_KINDS = ("ground_natural", "ground_finished", "slope_top")
+# the keys of ``level_inference`` the levels model writes (13 Nov 2026): every other key is kept on a run again
+MODEL_KEYS = ("version", "ground_floor", "ground_source", "inferred", "conflicts", "warnings", "inner_steps", "basements",
+              "params", "params_from_brief", "flagged", "single_level_whole", "edits", "conflicts_copied")
 FLOOR_KINDS = ("floor", "entrance")
 NO_FLOOR_ROOMS = ("stair", "shaft")
 FLAT_THICKNESS = 0.30                       # the flat_cut roof slab (roof.DEFAULTS["flat_thickness"])
@@ -294,8 +297,8 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
     """Step 2: an assumed level elevation from the most common floor mark in its rooms."""
     tol = float(params["mark_tol"])
     for lv in base_levels(b):
-        if lv.get("elevation_source") not in (None, "assumed_default"):
-            continue
+        if lv.get("elevation_source") not in (None, "assumed_default") or lv.get("typical_of"):
+            continue        # 13 Nov 2026: a typical floor's copy re-reads that floor's marks: they are its floor's
         rooms = {r["id"] for r in b.get("rooms") or [] if r.get("level_id") == lv["id"]
                  and r.get("room_type") not in NO_FLOOR_ROOMS}
         zs = [m["z"] for m in marks if m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms
@@ -349,7 +352,9 @@ def _room_floors(b: dict, marks: list, params: dict, conflicts: list, warnings: 
             continue
         zs = [m["z"] for m in own]
         z = _median(zs)
-        offset = z - float(lv["elevation"])
+        # 13 Nov 2026: a typical floor's copy re-reads that floor's marks: the offset is against that floor
+        ref = levels.get(lv.get("typical_of")) if lv.get("typical_of") else None
+        offset = z - float((ref or lv)["elevation"])
         if abs(offset) > float(params["room_offset_max"]):
             warnings.append(f"{room['id']}: floor mark {z:+.2f} m is {offset:+.2f} m off its level floor (more than "
                             f"{float(params['room_offset_max']):.2f} m): not the room floor, listed")
@@ -1045,7 +1050,11 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
               "params_from_brief": list(params["_from_brief"]),
               "flagged": "step and ramp numbers: secondary sources on TS 9111 (docs/milestone12.md §3.7)",
               "edits": list((building.get("level_inference") or {}).get("edits") or [])}
-    b["level_inference"] = record
+    # 13 Nov 2026 (review CS1-04): the model owns only its own keys; the records the completion rules wrote
+    # (storeys, core_rules, sense_rules, the party walls, rules_off ...) stay; the conflicts are copied again
+    old = building.get("level_inference")
+    kept = {k: copy.deepcopy(v) for k, v in old.items() if k not in MODEL_KEYS} if isinstance(old, dict) else {}
+    b["level_inference"] = record = dict(kept, **record)
     gl = ground_level(b)
     if gl is None:
         return b
