@@ -1101,6 +1101,8 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
     inferred += facade_gaps(b, levels, outline, outlines, site["outdoor_spaces"], tm, params)
     site["entrances"] = _entrances(b, marks, params, levels, outline, outlines, tm, g["points"], conflicts, warnings,
                                    spaces=site["outdoor_spaces"])
+    from wenart.ingest import core_rules as CR      # 13 Nov 2026 (review CODE-01): the completion's entrance decisions
+    CR.reapply_entrances(b, copy.deepcopy((building.get("site") or {}).get("entrances") or []))
     for e in site["entrances"]:
         if e["solution"] != "none":
             inferred.append({"item": f"entrance {e['door_id']}", "value": e["solution"], "reason": e["reason"]})

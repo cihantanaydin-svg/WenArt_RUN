@@ -303,3 +303,26 @@ def test_a_door_onto_a_balcony_is_no_way_into_the_building():
     assert [f["rule"] for f in found] == ["no_entrance"] and found[0]["severity"] == "major"
     b["site"]["outdoor_spaces"][0]["kind"] = "porch"                            # a porch is an entrance's landing
     assert SN.no_entrance(b) == []
+
+
+# --------------------------------------------------------------------------- CODE-01: the levels model's rebuild
+def _ent(door, main=False, rule=None):
+    return {"door_id": door, "level_id": "L0", "main": main, "main_reason": "x" if main else None,
+            "evidence": [{"rule": rule}] if rule else []}
+
+
+def test_a_rebuild_of_the_entrances_keeps_the_completions_decisions():
+    b = _bld(("L0",))
+    b["openings"] = [{"id": d, "type": "door", "level_id": "L0"} for d in ("d1", "d2", "d3")]
+    b["openings"][0]["entrance_refused"] = {"reason": "a room behind it"}
+    old = [_ent("d2", True, "inferred_entrance"), _ent("d3")]
+    b["site"]["entrances"] = [_ent("d1", True), _ent("d3")]                    # what infer_levels made again
+    CR.reapply_entrances(b, old)                                               # no completion record yet: unchanged
+    assert [e["door_id"] for e in b["site"]["entrances"]] == ["d1", "d3"]
+    b["level_inference"]["core_rules"] = {"entrances": {"refused": [], "added": [], "main": None, "open": None}}
+    CR.reapply_entrances(b, old)
+    ents = {e["door_id"]: e for e in b["site"]["entrances"]}
+    assert set(ents) == {"d2", "d3"} and ents["d2"]["main"] and not ents["d3"]["main"]
+    b["site"]["entrances"] = [_ent("d3", True)]
+    CR.reapply_entrances(b, [_ent("d3")])                                       # the completion left no main
+    assert not b["site"]["entrances"][0]["main"]
