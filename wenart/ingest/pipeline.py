@@ -2607,6 +2607,8 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
             build.warn(f"sub-space not read: {room['level_id']}: '{sp['label']}' ({sp['type']}, at most "
                        f"{sp['max_m2']:g} m2) stands in {room['id']} '{room.get('label')}' ({room.get('area_computed')} "
                        f"m2): its walls are not read, the {sp['type']} is not built")
+    for line in TW.lift_cars(b["rooms"], b.get("symbols") or [], b["furniture"], b["openings"], b["walls"]):
+        build.warn(f"lift car: {line}")                                     # 13 Nov 2026 (S1-03b)
     for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"]):     # 4 Nov 2026 (UL306)
         build.warn(f"lift door: {line}")
     shaft_notes, shaft_closed = TW.close_lift_shaft_gaps(b["rooms"], b["openings"], b["walls"])   # 13 Nov 2026 (S1-10b)

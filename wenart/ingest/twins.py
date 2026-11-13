@@ -951,7 +951,126 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict]) -> li
     return notes
 
 
+LIFT_CAR_SIDES_M = ((0.9, 2.2), (1.1, 2.8))    # 13 Nov 2026: a lift car's outline (short side, long side) ...
+LIFT_CAR_FILL = 0.4                 # ... the cars filling this share of the face at least ...
+LIFT_CAR_MAX_M2 = 8.0               # ... the face at most this much a car (``labels.AREA_RANGES`` lift)
+LIFT_CAR_GAP_ALIGN = 0.5            # a landing gap whose centre lies within this share of a car's width of the car's
+
+
+def _fp_poly(fp: dict):
+    w, d = float(fp["size"][0]), float(fp["size"][1])
+    a = math.radians(float(fp.get("rotation_deg") or 0.0))
+    ux, uy, vx, vy = math.cos(a), math.sin(a), -math.sin(a), math.cos(a)
+    cx, cy = float(fp["center"][0]), float(fp["center"][1])
+    return Polygon([(cx + sx * w / 2.0 * ux + sy * d / 2.0 * vx, cy + sx * w / 2.0 * uy + sy * d / 2.0 * vy)
+                    for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))])
+
+
+def lift_cars(rooms: list[dict], symbols: list[dict], furniture: list[dict], openings: list[dict],
+              walls: list[dict]) -> list[str]:
+    """13 Nov 2026 (building-sense review S1-03b, real03: twin lift shafts drawn with their cars, guide rails,
+    counterweights and telescopic doors but no ASANSÖR word, read as one 'Oda'): a face with no room word of its own
+    (unlabelled or a generic 'Oda', of no type or a hall's) that holds drawn lift cars (untyped outlines, symbols or
+    unknown pieces, of ``LIFT_CAR_SIDES_M``, together at least ``LIFT_CAR_FILL`` of the face, the face at most
+    ``LIFT_CAR_MAX_M2`` a car), has no window and no hinged door, and whose doorless gaps each line up with a car and open
+    onto a hall, is that many lift shafts: one 'Asansör' per car, split midway between the cars (an inferred shaft
+    wall between them), each ``inferred`` with the cars and the gaps as evidence. ``lift_doors`` then makes each gap its
+    shaft's sliding landing door. Mutates ``rooms`` and ``walls``; one line per face."""
+    from shapely.geometry import LineString
+    from shapely.ops import split
+
+    from wenart import building as B
+    from wenart import common_areas as CA
+
+    notes = []
+    for r in list(rooms):
+        label = r.get("label")
+        if r.get("room_type") not in (None, "unknown", "hall", "other") or len(r.get("polygon") or []) < 3:
+            continue
+        if label and not B.generic_room_label(label) and not r.get("label_inferred"):
+            continue
+        if r.get("label_raw") and not B.generic_room_label(r.get("label_raw")):
+            continue
+        poly, lv = _poly(r), r["level_id"]
+        outlines = [x for x in list(symbols or []) + list(furniture or [])
+                    if x.get("level_id") == lv and isinstance(x.get("footprint"), dict)
+                    and (x.get("kind") in ("other", "unknown") if "kind" in x else x.get("type") == "unknown")]
+        cars = []
+        for x in outlines:
+            fp = x["footprint"]
+            sides = sorted(float(v) for v in fp.get("size") or (0, 0))
+            if not (LIFT_CAR_SIDES_M[0][0] <= sides[0] <= LIFT_CAR_SIDES_M[0][1]
+                    and LIFT_CAR_SIDES_M[1][0] <= sides[1] <= LIFT_CAR_SIDES_M[1][1]):
+                continue
+            cp = _fp_poly(fp)
+            if poly.buffer(0.05).contains(cp) and not any(cp.intersects(c[1]) for c in cars):
+                cars.append((x, cp))
+        n = len(cars)
+        if not n or poly.area > n * LIFT_CAR_MAX_M2 or sum(c[1].area for c in cars) < LIFT_CAR_FILL * poly.area:
+            continue
+        near = [o for o in openings if o.get("level_id") == lv and o.get("center") and not o.get("virtual")
+                and poly.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M]
+        if any(o.get("type") == "window" or (o.get("type") == "door" and o.get("operation") in ("swing", "double"))
+               for o in near):
+            continue
+        gaps = []
+        for x, cp in cars:
+            c = cp.centroid
+            hw = min(float(v) for v in x["footprint"]["size"]) / 2.0
+            hit = [o for o in near if o.get("type") in ("opening", "door") and Point(o["center"]).distance(c)
+                   <= max(float(v) for v in x["footprint"]["size"]) / 2.0 + LIFT_WALL_REACH_M
+                   and min(abs(o["center"][0] - c.x), abs(o["center"][1] - c.y)) <= LIFT_CAR_GAP_ALIGN * 2 * hw]
+            beyond = [_room_beyond(o, r, rooms) for o in hit]
+            ok = [o for o, b in zip(hit, beyond) if b is not None and (str(b.get("room_type") or "") in ("hall", "corridor")
+                                                                      or CA.is_common_room(b))]
+            if not ok:
+                break
+            gaps.append(ok[0])
+        if len(gaps) != n:
+            continue
+        cars.sort(key=lambda t: (round(t[1].centroid.x, 1), round(t[1].centroid.y, 1)))
+        parts = [poly]
+        cuts = []
+        for (_x1, a), (_x2, b) in zip(cars, cars[1:]):
+            ca, cb = a.centroid, b.centroid
+            mx, my = (ca.x + cb.x) / 2.0, (ca.y + cb.y) / 2.0
+            dx, dy = cb.x - ca.x, cb.y - ca.y
+            L = math.hypot(dx, dy) or 1.0
+            px, py = -dy / L * 20.0, dx / L * 20.0
+            cut = LineString([(mx - px, my - py), (mx + px, my + py)])
+            cuts.append(cut)
+            nxt = []
+            for p in parts:
+                nxt.extend(g for g in split(p, cut).geoms if g.area > 0.5)
+            parts = nxt
+        if len(parts) != n:
+            continue
+        evid = [x.get("id") for x, _cp in cars] + [g.get("id") for g in gaps]
+        made = []
+        for k, part in enumerate(sorted(parts, key=lambda p: (round(p.centroid.x, 1), round(p.centroid.y, 1)))):
+            room = r if k == 0 else dict(r, id=f"{r['id']}_lift{k + 1}")
+            room["polygon"] = [[round(x, 4), round(y, 4)] for x, y in list(part.exterior.coords)[:-1]]
+            room["area_computed"] = round(part.area, 2)
+            _as_sub_space(room, {"label_raw": "Asansör", "type": "lift",
+                                 "how": f"a drawn lift car ({', '.join(str(e) for e in evid[:n])}) with its landing gap "
+                                        f"onto the hall ({', '.join(str(e) for e in evid[n:])}); no lift word drawn"})
+            room["adjusted_by_ai"] = {"by": "code", "rule": "lift_cars", "evidence": evid,
+                                      "reason": f"{n} drawn lift car(s) in one face: one lift shaft each"}
+            if k:
+                rooms.append(room)
+            made.append(room["id"])
+        for k, cut in enumerate(cuts):
+            seg = cut.intersection(poly)
+            for j, ln in enumerate(straight_runs(seg)):
+                shaft_wall(r, ln, walls, f"between the lift shafts {', '.join(made)}: not read, inferred",
+                           wall_id=f"w_{r['id']}_cars{k + 1}_{j + 1}")
+        notes.append(f"{lv}: {r['id']} ({poly.area:.1f} m2, no room word) holds {n} drawn lift car(s) with landing "
+                     f"gaps onto the hall: {n} lift shaft(s) {', '.join(made)} (inferred)")
+    return notes
+
+
 SHAFT_SLIVER_M = 0.50            # 13 Nov 2026: a 'door' this narrow overlapping a lift's landing door is part of it
+SHAFT_SLIVER_REACH_M = 0.30      # ... standing this close to it (the stacked faces of a core wall: one wall band)
 
 
 def close_lift_shaft_gaps(rooms: list[dict], openings: list[dict], walls: list[dict]) -> tuple[list[str], list[dict]]:
@@ -1004,7 +1123,7 @@ def close_lift_shaft_gaps(rooms: list[dict], openings: list[dict], walls: list[d
                     "gap_behind_furniture", "no_glass")) for e in ev)
             seg = LineString(ends)
             sliver = o.get("type") == "door" and float(o.get("width") or 0.0) < SHAFT_SLIVER_M and any(
-                (sl := span(d)) is not None and LineString(sl).distance(seg) <= 0.05 for d in landing)
+                (sl := span(d)) is not None and LineString(sl).distance(seg) <= SHAFT_SLIVER_REACH_M for d in landing)
             if not ((o.get("type") in ("opening", "window") and derived) or sliver):
                 continue
             openings.remove(o)

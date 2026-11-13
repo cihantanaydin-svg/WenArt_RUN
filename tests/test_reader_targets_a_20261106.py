@@ -1467,3 +1467,40 @@ def test_a_lift_shaft_keeps_its_landing_door_and_no_gap_window_or_sliver_read_fr
     TW.lift_doors([shaft, hall, stair], ops2, walls)
     TW.close_lift_shaft_gaps([shaft, hall, stair], ops2, walls)
     assert sorted(o["id"] for o in ops2) == ["d_drawn", "o_land"]
+
+
+def test_drawn_lift_cars_in_one_unnamed_face_make_one_lift_shaft_each_with_its_landing_door():
+    import copy
+
+    from wenart.ingest import twins as TW
+
+    def room(rid, label, rtype, poly, raw=None):
+        return {"id": rid, "level_id": "L0", "label": label, "label_raw": raw, "room_type": rtype, "polygon": poly}
+
+    box_ = room("r_L0_oda", "Oda", "unknown", [[0, 0], [4.2, 0], [4.2, 2.6], [0, 2.6]])
+    hall = room("r_L0_hall", "Kat Holü", "hall", [[0, -2.0], [4.2, -2.0], [4.2, -0.2], [0, -0.2]], raw="KAT HOLÜ")
+    cars = [{"id": f"sy_L0_{k}", "kind": "other", "level_id": "L0",
+             "footprint": {"center": [x, 1.3], "size": [1.85, 2.0], "rotation_deg": 0.0}} for k, x in ((1, 1.05), (2, 3.15))]
+    gaps = [{"id": f"o_L0_{k}", "level_id": "L0", "type": "opening", "wall_id": "w_s", "center": [x, -0.1],
+             "width": 1.09, "status": "unverified"} for k, x in ((1, 1.05), (2, 3.15))]
+    walls = [{"id": "w_s", "level_id": "L0", "start": [0, -0.1], "end": [4.2, -0.1], "thickness": 0.2}]
+    rooms, ops, ws = [copy.deepcopy(box_), hall], copy.deepcopy(gaps), copy.deepcopy(walls)
+    notes = TW.lift_cars(rooms, cars, [], ops, ws)
+    lifts = [r for r in rooms if r["label"] == "Asansör"]
+    assert len(notes) == 1 and len(lifts) == 2 and all(r["room_type"] == "shaft" for r in lifts)
+    assert sorted(round(r["area_computed"], 1) for r in lifts) == [5.5, 5.5]
+    assert any(w["id"].startswith("w_r_L0_oda_cars") for w in ws)
+    TW.lift_doors(rooms, ops, ws)
+    assert all(o["type"] == "door" and o["operation"] == "sliding" for o in ops)
+    # a window, a hinged door or a typed piece (a bed) says it is no lift
+    for extra_op, pieces, syms in (
+            ({"id": "win", "level_id": "L0", "type": "window", "wall_id": "w_n", "center": [2.1, 2.7], "width": 1.2}, [], cars),
+            ({"id": "d_sw", "level_id": "L0", "type": "door", "wall_id": "w_s", "center": [2.1, -0.1], "width": 0.9,
+              "operation": "swing"}, [], cars),
+            (None, [dict(c, type="bed", kind=None) for c in cars], [])):
+        rooms2 = [copy.deepcopy(box_), hall]
+        ops2 = copy.deepcopy(gaps) + ([extra_op] if extra_op else [])
+        if not syms:
+            for p in pieces:
+                p.pop("kind")
+        assert TW.lift_cars(rooms2, syms, pieces, ops2, copy.deepcopy(walls)) == []
