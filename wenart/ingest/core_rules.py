@@ -201,7 +201,13 @@ def stair_dict(fp: dict, reason: str, turn: str = "U", rise: Optional[float] = N
     """A stair in the footprint ``fp`` (pure): a dog-leg (U) with two flights side by side along its long side and a
     half landing at the far end, or (``turn`` straight) one flight along the long side. With ``rise`` (the storey
     height) the flights carry the riser count of ``risers_for`` (one riser a tread line) at a tread in
-    ``TREAD_RANGE_M`` where the footprint allows; else the lines fill the footprint at ``TREAD_M``."""
+    ``TREAD_RANGE_M`` where the footprint allows; else the lines fill the footprint at ``TREAD_M``.
+
+    13 Nov 2026 (review S1F-POD-P01: real21's inferred U stair left 1.05 m open between its first flight and its half
+    landing): a flight runs from riser line to riser line (the convention of the numbered stairs,
+    ``wenart.ingest.generic.stair_numbers``, and of ``parametric.stair_plan``: ``lines`` riser lines, the first at
+    ``start``, the last at ``end``, ``spacing`` apart). Both flights of a U stand on the landing's near edge (flight 1's
+    last riser line and flight 2's first); what the footprint has left over is floor at the stair's foot."""
     if turn == "straight":
         return _straight_stair(fp, reason, rise)
     (cx, cy), (w, d), rot = fp["center"], fp["size"], math.radians(fp["rotation_deg"])
@@ -217,16 +223,15 @@ def stair_dict(fp: dict, reason: str, turn: str = "U", rise: Optional[float] = N
     if rise:
         nr = risers_for(rise)
         per = [math.ceil(nr / 2), nr - math.ceil(nr / 2)]
-        spacing = max(TREAD_RANGE_M[0], min(TREAD_RANGE_M[1], (length - ld - 0.3) / per[0]))
-    fl = per[0] * spacing
+        spacing = max(TREAD_RANGE_M[0], min(TREAD_RANGE_M[1], (length - ld) / max(per[0] - 1, 1)))
+    edge = length / 2.0 - ld                      # the landing's near edge
 
     def at(s, t):
         return [round(cx + u[0] * s + n[0] * t, 4), round(cy + u[1] * s + n[1] * t, 4)]
 
-    s0 = -length / 2.0 + 0.3
-    flights = [{"start": at(s0, -fw / 2.0), "end": at(s0 + fl, -fw / 2.0), "width": round(fw, 3), "lines": per[0],
-                "spacing": round(spacing, 3)},
-               {"start": at(length / 2.0 - ld, fw / 2.0), "end": at(length / 2.0 - ld - per[1] * spacing, fw / 2.0),
+    flights = [{"start": at(edge - (per[0] - 1) * spacing, -fw / 2.0), "end": at(edge, -fw / 2.0),
+                "width": round(fw, 3), "lines": per[0], "spacing": round(spacing, 3)},
+               {"start": at(edge, fw / 2.0), "end": at(edge - (per[1] - 1) * spacing, fw / 2.0),
                 "width": round(fw, 3), "lines": per[1], "spacing": round(spacing, 3)}]
     landing = [at(length / 2.0 - ld, -width / 2.0), at(length / 2.0, -width / 2.0), at(length / 2.0, width / 2.0),
                at(length / 2.0 - ld, width / 2.0)]
@@ -245,17 +250,17 @@ def _long_axis(fp: dict) -> tuple:
 
 
 def _straight_stair(fp: dict, reason: str, rise: Optional[float]) -> dict:
-    """One straight flight along the footprint's long side (pure; ``stair_dict``)."""
+    """One straight flight along the footprint's long side (pure; ``stair_dict``), from riser line to riser line."""
     (cx, cy) = fp["center"]
     u, n, length, width = _long_axis(fp)
-    lines = risers_for(rise) if rise else max(3, int((length - 0.6) / TREAD_M))
-    spacing = max(TREAD_RANGE_M[0], min(TREAD_RANGE_M[1], (length - 0.6) / lines)) if rise else TREAD_M
+    lines = risers_for(rise) if rise else max(3, int((length - 0.6) / TREAD_M) + 1)
+    spacing = max(TREAD_RANGE_M[0], min(TREAD_RANGE_M[1], (length - 0.6) / max(lines - 1, 1))) if rise else TREAD_M
     s0 = -length / 2.0 + 0.3
 
     def at(s, t):
         return [round(cx + u[0] * s + n[0] * t, 4), round(cy + u[1] * s + n[1] * t, 4)]
 
-    return {"flights": [{"start": at(s0, 0.0), "end": at(s0 + lines * spacing, 0.0), "width": round(width, 3),
+    return {"flights": [{"start": at(s0, 0.0), "end": at(s0 + (lines - 1) * spacing, 0.0), "width": round(width, 3),
                          "lines": lines, "spacing": round(spacing, 3)}],
             "landing": None, "direction": [round(u[0], 4), round(u[1], 4)], "direction_assumed": True,
             "turn": "straight", "turn_assumed": True, "void_assumed": True, "riser_m": None, "riser_source": None,
