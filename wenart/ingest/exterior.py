@@ -256,7 +256,12 @@ def wall_spans(level, w: dict, union, enclosed: set, wells: set, lost: list, wal
     samples = []
     t = END_SKIP_M
     while t <= length - END_SKIP_M + 1e-9:
-        kinds = [face_kind(level, _wall_faces(level, w, union, t, s), enclosed, wells) for s in (1, -1)]
+        qs = [_wall_faces(level, w, union, t, s) for s in (1, -1)]
+        kinds = [face_kind(level, q, enclosed, wells) for q in qs]
+        if kinds == ["indoor", "indoor"]:
+            r1, r2 = (level.room_at(q) for q in qs)
+            if r1 is not None and r2 is not None and r1["id"] == r2["id"]:
+                kinds = ["unknown", "unknown"]          # one room on both faces: its polygon spans the wall (real15)
         samples.append((t, kinds))
         t += STEP_M
     if not samples:

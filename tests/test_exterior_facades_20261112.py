@@ -95,6 +95,15 @@ def test_the_flags_follow_the_walls_faces_and_the_stretches_are_kept():
     assert {c["wall"] for c in rec["changed"]} == {"w_L0_3", "w_L0_5"}
 
 
+def test_a_wall_with_one_room_on_both_faces_is_unknown():
+    """real15: one room's polygon spans the wall (the reading's room is in question): unknown, the flag stays."""
+    b = building(flat())
+    b["rooms"] = [dict(b["rooms"][0], polygon=rect(0.15, 0.15, 9.85, 5.85))]
+    rec, walls = run_ext(b)
+    assert {s["kind"] for s in walls["w_L0_5"]["exterior_spans"]} == {"unknown"}
+    assert walls["w_L0_5"]["exterior"] is True and "w_L0_5" not in {c["wall"] for c in rec["changed"]}
+
+
 def test_a_wall_partly_on_the_outline_is_exterior_on_that_stretch_only():
     """R14: the wall record stays whole; its stretches: exterior along the outside, interior between rooms."""
     b = building(flat())
