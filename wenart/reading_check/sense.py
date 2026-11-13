@@ -30,6 +30,10 @@ made before those corrections; every distance compared with a reach gets ``EPS``
 11. ``wall_across_passage`` (C0051, C0053): an unclassified gap between a hall and a room with no door symbol;
 12. ``wall_mass`` (C0020): a face under 0.6 m2 typed hall or unknown.
 
+13 Nov 2026: 13. ``narrow_landing``: the landing split off a stair core (``wenart.ingest.twins.split_core_landings``)
+narrower than a landing needs, kept as its own room because a drawn way in opens into it (``narrow_landing`` on the
+room).
+
 Every finding is advisory: ``wenart.reading_check.check`` counts it under ``counts["advisory"]``, never in the
 verdict. Each rule's precision was judged one finding at a time on the readings of the 20 real and 21 synthetic
 projects (``models/sense_trust.json``, with every judgement and its reason); a rule below ``TRUST_MIN`` writes its
@@ -82,6 +86,8 @@ RULES = {
     "mirror_twins": "the two halves of a mirrored plan read differently",
     "wall_across_passage": "a wall across a drawn passage",
     "wall_mass": "a face of wall mass read as a room",
+    # 13 Nov 2026
+    "narrow_landing": "a landing in front of a stair narrower than a landing needs",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -1158,7 +1164,9 @@ def false_stairs(building: dict) -> tuple[list, set]:
         if fp.area < STAIR_MIN_AREA_M2 - EPS:
             reasons.append(f"its footprint is {fp.area:.2f} m2 (a stair needs {STAIR_MIN_AREA_M2:g} m2)")
         flights = (f.get("stair") or {}).get("flights") or []
-        if len(flights) >= GRID_FLIGHTS_MIN and fp.area / len(flights) < FLIGHT_MIN_AREA_M2 - EPS:
+        # 12 Nov 2026 (review B S2): a curved stair's chord flights are one curved flight, not a grid of lines
+        n_flights = 1 if (f.get("stair") or {}).get("curved") else len(flights)
+        if n_flights >= GRID_FLIGHTS_MIN and fp.area / n_flights < FLIGHT_MIN_AREA_M2 - EPS:
             reasons.append(f"it has {len(flights)} flights in {fp.area:.2f} m2 (a flight needs about "
                            f"{FLIGHT_MIN_AREA_M2:g} m2: a grid of lines, not flights)")
         treads = sum(int(fl.get("lines") or 0) for fl in flights)
@@ -1377,6 +1385,26 @@ def wall_mass(building: dict) -> list:
                             _centre(r), [r.get("id")], area_m2=round(a, 3)))
     return out
 
+def narrow_landing(building: dict) -> list:
+    """Rule 13 (pure; 13 Nov 2026, coordinator on real09: "a drawn room label never vanishes"): a landing split off a
+    stair core narrower than ``wenart.ingest.twins.LANDING_MIN_WIDTH_M`` that a drawn way in opens into stays its own
+    room, flagged ``narrow_landing`` by the reader; each is a minor finding: the stair's footprint may run past its
+    last drawn riser, or the drawing gives the landing that width."""
+    out = []
+    for r in building.get("rooms") or []:
+        n = r.get("narrow_landing")
+        if not isinstance(n, dict) or n.get("width_m") is None:
+            continue
+        w, need = float(n["width_m"]), float(n.get("min_m") or 0.9)
+        out.append(_finding("narrow_landing", "minor", r.get("level_id"),
+                            f"narrow landing {w:.2f} m: {r.get('id')} '{_label(r) or '-'}' in front of the stair is "
+                            f"under the {need:g} m a landing needs; kept as its own room because "
+                            f"{', '.join(n.get('ways_in') or []) or 'a drawn way in'} open(s) into it (check the "
+                            f"stair's footprint against its last drawn riser, or the drawing)",
+                            _centre(r), [r.get("id")], width_m=round(w, 3)))
+    return out
+
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
@@ -1396,6 +1424,7 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += mirror_twins(building)
     out += wall_across_passage(building)
     out += mass
+    out += narrow_landing(building)            # 13 Nov 2026
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

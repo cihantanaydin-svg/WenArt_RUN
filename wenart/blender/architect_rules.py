@@ -640,6 +640,14 @@ def stair_parts(building: dict, level: dict) -> list[tuple]:
         elif land.get("role") == "mid":
             parts = [(land.get("polygon"), land.get("z"))]
         else:
+            parts = []
+        # 12 Nov 2026 (review B2-ST4): the other turns of ordered flights (``parametric.turn_treads``)
+        for t in p.get("turns") or []:
+            if t.get("role") == "winders":
+                parts += [(w.get("polygon"), w.get("top")) for w in t.get("winders") or []]
+            else:
+                parts.append((t.get("polygon"), t.get("z")))
+        if not parts:
             continue
         for poly, top in parts:
             if isinstance(poly, list) and len(poly) >= 3 and top is not None:

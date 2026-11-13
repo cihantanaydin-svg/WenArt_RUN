@@ -1123,15 +1123,30 @@ def _inside_rect_part(it: _S, rect) -> bool:
 # --------------------------------------------------------------------------
 
 def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: int,
-                      units_to_m: Optional[float] = None, dimension_ids=frozenset()
-                      ) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
+                      units_to_m: Optional[float] = None, dimension_ids=frozenset(), wall_strokes=(), outdoor_points=(),
+                      room_points=()) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
     """Merge wall runs, find and classify gaps, extend free-end walls that host a drawn door or window.
 
     ``strokes_m`` are the page's strokes in page metres **without** the wall primitives (hatch lines, fills).
     Returns ``(walls, openings, gap_log, owned)``: the merged/extended walls (page metres), the openings on them
     (page metres; ``box`` in page units when ``units_to_m`` is given), one log dict per gap and free end, and the
-    ids of the strokes the openings own.
+    ids of the strokes the openings own. 6 Nov 2026: ``wall_strokes`` (the wall primitives' strokes, page metres)
+    let a door leaf read as a thin wall go back to the door (``leaf_walls``). 12 Nov 2026: ``outdoor_points`` (page
+    metres: the outdoor-space labels, balcony, terrace, courtyard ...) mark closed spaces open to the sky
+    (``_outside_test``); ``room_points`` (the labels of rooms one lives in) mark closed spaces that never are.
     """
+    leaf_log: list[dict] = []
+    leaves = leaf_walls(walls, wall_strokes, strokes_m)
+    if leaves:
+        by_id = {st.id: st for st in wall_strokes}
+        for k in sorted(leaves):
+            w = walls[k]
+            leaf_log.append({"kind": "wall_piece", "wall": str(w.entity),
+                             "note": f"a door leaf, not a wall: a {math.dist(w.start, w.end):.2f} x "
+                                     f"{float(w.thickness):.3f} m piece drawn on the door layer "
+                                     f"{by_id[leaves[k][0]].layer} (its strokes go back to the door symbol)"})
+        strokes_m = list(strokes_m) + [by_id[i] for k in sorted(leaves) for i in leaves[k]]
+        walls = [w for k, w in enumerate(walls) if k not in leaves]
     theta = dominant_angle(walls)
     pieces, others = pieces_of(walls, theta)
     # 3 Nov 2026 (UL261, UL296): the drawing's notation (axis lines, dimensions and their tick marks) is never a
@@ -1157,7 +1172,9 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     for i, run in enumerate(runs):
         for q in run:
             q.run = i
-    ctx = _Ctx(file_rel, page_no, units_to_m, theta, raster)
+    ctx = _Ctx(file_rel, page_no, units_to_m, theta, raster, window_symbols=window_symbols(strokes_m))
+    if wall_strokes:
+        ctx.rest_index = StrokeIndex([st for st in strokes_m if st.id not in notation] + list(wall_strokes), theta)
     owned: set[str] = set()
     gaps: list[Gap] = []
     merge_after: dict[int, set[int]] = {}        # run -> positions i where pieces i and i+1 join
@@ -1380,14 +1397,80 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
         log.append(entry)
 
     # Continuous-wall symbols (synthetic convention, raster double-line walls).
-    cont_doors, cont_windows = _continuous_symbols(out_walls, index, owned, theta, ctx, openings, exterior)
+    cont_doors, cont_windows = _continuous_symbols(out_walls, index, owned, theta, ctx, openings, inner_check=True,
+                                                   outdoor=outdoor_points, rooms=room_points)
     openings.extend(cont_doors)
     openings.extend(cont_windows)
     for o in cont_doors + cont_windows:
         log.append({"kind": "continuous", "class": o.kind, "center": list(o.center), "width": o.width,
                     "entity": o.entity})
     log.extend(ctx.dropped)
+    log.extend(leaf_log)
     return out_walls, openings, log, owned
+
+
+LEAF_WALL_MAX_M = LEAF_WIDTH_M + 0.02    # 6 Nov 2026: a door leaf read as a wall is at most this thick ...
+LEAF_WALL_MIN_LEN_M = 0.4                # ... and at least this long (a leaf, not a frame or a jamb block)
+
+
+LEAF_WALL_MAX_LEN_M = CONTINUOUS_RADIUS_M[1] * LEAF_LENGTH[1]   # 12 Nov 2026: ... and at most a door leaf long
+
+
+def _stroke_len(st: Stroke) -> float:
+    return sum(math.dist(a, b) for a, b in zip(st.pts, st.pts[1:]))
+
+
+def leaf_walls(walls: list[WallItem], wall_strokes, strokes_m=()) -> dict[int, list[str]]:
+    """6 Nov 2026 (real03: the bedrooms' door blocks draw the open leaf as a 0.80 x 0.05 m rectangle on the door
+    layer; the wall mask read it as a thin wall, so the swing had no leaf and three bedrooms and a flat's entrance had
+    no door): ``{wall index: its stroke ids}`` of the walls that are door leaves: at most ``LEAF_WALL_MAX_M`` thick and
+    ``LEAF_WALL_MAX_LEN_M`` long, none of their strokes on a layer that draws walls, and their strokes on a door layer
+    or in a block named for a door (``_on_door_layer``) running ``LEAF_WALL_MIN_LEN_M`` at least along the piece (12 Nov
+    2026, review B-r03-leaf-incomplete: real03's fire-stair and safety-lobby leaves carry a longer background-view
+    line); (review B-OPN-10: a WC partition or a sliding screen on the door layer is no leaf) a door swing among
+    ``strokes_m`` is hinged at one end of that run, its radius the run's length (``LEAF_LENGTH``) and its sweep a
+    door's (``SWEEP_DEG``)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if not wall_strokes:
+        return {}
+    by_id = {st.id: st for st in wall_strokes}
+    cands = {}
+    for k, w in enumerate(walls):
+        length = math.dist(w.start, w.end)
+        if float(w.thickness) > LEAF_WALL_MAX_M or not 0 < length <= LEAF_WALL_MAX_LEN_M:
+            continue
+        ids = [e.strip() for e in str(w.entity or "").split(",") if e.strip()]
+        sts = [by_id.get(i) for i in ids]
+        if not ids or any(st is None for st in sts) or any(LN.draws_walls(st.layer) for st in sts):
+            continue
+        door = [q for st in sts if _on_door_layer(st) for q in st.pts]
+        if not door:
+            continue
+        ux, uy = (w.end[0] - w.start[0]) / length, (w.end[1] - w.start[1]) / length
+        proj = [(q[0] - w.start[0]) * ux + (q[1] - w.start[1]) * uy for q in door]
+        lo, hi = max(min(proj), 0.0), min(max(proj), length)
+        if hi - lo >= LEAF_WALL_MIN_LEN_M:
+            cands[k] = (ids, [(w.start[0] + ux * t, w.start[1] + uy * t) for t in (lo, hi)])
+    if not cands:
+        return {}
+    swings = []
+    for st in strokes_m:
+        if st.kind not in ("arc", "curve", "polyline", "circle") or len(st.pts) < 4:
+            continue
+        if st.arc is None and st.kind == "polyline" and len(st.pts) < 8:
+            continue
+        arc = arc_of(st.pts)
+        if arc is not None and SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]:
+            swings.append(arc)
+    out = {}
+    for k, (ids, ends) in cands.items():
+        run = math.dist(*ends)
+        reach = HINGE_M + float(walls[k].thickness)
+        if any(LEAF_LENGTH[0] * a["radius"] <= run <= LEAF_LENGTH[1] * a["radius"]
+               and min(math.dist(a["center"], e) for e in ends) <= reach for a in swings):
+            out[k] = ids
+    return out
 
 
 def openings_on_walls(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: Optional[int],
@@ -1416,6 +1499,10 @@ class _Ctx:
     raster: bool
     # Fix round after P6b, review: the continuous-wall window candidates dropped for want of glass (gap log entries)
     dropped: list = field(default_factory=list)
+    # 12 Nov 2026 (review B2 FC-04): the page draws its windows with symbols of their own (``window_symbols``)
+    window_symbols: bool = False
+    # 12 Nov 2026 (review B2 FC-06): the strokes a gap's rest is read from, the wall primitives' among them
+    rest_index: object = None
 
     def evidence(self, method: str, confidence: float, entity: str, note: Optional[str] = None,
                  box_units: Optional[list] = None) -> dict:
@@ -1926,6 +2013,80 @@ def _exterior_test(walls: list[WallItem]):
     return touches
 
 
+OUTSIDE_CLOSE_MAX_M = 3.0      # 12 Nov 2026: openings up to this wide (GAP_MAX_M) close the building's outline ...
+OUTSIDE_PROBE_M = 0.30         # ... and a point this far past a wall face tells which space the face looks into
+OUTSIDE_PROBE_AT = (0.25, 0.5, 0.75)   # probes along the stretch (a cross wall or a column may stand at one of them)
+
+
+OUTSIDE_ENTRANCE_MIN_M = 0.60  # 12 Nov 2026 (review B2-GEN-01): a gap this wide may be a room's way in (a door's width)
+
+
+def _entrance(o: OpeningItem) -> bool:
+    """A door, or a gap at least ``OUTSIDE_ENTRANCE_MIN_M`` wide that is no window (12 Nov 2026, review B2-GEN-01: a
+    room's entrance read as 'unclassified gap content' is still its way in; a gap holding a window's frame lines,
+    ``no_glass``, is not)."""
+    if o.virtual:
+        return False
+    if o.kind == "door":
+        return True
+    ev = o.evidence if isinstance(o.evidence, dict) else {}
+    return o.kind == "opening" and float(o.width) >= OUTSIDE_ENTRANCE_MIN_M and ev.get("rule") != "no_glass"
+
+
+def _outside_test(walls: list[WallItem], openings: list[OpeningItem], outdoor=(), rooms=()):
+    """12 Nov 2026 (review B-OPN-03, L2, L5): a function telling whether page-metre probe points past a wall's faces
+    look outside. The building's outline is closed at its doors and windows (openings up to ``OUTSIDE_CLOSE_MAX_M``:
+    an open door gap no longer lets the outside into the rooms behind it, real06's pier between two doors). Outside is
+    what lies past that outline, and every face it encloses that is open to the sky: a closed face no door or gap of a
+    door's width enters (a light well, a shaft) or one holding an outdoor-space label (``outdoor``: balcony, terrace,
+    courtyard ... points, ``levels.outdoor.space_kind``), never one holding the label of a room one lives in (``rooms``,
+    review B2-GEN-01). Faces, not holes (review B2 FC-02, real15: the sheet frame read as walls round the building,
+    its 1256 m2 hole holding the balconies' labels): a hole's face is the hole less the filled outlines of the wall
+    parts inside it, and a hole holding a closed building (a part with faces of its own: a frame, a plot wall, a
+    parapet round it) is outside."""
+    from wenart.ingest.generic import topology as TP
+
+    closing = [o for o in openings if not o.virtual and float(o.width) <= OUTSIDE_CLOSE_MAX_M]
+    parts = TP._parts(TP.bridged_union(walls, closing)) if walls else []
+    if not parts:
+        return lambda points: False
+    outlines = [Polygon(q.exterior) for q in parts]
+    reps = [q.representative_point() for q in parts]
+    doors = [d.buffer(0.01) for d in (TP.opening_polygon(o, walls) for o in closing if _entrance(o)) if d is not None]
+    sky, pieces = [], []
+    for i, part in enumerate(parts):
+        mine = outlines[i]
+        for ring in part.interiors:
+            h = Polygon(ring)
+            nested = [j for j in range(len(parts)) if j != i and h.contains(reps[j])]
+            face = h.difference(unary_union([outlines[j] for j in nested])) if nested else h
+            if face.is_empty:
+                continue
+            # 13 Nov 2026 (review B3C-01 / B3-FC02-CORE: a free-standing core, shaft or column ring inside a room made
+            # the room sky): the ground round a building inside a loop is entered by none of the loop's own doors; a
+            # hall round a core is entered through its part's own doors
+            inner = part.buffer(-0.02)
+            if any(parts[j].interiors for j in nested) \
+                    and not any(d.intersects(face) and d.intersects(inner) for d in doors):
+                sky.append(face)                 # the ground between a loop and the building inside it
+                mine = mine.difference(face)
+                continue
+            if any(face.contains(Point(q)) for q in rooms):
+                continue                         # a room one lives in, whatever the reading made of its door
+            if any(face.contains(Point(q)) for q in outdoor) or not any(d.intersects(face) for d in doors):
+                sky.append(face)
+        pieces.append(mine)
+    filled = unary_union(pieces)
+
+    def outside(points) -> bool:
+        for q in points:
+            pt = Point(q)
+            if not filled.contains(pt) or any(h.contains(pt) for h in sky):
+                return True
+        return False
+    return outside
+
+
 def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
     theta = ctx.theta
     mid = (g.a + g.b) / 2.0
@@ -2049,15 +2210,322 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
 # Continuous-wall symbols
 # --------------------------------------------------------------------------
 
+COPY_TOL_M = 0.01               # 12 Nov 2026: a stroke this close (its end points) on the same layer is a copy
+
+
+def _copy_key(st: Stroke) -> tuple:
+    """The layer and the end points (in either order, to ``COPY_TOL_M``) of a stroke: copies share it."""
+    a, b = st.pts[0], st.pts[-1]
+    q = lambda p: (round(p[0] / COPY_TOL_M), round(p[1] / COPY_TOL_M))
+    return (str(st.layer), tuple(sorted((q(a), q(b)))), len(st.pts) > 2)
+
+
+REST_WALL_FACES = 2             # 12 Nov 2026: wall-layer lines at this many offsets along a stretch close it (two faces)
+
+
+def _rest_parts(index: StrokeIndex, host, lo: float, hi: float, owned=frozenset()) -> list[tuple[float, float, str]]:
+    """12 Nov 2026 (review B2 FC-01 / REG-1 / REG-4 / FC-06): what the drawing says over ``lo``-``hi`` along ``host``
+    (frame coordinates), from the lines running along its band: 'wall' where lines of wall-drawing layers (wall,
+    plaster, structure: a pier's faces, a column) run at ``REST_WALL_FACES`` offsets or more; 'window' where a window,
+    glass or sill line or a window block's line runs; else 'open'. Consecutive parts of one kind are merged (pure)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if hi - lo <= 1e-6:
+        return []
+    across = host.t / 2.0 + BAND_SLACK_M
+    rect = (lo, host.c - across, hi, host.c + across) if host.axis == "h" else (host.c - across, lo, host.c + across, hi)
+    segs = []
+    for it in index.query(rect, predicate="intersects"):
+        if it.st.id in owned:
+            continue
+        roles = LN.layer_roles(it.st.layer)
+        glazing = bool(roles & WINDOW_SYMBOL_ROLES) or _window_block(it.st)
+        walling = not glazing and LN.draws_walls(it.st.layer)
+        if not (glazing or walling):
+            continue
+        pts = it.pts + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])
+        for a, b in zip(pts, pts[1:]):
+            if not _parallel(a, b, host.axis):
+                continue
+            off = (a[1] + b[1]) / 2 - host.c if host.axis == "h" else (a[0] + b[0]) / 2 - host.c
+            if abs(off) > across:
+                continue
+            raw = sorted((a[0], b[0])) if host.axis == "h" else sorted((a[1], b[1]))
+            u, v = max(raw[0], lo), min(raw[1], hi)
+            if v - u > 0.01:
+                segs.append((u, v, round(off, 3), "window" if glazing else "wall"))
+    cuts = sorted({lo, hi} | {x for sg in segs for x in sg[:2]})
+    out: list = []
+    for u, v in zip(cuts, cuts[1:]):
+        m = (u + v) / 2.0
+        here = [sg for sg in segs if sg[0] <= m <= sg[1]]
+        if len({sg[2] for sg in here if sg[3] == "wall"}) >= REST_WALL_FACES:
+            kind = "wall"
+        elif any(sg[3] == "window" for sg in here):
+            kind = "window"
+        else:
+            kind = "open"
+        if out and out[-1][2] == kind:
+            out[-1] = (out[-1][0], v, kind)
+        else:
+            out.append((u, v, kind))
+    return out
+
+
+def _covered(existing: list, k: int, host, lo: float, hi: float, theta: float) -> bool:
+    """Another opening of ``host``'s line than ``existing[k]`` holds half of ``lo``-``hi`` or more (a gap read twice on
+    two runs: its rest is read already)."""
+    for j, o in enumerate(existing):
+        if j == k or o.virtual:
+            continue
+        oc = _rot(o.center, -theta)
+        if abs((oc[1] if host.axis == "h" else oc[0]) - host.c) > host.t / 2.0 + BAND_SLACK_M:
+            continue
+        a_deg = (0.0 if host.axis == "h" else 90.0) + theta
+        if abs((float(o.rotation_deg) - a_deg + 90.0) % 180.0 - 90.0) > 10.0:
+            continue
+        oa = oc[0] if host.axis == "h" else oc[1]
+        cover = min(hi, oa + float(o.width) / 2.0) - max(lo, oa - float(o.width) / 2.0)
+        if o.kind in ("window", "door") and cover >= 0.5 * (hi - lo):
+            return True
+    return False
+
+
+def _door_in_gap(existing: list, host, m_along: float, w: float, theta: float, ctx, ev: dict,
+                 index: Optional[StrokeIndex] = None, owned=frozenset(), door_name: str = "") -> Optional[int]:
+    """A gap opening of ``host`` (an unclassified or empty gap, along its line) that holds the door's span
+    (``m_along`` +- ``w``/2, the frame) keeps the part beside the door that the drawing leaves open, in place in
+    ``existing`` (12 Nov 2026, review B-dup). Review B2 (FC-01, REG-1, REG-4, FC-06): the rest is read again from the
+    lines over it (``_rest_parts``): a pier's or a column's faces are wall, a window's glass or sill lines make it a
+    window, and only an open part of ``GAP_MIN_M`` stays a gap, marked the door's leftover (evidence ``rest_of``: the
+    facade-gap and unsure-passage rules leave it alone). With no part left the gap is the door's: its index is
+    returned, the door takes its place in ``existing``. Noted in both evidences."""
+    lo, hi = m_along - w / 2.0, m_along + w / 2.0
+    for k, o in enumerate(existing):
+        if o.virtual or o.kind != "opening":
+            continue
+        oc = _rot(o.center, -theta)
+        across = (oc[1] if host.axis == "h" else oc[0]) - host.c
+        if abs(across) > host.t / 2.0 + BAND_SLACK_M:
+            continue
+        a_deg = (0.0 if host.axis == "h" else 90.0) + theta
+        if abs((float(o.rotation_deg) - a_deg + 90.0) % 180.0 - 90.0) > 10.0:
+            continue
+        oa = oc[0] if host.axis == "h" else oc[1]
+        g0, g1 = oa - float(o.width) / 2.0, oa + float(o.width) / 2.0
+        if not (g0 <= lo + 0.05 and hi - 0.05 <= g1):
+            continue
+        note = f"a door ({w:.2f} m) drawn in the {float(o.width):.2f} m gap of its wall"
+        ev["note"] = (str(ev.get("note") or "") + f"; {note}: it takes its part of the gap").lstrip("; ")
+        parts = []
+        for a, b in ((g0, lo), (hi, g1)):
+            if index is None:
+                parts.append((a, b, "open"))
+            else:
+                parts += _rest_parts(index, host, a, b, owned)
+        keep = [q for q in parts if q[2] != "wall" and q[1] - q[0] >= GAP_MIN_M
+                and not _covered(existing, k, host, q[0], q[1], theta)]
+        if not keep:
+            return k                         # the gap is the door's (its rest wall, or read already)
+        p0, p1, kind = max(keep, key=lambda q: (q[2] == "window", q[1] - q[0]))
+        c = ((p0 + p1) / 2.0, host.c) if host.axis == "h" else (host.c, (p0 + p1) / 2.0)
+        corners = [(p0, host.c - host.t / 2), (p1, host.c + host.t / 2)] if host.axis == "h" else \
+            [(host.c - host.t / 2, p0), (host.c + host.t / 2, p1)]
+        bx = ctx.box([_rot(q, theta) for q in corners])
+        walled = sum(q[1] - q[0] for q in parts if q[2] == "wall")
+        told = (f"{note}: the rest of the gap, {p1 - p0:.2f} m"
+                + (f" ({walled:.2f} m of it drawn as wall faces: wall)" if walled > 0.01 else ""))
+        if kind == "window":
+            wev = ctx.evidence("vector", CONF_WINDOW, o.entity, box_units=bx)
+            wev.update(note=f"{told}: window, its glass or sill lines drawn", rule="gap_rest_window")
+            existing[k] = OpeningItem(kind="window", width=round(p1 - p0, 4), center=_r(_rot(c, theta)),
+                                      rotation_deg=round(float(o.rotation_deg) % 180.0, 3), box=bx, entity=o.entity,
+                                      evidence=wev, height=WINDOW_HEIGHT_M, sill=WINDOW_SILL_M,
+                                      assumed=["height", "sill_height"])
+            return None
+        oev = dict(o.evidence) if isinstance(o.evidence, dict) else {}
+        oev["note"] = (str(oev.get("note") or "") + f"; {told}").lstrip("; ")
+        oev["rest_of"] = door_name or f"the door at {m_along:.2f} along its wall"
+        existing[k] = dataclasses.replace(o, width=round(p1 - p0, 4), center=_r(_rot(c, theta)), box=bx, evidence=oev)
+        return None
+    return None
+
+
+SIDELIGHT_MIN_M = 0.30          # 13 Nov 2026: a window's part beside a door this wide stays a side light
+DOOR_OVER_WINDOW_M = 0.05       # ... a door overlapping a window on its wall line by more than this keeps its stretch
+SAME_LINE_M = 0.20              # ... both on one wall line: their centre lines this close
+
+
+def windows_off_doors(openings: list) -> tuple[list, list[str]]:
+    """13 Nov 2026 (review S1-03c: real03's 2.90 m entrance screen read as one window over its two 0.90 m doors): a
+    window and a door on one wall line (parallel, centre lines within ``SAME_LINE_M``) whose spans overlap by more than
+    ``DOOR_OVER_WINDOW_M``: the door keeps its stretch, the window is cut back to its parts beside the doors, each at
+    least ``SIDELIGHT_MIN_M`` wide kept as a side light, none left: the window goes. ``(openings, notes)``; the cut
+    windows keep their drawn span in their evidence (pure)."""
+    doors = [o for o in openings if o.kind == "door" and not getattr(o, "virtual", False)]
+    out, notes = [], []
+    for w in openings:
+        if w.kind != "window" or getattr(w, "virtual", False) or not doors:
+            out.append(w)
+            continue
+        a = math.radians(float(w.rotation_deg))
+        ax = (math.cos(a), math.sin(a))
+        half = float(w.width) / 2.0
+        cuts = []
+        for d in doors:
+            if abs((float(d.rotation_deg) - float(w.rotation_deg) + 90.0) % 180.0 - 90.0) > 10.0:
+                continue
+            dv = (d.center[0] - w.center[0], d.center[1] - w.center[1])
+            if abs(dv[0] * ax[1] - dv[1] * ax[0]) > SAME_LINE_M:
+                continue
+            t = dv[0] * ax[0] + dv[1] * ax[1]
+            lo, hi = t - float(d.width) / 2.0, t + float(d.width) / 2.0
+            if min(hi, half) - max(lo, -half) > DOOR_OVER_WINDOW_M:
+                cuts.append((lo, hi))
+        if not cuts:
+            out.append(w)
+            continue
+        parts, cur = [], -half
+        for lo, hi in sorted(cuts):
+            if lo > cur:
+                parts.append((cur, min(lo, half)))
+            cur = max(cur, hi)
+        if cur < half:
+            parts.append((cur, half))
+        keep = [(lo, hi) for lo, hi in parts if hi - lo >= SIDELIGHT_MIN_M]
+        drawn = f"{float(w.width):.2f} m at ({w.center[0]:.2f}, {w.center[1]:.2f})"
+        for lo, hi in keep:
+            mid = (lo + hi) / 2.0
+            ev = dict(w.evidence or {})
+            ev.update(rule="door_over_window", drawn_width=round(float(w.width), 3),
+                      drawn_center=[round(c, 4) for c in w.center],
+                      note=(str(ev.get("note") or "") + f"; the side light of the window {drawn} beside the door(s) "
+                            f"read over it (adjusted by code: the doors keep their stretch)").lstrip("; "))
+            out.append(dataclasses.replace(w, width=round(hi - lo, 3), evidence=ev,
+                                           center=(round(w.center[0] + ax[0] * mid, 4),
+                                                   round(w.center[1] + ax[1] * mid, 4))))
+        notes.append(f"the window {drawn} over {len(cuts)} door(s) on its wall line: "
+                     + (f"{len(keep)} side light(s) kept" if keep else "dropped, the doors keep the stretch"))
+    return out, notes
+
+
+def doors_in_gaps(walls: list[WallItem], openings: list[OpeningItem], strokes_m: list[Stroke], file_rel: str,
+                  page_no: int, units_to_m: Optional[float] = None) -> Optional[list[OpeningItem]]:
+    """12 Nov 2026 (review B2 FC-06 / REG-3, real07 L1: a 1.72 m gap read over the 0.90 m door the gap classifier and
+    the size tag made): every drawn door, whatever reader made it, lying in a gap of its own wall takes its part of the
+    gap (``_door_in_gap``, the rest read from the drawing). Returns the new openings, or None when nothing changed."""
+    gaps = [o for o in openings if not o.virtual and o.kind == "opening"]
+    # (a door read from its swing or set by its size tag; never one read from parallel leaf lines alone: real06's
+    # kitchen gap, user 29 Oct 2026: "is there a door behind it?")
+    doors = [o for o in openings if not o.virtual and o.kind == "door"
+             and (o.operation in ("swing", "double") or str(o.type_raw or "").startswith("door size tag"))]
+    if not gaps or not doors or not walls:
+        return None
+    theta = dominant_angle(walls)
+    pieces, _ = pieces_of(walls, theta)
+    index = StrokeIndex(strokes_m, theta)
+    raster = bool(strokes_m) and all(st.source == "raster" for st in strokes_m)
+    ctx = _Ctx(file_rel, page_no, units_to_m, theta, raster)
+    out = list(openings)
+    changed = False
+    for d in doors:
+        if d not in out:
+            continue
+        c = _rot(d.center, -theta)
+        hosts = [p for p in pieces if abs(((float(d.rotation_deg) - ((0.0 if p.axis == "h" else 90.0) + theta))
+                                            + 90.0) % 180.0 - 90.0) <= 10.0
+                 and abs((c[1] if p.axis == "h" else c[0]) - p.c) <= p.t / 2.0 + BAND_SLACK_M]
+        if not hosts:
+            continue
+        host = min(hosts, key=lambda p: abs((c[1] if p.axis == "h" else c[0]) - p.c))
+        along = c[0] if host.axis == "h" else c[1]
+        # 13 Nov 2026 (review B3C-07: the door's evidence was written in place, and kept its note when core threw the
+        # result away): the note travels on a copy, with the door, in the result only
+        ev = dict(d.evidence) if isinstance(d.evidence, dict) else {}
+        before = list(out)
+        k = _door_in_gap(out, host, along, float(d.width), theta, ctx, ev, index=index,
+                         door_name=f"the {float(d.width):.2f} m door at ({d.center[0]:.2f}, {d.center[1]:.2f})")
+        if k is not None:
+            out.pop(k)                       # the gap was the door's: merged into it (noted in the door's evidence)
+            changed = True
+        elif out != before:
+            changed = True
+        else:
+            continue
+        i = next((n for n, x in enumerate(out) if x is d), None)
+        if i is not None:
+            out[i] = dataclasses.replace(d, evidence=ev)
+    return out if changed else None
+
+
+def _double_doors(doors: list, leaves: list, theta: float, ctx) -> list:
+    """12 Nov 2026 (review B-OPN-07 / B-r16-double: real16's '170/210' entrance, two leaves hinged at the jambs meeting
+    in the middle, read as two doors, one then widened by the tag past the wall's end): two continuous-wall doors on
+    one wall whose leaves close onto one point (their arcs' closed ends within ``END_POINT_TOL_M``) are one double door
+    from hinge to hinge, opening to the side of the first."""
+    out, used = [], set()
+    for i in range(len(doors)):
+        if i in used:
+            continue
+        hi, ci, host_i, side_i, sts_i = leaves[i]
+        pair = None
+        for j in range(i + 1, len(doors)):
+            hj, cj, host_j, _sj, sts_j = leaves[j]
+            if j in used or host_j is not host_i or math.dist(ci, cj) > END_POINT_TOL_M:
+                continue
+            pair = j
+            break
+        if pair is None:
+            out.append(doors[i])
+            continue
+        used.add(pair)
+        hj, cj, _h, _s, sts_j = leaves[pair]
+        a, b = doors[i], doors[pair]
+        w = math.dist(hi, hj)
+        mid = ((hi[0] + hj[0]) / 2.0, (hi[1] + hj[1]) / 2.0)
+        mid = (mid[0], host_i.c) if host_i.axis == "h" else (host_i.c, mid[1])
+        center = _rot(mid, theta)
+        ids = [e for o in (a, b) for e in str(o.evidence.get("entity") or o.entity).split(",") if e]
+        ev = ctx.evidence("vector", CONF_DOOR_LEAF, ",".join(ids), box_units=None)
+        ev["note"] = (f"a double door: two leaves of {a.width:.2f} and {b.width:.2f} m hinged {w:.2f} m apart, closing "
+                      f"onto one point")
+        side_page = _rot(side_i, theta)
+        probe = (center[0] + side_page[0] * DOOR_SWING_PROBE, center[1] + side_page[1] * DOOR_SWING_PROBE)
+        axis_deg = (0.0 if host_i.axis == "h" else 90.0) + theta
+        box = [min(a.box[0], b.box[0]), min(a.box[1], b.box[1]), max(a.box[2], b.box[2]), max(a.box[3], b.box[3])]
+        item = OpeningItem(kind="door", width=round(w, 4), center=_r(center),
+                           rotation_deg=round(_door_rotation(axis_deg, side_page) % 360, 3), box=box, entity=ids[0],
+                           evidence=ev, swing_point=_r(probe), height=DOOR_HEIGHT_M, assumed=["height"])
+        _door_operation(item, sts_i + sts_j, True)
+        out.append(item)
+    return out
+
+
 def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, theta: float, ctx: _Ctx,
-                        existing: list[OpeningItem], exterior=None) -> tuple[list[OpeningItem], list[OpeningItem]]:
+                        existing: list[OpeningItem], inner_check: bool = False, outdoor=(), rooms=()
+                        ) -> tuple[list[OpeningItem], list[OpeningItem]]:
     pieces, _ = pieces_of(walls, theta)
     doors: list[OpeningItem] = []
     # Doors: arc + leaf with the end-point rule, hinged in a wall band.
     arcs = [(it, arc) for it, arc in _arcs_in(index.items) if it.st.id not in owned
             and (CONTINUOUS_RADIUS_M[0] if _on_door_layer(it.st) else CONTINUOUS_RADIUS_ANY_M) <= arc["radius"]
             <= CONTINUOUS_RADIUS_M[1] and SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]]
+    # 12 Nov 2026 (review B-r10-dups: real10 L-1 draws two doors twice, identical arcs on one layer; the gap took one
+    # copy, the other became a second door on the same gap): an exact copy of a swing already used is no door
+    leaves: list = []                                    # per door of ``doors``: hinge, closed end, host, strokes
+    copies = {}
+    for it2, _a in _arcs_in(index.items):
+        copies.setdefault(_copy_key(it2.st), []).append(it2.st.id)
     for it, arc in arcs:
+        twins = [i for i in copies.get(_copy_key(it.st), []) if i != it.st.id and i in owned]
+        if twins:
+            owned.add(it.st.id)
+            ctx.dropped.append({"kind": "continuous", "class": "none", "rule": "duplicate_symbol",
+                                "center": list(_out(arc["center"], theta)), "width": round(arc["radius"], 4),
+                                "strokes": [it.st.id],
+                                "note": f"an exact copy of the door swing {twins[0]} (layer {it.st.layer}, the same end "
+                                        f"points within {COPY_TOL_M * 100:.0f} cm) drawn twice: one door"})
+            continue
         hinge = arc["center"]
         hosts = []
         for p in pieces:
@@ -2120,27 +2588,62 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
         ids = [it.st.id] + (leaf_ids or [leaf.st.id])
         owned.update(ids)
         ev = ctx.evidence("vector", CONF_DOOR_LEAF, ",".join(ids), box_units=bx)
+        # 12 Nov 2026 (review B-dup / B-R2: real09's door inside the 1.73 m gap opening of its wall, real10 L-1's in the
+        # 1.57 m one): a door drawn in a gap opening of its own wall takes its part of the gap
+        m_along = mid[0] if host.axis == "h" else mid[1]
+        in_gap = _door_in_gap(existing, host, m_along, w, theta, ctx, ev, index=ctx.rest_index or index)
         doors.append(OpeningItem(kind="door", width=round(w, 4), center=_r(center),
                                  rotation_deg=round(rotation % 360, 3), box=bx, entity=ids[0], evidence=ev,
                                  swing_point=_r(probe), height=DOOR_HEIGHT_M, assumed=["height"]))
         _door_operation(doors[-1], [it.st, leaf.st], False)
-    windows = _continuous_windows(pieces, index, owned, theta, ctx, existing + doors, exterior)
+        if in_gap is not None:
+            existing[in_gap] = doors.pop()               # the gap's place in the openings: the door
+        else:
+            leaves.append((hinge_pt, closed_end, host, side, [it.st, leaf.st]))
+    doors = _double_doors(doors, leaves, theta, ctx)
+    outside = _outside_test(walls, existing + doors, outdoor, rooms) if inner_check and not ctx.raster else None
+    windows = _continuous_windows(pieces, index, owned, theta, ctx, existing + doors, outside)
     return doors, windows
 
 
-WINDOW_LAYER_WORDS = ("PENCERE", "WINDOW", "GLAZ", "GLASS", "CAM", "FENETRE", "VENTANA", "FENSTER")
+GLAZING_ROLES = frozenset({"window", "glass"})
+WINDOW_SYMBOL_ROLES = GLAZING_ROLES | {"sill"}
+
+
+def window_symbols(strokes) -> bool:
+    """12 Nov 2026 (review B2 FC-04): the page draws its windows with symbols of their own: a line on a window, glass
+    or sill layer, or one inside a block named for a window (``layer_names.layer_roles``)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    seen: dict = {}
+    for st in strokes or ():
+        key = (st.layer, st.block)
+        if key not in seen:
+            seen[key] = bool(LN.layer_roles(st.layer) & WINDOW_SYMBOL_ROLES) or _window_block(st)
+        if seen[key]:
+            return True
+    return False
 
 
 def wall_face_layer(layer: Optional[str]) -> bool:
     """6 Nov 2026: a layer that draws walls (``dxf_generic.is_wall_hint_layer``: DUVAR, WALL, plaster, concrete) and
-    names no window or glass (``WINDOW_LAYER_WORDS``: 'DUVAR-PENCERE' or 'A-WALL-GLAZ' draw windows): its lines are a
-    wall's faces."""
+    names no window or glass (12 Nov 2026, review B-OPN-09: any word of the shared layer table's window and glass roles,
+    ``layer_names.layer_roles``, word by word: 'DUVAR-PENC', 'MUR-VERRE' or 'A-WALL-GLAZ' draw windows): its lines are
+    a wall's faces."""
     from wenart.ingest.dxf_generic import is_wall_hint_layer
+    from wenart.ingest.generic import layer_names as LN
 
     if not layer or not is_wall_hint_layer(layer):
         return False
-    folded = layer.translate(_FOLD).upper()
-    return not any(w in folded for w in WINDOW_LAYER_WORDS)
+    return not (LN.layer_roles(layer) & GLAZING_ROLES)
+
+
+def _window_block(st: Stroke) -> bool:
+    """12 Nov 2026 (review L5): a stroke inside a block named for a window or glass (its layer may be the wall layer
+    it was inserted on: block entities on layer 0 take the INSERT's layer)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    return any(LN.layer_roles(n) & GLAZING_ROLES for n in (st.block or "").split("/") if n)
 
 
 def _on_door_layer(st: Stroke) -> bool:
@@ -2178,7 +2681,7 @@ def _shape_leaf(it: _S, arc: dict, index: StrokeIndex, owned: set):
 
 
 def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, theta: float, ctx: _Ctx,
-                        existing: list[OpeningItem], exterior=None) -> list[OpeningItem]:
+                        existing: list[OpeningItem], outside=None) -> list[OpeningItem]:
     """>= 3 distinct parallel stroke offsets inside a wall band, one strictly inside it, or >= 2 strictly inside it,
     over >= 0.4 m."""
     out = []
@@ -2237,18 +2740,32 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
             corners_f = [(u, p.c - p.t / 2), (v, p.c + p.t / 2)] if p.axis == "h" else \
                 [(p.c - p.t / 2, u), (p.c + p.t / 2, v)]
             inner_wall = None
-            if exterior is not None and not ctx.raster and _framed_glass(framed, glass):
+            if ctx.window_symbols and not ctx.raster and _framed_glass(framed, glass):
+                # 12 Nov 2026 (review B2 FC-04, real06: its windows are PENCERE frames with DENIZLIK sills; the DUVAR
+                # pair between the plaster faces made three windows per floor of solid piers): on a page that draws its
+                # windows with symbols of their own, a stretch whose only glass is the wall's own face lines is no
+                # window, on an outer wall as on an inner one
+                own_glass = {o for o in glass if any(s[2] == o and (not wall_face_layer(s[3].st.layer)
+                                                                    or _window_block(s[3].st)) for s in own)}
+                if not own_glass:
+                    layers = sorted({str(s[3].st.layer) for s in own if s[2] in glass})
+                    inner_wall = (f"wall faces only: its {len(glass)} 'glass' line(s) along the {v - u:.2f} m stretch "
+                                  f"are the wall's own face lines (layer {', '.join(layers)}) on a page that draws its "
+                                  f"windows with their own symbols")
+            if inner_wall is None and outside is not None and not ctx.raster and _framed_glass(framed, glass):
                 # 6 Nov 2026 (real06 L1, C0064, user: "these windows are not making sense"): real06 draws a wall's
                 # structure on DUVAR and its plaster on SIVA, so the DUVAR pair lies strictly between the faces; on the
                 # short stretches beside the shower room's door, between its frame and a cross wall, that pair ends
                 # at both ends like a window's glass. An inner wall (its stretch touches no outer face of the walls)
                 # gets a window only from a symbol of its own: glass on a line off the wall layers (``wall_face_layer``)
-                fx0, fy0 = corners_f[0]
-                fx1, fy1 = corners_f[1]
-                rect_page = [_rot(q, theta) for q in ((fx0, fy0), (fx1, fy0), (fx1, fy1), (fx0, fy1))]
-                if not exterior(rect_page):
-                    own_glass = {o for o in glass if any(s[2] == o and not wall_face_layer(s[3].st.layer)
-                                                         for s in own)}
+                # (12 Nov 2026, review B-OPN-03/L2/L5: a stretch is inner when no probe past either face looks outside,
+                # ``_outside_test``; a line of a window block inserted on a wall layer is the window's own)
+                off = p.t / 2 + OUTSIDE_PROBE_M
+                probes = [_rot((u + f * (v - u), p.c + sg * off) if p.axis == "h" else (p.c + sg * off, u + f * (v - u)),
+                               theta) for f in OUTSIDE_PROBE_AT for sg in (-1.0, 1.0)]
+                if not outside(probes):
+                    own_glass = {o for o in glass if any(s[2] == o and (not wall_face_layer(s[3].st.layer)
+                                                                        or _window_block(s[3].st)) for s in own)}
                     if not own_glass:
                         layers = sorted({str(s[3].st.layer) for s in own if s[2] in glass})
                         inner_wall = (f"an inner wall: its {len(glass)} 'glass' line(s) along the {v - u:.2f} m stretch "
@@ -2265,7 +2782,8 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
                                              f"{len(glass)} glass between the faces (>= {WINDOW_LINES_MIN} and >= "
                                              f"{GLASS_MIN_LINES} needed): no window")})
                 if inner_wall:
-                    ctx.dropped[-1]["rule"] = "inner_wall_faces"
+                    ctx.dropped[-1]["rule"] = "wall_faces_only" if inner_wall.startswith("wall faces only") \
+                        else "inner_wall_faces"
                 continue
             bx = ctx.box([_rot(q, theta) for q in corners_f])
             axis_deg = ((0.0 if p.axis == "h" else 90.0) + theta) % 180.0

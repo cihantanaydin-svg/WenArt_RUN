@@ -36,10 +36,10 @@ ROLES.update({
              "PORTA", "PORTE-FENETRE"),
     # 4 Nov 2026 (real17: the window size tags on 'penc-yazi'): PENC, the short form of PENCERE
     "window": ("PENCERE", "PENCERELER", "PENC", "WINDOW", "WINDOWS", "FENSTER", "FENETRE", "FENETRES", "VENTANA",
-               "VENTANAS", "FINESTRA", "FINESTRE", "DOGRAMA", "GLAZING"),
+               "VENTANAS", "FINESTRA", "FINESTRE", "DOGRAMA", "GLAZING", "GLAZ"),     # GLAZ: the AIA layer A-GLAZ
     # 2 Nov 2026 (real03: the windbreak's glass screen on 'MYD - CAM-PER', its sliding doors on 'MYD - CAM')
-    "glass": ("CAM", "CAMLAR", "GLASS", "GLAS", "VERRE", "VETRO", "VIDRIO", "CURTAIN", "GIYDIRME", "VITRIN", "CAMEKAN",
-              "STOREFRONT"),
+    "glass": ("CAM", "CAMLAR", "CAMLI", "GLASS", "GLAS", "VERRE", "VETRO", "VIDRIO", "CURTAIN", "CURT", "GIYDIRME",
+              "VITRIN", "CAMEKAN", "STOREFRONT"),       # 12 Nov 2026 (review B2 FC-09): CURT, the AIA curtain-wall word
     # 3 Nov 2026 (real09: the kitchens' and bathrooms' tile grids on 'karo' were read as stairs)
     "finish": ("KARO", "SERAMIK", "FAYANS", "KAPLAMA", "TILE", "TILES", "TILING", "FLIESEN", "FLIESE", "CARRELAGE",
                "PISO", "PAVIMENTO", "PARKE", "PARQUET", "LAMINAT", "LAMINATE", "MERMER", "MARBLE"),
@@ -48,7 +48,7 @@ ROLES.update({
     "dimension": ("DIM", "DIMS", "DIMH", "DIMV", "DH", "DV", "OLCU", "OLCULER", "COTA", "COTAS", "BEMASSUNG",
                   "MASSE", "COTE", "COTES", "QUOTA", "QUOTE", "DIMENSION", "DIMENSIONS"),
     "axis": ("AKS", "AKSLAR", "AXIS", "AXES", "GRID", "GRIDS", "ACHSE", "ACHSEN", "RASTER", "EKSEN", "ASSE", "EJE"),
-    "stair": ("MERDIVEN", "STAIR", "STAIRS", "TREPPE", "ESCALIER", "ESCALERA", "SCALA", "BASAMAK"),
+    "stair": ("MERDIVEN", "MERD", "STAIR", "STAIRS", "TREPPE", "ESCALIER", "ESCALERA", "SCALA", "BASAMAK"),
     "section": ("KESIT", "SECTION", "SCHNITT", "COUPE", "CORTE", "SEZIONE"),
     "text": ("TEXT", "TEXTS", "YAZI", "YAZILAR", "TEXTE", "TEXTO", "TESTO", "NOTE", "NOTES", "ANNO"),
     "hatch": ("HATCH", "TARAMA", "SCHRAFFUR", "HACHURE", "RAYADO", "TRATTEGGIO"),
@@ -57,21 +57,42 @@ ROLES.update({
     # any other word of the name decides first (real03's '00_VİTRİFİYE AKS' draws axis lines)
     "sanitary": ("VITRIFIYE", "SIHHI", "SANITARY", "SANITAER", "SANITAR", "SANITAIRE", "SANITARIO", "SANITARIOS",
                  "SANITARI", "PLUMBING"),
+    # 12 Nov 2026 (review B2 FC-01/FC-04, real06: its windows' sills on 'DENIZLIK' on both faces): a window sill
+    "sill": ("DENIZLIK", "DENIZLIKLER", "SILL", "SILLS", "FENSTERBANK", "APPUI", "APPUIS", "DAVANZALE", "ALFEIZAR"),
 })
 WALL_ROLES: tuple[str, ...] = ("wall", "plaster", "structure")
 _WORD_RE = re.compile(r"[A-Z]+(?:-[A-Z]+)?")
+
+
+def _words(name: str) -> set[str]:
+    folded = B.fold_ascii(str(name)).upper().replace("_", " ").replace(".", " ")
+    return set(_WORD_RE.findall(folded)) | set(w for part in _WORD_RE.findall(folded) for w in part.split("-"))
 
 
 def layer_role(name: Optional[str]) -> Optional[str]:
     """The meaning of a layer name (the module docstring), None when no word of it is known."""
     if not name:
         return None
-    folded = B.fold_ascii(str(name)).upper().replace("_", " ").replace(".", " ")
-    words = set(_WORD_RE.findall(folded)) | set(w for part in _WORD_RE.findall(folded) for w in part.split("-"))
+    words = _words(name)
     for role, vocab in ROLES.items():
         if words & set(vocab):
             return role
     return None
+
+
+def layer_roles(name: Optional[str]) -> set[str]:
+    """12 Nov 2026 (review B-OPN-09): every role a word of the name has ('DUVAR-PENC': wall and window), where
+    ``layer_role`` gives the first only. A word written as a wall word and a word of another role in one ('DUVARCAM',
+    review B2 FC-09) has both roles."""
+    if not name:
+        return set()
+    words = _words(name)
+    roles = {role for role, vocab in ROLES.items() if words & set(vocab)}
+    for w in words:
+        for head in ROLES["wall"]:
+            if len(w) > len(head) and w.startswith(head):
+                roles |= {role for role, vocab in ROLES.items() if w[len(head):] in vocab} | {"wall"}
+    return roles
 
 
 def draws_walls(name: Optional[str]) -> bool:

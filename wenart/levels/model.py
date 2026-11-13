@@ -621,6 +621,10 @@ def facade_gaps(b: dict, levels: list, outline, outlines: dict, spaces: Sequence
                                                            + float(o.get("width") or 0.0)) / 2.0 - 0.05]
         if held:
             continue
+        # 12 Nov 2026 (review B2 FC-01, real06 L1: the rest of the 1.95 m balcony gap beside its drawn door was typed a
+        # second door): the part of a gap a drawn door left (evidence ``rest_of``) is that door's leftover too
+        if any(isinstance(e, dict) and e.get("rest_of") for e in o.get("evidence") or []):
+            continue
         side = outside(o)
         if side is None:
             continue

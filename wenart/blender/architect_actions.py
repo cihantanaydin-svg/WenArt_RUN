@@ -690,11 +690,36 @@ def unsure_passage(o: dict) -> bool:
     without a swing arc (``operation`` sliding from geometry, no block name: a window's frame and glass lines draw
     the same)."""
     if o.get("type") == "opening" and str(o.get("type_raw") or "") == "unclassified gap content":
-        return True
+        # 12 Nov 2026 (review B2 FC-01): the rest a drawn door left of its gap (evidence ``rest_of``) is no passage
+        return not any(isinstance(e, dict) and e.get("rest_of") for e in o.get("evidence") or [])
     if o.get("type") != "door" or o.get("operation") != "sliding" or o.get("operation_source") != "geometry":
         return False
     notes = " ".join(str(e.get("note") or "") for e in o.get("evidence") or [] if isinstance(e, dict))
     return "block name" not in notes
+
+
+DOOR_BESIDE_M = 0.45               # 13 Nov 2026: a door this close to a gap (centres, across a wall's thickness) owns it
+
+
+def _door_beside(building: dict, o: dict) -> bool:
+    """A door of the gap's level stands within ``DOOR_BESIDE_M`` of the gap's centre and overlaps it along the wall
+    (pure): the gap is a second read of that door's opening (a plaster face beside the structure's)."""
+    c = o.get("center")
+    wall = next((w for w in building.get("walls") or [] if w.get("id") == o.get("wall_id")), None)
+    if not c or wall is None or wall.get("start") == wall.get("end"):
+        return False
+    (ax, ay), (bx, by) = wall["start"][:2], wall["end"][:2]
+    ln = math.hypot(bx - ax, by - ay)
+    u = ((bx - ax) / ln, (by - ay) / ln)
+    for d in building.get("openings") or []:
+        if d is o or d.get("type") != "door" or d.get("level_id") != o.get("level_id") or not d.get("center"):
+            continue
+        dx, dy = d["center"][0] - c[0], d["center"][1] - c[1]
+        along, across = abs(dx * u[0] + dy * u[1]), abs(dx * u[1] - dy * u[0])
+        overlap = (float(d.get("width") or 0.0) + float(o.get("width") or 0.0)) / 2.0 - along
+        if across <= DOOR_BESIDE_M and overlap > 0.1:
+            return True                    # across a wall's thickness and overlapping along it: one opening read twice
+    return False
 
 
 def gaps_behind_furniture(building: dict) -> list[str]:
@@ -737,6 +762,10 @@ def gaps_behind_furniture(building: dict) -> list[str]:
             continue
         k = 1 if not Plan.is_outside(sides[0]) else -1
         room = sides[0] if k == 1 else sides[1]
+        # 13 Nov 2026 (review BLD-04): never a window in a stair hall's passage, on an inner wall, or where a door
+        # stands within a wall's thickness of the gap (the gap is that door's second read)
+        if wall.get("exterior") is False or str(room.get("room_type") or "") == "stair" or _door_beside(building, o):
+            continue
         a0, u, _ = plan.axis(wall)
         n = (-u[1] * k, u[0] * k)
         t = plan.t_of(wall, o["center"])

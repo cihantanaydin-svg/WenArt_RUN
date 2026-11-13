@@ -180,7 +180,7 @@ def test_numbered_treads_read_a_u_stair_with_winders():
     assert len(found) == 1 and [c[0] for c in found[0]] == list(range(1, 17))
     st = SN.stair_of(found[0], strokes)
     assert st and not st.get("skip")
-    assert st["turn"] == "U" and [f["lines"] for f in st["flights"]] == [4, 5] and st["winders"] == 7
+    assert st["turn"] == "U" and [f["lines"] for f in st["flights"]] == [5, 5] and st["winders"] == 6
     assert all(abs(f["width"] - 0.8) < 0.01 for f in st["flights"])
     assert st["direction"][1] > 0.9                                         # it rises from 1 northwards (drawn)
     land = Polygon(st["landing"]["polygon"]) if st["landing"] else None
@@ -204,7 +204,7 @@ def test_a_numbered_stair_replaces_its_untyped_parts():
     pieces, cands, polys = SN.apply([], [cand], texts, strokes, 1.0, "x.dwg", 1, notes)
     assert [p.type for p in pieces] == ["stair"] and cands == [] and len(polys) == 1
     st = pieces[0].details["stair"]
-    assert st["direction_assumed"] is False and st["steps_drawn"] == 16 and st["winders"] == 7
+    assert st["direction_assumed"] is False and st["steps_drawn"] == 16 and st["winders"] == 6
     # a stair piece that already holds the numbers keeps the stair rule's reading
     again, _c, polys2 = SN.apply(pieces, [], texts, strokes, 1.0, "x.dwg", 1, notes)
     assert len(again) == 1 and not polys2

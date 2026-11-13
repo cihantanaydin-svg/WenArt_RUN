@@ -19,7 +19,7 @@ from typing import Optional
 from wenart.synthetic import failure_classes as FC
 from wenart.synthetic.failure_classes import (
     EXT_T, INT_T, L_FRAME, L_TEXT, FailureProject, Label, Opening, Plan, Prim, StairTruth, TruthLevel, Wall,
-    outer_walls)
+    outer_walls, r6)
 
 BRIEF = {"style": "Modern, oak floor, white walls, warm daylight"}
 GROUND = TruthLevel("L0", "Zemin Kat", 0.0, 0, "p0")
@@ -503,7 +503,33 @@ def project_22() -> FailureProject:
                           "a half-turn curved stair with its treads numbered 1-18", [plan], [GROUND], BRIEF)
 
 
+def project_23() -> FailureProject:
+    """synthetic-23-size-tags (review B2-GEN-03: the synthetic gate tested none of the size-tag and duplicate-swing
+    rules; real07 C0047, real10 C0035, real16): the SALON's, the YATAK ODASI's and the MUTFAK's doors are drawn as bare
+    gaps in their inner walls with only their size tags '90/210' on the text layer YAZI beside them (the door is said by
+    the tag, no swing is drawn); the BANYO's swing and leaf are drawn twice (an exact copy on KAPI); a door-high
+    '140/210' stands beside the SALON's first facade window (a drawn window stays a window). Truth: the base house
+    (6 doors, 9 windows)."""
+    plan = base_house()
+    tags = {"d_salon": (0.0, -0.40), "d_yatak": (0.0, -0.40), "d_mutfak": (0.0, 0.40)}
+    for op in plan.openings:
+        if op.id in tags:
+            op.draw_symbol = False
+            w = plan.wall(op.wall)
+            at = w.at(op.s)
+            dx, dy = tags[op.id]
+            plan.prims.append(Prim("text", FC.L_TEXT, [(r6(at[0] + dx), r6(at[1] + dy))], text="90/210", height=0.12))
+        if op.id == "d_banyo":
+            plan.prims += FC.door_prims(plan, op)          # the swing and its leaf drawn a second time
+    window = next(op for op in plan.openings if op.id == "w_salon1")
+    at = plan.wall(window.wall).at(window.s)
+    plan.prims.append(Prim("text", FC.L_TEXT, [(r6(at[0]), r6(at[1] + 0.55))], text="140/210", height=0.12))
+    return FailureProject("synthetic-23-size-tags", "size_tags", "UL321",
+                          "doors drawn as bare gaps with their size tags on the text layer, a swing drawn twice, a "
+                          "door-high tag beside a window", [plan], [GROUND], BRIEF)
+
+
 def failure_projects() -> list[FailureProject]:
     return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13(), project_14(),
             project_15(), project_16(), project_17(), project_18(), project_19(), project_20(), project_21(),
-            project_22()]
+            project_22(), project_23()]
