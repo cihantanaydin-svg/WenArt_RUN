@@ -848,6 +848,11 @@ def test_borrowed_swings_sashes_tags_and_doors_already_read_make_no_new_door():
     tag = _run("P:150/150", 2.5, 3.6, k=7)
     hinge = _arc("A:2", (1.8, 3.0), 0.8, 270.0, 360.0)
     assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(2.5, 1.5)], [hinge], texts_m=[tag])[0].kind == "opening"
+    # ... but the tag of the window beside it speaks for that window only (real15's kitchen door)
+    window = OpeningItem("window", 1.5, (4.2, 3.0), 0.0, [0, 0, 0, 0], "win", {})
+    near_window = _run("P:150/150", 3.5, 3.6, k=8)                 # 1.17 m from the gap's centre, nearer the window
+    got = GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(2.5, 1.5), window], [hinge], texts_m=[near_window])
+    assert [o.kind for o in got] == ["door", "window"]
     # an arc an opening already owns is not borrowed; a door already read in the gap is its opening
     assert GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap(2.5, 1.5)], [hinge], owned={"A:2"})[0].kind == "opening"
     door = OpeningItem("door", 0.9, (2.2, 3.0), 0.0, [0, 0, 0, 0], "d", {})

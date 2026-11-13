@@ -2313,7 +2313,7 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
     - the arc (``DOOR_ARC_R_M``, on a door layer or in a door block: ``layer_names`` role door) belongs to no opening
       already read (``owned``) and serves one gap only;
     - on a door-and-window layer it sweeps about 90 degrees with a door's radius (a sash is a window);
-    - no window size tag (P / W and W/H) stands by the gap;
+    - no window size tag (P / W and W/H) of its own stands by the gap (a tag speaks for its nearest opening);
     - its chord, from the hinge to the closed leaf's tip along the wall, lies inside the gap.
 
     The door is put on that chord (two chords meeting in the gap make one double door); the rest of the gap stays an
@@ -2338,6 +2338,18 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
     tags = [((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0) for t in texts_m
             if WINDOW_TAG_RE.match(str(getattr(t, "text", "") or ""))]
     doors = [o for o in openings if o.kind == "door" and not getattr(o, "virtual", False)]
+    # 13 Nov 2026 (round 3: real15's kitchen door lost its swing to the tag of the window beside it): a window size tag
+    # speaks for the opening nearest to it only
+    real = [o for o in openings if not getattr(o, "virtual", False)]
+
+    def tag_reach(q, op) -> float:
+        rot = math.radians(op.rotation_deg)
+        ex_, ey_ = math.cos(rot), math.sin(rot)
+        dx, dy = q[0] - op.center[0], q[1] - op.center[1]
+        t = max(-float(op.width) / 2.0, min(float(op.width) / 2.0, dx * ex_ + dy * ey_))
+        return math.hypot(dx - ex_ * t, dy - ey_ * t)
+
+    owner = [min(real, key=lambda op: tag_reach(q, op)) if real else None for q in tags]
     used: set = set()
     out = []
     for o in openings:
@@ -2373,8 +2385,8 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
         if cover > 0:
             out.append(o)                               # a door already read in it: never a second door
             continue
-        if any(math.dist(q, o.center) <= 1.2 for q in tags):
-            out.append(o)                               # a window size tag beside it: a window, not a door
+        if any(owner[k] is o and math.dist(q, o.center) <= 1.2 for k, q in enumerate(tags)):
+            out.append(o)                               # its own window size tag beside it: a window, not a door
             continue
         chords = []
         for st in arcs:
