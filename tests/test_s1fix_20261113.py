@@ -9,6 +9,7 @@ from wenart.blender import parametric as P
 from wenart.ingest import completion as CP
 from wenart.ingest import core_rules as CR
 from wenart.ingest import ground_lines as GL
+from wenart.levels import model as LM
 
 
 # --------------------------------------------------------------------------- S1F-POD-P01: the inferred U stair
@@ -329,14 +330,14 @@ def test_a_rebuild_of_the_entrances_keeps_the_completions_decisions():
     b["openings"][0]["entrance_refused"] = {"reason": "a room behind it"}
     old = [_ent("d2", True, "inferred_entrance"), _ent("d3")]
     b["site"]["entrances"] = [_ent("d1", True), _ent("d3")]                    # what infer_levels made again
-    CR.reapply_entrances(b, old)                                               # no completion record yet: unchanged
+    LM.keep_completion_entrances(b, old)                                               # no completion record yet: unchanged
     assert [e["door_id"] for e in b["site"]["entrances"]] == ["d1", "d3"]
     b["level_inference"]["core_rules"] = {"entrances": {"refused": [], "added": [], "main": None, "open": None}}
-    CR.reapply_entrances(b, old)
+    LM.keep_completion_entrances(b, old)
     ents = {e["door_id"]: e for e in b["site"]["entrances"]}
     assert set(ents) == {"d2", "d3"} and ents["d2"]["main"] and not ents["d3"]["main"]
     b["site"]["entrances"] = [_ent("d3", True)]
-    CR.reapply_entrances(b, [_ent("d3")])                                       # the completion left no main
+    LM.keep_completion_entrances(b, [_ent("d3")])                                       # the completion left no main
     assert not b["site"]["entrances"][0]["main"]
 
 

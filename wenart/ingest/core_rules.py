@@ -1663,39 +1663,6 @@ def _leads_to_core(b: dict, e: dict, core: set) -> bool:
     return False
 
 
-def reapply_entrances(b: dict, old: list) -> None:
-    """The completion's entrance decisions after the levels model rebuilt ``site.entrances`` (13 Nov 2026, review
-    CODE-01: an accepted agent level edit re-runs ``wenart.levels.model.infer_levels``, which brought back refused
-    doors with steps and picked a new main entrance; the same merge as the levels model's records, CS1-04). Once the
-    completion has run (``level_inference.core_rules.entrances``): a door it refused (``entrance_refused``) has no
-    record, the records it inferred (rule ``inferred_entrance``) stay as written, and the main entrance is the one it
-    left in ``old`` (the records before the rebuild), or none when it left none. Mutates ``b``."""
-    import copy
-
-    if not isinstance(((b.get("level_inference") or {}).get("core_rules") or {}).get("entrances"), dict):
-        return                                    # the reading's own first run: the completion has not decided yet
-    site = b.get("site")
-    if not isinstance(site, dict):
-        return
-    doors = {o["id"]: o for o in b.get("openings") or [] if o.get("type") == "door"}
-    ents = [e for e in site.get("entrances") or [] if e.get("door_id") in doors
-            and not doors[e["door_id"]].get("entrance_refused")]
-    have = {e.get("door_id") for e in ents}
-    for e in old or []:
-        if any((ev or {}).get("rule") == "inferred_entrance" for ev in e.get("evidence") or []) and \
-                e.get("door_id") in doors and e.get("door_id") not in have:
-            ents.append(copy.deepcopy(e))
-            have.add(e.get("door_id"))
-    main = next((e for e in old or [] if e.get("main") and e.get("door_id") in have), None)
-    for e in ents:
-        if main is not None and e.get("door_id") == main.get("door_id"):
-            e["main"], e["main_reason"] = True, main.get("main_reason") or e.get("main_reason")
-        elif e.get("main"):
-            e["main"] = False
-            e.pop("main_reason", None)
-    site["entrances"] = ents
-
-
 def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Optional[dict] = None) -> dict:
     """Rule 4 (the module docstring); returns ``{"refused", "added", "main", "open"}`` (R09 brought forward, 13 Nov
     2026): one main entrance, never into a bedroom, a wet room or a kitchen (nor a flat's room in a building with a
