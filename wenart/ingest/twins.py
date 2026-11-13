@@ -449,6 +449,22 @@ def stair_cores(rooms: list[dict], furniture: list[dict]) -> list[str]:
 SHARED_HALL_REACH_M = 0.55       # an opening joins two rooms when its centre lies this close to both (core walls run 0.4-0.8 m thick)
 LANDING_MIN_M2 = 2.0             # 3 Nov 2026: a stair core room this much larger than its stair holds the shared hall ...
 LANDING_MIN_WIDTH_M = 0.9        # ... when the rest is this wide (a walkable hall, not a strip beside the flight)
+LANDING_NARROW_MIN_M = 0.60      # 13 Nov 2026: a narrower rest a drawn way in opens into, at least this wide (a person
+#                                  passes), is still the landing: its own room, flagged ``narrow_landing``
+
+
+def _width(g) -> float:
+    """The width of a polygon: twice the radius of the largest circle inside it, to 5 mm (pure)."""
+    lo, hi = 0.0, 20.0
+    if g.is_empty:
+        return 0.0
+    while hi - lo > 0.005:
+        mid = (lo + hi) / 2.0
+        if g.buffer(-mid / 2.0).is_empty:
+            hi = mid
+        else:
+            lo = mid
+    return round(lo, 3)
 
 
 def _stair_box(f: dict) -> Polygon:
@@ -499,10 +515,23 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
             rest = opened
         parts = sorted(getattr(rest, "geoms", [rest]), key=lambda g: -g.area)
         hall = parts[0]
-        if hall.geom_type != "Polygon" or hall.interiors or hall.area < LANDING_MIN_M2 \
-                or hall.buffer(-LANDING_MIN_WIDTH_M / 2.0).is_empty:
+        if hall.geom_type != "Polygon" or hall.interiors or hall.area < LANDING_MIN_M2:
             # (a hole: a stair standing free inside the room, no landing in front of a core stair)
             continue
+        narrow = None
+        if hall.buffer(-LANDING_MIN_WIDTH_M / 2.0).is_empty:
+            # 13 Nov 2026 (coordinator on real09: "a drawn room label never vanishes"; the hall in front of the core
+            # stair came out 0.79 m wide and was merged into the stair room): the width threshold is for strips
+            # beside a flight; a rest that a drawn door or opening of the floor opens into (its centre within
+            # SHARED_HALL_REACH_M of the rest and nearer to it than to the stair) is the landing people arrive in, kept
+            # as its own room when at least LANDING_NARROW_MIN_M wide, flagged ``narrow_landing`` (RC14 reports it)
+            width = _width(hall)
+            ways_in = [o for o in openings if o.get("level_id") == r["level_id"] and not o.get("virtual")
+                       and o.get("center") and hall.distance(Point(o["center"][:2])) <= SHARED_HALL_REACH_M
+                       and hall.distance(Point(o["center"][:2])) < box.distance(Point(o["center"][:2]))]
+            if width < LANDING_NARROW_MIN_M or not ways_in:
+                continue
+            narrow = {"width_m": width, "min_m": LANDING_MIN_WIDTH_M, "ways_in": sorted(o["id"] for o in ways_in)}
         lifts = [_poly(x) for x in rooms if x.get("level_id") == r["level_id"] and x.get("room_type") == "shaft"
                  and RG.LIFT_RE.search(TI.fold(str(x.get("label_raw") or x.get("label") or "")))]
         if lifts and not any(hall.distance(lp) <= SHARED_HALL_REACH_M for lp in lifts):
@@ -527,6 +556,8 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
                           polygon=[[round(x, 4), round(y, 4)] for x, y in list(hall.exterior.coords)[:-1]],
                           area_computed=round(hall.area, 2), has_documented_furniture=False,
                           label_inferred={"method": "shared_hall", "core": r["id"], "split_from": r["id"]}))
+        if narrow:
+            rooms[-1]["narrow_landing"] = narrow
         (ax, ay), (bx, by) = cut.coords[0], cut.coords[-1]
         openings.append({"id": f"o_{hall_id}", "type": "opening", "level_id": r["level_id"], "wall_id": None,
                          "virtual": True, "line": [[round(ax, 4), round(ay, 4)], [round(bx, 4), round(by, 4)]],
@@ -540,7 +571,9 @@ def split_core_landings(rooms: list[dict], openings: list[dict], furniture: list
                                        "region_id": (r.get("evidence") or [{}])[0].get("region_id")}]})
         notes.append(f"{r['level_id']}: the stair core {r['id']} ({poly.area:.1f} m2) holds its stair "
                      f"({stair_poly.area:.1f} m2) and the shared hall in front of it: {hall_id} '{rooms[-1]['label']}' "
-                     f"({hall.area:.1f} m2, inferred), joined open along {cut.length:.2f} m")
+                     f"({hall.area:.1f} m2, inferred), joined open along {cut.length:.2f} m"
+                     + (f"; a narrow landing {narrow['width_m']:.2f} m (under {LANDING_MIN_WIDTH_M} m), kept: "
+                        f"{', '.join(narrow['ways_in'])} open into it" if narrow else ""))
     return notes
 
 
@@ -552,6 +585,7 @@ def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
     lift (a shaft labelled lift, asansör ...), the shared hall touches it too. The flats' own halls beside the core,
     behind a wall, are not joined to it. Returns one line per room."""
     from shapely.geometry import Point
+    from shapely.ops import unary_union
 
     from wenart import building as B
 
@@ -573,7 +607,11 @@ def shared_halls(rooms: list[dict], openings: list[dict]) -> list[str]:
         lifts = [_poly(x) for x in level_rooms if x.get("room_type") == "shaft"
                  and RG.LIFT_RE.search(TI.fold(str(x.get("label_raw") or x.get("label") or "")))]
         for core in cores:
-            cp = _poly(core)
+            # 13 Nov 2026 (real09 L-1: once the core's landing was split off, the vestibule its 1.5 m opening joins lost
+            # its 'Kat Holü'): the core is its stair with the landing split off it (``split_core_landings``)
+            split = [_poly(x).buffer(0) for x in level_rooms
+                     if (x.get("label_inferred") or {}).get("split_from") == core["id"]]
+            cp = unary_union([_poly(core).buffer(0)] + split) if split else _poly(core)
             for r in level_rooms:
                 if r is core or r.get("label_raw") or str(r.get("label") or "").strip().lower() not in GENERIC_LABELS:
                     continue

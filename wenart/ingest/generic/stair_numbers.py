@@ -40,6 +40,7 @@ TREAD_PERP = 0.25               # ... nearly across the arm (|cos| under this)
 WIDTH_M = (0.6, 2.0)            # an arm this wide (the median tread line)
 WIDTH_DEFAULT_M = 0.9
 INSIDE_SHARE = 0.5              # a stair piece holding this share of the numbers already reads the stair
+FLOOR_REACH = 0.75              # 13 Nov 2026: the tread lines this many goings around an end number (``_riser_lines``)
 
 
 def _numbers(texts: list) -> list[tuple[int, tuple[float, float], object]]:
@@ -445,12 +446,31 @@ def _straight_stair_of(chain: list, strokes: list, arms: Optional[list] = None) 
         if more:
             e = (e[0] + axis[0] * going * more, e[1] + axis[1] * going * more)
             n_lines += more
-        ids |= {sid for _, _, sid in treads}
-        flights.append({"start": [round(s[0], 4), round(s[1], 4)], "end": [round(e[0], 4), round(e[1], 4)],
-                        "width": round(width, 4), "lines": n_lines, "spacing": round(going, 4)})
+        # the arm's shape: half a going beyond its end numbers (the numbers stand on the treads' middles) ...
         half = going / 2.0
         s0 = (s[0] - axis[0] * half, s[1] - axis[1] * half)
         e0 = (e[0] + axis[0] * half, e[1] + axis[1] * half)
+        # ... 13 Nov 2026 (coordinator on real09: the numbers' footprint ran 0.28 m past the core stair's last drawn
+        # riser into the hall in front of it, and the hall was lost): the stair's two outer ends are its outermost
+        # drawn riser lines where they are drawn (``_riser_lines``); the chain's last number standing on the floor
+        # beyond the last drawn line puts its arm's last riser on that line, the arm moved back by the
+        # same distance (its going kept)
+        if ai == 0 and not back:
+            behind = _riser_lines(s, axis, width, going, segs)[0]
+            if behind:
+                s0 = (s[0] - axis[0] * max(behind), s[1] - axis[1] * max(behind))
+        if ai == len(arms) - 1 and not trail:
+            behind, ahead = _riser_lines(e, axis, width, going, segs)
+            if ahead:
+                e0 = (e[0] + axis[0] * max(ahead), e[1] + axis[1] * max(ahead))
+            elif behind:                                       # on the floor: the arm's last riser is the line
+                floor = min(behind)
+                s = (s[0] - axis[0] * floor, s[1] - axis[1] * floor)
+                e = (e[0] - axis[0] * floor, e[1] - axis[1] * floor)
+                e0 = e
+        ids |= {sid for _, _, sid in treads}
+        flights.append({"start": [round(s[0], 4), round(s[1], 4)], "end": [round(e[0], 4), round(e[1], 4)],
+                        "width": round(width, 4), "lines": n_lines, "spacing": round(going, 4)})
         shapes.append(LineString([s0, e0]).buffer(width / 2.0, cap_style=2))
         arm_axes.append(axis)
     in_arms = {i for arm in arms for i in arm}
@@ -466,15 +486,24 @@ def _straight_stair_of(chain: list, strokes: list, arms: Optional[list] = None) 
     to_f = lambda q: (q[0] * ct + q[1] * st_, -q[0] * st_ + q[1] * ct)
     from_f = lambda q: (q[0] * ct - q[1] * st_, q[0] * st_ + q[1] * ct)
     cloud = [c for sh in shapes for c in sh.exterior.coords]
+    # 13 Nov 2026 (real09: the walking line's arrow tip beside the last winder held the footprint 0.11 m past the last
+    # riser): nothing of the turn lies behind the first flight's first riser or beyond the last flight's last one
+    a0, an = arm_axes[0], arm_axes[-1]
+    first_m = min(x * a0[0] + y * a0[1] for x, y in shapes[0].exterior.coords) - 1e-6
+    last_m = max(x * an[0] + y * an[1] for x, y in shapes[-1].exterior.coords) + 1e-6
+
+    def within(c) -> bool:
+        return c[0] * a0[0] + c[1] * a0[1] >= first_m and c[0] * an[0] + c[1] * an[1] <= last_m
+
     for q in [pts[i] for i in range(len(pts)) if i not in {k for arm in arms for k in arm}]:
         lines = [sg for sg in segs if LineString([sg[0], sg[1]]).distance(Point(q)) <= TREAD_REACH_M
                  and math.dist(sg[0], sg[1]) <= wmax * 1.6]
         if lines:
-            cloud += [c for sg in lines for c in (sg[0], sg[1])]
+            cloud += [c for sg in lines for c in (sg[0], sg[1]) if within(c)]
             ids |= {sg[2] for sg in lines}
         else:
-            cloud += [(q[0] + dx, q[1] + dy) for dx, dy in ((wmax / 2, 0), (-wmax / 2, 0), (0, wmax / 2),
-                                                            (0, -wmax / 2))]
+            cloud += [c for c in ((q[0] + dx, q[1] + dy) for dx, dy in ((wmax / 2, 0), (-wmax / 2, 0), (0, wmax / 2),
+                                                                         (0, -wmax / 2))) if within(c)]
     fx = [to_f(q) for q in cloud]
     bx = (min(q[0] for q in fx), min(q[1] for q in fx), max(q[0] for q in fx), max(q[1] for q in fx))
     poly = Polygon([from_f(q) for q in ((bx[0], bx[1]), (bx[2], bx[1]), (bx[2], bx[3]), (bx[0], bx[3]))])
@@ -553,6 +582,42 @@ def _drawn_ahead(p, ahead, axis, width: float, going: float, most: int, segs: li
         if d > 0.05 * going:
             places.add(round(d / max(going * 0.5, 1e-6)))
     return min(most, len(places))
+
+
+def _riser_lines(p, axis, width: float, going: float, segs: list) -> tuple[list, list]:
+    """``(behind, ahead)``: the distances from number ``p`` (on its arm's centre line; ``axis`` the climbing direction)
+    to the tread lines across the arm (as ``_drawn_ahead`` counts them) within ``FLOOR_REACH`` goings behind it and
+    ahead of it (pure). The first number's farthest line behind is the stair's first riser, the last number's farthest
+    line ahead its last. The numbers count the risers (the last one is the riser count), so a last number with lines
+    behind it and none ahead is written where its riser lands: on the arrival floor, beyond the last tread line drawn,
+    which is then the stair's last riser. 13 Nov 2026 (coordinator on real09: number 17 stood 0.15 m past the core
+    stair's last riser line and the footprint, half a going beyond the number, took 0.28 m of the hall in front of the
+    stair)."""
+    behind, ahead = [], []
+    if going <= 0 or not segs:
+        return behind, ahead
+    reach = FLOOR_REACH * going
+    ray = LineString([(p[0] - axis[0] * reach, p[1] - axis[1] * reach),
+                      (p[0] + axis[0] * reach, p[1] + axis[1] * reach)])
+    for a, b, _sid in segs:
+        u = _unit(a, b)
+        if abs(u[0] * axis[0] + u[1] * axis[1]) > TREAD_PERP:
+            continue
+        if not 0.5 * width <= math.dist(a, b) <= 1.5 * width + 0.3:
+            continue
+        seg = LineString([a, b])
+        if seg.distance(ray) > 1e-6:
+            continue
+        hit = seg.intersection(ray)
+        if hit.is_empty:
+            continue
+        q = hit if hit.geom_type == "Point" else hit.centroid
+        t = (q.x - p[0]) * axis[0] + (q.y - p[1]) * axis[1]
+        if t > 0.05 * going:
+            ahead.append(t)
+        elif t < -0.05 * going:
+            behind.append(-t)
+    return behind, ahead
 
 
 def _along(points: list, arm: list[int], k: int) -> bool:

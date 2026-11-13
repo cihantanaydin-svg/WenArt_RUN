@@ -1312,3 +1312,109 @@ def test_a_fan_of_winders_at_a_treads_step_is_read_as_winders():
     chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(p13)])[0]
     st = SN.stair_of(chain, l13)
     assert [f["lines"] for f in st["flights"]][0] == 10 and st["turn_winders"][0] >= 2
+
+
+# --------------------------------------------------------------------------
+# 13 Nov 2026 (coordinator on real09): the stair's last riser and the narrow landing in front of a core stair
+# --------------------------------------------------------------------------
+
+def _straight_numbers(ahead_line=False):
+    """Numbers 1-9 on the treads of a straight stair along +x (going 0.27 m), a tread line at each riser below its
+    number; the 9 stands on the floor beyond the last riser unless ``ahead_line`` draws a line past it."""
+    pts = [(1.0 + 0.27 * k, 5.0) for k in range(9)]
+    lines = [_line((x - 0.135, 4.5), (x - 0.135, 5.5), "MERD") for x, _y in pts]
+    if ahead_line:
+        lines.append(_line((pts[-1][0] + 0.135, 4.5), (pts[-1][0] + 0.135, 5.5), "MERD"))
+    return pts, lines
+
+
+def test_the_last_number_on_the_floor_beyond_the_last_riser_ends_the_stair_there():
+    """real09 (the core stair's 17 stood 0.15 m past its last riser line on the arrival floor and the footprint, half a
+    going beyond the number, took 0.28 m of the hall in front of the stair): the numbers count the risers, so the last
+    number past the last drawn tread line is on the floor; the flight's last riser is that line and the footprint ends
+    there. A line drawn past the last number keeps the half going beyond it."""
+    pts, lines = _straight_numbers()
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+    st = SN.stair_of(chain, lines)
+    (fl,) = st["flights"]
+    assert fl["lines"] == 9 and st["steps"] == 9
+    assert fl["end"][0] == pytest.approx(pts[-1][0] - 0.135, abs=0.01)           # on the last riser line
+    assert fl["spacing"] == pytest.approx(0.27, abs=0.01)
+    xs = [x for x, _y in st["polygon"].exterior.coords]
+    assert max(xs) == pytest.approx(pts[-1][0] - 0.135, abs=0.01)                  # not past it
+    assert min(xs) == pytest.approx(pts[0][0] - 0.135, abs=0.01)                   # from the first riser
+    pts, lines = _straight_numbers(ahead_line=True)
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+    st = SN.stair_of(chain, lines)
+    assert st["flights"][0]["end"][0] == pytest.approx(pts[-1][0], abs=0.01)
+    assert max(x for x, _y in st["polygon"].exterior.coords) == pytest.approx(pts[-1][0] + 0.135, abs=0.01)
+
+
+def test_a_walking_line_past_the_stairs_ends_does_not_hold_its_footprint():
+    """real09 (the walking line ran from the last winders to its arrow tip 0.11 m past the last riser, and the turn's
+    lines took the footprint there): nothing of the turn lies behind the first flight's first riser or beyond the last
+    flight's last riser."""
+    pts = [(1.0, 1.2 + 0.27 * k) for k in range(6)] + [(1.25, 2.95), (1.75, 3.05), (2.25, 2.95)]
+    pts += [(2.5, 2.55 - 0.27 * k) for k in range(6)]
+    lines = [_line((0.35, y - 0.135), (1.65, y - 0.135), "MERD") for _x, y in pts[:6]]
+    lines += [_line((1.85, y + 0.135), (3.15, y + 0.135), "MERD") for _x, y in pts[9:]]
+    walk = _line((2.40, 3.0), (2.40, 0.95), "MERD")
+    chain = SN.chains([_t(k + 1, x, y) for k, (x, y) in enumerate(pts)])[0]
+    st = SN.stair_of(chain, lines + [walk])
+    assert [f["lines"] for f in st["flights"]] == [6, 6] and st["turn"] == "U"
+    assert st["flights"][1]["end"][1] == pytest.approx(1.335, abs=0.01)        # the 15 on the floor
+    assert min(y for _x, y in st["polygon"].exterior.coords) == pytest.approx(1.065, abs=0.01)
+
+
+def _core09(stair_depth):
+    core = {"id": "core", "level_id": "L0", "label": "Merdiven", "label_raw": None, "room_type": "stair",
+            "label_inferred": {"method": "stair_core"}, "evidence": [{"file": "a.dwg"}],
+            "polygon": [[8.81, 4.22], [12.45, 4.22], [12.45, 6.61], [8.81, 6.61]]}
+    stairs = [{"type": "stair", "level_id": "L0", "footprint": {"center": [10.63, 6.61 - stair_depth / 2.0],
+                                                                "size": [3.68, stair_depth], "rotation_deg": 0}}]
+    return core, stairs
+
+
+def test_a_narrow_landing_a_door_opens_into_stays_its_own_room_and_is_reported():
+    """real09 (the hall in front of the core stair came out 0.79 m wide and was merged into the stair room; coordinator:
+    "a drawn room label never vanishes"): the width threshold is for strips beside a flight; a narrower rest a drawn
+    way in opens into is the landing, its own room flagged ``narrow_landing``, and RC14 reports it. Without a way in,
+    or narrower than a person passes, it stays the stair's."""
+    from wenart.ingest import twins as TW
+    from wenart.reading_check import sense as SE
+
+    core, stairs = _core09(1.60)                                          # the rest: 4.22-5.01, 0.79 m
+    door = {"id": "d1", "level_id": "L0", "type": "door", "center": [8.71, 4.74], "width": 1.0}
+    rooms, openings = [core], [door]
+    notes = TW.split_core_landings(rooms, openings, stairs)
+    assert len(notes) == 1 and "narrow landing 0.79 m" in notes[0]
+    hall = rooms[1]
+    assert hall["room_type"] == "hall" and hall["label"] == "Kat Holü"
+    assert hall["narrow_landing"]["width_m"] == pytest.approx(0.79, abs=0.01)
+    assert hall["narrow_landing"]["ways_in"] == ["d1"]
+    found = SE.narrow_landing({"rooms": rooms})
+    assert len(found) == 1 and found[0]["message"].startswith("narrow landing 0.79 m") and found[0]["check"] == "RC14"
+    core, stairs = _core09(1.60)
+    rooms = [core]
+    assert TW.split_core_landings(rooms, [], stairs) == [] and len(rooms) == 1    # an unlabelled strip: the stair's
+    core, stairs = _core09(1.90)                                          # 0.49 m: no person passes
+    rooms = [core]
+    assert TW.split_core_landings(rooms, [dict(door)], stairs) == [] and len(rooms) == 1
+    core, stairs = _core09(1.32)                                          # 1.07 m: a landing, no flag
+    rooms = [core]
+    assert len(TW.split_core_landings(rooms, [dict(door)], stairs)) == 1 and "narrow_landing" not in rooms[1]
+
+
+def test_a_room_opening_onto_the_split_landing_is_still_the_cores_shared_hall():
+    """real09 L-1 (once the core's landing was split off, the vestibule its 1.5 m opening joins lost its 'Kat Holü'):
+    the core a room opens into is its stair together with the landing split off it."""
+    from wenart.ingest import twins as TW
+
+    core, stairs = _core09(1.32)
+    vest = {"id": "vest", "level_id": "L0", "label": "Oda", "label_raw": None, "room_type": "hall",
+            "polygon": [[9.91, 2.19], [11.39, 2.19], [11.39, 3.96], [9.91, 3.96]], "evidence": [{"file": "a.dwg"}]}
+    rooms = [core, vest]
+    openings = [{"id": "o1", "level_id": "L0", "type": "opening", "center": [10.63, 4.09], "width": 1.5}]
+    assert len(TW.split_core_landings(rooms, openings, stairs)) == 1
+    assert len(TW.shared_halls(rooms, openings)) == 1
+    assert vest["label"] == "Landing" and vest["label_inferred"] == {"method": "shared_hall", "core": "core"}
