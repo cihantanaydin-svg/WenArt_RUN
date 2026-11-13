@@ -18,8 +18,9 @@ for ``level_inference.exterior``.
   outer side is open or a parapet / railing (a thin wall, a parapet flag, a korkuluk / railing / parapet layer or
   word), or when it lies outside the roof outline of its own storey (a roof terrace over the floor below).
 - **Stretches** of at least ``MIN_STRETCH_M``: exterior when one face is indoor and the other outdoor or outside
-  (light_well when it is a light well), interior when both are indoor, free-standing when neither is, else unknown
-  (the flag stays, no inferred opening). A stretch whose outward probe reaches an unplaced room-name label within
+  (light_well when it is a light well), interior when both are indoor, free-standing when neither is (a fin or a
+  garden wall: exterior on both faces, the wall stays exterior, no inferred opening), else unknown (the flag stays, no
+  inferred opening). A stretch whose outward probe reaches an unplaced room-name label within
   ``LABEL_REACH_M`` through no wall is unknown, never exterior (a room the reading lost lies there).
 - **Levels that qualify** (``qualifies``): rooms, room area at least ``ROOM_SHARE_MIN`` of the outline, at most
   ``UNPLACED_SHARE_MAX`` of the room labels in no face, no paper room (RC14), not read with low confidence. Only they
@@ -363,7 +364,9 @@ def apply(build, texts_by_level: dict) -> dict:
                 lv_rec["metres"][s["kind"]] = round(lv_rec["metres"].get(s["kind"], 0.0) + s["t1"] - s["t0"], 2)
             if not ok or not spans or all(s["kind"] == "unknown" for s in spans):
                 continue                                # the drawn flag stays
-            flag = any(s["kind"] in ("exterior", "light_well") for s in spans)
+            # (13 Nov 2026, stage-2 hunt: real02's and real04's fins and garden walls, outdoors on both faces, were
+            # cleared to interior) a free-standing stretch is weathered on both faces: it keeps the wall exterior
+            flag = any(s["kind"] in ("exterior", "light_well", "free_standing") for s in spans)
             if bool(w.get("exterior")) == flag:
                 continue
             if any(s["kind"] == "unknown" for s in spans) and not flag:

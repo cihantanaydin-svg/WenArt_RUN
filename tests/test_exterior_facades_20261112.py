@@ -115,6 +115,17 @@ def test_a_wall_partly_on_the_outline_is_exterior_on_that_stretch_only():
     assert walls["w_L0_3"]["exterior"] is True                 # any stretch exterior
 
 
+def test_a_free_standing_fin_keeps_its_exterior_flag():
+    """Stage-2 hunt (real02, real04): a fin standing out from the facade, outdoors on both faces, stays exterior and
+    takes no inferred opening."""
+    b = building(flat())
+    b["walls"].append(wall("w_L0_fin", (3, 0), (3, -2), t=0.2))
+    rec, walls = run_ext(b)
+    assert {s["kind"] for s in walls["w_L0_fin"]["exterior_spans"]} == {"free_standing"}
+    assert walls["w_L0_fin"]["exterior"] is True and "w_L0_fin" not in {c["wall"] for c in rec["changed"]}
+    assert not EX.allows(walls["w_L0_fin"], 0.0, 2.0)
+
+
 def terrace_building(outer_t=0.25, roof=None):
     lv, walls, rooms, ops = flat()
     walls += [wall("w_L0_t1", (10, 6), (10, 9), t=outer_t), wall("w_L0_t2", (10, 9), (0, 9), t=outer_t),
