@@ -1735,26 +1735,33 @@ def test_walls_made_of_a_stairs_own_lines_are_dropped_or_cut_back():
     standing in the flights on every floor): a wall lying mostly in a stair's walking area is dropped; one running along
     the treads into a flight loses the part inside; a wall beside the stair stays."""
     from wenart.ingest.generic import core as C
-    stair = SimpleNamespace(size=(2.37, 2.27), details={"stair": {"flights": [
-        {"start": [11.369, 7.886], "end": [11.369, 9.13], "width": 0.9},
-        {"start": [12.835, 8.983], "end": [12.835, 7.982], "width": 0.9}]}})
-    tread_pair = R.wall((10.95, 8.675), (11.80, 8.675), t=0.23, entity="W041")
-    into = R.wall((12.915, 8.48), (13.795, 8.48), t=0.34, entity="W016")
-    beside = R.wall((10.0, 7.5), (10.0, 9.5), t=0.2, entity="WB")
+    stair = SimpleNamespace(size=(2.37, 2.27), center=(12.10, 8.508), rotation_deg=0.0,
+                            evidence={"entity": "LINE:T1,LINE:T2"}, details={"stair": {"flights": [
+                                {"start": [11.369, 7.886], "end": [11.369, 9.13], "width": 0.9},
+                                {"start": [12.835, 8.983], "end": [12.835, 7.982], "width": 0.9}]}})
+    strokes = [_line((10.95, 8.56), (11.80, 8.56), "SIVA", "LINE:T1"),
+               _line((10.95, 8.79), (11.80, 8.79), "SIVA", "LINE:T2"),
+               _line((12.90, 8.31), (13.29, 8.31), "SIVA", "LINE:T3"),
+               _line((12.90, 8.65), (13.29, 8.65), "SIVA", "LINE:T4"),
+               _line((9.9, 7.5), (9.9, 9.5), "DUVAR", "LINE:B1"), _line((10.1, 7.5), (10.1, 9.5), "DUVAR", "LINE:B2"),
+               _line((10.5, 8.2), (12.3, 8.2), "DUVAR", "LINE:D1"), _line((10.5, 8.4), (12.3, 8.4), "DUVAR", "LINE:D2")]
+    tread_pair = R.wall((10.95, 8.675), (11.80, 8.675), t=0.23, entity="LINE:T1,LINE:T2")
+    into = R.wall((12.915, 8.48), (13.795, 8.48), t=0.34, entity="LINE:T3,LINE:T4")
+    beside = R.wall((10.0, 7.5), (10.0, 9.5), t=0.2, entity="LINE:B1,LINE:B2")
+    real = R.wall((10.5, 8.3), (12.3, 8.3), t=0.2, entity="LINE:D1,LINE:D2")      # another layer: a real wall
     notes = []
-    kept = C._stair_line_walls([tread_pair, into, beside], [stair], [], notes, "L0")
-    assert [w.entity for w in kept] == ["W016", "WB"] and len(notes) == 2
+    kept = C._stair_line_walls([tread_pair, into, beside, real], [stair], [], notes, "L0", strokes)
+    assert [w.entity for w in kept] == ["LINE:T3,LINE:T4", "LINE:B1,LINE:B2", "LINE:D1,LINE:D2"] and len(notes) == 2
     assert min(into.start[0], into.end[0]) == pytest.approx(13.285, abs=0.01)
     assert tuple(beside.start) == (10.0, 7.5)
 
 
-def test_lines_on_a_furniture_layer_make_no_stair():
-    """real10 L-1 (a 0.64 m band of lines 0.10 m apart on the furniture layer TEFRIS, a grille, was read as a 7-riser
-    stair of 0.43 m risers along the outer wall): the stair rule takes no stair from furniture, sanitary or finish
-    lines."""
+def test_a_grille_of_lines_finer_than_a_stair_is_no_flight():
+    """real10 L-1 (a 0.64 m band of lines 0.10 m apart at the end of a room, two interleaved sets of equal lines each
+    0.20 m apart, was read as a 7-riser stair along the outer wall): a flight with other lines of its treads' length
+    standing mid-way between its treads is a grille; a stair's nosing lines a few cm beside its treads are its own."""
     from wenart.ingest.generic import symbols as SY
-    segs = [SimpleNamespace(curve=False, dot=False, length=0.64, stroke=SimpleNamespace(layer="TEFRİŞ"))
-            for _ in range(7)]
-    assert SY._finish_share(segs) >= SY.FINISH_SHARE
-    segs = [SimpleNamespace(curve=False, dot=False, length=0.9, stroke=SimpleNamespace(layer="SIVA")) for _ in range(7)]
-    assert SY._finish_share(segs) == 0.0
+    flight = {"offsets": [0.2 * k for k in range(7)], "u": 0.0, "v": 0.64, "spacing": 0.2}
+    mid = [("v", 0.1 + 0.2 * k, 0.0, 0.64, None) for k in range(6)]
+    nosing = [("v", 0.2 * k + 0.035, 0.0, 0.64, None) for k in range(7)]
+    assert SY._grille(flight, mid) and not SY._grille(flight, nosing)
