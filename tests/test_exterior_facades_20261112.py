@@ -203,6 +203,10 @@ def test_the_terrain_never_buries_the_entrance_storey_nor_two_storeys():
     assert north["buried"] is False and north["rung"] == "terrain_rejected"
     edges, _, rows = grounds(b, "L-1", [])                                     # would bury L-1 and L0
     assert side(edges, rows, (5, 6))["buried"] == "unknown"
+    # a ground read high up (real14: +22.70 m) buries every storey under it: no sane terrain for an upper floor either
+    b = ground_point(building(flat("L0", 0, 0.0), flat("L1", 1, 3.0), flat("L2", 2, 6.0)), 5.9, 5.0, 7.5)
+    edges, _, rows = grounds(b, "L1", [])
+    assert side(edges, rows, (5, 6))["rung"] == "terrain_rejected"
 
 
 def test_the_entrance_storey_is_the_lowest_with_a_building_entrance_phrase():

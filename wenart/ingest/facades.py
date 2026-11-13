@@ -194,6 +194,9 @@ def ground(b: dict, level, lv: dict, edges: list, texts: Optional[list], notes_:
                              if not x.get("base_level_id") and (x.get("order") or 0) == (lv.get("order") or 0) + 1),
                             None)) or {}
     top2 = _next_floor(b, above) if above else None
+    # the soffits of every storey: a ground that buries more than one of them is no sane terrain (R24 (2); real14's
+    # ground read at +22.70 m would bury six storeys)
+    tops = [t for t in (_next_floor(b, x) for x in levels.values() if not x.get("base_level_id")) if t is not None]
     floor = float(lv["elevation"]) if isinstance(lv.get("elevation"), (int, float)) else None
     out = []
     for i, edge in enumerate(edges):
@@ -216,7 +219,7 @@ def ground(b: dict, level, lv: dict, edges: list, texts: Optional[list], notes_:
                 out.append({"buried": False, "rung": "terrain_rejected",
                             "why": f"the ground mark '{text}' would bury the entrance storey: rejected (a finding for "
                                    f"the terrain)"})
-            elif top2 is not None and z >= top2 - NEXT_FLOOR_M:
+            elif (top2 is not None and z >= top2 - NEXT_FLOOR_M) or sum(1 for t in tops if z >= t - NEXT_FLOOR_M) > 1:
                 out.append({"buried": "unknown", "rung": "terrain_rejected",
                             "why": f"the ground mark '{text}' ({z:+.2f} m) would bury more than one storey: rejected "
                                    f"(a finding for the terrain)"})
