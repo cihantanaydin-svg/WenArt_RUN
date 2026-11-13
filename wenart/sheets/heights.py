@@ -482,6 +482,9 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
         out["ground"].append({"side": side, "z": _value(z(top_line[1]), "vector",
                                                          [_ev(file_rel, top_line[2], "ground_line", rid)],
                                                          note=note)})
+        # 13 Nov 2026 (review S1F-POD-P03, R04): every line read on the side, for the completion's check of the ground
+        # against the doors at grade (``wenart.ingest.ground_lines``)
+        out["ground"][-1]["z"]["lines"] = [{"side": side, "z": round(z(g[1]), 3), "entity": g[2]} for g in lines]
 
     # Cut axis.
     width_m = section.width * s
@@ -591,6 +594,8 @@ def _name_ground_sides(out: dict, rid: str, warnings: list) -> None:
         first = out["ground"][0]
         first["side"] = "all"
         first["z"]["evidence"] = first["z"]["evidence"] + out["ground"][1]["z"]["evidence"]
+        if "lines" in first["z"] or "lines" in out["ground"][1]["z"]:
+            first["z"]["lines"] = (first["z"].get("lines") or []) + (out["ground"][1]["z"].get("lines") or [])
         out["ground"] = [first]
     elif out["ground"]:
         warnings.append(f"section {rid}: the cut direction is unknown: the ground levels keep the section's left/right")
@@ -788,6 +793,9 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
                 zv["value"] = round(new_z, 3)
                 zv["note"] = ((zv.get("note") + "; ") if zv.get("note") else "") + \
                     f"in the storey marks' frame: {how}"
+                for ln in zv.get("lines") or []:          # 13 Nov 2026 (R04): every line read, in the same frame
+                    on = sorted((zb - ln["z"], rel) for rel, zb in frame if -MARK_TOL_M <= zb - ln["z"] <= GROUND_MARK_TOL_M)
+                    ln["z"] = round((on[0][1] - base) if on else ln["z"] + shift, 3)
         lines.append(f"ground moved {shift:+.2f} m into the storey marks' frame (the section's level marks)")
     return lines
 

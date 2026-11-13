@@ -838,6 +838,14 @@ def rc9(building: dict, sheets: dict, storeys: Optional[dict] = None, storey_el:
                                 [sec_src, "plans"], None, list(c.get("element_ids") or []), conflict=c.get("id")))
     # The ground line
     ground = _ground_z(sheets)
+    refused = ((building.get("level_inference") or {}).get("ground_doors") or {})
+    if ground is not None and refused.get("z") is not None:
+        # 13 Nov 2026 (R04, review S1F-POD-P03): the completion refused the section's ground (it buried storeys with
+        # doors at grade) and put the ground at the drawn line beside those doors: listed once, the doors then
+        # measured against the ground the model uses
+        out.append(_finding("RC9", "minor", None, f"{sec_src}'s ground line at {ground:.2f} m was refused by the "
+                            f"completion (ground_doors): {str(refused.get('reason') or '')[:240]}", [sec_src]))
+        ground, sec_src = float(refused["z"]), "the completion (ground_doors)"
     if ground is not None and levels:
         low = levels[0]
         storey = _value(low.get("floor_to_floor")) or 3.0

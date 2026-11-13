@@ -571,6 +571,8 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         b["level_inference"] = {}
     # the staged rules as this reading ran them (13 Nov 2026): the build reads party_eaves from here
     b["level_inference"]["rules_staged"] = {k: RG.active(k, b) for k in sorted(RG.STAGED)}
+    from wenart.ingest import ground_lines as GL
+    GL.apply(build)                   # 13 Nov 2026 (R04): a ground burying storeys with doors at grade is refused
     rec = (sheets or {}).get("storeys") if sheets else None
     regions = ((sheets or {}).get("completion") or {}).get("regions") or {}
     from wenart.ingest.drawn_strokes import Drawn

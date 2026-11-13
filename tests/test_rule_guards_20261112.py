@@ -36,7 +36,8 @@ def clean(monkeypatch):
 
 def test_every_rule_key_is_asked_by_its_rule():
     src = "".join((ROOT / f).read_text(encoding="utf-8") for f in ("completion.py", "core_rules.py", "sense_rules.py",
-                                                                  "exterior.py", "facades.py", "ground_floor.py"))
+                                                                  "exterior.py", "facades.py", "ground_floor.py",
+                                                                  "ground_lines.py"))
     eaves = (ROOT.parent / "blender" / "party_eaves.py").read_text(encoding="utf-8")
     # a staged rule (13 Nov 2026) is asked as a whole (RG.active) where its code branches; the build's party eaves
     # read the reading's record of the staged rules (level_inference.rules_staged)
