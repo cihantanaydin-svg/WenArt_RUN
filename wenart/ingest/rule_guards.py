@@ -49,6 +49,8 @@ RULES = {
     "core_gap": (("R16",), "an unclassified gap between a flat's room and the common core is closed"),
     "entrance_refuse": (("R09",), "an entrance with a lost room label behind it, or from a wet room, is refused"),
     "entrance_add": (("R09", "R43"), "a building of several flats gets an inferred entrance into its core hall"),
+    "entrance_tags": (("R37", "R09"), "an outer door tagged as a window is a window; an outer gap tagged as a door "
+                                      "into a hall is the entrance door"),
     "exterior_flag": (("R14",), "a wall's exterior flag is set from the building outline"),
     "stair_over_nothing": (("R18", "R25"), "a stair with no storey over it is not built upward (audit real10-5)"),
     "shaft": (("R20",), "a small face named by a shaft word is a shaft with its slab voids"),

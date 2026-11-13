@@ -1424,6 +1424,8 @@ def _rules_summary(cr: dict) -> Optional[dict]:
            "gaps kept as their drawn window": [x["reason"] for x in cr.get("core_gap_windows") or []],
            "gaps to review": [x["reason"] for x in cr.get("core_gap_review") or []],
            "entrances refused": [x["reason"] for x in ent.get("refused") or []],
+           "outer doors tagged as windows (R37)": [x["reason"] for x in ent.get("windows") or []],
+           "outer gaps tagged as doors": [x["reason"] for x in ent.get("tagged") or []],
            "main entrance changed": [ent["main"]["reason"]] if ent.get("main") else [],
            "entrances added": [x["reason"] for x in ent.get("added") or []],
            "entrance open point": [ent["open"]] if ent.get("open") else []}

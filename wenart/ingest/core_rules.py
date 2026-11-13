@@ -45,8 +45,11 @@ wells and before the windows; it changes the building in place and returns the r
    removed (the RC14 check ``core_door`` asks about them). Only in a building of several flats.
 4. **Entrances** (``entrances``, R09 brought forward on 13 Nov 2026): an entrance (``site.entrances``) whose far side
    holds a room label the reading lost is no entrance; in a building of several flats or with a common core an entrance
-   from a wet room is refused; the main entrance never opens into a bedroom, a wet room or a kitchen (nor a flat's room
-   with a common core). A building with a common core whose entrances reach no core room on any storey gets an
+   from a wet room is refused; an outer door whose nearest size tag is a window's (P:120/150) is that window (R37) and
+   a doorless outer gap into a hall or stair room (never a flat's antre) whose tags are doors' (K:100/210 and K:50/210:
+   a double door) is the drawn building entrance with its record (``size_tags``, review S1-09b); the main entrance
+   never opens into a bedroom, a wet room or a kitchen (nor a flat's room with a common core), and the best way in is
+   the main one when the old main was a window. A building with a common core whose entrances reach no core room on any storey gets an
    inferred one on an entrance storey (an entrance word in its core, else a floor within ``ENTRANCE_LEVEL_M`` of the
    ground the reading knows, else the ground floor), where the core hall reaches a facade that is no party wall, with
    its ``site.entrances`` record (threshold, rise, steps); else an open point and a ``needs_review`` item. No core read:
@@ -1405,6 +1408,101 @@ def _entrance_record(b: dict, o: dict, level: "CP.Level", lv: dict, hall: dict, 
                           "rule": "inferred_entrance", "text": reason}]}
 
 
+SIZE_TAG_RE = re.compile(r"^\s*([kp])\s*[:.]?\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")
+TAG_REACH_M = 0.9               # a size tag this far beyond an opening's half width is that opening's
+DOOR_TAG_MIN_H_M = 1.80         # a K/P tag this high is a door's; lower a window's (P:120/150)
+
+
+def _tag_of(o: dict, texts: list) -> Optional[tuple]:
+    """``(kind 'door' | 'window', width, height, text, distance)``: the nearest K:/P: size tag at an opening (within
+    its half width and ``TAG_REACH_M``), or None (pure)."""
+    c = o.get("center")
+    if not c:
+        return None
+    reach = float(o.get("width") or 0.0) / 2.0 + TAG_REACH_M
+    best = None
+    for t in texts or []:
+        m = SIZE_TAG_RE.match(B.fold_ascii(str(t.get("text") or "")).lower())
+        if not m:
+            continue
+        d = math.dist((t["x"], t["y"]), c[:2])
+        if d <= reach and (best is None or d < best[4]):
+            w, h = int(m.group(2)) / 100.0, int(m.group(3)) / 100.0
+            kind = "door" if m.group(1) == "k" and h >= DOOR_TAG_MIN_H_M else "window"
+            best = (kind, w, h, str(t["text"]).strip(), d)
+    return best
+
+
+def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
+    """R37 and the drawn building entrance (13 Nov 2026, review S1-09b; in place): an outer door into a room that is no
+    hall whose nearest size tag is a window's (P:120/150) is that window, its entrance record dropped; a doorless outer
+    gap into a hall or stair room whose nearest tags are doors' (K:100/210, K:50/210: a pair is a double door) is that
+    door, with its ``site.entrances`` record. Returns ``{"windows": [...], "doors": [...]}``."""
+    out = {"windows": [], "doors": []}
+    site = b.get("site") if isinstance(b.get("site"), dict) else None
+    if site is None or not texts_by_level:
+        return out
+    levels = {lv["id"]: lv for lv in b.get("levels") or []}
+    gone = set()
+    for lid, texts in sorted(texts_by_level.items()):
+        lv = levels.get(lid)
+        if lv is None:
+            continue
+        level = CP.Level(b, lid)
+        if level.outline is None:
+            continue
+        for o in list(level.openings):
+            if o.get("virtual") or o.get("type") not in ("door", "opening") or o.get("lift_door"):
+                continue
+            sides = _sides(level, o)
+            if [s[0] for s in sides].count("outside") != 1:
+                continue
+            room = next((s[1] for s in sides if s[1] is not None), None)
+            tag = _tag_of(o, texts)
+            if room is None or tag is None:
+                continue
+            kind, tw, th, text, _d = tag
+            if o["type"] == "door" and kind == "window" and room.get("room_type") not in ("hall", "stair"):
+                why = (f"{o['id']} ({o.get('width')} m) opens from {room['id']} '{room.get('label')}' to the outside and "
+                       f"its size tag '{text}' is a window's: a window (R37)")
+                if RG.blocked("entrance_tags", b, {"level_id": lid, "opening": o["id"], "why": why}):
+                    continue
+                o.update(drawn_type="door", type="window", width=round(tw, 3) if abs(tw - float(o.get("width") or 0))
+                         <= 0.3 else o.get("width"), height=round(th, 3), sill_height=round(max(0.0, 2.2 - th), 3),
+                         operation=None, operation_source=None, swing_side=None,
+                         adjusted_by_ai={"by": "code", "rule": "window_tag", "reason": why,
+                                         "changed": {"type": "door", "width": o.get("width")}})
+                gone.add(o["id"])
+                out["windows"].append({"opening": o["id"], "level_id": lid, "reason": why + " (adjusted_by_ai)"})
+            elif o["type"] == "opening" and kind == "door" and room.get("room_type") in ("hall", "stair") and \
+                    not FLAT_HALL_RE.search(CP._fold(f"{room.get('label_raw') or ''} {room.get('label') or ''}")):
+                pair = [t for t in texts or [] if (SIZE_TAG_RE.match(B.fold_ascii(str(t.get("text") or "")).lower())
+                                                   or [""])[0][:1] == "k"
+                        and math.dist((t["x"], t["y"]), o["center"][:2]) <= float(o.get("width") or 0) / 2.0
+                        + TAG_REACH_M]
+                widths = sorted(int(SIZE_TAG_RE.match(B.fold_ascii(str(t["text"])).lower()).group(2)) / 100.0
+                                for t in pair if SIZE_TAG_RE.match(B.fold_ascii(str(t["text"])).lower()).group(1) == "k")
+                double = len(widths) >= 2 and abs(sum(widths[:2]) - float(o.get("width") or 0)) <= 0.2
+                why = (f"the doorless gap {o['id']} ({o.get('width')} m) in the outer wall of {room['id']} "
+                       f"'{room.get('label')}' carries the door tag(s) {', '.join(t['text'] for t in pair) or text}: "
+                       f"the building's {'double ' if double else ''}entrance door (S1-09b)")
+                if RG.blocked("entrance_tags", b, {"level_id": lid, "opening": o["id"], "why": why}):
+                    continue
+                o.update(drawn_type="opening", type="door", operation="double" if double else "swing",
+                         operation_source="assumed", height=max(float(o.get("height") or 0.0), th),
+                         sill_height=None, door_tags=[t["text"] for t in pair],
+                         adjusted_by_ai={"by": "code", "rule": "door_tag", "reason": why,
+                                         "changed": {"type": "opening"}})
+                side = 1 if (sides[0][1] or {}).get("id") == room["id"] else -1
+                ent = _entrance_record(b, o, level, lv, room, {"wall_id": o["wall_id"], "side": side}, why)
+                ent["drawn"] = True
+                site.setdefault("entrances", []).append(ent)
+                out["doors"].append({"opening": o["id"], "level_id": lid, "reason": why + " (adjusted_by_ai)"})
+    if gone:
+        site["entrances"] = [e for e in site.get("entrances") or [] if e.get("door_id") not in gone]
+    return out
+
+
 def lost_behind(lv: dict, e: dict) -> Optional[str]:
     """Why an entrance record is no way in (pure): the far side of its door holds a room label the reading lost (a
     room behind it, not the outside); None otherwise."""
@@ -1486,6 +1584,11 @@ def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Option
         keep.append(e)
     if rec["refused"]:
         site["entrances"] = keep
+    # R37 and the drawn entrance (S1-09b): an outer 'door' tagged as a window is a window; a doorless outer gap tagged
+    # as a door into a hall or stair room is that door, a way in
+    tags = size_tags(b, texts_by_level)
+    rec["windows"], rec["tagged"] = tags["windows"], tags["doors"]
+    keep = site.get("entrances") or []
     cores = {}
 
     def core_of(lid):
@@ -1500,6 +1603,18 @@ def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Option
         return r.get("room_type") in NOT_MAIN_TYPES or (common is not None and r.get("room_type") in PRIVATE
                                                         and r.get("id") not in core_of(e.get("level_id")))
     main = next((e for e in keep if e.get("main")), None)
+    if main is None and (rec["windows"] or rec["tagged"]):
+        # the main entrance was a window (R37) or a drawn entrance was found: the best way in is the main one
+        best = sorted((e for e in usable if not bad(e)),
+                      key=lambda e: (not _leads_to_core(b, e, core_of(e.get("level_id"))),
+                                     (rooms.get(e.get("room_id")) or {}).get("room_type") not in ("hall", "stair"),
+                                     float(e.get("rise") or 0.0), str(e.get("door_id"))))
+        if best:
+            best[0]["main"] = True
+            best[0]["main_reason"] = (f"the main entrance: {best[0].get('door_id')} into "
+                                      f"{best[0].get('room_id')} (the outer doors tagged as windows are no way in; "
+                                      f"adjusted_by_ai)")
+            rec["main"] = {"was": None, "now": best[0].get("door_id"), "reason": best[0]["main_reason"]}
     if main is not None and bad(main) and not RG.blocked("entrance_refuse", b, {"level_id": main.get("level_id"),
                                                                                 "opening": main.get("door_id"),
                                                                                 "why": "main into a flat's room"}):
@@ -1618,7 +1733,8 @@ def apply(build, texts_by_level: dict, party_by_level: dict, strokes_by_level: O
     for x in (lift["unmarked"] + lift["merged"] + lift["removed"] + lift["review"] + lift["retyped"] + lift["added"]
               + gaps["closed"] + gaps["windows"] + gaps["review"]):
         build.warn(f"core: {x['reason']}")
-    for x in rec["entrances"]["refused"] + rec["entrances"]["added"]:
+    for x in rec["entrances"]["refused"] + rec["entrances"]["added"] + rec["entrances"].get("windows", []) + \
+            rec["entrances"].get("tagged", []):
         build.warn(f"entrance: {x['reason']}")
     if rec["entrances"]["main"]:
         build.warn(f"entrance: {rec['entrances']['main']['reason']}")
