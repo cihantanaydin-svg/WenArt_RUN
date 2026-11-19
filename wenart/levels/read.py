@@ -180,6 +180,11 @@ def resolve_datum(marks: list[dict], project_datum: Optional[dict], params: dict
     for grp, ms in sorted(by_group.items()):
         rel = [m for m in ms if m["relative"] and m.get("absolute") is None]
         ab = [m for m in ms if not m["relative"]]
+        # 19 Nov 2026 (merge with the building-sense branch: real03's typical floor counted three storeys, each copy
+        # reading the plan's '+0.00' / '93.20' block again, and the pair was lost): one block read on several copies of
+        # one plan is still one pair (every relative mark of the group one value, every absolute one value)
+        if len(rel) > 1 and len({m["value"] for m in rel}) == 1 and len(ab) >= 1 and len({m["value"] for m in ab}) == 1:
+            rel, ab = rel[:1], ab[:1]
         if len(rel) == 1 and len(ab) == 1:
             cands.append((round(ab[0]["value"] - rel[0]["value"], 3), f"{rel[0]['id']}+{ab[0]['id']}",
                           rel[0]["evidence"] + ab[0]["evidence"]))
