@@ -839,6 +839,41 @@ def rc9(building: dict, sheets: dict, storeys: Optional[dict] = None, storey_el:
                                 f"{float(low.get('elevation') or 0):.2f} m)", [sec_src, f"level {low['id']}"]))
         out += _doors_under_ground(building, levels, ground, sec_src)
     out += terrain_at_entrances(building)
+    out += marks_off_levels(building)
+    return out
+
+
+MARKS_OFF_M = 1.0            # 19 Nov 2026 (review A3, OA3-09 (5)): a level's floor marks this far off its z
+
+
+def marks_off_levels(building: dict) -> list[dict]:
+    """19 Nov 2026 (review A3, OA3-09: real15's L1 stood at +7.82 m from a mismatched section against five '+3.50'
+    floor marks on its plan, and no reading check said so): a level whose room floor marks (two or more agreeing within
+    0.1 m, stairs and shafts left out) sit more than ``MARKS_OFF_M`` off its elevation: major."""
+    rooms = {r["id"]: r for r in building.get("rooms") or []}
+    by: dict = {}
+    for m in building.get("level_marks") or []:
+        r = rooms.get(m.get("room_id"))
+        if m.get("kind") != "floor" or r is None or r.get("room_type") in ("stair", "shaft") \
+                or not isinstance(m.get("z"), (int, float)):
+            continue
+        by.setdefault(r.get("level_id"), []).append(m)
+    out = []
+    for lv in base_levels(building):
+        marks = by.get(lv["id"]) or []
+        if len(marks) < 2 or lv.get("elevation") is None:
+            continue
+        zs = sorted(float(m["z"]) for m in marks)
+        med = zs[len(zs) // 2]
+        agree = [m for m in marks if abs(float(m["z"]) - med) <= 0.1]
+        off = med - float(lv["elevation"])
+        if len(agree) >= 2 and abs(off) > MARKS_OFF_M:
+            out.append(_finding("RC9", "major", lv["id"], f"{lv['id']}: {len(agree)} floor marks in its rooms read "
+                                f"z {med:.2f} m, {abs(off):.2f} m {'above' if off > 0 else 'below'} its elevation "
+                                f"{float(lv['elevation']):.2f} m ({lv.get('elevation_source') or 'source unknown'}): the "
+                                f"level or the marks are misread", [f"plan of {lv['id']}", "levels"],
+                                tuple(agree[0]["point"]) if agree[0].get("point") else None,
+                                [m["id"] for m in agree]))
     return out
 
 

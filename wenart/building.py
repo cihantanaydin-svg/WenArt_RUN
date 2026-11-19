@@ -141,10 +141,14 @@ VOID_WORDS = ("void", "open to below", "double height", "luftraum", "vide", "vac
 
 
 def is_void_label(label: Optional[str]) -> bool:
-    """A room label that means a void over the floor below (``VOID_WORDS``)."""
+    """A room label that means a void over the floor below (``VOID_WORDS``). 19 Nov 2026 (review A3, OA3-03 (2): real13's
+    'ASANSÖR BOŞLUĞU', the lift's shaft and pit, became a slab void and its room an unlabelled 'Oda'): a lift's void is
+    its shaft, no void label."""
     if not label:
         return False
     text = fold_ascii(str(label)).lower()
+    if any(re.search(rf"(?<![a-z]){w}", text) for w in LIFT_KEYWORDS):
+        return False
     if any(re.search(rf"(?<![a-z]){w}(?!e)", text) for w in VOID_WORDS_TURKISH):   # not 'Galerie' (a mezzanine)
         return True
     return any(english_keyword_re(w).search(text) for w in VOID_WORDS)

@@ -2316,3 +2316,28 @@ def test_rc3_compares_a_rooms_printed_area_with_its_area_less_its_stairs():
     tf = [1, 0, 0, 0, 1, 0]
     assert [f for f in RC.area_findings(page, tf, [room], "L0") if f["severity"] == "major"]
     assert not [f for f in RC.area_findings(page, tf, [room], "L0", [stair]) if f["severity"] == "major"]
+
+
+def test_a_lifts_void_label_names_its_shaft_not_a_slab_void():
+    """19 Nov 2026 (review A3, OA3-03 (2): real13's 'ASANSÖR BOŞLUĞU', the lift's pit, became a slab void and its room
+    an unlabelled 'Oda')."""
+    from wenart import building as B
+
+    assert not B.is_void_label("ASANSÖR BOŞLUĞU") and B.room_type_for("ASANSÖR BOŞLUĞU", 2.6, 1.0) == "shaft"
+    assert B.is_void_label("GALERİ BOŞLUĞU") and B.is_void_label("BOŞLUK")
+
+
+def test_rc9_names_a_level_whose_floor_marks_sit_off_it():
+    """19 Nov 2026 (review A3, OA3-09 (5): real15's L1 at +7.82 m against five '+3.50' floor marks on its plan)."""
+    from wenart.reading_check import crossdoc as CD
+
+    b = {"levels": [{"id": "L0", "elevation": 0.0, "order": 0}, {"id": "L1", "elevation": 7.82, "order": 1,
+                                                                   "elevation_source": "section"}],
+         "rooms": [{"id": "r1", "level_id": "L1", "room_type": "living"}, {"id": "r2", "level_id": "L1",
+                                                                          "room_type": "bedroom"}],
+         "level_marks": [{"id": f"lm{k}", "kind": "floor", "room_id": rid, "z": 3.0, "point": [k, 0]}
+                         for k, rid in enumerate(("r1", "r2"))]}
+    f = CD.marks_off_levels(b)
+    assert len(f) == 1 and f[0]["level_id"] == "L1" and f[0]["severity"] == "major"
+    b["levels"][1]["elevation"] = 3.0
+    assert CD.marks_off_levels(b) == []
