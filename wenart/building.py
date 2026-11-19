@@ -166,6 +166,12 @@ LIFT_KEYWORDS = {"asansor", "lift", "elevator"}
 # 12 Nov 2026 (round-2 review, G1): '<word> ODASI' with one of these words is a technical room, never furnished
 TECHNICAL_ODASI_WORDS = ("pano", "elk", "elektrik", "kazan", "jenerator", "trafo", "pompa", "siginak", "tesisat",
                          "makine", "makina", "arsiv", "depo", "hidrofor", "kalorifer", "ups", "server")
+# 19 Nov 2026 (review A3, A3FC-4: real11's 'ELEKTR.ODASI', and 'SAYAÇ ODASI', 'TEKNİK ODA', 'MAKİNE DAİRESİ', 'AS.MAK.
+# DAIRESI' stayed 'other' and were furnished): the plant words as word starts (abbreviations: ELEK., ELEKTR., JENERAT.),
+# 'MAK' as a whole word, with ODASI, ODA or DAIRESI
+TECHNICAL_WORD_RE = re.compile(r"(?<![a-z])(?:pano|elk|elek|kazan|jenerat|trafo|pompa|siginak|tesisat|makin|mak(?![a-z])|"
+                               r"arsiv|depo|hidrofor|kalorifer|ups|server|sayac|teknik|santral|klima)")
+TECHNICAL_ROOM_RE = re.compile(r"(?<![a-z])(?:odasi|oda|dairesi)(?![a-z])")
 BEDROOM_MIN_M2 = 6.0          # a room an abbreviation alone calls a bedroom (Y. / Ç. ODASI) is one only from this size
 # ``hall`` alone names a living room when its face is at least this large and this compact (§2.7.2).
 HALL_AS_LIVING_MIN_AREA = 9.0
@@ -412,8 +418,9 @@ def room_type_for(label: str, face_area_m2: Optional[float] = None, face_aspect:
             return "living"
     matched = {room_type for _, room_type in turkish + english}
     words = {keyword for keyword, _ in turkish + english}
-    if "odasi" in words and re.search(r"(?<![a-z])(?:" + "|".join(TECHNICAL_ODASI_WORDS) + r")",
-                                      fold_ascii(label).lower()):
+    folded_l = fold_ascii(label).lower()
+    if ("odasi" in words and re.search(r"(?<![a-z])(?:" + "|".join(TECHNICAL_ODASI_WORDS) + r")", folded_l)) or (
+            TECHNICAL_ROOM_RE.search(folded_l) and TECHNICAL_WORD_RE.search(folded_l)):
         return "technical"                         # 12 Nov 2026: a plant or service room (ELK. PANO ODASI)
     if "bedroom" in matched and face_area_m2 is not None and face_area_m2 < BEDROOM_MIN_M2:
         plain_t, plain_e = _plain_keyword_hits(label)

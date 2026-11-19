@@ -999,6 +999,10 @@ def test_technical_odasi_rooms_wc_odasi_and_one_letter_abbreviations_need_eviden
     from wenart.furniture import program as PR
 
     assert B.room_type_for("ELK. PANO ODASI", 6.8, 1.3) == "technical" and B.room_type_for("TRAFO ODASI") == "technical"
+    # 19 Nov 2026 (review A3, A3FC-4: real11's 'ELEKTR.ODASI'): abbreviated plant words, ODA and DAIRESI too
+    for label in ("ELEKTR.ODASI", "ELEK. ODASI", "SAYAÇ ODASI", "TEKNİK ODA", "MAKİNE DAİRESİ", "AS.MAK.DAIRESI"):
+        assert B.room_type_for(label) == "technical", label
+    assert B.room_type_for("MAKYAJ ODASI") != "technical" and B.room_type_for("ELEKTRIK") != "technical"
     assert "technical" in PR.NOT_FURNISHED                     # a plant room is never furnished
     assert B.room_type_for("W.C. ODASI") == "wc" and B.room_type_for("W.C.ODASI") == "wc"
     assert B.room_type_for("Y.ODASI", 9.0, 1.2) == "bedroom" and B.room_type_for("Y.ODASI", 4.0, 1.2) == "other"

@@ -740,7 +740,10 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
             entry = {"level_id": lid, "level_mark": None, "level_mark_target_z": None}
             out.setdefault("levels", []).append(entry)
         ev = [_ev(file_rel or "", None, rule, region_id or "", text=f"{known[o]:+.2f}")]
-        entry["floor_z"] = _value(known[o] - base, "vector", ev, note="the floor mark of the storey the section names")
+        # 19 Nov 2026 (review A3, A3FC-5): the note says where the mark is printed (a section or a plan's title)
+        entry["floor_z"] = _value(known[o] - base, "vector", ev,
+                                  note="the floor mark of the storey the section names" if rule == "section_storey_marks"
+                                  else f"the floor mark its plan's title prints ({rule})")
         nxt = known[seq[k + 1]] if k + 1 < len(seq) else (float(top_mark) if top_mark is not None and
                                                            float(top_mark) > known[o] + 0.5 else None)
         if nxt is not None:
