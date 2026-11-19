@@ -1157,7 +1157,8 @@ def _unclosed(warnings: list) -> int:
 
 BRIDGE_PARALLEL_M = 0.60        # 19 Nov 2026 (review A3, OA3-05): a corner run-on bridge this close to a drawn wall ...
 BRIDGE_PARALLEL_SHARE = 0.5     # ... along this share of its length runs beside that wall (a sliver room between)
-BRIDGE_PIECE_ROLES = ("furniture", "sanitary")   # a bridge never runs through drawn furniture or sanitary ware
+BRIDGE_PIECE_ROLES = ("furniture", "sanitary")   # a bridge never runs through drawn furniture or sanitary ware ...
+BRIDGE_PIECE_END_M = 0.30       # ... along its middle (this far from its jambs)
 
 
 def _sound_bridges(ex, where: str, walls2: list, cands: list, strokes: list) -> list:
@@ -1183,7 +1184,11 @@ def _sound_bridges(ex, where: str, walls2: list, cands: list, strokes: list) -> 
         w = walls2[b["wall"]]
         t = float(w.thickness)
         axis = LineString([b["start"], b["end"]])
-        band = axis.buffer(t / 2.0, cap_style=2).buffer(-0.02)
+        # (its middle: a piece standing against a jamb is no piece the bridge runs through; real15's facade units)
+        L0_ = axis.length
+        mid_axis = axis if L0_ <= 2 * BRIDGE_PIECE_END_M + 0.1 else LineString(
+            [axis.interpolate(BRIDGE_PIECE_END_M), axis.interpolate(L0_ - BRIDGE_PIECE_END_M)])
+        band = mid_axis.buffer(t / 2.0, cap_style=2).buffer(-0.02)
         if tree is not None and not band.is_empty and any(pieces[int(i)].intersects(band)
                                                          for i in tree.query(band, predicate="intersects")):
             dropped.append(f"{b['width']:.2f} m bridge from {b['start']}: it runs through drawn furniture")
