@@ -2617,21 +2617,33 @@ def _lift_rules(build: ProjectBuild) -> None:
     b = build.building
     # 13 Nov 2026 (S1-03b): the pages' symbols are the reading's until ``reading.read_furniture`` moves them into the
     # building, after this step: the drawn lift cars are looked for among them too
-    page_syms = []
+    page_syms, texts = [], []
     for w in build.furniture_works:
-        for sym in (w.extraction.report or {}).get("symbols") or []:
+        ex = w.extraction
+        for sym in (ex.report or {}).get("symbols") or []:
             if sym.get("center") is None or sym.get("size") is None:
                 continue
-            ent = str(((sym.get("evidence") or [{}])[0] or {}).get("entity") or "")
+            ev0 = (sym.get("evidence") or [{}])[0] or {}
+            ent = str(ev0.get("entity") or "")
             page_syms.append({"id": ent.split(",")[0] or f"symbol at {sym['center']}", "kind": sym.get("kind"),
-                              "level_id": w.extraction.level_id,
+                              "level_id": ex.level_id, "evidence": [ev0] if isinstance(ev0, dict) else [],
                               "footprint": {"center": list(sym["center"]), "size": list(sym["size"]),
                                             "rotation_deg": sym.get("rotation_deg") or 0.0}})
+        # 19 Nov 2026 (review A3, POD-A3-01): the pages' texts in the building frame, for the door size tags a lift car's
+        # face may hold (real09's 'K:50/210' and 'K:100/210' in its street-entrance vestibule)
+        if ex.transform_to_building:
+            for t in ex.texts or []:
+                if t.box and len(t.box) == 4:
+                    p = G.apply_affine(ex.transform_to_building, ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0))
+                    texts.append({"text": t.text, "point": [p[0], p[1]], "level_id": ex.level_id})
     for line in TW.lift_cars(b["rooms"], (b.get("symbols") or []) + page_syms, b["furniture"], b["openings"],
-                             b["walls"]):
+                             b["walls"], texts, b.get("levels") or []):
         build.warn(f"lift car: {line}")                                     # 13 Nov 2026 (S1-03b)
     # (the shaft's other openings are closed by ``lift_doors``: a shaft is entered by its landing door only)
-    for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"], b["furniture"]):     # 4 Nov 2026 (UL306)
+    # 19 Nov 2026 (review A3, M4): every gap a landing door takes or closes is listed in ``openings_merged``; a gap
+    # into a shaft that opens onto nothing is kept and listed in ``needs_review``
+    for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"], b["furniture"],     # 4 Nov 2026 (UL306)
+                              b.setdefault("openings_merged", []), b.setdefault("needs_review", [])):
         build.warn(f"lift door: {line}")
 
 

@@ -1502,3 +1502,92 @@ def test_drawn_lift_cars_in_one_unnamed_face_make_one_lift_shaft_each_with_its_l
             for p in pieces:
                 p.pop("kind")
         assert TW.lift_cars(rooms2, syms, pieces, ops2, copy.deepcopy(walls)) == []
+
+
+def test_a_door_drawing_an_outside_gap_a_door_tag_or_an_unstacked_face_makes_no_lift_shaft():
+    """19 Nov 2026 (review A3, POD-A3-01 / M1: real09's street-entrance vestibule became a one-storey lift shaft, its only
+    street door walled up; the 'car' was the box of an unequal double door's swing on 'kapı-pencere')."""
+    import copy
+
+    from wenart.ingest import twins as TW
+
+    def room(rid, label, rtype, poly, lv="L0", raw=None):
+        return {"id": rid, "level_id": lv, "label": label, "label_raw": raw, "room_type": rtype, "polygon": poly}
+
+    box_ = room("r_L0_oda", "Oda", "unknown", [[0, 0], [2.2, 0], [2.2, 2.6], [0, 2.6]])
+    hall = room("r_L0_hall", "Kat Holü", "hall", [[0, -2.0], [4.2, -2.0], [4.2, -0.2], [0, -0.2]], raw="KAT HOLÜ")
+    car = {"id": "f_L0_1", "type": "unknown", "level_id": "L0",
+           "footprint": {"center": [1.1, 1.3], "size": [1.85, 2.0], "rotation_deg": 0.0},
+           "evidence": [{"file": "p.dxf", "method": "vector", "confidence": 0.9, "entity": "LINE:1,LINE:2"}]}
+    gap = {"id": "o_L0_1", "level_id": "L0", "type": "opening", "wall_id": "w_s", "center": [1.1, -0.1], "width": 1.09}
+    walls = [{"id": "w_s", "level_id": "L0", "start": [0, -0.1], "end": [4.2, -0.1], "thickness": 0.2}]
+
+    def run(cars=(car,), extra=(), texts=(), levels=(), rooms_more=()):
+        rooms = [copy.deepcopy(box_), hall] + list(rooms_more)
+        notes = TW.lift_cars(rooms, [], [copy.deepcopy(c) for c in cars], [copy.deepcopy(gap)] + list(extra),
+                             copy.deepcopy(walls), list(texts), list(levels))
+        return rooms[0]["room_type"] == "shaft", notes
+
+    assert run()[0]                                               # the plain case: a lift shaft
+    # an outline holding arcs (a door's swing) or drawn on a door layer is no car
+    arcs = dict(car, evidence=[dict(car["evidence"][0], entity="LINE:1,ARC:48B1,ARC:48C3")])
+    made, notes = run(cars=(arcs,))
+    assert not made and any("ARC:48B1" in n and "no lift car" in n for n in notes)
+    layer = dict(car, evidence=[dict(car["evidence"][0], layer="kapı-pencere")])
+    assert not run(cars=(layer,))[0]
+    # a door size tag inside the face
+    made, notes = run(texts=[{"text": "K:100/210", "point": [1.5, 2.0], "level_id": "L0"}])
+    assert not made and any("door size tag 'K:100/210'" in n for n in notes)
+    assert run(texts=[{"text": "75/45", "point": [1.5, 2.0], "level_id": "L0"}])[0]        # a vent's size: no door
+    # a gap onto nothing (the outside)
+    street = {"id": "o_L0_2", "level_id": "L0", "type": "opening", "center": [1.1, 2.7], "width": 1.5}
+    made, notes = run(extra=[street])
+    assert not made and any("o_L0_2 opens onto nothing" in n for n in notes)
+    # the storey above reads a bedroom there and no shaft: no lift; a lift there: a lift
+    levels = [{"id": "L0", "elevation": 0.0}, {"id": "L1", "elevation": 3.0}]
+    bed = room("r_L1_yatak", "Yatak Odası", "bedroom", [[-0.5, -0.5], [3.0, -0.5], [3.0, 3.0], [-0.5, 3.0]], lv="L1")
+    made, notes = run(levels=levels, rooms_more=[bed])
+    assert not made and any("r_L1_yatak" in n and "stacks" in n for n in notes)
+    lift = room("r_L1_asansor", "Asansör", "shaft", [[0, 0], [2.2, 0], [2.2, 2.6], [0, 2.6]], lv="L1", raw="ASANSÖR")
+    assert run(levels=levels, rooms_more=[bed, lift])[0]
+    assert run(levels=[{"id": "L0", "elevation": 0.0}])[0]          # a single storey (real03's typical floor)
+
+
+def test_an_inferred_landing_door_stands_on_the_shaft_side_with_the_deepest_landing_never_on_a_corner():
+    """19 Nov 2026 (review A3, POD-A3-02: real20's free-standing shaft got its door on its corner, half past its wall's
+    end, facing the 0.40 m slot beside the stair; the landing is on its north side). M3: never towards a stair room."""
+    from shapely.geometry import LineString, Point
+
+    from wenart.ingest import twins as TW
+
+    def room(rid, label, rtype, poly):
+        return {"id": rid, "level_id": "L0", "label": label, "label_raw": label.upper(), "room_type": rtype,
+                "polygon": poly}
+
+    shaft = room("r_L0_asansor", "Asansör", "shaft", [[4.77, 2.22], [6.47, 2.22], [6.47, 3.95], [4.77, 3.95]])
+    # the hall wraps the shaft: 0.15 m west, 0.37 m south, 0.40 m east to the stair, a 0.15 m wall and the 1.2 m landing
+    # north (real20 L0)
+    outer = TW._poly(room("x", "x", "hall", [[4.62, 1.85], [9.37, 1.85], [9.37, 4.1], [9.42, 4.1], [9.42, 5.3],
+                                              [4.57, 5.3], [4.57, 4.1], [6.62, 4.1], [6.62, 3.95], [4.62, 3.95]]))
+    cut = outer.difference(TW._poly(shaft))
+    hall = room("r_L0_hall", "Kat Holü", "hall", [list(p) for p in cut.exterior.coords][:-1])
+    stair = {"id": "f_st", "type": "stair", "level_id": "L0",
+             "footprint": {"center": [8.125, 2.975], "size": [2.5, 2.25], "rotation_deg": 0.0}}
+    walls = [{"id": f"w{k}", "level_id": "L0", "start": a, "end": b, "thickness": 0.1}
+             for k, (a, b) in enumerate([([4.77, 2.22], [6.47, 2.22]), ([6.47, 2.22], [6.47, 3.95]),
+                                         ([6.47, 3.95], [4.77, 3.95]), ([4.77, 3.95], [4.77, 2.22])])]
+    ops = []
+    notes = TW.lift_doors([shaft, hall], ops, walls, [stair])
+    door = ops[0]
+    assert door["wall_id"] == "w2" and abs(door["center"][1] - 3.95) < 0.01 and abs(door["center"][0] - 5.62) < 0.01
+    assert any("1.20 m clear in front" in n for n in notes)
+    # never past the wall's ends
+    c = TW._clamped(LineString([(0, 0), (1.0, 0)]), Point(0.0, 0.0), 0.9)
+    assert abs(c.x - 0.5) < 1e-9
+    c = TW._clamped(LineString([(0, 0), (3.0, 0)]), Point(0.0, 0.0), 0.9)
+    assert abs(c.x - 0.5) < 1e-9
+    # M3: a stair room beside the shaft is never its landing
+    st_room = room("r_L0_merdiven", "Merdiven", "stair", [[6.6, 1.9], [9.3, 1.9], [9.3, 4.0], [6.6, 4.0]])
+    ops = []
+    notes = TW.lift_doors([shaft, st_room], ops, walls, [stair])
+    assert not ops and any("no hall beside it" in n for n in notes)

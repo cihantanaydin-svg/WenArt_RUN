@@ -31,6 +31,7 @@ front, ``inferred: true``.
 from __future__ import annotations
 
 import math
+import re
 from typing import Optional
 
 from shapely.geometry import Point, Polygon
@@ -896,6 +897,62 @@ LIFT_DOOR_MAX_W_M = 1.40         # ... and no wider than a lift door product (a 
 MACHINE_RE_WORDS = ("MAHAL", "MAKINE", "MACHINE", "MOTOR", "MASCHINEN")   # a lift's machine room is no shaft
 
 
+LIFT_LANDING_DEPTH_M = 1.20       # 19 Nov 2026 (review A3, POD-A3-02): the clear depth a landing door needs in front
+LIFT_LANDING_TOL_M = 0.05         # ... less this drawing tolerance (real20's 1.20 m landing strip)
+LIFT_DEPTH_MAX_M = 3.0            # ... measured up to this (deeper counts as this deep); a stretch of the room under
+LIFT_DEPTH_SLIVER_M = 0.05        # this is a sliver of its outline (real20's 0.4 mm along the carved shaft), no depth
+LIFT_DOOR_END_M = 0.05            # an inferred door keeps this far from its wall's ends
+
+
+def _landing_sides(sp, rp, edge, blocks) -> list:
+    """19 Nov 2026 (review A3, POD-A3-02): the straight sides of a lift shaft ``sp`` along its common ``edge`` with a room
+    ``rp``, each with the clear depth in front of it: along three rays square to the side (its middle and a door's half
+    width either way), the length of the first stretch inside the room that starts within ``LIFT_WALL_REACH_M`` of the
+    shaft's face (the wall between), up to where it leaves the room or meets one of ``blocks`` (a stair's box, another
+    shaft); the shortest of the three. A side with no room in front is left out. Returns ``[(depth, side)]`` (pure)."""
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
+
+    blocked = unary_union(blocks) if blocks else None
+    out = []
+    for run in straight_runs(edge):
+        if run.length < LIFT_DOOR_W_M + 0.1:
+            continue
+        (ax, ay), (bx, by) = run.coords[0], run.coords[-1]
+        L = run.length
+        ux, uy = (bx - ax) / L, (by - ay) / L
+        mx, my = (ax + bx) / 2.0, (ay + by) / 2.0
+        nx, ny = -uy, ux
+        if sp.contains(Point(mx + nx * 0.05, my + ny * 0.05)):
+            nx, ny = -nx, -ny
+        hw = min(LIFT_DOOR_W_M, L - 0.1) / 2.0
+        reach = LIFT_WALL_REACH_M + LIFT_DEPTH_MAX_M
+        depths = []
+        for k in (-1.0, 0.0, 1.0):
+            px, py = mx + ux * k * hw, my + uy * k * hw
+            ray = LineString([(px, py), (px + nx * reach, py + ny * reach)])
+            inside = ray.intersection(rp)
+            if blocked is not None and not inside.is_empty:
+                inside = inside.difference(blocked)
+            parts = sorted((g for g in getattr(inside, "geoms", [inside]) if g.geom_type == "LineString"
+                            and g.length > LIFT_DEPTH_SLIVER_M), key=lambda g: Point(px, py).distance(g))
+            if not parts or Point(px, py).distance(parts[0]) > LIFT_WALL_REACH_M + 0.01:
+                depths = []
+                break
+            depths.append(min(parts[0].length, LIFT_DEPTH_MAX_M))
+        if depths:
+            out.append((round(min(depths), 3), run))
+    return out
+
+
+def _clamped(axis, c, width: float):
+    """19 Nov 2026 (POD-A3-02): the point of ``axis`` nearest ``c`` that keeps a door ``width`` wide inside the axis,
+    ``LIFT_DOOR_END_M`` from each end (the axis' middle when it is shorter than that)."""
+    lo, hi = width / 2.0 + LIFT_DOOR_END_M, axis.length - width / 2.0 - LIFT_DOOR_END_M
+    d = (lo + hi) / 2.0 if lo > hi else min(max(axis.project(Point(c.x, c.y)), lo), hi)
+    return axis.interpolate(d)
+
+
 def _room_beyond(opening: dict, shaft: dict, rooms: list[dict]) -> Optional[dict]:
     """12 Nov 2026 (round-2 review, F2): the room on the other side of an opening in a shaft's wall: the nearest room of
     its level, no shaft, within ``LIFT_WALL_REACH_M`` of its centre (None when there is none)."""
@@ -911,7 +968,8 @@ def _room_beyond(opening: dict, shaft: dict, rooms: list[dict]) -> Optional[dict
     return best[1] if best else None
 
 
-def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furniture: list[dict] = ()) -> list[str]:
+def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furniture: list[dict] = (),
+               merged: Optional[list] = None, review: Optional[list] = None) -> list[str]:
     """4 Nov 2026 (lesson UL306, user on real10: "here is for the elevator (asansor) there should be a door for the
     elevator like sliding door again this is a general rule"): every lift shaft (a ``shaft`` room labelled lift,
     asansör ...; not its machine room) has its landing door on each floor: a door or opening drawn in its wall is that
@@ -931,7 +989,17 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
     beside the most lift shafts (the lobby the lifts share), before a longer edge, edges within ``LIFT_EDGE_TIE_M``
     count as equal; it stands in a drawn gap towards that room when there is
     one (the gap narrowed to the door, the rest closed); every other drawn gap into the shaft is closed (the shaft is
-    entered by its landing door only), each with a note."""
+    entered by its landing door only), each with a note.
+
+    19 Nov 2026 (review A3, POD-A3-02 / M2: real20's inferred door was centred on the carved shaft's corner, half past
+    its wall's end, facing the 0.40 m slot beside the stair, because the hall wraps the shaft and the common edge was
+    the whole ring): the inferred door stands on one straight side of the shaft, the side towards the chosen room with
+    the most clear depth in front of it (``_landing_sides``: at least ``LIFT_LANDING_DEPTH_M``, a stair or another shaft
+    ends it; the next room in the ranking is tried when no side of the first has that depth), centred on that side and
+    never past its wall's ends (``_clamped``). M3: a room of type stair is never the inferred door's room (the F2 rule
+    of the drawn gaps). M4: every gap merged into or closed by a landing door goes to ``merged`` (the building's
+    ``openings_merged``) with ``corrected_by_ai``; a gap that opens onto nothing is never closed, it goes to ``review``
+    (the building's ``needs_review``)."""
     from shapely.geometry import LineString
 
     from wenart import common_areas as CA
@@ -990,6 +1058,11 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
                      and Point(x["center"]).distance(Point(o["center"])) <= float(o.get("width") or 0) / 2.0]
             for x in again:
                 openings.remove(x)
+                if merged is not None:
+                    merged.append(dict(x, merged_into=o["id"], corrected_by_ai={
+                        "by": "code", "rule": "lift_door", "evidence": [s["id"], o["id"]],
+                        "reason": f"the landing gap of lift shaft {s['id']} read again on stacked wall runs: one "
+                                  f"opening, merged into its landing door {o['id']}"}))
             if again:
                 o.setdefault("evidence", []).append({"file": (s.get("evidence") or [{}])[0].get("file") or "building.json",
                                                      "method": "derived", "confidence": 0.8, "rule": "lift_door",
@@ -1004,11 +1077,13 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
                                                      "method": "inferred", "confidence": 0.8, "rule": "lift_door",
                                                      "note": f"the door of lift shaft {s['id']}: a sliding landing door"})
                 notes.append(f"{lv}: {o['id']} in the wall of lift shaft {s['id']} is its sliding landing door")
-            notes += _close_shaft_gaps(s, o, openings, rooms)
+            notes += _close_shaft_gaps(s, o, openings, rooms, merged, review)
             continue
         cands = []
         for r in rooms:
-            if r is s or r.get("level_id") != lv or r.get("room_type") == "shaft" or len(r.get("polygon") or []) < 3:
+            # 19 Nov 2026 (review A3, M3): never a stair room (the F2 rule of the drawn gaps: the landing is the hall's)
+            if r is s or r.get("level_id") != lv or r.get("room_type") in ("shaft", "stair") \
+                    or len(r.get("polygon") or []) < 3:
                 continue
             rp = _poly(r)
             if sp.distance(rp) > LIFT_WALL_REACH_M:
@@ -1027,10 +1102,33 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
         if not cands:
             notes.append(f"{lv}: lift shaft {s['id']}: no hall beside it, no landing door inferred")
             continue
-        _rank, room, piece = max(cands, key=lambda c: c[0])
-        mid = piece.interpolate(0.5, normalized=True)
+        cands.sort(key=lambda c: c[0], reverse=True)
+        # 19 Nov 2026 (review A3, POD-A3-02): one straight side of the shaft, the one with the most clear depth in front
+        blocks = [_stair_box(f) for f in furniture or () if f.get("type") == "stair" and f.get("level_id") == lv
+                  and (f.get("footprint") or {}).get("center") and (f.get("footprint") or {}).get("size")]
+        blocks += [_poly(x) for x in rooms if x is not s and x.get("level_id") == lv and x.get("room_type") == "shaft"
+                   and len(x.get("polygon") or []) >= 3]
+        pick = None
+        for _rank, rc, pc in cands:
+            sides = _landing_sides(sp, _poly(rc), pc, blocks)
+            deep = [x for x in sides if x[0] >= LIFT_LANDING_DEPTH_M - LIFT_LANDING_TOL_M]
+            if deep:
+                pick = (rc, max(deep, key=lambda x: (x[0], x[1].length)))
+                break
+            if pick is None and sides:
+                pick = (rc, max(sides, key=lambda x: (x[0], x[1].length)))
+        if pick is None:
+            _rank, room, piece = cands[0]
+            runs = straight_runs(piece)
+            side, depth = (max(runs, key=lambda g: g.length) if runs else piece), None
+        else:
+            room, (depth, side) = pick
+        mid = side.interpolate(0.5, normalized=True)
+        (ax0, ay0), (bx0, by0) = side.coords[0], side.coords[-1]
+        ang = math.atan2(by0 - ay0, bx0 - ax0)
         near = [(LineString([w["start"], w["end"]]).distance(mid), w) for w in walls
-                if w.get("level_id") == lv and w["start"] != w["end"]]
+                if w.get("level_id") == lv and w["start"] != w["end"]
+                and abs(math.sin(math.atan2(w["end"][1] - w["start"][1], w["end"][0] - w["start"][0]) - ang)) <= 0.17]
         near = [(d, w) for d, w in near if d <= LIFT_WALL_REACH_M]
         if not near:
             notes.append(f"{lv}: lift shaft {s['id']}: no wall between it and {room['id']}, no landing door inferred")
@@ -1038,6 +1136,7 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
         wall = min(near, key=lambda x: x[0])[1]
         axis = LineString([wall["start"], wall["end"]])
         c = axis.interpolate(axis.project(mid))
+        piece = side
         # a drawn gap towards that room (too wide for a lift door, or once taken for something else) holds the door
         rp = _poly(room)
         gaps = [o for o in openings if o.get("level_id") == lv and o.get("type") == "opening" and not o.get("virtual")
@@ -1051,6 +1150,7 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
                 wall, axis = gw, LineString([gw["start"], gw["end"]])
             c = axis.interpolate(axis.project(Point(g["center"][:2])))
         width = round(min(LIFT_DOOR_W_M, piece.length - 0.1), 3)
+        c = _clamped(axis, c, width)                 # 19 Nov 2026 (POD-A3-02): never past its wall's ends
         oid = f"d_{s['id']}_lift"
         openings.append({"id": oid, "type": "door", "level_id": lv, "wall_id": wall["id"],
                          "center": [round(c.x, 4), round(c.y, 4)], "width": width, "height": LIFT_DOOR_H_M,
@@ -1061,9 +1161,12 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
                                        "note": f"lift shaft {s['id']} has no door drawn: a {width:.2f} m sliding landing "
                                                f"door towards {room['id']} (UL306)"}]})
         notes.append(f"{lv}: lift shaft {s['id']}: a {width:.2f} m sliding landing door inferred towards {room['id']} "
-                     f"({'common area' if CA.is_common_room(room) else room.get('room_type')}) in {wall['id']}")
+                     f"({'common area' if CA.is_common_room(room) else room.get('room_type')}) in {wall['id']}"
+                     + (f", on the shaft's side with {depth:.2f} m clear in front" if depth is not None else "")
+                     + (f" (less than {LIFT_LANDING_DEPTH_M:.1f} m)" if depth is not None
+                        and depth < LIFT_LANDING_DEPTH_M - LIFT_LANDING_TOL_M else ""))
         faced.setdefault(lv, set()).add(room["id"])
-        notes += _close_shaft_gaps(s, openings[-1], openings, rooms)
+        notes += _close_shaft_gaps(s, openings[-1], openings, rooms, merged, review)
     return notes
 
 
@@ -1071,6 +1174,97 @@ LIFT_CAR_SIDES_M = ((0.9, 2.2), (1.1, 2.8))    # 13 Nov 2026: a lift car's outli
 LIFT_CAR_FILL = 0.4                 # ... the cars filling this share of the face at least ...
 LIFT_CAR_MAX_M2 = 8.0               # ... the face at most this much a car (``labels.AREA_RANGES`` lift)
 LIFT_CAR_GAP_ALIGN = 0.5            # a landing gap whose centre lies within this share of a car's width of the car's
+
+
+LIFT_STACK_M = 0.30                 # 19 Nov 2026 (review A3, POD-A3-01): a shaft stacks when a shaft, a car or a lift word
+#                                     stands this close to it on the storey above or below
+DOOR_SIZE_TAG_RE = re.compile(r"^\s*(?:[KD]\s*\d{0,2}\s*[:\-.]?\s*)?(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.IGNORECASE)
+DOOR_SIZE_TAG_MIN_H_CM = 180        # ... a size tag this high (``core.DOOR_TAG_LOW_H_CM``, 'K:100/210') names a door
+CAR_DOOR_LAYER_ROLES = ("door", "window", "glass")
+
+
+def _door_made(x: dict) -> Optional[str]:
+    """19 Nov 2026 (review A3, POD-A3-01: real09's 'car' f_L-1_013 was the box of an unequal double door's swing,
+    ARC:48B1 and ARC:48C3 on 'kapı-pencere'): why an outline is a door's drawing and no lift car: it holds arcs (a
+    door's swing; a car is drawn with straight lines), or its strokes are on a door, window or glass layer. None when
+    neither."""
+    from wenart.ingest.generic import layer_names as LN
+
+    for e in x.get("evidence") or []:
+        if not isinstance(e, dict):
+            continue
+        arcs = [i.strip() for i in str(e.get("entity") or "").split(",") if i.strip().upper().startswith("ARC:")]
+        if arcs:
+            return f"it holds the arc(s) {', '.join(arcs[:3])} (a door's swing)"
+        role = LN.layer_role(e.get("layer"))
+        if role in CAR_DOOR_LAYER_ROLES:
+            return f"it is drawn on the {role} layer '{e.get('layer')}'"
+    return None
+
+
+def _level_order(levels) -> dict:
+    """Level id -> storey order (by elevation where every level has one, else by the id's storey number)."""
+    def num(lid: str) -> float:
+        m = re.match(r"^L(-?\d+)", str(lid))
+        return float(m.group(1)) if m else 0.0
+
+    lv = [x for x in levels or () if isinstance(x, dict) and x.get("id")]
+    if lv and all(isinstance(x.get("elevation"), (int, float)) for x in lv):
+        keys = sorted({float(x["elevation"]) for x in lv})
+        return {x["id"]: keys.index(float(x["elevation"])) for x in lv}
+    keys = sorted({num(x["id"]) for x in lv})
+    return {x["id"]: keys.index(num(x["id"])) for x in lv}
+
+
+def _car_size(fp: dict) -> bool:
+    sides = sorted(float(v) for v in (fp.get("size") or (0, 0)))
+    return (LIFT_CAR_SIDES_M[0][0] <= sides[0] <= LIFT_CAR_SIDES_M[0][1]
+            and LIFT_CAR_SIDES_M[1][0] <= sides[1] <= LIFT_CAR_SIDES_M[1][1])
+
+
+def _stacks(cars: list, lv: str, rooms: list[dict], outlines: list[dict], levels) -> tuple[Optional[bool], str]:
+    """19 Nov 2026 (review A3, POD-A3-01: real09's one-storey 'shaft' under two bedrooms): whether drawn lift cars stack:
+    True when the storey above or below has a lift shaft, a room labelled lift or a car-size outline within
+    ``LIFT_STACK_M`` of them; False when those storeys read rooms of another kind there and none of that; None when no
+    storey above or below reads that place (a single drawing: real03's typical floor). Returns (verdict, why)."""
+    from wenart.sheets import register as RG
+    from wenart.sheets import titles as TI
+
+    order = _level_order(levels)
+    if lv not in order:
+        return None, "no storey order"
+    k = order[lv]
+    near = [x for x, o in order.items() if abs(o - k) == 1]
+    centres = [cp.centroid for _x, cp in cars]
+    covered = []
+    for al in near:
+        for r in rooms:
+            if r.get("level_id") != al or len(r.get("polygon") or []) < 3:
+                continue
+            rp = _poly(r)
+            if not any(rp.distance(c) <= LIFT_STACK_M for c in centres):
+                continue
+            label = TI.fold(str(r.get("label_raw") or r.get("label") or ""))
+            if r.get("room_type") == "shaft" or RG.LIFT_RE.search(label):
+                return True, f"{al}: {r['id']} ({r.get('label') or r.get('room_type')})"
+            if any(rp.contains(c) for c in centres):
+                covered.append(f"{al}: {r['id']} ({r.get('label') or r.get('room_type')})")
+        for x in outlines:
+            if x.get("level_id") != al or not _car_size(x["footprint"]) or _door_made(x):
+                continue
+            if any(Point(x["footprint"]["center"][:2]).distance(c) <= LIFT_STACK_M for c in centres):
+                return True, f"{al}: the car outline {x.get('id')}"
+    if covered:
+        return False, ", ".join(covered[:3])
+    return None, "no storey above or below reads that place"
+
+
+def _towards_nothing(o: dict, face: dict, rooms: list[dict]) -> bool:
+    """19 Nov 2026 (review A3, M1): an opening with no room but ``face`` within ``LIFT_WALL_REACH_M`` of its centre opens
+    to the outside (or onto nothing read)."""
+    c = Point(o["center"][:2])
+    return not any(r is not face and r.get("level_id") == face.get("level_id") and len(r.get("polygon") or []) >= 3
+                   and _poly(r).distance(c) <= LIFT_WALL_REACH_M for r in rooms)
 
 
 def _fp_poly(fp: dict):
@@ -1083,7 +1277,7 @@ def _fp_poly(fp: dict):
 
 
 def lift_cars(rooms: list[dict], symbols: list[dict], furniture: list[dict], openings: list[dict],
-              walls: list[dict]) -> list[str]:
+              walls: list[dict], texts: list[dict] = (), levels: list[dict] = ()) -> list[str]:
     """13 Nov 2026 (building-sense review S1-03b, real03: twin lift shafts drawn with their cars, guide rails,
     counterweights and telescopic doors but no ASANSÖR word, read as one 'Oda'): a face with no room word of its own
     (unlabelled or a generic 'Oda', of no type or a hall's) that holds drawn lift cars (untyped outlines, symbols or
@@ -1091,7 +1285,15 @@ def lift_cars(rooms: list[dict], symbols: list[dict], furniture: list[dict], ope
     ``LIFT_CAR_MAX_M2`` a car), has no window and no hinged door, and whose doorless gaps each line up with a car and open
     onto a hall, is that many lift shafts: one 'Asansör' per car, split midway between the cars (an inferred shaft
     wall between them), each ``inferred`` with the cars and the gaps as evidence. ``lift_doors`` then makes each gap its
-    shaft's sliding landing door. Mutates ``rooms`` and ``walls``; one line per face."""
+    shaft's sliding landing door. Mutates ``rooms`` and ``walls``; one line per face.
+
+    19 Nov 2026 (review A3, POD-A3-01 / M1: real09's street-entrance vestibule became a one-storey lift shaft and its
+    only street door was walled up; the 'car' was the box of an unequal double door's swing): an outline holding arcs or
+    drawn on a door, window or glass layer is no car (``_door_made``); a face with a door size tag inside it
+    (``texts``: ``{"text", "point", "level_id"}`` in the building frame), or with a gap or door that opens onto nothing
+    (the outside), is no shaft; and the cars must stack (``_stacks``: a shaft, a lift word or a car within
+    ``LIFT_STACK_M`` on the storey above or below; a storey that reads other rooms there refuses it). A refused face keeps
+    its class, with a review line."""
     from shapely.geometry import LineString
     from shapely.ops import split
 
@@ -1099,6 +1301,8 @@ def lift_cars(rooms: list[dict], symbols: list[dict], furniture: list[dict], ope
     from wenart import common_areas as CA
 
     notes = []
+    outlines_all = [x for x in list(symbols or []) + list(furniture or []) if isinstance(x.get("footprint"), dict)
+                    and (x.get("kind") in ("other", "unknown") if "kind" in x else x.get("type") == "unknown")]
     for r in list(rooms):
         label = r.get("label")
         if r.get("room_type") not in (None, "unknown", "hall", "other") or len(r.get("polygon") or []) < 3:
@@ -1108,19 +1312,21 @@ def lift_cars(rooms: list[dict], symbols: list[dict], furniture: list[dict], ope
         if r.get("label_raw") and not B.generic_room_label(r.get("label_raw")):
             continue
         poly, lv = _poly(r), r["level_id"]
-        outlines = [x for x in list(symbols or []) + list(furniture or [])
-                    if x.get("level_id") == lv and isinstance(x.get("footprint"), dict)
-                    and (x.get("kind") in ("other", "unknown") if "kind" in x else x.get("type") == "unknown")]
-        cars = []
+        outlines = [x for x in outlines_all if x.get("level_id") == lv]
+        cars, refused = [], []
         for x in outlines:
             fp = x["footprint"]
-            sides = sorted(float(v) for v in fp.get("size") or (0, 0))
-            if not (LIFT_CAR_SIDES_M[0][0] <= sides[0] <= LIFT_CAR_SIDES_M[0][1]
-                    and LIFT_CAR_SIDES_M[1][0] <= sides[1] <= LIFT_CAR_SIDES_M[1][1]):
+            if not _car_size(fp):
                 continue
             cp = _fp_poly(fp)
             if poly.buffer(0.05).contains(cp) and not any(cp.intersects(c[1]) for c in cars):
+                why = _door_made(x)
+                if why:
+                    refused.append(f"{x.get('id')}: {why}")
+                    continue
                 cars.append((x, cp))
+        for line in refused:
+            notes.append(f"{lv}: {r['id']}: the car-size outline {line}: no lift car")
         n = len(cars)
         if not n or poly.area > n * LIFT_CAR_MAX_M2 or sum(c[1].area for c in cars) < LIFT_CAR_FILL * poly.area:
             continue
@@ -1128,6 +1334,26 @@ def lift_cars(rooms: list[dict], symbols: list[dict], furniture: list[dict], ope
                 and poly.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M]
         if any(o.get("type") == "window" or (o.get("type") == "door" and o.get("operation") in ("swing", "double"))
                for o in near):
+            continue
+        keep = f"{r['id']} keeps its class ({r.get('label') or r.get('room_type') or 'unlabelled'}), listed for review"
+        tag = next((t for t in texts or () if t.get("level_id") == lv and t.get("point") is not None
+                    and (m := DOOR_SIZE_TAG_RE.match(str(t.get("text") or "")))
+                    and int(m.group(2)) >= DOOR_SIZE_TAG_MIN_H_CM and poly.contains(Point(t["point"][:2]))), None)
+        if tag is not None:
+            notes.append(f"{lv}: review: {r['id']} holds car-size outline(s) but the door size tag '{tag['text']}' "
+                         f"stands inside it: no lift shaft; {keep}")
+            continue
+        out = [o for o in near if o.get("type") in ("opening", "door") and _towards_nothing(o, r, rooms)]
+        if out:
+            notes.append(f"{lv}: review: {r['id']} holds car-size outline(s) but its "
+                         f"{', '.join(o['id'] for o in out)} opens onto nothing read (the outside): a lift never opens "
+                         f"to the outside, no lift shaft; {keep}")
+            continue
+        stacked, why = _stacks(cars, lv, rooms, outlines_all, levels)
+        if stacked is False:
+            notes.append(f"{lv}: review: {r['id']} holds car-size outline(s) but the storey above or below reads "
+                         f"other rooms there ({why}) and no shaft, lift word or car: a lift shaft stacks, no lift "
+                         f"shaft; {keep}")
             continue
         gaps = []
         for x, cp in cars:
@@ -1213,10 +1439,16 @@ SHAFT_WINDOW_REACH_M = 0.40      # ... a window this close to the shaft stands i
 LIFT_EDGE_TIE_M = 0.5            # 13 Nov 2026: two rooms' edges along a lift shaft this close in length are equal
 
 
-def _close_shaft_gaps(shaft: dict, door: dict, openings: list[dict], rooms: list[dict]) -> list[str]:
+def _close_shaft_gaps(shaft: dict, door: dict, openings: list[dict], rooms: list[dict],
+                      merged: Optional[list] = None, review: Optional[list] = None) -> list[str]:
     """13 Nov 2026 (review B3C-02): the drawn gaps (type opening) into a lift shaft other than its landing ``door``
     are closed: removed from ``openings``, one note each; a gap the door stands in is the door's (narrowed to it).
-    Returns the notes."""
+    Returns the notes.
+
+    19 Nov 2026 (review A3, M1 / M4): a gap that opens onto nothing (no room but the shaft beside it: the outside) is
+    never closed: it stays and goes to ``review`` (a lift never opens to the outside: the shaft or the gap is misread);
+    every closed gap goes to ``merged`` with ``corrected_by_ai`` (rule, reason, the shaft; ``merged_into`` the door when
+    the door stands in it)."""
     sp, lv = _poly(shaft), shaft["level_id"]
     out = []
     for o in [x for x in openings if x is not door and x.get("level_id") == lv and not x.get("virtual")
@@ -1225,17 +1457,32 @@ def _close_shaft_gaps(shaft: dict, door: dict, openings: list[dict], rooms: list
         beyond = [r["id"] for r in rooms if r is not shaft and r.get("level_id") == lv
                   and len(r.get("polygon") or []) >= 3 and _poly(r).distance(Point(o["center"][:2])) <= LIFT_WALL_REACH_M]
         mine = math.dist(o["center"][:2], door["center"][:2]) <= float(o.get("width") or 0.0) / 2.0 + 0.05
+        w = float(o.get("width") or 0)
+        if not beyond and not mine:
+            why = (f"the {o.get('type')} {o['id']} ({w:.2f} m) in the wall of lift shaft {shaft['id']} opens onto nothing "
+                   f"read (the outside): a lift never opens to the outside; kept, the shaft or the opening is misread")
+            out.append(f"{lv}: review: {why}")
+            if review is not None:
+                review.append({"id": o["id"], "kind": "lift_shaft_gap", "reason": why, "room_id": shaft["id"],
+                               "level_id": lv})
+            continue
         openings.remove(o)
         src = (shaft.get("evidence") or [{}])[0].get("file") or "building.json"
         what = ("holds this landing door: narrowed to it, the rest closed" if mine else
                 "into the shaft closed: a lift shaft is entered by its landing door only")
         door.setdefault("evidence", []).append({"file": src, "method": "inferred", "confidence": 0.7,
                                                 "rule": "lift_shaft_gap",
-                                                "note": f"the drawn gap {o['id']} ({float(o.get('width') or 0):.2f} m) "
-                                                        f"{what}"})
-        out.append(f"{lv}: the gap {o['id']} ({float(o.get('width') or 0):.2f} m) into lift shaft {shaft['id']} "
+                                                "note": f"the drawn gap {o['id']} ({w:.2f} m) {what}"})
+        if merged is not None:
+            merged.append(dict(o, merged_into=door["id"] if mine else None, corrected_by_ai={
+                "by": "code", "rule": "lift_shaft_gap", "evidence": [shaft["id"], door["id"]],
+                "reason": (f"the landing door {door['id']} of lift shaft {shaft['id']} stands in it: narrowed to the "
+                           f"door, the rest closed" if mine else
+                           f"towards {', '.join(beyond)}: a lift shaft is entered by its landing door {door['id']} "
+                           f"only, the wall runs on")}))
+        out.append(f"{lv}: the gap {o['id']} ({w:.2f} m) into lift shaft {shaft['id']} "
                    + (f"holds its landing door {door['id']}: narrowed to it" if mine else
-                      f"closed (towards {', '.join(beyond) or 'nothing'}; the shaft is entered by its landing door "
+                      f"closed (towards {', '.join(beyond)}; the shaft is entered by its landing door "
                       f"{door['id']} only)"))
     return out
 

@@ -841,13 +841,24 @@ def test_a_narrow_gap_by_a_lift_shaft_is_not_its_landing_door():
     shaft = room("r_L1_asansor", "Asansör", "shaft", [[0, 0], [1.6, 0], [1.6, 1.8], [0, 1.8]])
     hall = room("r_L1_hall", "Kat Holü", "hall", [[0, 2.0], [4, 2.0], [4, 4], [0, 4]])
     walls = [{"id": "w1", "level_id": "L1", "start": [-0.1, 1.9], "end": [4.1, 1.9], "thickness": 0.2}]
+    # the second shaft beyond the partition (real21's twin lifts)
+    shaft2 = room("r_L1_asansor_2", "Asansör", "shaft", [[1.8, 0], [3.4, 0], [3.4, 1.8], [1.8, 1.8]])
     slit = {"id": "o1", "level_id": "L1", "type": "opening", "center": [1.7, 0.9], "width": 0.25}
     openings = [slit]
-    notes = TW.lift_doors([shaft, hall], openings, walls)
+    merged, review = [], []
+    notes = TW.lift_doors([shaft, hall, shaft2], openings, walls, (), merged, review)
     assert slit["type"] == "opening" and "operation" not in slit
     # 13 Nov 2026 (review B3C-02): the slit the rule does not take is closed, not left as a hole into the shaft
     assert slit not in openings and any("o1" in n and "closed" in n for n in notes)
-    assert len(openings) == 1 and openings[0]["type"] == "door" and openings[0]["operation"] == "sliding"
+    assert [o["type"] for o in openings] == ["door", "door"] and openings[0]["operation"] == "sliding"
+    # 19 Nov 2026 (review A3, M4): the closed slit is listed with its reason
+    assert [(m["id"], m["corrected_by_ai"]["rule"]) for m in merged] == [("o1", "lift_shaft_gap")] and not review
+    # 19 Nov 2026 (review A3, M1): a slit that opens onto nothing (the outside) is never closed: kept for review
+    slit2 = dict(slit)
+    openings, merged, review = [slit2], [], []
+    notes = TW.lift_doors([shaft, hall], openings, walls, (), merged, review)
+    assert slit2 in openings and not merged and [r["id"] for r in review] == ["o1"]
+    assert any("review" in n and "onto nothing" in n for n in notes)
 
 
 def test_a_core_hall_takes_no_slivers_round_the_stair():
