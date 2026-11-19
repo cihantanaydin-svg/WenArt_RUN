@@ -1309,7 +1309,7 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
             sides.setdefault(key, []).append((off, u, v, members))
         for key, group in sides.items():
             flight = _flight(sorted(group, key=lambda g: g[0]))
-            if flight:
+            if flight and not _grille(flight, [x for x in axis_segs if x[0] == axis]):
                 flights.append(flight)
         if flights and (best is None or sum(f["lines"] for f in flights) > sum(f["lines"] for f in best[1])):
             best = (axis, flights, cuts)
@@ -1520,10 +1520,11 @@ def _loose_flights(axis_segs) -> Optional[tuple[str, list, list]]:
             run = _even_run(sorted(side, key=lambda tr: tr[0]))
             if run:
                 los, his = sorted(tr[1] for tr in run), sorted(tr[2] for tr in run)
-                flights.append({"offsets": [tr[0] for tr in run], "u": los[len(los) // 2], "v": his[len(his) // 2],
-                                "lines": len(run), "spacing": statistics.median(
-                                    [b[0] - a[0] for a, b in zip(run, run[1:])]),
-                                "segs": [s for tr in run for s in tr[3]]})
+                fl = {"offsets": [tr[0] for tr in run], "u": los[len(los) // 2], "v": his[len(his) // 2],
+                      "lines": len(run), "spacing": statistics.median([b[0] - a[0] for a, b in zip(run, run[1:])]),
+                      "segs": [s for tr in run for s in tr[3]]}
+                if not _grille(fl, [(axis, tr[0], tr[1], tr[2], None) for tr in side]):
+                    flights.append(fl)        # (13 Nov 2026: every other line of a grille is no flight)
         found[axis] = flights
     for axis, other in (("h", "v"), ("v", "h")):
         if found[axis] and not found[other]:
@@ -1556,6 +1557,30 @@ def _even_run(treads: list) -> Optional[list]:
 
 def _r(p) -> tuple[float, float]:
     return (round(p[0], 4), round(p[1], 4))
+
+
+GRILLE_SHARE = 0.5          # 13 Nov 2026: a 'flight' with this many lines between its treads (per gap) is a grille
+GRILLE_MID = 0.3            # ... lines at least this share of a gap away from every tread line
+
+
+def _grille(flight: dict, same_axis: list) -> bool:
+    """13 Nov 2026 (real10 L-1: a 0.64 m band of lines 0.10 m apart at the end of a room, two interleaved sets of equal
+    lines each 0.20 m apart, was read as a 7-riser stair): a flight with other parallel lines of about its treads'
+    length standing between its treads, at least ``GRILLE_SHARE`` per gap, is a grille or a hatch drawn finer than any
+    stair's going, not a stair (pure)."""
+    offs = flight["offsets"]
+    if len(offs) < 2:
+        return False
+    u, v = flight["u"], flight["v"]
+    gap = float(flight.get("spacing") or 0.0)
+    between = 0
+    for _axis, off, lo, hi, _seg in same_axis:
+        # (a nosing line 3-4 cm beside its tread is the tread's own; a grille's line stands mid-way between two)
+        if not offs[0] < off < offs[-1] or min(abs(off - o) for o in offs) < GRILLE_MID * gap:
+            continue
+        if min(hi, v) - max(lo, u) >= 0.5 * (v - u):
+            between += 1
+    return between >= GRILLE_SHARE * (len(offs) - 1)
 
 
 def _merge_collinear(items) -> list[tuple[float, float, float, list]]:
@@ -1638,8 +1663,9 @@ def group_treads(clusters: list[Cluster], theta: float, wall_geom=None, notes: O
                 if it is not None and run and step_lo <= it[0] - run[-1][0] <= step_hi:
                     run.append(it)
                     continue
-                if len(run) >= STAIR_MIN_TREADS and _flight(run) is not None \
-                        and not _wall_between(run, axis, from_f, wall_geom):
+                fl = _flight(run) if len(run) >= STAIR_MIN_TREADS else None
+                if fl is not None and not _wall_between(run, axis, from_f, wall_geom) \
+                        and not _grille(fl, [(axis, x[0], x[1], x[2], None) for x in items]):
                     groups.append([k for r in run for k in r[3]])
                 run = [it] if it is not None else []
     if not groups:
