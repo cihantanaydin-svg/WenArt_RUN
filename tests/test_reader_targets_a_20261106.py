@@ -1628,11 +1628,19 @@ def test_an_inferred_landing_door_stands_on_the_shaft_side_with_the_deepest_land
     assert abs(c.x - 0.5) < 1e-9
     c = TW._clamped(LineString([(0, 0), (3.0, 0)]), Point(0.0, 0.0), 0.9)
     assert abs(c.x - 0.5) < 1e-9
-    # M3: a stair room beside the shaft is never its landing
+    # M3: a stair room whose flight stands in front of the shaft is no landing; a flat's room never is
     st_room = room("r_L0_merdiven", "Merdiven", "stair", [[6.6, 1.9], [9.3, 1.9], [9.3, 4.0], [6.6, 4.0]])
+    bath = room("r_L0_banyo", "Banyo", "bathroom", [[2.5, 2.0], [4.7, 2.0], [4.7, 4.2], [2.5, 4.2]])
     ops = []
-    notes = TW.lift_doors([shaft, st_room], ops, walls, [stair])
-    assert not ops and any("no hall beside it" in n for n in notes)
+    notes = TW.lift_doors([shaft, st_room, bath], ops, walls, [stair])
+    assert not ops and any("no landing door inferred" in n for n in notes)
+    # ... but a stair room with its landing in front of the shaft is its landing (real14's core 'Merdiven')
+    landing = room("r_L0_merdiven", "Merdiven", "stair", [[4.0, 0.0], [7.5, 0.0], [7.5, 2.12], [4.0, 2.12]])
+    flight = {"id": "f_st2", "type": "stair", "level_id": "L0",
+              "footprint": {"center": [7.0, 1.0], "size": [1.0, 2.0], "rotation_deg": 0.0}}
+    ops = []
+    TW.lift_doors([shaft, landing, bath], ops, walls, [flight])
+    assert [o["wall_id"] for o in ops] == ["w0"] and abs(ops[0]["center"][1] - 2.22) < 0.01
 
 
 def test_rc16_names_a_riser_no_one_can_climb():
@@ -1750,3 +1758,28 @@ def test_a_flight_split_by_its_walking_line_into_two_narrow_strips_is_one_flight
     assert abs(SY._stair_width(flights) - 1.3) < 1e-9
     apart = [flights[0], dict(flights[1], start=[2.0, 2.5], end=[2.0, 0.0])]
     assert abs(SY._stair_width(apart) - 0.65) < 1e-9
+
+
+def test_a_size_tag_lower_than_a_door_on_a_door_layer_makes_its_gap_a_window_with_the_parapet_sill():
+    """19 Nov 2026 (review A3, OA3-01: real11's '80/150' with 'PARAPET:90CM' on its door layer KAPI made no door, and the
+    gap's three-line window symbol became a 1.02 m sliding door on L0-L6)."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic.model import TextRun
+    from wenart.ingest.model import OpeningItem
+
+    def tag(text, x, y, layer="KAPI"):
+        return TextRun(id="T" + text, text=text, box=(x - 0.2, y - 0.05, x + 0.2, y + 0.05), height=0.1,
+                       rotation_deg=0.0, evidence=[{"layer": layer}])
+
+    wall = _wall((0.0, 3.0), (6.0, 3.0), t=0.35, entity="w1")
+    sliding = OpeningItem("door", 1.02, (3.0, 3.0), 0.0, [0, 0, 0, 0], "LINE:1,LINE:2",
+                          {"method": "vector", "note": "2 leaf/leaves drawn parallel to the wall without a swing arc: a "
+                                                       "sliding door"}, operation="sliding", operation_source="geometry")
+    texts = [tag("80/150", 3.0, 3.5), tag("PARAPET:90CM", 3.0, 3.8, layer="YAZI")]
+    got = GC._window_tags(SimpleNamespace(notes=[]), "x", [wall], [sliding], texts, 1.0)
+    assert got is not None and [o.kind for o in got] == ["window"]
+    assert abs(got[0].width - 0.8) < 1e-6 and got[0].height == 1.5 and got[0].sill == 0.9 and not got[0].assumed
+    # a door-high tag on a door layer is a door's (``_door_tags``), never a window's here
+    assert GC._window_tags(SimpleNamespace(notes=[]), "x", [wall], [sliding], [tag("80/210", 3.0, 3.5)], 1.0) is None

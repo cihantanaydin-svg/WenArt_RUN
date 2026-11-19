@@ -2077,6 +2077,8 @@ TAG_SHIFT_M = 0.35              # the tagged window moves at most this far to cl
 TAG_COLLINEAR_M = 0.08          # a wall piece on the host's line (this close to its axis) is the same wall run
 FULL_GLASS_M = 2.0              # a tagged window this high starts at the floor (a shop window: full glass) ...
 WINDOW_HEAD_M = 2.2             # ... a lower one has its head at the usual lintel height (its sill assumed from it)
+PARAPET_RE = re.compile(r"PARAPET\s*[:=]?\s*(\d{2,3})\s*CM")   # 19 Nov 2026 (OA3-01): 'PARAPET:90CM' beside a tag ...
+PARAPET_REACH_M = 1.5           # ... this close to it gives its window's sill
 
 
 def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float):
@@ -2085,7 +2087,12 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
     window of that width and height, centred at the tag and moved up to ``TAG_SHIFT_M`` to clear the columns, the run's
     ends and the doors; the windows read inside its span are replaced (a frame read as wall, a frame split into small
     windows). A window ``FULL_GLASS_M`` or higher starts at the floor, a lower one ends at ``WINDOW_HEAD_M`` (its sill
-    assumed). Returns the new openings or None."""
+    assumed). Returns the new openings or None.
+
+    19 Nov 2026 (review A3, OA3-01: real11's '80/150' and '50/50' on its door layer KAPI were left to no rule once a tag
+    under a door's height made no door; the gaps' three-line window symbols became 1.02 m sliding doors on L0-L6): a size
+    tag lower than a door (``DOOR_TAG_LOW_H_CM``) on a door layer is a window's or a vent's tag: its window replaces a
+    door read from leaf lines alone in its span; a 'PARAPET: nn CM' text beside the tag gives the sill."""
     from wenart.ingest.generic import layer_names as LN
     from wenart.ingest.model import OpeningItem
 
@@ -2096,8 +2103,15 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
         if m and LN.layer_role(layer) in ("window", "glass") \
                 and not _door_like_tag(t, int(m.group(1)), int(m.group(2)), openings):
             tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+        elif m and LN.layer_role(layer) == "door" and int(m.group(2)) < DOOR_TAG_LOW_H_CM:
+            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
     if not tags or not walls2:
         return None
+    parapets = []
+    for t in texts_m:
+        pm = PARAPET_RE.search(B.fold_ascii(str(t.text or "")).upper())
+        if pm:
+            parapets.append((((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0), int(pm.group(1)) / 100.0))
     polys = [TP.wall_polygon(w) for w in walls2]
     out = list(openings)
     done, skipped = [], []
@@ -2152,9 +2166,13 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
             ps = [along(c) for gg in getattr(part, "geoms", [part]) if hasattr(gg, "exterior")
                   for c in gg.exterior.coords]
             blocked.append((min(ps), max(ps)))
+        low = height * 100.0 < DOOR_TAG_LOW_H_CM and LN.layer_role(
+            (t.evidence[0].get("layer") if t.evidence else None)) == "door"
         for j, o in enumerate(out):
             if o.kind == "door" and abs(off(o.center)) <= h + 0.05:
                 a = along(o.center)
+                if low and _leaf_line_door(o) and abs(a - s_) <= float(o.width) / 2.0 + TAG_SHIFT_M:
+                    continue                    # 19 Nov 2026 (OA3-01): the window symbol's lines read as leaves
                 blocked.append((a - float(o.width) / 2.0, a + float(o.width) / 2.0))
         # the free stretch of the run around the tag
         lo, hi = min(run), max(run)
@@ -2177,18 +2195,27 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
                 and abs(off(o.center)) <= h + 0.05 and a0 - 0.05 <= along(o.center) <= a1 + 0.05
                 and (o.kind == "window" or a0 - 0.05 <= along(o.center) - float(o.width) / 2.0
                      and along(o.center) + float(o.width) / 2.0 <= a1 + 0.05)]   # a gap only when wholly inside
+        if low:
+            gone += [o for o in out if _leaf_line_door(o) and abs(off(o.center)) <= h + 0.05
+                     and abs(along(o.center) - s_) <= float(o.width) / 2.0 + TAG_SHIFT_M]
         out = [o for o in out if all(o is not g for g in gone)]
         mid = (a0 + a1) / 2.0
         ev = dict(t.evidence[0]) if t.evidence else {}
         ev.update(method="vector", confidence=0.9, rule="size_tag",
                   reason=f"the window size tag '{t.text}' (width/height in cm) beside the wall")
         full = height >= FULL_GLASS_M
+        tc = (cx, cy)
+        sill_m = next((v for q, v in sorted(parapets, key=lambda pq: math.dist(pq[0], tc))
+                       if math.dist(q, tc) <= PARAPET_REACH_M), None)
+        if sill_m is not None and not full:
+            ev["note"] = f"sill {sill_m:.2f} m from the parapet text beside the tag"
         out.append(OpeningItem(kind="window", width=round(a1 - a0, 3),
                                center=(round(x0 + ux * mid, 4), round(y0 + uy * mid, 4)),
                                rotation_deg=math.degrees(math.atan2(uy, ux)),
                                box=[v / units_to_m for v in t.box], entity=t.id, evidence=ev, height=height,
-                               sill=0.0 if full else round(max(0.0, WINDOW_HEAD_M - height), 2),
-                               assumed=[] if full else ["sill_height"],
+                               sill=0.0 if full else (round(sill_m, 2) if sill_m is not None
+                                                      else round(max(0.0, WINDOW_HEAD_M - height), 2)),
+                               assumed=[] if full or sill_m is not None else ["sill_height"],
                                type_raw=f"window size tag {t.text.strip()}"))
         done.append(f"{t.text.strip()} ({len(gone)} read window(s) replaced"
                     + (f", {a1 - a0:.2f} m free" if a1 - a0 < width - 1e-3 else "") + ")")

@@ -945,6 +945,21 @@ def _landing_sides(sp, rp, edge, blocks) -> list:
     return out
 
 
+def _middle_side(edge, sides: list):
+    """19 Nov 2026 (review A3, POD-A3-02): of ``sides`` (``_landing_sides``), the one the middle of the common ``edge``
+    stands on, when the edge is no closed ring and its middle lies at least half a door from that side's ends (no
+    corner); else None (pure)."""
+    if edge is None or edge.is_empty or edge.geom_type != "LineString" or edge.is_ring or not sides:
+        return None
+    mid = edge.interpolate(0.5, normalized=True)
+    for depth, run in sides:
+        if run.distance(mid) <= 0.01:
+            t = run.project(mid)
+            if LIFT_DOOR_W_M / 2.0 <= t <= run.length - LIFT_DOOR_W_M / 2.0:
+                return depth, run
+    return None
+
+
 def _clamped(axis, c, width: float):
     """19 Nov 2026 (POD-A3-02): the point of ``axis`` nearest ``c`` that keeps a door ``width`` wide inside the axis,
     ``LIFT_DOOR_END_M`` from each end (the axis' middle when it is shorter than that)."""
@@ -993,11 +1008,14 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
 
     19 Nov 2026 (review A3, POD-A3-02 / M2: real20's inferred door was centred on the carved shaft's corner, half past
     its wall's end, facing the 0.40 m slot beside the stair, because the hall wraps the shaft and the common edge was
-    the whole ring): the inferred door stands on one straight side of the shaft, the side towards the chosen room with
-    the most clear depth in front of it (``_landing_sides``: at least ``LIFT_LANDING_DEPTH_M``, a stair or another shaft
-    ends it; the next room in the ranking is tried when no side of the first has that depth), centred on that side and
-    never past its wall's ends (``_clamped``). M3: a room of type stair is never the inferred door's room (the F2 rule
-    of the drawn gaps). M4: every gap merged into or closed by a landing door goes to ``merged`` (the building's
+    the whole ring): the inferred door stands on one straight side of the shaft towards the chosen room with a landing's
+    clear depth in front of it (``_landing_sides``: at least ``LIFT_LANDING_DEPTH_M``, a stair's flights or another
+    shaft end it; the next room in the ranking is tried when no side of the first has that depth): the side the middle
+    of the common edge stands on when that is no corner and the edge no ring (``_middle_side``), else the deepest;
+    centred on that side and never past its wall's ends (``_clamped``). M3: never a flat's room (a bathroom beside the
+    shaft is no landing); a stair room only after every hall, and only on a side with a landing in front of it clear of
+    its flights (the F2 rule of the drawn gaps: never into a flight). M4: every gap merged into or closed by a landing
+    door goes to ``merged`` (the building's
     ``openings_merged``) with ``corrected_by_ai``; a gap that opens onto nothing is never closed, it goes to ``review``
     (the building's ``needs_review``)."""
     from shapely.geometry import LineString
@@ -1081,9 +1099,11 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
             continue
         cands = []
         for r in rooms:
-            # 19 Nov 2026 (review A3, M3): never a stair room (the F2 rule of the drawn gaps: the landing is the hall's)
-            if r is s or r.get("level_id") != lv or r.get("room_type") in ("shaft", "stair") \
-                    or len(r.get("polygon") or []) < 3:
+            # 19 Nov 2026 (review A3, M3): never a flat's room; a stair room only after every hall, and only on a side
+            # with a landing's clear depth in front, clear of its flights (real14: the core's landing is the 'Merdiven'
+            # room's; real10 L-2's gap into the flight beside the lift is no landing)
+            if r is s or r.get("level_id") != lv or r.get("room_type") == "shaft" \
+                    or str(r.get("room_type") or "") in FLAT_ROOM_TYPES or len(r.get("polygon") or []) < 3:
                 continue
             rp = _poly(r)
             if sp.distance(rp) > LIFT_WALL_REACH_M:
@@ -1095,10 +1115,11 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
             piece = max(pieces, key=lambda g: g.length)
             if piece.length < LIFT_DOOR_W_M + 0.1:
                 continue
-            rank = (CA.is_common_room(r), str(r.get("room_type") or "") in ("hall", "corridor"),
+            rank = (r.get("room_type") != "stair", CA.is_common_room(r),
+                    str(r.get("room_type") or "") in ("hall", "corridor"),
                     r["id"] in stair_rooms or r["id"] in faced.get(lv, ()), served.get(r["id"], 0),
                     round(piece.length / LIFT_EDGE_TIE_M))
-            cands.append((rank, r, piece))
+            cands.append((rank, r, piece, edge))
         if not cands:
             notes.append(f"{lv}: lift shaft {s['id']}: no hall beside it, no landing door inferred")
             continue
@@ -1109,16 +1130,24 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
         blocks += [_poly(x) for x in rooms if x is not s and x.get("level_id") == lv and x.get("room_type") == "shaft"
                    and len(x.get("polygon") or []) >= 3]
         pick = None
-        for _rank, rc, pc in cands:
-            sides = _landing_sides(sp, _poly(rc), pc, blocks)
+        for _rank, rc, pc, ec in cands:
+            sides = _landing_sides(sp, _poly(rc), ec, blocks)   # every piece of the common edge
             deep = [x for x in sides if x[0] >= LIFT_LANDING_DEPTH_M - LIFT_LANDING_TOL_M]
             if deep:
-                pick = (rc, max(deep, key=lambda x: (x[0], x[1].length)))
+                # the side the common edge's middle stands on when that is no corner and the edge no ring (the shaft
+                # beside its landing: real17's door towards the stair landing, not the flat's hall the edge also
+                # touches), else the deepest
+                mine = _middle_side(pc, deep)
+                pick = (rc, mine if mine is not None else max(deep, key=lambda x: (x[0], x[1].length)))
                 break
-            if pick is None and sides:
+            if pick is None and sides and rc.get("room_type") != "stair":
                 pick = (rc, max(sides, key=lambda x: (x[0], x[1].length)))
+        if pick is None and all(c[1].get("room_type") == "stair" for c in cands):
+            notes.append(f"{lv}: lift shaft {s['id']}: only a stair beside it, no landing in front of a side, no landing "
+                         f"door inferred")
+            continue
         if pick is None:
-            _rank, room, piece = cands[0]
+            _rank, room, piece, _e = next(c for c in cands if c[1].get("room_type") != "stair")
             runs = straight_runs(piece)
             side, depth = (max(runs, key=lambda g: g.length) if runs else piece), None
         else:
