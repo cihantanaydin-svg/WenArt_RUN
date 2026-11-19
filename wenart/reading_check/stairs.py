@@ -45,10 +45,25 @@ def stairs(building: dict) -> list[dict]:
     """``[{"id", "level_id", "risers", "violations": [{"check", "message"}], "error"}]`` for every stair piece with
     drawn flights (pure)."""
     from wenart.blender import parametric as P
+    from wenart.blender import shell as SH
 
     out = []
+    whole = SH.whole_building(building)
+    levels = {lv.get("id"): lv for lv in building.get("levels") or []}
     for f in building.get("furniture") or []:
         if f.get("type") != "stair" or not (P.stair_data(f) or {}).get("flights"):
+            continue
+        # 19 Nov 2026 (review A4, SW-A4-03: real06's top floor draws the upper end of the stair below, and RC16 planned it
+        # as a new 3 m stair of 0.43 m risers): what the build does: a top floor's drawn arrival of the stair below is
+        # not built again, so it is not checked as a stair of its own
+        lv = levels.get(f.get("level_id"))
+        try:
+            arrival = SH.stair_arrival(building, lv, f) if whole and lv is not None else None
+        except (TypeError, ValueError, KeyError):
+            arrival = None                       # a level without an elevation: no arrival to tell
+        if arrival:
+            out.append({"id": f.get("id"), "level_id": f.get("level_id"), "risers": None, "violations": [],
+                        "error": None, "arrives_from": arrival.get("from")})
             continue
         rise = _rise(building, f.get("level_id"))
         walls = [w for w in building.get("walls") or [] if w.get("level_id") == f.get("level_id")]

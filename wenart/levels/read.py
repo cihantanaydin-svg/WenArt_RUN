@@ -232,6 +232,9 @@ def _outside_doors(building: dict, level_id: str, rooms: list, outline) -> list[
     return out
 
 
+TITLE_MARK_RE = re.compile(r"\d\s*KOTU?\b", re.IGNORECASE)   # '+ 3,50 kotu': a plan's or a table's floor heading
+
+
 def classify(marks: list[dict], building: dict, params: dict) -> list[str]:
     """Set ``kind``, ``room_id`` and ``side`` of every mark (mutated; module docstring). Returns warnings."""
     from wenart.blender import site as S
@@ -292,6 +295,16 @@ def classify(marks: list[dict], building: dict, params: dict) -> list[str]:
         if door is not None and hint not in ("ground_natural", "slope_top", "plinth"):
             m["kind"] = "entrance" if hint == "entrance" else "threshold"
             m["door_id"] = door[2]["id"]
+        elif hint not in ("ground_natural", "ground_finished", "slope_top") and (
+                (gl is not None and lid != gl.get("id")) or TITLE_MARK_RE.search(str(m.get("raw") or ""))):
+            # 19 Nov 2026 (review A3, OA3-08: real14's terrain was a TIN at +15 to +21 m from the '+ 3,50 kotu' heads
+            # of the sheets' finish tables and the roof terrace's marks): only the ground floor's own plan, a site
+            # plan or a section gives ground points; outside an upper storey's outline a mark is a terrace's, a
+            # roof's or a title's, and a '+N,NN KOTU' heading names its storey's floor
+            m["kind"] = "unknown"
+            why = ("a title's or a table's floor elevation" if TITLE_MARK_RE.search(str(m.get("raw") or ""))
+                   else f"outside the outline of {lid}, not the ground floor ({(gl or {}).get('id')})")
+            warnings.append(f"{m['id']}: mark {m['raw']!r} {why}: never a ground mark, not used")
         elif dist > float(params["ground_reach"]):
             m["kind"] = "unknown"
             warnings.append(f"{m['id']}: mark {m['raw']!r} {dist:.1f} m from the building: another drawing on the "

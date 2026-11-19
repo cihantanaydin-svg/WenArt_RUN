@@ -343,11 +343,13 @@ MITRE = 2
 
 
 def facade_wall_items(walls: list, faces: list, openings: list, file_rel: str, page_no: Optional[int],
-                      units_to_m: Optional[float] = None) -> list:
+                      units_to_m: Optional[float] = None, rule: str = None, why=None) -> list:
     """The inferred facade walls of the closed faces as ``WallItem``s, cut from a wall region the way the room
     outlines' walls are (``outlines.infer_walls``): each face grown by the thickness of the drawn walls it touches
     (median), less the faces and the drawn walls and openings; ``walls.walls_from_mask`` cuts the region into wall
-    rectangles whose faces snap to its edges (no gap at a step, no tilted wall)."""
+    rectangles whose faces snap to its edges (no gap at a step, no tilted wall). 19 Nov 2026 (review A4, A4FC-5: the
+    walls a room's own outline closed said 'glazed_facade'): ``rule`` (default ``RULE``) and ``why(wall middle, t)`` ->
+    ``(note, entity)`` name the step that made them."""
     from wenart import building as B
     from wenart.ingest.generic import walls as W
 
@@ -371,7 +373,8 @@ def facade_wall_items(walls: list, faces: list, openings: list, file_rel: str, p
         return []
     rings = [list(g.exterior.coords)[:-1] for g in parts] + [list(r.coords)[:-1] for g in parts for r in g.interiors]
     edges = [(ring[k], ring[(k + 1) % len(ring)]) for ring in rings for k in range(len(ring))]
-    prim = W.WallPrim(kind="inferred", entity=RULE, stroke_ids=[], method="inferred", confidence=0.6,
+    rule = rule or RULE
+    prim = W.WallPrim(kind="inferred", entity=rule, stroke_ids=[], method="inferred", confidence=0.6,
                       polygons=rings, faces=edges)
     mask = W.wall_mask(None, [prim], 1.0)
     new, _info = W.walls_from_mask(mask, [], file_rel, page_no, units_to_m=units_to_m)
@@ -382,13 +385,15 @@ def facade_wall_items(walls: list, faces: list, openings: list, file_rel: str, p
         mid = ((w.start[0] + w.end[0]) / 2.0, (w.start[1] + w.end[1]) / 2.0)
         near = min(range(len(polys)), key=lambda i: polys[i].distance(Point(mid)))
         src = dict(walls[near].evidence or {})
-        ev = B.evidence(src.get("file") or file_rel, "inferred", 0.6, page=page_no, entity=src.get("entity"),
-                        layer=src.get("layer"), rule=RULE)
-        ev["note"] = ("the room's walls did not close: its facade is drawn as window and door frames and short "
-                      "pieces on other layers; the wall is inferred where the frames stand (thickness "
-                      f"{t:.2f} m, the median of the drawn walls the room touches)")
+        told = why(mid, t) if why is not None else None
+        ev = B.evidence(src.get("file") or file_rel, "inferred", 0.6, page=page_no,
+                        entity=told[1] if told else src.get("entity"), layer=src.get("layer"), rule=rule)
+        ev["note"] = told[0] if told else (
+            "the room's walls did not close: its facade is drawn as window and door frames and short "
+            "pieces on other layers; the wall is inferred where the frames stand (thickness "
+            f"{t:.2f} m, the median of the drawn walls the room touches)")
         w.evidence = ev
-        w.entity = f"inferred:{RULE}"
+        w.entity = f"inferred:{rule}"
         w.status = "unverified"
         w.inferred = True
         w.exterior = True

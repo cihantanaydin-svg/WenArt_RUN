@@ -761,6 +761,8 @@ def rc9(building: dict, sheets: dict, storeys: Optional[dict] = None, storey_el:
         if fz.get("method") == "assumed":
             if not secs:
                 continue                         # no section: one info finding below
+            if lv.get("elevation_source") == "level_mark":
+                continue                         # 19 Nov 2026 (review A4, SW-A4-05): the floor marks confirm it
             out.append(_finding("RC9", "minor", lv["id"], f"{lv['id']}: the section's heights were not used "
                                 f"({fz.get('note') or 'assumed'}): the floor at {float(fz.get('value') or 0):.2f} m "
                                 f"is assumed", [sec_src, f"plan of {lv['id']}"]))
@@ -836,7 +838,39 @@ def rc9(building: dict, sheets: dict, storeys: Optional[dict] = None, storey_el:
                                 f"a storey ({storey:.2f} m) under the lowest floor ({low['id']} at "
                                 f"{float(low.get('elevation') or 0):.2f} m)", [sec_src, f"level {low['id']}"]))
         out += _doors_under_ground(building, levels, ground, sec_src)
+    out += terrain_at_entrances(building)
     return out
+
+
+TERRAIN_OFF_M = 1.5          # 19 Nov 2026 (review A3, OA3-08): the terrain this far off a ground-floor entrance's floor
+
+
+def terrain_at_entrances(building: dict) -> list[dict]:
+    """19 Nov 2026 (review A3, OA3-08: real14's terrain stood 18-21 m above its ground floor, from title and roof-terrace
+    marks, and no reading check said so): the terrain at the ground floor's entrances (``site.entrances``: ``ground_z``
+    against ``threshold_z``) more than ``TERRAIN_OFF_M`` above or below: critical at the main entrance or at every one
+    of them (the terrain or the level is misread), major at some."""
+    from wenart.levels import model as LMOD
+
+    gl = LMOD.ground_level(building)
+    if gl is None:
+        return []
+    ents = [e for e in (building.get("site") or {}).get("entrances") or [] if isinstance(e, dict)
+            and e.get("level_id") == gl["id"] and isinstance(e.get("ground_z"), (int, float))
+            and isinstance(e.get("threshold_z"), (int, float))]
+    off = [e for e in ents if abs(float(e["ground_z"]) - float(e["threshold_z"])) > TERRAIN_OFF_M]
+    if not off:
+        return []
+    main = next((e for e in ents if e.get("main")), None)
+    sev = "critical" if len(off) == len(ents) or (main is not None and main in off) else "major"
+    worst = max(off, key=lambda e: abs(float(e["ground_z"]) - float(e["threshold_z"])))
+    d = float(worst["ground_z"]) - float(worst["threshold_z"])
+    return [_finding("RC9", sev, gl["id"], f"{gl['id']}: the terrain stands more than {TERRAIN_OFF_M:.1f} m off the "
+                     f"ground floor at {len(off)} of its {len(ents)} entrance(s) (worst {worst['door_id']}: ground "
+                     f"{float(worst['ground_z']):.2f} m, {abs(d):.2f} m {'above' if d > 0 else 'below'} its floor "
+                     f"{float(worst['threshold_z']):.2f} m, from {worst.get('ground_source') or 'the terrain'}): the "
+                     f"terrain or the level is misread", ["site.ground", f"plan of {gl['id']}"],
+                     tuple(worst["centre"]) if worst.get("centre") else None, [e["door_id"] for e in off])]
 
 
 def _doors_under_ground(building: dict, levels: list[dict], ground: float, sec_src: str) -> list[dict]:

@@ -99,6 +99,7 @@ SPACE = {
     "area_tol": 0.15,          # a closed region within 15 % of the stated area is the space
     "gap_m": 0.5,              # free stroke ends are bridged up to this (a column, a short stop at the facade)
     "reach_min": 4.0, "reach_max": 15.0,   # strokes within this of the label (2.5 x the side of the stated area)
+    "reach_grow": (6.0, 8.0),  # 19 Nov 2026 (review A4, A4FC-3): with no stated area, these next when nothing closes
     "min_area": 1.5, "max_area": 400.0,
     "label_reach_m": 1.5,      # a built surface or room this close to the label already holds it
     "door_probe": 0.3,         # a door opens onto a space when its probe (this far out of the face) is on it
@@ -286,7 +287,10 @@ def _faces(anchor, strokes: list[dict], facade, gap: float) -> list[dict]:
     if facade is not None and not facade.is_empty:
         for poly in getattr(facade, "geoms", [facade]):
             fixed.append(poly.exterior)
-    lines = [LineString(s["pts"]) for s in strokes if len(s["pts"]) >= 2]
+    # 19 Nov 2026 (review A4, A4FC-3: real18's railing corners missed each other by 1e-11 and the ring never closed):
+    # the points on a micrometre grid
+    lines = [LineString([(round(float(q[0]), 6), round(float(q[1]), 6)) for q in s["pts"]]) for s in strokes
+             if len(s["pts"]) >= 2]
     bridges = _bridges(strokes, fixed, gap)
     lines += [LineString([p, q]) for p, q, _ in bridges]
     if not lines:
@@ -311,12 +315,27 @@ def close_region(anchor: Sequence[float], strokes: Sequence[dict], facade=None, 
     """The region a site label sits in, closed from the drawn strokes around it (pure, shapely; module docstring).
     ``strokes``: ``[{"id", "pts", "layer", "closed"}]`` (metres, the label's frame); ``facade``: the building's
     filled outline (a shapely polygon) or None. Returns ``{"polygon": [[x, y]], "area_m2", "stated_m2", "off",
-    "layers", "entities", "bridges": [m], "pass", "reason"}`` or None."""
+    "layers", "entities", "bridges": [m], "pass", "reason"}`` or None.
+
+    19 Nov 2026 (review A4, A4FC-3: real18 L0's south BALKON label stood 4.85 m from both legs of its L-shaped railing,
+    so nothing closed within 4 m and a rectangle ran past the railing): with no stated area, the reach grows
+    (``SPACE["reach_grow"]``) until a face closes around the label."""
+    if stated:
+        reaches = [min(SPACE["reach_max"], max(SPACE["reach_min"], 2.5 * math.sqrt(stated)))]
+    else:
+        reaches = [SPACE["reach_min"]] + [r for r in SPACE["reach_grow"] if r > SPACE["reach_min"]]
+    for reach in reaches:
+        got = _close_within(anchor, strokes, facade, stated, gap, reach)
+        if got is not None:
+            return got
+    return None
+
+
+def _close_within(anchor, strokes, facade, stated: Optional[float], gap: float, reach: float) -> Optional[dict]:
+    """``close_region`` with the strokes within ``reach`` of the label (pure)."""
     from shapely.geometry import LineString, Point
 
     pt = Point(anchor)
-    reach = SPACE["reach_min"] if not stated else min(SPACE["reach_max"], max(SPACE["reach_min"],
-                                                                                2.5 * math.sqrt(stated)))
     near = []
     for s in strokes:
         pts = [tuple(p) for p in s.get("pts") or []]

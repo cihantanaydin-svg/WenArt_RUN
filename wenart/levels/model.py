@@ -55,6 +55,7 @@ from __future__ import annotations
 
 import copy
 import math
+import re
 from typing import Optional, Sequence
 
 from wenart import geometry as G
@@ -312,8 +313,11 @@ def _plan_frame(b: dict, marks: list, gl: Optional[dict], tol: float, inferred: 
     own = [m for m in marks if m.get("z") is not None and not m.get("frame_shift") and (
         (m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms) or
         (m.get("kind") in ("threshold", "entrance") and m.get("level_id") == gl["id"]))]
+    # 19 Nov 2026 (review A4, A4C-02: a ground-floor terrace room marked ±0.00, the garden's level, refused the frame and
+    # every storey shifted): an open-air room's mark is no room floor of the storey either
     room_only = [m for m in own if m.get("kind") in FLOOR_KINDS
-                 and (rooms.get(m.get("room_id")) or {}).get("room_type") not in NO_FLOOR_ROOMS]
+                 and (rooms.get(m.get("room_id")) or {}).get("room_type") not in NO_FLOOR_ROOMS
+                 and not _open_air(rooms.get(m.get("room_id")))]
     if not room_only or any(abs(float(m["z"])) <= tol for m in room_only):
         return 0.0
     counts: dict = {}
@@ -509,6 +513,12 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
                 sl["z_top"] = _r(new)
                 sl.setdefault("evidence", []).append(_evidence(file, "level_elevation", note))
                 inferred.append({"item": f"slab {sl.get('id')} z_top", "value": _r(new), "reason": note})
+        elif lid in proposed and lid not in refused and lv.get("elevation_source") != "level_mark":
+            # 19 Nov 2026 (review A4, SW-A4-05: real07's levels said level_mark while the warnings still said the
+            # elevations were assumed): the marks confirm the elevation: said so, the assumption no longer holds
+            line = f"level {lid}: elevation {new:+.2f} m confirmed by its floor marks ({why}): no longer assumed"
+            warnings.append(line)
+            inferred.append({"item": f"level {lid} elevation", "value": _r(new), "reason": line})
         lv["elevation"] = _r(new)
         if lid in proposed and lid not in refused:
             lv["elevation_source"] = "level_mark"     # (a level that only followed stays assumed, listed as inferred)
@@ -752,6 +762,17 @@ FACADE_WINDOW = (0.9, 1.4)          # ... a window's sill and height when the le
 UNCLEAR_GAP = "unclassified gap content"
 
 
+OPEN_AIR_ROOMS_RE = re.compile(r"(?<![a-z])(?:balcony|balkon|teras|terrace|loggia|lodjia|veranda|porch|deck|patio)")
+
+
+def _open_air(room: Optional[dict]) -> bool:
+    """19 Nov 2026 (review A4, A4FC-4 / A4C-02): a room open to the air by its type or label (a balcony, a terrace)."""
+    from wenart import building as B
+
+    r = room or {}
+    return bool(OPEN_AIR_ROOMS_RE.search(B.fold_ascii(f"{r.get('room_type') or ''} {r.get('label') or ''}").lower()))
+
+
 def facade_gaps(b: dict, levels: list, outline, outlines: dict, spaces: Sequence[dict], tm: dict,
                 params: dict) -> list[dict]:
     """3 Nov 2026 (real10, user: "tell me what purple means", then "go ahead"): a gap in an outside wall whose lines no
@@ -817,6 +838,8 @@ def facade_gaps(b: dict, levels: list, outline, outlines: dict, spaces: Sequence
         lv, room, face, ow = side
         if room is None:
             continue                     # no room of the house behind it: not a facade opening of a room
+        if _open_air(room):
+            continue                     # 19 Nov 2026 (review A4, A4FC-4): a balcony's open edge, never a window
         probe = (face[0] + ow[0] * OD.SPACE["door_probe"], face[1] + ow[1] * OD.SPACE["door_probe"])
         floor = room_floor_z(b, room)
         onto = None
@@ -911,8 +934,10 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
         if near and o["id"] not in lowered and not own and landing_mark is not None and landing_mark.get("kind") == "threshold":
             gz, gsrc = float(landing_mark["z"]), (f"the threshold mark {landing_mark['id']} its own plan prints at the "
                                                  f"door (no ground mark of that plan within reach)")
-        elif near and o["id"] not in lowered:
-            m = min(own or near, key=lambda m: G.distance(probe, m["point"]))
+        elif own and o["id"] not in lowered:
+            # 19 Nov 2026 (review A3, OA3-08: real14's ground-floor door took the ground of a roof-terrace mark): never
+            # another plan's ground mark; without one of its own plan the door stands on the terrain
+            m = min(own, key=lambda m: G.distance(probe, m["point"]))
             gz, gsrc = float(m["z"]), f"ground mark {m['id']}"
             _use(m, f"entrance:{o['id']}")
         else:

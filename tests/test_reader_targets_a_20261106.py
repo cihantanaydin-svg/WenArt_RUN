@@ -1451,8 +1451,8 @@ def test_a_doors_own_plan_gives_its_ground_first_its_threshold_mark_when_it_prin
     own = F.mark("lm_own", -0.45, kind="ground_finished", point=(8.0, -2.5), level="L0")
     e = entrance([other, own])
     assert e["ground_source"] == "ground mark lm_own" and e["ground_z"] == -0.45
-    # with only the other plan's mark, that mark is used as before
-    assert entrance([other])["ground_source"] == "ground mark lm_up"
+    # with only the other plan's mark, never that mark: the door stands on the terrain (19 Nov 2026, review A3, OA3-08)
+    assert entrance([other])["ground_source"].startswith("terrain")
 
 
 def test_the_plans_title_elevations_set_the_floors_and_the_datum():
@@ -2142,3 +2142,146 @@ def test_one_machine_room_test_and_plant_words_with_word_ends():
                          ("MAKYAJ ODASI", "other"), ("ASANSÖR MAKSIMUM 8 KİŞİ", "shaft"),
                          ("MAKİNE DAİRESİZ ASANSÖR", "shaft"), ("ASANSÖR (MAKİNE DAİRESİZ)", "shaft")):
         assert B.room_type_for(label, 9.0, 1.2) == rtype, label
+
+
+def test_a_face_line_under_a_plaster_coat_carries_the_face_whatever_a_tenth_of_a_millimetre():
+    """19 Nov 2026 (review A4, POD-A4-03: real09 L2 kept a 0.73 m gap beside the chimney box that L0 and L1 closed: the
+    masonry line, 3 cm inside the plaster face, stood 0.0301 m off it on L2 and 0.0299 m on L0)."""
+    from wenart.ingest.generic import core as GC
+
+    def run(shift):
+        wall = _wall((5.5 + shift, 0.0), (5.5 + shift, 4.0), t=0.26, entity="w1")
+        gap = _gap((5.5 + shift, 2.0), 0.73)
+        # the east face: plaster through; the west face: plaster stops at the box, the masonry 3 cm inside runs through
+        faces = [_line((5.63, 0.0), (5.63, 4.0), 1, layer="sıva"), _line((5.37, 0.0), (5.37, 1.2), 2, layer="sıva"),
+                 _line((5.40, 0.0), (5.40, 4.0), 3, layer="duvar")]
+        return GC._faces_through_gaps(_ex2(), "p", [wall], [gap], faces)[1]
+
+    assert run(0.0) == [] and run(0.0001) == [] and run(-0.0001) == []
+    # a single line on the axis covers neither face
+    wall = _wall((5.5, 0.0), (5.5, 4.0), t=0.26, entity="w1")
+    gap = _gap((5.5, 2.0), 0.73)
+    assert GC._faces_through_gaps(_ex2(), "p", [wall], [gap], [_line((5.5, 0.0), (5.5, 4.0), 4, layer="duvar")])[1] \
+        == [gap]
+
+
+def test_terrain_from_the_ground_floors_own_plan_and_an_rc_check_for_it():
+    """19 Nov 2026 (review A3, OA3-08, critical: real14's terrain was a TIN at +15 to +21 m from the '+ 3,50 kotu'
+    heads of the sheets' finish tables and the roof terrace's marks, the ground floor buried; no reading check said
+    so)."""
+    from tests import _levels_fixture as F
+    from wenart.levels import read as LR
+    from wenart.reading_check import crossdoc as CD
+
+    b = F.building()
+    b["levels"].append(dict(b["levels"][0], id="L1", order=1, elevation=3.0, label="1. Kat"))
+    b["walls"] += [dict(w, id=w["id"] + "_up", level_id="L1") for w in b["walls"] if w.get("level_id") == "L0"]
+    params = __import__("wenart.levels.model", fromlist=["x"]).level_params(b)
+    up = F.mark("lm_up", 21.5, kind=None, point=(8.0, -3.0), level="L1")
+    title = F.mark("lm_t", 3.5, kind=None, point=(8.0, -4.0), level="L0")
+    title["raw"] = "+ 3,50 kotu"
+    ground = F.mark("lm_g", -0.45, kind=None, point=(8.0, -2.5), level="L0")
+    warnings = LR.classify([up, title, ground], b, params)
+    assert up["kind"] == "unknown" and title["kind"] == "unknown" and ground["kind"] == "ground_finished"
+    assert any("never a ground mark" in w for w in warnings)
+    # the RC check: the terrain 18 m over the ground floor at its entrances
+    ents = [{"door_id": "d1", "level_id": "L0", "threshold_z": 0.0, "ground_z": 18.4, "main": True, "centre": [1, 2]},
+            {"door_id": "d2", "level_id": "L0", "threshold_z": 0.0, "ground_z": -0.15}]
+    b2 = dict(b, site={"entrances": ents})
+    f = CD.terrain_at_entrances(b2)
+    assert len(f) == 1 and f[0]["severity"] == "critical" and f[0]["element_ids"] == ["d1"]
+    ents[0]["main"] = False
+    assert CD.terrain_at_entrances(b2)[0]["severity"] == "major"
+    ents[0]["ground_z"] = -0.3
+    assert CD.terrain_at_entrances(b2) == []
+
+
+def test_an_open_air_rooms_mark_never_refuses_the_plan_frame_and_its_railing_gap_is_no_window():
+    """19 Nov 2026 (review A4, A4C-02: a ground-floor terrace room marked ±0.00 refused the plan frame; A4FC-4: real18's
+    railing gap on a balcony room was typed a window)."""
+    from wenart.levels import model as M
+
+    assert M._open_air({"room_type": "balcony"}) and M._open_air({"label": "TERAS"}) and not M._open_air(
+        {"room_type": "living", "label": "SALON"})
+
+    def frame(terrace_type):
+        rooms = [{"id": "r_live", "level_id": "L0", "room_type": "living", "label": "Salon"},
+                 {"id": "r_st", "level_id": "L0", "room_type": "stair", "label": "Merdiven"},
+                 {"id": "r_ter", "level_id": "L0", "room_type": terrace_type,
+                  "label": "Teras" if terrace_type == "balcony" else "Oda"}]
+        b = {"rooms": rooms, "levels": [{"id": "L0", "order": 0, "elevation": 0.0}]}
+        marks = [{"id": f"m{k}", "level_id": "L0", "kind": "floor", "room_id": rid, "z": z, "value": z}
+                 for k, (rid, z) in enumerate((("r_live", 2.5), ("r_st", 2.5), ("r_ter", 0.0)))]
+        marks.append({"id": "mt", "level_id": "L0", "kind": "threshold", "z": 2.5, "value": 2.5})
+        return M._plan_frame(b, marks, b["levels"][0], 0.05, [], [])
+
+    assert abs(frame("balcony") - 2.5) < 1e-9          # the terrace's ±0.00 is the garden's, not a room floor
+    assert frame("living") == 0.0                      # an indoor room at ±0.00 keeps the marks as printed
+
+
+def test_a_balcony_with_no_stated_area_closes_from_its_railing_further_away():
+    """19 Nov 2026 (review A4, A4FC-3: real18 L0's south BALKON label stood 4.85 m from both legs of its L-shaped
+    railing and became a 3 x 2.23 m rectangle past it)."""
+    from shapely.geometry import box
+
+    from wenart.levels import outdoor as OD
+
+    facade = box(1.05, 0.0, 10.0, 8.0)
+    # the L-shaped railing: south strip 9.9 x 1.45 m and an east leg up the facade; the corners meet within 1e-11
+    rail = [{"id": "r1", "layer": "Merd&Balkon", "pts": [(1.05, 0.0), (1.05, -1.45)]},
+            {"id": "r2", "layer": "Merd&Balkon", "pts": [(1.05, -1.45), (10.95, -1.45 + 1e-11)]},
+            {"id": "r3", "layer": "Merd&Balkon", "pts": [(10.95, -1.45), (10.95, 5.675)]},
+            {"id": "r4", "layer": "Merd&Balkon", "pts": [(10.95, 5.675), (10.0, 5.675)]}]
+    got = OD.close_region((5.9, -1.11), rail, facade)
+    assert got is not None and got["method"] == "strokes" and abs(got["area_m2"] - 19.75) < 0.2
+
+
+def test_a_room_closed_along_its_own_outline_names_that_step_and_a_kitchen_sharing_its_balconys_face_is_found():
+    """19 Nov 2026 (review A4, A4FC-5: such walls said 'glazed_facade'; A4FC-4: real18's south kitchen shared one face
+    with its balcony and was never closed along its outline)."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic import facade as FC
+
+    walls = [_wall((0, 0), (4, 0), t=0.2, entity="a"), _wall((4, 0), (4, 5), t=0.2, entity="b"),
+             _wall((4, 5), (0, 5), t=0.2, entity="c"), _wall((0, 5), (0, 0), t=0.2, entity="d")]
+    kitchen = SimpleNamespace(name="MUTFAK", anchor=(2.0, 3.5), exterior=False, room_type="kitchen")
+    balcony = SimpleNamespace(name="BALKON", anchor=(2.0, 0.8), exterior=False, room_type="balcony")
+    assert GC._shared_outdoor(walls, [], [kitchen, balcony]) == [(2.0, 3.5)]
+    assert GC._shared_outdoor(walls, [], [kitchen]) == []
+    from shapely.geometry import box
+
+    new = FC.facade_wall_items(walls, [box(0.1, 1.6, 3.9, 4.9)], [], "p.dxf", 1, units_to_m=1.0,
+                               rule="room_outline_closure", why=lambda mid, t: ("the room's own outline", "LWPOLY:9"))
+    assert new and all(w.evidence["rule"] == "room_outline_closure" and w.evidence["entity"] == "LWPOLY:9"
+                       and w.entity == "inferred:room_outline_closure" for w in new)
+    assert GC.OPEN_OUTLINE_RULE == "room_outline_closure"
+
+
+def test_a_confirmed_assumed_level_says_so_and_rc16_skips_a_top_floors_drawn_arrival():
+    """19 Nov 2026 (review A4, SW-A4-05: real07's levels said level_mark while the warnings said assumed; SW-A4-03:
+    RC16 planned real06's top-floor drawing of the stair below as a new stair of 0.43 m risers)."""
+    from wenart.reading_check import crossdoc as CD
+    from wenart.reading_check import stairs as ST
+
+    b = {"levels": [{"id": "L0", "elevation": 0.0, "elevation_source": "level_mark", "order": 0}],
+         "conflicts": []}
+    sheets = {"heights": {"section_regions": ["r5"],
+                          "levels": [{"level_id": "L0", "floor_z": {"method": "assumed", "value": 0.0}}]}}
+    assert not [f for f in CD.rc9(b, sheets) if "is assumed" in f["message"]]
+    b["levels"][0]["elevation_source"] = "assumed"
+    assert [f for f in CD.rc9(b, sheets) if "is assumed" in f["message"]]
+
+    def stair(fid, lv, x):
+        flight = {"start": [x, 1.0], "end": [x + 2.5, 1.0], "width": 1.0, "lines": 7 if lv == "L1" else 18,
+                  "spacing": 0.3}
+        return {"id": fid, "level_id": lv, "type": "stair", "source": "from_documents",
+                "footprint": {"center": [x + 1.25, 1.0], "size": [2.5, 1.0], "rotation_deg": 0.0},
+                "stair": {"flights": [flight], "landing": None, "direction": [1.0, 0.0], "turn": "straight"}}
+
+    bld = {"levels": [{"id": "L0", "elevation": 0.0}, {"id": "L1", "elevation": 3.0}], "walls": [],
+           "slabs": [{"id": "s1", "above_level_id": "L1"}],
+           "furniture": [stair("f_L0_001", "L0", 0.0), stair("f_L1_001", "L1", 0.0)]}
+    rec = next(r for r in ST.stairs(bld) if r["id"] == "f_L1_001")
+    assert rec["violations"] == [] and rec["arrives_from"] == "f_L0_001"

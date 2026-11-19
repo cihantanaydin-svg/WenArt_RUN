@@ -2923,6 +2923,20 @@ def _solid_linetype(name: Optional[str]) -> bool:
     return not name or str(name).strip().upper() in ("CONTINUOUS", "BYLAYER", "BYBLOCK", "SOLID", "STANDARD")
 
 
+FACE_THROUGH_IN_M = (0.04, 0.06)  # 19 Nov 2026 (review A4, POD-A4-03): a face line may lie this far inside the face ...
+FACE_THROUGH_IN_SHARE = 0.6       # ... at most this share of the half-thickness in (the masonry under a plaster coat)
+
+
+def _on_face(d: float, h: float) -> bool:
+    """19 Nov 2026 (review A4, POD-A4-03: real09 L2's masonry line, 3 cm inside the plaster face, stood 0.0301 m off the
+    face and the gap stayed while L0's, at 0.0299 m, closed): a line ``d`` from the wall's axis towards one face (the
+    face at ``h``) runs along that face when it lies within ``FACE_THROUGH_TOL_M`` outside it or inside the wall by up
+    to its plaster coat and masonry face (``FACE_THROUGH_IN_M``, ``FACE_THROUGH_IN_SHARE`` of ``h``): a band whose edges
+    are far from the usual 3 cm coat, so a sub-millimetre shift of the axis changes nothing (pure)."""
+    inner = max(FACE_THROUGH_IN_M[0], min(FACE_THROUGH_IN_M[1], FACE_THROUGH_IN_SHARE * h))
+    return h - inner <= d <= h + FACE_THROUGH_TOL_M
+
+
 def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m: list) -> tuple[list, list]:
     """12 Nov 2026 (review of the reader targets, real15 F2: the solid wall between the living room and the bathroom,
     drawn as two unbroken lines on its masonry and its plaster layer, became a 2.0 m gap holding the bath's block): an
@@ -2984,7 +2998,7 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
                 db = (b[0] - x0) * nx + (b[1] - y0) * ny
                 lab = math.dist(a, b)
                 cross = abs(((b[0] - a[0]) * nx + (b[1] - a[1]) * ny) / lab)
-                if cross > FACE_THROUGH_ANGLE or abs(side * h - (da + db) / 2.0) > FACE_THROUGH_TOL_M:
+                if cross > FACE_THROUGH_ANGLE or not _on_face(side * (da + db) / 2.0, h):
                     continue
                 sa = (a[0] - x0) * ux + (a[1] - y0) * uy
                 sb = (b[0] - x0) * ux + (b[1] - y0) * uy
@@ -3010,7 +3024,7 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
                 for q in (a, b):
                     dq = (q[0] - x0) * nx + (q[1] - y0) * ny
                     sq = (q[0] - x0) * ux + (q[1] - y0) * uy
-                    if abs(side * h - dq) <= FACE_THROUGH_TOL_M and g0 - 2 * h <= sq <= g1 + 2 * h:
+                    if _on_face(side * dq, h) and g0 - 2 * h <= sq <= g1 + 2 * h:
                         ends.append(sq)
             at = g0
             for s0, s1 in sorted(spans):
@@ -3477,6 +3491,22 @@ def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: li
     return w5, o5, bw5, site5, sw5, b_open5, problem5
 
 
+def _shared_outdoor(walls: list, openings: list, blocks: list) -> list:
+    """19 Nov 2026 (review A4, A4FC-4): the anchors of the indoor room labels whose closed face also holds a balcony or
+    another outdoor label (a kitchen and its balcony in one face, a railing line closing them)."""
+    outdoor = [Point(b.anchor) for b in blocks if getattr(b, "exterior", False)
+               or getattr(b, "room_type", None) == "balcony"]
+    if not outdoor:
+        return []
+    out = []
+    for f in TP.faces(walls, openings):
+        if not any(f.contains(p) for p in outdoor):
+            continue
+        out += [tuple(b.anchor) for b in blocks if not getattr(b, "exterior", False)
+                and getattr(b, "room_type", None) != "balcony" and f.contains(Point(b.anchor))]
+    return out
+
+
 def _open_anchors(walls: list, openings: list, blocks: list) -> list:
     """The anchors of the indoor room labels (no balcony) that stand in no closed face of the walls."""
     faces = TP.faces(walls, openings)
@@ -3555,6 +3585,9 @@ OPEN_OUTLINE_ON_WALLS = 0.5      # 19 Nov 2026 (review A3, OA3-06): a room outli
 OPEN_OUTLINE_MIN_M2 = 1.5        # ... and this large is the room its label names, its missing sides inferred
 
 
+OPEN_OUTLINE_RULE = "room_outline_closure"     # 19 Nov 2026 (review A4, A4FC-5): the evidence rule of its walls
+
+
 def _open_room_outlines(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
                         problem: Optional[str], strokes: list, file_rel: str, page_no, s: float, owned: set):
     """19 Nov 2026 (review A3, OA3-06: real18 L1-L3's north kitchen, its wall towards the balcony drawn as jamb stubs,
@@ -3566,7 +3599,9 @@ def _open_room_outlines(ex, where: str, walls2: list, openings: list, blocks: li
     (``openings.openings_on_walls``); kept when they close in more labelled rooms."""
     from wenart.ingest.generic import facade as FC
 
-    anchors = set(_open_anchors(walls2, openings, blocks))
+    # 19 Nov 2026 (review A4, A4FC-4: real18's south kitchen shared one face with its balcony, split by a virtual
+    # separator, while its north twin was closed): an indoor label whose face also holds a balcony label too
+    anchors = set(_open_anchors(walls2, openings, blocks)) | set(_shared_outdoor(walls2, openings, blocks))
     if not anchors:
         return None
     outs = [o for o in OL.labelled_outlines(strokes, blocks) if tuple(o.block.anchor) in anchors
@@ -3578,7 +3613,18 @@ def _open_room_outlines(ex, where: str, walls2: list, openings: list, blocks: li
              if o.polygon.exterior.intersection(drawn).length >= OPEN_OUTLINE_ON_WALLS * o.polygon.exterior.length]
     if not faces:
         return None
-    new_walls = FC.facade_wall_items(walls2, faces, openings, file_rel, page_no, units_to_m=s)
+    used = [o for o in outs if any(o.polygon is f for f in faces)]
+
+    def why(mid, t):
+        # 19 Nov 2026 (review A4, A4FC-5): the wall names the room's outline that made it
+        o = min(used, key=lambda x: x.polygon.exterior.distance(Point(mid)))
+        return (f"the room '{o.block.name}' closed along its own drawn outline ({o.stroke.id}): its walls did not "
+                f"close, the wall is inferred on the outline's side where none is drawn (thickness {t:.2f} m, the "
+                f"median of the drawn walls it touches); the door and window symbols drawn across it are read",
+                o.stroke.id)
+
+    new_walls = FC.facade_wall_items(walls2, faces, openings, file_rel, page_no, units_to_m=s,
+                                     rule=OPEN_OUTLINE_RULE, why=why)
     if not new_walls:
         return None
     taken = set(owned)
@@ -3590,7 +3636,9 @@ def _open_room_outlines(ex, where: str, walls2: list, openings: list, blocks: li
     b_open4 = [o for k, o in enumerate(o4) if k not in idx4]
     problem4 = TP.outer_loop_problem(bw4, b_open4)
     before, after = _unclosed(site_warnings), _unclosed(sw4)
-    if not (after < before or (problem is not None and problem4 is None and after <= before)):
+    shared0, shared1 = len(_shared_outdoor(walls2, openings, blocks)), len(_shared_outdoor(w4, o4, blocks))
+    if not (after < before or (problem is not None and problem4 is None and after <= before)
+            or (shared1 < shared0 and after <= before)):
         return None
     owned.update(taken)
     ex.notes.append(f"{where}: {len(faces)} room(s) whose label stood in no closed face closed along their own drawn "
