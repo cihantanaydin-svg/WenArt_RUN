@@ -2341,3 +2341,16 @@ def test_rc9_names_a_level_whose_floor_marks_sit_off_it():
     assert len(f) == 1 and f[0]["level_id"] == "L1" and f[0]["severity"] == "major"
     b["levels"][1]["elevation"] = 3.0
     assert CD.marks_off_levels(b) == []
+
+
+def test_rc2_takes_the_axes_of_each_direction_apart():
+    """19 Nov 2026 (review A3, OA3-10 (b): real13 L-2 lay 1.32 m off in y while its x axes matched; the pooled median
+    of the axes of both directions said nothing)."""
+    from wenart import reading_check as RC
+
+    ref = {"axes": {"1": ("v", 1.0), "2": ("v", 5.0), "A": ("h", 2.0), "B": ("h", 6.0)},
+           "stairs": [((3.0, 3.0), {0.12, 0.17, 0.2})]}
+    off = {"axes": {"1": ("v", 1.0), "2": ("v", 5.0), "A": ("h", 0.68), "B": ("h", 4.68)},
+           "stairs": [((3.0, 3.0), {0.12, 0.17, 0.2})]}
+    out = RC.stacking({"L0": ref, "L-2": off}, "L0")
+    assert [f["level_id"] for f in out] == ["L-2"] and abs(out[0]["offset_m"] - 1.32) < 0.01

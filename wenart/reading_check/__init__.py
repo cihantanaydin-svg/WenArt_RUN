@@ -253,10 +253,12 @@ def stacking(anchors: dict, reference: str, orders: Optional[dict] = None) -> li
                 g = stair_line_gap(a.get("stair_lines"), (anchors.get(nxt) or {}).get("stair_lines"))
                 if g is not None:
                     gaps.append((g, f"the stair lines on {nxt}"))
+        by_dir: dict = {}
         for label, (o, c) in (a.get("axes") or {}).items():
             ro = (ref.get("axes") or {}).get(label)
             if ro and ro[0] == o:
                 gaps.append((abs(c - ro[1]), f"axis {label}"))
+                by_dir.setdefault(o, []).append(abs(c - ro[1]))
         # each arc set against the nearest set of the same radii on the reference (fixtures repeat their arcs)
         for c0, r0 in a.get("stairs") or []:
             near = [math.dist(c0, c1) for c1, r1 in ref.get("stairs") or [] if len(r0 & r1) >= 3]
@@ -266,6 +268,11 @@ def stacking(anchors: dict, reference: str, orders: Optional[dict] = None) -> li
             continue
         ds = sorted(g[0] for g in gaps)
         typical = ds[len(ds) // 2]                       # the median: one moved fixture does not move the level
+        # 19 Nov 2026 (review A3, OA3-10 (b): real13 L-2 lay 1.32 m off in y while its x axes matched, and the pooled
+        # median said nothing): the axes of each direction (two or more) apart, their lower median, the larger counts
+        for vals in by_dir.values():
+            if len(vals) >= 2:
+                typical = max(typical, sorted(vals)[(len(vals) - 1) // 2])
         if typical > STACK_TOL_M:
             sev = "critical" if typical > STACK_CRITICAL_M else "major"
             axis_off = [g for g in gaps if g[1].startswith("axis") and g[0] > STACK_TOL_M]
