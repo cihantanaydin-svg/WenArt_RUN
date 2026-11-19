@@ -2608,6 +2608,9 @@ RECESS_MAX_M2 = 15.0
 FACE_THROUGH_TOL_M = 0.03       # 12 Nov 2026: a wall-layer line this close to a gap's wall face runs along that face ...
 FACE_THROUGH_ANGLE = 0.02       # ... parallel to the wall (sine of the angle) ...
 FACE_THROUGH_END_M = 0.02       # ... and covering the gap to this much of its ends, on both faces: the gap is a wall
+FACE_THROUGH_CROSS = 0.5        # 19 Nov 2026 (review A3, M6): a line ending on a face at this sine of angle or more crosses
+#                                 it (a cross wall's face at a T-junction, a stair's line): the face may break there for
+#                                 at most the host wall's thickness and still run through the gap
 
 
 DOOR_ARC_R_M = (0.5, 1.3)       # 12 Nov 2026: a door leaf's swing radius ...
@@ -2786,9 +2789,19 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
     unclassified or empty gap (no door, no window, not inferred) across which solid straight lines of a wall or
     plaster layer (``layer_names.layer_role``; not a structure layer, whose beam lines may cross an opening) run along
     both faces of its wall (``FACE_THROUGH_TOL_M``) and cover it end to end is no gap: a wall piece of its host's
-    thickness fills it (real10 L0: the fire stair's lines touching the hall wall cut it). Never silent."""
+    thickness fills it (real10 L0: the fire stair's lines touching the hall wall cut it). Never silent.
+
+    19 Nov 2026 (review A3, M6: real15 L0's 1.17 m gap between the kitchen and the stair foot, its bottom face broken
+    only at the T-junction of the kitchen's cross wall and its top face only where the stair's diagonal meets it): a
+    face still runs through across a break no longer than the host wall's thickness where a line crossing the face
+    (``FACE_THROUGH_CROSS``: a cross wall's face, a stair's line, on any layer) ends on it."""
     from wenart.ingest.generic import layer_names as LN
 
+    crossing = []                    # (a, b) of every straight piece that may end on a face (any layer)
+    for st in strokes_m:
+        if st.arc is None and len(st.pts) >= 2:
+            pts = list(st.pts) + ([st.pts[0]] if st.closed else [])
+            crossing += [(a, b) for a, b in zip(pts, pts[1:]) if math.dist(a, b) > 0.05]
     segs = []
     for st in strokes_m:
         # the masonry and plaster face lines, drawn solid (a beam or lintel over an opening is drawn on a structure
@@ -2801,6 +2814,7 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
     if not segs:
         return walls2, openings
     filled, keep = [], []
+    cross_tree = None                # built on the first gap that needs it
     for o in openings:
         ev = o.evidence if isinstance(o.evidence, dict) else {}
         if o.kind != "opening" or getattr(o, "virtual", False) or ev.get("method") == "inferred" or \
@@ -2837,9 +2851,31 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
                 spans.append((min(sa, sb), max(sa, sb)))
                 if min(sa, sb) < g1 and max(sa, sb) > g0:
                     face_ids.append(f"{st.id} ({st.layer})")
+            # 19 Nov 2026 (review A3, M6): where crossing lines end on this face inside the gap
+            ends = []
+            if cross_tree is None:
+                from shapely import STRtree
+                from shapely.geometry import LineString as _LS
+                cross_tree = STRtree([_LS([a, b]) for a, b in crossing]) if crossing else False
+            near_gap = []
+            if cross_tree:
+                pa = (x0 + ux * (g0 - 2 * h) + nx * side * h, y0 + uy * (g0 - 2 * h) + ny * side * h)
+                pb = (x0 + ux * (g1 + 2 * h) + nx * side * h, y0 + uy * (g1 + 2 * h) + ny * side * h)
+                from shapely.geometry import LineString as _LS
+                near_gap = [crossing[i] for i in cross_tree.query(_LS([pa, pb]).buffer(FACE_THROUGH_TOL_M))]
+            for a, b in near_gap:
+                lab = math.dist(a, b)
+                if abs(((b[0] - a[0]) * nx + (b[1] - a[1]) * ny) / lab) < FACE_THROUGH_CROSS:
+                    continue
+                for q in (a, b):
+                    dq = (q[0] - x0) * nx + (q[1] - y0) * ny
+                    sq = (q[0] - x0) * ux + (q[1] - y0) * uy
+                    if abs(side * h - dq) <= FACE_THROUGH_TOL_M and g0 - 2 * h <= sq <= g1 + 2 * h:
+                        ends.append(sq)
             at = g0
             for s0, s1 in sorted(spans):
-                if s0 <= at + 0.005:
+                if s0 <= at + 0.005 or (s0 - at <= 2 * h + 1e-6 and s1 > at
+                                        and any(at - FACE_THROUGH_TOL_M <= e <= s0 + FACE_THROUGH_TOL_M for e in ends)):
                     at = max(at, s1)
             covered[side] = at >= g1
         if all(covered.values()) and g1 > g0:

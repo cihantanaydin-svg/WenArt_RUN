@@ -3229,6 +3229,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     # reading (track R), before the type inference.
     from wenart.ingest.generic import levels as LV, reading as RD, twin_walls as TW
     TW.merge_twin_walls(building, build.warn)   # 29 Oct 2026: one wall read twice is one wall, its openings on it
+    TW.one_door_per_gap(building, build.warn)   # 19 Nov 2026 (review A3, M5): an arc-only door in a drawn door's gap
     TW.stair_side_walls(building, build.warn)   # 13 Nov 2026 (review BLD-05): no wall face inside a stair's flight
     LV.apply_levels(build, works)
     RD.read_furniture(build, works)

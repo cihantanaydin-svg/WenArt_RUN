@@ -1591,3 +1591,71 @@ def test_an_inferred_landing_door_stands_on_the_shaft_side_with_the_deepest_land
     ops = []
     notes = TW.lift_doors([shaft, st_room], ops, walls, [stair])
     assert not ops and any("no hall beside it" in n for n in notes)
+
+
+def test_rc16_names_a_riser_no_one_can_climb():
+    """19 Nov 2026 (review A3, POD-A3-03: real10 L-1 f_L-1_004 built 7 risers of 0.43 m on a 1.2 m flight read from
+    furnishing lines, and RC16 said nothing): a riser outside 0.15-0.22 m is a major 'risers' finding."""
+    from wenart.reading_check import stairs as ST
+
+    def building(lines: int, length: float) -> dict:
+        flight = {"start": [0.0, 1.0], "end": [length, 1.0], "width": 1.0, "lines": lines,
+                  "spacing": round(length / max(lines - 1, 1), 3)}
+        f = {"id": "f_L0_001", "level_id": "L0", "room_id": "r", "type": "stair", "source": "from_documents",
+             "footprint": {"center": [length / 2.0, 1.0], "size": [length, 1.0], "rotation_deg": 0.0},
+             "status": "unverified", "evidence": [{"file": "p.dxf", "method": "vector", "confidence": 0.9}],
+             "stair": {"flights": [flight], "landing": None, "direction": [1.0, 0.0], "direction_assumed": True,
+                       "turn": "straight", "turn_assumed": True, "void_assumed": True, "riser_m": None,
+                       "riser_source": None, "reason": "test"}}
+        return {"levels": [{"id": "L0", "elevation": 0.0}, {"id": "L1", "elevation": 3.0}], "walls": [],
+                "furniture": [f]}
+
+    steep = [f for f in ST.findings_of(building(7, 1.2)) if f["rule"] == "risers"]
+    assert steep and steep[0]["severity"] == "major" and "0.15-0.22 m" in steep[0]["message"]
+    ok = [f for f in ST.findings_of(building(17, 4.4)) if f["rule"] == "risers" and "0.15-0.22" in f["message"]]
+    assert ok == []
+
+
+def test_a_face_broken_only_where_a_cross_wall_or_a_stair_line_meets_it_still_runs_through_the_gap():
+    """19 Nov 2026 (review A3, M6: real15 L0's 1.17 m gap between the kitchen and the stair foot: its bottom face broken
+    only at the T-junction of the kitchen's cross wall, its top face only where the stair's diagonal meets it)."""
+    from wenart.ingest.generic import core as GC
+
+    wall = _wall((5.5, 0.0), (5.5, 4.0), t=0.26, entity="w1")
+    gap = _gap((5.5, 2.0), 1.17)
+    west = [_line((5.37, 0.0), (5.37, 1.9), 1, layer="Z_duvar"), _line((5.37, 2.01), (5.37, 4.0), 2, layer="Z_duvar")]
+    east = [_line((5.63, 0.0), (5.63, 2.1), 3, layer="Z_duvar"), _line((5.63, 2.25), (5.63, 4.0), 4, layer="Z_duvar")]
+    cross = [_line((4.0, 1.9), (5.37, 1.9), 5, layer="Z_duvar"), _line((4.0, 2.01), (5.37, 2.01), 6, layer="Z_duvar")]
+    stair = [_line((5.63, 2.12), (7.0, 3.5), 7, layer="merdiven")]
+    walls, openings = GC._faces_through_gaps(_ex2(), "p", [wall], [gap], west + east + cross + stair)
+    assert openings == [] and walls[0].corrected_by_ai["rule"] == "faces_through_gap"
+    # the same breaks with nothing crossing there: a gap
+    assert GC._faces_through_gaps(_ex2(), "p", [wall], [gap], west + east)[1] == [gap]
+    # a break longer than the wall is thick, even with a line ending in it: a gap
+    far = [_line((5.63, 0.0), (5.63, 1.7), 8, layer="Z_duvar"), _line((5.63, 2.3), (5.63, 4.0), 9, layer="Z_duvar")]
+    assert GC._faces_through_gaps(_ex2(), "p", [wall], [gap], west + far + cross + stair)[1] == [gap]
+
+
+def test_a_door_read_from_an_arc_alone_in_a_drawn_doors_gap_is_that_door_read_twice():
+    """19 Nov 2026 (review A3, M5: real09 L0, d_L0_014 from ARC:82D alone, the swing of the flat's entrance door, and
+    d_L0_020 from its own arc and leaf in one bedroom door's gap)."""
+    from wenart.ingest.generic import twin_walls as TWW
+
+    wall = {"id": "w1", "level_id": "L0", "start": [7.63, 4.09], "end": [13.63, 4.09], "thickness": 0.26}
+    alone = {"id": "d_L0_014", "type": "door", "level_id": "L0", "wall_id": "w1", "center": [8.105, 4.09], "width": 0.95,
+             "operation": "swing", "evidence": [{"file": "p.dxf", "method": "vector", "confidence": 0.7,
+                                                 "entity": "ARC:82D", "note": TWW.LEAFLESS_NOTE}]}
+    drawn = {"id": "d_L0_020", "type": "door", "level_id": "L0", "wall_id": "w1", "center": [8.08, 4.09], "width": 0.8,
+             "operation": "swing", "evidence": [{"file": "p.dxf", "method": "vector", "confidence": 0.85,
+                                                 "entity": "ARC:803,LINE:80A,LINE:808"}]}
+    other = dict(drawn, id="d_L0_021", center=[13.18, 4.09])
+    b = {"walls": [wall], "openings": [alone, drawn, other]}
+    assert TWW.one_door_per_gap(b) == ["d_L0_014"]
+    assert [o["id"] for o in b["openings"]] == ["d_L0_020", "d_L0_021"]
+    rec = b["openings_merged"][0]
+    assert rec["merged_into"] == "d_L0_020" and rec["corrected_by_ai"]["rule"] == TWW.ONE_DOOR_RULE
+    # two leaves side by side (a double door read as two) stay
+    left = dict(alone, center=[8.0, 4.09], width=0.8)
+    right = dict(drawn, id="d_r", center=[8.8, 4.09], width=0.8)
+    b = {"walls": [wall], "openings": [left, right]}
+    assert TWW.one_door_per_gap(b) == [] and len(b["openings"]) == 2
