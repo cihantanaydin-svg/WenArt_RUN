@@ -295,12 +295,16 @@ def _runs(texts) -> list:
     return out
 
 
-def area_findings(page, tf, rooms: list, level: str) -> list:
+def area_findings(page, tf, rooms: list, level: str, furniture: list = ()) -> list:
     """RC3: the printed areas of the labelled spaces in a model room against its area. 2 Nov 2026 (real03): the areas
     are read with their labels (``labels.merge_label_blocks``) and summed per room: an open-plan room that joins two
     labelled spaces (``YAŞAMA 16.68`` + ``GİRİŞ HOLÜ 2.16`` + ``HOL 3.85``) matches their sum; area-summary notes
     (``Net Alan = 54.20 m2``) are no space. A room of several labelled spaces where one has no printed area cannot be
-    summed: a minor finding names them. An area text with no name above it counts for the room it stands in."""
+    summed: a minor finding names them. An area text with no name above it counts for the room it stands in.
+
+    19 Nov 2026 (review A3, OA3-14: real15's 'Giriş Holü' 12.10 m2 against 17.5 m2 with its 5.80 m2 stair was a major
+    while the reading's own area check took it as within tolerance): the printed area is compared with the room's area
+    and with that less its drawn stairs (``pipeline.stair_area``, Milestone 11 decision D4), the closer one counts."""
     from shapely.geometry import Point, Polygon
 
     from wenart.ingest.generic import labels as LB
@@ -339,6 +343,13 @@ def area_findings(page, tf, rooms: list, level: str) -> list:
                                 spaces=[n for n, _ in named]))
             continue
         drawn = sum(a for _, a, _ in with_area)
+        stairs = [f for f in furniture or () if f.get("room_id") == rid and f.get("type") == "stair"]
+        if stairs:
+            from wenart.ingest.generic import topology as TP
+
+            less = model - TP.stair_fill(room["polygon"], stairs) * Polygon(room["polygon"]).area
+            if abs(less - drawn) < abs(model - drawn):
+                model = less
         if abs(model - drawn) > max(AREA_TOL_SHARE * drawn, AREA_TOL_M2):
             parts = " + ".join(f"{n or 'area'} {a:.2f}" for n, a, _ in with_area)
             at = with_area[0][2]
@@ -585,7 +596,8 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
         _note_conventions(conv, lid, page, anchors[lid], sheets, pg, building)
         rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == lid]
         walls = [w for w in building.get("walls") or [] if w.get("level_id") == lid]
-        findings += area_findings(page, tf, rooms, lid)
+        findings += area_findings(page, tf, rooms, lid,
+                                  [f for f in building.get("furniture") or [] if f.get("level_id") == lid])
         segs = drawn_wall_segments(page, tf, model_wall_layers(walls))
         if segs:
             findings += wall_findings(segs, walls, lid, built_elsewhere(building, lid))

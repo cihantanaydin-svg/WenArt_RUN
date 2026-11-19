@@ -2880,9 +2880,12 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
             # 12 Nov 2026 (round-2 review, CODE-A9 / BP6): a drive is listed as a drive, never as 'a landing and steps'
             rp = s.get("ramp") or {}
             out["assumed"].append({"field": f"drive:{s['opening_id']}",
+                                   # 19 Nov 2026 (review A3, A3FC-5 (2): real07's drive read 3.421 m for 3.70 m: its
+                                   # shift is off the middle): the width between its two sides
                                    "value": {"rise": s.get("drive_rise"), "length": rp.get("length"),
-                                             "slope": rp.get("slope"), "width": round(float((rp.get("s") or [0, 0])[1])
-                                                                                      * 2.0, 3)},
+                                             "slope": rp.get("slope"),
+                                             "width": round(float((rp.get("s") or [0, 0])[-1])
+                                                            - float((rp.get("s") or [0, 0])[0]), 3)},
                                    "reason": s.get("reason") or "a garage door's drive (inferred)"})
             continue
         if s.get("step_up") or s.get("level_threshold"):
@@ -2912,7 +2915,9 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
         for p in out["paths"]:
             end = p.get("ends_at")
             out["assumed"].append({"field": f"path:{','.join(p['opening_ids'])}", "value": p["length"],
-                                   "reason": ("a paved path from the entrance to "
+                                   # 19 Nov 2026 (review A3, A3FC-5 (3)): a drive's continuation says so
+                                   "reason": (f"the drive continued at its width ({float(p.get('width') or 0):.2f} m) to "
+                                              if p.get("kind") == "drive" else "a paved path from the entrance to "
                                               + (f"the {end['id']} it arrives at" if end and end["kind"] == "surface"
                                                  else f"the front of {end['id']} (it never runs into a building)"
                                                  if end else "the plot edge") + " (inferred)")})

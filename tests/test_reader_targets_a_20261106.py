@@ -2285,3 +2285,34 @@ def test_a_confirmed_assumed_level_says_so_and_rc16_skips_a_top_floors_drawn_arr
            "furniture": [stair("f_L0_001", "L0", 0.0), stair("f_L1_001", "L1", 0.0)]}
     rec = next(r for r in ST.stairs(bld) if r["id"] == "f_L1_001")
     assert rec["violations"] == [] and rec["arrives_from"] == "f_L0_001"
+
+
+def test_a_headed_schedule_columns_last_cell_out_of_line_is_still_the_schedules():
+    """19 Nov 2026 (review A3, OA3-13: real13's last 'MAHAL ADI' cell 'DAİRE GİR. HOL.', written 1.1 line heights left
+    of the column, stayed a room label outside the walls on five floors)."""
+    from wenart.ingest.generic import labels as LB
+
+    cell = _run("DAİRE GİR. HOL.", 51.4, 10.0 - 0.5 * len(SCHEDULE), k=990)
+    found = LB.schedules(_schedule_runs() + [cell])
+    assert len(found) == 1 and found[0]["room_words"][-1] == "DAİRE GİR. HOL."
+    plan = [_run("SALON", 2, 2, k=1), _run("MUTFAK", 2, 6, k=2), _run("YATAK ODASI", 6, 2, k=3)]
+    assert sorted(b.name for b in LB.merge_label_blocks(plan + _schedule_runs() + [cell])) == \
+        ["MUTFAK", "SALON", "YATAK ODASI"]
+    # far below the column (more than a pitch), a label is no cell
+    far = _run("DAİRE GİR. HOL.", 51.4, 10.0 - 0.5 * len(SCHEDULE) - 3.0, k=991)
+    assert LB.schedules(_schedule_runs() + [far])[0]["room_words"][-1] == "ANTRE"
+
+
+def test_rc3_compares_a_rooms_printed_area_with_its_area_less_its_stairs():
+    """19 Nov 2026 (review A3, OA3-14: real15's 'Giriş Holü' 12.10 m2 against 17.5 m2 with its 5.80 m2 stair)."""
+    from types import SimpleNamespace
+
+    from wenart import reading_check as RC
+
+    room = {"id": "r1", "label": "Giriş Holü", "polygon": [[0, 0], [5, 0], [5, 3.5], [0, 3.5]], "area_computed": 17.5}
+    stair = {"id": "f1", "room_id": "r1", "type": "stair",
+             "footprint": {"center": [4.0, 1.75], "size": [2.0, 2.9], "rotation_deg": 0.0}}
+    page = SimpleNamespace(texts=[_run("GİRİŞ HOLÜ", 2.0, 2.0, k=1), _run("12.10 m2", 2.0, 1.6, k=2)])
+    tf = [1, 0, 0, 0, 1, 0]
+    assert [f for f in RC.area_findings(page, tf, [room], "L0") if f["severity"] == "major"]
+    assert not [f for f in RC.area_findings(page, tf, [room], "L0", [stair]) if f["severity"] == "major"]

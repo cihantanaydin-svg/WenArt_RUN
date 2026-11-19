@@ -771,6 +771,29 @@ def schedules(texts: list, hull=None, tf: Optional[list] = None) -> list[dict]:
                 continue
             if header is not None and header in chain:
                 chain = [k for k in chain if k != header]
+            if header is not None and axis == "column":
+                # 19 Nov 2026 (review A3, OA3-13: real13's last 'MAHAL ADI' cell 'DAİRE GİR. HOL.', written 1.1 line
+                # heights left of the column, stayed a room label outside the walls on five floors): under a headed
+                # column, the next cell down within a pitch whose line overlaps the column's span is the column's too
+                taken = set(chain) | {header}
+                while True:
+                    last = chain[-1]
+                    h = hs[last]
+                    lo_x = min(fbs[k][0] for k in chain) - SCHEDULE_CELL_SLACK * h
+                    hi_x = max(fbs[k][2] for k in chain) + SCHEDULE_CELL_SLACK * h
+                    cy = (fbs[last][1] + fbs[last][3]) / 2.0
+                    below = [j for j in (int(x) for x in tree.query(_box(lo_x, cy - SCHEDULE_PITCH_HEADED * h, hi_x,
+                                                                         cy - 0.5 * h)))
+                             if j not in taken and word[j] and _same_rotation(runs[last], runs[j])
+                             and abs(hs[j] - h) <= SCHEDULE_HEIGHT_TOL * max(h, hs[j])
+                             and fbs[j][0] < hi_x and fbs[j][2] > lo_x
+                             and 0.5 * h < cy - (fbs[j][1] + fbs[j][3]) / 2.0 <= SCHEDULE_PITCH_HEADED * h]
+                    if not below:
+                        break
+                    j = max(below, key=lambda k: (fbs[k][1] + fbs[k][3]) / 2.0)
+                    chain.append(j)
+                    taken.add(j)
+                words = [k for k in chain if word[k]]
             ids = [runs[k].id for k in chain] + ([runs[header].id] if header is not None else [])
             bx = [runs[k].box for k in chain]
             out.append({"axis": axis, "run_ids": ids, "room_words": [runs[k].text for k in words],
@@ -792,6 +815,7 @@ def _mapped(p, tf: Optional[list]) -> tuple:
 
 
 SCHEDULE_BRIDGE = 3.0         # an empty cell: a column's entries this many pitches apart, when a header tops them
+SCHEDULE_CELL_SLACK = 2.0     # 19 Nov 2026 (OA3-13): a headed column's next cell may stand this many heights off its span
 SCHEDULE_TITLE_REACH = 25.0   # 12 Nov 2026: a centred table title starts at most this x the entry height right of the column
 SCHEDULE_TITLE_RE = re.compile(r"\b(?:LISTESI|CIZELGESI|TABLOSU|SCHEDULE|LIST|LISTE|RAUMBUCH|NOMENCLATURE)\b")
 
