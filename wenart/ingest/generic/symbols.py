@@ -1329,6 +1329,7 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
     # 12 Nov 2026 (round-2 review, CODE-A5 / G3): only walkable flights count (a strip between a rail or walk line and
     # the stringer, or a well drawn as two lines, is no flight): many walkable 'flights' in a small footprint, or none
     # walkable at all, are a tile grid; the strips leave the flights
+    flights = _join_split_strips(flights)
     walkable = [f for f in flights if f["v"] - f["u"] >= FLIGHT_MIN_WIDTH_M]
     if not walkable or (len(walkable) >= GRID_FLIGHTS_MIN and
                         (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) / len(walkable) < FLIGHT_MIN_AREA_M2):
@@ -1430,6 +1431,33 @@ def _grid_cross(segs: list, direction) -> int:
     return sum(1 for ln in along if sum(1 for t in treads if ln.crosses(t)) >= 2)
 
 
+def _stair_width(flights: list) -> float:
+    """19 Nov 2026 (review A3, A3C-4: a 1.3 m flight with a walking line read as two 0.65 m flights was then dropped as
+    narrow): the widest flight, or two parallel flights side by side (their centre lines half their widths apart,
+    overlapping along their run: one stair cut by one line) taken together (pure)."""
+    best = max((float(f.get("width") or 0.0) for f in flights), default=0.0)
+    for i, a in enumerate(flights):
+        for b in flights[i + 1:]:
+            try:
+                (ax, ay), (bx, by) = a["start"][:2], a["end"][:2]
+                (cx, cy), (dx, dy) = b["start"][:2], b["end"][:2]
+            except (KeyError, TypeError, ValueError):
+                continue
+            la = math.hypot(bx - ax, by - ay)
+            if la <= 1e-6:
+                continue
+            ux, uy = (bx - ax) / la, (by - ay) / la
+            lb = math.hypot(dx - cx, dy - cy)
+            if lb <= 1e-6 or abs(((dx - cx) * ux + (dy - cy) * uy) / lb) < 0.99:
+                continue                                        # not parallel
+            wa, wb = float(a.get("width") or 0.0), float(b.get("width") or 0.0)
+            off = abs(-(cx - ax) * uy + (cy - ay) * ux)
+            t = sorted(((cx - ax) * ux + (cy - ay) * uy, (dx - ax) * ux + (dy - ay) * uy))
+            if abs(off - (wa + wb) / 2.0) <= 0.05 and min(la, t[1]) - max(0.0, t[0]) > 0.5 * min(la, lb):
+                best = max(best, wa + wb)
+    return best
+
+
 def check_rule_stairs(pieces: list, texts: list, strokes: list, faces: list, notes: list) -> list:
     """13 Nov 2026 (the coordinator's rule; review A2-FC5): the stair rule's stairs (``stair rule`` evidence) that are
     no stair are dropped, each with a note:
@@ -1467,7 +1495,7 @@ def check_rule_stairs(pieces: list, texts: list, strokes: list, faces: list, not
         flights = ((p.details or {}).get("stair") or {}).get("flights") or []
         widths = [float(f.get("width") or 0.0) for f in flights]
         at = f"({p.center[0]:.2f}, {p.center[1]:.2f})"
-        if widths and max(widths) < STAIR_NARROW_M and not numbers and not tags and not _arrow_head(inside):
+        if widths and _stair_width(flights) < STAIR_NARROW_M and not numbers and not tags and not _arrow_head(inside):
             notes.append(f"stair rule at {at}: a flight of {max(widths):.2f} m (under {STAIR_NARROW_M:.1f} m) with no "
                          f"tread numbers, arrow or riser tag drawn: no stair (lines of a finish or a piece), dropped")
             continue
@@ -1595,6 +1623,30 @@ def _merge_collinear(items) -> list[tuple[float, float, float, list]]:
         else:
             out.append([off, lo, hi, [s]])
     return [tuple(m) for m in out]
+
+
+SPLIT_STRIP_TOL_M = 0.02        # 19 Nov 2026: two strips of one tread meet within this at the line that splits them
+
+
+def _join_split_strips(flights: list) -> list:
+    """19 Nov 2026 (review A3, A3C-4: a 1.0-1.19 m straight flight drawn with a walking line down its middle was split
+    into two strips under ``FLIGHT_MIN_WIDTH_M`` and lost): two side-by-side strips of the same treads (equal offsets),
+    meeting at the line that cuts them, both narrower than a flight and together at least as wide as one, are one
+    flight (the cut is a walking line or a centre rail). A strip beside a wider flight (a rail, a two-line well) stays a
+    strip (pure)."""
+    out = sorted(flights, key=lambda f: f["u"])
+    k = 0
+    while k + 1 < len(out):
+        a, b = out[k], out[k + 1]
+        if (a["v"] - a["u"] < FLIGHT_MIN_WIDTH_M and b["v"] - b["u"] < FLIGHT_MIN_WIDTH_M
+                and abs(a["v"] - b["u"]) <= SPLIT_STRIP_TOL_M and b["v"] - a["u"] >= FLIGHT_MIN_WIDTH_M
+                and a["lines"] == b["lines"]
+                and all(abs(x - y) <= SPLIT_STRIP_TOL_M for x, y in zip(a["offsets"], b["offsets"]))):
+            out[k:k + 2] = [dict(a, v=b["v"], segs=list(a.get("segs") or []) + list(b.get("segs") or []),
+                                 joined_at=round((a["v"] + b["u"]) / 2.0, 4))]
+            continue
+        k += 1
+    return out
 
 
 def _flight(group) -> Optional[dict]:

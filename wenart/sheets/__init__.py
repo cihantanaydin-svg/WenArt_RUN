@@ -37,6 +37,21 @@ REPORT_MD = "sheets_report.md"
 DEBUG_DIR = "sheets_debug"
 QUESTIONS_DIR = "sheets"
 NO_PLAN_REASON = "no readable plan region"
+TITLE_STOREY_M = (2.0, 6.0)          # 19 Nov 2026 (review A3, A3C-6): the plans' title floors stand this far a storey apart
+#                                      (``levels.model.STOREY_MIN_M`` / ``STOREY_MAX_M``)
+
+
+def title_storey_gaps(title_el: dict) -> list:
+    """19 Nov 2026 (review A3, A3C-6): the storeys the plans' title floors (storey order -> elevation) put out of a
+    storey's height, ``[(order a, order b, metres a storey)]`` for every neighbour pair outside ``TITLE_STOREY_M``
+    (pure)."""
+    keys = sorted(title_el)
+    out = []
+    for a, c in zip(keys, keys[1:]):
+        step = (float(title_el[c]) - float(title_el[a])) / max(1, c - a)
+        if not TITLE_STOREY_M[0] <= step <= TITLE_STOREY_M[1]:
+            out.append((a, c, round(step, 2)))
+    return out
 
 
 @dataclass
@@ -335,14 +350,24 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     # the floors take the assumed heights and the plans' titles print one floor elevation each for the ground floor and
     # at least one other storey, those are the floors (vector, the plans' own statement), the ground floor's is building
     # z 0 and the datum of the plans' relative marks (it replaces a datum of the storey marks that were no storeys)
+    # 19 Nov 2026 (review A3, A3C-6: a bare '98,50' right of '1.KAT PLANI' became that floor, a 98.5 m storey): only an
+    # elevation printed in the title itself (``title_elevations``, not the bare-number fallback), and every storey
+    # ``TITLE_STOREY_M`` above the one below, else the titles set nothing (a warning)
     title_el, title_rid = {}, {}
     for lv in levels_json:
         rr = next((p for p in read_plans if p.id == lv.get("base_region")), None)
-        el = LV.region_elevations(rr) if rr is not None else None
+        el = LV.title_elevations(rr.title["text"]) if rr is not None and rr.title else None
         if el is not None and abs(el[1] - el[0]) < 0.005 and lv.get("order") is not None:
             title_el[lv["order"]], title_rid[lv["order"]] = float(el[0]), rr.id
     floors_assumed = not any((e.get("floor_z") or {}).get("method") == "vector" for e in heights_json.get("levels") or [])
-    if floors_assumed and 0 in title_el and len(title_el) >= 2:
+    odd = title_storey_gaps(title_el)
+    if floors_assumed and 0 in title_el and len(title_el) >= 2 and odd:
+        line = ("the plans' title elevations give no storeys (" + "; ".join(
+            f"storey {a} to {c}: {st:+.2f} m a storey" for a, c, st in odd) + f"; every storey {TITLE_STOREY_M[0]:.1f}-"
+            f"{TITLE_STOREY_M[1]:.1f} m above the one below): the floors keep the assumed heights")
+        hw.append(line)
+        warnings.append(line)
+    if floors_assumed and 0 in title_el and len(title_el) >= 2 and not odd:
         old_datum = heights_json.get("datum")
         heights_json["datum"] = None
         lines = HT.apply_storey_marks(heights_json, base_levels, title_el, float(values.get("slab_thickness", 0.20)),

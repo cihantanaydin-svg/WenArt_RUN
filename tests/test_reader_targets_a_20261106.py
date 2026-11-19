@@ -1461,6 +1461,14 @@ def test_the_plans_title_elevations_set_the_floors_and_the_datum():
     z = {e["level_id"]: e["floor_z"]["value"] for e in out["levels"]}
     assert z == {"L-1": -3.0, "L0": 0.0, "L1": 2.7, "L2": 5.4} and out["datum"]["relative"] == 2.5
     assert out["datum"]["evidence"][0]["rule"] == "plan_title_marks" and "title mark" in lines[0]
+    # 19 Nov 2026 (review A3, A3C-6): only a title's own elevation, every storey 2-6 m above the one below
+    import wenart.sheets as SH
+    from wenart.sheets import levels as LV
+
+    assert LV.title_elevations("1.KAT PLANI") is None and LV.title_elevations("ZEMİN KAT PLANI (+2.50 KOTU)") == (2.5, 2.5)
+    assert SH.title_storey_gaps({-1: -0.5, 0: 2.5, 1: 5.2, 2: 7.9}) == []
+    assert SH.title_storey_gaps({0: 0.0, 1: 98.5}) == [(0, 1, 98.5)]
+    assert SH.title_storey_gaps({0: 0.0, 2: 6.0, 3: 7.0}) == [(2, 3, 1.0)]
 
 
 def test_a_lift_shaft_keeps_its_landing_door_and_no_gap_window_or_sliver_read_from_its_walls_lines():
@@ -1717,3 +1725,24 @@ def test_a_swing_stored_across_0_degrees_on_a_door_and_window_layer_is_a_door():
         arc = _arc("ARC:9", (2.4, 3.0), 0.8, a0, a1, layer="kapı-pencere")
         got = GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap], [arc])
         assert got[0].kind == "door", (a0, a1)
+
+
+def test_a_flight_split_by_its_walking_line_into_two_narrow_strips_is_one_flight():
+    """19 Nov 2026 (review A3, A3C-4: a 1.0-1.19 m straight flight with a walking line down its middle was split into two
+    strips under 0.6 m and lost; a 1.3 m one became two 0.65 m flights the narrow-flight rule then dropped)."""
+    from wenart.ingest.generic import symbols as SY
+
+    for width in (1.0, 1.1, 1.3):
+        treads = [_line((1.0, 1.0 + 0.28 * k), (1.0 + width, 1.0 + 0.28 * k), 300 + k) for k in range(10)]
+        stringers = [_line((1.0, 1.0), (1.0, 3.52), 400), _line((1.0 + width, 1.0), (1.0 + width, 3.52), 401)]
+        walk = [_line((1.0 + width / 2, 1.0), (1.0 + width / 2, 3.52), 402)]
+        st = _stair_of(treads + stringers + walk)
+        assert st is not None, width
+        widths = sorted(round(f["width"], 2) for f in st["flights"])
+        assert widths == ([width] if width < 2 * SY.FLIGHT_MIN_WIDTH_M else [width / 2, width / 2]), (width, widths)
+    # the two 0.65 m flights side by side count as one 1.3 m stair for the narrow-flight rule
+    flights = [{"start": [0.0, 0.0], "end": [0.0, 2.5], "width": 0.65},
+               {"start": [0.65, 2.5], "end": [0.65, 0.0], "width": 0.65}]
+    assert abs(SY._stair_width(flights) - 1.3) < 1e-9
+    apart = [flights[0], dict(flights[1], start=[2.0, 2.5], end=[2.0, 0.0])]
+    assert abs(SY._stair_width(apart) - 0.65) < 1e-9
