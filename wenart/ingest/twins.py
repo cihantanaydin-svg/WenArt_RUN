@@ -1548,6 +1548,10 @@ def _drawn_frame(sp, lines: list, cands: list):
 
     if not lines:
         return None
+    bx0, by0, bx1, by1 = sp.bounds
+    m = LIFT_FRAME_BAND_M[1] + 0.2
+    lines = [ln for ln in lines if min(ln[0][0], ln[1][0]) <= bx1 + m and max(ln[0][0], ln[1][0]) >= bx0 - m
+             and min(ln[0][1], ln[1][1]) <= by1 + m and max(ln[0][1], ln[1][1]) >= by0 - m]
     ring = list(sp.simplify(0.005).exterior.coords)
     cen = sp.centroid
     frames = []
