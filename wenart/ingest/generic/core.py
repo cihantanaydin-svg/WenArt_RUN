@@ -1155,6 +1155,41 @@ def _unclosed(warnings: list) -> int:
     return sum(1 for w in warnings if w.startswith(TP.REVIEW_PREFIX) and "outer walls do not close" in w)
 
 
+def _face_lines(strokes_m: list) -> list:
+    """19 Nov 2026 (review A4): ``[(a, b, layer)]``, the straight pieces (over 5 cm) of the strokes on a wall, plaster or
+    structure layer (``layer_names``), page metres: the drawn wall faces a lift's shaft is read from."""
+    from wenart.ingest.generic import layer_names as LN
+
+    out = []
+    for st in strokes_m:
+        if st.arc is not None or len(st.pts) < 2 or LN.layer_role(st.layer) not in ("wall", "plaster", "structure"):
+            continue
+        pts = list(st.pts) + ([st.pts[0]] if st.closed else [])
+        out += [(tuple(a), tuple(b), st.layer) for a, b in zip(pts, pts[1:]) if math.dist(a, b) > 0.05]
+    return out
+
+
+DETAIL_LINE_M = (0.05, 2.0)      # 19 Nov 2026 (review A4, SW-A4-02 / POD-A4-02): a drawn detail line this long ...
+DETAIL_SKIP_ROLES = ("wall", "plaster", "structure", "dimension", "hatch")   # ... on a layer of none of these roles
+
+
+def _detail_lines(strokes_m: list) -> list:
+    """19 Nov 2026 (review A4, SW-A4-02 / POD-A4-02: real17's lift block draws its landing door's frame on 'ince' and
+    real20's on DOT inside wall faces drawn through): ``[(a, b, layer)]``, the straight pieces ``DETAIL_LINE_M`` long of
+    the strokes on no wall, plaster, structure, dimension or hatch layer, page metres: the frames and panels a lift's
+    landing door is read from (``twins.lift_doors``)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    out = []
+    lo, hi = DETAIL_LINE_M
+    for st in strokes_m:
+        if st.arc is not None or st.fill is not None or len(st.pts) < 2 or LN.layer_role(st.layer) in DETAIL_SKIP_ROLES:
+            continue
+        pts = list(st.pts) + ([st.pts[0]] if st.closed else [])
+        out += [(tuple(a), tuple(b), st.layer) for a, b in zip(pts, pts[1:]) if lo < math.dist(a, b) <= hi]
+    return out
+
+
 BRIDGE_PARALLEL_M = 0.60        # 19 Nov 2026 (review A3, OA3-05): a corner run-on bridge this close to a drawn wall ...
 BRIDGE_PARALLEL_SHARE = 0.5     # ... along this share of its length runs beside that wall (a sliver room between)
 BRIDGE_PIECE_ROLES = ("furniture", "sanitary")   # a bridge never runs through drawn furniture or sanitary ware ...
@@ -3746,6 +3781,11 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     ex.report["wall_info"] = {k: v for k, v in wall_info.items() if k != "dropped_strokes"}
     ex.report["mask"] = mask
     ex.report["units_to_m"] = s
+    # 19 Nov 2026 (review A4, POD-A4-02 / A4FC-1: lift shafts from the drawn enclosure): the page's drawn wall faces
+    # (straight pieces on a wall, plaster or structure layer, page metres), kept on the extraction for the lift rules
+    # (``twins.drawn_enclosure``); not written anywhere
+    ex.face_lines_m = _face_lines(strokes_m)
+    ex.detail_lines_m = _detail_lines(strokes_m)
 
     # 4. Label blocks, plot and building. 6 Nov 2026 (target 4, real14): a room schedule (a list of room words under a
     # header such as MAHAL, or outside every wall's hull) is no label (``labels.schedules``); never silent.

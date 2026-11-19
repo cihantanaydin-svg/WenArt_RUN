@@ -311,7 +311,10 @@ def sense_type(room: dict, roof: bool = False) -> Optional[str]:
     folded = _fold(label)
     word = next((t for t, rx in _SENSE_RE if rx.search(folded)), None)
     if rtype == "shaft":
-        if word == "lift" and roof:
+        # 19 Nov 2026 (review A4, POD-A4-01): the reader's one machine-room test (``building.machine_room``, the room's
+        # area), and the lift's room above its last stop on a roof floor
+        area = room.get("area_computed")
+        if word == "lift" and (roof or B.machine_room(label, area if isinstance(area, (int, float)) else None)):
             return "technical"
         return word if word in ("lift", "light_well", "technical") else "shaft"
     if rtype == "stair":

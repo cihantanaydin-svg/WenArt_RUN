@@ -2608,6 +2608,24 @@ def _tag_regions(build: ProjectBuild) -> None:
                    f"{', '.join(sorted(regions_of[(level_id, file, page)]))}; left without a region_id")
 
 
+def _face_lines_by_level(build: ProjectBuild, attr: str = "face_lines_m") -> dict:
+    """19 Nov 2026 (review A4, POD-A4-02 / A4FC-1): each level's drawn wall faces (``core._face_lines`` kept on its master
+    page's extraction) in the building frame: ``{level_id: [(a, b)]}``; ``attr`` ``detail_lines_m``: its drawn detail
+    lines (``core._detail_lines``) instead."""
+    out: dict = {}
+    for w in build.furniture_works:
+        ex = w.extraction
+        lines = getattr(ex, attr, None)
+        s = float((ex.report or {}).get("units_to_m") or 0.0) if isinstance(ex.report, dict) else 0.0
+        if not lines or not ex.transform_to_building or s <= 0:
+            continue
+        T = ex.transform_to_building
+        out.setdefault(ex.level_id, []).extend(
+            (tuple(G.apply_affine(T, (a[0] / s, a[1] / s))), tuple(G.apply_affine(T, (b[0] / s, b[1] / s))))
+            for a, b, _layer in lines)
+    return out
+
+
 def _lift_rules(build: ProjectBuild) -> None:
     """The lift shafts' rules (13 Nov 2026, building-sense review S1-03b: real03's single drawing never reached the
     multi-region steps, so its twin lifts and their landing doors were never read): the drawn lift cars, the landing
@@ -2643,7 +2661,8 @@ def _lift_rules(build: ProjectBuild) -> None:
     # 19 Nov 2026 (review A3, M4): every gap a landing door takes or closes is listed in ``openings_merged``; a gap
     # into a shaft that opens onto nothing is kept and listed in ``needs_review``
     for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"], b["furniture"],     # 4 Nov 2026 (UL306)
-                              b.setdefault("openings_merged", []), b.setdefault("needs_review", [])):
+                              b.setdefault("openings_merged", []), b.setdefault("needs_review", []),
+                              _face_lines_by_level(build), _face_lines_by_level(build, "detail_lines_m"), texts):
         build.warn(f"lift door: {line}")
 
 
@@ -2678,10 +2697,11 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     for line in TW.shared_halls(b["rooms"], b["openings"]):
         build.warn(f"shared hall: {line}")
     # 12 Nov 2026 (review, real20): a pending small room whose label stands on an untyped drawn outline of its size
-    for line in TW.carve_sub_spaces(b["rooms"], b["furniture"], b["walls"]):
+    faces = _face_lines_by_level(build)      # 19 Nov 2026 (review A4): the drawn wall faces, for the lift shafts
+    for line in TW.carve_sub_spaces(b["rooms"], b["furniture"], b["walls"], faces):
         build.warn(f"sub-space: {line}")
-    # 19 Nov 2026 (review A3, OA3-02): a lift stacks: its pending label by another storey's shaft cuts that shaft out
-    for line in TW.carve_stacked_lifts(b["rooms"], b["walls"]):
+    # 19 Nov 2026 (review A3, OA3-02; A4): a lift's pending label: its shaft from the drawn faces round it, else stacked
+    for line in TW.carve_stacked_lifts(b["rooms"], b["walls"], faces, b["furniture"]):
         build.warn(f"sub-space: {line}")
     for room in b["rooms"]:
         for sp in room.get("sub_spaces") or []:
