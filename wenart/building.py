@@ -172,6 +172,16 @@ TECHNICAL_ODASI_WORDS = ("pano", "elk", "elektrik", "kazan", "jenerator", "trafo
 TECHNICAL_WORD_RE = re.compile(r"(?<![a-z])(?:pano|elk|elek|kazan|jenerat|trafo|pompa|siginak|tesisat|makin|mak(?![a-z])|"
                                r"arsiv|depo|hidrofor|kalorifer|ups|server|sayac|teknik|santral|klima)")
 TECHNICAL_ROOM_RE = re.compile(r"(?<![a-z])(?:odasi|oda|dairesi)(?![a-z])")
+# 19 Nov 2026 (review A3, OA3-03: real13's 'ASANSÖR MAKİNA HİDROLİK' and 'ASANSÖR MAK.DAİR.', real14's 'ASANSÖR
+# MAKN.DAİRESİ' were lift shafts with sliding landing doors): a lift's machine room, in its abbreviations; one test for
+# the reader's type, the lift rules and the checks (``labels.SENSE_WORDS`` technical says the same)
+MACHINE_ROOM_RE = re.compile(r"(?<![a-z])(?:asansor\s*mak|makin?a?e?\s*dair|makn(?![a-z])|mak\.?\s*dair|machine\s*room|"
+                             r"motor\s*room|maschinenraum|mahal(?:li)?\s*(?:asansor|makin))")
+
+
+def machine_room(label: Optional[str]) -> bool:
+    """19 Nov 2026 (review A3, OA3-03): a label naming a lift's (or a plant's) machine room (``MACHINE_ROOM_RE``)."""
+    return bool(label) and bool(MACHINE_ROOM_RE.search(" ".join(fold_ascii(str(label)).lower().split())))
 BEDROOM_MIN_M2 = 6.0          # a room an abbreviation alone calls a bedroom (Y. / Ç. ODASI) is one only from this size
 # ``hall`` alone names a living room when its face is at least this large and this compact (§2.7.2).
 HALL_AS_LIVING_MIN_AREA = 9.0
@@ -419,6 +429,8 @@ def room_type_for(label: str, face_area_m2: Optional[float] = None, face_aspect:
     matched = {room_type for _, room_type in turkish + english}
     words = {keyword for keyword, _ in turkish + english}
     folded_l = fold_ascii(label).lower()
+    if machine_room(label):
+        return "technical"                         # 19 Nov 2026 (review A3, OA3-03): a machine room, never a shaft
     if ("odasi" in words and re.search(r"(?<![a-z])(?:" + "|".join(TECHNICAL_ODASI_WORDS) + r")", folded_l)) or (
             TECHNICAL_ROOM_RE.search(folded_l) and TECHNICAL_WORD_RE.search(folded_l)):
         return "technical"                         # 12 Nov 2026: a plant or service room (ELK. PANO ODASI)

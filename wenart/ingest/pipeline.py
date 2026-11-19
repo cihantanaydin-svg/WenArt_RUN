@@ -2680,6 +2680,9 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     # 12 Nov 2026 (review, real20): a pending small room whose label stands on an untyped drawn outline of its size
     for line in TW.carve_sub_spaces(b["rooms"], b["furniture"], b["walls"]):
         build.warn(f"sub-space: {line}")
+    # 19 Nov 2026 (review A3, OA3-02): a lift stacks: its pending label by another storey's shaft cuts that shaft out
+    for line in TW.carve_stacked_lifts(b["rooms"], b["walls"]):
+        build.warn(f"sub-space: {line}")
     for room in b["rooms"]:
         for sp in room.get("sub_spaces") or []:
             # 12 Nov 2026 (review, A-L2): a small room's label that gave up the larger face and found no part of its

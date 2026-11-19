@@ -1783,3 +1783,110 @@ def test_a_size_tag_lower_than_a_door_on_a_door_layer_makes_its_gap_a_window_wit
     assert abs(got[0].width - 0.8) < 1e-6 and got[0].height == 1.5 and got[0].sill == 0.9 and not got[0].assumed
     # a door-high tag on a door layer is a door's (``_door_tags``), never a window's here
     assert GC._window_tags(SimpleNamespace(notes=[]), "x", [wall], [sliding], [tag("80/210", 3.0, 3.5)], 1.0) is None
+
+
+def test_a_lift_machine_room_is_a_technical_room_never_a_shaft():
+    """19 Nov 2026 (review A3, OA3-03: real13's 'ASANSÖR MAKİNA HİDROLİK' and 'ASANSÖR MAK.DAİR.', real14's 'ASANSÖR
+    MAKN.DAİRESİ' became lift shafts with sliding landing doors, one into a stair)."""
+    from wenart import building as B
+    from wenart.ingest import twins as TW
+
+    for label in ("ASANSÖR MAKİNA HİDROLİK", "ASANSÖR MAK.DAİR.", "ASANSÖR MAKN.DAİRESİ", "MAKİNE DAİRESİ"):
+        assert B.room_type_for(label) == "technical" and B.machine_room(label), label
+    assert B.room_type_for("ASANSÖR") == "shaft" and not B.machine_room("ASANSÖR HOLÜ")
+    # even typed shaft by an older reading, a machine room gets no landing door and keeps its drawn swing door
+    room = {"id": "r_L7_mak", "level_id": "L7", "label": "Asansör Makn.Dairesi", "label_raw": "ASANSÖR MAKN.DAİRESİ",
+            "room_type": "shaft", "polygon": [[0, 0], [4, 0], [4, 4], [0, 4]]}
+    hall = {"id": "r_L7_hol", "level_id": "L7", "label": "Hol", "room_type": "hall",
+            "polygon": [[0, 4.2], [4, 4.2], [4, 6], [0, 6]]}
+    door = {"id": "d1", "level_id": "L7", "type": "door", "operation": "swing", "center": [2.0, 4.1], "width": 0.9,
+            "evidence": [{"file": "p.dxf", "method": "vector", "confidence": 0.9}]}
+    ops = [door]
+    TW.lift_doors([room, hall], ops, [{"id": "w", "level_id": "L7", "start": [0, 4.1], "end": [4, 4.1],
+                                       "thickness": 0.2}])
+    assert ops == [door] and door["operation"] == "swing" and not door.get("lift_door")
+
+
+def test_an_outdoor_label_outline_makes_no_outline_wall_and_a_section_arrow_no_wall():
+    """19 Nov 2026 (review A3, OA3-07: real18 L0's BALKON tile hatches became 2.7 m exterior walls; OA3-04: real13's
+    section arrows, solid triangles on KOLON, became walls and a 2.24 m wide-gap wall out of the façade)."""
+    from shapely.geometry import Point, Polygon
+
+    from wenart.ingest.generic import outlines as OL
+    from wenart.ingest.generic import walls as W
+    from wenart.ingest.generic.model import Stroke
+
+    def block(name):
+        from types import SimpleNamespace
+        return SimpleNamespace(name=name, anchor=(1.0, 0.5), exterior=False, area_m2=None, room_type=None)
+
+    ring = Stroke(id="HATCH:1", kind="polyline", pts=[(0, 0), (4, 0), (4, 1), (0, 1)], closed=True, layer="0")
+    assert OL.labelled_outlines([ring], [block("BALKON")]) == []
+    assert len(OL.labelled_outlines([ring], [block("SALON")])) == 1
+    assert W.symbol_fill(Polygon([(0, 0), (0.5, 0), (0.25, 0.25)]))                    # a section arrow
+    assert not W.symbol_fill(Polygon([(0, 0), (0.3, 0), (0.3, 0.3), (0, 0.3)]))        # a column
+    assert not W.symbol_fill(Point(0, 0).buffer(0.2))                                  # a round column
+
+
+def test_a_lift_label_in_an_oversized_part_cuts_the_lift_out_of_it():
+    """19 Nov 2026 (review A3, OA3-02: real11's lift was built on one storey; on the others the landing strip and the
+    lift box stayed one part too long for a lift and the ASANSOR label gave up)."""
+    import copy
+
+    from wenart.ingest import twins as TW
+
+    def hall(lv):
+        # the landing strip 8.86-12.34 and the lift box 12.34-13.58 of one L-shaped part, the label in the box
+        return {"id": f"r_{lv}_hall", "level_id": lv, "label": "Kat Holü", "room_type": "hall",
+                "polygon": [[13.58, 9.18], [8.91, 9.18], [8.91, 9.63], [8.86, 9.63], [8.86, 10.24], [12.34, 10.24],
+                            [12.34, 10.78], [13.58, 10.78]],
+                "sub_spaces": [{"label": "ASANSOR", "type": "lift", "anchor": [12.47, 9.96], "min_m2": 1.0,
+                                "max_m2": 8.0}]}
+
+    rooms, walls = [hall("L1"), hall("L2")], []
+    notes = TW.carve_stacked_lifts(rooms, walls)
+    lifts = {r["level_id"]: r for r in rooms if r["id"].endswith("_lift")}
+    assert sorted(lifts) == ["L1", "L2"] and len(notes) == 2
+    assert all(abs(r["area_computed"] - 1.98) < 0.02 and r["room_type"] == "shaft" for r in lifts.values())
+    assert all(not r.get("sub_spaces") for r in rooms if not r["id"].endswith("_lift")) and walls
+    # with no label in the part, nothing is cut
+    bare = copy.deepcopy(hall("L3"))
+    bare.pop("sub_spaces")
+    assert TW.carve_stacked_lifts([bare], []) == []
+
+
+def test_a_wide_gap_holding_a_tagged_window_is_that_wall_with_its_window():
+    """19 Nov 2026 (review A3, OA3-02: real11's façade between the bathrooms' wall ends, a wall with its 120/120 window,
+    was one 5.91 m wide-gap opening)."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic.model import TextRun
+    from wenart.ingest.model import OpeningItem
+
+    wall = _wall((7.95, 13.86), (13.87, 13.86), t=0.23, entity="w130")
+    gap = OpeningItem("opening", 5.91, (10.91, 13.86), 0.0, [0, 0, 0, 0], "gap",
+                      {"method": "inferred", "rule": "wide_gap"}, status="unverified")
+    tag = TextRun(id="T1", text="120/120", box=(10.1, 13.9, 10.5, 14.0), height=0.1, rotation_deg=0.0,
+                  evidence=[{"layer": "KAPI"}])
+    got = GC._window_tags(SimpleNamespace(notes=[]), "x", [wall], [gap], [tag], 1.0)
+    assert got is not None and [o.kind for o in got] == ["window"] and abs(got[0].width - 1.2) < 1e-6
+
+
+def test_a_wide_gap_bridge_never_runs_through_drawn_furniture_or_beside_a_drawn_wall_from_a_corner():
+    """19 Nov 2026 (review A3, OA3-05: real13's salons cut along the column axis by wide-gap walls through the dining
+    table and the sofa, and a 0.34 m sliver room left beside a drawn wall)."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import core as GC
+
+    walls = [_wall((0.0, 0.0), (0.0, 1.5), t=0.2, entity="a"), _wall((0.0, 6.0), (0.0, 4.5), t=0.2, entity="b"),
+             _wall((0.6, 0.0), (0.6, 6.0), t=0.15, entity="c")]
+    run_on = {"wall": 0, "start": (0.0, 1.5), "end": (0.0, 4.5), "width": 3.0, "to": 1, "from_free_end": False}
+    free = dict(run_on, from_free_end=True)
+    ex = SimpleNamespace(notes=[])
+    assert GC._sound_bridges(ex, "x", walls, [run_on], []) == []                     # beside wall c, 0.6 m off
+    assert GC._sound_bridges(ex, "x", walls, [free], []) == [free]                   # from a free end it stays
+    table = _line((-0.5, 3.0), (0.5, 3.0), 77, layer="TEFRIS")
+    assert GC._sound_bridges(ex, "x", walls[:2], [free], [table]) == []              # through a drawn table
+    assert any("drawn furniture" in n for n in ex.notes)

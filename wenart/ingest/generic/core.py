@@ -1155,6 +1155,68 @@ def _unclosed(warnings: list) -> int:
     return sum(1 for w in warnings if w.startswith(TP.REVIEW_PREFIX) and "outer walls do not close" in w)
 
 
+BRIDGE_PARALLEL_M = 0.60        # 19 Nov 2026 (review A3, OA3-05): a corner run-on bridge this close to a drawn wall ...
+BRIDGE_PARALLEL_SHARE = 0.5     # ... along this share of its length runs beside that wall (a sliver room between)
+BRIDGE_PIECE_ROLES = ("furniture", "sanitary")   # a bridge never runs through drawn furniture or sanitary ware
+
+
+def _sound_bridges(ex, where: str, walls2: list, cands: list, strokes: list) -> list:
+    """19 Nov 2026 (review A3, OA3-05: real13's salons were cut along the column axis by wide-gap walls through the
+    dining table and the sofa, 2.3 m inside their glazed facade, and a sliver room 0.34 m wide was left beside a drawn
+    wall): a candidate bridge (``wide_gaps.bridges``) is dropped when its band crosses a line drawn on a furniture or
+    sanitary layer (an outer wall never runs through a piece), or when it runs on from a corner (no free end) beside a
+    drawn wall within ``BRIDGE_PARALLEL_M`` for ``BRIDGE_PARALLEL_SHARE`` of its length. Each drop is noted; the facade
+    closure that follows may close the room on its frames."""
+    from shapely.strtree import STRtree
+
+    from wenart.ingest.generic import layer_names as LN
+
+    if not cands:
+        return cands
+    pieces = []
+    for st in strokes:
+        if st.arc is None and len(st.pts) >= 2 and LN.layer_role(st.layer) in BRIDGE_PIECE_ROLES:
+            pieces.append(LineString(st.pts))
+    tree = STRtree(pieces) if pieces else None
+    out, dropped = [], []
+    for b in cands:
+        w = walls2[b["wall"]]
+        t = float(w.thickness)
+        axis = LineString([b["start"], b["end"]])
+        band = axis.buffer(t / 2.0, cap_style=2).buffer(-0.02)
+        if tree is not None and not band.is_empty and any(pieces[int(i)].intersects(band)
+                                                         for i in tree.query(band, predicate="intersects")):
+            dropped.append(f"{b['width']:.2f} m bridge from {b['start']}: it runs through drawn furniture")
+            continue
+        if not b.get("from_free_end"):
+            L = axis.length
+            (x0, y0), (x1, y1) = axis.coords[0], axis.coords[-1]
+            ux, uy = (x1 - x0) / max(L, 1e-9), (y1 - y0) / max(L, 1e-9)
+            beside = False
+            for k, o in enumerate(walls2):
+                if k in (b["wall"], b.get("to")):
+                    continue
+                (a0, a1), (c0, c1) = tuple(o.start), tuple(o.end)
+                lo_ = math.hypot(c0 - a0, c1 - a1)
+                if lo_ <= 1e-9 or abs(((c0 - a0) * uy - (c1 - a1) * ux) / lo_) > 0.1:
+                    continue                                    # not parallel
+                off_ = abs(-(a0 - x0) * uy + (a1 - y0) * ux)
+                if off_ > BRIDGE_PARALLEL_M + (t + float(o.thickness)) / 2.0 or off_ < (t + float(o.thickness)) / 2.0:
+                    continue
+                s0, s1 = sorted(((a0 - x0) * ux + (a1 - y0) * uy, (c0 - x0) * ux + (c1 - y0) * uy))
+                if min(L, s1) - max(0.0, s0) >= BRIDGE_PARALLEL_SHARE * L:
+                    beside = True
+                    break
+            if beside:
+                dropped.append(f"{b['width']:.2f} m bridge from {b['start']}: it runs on from a corner beside a drawn "
+                               f"wall within {BRIDGE_PARALLEL_M:.2f} m (a sliver between)")
+                continue
+        out.append(b)
+    if dropped:
+        ex.notes.append(f"{where}: wide-gap bridges left out: " + "; ".join(dropped[:8]))
+    return out
+
+
 def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
                 problem: Optional[str] = None, strokes: Optional[list] = None):
     """The wide gaps of the outer ring bridged (``wide_gaps``): the candidate bridges on the bridged building's
@@ -1164,6 +1226,7 @@ def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, leve
     cands = WG.bridges(walls2)
     # 3 Nov 2026: the glazed runs (``joinery_bridges``) are left to the facade closure that follows (``facade``): its
     # walls follow the frames and carry the windows and doors drawn on them, where a run's bridge was a hole
+    cands = _sound_bridges(ex, where, walls2, cands, strokes or [])
     if not cands:
         return None
     w3, o3 = WG.apply(walls2, openings, cands)
@@ -2195,9 +2258,18 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
                 and abs(off(o.center)) <= h + 0.05 and a0 - 0.05 <= along(o.center) <= a1 + 0.05
                 and (o.kind == "window" or a0 - 0.05 <= along(o.center) - float(o.width) / 2.0
                      and along(o.center) + float(o.width) / 2.0 <= a1 + 0.05)]   # a gap only when wholly inside
+        # 19 Nov 2026 (review A3, OA3-02: real11's façade, a wall with its 120/120 window and two 50/50 shower windows
+        # between the bathrooms' wall ends, stayed one 5.91 m wide-gap 'opening' once no lift rule closed it): a wide
+        # gap whose kind the drawing did not say (``wide_gaps``) holding a tagged window is that wall with its windows
+        gone += [o for o in out if o.kind == "opening" and not o.virtual
+                 and (o.evidence if isinstance(o.evidence, dict) else {}).get("rule") == "wide_gap"
+                 and all(o is not g for g in gone) and abs(off(o.center)) <= h + 0.05
+                 and abs(along(o.center) - (a0 + a1) / 2.0) <= float(o.width) / 2.0]
         if low:
-            gone += [o for o in out if _leaf_line_door(o) and abs(off(o.center)) <= h + 0.05
-                     and abs(along(o.center) - s_) <= float(o.width) / 2.0 + TAG_SHIFT_M]
+            # (as a door-layer tag's door did: the gap it stands in takes its size, the rest of the gap is wall)
+            gone += [o for o in out if (_leaf_line_door(o) or (o.kind == "opening" and not o.virtual))
+                     and all(o is not g for g in gone) and abs(off(o.center)) <= h + 0.05
+                     and abs(along(o.center) - (a0 + a1) / 2.0) <= float(o.width) / 2.0]
         out = [o for o in out if all(o is not g for g in gone)]
         mid = (a0 + a1) / 2.0
         ev = dict(t.evidence[0]) if t.evidence else {}
@@ -3439,6 +3511,55 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
     return w4, o4, bw4, site4, sw4, b_open4, problem4
 
 
+OPEN_OUTLINE_ON_WALLS = 0.5      # 19 Nov 2026 (review A3, OA3-06): a room outline this much along drawn walls ...
+OPEN_OUTLINE_MIN_M2 = 1.5        # ... and this large is the room its label names, its missing sides inferred
+
+
+def _open_room_outlines(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
+                        problem: Optional[str], strokes: list, file_rel: str, page_no, s: float, owned: set):
+    """19 Nov 2026 (review A3, OA3-06: real18 L1-L3's north kitchen, its wall towards the balcony drawn as jamb stubs,
+    an 80/210 door and a 100/140 window block, was never built: kitchen and balcony became one outdoor space and the
+    MUTFAK label stood in no face): an indoor room label in no closed face whose own drawn closed outline holds it
+    alone (``outlines.labelled_outlines``: its area text matched when printed), at least ``OPEN_OUTLINE_MIN_M2`` and
+    along drawn walls for ``OPEN_OUTLINE_ON_WALLS`` of its boundary, is that room: walls are inferred along its sides
+    where none stand (``facade.facade_wall_items``) and the door and window symbols drawn across them are read
+    (``openings.openings_on_walls``); kept when they close in more labelled rooms."""
+    from wenart.ingest.generic import facade as FC
+
+    anchors = set(_open_anchors(walls2, openings, blocks))
+    if not anchors:
+        return None
+    outs = [o for o in OL.labelled_outlines(strokes, blocks) if tuple(o.block.anchor) in anchors
+            and o.polygon.area >= OPEN_OUTLINE_MIN_M2]
+    if not outs:
+        return None
+    drawn = unary_union([TP.wall_polygon(w) for w in walls2]).buffer(0.4)
+    faces = [o.polygon for o in outs
+             if o.polygon.exterior.intersection(drawn).length >= OPEN_OUTLINE_ON_WALLS * o.polygon.exterior.length]
+    if not faces:
+        return None
+    new_walls = FC.facade_wall_items(walls2, faces, openings, file_rel, page_no, units_to_m=s)
+    if not new_walls:
+        return None
+    taken = set(owned)
+    read = O.openings_on_walls(new_walls, strokes, file_rel, page_no, units_to_m=s, owned=taken)
+    framed = FC.frame_windows(new_walls, strokes, read, walls2)
+    w4, o4 = list(walls2) + new_walls, list(openings) + read + framed
+    bw4, site4, sw4 = TP.split_plot(w4, o4, [b for b in blocks], level_id=level_id)
+    idx4 = {o["index"] for o in site4["openings"]}
+    b_open4 = [o for k, o in enumerate(o4) if k not in idx4]
+    problem4 = TP.outer_loop_problem(bw4, b_open4)
+    before, after = _unclosed(site_warnings), _unclosed(sw4)
+    if not (after < before or (problem is not None and problem4 is None and after <= before)):
+        return None
+    owned.update(taken)
+    ex.notes.append(f"{where}: {len(faces)} room(s) whose label stood in no closed face closed along their own drawn "
+                    f"outlines ({', '.join(o.block.name for o in outs[:6])}): {len(new_walls)} inferred wall(s), "
+                    f"{len(read)} drawn opening(s) read on them, {len(framed)} unverified window(s); labels in no "
+                    f"closed face {before} -> {after}")
+    return w4, o4, bw4, site4, sw4, b_open4, problem4
+
+
 def _walls_from_outlines(ex: LevelExtraction, where: str, problem: str, strokes_m: list, blocks: list, walls: list,
                          openings: list, owned: set, gap_log: list, file_rel: str, page_no: Optional[int], s: float):
     """When the drawn walls do not close (``problem``), infer them along the labelled room outlines
@@ -3670,6 +3791,13 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                                  file_rel, page_no, s, owned)
         if glazed is not None:
             walls2, openings, bwalls, site, site_warnings, b_openings, problem = glazed
+    if (problem is not None or _unclosed(site_warnings)) and not is_raster:
+        # 19 Nov 2026 (review A3, OA3-06: real18's north kitchen): a label in no closed face closed along its own drawn
+        # room outline (``_open_room_outlines``)
+        outlined = _open_room_outlines(ex, where, walls2, openings, blocks, level_id, site_warnings, problem, non_wall,
+                                       file_rel, page_no, s, owned)
+        if outlined is not None:
+            walls2, openings, bwalls, site, site_warnings, b_openings, problem = outlined
     if not is_raster:
         # 3 Nov 2026 (real09, user: "wait a light well is not correct, there is not wall in the purple section"): an
         # empty gap in an outer wall into a doorless recess is open air, not an opening (``_open_recesses``)
