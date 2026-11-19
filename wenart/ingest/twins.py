@@ -1188,9 +1188,12 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
                 or len(s.get("polygon") or []) < 3:
             continue
         sp, lv = _poly(s), s["level_id"]
+        # (19 Nov 2026, merge: the building-sense branch's MF6 / FC-02 case, real17's gap between a shop and the hall
+        # beside the lift) a drawn opening is the shaft's only when it stands in the shaft's own wall
         drawn = [o for o in openings if o.get("level_id") == lv and not o.get("virtual") and o.get("center")
                  and o.get("type") in ("door", "opening") and sp.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M
-                 and LIFT_DOOR_MIN_W_M <= float(o.get("width") or 0) <= LIFT_DOOR_MAX_W_M]
+                 and LIFT_DOOR_MIN_W_M <= float(o.get("width") or 0) <= LIFT_DOOR_MAX_W_M
+                 and _in_shaft_wall(o, sp, walls)]
         # 12 Nov 2026 (review B2 FC-07, real21: the second shaft took a gap towards a flat's bedroom; real10 C0034, the
         # user: "a sliding lift door on each floor onto the shared hall"): a drawn opening is the landing door only
         # towards the landing: the room beyond it a common area, a hall or a corridor, never only a flat's room; the
@@ -1360,8 +1363,21 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
     return notes
 
 
-UNIT_USE_WORDS = re.compile(r"(?<![a-z])(?:dukkan\w*|magaza\w*|depo\w*|ofis\w*|buro\w*|isyeri|atolye|shop|store|"
-                            r"office)(?![a-z])")
+UNIT_USE_WORDS = re.compile(r"(?<![a-z])(?:dukkan\w*|magaza\w*|ofis\w*|buro\w*|isyeri|atolye|shop|office)(?![a-z])")
+
+
+def _in_shaft_wall(o: dict, sp, walls: list[dict]) -> bool:
+    """Whether opening ``o`` stands in the wall of the shaft polygon ``sp`` (pure): a probe across its wall, on one side,
+    lands in the shaft (a wall's half thickness and 0.25 m out); with no wall, its centre within 0.35 m of the shaft."""
+    w = next((x for x in walls if x.get("id") == o.get("wall_id")), None)
+    c = o["center"][:2]
+    if w is None or w["start"] == w["end"]:
+        return sp.exterior.distance(Point(c)) <= 0.35
+    (ax, ay), (bx, by) = w["start"][:2], w["end"][:2]
+    ln = math.hypot(bx - ax, by - ay)
+    nx, ny = -(by - ay) / ln, (bx - ax) / ln
+    reach = float(w.get("thickness") or 0.15) / 2.0 + 0.25
+    return any(sp.buffer(0.05).contains(Point(c[0] + k * nx * reach, c[1] + k * ny * reach)) for k in (1, -1))
 
 
 def _stacked_landing_door(s: dict, shafts: list[dict], rooms: list[dict], openings: list[dict], walls: list[dict],

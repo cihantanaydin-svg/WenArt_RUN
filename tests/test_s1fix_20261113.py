@@ -225,6 +225,26 @@ def test_the_lift_door_goes_where_the_storey_above_has_it_whatever_the_hall_is_r
     assert "L0_saft" in core and "L0_shop" not in core
 
 
+def test_a_drawn_gap_beside_the_shaft_but_not_in_its_wall_is_no_landing_door():
+    """MF6 / FC-02 (real17), in the reader's one landing-door rule: a 1.1 m gap between a shop and the hall, 0.1 m from
+    the lift's corner, is not the lift's landing door; the door follows the storey above on the shaft's own wall."""
+    from wenart.ingest import twins as TW
+
+    b = _bld(("L0", "L1"))
+    for lid, door in (("L0", False), ("L1", True)):
+        w, r, o = _shop_storey(lid, door)
+        b["walls"] += w
+        b["rooms"] += r
+        b["openings"] += o
+    b["walls"].append(_wall("L0_sg", (4.0, 2.1), (4.0, 3.5)))
+    b["openings"].append({"id": "o_L0_gap", "type": "opening", "level_id": "L0", "wall_id": "L0_x4",
+                          "center": [4.0, 2.65], "width": 1.1, "evidence": [{"method": "derived"}]})
+    TW.lift_doors(b["rooms"], b["openings"], b["walls"], b["furniture"], [], [])
+    gap = next(o for o in b["openings"] if o["id"] == "o_L0_gap")
+    assert not gap.get("lift_door") and gap["type"] == "opening"
+    door = [o for o in b["openings"] if o["level_id"] == "L0" and o.get("lift_door")]
+    assert len(door) == 1 and abs(door[0]["center"][1] - 1.0) < 0.05
+
 def test_a_lift_with_no_face_to_take_a_door_is_asked():
     b = _bld(("L0",))
     w, r, _o = _shop_storey("L0", False)

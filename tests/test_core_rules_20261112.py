@@ -246,18 +246,6 @@ def test_a_copy_of_a_typical_floor_takes_its_floors_stair_and_the_top_storey_non
 
 
 
-def test_a_lift_door_mark_outside_the_shaft_wall_is_undone():
-    """R19/R16: an opening marked the lift's door (by the older reach test) that lies in no shaft wall loses the mark; a
-    derived gap is an opening again (real10 o_L0_019)."""
-    b = block(storeys=1)
-    b["rooms"].append(room("r_L0_ek2", "Mutfak", "kitchen", rect(0.1, 0.1, 1.0, 1.0), "L0"))
-    b["openings"].append({"id": "o_L0_far", "type": "door", "level_id": "L0", "wall_id": "w_L0_k", "center": [10.0, 4.0],
-                          "width": 1.0, "operation": "sliding", "lift_door": True,
-                          "evidence": [{"method": "derived"}, {"method": "inferred", "rule": "lift_door"}]})
-    rec = run(b)
-    o = next(x for x in b["openings"] if x["id"] == "o_L0_far")
-    assert [u["opening"] for u in rec["lift_doors"]["unmarked"]] == ["o_L0_far"]
-    assert o["lift_door"] is False and o["type"] == "opening" and o["adjusted_by_ai"]["rule"] == "lift_door_unmark"
 
 
 def test_a_pit_level_gets_no_landing_door_and_a_machine_room_is_no_lift():

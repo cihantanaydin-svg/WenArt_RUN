@@ -240,22 +240,6 @@ def test_a_lift_beside_a_shop_with_its_own_stair_gets_no_door_into_the_shop():
 
 
 
-def test_a_flats_hinged_door_marked_a_lift_door_gets_its_swing_back():
-    """MF6, S1-20a: a lift label on a 16 m2 face holding the stair (the whole core); the flat's drawn door on its edge,
-    made a sliding lift door by the earlier rule, is a swing door again (its drawn operation kept), in any building."""
-    b = building(("L0",))
-    b["walls"] = box_walls(0, 0, 10, 6) + [wall("w_c", (4, 0), (4, 6))]
-    b["rooms"] = [room("r_core", "Asansör Merdiven", "shaft", rect(0.1, 0.1, 3.9, 4.1)),
-                  room("r_liv", "Salon", "living", rect(4.1, 0.1, 9.9, 5.9))]
-    b["openings"] = [op("d_flat", "door", "w_c", (4.0, 2.0), 1.0, operation="sliding", operation_source="assumed",
-                        lift_door=True, drawn_operation="swing", drawn_operation_source="geometry",
-                        drawn_swing_side="r_liv")]
-    rec = CR.fix_lift_doors(b, B.IdCounter().next, False)
-    d = b["openings"][0]
-    assert [u["opening"] for u in rec["unmarked"]] == ["d_flat"]
-    assert d["lift_door"] is False and d["operation"] == "swing" and d["swing_side"] == "r_liv" and d["flat_entrance"]
-
-
 
 
 def test_lift_machine_room_words_are_no_lift():

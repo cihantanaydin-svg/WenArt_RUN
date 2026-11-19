@@ -22,9 +22,8 @@ wells and before the windows; it changes the building in place and returns the r
 2. **Lift landing doors** (R19 with its guards; a lift is ``completion.is_lift``): the reader decides each shaft's
    landing door (``twins.lift_doors``, one mechanism since the merge of reader A on 19 Nov 2026: the drawn door
    towards the landing, else one inferred on the landing side, a stair hall read as a shaft counting as a hall, the
-   face the storey above or below uses when no hall is beside the shaft); here a lift-door mark in no passenger lift's
-   shaft wall is undone in every building (a flat's hinged door gets its drawn operation back), and a served lift left
-   with no landing door in a building of several flats is asked about.
+   face the storey above or below uses when no hall is beside the shaft, a drawn opening only in the shaft's own wall);
+   here a served lift left with no landing door in a building of several flats is asked about.
 3. **Between a flat and the core** (``core_gaps``, R16 with its guards): the core is the lifts, the stair rooms, the
    lift's lobby, the rooms holding a core stair (never a shop's or a flat's room: their stair is their own) and the
    halls joined to them by virtual separators or, with common evidence, by doorless openings (never a flat's antre).
@@ -662,65 +661,6 @@ def _lift_of(level: "CP.Level", o: dict, lifts: list) -> tuple:
     return lift, other, q
 
 
-def _unmark(b: dict, level: "CP.Level", lifts: list, rec: dict) -> None:
-    """Step 0 of rule 2 on one level (every level, every building: an error correction; MF6, S1-20a): a lift-door mark
-    on an opening in no passenger lift's shaft wall is undone. A derived gap is an opening again; a drawn door gets its
-    drawn operation back (a hinged flat door is never a lift door); a lift door a rule inferred into a flat's room is
-    removed. On a lift-named face larger than a car (the whole core) only a drawn door whose far side is a flat's room
-    or antre is unmarked (a flat's entrance); the others are review records (a real landing door in a merged face)."""
-    lid = level.lid
-    drop = set()
-    for o in level.openings:
-        if not o.get("lift_door") or o.get("virtual") or _lift_of(level, o, lifts)[0] is not None:
-            continue
-        sides = [s[1] for s in _sides(level, o)]
-        named = next((r for r in sides if r is not None and CP.LIFT_RE.search(CP._fold(r.get("label")
-                                                                                     or r.get("label_raw")))), None)
-        far = next((r for r in sides if r is not None and r is not named), None)
-        flat_side = far is not None and (far.get("room_type") in PRIVATE or FLAT_HALL_RE.search(_label(far)) is not None)
-        first = (o.get("evidence") or [{}])[0] or {}
-        made = first.get("method") == "inferred" or bool(o.get("inferred"))
-        if made and flat_side and far.get("room_type") in PRIVATE:
-            why = (f"{o['id']} is a lift door a rule inferred into {far['id']} '{far.get('label')}' "
-                   f"({far.get('room_type')}), a flat's room, and lies in no passenger lift's shaft wall: removed")
-            if not RG.blocked("lift_door_remove", b, {"level_id": lid, "opening": o["id"], "room": far["id"],
-                                                     "why": why}):
-                drop.add(o["id"])
-                rec["removed"].append({"opening": o["id"], "level_id": lid, "reason": why + " (adjusted_by_ai)"})
-            continue
-        if named is not None and level.polys[named["id"]].area > CP.LIFT_MAX_M2 and CP.is_lift(dict(named, polygon=None)) \
-                and not (flat_side and not made):
-            rec["review"].append({"opening": o["id"], "level_id": lid,
-                                  "reason": f"{o['id']} is marked the landing door of the lift-named face {named['id']} "
-                                            f"({level.polys[named['id']].area:.1f} m2, larger than a car: the whole "
-                                            f"core?): kept; review whether it is the lift's door"})
-            continue
-        if RG.blocked("lift_door_unmark", b, {"level_id": lid, "opening": o["id"]}):
-            continue
-        reason = (f"{o['id']} is marked a lift's landing door but lies in no passenger lift's shaft wall: the mark is "
-                  f"undone" + (" (a derived gap again)" if first.get("method") == "derived" else
-                               " (its drawn operation back)" if not derived(o) else ""))
-        changed = {"lift_door": True, "operation": o.get("operation")}
-        o["lift_door"] = False
-        if first.get("method") == "derived":
-            o.update(type="opening", operation=None, operation_source=None)
-        elif not derived(o) and o.get("type") == "door":
-            # a drawn door: its drawn operation (kept by the rule that made it sliding), else a swing (null)
-            o["operation"] = o.pop("drawn_operation", None)
-            o["operation_source"] = o.pop("drawn_operation_source", None)
-            if "drawn_swing_side" in o:
-                o["swing_side"] = o.pop("drawn_swing_side")
-            if flat_side:
-                o["flat_entrance"] = True
-        o["adjusted_by_ai"] = {"by": "code", "rule": "lift_door_unmark", "reason": reason, "changed": changed}
-        rec["unmarked"].append({"opening": o["id"], "level_id": lid, "reason": reason + " (adjusted_by_ai)"})
-    if drop:
-        _to_merged(b, [o for o in b["openings"] if o["id"] in drop], "lift_door_remove",
-                   {x["opening"]: x["reason"] for x in rec["removed"]})
-        b["openings"] = [o for o in b["openings"] if o["id"] not in drop]
-        level.openings = [o for o in level.openings if o["id"] not in drop]
-
-
 def _to_merged(b: dict, removed: list, rule: str, reasons: dict) -> None:
     """19 Nov 2026 (merge of reader A, its M4 rule): every opening a rule removes goes to ``openings_merged`` with
     ``corrected_by_ai`` (rule, reason), so nothing drawn or read is lost silently."""
@@ -737,18 +677,16 @@ def fix_lift_doors(b: dict, next_id, flats: bool = True) -> dict:
     19 Nov 2026 (merge of reader A, cc89c362: one mechanism per job): the landing door of every lift shaft is decided
     by the reader (``twins.lift_doors``: A's landing-side choice, with this branch's cases as extra conditions: a stair
     hall read as a shaft is a hall, and the face the storey above or below uses comes first when no hall is beside the
-    shaft); its merged and closed gaps go to ``openings_merged``. This rule only undoes a lift-door mark on an opening in
-    no passenger lift's shaft wall (step 0, every building) and, in a building of several flats with a common core,
-    asks about a served lift left with no landing door (``needs_review`` ``lift_no_landing_door``)."""
+    shaft; a drawn opening is the shaft's only in the shaft's own wall); its merged and closed gaps go to
+    ``openings_merged``. This rule only asks, in a building of several flats with a common core, about a served lift
+    left with no landing door (``needs_review`` ``lift_no_landing_door``)."""
     rec = {"unmarked": [], "merged": [], "removed": [], "review": [], "retyped": [], "added": []}
     for lv in b.get("levels") or []:
         lid = lv["id"]
         level = CP.Level(b, lid)
         lifts = [r for r in level.rooms if CP.is_lift(r)]
-        _unmark(b, level, lifts, rec)
         if not flats or not lifts or level.outline is None:
             continue
-        level = CP.Level(b, lid)
         for lift in [r for r in lifts if not CP.is_pit(r)]:          # a pit level gets no landing door
             if any(_lift_of(level, o, [lift])[0] is lift for o in level.openings
                    if o.get("type") in ("door", "opening") and not o.get("virtual")):
