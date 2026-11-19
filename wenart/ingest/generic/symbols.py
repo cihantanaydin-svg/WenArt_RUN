@@ -1202,6 +1202,35 @@ def _straight(segs: list[Seg], to_f) -> list[tuple[str, float, float, float, Seg
 
 FINISH_SHARE = 0.5          # 3 Nov 2026: tread lines mostly on a floor-finish layer (tiles) are no stair
 GRID_CUTS = 4               # ... nor treads cut by this many evenly spaced cross lines (a tile grid)
+GRID_CROSS_MIN = 2          # 12 Nov 2026: a cross line counts for the grid when it crosses this many treads ...
+GRID_PITCH_M = (0.08, 0.80)  # ... and the cross lines' pitch is a tile's (mosaic to large tiles)
+GRID_PITCH_RATIO = 2.5      # ... within this ratio of the treads' pitch (tiles: alike both ways)
+GRID_ON_PITCH = 0.75        # ... with this share of the steps on the pitch (the rest whole multiples: text gaps)
+# 12 Nov 2026 (review of the reader targets, real18's kitchens: 6 to 10 'flights' in 5.3-5.7 m2 of tile hatch): RC14's
+# false_stair rule as a rule of the reader (``wenart.reading_check.sense`` imports these): a stair read with
+# GRID_FLIGHTS_MIN flights or more and less than FLIGHT_MIN_AREA_M2 of its footprint per flight is a grid of lines
+GRID_FLIGHTS_MIN = 3
+FLIGHT_MIN_AREA_M2 = 2.0
+FLIGHT_MIN_WIDTH_M = 0.6    # the narrowest walkable flight (stair_numbers' width range starts there)
+
+
+def _tile_grid(cross: list, pitch: float) -> bool:
+    """12 Nov 2026 (review of the reader targets, real18: kitchen tile hatches and the halls' mosaic grids, their cross
+    lines cut by the texts' gaps, read as five stairs): the offsets of the cross lines over a run of tread lines are a
+    tile grid when at least ``GRID_CUTS`` of them are spaced at a tile's pitch (``GRID_PITCH_M``) like the treads'
+    (``GRID_PITCH_RATIO``), ``GRID_ON_PITCH`` of the steps on it and every other step a whole multiple of it (a line
+    lost under a text). A stair has one to three cross lines (a stringer, the dividing wall, a rail, an arrow)."""
+    v = sorted(set(round(c, 3) for c in cross))
+    steps = [b - a for a, b in zip(v, v[1:]) if b - a > 0.01]
+    if len(v) < GRID_CUTS or not steps or pitch <= 0:
+        return False
+    med = sorted(steps)[len(steps) // 2]
+    if not (GRID_PITCH_M[0] <= med <= GRID_PITCH_M[1]) or not (1.0 / GRID_PITCH_RATIO <= med / pitch <= GRID_PITCH_RATIO):
+        return False
+    tol = max(STAIR_STEP_TOL * med, 0.02)
+    on = sum(1 for st in steps if abs(st - med) <= tol)
+    whole = all(abs(st - med * round(st / med)) <= tol for st in steps)
+    return whole and on >= GRID_ON_PITCH * len(steps)
 
 
 def _finish_share(segs: list) -> float:
@@ -1239,6 +1268,7 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
     to_f, from_f = _frame(theta)
     axis_segs = _straight(cl.segs, to_f)
     best = None
+    grid_axis = False
     for axis in ("h", "v"):
         treads = _merge_collinear([x for x in axis_segs if x[0] == axis])
         if len(treads) < STAIR_MIN_TREADS:
@@ -1254,7 +1284,19 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
         cuts = sorted(set(round(c, 3) for c in cuts))
         if len(cuts) >= GRID_CUTS and _even(cuts, STAIR_STEP_M[0] * (1 - STAIR_STEP_TOL),
                                            STAIR_STEP_M[1] * (1 + STAIR_STEP_TOL) * 2.0):
+            grid_axis = True
             continue                                    # a grid of tiles, not treads
+        # 12 Nov 2026 (real18): the cross lines cut by the texts' gaps cross fewer treads each: every cross line over
+        # at least GRID_CROSS_MIN treads counts for the grid test
+        # the distinct offsets (pieces of one broken line share an offset: a pitch of 0 otherwise)
+        offs = sorted(set(round(t[0], 3) for t in treads))
+        tread_pitch = sorted(b - a for a, b in zip(offs, offs[1:]))[(len(offs) - 1) // 2] if len(offs) > 1 else 0.0
+        cross = [o[1] for o in others
+                 if sum(1 for t in treads if t[1] + 0.01 < o[1] < t[2] - 0.01 and o[2] - 0.005 <= t[0] <= o[3] + 0.005)
+                 >= GRID_CROSS_MIN]
+        if _tile_grid(cross, tread_pitch):
+            grid_axis = True
+            continue                                    # a tile grid (its cross lines cut by text gaps), not treads
         pieces = []
         for off, lo, hi, members in treads:
             bounds = [lo] + [c for c in cuts if lo + 0.01 < c < hi - 0.01] + [hi]
@@ -1271,7 +1313,9 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
                 flights.append(flight)
         if flights and (best is None or sum(f["lines"] for f in flights) > sum(f["lines"] for f in best[1])):
             best = (axis, flights, cuts)
-    if best is None:
+    if best is None and not grid_axis:
+        # 12 Nov 2026 (round-2 review, A2-FC5: real18's hall mosaic, its lines broken around the label, came back as a
+        # one-flight 'stair' from the loose rule right after the grid test had rejected it): never after a grid
         best = _loose_flights(axis_segs)
     if best is None:
         return None
@@ -1282,6 +1326,15 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
     xs = [p[0] for s in cl.segs for p in map(to_f, s.pts)]
     ys = [p[1] for s in cl.segs for p in map(to_f, s.pts)]
     bbox = (min(xs), min(ys), max(xs), max(ys))
+    # 12 Nov 2026 (round-2 review, CODE-A5 / G3): only walkable flights count (a strip between a rail or walk line and
+    # the stringer, or a well drawn as two lines, is no flight): many walkable 'flights' in a small footprint, or none
+    # walkable at all, are a tile grid; the strips leave the flights
+    flights = _join_split_strips(flights)
+    walkable = [f for f in flights if f["v"] - f["u"] >= FLIGHT_MIN_WIDTH_M]
+    if not walkable or (len(walkable) >= GRID_FLIGHTS_MIN and
+                        (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) / len(walkable) < FLIGHT_MIN_AREA_M2):
+        return None                                     # a tile grid, not a stair
+    flights = walkable
     lo_off = min(f["offsets"][0] for f in flights)
     hi_off = max(f["offsets"][-1] for f in flights)
     lo_end, hi_end = (bbox[1], bbox[3]) if axis == "h" else (bbox[0], bbox[2])
@@ -1323,6 +1376,141 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
     used = {id(s) for f in flights for s in f["segs"]}
     return {"flights": out_flights, "landing": land, "axis": axis, "bbox_f": bbox, "theta": theta,
             "tread_segs": used, "dividers": cuts, "landing_note": landing_note}
+
+
+# 13 Nov 2026 (coordinator, round 3 follow-up: "A tile grid inside a room whose floor finish text is a tile word is never
+# a stair. Neither is a flight under 1.0 m wide that has no numbers, arrow or riser tag."; review A2-FC5, real18's hall
+# mosaic 'stairs'): the stair rule's flights checked against what the plan writes beside them (``check_rule_stairs``)
+STAIR_NARROW_M = 1.0              # a flight narrower than this needs a mark of a stair (numbers, an arrow, a riser tag)
+STAIR_MARK_REACH_M = 0.30         # the marks within this of the stair's footprint
+TILE_FINISH_RE = re.compile(r"MOZAIK|SERAMIK|KARO|PARKE|GRANIT|FAYANS")
+STAIR_TAG_RE = re.compile(r"(?<!\d)\d{1,2}\s*[X*]\s*\d{1,2}(?:[.,]\d+)?(?!\d)|\bR\s*[:=]\s*\d|BASAMAK|RIHT|"
+                          r"\b(?:UP|DN|DOWN|CIKIS|INIS|YUKARI|ASAGI)\b")
+STAIR_NUMBER_RE = re.compile(r"^\s*\d{1,2}\s*$")
+STAIR_NUMBER_H_MAX_M = 0.30
+ARROW_HEAD_M = (0.04, 0.50)       # an arrow head's two strokes this long ...
+ARROW_HEAD_DEG = (15.0, 75.0)     # ... meeting at this angle (a tile grid meets at 90, a winder fan's lines are longer)
+TILE_GRID_CROSS_MIN = 3           # in a tile-finished room: this many lines along the flight crossing two treads or more
+
+
+def _footprint_poly(p) -> Polygon:
+    w, d = float(p.size[0]), float(p.size[1])
+    a = math.radians(float(p.rotation_deg or 0.0))
+    ux, uy, vx, vy = math.cos(a), math.sin(a), -math.sin(a), math.cos(a)
+    cx, cy = float(p.center[0]), float(p.center[1])
+    return Polygon([(cx + sx * w / 2.0 * ux + sy * d / 2.0 * vx, cy + sx * w / 2.0 * uy + sy * d / 2.0 * vy)
+                    for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))])
+
+
+def _arrow_head(segs: list) -> bool:
+    """Two short strokes meeting at an arrow's angle (``ARROW_HEAD_M``, ``ARROW_HEAD_DEG``)."""
+    short = [(a, b) for a, b in segs if ARROW_HEAD_M[0] <= math.dist(a, b) <= ARROW_HEAD_M[1]]
+    for i, (a1, b1) in enumerate(short):
+        for a2, b2 in short[i + 1:]:
+            for p, q1 in ((a1, b1), (b1, a1)):
+                for r, q2 in ((a2, b2), (b2, a2)):
+                    if math.dist(p, r) > 0.01:
+                        continue
+                    v1, v2 = (q1[0] - p[0], q1[1] - p[1]), (q2[0] - r[0], q2[1] - r[1])
+                    c = (v1[0] * v2[0] + v1[1] * v2[1]) / ((math.hypot(*v1) * math.hypot(*v2)) or 1.0)
+                    if ARROW_HEAD_DEG[0] <= math.degrees(math.acos(max(-1.0, min(1.0, c)))) <= ARROW_HEAD_DEG[1]:
+                        return True
+    return False
+
+
+def _grid_cross(segs: list, direction) -> int:
+    """The lines along the walking ``direction`` that cross two tread lines or more (a tile grid's other way)."""
+    dx, dy = direction
+    treads, along = [], []
+    for a, b in segs:
+        L = math.dist(a, b)
+        if L < 0.3:
+            continue
+        c = abs(((b[0] - a[0]) * dx + (b[1] - a[1]) * dy) / L)
+        (along if c > 0.98 else treads if c < 0.2 else []).append(LineString([a, b]))
+    return sum(1 for ln in along if sum(1 for t in treads if ln.crosses(t)) >= 2)
+
+
+def _stair_width(flights: list) -> float:
+    """19 Nov 2026 (review A3, A3C-4: a 1.3 m flight with a walking line read as two 0.65 m flights was then dropped as
+    narrow): the widest flight, or two parallel flights side by side (their centre lines half their widths apart,
+    overlapping along their run: one stair cut by one line) taken together (pure)."""
+    best = max((float(f.get("width") or 0.0) for f in flights), default=0.0)
+    for i, a in enumerate(flights):
+        for b in flights[i + 1:]:
+            try:
+                (ax, ay), (bx, by) = a["start"][:2], a["end"][:2]
+                (cx, cy), (dx, dy) = b["start"][:2], b["end"][:2]
+            except (KeyError, TypeError, ValueError):
+                continue
+            la = math.hypot(bx - ax, by - ay)
+            if la <= 1e-6:
+                continue
+            ux, uy = (bx - ax) / la, (by - ay) / la
+            lb = math.hypot(dx - cx, dy - cy)
+            if lb <= 1e-6 or abs(((dx - cx) * ux + (dy - cy) * uy) / lb) < 0.99:
+                continue                                        # not parallel
+            wa, wb = float(a.get("width") or 0.0), float(b.get("width") or 0.0)
+            off = abs(-(cx - ax) * uy + (cy - ay) * ux)
+            t = sorted(((cx - ax) * ux + (cy - ay) * uy, (dx - ax) * ux + (dy - ay) * uy))
+            if abs(off - (wa + wb) / 2.0) <= 0.05 and min(la, t[1]) - max(0.0, t[0]) > 0.5 * min(la, lb):
+                best = max(best, wa + wb)
+    return best
+
+
+def check_rule_stairs(pieces: list, texts: list, strokes: list, faces: list, notes: list) -> list:
+    """13 Nov 2026 (the coordinator's rule; review A2-FC5): the stair rule's stairs (``stair rule`` evidence) that are
+    no stair are dropped, each with a note:
+
+    - a flight narrower than ``STAIR_NARROW_M`` with no tread numbers, arrow (an arrow head or an UP / ÇIKIŞ word) or
+      riser tag (17x17, R:17, BASAMAK) within ``STAIR_MARK_REACH_M`` of it;
+    - lines that cross like a tile grid (``TILE_GRID_CROSS_MIN`` lines along the flight over two treads or more) in a
+      room whose texts name a tile floor finish (MOZAİK, SERAMİK, KARO, PARKE, GRANİT, FAYANS), with no tread numbers.
+
+    Page metres; ``faces``: the faces' polygons. A numbered stair always stays (real18's winder stairs numbered 1-15
+    in the top floor's halls)."""
+    segs_all = []
+    for st in strokes or ():
+        pts = [tuple(map(float, q)) for q in st.pts or ()]
+        if getattr(st, "arc", None) is None and len(pts) >= 2:
+            segs_all.extend(zip(pts, pts[1:]))
+    tree = STRtree([LineString(s) for s in segs_all]) if segs_all else None
+    out = []
+    for p in pieces:
+        note = str((p.evidence or {}).get("note") or "")
+        if p.type != "stair" or p.type_method != "rule" or not note.startswith("stair rule"):
+            out.append(p)
+            continue
+        poly = _footprint_poly(p)
+        zone = poly.buffer(STAIR_MARK_REACH_M)
+        near = []
+        for t in texts or ():
+            box = getattr(t, "box", None)
+            if box and zone.contains(Point((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)):
+                near.append(t)
+        numbers = [t for t in near if STAIR_NUMBER_RE.match(str(t.text or ""))
+                   and float(getattr(t, "height", 0.0) or 0.0) <= STAIR_NUMBER_H_MAX_M]
+        tags = [t for t in near if STAIR_TAG_RE.search(B.fold_ascii(str(t.text or "")).upper())]
+        inside = [segs_all[int(k)] for k in tree.query(zone, predicate="contains")] if tree is not None else []
+        flights = ((p.details or {}).get("stair") or {}).get("flights") or []
+        widths = [float(f.get("width") or 0.0) for f in flights]
+        at = f"({p.center[0]:.2f}, {p.center[1]:.2f})"
+        if widths and _stair_width(flights) < STAIR_NARROW_M and not numbers and not tags and not _arrow_head(inside):
+            notes.append(f"stair rule at {at}: a flight of {max(widths):.2f} m (under {STAIR_NARROW_M:.1f} m) with no "
+                         f"tread numbers, arrow or riser tag drawn: no stair (lines of a finish or a piece), dropped")
+            continue
+        if not numbers:
+            face = next((f for f in faces or () if f.contains(Point(p.center))), None)
+            finish = [t for t in texts or () if face is not None and getattr(t, "box", None)
+                      and face.contains(Point((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0))
+                      and TILE_FINISH_RE.search(B.fold_ascii(str(t.text or "")).upper())]
+            direction = ((p.details or {}).get("stair") or {}).get("direction")
+            if finish and direction and _grid_cross(inside, direction) >= TILE_GRID_CROSS_MIN:
+                notes.append(f"stair rule at {at}: its lines cross like a tile grid in a room whose floor finish is "
+                             f"'{finish[0].text}': no stair, dropped")
+                continue
+        out.append(p)
+    return out
 
 
 def _loose_flights(axis_segs) -> Optional[tuple[str, list, list]]:
@@ -1435,6 +1623,30 @@ def _merge_collinear(items) -> list[tuple[float, float, float, list]]:
         else:
             out.append([off, lo, hi, [s]])
     return [tuple(m) for m in out]
+
+
+SPLIT_STRIP_TOL_M = 0.02        # 19 Nov 2026: two strips of one tread meet within this at the line that splits them
+
+
+def _join_split_strips(flights: list) -> list:
+    """19 Nov 2026 (review A3, A3C-4: a 1.0-1.19 m straight flight drawn with a walking line down its middle was split
+    into two strips under ``FLIGHT_MIN_WIDTH_M`` and lost): two side-by-side strips of the same treads (equal offsets),
+    meeting at the line that cuts them, both narrower than a flight and together at least as wide as one, are one
+    flight (the cut is a walking line or a centre rail). A strip beside a wider flight (a rail, a two-line well) stays a
+    strip (pure)."""
+    out = sorted(flights, key=lambda f: f["u"])
+    k = 0
+    while k + 1 < len(out):
+        a, b = out[k], out[k + 1]
+        if (a["v"] - a["u"] < FLIGHT_MIN_WIDTH_M and b["v"] - b["u"] < FLIGHT_MIN_WIDTH_M
+                and abs(a["v"] - b["u"]) <= SPLIT_STRIP_TOL_M and b["v"] - a["u"] >= FLIGHT_MIN_WIDTH_M
+                and a["lines"] == b["lines"]
+                and all(abs(x - y) <= SPLIT_STRIP_TOL_M for x, y in zip(a["offsets"], b["offsets"]))):
+            out[k:k + 2] = [dict(a, v=b["v"], segs=list(a.get("segs") or []) + list(b.get("segs") or []),
+                                 joined_at=round((a["v"] + b["u"]) / 2.0, 4))]
+            continue
+        k += 1
+    return out
 
 
 def _flight(group) -> Optional[dict]:

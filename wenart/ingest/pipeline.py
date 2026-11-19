@@ -536,10 +536,11 @@ def _generic_rooms(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> R
     fallbacks = [_to_building(ex, G.box_center(t.box)) for t in ex.labels]
     # The separators go with the ready union so the faces they split are snapped back onto the separator line:
     # neighbouring rooms share it exactly (no 4 mm slit between their floors and ceilings, review dwgblender-1).
+    # 6 Nov 2026 (reader target 5): the stairs let a small room's label give up a much larger face
     result = R.derive_rooms(level_id, ex.walls, ex.labels, anchors, fallbacks, ex.file, build.ids, union=union,
                             separators=ex.separators,
                             unlabelled_label=ex.report.get("unlabelled_label", R.UNLABELLED_LABEL),
-                            face_type=face_type)
+                            face_type=face_type, stairs=stairs)
     system = ex.units_system
     for room_id, check in result.label_size_conflicts:
         measured = check["measured"]
@@ -2607,6 +2608,45 @@ def _tag_regions(build: ProjectBuild) -> None:
                    f"{', '.join(sorted(regions_of[(level_id, file, page)]))}; left without a region_id")
 
 
+def _lift_rules(build: ProjectBuild) -> None:
+    """The lift shafts' rules (13 Nov 2026, building-sense review S1-03b: real03's single drawing never reached the
+    multi-region steps, so its twin lifts and their landing doors were never read): the drawn lift cars, the landing
+    doors (UL306) and the shaft's other gaps, for every building, whatever its sheets."""
+    from wenart.ingest import twins as TW
+
+    b = build.building
+    # 13 Nov 2026 (S1-03b): the pages' symbols are the reading's until ``reading.read_furniture`` moves them into the
+    # building, after this step: the drawn lift cars are looked for among them too
+    page_syms, texts = [], []
+    for w in build.furniture_works:
+        ex = w.extraction
+        for sym in (ex.report or {}).get("symbols") or []:
+            if sym.get("center") is None or sym.get("size") is None:
+                continue
+            ev0 = (sym.get("evidence") or [{}])[0] or {}
+            ent = str(ev0.get("entity") or "")
+            page_syms.append({"id": ent.split(",")[0] or f"symbol at {sym['center']}", "kind": sym.get("kind"),
+                              "level_id": ex.level_id, "evidence": [ev0] if isinstance(ev0, dict) else [],
+                              "footprint": {"center": list(sym["center"]), "size": list(sym["size"]),
+                                            "rotation_deg": sym.get("rotation_deg") or 0.0}})
+        # 19 Nov 2026 (review A3, POD-A3-01): the pages' texts in the building frame, for the door size tags a lift car's
+        # face may hold (real09's 'K:50/210' and 'K:100/210' in its street-entrance vestibule)
+        if ex.transform_to_building:
+            for t in ex.texts or []:
+                if t.box and len(t.box) == 4:
+                    p = G.apply_affine(ex.transform_to_building, ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0))
+                    texts.append({"text": t.text, "point": [p[0], p[1]], "level_id": ex.level_id})
+    for line in TW.lift_cars(b["rooms"], (b.get("symbols") or []) + page_syms, b["furniture"], b["openings"],
+                             b["walls"], texts, b.get("levels") or []):
+        build.warn(f"lift car: {line}")                                     # 13 Nov 2026 (S1-03b)
+    # (the shaft's other openings are closed by ``lift_doors``: a shaft is entered by its landing door only)
+    # 19 Nov 2026 (review A3, M4): every gap a landing door takes or closes is listed in ``openings_merged``; a gap
+    # into a shaft that opens onto nothing is kept and listed in ``needs_review``
+    for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"], b["furniture"],     # 4 Nov 2026 (UL306)
+                              b.setdefault("openings_merged", []), b.setdefault("needs_review", [])):
+        build.warn(f"lift door: {line}")
+
+
 def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     """The M10 blocks of a multi-region project: rooms (child subtype, mirror twins, same_as), variants, slabs, roof,
     facade and the site additions."""
@@ -2632,13 +2672,25 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     for line in TW.stair_cores(b["rooms"], b["furniture"]):
         build.warn(f"stair core: {line}")
     # 3 Nov 2026 (real10): a stair core room that holds the open landing in front of its stair is two rooms
-    for line in TW.split_core_landings(b["rooms"], b["openings"], b["furniture"]):
+    for line in TW.split_core_landings(b["rooms"], b["openings"], b["furniture"], b["walls"]):
         build.warn(f"core landing: {line}")
     # 3 Nov 2026 (real10, user: "green marking is outside shared hall"): the room the stair core opens into
     for line in TW.shared_halls(b["rooms"], b["openings"]):
         build.warn(f"shared hall: {line}")
-    for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"], b["furniture"]):     # 4 Nov 2026 (UL306)
-        build.warn(f"lift door: {line}")
+    # 12 Nov 2026 (review, real20): a pending small room whose label stands on an untyped drawn outline of its size
+    for line in TW.carve_sub_spaces(b["rooms"], b["furniture"], b["walls"]):
+        build.warn(f"sub-space: {line}")
+    # 19 Nov 2026 (review A3, OA3-02): a lift stacks: its pending label by another storey's shaft cuts that shaft out
+    for line in TW.carve_stacked_lifts(b["rooms"], b["walls"]):
+        build.warn(f"sub-space: {line}")
+    for room in b["rooms"]:
+        for sp in room.get("sub_spaces") or []:
+            # 12 Nov 2026 (review, A-L2): a small room's label that gave up the larger face and found no part of its
+            # own is never silent (RC14 label_names_larger_face names it too)
+            build.warn(f"sub-space not read: {room['level_id']}: '{sp['label']}' ({sp['type']}, at most "
+                       f"{sp['max_m2']:g} m2) stands in {room['id']} '{room.get('label')}' ({room.get('area_computed')} "
+                       f"m2): its walls are not read, the {sp['type']} is not built")
+    _lift_rules(build)
     for line in TW.fire_stairs(b["rooms"], b["openings"], b["furniture"]):   # 4 Nov 2026 (UL307, UL312)
         build.warn(f"fire stair: {line}")
     for line in TW.flat_entrance_doors(b["rooms"], b["openings"]):          # 4 Nov 2026 (UL316)
@@ -3174,10 +3226,13 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     _check_outlines(build)
     if build.sheets is not None:
         _building_m10(build, project_dir)
+    else:
+        _lift_rules(build)           # 13 Nov 2026 (S1-03b): a single drawing's lifts too
     # Milestone 12 (docs/milestone12.md §3, §4.1, contract §13.2): the level marks (track L), then the furniture
     # reading (track R), before the type inference.
     from wenart.ingest.generic import levels as LV, reading as RD, twin_walls as TW
     TW.merge_twin_walls(building, build.warn)   # 29 Oct 2026: one wall read twice is one wall, its openings on it
+    TW.one_door_per_gap(building, build.warn)   # 19 Nov 2026 (review A3, M5): an arc-only door in a drawn door's gap
     TW.stair_side_walls(building, build.warn)   # 13 Nov 2026 (review BLD-05): no wall face inside a stair's flight
     LV.apply_levels(build, works)
     RD.read_furniture(build, works)

@@ -16,7 +16,7 @@ How, per model-space entity (paper space and layouts are out of scope):
 - INSERT: exploded recursively with ``virtual_entities`` (transforms applied, MINSERT arrays resolved); every
   stroke keeps the block-name chain, outermost first (``DINING-6/CHAIR``). Entities on layer ``0`` inside a block
   take the layer of the INSERT; BYBLOCK colours take its colour. ATTRIBs of every INSERT, nested ones included, are
-  read as texts (``virtual_entities`` does not yield them; ATTDEFs are templates and are skipped).
+  read as texts (``virtual_entities`` does not yield them; the ATTDEFs of a block are templates and are skipped).
 - LINE, LWPOLYLINE/POLYLINE, ARC, CIRCLE, ELLIPSE, SPLINE -> ``Stroke`` with the points flattened to <= 5 mm
   (in drawing units; with unknown units 0.25 % of the entity's size). An open polyline with bulges is split into
   its straight runs (``<id>:<k>``) and one arc stroke per bulge; a closed one stays one shape. ARC/CIRCLE strokes
@@ -28,7 +28,9 @@ How, per model-space entity (paper space and layouts are out of scope):
   Solid hatches are filled with their colour; pattern hatches are filled only on wall-hint layers (their pattern
   lines are not reproduced; elsewhere the boundary is an outline, so a black tile pattern is never a "dark fill").
 - SOLID/TRACE/3DFACE -> a filled closed stroke. POINT -> a dot (not on ``DEFPOINTS``, which never plots).
-- TEXT/ATTRIB -> one ``TextRun``; MTEXT -> one run per paragraph (``\\P``), with the inline height codes honoured
+- TEXT/ATTRIB -> one ``TextRun``; an ATTDEF of the model space (outside every block) -> one ``TextRun`` of its tag,
+  the text CAD shows there (6 Nov 2026, real18: room names and areas drawn as ATTDEFs), its default value and prompt
+  in the evidence; MTEXT -> one run per paragraph (``\\P``), with the inline height codes honoured
   (``\\H9;``, ``\\H0.7x;``). Text boxes are estimates: 0.8 x cap height per character, 0.25 x cap height below the
   baseline (no font files are read, so the boxes are the same on every machine and in the DWG and DXF runs).
 - DIMENSION (linear: rotated and aligned) -> ``DimensionPrim`` **measured from geometry**, never from code 42:
@@ -46,7 +48,7 @@ How, per model-space entity (paper space and layouts are out of scope):
 Stroke ids are DXF evidence entities: ``LINE:2F``; exploded block content ``INSERT:4B/3`` (the 4th entity of the
 block of INSERT 4B; nested ``INSERT:4B/3/0``); MINSERT copies ``INSERT:4B[2]/3``; polyline pieces ``LWPOLYLINE:2F:1``;
 hatch paths ``HATCH:5C#0``. Text ids: ``TEXT:2A``, ``MTEXT:2B`` (``MTEXT:2B:1`` for its second paragraph),
-``ATTRIB:3C``. Page coordinates are drawing units, y up, not shifted; ``size`` is the extent of what was read.
+``ATTRIB:3C``, ``ATTDEF:3D``. Page coordinates are drawing units, y up, not shifted; ``size`` is the extent of what was read.
 """
 from __future__ import annotations
 
@@ -420,6 +422,30 @@ class _Ref:
     clip: Optional[Polygon] = None         # XCLIP boundary of this INSERT and its parents, page units (None = none)
 
 
+# 12 Nov 2026 (review of the reader targets, A9: real12's 1384 model-space ATTDEFs 'MAHAL' (prompt 'MAHAL-ADI'), 'KOT',
+# 'BITMISKOT', 'ÇİZİMADI', real09's 'ASNAME', 'ASCATNO': exploded attribute blocks left unedited show the field's name):
+# a tag that is a field's name, never a text of the drawing: the prompt names it (the folded tag is a word of the
+# folded prompt: MAHAL / 'MAHAL-ADI', KOT / 'Kotu girin'), or it ends in a field word (ADI, NAME, NO, TAG, CODE ...)
+ATTDEF_FIELD_RE = re.compile(r"^[A-Z0-9_\-.]*?(?:ADI|ISMI|ISIM|NAME|NO|NR|NUM|NUMBER|TAG|KOD|KODU|CODE|COLOR|COLOUR|"
+                             r"RENK|CATNO|TYPE|TIPI|KOT|KOTU)$")
+
+
+def attdef_field_name(tag: str, prompt: str = "") -> Optional[str]:
+    """Why a model-space ATTDEF's tag is a field's name (see above), or None when it is a text the drawing shows."""
+    folded = B.fold_ascii(tag).upper().strip()
+    if not re.search(r"[A-Z]", folded):
+        return None                                        # a value: '+2.00', '10000'
+    words = [w for w in re.split(r"[^A-Z0-9]+", B.fold_ascii(prompt).upper()) if w]
+    room_word = bool(B.room_keyword_hits(tag)[0] or B.room_keyword_hits(tag)[1])
+    if folded and not room_word and any(w == folded or (len(folded) >= 3 and w.startswith(folded)) for w in words):
+        # (12 Nov 2026, round-2 review CODE-A8: a room word is a room's name even when its prompt repeats it)
+        return f"its prompt '{prompt}' names it"
+    if " " not in folded and ATTDEF_FIELD_RE.match(folded) and not B.room_keyword_hits(tag)[0] \
+            and not B.room_keyword_hits(tag)[1]:
+        return "a field word"
+    return None
+
+
 class _Reader:
     def __init__(self, doc, file_rel: Optional[str], u2m: Optional[float], texts_only: bool = False) -> None:
         self.doc = doc
@@ -535,6 +561,11 @@ class _Reader:
             self._text(entity, eid, layer, chain)
         elif kind == "MTEXT":
             self._mtext(entity, eid, layer, chain)
+        elif kind == "ATTDEF":
+            if ref is None:
+                self._attdef(entity, eid, layer)
+            else:                                      # a block's attribute template: its INSERTs carry the ATTRIBs
+                self.skipped["ATTDEF in a block (a template)"] += 1
         elif self.texts_only:
             return
         elif kind in CURVE_TYPES:
@@ -805,8 +836,33 @@ class _Reader:
         self.warnings.append(f"{self.file_rel or 'DXF'}: {eid} has no text height; its box is a point")
         return 0.0
 
-    def _text(self, entity, eid: str, layer: str, chain: Optional[str]) -> None:
-        text = entity.plain_text().strip()
+    def _attdef(self, entity, eid: str, layer: str) -> None:
+        """6 Nov 2026 (Milestone 14 reader target; real18: OTOPARK, A:102.52M2 and the room names of two floors are
+        model-space ATTDEFs): an attribute definition standing in the model space, outside every block, is a text of
+        the drawing: CAD shows its tag there (the default value appears only in an INSERT of a block holding it), so
+        the tag is read as the text, placed like a TEXT; the default value and the prompt go into its evidence. An
+        invisible definition is data, not a drawn text (as an invisible ATTRIB)."""
+        from ezdxf.entities.text import plain_text as _plain
+
+        raw = str(entity.dxf.get("tag") or "").strip()
+        tag = _plain(raw).strip()                          # 12 Nov 2026 (review, A9): '%%P0.00' is '±0.00'
+        if not tag or entity.is_invisible:
+            return
+        why = attdef_field_name(tag, str(entity.dxf.get("prompt") or ""))
+        if why:
+            # an unedited attribute definition (an exploded block left as drawn) shows its field's name, not a value
+            self.skipped[f"ATTDEF field name ({why})"] += 1
+            return
+        before = len(self.texts)
+        self._text(entity, eid, layer, None, text=tag)
+        if len(self.texts) > before and self.texts[-1].evidence:
+            ev = self.texts[-1].evidence[-1]
+            ev["attdef_tag"] = tag
+            ev["attdef_default"] = str(entity.dxf.get("text") or "")
+            ev["attdef_prompt"] = str(entity.dxf.get("prompt") or "")
+
+    def _text(self, entity, eid: str, layer: str, chain: Optional[str], text: Optional[str] = None) -> None:
+        text = (entity.plain_text() if text is None else text).strip()
         if not text:
             return
         if entity.dxftype() == "ATTRIB" and entity.is_invisible:

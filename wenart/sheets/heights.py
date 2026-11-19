@@ -703,7 +703,8 @@ def _assumed_levels(out: dict, levels: list[dict], ceiling: float, slab: float, 
 
 
 def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_default: float, file_rel: Optional[str],
-                       region_id: Optional[str]) -> list[str]:
+                       region_id: Optional[str], rule: str = "section_storey_marks",
+                       source: str = "the storeys the sections name at their floor marks") -> list[str]:
     """3 Nov 2026 (real09, user: "You can understand this by checking the other sections in the drawing like this one";
     its A-A section's slab bands mapped 2 of 5 levels, a datum in another frame put the 1st basement at -8.60): when the
     sections name the storeys at their floor marks (``levels.storey_elevations``) for at least two levels, every such
@@ -724,7 +725,7 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
     seq0 = sorted(known)
     rises = [known[b] - known[a] for a, b in zip(seq0, seq0[1:])]
     if any(r < STOREY_MIN_M * (b - a) for r, (a, b) in zip(rises, zip(seq0, seq0[1:]))):
-        return [f"the storeys the sections name at their floor marks do not rise by at least {STOREY_MIN_M:.1f} m a "
+        return [f"{source} do not rise by at least {STOREY_MIN_M:.1f} m a "
                 f"storey ({', '.join(f'{orders[o]} {known[o]:+.2f}' for o in seq0)}): not used, the slab bands' "
                 f"heights stay"]
     base = known[0] if 0 in known else min(known.items())[1]
@@ -738,8 +739,11 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
         if entry is None:
             entry = {"level_id": lid, "level_mark": None, "level_mark_target_z": None}
             out.setdefault("levels", []).append(entry)
-        ev = [_ev(file_rel or "", None, "section_storey_marks", region_id or "", text=f"{known[o]:+.2f}")]
-        entry["floor_z"] = _value(known[o] - base, "vector", ev, note="the floor mark of the storey the section names")
+        ev = [_ev(file_rel or "", None, rule, region_id or "", text=f"{known[o]:+.2f}")]
+        # 19 Nov 2026 (review A3, A3FC-5): the note says where the mark is printed (a section or a plan's title)
+        entry["floor_z"] = _value(known[o] - base, "vector", ev,
+                                  note="the floor mark of the storey the section names" if rule == "section_storey_marks"
+                                  else f"the floor mark its plan's title prints ({rule})")
         nxt = known[seq[k + 1]] if k + 1 < len(seq) else (float(top_mark) if top_mark is not None and
                                                            float(top_mark) > known[o] + 0.5 else None)
         if nxt is not None:
@@ -749,26 +753,26 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
             if ceil.get("method") != "vector" or not (0 < float(ceil.get("value") or 0) < ftf):
                 entry["ceiling_height"] = assumed(round(ftf - slab_default, 3),
                                                   f"floor to floor {ftf:.2f} m less the slab {slab_default:.2f} m")
-        lines.append(f"{lid}: floor {known[o]:+.2f} m (section mark) -> z {known[o] - base:+.2f} m")
+        lines.append(f"{lid}: floor {known[o]:+.2f} m ({'section' if rule == 'section_storey_marks' else 'title'} "
+                     f"mark) -> z {known[o] - base:+.2f} m")
     if abs(base) > 0.005 and out.get("datum") is None:
         # 3 Nov 2026 (real10, user: "this should be the main entrance to the building"): the ground floor's printed
         # floor mark (+2.50) is building z 0, so every printed relative mark of the plans and elevations is read in
         # the same frame (``levels.read.relative_zero``, ``exterior.elevation_z``); without it the front door's
         # threshold mark '-0.50' (the 1st basement's floor, z -3.00) read 2.50 m above that floor: "a door into
         # the air", and the building's front door was never its main entrance
-        ev = [_ev(file_rel or "", None, "section_storey_marks", region_id or "", text=f"{base:+.2f}")]
-        out["datum"] = _value(base, "vector", ev, note="the printed floor mark of the storey at building z 0 (the "
-                                                       "sections' storey marks): the plans' relative marks are read "
-                                                       "in this frame")
+        ev = [_ev(file_rel or "", None, rule, region_id or "", text=f"{base:+.2f}")]
+        out["datum"] = _value(base, "vector", ev, note=f"the printed floor mark of the storey at building z 0 "
+                                                       f"({source}): the plans' relative marks are read in this frame")
         out["datum"]["relative"] = round(float(base), 3) + 0.0
     for sl in out.get("slabs") or []:
         between = sl.get("between") or []
         upper = between[1] if len(between) > 1 else None
         hit = next((o for o in seq if orders[o] == upper), None)
         if hit is not None:
-            ev = [_ev(file_rel or "", None, "section_storey_marks", region_id or "", text=f"{known[hit]:+.2f}")]
+            ev = [_ev(file_rel or "", None, rule, region_id or "", text=f"{known[hit]:+.2f}")]
             sl["z_top"] = _value(known[hit] - base, "vector", ev, note="the floor mark of the storey above")
-    lines = ["heights from the storeys the sections name at their floor marks: " + "; ".join(lines)]
+    lines = [f"heights from {source}: " + "; ".join(lines)]
     frame = out.pop("_mark_frame", None) or []
     shift = _frame_shift(frame, base)
     if shift is not None and abs(shift) > MARK_TOL_M:

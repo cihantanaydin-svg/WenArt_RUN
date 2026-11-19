@@ -125,7 +125,7 @@ from shapely.geometry import Polygon
 from wenart.furniture import groups as GR
 from wenart.furniture import placer, schemas
 
-NOT_FURNISHED = ("prayer", "stair", "shaft", "storage", "unknown")
+NOT_FURNISHED = ("prayer", "stair", "shaft", "storage", "unknown", "technical")   # 12 Nov 2026: plant rooms empty
 ROOM_ZONE_KIND = {"living": "living", "bedroom": "sleeping", "kitchen": "kitchen", "dining": "dining",
                   "bathroom": "bath", "wc": "bath", "hall": "hall", "other": "work", "balcony": "balcony"}
 ZONE_ROOM_TYPE = {"living": "living", "sleeping": "bedroom", "kitchen": "kitchen", "dining": "dining",

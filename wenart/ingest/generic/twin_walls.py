@@ -101,6 +101,105 @@ STAIR_WALL_DEEP = 0.25          # ... and only a face reaching a quarter of the 
 #                                 a flight read a little too wide is no reason to move a wall)
 
 
+LEAFLESS_NOTE = "swing arc without a drawn leaf"     # ``openings._opening``: a door from an arc alone
+ONE_DOOR_RULE = "reading.one_door_per_gap"
+
+
+SLIDING_LINES_NOTE = "drawn parallel to the wall without a swing arc"   # ``openings._opening``: a door from lines alone
+SECOND_LEAF_MIN_M = 0.30            # the rest of a door's frame beside its swung leaf this wide is a second leaf
+
+
+def _leafless(o: dict) -> bool:
+    ev = o.get("evidence") or []
+    return any(isinstance(e, dict) and e.get("note") == LEAFLESS_NOTE for e in (ev if isinstance(ev, list) else [ev]))
+
+
+def _lines_only(o: dict) -> bool:
+    """A sliding door read from lines parallel to its wall, no swing arc (a frame's lines can read so)."""
+    ev = o.get("evidence") or []
+    return o.get("operation") == "sliding" and any(
+        isinstance(e, dict) and SLIDING_LINES_NOTE in str(e.get("note") or "") for e in (ev if isinstance(ev, list) else [ev]))
+
+
+def one_door_per_gap(b: dict, warn: Callable[[str], None] = lambda _m: None) -> list[str]:
+    """19 Nov 2026 (review A3, M5: real09 L-1..L2, one bedroom door read as two in one gap: d_L0_020 from its own arc
+    and leaf, d_L0_014 from the arc ARC:82D alone, which is the swing of the flat's entrance door in the cross wall): two
+    doors on one wall covering at least ``SAME_OPENING_SHARE`` of the narrower are one door read twice when one of them is
+    read from a swing arc alone (``LEAFLESS_NOTE``) and the other from its drawn swing with its leaf (``_drawn``): the
+    arc-only door goes to ``openings_merged`` (``corrected_by_ai``, merged into the other). Mutates ``b``; returns the
+    merged ids.
+
+    19 Nov 2026 (review A3, A3FC-3: real13's main entrance, one 150 cm double door in its KAPI-KASA frame, read as a
+    1.50 m sliding door from the frame lines of the 100 cm leaf and a 0.91 m swing door inside it): a sliding door read
+    from lines alone (``_lines_only``) over which a drawn swing door stands is that door's frame: the swing door takes
+    the frame's span, a double door when the rest beside its leaf is a leaf wide (``SECOND_LEAF_MIN_M``), and the
+    sliding door goes to ``openings_merged``."""
+    walls = {w["id"]: w for w in b.get("walls") or [] if isinstance(w, dict) and w.get("id")}
+    doors = [o for o in b.get("openings") or [] if isinstance(o, dict) and o.get("type") == "door"
+             and o.get("wall_id") in walls and o.get("center")]
+    gone: list[str] = []
+    for o in doors:
+        if o["id"] in gone or not _lines_only(o):
+            continue
+        ax = _axis(walls[o["wall_id"]])
+        if ax is None:
+            continue
+        t, half = _t(ax, o["center"]), float(o.get("width") or 0.0) / 2.0
+        for p in doors:
+            if p is o or p["id"] in gone or p.get("wall_id") != o["wall_id"] or not _drawn(p) or _leafless(p):
+                continue
+            tp, hp = _t(ax, p["center"]), float(p.get("width") or 0.0) / 2.0
+            cover = min(t + half, tp + hp) - max(t - half, tp - hp)
+            if cover < SAME_OPENING_SHARE * max(min(2 * half, 2 * hp), 1e-6) or 2 * hp > 2 * half + 0.05:
+                continue
+            lo, hi = min(t - half, tp - hp), max(t + half, tp + hp)
+            rest = (hi - lo) - 2 * hp
+            (x0, y0), (ux, uy), _ = ax
+            before = {"center": list(p["center"]), "width": p.get("width"), "operation": p.get("operation")}
+            p["center"] = [round(x0 + ux * (lo + hi) / 2.0, 4), round(y0 + uy * (lo + hi) / 2.0, 4)]
+            p["width"] = round(hi - lo, 4)
+            if rest >= SECOND_LEAF_MIN_M:
+                p["operation"], p["operation_source"] = "double", "geometry"
+            reason = (f"the sliding door {o['id']} ({2 * half:.2f} m) is read from lines alone where the swing door "
+                      f"{p['id']} ({2 * hp:.2f} m) stands: the lines are its frame; the door takes the frame's "
+                      f"{hi - lo:.2f} m" + (f", the {rest:.2f} m beside its leaf a second leaf (double door)"
+                                             if rest >= SECOND_LEAF_MIN_M else ""))
+            p["corrected_by_ai"] = {"by": "code", "rule": ONE_DOOR_RULE, "reason": reason, "before": before,
+                                    "evidence": [o["id"]]}
+            b["openings"] = [x for x in b["openings"] if x is not o]
+            b.setdefault("openings_merged", []).append(dict(copy.deepcopy(o), merged_into=p["id"], corrected_by_ai={
+                "by": "code", "rule": ONE_DOOR_RULE, "reason": reason, "evidence": [p["id"]]}))
+            gone.append(o["id"])
+            warn(f"one door per gap: {reason}")
+            break
+    for o in doors:
+        if o["id"] in gone or not _leafless(o):
+            continue
+        ax = _axis(walls[o["wall_id"]])
+        if ax is None:
+            continue
+        t, half = _t(ax, o["center"]), float(o.get("width") or 0.0) / 2.0
+        for p in doors:
+            if p is o or p["id"] in gone or p.get("wall_id") != o["wall_id"] or _leafless(p) or not _drawn(p):
+                continue
+            tp, hp = _t(ax, p["center"]), float(p.get("width") or 0.0) / 2.0
+            cover = min(t + half, tp + hp) - max(t - half, tp - hp)
+            if cover < SAME_OPENING_SHARE * max(min(2 * half, 2 * hp), 1e-6):
+                continue
+            arcs = ", ".join(str(e.get("entity")) for e in o.get("evidence") or [] if isinstance(e, dict)
+                             and e.get("entity"))
+            reason = (f"{o['id']} ({float(o.get('width') or 0):.2f} m) is read from a swing arc alone ({arcs}) in the gap "
+                      f"the door {p['id']} fills with its own arc and leaf: one door read twice, the arc another "
+                      f"door's swing")
+            b["openings"] = [x for x in b["openings"] if x is not o]
+            b.setdefault("openings_merged", []).append(dict(copy.deepcopy(o), merged_into=p["id"], corrected_by_ai={
+                "by": "code", "rule": ONE_DOOR_RULE, "reason": reason, "evidence": [p["id"]]}))
+            gone.append(o["id"])
+            warn(f"one door per gap: {reason}")
+            break
+    return gone
+
+
 def stair_side_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> list[str]:
     """13 Nov 2026 (review BLD-05: real10's stairwell plaster faces were paired with the stairs' walking lines, drawn on
     the same layer, into walls 0.57-0.71 m thick standing across half of each flight): a wall running along a stair's

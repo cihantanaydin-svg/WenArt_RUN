@@ -39,6 +39,16 @@ SYMBOL_MAX_AREA_M2 = 0.6
 SYMBOL_TYPES = ("unknown", "floor_lamp", "plant", "potted_plant", "plant_large", "side_table", "stool")
 DEDUPE_M = 0.30
 RAMP_RE = re.compile(r"\bRAMPA?\b")
+# 12 Nov 2026 (round-2 review, A2-FC9: real07's garage drive was inferred 4.16 x 4.01 m in front of a 2.8 x 3.7 m ramp
+# drawn as the usual symbol, with no RAMPA text): a drawn ramp symbol is an outline with two lines from its far corners
+# meeting at the middle of its near edge (``ramp_outlines``); these are its tolerances and sizes
+RAMP_END_TOL_M = 0.03             # two line ends this close meet
+RAMP_SIDE_TOL = 0.05              # the two diagonals of equal length, the apex over the far edge's middle (share)
+RAMP_LEN_M = (1.0, 15.0)          # the outline's length (near edge to far edge)
+RAMP_WIDTH_M = (1.0, 15.0)        # the outline's width (the far edge)
+RAMP_SIDE_MIN = 0.8               # each side line covers at least this share of the length
+RAMP_APEX_REACH_M = 0.30          # the apex lies this close to the building's outline (and later to the door face)
+RAMP_APEX_MAX_ENDS = 16           # more line ends at one point is a hatch or a star of lines, no ramp's apex
 
 
 def insert_path(entity: Optional[str]) -> Optional[str]:
@@ -349,9 +359,117 @@ def mark_symbols(building: dict, marks: list[dict]) -> list[dict]:
     return out
 
 
-def drawn_ramps(texts: Sequence[dict], building: dict, params: dict) -> list[dict]:
+def ramp_outlines(strokes: Sequence, outline=None) -> list[dict]:
+    """12 Nov 2026 (round-2 review, A2-FC9): the drawn ramp symbols of a page (page metres, pure): an outline (two side
+    lines and a far edge; the near edge is the door's line and may be missing) with two lines from its far corners
+    meeting at the middle of its near edge, whatever its layer or text. ``outline``: the building's outline (shapely);
+    when given, only symbols outside it with their apex within ``RAMP_APEX_REACH_M`` of its edge are kept (a ramp up to
+    a door). ``[{"polygon": [far1, far2, near2, near1], "apex", "length", "width", "entities", "layer"}]``."""
+    import math
+
+    segs = []
+    for st in strokes or ():
+        if getattr(st, "arc", None) or getattr(st, "source", "vector") != "vector":
+            continue
+        pts = [tuple(map(float, p)) for p in st.pts or ()]
+        if getattr(st, "closed", False) and len(pts) >= 3:
+            pts = pts + [pts[0]]
+        for a, b in zip(pts, pts[1:]):
+            if 0.5 <= math.dist(a, b) <= 1.2 * RAMP_LEN_M[1] + RAMP_WIDTH_M[1]:
+                segs.append((a, b, st.id, getattr(st, "layer", None)))
+    if outline is not None and not outline.is_empty and segs:
+        import numpy as np
+        import shapely
+
+        # one vectorised pass (a drawing holds tens of thousands of segments): near the outline, not inside it
+        a = np.array([s[0] for s in segs], dtype=float)
+        mid = (a + np.array([s[1] for s in segs], dtype=float)) / 2.0
+        near = shapely.distance(outline.boundary, shapely.points(a)) <= RAMP_LEN_M[1] + RAMP_WIDTH_M[1]
+        inside = shapely.contains_xy(outline, mid[:, 0], mid[:, 1])
+        segs = [s for s, n, i in zip(segs, near, inside) if n and not i]
+    cell = RAMP_END_TOL_M
+    grid: dict = {}
+    for k, (a, b, _, _) in enumerate(segs):
+        for e, p in ((0, a), (1, b)):
+            grid.setdefault((round(p[0] / cell), round(p[1] / cell)), []).append((k, e))
+
+    def ends_at(p) -> list:
+        gx, gy = round(p[0] / cell), round(p[1] / cell)
+        return [(k, e) for dx in (-1, 0, 1) for dy in (-1, 0, 1) for k, e in grid.get((gx + dx, gy + dy), ())
+                if math.dist(segs[k][e], p) <= RAMP_END_TOL_M]
+
+    def joined(p, q, tol) -> Optional[int]:
+        for k, e in ends_at(p):
+            if math.dist(segs[k][1 - e], q) <= tol:
+                return k
+        return None
+
+    out: list[dict] = []
+    seen: set = set()
+    for key, here in grid.items():
+        if not 2 <= len(here) <= RAMP_APEX_MAX_ENDS:
+            continue
+        for i in range(len(here)):
+            for j in range(i + 1, len(here)):
+                (k1, e1), (k2, e2) = here[i], here[j]
+                if k1 == k2:
+                    continue
+                apex = segs[k1][e1]
+                if math.dist(apex, segs[k2][e2]) > RAMP_END_TOL_M:
+                    continue
+                p1, p2 = segs[k1][1 - e1], segs[k2][1 - e2]
+                l1, l2 = math.dist(apex, p1), math.dist(apex, p2)
+                width = math.dist(p1, p2)
+                if abs(l1 - l2) > RAMP_SIDE_TOL * max(l1, l2) or not RAMP_WIDTH_M[0] <= width <= RAMP_WIDTH_M[1]:
+                    continue
+                ux, uy = (p2[0] - p1[0]) / width, (p2[1] - p1[1]) / width
+                t = (apex[0] - p1[0]) * ux + (apex[1] - p1[1]) * uy
+                foot = (p1[0] + ux * t, p1[1] + uy * t)
+                length = math.dist(apex, foot)
+                if abs(t - width / 2.0) > RAMP_SIDE_TOL * width or not RAMP_LEN_M[0] <= length <= RAMP_LEN_M[1]:
+                    continue
+                base = joined(p1, p2, RAMP_END_TOL_M * 2)
+                if base is None:
+                    continue
+                vx, vy = apex[0] - foot[0], apex[1] - foot[1]
+                q1, q2 = (p1[0] + vx, p1[1] + vy), (p2[0] + vx, p2[1] + vy)
+                sides = []
+                for p, q in ((p1, q1), (p2, q2)):
+                    best = None
+                    for k, e in ends_at(p):
+                        r = segs[k][1 - e]
+                        run = (r[0] - p[0]) * vx / length + (r[1] - p[1]) * vy / length
+                        off = abs((r[0] - p[0]) * ux + (r[1] - p[1]) * uy)
+                        if run >= RAMP_SIDE_MIN * length and run <= length + 0.3 and off <= 0.05 * length:
+                            best = k
+                    sides.append(best)
+                if None in sides:
+                    continue
+                poly = [p1, p2, q2, q1]
+                if outline is not None and not outline.is_empty:
+                    from shapely.geometry import Point, Polygon
+
+                    if outline.boundary.distance(Point(apex)) > RAMP_APEX_REACH_M or \
+                            outline.contains(Polygon(poly).centroid):
+                        continue
+                sig = (round(apex[0], 1), round(apex[1], 1), round(length, 1), round(width, 1))
+                if sig in seen:
+                    continue
+                seen.add(sig)
+                ids = sorted({segs[k][2] for k in (k1, k2, base, *sides)})
+                out.append({"polygon": [[round(x, 4), round(y, 4)] for x, y in poly],
+                            "apex": [round(apex[0], 4), round(apex[1], 4)], "length": round(length, 4),
+                            "width": round(width, 4), "entities": ids, "layer": segs[k1][3]})
+    return out
+
+
+def drawn_ramps(texts: Sequence[dict], building: dict, params: dict, outlines: Sequence[dict] = ()) -> list[dict]:
     """``[{"door_id", "text", "point", "evidence"}]``: ``RAMPA`` / ``RAMP`` texts outside the building within
-    ``door_ground_reach`` of an outside door (the nearest)."""
+    ``door_ground_reach`` of an outside door (the nearest). 12 Nov 2026 (round-2 review, A2-FC9): ``outlines``, the
+    pages' drawn ramp symbols (``ramp_outlines`` in the building frame, each with its ``level_id`` and ``file``): one
+    whose apex lies on an outside door's face (within ``RAMP_APEX_REACH_M``, inside the door's width) is that door's
+    drawn ramp, with its ``polygon``, ``length``, ``width`` and ``apex`` (``source`` "outline"); a RAMPA text's door that
+    has one gets its outline too."""
     from wenart.levels import model as LMOD
 
     out = []
@@ -373,4 +491,31 @@ def drawn_ramps(texts: Sequence[dict], building: dict, params: dict) -> list[dic
         if near:
             out.append({"door_id": min(near)[1], "text": t.get("text"), "point": [round(p[0], 4), round(p[1], 4)],
                         "evidence": [dict(t.get("evidence") or {"file": "", "method": "vector", "confidence": 1.0})]})
+    for r in outlines or ():
+        lid = r.get("level_id")
+        if lid not in cache:
+            rooms = [x for x in building.get("rooms") or [] if x.get("level_id") == lid]
+            outline = LMOD.level_outline(building, lid) if lid else []
+            cache[lid] = (outline, _outside_doors(building, lid, rooms, outline))
+        apex = tuple(r["apex"])
+        best = None
+        for d in cache[lid][1]:
+            n = d["outward"]
+            dx, dy = apex[0] - d["face"][0], apex[1] - d["face"][1]
+            across, along = abs(dx * n[0] + dy * n[1]), abs(-dx * n[1] + dy * n[0])
+            if across <= RAMP_APEX_REACH_M and along <= d["width"] / 2.0 and (best is None or along < best[0]):
+                best = (along, d["id"])
+        if best is None:
+            continue
+        rec = {"polygon": r["polygon"], "length": r["length"], "width": r["width"], "apex": list(apex),
+               "source": "outline", "layer": r.get("layer"),
+               "outline_evidence": [{"file": r.get("file") or "", "method": "vector", "confidence": 1.0,
+                                     "entity": ",".join(r.get("entities") or [])[:200]}]}
+        have = next((x for x in out if x["door_id"] == best[1]), None)
+        if have is not None:
+            if "polygon" not in have:
+                have.update(rec)
+            continue
+        out.append({"door_id": best[1], "text": None, "point": list(apex), "evidence": rec["outline_evidence"],
+                    **rec})
     return out

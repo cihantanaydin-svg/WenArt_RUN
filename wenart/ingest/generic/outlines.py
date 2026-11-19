@@ -91,14 +91,20 @@ def _closed_polygon(st: Stroke) -> Optional[Polygon]:
 
 
 def labelled_outlines(strokes_m: list[Stroke], blocks: list) -> list[RoomOutline]:
-    """Closed outlines holding exactly one indoor room label whose printed area (if any) they match (page metres)."""
+    """Closed outlines holding exactly one indoor room label whose printed area (if any) they match (page metres).
+
+    19 Nov 2026 (review A3, OA3-07: real18 L0's BALKON tile hatches became 2.7 m exterior walls, the balconies closed
+    rooms with no railing): an outdoor space's label (balcony, terrace ...: ``topology._outdoor_label``) is no indoor
+    one; its outline makes no wall (it keeps its railing or parapet)."""
+    from wenart.ingest.generic import topology as TP
+
     cands: list[RoomOutline] = []
     for st in strokes_m:
         poly = _closed_polygon(st)
         if poly is None:
             continue
         inside = [b for b in blocks if poly.contains(Point(b.anchor))]
-        if len(inside) != 1 or getattr(inside[0], "exterior", False):
+        if len(inside) != 1 or getattr(inside[0], "exterior", False) or TP._outdoor_label(inside[0]):
             continue
         b = inside[0]
         off = None
