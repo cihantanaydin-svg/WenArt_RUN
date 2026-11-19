@@ -2677,7 +2677,8 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
         if not any(LN.layer_role(n) == "door" for n in names):
             continue
         if _door_window_name(names):
-            sweep = abs(float(a.get("end_deg") or 0.0) - float(a.get("start_deg") or 0.0)) % 360.0
+            # 19 Nov 2026 (review A3, A3C-5): counter-clockwise from start to end, so a quarter stored 270 -> 0 is 90
+            sweep = (float(a.get("end_deg") or 0.0) - float(a.get("start_deg") or 0.0)) % 360.0
             if float(a["radius"]) < DOOR_WINDOW_MIN_R or not (DOOR_WINDOW_SWEEP[0] <= sweep <= DOOR_WINDOW_SWEEP[1]):
                 continue
         arcs.append(st)

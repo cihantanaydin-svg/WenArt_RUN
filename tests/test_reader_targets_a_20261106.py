@@ -1310,8 +1310,9 @@ def test_a_lift_landing_door_opens_to_the_hall_never_into_the_stair():
 
 
 def test_basements_moved_by_their_marks_never_carry_the_ground_floor_the_marks_take_its_frame():
-    # real11: the basement plans print -0.50 and -3.30 in a frame where the ground floor stands at +2.50
-    b = _marks(_stack(4, start=-2), {"L-1": [-0.5], "L-2": [-3.3]})
+    # real11: the basement plans print -0.50 and -3.30 in a frame where the ground floor stands at +2.50 (its bathroom's
+    # floor mark '+2.50' says so: 19 Nov 2026, review A3 A3C-2, the frame needs the ground floor's own mark)
+    b = _marks(_stack(4, start=-2), {"L-1": [-0.5], "L-2": [-3.3], "L0": [2.5]})
     got, n = _elev(b)
     assert got == {"L-2": -5.8, "L-1": -3.0, "L0": 0.0, "L1": 3.0}
     rec = n["level_inference"]
@@ -1319,6 +1320,35 @@ def test_basements_moved_by_their_marks_never_carry_the_ground_floor_the_marks_t
     assert any(i.get("item") == "plan height frame" and i.get("value") == 2.5 for i in rec.get("inferred") or [])
     zs = {m["id"]: (m["z"], m.get("frame_shift")) for m in n["level_marks"]}
     assert zs["lm_L-1_0"] == (-3.0, 2.5) and zs["lm_L-2_0"] == (-5.8, 2.5)
+
+
+def test_a_basement_mark_never_moves_the_ground_floor_or_the_other_marks_without_the_ground_floors_own_mark():
+    """19 Nov 2026 (review A3, A3C-2: a basement's two '-2.80' marks made the assumed ground floor follow it +0.20 and
+    every plan mark moved -0.20; A3C-3: two outside threshold marks '-0.15' outvoted the room's '±0.00', a stair
+    landing's '+1.50' shifted the whole building)."""
+    from tests import _levels_fixture as F
+
+    got, n = _elev(_marks(_stack(3, start=-1), {"L-1": [-2.8, -2.8]}))
+    assert got == {"L-1": -2.8, "L0": 0.0, "L1": 3.0}
+    assert all(m["z"] == -2.8 and not m.get("frame_shift") for m in n["level_marks"])
+    assert any("none of its own floor or threshold marks reads that" in w for w in n["level_inference"]["warnings"])
+    # a level between the moved basement and the ground floor follows the ground floor, not the basement
+    got, _n = _elev(_marks(_stack(3, start=-2), {"L-2": [-5.8, -5.8]}))
+    assert got == {"L-2": -5.8, "L-1": -3.0, "L0": 0.0}
+    # the ground floor's room reads ±0.00, two outside landings -0.15: no frame
+    b = _marks(_stack(2), {"L0": [0.0], "L1": [3.0, 3.0]})
+    b["level_marks"] += [F.mark(f"lm_t{k}", -0.15, kind="threshold", point=(9.0 + k, -1.0), room_id=None, level="L0")
+                         for k in range(2)]
+    got, n = _elev(b)
+    assert got == {"L0": 0.0, "L1": 3.0} and not any(m.get("frame_shift") for m in n["level_marks"])
+    # only the stair landing's '+1.50' twice: no frame either
+    b = _marks(_stack(2), {"L1": [3.0, 3.0]})
+    for r in b["rooms"]:
+        if r["id"] == "r_living_L0":
+            r["room_type"] = "stair"
+    b = _marks(b, {"L0": [1.5, 1.5]})
+    got, n = _elev(b)
+    assert got == {"L0": 0.0, "L1": 3.0} and not any(m.get("frame_shift") for m in n["level_marks"])
 
 
 def test_a_door_read_in_a_twin_wall_outranks_the_unclassified_gap_it_is_read_twice_as():
@@ -1659,3 +1689,31 @@ def test_a_door_read_from_an_arc_alone_in_a_drawn_doors_gap_is_that_door_read_tw
     right = dict(drawn, id="d_r", center=[8.8, 4.09], width=0.8)
     b = {"walls": [wall], "openings": [left, right]}
     assert TWW.one_door_per_gap(b) == [] and len(b["openings"]) == 2
+    # A3FC-3 (real13's main entrance): a 1.50 m 'sliding door' read from the frame lines of the 100 cm leaf, the leaf's
+    # 0.91 m swing door inside it: one 1.50 m double door
+    frame = {"id": "d_L-1_002", "type": "door", "level_id": "L0", "wall_id": "w1", "center": [9.16, 4.09], "width": 1.5,
+             "operation": "sliding", "evidence": [{"file": "p.dxf", "method": "vector", "confidence": 0.85,
+                                                   "entity": "LINE:9A356D,LINE:9A3582",
+                                                   "note": "2 leaf/leaves drawn parallel to the wall without a swing "
+                                                           "arc: a sliding door"}]}
+    leaf = dict(drawn, id="d_L-1_003", center=[9.41, 4.09], width=0.911,
+                evidence=[{"file": "p.dxf", "method": "vector", "confidence": 0.95, "entity": "ELLIPSE:9A3584,LINE:1"}])
+    b = {"walls": [wall], "openings": [frame, leaf]}
+    assert TWW.one_door_per_gap(b) == ["d_L-1_002"]
+    (door,) = b["openings"]
+    assert door["id"] == "d_L-1_003" and door["width"] == 1.5 and door["operation"] == "double"
+    assert abs(door["center"][0] - 9.16) < 1e-6 and door["corrected_by_ai"]["before"]["width"] == 0.911
+
+
+def test_a_swing_stored_across_0_degrees_on_a_door_and_window_layer_is_a_door():
+    """19 Nov 2026 (review A3, A3C-5: dxf_generic stores a 270-360 quarter as 270 -> 0; abs(end - start) % 360 read it as
+    270 degrees, so one door in four orientations on 'kapı-pencere' stayed an opening)."""
+    from wenart.ingest.generic import core as GC
+
+    wall = _wall((0.0, 3.0), (6.0, 3.0), t=0.25, entity="w1")
+    for a0, a1 in ((270.0, 360.0), (270.0, 0.0)):
+        gap = _gap((3.0, 3.0), 1.32)
+        gap.rotation_deg = 0.0
+        arc = _arc("ARC:9", (2.4, 3.0), 0.8, a0, a1, layer="kapı-pencere")
+        got = GC._door_blocks_in_gaps(_ex2(), "p", [wall], [gap], [arc])
+        assert got[0].kind == "door", (a0, a1)

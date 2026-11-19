@@ -300,21 +300,29 @@ def _plan_frame(b: dict, marks: list, gl: Optional[dict], tol: float, inferred: 
     plans' own height frame when no section datum gives one. When the ground floor's marks (floor marks in its rooms,
     stairs included, and its threshold and entrance marks) agree on a value v other than 0 (two or more), and its room
     floor marks alone do not already move it there, every relative plan mark is read as mark - v (the one-frame rule of
-    the user's C0061); 0.0 otherwise. The marks are changed in place (``frame_shift``)."""
+    the user's C0061); 0.0 otherwise. The marks are changed in place (``frame_shift``).
+
+    19 Nov 2026 (review A3, A3C-3: two outside threshold marks '-0.15' outvoted the one room mark '±0.00', a stair
+    landing's '+1.50' shifted the whole building): the frame's value is one at least one floor mark of a room that is
+    no stair reads; the stair, threshold and entrance marks only confirm it (two or more marks in all); a room floor
+    mark of the ground floor reading 0 keeps the marks as printed."""
     if gl is None or isinstance((b.get("project") or {}).get("datum"), dict):
         return 0.0
     rooms = {r["id"]: r for r in b.get("rooms") or [] if r.get("level_id") == gl["id"]}
     own = [m for m in marks if m.get("z") is not None and not m.get("frame_shift") and (
         (m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms) or
         (m.get("kind") in ("threshold", "entrance") and m.get("level_id") == gl["id"]))]
+    room_only = [m for m in own if m.get("kind") in FLOOR_KINDS
+                 and (rooms.get(m.get("room_id")) or {}).get("room_type") not in NO_FLOOR_ROOMS]
+    if not room_only or any(abs(float(m["z"])) <= tol for m in room_only):
+        return 0.0
     counts: dict = {}
     for m in own:
         counts[round(float(m["z"]), 2)] = counts.get(round(float(m["z"]), 2), 0) + 1
-    if not counts:
+    cands = {z: n for z, n in counts.items() if any(abs(float(m["z"]) - z) <= tol for m in room_only)}
+    if not cands:
         return 0.0
-    v = max(counts, key=lambda z: (counts[z], -abs(z)))
-    room_only = [m for m in own if m.get("kind") in FLOOR_KINDS
-                 and (rooms.get(m.get("room_id")) or {}).get("room_type") not in NO_FLOOR_ROOMS]
+    v = max(cands, key=lambda z: (cands[z], -abs(z)))
     if abs(v) <= tol or counts[v] < 2 or sum(1 for m in room_only if abs(float(m["z"]) - v) <= tol) >= 2:
         return 0.0
     n = 0
@@ -368,67 +376,98 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
         proposed[lv["id"]] = (lv, best, counts, zs, rooms)
     ordered = sorted((lv for lv in base_levels(b) if lv.get("order") is not None), key=lambda x: int(x["order"]))
     refused: dict = {}
+    gi = next((i for i, lv in enumerate(ordered) if gl is not None and lv["id"] == gl["id"]), None)
 
-    def final_z() -> dict:
-        out, shift = {}, 0.0
-        for lv in ordered:
+    def follow(levels: list, out: dict) -> None:
+        shift = 0.0
+        for lv in levels:
             old = float(lv.get("elevation") or 0.0)
             if lv["id"] in proposed and lv["id"] not in refused:
                 shift = proposed[lv["id"]][1] - old
                 out[lv["id"]] = proposed[lv["id"]][1]
             elif lv.get("elevation_source") in (None, "assumed_default"):
-                out[lv["id"]] = old + shift            # an assumed level follows the moved level below it
+                out[lv["id"]] = old + shift            # an assumed level follows the moved level next to it
             else:
                 shift = 0.0
                 out[lv["id"]] = old
+
+    def final_z(across: bool = False) -> dict:
+        """19 Nov 2026 (review A3, A3C-2: a basement mark '-2.80' moved every plan mark by -0.20 because the ground
+        floor would follow it): an assumed level follows the moved level next to it towards the ground floor: above it
+        the one below, below it the one above; never across the ground floor (``across`` gives the old bottom-up
+        reading, the probe of the plans' height frame)."""
+        out: dict = {}
+        if across or gi is None:
+            follow(ordered, out)
+        else:
+            follow(ordered[gi:], out)
+            follow(list(reversed(ordered[:gi])), out)
         return out
 
-    while True:
-        z = final_z()
-        blame: dict = {}
-        for a, c in zip(ordered, ordered[1:]):
-            step = (z[c["id"]] - z[a["id"]]) / max(1, int(c["order"]) - int(a["order"]))
-            if STOREY_MIN_M - tol <= step <= STOREY_MAX_M + tol:
-                continue
-            live = [x for x in (a, c) if x["id"] in proposed and x["id"] not in refused]
-            if not live:
-                continue
-            if len(live) == 1:
-                pick = live[0]
-            else:
-                pick = min(live, key=lambda x: (proposed[x["id"]][2][proposed[x["id"]][1]],
-                                                -abs(proposed[x["id"]][1] - float(x.get("elevation") or 0.0))))
-            blame.setdefault(pick["id"], []).append((a["id"], c["id"], round(step, 2)))
-        if not blame:
-            break
-        worst = max(blame, key=lambda k: (len(blame[k]), abs(proposed[k][1] - float(proposed[k][0].get("elevation") or 0.0))))
-        refused[worst] = blame[worst]
-    z = final_z()
+    def settle(across: bool) -> dict:
+        refused.clear()
+        while True:
+            z = final_z(across)
+            blame: dict = {}
+            for a, c in zip(ordered, ordered[1:]):
+                step = (z[c["id"]] - z[a["id"]]) / max(1, int(c["order"]) - int(a["order"]))
+                if STOREY_MIN_M - tol <= step <= STOREY_MAX_M + tol:
+                    continue
+                live = [x for x in (a, c) if x["id"] in proposed and x["id"] not in refused]
+                if not live:
+                    continue
+                if len(live) == 1:
+                    pick = live[0]
+                else:
+                    pick = min(live, key=lambda x: (proposed[x["id"]][2][proposed[x["id"]][1]],
+                                                    -abs(proposed[x["id"]][1] - float(x.get("elevation") or 0.0))))
+                blame.setdefault(pick["id"], []).append((a["id"], c["id"], round(step, 2)))
+            if not blame:
+                return final_z(across)
+            worst = max(blame, key=lambda k: (len(blame[k]), abs(proposed[k][1] - float(proposed[k][0].get("elevation")
+                                                                                        or 0.0))))
+            refused[worst] = blame[worst]
+
+    z = settle(True)
+    s = 0.0
     if gl is not None and gl["id"] in z and (gl["id"] not in proposed or gl["id"] in refused) \
             and not isinstance((b.get("project") or {}).get("datum"), dict):
         s = z[gl["id"]] - float(gl.get("elevation") or 0.0)
-        if abs(s) > tol:
-            # 13 Nov 2026 (round-2 review, A2-FC4 / F3: real11's basements moved by their marks carried the assumed
-            # ground floor 2.50 m up): the ground floor stays at its height (building z 0 by convention); a ground floor
-            # that would only follow the levels below by s shows the plans' marks in a frame where it stands at s: every
-            # relative mark is read as mark - s (the one-frame rule of C0061), the levels with it
-            z = {k: _r(v - s) for k, v in z.items()}
-            for k in list(proposed):
-                lvp, best, counts, zs, rooms = proposed[k]
-                proposed[k] = (lvp, round(best - s, 2), {round(c - s, 2): n for c, n in counts.items()},
-                               [_r(x - s) for x in zs], rooms)
-            n = 0
-            for m in marks:
-                if m.get("z") is not None and m.get("relative", True) is not False:
-                    m["z"] = _r(float(m["z"]) - s)
-                    m["frame_shift"] = _r(float(m.get("frame_shift") or 0.0) + s)
-                    n += 1
+    if abs(s) > tol:
+        # 19 Nov 2026 (review A3, A3C-2): only when the ground floor's own floor or threshold marks read s
+        g_rooms = {r["id"] for r in b.get("rooms") or [] if r.get("level_id") == gl["id"]}
+        confirm = [m for m in marks if m.get("z") is not None and abs(float(m["z"]) - s) <= tol and (
+            (m.get("kind") in FLOOR_KINDS and m.get("room_id") in g_rooms)
+            or (m.get("kind") in ("threshold", "entrance") and m.get("level_id") == gl["id"]))]
+        if not confirm:
             warnings.append(f"levels: the levels below the ground floor {gl['id']} moved by their floor marks would carry "
-                            f"it {s:+.2f} m: the plans' marks stand in a frame with the ground floor at {s:+.2f} m; every "
-                            f"plan mark ({n}) is read as mark - {s:.2f} (no section datum)")
-            inferred.append({"item": "plan height frame", "value": _r(s),
-                             "reason": f"the ground floor would follow the levels below by {s:+.2f} m (one height frame, "
-                                       f"C0061)"})
+                            f"it {s:+.2f} m, but none of its own floor or threshold marks reads that: it stays, the "
+                            f"marks as printed; an assumed level below it follows the moved level above it")
+            s = 0.0
+    if abs(s) <= tol:
+        z = settle(False)
+    else:
+        # 13 Nov 2026 (round-2 review, A2-FC4 / F3: real11's basements moved by their marks carried the assumed
+        # ground floor 2.50 m up): the ground floor stays at its height (building z 0 by convention); a ground floor
+        # that would only follow the levels below by s shows the plans' marks in a frame where it stands at s: every
+        # relative mark is read as mark - s (the one-frame rule of C0061), the levels with it
+        z = {k: _r(v - s) for k, v in z.items()}
+        for k in list(proposed):
+            lvp, best, counts, zs, rooms = proposed[k]
+            proposed[k] = (lvp, round(best - s, 2), {round(c - s, 2): n for c, n in counts.items()},
+                           [_r(x - s) for x in zs], rooms)
+        n = 0
+        for m in marks:
+            if m.get("z") is not None and m.get("relative", True) is not False:
+                m["z"] = _r(float(m["z"]) - s)
+                m["frame_shift"] = _r(float(m.get("frame_shift") or 0.0) + s)
+                n += 1
+        warnings.append(f"levels: the levels below the ground floor {gl['id']} moved by their floor marks would carry "
+                        f"it {s:+.2f} m: the plans' marks stand in a frame with the ground floor at {s:+.2f} m; every "
+                        f"plan mark ({n}) is read as mark - {s:.2f} (no section datum)")
+        inferred.append({"item": "plan height frame", "value": _r(s),
+                         "reason": f"the ground floor would follow the levels below by {s:+.2f} m (one height frame, "
+                                   f"C0061)"})
     file = _file_of(b)
     for lv in ordered:
         lid = lv["id"]
