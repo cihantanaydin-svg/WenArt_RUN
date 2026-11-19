@@ -2163,7 +2163,8 @@ def _minus_walls(points, walls: Sequence[dict]) -> list:
         if cut.contains(rect):
             # 13 Nov 2026 (real10: a 0.21 m wall end 4 cm inside the core stair's landing): a wall standing inside the
             # surface near its edge is cut out with the strip between them (a notch, no hole the build cannot make)
-            gap = rect.distance(cut.exterior)
+            # 19 Nov 2026 (real15: a wall cut earlier left the surface in pieces, a MultiPolygon has no exterior)
+            gap = rect.distance(cut.exterior if cut.geom_type == "Polygon" else cut.boundary)
             if gap <= WALL_NOTCH_M:
                 rect = rect.buffer(gap + 0.005, join_style=2)
         cut = cut.difference(rect)

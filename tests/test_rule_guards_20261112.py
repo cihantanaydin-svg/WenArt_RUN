@@ -50,14 +50,14 @@ def test_every_rule_key_is_asked_by_its_rule():
 
 
 def test_a_guard_stops_one_change_and_says_why():
-    RG.guard("lift_door_add")(lambda b, item: "a through-car lift is drawn" if item["level_id"] == "L1" else None)
-    b = block()
+    # (19 Nov 2026: the landing door is the reader's rule since the merge of reader A; a core gap shows the guard)
+    RG.guard("core_gap")(lambda b, item: "a drawn passage" if item["level_id"] == "L1" else None)
+    b = flat_door(block())
     rec = run(b)
-    assert [x["level_id"] for x in rec["lift_doors"]["added"]] == ["L0"]
+    assert [x["level_id"] for x in rec["core_gaps"]] == ["L0"]
     log = b["level_inference"]["guarded"]
-    assert [(e["rule"], e["item"]["level_id"], e["reason"]) for e in log] == \
-        [("lift_door_add", "L1", "a through-car lift is drawn")]
-    assert log[0]["audit"] == ["R19"] and log[0]["item"]["lift"] == "r_L1_lift"
+    assert [(e["rule"], e["item"]["level_id"], e["reason"]) for e in log] == [("core_gap", "L1", "a drawn passage")]
+    assert log[0]["audit"] == ["R16"] and log[0]["item"]["opening"] == "o_L1_gap"
 
 
 def test_a_rule_switched_off_by_its_audit_id_makes_no_change(monkeypatch):
@@ -66,10 +66,8 @@ def test_a_rule_switched_off_by_its_audit_id_makes_no_change(monkeypatch):
     rec = run(b)
     assert rec["core_gaps"] == [] and rec["stairs"] == []
     assert {o["id"] for o in b["openings"]} >= {"o_L0_gap", "o_L1_gap"}
-    # R16 also covers the removal of a lift door into a flat's room
-    assert rec["lift_doors"]["removed"] == []
     rules = {e["rule"] for e in b["level_inference"]["guarded"]}
-    assert {"core_gap", "stair_box", "lift_door_remove"} <= rules
+    assert {"core_gap", "stair_box"} <= rules
     assert all("WENART_RULES_OFF" in e["reason"] for e in b["level_inference"]["guarded"])
 
 
@@ -92,7 +90,7 @@ def test_a_guard_can_keep_a_level_above_ground():
 def test_without_guards_the_rules_work_as_before():
     b = flat_door(block())
     rec = run(b)
-    assert rec["stairs"] and rec["core_gaps"] and rec["lift_doors"]["added"]
+    assert rec["stairs"] and rec["core_gaps"]
     assert "guarded" not in b["level_inference"]
     with pytest.raises(KeyError):
         RG.guard("no_such_rule")

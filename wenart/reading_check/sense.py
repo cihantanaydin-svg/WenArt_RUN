@@ -113,51 +113,16 @@ EPS = 1e-6
 SMALL_SAMPLE = 5               # a rule judged on fewer findings is marked small_sample in the trust file (reported)
 
 # ------------------------------------------------------------------------------------------- 1. room type and area
-# (sense type, min m2, max m2, reason). A room under half the minimum or over twice the maximum is a major finding,
-# between that and the range a minor one. The ranges are what is built, not what a code demands: a reading outside
-# them has almost always closed the wrong face or named it from the wrong text.
-AREA_RANGES = {
-    "lift": (1.0, 8.0, "a lift shaft holds a car of 4 to 21 persons: from about 1.0 x 1.0 m to 2.6 x 3.0 m"),
-    "shaft": (0.1, 8.0, "an installation shaft is from a 30 x 40 cm riser to a few m2; a larger face named shaft has "
-                        "taken in a room beside it"),
-    "light_well": (0.5, 30.0, "a light or air well (ışıklık) is from a 0.7 x 0.7 m air shaft to about 5 x 6 m"),
-    "wc": (0.8, 6.0, "a WC with a basin is from 0.8 x 1.0 m to about 2 x 3 m"),
-    "bathroom": (1.0, 15.0, "a bathroom holds a shower or a bath, a basin and a WC: from a 1.0 x 1.1 m en-suite to "
-                            "about 15 m2"),
-    "shower": (0.8, 5.0, "a shower room is a 0.8 x 1.0 m cubicle to about 2 x 2.5 m"),
-    "closet": (0.3, 12.0, "a closet, pantry or dressing room is from a 0.5 x 0.6 m cupboard to about 3 x 4 m"),
-    "storage": (0.3, 60.0, "a storage room (depo) is a cupboard in a flat to a store room of a shop or a basement"),
-    "fire_lobby": (2.0, 40.0, "a fire or safety lobby in front of a stair or a lift is about 2 to 40 m2"),
-    "stair": (2.0, 40.0, "a stair core (one or two flights with their landings) is about 2 to 40 m2"),
-    "kitchen": (3.0, 40.0, "a kitchen is a 1.8 x 1.8 m kitchenette to about 5 x 8 m"),
-    "bedroom": (6.0, 40.0, "a bedroom holds a bed with access around it: about 6 to 40 m2"),
-    "living": (8.0, 120.0, "a living room is about 8 to 120 m2"),
-    "hall": (1.0, 60.0, "an entrance, a corridor or a floor hall is about 1 to 60 m2"),
-    "garage": (12.0, 100.0, "a private garage holds one to four cars: about 12 to 100 m2"),
-    "car_park": (12.0, 5000.0, "a car park (otopark) holds from one car to a whole basement of cars"),
-    "technical": (1.0, 40.0, "a boiler, pump, electrical or lift machine room is about 1 to 40 m2"),
-}
+# The room types' plausible areas (``AREA_RANGES``: sense type -> (min m2, max m2, reason)) and the words that
+# refine the schema's coarse room types (``SENSE_WORDS``) are the reader's tables since 6 Nov 2026
+# (``wenart.ingest.generic.labels``; reader target 5: a small room's label never names a much larger face), imported
+# here so the reader and the checker judge a room by one table. A room under half the minimum or over twice the
+# maximum is a major finding, between that and the range a minor one.
+from wenart.ingest.generic.labels import AREA_RANGES, SENSE_WORDS, SENSE_RE as _SENSE_RE  # noqa: E402, F401
 MAJOR_FACTOR = 2.0            # over this times the maximum, or under the minimum divided by it: major
 AREA_TEXT_AGREES = 0.10       # a drawn area text within this share of the face: the drawing itself gives that room
                               # that size, so the reading follows its drawing (6 Nov 2026 calibration: a 43.5 m2
                               # bedroom drawn with its 43.5 m2 text is no reading error)
-# The words that refine the schema's coarse room types (ASCII-folded lower case, ``B.fold_ascii``), the first match
-# wins. Turkish words match at the start of a word (inflected forms count), the English ones as whole words.
-SENSE_WORDS = (
-    ("technical", r"(?<![a-z])(?:asansor\s*mak|makin?a?e?\s*dair|machine\s*room|motor\s*room|su\s*depo|water\s*tank"
-                  r"|hidrofor|hidrafor|kazan|kalorifer|kat\s*kal|jenerator|trafo|elektrik\s*oda|teknik)"),
-    ("light_well", r"(?<![a-z])(?:isiklik|aydinlik|aydinlatma|light\s*well|lightwell)"),
-    ("lift", r"(?<![a-z])asansor|(?<![a-z])(?:lift|elevator)s?(?![a-z])"),
-    ("fire_lobby", r"(?<![a-z])(?:yangin|guvenlik|duman)\s*(?:kacis\s*)?hol|(?<![a-z])(?:fire|smoke|safety)\s*lobby"),
-    ("shelter", r"(?<![a-z])(?:siginak|shelter)"),
-    ("car_park", r"(?<![a-z])(?:otopark|parking|car\s*park)"),
-    ("shaft", r"(?<![a-z])(?:saft|saht|soh|baca|shaft|riser)"),
-    # 6 Nov 2026 (calibration): a KİLER is a pantry in a flat and a cellar store in a basement (synthetic-03's 14 m2
-    # ones): it is judged as a storage room, not as a closet
-    ("closet", r"(?<![a-z])(?:vestiyer|gardirop|giyinme|soyunma|closet|wardrobe|dressing)"),
-    ("shower", r"(?<![a-z])(?:dus|shower)(?![a-z])"),
-)
-_SENSE_RE = [(t, re.compile(p)) for t, p in SENSE_WORDS]
 BATH_WORDS_RE = re.compile(r"(?<![a-z])(?:banyo|bath)")
 # The schema types the ranges apply to (``B.ROOM_TYPES``); other, unknown, balcony, dining and prayer have no range.
 TYPE_SENSE = {"lift": "lift", "shaft": "shaft", "wc": "wc", "bathroom": "bathroom", "storage": "storage",
@@ -215,24 +180,11 @@ STAIR_PIECE_REACH_M = 0.5     # a stair piece this close to a room belongs to it
 UNTYPED_CORE_M2 = 6.0         # an untyped room this large in a group with no way in is named as its likely hall
 
 # ---------------------------------------------------------------------------------------------- 6. label vocabulary
-# 6 Nov 2026: the notation phrases a reading glued to room names. No table of these exists in the reader (the title
-# words are ``wenart.sheets.titles``, the area and flat notes ``wenart.ingest.generic.labels.is_annotation``, the level
-# words ``wenart.sheets.levels``; they are imported, not copied). (pattern on ASCII-folded upper text, what it is)
-NOTATION_PHRASES = (
-    (r"\b(?:BINA\s+)?TABAN\s+HATTI\b", "the building's footprint line"),
-    (r"\bTESISAT\s+DUVARI\b", "a services wall note"),
-    (r"\bSACAK(?:\s+IZDUSUMU)?\b", "the eaves (projection line)"),
-    (r"\bIZDUSUM\w*\b", "a projection line of the floor above"),
-    (r"\bKOTU?\b", "a level mark"),
-    (r"\bAKS(?:I|LARI)?\b", "an axis"),
-    (r"\bSUBASMAN\b", "the plinth line"),
-    (r"\bDILATASYON\b", "an expansion joint"),
-    (r"\bPARAPET\b", "a parapet"),
-    (r"\bH\s*[:=]\s*\d", "a height note"),
-    (r"(?:^|\s)[+\-±]\s*\d+[.,]\d{2}\b", "a level value"),
-    (r"\b\d+(?:[.,]\d+)?\s*(?:CM|MM|M2|M²|M)(?![A-Z0-9])", "a number with a unit"),
-)
-_NOTATION_RE = [(re.compile(p), what) for p, what in NOTATION_PHRASES]
+# 6 Nov 2026: the notation phrases a reading glued to room names. The table is the reader's
+# (``wenart.ingest.generic.labels.NOTATION_PHRASES``, reader target 3 of 6 Nov 2026: the reader splits them off a label
+# line before naming), imported here so the reader and the checker share one table; the title words are
+# ``wenart.sheets.titles``, the area and flat notes ``labels.is_annotation``, the level words ``wenart.sheets.levels``.
+from wenart.ingest.generic.labels import NOTATION_PHRASES, NOTATION_RE as _NOTATION_RE  # noqa: E402, F401
 
 # ------------------------------------------------------------------------- round 2 (6 Nov 2026): the user's past fixes
 # The classes of the user's 3-4 Nov corrections the first six rules missed (the independent recall measure: 7 of 24).
@@ -249,9 +201,10 @@ RECESS_FACADE_M = 1.0         # a mouth opening onto no room this close to the l
 FALSE_STAIR_ROOMS = ("bathroom", "wc", "shower", "kitchen")   # no stair stands in a wet room or a kitchen
 STAIR_MIN_AREA_M2 = 1.8       # the smallest stair (a spiral of 1.3 m across, a straight flight 0.7 x 2.6 m)
 STAIR_MIN_TREADS = 8          # a storey needs 14 to 20 risers; under this many tread lines, with another sign, no stair
-GRID_FLIGHTS_MIN = 3          # a stair read with this many flights or more ...
-FLIGHT_MIN_AREA_M2 = 2.0      # ... and less footprint than this per flight is a grid of lines (real09's kitchen tiles:
-                              # 8 'flights' of 5 lines in 2.67 m2; no stair of the current readings has 3 flights)
+# a stair read with GRID_FLIGHTS_MIN flights or more and less footprint than FLIGHT_MIN_AREA_M2 per flight is a grid of
+# lines (real09's kitchen tiles: 8 'flights' of 5 lines in 2.67 m2; no stair of the current readings has 3 flights);
+# the reader's rule since 12 Nov 2026 (``wenart.ingest.generic.symbols``), imported so both judge by one rule
+from wenart.ingest.generic.symbols import FLIGHT_MIN_AREA_M2, GRID_FLIGHTS_MIN  # noqa: E402
 # 9. stair_stacking (C0009, C0010): the core stair of one floor off the one below
 STACK_OFFSET_M = 1.0          # one core stair on each of two neighbouring floors further apart than this in plan
                               # (the gap between their footprints: calibration, 6 Nov 2026: real13 and real19 read a
@@ -528,6 +481,23 @@ def label_names_larger_face(building: dict, texts_by_level: Optional[dict] = Non
                             f"its face is {_fmt(a)} m2, {a / hi:.1f} times that{other_txt}; the walls between them "
                             f"are not read", _centre(r), [r.get("id")], sense_type=st, area_m2=round(a, 3),
                             other_labels=[t for t, _ in others][:12]))
+    for r in building.get("rooms") or []:
+        # 12 Nov 2026 (review of the reader targets, A-L2): a small room's label the reader set aside because it stood
+        # in a much larger face (``rooms.derive_rooms`` ``sub_spaces``) and that found no part of its own: the small
+        # room is not built, so this rule still names it (its evidence is kept, not removed)
+        for sp in r.get("sub_spaces") or []:
+            kind = str(sp.get("type") or "small room").replace("_", " ")
+            at = sp.get("anchor") or _centre(r)
+            a = float(_area(r) or 0.0)
+            # a lift not built is major (no way up); an installation shaft, a WC or a closet left in the face minor
+            # (real19's 'ŞAFT' on the winder treads of its stair hall, no shaft walls drawn)
+            out.append(_finding("label_names_larger_face", "major" if sp.get("type") == "lift" else "minor",
+                                r.get("level_id"),
+                                f"'{sp.get('label')}' names a {kind} (at most {_fmt(float(sp.get('max_m2') or 0))} m2) "
+                                f"inside {r.get('id')} '{_label(r)}' ({_fmt(a)} m2): the reader left the face to the "
+                                f"larger space and found no part of it for the {kind}; its walls are not read and the "
+                                f"{kind} is not built", at, [r.get("id")], sense_type=sp.get("type"),
+                                area_m2=round(a, 3), sub_space=sp.get("label")))
     return out
 
 
@@ -1006,10 +976,9 @@ def circulation(building: dict, false_ids: Optional[set] = None) -> list:
 def notation_in(label: str) -> list:
     """The notation a room label holds (pure): ``[what]`` of the ``NOTATION_PHRASES`` it contains, a drawing title
     (``wenart.ingest.generic.labels.is_drawing_title``: a plan, section or elevation title, a scale note), an area or
-    flat note (``labels.is_annotation``) and a floor's name read as the room's (``wenart.sheets.titles.level_of`` of
-    the label with the word KAT: NORMAL, ZEMİN, BODRUM), when the label has no room word of its own."""
+    flat note (``labels.is_annotation``) and a floor's name read as the room's (``labels.is_floor_name``: NORMAL, ZEMİN,
+    BODRUM), when the label has no room word of its own."""
     from wenart.ingest.generic import labels as LB
-    from wenart.sheets import titles as T
 
     if not label:
         return []
@@ -1021,8 +990,9 @@ def notation_in(label: str) -> list:
     if not turkish and not english:
         if LB.is_annotation(label):
             found.append("an area or flat note")
-        elif not re.search(r"\d", folded) and not B.generic_room_label(label) \
-                and T.level_of(f"{label} KAT") is not None:
+        elif LB.is_floor_name(label) and not LB.room_like_floor_word(label):
+            # 12 Nov 2026 (round-2 review, CODE-A10): LOFT, ATTIC, BASEMENT name rooms of English plans inside the walls
+            # (the reader keeps them there); NORMAL, ZEMİN, BODRUM name no room
             found.append("a floor's name")
     return list(dict.fromkeys(found))
 
@@ -2032,10 +2002,19 @@ def level_texts(out_dir, building: dict, sheets: dict) -> dict:
     from wenart.reading_check import level_pages, read_level_page
     from wenart.reading_check.crossdoc import _texts_of
 
+    from wenart.ingest.generic import labels as LB
+
     out = {}
     for lid, pg in level_pages(building).items():
         page = read_level_page(Path(out_dir), sheets, pg)
         if page is not None:
+            # 6 Nov 2026 (reader target 4, real14): a room schedule beside the plan (a list under MAHAL, or outside the
+            # walls' hull) is no label for these rules either, as for the reader (``labels.schedules``)
+            pts = [tuple(w[k][:2]) for w in _walls_of(building, lid) for k in ("start", "end")]
+            hull = unary_union([Point(q) for q in pts]).convex_hull.buffer(HULL_GROW_M) if len(pts) >= 3 else None
+            drop = {id(t) for s in LB.schedules(page.texts, hull, tf=pg["tf"]) for t in s.pop("_runs")}
+            if drop:
+                page.texts = [t for t in page.texts if id(t) not in drop]
             out[lid] = _texts_of(page, pg["tf"])
     return out
 

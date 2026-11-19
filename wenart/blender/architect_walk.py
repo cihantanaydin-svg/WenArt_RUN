@@ -363,8 +363,9 @@ def fix_link(site: dict, rec: dict, f: dict) -> Optional[str]:
     joined = AR.path_end_at(best, paths)
     if joined is not None:
         best = joined
-    acc = bool(node["kind"] == "entrance" and any(isinstance(st.get("ramp"), dict) for st in (
-        site.get("inferred") or {}).get("steps") or [] if str(st.get("opening_id")) == str(node["element"])))
+    acc = bool(node["kind"] == "entrance" and any(
+        isinstance(st.get("ramp"), dict) and not st["ramp"].get("drive")      # a garage door's drive is for cars
+        for st in (site.get("inferred") or {}).get("steps") or [] if str(st.get("opening_id")) == str(node["element"])))
     why = (f"architect A6: nobody could walk to {node['name']} from the "
            f"{'street' if m.get('problem') == 'arrival' else 'paths'}: a path from it to the nearest reachable "
            f"{'path' if joined is not None else 'surface'} ({AR._length(best):.1f} m; its ends meet both surfaces at "

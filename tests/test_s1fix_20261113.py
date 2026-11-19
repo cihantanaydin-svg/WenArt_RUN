@@ -148,9 +148,29 @@ def _bld(levels):
             "site": {"entrances": []}, "level_inference": {}}
 
 
-def test_a_stair_hall_labelled_after_a_shaft_is_the_core_and_takes_the_landing_door():
-    """FC-01 (real19): the stair hall reads 'Şaft' (a small shaft drawn in its corner); it holds the core stair and
-    touches the lift: it is the core; the landing door goes onto it and the inferred door into the unknown room goes."""
+
+
+def _shop_storey(lid, door):
+    walls = _box(0, 0, 10, 6, lid, f"w{lid}") + [_wall(f"{lid}_x2", (2, 0), (2, 6), lid),
+                                                 _wall(f"{lid}_n", (2, 2), (4, 2), lid),
+                                                 _wall(f"{lid}_x4", (4, 0), (4, 6), lid)]
+    rooms = [_room(f"{lid}_shop", "Dükkan", "other", _rect(0.1, 0.1, 1.9, 5.9), lid),
+             _room(f"{lid}_kit", "Mutfak", "kitchen", _rect(2.1, 2.1, 3.9, 5.9), lid),
+             _room(f"{lid}_lift", "Asansör", "shaft", _rect(2.1, 0.1, 3.9, 1.9), lid),
+             _room(f"{lid}_saft", "Şaft", "shaft", _rect(4.1, 0.1, 9.9, 5.9), lid)]
+    ops = [{"id": f"d_{lid}_lift", "type": "door", "level_id": lid, "wall_id": f"{lid}_x4", "center": [4.0, 1.0],
+            "width": 0.9, "operation": "sliding", "lift_door": True, "evidence": [{"method": "vector"}]}] if door else []
+    return walls, rooms, ops
+
+
+
+
+def test_a_stair_hall_read_as_a_shaft_is_the_core_and_takes_the_landing_door():
+    """FC-01 (real19), in the reader's one landing-door rule: the stair hall reads 'Şaft' (a small shaft drawn in its
+    corner); it holds the core stair and touches the lift: it is the core, and the inferred landing door goes onto it,
+    never into the unknown room on the other side."""
+    from wenart.ingest import twins as TW
+
     b = _bld(("L0",))
     b["walls"] = _box(0, 0, 14, 8, "L0", "wb") + [
         _wall("L0_4", (4, 0), (4, 8)), _wall("L0_8", (8, 0), (8, 8)), _wall("L0_k", (0, 4), (4, 4)),
@@ -164,21 +184,10 @@ def test_a_stair_hall_labelled_after_a_shaft_is_the_core_and_takes_the_landing_d
                   _room("r_oda", "Oda", "unknown", _rect(8.1, 4.1, 13.9, 7.9))]
     b["furniture"] = [{"id": "f_st", "level_id": "L0", "type": "stair",
                        "footprint": {"center": [5.2, 3.0], "size": [1.8, 4.0], "rotation_deg": 0.0}}]
-    b["openings"] = [
-        {"id": "d_w", "type": "door", "level_id": "L0", "wall_id": "L0_4", "center": [4.0, 2.0], "width": 1.0,
-         "evidence": [{"method": "vector"}]},
-        {"id": "d_e", "type": "door", "level_id": "L0", "wall_id": "L0_8", "center": [8.0, 2.0], "width": 1.0,
-         "evidence": [{"method": "vector"}]},
-        {"id": "d_r_lift_lift", "type": "door", "level_id": "L0", "wall_id": "L0_8", "center": [8.0, 7.0],
-         "width": 0.9, "operation": "sliding", "lift_door": True,
-         "evidence": [{"method": "inferred", "rule": "lift_door"}]}]
-    level = CP.Level(b, "L0")
-    assert "r_saft" in CR.core_rooms(b, level)
-    rec = CR.fix_lift_doors(b, B.IdCounter().next, True)
-    ids = {o["id"] for o in b["openings"]}
-    assert "d_r_lift_lift" not in ids and len(rec["added"]) == 1
-    new = next(o for o in b["openings"] if o["id"] == rec["added"][0]["opening"])
-    assert new["wall_id"] in ("L0_l1", "L0_l2") and new["lift_door"]
+    TW.lift_doors(b["rooms"], b["openings"], b["walls"], b["furniture"], [], [])
+    doors = [o for o in b["openings"] if o.get("lift_door")]
+    assert len(doors) == 1 and doors[0]["wall_id"] in ("L0_l1", "L0_l2")
+    assert "r_saft" in CR.core_rooms(b, CP.Level(b, "L0"))
 
 
 def _shop_storey(lid, door):
@@ -195,24 +204,25 @@ def _shop_storey(lid, door):
 
 
 def test_the_lift_door_goes_where_the_storey_above_has_it_whatever_the_hall_is_read_as():
-    """FC-02 (real17): the entrance hall beside the lift reads as a shaft; the storey above has the lift's door on that
-    face: the door goes there (stacked), never into the shop with its own stair or the kitchen."""
+    """FC-02 (real17), in the reader's one landing-door rule: no hall beside the L0 lift (the entrance hall reads as a
+    shaft, a shop and a kitchen on the other faces); the storey above has the landing door on the east face: the door
+    goes there (landing_stacked, a review naming the room), never into the shop or the kitchen."""
+    from wenart.ingest import twins as TW
+
     b = _bld(("L0", "L1"))
     for lid, door in (("L0", False), ("L1", True)):
         w, r, o = _shop_storey(lid, door)
         b["walls"] += w
         b["rooms"] += r
         b["openings"] += o
-    b["furniture"] = [{"id": "f_shop", "level_id": "L0", "type": "stair",
-                       "footprint": {"center": [1.0, 4.0], "size": [1.0, 2.5], "rotation_deg": 0.0}}]
-    rec = CR.fix_lift_doors(b, B.IdCounter().next, True)
+    review = []
+    TW.lift_doors(b["rooms"], b["openings"], b["walls"], b["furniture"], [], review)
     added = [o for o in b["openings"] if o["level_id"] == "L0"]
     assert len(added) == 1 and added[0]["wall_id"] == "L0_x4" and added[0].get("landing_stacked")
     assert abs(added[0]["center"][1] - 1.0) < 0.05
-    assert any(r.get("room") == "L0_saft" for r in rec["review"])
+    assert any(r.get("room_id") == "L0_saft" and r["kind"] == "lift_landing_stacked" for r in review)
     core = CR.core_rooms(b, CP.Level(b, "L0"))
     assert "L0_saft" in core and "L0_shop" not in core
-    assert not [x for x in b.get("needs_review") or [] if x["kind"] == "lift_no_landing_door"]
 
 
 def test_a_lift_with_no_face_to_take_a_door_is_asked():
@@ -224,16 +234,6 @@ def test_a_lift_with_no_face_to_take_a_door_is_asked():
     assert [x["kind"] for x in b["needs_review"]] == ["lift_no_landing_door"]
 
 
-def test_plaster_stubs_are_no_jambs():
-    """FC-03 (real10 C0034): a 3.5 cm panel stub and a 4 cm plaster piece beside a landing gap are no jambs."""
-    b = _bld(("L0",))
-    b["walls"] = [_wall("L0_l1", (6.0, 6.0), (9.0, 6.0)), _wall("st1", (7.07, 6.06), (7.105, 6.06), t=0.05),
-                  _wall("st2", (7.99, 6.14), (7.99, 6.18), t=0.04)]
-    b["rooms"] = [_room("r_lift", "Asansör", "shaft", _rect(6.6, 6.1, 8.4, 7.9))]
-    gapo = {"id": "g", "type": "opening", "level_id": "L0", "wall_id": "L0_l1", "center": [7.47, 6.0], "width": 0.9,
-            "evidence": [{"method": "derived"}]}
-    b["openings"] = [gapo]
-    assert CR._jambs(CP.Level(b, "L0"), gapo) is None
 
 
 # --------------------------------------------------------------------------- S1F-POD-R01, FC-05, P02, R03, CODE-02

@@ -68,6 +68,9 @@ def level_fields(level: dict, record, sheets: dict, warn) -> None:
     if floor.get("value") is not None:
         level["elevation"] = round(float(floor["value"]), 3)
     level["elevation_source"] = "section" if floor.get("method") not in (None, "assumed") else "assumed_default"
+    if level["elevation_source"] == "section" and any(isinstance(e, dict) and e.get("rule") == "plan_title_marks"
+                                                       for e in floor.get("evidence") or []):
+        level["elevation_source"] = "level_mark"   # 19 Nov 2026 (review A3, A3FC-5): the plan's title prints it
     ceiling = h.get("ceiling_height") or {}
     if ceiling.get("value") is not None:
         level["ceiling_height"] = round(float(ceiling["value"]), 3)
@@ -748,7 +751,8 @@ def _edge_parapets(b: dict, top: dict, height: float, source: str) -> int:
                 "start": [round(x0, 4) + 0.0, round(y0, 4) + 0.0], "end": [round(x1, 4) + 0.0, round(y1, 4) + 0.0],
                 "thickness": round(min(t_out, EDGE_PARAPET_T_M), 3), "height": round(min(height, PARAPET_LOW_M), 3),
                 "exterior": True,
-                "status": "unverified", "parapet": True,
+                # 19 Nov 2026 (review A3, OA3-14: RC5 counted these as major walls on no drawn line): inferred
+                "status": "unverified", "parapet": True, "inferred": True,
                 "guard": {"top_m": round(max(float(height), GUARD_TOP_M), 3), "kind": "handrail", "source": source},
                 "evidence": [B.evidence("building.json", "inferred", 0.6, rule="roof_terrace_edge_parapet",
                                         text=f"the terrace's edge over the outer walls of the floor below stands "

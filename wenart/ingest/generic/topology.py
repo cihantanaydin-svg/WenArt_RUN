@@ -497,12 +497,20 @@ def _consider(cand: dict, walls: list, openings: list, kept: list, names: list, 
         entry.update(kept=False, reason=f"longer than {SEPARATOR_MAX_M} m")
         log.append(entry)
         return score
-    new = _score(faces(walls, openings, [c["line"] for c in kept] + [cand["line"]]), names, stairs)
+    after_faces = faces(walls, openings, [c["line"] for c in kept] + [cand["line"]])
+    new = _score(after_faces, names, stairs)
     reasons = []
     if new["excess"] < score["excess"]:
         reasons.append("two room names shared one face")
     if new["stair_mixed"] < score["stair_mixed"]:
-        reasons.append("separates the stair from a labelled face")
+        held = None if new["excess"] < score["excess"] else \
+            _area_text_holds(faces(walls, openings, [c["line"] for c in kept]), after_faces, names)
+        if held is None:
+            reasons.append("separates the stair from a labelled face")
+        else:
+            entry.update(kept=False, reason=f"the drawing's area text of '{held}' holds the stair: the face stays whole")
+            log.append(entry)
+            return score
     if names_only and not new["excess"] < score["excess"]:
         reasons = []
     if reasons:
@@ -514,6 +522,26 @@ def _consider(cand: dict, walls: list, openings: list, kept: list, names: list, 
     entry.update(kept=False, reason="considered, not needed")
     log.append(entry)
     return score
+
+
+AREA_TEXT_AGREE = 0.15          # 12 Nov 2026: a printed area within this share of a face is that face's
+
+
+def _area_text_holds(before: list, after: list, names: list) -> Optional[str]:
+    """12 Nov 2026 (review of the reader targets, real18 L3: the Antre's own stair cut the 6.42 m2 Antre into 'Antre
+    1.84' and 'Kat Holü 4.58'): the name of a label whose printed area agrees with its face before a separator
+    (``AREA_TEXT_AGREE``) and not after: the drawing says the room holds what the separator would cut off; else None."""
+    for b in names:
+        a = getattr(b, "area_m2", None)
+        if not a or a <= 0:
+            continue
+        f0 = next((f for f in before if _label_in(f, b)), None)
+        f1 = next((f for f in after if _label_in(f, b)), None)
+        if f0 is None or f1 is None:
+            continue
+        if abs(f0.area - a) <= AREA_TEXT_AGREE * a < abs(f1.area - a):
+            return str(getattr(b, "name", "") or "")
+    return None
 
 
 OUTLINE_EDGE_MIN_M = 0.3       # an outline's run this long inside a shared face may separate it ...
@@ -788,6 +816,41 @@ LIGHT_WELL_MAX_M2 = 12.0           # 3 Nov 2026: a doorless face up to this size
 LIGHT_WELL_LABELS = ("Işıklık", "Light well")
 
 
+def _wall_view(w) -> dict:
+    s, e, t = (w["start"], w["end"], w["thickness"]) if isinstance(w, dict) else (w.start, w.end, w.thickness)
+    return {"id": "", "level_id": None, "start": list(s), "end": list(e), "thickness": float(t or 0.0)}
+
+
+def twin_band_window(opening: OpeningItem, walls: list, openings: list) -> bool:
+    """12 Nov 2026 (round-2 review, F6: real11's light well became an unknown room by a gap read on a second wall in
+    the band of the wall that holds its window; the twin merge after the rooms dropped it, the room type stayed):
+    whether a door or opening lies on a wall read inside another wall's band (``twin_walls.twin_of``) where a window of
+    that other wall covers at least ``twin_walls.SAME_OPENING_SHARE`` of it: one opening read twice, the window."""
+    from wenart.ingest.generic import twin_walls as TW
+
+    k = host_wall(opening, walls)
+    if k is None:
+        return False
+    mine = _wall_view(walls[k])
+    rot = math.radians(opening.rotation_deg)
+    ux, uy = math.cos(rot), math.sin(rot)
+    lo = -float(opening.width) / 2.0
+    for j, w in enumerate(walls):
+        if j == k:
+            continue
+        other = _wall_view(w)
+        if not (TW.twin_of(mine, other) or TW.twin_of(other, mine)):
+            continue
+        for o in openings:
+            if o is opening or o.kind != "window" or host_wall(o, walls) != j:
+                continue
+            c = (o.center[0] - opening.center[0]) * ux + (o.center[1] - opening.center[1]) * uy
+            cover = min(-lo, c + float(o.width) / 2.0) - max(lo, c - float(o.width) / 2.0)
+            if cover >= TW.SAME_OPENING_SHARE * float(opening.width) - 1e-6:
+                return True
+    return False
+
+
 def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), others: Optional[list] = None
                          ) -> tuple[str, str]:
     """``("hall", reason)`` when an unlabelled face holds a stair or touches >= 2 doors/openings, else
@@ -802,7 +865,7 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
         c = s.center if hasattr(s, "center") else s["center"]
         if poly.contains(Point(c)):
             return "hall", "unlabelled face holding the stair"
-    touching = glassless = 0
+    touching = glassless = twins = 0
     for o in openings:
         if o.kind == "window":
             continue
@@ -811,9 +874,14 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
             continue
         if (o.evidence or {}).get("rule") == "no_glass":
             glassless += 1
+        elif twin_band_window(o, walls, openings):
+            twins += 1                   # 12 Nov 2026 (round-2 review, F6): the window of the wall it lies in
         else:
             touching += 1
     left_out = f" ({glassless} gap(s) without glass not counted as doors)" if glassless else ""
+    if twins:
+        left_out += (f" ({twins} gap(s) on a wall read inside another wall's band, where that wall's window is, not "
+                     f"counted as doors)")
     # 3 Nov 2026 (real09, user: the space beside the bathroom is "a light well (ışıklık)"): a small face no door
     # reaches that the windows of other rooms open onto is a light well (open to the sky, no room)
     if touching == 0 and poly.area <= LIGHT_WELL_MAX_M2:

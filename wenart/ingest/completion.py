@@ -1112,6 +1112,8 @@ def copy_doors(b: dict) -> list:
             out.append({"opening": o["id"], "level_id": lv["id"], "action": "window",
                         "reason": reason + " (adjusted_by_ai)"})
         if drop:
+            CR._to_merged(b, [o for o in b["openings"] if o["id"] in drop], "copy_door_window",
+                          {x["opening"]: x["reason"] for x in out if x.get("action") == "removed"})
             b["openings"] = [o for o in b["openings"] if o["id"] not in drop]
         if kept:
             labels = sorted({str(p.get("text")) for _o, p in kept})

@@ -262,13 +262,50 @@ def _dxf_hatches(page: GenericPage, s: float, used: set) -> list[WallPrim]:
             groups.setdefault(_entity_base(st.id), []).append(st)
     out = []
     for base, strokes in groups.items():
-        polys = [p for st in strokes for p in fill_polygons(st, s)]
+        # 19 Nov 2026 (review A3, OA3-04: real13's section arrows, solid 50 x 25 cm triangles on KOLON, were walls)
+        polys = [p for st in strokes for p in fill_polygons(st, s) if not symbol_fill(p)]
         if not polys:
             continue
         used.update(st.id for st in strokes)
         out.append(WallPrim(kind="dxf_hatch", entity=base, stroke_ids=[st.id for st in strokes], method="vector",
                             confidence=DXF_HATCH_CONFIDENCE, polygons=polys))
     return out
+
+
+SYMBOL_FILL_MAX_M2 = 0.30        # 19 Nov 2026 (review A3, OA3-04): a filled path this small ...
+SYMBOL_FILL_MAX_VERTICES = 8     # ... with this few corners, one of them off a right or straight angle ...
+SYMBOL_FILL_ANGLE_DEG = 15.0     # ... by more than this (or a triangle), is a symbol (a section arrow, a level mark)
+
+
+def symbol_fill(poly) -> bool:
+    """19 Nov 2026 (review A3, OA3-04): a filled path that is a drawing symbol, never a wall: under
+    ``SYMBOL_FILL_MAX_M2``, a triangle or a polygon of at most ``SYMBOL_FILL_MAX_VERTICES`` corners with one corner off a
+    right or straight angle by more than ``SYMBOL_FILL_ANGLE_DEG``. Column rectangles and orthogonal pieces, and round
+    columns (many corners), stay walls (pure). ``poly``: a shapely polygon or a point list (metres)."""
+    if isinstance(poly, (list, tuple)):
+        if len(poly) < 3:
+            return False
+        try:
+            poly = Polygon(poly).buffer(0)
+        except (ValueError, TypeError):
+            return False
+    if poly is None or poly.is_empty or poly.geom_type != "Polygon" or poly.area > SYMBOL_FILL_MAX_M2:
+        return False
+    ring = list(poly.simplify(0.005).exterior.coords)[:-1]
+    if len(ring) <= 3:
+        return True
+    if len(ring) > SYMBOL_FILL_MAX_VERTICES:
+        return False
+    for i in range(len(ring)):
+        a, b, c = ring[i - 1], ring[i], ring[(i + 1) % len(ring)]
+        v1, v2 = (a[0] - b[0], a[1] - b[1]), (c[0] - b[0], c[1] - b[1])
+        n = math.hypot(*v1) * math.hypot(*v2)
+        if n <= 1e-12:
+            continue
+        ang = math.degrees(math.acos(max(-1.0, min(1.0, (v1[0] * v2[0] + v1[1] * v2[1]) / n))))
+        if min(abs(ang - 90.0), abs(ang - 180.0)) > SYMBOL_FILL_ANGLE_DEG:
+            return True
+    return False
 
 
 def _ring_group(stroke_id: str) -> str:
@@ -1296,7 +1333,11 @@ def _labels_m(page: GenericPage, s: float) -> list:
 
     texts = [TextRun(id=t.id, text=t.text, box=tuple(v * s for v in t.box), height=t.height * s,
                      rotation_deg=t.rotation_deg, source=t.source) for t in page.texts]
-    return [b for b in LB.merge_label_blocks(texts) if not b.exterior]
+    # 12 Nov 2026 (round-2 review, A2-FC7): a label named only by the generic '<word> ODASI' does not vote here (the
+    # label vocabulary names rooms; it must not flip a plan's wall layers)
+    from wenart import building as B
+
+    return [b for b in LB.merge_label_blocks(texts) if not b.exterior and not B.generic_odasi_only(b.name)]
 
 
 def closed_in(anchors: list[tuple[float, float]], geoms: list) -> list[bool]:
@@ -1414,6 +1455,13 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
                              -r["pairs"], r["layer"]))
     choice["layers"] = [{k: v for k, v in r.items() if k != "_elems"} for r in rows]
     decided = bool(rows) and labels and not rows[0]["grid"] and rows[0]["closed_in"] >= need
+    if decided and document and rows[0]["layer"] not in document \
+            and rows[0]["closed_in"] - 1 < LAYER_EXPLAINS * (len(labels) - 1):
+        # 12 Nov 2026 (round-2 review, A2-FC7: one more label, 'ELK. PANO ODASI', let real10's basement decide on its
+        # own 3 of 4 and drop the document's masonry layer, whose lines then read as two windows): a plan whose own best
+        # layer would no longer decide with one of its closed-in labels fewer keeps the document's layers
+        choice["fragile"] = {"layer": rows[0]["layer"], "closed_in": rows[0]["closed_in"], "labels": len(labels)}
+        decided = False
     picked = [r for r in rows if r["layer"] in document and not r["grid"]] if document and not decided else []
     # 2 Nov 2026 (real10's 2nd basement, user: "2nd basement is fully underground and fully walled around"; its
     # reinforced-concrete outer walls are drawn on the column layer 'kolon', which ranked first on the plan's own

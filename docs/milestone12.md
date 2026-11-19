@@ -589,7 +589,7 @@ drawings ─► ingest: walls, openings, rooms, LEVEL MARKS (§3), FURNITURE + N
 | `openings[].threshold_z` | building z of a door's threshold (from the rooms on both sides; an outside door from its room) |
 | `site.ground.points[]` | x, y, z with evidence (marks outside the outline, section ground lines placed at their cut position on the plan) |
 | `site.terrain` | `kind: flat | planar | tin`, the points used, fitted slope, residual, `inferred` |
-| `site.entrances[]` | door id, threshold z, ground z in front, rise, `solution: none | steps | ramp | steps_and_ramp`, steps (n, riser, tread), landing (w × d), ramp (length, slope), `drawn | inferred`, evidence |
+| `site.entrances[]` | door id, threshold z, ground z in front, rise, `solution: none | steps | ramp | steps_and_ramp | drive` (drive: a garage door, 12 Nov 2026), steps (n, riser, tread), landing (w × d), ramp (length, slope), `drawn | inferred`, evidence |
 | `site.plinth` | height above the ground along each side (from `SB.` marks, else threshold − ground), `inferred` |
 | `levels[].elevation_source` | the values `level_mark` and `elevation_drawing` are now written |
 

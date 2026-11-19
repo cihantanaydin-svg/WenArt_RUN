@@ -238,19 +238,6 @@ def test_a_lift_beside_a_shop_with_its_own_stair_gets_no_door_into_the_shop():
     assert rec["added"] == [] and any(r["lift"] == "L0_lift" for r in rec["review"] if r.get("lift"))
 
 
-def test_a_lifts_second_derived_landing_opening_goes_once_it_opens_onto_the_core():
-    """REG-03, MF7: the lift opens onto the core hall; its derived door into an unread room goes."""
-    b = core_building(("L0",))
-    b["walls"].append(wall("L0_lx", (6.4, 8.0), (8.0, 8.0)))
-    b["openings"].append({"id": "d_lift_x", "type": "door", "level_id": "L0", "wall_id": "L0_8", "center": [8.0, 7.0],
-                          "width": 0.9, "evidence": [{"method": "inferred", "rule": "lift_door"}], "lift_door": True})
-    b["rooms"] = [r for r in b["rooms"] if r["id"] != "L0_bed"] + [room("L0_unk", "", "unknown",
-                                                                        rect(8.1, 4.1, 10.9, 7.9))]
-    rec = CR.fix_lift_doors(b, B.IdCounter().next, True)
-    assert "d_lift_x" not in {o["id"] for o in b["openings"]}
-    assert any(r["opening"] == "d_lift_x" for r in rec["removed"])
-    found = [f for f in SN.lift_doors(b) if "landing openings" in f["message"]]
-    assert found == []
 
 
 def test_a_flats_hinged_door_marked_a_lift_door_gets_its_swing_back():
@@ -269,19 +256,6 @@ def test_a_flats_hinged_door_marked_a_lift_door_gets_its_swing_back():
     assert d["lift_door"] is False and d["operation"] == "swing" and d["swing_side"] == "r_liv" and d["flat_entrance"]
 
 
-def test_stacked_landing_pieces_take_the_drawn_jambs():
-    """CL-05: three stacked pieces of 1.05, 0.785 and 0.70 m, the drawn jambs 0.90 m apart: one 0.90 m door between
-    them."""
-    b = core_building(("L0",))
-    b["openings"] = [o for o in b["openings"] if o["id"] != "L0_ld"]
-    b["walls"] += [wall("L0_l1b", (6.4, 6.25), (8, 6.25), t=0.1), wall("L0_l1c", (6.4, 5.8), (8, 5.8), t=0.1),
-                   wall("L0_j1", (6.65, 5.7), (6.65, 6.3), t=0.1), wall("L0_j2", (7.65, 5.7), (7.65, 6.3), t=0.1)]
-    b["openings"] += [gap("p1", "L0_l1", (7.15, 6.0), 1.05), gap("p2", "L0_l1b", (7.15, 6.25), 0.785),
-                      gap("p3", "L0_l1c", (7.15, 5.8), 0.70)]
-    CR.fix_lift_doors(b, B.IdCounter().next, True)
-    kept = [o for o in b["openings"] if o["id"] in ("p1", "p2", "p3")]
-    assert len(kept) == 1 and math.isclose(kept[0]["width"], 0.90, abs_tol=0.02)
-    assert math.isclose(kept[0]["center"][0], 7.15, abs_tol=0.02) and kept[0]["type"] == "door"
 
 
 def test_lift_machine_room_words_are_no_lift():

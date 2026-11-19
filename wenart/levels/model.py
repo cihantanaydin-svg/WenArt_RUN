@@ -62,7 +62,7 @@ from wenart.levels import terrain as T
 
 # 28 Oct 2026: the pure rules live in wenart.levels.rules (the build reads them without the sheet pipeline)
 from wenart.levels.rules import (BUILTIN_PARAMS, _brief_values, _default_params,  # noqa: F401
-                                 level_params, ramp_for, steps_for)
+                                 drive_for, level_params, ramp_for, steps_for)
 
 GROUND_KINDS = ("ground_natural", "ground_finished", "slope_top")
 # the keys of ``level_inference`` the levels model writes (13 Nov 2026): every other key is kept on a run again
@@ -293,9 +293,69 @@ def whole_single_level(building: dict, params: dict, brief: Optional[dict], infe
 # The steps of infer_levels
 # --------------------------------------------------------------------------
 
+STOREY_MIN_M = 2.0             # 12 Nov 2026: two whole storeys stand at least this far apart (a floor of rooms and its slab)
+STOREY_MAX_M = 6.0             # ... and at most this far (a taller storey is a double-height space a section must give)
+
+
+def _plan_frame(b: dict, marks: list, gl: Optional[dict], tol: float, inferred: list, warnings: list) -> float:
+    """12 Nov 2026 (review of the reader targets, real11: no section gives the height frame, the ground floor's plan
+    prints its floor '+2.50' in the stair and at its threshold, the basement '-0.50' and its ground '-0.50 / ±0.00'): the
+    plans' own height frame when no section datum gives one. When the ground floor's marks (floor marks in its rooms,
+    stairs included, and its threshold and entrance marks) agree on a value v other than 0 (two or more), and its room
+    floor marks alone do not already move it there, every relative plan mark is read as mark - v (the one-frame rule of
+    the user's C0061); 0.0 otherwise. The marks are changed in place (``frame_shift``).
+
+    19 Nov 2026 (review A3, A3C-3: two outside threshold marks '-0.15' outvoted the one room mark '±0.00', a stair
+    landing's '+1.50' shifted the whole building): the frame's value is one at least one floor mark of a room that is
+    no stair reads; the stair, threshold and entrance marks only confirm it (two or more marks in all); a room floor
+    mark of the ground floor reading 0 keeps the marks as printed."""
+    if gl is None or isinstance((b.get("project") or {}).get("datum"), dict):
+        return 0.0
+    rooms = {r["id"]: r for r in b.get("rooms") or [] if r.get("level_id") == gl["id"]}
+    own = [m for m in marks if m.get("z") is not None and not m.get("frame_shift") and (
+        (m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms) or
+        (m.get("kind") in ("threshold", "entrance") and m.get("level_id") == gl["id"]))]
+    room_only = [m for m in own if m.get("kind") in FLOOR_KINDS
+                 and (rooms.get(m.get("room_id")) or {}).get("room_type") not in NO_FLOOR_ROOMS]
+    if not room_only or any(abs(float(m["z"])) <= tol for m in room_only):
+        return 0.0
+    counts: dict = {}
+    for m in own:
+        counts[round(float(m["z"]), 2)] = counts.get(round(float(m["z"]), 2), 0) + 1
+    cands = {z: n for z, n in counts.items() if any(abs(float(m["z"]) - z) <= tol for m in room_only)}
+    if not cands:
+        return 0.0
+    v = max(cands, key=lambda z: (cands[z], -abs(z)))
+    if abs(v) <= tol or counts[v] < 2 or sum(1 for m in room_only if abs(float(m["z"]) - v) <= tol) >= 2:
+        return 0.0
+    n = 0
+    for m in marks:
+        if m.get("z") is not None and m.get("relative", True) is not False and not m.get("frame_shift"):
+            m["z"] = _r(float(m["z"]) - v)
+            m["frame_shift"] = v
+            n += 1
+    warnings.append(f"levels: the ground floor's plan marks read {v:+.2f} m ({counts[v]} marks: its floor, stair and "
+                    f"threshold): every plan mark ({n}) is read in that frame (mark - {v:.2f}; no section datum)")
+    inferred.append({"item": "plan height frame", "value": v,
+                     "reason": f"{counts[v]} of the ground floor's marks read {v:+.2f} (one height frame, C0061)"})
+    return v
+
+
 def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnings: list) -> None:
-    """Step 2: an assumed level elevation from the most common floor mark in its rooms."""
+    """Step 2: an assumed level elevation from the most common floor mark in its rooms.
+
+    12 Nov 2026 (reviews of the reader targets; real07: a stair-landing datum moved both floors while their slabs stayed;
+    real11: '+0.00' on the 7th storey's plan, the plans in a '+2.50' frame; real13: a roof mark '+16.00' would have made a
+    7 m storey): the plans' marks are first read in their own height frame (``_plan_frame``); the moves are proposed,
+    an assumed level above a moved one moves by the same amount, and the set is kept only while every storey stays
+    ``STOREY_MIN_M`` to ``STOREY_MAX_M`` above the one below. A conflict refuses the proposal it blames (the one against a
+    level that does not move, else the one with fewer marks, else the larger move), never simply the lower one, and the
+    others are checked again; a refused move is a warning. A level that moves takes the slab under it along, unless the
+    slab is a variant's (an alternative level stands there), with the move as its evidence."""
     tol = float(params["mark_tol"])
+    gl = ground_level(b)
+    _plan_frame(b, marks, gl, tol, inferred, warnings)
+    proposed: dict = {}
     for lv in base_levels(b):
         if lv.get("elevation_source") not in (None, "assumed_default") or lv.get("typical_of"):
             continue        # 13 Nov 2026: a typical floor's copy re-reads that floor's marks: they are its floor's
@@ -310,25 +370,151 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
             counts[round(z, 2)] = counts.get(round(z, 2), 0) + 1
         best = max(counts, key=lambda z: (counts[z], -abs(z - float(lv.get("elevation") or 0.0))))
         old = float(lv.get("elevation") or 0.0)
-        gl = ground_level(b)
         if gl is not None and lv["id"] == gl["id"] and abs(best - old) > tol and \
                 (counts[best] < 2 or counts[best] * 2 < len(zs)):
             # the ground floor (building z 0 by convention) moves only when most of its floor marks agree
             listed = ", ".join(f"{z:+.2f}" for z in sorted(counts))
             warnings.append(f"level {lv['id']}: its floor marks disagree ({listed}); the elevation {old:+.2f} m is kept")
             continue
-        old = float(lv.get("elevation") or 0.0)
-        if abs(best - old) > tol:
-            warnings.append(f"level {lv['id']}: elevation {old:+.2f} m (assumed) -> {best:+.2f} m from "
-                            f"{counts[best]} floor mark(s)")
-            inferred.append({"item": f"level {lv['id']} elevation", "value": best,
-                             "reason": f"{counts[best]} of {len(zs)} floor marks in its rooms read {best:+.2f}"})
-        lv["elevation"] = _r(best)
-        lv["elevation_source"] = "level_mark"
+        proposed[lv["id"]] = (lv, best, counts, zs, rooms)
+    ordered = sorted((lv for lv in base_levels(b) if lv.get("order") is not None), key=lambda x: int(x["order"]))
+    refused: dict = {}
+    gi = next((i for i, lv in enumerate(ordered) if gl is not None and lv["id"] == gl["id"]), None)
+
+    def follow(levels: list, out: dict) -> None:
+        shift = 0.0
+        for lv in levels:
+            old = float(lv.get("elevation") or 0.0)
+            if lv["id"] in proposed and lv["id"] not in refused:
+                shift = proposed[lv["id"]][1] - old
+                out[lv["id"]] = proposed[lv["id"]][1]
+            elif lv.get("elevation_source") in (None, "assumed_default"):
+                out[lv["id"]] = old + shift            # an assumed level follows the moved level next to it
+            else:
+                shift = 0.0
+                out[lv["id"]] = old
+
+    def final_z(across: bool = False) -> dict:
+        """19 Nov 2026 (review A3, A3C-2: a basement mark '-2.80' moved every plan mark by -0.20 because the ground
+        floor would follow it): an assumed level follows the moved level next to it towards the ground floor: above it
+        the one below, below it the one above; never across the ground floor (``across`` gives the old bottom-up
+        reading, the probe of the plans' height frame)."""
+        out: dict = {}
+        if across or gi is None:
+            follow(ordered, out)
+        else:
+            follow(ordered[gi:], out)
+            follow(list(reversed(ordered[:gi])), out)
+        return out
+
+    def settle(across: bool) -> dict:
+        refused.clear()
+        while True:
+            z = final_z(across)
+            blame: dict = {}
+            for a, c in zip(ordered, ordered[1:]):
+                step = (z[c["id"]] - z[a["id"]]) / max(1, int(c["order"]) - int(a["order"]))
+                if STOREY_MIN_M - tol <= step <= STOREY_MAX_M + tol:
+                    continue
+                live = [x for x in (a, c) if x["id"] in proposed and x["id"] not in refused]
+                if not live:
+                    continue
+                if len(live) == 1:
+                    pick = live[0]
+                else:
+                    pick = min(live, key=lambda x: (proposed[x["id"]][2][proposed[x["id"]][1]],
+                                                    -abs(proposed[x["id"]][1] - float(x.get("elevation") or 0.0))))
+                blame.setdefault(pick["id"], []).append((a["id"], c["id"], round(step, 2)))
+            if not blame:
+                return final_z(across)
+            worst = max(blame, key=lambda k: (len(blame[k]), abs(proposed[k][1] - float(proposed[k][0].get("elevation")
+                                                                                        or 0.0))))
+            refused[worst] = blame[worst]
+
+    z = settle(True)
+    s = 0.0
+    if gl is not None and gl["id"] in z and (gl["id"] not in proposed or gl["id"] in refused) \
+            and not isinstance((b.get("project") or {}).get("datum"), dict):
+        s = z[gl["id"]] - float(gl.get("elevation") or 0.0)
+    if abs(s) > tol:
+        # 19 Nov 2026 (review A3, A3C-2): only when the ground floor's own floor or threshold marks read s
+        g_rooms = {r["id"] for r in b.get("rooms") or [] if r.get("level_id") == gl["id"]}
+        confirm = [m for m in marks if m.get("z") is not None and abs(float(m["z"]) - s) <= tol and (
+            (m.get("kind") in FLOOR_KINDS and m.get("room_id") in g_rooms)
+            or (m.get("kind") in ("threshold", "entrance") and m.get("level_id") == gl["id"]))]
+        if not confirm:
+            warnings.append(f"levels: the levels below the ground floor {gl['id']} moved by their floor marks would carry "
+                            f"it {s:+.2f} m, but none of its own floor or threshold marks reads that: it stays, the "
+                            f"marks as printed; an assumed level below it follows the moved level above it")
+            s = 0.0
+    if abs(s) <= tol:
+        z = settle(False)
+    else:
+        # 13 Nov 2026 (round-2 review, A2-FC4 / F3: real11's basements moved by their marks carried the assumed
+        # ground floor 2.50 m up): the ground floor stays at its height (building z 0 by convention); a ground floor
+        # that would only follow the levels below by s shows the plans' marks in a frame where it stands at s: every
+        # relative mark is read as mark - s (the one-frame rule of C0061), the levels with it
+        z = {k: _r(v - s) for k, v in z.items()}
+        for k in list(proposed):
+            lvp, best, counts, zs, rooms = proposed[k]
+            proposed[k] = (lvp, round(best - s, 2), {round(c - s, 2): n for c, n in counts.items()},
+                           [_r(x - s) for x in zs], rooms)
+        n = 0
         for m in marks:
-            if m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms and m.get("z") is not None \
-                    and abs(m["z"] - best) <= tol:
-                _use(m, f"level_elevation:{lv['id']}")
+            if m.get("z") is not None and m.get("relative", True) is not False:
+                m["z"] = _r(float(m["z"]) - s)
+                m["frame_shift"] = _r(float(m.get("frame_shift") or 0.0) + s)
+                n += 1
+        warnings.append(f"levels: the levels below the ground floor {gl['id']} moved by their floor marks would carry "
+                        f"it {s:+.2f} m: the plans' marks stand in a frame with the ground floor at {s:+.2f} m; every "
+                        f"plan mark ({n}) is read as mark - {s:.2f} (no section datum)")
+        inferred.append({"item": "plan height frame", "value": _r(s),
+                         "reason": f"the ground floor would follow the levels below by {s:+.2f} m (one height frame, "
+                                   f"C0061)"})
+    file = _file_of(b)
+    for lv in ordered:
+        lid = lv["id"]
+        old = float(lv.get("elevation") or 0.0)
+        if lid in refused:
+            best = proposed[lid][1]
+            pairs = "; ".join(f"{x} to {y} {st:+.2f} m a storey" for x, y, st in refused[lid])
+            warnings.append(f"level {lid}: its floor marks read {best:+.2f} m, out of the storeys' order (every storey "
+                            f"{STOREY_MIN_M:.1f}-{STOREY_MAX_M:.1f} m above the one below; {pairs}): the elevation "
+                            f"{old:+.2f} m is kept" + ("" if abs(z[lid] - old) <= tol else
+                                                       f" (it follows the level below to {z[lid]:+.2f} m)"))
+        new = z[lid]
+        if lid in proposed and lid not in refused:
+            _lv, best, counts, zs, rooms = proposed[lid]
+            why = f"{counts[best]} of {len(zs)} floor marks in its rooms read {best:+.2f}"
+            for m in marks:
+                if m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms and m.get("z") is not None \
+                        and abs(m["z"] - best) <= tol:
+                    _use(m, f"level_elevation:{lid}")
+        elif abs(new - old) > tol:
+            why = "an assumed level above a level moved by its floor marks, moved by the same amount"
+        else:
+            continue
+        if abs(new - old) > tol:
+            warnings.append(f"level {lid}: elevation {old:+.2f} m (assumed) -> {new:+.2f} m ({why})")
+            inferred.append({"item": f"level {lid} elevation", "value": _r(new), "reason": why})
+            for sl in b.get("slabs") or []:
+                if not isinstance(sl, dict) or sl.get("above_level_id") != lid or sl.get("z_top") is None \
+                        or abs(float(sl["z_top"]) - new) <= tol:
+                    continue
+                if sl.get("variants"):
+                    # a variant's slab carries that variant's alternative level, which did not move
+                    continue
+                note = (f"the slab under level {lid} follows it: z_top {float(sl['z_top']):+.2f} -> {new:+.2f} m "
+                        f"({why})")
+                warnings.append(f"slab {sl.get('id')}: z_top {float(sl['z_top']):+.2f} m -> {new:+.2f} m with level {lid}")
+                sl["z_top_before"] = _r(float(sl["z_top"]))
+                sl["z_top_source"] = "level_mark"
+                sl["z_top"] = _r(new)
+                sl.setdefault("evidence", []).append(_evidence(file, "level_elevation", note))
+                inferred.append({"item": f"slab {sl.get('id')} z_top", "value": _r(new), "reason": note})
+        lv["elevation"] = _r(new)
+        if lid in proposed and lid not in refused:
+            lv["elevation_source"] = "level_mark"     # (a level that only followed stays assumed, listed as inferred)
 
 
 def _room_floors(b: dict, marks: list, params: dict, conflicts: list, warnings: list) -> None:
@@ -720,6 +906,8 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
     ids = {lv["id"] for lv in levels}
     lowered = {i for ch in tm.get("changes") or [] for i in ch.get("opening_ids") or []}
     ramp_doors = {r.get("door_id") for r in (b.get("site") or {}).get("drawn_ramps") or [] if isinstance(r, dict)}
+    ramp_shapes = {r.get("door_id"): r for r in (b.get("site") or {}).get("drawn_ramps") or []
+                   if isinstance(r, dict) and r.get("length") and r.get("width")}
     overrides = (b.get("site") or {}).get("entrance_overrides") or {}       # the agent's set_entrance (edits.py)
     brief_ramp = bool(params.get("accessible_entrance"))
     out = []
@@ -740,14 +928,6 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
         probe = (cx + outward[0] * (ht + 0.3), cy + outward[1] * (ht + 0.3))
         threshold = float(o.get("threshold_z") if o.get("threshold_z") is not None else
                           (room_floor_z(b, room) if room else lv["elevation"]))
-        near = [m for m in ground_points if G.distance(probe, m["point"]) <= float(params["door_ground_reach"])]
-        if near and o["id"] not in lowered:
-            m = min(near, key=lambda m: G.distance(probe, m["point"]))
-            gz, gsrc = float(m["z"]), f"ground mark {m['id']}"
-            _use(m, f"entrance:{o['id']}")
-        else:
-            gz, gsrc = S.ground_z(tm, *probe), ("terrain lowered to the door (basement door)" if o["id"] in lowered
-                                               else f"terrain ({tm['kind']})")
         landing_mark = None
         for m in marks:
             # 26 Oct 2026: a landing mark of another level's plan is not this door's (real06: the upper floor's
@@ -758,6 +938,22 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                     and G.distance(face, m["point"]) <= float(params["door_mark_reach"]) + float(o.get("width") or 0):
                 if landing_mark is None or G.distance(face, m["point"]) < G.distance(face, landing_mark["point"]):
                     landing_mark = m
+        near = [m for m in ground_points if G.distance(probe, m["point"]) <= float(params["door_ground_reach"])]
+        # 13 Nov 2026 (coordinator, real13: "a building's entrance never disappears"; the 1st basement's entrance door,
+        # its plan printing '-0.50' at its threshold, read 3.00 m below a '+2.50' ground mark of an upper floor's plan):
+        # the door's own plan speaks first: its ground marks, else the threshold mark it prints at the door (the
+        # outside landing there), and only then the marks of the other plans
+        own = [m for m in near if m.get("level_id") in (None, lv["id"])]
+        if near and o["id"] not in lowered and not own and landing_mark is not None and landing_mark.get("kind") == "threshold":
+            gz, gsrc = float(landing_mark["z"]), (f"the threshold mark {landing_mark['id']} its own plan prints at the "
+                                                 f"door (no ground mark of that plan within reach)")
+        elif near and o["id"] not in lowered:
+            m = min(own or near, key=lambda m: G.distance(probe, m["point"]))
+            gz, gsrc = float(m["z"]), f"ground mark {m['id']}"
+            _use(m, f"entrance:{o['id']}")
+        else:
+            gz, gsrc = S.ground_z(tm, *probe), ("terrain lowered to the door (basement door)" if o["id"] in lowered
+                                               else f"terrain ({tm['kind']})")
         top = threshold
         if landing_mark is not None:
             top = float(landing_mark["z"])
@@ -795,6 +991,32 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                              f"stair or no entrance, to decide" +
                              ("; on an upper floor: a French balcony or a balcony not drawn" if rec["upper_floor"]
                               else ""))
+        elif is_garage_door(o, room):
+            # 12 Nov 2026 (real07, user correction C0045 "a car should be able to enter and exit"; the levels gave its
+            # sectional door steps 0.50 m high): a garage door's entrance is a drive down to the ground, never steps
+            rec["ramp"] = drive_for(rise, width, params)
+            rec["solution"] = "drive"
+            rec["reason"] = (f"{rise:.2f} m above the ground ({gsrc}): a garage door: a drive {rec['ramp']['ratio']} "
+                             f"{rec['ramp']['length']:.2f} m straight out, {rec['ramp']['width']:.2f} m wide (inferred)")
+            shape = ramp_shapes.get(o["id"])
+            if shape is not None and rec["ramp"] is not None:
+                # 12 Nov 2026 (round-2 review, A2-FC9; CLAUDE.md: ramps are inferred only where not drawn): a drawn
+                # ramp outline in front of the door gives the drive its length, width and place (its own slope)
+                ln, wd = float(shape["length"]), float(shape["width"])
+                ax, ay = shape["apex"]
+                shift = (ax - face[0]) * -outward[1] + (ay - face[1]) * outward[0]
+                slope = max(rise, 0.0) / ln
+                rec["ramp"].update(slope=_r(slope, 4), ratio=f"1:{max(1, round(1.0 / slope)):d}" if slope > 0 else "flat",
+                                   length=_r(ln), width=_r(wd), shift=_r(shift, 4), drawn=True,
+                                   outline=[list(p) for p in shape["polygon"]])
+                rec["drawn"] = True
+                rec["inferred"] = False
+                rec["evidence"] += [dict(e) for e in shape.get("outline_evidence") or shape.get("evidence") or []][:1]
+                rec["reason"] = (f"{rise:.2f} m above the ground ({gsrc}): a garage door: the drawn ramp in front of it, "
+                                 f"{ln:.2f} m long and {wd:.2f} m wide (slope {slope:.2f})")
+            elif o["id"] in ramp_doors:
+                rec["drawn"] = True
+                rec["reason"] += "; a drawn ramp in front of the door"
         else:
             st = steps_for(rise, width + float(params["landing_extra_width"]), params)
             rec["steps"] = st
@@ -820,8 +1042,15 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                               f"{float(space['z']):+.2f} m: the {space['kind']} is its landing ({how}); no steps of "
                               f"its own (inferred)")
         agent = overrides.get(o["id"])
-        if isinstance(agent, dict) and not rec["into_air"] and not rec["below_ground"] and space is None:
+        if isinstance(agent, dict) and not rec["into_air"] and not rec["below_ground"] and space is None \
+                and rec["solution"] != "drive":
             _apply_entrance_override(rec, agent, max(rise, 0.0), top, width, params)
+        elif isinstance(agent, dict):
+            # 12 Nov 2026 (round-2 review, BP7: a stored override met a door that cannot take one, e.g. a door that
+            # became a garage door's drive after a later edit; nothing changes silently)
+            why = ("a garage door's drive" if rec["solution"] == "drive" else "a door into the air" if rec["into_air"]
+                   else "below the ground" if rec["below_ground"] else f"opens onto {space['id']}")
+            warnings.append(f"entrance override of {o['id']} ({agent.get('solution')}) not applied: the door is {why}")
         rec["evidence"].append(_evidence(file, "entrance", rec["reason"]))
         out.append(rec)
     # The main entrance (26 Oct 2026, main_entrance): the door a visitor uses, not the widest garden door.
@@ -830,7 +1059,7 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
         main, why = main_entrance(b, usable, marks)
         main["main"] = True
         main["main_reason"] = why
-        if brief_ramp and main["solution"] == "steps":
+        if brief_ramp and main["solution"] == "steps":   # (a drive is no steps)
             rise = main["rise"]
             main["ramp"] = ramp_for(rise, params)
             main["solution"] = "steps_and_ramp"
@@ -957,6 +1186,21 @@ def main_entrance(b: dict, usable: Sequence[dict], marks: Sequence[dict]) -> tup
         why += f"; {len(ranked) - 1} other outside door(s): " + ", ".join(
             f"{e['door_id']} (tier {k[0]})" for k, e, _w in ranked[1:])
     return main, why
+
+
+GARAGE_DOOR_TYPES = ("garage_sectional", "garage", "garage_door", "sectional", "roller", "up_and_over")
+
+
+def is_garage_door(o: dict, room: Optional[dict]) -> bool:
+    """Whether an outside door is a garage door (pure; 12 Nov 2026): its ``door_type`` is a garage door's, or it leads
+    into a garage room (``blender.site.room_role``) and a car passes it (``twins.GARAGE_DOOR_MIN_M``, the reader's and the
+    architect's one width; round-2 review BP5). The one predicate of the levels, the site and the model review."""
+    from wenart.blender import site as S
+    from wenart.ingest.twins import GARAGE_DOOR_MIN_M
+
+    if str(o.get("door_type") or "").lower() in GARAGE_DOOR_TYPES:
+        return True
+    return S.room_role(room) == "garage" and float(o.get("width") or 0.0) >= GARAGE_DOOR_MIN_M - 1e-6
 
 
 def _apply_entrance_override(rec: dict, agent: dict, rise: float, top: float, width: float, params: dict) -> None:

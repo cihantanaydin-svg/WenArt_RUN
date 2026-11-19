@@ -5,7 +5,8 @@ What: ``findings(out_dir)`` builds every drawn stair of a pipeline output as ``w
 plans it (the storey from the level elevations, the ceiling a slab under the floor above, the level's walls) and lists
 each violation of ``parametric.stair_integrity``: (a) the walking surfaces (treads, winders, landings, turns) form a
 continuous path, every surface within 3 cm of the one before; (b) no two overlap deeper than 3 cm; (c) the risers rise
-one at a time and sum to the floor-to-floor height within one riser; (d) the ceiling opening holds every surface
+one at a time and sum to the floor-to-floor height within one riser, each 0.15-0.22 m high (19 Nov 2026, review A3
+POD-A3-03: real10's 0.43 m risers on a flight read from furnishing lines passed); (d) the ceiling opening holds every surface
 without its headroom, every loop; (e) no tread runs into a wall deeper than 3 cm. Each finding is shaped like
 ``wenart.reading_check._finding`` (``check: "RC16"``) with ``rule`` (the check's letter name), ``element_ids`` and
 ``advisory: true``: counted, never in the verdict.
@@ -25,6 +26,7 @@ CHECK = "RC16"
 NAME = "stair integrity"
 STOREY_M = 3.0                  # a storey's rise where the levels give none (the reader's own assumption)
 SLAB_M = 0.20                   # the slab under the floor above (parametric.STAIR_SLAB_M's role)
+RISER_M = (0.15, 0.22)          # 19 Nov 2026 (review A3, POD-A3-03): a walkable riser's height
 SEVERITY = {"continuous": "major", "overlap": "major", "risers": "major", "opening": "major", "walls": "minor"}
 
 
@@ -59,6 +61,13 @@ def stairs(building: dict) -> list[dict]:
             continue
         rec["risers"] = plan.get("risers")
         rec["violations"] = list(plan.get("integrity") or [])
+        # 19 Nov 2026 (review A3, POD-A3-03: real10's 7 risers of 0.43 m on a 1.2 m flight read from furnishing lines
+        # passed every check): a walkable riser is ``RISER_M`` high
+        riser = plan.get("riser_m")
+        if isinstance(riser, (int, float)) and not RISER_M[0] - 1e-9 <= float(riser) <= RISER_M[1] + 1e-9:
+            rec["violations"].append({"check": "risers", "message": (
+                f"{plan.get('risers')} risers of {float(riser):.3f} m over {rise:.2f} m: a riser is "
+                f"{RISER_M[0]:.2f}-{RISER_M[1]:.2f} m high (no walkable stair: misread tread lines or flight)")})
         out.append(rec)
     return out
 

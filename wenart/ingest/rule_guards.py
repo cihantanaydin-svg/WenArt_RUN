@@ -40,12 +40,10 @@ RULES = {
     "stair_signs": (("R08",), "a stair-size box beside the core with a well line or a break diagonal drawn in it is an "
                               "inferred stair (the coordinator's decision of 12 Nov 2026)"),
     "lift_door_unmark": (("R19", "R16"), "a lift-door mark on an opening in no lift's shaft wall is undone"),
-    "lift_door_merge": (("R19",), "the pieces of one landing door read in stacked parallel walls are merged"),
-    "lift_door_remove": (("R19", "R16"), "a derived or inferred lift opening into a flat's room, onto a stair flight, "
-                                         "a sliver or a window in the shaft is removed"),
-    "lift_door_retype": (("R19",), "a doorless opening between a lift and the common hall becomes its sliding "
-                                   "landing door (C0034)"),
-    "lift_door_add": (("R19",), "a lift with no opening onto the common hall gets an inferred landing door"),
+    # 19 Nov 2026 (merge of reader A: the landing door is the reader's one rule, twins.lift_doors): lift_door_merge,
+    # lift_door_retype and lift_door_add are gone with the completion's own landing-door steps
+    "lift_door_remove": (("R19", "R16"), "a lift door a rule inferred into a flat's room, in no lift's shaft wall, is "
+                                         "removed"),
     "core_gap": (("R16",), "an unclassified gap between a flat's room and the common core is closed"),
     "entrance_refuse": (("R09",), "an entrance with a lost room label behind it, or from a wet room, is refused"),
     "entrance_add": (("R09", "R43"), "a building of several flats gets an inferred entrance into its core hall"),

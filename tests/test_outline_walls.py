@@ -206,7 +206,8 @@ def test_real03_reads_the_whole_ground_floor(real03):
     labels = {r["label_raw"] for r in b["rooms"]}
     assert {"KAT HOLÜ", "RÜZGARLIK", "KAT MERDİVENİ", "YANGIN MERDİVENİ"} <= labels
     assert "SUBSTATİON" not in labels                    # a services-layer text, no room name
-    assert not [w for w in b["walls"] if w.get("inferred")]
+    # (13 Nov 2026, S1-03b: the one inferred wall is the shaft wall between the twin lifts' cars, ``twins.lift_cars``)
+    assert not [w for w in b["walls"] if w.get("inferred") and "_cars" not in w["id"]]
     assert any("ring:" in str(w["evidence"][0].get("entity")) for w in b["walls"])
     # The title block (legend block) gives no walls: every wall lies in the building (33.2 x 14.6 m).
     for w in b["walls"]:

@@ -184,6 +184,13 @@ def _set_entrance(b: dict, a: dict, meta: dict) -> list[str]:
     e = next((x for x in ents if x.get("door_id") == a["door_id"]), None)
     if e is None:
         raise Rejected(f"exists: {a['door_id']!r} is no outside door of site.entrances")
+    # 12 Nov 2026 (round-2 review, BP7): an entrance the levels never let an override change is refused with the reason
+    if e.get("solution") == "drive":
+        raise Rejected(f"fixed: {a['door_id']} is a garage door: its entrance is a drive; change the room or the door "
+                       f"type if it is no garage door")
+    if e.get("into_air") or e.get("below_ground") or e.get("onto"):
+        raise Rejected(f"fixed: {a['door_id']} is a door into the air, into the ground or onto an outdoor space: no "
+                       f"steps or ramp of its own can be set")
     if e.get("solution") == a["solution"] and not (e.get("adjusted_by_ai") or {}):
         raise Rejected(f"no_change: {a['door_id']} has {a['solution']} already")
     b["site"].setdefault("entrance_overrides", {})[a["door_id"]] = {"solution": a["solution"], "reason": a["reason"],

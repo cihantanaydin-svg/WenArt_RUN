@@ -1174,7 +1174,7 @@ def accessible_paths(plan: dict) -> set:
     inf = plan.get("inferred") or {}
     doors = set()
     for st in inf.get("steps") or []:
-        if st.get("ramp"):
+        if st.get("ramp") and not st["ramp"].get("drive"):         # a garage door's drive is for cars
             doors |= {str(d) for d in st.get("doors") or [st.get("opening_id")]}
     out = set()
     for p in inf.get("paths") or []:

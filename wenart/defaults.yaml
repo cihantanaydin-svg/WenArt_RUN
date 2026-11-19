@@ -166,6 +166,8 @@ levels:
   ramp_slopes: [[0.15, 0.0833], [0.50, 0.0714], [1.00, 0.0625], [99.0, 0.05]]   # rise up to (m) -> slope: 1:12, 1:14, 1:16, 1:20 (secondary source)
   ramp_handrail_from: 0.15         # ramps rising more than this get handrails on both sides (secondary source)
   ramp_width: 1.20                 # our assumption
+  drive_slope: 0.12                # a garage door's drive down to the ground (our assumption, under the usual 15 % garage ramp limit)
+  drive_extra_width: 0.60          # drive width = garage door width + this
   door_into_air: 1.50              # a door this far above the ground with no steps is a finding (L2), not an entrance
   door_ground_reach: 5.0           # a ground point within this of a door gives the ground in front of it
   door_mark_reach: 1.5             # a mark outside within this of an outside door is its threshold / landing

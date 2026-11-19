@@ -226,25 +226,8 @@ def test_a_one_storey_house_needs_no_stair():
     assert run(b)["stairs"] == []
 
 
-def test_the_lift_opens_only_onto_the_common_hall():
-    b = block()
-    rec = run(b)
-    assert all(r["level_id"] for r in rec["lift_doors"]["removed"])
-    gone = {r["opening"] for r in rec["lift_doors"]["removed"]}
-    assert {"d_L0_lift", "d_L1_lift"} <= gone
-    added = [o for o in b["openings"] if o.get("inference", {}).get("rule") == "lift_door"]
-    assert {o["level_id"] for o in added} == {"L0", "L1"} and all(o["lift_door"] is True for o in added)
-    assert all(o["wall_id"].endswith("_l2") or o["wall_id"].endswith("_l1") for o in added)
-    assert not rules(b, "lift_doors")
 
 
-def test_the_landing_door_faces_away_from_the_counterweight():
-    b = block(storeys=1)
-    b["furniture"].append({"id": "f_L0_cw", "level_id": "L0", "type": "unknown", "room_id": "r_L0_lift",
-                           "footprint": {"center": [7.2, 7.7], "size": [0.9, 0.3], "rotation_deg": 0.0}})
-    run(b)
-    door = next(o for o in b["openings"] if o.get("inference", {}).get("rule") == "lift_door")
-    assert door["wall_id"] == "w_L0_l1"          # the south face, opposite the counterweight on the north
 
 
 def test_a_copy_of_a_typical_floor_takes_its_floors_stair_and_the_top_storey_none():
@@ -259,32 +242,8 @@ def test_a_copy_of_a_typical_floor_takes_its_floors_stair_and_the_top_storey_non
     assert all(s["openings"] for s in b["slabs"])
 
 
-def test_a_drawn_lift_door_into_a_flats_room_is_kept_for_review():
-    """R16 G6: a drawn door symbol is never removed; it raises a review record."""
-    b = block(storeys=1)
-    b["rooms"].append(room("r_L0_ek2", "Mutfak", "kitchen", rect(0.1, 0.1, 1.0, 1.0), "L0"))
-    next(o for o in b["openings"] if o["id"] == "d_L0_lift")["evidence"] = [{"method": "vector", "entity": "ARC:9"}]
-    rec = run(b)
-    assert "d_L0_lift" in {o["id"] for o in b["openings"]}
-    assert [r["opening"] for r in rec["lift_doors"]["review"]] == ["d_L0_lift"]
 
 
-def test_a_landing_door_read_in_pieces_is_merged_and_made_a_sliding_door():
-    """R19 (the user on real10, C0034): pieces in stacked walls are one door; the doorless opening onto the hall is the
-    lift's sliding landing door, at the drawn place."""
-    b = block(storeys=1)
-    b["rooms"].append(room("r_L0_ek2", "Mutfak", "kitchen", rect(0.1, 0.1, 1.0, 1.0), "L0"))
-    b["walls"].append(wall("w_L0_l1b", (6.4, 6.08), (8.0, 6.08), "L0"))
-    b["openings"] += [{"id": "o_L0_p1", "type": "opening", "level_id": "L0", "wall_id": "w_L0_l1", "center": [7.2, 6.0],
-                       "width": 0.9},
-                      {"id": "o_L0_p2", "type": "opening", "level_id": "L0", "wall_id": "w_L0_l1b",
-                       "center": [7.18, 6.08], "width": 0.8}]
-    rec = run(b)
-    assert [m["opening"] for m in rec["lift_doors"]["merged"]] == ["o_L0_p2"]
-    door = next(o for o in b["openings"] if o["id"] == "o_L0_p1")
-    assert door["type"] == "door" and door["operation"] == "sliding" and door["drawn_type"] == "opening"
-    assert door["lift_door"] is True                     # the user's truth asserts the lift door (C0034)
-    assert [r["opening"] for r in rec["lift_doors"]["retyped"]] == ["o_L0_p1"] and rec["lift_doors"]["added"] == []
 
 
 def test_a_lift_door_mark_outside_the_shaft_wall_is_undone():

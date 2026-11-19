@@ -1205,7 +1205,9 @@ def _section_regions(out_dir: Path, sheets: dict) -> list:
         texts = [SimpleNamespace(text=t.text, point=((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0),
                                  height=t.height, box=t.box, id=t.id, rotation_deg=t.rotation_deg)
                  for t in page.texts]
-        out.append(SimpleNamespace(id=r["id"], texts=texts, use=r.get("use"), cls="section"))
+        # 12 Nov 2026: with the strokes, so a lone landing mark is told from the storey marks (levels.mark_evidence)
+        out.append(SimpleNamespace(id=r["id"], texts=texts, use=r.get("use"), cls="section",
+                                   strokes=lambda page=page: list(page.strokes)))
     return out
 
 

@@ -248,7 +248,7 @@ def test_m8_finds_real06s_crossing_and_nothing_after_the_merge():
 
 
 def test_m8_flags_steps_in_front_of_a_garage_door_and_is_reported_to_the_site_stage():
-    g = _ent("d_gar", (3.0, 0.1), (0.0, -1.0), 0.9, room="r_garaj")
+    g = _ent("d_gar", (3.0, 0.1), (0.0, -1.0), 2.5, room="r_garaj")    # a car door (12 Nov 2026: one garage predicate)
     built = {"rooms": [{"id": "r_garaj", "room_type": "other", "label": "Garaj", "label_raw": "GARAJ"}]}
     got, _n = MR.entrances_make_sense(built, {"entrances": [g], "steps": [S.entrance_steps(g)]})
     assert [(f["check"], f["severity"], f["target"]) for f in got] == [("M8", "major", "d_gar")]

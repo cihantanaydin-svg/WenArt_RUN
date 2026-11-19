@@ -121,7 +121,16 @@ def _l1_l2_l5(building: dict, params: dict, out: list) -> None:
                 out.append(_v("L5", did, f"entrance of {did}: one {r:.2f} m step (lower than {lo:.2f} m: a trip risk; "
                                          f"a ramp would do)", severity="minor", riser=r))
         ramp = e.get("ramp")
-        if ramp:
+        if ramp and ramp.get("drive"):          # 12 Nov 2026: a garage door's drive, for cars (levels.rules.drive_for)
+            if float(ramp.get("slope") or 1.0) > float(params["drive_slope"]) + 1e-4:
+                # 12 Nov 2026 (round-2 review, A2-FC9): a drawn drive keeps its drawn slope: steeper than the usual
+                # garage limit is a finding to read, not an error of the reading
+                out.append(_v("L5", did, f"drive of {did}: slope {float(ramp['slope']):.3f} steeper than "
+                                         f"{float(params['drive_slope']):.2f}" +
+                              (" (as drawn: the drawing's slope is kept)" if ramp.get("drawn") else ""),
+                              severity="minor" if ramp.get("drawn") else None, slope=float(ramp["slope"]),
+                              max_slope=float(params["drive_slope"])))
+        elif ramp:
             want = M.ramp_for(max(rise, 0.0), params)
             if want and float(ramp.get("slope") or 1.0) > float(want["slope"]) + 1e-4:
                 out.append(_v("L5", did, f"ramp of {did}: slope {float(ramp['slope']):.3f} steeper than "
@@ -274,7 +283,7 @@ def _l7(building: dict, scene_manifest: Optional[dict], render_manifest: Optiona
         if not seen:
             out.append(_v("L7", did, f"entrance {did} is seen by no exterior view", views=len(cams)))
             continue
-        if e.get("solution") in ("steps", "ramp", "steps_and_ramp"):
+        if e.get("solution") in ("steps", "ramp", "steps_and_ramp", "drive"):
             listed = [c for c in seen if isinstance(c.get("visible_objects"), list)]
             names = {f"steps_{did}", f"ramp_{did}"}
             if listed and not any(names & set(c["visible_objects"]) for c in listed):
