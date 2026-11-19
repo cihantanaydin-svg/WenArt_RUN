@@ -2181,8 +2181,12 @@ def test_terrain_from_the_ground_floors_own_plan_and_an_rc_check_for_it():
     title = F.mark("lm_t", 3.5, kind=None, point=(8.0, -4.0), level="L0")
     title["raw"] = "+ 3,50 kotu"
     ground = F.mark("lm_g", -0.45, kind=None, point=(8.0, -2.5), level="L0")
-    warnings = LR.classify([up, title, ground], b, params)
+    b["levels"].append(dict(b["levels"][0], id="L-1", order=-1, elevation=-3.0, label="Bodrum Kat"))
+    b["walls"] += [dict(w, id=w["id"] + "_b", level_id="L-1") for w in b["walls"] if w.get("level_id") == "L0"]
+    garden = F.mark("lm_b", -3.5, kind=None, point=(8.0, -3.0), level="L-1")   # a basement's garden on a slope
+    warnings = LR.classify([up, title, ground, garden], b, params)
     assert up["kind"] == "unknown" and title["kind"] == "unknown" and ground["kind"] == "ground_finished"
+    assert garden["kind"] == "ground_finished"
     assert any("never a ground mark" in w for w in warnings)
     # the RC check: the terrain 18 m over the ground floor at its entrances
     ents = [{"door_id": "d1", "level_id": "L0", "threshold_z": 0.0, "ground_z": 18.4, "main": True, "centre": [1, 2]},
