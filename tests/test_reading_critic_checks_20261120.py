@@ -365,10 +365,87 @@ def test_the_three_checks_ask_map_calibrate_and_sheet_against_the_fake_server(tm
 
 def test_the_pod_job_passes_the_calls_and_the_trust_file_reads_the_checks():
     job = (REPO / "scripts" / "jobs" / "critic.sh").read_text(encoding="utf-8")
-    assert 'ASK_ARGS+=(--which "$CRITIC_WHICH")' in job and "--max-minutes 45" in job
+    assert 'ASK_ARGS+=(--which "$CRITIC_WHICH")' in job and "--max-minutes 30" in job
     trust = {"threshold": 0.5, "kinds": {}, "checks": {"compare": {"room_missing": {"judged": 10, "right": 8,
                                                                                    "precision": 0.8}}}}
     found = [{"check": "RC15", "kind": "room_missing", "call": "compare", "severity": "major", "message": "m"},
              {"check": "RC15", "kind": "door_into_air", "call": "compare", "severity": "major", "message": "m"}]
     CR.apply_trust(found, trust)
     assert found[0]["severity"] == "major" and found[1]["severity"] == "info"
+
+
+# ====================================================================== round 2 (pod 1 re-scored: "Lets improve the AI")
+def test_second_look_items_verdicts_and_drops():
+    index = {"entries": [_entry()]}
+    base = {"call": "compare", "folder": "s/p", "entry": "s/p/L0", "image_entry": "s/p/L0", "point": [0.5, 0.5]}
+    found = [dict(base, id="a", kind="room_missing", confidence=0.4, answer={"drawing": "yes", "fact": "no"}),
+             dict(base, id="b", kind="room_missing", confidence=0.8),                        # confident: no look
+             dict(base, id="c", kind="door_into_air", confidence=0.4, answer={"drawing": "no", "fact": "no"}),
+             dict(base, id="d", kind="opening_type_differs", confidence=0.4,
+                  answer={"drawing": "door", "fact": "window"}),
+             dict(base, id="e", kind="habitable_no_window", call="plausibility", confidence=0.4)]
+    items = CC.second_look_items(index, found)
+    assert [i["id"] for i in items] == ["a", "c", "d"] and items[2]["mode"] == "type"
+    assert CC.second_schema(items[2])["properties"]["answer"]["enum"][0] == "door"
+    looks = {"answers": [{"id": "a", "which": "second", "item": items[0], "data": {"answer": "no"}},
+                         {"id": "c", "which": "second", "item": items[1], "data": {"answer": "no"}},
+                         {"id": "d", "which": "second", "item": items[2], "data": {"answer": "window"}}]}
+    CC.apply_second_looks(found, looks)
+    assert found[0]["dropped"] and found[2]["confidence"] == 0.85 and found[3]["dropped"]
+    assert CC.second_verdict(items[0], {"answer": "unclear"}) is None
+
+
+def test_window_questions_and_answers_for_unlit_habitable_rooms():
+    from shapely.geometry import box
+
+    facts = _facts()
+    facts["openings"] = [o for o in facts["openings"] if o["id"] != "w1"]          # the salon loses its window
+    places = CC.window_places(facts, box(0, 0, 20, 10))
+    assert [p["room_id"] for p in places] == ["r1"] and places[0]["length"] == 10.0   # r2 has its door d2
+    facts["window_places"] = places
+    qs = CC.compare_questions(_entry(), facts)
+    win = [q for q in qs if q["kind"] == "window"]
+    assert win and win[0]["model_fact"] == "no"
+    found = CC.compare_findings({"answers": [{"id": win[0]["qid"], "drawing": "yes", "model": "no"}]}, qs)
+    assert [f["kind"] for f in found] == ["window_missing"] and found[0]["confidence"] == 0.8
+
+
+def test_identical_storeys_fold_into_one_text_and_answers_propagate():
+    b = _building()
+    for o in b["openings"] + b["site"]["outdoor_spaces"]:       # ids as the reader writes them (prefix_...)
+        o["id"] = {"d1": "d_1", "d2": "d_2", "win1": "win_1", "os1": "os_1"}[o["id"]]
+    b["levels"].append({"id": "L2", "label": "2. Kat", "elevation": 6.0, "typical_of": "L1"})
+    for key in ("walls", "rooms"):
+        b[key] += [dict(x, id=x["id"] + "_2", level_id="L2") for x in list(b[key]) if x.get("level_id") == "L1"]
+    b["openings"] += [dict(o, id=o["id"] + "_2", level_id="L2", wall_id=o["wall_id"] + "_2")
+                      for o in list(b["openings"]) if o.get("level_id") == "L1"]
+    b["site"]["outdoor_spaces"].append(dict(b["site"]["outdoor_spaces"][0], id="os_2", level_id="L2"))
+    bf = CC.building_facts(b)
+    texts = CC.summaries_for(b, bf, {})
+    l1 = next(t for t in texts if t["level"] == "L1")
+    assert "L2" not in [t["level"] for t in texts] and l1["copies"][0]["level"] == "L2"
+    assert l1["copies"][0]["ids"]["r_mutfak"] == "r_mutfak_2"
+    found, _inv = CC.plausibility_findings({"answers": [{"q": "P4", "ids": ["r_mutfak"], "note": ""}]}, l1, bf)
+    both = CC.propagate_copies(found, dict(l1, level="L1"))
+    assert [(f["element_ids"][0], f.get("level_id")) for f in both] == [("r_mutfak", None), ("r_mutfak_2", "L2")]
+    # P7 counts only in a building of more than one storey
+    one = {"storeys": 1}
+    assert CC.plausibility_findings({"answers": [{"q": "P7", "ids": ["r_salon"], "note": ""}]}, l1, one)[0] == []
+
+
+def test_marks_stay_readable_at_the_edges_and_pod1_cut_marks_are_not_counted():
+    tx, ty = CC.label_origin(1595.0, 5.0, 2, 1600, 1200)
+    assert tx + 28 <= 1600 and ty >= 0
+    assert CC.label_cut_pod1([0.99, 0.5], [1600, 1200], 16) and not CC.label_cut_pod1([0.5, 0.5], [1600, 1200], 16)
+    q = {"qid": "q16", "n": 16, "kind": "opening", "at": [11.9, 2.2], "point": [0.99, 0.5], "model_fact": "window"}
+    ans = {"answers": [{"id": "q16", "drawing": "none", "model": "window"}]}
+    assert CC.compare_findings(ans, [q], size=[1600, 800], layout=1) == []
+    assert [f["kind"] for f in CC.compare_findings(ans, [q], size=[1600, 800], layout=2)] == ["opening_not_in_drawing"]
+
+
+def test_a_plan_stands_for_the_storeys_its_copies_chain_to():
+    index = {"entries": [dict(_entry(), id="s/p/L1", level="L1")],
+             "texts": [{"folder": "s/p", "level": "L0", "page_entry": "s/p/L1"}],
+             "readings": {"s/p": {"bfacts": {"levels": [{"id": "L0"}, {"id": "L1", "typical_of": "L0"},
+                                                        {"id": "L2", "typical_of": "L0"}]}}}}
+    assert CC.stands_for(index)["s/p/L1"] == {"L0", "L1", "L2"}

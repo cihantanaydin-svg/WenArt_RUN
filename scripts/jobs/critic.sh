@@ -25,11 +25,12 @@
 # 600), CRITIC_SETS
 # (default all), CRITIC_VLM_URL (preflight: an external server, no setup, no vLLM), CRITIC_WHICH (the calls, default
 # "differences,questions"; 20 Nov 2026, checks 1, 2, 4: "plausibility,inventory,compare" with CRITIC_SETS
-# "before,after,synth" and CRITIC_MODELS "agent": 190 calls, about 22 min of asking).
+# "before,after,synth" and CRITIC_MODELS "agent": 190 calls, pod g6mkqclxz73yb4 took 20 min in all; with ",second"
+# the image findings under 0.75 confidence get one close-up yes/no question after the first pass, at most 160).
 #
-#   scripts/gpu_run.py run --job scripts/jobs/critic.sh --max-minutes 45 --env CRITIC_MODELS=agent \
-#     --env CRITIC_SETS=before,after,synth --env CRITIC_WHICH=plausibility,inventory,compare \
-#     --purpose "M14 RC15 checks 1, 2, 4: inventory, drawing compare, plausibility"
+#   scripts/gpu_run.py run --job scripts/jobs/critic.sh --max-minutes 30 --env CRITIC_MODELS=agent \
+#     --env CRITIC_SETS=before,after,synth --env CRITIC_WHICH=plausibility,inventory,compare,second \
+#     --purpose "M14 RC15 checks 1, 2, 4, round 2: second look, window questions, storey texts"
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"

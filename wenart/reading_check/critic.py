@@ -543,6 +543,8 @@ def check_jobs(index: dict, which: tuple, sets: Optional[list] = None) -> list:
     jobs = []
     for s in order:
         for w in which:
+            if w == "second":
+                continue                                        # asked after the first pass (ask)
             if w == "plausibility":
                 jobs += [(w, t, 0) for t in texts if t.get("set") == s]
             elif w == "inventory":

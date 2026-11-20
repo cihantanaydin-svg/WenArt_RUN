@@ -69,7 +69,7 @@ COMPARE_KINDS = ("room_missing", "room_not_in_drawing", "angled_wall_straight", 
                  "opening_type_differs", "opening_not_in_drawing", "plan_not_read", "window_missing")
 EXTENT_MARGIN_M = 1.0          # a labelled place this far outside the level's walls is another plan, not a room missing
 SECOND_LOOK_BELOW = 0.75       # a finding under this confidence gets the short second question (``second_look``)
-SECOND_LOOK_MAX = 150          # second questions per pod at most
+SECOND_LOOK_MAX = 160          # second questions per pod at most (pod 1 would have had 158)
 # (id, kind, element class of the ids, question)
 PLAUSIBILITY_QUESTIONS = (
     ("P1", "habitable_no_window", "room",
@@ -386,7 +386,8 @@ def window_places(facts: dict, outline=None) -> list:
                 out_of = outline is not None and not outline.contains(Point(probe))
                 if (out_of or any(_contains(sp["poly"], probe) for sp in facts.get("outdoor") or [])) and \
                         (best is None or L > best[2]):
-                    best = ([round(mx, 3), round(my, 3)], r["id"], L)
+                    # the mark 0.25 m inside the room, so a frame drawn tight to the facade still shows it
+                    best = ([round(mx - nx * s * 0.25, 3), round(my - ny * s * 0.25, 3)], r["id"], L)
         if best:
             out.append({"room_id": best[1], "at": best[0], "length": round(best[2], 2)})
     return out
@@ -884,12 +885,16 @@ def compare_questions(entry: dict, facts: dict, cap: int = COMPARE_MAX, copies_f
             if n >= COMPARE_CAPS["balcony"] or o.get("type") != "door" or not o.get("exterior"):
                 continue
             front = o.get("front")
+            twins = [x for cf in uppers for x in cf.get("openings") or []
+                     if x.get("type") == "door" and math.dist(x["at"], o["at"]) <= 0.3]
             if not facts.get("above_ground"):
-                twin = next((x for cf in uppers for x in cf.get("openings") or []
-                             if x.get("type") == "door" and math.dist(x["at"], o["at"]) <= 0.3), None)
-                if twin is None:
+                if not twins:
                     continue
-                front = twin.get("front")
+                front = twins[0].get("front")
+            # a door the page stands for that opens into the air on any copy (real20: L1 over the ground floor's
+            # roof, L2-L4 over nothing) is asked as one with nothing in front
+            if any(x.get("front") == "nothing" for x in twins):
+                front = "nothing"
             if add("balcony", o["at"], "yes" if front in ("open_air", "roof_below") else "no", [o["id"]], bal_q,
                    sep=0.6):
                 n += 1
@@ -1986,7 +1991,9 @@ def known_kitchens_without_window(before: dict, after: dict) -> list:
             ra = [x for x, ta in sa["types"].items() if ta in ("kitchen", "living_kitchen")
                   and math.dist(sa["points"][x], p) <= 1.5]
             if ra and sa["windows"].get(ra[0], 0) > 0:
-                out.append({"level": lid, "at": p, "kinds": ["kitchen_no_window", "habitable_no_window", "window_missing"],
+                # window_missing only ``also``: real10's kitchens have a balcony door, so no window question is asked
+                out.append({"level": lid, "at": p, "kinds": ["kitchen_no_window", "habitable_no_window"],
+                            "also": ["window_missing"],
                             "desc": f"kitchen {rid} without its drawn window", "element": rid})
     return out
 
