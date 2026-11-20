@@ -1757,6 +1757,15 @@ def walls_from_mask(mask: MaskLayer, outline_strokes_m: list[Stroke], file_rel: 
         info["warnings"].append(face_notes[0])
     theta = _dominant_angle(segments, m, grid)
     info["dominant_deg"] = round(theta, 2)
+    # 20 Nov 2026 (rule R35, ``angled_wall``): a face-pair wall drawn at an angle off the plan's axes is one wall at its
+    # angle; its pixels leave the mask, so the axis decomposition no longer cuts it into stubs along the axes
+    angled = angled_face_walls(prims, theta, file_rel, page_no, units_to_m)
+    if angled:
+        for k, _w in angled:
+            m &= index != k
+        info["angled_walls"] = len(angled)
+        info["notes"].append(f"{len(angled)} face-pair wall(s) drawn at an angle off the plan's axes kept at their "
+                             f"angle (R35)")
     rot_m, rot_index, rot_grid, to_page = (m, index, grid, None)
     if abs(theta) > 0.5:
         rot_m, rot_index, rot_grid, to_page = _rotate_frame(m, index, grid, -theta)
@@ -1812,10 +1821,139 @@ def walls_from_mask(mask: MaskLayer, outline_strokes_m: list[Stroke], file_rel: 
     walls = []
     for r in sorted(rects, key=lambda r: (r.axis, round(r.y0, 3), round(r.x0, 3))):
         walls.append(_wall_item(r, prims, theta, file_rel, page_no, units_to_m))
+    walls += [w for _k, w in angled]
+    if angled:
+        joined = join_angled_ends(walls, [w for _k, w in angled])
+        if joined:
+            info["notes"].append(f"{joined} wall end(s) run on to the angled wall they stopped short of by <= "
+                                 f"{ANGLED_JOIN_M:.2f} m (R35)")
     info["thickness_classes"] = thickness_classes(walls)
     info["primitives"] = [p.describe() for p in prims]
     info["dropped_strokes"] = sorted(dropped)
     return walls, info
+
+
+ANGLED_FILL_MIN = 0.9          # R35: a face-pair piece fills at least this share of its smallest rectangle (a clean band)
+
+
+def angled_piece(polygon, theta: float) -> Optional[dict]:
+    """R35 (20 Nov 2026): ``{"start", "end", "thickness", "angle_deg", "off_deg"}`` of a wall band drawn at an angle
+    off the plan's axes (``theta`` and ``theta`` + 90 degrees, by more than ``ANGLED_DEG``), or None (pure, page
+    metres): a clean band (``ANGLED_FILL_MIN`` of its smallest rectangle) whose short side is a wall's thickness
+    (``PAIR_WIDTH_M``) and whose long side is at least twice it; the centre line joins the short sides' midpoints."""
+    try:
+        poly = Polygon(polygon)
+        if not poly.is_valid:
+            poly = poly.buffer(0)
+        rect = poly.minimum_rotated_rectangle
+        c = list(rect.exterior.coords)[:4]
+    except Exception:  # noqa: BLE001 - a degenerate ring is no wall band
+        return None
+    if len(c) < 4 or rect.area <= 0 or poly.area / rect.area < ANGLED_FILL_MIN:
+        return None
+    e0, e1 = math.dist(c[0], c[1]), math.dist(c[1], c[2])
+    if e0 >= e1:
+        length, t, a, b = e0, e1, (c[1], c[2]), (c[3], c[0])
+        direction = (c[1][0] - c[0][0], c[1][1] - c[0][1])
+    else:
+        length, t, a, b = e1, e0, (c[0], c[1]), (c[2], c[3])
+        direction = (c[2][0] - c[1][0], c[2][1] - c[1][1])
+    if not (PAIR_WIDTH_M[0] <= t <= PAIR_WIDTH_M[1]) or length < 2.0 * t:
+        return None
+    ang = math.degrees(math.atan2(direction[1], direction[0])) % 180.0
+    d = (ang - float(theta)) % 90.0
+    off = min(d, 90.0 - d)
+    if off <= ANGLED_DEG:
+        return None
+    start = ((a[0][0] + a[1][0]) / 2.0, (a[0][1] + a[1][1]) / 2.0)
+    end = ((b[0][0] + b[1][0]) / 2.0, (b[0][1] + b[1][1]) / 2.0)
+    return {"start": start, "end": end, "thickness": t, "angle_deg": ang, "off_deg": off, "corners": c}
+
+
+def angled_face_walls(prims: list[WallPrim], theta: float, file_rel: str, page_no: int,
+                      units_to_m: Optional[float]) -> list[tuple[int, WallItem]]:
+    """R35 (20 Nov 2026, ``rule_guards`` ``angled_wall``; real20's street facade 16 degrees off the plan's axes was cut
+    into axis stubs and its rooms stayed open): ``[(primitive number, WallItem)]`` of the face-pair pieces drawn at an
+    angle off the plan's axes (``angled_piece``), each one wall at its own angle with the face-pair evidence. Off when
+    the rule is switched off (``WENART_RULES_OFF``)."""
+    from wenart.ingest import rule_guards as RG
+
+    if not RG.active("angled_wall"):
+        return []
+    out = []
+    for k, p in enumerate(prims, start=1):
+        if p.kind != "face_pair" or len(p.polygons) != 1:
+            continue
+        piece = angled_piece(p.polygons[0], theta)
+        if piece is None:
+            continue
+        xs, ys = [q[0] for q in piece["corners"]], [q[1] for q in piece["corners"]]
+        box = [min(xs), min(ys), max(xs), max(ys)]
+        if units_to_m:
+            box = [v / units_to_m for v in box]
+        entity = ",".join(sorted(set(p.stroke_ids)))
+        ev = B.evidence(file_rel, p.method, round(float(p.confidence), 3), page=page_no, entity=entity, layer=p.layer,
+                        rule="face_pairs")
+        ev["note"] = ((p.note + "; ") if p.note else "") + (
+            f"R35: drawn at {piece['angle_deg']:.1f} deg, {piece['off_deg']:.1f} deg off the plan's axes: one wall at "
+            f"its angle")
+        t = round(round(piece["thickness"] / THICKNESS_ROUND_M) * THICKNESS_ROUND_M, 4)
+        start = (round(piece["start"][0], 4), round(piece["start"][1], 4))
+        end = (round(piece["end"][0], 4), round(piece["end"][1], 4))
+        out.append((k, WallItem(start=start, end=end, thickness=t, box=[round(v, 3) for v in box], entity=entity,
+                                evidence=ev)))
+    return out
+
+
+ANGLED_JOIN_M = 0.35           # R35: a wall end this close (along its own line) to an angled wall's centre line runs on to it
+ANGLED_JOIN_MIN_DEG = 10.0     # ... when the two walls meet at this angle or more
+
+
+def join_angled_ends(walls: list[WallItem], angled: list[WallItem]) -> int:
+    """R35 (20 Nov 2026): every wall end that stops short of a wall it meets at an angle, where one of the two is an
+    angled wall, runs on along its own line to the other's centre line, by at most ``ANGLED_JOIN_M`` (the axis
+    decomposition leaves the junction pixels to neither, and real20's rooms along its angled facade stayed open by
+    4 cm). An end is only lengthened, never shortened, and only where its line meets the other wall within its length
+    (plus half its thickness). Changes ``walls`` in place; returns the ends moved."""
+    angled_ids = {id(w) for w in angled}
+    moved = 0
+    for w in walls:
+        length = math.dist(w.start, w.end)
+        if length <= 1e-9:
+            continue
+        ux, uy = (w.end[0] - w.start[0]) / length, (w.end[1] - w.start[1]) / length
+        for which in ("start", "end"):
+            p = w.start if which == "start" else w.end
+            d = (-ux, -uy) if which == "start" else (ux, uy)
+            best = None
+            for o in walls:
+                if o is w or (id(o) not in angled_ids and id(w) not in angled_ids):
+                    continue
+                ol = math.dist(o.start, o.end)
+                if ol <= 1e-9:
+                    continue
+                vx, vy = (o.end[0] - o.start[0]) / ol, (o.end[1] - o.start[1]) / ol
+                cross = d[0] * vy - d[1] * vx
+                if abs(cross) < math.sin(math.radians(ANGLED_JOIN_MIN_DEG)):
+                    continue
+                # p + t d = o.start + s v
+                rx, ry = o.start[0] - p[0], o.start[1] - p[1]
+                t = (rx * vy - ry * vx) / cross
+                s = (rx * d[1] - ry * d[0]) / cross
+                half = float(o.thickness) / 2.0
+                if not (1e-3 < t <= ANGLED_JOIN_M + half) or not (-half <= s <= ol + half):
+                    continue
+                if best is None or t < best:
+                    best = t
+            if best is None:
+                continue
+            q = (round(p[0] + d[0] * best, 4), round(p[1] + d[1] * best, 4))
+            if which == "start":
+                w.start = q
+            else:
+                w.end = q
+            moved += 1
+    return moved
 
 
 def _outline_segments(strokes: list[Stroke]) -> list[tuple[tuple[float, float], tuple[float, float]]]:

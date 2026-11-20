@@ -1122,9 +1122,191 @@ def _inside_rect_part(it: _S, rect) -> bool:
 # Main entry
 # --------------------------------------------------------------------------
 
+ANGLED_FRAME_MIN_M = 0.6        # R35: a direction off the plan's frame with at least this much wall gets its own pass
+ANGLED_FRAME_BIN_DEG = 1.0      # ... walls within this angle (mod 90) are one direction
+OPENING_SAME_M = 0.3            # ... an opening of an angled pass this near an opening already read is that one
+
+
+def angled_frames(walls: list[WallItem], theta: float) -> list[float]:
+    """R35 (20 Nov 2026): the wall directions (mod 90, in (-45, 45]) off the frame ``theta`` by more than
+    ``AXIS_TOL_DEG`` with at least ``ANGLED_FRAME_MIN_M`` of wall, longest first (pure)."""
+    bins: dict[int, float] = {}
+    for w in walls:
+        length = math.dist(w.start, w.end)
+        if length <= 0:
+            continue
+        ang = math.degrees(math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0])) % 90.0
+        d = (ang - theta) % 90.0
+        if min(d, 90.0 - d) <= AXIS_TOL_DEG:
+            continue
+        k = int(round(ang / ANGLED_FRAME_BIN_DEG)) % int(round(90.0 / ANGLED_FRAME_BIN_DEG))
+        bins[k] = bins.get(k, 0.0) + length
+    out = []
+    for k, total in sorted(bins.items(), key=lambda kv: -kv[1]):
+        if total < ANGLED_FRAME_MIN_M:
+            continue
+        ang = k * ANGLED_FRAME_BIN_DEG
+        out.append(ang - 90.0 if ang > 45.0 else ang)
+    return out
+
+
 def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: int,
                       units_to_m: Optional[float] = None, dimension_ids=frozenset(), wall_strokes=(), outdoor_points=(),
                       room_points=()) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
+    """``gaps_and_openings_frame`` in the plan's dominant frame, then (20 Nov 2026, rule R35 ``angled_wall``) once in
+    the frame of each wall direction off it (``angled_frames``): the runs, gaps, doors and windows of a wall drawn at
+    an angle are read in its own frame, as the axis walls are in theirs (real20's angled hall doors were lost once
+    their walls stayed at their angle). An opening an angled pass finds within ``OPENING_SAME_M`` of one already read
+    is that one (dropped); the strokes the first pass owns are not offered again."""
+    from wenart.ingest import rule_guards as RG
+
+    out_walls, openings, log, owned = gaps_and_openings_frame(
+        walls, strokes_m, file_rel, page_no, units_to_m, dimension_ids, wall_strokes, outdoor_points, room_points)
+    if not RG.active("angled_wall"):
+        return out_walls, openings, log, owned
+    for ang in angled_frames(out_walls, dominant_angle(out_walls)):
+        free = [st for st in strokes_m if st.id not in owned]
+        _pieces, others = pieces_of(out_walls, ang)
+        w2, o2, l2, own2 = gaps_and_openings_frame(out_walls, free, file_rel, page_no, units_to_m, dimension_ids, (),
+                                                   outdoor_points, room_points, theta=ang)
+        # the pass returns its merged walls first, then the walls it did not take (``others``) in their order: the
+        # wall indices of the earlier log entries move with them (only those walls were an earlier pass's pieces)
+        n2 = len(w2) - len(others)
+        moved = {old: n2 + r for r, old in enumerate(others)}
+        log = [_moved_entry(e, moved) for e in log]
+        index = {}
+        # an end gap of an angled wall (from its free end along its own line) runs across the axis walls around it:
+        # its door is another wall's (real10's 45-degree chamfer took the arc of the door beside it); an angled pass
+        # keeps the gaps between its pieces and the symbols drawn on its walls
+        ends = {e["opening"] for e in l2 if e.get("kind") == "end" and isinstance(e.get("opening"), int)}
+        # a bare gap of an angled wall with an outdoor label in or just behind it is the mouth of a recessed balcony or
+        # terrace: the wall is cut there (its pieces end at the recess) and no opening spans it (``recess_cut``)
+        recess = {}
+        for j, o in enumerate(o2):
+            if j not in ends:
+                why = recess_cut(o, w2, ang, outdoor_points)
+                if why:
+                    recess[j] = why
+        for j, o in enumerate(o2):
+            # ... and an opening of an angled pass fits within its angled wall (a symbol of the axis wall beside a short
+            # angled piece is that wall's: real10's 0.8 m door swing beside a 0.47 m chamfer)
+            if j not in ends and j not in recess and _fits_angled_host(o, w2, ang) \
+                    and all(math.dist(o.center, q.center) > OPENING_SAME_M for q in openings):
+                index[j] = len(openings)
+                openings = openings + [o]
+        for e in l2:
+            e = dict(e, frame_deg=round(ang, 2))
+            if isinstance(e.get("opening"), int):
+                if e["opening"] in index:
+                    e["opening"] = index[e["opening"]]
+                else:
+                    why = recess.get(e["opening"]) or "an opening read already"
+                    e.pop("opening")
+                    e["note"] = ((e.get("note") + "; ") if e.get("note") else "") + why
+            log.append(e)
+        out_walls, owned = w2, owned | set(own2)
+    return out_walls, openings, log, owned
+
+
+RECESS_BEHIND_M = 1.0           # R35: an outdoor label this far from an angled wall's face (or in its band) at a gap ...
+
+
+def _host_along(o: OpeningItem, walls: list[WallItem], ang: float):
+    """``(index, along, ux, uy)`` of the wall of the frame ``ang`` carrying the opening ``o`` (its centre within the
+    wall's band and length), or None (pure)."""
+    for k, w in enumerate(walls):
+        length = math.dist(w.start, w.end)
+        if length <= 1e-9:
+            continue
+        a = math.degrees(math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0])) % 90.0
+        d = (a - ang) % 90.0
+        if min(d, 90.0 - d) > AXIS_TOL_DEG:
+            continue
+        ux, uy = (w.end[0] - w.start[0]) / length, (w.end[1] - w.start[1]) / length
+        rx, ry = o.center[0] - w.start[0], o.center[1] - w.start[1]
+        along, across = rx * ux + ry * uy, abs(-rx * uy + ry * ux)
+        if across <= float(w.thickness) / 2.0 + 0.05 and -0.05 <= along <= length + 0.05:
+            return k, along, ux, uy
+    return None
+
+
+def recess_cut(o: OpeningItem, walls: list[WallItem], ang: float, outdoor_points=()) -> Optional[str]:
+    """R35 (20 Nov 2026; real20's north balcony, recessed into its 16-degree facade, became a 1 m2 room behind a
+    2.5 m window once the facade was one wall): a bare gap (``opening``, no door or window drawn in it) of a wall of
+    the angled frame ``ang`` with an outdoor-space label (``outdoor_points``: balcony, terrace ...) inside its band or
+    within ``RECESS_BEHIND_M`` of it, within the gap's span, is the mouth of that recessed space: its host wall is cut
+    at the gap (``walls`` changed in place: the host keeps the part before the gap, the part after it is appended) and
+    the reason is returned; None leaves the gap as it is."""
+    if getattr(o, "virtual", False) or o.kind != "opening" or not outdoor_points:
+        return None
+    host = _host_along(o, walls, ang)
+    if host is None:
+        return None
+    k, along, ux, uy = host
+    w = walls[k]
+    half = float(o.width) / 2.0
+    a0, a1 = along - half, along + half
+    reach = float(w.thickness) / 2.0 + RECESS_BEHIND_M
+    hit = None
+    for p in outdoor_points:
+        rx, ry = p[0] - w.start[0], p[1] - w.start[1]
+        pa, pc = rx * ux + ry * uy, abs(-rx * uy + ry * ux)
+        if a0 - 0.05 <= pa <= a1 + 0.05 and pc <= reach:
+            hit = p
+            break
+    if hit is None:
+        return None
+    length = math.dist(w.start, w.end)
+    first = (w.start[0] + ux * max(0.0, a0), w.start[1] + uy * max(0.0, a0))
+    second = (w.start[0] + ux * min(length, a1), w.start[1] + uy * min(length, a1))
+    rest = dataclasses.replace(w, start=(round(second[0], 4), round(second[1], 4)))
+    if a0 > 0.05:
+        walls[k] = dataclasses.replace(w, end=(round(first[0], 4), round(first[1], 4)))
+        if length - a1 > 0.05:
+            walls.append(rest)
+    elif length - a1 > 0.05:
+        walls[k] = rest
+    return (f"the mouth of a recessed outdoor space (its label at ({hit[0]:.2f}, {hit[1]:.2f})): the angled wall is cut "
+            f"at the {float(o.width):.2f} m gap, no opening spans it (R35)")
+
+
+def _fits_angled_host(o: OpeningItem, walls: list[WallItem], ang: float, tol: float = 0.1) -> bool:
+    """R35: whether an opening lies along a wall of the frame ``ang`` (within ``AXIS_TOL_DEG``) whose length holds its
+    width (``tol`` of slack at each end; pure). Virtual openings (separators) pass."""
+    if getattr(o, "virtual", False):
+        return True
+    half = float(o.width) / 2.0
+    for w in walls:
+        length = math.dist(w.start, w.end)
+        if length <= 1e-9:
+            continue
+        a = math.degrees(math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0])) % 90.0
+        d = (a - ang) % 90.0
+        if min(d, 90.0 - d) > AXIS_TOL_DEG:
+            continue
+        ux, uy = (w.end[0] - w.start[0]) / length, (w.end[1] - w.start[1]) / length
+        rx, ry = o.center[0] - w.start[0], o.center[1] - w.start[1]
+        along, across = rx * ux + ry * uy, abs(-rx * uy + ry * ux)
+        if across <= float(w.thickness) / 2.0 + 0.05 and half - tol <= along <= length - half + tol:
+            return True
+    return False
+
+
+def _moved_entry(e: dict, moved: dict) -> dict:
+    """A log entry with its wall indices (``wall``, ``of``, ``to``, ``walls``) moved by ``moved`` (pure)."""
+    out = dict(e)
+    for key in ("wall", "of", "to"):
+        if isinstance(out.get(key), int) and out[key] in moved:
+            out[key] = moved[out[key]]
+    if isinstance(out.get("walls"), list):
+        out["walls"] = [moved.get(k, k) if isinstance(k, int) else k for k in out["walls"]]
+    return out
+
+
+def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: int,
+                            units_to_m: Optional[float] = None, dimension_ids=frozenset(), wall_strokes=(),
+                            outdoor_points=(), room_points=(), theta: Optional[float] = None
+                            ) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
     """Merge wall runs, find and classify gaps, extend free-end walls that host a drawn door or window.
 
     ``strokes_m`` are the page's strokes in page metres **without** the wall primitives (hatch lines, fills).
@@ -1147,7 +1329,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                                      f"{by_id[leaves[k][0]].layer} (its strokes go back to the door symbol)"})
         strokes_m = list(strokes_m) + [by_id[i] for k in sorted(leaves) for i in leaves[k]]
         walls = [w for k, w in enumerate(walls) if k not in leaves]
-    theta = dominant_angle(walls)
+    theta = dominant_angle(walls) if theta is None else float(theta)
     pieces, others = pieces_of(walls, theta)
     # 3 Nov 2026 (UL261, UL296): the drawing's notation (axis lines, dimensions and their tick marks) is never a
     # gap's content

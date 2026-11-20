@@ -894,11 +894,60 @@ def building_variants(building: dict) -> list[dict]:
     is no alternative (no ``base_level_id``), bottom up (the M3-M9 buildings)."""
     given = [v for v in building.get("variants") or [] if isinstance(v, dict) and v.get("id")]
     if given:
+        # 20 Nov 2026 (real03's inferred basement L-1, read and left out of the bare build): a level the reading adds
+        # after the variants were written (a basement a document lists, storeys from the storey count) is in no
+        # variant's list; a base level (no ``base_level_id``, its own variant the base or none) joins the base
+        # variant, so a level read is a level built (``levels_added`` names them; RC1 checks the rest)
+        extra = unlisted_levels(building, given)
+        if extra:
+            elev = {lv["id"]: float(lv.get("elevation") or 0.0) for lv in building.get("levels") or []}
+            out = []
+            for v in given:
+                if is_base_variant(v):
+                    ids = list(v.get("levels") or []) + extra
+                    v = dict(v, levels=sorted(ids, key=lambda i: elev.get(i, 0.0)),
+                             levels_added=list(v.get("levels_added") or []) + extra)
+                out.append(v)
+            return out
         return given
     levels = sorted((lv for lv in building.get("levels") or [] if not lv.get("base_level_id")),
                     key=lambda lv: float(lv.get("elevation") or 0.0))
     return [{"id": BASE_VARIANT, "label": "Base", "levels": [lv["id"] for lv in levels], "base": True,
              "changes": [], "rooms_changed": [], "exterior_changed": False}]
+
+
+def unlisted_levels(building: dict, given: Optional[list] = None) -> list[str]:
+    """The base levels no variant lists (pure; 20 Nov 2026): no ``base_level_id``, the level's own ``variant`` the
+    base or none, not a variant's level nor a change's alternative; bottom up."""
+    given = [v for v in (building.get("variants") or [] if given is None else given)
+             if isinstance(v, dict) and v.get("id")]
+    if not given or not any(is_base_variant(v) for v in given):
+        return []
+    listed = {str(i) for v in given for i in v.get("levels") or []}
+    listed |= {str(c.get("level_id")) for v in given for c in v.get("changes") or [] if isinstance(c, dict)}
+    levels = sorted((lv for lv in building.get("levels") or [] if isinstance(lv, dict) and lv.get("id")),
+                    key=lambda lv: float(lv.get("elevation") or 0.0))
+    return [lv["id"] for lv in levels if str(lv["id"]) not in listed and not lv.get("base_level_id")
+            and lv.get("variant") in (None, "", BASE_VARIANT)]
+
+
+def levels_not_built(building: dict) -> list[dict]:
+    """The levels of the building no variant builds (pure; 20 Nov 2026, the check RC1 runs before a pod): ``[{"id",
+    "label", "reason"}]``; empty when every level is in a variant's view (``variant_building``)."""
+    try:
+        variants = building_variants(building)
+    except Exception:  # noqa: BLE001 - a broken variants block: every level counts as not built below
+        variants = []
+    built = {str(i) for v in variants for i in v.get("levels") or []}
+    built |= {str(c.get("level_id")) for v in variants for c in v.get("changes") or [] if isinstance(c, dict)}
+    out = []
+    for lv in building.get("levels") or []:
+        if isinstance(lv, dict) and lv.get("id") and str(lv["id"]) not in built:
+            why = (f"its own variant {lv.get('variant')!r} lists it in no variant" if lv.get("variant") not in
+                   (None, "", BASE_VARIANT) else "an alternative of " + str(lv["base_level_id"]) + " that no variant "
+                   "changes to" if lv.get("base_level_id") else "no variant lists it")
+            out.append({"id": lv["id"], "label": lv.get("label"), "reason": why})
+    return out
 
 
 def variant_record(building: dict, variant: str = BASE_VARIANT) -> dict:

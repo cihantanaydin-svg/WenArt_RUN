@@ -25,6 +25,9 @@ CAD document) and returns the findings, each with its check, severity, level and
 - RC14 (6 Nov 2026, Milestone 14 R6, ``wenart.reading_check.sense``): the architectural-sense checks (a room type
   implausible for its area, a small room's label naming a larger face, the sheet frame read as walls, unread walls,
   circulation, notation in room names), advisory like RC8-RC12; a rule below its judged precision writes info.
+- RC17 (20 Nov 2026, ``wenart.reading_check.structure``): the structural checks (a door into the air above the
+  ground, a storey's slab open inside its own walls, a drawn angled wall built straight, R35), advisory and never
+  demoted; RC1 also names a level the reading has and no variant's build takes (``views.levels_not_built``).
 - RC15 (6 Nov 2026, Milestone 14 R6, ``wenart.reading_check.critic``): the vision critic (the agent model compares the
   drawing with the model on the comparison sheet's two panels and answers the reading lessons' question bank, on a
   pod); its stored findings (``reading_check/critic.json``) join as advisory findings, a kind below its judged
@@ -575,7 +578,13 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     for lo in building.get("levels_left_out") or []:
         findings.append(_finding("RC1", "critical", f"order {lo.get('order')}", f"level {lo.get('label')} left out "
                                  f"of the model: {lo.get('reason')}", region=lo.get("region_id")))
-    carried = [r for lv in building.get("levels") or [] for r in lv.get("reading_review") or []]
+    # 20 Nov 2026 (real03's basement L-1 read, then left out of the bare build: no variant listed it): a level in the
+    # reading that no variant's build takes is left out as surely as one the reading drops
+    from wenart import views as _V
+    for lo in _V.levels_not_built(building):
+        findings.append(_finding("RC1", "critical", lo["id"], f"level {lo['id']} ({lo.get('label')}) is read but no "
+                                 f"build takes it: {lo['reason']}"))
+    carried =[r for lv in building.get("levels") or [] for r in lv.get("reading_review") or []]
     # 5 Nov 2026 (review): the per-label "lies outside the building" warnings of a level marked for those labels are
     # RC7's places too (the quoted names of the level's reasons)
     carried_names = {n for r in carried for n in re.findall(r"'([^']+)'", r)}
@@ -599,6 +608,7 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
             findings.append(_finding("RC6", "major", None, f"sheets.json: {str(w)[:280]}"))
     pages = level_pages(building)
     anchors, checked, notes = {}, [], []
+    structural: list = []                                          # RC17 (``wenart.reading_check.structure``)
     for g, d in drawn_for_inferred_ground(building).items():
         notes.append(f"{g}: the ground floor inferred from the typical plan (cut to the footprint) is not checked "
                      f"against that plan; its drawn storey {d} is (R21-04)")
@@ -619,6 +629,14 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
         segs = drawn_wall_segments(page, tf, model_wall_layers(walls))
         if segs:
             findings += wall_findings(segs, walls, lid, built_elsewhere(building, lid))
+            # 20 Nov 2026 (R35): a drawn wall at an angle that no model wall at its angle follows (RC17, advisory)
+            try:
+                from wenart.reading_check import structure as _SR
+                structural += _SR.angled_walls_straight(segs, walls, lid)
+            except Exception as exc:  # noqa: BLE001 - an advisory check never stops the reading check
+                structural.append({"check": "RC17", "name": "structural integrity", "rule": None, "severity": "info",
+                                   "level_id": lid, "message": f"the angled-wall check did not run: "
+                                   f"{type(exc).__name__}: {str(exc)[:200]}", "element_ids": [], "advisory": True})
         else:
             notes.append(f"{lid}: no layer named wall, plaster or column: walls not compared")
     ref = reference or next((lid for lid in ("L0", "L1") if lid in anchors), next(iter(anchors), None))
@@ -681,7 +699,20 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     for f in integrity:
         f["advisory"] = True
     findings += integrity
-    advisory = cross + sense + vision
+    # 20 Nov 2026 (the user: "focus on real structural problems"): the structural checks RC17
+    # (``wenart.reading_check.structure``: a door into the air above the ground, a slab open inside its storey's walls,
+    # a drawn angled wall built straight) join as ADVISORY findings that are never demoted (``structural``)
+    try:
+        from wenart.reading_check import structure as SR
+        structural += SR.findings(building)
+    except Exception as exc:  # noqa: BLE001 - an advisory check never stops the reading check
+        structural.append({"check": "RC17", "name": "structural integrity", "rule": None, "severity": "info",
+                           "level_id": None, "message": f"the structural checks did not run: {type(exc).__name__}: "
+                                                        f"{str(exc)[:200]}", "element_ids": []})
+    for f in structural:
+        f["advisory"] = True
+    findings += structural
+    advisory = cross + sense + vision + structural
     counts = {s: sum(1 for f in findings if f["severity"] == s and not f.get("advisory"))
               for s in ("critical", "major", "minor")}
     counts["advisory"] = {s: sum(1 for f in advisory if f["severity"] == s) for s in ("major", "minor", "info")}
@@ -791,7 +822,8 @@ def write(out_dir, result: dict) -> Path:
     d.mkdir(parents=True, exist_ok=True)
     (d / "reading_check.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     adv = (result.get("counts") or {}).get("advisory") or {}
-    adv_text = (f" Cross-document checks RC8-RC12, architectural-sense checks RC14 and the vision critic RC15, "
+    adv_text = (f" Cross-document checks RC8-RC12, architectural-sense checks RC14, the vision critic RC15 and the "
+                f"structural checks RC17, "
                 f"advisory: {adv.get('major', 0)} major, {adv.get('minor', 0)} minor, {adv.get('info', 0)} info (not "
                 f"in the verdict)." if adv else "")
     lines = [f"# Reading check: {result.get('project')}", "",
