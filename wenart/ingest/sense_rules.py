@@ -80,11 +80,16 @@ def _fold(t) -> str:
 # --------------------------------------------------------------------------------------------- 1. exterior flags
 def exterior_flags(b: dict) -> list:
     """Rule 1 (the module docstring); returns the changes ``[{wall, level_id, exterior, reason}]``."""
+    from shapely.prepared import prep
+
+    from wenart.ingest import ground_floor as GF
+
     out = []
     for lv in b.get("levels") or []:
         level = CP.Level(b, lv["id"])
         if level.outline is None:
             continue
+        bands = {wid: GF._band(ww) for wid, ww in level.walls.items() if CP._axis(ww)[2] >= 0.05}
         for w in level.walls.values():
             a, u, length = CP._axis(w)
             if length < 0.3:
@@ -93,10 +98,16 @@ def exterior_flags(b: dict) -> list:
             reach = float(w.get("thickness") or 0.15) / 2.0 + CP.PROBE_M
             ext = inner = other = 0
             steps = max(1, int(length / STATION_M))
+            # (20 Nov 2026, pre-pod review R03-07: short wall stubs at the corridor ends kept walls between rooms below
+            # the share) a station whose probe falls inside another wall's solid is not counted
+            solid = [prep(p) for wid, p in bands.items() if wid != w["id"] and p.distance(
+                Point((a[0] + u[0] * length / 2.0, a[1] + u[1] * length / 2.0))) <= length / 2.0 + reach + 0.5]
             for k in range(steps + 1):
                 t = length * (k + 0.5) / (steps + 1)
                 c = (a[0] + u[0] * t, a[1] + u[1] * t)
                 qs = [(c[0] + s * n[0] * reach, c[1] + s * n[1] * reach) for s in (1, -1)]
+                if any(s.contains(Point(q)) for s in solid for q in qs):
+                    continue
                 kinds = [level.kind_at(q, "") for q in qs]
                 # an open-air room inside the outline (a terrace, a loggia) is unknown: never a room (MF8)
                 kinds = ["unknown" if x == "balcony" and level._inside is not None and level._inside.contains(Point(q))

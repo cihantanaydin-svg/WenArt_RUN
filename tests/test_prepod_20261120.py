@@ -479,3 +479,17 @@ def test_a_door_from_the_core_into_a_bedroom_with_its_own_flat_door_is_refused()
     assert all(o["id"] != "d_leaf" for o in b["openings"])
     assert b["openings_merged"][-1]["corrected_by_ai"]["rule"] == "core_flat_door"
     assert any(o["id"] == "L0_ab" for o in b["openings"])                # the bedroom's own door stays
+
+
+# --------------------------------------------------------------------------- R03-07: probes in another wall's solid
+def test_stations_inside_another_walls_solid_do_not_keep_an_inner_wall_exterior():
+    from wenart.ingest import sense_rules as SR
+
+    RF = _rf()
+    b = RF.building(("L0",))
+    b["walls"] = RF.box_walls(0, 0, 10, 6) + [RF.wall("m", (5, 0), (5, 6), exterior=True),
+                                             RF.wall("st", (3.5, 0.7), (6.5, 0.7), t=1.4)]
+    b["rooms"] = [RF.room("r_l", "Salon", "living", RF.rect(0.1, 1.5, 4.9, 5.9)),
+                  RF.room("r_r", "Oda", "bedroom", RF.rect(5.1, 1.5, 9.9, 5.9))]
+    got = SR.exterior_flags(b)
+    assert any(x["wall"] == "m" and x["exterior"] is False for x in got)
