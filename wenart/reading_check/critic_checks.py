@@ -42,7 +42,7 @@ from pathlib import Path
 from typing import Optional
 
 CHECKS = ("inventory", "compare", "plausibility")
-CALL_MAX_TOKENS = {"inventory": 2048, "compare": 1536, "plausibility": 1024}
+CALL_MAX_TOKENS = {"inventory": 3072, "compare": 1536, "plausibility": 2048}   # the longest valid answer + margin
 COMPARE_MAX = 40               # questions per level (the brief: about 40 at most)
 COMPARE_CHUNK = 20             # questions (numbered marks) per call
 COMPARE_CAPS = {"room": 18, "angled": 4, "balcony": 8, "opening": 12}
