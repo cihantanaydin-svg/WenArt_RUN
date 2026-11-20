@@ -795,10 +795,21 @@ def _gap_window(level: "CP.Level", o: dict, drawn, texts: list) -> Optional[dict
             if s["length"] > 0.05 and abs(d[0] * n[0] + d[1] * n[1]) <= 0.1 * s["length"]:
                 lines.append(s)
     tag = None
+    # 20 Nov 2026 (pre-pod review R21-03: the '100/210' of the flat door beside a gap kept the gap open as 'a door the
+    # reading did not read'): a tag a door already read claims (within its half width and TAG_REACH_M, nearer to it
+    # than to the gap, of its width) is that door's, never the gap's
+    doors = [d for d in level.openings if d is not o and d.get("type") == "door" and d.get("center")
+             and not d.get("lift_door")]
     for t in texts or []:
         m = WINDOW_TAG_RE.match(str(t.get("text") or ""))
         if m and box.buffer(0.6).contains(Point(t["x"], t["y"])):
-            tag = (int(m.group(1)) / 100.0, int(m.group(2)) / 100.0, str(t["text"]).strip())
+            tw = int(m.group(1)) / 100.0
+            dg = math.dist((t["x"], t["y"]), c[:2])
+            if any(math.dist((t["x"], t["y"]), d["center"][:2]) <= min(dg, float(d.get("width") or 0) / 2.0
+                                                                        + TAG_REACH_M)
+                   and abs(tw - float(d.get("width") or 0)) <= 0.05 for d in doors):
+                continue
+            tag = (tw, int(m.group(2)) / 100.0, str(t["text"]).strip())
             break
     if tag is not None and tag[1] >= DOOR_TAG_H_M:
         return {"door_tag": tag[2]}         # a door's size tag (100/210): a door the reading did not read

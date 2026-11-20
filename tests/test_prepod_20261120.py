@@ -434,6 +434,18 @@ def test_the_entrance_hall_closes_a_flats_second_door_into_it():
     assert any(x["kind"] == "entrance_hall_rooms" for x in b.get("needs_review") or [])
 
 
+# --------------------------------------------------------------------------- R21-03: a read door's tag is its own
+def test_a_door_tag_a_read_door_claims_does_not_keep_a_core_gap_open():
+    from wenart.ingest import core_rules as CR
+
+    RF = _rf()
+    b = RF.core_building(("L0",))
+    b["openings"] += [RF.gap("g_bed", "L0_8", (8.0, 4.8), 0.9), RF.op("d_x", "door", "L0_8", (8.0, 3.2), 1.0)]
+    texts = {"L0": [{"text": "100/210", "x": 8.2, "y": 3.8}]}
+    out = CR.close_core_gaps(b, None, texts)
+    assert "g_bed" in [x["opening"] for x in out["closed"]] and not out["review"]
+
+
 # --------------------------------------------------------------------------- R09-5: no core door into a flat's room
 def test_a_door_from_the_core_into_a_bedroom_with_its_own_flat_door_is_refused():
     from wenart.ingest import core_rules as CR
