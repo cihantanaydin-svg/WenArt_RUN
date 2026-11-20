@@ -207,12 +207,14 @@
  "trained_on": {
   "by": "bandit",
   "date": "2026-11-20",
-  "rows": 2349,
+  "rows": 2358,
   "events_by_source": {
    "user_correction": 335,
    "synthetic": 4573,
    "agreement": 87,
-   "ai_trusted": 479
+   "ai_trusted": 479,
+   "code_check": 17,
+   "reading_score": 32
   },
   "trust": {
    "user_correction": 10.0,

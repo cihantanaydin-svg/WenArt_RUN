@@ -1,136 +1,64 @@
 {
  "date": "2026-11-20",
- "events": 5474,
+ "events": 5523,
  "events_by_source": {
   "user_correction": 335,
   "synthetic": 4573,
   "agreement": 87,
-  "ai_trusted": 479
+  "ai_trusted": 479,
+  "code_check": 17,
+  "reading_score": 32
  },
  "kinds": {
   "gap_kind": {
    "held_out": {
     "kind": "gap_kind",
-    "n": 392,
-    "code_acc": 0.852,
-    "ranker_acc": 0.8852,
-    "trusted_acc": 0.8673,
-    "changed": 16,
-    "right_changes": 13,
+    "n": 396,
+    "code_acc": 0.8434,
+    "ranker_acc": 0.8712,
+    "trusted_acc": 0.846,
+    "changed": 19,
+    "right_changes": 11,
     "per_source": {
      "user_correction": {
       "n": 39,
       "code": 7,
-      "ranker": 14,
+      "ranker": 11,
       "trusted": 7
      },
      "synthetic": {
       "n": 353,
       "code": 327,
-      "ranker": 333,
-      "trusted": 333
+      "ranker": 331,
+      "trusted": 328
+     },
+     "reading_score": {
+      "n": 4,
+      "code": 0,
+      "ranker": 3,
+      "trusted": 0
      }
     },
     "transitions": {
      "doorless->door": {
-      "right": 6,
-      "wrong": 0,
+      "right": 7,
+      "wrong": 3,
       "trusted": true
      },
      "unclassified->door": {
-      "right": 6,
-      "wrong": 2,
-      "trusted": true
+      "right": 3,
+      "wrong": 9,
+      "trusted": false
      },
      "unclassified->window": {
       "right": 1,
-      "wrong": 1,
+      "wrong": 6,
       "trusted": false
      }
     }
    },
    "beats_code": true,
    "changed_decisions": [
-    {
-     "project": "real06",
-     "level": "L1",
-     "place": [
-      4.8502,
-      9.2748
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L0",
-     "place": [
-      5.36,
-      2.19
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L0",
-     "place": [
-      7.49,
-      2.19
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L0",
-     "place": [
-      6.365,
-      3.39
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L0",
-     "place": [
-      5.445,
-      3.3901
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L0",
-     "place": [
-      10.64,
-      5.74
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L0",
-     "place": [
-      3.79,
-      2.54
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L0",
-     "place": [
-      3.79,
-      2.79
-     ],
-     "old": "opening",
-     "new": "door"
-    },
     {
      "project": "real07",
      "level": "L0",
@@ -139,47 +67,8 @@
       6.235
      ],
      "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L0",
-     "place": [
-      11.665,
-      9.19
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L1",
-     "place": [
-      10.8674,
-      5.69
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L1",
-     "place": [
-      13.2594,
-      5.69
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L1",
-     "place": [
-      10.7924,
-      7.09
-     ],
-     "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "real07|L0|gap_kind|11.7,6.2"
     },
     {
      "project": "real07",
@@ -189,107 +78,8 @@
       8.14
      ],
      "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L1",
-     "place": [
-      9.4424,
-      1.81
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real07",
-     "level": "L1",
-     "place": [
-      11.7424,
-      6.41
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real09",
-     "level": "L0",
-     "place": [
-      16.2796,
-      3.725
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real09",
-     "level": "L2",
-     "place": [
-      16.2794,
-      3.725
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L-1",
-     "place": [
-      14.85,
-      1.915
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L-1",
-     "place": [
-      9.7756,
-      8.45
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L-1",
-     "place": [
-      9.673,
-      8.4841
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L-1",
-     "place": [
-      9.6656,
-      8.6
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L-2",
-     "place": [
-      9.6651,
-      8.56
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L-2",
-     "place": [
-      12.0421,
-      10.315
-     ],
-     "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "real07|L1|gap_kind|7.5,8.1"
     },
     {
      "project": "real10",
@@ -299,107 +89,8 @@
       9.205
      ],
      "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L-2",
-     "place": [
-      10.6717,
-      9.1997
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L0",
-     "place": [
-      11.19,
-      6.065
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L0",
-     "place": [
-      11.19,
-      6.29
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L0",
-     "place": [
-      11.19,
-      6.565
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L0",
-     "place": [
-      11.19,
-      6.565
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L0",
-     "place": [
-      9.666,
-      8.45
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L0",
-     "place": [
-      9.666,
-      8.487
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L0",
-     "place": [
-      9.1703,
-      8.5408
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L0",
-     "place": [
-      9.678,
-      8.5599
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L0",
-     "place": [
-      9.6833,
-      8.6
-     ],
-     "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "real10|L-2|gap_kind|10.4,9.2"
     },
     {
      "project": "real10",
@@ -409,17 +100,8 @@
       13.9891
      ],
      "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real10",
-     "level": "L0",
-     "place": [
-      11.1902,
-      17.9899
-     ],
-     "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "real10|L0|gap_kind|11.2,14.0"
     },
     {
      "project": "real10",
@@ -429,57 +111,8 @@
       9.0847
      ],
      "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real17",
-     "level": "L0",
-     "place": [
-      6.2824,
-      16.7057
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real17",
-     "level": "L1",
-     "place": [
-      11.7217,
-      9.6817
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real17",
-     "level": "L3",
-     "place": [
-      12.4215,
-      11.1556
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real17",
-     "level": "L3",
-     "place": [
-      12.4215,
-      19.1557
-     ],
-     "old": "opening",
-     "new": "door"
-    },
-    {
-     "project": "real17",
-     "level": "L3",
-     "place": [
-      11.7216,
-      9.6817
-     ],
-     "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "real10|L0|gap_kind|10.7,9.1"
     },
     {
      "project": "synthetic-12-mirrored-halves",
@@ -489,7 +122,8 @@
       4.6021
      ],
      "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "synthetic-12-mirrored-halves|L0|gap_kind|10.0,4.6"
     },
     {
      "project": "synthetic-12-mirrored-halves",
@@ -499,7 +133,8 @@
       8.8771
      ],
      "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "synthetic-12-mirrored-halves|L0|gap_kind|10.0,8.9"
     },
     {
      "project": "synthetic-12-mirrored-halves",
@@ -509,7 +144,8 @@
       6.0021
      ],
      "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "synthetic-12-mirrored-halves|L0|gap_kind|9.0,6.0"
     },
     {
      "project": "synthetic-12-mirrored-halves",
@@ -519,7 +155,8 @@
       6.0021
      ],
      "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "synthetic-12-mirrored-halves|L0|gap_kind|11.0,6.0"
     },
     {
      "project": "synthetic-23-size-tags",
@@ -529,7 +166,8 @@
       4.401
      ],
      "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "synthetic-23-size-tags|L0|gap_kind|3.0,4.4"
     },
     {
      "project": "synthetic-23-size-tags",
@@ -539,7 +177,8 @@
       4.401
      ],
      "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "synthetic-23-size-tags|L0|gap_kind|7.8,4.4"
     },
     {
      "project": "synthetic-23-size-tags",
@@ -549,7 +188,8 @@
       5.801
      ],
      "old": "opening",
-     "new": "door"
+     "new": "door",
+     "key": "synthetic-23-size-tags|L0|gap_kind|2.0,5.8"
     }
    ]
   },

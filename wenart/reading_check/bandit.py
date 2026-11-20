@@ -366,8 +366,11 @@ def held_out(rows: list, truth_rows: list, kind: str, l2: float = RK.L2) -> dict
     decides the held-out group's truth rows (user and synthetic labels only); the code alone (the rule's answer) and
     the code plus the ranker (``ranker.decide``: only where the rule is weak and the margin clear) against the label.
     Returns ``{n, code, ranker, changed, right_changes, per_source}``."""
+    # a negation (the user's absent entry, or a fall of the score gate pinned on a decision) is in no accuracy, but a
+    # change INTO the negated answer is a wrong change: it counts against its transition (as ``ranker._accuracy``)
+    negs = [r for r in truth_rows if r.get("kind") == kind and r.get("label") is None and r.get("negative_of")]
     truth_rows = [r for r in truth_rows if r.get("kind") == kind and r.get("label") is not None]
-    groups = sorted({RK.group_of(r.get("project")) for r in truth_rows})
+    groups = sorted({RK.group_of(r.get("project")) for r in truth_rows + negs})
     n = code = integ = changed = right = 0
     changes: list = []
     rows_out: list = []
@@ -376,6 +379,14 @@ def held_out(rows: list, truth_rows: list, kind: str, l2: float = RK.L2) -> dict
         model = fit_rows([r for r in rows if RK.group_of(r.get("project")) != g], kind, l2)
         if model is None:
             continue
+        for r in negs:
+            if RK.group_of(r.get("project")) != g:
+                continue
+            ans, by, _m, _s = RK.decide(kind, r["features"], r["rule_answer"], r["rule_confidence"],
+                                        allowed=RK.allowed_answers(r), model=model, rule=r.get("rule"))
+            if by == RK.DECIDED_RANKER and ans != r["rule_answer"] and ans == r["negative_of"]:
+                changes.append({"rule": r.get("rule"), "ranker_answer": ans, "right": False, "group": g,
+                                "negative": True})
         for r in truth_rows:
             if RK.group_of(r.get("project")) != g:
                 continue
@@ -585,6 +596,72 @@ def write_questions(qs: list, index: dict, dest: Path) -> dict:
 
 
 # ================================================================================================= 7. ship
+GATE_REACH_M = 2.5             # a score entry this near a changed decision is pinned on it
+
+
+def _score_entries(folder: Path) -> tuple:
+    p = Path(folder) / "reading_check" / "score.json"
+    if not p.is_file():
+        return {}, None
+    d = json.loads(p.read_text(encoding="utf-8"))
+    return {e["id"]: e for e in d.get("entries") or [] if e.get("id")}, (None if d.get("sparse") else d.get("total"))
+
+
+def events_from_gate(base_work: Path, cand_work: Path, changed: list) -> list:
+    """``reading_score`` rewards pinned on decisions (pure but for reading the two score files per project): for a
+    sparse truth, a user entry the candidate's reading no longer satisfies -1, one it newly satisfies +1, for every
+    changed decision within ``GATE_REACH_M`` of the entry (any storey: a typical floor repeats the drawn one's
+    places); for an exact (synthetic) truth the project's total falling or rising, -1 or +1 for each of its changed
+    decisions. Weighted as the truth they come from."""
+    out = []
+    for p in sorted({c["project"] for c in changed}):
+        (b, bt), (c, ct) = _score_entries(Path(base_work) / p), _score_entries(Path(cand_work) / p)
+        mine = [dict(x, key=x.get("key") or _rec_key({"project": p, "level_id": x["level"], "kind": RK.KIND_GAP,
+                                                     "place": x["place"]}))
+                for x in changed if x["project"] == p and x.get("place")]
+        if bt is not None and ct is not None:
+            if abs(ct - bt) >= 0.05:
+                for ch in mine:
+                    out.append({"key": ch["key"], "project": p, "kind": RK.KIND_GAP, "level": ch["level"],
+                                "place": ch["place"], "action": ch["new"], "reward": 1.0 if ct > bt else -1.0,
+                                "source": "reading_score", "label_source": "reading_score",
+                                "weight": TRUST["synthetic"], "evidence": f"{p} total {bt} -> {ct}"})
+            continue
+        moved = [(e, -1.0) for i, e in c.items() if (b.get(i) or {}).get("satisfied") and not e.get("satisfied")]
+        moved += [(e, 1.0) for i, e in c.items() if i in b and not b[i].get("satisfied") and e.get("satisfied")]
+        for e, r in moved:
+            sig = e.get("at")
+            at = sig[2] if isinstance(sig, (list, tuple)) and len(sig) >= 3 else None
+            if not at or max(abs(float(at[0])), abs(float(at[1]))) > 500:
+                continue
+            for ch in mine:
+                if math.dist(ch["place"], at) <= GATE_REACH_M:
+                    out.append({"key": ch["key"], "project": p, "kind": RK.KIND_GAP, "level": ch["level"],
+                                "place": ch["place"], "action": ch["new"], "reward": r, "source": "reading_score",
+                                "label_source": "reading_score", "weight": TRUST["user_correction"],
+                                "evidence": f"{e['id']} {'fell' if r < 0 else 'held newly'}"})
+    return out
+
+
+def gate_rows(records: list, events: list) -> list:
+    """Truth-like rows from pinned gate rewards (pure): a decision whose candidate answer made a user entry fall
+    negates that answer; one that made entries hold labels it (only when nothing fell there)."""
+    by_key = {_rec_key(r): r for r in records if r.get("place")}
+    acc: dict = {}
+    for ev in events:
+        if ev.get("source") != "reading_score" or ev.get("key") not in by_key:
+            continue
+        acc.setdefault((ev["key"], ev["action"]), []).append(float(ev["reward"]))
+    out = []
+    for (key, action), rs in sorted(acc.items()):
+        rec = by_key[key]
+        if min(rs) < 0:
+            out.append(dict(rec, label=None, negative_of=action, source="reading_score", weight=TRUST["synthetic"]))
+        else:
+            out.append(dict(rec, label=action, negative_of=None, source="reading_score", weight=TRUST["synthetic"]))
+    return out
+
+
 def run_gate(models_dir: Optional[Path], work: Path, log: Path) -> bool:
     """``score --gate`` with the models of ``models_dir`` (``WENART_RANKER_MODELS``); True when it holds."""
     env = dict(os.environ)
@@ -610,7 +687,8 @@ def changed_decisions(records: list, model: dict, kind: str) -> list:
                           rule=r.get("rule"))[0]
         if a_old != a_new:
             out.append({"project": r.get("project"), "level": r.get("level_id"), "place": r.get("place"),
-                        "old": a_old, "new": a_new})
+                        "old": a_old, "new": a_new, "key": _rec_key(r)})
+
     return out
 
 
@@ -705,8 +783,12 @@ def _cmd_learn(args, ship: bool) -> int:
     if args.explored:
         explored = json.loads((Path(args.explored) / "exploration_rewards.json").read_text(encoding="utf-8"))
     events += explored
+    # the gate's own verdicts on earlier candidates, pinned on the decisions they changed (``events_from_gate``)
+    gate_events = [e for e in read_events() if e.get("source") == "reading_score" and e.get("key") not in (None, "*")]
+    events += gate_events
     rows = rows_from_events(records, events)
-    truth_rows = [dict(r, weight=r.get("weight")) for r in lab["truth"] + lab["user_marks"]]
+    truth_rows = [dict(r, weight=r.get("weight")) for r in lab["truth"] + lab["user_marks"]] + \
+        gate_rows(records, gate_events)
     report = {"date": _dt.date.today().isoformat(), "events": len(events),
               "events_by_source": {}, "kinds": {}}
     for ev in events:
@@ -750,8 +832,13 @@ def _cmd_learn(args, ship: bool) -> int:
         if src.is_file():
             shutil.copy(src, stage / f"{kind}.json")
     holds = run_gate(stage, Path(args.gate_work), RESULTS / "gate_candidate.log")
+    changed = [c for k in ok_kinds for c in report["kinds"][k]["changed_decisions"]]
+    pinned = events_from_gate(Path(args.work), Path(args.gate_work), changed)
     log_events([{"key": "*", "project": "*", "kind": ",".join(ok_kinds), "action": "ship", "reward": 1.0 if holds
-                 else -1.0, "source": "reading_score", "label_source": "reading_score", "weight": 1.0}], "ship")
+                 else -1.0, "source": "reading_score", "label_source": "reading_score", "weight": 1.0}] + pinned,
+               "ship")
+    print(f"ship: {len(pinned)} gate reward(s) pinned on changed decisions: "
+          f"{sum(1 for e in pinned if e['reward'] < 0)} negative, {sum(1 for e in pinned if e['reward'] > 0)} positive")
     if not holds:
         print("ship: the reading-score gate falls with the candidate: the committed models stay")
         return 1
