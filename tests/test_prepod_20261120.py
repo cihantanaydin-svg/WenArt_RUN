@@ -321,3 +321,20 @@ def test_an_inferred_stair_box_fits_its_room_and_its_landing_is_assumed():
     b = {"levels": [{"id": "L0", "order": 0, "elevation": 0.0}, {"id": "L1", "order": 1, "elevation": 3.0}],
          "furniture": [low, up], "walls": []}
     assert SA.upper_match(b, low) is None                    # an inferred stair above is no drawn evidence
+
+
+# --------------------------------------------------------------------------- R09-8, R10-P4, OL-05: below ground
+def test_an_at_grade_basement_is_not_underground_and_a_tin_counts_its_lowest_point():
+    lv = {"id": "L-1", "order": -1, "kind": "basement", "elevation": -3.0, "ceiling_height": 2.8}
+    vec = {"value": -3.0, "method": "vector", "confidence": 1.0}
+    b = {"site": {"ground": {"levels": [{"side": "south", "z": vec}]}}, "warnings": []}
+    assert CP.below_ground(b, lv) is None                       # the drawn ground at its floor: a garden storey
+    assert "inferred" in CP.below_ground({"site": {}, "warnings": []}, lv)        # no ground read: the kind counts
+    b = {"site": {"ground": {"levels": [{"z": {"value": 0.5, "method": "vector", "confidence": 1.0}}]},
+                  "entrances": [{"level_id": "L-1", "below_ground": False, "rise": 0.15}]}, "warnings": []}
+    assert CP.below_ground(b, lv) is None                       # an outside entrance at grade on it
+    tin = {"surface": {"kind": "tin", "points": [[0, 0, 2.36], [9, 0, 3.94], [0, 9, 3.9], [9, 9, 3.94]],
+                       "flat_z": 3.54}}
+    l0 = {"id": "L0", "order": 0, "kind": "floor", "elevation": 0.0, "ceiling_height": 3.3}
+    assert CP.below_ground({"site": {"ground": tin}, "warnings": []}, l0) is None
+    assert CP._ground_min({"site": {"ground": tin}}) == 2.36

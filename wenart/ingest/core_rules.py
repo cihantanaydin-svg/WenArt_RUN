@@ -953,8 +953,13 @@ def ground_zs(b: dict) -> list:
     g = (b.get("site") or {}).get("ground") or {}
     zs = [float((x.get("z") or {}).get("value")) for x in g.get("levels") or []
           if isinstance(x, dict) and isinstance((x.get("z") or {}).get("value"), (int, float))]
+    # 20 Nov 2026 (pre-pod review OL-05): a surface with points gives its lowest point, not its mean (flat_z)
+    pts = [float(p[2]) for p in (g.get("surface") or {}).get("points") or []
+           if isinstance(p, (list, tuple)) and len(p) >= 3 and isinstance(p[2], (int, float))]
     flat = (g.get("surface") or {}).get("flat_z")
-    if isinstance(flat, (int, float)):
+    if pts:
+        zs.append(min(pts))
+    elif isinstance(flat, (int, float)):
         zs.append(float(flat))
     return zs
 

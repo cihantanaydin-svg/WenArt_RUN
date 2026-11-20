@@ -147,14 +147,23 @@ def is_pit(room: dict) -> bool:
     return is_lift(room) and bool(LIFT_PIT_RE.search(_fold(room.get("label") or room.get("label_raw"))))
 
 
-def _ground_min(building: dict) -> Optional[float]:
-    """The lowest ground z the reading knows around the building (``site.ground``: its levels, its surface), or None."""
+def _ground_min(building: dict, known: bool = False) -> Optional[float]:
+    """The lowest ground z the reading knows around the building (``site.ground``: its levels, its surface), or None.
+    20 Nov 2026 (pre-pod review OL-05: a TIN's ``flat_z`` is the mean of its points, and real17's street storey read as
+    underground): a surface with points gives its lowest point. ``known``: only a ground the drawings give (an assumed
+    level or a surface assumed where nothing about the ground is drawn does not count)."""
     g = (building.get("site") or {}).get("ground") or {}
     zs = [float((x.get("z") or {}).get("value")) for x in g.get("levels") or []
-          if isinstance(x, dict) and isinstance((x.get("z") or {}).get("value"), (int, float))]
-    flat = (g.get("surface") or {}).get("flat_z")
-    if isinstance(flat, (int, float)):
-        zs.append(float(flat))
+          if isinstance(x, dict) and isinstance((x.get("z") or {}).get("value"), (int, float))
+          and not (known and (x.get("z") or {}).get("method") == "assumed")]
+    surface = g.get("surface") or {}
+    pts = [float(p[2]) for p in list(surface.get("points") or []) + list(g.get("points") or [])
+           if isinstance(p, (list, tuple)) and len(p) >= 3 and isinstance(p[2], (int, float))]
+    if not (known and (surface.get("inferred") or g.get("source") == "D3a")):
+        if pts:
+            zs.append(min(pts))
+        elif isinstance(surface.get("flat_z"), (int, float)):
+            zs.append(float(surface["flat_z"]))
     return min(zs) if zs else None
 
 
@@ -171,12 +180,30 @@ def below_ground(building: dict, level: dict) -> Optional[str]:
     return why
 
 
+AT_GRADE_RISE_M = 1.2           # an outside entrance this little above the ground stands at grade
+
+
 def _below_ground(building: dict, level: dict) -> Optional[str]:
+    """20 Nov 2026 (pre-pod review R09-8, R10-P4, OL-05: an at-grade 'Bodrum' holding the main entrance, real10's garden
+    storey and real17's street storey read as underground by their kind or a TIN's mean): a storey with an outside
+    entrance at grade is never below ground; with a ground the drawings give, only a storey whose ceiling lies under
+    its lowest point (or the reading's "fully below ground") is; the kind or order alone counts only when no ground
+    is read (inferred)."""
     lid = level.get("id")
-    if level.get("kind") == "basement" or (level.get("order") or 0) < 0:
-        return f"{lid} is a basement (under the ground floor)"
+    for e in (building.get("site") or {}).get("entrances") or []:
+        if e.get("level_id") == lid and e.get("below_ground") is False and not e.get("into_air") \
+                and isinstance(e.get("rise"), (int, float)) and abs(float(e["rise"])) <= AT_GRADE_RISE_M:
+            return None
     if any("fully below ground" in str(w) and f"({lid})" in str(w) for w in building.get("warnings") or []):
         return f"{lid} is fully below ground (soil outside its walls)"
+    gz = _ground_min(building, known=True)
+    if gz is not None and isinstance(level.get("elevation"), (int, float)):
+        top = float(level["elevation"]) + float(level.get("ceiling_height") or 2.7)
+        if top <= gz + 1e-6:
+            return f"{lid}'s floor and ceiling lie under the ground (ceiling {top:+.2f} m, ground {gz:+.2f} m)"
+        return None
+    if level.get("kind") == "basement" or (level.get("order") or 0) < 0:
+        return f"{lid} is a basement (under the ground floor; inferred: no ground is drawn)"
     gz = _ground_min(building)
     if gz is not None and isinstance(level.get("elevation"), (int, float)):
         top = float(level["elevation"]) + float(level.get("ceiling_height") or 2.7)
