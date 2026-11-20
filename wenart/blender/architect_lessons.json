@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-12",
+ "updated": "2026-11-20",
  "lessons": [
   {
    "id": "UL01",
@@ -3987,6 +3987,16 @@
    "checks": [],
    "request": "After every pod job the user gets one zip file per project holding all its drawings (the reading's plan sheets: drawing, model plan, model walls over the drawing, every level) and all its renders; a multi-project pod gives one zip per project, delivered when the job finishes. User, 12 Nov 2026: 'after job finishes I want the drawings and renders all in zip file per project' (pod approved for real21, real20, real09, real10, real03 after the reader A, B and building-sense merges).",
    "lesson": "After every pod job the user gets one zip file per project holding all its drawings (the reading's plan sheets: drawing, model plan, model walls over the drawing, every level) and all its renders; a multi-project pod gives one zip per project, delivered when the job finishes. User, 12 Nov 2026: 'after job finishes I want the drawings and renders all in zip file per project' (pod approved for real21, real20, real09, real10, real03 after the reader A, B and building-sense merges).",
+   "question": null
+  },
+  {
+   "id": "UL338",
+   "date": "2026-11-20",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "20 Nov 2026, user: 'All fixes must be general not just for these projects, future projects should not be making these mistakes.' Every structural fix is a rule keyed on what the drawing shows (geometry, symbols, tags, texts, storey relations), never on a project, coordinates or one office's layer names; it comes with a synthetic test and a machine check that flags the same error class on any project before a pod (doors into the air, slabs outside their walls, angled walls built straight, levels read but not built, missing mirror twins, size tags with no opening, roofs under their storey, sealed entrances).",
+   "lesson": "20 Nov 2026, user: 'All fixes must be general not just for these projects, future projects should not be making these mistakes.' Every structural fix is a rule keyed on what the drawing shows (geometry, symbols, tags, texts, storey relations), never on a project, coordinates or one office's layer names; it comes with a synthetic test and a machine check that flags the same error class on any project before a pod (doors into the air, slabs outside their walls, angled walls built straight, levels read but not built, missing mirror twins, size tags with no opening, roofs under their storey, sealed entrances).",
    "question": null
   }
  ]
