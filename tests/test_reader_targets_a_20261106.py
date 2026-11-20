@@ -2431,7 +2431,8 @@ def test_everything_a_section_read_moves_into_the_storey_marks_frame_and_a_roof_
 
     levels = [{"id": f"L{k}", "order": k, "kind": "floor"} for k in (-1, 0, 1, 2, 3)]
     v = lambda z: {"value": z, "method": "vector", "confidence": 1.0, "evidence": []}   # noqa: E731
-    out = {"levels": [], "slabs": [], "datum": dict(v(8.5), relative=8.5),
+    # (the roof slab of a section's band stack: between [L3, None], real07's sheets crashed on the join)
+    out = {"levels": [], "slabs": [{"between": ["L3", None], "z_top": v(5.0)}], "datum": dict(v(8.5), relative=8.5),
            "roof": {"eaves_z": v(3.422), "ridge_z": v(6.508), "profile": [[0.0, 3.422], [5.0, 6.508]]},
            "ground": [{"side": "front", "z": v(-6.0)}],
            # the section's relative marks against the band z they point at: 6 m off the storey marks' frame

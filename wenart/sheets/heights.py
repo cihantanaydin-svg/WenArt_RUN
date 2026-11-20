@@ -880,7 +880,7 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
             if (len(between) < 2 or between[1] not in named) and zt.get("method") == "vector" \
                     and zt.get("value") is not None:
                 zt["value"] = round(float(zt["value"]) + shift, 3)
-                moved.append(f"slab {'/'.join(between)}")
+                moved.append(f"slab {'/'.join(str(x or '-') for x in between)}")   # a roof slab: between [Lx, None]
         old = out.get("datum") or {}
         if abs(base) > 0.005 and (not old or abs(float(old.get("value") or 0.0) - base) > MARK_TOL_M):
             ev = [_ev(file_rel or "", None, rule, region_id or "", text=f"{base:+.2f}")]
