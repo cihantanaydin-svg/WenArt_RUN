@@ -1257,6 +1257,9 @@ def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict, drawn
     rebased = _rebase_roof(build, b, set(built))
     if rebased:
         out["roof_rebased"] = rebased
+    eaves = _plan_roof_eaves(build, b, set(built))       # 20 Nov 2026 (R13 guard, review BP-03)
+    if eaves:
+        out["roof_eaves_assumed"] = eaves
     if b.get("roof") is None and built and not RG.blocked("storey_roof", b, {"level_id": built[-1],
                                                                             "why": "storeys added: a flat roof"}):
         top = max((lv for lv in b.get("levels") or [] if not lv.get("base_level_id")),
@@ -1284,6 +1287,31 @@ def _rise_above_top(v) -> Optional[float]:
     """The section's own rise of a roof height above its top floor (``wenart.sheets.heights``' note), or None."""
     m = RISE_NOTE_RE.search(str((v or {}).get("note") or "")) if isinstance(v, dict) else None
     return float(m.group(1)) if m else None
+
+
+def _plan_roof_eaves(build, b: dict, built: set) -> Optional[str]:
+    """20 Nov 2026 (R13 guard, review BP-03: real20's plan-lines roof with no height sat 0.7 m over the inferred top
+    storey's floor and its windows cut through it): a roof read from the plan's lines with no eaves height over a storey
+    the storey rule counted puts its eaves on that storey's ceiling, marked assumed with the reason, so a counted storey
+    never becomes an attic. Returns the reason, or None."""
+    roof = b.get("roof")
+    if not isinstance(roof, dict) or roof.get("inferred") or not built or _val(roof.get("eaves_height")) is not None \
+            or roof.get("type_source") != "plan_roof_lines":
+        return None
+    storeys = sorted((lv for lv in b.get("levels") or [] if not lv.get("base_level_id")),
+                     key=lambda lv: (lv.get("order") or 0, lv["id"]))
+    top = storeys[-1] if storeys else None
+    if top is None or top["id"] not in built or not isinstance(top.get("elevation"), (int, float)):
+        return None
+    z = round(float(top["elevation"]) + float(top.get("ceiling_height") or 2.7), 3)
+    reason = (f"the roof read from the top plan's lines gives no eaves height and stands over {top['id']}, a storey the "
+              f"storey rule counted: its eaves on that storey's ceiling ({z:+.2f} m, assumed)")
+    roof["eaves_height"] = {"value": z, "method": "assumed", "confidence": 0.0, "evidence": [], "note": reason}
+    roof["over_level_id"] = top["id"]
+    if isinstance(roof.get("assumed", []), list):
+        roof.setdefault("assumed", []).append(reason)
+    build.warn(f"roof: {reason}")
+    return reason
 
 
 def _rebase_roof(build, b: dict, built: set) -> Optional[str]:
