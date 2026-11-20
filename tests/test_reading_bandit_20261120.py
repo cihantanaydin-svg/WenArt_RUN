@@ -110,6 +110,31 @@ def test_held_out_compares_the_code_with_the_code_plus_ranker():
     assert h["n"] == 24 and h["code_acc"] == 0.5 and h["ranker_acc"] > h["code_acc"] and BD.beats_code(h)
 
 
+def test_the_score_gate_is_a_reward_pinned_on_the_changed_decisions(tmp_path):
+    import json
+
+    def score(root, p, entries=None, total=None, sparse=True):
+        d = root / p / "reading_check"
+        d.mkdir(parents=True)
+        (d / "score.json").write_text(json.dumps({"entries": entries or [], "total": total, "sparse": sparse}))
+
+    e = lambda ok: [{"id": "u_C1_1", "level": "L0", "satisfied": ok, "at": ["rooms", True, [1.5, 1.0]]}]  # noqa: E731
+    score(tmp_path / "base", "real", e(True))
+    score(tmp_path / "cand", "real", e(False))
+    score(tmp_path / "base", "synthetic-x", total=90.0, sparse=False)
+    score(tmp_path / "cand", "synthetic-x", total=95.0, sparse=False)
+    changed = [{"project": "real", "level": "L0", "place": [1.0, 1.0], "old": "opening", "new": "door"},
+               {"project": "real", "level": "L0", "place": [9.0, 9.0], "old": "opening", "new": "door"},
+               {"project": "synthetic-x", "level": "L0", "place": [2.0, 2.0], "old": "opening", "new": "door"}]
+    ev = BD.events_from_gate(tmp_path / "base", tmp_path / "cand", changed)
+    assert [(x["project"], x["place"], x["reward"]) for x in ev] == [("real", [1.0, 1.0], -1.0),
+                                                                   ("synthetic-x", [2.0, 2.0], 1.0)]
+    recs = [_rec(project="real", place=(1.0, 1.0)), _rec(project="synthetic-x", place=(2.0, 2.0))]
+    rows = BD.gate_rows(recs, ev)
+    assert {(r["project"], r["label"], r["negative_of"]) for r in rows} == {("real", None, "door"),
+                                                                           ("synthetic-x", "door", None)}
+
+
 def test_questions_rank_uncertainty_times_impact():
     rec = dict(_rec(), scores={"door": 0.5, "window": 0.45}, margin=0.05)
     lab = {"disagreements": [{"rec": rec, "ai": {"drawing": "window", "entry": "e", "qid": "q1"}, "flagged": [],
