@@ -614,5 +614,5 @@ def test_rc7_numbers_an_undecided_gap_with_its_own_words():
         {"kind": "undecided_gap", "text": "opening", "at": [2.45, 0.0], "note": "rule unclassified at 0.20 and ..."}]}],
         "walls": []}
     got = RCK.low_confidence_findings(b)
-    assert len(got) == 1 and got[0]["severity"] == "minor"
+    assert len(got) == 1 and got[0]["severity"] == "info"           # 20 Nov 2026: uncertainty, not an error
     assert "gap at (2.45, 0.00) m kept as opening on weak evidence" in got[0]["message"]
