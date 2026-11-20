@@ -282,7 +282,7 @@ ARMCHAIR_REACH_M = 0.60            # two equal seats this close to a coffee tabl
 VANITY_SHARE = 0.3                 # an unknown counter under >= 30 % of a washbasin is its vanity
 DUPLICATE_SHARE = 0.6              # a fixed piece this much inside a block-named one of its type is drawn twice
 L_SEAT_MIN_M = 0.65                # the arms of an L corner sofa are seat-deep (a counter's legs are 0.6 m)
-EXPLAINED_AS = ("rug", "detail", "column", "decor")
+EXPLAINED_AS = ("rug", "detail", "column", "decor", "flue")
 # Fix round after P5 (module docstring).
 BAY_TYPES = ("bathtub", "shower")
 BAY_OVERRUN_M = (0.01, 0.05)       # a bath or shower 1-5 cm longer than its bay is a misread size (user, 22 Oct 2026)

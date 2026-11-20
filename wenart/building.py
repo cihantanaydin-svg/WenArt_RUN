@@ -141,10 +141,14 @@ VOID_WORDS = ("void", "open to below", "double height", "luftraum", "vide", "vac
 
 
 def is_void_label(label: Optional[str]) -> bool:
-    """A room label that means a void over the floor below (``VOID_WORDS``)."""
+    """A room label that means a void over the floor below (``VOID_WORDS``). 19 Nov 2026 (review A3, OA3-03 (2): real13's
+    'ASANSÖR BOŞLUĞU', the lift's shaft and pit, became a slab void and its room an unlabelled 'Oda'): a lift's void is
+    its shaft, no void label."""
     if not label:
         return False
     text = fold_ascii(str(label)).lower()
+    if any(re.search(rf"(?<![a-z]){w}", text) for w in LIFT_KEYWORDS):
+        return False
     if any(re.search(rf"(?<![a-z]){w}(?!e)", text) for w in VOID_WORDS_TURKISH):   # not 'Galerie' (a mezzanine)
         return True
     return any(english_keyword_re(w).search(text) for w in VOID_WORDS)
@@ -167,29 +171,50 @@ LIFT_KEYWORDS = {"asansor", "lift", "elevator"}
 TECHNICAL_ODASI_WORDS = ("pano", "elk", "elektrik", "kazan", "jenerator", "trafo", "pompa", "siginak", "tesisat",
                          "makine", "makina", "arsiv", "depo", "hidrofor", "kalorifer", "ups", "server")
 # 19 Nov 2026 (review A3, A3FC-4: real11's 'ELEKTR.ODASI', and 'SAYAÇ ODASI', 'TEKNİK ODA', 'MAKİNE DAİRESİ', 'AS.MAK.
-# DAIRESI' stayed 'other' and were furnished): the plant words as word starts (abbreviations: ELEK., ELEKTR., JENERAT.),
-# 'MAK' as a whole word, with ODASI, ODA or DAIRESI
-TECHNICAL_WORD_RE = re.compile(r"(?<![a-z])(?:pano|elk|elek|kazan|jenerat|trafo|pompa|siginak|tesisat|makin|mak(?![a-z])|"
-                               r"arsiv|depo|hidrofor|kalorifer|ups|server|sayac|teknik|santral|klima)")
-TECHNICAL_ROOM_RE = re.compile(r"(?<![a-z])(?:odasi|oda|dairesi)(?![a-z])")
+# DAIRESI' stayed 'other' and were furnished): the plant words, with ODASI, ODA or DAIRESI. Review A4 (A4C-07:
+# 'PANORAMA ODASI', 'KLİMALI ODA', 'DEPOLU ODA', 'ELEK.ŞOH. YATAK ODASI' and 'YATAK ODASI KLİMA' became plant rooms;
+# SW-A4-04: real16's 'TEKNİK HACİM' did not): a plant word as a whole word (the abbreviations ELEK., ELEKTR..., JENERAT...
+# as word starts; MAKİNA / MAKİNE only right before its noun), at most two of them, right before a space noun (ODASI,
+# ODA, DAİRESİ, HACİM / HACMİ, ALAN / ALANI, MAHAL / MAHALLİ, BÖLÜM / BÖLÜMÜ)
+TECHNICAL_WORD_RE = re.compile(r"(?<![a-z])(?:(?:elek|elektr|jenerat)[a-z]*\.?|(?:pano|elk|kazan|trafo|pompa|siginak|"
+                               r"tesisat|mak|makn|arsiv|depo|hidrofor|kalorifer|ups|server|sayac|teknik|santral|klima|"
+                               r"motor)(?![a-z])\.?)")
+TECHNICAL_ROOM_RE = re.compile(r"(?<![a-z])(?:odasi|oda|dairesi|hacim|hacmi|alan|alani|mahal|mahalli|mahali|bolum|bolumu)"
+                               r"(?![a-z])")
+TECHNICAL_RUN_RE = re.compile(r"(?<![a-z])(?:(?:" + TECHNICAL_WORD_RE.pattern + r")[\s.]*){1,2}(?:"
+                              + TECHNICAL_ROOM_RE.pattern + r")|(?<![a-z])makin[ae][\s.]*(?:odasi|dairesi)(?![a-z])")
 # 19 Nov 2026 (review A3, OA3-03: real13's 'ASANSÖR MAKİNA HİDROLİK' and 'ASANSÖR MAK.DAİR.', real14's 'ASANSÖR
 # MAKN.DAİRESİ' were lift shafts with sliding landing doors): a lift's machine room, in its abbreviations; one test for
 # the reader's type, the lift rules and the checks (``labels.SENSE_WORDS`` technical says the same)
-MACHINE_ROOM_RE = re.compile(r"(?<![a-z])(?:asansor\s*mak|makin?a?e?\s*dair|makn(?![a-z])|mak\.?\s*dair|machine\s*room|"
-                             r"motor\s*room|maschinenraum|mahal(?:li)?\s*(?:asansor|makin))")
+# Review A4 (19 Nov 2026, A4C-07: 'ASANSÖR MAKSIMUM 8 KİŞİ' and 'MAKİNE DAİRESİZ ASANSÖR', a lift with no machine room,
+# became machine rooms; POD-A4-01: real10's 13.3 m2 'Asansör Mahali' on the roof stayed a shaft): word ends, and
+# 'dairesiz' (without a machine room) names none
+MACHINE_ROOM_RE = re.compile(r"(?<![a-z])(?:asansor\s*(?:mak(?:\.|(?![a-z]))|makin[ae]?(?![a-z])|makn(?![a-z]))|"
+                             r"makin?a?e?\s*dair(?:esi)?(?![a-z])|makn(?![a-z])|mak\.?\s*dair(?:esi)?(?![a-z])|"
+                             r"machine\s*room|motor\s*(?:room|odasi)(?![a-z])|maschinenraum|"
+                             r"mahal(?:li)?\s*(?:asansor|makin))")
+# ... and 'ASANSÖR MAHALLİ' ('the lift's space') names the shaft when it is a lift's size, its machine room when larger
+LIFT_SPACE_RE = re.compile(r"(?<![a-z])(?:asansor|lift|elevator)\s*(?:makin[ae]\s*)?mahal(?:li|i)?(?![a-z])")
+LIFT_SPACE_MAX_M2 = 8.0          # ``labels.AREA_RANGES['lift']``'s upper end: a larger lift space is its machine room
 
 
 # 19 Nov 2026 (merge with the building-sense branch, review CODE-05): 'without a machine room' (makinesiz, makinasız,
-# makine dairesiz, MRL) names a lift, never its machine room
-MACHINE_LESS_RE = re.compile(r"(?<![a-z])(?:makin[ae]s[iu]z\w*|makin?a?e?\s*dairesiz\w*|mak\.?\s*dairesiz\w*|mrl)"
-                             r"(?![a-z])")
+# makine dairesiz, MRL, machine-room-less) names a lift, never its machine room
+MACHINE_LESS_RE = re.compile(r"(?<![a-z])(?:makin[ae]s[iu]z\w*|makin?a?e?\s*dairesiz\w*|mak\.?\s*dairesiz\w*|mrl|"
+                             r"machine[\s-]*room[\s-]*less)(?![a-z])")
 
 
-def machine_room(label: Optional[str]) -> bool:
-    """19 Nov 2026 (review A3, OA3-03): a label naming a lift's (or a plant's) machine room (``MACHINE_ROOM_RE``),
-    never one that says the lift has none (``MACHINE_LESS_RE``)."""
-    text = " ".join(fold_ascii(str(label or "")).lower().split())
-    return bool(label) and bool(MACHINE_ROOM_RE.search(MACHINE_LESS_RE.sub(" ", text)))
+def machine_room(label: Optional[str], area_m2: Optional[float] = None) -> bool:
+    """19 Nov 2026 (review A3, OA3-03): a label naming a lift's (or a plant's) machine room (``MACHINE_ROOM_RE``), never
+    one that says the lift has none (``MACHINE_LESS_RE``, its words left out before the search). Review A4 (POD-A4-01):
+    a lift space ('ASANSÖR MAHALLİ', ``LIFT_SPACE_RE``) larger than a lift (``area_m2`` over ``LIFT_SPACE_MAX_M2``) is
+    one too."""
+    if not label:
+        return False
+    text = MACHINE_LESS_RE.sub(" ", " ".join(fold_ascii(str(label)).lower().split()))
+    if MACHINE_ROOM_RE.search(text):
+        return True
+    return area_m2 is not None and float(area_m2) > LIFT_SPACE_MAX_M2 and bool(LIFT_SPACE_RE.search(text))
 BEDROOM_MIN_M2 = 6.0          # a room an abbreviation alone calls a bedroom (Y. / Ç. ODASI) is one only from this size
 # ``hall`` alone names a living room when its face is at least this large and this compact (§2.7.2).
 HALL_AS_LIVING_MIN_AREA = 9.0
@@ -437,10 +462,9 @@ def room_type_for(label: str, face_area_m2: Optional[float] = None, face_aspect:
     matched = {room_type for _, room_type in turkish + english}
     words = {keyword for keyword, _ in turkish + english}
     folded_l = fold_ascii(label).lower()
-    if machine_room(label):
+    if machine_room(label, face_area_m2):
         return "technical"                         # 19 Nov 2026 (review A3, OA3-03): a machine room, never a shaft
-    if ("odasi" in words and re.search(r"(?<![a-z])(?:" + "|".join(TECHNICAL_ODASI_WORDS) + r")", folded_l)) or (
-            TECHNICAL_ROOM_RE.search(folded_l) and TECHNICAL_WORD_RE.search(folded_l)):
+    if TECHNICAL_RUN_RE.search(folded_l):
         return "technical"                         # 12 Nov 2026: a plant or service room (ELK. PANO ODASI)
     if "bedroom" in matched and face_area_m2 is not None and face_area_m2 < BEDROOM_MIN_M2:
         plain_t, plain_e = _plain_keyword_hits(label)

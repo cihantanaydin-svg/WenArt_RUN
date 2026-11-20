@@ -286,6 +286,32 @@ def _to_building(ex: LevelExtraction, p) -> tuple[float, float]:
     return G.snap_point(G.apply_affine(ex.transform_to_building, p), 4)
 
 
+def _mirror_twin_rooms(build, level_id: str, ex: LevelExtraction, rooms: list) -> None:
+    """20 Nov 2026 (R09-1, real09 L2: the left kitchen, closed as the mirror twin of the labelled MUTFAK, is drawn
+    2.44 m wide against its twin's 1.84 m, too far off for ``twins.mirror_labels``): a room the reader closed as the
+    mirror twin of a labelled room (``generic.core._glazed_facades``, ``report["mirror_twins"]``) takes that room's
+    label and type, ``inferred`` with the axis and the drawing's evidence (``label_raw`` stays null: no text names it)."""
+    mt = (ex.report or {}).get("mirror_twins") if isinstance(ex.report, dict) else None
+    s = float((ex.report or {}).get("units_to_m") or 0.0) if isinstance(ex.report, dict) else 0.0
+    if not mt or s <= 0 or not ex.transform_to_building:
+        return
+    ax = mt["axis"]
+    v = _to_building(ex, (ax[1] / s, ax[1] / s))[0 if ax[0] == "x" else 1]
+    for rec in mt.get("rooms") or []:
+        q = _to_building(ex, (rec["seed"][0] / s, rec["seed"][1] / s))
+        a = _to_building(ex, (rec["of"][0] / s, rec["of"][1] / s))
+        room, twin = R.room_containing(rooms, q), R.room_containing(rooms, a)
+        if room is None or twin is None or room is twin or room.get("label_raw") or not twin.get("label_raw"):
+            continue
+        room["label"], room["room_type"] = twin["label"], twin["room_type"]
+        room["inferred"] = True
+        room["label_inferred"] = {"method": "mirror", "rule": "mirror_twin", "of": twin["id"],
+                                  "axis": [ax[0], round(v, 4)], "evidence": list(rec.get("evidence") or [])}
+        build.warn(f"mirror twin: {level_id}: room {room['id']} takes the label '{twin['label']}' of {twin['id']}, the "
+                   f"room the reader closed as its mirror twin about {ax[0]} = {v:.3f} (inferred): "
+                   + "; ".join(rec.get("evidence") or []))
+
+
 def _wall_dict(level_id: str, wall: WallItem, wall_id: str, ceiling: float) -> dict:
     """The building's wall record of ``wall``. Fix round after P6b (23 Oct 2026; F_reading's ask): a wall the generic
     core's openings rules corrected (``openings._mark_lined``: real03's 0.30 / 0.315 m shear walls on the hall-living
@@ -635,6 +661,7 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
             if any(e is text.evidence for e in room["evidence"]):
                 text.element_id = room["id"]
     if generic:
+        _mirror_twin_rooms(build, level_id, ex, rooms)
         for text in ex.labels:
             room = R.room_containing(rooms, _to_building(ex, text.start))
             if room is not None and room["label_raw"] is not None:
@@ -2608,6 +2635,24 @@ def _tag_regions(build: ProjectBuild) -> None:
                    f"{', '.join(sorted(regions_of[(level_id, file, page)]))}; left without a region_id")
 
 
+def _face_lines_by_level(build: ProjectBuild, attr: str = "face_lines_m") -> dict:
+    """19 Nov 2026 (review A4, POD-A4-02 / A4FC-1): each level's drawn wall faces (``core._face_lines`` kept on its master
+    page's extraction) in the building frame: ``{level_id: [(a, b)]}``; ``attr`` ``detail_lines_m``: its drawn detail
+    lines (``core._detail_lines``) instead."""
+    out: dict = {}
+    for w in build.furniture_works:
+        ex = w.extraction
+        lines = getattr(ex, attr, None)
+        s = float((ex.report or {}).get("units_to_m") or 0.0) if isinstance(ex.report, dict) else 0.0
+        if not lines or not ex.transform_to_building or s <= 0:
+            continue
+        T = ex.transform_to_building
+        out.setdefault(ex.level_id, []).extend(
+            (tuple(G.apply_affine(T, (a[0] / s, a[1] / s))), tuple(G.apply_affine(T, (b[0] / s, b[1] / s))))
+            for a, b, _layer in lines)
+    return out
+
+
 def _lift_rules(build: ProjectBuild) -> None:
     """The lift shafts' rules (13 Nov 2026, building-sense review S1-03b: real03's single drawing never reached the
     multi-region steps, so its twin lifts and their landing doors were never read): the drawn lift cars, the landing
@@ -2643,7 +2688,8 @@ def _lift_rules(build: ProjectBuild) -> None:
     # 19 Nov 2026 (review A3, M4): every gap a landing door takes or closes is listed in ``openings_merged``; a gap
     # into a shaft that opens onto nothing is kept and listed in ``needs_review``
     for line in TW.lift_doors(b["rooms"], b["openings"], b["walls"], b["furniture"],     # 4 Nov 2026 (UL306)
-                              b.setdefault("openings_merged", []), b.setdefault("needs_review", [])):
+                              b.setdefault("openings_merged", []), b.setdefault("needs_review", []),
+                              _face_lines_by_level(build), _face_lines_by_level(build, "detail_lines_m"), texts):
         build.warn(f"lift door: {line}")
 
 
@@ -2678,10 +2724,11 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     for line in TW.shared_halls(b["rooms"], b["openings"]):
         build.warn(f"shared hall: {line}")
     # 12 Nov 2026 (review, real20): a pending small room whose label stands on an untyped drawn outline of its size
-    for line in TW.carve_sub_spaces(b["rooms"], b["furniture"], b["walls"]):
+    faces = _face_lines_by_level(build)      # 19 Nov 2026 (review A4): the drawn wall faces, for the lift shafts
+    for line in TW.carve_sub_spaces(b["rooms"], b["furniture"], b["walls"], faces):
         build.warn(f"sub-space: {line}")
-    # 19 Nov 2026 (review A3, OA3-02): a lift stacks: its pending label by another storey's shaft cuts that shaft out
-    for line in TW.carve_stacked_lifts(b["rooms"], b["walls"]):
+    # 19 Nov 2026 (review A3, OA3-02; A4): a lift's pending label: its shaft from the drawn faces round it, else stacked
+    for line in TW.carve_stacked_lifts(b["rooms"], b["walls"], faces, b["furniture"]):
         build.warn(f"sub-space: {line}")
     for room in b["rooms"]:
         for sp in room.get("sub_spaces") or []:
@@ -2732,6 +2779,10 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     terrace = TB.roof_terrace(b, sheets, build.warn)      # real10: parapets and the stair house of a roof terrace
     b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], build.frame_shift, b.get("site"),
                               terrace=terrace)
+    why = TB.roof_frame_guard(b["roof"], b["levels"], sheets)        # 20 Nov 2026 (pre-pod check, R09-10)
+    if why:
+        build.conflict("roof_frame", [b["roof"].get("over_level_id") or "roof"], why, "roof moved over its storey")
+        build.warn(f"roof: {why}")
     b["facade"] = TB.facade_block(sheets, b["walls"], build.warn, b["levels"], b["openings"], build.unions)
     site = b.get("site") or {"boundary_walls": [], "areas": [], "decor": [], "openings": []}
     ground = next((lv["id"] for lv in b["levels"] if lv.get("order") == 0 and not lv.get("base_level_id")), None)

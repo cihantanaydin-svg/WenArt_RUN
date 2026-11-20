@@ -237,10 +237,11 @@ def wall_primitives(page: GenericPage, units_to_m: float, dimension_ids: frozens
         prims.append(WallPrim(kind="raster", entity="raster:mask", stroke_ids=[], method="raster",
                               confidence=RASTER_CONFIDENCE, mask=mask_m))
     used: set[str] = set()
-    prims.extend(_dxf_hatches(page, s, used))
+    owners: dict = {}
+    prims.extend(_dxf_hatches(page, s, used, owners))
     prims.extend(_ring_walls(page, s, used))
     prims.extend(_hatch_groups(page, s, used))
-    prims.extend(_dark_fills(page, s, used))
+    prims.extend(_dark_fills(page, s, used, owners))
     prims.extend(_outline_walls(page, s, used))
     if page.wall_mask is None and not page.source_kind.startswith("raster"):
         prims = face_pair_walls(page, s, prims, dimension_ids)[0]
@@ -252,7 +253,7 @@ def _entity_base(stroke_id: str) -> str:
     return stroke_id.split("#", 1)[0]
 
 
-def _dxf_hatches(page: GenericPage, s: float, used: set) -> list[WallPrim]:
+def _dxf_hatches(page: GenericPage, s: float, used: set, owners: Optional[dict] = None) -> list[WallPrim]:
     if not page.wall_hint_layers:
         return []
     hint = {name.upper() for name in page.wall_hint_layers}
@@ -262,9 +263,13 @@ def _dxf_hatches(page: GenericPage, s: float, used: set) -> list[WallPrim]:
             groups.setdefault(_entity_base(st.id), []).append(st)
     out = []
     for base, strokes in groups.items():
-        # 19 Nov 2026 (review A3, OA3-04: real13's section arrows, solid 50 x 25 cm triangles on KOLON, were walls)
-        polys = [p for st in strokes for p in fill_polygons(st, s) if not symbol_fill(p)]
+        # 19 Nov 2026 (review A3, OA3-04: real13's section arrows, solid 50 x 25 cm triangles on KOLON, were walls).
+        # Review A4 (A4FC-2: real14's flues, a half hatch in each 25 x 25 cm square drawn on 'baca', were dropped): a
+        # fill inside a drawn square or a closed wall outline belongs to that outline (``symbol_owned``)
+        polys = [p for st in strokes for p in fill_polygons(st, s)
+                 if not symbol_fill(p) or symbol_owned(p, page, s, owners)]
         if not polys:
+            used.update(st.id for st in strokes)        # 19 Nov 2026 (A4C-06): a symbol makes no other primitive
             continue
         used.update(st.id for st in strokes)
         out.append(WallPrim(kind="dxf_hatch", entity=base, stroke_ids=[st.id for st in strokes], method="vector",
@@ -275,6 +280,13 @@ def _dxf_hatches(page: GenericPage, s: float, used: set) -> list[WallPrim]:
 SYMBOL_FILL_MAX_M2 = 0.30        # 19 Nov 2026 (review A3, OA3-04): a filled path this small ...
 SYMBOL_FILL_MAX_VERTICES = 8     # ... with this few corners, one of them off a right or straight angle ...
 SYMBOL_FILL_ANGLE_DEG = 15.0     # ... by more than this (or a triangle), is a symbol (a section arrow, a level mark)
+SYMBOL_FILL_EVEN_DEG = 15.0      # 19 Nov 2026 (review A4, A4C-06): a convex polygon whose corners differ by at most this
+#                                  is a column (an octagon, a hexagon) ...
+SYMBOL_FILL_BAND = 0.6           # ... and a piece whose short side is at most this share of its long side ...
+SYMBOL_FILL_BAND_FULL = 0.7      # ... filling this share of its box is a wall piece (a mitred end, a pier, a skew wall)
+OWNER_MAX_M2 = 1.0               # 19 Nov 2026 (review A4, A4FC-2): a drawn square or closed outline this small on any
+#                                  layer (any size on a wall layer) ...
+OWNER_MIN_RATIO = 1.3            # ... at least this much bigger than a fill it holds owns that fill (a flue's half hatch)
 
 
 def symbol_fill(poly) -> bool:
@@ -296,16 +308,104 @@ def symbol_fill(poly) -> bool:
         return True
     if len(ring) > SYMBOL_FILL_MAX_VERTICES:
         return False
+    angles = []
     for i in range(len(ring)):
         a, b, c = ring[i - 1], ring[i], ring[(i + 1) % len(ring)]
         v1, v2 = (a[0] - b[0], a[1] - b[1]), (c[0] - b[0], c[1] - b[1])
         n = math.hypot(*v1) * math.hypot(*v2)
         if n <= 1e-12:
             continue
-        ang = math.degrees(math.acos(max(-1.0, min(1.0, (v1[0] * v2[0] + v1[1] * v2[1]) / n))))
-        if min(abs(ang - 90.0), abs(ang - 180.0)) > SYMBOL_FILL_ANGLE_DEG:
+        angles.append(math.degrees(math.acos(max(-1.0, min(1.0, (v1[0] * v2[0] + v1[1] * v2[1]) / n)))))
+    if all(min(abs(ang - 90.0), abs(ang - 180.0)) <= SYMBOL_FILL_ANGLE_DEG for ang in angles):
+        return False
+    # 19 Nov 2026 (review A4, A4C-06: octagonal and hexagonal columns and mitred wall pieces were dropped): a convex
+    # polygon of even corners is a column; a band (two long sides at wall spacing) is a wall piece
+    if angles and len(ring) >= 5 and poly.convex_hull.area <= 1.02 * poly.area \
+            and max(angles) - min(angles) <= SYMBOL_FILL_EVEN_DEG:
+        return False
+    rect = poly.minimum_rotated_rectangle
+    short, long_ = sorted(_rect_sides(rect))
+    if long_ > 0 and short <= SYMBOL_FILL_BAND * long_ and poly.area >= SYMBOL_FILL_BAND_FULL * rect.area:
+        return False
+    return True
+
+
+def _fill_owners(page: GenericPage, s: float) -> tuple:
+    """The drawn outlines a fill may belong to (``symbol_owned``), page metres: closed strokes, and open polylines
+    drawing the four sides of their box (a flue's square with its diagonal), ``OWNER_MAX_M2`` at most or on a wall
+    layer: ``(STRtree, [(polygon, on a wall layer)])``."""
+    hint = {name.upper() for name in page.wall_hint_layers or ()}
+    out = []
+    for st in page.strokes:
+        if st.fill is not None or st.arc is not None or len(st.pts) < 3:
+            continue
+        pts = _scale_pts(st.pts, s)
+        wall = bool(st.layer and st.layer.upper() in hint)
+        xs, ys = [q[0] for q in pts], [q[1] for q in pts]
+        bw, bh = max(xs) - min(xs), max(ys) - min(ys)
+        if not wall and bw * bh > OWNER_MAX_M2:
+            continue
+        closed = st.closed or math.dist(pts[0], pts[-1]) <= 0.005
+        poly = None
+        if closed and len(pts) >= 3:
+            try:
+                poly = Polygon(pts).buffer(0)
+            except (ValueError, TypeError):
+                poly = None
+        elif len(pts) >= 4 and bw > 0.02 and bh > 0.02:
+            box = Polygon([(min(xs), min(ys)), (max(xs), min(ys)), (max(xs), max(ys)), (min(xs), max(ys))])
+            edge = box.exterior.buffer(0.01)
+            on = sum(LineString([a, b]).intersection(edge).length for a, b in zip(pts, pts[1:]))
+            if on >= 0.75 * box.exterior.length:
+                poly = box
+        if poly is not None and poly.geom_type == "Polygon" and poly.area > 0:
+            out.append((poly, wall))
+    return (STRtree([p for p, _w in out]) if out else None), out
+
+
+def symbol_owned(poly, page: GenericPage, s: float, owners: Optional[dict] = None) -> bool:
+    """19 Nov 2026 (review A4, A4FC-2: real14's flues, two 25 x 25 cm squares on 'baca' each half hatched on the wall
+    layer, lost their wall mass and became tall cabinets): a filled path ``symbol_fill`` calls a symbol belongs to a
+    drawn square or a closed outline that holds it and is at least ``OWNER_MIN_RATIO`` times its area (the square of a
+    flue, a wall's closed outline): it is part of that outline, no symbol. ``owners``: a cache dict for the page's
+    outlines (``_fill_owners``)."""
+    if isinstance(poly, (list, tuple)):
+        if len(poly) < 3:
+            return False
+        try:
+            poly = Polygon(poly).buffer(0)
+        except (ValueError, TypeError):
+            return False
+    if poly is None or poly.is_empty:
+        return False
+    cache = owners if owners is not None else {}
+    if "tree" not in cache:
+        cache["tree"], cache["items"] = _fill_owners(page, s)
+    tree, items = cache["tree"], cache["items"]
+    if tree is None:
+        return False
+    for i in tree.query(poly):
+        o, _wall = items[int(i)]
+        if o.area >= OWNER_MIN_RATIO * poly.area and o.buffer(0.01).contains(poly):
             return True
     return False
+
+
+# 20 Nov 2026 (pre-pod check, R03-03: real03's entrance lobby was sealed off from the Kat Holü by a wall built from a
+# HIDDEN2 overhead beam outline on 'MYD - IZ-1'): a stroke on a hidden or dashed linetype (its resolved name, an xref's
+# 'X$0$' prefix left out) draws what lies above or behind the cut (a beam, a soffit, a door's swing path): never a
+# wall's face or outline, never a bridge across a gap
+DASHED_LINETYPE_WORDS = ("HIDDEN", "DASH", "DOT", "CENTER", "PHANTOM", "DIVIDE", "BORDER", "ACAD_ISO", "GIZLI",
+                         "KESIK", "NOKTA", "EKSEN")
+
+
+def dashed_stroke(st) -> bool:
+    """A stroke drawn on a hidden or dashed linetype (``DASHED_LINETYPE_WORDS`` in its resolved name) (pure)."""
+    lt = getattr(st, "linetype", None)
+    if not lt:
+        return False
+    name = str(lt).split("$")[-1].upper()
+    return any(w in name for w in DASHED_LINETYPE_WORDS)
 
 
 def _ring_group(stroke_id: str) -> str:
@@ -491,7 +591,7 @@ def _comb_step(items, direction_deg: float) -> Optional[float]:
     return float(statistics.median(np.diff(uniq)))
 
 
-def _dark_fills(page: GenericPage, s: float, used: set) -> list[WallPrim]:
+def _dark_fills(page: GenericPage, s: float, used: set, owners: Optional[dict] = None) -> list[WallPrim]:
     out = []
     for st in page.strokes:
         if st.id in used or st.fill is None or len(st.pts) < 3:
@@ -499,6 +599,9 @@ def _dark_fills(page: GenericPage, s: float, used: set) -> list[WallPrim]:
         if _luminance(st.fill) > FILL_MAX_LUMINANCE or _chroma(st.fill) > FILL_MAX_CHROMA:
             continue
         used.add(st.id)
+        # 19 Nov 2026 (review A4, A4C-06: a black arrow dropped by ``_dxf_hatches`` came back here): the same symbol test
+        if all(symbol_fill(p) and not symbol_owned(p, page, s, owners) for p in fill_polygons(st, s)):
+            continue
         out.append(WallPrim(kind="fill", entity=st.id, stroke_ids=[st.id], method="vector",
                             confidence=FILL_CONFIDENCE, polygons=fill_polygons(st, s)))
     return out
@@ -508,7 +611,7 @@ def _outline_walls(page: GenericPage, s: float, used: set) -> list[WallPrim]:
     """Closed stroked thin polygons with nothing drawn inside them."""
     cands = []
     for st in page.strokes:
-        if st.id in used or not st.closed or st.fill is not None or st.arc is not None:
+        if st.id in used or not st.closed or st.fill is not None or st.arc is not None or dashed_stroke(st):
             continue
         if not OUTLINE_MIN_VERTICES <= len(st.pts) <= OUTLINE_MAX_VERTICES:
             continue

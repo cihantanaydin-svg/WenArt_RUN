@@ -278,7 +278,7 @@ def untyped(final: dict) -> list[dict]:
     return out
 
 
-LEFT_OUT_AS = ("rug", "detail", "mark", "decor")    # the reading's "not a piece" kinds (``inferred_as``, ``type``)
+LEFT_OUT_AS = ("rug", "detail", "mark", "decor", "flue")    # the reading's "not a piece" kinds (``inferred_as``, ``type``)
 
 
 def named_left_out(final: dict) -> list[dict]:

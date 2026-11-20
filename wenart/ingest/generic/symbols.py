@@ -4192,10 +4192,14 @@ LAYER_WORDS: tuple[tuple[str, str], ...] = (
     ("GORUNUS", "other"), ("HIDDEN", "other"), ("OVERHEAD", "other"), ("TARAMA", "other"), ("HATCH", "other"),
     ("MEKANIK", "other"), ("ELEKTRIK", "other"), ("TESISAT", "other"), ("HVAC", "other"), ("ASANSOR", "other"),
     ("LIFT", "other"), ("ELEVATOR", "other"), ("CATI", "other"), ("ROOF", "other"), ("BAGIMSIZ", "other"),
+    # 19 Nov 2026 (review A4, A4FC-2: real14's 25 x 25 cm flue squares on 'baca' became tall cabinets): a flue or a
+    # services shaft is never furniture
+    ("BACA", "flue"), ("SAFT", "flue"), ("SHAFT", "flue"), ("FLUE", "flue"), ("CHIMNEY", "flue"),
+    ("SCHORNSTEIN", "flue"),
 )
 # Pseudo kinds of a whole piece that is not furniture but stays in the building: a column stands in the room (kept as
 # a not-built obstacle), decor is left to the decor stage.
-NOT_FURNITURE_AS: dict[str, str] = {"structure": "column", "decor": "decor"}
+NOT_FURNITURE_AS: dict[str, str] = {"structure": "column", "decor": "decor", "flue": "flue"}
 LAYER_SHARE = 0.9                   # a piece is a symbol by its layers when >= 90 % of its strokes say so
 ROOM_NUMBER_RADIUS_M = (0.10, 0.35)  # a room-number tag: a circle 0.20-0.70 m across ...
 ROOM_NUMBER_RE = re.compile(r"^[A-Z]{0,2}-?\d{1,3}[A-Z]?$")       # ... with one short number inside

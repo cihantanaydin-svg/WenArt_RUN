@@ -277,6 +277,9 @@ def _shift_piece(f: FurnitureItem, sh: _Shift) -> None:
                 fp["center"] = list(sh.p(fp["center"]))
 
 
+OUTDOOR_TWIN_REACH_M = 1.5      # 20 Nov 2026 (R09-1): an outdoor space's mirror this close to a closed mirror twin
+
+
 def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls: Optional[list] = None,
                       blocks: Optional[list] = None) -> None:
     """The outline of every labelled outdoor space without a closed face, closed from the drawn strokes around its
@@ -302,6 +305,13 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
             rec["reason"] + (f"; {rec['steps']['reason']}" if rec.get("steps") else "") if rec is not None else
             "no drawn outline closes around the label (the level inference infers one)"))
     axis = _halves(ex, walls, blocks=blocks or (), by="outdoor outlines") if walls else None
+    # 20 Nov 2026 (R09-1, C0008: real09's left balcony): on a plan whose halves held only at the mirror-label share,
+    # the outdoor spaces beside a mirror twin closed by ``_glazed_facades`` get their twins too
+    near_twins = None
+    if axis is None and (ex.report.get("mirror_twins") or {}).get("faces"):
+        mt = ex.report["mirror_twins"]
+        axis = tuple(mt["axis"])
+        near_twins = unary_union([Polygon(f) for f in mt["faces"]]).buffer(OUTDOOR_TWIN_REACH_M)
     if axis is None:
         return
     anchors = [tuple(a["anchor"]) for a in site.get("areas") or [] if a.get("anchor")]
@@ -312,6 +322,8 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
         q = (2.0 * axis[1] - x, y) if axis[0] == "x" else (x, 2.0 * axis[1] - y)
         if any(math.dist(q, b) <= 1.5 for b in anchors):
             continue                                        # a label of its own stands there
+        if near_twins is not None and not near_twins.contains(Point(q)):
+            continue                                        # no mirror twin closed beside it
         twin = _copy.deepcopy(a)
         twin.pop("outline_inferred", None)
         twin["anchor"] = [round(q[0], 4), round(q[1], 4)]
@@ -1153,6 +1165,41 @@ def _raster_evidence_boxes(ex: LevelExtraction, page: GenericPage) -> None:
 def _unclosed(warnings: list) -> int:
     """The labels a plan's walls leave in no closed face ('outer walls do not close' review reasons)."""
     return sum(1 for w in warnings if w.startswith(TP.REVIEW_PREFIX) and "outer walls do not close" in w)
+
+
+def _face_lines(strokes_m: list) -> list:
+    """19 Nov 2026 (review A4): ``[(a, b, layer)]``, the straight pieces (over 5 cm) of the strokes on a wall, plaster or
+    structure layer (``layer_names``), page metres: the drawn wall faces a lift's shaft is read from."""
+    from wenart.ingest.generic import layer_names as LN
+
+    out = []
+    for st in strokes_m:
+        if st.arc is not None or len(st.pts) < 2 or LN.layer_role(st.layer) not in ("wall", "plaster", "structure"):
+            continue
+        pts = list(st.pts) + ([st.pts[0]] if st.closed else [])
+        out += [(tuple(a), tuple(b), st.layer) for a, b in zip(pts, pts[1:]) if math.dist(a, b) > 0.05]
+    return out
+
+
+DETAIL_LINE_M = (0.05, 2.0)      # 19 Nov 2026 (review A4, SW-A4-02 / POD-A4-02): a drawn detail line this long ...
+DETAIL_SKIP_ROLES = ("wall", "plaster", "structure", "dimension", "hatch")   # ... on a layer of none of these roles
+
+
+def _detail_lines(strokes_m: list) -> list:
+    """19 Nov 2026 (review A4, SW-A4-02 / POD-A4-02: real17's lift block draws its landing door's frame on 'ince' and
+    real20's on DOT inside wall faces drawn through): ``[(a, b, layer)]``, the straight pieces ``DETAIL_LINE_M`` long of
+    the strokes on no wall, plaster, structure, dimension or hatch layer, page metres: the frames and panels a lift's
+    landing door is read from (``twins.lift_doors``)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    out = []
+    lo, hi = DETAIL_LINE_M
+    for st in strokes_m:
+        if st.arc is not None or st.fill is not None or len(st.pts) < 2 or LN.layer_role(st.layer) in DETAIL_SKIP_ROLES:
+            continue
+        pts = list(st.pts) + ([st.pts[0]] if st.closed else [])
+        out += [(tuple(a), tuple(b), st.layer) for a, b in zip(pts, pts[1:]) if lo < math.dist(a, b) <= hi]
+    return out
 
 
 BRIDGE_PARALLEL_M = 0.60        # 19 Nov 2026 (review A3, OA3-05): a corner run-on bridge this close to a drawn wall ...
@@ -2141,6 +2188,7 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
 SIZE_TAG_RE = re.compile(r"^\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")   # a window's size tag: width/height in cm
 TAG_REACH_M = 0.8               # a size tag stands this close to the wall of its window ...
 TAG_ANGLE_DEG = 15.0            # ... written along it
+TAG_ACROSS_FACE_M = 0.3         # 20 Nov 2026 (R10-P3): or written across it this close to its face
 TAG_SHIFT_M = 0.35              # the tagged window moves at most this far to clear a column, a wall end or a door
 TAG_COLLINEAR_M = 0.08          # a wall piece on the host's line (this close to its axis) is the same wall run
 FULL_GLASS_M = 2.0              # a tagged window this high starts at the floor (a shop window: full glass) ...
@@ -2149,7 +2197,100 @@ PARAPET_RE = re.compile(r"PARAPET\s*[:=]?\s*(\d{2,3})\s*CM")   # 19 Nov 2026 (OA
 PARAPET_REACH_M = 1.5           # ... this close to it gives its window's sill
 
 
-def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float):
+PAIR_TAG_RE = re.compile(r"^\s*(\d{2,3})\s*$")   # 20 Nov 2026 (pre-pod R10-P3): one number of a W/H tag written as two
+PAIR_ALONG = 0.6                # texts: their centres this many text heights apart along the text ...
+PAIR_ACROSS = (0.8, 2.2)        # ... and this many across it (one line over the other: the width over the height)
+PAIR_ANGLE_DEG = 5.0
+PAIR_HEIGHT_TOL = 0.25
+PLAIN_TAG_FRAME_SHARE = 0.5     # a tag on a plain text layer is a window's when window frame lines run along its wall
+PLAIN_TAG_BAND_M = 0.15         # ... (within the wall's band grown by this) for this share of its width
+PLAIN_TAG_MAX_W_CM = 300
+PLAIN_TAG_GAP_MIN_H_M = 1.0     # a plain-layer tag this high or more may type a gap as its window (a lower one is a
+#                                 transom or a vent over a door or passage)
+PAIR_MIN_CM = 30                # the two numbers of a size are at least this (a stair's step numbers '15' over '16' are not)
+
+
+def paired_size_tags(texts_m: list) -> list:
+    """20 Nov 2026 (pre-pod check R10-P3 / R10-P6 / R10-P1, real10: every window size is written as two texts, '150'
+    over '150', '70' over '150', '60' over '60', so no tag rule read them and the windows became sliding doors, holes or
+    wall): two number-only texts (``PAIR_TAG_RE``) on one layer that is no dimension or axis layer, of one rotation and
+    height, one over the other (``PAIR_ALONG``, ``PAIR_ACROSS`` text heights) are one 'W/H' tag: the upper line is the
+    width, the lower the height (pure). Each text joins one pair at most (the nearest)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    nums = []
+    for t in texts_m or []:
+        m = PAIR_TAG_RE.match(str(t.text or ""))
+        layer = t.evidence[0].get("layer") if t.evidence else None
+        if m and int(m.group(1)) >= PAIR_MIN_CM and LN.layer_role(layer) not in ("dimension", "axis") \
+                and float(t.height or 0) > 0:
+            nums.append((t, int(m.group(1)), layer))
+    cands = []
+    for i, (a, va, la) in enumerate(nums):
+        for b, vb, lb in nums[i + 1:]:
+            if la != lb or abs(((a.rotation_deg or 0.0) - (b.rotation_deg or 0.0) + 180.0) % 360.0 - 180.0) > PAIR_ANGLE_DEG:
+                continue
+            h = max(float(a.height), float(b.height))
+            if abs(float(a.height) - float(b.height)) > PAIR_HEIGHT_TOL * h:
+                continue
+            r = math.radians(a.rotation_deg or 0.0)
+            ux, uy, nx, ny = math.cos(r), math.sin(r), -math.sin(r), math.cos(r)
+            ca = ((a.box[0] + a.box[2]) / 2.0, (a.box[1] + a.box[3]) / 2.0)
+            cb = ((b.box[0] + b.box[2]) / 2.0, (b.box[1] + b.box[3]) / 2.0)
+            dx, dy = cb[0] - ca[0], cb[1] - ca[1]
+            along, across = dx * ux + dy * uy, dx * nx + dy * ny
+            if abs(along) <= PAIR_ALONG * h and PAIR_ACROSS[0] * h <= abs(across) <= PAIR_ACROSS[1] * h:
+                top, bot = ((b, vb), (a, va)) if across > 0 else ((a, va), (b, vb))
+                cands.append((math.hypot(dx, dy), top, bot))
+    used, out = set(), []
+    for _d, (top, w), (bot, hh) in sorted(cands, key=lambda c: c[0]):
+        if id(top) in used or id(bot) in used:
+            continue
+        used.update((id(top), id(bot)))
+        ev = [dict(top.evidence[0], entity=f"{top.id}+{bot.id}", text=f"{w}/{hh}")] if top.evidence else []
+        out.append(TextRun(id=f"{top.id}+{bot.id}", text=f"{w}/{hh}",
+                           box=(min(top.box[0], bot.box[0]), min(top.box[1], bot.box[1]),
+                                max(top.box[2], bot.box[2]), max(top.box[3], bot.box[3])),
+                           height=float(top.height), rotation_deg=float(top.rotation_deg or 0.0), source=top.source,
+                           evidence=ev))
+    return out
+
+
+def _frame_cover(strokes: list, x0, y0, ux, uy, half: float, lo: float, hi: float) -> float:
+    """The share of [lo, hi] along a wall (origin x0, y0, direction ux, uy, half thickness ``half``) that window or
+    glass layer lines (no arc) run along within its band grown by ``PLAIN_TAG_BAND_M``."""
+    from wenart.ingest.generic import layer_names as LN
+
+    spans = []
+    for st in strokes or []:
+        pts = getattr(st, "pts", None) or []
+        if getattr(st, "arc", None) or len(pts) < 2 or LN.layer_role(getattr(st, "layer", None)) not in ("window",
+                                                                                                          "glass"):
+            continue
+        for (ax, ay), (bx, by) in zip(pts[:-1], pts[1:]):
+            oa = abs(-(ax - x0) * uy + (ay - y0) * ux)
+            ob = abs(-(bx - x0) * uy + (by - y0) * ux)
+            if max(oa, ob) > half + PLAIN_TAG_BAND_M:
+                continue
+            ta, tb = sorted(((ax - x0) * ux + (ay - y0) * uy, (bx - x0) * ux + (by - y0) * uy))
+            if tb - ta < 0.05:
+                continue
+            a, b = max(ta, lo), min(tb, hi)
+            if b > a:
+                spans.append((a, b))
+    covered, end = 0.0, None
+    for a, b in sorted(spans):
+        if end is None or a > end:
+            covered += b - a
+            end = b
+        elif b > end:
+            covered += b - end
+            end = b
+    return covered / (hi - lo) if hi > lo else 0.0
+
+
+def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float,
+                 strokes: list = ()):
     """4 Nov 2026 (real17 L0, user: "these sections could be full windows glass, check it"): a window size tag ("470/240",
     width/height in cm, on a window text layer) written along a wall within ``TAG_REACH_M`` is that wall's window: one
     window of that width and height, centred at the tag and moved up to ``TAG_SHIFT_M`` to clear the columns, the run's
@@ -2165,7 +2306,12 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
     from wenart.ingest.model import OpeningItem
 
     tags = []
-    for t in texts_m:
+    plain = set()
+    # the sizes written as two texts on a plain text layer (20 Nov 2026, R10-P3; gate: on real07's joinery layer, where
+    # every size is one 'W/H' text, the two-text pairs joined numbers of different tags)
+    pairs = [t for t in paired_size_tags(texts_m)
+             if LN.layer_role(t.evidence[0].get("layer") if t.evidence else None) in DOOR_TAG_TEXT_ROLES]
+    for t in list(texts_m) + pairs:
         m = SIZE_TAG_RE.match(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
         if m and LN.layer_role(layer) in ("window", "glass") \
@@ -2173,6 +2319,14 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
             tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
         elif m and LN.layer_role(layer) == "door" and int(m.group(2)) < DOOR_TAG_LOW_H_CM:
             tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+        elif m and LN.layer_role(layer) in DOOR_TAG_TEXT_ROLES and strokes and int(m.group(1)) <= PLAIN_TAG_MAX_W_CM \
+                and int(m.group(2)) < DOOR_TAG_LOW_H_CM:
+            # 20 Nov 2026 (pre-pod R10-P3, real10: '150' over '150' on the text layer TEXT beside a PENCERE window read
+            # as a sliding door): a window-high tag (under a door's height) on a plain text layer is a window's where
+            # window frame lines run along its wall (checked below, ``PLAIN_TAG_FRAME_SHARE``); a door-high one stays
+            # the door tags' (``_door_tags``)
+            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+            plain.add(id(t))
     if not tags or not walls2:
         return None
     parapets = []
@@ -2188,18 +2342,27 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
         r = math.radians(t.rotation_deg or 0.0)
         td = (math.cos(r), math.sin(r))
         best = None
+        across = None
         for k, w in enumerate(walls2):
             (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
             L = math.hypot(x1 - x0, y1 - y0)
             if L < 0.3:
                 continue
             ux, uy = (x1 - x0) / L, (y1 - y0) / L
-            if abs(td[0] * uy - td[1] * ux) > math.sin(math.radians(TAG_ANGLE_DEG)):
-                continue
             s_ = (cx - x0) * ux + (cy - y0) * uy
             d = abs(-(cx - x0) * uy + (cy - y0) * ux)
+            sin_a = abs(td[0] * uy - td[1] * ux)
+            if sin_a > math.sin(math.radians(TAG_ANGLE_DEG)):
+                # 20 Nov 2026 (pre-pod R10-P3, real10: every tag written across its wall, just outside its face): a tag
+                # across the wall within ``TAG_ACROSS_FACE_M`` of its face, when no wall runs along it
+                if sin_a >= math.cos(math.radians(TAG_ANGLE_DEG)) and d <= float(w.thickness) / 2.0 + TAG_ACROSS_FACE_M \
+                        and 0.0 <= s_ <= L and (across is None or d < across[0]):
+                    across = (d, k, (x0, y0), (ux, uy), s_)
+                continue
             if d <= TAG_REACH_M and -0.1 <= s_ <= L + 0.1 and (best is None or d < best[0]):
                 best = (d, k, (x0, y0), (ux, uy), s_)
+        via_across = best is None and across is not None
+        best = best or across
         if best is None:
             skipped.append(f"{t.text}: no wall along it within {TAG_REACH_M:.1f} m")
             continue
@@ -2234,7 +2397,17 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
             ps = [along(c) for gg in getattr(part, "geoms", [part]) if hasattr(gg, "exterior")
                   for c in gg.exterior.coords]
             blocked.append((min(ps), max(ps)))
-        low = height * 100.0 < DOOR_TAG_LOW_H_CM and LN.layer_role(
+        if (id(t) in plain or via_across) and _frame_cover(strokes, x0, y0, ux, uy, h, s_ - width / 2.0,
+                                                           s_ + width / 2.0) < PLAIN_TAG_FRAME_SHARE:
+            # (20 Nov 2026, gate: real07's '350' over '70' beside the garage stood 0.29 m from the end of a cross wall
+            # and made a 3.5 m window there; the garage door went to it) a tag across a wall, like a plain-layer tag,
+            # is that wall's window only where window frames run along it
+            skipped.append(f"{t.text}: a {'plain-layer ' if id(t) in plain else ''}tag "
+                           f"{'across its wall ' if via_across else ''}with no window frames along its wall")
+            continue
+        # a window's lines read as leaves give way to the tag (19 Nov 2026, OA3-01: a door layer's low tag; 20 Nov
+        # 2026, R10-P3: a plain-layer tag over window frames)
+        low = id(t) in plain or height * 100.0 < DOOR_TAG_LOW_H_CM and LN.layer_role(
             (t.evidence[0].get("layer") if t.evidence else None)) == "door"
         for j, o in enumerate(out):
             if o.kind == "door" and abs(off(o.center)) <= h + 0.05:
@@ -2275,6 +2448,11 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
             gone += [o for o in out if (_leaf_line_door(o) or (o.kind == "opening" and not o.virtual))
                      and all(o is not g for g in gone) and abs(off(o.center)) <= h + 0.05
                      and abs(along(o.center) - (a0 + a1) / 2.0) <= float(o.width) / 2.0]
+        if id(t) in plain and height < PLAIN_TAG_GAP_MIN_H_M and any(o.kind == "opening" for o in gone):
+            # 20 Nov 2026 (gate: real07's '350/70' over the garage's 3.41 m gap, C0045 a garage door): a plain-layer tag
+            # lower than a window over a gap is a transom or a vent above the door or passage: the gap stays
+            skipped.append(f"{t.text}: a {height:.2f} m high window over a gap (a transom or a vent): the gap kept")
+            continue
         out = [o for o in out if all(o is not g for g in gone)]
         mid = (a0 + a1) / 2.0
         ev = dict(t.evidence[0]) if t.evidence else {}
@@ -3043,6 +3221,20 @@ def _solid_linetype(name: Optional[str]) -> bool:
     return not name or str(name).strip().upper() in ("CONTINUOUS", "BYLAYER", "BYBLOCK", "SOLID", "STANDARD")
 
 
+FACE_THROUGH_IN_M = (0.04, 0.06)  # 19 Nov 2026 (review A4, POD-A4-03): a face line may lie this far inside the face ...
+FACE_THROUGH_IN_SHARE = 0.6       # ... at most this share of the half-thickness in (the masonry under a plaster coat)
+
+
+def _on_face(d: float, h: float) -> bool:
+    """19 Nov 2026 (review A4, POD-A4-03: real09 L2's masonry line, 3 cm inside the plaster face, stood 0.0301 m off the
+    face and the gap stayed while L0's, at 0.0299 m, closed): a line ``d`` from the wall's axis towards one face (the
+    face at ``h``) runs along that face when it lies within ``FACE_THROUGH_TOL_M`` outside it or inside the wall by up
+    to its plaster coat and masonry face (``FACE_THROUGH_IN_M``, ``FACE_THROUGH_IN_SHARE`` of ``h``): a band whose edges
+    are far from the usual 3 cm coat, so a sub-millimetre shift of the axis changes nothing (pure)."""
+    inner = max(FACE_THROUGH_IN_M[0], min(FACE_THROUGH_IN_M[1], FACE_THROUGH_IN_SHARE * h))
+    return h - inner <= d <= h + FACE_THROUGH_TOL_M
+
+
 def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m: list) -> tuple[list, list]:
     """12 Nov 2026 (review of the reader targets, real15 F2: the solid wall between the living room and the bathroom,
     drawn as two unbroken lines on its masonry and its plaster layer, became a 2.0 m gap holding the bath's block): an
@@ -3104,7 +3296,7 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
                 db = (b[0] - x0) * nx + (b[1] - y0) * ny
                 lab = math.dist(a, b)
                 cross = abs(((b[0] - a[0]) * nx + (b[1] - a[1]) * ny) / lab)
-                if cross > FACE_THROUGH_ANGLE or abs(side * h - (da + db) / 2.0) > FACE_THROUGH_TOL_M:
+                if cross > FACE_THROUGH_ANGLE or not _on_face(side * (da + db) / 2.0, h):
                     continue
                 sa = (a[0] - x0) * ux + (a[1] - y0) * uy
                 sb = (b[0] - x0) * ux + (b[1] - y0) * uy
@@ -3130,7 +3322,7 @@ def _faces_through_gaps(ex, where: str, walls2: list, openings: list, strokes_m:
                 for q in (a, b):
                     dq = (q[0] - x0) * nx + (q[1] - y0) * ny
                     sq = (q[0] - x0) * ux + (q[1] - y0) * uy
-                    if abs(side * h - dq) <= FACE_THROUGH_TOL_M and g0 - 2 * h <= sq <= g1 + 2 * h:
+                    if _on_face(side * dq, h) and g0 - 2 * h <= sq <= g1 + 2 * h:
                         ends.append(sq)
             at = g0
             for s0, s1 in sorted(spans):
@@ -3491,14 +3683,16 @@ MIRROR_MAX_NEW_WALLS = 3        # mirror twins differ by at most this many walls
 CORE_KEEP_OUT_M = 3.0           # no mirror fix within this of a lift label (the core: lift and stair, not mirrored)
 
 
-def _halves(ex, walls: list, openings: list = (), blocks: list = (), level_id=None, by: str = "") -> Optional[tuple]:
+def _halves(ex, walls: list, openings: list = (), blocks: list = (), level_id=None, by: str = "",
+            min_share: Optional[float] = None) -> Optional[tuple]:
     """Whether the plan is two mirrored halves (``mirror.halves``, the one decision every mirror rule uses: outdoor
     outlines and guard, recess twins, mirror seeds, the mirror fixes, the separators), made on the walls the asking
     rule applies it to, with the openings and labels it has. 5 Nov 2026 (review: a decision made on the first rule's
     walls, before the facade closure, the recesses and the outline closure, was stale at the mirror step): the cache is
     per identical input (the walls' entities, ends and thicknesses, the labels' texts and points, the openings' kinds,
     centres and widths); every decision is listed in ``ex.report["mirror"]``. Without labels the label rule is
-    skipped, and the note says so. Returns the axis or None."""
+    skipped, and the note says so. Returns the axis or None. ``min_share``: the walls' overlap the decision needs
+    (``mirror.halves``; default ``facade.MIRROR_FIX_SHARE``), part of the cache key."""
     import hashlib
 
     from wenart.ingest.generic import mirror as MR
@@ -3509,11 +3703,11 @@ def _halves(ex, walls: list, openings: list = (), blocks: list = (), level_id=No
         sorted((str(getattr(b, "name", "")), round(float(b.anchor[0]), 3), round(float(b.anchor[1]), 3))
                for b in blocks or ()),
         sorted((str(o.kind), round(float(o.center[0]), 3), round(float(o.center[1]), 3), round(float(o.width), 3))
-               for o in openings or ()))).encode()).hexdigest()
+               for o in openings or ()), min_share)).encode()).hexdigest()
     cache = ex.report.setdefault("mirror_cache", {})
     if key not in cache:
-        h = MR.halves(walls, list(openings or []), list(blocks or []), level_id) if walls else {"axis": None,
-                                                                                                "note": None}
+        h = MR.halves(walls, list(openings or []), list(blocks or []), level_id, min_share) if walls else {
+            "axis": None, "note": None}
         cache[key] = list(h["axis"]) if h.get("axis") else None
         row = dict(h, axis=cache[key], by=by, walls=len(walls))
         if not blocks:
@@ -3597,6 +3791,22 @@ def _mirror_consistency(ex, where: str, walls2: list, openings: list, blocks: li
     return w5, o5, bw5, site5, sw5, b_open5, problem5
 
 
+def _shared_outdoor(walls: list, openings: list, blocks: list) -> list:
+    """19 Nov 2026 (review A4, A4FC-4): the anchors of the indoor room labels whose closed face also holds a balcony or
+    another outdoor label (a kitchen and its balcony in one face, a railing line closing them)."""
+    outdoor = [Point(b.anchor) for b in blocks if getattr(b, "exterior", False)
+               or getattr(b, "room_type", None) == "balcony"]
+    if not outdoor:
+        return []
+    out = []
+    for f in TP.faces(walls, openings):
+        if not any(f.contains(p) for p in outdoor):
+            continue
+        out += [tuple(b.anchor) for b in blocks if not getattr(b, "exterior", False)
+                and getattr(b, "room_type", None) != "balcony" and f.contains(Point(b.anchor))]
+    return out
+
+
 def _open_anchors(walls: list, openings: list, blocks: list) -> list:
     """The anchors of the indoor room labels (no balcony) that stand in no closed face of the walls."""
     faces = TP.faces(walls, openings)
@@ -3610,11 +3820,92 @@ def _open_anchors(walls: list, openings: list, blocks: list) -> list:
     return out
 
 
+TWIN_FACE_IOU = 0.6             # 20 Nov 2026 (R09-1): a face closed at a twin seed mirrors its labelled twin's face this
+                                # well (intersection over union; real09 L2: the left kitchen is drawn 2.44 m wide, its
+                                # twin 1.84 m, 70 %) ...
+TWIN_TAG_REACH_M = 1.0          # ... and shows the drawing's own sign of a room there: a size tag this close to it ...
+TWIN_DOOR_REACH_M = 0.35        # ... a drawn door this close to its outline ...
+TWIN_FRAME_MIN_M = 1.0          # ... or this much of window and door frames along its outline
+# an opening's size tag: an optional kind letter and number ('P:220/150', 'K:80/240', 'D1-90/210', 'W 120/150'), then
+# width/height in cm
+OPENING_TAG_RE = re.compile(r"^\s*(?:[A-Z]{1,2}\s*\d{0,2}\s*[:\-.]?\s*)?(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.IGNORECASE)
+
+
+def _mirror_point(q, axis) -> tuple:
+    return (2.0 * axis[1] - q[0], q[1]) if axis[0] == "x" else (q[0], 2.0 * axis[1] - q[1])
+
+
+def _mirror_poly(poly, axis):
+    from shapely import affinity
+
+    return affinity.scale(poly, xfact=-1.0 if axis[0] == "x" else 1.0, yfact=-1.0 if axis[0] == "y" else 1.0,
+                          origin=(axis[1], 0.0) if axis[0] == "x" else (0.0, axis[1]))
+
+
+def twin_evidence(face, twin_face, axis, texts_m: list, openings: list, strokes: list, walls: list,
+                  others: list) -> tuple[Optional[str], list]:
+    """20 Nov 2026 (R09-1, real09 L0-L2: the left flat's salon, its facade drawn as frames tagged 'P:220/150',
+    'P:150/150' and a 'K:80/240' balcony door, stayed open because the missing salon itself made the shell 89 %
+    symmetric, under ``facade.MIRROR_FIX_SHARE``): whether a face closed at the mirror of a labelled room is that room's
+    twin (pure). ``(None, evidence)`` when its mirror overlaps the twin's face by ``TWIN_FACE_IOU`` and the drawing
+    marks a room there: opening size tags (``OPENING_TAG_RE``) within ``TWIN_TAG_REACH_M`` of it and in no other
+    closed face (``others``), drawn doors within ``TWIN_DOOR_REACH_M`` of its outline, or ``TWIN_FRAME_MIN_M`` of
+    window and door frames along it; else ``(why not, [])``."""
+    from wenart.ingest.generic import facade as FC
+
+    if twin_face is None or twin_face.is_empty:
+        return "its labelled twin has no closed face to compare", []
+    m = _mirror_poly(face, axis)
+    union = m.union(twin_face).area
+    iou = m.intersection(twin_face).area / union if union > 0 else 0.0
+    if iou < TWIN_FACE_IOU:
+        return f"its mirror overlaps the twin's face by {iou:.0%} (< {TWIN_FACE_IOU:.0%})", []
+    ev = []
+    near = face.buffer(TWIN_TAG_REACH_M, join_style=2)
+    tags = []
+    for t in texts_m or []:
+        if not OPENING_TAG_RE.match(str(getattr(t, "text", "") or "")):
+            continue
+        c = Point((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
+        if near.contains(c) and not any(o.contains(c) for o in others):
+            tags.append(str(t.text).strip())
+    if tags:
+        ev.append(f"size tags {', '.join(sorted(set(tags))[:6])}")
+    ring = face.exterior
+    doors = [o for o in openings or [] if not getattr(o, "virtual", False) and o.kind in ("door", "opening")
+             and ring.distance(Point(tuple(o.center))) <= TWIN_DOOR_REACH_M]
+    if doors:
+        ev.append(f"{len(doors)} drawn door(s) on its outline")
+    theta = O.dominant_angle(walls) if walls else None
+    drawn = unary_union([TP.wall_polygon(w) for w in walls]).buffer(FC.ON_WALL_M) if walls else None
+    band = ring.buffer(FC.BAND_M, cap_style=2, join_style=2)
+    frames = 0.0
+    for ln in FC.joinery_lines(strokes, theta):
+        part = ln.intersection(band)
+        if drawn is not None and not part.is_empty:
+            part = part.difference(drawn)
+        frames += part.length
+    if frames >= TWIN_FRAME_MIN_M:
+        ev.append(f"{frames:.1f} m of window and door frames along its outline")
+    if not ev:
+        return "the drawing marks no room there (no size tag, door or frames)", []
+    return None, [f"its mirror overlaps the twin's face by {iou:.0%}"] + ev
+
+
 def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
-                    problem: Optional[str], strokes: list, file_rel: str, page_no, s: float, owned: set):
+                    problem: Optional[str], strokes: list, file_rel: str, page_no, s: float, owned: set,
+                    texts_m: list = ()):
     """The open rooms closed along their facades of window and door frames (``facade``): the inferred walls carry
     the windows and doors drawn across them (``openings.openings_on_walls``), and an unverified window where frames
-    run along a wall and no symbol reads; kept when they close in more labelled rooms (or close the outer loop)."""
+    run along a wall and no symbol reads; kept when they close in more labelled rooms (or close the outer loop).
+
+    20 Nov 2026 (R09-1, real09 L0-L2: the left flat's salon and the L2 left kitchen were never built, a 5 x 5 m notch
+    in three storeys, because the missing rooms made the shell 89 % symmetric, under the 90 % the mirror fixes need):
+    when the plan is no two mirrored halves at ``facade.MIRROR_FIX_SHARE`` but is at ``facade.MIRROR_SHARE`` (the
+    mirror-label rule's), the labelled rooms' mirror places in open areas are tried as twin seeds too; a face closed
+    there is kept only when it mirrors its twin's face and the drawing marks a room there (``twin_evidence``: size
+    tags, a drawn door, frames along it). Its walls name the twin, the axis and the evidence; the plan's outdoor
+    spaces next to it get their mirror twins (``_outdoor_outlines``, ``ex.report["mirror_twins"]``)."""
     from wenart.ingest.generic import facade as FC
 
     anchors = _open_anchors(walls2, openings, blocks)
@@ -3625,28 +3916,70 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
     hull = unary_union([TP.wall_polygon(w) for w in walls2]).convex_hull
     labelled = [tuple(b.anchor) for b in blocks if not getattr(b, "exterior", False)
                 and getattr(b, "room_type", None) != "balcony"]
-    seeds = FC.mirror_seeds(walls2, labelled, lambda q: hull.contains(Point(q))
-                            and not any(f.contains(Point(q)) for f in faces_now),
-                            axis=_halves(ex, walls2, openings, blocks, level_id, "mirror seeds"))
-    faces, links = FC.close_rooms(walls2, strokes, anchors + seeds)
+
+    def open_test(q):
+        return hull.contains(Point(q)) and not any(f.contains(Point(q)) for f in faces_now)
+
+    axis = _halves(ex, walls2, openings, blocks, level_id, "mirror seeds")
+    seeds = FC.mirror_seeds(walls2, labelled, open_test, axis=axis)
+    loose, twin_seeds = None, []
+    if axis is None:
+        loose = _halves(ex, walls2, openings, blocks, level_id, "mirror twins (R09-1)", min_share=FC.MIRROR_SHARE)
+        twin_seeds = FC.mirror_seeds(walls2, labelled, open_test, axis=loose) if loose else []
+    tried = anchors + seeds + twin_seeds
+    faces, links = FC.close_rooms(walls2, strokes, tried)
     if not faces:
         return None
+    twins = {}
+    if twin_seeds:
+        first = len(anchors) + len(seeds)
+        for k in [k for k in faces if k >= first]:
+            q = tried[k]
+            a = _mirror_point(q, loose)
+            ka = next((i for i, p in enumerate(anchors) if math.dist(p, a) <= 1e-6), None)
+            twin_face = faces.get(ka) if ka is not None else next(
+                (f for f in faces_now if f.contains(Point(a))), None)
+            others = list(faces_now) + [f for i, f in faces.items() if i != k]
+            name = next((str(b.name) for b in blocks if math.dist(tuple(b.anchor), a) <= 1e-6), "?")
+            why, ev = twin_evidence(faces[k], twin_face, loose, texts_m, openings, strokes, walls2, others)
+            if why:
+                ex.notes.append(f"{where}: mirror twin of '{name}' at ({q[0]:.2f}, {q[1]:.2f}) m not closed: {why}")
+                faces.pop(k)
+                continue
+            twins[k] = {"label": name, "of": [round(a[0], 4), round(a[1], 4)], "seed": [round(q[0], 4), round(q[1], 4)],
+                        "evidence": ev}
+        if not faces:
+            return None
     # 5 Nov 2026 (real11 L0: the left kitchen's face ran along the balcony's railing and took the 'BALKON 10.00 m2'
     # in): a face holding an outdoor-space label, the mirror image of one, or matching an outdoor area text is no
     # room; it is not closed here (the outline closure may close the room along its facade, under the same guard)
-    guard = outdoor_guard(blocks, walls2, _halves(ex, walls2, openings, blocks, level_id, "glazed facades"))
+    guard = outdoor_guard(blocks, walls2, _halves(ex, walls2, openings, blocks, level_id, "glazed facades") or (
+        loose if twins else None))
     kept_faces = {}
     for k, face in faces.items():
         why = outdoor_enclosure(face, guard)
         if why:
-            ex.notes.append(f"{where}: glazed facade: the face closed around the label at ({(anchors + seeds)[k][0]:.2f}, "
-                            f"{(anchors + seeds)[k][1]:.2f}) m is no room: {why}; not closed along those frames")
+            ex.notes.append(f"{where}: glazed facade: the face closed around the label at ({tried[k][0]:.2f}, "
+                            f"{tried[k][1]:.2f}) m is no room: {why}; not closed along those frames")
         else:
             kept_faces[k] = face
     faces = kept_faces
+    twins = {k: v for k, v in twins.items() if k in faces}
     if not faces:
         return None
-    new_walls = FC.facade_wall_items(walls2, list(faces.values()), openings, file_rel, page_no, units_to_m=s)
+
+    def told(mid, t):
+        # 20 Nov 2026 (R09-1): a wall of a mirror twin's face names the twin, the axis and the drawing's evidence
+        k = min(faces, key=lambda i: faces[i].exterior.distance(Point(mid)))
+        if k not in twins or faces[k].exterior.distance(Point(mid)) > t:
+            return None
+        tw = twins[k]
+        return (f"the mirror twin of '{tw['label']}' across the plan's axis ({loose[0]} = {loose[1]:.2f}; the drafter "
+                f"named one of the two mirrored halves only): its walls did not close, the wall is inferred where its "
+                f"frames stand (thickness {t:.2f} m); evidence: {'; '.join(tw['evidence'])}", None)
+
+    new_walls = FC.facade_wall_items(walls2, list(faces.values()), openings, file_rel, page_no, units_to_m=s,
+                                     why=told if twins else None)
     if not new_walls:
         return None
     taken = set(owned)
@@ -3664,6 +3997,17 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
     if seeds:
         ex.notes.append(f"{where}: {len(seeds)} mirrored twin(s) of labelled rooms tried at the plan's mirror axis "
                         f"(the drafter named one half only): {sum(1 for k in faces if k >= len(anchors))} closed")
+    if twins:
+        # page metres; the pipeline gives the rooms closed there their twins' labels (``pipeline._mirror_twin_rooms``)
+        ex.report["mirror_twins"] = {"axis": [loose[0], round(loose[1], 4)],
+                                     "faces": [[[round(x, 4), round(y, 4)] for x, y in faces[k].exterior.coords]
+                                               for k in twins],
+                                     "rooms": [dict(tw) for tw in twins.values()]}
+        for tw in twins.values():
+            ex.notes.append(f"{where}: the mirror twin of '{tw['label']}' (at {tw['of'][0]:.2f}, {tw['of'][1]:.2f} m) "
+                            f"closed across the axis {loose[0]} = {loose[1]:.2f} (inferred, rule mirror_twin: the "
+                            f"plan is two mirrored halves at {FC.MIRROR_SHARE:.0%}, not at {FC.MIRROR_FIX_SHARE:.0%}, "
+                            f"because the twin is missing): {'; '.join(tw['evidence'])}")
     ex.notes.append(f"{where}: {len(faces)} room(s) closed along facades of window and door frames (rule glazed_facade):"
                     f" {len(new_walls)} inferred wall(s), {len(links)} gap link(s) up to {FC.LINK_M:g} m, "
                     f"{len(read)} drawn opening(s) read on them, {len(framed)} unverified window(s) where frames run "
@@ -3673,6 +4017,9 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
 
 OPEN_OUTLINE_ON_WALLS = 0.5      # 19 Nov 2026 (review A3, OA3-06): a room outline this much along drawn walls ...
 OPEN_OUTLINE_MIN_M2 = 1.5        # ... and this large is the room its label names, its missing sides inferred
+
+
+OPEN_OUTLINE_RULE = "room_outline_closure"     # 19 Nov 2026 (review A4, A4FC-5): the evidence rule of its walls
 
 
 def _open_room_outlines(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
@@ -3686,7 +4033,9 @@ def _open_room_outlines(ex, where: str, walls2: list, openings: list, blocks: li
     (``openings.openings_on_walls``); kept when they close in more labelled rooms."""
     from wenart.ingest.generic import facade as FC
 
-    anchors = set(_open_anchors(walls2, openings, blocks))
+    # 19 Nov 2026 (review A4, A4FC-4: real18's south kitchen shared one face with its balcony, split by a virtual
+    # separator, while its north twin was closed): an indoor label whose face also holds a balcony label too
+    anchors = set(_open_anchors(walls2, openings, blocks)) | set(_shared_outdoor(walls2, openings, blocks))
     if not anchors:
         return None
     outs = [o for o in OL.labelled_outlines(strokes, blocks) if tuple(o.block.anchor) in anchors
@@ -3698,7 +4047,18 @@ def _open_room_outlines(ex, where: str, walls2: list, openings: list, blocks: li
              if o.polygon.exterior.intersection(drawn).length >= OPEN_OUTLINE_ON_WALLS * o.polygon.exterior.length]
     if not faces:
         return None
-    new_walls = FC.facade_wall_items(walls2, faces, openings, file_rel, page_no, units_to_m=s)
+    used = [o for o in outs if any(o.polygon is f for f in faces)]
+
+    def why(mid, t):
+        # 19 Nov 2026 (review A4, A4FC-5): the wall names the room's outline that made it
+        o = min(used, key=lambda x: x.polygon.exterior.distance(Point(mid)))
+        return (f"the room '{o.block.name}' closed along its own drawn outline ({o.stroke.id}): its walls did not "
+                f"close, the wall is inferred on the outline's side where none is drawn (thickness {t:.2f} m, the "
+                f"median of the drawn walls it touches); the door and window symbols drawn across it are read",
+                o.stroke.id)
+
+    new_walls = FC.facade_wall_items(walls2, faces, openings, file_rel, page_no, units_to_m=s,
+                                     rule=OPEN_OUTLINE_RULE, why=why)
     if not new_walls:
         return None
     taken = set(owned)
@@ -3710,7 +4070,9 @@ def _open_room_outlines(ex, where: str, walls2: list, openings: list, blocks: li
     b_open4 = [o for k, o in enumerate(o4) if k not in idx4]
     problem4 = TP.outer_loop_problem(bw4, b_open4)
     before, after = _unclosed(site_warnings), _unclosed(sw4)
-    if not (after < before or (problem is not None and problem4 is None and after <= before)):
+    shared0, shared1 = len(_shared_outdoor(walls2, openings, blocks)), len(_shared_outdoor(w4, o4, blocks))
+    if not (after < before or (problem is not None and problem4 is None and after <= before)
+            or (shared1 < shared0 and after <= before)):
         return None
     owned.update(taken)
     ex.notes.append(f"{where}: {len(faces)} room(s) whose label stood in no closed face closed along their own drawn "
@@ -3902,6 +4264,11 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     ex.report["wall_info"] = {k: v for k, v in wall_info.items() if k != "dropped_strokes"}
     ex.report["mask"] = mask
     ex.report["units_to_m"] = s
+    # 19 Nov 2026 (review A4, POD-A4-02 / A4FC-1: lift shafts from the drawn enclosure): the page's drawn wall faces
+    # (straight pieces on a wall, plaster or structure layer, page metres), kept on the extraction for the lift rules
+    # (``twins.drawn_enclosure``); not written anywhere
+    ex.face_lines_m = _face_lines(strokes_m)
+    ex.detail_lines_m = _detail_lines(strokes_m)
 
     # 4. Label blocks, plot and building. 6 Nov 2026 (target 4, real14): a room schedule (a list of room words under a
     # header such as MAHAL, or outside every wall's hull) is no label (``labels.schedules``); never silent.
@@ -3949,7 +4316,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         # 3 Nov 2026 (user: "go ahead with the glazed facades"; real09, real11, real13, real14): the facades of window
         # and door frames are closed around the rooms still open (``facade``); the openings drawn across them are read
         glazed = _glazed_facades(ex, where, walls2, openings, blocks, level_id, site_warnings, problem, non_wall,
-                                 file_rel, page_no, s, owned)
+                                 file_rel, page_no, s, owned, texts_m)
         if glazed is not None:
             walls2, openings, bwalls, site, site_warnings, b_openings, problem = glazed
     if (problem is not None or _unclosed(site_warnings)) and not is_raster:
@@ -4022,7 +4389,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                     prob_c
             else:
                 ex.notes.append(f"{where}: the doors in the cut-line spans left out: they would open the walls")
-        tagged = _window_tags(ex, where, walls2, openings, texts_m, s)
+        tagged = _window_tags(ex, where, walls2, openings, texts_m, s, non_wall)
         if tagged is not None:
             bw_t, site_t, sw_t = TP.split_plot(walls2, tagged, blocks, level_id=level_id)
             idx = {o["index"] for o in site_t["openings"]}
