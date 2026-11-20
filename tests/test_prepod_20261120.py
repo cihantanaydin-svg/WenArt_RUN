@@ -217,7 +217,9 @@ def test_the_floors_only_assumed_take_the_pitch_of_the_dwg_sections():
     z = {e["level_id"]: e["floor_z"]["value"] for e in out["levels"]}
     assert z == {"L0": 0.0, "L1": 3.2, "L2": 6.4} and lines
     assert out["levels"][1]["ceiling_height"]["value"] == 3.0
-    assert out["levels"][1]["floor_z"]["evidence"][0]["method"] == "inferred"
+    # pod 20261120-080154-full: method 'inferred' failed the sheets schema and stopped real03 before the build
+    assert out["levels"][1]["floor_z"]["evidence"][0]["method"] == "derived"
+    assert out["levels"][1]["floor_to_floor"]["evidence"][0]["rule"] == HT.PITCH_RULE
 
 
 def test_an_inferred_basement_is_the_footprint_with_the_core_and_no_window():

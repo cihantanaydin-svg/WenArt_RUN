@@ -715,12 +715,13 @@ def apply_pitch(out: dict, levels: list[dict], pitch: float, slab_default: float
     """20 Nov 2026 (pre-pod review R03-01: real03's floors stood 3.00 m apart, the DWG's unused sections mark them every
     3.20 m): the floors the heights only assume take the storey pitch another document of the same building gives
     (``storeys.dwg_rung``): every level at and above the ground floor at its order times the pitch, its floor to floor the
-    pitch, its ceiling the pitch less the slab (method ``derived``, its evidence ``inferred``, rule ``PITCH_RULE``)."""
+    pitch, its ceiling the pitch less the slab (method ``derived``, its evidence ``derived`` as the sheets schema allows, rule ``PITCH_RULE``; the level's
+    ``elevation_inference`` marks it inferred)."""
     if not pitch or not 2.2 <= float(pitch) <= STOREY_MAX_M:
         return []
     by_id = {e["level_id"]: e for e in out.get("levels") or []}
     ev = [_ev(file_rel or "", None, PITCH_RULE, "", text=f"{float(pitch):.2f} m a storey", confidence=0.6,
-              method="inferred")]
+              method="derived")]
     done = []
     for lv in levels:
         order = lv.get("order") or 0
@@ -728,7 +729,7 @@ def apply_pitch(out: dict, levels: list[dict], pitch: float, slab_default: float
         if order < 0 or e is None or (e.get("floor_z") or {}).get("method") not in (None, "assumed"):
             continue
         ev = [_ev(file_rel or "", None, PITCH_RULE, "", text=f"{float(pitch):.2f} m a storey", confidence=0.6,
-                  method="inferred")]
+                  method="derived")]
         e["floor_z"] = _value(order * float(pitch), "derived", ev, 0.6, note=f"order x {float(pitch):.2f} m ({source})")
         e["floor_to_floor"] = _value(float(pitch), "derived", ev, 0.6, note=source)
         ceil = e.get("ceiling_height") or {}
