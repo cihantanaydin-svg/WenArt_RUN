@@ -2205,13 +2205,35 @@ def parapet_cuts(model: dict, building: dict, level: dict) -> dict[str, list[dic
     for o in model.get("openings") or []:
         ids = [i for i in o.get("parapet_wall_ids") or [] if i in walls]
         source = "parapet_wall_ids"
+        poly_of = {}
+        if not ids and o.get("kind") == "light_well":
+            # 20 Nov 2026 (pre-pod review BP-05: the walls round real21's light wells have their centre lines 5 cm
+            # outside the opening, so no parapet was built: six unguarded holes in the roof): the walls whose centre
+            # line runs along the light well's edge (within half their thickness and 5 cm) are its parapet
+            from shapely.geometry import Polygon as _Poly
+
+            base = _Poly(o["polygon"])
+            for w in walls.values():
+                grown = base.buffer(float(w.get("thickness") or 0.15) / 2.0 + 0.05, join_style=2)
+                if grown.geom_type != "Polygon":
+                    continue
+                ring = [list(c) for c in list(grown.exterior.coords)[:-1]]
+                length = math.dist(w["start"][:2], w["end"][:2])
+                spans = [(a, c) for a, c in segment_inside(w["start"], w["end"], ring) if (c - a) * length >= 0.3]
+                if spans:
+                    ids.append(w["id"])
+                    poly_of[w["id"]] = ring
+            source = "walls along the light well's edge"
         if not ids:
             ids = [w["id"] for w in walls.values() if w.get("exterior")
                    and segment_inside(w["start"], w["end"], o["polygon"])]
             source = "outer walls under the opening"
         for wid in ids:
             w = walls[wid]
-            for t0, t1 in segment_inside(w["start"], w["end"], o["polygon"]):
+            length = math.dist(w["start"][:2], w["end"][:2])
+            for t0, t1 in segment_inside(w["start"], w["end"], poly_of.get(wid, o["polygon"])):
+                if wid in poly_of and (t1 - t0) * length < 0.3:
+                    continue
                 out.setdefault(wid, []).append({"t0": t0, "t1": t1, "z_top": floor_z + float(o["parapet_height"]),
                                                 "opening_id": o["id"], "source": source})
     return out

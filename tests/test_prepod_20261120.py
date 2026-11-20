@@ -524,3 +524,16 @@ def test_an_inferred_window_over_a_drop_has_a_safe_sill_and_its_head_under_the_c
     assert all(o["sill_height"] + o["height"] <= 2.7 - CP.LINTEL_M + 1e-6 for o in wins)
     b0 = TC.building(TC.flat("L0", 0, 0.0))
     assert any(o["sill_height"] < CP.SILL_SAFE_M for o in TC.infer_windows(b0, "L0") if o["type"] == "window")
+
+
+# --------------------------------------------------------------------------- BP-05: a light well's parapet
+def test_a_light_well_roof_opening_takes_the_walls_along_its_edge_as_parapet():
+    from wenart.blender import roof as R
+
+    walls = [{"id": f"w{k}", "level_id": "L4", "start": list(a), "end": list(e), "thickness": 0.1, "exterior": True}
+             for k, (a, e) in enumerate((((-0.05, -0.05), (2.05, -0.05)), ((2.05, -0.05), (2.05, 2.05)),
+                                         ((2.05, 2.05), (-0.05, 2.05)), ((-0.05, 2.05), (-0.05, -0.05))))]
+    model = {"openings": [{"id": "ro_lw_001", "kind": "light_well", "polygon": [[0, 0], [2, 0], [2, 2], [0, 2]],
+                           "parapet_height": 1.0}]}
+    cuts = R.parapet_cuts(model, {"walls": walls}, {"id": "L4", "elevation": 12.0})
+    assert set(cuts) == {"w0", "w1", "w2", "w3"} and all(c[0]["z_top"] == 13.0 for c in cuts.values())

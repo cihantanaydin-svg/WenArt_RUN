@@ -1148,7 +1148,8 @@ def circulation(building: dict, sides: Optional[Sequence[dict]] = None, graph: O
     reached = _reach(graph, starts) & set(rooms) if starts else set()
     free = _reach(graph, starts, blocked=lambda rid: _rtype(by_id.get(rid)) == "bedroom") & set(rooms) \
         if starts else set()
-    unreached = [r for r in rooms if r not in reached]
+    # (20 Nov 2026, pre-pod review BP-05) an open-air room (a light well, a terrace) is no room a door must reach
+    unreached = [r for r in rooms if r not in reached and not AA.is_open_air(by_id[r])]
     per_level: dict = {}
     for rid, r in by_id.items():
         if _rtype(r) not in OPEN_AIR_TYPES:
@@ -1482,7 +1483,8 @@ def review_falls(prep: dict) -> dict:
                                  "change": None})
     for o in (prep.get("roof") or {}).get("openings") or []:
         guard = o.get("guard_height") or o.get("parapet_height")
-        q["answers"].append({"element": o["id"], "found": f"roof terrace {o['id']}: guarded to {float(guard):.2f} m "
+        what = "light well" if o.get("kind") == "light_well" else "roof terrace"      # BP-05
+        q["answers"].append({"element": o["id"], "found": f"{what} {o['id']}: guarded to {float(guard):.2f} m "
                              f"(parapet {float(o['parapet_height']):.2f} m" + (" + glass railing)" if o.get("guard_height")
                                                                                  else ")"), "change": None})
     return q

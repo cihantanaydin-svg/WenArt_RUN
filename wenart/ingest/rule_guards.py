@@ -14,7 +14,7 @@ the item and the reason, when
   environment variable ``WENART_RULES_ON``, the brief's ``rules_on`` or ``level_inference.rules_on``. Code that
   branches on a staged rule asks ``active(rule, building)``;
 - a guard in ``GUARDS[rule]`` returns a reason: ``def guard(building, item) -> Optional[str]``, registered with
-  ``@guard("lift_door_add")`` or appended to ``GUARDS[key]``.
+  ``@guard("core_gap")`` or appended to ``GUARDS[key]``.
 
 An item is a plain dict: ``level_id`` and the ids the change touches (``opening``, ``wall``, ``room``, ``lift``,
 ``stair``, ``space``, ``symbol``), plus the rule's own reason (``why``) where it has one. Every change a rule makes
