@@ -365,6 +365,8 @@ def held_out(rows: list, truth_rows: list, kind: str, l2: float = RK.L2) -> dict
     truth_rows = [r for r in truth_rows if r.get("kind") == kind and r.get("label") is not None]
     groups = sorted({RK.group_of(r.get("project")) for r in truth_rows})
     n = code = integ = changed = right = 0
+    changes: list = []
+    rows_out: list = []
     per: dict = {}
     for g in groups:
         model = fit_rows([r for r in rows if RK.group_of(r.get("project")) != g], kind, l2)
@@ -381,23 +383,37 @@ def held_out(rows: list, truth_rows: list, kind: str, l2: float = RK.L2) -> dict
             if by == RK.DECIDED_RANKER and ans != r["rule_answer"]:
                 changed += 1
                 right += ans == r["label"]
-            s = per.setdefault(r.get("source"), {"n": 0, "code": 0, "ranker": 0})
+                changes.append({"rule": r.get("rule"), "ranker_answer": ans, "right": ans == r["label"]})
+                changes[-1]["group"] = g
+            s = per.setdefault(r.get("source"), {"n": 0, "code": 0, "ranker": 0, "trusted": 0})
             s["n"] += 1
             s["code"] += r["rule_answer"] == r["label"]
             s["ranker"] += ans == r["label"]
+            rows_out.append((g, r, ans))
+    # two-level trust (the R3 gate, nested): a held-out change counts only through a transition the OTHER groups'
+    # held-out changes trusted (``ranker.transition_trust``), so the trust is never measured on the rows it decides
+    trusted_n = 0
+    trust_of = {g: RK.transition_trust([c for c in changes if c["group"] != g]) for g in groups}
+    for g, r, ans in rows_out:
+        use = ans if ans != r["rule_answer"] and (trust_of[g].get(RK.transition_key(r.get("rule"), ans)) or {}) \
+            .get("trusted") else r["rule_answer"]
+        trusted_n += use == r["label"]
+        per[r.get("source")]["trusted"] += use == r["label"]
     return {"kind": kind, "n": n, "code_acc": round(code / n, 4) if n else None,
-            "ranker_acc": round(integ / n, 4) if n else None, "changed": changed, "right_changes": right,
-            "per_source": per}
+            "ranker_acc": round(integ / n, 4) if n else None,
+            "trusted_acc": round(trusted_n / n, 4) if n else None, "changed": changed, "right_changes": right,
+            "per_source": per, "transitions": RK.transition_trust(changes)}
 
 
 def beats_code(h: dict) -> bool:
-    """A candidate beats the code alone on held-out truth: more right decisions in all and no fewer on the user's
+    """A candidate beats the code alone on held-out truth (its decisions through the nested transition trust, what
+    ships): more right decisions in all and no fewer on the user's
     labels."""
     if not h.get("n") or h.get("ranker_acc") is None:
         return False
     user = [v for k, v in (h.get("per_source") or {}).items() if k in ("user_correction", "user_mark")]
-    user_ok = all(v["ranker"] >= v["code"] for v in user)
-    return h["ranker_acc"] > h["code_acc"] and user_ok
+    user_ok = all(v.get("trusted", v["ranker"]) >= v["code"] for v in user)
+    return float(h.get("trusted_acc") or 0) > float(h["code_acc"]) and user_ok
 
 
 def log_events(events: list, run: str, path: Path = REWARDS_PATH) -> Path:
@@ -698,9 +714,8 @@ def _cmd_learn(args, ship: bool) -> int:
         model = fit_rows(rows, kind, args.l2)
         if model is None:
             continue
-        old = RK.load_model(kind)
-        if old is not None and old.get("transitions") is not None:
-            model["transitions"] = old["transitions"]                     # the held-out trust stays the R3 gate
+        # the R3 gate: a change ships only through a transition its held-out changes trusted
+        model["transitions"] = h["transitions"]
         model["trained_on"] = {"by": "bandit", "date": report["date"], "rows": len(rows),
                                "events_by_source": report["events_by_source"], "trust": TRUST}
         model["metrics"] = {"held_out_truth": h}
@@ -709,8 +724,10 @@ def _cmd_learn(args, ship: bool) -> int:
         report["kinds"][kind] = {"held_out": h, "beats_code": beats_code(h), "changed_decisions": ch}
         (CANDIDATE_DIR / f"{kind}.json").write_text(json.dumps(model, indent=1) + "\n", encoding="utf-8")
         print(f"{kind}: held out on {h['n']} truth labels: code alone {h['code_acc']}, code + ranker "
-              f"{h['ranker_acc']} ({h['right_changes']} of {h['changed']} changes right); beats the code: "
-              f"{beats_code(h)}; {len(ch)} decision(s) would change on these readings")
+              f"{h['ranker_acc']} ({h['right_changes']} of {h['changed']} changes right), through the nested trust "
+              f"{h['trusted_acc']}; per source {h['per_source']}; trusted transitions "
+              f"{[k for k, v in h['transitions'].items() if v['trusted']]}; beats the code: {beats_code(h)}; "
+              f"{len(ch)} decision(s) would change on these readings")
         if beats_code(h):
             ok_kinds.append(kind)
     log_events(events, "learn")
