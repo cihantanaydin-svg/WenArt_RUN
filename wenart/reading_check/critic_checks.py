@@ -199,8 +199,7 @@ def building_facts(building: dict) -> dict:
     roofs = [lv for lv in levels if lv.get("kind") in ("roof", "roof_terrace") or lv.get("roof_terrace")]
     return {"storeys": len(levels), "storeys_without_roof": len(levels) - len(roofs), "ground": _ground(levels),
             "levels": [{"id": lv["id"], "label": lv.get("label"), "elevation": lv.get("elevation"),
-                        "typical_of": lv.get("typical_of"), "kind": lv.get("kind"),
-                        "inferred": bool(lv.get("storey_inference") or (lv.get("reading_confidence") == "low"))}
+                        "typical_of": lv.get("typical_of"), "kind": lv.get("kind")}
                        for lv in levels]}
 
 
@@ -303,7 +302,8 @@ def level_facts(building: dict, lid: str, *, outline=None, below=None, page=None
     out["entrances"] = [{"door_id": e.get("door_id"), "at": _r(e.get("centre") or e.get("face") or [0, 0]),
                          "main": bool(e.get("main"))}
                         for e in (building.get("site") or {}).get("entrances") or []
-                        if isinstance(e, dict) and e.get("level_id") == lid and not e.get("into_air")]
+                        if isinstance(e, dict) and e.get("level_id") == lid and not e.get("into_air")
+                        and (e.get("main") or not e.get("upper_floor"))]
     out["angled_walls"] = [{"id": w["id"], "a": _r(w["start"]), "b": _r(w["end"]), "deg": round(_deg(w["start"], w["end"]), 1)}
                            for w in walls.values() if off_axis(_deg(w["start"], w["end"]), ax) > ANGLE_OFF_DEG
                            and math.dist(w["start"], w["end"]) >= ANGLED_MIN_M]
@@ -908,8 +908,7 @@ def floor_summary(building: dict, lid: str, bfacts: dict, facts: Optional[dict] 
         door_lines.append(f"- {o['id']} ({o['type']}, {o['width']:.2f} m): {nm(a)} <-> {nm(b)}{extra}")
     above = float(lv.get("elevation") or f.get("elevation") or 0.0) - float(bfacts.get("ground") or 0.0)
     head = (f"Storey {lid} '{lv.get('label') or f.get('label') or ''}', floor at {above:+.2f} m from the ground floor"
-            + (f", a copy of {lv['typical_of']}" if lv.get("typical_of") else "")
-            + (", inferred (not drawn)" if lv.get("inferred") else "") + ".")
+            + (f", a copy of {lv['typical_of']}" if lv.get("typical_of") else "") + ".")
     ents = [e for e in f["entrances"]]
     lines = [head, f"The building has {bfacts.get('storeys')} storeys: "
              + ", ".join(f"{x['id']} {x.get('label') or ''}".strip() for x in bfacts.get("levels") or []) + "."]
@@ -1136,11 +1135,12 @@ def judge_known(finding: dict, known: list, match_m: float) -> dict:
     the place is a known error's that this reading has fixed (``fixed``: the error of the reading before, absent
     here); otherwise not judged."""
     lv = finding.get("level_id")
+    levels_ok = {lv} | set(finding.get("copies") or [])         # a page level stands for its copies
     best = None
     for k in known:
         if finding["kind"] not in (k.get("kinds") or []):
             continue
-        if k.get("level") and lv and k["level"] != lv and lv not in (k.get("levels") or []):
+        if k.get("level") and lv and k["level"] not in levels_ok:
             continue
         if k.get("at") is None or finding.get("at") is None:
             d = 0.0 if (k.get("at") is None and finding.get("at") is None) or k.get("building") else None
@@ -1190,6 +1190,142 @@ def recall(found: list, known_all: dict, match_m: float) -> list:
             rows.append({"id": k["id"], "folder": folder, "level": k.get("level"), "kinds": k.get("kinds"),
                          "desc": k.get("desc"), "found_by": by, "targeted": bool(k.get("kinds"))})
     return rows
+
+
+def call_stats(index: dict, answers: dict) -> dict:
+    """Per check: calls answered, failed, skipped; the compare calls' reliability (the model's answers about image 2
+    against the reading) and the plausibility calls' invalid ids (pure)."""
+    items = {e["id"]: e for e in index.get("entries") or []}
+    items.update({t["id"]: t for t in index.get("texts") or []})
+    out = {c: {"answered": 0, "failed": 0, "skipped": 0, "seconds": 0.0, "asked_marks": 0, "model_read_right": 0,
+               "unclear": 0, "invalid_ids": 0, "answered_ids": 0} for c in CHECKS}
+    for a in answers.get("answers") or []:
+        w = a.get("which")
+        if w not in out:
+            continue
+        s = out[w]
+        if a.get("skipped"):
+            s["skipped"] += 1
+            continue
+        if not isinstance(a.get("data"), dict):
+            s["failed"] += 1
+            continue
+        s["answered"] += 1
+        s["seconds"] += float(a.get("seconds") or 0)
+        it = items.get(a.get("id"))
+        if it is None:
+            continue
+        _f, extra = item_findings(w, it, a["data"], int(a.get("part") or 0))
+        rel = extra.get("reliability")
+        if rel:
+            s["asked_marks"] += rel["asked"]
+            s["model_read_right"] += rel["right"]
+            s["unclear"] += rel["unclear"]
+        if w == "plausibility":
+            s["invalid_ids"] += len(extra.get("invalid_ids") or [])
+            s["answered_ids"] += sum(len(x.get("ids") or []) for x in a["data"].get("answers") or [])
+    for s in out.values():
+        s["seconds"] = round(s["seconds"], 1)
+    return out
+
+
+def calibrate_checks(index: dict, found: list, answers: dict, *, known: Optional[dict] = None,
+                     marks: Optional[dict] = None, match_m: float = 1.5) -> dict:
+    """The trust of checks 1, 2, 4 (pure given its inputs). Each finding is judged, in this order, by the user's mark
+    (``marks``: {finding id: {right}}), by its synthetic project's exact truth (``judge_exact``; a finding on a
+    synthetic reading with no error at all is a false alarm on a clean class), by the known errors of its real
+    reading (``judge_known``: right at a known error of its kind, wrong at a place the reading has fixed), else not
+    judged (the review sheet asks the user). Returns ``{checks: {check: {kind: ...}}, recall, synthetic,
+    calls, judgements}``."""
+    known = known or {}
+    marks = marks or {}
+    readings = index.get("readings") or {}
+    items = {e["id"]: e for e in index.get("entries") or []}
+    items.update({t["id"]: t for t in index.get("texts") or []})
+    dis_by_folder: dict = {}
+    for it in items.values():
+        if it.get("disagreements") is not None:
+            dis_by_folder.setdefault(it["folder"], []).extend(it["disagreements"])
+    judged = []
+    for f in found:
+        if f.get("call") not in CHECKS:
+            continue
+        rd = readings.get(f.get("folder")) or {}
+        it = items.get(f.get("entry")) or {}
+        j: dict = {"right": None, "reason": "not judged", "by": None}
+        clean = False
+        if f["id"] in marks:
+            j = {"right": bool(marks[f["id"]].get("right")), "reason": "the user's mark", "by": "user"}
+        elif rd.get("exact_truth"):
+            dis = it.get("disagreements") or []
+            clean = not dis_by_folder.get(f.get("folder"))
+            if f.get("at") is None and f["kind"] == "storey_count_differs":
+                j = {"right": False, "reason": "exact truth: the synthetic storey count is the reading's", "by": "truth"}
+            else:
+                j = dict(judge_exact(f, dis, match_m), by="truth")
+        elif f.get("folder") in known:
+            j = judge_known(f, known[f["folder"]], match_m)
+            j["by"] = "known" if j.get("right") is not None else None
+        judged.append({"id": f["id"], "check": f["call"], "kind": f["kind"], "folder": f.get("folder"),
+                       "set": f.get("set"), "level": f.get("level_id"), "at": f.get("at"),
+                       "confidence": f.get("confidence"), "description": f.get("description"),
+                       "clean_class": clean and j.get("right") is False, **j})
+    rows = recall(found, {k: v for k, v in known.items() if any(not x.get("fixed") for x in v)}, match_m)
+    per_check = {}
+    for c in CHECKS:
+        tgt = [r for r in rows if set(r.get("kinds") or []) & set(KINDS_BY_CHECK[c])]
+        per_check[c] = {"targeted": len(tgt), "found": sum(1 for r in tgt if c in r["found_by"])}
+    synth = []
+    for folder, rd in sorted(readings.items()):
+        if not rd.get("exact_truth"):
+            continue
+        dis = dis_by_folder.get(folder) or []
+        fs = [j for j in judged if j["folder"] == folder]
+        for c in CHECKS:
+            cf = [j for j in fs if j["check"] == c]
+            right = sum(1 for j in cf if j.get("right"))
+            verdict = ("caught" if right else "missed") if dis else ("false_alarm" if cf else "clean")
+            synth.append({"folder": folder, "class": rd.get("failure_class"), "check": c, "errors": len(dis),
+                          "findings": len(cf), "right": right, "verdict": verdict})
+    return {"checks": table(judged), "recall": {"rows": rows, "per_check": per_check},
+            "synthetic": synth, "calls": call_stats(index, answers), "judgements": judged,
+            "judged_by": {b: sum(1 for j in judged if j.get("by") == b) for b in ("user", "truth", "known", None)}}
+
+
+def checks_summary(res: dict) -> str:
+    """The calibration of checks 1, 2, 4 as short tables (markdown)."""
+    lines = ["| check | kind | findings | judged | right | wrong | precision | false alarms after | trusted |",
+             "|---|---|---|---|---|---|---|---|---|"]
+    for c, ks in (res.get("checks") or {}).items():
+        for k, v in ks.items():
+            if not v["findings"]:
+                continue
+            p = "-" if v["precision"] is None else f"{v['precision']:.2f}"
+            lines.append(f"| {c} | {k} | {v['findings']} | {v['judged']} | {v['right']} | {v['wrong']} | {p} | "
+                         f"{v['false_alarms_after']} | {'yes' if v['trusted'] else 'no'} |")
+    pc = (res.get("recall") or {}).get("per_check") or {}
+    lines.append("")
+    lines.append("recall of the known errors (before readings): " + ", ".join(
+        f"{c} {v['found']} of {v['targeted']}" for c, v in pc.items()))
+    rows = (res.get("recall") or {}).get("rows") or []
+    missed = [r for r in rows if r.get("targeted") and not r["found_by"]]
+    lines.append(f"known errors: {len(rows)}; found by some check: {sum(1 for r in rows if r['found_by'])}; "
+                 f"missed: {len(missed)}; not targeted by these checks: {sum(1 for r in rows if not r.get('targeted'))}")
+    syn = res.get("synthetic") or []
+    for c in CHECKS:
+        s = [x for x in syn if x["check"] == c]
+        if s:
+            lines.append(f"synthetic {c}: " + ", ".join(f"{v} {sum(1 for x in s if x['verdict'] == v)}"
+                                                       for v in ("caught", "missed", "false_alarm", "clean")))
+    for c, s in (res.get("calls") or {}).items():
+        lines.append(f"calls {c}: {s['answered']} answered, {s['failed']} failed, {s['skipped']} skipped"
+                     + (f"; image 2 read right on {s['model_read_right']} of {s['asked_marks']} marks"
+                        if s.get("asked_marks") else "")
+                     + (f"; {s['invalid_ids']} invalid of {s['answered_ids']} ids" if c == "plausibility" else ""))
+    jb = res.get("judged_by") or {}
+    lines.append(f"judged by the user {jb.get('user', 0)}, by exact truth {jb.get('truth', 0)}, by known errors "
+                 f"{jb.get('known', 0)}; not judged {jb.get(None, 0)} (on the review sheets)")
+    return "\n".join(lines)
 
 
 # ============================================================================================ 7. known errors
@@ -1272,6 +1408,26 @@ def known_kitchens_without_window(before: dict, after: dict) -> list:
     return out
 
 
+def known_opening_changes(before: dict, after: dict, levels: list) -> list:
+    """Openings of ``before`` that ``after`` reads as another type at the same place (within 0.3 m), or not at all
+    (no opening of ``after`` within 0.6 m) (pure): real10's windows read as garden doors or holes (R10-P1, R10-P3)."""
+    out = []
+    for lid in levels:
+        ob = [o for o in before.get("openings") or [] if o.get("level_id") == lid and o.get("center")]
+        oa = [o for o in after.get("openings") or [] if o.get("level_id") == lid and o.get("center")]
+        for o in ob:
+            near = sorted(((math.dist(o["center"][:2], x["center"][:2]), x) for x in oa), key=lambda t: t[0])
+            if near and near[0][0] <= 0.3:
+                x = near[0][1]
+                if (x.get("type") or "opening") != (o.get("type") or "opening"):
+                    out.append({"level": lid, "at": _r(o["center"]), "kinds": ["opening_type_differs"],
+                                "desc": f"{o['id']} read as a {o.get('type')}; drawn as a {x.get('type')}"})
+            elif not near or near[0][0] > 0.6:
+                out.append({"level": lid, "at": _r(o["center"]), "kinds": ["opening_not_in_drawing"],
+                            "desc": f"{o['id']} ({o.get('type')}) where the drawing has no opening"})
+    return out
+
+
 def known_errors_for(project: str, before: dict, after: dict) -> tuple:
     """The listed known errors of a pod project's before reading and their fixed places in the after reading (pure):
     ``(before errors, after errors)``. The classes the brief lists: real09's missing left salon, kitchen and balcony
@@ -1289,6 +1445,7 @@ def known_errors_for(project: str, before: dict, after: dict) -> tuple:
         errs += known_angled(before, after, common)
     if project == "real10":
         errs += known_kitchens_without_window(before, after)
+        errs += known_opening_changes(before, after, common)
     if bf["storeys"] != af["storeys"] and project == "real03":
         errs.append({"level": None, "at": None, "kinds": ["storey_count_differs"], "building": True,
                      "desc": f"{bf['storeys']} storeys read; the drawing's texts give {af['storeys']}"})

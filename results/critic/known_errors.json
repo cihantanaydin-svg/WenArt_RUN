@@ -1,0 +1,2767 @@
+{
+ "readings": {
+  "before/real09@324c487f": [
+   {
+    "level": "L0",
+    "at": [
+     2.75,
+     2.975
+    ],
+    "kinds": [
+     "room_missing",
+     "mirror_twin_missing"
+    ],
+    "desc": "Salon (r_L0_oda_5 in the after reading) not read",
+    "element": "r_L0_oda_5",
+    "reading": "before",
+    "id": "real09-B01"
+   },
+   {
+    "level": "L0",
+    "at": [
+     1.085,
+     1.045
+    ],
+    "kinds": [
+     "balcony_missing",
+     "room_missing"
+    ],
+    "desc": "BALKON (os_L0_balkon_mirror_1 in the after reading) not read",
+    "element": "os_L0_balkon_mirror_1",
+    "reading": "before",
+    "id": "real09-B02"
+   },
+   {
+    "level": "L1",
+    "at": [
+     2.75,
+     2.975
+    ],
+    "kinds": [
+     "room_missing",
+     "mirror_twin_missing"
+    ],
+    "desc": "Salon (r_L1_oda_5 in the after reading) not read",
+    "element": "r_L1_oda_5",
+    "reading": "before",
+    "id": "real09-B03"
+   },
+   {
+    "level": "L1",
+    "at": [
+     1.085,
+     1.045
+    ],
+    "kinds": [
+     "balcony_missing",
+     "room_missing"
+    ],
+    "desc": "BALKON (os_L0_balkon_mirror_2 in the after reading) not read",
+    "element": "os_L0_balkon_mirror_2",
+    "reading": "before",
+    "id": "real09-B04"
+   },
+   {
+    "level": "L2",
+    "at": [
+     6.28,
+     2.89
+    ],
+    "kinds": [
+     "room_missing",
+     "mirror_twin_missing"
+    ],
+    "desc": "Mutfak (r_L2_oda in the after reading) not read",
+    "element": "r_L2_oda",
+    "reading": "before",
+    "id": "real09-B05"
+   },
+   {
+    "level": "L2",
+    "at": [
+     2.75,
+     2.975
+    ],
+    "kinds": [
+     "room_missing",
+     "mirror_twin_missing"
+    ],
+    "desc": "Salon (r_L2_oda_3 in the after reading) not read",
+    "element": "r_L2_oda_3",
+    "reading": "before",
+    "id": "real09-B06"
+   },
+   {
+    "level": "L2",
+    "at": [
+     1.075,
+     1.025
+    ],
+    "kinds": [
+     "balcony_missing",
+     "room_missing"
+    ],
+    "desc": "BALKON (os_L2_balkon_mirror in the after reading) not read",
+    "element": "os_L2_balkon_mirror",
+    "reading": "before",
+    "id": "real09-B07"
+   },
+   {
+    "level": null,
+    "at": null,
+    "kinds": [],
+    "building": true,
+    "desc": "the roof read from the section is wrong (no check of 1, 2, 4 targets roofs)",
+    "reading": "before",
+    "id": "real09-B08"
+   },
+   {
+    "level": "L1",
+    "at": [
+     4.6,
+     4.64
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L1_006 into the air",
+    "element": "d_L1_006",
+    "reading": "before",
+    "id": "real09-B09"
+   },
+   {
+    "level": "L1",
+    "at": [
+     5.83,
+     0.26
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L1_011 into the air",
+    "element": "d_L1_011",
+    "reading": "before",
+    "id": "real09-B10"
+   },
+   {
+    "level": "L2",
+    "at": [
+     4.6,
+     4.64
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_006 into the air",
+    "element": "d_L2_006",
+    "reading": "before",
+    "id": "real09-B11"
+   },
+   {
+    "level": "L2",
+    "at": [
+     15.43,
+     0.26
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_011 into the air",
+    "element": "d_L2_011",
+    "reading": "before",
+    "id": "real09-B12"
+   },
+   {
+    "level": "L3",
+    "at": [
+     5.83,
+     0.26
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_004 into the air",
+    "element": "d_L3_004",
+    "reading": "before",
+    "id": "real09-B13"
+   },
+   {
+    "level": "L0",
+    "at": [
+     0.95,
+     0.99
+    ],
+    "kinds": [
+     "balcony_missing"
+    ],
+    "fixed": false,
+    "records": [
+     "C0008"
+    ],
+    "desc": "user correction C0008: outdoor present does not hold",
+    "id": "real09-UB01",
+    "reading": "before"
+   },
+   {
+    "level": "L0",
+    "at": [
+     7.75,
+     7.39
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0003"
+    ],
+    "desc": "user correction C0003: rooms absent holds",
+    "id": "real09-UB02",
+    "reading": "before"
+   },
+   {
+    "level": "L2",
+    "at": [
+     7.27,
+     5.73
+    ],
+    "kinds": [
+     "stair_missing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0013"
+    ],
+    "desc": "user correction C0013: stairs present holds",
+    "id": "real09-UB03",
+    "reading": "before"
+   },
+   {
+    "level": "L2",
+    "at": [
+     13.86,
+     5.73
+    ],
+    "kinds": [
+     "stair_missing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0013"
+    ],
+    "desc": "user correction C0013: stairs present holds",
+    "id": "real09-UB04",
+    "reading": "before"
+   },
+   {
+    "level": "L3",
+    "at": [
+     7.27,
+     5.73
+    ],
+    "kinds": [
+     "stair_missing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0013"
+    ],
+    "desc": "user correction C0013: stairs present holds",
+    "id": "real09-UB05",
+    "reading": "before"
+   },
+   {
+    "level": "L3",
+    "at": [
+     13.86,
+     5.73
+    ],
+    "kinds": [
+     "stair_missing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0013"
+    ],
+    "desc": "user correction C0013: stairs present holds",
+    "id": "real09-UB06",
+    "reading": "before"
+   }
+  ],
+  "after/real09": [
+   {
+    "level": "L1",
+    "at": [
+     5.83,
+     0.26
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L1_011 into the air",
+    "element": "d_L1_011",
+    "reading": "after",
+    "id": "real09-A01"
+   },
+   {
+    "level": "L2",
+    "at": [
+     15.43,
+     0.26
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_011 into the air",
+    "element": "d_L2_011",
+    "reading": "after",
+    "id": "real09-A02"
+   },
+   {
+    "level": "L3",
+    "at": [
+     5.83,
+     0.26
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_004 into the air",
+    "element": "d_L3_004",
+    "reading": "after",
+    "id": "real09-A03"
+   },
+   {
+    "level": "L1",
+    "at": [
+     4.6,
+     4.64
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L1_006 into the air",
+    "element": "d_L1_006",
+    "fixed": true,
+    "reading": "after",
+    "id": "real09-A04"
+   },
+   {
+    "level": "L2",
+    "at": [
+     4.6,
+     4.64
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_006 into the air",
+    "element": "d_L2_006",
+    "fixed": true,
+    "reading": "after",
+    "id": "real09-A05"
+   },
+   {
+    "level": "L0",
+    "at": [
+     2.75,
+     2.975
+    ],
+    "kinds": [
+     "room_missing",
+     "mirror_twin_missing"
+    ],
+    "desc": "Salon (r_L0_oda_5 in the after reading) not read",
+    "element": "r_L0_oda_5",
+    "fixed": true,
+    "reading": "after",
+    "id": "real09-A06"
+   },
+   {
+    "level": "L0",
+    "at": [
+     1.085,
+     1.045
+    ],
+    "kinds": [
+     "balcony_missing",
+     "room_missing"
+    ],
+    "desc": "BALKON (os_L0_balkon_mirror_1 in the after reading) not read",
+    "element": "os_L0_balkon_mirror_1",
+    "fixed": true,
+    "reading": "after",
+    "id": "real09-A07"
+   },
+   {
+    "level": "L1",
+    "at": [
+     2.75,
+     2.975
+    ],
+    "kinds": [
+     "room_missing",
+     "mirror_twin_missing"
+    ],
+    "desc": "Salon (r_L1_oda_5 in the after reading) not read",
+    "element": "r_L1_oda_5",
+    "fixed": true,
+    "reading": "after",
+    "id": "real09-A08"
+   },
+   {
+    "level": "L1",
+    "at": [
+     1.085,
+     1.045
+    ],
+    "kinds": [
+     "balcony_missing",
+     "room_missing"
+    ],
+    "desc": "BALKON (os_L0_balkon_mirror_2 in the after reading) not read",
+    "element": "os_L0_balkon_mirror_2",
+    "fixed": true,
+    "reading": "after",
+    "id": "real09-A09"
+   },
+   {
+    "level": "L2",
+    "at": [
+     6.28,
+     2.89
+    ],
+    "kinds": [
+     "room_missing",
+     "mirror_twin_missing"
+    ],
+    "desc": "Mutfak (r_L2_oda in the after reading) not read",
+    "element": "r_L2_oda",
+    "fixed": true,
+    "reading": "after",
+    "id": "real09-A10"
+   },
+   {
+    "level": "L2",
+    "at": [
+     2.75,
+     2.975
+    ],
+    "kinds": [
+     "room_missing",
+     "mirror_twin_missing"
+    ],
+    "desc": "Salon (r_L2_oda_3 in the after reading) not read",
+    "element": "r_L2_oda_3",
+    "fixed": true,
+    "reading": "after",
+    "id": "real09-A11"
+   },
+   {
+    "level": "L2",
+    "at": [
+     1.075,
+     1.025
+    ],
+    "kinds": [
+     "balcony_missing",
+     "room_missing"
+    ],
+    "desc": "BALKON (os_L2_balkon_mirror in the after reading) not read",
+    "element": "os_L2_balkon_mirror",
+    "fixed": true,
+    "reading": "after",
+    "id": "real09-A12"
+   },
+   {
+    "level": "L0",
+    "at": [
+     0.95,
+     0.99
+    ],
+    "kinds": [
+     "balcony_missing"
+    ],
+    "fixed": false,
+    "records": [
+     "C0008"
+    ],
+    "desc": "user correction C0008: outdoor present does not hold",
+    "id": "real09-UA01",
+    "reading": "after"
+   },
+   {
+    "level": "L0",
+    "at": [
+     7.75,
+     7.39
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0003"
+    ],
+    "desc": "user correction C0003: rooms absent holds",
+    "id": "real09-UA02",
+    "reading": "after"
+   },
+   {
+    "level": "L2",
+    "at": [
+     7.27,
+     5.73
+    ],
+    "kinds": [
+     "stair_missing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0013"
+    ],
+    "desc": "user correction C0013: stairs present holds",
+    "id": "real09-UA03",
+    "reading": "after"
+   },
+   {
+    "level": "L2",
+    "at": [
+     13.86,
+     5.73
+    ],
+    "kinds": [
+     "stair_missing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0013"
+    ],
+    "desc": "user correction C0013: stairs present holds",
+    "id": "real09-UA04",
+    "reading": "after"
+   },
+   {
+    "level": "L3",
+    "at": [
+     7.27,
+     5.73
+    ],
+    "kinds": [
+     "stair_missing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0013"
+    ],
+    "desc": "user correction C0013: stairs present holds",
+    "id": "real09-UA05",
+    "reading": "after"
+   },
+   {
+    "level": "L3",
+    "at": [
+     13.86,
+     5.73
+    ],
+    "kinds": [
+     "stair_missing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0013"
+    ],
+    "desc": "user correction C0013: stairs present holds",
+    "id": "real09-UA06",
+    "reading": "after"
+   }
+  ],
+  "before/real20@324c487f": [
+   {
+    "level": "L1",
+    "at": [
+     2.411,
+     10.416
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L1_003 at 164 deg built straight or left out",
+    "reading": "before",
+    "id": "real20-B01"
+   },
+   {
+    "level": "L1",
+    "at": [
+     10.165,
+     8.193
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L1_046 at 164 deg built straight or left out",
+    "reading": "before",
+    "id": "real20-B02"
+   },
+   {
+    "level": "L2",
+    "at": [
+     2.411,
+     10.416
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L2_003 at 164 deg built straight or left out",
+    "reading": "before",
+    "id": "real20-B03"
+   },
+   {
+    "level": "L2",
+    "at": [
+     10.165,
+     8.193
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L2_046 at 164 deg built straight or left out",
+    "reading": "before",
+    "id": "real20-B04"
+   },
+   {
+    "level": "L3",
+    "at": [
+     2.411,
+     10.416
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L3_003 at 164 deg built straight or left out",
+    "reading": "before",
+    "id": "real20-B05"
+   },
+   {
+    "level": "L3",
+    "at": [
+     10.165,
+     8.193
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L3_046 at 164 deg built straight or left out",
+    "reading": "before",
+    "id": "real20-B06"
+   },
+   {
+    "level": "L4",
+    "at": [
+     2.411,
+     10.416
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L4_003 at 164 deg built straight or left out",
+    "reading": "before",
+    "id": "real20-B07"
+   },
+   {
+    "level": "L4",
+    "at": [
+     10.165,
+     8.193
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L4_046 at 164 deg built straight or left out",
+    "reading": "before",
+    "id": "real20-B08"
+   },
+   {
+    "level": "L2",
+    "at": [
+     10.22,
+     2.4
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_001 into the air",
+    "element": "d_L2_001",
+    "reading": "before",
+    "id": "real20-B09"
+   },
+   {
+    "level": "L2",
+    "at": [
+     3.92,
+     6.85
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_005 into the air",
+    "element": "d_L2_005",
+    "reading": "before",
+    "id": "real20-B10"
+   },
+   {
+    "level": "L2",
+    "at": [
+     9.92,
+     4.8
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_008 into the air",
+    "element": "d_L2_008",
+    "reading": "before",
+    "id": "real20-B11"
+   },
+   {
+    "level": "L2",
+    "at": [
+     10.92,
+     4.13
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_010 into the air",
+    "element": "d_L2_010",
+    "reading": "before",
+    "id": "real20-B12"
+   },
+   {
+    "level": "L2",
+    "at": [
+     10.42,
+     2.87
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_011 into the air",
+    "element": "d_L2_011",
+    "reading": "before",
+    "id": "real20-B13"
+   },
+   {
+    "level": "L3",
+    "at": [
+     10.22,
+     2.4
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_001 into the air",
+    "element": "d_L3_001",
+    "reading": "before",
+    "id": "real20-B14"
+   },
+   {
+    "level": "L3",
+    "at": [
+     3.92,
+     6.85
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_005 into the air",
+    "element": "d_L3_005",
+    "reading": "before",
+    "id": "real20-B15"
+   },
+   {
+    "level": "L3",
+    "at": [
+     9.92,
+     4.8
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_008 into the air",
+    "element": "d_L3_008",
+    "reading": "before",
+    "id": "real20-B16"
+   },
+   {
+    "level": "L3",
+    "at": [
+     10.92,
+     4.13
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_010 into the air",
+    "element": "d_L3_010",
+    "reading": "before",
+    "id": "real20-B17"
+   },
+   {
+    "level": "L3",
+    "at": [
+     10.42,
+     2.87
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_011 into the air",
+    "element": "d_L3_011",
+    "reading": "before",
+    "id": "real20-B18"
+   },
+   {
+    "level": "L4",
+    "at": [
+     10.22,
+     2.4
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L4_001 into the air",
+    "element": "d_L4_001",
+    "reading": "before",
+    "id": "real20-B19"
+   },
+   {
+    "level": "L4",
+    "at": [
+     3.92,
+     6.85
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L4_005 into the air",
+    "element": "d_L4_005",
+    "reading": "before",
+    "id": "real20-B20"
+   },
+   {
+    "level": "L4",
+    "at": [
+     9.92,
+     4.8
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L4_008 into the air",
+    "element": "d_L4_008",
+    "reading": "before",
+    "id": "real20-B21"
+   },
+   {
+    "level": "L4",
+    "at": [
+     10.92,
+     4.13
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L4_010 into the air",
+    "element": "d_L4_010",
+    "reading": "before",
+    "id": "real20-B22"
+   },
+   {
+    "level": "L4",
+    "at": [
+     10.42,
+     2.87
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L4_011 into the air",
+    "element": "d_L4_011",
+    "reading": "before",
+    "id": "real20-B23"
+   }
+  ],
+  "after/real20": [
+   {
+    "level": "L2",
+    "at": [
+     10.22,
+     2.4
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_001 into the air",
+    "element": "d_L2_001",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A01"
+   },
+   {
+    "level": "L2",
+    "at": [
+     3.92,
+     6.85
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_005 into the air",
+    "element": "d_L2_005",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A02"
+   },
+   {
+    "level": "L2",
+    "at": [
+     9.92,
+     4.8
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_008 into the air",
+    "element": "d_L2_008",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A03"
+   },
+   {
+    "level": "L2",
+    "at": [
+     10.92,
+     4.13
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_010 into the air",
+    "element": "d_L2_010",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A04"
+   },
+   {
+    "level": "L2",
+    "at": [
+     10.42,
+     2.87
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L2_011 into the air",
+    "element": "d_L2_011",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A05"
+   },
+   {
+    "level": "L3",
+    "at": [
+     10.22,
+     2.4
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_001 into the air",
+    "element": "d_L3_001",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A06"
+   },
+   {
+    "level": "L3",
+    "at": [
+     3.92,
+     6.85
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_005 into the air",
+    "element": "d_L3_005",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A07"
+   },
+   {
+    "level": "L3",
+    "at": [
+     9.92,
+     4.8
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_008 into the air",
+    "element": "d_L3_008",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A08"
+   },
+   {
+    "level": "L3",
+    "at": [
+     10.92,
+     4.13
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_010 into the air",
+    "element": "d_L3_010",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A09"
+   },
+   {
+    "level": "L3",
+    "at": [
+     10.42,
+     2.87
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L3_011 into the air",
+    "element": "d_L3_011",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A10"
+   },
+   {
+    "level": "L4",
+    "at": [
+     10.22,
+     2.4
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L4_001 into the air",
+    "element": "d_L4_001",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A11"
+   },
+   {
+    "level": "L4",
+    "at": [
+     3.92,
+     6.85
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L4_005 into the air",
+    "element": "d_L4_005",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A12"
+   },
+   {
+    "level": "L4",
+    "at": [
+     9.92,
+     4.8
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L4_008 into the air",
+    "element": "d_L4_008",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A13"
+   },
+   {
+    "level": "L4",
+    "at": [
+     10.92,
+     4.13
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L4_010 into the air",
+    "element": "d_L4_010",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A14"
+   },
+   {
+    "level": "L4",
+    "at": [
+     10.42,
+     2.87
+    ],
+    "kinds": [
+     "door_into_air",
+     "balcony_missing"
+    ],
+    "desc": "door d_L4_011 into the air",
+    "element": "d_L4_011",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A15"
+   },
+   {
+    "level": "L1",
+    "at": [
+     2.411,
+     10.416
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L1_003 at 164 deg built straight or left out",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A16"
+   },
+   {
+    "level": "L1",
+    "at": [
+     10.165,
+     8.193
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L1_046 at 164 deg built straight or left out",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A17"
+   },
+   {
+    "level": "L2",
+    "at": [
+     2.411,
+     10.416
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L2_003 at 164 deg built straight or left out",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A18"
+   },
+   {
+    "level": "L2",
+    "at": [
+     10.165,
+     8.193
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L2_046 at 164 deg built straight or left out",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A19"
+   },
+   {
+    "level": "L3",
+    "at": [
+     2.411,
+     10.416
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L3_003 at 164 deg built straight or left out",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A20"
+   },
+   {
+    "level": "L3",
+    "at": [
+     10.165,
+     8.193
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L3_046 at 164 deg built straight or left out",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A21"
+   },
+   {
+    "level": "L4",
+    "at": [
+     2.411,
+     10.416
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L4_003 at 164 deg built straight or left out",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A22"
+   },
+   {
+    "level": "L4",
+    "at": [
+     10.165,
+     8.193
+    ],
+    "kinds": [
+     "angled_wall_straight"
+    ],
+    "desc": "wall w_L4_046 at 164 deg built straight or left out",
+    "fixed": true,
+    "reading": "after",
+    "id": "real20-A23"
+   }
+  ],
+  "before/real10@324c487f": [
+   {
+    "level": "L0",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L0_mutfak without its drawn window",
+    "element": "r_L0_mutfak",
+    "reading": "before",
+    "id": "real10-B01"
+   },
+   {
+    "level": "L0",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L0_oda_3 without its drawn window",
+    "element": "r_L0_oda_3",
+    "reading": "before",
+    "id": "real10-B02"
+   },
+   {
+    "level": "L1",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L1_mutfak without its drawn window",
+    "element": "r_L1_mutfak",
+    "reading": "before",
+    "id": "real10-B03"
+   },
+   {
+    "level": "L1",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L1_oda_3 without its drawn window",
+    "element": "r_L1_oda_3",
+    "reading": "before",
+    "id": "real10-B04"
+   },
+   {
+    "level": "L2",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L2_mutfak without its drawn window",
+    "element": "r_L2_mutfak",
+    "reading": "before",
+    "id": "real10-B05"
+   },
+   {
+    "level": "L2",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L2_oda_3 without its drawn window",
+    "element": "r_L2_oda_3",
+    "reading": "before",
+    "id": "real10-B06"
+   },
+   {
+    "level": "L3",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L3_mutfak without its drawn window",
+    "element": "r_L3_mutfak",
+    "reading": "before",
+    "id": "real10-B07"
+   },
+   {
+    "level": "L3",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L3_oda_3 without its drawn window",
+    "element": "r_L3_oda_3",
+    "reading": "before",
+    "id": "real10-B08"
+   },
+   {
+    "level": "L4",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L4_mutfak without its drawn window",
+    "element": "r_L4_mutfak",
+    "reading": "before",
+    "id": "real10-B09"
+   },
+   {
+    "level": "L4",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L4_oda_3 without its drawn window",
+    "element": "r_L4_oda_3",
+    "reading": "before",
+    "id": "real10-B10"
+   },
+   {
+    "level": "L5",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L5_mutfak without its drawn window",
+    "element": "r_L5_mutfak",
+    "reading": "before",
+    "id": "real10-B11"
+   },
+   {
+    "level": "L5",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L5_oda_3 without its drawn window",
+    "element": "r_L5_oda_3",
+    "reading": "before",
+    "id": "real10-B12"
+   },
+   {
+    "level": "L6",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L6_mutfak without its drawn window",
+    "element": "r_L6_mutfak",
+    "reading": "before",
+    "id": "real10-B13"
+   },
+   {
+    "level": "L6",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L6_oda_3 without its drawn window",
+    "element": "r_L6_oda_3",
+    "reading": "before",
+    "id": "real10-B14"
+   },
+   {
+    "level": "L-1",
+    "at": [
+     13.79,
+     16.595
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "d_L-1_008 read as a door; drawn as a window",
+    "reading": "before",
+    "id": "real10-B15"
+   },
+   {
+    "level": "L-1",
+    "at": [
+     1.685,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L-1_012 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B16"
+   },
+   {
+    "level": "L-1",
+    "at": [
+     20.695,
+     4.24
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L-1_015 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B17"
+   },
+   {
+    "level": "L-1",
+    "at": [
+     20.695,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L-1_017 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B18"
+   },
+   {
+    "level": "L0",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L0_013 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B19"
+   },
+   {
+    "level": "L0",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L0_021 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B20"
+   },
+   {
+    "level": "L1",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L1_013 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B21"
+   },
+   {
+    "level": "L1",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L1_021 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B22"
+   },
+   {
+    "level": "L2",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L2_013 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B23"
+   },
+   {
+    "level": "L2",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L2_021 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B24"
+   },
+   {
+    "level": "L3",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L3_013 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B25"
+   },
+   {
+    "level": "L3",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L3_021 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B26"
+   },
+   {
+    "level": "L4",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L4_013 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B27"
+   },
+   {
+    "level": "L4",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L4_021 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B28"
+   },
+   {
+    "level": "L5",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L5_013 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B29"
+   },
+   {
+    "level": "L5",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L5_021 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B30"
+   },
+   {
+    "level": "L6",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L6_013 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B31"
+   },
+   {
+    "level": "L6",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L6_021 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B32"
+   },
+   {
+    "level": "L7",
+    "at": [
+     10.617,
+     9.92
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L7_001 read as a opening; drawn as a window",
+    "reading": "before",
+    "id": "real10-B33"
+   },
+   {
+    "level": "L0",
+    "at": [
+     1.21,
+     7.87
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0023"
+    ],
+    "desc": "user correction C0023: rooms absent holds",
+    "id": "real10-UB01",
+    "reading": "before"
+   },
+   {
+    "level": "L0",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB02",
+    "reading": "before"
+   },
+   {
+    "level": "L0",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB03",
+    "reading": "before"
+   },
+   {
+    "level": "L1",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB04",
+    "reading": "before"
+   },
+   {
+    "level": "L1",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB05",
+    "reading": "before"
+   },
+   {
+    "level": "L2",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB06",
+    "reading": "before"
+   },
+   {
+    "level": "L2",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB07",
+    "reading": "before"
+   },
+   {
+    "level": "L3",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB08",
+    "reading": "before"
+   },
+   {
+    "level": "L3",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB09",
+    "reading": "before"
+   },
+   {
+    "level": "L4",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB10",
+    "reading": "before"
+   },
+   {
+    "level": "L4",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB11",
+    "reading": "before"
+   },
+   {
+    "level": "L5",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB12",
+    "reading": "before"
+   },
+   {
+    "level": "L5",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB13",
+    "reading": "before"
+   },
+   {
+    "level": "L6",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB14",
+    "reading": "before"
+   },
+   {
+    "level": "L6",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UB15",
+    "reading": "before"
+   }
+  ],
+  "after/real10": [
+   {
+    "level": "L0",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L0_mutfak without its drawn window",
+    "element": "r_L0_mutfak",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A01"
+   },
+   {
+    "level": "L0",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L0_oda_3 without its drawn window",
+    "element": "r_L0_oda_3",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A02"
+   },
+   {
+    "level": "L1",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L1_mutfak without its drawn window",
+    "element": "r_L1_mutfak",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A03"
+   },
+   {
+    "level": "L1",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L1_oda_3 without its drawn window",
+    "element": "r_L1_oda_3",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A04"
+   },
+   {
+    "level": "L2",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L2_mutfak without its drawn window",
+    "element": "r_L2_mutfak",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A05"
+   },
+   {
+    "level": "L2",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L2_oda_3 without its drawn window",
+    "element": "r_L2_oda_3",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A06"
+   },
+   {
+    "level": "L3",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L3_mutfak without its drawn window",
+    "element": "r_L3_mutfak",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A07"
+   },
+   {
+    "level": "L3",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L3_oda_3 without its drawn window",
+    "element": "r_L3_oda_3",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A08"
+   },
+   {
+    "level": "L4",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L4_mutfak without its drawn window",
+    "element": "r_L4_mutfak",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A09"
+   },
+   {
+    "level": "L4",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L4_oda_3 without its drawn window",
+    "element": "r_L4_oda_3",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A10"
+   },
+   {
+    "level": "L5",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L5_mutfak without its drawn window",
+    "element": "r_L5_mutfak",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A11"
+   },
+   {
+    "level": "L5",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L5_oda_3 without its drawn window",
+    "element": "r_L5_oda_3",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A12"
+   },
+   {
+    "level": "L6",
+    "at": [
+     8.515,
+     4.31
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L6_mutfak without its drawn window",
+    "element": "r_L6_mutfak",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A13"
+   },
+   {
+    "level": "L6",
+    "at": [
+     13.865,
+     3.34
+    ],
+    "kinds": [
+     "kitchen_no_window",
+     "habitable_no_window"
+    ],
+    "desc": "kitchen r_L6_oda_3 without its drawn window",
+    "element": "r_L6_oda_3",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A14"
+   },
+   {
+    "level": "L-1",
+    "at": [
+     13.79,
+     16.595
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "d_L-1_008 read as a door; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A15"
+   },
+   {
+    "level": "L-1",
+    "at": [
+     1.685,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L-1_012 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A16"
+   },
+   {
+    "level": "L-1",
+    "at": [
+     20.695,
+     4.24
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L-1_015 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A17"
+   },
+   {
+    "level": "L-1",
+    "at": [
+     20.695,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L-1_017 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A18"
+   },
+   {
+    "level": "L0",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L0_013 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A19"
+   },
+   {
+    "level": "L0",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L0_021 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A20"
+   },
+   {
+    "level": "L1",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L1_013 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A21"
+   },
+   {
+    "level": "L1",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L1_021 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A22"
+   },
+   {
+    "level": "L2",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L2_013 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A23"
+   },
+   {
+    "level": "L2",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L2_021 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A24"
+   },
+   {
+    "level": "L3",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L3_013 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A25"
+   },
+   {
+    "level": "L3",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L3_021 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A26"
+   },
+   {
+    "level": "L4",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L4_013 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A27"
+   },
+   {
+    "level": "L4",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L4_021 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A28"
+   },
+   {
+    "level": "L5",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L5_013 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A29"
+   },
+   {
+    "level": "L5",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L5_021 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A30"
+   },
+   {
+    "level": "L6",
+    "at": [
+     0.655,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L6_013 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A31"
+   },
+   {
+    "level": "L6",
+    "at": [
+     21.725,
+     11.04
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L6_021 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A32"
+   },
+   {
+    "level": "L7",
+    "at": [
+     10.617,
+     9.92
+    ],
+    "kinds": [
+     "opening_type_differs"
+    ],
+    "desc": "o_L7_001 read as a opening; drawn as a window",
+    "fixed": true,
+    "reading": "after",
+    "id": "real10-A33"
+   },
+   {
+    "level": "L0",
+    "at": [
+     1.21,
+     7.87
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0023"
+    ],
+    "desc": "user correction C0023: rooms absent holds",
+    "id": "real10-UA01",
+    "reading": "after"
+   },
+   {
+    "level": "L0",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA02",
+    "reading": "after"
+   },
+   {
+    "level": "L0",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA03",
+    "reading": "after"
+   },
+   {
+    "level": "L1",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA04",
+    "reading": "after"
+   },
+   {
+    "level": "L1",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA05",
+    "reading": "after"
+   },
+   {
+    "level": "L2",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA06",
+    "reading": "after"
+   },
+   {
+    "level": "L2",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA07",
+    "reading": "after"
+   },
+   {
+    "level": "L3",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA08",
+    "reading": "after"
+   },
+   {
+    "level": "L3",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA09",
+    "reading": "after"
+   },
+   {
+    "level": "L4",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA10",
+    "reading": "after"
+   },
+   {
+    "level": "L4",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA11",
+    "reading": "after"
+   },
+   {
+    "level": "L5",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA12",
+    "reading": "after"
+   },
+   {
+    "level": "L5",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA13",
+    "reading": "after"
+   },
+   {
+    "level": "L6",
+    "at": [
+     11.19,
+     13.28
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA14",
+    "reading": "after"
+   },
+   {
+    "level": "L6",
+    "at": [
+     11.19,
+     15.82
+    ],
+    "kinds": [
+     "room_not_in_drawing"
+    ],
+    "fixed": true,
+    "records": [
+     "C0037"
+    ],
+    "desc": "user correction C0037: rooms absent holds",
+    "id": "real10-UA15",
+    "reading": "after"
+   }
+  ],
+  "before/real21@324c487f": [],
+  "after/real21": [],
+  "before/real03@983b7198": [
+   {
+    "level": null,
+    "at": null,
+    "kinds": [
+     "storey_count_differs"
+    ],
+    "building": true,
+    "desc": "3 storeys read; the drawing's texts give 14",
+    "reading": "before",
+    "id": "real03-B01"
+   }
+  ],
+  "after/real03": [
+   {
+    "level": null,
+    "at": null,
+    "kinds": [
+     "storey_count_differs"
+    ],
+    "building": true,
+    "desc": "3 storeys read; the drawing's texts give 14",
+    "fixed": true,
+    "reading": "after",
+    "id": "real03-A01"
+   }
+  ]
+ },
+ "note": "Known errors of the readings of checks 1, 2, 4 (20 Nov 2026): per input folder, each error with its level, place (building metres; null for a building-wide one), the finding kinds that name it, and fixed: true for a place the after reading has fixed (a finding there is a false alarm). From the brief's list (real09's missing left salon, kitchen and balcony and its roof, real20's straight angled wall and doors into the air, real10's missing kitchen windows, real03's storey count), RC17's doors into the air and the user's screenshot corrections (sparse truth).",
+ "made": "2026-11-20"
+}
