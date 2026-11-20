@@ -379,6 +379,21 @@ def test_a_door_tag_on_an_outer_window_at_grade_makes_it_that_door_never_on_an_u
     assert all(o["type"] == "window" for o in b["openings"])
 
 
+# --------------------------------------------------------------------------- R09-7: nothing stays from a refused ground
+def test_a_refused_ground_leaves_no_light_well_or_entrance_at_its_height():
+    from wenart.ingest import ground_lines as GL
+
+    b = {"site": {"ground": {"levels": [], "light_wells": [
+        {"opening_id": "w1", "source": "assumed", "top_z": 11.113, "floor_z": -0.05},
+        {"opening_id": "w2", "source": "drawn", "top_z": 11.113, "floor_z": -0.05}]},
+        "entrances": [{"door_id": "d1", "threshold_z": 0.0, "ground_z": 11.113, "rise": -11.113, "below_ground": True,
+                       "reason": "the door is 11.11 m below the ground"}]}}
+    how = GL.refresh(b, [11.113], -2.5)
+    assert how and [w["opening_id"] for w in b["site"]["ground"]["light_wells"]] == ["w2"]
+    e = b["site"]["entrances"][0]
+    assert e["ground_z"] == -2.5 and e["rise"] == 2.5 and e["below_ground"] is False
+
+
 # --------------------------------------------------------------------------- R09-5: no core door into a flat's room
 def test_a_door_from_the_core_into_a_bedroom_with_its_own_flat_door_is_refused():
     from wenart.ingest import core_rules as CR

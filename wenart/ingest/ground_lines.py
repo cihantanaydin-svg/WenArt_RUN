@@ -172,4 +172,45 @@ def apply(build) -> Optional[dict]:
     if chosen is None:
         b.setdefault("needs_review", []).append({"id": "ground:doors", "kind": "ground_doors", "reason": f"{why}; {how}",
                                                  "crop": None, "room_id": None, "level_id": lids[0]})
+    rec["refreshed"] = refresh(b, [float(x["value"]) for x in old if isinstance(x.get("value"), (int, float))], z)
     return rec
+
+
+def refresh(b: dict, refused: list, z: float) -> str:
+    """20 Nov 2026 (pre-pod review R09-7: the light wells and entrance records the levels model derived from the refused
+    ground stayed, 11 m deep front courts and doors 'under the ground'): what the levels model derived from the ground
+    is derived again from the new one (``levels.model.infer_levels`` on a copy: its light wells, entrances and
+    basements, taken when its ground is the new one); else the assumed wells at the refused height go and each entrance
+    record takes the new ground. Returns how (in place)."""
+    import copy
+
+    from wenart.levels import model as LMOD
+
+    site = b.get("site") if isinstance(b.get("site"), dict) else {}
+    ground = site.get("ground") if isinstance(site.get("ground"), dict) else {}
+    try:
+        new = LMOD.infer_levels(copy.deepcopy(b))
+    except Exception:  # noqa: BLE001 - a building the model cannot read again: the records are mended below
+        new = None
+    ng = ((new or {}).get("site") or {}).get("ground") or {}
+    zs = [float((x.get("z") or {}).get("value")) for x in ng.get("levels") or []
+          if isinstance((x.get("z") or {}).get("value"), (int, float))]
+    if new is not None and zs and abs(min(zs) - z) <= 0.01:
+        ground["light_wells"] = copy.deepcopy(ng.get("light_wells") or [])
+        site["entrances"] = copy.deepcopy((new.get("site") or {}).get("entrances") or [])
+        li = b.setdefault("level_inference", {})
+        li["basements"] = copy.deepcopy(((new.get("level_inference") or {}).get("basements")) or [])
+        return "light wells, entrances and basements derived again from the new ground (levels model)"
+
+    def stale(v) -> bool:
+        return isinstance(v, (int, float)) and any(abs(float(v) - r) <= 0.05 for r in refused)
+
+    ground["light_wells"] = [w for w in ground.get("light_wells") or []
+                             if w.get("source", "drawn") == "drawn" or not stale(w.get("top_z"))]
+    for e in site.get("entrances") or []:
+        if not stale(e.get("ground_z")):
+            continue
+        t = float(e.get("threshold_z") or 0.0)
+        e.update(ground_z=round(z, 3), rise=round(t - z, 3), below_ground=t + DOOR_H_M < z - DOOR_UNDER_M,
+                 reason=f"{e.get('reason') or ''}; the ground refused by ground_doors: now {z:+.2f} m".lstrip("; "))
+    return "the light wells at the refused ground dropped, the entrances given the new ground"
