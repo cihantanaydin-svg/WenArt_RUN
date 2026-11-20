@@ -2205,6 +2205,8 @@ PAIR_HEIGHT_TOL = 0.25
 PLAIN_TAG_FRAME_SHARE = 0.5     # a tag on a plain text layer is a window's when window frame lines run along its wall
 PLAIN_TAG_BAND_M = 0.15         # ... (within the wall's band grown by this) for this share of its width
 PLAIN_TAG_MAX_W_CM = 300
+PLAIN_TAG_GAP_MIN_H_M = 1.0     # a plain-layer tag this high or more may type a gap as its window (a lower one is a
+#                                 transom or a vent over a door or passage)
 PAIR_MIN_CM = 30                # the two numbers of a size are at least this (a stair's step numbers '15' over '16' are not)
 
 
@@ -2437,6 +2439,11 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
             gone += [o for o in out if (_leaf_line_door(o) or (o.kind == "opening" and not o.virtual))
                      and all(o is not g for g in gone) and abs(off(o.center)) <= h + 0.05
                      and abs(along(o.center) - (a0 + a1) / 2.0) <= float(o.width) / 2.0]
+        if id(t) in plain and height < PLAIN_TAG_GAP_MIN_H_M and any(o.kind == "opening" for o in gone):
+            # 20 Nov 2026 (gate: real07's '350/70' over the garage's 3.41 m gap, C0045 a garage door): a plain-layer tag
+            # lower than a window over a gap is a transom or a vent above the door or passage: the gap stays
+            skipped.append(f"{t.text}: a {height:.2f} m high window over a gap (a transom or a vent): the gap kept")
+            continue
         out = [o for o in out if all(o is not g for g in gone)]
         mid = (a0 + a1) / 2.0
         ev = dict(t.evidence[0]) if t.evidence else {}

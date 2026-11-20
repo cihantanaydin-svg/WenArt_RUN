@@ -230,6 +230,16 @@ def test_a_plain_layer_tag_over_window_frames_makes_the_window_the_frame_lines_w
     ex = SimpleNamespace(notes=[])
     assert GC._window_tags(ex, "L-1", [wall], [slider], [_run("90", 2.75, 0.58), _run("210", 2.75, 0.45)], 1.0,
                            frames) is None
+    # a low tag (a transom or vent, '150/70') over an untyped gap keeps the gap (real07's garage door); a window-high
+    # one ('150/150') types it as its window (real10's bay windows)
+    gap = OpeningItem(kind="opening", width=1.5, center=(2.75, 0.0), rotation_deg=0.0, box=[0, 0, 0, 0],
+                      entity="LINE:7", evidence={})
+    ex = SimpleNamespace(notes=[])
+    assert GC._window_tags(ex, "L0", [wall], [gap], [_run("150", 2.75, 0.58), _run("70", 2.75, 0.45)], 1.0,
+                           frames) is None
+    ex = SimpleNamespace(notes=[])
+    out = GC._window_tags(ex, "L0", [wall], [gap], tags, 1.0, frames)
+    assert out is not None and [o.kind for o in out] == ["window"]
 
 
 def test_the_checks_flag_an_untyped_opening_over_window_frames_and_a_two_text_tag_with_no_window():
