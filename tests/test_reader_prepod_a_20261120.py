@@ -259,3 +259,70 @@ def test_the_checks_flag_an_untyped_opening_over_window_frames_and_a_two_text_ta
     tags = CD.size_tags(CD.paired_texts(page, None))
     assert [(t["w"], t["h"]) for t in tags] == [(2.1, 1.5)]
     assert CD.rc11("L0", tags, walls, []) and not CD.rc11("L0", tags, walls, [dict(ops[0], type="window")])
+
+
+
+# --------------------------------------------------------------------------
+# R10-P2: window frame lines inside a wall band between two jambs
+# --------------------------------------------------------------------------
+
+def _framed_plan(tag=("165", "210")):
+    from wenart.ingest.generic.model import Stroke
+    from wenart.ingest.model import WallItem
+
+    def wall(a, b, t):
+        return WallItem(start=a, end=b, thickness=t, box=[0, 0, 0, 0], entity=f"LINE:{a}{b}", evidence={})
+    walls = [wall((0.0, 0.0), (6.0, 0.0), 0.46), wall((6.0, 0.0), (6.0, 4.0), 0.2), wall((6.0, 4.0), (0.0, 4.0), 0.2),
+             wall((0.0, 4.0), (0.0, 0.0), 0.2)]
+    st = []
+    for k, y in enumerate((0.03, 0.055, 0.08, 0.105)):                   # the frame and sash lines in the band
+        st.append(Stroke(id=f"LINE:f{k}", kind="line", layer="PENCERE", pts=[(2.0, y), (3.65, y)]))
+    for k, x in enumerate((2.0, 3.65)):                                 # the wall-layer jambs across the band
+        st.append(Stroke(id=f"LINE:j{k}", kind="line", layer="DUVAR", pts=[(x, -0.23), (x, 0.23)]))
+    for k, y in enumerate((-0.23, 0.23)):                               # the plaster lines straight across the bay
+        st.append(Stroke(id=f"LINE:p{k}", kind="line", layer="SIVA", pts=[(2.0, y), (3.65, y)]))
+    st.append(Stroke(id="LINE:lead", kind="line", layer="TEXT", pts=[(2.8, 0.85), (2.8, 0.06)]))
+    texts = [_run(tag[0], 2.76, 0.95, rot=90.0), _run(tag[1], 2.89, 0.95, rot=90.0)]
+    return walls, st, texts
+
+
+def test_window_frames_between_two_jambs_inside_a_wall_band_are_a_window_sized_by_its_leader_tag():
+    """real10 L0-L6: each kitchen's window drawn as frame and sash lines between two jambs, a '165' over '210' tag with a
+    leader line, two plaster lines straight across the bay; no opening was read."""
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic.model import Stroke
+    from wenart.ingest.model import OpeningItem
+
+    walls, st, texts = _framed_plan()
+    out = GC._framed_windows(SimpleNamespace(notes=[]), "L0", walls, [], st, texts, 1.0)
+    assert out is not None and len(out) == 1 and out[0].kind == "window"
+    assert abs(out[0].width - 1.65) < 1e-6 and out[0].height == 2.1 and out[0].sill == 0.0
+    # a door's size on frames between jambs 0.8 m apart: a glazed door
+    walls, st, texts = _framed_plan(tag=("80", "210"))
+    st = [x for x in st if not x.id.startswith("LINE:f") and x.id != "LINE:j1"]
+    st += [Stroke(id=f"LINE:g{k}", kind="line", layer="PENCERE", pts=[(2.0, y), (2.8, y)])
+           for k, y in enumerate((0.03, 0.08))]
+    st.append(Stroke(id="LINE:j9", kind="line", layer="DUVAR", pts=[(2.8, -0.23), (2.8, 0.23)]))
+    out = GC._framed_windows(SimpleNamespace(notes=[]), "L0", walls, [], st, texts, 1.0)
+    assert out is not None and out[0].kind == "door" and abs(out[0].width - 0.8) < 1e-6
+    # an opening already read there: nothing new; frames on one line only: no window
+    walls, st, texts = _framed_plan()
+    read = OpeningItem(kind="window", width=1.6, center=(2.8, 0.0), rotation_deg=0.0, box=[0, 0, 0, 0], entity="x",
+                       evidence={})
+    assert GC._framed_windows(SimpleNamespace(notes=[]), "L0", walls, [read], st, texts, 1.0) is None
+    one = [x for x in st if x.id not in ("LINE:f1", "LINE:f2", "LINE:f3")]
+    assert GC._framed_windows(SimpleNamespace(notes=[]), "L0", walls, [], one, texts, 1.0) is None
+
+
+def test_the_check_flags_window_frames_inside_a_facade_wall_with_no_opening():
+    """R10-P2's machine check (RC11 framed_walls)."""
+    from wenart.reading_check import crossdoc as CD
+
+    _walls, st, _texts = _framed_plan()
+    page = SimpleNamespace(strokes=st, texts=[])
+    walls = [{"id": "w_s", "level_id": "L0", "start": [0.0, 0.0], "end": [6.0, 0.0], "thickness": 0.46,
+              "exterior": True}]
+    found = CD.framed_walls("L0", page, None, walls, [])
+    assert [f["element_ids"] for f in found] == [["w_s"]]
+    win = {"id": "win", "type": "window", "width": 1.65, "center": [2.825, 0.0], "wall_id": "w_s"}
+    assert CD.framed_walls("L0", page, None, walls, [win]) == []

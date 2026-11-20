@@ -2289,6 +2289,159 @@ def _frame_cover(strokes: list, x0, y0, ux, uy, half: float, lo: float, hi: floa
     return covered / (hi - lo) if hi > lo else 0.0
 
 
+FRAMED_MIN_M = 0.4              # 20 Nov 2026 (pre-pod R10-P2): window frame lines this long along a wall, inside its band
+FRAMED_LINES_MIN = 2            # ... on at least this many distinct lines (a frame and its sash) ...
+FRAMED_BAND_TOL_M = 0.02        # ... within the wall's faces (this slack) ...
+FRAMED_ANGLE = 0.05             # ... parallel to it (sine of the angle) are a window there
+FRAMED_JAMB_M = 0.12            # a wall-layer line across the band this close to a frame end is the window's jamb
+LEADER_TAG_M = 0.15             # a leader line ends this close to its tag's box ...
+LEADER_REACH_M = 0.10           # ... and this close to the window's span inside the band
+FRAMED_TAG_TOL_M = 0.15         # the tag's width within this (or this share) of the jamb-to-jamb width is its tag
+FRAMED_TAG_TOL = 0.10
+FRAMED_RIM_M = 0.30             # the facade's walls: within this of the building outline
+FRAMED_NEAR_M = 0.35            # an opening read this far off the wall's axis (on a wall piece beside it) is its own
+
+
+def framed_spans(x0, y0, ux, uy, half: float, segs: list) -> list:
+    """``[(lo, hi, lines)]`` along a wall (origin x0, y0, direction ux, uy, half thickness ``half``): the stretches the
+    window or glass layer segments ``segs`` (``[((ax, ay), (bx, by))]``) parallel to the wall and inside its band
+    (``FRAMED_BAND_TOL_M``) cover, each with the number of distinct lines (offsets 1 cm apart) over it; only
+    stretches of ``FRAMED_MIN_M`` or more on ``FRAMED_LINES_MIN`` or more lines (pure; R10-P2)."""
+    rows = []
+    for (ax, ay), (bx, by) in segs:
+        L = math.hypot(bx - ax, by - ay)
+        if L < 0.05 or abs((bx - ax) * uy - (by - ay) * ux) / L > FRAMED_ANGLE:
+            continue
+        oa = -(ax - x0) * uy + (ay - y0) * ux
+        ob = -(bx - x0) * uy + (by - y0) * ux
+        if max(abs(oa), abs(ob)) > half + FRAMED_BAND_TOL_M:
+            continue
+        ta, tb = sorted(((ax - x0) * ux + (ay - y0) * uy, (bx - x0) * ux + (by - y0) * uy))
+        rows.append((ta, tb, round((oa + ob) / 2.0, 2)))
+    out, cur = [], None
+    for ta, tb, off in sorted(rows):
+        if cur is not None and ta <= cur[1] + 0.02:
+            cur = (cur[0], max(cur[1], tb), cur[2] | {off})
+        else:
+            if cur is not None:
+                out.append(cur)
+            cur = (ta, tb, {off})
+    if cur is not None:
+        out.append(cur)
+    return [(lo, hi, len(offs)) for lo, hi, offs in out if hi - lo >= FRAMED_MIN_M and len(offs) >= FRAMED_LINES_MIN]
+
+
+def _segments(strokes: list, roles: tuple) -> list:
+    out = []
+    for st in strokes or []:
+        pts = getattr(st, "pts", None) or []
+        if getattr(st, "arc", None) or len(pts) < 2:
+            continue
+        from wenart.ingest.generic import layer_names as LN
+        if LN.layer_role(getattr(st, "layer", None)) not in roles:
+            continue
+        pts = list(pts) + ([pts[0]] if getattr(st, "closed", False) else [])
+        out += [((float(a[0]), float(a[1])), (float(b[0]), float(b[1]))) for a, b in zip(pts, pts[1:])]
+    return out
+
+
+def _framed_windows(ex, where: str, walls2: list, openings: list, strokes: list, texts_m: list, units_to_m: float):
+    """20 Nov 2026 (pre-pod check R10-P2, real10 L0-L6: both kitchens' windows on the street facade, their frame and
+    sash lines drawn between two wall-layer jambs, a '165' over '210' tag joined to them by a leader line, were never
+    read: two plaster lines ran straight across each bay and overlapping wall pieces covered it): window or glass lines
+    inside a wall's band (``framed_spans``) where no opening is read are a window across the band, between the jambs
+    drawn across the band at its ends (``FRAMED_JAMB_M``), else the frames' extent; sized by a tag a leader line joins to
+    it (``LEADER_TAG_M``, ``LEADER_REACH_M``), else the default window. The plaster lines across the bay do not close it;
+    the build cuts the window through every overlapping wall piece. Returns the new openings or None."""
+    from wenart.ingest.model import OpeningItem
+
+    frames = _segments(strokes, ("window", "glass"))
+    if not frames or not walls2:
+        return None
+    jambs = _segments(strokes, ("wall", "column"))
+    tags = []
+    for t in list(texts_m) + paired_size_tags(texts_m):
+        m = SIZE_TAG_RE.match(str(t.text or ""))
+        if m:
+            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+    others = [((float(a[0]), float(a[1])), (float(b[0]), float(b[1]))) for st in strokes or []
+              if not getattr(st, "arc", None) and len(getattr(st, "pts", None) or []) == 2
+              for a, b in [st.pts] if 0.2 <= math.dist(a, b) <= 3.0]
+    out, made = list(openings), []
+    outline = TP.building_outline(walls2, [o for o in openings if not o.virtual])
+    rim = outline.boundary if outline is not None and not outline.is_empty else None
+    for w in walls2:
+        (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+        L = math.hypot(x1 - x0, y1 - y0)
+        if L < 0.6 or rim is None or TP.wall_polygon(w).distance(rim) > FRAMED_RIM_M:
+            continue                                       # only the facade's walls (inner glazing stays as read)
+        ux, uy = (x1 - x0) / L, (y1 - y0) / L
+        half = float(w.thickness) / 2.0
+        for lo, hi, n in framed_spans(x0, y0, ux, uy, half, frames):
+            def along(q):
+                return (q[0] - x0) * ux + (q[1] - y0) * uy
+
+            def off(q):
+                return -(q[0] - x0) * uy + (q[1] - y0) * ux
+            if any(not o.virtual and abs(off(o.center)) <= half + FRAMED_NEAR_M
+                   and min(hi, along(o.center) + o.width / 2.0) - max(lo, along(o.center) - o.width / 2.0)
+                   >= 0.5 * (hi - lo) for o in out):
+                continue                                   # an opening is read there (or on a wall piece beside it)
+            if any(math.dist(c, (x0 + ux * (lo + hi) / 2.0, y0 + uy * (lo + hi) / 2.0)) <= 0.3 for c in made):
+                continue                                   # the same frames in an overlapping wall piece
+            # the jambs: wall lines across the band near the frames' ends
+            ends = []
+            for a, b in jambs:
+                la = math.dist(a, b)
+                if la < 0.05 or abs((b[0] - a[0]) * ux + (b[1] - a[1]) * uy) / la > FRAMED_ANGLE:
+                    continue
+                ta = (along(a) + along(b)) / 2.0
+                if min(abs(off(a)), abs(off(b))) <= half + FRAMED_BAND_TOL_M:
+                    ends.append(ta)
+            j0 = min((t for t in ends if abs(t - lo) <= FRAMED_JAMB_M), key=lambda t: abs(t - lo), default=lo)
+            j1 = min((t for t in ends if abs(t - hi) <= FRAMED_JAMB_M), key=lambda t: abs(t - hi), default=hi)
+            a0, a1 = min(j0, j1), max(j0, j1)
+            # a tag joined by a leader line
+            size, tag_text = None, None
+            for t, tw, th in tags:
+                if abs(tw - (a1 - a0)) > max(FRAMED_TAG_TOL_M, FRAMED_TAG_TOL * (a1 - a0)):
+                    continue                               # another opening's tag
+                box = Polygon([(t.box[0], t.box[1]), (t.box[2], t.box[1]), (t.box[2], t.box[3]), (t.box[0], t.box[3])])
+                for a, b in others:
+                    for p, q in ((a, b), (b, a)):
+                        if box.distance(Point(p)) <= LEADER_TAG_M and abs(off(q)) <= half + LEADER_REACH_M \
+                                and a0 - LEADER_REACH_M <= along(q) <= a1 + LEADER_REACH_M:
+                            size, tag_text = (tw, th), t.text
+                if size:
+                    break
+            width = a1 - a0
+            height = size[1] if size else O.WINDOW_HEIGHT_M
+            full = height >= FULL_GLASS_M
+            # a door's size (door-high, door-wide: ``_door_like_tag``'s bounds) on frames: a glazed door
+            kind = "door" if size and size[1] * 100 >= DOOR_TAG_MIN_H_CM and size[0] * 100 <= 120 else "window"
+            mid = (a0 + a1) / 2.0
+            ev = dict(w.evidence or {})
+            ev.update(method="vector", confidence=0.8, rule="framed_window",
+                      reason=(f"window frame lines ({n} lines) drawn inside the wall's band"
+                              + (" between its jambs" if (j0, j1) != (lo, hi) else "")
+                              + (f", sized by the tag '{tag_text}' its leader line joins" if size else "")
+                              + ": a window across the wall (the plaster lines across the bay do not close it)"))
+            out.append(OpeningItem(kind=kind, width=round(width, 3),
+                                   center=(round(x0 + ux * mid, 4), round(y0 + uy * mid, 4)),
+                                   rotation_deg=math.degrees(math.atan2(uy, ux)), box=list(w.box),
+                                   entity=f"framed:{w.entity}", evidence=ev, height=round(height, 2),
+                                   sill=None if kind == "door" else 0.0 if full else
+                                   round(max(0.0, WINDOW_HEAD_M - height), 2),
+                                   assumed=[] if size else ["height", "sill_height"],
+                                   type_raw="window frame lines inside the wall" + (f", tag {tag_text}" if size else "")))
+            made.append((x0 + ux * mid, y0 + uy * mid))
+    if not made:
+        return None
+    ex.notes.append(f"{where}: {len(made)} window(s) read from frame lines drawn inside a wall's band (rule "
+                    f"framed_window)")
+    return out
+
+
 def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float,
                  strokes: list = ()):
     """4 Nov 2026 (real17 L0, user: "these sections could be full windows glass, check it"): a window size tag ("470/240",
@@ -4399,6 +4552,17 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                 openings, bwalls, site, site_warnings, b_openings, problem = tagged, bw_t, site_t, sw_t, b_open_t, prob_t
             else:
                 ex.notes.append(f"{where}: the windows of the size tags left out: they would open the walls")
+        framed = _framed_windows(ex, where, walls2, openings, non_wall, texts_m, s)
+        if framed is not None:
+            bw_f, site_f, sw_f = TP.split_plot(walls2, framed, blocks, level_id=level_id)
+            idx = {o["index"] for o in site_f["openings"]}
+            b_open_f = [o for j, o in enumerate(framed) if j not in idx]
+            prob_f = TP.outer_loop_problem(bw_f, b_open_f)
+            if _unclosed(sw_f) <= _unclosed(site_warnings) and (prob_f is None or problem is not None):
+                openings, bwalls, site, site_warnings, b_openings, problem = framed, bw_f, site_f, sw_f, b_open_f, \
+                    prob_f
+            else:
+                ex.notes.append(f"{where}: the windows read from frame lines left out: they would open the walls")
         # 13 Nov 2026 (review S1-03c: real03's 2.90 m window was built over its double entrance doors): a door keeps its
         # stretch of a window read over it on the same wall line (``openings.windows_off_doors``)
         cut, cut_notes = O.windows_off_doors(openings)
