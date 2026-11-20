@@ -20,7 +20,8 @@ CAD document) and returns the findings, each with its check, severity, level and
   name them on the comparison sheets, where they are drawn in their own colour; RC7 is listed first in the markdown.
   RC7 alone never changes the verdict: these are places to check, not a stop. 5 Nov 2026 (Milestone 14 R3): a gap
   whose rule is under the ranker's trust while the ranker is weak or untrusted there is a place too (``reading_places``
-  of kind ``undecided_gap``, on any level that is no typical-floor copy; minor).
+  of kind ``undecided_gap``, on any level that is no typical-floor copy; info since 20 Nov 2026: uncertainty, not an
+  error).
 
 - RC8 to RC12 (5 Nov 2026, Milestone 14 R5, ``wenart.reading_check.crossdoc``): the cross-document checks, advisory
   (reported, counted under ``counts["advisory"]``, never in the verdict until they earn it).
@@ -638,14 +639,18 @@ def low_confidence_findings(building: dict) -> list:
             if not p.get("at"):
                 continue
             n += 1
+            severity = "minor"
             if p.get("kind") == "undecided_gap":
-                # 5 Nov 2026 (Milestone 14 R3): a gap whose rule is weak and whose ranker is weak or untrusted
+                # 5 Nov 2026 (Milestone 14 R3): a gap whose rule is weak and whose ranker is weak or untrusted.
+                # 20 Nov 2026 (coordinator's decision): a gap the reader left undecided is uncertainty, not an error:
+                # info (still numbered and drawn on the sheets), so it lowers no grade
+                severity = "info"
                 text = (f"place {n}: gap at ({p['at'][0]:.2f}, {p['at'][1]:.2f}) m kept as {p.get('text') or '?'} on "
                         f"weak evidence: {p.get('note') or 'the rule and the ranker are both unsure'}")
             else:
                 text = (f"place {n}: room label '{p.get('text') or '?'}' at ({p['at'][0]:.2f}, {p['at'][1]:.2f}) m in no "
                         f"closed face: {p.get('note') or 'the walls around that room do not close'}")
-            out.append(_finding("RC7", "minor", lid, text, place=n,
+            out.append(_finding("RC7", severity, lid, text, place=n,
                                 at=[round(float(p["at"][0]), 2), round(float(p["at"][1]), 2)],
                                 kind=p.get("kind"), text=p.get("text")))
     return out
