@@ -60,6 +60,9 @@ FOOT_IN_M = 2.0                 # ... inside the plan's outline, no corner furth
 ROOM_MIN_M2 = 1.0               # a room cut to less than this (or a fifth of itself) goes
 WALL_MIN_M = 0.10
 COVER_M = 0.25                  # a footprint edge this close to a kept parallel wall's face is that wall's
+JAMB_M = 0.10                   # a moved window keeps this much wall beside it (R20-04)
+PIT_WIDTH_M = 0.30              # a piece of the footprint past the slab above wider than this ... (R20-02)
+PIT_MIN_M2 = 0.5                # ... and larger than this: the slab above covers it
 LOBBY_LABEL = "Bina Giriş Holü"
 LOBBY_WIDTH_M = 1.50            # the entrance hall's passages (R43: at least 1.5 m wide where the walls allow)
 NO_LOBBY_TYPES = ("bathroom", "wc", "shower", "toilet", "shaft", "stair", "balcony", "terrace", "garage", "technical")
@@ -195,8 +198,16 @@ def cut(build, b: dict, lid: str, foot: dict, why: str) -> dict:
     draws_windows = any(o.get("type") == "window" and not o.get("inferred") for o in level0.openings)
     # walls
     gone_walls, kept = set(), []
+    edges = [LineString([p, q]) for p, q in zip(list(poly.exterior.coords), list(poly.exterior.coords)[1:])]
     for w in walls:
         res = _clip_wall(w, poly.buffer(float(w.get("thickness") or 0.15) / 2.0 + 0.02, join_style=2))
+        if res is not None and not _along_edge(w, edges):
+            # 20 Nov 2026 (pre-pod review R21-01: cut walls stood 0.07-0.12 m out of the new facade, thin fins on the
+            # street): a wall that crosses the footprint line stops at the line (inside the new facade wall's body);
+            # a wall along an edge keeps the half-thickness margin
+            tight = _clip_wall(w, poly.buffer(0.005, join_style=2))
+            if tight:
+                res = tight
         if res is None:
             gone_walls.add(w["id"])
             rec["walls_removed"].append(w["id"])
@@ -251,6 +262,9 @@ def cut(build, b: dict, lid: str, foot: dict, why: str) -> dict:
                  "status": "unverified", "inferred": True, "evidence": [_ev(b, lid, "ground_footprint_wall", text, foot)]}
             new_walls.append(w)
             rec["walls_added"].append(wid)
+    stopped = _stop_at_party(new_walls, kept, poly)
+    if stopped:
+        rec["walls_stopped_at_party"] = sorted(set(stopped))
     b["walls"].extend(new_walls)
     # rooms: what lies past the footprint or in a new wall goes
     bands = [_band(w) for w in new_walls]
@@ -321,6 +335,30 @@ def cut(build, b: dict, lid: str, foot: dict, why: str) -> dict:
             s.setdefault("drawn_outline", s["outline"])
             s["outline"] = [[round(x, 4), round(y, 4)] for x, y in list(poly.exterior.coords)[:-1]]
             s["outline_source"] = "ground_footprint"
+    # 20 Nov 2026 (pre-pod review R20-02: 21.8 m2 of the cut ground floor's closed rooms had no ceiling up to the roof,
+    # the slab over it kept the open typical outline): the slab over the cut storey covers the footprint too (the
+    # pieces past it become floor of the storey above), adjusted_by_ai with the reason
+    for s in b.get("slabs") or []:
+        if s.get("below_level_id") != lid or s.get("variants") or not s.get("outline") or len(s["outline"]) < 3:
+            continue
+        sp = Polygon(s["outline"])
+        sp = sp if sp.is_valid else sp.buffer(0)
+        past = poly.difference(sp)
+        pieces = [g for g in getattr(past, "geoms", [past]) if g.geom_type == "Polygon" and g.area >= PIT_MIN_M2
+                  and not g.buffer(-PIT_WIDTH_M / 2.0).is_empty]
+        if not pieces:
+            continue
+        grown = unary_union([sp] + pieces)
+        if grown.geom_type != "Polygon":
+            grown = max(grown.geoms, key=lambda g: g.area)
+        text = (why + f": {sum(g.area for g in pieces):.1f} m2 of the footprint lay past the slab over {lid} "
+                f"({len(pieces)} piece(s)); the slab covers them (floor of the storey above)")
+        s.setdefault("drawn_outline", s["outline"])
+        s["outline"] = [[round(x, 4), round(y, 4)] for x, y in list(grown.exterior.coords)[:-1]]
+        s["adjusted_by_ai"] = {"by": "code", "rule": "ground_cut", "reason": text,
+                               "changed": {"area": round(sp.area, 2)}}
+        rec["slab_above_extended"] = {"slab": s["id"], "pieces_m2": [round(g.area, 2) for g in pieces],
+                                      "reason": text}
     # the balconies past the footprint are left off
     site = b.get("site") if isinstance(b.get("site"), dict) else {}
     keep_s = []
@@ -354,6 +392,59 @@ def cut(build, b: dict, lid: str, foot: dict, why: str) -> dict:
     if isinstance(site, dict) and site.get("entrances"):
         site["entrances"] = [e for e in site["entrances"] if (ops.get(e.get("door_id")) or {}).get("type") == "door"]
     return rec
+
+
+def _along_edge(w: dict, edges: list) -> bool:
+    """True when the wall runs along an edge of the footprint (parallel, its axis within half its thickness plus
+    ``COVER_M`` of the edge over a part of its length; pure)."""
+    a, u, length = CP._axis(w)
+    if length < 1e-6:
+        return False
+    axis = LineString([w["start"][:2], w["end"][:2]])
+    reach = float(w.get("thickness") or 0.15) / 2.0 + COVER_M
+    for e in edges:
+        (x0, y0), (x1, y1) = e.coords[0], e.coords[-1]
+        el = math.dist((x0, y0), (x1, y1))
+        if el < 1e-6 or abs(u[0] * (y1 - y0) / el - u[1] * (x1 - x0) / el) > CP.PARALLEL_SIN:
+            continue
+        if axis.intersection(e.buffer(reach)).length >= min(0.5, 0.5 * length):
+            return True
+    return False
+
+
+def _stop_at_party(new_walls: list, kept: list, poly) -> list:
+    """20 Nov 2026 (pre-pod review R21-01: the cadastral footprint followed a slanted party wall the reader had
+    straightened, and the new facade wall ran 0.155 m past the party wall's outer face): a new facade wall's end past
+    the outer face of a kept party or exterior wall it crosses stops at that face. Returns the ids moved (in place)."""
+    moved = []
+    centre = poly.centroid
+    for w in new_walls:
+        for k in kept:
+            if not (k.get("exterior") or k.get("party_wall")):
+                continue
+            ka, ku, kl = CP._axis(k)
+            wa, wu, wl = CP._axis(w)
+            if kl < 0.3 or abs(ku[0] * wu[1] - ku[1] * wu[0]) < 0.7:
+                continue                                        # only a wall the new one meets at an angle
+            kn = (-ku[1], ku[0])
+            inside = (centre.x - ka[0]) * kn[0] + (centre.y - ka[1]) * kn[1]
+            sgn = 1.0 if inside >= 0 else -1.0
+            half = float(k.get("thickness") or 0.15) / 2.0
+            for key in ("start", "end"):
+                p = w[key]
+                d = ((p[0] - ka[0]) * kn[0] + (p[1] - ka[1]) * kn[1]) * sgn       # > 0: on the building's side
+                t = (p[0] - ka[0]) * ku[0] + (p[1] - ka[1]) * ku[1]
+                if d >= -half - 1e-3 or d < -half - 0.5 or not (-0.3 <= t <= kl + 0.3):
+                    continue
+                other = w["end" if key == "start" else "start"]
+                od = ((other[0] - ka[0]) * kn[0] + (other[1] - ka[1]) * kn[1]) * sgn
+                if od <= 0:
+                    continue
+                # slide p along the new wall until it stands on the outer face (d = -half)
+                f = (od + half) / (od - d)
+                w[key] = [round(other[0] + (p[0] - other[0]) * f, 4), round(other[1] + (p[1] - other[1]) * f, 4)]
+                moved.append(w["id"])
+    return moved
 
 
 def _band(w: dict) -> Polygon:
@@ -393,12 +484,31 @@ def _move_window(build, b, level, o, new_walls, rooms_before, why, foot) -> Opti
         a, u, length = CP._axis(w)
         t = (c[0] - a[0]) * u[0] + (c[1] - a[1]) * u[1]
         half = float(o.get("width") or 0.9) / 2.0
-        if not (half <= t <= length - half):
+        reach = float(w.get("thickness") or 0.2) / 2.0 + 0.2
+        if rp is None:
             continue
-        q = (a[0] + u[0] * t, a[1] + u[1] * t)
-        if rp is None or rp.distance(Point(q)) > float(w.get("thickness") or 0.2) / 2.0 + 0.2:
+        # 20 Nov 2026 (pre-pod review R20-04: a drawn 1.40 m bedroom window missed the new wall's end by 5.7 cm and
+        # was dropped): the window slides along the wall into the room's stretch, a jamb from each end; dropped only
+        # when the stretch is shorter than the window
+        stretch = LineString([a, (a[0] + u[0] * length, a[1] + u[1] * length)]).intersection(rp.buffer(reach))
+        parts = [g for g in getattr(stretch, "geoms", [stretch]) if g.geom_type == "LineString" and g.length > 0]
+        best = None
+        for g in parts:
+            ts = sorted((p[0] - a[0]) * u[0] + (p[1] - a[1]) * u[1] for p in (g.coords[0], g.coords[-1]))
+            lo = max(ts[0], 0.0) + half + JAMB_M
+            hi = min(ts[1], length) - half - JAMB_M
+            if lo > hi:
+                continue
+            t2 = min(max(t, lo), hi)
+            if best is None or abs(t2 - t) < abs(best - t):
+                best = t2
+        if best is None:
             continue
-        text = why + f": the window {o['id']} of {room} moved with the facade onto {w['id']} (inferred)"
+        q = (a[0] + u[0] * best, a[1] + u[1] * best)
+        if rp.distance(Point(q)) > reach:
+            continue
+        shift = f", moved {abs(best - t):.2f} m along {w['id']} to stay on the wall" if abs(best - t) > 0.005 else ""
+        text = why + f": the window {o['id']} of {room} moved with the facade onto {w['id']}{shift} (inferred)"
         return {"id": build.ids.next("window", level.lid), "type": "window", "level_id": level.lid, "wall_id": w["id"],
                 "center": [round(q[0], 4), round(q[1], 4)], "width": o.get("width"), "height": o.get("height"),
                 "sill_height": o.get("sill_height"), "swing_side": None, "status": "unverified", "inferred": True,

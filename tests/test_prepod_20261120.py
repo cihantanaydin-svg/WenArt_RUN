@@ -257,3 +257,67 @@ def test_lift_shafts_carved_after_a_walk_up_count_reopen_the_storey_question():
     got = CP._late_lifts(b, rec)
     assert got and got["default_with_lift"] == ST.TYPE_DEFAULTS["apartment_block_lift"]
     assert ST.TYPE_DEFAULTS["apartment_block_lift"] in rec["open_point"]["options"]
+
+
+# --------------------------------------------------------------------------- R20-02, R20-04, R21-01: the ground cut
+def test_the_slab_over_a_cut_ground_floor_covers_the_footprint_and_cut_walls_stop_at_its_line():
+    from tests import test_ground_floor_20261113 as TG
+
+    b = TG.building()
+    b["slabs"].append({"id": "sl_L1", "below_level_id": "L0", "above_level_id": "L1", "outline": TG.rect(0, 0, 12, 7.8)})
+    out = TG.run(b, TG.drawn(*TG.FOOT))
+    s1 = next(s for s in b["slabs"] if s["id"] == "sl_L1")
+    assert max(y for _x, y in s1["outline"]) == 8.5 and s1["adjusted_by_ai"]["rule"] == "ground_cut"
+    assert out["cut"]["slab_above_extended"]["slab"] == "sl_L1"
+    walls = {w["id"]: w for w in b["walls"]}
+    for wid in ("w_L0_x4", "w_L0_x8"):                     # they cross the footprint line: they stop at it
+        assert max(walls[wid]["start"][1], walls[wid]["end"][1]) <= 8.51
+
+
+def test_a_moved_window_slides_along_the_new_wall_instead_of_being_dropped():
+    from shapely.geometry import Polygon as P
+
+    from wenart import building as B
+    from wenart.ingest import ground_floor as GF
+
+    r = {"id": "r_bed", "level_id": "L0", "label": "Oda", "room_type": "bedroom",
+         "polygon": [[0.1, 0.1], [3.9, 0.1], [3.9, 8.3], [0.1, 8.3]]}
+    new = {"id": "w_new", "level_id": "L0", "start": [0.0, 8.4], "end": [4.0, 8.4], "thickness": 0.2, "exterior": True}
+    b = {"levels": [{"id": "L0", "order": 0}], "rooms": [r], "walls": [new], "openings": [], "site": {}}
+    level = CP.Level(b, "L0")
+    o = {"id": "win_old", "type": "window", "level_id": "L0", "center": [3.36, 9.9], "width": 1.4, "height": 1.4}
+    build = SimpleNamespace(ids=B.IdCounter())
+    got = GF._move_window(build, b, level, dict(o, center=[3.36, 8.35]), [new], {"r_bed": P(r["polygon"])}, "cut",
+                          {"entities": [], "layer": None})
+    assert got is not None and abs(got["center"][0] - 3.2) < 1e-6 and "moved 0.16 m" in got["inference"]["reason"]
+
+
+def test_a_new_facade_wall_stops_at_the_party_walls_outer_face():
+    from shapely.geometry import box as bx
+
+    from wenart.ingest import ground_floor as GF
+
+    new = {"id": "w_new", "start": [0.0, 9.9], "end": [12.25, 9.9], "thickness": 0.2}
+    party = {"id": "w_p", "start": [12.0, 0.0], "end": [12.0, 10.5], "thickness": 0.2, "exterior": True,
+             "party_wall": {"text": "bitişik"}}
+    assert GF._stop_at_party([new], [party], bx(0, 0, 12.25, 10)) == ["w_new"]
+    assert abs(new["end"][0] - 12.1) < 1e-6 and new["start"] == [0.0, 9.9]
+
+
+# --------------------------------------------------------------------------- R21-02: the inferred stair's void and box
+def test_an_inferred_stair_box_fits_its_room_and_its_landing_is_assumed():
+    from shapely.geometry import box as bx
+
+    from wenart.blender import stair_access as SA
+    from wenart.ingest import core_rules as CR
+
+    fp = {"center": [5.92, 14.425], "size": [1.8, 4.75], "rotation_deg": 0.0}           # y 12.05-16.80
+    got = CR.fit_to_room(fp, bx(5.0, 12.30, 6.9, 16.55))
+    assert abs(got["size"][1] - 4.25) < 1e-6 and abs(got["center"][1] - 14.425) < 1e-6
+    st = CR.stair_dict(got, "inferred", "U", 3.0)
+    assert st["landing_assumed"] is True
+    up = {"id": "f_L1", "level_id": "L1", "type": "stair", "inferred": True, "stair": dict(st, landing_assumed=False)}
+    low = {"id": "f_L0", "level_id": "L0", "type": "stair", "stair": st}
+    b = {"levels": [{"id": "L0", "order": 0, "elevation": 0.0}, {"id": "L1", "order": 1, "elevation": 3.0}],
+         "furniture": [low, up], "walls": []}
+    assert SA.upper_match(b, low) is None                    # an inferred stair above is no drawn evidence

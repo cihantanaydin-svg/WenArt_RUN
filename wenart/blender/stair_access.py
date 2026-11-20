@@ -764,6 +764,8 @@ def upper_match(building: dict, piece: dict) -> Optional[dict]:
     for t in building.get("furniture") or []:
         if t is piece or t.get("type") != "stair" or t.get("level_id") != up["id"]:
             continue
+        if t.get("inferred") or (t.get("adjusted_by_ai") or {}).get("rule") == "stair_missing":
+            continue        # 20 Nov 2026 (pre-pod review R21-02): an inferred or copied stair is no drawn evidence
         td = t.get("stair") if isinstance(t.get("stair"), dict) else {}
         theirs = _flights(td)
         matched = sorted({i for i, a in enumerate(ours) for b in theirs if _same_flight(a, b)})

@@ -217,7 +217,8 @@ def stair_dict(fp: dict, reason: str, turn: str = "U", rise: Optional[float] = N
                 "width": round(fw, 3), "lines": per[1], "spacing": round(spacing, 3)}]
     landing = [at(length / 2.0 - ld, -width / 2.0), at(length / 2.0, -width / 2.0), at(length / 2.0, width / 2.0),
                at(length / 2.0 - ld, width / 2.0)]
-    return {"flights": flights, "landing": {"polygon": landing, "depth": round(ld, 3)},
+    # (20 Nov 2026, pre-pod review R21-02) the half landing is assumed: said so, so no reading takes it as drawn
+    return {"flights": flights, "landing": {"polygon": landing, "depth": round(ld, 3)}, "landing_assumed": True,
             "direction": [round(u[0], 4), round(u[1], 4)], "direction_assumed": True, "turn": "U",
             "turn_assumed": True, "void_assumed": True, "riser_m": None, "riser_source": None,
             "risers": sum(per) if rise else None, "reason": reason}
@@ -425,6 +426,26 @@ def _stair_box(b: dict, level: "CP.Level", strokes: list, texts: list) -> tuple:
     return None, candidate
 
 
+def fit_to_room(fp: dict, room) -> dict:
+    """20 Nov 2026 (pre-pod review R21-02: real21's inferred stair box spanned both core walls): a stair box cut to the
+    room's inner faces (its extent inside the room polygon, in the box's own frame), when that keeps at least half of
+    it; else the box as it was (pure)."""
+    from shapely import affinity
+
+    if room is None or room.is_empty:
+        return fp
+    box = Polygon(G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"]))
+    inside = box.intersection(room)
+    if inside.is_empty or inside.area < 0.5 * box.area or inside.area >= box.area - 0.01:
+        return fp
+    cx, cy = fp["center"]
+    local = affinity.rotate(inside, -fp["rotation_deg"], origin=(cx, cy))
+    x0, y0, x1, y1 = local.bounds
+    mid = affinity.rotate(Point((x0 + x1) / 2.0, (y0 + y1) / 2.0), fp["rotation_deg"], origin=(cx, cy))
+    return dict(fp, center=[round(mid.x, 4), round(mid.y, 4)], size=[round(x1 - x0, 4), round(y1 - y0, 4)],
+                fitted={"to": "room inner faces", "drawn_size": list(fp["size"]), "drawn_center": list(fp["center"])})
+
+
 def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optional[dict] = None,
                  drawn_by_level: Optional[dict] = None) -> tuple:
     """Rule 1 (the module docstring); returns ``(stairs, open)``: the records ``[{level_id, stair, how, reason}]`` of the
@@ -456,6 +477,7 @@ def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optio
         elif (sign := _sign_box(b, level, (drawn_by_level or {}).get(lid), texts_by_level.get(lid) or [])) is not None \
                 and "several" not in sign:
             mode, fp, room, turn = "stair signs", sign["footprint"], sign["room"], sign["turn"]
+            fp = fit_to_room(fp, level.polys.get((room or {}).get("id")))       # R21-02: inside the room's faces
             ids = sorted({sg["id"] for sg in sign["signs"]})
             what = "a well line along its long axis (a U stair)" if turn == "U" else "a break diagonal (a straight flight)"
             how = (f"the box {sign['symbol']['id']} ({fp['size'][0]:.2f} x {fp['size'][1]:.2f} m, set aside as "
@@ -499,11 +521,19 @@ def infer_stairs(b: dict, next_id, texts_by_level: dict, strokes_by_level: Optio
         above = storeys[k + 1]["id"]
         for sl in b.get("slabs") or []:
             if sl.get("below_level_id") == lid and sl.get("above_level_id") == above:
+                # 20 Nov 2026 (pre-pod review R21-02: the whole stair box was cut out of the slab, the floor where the
+                # stair arrives too): the opening the stair needs (``stair_access.derived_opening``, as the slabs of
+                # ``sheets.to_building``), the box only when the stair has no flights
+                from wenart.blender import stair_access as SA
+                rise = _rise(b, lid, above)
+                thick = float(sl.get("thickness") or 0.2)
+                hole = SA.derived_opening(piece, rise, rise - thick) if rise > thick else None
+                if hole is None:
+                    hole = [[round(x, 4), round(y, 4)] for x, y in G.rotated_rectangle(fp["center"], fp["size"],
+                                                                                         fp["rotation_deg"])]
                 sl.setdefault("openings", []).append(
                     {"id": f"sv_{above}_st_{len(sl['openings']) + 1:02d}", "kind": "stair_void",
-                     "furniture_id": piece["id"],
-                     "polygon": [[round(x, 4), round(y, 4)] for x, y in G.rotated_rectangle(
-                         fp["center"], fp["size"], fp["rotation_deg"])], "source": "derived"})
+                     "furniture_id": piece["id"], "polygon": hole, "source": "derived"})
         out.append({"level_id": lid, "stair": piece["id"], "reason": reason, "how": mode})
         if mode == "stair signs":
             b.setdefault("needs_review", []).append(
