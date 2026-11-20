@@ -49,7 +49,8 @@ def test_rows_weigh_rewards_by_trust_and_propensity():
 def test_agreement_labels_need_two_independent_signals_and_never_override_truth():
     ai = [{"project": "p", "level": "L0", "levels": ["L0"], "at": [1.1, 1.0], "drawing": "window", "fact": "door",
            "read_right": True, "trusted": True, "entry": "e", "qid": "q1"}]
-    flag = [{"check": "RC11", "kind": "", "level": "L0", "at": [1.2, 1.0], "key": "RC11|x"}]
+    flag = [{"check": "RC11", "kind": "", "level": "L0", "at": [1.2, 1.0], "key": "RC11|x"},
+            {"check": "RC7", "kind": "undecided_gap", "level": "L0", "at": [1.0, 1.0], "key": "RC7|x"}]
     lab, dis = BD.agreement_labels([_rec()], ai, flag)
     assert [(r["label"], r["label_source"]) for r in lab] == [("window", "agreement_error")] and not dis
     lab, dis = BD.agreement_labels([_rec()], ai, [])                     # the AI alone: a question, no label

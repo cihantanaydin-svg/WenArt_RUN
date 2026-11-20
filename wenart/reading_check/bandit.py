@@ -64,6 +64,10 @@ TRUST = {"user_correction": 10.0, "user_mark": 10.0, "synthetic": 3.0, "agreemen
 TRUTH_SOURCES = ("user_correction", "user_mark", "synthetic")
 AI_PLACE_M = 0.4               # an AI answer this near a gap's place is about that gap
 FLAG_PLACE_M = 1.0             # a code check this near a decision flags it
+# the code checks that speak about an opening's type (an independent signal for loop A): drawn symbols and size tags
+# against the openings read, a door into the air or without its opening; RC7 (the reading's own doubt) and the
+# level-wide checks are none
+OPENING_CHECKS = {"RC8": None, "RC11": None, "RC17": ("door_into_air", "door_without_opening")}
 EXPLORE_REACH_M = 1.5          # a code check this near an explored decision is its reward
 IMPACT = {"storey_count_differs": 5.0, "plan_not_read": 5.0, "room_missing": 4.0, "mirror_twin_missing": 4.0,
           "entrance_missing": 4.0, "lift_missing": 4.0, "flat_no_entrance": 4.0, "stair_missing": 3.5,
@@ -166,6 +170,14 @@ def _near(rec: dict, items: list, reach: float, levels_of=lambda x: [x.get("leve
                    and x.get("at") and math.dist(p, x["at"]) <= reach), key=lambda t: t[0])
 
 
+def opening_check(flag: dict) -> bool:
+    """Whether a code finding speaks about an opening's type (``OPENING_CHECKS``)."""
+    if flag.get("check") not in OPENING_CHECKS:
+        return False
+    kinds = OPENING_CHECKS[flag["check"]]
+    return kinds is None or flag.get("kind") in kinds
+
+
 def _tag_says(rec: dict) -> Optional[str]:
     """What the drawing's own size tag near a gap says (pure): door (a door-high piece), window, or None."""
     f = rec.get("features") or {}
@@ -192,7 +204,7 @@ def agreement_labels(records: list, ai: list, flags: list) -> tuple:
         answer, drawn, tag = rec["final_answer"], sig.get("drawing"), _tag_says(rec)
         if drawn not in ("door", "window", "opening"):
             continue
-        flagged = _near(rec, flags, FLAG_PLACE_M)
+        flagged = _near(rec, [f for f in flags if opening_check(f)], FLAG_PLACE_M)
         if drawn != answer:
             if sig.get("trusted") and (flagged or tag == drawn):
                 labels.append(dict(rec, label=drawn, source="agreement", label_source="agreement_error",
@@ -495,7 +507,8 @@ def question_list(labels: dict, top: int = 15, include_findings: bool = True) ->
         found = {f["id"]: f for f in cal.get("findings") or []}
         for j in cal.get("judgements") or []:
             f = found.get(j["id"])
-            if f is None or j.get("right") is not None or j.get("dropped"):
+            # the newest readings only (the before readings are history), never a judged or dropped finding
+            if f is None or j.get("right") is not None or j.get("dropped") or f.get("set") != "after":
                 continue
             c = float(f.get("confidence") or 0.5)
             u = max(0.05, 1.0 - 2.0 * abs(c - 0.5))
@@ -506,7 +519,25 @@ def question_list(labels: dict, top: int = 15, include_findings: bool = True) ->
                        "description": str(f.get("description") or "")[:110]})
     _ = CR
     qs.sort(key=lambda q: (-q["score"], q["id"]))
-    return qs[:top]
+    # one question settles its like: at most two of a kind per project and four of a kind in all, no repeated text
+    out, per, seen = [], {}, set()
+    for q in qs:
+        k1, k2 = (q.get("project"), q["kind"]), q["kind"]
+        text = (q.get("project"), q["description"][:60])
+        if per.get(k1, 0) >= 2 or per.get(k2, 0) >= 4 or text in seen:
+            continue
+        per[k1], per[k2] = per.get(k1, 0) + 1, per.get(k2, 0) + 1
+        seen.add(text)
+        out.append(q)
+        if len(out) >= top:
+            break
+    # a third of the sheet, at least, asks about the ranker's own decisions (each mark there is a label it learns from)
+    gaps = [q for q in qs if q["type"] == "gap" and q not in out][:max(0, top // 3 - sum(q["type"] == "gap" for q in out))]
+    if gaps:
+        keep = [q for q in out if q["type"] == "gap"] + [q for q in out if q["type"] != "gap"][:top - len(gaps)
+                                                                                            - sum(q["type"] == "gap" for q in out)]
+        out = sorted(keep + gaps, key=lambda q: (-q["score"], q["id"]))
+    return out
 
 
 def write_questions(qs: list, index: dict, dest: Path) -> dict:

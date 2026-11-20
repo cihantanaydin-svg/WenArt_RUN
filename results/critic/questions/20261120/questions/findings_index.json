@@ -1,0 +1,87 @@
+{
+ "folder": "questions",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "after/real10/L-2#text|plausibility|P7:r_L-2_siginak",
+    "2": "after/real10/L7#text|plausibility|P7:r_L7_asansor_mahali",
+    "3": "after/real20/L0#text|plausibility|P7:r_L0_oda",
+    "4": "after/real21/L4#text|plausibility|P7:r_L4_salon",
+    "5": "after/real09/L1#text|plausibility|P3:r_L1_antre",
+    "6": "after/real09/L1#text|plausibility|P3:r_L1_oda_3",
+    "7": "after/real09/L2|compare|q12",
+    "8": "after/real10/L-1#text|plausibility|P5:o_L-1_004",
+    "9": "after/real10/L-1#text|plausibility|P8:d_L-1_006",
+    "10": "after/real10/L-1#text|plausibility|P8:d_L-1_008",
+    "11": "question|real10|L-2|gap_kind|9.8,8.4",
+    "12": "question|real10|L0|gap_kind|20.8,14.7",
+    "13": "question|real09|L3|gap_kind|13.7,8.2",
+    "14": "question|real09|L0|gap_kind|5.8,0.8",
+    "15": "question|real10|L-1|gap_kind|2.1,14.7"
+   }
+  }
+ ],
+ "findings": {
+  "after/real10/L-2#text|plausibility|P7:r_L-2_siginak": {
+   "sheet": 1,
+   "n": 1
+  },
+  "after/real10/L7#text|plausibility|P7:r_L7_asansor_mahali": {
+   "sheet": 1,
+   "n": 2
+  },
+  "after/real20/L0#text|plausibility|P7:r_L0_oda": {
+   "sheet": 1,
+   "n": 3
+  },
+  "after/real21/L4#text|plausibility|P7:r_L4_salon": {
+   "sheet": 1,
+   "n": 4
+  },
+  "after/real09/L1#text|plausibility|P3:r_L1_antre": {
+   "sheet": 1,
+   "n": 5
+  },
+  "after/real09/L1#text|plausibility|P3:r_L1_oda_3": {
+   "sheet": 1,
+   "n": 6
+  },
+  "after/real09/L2|compare|q12": {
+   "sheet": 1,
+   "n": 7
+  },
+  "after/real10/L-1#text|plausibility|P5:o_L-1_004": {
+   "sheet": 1,
+   "n": 8
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_006": {
+   "sheet": 1,
+   "n": 9
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_008": {
+   "sheet": 1,
+   "n": 10
+  },
+  "question|real10|L-2|gap_kind|9.8,8.4": {
+   "sheet": 1,
+   "n": 11
+  },
+  "question|real10|L0|gap_kind|20.8,14.7": {
+   "sheet": 1,
+   "n": 12
+  },
+  "question|real09|L3|gap_kind|13.7,8.2": {
+   "sheet": 1,
+   "n": 13
+  },
+  "question|real09|L0|gap_kind|5.8,0.8": {
+   "sheet": 1,
+   "n": 14
+  },
+  "question|real10|L-1|gap_kind|2.1,14.7": {
+   "sheet": 1,
+   "n": 15
+  }
+ }
+}
