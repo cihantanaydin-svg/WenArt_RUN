@@ -1949,10 +1949,11 @@ def test_a_landing_door_frame_drawn_in_the_shaft_wall_is_its_door_and_the_storey
     assert len(ops) == 1 and ops[0]["wall_id"] == "w_L0_e" and abs(ops[0]["center"][1] - 16.749) < 0.01
     assert abs(ops[0]["width"] - 1.40) < 0.01 and ops[0]["evidence"][0]["method"] == "derived"
     assert any("where the drawing shows it (frame)" in n for n in notes)
-    # with no frame drawn, the 1.10 m deep hall is no landing: the door goes into the shop (the old reading) ...
+    # with no frame drawn, the shop is never the lift's landing (merge of 20 Nov 2026, the building-sense branch's
+    # MF3: a unit's own use): the door goes to the hall ...
     ops2 = []
     TW.lift_doors(copy.deepcopy(rooms), ops2, copy.deepcopy(walls), (), [], [], {"L0": faces}, {"L0": rails})
-    assert ops2[0]["wall_id"] == "w_L0_n"
+    assert ops2[0]["wall_id"] == "w_L0_e"
     # ... but a storey with no frame drawn takes the side of the drawn door of the shaft stacked on it, ahead of the
     # depth rule (L1: the same core) and of list order (L-1: free in a depot, every side 3 m deep)
     up, wu = _lift_core("L1")

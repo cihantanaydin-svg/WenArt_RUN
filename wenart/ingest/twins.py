@@ -1634,7 +1634,7 @@ def _drawn_frame(sp, lines: list, cands: list):
     return None
 
 
-def _drawn_door(s: dict, openings: list, faces: list, details: list) -> bool:
+def _drawn_door(s: dict, openings: list, faces: list, details: list, walls: list = ()) -> bool:
     """A lift shaft whose landing door the drawing shows: a drawn opening along one of its sides, a frame drawn in its
     wall or a gap in its drawn wall faces (whatever room it faces) (pure)."""
     if s.get("room_type") != "shaft" or len(s.get("polygon") or []) < 3:
@@ -1642,7 +1642,7 @@ def _drawn_door(s: dict, openings: list, faces: list, details: list) -> bool:
     sp = _poly(s)
     if any(o.get("level_id") == s.get("level_id") and not o.get("virtual") and o.get("center")
            and o.get("type") in ("door", "opening") and sp.exterior.distance(Point(o["center"][:2])) <= LIFT_WALL_REACH_M
-           and LIFT_DOOR_MIN_W_M <= float(o.get("width") or 0) <= LIFT_DOOR_MAX_W_M and _along_side(o, sp)
+           and LIFT_DOOR_MIN_W_M <= float(o.get("width") or 0) <= LIFT_DOOR_MAX_W_M and in_shaft_side(o, sp, walls)
            for o in openings):
         return True
     anyroom = [(None, {"polygon": [list(p) for p in sp.buffer(LIFT_WALL_REACH_M).exterior.coords[:-1]]}, None, None)]
@@ -1766,7 +1766,7 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
                            and _poly(x).distance(_poly(r)) <= LIFT_WALL_REACH_M)
               for r in rooms if r.get("room_type") != "shaft" and len(r.get("polygon") or []) >= 3}
     drawn_here = {id(x): _drawn_door(x, openings, (faces or {}).get(x["level_id"]) or [],
-                                     (details or {}).get(x["level_id"]) or []) for x in shafts}
+                                     (details or {}).get(x["level_id"]) or [], walls) for x in shafts}
     order = sorted(shafts, key=lambda x: not drawn_here[id(x)])
     for s in order:
         sp, lv = _poly(s), s["level_id"]
@@ -1784,12 +1784,12 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
                          f"landing door")
             continue
         # (19 Nov 2026, merge: the building-sense branch's MF6 / FC-02 case, real17's gap between a shop and the hall
-        # beside the lift, and review A4 SW-A4-02) a drawn opening is the shaft's only when most of it lies along one
-        # side of the shaft (``_along_side``, the one test, as in ``_drawn_door``)
+        # beside the lift, and review A4 SW-A4-02) a drawn opening is the shaft's only when it lies along one side of
+        # the shaft in the shaft's own wall (``in_shaft_side``, the one test, as in ``_drawn_door``)
         drawn = [o for o in openings if o.get("level_id") == lv and not o.get("virtual") and o.get("center")
                  and o.get("type") in ("door", "opening") and sp.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M
                  and LIFT_DOOR_MIN_W_M <= float(o.get("width") or 0) <= LIFT_DOOR_MAX_W_M
-                 and _along_side(o, sp)]
+                 and in_shaft_side(o, sp, walls)]
         # 12 Nov 2026 (review B2 FC-07, real21: the second shaft took a gap towards a flat's bedroom; real10 C0034, the
         # user: "a sliding lift door on each floor onto the shared hall"): a drawn opening is the landing door only
         # towards the landing: the room beyond it a common area, a hall or a corridor, never only a flat's room; the
@@ -1904,8 +1904,12 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
         framed = _drawn_frame(sp, (details or {}).get(lv) or [], cands + never) if never else None
         if framed is not None and framed[0] in [x[1] for x in never]:
             cands.append(((), framed[0], None, None))
-        if not cands:
-            deferred.append(s)           # (FC-02) the face the storey above or below uses, once every shaft is done
+        # (FC-02) no hall beside the shaft, or (merge of 20 Nov 2026 with A4C-04) only a flat's rooms while a shaft
+        # stacked on it has its landing door drawn: the face the storey above or below uses, once every shaft is done
+        flat_only = bool(cands) and all(not c[0][0] for c in cands if c[0])
+        if not cands or (flat_only and any(x is not s and x.get("level_id") != lv and drawn_here[id(x)]
+                                           and _iou(sp, _poly(x)) >= 0.5 for x in shafts)):
+            deferred.append(s)
             continue
         # 19 Nov 2026 (review A3, POD-A3-02): one straight side of the shaft, the one with the most clear depth in front
         blocks = [_stair_box(f) for f in furniture or () if f.get("type") == "stair" and f.get("level_id") == lv
@@ -2026,6 +2030,13 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
 
 
 UNIT_USE_WORDS = re.compile(r"(?<![a-z])(?:dukkan\w*|magaza\w*|ofis\w*|buro\w*|isyeri|atolye|shop|office)(?![a-z])")
+
+
+def in_shaft_side(o: dict, sp, walls: list[dict]) -> bool:
+    """20 Nov 2026 (merge of reader A and the building-sense branch: one test for 'this drawn opening is the shaft's'):
+    most of its width lies along one straight side of the shaft (``_along_side``, review A4 SW-A4-02) and it stands in
+    the shaft's own wall (``_in_shaft_wall``, MF6 / FC-02: real17's gap between a shop and the hall beside the lift)."""
+    return _along_side(o, sp) and _in_shaft_wall(o, sp, walls)
 
 
 def _in_shaft_wall(o: dict, sp, walls: list[dict]) -> bool:

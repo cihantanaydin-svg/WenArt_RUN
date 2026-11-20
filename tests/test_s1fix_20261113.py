@@ -426,8 +426,10 @@ def test_a_drawn_door_named_bina_girisi_is_the_entrance_whatever_the_ground_says
 # --------------------------------------------------------------------------- CODE-05: one machine-room test
 LIFTS = ("MAKİNESİZ ASANSÖR", "Makinasız Asansör", "Makine Dairesiz Asansör", "ASANSÖR (MAKİNE DAİRESİZ)",
          "MRL Asansör", "Asansör")
+# (merge with reader A, 20 Nov 2026, POD-A4-01: 'Asansör Mahali', the lift's space, is decided by its size: a lift-sized
+# one is the shaft, a larger one its machine room; tests/test_reader_targets_a_20261106.py)
 MACHINES = ("Asansör Makine Dairesi", "Asansör Makina Dairesi", "Asansör Makine Odası", "Lift machine room",
-            "Asansör Mahali", "ASANSÖR MAKİNA HİDROLİK")
+            "ASANSÖR MAKİNA HİDROLİK")
 
 
 @pytest.mark.parametrize("label", LIFTS + MACHINES)
