@@ -18,7 +18,9 @@ CAD document) and returns the findings, each with its check, severity, level and
   left in no closed face (``reading_places``; minor) and every wall the outline closure inferred (evidence rule
   ``outline_closure``, confidence 0.3; minor). The places with a position are numbered ("place 7") so the user can
   name them on the comparison sheets, where they are drawn in their own colour; RC7 is listed first in the markdown.
-  RC7 alone never changes the verdict: these are places to check, not a stop.
+  RC7 alone never changes the verdict: these are places to check, not a stop. 5 Nov 2026 (Milestone 14 R3): a gap
+  whose rule is under the ranker's trust while the ranker is weak or untrusted there is a place too (``reading_places``
+  of kind ``undecided_gap``, on any level that is no typical-floor copy; minor).
 
 - RC8 to RC12 (5 Nov 2026, Milestone 14 R5, ``wenart.reading_check.crossdoc``): the cross-document checks, advisory
   (reported, counted under ``counts["advisory"]``, never in the verdict until they earn it).
@@ -636,10 +638,15 @@ def low_confidence_findings(building: dict) -> list:
             if not p.get("at"):
                 continue
             n += 1
-            out.append(_finding("RC7", "minor", lid, f"place {n}: room label '{p.get('text') or '?'}' at "
-                                f"({p['at'][0]:.2f}, {p['at'][1]:.2f}) m in no closed face: "
-                                f"{p.get('note') or 'the walls around that room do not close'}",
-                                place=n, at=[round(float(p["at"][0]), 2), round(float(p["at"][1]), 2)],
+            if p.get("kind") == "undecided_gap":
+                # 5 Nov 2026 (Milestone 14 R3): a gap whose rule is weak and whose ranker is weak or untrusted
+                text = (f"place {n}: gap at ({p['at'][0]:.2f}, {p['at'][1]:.2f}) m kept as {p.get('text') or '?'} on "
+                        f"weak evidence: {p.get('note') or 'the rule and the ranker are both unsure'}")
+            else:
+                text = (f"place {n}: room label '{p.get('text') or '?'}' at ({p['at'][0]:.2f}, {p['at'][1]:.2f}) m in no "
+                        f"closed face: {p.get('note') or 'the walls around that room do not close'}")
+            out.append(_finding("RC7", "minor", lid, text, place=n,
+                                at=[round(float(p["at"][0]), 2), round(float(p["at"][1]), 2)],
                                 kind=p.get("kind"), text=p.get("text")))
     return out
 
@@ -919,10 +926,17 @@ def write(out_dir, result: dict) -> Path:
              f"{', '.join(result['levels_checked']) or 'none'}; reference {result.get('reference')}.{adv_text}", "",
              "| check | severity | level | finding |", "|---|---|---|---|"]
     order = {"critical": 0, "major": 1, "minor": 2, "info": 3}
-    # 4 Nov 2026: RC7's low-confidence places first (the user checks them on the sheets), then by severity
+    # 4 Nov 2026: RC7's low-confidence places first (the user checks them on the sheets), then by severity; 6 Nov 2026
+    # (review): the places sort as numbers (place 5 before place 10)
+    def _place(f) -> float:
+        try:
+            return float(f.get("place") or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
     for f in sorted(result["findings"], key=lambda f: (0 if f["check"] == "RC7" else 1, order.get(f["severity"], 3),
                                                        1 if f.get("advisory") else 0, f["check"],
-                                                       str(f.get("level_id")), str(f.get("place") or 0))):
+                                                       str(f.get("level_id")), _place(f))):
         lines.append(f"| {f['check']} {f['name']}{' (advisory)' if f.get('advisory') else ''} | {f['severity']} | "
                      f"{f.get('level_id') or '-'} | {f['message'].replace('|', '/')} |")
     if result.get("notes"):

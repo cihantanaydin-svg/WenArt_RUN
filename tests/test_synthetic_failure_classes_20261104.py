@@ -51,6 +51,8 @@ def _xfail(cls: str, lesson: str, what: str = ""):
 # What the reader does not handle yet (4 Nov 2026, measured on the generated projects): per test, per project.
 XFAIL_COUNTS = {
     "synthetic-10-glazed-facade": _xfail("glazed_facade", "UL274", "the frames become one 6.3 m window"),
+    # 6 Nov 2026 (Milestone 14 R3): the ranker does not re-type the unlabelled flat's bare door gaps on the merged reader
+    # (doorless->door is no trusted transition, and the model gives closed about 0.2 there, so the margin stays low)
     "synthetic-12-mirrored-halves": _xfail("mirrored_halves", "UL276", "unswung door gaps are openings or a window"),
     "synthetic-14-elevation-title": _xfail("elevation_title", "UL271", "the two plans are read as one level"),
     "synthetic-16-open-recess": _xfail("open_recess", "UL313", "an opening doubles the corridor-end door"),

@@ -4370,9 +4370,16 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         return ex
     s = float(sc["metres_per_unit"])
     strokes_m, texts_m = to_metres(page, s)
+    # 5 Nov 2026 (Milestone 14 R3; user: "I want structure recognition to be cumulatively better with the feedbacks I
+    # am giving"): the level's decision log; the wall reader and the gap classifier write one record per decision into
+    # it, the end of this function writes them to ``ex.report["decisions"]`` (the pipeline: reading_check/decisions_*)
+    from wenart.ingest.generic import decisions as DEC
+    dim_stroke_ids = frozenset(i for d in dims if d.how != "dimension_entity" for i in d.stroke_ids)
+    decisions = DEC.DecisionLog(level_id, texts=texts_m, dimension_ids=dim_stroke_ids, units_to_m=s,
+                                ranker=DEC.ranker_enabled())
 
     # 3. Walls and openings (G2's order, tests/_real01_page.py g2_chain).
-    prims = W.wall_primitives(page, s, frozenset(i for d in dims if d.how != "dimension_entity" for i in d.stroke_ids))
+    prims = W.wall_primitives(page, s, dim_stroke_ids, decisions=decisions)
     mask = W.wall_mask(page, prims, s)
     prim_ids = {i for p in prims for i in p.stroke_ids}
     walls, wall_info = W.walls_from_mask(mask, [st for st in strokes_m if st.id not in prim_ids], file_rel, page_no,
@@ -4401,7 +4408,8 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s,
                                                            wall_strokes=[st for st in strokes_m
                                                                          if st.id in wall_strokes],
-                                                           outdoor_points=outdoor_points, room_points=room_points)
+                                                           outdoor_points=outdoor_points, room_points=room_points,
+                                                           decisions=decisions)
     walls2, openings = _faces_through_gaps(ex, where, walls2, openings, strokes_m)
     openings = _door_blocks_in_gaps(ex, where, walls2, openings, strokes_m, owned, texts_m, file_rel, page_no, s)
     for e in gap_log:
@@ -4801,6 +4809,17 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         sym["center"] = [round(sym["center"][0] - ox, ROUND), round(sym["center"][1] - oy, ROUND)]
         sym["level_id"] = level_id
     ex.report["symbols"] = symbols
+    # 5 Nov 2026 (Milestone 14 R3): the decision records in building metres with a provisional final answer read off
+    # this level; every ranker decision is a page note. 6 Nov 2026 (review): the final answers and the undecided places
+    # are made again from the built level at the end of the pipeline (``pipeline._finish_decisions``), after the passes
+    # that still change openings and walls
+    ex.report["decisions"] = decisions.finalize((ox, oy), bwalls, b_openings)
+    ex.report["decisions_summary"] = decisions.summary()
+    for rec in ex.report["decisions"]:
+        if rec.get("decided_by") == DEC.DECIDED_RANKER and rec.get("ranker_answer"):
+            ex.notes.append(f"{where}: gap at ({rec['place'][0]:.2f}, {rec['place'][1]:.2f}) m: the ranker decided "
+                            f"{rec['ranker_answer']} (margin {rec.get('margin', 0):.2f}) over the rule's "
+                            f"{rec['rule_answer']} ({rec['rule']} {rec['rule_confidence']:.2f})")
     for row in sep_log:
         if row.get("line"):
             row["line_building"] = [list(sh.p(q)) for q in row["line"]]
