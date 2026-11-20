@@ -1,0 +1,27 @@
+{
+ "folder": "synth/synthetic-08-spaced-labels",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "synth/synthetic-08-spaced-labels/L0#text|plausibility|P7:r_L0_salon",
+    "2": "synth/synthetic-08-spaced-labels/L0|compare|q15",
+    "3": "synth/synthetic-08-spaced-labels/L0|compare|q16"
+   }
+  }
+ ],
+ "findings": {
+  "synth/synthetic-08-spaced-labels/L0#text|plausibility|P7:r_L0_salon": {
+   "sheet": 1,
+   "n": 1
+  },
+  "synth/synthetic-08-spaced-labels/L0|compare|q15": {
+   "sheet": 1,
+   "n": 2
+  },
+  "synth/synthetic-08-spaced-labels/L0|compare|q16": {
+   "sheet": 1,
+   "n": 3
+  }
+ }
+}

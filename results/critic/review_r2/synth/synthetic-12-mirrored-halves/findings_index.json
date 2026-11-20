@@ -1,0 +1,17 @@
+{
+ "folder": "synth/synthetic-12-mirrored-halves",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "synth/synthetic-12-mirrored-halves/L0|compare|q10"
+   }
+  }
+ ],
+ "findings": {
+  "synth/synthetic-12-mirrored-halves/L0|compare|q10": {
+   "sheet": 1,
+   "n": 1
+  }
+ }
+}

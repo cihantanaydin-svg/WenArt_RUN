@@ -698,7 +698,7 @@ def answers_to_findings(index: dict, answers: dict, model_key: str = "") -> list
             bfacts = (readings.get(e.get("folder")) or {}).get("bfacts")
             found, _extra = CC.item_findings(w, e, data, part, bfacts)
             for f in found:
-                copies = sorted(set(e.get("copies") or []) | (sf.get(e["id"]) or set()) - {e["level"]})
+                copies = sorted(set(CC.copy_levels(e.get("copies"))) | (sf.get(e["id"]) or set()) - {e["level"]})
                 out.append(dict(base, **f, call=w, part=part, folder=e.get("folder"), copies=copies,
                                 image_entry=e.get("page_entry") if w == "plausibility" else e["id"],
                                 id=f"{e['id']}|{w}|{f['key']}"))

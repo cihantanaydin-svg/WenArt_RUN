@@ -7035,9 +7035,9 @@
    "room_missing": {
     "findings": 16,
     "judged": 12,
-    "right": 12,
-    "wrong": 0,
-    "precision": 1.0,
+    "right": 11,
+    "wrong": 1,
+    "precision": 0.9167,
     "false_alarms_after": 0,
     "false_alarms_clean_synthetic": 0,
     "trusted": true,
@@ -7105,7 +7105,7 @@
     "folders": 0
    },
    "angled_wall_straight": {
-    "findings": 4,
+    "findings": 5,
     "judged": 0,
     "right": 0,
     "wrong": 0,
@@ -7117,16 +7117,16 @@
     "folders": 0
    },
    "storey_count_differs": {
-    "findings": 0,
-    "judged": 0,
+    "findings": 2,
+    "judged": 2,
     "right": 0,
-    "wrong": 0,
-    "precision": null,
+    "wrong": 2,
+    "precision": 0.0,
     "false_alarms_after": 0,
-    "false_alarms_clean_synthetic": 0,
+    "false_alarms_clean_synthetic": 2,
     "trusted": false,
     "small_sample": true,
-    "folders": 0
+    "folders": 1
    },
    "plan_not_read": {
     "findings": 0,
@@ -7143,7 +7143,7 @@
   },
   "compare": {
    "room_missing": {
-    "findings": 16,
+    "findings": 15,
     "judged": 10,
     "right": 10,
     "wrong": 0,
@@ -7155,16 +7155,16 @@
     "folders": 1
    },
    "room_not_in_drawing": {
-    "findings": 33,
-    "judged": 0,
+    "findings": 21,
+    "judged": 2,
     "right": 0,
-    "wrong": 0,
-    "precision": null,
+    "wrong": 2,
+    "precision": 0.0,
     "false_alarms_after": 0,
-    "false_alarms_clean_synthetic": 0,
+    "false_alarms_clean_synthetic": 2,
     "trusted": false,
     "small_sample": true,
-    "folders": 0
+    "folders": 1
    },
    "angled_wall_straight": {
     "findings": 38,
@@ -7179,52 +7179,52 @@
     "folders": 1
    },
    "door_into_air": {
-    "findings": 4,
-    "judged": 4,
-    "right": 4,
+    "findings": 8,
+    "judged": 8,
+    "right": 8,
     "wrong": 0,
     "precision": 1.0,
     "false_alarms_after": 0,
     "false_alarms_clean_synthetic": 0,
     "trusted": true,
-    "small_sample": true,
+    "small_sample": false,
     "folders": 2
    },
    "balcony_missing": {
-    "findings": 3,
-    "judged": 1,
-    "right": 1,
+    "findings": 7,
+    "judged": 5,
+    "right": 5,
     "wrong": 0,
     "precision": 1.0,
     "false_alarms_after": 0,
     "false_alarms_clean_synthetic": 0,
-    "trusted": false,
-    "small_sample": true,
-    "folders": 1
+    "trusted": true,
+    "small_sample": false,
+    "folders": 2
    },
    "opening_type_differs": {
-    "findings": 66,
-    "judged": 8,
-    "right": 6,
+    "findings": 71,
+    "judged": 10,
+    "right": 8,
     "wrong": 2,
-    "precision": 0.75,
+    "precision": 0.8,
     "false_alarms_after": 2,
     "false_alarms_clean_synthetic": 0,
     "trusted": true,
     "small_sample": false,
-    "folders": 3
+    "folders": 4
    },
    "opening_not_in_drawing": {
-    "findings": 11,
-    "judged": 1,
-    "right": 1,
-    "wrong": 0,
-    "precision": 1.0,
+    "findings": 19,
+    "judged": 3,
+    "right": 2,
+    "wrong": 1,
+    "precision": 0.6667,
     "false_alarms_after": 0,
     "false_alarms_clean_synthetic": 0,
-    "trusted": false,
+    "trusted": true,
     "small_sample": true,
-    "folders": 1
+    "folders": 3
    },
    "plan_not_read": {
     "findings": 0,
@@ -7277,7 +7277,7 @@
     "folders": 0
    },
    "flat_no_entrance": {
-    "findings": 6,
+    "findings": 2,
     "judged": 0,
     "right": 0,
     "wrong": 0,
@@ -7289,9 +7289,9 @@
     "folders": 0
    },
    "kitchen_no_window": {
-    "findings": 33,
-    "judged": 8,
-    "right": 8,
+    "findings": 37,
+    "judged": 14,
+    "right": 14,
     "wrong": 0,
     "precision": 1.0,
     "false_alarms_after": 0,
@@ -7301,7 +7301,7 @@
     "folders": 1
    },
    "lift_door_into_flat": {
-    "findings": 33,
+    "findings": 35,
     "judged": 0,
     "right": 0,
     "wrong": 0,
@@ -7313,7 +7313,7 @@
     "folders": 0
    },
    "stair_no_landing_door": {
-    "findings": 12,
+    "findings": 10,
     "judged": 0,
     "right": 0,
     "wrong": 0,
@@ -7325,7 +7325,7 @@
     "folders": 0
    },
    "storey_no_stair_access": {
-    "findings": 15,
+    "findings": 9,
     "judged": 0,
     "right": 0,
     "wrong": 0,
@@ -7337,9 +7337,9 @@
     "folders": 0
    },
    "door_into_air": {
-    "findings": 56,
-    "judged": 21,
-    "right": 21,
+    "findings": 63,
+    "judged": 26,
+    "right": 26,
     "wrong": 0,
     "precision": 1.0,
     "false_alarms_after": 0,
@@ -7349,7 +7349,7 @@
     "folders": 3
    },
    "balcony_no_door": {
-    "findings": 134,
+    "findings": 133,
     "judged": 0,
     "right": 0,
     "wrong": 0,
@@ -7477,7 +7477,10 @@
       "door_into_air"
      ],
      "desc": "door d_L1_006 into the air",
-     "found_by": [],
+     "found_by": [
+      "compare",
+      "plausibility"
+     ],
      "targeted": true
     },
     {
@@ -7489,6 +7492,7 @@
      ],
      "desc": "door d_L1_011 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7557,6 +7561,7 @@
      ],
      "desc": "door d_L1_011 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7713,6 +7718,7 @@
      ],
      "desc": "door d_L2_001 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7726,6 +7732,7 @@
      ],
      "desc": "door d_L2_005 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7739,6 +7746,7 @@
      ],
      "desc": "door d_L2_008 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7752,6 +7760,7 @@
      ],
      "desc": "door d_L2_010 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7765,6 +7774,7 @@
      ],
      "desc": "door d_L2_011 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7778,6 +7788,7 @@
      ],
      "desc": "door d_L3_001 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7791,6 +7802,7 @@
      ],
      "desc": "door d_L3_005 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7803,7 +7815,10 @@
       "door_into_air"
      ],
      "desc": "door d_L3_008 into the air",
-     "found_by": [],
+     "found_by": [
+      "compare",
+      "plausibility"
+     ],
      "targeted": true
     },
     {
@@ -7815,6 +7830,7 @@
      ],
      "desc": "door d_L3_010 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7828,6 +7844,7 @@
      ],
      "desc": "door d_L3_011 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7841,6 +7858,7 @@
      ],
      "desc": "door d_L4_001 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7854,6 +7872,7 @@
      ],
      "desc": "door d_L4_005 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7867,6 +7886,7 @@
      ],
      "desc": "door d_L4_008 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7880,6 +7900,7 @@
      ],
      "desc": "door d_L4_010 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7893,6 +7914,7 @@
      ],
      "desc": "door d_L4_011 into the air",
      "found_by": [
+      "compare",
       "plausibility"
      ],
      "targeted": true
@@ -7906,7 +7928,9 @@
       "habitable_no_window"
      ],
      "desc": "kitchen r_L0_mutfak without its drawn window",
-     "found_by": [],
+     "found_by": [
+      "plausibility"
+     ],
      "targeted": true
     },
     {
@@ -7918,7 +7942,9 @@
       "habitable_no_window"
      ],
      "desc": "kitchen r_L0_oda_3 without its drawn window",
-     "found_by": [],
+     "found_by": [
+      "plausibility"
+     ],
      "targeted": true
     },
     {
@@ -8097,7 +8123,9 @@
       "opening_type_differs"
      ],
      "desc": "d_L-1_008 read as a door; drawn as a window",
-     "found_by": [],
+     "found_by": [
+      "compare"
+     ],
      "targeted": true
     },
     {
@@ -8351,11 +8379,11 @@
     },
     "compare": {
      "targeted": 59,
-     "found": 30
+     "found": 49
     },
     "plausibility": {
      "targeted": 37,
-     "found": 33
+     "found": 37
     }
    }
   },
@@ -8516,9 +8544,9 @@
     "check": "inventory",
     "errors": 0,
     "targeted_errors": 0,
-    "findings": 0,
+    "findings": 2,
     "right": 0,
-    "verdict": "clean"
+    "verdict": "false_alarm"
    },
    {
     "folder": "synth/synthetic-13-typical-floor",
@@ -8547,7 +8575,7 @@
     "errors": 68,
     "targeted_errors": 15,
     "findings": 12,
-    "right": 12,
+    "right": 11,
     "verdict": "caught"
    },
    {
@@ -8616,9 +8644,9 @@
     "check": "compare",
     "errors": 2,
     "targeted_errors": 2,
-    "findings": 0,
-    "right": 0,
-    "verdict": "missed"
+    "findings": 1,
+    "right": 1,
+    "verdict": "caught"
    },
    {
     "folder": "synth/synthetic-16-open-recess",
@@ -8646,9 +8674,9 @@
     "check": "compare",
     "errors": 8,
     "targeted_errors": 4,
-    "findings": 0,
-    "right": 0,
-    "verdict": "missed"
+    "findings": 1,
+    "right": 1,
+    "verdict": "caught"
    },
    {
     "folder": "synth/synthetic-17-garage-lift",
@@ -8736,7 +8764,7 @@
     "check": "compare",
     "errors": 22,
     "targeted_errors": 18,
-    "findings": 1,
+    "findings": 2,
     "right": 1,
     "verdict": "caught"
    },
@@ -8766,9 +8794,9 @@
     "check": "compare",
     "errors": 0,
     "targeted_errors": 0,
-    "findings": 0,
+    "findings": 2,
     "right": 0,
-    "verdict": "clean"
+    "verdict": "false_alarm"
    },
    {
     "folder": "synth/synthetic-21-parapet",
@@ -8846,7 +8874,7 @@
     "answered": 42,
     "failed": 0,
     "skipped": 0,
-    "seconds": 788.5,
+    "seconds": 733.0,
     "asked_marks": 0,
     "model_read_right": 0,
     "unclear": 0,
@@ -8854,33 +8882,33 @@
     "answered_ids": 0
    },
    "compare": {
-    "answered": 61,
+    "answered": 91,
     "failed": 0,
     "skipped": 0,
-    "seconds": 1288.7,
-    "asked_marks": 984,
-    "model_read_right": 801,
+    "seconds": 1022.1,
+    "asked_marks": 1072,
+    "model_read_right": 896,
     "unclear": 0,
     "invalid_ids": 0,
     "answered_ids": 0
    },
    "plausibility": {
-    "answered": 87,
+    "answered": 56,
     "failed": 0,
     "skipped": 0,
-    "seconds": 1954.8,
+    "seconds": 910.2,
     "asked_marks": 0,
     "model_read_right": 0,
     "unclear": 0,
     "invalid_ids": 0,
-    "answered_ids": 641
+    "answered_ids": 338
    }
   },
   "judged_by": {
    "user": 0,
-   "truth": 24,
-   "known": 60,
-   "null": 565
+   "truth": 31,
+   "known": 80,
+   "null": 549
   },
   "second_look": {
    "asked": 0,
@@ -8892,9 +8920,9 @@
    "confirmed_wrong": 0
   },
   "date": "2026-11-20",
-  "answers": "/home/user/WenArt_RUN/runs/20261120-153410-critic/results/critic/agent/answers.json",
-  "findings": 649,
-  "known": "/home/user/WenArt_RUN/.claude/worktrees/agent-a9a560957b3b47065/results/critic/known_errors.json",
-  "marks": "/home/user/WenArt_RUN/.claude/worktrees/agent-a9a560957b3b47065/results/critic/user_marks.json"
+  "answers": "runs/20261120-165521-critic/results/critic/agent/answers.json",
+  "findings": 660,
+  "known": "/home/user/WenArt_RUN/results/critic/known_errors.json",
+  "marks": "/home/user/WenArt_RUN/results/critic/user_marks.json"
  }
 }

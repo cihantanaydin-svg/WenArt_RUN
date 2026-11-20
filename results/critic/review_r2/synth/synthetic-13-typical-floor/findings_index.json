@@ -1,0 +1,22 @@
+{
+ "folder": "synth/synthetic-13-typical-floor",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "synth/synthetic-13-typical-floor/L0|inventory|storey_count_differs:0",
+    "2": "synth/synthetic-13-typical-floor/L1|inventory|storey_count_differs:0"
+   }
+  }
+ ],
+ "findings": {
+  "synth/synthetic-13-typical-floor/L0|inventory|storey_count_differs:0": {
+   "sheet": 1,
+   "n": 1
+  },
+  "synth/synthetic-13-typical-floor/L1|inventory|storey_count_differs:0": {
+   "sheet": 1,
+   "n": 2
+  }
+ }
+}
