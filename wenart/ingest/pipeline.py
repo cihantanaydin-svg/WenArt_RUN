@@ -2751,6 +2751,10 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     terrace = TB.roof_terrace(b, sheets, build.warn)      # real10: parapets and the stair house of a roof terrace
     b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], build.frame_shift, b.get("site"),
                               terrace=terrace)
+    why = TB.roof_frame_guard(b["roof"], b["levels"], sheets)        # 20 Nov 2026 (pre-pod check, R09-10)
+    if why:
+        build.conflict("roof_frame", [b["roof"].get("over_level_id") or "roof"], why, "roof moved over its storey")
+        build.warn(f"roof: {why}")
     b["facade"] = TB.facade_block(sheets, b["walls"], build.warn, b["levels"], b["openings"], build.unions)
     site = b.get("site") or {"boundary_walls": [], "areas": [], "decor": [], "openings": []}
     ground = next((lv["id"] for lv in b["levels"] if lv.get("order") == 0 and not lv.get("base_level_id")), None)

@@ -530,6 +530,37 @@ def roof_outline_record(plan: dict, walls: list[dict], level_id: str, site: Opti
     return rec
 
 
+def roof_frame_guard(roof: Optional[dict], levels: list[dict], sheets: dict) -> Optional[str]:
+    """20 Nov 2026 (pre-pod check, R09-10: real09's roof came 6 m low, under its attic floor, and the build raised ten
+    slopes for door head room): a roof read from a section whose eaves lie under the floor of the level it covers is a
+    frame error, not a roof: it is moved up so its eaves stand at that floor plus their rise over the section's own top
+    floor line (none below 0), its eaves, ridge and profile together; the line returned is the conflict to log (None
+    when the roof stands right). Mutates ``roof``."""
+    if not isinstance(roof, dict):
+        return None
+    over = next((lv for lv in levels if lv.get("id") == roof.get("over_level_id")), None)
+    eaves = roof.get("eaves_height") or {}
+    if over is None or over.get("elevation") is None or eaves.get("value") is None:
+        return None
+    floor = float(over["elevation"])
+    if float(eaves["value"]) >= floor - 0.05:
+        return None
+    rise = ((sheets.get("heights") or {}).get("roof") or {}).get("eaves_rise_m")
+    rise = max(0.0, float(rise)) if isinstance(rise, (int, float)) else 0.0
+    delta = round(floor + rise - float(eaves["value"]), 3)
+    for key in ("eaves_height", "ridge_height"):
+        zv = roof.get(key)
+        if isinstance(zv, dict) and zv.get("value") is not None:
+            roof[key] = dict(zv, value=round(float(zv["value"]) + delta, 3),
+                             note=((zv.get("note") + "; ") if zv.get("note") else "") +
+                             f"moved {delta:+.2f} m: its eaves stood under the floor of {over['id']}")
+    prof = roof.get("profile")
+    if isinstance(prof, dict) and prof.get("points"):
+        prof["points"] = [[q[0], round(float(q[1]) + delta, 3)] for q in prof["points"]]
+    return (f"the section's roof eaves stood at {float(eaves['value']):.2f} m, under the floor of {over['id']} "
+            f"({floor:.2f} m): a frame error; the roof is moved {delta:+.2f} m (its eaves {rise:.2f} m over that floor)")
+
+
 def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optional[list[dict]] = None,
                shift: Shift = (0.0, 0.0), site: Optional[dict] = None, terrace: Optional[dict] = None) -> Optional[dict]:
     """The roof over the top level, or None when neither a section nor a plan draws it (the build then makes a flat

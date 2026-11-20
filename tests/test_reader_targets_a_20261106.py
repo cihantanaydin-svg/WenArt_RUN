@@ -2420,3 +2420,30 @@ def test_a_shaft_the_drawing_closes_on_one_storey_has_no_stop_there_and_undrawn_
     ops = []
     TW.lift_doors(copy.deepcopy(down + up), ops, wd + wu, (), [], [], {"L0": faces, "L-1": faces}, {})
     assert sorted(o["level_id"] for o in ops) == ["L-1", "L0"]
+
+
+def test_everything_a_section_read_moves_into_the_storey_marks_frame_and_a_roof_under_its_floor_is_a_frame_error():
+    """20 Nov 2026 (pre-pod check, R09-10: real09's A-A mapped 2 slab bands over 5 levels; the datum stayed the
+    2.Normal's 8,50 and the roof was built 6 m low, in front of the L2 windows)."""
+    from wenart.sheets import heights as HT
+    from wenart.sheets import to_building as TB
+
+    levels = [{"id": f"L{k}", "order": k, "kind": "floor"} for k in (-1, 0, 1, 2, 3)]
+    v = lambda z: {"value": z, "method": "vector", "confidence": 1.0, "evidence": []}   # noqa: E731
+    out = {"levels": [], "slabs": [], "datum": dict(v(8.5), relative=8.5),
+           "roof": {"eaves_z": v(3.422), "ridge_z": v(6.508), "profile": [[0.0, 3.422], [5.0, 6.508]]},
+           "ground": [{"side": "front", "z": v(-6.0)}],
+           # the section's relative marks against the band z they point at: 6 m off the storey marks' frame
+           "_mark_frame": [(0.0, -8.5), (2.5, -6.0), (5.5, -3.0), (8.5, 0.0), (11.5, 3.0)]}
+    HT.apply_storey_marks(out, levels, {-1: 0.0, 0: 2.5, 1: 5.5, 2: 8.5, 3: 11.5}, 0.2, "x.dwg", "r6")
+    assert out["datum"]["value"] == 2.5 and out["datum"]["relative"] == 2.5
+    assert out["roof"]["eaves_z"]["value"] == 9.422 and out["roof"]["ridge_z"]["value"] == 12.508
+    assert out["roof"]["profile"][0][1] == 9.422
+    # the guard: a roof whose eaves stand under the floor of the level it covers is moved and named
+    roof = {"over_level_id": "L3", "eaves_height": v(3.42), "ridge_height": v(6.5),
+            "profile": {"points": [[0.0, 3.42], [5.0, 6.5]]}}
+    lv = [{"id": "L3", "elevation": 9.0}]
+    why = TB.roof_frame_guard(roof, lv, {"heights": {"roof": {"eaves_rise_m": 0.42}}})
+    assert why and "frame error" in why and abs(roof["eaves_height"]["value"] - 9.42) < 1e-6
+    assert abs(roof["ridge_height"]["value"] - 12.5) < 1e-6 and abs(roof["profile"]["points"][1][1] - 12.5) < 1e-6
+    assert TB.roof_frame_guard(roof, lv, {}) is None                     # it stands right now
