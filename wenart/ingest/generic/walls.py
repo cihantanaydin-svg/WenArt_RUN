@@ -391,6 +391,23 @@ def symbol_owned(poly, page: GenericPage, s: float, owners: Optional[dict] = Non
     return False
 
 
+# 20 Nov 2026 (pre-pod check, R03-03: real03's entrance lobby was sealed off from the Kat Holü by a wall built from a
+# HIDDEN2 overhead beam outline on 'MYD - IZ-1'): a stroke on a hidden or dashed linetype (its resolved name, an xref's
+# 'X$0$' prefix left out) draws what lies above or behind the cut (a beam, a soffit, a door's swing path): never a
+# wall's face or outline, never a bridge across a gap
+DASHED_LINETYPE_WORDS = ("HIDDEN", "DASH", "DOT", "CENTER", "PHANTOM", "DIVIDE", "BORDER", "ACAD_ISO", "GIZLI",
+                         "KESIK", "NOKTA", "EKSEN")
+
+
+def dashed_stroke(st) -> bool:
+    """A stroke drawn on a hidden or dashed linetype (``DASHED_LINETYPE_WORDS`` in its resolved name) (pure)."""
+    lt = getattr(st, "linetype", None)
+    if not lt:
+        return False
+    name = str(lt).split("$")[-1].upper()
+    return any(w in name for w in DASHED_LINETYPE_WORDS)
+
+
 def _ring_group(stroke_id: str) -> str:
     """The block instance a DXF stroke was drawn in: ``INSERT:4B/3/7`` -> ``INSERT:4B/3``; a model-space entity is
     its own group."""
@@ -594,7 +611,7 @@ def _outline_walls(page: GenericPage, s: float, used: set) -> list[WallPrim]:
     """Closed stroked thin polygons with nothing drawn inside them."""
     cands = []
     for st in page.strokes:
-        if st.id in used or not st.closed or st.fill is not None or st.arc is not None:
+        if st.id in used or not st.closed or st.fill is not None or st.arc is not None or dashed_stroke(st):
             continue
         if not OUTLINE_MIN_VERTICES <= len(st.pts) <= OUTLINE_MAX_VERTICES:
             continue

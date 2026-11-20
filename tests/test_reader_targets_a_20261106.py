@@ -2447,3 +2447,33 @@ def test_everything_a_section_read_moves_into_the_storey_marks_frame_and_a_roof_
     assert why and "frame error" in why and abs(roof["eaves_height"]["value"] - 9.42) < 1e-6
     assert abs(roof["ridge_height"]["value"] - 12.5) < 1e-6 and abs(roof["profile"]["points"][1][1] - 12.5) < 1e-6
     assert TB.roof_frame_guard(roof, lv, {}) is None                     # it stands right now
+
+
+def test_a_dashed_beam_outline_makes_no_wall_and_a_leaf_touching_a_ring_is_still_a_leaf():
+    """20 Nov 2026 (pre-pod check, R03-03: real03's entrance lobby was sealed off from the Kat Holü by a wall built from a
+    HIDDEN2 overhead beam outline on 'MYD - IZ-1'; once it went, a bedroom door's leaf touching the flat's wall ring was
+    cited with the ring and stayed a wall)."""
+    from wenart.ingest.generic import openings as O
+    from wenart.ingest.generic import walls as W
+    from wenart.ingest.generic.model import GenericPage, Stroke
+    from wenart.ingest.model import WallItem
+
+    beam = Stroke(id="INSERT:1/86", kind="polyline", layer="D BLOK$0$MYD - IZ-1", closed=True,
+                  linetype="D BLOK$0$HIDDEN2", pts=[(0.0, 0.0), (5.85, 0.0), (5.85, 0.35), (0.0, 0.35)])
+    solid = Stroke(id="INSERT:1/87", kind="polyline", layer="DUVAR", closed=True, linetype="Continuous",
+                   pts=[(0.0, 2.0), (5.85, 2.0), (5.85, 2.25), (0.0, 2.25)])
+    assert W.dashed_stroke(beam) and not W.dashed_stroke(solid)
+    page = GenericPage(file="p.dxf", page=1, source_kind="dxf", units="dxf", units_to_m=1.0, size=(10.0, 10.0),
+                       strokes=[beam, solid])
+    used: set = set()
+    assert [p.entity for p in W._outline_walls(page, 1.0, used)] == ["INSERT:1/87"]
+    # the leaf piece cites the wall ring it touches as well: still a leaf
+    leaf = Stroke(id="INSERT:7/6/1/0", kind="polyline", layer="X$0$MYD - KAPI", closed=True,
+                  pts=[(0.0, 0.0), (0.81, 0.0), (0.81, 0.06), (0.0, 0.06)])
+    swing = Stroke(id="ARC:1", kind="arc", layer="X$0$MYD - KAPI",
+                   pts=[(0.81 * __import__("math").cos(a / 20 * 1.5708), 0.81 * __import__("math").sin(a / 20 * 1.5708))
+                        for a in range(21)],
+                   arc={"center": (0.0, 0.0), "radius": 0.81, "start_deg": 0.0, "end_deg": 90.0})
+    w = WallItem(start=(0.0, 0.03), end=(0.81, 0.03), thickness=0.06, box=[0, 0, 0, 0],
+                 entity="ring:INSERT:7,INSERT:7/6/1/0", evidence={})
+    assert O.leaf_walls([w], [leaf], [swing]) != {}

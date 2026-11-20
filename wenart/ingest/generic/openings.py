@@ -1441,6 +1441,9 @@ def leaf_walls(walls: list[WallItem], wall_strokes, strokes_m=()) -> dict[int, l
         if float(w.thickness) > LEAF_WALL_MAX_M or not 0 < length <= LEAF_WALL_MAX_LEN_M:
             continue
         ids = [e.strip() for e in str(w.entity or "").split(",") if e.strip()]
+        # 20 Nov 2026 (pre-pod check: real03's left bedroom leaf touched the flat's wall ring, the mask cited the ring
+        # with it and the leaf stayed a wall, its door lost): a wall ring the piece only touches is not its stroke
+        ids = [i for i in ids if not i.startswith("ring:")] or ids
         sts = [by_id.get(i) for i in ids]
         if not ids or any(st is None for st in sts) or any(LN.draws_walls(st.layer) for st in sts):
             continue
