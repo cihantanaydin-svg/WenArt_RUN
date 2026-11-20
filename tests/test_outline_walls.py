@@ -195,7 +195,12 @@ def test_real03_reads_the_whole_ground_floor(real03):
     room-outline fallback of the core-only reading is no longer needed."""
     b, out = real03
     assert b["status"] == "ok", b["warnings"]
-    types = [r["room_type"] for r in b["rooms"]]
+    # 13 Nov 2026 (review S1-03a): the eight flats around a stair and a fire stair are a block of several storeys; the
+    # drawn floor is L0, the storeys over it its inferred copies (type default, a guess)
+    assert [lv["id"] for lv in b["levels"]] == ["L0", "L1", "L2"]
+    assert [lv.get("typical_of") for lv in b["levels"]] == [None, "L0", "L0"]
+    assert [lv["elevation"] for lv in b["levels"]] == [0.0, 3.0, 6.0]
+    types = [r["room_type"] for r in b["rooms"] if r["level_id"] == "L0"]
     assert types.count("living") == 8 and types.count("bathroom") == 8 and types.count("stair") == 2
     assert types.count("bedroom") >= 9
     labels = {r["label_raw"] for r in b["rooms"]}
@@ -228,13 +233,17 @@ def test_real03_furniture_is_read_completely(real03):
     built = [f for f in b["furniture"] if f.get("build") is not False]
     assert not [f for f in built if f["type"] == "unknown"]
     assert all(f.get("not_built_reason") or f.get("inferred_reason") for f in b["furniture"] if f.get("build") is False)
+    built = [f for f in built if f["level_id"] == "L0"]       # the drawn floor (13 Nov 2026: L1, L2 are its copies)
+    # the symbols of the copies repeat the drawn floor's (a few keep the drawn floor's level id): per storey
+    n = len(b["levels"])
     kinds = Counter(s["kind"] for s in b["symbols"])
-    assert kinds["room_number"] == 8 and kinds["door_arc"] >= 15 and kinds["text_frame"] >= 4 and kinds["other"] >= 20
+    assert kinds["room_number"] == 8 * n and kinds["door_arc"] >= 15 * n and kinds["text_frame"] >= 4 * n
+    assert kinds["other"] >= 20 * n
     types = Counter(f["type"] for f in built)
     assert types["kitchen_counter"] >= 8 and types["sofa_corner"] >= 6 and types["toilet"] == 8
     assert types["sink_kitchen"] >= 6 and types["fridge"] >= 6 and types["table_dining"] >= 2
     assert all(sizes.fits("toilet", f["footprint"]["size"]) for f in built if f["type"] == "toilet")
-    assert sorted(r["room_type"] for r in b["rooms"] if r.get("zones")) == ["living"] * 8
+    assert sorted(r["room_type"] for r in b["rooms"] if r.get("zones") and r["level_id"] == "L0") == ["living"] * 8
     review = {n["id"] for n in b["needs_review"]}
     assert all(f.get("build") is False for f in b["furniture"] if f["id"] in review)
     assert "## Reading (Milestone 12)" in (out / "report.md").read_text(encoding="utf-8")

@@ -605,6 +605,13 @@ def roof_from_plan(top, warnings: list, section=None) -> Optional[dict]:
         poly = Polygon(ip)
         if poly.is_valid and opoly.contains(poly) and poly.area >= BREAK_MIN_SHARE * opoly.area:
             inner.append((poly.area, e, ip))
+    # 20 Nov 2026 (R13, review R20-01 / BP-03): a sheet frame is never a roof; a break line stands inside the walls
+    from wenart.sheets import roof_frame as RF
+    why = RF.reject(top, mpu, outline_ent, opoly, [e for _a, e, _ip in inner])
+    if why:
+        warnings.append(f"roof: {why}")
+        return None
+    inner = [x for x in inner if RF.break_inside(top, mpu, outline_ent, x[1], Polygon(x[2]))]
     tf = top.transform_to_building
     out = {"outline": [list(_apply(tf, p)) for p in pts], "break_line": None, "type": None,
            "evidence": [_ev(top, outline_ent.id, "roof_outline")]}

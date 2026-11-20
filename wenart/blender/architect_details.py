@@ -360,7 +360,9 @@ def guards(building: dict, prep: dict, balustrade: str) -> dict:
             _open(q, str(o.get("id")), f"roof terrace {o.get('id')}: guard {top:.2f} m",
                   f"Is the guard of roof terrace {o.get('id')} only {top:.2f} m high?", [AA.option("keep")])
         else:
-            _ans(q, str(o.get("id")), f"roof terrace {o.get('id')}: parapet {float(ph or 0):.2f} m",
+            _ans(q, str(o.get("id")), (f"light well {o.get('id')} open to the sky: parapet {float(ph or 0):.2f} m"
+                                       if o.get("kind") == "light_well" else
+                                       f"roof terrace {o.get('id')}: parapet {float(ph or 0):.2f} m"),
                  f"a coping on the parapet and a {balustrade.replace('_', ' ')} balustrade to {top:.2f} m"
                  if gh else "a coping on the parapet")
     for pf in (prep.get("site") or {}).get("platforms") or []:

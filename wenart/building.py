@@ -193,25 +193,28 @@ MACHINE_ROOM_RE = re.compile(r"(?<![a-z])(?:asansor\s*(?:mak(?:\.|(?![a-z]))|mak
                              r"makin?a?e?\s*dair(?:esi)?(?![a-z])|makn(?![a-z])|mak\.?\s*dair(?:esi)?(?![a-z])|"
                              r"machine\s*room|motor\s*(?:room|odasi)(?![a-z])|maschinenraum|"
                              r"mahal(?:li)?\s*(?:asansor|makin))")
-MACHINE_NONE_RE = re.compile(r"dairesiz|machine\s*room\s*less|machine-?room-?less|\bmrl\b")
 # ... and 'ASANSÖR MAHALLİ' ('the lift's space') names the shaft when it is a lift's size, its machine room when larger
 LIFT_SPACE_RE = re.compile(r"(?<![a-z])(?:asansor|lift|elevator)\s*(?:makin[ae]\s*)?mahal(?:li|i)?(?![a-z])")
 LIFT_SPACE_MAX_M2 = 8.0          # ``labels.AREA_RANGES['lift']``'s upper end: a larger lift space is its machine room
 
 
+# 19 Nov 2026 (merge with the building-sense branch, review CODE-05): 'without a machine room' (makinesiz, makinasız,
+# makine dairesiz, MRL, machine-room-less) names a lift, never its machine room
+MACHINE_LESS_RE = re.compile(r"(?<![a-z])(?:makin[ae]s[iu]z\w*|makin?a?e?\s*dairesiz\w*|mak\.?\s*dairesiz\w*|mrl|"
+                             r"machine[\s-]*room[\s-]*less)(?![a-z])")
+
+
 def machine_room(label: Optional[str], area_m2: Optional[float] = None) -> bool:
-    """19 Nov 2026 (review A3, OA3-03): a label naming a lift's (or a plant's) machine room (``MACHINE_ROOM_RE``).
-    Review A4 (POD-A4-01: the one test of the reader, the lift rules and the checks): a lift space ('ASANSÖR MAHALLİ',
-    ``LIFT_SPACE_RE``) larger than a lift (``area_m2`` over ``LIFT_SPACE_MAX_M2``) is one too; a lift without a machine
-    room ('MAKİNE DAİRESİZ') never."""
+    """19 Nov 2026 (review A3, OA3-03): a label naming a lift's (or a plant's) machine room (``MACHINE_ROOM_RE``), never
+    one that says the lift has none (``MACHINE_LESS_RE``, its words left out before the search). Review A4 (POD-A4-01):
+    a lift space ('ASANSÖR MAHALLİ', ``LIFT_SPACE_RE``) larger than a lift (``area_m2`` over ``LIFT_SPACE_MAX_M2``) is
+    one too."""
     if not label:
         return False
-    folded = " ".join(fold_ascii(str(label)).lower().split())
-    if MACHINE_NONE_RE.search(folded):
-        return False
-    if MACHINE_ROOM_RE.search(folded):
+    text = MACHINE_LESS_RE.sub(" ", " ".join(fold_ascii(str(label)).lower().split()))
+    if MACHINE_ROOM_RE.search(text):
         return True
-    return area_m2 is not None and float(area_m2) > LIFT_SPACE_MAX_M2 and bool(LIFT_SPACE_RE.search(folded))
+    return area_m2 is not None and float(area_m2) > LIFT_SPACE_MAX_M2 and bool(LIFT_SPACE_RE.search(text))
 BEDROOM_MIN_M2 = 6.0          # a room an abbreviation alone calls a bedroom (Y. / Ç. ODASI) is one only from this size
 # ``hall`` alone names a living room when its face is at least this large and this compact (§2.7.2).
 HALL_AS_LIVING_MIN_AREA = 9.0

@@ -818,6 +818,9 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
             wall_line, closed = geom2d.close_jogs(wall_line, EAVES_JOG_MAX_M,
                                                   inward_max=max(0.0, overhang - EAVES_MIN_COVER_M))
         outline = geom2d.ccw(geom2d.offset_polygon(wall_line, -overhang) if overhang > 0 else wall_line)
+        from wenart.blender import party_eaves as PE   # 12 Nov 2026 (R46): no eaves over a party side
+        outline, cut_notes = PE.clip(outline, building, level["id"] if level else None)
+        notes.extend(cut_notes)
         assumed.append({"field": "outline", "value": [[round(x, 4), round(y, 4)] for x, y in outline],
                         "reason": f"no roof outline drawn: the walls' outline ({method}) grown by the "
                                   f"{'assumed ' if overhang_assumed else ''}overhang {overhang:.2f} m"
@@ -1492,6 +1495,9 @@ def terrace_decisions(roof: dict, building: dict, mode: str = "auto") -> tuple[d
     kept, decisions, warnings = [], [], []
     prof = roof.get("profile") if isinstance(roof.get("profile"), dict) else None
     for o in roof.get("openings") or []:
+        if o.get("kind") == "light_well":
+            kept.append(o)            # 6 Nov 2026: the roof is open over a light well; it is no terrace to decide
+            continue
         room = rooms.get(o.get("room_id"))
         doors = []
         if room is not None and len(room.get("polygon") or []) >= 3:
@@ -2199,13 +2205,35 @@ def parapet_cuts(model: dict, building: dict, level: dict) -> dict[str, list[dic
     for o in model.get("openings") or []:
         ids = [i for i in o.get("parapet_wall_ids") or [] if i in walls]
         source = "parapet_wall_ids"
+        poly_of = {}
+        if not ids and o.get("kind") == "light_well":
+            # 20 Nov 2026 (pre-pod review BP-05: the walls round real21's light wells have their centre lines 5 cm
+            # outside the opening, so no parapet was built: six unguarded holes in the roof): the walls whose centre
+            # line runs along the light well's edge (within half their thickness and 5 cm) are its parapet
+            from shapely.geometry import Polygon as _Poly
+
+            base = _Poly(o["polygon"])
+            for w in walls.values():
+                grown = base.buffer(float(w.get("thickness") or 0.15) / 2.0 + 0.05, join_style=2)
+                if grown.geom_type != "Polygon":
+                    continue
+                ring = [list(c) for c in list(grown.exterior.coords)[:-1]]
+                length = math.dist(w["start"][:2], w["end"][:2])
+                spans = [(a, c) for a, c in segment_inside(w["start"], w["end"], ring) if (c - a) * length >= 0.3]
+                if spans:
+                    ids.append(w["id"])
+                    poly_of[w["id"]] = ring
+            source = "walls along the light well's edge"
         if not ids:
             ids = [w["id"] for w in walls.values() if w.get("exterior")
                    and segment_inside(w["start"], w["end"], o["polygon"])]
             source = "outer walls under the opening"
         for wid in ids:
             w = walls[wid]
-            for t0, t1 in segment_inside(w["start"], w["end"], o["polygon"]):
+            length = math.dist(w["start"][:2], w["end"][:2])
+            for t0, t1 in segment_inside(w["start"], w["end"], poly_of.get(wid, o["polygon"])):
+                if wid in poly_of and (t1 - t0) * length < 0.3:
+                    continue
                 out.setdefault(wid, []).append({"t0": t0, "t1": t1, "z_top": floor_z + float(o["parapet_height"]),
                                                 "opening_id": o["id"], "source": source})
     return out

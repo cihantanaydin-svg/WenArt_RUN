@@ -144,6 +144,19 @@ def read_marks(texts: Sequence[dict], building: dict, params: dict, section: Opt
             m["z"] = m["value"]
         else:
             warnings.append(f"{m['id']}: absolute level {m['raw']!r} and no datum (±0.00 = ?): not used")
+    # 20 Nov 2026 (pre-pod review R03-05: real03's '+0.00 / 93.20' re-read on its copies L1/L2 set their windbreak's
+    # floor at z 0): a typical floor's copy re-reads its plan's marks; they are the copy's own floor marks, moved by the
+    # copy's rise over the floor it copies (``copy_of``; never the ground's or the datum's)
+    levels = {lv["id"]: lv for lv in building.get("levels") or []}
+    for m in marks:
+        lv = levels.get(m.get("level_id"))
+        base = levels.get((lv or {}).get("typical_of"))
+        if base is None or m.get("z") is None or m["placement"] == "section":
+            continue
+        d = float(lv.get("elevation") or 0.0) - float(base.get("elevation") or 0.0)
+        if abs(d) > 0.005:
+            m["z"] = round(m["z"] + d, 4) + 0.0
+            m["copy_of"] = {"level_id": base["id"], "shift_m": round(d, 3)}
     return {"marks": marks, "datum": datum, "conflicts": conflicts, "warnings": warnings}
 
 
@@ -180,6 +193,11 @@ def resolve_datum(marks: list[dict], project_datum: Optional[dict], params: dict
     for grp, ms in sorted(by_group.items()):
         rel = [m for m in ms if m["relative"] and m.get("absolute") is None]
         ab = [m for m in ms if not m["relative"]]
+        # 19 Nov 2026 (merge with the building-sense branch: real03's typical floor counted three storeys, each copy
+        # reading the plan's '+0.00' / '93.20' block again, and the pair was lost): one block read on several copies of
+        # one plan is still one pair (every relative mark of the group one value, every absolute one value)
+        if len(rel) > 1 and len({m["value"] for m in rel}) == 1 and len(ab) >= 1 and len({m["value"] for m in ab}) == 1:
+            rel, ab = rel[:1], ab[:1]
         if len(rel) == 1 and len(ab) == 1:
             cands.append((round(ab[0]["value"] - rel[0]["value"], 3), f"{rel[0]['id']}+{ab[0]['id']}",
                           rel[0]["evidence"] + ab[0]["evidence"]))

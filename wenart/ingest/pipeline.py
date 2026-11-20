@@ -2773,8 +2773,9 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     for rec in SA.read_across_levels(b):
         build.warn(f"stair {rec['stair']}: {rec['reason']}")
     slab_default = float(BR.value(BR.load_brief(project_dir), "slab_thickness", 0.20))
+    from wenart.levels import model as LMO        # 20 Nov 2026 (R03-02): the walls' outline when no union closes
     b["slabs"] = TB.slabs_block(sheets, b["levels"], build.unions, b["furniture"], slab_default, build.warn,
-                                b["variants"], b["rooms"], build.voids)
+                                b["variants"], b["rooms"], build.voids, outline_of=lambda lid: LMO.level_outline(b, lid))
     terrace = TB.roof_terrace(b, sheets, build.warn)      # real10: parapets and the stair house of a roof terrace
     b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], build.frame_shift, b.get("site"),
                               terrace=terrace)
@@ -3291,7 +3292,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     _add_named_pieces(build)          # 26 Oct 2026: a furniture name text with no drawn piece adds the piece it names
     RD.resolve_named_conflicts(build)  # 26 Oct 2026: the disputed pieces a name text, a zone label or the AI typed
     _gaps_behind_furniture(build)      # 27 Oct 2026: a gap the drawing puts furniture in front of is a window
-    masters = [sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
+    from wenart.ingest import completion as CP   # 6 Nov 2026 (real21, UL331): the storeys and windows a drawing leaves out
+    CP.complete(build, sheets, by_level, _to_building)
+    masters =[sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
     if any(w.extraction.source_kind is not None for w in masters):
         # The generic core's unit system; an evidence-only raster page beside a DXF/PDF level does not count.
         systems = [w.extraction.units_system or "metric" for w in masters]

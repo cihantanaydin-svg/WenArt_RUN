@@ -499,12 +499,19 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
                     if o.get("guard"):
                         _ok(w3, o["id"], f"sill {sill:.2f} m with a guard to {float(o['guard'].get('top_m') or 1.1):.2f} m")
                     else:
+                        # 20 Nov 2026 (pre-pod review R09-3 / BP-04: guards across every window whose sill the
+                        # reading only assumed): an assumed or code-set sill is raised by default (the head kept),
+                        # a guard by default only for a sill the documents draw low
+                        assumed_sill = not o.get("sill_height_source") and (
+                            "sill_height" in (o.get("assumed") or ()) or bool(o.get("inferred"))
+                            or ("drawn_sill_height" in o and o.get("drawn_sill_height") is None))
                         _open(w3, o["id"], f"{o['id']} on level {o['level_id']} ({drop:.1f} m over the ground) has "
-                              f"its sill at {sill:.2f} m", f"Does {o['id']} need a higher sill, or is it a French "
-                              f"window with a guard?",
+                              f"its sill at {sill:.2f} m" + (" (assumed)" if assumed_sill else ""),
+                              f"Does {o['id']} need a higher sill, or is it a French window with a guard?",
                               [AA.option("french_window", "keep the low sill: a guard across the window",
                                          door_id=o["id"]), AA.option("raise_sill"), AA.option("keep")],
-                              where=where, default=f"french_window")
+                              where=where, default="raise_sill" if assumed_sill else "french_window",
+                              **({"fallback": ["french_window"]} if assumed_sill else {}))
                 else:
                     _ok(w3, o["id"], f"sill {sill:.2f} m")
         elif o.get("type") == "door":

@@ -71,6 +71,10 @@ def level_fields(level: dict, record, sheets: dict, warn) -> None:
     if level["elevation_source"] == "section" and any(isinstance(e, dict) and e.get("rule") == "plan_title_marks"
                                                        for e in floor.get("evidence") or []):
         level["elevation_source"] = "level_mark"   # 19 Nov 2026 (review A3, A3FC-5): the plan's title prints it
+    if any(isinstance(e, dict) and e.get("rule") == "dwg_block_marks" for e in floor.get("evidence") or []):
+        # 20 Nov 2026 (R03-01): the storey pitch of the drawing's unused section blocks (``storeys.dwg_rung``): the
+        # schema's source stays 'section', the inference is stated beside it
+        level["elevation_inference"] = {"inferred": True, "rule": "dwg_block_marks", "note": floor.get("note")}
     ceiling = h.get("ceiling_height") or {}
     if ceiling.get("value") is not None:
         level["ceiling_height"] = round(float(ceiling["value"]), 3)
@@ -300,7 +304,7 @@ def _same_slab(a: dict, b: dict, furniture: list[dict]) -> bool:
 
 def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[dict], slab_default: float,
                 warn, variants: Optional[list[dict]] = None, rooms: Optional[list[dict]] = None,
-                voids: Optional[list[dict]] = None) -> list[dict]:
+                voids: Optional[list[dict]] = None, outline_of=None) -> list[dict]:
     """One slab under every built base level (``sl_<level id>``); for each alternative, the slabs under and over its
     level again as ``sl_<above>__<variant id>`` (``variants: [id]``, level ids naming the base levels) when their
     outline or stair voids differ (an alternative's stair within 0.1 m of the base stair keeps the base slab); when the
@@ -322,6 +326,21 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
         b2 = below_of(b1) if b1 is not None else None
         slab = _slab(lv, b1, unions, furniture, by_base.get(lv["id"]), slab_default, f"sl_{lv['id']}",
                      rooms, voids, below2_id=b2["id"] if b2 else None)
+        if slab is None and outline_of is not None:
+            # 20 Nov 2026 (pre-pod review R03-02 / BP-02: real03's three storeys had no slab at all, their wall unions
+            # not closed): the level's outline from its walls (``levels.model.level_outline``), inferred, assumed
+            fall = {}
+            for x in (lv, b1):
+                pts = outline_of(x["id"]) if x is not None else None
+                if pts and len(pts) >= 3 and Polygon(pts).is_valid and Polygon(pts).area > 1.0:
+                    fall[x["id"]] = Polygon(pts)
+            slab = _slab(lv, b1, fall, furniture, by_base.get(lv["id"]), slab_default, f"sl_{lv['id']}",
+                         rooms, voids, below2_id=b2["id"] if b2 else None) if lv["id"] in fall else None
+            if slab is not None:
+                slab.update(inferred=True, status="assumed",
+                            inference={"rule": "level_outline", "reason": f"no closed outer wall union on {lv['id']}: "
+                                       f"the outline of its walls (levels.model.level_outline), inferred"})
+                warn(f"slab under {lv['id']}: no closed outer wall union; the outline of its walls used (inferred)")
         if slab is None:
             warn(f"slab under {lv['id']}: no closed outer wall outline; slab not written")
             continue

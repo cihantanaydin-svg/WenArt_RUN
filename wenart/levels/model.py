@@ -66,6 +66,9 @@ from wenart.levels.rules import (BUILTIN_PARAMS, _brief_values, _default_params,
                                  drive_for, level_params, ramp_for, steps_for)
 
 GROUND_KINDS = ("ground_natural", "ground_finished", "slope_top")
+# the keys of ``level_inference`` the levels model writes (13 Nov 2026): every other key is kept on a run again
+MODEL_KEYS = ("version", "ground_floor", "ground_source", "inferred", "conflicts", "warnings", "inner_steps", "basements",
+              "params", "params_from_brief", "flagged", "single_level_whole", "edits", "conflicts_copied")
 FLOOR_KINDS = ("floor", "entrance")
 NO_FLOOR_ROOMS = ("stair", "shaft")
 FLAT_THICKNESS = 0.30                       # the flat_cut roof slab (roof.DEFAULTS["flat_thickness"])
@@ -358,8 +361,8 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
     _plan_frame(b, marks, gl, tol, inferred, warnings)
     proposed: dict = {}
     for lv in base_levels(b):
-        if lv.get("elevation_source") not in (None, "assumed_default"):
-            continue
+        if lv.get("elevation_source") not in (None, "assumed_default") or lv.get("typical_of"):
+            continue        # 13 Nov 2026: a typical floor's copy re-reads that floor's marks: they are its floor's
         rooms = {r["id"] for r in b.get("rooms") or [] if r.get("level_id") == lv["id"]
                  and r.get("room_type") not in NO_FLOOR_ROOMS}
         zs = [m["z"] for m in marks if m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms
@@ -545,7 +548,9 @@ def _room_floors(b: dict, marks: list, params: dict, conflicts: list, warnings: 
             continue
         zs = [m["z"] for m in own]
         z = _median(zs)
-        offset = z - float(lv["elevation"])
+        # 13 Nov 2026: a typical floor's copy re-reads that floor's marks: the offset is against that floor
+        ref = levels.get(lv.get("typical_of")) if lv.get("typical_of") else None
+        offset = z - float((ref or lv)["elevation"])
         if abs(offset) > float(params["room_offset_max"]):
             warnings.append(f"{room['id']}: floor mark {z:+.2f} m is {offset:+.2f} m off its level floor (more than "
                             f"{float(params['room_offset_max']):.2f} m): not the room floor, listed")
@@ -602,8 +607,8 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
     file = _file_of(b)
     cand, notes = [], []
     for m in marks:
-        if m.get("kind") not in GROUND_KINDS or m.get("z") is None:
-            continue
+        if m.get("kind") not in GROUND_KINDS or m.get("z") is None or m.get("copy_of"):
+            continue                              # (R03-05) a storey copy's re-read marks are never the ground's
         if m.get("note") or m.get("point") is None:
             notes.append(m)
             continue
@@ -881,6 +886,37 @@ def facade_gaps(b: dict, levels: list, outline, outlines: dict, spaces: Sequence
         o["type_inferred"] = {"method": "facade_gap", "reason": why}
         out.append({"item": f"opening {o['id']}", "value": o["type"], "reason": why})
     return out
+
+
+def keep_completion_entrances(b: dict, old: list) -> None:
+    """The completion's entrance decisions after the levels model rebuilt ``site.entrances`` (13 Nov 2026, review
+    CODE-01: an accepted agent level edit re-runs ``wenart.levels.model.infer_levels``, which brought back refused
+    doors with steps and picked a new main entrance; the same merge as the levels model's records, CS1-04). Once the
+    completion has run (``level_inference.core_rules.entrances``): a door it refused (``entrance_refused``) has no
+    record, the records it inferred (rule ``inferred_entrance``) stay as written, and the main entrance is the one it
+    left in ``old`` (the records before the rebuild), or none when it left none. Mutates ``b``."""
+    if not isinstance(((b.get("level_inference") or {}).get("core_rules") or {}).get("entrances"), dict):
+        return                                    # the reading's own first run: the completion has not decided yet
+    site = b.get("site")
+    if not isinstance(site, dict):
+        return
+    doors = {o["id"]: o for o in b.get("openings") or [] if o.get("type") == "door"}
+    ents = [e for e in site.get("entrances") or [] if e.get("door_id") in doors
+            and not doors[e["door_id"]].get("entrance_refused")]
+    have = {e.get("door_id") for e in ents}
+    for e in old or []:
+        if any((ev or {}).get("rule") == "inferred_entrance" for ev in e.get("evidence") or []) and \
+                e.get("door_id") in doors and e.get("door_id") not in have:
+            ents.append(copy.deepcopy(e))
+            have.add(e.get("door_id"))
+    main = next((e for e in old or [] if e.get("main") and e.get("door_id") in have), None)
+    for e in ents:
+        if main is not None and e.get("door_id") == main.get("door_id"):
+            e["main"], e["main_reason"] = True, main.get("main_reason") or e.get("main_reason")
+        elif e.get("main"):
+            e["main"] = False
+            e.pop("main_reason", None)
+    site["entrances"] = ents
 
 
 def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlines: dict, tm: dict,
@@ -1325,7 +1361,11 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
               "params_from_brief": list(params["_from_brief"]),
               "flagged": "step and ramp numbers: secondary sources on TS 9111 (docs/milestone12.md §3.7)",
               "edits": list((building.get("level_inference") or {}).get("edits") or [])}
-    b["level_inference"] = record
+    # 13 Nov 2026 (review CS1-04): the model owns only its own keys; the records the completion rules wrote
+    # (storeys, core_rules, sense_rules, the party walls, rules_off ...) stay; the conflicts are copied again
+    old = building.get("level_inference")
+    kept = {k: copy.deepcopy(v) for k, v in old.items() if k not in MODEL_KEYS} if isinstance(old, dict) else {}
+    b["level_inference"] = record = dict(kept, **record)
     gl = ground_level(b)
     if gl is None:
         return b
@@ -1368,6 +1408,8 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
     inferred += facade_gaps(b, levels, outline, outlines, site["outdoor_spaces"], tm, params)
     site["entrances"] = _entrances(b, marks, params, levels, outline, outlines, tm, g["points"], conflicts, warnings,
                                    spaces=site["outdoor_spaces"])
+    # 13 Nov 2026 (review CODE-01): the completion's entrance decisions stay
+    keep_completion_entrances(b, copy.deepcopy((building.get("site") or {}).get("entrances") or []))
     for e in site["entrances"]:
         if e["solution"] != "none":
             inferred.append({"item": f"entrance {e['door_id']}", "value": e["solution"], "reason": e["reason"]})

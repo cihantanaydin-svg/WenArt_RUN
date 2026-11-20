@@ -1,7 +1,7 @@
 {
  "note": "Precision of the architectural-sense checks (RC14) per rule, judged one finding at a time (a finding is right when it points at a real error of the reading, false when the reading follows its drawing); a rule below the threshold, or never judged, writes its findings with severity info. The tables were tuned on the same readings: in-sample.",
  "commit": "065dd0ae + the RC14 round-2 working tree",
- "date": "2026-11-06",
+ "date": "2026-11-12",
  "threshold": 0.7,
  "projects": [
   "real01",
@@ -228,6 +228,110 @@
    }
   },
   "narrow_landing": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "no_windows": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "room_without_window": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "storeys_missing": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "light_well_room": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "party_wall_openings": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "core_continuity": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "no_entrance": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "stair_missing": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "lift_doors": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "core_door": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "window_on_interior": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "exterior_between_rooms": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "core_gap": {
    "findings": 0,
    "judged_right": 0,
    "precision": null,
