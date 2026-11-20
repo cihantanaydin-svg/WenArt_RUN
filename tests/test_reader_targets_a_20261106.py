@@ -2358,3 +2358,27 @@ def test_rc2_takes_the_axes_of_each_direction_apart():
            "stairs": [((3.0, 3.0), {0.12, 0.17, 0.2})]}
     out = RC.stacking({"L0": ref, "L-2": off}, "L0")
     assert [f["level_id"] for f in out] == ["L-2"] and abs(out[0]["offset_m"] - 1.32) < 0.01
+
+
+def test_a_ground_mark_is_an_outlier_only_against_its_own_plans_marks():
+    """19 Nov 2026 (review A3, OA3-08 follow-up: real13's street marks '+2.50' on its ground floor's plan fell 4 m off the
+    median its basements' garden marks set on a steep site, and its entrance hall's door stood 3.9 m over the ground)."""
+    from tests import _levels_fixture as F
+    from wenart.levels import model as M
+
+    b = F.building()
+    b["site"] = {}
+    marks = [F.mark("lm_s1", 0.0, kind="ground_finished", point=(2.0, -2.0), level="L0"),
+             F.mark("lm_s2", 0.0, kind="ground_finished", point=(9.0, -2.0), level="L0")] + [
+        F.mark(f"lm_g{k}", -6.5, kind="ground_finished", point=(x, 10.0), level="L-1")
+        for k, x in enumerate((1.0, 5.0, 9.0))]
+    warnings: list = []
+    M._ground(b, marks, M.level_params(None), b["levels"][0], M.level_outline(b, "L0"), [], warnings)
+    pts = b["site"]["ground"]["points"]
+    assert len(pts) == 5 and all(p["used"] for p in pts), warnings
+    # one plan's mark far off its own plan's others is still an outlier
+    marks.append(F.mark("lm_x", 9.0, kind="ground_finished", point=(5.0, -3.0), level="L0"))
+    marks.append(F.mark("lm_s3", 0.0, kind="ground_finished", point=(5.0, -2.0), level="L0"))
+    b["site"] = {}
+    M._ground(b, marks, M.level_params(None), b["levels"][0], M.level_outline(b, "L0"), [], warnings)
+    assert [p["mark_id"] for p in b["site"]["ground"]["points"] if not p["used"]] == ["lm_x"]

@@ -618,12 +618,19 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
     force = (ground.get("terrain_override") or {}).get("kind")     # the agent's set_terrain (edits.py)
     points, rejected = [], []
     if cand:
-        med = _median([m["z"] for m in cand])
+        # 19 Nov 2026 (review A3, OA3-08: once the upper storeys' copies of the street's '+2.50' were no ground, real13's
+        # street marks on its ground floor's plan fell 4 m off the median its basements' garden marks set, on a steep
+        # site): a mark is an outlier against the median of its own plan's ground marks (the plans of a sloping site
+        # print the ground of their own side)
+        by_plan: dict = {}
         for m in cand:
+            by_plan.setdefault(m.get("level_id"), []).append(m["z"])
+        for m in cand:
+            med = _median(by_plan[m.get("level_id")])
             if abs(m["z"] - med) > float(params["ground_outlier"]) and not m.get("site_plan"):
                 rejected.append(m)
                 warnings.append(f"{m['id']}: ground mark {m.get('raw')} ({m['z']:+.2f} m) is more than "
-                                f"{float(params['ground_outlier']):.1f} m from the median of the ground marks "
+                                f"{float(params['ground_outlier']):.1f} m from the median of its plan's ground marks "
                                 f"({med:+.2f} m): listed, not used")
             else:
                 points.append(m)
