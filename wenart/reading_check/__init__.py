@@ -78,19 +78,46 @@ def _apply(tf, p):
     return (tf[0] * p[0] + tf[1] * p[1] + tf[2], tf[3] * p[0] + tf[4] * p[1] + tf[5])
 
 
-def level_pages(building: dict) -> dict:
-    """``{level_id: {"region", "file", "tf"}}`` of the levels read from a CAD region (the page transform the model
-    used); a typical floor's copies are left out (their plan is the typical floor's)."""
+def drawn_for_inferred_ground(building: dict) -> dict:
+    """``{inferred ground floor id: drawn storey id}`` (pure; 20 Nov 2026, pre-pod review R21-04 / R20-07): a ground
+    floor the storey rule read from the typical plan (``ground_from_typical``; its level has ``storey_inference``) and
+    the lowest storey of the same plan the documents draw (a copy without ``storey_inference``)."""
+    st = (building.get("level_inference") or {}).get("storeys") or {}
+    if not st.get("ground_from_typical"):
+        return {}
     levels = {lv["id"]: lv for lv in building.get("levels") or []}
+    out = {}
+    for lv in levels.values():
+        if lv.get("typical_of") or not lv.get("storey_inference"):
+            continue
+        drawn = sorted((x for x in levels.values() if x.get("typical_of") == lv["id"] and not x.get("storey_inference")),
+                       key=lambda x: (x.get("order") or 0, x["id"]))
+        if drawn:
+            out[lv["id"]] = drawn[0]["id"]
+    return out
+
+
+def level_pages(building: dict, inferred_ground: bool = False) -> dict:
+    """``{level_id: {"region", "file", "tf"}}`` of the levels read from a CAD region (the page transform the model
+    used); a typical floor's copies are left out (their plan is the typical floor's). 20 Nov 2026 (pre-pod review
+    R21-04 / R20-07): a ground floor inferred from the typical plan is left out and the drawn storey of that plan is
+    checked in its place; ``inferred_ground`` keeps it too, marked ``inferred_ground`` (its own sheet, not checked)."""
+    levels = {lv["id"]: lv for lv in building.get("levels") or []}
+    swap = drawn_for_inferred_ground(building)
+    drawn = set(swap.values())
     out = {}
     for doc in building.get("documents") or []:
         for pg in doc.get("pages") or []:
             lid, tf = pg.get("level_id"), pg.get("transform_to_building")
             if not lid or not tf or lid in out:
                 continue
-            if (levels.get(lid) or {}).get("typical_of"):
+            if (levels.get(lid) or {}).get("typical_of") and lid not in drawn:
+                continue
+            if lid in swap and not inferred_ground:
                 continue
             out[lid] = {"region": pg.get("region_id"), "file": doc.get("file"), "tf": tf}
+            if lid in swap:
+                out[lid]["inferred_ground"] = True
     return out
 
 
@@ -572,6 +599,9 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
             findings.append(_finding("RC6", "major", None, f"sheets.json: {str(w)[:280]}"))
     pages = level_pages(building)
     anchors, checked, notes = {}, [], []
+    for g, d in drawn_for_inferred_ground(building).items():
+        notes.append(f"{g}: the ground floor inferred from the typical plan (cut to the footprint) is not checked "
+                     f"against that plan; its drawn storey {d} is (R21-04)")
     conv = {"layers": {}, "levels": {}}
     for lid, pg in pages.items():
         page = read_level_page(out_dir, sheets, pg)

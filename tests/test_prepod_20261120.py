@@ -493,3 +493,21 @@ def test_stations_inside_another_walls_solid_do_not_keep_an_inner_wall_exterior(
                   RF.room("r_r", "Oda", "bedroom", RF.rect(5.1, 1.5, 9.9, 5.9))]
     got = SR.exterior_flags(b)
     assert any(x["wall"] == "m" and x["exterior"] is False for x in got)
+
+
+# --------------------------------------------------------------------------- R21-04 / R20-07: the drawn storey checked
+def test_the_reading_check_judges_the_drawn_storey_not_the_inferred_ground_floor():
+    from wenart import reading_check as RCK
+
+    tf = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+    b = {"levels": [{"id": "L0", "order": 0, "storey_inference": {"rule": "area_table"}},
+                    {"id": "L1", "order": 1, "typical_of": "L0"},
+                    {"id": "L2", "order": 2, "typical_of": "L0", "storey_inference": {"rule": "area_table"}}],
+         "level_inference": {"storeys": {"ground_from_typical": True}},
+         "documents": [{"file": "x.dwg", "pages": [{"level_id": lid, "region_id": "r2", "transform_to_building": tf}
+                                                   for lid in ("L0", "L1", "L2")]}]}
+    assert list(RCK.level_pages(b)) == ["L1"]
+    both = RCK.level_pages(b, inferred_ground=True)
+    assert set(both) == {"L0", "L1"} and both["L0"]["inferred_ground"]
+    b["level_inference"]["storeys"]["ground_from_typical"] = False
+    assert list(RCK.level_pages(b)) == ["L0"]
