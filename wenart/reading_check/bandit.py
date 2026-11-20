@@ -445,7 +445,17 @@ def log_events(events: list, run: str, path: Path = REWARDS_PATH) -> Path:
 def read_events(path: Path = REWARDS_PATH) -> list:
     if not Path(path).is_file():
         return []
-    return [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line.strip()]
+    out, seen = [], set()
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        e = json.loads(line)
+        k = (e.get("key"), e.get("action"), e.get("source"), e.get("reward"), str(e.get("evidence")))
+        if k in seen:                                           # one reward counts once, however often logged
+            continue
+        seen.add(k)
+        out.append(e)
+    return out
 
 
 # ============================================================================================ 5. collecting
@@ -816,7 +826,8 @@ def _cmd_learn(args, ship: bool) -> int:
               f"{len(ch)} decision(s) would change on these readings")
         if beats_code(h):
             ok_kinds.append(kind)
-    log_events(events, "learn")
+    # the exploration and gate rewards were logged by their own runs: only the label and AI rewards are new here
+    log_events([e for e in events if e.get("source") not in ("code_check", "reading_score")], "learn")
     (RESULTS / "bandit_report.json").write_text(json.dumps(report, indent=1, ensure_ascii=False) + "\n",
                                                 encoding="utf-8")
     if not ship:
