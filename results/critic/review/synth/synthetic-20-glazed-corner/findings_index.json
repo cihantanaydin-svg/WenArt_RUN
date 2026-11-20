@@ -1,0 +1,22 @@
+{
+ "folder": "synth/synthetic-20-glazed-corner",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "synth/synthetic-20-glazed-corner/L0#text|plausibility|P7:r_L0_yatak_odasi",
+    "2": "synth/synthetic-20-glazed-corner/L0|compare|q7"
+   }
+  }
+ ],
+ "findings": {
+  "synth/synthetic-20-glazed-corner/L0#text|plausibility|P7:r_L0_yatak_odasi": {
+   "sheet": 1,
+   "n": 1
+  },
+  "synth/synthetic-20-glazed-corner/L0|compare|q7": {
+   "sheet": 1,
+   "n": 2
+  }
+ }
+}

@@ -1,0 +1,37 @@
+{
+ "folder": "synth/synthetic-21-parapet",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "synth/synthetic-21-parapet/L2|inventory|entrance_missing:0",
+    "2": "synth/synthetic-21-parapet/L0|compare|q16",
+    "3": "synth/synthetic-21-parapet/L0|compare|q17",
+    "4": "synth/synthetic-21-parapet/L1|compare|q16",
+    "5": "synth/synthetic-21-parapet/L1|compare|q17"
+   }
+  }
+ ],
+ "findings": {
+  "synth/synthetic-21-parapet/L2|inventory|entrance_missing:0": {
+   "sheet": 1,
+   "n": 1
+  },
+  "synth/synthetic-21-parapet/L0|compare|q16": {
+   "sheet": 1,
+   "n": 2
+  },
+  "synth/synthetic-21-parapet/L0|compare|q17": {
+   "sheet": 1,
+   "n": 3
+  },
+  "synth/synthetic-21-parapet/L1|compare|q16": {
+   "sheet": 1,
+   "n": 4
+  },
+  "synth/synthetic-21-parapet/L1|compare|q17": {
+   "sheet": 1,
+   "n": 5
+  }
+ }
+}

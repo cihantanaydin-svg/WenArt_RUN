@@ -1,0 +1,17 @@
+{
+ "folder": "synth/synthetic-11-dimension-chains",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "synth/synthetic-11-dimension-chains/L0#text|plausibility|P7:r_L0_salon"
+   }
+  }
+ ],
+ "findings": {
+  "synth/synthetic-11-dimension-chains/L0#text|plausibility|P7:r_L0_salon": {
+   "sheet": 1,
+   "n": 1
+  }
+ }
+}

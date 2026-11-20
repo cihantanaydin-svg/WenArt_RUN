@@ -1,0 +1,32 @@
+{
+ "folder": "synth/synthetic-13-typical-floor",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "synth/synthetic-13-typical-floor/L0|compare|q16",
+    "2": "synth/synthetic-13-typical-floor/L0|compare|q17",
+    "3": "synth/synthetic-13-typical-floor/L1|compare|q16",
+    "4": "synth/synthetic-13-typical-floor/L1|compare|q17"
+   }
+  }
+ ],
+ "findings": {
+  "synth/synthetic-13-typical-floor/L0|compare|q16": {
+   "sheet": 1,
+   "n": 1
+  },
+  "synth/synthetic-13-typical-floor/L0|compare|q17": {
+   "sheet": 1,
+   "n": 2
+  },
+  "synth/synthetic-13-typical-floor/L1|compare|q16": {
+   "sheet": 1,
+   "n": 3
+  },
+  "synth/synthetic-13-typical-floor/L1|compare|q17": {
+   "sheet": 1,
+   "n": 4
+  }
+ }
+}

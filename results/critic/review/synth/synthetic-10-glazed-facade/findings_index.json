@@ -1,0 +1,17 @@
+{
+ "folder": "synth/synthetic-10-glazed-facade",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "synth/synthetic-10-glazed-facade/L0#text|plausibility|P7:r_L0_yatak_odasi"
+   }
+  }
+ ],
+ "findings": {
+  "synth/synthetic-10-glazed-facade/L0#text|plausibility|P7:r_L0_yatak_odasi": {
+   "sheet": 1,
+   "n": 1
+  }
+ }
+}
