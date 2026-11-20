@@ -68,6 +68,8 @@ RULES = {
                                    "width; one with the outside on both sides is removed (its wall a facade remnant)"),
     "ground_doors": (("R04", "R03"), "a section ground that buries a storey with drawn outer doors is refused; the drawn "
                                      "line beside the doors at grade, or an assumed ground with a question, replaces it"),
+    "basement_footprint": (("R10",), "a basement a document lists and no plan draws is built as the ground floor's "
+                                        "footprint with its core (stairs, lifts), no window, no outside door"),
     # staged rules (``STAGED``): written and tested, off until their review (the coordinator, 13 Nov 2026)
     "exterior_spans": (("R14",), "the exterior flag is read per stretch of a wall before the windows; a level or a "
                                  "stretch that does not qualify takes no inferred window"),

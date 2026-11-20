@@ -385,6 +385,15 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
             heights_json["datum"] = old_datum
         hw += lines
         warnings.extend(lines)
+    # 20 Nov 2026 (pre-pod review R03-01): floors still assumed take the storey pitch the CAD file's unused section
+    # blocks of the same building give (``storeys.dwg_rung``), inferred
+    floors_assumed = not any((e.get("floor_z") or {}).get("method") == "vector" for e in heights_json.get("levels") or [])
+    if floors_assumed and (storeys_json or {}).get("pitch_m"):
+        lines = HT.apply_pitch(heights_json, base_levels, float(storeys_json["pitch_m"]),
+                               float(values.get("slab_thickness", 0.20)), read_plans[0].file if read_plans else None,
+                               "the storey pitch of the drawing's unused section blocks of the same building")
+        hw += lines
+        warnings.extend(lines)
     # real10 (1 Nov 2026): a roof terrace floor on top: its parapet and stair house heights from the section's marks.
     if any(lv.get("roof_terrace") for lv in levels_json) and sections:
         rt = LV.roof_terrace_heights(sections)

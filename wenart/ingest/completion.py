@@ -618,6 +618,15 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         b["level_inference"]["party_vetoes"] = vetoed
     if rec and (rec.get("inferred") or rec.get("open_point")):
         _storeys(build, rec, texts_by_level, party_by_level, drawn_by_level, side_by_level)
+    if rec and rec.get("basements_inferred"):
+        # 20 Nov 2026 (pre-pod review R03-01): a basement a document lists that no plan draws: the footprint with the
+        # core, no window (wenart/ingest/basement.py)
+        from wenart.ingest import basement as BS
+        slab_t = next((float(s["thickness"]) for s in b.get("slabs") or [] if s.get("thickness")), 0.20)
+        made = BS.apply(build, rec, slab_t)
+        if made:
+            b["level_inference"].setdefault("storeys", {k: v for k, v in rec.items() if k != "ladder"})
+            b["level_inference"]["storeys"]["basements_built"] = made
     wells = _light_wells(build, texts_by_level)
     if wells:
         b["level_inference"]["light_wells"] = wells
@@ -1255,6 +1264,10 @@ def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict, drawn
             lv["reading_confidence"] = "low"
             lv["reading_review"] = list(lv.get("reading_review") or []) + [
                 f"storey counted by a guess ({item['rule']}): no document gives the storey count"]
+    late = _late_lifts(b, rec)
+    if late:
+        out["lifts_carved"] = late
+        build.warn(f"storeys: {late['reason']}")
     built = [i["level_id"] for i in rec.get("inferred") or [] if i.get("built")]
     if built:
         build.warn(f"storeys: {len(built)} storey(s) the documents do not draw inferred ({', '.join(built)}; "
@@ -1280,6 +1293,35 @@ def _storeys(build, rec: dict, texts_by_level: dict, party_by_level: dict, drawn
         out["roof"] = reason
         build.warn(f"roof: {reason} (inferred)")
     b["level_inference"]["storeys"] = out
+
+
+def _late_lifts(b: dict, rec: dict) -> Optional[dict]:
+    """20 Nov 2026 (pre-pod review R03-01 (a): real03's lifts have no word; the reader carves them from the drawn cars
+    after the storeys were counted, so the type default read a walk-up): when the count is the type default of a
+    building without a lift and the reading now holds lift shafts on the drawn plan, the count is asked again with the
+    lift building's default among N1's options (major), never changed silently. None otherwise."""
+    from wenart.sheets import storeys as ST
+
+    rung = next((r for r in rec.get("ladder") or [] if r.get("rung") == "type_default"), {})
+    if rec.get("rule") != "type_default" or rung.get("kind") == "apartment_block_lift":
+        return None
+    if ((rec.get("signals") or {}).get("lifts") or 0) > 0:
+        return None
+    base = [lv["id"] for lv in b.get("levels") or [] if not lv.get("typical_of") and not lv.get("storey_inference")]
+    shafts = [r["id"] for r in b.get("rooms") or [] if r.get("level_id") in base and is_lift(r)]
+    if not shafts:
+        return None
+    lift_n = ST.TYPE_DEFAULTS["apartment_block_lift"]
+    op = rec.get("open_point")
+    if isinstance(op, dict):
+        op["options"] = sorted(set(op.get("options") or []) | {lift_n})
+        op["severity"] = "major"
+        op["question"] = (op.get("question") or "") + (f"; the reading carved {len(shafts)} lift shaft(s) from drawn cars "
+                                                       f"after the count: a building with a lift has {lift_n} by default")
+    return {"shafts": shafts, "default_with_lift": lift_n,
+            "reason": f"the reading carved {len(shafts)} lift shaft(s) from drawn lift cars ({', '.join(shafts[:4])}) after "
+                      f"the storeys were counted by the type default of {ST.TYPE_NAMES.get(rung.get('kind'), 'the plan')}"
+                      f": with a lift the default is {lift_n} storeys (asked, N1)"}
 
 
 def _val(v) -> Optional[float]:

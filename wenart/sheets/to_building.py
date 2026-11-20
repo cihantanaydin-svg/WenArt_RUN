@@ -71,6 +71,10 @@ def level_fields(level: dict, record, sheets: dict, warn) -> None:
     if level["elevation_source"] == "section" and any(isinstance(e, dict) and e.get("rule") == "plan_title_marks"
                                                        for e in floor.get("evidence") or []):
         level["elevation_source"] = "level_mark"   # 19 Nov 2026 (review A3, A3FC-5): the plan's title prints it
+    if any(isinstance(e, dict) and e.get("rule") == "dwg_block_marks" for e in floor.get("evidence") or []):
+        # 20 Nov 2026 (R03-01): the storey pitch of the drawing's unused section blocks (``storeys.dwg_rung``): the
+        # schema's source stays 'section', the inference is stated beside it
+        level["elevation_inference"] = {"inferred": True, "rule": "dwg_block_marks", "note": floor.get("note")}
     ceiling = h.get("ceiling_height") or {}
     if ceiling.get("value") is not None:
         level["ceiling_height"] = round(float(ceiling["value"]), 3)

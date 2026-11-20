@@ -34,8 +34,12 @@ Why: real21 draws one typical floor of a long apartment block (two lifts, a stai
 ``oturum 390`` on its site plan); no section, no elevation, no storey count anywhere. The reading built one floor and
 the renders showed a one-storey block.
 
-How: pure text and geometry rules on the sheets' regions (no AI). Only storeys at and above the ground floor are
-inferred (an undrawn basement is not); a building whose top is drawn (an attic or a roof terrace plan) gets none. The
+How: pure text and geometry rules on the sheets' regions (no AI). The storeys at and above the ground floor are
+inferred as copies of the top drawn plan; a basement a rung lists apart ('1BK+ZK+12K', 'B+Z+4') that no plan draws is
+recorded (``basements_inferred``) and built by ``wenart.ingest.basement`` as the footprint with the core (20 Nov 2026,
+R03-01); a building whose top is drawn (an attic or a roof terrace plan) gets none. 7. ``dwg_blocks`` (20 Nov 2026,
+R03-01): when no drawn document counts the storeys, the CAD file's unused block definitions of the same building
+(``wenart/sheets/dwg_blocks.py``) may, with the storey pitch (``pitch_m``), before the type default. The
 count is an open point of the architect (``open_point``: the default and the counts it may choose; the brief's
 ``storeys`` or the project's ``architect_answers.json`` key ``OPEN_POINT_KEY`` settle it on the next reading).
 """
@@ -65,7 +69,8 @@ TYPE_NAMES = {"apartment_block_lift": "an apartment block with a lift", "apartme
 UNBUILT_DEFAULTS = ("house_stair",)
 STAIR_LINES_MIN = 11                  # stair-layer entities of a stair that climbs a storey (its tread lines)
 CONFIDENCE = {"user": 1.0, "architect": 0.9, "section": 0.9, "section_bands": 0.6, "title": 0.85, "area_table": 0.7,
-              "zoning_count": 0.8, "zoning_height": 0.5, "zoning_far": 0.4, "type_default": 0.25}
+              "zoning_count": 0.8, "zoning_height": 0.5, "zoning_far": 0.4, "dwg_blocks": 0.6, "type_default": 0.25}
+DATUM_MIN = 1.0                       # a plan's printed value this large can be its datum (never a relative 0.00)
 AREA_MATCH = 0.12                     # a plan's gross area within this share of an area text is that floor
 AREA_ONE_MATCH = 0.08                 # ... when the table gives only one of the two areas
 CANTILEVER_SHARE = 0.03               # a footprint this much smaller than the typical floor: cantilevered parts
@@ -93,8 +98,11 @@ ZONING_COUNT = re.compile(r"\bKAT\s+(?:ADEDI|SAYISI)\s*[:=]?\s*(\d{1,2})\b|\b(\d
 ZONING_HEIGHT = re.compile(r"\b(?:HMAX|H\s+MAX|YENCOK|YEN\s+COK|BINA\s+YUKSEKLIGI|SACAK\s+KOTU|H)\s*[:=]\s*"
                            r"(\d{1,2}[.,]\d{1,2})\s*(?:M)?\b")
 ZONING_FAR = re.compile(r"\b(?:EMSAL|KAKS|FAR|E)\s*[:=]\s*(\d[.,]\d{1,2})\b")
-TITLE_ZPLUS = re.compile(r"(?<![A-Z0-9])(?:B\d?\s*\+\s*)?(?:Z|ZK|ZEMIN)\s*\+\s*(\d{1,2})(?![.,\-/]\s*\d)"
-                         r"(?:\s*(?:N|NK|NORMAL)\b)?|(?<![A-Z0-9])G\s*\+\s*(\d{1,2})\b")
+# 20 Nov 2026 (pre-pod review R03-01: real03's '1BK+ZK+12K' read as 'ZK+12', its basement dropped): the basements
+# before the ground floor ('B+', 'B2+', '2B+', '1BK+') are kept apart (group ``bn``: their number, else one)
+TITLE_ZPLUS = re.compile(r"(?<![A-Z0-9])(?:(?P<bk>(?P<bn>\d)?\s*BK?(?P<bm>\d)?)\s*\+\s*)?(?:Z|ZK|ZEMIN)\s*\+\s*"
+                         r"(?P<n>\d{1,2})(?![.,\-/]\s*\d)(?:\s*(?:N|NK|NORMAL|K)\b)?"
+                         r"|(?<![A-Z0-9])G\s*\+\s*(?P<g>\d{1,2})\b")
 # a floor list before KAT, KATLAR or KATLARI ('ZEMİN+1.2.3.4.5. NORMAL KATLAR': floors 1 to 5 above the ground)
 FLOOR_LIST = re.compile(r"(?<![\d.,])(\d{1,2}(?:\s*[.,\-/]+\s*\d{1,2})+)\s*\.?\s*(?:NORMAL\s+|TIP\s+)?KAT(?:LAR|LARI)?\b")
 # 13 Nov 2026 (review S1-03a, POD-03): the stems take their suffixes (MERDİVENİ, MUTFAĞI, ASANSÖRLER ...)
@@ -105,6 +113,12 @@ STAIR_RE = re.compile(r"\bMERDIVEN\w*|\bSTAIRS?\b|\bSTAIRCASES?\b|\bTREPPE\w*|\b
 # a fire lobby or a fire stair: a building of several storeys (R33)
 FIRE_RE = re.compile(r"\bGUVENLIK\s+HOL\w*|\bYANGIN\s+MERDIVEN\w*|\bYANGIN\s+HOL\w*|\bFIRE\s+(?:LOBBY|STAIRS?|ESCAPE)\b"
                      r"|\bSICHERHEITSTREPPE\w*|\bESCALIER\s+DE\s+SECOURS\b")
+# 20 Nov 2026 (pre-pod review R03-01: real03's YANGIN MERDİVENİ with its GÜVENLİK HOLÜ read as a 3-storey walk-up): a
+# fire stair and a fire lobby drawn together are a high building's core, never a walk-up's
+FIRE_STAIR_RE = re.compile(r"\bYANGIN\s+MERDIVEN\w*|\bFIRE\s+(?:STAIRS?|ESCAPE)\b|\bSICHERHEITSTREPPE\w*"
+                           r"|\bESCALIER\s+DE\s+SECOURS\b")
+FIRE_LOBBY_RE = re.compile(r"\bGUVENLIK\s+HOL\w*|\bGUV\.?\s+HOL\w*|\bYANGIN\s+HOL\w*|\bFIRE\s+LOBBY\b"
+                           r"|\bSICHERHEITSSCHLEUSE\b|\bSAS\s+DE\s+SECURITE\b")
 # what is no floor list (review MF10): a scale, a level mark, an area expression
 _SCALE_FORMS_RE = re.compile(r"(?:\b(?:O|OLCEK|SCALE|MASSTAB|ECHELLE)\s*[:=.]?\s*)?\b1\s*[/:]\s*\d{2,4}\b")
 _LEVEL_MARK_RE = re.compile(r"(?:[+\-±]\s*)\d{1,3}[.,]\d{2}\b")
@@ -221,7 +235,8 @@ def _first(items: list, kind: str, near=None) -> Optional[dict]:
 
 def title_counts(texts: list) -> list:
     """``[{count, text, evidence}]`` (pure): a text listing the floors (``1.-4. NORMAL KAT`` -> 5 with the ground floor,
-    ``Z+4`` -> 5, ``B+Z+4`` -> 5 above the ground, ``G+4`` -> 5, ``5 KATLI`` -> 5)."""
+    ``Z+4`` -> 5, ``B+Z+4`` -> 5 above the ground and 1 basement, ``1BK+ZK+12K`` -> 13 and 1 basement, ``G+4`` -> 5,
+    ``5 KATLI`` -> 5); ``basements``: the basements the text lists apart."""
     from wenart.sheets import levels as LV
 
     out = []
@@ -242,9 +257,11 @@ def title_counts(texts: list) -> list:
             continue
         m = TITLE_ZPLUS.search(folded)
         if m:
-            n = int(m.group(1) or m.group(2))
+            n = int(m.group("n") or m.group("g"))
+            bas = int(m.group("bn") or m.group("bm") or 1) if m.group("bk") else 0
             if 1 <= n < COUNT_MAX:
-                out.append({"count": n + 1, "text": t.text.strip(), "how": "ground floor + {n}".format(n=n),
+                out.append({"count": n + 1, "text": t.text.strip(), "basements": bas,
+                            "how": "ground floor + {n}".format(n=n) + (f", {bas} basement(s) apart" if bas else ""),
                             "evidence": [_ev(t, f, "title_ground_plus")]})
     return out
 
@@ -353,7 +370,7 @@ def frames(r, mpu: float) -> set:
 def plan_signals(r) -> dict:
     """What a plan shows about its building (pure on the region's texts and features): lifts, flats (flat entrances or
     kitchens), stairs (stair blocks or layers, stair words)."""
-    lifts = flats = kitchens = stair_words = fire = 0
+    lifts = flats = kitchens = stair_words = fire = fire_stair = fire_lobby = 0
     for t in getattr(r, "texts", None) or []:
         folded = _fold(t.text)
         lifts += 1 if LIFT_RE.search(folded) and not LW.machine_room(folded) else 0     # CODE-05
@@ -361,21 +378,26 @@ def plan_signals(r) -> dict:
         kitchens += 1 if KITCHEN_RE.search(folded) else 0
         stair_words += 1 if STAIR_RE.search(folded) else 0
         fire += 1 if FIRE_RE.search(folded) else 0
+        fire_stair += 1 if FIRE_STAIR_RE.search(folded) else 0
+        fire_lobby += 1 if FIRE_LOBBY_RE.search(folded) else 0
     stairs = int((getattr(r, "features", None) or {}).get("stairs") or 0)
     return {"lifts": lifts, "flat_words": flats, "kitchens": kitchens, "stairs": stairs, "stair_words": stair_words,
-            "fire": fire}
+            "fire": fire, "fire_stair": fire_stair, "fire_lobby": fire_lobby}
 
 
 def building_type(signals: dict, typical_area_matches: bool) -> Optional[str]:
     """The type default's key (``TYPE_DEFAULTS``) of what a plan shows, or None (pure): lifts with several flats (two
-    flat words or two kitchens) or a typical floor area matching the plan: an apartment block with a lift; several flats
-    with a stair: a low apartment block; one flat at most, no lift and a stair: a house with an upper floor."""
+    flat words or two kitchens) or a typical floor area matching the plan, or a fire stair drawn with a fire lobby (a
+    high building's core): an apartment block with a lift; several flats with a stair: a low apartment block; one flat
+    at most, no lift and a stair: a house with an upper floor."""
     several = signals["flat_words"] >= 2 or signals["kitchens"] >= 2
     # a stair that climbs a storey: a label naming it, or a storey's tread lines on a stair layer (a few entrance or
     # terrace steps are no upper floor)
     stair = signals["stairs"] >= STAIR_LINES_MIN or signals["stair_words"] > 0
     if signals["lifts"] >= 1 and (several or typical_area_matches):
         return "apartment_block_lift"
+    if signals.get("fire_stair") and signals.get("fire_lobby"):
+        return "apartment_block_lift"     # a fire stair with a fire lobby: a high building's core (R03-01)
     if several and (stair or signals.get("fire")):
         return "apartment_block"
     if signals["lifts"] == 0 and signals["kitchens"] <= 1 and signals["flat_words"] <= 1 and stair:
@@ -408,11 +430,12 @@ def floor_role(gross: Optional[float], ground: Optional[float], typical: Optiona
 # --------------------------------------------------------------------------------------------------- the ladder
 def ladder(values: dict, section_storeys: dict, sections: list, texts: list, gross: Optional[float],
            signals: dict, drawn_count: int, answers: Optional[dict] = None,
-           drawn_all: Optional[int] = None, near=None) -> tuple[list, dict]:
+           drawn_all: Optional[int] = None, near=None, dwg: Optional[dict] = None) -> tuple[list, dict]:
     """``(rungs, areas)`` (pure): every rung of the evidence ladder with what it found, ``{"rung", "count" | None,
     "confidence", "evidence", "note"}``, in trust order (``drawn_count``: the drawn storeys at and above the ground,
     ``drawn_all`` with the basements); ``areas`` the area table's ground, typical, total and parcel
-    items."""
+    items; ``dwg``: what the drawing's unused block definitions say (``dwg_blocks.read``), the rung before the type
+    default."""
     rungs = []
     drawn_all = drawn_count if drawn_all is None else drawn_all
     user = values.get("storeys")
@@ -443,7 +466,9 @@ def ladder(values: dict, section_storeys: dict, sections: list, texts: list, gro
                                f"({drawn_all} level(s) drawn)" if best else
                                "no section or elevation names the storeys")})
     titles = title_counts(texts)
-    rungs.append({"rung": "title", "count": max((t["count"] for t in titles), default=None),
+    top_title = max(titles, key=lambda t: t["count"], default=None)
+    rungs.append({"rung": "title", "count": top_title["count"] if top_title else None,
+                  "basements": top_title.get("basements", 0) if top_title else 0,
                   "confidence": CONFIDENCE["title"], "evidence": [e for t in titles for e in t["evidence"]][:6],
                   "note": "; ".join(f"'{t['text']}': {t['how']}" for t in titles[:4]) or "no text lists the floors"})
     items = area_items(texts)
@@ -485,6 +510,12 @@ def ladder(values: dict, section_storeys: dict, sections: list, texts: list, gro
             zcount, zconf, zev = k, CONFIDENCE["zoning_far"], zon["far"][0]["evidence"] + areas["parcel"]["evidence"]
             znote = (f"emsal {far:.2f} x parcel {areas['parcel']['value']:.0f} m2 / floor {base:.0f} m2")
     rungs.append({"rung": "zoning", "count": zcount, "confidence": zconf, "evidence": zev, "note": znote})
+    if dwg is not None:
+        rungs.append({"rung": "dwg_blocks", "count": int(dwg["count"]) if 1 <= int(dwg["count"]) <= COUNT_MAX else None,
+                      "basements": int(dwg.get("basements") or 0), "pitch_m": dwg.get("pitch_m"),
+                      "basement_floors_m": list(dwg.get("basement_floors_m") or []),
+                      "confidence": CONFIDENCE["dwg_blocks"], "evidence": list(dwg.get("evidence") or [])[:4],
+                      "note": dwg.get("note")})
     matches = bool(floor_role(gross, g, ty) and floor_role(gross, g, ty)["role"] == "typical")
     kind = building_type(signals, matches)
     rungs.append({"rung": "type_default", "count": TYPE_DEFAULTS.get(kind) if kind else None,
@@ -551,8 +582,16 @@ def infer(plans: list, regions: list, docs: list, values: dict, warnings: list, 
         names = LV.storey_words([r for r in regions if r.cls == "elevation" and r.use == "exterior"])
     pre_drawn = sorted({o for r in read for o in _own_orders(r) if o >= 0})
     every = {o for r in read for o in _own_orders(r)}
+    answers = _project_answers(project_dir)
     rungs, areas = ladder(values, names, sections, texts, gross, signals, len(pre_drawn),
-                          _project_answers(project_dir), drawn_all=len(every), near=(base.file, base.box))
+                          answers, drawn_all=len(every), near=(base.file, base.box))
+    if not any(x.get("count") for x in rungs if x["rung"] != "type_default"):
+        # 20 Nov 2026 (R03-01): no drawn document counts the storeys: the drawing's unused block definitions of the
+        # same building may (read only now: it parses the file once more)
+        dwg = dwg_rung(docs, base)
+        if dwg is not None:
+            rungs, areas = ladder(values, names, sections, texts, gross, signals, len(pre_drawn), answers,
+                                  drawn_all=len(every), near=(base.file, base.box), dwg=dwg)
     g = areas["ground"]["value"] if areas["ground"] else None
     ty = areas["typical"]["value"] if areas["typical"] else None
     role = floor_role(gross, g, ty)
@@ -612,6 +651,9 @@ def infer(plans: list, regions: list, docs: list, values: dict, warnings: list, 
     count = int(chosen["count"])
     rec.update(count=count, rule=chosen["rung"], confidence=round(float(chosen["confidence"]), 2),
                guess=chosen["rung"] == "type_default", rule_note=chosen.get("note"))
+    if chosen.get("pitch_m"):
+        rec["pitch_m"] = float(chosen["pitch_m"])
+    _basements(rec, chosen, read, warnings)
     if rec["guess"]:
         rec["guess_note"] = (f"no document gives the storey count; the type default of "
                              f"{TYPE_NAMES.get(chosen.get('kind'), 'this building type')} is {count} storeys. Give the "
@@ -645,7 +687,9 @@ def infer(plans: list, regions: list, docs: list, values: dict, warnings: list, 
             return rec
     _extend(base, own, new_up, ground, is_typical, not shifted, names, rec, chosen)
     rec["open_point"] = {"key": OPEN_POINT_KEY, "default": count,
-                         "options": sorted({max(count - 2, 1), max(count - 1, 1), count, count + 1, count + 2}),
+                         # (R03-01, e) every count the evidence gives is an option
+                         "options": sorted({max(count - 2, 1), max(count - 1, 1), count, count + 1, count + 2}
+                                           | set(counts.values())),
                          "severity": "major" if rec["guess"] else "minor",
                          "question": f"How many storeys does the building have? The documents draw {len(drawn)}; "
                                      f"{count} inferred from {chosen['rung'].replace('_', ' ')}"
@@ -660,6 +704,66 @@ def infer(plans: list, regions: list, docs: list, values: dict, warnings: list, 
                     f"{base.id} stands for the storeys the documents do not draw: {lv_text} (inferred"
                     + (", a guess" if rec["guess"] else "") + ")")
     return rec
+
+
+def plan_values(r) -> set:
+    """The values a plan prints alone (a level mark, its datum: '93.20', '+0.00'), at least ``DATUM_MIN`` (pure)."""
+    out = set()
+    for t in getattr(r, "texts", None) or []:
+        m = re.fullmatch(r"[+\-±]?\s*(\d{1,4}[.,]\d{2})", _fold(t.text))
+        if m and float(m.group(1).replace(",", ".")) >= DATUM_MIN:
+            out.add(round(float(m.group(1).replace(",", ".")), 2))
+    return out
+
+
+def dwg_rung(docs: list, base) -> Optional[dict]:
+    """What the unused block definitions of the base plan's CAD file say (``dwg_blocks.read``), or None."""
+    from wenart.sheets import dwg_blocks as DB
+
+    vals = plan_values(base)
+    if not vals:
+        return None
+    for d in docs:
+        if getattr(d, "file", None) != getattr(base, "file", None) or getattr(d, "format", None) not in ("dwg", "dxf"):
+            continue
+        try:
+            got = DB.read(d.path, vals)
+        except Exception:  # noqa: BLE001 - a damaged file gives no rung
+            got = None
+        if got is not None:
+            return got
+    return None
+
+
+def _basements(rec: dict, chosen: dict, read: list, warnings: list) -> None:
+    """The basements the chosen rung lists that no plan draws (``rec["basements_inferred"]``, in place): built by
+    ``wenart.ingest.basement`` as the footprint with the core (no plan of their own); each floor from the rung's marks,
+    else one storey pitch below the floor above (assumed)."""
+    n = int(chosen.get("basements") or 0)
+    drawn = sorted({o for r in read for o in _own_orders(r) if o < 0})
+    rec["basements"] = n
+    if n <= len(drawn):
+        return
+    floors = list(chosen.get("basement_floors_m") or [])
+    pitch = float(chosen.get("pitch_m") or 0.0) or None
+    out, top = [], 0.0
+    for k in range(1, n + 1):
+        if -k in drawn:
+            continue
+        marked = floors[k - 1] if k - 1 < len(floors) else None
+        floor = float(marked) if marked is not None else round(top - (pitch or STOREY_M), 2)
+        top = floor
+        out.append({"level_id": B.level_id(-k), "order": -k, "floor_m": floor, "floor_marked": marked is not None,
+                    "rule": chosen["rung"], "confidence": round(float(chosen["confidence"]) * 0.8, 2),
+                    "evidence": list(chosen.get("evidence") or [])[:3],
+                    "reason": f"basement {k} of {n} ({chosen['rung'].replace('_', ' ')}: {chosen.get('note')}); no plan "
+                              f"draws it: the ground floor's footprint with the core (stairs, lifts), floor "
+                              + (f"{floor:+.2f} (the marks)" if marked is not None else f"{floor:+.2f} (assumed)")})
+    rec["basements_inferred"] = out
+    if out:
+        warnings.append(f"storeys: {len(out)} basement(s) no plan draws inferred from "
+                        f"{chosen['rung'].replace('_', ' ')} ({', '.join(i['level_id'] for i in out)}): the footprint "
+                        f"with the core")
 
 
 STACK_RMS_M = 0.5                     # a plan stacks on the storey below: its outline within this RMS (R12) ...

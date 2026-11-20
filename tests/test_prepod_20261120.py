@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from shapely.geometry import box
 
 from wenart.ingest import completion as CP
+from wenart.sheets import storeys as ST
 from wenart.sheets import roof_frame as RF
 
 
@@ -145,3 +146,114 @@ def test_an_inferred_entrance_never_goes_into_a_fire_stair():
             r.update(label="Yangın Merdiveni", room_type="stair")
     rec = CR.fix_entrances(b, B.IdCounter().next, {})
     assert all(a["level_id"] != "L-1" or "L-1_hall" not in a["reason"] for a in rec["added"])
+
+
+# --------------------------------------------------------------------------- R03-01: the storeys a DWG's blocks give
+def _dwg(path, info_level="93.20", other=None):
+    """A DXF inserting only the ground-floor plan 'D BLOK_ZK' (its datum '93.20'); defined, unused: the building-info
+    block, a section with marks every 3.20 m and a basement at -4.00 (and -5.00 below it, no storey)."""
+    import ezdxf
+
+    doc = ezdxf.new()
+    plan = doc.blocks.new("D BLOK_ZK")
+    plan.add_text("93.20")
+    plan.add_text("+0.00")
+    info = doc.blocks.new("XX_BİNA BİLGİLERİ")
+    info.add_mtext(f"D BLOK\\P1BK+ZK+12K\\PBİNA GİRİŞ KOTU : {info_level}")
+    if other:
+        info.add_mtext(other)
+    sec = doc.blocks.new("D BLOK KESİTLER")
+    for v in ("-5.00", "-4.00", "0.00", "+3.20", "+6.40", "+9.60", "+12.80", "+16.00"):
+        sec.add_text(v)
+    doc.modelspace().add_blockref("D BLOK_ZK", (0, 0))
+    doc.saveas(path)
+    return path
+
+
+def test_the_unused_blocks_of_the_same_building_give_its_storeys_pitch_and_basement(tmp_path):
+    from wenart.sheets import dwg_blocks as DB
+
+    got = DB.read(_dwg(tmp_path / "a.dxf"), {93.2})
+    assert got["count"] == 13 and got["basements"] == 1 and got["pitch_m"] == 3.2
+    assert got["basement_floors_m"] == [-4.0]
+    assert {e["block"] for e in got["evidence"]} >= {"XX_BİNA BİLGİLERİ", "D BLOK KESİTLER"}
+    assert DB.read(_dwg(tmp_path / "b.dxf", info_level="94.50"), {93.2}) is None     # another building's entrance
+    # a second info text naming another block with the same level does not count; the plan's own building does
+    got = DB.read(_dwg(tmp_path / "c.dxf", other="C BLOK\\P2BK+ZK+4K\\PBİNA GİRİŞ KOTU : 93.20"), {93.2})
+    assert got["count"] == 13 and got["basements"] == 1
+
+
+def test_the_title_keeps_the_basements_apart_and_a_fire_lobby_is_no_walk_up():
+    texts = [(SimpleNamespace(text=t, entity="e", point=(0, 0), layer=None), "f") for t in ("1BK+ZK+12K",)]
+    got = ST.title_counts(texts)
+    assert got[0]["count"] == 13 and got[0]["basements"] == 1
+    assert ST.title_counts([(SimpleNamespace(text="Z+4", entity="e", point=(0, 0), layer=None), "f")])[0]["basements"] == 0
+    sig = {"lifts": 0, "flat_words": 8, "kitchens": 0, "stairs": 0, "stair_words": 2, "fire": 2, "fire_stair": 1,
+           "fire_lobby": 1}
+    assert ST.building_type(sig, False) == "apartment_block_lift"
+    assert ST.building_type(dict(sig, fire_lobby=0), False) == "apartment_block"
+
+
+def test_a_listed_basement_no_plan_draws_is_recorded_with_its_marked_floor():
+    rec, warns = {}, []
+    chosen = {"rung": "dwg_blocks", "count": 13, "basements": 1, "basement_floors_m": [-4.0], "pitch_m": 3.2,
+              "confidence": 0.6, "evidence": [{"rule": "dwg_building_info"}], "note": "1BK+ZK+12K"}
+    read = [SimpleNamespace(level={"order": 0}, use="read")]
+    ST._basements(rec, chosen, read, warns)
+    assert rec["basements"] == 1 and rec["basements_inferred"][0]["level_id"] == "L-1"
+    assert rec["basements_inferred"][0]["floor_m"] == -4.0 and rec["basements_inferred"][0]["floor_marked"]
+    rec2 = {}
+    ST._basements(rec2, dict(chosen, basement_floors_m=[], pitch_m=None), read, warns)
+    assert rec2["basements_inferred"][0]["floor_m"] == -3.0 and not rec2["basements_inferred"][0]["floor_marked"]
+
+
+def test_the_floors_only_assumed_take_the_pitch_of_the_dwg_sections():
+    from wenart.sheets import heights as HT
+
+    levels = [{"id": f"L{k}", "order": k} for k in range(3)]
+    out = {"levels": [], "slabs": []}
+    HT._assumed_levels(out, levels, 2.7, 0.2, "no section")
+    lines = HT.apply_pitch(out, levels, 3.2, 0.2, "a.dwg", "the unused sections")
+    z = {e["level_id"]: e["floor_z"]["value"] for e in out["levels"]}
+    assert z == {"L0": 0.0, "L1": 3.2, "L2": 6.4} and lines
+    assert out["levels"][1]["ceiling_height"]["value"] == 3.0
+    assert out["levels"][1]["floor_z"]["evidence"][0]["method"] == "inferred"
+
+
+def test_an_inferred_basement_is_the_footprint_with_the_core_and_no_window():
+    from wenart.ingest import basement as BS
+
+    RF = _rf()
+    b = RF.core_building(("L0",))
+    b["levels"][0]["evidence"] = [{"file": "x.dwg", "method": "vector", "confidence": 1.0}]
+    b["walls"] = [dict(w, exterior=w["id"].startswith("wL0_")) for w in b["walls"]]
+    b["openings"].append(RF.op("win_k", "window", "wL0_w", (0.0, 2.0), 1.2))
+    b["furniture"].append({"id": "f_L0_st", "level_id": "L0", "room_id": "L0_hall", "type": "stair",
+                           "footprint": {"center": [5.2, 3.0], "size": [2.0, 4.0], "rotation_deg": 0.0}})
+    rec = {"basements_inferred": [{"level_id": "L-1", "order": -1, "floor_m": -3.0, "floor_marked": False,
+                                   "rule": "title", "confidence": 0.6, "evidence": [], "reason": "basement 1 of 1"}]}
+    warns = []
+    made = BS.apply(SimpleNamespace(building=b, warn=warns.append, unions={}), rec, 0.2)
+    assert made and made[0]["level_id"] == "L-1"
+    lv = next(x for x in b["levels"] if x["id"] == "L-1")
+    assert lv["kind"] == "basement" and lv["elevation"] == -3.0 and lv["reading_confidence"] == "low"
+    rooms = [r for r in b["rooms"] if r["level_id"] == "L-1"]
+    kinds = {r["room_type"] for r in rooms}
+    assert {"hall", "shaft", "storage"} <= kinds and not kinds & {"kitchen", "bedroom", "living", "bathroom"}
+    ops = [o for o in b["openings"] if o["level_id"] == "L-1"]
+    assert ops and all(o["type"] != "window" for o in ops) and any(o.get("lift_door") for o in ops)
+    walls = {w["id"]: w for w in b["walls"] if w["level_id"] == "L-1"}
+    assert all(walls[o["wall_id"]].get("exterior") is not True for o in ops)          # no outside door
+    assert any(f["level_id"] == "L-1" and f["type"] == "stair" for f in b["furniture"])
+    assert all(x.get("inferred") for x in rooms + ops + list(walls.values()))
+    assert any(s["id"] == "sl_L-1" for s in b["slabs"])
+
+
+def test_lift_shafts_carved_after_a_walk_up_count_reopen_the_storey_question():
+    b = {"levels": [{"id": "L0", "order": 0}], "rooms": [{"id": "r1", "level_id": "L0", "label": "Asansör",
+                                                           "room_type": "shaft", "polygon": [[0, 0], [2, 0], [2, 2], [0, 2]]}]}
+    rec = {"rule": "type_default", "signals": {"lifts": 0}, "ladder": [{"rung": "type_default", "kind": "apartment_block"}],
+           "open_point": {"options": [1, 2, 3], "default": 3, "severity": "major", "question": "?"}}
+    got = CP._late_lifts(b, rec)
+    assert got and got["default_with_lift"] == ST.TYPE_DEFAULTS["apartment_block_lift"]
+    assert ST.TYPE_DEFAULTS["apartment_block_lift"] in rec["open_point"]["options"]
