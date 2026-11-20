@@ -22,7 +22,14 @@ def fold(text) -> str:
     return " ".join(B.fold_ascii(str(text or "")).lower().split())
 
 
-def machine_room(text) -> bool:
-    """Whether a (lift-named) label names a lift's machine room (the module docstring; pure)."""
+def machine_room(text, area_m2=None) -> bool:
+    """Whether a (lift-named) label names a lift's machine room (the module docstring; pure). With the room's area
+    (``area_m2``) a lift space ('ASANSÖR MAHALLİ') is decided by its size alone (``building.machine_room``: a lift-sized
+    one is the shaft; review A4, POD-A4-01)."""
     label = fold(text)
-    return B.machine_room(label) or bool(EXTRA_RE.search(B.MACHINE_LESS_RE.sub(" ", label)))
+    if B.machine_room(label, area_m2):
+        return True
+    rest = B.MACHINE_LESS_RE.sub(" ", label)
+    if area_m2 is not None:
+        rest = B.LIFT_SPACE_RE.sub(" ", rest)
+    return bool(EXTRA_RE.search(rest))

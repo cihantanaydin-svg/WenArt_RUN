@@ -338,6 +338,46 @@
    "trusted": false,
    "small_sample": true,
    "by_status": {}
+  },
+  "twin_notch": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "slab_cover": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "terrace_support": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "door_to_air": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "wall_in_wall": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
   }
  },
  "readings": "round 2 (6 Nov 2026): the readings of main's tree in regress_merged (real01-real21, synthetic-01, 03-07) and fresh CPU readings of synthetic-08 to synthetic-22: every finding judged; and, for the six round-2 rules, the old readings made before the user's corrections (real10 and real07 at 23f5df3d, real09 at a0b208a4, real17 at 0e9b4ee0), where the corrected errors still stand: facade_recess, false_stair and stair_stacking fire on none of the 41 current readings, so their precision is judged there (project_status old_reading)",

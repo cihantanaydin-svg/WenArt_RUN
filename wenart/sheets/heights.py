@@ -527,6 +527,9 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
         roof["eaves_z"] = _value(z(eave[1]), "vector", ev[:1],
                                  note=None if top_floor_y is None else
                                  f"{(eave[1] - top_floor_y) * s:.2f} m above the top floor")
+        # 20 Nov 2026 (pre-pod check, R09-10): the eaves' rise over the section's own top floor line, for the frame
+        # guard of the roof (``to_building.roof_frame_guard``)
+        roof["eaves_rise_m"] = None if top_floor_y is None else round((eave[1] - top_floor_y) * s, 3)
         roof["ridge_z"] = _value(z(ridge[1]), "vector", ev,
                                  note=None if top_floor_y is None else
                                  f"{(ridge[1] - top_floor_y) * s:.2f} m above the top floor")
@@ -844,6 +847,51 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
                     on = sorted((zb - ln["z"], rel) for rel, zb in frame if -MARK_TOL_M <= zb - ln["z"] <= GROUND_MARK_TOL_M)
                     ln["z"] = round((on[0][1] - base) if on else ln["z"] + shift, 3)
         lines.append(f"ground moved {shift:+.2f} m into the storey marks' frame (the section's level marks)")
+        # 20 Nov 2026 (pre-pod check, R09-10: real09's A-A mapped 2 slab bands over 5 levels, the datum stayed the
+        # 2.Normal's 8,50 and the roof was built 6 m low, in front of the L2 windows): everything else the section read
+        # in the slab bands' frame moves into the storey marks' frame too (roof eaves, ridge and profile, the slabs
+        # and levels no storey mark set), and the datum is the frame's base (the plans and elevations read their
+        # relative marks in it)
+        moved = []
+        roof = out.get("roof") or {}
+        for key in ("eaves_z", "ridge_z"):
+            zv = roof.get(key) or {}
+            if zv.get("method") == "vector" and zv.get("value") is not None:
+                zv["value"] = round(float(zv["value"]) + shift, 3)
+                zv["note"] = ((zv.get("note") + "; ") if zv.get("note") else "") + \
+                    f"moved {shift:+.2f} m into the storey marks' frame"
+                moved.append(key)
+        if roof.get("profile"):
+            roof["profile"] = [[q[0], round(float(q[1]) + shift, 3) + 0.0] for q in roof["profile"]]
+            moved.append("roof profile")
+        named = {orders[o] for o in seq}
+        for e in out.get("levels") or []:
+            fz = e.get("floor_z") or {}
+            if e.get("level_id") not in named and fz.get("method") == "vector" and fz.get("value") is not None:
+                fz["value"] = round(float(fz["value"]) + shift, 3)
+                fz["note"] = ((fz.get("note") + "; ") if fz.get("note") else "") + \
+                    f"moved {shift:+.2f} m into the storey marks' frame"
+                moved.append(f"{e['level_id']} floor")
+            if e.get("level_mark_target_z") is not None and e.get("level_id") not in named:
+                e["level_mark_target_z"] = round(float(e["level_mark_target_z"]) + shift, 3)
+        for sl in out.get("slabs") or []:
+            zt = sl.get("z_top") or {}
+            between = sl.get("between") or []
+            if (len(between) < 2 or between[1] not in named) and zt.get("method") == "vector" \
+                    and zt.get("value") is not None:
+                zt["value"] = round(float(zt["value"]) + shift, 3)
+                moved.append(f"slab {'/'.join(str(x or '-') for x in between)}")   # a roof slab: between [Lx, None]
+        old = out.get("datum") or {}
+        if abs(base) > 0.005 and (not old or abs(float(old.get("value") or 0.0) - base) > MARK_TOL_M):
+            ev = [_ev(file_rel or "", None, rule, region_id or "", text=f"{base:+.2f}")]
+            out["datum"] = _value(base, "vector", ev, note=f"the printed floor mark of the storey at building z 0 "
+                                                           f"({source}): the plans' relative marks are read in this frame"
+                                                           + (f"; it replaces {float(old.get('value') or 0):+.2f}, the "
+                                                              f"slab bands' frame" if old else ""))
+            out["datum"]["relative"] = round(float(base), 3) + 0.0
+            moved.append(f"datum {float(old.get('value') or 0):+.2f} -> {base:+.2f}" if old else f"datum {base:+.2f}")
+        if moved:
+            lines.append(f"into the storey marks' frame too ({shift:+.2f} m): " + ", ".join(moved))
     return lines
 
 

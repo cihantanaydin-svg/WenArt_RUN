@@ -1451,8 +1451,8 @@ def test_a_doors_own_plan_gives_its_ground_first_its_threshold_mark_when_it_prin
     own = F.mark("lm_own", -0.45, kind="ground_finished", point=(8.0, -2.5), level="L0")
     e = entrance([other, own])
     assert e["ground_source"] == "ground mark lm_own" and e["ground_z"] == -0.45
-    # with only the other plan's mark, that mark is used as before
-    assert entrance([other])["ground_source"] == "ground mark lm_up"
+    # with only the other plan's mark, never that mark: the door stands on the terrain (19 Nov 2026, review A3, OA3-08)
+    assert entrance([other])["ground_source"].startswith("terrain")
 
 
 def test_the_plans_title_elevations_set_the_floors_and_the_datum():
@@ -1830,29 +1830,43 @@ def test_an_outdoor_label_outline_makes_no_outline_wall_and_a_section_arrow_no_w
 
 def test_a_lift_label_in_an_oversized_part_cuts_the_lift_out_of_it():
     """19 Nov 2026 (review A3, OA3-02: real11's lift was built on one storey; on the others the landing strip and the
-    lift box stayed one part too long for a lift and the ASANSOR label gave up)."""
+    lift box stayed one part too long for a lift and the ASANSOR label gave up). Review A4 (A4FC-1 / A4C-01): the shaft
+    is the drawn wall faces round the label, the same on every storey drawn the same; an arm cut on no drawn line (it
+    ran through the car) is never taken; the landing door goes into the drawn opening of the shaft's wall."""
     import copy
 
     from wenart.ingest import twins as TW
 
     def hall(lv):
-        # the landing strip 8.86-12.34 and the lift box 12.34-13.58 of one L-shaped part, the label in the box
+        # the landing strip and the lift box of one L-shaped part (real11 L1), the label in the box
         return {"id": f"r_{lv}_hall", "level_id": lv, "label": "Kat Holü", "room_type": "hall",
-                "polygon": [[13.58, 9.18], [8.91, 9.18], [8.91, 9.63], [8.86, 9.63], [8.86, 10.24], [12.34, 10.24],
-                            [12.34, 10.78], [13.58, 10.78]],
-                "sub_spaces": [{"label": "ASANSOR", "type": "lift", "anchor": [12.47, 9.96], "min_m2": 1.0,
+                "polygon": [[13.58, 9.19], [8.91, 9.19], [8.91, 9.63], [8.86, 9.63], [8.86, 10.24], [11.68, 10.24],
+                            [11.68, 10.79], [13.58, 10.79]],
+                "sub_spaces": [{"label": "ASANSOR", "type": "lift", "anchor": [12.23, 9.90], "min_m2": 1.0,
                                 "max_m2": 8.0}]}
 
+    # the drawn shaft faces: 165 x 160 inside, the west wall's inner face at 11.93 with its 0.65 m door opening
+    faces = [((11.93, 9.19), (13.58, 9.19)), ((11.93, 10.79), (13.58, 10.79)), ((13.58, 9.19), (13.58, 10.79)),
+             ((11.93, 9.19), (11.93, 9.64)), ((11.93, 10.29), (11.93, 10.79))]
     rooms, walls = [hall("L1"), hall("L2")], []
-    notes = TW.carve_stacked_lifts(rooms, walls)
+    notes = TW.carve_stacked_lifts(rooms, walls, {"L1": faces, "L2": faces})
     lifts = {r["level_id"]: r for r in rooms if r["id"].endswith("_lift")}
     assert sorted(lifts) == ["L1", "L2"] and len(notes) == 2
-    assert all(abs(r["area_computed"] - 1.98) < 0.02 and r["room_type"] == "shaft" for r in lifts.values())
+    assert all(abs(r["area_computed"] - 2.64) < 0.02 and r["room_type"] == "shaft" for r in lifts.values())
+    assert TW._iou(TW._poly(lifts["L1"]), TW._poly(lifts["L2"])) > 0.99                   # the same outline
     assert all(not r.get("sub_spaces") for r in rooms if not r["id"].endswith("_lift")) and walls
+    # the landing door into the drawn opening of the west wall, towards the hall
+    ops = []
+    TW.lift_doors([r for r in rooms if r["level_id"] == "L1"], ops,
+                  walls + [{"id": "w_west", "level_id": "L1", "start": [11.805, 9.19], "end": [11.805, 10.79],
+                            "thickness": 0.25}], (), None, None, {"L1": faces})
+    assert len(ops) == 1 and abs(ops[0]["center"][1] - 9.965) < 0.02 and abs(ops[0]["width"] - 0.65) < 0.01
+    # with no drawn faces, no arm through the car is cut
+    assert TW.carve_stacked_lifts([copy.deepcopy(hall("L3"))], []) == []
     # with no label in the part, nothing is cut
     bare = copy.deepcopy(hall("L3"))
     bare.pop("sub_spaces")
-    assert TW.carve_stacked_lifts([bare], []) == []
+    assert TW.carve_stacked_lifts([bare], [], {"L3": faces}) == []
 
 
 def test_a_wide_gap_holding_a_tagged_window_is_that_wall_with_its_window():
@@ -1890,3 +1904,578 @@ def test_a_wide_gap_bridge_never_runs_through_drawn_furniture_or_beside_a_drawn_
     table = _line((-0.5, 3.0), (0.5, 3.0), 77, layer="TEFRIS")
     assert GC._sound_bridges(ex, "x", walls[:2], [free], [table]) == []              # through a drawn table
     assert any("drawn furniture" in n for n in ex.notes)
+
+
+def _lift_core(lv: str, depot: bool = False) -> tuple:
+    """A real17-like lift core: a 2.0 x 1.8 m shaft, its east wall 0.25 m with the 'Kat Holü' 1.10 m deep beyond it, a
+    shop north of it 2.2 m deep; ``depot``: the shaft stands free in a basement depot (every side 3 m deep)."""
+    def room(rid, label, rtype, poly):
+        return {"id": rid, "level_id": lv, "label": label, "label_raw": label.upper(), "room_type": rtype,
+                "polygon": poly}
+
+    shaft = room(f"r_{lv}_asansor", "Asansör", "shaft", [[11.92, 15.86], [13.92, 15.86], [13.92, 17.66], [11.92, 17.66]])
+    if depot:
+        rooms = [shaft, room(f"r_{lv}_depo", "Depo", "storage", [[8.0, 12.0], [18.0, 12.0], [18.0, 21.0], [8.0, 21.0]])]
+    else:
+        rooms = [shaft, room(f"r_{lv}_hall", "Kat Holü", "hall", [[14.17, 15.0], [15.27, 15.0], [15.27, 18.5], [14.17, 18.5]]),
+                 room(f"r_{lv}_dukkan", "Dükkan", "other", [[11.0, 17.91], [16.0, 17.91], [16.0, 20.1], [11.0, 20.1]])]
+    walls = [{"id": f"w_{lv}_e", "level_id": lv, "start": [14.045, 15.86], "end": [14.045, 17.66], "thickness": 0.25},
+             {"id": f"w_{lv}_n", "level_id": lv, "start": [11.92, 17.785], "end": [14.17, 17.785], "thickness": 0.25},
+             {"id": f"w_{lv}_s", "level_id": lv, "start": [11.92, 15.735], "end": [14.17, 15.735], "thickness": 0.25},
+             {"id": f"w_{lv}_w", "level_id": lv, "start": [11.795, 15.86], "end": [11.795, 17.66], "thickness": 0.25}]
+    return rooms, walls
+
+
+def test_a_landing_door_frame_drawn_in_the_shaft_wall_is_its_door_and_the_storeys_without_one_follow_it():
+    """19 Nov 2026 (review A4, SW-A4-02 / POD-A4-02: real17 L0's and real20's lift blocks draw the landing door's frame
+    on a detail layer in a wall whose faces run through, and the door was inferred into a shop or 7.5 cm off the frame;
+    SW-A4-01: real17 L-1's free-standing shaft took the first of four equally deep sides, into the concrete)."""
+    import copy
+
+    from wenart.ingest import twins as TW
+
+    # the shaft's inner faces drawn through, the east wall's outer face at x 14.17
+    faces = [((11.92, 15.86), (13.92, 15.86)), ((13.92, 15.86), (13.92, 17.66)), ((13.92, 17.66), (11.92, 17.66)),
+             ((11.92, 17.66), (11.92, 15.86)), ((14.17, 15.86), (14.17, 17.66))]
+    # the landing door's frame in the east wall (two runs and their jambs), and the counterweight's rails inside the
+    # shaft by its west wall (a rectangle of the same kind, all inside: no frame)
+    frame = [((13.971, 16.049), (13.971, 17.449)), ((14.171, 16.049), (14.171, 17.449)),
+             ((13.971, 16.049), (14.171, 16.049)), ((13.971, 17.449), (14.171, 17.449))]
+    rails = [((12.066, 16.225), (12.066, 17.286)), ((12.183, 16.225), (12.183, 17.286)),
+             ((12.066, 16.225), (12.183, 16.225)), ((12.066, 17.286), (12.183, 17.286))]
+    rooms, walls = _lift_core("L0")
+    ops = []
+    notes = TW.lift_doors(rooms, ops, walls, (), [], [], {"L0": faces}, {"L0": frame + rails})
+    assert len(ops) == 1 and ops[0]["wall_id"] == "w_L0_e" and abs(ops[0]["center"][1] - 16.749) < 0.01
+    assert abs(ops[0]["width"] - 1.40) < 0.01 and ops[0]["evidence"][0]["method"] == "derived"
+    assert any("where the drawing shows it (frame)" in n for n in notes)
+    # with no frame drawn, the shop is never the lift's landing (merge of 20 Nov 2026, the building-sense branch's
+    # MF3: a unit's own use): the door goes to the hall ...
+    ops2 = []
+    TW.lift_doors(copy.deepcopy(rooms), ops2, copy.deepcopy(walls), (), [], [], {"L0": faces}, {"L0": rails})
+    assert ops2[0]["wall_id"] == "w_L0_e"
+    # ... but a storey with no frame drawn takes the side of the drawn door of the shaft stacked on it, ahead of the
+    # depth rule (L1: the same core) and of list order (L-1: free in a depot, every side 3 m deep)
+    up, wu = _lift_core("L1")
+    down, wd = _lift_core("L-1", depot=True)
+    ops3 = []
+    notes = TW.lift_doors(down + up + rooms, ops3, wd + wu + walls, (), [], [], {"L0": faces}, {"L0": frame})
+    by = {o["level_id"]: o for o in ops3}
+    assert sorted(by) == ["L-1", "L0", "L1"]
+    assert all(abs(o["center"][0] - 14.0) < 0.1 for o in by.values()), by     # every storey's door faces east
+    assert sum("stacked shaft's drawn landing door" in n for n in notes) == 2
+
+
+def test_a_lift_pit_storey_gets_no_landing_door_and_a_house_lift_opens_into_its_living_room():
+    """19 Nov 2026 (review A4, A4FC-1: real11 L-2's bare pit, its floor mark -1.80 over the storey's -3.30, got a door
+    into the shelter; A4C-04: a lift whose only neighbour is a dwelling's living room got no landing door)."""
+    import copy
+
+    from wenart.ingest import twins as TW
+
+    rooms, walls = _lift_core("L-2", depot=True)
+    texts = [{"text": "-1.80", "point": [12.9, 16.7], "level_id": "L-2"},
+             {"text": "-3.30", "point": [10.0, 14.0], "level_id": "L-2"},
+             {"text": "-3.30", "point": [16.0, 19.0], "level_id": "L-2"}]
+    ops = []
+    notes = TW.lift_doors(copy.deepcopy(rooms), ops, copy.deepcopy(walls), (), [], [], None, None, texts)
+    assert not ops and any("pit below the lowest stop" in n for n in notes)
+    # the pit's mark below the storey's floor (the lowest stop draws its pit's depth): a door
+    low = [dict(t, text="-4.80") if t["text"] == "-1.80" else t for t in texts]
+    ops = []
+    TW.lift_doors(copy.deepcopy(rooms), ops, copy.deepcopy(walls), (), [], [], None, None, low)
+    assert len(ops) == 1
+    # A4C-04: beside a living room only, the house's own lift opens into it; beside a bathroom only, never
+    for rtype, n in (("living", 1), ("dining", 1), ("bathroom", 0), ("bedroom", 0)):
+        rs, ws = _lift_core("L0", depot=True)
+        rs[1]["room_type"] = rtype
+        ops = []
+        TW.lift_doors(rs, ops, ws, ())
+        assert len(ops) == n, rtype
+
+
+def test_twin_lifts_in_one_hall_get_unique_rooms_walls_and_doors():
+    """19 Nov 2026 (review A4, A4C-03: a second carve in one room reused the first one's room id, wall ids and door id;
+    two stacked twins carved only the first label)."""
+    import copy
+
+    from wenart.ingest import twins as TW
+
+    def hall(lv):
+        return {"id": f"r_{lv}_hall", "level_id": lv, "label": "Kat Holü", "room_type": "hall",
+                "polygon": [[0.0, 0.0], [8.0, 0.0], [8.0, 5.0], [0.0, 5.0]],
+                "sub_spaces": [{"label": "ASANSÖR", "type": "lift", "anchor": [1.0, 4.0], "min_m2": 1.0, "max_m2": 8.0},
+                               {"label": "ASANSÖR", "type": "lift", "anchor": [3.0, 4.0], "min_m2": 1.0, "max_m2": 8.0}]}
+
+    def car(lv, k, x):
+        return {"id": f"f_{lv}_{k}", "type": "unknown", "level_id": lv,
+                "footprint": {"center": [x, 4.15], "size": [1.6, 1.5], "rotation_deg": 0.0}}
+
+    def lifts_of(rooms):
+        return [r for r in rooms if "_lift" in r["id"]]
+
+    def check(rooms, walls):
+        lifts = lifts_of(rooms)
+        assert len(lifts) >= 2 and len({r["id"] for r in rooms}) == len(rooms)
+        assert len({w["id"] for w in walls}) == len(walls)
+        assert all(not r.get("sub_spaces") for r in rooms)
+        ops = []
+        for r in lifts:
+            r["room_type"], r["label_raw"] = "shaft", "ASANSÖR"
+        TW.lift_doors(rooms, ops, walls, ())
+        assert len({o["id"] for o in ops}) == len(ops) == len(lifts)
+
+    # (a) both twins on their drawn outlines
+    rooms, walls = [hall("L1")], []
+    TW.carve_sub_spaces(rooms, [car("L1", 1, 1.0), car("L1", 2, 3.0)], walls)
+    check(rooms, walls)
+    # (b) one on its outline, the other stacked on the storey below
+    below = [{"id": "r_L0_lift_b", "level_id": "L0", "label": "Asansör", "label_raw": "ASANSÖR", "room_type": "shaft",
+              "polygon": [[2.2, 3.4], [3.8, 3.4], [3.8, 4.9], [2.2, 4.9]]}]
+    rooms, walls = [hall("L1")] + copy.deepcopy(below), []
+    TW.carve_sub_spaces(rooms, [car("L1", 1, 1.0)], walls)
+    TW.carve_stacked_lifts(rooms, walls)
+    check([r for r in rooms if r["level_id"] == "L1"], walls)
+    # (c) both stacked
+    below.append(dict(below[0], id="r_L0_lift_a", polygon=[[0.2, 3.4], [1.8, 3.4], [1.8, 4.9], [0.2, 4.9]]))
+    rooms, walls = [hall("L1")] + copy.deepcopy(below), []
+    TW.carve_stacked_lifts(rooms, walls)
+    check([r for r in rooms if r["level_id"] == "L1"], walls)
+
+
+def test_the_lifts_own_landing_door_tag_inside_the_shaft_is_no_veto():
+    """19 Nov 2026 (review A4, A4C-05: the landing door's '90/210' written just behind the landing gap, inside the
+    shaft's face, refused the lift)."""
+    import copy
+
+    from wenart.ingest import twins as TW
+
+    box_ = {"id": "r_L0_oda", "level_id": "L0", "label": "Oda", "room_type": "unknown",
+            "polygon": [[0, 0], [2.2, 0], [2.2, 2.6], [0, 2.6]]}
+    hall = {"id": "r_L0_hall", "level_id": "L0", "label": "Kat Holü", "label_raw": "KAT HOLÜ", "room_type": "hall",
+            "polygon": [[0, -2.0], [4.2, -2.0], [4.2, -0.2], [0, -0.2]]}
+    car = {"id": "f_L0_1", "type": "unknown", "level_id": "L0",
+           "footprint": {"center": [1.1, 1.3], "size": [1.85, 2.0], "rotation_deg": 0.0},
+           "evidence": [{"file": "p.dxf", "method": "vector", "confidence": 0.9, "entity": "LINE:1,LINE:2"}]}
+    gap = {"id": "o_L0_1", "level_id": "L0", "type": "opening", "wall_id": "w_s", "center": [1.1, -0.1], "width": 1.09}
+    walls = [{"id": "w_s", "level_id": "L0", "start": [0, -0.1], "end": [4.2, -0.1], "thickness": 0.2}]
+    for text, at, made in (("90/210", [1.1, 0.25], True), ("K:90/210", [1.0, 0.2], True),
+                           ("K1 100/220", [1.9, 2.4], False)):
+        rooms = [copy.deepcopy(box_), hall]
+        TW.lift_cars(rooms, [], [copy.deepcopy(car)], [copy.deepcopy(gap)], copy.deepcopy(walls),
+                     [{"text": text, "point": at, "level_id": "L0"}], [])
+        assert (rooms[0]["room_type"] == "shaft") is made, text
+
+
+def test_a_fill_in_a_drawn_square_is_that_outline_and_columns_and_mitred_pieces_stay_walls():
+    """19 Nov 2026 (review A4, A4FC-2: real14's flues, a half hatch in each 25 x 25 cm square on 'baca', were dropped as
+    symbols and the squares became tall cabinets; A4C-06: octagonal and hexagonal columns and mitred wall pieces were
+    dropped, and a dark arrow came back through the dark fills)."""
+    import math
+
+    from shapely.geometry import Polygon
+
+    from wenart.ingest.generic import symbols as SY
+    from wenart.ingest.generic import walls as W
+    from wenart.ingest.generic.model import GenericPage, Stroke
+
+    def ngon(n, r, rot=0.0):
+        return Polygon([(r * math.cos(rot + 2 * math.pi * k / n), r * math.sin(rot + 2 * math.pi * k / n))
+                        for k in range(n)])
+
+    assert not W.symbol_fill(ngon(8, 0.2, math.pi / 8)) and not W.symbol_fill(ngon(6, 0.2))       # columns
+    assert not W.symbol_fill(Polygon([(0, 0), (0.9, 0), (0.65, 0.25), (0.25, 0.25)]))               # a 45-degree pier
+    assert not W.symbol_fill(Polygon([(0, 0), (1.2, 0), (1.0, 0.2), (0, 0.2)]))                     # one mitre
+    assert not W.symbol_fill(Polygon([(0, 0), (1.0, 0), (1.115, 0.2), (0.115, 0.2)]))               # a 60-degree wall
+    assert W.symbol_fill(Polygon([(0, 0), (0.5, 0), (0.25, 0.25)]))                                 # an arrow head
+    assert W.symbol_fill(Polygon([(0, 0), (0.25, 0.12), (0, 0.25), (0.02, 0.15), (-0.3, 0.15), (-0.3, 0.1),
+                                  (0.02, 0.1)]))                                                    # a whole arrow
+
+    def page(strokes):
+        return GenericPage(file="p.dxf", page=1, source_kind="dxf", units="dxf", units_to_m=1.0, size=(10.0, 10.0),
+                           strokes=strokes, wall_hint_layers=("duvar",))
+
+    # two neighbouring flue squares on 'baca', each drawn with its diagonal, each half hatched on the wall layer
+    squares = [Stroke(id=f"LWPOLYLINE:{k}", kind="polyline", layer="baca",
+                      pts=[(x, 0), (x + 0.25, 0), (x + 0.25, 0.25), (x, 0.25), (x, 0), (x + 0.25, 0.25)])
+               for k, x in ((1, 0.0), (2, 0.25))]
+    halves = [Stroke(id=f"HATCH:9#{k}", kind="polyline", layer="duvar", closed=True, fill=(0.0, 0.0, 0.0),
+                     pts=[(x, 0), (x + 0.25, 0), (x, 0.25)]) for k, x in ((0, 0.0), (1, 0.25))]
+    arrow = Stroke(id="HATCH:7#0", kind="polyline", layer="duvar", closed=True, fill=(0.0, 0.0, 0.0),
+                   pts=[(5.0, 5.0), (5.5, 5.0), (5.25, 5.25)])
+    used: set = set()
+    pg = page(squares + halves + [arrow])
+    owners: dict = {}
+    hatches = W._dxf_hatches(pg, 1.0, used, owners)
+    assert [h.entity for h in hatches] == ["HATCH:9"] and len(hatches[0].polygons) == 2      # the flue stays wall
+    assert "HATCH:7#0" in used                                         # the arrow is a symbol, used up ...
+    assert W._dark_fills(pg, 1.0, used, owners) == []                  # ... and no dark fill either
+    used2: set = set()
+    pg2 = page(halves + [arrow])                                       # no squares drawn: lone triangles are symbols
+    assert W._dxf_hatches(pg2, 1.0, used2, {}) == []
+    # a flue's square is never furniture
+    assert SY.layer_kind("baca") == "flue" and SY.NOT_FURNITURE_AS["flue"] == "flue"
+    assert SY.layer_kind("ASANSOR SAFTI") == "other"
+
+
+def test_one_machine_room_test_and_plant_words_with_word_ends():
+    """19 Nov 2026 (review A4, POD-A4-01: real10's 13.3 m2 'Asansör Mahali' on the roof stayed a shaft for the reader
+    while the lift rules took it for a machine room; A4C-07: 'PANORAMA ODASI', 'KLİMALI ODA', 'ELEK.ŞOH. YATAK ODASI',
+    'ASANSÖR MAKSIMUM 8 KİŞİ' and 'MAKİNE DAİRESİZ ASANSÖR' were plant or machine rooms; SW-A4-04: real16's 'TEKNİK
+    HACİM' was furnished as a work room)."""
+    from wenart import building as B
+    from wenart.ingest import twins as TW
+    from wenart.reading_check import sense as SE
+
+    assert B.room_type_for("Asansör Mahali", 13.3, 1.5) == "technical" and B.machine_room("Asansör Mahali", 13.3)
+    assert B.room_type_for("ASANSÖR MAHALLİ", 1.6, 1.1) == "shaft" and not B.machine_room("ASANSÖR MAHALLİ", 1.6)
+    big = {"id": "m", "level_id": "L7", "label": "Asansör Mahali", "room_type": "shaft", "area_computed": 13.3,
+           "polygon": [[0, 0], [3.5, 0], [3.5, 3.8], [0, 3.8]]}
+    small = dict(big, id="s", polygon=[[0, 0], [1.25, 0], [1.25, 1.3], [0, 1.3]], area_computed=1.6)
+    assert TW._machine(big) and not TW._machine(small)
+    assert SE.sense_type(big) == "technical" and SE.sense_type(small) == "lift"
+    for label in ("TEKNİK HACİM", "TESİSAT HACMİ", "TEKNİK ALAN", "ELEKTRİK MAHALLİ", "ELK. PANO ODASI", "MOTOR ODASI",
+                  "MOTOR ROOM", "JENERATÖR ODASI"):
+        assert B.room_type_for(label) == "technical", label
+    for label, rtype in (("PANORAMA ODASI", "other"), ("KLİMALI ODA", "other"), ("DEPOLU ODA", "storage"),
+                         ("MAKİNA MÜHENDİSİ ODASI", "other"), ("ELEK.ŞOH. YATAK ODASI", "bedroom"),
+                         ("YATAK ODASI KLİMA", "bedroom"), ("ODA (KLİMA)", "other"), ("ELEKTRIK", "other"),
+                         ("MAKYAJ ODASI", "other"), ("ASANSÖR MAKSIMUM 8 KİŞİ", "shaft"),
+                         ("MAKİNE DAİRESİZ ASANSÖR", "shaft"), ("ASANSÖR (MAKİNE DAİRESİZ)", "shaft")):
+        assert B.room_type_for(label, 9.0, 1.2) == rtype, label
+
+
+def test_a_face_line_under_a_plaster_coat_carries_the_face_whatever_a_tenth_of_a_millimetre():
+    """19 Nov 2026 (review A4, POD-A4-03: real09 L2 kept a 0.73 m gap beside the chimney box that L0 and L1 closed: the
+    masonry line, 3 cm inside the plaster face, stood 0.0301 m off it on L2 and 0.0299 m on L0)."""
+    from wenart.ingest.generic import core as GC
+
+    def run(shift):
+        wall = _wall((5.5 + shift, 0.0), (5.5 + shift, 4.0), t=0.26, entity="w1")
+        gap = _gap((5.5 + shift, 2.0), 0.73)
+        # the east face: plaster through; the west face: plaster stops at the box, the masonry 3 cm inside runs through
+        faces = [_line((5.63, 0.0), (5.63, 4.0), 1, layer="sıva"), _line((5.37, 0.0), (5.37, 1.2), 2, layer="sıva"),
+                 _line((5.40, 0.0), (5.40, 4.0), 3, layer="duvar")]
+        return GC._faces_through_gaps(_ex2(), "p", [wall], [gap], faces)[1]
+
+    assert run(0.0) == [] and run(0.0001) == [] and run(-0.0001) == []
+    # a single line on the axis covers neither face
+    wall = _wall((5.5, 0.0), (5.5, 4.0), t=0.26, entity="w1")
+    gap = _gap((5.5, 2.0), 0.73)
+    assert GC._faces_through_gaps(_ex2(), "p", [wall], [gap], [_line((5.5, 0.0), (5.5, 4.0), 4, layer="duvar")])[1] \
+        == [gap]
+
+
+def test_terrain_from_the_ground_floors_own_plan_and_an_rc_check_for_it():
+    """19 Nov 2026 (review A3, OA3-08, critical: real14's terrain was a TIN at +15 to +21 m from the '+ 3,50 kotu'
+    heads of the sheets' finish tables and the roof terrace's marks, the ground floor buried; no reading check said
+    so)."""
+    from tests import _levels_fixture as F
+    from wenart.levels import read as LR
+    from wenart.reading_check import crossdoc as CD
+
+    b = F.building()
+    b["levels"].append(dict(b["levels"][0], id="L1", order=1, elevation=3.0, label="1. Kat"))
+    b["walls"] += [dict(w, id=w["id"] + "_up", level_id="L1") for w in b["walls"] if w.get("level_id") == "L0"]
+    params = __import__("wenart.levels.model", fromlist=["x"]).level_params(b)
+    up = F.mark("lm_up", 21.5, kind=None, point=(8.0, -3.0), level="L1")
+    title = F.mark("lm_t", 3.5, kind=None, point=(8.0, -4.0), level="L0")
+    title["raw"] = "+ 3,50 kotu"
+    ground = F.mark("lm_g", -0.45, kind=None, point=(8.0, -2.5), level="L0")
+    b["levels"].append(dict(b["levels"][0], id="L-1", order=-1, elevation=-3.0, label="Bodrum Kat"))
+    b["walls"] += [dict(w, id=w["id"] + "_b", level_id="L-1") for w in b["walls"] if w.get("level_id") == "L0"]
+    garden = F.mark("lm_b", -3.5, kind=None, point=(8.0, -3.0), level="L-1")   # a basement's garden on a slope
+    warnings = LR.classify([up, title, ground, garden], b, params)
+    assert up["kind"] == "unknown" and title["kind"] == "unknown" and ground["kind"] == "ground_finished"
+    assert garden["kind"] == "ground_finished"
+    assert any("never a ground mark" in w for w in warnings)
+    # the RC check: the terrain 18 m over the ground floor at its entrances
+    ents = [{"door_id": "d1", "level_id": "L0", "threshold_z": 0.0, "ground_z": 18.4, "main": True, "centre": [1, 2]},
+            {"door_id": "d2", "level_id": "L0", "threshold_z": 0.0, "ground_z": -0.15}]
+    b2 = dict(b, site={"entrances": ents})
+    f = CD.terrain_at_entrances(b2)
+    assert len(f) == 1 and f[0]["severity"] == "critical" and f[0]["element_ids"] == ["d1"]
+    ents[0]["main"] = False
+    assert CD.terrain_at_entrances(b2)[0]["severity"] == "major"
+    ents[0]["ground_z"] = -0.3
+    assert CD.terrain_at_entrances(b2) == []
+
+
+def test_an_open_air_rooms_mark_never_refuses_the_plan_frame_and_its_railing_gap_is_no_window():
+    """19 Nov 2026 (review A4, A4C-02: a ground-floor terrace room marked ±0.00 refused the plan frame; A4FC-4: real18's
+    railing gap on a balcony room was typed a window)."""
+    from wenart.levels import model as M
+
+    assert M._open_air({"room_type": "balcony"}) and M._open_air({"label": "TERAS"}) and not M._open_air(
+        {"room_type": "living", "label": "SALON"})
+
+    def frame(terrace_type):
+        rooms = [{"id": "r_live", "level_id": "L0", "room_type": "living", "label": "Salon"},
+                 {"id": "r_st", "level_id": "L0", "room_type": "stair", "label": "Merdiven"},
+                 {"id": "r_ter", "level_id": "L0", "room_type": terrace_type,
+                  "label": "Teras" if terrace_type == "balcony" else "Oda"}]
+        b = {"rooms": rooms, "levels": [{"id": "L0", "order": 0, "elevation": 0.0}]}
+        marks = [{"id": f"m{k}", "level_id": "L0", "kind": "floor", "room_id": rid, "z": z, "value": z}
+                 for k, (rid, z) in enumerate((("r_live", 2.5), ("r_st", 2.5), ("r_ter", 0.0)))]
+        marks.append({"id": "mt", "level_id": "L0", "kind": "threshold", "z": 2.5, "value": 2.5})
+        return M._plan_frame(b, marks, b["levels"][0], 0.05, [], [])
+
+    assert abs(frame("balcony") - 2.5) < 1e-9          # the terrace's ±0.00 is the garden's, not a room floor
+    assert frame("living") == 0.0                      # an indoor room at ±0.00 keeps the marks as printed
+
+
+def test_a_balcony_with_no_stated_area_closes_from_its_railing_further_away():
+    """19 Nov 2026 (review A4, A4FC-3: real18 L0's south BALKON label stood 4.85 m from both legs of its L-shaped
+    railing and became a 3 x 2.23 m rectangle past it)."""
+    from shapely.geometry import box
+
+    from wenart.levels import outdoor as OD
+
+    facade = box(1.05, 0.0, 10.0, 8.0)
+    # the L-shaped railing: south strip 9.9 x 1.45 m and an east leg up the facade; the corners meet within 1e-11
+    rail = [{"id": "r1", "layer": "Merd&Balkon", "pts": [(1.05, 0.0), (1.05, -1.45)]},
+            {"id": "r2", "layer": "Merd&Balkon", "pts": [(1.05, -1.45), (10.95, -1.45 + 1e-11)]},
+            {"id": "r3", "layer": "Merd&Balkon", "pts": [(10.95, -1.45), (10.95, 5.675)]},
+            {"id": "r4", "layer": "Merd&Balkon", "pts": [(10.95, 5.675), (10.0, 5.675)]}]
+    got = OD.close_region((5.9, -1.11), rail, facade)
+    assert got is not None and got["method"] == "strokes" and abs(got["area_m2"] - 19.75) < 0.2
+
+
+def test_a_room_closed_along_its_own_outline_names_that_step_and_a_kitchen_sharing_its_balconys_face_is_found():
+    """19 Nov 2026 (review A4, A4FC-5: such walls said 'glazed_facade'; A4FC-4: real18's south kitchen shared one face
+    with its balcony and was never closed along its outline)."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic import facade as FC
+
+    walls = [_wall((0, 0), (4, 0), t=0.2, entity="a"), _wall((4, 0), (4, 5), t=0.2, entity="b"),
+             _wall((4, 5), (0, 5), t=0.2, entity="c"), _wall((0, 5), (0, 0), t=0.2, entity="d")]
+    kitchen = SimpleNamespace(name="MUTFAK", anchor=(2.0, 3.5), exterior=False, room_type="kitchen")
+    balcony = SimpleNamespace(name="BALKON", anchor=(2.0, 0.8), exterior=False, room_type="balcony")
+    assert GC._shared_outdoor(walls, [], [kitchen, balcony]) == [(2.0, 3.5)]
+    assert GC._shared_outdoor(walls, [], [kitchen]) == []
+    from shapely.geometry import box
+
+    new = FC.facade_wall_items(walls, [box(0.1, 1.6, 3.9, 4.9)], [], "p.dxf", 1, units_to_m=1.0,
+                               rule="room_outline_closure", why=lambda mid, t: ("the room's own outline", "LWPOLY:9"))
+    assert new and all(w.evidence["rule"] == "room_outline_closure" and w.evidence["entity"] == "LWPOLY:9"
+                       and w.entity == "inferred:room_outline_closure" for w in new)
+    assert GC.OPEN_OUTLINE_RULE == "room_outline_closure"
+
+
+def test_a_confirmed_assumed_level_says_so_and_rc16_skips_a_top_floors_drawn_arrival():
+    """19 Nov 2026 (review A4, SW-A4-05: real07's levels said level_mark while the warnings said assumed; SW-A4-03:
+    RC16 planned real06's top-floor drawing of the stair below as a new stair of 0.43 m risers)."""
+    from wenart.reading_check import crossdoc as CD
+    from wenart.reading_check import stairs as ST
+
+    b = {"levels": [{"id": "L0", "elevation": 0.0, "elevation_source": "level_mark", "order": 0}],
+         "conflicts": []}
+    sheets = {"heights": {"section_regions": ["r5"],
+                          "levels": [{"level_id": "L0", "floor_z": {"method": "assumed", "value": 0.0}}]}}
+    assert not [f for f in CD.rc9(b, sheets) if "is assumed" in f["message"]]
+    b["levels"][0]["elevation_source"] = "assumed"
+    assert [f for f in CD.rc9(b, sheets) if "is assumed" in f["message"]]
+
+    def stair(fid, lv, x):
+        flight = {"start": [x, 1.0], "end": [x + 2.5, 1.0], "width": 1.0, "lines": 7 if lv == "L1" else 18,
+                  "spacing": 0.3}
+        return {"id": fid, "level_id": lv, "type": "stair", "source": "from_documents",
+                "footprint": {"center": [x + 1.25, 1.0], "size": [2.5, 1.0], "rotation_deg": 0.0},
+                "stair": {"flights": [flight], "landing": None, "direction": [1.0, 0.0], "turn": "straight"}}
+
+    bld = {"levels": [{"id": "L0", "elevation": 0.0}, {"id": "L1", "elevation": 3.0}], "walls": [],
+           "slabs": [{"id": "s1", "above_level_id": "L1"}],
+           "furniture": [stair("f_L0_001", "L0", 0.0), stair("f_L1_001", "L1", 0.0)]}
+    rec = next(r for r in ST.stairs(bld) if r["id"] == "f_L1_001")
+    assert rec["violations"] == [] and rec["arrives_from"] == "f_L0_001"
+
+
+def test_a_headed_schedule_columns_last_cell_out_of_line_is_still_the_schedules():
+    """19 Nov 2026 (review A3, OA3-13: real13's last 'MAHAL ADI' cell 'DAİRE GİR. HOL.', written 1.1 line heights left
+    of the column, stayed a room label outside the walls on five floors)."""
+    from wenart.ingest.generic import labels as LB
+
+    cell = _run("DAİRE GİR. HOL.", 51.4, 10.0 - 0.5 * len(SCHEDULE), k=990)
+    found = LB.schedules(_schedule_runs() + [cell])
+    assert len(found) == 1 and found[0]["room_words"][-1] == "DAİRE GİR. HOL."
+    plan = [_run("SALON", 2, 2, k=1), _run("MUTFAK", 2, 6, k=2), _run("YATAK ODASI", 6, 2, k=3)]
+    assert sorted(b.name for b in LB.merge_label_blocks(plan + _schedule_runs() + [cell])) == \
+        ["MUTFAK", "SALON", "YATAK ODASI"]
+    # far below the column (more than a pitch), a label is no cell
+    far = _run("DAİRE GİR. HOL.", 51.4, 10.0 - 0.5 * len(SCHEDULE) - 3.0, k=991)
+    assert LB.schedules(_schedule_runs() + [far])[0]["room_words"][-1] == "ANTRE"
+
+
+def test_rc3_compares_a_rooms_printed_area_with_its_area_less_its_stairs():
+    """19 Nov 2026 (review A3, OA3-14: real15's 'Giriş Holü' 12.10 m2 against 17.5 m2 with its 5.80 m2 stair)."""
+    from types import SimpleNamespace
+
+    from wenart import reading_check as RC
+
+    room = {"id": "r1", "label": "Giriş Holü", "polygon": [[0, 0], [5, 0], [5, 3.5], [0, 3.5]], "area_computed": 17.5}
+    stair = {"id": "f1", "room_id": "r1", "type": "stair",
+             "footprint": {"center": [4.0, 1.75], "size": [2.0, 2.9], "rotation_deg": 0.0}}
+    page = SimpleNamespace(texts=[_run("GİRİŞ HOLÜ", 2.0, 2.0, k=1), _run("12.10 m2", 2.0, 1.6, k=2)])
+    tf = [1, 0, 0, 0, 1, 0]
+    assert [f for f in RC.area_findings(page, tf, [room], "L0") if f["severity"] == "major"]
+    assert not [f for f in RC.area_findings(page, tf, [room], "L0", [stair]) if f["severity"] == "major"]
+
+
+def test_a_lifts_void_label_names_its_shaft_not_a_slab_void():
+    """19 Nov 2026 (review A3, OA3-03 (2): real13's 'ASANSÖR BOŞLUĞU', the lift's pit, became a slab void and its room
+    an unlabelled 'Oda')."""
+    from wenart import building as B
+
+    assert not B.is_void_label("ASANSÖR BOŞLUĞU") and B.room_type_for("ASANSÖR BOŞLUĞU", 2.6, 1.0) == "shaft"
+    assert B.is_void_label("GALERİ BOŞLUĞU") and B.is_void_label("BOŞLUK")
+
+
+def test_rc9_names_a_level_whose_floor_marks_sit_off_it():
+    """19 Nov 2026 (review A3, OA3-09 (5): real15's L1 at +7.82 m against five '+3.50' floor marks on its plan)."""
+    from wenart.reading_check import crossdoc as CD
+
+    b = {"levels": [{"id": "L0", "elevation": 0.0, "order": 0}, {"id": "L1", "elevation": 7.82, "order": 1,
+                                                                   "elevation_source": "section"}],
+         "rooms": [{"id": "r1", "level_id": "L1", "room_type": "living"}, {"id": "r2", "level_id": "L1",
+                                                                          "room_type": "bedroom"}],
+         "level_marks": [{"id": f"lm{k}", "kind": "floor", "room_id": rid, "z": 3.0, "point": [k, 0]}
+                         for k, rid in enumerate(("r1", "r2"))]}
+    f = CD.marks_off_levels(b)
+    assert len(f) == 1 and f[0]["level_id"] == "L1" and f[0]["severity"] == "major"
+    b["levels"][1]["elevation"] = 3.0
+    assert CD.marks_off_levels(b) == []
+
+
+def test_rc2_takes_the_axes_of_each_direction_apart():
+    """19 Nov 2026 (review A3, OA3-10 (b): real13 L-2 lay 1.32 m off in y while its x axes matched; the pooled median
+    of the axes of both directions said nothing)."""
+    from wenart import reading_check as RC
+
+    ref = {"axes": {"1": ("v", 1.0), "2": ("v", 5.0), "A": ("h", 2.0), "B": ("h", 6.0)},
+           "stairs": [((3.0, 3.0), {0.12, 0.17, 0.2})]}
+    off = {"axes": {"1": ("v", 1.0), "2": ("v", 5.0), "A": ("h", 0.68), "B": ("h", 4.68)},
+           "stairs": [((3.0, 3.0), {0.12, 0.17, 0.2})]}
+    out = RC.stacking({"L0": ref, "L-2": off}, "L0")
+    assert [f["level_id"] for f in out] == ["L-2"] and abs(out[0]["offset_m"] - 1.32) < 0.01
+
+
+def test_a_ground_mark_is_an_outlier_only_against_its_own_plans_marks():
+    """19 Nov 2026 (review A3, OA3-08 follow-up: real13's street marks '+2.50' on its ground floor's plan fell 4 m off the
+    median its basements' garden marks set on a steep site, and its entrance hall's door stood 3.9 m over the ground)."""
+    from tests import _levels_fixture as F
+    from wenart.levels import model as M
+
+    b = F.building()
+    b["site"] = {}
+    marks = [F.mark("lm_s1", 0.0, kind="ground_finished", point=(2.0, -2.0), level="L0"),
+             F.mark("lm_s2", 0.0, kind="ground_finished", point=(9.0, -2.0), level="L0")] + [
+        F.mark(f"lm_g{k}", -6.5, kind="ground_finished", point=(x, 10.0), level="L-1")
+        for k, x in enumerate((1.0, 5.0, 9.0))]
+    warnings: list = []
+    M._ground(b, marks, M.level_params(None), b["levels"][0], M.level_outline(b, "L0"), [], warnings)
+    pts = b["site"]["ground"]["points"]
+    assert len(pts) == 5 and all(p["used"] for p in pts), warnings
+    # one plan's mark far off its own plan's others is still an outlier
+    marks.append(F.mark("lm_x", 9.0, kind="ground_finished", point=(5.0, -3.0), level="L0"))
+    marks.append(F.mark("lm_s3", 0.0, kind="ground_finished", point=(5.0, -2.0), level="L0"))
+    b["site"] = {}
+    M._ground(b, marks, M.level_params(None), b["levels"][0], M.level_outline(b, "L0"), [], warnings)
+    assert [p["mark_id"] for p in b["site"]["ground"]["points"] if not p["used"]] == ["lm_x"]
+
+
+def test_a_shaft_the_drawing_closes_on_one_storey_has_no_stop_there_and_undrawn_doors_are_inferred_everywhere():
+    """20 Nov 2026 (coordinator, round 5: real17 L-1's closed shaft took the door of the storeys above; real13 L-2's
+    'ASANSÖR BOŞLUĞU' got an inferred door): (2) the drawing draws the landing door on other storeys of the stacked
+    shaft and closes this storey's faces: no stop, a review entry; (3) a void or pit label: no door; (4) no storey
+    draws a door: the door is inferred on every storey."""
+    import copy
+
+    from wenart.ingest import twins as TW
+
+    faces = [((11.92, 15.86), (13.92, 15.86)), ((13.92, 15.86), (13.92, 17.66)), ((13.92, 17.66), (11.92, 17.66)),
+             ((11.92, 17.66), (11.92, 15.86)), ((14.17, 15.86), (14.17, 17.66))]
+    frame = [((13.971, 16.049), (13.971, 17.449)), ((14.171, 16.049), (14.171, 17.449)),
+             ((13.971, 16.049), (14.171, 16.049)), ((13.971, 17.449), (14.171, 17.449))]
+    up, wu = _lift_core("L0")
+    down, wd = _lift_core("L-1", depot=True)
+    # (2) L0 draws its frame, L-1's drawn faces close the shaft
+    ops, review = [], []
+    notes = TW.lift_doors(copy.deepcopy(down + up), ops, wd + wu, (), [], review, {"L0": faces, "L-1": faces},
+                          {"L0": frame})
+    assert [o["level_id"] for o in ops] == ["L0"]
+    assert review and review[0]["kind"] == "lift_no_stop" and review[0]["level_id"] == "L-1"
+    assert any("no lift stop drawn" in n for n in notes)
+    # ... a storey with no drawing of its own (a typical floor's copy) still takes the stacked door
+    ops = []
+    TW.lift_doors(copy.deepcopy(down + up), ops, wd + wu, (), [], [], {"L0": faces}, {"L0": frame})
+    assert sorted(o["level_id"] for o in ops) == ["L-1", "L0"]
+    # (3) the storey's label names the shaft's void or pit
+    pit = copy.deepcopy(down)
+    pit[0]["label"], pit[0]["label_raw"] = "Asansör Boşluğu", "ASANSÖR BOŞLUĞU"
+    ops = []
+    notes = TW.lift_doors(pit + copy.deepcopy(up), ops, wd + wu, (), [], [], {"L0": faces}, {"L0": frame})
+    assert [o["level_id"] for o in ops] == ["L0"] and any("void or pit" in n for n in notes)
+    # (4) no storey draws a landing door: inferred on both, though both storeys' faces are closed
+    ops = []
+    TW.lift_doors(copy.deepcopy(down + up), ops, wd + wu, (), [], [], {"L0": faces, "L-1": faces}, {})
+    assert sorted(o["level_id"] for o in ops) == ["L-1", "L0"]
+
+
+def test_everything_a_section_read_moves_into_the_storey_marks_frame_and_a_roof_under_its_floor_is_a_frame_error():
+    """20 Nov 2026 (pre-pod check, R09-10: real09's A-A mapped 2 slab bands over 5 levels; the datum stayed the
+    2.Normal's 8,50 and the roof was built 6 m low, in front of the L2 windows)."""
+    from wenart.sheets import heights as HT
+    from wenart.sheets import to_building as TB
+
+    levels = [{"id": f"L{k}", "order": k, "kind": "floor"} for k in (-1, 0, 1, 2, 3)]
+    v = lambda z: {"value": z, "method": "vector", "confidence": 1.0, "evidence": []}   # noqa: E731
+    # (the roof slab of a section's band stack: between [L3, None], real07's sheets crashed on the join)
+    out = {"levels": [], "slabs": [{"between": ["L3", None], "z_top": v(5.0)}], "datum": dict(v(8.5), relative=8.5),
+           "roof": {"eaves_z": v(3.422), "ridge_z": v(6.508), "profile": [[0.0, 3.422], [5.0, 6.508]]},
+           "ground": [{"side": "front", "z": v(-6.0)}],
+           # the section's relative marks against the band z they point at: 6 m off the storey marks' frame
+           "_mark_frame": [(0.0, -8.5), (2.5, -6.0), (5.5, -3.0), (8.5, 0.0), (11.5, 3.0)]}
+    HT.apply_storey_marks(out, levels, {-1: 0.0, 0: 2.5, 1: 5.5, 2: 8.5, 3: 11.5}, 0.2, "x.dwg", "r6")
+    assert out["datum"]["value"] == 2.5 and out["datum"]["relative"] == 2.5
+    assert out["roof"]["eaves_z"]["value"] == 9.422 and out["roof"]["ridge_z"]["value"] == 12.508
+    assert out["roof"]["profile"][0][1] == 9.422
+    # the guard: a roof whose eaves stand under the floor of the level it covers is moved and named
+    roof = {"over_level_id": "L3", "eaves_height": v(3.42), "ridge_height": v(6.5),
+            "profile": {"points": [[0.0, 3.42], [5.0, 6.5]]}}
+    lv = [{"id": "L3", "elevation": 9.0}]
+    why = TB.roof_frame_guard(roof, lv, {"heights": {"roof": {"eaves_rise_m": 0.42}}})
+    assert why and "frame error" in why and abs(roof["eaves_height"]["value"] - 9.42) < 1e-6
+    assert abs(roof["ridge_height"]["value"] - 12.5) < 1e-6 and abs(roof["profile"]["points"][1][1] - 12.5) < 1e-6
+    assert TB.roof_frame_guard(roof, lv, {}) is None                     # it stands right now
+
+
+def test_a_dashed_beam_outline_makes_no_wall_and_a_leaf_touching_a_ring_is_still_a_leaf():
+    """20 Nov 2026 (pre-pod check, R03-03: real03's entrance lobby was sealed off from the Kat Holü by a wall built from a
+    HIDDEN2 overhead beam outline on 'MYD - IZ-1'; once it went, a bedroom door's leaf touching the flat's wall ring was
+    cited with the ring and stayed a wall)."""
+    from wenart.ingest.generic import openings as O
+    from wenart.ingest.generic import walls as W
+    from wenart.ingest.generic.model import GenericPage, Stroke
+    from wenart.ingest.model import WallItem
+
+    beam = Stroke(id="INSERT:1/86", kind="polyline", layer="D BLOK$0$MYD - IZ-1", closed=True,
+                  linetype="D BLOK$0$HIDDEN2", pts=[(0.0, 0.0), (5.85, 0.0), (5.85, 0.35), (0.0, 0.35)])
+    solid = Stroke(id="INSERT:1/87", kind="polyline", layer="DUVAR", closed=True, linetype="Continuous",
+                   pts=[(0.0, 2.0), (5.85, 2.0), (5.85, 2.25), (0.0, 2.25)])
+    assert W.dashed_stroke(beam) and not W.dashed_stroke(solid)
+    page = GenericPage(file="p.dxf", page=1, source_kind="dxf", units="dxf", units_to_m=1.0, size=(10.0, 10.0),
+                       strokes=[beam, solid])
+    used: set = set()
+    assert [p.entity for p in W._outline_walls(page, 1.0, used)] == ["INSERT:1/87"]
+    # the leaf piece cites the wall ring it touches as well: still a leaf
+    leaf = Stroke(id="INSERT:7/6/1/0", kind="polyline", layer="X$0$MYD - KAPI", closed=True,
+                  pts=[(0.0, 0.0), (0.81, 0.0), (0.81, 0.06), (0.0, 0.06)])
+    swing = Stroke(id="ARC:1", kind="arc", layer="X$0$MYD - KAPI",
+                   pts=[(0.81 * __import__("math").cos(a / 20 * 1.5708), 0.81 * __import__("math").sin(a / 20 * 1.5708))
+                        for a in range(21)],
+                   arc={"center": (0.0, 0.0), "radius": 0.81, "start_deg": 0.0, "end_deg": 90.0})
+    w = WallItem(start=(0.0, 0.03), end=(0.81, 0.03), thickness=0.06, box=[0, 0, 0, 0],
+                 entity="ring:INSERT:7,INSERT:7/6/1/0", evidence={})
+    assert O.leaf_walls([w], [leaf], [swing]) != {}

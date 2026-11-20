@@ -357,11 +357,18 @@ def grid_fit(ref_axes: dict, axes: dict) -> Optional[dict]:
 
 def lift_anchor(region) -> Optional[tuple[float, float]]:
     """The point of the region's lift label (``LIFT_RE``: asansör, elevator, lift, Aufzug, ascenseur; a lift machine
-    room above the shaft too), in source units; the one nearest the region's centre when there are several."""
+    room above the shaft too), in source units; the one nearest the region's centre when there are several.
+
+    19 Nov 2026 (review A3, OA3-10: real13 L-2 was registered 1.32 m off on its 'ASANSÖR MAKİNA HİDROLİK' beside the
+    shaft, its 'ASANSÖR BOŞLUĞU' over it): the shaft's own labels first, a machine room's (``building.machine_room``)
+    only when the region has no other."""
+    from wenart import building as B
     from wenart.sheets import titles as T
     labels = [t.point for t in region.texts if LIFT_RE.search(T.fold(t.text or ""))]
     if not labels:
         return None
+    shaft = [t.point for t in region.texts if LIFT_RE.search(T.fold(t.text or "")) and not B.machine_room(t.text)]
+    labels = shaft or labels
     b = region.geometry_box
     c = ((b[0] + b[2]) / 2.0, (b[1] + b[3]) / 2.0)
     return min(labels, key=lambda p: math.dist(p, c))

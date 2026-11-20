@@ -771,6 +771,8 @@ def rc9(building: dict, sheets: dict, storeys: Optional[dict] = None, storey_el:
         if fz.get("method") == "assumed":
             if not secs:
                 continue                         # no section: one info finding below
+            if lv.get("elevation_source") == "level_mark":
+                continue                         # 19 Nov 2026 (review A4, SW-A4-05): the floor marks confirm it
             out.append(_finding("RC9", "minor", lv["id"], f"{lv['id']}: the section's heights were not used "
                                 f"({fz.get('note') or 'assumed'}): the floor at {float(fz.get('value') or 0):.2f} m "
                                 f"is assumed", [sec_src, f"plan of {lv['id']}"]))
@@ -854,7 +856,74 @@ def rc9(building: dict, sheets: dict, storeys: Optional[dict] = None, storey_el:
                                 f"a storey ({storey:.2f} m) under the lowest floor ({low['id']} at "
                                 f"{float(low.get('elevation') or 0):.2f} m)", [sec_src, f"level {low['id']}"]))
         out += _doors_under_ground(building, levels, ground, sec_src)
+    out += terrain_at_entrances(building)
+    out += marks_off_levels(building)
     return out
+
+
+MARKS_OFF_M = 1.0            # 19 Nov 2026 (review A3, OA3-09 (5)): a level's floor marks this far off its z
+
+
+def marks_off_levels(building: dict) -> list[dict]:
+    """19 Nov 2026 (review A3, OA3-09: real15's L1 stood at +7.82 m from a mismatched section against five '+3.50'
+    floor marks on its plan, and no reading check said so): a level whose room floor marks (two or more agreeing within
+    0.1 m, stairs and shafts left out) sit more than ``MARKS_OFF_M`` off its elevation: major."""
+    rooms = {r["id"]: r for r in building.get("rooms") or []}
+    by: dict = {}
+    for m in building.get("level_marks") or []:
+        r = rooms.get(m.get("room_id"))
+        if m.get("kind") != "floor" or r is None or r.get("room_type") in ("stair", "shaft") \
+                or not isinstance(m.get("z"), (int, float)):
+            continue
+        by.setdefault(r.get("level_id"), []).append(m)
+    out = []
+    for lv in base_levels(building):
+        marks = by.get(lv["id"]) or []
+        if len(marks) < 2 or lv.get("elevation") is None:
+            continue
+        zs = sorted(float(m["z"]) for m in marks)
+        med = zs[len(zs) // 2]
+        agree = [m for m in marks if abs(float(m["z"]) - med) <= 0.1]
+        off = med - float(lv["elevation"])
+        if len(agree) >= 2 and abs(off) > MARKS_OFF_M:
+            out.append(_finding("RC9", "major", lv["id"], f"{lv['id']}: {len(agree)} floor marks in its rooms read "
+                                f"z {med:.2f} m, {abs(off):.2f} m {'above' if off > 0 else 'below'} its elevation "
+                                f"{float(lv['elevation']):.2f} m ({lv.get('elevation_source') or 'source unknown'}): the "
+                                f"level or the marks are misread", [f"plan of {lv['id']}", "levels"],
+                                tuple(agree[0]["point"]) if agree[0].get("point") else None,
+                                [m["id"] for m in agree]))
+    return out
+
+
+TERRAIN_OFF_M = 1.5          # 19 Nov 2026 (review A3, OA3-08): the terrain this far off a ground-floor entrance's floor
+
+
+def terrain_at_entrances(building: dict) -> list[dict]:
+    """19 Nov 2026 (review A3, OA3-08: real14's terrain stood 18-21 m above its ground floor, from title and roof-terrace
+    marks, and no reading check said so): the terrain at the ground floor's entrances (``site.entrances``: ``ground_z``
+    against ``threshold_z``) more than ``TERRAIN_OFF_M`` above or below: critical at the main entrance or at every one
+    of them (the terrain or the level is misread), major at some."""
+    from wenart.levels import model as LMOD
+
+    gl = LMOD.ground_level(building)
+    if gl is None:
+        return []
+    ents = [e for e in (building.get("site") or {}).get("entrances") or [] if isinstance(e, dict)
+            and e.get("level_id") == gl["id"] and isinstance(e.get("ground_z"), (int, float))
+            and isinstance(e.get("threshold_z"), (int, float))]
+    off = [e for e in ents if abs(float(e["ground_z"]) - float(e["threshold_z"])) > TERRAIN_OFF_M]
+    if not off:
+        return []
+    main = next((e for e in ents if e.get("main")), None)
+    sev = "critical" if len(off) == len(ents) or (main is not None and main in off) else "major"
+    worst = max(off, key=lambda e: abs(float(e["ground_z"]) - float(e["threshold_z"])))
+    d = float(worst["ground_z"]) - float(worst["threshold_z"])
+    return [_finding("RC9", sev, gl["id"], f"{gl['id']}: the terrain stands more than {TERRAIN_OFF_M:.1f} m off the "
+                     f"ground floor at {len(off)} of its {len(ents)} entrance(s) (worst {worst['door_id']}: ground "
+                     f"{float(worst['ground_z']):.2f} m, {abs(d):.2f} m {'above' if d > 0 else 'below'} its floor "
+                     f"{float(worst['threshold_z']):.2f} m, from {worst.get('ground_source') or 'the terrain'}): the "
+                     f"terrain or the level is misread", ["site.ground", f"plan of {gl['id']}"],
+                     tuple(worst["centre"]) if worst.get("centre") else None, [e["door_id"] for e in off])]
 
 
 def _doors_under_ground(building: dict, levels: list[dict], ground: float, sec_src: str) -> list[dict]:
@@ -988,11 +1057,23 @@ def rc10(building: dict, sheets: dict, site_texts: list[str], plan_texts: Option
 
 # --------------------------------------------------------------------------------------------------------------- RC11
 def size_tag_re():
+    """20 Nov 2026 (pre-pod check: real09's 'P:150/150' and 'K:80/240' were no tag to RC11): the reader's opening tag,
+    an optional kind letter and number before W/H (``core.OPENING_TAG_RE``)."""
     try:
-        from wenart.ingest.generic.core import SIZE_TAG_RE
-        return SIZE_TAG_RE
+        from wenart.ingest.generic.core import OPENING_TAG_RE
+        return OPENING_TAG_RE
     except ImportError:                                          # pragma: no cover
         return SIZE_TAG_FALLBACK_RE
+
+
+def paired_texts(page, tf=None) -> list[dict]:
+    """20 Nov 2026 (pre-pod check R10-P3: real10 writes every window size as two texts, '150' over '150'): the W/H tags
+    written as two texts (``core.paired_size_tags``) as ``_texts_of`` rows."""
+    from wenart.ingest.generic.core import paired_size_tags
+
+    class _P:
+        texts = paired_size_tags(getattr(page, "texts", None) or [])
+    return _texts_of(_P, tf)
 
 
 def _seg_dist(p, a, b) -> float:
@@ -1052,6 +1133,53 @@ def rc11(level_id: str, tags: list[dict], walls: list[dict], openings: list[dict
                             f"{TAG_REACH_M:.1f} m; {what}", [f"size tag {t.get('entity') or t['text']}",
                                                              f"openings read on {level_id}"],
                             (t["x"], t["y"]), ids))
+    return out
+
+
+FRAMED_SHARE = 0.5             # 20 Nov 2026: window frame lines along this share of an untyped opening's width ...
+FRAMED_MIN_W_M = 0.5           # ... at least this wide
+
+
+def framed_openings(level_id: str, page, tf, walls: list[dict], openings: list[dict]) -> list[dict]:
+    """20 Nov 2026 (pre-pod check R10-P1, real10: the bay windows' and side windows' gaps, their window frames drawn
+    across them, were untyped full-height 'openings'): an untyped opening (not virtual) at least ``FRAMED_MIN_W_M`` wide
+    with window or glass layer lines along ``FRAMED_SHARE`` of its width (``core._frame_cover``) is a window the reading
+    did not type."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic import layer_names as LN
+    from wenart.reading_check import _apply
+
+    frames = []
+    for st in getattr(page, "strokes", None) or []:
+        if getattr(st, "arc", None) or LN.layer_role(getattr(st, "layer", None)) not in ("window", "glass"):
+            continue
+        pts = [tuple(_apply(tf, tuple(q)[:2])) if tf else tuple(q)[:2] for q in (getattr(st, "pts", None) or [])]
+        if len(pts) >= 2:
+            frames.append(SimpleNamespace(pts=pts, layer=st.layer, arc=None))
+    if not frames:
+        return []
+    by_id = {w["id"]: w for w in walls}
+    out = []
+    for o in openings:
+        if o.get("type") != "opening" or o.get("virtual") or float(o.get("width") or 0) < FRAMED_MIN_W_M:
+            continue
+        w = by_id.get(o.get("wall_id"))
+        u = _unit(w) if w else None
+        if u is None or not o.get("center"):
+            continue
+        (x0, y0), half = tuple(w["start"][:2]), float(w.get("thickness") or 0.1) / 2.0
+        t = (o["center"][0] - x0) * u[0] + (o["center"][1] - y0) * u[1]
+        hw = float(o["width"]) / 2.0
+        share = GC._frame_cover(frames, x0, y0, u[0], u[1], half, t - hw, t + hw)
+        if share >= FRAMED_SHARE:
+            out.append(_finding("RC11", "minor", level_id,
+                                f"{level_id}: untyped opening {o['id']} ({float(o['width']):.2f} m) on {w['id']} has "
+                                f"window frames drawn along {share:.0%} of it: a window the reading left untyped (a "
+                                f"full-height hole in the build)", [f"window-layer lines on {level_id}",
+                                                                    f"opening {o['id']}"],
+                                tuple(o["center"][:2]), [o["id"]]))
     return out
 
 
@@ -1266,7 +1394,8 @@ def findings(out_dir) -> list[dict]:
         plan_texts += interleaved_labels([{"text": t.text, "box": t.box} for t in page.texts])
         walls = [w for w in building.get("walls") or [] if w.get("level_id") == lid]
         ops = [o for o in building.get("openings") or [] if o.get("level_id") == lid]
-        res += rc11(lid, size_tags(texts), walls, ops)
+        res += rc11(lid, size_tags(texts + paired_texts(page, pg["tf"])), walls, ops)
+        res += framed_openings(lid, page, pg["tf"], walls, ops)
     site_texts: list[str] = []
     site_region = None
     for r in sheets.get("regions") or []:

@@ -209,7 +209,8 @@ def test_a_lift_shaft_gets_a_sliding_landing_door():
     drawn = [{"id": "d1", "level_id": "L1", "type": "opening", "center": [0.8, 1.9], "width": 0.9}]
     TW.lift_doors([shaft, hall], drawn, walls)
     assert drawn[0]["type"] == "door" and drawn[0]["operation"] == "sliding" and len(drawn) == 1
-    machine = dict(shaft, id="m", label="Asansör Mahali")
+    # 19 Nov 2026 (review A4, POD-A4-01): the lift's space larger than a lift is its machine room (real10's 13.3 m2)
+    machine = dict(shaft, id="m", label="Asansör Mahali", polygon=[[0, -1.6], [4, -1.6], [4, 1.8], [0, 1.8]])
     none: list = []
     TW.lift_doors([machine, hall], none, walls)
     assert none == []

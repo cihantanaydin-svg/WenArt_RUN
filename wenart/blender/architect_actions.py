@@ -677,7 +677,7 @@ def typical_window(plan: Plan, level_id) -> Optional[dict]:
 GAP_APPROACH_M = 0.60          # the approach in front of a gap a drawn piece standing in it blocks
 GAP_FREE_MIN_M = 0.60          # ... leaving no free stretch this wide across it (a walkway)
 GAP_PIECE_MIN_M = 0.30         # drawn pieces smaller than this both ways (marks) never count
-NOT_A_PIECE = ("rug", "detail", "mark", "decor")
+NOT_A_PIECE = ("rug", "detail", "mark", "decor", "flue")
 
 
 OUTDOOR_LABEL_NEAR_M = 3.0      # an outdoor-space label this close to a passage's outside: it leads there

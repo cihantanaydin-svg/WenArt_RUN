@@ -104,6 +104,12 @@ RULES = {
     "exterior_between_rooms": "a wall flagged exterior whose faces show rooms on both sides (R14 D1)",
     # 13 Nov 2026
     "narrow_landing": "a landing in front of a stair narrower than a landing needs",
+    # 20 Nov 2026 (R09-1): the shell
+    "twin_notch": "a notch in a storey's outline where its mirror half or the storeys above and below are built",
+    "slab_cover": "a room the storey above does not cover",
+    "terrace_support": "a terrace standing on no built storey",
+    "door_to_air": "a door in an outer wall above the ground with no balcony, terrace or room behind it",
+    "wall_in_wall": "a wall lying inside the band of thicker parallel walls (a line inside a wall read as a wall)",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -327,7 +333,10 @@ def sense_type(room: dict, roof: bool = False) -> Optional[str]:
     folded = _fold(label)
     word = next((t for t, rx in _SENSE_RE if rx.search(folded)), None)
     if rtype == "shaft":
-        if word == "lift" and roof:
+        # 19 Nov 2026 (review A4, POD-A4-01): the reader's one machine-room test (``building.machine_room``, the room's
+        # area), and the lift's room above its last stop on a roof floor
+        area = room.get("area_computed")
+        if word == "lift" and (roof or B.machine_room(label, area if isinstance(area, (int, float)) else None)):
             return "technical"
         return word if word in ("lift", "light_well", "technical") else "shaft"
     if rtype == "stair":
@@ -1957,6 +1966,225 @@ def narrow_landing(building: dict) -> list:
     return out
 
 
+# ------------------------------------------------------------------------------------------------ 14-17. the shell
+# 20 Nov 2026 (R09-1, real09 L0-L2: the left flat's salon was never built: a 5 x 5 m notch in three storeys, the attic
+# terrace on nothing, the basement salon open to the sky, doors 2.5-8.5 m above the ground opening into the air; no
+# check saw it because the missing walls were glazing). The storey's footprint is its rooms, its walls and its
+# balconies and terraces.
+NOTCH_MIN_M2 = 4.0            # a notch of a storey's outline this large ...
+NOTCH_COVER = 0.6             # ... this much covered by its mirror half (the reading's axis) or by the storeys above
+                              # and below both
+NOTCH_SMOOTH_M = 0.25         # the outline's notches narrower than twice this are wall steps, not missing rooms
+SLAB_COVER_MIN = 0.5          # an indoor room under the storey above (its footprint) by less than this share
+SLAB_ROOM_MIN_M2 = 2.0        # ... and at least this large
+OPEN_TO_SKY_TYPES = ("balcony", "terrace", "light_well", "shaft", "stair", "lift")
+TERRACE_SUPPORT_MIN = 0.5     # a terrace above the lowest storey standing on the storey below by less than this share
+DOOR_AIR_ABOVE_M = ENTRANCE_LEVEL_M   # an outer door this far above the ground floor (z 0) ...
+DOOR_AIR_PROBE_M = 0.6        # ... with no room, balcony or terrace this far past its wall's face opens into the air
+OUTDOOR_REACH_M = 0.3         # an outdoor space this close to the probe stands behind the door
+
+
+def _outdoor_of(building: dict, lid: str, kinds=("balcony", "terrace")) -> list:
+    site = building.get("site") or {}
+    return [(o, p) for o in site.get("outdoor_spaces") or [] if o.get("level_id") == lid
+            and (kinds is None or o.get("kind") in kinds) for p in [_poly(o.get("polygon"))] if p is not None]
+
+
+def _wall_poly(w: dict):
+    return LineString([tuple(w["start"][:2]), tuple(w["end"][:2])]).buffer(
+        float(w.get("thickness") or 0.1) / 2.0, cap_style=2, join_style=2)
+
+
+def storey_footprint(building: dict, lid: str, outdoor: bool = True):
+    """A storey's footprint (pure): its rooms, its walls and (``outdoor``) its balconies and terraces, merged."""
+    parts = [p for r in _rooms_of(building, lid) for p in [_poly(r.get("polygon"))] if p is not None]
+    parts += [_wall_poly(w) for w in _walls_of(building, lid) if _wall_len(w) > 0]
+    if outdoor:
+        parts += [p for _o, p in _outdoor_of(building, lid)]
+    u = unary_union(parts) if parts else None
+    return u if u is not None and not u.is_empty else None
+
+
+def _neighbours(building: dict) -> dict:
+    """``{level_id: (level below or None, level above or None)}`` of the base levels by height (pure)."""
+    order = [lv["id"] for lv in base_levels_by_height(building)]
+    return {lid: (order[i - 1] if i > 0 else None, order[i + 1] if i + 1 < len(order) else None)
+            for i, lid in enumerate(order)}
+
+
+def twin_notch(building: dict) -> list:
+    """Rule 14 (pure): a notch of a storey's outline (its footprint's hull less the footprint, notches narrower than
+    ``2 * NOTCH_SMOOTH_M`` left out; its balconies and terraces fill theirs) of ``NOTCH_MIN_M2`` or more that its
+    mirror half covers (the reading's own axis, ``_reader_axis``) or the storeys above and below both cover by
+    ``NOTCH_COVER``: rooms the reading left out. Major."""
+    out = []
+    near = _neighbours(building)
+    feet = {lid: storey_footprint(building, lid) for lid in near}   # a balcony or terrace fills its notch
+    for lid, (below, above) in near.items():
+        f = feet.get(lid)
+        if f is None:
+            continue
+        rooms = {r["id"]: r for r in _rooms_of(building, lid) if _poly(r.get("polygon")) is not None}
+        axis = _reader_axis(rooms)
+        holes = f.convex_hull.difference(f).buffer(-NOTCH_SMOOTH_M, join_style=2).buffer(NOTCH_SMOOTH_M, join_style=2)
+        for n in getattr(holes, "geoms", [holes]):
+            if n.is_empty or n.area < NOTCH_MIN_M2:
+                continue
+            why = []
+            if axis is not None:
+                img = Polygon(_reflect(list(n.exterior.coords), axis)).buffer(0)
+                share = img.intersection(f).area / n.area
+                if share >= NOTCH_COVER:
+                    why.append(f"its mirror about {axis[0]} = {axis[1]:.2f} m is {share:.0%} built")
+            if below and above and feet.get(below) is not None and feet.get(above) is not None:
+                sb, sa = (feet[below].intersection(n).area / n.area, feet[above].intersection(n).area / n.area)
+                if min(sb, sa) >= NOTCH_COVER:
+                    why.append(f"{below} below covers {sb:.0%} of it and {above} above {sa:.0%}")
+            if not why:
+                continue
+            c = n.representative_point()
+            out.append(_finding("twin_notch", "major", lid,
+                                f"a {n.area:.1f} m2 notch in {lid}'s outline at ({c.x:.2f}, {c.y:.2f}) m: "
+                                + "; ".join(why) + ": rooms the reading left out (check the drawing there)",
+                                (c.x, c.y), [], area_m2=round(n.area, 2)))
+    return out
+
+
+def _roof_cover(building: dict, lid: str, foot):
+    """The plan area the reading's roof over ``lid`` covers (pure): its outline, else the storey's footprint grown by
+    its overhang (``roof.assumed``: the outer walls + overhang); None without such a roof."""
+    roof = building.get("roof") or {}
+    if not isinstance(roof, dict) or roof.get("over_level_id") != lid:
+        return None
+    outline = _poly(roof.get("outline")) if isinstance(roof.get("outline"), list) else None
+    if outline is not None:
+        return outline
+    oh = roof.get("overhang")
+    oh = oh.get("value") if isinstance(oh, dict) else oh
+    return foot.buffer(float(oh), join_style=2) if foot is not None and isinstance(oh, (int, float)) and oh > 0 \
+        else foot
+
+
+def slab_cover(building: dict) -> list:
+    """Rule 15 (pure): an indoor room of ``SLAB_ROOM_MIN_M2`` or more (no balcony, terrace, light well, shaft, stair or
+    lift: ``OPEN_TO_SKY_TYPES``) on a storey at or above the ground floor with a storey above that the upper storey's
+    footprint (rooms, walls, balconies and terraces, and the reading's roof over it: ``_roof_cover``) covers by less
+    than ``SLAB_COVER_MIN``: no floor above it, open to the sky unless a roof of its own is drawn. A storey below the
+    ground floor may reach past the one above under the garden or a terrace: not checked. Minor."""
+    out = []
+    near = _neighbours(building)
+    levels = {lv["id"]: lv for lv in building.get("levels") or []}
+    feet = {}
+    for lid, (_below, above) in near.items():
+        if above is None or _el(levels[lid]) < -EPS:
+            continue
+        if above not in feet:
+            foot = storey_footprint(building, above)
+            roof = _roof_cover(building, above, foot)
+            feet[above] = unary_union([g for g in (foot, roof) if g is not None]) if (foot or roof) else None
+        up = feet[above]
+        for r in _rooms_of(building, lid):
+            p = _poly(r.get("polygon"))
+            if p is None or p.area < SLAB_ROOM_MIN_M2 or (sense_type(r) or r.get("room_type")) in OPEN_TO_SKY_TYPES \
+                    or r.get("room_type") in OPEN_TO_SKY_TYPES or B.is_void_label(_label(r)):
+                continue
+            share = up.intersection(p).area / p.area if up is not None else 0.0
+            if share < SLAB_COVER_MIN:
+                out.append(_finding("slab_cover", "minor", lid,
+                                    f"{r['id']} '{_label(r) or '-'}' ({_fmt(p.area)} m2) is {share:.0%} under {above}'s "
+                                    f"footprint: no floor above most of it (a missing room above, or a roof of its own "
+                                    f"the reading does not hold)", _centre(r), [r["id"]], share=round(share, 3)))
+    return out
+
+
+def terrace_support(building: dict) -> list:
+    """Rule 16 (pure): a terrace (not a balcony, which cantilevers; not one on the ground) on a storey above the lowest
+    that the storey below covers by less than ``TERRACE_SUPPORT_MIN``: it stands on nothing. Major."""
+    out = []
+    near = _neighbours(building)
+    for lid, (below, _above) in near.items():
+        if below is None:
+            continue
+        foot = None
+        for o, p in _outdoor_of(building, lid, ("terrace",)):
+            if o.get("ground") or p.area <= 0:
+                continue
+            if foot is None:
+                foot = storey_footprint(building, below, outdoor=False)
+            share = foot.intersection(p).area / p.area if foot is not None else 0.0
+            if share < TERRACE_SUPPORT_MIN:
+                c = p.representative_point()
+                out.append(_finding("terrace_support", "major", lid,
+                                    f"terrace {o.get('id')} '{o.get('label') or '-'}' ({_fmt(p.area)} m2) stands "
+                                    f"{share:.0%} on {below}: it has no storey under it (rooms left out below, or the "
+                                    f"terrace read on the wrong level)", (c.x, c.y), [o.get("id")],
+                                    share=round(share, 3)))
+    return out
+
+
+def door_to_air(building: dict) -> list:
+    """Rule 17 (pure): a door (not virtual) on an exterior wall of a storey ``DOOR_AIR_ABOVE_M`` or more above the
+    ground floor whose far side, ``DOOR_AIR_PROBE_M`` past the wall's face, lies in no room and within
+    ``OUTDOOR_REACH_M`` of no balcony or terrace of the storey: it opens into the air. Major."""
+    out = []
+    for lv in base_levels_by_height(building):
+        if _el(lv) < DOOR_AIR_ABOVE_M - EPS:
+            continue
+        lid = lv["id"]
+        polys = [p for r in _rooms_of(building, lid) for p in [_poly(r.get("polygon"))] if p is not None]
+        outdoor = [p.buffer(OUTDOOR_REACH_M) for _o, p in _outdoor_of(building, lid)]
+        walls = {w["id"]: w for w in _walls_of(building, lid)}
+        for o in building.get("openings") or []:
+            if o.get("level_id") != lid or o.get("type") != "door" or o.get("virtual") or not o.get("center"):
+                continue
+            w = walls.get(o.get("wall_id"))
+            if w is None or not w.get("exterior"):
+                continue
+            (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
+            L = math.hypot(x1 - x0, y1 - y0)
+            if L <= 0:
+                continue
+            nx, ny = -(y1 - y0) / L, (x1 - x0) / L
+            d = float(w.get("thickness") or 0.1) / 2.0 + DOOR_AIR_PROBE_M
+            cx, cy = o["center"][:2]
+            sides = [Point(cx + nx * d, cy + ny * d), Point(cx - nx * d, cy - ny * d)]
+            free = [q for q in sides if not any(p.contains(q) for p in polys)]
+            if len(free) != 1:
+                continue                              # inside on both sides (an inner door) or a wall in no room
+            q = free[0]
+            if any(p.contains(q) for p in outdoor):
+                continue
+            out.append(_finding("door_to_air", "major", lid,
+                                f"door {o.get('id')} ({float(o.get('width') or 0):.2f} m) on outer wall {w['id']} of "
+                                f"{lid}, {_el(lv):.2f} m above the ground floor, opens into the air: no room, balcony "
+                                f"or terrace behind it (a room or balcony left out, or a window read as a door)",
+                                (q.x, q.y), [o.get("id")]))
+    return out
+
+
+def wall_in_wall(building: dict) -> list:
+    """Rule 18 (pure; R09-11, real09: a 0.23 m wall from a plaster line inside the 0.46 m front walls carried 2.9 m
+    gaps): a wall whose two faces lie inside the band of thicker parallel walls covering most of it
+    (``twin_walls.in_band``; the reader drops those, so a finding is one it missed). Major when it carries openings."""
+    from wenart.ingest.generic import twin_walls as TWW
+
+    out = []
+    for lv in building.get("levels") or []:
+        walls = _walls_of(building, lv["id"])
+        for w in walls:
+            hosts = TWW.in_band(w, walls)
+            if not hosts:
+                continue
+            ops = [o.get("id") for o in building.get("openings") or [] if o.get("wall_id") == w["id"]]
+            out.append(_finding("wall_in_wall", "major" if ops else "minor", lv["id"],
+                                f"wall {w['id']} ({float(w.get('thickness') or 0):.2f} m) lies inside the band of "
+                                f"{', '.join(c['id'] for c in hosts)}: a line inside a wall read as a wall"
+                                + (f"; its openings {', '.join(ops)} would be cut through the real wall" if ops else ""),
+                                ((w["start"][0] + w["end"][0]) / 2.0, (w["start"][1] + w["end"][1]) / 2.0),
+                                [w["id"]] + ops))
+    return out
+
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
@@ -1993,6 +2221,8 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += window_on_interior(building)
     out += exterior_between_rooms(building)
     out += narrow_landing(building)            # 13 Nov 2026
+    out += twin_notch(building) + slab_cover(building) + terrace_support(building) + door_to_air(building)  # R09-1
+    out += wall_in_wall(building)                                                                        # R09-11
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

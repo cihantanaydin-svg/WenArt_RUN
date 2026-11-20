@@ -140,9 +140,11 @@ def is_lift(room: dict) -> bool:
     words = len(LIFT_RE.findall(label))
     from wenart.ingest import lift_words as LW       # 13 Nov 2026 (CODE-05): one machine-room test everywhere
 
-    if not words or LW.machine_room(label) or LIFT_LOBBY_RE.search(label) or LIFT_CAR_RE.search(label):
-        return False
     p = _poly(room.get("polygon"))
+    # 20 Nov 2026 (merge with reader A, POD-A4-01): with the room's area, so a lift-sized lift space is the shaft
+    if not words or LW.machine_room(label, p.area if p is not None else None) or LIFT_LOBBY_RE.search(label) \
+            or LIFT_CAR_RE.search(label):
+        return False
     if p is None:
         return True
     mrr = p.minimum_rotated_rectangle

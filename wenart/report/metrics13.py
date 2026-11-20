@@ -197,7 +197,7 @@ HALL_TYPES = ("hall", "corridor", "vestibule", "landing", "stair")
 UPHOLSTERED_TYPES = ("sofa", "sofa_corner", "armchair", "ottoman")
 # Metric 2, fix round after P3: unbuilt drawn pieces the pipeline explained as no piece of furniture.
 # = wenart.ingest.generic.reading.EXPLAINED_AS (tests/test_m13_report.py keeps them equal)
-EXPLAINED_AS = ("rug", "detail", "column", "decor")
+EXPLAINED_AS = ("rug", "detail", "column", "decor", "flue")
 # the not_built_reason of a detail inside a kitchen counter leg (wenart.ingest.generic.symbols, M11 split)
 EXPLAINED_REASONS = ("detail inside a kitchen counter leg",)
 NOT_FURNITURE = "not_furniture"
