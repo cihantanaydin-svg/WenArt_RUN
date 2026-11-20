@@ -326,3 +326,36 @@ def test_the_check_flags_window_frames_inside_a_facade_wall_with_no_opening():
     assert [f["element_ids"] for f in found] == [["w_s"]]
     win = {"id": "win", "type": "window", "width": 1.65, "center": [2.825, 0.0], "wall_id": "w_s"}
     assert CD.framed_walls("L0", page, None, walls, [win]) == []
+
+
+
+# --------------------------------------------------------------------------
+# real21 areas: RC3 names the cause when a storey's rooms sit far under their area texts
+# --------------------------------------------------------------------------
+
+def test_rc3_names_why_a_storeys_rooms_sit_far_under_their_area_texts():
+    """real21: the ground floor's rooms sat 15-25 % under their area texts while the drawn storey above matched them
+    (the ground floor built to another footprint); gross area texts (wall halves included) are named, not 'fixed'."""
+    from shapely.geometry import box as sbox
+
+    from wenart import reading_check as RC
+
+    def room(lid, k, poly, area):
+        return {"id": f"r_{lid}_{k}", "level_id": lid, "label": f"Oda {k}", "area_label": area,
+                "polygon": [list(c) for c in poly.exterior.coords[:-1]]}
+    full = [sbox(4.0 * k, 0.0, 4.0 * k + 3.0, 4.0) for k in range(4)]            # 12 m2 each
+    walls = [{"id": f"w{k}", "level_id": lid, "start": [0, 0], "end": [1, 0], "thickness": 0.2}
+             for lid in ("L0", "L1") for k in range(3)]
+    b = {"rooms": [room("L1", k, p, 12.0) for k, p in enumerate(full)]
+         + [room("L0", k, sbox(*p.bounds[:2], p.bounds[2], 3.0), 12.0) for k, p in enumerate(full)], "walls": walls}
+    found = RC.storey_area_causes(b)
+    assert [f["level_id"] for f in found] == ["L0"] and "the same rooms on L1 match" in found[0]["message"]
+    # gross texts: every room 0.1 m (half a 0.2 m wall) short on each side, on every storey
+    gross = {"rooms": [room(lid, k, p, round(p.buffer(0.1, join_style=2).area, 2))
+                       for lid in ("L0", "L1") for k, p in enumerate(full)], "walls": walls}
+    found = RC.storey_area_causes(gross)
+    assert found == [] or all("gross" in f["message"] for f in found)
+    small = {"rooms": [room("L0", k, sbox(*p.bounds[:2], p.bounds[2] - 0.6, 3.4), 12.0) for k, p in enumerate(full)],
+             "walls": [dict(w, thickness=0.6) for w in walls]}
+    found = RC.storey_area_causes(small)
+    assert found and "gross" in found[0]["message"] and "read thick" in found[0]["message"]

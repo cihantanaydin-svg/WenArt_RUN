@@ -399,6 +399,65 @@ def area_findings(page, tf, rooms: list, level: str, furniture: list = ()) -> li
 
 
 # ------------------------------------------------------------------------------------------------- walls (RC4, RC5)
+STOREY_UNDER = 0.9            # 20 Nov 2026: a room under this share of its area text is far under it ...
+STOREY_UNDER_SHARE = 1.0 / 3.0  # ... and this share of a storey's labelled rooms (at least STOREY_ROOMS_MIN) so
+STOREY_ROOMS_MIN = 4
+STOREY_MATCH = 0.03           # the same room (label and area text) within this of its text on another storey matches
+GROSS_MATCH = 0.05            # rooms grown by half their walls within this of their texts: the texts are gross areas
+THICK_WALL_M = 0.30           # a storey's median wall this thick or more is read thick
+
+
+def storey_area_causes(building: dict) -> list:
+    """20 Nov 2026 (pre-pod check: real21's ground floor rooms sat 15-25 % under their area texts while the drawn
+    storeys above matched them): RC3 per storey whose labelled rooms are far under their area texts (``STOREY_UNDER``,
+    for ``STOREY_UNDER_SHARE`` of at least ``STOREY_ROOMS_MIN`` rooms), naming the causes it measures: the same rooms on
+    another storey match their texts (this storey's rooms are cut: a storey built to another footprint, or split);
+    the rooms grown by half their walls match (the texts are gross areas, wall halves included: the walls stay); the
+    storey's walls are read thick (``THICK_WALL_M``). Minor (pure)."""
+    import statistics
+
+    from shapely.geometry import Polygon
+
+    rows: dict = {}
+    for r in building.get("rooms") or []:
+        a = r.get("area_label")
+        if not isinstance(a, (int, float)) or a <= 0 or len(r.get("polygon") or []) < 3:
+            continue
+        p = Polygon([tuple(q[:2]) for q in r["polygon"]]).buffer(0)
+        if not p.is_empty:
+            rows.setdefault(r["level_id"], []).append((r, p, float(a)))
+    out = []
+    for lid, rs in rows.items():
+        under = [x for x in rs if x[1].area < STOREY_UNDER * x[2]]
+        if len(rs) < STOREY_ROOMS_MIN or len(under) < STOREY_UNDER_SHARE * len(rs):
+            continue
+        causes = []
+        same = []
+        for r, p, a in under:
+            for olid, ors in rows.items():
+                if olid != lid and any(str(o.get("label")) == str(r.get("label")) and abs(oa - a) <= 0.01
+                                       and abs(op.area / oa - 1.0) <= STOREY_MATCH for o, op, oa in ors):
+                    same.append(olid)
+                    break
+        if same and len(same) >= len(under) / 2.0:
+            causes.append(f"the same rooms on {', '.join(sorted(set(same)))} match their texts: this storey's rooms are "
+                          f"cut (a storey built to another footprint, or rooms split)")
+        walls = [w for w in building.get("walls") or [] if w.get("level_id") == lid and w.get("start") and w.get("end")]
+        t = statistics.median(float(w.get("thickness") or 0.0) for w in walls) if walls else 0.0
+        if t > 0 and sum(1 for r, p, a in under if abs(p.buffer(t / 2.0, join_style=2).area / a - 1.0) <= GROSS_MATCH) \
+                >= len(under) / 2.0:
+            causes.append(f"grown by half their walls ({t / 2.0:.2f} m) the rooms match: the area texts are gross areas "
+                          f"(wall halves included), the walls stay")
+        if t >= THICK_WALL_M:
+            causes.append(f"the storey's walls are read thick (median {t:.2f} m)")
+        out.append(_finding("RC3", "minor", lid,
+                            f"{lid}: {len(under)} of {len(rs)} labelled rooms are under {STOREY_UNDER:.0%} of their "
+                            f"area texts: " + ("; ".join(causes) if causes else "no cause found (check the walls' "
+                                                                                 "faces against the drawing)"),
+                            causes=causes, rooms=[r["id"] for r, _p, _a in under]))
+    return out
+
+
 def model_wall_layers(walls: list) -> set:
     """The layers the reading took a level's walls from (their evidence), upper case."""
     out = set()
@@ -666,6 +725,7 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
             structural.append({"check": "RC17", "name": "structural integrity", "rule": None, "severity": "info",
                                "level_id": lid, "message": f"the door-tag check did not run: {type(exc).__name__}: "
                                                           f"{str(exc)[:200]}", "element_ids": [], "advisory": True})
+    findings += storey_area_causes(building)          # 20 Nov 2026 (pre-pod check: real21)
     ref = reference or next((lid for lid in ("L0", "L1") if lid in anchors), next(iter(anchors), None))
     if ref:
         findings += stacking(anchors, ref, {lv["id"]: lv.get("order") for lv in building.get("levels") or []})
