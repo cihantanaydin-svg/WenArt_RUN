@@ -2307,7 +2307,11 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
 
     tags = []
     plain = set()
-    for t in list(texts_m) + paired_size_tags(texts_m):
+    # the sizes written as two texts on a plain text layer (20 Nov 2026, R10-P3; gate: on real07's joinery layer, where
+    # every size is one 'W/H' text, the two-text pairs joined numbers of different tags)
+    pairs = [t for t in paired_size_tags(texts_m)
+             if LN.layer_role(t.evidence[0].get("layer") if t.evidence else None) in DOOR_TAG_TEXT_ROLES]
+    for t in list(texts_m) + pairs:
         m = SIZE_TAG_RE.match(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
         if m and LN.layer_role(layer) in ("window", "glass") \
@@ -2357,6 +2361,7 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
                 continue
             if d <= TAG_REACH_M and -0.1 <= s_ <= L + 0.1 and (best is None or d < best[0]):
                 best = (d, k, (x0, y0), (ux, uy), s_)
+        via_across = best is None and across is not None
         best = best or across
         if best is None:
             skipped.append(f"{t.text}: no wall along it within {TAG_REACH_M:.1f} m")
@@ -2392,9 +2397,13 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
             ps = [along(c) for gg in getattr(part, "geoms", [part]) if hasattr(gg, "exterior")
                   for c in gg.exterior.coords]
             blocked.append((min(ps), max(ps)))
-        if id(t) in plain and _frame_cover(strokes, x0, y0, ux, uy, h, s_ - width / 2.0,
-                                           s_ + width / 2.0) < PLAIN_TAG_FRAME_SHARE:
-            skipped.append(f"{t.text}: a plain-layer tag with no window frames along its wall")
+        if (id(t) in plain or via_across) and _frame_cover(strokes, x0, y0, ux, uy, h, s_ - width / 2.0,
+                                                           s_ + width / 2.0) < PLAIN_TAG_FRAME_SHARE:
+            # (20 Nov 2026, gate: real07's '350' over '70' beside the garage stood 0.29 m from the end of a cross wall
+            # and made a 3.5 m window there; the garage door went to it) a tag across a wall, like a plain-layer tag,
+            # is that wall's window only where window frames run along it
+            skipped.append(f"{t.text}: a {'plain-layer ' if id(t) in plain else ''}tag "
+                           f"{'across its wall ' if via_across else ''}with no window frames along its wall")
             continue
         # a window's lines read as leaves give way to the tag (19 Nov 2026, OA3-01: a door layer's low tag; 20 Nov
         # 2026, R10-P3: a plain-layer tag over window frames)
