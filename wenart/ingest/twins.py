@@ -1515,6 +1515,18 @@ def _stacked_side(s: dict, sp, sides: list, rooms: list, openings: list, drawn_o
     return out
 
 
+LIFT_VOID_RE = re.compile(r"(?<![a-z])(?:bosluk|boslug|kuyu\s*dib|pit(?![a-z])|void(?![a-z]))")   # 20 Nov 2026: a shaft's void or pit
+
+
+def _closed_faces(sp, lines: list) -> bool:
+    """20 Nov 2026 (coordinator, round 5): this storey's drawing closes the shaft: its drawn wall faces are found on all
+    four sides of it with no gap (``drawn_enclosure``) (pure)."""
+    if not lines:
+        return False
+    enc = drawn_enclosure(sp, lines)
+    return enc is not None and all(enc["found"].values()) and not any(enc["gaps"].values())
+
+
 def _storey_gap(a: Optional[str], b: Optional[str]) -> float:
     """How many storeys apart two level ids are, by their storey numbers (L-1, L0, L1b ...) (pure)."""
     def num(lid) -> float:
@@ -1746,8 +1758,9 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
     served = {r["id"]: sum(1 for x in shafts if x.get("level_id") == r.get("level_id")
                            and _poly(x).distance(_poly(r)) <= LIFT_WALL_REACH_M)
               for r in rooms if r.get("room_type") != "shaft" and len(r.get("polygon") or []) >= 3}
-    order = sorted(shafts, key=lambda x: not _drawn_door(x, openings, (faces or {}).get(x["level_id"]) or [],
-                                                         (details or {}).get(x["level_id"]) or []))
+    drawn_here = {id(x): _drawn_door(x, openings, (faces or {}).get(x["level_id"]) or [],
+                                     (details or {}).get(x["level_id"]) or []) for x in shafts}
+    order = sorted(shafts, key=lambda x: not drawn_here[id(x)])
     for s in order:
         sp, lv = _poly(s), s["level_id"]
         pit = _pit_mark(s, sp, rooms, texts)
@@ -1756,6 +1769,12 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
             # into the shelter): the lift stops on no floor here
             notes.append(f"{lv}: lift shaft {s['id']}: its floor mark {pit[0]:+.2f} lies {pit[0] - pit[1]:.2f} m above "
                          f"the storey's floor {pit[1]:+.2f} (the pit below the lowest stop): no landing door")
+            continue
+        if LIFT_VOID_RE.search(TI.fold(str(s.get("label_raw") or s.get("label") or "")).lower()):
+            # 20 Nov 2026 (coordinator, round 5: real13 L-2's 'ASANSÖR BOŞLUĞU' got an inferred door): a storey whose
+            # label names the shaft's void or pit has no lift stop
+            notes.append(f"{lv}: lift shaft {s['id']} '{s.get('label')}': its label names the shaft's void or pit: no "
+                         f"landing door")
             continue
         drawn = [o for o in openings if o.get("level_id") == lv and not o.get("virtual") and o.get("center")
                  and o.get("type") in ("door", "opening") and sp.exterior.distance(Point(o["center"])) <= LIFT_WALL_REACH_M
@@ -1812,6 +1831,21 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
                 notes.append(f"{lv}: {o['id']} in the wall of lift shaft {s['id']} is its sliding landing door")
             notes += _close_shaft_gaps(s, o, openings, rooms, merged, review)
             continue
+        if not drawn_here[id(s)]:
+            # 20 Nov 2026 (coordinator, round 5: real17 L-1's closed shaft got the door of the storeys above): when the
+            # drawing draws a landing door on another storey of this stacked shaft and closes this storey's drawn faces
+            # (no frame, no gap), the lift does not stop here; only where no storey draws one (the architect left lift
+            # doors out) is the door inferred
+            other = [x for x in shafts if x is not s and x.get("level_id") != lv and drawn_here[id(x)]
+                     and _iou(sp, _poly(x)) >= 0.5]
+            if other and _closed_faces(sp, (faces or {}).get(lv) or []):
+                why = (f"the drawing closes the shaft on this storey; no lift stop drawn (the landing door is drawn on "
+                       f"{', '.join(sorted({x['level_id'] for x in other}))})")
+                notes.append(f"{lv}: lift shaft {s['id']}: {why}: no landing door")
+                if review is not None:
+                    review.append({"id": s["id"], "kind": "lift_no_stop", "reason": why, "room_id": s["id"],
+                                   "level_id": lv})
+                continue
         cands, never = [], []
         for r in rooms:
             # 19 Nov 2026 (review A3, M3): never a flat's room; a stair room only after every hall, and only on a side

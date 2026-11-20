@@ -2382,3 +2382,41 @@ def test_a_ground_mark_is_an_outlier_only_against_its_own_plans_marks():
     b["site"] = {}
     M._ground(b, marks, M.level_params(None), b["levels"][0], M.level_outline(b, "L0"), [], warnings)
     assert [p["mark_id"] for p in b["site"]["ground"]["points"] if not p["used"]] == ["lm_x"]
+
+
+def test_a_shaft_the_drawing_closes_on_one_storey_has_no_stop_there_and_undrawn_doors_are_inferred_everywhere():
+    """20 Nov 2026 (coordinator, round 5: real17 L-1's closed shaft took the door of the storeys above; real13 L-2's
+    'ASANSÖR BOŞLUĞU' got an inferred door): (2) the drawing draws the landing door on other storeys of the stacked
+    shaft and closes this storey's faces: no stop, a review entry; (3) a void or pit label: no door; (4) no storey
+    draws a door: the door is inferred on every storey."""
+    import copy
+
+    from wenart.ingest import twins as TW
+
+    faces = [((11.92, 15.86), (13.92, 15.86)), ((13.92, 15.86), (13.92, 17.66)), ((13.92, 17.66), (11.92, 17.66)),
+             ((11.92, 17.66), (11.92, 15.86)), ((14.17, 15.86), (14.17, 17.66))]
+    frame = [((13.971, 16.049), (13.971, 17.449)), ((14.171, 16.049), (14.171, 17.449)),
+             ((13.971, 16.049), (14.171, 16.049)), ((13.971, 17.449), (14.171, 17.449))]
+    up, wu = _lift_core("L0")
+    down, wd = _lift_core("L-1", depot=True)
+    # (2) L0 draws its frame, L-1's drawn faces close the shaft
+    ops, review = [], []
+    notes = TW.lift_doors(copy.deepcopy(down + up), ops, wd + wu, (), [], review, {"L0": faces, "L-1": faces},
+                          {"L0": frame})
+    assert [o["level_id"] for o in ops] == ["L0"]
+    assert review and review[0]["kind"] == "lift_no_stop" and review[0]["level_id"] == "L-1"
+    assert any("no lift stop drawn" in n for n in notes)
+    # ... a storey with no drawing of its own (a typical floor's copy) still takes the stacked door
+    ops = []
+    TW.lift_doors(copy.deepcopy(down + up), ops, wd + wu, (), [], [], {"L0": faces}, {"L0": frame})
+    assert sorted(o["level_id"] for o in ops) == ["L-1", "L0"]
+    # (3) the storey's label names the shaft's void or pit
+    pit = copy.deepcopy(down)
+    pit[0]["label"], pit[0]["label_raw"] = "Asansör Boşluğu", "ASANSÖR BOŞLUĞU"
+    ops = []
+    notes = TW.lift_doors(pit + copy.deepcopy(up), ops, wd + wu, (), [], [], {"L0": faces}, {"L0": frame})
+    assert [o["level_id"] for o in ops] == ["L0"] and any("void or pit" in n for n in notes)
+    # (4) no storey draws a landing door: inferred on both, though both storeys' faces are closed
+    ops = []
+    TW.lift_doors(copy.deepcopy(down + up), ops, wd + wu, (), [], [], {"L0": faces, "L-1": faces}, {})
+    assert sorted(o["level_id"] for o in ops) == ["L-1", "L0"]
