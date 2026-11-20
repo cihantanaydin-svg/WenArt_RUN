@@ -805,7 +805,13 @@ def _apply_ranker(g: Gap, rec: dict) -> None:
     model = RK.load_model(rec["kind"])
     answer, by, margin, scores = RK.decide(rec["kind"], f, rec["rule_answer"], rec["rule_confidence"],
                                            allowed=allowed, model=model, rule=rec.get("rule"))
-    rec["decided_by"] = by
+    explored = RK.explore_choice(rec, allowed, margin if scores else 0.0) if by != RK.DECIDED_RANKER else None
+    if explored is not None:
+        # 20 Nov 2026 (``reading_check.bandit``): an exploration run only; the answer is applied like the ranker's and
+        # recorded with its propensity, its reward comes from the code checks and the truth
+        answer, by = explored[0], RK.DECIDED_RANKER
+        rec["explored"] = {"answer": explored[0], "propensity": explored[1], "rule_answer": rec["rule_answer"]}
+    rec["decided_by"] = by if explored is None else "explore"
     if scores:
         rec["scores"] = scores
         rec["margin"] = margin

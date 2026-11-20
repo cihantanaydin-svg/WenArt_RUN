@@ -483,6 +483,31 @@ def decide(kind: str, features: dict, rule_answer: str, rule_confidence: float, 
     return rule_answer, DECIDED_RULE, margin, scores
 
 
+def explore_choice(rec: dict, allowed, margin: float) -> Optional[tuple]:
+    """20 Nov 2026 (``bandit``, user: "A bit RL for AI please it needs to teach itself"): an exploration run's other
+    answer for a low-margin decision, or None. Only with ``WENART_RANKER_EXPLORE=seed:eps`` (never in a normal
+    reading), only where the rule is weak (under ``RULE_TRUST``) and the ranker's margin under ``MARGIN_MIN``, only
+    door or window (the answers that type a gap the drawing has; closed and open stay the rules'), with probability
+    ``eps`` from a hash of the seed and the place (reproducible). Returns ``(answer, propensity)``."""
+    import hashlib
+
+    spec = os.environ.get("WENART_RANKER_EXPLORE")
+    if not spec or rec.get("kind") != KIND_GAP or float(rec.get("rule_confidence") or 0) >= RULE_TRUST \
+            or margin >= MARGIN_MIN:
+        return None
+    alts = [a for a in allowed if a in ("door", "window") and a != rec.get("rule_answer")]
+    if not alts:
+        return None
+    seed, _, eps = spec.partition(":")
+    eps_f = float(eps or 0.1)
+    p = rec.get("place_page") or rec.get("place") or [0.0, 0.0]
+    h = hashlib.sha256(f"{seed}|{rec.get('level_id')}|{round(float(p[0]), 2)}|{round(float(p[1]), 2)}".encode())
+    u = int(h.hexdigest()[:12], 16) / float(16 ** 12)
+    if u >= eps_f:
+        return None
+    return alts[int(u / eps_f * len(alts)) % len(alts)], round(eps_f / len(alts), 4)
+
+
 def top_and_margin(scores: dict, allowed) -> tuple[str, float]:
     """The best allowed answer and its margin (pure): its share minus the best share of any OTHER class, allowed or
     not. 6 Nov 2026 (measured on the merged reader): the margin taken among the allowed answers only let the ranker type
@@ -526,7 +551,10 @@ def read_table(kind: str, models_dir: Path = MODELS_DIR) -> Optional[dict]:
 
 
 def load_model(kind: str, models_dir: Path = MODELS_DIR) -> Optional[dict]:
-    """The stored model of a kind, read once per process; None when there is none (the rules alone)."""
+    """The stored model of a kind, read once per process; None when there is none (the rules alone). 20 Nov 2026
+    (``bandit ship``): ``WENART_RANKER_MODELS`` names another folder (a candidate gated before it ships)."""
+    if models_dir == MODELS_DIR and os.environ.get("WENART_RANKER_MODELS"):
+        models_dir = Path(os.environ["WENART_RANKER_MODELS"])
     key = f"{models_dir}:{kind}"
     if key not in _MODELS:
         path = model_path(kind, models_dir)

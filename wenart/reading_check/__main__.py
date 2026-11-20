@@ -33,7 +33,9 @@ DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("w
              "stairs": ("wenart.reading_check.stairs", "main"),
              # 5 Nov 2026 (Milestone 14 R3): the ranker of the reader's decisions (retrain, train, evaluate, explain,
              # label; ``evaluate`` because the sandbox refuses the word eval)
-             "ranker": ("wenart.reading_check.ranker", "main")}
+             "ranker": ("wenart.reading_check.ranker", "main"),
+             # 20 Nov 2026: loops A and B (labels from agreement, questions, the ranker as a contextual bandit)
+             "bandit": ("wenart.reading_check.bandit", "main")}
 
 
 def main(argv=None) -> int:
