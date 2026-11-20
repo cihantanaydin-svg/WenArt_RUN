@@ -201,7 +201,9 @@ def mirror_labels(rooms: list[dict], walls: Optional[list] = None) -> list[str]:
             by_level.setdefault(r["level_id"], []).append(r)
     for level_id, level_rooms in by_level.items():
         named = [r for r in level_rooms if r.get("label_raw")]
-        blank = [r for r in level_rooms if not r.get("label_raw")]
+        # 20 Nov 2026 (R09-1): a room the reader closed as a labelled room's mirror twin is named already
+        blank = [r for r in level_rooms if not r.get("label_raw")
+                 and (r.get("label_inferred") or {}).get("rule") != "mirror_twin"]
         if not named or not blank:
             continue
         votes: list[tuple[str, float]] = []

@@ -277,6 +277,9 @@ def _shift_piece(f: FurnitureItem, sh: _Shift) -> None:
                 fp["center"] = list(sh.p(fp["center"]))
 
 
+OUTDOOR_TWIN_REACH_M = 1.5      # 20 Nov 2026 (R09-1): an outdoor space's mirror this close to a closed mirror twin
+
+
 def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls: Optional[list] = None,
                       blocks: Optional[list] = None) -> None:
     """The outline of every labelled outdoor space without a closed face, closed from the drawn strokes around its
@@ -302,6 +305,13 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
             rec["reason"] + (f"; {rec['steps']['reason']}" if rec.get("steps") else "") if rec is not None else
             "no drawn outline closes around the label (the level inference infers one)"))
     axis = _halves(ex, walls, blocks=blocks or (), by="outdoor outlines") if walls else None
+    # 20 Nov 2026 (R09-1, C0008: real09's left balcony): on a plan whose halves held only at the mirror-label share,
+    # the outdoor spaces beside a mirror twin closed by ``_glazed_facades`` get their twins too
+    near_twins = None
+    if axis is None and (ex.report.get("mirror_twins") or {}).get("faces"):
+        mt = ex.report["mirror_twins"]
+        axis = tuple(mt["axis"])
+        near_twins = unary_union([Polygon(f) for f in mt["faces"]]).buffer(OUTDOOR_TWIN_REACH_M)
     if axis is None:
         return
     anchors = [tuple(a["anchor"]) for a in site.get("areas") or [] if a.get("anchor")]
@@ -312,6 +322,8 @@ def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline, walls:
         q = (2.0 * axis[1] - x, y) if axis[0] == "x" else (x, 2.0 * axis[1] - y)
         if any(math.dist(q, b) <= 1.5 for b in anchors):
             continue                                        # a label of its own stands there
+        if near_twins is not None and not near_twins.contains(Point(q)):
+            continue                                        # no mirror twin closed beside it
         twin = _copy.deepcopy(a)
         twin.pop("outline_inferred", None)
         twin["anchor"] = [round(q[0], 4), round(q[1], 4)]
@@ -3385,14 +3397,16 @@ MIRROR_MAX_NEW_WALLS = 3        # mirror twins differ by at most this many walls
 CORE_KEEP_OUT_M = 3.0           # no mirror fix within this of a lift label (the core: lift and stair, not mirrored)
 
 
-def _halves(ex, walls: list, openings: list = (), blocks: list = (), level_id=None, by: str = "") -> Optional[tuple]:
+def _halves(ex, walls: list, openings: list = (), blocks: list = (), level_id=None, by: str = "",
+            min_share: Optional[float] = None) -> Optional[tuple]:
     """Whether the plan is two mirrored halves (``mirror.halves``, the one decision every mirror rule uses: outdoor
     outlines and guard, recess twins, mirror seeds, the mirror fixes, the separators), made on the walls the asking
     rule applies it to, with the openings and labels it has. 5 Nov 2026 (review: a decision made on the first rule's
     walls, before the facade closure, the recesses and the outline closure, was stale at the mirror step): the cache is
     per identical input (the walls' entities, ends and thicknesses, the labels' texts and points, the openings' kinds,
     centres and widths); every decision is listed in ``ex.report["mirror"]``. Without labels the label rule is
-    skipped, and the note says so. Returns the axis or None."""
+    skipped, and the note says so. Returns the axis or None. ``min_share``: the walls' overlap the decision needs
+    (``mirror.halves``; default ``facade.MIRROR_FIX_SHARE``), part of the cache key."""
     import hashlib
 
     from wenart.ingest.generic import mirror as MR
@@ -3403,11 +3417,11 @@ def _halves(ex, walls: list, openings: list = (), blocks: list = (), level_id=No
         sorted((str(getattr(b, "name", "")), round(float(b.anchor[0]), 3), round(float(b.anchor[1]), 3))
                for b in blocks or ()),
         sorted((str(o.kind), round(float(o.center[0]), 3), round(float(o.center[1]), 3), round(float(o.width), 3))
-               for o in openings or ()))).encode()).hexdigest()
+               for o in openings or ()), min_share)).encode()).hexdigest()
     cache = ex.report.setdefault("mirror_cache", {})
     if key not in cache:
-        h = MR.halves(walls, list(openings or []), list(blocks or []), level_id) if walls else {"axis": None,
-                                                                                                "note": None}
+        h = MR.halves(walls, list(openings or []), list(blocks or []), level_id, min_share) if walls else {
+            "axis": None, "note": None}
         cache[key] = list(h["axis"]) if h.get("axis") else None
         row = dict(h, axis=cache[key], by=by, walls=len(walls))
         if not blocks:
@@ -3520,11 +3534,92 @@ def _open_anchors(walls: list, openings: list, blocks: list) -> list:
     return out
 
 
+TWIN_FACE_IOU = 0.6             # 20 Nov 2026 (R09-1): a face closed at a twin seed mirrors its labelled twin's face this
+                                # well (intersection over union; real09 L2: the left kitchen is drawn 2.44 m wide, its
+                                # twin 1.84 m, 70 %) ...
+TWIN_TAG_REACH_M = 1.0          # ... and shows the drawing's own sign of a room there: a size tag this close to it ...
+TWIN_DOOR_REACH_M = 0.35        # ... a drawn door this close to its outline ...
+TWIN_FRAME_MIN_M = 1.0          # ... or this much of window and door frames along its outline
+# an opening's size tag: an optional kind letter and number ('P:220/150', 'K:80/240', 'D1-90/210', 'W 120/150'), then
+# width/height in cm
+OPENING_TAG_RE = re.compile(r"^\s*(?:[A-Z]{1,2}\s*\d{0,2}\s*[:\-.]?\s*)?(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.IGNORECASE)
+
+
+def _mirror_point(q, axis) -> tuple:
+    return (2.0 * axis[1] - q[0], q[1]) if axis[0] == "x" else (q[0], 2.0 * axis[1] - q[1])
+
+
+def _mirror_poly(poly, axis):
+    from shapely import affinity
+
+    return affinity.scale(poly, xfact=-1.0 if axis[0] == "x" else 1.0, yfact=-1.0 if axis[0] == "y" else 1.0,
+                          origin=(axis[1], 0.0) if axis[0] == "x" else (0.0, axis[1]))
+
+
+def twin_evidence(face, twin_face, axis, texts_m: list, openings: list, strokes: list, walls: list,
+                  others: list) -> tuple[Optional[str], list]:
+    """20 Nov 2026 (R09-1, real09 L0-L2: the left flat's salon, its facade drawn as frames tagged 'P:220/150',
+    'P:150/150' and a 'K:80/240' balcony door, stayed open because the missing salon itself made the shell 89 %
+    symmetric, under ``facade.MIRROR_FIX_SHARE``): whether a face closed at the mirror of a labelled room is that room's
+    twin (pure). ``(None, evidence)`` when its mirror overlaps the twin's face by ``TWIN_FACE_IOU`` and the drawing
+    marks a room there: opening size tags (``OPENING_TAG_RE``) within ``TWIN_TAG_REACH_M`` of it and in no other
+    closed face (``others``), drawn doors within ``TWIN_DOOR_REACH_M`` of its outline, or ``TWIN_FRAME_MIN_M`` of
+    window and door frames along it; else ``(why not, [])``."""
+    from wenart.ingest.generic import facade as FC
+
+    if twin_face is None or twin_face.is_empty:
+        return "its labelled twin has no closed face to compare", []
+    m = _mirror_poly(face, axis)
+    union = m.union(twin_face).area
+    iou = m.intersection(twin_face).area / union if union > 0 else 0.0
+    if iou < TWIN_FACE_IOU:
+        return f"its mirror overlaps the twin's face by {iou:.0%} (< {TWIN_FACE_IOU:.0%})", []
+    ev = []
+    near = face.buffer(TWIN_TAG_REACH_M, join_style=2)
+    tags = []
+    for t in texts_m or []:
+        if not OPENING_TAG_RE.match(str(getattr(t, "text", "") or "")):
+            continue
+        c = Point((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
+        if near.contains(c) and not any(o.contains(c) for o in others):
+            tags.append(str(t.text).strip())
+    if tags:
+        ev.append(f"size tags {', '.join(sorted(set(tags))[:6])}")
+    ring = face.exterior
+    doors = [o for o in openings or [] if not getattr(o, "virtual", False) and o.kind in ("door", "opening")
+             and ring.distance(Point(tuple(o.center))) <= TWIN_DOOR_REACH_M]
+    if doors:
+        ev.append(f"{len(doors)} drawn door(s) on its outline")
+    theta = O.dominant_angle(walls) if walls else None
+    drawn = unary_union([TP.wall_polygon(w) for w in walls]).buffer(FC.ON_WALL_M) if walls else None
+    band = ring.buffer(FC.BAND_M, cap_style=2, join_style=2)
+    frames = 0.0
+    for ln in FC.joinery_lines(strokes, theta):
+        part = ln.intersection(band)
+        if drawn is not None and not part.is_empty:
+            part = part.difference(drawn)
+        frames += part.length
+    if frames >= TWIN_FRAME_MIN_M:
+        ev.append(f"{frames:.1f} m of window and door frames along its outline")
+    if not ev:
+        return "the drawing marks no room there (no size tag, door or frames)", []
+    return None, [f"its mirror overlaps the twin's face by {iou:.0%}"] + ev
+
+
 def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, level_id, site_warnings: list,
-                    problem: Optional[str], strokes: list, file_rel: str, page_no, s: float, owned: set):
+                    problem: Optional[str], strokes: list, file_rel: str, page_no, s: float, owned: set,
+                    texts_m: list = ()):
     """The open rooms closed along their facades of window and door frames (``facade``): the inferred walls carry
     the windows and doors drawn across them (``openings.openings_on_walls``), and an unverified window where frames
-    run along a wall and no symbol reads; kept when they close in more labelled rooms (or close the outer loop)."""
+    run along a wall and no symbol reads; kept when they close in more labelled rooms (or close the outer loop).
+
+    20 Nov 2026 (R09-1, real09 L0-L2: the left flat's salon and the L2 left kitchen were never built, a 5 x 5 m notch
+    in three storeys, because the missing rooms made the shell 89 % symmetric, under the 90 % the mirror fixes need):
+    when the plan is no two mirrored halves at ``facade.MIRROR_FIX_SHARE`` but is at ``facade.MIRROR_SHARE`` (the
+    mirror-label rule's), the labelled rooms' mirror places in open areas are tried as twin seeds too; a face closed
+    there is kept only when it mirrors its twin's face and the drawing marks a room there (``twin_evidence``: size
+    tags, a drawn door, frames along it). Its walls name the twin, the axis and the evidence; the plan's outdoor
+    spaces next to it get their mirror twins (``_outdoor_outlines``, ``ex.report["mirror_twins"]``)."""
     from wenart.ingest.generic import facade as FC
 
     anchors = _open_anchors(walls2, openings, blocks)
@@ -3535,28 +3630,70 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
     hull = unary_union([TP.wall_polygon(w) for w in walls2]).convex_hull
     labelled = [tuple(b.anchor) for b in blocks if not getattr(b, "exterior", False)
                 and getattr(b, "room_type", None) != "balcony"]
-    seeds = FC.mirror_seeds(walls2, labelled, lambda q: hull.contains(Point(q))
-                            and not any(f.contains(Point(q)) for f in faces_now),
-                            axis=_halves(ex, walls2, openings, blocks, level_id, "mirror seeds"))
-    faces, links = FC.close_rooms(walls2, strokes, anchors + seeds)
+
+    def open_test(q):
+        return hull.contains(Point(q)) and not any(f.contains(Point(q)) for f in faces_now)
+
+    axis = _halves(ex, walls2, openings, blocks, level_id, "mirror seeds")
+    seeds = FC.mirror_seeds(walls2, labelled, open_test, axis=axis)
+    loose, twin_seeds = None, []
+    if axis is None:
+        loose = _halves(ex, walls2, openings, blocks, level_id, "mirror twins (R09-1)", min_share=FC.MIRROR_SHARE)
+        twin_seeds = FC.mirror_seeds(walls2, labelled, open_test, axis=loose) if loose else []
+    tried = anchors + seeds + twin_seeds
+    faces, links = FC.close_rooms(walls2, strokes, tried)
     if not faces:
         return None
+    twins = {}
+    if twin_seeds:
+        first = len(anchors) + len(seeds)
+        for k in [k for k in faces if k >= first]:
+            q = tried[k]
+            a = _mirror_point(q, loose)
+            ka = next((i for i, p in enumerate(anchors) if math.dist(p, a) <= 1e-6), None)
+            twin_face = faces.get(ka) if ka is not None else next(
+                (f for f in faces_now if f.contains(Point(a))), None)
+            others = list(faces_now) + [f for i, f in faces.items() if i != k]
+            name = next((str(b.name) for b in blocks if math.dist(tuple(b.anchor), a) <= 1e-6), "?")
+            why, ev = twin_evidence(faces[k], twin_face, loose, texts_m, openings, strokes, walls2, others)
+            if why:
+                ex.notes.append(f"{where}: mirror twin of '{name}' at ({q[0]:.2f}, {q[1]:.2f}) m not closed: {why}")
+                faces.pop(k)
+                continue
+            twins[k] = {"label": name, "of": [round(a[0], 4), round(a[1], 4)], "seed": [round(q[0], 4), round(q[1], 4)],
+                        "evidence": ev}
+        if not faces:
+            return None
     # 5 Nov 2026 (real11 L0: the left kitchen's face ran along the balcony's railing and took the 'BALKON 10.00 m2'
     # in): a face holding an outdoor-space label, the mirror image of one, or matching an outdoor area text is no
     # room; it is not closed here (the outline closure may close the room along its facade, under the same guard)
-    guard = outdoor_guard(blocks, walls2, _halves(ex, walls2, openings, blocks, level_id, "glazed facades"))
+    guard = outdoor_guard(blocks, walls2, _halves(ex, walls2, openings, blocks, level_id, "glazed facades") or (
+        loose if twins else None))
     kept_faces = {}
     for k, face in faces.items():
         why = outdoor_enclosure(face, guard)
         if why:
-            ex.notes.append(f"{where}: glazed facade: the face closed around the label at ({(anchors + seeds)[k][0]:.2f}, "
-                            f"{(anchors + seeds)[k][1]:.2f}) m is no room: {why}; not closed along those frames")
+            ex.notes.append(f"{where}: glazed facade: the face closed around the label at ({tried[k][0]:.2f}, "
+                            f"{tried[k][1]:.2f}) m is no room: {why}; not closed along those frames")
         else:
             kept_faces[k] = face
     faces = kept_faces
+    twins = {k: v for k, v in twins.items() if k in faces}
     if not faces:
         return None
-    new_walls = FC.facade_wall_items(walls2, list(faces.values()), openings, file_rel, page_no, units_to_m=s)
+
+    def told(mid, t):
+        # 20 Nov 2026 (R09-1): a wall of a mirror twin's face names the twin, the axis and the drawing's evidence
+        k = min(faces, key=lambda i: faces[i].exterior.distance(Point(mid)))
+        if k not in twins or faces[k].exterior.distance(Point(mid)) > t:
+            return None
+        tw = twins[k]
+        return (f"the mirror twin of '{tw['label']}' across the plan's axis ({loose[0]} = {loose[1]:.2f}; the drafter "
+                f"named one of the two mirrored halves only): its walls did not close, the wall is inferred where its "
+                f"frames stand (thickness {t:.2f} m); evidence: {'; '.join(tw['evidence'])}", None)
+
+    new_walls = FC.facade_wall_items(walls2, list(faces.values()), openings, file_rel, page_no, units_to_m=s,
+                                     why=told if twins else None)
     if not new_walls:
         return None
     taken = set(owned)
@@ -3574,6 +3711,17 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
     if seeds:
         ex.notes.append(f"{where}: {len(seeds)} mirrored twin(s) of labelled rooms tried at the plan's mirror axis "
                         f"(the drafter named one half only): {sum(1 for k in faces if k >= len(anchors))} closed")
+    if twins:
+        # page metres; the pipeline gives the rooms closed there their twins' labels (``pipeline._mirror_twin_rooms``)
+        ex.report["mirror_twins"] = {"axis": [loose[0], round(loose[1], 4)],
+                                     "faces": [[[round(x, 4), round(y, 4)] for x, y in faces[k].exterior.coords]
+                                               for k in twins],
+                                     "rooms": [dict(tw) for tw in twins.values()]}
+        for tw in twins.values():
+            ex.notes.append(f"{where}: the mirror twin of '{tw['label']}' (at {tw['of'][0]:.2f}, {tw['of'][1]:.2f} m) "
+                            f"closed across the axis {loose[0]} = {loose[1]:.2f} (inferred, rule mirror_twin: the "
+                            f"plan is two mirrored halves at {FC.MIRROR_SHARE:.0%}, not at {FC.MIRROR_FIX_SHARE:.0%}, "
+                            f"because the twin is missing): {'; '.join(tw['evidence'])}")
     ex.notes.append(f"{where}: {len(faces)} room(s) closed along facades of window and door frames (rule glazed_facade):"
                     f" {len(new_walls)} inferred wall(s), {len(links)} gap link(s) up to {FC.LINK_M:g} m, "
                     f"{len(read)} drawn opening(s) read on them, {len(framed)} unverified window(s) where frames run "
@@ -3881,7 +4029,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         # 3 Nov 2026 (user: "go ahead with the glazed facades"; real09, real11, real13, real14): the facades of window
         # and door frames are closed around the rooms still open (``facade``); the openings drawn across them are read
         glazed = _glazed_facades(ex, where, walls2, openings, blocks, level_id, site_warnings, problem, non_wall,
-                                 file_rel, page_no, s, owned)
+                                 file_rel, page_no, s, owned, texts_m)
         if glazed is not None:
             walls2, openings, bwalls, site, site_warnings, b_openings, problem = glazed
     if (problem is not None or _unclosed(site_warnings)) and not is_raster:

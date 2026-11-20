@@ -28,6 +28,12 @@ SAME_OPENING_SHARE = 0.5
 MIN_COPY_M = 1.0          # a shorter piece in a wall is a pier or a column (real06: 0.1-0.75 m KOLON blocks)
 THICKER_TOL_M = 0.01
 RULE = "reading.twin_walls"
+# 20 Nov 2026 (pre-pod check R09-11, real09 L0-L2: a 0.23 m wall paired from the outer plaster line and a plaster line
+# through the middle of the 0.40 m piers lay inside the 0.46 m front walls w_006 / w_007 (55 % and 41 % of it each, so
+# no single wall made it a copy); its 2.9 m gaps became 2.9 m windows cut through the real wall beside the drawn 1.5 m
+# ones): a thinner wall whose two faces lie inside the band of thicker parallel walls (within ``BAND_FACE_TOL_M``) that
+# together cover ``OVERLAP_SHARE`` of its length is no wall of its own either
+BAND_FACE_TOL_M = 0.02
 
 
 def _drawn(o: dict) -> bool:
@@ -260,10 +266,49 @@ def stair_side_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> 
     return notes
 
 
+def in_band(d: dict, walls: list) -> list:
+    """The thicker walls (``THICKER_TOL_M``) parallel to ``d`` (``ANGLE_DEG``) whose band holds both of ``d``'s faces
+    (within ``BAND_FACE_TOL_M``) along part of its length, when together they cover ``OVERLAP_SHARE`` of it; else []
+    (pure; R09-11)."""
+    ad = _axis(d)
+    if ad is None or ad[2] < MIN_COPY_M:
+        return []
+    td = float(d.get("thickness") or 0.0)
+    spans, hosts = [], []
+    for c in walls:
+        if c is d or c.get("level_id") != d.get("level_id"):
+            continue
+        ac = _axis(c)
+        tc = float(c.get("thickness") or 0.0)
+        if ac is None or tc <= td + THICKER_TOL_M:
+            continue
+        if abs(ad[1][0] * ac[1][1] - ad[1][1] * ac[1][0]) > math.sin(math.radians(ANGLE_DEG)):
+            continue
+        if max(_off(ac, d["start"]), _off(ac, d["end"])) + td / 2.0 > tc / 2.0 + BAND_FACE_TOL_M:
+            continue
+        t0, t1 = sorted((_t(ad, c["start"]), _t(ad, c["end"])))
+        lo, hi = max(0.0, t0), min(ad[2], t1)
+        if hi > lo:
+            spans.append((lo, hi))
+            hosts.append(c)
+    covered, end = 0.0, None
+    for lo, hi in sorted(spans):
+        if end is None or lo > end:
+            covered += hi - lo
+            end = hi
+        elif hi > end:
+            covered += hi - end
+            end = hi
+    return hosts if covered >= OVERLAP_SHARE * ad[2] - 1e-6 else []
+
+
 def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> list[str]:
-    """Drop every wall read twice (mutates ``b``; module docstring). Returns the dropped wall ids."""
+    """Drop every wall read twice (mutates ``b``; module docstring) and every thinner wall inside the band of thicker
+    collinear walls (``in_band``, R09-11: its openings go to the host wall they stand on). Returns the dropped wall
+    ids."""
     walls = [w for w in b.get("walls") or [] if isinstance(w, dict) and w.get("id")]
     dropped: dict[str, str] = {}
+    hosts_of: dict[str, list] = {}
     for i, a in enumerate(walls):
         for c in walls[i + 1:]:
             if a["id"] in dropped or c["id"] in dropped or not twin_of(a, c):
@@ -273,6 +318,18 @@ def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> 
                     float(dup.get("thickness") or 0.0) > float(keep.get("thickness") or 0.0) + THICKER_TOL_M:
                 continue                       # a column or a pier in the wall, not a copy of it
             dropped[dup["id"]] = keep["id"]
+    for d in walls:
+        if d["id"] in dropped:
+            continue
+        hosts = [c for c in in_band(d, [w for w in walls if w["id"] not in dropped])]
+        if hosts:
+            ad = _axis(d)
+
+            def along(c):
+                t0, t1 = sorted((_t(ad, c["start"]), _t(ad, c["end"])))
+                return min(ad[2], t1) - max(0.0, t0)
+            dropped[d["id"]] = max(hosts, key=along)["id"]
+            hosts_of[d["id"]] = [c["id"] for c in hosts]
     if not dropped:
         return []
     by_id = {w["id"]: w for w in walls}
@@ -282,15 +339,32 @@ def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> 
             keep_id = dropped[keep_id]
         dup, keep = by_id[dup_id], by_id[keep_id]
         ax = _axis(keep)
-        reason = (f"{dup_id} lies in {keep_id} ({_off(ax, [(float(dup['start'][i]) + float(dup['end'][i])) / 2.0 for i in (0, 1)]):.3f} m "
-                  f"apart, parallel, overlapping): one wall read twice; {dup_id} is not built")
+        if dup_id in hosts_of:
+            reason = (f"{dup_id} ({float(dup.get('thickness') or 0):.2f} m) lies with both faces inside the band of the "
+                      f"thicker parallel wall(s) {', '.join(hosts_of[dup_id])}, which cover "
+                      f"{OVERLAP_SHARE:.0%} or more of it: a line inside the wall read as a wall; {dup_id} is not built")
+        else:
+            reason = (f"{dup_id} lies in {keep_id} ({_off(ax, [(float(dup['start'][i]) + float(dup['end'][i])) / 2.0 for i in (0, 1)]):.3f} m "
+                      f"apart, parallel, overlapping): one wall read twice; {dup_id} is not built")
         moved, merged = [], []
         for o in [o for o in ops if o.get("wall_id") == dup_id]:
+            host_id = keep_id
+            if dup_id in hosts_of:
+                # R09-11: the opening goes to the host wall it stands on (the nearest along its line)
+                def gap(c, o=o):
+                    ac = _axis(c)
+                    t = _t(ac, o["center"])
+                    return max(0.0, -t, t - ac[2])
+                host_id = min(hosts_of[dup_id], key=lambda cid: gap(by_id[cid]))
+                while host_id in dropped:
+                    host_id = dropped[host_id]
+            ax = _axis(by_id[host_id])
+            keep_here = host_id
             t = _t(ax, o["center"])
             half = float(o.get("width") or 0.0) / 2.0
             same = None
             for p in ops:
-                if p is o or p.get("wall_id") != keep_id:
+                if p is o or p.get("wall_id") != keep_here:
                     continue
                 tp, hp = _t(ax, p["center"]), float(p.get("width") or 0.0) / 2.0
                 cover = min(t + half, tp + hp) - max(t - half, tp - hp)
@@ -305,7 +379,7 @@ def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> 
                 b["openings"] = [x for x in b["openings"] if x is not same]
                 ops = [x for x in ops if x is not same]
                 b.setdefault("openings_merged", []).append(dict(copy.deepcopy(same), merged_into=o["id"], corrected_by_ai={
-                    "by": "code", "rule": RULE, "reason": f"{same['id']} of {keep_id} is the door {o['id']} on {dup_id} "
+                    "by": "code", "rule": RULE, "reason": f"{same['id']} of {keep_here} is the door {o['id']} on {dup_id} "
                                                            f"read twice, the door drawn ({reason})"}))
                 merged.append(f"{same['id']} -> {o['id']}")
                 same = None
@@ -313,15 +387,15 @@ def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> 
                 b["openings"] = [x for x in b["openings"] if x is not o]
                 ops = [x for x in ops if x is not o]
                 b.setdefault("openings_merged", []).append(dict(copy.deepcopy(o), merged_into=same["id"], corrected_by_ai={
-                    "by": "code", "rule": RULE, "reason": f"{o['id']} on {dup_id} is {same['id']} of {keep_id} read "
+                    "by": "code", "rule": RULE, "reason": f"{o['id']} on {dup_id} is {same['id']} of {keep_here} read "
                                                            f"twice ({reason})"}))
                 merged.append(f"{o['id']} -> {same['id']}")
                 continue
             (x0, y0), (ux, uy), _ = ax
             o.setdefault("drawn_center", list(o["center"]))
             o["center"] = [round(x0 + ux * t, 4), round(y0 + uy * t, 4)]
-            o["wall_id"] = keep_id
-            o["corrected_by_ai"] = {"by": "code", "rule": RULE, "reason": f"moved onto {keep_id}: {reason}",
+            o["wall_id"] = keep_here
+            o["corrected_by_ai"] = {"by": "code", "rule": RULE, "reason": f"moved onto {keep_here}: {reason}",
                                     "changed": {"wall_id": dup_id}}
             moved.append(o["id"])
         b["walls"] = [w for w in b["walls"] if w.get("id") != dup_id]
@@ -329,6 +403,6 @@ def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> 
         b.setdefault("walls_merged", []).append(dict(copy.deepcopy(dup), merged_into=keep_id, corrected_by_ai={
             "by": "code", "rule": RULE, "reason": reason, "evidence": list(dup.get("evidence") or [])
             + list(keep.get("evidence") or [])}))
-        warn(f"{dup_id}: {reason}" + (f"; openings moved onto {keep_id}: {', '.join(moved)}" if moved else "")
+        warn(f"{dup_id}: {reason}" + (f"; openings moved: {', '.join(moved)}" if moved else "")
              + (f"; openings read twice, merged: {', '.join(merged)}" if merged else ""))
     return sorted(dropped)

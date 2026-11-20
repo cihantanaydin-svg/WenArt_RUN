@@ -387,7 +387,7 @@ def facade_wall_items(walls: list, faces: list, openings: list, file_rel: str, p
         src = dict(walls[near].evidence or {})
         told = why(mid, t) if why is not None else None
         ev = B.evidence(src.get("file") or file_rel, "inferred", 0.6, page=page_no,
-                        entity=told[1] if told else src.get("entity"), layer=src.get("layer"), rule=rule)
+                        entity=told[1] if told and told[1] else src.get("entity"), layer=src.get("layer"), rule=rule)
         ev["note"] = told[0] if told else (
             "the room's walls did not close: its facade is drawn as window and door frames and short "
             "pieces on other layers; the wall is inferred where the frames stand (thickness "

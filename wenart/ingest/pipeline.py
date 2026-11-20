@@ -286,6 +286,32 @@ def _to_building(ex: LevelExtraction, p) -> tuple[float, float]:
     return G.snap_point(G.apply_affine(ex.transform_to_building, p), 4)
 
 
+def _mirror_twin_rooms(build, level_id: str, ex: LevelExtraction, rooms: list) -> None:
+    """20 Nov 2026 (R09-1, real09 L2: the left kitchen, closed as the mirror twin of the labelled MUTFAK, is drawn
+    2.44 m wide against its twin's 1.84 m, too far off for ``twins.mirror_labels``): a room the reader closed as the
+    mirror twin of a labelled room (``generic.core._glazed_facades``, ``report["mirror_twins"]``) takes that room's
+    label and type, ``inferred`` with the axis and the drawing's evidence (``label_raw`` stays null: no text names it)."""
+    mt = (ex.report or {}).get("mirror_twins") if isinstance(ex.report, dict) else None
+    s = float((ex.report or {}).get("units_to_m") or 0.0) if isinstance(ex.report, dict) else 0.0
+    if not mt or s <= 0 or not ex.transform_to_building:
+        return
+    ax = mt["axis"]
+    v = _to_building(ex, (ax[1] / s, ax[1] / s))[0 if ax[0] == "x" else 1]
+    for rec in mt.get("rooms") or []:
+        q = _to_building(ex, (rec["seed"][0] / s, rec["seed"][1] / s))
+        a = _to_building(ex, (rec["of"][0] / s, rec["of"][1] / s))
+        room, twin = R.room_containing(rooms, q), R.room_containing(rooms, a)
+        if room is None or twin is None or room is twin or room.get("label_raw") or not twin.get("label_raw"):
+            continue
+        room["label"], room["room_type"] = twin["label"], twin["room_type"]
+        room["inferred"] = True
+        room["label_inferred"] = {"method": "mirror", "rule": "mirror_twin", "of": twin["id"],
+                                  "axis": [ax[0], round(v, 4)], "evidence": list(rec.get("evidence") or [])}
+        build.warn(f"mirror twin: {level_id}: room {room['id']} takes the label '{twin['label']}' of {twin['id']}, the "
+                   f"room the reader closed as its mirror twin about {ax[0]} = {v:.3f} (inferred): "
+                   + "; ".join(rec.get("evidence") or []))
+
+
 def _wall_dict(level_id: str, wall: WallItem, wall_id: str, ceiling: float) -> dict:
     """The building's wall record of ``wall``. Fix round after P6b (23 Oct 2026; F_reading's ask): a wall the generic
     core's openings rules corrected (``openings._mark_lined``: real03's 0.30 / 0.315 m shear walls on the hall-living
@@ -635,6 +661,7 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
             if any(e is text.evidence for e in room["evidence"]):
                 text.element_id = room["id"]
     if generic:
+        _mirror_twin_rooms(build, level_id, ex, rooms)
         for text in ex.labels:
             room = R.room_containing(rooms, _to_building(ex, text.start))
             if room is not None and room["label_raw"] is not None:
