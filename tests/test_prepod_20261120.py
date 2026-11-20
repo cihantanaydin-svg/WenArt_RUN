@@ -107,3 +107,41 @@ def test_a_level_with_no_closed_wall_union_gets_its_slab_from_the_walls_outline(
     assert [s["id"] for s in slabs] == ["sl_L0", "sl_L1", "sl_L2"]
     s1 = next(s for s in slabs if s["id"] == "sl_L1")
     assert s1["inferred"] and s1["status"] == "assumed" and s1["openings"]          # the stair void of L0's stair
+
+
+# --------------------------------------------------------------------------- R03-03: the entrance must reach the core
+def _rf():
+    from tests import test_review_fixes_20261113 as RF
+    return RF
+
+
+def test_a_drawn_entrance_into_a_sealed_wind_lobby_is_asked_never_answered_by_its_label():
+    """R03-03 (real03): the drawn front door opens into the Rüzgarlık, which no door joins to the core hall: the label
+    does not answer the entrance; no door is cut into the core elsewhere; the open point is raised."""
+    from wenart import building as B
+    from wenart.ingest import core_rules as CR
+
+    RF = _rf()
+    b = RF.core_building(("L0", "L1"))
+    for r in b["rooms"]:
+        if r["id"] == "L0_hall":
+            r["polygon"] = [[4.1, 1.6], [7.9, 1.6], [7.9, 5.9], [6.3, 5.9], [6.3, 7.9], [4.1, 7.9]]
+    b["walls"].append(RF.wall("L0_rz", (4, 1.5), (8, 1.5)))
+    b["rooms"].append(RF.room("L0_rz", "Rüzgarlık", "other", RF.rect(4.1, 0.1, 7.9, 1.4)))
+    b["openings"].append(RF.op("d_front", "door", "wL0_s", (6.0, 0.0), 1.2))                 # no door L0_rz -> hall
+    b["site"]["entrances"] = [{"door_id": "d_front", "level_id": "L0", "room_id": "L0_rz", "rise": 0.0, "main": True}]
+    rec = CR.fix_entrances(b, B.IdCounter().next, {})
+    assert rec["added"] == [] and rec["open"] and "d_front" in rec["open"]
+
+
+def test_an_inferred_entrance_never_goes_into_a_fire_stair():
+    from wenart import building as B
+    from wenart.ingest import core_rules as CR
+
+    RF = _rf()
+    b = RF.entrance_building()
+    for r in b["rooms"]:
+        if r["id"] == "L-1_hall":
+            r.update(label="Yangın Merdiveni", room_type="stair")
+    rec = CR.fix_entrances(b, B.IdCounter().next, {})
+    assert all(a["level_id"] != "L-1" or "L-1_hall" not in a["reason"] for a in rec["added"])

@@ -1066,6 +1066,16 @@ def copy_doors(b: dict) -> list:
             continue
         lost = [p for p in lv.get("reading_places") or [] if p.get("kind") == "unplaced_label" and p.get("at")]
         kept, drop = [], set()
+        # (20 Nov 2026, pre-pod review R03-03) a windbreak or entrance hall copied from the ground floor onto an upper
+        # storey is no entrance there: flagged and asked, never left as an unexplained sealed room
+        for r in level.rooms:
+            if CR.ENTRANCE_ROOM_RE.search(CR._label(r)) and not r.get("copied_entrance_room"):
+                why = (f"{r['id']} '{r.get('label')}' on {lv['id']} is the ground floor's windbreak or entrance hall "
+                       f"copied onto a storey counted, not drawn: it is part of the common hall there (to review)")
+                r["copied_entrance_room"] = {"by": "code", "rule": "copy_door_window", "reason": why}
+                b.setdefault("needs_review", []).append({"id": f"copied_entrance:{r['id']}", "kind": "copied_entrance_room",
+                                                         "reason": why, "crop": None, "room_id": r["id"],
+                                                         "level_id": lv["id"]})
         for o in level.openings:
             if o.get("type") != "door" or o.get("virtual") or o.get("lift_door") or o["id"] in entrance_doors or \
                     (o.get("inference") or {}).get("rule") == "inferred_entrance":

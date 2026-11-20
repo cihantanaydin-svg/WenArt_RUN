@@ -1131,6 +1131,9 @@ def _entrance_word_near(texts: list, p) -> Optional[str]:
     return m.group(0) if m else None
 
 
+FIRE_ROOM_RE = re.compile(r"(?<![a-z])(?:yangin|fire\s+stair|fire\s+escape|kacis|acil\s+cikis|guvenlik\s+hol)")
+
+
 def _leads_to_core(b: dict, e: dict, core: set) -> bool:
     """An entrance into the core, or into a wind lobby, an entrance hall or a corridor that reaches the core through
     rooms that are not a flat's (review S1-03b: real03's drawn door into its Rüzgarlık; pure)."""
@@ -1142,9 +1145,9 @@ def _leads_to_core(b: dict, e: dict, core: set) -> bool:
         return False            # (CODE-04) a lift is never the room a building is entered by
     if rid in core:
         return True
-    r = next((x for x in level.rooms if x["id"] == rid), None)
-    if r is not None and ENTRANCE_ROOM_RE.search(_label(r)) and not FLAT_HALL_RE.search(_label(r)):
-        return True             # a wind lobby or an entrance hall: the building's way in (real03's Rüzgarlık)
+    # (20 Nov 2026, pre-pod review R03-03: real03's Rüzgarlık was closed off from the corridor by a misread wall and
+    # its label alone answered the entrance) a wind lobby or an entrance hall counts as a common way, never as the core:
+    # the walk must reach a core room
     rooms = {r["id"]: r for r in level.rooms}
 
     def common_way(r: dict) -> bool:
@@ -1300,6 +1303,21 @@ def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Option
                                     "into the common core") + " is the building entrance (inferred)")
                 rec["main"] = {"was": None, "now": e.get("door_id"), "reason": e["main_reason"] + " (adjusted_by_ai)"}
             return rec
+    # (20 Nov 2026, R03-03) a drawn outer door into a wind lobby or an entrance hall that reaches no core room: the
+    # passage between is not read; asked, never answered by a door cut into the core elsewhere
+    lobby = []
+    for e in usable:
+        o = ops.get(e.get("door_id")) or {}
+        r = rooms.get(e.get("room_id")) or {}
+        if not derived(o) and ENTRANCE_ROOM_RE.search(_label(r)) and not FLAT_HALL_RE.search(_label(r)):
+            lobby.append(e)
+    if lobby:
+        e = lobby[0]
+        rec["open"] = (f"the drawn entrance {e.get('door_id')} opens into {e.get('room_id')} "
+                       f"'{(rooms.get(e.get('room_id')) or {}).get('label')}', which reaches no room of the common core "
+                       f"in the reading (a wall or a door between them misread?): the passage from the entrance to the "
+                       f"core is to review (open point)")
+        return rec
     cands = [(lv, why, True) for lv, why in entrance_storeys(b, texts_by_level)]
     if not cands:
         # no storey lies at the ground: the ground floor is asked about, never given a door metres over the ground
@@ -1315,7 +1333,9 @@ def fix_entrances(b: dict, next_id, party_by_level: dict, texts_by_level: Option
         if not may_add:
             continue
         party = party_by_level.get(lv["id"]) or {}
-        halls = [rooms[i] for i in core if rooms.get(i, {}).get("room_type") in ("hall", "stair")]
+        # (R03-03) never a fire stair: its door to the street is an escape, not the building's entrance
+        halls = [rooms[i] for i in core if rooms.get(i, {}).get("room_type") in ("hall", "stair")
+                 and not FIRE_ROOM_RE.search(_label(rooms[i]))]
         best = None
         for hall in halls:
             for f in level.faces(hall):
