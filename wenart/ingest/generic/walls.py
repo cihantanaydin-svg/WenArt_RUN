@@ -226,9 +226,12 @@ def fill_polygons(st: Stroke, s: float = 1.0) -> list[list[tuple[float, float]]]
 # 1. Primitives
 # --------------------------------------------------------------------------
 
-def wall_primitives(page: GenericPage, units_to_m: float, dimension_ids: frozenset = frozenset()) -> list[WallPrim]:
+def wall_primitives(page: GenericPage, units_to_m: float, dimension_ids: frozenset = frozenset(),
+                    decisions=None) -> list[WallPrim]:
     """All wall primitives of a page, in page metres (see the module docstring for the rules). ``dimension_ids``:
-    the strokes that draw dimension lines and their end marks (``scale.find_dimensions``), never wall faces."""
+    the strokes that draw dimension lines and their end marks (``scale.find_dimensions``), never wall faces.
+    ``decisions`` (5 Nov 2026, Milestone 14 R3): the level's ``decisions.DecisionLog``; every face-line pair the
+    face-pair reader considers becomes a ``wall_or_notation`` record in it."""
     s = float(units_to_m)
     prims: list[WallPrim] = []
     if page.wall_mask is not None:
@@ -244,7 +247,7 @@ def wall_primitives(page: GenericPage, units_to_m: float, dimension_ids: frozens
     prims.extend(_dark_fills(page, s, used, owners))
     prims.extend(_outline_walls(page, s, used))
     if page.wall_mask is None and not page.source_kind.startswith("raster"):
-        prims = face_pair_walls(page, s, prims, dimension_ids)[0]
+        prims = face_pair_walls(page, s, prims, dimension_ids, decisions)[0]
     return prims
 
 
@@ -1148,9 +1151,12 @@ def _runs_through(pair: _Pair, column: Polygon) -> bool:
             max(s_cut) - min(s_cut) >= COLUMN_BAND_SHARE * (max(s_col) - min(s_col)))
 
 
-def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_Element]:
+def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]],
+             accepted_out: Optional[set] = None) -> list[_Element]:
     """The wall network of one layer: primary pairs, the columns they end on, secondary pairs touching the network
-    and the joins where a face of a primary pair runs on to wall material (see the section comment).
+    and the joins where a face of a primary pair runs on to wall material (see the section comment). ``accepted_out``
+    (6 Nov 2026, Milestone 14 R3 review): filled with the ids of the input pairs the network takes as wall pieces (the
+    decision records state the network's answer, not a guess).
 
     A column joins the network only inside the bands of the wall pieces that end on it, run on through it (the
     corner, T or cross it makes), or that run through it; what stands out of the walls into a room (real02: 40 cm
@@ -1164,6 +1170,7 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
     def piece(p: _Pair) -> bool:                  # a primary pair or a short piece at least as long as it is thick
         return p.primary or p.hi - p.lo >= p.width - 1e-9
 
+    originals = list(pairs)
     pairs = [_to_material(p, material, tree0) if piece(p) else p for p in pairs]
     prim_pairs = [p for p in pairs if p.primary]
     elems = [_Element("face_pair", p.polygon(), p.ids()) for p in prim_pairs]
@@ -1185,6 +1192,9 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
         elems.extend(_Element("face_pair", p.polygon(), p.ids()) for p in keep)
         rest = [p for p in rest if p not in keep]
     accepted = prim_pairs + [p for p in pairs if not p.primary and p.hi - p.lo >= p.width - 1e-9 and p not in rest]
+    if accepted_out is not None:
+        taken = {id(p) for p in accepted}
+        accepted_out.update(id(o) for o, p in zip(originals, pairs) if id(p) in taken)
     # Joins first, against the whole columns (a face hidden behind a wardrobe runs on to a column's side) ...
     work = elems + [_Element("column", poly, [sid]) for poly, sid in cols]
     seen: set = set()
@@ -1481,10 +1491,11 @@ def _prim_geoms(prims: list[WallPrim]) -> list:
 
 
 def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
-                    dimension_ids: frozenset = frozenset()) -> tuple[list[WallPrim], dict]:
+                    dimension_ids: frozenset = frozenset(), decisions=None) -> tuple[list[WallPrim], dict]:
     """``(prims, choice)``: the page's primitives with the face-pair walls of the layer chosen by evidence added
     (the other primitives kept only where they touch them), or unchanged; ``choice`` says why (see the section
-    comment above)."""
+    comment above). ``decisions`` (5 Nov 2026, Milestone 14 R3): every pair considered, kept or dropped, becomes a
+    ``wall_or_notation`` record (``_record_pair_decisions``); recording changes nothing here."""
     s = float(units_to_m)
     labels = _labels_m(page, s)
     choice: dict = {"used": False, "labels": len(labels), "layers": []}
@@ -1509,10 +1520,13 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     # flight test of the pairs (``_drop_flight_pairs``)
     tread_like = [(a, b) for pcs in by_layer.values() for _sid, a, b in pcs if 0.1 <= math.dist(a, b) <= 2.0]
     from wenart.ingest.generic import layer_names as LN
+    cands: list[dict] = []          # 5 Nov 2026 (R3): every pair considered per layer, with the drop that took it
     for layer, pieces in by_layer.items():
         if LN.layer_role(layer) in NOTATION_ROLES:
             # 4 Nov 2026 (real17 L0, user: "the drawing seems ok"): the sheet's double frame on the text layer YAZILAR
             # closed in every label and was chosen as the walls; notation layers never draw walls (UL296)
+            if decisions is not None:            # paired for the record only: the layer never draws a wall
+                cands.append(_candidate_pairs(layer, pieces, notation=True))
             continue
         ids = {sid for sid, _, _ in pieces}
         dims = ids & set(dimension_ids)
@@ -1521,21 +1535,35 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         pairs: list[_Pair] = []
         long_lines = paired = 0
         groups = [(u, n, _merge_lines(group, u, n)) for u, n, group in _direction_groups(pieces)]
+        considered: list[_Pair] = []
+        dropped: dict[int, str] = {}
+        all_lines: list[_Line] = []
         for u, n, lines in groups:
-            found = _drop_tread_runs(_pairs_of(lines, layer, u, n))
+            all_lines.extend(lines)
+            paired_all = _pairs_of(lines, layer, u, n)
+            considered.extend(paired_all)
+            found = _drop_tread_runs(paired_all)
+            dropped.update({id(p): "tread_run" for p in paired_all if id(p) not in {id(q) for q in found}})
             stepped_runs(found)
+            before = found
             found = _drop_wide_bands(found)
+            dropped.update({id(p): "wide_band" for p in before if id(p) not in {id(q) for q in found}})
             # the pieces of any layer across these (about 90 degrees): the treads of a flight crossing a pair's band
             if any(p.width >= FLIGHT_PAIR_MIN_W for p in found):
                 cross = [LineString([a, b]) for a, b in tread_like
                          if abs((b[0] - a[0]) * u[0] + (b[1] - a[1]) * u[1]) < 0.1 * math.dist(a, b)]
+                before = found
                 found = _drop_flight_pairs(found, cross)
+                dropped.update({id(p): "flight" for p in before if id(p) not in {id(q) for q in found}})
             pairs.extend(found)
             in_pairs = {id(ln) for p in found if p.primary for ln in p.lines}
             for ln in lines:
                 if ln.s1 - ln.s0 >= PAIR_OVERLAP_M:
                     long_lines += 1
                     paired += id(ln) in in_pairs
+        if decisions is not None:
+            cands.append({"layer": layer, "pairs": considered, "dropped": dropped, "lines": all_lines,
+                          "notation": False, "dimension_pieces": len(dims)})
         if not any(p.primary for p in pairs):
             continue
         elems = _network(pairs, columns)
@@ -1576,6 +1604,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
             and rows[0]["pair_share"] >= OWN_PAIR_SHARE:
         picked = [rows[0]] + picked
     if not decided and not picked:
+        _record_pair_decisions(decisions, page, s, cands, rows, set(), decided=False, dimension_ids=dimension_ids)
         if rows and rows[0]["grid"]:
             choice["reason"] = (f"only axis grids close in the labels: "
                                 f"{', '.join(repr(r['layer']) for r in rows if r['grid'])} (their pieces cross "
@@ -1594,6 +1623,9 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     # better evidence: the layer only draws the same walls again, so the filled walls are kept.
     kept = _existing_covers(prims, win["_elems"])
     if kept is not None:
+        # (the layer draws the filled walls again: its pairs are walls, the filled material builds them)
+        _record_pair_decisions(decisions, page, s, cands, rows, {win["layer"]}, decided=decided,
+                               dimension_ids=dimension_ids, columns=columns)
         choice["reason"] = (f"the plan's filled wall material covers {kept[0]:.0%} of layer '{win['layer']}''s walls "
                             f"and is {kept[1]:.1f} times their area: the layer draws the same walls again; the filled "
                             f"walls are kept")
@@ -1696,7 +1728,138 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         for p in face:
             p.note += f"; {len(prims) - len(kept)} other wall primitives off that layer left out"
         choice["note"] = face[0].note if face else note
+    _record_pair_decisions(decisions, page, s, cands, rows, set(layers), decided=decided, dimension_ids=dimension_ids,
+                           columns=columns)
     return kept + face, choice
+
+
+PAIR_RECORD_CAP = 300           # 5 Nov 2026 (R3): at most this many records per notation layer (the longest pairs) ...
+PAIR_RECORD_PIECES = 1500       # ... and a notation layer with more straight pieces is not paired for the record
+TEXT_NEAR_M = 0.3               # a text this close to a pair's centre (a dimension value, a tag, a label)
+COLLINEAR_M = 0.01              # lines of one direction at the same offset within this are collinear neighbours
+
+
+def _candidate_pairs(layer: str, pieces: list, notation: bool) -> dict:
+    """The pairs of a notation layer, for the record only (5 Nov 2026, R3): the same pairing as the wall layers get
+    (``_direction_groups``, ``_merge_lines``, ``_pairs_of``), skipped when the layer is too big (``PAIR_RECORD_PIECES``)."""
+    considered: list[_Pair] = []
+    all_lines: list[_Line] = []
+    if len(pieces) <= PAIR_RECORD_PIECES:
+        for u, n, group in _direction_groups(pieces):
+            lines = _merge_lines(group, u, n)
+            all_lines.extend(lines)
+            considered.extend(_pairs_of(lines, layer, u, n))
+    return {"layer": layer, "pairs": considered, "dropped": {}, "lines": all_lines, "notation": notation,
+            "dimension_pieces": 0, "skipped": len(pieces) > PAIR_RECORD_PIECES}
+
+
+def _record_pair_decisions(decisions, page: GenericPage, s: float, cands: list[dict], rows: list[dict],
+                           chosen: set, decided: bool, dimension_ids: frozenset = frozenset(),
+                           columns: Optional[list] = None) -> None:
+    """One ``wall_or_notation`` record per pair considered (5 Nov 2026, Milestone 14 R3; user: "I want structure
+    recognition to be cumulatively better with the feedbacks I am giving"): the pair's length, width, layer role,
+    neighbours and surroundings as features, the rule that kept or dropped it with the table's confidence
+    (``decisions.RULE_CONFIDENCE``) and its answer (``wall`` | ``notation``); the final answer is read off the built
+    walls later (``DecisionLog.finalize``). Pure apart from appending to the log; nothing when there is no log."""
+    if decisions is None or not cands:
+        return
+    from wenart.ingest.generic import layer_names as LN
+
+    n_labels = max(1, len(_labels_m(page, s)))
+    row_of = {r["layer"]: r for r in rows}
+    # 6 Nov 2026 (review): a short pair on a chosen layer is a wall only when the chosen layers' network takes it (at
+    # least as long as it is thick and touching a wall piece, ``_network``); the record states that answer
+    taken: set = set()
+    chosen_pairs = [pr for r in rows if r["layer"] in chosen for pr in r["_pairs"]]
+    if chosen_pairs:
+        _network(chosen_pairs, columns or [], accepted_out=taken)
+    stroke_of = {st.id: st for st in page.strokes}
+    texts = [(((t.box[0] + t.box[2]) / 2.0) * s, ((t.box[1] + t.box[3]) / 2.0) * s) for t in page.texts
+             if (t.text or "").strip()]
+    tx = np.array([p[0] for p in texts]) if texts else None
+    ty = np.array([p[1] for p in texts]) if texts else None
+    dim_ids = set(dimension_ids)
+    for cand in cands:
+        layer = cand["layer"]
+        role = LN.layer_role(layer) or "none"
+        row = row_of.get(layer)
+        grid = bool(row and row.get("grid"))
+        offsets = sorted(ln.off for ln in cand["lines"])
+        # the rule per pair, then at most PAIR_RECORD_CAP records per rule and layer (the longest pairs; a stair's
+        # treads give thousands of equal tread-run pairs); what is left out is counted, never silent
+        ruled: dict[str, list] = {}
+        for p in cand["pairs"]:
+            if cand["notation"]:
+                rule = "notation_layer"
+            elif id(p) in cand["dropped"]:
+                rule = cand["dropped"][id(p)]
+            elif grid:
+                rule = "axis_grid"
+            elif layer in chosen and p.primary:
+                rule = "wall_chosen_layer" if decided else "wall_document_layer"
+            elif layer in chosen:
+                rule = "secondary_pair" if id(p) in taken else "secondary_cap"
+            else:
+                rule = "layer_not_chosen" if decided else "layer_not_chosen_undecided"
+            ruled.setdefault(rule, []).append(p)
+        for rule, pairs in ruled.items():
+            decisions.count_wall(layer, rule, len(pairs), max(0, len(pairs) - PAIR_RECORD_CAP))
+            if len(pairs) > PAIR_RECORD_CAP:
+                ruled[rule] = sorted(pairs, key=lambda q: -(q.hi - q.lo))[:PAIR_RECORD_CAP]
+        for rule, pairs in ruled.items():
+            answer = "wall" if rule in ("wall_chosen_layer", "wall_document_layer", "secondary_pair") else "notation"
+            for p in pairs:
+                _record_pair(decisions, p, layer, role, rule, answer, row, grid, chosen, decided, offsets, stroke_of,
+                             dim_ids, tx, ty, n_labels, cand)
+
+
+def _record_pair(decisions, p: _Pair, layer: str, role: str, rule: str, answer: str, row, grid: bool, chosen: set,
+                 decided: bool, offsets: list, stroke_of: dict, dim_ids: set, tx, ty, n_labels: int,
+                 cand: dict) -> None:
+    """One pair's record (``_record_pair_decisions``): its features, the rule and its answer, its place and centre
+    line in page metres (``DecisionLog.finalize`` shifts them to building metres and reads the final answer)."""
+    import bisect
+
+    from wenart.ingest.generic import axes as AX
+    from wenart.ingest.generic import decisions as DEC
+
+    length = p.hi - p.lo
+    ids = p.ids()
+    strokes = [stroke_of[i] for i in ids if i in stroke_of]
+    mid_off = (p.lines[0].off + p.lines[1].off) / 2.0
+    centre = p.point((p.lo + p.hi) / 2.0, mid_off)
+    near_text = 0
+    if tx is not None:
+        near_text = int((np.hypot(tx - centre[0], ty - centre[1]) <= TEXT_NEAR_M).sum())
+    collinear = 0
+    for ln in p.lines:
+        lo_i = bisect.bisect_left(offsets, ln.off - COLLINEAR_M)
+        hi_i = bisect.bisect_right(offsets, ln.off + COLLINEAR_M)
+        collinear += max(0, hi_i - lo_i - 1)
+    f = {"length": length, "width": p.width, "primary": bool(p.primary), "run_length": p.run,
+         "aspect": length / p.width if p.width > 0 else 0.0,
+         "line_length_max": max(ln.s1 - ln.s0 for ln in p.lines),
+         "line_length_min": min(ln.s1 - ln.s0 for ln in p.lines),
+         "linetype_axis": any(AX.is_axis_style(st.layer, st.linetype) for st in strokes),
+         "in_dimension_chain": any(i in dim_ids for i in ids),
+         "in_axis_grid": grid, "inside_block": any(getattr(st, "block", None) for st in strokes),
+         "text_within_0_3m": near_text, "collinear_neighbours": collinear,
+         "layer_chosen": layer in chosen, "layer_decided": bool(decided),
+         "layer_closed_in_share": (row["closed_in"] / n_labels) if row else 0.0,
+         "layer_pair_share": row["pair_share"] if row else 0.0,
+         "layer_rooms": row["rooms"] if row else 0, "layer_pairs": row["pairs"] if row else 0,
+         "layer_dimension_pieces": cand.get("dimension_pieces", 0)}
+    for r in ("wall", "plaster", "structure", "door", "window", "glass", "furniture", "text", "dimension", "axis",
+              "stair", "finish", "hatch", "none"):
+        f[f"role_{r}"] = role == r
+    f["role_other"] = f"role_{role}" not in f
+    rec = {"kind": DEC.KIND_WALL, "id": "+".join(ids[:4]), "layer": layer,
+           "features": {k: DEC._num(v) for k, v in f.items()}, "rule": rule, "rule_answer": answer,
+           "rule_confidence": DEC.rule_confidence(rule), "final_answer": None, "decided_by": DEC.DECIDED_RULE,
+           "place_page": [round(centre[0], 4), round(centre[1], 4)],
+           "axis": round(math.degrees(math.atan2(p.u[1], p.u[0])) % 180.0, 2),
+           "line_page": [list(p.point(p.lo, mid_off)), list(p.point(p.hi, mid_off))]}
+    decisions.add_wall(rec)
 
 
 # --------------------------------------------------------------------------

@@ -1333,6 +1333,22 @@ MARKS_PATH = REPO / "results" / "critic" / "user_marks.json"
 REVIEW_DIR = REPO / "results" / "critic" / "review"
 
 
+def run_review_dir(answers_path, base: Path = REVIEW_DIR) -> Path:
+    """A new review-sheet folder for one pod's answers (20 Nov 2026, the coordinator: a re-calibration must never
+    renumber the sheets the user is marking): ``review_<run>`` after the answers' run folder (``YYYYMMDD-HHMMSS``),
+    with ``_2``, ``_3`` ... when that folder holds sheets already."""
+    import re as _re
+
+    m = _re.search(r"(\d{8}-\d{6})", str(answers_path))
+    name = f"{base.name}_{m.group(1) if m else _dt.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    dest = base.parent / name
+    k = 2
+    while dest.exists() and any(dest.rglob("findings_index.json")):
+        dest = base.parent / f"{name}_{k}"
+        k += 1
+    return dest
+
+
 def _cmd_calibrate(args) -> int:
     from wenart.reading_check import critic_checks as CC
 
@@ -1365,9 +1381,10 @@ def _cmd_calibrate(args) -> int:
                                        encoding="utf-8")
             print(f"written {args.json}")
         if not args.no_sheets:
-            sheets = CC.review_sheets(index, new, Path(args.inputs), Path(args.review or REVIEW_DIR),
+            dest = Path(args.review) if args.review else run_review_dir(args.answers)
+            sheets = CC.review_sheets(index, new, Path(args.inputs), dest,
                                       judged={j["id"]: j for j in res["judgements"]})
-            print(f"review sheets: {sum(len(v) for v in sheets.values())} in {args.review or REVIEW_DIR}")
+            print(f"review sheets: {sum(len(v) for v in sheets.values())} in {dest}")
     if args.write:
         print(f"written {save_trust(trust)}")
     return 0

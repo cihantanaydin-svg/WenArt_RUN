@@ -1,0 +1,259 @@
+{
+ "note": "Loop A's questions for the user (uncertainty x impact, the highest first). Mark the sheet with `python -m wenart.reading_check critic mark --review results/critic/questions/20261120 --folder questions --sheet 1 --right N,.. --wrong N,..`: right = the AI is right (the reading is wrong), wrong = the reading is right. Each mark becomes a user label (loop B learns from it).",
+ "made": "2026-11-20",
+ "questions": {
+  "after/real10/L-2#text|plausibility|P7:r_L-2_siginak": {
+   "id": "after/real10/L-2#text|plausibility|P7:r_L-2_siginak",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L-2",
+   "at": [
+    5.229,
+    9.165
+   ],
+   "point": null,
+   "image_entry": "after/real10/L-2",
+   "kind": "storey_no_stair_access",
+   "call": "plausibility",
+   "score": 2.8,
+   "description": "4 room(s) with no way to a stair: r_L-2_siginak, r_L-2_oda_2, r_L-2_elk_pano_odasi, r_L-2_w_c (Let's trace con"
+  },
+  "after/real10/L7#text|plausibility|P7:r_L7_asansor_mahali": {
+   "id": "after/real10/L7#text|plausibility|P7:r_L7_asansor_mahali",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L7",
+   "at": [
+    9.017,
+    8.97
+   ],
+   "point": null,
+   "image_entry": "after/real10/L7",
+   "kind": "storey_no_stair_access",
+   "call": "plausibility",
+   "score": 2.8,
+   "description": "5 room(s) with no way to a stair: r_L7_asansor_mahali, r_L7_oda, r_L7_isiklik, r_L7_oda_2, r_L7_oda_hall (The "
+  },
+  "after/real20/L0#text|plausibility|P7:r_L0_oda": {
+   "id": "after/real20/L0#text|plausibility|P7:r_L0_oda",
+   "type": "finding",
+   "project": "real20",
+   "level_id": "L0",
+   "at": [
+    1.704,
+    1.809
+   ],
+   "point": null,
+   "image_entry": "after/real20/L1",
+   "kind": "storey_no_stair_access",
+   "call": "plausibility",
+   "score": 2.8,
+   "description": "12 room(s) with no way to a stair: r_L0_oda, r_L0_banyo_wc, r_L0_banyo_wc_2, r_L0_salon, r_L0_antre, r_L0_antr"
+  },
+  "after/real21/L4#text|plausibility|P7:r_L4_salon": {
+   "id": "after/real21/L4#text|plausibility|P7:r_L4_salon",
+   "type": "finding",
+   "project": "real21",
+   "level_id": "L4",
+   "at": [
+    6.474,
+    3.541
+   ],
+   "point": null,
+   "image_entry": "after/real21/L1",
+   "kind": "storey_no_stair_access",
+   "call": "plausibility",
+   "score": 2.8,
+   "description": "12 room(s) with no way to a stair: r_L4_salon, r_L4_oda, r_L4_salon_2, r_L4_mutfak, r_L4_mutfak_2, r_L4_antre "
+  },
+  "after/real09/L1#text|plausibility|P3:r_L1_antre": {
+   "id": "after/real09/L1#text|plausibility|P3:r_L1_antre",
+   "type": "finding",
+   "project": "real09",
+   "level_id": "L1",
+   "at": [
+    14.44,
+    4.84
+   ],
+   "point": null,
+   "image_entry": "after/real09/L0",
+   "kind": "flat_no_entrance",
+   "call": "plausibility",
+   "score": 2.4,
+   "description": "r_L1_antre: a flat with no entrance door from the common hall (The storey contains two distinct flat layouts ("
+  },
+  "after/real09/L1#text|plausibility|P3:r_L1_oda_3": {
+   "id": "after/real09/L1#text|plausibility|P3:r_L1_oda_3",
+   "type": "finding",
+   "project": "real09",
+   "level_id": "L1",
+   "at": [
+    6.82,
+    4.84
+   ],
+   "point": null,
+   "image_entry": "after/real09/L0",
+   "kind": "flat_no_entrance",
+   "call": "plausibility",
+   "score": 2.4,
+   "description": "r_L1_oda_3: a flat with no entrance door from the common hall (The storey contains two distinct flat layouts ("
+  },
+  "after/real09/L2|compare|q12": {
+   "id": "after/real09/L2|compare|q12",
+   "type": "finding",
+   "project": "real09",
+   "level_id": "L2",
+   "at": [
+    10.631,
+    5.669
+   ],
+   "point": [
+    0.5003,
+    0.3405
+   ],
+   "image_entry": "after/real09/L2",
+   "kind": "room_not_in_drawing",
+   "call": "compare",
+   "score": 2.4,
+   "description": "the reading has a room here; the drawing has none"
+  },
+  "after/real10/L-1#text|plausibility|P5:o_L-1_004": {
+   "id": "after/real10/L-1#text|plausibility|P5:o_L-1_004",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L-1",
+   "at": [
+    9.673,
+    8.484
+   ],
+   "point": null,
+   "image_entry": "after/real10/L-1",
+   "kind": "lift_door_into_flat",
+   "call": "plausibility",
+   "score": 2.4,
+   "description": "o_L-1_004: a lift door into a flat (The lift door o_L-1_004 opens into r_L-1_oda_4_hall (Kat Holü), which is a"
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_006": {
+   "id": "after/real10/L-1#text|plausibility|P8:d_L-1_006",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L-1",
+   "at": [
+    11.19,
+    16.595
+   ],
+   "point": null,
+   "image_entry": "after/real10/L-1",
+   "kind": "door_into_air",
+   "call": "plausibility",
+   "score": 2.4,
+   "description": "d_L-1_006: an exterior door above the ground with nothing to step onto (These doors open to 'outside'. d_L-1_0"
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_008": {
+   "id": "after/real10/L-1#text|plausibility|P8:d_L-1_008",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L-1",
+   "at": [
+    2.139,
+    14.727
+   ],
+   "point": null,
+   "image_entry": "after/real10/L-1",
+   "kind": "door_into_air",
+   "call": "plausibility",
+   "score": 2.4,
+   "description": "d_L-1_008: an exterior door above the ground with nothing to step onto (These doors open to 'outside'. d_L-1_0"
+  },
+  "question|real10|L-2|gap_kind|9.8,8.4": {
+   "id": "question|real10|L-2|gap_kind|9.8,8.4",
+   "type": "gap",
+   "record": "real10|L-2|gap_kind|9.8,8.4",
+   "project": "real10",
+   "level_id": "L-2",
+   "at": [
+    9.7578,
+    8.45
+   ],
+   "image_entry": "before/real10@324c487f/L-2",
+   "kind": "gap_door",
+   "ai_answer": "window",
+   "reading_answer": "door",
+   "score": 1.826,
+   "description": "is it a window (the AI) or a door (the reading)?"
+  },
+  "question|real10|L0|gap_kind|20.8,14.7": {
+   "id": "question|real10|L0|gap_kind|20.8,14.7",
+   "type": "gap",
+   "record": "real10|L0|gap_kind|20.8,14.7",
+   "project": "real10",
+   "level_id": "L0",
+   "at": [
+    20.8323,
+    14.74
+   ],
+   "image_entry": "before/real10@324c487f/L0",
+   "kind": "gap_window",
+   "ai_answer": "window",
+   "reading_answer": "opening",
+   "score": 0.99,
+   "description": "is it a window (the AI) or a opening (the reading)?"
+  },
+  "question|real09|L3|gap_kind|13.7,8.2": {
+   "id": "question|real09|L3|gap_kind|13.7,8.2",
+   "type": "gap",
+   "record": "real09|L3|gap_kind|13.7,8.2",
+   "project": "real09",
+   "level_id": "L3",
+   "at": [
+    13.7048,
+    8.1891
+   ],
+   "image_entry": "before/real09@324c487f/L3",
+   "kind": "gap_window",
+   "ai_answer": "window",
+   "reading_answer": "opening",
+   "score": 0.867,
+   "description": "is it a window (the AI) or a opening (the reading)?"
+  },
+  "question|real09|L0|gap_kind|5.8,0.8": {
+   "id": "question|real09|L0|gap_kind|5.8,0.8",
+   "type": "gap",
+   "record": "real09|L0|gap_kind|5.8,0.8",
+   "project": "real09",
+   "level_id": "L0",
+   "at": [
+    5.835,
+    0.79
+   ],
+   "image_entry": "before/real09@324c487f/L0",
+   "kind": "gap_door",
+   "ai_answer": "window",
+   "reading_answer": "door",
+   "score": 0.6,
+   "description": "is it a window (the AI) or a door (the reading)?"
+  },
+  "question|real10|L-1|gap_kind|2.1,14.7": {
+   "id": "question|real10|L-1|gap_kind|2.1,14.7",
+   "type": "gap",
+   "record": "real10|L-1|gap_kind|2.1,14.7",
+   "project": "real10",
+   "level_id": "L-1",
+   "at": [
+    2.1389,
+    14.727
+   ],
+   "image_entry": "after/real10/L-1",
+   "kind": "gap_door",
+   "ai_answer": "window",
+   "reading_answer": "door",
+   "score": 0.6,
+   "description": "is it a window (the AI) or a door (the reading)?"
+  }
+ },
+ "sheets": {
+  "questions": [
+   "/home/user/WenArt_RUN/.claude/worktrees/agent-a9a560957b3b47065/results/critic/questions/20261120/questions/sheet_1.jpg"
+  ]
+ }
+}

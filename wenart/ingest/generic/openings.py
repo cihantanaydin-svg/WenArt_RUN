@@ -504,6 +504,12 @@ class Gap:
     cls: str = ""                 # door | window | opening | unclassified | empty | closed | open
     found: dict = field(default_factory=dict)
     slant: float = 0.0            # end gaps: the drawn wall's angle off the axis (deg) where its pieces step (``_slant``)
+    # 5 Nov 2026 (Milestone 14 R3): the cascade's own class before the ranker (the caller's symbol checks use it: a
+    # ranker door is no drawn symbol), the run's length (a gap wider than its run is never a door) and the decision
+    # record (``decisions.DecisionLog``)
+    rule_cls: str = ""
+    run_len: float = 0.0
+    decision: Optional[dict] = None
 
     @property
     def width(self) -> float:
@@ -631,8 +637,220 @@ def _arcs_in(items: list[_S]) -> list[tuple[_S, dict]]:
     return out
 
 
-def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
-    """Fill ``g.cls`` and ``g.found`` (door/window/doorless/unclassified, see the module docstring)."""
+def classify_gap(g: Gap, index: StrokeIndex, owned_global: set, log=None) -> None:
+    """Fill ``g.cls`` and ``g.found`` (door/window/doorless/unclassified, see the module docstring).
+
+    5 Nov 2026 (Milestone 14 R3; user: "I want structure recognition to be cumulatively better with the feedbacks I am
+    giving"): the rule cascade (``_classify_gap_rules``) answers first and its answer is kept in ``g.rule_cls``. With a
+    decision log the gap becomes a record (``decisions.DecisionLog``: the features the rules looked at, the rule that
+    fired and its fixed confidence, ``decisions.RULE_CONFIDENCE``). The ranker (``reading_check.ranker.decide``) acts
+    later, in ``gaps_and_openings`` once every gap is classified and the walls are merged (its features need the
+    exterior test and the mirror twin's answer): it may re-type a gap where the rule is weak and its own margin is
+    clear (``_apply_ranker``: only between door, window and opening on a run gap that makes an element anyway; never
+    closed or open, never an end gap, never against a hard constraint). Without a log nothing else happens (the unit
+    tests' direct calls)."""
+    _classify_gap_rules(g, index, owned_global)
+    g.rule_cls = g.cls
+    if log is None:
+        return
+    from wenart.ingest.generic import decisions as DEC
+
+    features = gap_features(g, index, owned_global, log)
+    rule, confidence = gap_rule(g, features, raster=bool(getattr(log, "raster", False)))
+    log.add_gap(g, {"kind": DEC.KIND_GAP, "id": None, "gap": g.kind, "features": features, "rule": rule,
+                    "rule_answer": DEC._answer_of_class(g.cls), "rule_confidence": confidence,
+                    "final_answer": None, "decided_by": DEC.DECIDED_RULE})
+    # the ranker decides later, once every gap is classified and the walls are merged (``gaps_and_openings``: the
+    # exterior test and the mirror twin's answer are features it needs)
+
+
+def gap_features(g: Gap, index: StrokeIndex, owned_global: set, log) -> dict:
+    """The flat feature dict of a gap for its decision record (5 Nov 2026, Milestone 14 R3): what the cascade looked
+    at, computed again cheaply from the same strokes so the cascade itself stays untouched. Numbers and booleans only
+    (the ranker standardises them); the texts around the gap come from the log (``decisions.text_features``); the
+    exterior test and the mirror twin's answer are filled in when every gap of the level is known
+    (``DecisionLog.finish_gaps``)."""
+    from wenart.ingest.generic import decisions as DEC
+    from wenart.ingest.generic import layer_names as LN
+
+    width = g.width
+    zone = [it for it in index.query(g.rect(grow_face=ZONE_M)) if it.st.id not in owned_global]
+    arcs = _arcs_in(zone)
+    swing = 0
+    best_ratio = 0.0
+    for it, arc in arcs:
+        end = _near_gap_end(g, arc["center"])
+        if end is None and width - DOOR_FRAME_M <= arc["radius"] < width:
+            end = _near_gap_end(g, arc["center"], HINGE_M + (width - arc["radius"]))
+        if end is not None and SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]:
+            swing += 1
+        if width > 0:
+            r = arc["radius"] / width
+            if best_ratio == 0.0 or abs(r - 1.0) < abs(best_ratio - 1.0):
+                best_ratio = r
+    door_like = sum(1 for _it, arc in arcs if _door_like(g, arc))
+    band = g.rect(grow_face=BAND_SLACK_M)
+    offsets: set = set()
+    framed: set = set()
+    glass: set = set()
+    cover_best = 0.0
+    jambs = 0
+    content_len = 0.0
+    content = 0
+    for it in zone:
+        if not _inside_rect_part(it, band):
+            continue
+        in_band = all(abs(g.across(q)) <= g.t / 2.0 + BAND_SLACK_M for q in it.pts)
+        inner = all(g.a - OWN_MARGIN_M <= g.along(q) <= g.b + OWN_MARGIN_M for q in it.pts)
+        if inner and it.geom.length > 0.005:
+            content += 1
+            content_len += it.geom.length
+        for p, q in zip(it.pts, it.pts[1:] + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])):
+            if _parallel(p, q, g.axis) or (g.slant and _parallel(p, q, g.axis, g.slant)):
+                off = g.across(((p[0] + q[0]) / 2, (p[1] + q[1]) / 2))
+                if abs(off) > g.t / 2.0 + BAND_SLACK_M:
+                    continue
+                lo, hi = sorted((g.along(p), g.along(q)))
+                cover = min(hi, g.b) - max(lo, g.a)
+                if cover <= 0:
+                    continue
+                cover_best = max(cover_best, cover / width if width > 0 else 0.0)
+                if cover >= WINDOW_COVER * width:
+                    offsets.add(round(off, 3))
+                    if in_band and _confined(lo, hi, g.a, g.b):
+                        framed.add(round(off, 3))
+                        if abs(off) < g.t / 2.0 - GLASS_INSET_M:
+                            glass.add(round(off, 3))
+            elif abs(g.along(p) - g.along(q)) <= 0.02 and min(abs(g.along(p) - g.a), abs(g.along(p) - g.b)) \
+                    <= HINGE_M:
+                jambs += 1          # a line across the band at a gap end: a jamb or frame line
+    roles: dict[str, int] = {}
+    for it in zone:
+        role = LN.layer_role(it.st.layer) or "none"
+        roles[role] = roles.get(role, 0) + 1
+    outline_d = 2.0
+    reach = g.rect(grow_face=2.0, grow_along=2.0)
+    centre = Point(g.point((g.a + g.b) / 2.0))
+    for it in index.query(reach):
+        if it.st.closed and len(it.pts) > 2 and it.geom.length >= 1.0:
+            outline_d = min(outline_d, it.geom.distance(centre))
+    normal = (0.0, 1.0) if g.axis == "h" else (1.0, 0.0)
+    own = [p for p in g.pieces if p.axis == g.axis] or list(g.pieces)   # an end gap's hit piece lies on the other axis
+    f = {"width": width, "thickness": g.t, "run_length": g.run_len or (max(p.b for p in own) - min(p.a for p in own)),
+         "kind_run": g.kind == "run", "kind_split": g.kind == "split", "kind_end": g.kind == "end",
+         "exterior": False,
+         "arcs": len(arcs), "arcs_swing": swing, "arcs_door_like": door_like, "arc_radius_ratio": best_ratio,
+         "named_door": bool(g.found.get("by_name")) and g.cls == "door",
+         "named_window": bool(g.found.get("by_name")) and g.cls == "window",
+         "open_leaves": bool(g.found.get("open_leaf")),
+         "sliding_leaves": bool(g.found.get("sliding")) and not g.found.get("by_name"),
+         "parallel_offsets": len(offsets), "framed_offsets": len(framed), "glass_lines": len(glass),
+         "cover_share": min(cover_best, 1.0), "jamb_lines": jambs,
+         "content_count": content, "content_length": content_len, "outline_distance": outline_d}
+    for role in ("window", "door", "wall", "plaster", "structure", "glass", "furniture", "text", "dimension", "axis",
+                 "none"):
+        f[f"role_{role}"] = roles.get(role, 0)
+    f["role_other"] = sum(v for k, v in roles.items() if f"role_{k}" not in f)
+    f.update(DEC.text_features(log.texts_aligned(), g.point((g.a + g.b) / 2.0), normal, width))
+    return {k: DEC._num(v) for k, v in f.items()}
+
+
+def gap_rule(g: Gap, features: dict, raster: bool = False) -> tuple[str, float]:
+    """The rule of ``decisions.RULE_CONFIDENCE`` that gave the cascade's answer and its confidence (pure)."""
+    from wenart.ingest.generic import decisions as DEC
+
+    cls, found = g.cls, g.found
+    if cls == "door":
+        if found.get("arcs"):
+            rule = "door_swing_arc"
+        elif found.get("by_name"):
+            rule = "door_named"
+        elif found.get("open_leaf"):
+            rule = "door_open_leaf"
+        else:
+            rule = "door_sliding_leaf"
+    elif cls == "window":
+        if found.get("by_name"):
+            rule = "window_named"
+        elif raster:
+            rule = "window_raster"
+        elif features.get("glass_lines", 0) >= 1 and features.get("parallel_offsets", 0) >= 3:
+            rule = "window_glass_3_lines"
+        else:
+            rule = "window_2_lines"
+    elif cls == "closed":
+        rule = "closed_wall_faces" if found.get("faces") else ("closed_inside_wall" if found.get("inside")
+                                                               else "closed_narrow")
+    elif cls == "open":
+        rule = "open_lined" if found.get("lining") else ("open_split" if found.get("split_reason") else "open_wide")
+    elif cls == "empty":
+        rule = "doorless"
+    else:
+        rule = "unclassified"
+    return rule, DEC.rule_confidence(rule)
+
+
+def _apply_ranker(g: Gap, rec: dict) -> None:
+    """Step 4 (5 Nov 2026): let the ranker decide the gap's kind where the rule is weak (``ranker.RULE_TRUST``) and its
+    own margin clear (``ranker.MARGIN_MIN``), under the hard constraints that stay rules: a gap with a swing arc is a
+    door; a gap wider than its wall run is never a door; an end gap makes no element (a ranker door there would extend
+    a wall: geometry); the answer is door, window or opening only (closed and open make or remove a wall); and the
+    change must be a transition the held-out run trusted (``ranker.transition_trust``). The record gets
+    ``decided_by``, ``margin`` and ``scores``; an untrusted change is written as ``ranker_untrusted`` (never applied);
+    a weak rule with a weak or untrusted ranker is a low-confidence place."""
+    from wenart.reading_check import ranker as RK
+
+    f = rec["features"]
+    allowed = RK.allowed_answers(rec)                 # the hard constraints, in one place (ranker.allowed_answers)
+    model = RK.load_model(rec["kind"])
+    answer, by, margin, scores = RK.decide(rec["kind"], f, rec["rule_answer"], rec["rule_confidence"],
+                                           allowed=allowed, model=model, rule=rec.get("rule"))
+    explored = RK.explore_choice(rec, allowed, margin if scores else 0.0) if by != RK.DECIDED_RANKER else None
+    if explored is not None:
+        # 20 Nov 2026 (``reading_check.bandit``): an exploration run only; the answer is applied like the ranker's and
+        # recorded with its propensity, its reward comes from the code checks and the truth
+        answer, by = explored[0], RK.DECIDED_RANKER
+        rec["explored"] = {"answer": explored[0], "propensity": explored[1], "rule_answer": rec["rule_answer"]}
+    rec["decided_by"] = by if explored is None else "explore"
+    if scores:
+        rec["scores"] = scores
+        rec["margin"] = margin
+        if by != RK.DECIDED_RANKER:
+            would = RK.untrusted_change(model, rec.get("rule"), rec["rule_answer"], rec["rule_confidence"], scores,
+                                        margin, allowed)
+            if would is not None:
+                rec["ranker_untrusted"] = would
+    if by == RK.DECIDED_RANKER and answer != rec["rule_answer"]:
+        content = list(g.found.get("content", []))
+        note = (f"ranker: {answer} (margin {margin:.2f}) over the rule's {rec['rule_answer']} "
+                f"({rec['rule']} {rec['rule_confidence']:.2f})")
+        if answer == "door":
+            g.cls = "door"
+            g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": [], "leaf": False, "swing": 0.0, "radius": None,
+                       "double": False, "content": content, "by_ranker": {"margin": max(0.05, margin), "note": note}}
+        elif answer == "window":
+            g.cls = "window"
+            g.found = {"lines": content, "glass": [], "content": content, "by_ranker": {"margin": max(0.05, margin), "note": note}}
+        rec["ranker_answer"] = answer
+    elif scores and rec["rule_confidence"] < RK.RULE_TRUST and len(allowed) > 1 and \
+            (margin < RK.MARGIN_MIN or rec.get("ranker_untrusted")):
+        other = max((c for c in scores if c not in allowed), key=lambda c: scores[c], default=None)
+        if margin < 0 and other is not None:
+            # the best allowed answer trails a class the ranker may not give (closed or open: a wall made or removed)
+            why = (f"the ranker rates it {other} ({scores[other]:.2f}), an answer that stays with the rules, above any "
+                   f"opening type")
+        elif margin < RK.MARGIN_MIN:
+            why = f"the ranker's margin {margin:.2f} is weak"
+        else:
+            why = (f"the ranker's {rec['ranker_untrusted']} (margin {margin:.2f}) is a change it has not been shown "
+                   f"to get right on other projects")
+        rec["low_confidence"] = (f"rule {rec['rule']} at {rec['rule_confidence']:.2f} and {why}: "
+                                 f"{rec['rule_answer']} kept")
+
+
+def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
+    """The rule cascade of the module docstring (door by swing arc, named door, open leaves, window, wall faces drawn
+    on, sliding leaves, named window, doorless, unclassified); fills ``g.cls`` and ``g.found``."""
     width = g.width
     zone = index.query(g.rect(grow_face=ZONE_M))
     zone = [it for it in zone if it.st.id not in owned_global]
@@ -1122,6 +1340,13 @@ def _inside_rect_part(it: _S, rect) -> bool:
 # Main entry
 # --------------------------------------------------------------------------
 
+def _symbol_cls(g: Gap) -> str:
+    """The gap's class as the caller's symbol rules see it (5 Nov 2026, Milestone 14 R3): a gap the ranker re-typed
+    counts as what the cascade drew (``rule_cls``: a ranker door is no drawn swing, so wall material or a split run
+    still outranks it); every other gap as it is."""
+    return g.rule_cls if g.found.get("by_ranker") else g.cls
+
+
 ANGLED_FRAME_MIN_M = 0.6        # R35: a direction off the plan's frame with at least this much wall gets its own pass
 ANGLED_FRAME_BIN_DEG = 1.0      # ... walls within this angle (mod 90) are one direction
 OPENING_SAME_M = 0.3            # ... an opening of an angled pass this near an opening already read is that one
@@ -1152,7 +1377,7 @@ def angled_frames(walls: list[WallItem], theta: float) -> list[float]:
 
 def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: int,
                       units_to_m: Optional[float] = None, dimension_ids=frozenset(), wall_strokes=(), outdoor_points=(),
-                      room_points=()) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
+                      room_points=(), decisions=None) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
     """``gaps_and_openings_frame`` in the plan's dominant frame, then (20 Nov 2026, rule R35 ``angled_wall``) once in
     the frame of each wall direction off it (``angled_frames``): the runs, gaps, doors and windows of a wall drawn at
     an angle are read in its own frame, as the axis walls are in theirs (real20's angled hall doors were lost once
@@ -1161,7 +1386,8 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     from wenart.ingest import rule_guards as RG
 
     out_walls, openings, log, owned = gaps_and_openings_frame(
-        walls, strokes_m, file_rel, page_no, units_to_m, dimension_ids, wall_strokes, outdoor_points, room_points)
+        walls, strokes_m, file_rel, page_no, units_to_m, dimension_ids, wall_strokes, outdoor_points, room_points,
+        decisions=decisions)
     if not RG.active("angled_wall"):
         return out_walls, openings, log, owned
     for ang in angled_frames(out_walls, dominant_angle(out_walls)):
@@ -1305,7 +1531,7 @@ def _moved_entry(e: dict, moved: dict) -> dict:
 
 def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: int,
                             units_to_m: Optional[float] = None, dimension_ids=frozenset(), wall_strokes=(),
-                            outdoor_points=(), room_points=(), theta: Optional[float] = None
+                            outdoor_points=(), room_points=(), theta: Optional[float] = None, decisions=None
                             ) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
     """Merge wall runs, find and classify gaps, extend free-end walls that host a drawn door or window.
 
@@ -1316,6 +1542,9 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
     let a door leaf read as a thin wall go back to the door (``leaf_walls``). 12 Nov 2026: ``outdoor_points`` (page
     metres: the outdoor-space labels, balcony, terrace, courtyard ...) mark closed spaces open to the sky
     (``_outside_test``); ``room_points`` (the labels of rooms one lives in) mark closed spaces that never are.
+    ``decisions`` (5 Nov 2026, Milestone 14 R3): the level's ``decisions.DecisionLog``; every classified gap and every
+    gap open by its width becomes a record in it (the gaps under ``GAP_MIN_M`` are cracks, not candidates, and stay
+    out); only the pass in the plan's dominant frame records (an angled pass's gaps are in its own frame).
     """
     leaf_log: list[dict] = []
     leaves = leaf_walls(walls, wall_strokes, strokes_m)
@@ -1337,6 +1566,10 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
     notation = AX.notation_ids(strokes_m, dimension_ids)
     index = StrokeIndex([st for st in strokes_m if st.id not in notation], theta)
     raster = bool(strokes_m) and all(st.source == "raster" for st in strokes_m)
+    log = decisions
+    if log is not None:
+        log.raster = raster
+        log.begin_gaps(theta)
     edge_m = RASTER_EDGE_PX * units_to_m if raster and units_to_m else 0.0
     runs = group_runs(pieces)
     order = {id(q): q.run for q in pieces}
@@ -1372,20 +1605,25 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
                 merge_after[ri].add(i)
                 continue
             subs = _split(p, q, ends)
+            run_len = run[-1].b - run[0].a
             if any(b - a > GAP_MAX_M for a, b in subs):
                 for a, b in subs:
-                    gaps.append(Gap("run" if len(subs) == 1 else "split", p.axis, p.c, _run_t(run), a, b, [p, q],
-                                    cls="open"))
+                    g = Gap("run" if len(subs) == 1 else "split", p.axis, p.c, _run_t(run), a, b, [p, q], cls="open",
+                            rule_cls="open", run_len=run_len)
+                    gaps.append(g)
+                    if log is not None:          # a decision too (open by its width; the ranker never touches it)
+                        _record_plain_gap(g, index, owned, log, "open_wide")
                 continue
             trial = set(owned)
             found = []
             for a, b in subs:
-                g = Gap("run" if len(subs) == 1 else "split", p.axis, _run_c(run), _run_t(run), a, b, [p, q])
+                g = Gap("run" if len(subs) == 1 else "split", p.axis, _run_c(run), _run_t(run), a, b, [p, q],
+                        run_len=run_len)
                 if g.width >= GAP_MIN_M:
-                    classify_gap(g, index, trial)
+                    classify_gap(g, index, trial, log)
                 # Fix round after P6b: wall material of other pieces fills the gap (real03's shear-wall core); a door
                 # symbol in it keeps the door (review of the fix round: the drawn swing outranks the decomposition).
-                cover = _inside_wall(g, pieces, run) if g.cls != "door" else None
+                cover = _inside_wall(g, pieces, run) if _symbol_cls(g) != "door" else None
                 if cover is not None:
                     g.cls = "closed"
                     g.found = {"inside": [w.k for w in cover],
@@ -1410,7 +1648,7 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
                 gaps.extend(found)
                 continue
             two_walls = q.a - p.b > GAP_MAX_M or _crossed(p, q, ends)
-            if len(subs) > 1 and two_walls and any(g.cls in ("empty", "unclassified") for g in found):
+            if len(subs) > 1 and two_walls and any(_symbol_cls(g) in ("empty", "unclassified") for g in found):
                 # A gap open by itself (> 3 m) or crossed by walls, and a part holds no door or window symbol: two
                 # walls on one line (real02: the bedroom walls of both dwellings, the corridor and a bathroom
                 # between them), never one wall across; free ends cast their own end gaps (b).
@@ -1474,11 +1712,11 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
             if g.width < GAP_MIN_M:
                 g.cls = "closed"
             elif corner is not None:
-                classify_gap(g, index, owned)
+                classify_gap(g, index, owned, log)
                 # Only a door with a drawn swing (arc or open leaf): no window or sliding-leaf guess beside a corner
                 # (real03: the lines between its two lift shafts read as a 2.6 m 'window' this way).
                 if not (g.cls == "door" and (g.found.get("arcs") or g.found.get("open_leaf"))):
-                    continue                        # a buried end is no free end: nothing logged
+                    continue                        # a buried end is no free end: nothing logged (the record says dropped)
                 _own(g, index, owned)
             elif any(q is post for post in posts):
                 # A corner window's glass runs on to the frame's outer corner, past the post's near face.
@@ -1486,12 +1724,15 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
                           hit=q)
                 if which == "start":
                     far.a = a - q.t
-                classify_gap(far, index, owned)
-                g.cls, g.found = far.cls, far.found
+                classify_gap(far, index, owned, log)
+                g.cls, g.found, g.rule_cls = far.cls, far.found, far.rule_cls
+                if far.decision is not None:        # the record belongs to the gap that is kept
+                    g.decision = far.decision
+                    log.gap_records[-1] = (far.decision, g)
                 if g.cls in ("door", "window") or g.found.get("faces"):
                     _own(g, index, owned)
             else:
-                classify_gap(g, index, owned)
+                classify_gap(g, index, owned, log)
                 if g.cls in ("door", "window") or g.found.get("faces"):
                     _own(g, index, owned)
             gaps.append(g)
@@ -1544,6 +1785,17 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
     _trim_into_bands(out_walls, theta)
 
     exterior = _exterior_test(out_walls)
+    if decisions is not None:
+        # 5 Nov 2026 (Milestone 14 R3): every gap is classified and the walls are merged: the records get the exterior
+        # test and the mirror twin's answer, and the ranker may re-type a run gap the cascade left empty or
+        # unclassified (door, window or opening: an element either way; never an end gap, never a wall made or
+        # removed, ``_apply_ranker``) before the openings are built from the gaps
+        from wenart.ingest.generic import facade as FC
+        decisions.fill_gap_context(gaps, exterior, theta, FC.mirror_axis(out_walls, FC.MIRROR_SHARE))
+        if decisions.ranker:
+            for g in gaps:
+                if g.decision is not None and g.kind != "end" and g.cls in ("empty", "unclassified"):
+                    _apply_ranker(g, g.decision)
     openings: list[OpeningItem] = []
     log: list[dict] = []
     gap_pos: dict[int, int] = {}
@@ -1588,6 +1840,10 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
                     "entity": o.entity})
     log.extend(ctx.dropped)
     log.extend(leaf_log)
+    if decisions is not None:
+        # 5 Nov 2026 (Milestone 14 R3): every gap's record gets the class after this function's own rules and the
+        # ranker (``DecisionLog.finish_gaps``); the caller's rule takes the record over where it decided
+        decisions.finish_gaps(gaps)
     return out_walls, openings, log, owned
 
 
@@ -1656,6 +1912,17 @@ def leaf_walls(walls: list[WallItem], wall_strokes, strokes_m=()) -> dict[int, l
                and min(math.dist(a["center"], e) for e in ends) <= reach for a in swings):
             out[k] = ids
     return out
+
+
+def _record_plain_gap(g: Gap, index: StrokeIndex, owned: set, log, rule: str) -> None:
+    """A decision record for a gap the caller classed without the cascade (open by its width): its features and the
+    table's rule (5 Nov 2026, Milestone 14 R3)."""
+    from wenart.ingest.generic import decisions as DEC
+
+    features = gap_features(g, index, owned, log)
+    log.add_gap(g, {"kind": DEC.KIND_GAP, "id": None, "gap": g.kind, "features": features, "rule": rule,
+                    "rule_answer": DEC._answer_of_class(g.cls), "rule_confidence": DEC.rule_confidence(rule),
+                    "final_answer": None, "decided_by": DEC.DECIDED_RULE})
 
 
 def openings_on_walls(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: Optional[int],
@@ -2294,6 +2561,17 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
                            box=box, entity=ids[0], evidence=ev, height=DOOR_HEIGHT_M, assumed=["height"])
         _door_operation(item, [it.st for it in g.found["leaves"]], False, sliding=True)
         return item
+    if g.cls == "door" and g.found.get("by_ranker"):
+        # 5 Nov 2026 (Milestone 14 R3 step 4): a gap the ranker typed as a door (no swing drawn): an unverified door
+        # with the ranker's margin as its confidence (capped at the doorless rule's), no swing side, the rule's answer
+        # and the margin in the evidence; the content strokes stay its entity (nothing is drawn, nothing is owned twice)
+        ids = [it.st.id for it in g.found.get("content", [])] or [f"gap:{names}"]
+        ev = ctx.evidence("inferred", min(g.found["by_ranker"]["margin"], CONF_DOORLESS), ",".join(ids), box_units=box)
+        ev.update(note=g.found["by_ranker"]["note"], rule="ranker", decided_by="ranker",
+                  margin=round(g.found["by_ranker"]["margin"], 3))
+        return OpeningItem(kind="door", width=width, center=_r(center), rotation_deg=round(axis_deg % 360.0, 3),
+                           box=box, entity=ids[0], evidence=ev, status="unverified", height=DOOR_HEIGHT_M,
+                           assumed=["height"])
     if g.cls == "door":
         side = _rot(_swing_side(g), theta)
         probe = (center[0] + side[0] * DOOR_SWING_PROBE, center[1] + side[1] * DOOR_SWING_PROBE)
@@ -2309,7 +2587,15 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
         _door_operation(item, [it.st for it in g.found["arcs"] + g.found["leaves"]], bool(g.found.get("double")))
         return item
     if g.cls == "window":
-        ids = [it.st.id for it in g.found["lines"]]
+        ids = [it.st.id for it in g.found["lines"]] or [f"gap:{names}"]
+        if g.found.get("by_ranker"):
+            ev = ctx.evidence("inferred", min(g.found["by_ranker"]["margin"], CONF_DOORLESS), ",".join(ids),
+                              box_units=box)
+            ev.update(note=g.found["by_ranker"]["note"], rule="ranker", decided_by="ranker",
+                      margin=round(g.found["by_ranker"]["margin"], 3))
+            return OpeningItem(kind="window", width=width, center=_r(center), rotation_deg=round(axis_deg % 180.0, 3),
+                               box=box, entity=ids[0], evidence=ev, status="unverified", height=WINDOW_HEIGHT_M,
+                               sill=WINDOW_SILL_M, assumed=["height", "sill_height"])
         ev = ctx.evidence("vector", CONF_WINDOW, ",".join(ids), box_units=box)
         item = OpeningItem(kind="window", width=width, center=_r(center), rotation_deg=round(axis_deg % 180.0, 3),
                            box=box, entity=ids[0], evidence=ev, height=WINDOW_HEIGHT_M, sill=WINDOW_SILL_M,
@@ -2363,6 +2649,12 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
              "walls": sorted({piece_out.get(p.k) for p in g.pieces if piece_out.get(p.k) is not None})}
     if g.found.get("owned"):
         entry["owned"] = g.found["owned"]
+    if g.found.get("by_ranker"):
+        # 5 Nov 2026 (Milestone 14 R3): the ranker's decision is in the gap log too (never silent)
+        entry["decided_by"] = "ranker"
+        entry["margin"] = round(g.found["by_ranker"]["margin"], 3)
+        entry["rule_class"] = g.rule_cls
+        entry["note"] = g.found["by_ranker"]["note"]
     if g.cls == "door":
         entry["hinges"] = [_out(h, theta) for h in g.found["hinges"]]
         entry["radius"] = round(g.found["radius"], 4) if g.found.get("radius") is not None else None

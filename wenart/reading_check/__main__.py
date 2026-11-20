@@ -12,7 +12,8 @@ correction record with a crop), ``stability`` (the reading under mirror, rotatio
 ``crossdoc`` (the cross-document checks RC8-RC12) are reachable here as well, each with its own parser
 (``python -m wenart.reading_check crossdoc --help``); and ``raster`` (5 Nov 2026, Milestone 14 R4: the raster second
 opinion RC13, ``raster check|calibrate|projects``); ``sense`` (6 Nov 2026, Milestone 14 R6: the architectural-sense
-checks RC14, ``sense check|trust``)."""
+checks RC14, ``sense check|trust``); ``ranker retrain|train|evaluate|explain|label`` (Milestone 14 R3, the ranker of
+the reader's decisions)."""
 from __future__ import annotations
 
 import argparse
@@ -29,7 +30,12 @@ DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("w
              # 6 Nov 2026 (Milestone 14 R6): the vision critic RC15 (``critic prepare|ask|calibrate|store|questions``)
              "critic": ("wenart.reading_check.critic", "main"),
              # 13 Nov 2026: the stair integrity check RC16 (``stairs --out DIR``)
-             "stairs": ("wenart.reading_check.stairs", "main")}
+             "stairs": ("wenart.reading_check.stairs", "main"),
+             # 5 Nov 2026 (Milestone 14 R3): the ranker of the reader's decisions (retrain, train, evaluate, explain,
+             # label; ``evaluate`` because the sandbox refuses the word eval)
+             "ranker": ("wenart.reading_check.ranker", "main"),
+             # 20 Nov 2026: loops A and B (labels from agreement, questions, the ranker as a contextual bandit)
+             "bandit": ("wenart.reading_check.bandit", "main")}
 
 
 def main(argv=None) -> int:

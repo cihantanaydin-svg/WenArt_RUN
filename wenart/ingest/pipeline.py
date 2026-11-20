@@ -267,6 +267,10 @@ class ProjectBuild:
         # the outline closure's report per level (written to reading_check/outline_closure.json)
         self.below_unread: dict[str, str] = {}
         self.outline_closure: dict[str, dict] = {}
+        # 5 Nov 2026 (Milestone 14 R3): level id -> the reader's decision records (``generic.decisions``), written to
+        # reading_check/decisions_<level>.json
+        self.decisions: dict[str, list] = {}
+        self.decision_summaries: dict[str, dict] = {}
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -504,9 +508,50 @@ def _level_review(build: ProjectBuild, level_id: str, ex: LevelExtraction, reaso
     build.warn(f"{reason} ({BUILT_MARKED_NOTE})")
 
 
+def _finish_decisions(build: ProjectBuild, building: dict) -> None:
+    """6 Nov 2026 (Milestone 14 R3, review): the reader's decision records finished from the FINAL building, after every
+    pass that changes openings and walls (underground closing, twin walls, facade gaps, lift doors, gaps behind
+    furniture): each record's ``final_answer`` is read again from the level's walls and openings
+    (``decisions.final_answers_from_building``; the core's provisional answer stays as ``core_final_answer`` where it
+    differs), the summary is counted again, and the undecided gaps whose weak answer the built level still holds become
+    ``reading_places`` (kind ``undecided_gap``, RC7 numbers them; ``decisions.places_from_records``). A typical-floor
+    copy keeps no records of its own (its file points to the original's) and gets no places. Never silent: the number
+    of answers that changed after the core is in the summary (``final_changed_after_core``)."""
+    if not build.decisions:
+        return
+    from wenart.ingest.generic import decisions as DEC
+
+    levels = {lv["id"]: lv for lv in building.get("levels") or []}
+    for level_id, records in build.decisions.items():
+        level = levels.get(level_id)
+        if level is None or level.get("typical_of"):
+            continue
+        walls = [w for w in building.get("walls") or [] if w.get("level_id") == level_id]
+        openings = [o for o in building.get("openings") or [] if o.get("level_id") == level_id]
+        changed = DEC.final_answers_from_building(records, walls, openings)
+        old = build.decision_summaries.get(level_id) or {}
+        summary = DEC.summary(records)
+        for key in ("wall_pairs_per_layer_rule", "pairs_without_record"):
+            if key in old:
+                summary[key] = old[key]
+        summary["final_changed_after_core"] = changed
+        build.decision_summaries[level_id] = summary
+        places = DEC.places_from_records(records)
+        if places:
+            have = list(level.get("reading_places") or [])
+            seen = {(round(float(p["at"][0]), 2), round(float(p["at"][1]), 2)) for p in have if p.get("at")}
+            for p in places:
+                key = (round(float(p["at"][0]), 2), round(float(p["at"][1]), 2))
+                if key not in seen:
+                    seen.add(key)
+                    have.append(p)
+            level["reading_places"] = have
+
+
 def _mark_level(level: dict, ex: LevelExtraction) -> None:
     """``reading_confidence: low``, ``reading_review`` and ``reading_places`` on a level built with review reasons
-    (``_build_marked``, ``_level_review``); nothing on a level without them (schema ``level``)."""
+    (``_build_marked``, ``_level_review``); nothing on a level without them (schema ``level``). The undecided gaps of
+    Milestone 14 R3 are added at the end of the pipeline from the built level (``_finish_decisions``)."""
     if not ex.reading_review:
         return
     level["reading_confidence"] = READING_CONFIDENCE_LOW
@@ -3194,6 +3239,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                          "note": "a room label outside the walls read as the building"} for t, at in outside)
             if extraction.report.get("outline_closure"):
                 build.outline_closure[record.level_id] = extraction.report["outline_closure"]
+            if extraction.report.get("decisions") is not None:
+                build.decisions[record.level_id] = extraction.report["decisions"]
+                build.decision_summaries[record.level_id] = extraction.report.get("decisions_summary") or {}
         audit = (record.conversion or {}).get("audit") or {}
         if audit.get("errors"):
             _mark_unverified(extraction)
@@ -3237,6 +3285,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                     build.review(reason)
             if extraction.report.get("outline_closure"):
                 build.outline_closure[record.level_id] = extraction.report["outline_closure"]
+            if extraction.report.get("decisions") is not None:
+                build.decisions[record.level_id] = extraction.report["decisions"]
+                build.decision_summaries[record.level_id] = extraction.report.get("decisions_summary") or {}
             if extraction.report.get("questions") and (extraction.scale is None or
                                                         extraction.transform_to_building is None):
                 build.question_only.append(extraction)
@@ -3314,6 +3365,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
 
     building["documents"] = _documents(records, works, out_dir, project_dir, build)
     _write_source_items(build, records, works, out_dir)
+    _finish_decisions(build, building)
     errors = B.validation_errors(building)
     if errors:
         building["status"] = "needs_review"
@@ -3331,6 +3383,24 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         rc_dir.mkdir(parents=True, exist_ok=True)
         (rc_dir / "outline_closure.json").write_text(json.dumps(build.outline_closure, ensure_ascii=False, indent=1,
                                                                default=str) + "\n", encoding="utf-8")
+    if build.decisions:
+        # 5 Nov 2026 (Milestone 14 R3): the reader's decision records per level (gap kinds, wall or notation; the
+        # features, the rule, its confidence, the final answer, who decided), the ranker's labelled examples
+        rc_dir = out_dir / "reading_check"
+        rc_dir.mkdir(parents=True, exist_ok=True)
+        typical = {lv["id"]: lv.get("typical_of") for lv in building.get("levels") or []}
+        for level_id, records in build.decisions.items():
+            # a typical-floor copy (real10's L1 to L6 of L0) repeats the original's decisions: 6 Nov 2026 (review) its
+            # file is only a pointer to the original's (the ranker's labels count the drawing once, read_decisions)
+            copy_of = typical.get(level_id)
+            if copy_of:
+                payload = {"level_id": level_id, "typical_of": copy_of, "records_in": f"decisions_{copy_of}.json",
+                           "count": 0, "records": []}
+            else:
+                payload = {"level_id": level_id, "count": len(records),
+                           "summary": build.decision_summaries.get(level_id) or {}, "records": records}
+            (rc_dir / f"decisions_{level_id}.json").write_text(json.dumps(payload, ensure_ascii=False, default=str)
+                                                                + "\n", encoding="utf-8")
     if os.environ.get("WENART_READING_CHECK", "1") != "0":
         try:
             from wenart import reading_check as RCK
