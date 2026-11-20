@@ -42,6 +42,8 @@ def test_every_rule_key_is_asked_by_its_rule():
     # a staged rule (13 Nov 2026) is asked as a whole (RG.active) where its code branches; the build's party eaves
     # read the reading's record of the staged rules (level_inference.rules_staged)
     src += (ROOT.parent / "sheets" / "storeys.py").read_text(encoding="utf-8")     # margin_join: the sheets stage
+    # 20 Nov 2026 (R35 angled_wall): the generic reader's walls and openings ask it as a whole
+    src += "".join((ROOT / "generic" / f).read_text(encoding="utf-8") for f in ("walls.py", "openings.py"))
     asked = set(re.findall(r'RGU?\.(?:blocked|active)\(\s*"([a-z_]+)"', src))
     asked |= {"party_eaves"} if 'staged.get("party_eaves")' in eaves and "RG.STAGED" in src else set()
     asked |= {"stair_box", "stair_typical_copy", "stair_signs"} if "RG.blocked(kind, b" in src else set()

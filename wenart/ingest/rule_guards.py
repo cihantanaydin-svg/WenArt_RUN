@@ -72,6 +72,9 @@ RULES = {
                                  "the flat's hall is refused (removed into openings_merged, the wall kept)"),
     "basement_footprint": (("R10",), "a basement a document lists and no plan draws is built as the ground floor's "
                                         "footprint with its core (stairs, lifts), no window, no outside door"),
+    # 20 Nov 2026 (real20's 16-degree street facade read as axis stubs; the user: "focus on real structural problems")
+    "angled_wall": (("R35",), "a wall drawn at an angle off the plan's axes stays at its angle: its face pair is one "
+                              "wall at that angle, and the gaps of its line are read in its own frame"),
     # staged rules (``STAGED``): written and tested, off until their review (the coordinator, 13 Nov 2026)
     "exterior_spans": (("R14",), "the exterior flag is read per stretch of a wall before the windows; a level or a "
                                  "stretch that does not qualify takes no inferred window"),
