@@ -338,3 +338,56 @@ def test_an_at_grade_basement_is_not_underground_and_a_tin_counts_its_lowest_poi
     l0 = {"id": "L0", "order": 0, "kind": "floor", "elevation": 0.0, "ceiling_height": 3.3}
     assert CP.below_ground({"site": {"ground": tin}, "warnings": []}, l0) is None
     assert CP._ground_min({"site": {"ground": tin}}) == 2.36
+
+
+# --------------------------------------------------------------------------- R09-2, R09-6: R37 both ways, twins
+def _tag_building(elev=0.0, kind="door", width=1.2):
+    from tests import test_entrance_tags_20261113 as TT
+
+    b = TT.building()
+    b["levels"][0]["elevation"] = elev
+    b["rooms"] = [TT.room("r_a", "Yatak Odası", "bedroom", TT.rect(5.1, 0.1, 9.9, 5.9)),
+                  TT.room("r_b", "Yatak Odası", "bedroom", TT.rect(0.1, 0.1, 4.9, 5.9))]
+    b["openings"] = [{"id": "o_a", "type": kind, "level_id": "L0", "wall_id": "s", "center": [7.5, 0.0], "width": width,
+                      "evidence": [{"method": "vector"}]},
+                     {"id": "o_b", "type": kind, "level_id": "L0", "wall_id": "s", "center": [2.5, 0.0], "width": width,
+                      "evidence": [{"method": "vector"}]}]
+    b["site"] = {"entrances": [], "ground": {"levels": [{"z": {"value": 0.0, "method": "vector", "confidence": 1.0}}]}}
+    return b
+
+
+def test_the_untagged_mirror_twin_of_a_tagged_door_becomes_the_same_window():
+    from wenart.ingest import core_rules as CR
+
+    b = _tag_building()
+    out = CR.size_tags(b, {"L0": [{"text": "P:120/150", "x": 7.6, "y": -0.4}]})
+    ops = {o["id"]: o for o in b["openings"]}
+    assert ops["o_a"]["type"] == ops["o_b"]["type"] == "window"
+    assert ops["o_b"]["adjusted_by_ai"]["rule"] == "window_tag_twin" and len(out["windows"]) == 2
+
+
+def test_a_door_tag_on_an_outer_window_at_grade_makes_it_that_door_never_on_an_upper_storey():
+    from wenart.ingest import core_rules as CR
+
+    texts = {"L0": [{"text": "K:80/210", "x": 7.6, "y": -0.4}]}
+    b = _tag_building(kind="window", width=0.75)
+    CR.size_tags(b, texts)
+    ops = {o["id"]: o for o in b["openings"]}
+    assert ops["o_a"]["type"] == "door" and ops["o_a"]["width"] == 0.8 and ops["o_b"]["type"] == "window"
+    b = _tag_building(elev=3.0, kind="window", width=0.75)                 # an upper storey: no door into the air
+    CR.size_tags(b, texts)
+    assert all(o["type"] == "window" for o in b["openings"])
+
+
+# --------------------------------------------------------------------------- R09-5: no core door into a flat's room
+def test_a_door_from_the_core_into_a_bedroom_with_its_own_flat_door_is_refused():
+    from wenart.ingest import core_rules as CR
+
+    RF = _rf()
+    b = RF.core_building(("L0",))
+    b["openings"].append(RF.op("d_leaf", "door", "L0_8", (8.0, 5.0), 1.52, operation="sliding"))
+    got = CR.core_doors_into_flats(b)
+    assert [x["opening"] for x in got] == ["d_leaf"]
+    assert all(o["id"] != "d_leaf" for o in b["openings"])
+    assert b["openings_merged"][-1]["corrected_by_ai"]["rule"] == "core_flat_door"
+    assert any(o["id"] == "L0_ab" for o in b["openings"])                # the bedroom's own door stays

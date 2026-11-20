@@ -55,7 +55,8 @@ def test_tagged_outer_openings_are_what_their_tags_say_and_the_gap_is_the_main_e
     rec = CR.fix_entrances(b, B.IdCounter().next, {}, TEXTS)
     ops = {o["id"]: o for o in b["openings"]}
     assert ops["d_bed"]["type"] == "window" and ops["d_bed"]["drawn_type"] == "door"
-    assert ops["d_bed"]["height"] == 1.5 and ops["d_bed"]["sill_height"] == 0.7
+    assert ops["d_bed"]["height"] == 1.5 and ops["d_bed"]["sill_height"] == 0.9          # assumed (R09-3)
+    assert "sill_height" in ops["d_bed"]["assumed"] and ops["d_bed"]["drawn_sill_height"] is None
     assert ops["o_gap"]["type"] == "door" and ops["o_gap"]["operation"] == "double"
     assert ops["o_gap"]["door_tags"] == ["K:100/210", "K:50/210"]
     ents = b["site"]["entrances"]

@@ -838,6 +838,56 @@ def _gap_to_window(level: "CP.Level", o: dict, win: dict, flat: dict, why: str, 
                                             f"(adjusted_by_ai)"})
 
 
+HABITABLE = ("bedroom", "living", "dining", "study", "office", "kitchen")
+
+
+def core_doors_into_flats(b: dict) -> list:
+    """20 Nov 2026 (pre-pod review R09-5: the open leaf of the building's entrance door, drawn along the vestibule's
+    wall, was read as a 1.52 m door from the common vestibule into a flat's bedroom that has its own door from the
+    flat's hall): a door between a room of the common core and a flat's habitable room that has another door from a
+    hall of its own flat (no core room) is refused: removed into ``openings_merged`` (``corrected_by_ai``), the wall
+    kept. Returns the records ``[{level_id, opening, room, reason}]`` (in place)."""
+    out = []
+    for lv in b.get("levels") or []:
+        lid = lv["id"]
+        level = CP.Level(b, lid)
+        core = core_rooms(b, level)
+        if not core:
+            continue
+        links = _links(level)
+        rooms = {r["id"]: r for r in level.rooms}
+        drop, why = [], {}
+        for a, c, o in links:
+            if o.get("type") != "door" or o.get("virtual") or o.get("lift_door") or (a in core) == (c in core):
+                continue
+            flat = c if a in core else a
+            hall = a if a in core else c
+            r = rooms.get(flat) or {}
+            if r.get("room_type") not in HABITABLE:
+                continue
+            own = [x for x, y, d in links if d is not o and d.get("type") in ("door", "opening") and flat in (x, y)
+                   and (y if x == flat else x) not in core
+                   and (rooms.get(y if x == flat else x) or {}).get("room_type") == "hall"]
+            if not own:
+                continue
+            text = (f"{o['id']} ({o.get('width')} m) joins the common {hall} '{(rooms.get(hall) or {}).get('label')}' to "
+                    f"the flat's {flat} '{r.get('label')}', which has its own door from the flat's hall: a flat's room "
+                    f"never opens onto the common core (a misread leaf or gap; the wall kept)")
+            if RG.blocked("core_flat_door", b, {"level_id": lid, "opening": o["id"], "room": flat, "why": text}):
+                continue
+            drop.append(o)
+            why[o["id"]] = text
+            out.append({"level_id": lid, "opening": o["id"], "room": flat, "reason": text + " (adjusted_by_ai)"})
+        if drop:
+            ids = {o["id"] for o in drop}
+            _to_merged(b, drop, "core_flat_door", why)
+            b["openings"] = [o for o in b.get("openings") or [] if o["id"] not in ids]
+            site = b.get("site") if isinstance(b.get("site"), dict) else {}
+            if site.get("entrances"):
+                site["entrances"] = [e for e in site["entrances"] if e.get("door_id") not in ids]
+    return out
+
+
 def close_core_gaps(b: dict, drawn_by_level: Optional[dict] = None, texts_by_level: Optional[dict] = None) -> dict:
     """Rule 3 (the module docstring); returns ``{"closed", "windows", "review"}``. Each gap is judged against the
     openings still left (MF5, CS1-01, CL-03); a bedroom's or wet room's gap that is its only link is a review record
@@ -1035,6 +1085,10 @@ def _entrance_record(b: dict, o: dict, level: "CP.Level", lv: dict, hall: dict, 
 SIZE_TAG_RE = re.compile(r"^\s*([kp])\s*[:.]?\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")
 TAG_REACH_M = 0.9               # a size tag this far beyond an opening's half width is that opening's
 DOOR_TAG_MIN_H_M = 1.80         # a K/P tag this high is a door's; lower a window's (P:120/150)
+TAG_SILL_M = 0.90               # the sill of a door a window's tag turns into a window (assumed; R09-3)
+TWIN_M = 0.10                   # a mirror twin's centre this close to the mirror point (R09-2)
+AT_GRADE_M = 0.60               # a storey's floor this close to the ground stands at grade (R09-6)
+NO_TERRACE_DOOR = ("bathroom", "wc", "shower", "toilet", "shaft", "stair", "technical", "storage", "hall")
 
 
 def _tag_of(o: dict, texts: list) -> Optional[tuple]:
@@ -1057,11 +1111,58 @@ def _tag_of(o: dict, texts: list) -> Optional[tuple]:
     return best
 
 
+def _mirror_axis(b: dict, lid: str):
+    """The level's mirror axis from its walls (``generic.facade.mirror_axis``), or None (pure)."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import facade as FCD
+
+    items = [SimpleNamespace(start=tuple(w["start"]), end=tuple(w["end"]), thickness=float(w.get("thickness") or 0.2))
+             for w in b.get("walls") or [] if w.get("level_id") == lid and w.get("start") and w.get("end")]
+    return FCD.mirror_axis(items) if len(items) >= 4 else None
+
+
+def _twin(level: "CP.Level", o: dict, axis, texts: list) -> Optional[dict]:
+    """The untagged mirror twin of opening ``o`` about the level's mirror axis: a door of the same width (5 cm) whose
+    centre is within ``TWIN_M`` of ``o``'s mirror point, on an outer wall, carrying no size tag of its own (pure)."""
+    if axis is None or not o.get("center"):
+        return None
+    c = o["center"]
+    m = (2.0 * axis[1] - c[0], c[1]) if axis[0] == "x" else (c[0], 2.0 * axis[1] - c[1])
+    for x in level.openings:
+        if x is o or x.get("type") != "door" or x.get("virtual") or x.get("lift_door") or not x.get("center"):
+            continue
+        if abs(float(x.get("width") or 0) - float(o.get("width") or 0)) > 0.05 or math.dist(x["center"][:2], m) > TWIN_M:
+            continue
+        if [s[0] for s in _sides(level, x)].count("outside") == 1 and _tag_of(x, texts) is None:
+            return x
+    return None
+
+
+def _at_grade(b: dict, lv: dict) -> bool:
+    """A storey whose floor stands within ``AT_GRADE_M`` of a ground height the reading knows (pure)."""
+    z = lv.get("elevation")
+    return isinstance(z, (int, float)) and any(abs(g - float(z)) <= AT_GRADE_M for g in ground_zs(b))
+
+
+def _to_window(o: dict, tw: float, th: float, why: str, rule: str = "window_tag") -> None:
+    """A door read where a window's size tag stands: that window (in place); the tag's height kept as drawn, the sill
+    assumed (``TAG_SILL_M``; 20 Nov 2026, pre-pod review R09-3: a 0.70 m sill guessed without saying so)."""
+    o.update(drawn_type="door", type="window", width=round(tw, 3) if abs(tw - float(o.get("width") or 0)) <= 0.3
+             else o.get("width"), height=round(th, 3), drawn_height=round(th, 3), sill_height=TAG_SILL_M,
+             drawn_sill_height=None, operation=None, operation_source=None, swing_side=None,
+             assumed=sorted((set(o.get("assumed") or []) - {"height"}) | {"sill_height"}),
+             adjusted_by_ai={"by": "code", "rule": rule, "reason": why + f"; its sill {TAG_SILL_M:.2f} m assumed",
+                             "changed": {"type": "door", "width": o.get("width")}})
+
+
 def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
     """R37 and the drawn building entrance (13 Nov 2026, review S1-09b; in place): an outer door into a room that is no
-    hall whose nearest size tag is a window's (P:120/150) is that window, its entrance record dropped; a doorless outer
-    gap into a hall or stair room whose nearest tags are doors' (K:100/210, K:50/210: a pair is a double door) is that
-    door, with its ``site.entrances`` record. Returns ``{"windows": [...], "doors": [...]}``."""
+    hall whose nearest size tag is a window's (P:120/150) is that window, its entrance record dropped, and so is its
+    untagged mirror twin (20 Nov 2026, R09-2); an outer window whose nearest tag is a door's (K:80/210) is that door when
+    it opens onto a balcony or a terrace or its storey stands at grade (R09-6: R37 both ways); a doorless outer gap into
+    a hall or stair room whose nearest tags are doors' (K:100/210, K:50/210: a pair is a double door) is that door, with
+    its ``site.entrances`` record. Returns ``{"windows": [...], "doors": [...]}``."""
     out = {"windows": [], "doors": []}
     site = b.get("site") if isinstance(b.get("site"), dict) else None
     if site is None or not texts_by_level:
@@ -1075,11 +1176,37 @@ def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
         level = CP.Level(b, lid)
         if level.outline is None:
             continue
+        axis = _mirror_axis(b, lid)
         for o in list(level.openings):
-            if o.get("virtual") or o.get("type") not in ("door", "opening") or o.get("lift_door"):
+            if o.get("virtual") or o.get("type") not in ("door", "opening", "window") or o.get("lift_door"):
                 continue
             sides = _sides(level, o)
-            if [s[0] for s in sides].count("outside") != 1:
+            kinds = [s[0] for s in sides]
+            if o["type"] == "window":
+                # (20 Nov 2026, pre-pod review R09-6) a window whose nearest tag is a door's, onto a balcony or a
+                # terrace, or on a storey at grade: that door; never a door into the air on an upper storey
+                room = next((s[1] for s in sides if s[1] is not None and s[0] != "balcony"), None)
+                tag = _tag_of(o, texts)
+                if room is None or tag is None or tag[0] != "door" or room.get("room_type") in NO_TERRACE_DOOR:
+                    continue
+                onto = "a balcony or terrace" if "balcony" in kinds else (
+                    "the ground at grade" if kinds.count("outside") == 1 and _at_grade(b, lv) else None)
+                if onto is None:
+                    continue
+                _kind, tw, th, text, _d = tag
+                why = (f"{o['id']} ({o.get('width')} m) is read as a window from {room['id']} '{room.get('label')}' onto "
+                       f"{onto}, but its size tag '{text}' is a door's: that door (R37 both ways)")
+                if RG.blocked("entrance_tags", b, {"level_id": lid, "opening": o["id"], "why": why}):
+                    continue
+                o.update(drawn_type="window", type="door", width=round(tw, 3) if abs(tw - float(o.get("width") or 0))
+                         <= 0.3 else o.get("width"), height=round(th, 3), drawn_height=round(th, 3), sill_height=None,
+                         operation="swing", operation_source="assumed", door_tags=[text],
+                         adjusted_by_ai={"by": "code", "rule": "door_tag", "reason": why,
+                                         "changed": {"type": "window", "width": o.get("width"),
+                                                     "sill_height": o.get("sill_height")}})
+                out["doors"].append({"opening": o["id"], "level_id": lid, "reason": why + " (adjusted_by_ai)"})
+                continue
+            if kinds.count("outside") != 1:
                 continue
             room = next((s[1] for s in sides if s[1] is not None), None)
             tag = _tag_of(o, texts)
@@ -1091,13 +1218,22 @@ def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
                        f"its size tag '{text}' is a window's: a window (R37)")
                 if RG.blocked("entrance_tags", b, {"level_id": lid, "opening": o["id"], "why": why}):
                     continue
-                o.update(drawn_type="door", type="window", width=round(tw, 3) if abs(tw - float(o.get("width") or 0))
-                         <= 0.3 else o.get("width"), height=round(th, 3), sill_height=round(max(0.0, 2.2 - th), 3),
-                         operation=None, operation_source=None, swing_side=None,
-                         adjusted_by_ai={"by": "code", "rule": "window_tag", "reason": why,
-                                         "changed": {"type": "door", "width": o.get("width")}})
+                twin = _twin(level, o, axis, texts)
+                _to_window(o, tw, th, why)
                 gone.add(o["id"])
                 out["windows"].append({"opening": o["id"], "level_id": lid, "reason": why + " (adjusted_by_ai)"})
+                if twin is not None and twin["id"] not in gone:
+                    # (20 Nov 2026, pre-pod review R09-2) the drawing tags one opening of a mirrored pair: its twin
+                    # about the plan's mirror axis takes the same decision
+                    t_why = (f"{twin['id']} ({twin.get('width')} m) is the untagged mirror twin of {o['id']} about the "
+                             f"plan's mirror axis {axis[0]} = {axis[1]:.2f}, whose tag '{text}' is a window's: a window "
+                             f"(R37)")
+                    if not RG.blocked("entrance_tags", b, {"level_id": lid, "opening": twin["id"], "why": t_why}):
+                        _to_window(twin, tw, th, t_why, rule="window_tag_twin")
+                        twin["adjusted_by_ai"]["evidence"] = {"twin": o["id"], "tag": text}
+                        gone.add(twin["id"])
+                        out["windows"].append({"opening": twin["id"], "level_id": lid,
+                                               "reason": t_why + " (adjusted_by_ai)"})
             elif o["type"] == "opening" and kind == "door" and room.get("room_type") in ("hall", "stair") and \
                     not FLAT_HALL_RE.search(CP._fold(f"{room.get('label_raw') or ''} {room.get('label') or ''}")):
                 pair = [t for t in texts or [] if (SIZE_TAG_RE.match(B.fold_ascii(str(t.get("text") or "")).lower())
@@ -1421,6 +1557,9 @@ def apply(build, texts_by_level: dict, party_by_level: dict, strokes_by_level: O
     rec["lift_doors"] = fix_lift_doors(b, build.ids.next, flats)
     gaps = close_core_gaps(b, drawn_by_level, texts_by_level) if flats else {"closed": [], "windows": [], "review": []}
     rec["core_gaps"], rec["core_gap_windows"], rec["core_gap_review"] = gaps["closed"], gaps["windows"], gaps["review"]
+    rec["core_flat_doors"] = core_doors_into_flats(b) if flats else []         # 20 Nov 2026 (R09-5)
+    for x in rec["core_flat_doors"]:
+        build.warn(f"core: {x['reason']}")
     rec["entrances"] = fix_entrances(b, build.ids.next, party_by_level, texts_by_level)
     if open_:
         b.setdefault("needs_review", []).append(
