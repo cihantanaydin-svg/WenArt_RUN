@@ -76,10 +76,15 @@ def test_inventory_comparison_writes_each_kind_at_its_point_in_metres():
             "entrance": {"shown": True, "street_side": "bottom", "x": bx, "y": by},
             "angled_walls": [{"x0": a0[0], "y0": a0[1], "x1": a1[0], "y1": a1[1]}],
             "storeys": {"names": ["ZEMIN KAT", "1. KAT"], "count": 4}}
-    found = CC.inventory_findings(data, _entry(), _facts(), {"storeys": 2, "storeys_without_roof": 2})
+    ground = dict(_facts(), above_ground=False)
+    found = CC.inventory_findings(data, _entry(), ground, {"storeys": 2, "storeys_without_roof": 2})
     kinds = sorted(f["kind"] for f in found)
     assert kinds == ["angled_wall_straight", "balcony_missing", "entrance_missing", "lift_missing", "room_missing",
                      "stair_missing", "storey_count_differs"]
+    # pod 1: an entrance on a plan above the ground is none; a labelled place outside the walls is another plan
+    upper = CC.inventory_findings(data, _entry(), dict(_facts(), extent=[0.0, 0.0, 20.0, 6.0]), None)
+    assert "entrance_missing" not in {f["kind"] for f in upper}
+    assert {f["kind"]: f for f in upper}["plan_not_read"]["key"] == "room_missing:0"   # the pod-1 key is kept
     room = next(f for f in found if f["kind"] == "room_missing")
     assert abs(room["at"][0] - 10.0) < 0.05 and abs(room["at"][1] - 8.5) < 0.05 and "MUTFAK" in room["description"]
     stair = next(f for f in found if f["kind"] == "stair_missing")
@@ -100,6 +105,11 @@ def test_a_listed_mirror_pair_with_one_half_missing_is_a_mirror_twin_finding():
     facts = _facts()
     facts["rooms"][0]["poly"] = _sq(0, 3, 6, 10)                  # the left room no longer covers (3, 2)
     facts["rooms"][0]["at"] = [3.0, 6.5]
+    facts["extent"] = [0.0, 0.0, 20.0, 10.0]
+    # pod 1: the model names a mirror for nearly every plan; the reading's own wall symmetry gives the axis
+    assert CC.inventory_findings({"rooms": [{"label": "BANYO", "x": 850, "y": 800}],
+                                  "mirror": {"axis": "vertical", "position": 500}}, _entry(), facts, None) == []
+    facts["mirror"] = {"x": {"axis": 10.0, "score": 0.9}, "y": {"axis": 5.0, "score": 0.3}}
     data = {"rooms": [{"label": "BANYO", "x": 850, "y": 800},
                       {"label": "BANYO", "x": 150, "y": 800}],
             "mirror": {"axis": "vertical", "position": 500}, "stairs": [], "lifts": [], "balconies": [],
@@ -113,9 +123,26 @@ def test_a_listed_mirror_pair_with_one_half_missing_is_a_mirror_twin_finding():
     one = dict(data, rooms=[{"label": "BANYO", "x": 850, "y": 800}])
     found = CC.inventory_findings(one, _entry(), facts, None)
     assert [f["kind"] for f in found] == ["mirror_twin_missing"] and abs(found[0]["at"][0] - 3.0) < 0.05
-    # ... but not outside the reading's extent, nor where the reading has the twin
-    assert CC.inventory_findings(dict(one, mirror={"axis": "vertical", "position": 900}), _entry(), facts, None) == []
-    assert CC.inventory_findings(one, _entry(), _facts(), None) == []
+    # ... but not about an axis the walls do not support, nor where the reading has the twin
+    assert CC.inventory_findings(dict(one, mirror={"axis": "horizontal", "position": 500}), _entry(), facts,
+                                 None) == []
+    assert CC.inventory_findings(one, _entry(), dict(_facts(), mirror=facts["mirror"]), None) == []
+    # the mirror also mirrors a listed balcony whose twin the reading lacks
+    facts["outdoor"] = [{"id": "os1", "label": "BALKON", "kind": "balcony", "at": [17.0, 0.5], "poly": _sq(15, 0, 19, 1)}]
+    bal = CC.inventory_findings(dict(one, rooms=[], balconies=[{"kind": "balcony", "x": 850, "y": 950}]), _entry(),
+                                facts, None)
+    assert [(f["kind"], f["key"]) for f in bal] == [("balcony_missing", "balcony_missing:m0")]
+    assert abs(bal[0]["at"][0] - 3.0) < 0.05
+
+
+def test_mirror_facts_find_the_axis_of_symmetric_walls_only():
+    w = lambda i, a, b: {"id": f"w{i}", "start": a, "end": b}  # noqa: E731
+    sym = [w(1, [0, 0], [20, 0]), w(2, [0, 10], [20, 10]), w(3, [0, 0], [0, 10]), w(4, [20, 0], [20, 10]),
+           w(5, [6, 0], [6, 10]), w(6, [14, 0], [14, 10])]
+    m = CC.mirror_facts(sym)
+    assert abs(m["x"]["axis"] - 10.0) < 0.06 and m["x"]["score"] == 1.0
+    lop = sym[:4] + [w(5, [6, 0], [6, 10]), w(6, [6, 4], [0, 4]), w(7, [3, 4], [3, 10])]
+    assert CC.mirror_facts(lop)["x"]["score"] < 0.7
 
 
 # =================================================================================================== compare

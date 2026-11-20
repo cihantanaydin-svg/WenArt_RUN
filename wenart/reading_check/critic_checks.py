@@ -43,9 +43,10 @@ from typing import Optional
 
 CHECKS = ("inventory", "compare", "plausibility")
 CALL_MAX_TOKENS = {"inventory": 3072, "compare": 1536, "plausibility": 2048}   # the longest valid answer + margin
-COMPARE_MAX = 40               # questions per level (the brief: about 40 at most)
-COMPARE_CHUNK = 20             # questions (numbered marks) per call
-COMPARE_CAPS = {"room": 18, "angled": 4, "balcony": 8, "opening": 12}
+COMPARE_MAX = 48               # questions per level (pod 1: 40 left real10's L-1 windows read as doors unasked)
+COMPARE_CHUNK = 16             # questions (numbered marks) per call (pod 1: 20; an entry keeps its own, compare_chunk)
+COMPARE_CHUNK_POD1 = 20
+COMPARE_CAPS = {"room": 16, "angled": 4, "balcony": 8, "window": 6, "opening": 14}
 INVENTORY_MAX_ROOMS = 40
 ROOM_REACH_M = 0.4             # a listed room point this near a reading room counts as that room
 STAIR_REACH_M = 1.5
@@ -63,9 +64,12 @@ WET_TYPES = ("bathroom", "wc", "shower", "toilet")
 LIFT_WORDS = ("asans", "lift", "elevator", "elevat")
 
 INVENTORY_KINDS = ("room_missing", "mirror_twin_missing", "stair_missing", "lift_missing", "balcony_missing",
-                   "entrance_missing", "angled_wall_straight", "storey_count_differs")
+                   "entrance_missing", "angled_wall_straight", "storey_count_differs", "plan_not_read")
 COMPARE_KINDS = ("room_missing", "room_not_in_drawing", "angled_wall_straight", "door_into_air", "balcony_missing",
-                 "opening_type_differs", "opening_not_in_drawing")
+                 "opening_type_differs", "opening_not_in_drawing", "plan_not_read", "window_missing")
+EXTENT_MARGIN_M = 1.0          # a labelled place this far outside the level's walls is another plan, not a room missing
+SECOND_LOOK_BELOW = 0.75       # a finding under this confidence gets the short second question (``second_look``)
+SECOND_LOOK_MAX = 150          # second questions per pod at most
 # (id, kind, element class of the ids, question)
 PLAUSIBILITY_QUESTIONS = (
     ("P1", "habitable_no_window", "room",
@@ -115,6 +119,8 @@ KIND_TEXT = {
     "stair_no_landing_door": "a stair with no landing door",
     "storey_no_stair_access": "a storey with no way to the stair",
     "balcony_no_door": "a balcony with no door",
+    "plan_not_read": "a labelled plan outside the level's walls: a plan (a level) the reading did not read",
+    "window_missing": "a window or door the drawing has in an outer wall of a habitable room and the reading lacks",
 }
 # How a finding of a kind is judged against a synthetic project's exact truth (``critic.judge``'s classes and sides)
 JUDGE_RULES = {
@@ -126,9 +132,12 @@ JUDGE_RULES = {
     "entrance_missing": (("doors", "openings"), ("truth_only",)),
     "angled_wall_straight": (("walls",), ("truth_only",)),
     "room_not_in_drawing": (("rooms",), ("read_only",)),
-    "door_into_air": (("doors", "rooms", "walls"), ("read_only", "truth_only")),
+    # 20 Nov 2026 (pod 1): a door the truth lacks, or the outdoor room in front of it the reading lacks (walls were too
+    # broad: any wall disagreement near a door counted)
+    "door_into_air": (("doors", "rooms"), ("read_only", "truth_only")),
     "opening_type_differs": (("doors", "windows", "openings"), ("truth_only", "read_only")),
     "opening_not_in_drawing": (("doors", "windows", "openings"), ("read_only",)),
+    "window_missing": (("windows", "doors"), ("truth_only",)),
     "habitable_no_window": (("windows",), ("truth_only",)),
     "bedroom_through_bathroom": (("doors", "openings"), ("truth_only", "read_only")),
     "flat_no_entrance": (("doors", "openings"), ("truth_only",)),
@@ -256,7 +265,8 @@ def level_facts(building: dict, lid: str, *, outline=None, below=None, page=None
              and w.get("end")}
     ax = axis_deg(list(walls.values()))
     out = {"level": lid, "label": lv.get("label"), "elevation": lv.get("elevation"),
-           "above_ground": float(lv.get("elevation") or 0.0) > ground + GROUND_UP_M, "axis_deg": ax}
+           "above_ground": float(lv.get("elevation") or 0.0) > ground + GROUND_UP_M, "axis_deg": ax,
+           "extent": wall_extent(list(walls.values())), "mirror": mirror_facts(list(walls.values()))}
     out["rooms"] = [{"id": r["id"], "label": r.get("label_raw") or r.get("label"), "type": r.get("room_type"),
                      "subtype": r.get("room_subtype"), "at": _rep(r["polygon"]),
                      "area": round(float(r.get("area_computed") or _poly(r["polygon"]).area), 1),
@@ -280,6 +290,10 @@ def level_facts(building: dict, lid: str, *, outline=None, below=None, page=None
             continue
         w = walls.get(o.get("wall_id"))
         sides = _side_points(o, w) if w else None
+        if sides is None:
+            # 20 Nov 2026 (pod 1: 'o_r_L4_oda_4_hall ... unknown <-> unknown', so the stair room had no listed link):
+            # an opening with no wall of its own (a passage between two rooms) joins the two spaces nearest to it
+            sides = _free_sides(o, rooms_p, outdoor_p)
         a = _where(sides[0], rooms_p, outdoor_p, outline) if sides else "unknown"
         b = _where(sides[1], rooms_p, outdoor_p, outline) if sides else "unknown"
         exterior = bool(w and w.get("exterior")) or "outside" in (a, b) or \
@@ -311,7 +325,115 @@ def level_facts(building: dict, lid: str, *, outline=None, below=None, page=None
     if page is not None and tf is not None:
         out["drawn_labels"] = drawn_labels(page, tf)
         out["drawn_angled"] = drawn_angled(page, tf, list(walls.values()), ax)
+    out["window_places"] = window_places(out, outline)
     return out
+
+
+def _free_sides(o: dict, rooms_p: list, outdoor_p: list) -> Optional[tuple]:
+    """Two probe points across an opening with no wall: along its ``line``'s normal, else the two directions that
+    land in two different spaces (pure but for shapely)."""
+    from shapely.geometry import Point
+
+    c = o["center"][:2]
+    line = o.get("line") if isinstance(o.get("line"), (list, tuple)) and len(o.get("line") or []) >= 2 else None
+    dirs = []
+    if line and math.dist(line[0][:2], line[1][:2]) > 1e-6:
+        (x0, y0), (x1, y1) = line[0][:2], line[1][:2]
+        n = math.dist((x0, y0), (x1, y1))
+        dirs = [(-(y1 - y0) / n, (x1 - x0) / n)]
+    dirs += [(1.0, 0.0), (0.0, 1.0)]
+    spaces = rooms_p + outdoor_p
+    for dx, dy in dirs:
+        for reach in (0.4, 0.8):
+            p, q = (c[0] + dx * reach, c[1] + dy * reach), (c[0] - dx * reach, c[1] - dy * reach)
+            sp = next((i for i, g in spaces if g.contains(Point(p))), None)
+            sq = next((i for i, g in spaces if g.contains(Point(q))), None)
+            if sp and sq and sp != sq:
+                return p, q
+    return None
+
+
+def window_places(facts: dict, outline=None) -> list:
+    """Per habitable room the reading gives no exterior window or door: the middle of its longest edge on the level's
+    outline (``[{room_id, at, length}]``, pure but for shapely): where the compare check asks whether the drawing has a
+    window (real10's kitchens: the drawn window frames were not read)."""
+    from shapely.geometry import Point
+
+    lit = {}
+    outdoor = {s["id"] for s in facts.get("outdoor") or []}
+    for o in facts.get("openings") or []:
+        a, b = o.get("sides") or ["unknown", "unknown"]
+        for x, y in ((a, b), (b, a)):
+            if o.get("exterior") and (y in ("outside", "unknown") or y in outdoor):
+                lit[x] = lit.get(x, 0) + 1
+    out = []
+    for r in facts.get("rooms") or []:
+        if r.get("type") not in HABITABLE_TYPES or lit.get(r["id"]):
+            continue
+        best = None
+        pts = r["poly"]
+        for p0, p1 in zip(pts, pts[1:] + pts[:1]):
+            L = math.dist(p0, p1)
+            if L < 1.0:
+                continue
+            mx, my = (p0[0] + p1[0]) / 2.0, (p0[1] + p1[1]) / 2.0
+            nx, ny = -(p1[1] - p0[1]) / L, (p1[0] - p0[0]) / L
+            for s in (1.0, -1.0):
+                probe = (mx + nx * s * 0.6, my + ny * s * 0.6)
+                inside_room = _contains(pts, (mx - nx * s * 0.3, my - ny * s * 0.3))
+                if not inside_room:
+                    continue
+                out_of = outline is not None and not outline.contains(Point(probe))
+                if (out_of or any(_contains(sp["poly"], probe) for sp in facts.get("outdoor") or [])) and \
+                        (best is None or L > best[2]):
+                    best = ([round(mx, 3), round(my, 3)], r["id"], L)
+        if best:
+            out.append({"room_id": best[1], "at": best[0], "length": round(best[2], 2)})
+    return out
+
+
+MIRROR_MIN_SCORE = 0.7         # the reading's walls this symmetric about an axis before a mirror finding is written
+
+
+def mirror_facts(walls: list) -> dict:
+    """``{"x": {axis, score}, "y": {axis, score}}`` (pure): for a mirror line of constant x (and of constant y), the
+    position near the middle of the walls where the most wall end points have a wall end point at their mirror place
+    (within 0.3 m), and that share. 20 Nov 2026 (pod 1): the model answered 'vertical, 500' for nearly every plan;
+    the mirror findings need the reading's own symmetry (real09: 0.89, real20: low)."""
+    pts = [tuple(w[k][:2]) for w in walls for k in ("start", "end") if w.get(k)]
+    out = {}
+    if len(pts) < 8:
+        return out
+    cell = 0.3
+    grid: dict = {}
+    for p in pts:
+        grid.setdefault((round(p[0] / cell), round(p[1] / cell)), []).append(p)
+
+    def near(q):
+        gx, gy = round(q[0] / cell), round(q[1] / cell)
+        return any(math.dist(q, p) <= 0.3 for dx in (-1, 0, 1) for dy in (-1, 0, 1) for p in grid.get((gx + dx, gy + dy), ()))
+
+    for ax_name, i in (("x", 0), ("y", 1)):
+        lo, hi = min(p[i] for p in pts), max(p[i] for p in pts)
+        mid = (lo + hi) / 2.0
+        scores = []
+        for k in range(-30, 31):
+            a = mid + k * 0.05
+            hit = sum(1 for p in pts if near((2 * a - p[0], p[1]) if i == 0 else (p[0], 2 * a - p[1])))
+            scores.append((hit / len(pts), a))
+        top = max(s for s, _a in scores)
+        tied = [a for s, a in scores if s == top]
+        out[ax_name] = {"axis": round(tied[len(tied) // 2], 3), "score": round(top, 3)}   # the middle of the tie
+    return out
+
+
+def wall_extent(walls: list) -> Optional[list]:
+    """``[min x, min y, max x, max y]`` of a level's walls (metres), or None."""
+    pts = [w[k][:2] for w in walls for k in ("start", "end") if w.get(k)]
+    if not pts:
+        return None
+    return [round(min(p[0] for p in pts), 3), round(min(p[1] for p in pts), 3), round(max(p[0] for p in pts), 3),
+            round(max(p[1] for p in pts), 3)]
 
 
 def drawn_labels(page, tf) -> list:
@@ -401,19 +523,69 @@ def room_at(facts: dict, p, reach: float = ROOM_REACH_M, outdoor: bool = False) 
 
 # ================================================================================================= 2. inventory
 def inventory_prompt(entry: dict) -> str:
-    return (f"The image is an architect's floor plan ({entry.get('title') or 'a level of a building'}). List what the "
-            f"drawing holds, as an architect reading it would:\n"
+    # 20 Nov 2026 (pod 1): the drawing's own room labels as a list (the model listed 6 of real09's 8), the storey
+    # texts of the whole drawing file (real03's '1BK+ZK+12K' is in a block, not in the plan image), and what an angled
+    # wall looks like (real20's slanted street facade was not listed)
+    labels = sorted({str(x.get("text") or "").strip() for x in (entry.get("facts") or {}).get("drawn_labels") or []
+                     if str(x.get("text") or "").strip()})[:40]
+    storeys = [str(t)[:50] for t in entry.get("storey_texts") or []][:25]
+    extra = ""
+    if labels:
+        extra += f"The drawing's room labels, as written in it: {'; '.join(labels)}.\n"
+    if storeys:
+        extra += (f"Texts of the drawing file that name storeys (titles, notes, blocks): {'; '.join(storeys)}. In Turkish "
+                  f"notation BK is a basement, ZK the ground floor, 'nK' n upper floors.\n")
+    return (f"The image is an architect's floor plan ({entry.get('title') or 'a level of a building'}). {extra}"
+            f"List what the drawing holds, as an architect reading it would:\n"
             f"- rooms: every labelled room or space with its written label exactly as written and a point inside it;\n"
             f"- mirror: whether the plan has two mirrored halves (two flats mirrored about a line); the axis (vertical "
             f"or horizontal line) and its position;\n"
             f"- stairs and lifts: a point on each;\n"
             f"- balconies and terraces: a point on each;\n"
             f"- entrance: the building's entrance door, if this plan shows it, and the side of the street;\n"
-            f"- angled walls: each wall drawn at an angle to the plan's main directions, by its two end points;\n"
+            f"- angled walls: each wall drawn at an angle to the image's edges (a slanted facade along a street, a "
+            f"corner cut at 45 degrees), by its two end points;\n"
             f"- storeys: the storey names written in titles and texts, and the number of storeys of the building when "
             f"a text says it (0 when no text says it).\n"
             f"Points are x and y in 0-1000 (0,0 the top-left corner, 1000,1000 the bottom-right corner). List only "
             f"what is drawn; leave a list empty when the drawing has none.")
+
+
+STOREY_WORDS = re.compile(r"(\bKAT\b|KATI\b|BODRUM|ZEMIN|NORMAL|CATI|ASMA|\bB\.?K\b|\bZ\.?K\b|\b\d+\s*N?\.?\s*K\b|"
+                          r"STOREY|FLOOR)", re.I)
+STOREY_NOT = re.compile(r"(HOL|MERDIVEN|PLAN[I]? OLCEK|ASANSOR|KOT)", re.I)
+
+
+def storey_texts(doc) -> list:
+    """The texts of a DXF document (model space, every block, attributes) that name storeys, folded and deduplicated
+    (at most 25, pure but for ezdxf): what the inventory reads the storey count from."""
+    from wenart.textfold import fold_ascii
+
+    out: list = []
+    seen: set = set()
+
+    def take(s):
+        s = re.sub(r"\\[A-Za-z][^;]*;|[{}]", "", str(s or "")).strip()
+        f = fold_ascii(s).upper()
+        if not s or len(s) > 60 or not STOREY_WORDS.search(f) or STOREY_NOT.search(f) or f in seen:
+            return
+        seen.add(f)
+        out.append(s)
+
+    layouts = [doc.modelspace()] + [b for b in doc.blocks if not b.name.startswith("*")]
+    for lay in layouts:
+        for e in lay:
+            t = e.dxftype()
+            if t in ("TEXT", "ATTRIB", "ATTDEF"):
+                take(e.dxf.text)
+            elif t == "MTEXT":
+                take(e.text)
+            elif t == "INSERT":
+                for a in getattr(e, "attribs", []) or []:
+                    take(a.dxf.text)
+            if len(out) >= 25:
+                return out
+    return out
 
 
 def _pt_schema() -> dict:
@@ -470,8 +642,8 @@ def inventory_findings(data: dict, entry: dict, facts: dict, bfacts: Optional[di
              for r in data.get("rooms") or [] if isinstance(r, dict)]
     mirror = data.get("mirror") or {}
     twin_keys: set = set()
-    if mirror.get("axis") in ("vertical", "horizontal"):
-        pos = float(mirror.get("position") or 500)
+    pos = _code_mirror(entry, facts, mirror.get("axis"))
+    if pos is not None:
         for i, r in enumerate(rooms):
             mx, my = (2 * pos - r["x"], r["y"]) if mirror["axis"] == "vertical" else (r["x"], 2 * pos - r["y"])
             if not (0 <= mx <= 1000 and 0 <= my <= 1000):
@@ -560,8 +732,69 @@ def inventory_findings(data: dict, entry: dict, facts: dict, bfacts: Optional[di
                                    f"the reading has {bfacts.get('storeys')}", "element_ids": [],
                     "confidence": 0.8, "building": True})
     for k, f in enumerate(out):
-        f["key"] = f"{f['kind']}:{k}"
+        f["key"] = f"{f['kind']}:{k}"           # the pod-1 keys (the review sheets' ids): later rules keep them
+    # 20 Nov 2026 (pod 1, synthetic-14: 7 false room_missing): a labelled place outside the level's walls is another
+    # plan in the same image, not a room missing: plan_not_read
+    for f in out:
+        if f["kind"] == "room_missing" and not _in_walls_extent(facts, f["at"]):
+            f["kind"] = "plan_not_read"
+            f["description"] = f["description"].replace("the reading has no room there",
+                                                        "it lies outside the level's walls: a plan the reading did not "
+                                                        "read")
+    # ... an entrance on a plan above the ground is no building entrance (synthetic-21's roof plan)
+    if facts.get("above_ground"):
+        out = [f for f in out if f["kind"] != "entrance_missing"]
+    # ... the mirror axis also mirrors the balconies (real09 L2: one listed, its twin missing)
+    if pos is not None:
+        listed =[(s, _m(entry, s["x"], s["y"])) for s in data.get("balconies") or [] if isinstance(s, dict)]
+        k = 0
+        for s, at in listed:
+            mx, my = (2 * pos - s["x"], s["y"]) if mirror["axis"] == "vertical" else (s["x"], 2 * pos - s["y"])
+            if not (0 <= mx <= 1000 and 0 <= my <= 1000):
+                continue
+            mat = _m(entry, mx, my)
+            if any(math.dist(a, mat) <= MIRROR_TOL_M for _s, a in listed) or math.dist(at, mat) <= MIRROR_TOL_M:
+                continue                                        # listed itself, or on the axis
+            has = lambda p: room_at({"rooms": facts.get("outdoor") or []}, p, reach=0.6) is not None or any(  # noqa: E731
+                r.get("open_air") and _contains(r["poly"], p, 0.6) for r in facts.get("rooms") or [])
+            if has(at) and not has(mat) and _in_walls_extent(facts, mat, margin=2.0) \
+                    and not any(f["kind"] == "balcony_missing" and f.get("at") and math.dist(f["at"], mat) < 1.0
+                                for f in out):
+                out.append({"kind": "balcony_missing", "at": mat, "point": [mx / 1000.0, my / 1000.0],
+                            "description": f"the plan mirrors about the {mirror['axis']} axis; the {s.get('kind')} "
+                                           f"listed at its twin place has no twin in the reading", "element_ids": [],
+                            "confidence": 0.6, "key": f"balcony_missing:m{k}"})
+                k += 1
     return out
+
+
+def _code_mirror(entry: dict, facts: dict, orient: Optional[str]) -> Optional[float]:
+    """The mirror line the model named (``vertical`` / ``horizontal`` in the image) as a 0-1000 image position, taken
+    from the reading's own wall symmetry (``facts["mirror"]``) when that is at least ``MIRROR_MIN_SCORE``, else None
+    (the model's own position is too rough, and it names a mirror for nearly every plan)."""
+    from wenart.reading_check.critic import metres_to_norm
+
+    tf = entry.get("tf") or []
+    if orient not in ("vertical", "horizontal") or len(tf) < 6 or abs(tf[1]) > 1e-9 or abs(tf[3]) > 1e-9:
+        return None
+    m = (facts.get("mirror") or {}).get("x" if orient == "vertical" else "y") or {}
+    if float(m.get("score") or 0.0) < MIRROR_MIN_SCORE:
+        return None
+    ext = facts.get("extent") or [0.0, 0.0, 0.0, 0.0]
+    if orient == "vertical":
+        return metres_to_norm(m["axis"], (ext[1] + ext[3]) / 2.0, entry["box"], tf)[0] * 1000.0
+    return metres_to_norm((ext[0] + ext[2]) / 2.0, m["axis"], entry["box"], tf)[1] * 1000.0
+
+
+def _in_walls_extent(facts: dict, p, margin: float = EXTENT_MARGIN_M) -> bool:
+    """Whether ``p`` lies within the level's wall extent (``facts["extent"]``, else its rooms') plus ``margin``."""
+    ext = facts.get("extent")
+    if not ext:
+        pts = [q for r in list(facts.get("rooms") or []) + list(facts.get("outdoor") or []) for q in r.get("poly") or []]
+        if not pts:
+            return True                                         # nothing to tell: not another plan
+        ext = [min(q[0] for q in pts), min(q[1] for q in pts), max(q[0] for q in pts), max(q[1] for q in pts)]
+    return ext[0] - margin <= p[0] <= ext[2] + margin and ext[1] - margin <= p[1] <= ext[3] + margin
 
 
 def _inside_extent(facts: dict, p, margin: float = 0.3) -> bool:
@@ -589,10 +822,12 @@ def _room_type_at(facts: dict, p, types: tuple) -> bool:
 
 
 # =================================================================================================== 3. compare
-def compare_questions(entry: dict, facts: dict, cap: int = COMPARE_MAX) -> list:
+def compare_questions(entry: dict, facts: dict, cap: int = COMPARE_MAX, copies_facts: tuple = ()) -> list:
     """The level's yes/no questions (pure): ``[{n, qid, kind, at, point, model_fact, element_ids, ask}]``, at most
     ``cap``, room questions first (the drawing's labelled places, then the reading's rooms no label stands in), then
-    the angled walls, the exterior doors above the ground and the openings (exterior first), each kind capped."""
+    the angled walls, the exterior doors above the ground (also of a ground plan whose copies stand above it,
+    ``copies_facts``), the outer walls of habitable rooms with no window, and the openings (exterior first), each kind
+    capped."""
     from wenart.reading_check.critic import metres_to_norm
 
     def norm(at):
@@ -641,13 +876,30 @@ def compare_questions(entry: dict, facts: dict, cap: int = COMPARE_MAX) -> list:
     n = 0
     bal_q = ("Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? "
              "In the model?")
-    if facts.get("above_ground"):
+    # 20 Nov 2026 (pod 1: real09's ground plan L0 stands for L1 too, whose doors open into the air): a plan at the
+    # ground asks about its doors when a storey above the ground is its copy, with that copy's front
+    uppers = [cf for cf in copies_facts or [] if cf.get("above_ground")]
+    if facts.get("above_ground") or uppers:
         for o in facts.get("openings") or []:
             if n >= COMPARE_CAPS["balcony"] or o.get("type") != "door" or not o.get("exterior"):
                 continue
-            if add("balcony", o["at"], "yes" if o.get("front") in ("open_air", "roof_below") else "no", [o["id"]], bal_q,
+            front = o.get("front")
+            if not facts.get("above_ground"):
+                twin = next((x for cf in uppers for x in cf.get("openings") or []
+                             if x.get("type") == "door" and math.dist(x["at"], o["at"]) <= 0.3), None)
+                if twin is None:
+                    continue
+                front = twin.get("front")
+            if add("balcony", o["at"], "yes" if front in ("open_air", "roof_below") else "no", [o["id"]], bal_q,
                    sep=0.6):
                 n += 1
+    n = 0
+    win_q = ("Does the drawing show a window or a door in the outer wall at this mark? Does the model?")
+    for wp in facts.get("window_places") or []:
+        if n >= COMPARE_CAPS["window"]:
+            break
+        if add("window", wp["at"], "no", [wp["room_id"]], win_q, sep=0.6):
+            n += 1
     n = 0
     op_q = ("Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening "
             "here)? And in the model?")
@@ -668,6 +920,11 @@ def compare_questions(entry: dict, facts: dict, cap: int = COMPARE_MAX) -> list:
 
 def compare_chunks(questions: list, size: int = COMPARE_CHUNK) -> list:
     return [questions[i:i + size] for i in range(0, len(questions), size)] or []
+
+
+def chunks_of(item: dict) -> list:
+    """An entry's question chunks with the chunk size it was asked with (pod 1's entries: 20)."""
+    return compare_chunks(item.get("compare") or [], int(item.get("compare_chunk") or COMPARE_CHUNK_POD1))
 
 
 ANSWER_ENUM = ["yes", "no", "door", "window", "opening", "none", "unclear"]
@@ -706,12 +963,30 @@ def mark_image(src: Path, chunk: list, dest: Path) -> Path:
         x, y = q["point"][0] * w, q["point"][1] * h
         r = 13
         d.ellipse([x - r, y - r, x + r, y + r], outline=(220, 0, 0), width=3)
-        tx, ty = x + r + 2, y - r - 4
+        tx, ty = label_origin(x, y, len(str(q["n"])), w, h, r)
         d.rectangle([tx - 1, ty, tx + 12 * len(str(q["n"])) + 2, ty + 20], fill=(255, 255, 255))
         d.text((tx, ty), str(q["n"]), fill=(220, 0, 0), font=font)
     dest.parent.mkdir(parents=True, exist_ok=True)
     im.save(dest, quality=85)
     return dest
+
+
+def label_origin(x: float, y: float, digits: int, w: int, h: int, r: int = 13) -> tuple:
+    """Where a mark's number goes (pure): right of the ring and above it, moved left or below when that would leave
+    the image (20 Nov 2026, pod 1: the numbers of the marks on a frame's right edge were cut off, and the model
+    answered 'none' for 14 of them)."""
+    tw = 12 * digits + 4
+    tx = x + r + 2 if x + r + 2 + tw <= w else x - r - 2 - tw
+    ty = y - r - 4 if y - r - 4 >= 0 else y + r + 2
+    return max(0.0, tx), min(max(0.0, ty), h - 21.0)
+
+
+def label_cut_pod1(point: list, size: list, n: int) -> bool:
+    """Whether the number of a mark drawn by the pod-1 layout (right of the ring, above it) was cut off by the image's
+    edge (pure): such a question could not be read, its answer is not counted."""
+    w, h = float(size[0]), float(size[1])
+    x, y = point[0] * w, point[1] * h
+    return x + 15 + 12 * len(str(n)) + 2 > w or y - 17 < 0
 
 
 def _first_answers(data: dict, key: str = "id") -> list:
@@ -725,15 +1000,20 @@ def _first_answers(data: dict, key: str = "id") -> list:
     return out
 
 
-def compare_findings(data: dict, chunk: list) -> list:
+def compare_findings(data: dict, chunk: list, *, facts: Optional[dict] = None, size: Optional[list] = None,
+                     layout: int = 2) -> list:
     """The answers of one compare call against what the reading has at each mark (pure). A finding where the drawing
     answer contradicts the reading's own fact (``model_fact``); its confidence is 0.8 when the model's answer about
-    image 2 matches the reading (it read image 2 right), 0.4 when it does not."""
+    image 2 matches the reading (it read image 2 right), 0.4 when it does not. A room the drawing has outside the
+    level's walls is ``plan_not_read`` (``facts``); with ``layout`` 1 (pod 1) a mark whose number the image's edge cut
+    off is not counted (``size``)."""
     byq = {q["qid"]: q for q in chunk}
     out = []
     for a in _first_answers(data):
         q = byq.get(a.get("id"))
         if q is None:
+            continue
+        if layout == 1 and size and label_cut_pod1(q["point"], size, q["n"]):
             continue
         dr, mo, fact = a.get("drawing"), a.get("model"), q["model_fact"]
         kind, text = None, ""
@@ -753,6 +1033,10 @@ def compare_findings(data: dict, chunk: list) -> list:
                 kind, text = "door_into_air", "an exterior door above the ground with nothing in front in the drawing"
             elif dr == "yes" and fact == "no":
                 kind, text = "balcony_missing", "the drawing has a balcony or terrace in front of this door; the reading has none"
+        elif q["kind"] == "window":
+            read_right = mo == fact
+            if dr == "yes" and fact == "no":
+                kind, text = "window_missing", "the drawing has a window or door in this outer wall; the reading has none"
         else:
             read_right = mo == fact
             if dr == "none":
@@ -761,10 +1045,125 @@ def compare_findings(data: dict, chunk: list) -> list:
                 kind, text = "opening_type_differs", f"the drawing has a {dr} here; the reading a {fact}"
         if kind is None:
             continue
+        if kind == "room_missing" and facts is not None and not _in_walls_extent(facts, q["at"]):
+            kind, text = "plan_not_read", "the drawing has a room here, outside the level's walls: a plan not read"
         out.append({"key": q["qid"], "kind": kind, "at": q["at"], "point": q["point"], "description": text,
                     "element_ids": q.get("element_ids") or [], "confidence": 0.8 if read_right else 0.4,
                     "model_read_right": read_right, "answer": {"drawing": dr, "model": mo, "fact": fact}})
     return out
+
+
+# ======================================================================================== 3b. the second look
+# 20 Nov 2026 (the user: "Lets improve the AI"): a finding of the image checks under ``SECOND_LOOK_BELOW`` gets one
+# short question about a close-up of the drawing around its place, asked once on the pod after the first pass;
+# ``presence``: the finding holds when the answer is yes, ``absence``: when it is no, ``type``: when the opening type
+# named is the drawing's first answer.
+SECOND_KINDS = {
+    "room_missing": ("presence", "a room (a space closed by walls, with or without a label)"),
+    "mirror_twin_missing": ("presence", "a room (a space closed by walls, with or without a label)"),
+    "balcony_missing": ("presence", "a balcony or a terrace"),
+    "stair_missing": ("presence", "a stair (a flight of treads)"),
+    "lift_missing": ("presence", "a lift shaft"),
+    "angled_wall_straight": ("presence", "a wall drawn at an angle to the image's edges"),
+    "window_missing": ("presence", "a window or a door in the outer wall"),
+    "entrance_missing": ("presence", "an entrance door in the outer wall"),
+    "door_into_air": ("absence", "a balcony, a terrace or a roof in front of the door"),
+    "room_not_in_drawing": ("absence", "a room (a space closed by walls)"),
+    "opening_not_in_drawing": ("absence", "an opening (a door, a window or a plain gap) in the wall"),
+    "opening_type_differs": ("type", "the opening in the wall"),
+}
+SECOND_CROP_PX = 400           # the close-up: this many pixels of the 1600 px drawing around the place ...
+SECOND_OUT_PX = 800            # ... shown at this size
+
+
+def second_look_items(index: dict, found: list, below: float = SECOND_LOOK_BELOW, cap: int = SECOND_LOOK_MAX) -> list:
+    """The findings that get a second look (pure): image-check findings of a ``SECOND_KINDS`` kind under ``below``
+    with a place in their plan image, the least confident first, at most ``cap``; each as the item its call needs."""
+    entries = {e["id"]: e for e in index.get("entries") or []}
+    out = []
+    for f in sorted(found, key=lambda f: (float(f.get("confidence") or 0), f["id"])):
+        if f.get("call") not in ("inventory", "compare") or f.get("kind") not in SECOND_KINDS or f.get("dropped"):
+            continue
+        if float(f.get("confidence") or 0) >= below:
+            continue
+        e, pt = finding_point(f, entries)
+        if e is None or pt is None or not (0.0 <= pt[0] <= 1.0 and 0.0 <= pt[1] <= 1.0):
+            continue
+        mode, what = SECOND_KINDS[f["kind"]]
+        out.append({"id": f["id"], "kind": f["kind"], "mode": mode, "what": what, "folder": e["folder"],
+                    "drawing": e["drawing"], "point": [round(pt[0], 4), round(pt[1], 4)], "set": e.get("set"),
+                    "first": (f.get("answer") or {}).get("drawing"), "fact": (f.get("answer") or {}).get("fact")})
+        if len(out) >= cap:
+            break
+    return out
+
+
+def second_prompt(item: dict) -> str:
+    if item["mode"] == "type":
+        return ("The image is a close-up of an architect's floor plan. Look only at the red ring. Is the opening in the "
+                "wall at the ring a door (a leaf with a swing arc), a window (thin parallel lines across the wall), a "
+                "plain opening (a gap with nothing drawn in it), or is there no opening (none)? Answer unclear only "
+                "when the close-up cannot show it.")
+    return (f"The image is a close-up of an architect's floor plan. Look only at the red ring. Is there {item['what']} "
+            f"at the ring in this drawing? Answer yes or no; unclear only when the close-up cannot show it.")
+
+
+def second_schema(item: dict) -> dict:
+    enum = ["door", "window", "opening", "none", "unclear"] if item["mode"] == "type" else ["yes", "no", "unclear"]
+    return _obj({"answer": {"type": "string", "enum": enum}})
+
+
+def second_image(item: dict, images_root: Path, dest: Path) -> Path:
+    """The close-up of the drawing around the item's place with a red ring, saved as ``dest``."""
+    from PIL import Image, ImageDraw
+
+    im = Image.open(Path(images_root) / item["folder"] / item["drawing"]).convert("RGB")
+    w, h = im.size
+    x, y = item["point"][0] * w, item["point"][1] * h
+    half = SECOND_CROP_PX / 2.0
+    box = (int(max(0, x - half)), int(max(0, y - half)), int(min(w, x + half)), int(min(h, y + half)))
+    c = im.crop(box)
+    s = SECOND_OUT_PX / float(max(c.size))
+    c = c.resize((max(1, int(c.size[0] * s)), max(1, int(c.size[1] * s))), Image.LANCZOS)
+    d = ImageDraw.Draw(c)
+    px, py = (x - box[0]) * s, (y - box[1]) * s
+    d.ellipse([px - 26, py - 26, px + 26, py + 26], outline=(220, 0, 0), width=4)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    c.save(dest, quality=88)
+    return dest
+
+
+def second_verdict(item: dict, data: dict) -> Optional[bool]:
+    """Whether the second look confirms its finding (True), rejects it (False), or cannot tell (None) (pure)."""
+    a = (data or {}).get("answer")
+    if a in (None, "unclear"):
+        return None
+    if item["mode"] == "presence":
+        return a == "yes"
+    if item["mode"] == "absence":
+        return a == "no"
+    if a == item.get("fact"):
+        return False                                            # the drawing has what the reading has
+    return True if a == item.get("first") else None
+
+
+def apply_second_looks(found: list, answers: dict) -> list:
+    """The findings with their second look applied (in place, pure): a rejected one gets ``dropped: True`` (kept for
+    the calibration of the second look itself, left out of the trust tables, the sheets and the store), a confirmed
+    one at least confidence 0.85."""
+    looks = {a["id"]: a for a in answers.get("answers") or [] if a.get("which") == "second"
+             and isinstance(a.get("data"), dict) and a.get("item")}
+    for f in found:
+        a = looks.get(f.get("id"))
+        if a is None:
+            continue
+        v = second_verdict(a["item"], a["data"])
+        f["second_look"] = {"answer": a["data"].get("answer"), "verdict": v}
+        if v is False:
+            f["dropped"] = True
+        elif v is True:
+            f["confidence"] = max(float(f.get("confidence") or 0), 0.85)
+    return found
 
 
 def compare_reliability(data: dict, chunk: list) -> dict:
@@ -938,9 +1337,12 @@ def floor_summary(building: dict, lid: str, bfacts: dict, facts: Optional[dict] 
                  and names[a].get("type") not in ("hall", "corridor", "stair", "landing")):
             lift_into.append(o["id"])
         extra = ""
+        above_m = float(lv.get("elevation") or f.get("elevation") or 0.0) - float(bfacts.get("ground") or 0.0)
         if o.get("exterior") and f.get("above_ground"):
-            extra = {"open_air": ", balcony or terrace in front", "roof_below": ", the roof of the storey below in front",
-                     "nothing": ", nothing in front"}.get(o.get("front") or "", "")
+            # 20 Nov 2026 (pod 1: real09's d_L1_006 'nothing in front' was taken for the entrance): the height says it
+            extra = {"open_air": ", balcony or terrace in front",
+                     "roof_below": ", the roof of the storey below in front",
+                     "nothing": f", nothing in front, {above_m:.2f} m above the ground"}.get(o.get("front") or "", "")
         door_lines.append(f"- {o['id']} ({o['type']}, {o['width']:.2f} m): {nm(a)} <-> {nm(b)}{extra}")
     above = float(lv.get("elevation") or f.get("elevation") or 0.0) - float(bfacts.get("ground") or 0.0)
     head = (f"Storey {lid} '{lv.get('label') or f.get('label') or ''}', floor at {above:+.2f} m from the ground floor"
@@ -1010,11 +1412,15 @@ def _code_agrees(kind: str, eid: str, item: dict) -> Optional[bool]:
     return None
 
 
-def plausibility_findings(data: dict, item: dict) -> tuple:
+def plausibility_findings(data: dict, item: dict, bfacts: Optional[dict] = None) -> tuple:
     """The answers of one plausibility call (pure): ``(findings, invalid)``; a finding per answered id that exists on
     the storey and is of the asked class (a storey-wide question, P7, gives one finding naming all its rooms), each at
-    the element's point; ``invalid`` lists the ids that do not exist or are of another class."""
+    the element's point; ``invalid`` lists the ids that do not exist or are of another class. 20 Nov 2026 (pod 1: 10
+    of 10 false on the one-storey synthetic houses): P7 counts only in a building of more than one storey (``bfacts``),
+    where a stair is needed."""
     qmap = {q[0]: q for q in PLAUSIBILITY_QUESTIONS}
+    if bfacts is not None and int(bfacts.get("storeys") or 0) <= 1:
+        qmap.pop("P7", None)
     ids = item.get("ids") or {}
     allowed = {"room": set(ids.get("room") or []), "door": set(ids.get("door") or []),
                "stair": set(ids.get("stair") or []), "outdoor": set(ids.get("outdoor") or [])}
@@ -1051,20 +1457,57 @@ def plausibility_findings(data: dict, item: dict) -> tuple:
 
 
 # ================================================================================================ 5. prepare
+ID_RE = re.compile(r"\b(?:r|d|o|os|win|f)_[^\s,()]+")
+
+
 def summaries_for(building: dict, bfacts: dict, facts_by_level: dict) -> list:
-    """The floor texts of a reading, a copy whose text equals its source's (its ids renamed) left out (pure)."""
+    """The floor texts of a reading (pure). 20 Nov 2026 (pod 1: real20's L2-L4 were asked one by one and answered
+    differently, their texts differed only in the outdoor spaces' id numbers): a storey whose text equals an earlier
+    one's but for its ids, its height and its name is left out; the earlier text carries it in ``copies`` with the id
+    map (position by position) and its points, so every answer holds for it too (``propagate_copies``)."""
     out, seen = [], {}
     for lv in bfacts.get("levels") or []:
         lid = lv["id"]
         s = floor_summary(building, lid, bfacts, facts_by_level.get(lid))
-        key = re.sub(r"L-?\d+[a-z]?", "L*", s["text"].split("\n", 2)[-1])
+        body = s["text"].split("\n", 2)[-1]
+        body = re.sub(r", \d+\.\d\d m above the ground", "", body)
+        key = ID_RE.sub("#", body)
         if key in seen:
-            s["same_as"] = seen[key]
-            continue
-        seen[key] = lid
+            src = seen[key]
+            a, b = ID_RE.findall(src["_body"]), ID_RE.findall(body)
+            if len(a) == len(b):
+                src.setdefault("copies", []).append({"level": lid, "ids": dict(zip(a, b)), "points": s["points"]})
+                continue
         s["level"] = lid
+        s["_body"] = body
+        seen[key] = s
         out.append(s)
+    for s in out:
+        s.pop("_body", None)
     return out
+
+
+def page_levels(building: dict, levels: list, drawn: set) -> dict:
+    """``{level id: the drawn page level that stands for it, or None}`` (pure but for the reading check's inferred
+    ground): a drawn level itself, an inferred ground floor its drawn storey, a copy through its ``typical_of`` chain."""
+    from wenart import reading_check as RC
+
+    try:
+        g = RC.drawn_for_inferred_ground(building)
+    except Exception:  # noqa: BLE001 - no inferred ground
+        g = {}
+    g = g if isinstance(g, dict) else {}
+    typ = {lv["id"]: lv.get("typical_of") for lv in levels}
+
+    def page(lid, depth=0):
+        if lid in drawn:
+            return lid
+        if g.get(lid) in drawn:
+            return g[lid]
+        nxt = typ.get(lid)
+        return page(nxt, depth + 1) if nxt and depth < 8 else None
+
+    return {lv["id"]: page(lv["id"]) for lv in levels}
 
 
 def prepare_reading(out_dir: Path, building: dict, sheets: dict, rendered: list, *, set_name: str, name: str,
@@ -1103,10 +1546,16 @@ def prepare_reading(out_dir: Path, building: dict, sheets: dict, rendered: list,
 
         dis = CR.level_disagreements(truth, TR.extract(building, project=project,
                                                         leave_out=truth.get("levels_left_out") or []))
+    page_lv = page_levels(building, levels, set(by_level))
     for e in rendered:
         f = facts_by_level.get(e["level"]) or {}
         e["facts"] = f
-        e["compare"] = compare_questions(e, f)
+        copies_facts = [facts_by_level[x] for x, p in page_lv.items() if p == e["level"] and x != e["level"]
+                        and x in facts_by_level]
+        e["compare"] = compare_questions(e, f, copies_facts=copies_facts)
+        e["compare_chunk"] = COMPARE_CHUNK
+        e["mark_layout"] = 2
+        e["stands_for"] = sorted(x for x, p in page_lv.items() if p == e["level"])
         if dis is not None:
             e["disagreements"] = [dict(d, seg=[list(x) if x else None for x in d["seg"]] if d.get("seg") else None)
                                   for d in dis.get(e["level"]) or []]
@@ -1114,13 +1563,7 @@ def prepare_reading(out_dir: Path, building: dict, sheets: dict, rendered: list,
                 e["disagreements"] += [dict(d, level=c, seg=[list(x) if x else None for x in d["seg"]] if d.get("seg") else None)
                                        for d in dis.get(c) or []]
     texts = []
-    page_of = {}
-    for lv in levels:
-        src = lv["id"] if lv["id"] in by_level else (lv.get("typical_of") if lv.get("typical_of") in by_level else None)
-        if src is None:
-            g = RC.drawn_for_inferred_ground(building) if hasattr(RC, "drawn_for_inferred_ground") else {}
-            src = g.get(lv["id"]) if isinstance(g, dict) and g.get(lv["id"]) in by_level else None
-        page_of[lv["id"]] = by_level[src]["id"] if src else None
+    page_of = {lid: (by_level[p]["id"] if p in by_level else None) for lid, p in page_lv.items()}
     for s in summaries_for(building, bfacts, facts_by_level):
         lid = s.pop("level")
         texts.append(dict(s, id=f"{set_name}/{name}/{lid}#text", set=set_name, project=project, folder=f"{set_name}/{name}",
@@ -1137,19 +1580,41 @@ def item_findings(which: str, item: dict, data: dict, part: int = 0, bfacts: Opt
     if which == "inventory":
         return inventory_findings(data, item, item.get("facts") or {}, bfacts), {}
     if which == "compare":
-        chunks = compare_chunks(item.get("compare") or [])
+        chunks = chunks_of(item)
         chunk = chunks[part] if part < len(chunks) else []
-        return compare_findings(data, chunk), {"reliability": compare_reliability(data, chunk)}
+        return (compare_findings(data, chunk, facts=item.get("facts"), size=item.get("size"),
+                                 layout=int(item.get("mark_layout") or 1)),
+                {"reliability": compare_reliability(data, chunk)})
     if which == "plausibility":
-        found, invalid = plausibility_findings(data, item)
+        found, invalid = plausibility_findings(data, item, bfacts)
+        found = propagate_copies(found, item)
         return found, {"invalid_ids": invalid}
     return [], {}
+
+
+def propagate_copies(found: list, item: dict) -> list:
+    """A floor text that stands for its copies (``item["copies"]``: ``[{level, ids: {id: copy id}, points}]``, the
+    storeys whose text was the same but for ids and heights) gives each finding again on every copy, with the copy's
+    ids (pure)."""
+    out = list(found)
+    for c in item.get("copies") or []:
+        idmap, pts = c.get("ids") or {}, c.get("points") or {}
+        for f in found:
+            ids = [idmap.get(e) for e in f.get("element_ids") or []]
+            if not ids or any(e is None for e in ids):
+                continue
+            out.append(dict(f, key=f"{f['key']}@{c['level']}", element_ids=ids, level_id=c["level"],
+                            at=pts.get(ids[0]), copy_of=item.get("level")))
+    return out
 
 
 def judge_exact(finding: dict, disagreements: list, match_m: float) -> dict:
     """A finding of a synthetic project against its exact truth (``critic.judge`` with this module's kind rules)."""
     from wenart.reading_check import critic as CR
 
+    if finding["kind"] == "plan_not_read":
+        missing = int(finding.get("truth_levels_missing") or 0)
+        return {"right": missing > 0, "reason": f"exact truth: {missing} level(s) of the truth not read"}
     if finding.get("at") is None:
         return {"right": None, "reason": "no place: not judged by the exact truth"}
     classes, sides = JUDGE_RULES.get(finding["kind"], (("rooms", "doors", "windows", "openings", "walls", "stairs"),
@@ -1174,7 +1639,9 @@ def judge_known(finding: dict, known: list, match_m: float) -> dict:
     levels_ok = {lv} | set(finding.get("copies") or [])         # a page level stands for its copies
     best = None
     for k in known:
-        if finding["kind"] not in (k.get("kinds") or []):
+        # ``kinds``: the kinds that name the error (its recall counts for a check with one of them); ``also``: kinds
+        # whose finding at that place is right too (a door into the air found as the balcony missing in front of it)
+        if finding["kind"] not in list(k.get("kinds") or []) + list(k.get("also") or []):
             continue
         if k.get("level") and lv and k["level"] not in levels_ok:
             continue
@@ -1210,7 +1677,8 @@ def table(judged: list, kinds_by_check: dict = KINDS_BY_CHECK) -> dict:
                         "precision": round(right / n, 4) if n else None,
                         "false_alarms_after": sum(1 for j in js if j.get("right") is False and j.get("set") == "after"),
                         "false_alarms_clean_synthetic": sum(1 for j in js if j.get("clean_class")),
-                        "trusted": bool(n) and right / n >= TRUST_MIN and n >= 3, "small_sample": n < SMALL_SAMPLE}
+                        "trusted": bool(n) and right / n >= TRUST_MIN and n >= 3, "small_sample": n < SMALL_SAMPLE,
+                        "folders": len({j.get("folder") for j in js if j.get("right") is not None})}
         out[check] = ks
     return out
 
@@ -1265,14 +1733,51 @@ def call_stats(index: dict, answers: dict) -> dict:
     return out
 
 
+def truth_levels_missing(truth: dict, building: dict) -> int:
+    """How many levels of a synthetic project's exact truth the reading lacks, or reads with no room (pure)."""
+    have = {r.get("level_id") for r in building.get("rooms") or []}
+    return sum(1 for lv in truth.get("levels") or []
+               if lv.get("id") not in have and ((truth.get("per_level") or {}).get(lv.get("id")) or {}).get("rooms"))
+
+
+def stands_for(index: dict) -> dict:
+    """``{entry id: levels}``: the storeys each plan image stands for (pure): its own level, its copies, and every
+    storey whose floor text names it as its page or whose ``typical_of`` chain leads to one (real20: L2-L4 copies of
+    the inferred L0, whose page is the drawn L1)."""
+    out: dict = {}
+    by_folder: dict = {}
+    for e in index.get("entries") or []:
+        by_folder.setdefault(e["folder"], {})[e["level"]] = e["id"]
+        out[e["id"]] = {e["level"]} | set(e.get("copies") or []) | set(e.get("stands_for") or [])
+    text_page = {(t["folder"], t["level"]): t.get("page_entry") for t in index.get("texts") or []}
+    for folder, rd in (index.get("readings") or {}).items():
+        levels = {lv["id"]: lv for lv in (rd.get("bfacts") or {}).get("levels") or []}
+        pages = by_folder.get(folder) or {}
+
+        def page(lid, depth=0):
+            if lid in pages:
+                return pages[lid]
+            if text_page.get((folder, lid)):
+                return text_page[(folder, lid)]
+            nxt = (levels.get(lid) or {}).get("typical_of")
+            return page(nxt, depth + 1) if nxt and depth < 8 else None
+
+        for lid in levels:
+            p = page(lid)
+            if p in out:
+                out[p].add(lid)
+    return out
+
+
 def calibrate_checks(index: dict, found: list, answers: dict, *, known: Optional[dict] = None,
-                     marks: Optional[dict] = None, match_m: float = 1.5) -> dict:
+                     marks: Optional[dict] = None, match_m: float = 1.5, dropped: Optional[list] = None) -> dict:
     """The trust of checks 1, 2, 4 (pure given its inputs). Each finding is judged, in this order, by the user's mark
     (``marks``: {finding id: {right}}), by its synthetic project's exact truth (``judge_exact``; a finding on a
     synthetic reading with no error at all is a false alarm on a clean class), by the known errors of its real
     reading (``judge_known``: right at a known error of its kind, wrong at a place the reading has fixed), else not
-    judged (the review sheet asks the user). Returns ``{checks: {check: {kind: ...}}, recall, synthetic,
-    calls, judgements}``."""
+    judged (the review sheet asks the user). ``dropped``: the findings the second look rejected, judged the same way
+    to measure the second look itself (``second_look``). Returns ``{checks: {check: {kind: ...}}, recall, synthetic,
+    calls, judgements, second_look}``."""
     known = known or {}
     marks = marks or {}
     readings = index.get("readings") or {}
@@ -1283,7 +1788,8 @@ def calibrate_checks(index: dict, found: list, answers: dict, *, known: Optional
         if it.get("disagreements") is not None:
             dis_by_folder.setdefault(it["folder"], []).extend(it["disagreements"])
     judged = []
-    for f in found:
+    n_found = len(found)
+    for idx_f, f in enumerate(list(found) + list(dropped or [])):
         if f.get("call") not in CHECKS:
             continue
         rd = readings.get(f.get("folder")) or {}
@@ -1295,22 +1801,43 @@ def calibrate_checks(index: dict, found: list, answers: dict, *, known: Optional
         elif rd.get("exact_truth"):
             dis = it.get("disagreements") or []
             clean = not dis_by_folder.get(f.get("folder"))
+            fx = it.get("facts") or {}
             if f.get("at") is None and f["kind"] == "storey_count_differs":
                 j = {"right": False, "reason": "exact truth: the synthetic storey count is the reading's", "by": "truth"}
+            elif f["kind"] in ("room_missing", "plan_not_read", "mirror_twin_missing") and f.get("at") \
+                    and "rooms" in fx and not fx["rooms"] and int(rd.get("truth_levels_missing") or 0) > 0 \
+                    and any(math.dist(lab["at"], f["at"]) <= 1.5 for lab in fx.get("drawn_labels") or []):
+                # synthetic-14: the reading has no room on this level at all (a level misread), and a drawn label
+                # stands at the finding: the room is missing whatever level the truth files it under
+                j = {"right": True, "reason": "exact truth: a level not read; the reading has no room on it, a drawn "
+                                              "label stands here", "by": "truth"}
             else:
-                j = dict(judge_exact(f, dis, match_m), by="truth")
+                j = dict(judge_exact(dict(f, truth_levels_missing=rd.get("truth_levels_missing")), dis, match_m),
+                         by="truth")
         elif f.get("folder") in known:
             j = judge_known(f, known[f["folder"]], match_m)
             j["by"] = "known" if j.get("right") is not None else None
         judged.append({"id": f["id"], "check": f["call"], "kind": f["kind"], "folder": f.get("folder"),
                        "set": f.get("set"), "level": f.get("level_id"), "at": f.get("at"),
                        "confidence": f.get("confidence"), "description": f.get("description"),
-                       "clean_class": clean and j.get("right") is False, **j})
+                       "clean_class": clean and j.get("right") is False, "dropped": idx_f >= n_found,
+                       "second_look": (f.get("second_look") or {}).get("verdict"), **j})
+    looked = [j for j in judged if j.get("second_look") is not None or j["dropped"]]
+    second = {"asked": sum(1 for a in answers.get("answers") or [] if a.get("which") == "second"),
+              "dropped": sum(1 for j in judged if j["dropped"]),
+              "dropped_right": sum(1 for j in judged if j["dropped"] and j.get("right") is True),
+              "dropped_wrong": sum(1 for j in judged if j["dropped"] and j.get("right") is False),
+              "confirmed": sum(1 for j in looked if j.get("second_look") is True),
+              "confirmed_right": sum(1 for j in looked if j.get("second_look") is True and j.get("right") is True),
+              "confirmed_wrong": sum(1 for j in looked if j.get("second_look") is True and j.get("right") is False)}
+    judged_all = judged
+    judged = [j for j in judged if not j["dropped"]]
     rows = recall(found, {k: v for k, v in known.items() if any(not x.get("fixed") for x in v)}, match_m)
     # the image checks see a level only through its plan (the page level and its copies); the floor texts every level
     seen: dict = {}
+    sf = stands_for(index)
     for e in index.get("entries") or []:
-        seen.setdefault(e["folder"], set()).update([e["level"]] + list(e.get("copies") or []))
+        seen.setdefault(e["folder"], set()).update(sf.get(e["id"]) or {e["level"]})
     per_check = {}
     for c in CHECKS:
         tgt = [r for r in rows if set(r.get("kinds") or []) & set(KINDS_BY_CHECK[c])
@@ -1325,12 +1852,21 @@ def calibrate_checks(index: dict, found: list, answers: dict, *, known: Optional
         for c in CHECKS:
             cf = [j for j in fs if j["check"] == c]
             right = sum(1 for j in cf if j.get("right"))
-            verdict = ("caught" if right else "missed") if dis else ("false_alarm" if cf else "clean")
+            # the errors one of the check's kinds can name (labels and extra walls: none of these checks)
+            rules = [JUDGE_RULES[k] for k in KINDS_BY_CHECK[c] if k in JUDGE_RULES]
+            tgt = [d for d in dis if any(d.get("class") in cl and d.get("side") in sd for cl, sd in rules)]
+            if c != "plausibility" and int(rd.get("truth_levels_missing") or 0) > 0:
+                tgt.append({"class": "levels", "side": "truth_only"})
+            if dis and not tgt:
+                verdict = "caught" if right else ("not_targeted" if not cf else "false_alarm")
+            else:
+                verdict = ("caught" if right else "missed") if tgt else ("false_alarm" if cf else "clean")
             synth.append({"folder": folder, "class": rd.get("failure_class"), "check": c, "errors": len(dis),
-                          "findings": len(cf), "right": right, "verdict": verdict})
+                          "targeted_errors": len(tgt), "findings": len(cf), "right": right, "verdict": verdict})
     return {"checks": table(judged), "recall": {"rows": rows, "per_check": per_check},
-            "synthetic": synth, "calls": call_stats(index, answers), "judgements": judged,
-            "judged_by": {b: sum(1 for j in judged if j.get("by") == b) for b in ("user", "truth", "known", None)}}
+            "synthetic": synth, "calls": call_stats(index, answers), "judgements": judged_all,
+            "judged_by": {b: sum(1 for j in judged if j.get("by") == b) for b in ("user", "truth", "known", None)},
+            "second_look": second}
 
 
 def checks_summary(res: dict) -> str:
@@ -1357,12 +1893,17 @@ def checks_summary(res: dict) -> str:
         s = [x for x in syn if x["check"] == c]
         if s:
             lines.append(f"synthetic {c}: " + ", ".join(f"{v} {sum(1 for x in s if x['verdict'] == v)}"
-                                                       for v in ("caught", "missed", "false_alarm", "clean")))
+                                                       for v in ("caught", "missed", "false_alarm", "clean", "not_targeted")))
     for c, s in (res.get("calls") or {}).items():
         lines.append(f"calls {c}: {s['answered']} answered, {s['failed']} failed, {s['skipped']} skipped"
                      + (f"; image 2 read right on {s['model_read_right']} of {s['asked_marks']} marks"
                         if s.get("asked_marks") else "")
                      + (f"; {s['invalid_ids']} invalid of {s['answered_ids']} ids" if c == "plausibility" else ""))
+    sl = res.get("second_look") or {}
+    if sl.get("asked"):
+        lines.append(f"second look: {sl['asked']} asked; {sl['dropped']} dropped (judged right {sl['dropped_right']}, wrong "
+                     f"{sl['dropped_wrong']}); {sl['confirmed']} confirmed (right {sl['confirmed_right']}, wrong "
+                     f"{sl['confirmed_wrong']})")
     jb = res.get("judged_by") or {}
     lines.append(f"judged by the user {jb.get('user', 0)}, by exact truth {jb.get('truth', 0)}, by known errors "
                  f"{jb.get('known', 0)}; not judged {jb.get(None, 0)} (on the review sheets)")
@@ -1392,10 +1933,10 @@ def known_missing_rooms(before: dict, after: dict, levels: list, labels: tuple =
                 continue
             twin = bool(r.get("twin_of")) or any(isinstance(e, dict) and e.get("rule") == "mirror_twin"
                                                  for e in r.get("evidence") or [])
-            kinds = ["balcony_missing", "room_missing"] if outdoor else \
-                (["room_missing", "mirror_twin_missing"] if twin or True else ["room_missing"])
-            out.append({"level": lid, "at": p, "kinds": kinds, "desc": f"{r.get('label')} ({rid} in the after reading) "
-                        f"not read", "element": rid})
+            kinds = ["balcony_missing"] if outdoor else ["room_missing", "mirror_twin_missing"]
+            out.append({"level": lid, "at": p, "kinds": kinds, "also": ["room_missing"] if outdoor else [],
+                        "desc": f"{r.get('label')} ({rid} in the after reading) not read", "element": rid,
+                        "twin": twin})
     return out
 
 
@@ -1422,7 +1963,8 @@ def known_doors_into_air(building: dict) -> list:
     from wenart.reading_check import structure as SR
 
     return [{"level": f["level_id"], "at": _r(f["place"]) if f.get("place") else None,
-             "kinds": ["door_into_air", "balcony_missing"], "desc": f"door {(f.get('element_ids') or ['?'])[0]} into the air",
+             "kinds": ["door_into_air"], "also": ["balcony_missing"],
+             "desc": f"door {(f.get('element_ids') or ['?'])[0]} into the air",
              "element": (f.get("element_ids") or [None])[0]}
             for f in SR.doors_into_air(building)]
 
@@ -1444,7 +1986,7 @@ def known_kitchens_without_window(before: dict, after: dict) -> list:
             ra = [x for x, ta in sa["types"].items() if ta in ("kitchen", "living_kitchen")
                   and math.dist(sa["points"][x], p) <= 1.5]
             if ra and sa["windows"].get(ra[0], 0) > 0:
-                out.append({"level": lid, "at": p, "kinds": ["kitchen_no_window", "habitable_no_window"],
+                out.append({"level": lid, "at": p, "kinds": ["kitchen_no_window", "habitable_no_window", "window_missing"],
                             "desc": f"kitchen {rid} without its drawn window", "element": rid})
     return out
 

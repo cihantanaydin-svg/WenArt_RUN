@@ -11,8 +11,10 @@
      "room_missing",
      "mirror_twin_missing"
     ],
+    "also": [],
     "desc": "Salon (r_L0_oda_5 in the after reading) not read",
     "element": "r_L0_oda_5",
+    "twin": false,
     "reading": "before",
     "id": "real09-B01"
    },
@@ -23,11 +25,14 @@
      1.045
     ],
     "kinds": [
-     "balcony_missing",
+     "balcony_missing"
+    ],
+    "also": [
      "room_missing"
     ],
     "desc": "BALKON (os_L0_balkon_mirror_1 in the after reading) not read",
     "element": "os_L0_balkon_mirror_1",
+    "twin": false,
     "reading": "before",
     "id": "real09-B02"
    },
@@ -41,8 +46,10 @@
      "room_missing",
      "mirror_twin_missing"
     ],
+    "also": [],
     "desc": "Salon (r_L1_oda_5 in the after reading) not read",
     "element": "r_L1_oda_5",
+    "twin": false,
     "reading": "before",
     "id": "real09-B03"
    },
@@ -53,11 +60,14 @@
      1.045
     ],
     "kinds": [
-     "balcony_missing",
+     "balcony_missing"
+    ],
+    "also": [
      "room_missing"
     ],
     "desc": "BALKON (os_L0_balkon_mirror_2 in the after reading) not read",
     "element": "os_L0_balkon_mirror_2",
+    "twin": false,
     "reading": "before",
     "id": "real09-B04"
    },
@@ -71,8 +81,10 @@
      "room_missing",
      "mirror_twin_missing"
     ],
+    "also": [],
     "desc": "Mutfak (r_L2_oda in the after reading) not read",
     "element": "r_L2_oda",
+    "twin": false,
     "reading": "before",
     "id": "real09-B05"
    },
@@ -86,8 +98,10 @@
      "room_missing",
      "mirror_twin_missing"
     ],
+    "also": [],
     "desc": "Salon (r_L2_oda_3 in the after reading) not read",
     "element": "r_L2_oda_3",
+    "twin": false,
     "reading": "before",
     "id": "real09-B06"
    },
@@ -98,11 +112,14 @@
      1.025
     ],
     "kinds": [
-     "balcony_missing",
+     "balcony_missing"
+    ],
+    "also": [
      "room_missing"
     ],
     "desc": "BALKON (os_L2_balkon_mirror in the after reading) not read",
     "element": "os_L2_balkon_mirror",
+    "twin": false,
     "reading": "before",
     "id": "real09-B07"
    },
@@ -122,7 +139,9 @@
      4.64
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L1_006 into the air",
@@ -137,7 +156,9 @@
      0.26
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L1_011 into the air",
@@ -152,7 +173,9 @@
      4.64
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_006 into the air",
@@ -167,7 +190,9 @@
      0.26
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_011 into the air",
@@ -182,7 +207,9 @@
      0.26
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_004 into the air",
@@ -301,7 +328,9 @@
      0.26
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L1_011 into the air",
@@ -316,7 +345,9 @@
      0.26
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_011 into the air",
@@ -331,7 +362,9 @@
      0.26
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_004 into the air",
@@ -346,7 +379,9 @@
      4.64
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L1_006 into the air",
@@ -362,7 +397,9 @@
      4.64
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_006 into the air",
@@ -381,8 +418,10 @@
      "room_missing",
      "mirror_twin_missing"
     ],
+    "also": [],
     "desc": "Salon (r_L0_oda_5 in the after reading) not read",
     "element": "r_L0_oda_5",
+    "twin": false,
     "fixed": true,
     "reading": "after",
     "id": "real09-A06"
@@ -394,11 +433,14 @@
      1.045
     ],
     "kinds": [
-     "balcony_missing",
+     "balcony_missing"
+    ],
+    "also": [
      "room_missing"
     ],
     "desc": "BALKON (os_L0_balkon_mirror_1 in the after reading) not read",
     "element": "os_L0_balkon_mirror_1",
+    "twin": false,
     "fixed": true,
     "reading": "after",
     "id": "real09-A07"
@@ -413,8 +455,10 @@
      "room_missing",
      "mirror_twin_missing"
     ],
+    "also": [],
     "desc": "Salon (r_L1_oda_5 in the after reading) not read",
     "element": "r_L1_oda_5",
+    "twin": false,
     "fixed": true,
     "reading": "after",
     "id": "real09-A08"
@@ -426,11 +470,14 @@
      1.045
     ],
     "kinds": [
-     "balcony_missing",
+     "balcony_missing"
+    ],
+    "also": [
      "room_missing"
     ],
     "desc": "BALKON (os_L0_balkon_mirror_2 in the after reading) not read",
     "element": "os_L0_balkon_mirror_2",
+    "twin": false,
     "fixed": true,
     "reading": "after",
     "id": "real09-A09"
@@ -445,8 +492,10 @@
      "room_missing",
      "mirror_twin_missing"
     ],
+    "also": [],
     "desc": "Mutfak (r_L2_oda in the after reading) not read",
     "element": "r_L2_oda",
+    "twin": false,
     "fixed": true,
     "reading": "after",
     "id": "real09-A10"
@@ -461,8 +510,10 @@
      "room_missing",
      "mirror_twin_missing"
     ],
+    "also": [],
     "desc": "Salon (r_L2_oda_3 in the after reading) not read",
     "element": "r_L2_oda_3",
+    "twin": false,
     "fixed": true,
     "reading": "after",
     "id": "real09-A11"
@@ -474,11 +525,14 @@
      1.025
     ],
     "kinds": [
-     "balcony_missing",
+     "balcony_missing"
+    ],
+    "also": [
      "room_missing"
     ],
     "desc": "BALKON (os_L2_balkon_mirror in the after reading) not read",
     "element": "os_L2_balkon_mirror",
+    "twin": false,
     "fixed": true,
     "reading": "after",
     "id": "real09-A12"
@@ -698,7 +752,9 @@
      2.4
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_001 into the air",
@@ -713,7 +769,9 @@
      6.85
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_005 into the air",
@@ -728,7 +786,9 @@
      4.8
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_008 into the air",
@@ -743,7 +803,9 @@
      4.13
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_010 into the air",
@@ -758,7 +820,9 @@
      2.87
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_011 into the air",
@@ -773,7 +837,9 @@
      2.4
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_001 into the air",
@@ -788,7 +854,9 @@
      6.85
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_005 into the air",
@@ -803,7 +871,9 @@
      4.8
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_008 into the air",
@@ -818,7 +888,9 @@
      4.13
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_010 into the air",
@@ -833,7 +905,9 @@
      2.87
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_011 into the air",
@@ -848,7 +922,9 @@
      2.4
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L4_001 into the air",
@@ -863,7 +939,9 @@
      6.85
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L4_005 into the air",
@@ -878,7 +956,9 @@
      4.8
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L4_008 into the air",
@@ -893,7 +973,9 @@
      4.13
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L4_010 into the air",
@@ -908,7 +990,9 @@
      2.87
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L4_011 into the air",
@@ -925,7 +1009,9 @@
      2.4
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_001 into the air",
@@ -941,7 +1027,9 @@
      6.85
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_005 into the air",
@@ -957,7 +1045,9 @@
      4.8
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_008 into the air",
@@ -973,7 +1063,9 @@
      4.13
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_010 into the air",
@@ -989,7 +1081,9 @@
      2.87
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L2_011 into the air",
@@ -1005,7 +1099,9 @@
      2.4
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_001 into the air",
@@ -1021,7 +1117,9 @@
      6.85
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_005 into the air",
@@ -1037,7 +1135,9 @@
      4.8
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_008 into the air",
@@ -1053,7 +1153,9 @@
      4.13
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_010 into the air",
@@ -1069,7 +1171,9 @@
      2.87
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L3_011 into the air",
@@ -1085,7 +1189,9 @@
      2.4
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L4_001 into the air",
@@ -1101,7 +1207,9 @@
      6.85
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L4_005 into the air",
@@ -1117,7 +1225,9 @@
      4.8
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L4_008 into the air",
@@ -1133,7 +1243,9 @@
      4.13
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L4_010 into the air",
@@ -1149,7 +1261,9 @@
      2.87
     ],
     "kinds": [
-     "door_into_air",
+     "door_into_air"
+    ],
+    "also": [
      "balcony_missing"
     ],
     "desc": "door d_L4_011 into the air",

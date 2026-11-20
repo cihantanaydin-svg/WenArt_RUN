@@ -308,11 +308,18 @@ def prepare(readings: list, dest: Path = INPUTS_DIR, *, max_side: int = MAX_SIDE
                 truth = truth if truth is not None and not TR.is_sparse(truth) else None
             res = CC.prepare_reading(out_dir, building, sheets, rendered, set_name=rd["set"], name=name,
                                      project=rd["project"], truth=truth)
+            st: list = []
+            for doc in docs.values():                           # the storey texts of the whole drawing file
+                st += [t for t in CC.storey_texts(doc) if t not in st]
+            for e in rendered:
+                e["storey_texts"] = st[:25]
             fkey = f"{rd['set']}/{name}"
             index.setdefault("readings", {})[fkey] = {"bfacts": res["bfacts"], "project": rd["project"],
                                                       "tag": rd.get("tag") or "current", "commit": rd.get("commit"),
                                                       "failure_class": rd.get("failure_class"),
-                                                      "exact_truth": truth is not None}
+                                                      "exact_truth": truth is not None,
+                                                      "truth_levels_missing": CC.truth_levels_missing(truth, building)
+                                                      if truth is not None else None}
             index["texts"] = [t for t in index.get("texts") or [] if t["folder"] != fkey] + \
                 [dict(t, tag=rd.get("tag") or "current") for t in res["texts"]]
     index["entries"] = sorted(byid.values(), key=lambda e: e["id"])
@@ -477,11 +484,16 @@ def _check_messages(which: str, item: dict, images_root: Path, part: int, max_si
     system = {"role": "system", "content": CC.SYSTEM_TEXT}
     if which == "plausibility":
         return [system, AM.user_message(CC.plausibility_prompt(item))], CC.PLAUSIBILITY_SCHEMA
+    if which == "second":
+        safe = re.sub(r"[^A-Za-z0-9_.-]", "_", item["id"])
+        img = CC.second_image(item, images_root, Path(marked_dir or images_root) / "second" / f"{safe}.jpg")
+        return ([system, AM.user_message(CC.second_prompt(item), [img], labels=["The close-up:"], max_side=max_side)],
+                CC.second_schema(item))
     folder = Path(images_root) / item["folder"]
     if which == "inventory":
         return ([system, AM.user_message(CC.inventory_prompt(item), [folder / item["drawing"]],
                                          labels=["The floor plan:"], max_side=max_side)], CC.INVENTORY_SCHEMA)
-    chunk = CC.compare_chunks(item.get("compare") or [])[part]
+    chunk = CC.chunks_of(item)[part]
     mdir = Path(marked_dir or folder) / "marked"
     safe = re.sub(r"[^A-Za-z0-9_.-]", "_", item["id"])
     d = CC.mark_image(folder / item["drawing"], chunk, mdir / f"{safe}_{part}_drawing.jpg")
@@ -497,9 +509,9 @@ def ask_entry(model, entry: dict, images_root: Path, which: str, questions: Opti
     ``compare`` with its chunk ``part``, ``plausibility`` for a floor text); the raw answer with the call's log."""
     from wenart.reading_check import critic_checks as CC
 
-    if which in CC.CHECKS:
+    if which in CC.CHECKS or which == "second":
         messages, schema = _check_messages(which, entry, images_root, part, max_side, marked_dir)
-        max_tokens = CC.CALL_MAX_TOKENS[which]
+        max_tokens = CC.CALL_MAX_TOKENS.get(which, 64)
     elif which == "questions":
         questions = questions if questions is not None else reading_questions()
         text, schema = questions_prompt(entry, questions), questions_schema(questions)
@@ -511,9 +523,12 @@ def ask_entry(model, entry: dict, images_root: Path, which: str, questions: Opti
     t0 = time.time()
     reply = model.structured(messages, schema, call_id=call_id, name=f"critic_{which}", kind="critic",
                              max_tokens=max_tokens)
-    return {"id": entry["id"], "which": which, "part": part, "call_id": call_id, "data": reply.data,
-            "errors": list(reply.errors), "raw": reply.raw if reply.data is None else "", "usage": reply.usage,
-            "seconds": round(time.time() - t0, 1), "attempts": reply.attempts, "model": getattr(model, "model", None)}
+    out = {"id": entry["id"], "which": which, "part": part, "call_id": call_id, "data": reply.data,
+           "errors": list(reply.errors), "raw": reply.raw if reply.data is None else "", "usage": reply.usage,
+           "seconds": round(time.time() - t0, 1), "attempts": reply.attempts, "model": getattr(model, "model", None)}
+    if which == "second":
+        out["item"] = entry                                     # the second look's own question, kept for the scoring
+    return out
 
 
 def check_jobs(index: dict, which: tuple, sets: Optional[list] = None) -> list:
@@ -534,7 +549,7 @@ def check_jobs(index: dict, which: tuple, sets: Optional[list] = None) -> list:
                 jobs += [(w, e, 0) for e in entries if e.get("set") == s and e.get("facts") is not None]
             elif w == "compare":
                 jobs += [(w, e, k) for e in entries if e.get("set") == s and e.get("facts") is not None
-                         for k in range(len(CC.compare_chunks(e.get("compare") or [])))]
+                         for k in range(len(CC.chunks_of(e)))]
             else:
                 jobs += [(w, e, 0) for e in entries if e.get("set") == s]
     return jobs
@@ -598,6 +613,16 @@ def ask(index: dict, model, images_root: Path, out: Path, *, deadline: Optional[
 
     save()
     AM.map_calls(model, one, jobs)
+    if "second" in which:
+        # 20 Nov 2026: the second look, once, on the findings of this pass under the confidence threshold
+        from wenart.reading_check import critic_checks as CC
+
+        have2 = {a["id"] for a in done["answers"] if a.get("which") == "second" and a.get("data") is not None}
+        items = CC.second_look_items(index, [f for f in answers_to_findings(index, done)
+                                             if not sets or f.get("set") in sets])
+        jobs2 = [("second", it, 0) for it in items if it["id"] not in have2]
+        log(f"critic: second look on {len(jobs2)} finding(s)")
+        AM.map_calls(model, one, jobs2)
     done["calls"] = list(getattr(model, "calls", []) or [])
     save()
     log(f"critic: {stats['answered']} answered, {stats['failed']} failed, {stats['skipped']} skipped after the "
@@ -655,6 +680,7 @@ def answers_to_findings(index: dict, answers: dict, model_key: str = "") -> list
     byid = _entries_by_id(index)
     byid.update({t["id"]: t for t in index.get("texts") or []})
     readings = index.get("readings") or {}
+    sf = CC.stands_for(index) if index.get("readings") else {}
     out = []
     for a in answers.get("answers") or []:
         e, data = byid.get(a.get("id")), a.get("data")
@@ -670,7 +696,8 @@ def answers_to_findings(index: dict, answers: dict, model_key: str = "") -> list
             bfacts = (readings.get(e.get("folder")) or {}).get("bfacts")
             found, _extra = CC.item_findings(w, e, data, part, bfacts)
             for f in found:
-                out.append(dict(base, **f, call=w, part=part, folder=e.get("folder"), copies=e.get("copies") or [],
+                copies = sorted(set(e.get("copies") or []) | (sf.get(e["id"]) or set()) - {e["level"]})
+                out.append(dict(base, **f, call=w, part=part, folder=e.get("folder"), copies=copies,
                                 image_entry=e.get("page_entry") if w == "plausibility" else e["id"],
                                 id=f"{e['id']}|{w}|{f['key']}"))
             continue
@@ -691,7 +718,8 @@ def answers_to_findings(index: dict, answers: dict, model_key: str = "") -> list
                 out.append(dict(base, kind="question", lesson=str(q.get("id") or ""),
                                 at=[round(at[0], 3), round(at[1], 3)], point=[round(nx, 4), round(ny, 4)],
                                 description=str(q.get("note") or ""), confidence=0.5, call="questions"))
-    return out
+    # 20 Nov 2026: the second looks (a rejected finding is flagged ``dropped``, its consumers leave it out)
+    return CC.apply_second_looks(out, answers)
 
 
 def question_table(answers: dict) -> dict:
@@ -1269,7 +1297,7 @@ def _cmd_ask(args) -> int:
 
     index = load_index(Path(args.inputs))
     deadline = float(args.deadline) if args.deadline else None
-    known_calls = ("differences", "questions") + CC.CHECKS
+    known_calls = ("differences", "questions") + CC.CHECKS + ("second",)
     which = tuple(w for w in (args.which or "differences,questions").split(",") if w in known_calls)
     sets = [s for s in (args.sets or "").split(",") if s] or None
     out = Path(args.out) / args.key
@@ -1306,10 +1334,14 @@ REVIEW_DIR = REPO / "results" / "critic" / "review"
 def _cmd_calibrate(args) -> int:
     from wenart.reading_check import critic_checks as CC
 
-    index = load_index(Path(args.inputs))
+    # 20 Nov 2026: a pod's answers are scored against the index it was asked with (``--index``: the frozen copy,
+    # e.g. index_pod1.json; the images stay under --inputs)
+    index = json.loads(Path(args.index).read_text(encoding="utf-8")) if args.index else load_index(Path(args.inputs))
     answers = json.loads(Path(args.answers).read_text(encoding="utf-8"))
     found_all = answers_to_findings(index, answers, args.key or "")
-    new = [f for f in found_all if f.get("call") in CC.CHECKS]
+    new_all = [f for f in found_all if f.get("call") in CC.CHECKS]
+    new = [f for f in new_all if not f.get("dropped")]
+    dropped = [f for f in new_all if f.get("dropped")]
     old = [f for f in found_all if f.get("call") not in CC.CHECKS]
     trust = _calibrate_old(args, index, answers, old) if old or not new else (load_trust() or {})
     if new:
@@ -1318,10 +1350,10 @@ def _cmd_calibrate(args) -> int:
         kp, mp = Path(args.known or KNOWN_PATH), Path(args.marks or MARKS_PATH)
         known = json.loads(kp.read_text(encoding="utf-8")).get("readings") if kp.is_file() else {}
         marks = json.loads(mp.read_text(encoding="utf-8")).get("marks") if mp.is_file() else {}
-        res = CC.calibrate_checks(index, new, answers, known=known, marks=marks, match_m=MATCH_M)
+        res = CC.calibrate_checks(index, new, answers, known=known, marks=marks, match_m=MATCH_M, dropped=dropped)
         print(CC.checks_summary(res))
         trust["checks"] = res["checks"]
-        trust["checks_calibration"] = {k: res[k] for k in ("recall", "synthetic", "calls", "judged_by")}
+        trust["checks_calibration"] = {k: res[k] for k in ("recall", "synthetic", "calls", "judged_by", "second_look")}
         trust["checks_calibration"].update(date=_dt.date.today().isoformat(), answers=str(args.answers),
                                            findings=len(new), known=str(kp), marks=str(mp))
         trust.setdefault("threshold", TRUST_MIN)
@@ -1433,7 +1465,7 @@ def _cmd_store(args) -> int:
     index = load_index(Path(args.inputs))
     answers = json.loads(Path(args.answers).read_text(encoding="utf-8"))
     found = [f for f in answers_to_findings(index, answers, args.key or "")
-             if f["project"] == args.project and (not args.tag or f.get("tag") == args.tag)]
+             if f["project"] == args.project and (not args.tag or f.get("tag") == args.tag) and not f.get("dropped")]
     p = store(args.out, found, source={"answers": str(args.answers), "model": answers.get("model"),
                                        "model_key": args.key, "index": str(args.inputs)})
     print(f"{len(found)} critic finding(s) of {args.project} -> {p}")
@@ -1459,6 +1491,7 @@ def main(argv: Optional[list] = None) -> int:
     q = sub.add_parser("questions", help="print the question bank")
     c = sub.add_parser("calibrate", help="precision, recall and the out-of-sample table from the pod's answers")
     c.add_argument("--inputs", default=str(INPUTS_DIR))
+    c.add_argument("--index", default=None, help="the index the answers were asked with (default <inputs>/index.json)")
     c.add_argument("--answers", required=True, help="the pod's answers.json")
     c.add_argument("--key", default=None)
     c.add_argument("--readings", action="append", default=[], metavar="SET/NAME=DIR",
